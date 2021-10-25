@@ -30,7 +30,7 @@ import java.util.stream.Collectors;
 @Api
 @Path("/postcodes")
 @Produces(MediaType.APPLICATION_JSON)
-public class PostcodeResource {
+public class PostcodeResource implements APIResource {
     private static final Logger logger = LoggerFactory.getLogger(PostcodeResource.class);
 
     private final PostcodeRepository postcodeRepository;
@@ -38,6 +38,7 @@ public class PostcodeResource {
 
     @Inject
     public PostcodeResource(PostcodeRepository postcodeRepository, PostcodeDataImporter importer) {
+        logger.info("created");
         this.postcodeRepository = postcodeRepository;
         this.importer = importer;
     }

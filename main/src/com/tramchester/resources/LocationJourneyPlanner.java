@@ -58,6 +58,7 @@ public class LocationJourneyPlanner {
                                   RouteCalculatorArriveBy routeCalculatorArriveBy, NodeContentsRepository nodeOperations,
                                   GraphQuery graphQuery, GraphDatabase graphDatabase,
                                   GraphFilter graphFilter, RouteToRouteCosts routeToRouteCosts) {
+        logger.info("created");
         this.config = config;
         this.routeCalculator = routeCalculator;
         this.routeCalculatorArriveBy = routeCalculatorArriveBy;

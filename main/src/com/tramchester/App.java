@@ -17,6 +17,7 @@ import com.tramchester.metrics.RegistersMetricsWithDropwizard;
 import com.tramchester.livedata.repository.DueTramsRepository;
 import com.tramchester.repository.PlatformMessageRepository;
 import com.tramchester.repository.VersionRepository;
+import com.tramchester.resources.JourneyPlanningMarker;
 import io.dropwizard.Application;
 import io.dropwizard.assets.AssetsBundle;
 import io.dropwizard.configuration.EnvironmentVariableSubstitutor;
@@ -38,6 +39,8 @@ import java.util.Map;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
+
+import static java.lang.String.format;
 
 
 // Great resource for bundles etc here: https://github.com/stve/awesome-dropwizard
@@ -80,7 +83,7 @@ public class App extends Application<AppConfiguration>  {
             if (("TFGMAPIKEY".equals(name))) {
                 value = "****";
             }
-            logger.info(String.format("Environment %s=%s", name, value));
+            logger.info(format("Environment %s=%s", name, value));
         });
         logger.info("Logged environmental vars");
     }
@@ -145,7 +148,7 @@ public class App extends Application<AppConfiguration>  {
         filtersForStaticContent(environment, configuration.getStaticAssetCacheTimeSeconds());
 
         // api end points registration
-        container.getResources().forEach(apiResource -> environment.jersey().register(apiResource));
+        registerAPIResources(environment, configuration.getPlanningEnabled());
 
         // TODO This is the SameSite WORKAROUND, remove once jersey NewCookie adds SameSite method
         environment.jersey().register(new ResponseCookieFilter());
@@ -182,6 +185,31 @@ public class App extends Application<AppConfiguration>  {
         signaller.send();
 
         logger.warn("Now running");
+    }
+
+    private void registerAPIResources(Environment environment, boolean planningEnabled) {
+        logger.info("Registering api endpoints");
+
+        container.getResources().forEach(apiResourceType -> {
+            boolean register;
+            if (planningEnabled) {
+                register = true;
+            } else {
+                boolean forPlanning = JourneyPlanningMarker.class.isAssignableFrom(apiResourceType);
+                register = !forPlanning;
+            }
+
+            final String canonicalName = apiResourceType.getCanonicalName();
+            if (register) {
+                logger.info("Register " + canonicalName);
+                // this injects as a singleton
+                Object apiResource = container.get(apiResourceType);
+                environment.jersey().register(apiResource);
+            } else {
+                logger.warn(format("Not registering '%s', planning is disabled", canonicalName));
+            }
+
+        });
     }
 
     private void initLiveDataMetricAndHealthcheck(LiveDataConfig configuration, Environment environment,

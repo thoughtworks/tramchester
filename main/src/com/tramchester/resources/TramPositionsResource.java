@@ -12,6 +12,8 @@ import com.tramchester.livedata.mappers.DeparturesMapper;
 import io.dropwizard.jersey.caching.CacheControl;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
 import javax.ws.rs.*;
@@ -25,7 +27,8 @@ import java.util.stream.Collectors;
 @Api
 @Path("/positions")
 @Produces(MediaType.APPLICATION_JSON)
-public class TramPositionsResource {
+public class TramPositionsResource implements APIResource, JourneyPlanningMarker {
+    private static final Logger logger = LoggerFactory.getLogger(TramPositionsResource.class);
 
     private final TramPositionInference positionInference;
     private final DeparturesMapper depatureMapper;
@@ -34,6 +37,7 @@ public class TramPositionsResource {
     @Inject
     public TramPositionsResource(TramPositionInference positionInference, DeparturesMapper depatureMapper,
                                  ProvidesNow providesNow) {
+        logger.info("created");
         this.positionInference = positionInference;
         this.depatureMapper = depatureMapper;
         this.providesNow = providesNow;
@@ -47,6 +51,8 @@ public class TramPositionsResource {
             response = TramsPositionsDTO.class)
     @CacheControl(maxAge = 10, maxAgeUnit = TimeUnit.SECONDS)
     public Response get(@QueryParam("unfiltered") @DefaultValue("false") String unfilteredRaw) {
+        logger.info("Get tram positions unfiltered="+unfilteredRaw);
+
         boolean unfilteredFlag = unfilteredRaw.equals("true");
 
         LocalDate localDate = providesNow.getDate();

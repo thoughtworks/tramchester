@@ -10,6 +10,8 @@ import com.tramchester.repository.VersionRepository;
 import io.dropwizard.jersey.caching.CacheControl;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
 import javax.ws.rs.GET;
@@ -23,13 +25,15 @@ import java.util.concurrent.TimeUnit;
 @Api
 @Path("/version")
 @Produces(MediaType.APPLICATION_JSON)
-public class VersionResource {
+public class VersionResource implements APIResource {
+    private static final Logger logger = LoggerFactory.getLogger(VersionResource.class);
 
     private final TransportModeRepository repository;
     private final TramchesterConfig config;
 
     @Inject
     public VersionResource(TransportModeRepository repository, TramchesterConfig config) {
+        logger.info("created");
         this.repository = repository;
         this.config = config;
     }
@@ -38,6 +42,7 @@ public class VersionResource {
     @ApiOperation(value = "Return version of server code", response = Version.class)
     @CacheControl(maxAge = 30, maxAgeUnit = TimeUnit.SECONDS)
     public Version version() {
+        logger.info("Get version");
         return VersionRepository.getVersion();
     }
 
@@ -47,6 +52,7 @@ public class VersionResource {
     @Path("/modes")
     @CacheControl(maxAge = 30, maxAgeUnit = TimeUnit.SECONDS)
     public Response modes() {
+        logger.info("Get modes");
         Set<TransportMode> modes = repository.getModes();
 
         ConfigDTO configDTO = new ConfigDTO(modes, config.hasRemoteDataSourceConfig(DataSourceID.postcode),

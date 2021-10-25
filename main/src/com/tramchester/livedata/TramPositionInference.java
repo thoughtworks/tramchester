@@ -34,7 +34,8 @@ public class TramPositionInference {
     private final RouteReachable routeReachable;
 
     @Inject
-    public TramPositionInference(DueTramsSource liveDataSource, TramStationAdjacenyRepository adjacenyRepository, RouteReachable routeReachable) {
+    public TramPositionInference(DueTramsSource liveDataSource, TramStationAdjacenyRepository adjacenyRepository,
+                                 RouteReachable routeReachable) {
         this.liveDataSource = liveDataSource;
         this.adjacenyRepository = adjacenyRepository;
         this.routeReachable = routeReachable;

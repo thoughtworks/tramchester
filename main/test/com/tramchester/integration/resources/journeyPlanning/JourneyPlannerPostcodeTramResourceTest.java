@@ -30,7 +30,8 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 @ExtendWith(DropwizardExtensionsSupport.class)
 class JourneyPlannerPostcodeTramResourceTest {
 
-    private static final IntegrationAppExtension appExtension = new IntegrationAppExtension(App.class, new TramWithPostcodesEnabled());
+    private static final IntegrationAppExtension appExtension =
+            new IntegrationAppExtension(App.class, new TramWithPostcodesEnabled());
 
     private LocalDate day;
     private TramTime time;

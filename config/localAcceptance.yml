@@ -23,24 +23,7 @@ gtfsSourceConfig:
     additionalInterchanges: [ "9400ZZMACRN", "9400ZZMASTP", "9400ZZMAPGD", "9400ZZMATRA", "9400ZZMASTW",
                               "9400ZZMAVIC", "9400ZZMAGMX", "9400ZZMAPIC" ]
     compositeStationModes: []
-    stationClosures:
-      - stations: ["9400ZZMAECC", "9400ZZMALDY", "9400ZZMAWST", "9400ZZMALWY", "9400ZZMABWY", "9400ZZMAMCU",
-                   "9400ZZMAHCY", "9400ZZMAANC", "9400ZZMASQY", "9400ZZMAEXC", "9400ZZMAPOM" ]
-        begin: 2021-08-04
-        end: 2021-08-15
-      - stations: [ "9400ZZMASTP", "9400ZZMAEXS", "9400ZZMAVIC", "9400ZZMAQRD", "9400ZZMASHU", "9400ZZMAMKT",
-                    "9400ZZMAPGD" ]
-        begin: 2021-08-01
-        end: 2021-08-05
-      - stations: [ "9400ZZMAVIC", "9400ZZMAQRD", "9400ZZMASHU", "9400ZZMAMKT" ]
-        begin: 2021-08-06
-        end: 2021-08-08
-      - stations: [ "9400ZZMASTP", "9400ZZMAEXS", "9400ZZMAVIC", "9400ZZMAQRD", "9400ZZMASHU", "9400ZZMAMKT",
-                    "9400ZZMAPGD", "9400ZZMAPIC", "9400ZZMANIS", "9400ZZMAHTN", "9400ZZMAECS", "9400ZZMAVPK",
-                    "9400ZZMACLN", "9400ZZMAELN", "9400ZZMACEM", "9400ZZMADRO", "9400ZZMAAUD", "9400ZZMAAMO",
-                    "9400ZZMAAWT", "9400ZZMAAUL"]
-        begin: 2021-08-14
-        end: 2021-08-15
+    stationClosures: []
 remoteSources:
   -
     name: tfgm
@@ -64,6 +47,7 @@ liveData:
   maxNumberStationsWithoutMessages: 10
   maxNumberStationsWithoutData: 5
 instanceDataUrl: http://169.254.169.254
+planningEnabled: true
 maxWait: 25
 maxInitialWait: 13
 maxNumberResults: 5

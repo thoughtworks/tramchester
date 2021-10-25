@@ -2,12 +2,14 @@ package com.tramchester.integration.resources;
 
 import com.tramchester.App;
 import com.tramchester.domain.presentation.LatLong;
+import com.tramchester.integration.testSupport.tram.ResourceTramTestConfig;
 import com.tramchester.livedata.domain.DTO.DepartureDTO;
 import com.tramchester.livedata.domain.DTO.DepartureListDTO;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.integration.testSupport.IntegrationAppExtension;
 import com.tramchester.integration.testSupport.APIClient;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
+import com.tramchester.resources.DeparturesResource;
 import com.tramchester.testSupport.testTags.LiveDataMessagesCategory;
 import com.tramchester.testSupport.testTags.LiveDataTestCategory;
 import com.tramchester.testSupport.TestEnv;
@@ -30,7 +32,7 @@ import static org.junit.jupiter.api.Assertions.*;
 class DeparturesResourceTest {
 
     private static final IntegrationAppExtension appExtension = new IntegrationAppExtension(App.class,
-            new IntegrationTramTestConfig(true));
+            new ResourceTramTestConfig<DeparturesResource>(DeparturesResource.class, true));
 
     private final TramStations stationWithNotes = LiveDataUpdaterTest.StationWithNotes;
 

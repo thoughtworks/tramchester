@@ -39,7 +39,7 @@ import static java.lang.String.format;
 @Api
 @Path("/grid")
 @Produces(MediaType.APPLICATION_JSON)
-public class JourneysForGridResource {
+public class JourneysForGridResource implements APIResource, JourneyPlanningMarker {
     private static final Logger logger = LoggerFactory.getLogger(JourneysForGridResource.class);
 
     private final StationRepository repository;
@@ -51,6 +51,7 @@ public class JourneysForGridResource {
     @Inject
     public JourneysForGridResource(StationRepository repository, FastestRoutesForBoxes search, JourneyToDTOMapper dtoMapper,
                                    PostcodeRepository postcodeRepository, ObjectMapper objectMapper) {
+        logger.info("created");
         this.repository = repository;
         this.search = search;
         this.dtoMapper = dtoMapper;

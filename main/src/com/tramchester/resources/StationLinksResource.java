@@ -33,7 +33,7 @@ import java.util.stream.Collectors;
 @Api
 @Path("/links")
 @Produces(MediaType.APPLICATION_JSON)
-public class StationLinksResource {
+public class StationLinksResource implements APIResource, JourneyPlanningMarker {
     private static final Logger logger = LoggerFactory.getLogger(StationLinksResource.class);
 
     private final FindStationLinks findStationLinks;
@@ -46,6 +46,7 @@ public class StationLinksResource {
     public StationLinksResource(FindStationLinks findStationLinks, NeighboursRepository neighboursRepository,
                                 CompositeStationRepository compositeStationRepository, TramchesterConfig config,
                                 StationLocations stationLocations) {
+        logger.info("created");
         this.findStationLinks = findStationLinks;
         this.neighboursRepository = neighboursRepository;
         this.compositeStationRepository = compositeStationRepository;

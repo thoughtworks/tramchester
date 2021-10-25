@@ -142,6 +142,10 @@ public class AppConfiguration extends TramchesterConfig {
     private Long calcTimeoutMillis;
 
     @NotNull
+    @JsonProperty("planningEnabled")
+    private Boolean planningEnabled;
+
+    @NotNull
     @JsonProperty("cloudWatchMetricsFrequencyMinutes")
     private Long cloudWatchMetricsFrequencyMinutes;
 
@@ -302,6 +306,11 @@ public class AppConfiguration extends TramchesterConfig {
     @Override
     public long GetCloudWatchMetricsFrequencyMinutes() {
         return cloudWatchMetricsFrequencyMinutes;
+    }
+
+    @Override
+    public boolean getPlanningEnabled() {
+        return planningEnabled;
     }
 
 }

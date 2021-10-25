@@ -7,6 +7,7 @@ import com.netflix.governator.guice.LifecycleInjector;
 import com.netflix.governator.lifecycle.LifecycleManager;
 import com.tramchester.healthchecks.RegistersHealthchecks;
 import com.tramchester.metrics.CacheMetrics;
+import com.tramchester.resources.APIResource;
 import org.reflections.Reflections;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -54,9 +55,27 @@ public class GuiceContainerDependencies implements ComponentContainer {
         logger.info("Done");
     }
 
-    public Set<?> getResources() {
-        Set<Class<?>> types = reflections.getTypesAnnotatedWith(Path.class);
-        return types.stream().map(this::get).collect(Collectors.toSet());
+    public Set<Class<? extends APIResource>> getResources() {
+        Set<Class<? extends APIResource>> apiResources = reflections.getSubTypesOf(APIResource.class);
+        Set<Class<?>> havePath = reflections.getTypesAnnotatedWith(Path.class);
+
+        Set<Class<? extends APIResource>> pathMissing = apiResources.stream().
+                filter(apiType -> !havePath.contains(apiType)).collect(Collectors.toSet());
+        if (!pathMissing.isEmpty()) {
+            final String msg = "The following API resources lack a path: " + pathMissing;
+            logger.error(msg);
+            throw new RuntimeException(msg);
+        }
+
+        Set<Class<?>> pathNotAPIResource = havePath.stream().
+                filter(hasPathType -> !apiResources.contains(hasPathType)).collect(Collectors.toSet());
+        if (!pathNotAPIResource.isEmpty()) {
+            final String msg = "The following Path annotated classes don't implement APIResource: " + pathNotAPIResource;
+            logger.error(msg);
+            throw new RuntimeException(msg);
+        }
+
+        return apiResources;
     }
 
     public void registerHealthchecksInto(HealthCheckRegistry healthChecks) {

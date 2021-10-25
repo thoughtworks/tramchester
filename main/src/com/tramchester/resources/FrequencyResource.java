@@ -28,7 +28,7 @@ import static java.lang.String.format;
 @Api
 @Path("/frequency")
 @Produces(MediaType.APPLICATION_JSON)
-public class FrequencyResource extends TransportResource {
+public class FrequencyResource extends TransportResource implements APIResource {
     private static final Logger logger = LoggerFactory.getLogger(FrequencyResource.class);
 
     private final ObjectMapper objectMapper;
@@ -37,6 +37,7 @@ public class FrequencyResource extends TransportResource {
     @Inject
     public FrequencyResource(ObjectMapper objectMapper, StopCallsForGrid stopCallsForGrid, ProvidesNow providesNow) {
         super(providesNow);
+        logger.info("created");
         this.objectMapper = objectMapper;
         this.stopCallsForGrid = stopCallsForGrid;
     }

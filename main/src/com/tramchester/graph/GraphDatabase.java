@@ -36,12 +36,15 @@ public class GraphDatabase implements DatabaseEventListener {
     private final DataSourceRepository transportData;
     private final GraphDBConfig graphDBConfig;
     private final GraphDatabaseLifecycleManager lifecycleManager;
+    private final TramchesterConfig tramchesterConfig;
 
     private GraphDatabaseService databaseService;
 
     @Inject
-    public GraphDatabase(TramchesterConfig configuration, DataSourceRepository transportData, GraphDatabaseLifecycleManager lifecycleManager) {
+    public GraphDatabase(TramchesterConfig configuration, DataSourceRepository transportData,
+                         GraphDatabaseLifecycleManager lifecycleManager) {
         this.transportData = transportData;
+        this.tramchesterConfig = configuration;
         this.graphDBConfig = configuration.getGraphDBConfig();
         this.lifecycleManager = lifecycleManager;
     }
@@ -49,17 +52,26 @@ public class GraphDatabase implements DatabaseEventListener {
     @PostConstruct
     public void start() {
         logger.info("start");
-        Set<DataSourceInfo> dataSourceInfo = transportData.getDataSourceInfo();
-        final Path dbPath = graphDBConfig.getDbPath();
-        boolean fileExists = Files.exists(dbPath);
-        databaseService = lifecycleManager.startDatabase(dataSourceInfo, dbPath, fileExists);
-        logger.info("graph db started ");
+        if (tramchesterConfig.getPlanningEnabled()) {
+            Set<DataSourceInfo> dataSourceInfo = transportData.getDataSourceInfo();
+            final Path dbPath = graphDBConfig.getDbPath();
+            boolean fileExists = Files.exists(dbPath);
+            databaseService = lifecycleManager.startDatabase(dataSourceInfo, dbPath, fileExists);
+            logger.info("graph db started ");
+        } else {
+            logger.warn("Planning is disabled, not starting the graph database");
+        }
     }
 
     @PreDestroy
     public void stop() {
         logger.info("stopping");
-        lifecycleManager.stopDatabase();
+        if (databaseService!=null) {
+            lifecycleManager.stopDatabase();
+            databaseService = null;
+        } else {
+            logger.warn("Already stopped");
+        }
         logger.info("stopped");
     }
 

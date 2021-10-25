@@ -43,7 +43,7 @@ import static java.lang.String.format;
 @Api
 @Path("/stations")
 @Produces(MediaType.APPLICATION_JSON)
-public class StationResource extends UsesRecentCookie  {
+public class StationResource extends UsesRecentCookie implements APIResource {
     private static final Logger logger = LoggerFactory.getLogger(StationResource.class);
 
     private final StationRepositoryPublic stationRepository;
@@ -58,6 +58,7 @@ public class StationResource extends UsesRecentCookie  {
                            ProvidesNow providesNow,
                            DataSourceRepository dataSourceRepository, StationLocations stationLocations, ClosedStationsRepository closedStationsRepository, TramchesterConfig config) {
         super(updateRecentJourneys, providesNow, mapper);
+        logger.info("created");
         this.stationRepository = stationRepository;
         this.dataSourceRepository = dataSourceRepository;
         this.stationLocations = stationLocations;

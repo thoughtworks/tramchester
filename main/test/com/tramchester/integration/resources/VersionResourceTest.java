@@ -7,6 +7,8 @@ import com.tramchester.domain.presentation.Version;
 import com.tramchester.integration.testSupport.APIClient;
 import com.tramchester.integration.testSupport.IntegrationAppExtension;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
+import com.tramchester.integration.testSupport.tram.ResourceTramTestConfig;
+import com.tramchester.resources.VersionResource;
 import io.dropwizard.testing.junit5.DropwizardExtensionsSupport;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -23,7 +25,8 @@ import static org.junit.jupiter.api.Assertions.*;
 @ExtendWith(DropwizardExtensionsSupport.class)
 class VersionResourceTest {
 
-    private static final IntegrationTramTestConfig configuration = new IntegrationTramTestConfig();
+    private static final IntegrationTramTestConfig configuration = new ResourceTramTestConfig<>(VersionResource.class);
+
     private static final IntegrationAppExtension appExtension = new IntegrationAppExtension(App.class, configuration);
 
     private final String endPoint = "version";

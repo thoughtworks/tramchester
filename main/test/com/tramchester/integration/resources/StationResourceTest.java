@@ -10,7 +10,9 @@ import com.tramchester.domain.presentation.RecentJourneys;
 import com.tramchester.integration.testSupport.APIClient;
 import com.tramchester.integration.testSupport.IntegrationAppExtension;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
+import com.tramchester.integration.testSupport.tram.ResourceTramTestConfig;
 import com.tramchester.repository.StationRepository;
+import com.tramchester.resources.StationResource;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.TramStations;
 import io.dropwizard.testing.junit5.DropwizardExtensionsSupport;
@@ -31,7 +33,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 @ExtendWith(DropwizardExtensionsSupport.class)
 class StationResourceTest {
 
-    private static final IntegrationAppExtension appExtension = new IntegrationAppExtension(App.class, new IntegrationTramTestConfig());
+    private static final IntegrationAppExtension appExtension =
+            new IntegrationAppExtension(App.class, new ResourceTramTestConfig<>(StationResource.class));
 
     private final ObjectMapper mapper = new ObjectMapper();
 

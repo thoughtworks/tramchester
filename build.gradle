@@ -170,6 +170,13 @@ task buses(type:JavaExec, dependsOn: 'webpack') {
     args 'server', 'config/buses.yml'
 }
 
+task frequency(type:JavaExec, dependsOn: 'webpack') {
+    mainClass = mainClassName
+    classpath = sourceSets.main.runtimeClasspath
+    maxHeapSize = "3g"
+    args 'server', 'config/frequency.yml'
+}
+
 task trains(type:JavaExec, dependsOn: 'webpack') {
     mainClass = mainClassName
     classpath = sourceSets.main.runtimeClasspath

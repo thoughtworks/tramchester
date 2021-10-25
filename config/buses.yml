@@ -59,6 +59,7 @@ instanceDataUrl: http://169.254.169.254
 createNeighbours: false
 maxNeighbourConnections: 0
 distanceToNeighboursKM: 0.4
+planningEnabled: true
 maxWait: 35
 maxInitialWait: 45
 numberQueries: 3

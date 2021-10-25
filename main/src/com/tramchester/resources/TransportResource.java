@@ -17,6 +17,7 @@ public abstract class TransportResource {
     protected final ProvidesNow providesNow;
 
     public TransportResource(ProvidesNow providesNow) {
+        logger.info("created");
         this.providesNow = providesNow;
     }
 

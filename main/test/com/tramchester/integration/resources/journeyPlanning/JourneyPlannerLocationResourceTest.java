@@ -13,6 +13,8 @@ import com.tramchester.domain.time.TramTime;
 import com.tramchester.integration.testSupport.IntegrationAppExtension;
 import com.tramchester.integration.testSupport.JourneyResourceTestFacade;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
+import com.tramchester.integration.testSupport.tram.ResourceTramTestConfig;
+import com.tramchester.resources.JourneyPlannerResource;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TestStations;
 import com.tramchester.testSupport.reference.TramStations;
@@ -39,7 +41,7 @@ import static org.junit.jupiter.api.Assertions.*;
 @ExtendWith(DropwizardExtensionsSupport.class)
 class JourneyPlannerLocationResourceTest {
 
-    private static final AppConfiguration config = new IntegrationTramTestConfig();
+    private static final AppConfiguration config = new ResourceTramTestConfig<>(JourneyPlannerResource.class);
     private static final IntegrationAppExtension appExtension = new IntegrationAppExtension(App.class, config);
 
     private LocalDate when;

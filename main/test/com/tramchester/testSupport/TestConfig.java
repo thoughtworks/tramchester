@@ -171,4 +171,8 @@ public abstract class TestConfig extends AppConfiguration {
         throw new RuntimeException("Must define");
     }
 
+    @Override
+    public boolean getPlanningEnabled() {
+        return true;
+    }
 }

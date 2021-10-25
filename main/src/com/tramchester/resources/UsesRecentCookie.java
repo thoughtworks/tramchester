@@ -28,6 +28,7 @@ public class UsesRecentCookie extends TransportResource {
 
     public UsesRecentCookie(UpdateRecentJourneys updateRecentJourneys, ProvidesNow providesNow, ObjectMapper mapper) {
         super(providesNow);
+        logger.info("created");
         this.updateRecentJourneys = updateRecentJourneys;
         this.mapper = mapper;
     }

@@ -1,11 +1,13 @@
 package com.tramchester.integration.resources;
 
 import com.tramchester.App;
+import com.tramchester.integration.testSupport.tram.ResourceTramTestConfig;
 import com.tramchester.livedata.domain.DTO.TramsPositionsDTO;
 import com.tramchester.livedata.domain.DTO.TramPositionDTO;
 import com.tramchester.integration.testSupport.IntegrationAppExtension;
 import com.tramchester.integration.testSupport.APIClient;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
+import com.tramchester.resources.TramPositionsResource;
 import com.tramchester.testSupport.testTags.LiveDataTestCategory;
 import io.dropwizard.testing.junit5.DropwizardExtensionsSupport;
 import org.junit.jupiter.api.Test;
@@ -23,7 +25,7 @@ import static org.junit.jupiter.api.Assertions.*;
 class TramPositionsResourceTest {
 
     private static final IntegrationAppExtension appExtension = new IntegrationAppExtension(App.class,
-            new IntegrationTramTestConfig(true));
+            new ResourceTramTestConfig<>(TramPositionsResource.class,true));
 
     @LiveDataTestCategory
     @Test

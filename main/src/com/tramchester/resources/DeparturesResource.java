@@ -41,7 +41,7 @@ import static java.lang.String.format;
 @Api
 @Path("/departures")
 @Produces(MediaType.APPLICATION_JSON)
-public class DeparturesResource extends TransportResource {
+public class DeparturesResource extends TransportResource implements APIResource {
     private static final Logger logger = LoggerFactory.getLogger(DeparturesResource.class);
 
     private final StationLocationsRepository stationLocations;
@@ -56,6 +56,7 @@ public class DeparturesResource extends TransportResource {
                               DeparturesMapper departuresMapper, ProvidesNotes providesNotes, StationRepository stationRepository,
                               ProvidesNow providesNow, TramchesterConfig config) {
         super(providesNow);
+        logger.info("created");
         this.stationLocations = stationLocations;
         this.dueTramsSource = dueTramsSource;
         this.departuresMapper = departuresMapper;

@@ -10,6 +10,8 @@ import com.tramchester.domain.time.TramTime;
 import com.tramchester.integration.testSupport.IntegrationAppExtension;
 import com.tramchester.integration.testSupport.APIClient;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
+import com.tramchester.integration.testSupport.tram.ResourceTramTestConfig;
+import com.tramchester.resources.JourneysForGridResource;
 import com.tramchester.testSupport.ParseStream;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.TramStations;
@@ -31,7 +33,7 @@ import static org.junit.jupiter.api.Assertions.*;
 @ExtendWith(DropwizardExtensionsSupport.class)
 class JourneysForGridResourceTest {
     private static final IntegrationAppExtension appExtension =
-            new IntegrationAppExtension(App.class, new IntegrationTramTestConfig());
+            new IntegrationAppExtension(App.class, new ResourceTramTestConfig<>(JourneysForGridResource.class));
 
     private final ObjectMapper mapper = new ObjectMapper();
     private ParseStream<BoxWithCostDTO> parseStream;

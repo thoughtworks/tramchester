@@ -2,17 +2,14 @@ package com.tramchester.integration.resources;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tramchester.App;
-import com.tramchester.domain.BoxWithServiceFrequency;
-import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.DTO.BoxWithFrequencyDTO;
-import com.tramchester.domain.presentation.LatLong;
-import com.tramchester.domain.time.TramTime;
 import com.tramchester.geo.BoundingBox;
 import com.tramchester.geo.CoordinateTransforms;
 import com.tramchester.geo.GridPosition;
 import com.tramchester.integration.testSupport.APIClient;
 import com.tramchester.integration.testSupport.IntegrationAppExtension;
-import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
+import com.tramchester.integration.testSupport.tram.ResourceTramTestConfig;
+import com.tramchester.resources.FrequencyResource;
 import com.tramchester.testSupport.ParseStream;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.TramStations;
@@ -20,13 +17,11 @@ import io.dropwizard.testing.junit5.DropwizardExtensionsSupport;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.locationtech.jts.geom.Coordinate;
 
 import javax.ws.rs.core.Response;
 import java.io.IOException;
 import java.io.InputStream;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -42,7 +37,7 @@ public class FrequencyResourceTest {
     private ParseStream<BoxWithFrequencyDTO> parseStream;
 
     private static final IntegrationAppExtension appExtension = new IntegrationAppExtension(App.class,
-            new IntegrationTramTestConfig(true));
+            new ResourceTramTestConfig<>(FrequencyResource.class));
 
     @BeforeEach
     public void beforeEachTest() {
@@ -50,7 +45,7 @@ public class FrequencyResourceTest {
     }
 
     @Test
-    void shouldHaveJourneysForWholeGrid() throws IOException {
+    void shouldHaveBusFrequencies() throws IOException {
 
         int gridSizeMeters = 1000;
         LocalDate date = TestEnv.testDay();

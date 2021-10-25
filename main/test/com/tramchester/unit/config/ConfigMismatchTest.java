@@ -9,7 +9,6 @@ import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
 import io.dropwizard.configuration.ConfigurationException;
 import io.dropwizard.configuration.YamlConfigurationFactory;
 import io.dropwizard.jackson.Jackson;
-import org.checkerframework.checker.units.qual.A;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Test;
 
@@ -112,6 +111,7 @@ class ConfigMismatchTest {
         assertEquals(expected.getDistanceToNeighboursKM(), testConfig.getDistanceToNeighboursKM(), "DistanceToNeighboursKM");
         assertEquals(expected.getTransportModes(), testConfig.getTransportModes(), "getTransportModes");
         assertEquals(expected.getCalcTimeoutMillis(), testConfig.getCalcTimeoutMillis(), "CalcTimeoutMillis");
+        assertEquals(expected.getPlanningEnabled(), testConfig.getPlanningEnabled(), "planningEnabled");
 
         assertEquals(expected.getBounds(), testConfig.getBounds(), "bounds");
 
