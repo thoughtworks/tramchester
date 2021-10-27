@@ -9,14 +9,19 @@ var L = require('leaflet');
 
 require('file-loader?name=[name].[ext]!../frequency.html');
 
+import VueSlider from 'vue-slider-component'
+
+
 import 'bootstrap/dist/css/bootstrap.css';
 import 'bootstrap-vue/dist/bootstrap-vue.css';
 import 'leaflet/dist/leaflet.css'
 import './../css/tramchester.css'
+import 'vue-slider-component/theme/default.css'
 
 L.Icon.Default.imagePath = '/app/dist/images/';
 require("leaflet/dist/images/marker-icon-2x.png");
 require("leaflet/dist/images/marker-shadow.png");
+
 
 import Footer from './components/Footer';
 import Routes from './components/Routes';
@@ -75,12 +80,14 @@ function queryForFrequencies(gridSize, date, startTime, endTime) {
 var mapApp = new Vue({
     el: '#frequencymap',
     components: {
-        'app-footer' : Footer
+        'app-footer': Footer,
+        'VueSlider': VueSlider
     },
     data() {
         return {
             map: null,
             grid: null,
+            hours: [ 10, 11],
             frequencyLayer: null,
             networkError: false,
             routes: [],
@@ -102,7 +109,9 @@ var mapApp = new Vue({
             mapApp.frequencyLayer = L.featureGroup();
         },
         draw() {
-            queryForFrequencies(1000, mapApp.date, "07:30", "08:30");
+            var startTime = mapApp.hours[0]+":00";
+            var endTime = mapApp.hours[1]+":00";
+            queryForFrequencies(1000, mapApp.date, startTime, endTime);
         },
         dateToNow() {
             mapApp.date = getCurrentDate();

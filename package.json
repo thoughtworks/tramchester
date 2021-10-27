@@ -30,6 +30,7 @@
     "serialize-javascript": "^6.0.0",
     "vue": "^2.6.14",
     "vue-cookies": "^1.7.4",
+    "vue-slider-component": "^3.2.15",
     "vue-typeahead-bootstrap": "^2.11.1"
   },
   "devDependencies": {
