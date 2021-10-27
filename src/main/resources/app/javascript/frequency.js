@@ -38,7 +38,7 @@ function addBoxWithFrequency(boxWithFrequency) {
         rectangle.bindTooltip('numer of buses ' + numberOfStopCalls);
         //rectangle.on('click', boxClicked, boxWithFrequency);
     }
-    rectangle.addTo(mapApp.map);
+    rectangle.addTo(mapApp.frequencyLayer);
 }
 
 function getColourForFrequency(boxWithFrequency) {
@@ -67,11 +67,13 @@ function queryForFrequencies(gridSize, date, startTime, endTime) {
 
     const searchParams = new URLSearchParams(urlParams);
 
-    getGrids(searchParams);
+    mapApp.frequencyLayer.clearLayers();
+    getFrequencies(searchParams);
+    mapApp.frequencyLayer.addTo(mapApp.map);
 }
 
 var mapApp = new Vue({
-    el: '#tramMap',
+    el: '#frequencymap',
     components: {
         'app-footer' : Footer
     },
@@ -79,24 +81,31 @@ var mapApp = new Vue({
         return {
             map: null,
             grid: null,
-            journeyLayer: null,
+            frequencyLayer: null,
             networkError: false,
             routes: [],
             feedinfo: [],
+            date: getCurrentDate()
         }
     },
     methods: {
         networkErrorOccured() {
             app.networkError = true;
         },
-        draw() {
+        setupMap() {
             Routes.findAndSetMapBounds(mapApp.map, mapApp.routes);
             L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
                 attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
             }).addTo(mapApp.map);
             //Routes.addRoutes(mapApp.map, mapApp.routes);
             //addStations();
-            mapApp.journeyLayer = L.featureGroup()
+            mapApp.frequencyLayer = L.featureGroup();
+        },
+        draw() {
+            queryForFrequencies(1000, mapApp.date, "07:30", "08:30");
+        },
+        dateToNow() {
+            mapApp.date = getCurrentDate();
         }
     },
     mounted () {
@@ -114,12 +123,11 @@ var mapApp = new Vue({
             .then(function (response) {
                 mapApp.networkError = false;
                 mapApp.routes = response.data;
-                mapApp.draw();
+                mapApp.setupMap();
                 // make sure to use HH:MM format with leading zero
                 // YYYY-MM-DD
                 //var date = getCurrentDate();
-                var date = "2021-10-25"
-                queryForFrequencies(500, date, "07:30", "08:30");
+                //var date = "2021-10-25"
             }).catch(function (error){
                 mapApp.networkError = true;
                 console.log(error);
@@ -133,7 +141,7 @@ var mapApp = new Vue({
 });
 
 
-function getGrids(searchParams) {
+function getFrequencies(searchParams) {
     oboe('/api/frequency?' + searchParams.toString())
         .node('BoxWithFrequency', function (box) {
             addBoxWithFrequency(box);

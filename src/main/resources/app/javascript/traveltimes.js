@@ -70,16 +70,6 @@ function getColourForCost(boxWithCost) {
     return '#00'+greenString+'00';
 }
 
-// function queryForGrid(gridSize, destination, departureTime, departureDate, maxChanges, maxDuration) {
-//     var urlParams = {
-//         destination: destination, gridSize: gridSize, departureTime: departureTime, departureDate: departureDate, 
-//         maxChanges: maxChanges, maxDuration: maxDuration};
-
-//     const searchParams = new URLSearchParams(urlParams);
-
-//     getGrids(searchParams);
-// }
-
 function queryForGridLatLong(gridSize, lat, lon, departureTime, departureDate, maxChanges, maxDuration) {
     var urlParams = {
         destination: "MyLocationPlaceholderId", gridSize: gridSize, departureTime: departureTime, departureDate: departureDate, 

@@ -7,11 +7,42 @@
 </head>
 
 <body>
-<div id="tramMap" ><h1>Experimental Stop Frequency Map</h1>
-    <div id="leafletMap" style="height: 1000px" class="w-75"></div>
+    <h1>Experimental Stop Frequency Map</h1>
+    <div id="frequencymap" class="tramchesterApp">
+            <b-container>
+                <b-row>
+                    <b-col>
+                        <div id="tramMap" >
+                            <div id="leafletMap"></div>
+                        </div>
+                    </b-col>
+                    <b-col>
+                        <b-container id="parameters">
+                            <b-col>
+                                <b-row>
+                                    <b-input-group class="mb-2">
+                                        <b-form-datepicker id="date" v-model="date" 
+                                            :date-format-options="{ year: 'numeric', month: 'numeric', day: 'numeric' }" 
+                                            label-calendar="TravelDateCalendar" required></b-form-datepicker>
+                                        <b-input-group-append>
+                                            <b-button id="todayButton" variant="info" @click="dateToNow()">Today</b-button>
+                                        </b-input-group-append>
+                                        <input type="hidden" id="hiddendate" v-model="date"></input>
+                                    </b-input-group>
+                                </b-row>
+                                <b-row>
+                                    <b-button id="drawMap" variant="primary" @click="draw()">Draw</b-button>  
+                                </b-row>
+                            </b-col>
+                        </b-container>
+                    </b-col>
+                </b-row>
+            </b-container>
+    </div>
+
     <app-footer v-bind:feedinfo="feedinfo" v-bind:havepos="havePos" v-on:network-error="networkErrorOccured()">
     </app-footer>
-</div>
+
 
 <script src="/app/frequency.js"></script>
 
