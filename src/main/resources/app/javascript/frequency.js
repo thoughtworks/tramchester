@@ -37,25 +37,35 @@ function addBoxWithFrequency(boxWithFrequency) {
 
     const numberOfStopCalls = boxWithFrequency.numberOfStopcalls;
 
-    var colour = getColourForFrequency(boxWithFrequency);     
-    var rectangle = L.rectangle(bounds, {weight: 0, color: colour, fillColor: colour, fill: true, fillOpacity: 0.5});
+    const frequency = getFrequency(numberOfStopCalls);
+    const colour = getColourForFrequency(frequency);     
+    const rectangle = L.rectangle(bounds, {weight: 0, color: colour, fillColor: colour, fill: true, fillOpacity: 0.5});
     if (numberOfStopCalls>0) {
-        rectangle.bindTooltip('numer of buses ' + numberOfStopCalls);
-        //rectangle.on('click', boxClicked, boxWithFrequency);
+        const displayFrequency = Math.round(frequency*100) / 100; 
+        rectangle.bindTooltip('buses per hour ' + displayFrequency);
+    } else {
+        rectangle.bindTooltip('no buses');
     }
     rectangle.addTo(mapApp.frequencyLayer);
 }
 
-function getColourForFrequency(boxWithFrequency) {
-    const numberOfStopCalls = boxWithFrequency.numberOfStopcalls;
-    if (numberOfStopCalls==0) {
+function getFrequency(totalNumber) {
+    if (totalNumber==0) {
+        return 0;
+    }
+    const periodHours = mapApp.hours[1] - mapApp.hours[0];
+    return totalNumber / periodHours;
+}
+
+function getColourForFrequency(frequency) {
+    if (frequency==0) {
         return "#ff0000";
     }
 
-    var limit = 10;
-    var greenString = "00";
-    if (numberOfStopCalls > 0) {
-        var value = Math.floor((255 / limit) * numberOfStopCalls);
+    var limit = 4;
+    var greenString = "01";
+    if (frequency > 0) {
+        var value = Math.floor((255 / limit) * frequency);
         if (value>254) {
             value = 254;
         }
@@ -111,7 +121,7 @@ var mapApp = new Vue({
         draw() {
             var startTime = mapApp.hours[0]+":00";
             var endTime = mapApp.hours[1]+":00";
-            queryForFrequencies(1000, mapApp.date, startTime, endTime);
+            queryForFrequencies(500, mapApp.date, startTime, endTime);
         },
         dateToNow() {
             mapApp.date = getCurrentDate();
