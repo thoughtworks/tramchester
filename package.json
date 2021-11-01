@@ -31,7 +31,7 @@
     "vue": "^2.6.14",
     "vue-cookies": "^1.7.4",
     "vue-slider-component": "^3.2.15",
-    "vue-typeahead-bootstrap": "^2.11.1"
+    "vue-typeahead-bootstrap": "^2.12.0"
   },
   "devDependencies": {
     "css-loader": "^6.2.0",
