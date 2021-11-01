@@ -6,11 +6,14 @@ import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.repository.StopCallRepository;
+import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
 import java.time.LocalDate;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -35,14 +38,22 @@ public class StopCallsForGrid {
         Stream<BoundingBoxWithStations> boxes = stationLocations.getGroupedStations(gridSize);
 
         return boxes.filter(BoundingBoxWithStations::hasStations).
-                map(box -> new BoxWithServiceFrequency(box, countFor(box.getStaions(), date, begin, end))).
+                map(box -> createFrequencyBox(date, begin, end, box)).
                 collect(Collectors.toSet());
 
     }
 
-    private long countFor(Set<Station> stations, LocalDate date, TramTime begin, TramTime end) {
-        logger.debug("Get stop call count for stations " + HasId.asIds(stations));
-        return stations.stream().
-                mapToLong(station -> stopCallRepository.getStopCallsFor(station, date, begin, end).size()).sum();
+    @NotNull
+    private BoxWithServiceFrequency createFrequencyBox(LocalDate date, TramTime begin, TramTime end, BoundingBoxWithStations box) {
+        Map<Station, Integer> stationToNumberStopCalls = new HashMap<>();
+        box.getStaions().forEach(station -> {
+            int number = stopCallRepository.getStopCallsFor(station, date, begin, end).size();
+            if (number>0) {
+                stationToNumberStopCalls.put(station, number);
+            }
+        });
+        int total = stationToNumberStopCalls.values().stream().mapToInt(num->num).sum();
+        return new BoxWithServiceFrequency(box, stationToNumberStopCalls.keySet(), total);
     }
+
 }

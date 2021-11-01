@@ -3,6 +3,7 @@ package com.tramchester.integration.resources;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tramchester.App;
 import com.tramchester.domain.presentation.DTO.BoxWithFrequencyDTO;
+import com.tramchester.domain.presentation.DTO.StationRefDTO;
 import com.tramchester.geo.BoundingBox;
 import com.tramchester.geo.CoordinateTransforms;
 import com.tramchester.geo.GridPosition;
@@ -27,8 +28,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import static com.tramchester.testSupport.TestEnv.dateFormatDashes;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.*;
 
 @ExtendWith(DropwizardExtensionsSupport.class)
 public class FrequencyResourceTest {
@@ -64,15 +64,18 @@ public class FrequencyResourceTest {
 
         assertFalse(results.isEmpty());
 
-        TramStations station =TramStations.ManAirport;
-        GridPosition stationPosition = CoordinateTransforms.getGridPosition(station.getLatLong());
+        TramStations airportStation = TramStations.ManAirport;
+        GridPosition manAirportPosition = CoordinateTransforms.getGridPosition(airportStation.getLatLong());
 
         List<BoxWithFrequencyDTO> containsAirport = results.stream().
-                filter(item -> containsStation(stationPosition, item)).collect(Collectors.toList());
+                filter(item -> containsStation(manAirportPosition, item)).collect(Collectors.toList());
         assertEquals(1, containsAirport.size());
-        BoxWithFrequencyDTO airport = containsAirport.get(0);
+        BoxWithFrequencyDTO airportBox = containsAirport.get(0);
 
-        assertEquals(6, airport.getNumberOfStopcalls());
+        assertEquals(6, airportBox.getNumberOfStopcalls());
+        List<StationRefDTO> stops = airportBox.getStops();
+        boolean airportStopPresent = stops.stream().anyMatch(stop -> stop.getId().equals(airportStation.getId().forDTO()));
+        assertTrue(airportStopPresent);
     }
 
     private boolean containsStation(GridPosition position, BoxWithFrequencyDTO box) {

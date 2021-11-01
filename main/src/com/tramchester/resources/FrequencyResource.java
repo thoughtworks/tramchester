@@ -4,6 +4,7 @@ import com.codahale.metrics.annotation.Timed;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tramchester.domain.BoxWithServiceFrequency;
 import com.tramchester.domain.presentation.DTO.BoxWithFrequencyDTO;
+import com.tramchester.domain.presentation.DTO.StationRefDTO;
 import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.geo.StopCallsForGrid;
@@ -20,7 +21,9 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static java.lang.String.format;
@@ -66,7 +69,8 @@ public class FrequencyResource extends TransportResource implements APIResource 
     }
 
     private BoxWithFrequencyDTO createDTO(BoxWithServiceFrequency result) {
-        return new BoxWithFrequencyDTO(result, result.getNumberOfStopcalls());
+        List<StationRefDTO> stopDTOs = result.getStationsWithStopCalls().stream().map(StationRefDTO::new).collect(Collectors.toList());
+        return new BoxWithFrequencyDTO(result, stopDTOs, result.getNumberOfStopcalls());
     }
 
 }
