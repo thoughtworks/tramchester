@@ -64,6 +64,6 @@ class BusStationsLocationsTest {
     void shouldGetAllStationsCloseToCentralAlty() {
         List<Station> result = stationLocations.nearestStationsSorted(TramStations.Altrincham.getLatLong(),
                 500, inMeters);
-        assertEquals(9, result.size());
+        assertEquals(10, result.size());
     }
 }

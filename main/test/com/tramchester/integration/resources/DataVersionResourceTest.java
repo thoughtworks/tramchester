@@ -5,7 +5,6 @@ import com.tramchester.App;
 import com.tramchester.domain.presentation.DTO.DataVersionDTO;
 import com.tramchester.integration.testSupport.APIClient;
 import com.tramchester.integration.testSupport.IntegrationAppExtension;
-import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
 import com.tramchester.integration.testSupport.tram.ResourceTramTestConfig;
 import com.tramchester.resources.DataVersionResource;
 import com.tramchester.testSupport.testTags.DataUpdateTest;
@@ -22,7 +21,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 @ExtendWith(DropwizardExtensionsSupport.class)
 public class DataVersionResourceTest {
 
-    public static final String version = "20211026_02_30_05";
+    public static final String version = "20211109_16_54_53";
 
     private static final IntegrationAppExtension appExtension = new IntegrationAppExtension(App.class,
             new ResourceTramTestConfig<>(DataVersionResource.class));
