@@ -6,10 +6,12 @@ import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.zip.ZipEntry;
+import java.util.zip.ZipException;
 import java.util.zip.ZipInputStream;
 
 import static java.lang.String.format;
@@ -24,7 +26,7 @@ public class Unzipper {
         try {
             ZipInputStream zipInputStream = new ZipInputStream(new FileInputStream(zipFile));
             ZipEntry zipEntry = zipInputStream.getNextEntry();
-            while (zipEntry!=null) {
+            while (zipEntry != null) {
                 extractEntryTo(targetDirectory, zipEntry, zipInputStream);
                 zipInputStream.closeEntry();
                 zipEntry = zipInputStream.getNextEntry();
@@ -32,14 +34,25 @@ public class Unzipper {
             zipInputStream.close();
             // update mod time
             long zipMod = zipFile.lastModified();
-            logger.info("Set "+ targetDirectory.toAbsolutePath()+" mod time to : " + zipMod);
-            targetDirectory.toFile().setLastModified(zipMod);
+            logger.info("Set '" + targetDirectory.toAbsolutePath() + "' mod time to: " + zipMod);
+            boolean undatedModTime = targetDirectory.toFile().setLastModified(zipMod);
+            if (!undatedModTime) {
+                logger.warn("Could not update the modification time of " + targetDirectory.toAbsolutePath());
+            }
 
             return true;
-        } catch (IOException e) {
-            logger.warn("Unable to unzip "+zipFilename, e);
+        } catch (ZipException zipException) {
+            logger.error("Unable to unzip, zip exception ", zipException);
             return false;
         }
+        catch (FileNotFoundException fileNotFoundException) {
+            logger.error("File is missing ", fileNotFoundException);
+            return false;
+        } catch (IOException ioException) {
+            logger.error("IOException while processing zip file ", ioException);
+            return false;
+        }
+
     }
 
     private void extractEntryTo(Path targetDirectory, ZipEntry zipEntry, ZipInputStream zipInputStream) throws IOException {
@@ -66,7 +79,7 @@ public class Unzipper {
             boolean modTimeMatches = checkModTime(zipEntry, unpackTarget);
             boolean sizeMatches = checkFileSize(zipEntry, unpackTarget);
 
-            if (modTimeMatches&&sizeMatches) {
+            if (modTimeMatches && sizeMatches) {
                 logger.info("Not over-writing " + absolutePath);
                 return;
             }
@@ -74,8 +87,16 @@ public class Unzipper {
             Files.delete(target);
         }
 
-        Files.copy(zipInputStream, target);
-        unpackTarget.setLastModified(zipEntry.getLastModifiedTime().toMillis());
+        try {
+            Files.copy(zipInputStream, target);
+            boolean setModTime = unpackTarget.setLastModified(zipEntry.getLastModifiedTime().toMillis());
+            if (!setModTime) {
+                logger.warn("Could not set mod time on " + absolutePath);
+            }
+        } catch (IOException e) {
+            logger.error("Exception while extacting entry :'" + zipEntry + "' to '" + absolutePath + "'");
+        }
+
 
     }
 

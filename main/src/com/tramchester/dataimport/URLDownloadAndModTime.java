@@ -72,9 +72,11 @@ public class URLDownloadAndModTime {
                 ReadableByteChannel rbc = Channels.newChannel(connection.getInputStream());
                 FileOutputStream fos = new FileOutputStream(targetFile);
                 fos.getChannel().transferFrom(rbc, 0, len);
-                logger.info("Finished download");
                 fos.close();
                 rbc.close();
+
+                long downloadedLength = targetFile.length();
+                logger.info("Finished download, file size if " + downloadedLength);
 
                 if (serverModMillis>0) {
                     if (!targetFile.setLastModified(serverModMillis)) {
