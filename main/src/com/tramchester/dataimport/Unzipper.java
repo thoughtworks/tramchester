@@ -57,6 +57,7 @@ public class Unzipper {
 
     private void extractEntryTo(Path targetDirectory, ZipEntry zipEntry, ZipInputStream zipInputStream) throws IOException {
         Path target = targetDirectory.resolve(zipEntry.getName());
+        logger.debug("Extracting entry " + toLogString(zipEntry));
 
         String absolutePath = target.toAbsolutePath().toString();
         if (zipEntry.isDirectory()) {
@@ -94,10 +95,16 @@ public class Unzipper {
                 logger.warn("Could not set mod time on " + absolutePath);
             }
         } catch (IOException e) {
-            logger.error("Exception while extacting entry :'" + zipEntry + "' to '" + absolutePath + "'");
+            logger.error("Exception while extracting entry :'" + toLogString(zipEntry) + "' to '" + absolutePath + "'");
         }
 
 
+    }
+
+    // toString on zipEntry is just the name../.
+    private String toLogString(ZipEntry zipEntry) {
+        return String.format("zipEntry{name:%s size:%s comp size: %s method:%s}", zipEntry.getName(), zipEntry.getSize(),
+                zipEntry.getCompressedSize(), zipEntry.getMethod());
     }
 
     private boolean checkFileSize(ZipEntry zipEntry, File file) {

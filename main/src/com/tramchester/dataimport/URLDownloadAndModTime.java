@@ -76,7 +76,7 @@ public class URLDownloadAndModTime {
                 rbc.close();
 
                 long downloadedLength = targetFile.length();
-                logger.info("Finished download, file size if " + downloadedLength);
+                logger.info("Finished download, file size is " + downloadedLength);
 
                 if (serverModMillis>0) {
                     if (!targetFile.setLastModified(serverModMillis)) {
