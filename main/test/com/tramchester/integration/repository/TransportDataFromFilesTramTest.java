@@ -24,7 +24,6 @@ import com.tramchester.repository.TransportData;
 import com.tramchester.repository.TransportDataFromFiles;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TramRouteHelper;
-import com.tramchester.testSupport.reference.KnownTramRoute;
 import com.tramchester.testSupport.reference.TramStations;
 import com.tramchester.testSupport.testTags.DataExpiryCategory;
 import com.tramchester.testSupport.testTags.DataUpdateTest;
@@ -45,7 +44,6 @@ import static com.tramchester.testSupport.TransportDataFilter.getTripsFor;
 import static com.tramchester.testSupport.reference.KnownTramRoute.*;
 import static com.tramchester.testSupport.reference.TramStations.*;
 import static org.junit.jupiter.api.Assertions.*;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @DataUpdateTest
 public class TransportDataFromFilesTramTest {
@@ -569,7 +567,9 @@ public class TransportDataFromFilesTramTest {
     }
 
     private List<StopCall> getStopsFor(Trip trip, IdFor<Station> stationId) {
-        return trip.getStopCalls().stream().filter(stopCall -> stopCall.getStationId().equals(stationId)).collect(Collectors.toList());
+        return trip.getStopCalls().stream().
+                filter(stopCall -> stopCall.getStationId().equals(stationId)).
+                collect(Collectors.toList());
     }
 
 }

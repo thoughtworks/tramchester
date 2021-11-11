@@ -17,9 +17,9 @@ public abstract class StopCall {
     private final GTFSPickupDropoffType pickupType;
     private final GTFSPickupDropoffType dropoffType;
     private final int dwellTime;
-    private final Trip trip;
+    private final MutableTrip trip;
 
-    protected StopCall(Station station, StopTimeData stopTimeData, Trip trip) {
+    protected StopCall(Station station, StopTimeData stopTimeData, MutableTrip trip) {
         this.station = station;
         this.arrivalTime = stopTimeData.getArrivalTime();
         this.trip = trip;
@@ -86,7 +86,7 @@ public abstract class StopCall {
         return (!getDropoffType().equals(None)) || (!getPickupType().equals(None));
     }
 
-    public Trip getTrip() {
+    public MutableTrip getTrip() {
         return trip;
     }
 }

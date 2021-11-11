@@ -11,7 +11,7 @@ import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.input.PlatformStopCall;
-import com.tramchester.domain.input.Trip;
+import com.tramchester.domain.input.MutableTrip;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.reference.*;
 import com.tramchester.domain.time.TramServiceDate;
@@ -204,7 +204,7 @@ public class TestEnv {
 //        return createTramStopCall(trip, stopId, station, seq, arrive, depart);
 //    }
 
-    public static PlatformStopCall createTramStopCall(Trip trip, String stopId, TramStations station, int seq, TramTime arrive,
+    public static PlatformStopCall createTramStopCall(MutableTrip trip, String stopId, TramStations station, int seq, TramTime arrive,
                                                       TramTime depart) {
         Platform platform = createPlatform(stopId, station.getLatLong());
         GTFSPickupDropoffType pickupDropoff = GTFSPickupDropoffType.Regular;

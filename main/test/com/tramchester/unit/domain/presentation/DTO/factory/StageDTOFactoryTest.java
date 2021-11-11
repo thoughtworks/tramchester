@@ -2,7 +2,7 @@ package com.tramchester.unit.domain.presentation.DTO.factory;
 
 import com.tramchester.domain.*;
 import com.tramchester.domain.id.StringIdFor;
-import com.tramchester.domain.input.Trip;
+import com.tramchester.domain.input.MutableTrip;
 import com.tramchester.domain.places.MyLocation;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.DTO.StageDTO;
@@ -55,7 +55,7 @@ class StageDTOFactoryTest extends EasyMockSupport {
     void shouldCreateStageDTOCorrectlyForTransportStage() {
         Route testRoute = TestEnv.getTramTestRoute();
         Service service = new Service("svcId");
-        Trip trip = new Trip(StringIdFor.createId("tripId"), "headSign", service, testRoute);
+        MutableTrip trip = new MutableTrip(StringIdFor.createId("tripId"), "headSign", service, testRoute);
 
         List<Integer> stopCallIndexes = Arrays.asList(1,2,3,4);
         Platform platform = new Platform("platFormId", "platformName", new LatLong(1,1));

@@ -47,7 +47,8 @@ public class RouteStationStateOnTrip extends RouteStationState implements NodeId
             return RouteStationStateOnTrip.class;
         }
 
-        public RouteStationStateOnTrip fromMinuteState(MinuteState minuteState, Node node, int cost, boolean isInterchange, Trip trip) {
+        public RouteStationStateOnTrip fromMinuteState(MinuteState minuteState, Node node, int cost, boolean isInterchange,
+                                                       Trip trip) {
             TransportMode transportMode = GraphProps.getTransportMode(node);
 
             Iterable<Relationship> allDeparts = node.getRelationships(OUTGOING, DEPART, INTERCHANGE_DEPART);

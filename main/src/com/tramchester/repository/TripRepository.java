@@ -2,6 +2,7 @@ package com.tramchester.repository;
 
 import com.google.inject.ImplementedBy;
 import com.tramchester.domain.id.IdFor;
+import com.tramchester.domain.input.MutableTrip;
 import com.tramchester.domain.input.Trip;
 
 import java.util.Set;

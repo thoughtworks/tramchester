@@ -6,7 +6,7 @@ import com.tramchester.domain.Service;
 import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.input.NoPlatformStopCall;
 import com.tramchester.domain.input.StopCall;
-import com.tramchester.domain.input.Trip;
+import com.tramchester.domain.input.MutableTrip;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.GTFSPickupDropoffType;
 import com.tramchester.domain.time.TramTime;
@@ -33,13 +33,13 @@ public class StopCallsForGridTest extends EasyMockSupport {
     StopCallsForGrid stopCallsForGrid;
     private StationLocations stationLocations;
     private StopCallRepository stopCallRepository;
-    private Trip trip;
+    private MutableTrip trip;
 
     @BeforeEach
     void beforeEachTest() {
 
         Service service = new Service(StringIdFor.createId("serviceZZZ"));
-        trip = new Trip(StringIdFor.createId("trip999"), "headsign", service, TestEnv.getTramTestRoute());
+        trip = new MutableTrip(StringIdFor.createId("trip999"), "headsign", service, TestEnv.getTramTestRoute());
 
         stationLocations = createMock(StationLocations.class);
         stopCallRepository = createMock(StopCallRepository.class);

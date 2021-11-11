@@ -6,10 +6,12 @@ import com.tramchester.config.TramchesterConfig;
 import com.tramchester.dataimport.data.*;
 import com.tramchester.domain.*;
 import com.tramchester.domain.factory.TransportEntityFactory;
+import com.tramchester.domain.id.ExtendedIdMap;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdMap;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.input.StopCall;
+import com.tramchester.domain.input.MutableTrip;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
@@ -243,7 +245,7 @@ public class TransportDataFromFiles implements TransportDataFactory {
     }
 
     private IdMap<Service> populateStopTimes(TransportDataContainer buildable, Stream<StopTimeData> stopTimes,
-                                             IdMap<Station> preloadStations, IdMap<Trip> trips,
+                                             IdMap<Station> preloadStations, ExtendedIdMap<Trip,MutableTrip> trips,
                                              TransportEntityFactory factory, GTFSSourceConfig dataSourceConfig) {
         String sourceName = dataSourceConfig.getName();
         logger.info("Loading stop times for " + sourceName);
@@ -259,7 +261,7 @@ public class TransportDataFromFiles implements TransportDataFactory {
 
                     final IdFor<Trip> stopTripId = stopTimeData.getTripId();
                     if (preloadStations.hasId(stationId)) {
-                    Trip trip = trips.get(stopTripId);
+                    MutableTrip trip = trips.get(stopTripId);
 
                     Station station = preloadStations.get(stationId);
                     Route route = trip.getRoute();
@@ -299,7 +301,7 @@ public class TransportDataFromFiles implements TransportDataFactory {
                 } else {
                     excludedStations.add(stationId);
                     if (trips.hasId(stopTripId)) {
-                        Trip trip = trips.get(stopTripId);
+                        MutableTrip trip = trips.get(stopTripId);
                         trip.setFiltered(true);
                     } else {
                         logger.warn(format("No trip %s for filtered stopcall %s", stopTripId, stationId));
@@ -315,7 +317,7 @@ public class TransportDataFromFiles implements TransportDataFactory {
     }
 
     private StopCall createStopCall(PlatformRepository buildable, StopTimeData stopTimeData,
-                                    Route route, Trip trip, Station station, TransportEntityFactory factory,
+                                    Route route, MutableTrip trip, Station station, TransportEntityFactory factory,
                                     GTFSSourceConfig sourceConfig) {
         IdFor<Platform> platformId = stopTimeData.getPlatformId();
         TransportMode transportMode = route.getTransportMode();
@@ -360,7 +362,7 @@ public class TransportDataFromFiles implements TransportDataFactory {
     private TripAndServices loadTripsAndServices(TransportData transportData, Stream<TripData> tripDataStream,
                                                  IdSet<Route> excludedRoutes, TransportEntityFactory factory) {
         logger.info("Loading trips");
-        IdMap<Trip> trips = new IdMap<>();
+        ExtendedIdMap<Trip,MutableTrip> trips = new ExtendedIdMap<>();
         IdMap<Service> services = new IdMap<>();
 
         AtomicInteger count = new AtomicInteger();
@@ -489,9 +491,9 @@ public class TransportDataFromFiles implements TransportDataFactory {
 
     private static class TripAndServices  {
         private final IdMap<Service> services;
-        private final IdMap<Trip> trips;
+        private final ExtendedIdMap<Trip,MutableTrip> trips;
 
-        public TripAndServices(IdMap<Service> services, IdMap<Trip> trips) {
+        public TripAndServices(IdMap<Service> services, ExtendedIdMap<Trip,MutableTrip> trips) {
             this.services = services;
             this.trips = trips;
         }

@@ -3,6 +3,7 @@ package com.tramchester.repository;
 import com.tramchester.domain.*;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdMap;
+import com.tramchester.domain.input.MutableTrip;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
@@ -277,7 +278,7 @@ public class TransportDataContainer implements TransportData {
         return routes.getValues();
     }
 
-    public void addTrip(Trip trip) {
+    public void addTrip(MutableTrip trip) {
         trips.add(trip);
     }
 

@@ -6,143 +6,33 @@ import com.tramchester.domain.Route;
 import com.tramchester.domain.Service;
 import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.id.IdFor;
-import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.GraphPropertyKey;
 
-// todo split interface to Trip and MutualTrip
-public class Trip implements HasId<Trip>, HasTransportMode, GraphProperty {
+public interface Trip extends HasId<Trip>, HasTransportMode, GraphProperty {
 
-    private final IdFor<Trip> tripId;
-    private final String headSign;
-    private final Service service;
-    private final Route route;
-    private final StopCalls stopCalls;
-    private TramTime earliestDepart = null;
-    private TramTime latestDepart = null;
-    private int lastIndex;
-    private int firstIndex;
-    private boolean filtered; // at least one station on this trip was filtered out
+    IdFor<Trip> getId();
 
-    @Deprecated
-    public Trip(String tripId, String headSign, Service service, Route route) {
-        this(StringIdFor.createId(tripId), headSign, service, route);
-    }
+    StopCalls getStopCalls();
 
-    public Trip(IdFor<Trip> tripId, String headSign, Service service, Route route) {
-        this.tripId = tripId;
-        this.headSign = headSign.intern();
-        this.service = service;
-        this.route = route;
-        stopCalls = new StopCalls(tripId);
-        lastIndex = Integer.MIN_VALUE;
-        firstIndex = Integer.MAX_VALUE;
-        filtered = false;
-    }
+    Service getService();
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        Trip trip = (Trip) o;
-        return tripId.equals(trip.tripId);
-    }
+    String getHeadsign();
 
-    @Override
-    public int hashCode() {
-        return tripId != null ? tripId.hashCode() : 0;
-    }
+    Route getRoute();
 
-    public IdFor<Trip> getId() {
-        return tripId;
-    }
+    TramTime earliestDepartTime();
 
-    public StopCalls getStopCalls() {
-        return stopCalls;
-    }
+    TramTime latestDepartTime();
 
-    public void addStop(StopCall stop) {
-        stopCalls.add(stop);
+    TransportMode getTransportMode();
 
-        // use stop index as avoids issues with crossing day boundaries
-        int stopIndex = stop.getGetSequenceNumber();
-        TramTime departureTime = stop.getDepartureTime();
+    int getSeqNumOfFirstStop();
 
-        if (stopIndex < firstIndex) {
-            firstIndex = stopIndex;
-            earliestDepart = departureTime;
-        }
-        if (stopIndex > lastIndex) {
-            lastIndex = stopIndex;
-            latestDepart = departureTime;
-        }
-    }
+    int getSeqNumOfLastStop();
 
-    @Override
-    public String toString() {
-        return "Trip{" +
-                "tripId='" + tripId + '\'' +
-                ", headSign='" + headSign + '\'' +
-                ", service=" + HasId.asId(service) +
-                ", route=" + HasId.asId(route) +
-                ", stops=" + stopCalls +
-                ", earliestDepart=" + earliestDepart +
-                ", latestDepart=" + latestDepart +
-                ", lastIndex=" + lastIndex +
-                ", firstIndex=" + firstIndex +
-                '}';
-    }
+    GraphPropertyKey getProp();
 
-    public Service getService() {
-        return service;
-    }
-
-    public String getHeadsign() {
-        return headSign;
-    }
-
-    public Route getRoute() {
-        return route;
-    }
-
-    public TramTime earliestDepartTime() {
-        if (earliestDepart==null) {
-            throw new RuntimeException("earliestDepart not set for tripid " + tripId);
-        }
-        return earliestDepart;
-    }
-
-    public TramTime latestDepartTime() {
-        if (latestDepart==null) {
-            throw new RuntimeException("earliestDepart not set for tripid" + tripId);
-        }
-        return latestDepart;
-    }
-
-    @Override
-    public TransportMode getTransportMode() {
-        return route.getTransportMode();
-    }
-
-    public int getSeqNumOfFirstStop() {
-        return firstIndex;
-    }
-
-    public int getSeqNumOfLastStop() {
-        return lastIndex;
-    }
-
-    @Override
-    public GraphPropertyKey getProp() {
-        return GraphPropertyKey.TRIP_ID;
-    }
-
-    public void setFiltered(boolean flag) {
-        this.filtered = flag;
-    }
-
-    public boolean isFiltered() {
-        return filtered;
-    }
+    boolean isFiltered();
 }

@@ -2,9 +2,9 @@ package com.tramchester.graph.search;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tramchester.domain.Platform;
-import com.tramchester.domain.exceptions.TramchesterException;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.input.StopCall;
+import com.tramchester.domain.input.MutableTrip;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.MyLocation;
 import com.tramchester.domain.places.Station;

@@ -6,7 +6,7 @@ import com.tramchester.domain.Route;
 import com.tramchester.domain.Service;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.id.StringIdFor;
-import com.tramchester.domain.input.Trip;
+import com.tramchester.domain.input.MutableTrip;
 import com.tramchester.domain.places.Location;
 import com.tramchester.domain.places.MyLocation;
 import com.tramchester.domain.places.Station;
@@ -31,7 +31,7 @@ class JourneyTest {
     private TramTime queryTime;
     private List<Location<?>> path;
     private final Route route = TestEnv.getTramTestRoute();
-    private Trip trip;
+    private MutableTrip trip;
     private List<Integer> stopSequenceNumbers;
     private MyLocation myLocation;
     private final int requestedNumberChanges = 4;
@@ -39,7 +39,7 @@ class JourneyTest {
     @BeforeEach
     void beforeEachTest() {
         Service service = new Service(StringIdFor.createId("svc123"));
-        trip = new Trip(StringIdFor.createId("trip897"), "headsign", service, route);
+        trip = new MutableTrip(StringIdFor.createId("trip897"), "headsign", service, route);
         queryTime = TramTime.of(9,16);
         path = Collections.emptyList();
         stopSequenceNumbers = Arrays.asList(10,11,12,13);

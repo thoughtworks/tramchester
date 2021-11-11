@@ -5,7 +5,7 @@ import com.tramchester.dataimport.data.StopTimeData;
 import com.tramchester.domain.*;
 import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.input.NoPlatformStopCall;
-import com.tramchester.domain.input.Trip;
+import com.tramchester.domain.input.MutableTrip;
 import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.GTFSPickupDropoffType;
@@ -103,7 +103,7 @@ public class MixedTransportTestDataFactory implements TransportDataFactory {
         serviceC.setCalendar(serviceCalendarC);
 
         // tripA: FIRST_STATION -> SECOND_STATION -> INTERCHANGE -> LAST_STATION
-        Trip tripA = new Trip(StringIdFor.createId(MixedTransportTestData.TRIP_A_ID), "headSign", serviceA, routeA);
+        MutableTrip tripA = new MutableTrip(StringIdFor.createId(MixedTransportTestData.TRIP_A_ID), "headSign", serviceA, routeA);
 
         Station first = new TestNoPlatformStation(MixedTransportTestData.FIRST_STATION, "area1", "startStation",
                 TestEnv.nearAltrincham, TestEnv.nearAltrinchamGrid, TransportMode.Bus, dataSourceID);
@@ -149,7 +149,7 @@ public class MixedTransportTestDataFactory implements TransportDataFactory {
         addAStation(container, stationFive);
 
         //
-        Trip tripC = new Trip(StringIdFor.createId("tripCId"), "headSignC", serviceC, routeC);
+        MutableTrip tripC = new MutableTrip(StringIdFor.createId("tripCId"), "headSignC", serviceC, routeC);
         NoPlatformStopCall stopG = createStop(tripC, interchangeStation, TramTime.of(8, 26),
                 TramTime.of(8, 27), 1);
         addRouteStation(container, interchangeStation, routeC);
@@ -188,7 +188,7 @@ public class MixedTransportTestDataFactory implements TransportDataFactory {
 
     private static void createInterchangeToStation4Trip(TransportDataContainer container, Route route, Service service,
                                                         Station interchangeStation, Station station, LocalTime startTime, String tripId) {
-        Trip trip = new Trip(StringIdFor.createId(tripId), "headSignTripB2", service, route);
+        MutableTrip trip = new MutableTrip(StringIdFor.createId(tripId), "headSignTripB2", service, route);
         NoPlatformStopCall stop1 = createStop(trip, interchangeStation, TramTime.of(startTime),
                 TramTime.of(startTime.plusMinutes(5)), 1);
         trip.addStop(stop1);
@@ -199,7 +199,7 @@ public class MixedTransportTestDataFactory implements TransportDataFactory {
         container.addTrip(trip);
     }
 
-    private static NoPlatformStopCall createStop(Trip trip, Station station,
+    private static NoPlatformStopCall createStop(MutableTrip trip, Station station,
                                                  TramTime arrivalTime, TramTime departureTime, int sequenceNum) {
         StopTimeData stopTimeData = StopTimeData.forTestOnly(trip.getId().forDTO(), arrivalTime, departureTime, station.forDTO(),
                 sequenceNum, GTFSPickupDropoffType.Regular, GTFSPickupDropoffType.Regular);

@@ -7,7 +7,6 @@ import com.tramchester.domain.places.Location;
 import com.tramchester.domain.places.MyLocation;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.time.TramTime;
-import com.tramchester.domain.transportStages.WalkingStage;
 
 import java.util.Collections;
 import java.util.List;

@@ -6,7 +6,7 @@ import com.tramchester.domain.Route;
 import com.tramchester.domain.Service;
 import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.input.PlatformStopCall;
-import com.tramchester.domain.input.Trip;
+import com.tramchester.domain.input.MutableTrip;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.testSupport.TestEnv;
@@ -25,13 +25,13 @@ class TripTest {
     private TramStations stationB;
     private TramStations stationC;
 
-    private Trip trip;
+    private MutableTrip trip;
 
     @BeforeEach
     void beforeEachTestRuns() {
         Service service = new Service("svcId");
 
-        trip = new Trip(StringIdFor.createId("tripId"),"headSign", service, TestEnv.getTramTestRoute());
+        trip = new MutableTrip(StringIdFor.createId("tripId"),"headSign", service, TestEnv.getTramTestRoute());
 
         stationA = TramStations.Ashton;
         stationB = TramStations.Broadway;
@@ -42,12 +42,12 @@ class TripTest {
     void shouldKnowIfTramTrip() {
         Service service = new Service("svcId");
 
-        Trip tripA = new Trip(StringIdFor.createId("tripId"), "headSign", service, TestEnv.getTramTestRoute());
+        MutableTrip tripA = new MutableTrip(StringIdFor.createId("tripId"), "headSign", service, TestEnv.getTramTestRoute());
         assertTrue(TransportMode.isTram(tripA));
         Route busRoute = new Route(StringIdFor.createId("busRouteId"), "busRouteCode", "busRouteName",
                 new Agency(DataSourceID.tfgm, StringIdFor.createId("BUS"), "agencyName"),
                 TransportMode.Bus);
-        Trip tripB = new Trip(StringIdFor.createId("tripId"), "headSign", service, busRoute);
+        MutableTrip tripB = new MutableTrip(StringIdFor.createId("tripId"), "headSign", service, busRoute);
         assertFalse(TransportMode.isTram(tripB));
     }
 

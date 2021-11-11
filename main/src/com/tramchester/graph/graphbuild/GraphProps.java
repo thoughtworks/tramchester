@@ -6,6 +6,7 @@ import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.id.StringIdFor;
+import com.tramchester.domain.input.MutableTrip;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
@@ -21,13 +22,7 @@ import org.neo4j.graphdb.Relationship;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.*;
-import java.util.function.BiConsumer;
-import java.util.function.BinaryOperator;
-import java.util.function.Function;
-import java.util.function.Supplier;
-import java.util.stream.Collector;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static com.tramchester.domain.id.StringIdFor.getCompositeIdFromGraphEntity;
 import static com.tramchester.domain.id.StringIdFor.getIdFromGraphEntity;
@@ -114,13 +109,13 @@ public class GraphProps {
         return entity.getProperty(graphPropertyKey.getText());
     }
 
-    public static IdSet<Trip> getTrips(Entity entity) {
+    public static IdSet<MutableTrip> getTrips(Entity entity) {
         if (!hasProperty(TRIPS, entity)) {
             return IdSet.emptySet(); // ok during graph build when property not set initiall
         }
 
         String[] ids = (String[]) getProperty(entity, TRIPS);
-        IdSet<Trip> tripIds = new IdSet<>(ids.length);
+        IdSet<MutableTrip> tripIds = new IdSet<>(ids.length);
         for (String id : ids) {
             tripIds.add(StringIdFor.createId(id));
         }
