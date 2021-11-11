@@ -8,7 +8,7 @@ import com.tramchester.dataimport.DataLoader;
 import com.tramchester.dataimport.data.RouteIndexData;
 import com.tramchester.dataimport.data.RouteMatrixData;
 import com.tramchester.domain.NumberOfChanges;
-import com.tramchester.domain.Route;
+import com.tramchester.domain.RouteReadOnly;
 import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.places.Station;
@@ -77,9 +77,9 @@ public class RouteToRouteCostsTest {
 
     @Test
     void shouldHaveExpectedNumberOfInterconnections() {
-        Set<Route> routes = routeRepository.getRoutes();
-        for (Route start : routes) {
-            for (Route end : routes) {
+        Set<RouteReadOnly> routes = routeRepository.getRoutes();
+        for (RouteReadOnly start : routes) {
+            for (RouteReadOnly end : routes) {
                 if (!start.equals(end)) {
                     assertNotEquals(Integer.MAX_VALUE, routesCostRepository.getFor(start, end),
                             "no path between " + start + " " + end);
@@ -90,15 +90,15 @@ public class RouteToRouteCostsTest {
 
     @Test
     void shouldComputeCostsSameRoute() {
-        Set<Route> routesA = routeHelper.get(AltrinchamPiccadilly);
+        Set<RouteReadOnly> routesA = routeHelper.get(AltrinchamPiccadilly);
 
         routesA.forEach(routeA -> assertEquals(0, routesCostRepository.getFor(routeA, routeA)));
     }
 
     @Test
     void shouldComputeCostsRouteOtherDirection() {
-        Set<Route> routesA = routeHelper.get(AltrinchamPiccadilly);
-        Set<Route> routesB = routeHelper.get(PiccadillyAltrincham);
+        Set<RouteReadOnly> routesA = routeHelper.get(AltrinchamPiccadilly);
+        Set<RouteReadOnly> routesB = routeHelper.get(PiccadillyAltrincham);
 
         routesA.forEach(routeA -> routesB.forEach(routeB -> {
             assertEquals(1, routesCostRepository.getFor(routeA, routeB));
@@ -108,8 +108,8 @@ public class RouteToRouteCostsTest {
 
     @Test
     void shouldComputeCostsDifferentRoutesOneChange() {
-        Set<Route> routesA = routeHelper.get(CornbrookTheTraffordCentre);
-        Set<Route> routesB = routeHelper.get(BuryPiccadilly);
+        Set<RouteReadOnly> routesA = routeHelper.get(CornbrookTheTraffordCentre);
+        Set<RouteReadOnly> routesB = routeHelper.get(BuryPiccadilly);
 
         routesA.forEach(routeA -> routesB.forEach(routeB -> {
             assertEquals(2, routesCostRepository.getFor(routeA, routeB));
@@ -120,8 +120,8 @@ public class RouteToRouteCostsTest {
 
     @Test
     void shouldComputeCostsDifferentRoutesTwoChanges() {
-        Set<Route> routesA = routeHelper.get(AltrinchamPiccadilly);
-        Set<Route> routesB = routeHelper.get(VictoriaWythenshaweManchesterAirport);
+        Set<RouteReadOnly> routesA = routeHelper.get(AltrinchamPiccadilly);
+        Set<RouteReadOnly> routesB = routeHelper.get(VictoriaWythenshaweManchesterAirport);
 
         routesA.forEach(routeA -> routesB.forEach(routeB -> {
             assertEquals(1, routesCostRepository.getFor(routeA, routeB));
@@ -177,20 +177,20 @@ public class RouteToRouteCostsTest {
     @Test
     void shouldSortAsExpected() {
 
-        Set<Route> routesA = routeHelper.get(CornbrookTheTraffordCentre);
-        Set<Route> routesB = routeHelper.get(VictoriaWythenshaweManchesterAirport);
-        Set<Route> routesC = routeHelper.get(BuryPiccadilly);
+        Set<RouteReadOnly> routesA = routeHelper.get(CornbrookTheTraffordCentre);
+        Set<RouteReadOnly> routesB = routeHelper.get(VictoriaWythenshaweManchesterAirport);
+        Set<RouteReadOnly> routesC = routeHelper.get(BuryPiccadilly);
 
         Station destination = stationRepository.getStationById(TramStations.TraffordCentre.getId());
         LowestCostsForRoutes sorts = routesCostRepository.getLowestCostCalcutatorFor(Collections.singleton(destination));
 
         routesA.forEach(routeA -> routesB.forEach(routeB -> routesC.forEach(routeC -> {
 
-            Stream<Route> toSort = Stream.of(routeC, routeB, routeA);
+            Stream<RouteReadOnly> toSort = Stream.of(routeC, routeB, routeA);
 
-            Stream<Route> results = sorts.sortByDestinations(toSort);
+            Stream<RouteReadOnly> results = sorts.sortByDestinations(toSort);
 
-            List<HasId<Route>> list = results.collect(Collectors.toList());
+            List<HasId<RouteReadOnly>> list = results.collect(Collectors.toList());
             assertEquals(3, list.size());
             assertEquals(routeA.getId(), list.get(0).getId());
             assertEquals(routeB.getId(), list.get(1).getId());
@@ -208,10 +208,10 @@ public class RouteToRouteCostsTest {
         Stream<RouteIndexData> indexFromFile = indexLoader.load();
         List<RouteIndexData> resultsForIndex = indexFromFile.collect(Collectors.toList());
 
-        IdSet<Route> expected = routeRepository.getRoutes().stream().collect(IdSet.collector());
+        IdSet<RouteReadOnly> expected = routeRepository.getRoutes().stream().collect(IdSet.collector());
         assertEquals(expected.size(), resultsForIndex.size());
 
-        IdSet<Route> idsFromIndex = resultsForIndex.stream().map(RouteIndexData::getRouteId).collect(IdSet.idCollector());
+        IdSet<RouteReadOnly> idsFromIndex = resultsForIndex.stream().map(RouteIndexData::getRouteId).collect(IdSet.idCollector());
         assertEquals(expected, idsFromIndex);
     }
 

@@ -40,19 +40,6 @@ class TripTest {
     }
 
     @Test
-    void shouldKnowIfTramTrip() {
-        Service service = new Service("svcId");
-
-        Trip tripA = new MutableTrip(StringIdFor.createId("tripId"), "headSign", service, TestEnv.getTramTestRoute());
-        assertTrue(TransportMode.isTram(tripA));
-        Route busRoute = new Route(StringIdFor.createId("busRouteId"), "busRouteCode", "busRouteName",
-                new Agency(DataSourceID.tfgm, StringIdFor.createId("BUS"), "agencyName"),
-                TransportMode.Bus);
-        Trip tripB = new MutableTrip(StringIdFor.createId("tripId"), "headSign", service, busRoute);
-        assertFalse(TransportMode.isTram(tripB));
-    }
-
-    @Test
     void shouldModelCircularTripsCorrectly() {
 
         PlatformStopCall firstStop = TestEnv.createTramStopCall(trip, "statA1", stationA, (byte) 1, TramTime.of(10, 0), TramTime.of(10, 1));
@@ -108,6 +95,19 @@ class TripTest {
 
         assertEquals(TramTime.of(0,1), trip.latestDepartTime());
 
+    }
+
+    @Test
+    void shouldKnowIfTramTrip() {
+        Service service = new Service("svcId");
+
+        Trip tripA = MutableTrip.buildTrip(StringIdFor.createId("tripId"), "headSign", service, TestEnv.getTramTestRoute());
+        assertTrue(TransportMode.isTram(tripA));
+        Route busRoute = new Route(StringIdFor.createId("busRouteId"), "busRouteCode", "busRouteName",
+                new Agency(DataSourceID.tfgm, StringIdFor.createId("BUS"), "agencyName"),
+                TransportMode.Bus);
+        Trip tripB = MutableTrip.buildTrip(StringIdFor.createId("tripId"), "headSign", service, busRoute);
+        assertFalse(TransportMode.isTram(tripB));
     }
 
 }

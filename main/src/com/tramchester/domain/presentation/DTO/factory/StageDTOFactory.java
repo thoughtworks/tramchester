@@ -1,7 +1,7 @@
 package com.tramchester.domain.presentation.DTO.factory;
 
 import com.netflix.governator.guice.lazy.LazySingleton;
-import com.tramchester.domain.Route;
+import com.tramchester.domain.RouteReadOnly;
 import com.tramchester.domain.presentation.DTO.PlatformDTO;
 import com.tramchester.domain.presentation.DTO.RouteRefDTO;
 import com.tramchester.domain.presentation.DTO.StageDTO;
@@ -30,7 +30,7 @@ public class StageDTOFactory {
         LocalDateTime firstDepartureTime = source.getFirstDepartureTime().toDate(queryDate);
         LocalDateTime expectedArrivalTime = source.getExpectedArrivalTime().toDate(queryDate);
 
-        Route route = source.getRoute();
+        RouteReadOnly route = source.getRoute();
         RouteRefDTO routeRefDTO = new RouteRefDTO(route);
 
         String tripId = source.getTripId().isValid() ? source.getTripId().forDTO() : "";

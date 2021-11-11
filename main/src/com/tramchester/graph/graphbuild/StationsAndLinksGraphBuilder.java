@@ -2,10 +2,7 @@ package com.tramchester.graph.graphbuild;
 
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.config.HasGraphDBConfig;
-import com.tramchester.domain.Agency;
-import com.tramchester.domain.Platform;
-import com.tramchester.domain.Route;
-import com.tramchester.domain.StationIdPair;
+import com.tramchester.domain.*;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.input.StopCalls;
 import com.tramchester.domain.places.RouteStation;
@@ -112,7 +109,7 @@ public class StationsAndLinksGraphBuilder extends GraphBuilder {
 
     private void addRouteStationsAndLinksFor(Agency agency, GraphBuilderCache builderCache) {
 
-        Set<Route> routes = agency.getRoutes().stream().filter(graphFilter::shouldIncludeRoute).collect(Collectors.toSet());
+        Set<RouteReadOnly> routes = agency.getRoutes().stream().filter(graphFilter::shouldIncludeRoute).collect(Collectors.toSet());
         if (routes.isEmpty()) {
             return;
         }
@@ -125,7 +122,7 @@ public class StationsAndLinksGraphBuilder extends GraphBuilder {
         try(TimedTransaction timedTransaction = new TimedTransaction(graphDatabase, logger, "Adding routes")){
             Transaction tx = timedTransaction.transaction();
             routes.forEach(route -> {
-                IdFor<Route> asId = route.getId();
+                IdFor<RouteReadOnly> asId = route.getId();
                 logger.info("Adding route " + asId);
                 filteredStations.stream().filter(station -> station.servesRoute(route)).
                         forEach(station -> {
@@ -154,7 +151,7 @@ public class StationsAndLinksGraphBuilder extends GraphBuilder {
 
     // NOTE: for services that skip some stations, but same stations not skipped by other services
     // this will create multiple links
-    private void createLinkRelationships(Transaction tx, Route route, GraphBuilderCache routeBuilderCache) {
+    private void createLinkRelationships(Transaction tx, RouteReadOnly route, GraphBuilderCache routeBuilderCache) {
 
         // TODO this uses the first cost we encounter for the link, while this is accurate for tfgm trams it does
         //  not give the correct results for buses and trains where time between station can vary depending upon the

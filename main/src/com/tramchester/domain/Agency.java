@@ -8,7 +8,7 @@ import com.tramchester.graph.GraphPropertyKey;
 import java.util.*;
 
 public class Agency implements HasId<Agency>, GraphProperty {
-    private final Set<Route> routes;
+    private final Set<RouteReadOnly> routes;
     private final IdFor<Agency> agencyId;
     private final String agencyName;
     private final DataSourceID dataSourceID;
@@ -32,11 +32,11 @@ public class Agency implements HasId<Agency>, GraphProperty {
         return METL.equals(agencyId);
     }
 
-    public void addRoute(Route route) {
+    public void addRoute(RouteReadOnly route) {
         routes.add(route);
     }
 
-    public Collection<Route> getRoutes() {
+    public Collection<RouteReadOnly> getRoutes() {
         return routes;
     }
 

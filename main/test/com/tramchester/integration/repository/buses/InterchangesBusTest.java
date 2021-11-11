@@ -3,7 +3,7 @@ package com.tramchester.integration.repository.buses;
 import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.domain.InterchangeStation;
-import com.tramchester.domain.Route;
+import com.tramchester.domain.RouteReadOnly;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.places.Station;
 import com.tramchester.integration.testSupport.bus.IntegrationBusTestConfig;
@@ -73,8 +73,8 @@ class InterchangesBusTest {
 
     @Test
     void shouldHaveReachableInterchangeForEveryRoute() {
-        Set<Route> routesWithInterchanges = RoutesWithInterchanges(interchangeRepository, Bus);
-        Set<Route> all = routeRepository.getRoutes();
+        Set<RouteReadOnly> routesWithInterchanges = RoutesWithInterchanges(interchangeRepository, Bus);
+        Set<RouteReadOnly> all = routeRepository.getRoutes();
 
         // Note works for 2 links, not for 3 links
         assertEquals(all, routesWithInterchanges);

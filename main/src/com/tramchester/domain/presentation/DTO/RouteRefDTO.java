@@ -3,7 +3,7 @@ package com.tramchester.domain.presentation.DTO;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.tramchester.domain.Route;
+import com.tramchester.domain.RouteReadOnly;
 import com.tramchester.domain.reference.TransportMode;
 
 @JsonIgnoreProperties(value = "tram", allowGetters = true)
@@ -18,11 +18,11 @@ public class RouteRefDTO {
         // deserialization
     }
 
-    public RouteRefDTO(Route route) {
+    public RouteRefDTO(RouteReadOnly route) {
         this(route, route.getName());
     }
 
-    public RouteRefDTO(Route route, String routeName) {
+    public RouteRefDTO(RouteReadOnly route, String routeName) {
         this.routeName = routeName;
 
         // tfgm data have routes that are identical except for the ID, don't want to expose this to the API

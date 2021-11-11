@@ -1,6 +1,6 @@
 package com.tramchester.testSupport.reference;
 
-import com.tramchester.domain.Route;
+import com.tramchester.domain.RouteReadOnly;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.reference.RouteDirection;
@@ -36,7 +36,7 @@ public enum KnownTramRoute {
     TheTraffordCentreCornbrook("Red Line", Inbound, "The Trafford Centre - Cornbrook"),
     CornbrookTheTraffordCentre("Red Line", Outbound, "Cornbrook - The Trafford Centre");
 
-    private final IdFor<Route> fakeId;
+    private final IdFor<RouteReadOnly> fakeId;
     private final RouteDirection direction;
     private final String shortName;
     private final String longName;
@@ -52,7 +52,7 @@ public enum KnownTramRoute {
         this.fakeId = createId(format("METL%s%s", idSuffix, direction.getSuffix()));
     }
 
-    private IdFor<Route> createId(String stationId) {
+    private IdFor<RouteReadOnly> createId(String stationId) {
         return StringIdFor.createId(stationId);
     }
 
@@ -70,7 +70,7 @@ public enum KnownTramRoute {
         return shortName;
     }
 
-    public IdFor<Route> getFakeId() {
+    public IdFor<RouteReadOnly> getFakeId() {
         return fakeId;
     }
 

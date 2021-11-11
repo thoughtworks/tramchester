@@ -15,7 +15,7 @@ public class Platform implements HasId<Platform>, GraphProperty {
 
     private final IdFor<Platform> id;
     private final String name;
-    private final Set<Route> servesRoutes;
+    private final Set<RouteReadOnly> servesRoutes;
     private final String platformNumber;
     private final LatLong latLong;
 
@@ -66,11 +66,11 @@ public class Platform implements HasId<Platform>, GraphProperty {
         return id.hashCode();
     }
 
-    public void addRoute(Route route) {
+    public void addRoute(RouteReadOnly route) {
         servesRoutes.add(route);
     }
 
-    public Set<Route> getRoutes() {
+    public Set<RouteReadOnly> getRoutes() {
         return servesRoutes;
     }
 
@@ -79,7 +79,7 @@ public class Platform implements HasId<Platform>, GraphProperty {
         return GraphPropertyKey.PLATFORM_ID;
     }
 
-    public boolean servesRoute(Route route) {
+    public boolean servesRoute(RouteReadOnly route) {
         return servesRoutes.contains(route);
     }
 

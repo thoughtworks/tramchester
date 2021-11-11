@@ -1,22 +1,22 @@
 package com.tramchester.graph.search;
 
-import com.tramchester.domain.Route;
+import com.tramchester.domain.RouteReadOnly;
 import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.graph.GraphPropertyKey;
 import com.tramchester.graph.graphbuild.GraphProps;
 import org.neo4j.graphdb.Relationship;
 
-public class RelationshipWithRoute implements HasId<Route> {
+public class RelationshipWithRoute implements HasId<RouteReadOnly> {
     private final Relationship relationship;
-    private final IdFor<Route> routeId;
+    private final IdFor<RouteReadOnly> routeId;
 
     public RelationshipWithRoute(Relationship relationship) {
         routeId = GraphProps.getRouteIdFrom(relationship);
         this.relationship = relationship;
     }
 
-    public IdFor<Route> getRouteId() {
+    public IdFor<RouteReadOnly> getRouteId() {
         return routeId;
     }
 
@@ -30,7 +30,7 @@ public class RelationshipWithRoute implements HasId<Route> {
     }
 
     @Override
-    public IdFor<Route> getId() {
+    public IdFor<RouteReadOnly> getId() {
         return routeId;
     }
 }

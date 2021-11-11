@@ -10,9 +10,9 @@ import com.tramchester.graph.GraphPropertyKey;
 import java.util.HashSet;
 import java.util.Set;
 
-public class Route implements HasId<Route>, HasTransportMode, GraphProperty {
+public class Route implements RouteReadOnly {
 
-    private final IdFor<Route> id;
+    private final IdFor<RouteReadOnly> id;
     private final String shortName;
     private final String name;
     private final Agency agency;
@@ -20,7 +20,7 @@ public class Route implements HasId<Route>, HasTransportMode, GraphProperty {
     private final Set<Service> services;
     private final Set<Trip> trips;
 
-    public static final Route Walking;
+    public static final RouteReadOnly Walking;
     static {
             Walking = new Route(StringIdFor.createId("Walk"), "Walk", "Walk", Agency.Walking,
                     TransportMode.Walk);
@@ -31,7 +31,7 @@ public class Route implements HasId<Route>, HasTransportMode, GraphProperty {
         this(StringIdFor.createId(id), shortName, name, agency, transportMode);
     }
 
-    public Route(IdFor<Route> id, String shortName, String name, Agency agency, TransportMode transportMode) {
+    public Route(IdFor<RouteReadOnly> id, String shortName, String name, Agency agency, TransportMode transportMode) {
         this.id = id;
         this.shortName = shortName.intern();
         this.name = name.intern();
@@ -42,14 +42,17 @@ public class Route implements HasId<Route>, HasTransportMode, GraphProperty {
         trips  = new HashSet<>();
     }
 
-    public IdFor<Route> getId() {
+    @Override
+    public IdFor<RouteReadOnly> getId() {
         return id;
     }
 
+    @Override
     public String getName() {
         return name;
     }
 
+    @Override
     public Set<Service> getServices() {
         return services;
     }
@@ -62,6 +65,7 @@ public class Route implements HasId<Route>, HasTransportMode, GraphProperty {
         services.add(service);
     }
 
+    @Override
     public Agency getAgency() {
         return agency;
     }
@@ -81,10 +85,12 @@ public class Route implements HasId<Route>, HasTransportMode, GraphProperty {
         return id != null ? id.hashCode() : 0;
     }
 
+    @Override
     public String getShortName() {
         return shortName;
     }
 
+    @Override
     public TransportMode getTransportMode() {
         return transportMode;
     }
@@ -107,6 +113,7 @@ public class Route implements HasId<Route>, HasTransportMode, GraphProperty {
         return GraphPropertyKey.ROUTE_ID;
     }
 
+    @Override
     public Set<Trip> getTrips() {
         return trips;
     }

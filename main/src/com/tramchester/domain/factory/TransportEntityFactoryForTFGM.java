@@ -3,10 +3,7 @@ package com.tramchester.domain.factory;
 import com.tramchester.dataimport.NaPTAN.StopsData;
 import com.tramchester.dataimport.data.RouteData;
 import com.tramchester.dataimport.data.StopData;
-import com.tramchester.domain.Agency;
-import com.tramchester.domain.DataSourceID;
-import com.tramchester.domain.Platform;
-import com.tramchester.domain.Route;
+import com.tramchester.domain.*;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdMap;
 import com.tramchester.domain.id.StringIdFor;
@@ -41,7 +38,7 @@ public class TransportEntityFactoryForTFGM extends TransportEntityFactory {
     @Override
     public Route createRoute(GTFSTransportationType routeType, RouteData routeData, Agency agency, IdMap<Station> allStations) {
 
-        IdFor<Route> routeId = createRouteId(routeData.getId());
+        IdFor<RouteReadOnly> routeId = createRouteId(routeData.getId());
         String routeName = routeData.getLongName();
         return new Route(routeId, routeData.getShortName().trim(), routeName, agency, TransportMode.fromGTFS(routeType));
     }

@@ -14,15 +14,15 @@ import static com.tramchester.domain.id.HasId.asIds;
 public class InterchangeStation {
     private final Station station;
 
-    private final Set<Route> connectedToRoutes;
+    private final Set<RouteReadOnly> connectedToRoutes;
 
-    public InterchangeStation(Station station, Set<Route> connectedToRoutes) {
+    public InterchangeStation(Station station, Set<RouteReadOnly> connectedToRoutes) {
         this.station = station;
         this.connectedToRoutes = new HashSet<>(connectedToRoutes);
     }
 
     public boolean isMultiMode() {
-        Set<TransportMode> uniqueModes = connectedToRoutes.stream().map(Route::getTransportMode).collect(Collectors.toSet());
+        Set<TransportMode> uniqueModes = connectedToRoutes.stream().map(RouteReadOnly::getTransportMode).collect(Collectors.toSet());
         uniqueModes.addAll(station.getTransportModes());
         return uniqueModes.size()>1;
     }
@@ -50,11 +50,11 @@ public class InterchangeStation {
         return station.hashCode();
     }
 
-    public Set<Route> getSourceRoutes() {
+    public Set<RouteReadOnly> getSourceRoutes() {
         return station.getRoutes();
     }
 
-    public Set<Route> getDestinationRoutes() {
+    public Set<RouteReadOnly> getDestinationRoutes() {
         return Collections.unmodifiableSet(connectedToRoutes);
     }
 
@@ -62,7 +62,7 @@ public class InterchangeStation {
         return station.getId();
     }
 
-    public void addLinkedRoutes(Set<Route> additionalRoutes) {
+    public void addLinkedRoutes(Set<RouteReadOnly> additionalRoutes) {
         connectedToRoutes.addAll(additionalRoutes);
     }
 }

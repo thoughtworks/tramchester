@@ -2,7 +2,7 @@ package com.tramchester.integration.dataimport;
 
 import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
-import com.tramchester.domain.Route;
+import com.tramchester.domain.RouteReadOnly;
 import com.tramchester.testSupport.reference.KnownTramRoute;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
 import com.tramchester.repository.RouteRepository;
@@ -39,11 +39,11 @@ class KnownTramRouteTest {
         List<KnownTramRoute> knownRoutes = Arrays.asList(KnownTramRoute.values());
         Set<String> knownRouteNames = knownRoutes.stream().map(KnownTramRoute::longName).collect(Collectors.toSet());
 
-        Set<Route> loadedRoutes = routeRepository.getRoutes();
+        Set<RouteReadOnly> loadedRoutes = routeRepository.getRoutes();
 
         // NOTE: not checking numbers here as loaded data can contain the 'same' route but with different id
 
-        for (Route loaded: loadedRoutes) {
+        for (RouteReadOnly loaded: loadedRoutes) {
             final String loadedName = loaded.getName();
             assertTrue(knownRouteNames.contains(loadedName), "missing from known '" + loadedName+"'");
 
@@ -54,7 +54,7 @@ class KnownTramRouteTest {
             assertEquals(loaded.getTransportMode(), matched.mode());
         }
 
-        Set<String> loadedRouteNames = loadedRoutes.stream().map(Route::getName).collect(Collectors.toSet());
+        Set<String> loadedRouteNames = loadedRoutes.stream().map(RouteReadOnly::getName).collect(Collectors.toSet());
 
         for (KnownTramRoute knownTramRoute : knownRoutes) {
             assertTrue(loadedRouteNames.contains(knownTramRoute.longName()), "Missing from loaded " + knownTramRoute);

@@ -1,6 +1,6 @@
 package com.tramchester.unit.domain.id;
 
-import com.tramchester.domain.Route;
+import com.tramchester.domain.RouteReadOnly;
 import com.tramchester.domain.id.CompositeId;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.MixedCompositeId;
@@ -52,8 +52,8 @@ class IdTest {
 
     @Test
     void shouldHaveMixedCompositeEquality() {
-        IdFor<Route> routeA = StringIdFor.createId("routeA");
-        IdFor<Route> routeB = StringIdFor.createId("routeB");
+        IdFor<RouteReadOnly> routeA = StringIdFor.createId("routeA");
+        IdFor<RouteReadOnly> routeB = StringIdFor.createId("routeB");
 
         IdFor<RouteStation> compositeIdA = MixedCompositeId.createId(routeA, idA);
         IdFor<RouteStation> compositeIdB = MixedCompositeId.createId(routeA, idA);
@@ -93,7 +93,7 @@ class IdTest {
 
     @Test
     void shouldRoundTripParseMixedComposite() {
-        IdFor<Route> routeA = StringIdFor.createId("routeA");
+        IdFor<RouteReadOnly> routeA = StringIdFor.createId("routeA");
         IdFor<RouteStation> compositeIdA = MixedCompositeId.createId(routeA, idA);
 
         String forDto = compositeIdA.forDTO();

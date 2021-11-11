@@ -2,10 +2,10 @@ package com.tramchester.dataimport.data;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.tramchester.domain.Agency;
+import com.tramchester.domain.RouteReadOnly;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.reference.GTFSTransportationType;
 import com.tramchester.domain.id.StringIdFor;
-import com.tramchester.domain.Route;
 
 import java.util.Objects;
 
@@ -31,7 +31,7 @@ public class RouteData {
         return text.replaceAll(" ", "");
     }
 
-    public IdFor<Route> getId() {
+    public IdFor<RouteReadOnly> getId() {
         return StringIdFor.createId(removeSpaces(id));
     }
 

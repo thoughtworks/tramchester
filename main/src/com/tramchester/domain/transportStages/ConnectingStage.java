@@ -2,9 +2,9 @@ package com.tramchester.domain.transportStages;
 
 import com.tramchester.domain.Platform;
 import com.tramchester.domain.Route;
+import com.tramchester.domain.RouteReadOnly;
 import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.input.StopCall;
-import com.tramchester.domain.input.MutableTrip;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.Location;
 import com.tramchester.domain.places.Station;
@@ -34,7 +34,7 @@ public class ConnectingStage implements TransportStage<Station, Station>  {
     }
 
     @Override
-    public Route getRoute() {
+    public RouteReadOnly getRoute() {
         return Route.Walking;
     }
 

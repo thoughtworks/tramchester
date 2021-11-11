@@ -3,20 +3,14 @@ package com.tramchester.integration.graph;
 import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.config.TramchesterConfig;
-import com.tramchester.domain.Route;
+import com.tramchester.domain.RouteReadOnly;
 import com.tramchester.domain.StationPair;
-import com.tramchester.domain.id.IdFor;
-import com.tramchester.domain.id.IdSet;
-import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
 import com.tramchester.testSupport.TramRouteHelper;
-import com.tramchester.testSupport.reference.KnownTramRoute;
 import com.tramchester.graph.RouteReachable;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.TestEnv;
-import com.tramchester.testSupport.TestStation;
-import com.tramchester.testSupport.reference.TramStations;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -60,10 +54,10 @@ class RouteReachableTramTest {
     void shouldTestGetRoutesFromStartToNeighbour() {
         Station start = stationRepository.getStationById(Altrincham.getId());
         Station next = stationRepository.getStationById(NavigationRoad.getId());
-        List<Route> results = reachable.getRoutesFromStartToNeighbour(StationPair.of(start, next));
+        List<RouteReadOnly> results = reachable.getRoutesFromStartToNeighbour(StationPair.of(start, next));
 
         Set<String> names = results.stream().
-                map(Route::getName).collect(Collectors.toSet());
+                map(RouteReadOnly::getName).collect(Collectors.toSet());
         assertEquals(2, names.size(), names.toString());
 
         assertTrue(names.contains(AltrinchamPiccadilly.longName()));

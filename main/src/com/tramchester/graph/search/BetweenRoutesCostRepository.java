@@ -2,17 +2,14 @@ package com.tramchester.graph.search;
 
 import com.google.inject.ImplementedBy;
 import com.tramchester.domain.NumberOfChanges;
-import com.tramchester.domain.Route;
-import com.tramchester.domain.id.HasId;
-import com.tramchester.domain.id.IdSet;
+import com.tramchester.domain.RouteReadOnly;
 import com.tramchester.domain.places.Station;
 
 import java.util.Set;
-import java.util.stream.Stream;
 
 @ImplementedBy(RouteToRouteCosts.class)
 public interface BetweenRoutesCostRepository {
-    int getFor(Route routeA, Route routeB);
+    int getFor(RouteReadOnly routeA, RouteReadOnly routeB);
     int size();
 
     NumberOfChanges getNumberOfChanges(Set<Station> starts, Set<Station> destinations);

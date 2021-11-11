@@ -180,7 +180,7 @@ public class MixedTransportTestDataFactory implements TransportDataFactory {
         container.addStation(station);
     }
 
-    private static void addRouteStation(TransportDataContainer container, Station station, Route route) {
+    private static void addRouteStation(TransportDataContainer container, Station station, RouteReadOnly route) {
         RouteStation routeStation = new RouteStation(station, route);
         container.addRouteStation(routeStation);
         station.getBuilder().addRoute(route);

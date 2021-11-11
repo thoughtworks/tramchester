@@ -8,10 +8,7 @@ import com.tramchester.config.TramchesterConfig;
 import com.tramchester.dataimport.TransportDataLoaderFiles;
 import com.tramchester.dataimport.TransportDataReader;
 import com.tramchester.dataimport.data.CalendarDateData;
-import com.tramchester.domain.Agency;
-import com.tramchester.domain.Route;
-import com.tramchester.domain.Service;
-import com.tramchester.domain.ServiceCalendar;
+import com.tramchester.domain.*;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.id.StringIdFor;
@@ -91,14 +88,14 @@ class TransportDataFromFilesBusTest {
 
     @Test
     void shouldGetSpecificBusRoutes() {
-        Collection<Route> results = transportData.getRoutes();
+        Collection<RouteReadOnly> results = transportData.getRoutes();
         long gmsRoutes = results.stream().filter(route -> route.getAgency().equals(StagecoachManchester)).count();
         assertTrue(withinNPercent(305, gmsRoutes, 0.1F), Long.toString(gmsRoutes));
     }
 
     @Test
     void shouldGetOnlyBusRoutes() {
-        Collection<Route> results = transportData.getRoutes();
+        Collection<RouteReadOnly> results = transportData.getRoutes();
         long notBus = results.stream().filter(route -> !route.getTransportMode().equals(TransportMode.Bus)).count();
         assertEquals(0, notBus);
     }
@@ -111,8 +108,8 @@ class TransportDataFromFilesBusTest {
 
     @Test
     void shouldHaveNotHaveRoutesWithZeroTrips() {
-        Set<Route> routes = transportData.getRoutes();
-        Set<Route> emptyRoutes = routes.stream().filter(route -> route.getTrips().isEmpty()).collect(Collectors.toSet());
+        Set<RouteReadOnly> routes = transportData.getRoutes();
+        Set<RouteReadOnly> emptyRoutes = routes.stream().filter(route -> route.getTrips().isEmpty()).collect(Collectors.toSet());
 
         assertEquals(Collections.emptySet(), emptyRoutes);
 
@@ -126,11 +123,11 @@ class TransportDataFromFilesBusTest {
     void shouldHaveExpectedEndOfLinesAndRoutes() {
         IdFor<Agency> agencyId = StringIdFor.createId("ROST");
 
-        Set<Route> inbounds = transportData.findRoutesByName(agencyId, "Rochdale - Bacup - Rawtenstall - Accrington");
+        Set<RouteReadOnly> inbounds = transportData.findRoutesByName(agencyId, "Rochdale - Bacup - Rawtenstall - Accrington");
         assertFalse(inbounds.isEmpty());
         inbounds.forEach(inbound -> assertEquals("464", inbound.getShortName()));
 
-        Set<Route> outbounds = transportData.findRoutesByName(agencyId, "Accrington - Rawtenstall - Bacup - Rochdale");
+        Set<RouteReadOnly> outbounds = transportData.findRoutesByName(agencyId, "Accrington - Rawtenstall - Bacup - Rochdale");
         assertFalse(outbounds.isEmpty());
         outbounds.forEach(outbound -> assertEquals("464", outbound.getShortName()));
 
@@ -172,7 +169,7 @@ class TransportDataFromFilesBusTest {
     @Disabled("too slow currently for buses")
     @Test
     void shouldHaveConsistencyOfRouteAndTripAndServiceIds() {
-        Collection<Route> allRoutes = transportData.getRoutes();
+        Collection<RouteReadOnly> allRoutes = transportData.getRoutes();
         List<Integer> svcSizes = new LinkedList<>();
 
         allRoutes.forEach(route -> svcSizes.add(route.getServices().size()));
@@ -189,7 +186,7 @@ class TransportDataFromFilesBusTest {
         int tripsSize = transportData.getTrips().size();
         assertEquals(tripsSize, allTrips.size());
 
-        IdSet<Trip> tripIdsFromSvcs = transportData.getRoutes().stream().map(Route::getTrips).
+        IdSet<Trip> tripIdsFromSvcs = transportData.getRoutes().stream().map(RouteReadOnly::getTrips).
                 flatMap(Collection::stream).
                 map(Trip::getId).collect(IdSet.idCollector());
         assertEquals(tripsSize, tripIdsFromSvcs.size());

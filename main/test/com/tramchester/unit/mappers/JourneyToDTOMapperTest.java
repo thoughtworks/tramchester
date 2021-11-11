@@ -4,6 +4,7 @@ package com.tramchester.unit.mappers;
 import com.tramchester.domain.Journey;
 import com.tramchester.domain.Platform;
 import com.tramchester.domain.Route;
+import com.tramchester.domain.RouteReadOnly;
 import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.IdForDTO;
@@ -80,7 +81,7 @@ class JourneyToDTOMapperTest extends EasyMockSupport {
         nearPiccGardensLocation = new MyLocation("Manchester", TestEnv.nearPiccGardens);
     }
 
-    private Route createRoute(String name) {
+    private RouteReadOnly createRoute(String name) {
         return new Route(StringIdFor.createId("routeId"), "shortName", name, TestEnv.MetAgency(), TransportMode.Tram);
     }
 
@@ -282,7 +283,7 @@ class JourneyToDTOMapperTest extends EasyMockSupport {
         validateStationList(Collections.singletonList(middle), result.getChangeStations());
     }
 
-    private VehicleStage getRawVehicleStage(Station start, Station finish, Route route, TramTime startTime,
+    private VehicleStage getRawVehicleStage(Station start, Station finish, RouteReadOnly route, TramTime startTime,
                                             int cost, Platform platform) {
 
 

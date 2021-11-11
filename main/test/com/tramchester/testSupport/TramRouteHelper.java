@@ -3,7 +3,7 @@ package com.tramchester.testSupport;
 import com.tramchester.App;
 import com.tramchester.ComponentContainer;
 import com.tramchester.domain.Agency;
-import com.tramchester.domain.Route;
+import com.tramchester.domain.RouteReadOnly;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.integration.testSupport.IntegrationAppExtension;
 import com.tramchester.repository.RouteRepository;
@@ -19,7 +19,7 @@ import java.util.stream.Collectors;
  */
 public class TramRouteHelper {
 
-    private final Map<KnownTramRoute, Set<Route>> map;
+    private final Map<KnownTramRoute, Set<RouteReadOnly>> map;
 
     public TramRouteHelper(ComponentContainer componentContainer) {
         this(componentContainer.get(RouteRepository.class));
@@ -42,7 +42,7 @@ public class TramRouteHelper {
     private void createMap(RouteRepository routeRepository) {
         KnownTramRoute[] knownTramRoutes = KnownTramRoute.values();
         for (KnownTramRoute knownRoute : knownTramRoutes) {
-            final Set<Route> routesByShortName =
+            final Set<RouteReadOnly> routesByShortName =
                     routeRepository.findRoutesByShortName(Agency.METL, knownRoute.shortName()).
                             stream().filter(found -> found.getId().forDTO().contains(knownRoute.direction().getSuffix())).
                             collect(Collectors.toSet());
@@ -53,7 +53,7 @@ public class TramRouteHelper {
         }
     }
 
-    public Set<Route> get(KnownTramRoute knownRoute) {
+    public Set<RouteReadOnly> get(KnownTramRoute knownRoute) {
         guard(knownRoute);
         return map.get(knownRoute);
     }
@@ -64,7 +64,7 @@ public class TramRouteHelper {
         }
     }
 
-    public IdSet<Route> getId(KnownTramRoute knownRoute) {
+    public IdSet<RouteReadOnly> getId(KnownTramRoute knownRoute) {
         guard(knownRoute);
         return map.get(knownRoute).stream().collect(IdSet.collector());
     }

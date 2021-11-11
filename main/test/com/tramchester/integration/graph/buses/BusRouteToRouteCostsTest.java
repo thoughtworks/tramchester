@@ -5,7 +5,7 @@ import com.tramchester.ComponentsBuilder;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.Agency;
 import com.tramchester.domain.NumberOfChanges;
-import com.tramchester.domain.Route;
+import com.tramchester.domain.RouteReadOnly;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.places.CompositeStation;
@@ -95,10 +95,10 @@ public class BusRouteToRouteCostsTest {
     @Test
     void shouldHaveCorrectCostBetweenRoutesDiffDirections() {
         IdFor<Agency> agencyId = StringIdFor.createId("DAGC");
-        Set<Route> altyToKnutsford = routeRepository.findRoutesByName(agencyId,
+        Set<RouteReadOnly> altyToKnutsford = routeRepository.findRoutesByName(agencyId,
                 "Altrincham - Wilmslow - Knutsford - Macclesfield");
         assertEquals(1, altyToKnutsford.size());
-        Set<Route> knutsfordToAlty = routeRepository.findRoutesByName(agencyId,
+        Set<RouteReadOnly> knutsfordToAlty = routeRepository.findRoutesByName(agencyId,
                 "Macclesfield - Knutsford - Wilmslow - Altrincham");
         assertEquals(1, knutsfordToAlty.size());
 

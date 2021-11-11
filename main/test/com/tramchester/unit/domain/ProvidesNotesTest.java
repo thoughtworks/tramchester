@@ -393,7 +393,7 @@ class ProvidesNotesTest extends EasyMockSupport {
     private VehicleStage createStageWithBoardingPlatform(String platformId, LatLong latLong) {
         TramTime departTime = TramTime.of(11,22);
         Service service = new Service("serviceId");
-        Trip trip = new MutableTrip(StringIdFor.createId("tripId"), "headSign", service,
+        Trip trip = MutableTrip.buildTrip(StringIdFor.createId("tripId"), "headSign", service,
                 TestEnv.getTramTestRoute());
 
         // TODO

@@ -27,7 +27,7 @@ public class TransportDataContainer implements TransportData {
     private final IdMap<Trip> trips = new IdMap<>();        // trip id -> trip
     private final IdMap<Station> stationsById = new IdMap<>();  // station id -> station
     private final IdMap<Service> services = new IdMap<>();  // service id -> service
-    private final IdMap<Route> routes = new IdMap<>();      // route id -> route
+    private final IdMap<RouteReadOnly> routes = new IdMap<>();      // route id -> route
     private final IdMap<Platform> platforms = new IdMap<>(); // platformId -> platform
     private final IdMap<RouteStation> routeStations = new IdMap<>(); // routeStationId - > RouteStation
     private final IdMap<Agency> agencies = new IdMap<>(); // agencyId -> agencies
@@ -150,7 +150,7 @@ public class TransportDataContainer implements TransportData {
     }
 
     @Override
-    public RouteStation getRouteStation(Station station, Route route) {
+    public RouteStation getRouteStation(Station station, RouteReadOnly route) {
         return getRouteStationById(RouteStation.createId(station.getId(), route.getId()));
     }
 
@@ -186,7 +186,7 @@ public class TransportDataContainer implements TransportData {
     }
 
     @Override
-    public Route getRouteById(IdFor<Route> routeId) {
+    public RouteReadOnly getRouteById(IdFor<RouteReadOnly> routeId) {
         return routes.get(routeId);
     }
 
@@ -241,12 +241,12 @@ public class TransportDataContainer implements TransportData {
         return agencies.hasId(agencyId);
     }
 
-    public void addRoute(Route route) {
+    public void addRoute(RouteReadOnly route) {
         routes.add(route);
     }
 
     @Deprecated
-    public void addRouteToAgency(Agency agency, Route route) {
+    public void addRouteToAgency(Agency agency, RouteReadOnly route) {
         agency.addRoute(route);
     }
 
@@ -273,7 +273,7 @@ public class TransportDataContainer implements TransportData {
     }
 
     @Override
-    public Set<Route> getRoutes() {
+    public Set<RouteReadOnly> getRoutes() {
         return routes.getValues();
     }
 
@@ -297,7 +297,7 @@ public class TransportDataContainer implements TransportData {
                 collect(Collectors.toUnmodifiableSet());
     }
 
-    public boolean hasRouteId(IdFor<Route> routeId) {
+    public boolean hasRouteId(IdFor<RouteReadOnly> routeId) {
         return routes.hasId(routeId);
     }
 
@@ -307,7 +307,7 @@ public class TransportDataContainer implements TransportData {
     }
 
     @Override
-    public Set<Route> findRoutesByShortName(IdFor<Agency> agencyId, String shortName) {
+    public Set<RouteReadOnly> findRoutesByShortName(IdFor<Agency> agencyId, String shortName) {
         return routes.getValues().stream().
                 filter(route -> route.getAgency().getId().equals(agencyId)).
                 filter(route -> route.getShortName().equals(shortName)).
@@ -315,7 +315,7 @@ public class TransportDataContainer implements TransportData {
     }
 
     @Override
-    public Set<Route> findRoutesByName(IdFor<Agency> agencyId, String longName) {
+    public Set<RouteReadOnly> findRoutesByName(IdFor<Agency> agencyId, String longName) {
         return routes.getValues().stream().
                 filter(route -> route.getAgency().getId().equals(agencyId)).
                 filter(route -> route.getName().equals(longName)).

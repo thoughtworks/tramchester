@@ -1,7 +1,7 @@
 package com.tramchester.graph.filters;
 
 import com.tramchester.domain.Agency;
-import com.tramchester.domain.Route;
+import com.tramchester.domain.RouteReadOnly;
 import com.tramchester.domain.Service;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdSet;
@@ -12,7 +12,7 @@ import com.tramchester.domain.places.Station;
 import java.util.Set;
 
 public class ActiveGraphFilter implements GraphFilter, ConfigurableGraphFilter {
-    private final IdSet<Route> routeIds;
+    private final IdSet<RouteReadOnly> routeIds;
     private final IdSet<Service> serviceIds;
     private final IdSet<Station> stationsIds;
     private final IdSet<Agency> agencyIds;
@@ -34,7 +34,7 @@ public class ActiveGraphFilter implements GraphFilter, ConfigurableGraphFilter {
      * @param id route id to add
      */
     @Override
-    public void addRoute(IdFor<Route> id) {
+    public void addRoute(IdFor<RouteReadOnly> id) {
         routeIds.add(id);
     }
 
@@ -49,12 +49,12 @@ public class ActiveGraphFilter implements GraphFilter, ConfigurableGraphFilter {
     }
 
     @Override
-    public boolean shouldIncludeRoute(Route route) {
+    public boolean shouldIncludeRoute(RouteReadOnly route) {
        return shouldIncludeRoute(route.getId());
     }
 
     @Override
-    public boolean shouldIncludeRoute(IdFor<Route> routeId) {
+    public boolean shouldIncludeRoute(IdFor<RouteReadOnly> routeId) {
         if (routeIds.isEmpty()) {
             return true;
         }
@@ -62,7 +62,7 @@ public class ActiveGraphFilter implements GraphFilter, ConfigurableGraphFilter {
     }
 
     @Override
-    public boolean shouldIncludeRoutes(Set<Route> routes) {
+    public boolean shouldIncludeRoutes(Set<RouteReadOnly> routes) {
         if (routeIds.isEmpty()) {
             return true;
         }

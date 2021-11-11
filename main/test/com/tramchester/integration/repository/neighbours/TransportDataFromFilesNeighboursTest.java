@@ -3,7 +3,7 @@ package com.tramchester.integration.repository.neighbours;
 import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.config.TramchesterConfig;
-import com.tramchester.domain.Route;
+import com.tramchester.domain.RouteReadOnly;
 import com.tramchester.domain.places.CompositeStation;
 import com.tramchester.domain.places.Station;
 import com.tramchester.integration.testSupport.NeighboursTestConfig;
@@ -130,7 +130,7 @@ public class TransportDataFromFilesNeighboursTest {
 
     @Test
     void shouldHaveCorrectStationsForTramRoutes() {
-        Set<Route> tramRoutes = getTramRoutes(routeRepository).collect(Collectors.toSet());
+        Set<RouteReadOnly> tramRoutes = getTramRoutes(routeRepository).collect(Collectors.toSet());
 
         Set<Station> stationsOnTramRoutes = stationRepository.getStationsForMode(Tram).stream().
                 filter(station -> station.getRoutes().stream().anyMatch(tramRoutes::contains)).
@@ -140,7 +140,7 @@ public class TransportDataFromFilesNeighboursTest {
     }
 
     @NotNull
-    private Stream<Route> getTramRoutes(RouteRepository routeRepository) {
+    private Stream<RouteReadOnly> getTramRoutes(RouteRepository routeRepository) {
         return routeRepository.getRoutes().stream().filter(route -> route.getTransportMode().equals(Tram));
     }
 

@@ -2,7 +2,7 @@ package com.tramchester.unit.graph;
 
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.JourneyRequest;
-import com.tramchester.domain.Route;
+import com.tramchester.domain.RouteReadOnly;
 import com.tramchester.domain.Service;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.StringIdFor;
@@ -425,8 +425,8 @@ class ServiceHeuristicsTest extends EasyMockSupport {
         ServiceReasons reasons = new ServiceReasons(journeyRequest, queryTime, providesLocalNow);
 
         IdFor<Station> stationId = TramStations.Altrincham.getId();
-        IdFor<Route> routeId = StringIdFor.createId("currentRoute");
-        Route route = TestEnv.getTramTestRoute(routeId, "routeName");
+        IdFor<RouteReadOnly> routeId = StringIdFor.createId("currentRoute");
+        RouteReadOnly route = TestEnv.getTramTestRoute(routeId, "routeName");
         final RouteStation routeStation = new RouteStation(TramStations.of(TramStations.Altrincham), route);
 
         Node node = createMock(Node.class);

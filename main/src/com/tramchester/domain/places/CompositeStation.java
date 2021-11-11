@@ -1,10 +1,7 @@
 package com.tramchester.domain.places;
 
 import com.google.common.collect.Streams;
-import com.tramchester.domain.Agency;
-import com.tramchester.domain.DataSourceID;
-import com.tramchester.domain.Platform;
-import com.tramchester.domain.Route;
+import com.tramchester.domain.*;
 import com.tramchester.domain.id.CompositeId;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdSet;
@@ -66,12 +63,12 @@ public class CompositeStation extends Station {
     }
 
     @Override
-    public Set<Platform> getPlatformsForRoute(Route route) {
+    public Set<Platform> getPlatformsForRoute(RouteReadOnly route) {
         return flatten(station -> station.getPlatformsForRoute(route));
     }
 
     @Override
-    public boolean hasPlatformsForRoute(Route route) {
+    public boolean hasPlatformsForRoute(RouteReadOnly route) {
         return anyMatch(station -> station.hasPlatformsForRoute(route));
     }
 
@@ -81,12 +78,12 @@ public class CompositeStation extends Station {
     }
 
     @Override
-    public Set<Route> getRoutes() {
+    public Set<RouteReadOnly> getRoutes() {
         return flatten(Station::getRoutes);
     }
 
     @Override
-    public boolean servesRoute(Route route) {
+    public boolean servesRoute(RouteReadOnly route) {
         return anyMatch(station -> station.servesRoute(route));
     }
 

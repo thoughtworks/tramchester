@@ -5,9 +5,7 @@ import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.DiagramCreator;
 import com.tramchester.config.TramchesterConfig;
-import com.tramchester.domain.Agency;
-import com.tramchester.domain.Journey;
-import com.tramchester.domain.Route;
+import com.tramchester.domain.*;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.places.Station;
@@ -17,7 +15,6 @@ import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.filters.ConfigurableGraphFilter;
 import com.tramchester.graph.filters.GraphFilter;
-import com.tramchester.domain.JourneyRequest;
 import com.tramchester.graph.search.RouteCalculator;
 import com.tramchester.integration.testSupport.RouteCalculatorTestFacade;
 import com.tramchester.integration.testSupport.bus.IntegrationBusTestConfig;
@@ -42,8 +39,8 @@ class BusRouteCalculatorSubGraphAltyToMaccRoute {
 
     private static ComponentContainer componentContainer;
     private static TramchesterConfig config;
-    private static Set<Route> altyToKnutsford;
-    private static Set<Route> knutsfordToAlty;
+    private static Set<RouteReadOnly> altyToKnutsford;
+    private static Set<RouteReadOnly> knutsfordToAlty;
 
     private RouteCallingStations routeCallingStations;
     private RouteCalculatorTestFacade calculator;

@@ -3,6 +3,7 @@ package com.tramchester.unit.domain;
 import com.tramchester.domain.DataSourceID;
 import com.tramchester.domain.Platform;
 import com.tramchester.domain.Route;
+import com.tramchester.domain.RouteReadOnly;
 import com.tramchester.domain.id.CompositeId;
 import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.places.CompositeStation;
@@ -34,7 +35,7 @@ class CompositeStationTest {
                 latLong, Tram, dataSourceID);
         final StationBuilder stationABuilder = stationA.getBuilder();
 
-        Route route = TestEnv.getTramTestRoute();
+        RouteReadOnly route = TestEnv.getTramTestRoute();
         stationABuilder.addRoute(route);
 
         Platform platform = new Platform("platformId", "platformName", latLong);
@@ -70,7 +71,7 @@ class CompositeStationTest {
     void shouldHaveCorrectValuesForTwoStation() {
         Station stationA = TestStation.forTest("idA", "areaA", "stopNameA",
                 new LatLong(2, 4), Tram, dataSourceID);
-        Route routeA = TestEnv.getTramTestRoute(StringIdFor.createId("routeA"), "routeName");
+        RouteReadOnly routeA = TestEnv.getTramTestRoute(StringIdFor.createId("routeA"), "routeName");
         final StationBuilder stationABuilder = stationA.getBuilder();
         stationABuilder.addRoute(routeA);
         Platform platformA = new Platform("platformIdA", "platformNameA",  new LatLong(2, 4));
@@ -78,7 +79,7 @@ class CompositeStationTest {
 
         Station stationB = TestStation.forTest("idB", "areaB", "stopNameB",
                 new LatLong(4, 8), Bus, dataSourceID);
-        Route routeB = new Route(StringIdFor.createId("routeB"), "routeCodeB", "routeNameB", TestEnv.StagecoachManchester, Bus);
+        RouteReadOnly routeB = new Route(StringIdFor.createId("routeB"), "routeCodeB", "routeNameB", TestEnv.StagecoachManchester, Bus);
         final StationBuilder stationBBuilder = stationB.getBuilder();
         stationBBuilder.addRoute(routeB);
         stationBBuilder.addRoute(routeA);

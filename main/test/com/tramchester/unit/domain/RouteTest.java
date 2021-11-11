@@ -13,7 +13,7 @@ class RouteTest {
 
     @Test
     void shouldHaveTramRoute() {
-        Route route = new Route(StringIdFor.createId("idA"),"code","name", TestEnv.MetAgency(),
+        RouteReadOnly route = new Route(StringIdFor.createId("idA"),"code","name", TestEnv.MetAgency(),
                 TransportMode.Tram);
         Assertions.assertTrue(TransportMode.isTram(route));
 

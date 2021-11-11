@@ -3,7 +3,7 @@ package com.tramchester.integration.repository;
 import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.domain.InterchangeStation;
-import com.tramchester.domain.Route;
+import com.tramchester.domain.RouteReadOnly;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.places.Station;
 import com.tramchester.integration.graph.neighbours.NeighboursAsInterchangesTest;
@@ -72,8 +72,8 @@ public class InterchangesTramTest {
 
     @Test
     void shouldHaveReachableInterchangeForEveryRoute() {
-        Set<Route> routesWithInterchanges = RoutesWithInterchanges(interchangeRepository, Tram);
-        Set<Route> all = routeRepository.getRoutes();
+        Set<RouteReadOnly> routesWithInterchanges = RoutesWithInterchanges(interchangeRepository, Tram);
+        Set<RouteReadOnly> all = routeRepository.getRoutes();
 
         assertEquals(all, routesWithInterchanges);
     }

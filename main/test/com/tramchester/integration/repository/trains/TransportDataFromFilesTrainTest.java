@@ -8,10 +8,7 @@ import com.tramchester.config.TramchesterConfig;
 import com.tramchester.dataimport.TransportDataLoaderFiles;
 import com.tramchester.dataimport.TransportDataReader;
 import com.tramchester.dataimport.data.CalendarDateData;
-import com.tramchester.domain.Agency;
-import com.tramchester.domain.Route;
-import com.tramchester.domain.Service;
-import com.tramchester.domain.ServiceCalendar;
+import com.tramchester.domain.*;
 import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
@@ -83,7 +80,7 @@ public class TransportDataFromFilesTrainTest {
 
     @Test
     void shouldGetRouteWithHeadsignsAndCorrectServices() {
-        Route result = TestEnv.singleRoute(transportData, StringIdFor.createId("AW"), "AW:MIA->CTR");
+        RouteReadOnly result = TestEnv.singleRoute(transportData, StringIdFor.createId("AW"), "AW:MIA->CTR");
 
         assertNotNull(result);
         assertEquals("Arriva Trains Wales train service from Manchester Airport to Chester", result.getName());
@@ -96,7 +93,7 @@ public class TransportDataFromFilesTrainTest {
     void shouldGetTrainRoutes() {
         assertEquals(3665, transportData.getRoutes().size());
 
-        Collection<Route> results = transportData.getRoutes();
+        Collection<RouteReadOnly> results = transportData.getRoutes();
         long walesTrainRoutes = results.stream().filter(route -> route.getAgency().equals(ArrivaTrainsWales)).count();
 
         assertEquals(251, walesTrainRoutes);

@@ -2,7 +2,7 @@ package com.tramchester.integration.repository;
 
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.GuiceContainerDependencies;
-import com.tramchester.domain.Route;
+import com.tramchester.domain.RouteReadOnly;
 import com.tramchester.testSupport.reference.KnownTramRoute;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
 import com.tramchester.testSupport.TestEnv;
@@ -41,7 +41,7 @@ class TramRouteHelperTest {
     void shouldFindAllKnownRoutes() {
         KnownTramRoute[] knownRoutes = KnownTramRoute.values();
         for(KnownTramRoute knownRoute : knownRoutes) {
-            Set<Route> found = helper.get(knownRoute);
+            Set<RouteReadOnly> found = helper.get(knownRoute);
             assertFalse(found.isEmpty(),"missing " + knownRoute.toString());
             found.forEach(route -> {
                 assertEquals(TestEnv.MetAgency(), route.getAgency(), "agency wrong" + route.getAgency());

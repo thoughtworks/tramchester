@@ -22,10 +22,10 @@ public class MutableTrip implements Trip {
     private int firstIndex;
     private boolean filtered; // at least one station on this trip was filtered out
 
-    @Deprecated
-    public MutableTrip(String tripId, String headSign, Service service, Route route) {
-        this(StringIdFor.createId(tripId), headSign, service, route);
-    }
+//    @Deprecated
+//    public MutableTrip(String tripId, String headSign, Service service, Route route) {
+//        this(StringIdFor.createId(tripId), headSign, service, route);
+//    }
 
     public MutableTrip(IdFor<Trip> tripId, String headSign, Service service, Route route) {
         this.tripId = tripId;
@@ -36,6 +36,11 @@ public class MutableTrip implements Trip {
         lastIndex = Integer.MIN_VALUE;
         firstIndex = Integer.MAX_VALUE;
         filtered = false;
+    }
+
+    // test support
+    public static Trip buildTrip(IdFor<Trip> tripId, String headSign, Service service, Route route) {
+        return new MutableTrip(tripId, headSign, service, route);
     }
 
     @Override

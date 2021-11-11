@@ -1,6 +1,7 @@
 package com.tramchester.unit.domain.presentation.DTO;
 
 import com.tramchester.domain.Route;
+import com.tramchester.domain.RouteReadOnly;
 import com.tramchester.domain.presentation.DTO.RouteDTO;
 import com.tramchester.domain.presentation.DTO.StationRefWithPosition;
 import com.tramchester.domain.reference.TransportMode;
@@ -35,7 +36,7 @@ class RouteDTOTest {
         assertEquals(TraffordCentre.getId().forDTO(), stations.get(0).getId());
     }
 
-    public Route getRoute() {
+    public RouteReadOnly getRoute() {
         KnownTramRoute knownRoute = TheTraffordCentreCornbrook;
         return new Route(knownRoute.getFakeId(), knownRoute.shortName(), knownRoute.name(), TestEnv.MetAgency(),
                 knownRoute.mode());

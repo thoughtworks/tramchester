@@ -40,7 +40,7 @@ class JourneyTest {
     @BeforeEach
     void beforeEachTest() {
         Service service = new Service(StringIdFor.createId("svc123"));
-        trip = new MutableTrip(StringIdFor.createId("trip897"), "headsign", service, route);
+        trip = MutableTrip.buildTrip(StringIdFor.createId("trip897"), "headsign", service, route);
         queryTime = TramTime.of(9,16);
         path = Collections.emptyList();
         stopSequenceNumbers = Arrays.asList(10,11,12,13);

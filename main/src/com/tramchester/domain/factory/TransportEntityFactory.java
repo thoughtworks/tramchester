@@ -27,7 +27,7 @@ public abstract class TransportEntityFactory {
     }
 
     public Route createRoute(GTFSTransportationType routeType, RouteData routeData, Agency agency, IdMap<Station> allStations) {
-        IdFor<Route> routeId = routeData.getId();
+        IdFor<RouteReadOnly> routeId = routeData.getId();
 
         return new Route(routeId, routeData.getShortName().trim(), routeData.getLongName(), agency,
                 TransportMode.fromGTFS(routeType));
@@ -49,7 +49,7 @@ public abstract class TransportEntityFactory {
         return new Station(stationId, area, stopData.getName(), stopData.getLatLong(), position, getDataSourceId());
     }
 
-    public RouteStation createRouteStation(Station station, Route route) {
+    public RouteStation createRouteStation(Station station, RouteReadOnly route) {
         return new RouteStation(station, route);
     }
 
@@ -69,7 +69,7 @@ public abstract class TransportEntityFactory {
         return routeData.getRouteType();
     }
 
-    public IdFor<Route> createRouteId(IdFor<Route> routeId) {
+    public IdFor<RouteReadOnly> createRouteId(IdFor<RouteReadOnly> routeId) {
         return routeId;
     }
 
