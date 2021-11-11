@@ -11,6 +11,7 @@ import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.GraphPropertyKey;
 
+// todo split interface to Trip and MutualTrip
 public class Trip implements HasId<Trip>, HasTransportMode, GraphProperty {
 
     private final IdFor<Trip> tripId;

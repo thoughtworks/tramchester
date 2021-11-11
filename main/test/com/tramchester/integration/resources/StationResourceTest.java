@@ -3,7 +3,9 @@ package com.tramchester.integration.resources;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tramchester.App;
+import com.tramchester.domain.Route;
 import com.tramchester.domain.Timestamped;
+import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.DTO.*;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.presentation.RecentJourneys;
@@ -18,6 +20,7 @@ import com.tramchester.testSupport.reference.TramStations;
 import io.dropwizard.testing.junit5.DropwizardExtensionsSupport;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
@@ -27,8 +30,7 @@ import javax.ws.rs.core.Response;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 @ExtendWith(DropwizardExtensionsSupport.class)
 class StationResourceTest {
@@ -37,6 +39,13 @@ class StationResourceTest {
             new IntegrationAppExtension(App.class, new ResourceTramTestConfig<>(StationResource.class));
 
     private final ObjectMapper mapper = new ObjectMapper();
+    private StationRepository stationRepo;
+
+    @BeforeEach
+    void beforeEachTestRuns() {
+        App app =  appExtension.getApplication();
+        stationRepo = app.getDependencies().get(StationRepository.class);
+    }
 
     @Test
     void shouldGetSingleStationWithPlatforms() {
@@ -56,10 +65,15 @@ class StationResourceTest {
         Assertions.assertTrue(platformIds.contains(stationId+"3"));
         Assertions.assertTrue(platformIds.contains(stationId+"4"));
 
-        List<RouteRefDTO> routes = result.getRoutes();
+        List<RouteRefDTO> routeRefDTOS = result.getRoutes();
 
+        assertFalse(routeRefDTOS.isEmpty());
 
-        assertEquals( 10, routes.size());
+        Station station = stationRepo.getStationById(TramStations.StPetersSquare.getId());
+        Set<Route> stationRoutes = station.getRoutes();
+
+        assertEquals(routeRefDTOS.size(), stationRoutes.size());
+
     }
 
     @Test
@@ -69,9 +83,6 @@ class StationResourceTest {
         assertEquals(200, result.getStatus());
 
         List<StationRefDTO> results = result.readEntity(new GenericType<>() {});
-
-        App app =  appExtension.getApplication();
-        StationRepository stationRepo = app.getDependencies().get(StationRepository.class);
 
         Set<String> expectedIds = stationRepo.getStations().stream().map(station -> station.getId().forDTO()).collect(Collectors.toSet());
         assertEquals(expectedIds.size(), results.size());

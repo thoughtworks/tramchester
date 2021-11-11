@@ -24,9 +24,11 @@ import com.tramchester.repository.TransportData;
 import com.tramchester.repository.TransportDataFromFiles;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TramRouteHelper;
+import com.tramchester.testSupport.reference.KnownTramRoute;
 import com.tramchester.testSupport.reference.TramStations;
 import com.tramchester.testSupport.testTags.DataExpiryCategory;
 import com.tramchester.testSupport.testTags.DataUpdateTest;
+import org.apache.commons.lang3.tuple.Pair;
 import org.junit.jupiter.api.*;
 
 import java.time.DayOfWeek;
@@ -43,6 +45,7 @@ import static com.tramchester.testSupport.TransportDataFilter.getTripsFor;
 import static com.tramchester.testSupport.reference.KnownTramRoute.*;
 import static com.tramchester.testSupport.reference.TramStations.*;
 import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @DataUpdateTest
 public class TransportDataFromFilesTramTest {
@@ -79,7 +82,9 @@ public class TransportDataFromFilesTramTest {
     void shouldHaveExpectedNumbersForTram() {
         assertEquals(1, transportData.getAgencies().size());
         assertEquals(NUM_TFGM_TRAM_STATIONS, transportData.getStations().size());
-        assertEquals(NUM_TFGM_TRAM_ROUTES, transportData.getRoutes().size());
+        Set<Route> allRoutes = transportData.getRoutes();
+        Set<String> uniqueNames = allRoutes.stream().map(Route::getName).collect(Collectors.toSet());
+        assertEquals(NUM_TFGM_TRAM_ROUTES, uniqueNames.size());
 
         int expected = 199;
         assertEquals(expected, transportData.getPlatforms().size());
@@ -117,20 +122,28 @@ public class TransportDataFromFilesTramTest {
         Set<RouteStation> traffordBar = routeStations.stream().
                 filter(routeStation -> routeStation.getStationId().equals(TraffordBar.getId())).collect(Collectors.toSet());
 
-        IdSet<Route> traffordBarRoutes = traffordBar.stream().map(RouteStation::getRoute).map(Route::getId).collect(IdSet.idCollector());
+        IdSet<Route> traffordBarRoutes = traffordBar.stream().
+                map(RouteStation::getRoute).map(Route::getId).collect(IdSet.idCollector());
 
-        assertEquals(10, traffordBarRoutes.size());
+        // cannot check for specific size as the way routes handled in tfgm gtfs feed can lead to duplicates
+        //assertEquals(10, traffordBarRoutes.size());
 
         // contains -> containsAll
         assertTrue(traffordBarRoutes.containsAll(routeHelper.getId(AltrinchamPiccadilly)));
         assertTrue(traffordBarRoutes.containsAll(routeHelper.getId(PiccadillyAltrincham)));
+
         assertTrue(traffordBarRoutes.containsAll(routeHelper.getId(EastDidisburyManchesterShawandCromptonRochdale)));
         assertTrue(traffordBarRoutes.containsAll(routeHelper.getId(RochdaleShawandCromptonManchesterEastDidisbury)));
+
         assertTrue(traffordBarRoutes.containsAll(routeHelper.getId(VictoriaWythenshaweManchesterAirport)));
         assertTrue(traffordBarRoutes.containsAll(routeHelper.getId(ManchesterAirportWythenshaweVictoria)));
 
         assertTrue(traffordBarRoutes.containsAll(routeHelper.getId(EcclesManchesterAshtonUnderLyne)));
         assertTrue(traffordBarRoutes.containsAll(routeHelper.getId(AshtonUnderLyneManchesterEccles)));
+
+        assertTrue(traffordBarRoutes.containsAll(routeHelper.getId(AltrinchamManchesterBury)));
+        assertTrue(traffordBarRoutes.containsAll(routeHelper.getId(BuryManchesterAltrincham)));
+
     }
 
     @Test
@@ -138,35 +151,94 @@ public class TransportDataFromFilesTramTest {
         Set<RouteStation> all = transportData.getRouteStations();
 
         Set<RouteStation> routeStationSet = all.stream().
-                filter(routeStation -> routeStation.getStationId().equals(TramStations.OldTrafford.getId())).collect(Collectors.toSet());
+                filter(routeStation -> routeStation.getStationId().equals(OldTrafford.getId())).collect(Collectors.toSet());
 
         Set<Route> callingRoutes = routeStationSet.stream().map(RouteStation::getRoute).collect(Collectors.toSet());
 
+        Set<String> uniqueRouteNames = callingRoutes.stream().map(Route::getName).collect(Collectors.toSet());
+
         // 6 -> 4 summer 2021
-        assertEquals(4, callingRoutes.size());
+        assertEquals(4, uniqueRouteNames.size());
     }
 
     @Test
-    void shouldGetTramRoutes() {
-        Collection<Route> results = transportData.getRoutes();
-        long tramRoutes = results.stream().filter(route -> route.getAgency().equals(TestEnv.MetAgency())).count();
+    void shouldGetRouteStationsForStationOnOneRoute() {
+        Set<RouteStation> routeStations = transportData.getRouteStationsFor(Ashton.getId());
 
-        assertEquals(NUM_TFGM_TRAM_ROUTES, tramRoutes);
+        Set<Pair<IdFor<Station>, String>> routeStationPairs = routeStations.stream().
+                map(routeStation -> Pair.of(routeStation.getStationId(), routeStation.getRoute().getName())).
+                collect(Collectors.toSet());
+
+        assertEquals(2, routeStationPairs.size(), routeStations.toString());
+
+        Set<String> routeNames =
+                routeStations.stream().
+                        map(RouteStation::getRoute).
+                        map(Route::getName).collect(Collectors.toSet());
+
+        assertEquals(2, routeNames.size(), routeNames.toString());
+        assertTrue(routeNames.contains(AshtonUnderLyneManchesterEccles.longName()), routeNames.toString());
+        assertTrue(routeNames.contains(EcclesManchesterAshtonUnderLyne.longName()), routeNames.toString());
+
+    }
+
+    @Test
+    void extraRouteAtShudehillTowardsEcclesFromVictoria() {
+        Route towardsEcclesRoute = transportData.getRouteById(StringIdFor.createId("METLBLUE:I:CURRENT"));
+        List<Trip> ecclesTripsViaShudehill = towardsEcclesRoute.getTrips().stream().
+                filter(trip -> trip.getStopCalls().callsAt(Shudehill)).collect(Collectors.toList());
+
+        List<StopCall> fromVictoria = ecclesTripsViaShudehill.stream().
+                map(trip -> trip.getStopCalls().getStopBySequenceNumber(trip.getSeqNumOfFirstStop())).
+                filter(stopCall -> stopCall.getStationId().equals(Victoria.getId())).
+                collect(Collectors.toList());
+
+        assertEquals(fromVictoria.size(), ecclesTripsViaShudehill.size(), ecclesTripsViaShudehill.toString());
+    }
+
+    @Test
+    void extraRouteAtShudehillFromEcclesToVictoria() {
+        Route towardsEcclesRoute = transportData.getRouteById(StringIdFor.createId("METLBLUE:O:CURRENT"));
+        List<Trip> ecclesTripsViaShudehill = towardsEcclesRoute.getTrips().stream().
+                filter(trip -> trip.getStopCalls().callsAt(Shudehill)).collect(Collectors.toList());
+
+        List<StopCall> toVictoria = ecclesTripsViaShudehill.stream().
+                map(trip -> trip.getStopCalls().getStopBySequenceNumber(trip.getSeqNumOfLastStop())).
+                filter(stopCall -> stopCall.getStationId().equals(Victoria.getId())).
+                collect(Collectors.toList());
+
+        assertEquals(toVictoria.size(), ecclesTripsViaShudehill.size(), ecclesTripsViaShudehill.toString());
     }
 
     @Test
     void shouldGetRouteStationsForStation() {
         Set<RouteStation> routeStations = transportData.getRouteStationsFor(Shudehill.getId());
 
-        assertEquals(8, routeStations.size(), routeStations.toString());
+        Set<Pair<IdFor<Station>, String>> routeStationPairs = routeStations.stream().
+                map(routeStation -> Pair.of(routeStation.getStationId(), routeStation.getRoute().getName())).
+                collect(Collectors.toSet());
 
-        Set<String> names = routeStations.stream().map(routeStation -> routeStation.getRoute().getShortName()).collect(Collectors.toSet());
+        assertEquals(8, routeStationPairs.size(), routeStations.toString());
 
-        assertEquals(4, names.size());
-        assertTrue(names.contains(VictoriaWythenshaweManchesterAirport.shortName()));
-        assertTrue(names.contains(ManchesterAirportWythenshaweVictoria.shortName()));
-        assertTrue(names.contains(BuryPiccadilly.shortName()));
-        assertTrue(names.contains(PiccadillyBury.shortName()));
+        Set<String> routeNames =
+                routeStations.stream().
+                        map(RouteStation::getRoute).
+                        map(Route::getName).collect(Collectors.toSet());
+
+        assertTrue(routeNames.contains(VictoriaWythenshaweManchesterAirport.longName()));
+        assertTrue(routeNames.contains(ManchesterAirportWythenshaweVictoria.longName()));
+
+        assertTrue(routeNames.contains(BuryPiccadilly.longName()));
+        assertTrue(routeNames.contains(PiccadillyBury.longName()));
+
+        assertTrue(routeNames.contains(AltrinchamManchesterBury.longName()));
+        assertTrue(routeNames.contains(BuryManchesterAltrincham.longName()));
+
+        // these not on the route map, but some early morning eccles trips seem to start at victoria
+        // see extraRouteAtShudehillTowardsEccles above
+        assertTrue(routeNames.contains(AshtonUnderLyneManchesterEccles.longName()));
+        assertTrue(routeNames.contains(EcclesManchesterAshtonUnderLyne.longName()));
+
     }
 
     @Test
