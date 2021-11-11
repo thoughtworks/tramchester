@@ -2,7 +2,7 @@ package com.tramchester.domain.input;
 
 import com.tramchester.domain.GraphProperty;
 import com.tramchester.domain.HasTransportMode;
-import com.tramchester.domain.Route;
+import com.tramchester.domain.MutableRoute;
 import com.tramchester.domain.Service;
 import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.id.IdFor;
@@ -20,7 +20,7 @@ public interface Trip extends HasId<Trip>, HasTransportMode, GraphProperty {
 
     String getHeadsign();
 
-    Route getRoute();
+    MutableRoute getRoute();
 
     TramTime earliestDepartTime();
 

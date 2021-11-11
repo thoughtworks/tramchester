@@ -80,7 +80,7 @@ public class TransportDataFromFilesTrainTest {
 
     @Test
     void shouldGetRouteWithHeadsignsAndCorrectServices() {
-        RouteReadOnly result = TestEnv.singleRoute(transportData, StringIdFor.createId("AW"), "AW:MIA->CTR");
+        Route result = TestEnv.singleRoute(transportData, StringIdFor.createId("AW"), "AW:MIA->CTR");
 
         assertNotNull(result);
         assertEquals("Arriva Trains Wales train service from Manchester Airport to Chester", result.getName());
@@ -93,7 +93,7 @@ public class TransportDataFromFilesTrainTest {
     void shouldGetTrainRoutes() {
         assertEquals(3665, transportData.getRoutes().size());
 
-        Collection<RouteReadOnly> results = transportData.getRoutes();
+        Collection<Route> results = transportData.getRoutes();
         long walesTrainRoutes = results.stream().filter(route -> route.getAgency().equals(ArrivaTrainsWales)).count();
 
         assertEquals(251, walesTrainRoutes);

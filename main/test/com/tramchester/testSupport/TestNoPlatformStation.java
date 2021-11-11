@@ -2,7 +2,7 @@ package com.tramchester.testSupport;
 
 import com.tramchester.domain.DataSourceID;
 import com.tramchester.domain.Platform;
-import com.tramchester.domain.RouteReadOnly;
+import com.tramchester.domain.Route;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.geo.GridPosition;
@@ -33,7 +33,7 @@ public class TestNoPlatformStation extends TestStation {
     }
 
     @Override
-    public Set<Platform> getPlatformsForRoute(RouteReadOnly route) {
+    public Set<Platform> getPlatformsForRoute(Route route) {
         return Collections.emptySet();
     }
 

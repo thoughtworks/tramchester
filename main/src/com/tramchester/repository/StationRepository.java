@@ -2,7 +2,7 @@ package com.tramchester.repository;
 
 import com.google.inject.ImplementedBy;
 import com.tramchester.domain.DataSourceID;
-import com.tramchester.domain.RouteReadOnly;
+import com.tramchester.domain.Route;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
@@ -24,7 +24,7 @@ public interface StationRepository extends StationRepositoryPublic {
     Set<RouteStation> getRouteStations();
 
     RouteStation getRouteStationById(IdFor<RouteStation> routeStationId);
-    RouteStation getRouteStation(Station station, RouteReadOnly route);
+    RouteStation getRouteStation(Station station, Route route);
 
     Set<RouteStation> getRouteStationsFor(IdFor<Station> stationId);
 

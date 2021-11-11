@@ -2,7 +2,7 @@ package com.tramchester.unit.domain;
 
 import com.tramchester.domain.Agency;
 import com.tramchester.domain.DataSourceID;
-import com.tramchester.domain.Route;
+import com.tramchester.domain.MutableRoute;
 import com.tramchester.domain.Service;
 import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.input.PlatformStopCall;
@@ -103,7 +103,7 @@ class TripTest {
 
         Trip tripA = MutableTrip.buildTrip(StringIdFor.createId("tripId"), "headSign", service, TestEnv.getTramTestRoute());
         assertTrue(TransportMode.isTram(tripA));
-        Route busRoute = new Route(StringIdFor.createId("busRouteId"), "busRouteCode", "busRouteName",
+        MutableRoute busRoute = new MutableRoute(StringIdFor.createId("busRouteId"), "busRouteCode", "busRouteName",
                 new Agency(DataSourceID.tfgm, StringIdFor.createId("BUS"), "agencyName"),
                 TransportMode.Bus);
         Trip tripB = MutableTrip.buildTrip(StringIdFor.createId("tripId"), "headSign", service, busRoute);

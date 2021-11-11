@@ -4,7 +4,7 @@ import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.config.GTFSSourceConfig;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.InterchangeStation;
-import com.tramchester.domain.RouteReadOnly;
+import com.tramchester.domain.Route;
 import com.tramchester.domain.StationLink;
 import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.id.IdFor;
@@ -88,7 +88,7 @@ public class Interchanges implements InterchangeRepository {
         int before = interchanges.size();
         neighbours.forEach(stationLink -> {
             final IdFor<Station> beginId = stationLink.getBegin().getId();
-            final Set<RouteReadOnly> routesAtLinkedStation = stationLink.getEnd().getRoutes();
+            final Set<Route> routesAtLinkedStation = stationLink.getEnd().getRoutes();
             if (interchanges.containsKey(beginId)) {
                 // already flagged as an interchange, add the additional routes from the other station
                 InterchangeStation existing = interchanges.get(beginId);

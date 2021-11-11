@@ -21,7 +21,7 @@ public class Station implements Location<Station> {
     private final LatLong latLong;
     private final GridPosition gridPosition;
     private final Set<Platform> platforms;
-    private final Set<RouteReadOnly> servesRoutes;
+    private final Set<Route> servesRoutes;
     private final Set<Agency> servesAgencies;
     private final DataSourceID dataSourceID;
 
@@ -73,7 +73,7 @@ public class Station implements Location<Station> {
 
     @Override
     public Set<TransportMode> getTransportModes() {
-        return servesRoutes.stream().map(RouteReadOnly::getTransportMode).collect(Collectors.toUnmodifiableSet());
+        return servesRoutes.stream().map(Route::getTransportMode).collect(Collectors.toUnmodifiableSet());
     }
 
     @Override
@@ -86,7 +86,7 @@ public class Station implements Location<Station> {
         return dataSourceID;
     }
 
-    public Set<Platform> getPlatformsForRoute(RouteReadOnly route) {
+    public Set<Platform> getPlatformsForRoute(Route route) {
         return platforms.stream().filter(platform -> platform.getRoutes().contains(route)).collect(Collectors.toUnmodifiableSet());
     }
 
@@ -94,7 +94,7 @@ public class Station implements Location<Station> {
         return platforms.stream().map(Platform::getId).anyMatch(id -> id.equals(platformId));
     }
 
-    public Set<RouteReadOnly> getRoutes() {
+    public Set<Route> getRoutes() {
         return Collections.unmodifiableSet(servesRoutes);
     }
 
@@ -107,7 +107,7 @@ public class Station implements Location<Station> {
         return  Collections.unmodifiableSet(platforms);
     }
 
-    public boolean servesRoute(RouteReadOnly route) {
+    public boolean servesRoute(Route route) {
         return servesRoutes.contains(route);
     }
 
@@ -120,7 +120,7 @@ public class Station implements Location<Station> {
         return GraphPropertyKey.STATION_ID;
     }
 
-    public boolean hasPlatformsForRoute(RouteReadOnly route) {
+    public boolean hasPlatformsForRoute(Route route) {
         return platforms.stream().anyMatch(platform -> platform.servesRoute(route));
     }
 
@@ -174,7 +174,7 @@ public class Station implements Location<Station> {
             station.platforms.add(platform);
         }
 
-        public void addRoute(RouteReadOnly route) {
+        public void addRoute(Route route) {
             station.servesRoutes.add(route);
             station.servesAgencies.add(route.getAgency());
         }

@@ -4,8 +4,8 @@ import com.tramchester.dataimport.data.RouteData;
 import com.tramchester.dataimport.data.StopData;
 import com.tramchester.domain.Agency;
 import com.tramchester.domain.DataSourceID;
+import com.tramchester.domain.MutableRoute;
 import com.tramchester.domain.Route;
-import com.tramchester.domain.RouteReadOnly;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdMap;
 import com.tramchester.domain.id.StringIdFor;
@@ -31,14 +31,14 @@ public class TransportEntityFactoryForGBRail extends TransportEntityFactory {
     }
 
     @Override
-    public Route createRoute(GTFSTransportationType routeType, RouteData routeData, Agency agency, IdMap<Station> allStations) {
-        IdFor<RouteReadOnly> routeId = routeData.getId();
+    public MutableRoute createRoute(GTFSTransportationType routeType, RouteData routeData, Agency agency, IdMap<Station> allStations) {
+        IdFor<Route> routeId = routeData.getId();
 
         String name = routeData.getLongName();
 
         name = expandRouteNameFor(name, allStations, agency);
 
-        return new Route(routeId, routeData.getShortName().trim(), name, agency, TransportMode.fromGTFS(routeType));
+        return new MutableRoute(routeId, routeData.getShortName().trim(), name, agency, TransportMode.fromGTFS(routeType));
     }
 
     @Override

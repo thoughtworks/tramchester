@@ -2,7 +2,7 @@ package com.tramchester.integration.mappers;
 
 import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
-import com.tramchester.domain.RouteReadOnly;
+import com.tramchester.domain.Route;
 import com.tramchester.domain.presentation.DTO.RouteDTO;
 import com.tramchester.domain.presentation.DTO.StationRefWithPosition;
 import com.tramchester.domain.reference.TransportMode;
@@ -50,7 +50,7 @@ class RouteMapperTest {
         RoutesMapper mapper = componentContainer.get(RoutesMapper.class);
 
         List<RouteDTO> dtos = mapper.getAllRoutes();
-        Set<RouteReadOnly> routes = tramRouteHelper.get(ManchesterAirportWythenshaweVictoria);
+        Set<Route> routes = tramRouteHelper.get(ManchesterAirportWythenshaweVictoria);
 
         routes.forEach(route -> {
             RouteDTO query = new RouteDTO(route, new LinkedList<>());

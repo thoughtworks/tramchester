@@ -7,7 +7,7 @@ import com.tramchester.dataimport.data.RouteIndexData;
 import com.tramchester.dataimport.data.RouteMatrixData;
 import com.tramchester.domain.InterchangeStation;
 import com.tramchester.domain.NumberOfChanges;
-import com.tramchester.domain.RouteReadOnly;
+import com.tramchester.domain.Route;
 import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.places.Station;
@@ -92,7 +92,7 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
     }
 
     private void populateCosts() {
-        List<RouteReadOnly> routes = new ArrayList<>(routeRepository.getRoutes());
+        List<Route> routes = new ArrayList<>(routeRepository.getRoutes());
         int size = routes.size();
         logger.info("Find costs between " + size + " routes");
         final int fullyConnected = size * size;
@@ -170,20 +170,20 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
 
     private void addOverlapsFor(InterchangeStation interchange, InterimResults linksForDegree) {
 
-        List<IdFor<RouteReadOnly>> source = interchange.getSourceRoutes().stream().map(RouteReadOnly::getId).collect(Collectors.toList());
+        List<IdFor<Route>> source = interchange.getSourceRoutes().stream().map(Route::getId).collect(Collectors.toList());
         int sourceSize = source.size();
-        List<IdFor<RouteReadOnly>> dest = interchange.getDestinationRoutes().stream().map(RouteReadOnly::getId).collect(Collectors.toList());
+        List<IdFor<Route>> dest = interchange.getDestinationRoutes().stream().map(Route::getId).collect(Collectors.toList());
         int destSize = dest.size();
 
         for (int i = 0; i < sourceSize; i++) {
-            final IdFor<RouteReadOnly> fromId = source.get(i);
+            final IdFor<Route> fromId = source.get(i);
             final int from = index.find(fromId);
             if (!linksForDegree.containsKey(from)) {
                 linksForDegree.put(from, new HashSet<>());
             }
             for (int j = 0; j < destSize; j++) {
                 if (i != j) {
-                    final IdFor<RouteReadOnly> towardsId = dest.get(j);
+                    final IdFor<Route> towardsId = dest.get(j);
                     final int towards = index.find(towardsId);
                     linksForDegree.get(from).add(towards);
                     if (!costs.contains(from, towards)) {
@@ -195,12 +195,12 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
         }
     }
 
-    public int getFor(RouteReadOnly routeA, RouteReadOnly routeB) {
+    public int getFor(Route routeA, Route routeB) {
         if (routeA.equals(routeB)) {
             return 0;
         }
-        final IdFor<RouteReadOnly> idA = routeA.getId();
-        final IdFor<RouteReadOnly> idB = routeB.getId();
+        final IdFor<Route> idA = routeA.getId();
+        final IdFor<Route> idB = routeB.getId();
         byte result = costs.get(index.find(idA), index.find(idB));
         if (result==Costs.MAX_VALUE) {
             if (routeA.getTransportMode()==routeB.getTransportMode()) {
@@ -235,7 +235,7 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
 
     @Override
     public LowestCostsForRoutes getLowestCostCalcutatorFor(Set<Station> destinations) {
-        Set<RouteReadOnly> destinationRoutes = destinations.stream().
+        Set<Route> destinationRoutes = destinations.stream().
                 map(Station::getRoutes).flatMap(Collection::stream).collect(Collectors.toUnmodifiableSet());
         return new LowestCostForDestinations(this, destinationRoutes);
     }
@@ -257,26 +257,26 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
     }
 
     @NotNull
-    private NumberOfChanges getNumberOfHops(Set<RouteReadOnly> startRoutes, Set<RouteReadOnly> destinationRoutes) {
+    private NumberOfChanges getNumberOfHops(Set<Route> startRoutes, Set<Route> destinationRoutes) {
         int minHops = minHops(startRoutes, destinationRoutes);
         int maxHops = maxHops(startRoutes, destinationRoutes);
         return new NumberOfChanges(minHops, maxHops);
     }
 
-    private int minHops(Set<RouteReadOnly> startRoutes, Set<RouteReadOnly> endRoutes) {
+    private int minHops(Set<Route> startRoutes, Set<Route> endRoutes) {
         return startRoutes.stream().
                 flatMap(startRoute -> endRoutes.stream().map(endRoute -> getFor(startRoute, endRoute))).
                 min(Integer::compare).orElse(Integer.MAX_VALUE);
     }
 
-    private Integer maxHops(Set<RouteReadOnly> startRoutes, Set<RouteReadOnly> endRoutes) {
+    private Integer maxHops(Set<Route> startRoutes, Set<Route> endRoutes) {
         return startRoutes.stream().
                 flatMap(startRoute -> endRoutes.stream().map(endRoute -> getFor(startRoute, endRoute))).
                 filter(result -> result!=Integer.MAX_VALUE).
                 max(Integer::compare).orElse(Integer.MAX_VALUE);
     }
 
-    private Set<RouteReadOnly> routesFor(Set<Station> stations) {
+    private Set<Route> routesFor(Set<Station> stations) {
         return stations.stream().flatMap(station -> station.getRoutes().stream()).collect(Collectors.toSet());
     }
 
@@ -284,7 +284,7 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
         private final RouteToRouteCosts routeToRouteCosts;
         private final Set<Integer> destinationIndexs;
 
-        public LowestCostForDestinations(BetweenRoutesCostRepository routeToRouteCosts, Set<RouteReadOnly> destinations) {
+        public LowestCostForDestinations(BetweenRoutesCostRepository routeToRouteCosts, Set<Route> destinations) {
             this.routeToRouteCosts = (RouteToRouteCosts) routeToRouteCosts;
             destinationIndexs = destinations.stream().
                     map(destination -> this.routeToRouteCosts.index.find(destination.getId())).
@@ -292,7 +292,7 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
         }
 
         @Override
-        public int getFewestChanges(RouteReadOnly startingRoute) {
+        public int getFewestChanges(Route startingRoute) {
             int indexOfStart = routeToRouteCosts.index.find(startingRoute.getId());
             if (destinationIndexs.contains(indexOfStart)) {
                 return 0;
@@ -306,7 +306,7 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
         }
 
         @Override
-        public <T extends HasId<RouteReadOnly>> Stream<T> sortByDestinations(Stream<T> startingRoutes) {
+        public <T extends HasId<Route>> Stream<T> sortByDestinations(Stream<T> startingRoutes) {
             return startingRoutes.
                     map(this::getLowestCost).
                     sorted(Comparator.comparingInt(Pair::getLeft)).
@@ -314,7 +314,7 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
         }
 
         @NotNull
-        private <T extends HasId<RouteReadOnly>> Pair<Integer, T> getLowestCost(T start) {
+        private <T extends HasId<Route>> Pair<Integer, T> getLowestCost(T start) {
             int indexOfStart = routeToRouteCosts.index.find(start.getId());
             if (destinationIndexs.contains(indexOfStart)) {
                 return Pair.of(0, start); // start on route that is present at destination
@@ -331,7 +331,7 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
     }
 
     private static class Index implements DataCache.Cacheable<RouteIndexData> {
-        private final Map<IdFor<RouteReadOnly>, Integer> map;
+        private final Map<IdFor<Route>, Integer> map;
         private final int numberOfRoutes;
 
         private Index(int numberOfRoutes) {
@@ -341,12 +341,12 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
 
         public void populateFrom(RouteRepository routeRepository) {
             logger.info("Creating index");
-            List<IdFor<RouteReadOnly>> routesList = routeRepository.getRoutes().stream().map(RouteReadOnly::getId).collect(Collectors.toList());
+            List<IdFor<Route>> routesList = routeRepository.getRoutes().stream().map(Route::getId).collect(Collectors.toList());
             createIndex(routesList);
             logger.info("Added " + map.size() +" index entries");
         }
 
-        private void createIndex(List<IdFor<RouteReadOnly>> routesList) {
+        private void createIndex(List<IdFor<Route>> routesList) {
             for (int i = 0; i < routesList.size(); i++) {
                 map.put(routesList.get(i), i);
             }
@@ -356,11 +356,11 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
             return map.size();
         }
 
-        public int find(IdFor<RouteReadOnly> from) {
+        public int find(IdFor<Route> from) {
             return map.get(from);
         }
 
-        public IdFor<RouteReadOnly> find(int index) {
+        public IdFor<Route> find(int index) {
             return map.entrySet().stream().
                     filter(entry -> entry.getValue()==index).
                     map(Map.Entry::getKey).

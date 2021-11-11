@@ -109,7 +109,7 @@ public class StationsAndLinksGraphBuilder extends GraphBuilder {
 
     private void addRouteStationsAndLinksFor(Agency agency, GraphBuilderCache builderCache) {
 
-        Set<RouteReadOnly> routes = agency.getRoutes().stream().filter(graphFilter::shouldIncludeRoute).collect(Collectors.toSet());
+        Set<Route> routes = agency.getRoutes().stream().filter(graphFilter::shouldIncludeRoute).collect(Collectors.toSet());
         if (routes.isEmpty()) {
             return;
         }
@@ -122,7 +122,7 @@ public class StationsAndLinksGraphBuilder extends GraphBuilder {
         try(TimedTransaction timedTransaction = new TimedTransaction(graphDatabase, logger, "Adding routes")){
             Transaction tx = timedTransaction.transaction();
             routes.forEach(route -> {
-                IdFor<RouteReadOnly> asId = route.getId();
+                IdFor<Route> asId = route.getId();
                 logger.info("Adding route " + asId);
                 filteredStations.stream().filter(station -> station.servesRoute(route)).
                         forEach(station -> {
@@ -151,7 +151,7 @@ public class StationsAndLinksGraphBuilder extends GraphBuilder {
 
     // NOTE: for services that skip some stations, but same stations not skipped by other services
     // this will create multiple links
-    private void createLinkRelationships(Transaction tx, RouteReadOnly route, GraphBuilderCache routeBuilderCache) {
+    private void createLinkRelationships(Transaction tx, Route route, GraphBuilderCache routeBuilderCache) {
 
         // TODO this uses the first cost we encounter for the link, while this is accurate for tfgm trams it does
         //  not give the correct results for buses and trains where time between station can vary depending upon the

@@ -36,11 +36,11 @@ public class TransportEntityFactoryForTFGM extends TransportEntityFactory {
     }
 
     @Override
-    public Route createRoute(GTFSTransportationType routeType, RouteData routeData, Agency agency, IdMap<Station> allStations) {
+    public MutableRoute createRoute(GTFSTransportationType routeType, RouteData routeData, Agency agency, IdMap<Station> allStations) {
 
-        IdFor<RouteReadOnly> routeId = createRouteId(routeData.getId());
+        IdFor<Route> routeId = createRouteId(routeData.getId());
         String routeName = routeData.getLongName();
-        return new Route(routeId, routeData.getShortName().trim(), routeName, agency, TransportMode.fromGTFS(routeType));
+        return new MutableRoute(routeId, routeData.getShortName().trim(), routeName, agency, TransportMode.fromGTFS(routeType));
     }
 
     @Override

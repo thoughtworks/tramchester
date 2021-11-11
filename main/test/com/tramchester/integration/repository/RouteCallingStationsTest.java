@@ -2,7 +2,7 @@ package com.tramchester.integration.repository;
 
 import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
-import com.tramchester.domain.RouteReadOnly;
+import com.tramchester.domain.Route;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.places.Station;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
@@ -124,7 +124,7 @@ class RouteCallingStationsTest {
     }
 
     private List<Station> getStationsFor(KnownTramRoute knownRoute) {
-        final Set<RouteReadOnly> routes = routeHelper.get(knownRoute);
+        final Set<Route> routes = routeHelper.get(knownRoute);
         List<List<Station>> stationsForRoute = routes.stream().map(route -> callingStations.getStationsFor(route)).collect(Collectors.toList());
 
         assertFalse(stationsForRoute.isEmpty(), "found none for " + knownRoute);

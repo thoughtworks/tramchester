@@ -173,7 +173,7 @@ public class GraphProps {
         return (int) relationship.getProperty(STOP_SEQ_NUM.getText());
     }
 
-    public static IdFor<RouteReadOnly> getRouteIdFrom(Entity entity) {
+    public static IdFor<Route> getRouteIdFrom(Entity entity) {
         return getIdFromGraphEntity(entity, ROUTE_ID);
     }
 

@@ -167,12 +167,12 @@ public class TestEnv {
         return date;
     }
 
-    public static Route getTramTestRoute() {
+    public static MutableRoute getTramTestRoute() {
         return getTramTestRoute(StringIdFor.createId("RouteId"), "routeName");
     }
 
-    public static Route getTramTestRoute(IdFor<RouteReadOnly> routeId, String routeName) {
-        return new Route(routeId, "routeCode", routeName, TestEnv.MetAgency(), TransportMode.Tram);
+    public static MutableRoute getTramTestRoute(IdFor<Route> routeId, String routeName) {
+        return new MutableRoute(routeId, "routeCode", routeName, TestEnv.MetAgency(), TransportMode.Tram);
     }
 
     public static Agency MetAgency() {
@@ -272,15 +272,15 @@ public class TestEnv {
     /**
      * Need to find more than one for a valid test
      */
-    public static Set<RouteReadOnly> findTramRoute(RouteRepository routeRepository, KnownTramRoute knownTramRoute) {
-        Set<RouteReadOnly> routes = routeRepository.findRoutesByName(MET.getId(), knownTramRoute.longName());
+    public static Set<Route> findTramRoute(RouteRepository routeRepository, KnownTramRoute knownTramRoute) {
+        Set<Route> routes = routeRepository.findRoutesByName(MET.getId(), knownTramRoute.longName());
         assertTrue(routes.size()>=1, "Found "+ routes + " for " + knownTramRoute);
 
         return routes;
     }
 
-    public static RouteReadOnly singleRoute(RouteRepository routeRepository, IdFor<Agency> agencyId, String shortName) {
-        Set<RouteReadOnly> routes = routeRepository.findRoutesByShortName(agencyId, shortName);
+    public static Route singleRoute(RouteRepository routeRepository, IdFor<Agency> agencyId, String shortName) {
+        Set<Route> routes = routeRepository.findRoutesByShortName(agencyId, shortName);
         assertEquals(1, routes.size(), format("expected to find only one route for %s and %s", agencyId, shortName));
         return routes.iterator().next();
     }

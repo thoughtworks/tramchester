@@ -26,10 +26,10 @@ public abstract class TransportEntityFactory {
         return new Agency(dataSourceID, agencyId, "UNKNOWN");
     }
 
-    public Route createRoute(GTFSTransportationType routeType, RouteData routeData, Agency agency, IdMap<Station> allStations) {
-        IdFor<RouteReadOnly> routeId = routeData.getId();
+    public MutableRoute createRoute(GTFSTransportationType routeType, RouteData routeData, Agency agency, IdMap<Station> allStations) {
+        IdFor<Route> routeId = routeData.getId();
 
-        return new Route(routeId, routeData.getShortName().trim(), routeData.getLongName(), agency,
+        return new MutableRoute(routeId, routeData.getShortName().trim(), routeData.getLongName(), agency,
                 TransportMode.fromGTFS(routeType));
 
     }
@@ -38,7 +38,7 @@ public abstract class TransportEntityFactory {
         return new Service(serviceId);
     }
 
-    public MutableTrip createTrip(TripData tripData, Service service, Route route) {
+    public MutableTrip createTrip(TripData tripData, Service service, MutableRoute route) {
         return new MutableTrip(tripData.getTripId(), tripData.getHeadsign(), service, route);
     }
 
@@ -49,7 +49,7 @@ public abstract class TransportEntityFactory {
         return new Station(stationId, area, stopData.getName(), stopData.getLatLong(), position, getDataSourceId());
     }
 
-    public RouteStation createRouteStation(Station station, RouteReadOnly route) {
+    public RouteStation createRouteStation(Station station, Route route) {
         return new RouteStation(station, route);
     }
 
@@ -69,7 +69,7 @@ public abstract class TransportEntityFactory {
         return routeData.getRouteType();
     }
 
-    public IdFor<RouteReadOnly> createRouteId(IdFor<RouteReadOnly> routeId) {
+    public IdFor<Route> createRouteId(IdFor<Route> routeId) {
         return routeId;
     }
 

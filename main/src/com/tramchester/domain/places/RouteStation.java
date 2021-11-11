@@ -16,16 +16,16 @@ public class RouteStation implements HasId<RouteStation>, GraphProperty, Locatio
     // A station that serves a specific route
 
     private final Station station;
-    private final RouteReadOnly route;
+    private final Route route;
     private final IdFor<RouteStation> id;
 
-    public RouteStation(Station station, RouteReadOnly route) {
+    public RouteStation(Station station, Route route) {
         this.station = station;
         this.route = route;
         id = createId(station.getId(), route.getId());
     }
 
-    public static IdFor<RouteStation> createId(IdFor<Station> station, IdFor<RouteReadOnly> route) {
+    public static IdFor<RouteStation> createId(IdFor<Station> station, IdFor<Route> route) {
         return MixedCompositeId.createId(route, station);
     }
 
@@ -45,7 +45,7 @@ public class RouteStation implements HasId<RouteStation>, GraphProperty, Locatio
                 '}';
     }
 
-    public RouteReadOnly getRoute() {
+    public Route getRoute() {
         return route;
     }
 

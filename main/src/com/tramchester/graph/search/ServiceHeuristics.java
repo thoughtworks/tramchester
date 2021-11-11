@@ -1,6 +1,6 @@
 package com.tramchester.graph.search;
 
-import com.tramchester.domain.RouteReadOnly;
+import com.tramchester.domain.Route;
 import com.tramchester.domain.Service;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.places.RouteStation;
@@ -149,7 +149,7 @@ public class ServiceHeuristics {
             return reasons.recordReason(ServiceReason.StationNotReachable(howIGotHere));
         }
 
-        RouteReadOnly currentRoute = routeStation.getRoute();
+        Route currentRoute = routeStation.getRoute();
         int fewestChanges = lowestCosts.getFewestChanges(currentRoute);
 
         if ((fewestChanges+currentNumberOfChanges) > currentChangesLimit) {

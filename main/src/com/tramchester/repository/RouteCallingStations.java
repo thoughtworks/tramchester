@@ -1,7 +1,7 @@
 package com.tramchester.repository;
 
 import com.netflix.governator.guice.lazy.LazySingleton;
-import com.tramchester.domain.RouteReadOnly;
+import com.tramchester.domain.Route;
 import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.input.StopCall;
 import com.tramchester.domain.input.StopCalls;
@@ -21,7 +21,7 @@ public class RouteCallingStations {
     private static final Logger logger = LoggerFactory.getLogger(RouteCallingStations.class);
 
     private final TransportData transportData;
-    private final Map<RouteReadOnly, List<Station>> stations;
+    private final Map<Route, List<Station>> stations;
 
     @Inject
     public RouteCallingStations(TransportData transportData) {
@@ -29,7 +29,7 @@ public class RouteCallingStations {
         stations = new HashMap<>();
     }
 
-    public List<Station> getStationsFor(RouteReadOnly route) {
+    public List<Station> getStationsFor(Route route) {
         return stations.get(route);
     }
 
@@ -44,13 +44,13 @@ public class RouteCallingStations {
     @PostConstruct
     public void start() {
         logger.info("start");
-        Collection<RouteReadOnly> routes = transportData.getRoutes();
+        Collection<Route> routes = transportData.getRoutes();
         logger.info("Populating for " + routes.size() + " routes");
         routes.forEach(this::populateFromServices);
         logger.info("ready");
     }
 
-    private void populateFromServices(RouteReadOnly route) {
+    private void populateFromServices(Route route) {
         logger.debug("Populate calling stations for route " + HasId.asId(route));
 
         Set<Trip> allTrips = route.getTrips();

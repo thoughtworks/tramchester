@@ -76,10 +76,10 @@ public class TramTransportDataForTestFactory implements TransportDataFactory {
     private void populateTestData(TransportDataContainer container) {
         Agency agency = TestEnv.MetAgency();
 
-        Route routeA = createTramRoute(CornbrookTheTraffordCentre);
-        Route routeB = createTramRoute(RochdaleShawandCromptonManchesterEastDidisbury);
-        Route routeC = createTramRoute(EastDidisburyManchesterShawandCromptonRochdale);
-        Route routeD = createTramRoute(ManchesterAirportWythenshaweVictoria);
+        MutableRoute routeA = createTramRoute(CornbrookTheTraffordCentre);
+        MutableRoute routeB = createTramRoute(RochdaleShawandCromptonManchesterEastDidisbury);
+        MutableRoute routeC = createTramRoute(EastDidisburyManchesterShawandCromptonRochdale);
+        MutableRoute routeD = createTramRoute(ManchesterAirportWythenshaweVictoria);
 
         agency.addRoute(routeA);
         agency.addRoute(routeB);
@@ -213,8 +213,8 @@ public class TramTransportDataForTestFactory implements TransportDataFactory {
         container.reportNumbers();
     }
 
-    private Route createTramRoute(KnownTramRoute knownRoute) {
-        return new Route(knownRoute.getFakeId(), knownRoute.shortName(), knownRoute.name(), TestEnv.MetAgency(),
+    private MutableRoute createTramRoute(KnownTramRoute knownRoute) {
+        return new MutableRoute(knownRoute.getFakeId(), knownRoute.shortName(), knownRoute.name(), TestEnv.MetAgency(),
                 knownRoute.mode());
     }
 
@@ -222,13 +222,13 @@ public class TramTransportDataForTestFactory implements TransportDataFactory {
         container.addStation(station);
     }
 
-    private static void addRouteStation(TransportDataContainer container, Station station, RouteReadOnly route) {
+    private static void addRouteStation(TransportDataContainer container, Station station, Route route) {
         RouteStation routeStation = new RouteStation(station, route);
         container.addRouteStation(routeStation);
         station.getBuilder().addRoute(route);
     }
 
-    private static void createInterchangeToStation4Trip(TransportDataContainer container, Route route, Service service,
+    private static void createInterchangeToStation4Trip(TransportDataContainer container, MutableRoute route, Service service,
                                                         Station interchangeStation, Station station, LocalTime startTime, String tripId) {
         MutableTrip trip = new MutableTrip(StringIdFor.createId(tripId), "headSignTripB2", service, route);
         PlatformStopCall stop1 = createStop(container,trip, interchangeStation, of(startTime),

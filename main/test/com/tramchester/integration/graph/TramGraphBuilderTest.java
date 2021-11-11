@@ -3,7 +3,7 @@ package com.tramchester.integration.graph;
 import com.google.common.collect.Lists;
 import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
-import com.tramchester.domain.RouteReadOnly;
+import com.tramchester.domain.Route;
 import com.tramchester.domain.Service;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdSet;
@@ -45,9 +45,9 @@ class TramGraphBuilderTest {
     private Transaction txn;
     private GraphQuery graphQuery;
     private StationRepository stationRepository;
-    private Set<RouteReadOnly> tramRoutesAshtonEccles;
-    private Set<RouteReadOnly> tramRoutesEcclesAshton;
-    private Set<RouteReadOnly> tramRoutesAltPicc;
+    private Set<Route> tramRoutesAshtonEccles;
+    private Set<Route> tramRoutesEcclesAshton;
+    private Set<Route> tramRoutesAltPicc;
     private TramRouteHelper tramRouteHelper;
 
     @BeforeAll
@@ -223,12 +223,12 @@ class TramGraphBuilderTest {
 
     private void checkOutboundConsistency(TramStations tramStation, KnownTramRoute knownRoute) {
         Station station = of(tramStation);
-        Set<RouteReadOnly> routes = tramRouteHelper.get(knownRoute);
+        Set<Route> routes = tramRouteHelper.get(knownRoute);
 
         routes.forEach(route -> checkOutboundConsistency(station, route));
     }
 
-    private void checkOutboundConsistency(Station station, RouteReadOnly route) {
+    private void checkOutboundConsistency(Station station, Route route) {
         RouteStation routeStation = stationRepository.getRouteStation(station, route);
 
         List<Relationship> routeStationOutbounds = graphQuery.getRouteStationRelationships(txn, routeStation, Direction.OUTGOING);
@@ -265,13 +265,13 @@ class TramGraphBuilderTest {
     }
 
     private void checkInboundConsistency(TramStations tramStation, KnownTramRoute knownRoute) {
-        Set<RouteReadOnly> routes = tramRouteHelper.get(knownRoute);
+        Set<Route> routes = tramRouteHelper.get(knownRoute);
         Station station = of(tramStation);
 
         routes.forEach(route -> checkInboundConsistency(station, route));
     }
 
-    private void checkInboundConsistency(Station station, RouteReadOnly route) {
+    private void checkInboundConsistency(Station station, Route route) {
         RouteStation routeStation = stationRepository.getRouteStation(station, route);
         List<Relationship> inbounds = graphQuery.getRouteStationRelationships(txn, routeStation, Direction.INCOMING);
 

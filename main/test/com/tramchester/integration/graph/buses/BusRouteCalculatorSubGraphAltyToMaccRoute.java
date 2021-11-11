@@ -39,8 +39,8 @@ class BusRouteCalculatorSubGraphAltyToMaccRoute {
 
     private static ComponentContainer componentContainer;
     private static TramchesterConfig config;
-    private static Set<RouteReadOnly> altyToKnutsford;
-    private static Set<RouteReadOnly> knutsfordToAlty;
+    private static Set<Route> altyToKnutsford;
+    private static Set<Route> knutsfordToAlty;
 
     private RouteCallingStations routeCallingStations;
     private RouteCalculatorTestFacade calculator;

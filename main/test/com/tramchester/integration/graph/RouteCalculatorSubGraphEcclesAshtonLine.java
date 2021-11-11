@@ -4,7 +4,7 @@ import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.DiagramCreator;
 import com.tramchester.domain.JourneyRequest;
-import com.tramchester.domain.RouteReadOnly;
+import com.tramchester.domain.Route;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.GraphDatabase;
@@ -59,7 +59,7 @@ class RouteCalculatorSubGraphEcclesAshtonLine {
 
     private static void configureFilter(ConfigurableGraphFilter graphFilter) {
         TramRouteHelper tramRouteHelper = new TramRouteHelper(componentContainer);
-        Set<RouteReadOnly> routes = tramRouteHelper.get(KnownTramRoute.EcclesManchesterAshtonUnderLyne);
+        Set<Route> routes = tramRouteHelper.get(KnownTramRoute.EcclesManchesterAshtonUnderLyne);
         routes.forEach(route -> graphFilter.addRoute(route.getId()));
     }
 

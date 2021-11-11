@@ -1,10 +1,9 @@
 package com.tramchester.domain.input;
 
-import com.tramchester.domain.Route;
+import com.tramchester.domain.MutableRoute;
 import com.tramchester.domain.Service;
 import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.id.IdFor;
-import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.GraphPropertyKey;
@@ -14,7 +13,7 @@ public class MutableTrip implements Trip {
     private final IdFor<Trip> tripId;
     private final String headSign;
     private final Service service;
-    private final Route route;
+    private final MutableRoute route;
     private final StopCalls stopCalls;
     private TramTime earliestDepart = null;
     private TramTime latestDepart = null;
@@ -27,7 +26,7 @@ public class MutableTrip implements Trip {
 //        this(StringIdFor.createId(tripId), headSign, service, route);
 //    }
 
-    public MutableTrip(IdFor<Trip> tripId, String headSign, Service service, Route route) {
+    public MutableTrip(IdFor<Trip> tripId, String headSign, Service service, MutableRoute route) {
         this.tripId = tripId;
         this.headSign = headSign.intern();
         this.service = service;
@@ -39,7 +38,7 @@ public class MutableTrip implements Trip {
     }
 
     // test support
-    public static Trip buildTrip(IdFor<Trip> tripId, String headSign, Service service, Route route) {
+    public static Trip buildTrip(IdFor<Trip> tripId, String headSign, Service service, MutableRoute route) {
         return new MutableTrip(tripId, headSign, service, route);
     }
 
@@ -109,7 +108,7 @@ public class MutableTrip implements Trip {
     }
 
     @Override
-    public Route getRoute() {
+    public MutableRoute getRoute() {
         return route;
     }
 

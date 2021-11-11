@@ -1,7 +1,7 @@
 package com.tramchester.domain.transportStages;
 
 import com.tramchester.domain.Platform;
-import com.tramchester.domain.RouteReadOnly;
+import com.tramchester.domain.Route;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.input.StopCall;
 import com.tramchester.domain.input.Trip;
@@ -24,12 +24,12 @@ public class VehicleStage implements TransportStage<Station, Station> {
     private final List<Integer> stopSequenceNumbers;
     private final Trip trip;
     private final TramTime departFirstStationTime;
-    private final RouteReadOnly route;
+    private final Route route;
 
     protected int cost;
     private Platform platform;
 
-    public VehicleStage(Station firstStation, RouteReadOnly route, TransportMode mode, Trip trip,
+    public VehicleStage(Station firstStation, Route route, TransportMode mode, Trip trip,
                         TramTime departFirstStationTime, Station lastStation,
                         List<Integer> stopSequenceNumbers) {
         this.firstStation = firstStation;
@@ -64,7 +64,7 @@ public class VehicleStage implements TransportStage<Station, Station> {
         return trip.getHeadsign();
     }
 
-    public RouteReadOnly getRoute() {
+    public Route getRoute() {
         return route;
     }
 

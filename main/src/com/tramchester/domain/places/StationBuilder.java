@@ -1,9 +1,9 @@
 package com.tramchester.domain.places;
 
 import com.tramchester.domain.Platform;
-import com.tramchester.domain.RouteReadOnly;
+import com.tramchester.domain.Route;
 
 public interface StationBuilder {
-    void addRoute(RouteReadOnly route);
+    void addRoute(Route route);
     void addPlatform(Platform platform);
 }

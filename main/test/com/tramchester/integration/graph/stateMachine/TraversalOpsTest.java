@@ -2,7 +2,7 @@ package com.tramchester.integration.graph.stateMachine;
 
 import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
-import com.tramchester.domain.RouteReadOnly;
+import com.tramchester.domain.Route;
 import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.LatLong;
@@ -79,8 +79,8 @@ public class TraversalOpsTest {
 
         Station altrincham = stationRepository.getStationById(TramStations.Altrincham.getId());
 
-        HasId<RouteReadOnly> otherRoute = altrincham.getRoutes().iterator().next();
-        HasId<RouteReadOnly> vicToAirport = manchesterAirport.getRoutes().iterator().next();
+        HasId<Route> otherRoute = altrincham.getRoutes().iterator().next();
+        HasId<Route> vicToAirport = manchesterAirport.getRoutes().iterator().next();
 
         assertEquals(0, traversalOps.onDestRouteFirst(vicToAirport, vicToAirport));
         assertEquals(-1, traversalOps.onDestRouteFirst(vicToAirport, otherRoute));
@@ -88,7 +88,7 @@ public class TraversalOpsTest {
         assertEquals(0, traversalOps.onDestRouteFirst(otherRoute, otherRoute));
 
         Station sameRouteStation = stationRepository.getStationById(TramStations.PeelHall.getId());
-        HasId<RouteReadOnly> sameRoute = sameRouteStation.getRoutes().iterator().next();
+        HasId<Route> sameRoute = sameRouteStation.getRoutes().iterator().next();
 
         assertEquals(0, traversalOps.onDestRouteFirst(sameRoute, vicToAirport));
         assertEquals(0, traversalOps.onDestRouteFirst(vicToAirport, sameRoute));

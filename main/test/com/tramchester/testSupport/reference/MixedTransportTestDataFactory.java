@@ -59,13 +59,13 @@ public class MixedTransportTestDataFactory implements TransportDataFactory {
         return container;
     }
 
-    private static final Route FERRY_ROUTE = new Route(StringIdFor.createId("FER:42:C"), "42", "Lakes",
+    private static final MutableRoute FERRY_ROUTE = new MutableRoute(StringIdFor.createId("FER:42:C"), "42", "Lakes",
             new Agency(DataSourceID.gbRail, StringIdFor.createId("FER"), "ferryAgency"), TransportMode.Ferry);
 
     private void populateTestData(TransportDataContainer container) {
-        Route routeA = BusRoutesForTesting.AIR_TO_BUXTON;
-        Route ferryRoute = FERRY_ROUTE;
-        Route routeC = BusRoutesForTesting.ALTY_TO_WARRINGTON;
+        MutableRoute routeA = BusRoutesForTesting.AIR_TO_BUXTON;
+        MutableRoute ferryRoute = FERRY_ROUTE;
+        MutableRoute routeC = BusRoutesForTesting.ALTY_TO_WARRINGTON;
 
         Agency agencyA = routeA.getAgency();
         Agency agencyB = routeA.getAgency();
@@ -180,13 +180,13 @@ public class MixedTransportTestDataFactory implements TransportDataFactory {
         container.addStation(station);
     }
 
-    private static void addRouteStation(TransportDataContainer container, Station station, RouteReadOnly route) {
+    private static void addRouteStation(TransportDataContainer container, Station station, Route route) {
         RouteStation routeStation = new RouteStation(station, route);
         container.addRouteStation(routeStation);
         station.getBuilder().addRoute(route);
     }
 
-    private static void createInterchangeToStation4Trip(TransportDataContainer container, Route route, Service service,
+    private static void createInterchangeToStation4Trip(TransportDataContainer container, MutableRoute route, Service service,
                                                         Station interchangeStation, Station station, LocalTime startTime, String tripId) {
         MutableTrip trip = new MutableTrip(StringIdFor.createId(tripId), "headSignTripB2", service, route);
         NoPlatformStopCall stop1 = createStop(trip, interchangeStation, TramTime.of(startTime),

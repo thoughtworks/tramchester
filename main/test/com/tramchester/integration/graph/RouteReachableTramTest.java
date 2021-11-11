@@ -3,7 +3,7 @@ package com.tramchester.integration.graph;
 import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.config.TramchesterConfig;
-import com.tramchester.domain.RouteReadOnly;
+import com.tramchester.domain.Route;
 import com.tramchester.domain.StationPair;
 import com.tramchester.domain.places.Station;
 import com.tramchester.testSupport.TramRouteHelper;
@@ -54,10 +54,10 @@ class RouteReachableTramTest {
     void shouldTestGetRoutesFromStartToNeighbour() {
         Station start = stationRepository.getStationById(Altrincham.getId());
         Station next = stationRepository.getStationById(NavigationRoad.getId());
-        List<RouteReadOnly> results = reachable.getRoutesFromStartToNeighbour(StationPair.of(start, next));
+        List<Route> results = reachable.getRoutesFromStartToNeighbour(StationPair.of(start, next));
 
         Set<String> names = results.stream().
-                map(RouteReadOnly::getName).collect(Collectors.toSet());
+                map(Route::getName).collect(Collectors.toSet());
         assertEquals(2, names.size(), names.toString());
 
         assertTrue(names.contains(AltrinchamPiccadilly.longName()));

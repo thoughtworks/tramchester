@@ -52,7 +52,7 @@ public class TestStation extends Station {
         platformsAdded = true;
     }
 
-    private void addRoute(RouteReadOnly route) {
+    private void addRoute(Route route) {
         super.getBuilder().addRoute(route);
         routesAdded = true;
     }
@@ -80,12 +80,12 @@ public class TestStation extends Station {
     }
 
     @Override
-    public Set<Platform> getPlatformsForRoute(RouteReadOnly route) {
+    public Set<Platform> getPlatformsForRoute(Route route) {
         throw new RuntimeException("Use real Station");
     }
 
     @Override
-    public Set<RouteReadOnly> getRoutes() {
+    public Set<Route> getRoutes() {
         guardRoutesAddedIntent();
         return super.getRoutes();
     }
@@ -104,7 +104,7 @@ public class TestStation extends Station {
         }
 
         @Override
-        public void addRoute(RouteReadOnly route) {
+        public void addRoute(Route route) {
             testStation.addRoute(route);
         }
 

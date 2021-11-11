@@ -2,7 +2,7 @@ package com.tramchester.livedata;
 
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.domain.Platform;
-import com.tramchester.domain.RouteReadOnly;
+import com.tramchester.domain.Route;
 import com.tramchester.domain.StationPair;
 import com.tramchester.livedata.domain.liveUpdates.DueTram;
 import com.tramchester.livedata.domain.liveUpdates.PlatformDueTrams;
@@ -72,7 +72,7 @@ public class TramPositionInference {
             logger.info(format("Not both tram stations %s", pair));
             return Collections.emptySet();
         }
-        List<RouteReadOnly> routesBetween = routeReachable.getRoutesFromStartToNeighbour(pair);
+        List<Route> routesBetween = routeReachable.getRoutesFromStartToNeighbour(pair);
 
         // get departure info at neighbouring station for relevant routes
         Set<PlatformDueTrams> platformDueTrams = new HashSet<>();

@@ -1,7 +1,7 @@
 package com.tramchester.graph.filters;
 
 import com.tramchester.domain.Agency;
-import com.tramchester.domain.RouteReadOnly;
+import com.tramchester.domain.Route;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.input.StopCall;
 import com.tramchester.domain.places.CompositeStation;
@@ -17,17 +17,17 @@ public class IncludeAllFilter implements GraphFilter {
     }
 
     @Override
-    public boolean shouldIncludeRoute(RouteReadOnly route) {
+    public boolean shouldIncludeRoute(Route route) {
         return true;
     }
 
     @Override
-    public boolean shouldIncludeRoute(IdFor<RouteReadOnly> route) {
+    public boolean shouldIncludeRoute(IdFor<Route> route) {
         return true;
     }
 
     @Override
-    public boolean shouldIncludeRoutes(Set<RouteReadOnly> route) {
+    public boolean shouldIncludeRoutes(Set<Route> route) {
         return true;
     }
 

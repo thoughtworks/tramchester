@@ -1,7 +1,7 @@
 package com.tramchester.graph;
 
 import com.netflix.governator.guice.lazy.LazySingleton;
-import com.tramchester.domain.RouteReadOnly;
+import com.tramchester.domain.Route;
 import com.tramchester.domain.StationPair;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.places.RouteStation;
@@ -37,10 +37,10 @@ public class RouteReachable {
     }
 
     // supports position inference on live data
-    public List<RouteReadOnly> getRoutesFromStartToNeighbour(StationPair pair) {
-        List<RouteReadOnly> results = new ArrayList<>();
+    public List<Route> getRoutesFromStartToNeighbour(StationPair pair) {
+        List<Route> results = new ArrayList<>();
         Station startStation = pair.getBegin();
-        Set<RouteReadOnly> firstRoutes = startStation.getRoutes();
+        Set<Route> firstRoutes = startStation.getRoutes();
         IdFor<Station> endStationId = pair.getEnd().getId();
 
         try (Transaction txn = graphDatabaseService.beginTx()) {

@@ -2,7 +2,7 @@ package com.tramchester.unit.domain;
 
 
 import com.tramchester.domain.DataSourceID;
-import com.tramchester.domain.Route;
+import com.tramchester.domain.MutableRoute;
 import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.places.StationBuilder;
@@ -55,10 +55,10 @@ class StationTest {
         assertTrue(station.getTransportModes().isEmpty());
 
         final StationBuilder builder = station.getBuilder();
-        builder.addRoute(new Route(StringIdFor.createId("routeIdA"), "shortName", "name", TestEnv.MetAgency(), Tram));
+        builder.addRoute(new MutableRoute(StringIdFor.createId("routeIdA"), "shortName", "name", TestEnv.MetAgency(), Tram));
         assertTrue(station.serves(Tram));
 
-        builder.addRoute(new Route(StringIdFor.createId("routeIdB"), "trainShort", "train", Walking, Train));
+        builder.addRoute(new MutableRoute(StringIdFor.createId("routeIdB"), "trainShort", "train", Walking, Train));
         assertTrue(station.serves(Train));
 
         assertEquals(2, station.getTransportModes().size());

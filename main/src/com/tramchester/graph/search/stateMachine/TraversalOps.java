@@ -1,7 +1,7 @@
 package com.tramchester.graph.search.stateMachine;
 
 import com.google.common.collect.Streams;
-import com.tramchester.domain.RouteReadOnly;
+import com.tramchester.domain.Route;
 import com.tramchester.domain.Service;
 import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.id.IdFor;
@@ -34,7 +34,7 @@ public class TraversalOps {
     private final NodeContentsRepository nodeOperations;
     private final TripRepository tripRepository;
     private final IdSet<Station> destinationStationIds;
-    private final IdSet<RouteReadOnly> destinationRoutes;
+    private final IdSet<Route> destinationRoutes;
     private final LatLong destinationLatLon;
     private final SortsPositions sortsPositions;
     private final LowestCostsForRoutes lowestCostsForRoutes;
@@ -67,9 +67,9 @@ public class TraversalOps {
                 collect(Collectors.toList());
     }
 
-    public int onDestRouteFirst(HasId<RouteReadOnly> a, HasId<RouteReadOnly> b) {
-        IdFor<RouteReadOnly> routeA = a.getId();
-        IdFor<RouteReadOnly> routeB = b.getId();
+    public int onDestRouteFirst(HasId<Route> a, HasId<Route> b) {
+        IdFor<Route> routeA = a.getId();
+        IdFor<Route> routeB = b.getId();
         boolean toDestA = destinationRoutes.contains(routeA);
         boolean toDestB = destinationRoutes.contains(routeB);
         if (toDestA == toDestB) {

@@ -63,12 +63,12 @@ public class CompositeStation extends Station {
     }
 
     @Override
-    public Set<Platform> getPlatformsForRoute(RouteReadOnly route) {
+    public Set<Platform> getPlatformsForRoute(Route route) {
         return flatten(station -> station.getPlatformsForRoute(route));
     }
 
     @Override
-    public boolean hasPlatformsForRoute(RouteReadOnly route) {
+    public boolean hasPlatformsForRoute(Route route) {
         return anyMatch(station -> station.hasPlatformsForRoute(route));
     }
 
@@ -78,12 +78,12 @@ public class CompositeStation extends Station {
     }
 
     @Override
-    public Set<RouteReadOnly> getRoutes() {
+    public Set<Route> getRoutes() {
         return flatten(Station::getRoutes);
     }
 
     @Override
-    public boolean servesRoute(RouteReadOnly route) {
+    public boolean servesRoute(Route route) {
         return anyMatch(station -> station.servesRoute(route));
     }
 
