@@ -40,7 +40,6 @@ import java.util.stream.Stream;
 import static com.tramchester.graph.TransportRelationshipTypes.*;
 import static com.tramchester.graph.graphbuild.GraphLabel.INTERCHANGE;
 import static com.tramchester.graph.graphbuild.GraphProps.*;
-import static org.neo4j.graphdb.Direction.INCOMING;
 import static org.neo4j.graphdb.Direction.OUTGOING;
 
 @LazySingleton
@@ -75,7 +74,8 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
                                        GraphBuilderCache builderCache,
                                        StationsAndLinksGraphBuilder.Ready stationAndLinksBuilt,
                                        AddNeighboursGraphBuilder.Ready neighboursReady,
-                                       AddWalksForClosedGraphBuilder.Ready walksForClosedReady, GraphDatabaseMetaInfo databaseMetaInfo) {
+                                       AddWalksForClosedGraphBuilder.Ready walksForClosedReady,
+                                       GraphDatabaseMetaInfo databaseMetaInfo) {
         super(graphDatabase, graphFilter, config, builderCache);
         this.transportData = transportData;
         this.interchangeRepository = interchangeRepository;
@@ -181,9 +181,7 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
         try(Timing ignored = new Timing(logger,"time and update for trips for " + agency.getId())) {
             getRoutesForAgency(agency).parallel().forEach(route -> {
                 try (Transaction tx = graphDatabase.beginTx()) {
-                    ServiceRelationshipTrips serviceRelationshipTrips = new ServiceRelationshipTrips();
-                    createMinuteNodesAndRecordUpdatesForTrips(tx, route, serviceRelationshipTrips, builderCache);
-                    serviceRelationshipTrips.updateAll(tx);
+                    createMinuteNodesAndRecordUpdatesForTrips(tx, route, builderCache);
                     tx.commit();
                 }
             });
@@ -204,43 +202,28 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
         return agency.getRoutes().stream().filter(graphFilter::shouldIncludeRoute);
     }
 
-    private void createMinuteNodesAndRecordUpdatesForTrips(Transaction tx, Route route, ServiceRelationshipTrips serviceRelationshipTrips,
+    private void createMinuteNodesAndRecordUpdatesForTrips(Transaction tx, Route route,
                                                            GraphBuilderCache routeBuilderCache) {
 
         // time nodes and relationships for trips
         for (Trip trip : route.getTrips()) {
             Map<StationTime, Node> timeNodes = createMinuteNodes(tx, trip, routeBuilderCache);
-            createTripRelationships(tx, route, trip, routeBuilderCache, timeNodes, serviceRelationshipTrips);
+            createTripRelationships(tx, route, trip, routeBuilderCache, timeNodes);
             timeNodes.clear();
         }
     }
 
     private void createTripRelationships(Transaction tx, Route route, Trip trip, GraphBuilderCache routeBuilderCache,
-                                         Map<StationTime, Node> timeNodes, ServiceRelationshipTrips serviceRelationshipTrips) {
+                                         Map<StationTime, Node> timeNodes) {
         StopCalls stops = trip.getStopCalls();
 
         stops.getLegs().forEach(leg -> {
             if (includeBothStops(leg)) {
                 StopCall first = leg.getFirst();
                 StopCall second = leg.getSecond();
-                updateIncomingToServiceNodeWithTrip(tx, route, trip, first, second, routeBuilderCache, serviceRelationshipTrips);
                 createRelationshipTimeNodeToRouteStation(tx, route, trip, first, second, routeBuilderCache, timeNodes);
             }
         });
-    }
-
-    private void updateIncomingToServiceNodeWithTrip(Transaction tx, Route route, Trip trip, StopCall beginStop, StopCall endStop,
-                                                     GraphBuilderCache routeBuilderCache, ServiceRelationshipTrips serviceRelationshipTrips) {
-
-        IdFor<Trip> tripId = trip.getId();
-        IdFor<Station> startStationId = beginStop.getStation().getId();
-        IdFor<Station> endStationId = endStop.getStation().getId();
-
-        Node serviceNode = routeBuilderCache.getServiceNode(tx, route.getId(), trip.getService(), startStationId,
-                endStationId);
-
-        serviceNode.getRelationships(INCOMING, TO_SERVICE).forEach(
-                relationship -> serviceRelationshipTrips.add(relationship.getId(), tripId));
     }
 
     private void buildGraphForBoardsAndDeparts(Route route, GraphBuilderCache routeBuilderCache,
@@ -542,30 +525,6 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
     public static class Ready {
         private Ready() {
             // prevent guice creating this, want to create dependency on the Builder
-        }
-    }
-
-    public static class ServiceRelationshipTrips {
-        private final ConcurrentMap<Long, IdSet<Trip>> map;
-
-        public ServiceRelationshipTrips() {
-            this.map = new ConcurrentHashMap<>();
-        }
-
-        public void updateAll(Transaction txn) {
-            map.entrySet().forEach(entry -> update(txn, entry));
-            map.values().forEach(IdSet::clear);
-            map.clear();
-        }
-
-        private void update(Transaction txn, Map.Entry<Long, IdSet<Trip>> entry) {
-            Relationship relationship = txn.getRelationshipById(entry.getKey());
-            setTripsProp(relationship, entry.getValue());
-        }
-
-        public void add(long id, IdFor<Trip> tripId) {
-            map.computeIfAbsent(id, key -> new IdSet<>());
-            map.computeIfPresent(id, (key,ids) -> ids.add(tripId));
         }
     }
 

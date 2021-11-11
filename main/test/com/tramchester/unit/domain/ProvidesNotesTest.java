@@ -4,6 +4,7 @@ import com.tramchester.domain.*;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.input.MutableTrip;
+import com.tramchester.domain.input.Trip;
 import com.tramchester.livedata.domain.liveUpdates.PlatformMessage;
 import com.tramchester.domain.places.MyLocation;
 import com.tramchester.domain.places.Station;
@@ -392,7 +393,7 @@ class ProvidesNotesTest extends EasyMockSupport {
     private VehicleStage createStageWithBoardingPlatform(String platformId, LatLong latLong) {
         TramTime departTime = TramTime.of(11,22);
         Service service = new Service("serviceId");
-        MutableTrip trip = new MutableTrip(StringIdFor.createId("tripId"), "headSign", service,
+        Trip trip = new MutableTrip(StringIdFor.createId("tripId"), "headSign", service,
                 TestEnv.getTramTestRoute());
 
         // TODO

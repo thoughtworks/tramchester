@@ -3,22 +3,27 @@ package com.tramchester.testSupport;
 import com.codahale.metrics.Gauge;
 import com.tramchester.ComponentContainer;
 import com.tramchester.caching.DataCache;
-import com.tramchester.config.*;
-import com.tramchester.metrics.CacheMetrics;
+import com.tramchester.config.AppConfiguration;
+import com.tramchester.config.GTFSSourceConfig;
+import com.tramchester.config.LiveDataConfig;
+import com.tramchester.config.TramchesterConfig;
 import com.tramchester.dataimport.data.StopTimeData;
 import com.tramchester.domain.*;
 import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.input.PlatformStopCall;
-import com.tramchester.domain.input.MutableTrip;
+import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.presentation.LatLong;
-import com.tramchester.domain.reference.*;
+import com.tramchester.domain.reference.GTFSPickupDropoffType;
+import com.tramchester.domain.reference.GTFSTransportationType;
+import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramServiceDate;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.geo.BoundingBox;
 import com.tramchester.geo.CoordinateTransforms;
 import com.tramchester.geo.GridPosition;
+import com.tramchester.metrics.CacheMetrics;
 import com.tramchester.repository.RouteRepository;
 import com.tramchester.testSupport.reference.KnownTramRoute;
 import com.tramchester.testSupport.reference.TramStations;
@@ -204,7 +209,7 @@ public class TestEnv {
 //        return createTramStopCall(trip, stopId, station, seq, arrive, depart);
 //    }
 
-    public static PlatformStopCall createTramStopCall(MutableTrip trip, String stopId, TramStations station, int seq, TramTime arrive,
+    public static PlatformStopCall createTramStopCall(Trip trip, String stopId, TramStations station, int seq, TramTime arrive,
                                                       TramTime depart) {
         Platform platform = createPlatform(stopId, station.getLatLong());
         GTFSPickupDropoffType pickupDropoff = GTFSPickupDropoffType.Regular;

@@ -6,6 +6,7 @@ import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.input.StopCalls;
 import com.tramchester.domain.input.PlatformStopCall;
 import com.tramchester.domain.input.MutableTrip;
+import com.tramchester.domain.input.Trip;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.TramStations;
 import org.junit.jupiter.api.BeforeEach;
@@ -35,12 +36,11 @@ class PlatformStopCallsTest {
         stationD = TramStations.Deansgate;
 
         Service service = new Service(StringIdFor.createId("svc1"));
-        MutableTrip trip = new MutableTrip(StringIdFor.createId("tripId"), "headSign", service, TestEnv.getTramTestRoute());
+        Trip trip = new MutableTrip(StringIdFor.createId("tripId"), "headSign", service, TestEnv.getTramTestRoute());
 
         stopA = TestEnv.createTramStopCall(trip, "statA1", stationA, 3, of(10, 10), of(10, 11));
         stopB = TestEnv.createTramStopCall(trip, "statB1", stationB, 2, of(10, 3), of(10, 4));
         stopC = TestEnv.createTramStopCall(trip, "statC1", stationC, 1, of(10, 0), of(10, 1));
-
 
         stops = new StopCalls(StringIdFor.createId("parentTripId"));
 

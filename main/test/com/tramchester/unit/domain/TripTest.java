@@ -7,6 +7,7 @@ import com.tramchester.domain.Service;
 import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.input.PlatformStopCall;
 import com.tramchester.domain.input.MutableTrip;
+import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.testSupport.TestEnv;
@@ -42,12 +43,12 @@ class TripTest {
     void shouldKnowIfTramTrip() {
         Service service = new Service("svcId");
 
-        MutableTrip tripA = new MutableTrip(StringIdFor.createId("tripId"), "headSign", service, TestEnv.getTramTestRoute());
+        Trip tripA = new MutableTrip(StringIdFor.createId("tripId"), "headSign", service, TestEnv.getTramTestRoute());
         assertTrue(TransportMode.isTram(tripA));
         Route busRoute = new Route(StringIdFor.createId("busRouteId"), "busRouteCode", "busRouteName",
                 new Agency(DataSourceID.tfgm, StringIdFor.createId("BUS"), "agencyName"),
                 TransportMode.Bus);
-        MutableTrip tripB = new MutableTrip(StringIdFor.createId("tripId"), "headSign", service, busRoute);
+        Trip tripB = new MutableTrip(StringIdFor.createId("tripId"), "headSign", service, busRoute);
         assertFalse(TransportMode.isTram(tripB));
     }
 

@@ -4,9 +4,6 @@ import com.google.common.collect.Streams;
 import com.tramchester.domain.*;
 import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.id.IdFor;
-import com.tramchester.domain.id.IdSet;
-import com.tramchester.domain.id.StringIdFor;
-import com.tramchester.domain.input.MutableTrip;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
@@ -107,28 +104,6 @@ public class GraphProps {
 
     private static Object getProperty(Entity entity, GraphPropertyKey graphPropertyKey) {
         return entity.getProperty(graphPropertyKey.getText());
-    }
-
-    public static IdSet<MutableTrip> getTrips(Entity entity) {
-        if (!hasProperty(TRIPS, entity)) {
-            return IdSet.emptySet(); // ok during graph build when property not set initiall
-        }
-
-        String[] ids = (String[]) getProperty(entity, TRIPS);
-        IdSet<MutableTrip> tripIds = new IdSet<>(ids.length);
-        for (String id : ids) {
-            tripIds.add(StringIdFor.createId(id));
-        }
-        return tripIds;
-    }
-
-    static void setTripsProp(Entity entiy, IdSet<Trip> tripIds) {
-        String[] ids = new String[tripIds.size()];
-        int i = 0;
-        for (IdFor<Trip> tripId : tripIds) {
-            ids[i++] = tripId.getGraphId();
-        }
-        entiy.setProperty(TRIPS.getText(), ids);
     }
 
     public static int getCost(Entity entity) {

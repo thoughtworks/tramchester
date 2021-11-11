@@ -7,7 +7,7 @@ import com.tramchester.domain.places.Station;
 public class PlatformStopCall extends StopCall {
     private final Platform callingPlatform;
 
-    public PlatformStopCall(MutableTrip trip, Platform platform, Station station, StopTimeData stopTimeData) {
+    public PlatformStopCall(Trip trip, Platform platform, Station station, StopTimeData stopTimeData) {
         super(station, stopTimeData, trip);
         this.callingPlatform = platform;
     }

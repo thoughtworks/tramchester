@@ -4,10 +4,7 @@ import com.tramchester.dataimport.data.*;
 import com.tramchester.domain.*;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdMap;
-import com.tramchester.domain.input.NoPlatformStopCall;
-import com.tramchester.domain.input.PlatformStopCall;
-import com.tramchester.domain.input.StopCall;
-import com.tramchester.domain.input.MutableTrip;
+import com.tramchester.domain.input.*;
 import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.GTFSTransportationType;
@@ -56,11 +53,11 @@ public abstract class TransportEntityFactory {
         return new RouteStation(station, route);
     }
 
-    public StopCall createPlatformStopCall(MutableTrip trip, Platform platform, Station station, StopTimeData stopTimeData) {
+    public StopCall createPlatformStopCall(Trip trip, Platform platform, Station station, StopTimeData stopTimeData) {
         return new PlatformStopCall(trip, platform, station, stopTimeData);
     }
 
-    public StopCall createNoPlatformStopCall(MutableTrip trip, Station station, StopTimeData stopTimeData) {
+    public StopCall createNoPlatformStopCall(Trip trip, Station station, StopTimeData stopTimeData) {
         return new NoPlatformStopCall(trip, station, stopTimeData);
     }
 

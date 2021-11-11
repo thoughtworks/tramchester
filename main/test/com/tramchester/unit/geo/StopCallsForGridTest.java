@@ -7,6 +7,7 @@ import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.input.NoPlatformStopCall;
 import com.tramchester.domain.input.StopCall;
 import com.tramchester.domain.input.MutableTrip;
+import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.GTFSPickupDropoffType;
 import com.tramchester.domain.time.TramTime;
@@ -33,7 +34,7 @@ public class StopCallsForGridTest extends EasyMockSupport {
     StopCallsForGrid stopCallsForGrid;
     private StationLocations stationLocations;
     private StopCallRepository stopCallRepository;
-    private MutableTrip trip;
+    private Trip trip;
 
     @BeforeEach
     void beforeEachTest() {
