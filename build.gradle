@@ -49,7 +49,7 @@ dependencies {
     implementation('software.amazon.awssdk:cloudwatch:2.17.79')
     implementation('software.amazon.awssdk:cloudformation:2.17.79')
     // aws cdk
-    implementation 'software.amazon.awscdk:core:1.125.0',
+    implementation 'software.amazon.awscdk:core:1.132.0',
             'software.amazon.awscdk:s3:1.132.0',
             'software.amazon.awscdk:ec2:1.132.0',
             'software.amazon.awscdk:elasticloadbalancingv2:1.132.0',
