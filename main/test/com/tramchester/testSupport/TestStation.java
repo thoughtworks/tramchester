@@ -31,12 +31,6 @@ public class TestStation extends MutableStation {
         return new TestStation(id, area, stationName, latLong, CoordinateTransforms.getGridPosition(latLong), mode, dataSourceID);
     }
 
-    @Deprecated
-    @Override
-    public StationBuilder getBuilder() {
-        return new Builder(this);
-    }
-
     private void guardPlatformsAddedIntent() {
         if (!platformsAdded) {
             throw new RuntimeException("No platforms for test station " + getName());

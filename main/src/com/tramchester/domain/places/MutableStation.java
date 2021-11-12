@@ -39,11 +39,6 @@ public class MutableStation implements Station {
         this.area = area;
     }
 
-    @Deprecated
-    public StationBuilder getBuilder() {
-        return new Builder(this);
-    }
-
     @Override
     public IdFor<Station> getId() {
         return id;
@@ -182,21 +177,4 @@ public class MutableStation implements Station {
         servesAgencies.add(route.getAgency());
     }
 
-    @Deprecated
-    public static class Builder implements StationBuilder {
-
-        private final MutableStation station;
-
-        private Builder(MutableStation station) {
-            this.station = station;
-        }
-
-        public void addPlatform(Platform platform) {
-            station.addPlatform(platform);
-        }
-
-        public void addRoute(Route route) {
-            station.addRoute(route);
-        }
-    }
 }

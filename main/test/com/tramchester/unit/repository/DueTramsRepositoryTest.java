@@ -46,7 +46,7 @@ class DueTramsRepositoryTest extends EasyMockSupport {
 
         station = TramStations.of(Shudehill);
         platform = new Platform("someId1", "Shudehill platform 1", Shudehill.getLatLong());
-        station.getBuilder().addPlatform(platform);
+        station.addPlatform(platform);
     }
 
     @Test
@@ -61,7 +61,7 @@ class DueTramsRepositoryTest extends EasyMockSupport {
         // second station, has due tram
         MutableStation secondStation = of(Altrincham);
         Platform platfromForSecondStation = new Platform("a1", "Altrincham platform 1", Altrincham.getLatLong());
-        secondStation.getBuilder().addPlatform(platfromForSecondStation);
+        secondStation.addPlatform(platfromForSecondStation);
 
         DueTram dueTramOther = new DueTram(of(ManAirport), "Due", 12, "Double", lastUpdate.toLocalTime());
         addStationInfoWithDueTram(infos, lastUpdate, "displayId2", platfromForSecondStation.getId(),
@@ -70,7 +70,7 @@ class DueTramsRepositoryTest extends EasyMockSupport {
         // third, no due trams
         Station thirdStation = of(TraffordCentre);
         Platform platfromForThirdStation = new Platform("b2", "Intu platform 2", TraffordCentre.getLatLong());
-        secondStation.getBuilder().addPlatform(platfromForSecondStation);
+        secondStation.addPlatform(platfromForSecondStation);
         StationDepartureInfo thirdStationInfo = new StationDepartureInfo("displayId3", Lines.Airport,
                 LineDirection.Incoming, platfromForThirdStation.getId(), thirdStation, "message 3", lastUpdate);
         infos.add(thirdStationInfo);
@@ -97,7 +97,7 @@ class DueTramsRepositoryTest extends EasyMockSupport {
 
         MutableStation otherStation = of(Altrincham);
         Platform otherPlatform = new Platform("other1", "Altrincham platform 1", otherStation.getLatLong());
-        otherStation.getBuilder().addPlatform(otherPlatform);
+        otherStation.addPlatform(otherPlatform);
 
         Station destinationManAirport = of(ManAirport);
         DueTram dueTramOther = new DueTram(destinationManAirport, "Due", 12, "Double", lastUpdate.toLocalTime());

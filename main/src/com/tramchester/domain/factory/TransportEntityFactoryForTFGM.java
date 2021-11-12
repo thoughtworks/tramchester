@@ -70,7 +70,7 @@ public class TransportEntityFactoryForTFGM extends TransportEntityFactory {
         if (isMetrolinkTram(stopData)) {
             Platform platform = new Platform(stopData.getId(), createStationName(stopData), stopData.getLatLong());
             if (!station.getPlatforms().contains(platform)) {
-                station.getBuilder().addPlatform(platform);
+                station.addPlatform(platform);
             }
         }
     }

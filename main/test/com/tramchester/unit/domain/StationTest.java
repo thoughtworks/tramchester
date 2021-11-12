@@ -6,7 +6,6 @@ import com.tramchester.domain.MutableRoute;
 import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.places.MutableStation;
 import com.tramchester.domain.places.Station;
-import com.tramchester.domain.places.StationBuilder;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.geo.CoordinateTransforms;
@@ -55,12 +54,11 @@ class StationTest {
 
         assertTrue(station.getTransportModes().isEmpty());
 
-        final StationBuilder builder = station.getBuilder();
-        builder.addRoute(MutableRoute.getRoute(StringIdFor.createId("routeIdA"), "shortName", "name",
+        station.addRoute(MutableRoute.getRoute(StringIdFor.createId("routeIdA"), "shortName", "name",
                 TestEnv.MetAgency(), Tram));
         assertTrue(station.serves(Tram));
 
-        builder.addRoute(MutableRoute.getRoute(StringIdFor.createId("routeIdB"), "trainShort", "train",
+        station.addRoute(MutableRoute.getRoute(StringIdFor.createId("routeIdB"), "trainShort", "train",
                 Walking, Train));
         assertTrue(station.serves(Train));
 

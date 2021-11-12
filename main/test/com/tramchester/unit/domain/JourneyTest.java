@@ -202,8 +202,8 @@ class JourneyTest {
 
         final Platform platform1 = new Platform("platformId1", "platformNameA", TestEnv.nearAltrincham);
         final Platform platform2 = new Platform("platformId2", "platformNameA", TestEnv.nearStPetersSquare);
-        alty.getBuilder().addPlatform(platform1);
-        stPeters.getBuilder().addPlatform(platform2);
+        alty.addPlatform(platform1);
+        stPeters.addPlatform(platform2);
 
         final VehicleStage stageA = createVehicleStage(alty, stPeters, Bus, departureTimeA, 13);
         stageA.setPlatform(platform1);
