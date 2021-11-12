@@ -1,7 +1,7 @@
 package com.tramchester.unit.domain.presentation.DTO;
 
-import com.tramchester.livedata.domain.liveUpdates.DueTram;
 import com.tramchester.domain.places.Station;
+import com.tramchester.livedata.domain.liveUpdates.DueTram;
 import com.tramchester.livedata.domain.DTO.DepartureDTO;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.TramStations;

@@ -1,6 +1,7 @@
 package com.tramchester.unit.repository;
 
 import com.tramchester.config.TramchesterConfig;
+import com.tramchester.domain.places.Station;
 import com.tramchester.metrics.CacheMetrics;
 import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.Platform;
@@ -8,7 +9,7 @@ import com.tramchester.livedata.domain.liveUpdates.LineDirection;
 import com.tramchester.livedata.domain.liveUpdates.Lines;
 import com.tramchester.livedata.domain.liveUpdates.PlatformMessage;
 import com.tramchester.livedata.domain.liveUpdates.StationDepartureInfo;
-import com.tramchester.domain.places.Station;
+import com.tramchester.domain.places.MutableStation;
 import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.repository.PlatformMessageRepository;
@@ -36,7 +37,7 @@ class PlatformMessageRepositoryTest  extends EasyMockSupport {
     private ProvidesNow providesNow;
     private PlatformMessageRepository repository;
     private LocalDateTime lastUpdate;
-    private Station station;
+    private MutableStation station;
     private Platform platform;
     private TramchesterConfig config;
 
@@ -95,7 +96,7 @@ class PlatformMessageRepositoryTest  extends EasyMockSupport {
         assertEquals(1, stationMessages.size());
         assertEquals("some message", stationMessages.get(0).getMessage());
 
-        Station otherStation = TramStations.of(TramStations.Ashton);
+        MutableStation otherStation = TramStations.of(TramStations.Ashton);
         otherStation.getBuilder().addPlatform(new Platform("XXXX", "platform name", otherStation.getLatLong()));
 
         List<PlatformMessage> noStationMsg = repository.messagesFor(otherStation, lastUpdate.toLocalDate(), updateTime);

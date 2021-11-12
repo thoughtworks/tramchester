@@ -7,7 +7,7 @@ import com.tramchester.domain.Service;
 import com.tramchester.domain.input.MutableTrip;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.MyLocation;
-import com.tramchester.domain.places.Station;
+import com.tramchester.domain.places.MutableStation;
 import com.tramchester.domain.presentation.DTO.StageDTO;
 import com.tramchester.domain.presentation.DTO.factory.StageDTOFactory;
 import com.tramchester.domain.presentation.LatLong;
@@ -63,7 +63,7 @@ class StageDTOFactoryTest extends EasyMockSupport {
 
         List<Integer> stopCallIndexes = Arrays.asList(1,2,3,4);
         Platform platform = new Platform("platFormId", "platformName", new LatLong(1,1));
-        final Station firstStation = of(MarketStreet);
+        final MutableStation firstStation = of(MarketStreet);
         firstStation.getBuilder().addPlatform(platform);
         VehicleStage vehicleStage = new VehicleStage(firstStation, testRoute,
                 TransportMode.Tram, trip, TramTime.of(0, 0), TramStations.of(Bury),

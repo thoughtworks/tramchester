@@ -6,6 +6,7 @@ import com.tramchester.domain.DataSourceID;
 import com.tramchester.domain.JourneyRequest;
 import com.tramchester.domain.exceptions.TramchesterException;
 import com.tramchester.domain.id.StringIdFor;
+import com.tramchester.domain.places.MutableStation;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.reference.GTFSTransportationType;
@@ -72,7 +73,7 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
 
     @BeforeEach
     void onceBeforeEachTestRuns() {
-        Station forTest = TestStation.forTest("destinationStationId", "area", "name",
+        MutableStation forTest = TestStation.forTest("destinationStationId", "area", "name",
                 new LatLong(1, 1), TransportMode.Tram, DataSourceID.tfgm);
         destinationStations = Collections.singleton(forTest);
         forTest.getBuilder().addRoute(TestEnv.getTramTestRoute());

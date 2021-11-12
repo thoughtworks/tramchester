@@ -5,8 +5,8 @@ import com.tramchester.dataimport.data.RouteData;
 import com.tramchester.dataimport.data.StopData;
 import com.tramchester.domain.*;
 import com.tramchester.domain.id.IdFor;
-import com.tramchester.domain.id.IdMap;
 import com.tramchester.domain.id.StringIdFor;
+import com.tramchester.domain.places.MutableStation;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.GTFSTransportationType;
 import com.tramchester.domain.reference.TransportMode;
@@ -36,7 +36,7 @@ public class TransportEntityFactoryForTFGM extends TransportEntityFactory {
     }
 
     @Override
-    public MutableRoute createRoute(GTFSTransportationType routeType, RouteData routeData, Agency agency, IdMap<Station> allStations) {
+    public MutableRoute createRoute(GTFSTransportationType routeType, RouteData routeData, Agency agency) {
 
         IdFor<Route> routeId = createRouteId(routeData.getId());
         String routeName = routeData.getLongName();
@@ -44,14 +44,14 @@ public class TransportEntityFactoryForTFGM extends TransportEntityFactory {
     }
 
     @Override
-    public Station createStation(IdFor<Station> stationId, StopData stopData, GridPosition position) {
+    public MutableStation createStation(IdFor<Station> stationId, StopData stopData, GridPosition position) {
 
         String area = getAreaFor(stationId);
 
         // NOTE: Tram data has unique positions for each platform
         // TODO What is the right position to use for a tram station?
         final String stationName = createStationName(stopData);
-        final Station station = new Station(stationId, area, workAroundName(stationName), stopData.getLatLong(), position,
+        final MutableStation station = new MutableStation(stationId, area, workAroundName(stationName), stopData.getLatLong(), position,
                 getDataSourceId());
 
         // metrolink tram station, has platforms
@@ -62,11 +62,11 @@ public class TransportEntityFactoryForTFGM extends TransportEntityFactory {
     }
 
     @Override
-    public void updateStation(Station station, StopData stopData) {
+    public void updateStation(MutableStation station, StopData stopData) {
         addPlatformIfMissing(stopData, station);
     }
 
-    private void addPlatformIfMissing(StopData stopData, Station station) {
+    private void addPlatformIfMissing(StopData stopData, MutableStation station) {
         if (isMetrolinkTram(stopData)) {
             Platform platform = new Platform(stopData.getId(), createStationName(stopData), stopData.getLatLong());
             if (!station.getPlatforms().contains(platform)) {

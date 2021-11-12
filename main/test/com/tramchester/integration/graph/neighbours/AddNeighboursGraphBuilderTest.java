@@ -5,7 +5,6 @@ import com.tramchester.ComponentsBuilder;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.places.CompositeStation;
 import com.tramchester.domain.places.Station;
-import com.tramchester.graph.AddNeighboursGraphBuilder;
 import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.GraphQuery;
 import com.tramchester.graph.graphbuild.CompositeStationGraphBuilder;

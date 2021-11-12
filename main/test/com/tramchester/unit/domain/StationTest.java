@@ -4,6 +4,7 @@ package com.tramchester.unit.domain;
 import com.tramchester.domain.DataSourceID;
 import com.tramchester.domain.MutableRoute;
 import com.tramchester.domain.id.StringIdFor;
+import com.tramchester.domain.places.MutableStation;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.places.StationBuilder;
 import com.tramchester.domain.presentation.LatLong;
@@ -49,7 +50,7 @@ class StationTest {
 
     @Test
     void shouldHaveCorrectTransportModes() {
-        Station station = new Station(StringIdFor.createId("stationId"), "area", "name", TestEnv.nearPiccGardens,
+        MutableStation station = new MutableStation(StringIdFor.createId("stationId"), "area", "name", TestEnv.nearPiccGardens,
                 CoordinateTransforms.getGridPosition(TestEnv.nearPiccGardens), DataSourceID.tfgm);
 
         assertTrue(station.getTransportModes().isEmpty());

@@ -2,6 +2,7 @@ package com.tramchester.testSupport;
 
 import com.tramchester.domain.*;
 import com.tramchester.domain.id.StringIdFor;
+import com.tramchester.domain.places.MutableStation;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.places.StationBuilder;
 import com.tramchester.domain.presentation.LatLong;
@@ -13,7 +14,7 @@ import com.tramchester.repository.StationRepositoryPublic;
 import java.util.HashSet;
 import java.util.Set;
 
-public class TestStation extends Station {
+public class TestStation extends MutableStation {
 
     private final TransportMode initialMode;
     private boolean platformsAdded;
@@ -26,10 +27,11 @@ public class TestStation extends Station {
         routesAdded = false;
     }
 
-    public static Station forTest(String id, String area, String stationName, LatLong latLong, TransportMode mode, DataSourceID dataSourceID) {
+    public static MutableStation forTest(String id, String area, String stationName, LatLong latLong, TransportMode mode, DataSourceID dataSourceID) {
         return new TestStation(id, area, stationName, latLong, CoordinateTransforms.getGridPosition(latLong), mode, dataSourceID);
     }
 
+    @Deprecated
     @Override
     public StationBuilder getBuilder() {
         return new Builder(this);
@@ -47,13 +49,15 @@ public class TestStation extends Station {
         }
     }
 
-    protected void addPlatform(Platform platform) {
-        super.getBuilder().addPlatform(platform);
+    @Override
+    public void addPlatform(Platform platform) {
+        super.addPlatform(platform);
         platformsAdded = true;
     }
 
-    private void addRoute(Route route) {
-        super.getBuilder().addRoute(route);
+    @Override
+    public void addRoute(Route route) {
+        super.addRoute(route);
         routesAdded = true;
     }
 

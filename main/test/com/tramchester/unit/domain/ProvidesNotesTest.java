@@ -8,6 +8,7 @@ import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.input.MutableTrip;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.MyLocation;
+import com.tramchester.domain.places.MutableStation;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.*;
 import com.tramchester.domain.reference.TransportMode;
@@ -387,7 +388,7 @@ class ProvidesNotesTest extends EasyMockSupport {
         assertThat(notes.toString(), notes.contains(new StationNote(Live,"second message", of(Pomona))));
     }
 
-    private PlatformMessage createPlatformMessage(LocalDateTime lastUpdate, Station station, String message) {
+    private PlatformMessage createPlatformMessage(LocalDateTime lastUpdate, MutableStation station, String message) {
         Platform platform = new Platform(station.forDTO() + "1", station.getName() + " platform 1", station.getLatLong());
         station.getBuilder().addPlatform(platform);
         return new PlatformMessage(platform.getId(), message, lastUpdate, station, "displayId");
@@ -402,7 +403,7 @@ class ProvidesNotesTest extends EasyMockSupport {
         // TODO
         List<Integer> passedStations = new ArrayList<>();
         Platform platform = new Platform(platformId, "platformName", latLong);
-        final Station firstStation = of(Ashton);
+        final MutableStation firstStation = of(Ashton);
         firstStation.getBuilder().addPlatform(platform);
         VehicleStage vehicleStage = new VehicleStage(firstStation, TestEnv.getTramTestRoute(), Tram,
                 trip, departTime, of(PiccadillyGardens), passedStations);

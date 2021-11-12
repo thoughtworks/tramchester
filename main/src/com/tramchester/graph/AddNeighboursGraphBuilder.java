@@ -7,7 +7,6 @@ import com.tramchester.geo.CoordinateTransforms;
 import com.tramchester.graph.databaseManagement.GraphDatabaseMetaInfo;
 import com.tramchester.graph.filters.GraphFilter;
 import com.tramchester.graph.graphbuild.CreateNodesAndRelationships;
-import com.tramchester.graph.graphbuild.GraphLabel;
 import com.tramchester.graph.graphbuild.StationsAndLinksGraphBuilder;
 import com.tramchester.metrics.TimedTransaction;
 import com.tramchester.repository.NeighboursRepository;

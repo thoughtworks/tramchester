@@ -2,7 +2,6 @@ package com.tramchester.geo;
 
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.domain.BoxWithServiceFrequency;
-import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.repository.StopCallRepository;

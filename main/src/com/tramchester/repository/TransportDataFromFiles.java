@@ -14,6 +14,7 @@ import com.tramchester.domain.input.MutableTrip;
 import com.tramchester.domain.input.StopCall;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.RouteStation;
+import com.tramchester.domain.places.MutableStation;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.reference.GTFSTransportationType;
@@ -100,10 +101,10 @@ public class TransportDataFromFiles implements TransportDataFactory {
 
         TransportEntityFactory entityFactory = dataSource.getEntityFactory();
 
-        IdMap<Station> allStations = preLoadStations(dataSource.stops, entityFactory);
+        PreloadedStations allStations = preLoadStations(dataSource.stops, entityFactory);
 
         IdMap<Agency> allAgencies = preloadAgencys(sourceName, dataSource.agencies, entityFactory);
-        ExcludedRoutes excludedRoutes = populateRoutes(buildable, dataSource.routes, allAgencies, allStations,
+        ExcludedRoutes excludedRoutes = populateRoutes(buildable, dataSource.routes, allAgencies,
                 sourceConfig, entityFactory);
         logger.info("Excluding " + excludedRoutes.numOfExcluded() + " routes ");
 
@@ -242,7 +243,7 @@ public class TransportDataFromFiles implements TransportDataFactory {
     }
 
     private IdMap<Service> populateStopTimes(WriteableTransportData buildable, Stream<StopTimeData> stopTimes,
-                                             IdMap<Station> preloadStations, TripAndServices tripAndServices,
+                                             PreloadedStations preloadStations, TripAndServices tripAndServices,
                                              TransportEntityFactory factory, GTFSSourceConfig dataSourceConfig) {
         String sourceName = dataSourceConfig.getName();
         logger.info("Loading stop times for " + sourceName);
@@ -260,7 +261,7 @@ public class TransportDataFromFiles implements TransportDataFactory {
                     if (preloadStations.hasId(stationId)) {
                     MutableTrip trip = tripAndServices.getTrip(stopTripId);
 
-                    Station station = preloadStations.get(stationId);
+                    MutableStation station = preloadStations.get(stationId);
                     Route route = trip.getRoute();
 
                     if (route==null) {
@@ -340,8 +341,8 @@ public class TransportDataFromFiles implements TransportDataFactory {
         }
     }
 
-    private void addStationTo(WriteableTransportData container, Route route, Station station, TransportEntityFactory factory) {
-        station.getBuilder().addRoute(route);
+    private void addStationTo(WriteableTransportData container, Route route, MutableStation station, TransportEntityFactory factory) {
+        station.addRoute(route);
 
         IdFor<Station> stationId = station.getId();
         if (!container.hasStationId(stationId)) {
@@ -389,7 +390,8 @@ public class TransportDataFromFiles implements TransportDataFactory {
         return results;
     }
 
-    private IdMap<Agency> preloadAgencys(DataSourceID dataSourceID, Stream<AgencyData> agencyDataStream, TransportEntityFactory factory) {
+    private IdMap<Agency> preloadAgencys(DataSourceID dataSourceID, Stream<AgencyData> agencyDataStream,
+                                         TransportEntityFactory factory) {
         logger.info("Loading all agencies for " + dataSourceID);
         IdMap<Agency> agencies = new IdMap<>();
         agencyDataStream.forEach(agencyData -> agencies.add(factory.createAgency(dataSourceID, agencyData)));
@@ -398,15 +400,14 @@ public class TransportDataFromFiles implements TransportDataFactory {
     }
 
     private ExcludedRoutes populateRoutes(WriteableTransportData buildable, Stream<RouteData> routeDataStream,
-                                          IdMap<Agency> allAgencies, IdMap<Station> allStations,
-                                          GTFSSourceConfig sourceConfig, TransportEntityFactory factory) {
+                                          IdMap<Agency> allAgencies, GTFSSourceConfig sourceConfig,
+                                          TransportEntityFactory factory) {
         Set<GTFSTransportationType> transportModes = sourceConfig.getTransportGTFSModes();
         AtomicInteger count = new AtomicInteger();
 
         ExcludedRoutes results = new ExcludedRoutes();
 
         logger.info("Loading routes for transport modes " + transportModes.toString());
-        //IdSet<RouteReadOnly> excludedRoutes = new IdSet<>();
         routeDataStream.forEach(routeData -> {
             IdFor<Agency> agencyId = routeData.getAgencyId();
             boolean missingAgency = !allAgencies.hasId(agencyId);
@@ -421,14 +422,13 @@ public class TransportDataFromFiles implements TransportDataFactory {
                 Agency agency = missingAgency ? createMissingAgency(dataSourceID, allAgencies, agencyId, factory)
                         : allAgencies.get(agencyId);
 
-                MutableRoute route = factory.createRoute(routeType, routeData, agency, allStations);
+                MutableRoute route = factory.createRoute(routeType, routeData, agency);
 
                 agency.addRoute(route);
                 if (!buildable.hasAgencyId(agencyId)) {
                     buildable.addAgency(agency);
                 }
                 buildable.addRoute(route);
-                //results.addLoaded(route);
 
                 count.getAndIncrement();
 
@@ -457,11 +457,11 @@ public class TransportDataFromFiles implements TransportDataFactory {
         return unknown;
     }
 
-    private IdMap<Station> preLoadStations(Stream<StopData> stops, TransportEntityFactory factory) {
+    private PreloadedStations preLoadStations(Stream<StopData> stops, TransportEntityFactory factory) {
         logger.info("Loading stops within bounds");
         BoundingBox bounds = config.getBounds();
 
-        IdMap<Station> allStations = new IdMap<>();
+        PreloadedStations allStations = new PreloadedStations(factory);
 
         stops.forEach((stopData) -> {
             LatLong latLong = stopData.getLatLong();
@@ -480,14 +480,15 @@ public class TransportDataFromFiles implements TransportDataFactory {
         return allStations;
     }
 
-    private void preLoadStation(IdMap<Station> allStations, StopData stopData, GridPosition position, TransportEntityFactory factory) {
+    private void preLoadStation(PreloadedStations allStations, StopData stopData, GridPosition position,
+                                TransportEntityFactory factory) {
         String stopId = stopData.getId();
         IdFor<Station> stationId = factory.formStationId(stopId);
 
         if (allStations.hasId(stationId)) {
-            factory.updateStation(allStations.get(stationId), stopData);
+            allStations.updateStation(stationId, stopData);
         } else {
-            allStations.add(factory.createStation(stationId, stopData, position));
+            allStations.createAndAdd(stationId, stopData, position);
         }
     }
 
@@ -561,6 +562,41 @@ public class TransportDataFromFiles implements TransportDataFactory {
 
         public void clear() {
             excludedRouteIds.clear();
+        }
+    }
+
+    private static class PreloadedStations {
+        private final CompositeIdMap<Station, MutableStation> stations;
+        private final TransportEntityFactory factory;
+
+        private PreloadedStations(TransportEntityFactory factory) {
+            stations = new CompositeIdMap<>();
+            this.factory = factory;
+        }
+
+        public boolean hasId(IdFor<Station> stationId) {
+            return stations.hasId(stationId);
+        }
+
+        public int size() {
+            return stations.size();
+        }
+
+        public void clear() {
+            stations.clear();
+        }
+
+        public MutableStation get(IdFor<Station> stationId) {
+            return stations.get(stationId);
+        }
+
+        public void createAndAdd(IdFor<Station> stationId, StopData stopData, GridPosition position) {
+            MutableStation mutableStation = factory.createStation(stationId, stopData, position);
+            stations.add(mutableStation);
+        }
+
+        public void updateStation(IdFor<Station> stationId, StopData stopData) {
+            factory.updateStation(stations.get(stationId), stopData);
         }
     }
 }

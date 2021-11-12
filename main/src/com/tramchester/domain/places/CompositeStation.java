@@ -17,7 +17,7 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-public class CompositeStation extends Station {
+public class CompositeStation extends MutableStation {
 
     // TODO Should just be implements Location<Station> extends Station??
 

@@ -7,10 +7,7 @@ import com.tramchester.domain.MutableRoute;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.input.Trip;
-import com.tramchester.domain.places.IdForDTO;
-import com.tramchester.domain.places.Location;
-import com.tramchester.domain.places.MyLocation;
-import com.tramchester.domain.places.Station;
+import com.tramchester.domain.places.*;
 import com.tramchester.domain.presentation.DTO.JourneyDTO;
 import com.tramchester.domain.presentation.DTO.StageDTO;
 import com.tramchester.domain.presentation.DTO.StationRefDTO;
@@ -145,7 +142,7 @@ class JourneyToDTOMapperTest extends EasyMockSupport {
     @Test
     void shouldMapJourneyWithConnectingStage() {
         TramTime time = TramTime.of(15,45);
-        final Station startStation = of(Altrincham);
+        final MutableStation startStation = of(Altrincham);
         Platform platform = new Platform(startStation.forDTO() + "1", "platform name", startStation.getLatLong());
         startStation.getBuilder().addPlatform(platform);
 
@@ -189,12 +186,12 @@ class JourneyToDTOMapperTest extends EasyMockSupport {
     @Test
     void shouldMapThreeStageJourneyWithWalk() {
         TramTime am10 = TramTime.of(10,0);
-        Station begin = of(Altrincham);
+        MutableStation begin = of(Altrincham);
         Platform platformA = new Platform(begin.forDTO() + "1", "platform name", begin.getLatLong());
         begin.getBuilder().addPlatform(platformA);
 
         MyLocation middleA = nearPiccGardensLocation;
-        Station middleB = of(MarketStreet);
+        MutableStation middleB = of(MarketStreet);
         Platform platformB = new Platform(middleB.forDTO() + "1", "platform name", middleB.getLatLong());
         middleB.getBuilder().addPlatform(platformB);
 

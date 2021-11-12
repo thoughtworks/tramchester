@@ -9,6 +9,7 @@ import com.tramchester.domain.Route;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdMap;
 import com.tramchester.domain.id.StringIdFor;
+import com.tramchester.domain.places.MutableStation;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.GTFSTransportationType;
 import com.tramchester.domain.reference.TransportMode;
@@ -31,13 +32,12 @@ public class TransportEntityFactoryForGBRail extends TransportEntityFactory {
     }
 
     @Override
-    public MutableRoute createRoute(GTFSTransportationType routeType, RouteData routeData, Agency agency,
-                                    IdMap<Station> allStations) {
+    public MutableRoute createRoute(GTFSTransportationType routeType, RouteData routeData, Agency agency) {
         IdFor<Route> routeId = routeData.getId();
 
         String name = routeData.getLongName();
 
-        name = expandRouteNameFor(name, allStations, agency);
+        //name = expandRouteNameFor(name, allStations, agency);
 
         return new MutableRoute(routeId, routeData.getShortName().trim(), name, agency, TransportMode.fromGTFS(routeType));
     }
@@ -59,7 +59,7 @@ public class TransportEntityFactoryForGBRail extends TransportEntityFactory {
     }
 
     @Override
-    public void updateStation(Station station, StopData stopData) {
+    public void updateStation(MutableStation station, StopData stopData) {
         logger.error("Did not expect to see stop with same ID again for " + stopData);
     }
 

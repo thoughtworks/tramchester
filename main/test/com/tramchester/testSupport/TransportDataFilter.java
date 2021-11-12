@@ -1,7 +1,6 @@
 package com.tramchester.testSupport;
 
 import com.tramchester.domain.id.HasId;
-import com.tramchester.domain.input.MutableTrip;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.Station;
 

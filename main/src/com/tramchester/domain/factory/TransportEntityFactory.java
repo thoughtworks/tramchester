@@ -3,8 +3,8 @@ package com.tramchester.domain.factory;
 import com.tramchester.dataimport.data.*;
 import com.tramchester.domain.*;
 import com.tramchester.domain.id.IdFor;
-import com.tramchester.domain.id.IdMap;
 import com.tramchester.domain.input.*;
+import com.tramchester.domain.places.MutableStation;
 import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.GTFSTransportationType;
@@ -26,7 +26,8 @@ public abstract class TransportEntityFactory {
         return new Agency(dataSourceID, agencyId, "UNKNOWN");
     }
 
-    public MutableRoute createRoute(GTFSTransportationType routeType, RouteData routeData, Agency agency, IdMap<Station> allStations) {
+    public MutableRoute createRoute(GTFSTransportationType routeType, RouteData routeData, Agency agency) {
+
         IdFor<Route> routeId = routeData.getId();
 
         return new MutableRoute(routeId, routeData.getShortName().trim(), routeData.getLongName(), agency,
@@ -42,11 +43,11 @@ public abstract class TransportEntityFactory {
         return new MutableTrip(tripData.getTripId(), tripData.getHeadsign(), service, route);
     }
 
-    public Station createStation(IdFor<Station> stationId, StopData stopData, GridPosition position) {
+    public MutableStation createStation(IdFor<Station> stationId, StopData stopData, GridPosition position) {
 
         final String area = "";
 
-        return new Station(stationId, area, stopData.getName(), stopData.getLatLong(), position, getDataSourceId());
+        return new MutableStation(stationId, area, stopData.getName(), stopData.getLatLong(), position, getDataSourceId());
     }
 
     public RouteStation createRouteStation(Station station, Route route) {
@@ -75,5 +76,5 @@ public abstract class TransportEntityFactory {
 
     public abstract IdFor<Station> formStationId(String stopId);
 
-    public abstract void updateStation(Station station, StopData stopData);
+    public abstract void updateStation(MutableStation station, StopData stopData);
 }

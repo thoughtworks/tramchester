@@ -6,6 +6,7 @@ import com.tramchester.domain.input.MutableTrip;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.Location;
 import com.tramchester.domain.places.MyLocation;
+import com.tramchester.domain.places.MutableStation;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.TransportStage;
 import com.tramchester.domain.reference.TransportMode;
@@ -195,8 +196,8 @@ class JourneyTest {
     @Test
     void shouldHaveCallingPlatformIds() {
         final TramTime departureTimeA = queryTime.plusMinutes(10);
-        final Station alty = of(Altrincham);
-        final Station stPeters = of(StPetersSquare);
+        final MutableStation alty = of(Altrincham);
+        final MutableStation stPeters = of(StPetersSquare);
         final Station victoria = of(Victoria);
 
         final Platform platform1 = new Platform("platformId1", "platformNameA", TestEnv.nearAltrincham);

@@ -2,7 +2,6 @@ package com.tramchester.domain.transportStages;
 
 import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.input.StopCall;
-import com.tramchester.domain.input.MutableTrip;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.Location;
 import com.tramchester.domain.places.MyLocation;

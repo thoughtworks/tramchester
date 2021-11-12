@@ -5,7 +5,7 @@ import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.Platform;
 import com.tramchester.domain.places.StationBuilder;
 import com.tramchester.domain.reference.TransportMode;
-import com.tramchester.domain.places.Station;
+import com.tramchester.domain.places.MutableStation;
 import com.tramchester.domain.presentation.DTO.LocationDTO;
 import com.tramchester.domain.presentation.DTO.PlatformDTO;
 import com.tramchester.domain.presentation.DTO.RouteRefDTO;
@@ -29,7 +29,7 @@ class LocationDTOTest {
     @Test
     void shouldCreateDTOAsExpected() {
 
-        Station testStation = TestStation.forTest("9400ZZMAALT", "Altrincham area", "Altrincham",
+        MutableStation testStation = TestStation.forTest("9400ZZMAALT", "Altrincham area", "Altrincham",
                 new LatLong(1,1), TransportMode.Tram, DataSourceID.tfgm);
 
         final StationBuilder testStationBuilder = testStation.getBuilder();

@@ -3,8 +3,9 @@ package com.tramchester.testSupport.reference;
 import com.tramchester.domain.DataSourceID;
 import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.id.IdFor;
-import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.places.Station;
+import com.tramchester.domain.reference.TransportMode;
+import com.tramchester.domain.places.MutableStation;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.geo.CoordinateTransforms;
 import com.tramchester.geo.GridPosition;
@@ -79,7 +80,7 @@ public enum TramStations implements TestStations {
         return ids.contains(station.getId());
     }
 
-    public static Station of(TramStations enumValue) {
+    public static MutableStation of(TramStations enumValue) {
         return enumValue.station;
     }
 
@@ -87,7 +88,7 @@ public enum TramStations implements TestStations {
         return new LatLong(lat, lon);
     }
 
-    private final Station station;
+    private final MutableStation station;
 
     TramStations(String id, String area, String name, LatLong latlong) {
         @NotNull GridPosition grid = CoordinateTransforms.getGridPosition(latlong);

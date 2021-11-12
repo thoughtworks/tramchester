@@ -12,13 +12,10 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.List;
 
-import static com.tramchester.testSupport.TestEnv.LocalNow;
 import static com.tramchester.testSupport.TestEnv.assertLatLongEquals;
-import static com.tramchester.testSupport.reference.TramStations.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class ValidateTramTestStations {

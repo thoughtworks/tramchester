@@ -1,10 +1,11 @@
 package com.tramchester.unit.repository;
 
 import com.tramchester.domain.id.IdFor;
+import com.tramchester.domain.places.Station;
 import com.tramchester.metrics.CacheMetrics;
 import com.tramchester.domain.Platform;
 import com.tramchester.livedata.domain.liveUpdates.*;
-import com.tramchester.domain.places.Station;
+import com.tramchester.domain.places.MutableStation;
 import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.livedata.repository.DueTramsRepository;
@@ -32,7 +33,7 @@ class DueTramsRepositoryTest extends EasyMockSupport {
     private ProvidesNow providesNow;
     private DueTramsRepository repository;
     private LocalDateTime lastUpdate;
-    private Station station;
+    private MutableStation station;
     private Platform platform;
 
     @BeforeEach
@@ -58,7 +59,7 @@ class DueTramsRepositoryTest extends EasyMockSupport {
                 "message 1", station, dueTram);
 
         // second station, has due tram
-        Station secondStation = of(Altrincham);
+        MutableStation secondStation = of(Altrincham);
         Platform platfromForSecondStation = new Platform("a1", "Altrincham platform 1", Altrincham.getLatLong());
         secondStation.getBuilder().addPlatform(platfromForSecondStation);
 
@@ -94,7 +95,7 @@ class DueTramsRepositoryTest extends EasyMockSupport {
         addStationInfoWithDueTram(infos, lastUpdate, "displayId", platform.getId(),
                 "some message", station, dueTram);
 
-        Station otherStation = of(Altrincham);
+        MutableStation otherStation = of(Altrincham);
         Platform otherPlatform = new Platform("other1", "Altrincham platform 1", otherStation.getLatLong());
         otherStation.getBuilder().addPlatform(otherPlatform);
 

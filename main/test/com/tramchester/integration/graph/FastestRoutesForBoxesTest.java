@@ -4,6 +4,7 @@ import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.domain.BoundingBoxWithCost;
 import com.tramchester.domain.DataSourceID;
+import com.tramchester.domain.places.MutableStation;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.time.TramServiceDate;
@@ -100,7 +101,7 @@ class FastestRoutesForBoxesTest {
 
         LatLong latLong = TestEnv.stPetersSquareLocation();
         GridPosition grid = CoordinateTransforms.getGridPosition(latLong);
-        Station destination = new Station(testStationWithInvalidPosition.getId(), testStationWithInvalidPosition.getArea(),
+        Station destination = new MutableStation(testStationWithInvalidPosition.getId(), testStationWithInvalidPosition.getArea(),
                 testStationWithInvalidPosition.getName(), latLong, grid, DataSourceID.tfgm);
         TramTime time = TramTime.of(9,15);
         JourneyRequest journeyRequest = new JourneyRequest(

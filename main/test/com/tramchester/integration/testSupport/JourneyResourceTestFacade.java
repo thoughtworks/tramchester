@@ -77,7 +77,7 @@ public class JourneyResourceTestFacade {
         return response.readEntity(JourneyPlanRepresentation.class);
     }
 
-    public List<JourneyDTO> getJourneyPlanStreamed(LocalDate when, TramTime time, HasId<Station> start,  HasId<Station> end,
+    public List<JourneyDTO> getJourneyPlanStreamed(LocalDate when, TramTime time, HasId<Station> start, HasId<Station> end,
                                                    boolean arriveBy, int maxChanges) throws IOException {
 
         Response response = getResponseForJourney(when, time.asLocalTime(), start.getId().forDTO(), end.getId().forDTO(),

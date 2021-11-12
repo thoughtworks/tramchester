@@ -1,9 +1,9 @@
 package com.tramchester.unit.repository;
 
 import com.tramchester.domain.id.StringIdFor;
+import com.tramchester.domain.places.Station;
 import com.tramchester.livedata.domain.liveUpdates.LineDirection;
 import com.tramchester.livedata.domain.liveUpdates.Lines;
-import com.tramchester.domain.places.Station;
 import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.livedata.domain.liveUpdates.DueTram;
