@@ -7,6 +7,7 @@ import com.tramchester.dataimport.postcodes.PostcodeData;
 import com.tramchester.dataimport.postcodes.PostcodeDataImporter;
 import com.tramchester.domain.DataSourceID;
 import com.tramchester.domain.id.CaseInsensitiveId;
+import com.tramchester.domain.id.CompositeIdMap;
 import com.tramchester.domain.id.IdMap;
 import com.tramchester.domain.places.PostcodeLocation;
 import com.tramchester.geo.FindNear;
@@ -68,7 +69,7 @@ public class PostcodeRepository {
     @PreDestroy
     public void stop() {
         logger.info("stopping");
-        postcodesAreas.values().forEach(IdMap::clear);
+        postcodesAreas.values().forEach(CompositeIdMap::clear);
         postcodesAreas.clear();
         logger.info("stopped");
     }
@@ -101,7 +102,7 @@ public class PostcodeRepository {
 
     public Collection<PostcodeLocation> getPostcodes() {
         return postcodesAreas.values().stream().
-                flatMap(IdMap::getValuesStream).collect(Collectors.toSet());
+                flatMap(CompositeIdMap::getValuesStream).collect(Collectors.toSet());
     }
 
     public Stream<PostcodeLocation> getPostcodesNear(GridPosition location, MarginInMeters meters) {

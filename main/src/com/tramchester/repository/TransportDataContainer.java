@@ -1,9 +1,11 @@
 package com.tramchester.repository;
 
 import com.tramchester.domain.*;
+import com.tramchester.domain.id.CompositeIdMap;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdMap;
 import com.tramchester.domain.id.IdSet;
+import com.tramchester.domain.input.MutableTrip;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
@@ -25,10 +27,10 @@ public class TransportDataContainer implements TransportData, WriteableTransport
 
     private final ProvidesNow providesNow;
 
-    private final IdMap<Trip> trips = new IdMap<>();        // trip id -> trip
+    private final CompositeIdMap<Trip, MutableTrip> trips = new CompositeIdMap<>();        // trip id -> trip
     private final IdMap<Station> stationsById = new IdMap<>();  // station id -> station
     private final IdMap<Service> services = new IdMap<>();  // service id -> service
-    private final IdMap<Route> routes = new IdMap<>();      // route id -> route
+    private final CompositeIdMap<Route, MutableRoute> routes = new CompositeIdMap<>();      // route id -> route
     private final IdMap<Platform> platforms = new IdMap<>(); // platformId -> platform
     private final IdMap<RouteStation> routeStations = new IdMap<>(); // routeStationId - > RouteStation
     private final IdMap<Agency> agencies = new IdMap<>(); // agencyId -> agencies
@@ -76,7 +78,7 @@ public class TransportDataContainer implements TransportData, WriteableTransport
         logger.info(format("%s feedinfos", feedInfoMap.size()));
     }
 
-    private int countStopCalls(IdMap<Trip> trips) {
+    private int countStopCalls(CompositeIdMap<Trip,MutableTrip> trips) {
         Optional<Integer> count = trips.getValues().stream().
                 map(trip -> trip.getStopCalls().numberOfCallingPoints()).
                 reduce(Integer::sum);
@@ -164,7 +166,7 @@ public class TransportDataContainer implements TransportData, WriteableTransport
 
     @Override
     public Set<Trip> getTrips() {
-        return trips.getValues();
+        return trips.getSuperValues();
     }
 
     @Override
@@ -211,6 +213,11 @@ public class TransportDataContainer implements TransportData, WriteableTransport
             logger.warn("No such service " + serviceId);
         }
         return services.get(serviceId);
+    }
+
+    @Override
+    public MutableRoute getMutableRoute(IdFor<Route> id) {
+        return routes.get(id);
     }
 
     @Override
@@ -263,12 +270,12 @@ public class TransportDataContainer implements TransportData, WriteableTransport
     }
 
     @Override
-    public boolean hasAgency(IdFor<Agency> agencyId) {
+    public boolean hasAgencyId(IdFor<Agency> agencyId) {
         return agencies.hasId(agencyId);
     }
 
     @Override
-    public void addRoute(Route route) {
+    public void addRoute(MutableRoute route) {
         routes.add(route);
     }
 
@@ -305,11 +312,11 @@ public class TransportDataContainer implements TransportData, WriteableTransport
 
     @Override
     public Set<Route> getRoutes() {
-        return routes.getValues();
+        return routes.getSuperValues();
     }
 
     @Override
-    public void addTrip(Trip trip) {
+    public void addTrip(MutableTrip trip) {
         trips.add(trip);
     }
 

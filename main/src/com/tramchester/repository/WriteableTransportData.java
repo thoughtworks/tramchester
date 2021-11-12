@@ -3,6 +3,7 @@ package com.tramchester.repository;
 import com.tramchester.domain.*;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdSet;
+import com.tramchester.domain.input.MutableTrip;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
@@ -18,7 +19,7 @@ public interface WriteableTransportData {
 
     void addAgency(Agency agency);
 
-    void addRoute(Route route);
+    void addRoute(MutableRoute route);
 
     @Deprecated
     void addRouteToAgency(Agency agency, Route route);
@@ -29,7 +30,7 @@ public interface WriteableTransportData {
 
     void addService(Service service);
 
-    void addTrip(Trip trip);
+    void addTrip(MutableTrip trip);
 
     void addDataSourceInfo(DataSourceInfo dataSourceInfo);
 
@@ -37,19 +38,21 @@ public interface WriteableTransportData {
 
     ////
 
-    boolean hasAgency(IdFor<Agency> agencyId);
+    boolean hasAgencyId(IdFor<Agency> agencyId);
     boolean hasTripId(IdFor<Trip> tripId);
+    boolean hasRouteId(IdFor<Route> routeId);
     boolean hasPlatformId(IdFor<Platform> id);
     boolean hasRouteStationId(IdFor<RouteStation> routeStationId);
     boolean hasStationId(IdFor<Station> stationId);
 
-    //Set<Service> getServices();
+    ////
+
+    Set<Service> getServicesWithoutCalendar();
+    IdSet<Service> getServicesWithZerpDays();
+
+    ////
 
     Platform getPlatform(IdFor<Platform> id);
     Service getServiceById(IdFor<Service> serviceId);
-
-
-    Set<Service> getServicesWithoutCalendar();
-
-    IdSet<Service> getServicesWithZerpDays();
+    MutableRoute getMutableRoute(IdFor<Route> id);
 }

@@ -31,7 +31,8 @@ public class TransportEntityFactoryForGBRail extends TransportEntityFactory {
     }
 
     @Override
-    public MutableRoute createRoute(GTFSTransportationType routeType, RouteData routeData, Agency agency, IdMap<Station> allStations) {
+    public MutableRoute createRoute(GTFSTransportationType routeType, RouteData routeData, Agency agency,
+                                    IdMap<Station> allStations) {
         IdFor<Route> routeId = routeData.getId();
 
         String name = routeData.getLongName();

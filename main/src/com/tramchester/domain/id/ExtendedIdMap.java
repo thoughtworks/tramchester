@@ -8,6 +8,7 @@ import java.util.Iterator;
 import java.util.Set;
 import java.util.function.Consumer;
 
+@Deprecated
 public class ExtendedIdMap<S extends HasId<S>, T extends HasId<S>> implements Iterable<T> {
     private final HashMap<IdFor<S>, T> theMap;
 
