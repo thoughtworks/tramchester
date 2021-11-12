@@ -75,7 +75,7 @@ public class TransportDataFromFiles implements TransportDataFactory {
         return dataContainer;
     }
 
-    private void load(TransportDataSource dataSource, TransportDataContainer buildable) {
+    private void load(TransportDataSource dataSource, WriteableTransportData buildable) {
         DataSourceInfo dataSourceInfo = dataSource.getDataSourceInfo();
 
         DataSourceID sourceName = dataSourceInfo.getID();
@@ -126,8 +126,10 @@ public class TransportDataFromFiles implements TransportDataFactory {
         buildable.reportNumbers();
 
         // update svcs where calendar data is missing
-        buildable.getServices().stream().filter(service -> !service.hasCalendar()).forEach(
-                svc -> logger.warn(format("source %s Service %s has missing calendar", sourceName, svc.getId()))
+
+        //buildable.getServices().stream().
+        buildable.getServicesWithoutCalendar().
+                forEach(svc -> logger.warn(format("source %s Service %s has missing calendar", sourceName, svc.getId()))
         );
 
         reportZeroDaysServices(buildable);
@@ -137,22 +139,14 @@ public class TransportDataFromFiles implements TransportDataFactory {
         logger.info("Finishing Loading data for " + sourceName);
     }
 
-    private void reportZeroDaysServices(TransportDataContainer buildable) {
-        IdSet<Service> noDayServices = new IdSet<>();
-        buildable.getServices().stream().filter(Service::hasCalendar).forEach(service -> {
-            ServiceCalendar calendar = service.getCalendar();
-            if (calendar.operatesNoDays()) {
-                // feedvalidator flags these as warnings also
-                noDayServices.add(service.getId());
-                }
-            }
-        );
+    private void reportZeroDaysServices(WriteableTransportData buildable) {
+        IdSet<Service> noDayServices = buildable.getServicesWithZerpDays();
         if (!noDayServices.isEmpty()) {
             logger.warn("The following services do no operate on any days per calendar.txt file " + noDayServices);
         }
     }
 
-    private void populateCalendars(TransportDataContainer buildable, Stream<CalendarData> calendars,
+    private void populateCalendars(WriteableTransportData buildable, Stream<CalendarData> calendars,
                                    Stream<CalendarDateData> calendarsDates, IdMap<Service> services, GTFSSourceConfig config,
                                    TransportEntityFactory factory) {
         AtomicInteger countCalendars = new AtomicInteger(0);
@@ -161,7 +155,7 @@ public class TransportDataFromFiles implements TransportDataFactory {
         IdSet<Service> missingCalendar = services.getIds();
         calendars.forEach(calendarData -> {
             IdFor<Service> serviceId = calendarData.getServiceId();
-            Service service = buildable.getService(serviceId);
+            Service service = buildable.getServiceById(serviceId);
 
             if (service != null) {
                 countCalendars.getAndIncrement();
@@ -178,7 +172,7 @@ public class TransportDataFromFiles implements TransportDataFactory {
         updateServiceDatesFromCalendarDates(buildable, calendarsDates, services, config.getNoServices());
     }
 
-    private void updateServiceDatesFromCalendarDates(TransportDataContainer buildable, Stream<CalendarDateData> calendarsDates,
+    private void updateServiceDatesFromCalendarDates(WriteableTransportData buildable, Stream<CalendarDateData> calendarsDates,
                                                      IdMap<Service> services, Set<LocalDate> noServices) {
         logger.info("Loading calendar dates "+ services.size() +" services with no services on " + noServices);
         IdSet<Service> missingCalendarDates = services.getIds();
@@ -186,7 +180,7 @@ public class TransportDataFromFiles implements TransportDataFactory {
 
         calendarsDates.forEach(date -> {
             IdFor<Service> serviceId = date.getServiceId();
-            Service service = buildable.getService(serviceId);
+            Service service = buildable.getServiceById(serviceId);
             if (service != null) {
                 if (service.hasCalendar()) {
                     countCalendarDates.getAndIncrement();
@@ -246,7 +240,7 @@ public class TransportDataFromFiles implements TransportDataFactory {
         }
     }
 
-    private IdMap<Service> populateStopTimes(TransportDataContainer buildable, Stream<StopTimeData> stopTimes,
+    private IdMap<Service> populateStopTimes(WriteableTransportData buildable, Stream<StopTimeData> stopTimes,
                                              IdMap<Station> preloadStations, ExtendedIdMap<Trip, MutableTrip> trips,
                                              TransportEntityFactory factory, GTFSSourceConfig dataSourceConfig,
                                              IncludedOrExcludedRoutes includedOrExcludedRoutes) {
@@ -324,7 +318,7 @@ public class TransportDataFromFiles implements TransportDataFactory {
         return addedServices;
     }
 
-    private StopCall createStopCall(PlatformRepository buildable, StopTimeData stopTimeData,
+    private StopCall createStopCall(WriteableTransportData buildable, StopTimeData stopTimeData,
                                     Route route, Trip trip, Station station, TransportEntityFactory factory,
                                     GTFSSourceConfig sourceConfig) {
         IdFor<Platform> platformId = stopTimeData.getPlatformId();
@@ -346,7 +340,7 @@ public class TransportDataFromFiles implements TransportDataFactory {
         }
     }
 
-    private void addStationTo(TransportDataContainer container, Route route, Station station, TransportEntityFactory factory) {
+    private void addStationTo(WriteableTransportData container, Route route, Station station, TransportEntityFactory factory) {
         station.getBuilder().addRoute(route);
 
         IdFor<Station> stationId = station.getId();
@@ -403,7 +397,7 @@ public class TransportDataFromFiles implements TransportDataFactory {
         return agencies;
     }
 
-    private IncludedOrExcludedRoutes populateRoutes(TransportDataContainer buildable, Stream<RouteData> routeDataStream,
+    private IncludedOrExcludedRoutes populateRoutes(WriteableTransportData buildable, Stream<RouteData> routeDataStream,
                                                     IdMap<Agency> allAgencies, IdMap<Station> allStations,
                                                     GTFSSourceConfig sourceConfig, TransportEntityFactory factory) {
         Set<GTFSTransportationType> transportModes = sourceConfig.getTransportGTFSModes();

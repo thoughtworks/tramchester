@@ -11,5 +11,5 @@ import java.util.Set;
 public interface TripRepository {
     Set<Trip> getTrips();
     Trip getTripById(IdFor<Trip> tripId);
-    boolean hasTripId(IdFor<Trip> tripId);
+    //boolean hasTripId(IdFor<Trip> tripId);
 }

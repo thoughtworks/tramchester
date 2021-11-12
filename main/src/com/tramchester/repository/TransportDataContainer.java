@@ -3,6 +3,7 @@ package com.tramchester.repository;
 import com.tramchester.domain.*;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdMap;
+import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
@@ -19,7 +20,7 @@ import java.util.stream.Stream;
 
 import static java.lang.String.format;
 
-public class TransportDataContainer implements TransportData {
+public class TransportDataContainer implements TransportData, WriteableTransportData {
     private static final Logger logger = LoggerFactory.getLogger(TransportDataContainer.class);
 
     private final ProvidesNow providesNow;
@@ -47,6 +48,7 @@ public class TransportDataContainer implements TransportData {
         this.sourceName = sourceName;
     }
 
+    @Override
     public void dispose() {
         logger.info("stopping for " + sourceName);
         // clear's are here due to memory usage during testing
@@ -61,6 +63,7 @@ public class TransportDataContainer implements TransportData {
         logger.info("stopped");
     }
 
+    @Override
     public void reportNumbers() {
         logger.info("From " + dataSourceInfos + " name:" + sourceName);
         logger.info(format("%s agencies", agencies.size()));
@@ -164,10 +167,12 @@ public class TransportDataContainer implements TransportData {
         return trips.getValues();
     }
 
+    @Override
     public boolean hasRouteStationId(IdFor<RouteStation> routeStationId) {
         return routeStations.hasId(routeStationId);
     }
 
+    @Override
     public void addRouteStation(RouteStation routeStation) {
        routeStations.add(routeStation);
     }
@@ -209,6 +214,25 @@ public class TransportDataContainer implements TransportData {
     }
 
     @Override
+    public Set<Service> getServicesWithoutCalendar() {
+        return getServices().stream().filter(service -> !service.hasCalendar()).collect(Collectors.toSet());
+    }
+
+    @Override
+    public IdSet<Service> getServicesWithZerpDays() {
+        IdSet<Service> noDayServices = new IdSet<>();
+        getServices().stream().filter(Service::hasCalendar).forEach(service -> {
+                    ServiceCalendar calendar = service.getCalendar();
+                    if (calendar.operatesNoDays()) {
+                        // feedvalidator flags these as warnings also
+                        noDayServices.add(service.getId());
+                    }
+                }
+        );
+        return noDayServices;
+    }
+
+    @Override
     public Set<DataSourceInfo> getDataSourceInfo() {
         return Collections.unmodifiableSet(dataSourceInfos);
     }
@@ -233,31 +257,38 @@ public class TransportDataContainer implements TransportData {
         return services.hasId(serviceId);
     }
 
+    @Override
     public void addAgency(Agency agency) {
         agencies.add(agency);
     }
 
+    @Override
     public boolean hasAgency(IdFor<Agency> agencyId) {
         return agencies.hasId(agencyId);
     }
 
+    @Override
     public void addRoute(Route route) {
         routes.add(route);
     }
 
+    @Override
     @Deprecated
     public void addRouteToAgency(Agency agency, Route route) {
         agency.addRoute(route);
     }
 
+    @Override
     public void addStation(Station station) {
         stationsById.add(station);
     }
 
+    @Override
     public void addPlatform(Platform platform) {
         platforms.add(platform);
     }
 
+    @Override
     public void addService(Service service) {
         services.add(service);
     }
@@ -277,6 +308,7 @@ public class TransportDataContainer implements TransportData {
         return routes.getValues();
     }
 
+    @Override
     public void addTrip(Trip trip) {
         trips.add(trip);
     }
@@ -322,6 +354,7 @@ public class TransportDataContainer implements TransportData {
                 collect(Collectors.toUnmodifiableSet());
     }
 
+    @Override
     public void addDataSourceInfo(DataSourceInfo dataSourceInfo) {
         dataSourceInfos.add(dataSourceInfo);
     }
@@ -331,6 +364,7 @@ public class TransportDataContainer implements TransportData {
         return feedInfoMap;
     }
 
+    @Override
     public void addFeedInfo(DataSourceID name, FeedInfo feedInfo) {
         logger.info("Added " + feedInfo.toString());
         feedInfoMap.put(name, feedInfo);
