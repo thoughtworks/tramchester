@@ -79,7 +79,7 @@ class CompositeStationTest {
 
         Station stationB = TestStation.forTest("idB", "areaB", "stopNameB",
                 new LatLong(4, 8), Bus, dataSourceID);
-        Route routeB = new MutableRoute(StringIdFor.createId("routeB"), "routeCodeB", "routeNameB", TestEnv.StagecoachManchester, Bus);
+        Route routeB = MutableRoute.getRoute(StringIdFor.createId("routeB"), "routeCodeB", "routeNameB", TestEnv.StagecoachManchester, Bus);
         final StationBuilder stationBBuilder = stationB.getBuilder();
         stationBBuilder.addRoute(routeB);
         stationBBuilder.addRoute(routeA);

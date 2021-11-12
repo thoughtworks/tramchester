@@ -167,12 +167,12 @@ public class TestEnv {
         return date;
     }
 
-    public static MutableRoute getTramTestRoute() {
+    public static Route getTramTestRoute() {
         return getTramTestRoute(StringIdFor.createId("RouteId"), "routeName");
     }
 
-    public static MutableRoute getTramTestRoute(IdFor<Route> routeId, String routeName) {
-        return new MutableRoute(routeId, "routeCode", routeName, TestEnv.MetAgency(), TransportMode.Tram);
+    public static Route getTramTestRoute(IdFor<Route> routeId, String routeName) {
+        return MutableRoute.getRoute(routeId, "routeCode", routeName, TestEnv.MetAgency(), TransportMode.Tram);
     }
 
     public static Agency MetAgency() {

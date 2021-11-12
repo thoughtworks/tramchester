@@ -38,7 +38,7 @@ class RouteDTOTest {
 
     public Route getRoute() {
         KnownTramRoute knownRoute = TheTraffordCentreCornbrook;
-        return new MutableRoute(knownRoute.getFakeId(), knownRoute.shortName(), knownRoute.name(), TestEnv.MetAgency(),
+        return MutableRoute.getRoute(knownRoute.getFakeId(), knownRoute.shortName(), knownRoute.name(), TestEnv.MetAgency(),
                 knownRoute.mode());
     }
 }

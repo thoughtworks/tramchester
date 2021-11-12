@@ -18,6 +18,8 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 
 public class BusRoutesForTesting {
 
+    // TODO Copy the KnownTramRoute pattern
+
     // BUS
 
     @Deprecated
@@ -33,21 +35,4 @@ public class BusRoutesForTesting {
             "Manchester Airport - Stockport - Buxton Skyline", HIGH_PEAK_BUSES, Bus);
 
 
-    public static Set<Route> findAltyToWarrington(RouteRepository routeRepository) {
-        return getRouteAssertExists(routeRepository, WarringtonsOwnBuses.getId(), "Altrincham - Partington - Thelwall - Warrington");
-    }
-
-    public static Set<Route> findAltyToStockport(RouteRepository routeRepository) {
-        return getRouteAssertExists(routeRepository, StagecoachManchester.getId(), "Altrincham - Stockport");
-    }
-
-    public static Set<Route> findStockportMarpleRomileyCircular(RouteRepository routeRepository) {
-        return getRouteAssertExists(routeRepository, StagecoachManchester.getId(), "Stockport - Marple/Romiley Circular");
-    }
-
-    private static Set<Route> getRouteAssertExists(RouteRepository routeRepository, IdFor<Agency> agencyId, String longName) {
-        Set<Route> result = routeRepository.findRoutesByName(agencyId, longName);
-        assertFalse(result.isEmpty());
-        return result;
-    }
 }

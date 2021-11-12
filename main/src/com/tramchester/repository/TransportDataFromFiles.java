@@ -103,18 +103,19 @@ public class TransportDataFromFiles implements TransportDataFactory {
         IdMap<Station> allStations = preLoadStations(dataSource.stops, entityFactory);
 
         IdMap<Agency> allAgencies = preloadAgencys(sourceName, dataSource.agencies, entityFactory);
-        LoadedOrExcludedRoutes loadedOrExcludedRoutes = populateRoutes(buildable, dataSource.routes, allAgencies, allStations,
+        IncludedOrExcludedRoutes includedOrExcludedRoutes = populateRoutes(buildable, dataSource.routes, allAgencies, allStations,
                 sourceConfig, entityFactory);
-        logger.info("Excluding " + loadedOrExcludedRoutes.numOfExcluded() + " routes ");
+        logger.info("Excluding " + includedOrExcludedRoutes.numOfExcluded() + " routes ");
 
         allAgencies.clear();
 
-        TripAndServices tripsAndServices = loadTripsAndServices(dataSource.trips, loadedOrExcludedRoutes, entityFactory);
+        TripAndServices tripsAndServices = loadTripsAndServices(dataSource.trips, includedOrExcludedRoutes, entityFactory);
 
-        loadedOrExcludedRoutes.clear();
+        IdMap<Service> services = populateStopTimes(buildable, dataSource.stopTimes, allStations,
+                tripsAndServices.trips, entityFactory,
+                sourceConfig, includedOrExcludedRoutes);
 
-        IdMap<Service> services = populateStopTimes(buildable, dataSource.stopTimes, allStations, tripsAndServices.trips, entityFactory,
-                sourceConfig);
+        includedOrExcludedRoutes.clear();
 
         allStations.clear();
 
@@ -246,8 +247,9 @@ public class TransportDataFromFiles implements TransportDataFactory {
     }
 
     private IdMap<Service> populateStopTimes(TransportDataContainer buildable, Stream<StopTimeData> stopTimes,
-                                             IdMap<Station> preloadStations, ExtendedIdMap<Trip,MutableTrip> trips,
-                                             TransportEntityFactory factory, GTFSSourceConfig dataSourceConfig) {
+                                             IdMap<Station> preloadStations, ExtendedIdMap<Trip, MutableTrip> trips,
+                                             TransportEntityFactory factory, GTFSSourceConfig dataSourceConfig,
+                                             IncludedOrExcludedRoutes includedOrExcludedRoutes) {
         String sourceName = dataSourceConfig.getName();
         logger.info("Loading stop times for " + sourceName);
         IdMap<Service> addedServices = new IdMap<>();
@@ -265,7 +267,11 @@ public class TransportDataFromFiles implements TransportDataFactory {
                     MutableTrip trip = trips.get(stopTripId);
 
                     Station station = preloadStations.get(stationId);
-                    MutableRoute route = trip.getRoute();
+                    Route route = trip.getRoute();
+
+                    if (route==null) {
+                        throw new RuntimeException("Null route for " + trip.getId());
+                    }
 
                     boolean shouldAdd = true;
                     if (dataSourceConfig.getTransportModesWithPlatforms().contains(route.getTransportMode())) {
@@ -291,8 +297,9 @@ public class TransportDataFromFiles implements TransportDataFactory {
 
                         Service service = trip.getService();
 
-                        route.addTrip(trip);
-                        route.addService(service);
+                        MutableRoute mutableRoute = includedOrExcludedRoutes.get(route.getId());
+                        mutableRoute.addTrip(trip);
+                        mutableRoute.addService(service);
 
                         addedServices.add(service);
                         buildable.addService(service);
@@ -360,7 +367,7 @@ public class TransportDataFromFiles implements TransportDataFactory {
         }
     }
 
-    private TripAndServices loadTripsAndServices(Stream<TripData> tripDataStream, LoadedOrExcludedRoutes loadedOrExcludedRoutes,
+    private TripAndServices loadTripsAndServices(Stream<TripData> tripDataStream, IncludedOrExcludedRoutes includedOrExcludedRoutes,
                                                  TransportEntityFactory factory) {
         logger.info("Loading trips");
         ExtendedIdMap<Trip,MutableTrip> trips = new ExtendedIdMap<>();
@@ -373,13 +380,13 @@ public class TransportDataFromFiles implements TransportDataFactory {
             IdFor<Route> routeId = factory.createRouteId(tripData.getRouteId());
             IdFor<Trip> tripId = tripData.getTripId();
 
-            if (loadedOrExcludedRoutes.hasLoaded(routeId)) {
-                MutableRoute route = loadedOrExcludedRoutes.getLoaded(routeId);
+            if (includedOrExcludedRoutes.included(routeId)) {
+                MutableRoute route = includedOrExcludedRoutes.get(routeId);
                 Service service = services.getOrAdd(serviceId, () -> factory.createService(serviceId));
                 trips.getOrAdd(tripId, () -> factory.createTrip(tripData, service, route));
                 count.getAndIncrement();
             } else {
-                if (!loadedOrExcludedRoutes.hasExcluded(routeId)) {
+                if (!includedOrExcludedRoutes.wasExcluded(routeId)) {
                     logger.warn(format("Unable to find RouteId '%s' for trip '%s", routeId, tripData));
                 }
             }
@@ -396,13 +403,13 @@ public class TransportDataFromFiles implements TransportDataFactory {
         return agencies;
     }
 
-    private LoadedOrExcludedRoutes populateRoutes(TransportDataContainer buildable, Stream<RouteData> routeDataStream,
-                                                IdMap<Agency> allAgencies, IdMap<Station> allStations,
-                                                GTFSSourceConfig sourceConfig, TransportEntityFactory factory) {
+    private IncludedOrExcludedRoutes populateRoutes(TransportDataContainer buildable, Stream<RouteData> routeDataStream,
+                                                    IdMap<Agency> allAgencies, IdMap<Station> allStations,
+                                                    GTFSSourceConfig sourceConfig, TransportEntityFactory factory) {
         Set<GTFSTransportationType> transportModes = sourceConfig.getTransportGTFSModes();
         AtomicInteger count = new AtomicInteger();
 
-        LoadedOrExcludedRoutes results = new LoadedOrExcludedRoutes();
+        IncludedOrExcludedRoutes results = new IncludedOrExcludedRoutes();
 
         logger.info("Loading routes for transport modes " + transportModes.toString());
         //IdSet<RouteReadOnly> excludedRoutes = new IdSet<>();
@@ -441,12 +448,12 @@ public class TransportDataFromFiles implements TransportDataFactory {
         return results;
     }
 
-    private void logExcludedRoutes(Set<GTFSTransportationType> transportModes, LoadedOrExcludedRoutes loadedOrExcludedRoutes) {
-        if (!loadedOrExcludedRoutes.anyExcluded()) {
+    private void logExcludedRoutes(Set<GTFSTransportationType> transportModes, IncludedOrExcludedRoutes includedOrExcludedRoutes) {
+        if (!includedOrExcludedRoutes.anyExcluded()) {
             return;
         }
         logger.info("Excluded the following route id's as did not match modes " + transportModes + " routes: " +
-                loadedOrExcludedRoutes.getExcluded());
+                includedOrExcludedRoutes.getExcluded());
     }
 
     private Agency createMissingAgency(DataSourceID dataSourceID, IdMap<Agency> allAgencies, IdFor<Agency> agencyId, TransportEntityFactory factory) {
@@ -509,11 +516,11 @@ public class TransportDataFromFiles implements TransportDataFactory {
         }
     }
 
-    private static class LoadedOrExcludedRoutes {
+    private static class IncludedOrExcludedRoutes {
         private final IdSet<Route> excludedRouteIds;
         private final ExtendedIdMap<Route, MutableRoute> loadedRoutes;
 
-        private LoadedOrExcludedRoutes() {
+        private IncludedOrExcludedRoutes() {
             excludedRouteIds = new IdSet<>();
             loadedRoutes = new ExtendedIdMap<>();
         }
@@ -522,8 +529,16 @@ public class TransportDataFromFiles implements TransportDataFactory {
             excludedRouteIds.add(routeId);
         }
 
+        public void addLoaded(MutableRoute route) {
+            loadedRoutes.add(route);
+        }
+
         public boolean anyExcluded() {
             return !excludedRouteIds.isEmpty();
+        }
+
+        public boolean wasExcluded(IdFor<Route> routeId) {
+            return excludedRouteIds.contains(routeId);
         }
 
         public IdSet<Route> getExcluded() {
@@ -534,19 +549,11 @@ public class TransportDataFromFiles implements TransportDataFactory {
             return excludedRouteIds.size();
         }
 
-        public void addLoaded(MutableRoute route) {
-            loadedRoutes.add(route);
+        public boolean included(IdFor<Route> routeId) {
+            return loadedRoutes.hasId(routeId);
         }
 
-        public boolean hasLoaded(IdFor<Route> routeId) {
-            return excludedRouteIds.contains(routeId);
-        }
-
-        public boolean hasExcluded(IdFor<Route> routeId) {
-            return excludedRouteIds.contains(routeId);
-        }
-
-        public MutableRoute getLoaded(IdFor<Route> routeId) {
+        public MutableRoute get(IdFor<Route> routeId) {
             return loadedRoutes.get(routeId);
         }
 

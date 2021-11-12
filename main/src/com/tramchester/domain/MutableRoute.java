@@ -37,6 +37,11 @@ public class MutableRoute implements Route {
         trips  = new HashSet<>();
     }
 
+    // test support
+    public static Route getRoute(IdFor<Route> id, String shortName, String name, Agency agency, TransportMode transportMode) {
+        return new MutableRoute(id, shortName, name, agency, transportMode);
+    }
+
     @Override
     public IdFor<Route> getId() {
         return id;

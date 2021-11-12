@@ -1,9 +1,6 @@
 package com.tramchester.unit.domain;
 
-import com.tramchester.domain.Journey;
-import com.tramchester.domain.Platform;
-import com.tramchester.domain.MutableRoute;
-import com.tramchester.domain.Service;
+import com.tramchester.domain.*;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.input.MutableTrip;
@@ -31,7 +28,7 @@ class JourneyTest {
 
     private TramTime queryTime;
     private List<Location<?>> path;
-    private final MutableRoute route = TestEnv.getTramTestRoute();
+    private final Route route = TestEnv.getTramTestRoute();
     private Trip trip;
     private List<Integer> stopSequenceNumbers;
     private MyLocation myLocation;

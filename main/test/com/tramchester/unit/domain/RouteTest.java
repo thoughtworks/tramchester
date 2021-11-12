@@ -13,11 +13,11 @@ class RouteTest {
 
     @Test
     void shouldHaveTramRoute() {
-        Route route = new MutableRoute(StringIdFor.createId("idA"),"code","name", TestEnv.MetAgency(),
+        Route route = MutableRoute.getRoute(StringIdFor.createId("idA"),"code","name", TestEnv.MetAgency(),
                 TransportMode.Tram);
         Assertions.assertTrue(TransportMode.isTram(route));
 
-        route = new MutableRoute(StringIdFor.createId("idB"),"code","name",
+        route = MutableRoute.getRoute(StringIdFor.createId("idB"),"code","name",
                 new Agency(DataSourceID.tfgm, StringIdFor.createId("GMS"), "agencyName"),
                 TransportMode.Bus);
         Assertions.assertFalse(TransportMode.isTram(route));

@@ -36,7 +36,8 @@ class PlatformStopCallsTest {
         stationD = TramStations.Deansgate;
 
         Service service = new Service(StringIdFor.createId("svc1"));
-        Trip trip = MutableTrip.buildTrip(StringIdFor.createId("tripId"), "headSign", service, TestEnv.getTramTestRoute());
+        Trip trip = MutableTrip.buildTrip(StringIdFor.createId("tripId"), "headSign", service,
+                TestEnv.getTramTestRoute());
 
         stopA = TestEnv.createTramStopCall(trip, "statA1", stationA, 3, of(10, 10), of(10, 11));
         stopB = TestEnv.createTramStopCall(trip, "statB1", stationB, 2, of(10, 3), of(10, 4));

@@ -55,10 +55,12 @@ class StationTest {
         assertTrue(station.getTransportModes().isEmpty());
 
         final StationBuilder builder = station.getBuilder();
-        builder.addRoute(new MutableRoute(StringIdFor.createId("routeIdA"), "shortName", "name", TestEnv.MetAgency(), Tram));
+        builder.addRoute(MutableRoute.getRoute(StringIdFor.createId("routeIdA"), "shortName", "name",
+                TestEnv.MetAgency(), Tram));
         assertTrue(station.serves(Tram));
 
-        builder.addRoute(new MutableRoute(StringIdFor.createId("routeIdB"), "trainShort", "train", Walking, Train));
+        builder.addRoute(MutableRoute.getRoute(StringIdFor.createId("routeIdB"), "trainShort", "train",
+                Walking, Train));
         assertTrue(station.serves(Train));
 
         assertEquals(2, station.getTransportModes().size());
