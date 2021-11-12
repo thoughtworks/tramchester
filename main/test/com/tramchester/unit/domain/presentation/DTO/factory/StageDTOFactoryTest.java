@@ -1,7 +1,9 @@
 package com.tramchester.unit.domain.presentation.DTO.factory;
 
-import com.tramchester.domain.*;
-import com.tramchester.domain.id.StringIdFor;
+import com.tramchester.domain.MutableService;
+import com.tramchester.domain.Platform;
+import com.tramchester.domain.Route;
+import com.tramchester.domain.Service;
 import com.tramchester.domain.input.MutableTrip;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.MyLocation;
@@ -25,6 +27,7 @@ import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.List;
 
+import static com.tramchester.domain.id.StringIdFor.createId;
 import static com.tramchester.testSupport.reference.TramStations.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -55,8 +58,8 @@ class StageDTOFactoryTest extends EasyMockSupport {
     @Test
     void shouldCreateStageDTOCorrectlyForTransportStage() {
         Route testRoute = TestEnv.getTramTestRoute();
-        Service service = new MutableService("svcId");
-        Trip trip = MutableTrip.buildTrip(StringIdFor.createId("tripId"), "headSign", service, testRoute);
+        Service service = MutableService.build(createId("svcId"));
+        Trip trip = MutableTrip.build(createId("tripId"), "headSign", service, testRoute);
 
         List<Integer> stopCallIndexes = Arrays.asList(1,2,3,4);
         Platform platform = new Platform("platFormId", "platformName", new LatLong(1,1));

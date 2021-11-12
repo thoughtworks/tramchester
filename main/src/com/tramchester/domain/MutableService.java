@@ -2,7 +2,6 @@ package com.tramchester.domain;
 
 
 import com.tramchester.domain.id.IdFor;
-import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.graph.GraphPropertyKey;
 
 import java.io.PrintStream;
@@ -13,13 +12,14 @@ public class MutableService implements Service {
     private final IdFor<Service> serviceId;
     private ServiceCalendar calendar;
 
-    public MutableService(String serviceId) {
-        this(StringIdFor.createId(serviceId));
-    }
-
     public MutableService(IdFor<Service> serviceId) {
         this.serviceId = serviceId;
         calendar = null;
+    }
+
+    // test support
+    public static Service build(IdFor<Service> serviceId) {
+        return new MutableService(serviceId);
     }
 
     @Override

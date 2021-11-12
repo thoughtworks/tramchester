@@ -1,11 +1,12 @@
 package com.tramchester.unit.domain;
 
-import com.tramchester.domain.*;
+import com.tramchester.domain.Journey;
+import com.tramchester.domain.MutableService;
+import com.tramchester.domain.Platform;
+import com.tramchester.domain.Service;
 import com.tramchester.domain.id.IdSet;
-import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.input.MutableTrip;
 import com.tramchester.domain.input.Trip;
-import com.tramchester.livedata.domain.liveUpdates.PlatformMessage;
 import com.tramchester.domain.places.MyLocation;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.*;
@@ -14,6 +15,7 @@ import com.tramchester.domain.time.TramServiceDate;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.domain.transportStages.VehicleStage;
 import com.tramchester.domain.transportStages.WalkingToStationStage;
+import com.tramchester.livedata.domain.liveUpdates.PlatformMessage;
 import com.tramchester.livedata.repository.PlatformMessageSource;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.TramStations;
@@ -27,6 +29,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
 
+import static com.tramchester.domain.id.StringIdFor.createId;
 import static com.tramchester.domain.presentation.Note.NoteType.Live;
 import static com.tramchester.domain.reference.TransportMode.*;
 import static com.tramchester.testSupport.reference.TramStations.*;
@@ -392,8 +395,8 @@ class ProvidesNotesTest extends EasyMockSupport {
 
     private VehicleStage createStageWithBoardingPlatform(String platformId, LatLong latLong) {
         TramTime departTime = TramTime.of(11,22);
-        Service service = new MutableService("serviceId");
-        Trip trip = MutableTrip.buildTrip(StringIdFor.createId("tripId"), "headSign", service,
+        Service service = MutableService.build(createId("serviceId"));
+        Trip trip = MutableTrip.build(createId("tripId"), "headSign", service,
                 TestEnv.getTramTestRoute());
 
         // TODO

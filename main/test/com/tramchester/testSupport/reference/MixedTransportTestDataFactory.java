@@ -3,9 +3,10 @@ package com.tramchester.testSupport.reference;
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.dataimport.data.StopTimeData;
 import com.tramchester.domain.*;
+import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.StringIdFor;
-import com.tramchester.domain.input.NoPlatformStopCall;
 import com.tramchester.domain.input.MutableTrip;
+import com.tramchester.domain.input.NoPlatformStopCall;
 import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.GTFSPickupDropoffType;
@@ -209,9 +210,9 @@ public class MixedTransportTestDataFactory implements TransportDataFactory {
 
     public static class MixedTransportTestData extends TransportDataContainer {
 
-        private static final String serviceAId = "serviceAId";
-        private static final String serviceBId = "serviceBId";
-        private static final String serviceCId = "serviceCId";
+        private static final IdFor<Service> serviceAId = StringIdFor.createId("serviceAId");
+        private static final IdFor<Service> serviceBId = StringIdFor.createId("serviceBId");
+        private static final IdFor<Service> serviceCId = StringIdFor.createId("serviceCId");
 
         public static final String TRIP_A_ID = "tripAId";
         public static final String PREFIX = "XXX";

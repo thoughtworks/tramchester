@@ -2,7 +2,6 @@ package com.tramchester.unit.domain;
 
 import com.tramchester.domain.*;
 import com.tramchester.domain.id.IdSet;
-import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.input.MutableTrip;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.Location;
@@ -20,6 +19,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.*;
 
+import static com.tramchester.domain.id.StringIdFor.createId;
 import static com.tramchester.domain.reference.TransportMode.*;
 import static com.tramchester.testSupport.reference.TramStations.*;
 import static org.junit.jupiter.api.Assertions.*;
@@ -36,8 +36,8 @@ class JourneyTest {
 
     @BeforeEach
     void beforeEachTest() {
-        Service service = new MutableService(StringIdFor.createId("svc123"));
-        trip = MutableTrip.buildTrip(StringIdFor.createId("trip897"), "headsign", service, route);
+        Service service = MutableService.build(createId("svc123"));
+        trip = MutableTrip.build(createId("trip897"), "headsign", service, route);
         queryTime = TramTime.of(9,16);
         path = Collections.emptyList();
         stopSequenceNumbers = Arrays.asList(10,11,12,13);
@@ -218,8 +218,8 @@ class JourneyTest {
 
         IdSet<Platform> result = journey.getCallingPlatformIds();
         assertEquals(2, result.size());
-        assertTrue(result.contains(StringIdFor.createId("platformId1")));
-        assertTrue(result.contains(StringIdFor.createId("platformId2")));
+        assertTrue(result.contains(createId("platformId1")));
+        assertTrue(result.contains(createId("platformId2")));
         assertFalse(journey.isDirect());
         assertFalse(journey.firstStageIsWalk());
 

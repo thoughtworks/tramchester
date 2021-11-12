@@ -33,7 +33,7 @@ public class MutableTrip implements Trip {
     }
 
     // test support
-    public static Trip buildTrip(IdFor<Trip> tripId, String headSign, Service service, Route route) {
+    public static Trip build(IdFor<Trip> tripId, String headSign, Service service, Route route) {
         return new MutableTrip(tripId, headSign, service, route);
     }
 

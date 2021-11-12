@@ -1,9 +1,8 @@
 package com.tramchester.unit.domain;
 
 import com.tramchester.domain.*;
-import com.tramchester.domain.id.StringIdFor;
-import com.tramchester.domain.input.PlatformStopCall;
 import com.tramchester.domain.input.MutableTrip;
+import com.tramchester.domain.input.PlatformStopCall;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramTime;
@@ -15,6 +14,7 @@ import org.junit.jupiter.api.Test;
 import java.util.LinkedList;
 import java.util.List;
 
+import static com.tramchester.domain.id.StringIdFor.createId;
 import static org.junit.jupiter.api.Assertions.*;
 
 class TripTest {
@@ -27,9 +27,9 @@ class TripTest {
 
     @BeforeEach
     void beforeEachTestRuns() {
-        Service service = new MutableService("svcId");
+        Service service = MutableService.build(createId("svcId"));
 
-        trip = new MutableTrip(StringIdFor.createId("tripId"),"headSign", service, TestEnv.getTramTestRoute());
+        trip = new MutableTrip(createId("tripId"),"headSign", service, TestEnv.getTramTestRoute());
 
         stationA = TramStations.Ashton;
         stationB = TramStations.Broadway;
@@ -96,14 +96,14 @@ class TripTest {
 
     @Test
     void shouldKnowIfTramTrip() {
-        Service service = new MutableService("svcId");
+        Service service = MutableService.build(createId("svcId"));
 
-        Trip tripA = MutableTrip.buildTrip(StringIdFor.createId("tripId"), "headSign", service, TestEnv.getTramTestRoute());
+        Trip tripA = MutableTrip.build(createId("tripId"), "headSign", service, TestEnv.getTramTestRoute());
         assertTrue(TransportMode.isTram(tripA));
-        Route busRoute = MutableRoute.getRoute(StringIdFor.createId("busRouteId"), "busRouteCode", "busRouteName",
-                new Agency(DataSourceID.tfgm, StringIdFor.createId("BUS"), "agencyName"),
+        Route busRoute = MutableRoute.getRoute(createId("busRouteId"), "busRouteCode", "busRouteName",
+                new Agency(DataSourceID.tfgm, createId("BUS"), "agencyName"),
                 TransportMode.Bus);
-        Trip tripB = MutableTrip.buildTrip(StringIdFor.createId("tripId"), "headSign", service, busRoute);
+        Trip tripB = MutableTrip.build(createId("tripId"), "headSign", service, busRoute);
         assertFalse(TransportMode.isTram(tripB));
     }
 

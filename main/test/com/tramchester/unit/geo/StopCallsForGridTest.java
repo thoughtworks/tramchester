@@ -4,10 +4,9 @@ import com.tramchester.dataimport.data.StopTimeData;
 import com.tramchester.domain.BoxWithServiceFrequency;
 import com.tramchester.domain.MutableService;
 import com.tramchester.domain.Service;
-import com.tramchester.domain.id.StringIdFor;
+import com.tramchester.domain.input.MutableTrip;
 import com.tramchester.domain.input.NoPlatformStopCall;
 import com.tramchester.domain.input.StopCall;
-import com.tramchester.domain.input.MutableTrip;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.GTFSPickupDropoffType;
@@ -25,9 +24,13 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.time.LocalDate;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
+import static com.tramchester.domain.id.StringIdFor.createId;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class StopCallsForGridTest extends EasyMockSupport {
@@ -40,8 +43,8 @@ public class StopCallsForGridTest extends EasyMockSupport {
     @BeforeEach
     void beforeEachTest() {
 
-        Service service = new MutableService(StringIdFor.createId("serviceZZZ"));
-        trip = MutableTrip.buildTrip(StringIdFor.createId("trip999"), "headsign", service, TestEnv.getTramTestRoute());
+        Service service = MutableService.build(createId("serviceZZZ"));
+        trip = MutableTrip.build(createId("trip999"), "headsign", service, TestEnv.getTramTestRoute());
 
         stationLocations = createMock(StationLocations.class);
         stopCallRepository = createMock(StopCallRepository.class);
