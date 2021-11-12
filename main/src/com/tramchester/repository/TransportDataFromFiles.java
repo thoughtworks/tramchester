@@ -6,9 +6,12 @@ import com.tramchester.config.TramchesterConfig;
 import com.tramchester.dataimport.data.*;
 import com.tramchester.domain.*;
 import com.tramchester.domain.factory.TransportEntityFactory;
-import com.tramchester.domain.id.*;
-import com.tramchester.domain.input.StopCall;
+import com.tramchester.domain.id.CompositeIdMap;
+import com.tramchester.domain.id.IdFor;
+import com.tramchester.domain.id.IdMap;
+import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.input.MutableTrip;
+import com.tramchester.domain.input.StopCall;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
@@ -138,7 +141,7 @@ public class TransportDataFromFiles implements TransportDataFactory {
     }
 
     private void reportZeroDaysServices(WriteableTransportData buildable) {
-        IdSet<Service> noDayServices = buildable.getServicesWithZerpDays();
+        IdSet<Service> noDayServices = buildable.getServicesWithZeroDays();
         if (!noDayServices.isEmpty()) {
             logger.warn("The following services do no operate on any days per calendar.txt file " + noDayServices);
         }
@@ -153,7 +156,7 @@ public class TransportDataFromFiles implements TransportDataFactory {
         IdSet<Service> missingCalendar = services.getIds();
         calendars.forEach(calendarData -> {
             IdFor<Service> serviceId = calendarData.getServiceId();
-            Service service = buildable.getServiceById(serviceId);
+            MutableService service = buildable.getServiceById(serviceId);
 
             if (service != null) {
                 countCalendars.getAndIncrement();
@@ -178,7 +181,7 @@ public class TransportDataFromFiles implements TransportDataFactory {
 
         calendarsDates.forEach(date -> {
             IdFor<Service> serviceId = date.getServiceId();
-            Service service = buildable.getServiceById(serviceId);
+            MutableService service = buildable.getServiceById(serviceId);
             if (service != null) {
                 if (service.hasCalendar()) {
                     countCalendarDates.getAndIncrement();
@@ -255,7 +258,7 @@ public class TransportDataFromFiles implements TransportDataFactory {
 
                     final IdFor<Trip> stopTripId = stopTimeData.getTripId();
                     if (preloadStations.hasId(stationId)) {
-                    MutableTrip trip = tripAndServices.get(stopTripId);
+                    MutableTrip trip = tripAndServices.getTrip(stopTripId);
 
                     Station station = preloadStations.get(stationId);
                     Route route = trip.getRoute();
@@ -286,7 +289,7 @@ public class TransportDataFromFiles implements TransportDataFactory {
                             buildable.addTrip(trip); // seen at least one stop for this trip
                         }
 
-                        Service service = trip.getService();
+                        MutableService service = tripAndServices.getService(trip.getService().getId());
 
                         MutableRoute mutableRoute = buildable.getMutableRoute(route.getId());
                         mutableRoute.addTrip(trip);
@@ -300,7 +303,7 @@ public class TransportDataFromFiles implements TransportDataFactory {
                 } else {
                     excludedStations.add(stationId);
                     if (tripAndServices.hasId(stopTripId)) {
-                        MutableTrip trip = tripAndServices.get(stopTripId);
+                        MutableTrip trip = tripAndServices.getTrip(stopTripId);
                         trip.setFiltered(true);
                     } else {
                         logger.warn(format("No trip %s for filtered stopcall %s", stopTripId, stationId));
@@ -362,8 +365,7 @@ public class TransportDataFromFiles implements TransportDataFactory {
                                                  ExcludedRoutes excludedRoutes,
                                                  TransportEntityFactory factory) {
         logger.info("Loading trips");
-        CompositeIdMap<Trip,MutableTrip> trips = new CompositeIdMap<>();
-        IdMap<Service> services = new IdMap<>();
+        TripAndServices results = new TripAndServices(factory);
 
         AtomicInteger count = new AtomicInteger();
 
@@ -373,9 +375,9 @@ public class TransportDataFromFiles implements TransportDataFactory {
             IdFor<Trip> tripId = tripData.getTripId();
 
             if (buildable.hasRouteId(routeId)) {
-                MutableRoute route = buildable.getMutableRoute(routeId);
-                Service service = services.getOrAdd(serviceId, () -> factory.createService(serviceId));
-                trips.getOrAdd(tripId, () -> factory.createTrip(tripData, service, route));
+                Route route = buildable.getMutableRoute(routeId);
+                Service service = results.getOrCreateService(serviceId);
+                results.createTripIfMissing(tripId, tripData, service, route);
                 count.getAndIncrement();
             } else {
                 if (!excludedRoutes.wasExcluded(routeId)) {
@@ -384,7 +386,7 @@ public class TransportDataFromFiles implements TransportDataFactory {
             }
         });
         logger.info("Loaded " + count.get() + " trips");
-        return new TripAndServices(services, trips);
+        return results;
     }
 
     private IdMap<Agency> preloadAgencys(DataSourceID dataSourceID, Stream<AgencyData> agencyDataStream, TransportEntityFactory factory) {
@@ -494,12 +496,14 @@ public class TransportDataFromFiles implements TransportDataFactory {
     }
 
     private static class TripAndServices  {
-        private final IdMap<Service> services;
+        private final CompositeIdMap<Service, MutableService> services;
         private final CompositeIdMap<Trip,MutableTrip> trips;
+        private final TransportEntityFactory factory;
 
-        public TripAndServices(IdMap<Service> services, CompositeIdMap<Trip,MutableTrip> trips) {
-            this.services = services;
-            this.trips = trips;
+        public TripAndServices(TransportEntityFactory factory) {
+            this.factory = factory;
+            services = new CompositeIdMap<>();
+            trips = new CompositeIdMap<>();
         }
 
         public void clear() {
@@ -511,8 +515,20 @@ public class TransportDataFromFiles implements TransportDataFactory {
             return trips.hasId(id);
         }
 
-        public MutableTrip get(IdFor<Trip> id) {
+        public MutableTrip getTrip(IdFor<Trip> id) {
             return trips.get(id);
+        }
+
+        public MutableService getService(IdFor<Service> id) {
+            return services.get(id);
+        }
+
+        public MutableService getOrCreateService(IdFor<Service> serviceId) {
+            return services.getOrAdd(serviceId, () -> factory.createService(serviceId));
+        }
+
+        public void createTripIfMissing(IdFor<Trip> tripId, TripData tripData, Service service, Route route) {
+            trips.getOrAdd(tripId, () -> factory.createTrip(tripData, service, route));
         }
     }
 

@@ -36,7 +36,7 @@ class JourneyTest {
 
     @BeforeEach
     void beforeEachTest() {
-        Service service = new Service(StringIdFor.createId("svc123"));
+        Service service = new MutableService(StringIdFor.createId("svc123"));
         trip = MutableTrip.buildTrip(StringIdFor.createId("trip897"), "headsign", service, route);
         queryTime = TramTime.of(9,16);
         path = Collections.emptyList();

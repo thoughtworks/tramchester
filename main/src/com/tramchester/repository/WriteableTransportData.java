@@ -21,14 +21,11 @@ public interface WriteableTransportData {
 
     void addRoute(MutableRoute route);
 
-    @Deprecated
-    void addRouteToAgency(Agency agency, Route route);
-
     void addStation(Station station);
 
     void addPlatform(Platform platform);
 
-    void addService(Service service);
+    void addService(MutableService service);
 
     void addTrip(MutableTrip trip);
 
@@ -48,11 +45,11 @@ public interface WriteableTransportData {
     ////
 
     Set<Service> getServicesWithoutCalendar();
-    IdSet<Service> getServicesWithZerpDays();
+    IdSet<Service> getServicesWithZeroDays();
 
     ////
 
     Platform getPlatform(IdFor<Platform> id);
-    Service getServiceById(IdFor<Service> serviceId);
+    MutableService getServiceById(IdFor<Service> serviceId);
     MutableRoute getMutableRoute(IdFor<Route> id);
 }

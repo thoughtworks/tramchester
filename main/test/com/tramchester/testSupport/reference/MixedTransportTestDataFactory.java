@@ -79,9 +79,9 @@ public class MixedTransportTestDataFactory implements TransportDataFactory {
         container.addAgency(agencyB);
         container.addAgency(agencyC);
 
-        Service serviceA = new Service(MixedTransportTestData.serviceAId);
-        Service serviceB = new Service(MixedTransportTestData.serviceBId);
-        Service serviceC = new Service(MixedTransportTestData.serviceCId);
+        MutableService serviceA = new MutableService(MixedTransportTestData.serviceAId);
+        MutableService serviceB = new MutableService(MixedTransportTestData.serviceBId);
+        MutableService serviceC = new MutableService(MixedTransportTestData.serviceCId);
 
         routeA.addService(serviceA);
         ferryRoute.addService(serviceB);

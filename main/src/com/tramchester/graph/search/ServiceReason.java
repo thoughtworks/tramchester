@@ -1,7 +1,7 @@
 package com.tramchester.graph.search;
 
-import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.Service;
+import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.search.stateMachine.HowIGotHere;

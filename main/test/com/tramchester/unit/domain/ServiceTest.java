@@ -1,6 +1,6 @@
 package com.tramchester.unit.domain;
 
-import com.tramchester.domain.Service;
+import com.tramchester.domain.MutableService;
 import com.tramchester.domain.ServiceCalendar;
 import com.tramchester.testSupport.TestEnv;
 import org.junit.jupiter.api.Test;
@@ -14,7 +14,7 @@ class ServiceTest {
 
     @Test
     void shouldNoticeNoDatesSet() {
-        Service service = new Service("svcXXX");
+        MutableService service = new MutableService("svcXXX");
         assertFalse(service.hasCalendar());
 
         LocalDate startDate = LocalDate.of(2014, 10, 5);

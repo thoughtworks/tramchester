@@ -27,9 +27,9 @@ class RouteTest {
     void shouldAddService() {
         MutableRoute route = new MutableRoute(StringIdFor.createId("routeId"),"code","name", TestEnv.MetAgency(), TransportMode.Tram);
 
-        route.addService(new Service("serviceId"));
-        route.addService(new Service("serviceId"));
-        route.addService(new Service("serviceId2"));
+        route.addService(new MutableService("serviceId"));
+        route.addService(new MutableService("serviceId"));
+        route.addService(new MutableService("serviceId2"));
 
         Set<Service> services = route.getServices();
 

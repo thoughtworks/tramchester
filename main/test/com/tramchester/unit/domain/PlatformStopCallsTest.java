@@ -1,6 +1,7 @@
 package com.tramchester.unit.domain;
 
 
+import com.tramchester.domain.MutableService;
 import com.tramchester.domain.Service;
 import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.input.StopCalls;
@@ -35,7 +36,7 @@ class PlatformStopCallsTest {
         stationC = TramStations.Cornbrook;
         stationD = TramStations.Deansgate;
 
-        Service service = new Service(StringIdFor.createId("svc1"));
+        Service service = new MutableService(StringIdFor.createId("svc1"));
         Trip trip = MutableTrip.buildTrip(StringIdFor.createId("tripId"), "headSign", service,
                 TestEnv.getTramTestRoute());
 

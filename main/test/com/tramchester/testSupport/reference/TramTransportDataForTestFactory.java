@@ -88,9 +88,9 @@ public class TramTransportDataForTestFactory implements TransportDataFactory {
 
         container.addAgency(agency);
 
-        Service serviceA = new Service(TramTransportDataForTest.serviceAId);
-        Service serviceB = new Service(TramTransportDataForTest.serviceBId);
-        Service serviceC = new Service(TramTransportDataForTest.serviceCId);
+        MutableService serviceA = new MutableService(TramTransportDataForTest.serviceAId);
+        MutableService serviceB = new MutableService(TramTransportDataForTest.serviceBId);
+        MutableService serviceC = new MutableService(TramTransportDataForTest.serviceCId);
 
         routeA.addService(serviceA);
         routeB.addService(serviceB);

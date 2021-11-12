@@ -34,11 +34,11 @@ public abstract class TransportEntityFactory {
 
     }
 
-    public Service createService(IdFor<Service> serviceId) {
-        return new Service(serviceId);
+    public MutableService createService(IdFor<Service> serviceId) {
+        return new MutableService(serviceId);
     }
 
-    public MutableTrip createTrip(TripData tripData, Service service, MutableRoute route) {
+    public MutableTrip createTrip(TripData tripData, Service service, Route route) {
         return new MutableTrip(tripData.getTripId(), tripData.getHeadsign(), service, route);
     }
 

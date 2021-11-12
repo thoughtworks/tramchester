@@ -29,7 +29,7 @@ public class TransportDataContainer implements TransportData, WriteableTransport
 
     private final CompositeIdMap<Trip, MutableTrip> trips = new CompositeIdMap<>();        // trip id -> trip
     private final IdMap<Station> stationsById = new IdMap<>();  // station id -> station
-    private final IdMap<Service> services = new IdMap<>();  // service id -> service
+    private final CompositeIdMap<Service, MutableService> services = new CompositeIdMap<>();  // service id -> service
     private final CompositeIdMap<Route, MutableRoute> routes = new CompositeIdMap<>();      // route id -> route
     private final IdMap<Platform> platforms = new IdMap<>(); // platformId -> platform
     private final IdMap<RouteStation> routeStations = new IdMap<>(); // routeStationId - > RouteStation
@@ -208,7 +208,7 @@ public class TransportDataContainer implements TransportData, WriteableTransport
     }
 
     @Override
-    public Service getServiceById(IdFor<Service> serviceId) {
+    public MutableService getServiceById(IdFor<Service> serviceId) {
         if (!services.hasId(serviceId)) {
             logger.warn("No such service " + serviceId);
         }
@@ -222,13 +222,13 @@ public class TransportDataContainer implements TransportData, WriteableTransport
 
     @Override
     public Set<Service> getServicesWithoutCalendar() {
-        return getServices().stream().filter(service -> !service.hasCalendar()).collect(Collectors.toSet());
+        return services.getValues().stream().filter(service -> !service.hasCalendar()).collect(Collectors.toSet());
     }
 
     @Override
-    public IdSet<Service> getServicesWithZerpDays() {
+    public IdSet<Service> getServicesWithZeroDays() {
         IdSet<Service> noDayServices = new IdSet<>();
-        getServices().stream().filter(Service::hasCalendar).forEach(service -> {
+        services.getValues().stream().filter(MutableService::hasCalendar).forEach(service -> {
                     ServiceCalendar calendar = service.getCalendar();
                     if (calendar.operatesNoDays()) {
                         // feedvalidator flags these as warnings also
@@ -280,12 +280,6 @@ public class TransportDataContainer implements TransportData, WriteableTransport
     }
 
     @Override
-    @Deprecated
-    public void addRouteToAgency(Agency agency, Route route) {
-        agency.addRoute(route);
-    }
-
-    @Override
     public void addStation(Station station) {
         stationsById.add(station);
     }
@@ -296,7 +290,7 @@ public class TransportDataContainer implements TransportData, WriteableTransport
     }
 
     @Override
-    public void addService(Service service) {
+    public void addService(MutableService service) {
         services.add(service);
     }
 
