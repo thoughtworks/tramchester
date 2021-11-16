@@ -13,8 +13,8 @@ import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.input.MutableTrip;
 import com.tramchester.domain.input.StopCall;
 import com.tramchester.domain.input.Trip;
-import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.MutableStation;
+import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.reference.GTFSTransportationType;
@@ -30,6 +30,8 @@ import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.inject.Inject;
 import java.time.LocalDate;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -256,6 +258,7 @@ public class TransportDataFromFiles implements TransportDataFactory {
         logger.info("Loading stop times for " + sourceName);
         IdMap<Service> addedServices = new IdMap<>();
         IdSet<Station> excludedStations = new IdSet<>();
+        Map<IdFor<Station>, IdSet<Trip>> missingPlatforms = new HashMap<>();
 
         AtomicInteger count = new AtomicInteger();
         stopTimes.
@@ -279,8 +282,10 @@ public class TransportDataFromFiles implements TransportDataFactory {
                     if (dataSourceConfig.getTransportModesWithPlatforms().contains(route.getTransportMode())) {
                         // expecting a platform here
                         if (!station.hasPlatforms()) {
-                            logger.error(format("Did not find platform for %s %s %s source %s ", station.getId(),
-                                    stopTimeData, route.getId(), dataSourceConfig.getName()));
+                            if (!missingPlatforms.containsKey(stationId)) {
+                                missingPlatforms.put(stationId, new IdSet<>());
+                            }
+                            missingPlatforms.get(stationId).add(stopTripId);
                             shouldAdd = false;
                         }
                     }
@@ -322,6 +327,13 @@ public class TransportDataFromFiles implements TransportDataFactory {
             logger.warn("Excluded the following station ids (flagged out of area) : " + excludedStations + " for " + sourceName);
             excludedStations.clear();
         }
+        if (!missingPlatforms.isEmpty()) {
+            missingPlatforms.forEach((stationId, tripIds) -> {
+                logger.error(format("Did not find platform for stationId: %s TripId: %s source:'%s'",
+                        stationId, tripIds, dataSourceConfig.getName()));
+            });
+        }
+        missingPlatforms.clear();
         logger.info("Loaded " + count.get() + " stop times for " + sourceName);
         return addedServices;
     }
@@ -478,6 +490,7 @@ public class TransportDataFromFiles implements TransportDataFactory {
                 if (bounds.contained(position)) {
                     preLoadStation(allStations, stopData, position, factory);
                 } else {
+                    // Don't know which transport modes the station serves at this stage, so no way to filter further
                     logger.info("Excluding stop outside of bounds" + stopData);
                 }
             } else {
