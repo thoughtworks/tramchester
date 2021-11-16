@@ -119,7 +119,7 @@ public class ServiceCalendar {
     }
 
     public boolean operatesNoDays() {
-        return days.isEmpty();
+        return days.isEmpty() && additional.isEmpty();
     }
 
     @Override

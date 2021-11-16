@@ -13,6 +13,7 @@ import com.tramchester.geo.MarginInMeters;
 import com.tramchester.geo.StationLocations;
 import com.tramchester.integration.testSupport.tram.TramWithPostcodesEnabled;
 import com.tramchester.testSupport.TestEnv;
+import com.tramchester.testSupport.testTags.PostcodeTestCategory;
 import org.junit.jupiter.api.*;
 
 import java.util.HashSet;
@@ -60,6 +61,7 @@ class PostcodeDataImporterTest {
         loadedPostcodes.clear();
     }
 
+    @PostcodeTestCategory
     @Test
     void shouldLoadLocalPostcodesFromFilesInLocation() {
 
@@ -78,6 +80,7 @@ class PostcodeDataImporterTest {
         assertTrue(postcodes.contains("WA144UR"));
     }
 
+    @PostcodeTestCategory
     @Test
     void shouldMatchStationsBounds() {
 
@@ -105,6 +108,7 @@ class PostcodeDataImporterTest {
 
     }
 
+    @PostcodeTestCategory
     @Test
     void shouldOnlyAddPostcodesWithDistanceOfStation() {
         Set<PostcodeData> postcodesOutsideRangeOfAStation = loadedPostcodes.stream().

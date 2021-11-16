@@ -15,7 +15,7 @@ public interface Route extends HasId<Route>, HasTransportMode, GraphProperty {
 
     Set<Service> getServices();
 
-    MutableAgency getAgency();
+    Agency getAgency();
 
     String getShortName();
 

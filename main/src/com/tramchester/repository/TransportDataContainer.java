@@ -209,8 +209,9 @@ public class TransportDataContainer implements TransportData, WriteableTransport
 
     @Override
     public MutableService getServiceById(IdFor<Service> serviceId) {
+        // logging into callers
         if (!services.hasId(serviceId)) {
-            logger.warn("No such service " + serviceId);
+            logger.debug("No such service " + serviceId);
         }
         return services.get(serviceId);
     }

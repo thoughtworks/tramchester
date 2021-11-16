@@ -76,7 +76,7 @@ public class TramTransportDataForTestFactory implements TransportDataFactory {
     }
 
     private void populateTestData(TransportDataContainer container) {
-        MutableAgency agency = TestEnv.MetAgency();
+        MutableAgency agency =  new MutableAgency(DataSourceID.tfgm, MutableAgency.METL, "Metrolink");
 
         MutableRoute routeA = createTramRoute(CornbrookTheTraffordCentre);
         MutableRoute routeB = createTramRoute(RochdaleShawandCromptonManchesterEastDidisbury);

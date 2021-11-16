@@ -18,15 +18,16 @@ class RouteTest {
                 TransportMode.Tram);
         Assertions.assertTrue(TransportMode.isTram(route));
 
+        final Agency agency = MutableAgency.build(DataSourceID.tfgm, createId("GMS"), "agencyName");
         route = MutableRoute.getRoute(createId("idB"),"code","name",
-                new MutableAgency(DataSourceID.tfgm, createId("GMS"), "agencyName"),
-                TransportMode.Bus);
+                agency, TransportMode.Bus);
         Assertions.assertFalse(TransportMode.isTram(route));
     }
 
     @Test
     void shouldAddService() {
-        MutableRoute route = new MutableRoute(createId("routeId"),"code","name", TestEnv.MetAgency(), TransportMode.Tram);
+        MutableRoute route = new MutableRoute(createId("routeId"),"code","name", TestEnv.MetAgency(),
+                TransportMode.Tram);
 
         route.addService(MutableService.build(createId("serviceId")));
         route.addService(MutableService.build(createId("serviceId")));

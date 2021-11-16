@@ -12,6 +12,7 @@ import com.tramchester.geo.*;
 import com.tramchester.integration.testSupport.tram.TramWithPostcodesEnabled;
 import com.tramchester.repository.postcodes.PostcodeRepository;
 import com.tramchester.testSupport.TestEnv;
+import com.tramchester.testSupport.testTags.PostcodeTestCategory;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
@@ -67,6 +68,7 @@ public class PostcodeBoundBoxRealDataTest {
         assertTrue(hintsFile.toFile().exists());
     }
 
+    @PostcodeTestCategory
     @Test
     void shouldCalcCorrectBoundsFromData() {
 
@@ -88,6 +90,7 @@ public class PostcodeBoundBoxRealDataTest {
         assertEquals(maxNorthing, boundsFor.getMaxNorthings());
     }
 
+    @PostcodeTestCategory
     @Test
     void shouldHaveExpectedOverlaps() {
         Set<PostcodeData> centralManchester = getPostcodeData(centralManchesterPostcodes);
@@ -104,6 +107,7 @@ public class PostcodeBoundBoxRealDataTest {
         assertEquals(validGrids.size(), matched);
     }
 
+    @PostcodeTestCategory
     @Test
     void shouldMatchStationLocationBounds() {
         StationLocations stationLocations = componentContainer.get(StationLocations.class);
@@ -117,6 +121,7 @@ public class PostcodeBoundBoxRealDataTest {
 
     }
 
+    @PostcodeTestCategory
     @Test
     void shouldGetCodeForLocation() {
         // NOTE: these are bounding boxs which cover significantly more area than the postcodes themselves,

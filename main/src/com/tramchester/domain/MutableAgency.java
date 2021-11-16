@@ -13,7 +13,7 @@ public class MutableAgency implements Agency {
     private final String agencyName;
     private final DataSourceID dataSourceID;
 
-    public static final MutableAgency Walking;
+    public static final Agency Walking;
     public static final IdFor<Agency> METL;
 
     static {
@@ -26,6 +26,11 @@ public class MutableAgency implements Agency {
         this.agencyId =  agencyId;
         this.agencyName = agencyName;
         routes = new HashSet<>();
+    }
+
+    // test support
+    public static Agency build(DataSourceID dataSourceID, IdFor<Agency> agencyId, String agencyName) {
+        return new MutableAgency(dataSourceID, agencyId, agencyName);
     }
 
     public void addRoute(Route route) {

@@ -11,7 +11,6 @@ import com.tramchester.dataimport.data.StopTimeData;
 import com.tramchester.domain.*;
 import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.id.IdFor;
-import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.input.PlatformStopCall;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.presentation.LatLong;
@@ -40,6 +39,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 
+import static com.tramchester.domain.id.StringIdFor.createId;
 import static java.lang.String.format;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -79,14 +79,13 @@ public class TestEnv {
     public static final DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH:mm:00");
     public static final String BRISTOL_BUSSTOP_OCTOCODE = "0100053338";
 
-    private static final MutableAgency MET = new MutableAgency(DataSourceID.tfgm, MutableAgency.METL, "Metrolink");
-    public static final Agency ArrivaTrainsWales = new MutableAgency(DataSourceID.gbRail,
-            StringIdFor.createId("AW"), "Arriva Trains Wales");
-
-    public static final MutableAgency StagecoachManchester = new MutableAgency(DataSourceID.tfgm,
-            StringIdFor.createId("SCMN"), "Stagecoach Manchester");
-    public static final MutableAgency WarringtonsOwnBuses = new MutableAgency(DataSourceID.tfgm,
-            StringIdFor.createId("WBTR"), "Warrington's Own Buses");
+    private static final Agency MET = MutableAgency.build(DataSourceID.tfgm, MutableAgency.METL, "Metrolink");
+    public static final Agency ArrivaTrainsWales = MutableAgency.build(DataSourceID.gbRail, createId("AW"),
+            "Arriva Trains Wales");
+    public static final Agency StagecoachManchester = MutableAgency.build(DataSourceID.tfgm, createId("SCMN"),
+            "Stagecoach Manchester");
+    public static final Agency WarringtonsOwnBuses = MutableAgency.build(DataSourceID.tfgm, createId("WBTR"),
+            "Warrington's Own Buses");
 
     public static final String BACKUP_TIMETABLE_URL = "https://tramchester2dist.s3.eu-west-1.amazonaws.com/1981/tfgm_data.zip";
     public static final String TFGM_TIMETABLE_URL = "http://odata.tfgm.com/opendata/downloads/TfGMgtfsnew.zip";
@@ -168,14 +167,14 @@ public class TestEnv {
     }
 
     public static Route getTramTestRoute() {
-        return getTramTestRoute(StringIdFor.createId("RouteId"), "routeName");
+        return getTramTestRoute(createId("RouteId"), "routeName");
     }
 
     public static Route getTramTestRoute(IdFor<Route> routeId, String routeName) {
         return MutableRoute.getRoute(routeId, "routeCode", routeName, TestEnv.MetAgency(), TransportMode.Tram);
     }
 
-    public static MutableAgency MetAgency() {
+    public static Agency MetAgency() {
         return MET;
     }
 

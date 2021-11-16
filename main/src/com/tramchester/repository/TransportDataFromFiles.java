@@ -164,8 +164,12 @@ public class TransportDataFromFiles implements TransportDataFactory {
                 missingCalendar.remove(serviceId);
                 ServiceCalendar serviceCalendar = factory.createServiceCalendar(calendarData);
                 service.setCalendar(serviceCalendar);
+            } else {
+                // legit, we filter services based on the route transport mode
+                logger.debug("Unable to find service " + serviceId + " while populating Calendar");
             }
         });
+
         if (!missingCalendar.isEmpty()) {
             logger.warn("Failed to match service id " + missingCalendar + " for calendar");
         }
@@ -192,6 +196,9 @@ public class TransportDataFromFiles implements TransportDataFactory {
                     // TODO Create a one off entry? Auto populate based on all exceptions? i.e. days of week
                     logger.error("Missing calendar for service " + service.getId() + " so could not add " + date);
                 }
+            } else  {
+                // legit, we filter services based on the route transport mode
+                logger.debug("Unable to find service " + serviceId + " while populating CalendarDates");
             }
         });
         if (!missingCalendarDates.isEmpty()) {
@@ -532,6 +539,7 @@ public class TransportDataFromFiles implements TransportDataFactory {
         public void createTripIfMissing(IdFor<Trip> tripId, TripData tripData, Service service, Route route) {
             trips.getOrAdd(tripId, () -> factory.createTrip(tripData, service, route));
         }
+
     }
 
     private static class ExcludedRoutes {

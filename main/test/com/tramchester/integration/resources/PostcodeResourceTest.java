@@ -7,6 +7,7 @@ import com.tramchester.integration.testSupport.APIClient;
 import com.tramchester.integration.testSupport.IntegrationAppExtension;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.integration.testSupport.tram.TramWithPostcodesEnabled;
+import com.tramchester.testSupport.testTags.PostcodeTestCategory;
 import io.dropwizard.testing.junit5.DropwizardExtensionsSupport;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -26,6 +27,7 @@ class PostcodeResourceTest {
             new TramWithPostcodesEnabled());
     private final String endPoint = "postcodes";
 
+    @PostcodeTestCategory
     @Test
     void shouldGetLoadedPostcodes() {
         Response response = APIClient.getApiResponse(appExtension, endPoint);

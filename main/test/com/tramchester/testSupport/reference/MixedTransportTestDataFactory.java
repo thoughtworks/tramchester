@@ -31,6 +31,9 @@ import java.time.LocalTime;
 import java.util.HashMap;
 import java.util.Map;
 
+import static com.tramchester.domain.reference.TransportMode.Bus;
+import static com.tramchester.testSupport.TestEnv.WarringtonsOwnBuses;
+
 @LazySingleton
 public class MixedTransportTestDataFactory implements TransportDataFactory {
     private static final Logger logger = LoggerFactory.getLogger(MixedTransportTestDataFactory.class);
@@ -61,17 +64,28 @@ public class MixedTransportTestDataFactory implements TransportDataFactory {
         return container;
     }
 
-    private static final MutableRoute FERRY_ROUTE = new MutableRoute(StringIdFor.createId("FER:42:C"), "42", "Lakes",
-            new MutableAgency(DataSourceID.gbRail, StringIdFor.createId("FER"), "ferryAgency"), TransportMode.Ferry);
+    private static final MutableRoute FERRY_ROUTE;
+
+    static {
+        final Agency agency = MutableAgency.build(DataSourceID.gbRail, StringIdFor.createId("FER"), "ferryAgency");
+        FERRY_ROUTE = new MutableRoute(StringIdFor.createId("FER:42:C"), "42", "Lakes",
+                agency, TransportMode.Ferry);
+    }
 
     private void populateTestData(TransportDataContainer container) {
-        MutableRoute routeA = BusRoutesForTesting.AIR_TO_BUXTON;
-        MutableRoute ferryRoute = FERRY_ROUTE;
-        MutableRoute routeC = BusRoutesForTesting.ALTY_TO_WARRINGTON;
+        final MutableAgency highPeakBuses = new MutableAgency(DataSourceID.tfgm, StringIdFor.createId("HGP"),
+                "High Peak Buses");
 
-        MutableAgency agencyA = routeA.getAgency();
-        MutableAgency agencyB = routeA.getAgency();
-        MutableAgency agencyC = routeA.getAgency();
+        MutableRoute routeA = new MutableRoute(StringIdFor.createId("HGP:199:I:"), "199",
+                "Manchester Airport - Stockport - Buxton Skyline", highPeakBuses, Bus);
+
+        MutableRoute ferryRoute = FERRY_ROUTE;
+        MutableRoute routeC = new MutableRoute(StringIdFor.createId("WBTR05A:I:"), "5A",
+                "Alty to Stockport", WarringtonsOwnBuses, Bus);
+
+        MutableAgency agencyA = highPeakBuses; //routeA.getAgency();
+        MutableAgency agencyB = highPeakBuses; //routeA.getAgency();
+        MutableAgency agencyC = highPeakBuses; //routeA.getAgency();
 
         agencyA.addRoute(routeA);
         agencyB.addRoute(ferryRoute);

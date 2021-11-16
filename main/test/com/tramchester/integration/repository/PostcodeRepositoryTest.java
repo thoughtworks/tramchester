@@ -10,6 +10,7 @@ import com.tramchester.geo.MarginInMeters;
 import com.tramchester.integration.testSupport.tram.TramWithPostcodesEnabled;
 import com.tramchester.repository.postcodes.PostcodeRepository;
 import com.tramchester.testSupport.TestEnv;
+import com.tramchester.testSupport.testTags.PostcodeTestCategory;
 import org.junit.jupiter.api.*;
 
 import java.util.Set;
@@ -39,11 +40,13 @@ class PostcodeRepositoryTest {
         repository = componentContainer.get(PostcodeRepository.class);
     }
 
+    @PostcodeTestCategory
     @Test
     void shouldHaveSomePostcodes() {
         assertFalse(repository.getPostcodes().isEmpty());
     }
 
+    @PostcodeTestCategory
     @Test
     void shouldLoadPostcodes() {
 
@@ -57,6 +60,7 @@ class PostcodeRepositoryTest {
         Assertions.assertEquals(expected.getLon(), position.getLon(), 0.01);
     }
 
+    @PostcodeTestCategory
     @Test
     void shouldHavePostcodesNear() {
         GridPosition place = TestEnv.nearPiccGardensGrid;
