@@ -13,7 +13,7 @@ import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TestStation;
 import org.junit.jupiter.api.Test;
 
-import static com.tramchester.domain.Agency.Walking;
+import static com.tramchester.domain.MutableAgency.Walking;
 import static com.tramchester.domain.reference.TransportMode.Train;
 import static com.tramchester.domain.reference.TransportMode.Tram;
 import static org.junit.jupiter.api.Assertions.assertEquals;

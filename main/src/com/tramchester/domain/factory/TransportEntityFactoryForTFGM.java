@@ -36,7 +36,7 @@ public class TransportEntityFactoryForTFGM extends TransportEntityFactory {
     }
 
     @Override
-    public MutableRoute createRoute(GTFSTransportationType routeType, RouteData routeData, Agency agency) {
+    public MutableRoute createRoute(GTFSTransportationType routeType, RouteData routeData, MutableAgency agency) {
 
         IdFor<Route> routeId = createRouteId(routeData.getId());
         String routeName = routeData.getLongName();
@@ -137,9 +137,9 @@ public class TransportEntityFactoryForTFGM extends TransportEntityFactory {
     }
 
     @Override
-    public GTFSTransportationType getRouteType(RouteData routeData, IdFor<ReadonlyAgency> agencyId) {
+    public GTFSTransportationType getRouteType(RouteData routeData, IdFor<Agency> agencyId) {
         GTFSTransportationType routeType = routeData.getRouteType();
-        boolean isMetrolink = ReadonlyAgency.IsMetrolink(agencyId);
+        boolean isMetrolink = Agency.IsMetrolink(agencyId);
 
         // NOTE: this data issue has been reported to TFGM
         if (isMetrolink && routeType!=GTFSTransportationType.tram) {

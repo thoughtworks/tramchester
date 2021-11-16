@@ -1,6 +1,6 @@
 package com.tramchester.graph.filters;
 
-import com.tramchester.domain.ReadonlyAgency;
+import com.tramchester.domain.Agency;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.input.StopCall;
@@ -12,8 +12,8 @@ import java.util.Set;
 public interface GraphFilter {
     boolean isFiltered();
 
-    boolean shouldIncludeAgency(ReadonlyAgency agency);
-    boolean shouldIncludeAgency(IdFor<ReadonlyAgency> agencyId);
+    boolean shouldIncludeAgency(Agency agency);
+    boolean shouldIncludeAgency(IdFor<Agency> agencyId);
 
     boolean shouldIncludeRoute(Route route);
     boolean shouldIncludeRoute(IdFor<Route> route);

@@ -103,7 +103,7 @@ public class TransportDataFromFiles implements TransportDataFactory {
 
         PreloadedStations allStations = preLoadStations(dataSource.stops, entityFactory);
 
-        CompositeIdMap<ReadonlyAgency, Agency> allAgencies = preloadAgencys(sourceName, dataSource.agencies, entityFactory);
+        CompositeIdMap<Agency, MutableAgency> allAgencies = preloadAgencys(sourceName, dataSource.agencies, entityFactory);
         ExcludedRoutes excludedRoutes = populateRoutes(buildable, dataSource.routes, allAgencies,
                 sourceConfig, entityFactory);
         logger.info("Excluding " + excludedRoutes.numOfExcluded() + " routes ");
@@ -390,17 +390,17 @@ public class TransportDataFromFiles implements TransportDataFactory {
         return results;
     }
 
-    private CompositeIdMap<ReadonlyAgency, Agency> preloadAgencys(DataSourceID dataSourceID, Stream<AgencyData> agencyDataStream,
-                                                 TransportEntityFactory factory) {
+    private CompositeIdMap<Agency, MutableAgency> preloadAgencys(DataSourceID dataSourceID, Stream<AgencyData> agencyDataStream,
+                                                                 TransportEntityFactory factory) {
         logger.info("Loading all agencies for " + dataSourceID);
-        CompositeIdMap<ReadonlyAgency, Agency> agencies = new CompositeIdMap<>();
+        CompositeIdMap<Agency, MutableAgency> agencies = new CompositeIdMap<>();
         agencyDataStream.forEach(agencyData -> agencies.add(factory.createAgency(dataSourceID, agencyData)));
         logger.info("Loaded " + agencies.size() + " agencies for " + dataSourceID);
         return agencies;
     }
 
     private ExcludedRoutes populateRoutes(WriteableTransportData buildable, Stream<RouteData> routeDataStream,
-                                          CompositeIdMap<ReadonlyAgency, Agency> allAgencies, GTFSSourceConfig sourceConfig,
+                                          CompositeIdMap<Agency, MutableAgency> allAgencies, GTFSSourceConfig sourceConfig,
                                           TransportEntityFactory factory) {
         Set<GTFSTransportationType> transportModes = sourceConfig.getTransportGTFSModes();
         AtomicInteger count = new AtomicInteger();
@@ -409,7 +409,7 @@ public class TransportDataFromFiles implements TransportDataFactory {
 
         logger.info("Loading routes for transport modes " + transportModes.toString());
         routeDataStream.forEach(routeData -> {
-            IdFor<ReadonlyAgency> agencyId = routeData.getAgencyId();
+            IdFor<Agency> agencyId = routeData.getAgencyId();
             boolean missingAgency = !allAgencies.hasId(agencyId);
             if (missingAgency) {
                 logger.error("Missing agency " + agencyId);
@@ -419,7 +419,7 @@ public class TransportDataFromFiles implements TransportDataFactory {
 
             if (transportModes.contains(routeType)) {
                 DataSourceID dataSourceID = sourceConfig.getDataSourceId();
-                Agency agency = missingAgency ? createMissingAgency(dataSourceID, allAgencies, agencyId, factory)
+                MutableAgency agency = missingAgency ? createMissingAgency(dataSourceID, allAgencies, agencyId, factory)
                         : allAgencies.get(agencyId);
 
                 MutableRoute route = factory.createRoute(routeType, routeData, agency);
@@ -450,9 +450,9 @@ public class TransportDataFromFiles implements TransportDataFactory {
                 excludedRoutes.getExcluded());
     }
 
-    private Agency createMissingAgency(DataSourceID dataSourceID, CompositeIdMap<ReadonlyAgency, Agency> allAgencies, IdFor<ReadonlyAgency> agencyId,
-                                       TransportEntityFactory factory) {
-        Agency unknown = factory.createUnknownAgency(dataSourceID, agencyId);
+    private MutableAgency createMissingAgency(DataSourceID dataSourceID, CompositeIdMap<Agency, MutableAgency> allAgencies, IdFor<Agency> agencyId,
+                                              TransportEntityFactory factory) {
+        MutableAgency unknown = factory.createUnknownAgency(dataSourceID, agencyId);
         logger.error("Created agency" + unknown + " for " + dataSourceID);
         allAgencies.add(unknown);
         return unknown;

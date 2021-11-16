@@ -41,7 +41,7 @@ public interface Station extends Location<Station> {
 
     Set<Route> getRoutes();
 
-    Set<ReadonlyAgency> getAgencies();
+    Set<Agency> getAgencies();
 
     @Override
     Set<Platform> getPlatforms();

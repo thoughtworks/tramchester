@@ -102,7 +102,7 @@ class TransportDataFromFilesBusTest {
 
     @Test
     void shouldGetAgencies() {
-        Set<ReadonlyAgency> agencies = transportData.getAgencies();
+        Set<Agency> agencies = transportData.getAgencies();
         assertTrue(agencies.contains(StagecoachManchester));
     }
 
@@ -121,7 +121,7 @@ class TransportDataFromFilesBusTest {
 
     @Test
     void shouldHaveExpectedEndOfLinesAndRoutes() {
-        IdFor<ReadonlyAgency> agencyId = StringIdFor.createId("ROST");
+        IdFor<Agency> agencyId = StringIdFor.createId("ROST");
 
         Set<Route> inbounds = transportData.findRoutesByName(agencyId, "Rochdale - Bacup - Rawtenstall - Accrington");
         assertFalse(inbounds.isEmpty());

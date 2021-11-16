@@ -1,18 +1,12 @@
 package com.tramchester.testSupport.reference;
 
 
-import com.tramchester.domain.Agency;
+import com.tramchester.domain.MutableAgency;
 import com.tramchester.domain.DataSourceID;
 import com.tramchester.domain.MutableRoute;
-import com.tramchester.domain.Route;
-import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.StringIdFor;
-import com.tramchester.repository.RouteRepository;
-
-import java.util.Set;
 
 import static com.tramchester.domain.reference.TransportMode.Bus;
-import static com.tramchester.testSupport.TestEnv.StagecoachManchester;
 import static com.tramchester.testSupport.TestEnv.WarringtonsOwnBuses;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 
@@ -27,7 +21,7 @@ public class BusRoutesForTesting {
             "Alty to Stockport", WarringtonsOwnBuses, Bus);
 
     @Deprecated
-    public static final Agency HIGH_PEAK_BUSES = new Agency(DataSourceID.tfgm, StringIdFor.createId("HGP"),
+    public static final MutableAgency HIGH_PEAK_BUSES = new MutableAgency(DataSourceID.tfgm, StringIdFor.createId("HGP"),
             "High Peak Buses");
 
     @Deprecated

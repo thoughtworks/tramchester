@@ -1,6 +1,6 @@
 package com.tramchester.graph.filters;
 
-import com.tramchester.domain.ReadonlyAgency;
+import com.tramchester.domain.Agency;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.Service;
 import com.tramchester.domain.id.IdFor;
@@ -15,7 +15,7 @@ public class ActiveGraphFilter implements GraphFilter, ConfigurableGraphFilter {
     private final IdSet<Route> routeIds;
     private final IdSet<Service> serviceIds;
     private final IdSet<Station> stationsIds;
-    private final IdSet<ReadonlyAgency> agencyIds;
+    private final IdSet<Agency> agencyIds;
 
     public ActiveGraphFilter() {
         routeIds = new IdSet<>();
@@ -44,7 +44,7 @@ public class ActiveGraphFilter implements GraphFilter, ConfigurableGraphFilter {
     }
 
     @Override
-    public void addAgency(IdFor<ReadonlyAgency> agencyId) {
+    public void addAgency(IdFor<Agency> agencyId) {
         agencyIds.add(agencyId);
     }
 
@@ -101,12 +101,12 @@ public class ActiveGraphFilter implements GraphFilter, ConfigurableGraphFilter {
     }
 
     @Override
-    public boolean shouldIncludeAgency(ReadonlyAgency agency) {
+    public boolean shouldIncludeAgency(Agency agency) {
         return shouldIncludeAgency(agency.getId());
     }
 
     @Override
-    public boolean shouldIncludeAgency(IdFor<ReadonlyAgency> agencyId) {
+    public boolean shouldIncludeAgency(IdFor<Agency> agencyId) {
         if (agencyIds.isEmpty()) {
             return true;
         }

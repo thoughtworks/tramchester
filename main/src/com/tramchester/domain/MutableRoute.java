@@ -15,18 +15,18 @@ public class MutableRoute implements Route {
     private final IdFor<Route> id;
     private final String shortName;
     private final String name;
-    private final Agency agency;
+    private final MutableAgency agency;
     private final TransportMode transportMode;
     private final Set<Service> services;
     private final Set<Trip> trips;
 
     public static final Route Walking;
     static {
-            Walking = new MutableRoute(StringIdFor.createId("Walk"), "Walk", "Walk", Agency.Walking,
+            Walking = new MutableRoute(StringIdFor.createId("Walk"), "Walk", "Walk", MutableAgency.Walking,
                     TransportMode.Walk);
     }
 
-    public MutableRoute(IdFor<Route> id, String shortName, String name, Agency agency, TransportMode transportMode) {
+    public MutableRoute(IdFor<Route> id, String shortName, String name, MutableAgency agency, TransportMode transportMode) {
         this.id = id;
         this.shortName = shortName.intern();
         this.name = name.intern();
@@ -38,7 +38,7 @@ public class MutableRoute implements Route {
     }
 
     // test support
-    public static Route getRoute(IdFor<Route> id, String shortName, String name, Agency agency, TransportMode transportMode) {
+    public static Route getRoute(IdFor<Route> id, String shortName, String name, MutableAgency agency, TransportMode transportMode) {
         return new MutableRoute(id, shortName, name, agency, transportMode);
     }
 
@@ -66,7 +66,7 @@ public class MutableRoute implements Route {
     }
 
     @Override
-    public Agency getAgency() {
+    public MutableAgency getAgency() {
         return agency;
     }
 

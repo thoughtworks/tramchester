@@ -33,7 +33,7 @@ public class RouteStation implements HasId<RouteStation>, GraphProperty, Locatio
         return id;
     }
 
-    public ReadonlyAgency getAgency() {
+    public Agency getAgency() {
         return route.getAgency();
     }
 

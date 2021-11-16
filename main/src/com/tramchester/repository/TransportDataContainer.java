@@ -33,7 +33,7 @@ public class TransportDataContainer implements TransportData, WriteableTransport
     private final CompositeIdMap<Route, MutableRoute> routes = new CompositeIdMap<>();      // route id -> route
     private final IdMap<Platform> platforms = new IdMap<>(); // platformId -> platform
     private final IdMap<RouteStation> routeStations = new IdMap<>(); // routeStationId - > RouteStation
-    private final IdMap<ReadonlyAgency> agencies = new IdMap<>(); // agencyId -> agencies
+    private final IdMap<Agency> agencies = new IdMap<>(); // agencyId -> agencies
 
     private final Set<DataSourceInfo> dataSourceInfos = new HashSet<>();
 
@@ -203,7 +203,7 @@ public class TransportDataContainer implements TransportData, WriteableTransport
     }
 
     @Override
-    public Set<ReadonlyAgency> getAgencies() {
+    public Set<Agency> getAgencies() {
         return Collections.unmodifiableSet(agencies.getValues());
     }
 
@@ -265,12 +265,12 @@ public class TransportDataContainer implements TransportData, WriteableTransport
     }
 
     @Override
-    public void addAgency(ReadonlyAgency agency) {
+    public void addAgency(Agency agency) {
         agencies.add(agency);
     }
 
     @Override
-    public boolean hasAgencyId(IdFor<ReadonlyAgency> agencyId) {
+    public boolean hasAgencyId(IdFor<Agency> agencyId) {
         return agencies.hasId(agencyId);
     }
 
@@ -340,7 +340,7 @@ public class TransportDataContainer implements TransportData, WriteableTransport
     }
 
     @Override
-    public Set<Route> findRoutesByShortName(IdFor<ReadonlyAgency> agencyId, String shortName) {
+    public Set<Route> findRoutesByShortName(IdFor<Agency> agencyId, String shortName) {
         return routes.getValues().stream().
                 filter(route -> route.getAgency().getId().equals(agencyId)).
                 filter(route -> route.getShortName().equals(shortName)).
@@ -348,7 +348,7 @@ public class TransportDataContainer implements TransportData, WriteableTransport
     }
 
     @Override
-    public Set<Route> findRoutesByName(IdFor<ReadonlyAgency> agencyId, String longName) {
+    public Set<Route> findRoutesByName(IdFor<Agency> agencyId, String longName) {
         return routes.getValues().stream().
                 filter(route -> route.getAgency().getId().equals(agencyId)).
                 filter(route -> route.getName().equals(longName)).

@@ -18,15 +18,15 @@ public abstract class TransportEntityFactory {
 
     public abstract DataSourceID getDataSourceId();
 
-    public Agency createAgency(DataSourceID dataSourceID, AgencyData agencyData) {
-        return new Agency(dataSourceID, agencyData.getId(), agencyData.getName());
+    public MutableAgency createAgency(DataSourceID dataSourceID, AgencyData agencyData) {
+        return new MutableAgency(dataSourceID, agencyData.getId(), agencyData.getName());
     }
 
-    public Agency createUnknownAgency(DataSourceID dataSourceID, IdFor<ReadonlyAgency> agencyId) {
-        return new Agency(dataSourceID, agencyId, "UNKNOWN");
+    public MutableAgency createUnknownAgency(DataSourceID dataSourceID, IdFor<Agency> agencyId) {
+        return new MutableAgency(dataSourceID, agencyId, "UNKNOWN");
     }
 
-    public MutableRoute createRoute(GTFSTransportationType routeType, RouteData routeData, Agency agency) {
+    public MutableRoute createRoute(GTFSTransportationType routeType, RouteData routeData, MutableAgency agency) {
 
         IdFor<Route> routeId = routeData.getId();
 
@@ -66,7 +66,7 @@ public abstract class TransportEntityFactory {
         return new ServiceCalendar(calendarData);
     }
 
-    public GTFSTransportationType getRouteType(RouteData routeData, IdFor<ReadonlyAgency> agencyId) {
+    public GTFSTransportationType getRouteType(RouteData routeData, IdFor<Agency> agencyId) {
         return routeData.getRouteType();
     }
 

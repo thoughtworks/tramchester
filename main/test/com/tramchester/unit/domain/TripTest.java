@@ -101,7 +101,7 @@ class TripTest {
         Trip tripA = MutableTrip.build(createId("tripId"), "headSign", service, TestEnv.getTramTestRoute());
         assertTrue(TransportMode.isTram(tripA));
         Route busRoute = MutableRoute.getRoute(createId("busRouteId"), "busRouteCode", "busRouteName",
-                new Agency(DataSourceID.tfgm, createId("BUS"), "agencyName"),
+                new MutableAgency(DataSourceID.tfgm, createId("BUS"), "agencyName"),
                 TransportMode.Bus);
         Trip tripB = MutableTrip.build(createId("tripId"), "headSign", service, busRoute);
         assertFalse(TransportMode.isTram(tripB));

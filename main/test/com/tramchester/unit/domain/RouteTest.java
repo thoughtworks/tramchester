@@ -19,7 +19,7 @@ class RouteTest {
         Assertions.assertTrue(TransportMode.isTram(route));
 
         route = MutableRoute.getRoute(createId("idB"),"code","name",
-                new Agency(DataSourceID.tfgm, createId("GMS"), "agencyName"),
+                new MutableAgency(DataSourceID.tfgm, createId("GMS"), "agencyName"),
                 TransportMode.Bus);
         Assertions.assertFalse(TransportMode.isTram(route));
     }

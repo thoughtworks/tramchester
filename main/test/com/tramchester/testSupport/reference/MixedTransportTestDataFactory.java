@@ -62,16 +62,16 @@ public class MixedTransportTestDataFactory implements TransportDataFactory {
     }
 
     private static final MutableRoute FERRY_ROUTE = new MutableRoute(StringIdFor.createId("FER:42:C"), "42", "Lakes",
-            new Agency(DataSourceID.gbRail, StringIdFor.createId("FER"), "ferryAgency"), TransportMode.Ferry);
+            new MutableAgency(DataSourceID.gbRail, StringIdFor.createId("FER"), "ferryAgency"), TransportMode.Ferry);
 
     private void populateTestData(TransportDataContainer container) {
         MutableRoute routeA = BusRoutesForTesting.AIR_TO_BUXTON;
         MutableRoute ferryRoute = FERRY_ROUTE;
         MutableRoute routeC = BusRoutesForTesting.ALTY_TO_WARRINGTON;
 
-        Agency agencyA = routeA.getAgency();
-        Agency agencyB = routeA.getAgency();
-        Agency agencyC = routeA.getAgency();
+        MutableAgency agencyA = routeA.getAgency();
+        MutableAgency agencyB = routeA.getAgency();
+        MutableAgency agencyC = routeA.getAgency();
 
         agencyA.addRoute(routeA);
         agencyB.addRoute(ferryRoute);

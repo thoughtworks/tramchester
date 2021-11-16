@@ -96,7 +96,7 @@ public class TransportDataFromFilesTramTest {
 
     @Test
     void shouldGetAgenciesWithNames() {
-        List<ReadonlyAgency> agencies = new ArrayList<>(transportData.getAgencies());
+        List<Agency> agencies = new ArrayList<>(transportData.getAgencies());
         assertEquals(1, agencies.size()); // just MET for trams
         assertEquals("METL", agencies.get(0).getId().forDTO());
         assertEquals("Metrolink", agencies.get(0).getName());
@@ -474,7 +474,7 @@ public class TransportDataFromFilesTramTest {
     void shouldReproIssueAtMediaCityWithBranchAtCornbrook() {
           Set<Trip> allTrips = getTripsFor(transportData.getTrips(), Cornbrook);
 
-        Set<Route> routes = transportData.findRoutesByShortName(Agency.METL, AshtonUnderLyneManchesterEccles.shortName());
+        Set<Route> routes = transportData.findRoutesByShortName(MutableAgency.METL, AshtonUnderLyneManchesterEccles.shortName());
 
         assertFalse(routes.isEmpty());
 

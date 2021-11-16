@@ -79,13 +79,13 @@ public class TestEnv {
     public static final DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH:mm:00");
     public static final String BRISTOL_BUSSTOP_OCTOCODE = "0100053338";
 
-    private static final Agency MET = new Agency(DataSourceID.tfgm, Agency.METL, "Metrolink");
-    public static final ReadonlyAgency ArrivaTrainsWales = new Agency(DataSourceID.gbRail,
+    private static final MutableAgency MET = new MutableAgency(DataSourceID.tfgm, MutableAgency.METL, "Metrolink");
+    public static final Agency ArrivaTrainsWales = new MutableAgency(DataSourceID.gbRail,
             StringIdFor.createId("AW"), "Arriva Trains Wales");
 
-    public static final Agency StagecoachManchester = new Agency(DataSourceID.tfgm,
+    public static final MutableAgency StagecoachManchester = new MutableAgency(DataSourceID.tfgm,
             StringIdFor.createId("SCMN"), "Stagecoach Manchester");
-    public static final Agency WarringtonsOwnBuses = new Agency(DataSourceID.tfgm,
+    public static final MutableAgency WarringtonsOwnBuses = new MutableAgency(DataSourceID.tfgm,
             StringIdFor.createId("WBTR"), "Warrington's Own Buses");
 
     public static final String BACKUP_TIMETABLE_URL = "https://tramchester2dist.s3.eu-west-1.amazonaws.com/1981/tfgm_data.zip";
@@ -175,7 +175,7 @@ public class TestEnv {
         return MutableRoute.getRoute(routeId, "routeCode", routeName, TestEnv.MetAgency(), TransportMode.Tram);
     }
 
-    public static Agency MetAgency() {
+    public static MutableAgency MetAgency() {
         return MET;
     }
 
@@ -279,7 +279,7 @@ public class TestEnv {
         return routes;
     }
 
-    public static Route singleRoute(RouteRepository routeRepository, IdFor<ReadonlyAgency> agencyId, String shortName) {
+    public static Route singleRoute(RouteRepository routeRepository, IdFor<Agency> agencyId, String shortName) {
         Set<Route> routes = routeRepository.findRoutesByShortName(agencyId, shortName);
         assertEquals(1, routes.size(), format("expected to find only one route for %s and %s", agencyId, shortName));
         return routes.iterator().next();

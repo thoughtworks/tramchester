@@ -73,7 +73,7 @@ public class TransportDataFromFilesTrainTest {
 
     @Test
     void shouldGetAgencies() {
-        List<ReadonlyAgency> agencies = new ArrayList<>(transportData.getAgencies());
+        List<Agency> agencies = new ArrayList<>(transportData.getAgencies());
         assertEquals(GB_RAIL_AGENCIES, agencies.size());
         assertTrue(agencies.contains(ArrivaTrainsWales));
     }

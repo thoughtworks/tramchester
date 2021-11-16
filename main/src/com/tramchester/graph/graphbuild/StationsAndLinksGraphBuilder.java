@@ -92,7 +92,7 @@ public class StationsAndLinksGraphBuilder extends GraphBuilder {
                 timedTransaction.commit();
             }
 
-            for(ReadonlyAgency agency : transportData.getAgencies()) {
+            for(Agency agency : transportData.getAgencies()) {
                 if (graphFilter.shouldIncludeAgency(agency)) {
                     addRouteStationsAndLinksFor(agency, builderCache);
                 }
@@ -107,7 +107,7 @@ public class StationsAndLinksGraphBuilder extends GraphBuilder {
         logMemory("After graph build");
     }
 
-    private void addRouteStationsAndLinksFor(ReadonlyAgency agency, GraphBuilderCache builderCache) {
+    private void addRouteStationsAndLinksFor(Agency agency, GraphBuilderCache builderCache) {
 
         Set<Route> routes = agency.getRoutes().stream().filter(graphFilter::shouldIncludeRoute).collect(Collectors.toSet());
         if (routes.isEmpty()) {

@@ -1,7 +1,7 @@
 package com.tramchester.dataimport.data;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.tramchester.domain.ReadonlyAgency;
+import com.tramchester.domain.Agency;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.reference.GTFSTransportationType;
@@ -43,7 +43,7 @@ public class RouteData {
         return longName;
     }
 
-    public IdFor<ReadonlyAgency> getAgencyId() {
+    public IdFor<Agency> getAgencyId() {
         return StringIdFor.createId(agencyid);
     }
 

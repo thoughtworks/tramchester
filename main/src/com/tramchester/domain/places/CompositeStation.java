@@ -113,7 +113,7 @@ public class CompositeStation extends MutableStation {
     }
 
     @Override
-    public Set<ReadonlyAgency> getAgencies() {
+    public Set<Agency> getAgencies() {
         return flatten(Station::getAgencies);
     }
 

@@ -2,7 +2,7 @@ package com.tramchester.testSupport;
 
 import com.tramchester.App;
 import com.tramchester.ComponentContainer;
-import com.tramchester.domain.Agency;
+import com.tramchester.domain.MutableAgency;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.integration.testSupport.IntegrationAppExtension;
@@ -43,7 +43,7 @@ public class TramRouteHelper {
         KnownTramRoute[] knownTramRoutes = KnownTramRoute.values();
         for (KnownTramRoute knownRoute : knownTramRoutes) {
             final Set<Route> routesByShortName =
-                    routeRepository.findRoutesByShortName(Agency.METL, knownRoute.shortName()).
+                    routeRepository.findRoutesByShortName(MutableAgency.METL, knownRoute.shortName()).
                             stream().filter(found -> found.getId().forDTO().contains(knownRoute.direction().getSuffix())).
                             collect(Collectors.toSet());
             if (routesByShortName.isEmpty()) {

@@ -22,7 +22,7 @@ public class MutableStation implements Station {
     private final GridPosition gridPosition;
     private final Set<Platform> platforms;
     private final Set<Route> servesRoutes;
-    private final Set<ReadonlyAgency> servesAgencies;
+    private final Set<Agency> servesAgencies;
     private final DataSourceID dataSourceID;
 
     public MutableStation(IdFor<Station> id, String area, String stationName, LatLong latLong, GridPosition gridPosition,
@@ -100,7 +100,7 @@ public class MutableStation implements Station {
     }
 
     @Override
-    public Set<ReadonlyAgency> getAgencies() {
+    public Set<Agency> getAgencies() {
         return Collections.unmodifiableSet(servesAgencies);
     }
 

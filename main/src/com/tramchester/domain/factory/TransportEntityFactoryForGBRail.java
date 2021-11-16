@@ -29,7 +29,7 @@ public class TransportEntityFactoryForGBRail extends TransportEntityFactory {
     }
 
     @Override
-    public MutableRoute createRoute(GTFSTransportationType routeType, RouteData routeData, Agency agency) {
+    public MutableRoute createRoute(GTFSTransportationType routeType, RouteData routeData, MutableAgency agency) {
         IdFor<Route> routeId = routeData.getId();
 
         String name = routeData.getLongName();
@@ -40,7 +40,7 @@ public class TransportEntityFactoryForGBRail extends TransportEntityFactory {
     }
 
     @Override
-    public GTFSTransportationType getRouteType(RouteData routeData, IdFor<ReadonlyAgency> agencyId) {
+    public GTFSTransportationType getRouteType(RouteData routeData, IdFor<Agency> agencyId) {
         GTFSTransportationType routeType = routeData.getRouteType();
 
         if (routeType.equals(GTFSTransportationType.aerialLift) && routeData.getLongName().contains("replacement bus service")) {
@@ -60,7 +60,7 @@ public class TransportEntityFactoryForGBRail extends TransportEntityFactory {
         logger.error("Did not expect to see stop with same ID again for " + stopData);
     }
 
-    private String expandRouteNameFor(String original, IdMap<Station> allStations, ReadonlyAgency agency) {
+    private String expandRouteNameFor(String original, IdMap<Station> allStations, Agency agency) {
         //
         // many train routes names have formats:
         // "<AGENCY_ID> train service from <STATIONID> to <STATIONID>"
