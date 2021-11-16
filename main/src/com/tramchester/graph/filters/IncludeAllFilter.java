@@ -1,6 +1,6 @@
 package com.tramchester.graph.filters;
 
-import com.tramchester.domain.Agency;
+import com.tramchester.domain.ReadonlyAgency;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.input.StopCall;
@@ -52,12 +52,12 @@ public class IncludeAllFilter implements GraphFilter {
     }
 
     @Override
-    public boolean shouldIncludeAgency(Agency agency) {
+    public boolean shouldIncludeAgency(ReadonlyAgency agency) {
         return true;
     }
 
     @Override
-    public boolean shouldIncludeAgency(IdFor<Agency> agencyId) {
+    public boolean shouldIncludeAgency(IdFor<ReadonlyAgency> agencyId) {
         return true;
     }
 

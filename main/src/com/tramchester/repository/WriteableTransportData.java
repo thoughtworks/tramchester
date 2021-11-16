@@ -17,7 +17,7 @@ public interface WriteableTransportData {
 
     void addRouteStation(RouteStation routeStation);
 
-    void addAgency(Agency agency);
+    void addAgency(ReadonlyAgency agency);
 
     void addRoute(MutableRoute route);
 
@@ -35,7 +35,7 @@ public interface WriteableTransportData {
 
     ////
 
-    boolean hasAgencyId(IdFor<Agency> agencyId);
+    boolean hasAgencyId(IdFor<ReadonlyAgency> agencyId);
     boolean hasTripId(IdFor<Trip> tripId);
     boolean hasRouteId(IdFor<Route> routeId);
     boolean hasPlatformId(IdFor<Platform> id);

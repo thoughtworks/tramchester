@@ -96,7 +96,7 @@ public class TransportDataFromFilesTramTest {
 
     @Test
     void shouldGetAgenciesWithNames() {
-        List<Agency> agencies = new ArrayList<>(transportData.getAgencies());
+        List<ReadonlyAgency> agencies = new ArrayList<>(transportData.getAgencies());
         assertEquals(1, agencies.size()); // just MET for trams
         assertEquals("METL", agencies.get(0).getId().forDTO());
         assertEquals("Metrolink", agencies.get(0).getName());

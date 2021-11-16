@@ -22,7 +22,7 @@ public abstract class TransportEntityFactory {
         return new Agency(dataSourceID, agencyData.getId(), agencyData.getName());
     }
 
-    public Agency createUnknownAgency(DataSourceID dataSourceID, IdFor<Agency> agencyId) {
+    public Agency createUnknownAgency(DataSourceID dataSourceID, IdFor<ReadonlyAgency> agencyId) {
         return new Agency(dataSourceID, agencyId, "UNKNOWN");
     }
 
@@ -66,7 +66,7 @@ public abstract class TransportEntityFactory {
         return new ServiceCalendar(calendarData);
     }
 
-    public GTFSTransportationType getRouteType(RouteData routeData, IdFor<Agency> agencyId) {
+    public GTFSTransportationType getRouteType(RouteData routeData, IdFor<ReadonlyAgency> agencyId) {
         return routeData.getRouteType();
     }
 

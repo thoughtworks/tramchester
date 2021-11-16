@@ -108,7 +108,7 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
             linkStationsAndPlatforms(builderCache);
 
             // TODO Agencies could be done in parallel as should be no overlap except at station level?
-            for(Agency agency : transportData.getAgencies()) {
+            for(ReadonlyAgency agency : transportData.getAgencies()) {
                 if (graphFilter.shouldIncludeAgency(agency)) {
                     try (Timing agencyTiming = new Timing(logger,"Add agency " + agency.getId() + " " + agency.getName())) {
                         buildForAgency(graphDatabase, agency, builderCache);
@@ -154,7 +154,7 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
         }
     }
 
-    private void buildForAgency(GraphDatabase graphDatabase, Agency agency, GraphBuilderCache builderCache) {
+    private void buildForAgency(GraphDatabase graphDatabase, ReadonlyAgency agency, GraphBuilderCache builderCache) {
 
         if (getRoutesForAgency(agency).findAny().isEmpty()) {
             return;
@@ -195,7 +195,7 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
     }
 
     @NotNull
-    private Stream<Route> getRoutesForAgency(Agency agency) {
+    private Stream<Route> getRoutesForAgency(ReadonlyAgency agency) {
         return agency.getRoutes().stream().filter(graphFilter::shouldIncludeRoute);
     }
 

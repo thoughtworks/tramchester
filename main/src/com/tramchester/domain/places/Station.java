@@ -1,9 +1,6 @@
 package com.tramchester.domain.places;
 
-import com.tramchester.domain.Agency;
-import com.tramchester.domain.DataSourceID;
-import com.tramchester.domain.Platform;
-import com.tramchester.domain.Route;
+import com.tramchester.domain.*;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.reference.TransportMode;
@@ -44,7 +41,7 @@ public interface Station extends Location<Station> {
 
     Set<Route> getRoutes();
 
-    Set<Agency> getAgencies();
+    Set<ReadonlyAgency> getAgencies();
 
     @Override
     Set<Platform> getPlatforms();

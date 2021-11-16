@@ -7,35 +7,32 @@ import com.tramchester.graph.GraphPropertyKey;
 
 import java.util.*;
 
-public class Agency implements HasId<Agency>, GraphProperty {
+public class Agency implements ReadonlyAgency {
     private final Set<Route> routes;
-    private final IdFor<Agency> agencyId;
+    private final IdFor<ReadonlyAgency> agencyId;
     private final String agencyName;
     private final DataSourceID dataSourceID;
 
     public static final Agency Walking;
-
-    public static final IdFor<Agency> METL = StringIdFor.createId("METL");
+    public static final IdFor<ReadonlyAgency> METL;
 
     static {
         Walking = new Agency(DataSourceID.internal, StringIdFor.createId("Walking"), "Walking");
+        METL = StringIdFor.createId("METL");
     }
 
-    public Agency(DataSourceID dataSourceID, IdFor<Agency> agencyId, String agencyName) {
+    public Agency(DataSourceID dataSourceID, IdFor<ReadonlyAgency> agencyId, String agencyName) {
         this.dataSourceID = dataSourceID;
         this.agencyId =  agencyId;
         this.agencyName = agencyName;
         routes = new HashSet<>();
     }
 
-    public static boolean IsMetrolink(IdFor<Agency> agencyId) {
-        return METL.equals(agencyId);
-    }
-
     public void addRoute(Route route) {
         routes.add(route);
     }
 
+    @Override
     public Collection<Route> getRoutes() {
         return routes;
     }
@@ -63,10 +60,12 @@ public class Agency implements HasId<Agency>, GraphProperty {
         return Objects.hash(agencyId);
     }
 
-    public IdFor<Agency> getId() {
+    @Override
+    public IdFor<ReadonlyAgency> getId() {
         return agencyId;
     }
 
+    @Override
     public String getName() {
         return agencyName;
     }

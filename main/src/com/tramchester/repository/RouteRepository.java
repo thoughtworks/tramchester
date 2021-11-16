@@ -1,7 +1,7 @@
 package com.tramchester.repository;
 
 import com.google.inject.ImplementedBy;
-import com.tramchester.domain.Agency;
+import com.tramchester.domain.ReadonlyAgency;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.id.IdFor;
 
@@ -13,7 +13,7 @@ public interface RouteRepository {
     Route getRouteById(IdFor<Route> routeId);
     int numberOfRoutes();
 
-    Set<Route> findRoutesByShortName(IdFor<Agency> agencyId, String shortName);
-    Set<Route> findRoutesByName(IdFor<Agency> agencyId, String longName);
+    Set<Route> findRoutesByShortName(IdFor<ReadonlyAgency> agencyId, String shortName);
+    Set<Route> findRoutesByName(IdFor<ReadonlyAgency> agencyId, String longName);
 
 }

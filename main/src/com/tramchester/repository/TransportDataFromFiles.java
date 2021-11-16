@@ -103,7 +103,7 @@ public class TransportDataFromFiles implements TransportDataFactory {
 
         PreloadedStations allStations = preLoadStations(dataSource.stops, entityFactory);
 
-        IdMap<Agency> allAgencies = preloadAgencys(sourceName, dataSource.agencies, entityFactory);
+        CompositeIdMap<ReadonlyAgency, Agency> allAgencies = preloadAgencys(sourceName, dataSource.agencies, entityFactory);
         ExcludedRoutes excludedRoutes = populateRoutes(buildable, dataSource.routes, allAgencies,
                 sourceConfig, entityFactory);
         logger.info("Excluding " + excludedRoutes.numOfExcluded() + " routes ");
@@ -390,17 +390,17 @@ public class TransportDataFromFiles implements TransportDataFactory {
         return results;
     }
 
-    private IdMap<Agency> preloadAgencys(DataSourceID dataSourceID, Stream<AgencyData> agencyDataStream,
-                                         TransportEntityFactory factory) {
+    private CompositeIdMap<ReadonlyAgency, Agency> preloadAgencys(DataSourceID dataSourceID, Stream<AgencyData> agencyDataStream,
+                                                 TransportEntityFactory factory) {
         logger.info("Loading all agencies for " + dataSourceID);
-        IdMap<Agency> agencies = new IdMap<>();
+        CompositeIdMap<ReadonlyAgency, Agency> agencies = new CompositeIdMap<>();
         agencyDataStream.forEach(agencyData -> agencies.add(factory.createAgency(dataSourceID, agencyData)));
         logger.info("Loaded " + agencies.size() + " agencies for " + dataSourceID);
         return agencies;
     }
 
     private ExcludedRoutes populateRoutes(WriteableTransportData buildable, Stream<RouteData> routeDataStream,
-                                          IdMap<Agency> allAgencies, GTFSSourceConfig sourceConfig,
+                                          CompositeIdMap<ReadonlyAgency, Agency> allAgencies, GTFSSourceConfig sourceConfig,
                                           TransportEntityFactory factory) {
         Set<GTFSTransportationType> transportModes = sourceConfig.getTransportGTFSModes();
         AtomicInteger count = new AtomicInteger();
@@ -409,7 +409,7 @@ public class TransportDataFromFiles implements TransportDataFactory {
 
         logger.info("Loading routes for transport modes " + transportModes.toString());
         routeDataStream.forEach(routeData -> {
-            IdFor<Agency> agencyId = routeData.getAgencyId();
+            IdFor<ReadonlyAgency> agencyId = routeData.getAgencyId();
             boolean missingAgency = !allAgencies.hasId(agencyId);
             if (missingAgency) {
                 logger.error("Missing agency " + agencyId);
@@ -450,7 +450,8 @@ public class TransportDataFromFiles implements TransportDataFactory {
                 excludedRoutes.getExcluded());
     }
 
-    private Agency createMissingAgency(DataSourceID dataSourceID, IdMap<Agency> allAgencies, IdFor<Agency> agencyId, TransportEntityFactory factory) {
+    private Agency createMissingAgency(DataSourceID dataSourceID, CompositeIdMap<ReadonlyAgency, Agency> allAgencies, IdFor<ReadonlyAgency> agencyId,
+                                       TransportEntityFactory factory) {
         Agency unknown = factory.createUnknownAgency(dataSourceID, agencyId);
         logger.error("Created agency" + unknown + " for " + dataSourceID);
         allAgencies.add(unknown);

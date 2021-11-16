@@ -63,7 +63,7 @@ class BusRouteCalculatorSubGraphAltyToMaccRoute {
         componentContainer.initialise();
 
         RouteRepository routeRepository = componentContainer.get(TransportData.class);
-        IdFor<Agency> agencyId = StringIdFor.createId("DAGC");
+        IdFor<ReadonlyAgency> agencyId = StringIdFor.createId("DAGC");
         altyToKnutsford = routeRepository.findRoutesByName(agencyId,
                 "Altrincham - Wilmslow - Knutsford - Macclesfield");
         knutsfordToAlty = routeRepository.findRoutesByName(agencyId,

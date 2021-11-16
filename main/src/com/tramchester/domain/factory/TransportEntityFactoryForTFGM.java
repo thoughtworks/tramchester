@@ -137,9 +137,9 @@ public class TransportEntityFactoryForTFGM extends TransportEntityFactory {
     }
 
     @Override
-    public GTFSTransportationType getRouteType(RouteData routeData, IdFor<Agency> agencyId) {
+    public GTFSTransportationType getRouteType(RouteData routeData, IdFor<ReadonlyAgency> agencyId) {
         GTFSTransportationType routeType = routeData.getRouteType();
-        boolean isMetrolink = Agency.IsMetrolink(agencyId);
+        boolean isMetrolink = ReadonlyAgency.IsMetrolink(agencyId);
 
         // NOTE: this data issue has been reported to TFGM
         if (isMetrolink && routeType!=GTFSTransportationType.tram) {

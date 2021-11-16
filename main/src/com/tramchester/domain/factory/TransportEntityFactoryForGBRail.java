@@ -2,10 +2,7 @@ package com.tramchester.domain.factory;
 
 import com.tramchester.dataimport.data.RouteData;
 import com.tramchester.dataimport.data.StopData;
-import com.tramchester.domain.Agency;
-import com.tramchester.domain.DataSourceID;
-import com.tramchester.domain.MutableRoute;
-import com.tramchester.domain.Route;
+import com.tramchester.domain.*;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdMap;
 import com.tramchester.domain.id.StringIdFor;
@@ -43,7 +40,7 @@ public class TransportEntityFactoryForGBRail extends TransportEntityFactory {
     }
 
     @Override
-    public GTFSTransportationType getRouteType(RouteData routeData, IdFor<Agency> agencyId) {
+    public GTFSTransportationType getRouteType(RouteData routeData, IdFor<ReadonlyAgency> agencyId) {
         GTFSTransportationType routeType = routeData.getRouteType();
 
         if (routeType.equals(GTFSTransportationType.aerialLift) && routeData.getLongName().contains("replacement bus service")) {
@@ -63,7 +60,7 @@ public class TransportEntityFactoryForGBRail extends TransportEntityFactory {
         logger.error("Did not expect to see stop with same ID again for " + stopData);
     }
 
-    private String expandRouteNameFor(String original, IdMap<Station> allStations, Agency agency) {
+    private String expandRouteNameFor(String original, IdMap<Station> allStations, ReadonlyAgency agency) {
         //
         // many train routes names have formats:
         // "<AGENCY_ID> train service from <STATIONID> to <STATIONID>"

@@ -80,7 +80,7 @@ public class TestEnv {
     public static final String BRISTOL_BUSSTOP_OCTOCODE = "0100053338";
 
     private static final Agency MET = new Agency(DataSourceID.tfgm, Agency.METL, "Metrolink");
-    public static final Agency ArrivaTrainsWales = new Agency(DataSourceID.gbRail,
+    public static final ReadonlyAgency ArrivaTrainsWales = new Agency(DataSourceID.gbRail,
             StringIdFor.createId("AW"), "Arriva Trains Wales");
 
     public static final Agency StagecoachManchester = new Agency(DataSourceID.tfgm,
@@ -279,7 +279,7 @@ public class TestEnv {
         return routes;
     }
 
-    public static Route singleRoute(RouteRepository routeRepository, IdFor<Agency> agencyId, String shortName) {
+    public static Route singleRoute(RouteRepository routeRepository, IdFor<ReadonlyAgency> agencyId, String shortName) {
         Set<Route> routes = routeRepository.findRoutesByShortName(agencyId, shortName);
         assertEquals(1, routes.size(), format("expected to find only one route for %s and %s", agencyId, shortName));
         return routes.iterator().next();
