@@ -182,10 +182,6 @@ public class PostcodeBoundingBoxs {
             return theMap.entrySet();
         }
 
-        public int size() {
-            return theMap.size();
-        }
-
         public boolean contains(String code) {
             return theMap.containsKey(code);
         }

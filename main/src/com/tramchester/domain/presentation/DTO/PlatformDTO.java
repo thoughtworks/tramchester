@@ -5,6 +5,7 @@ import com.tramchester.domain.Platform;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.presentation.LatLong;
 
+@SuppressWarnings("unused")
 public class PlatformDTO {
 
     private String id;
@@ -13,7 +14,6 @@ public class PlatformDTO {
     private IdFor<Platform> platformId;
     private LatLong latLong;
 
-    @SuppressWarnings("unused")
     public PlatformDTO() {
         // for deserialisation
     }
