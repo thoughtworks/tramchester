@@ -31,7 +31,7 @@ public class TransportDataContainer implements TransportData, WriteableTransport
     private final IdMap<Station> stationsById = new IdMap<>();  // station id -> station
     private final CompositeIdMap<Service, MutableService> services = new CompositeIdMap<>();  // service id -> service
     private final CompositeIdMap<Route, MutableRoute> routes = new CompositeIdMap<>();      // route id -> route
-    private final IdMap<Platform> platforms = new IdMap<>(); // platformId -> platform
+    private final CompositeIdMap<Platform, MutablePlatform> platforms = new CompositeIdMap<>(); // platformId -> platform
     private final IdMap<RouteStation> routeStations = new IdMap<>(); // routeStationId - > RouteStation
     private final IdMap<Agency> agencies = new IdMap<>(); // agencyId -> agencies
 
@@ -187,8 +187,13 @@ public class TransportDataContainer implements TransportData, WriteableTransport
         return platforms.get(platformId);
     }
 
+
+    public MutablePlatform getMutablePlatform(IdFor<Platform> platformId) {
+        return platforms.get(platformId);
+    }
+
     @Override
-    public Set<Platform> getPlatforms() {
+    public Set<MutablePlatform> getPlatforms() {
         return Collections.unmodifiableSet(platforms.getValues());
     }
 
@@ -286,7 +291,7 @@ public class TransportDataContainer implements TransportData, WriteableTransport
     }
 
     @Override
-    public void addPlatform(Platform platform) {
+    public void addPlatform(MutablePlatform platform) {
         platforms.add(platform);
     }
 

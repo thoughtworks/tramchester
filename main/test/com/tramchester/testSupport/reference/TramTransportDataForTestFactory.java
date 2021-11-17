@@ -246,7 +246,7 @@ public class TramTransportDataForTestFactory implements TransportDataFactory {
     private static PlatformStopCall createStop(TransportDataContainer container, MutableTrip trip,
                                                MutableStation station, TramTime arrivalTime, TramTime departureTime, int sequenceNum) {
         String platformId = station.getId() + "1";
-        Platform platform = new Platform(platformId, format("%s platform 1", station.getName()), station.getLatLong());
+        MutablePlatform platform = new MutablePlatform(platformId, format("%s platform 1", station.getName()), station.getLatLong());
         container.addPlatform(platform);
         station.addPlatform(platform);
         StopTimeData stopTimeData = StopTimeData.forTestOnly(trip.getId().forDTO(), arrivalTime, departureTime, platformId,sequenceNum,

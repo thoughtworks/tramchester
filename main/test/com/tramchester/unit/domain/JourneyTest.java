@@ -200,8 +200,8 @@ class JourneyTest {
         final MutableStation stPeters = of(StPetersSquare);
         final Station victoria = of(Victoria);
 
-        final Platform platform1 = new Platform("platformId1", "platformNameA", TestEnv.nearAltrincham);
-        final Platform platform2 = new Platform("platformId2", "platformNameA", TestEnv.nearStPetersSquare);
+        final MutablePlatform platform1 = new MutablePlatform("platformId1", "platformNameA", TestEnv.nearAltrincham);
+        final MutablePlatform platform2 = new MutablePlatform("platformId2", "platformNameA", TestEnv.nearStPetersSquare);
         alty.addPlatform(platform1);
         stPeters.addPlatform(platform2);
 

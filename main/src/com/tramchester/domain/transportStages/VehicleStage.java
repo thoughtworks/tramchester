@@ -1,5 +1,6 @@
 package com.tramchester.domain.transportStages;
 
+import com.tramchester.domain.MutablePlatform;
 import com.tramchester.domain.Platform;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.id.IdFor;
@@ -85,6 +86,7 @@ public class VehicleStage implements TransportStage<Station, Station> {
         this.platform = platform;
     }
 
+    @Override
     public Platform getBoardingPlatform() {
         if (platform==null) {
             throw new RuntimeException("No platform");

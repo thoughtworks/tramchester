@@ -2,7 +2,7 @@ package com.tramchester.unit.domain;
 
 import com.tramchester.domain.Journey;
 import com.tramchester.domain.MutableService;
-import com.tramchester.domain.Platform;
+import com.tramchester.domain.MutablePlatform;
 import com.tramchester.domain.Service;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.input.MutableTrip;
@@ -389,7 +389,7 @@ class ProvidesNotesTest extends EasyMockSupport {
     }
 
     private PlatformMessage createPlatformMessage(LocalDateTime lastUpdate, MutableStation station, String message) {
-        Platform platform = new Platform(station.forDTO() + "1", station.getName() + " platform 1", station.getLatLong());
+        MutablePlatform platform = new MutablePlatform(station.forDTO() + "1", station.getName() + " platform 1", station.getLatLong());
         station.addPlatform(platform);
         return new PlatformMessage(platform.getId(), message, lastUpdate, station, "displayId");
     }
@@ -402,7 +402,7 @@ class ProvidesNotesTest extends EasyMockSupport {
 
         // TODO
         List<Integer> passedStations = new ArrayList<>();
-        Platform platform = new Platform(platformId, "platformName", latLong);
+        MutablePlatform platform = new MutablePlatform(platformId, "platformName", latLong);
         final MutableStation firstStation = of(Ashton);
         firstStation.addPlatform(platform);
         VehicleStage vehicleStage = new VehicleStage(firstStation, TestEnv.getTramTestRoute(), Tram,

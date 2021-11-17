@@ -1,18 +1,18 @@
 package com.tramchester.domain.input;
 
 import com.tramchester.dataimport.data.StopTimeData;
-import com.tramchester.domain.Platform;
+import com.tramchester.domain.MutablePlatform;
 import com.tramchester.domain.places.Station;
 
 public class PlatformStopCall extends StopCall {
-    private final Platform callingPlatform;
+    private final MutablePlatform callingPlatform;
 
-    public PlatformStopCall(Trip trip, Platform platform, Station station, StopTimeData stopTimeData) {
+    public PlatformStopCall(Trip trip, MutablePlatform platform, Station station, StopTimeData stopTimeData) {
         super(station, stopTimeData, trip);
         this.callingPlatform = platform;
     }
 
-    public Platform getPlatform() {
+    public MutablePlatform getPlatform() {
         return callingPlatform;
     }
 

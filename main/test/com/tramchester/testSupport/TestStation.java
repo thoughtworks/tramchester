@@ -107,7 +107,7 @@ public class TestStation extends MutableStation {
         }
 
         @Override
-        public void addPlatform(Platform platform) {
+        public void addPlatform(MutablePlatform platform) {
             testStation.addPlatform(platform);
         }
     }

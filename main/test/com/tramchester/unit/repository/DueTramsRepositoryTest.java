@@ -1,14 +1,15 @@
 package com.tramchester.unit.repository;
 
-import com.tramchester.domain.id.IdFor;
-import com.tramchester.domain.places.Station;
-import com.tramchester.metrics.CacheMetrics;
+import com.tramchester.domain.MutablePlatform;
 import com.tramchester.domain.Platform;
-import com.tramchester.livedata.domain.liveUpdates.*;
+import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.places.MutableStation;
+import com.tramchester.domain.places.Station;
 import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.domain.time.TramTime;
+import com.tramchester.livedata.domain.liveUpdates.*;
 import com.tramchester.livedata.repository.DueTramsRepository;
+import com.tramchester.metrics.CacheMetrics;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.TramStations;
 import org.easymock.EasyMock;
@@ -34,7 +35,7 @@ class DueTramsRepositoryTest extends EasyMockSupport {
     private DueTramsRepository repository;
     private LocalDateTime lastUpdate;
     private MutableStation station;
-    private Platform platform;
+    private MutablePlatform platform;
 
     @BeforeEach
     void beforeEachTestRuns() {
@@ -45,7 +46,7 @@ class DueTramsRepositoryTest extends EasyMockSupport {
         lastUpdate = LocalDateTime.of(today, LocalTime.of(15,42));
 
         station = TramStations.of(Shudehill);
-        platform = new Platform("someId1", "Shudehill platform 1", Shudehill.getLatLong());
+        platform = new MutablePlatform("someId1", "Shudehill platform 1", Shudehill.getLatLong());
         station.addPlatform(platform);
     }
 
@@ -60,7 +61,7 @@ class DueTramsRepositoryTest extends EasyMockSupport {
 
         // second station, has due tram
         MutableStation secondStation = of(Altrincham);
-        Platform platfromForSecondStation = new Platform("a1", "Altrincham platform 1", Altrincham.getLatLong());
+        MutablePlatform platfromForSecondStation = new MutablePlatform("a1", "Altrincham platform 1", Altrincham.getLatLong());
         secondStation.addPlatform(platfromForSecondStation);
 
         DueTram dueTramOther = new DueTram(of(ManAirport), "Due", 12, "Double", lastUpdate.toLocalTime());
@@ -69,7 +70,7 @@ class DueTramsRepositoryTest extends EasyMockSupport {
 
         // third, no due trams
         Station thirdStation = of(TraffordCentre);
-        Platform platfromForThirdStation = new Platform("b2", "Intu platform 2", TraffordCentre.getLatLong());
+        MutablePlatform platfromForThirdStation = new MutablePlatform("b2", "Intu platform 2", TraffordCentre.getLatLong());
         secondStation.addPlatform(platfromForSecondStation);
         StationDepartureInfo thirdStationInfo = new StationDepartureInfo("displayId3", Lines.Airport,
                 LineDirection.Incoming, platfromForThirdStation.getId(), thirdStation, "message 3", lastUpdate);
@@ -96,7 +97,7 @@ class DueTramsRepositoryTest extends EasyMockSupport {
                 "some message", station, dueTram);
 
         MutableStation otherStation = of(Altrincham);
-        Platform otherPlatform = new Platform("other1", "Altrincham platform 1", otherStation.getLatLong());
+        MutablePlatform otherPlatform = new MutablePlatform("other1", "Altrincham platform 1", otherStation.getLatLong());
         otherStation.addPlatform(otherPlatform);
 
         Station destinationManAirport = of(ManAirport);

@@ -11,6 +11,8 @@ import com.tramchester.domain.reference.GTFSTransportationType;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.geo.GridPosition;
 
+import java.util.Optional;
+
 public abstract class TransportEntityFactory {
 
     public TransportEntityFactory() {
@@ -54,7 +56,7 @@ public abstract class TransportEntityFactory {
         return new RouteStation(station, route);
     }
 
-    public StopCall createPlatformStopCall(Trip trip, Platform platform, Station station, StopTimeData stopTimeData) {
+    public StopCall createPlatformStopCall(Trip trip, MutablePlatform platform, Station station, StopTimeData stopTimeData) {
         return new PlatformStopCall(trip, platform, station, stopTimeData);
     }
 
@@ -76,5 +78,9 @@ public abstract class TransportEntityFactory {
 
     public abstract IdFor<Station> formStationId(String stopId);
 
-    public abstract void updateStation(MutableStation station, StopData stopData);
+//    public abstract void updateStation(MutableStation station, StopData stopData);
+
+    public Optional<MutablePlatform> maybeCreatePlatform(StopData stopData) {
+        return Optional.empty();
+    }
 }

@@ -1,7 +1,7 @@
 package com.tramchester.domain.input;
 
 import com.tramchester.dataimport.data.StopTimeData;
-import com.tramchester.domain.Platform;
+import com.tramchester.domain.MutablePlatform;
 import com.tramchester.domain.places.Station;
 
 public class NoPlatformStopCall extends StopCall {
@@ -11,7 +11,7 @@ public class NoPlatformStopCall extends StopCall {
     }
 
     @Override
-    public Platform getPlatform() {
+    public MutablePlatform getPlatform() {
         throw new RuntimeException(station + "  does not have platforms");
     }
 

@@ -2,7 +2,7 @@ package com.tramchester.unit.mappers;
 
 
 import com.tramchester.domain.Journey;
-import com.tramchester.domain.Platform;
+import com.tramchester.domain.MutablePlatform;
 import com.tramchester.domain.MutableRoute;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.id.StringIdFor;
@@ -143,7 +143,7 @@ class JourneyToDTOMapperTest extends EasyMockSupport {
     void shouldMapJourneyWithConnectingStage() {
         TramTime time = TramTime.of(15,45);
         final MutableStation startStation = of(Altrincham);
-        Platform platform = new Platform(startStation.forDTO() + "1", "platform name", startStation.getLatLong());
+        MutablePlatform platform = new MutablePlatform(startStation.forDTO() + "1", "platform name", startStation.getLatLong());
         startStation.addPlatform(platform);
 
         ConnectingStage connectingStage = new ConnectingStage(
@@ -187,12 +187,12 @@ class JourneyToDTOMapperTest extends EasyMockSupport {
     void shouldMapThreeStageJourneyWithWalk() {
         TramTime am10 = TramTime.of(10,0);
         MutableStation begin = of(Altrincham);
-        Platform platformA = new Platform(begin.forDTO() + "1", "platform name", begin.getLatLong());
+        MutablePlatform platformA = new MutablePlatform(begin.forDTO() + "1", "platform name", begin.getLatLong());
         begin.addPlatform(platformA);
 
         MyLocation middleA = nearPiccGardensLocation;
         MutableStation middleB = of(MarketStreet);
-        Platform platformB = new Platform(middleB.forDTO() + "1", "platform name", middleB.getLatLong());
+        MutablePlatform platformB = new MutablePlatform(middleB.forDTO() + "1", "platform name", middleB.getLatLong());
         middleB.addPlatform(platformB);
 
         Station end = of(Bury);
@@ -245,7 +245,7 @@ class JourneyToDTOMapperTest extends EasyMockSupport {
         Station start = transportData.getFirst();
         Station middle = transportData.getSecond();
         Station finish = transportData.getInterchange();
-        Platform platform = new Platform(start.forDTO() + "1", "platform name", start.getLatLong());
+        MutablePlatform platform = new MutablePlatform(start.forDTO() + "1", "platform name", start.getLatLong());
 
         VehicleStage rawStageA = getRawVehicleStage(start, middle, createRoute("route text"), startTime,
                 18, platform);
@@ -282,7 +282,7 @@ class JourneyToDTOMapperTest extends EasyMockSupport {
     }
 
     private VehicleStage getRawVehicleStage(Station start, Station finish, Route route, TramTime startTime,
-                                            int cost, Platform platform) {
+                                            int cost, MutablePlatform platform) {
 
 
         Trip validTrip = transportData.getTripById(StringIdFor.createId(TRIP_A_ID));

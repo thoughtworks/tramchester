@@ -16,6 +16,8 @@ import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Optional;
+
 public class TransportEntityFactoryForTFGM extends TransportEntityFactory {
 
     private static final String METROLINK_ID_PREFIX = "9400ZZ";
@@ -61,14 +63,23 @@ public class TransportEntityFactoryForTFGM extends TransportEntityFactory {
         return station;
     }
 
+//    @Override
+//    public void updateStation(MutableStation station, StopData stopData) {
+//        addPlatformIfMissing(stopData, station);
+//    }
+
     @Override
-    public void updateStation(MutableStation station, StopData stopData) {
-        addPlatformIfMissing(stopData, station);
+    public Optional<MutablePlatform> maybeCreatePlatform(StopData stopData) {
+        if (isMetrolinkTram(stopData)) {
+            return Optional.of(new MutablePlatform(stopData.getId(), createStationName(stopData), stopData.getLatLong()));
+        } else {
+            return Optional.empty();
+        }
     }
 
     private void addPlatformIfMissing(StopData stopData, MutableStation station) {
         if (isMetrolinkTram(stopData)) {
-            Platform platform = new Platform(stopData.getId(), createStationName(stopData), stopData.getLatLong());
+            MutablePlatform platform = new MutablePlatform(stopData.getId(), createStationName(stopData), stopData.getLatLong());
             if (!station.getPlatforms().contains(platform)) {
                 station.addPlatform(platform);
             }

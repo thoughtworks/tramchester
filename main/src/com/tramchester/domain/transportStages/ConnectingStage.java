@@ -1,6 +1,6 @@
 package com.tramchester.domain.transportStages;
 
-import com.tramchester.domain.Platform;
+import com.tramchester.domain.MutablePlatform;
 import com.tramchester.domain.MutableRoute;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.id.StringIdFor;
@@ -69,7 +69,7 @@ public class ConnectingStage implements TransportStage<Station, Station>  {
     }
 
     @Override
-    public Platform getBoardingPlatform() {
+    public MutablePlatform getBoardingPlatform() {
         throw new RuntimeException("No platform");
     }
 

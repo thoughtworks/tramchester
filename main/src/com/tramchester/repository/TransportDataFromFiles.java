@@ -6,10 +6,7 @@ import com.tramchester.config.TramchesterConfig;
 import com.tramchester.dataimport.data.*;
 import com.tramchester.domain.*;
 import com.tramchester.domain.factory.TransportEntityFactory;
-import com.tramchester.domain.id.CompositeIdMap;
-import com.tramchester.domain.id.IdFor;
-import com.tramchester.domain.id.IdMap;
-import com.tramchester.domain.id.IdSet;
+import com.tramchester.domain.id.*;
 import com.tramchester.domain.input.MutableTrip;
 import com.tramchester.domain.input.StopCall;
 import com.tramchester.domain.input.Trip;
@@ -103,7 +100,7 @@ public class TransportDataFromFiles implements TransportDataFactory {
 
         TransportEntityFactory entityFactory = dataSource.getEntityFactory();
 
-        PreloadedStations allStations = preLoadStations(dataSource.stops, entityFactory);
+        PreloadedStationsAndPlatforms allStations = preLoadStations(dataSource.stops, entityFactory);
 
         CompositeIdMap<Agency, MutableAgency> allAgencies = preloadAgencys(sourceName, dataSource.agencies, entityFactory);
         ExcludedRoutes excludedRoutes = populateRoutes(buildable, dataSource.routes, allAgencies,
@@ -252,7 +249,7 @@ public class TransportDataFromFiles implements TransportDataFactory {
     }
 
     private IdMap<Service> populateStopTimes(WriteableTransportData buildable, Stream<StopTimeData> stopTimes,
-                                             PreloadedStations preloadStations, TripAndServices tripAndServices,
+                                             PreloadedStationsAndPlatforms preloadStations, TripAndServices tripAndServices,
                                              TransportEntityFactory factory, GTFSSourceConfig dataSourceConfig) {
         String sourceName = dataSourceConfig.getName();
         logger.info("Loading stop times for " + sourceName);
@@ -292,6 +289,7 @@ public class TransportDataFromFiles implements TransportDataFactory {
 
                     if (shouldAdd) {
                         addStationTo(buildable, route, station, factory);
+                        addPlatformsForStation(buildable, station, preloadStations);
 
                         StopCall stopCall = createStopCall(buildable, stopTimeData, route, trip, station,
                                 factory, dataSourceConfig);
@@ -328,14 +326,21 @@ public class TransportDataFromFiles implements TransportDataFactory {
             excludedStations.clear();
         }
         if (!missingPlatforms.isEmpty()) {
-            missingPlatforms.forEach((stationId, tripIds) -> {
-                logger.error(format("Did not find platform for stationId: %s TripId: %s source:'%s'",
-                        stationId, tripIds, dataSourceConfig.getName()));
-            });
+            missingPlatforms.forEach((stationId, tripIds) -> logger.error(
+                    format("Did not find platform for stationId: %s TripId: %s source:'%s'",
+                    stationId, tripIds, dataSourceConfig.getName())));
         }
         missingPlatforms.clear();
         logger.info("Loaded " + count.get() + " stop times for " + sourceName);
         return addedServices;
+    }
+
+    private void addPlatformsForStation(WriteableTransportData buildable, Station station, PreloadedStationsAndPlatforms preloadStations) {
+        station.getPlatforms().stream().
+                map(HasId::getId).
+                filter(platformId -> !buildable.hasPlatformId(platformId)).
+                map(preloadStations::getPlatform).
+                forEach(buildable::addPlatform);
     }
 
     private StopCall createStopCall(WriteableTransportData buildable, StopTimeData stopTimeData,
@@ -344,16 +349,15 @@ public class TransportDataFromFiles implements TransportDataFactory {
         IdFor<Platform> platformId = stopTimeData.getPlatformId();
         TransportMode transportMode = route.getTransportMode();
 
-        // TODO Should be HasPlatform?
         if (sourceConfig.getTransportModesWithPlatforms().contains(transportMode)) {
             if (buildable.hasPlatformId(platformId)) {
-                Platform platform = buildable.getPlatform(platformId);
+                MutablePlatform platform = buildable.getMutablePlatform(platformId);
                 platform.addRoute(route);
             } else {
                 IdFor<Route> routeId = route.getId();
                 logger.warn("Missing platform " + platformId + " For transport mode " + transportMode + " and route " + routeId);
             }
-            Platform platform = buildable.getPlatform(platformId);
+            MutablePlatform platform = buildable.getMutablePlatform(platformId);
             return factory.createPlatformStopCall(trip, platform, station, stopTimeData);
         } else {
             return factory.createNoPlatformStopCall(trip, station, stopTimeData);
@@ -366,11 +370,11 @@ public class TransportDataFromFiles implements TransportDataFactory {
         IdFor<Station> stationId = station.getId();
         if (!container.hasStationId(stationId)) {
             container.addStation(station);
-            if (station.hasPlatforms()) {
-                station.getPlatforms().forEach(container::addPlatform);
-            }
+//            if (station.hasPlatforms()) {
+//                station.getPlatforms().forEach(container::addPlatform);
+//            }
             if (!station.getLatLong().isValid()) {
-                logger.warn("Station has invalid postion " + station);
+                logger.warn("Station has invalid position " + station);
             }
 
         }
@@ -477,11 +481,11 @@ public class TransportDataFromFiles implements TransportDataFactory {
         return unknown;
     }
 
-    private PreloadedStations preLoadStations(Stream<StopData> stops, TransportEntityFactory factory) {
+    private PreloadedStationsAndPlatforms preLoadStations(Stream<StopData> stops, TransportEntityFactory factory) {
         logger.info("Loading stops within bounds");
         BoundingBox bounds = config.getBounds();
 
-        PreloadedStations allStations = new PreloadedStations(factory);
+        PreloadedStationsAndPlatforms allStations = new PreloadedStationsAndPlatforms(factory);
 
         stops.forEach((stopData) -> {
             LatLong latLong = stopData.getLatLong();
@@ -501,7 +505,7 @@ public class TransportDataFromFiles implements TransportDataFactory {
         return allStations;
     }
 
-    private void preLoadStation(PreloadedStations allStations, StopData stopData, GridPosition position,
+    private void preLoadStation(PreloadedStationsAndPlatforms allStations, StopData stopData, GridPosition position,
                                 TransportEntityFactory factory) {
         String stopId = stopData.getId();
         IdFor<Station> stationId = factory.formStationId(stopId);
@@ -587,12 +591,14 @@ public class TransportDataFromFiles implements TransportDataFactory {
         }
     }
 
-    private static class PreloadedStations {
+    private static class PreloadedStationsAndPlatforms {
         private final CompositeIdMap<Station, MutableStation> stations;
+        private final CompositeIdMap<Platform, MutablePlatform> platforms;
         private final TransportEntityFactory factory;
 
-        private PreloadedStations(TransportEntityFactory factory) {
+        private PreloadedStationsAndPlatforms(TransportEntityFactory factory) {
             stations = new CompositeIdMap<>();
+            platforms = new CompositeIdMap<>();
             this.factory = factory;
         }
 
@@ -614,11 +620,26 @@ public class TransportDataFromFiles implements TransportDataFactory {
 
         public void createAndAdd(IdFor<Station> stationId, StopData stopData, GridPosition position) {
             MutableStation mutableStation = factory.createStation(stationId, stopData, position);
+
+            Optional<MutablePlatform> possiblePlatform = factory.maybeCreatePlatform(stopData);
+            possiblePlatform.ifPresent(platform-> {
+                platforms.add(platform);
+                mutableStation.addPlatform(platform);
+            });
+
             stations.add(mutableStation);
         }
 
         public void updateStation(IdFor<Station> stationId, StopData stopData) {
-            factory.updateStation(stations.get(stationId), stopData);
+            Optional<MutablePlatform> possiblePlatform = factory.maybeCreatePlatform(stopData);
+            possiblePlatform.ifPresent(platform-> {
+                platforms.add(platform);
+                stations.get(stationId).addPlatform(platform);
+            });
+        }
+
+        public MutablePlatform getPlatform(IdFor<Platform> id) {
+            return platforms.get(id);
         }
     }
 }

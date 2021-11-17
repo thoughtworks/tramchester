@@ -1,7 +1,7 @@
 package com.tramchester.unit.domain.presentation.DTO;
 
 import com.tramchester.domain.DataSourceID;
-import com.tramchester.domain.Platform;
+import com.tramchester.domain.MutablePlatform;
 import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.places.MutableStation;
 import com.tramchester.domain.presentation.DTO.LocationDTO;
@@ -34,8 +34,8 @@ class LocationDTOTest {
         testStation.addRoute(TestEnv.getTramTestRoute(StringIdFor.createId("routeIdA"), "routeNameA"));
         testStation.addRoute(TestEnv.getTramTestRoute(StringIdFor.createId("routeIdB"), "routeNameB"));
 
-        testStation.addPlatform(new Platform("9400ZZMAALT1", "Altrincham", new LatLong(1.2,1)));
-        testStation.addPlatform(new Platform("9400ZZMAALT2", "Altrincham", new LatLong(1.1,1)));
+        testStation.addPlatform(new MutablePlatform("9400ZZMAALT1", "Altrincham", new LatLong(1.2,1)));
+        testStation.addPlatform(new MutablePlatform("9400ZZMAALT2", "Altrincham", new LatLong(1.1,1)));
 
         LocationDTO dto = new LocationDTO(testStation);
 

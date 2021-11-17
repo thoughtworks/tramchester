@@ -23,7 +23,7 @@ public interface WriteableTransportData {
 
     void addStation(Station station);
 
-    void addPlatform(Platform platform);
+    void addPlatform(MutablePlatform platform);
 
     void addService(MutableService service);
 
@@ -49,7 +49,7 @@ public interface WriteableTransportData {
 
     ////
 
-    Platform getPlatform(IdFor<Platform> id);
+    MutablePlatform getMutablePlatform(IdFor<Platform> id);
     MutableService getServiceById(IdFor<Service> serviceId);
     MutableRoute getMutableRoute(IdFor<Route> id);
 }

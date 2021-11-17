@@ -2,7 +2,7 @@ package com.tramchester.unit.mappers;
 
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.id.StringIdFor;
-import com.tramchester.domain.Platform;
+import com.tramchester.domain.MutablePlatform;
 import com.tramchester.livedata.domain.liveUpdates.LineDirection;
 import com.tramchester.livedata.domain.liveUpdates.DueTram;
 import com.tramchester.livedata.domain.liveUpdates.Lines;
@@ -50,10 +50,10 @@ class LiveDataParserTest extends EasyMockSupport {
         parser = new LiveDataParser(tramStationByName, stationRepository);
 
         MutableStation mediaCity = of(MediaCityUK);
-        mediaCity.addPlatform(new Platform("9400ZZMAMCU2", "Media City Platform 2", MediaCityUK.getLatLong()));
+        mediaCity.addPlatform(new MutablePlatform("9400ZZMAMCU2", "Media City Platform 2", MediaCityUK.getLatLong()));
 
         MutableStation airport = of(ManAirport);
-        airport.addPlatform(new Platform("9400ZZMAAIR1", "Manchester Airport Platform 2", ManAirport.getLatLong()));
+        airport.addPlatform(new MutablePlatform("9400ZZMAAIR1", "Manchester Airport Platform 2", ManAirport.getLatLong()));
 
         EasyMock.expect(stationRepository.getStationById(MediaCityUK.getId())).andStubReturn(mediaCity);
         EasyMock.expect(stationRepository.getStationById(ManAirport.getId())).andStubReturn(airport);
