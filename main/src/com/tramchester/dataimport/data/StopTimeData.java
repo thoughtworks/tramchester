@@ -27,6 +27,10 @@ public class StopTimeData {
     @JsonProperty("drop_off_type")
     private String dropOffType;
 
+    // when dealing with millions of rows parsing of times became a bottleneck, so cache results
+    private TramTime parsedArrivalTime = null;
+    private TramTime parsedDepartureTime = null;
+
     private StopTimeData(String tripId, TramTime arrivalTime, TramTime departureTime, String stopId,
                         int stopSequence, GTFSPickupDropoffType pickupType, GTFSPickupDropoffType dropOffType) {
         this.tripId = tripId;
@@ -68,13 +72,17 @@ public class StopTimeData {
     }
 
     public TramTime getArrivalTime() {
-        // TODO or else
-        return TramTime.parse(arrivalTime).get();
+        if (parsedArrivalTime==null) {
+            parsedArrivalTime = TramTime.parse(arrivalTime);
+        }
+        return parsedArrivalTime;
     }
 
     public TramTime getDepartureTime() {
-        // TODO or else
-        return TramTime.parse(departureTime).get();
+        if (parsedDepartureTime==null) {
+            parsedDepartureTime = TramTime.parse(departureTime);
+        }
+        return parsedDepartureTime;
     }
 
     public String getStopId() {
@@ -99,5 +107,9 @@ public class StopTimeData {
 
     public boolean arriveDepartSameTime() {
         return arrivalTime.equals(departureTime);
+    }
+
+    public boolean isValid() {
+        return getArrivalTime().isValid() && getDepartureTime().isValid();
     }
 }

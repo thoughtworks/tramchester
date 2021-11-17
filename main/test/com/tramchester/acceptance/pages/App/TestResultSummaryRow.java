@@ -37,7 +37,7 @@ public class TestResultSummaryRow {
 
     private TramTime parse(String timeString) {
         timeString = timeString.replace(" +1d","+24").trim();
-        return TramTime.parse(timeString).get();
+        return TramTime.parse(timeString);
     }
 
     public TramTime getDepartTime() {

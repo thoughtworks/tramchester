@@ -208,6 +208,8 @@ class AppUserJourneyTest extends UserJourneyTest {
             TramTime currentArrivalTime = result.getArriveTime();
             assertTrue(currentArrivalTime.isAfter(previous) || currentArrivalTime.equals(previous),
                     "arrival time order for " + result + " previous: " + previous);
+            assertTrue(currentArrivalTime.isValid());
+            assertTrue(result.getDepartTime().isValid());
             assertTrue(currentArrivalTime.isAfter(result.getDepartTime()), "arrived before depart");
             assertEquals("Direct", result.getChanges());
             previous = currentArrivalTime;
@@ -241,6 +243,7 @@ class AppUserJourneyTest extends UserJourneyTest {
 
         for (TestResultSummaryRow result : results) {
             TramTime arrivalTime = result.getArriveTime();
+            assertTrue(arrivalTime.isValid());
             assertTrue(arrivalTime.isAfter(TramTime.of(0,0)));
             assertTrue(arrivalTime.isBefore(TramTime.nextDay(1,0)));
         }
@@ -280,7 +283,9 @@ class AppUserJourneyTest extends UserJourneyTest {
         assertTrue(appPage.searchEnabled());
 
         List<TestResultSummaryRow> results = appPage.getResults();
-        assertTrue(results.get(0).getDepartTime().isAfter(tenFifteen), "depart not after " + tenFifteen);
+        final TramTime departTime = results.get(0).getDepartTime();
+        assertTrue(departTime.isValid());
+        assertTrue(departTime.isAfter(tenFifteen), "depart not after " + tenFifteen);
 
         desiredJourney(appPage, altrincham, deansgate, when, eightFifteen, false);
         appPage.planAJourney();
@@ -290,8 +295,10 @@ class AppUserJourneyTest extends UserJourneyTest {
         assertTrue(appPage.searchEnabled());
 
         List<TestResultSummaryRow> updatedResults = appPage.getResults();
-        assertTrue(updatedResults.get(0).getDepartTime().isBefore(tenFifteen));
-        assertTrue(updatedResults.get(0).getDepartTime().isAfter(eightFifteen));
+        final TramTime updatedDepartTime = updatedResults.get(0).getDepartTime();
+        assertTrue(updatedDepartTime.isValid());
+        assertTrue(updatedDepartTime.isBefore(tenFifteen));
+        assertTrue(updatedDepartTime.isAfter(eightFifteen));
     }
 
     @ParameterizedTest(name = "{displayName} {arguments}")
@@ -307,6 +314,7 @@ class AppUserJourneyTest extends UserJourneyTest {
 
         List<TestResultSummaryRow> results = appPage.getResults();
         TramTime firstDepartureTime = results.get(0).getDepartTime();
+        assertTrue(firstDepartureTime.isValid());
         assertTrue(firstDepartureTime.isAfter(tenFifteen));
 
         appPage.earlier();
@@ -315,6 +323,7 @@ class AppUserJourneyTest extends UserJourneyTest {
 
         List<TestResultSummaryRow> updatedResults = appPage.getResults();
         TramTime updatedDepartTime = updatedResults.get(0).getDepartTime();
+        assertTrue(updatedDepartTime.isValid());
         assertTrue(updatedDepartTime.isBefore(firstDepartureTime), "should be before current first departure time");
         assertTrue(TramTime.diffenceAsMinutes(firstDepartureTime, updatedDepartTime)<60,
                 "Too much gap between " + firstDepartureTime + " and update: " + updatedDepartTime);
@@ -332,8 +341,11 @@ class AppUserJourneyTest extends UserJourneyTest {
         assertTrue(appPage.searchEnabled());
 
         List<TestResultSummaryRow> results = appPage.getResults();
-        assertTrue(results.get(0).getDepartTime().isAfter(tenFifteen));
+        final TramTime departTime = results.get(0).getDepartTime();
+        assertTrue(departTime.isValid());
+        assertTrue(departTime.isAfter(tenFifteen));
         TramTime lastDepartureTime = results.get(results.size() - 1).getDepartTime();
+        assertTrue(lastDepartureTime.isValid());
 
         appPage.later();
         assertTrue(appPage.resultsClickable());
@@ -341,6 +353,7 @@ class AppUserJourneyTest extends UserJourneyTest {
 
         List<TestResultSummaryRow> updatedResults = appPage.getResults();
         TramTime updatedDepartTime = updatedResults.get(0).getDepartTime();
+        assertTrue(updatedDepartTime.isValid());
         assertTrue(updatedDepartTime.isAfter(lastDepartureTime), "should be after current departure time");
         assertTrue(TramTime.diffenceAsMinutes(lastDepartureTime, updatedDepartTime)<60,
                 "Too much gap between " + lastDepartureTime + " and update: " + updatedDepartTime);
@@ -360,8 +373,13 @@ class AppUserJourneyTest extends UserJourneyTest {
         assertTrue(results.size()>=2, "at least 2 journeys, was "+results.size());
         TramTime previousArrivalTime = planTime; // sorted by arrival time, so we may seen
         for (TestResultSummaryRow result : results) {
-            TramTime arriveTime = result.getArriveTime();
-            assertTrue(arriveTime.isAfter(result.getDepartTime()));
+            final TramTime arriveTime = result.getArriveTime();
+            final TramTime departTime = result.getDepartTime();
+
+            assertTrue(arriveTime.isValid());
+            assertTrue(departTime.isValid());
+
+            assertTrue(arriveTime.isAfter(departTime));
             assertTrue(arriveTime.isAfter(previousArrivalTime) || arriveTime.equals(previousArrivalTime));
             assertEquals(result.getChanges(), TraffordBar.getName());
             previousArrivalTime = arriveTime;
@@ -497,6 +515,7 @@ class AppUserJourneyTest extends UserJourneyTest {
 
     public static void validateAStage(Stage stage, TramTime departTime, String action, String actionStation, int platform,
                                       String lineClass, String lineName, String headsign, int passedStops) {
+        assertTrue(departTime.isValid(),"departTime not valid");
         assertEquals(departTime, stage.getDepartTime(), "departTime");
         assertEquals(action, stage.getAction(), "action");
         assertEquals(actionStation, stage.getActionStation(), "actionStation");

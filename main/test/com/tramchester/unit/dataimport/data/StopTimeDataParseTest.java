@@ -8,6 +8,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.*;
 
 class StopTimeDataParseTest extends ParserTestHelper<StopTimeData> {
 
@@ -28,6 +29,8 @@ class StopTimeDataParseTest extends ParserTestHelper<StopTimeData> {
         assertThat(stopTimeData.getDepartureTime()).isEqualTo(TramTime.of(6, 42));
         assertThat(stopTimeData.getStopId()).isEqualTo("9400ZZMAABM1");
         assertThat(stopTimeData.getStopSequence()).isEqualTo(1);
+
+        assertTrue(stopTimeData.isValid());
     }
 
     @Test
@@ -41,6 +44,27 @@ class StopTimeDataParseTest extends ParserTestHelper<StopTimeData> {
         assertThat(stopTimeData.getDepartureTime()).isEqualTo(TramTime.of(6, 42));
         assertThat(stopTimeData.getStopId()).isEqualTo("9400ZZMAABM1");
         assertThat(stopTimeData.getStopSequence()).isEqualTo(1);
+
+        assertTrue(stopTimeData.isValid());
+
+    }
+
+    @Test
+    void shouldParseButReturnInvalidIfArrivalTimeIsInvalid() {
+        String stop = "Trip000001,12:99:00,6:42:00,9400ZZMAABM1,0001,0,1";
+
+        StopTimeData stopTimeData = parse(stop);
+
+        assertFalse(stopTimeData.isValid());
+    }
+
+    @Test
+    void shouldParseButReturnInvalidIfDepartureTimeIsInvalid() {
+        String stop = "Trip000001,12:09:00,88:42:00,9400ZZMAABM1,0001,0,1";
+
+        StopTimeData stopTimeData = parse(stop);
+
+        assertFalse(stopTimeData.isValid());
     }
 
     @Test
@@ -51,6 +75,9 @@ class StopTimeDataParseTest extends ParserTestHelper<StopTimeData> {
 
         assertThat(stopTimeData.getArrivalTime()).isEqualTo(TramTime.nextDay(0,0));
         assertThat(stopTimeData.getDepartureTime()).isEqualTo(TramTime.nextDay(0,0));
+
+        assertTrue(stopTimeData.isValid());
+
     }
 
     @Test
@@ -61,6 +88,8 @@ class StopTimeDataParseTest extends ParserTestHelper<StopTimeData> {
 
         assertThat(stopTimeData.getArrivalTime()).isEqualTo(TramTime.nextDay(1,5));
         assertThat(stopTimeData.getDepartureTime()).isEqualTo(TramTime.nextDay(1,7));
+
+        assertTrue(stopTimeData.isValid());
 
     }
 

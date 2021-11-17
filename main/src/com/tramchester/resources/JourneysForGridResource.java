@@ -3,6 +3,7 @@ package com.tramchester.resources;
 import com.codahale.metrics.annotation.Timed;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tramchester.domain.BoundingBoxWithCost;
+import com.tramchester.domain.JourneyRequest;
 import com.tramchester.domain.id.CaseInsensitiveId;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.StringIdFor;
@@ -17,7 +18,6 @@ import com.tramchester.domain.time.TramTime;
 import com.tramchester.geo.CoordinateTransforms;
 import com.tramchester.geo.GridPosition;
 import com.tramchester.graph.search.FastestRoutesForBoxes;
-import com.tramchester.domain.JourneyRequest;
 import com.tramchester.mappers.JourneyToDTOMapper;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.repository.postcodes.PostcodeRepository;
@@ -31,7 +31,6 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.time.LocalDate;
-import java.util.Optional;
 import java.util.stream.Stream;
 
 import static java.lang.String.format;
@@ -78,20 +77,19 @@ public class JourneysForGridResource implements APIResource, JourneyPlanningMark
 
         GridPosition destination = getGridPosition(destinationIdText, lat, lon);
 
-        Optional<TramTime> maybeDepartureTime = TramTime.parse(departureTimeRaw);
-        if (maybeDepartureTime.isEmpty()) {
+        TramTime departureTime = TramTime.parse(departureTimeRaw);
+        if (!departureTime.isValid()) {
             logger.error("Could not parse departure time '" + departureTimeRaw + "'");
             return Response.serverError().build();
         }
 
-        TramTime queryTime = maybeDepartureTime.get();
         LocalDate date = LocalDate.parse(departureDateRaw);
 
         // just find the first one -- todo this won't be lowest cost route....
         long maxNumberOfJourneys = 3;
 
         TramServiceDate tramServiceDate = new TramServiceDate(date);
-        JourneyRequest journeyRequest = new JourneyRequest(tramServiceDate, queryTime,
+        JourneyRequest journeyRequest = new JourneyRequest(tramServiceDate, departureTime,
                 false, maxChanges, maxDuration, maxNumberOfJourneys);
         journeyRequest.setWarnIfNoResults(false);
 

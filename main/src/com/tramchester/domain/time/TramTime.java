@@ -8,7 +8,6 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.Comparator;
 import java.util.Objects;
-import java.util.Optional;
 
 import static java.lang.String.format;
 
@@ -34,12 +33,24 @@ public class TramTime implements Comparable<TramTime> {
         toPattern = format("%02d:%02d",hour,minute); // expensive
     }
 
+    private TramTime() {
+        hour = Integer.MAX_VALUE;
+        minute = Integer.MAX_VALUE;
+        offsetDays = Integer.MAX_VALUE;
+        hash = Integer.MAX_VALUE;
+        toPattern = "invalid";
+    }
+
     public static TramTime of(LocalTime time) {
         return factory.of(time);
     }
 
     private static TramTime of(int hours, int minutes, int offsetDays) {
         return factory.of(hours, minutes, offsetDays);
+    }
+
+    public boolean isValid() {
+        return this != Factory.Invalid();
     }
 
     public static TramTime of(int hours, int minutes) {
@@ -50,8 +61,13 @@ public class TramTime implements Comparable<TramTime> {
         return factory.midnight();
     }
 
-    public static Optional<TramTime> parse(String text) {
+    public static TramTime parse(String text) {
         return factory.parse(text);
+//        final TramTime tramTime = factory.parse(text);
+//        if (tramTime.isValid()) {
+//            return Optional.of(tramTime);
+//        }
+//        return Optional.empty();
     }
 
     public static TramTime nextDay(int hour, int minute) {
@@ -274,6 +290,7 @@ public class TramTime implements Comparable<TramTime> {
     }
 
     private static class Factory {
+        private static final TramTime invalidTime = new TramTime();
         private final TramTime[][][] tramTimes = new TramTime[2][24][60];
 
         private Factory() {
@@ -298,7 +315,7 @@ public class TramTime implements Comparable<TramTime> {
             return tramTimes[offsetDays][hours][minutes];
         }
 
-        private Optional<TramTime> parse(String text) {
+        private TramTime parse(String text) {
             int offsetDays = 0;
 
             if (text.endsWith(nextDaySuffix)) {
@@ -318,14 +335,18 @@ public class TramTime implements Comparable<TramTime> {
             }
             if (hour>23) {
                 // spanning 2 days, cannot handle yet, TODO very long ferry or train >2 days???
-                return Optional.empty();
+                return invalidTime;
             }
 
             int minutes = Integer.parseUnsignedInt(text, firstDivider+1, firstDivider+3, 10);
             if (minutes > 59) {
-                return Optional.empty();
+                return invalidTime;
             }
-            return Optional.of(TramTime.of(hour, minutes, offsetDays));
+            return TramTime.of(hour, minutes, offsetDays);
+        }
+
+        public static TramTime Invalid() {
+            return invalidTime;
         }
     }
 }

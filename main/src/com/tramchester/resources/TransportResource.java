@@ -10,7 +10,6 @@ import org.slf4j.LoggerFactory;
 
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
-import java.util.Optional;
 
 public abstract class TransportResource {
     private static final Logger logger = LoggerFactory.getLogger(TransportResource.class);
@@ -22,26 +21,39 @@ public abstract class TransportResource {
     }
 
     protected TramTime parseOptionalTimeOrNow(String text) {
-        Optional<TramTime> optionalTramTime = Optional.empty();
-        if (!text.isEmpty()) {
-            optionalTramTime = TramTime.parse(text);
-            if (optionalTramTime.isEmpty()) {
-                String msg = "Unable to parse time " + text;
-                logger.warn(msg);
-                throw new WebApplicationException(msg, Response.Status.INTERNAL_SERVER_ERROR);
-            }
+        if (text.isEmpty()) {
+            return providesNow.getNow();
         }
-        return optionalTramTime.orElseGet(providesNow::getNow);
+        return parseTime(text);
+
+//        Optional<TramTime> optionalTramTime = Optional.empty();
+//        if (!text.isEmpty()) {
+//            optionalTramTime = TramTime.parse(text);
+//            if (optionalTramTime.isEmpty()) {
+//                String msg = "Unable to parse time " + text;
+//                logger.warn(msg);
+//                throw new WebApplicationException(msg, Response.Status.INTERNAL_SERVER_ERROR);
+//            }
+//        }
+//        return optionalTramTime.orElseGet(providesNow::getNow);
     }
 
     protected TramTime parseTime(String text) {
-        Optional<TramTime> maybeDepartureTime = TramTime.parse(text);
-        if (maybeDepartureTime.isEmpty()) {
-            String msg = "Could not parse time '" + text + "'";
-            logger.error(msg);
-            throw new WebApplicationException(msg, Response.Status.INTERNAL_SERVER_ERROR);
+        TramTime tramTime = TramTime.parse(text);
+        if (tramTime.isValid()) {
+            return tramTime;
         }
-        return maybeDepartureTime.get();
+        String msg = "Could not parse time '" + text + "'";
+        logger.error(msg);
+        throw new WebApplicationException(msg, Response.Status.INTERNAL_SERVER_ERROR);
+
+//        Optional<TramTime> maybeDepartureTime = TramTime.parse(text);
+//        if (maybeDepartureTime.isEmpty()) {
+//            String msg = "Could not parse time '" + text + "'";
+//            logger.error(msg);
+//            throw new WebApplicationException(msg, Response.Status.INTERNAL_SERVER_ERROR);
+//        }
+//        return maybeDepartureTime.get();
     }
 
     protected boolean isHttps(String forwardedHeader) {

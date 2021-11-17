@@ -8,18 +8,17 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.tramchester.domain.time.TramTime;
 
 import java.io.IOException;
-import java.util.Optional;
 
 public class TramTimeJsonDeserializer extends JsonDeserializer<TramTime> {
     @Override
     public TramTime deserialize(JsonParser jsonParser, DeserializationContext ctxt) throws IOException {
         ObjectCodec oc = jsonParser.getCodec();
         JsonNode node = oc.readTree(jsonParser);
-        Optional<TramTime> result;
-        result = TramTime.parse(node.asText());
-        if (result.isEmpty()) {
-            throw new IOException("Failed to parse " + node.asText());
+
+        TramTime result = TramTime.parse(node.asText());
+        if (result.isValid()) {
+            return result;
         }
-        return result.get();
+        throw new IOException("Failed to parse " + node.asText());
     }
 }

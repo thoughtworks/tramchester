@@ -68,8 +68,8 @@ class TramTimeTest {
 
     @Test
     void shouldParseEmptyIfInvalid() {
-        Assertions.assertFalse(TramTime.parse("49:12").isPresent());
-        Assertions.assertFalse(TramTime.parse("12:99").isPresent());
+        assertFalse(TramTime.parse("49:12").isValid());
+        assertFalse(TramTime.parse("12:99").isValid());
     }
 
     @Test
@@ -403,11 +403,10 @@ class TramTimeTest {
         assertEquals(beginDate.plusDays(1), result.toLocalDate());
     }
 
-    private void checkCorrectTimePresent(Optional<TramTime> resultA, int hours, int minutes, boolean nextDay) {
-        assertTrue(resultA.isPresent());
-        TramTime time = resultA.get();
-        assertEquals(hours, time.getHourOfDay());
-        assertEquals(minutes, time.getMinuteOfHour());
-        assertEquals(nextDay, time.isNextDay());
+    private void checkCorrectTimePresent(TramTime tramTime, int hours, int minutes, boolean nextDay) {
+        assertTrue(tramTime.isValid());
+        assertEquals(hours, tramTime.getHourOfDay());
+        assertEquals(minutes, tramTime.getMinuteOfHour());
+        assertEquals(nextDay, tramTime.isNextDay());
     }
 }

@@ -27,7 +27,7 @@ import static org.hamcrest.CoreMatchers.hasItems;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.core.IsNot.not;
-import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.*;
 
 @ExtendWith(DropwizardExtensionsSupport.class)
 public class AppUserJourneyLocationsTest extends UserJourneyTest {
@@ -73,12 +73,12 @@ public class AppUserJourneyLocationsTest extends UserJourneyTest {
     void shouldHaveCorrectNearbyStops(ProvidesDriver providesDriver) throws IOException {
         AppPage appPage = prepare(providesDriver);
 
-        Assertions.assertTrue(appPage.hasLocation());
-        Assertions.assertTrue(appPage.searchEnabled());
+        assertTrue(appPage.hasLocation());
+        assertTrue(appPage.searchEnabled());
 
         // from
         List<String> myLocationStops = appPage.getNearbyFromStops();
-        Assertions.assertEquals(1, myLocationStops.size());
+        assertEquals(1, myLocationStops.size());
 
         List<String> nearestFromStops = appPage.getNearestFromStops();
         assertThat("Have nearest stops", nearestFromStops, hasItems(altrincham, TramStations.NavigationRoad.getName()));
@@ -90,19 +90,19 @@ public class AppUserJourneyLocationsTest extends UserJourneyTest {
         List<String> recentFromStops = appPage.getRecentFromStops();
         assertThat(allFrom, not(contains(recentFromStops)));
 
-        Assertions.assertEquals(TransportDataFromFilesTramTest.NUM_TFGM_TRAM_STATIONS,
+        assertEquals(TransportDataFromFilesTramTest.NUM_TFGM_TRAM_STATIONS,
                 nearestFromStops.size() + allFrom.size() + recentFromStops.size());
 
         // to
         List<String> myLocationToStops = appPage.getNearbyToStops();
-        Assertions.assertEquals(1, myLocationToStops.size());
+        assertEquals(1, myLocationToStops.size());
 
         List<String> nearestToStops = appPage.getNearestFromStops();
         assertThat(nearestToStops, hasItems(altrincham, TramStations.NavigationRoad.getName()));
         List<String> allTo = appPage.getAllStopsToStops();
         assertThat(allTo, not(contains(nearestToStops)));
         int recentToCount = appPage.getRecentToStops().size();
-        Assertions.assertEquals(TransportDataFromFilesTramTest.NUM_TFGM_TRAM_STATIONS,
+        assertEquals(TransportDataFromFilesTramTest.NUM_TFGM_TRAM_STATIONS,
                 nearestToStops.size()+allTo.size()+recentToCount);
 
         // check recents works as expected
@@ -132,15 +132,17 @@ public class AppUserJourneyLocationsTest extends UserJourneyTest {
 
         List<TestResultSummaryRow> results = appPage.getResults();
         // TODO lockdown timetable: 3 -> 2
-        Assertions.assertTrue(results.size()>=2, "at least some results");
+        assertTrue(results.size()>=2, "at least some results");
 
         for (TestResultSummaryRow result : results) {
             TramTime departTime = result.getDepartTime();
-            Assertions.assertTrue(departTime.isAfter(planTime), departTime.toString());
+            assertTrue(departTime.isValid());
+            assertTrue(departTime.isAfter(planTime), departTime.toString());
 
             TramTime arriveTime = result.getArriveTime();
-            Assertions.assertTrue(arriveTime.isAfter(departTime), arriveTime.toString());
-            Assertions.assertEquals("Direct", result.getChanges());
+            assertTrue(arriveTime.isValid());
+            assertTrue(arriveTime.isAfter(departTime), arriveTime.toString());
+            assertEquals("Direct", result.getChanges());
         }
 
         // select first journey - this seems to be inconsistent, not returning first displayed journey
@@ -150,16 +152,18 @@ public class AppUserJourneyLocationsTest extends UserJourneyTest {
         firstResult.click(providesDriver);
 
         List<Stage> stages = firstResult.getStages();
-        Assertions.assertEquals(2, stages.size());
+        assertEquals(2, stages.size());
         Stage firstStage = stages.get(0);
 
-        Assertions.assertEquals(TramTime.of(10,19), firstStage.getDepartTime(), "departtime");
-        Assertions.assertEquals("Walk to", firstStage.getAction(), "action");
-        Assertions.assertEquals(TramStations.Altrincham.getName(), firstStage.getActionStation(), "actionStation");
-        Assertions.assertEquals(-1, firstStage.getPlatform(), "platform");
+        final TramTime firstStageDepartTime = firstStage.getDepartTime();
+        assertTrue(firstStageDepartTime.isValid());
+        assertEquals(TramTime.of(10,19), firstStageDepartTime, "departtime");
+        assertEquals("Walk to", firstStage.getAction(), "action");
+        assertEquals(TramStations.Altrincham.getName(), firstStage.getActionStation(), "actionStation");
+        assertEquals(-1, firstStage.getPlatform(), "platform");
 
         // hidden for walking stages
-        Assertions.assertEquals("", firstStage.getLine("RouteClassWalk"), "lineName");
+        assertEquals("", firstStage.getLine("RouteClassWalk"), "lineName");
 
         Stage secondStage = stages.get(1);
         TramTime departTime = TramTime.of(10,25);
