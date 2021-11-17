@@ -2,7 +2,6 @@ package com.tramchester.domain.id;
 
 
 import com.google.common.collect.Sets;
-import com.tramchester.cloud.data.ClientForS3;
 import com.tramchester.domain.GraphProperty;
 import org.jetbrains.annotations.NotNull;
 

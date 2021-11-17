@@ -1,7 +1,6 @@
 package com.tramchester.domain.id;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.tramchester.config.StationClosureConfig;
 import com.tramchester.domain.GraphProperty;
 import org.jetbrains.annotations.NotNull;
 

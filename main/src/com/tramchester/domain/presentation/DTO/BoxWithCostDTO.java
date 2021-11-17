@@ -8,7 +8,6 @@ import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.time.TramServiceDate;
 import com.tramchester.geo.CoordinateTransforms;
 import com.tramchester.mappers.JourneyToDTOMapper;
-import org.opengis.referencing.operation.TransformException;
 
 @JsonTypeName("BoxWithCost")
 @JsonTypeInfo(include=JsonTypeInfo.As.WRAPPER_OBJECT, use=JsonTypeInfo.Id.NAME)

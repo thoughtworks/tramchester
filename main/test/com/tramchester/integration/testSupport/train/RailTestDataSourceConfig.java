@@ -4,7 +4,6 @@ import com.tramchester.config.GTFSSourceConfig;
 import com.tramchester.domain.StationClosure;
 import com.tramchester.domain.reference.GTFSTransportationType;
 import com.tramchester.domain.reference.TransportMode;
-import org.glassfish.jersey.internal.util.JerseyPublisher;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;

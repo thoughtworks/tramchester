@@ -1,6 +1,5 @@
 package com.tramchester.domain.transportStages;
 
-import com.tramchester.domain.MutablePlatform;
 import com.tramchester.domain.Platform;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.id.IdFor;

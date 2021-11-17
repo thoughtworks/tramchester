@@ -1,8 +1,6 @@
 package com.tramchester.unit.graph.databaseManagement;
 
-import com.tramchester.domain.DataSourceID;
 import com.tramchester.domain.DataSourceInfo;
-import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.graph.databaseManagement.GraphDatabaseMetaInfo;
 import com.tramchester.graph.graphbuild.GraphLabel;
 import org.easymock.EasyMock;

@@ -2,7 +2,6 @@ package com.tramchester.graph.search.stateMachine;
 
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.InvalidId;
-import com.tramchester.domain.input.MutableTrip;
 import com.tramchester.domain.input.Trip;
 
 public class ExistingTrip {

@@ -1,7 +1,6 @@
 package com.tramchester.domain.presentation.DTO;
 
 import com.tramchester.domain.StationLink;
-import com.tramchester.domain.StationPair;
 import com.tramchester.domain.reference.TransportMode;
 
 import java.util.Set;
