@@ -34,7 +34,7 @@ import static java.lang.String.format;
 public class TransportDataFromFiles implements TransportDataFactory {
     private static final Logger logger = LoggerFactory.getLogger(TransportDataFromFiles.class);
 
-    private final TransportDataStreams transportDataStreams;
+    private final TransportDataSourceFactory transportDataSourceFactory;
     private final TramchesterConfig config;
     private final ProvidesNow providesNow;
 
@@ -43,9 +43,9 @@ public class TransportDataFromFiles implements TransportDataFactory {
     // NOTE: cannot inject GraphFilter here as circular dependency on being able to find routes which
     // needs transport data to be loaded....
     @Inject
-    public TransportDataFromFiles(TransportDataStreams transportDataStreams,
+    public TransportDataFromFiles(TransportDataSourceFactory transportDataSourceFactory,
                                   TramchesterConfig config, ProvidesNow providesNow) {
-        this.transportDataStreams = transportDataStreams;
+        this.transportDataSourceFactory = transportDataSourceFactory;
         this.config = config;
         this.providesNow = providesNow;
         dataContainer = new TransportDataContainer(providesNow, "TransportDataFromFiles");
@@ -61,7 +61,7 @@ public class TransportDataFromFiles implements TransportDataFactory {
     @PostConstruct
     public void start() {
         logger.info("start");
-        transportDataStreams.forEach(transportDataStream -> load(transportDataStream, dataContainer));
+        transportDataSourceFactory.forEach(transportDataSource -> load(transportDataSource, dataContainer));
         logger.info("started");
     }
 

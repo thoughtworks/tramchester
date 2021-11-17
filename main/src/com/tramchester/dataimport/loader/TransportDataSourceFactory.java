@@ -22,17 +22,17 @@ import java.util.List;
 import java.util.stream.Stream;
 
 @LazySingleton
-public class TransportDataStreams implements Iterable<TransportDataSource> {
-    private static final Logger logger = LoggerFactory.getLogger(TransportDataStreams.class);
+public class TransportDataSourceFactory implements Iterable<TransportDataSource> {
+    private static final Logger logger = LoggerFactory.getLogger(TransportDataSourceFactory.class);
 
     private final List<TransportDataSource> theList;
-    private final TransportDataReaderFactory dataLoader;
+    private final TransportDataReaderFactory readerFactory;
     private final NaptanRespository naptanRespository;
 
     @Inject
-    public TransportDataStreams(TransportDataReaderFactory dataLoader, NaptanRespository naptanRespository,
-                                UnzipFetchedData.Ready dataIsDownloadedAndUnzipped) {
-        this.dataLoader = dataLoader;
+    public TransportDataSourceFactory(TransportDataReaderFactory readerFactory, NaptanRespository naptanRespository,
+                                      UnzipFetchedData.Ready dataIsDownloadedAndUnzipped) {
+        this.readerFactory = readerFactory;
         this.naptanRespository = naptanRespository;
         theList = new ArrayList<>();
     }
@@ -42,7 +42,7 @@ public class TransportDataStreams implements Iterable<TransportDataSource> {
     public void start() {
         logger.info("start");
 
-        List<TransportDataReader> transportDataReaders = dataLoader.getReaders();
+        List<TransportDataReader> transportDataReaders = readerFactory.getReaders();
 
         // streams, so no data read yet
 
