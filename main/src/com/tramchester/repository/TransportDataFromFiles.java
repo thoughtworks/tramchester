@@ -253,54 +253,17 @@ public class TransportDataFromFiles implements TransportDataFactory {
                                              PreloadedStationsAndPlatforms preloadStations, TripAndServices tripAndServices,
                                              TransportEntityFactory factory, GTFSSourceConfig dataSourceConfig) {
         String sourceName = dataSourceConfig.getName();
-        IdMap<Service> addedServices = new IdMap<>();
-        IdSet<Station> excludedStations = new IdSet<>();
-        MissingPlatforms missingPlatforms = new MissingPlatforms();
+
+        StopTimeDataLoader stopTimeDataLoader = new StopTimeDataLoader(buildable, preloadStations, factory, dataSourceConfig, tripAndServices);
 
         logger.info("Loading stop times for " + sourceName);
-        AtomicInteger stopTimesLoaded = new AtomicInteger();
         stopTimes.
                 filter(stopTimeData -> tripAndServices.hasId(stopTimeData.getTripId())).
                 filter(this::isValid).
-                forEach((stopTimeData) -> {
-                    final String stopId = stopTimeData.getStopId();
-                    final IdFor<Station> stationId = factory.formStationId(stopId);
-                    final IdFor<Trip> stopTripId = stopTimeData.getTripId();
+                forEach(stopTimeDataLoader::load);
 
-                    if (preloadStations.hasId(stationId)) {
-                        final MutableTrip trip = tripAndServices.getTrip(stopTripId);
-                        final Route route = getRouteFrom(trip);
-                        final MutableStation station = preloadStations.get(stationId);
-
-                        if (expectedPlatformsForRoute(dataSourceConfig, route) && !station.hasPlatforms()) {
-                            missingPlatforms.record(stationId, stopTripId);
-                        } else {
-                            Service added = addStopTimeData(buildable, preloadStations, tripAndServices, factory, dataSourceConfig,
-                                    stopTimeData, trip, station, route);
-                            addedServices.add(added);
-                            stopTimesLoaded.getAndIncrement();
-                        }
-
-                    } else {
-                        excludedStations.add(stationId);
-                        if (tripAndServices.hasId(stopTripId)) {
-                            MutableTrip trip = tripAndServices.getTrip(stopTripId);
-                            trip.setFiltered(true);
-                        } else {
-                            logger.warn(format("No trip %s for filtered stopcall %s", stopTripId, stationId));
-                        }
-                    }
-                });
-
-        if (!excludedStations.isEmpty()) {
-            logger.warn("Excluded the following station ids (flagged out of area) : " + excludedStations + " for " + sourceName);
-            excludedStations.clear();
-        }
-        missingPlatforms.recordInLog(dataSourceConfig);
-        missingPlatforms.clear();
-
-        logger.info("Loaded " + stopTimesLoaded.get() + " stop times for " + sourceName);
-        return addedServices;
+        stopTimeDataLoader.close();
+        return stopTimeDataLoader.getAddedServices();
     }
 
     private boolean isValid(StopTimeData stopTimeData) {
@@ -311,92 +274,9 @@ public class TransportDataFromFiles implements TransportDataFactory {
         return false;
     }
 
-    @NotNull
-    private Route getRouteFrom(MutableTrip trip) {
-        Route route = trip.getRoute();
 
-        if (route == null) {
-            throw new RuntimeException("Null route for " + trip.getId());
-        }
-        return route;
-    }
 
-    private boolean expectedPlatformsForRoute(GTFSSourceConfig dataSourceConfig, Route route) {
-        return dataSourceConfig.getTransportModesWithPlatforms().contains(route.getTransportMode());
-    }
 
-    private Service addStopTimeData(WriteableTransportData buildable, PreloadedStationsAndPlatforms preloadStations,
-                                 TripAndServices tripAndServices, TransportEntityFactory factory,
-                                 GTFSSourceConfig dataSourceConfig, StopTimeData stopTimeData,
-                                 MutableTrip trip, MutableStation station, Route route) {
-        addStationTo(buildable, route, station, factory);
-        addPlatformsForStation(buildable, station, preloadStations);
-
-        StopCall stopCall = createStopCall(buildable, stopTimeData, route, trip, station,
-                factory, dataSourceConfig);
-
-        trip.addStop(stopCall);
-
-        if (!buildable.hasTripId(trip.getId())) {
-            buildable.addTrip(trip); // seen at least one stop for this trip
-        }
-
-        final MutableService service = tripAndServices.getService(trip.getService().getId());
-
-        final MutableRoute mutableRoute = buildable.getMutableRoute(route.getId());
-        mutableRoute.addTrip(trip);
-        mutableRoute.addService(service);
-
-        buildable.addService(service);
-
-        return service;
-    }
-
-    private void addPlatformsForStation(WriteableTransportData buildable, Station station, PreloadedStationsAndPlatforms preloadStations) {
-        station.getPlatforms().stream().
-                map(HasId::getId).
-                filter(platformId -> !buildable.hasPlatformId(platformId)).
-                map(preloadStations::getPlatform).
-                forEach(buildable::addPlatform);
-    }
-
-    private StopCall createStopCall(WriteableTransportData buildable, StopTimeData stopTimeData,
-                                    Route route, Trip trip, Station station, TransportEntityFactory factory,
-                                    GTFSSourceConfig sourceConfig) {
-        IdFor<Platform> platformId = stopTimeData.getPlatformId();
-        TransportMode transportMode = route.getTransportMode();
-
-        if (sourceConfig.getTransportModesWithPlatforms().contains(transportMode)) {
-            if (buildable.hasPlatformId(platformId)) {
-                MutablePlatform platform = buildable.getMutablePlatform(platformId);
-                platform.addRoute(route);
-                return factory.createPlatformStopCall(trip, platform, station, stopTimeData);
-            } else {
-                IdFor<Route> routeId = route.getId();
-                logger.error("Missing platform " + platformId + " For transport mode " + transportMode + " and route " + routeId);
-                return factory.createNoPlatformStopCall(trip, station, stopTimeData);
-            }
-        } else {
-            return factory.createNoPlatformStopCall(trip, station, stopTimeData);
-        }
-    }
-
-    private void addStationTo(WriteableTransportData container, Route route, MutableStation station, TransportEntityFactory factory) {
-        station.addRoute(route);
-
-        IdFor<Station> stationId = station.getId();
-        if (!container.hasStationId(stationId)) {
-            container.addStation(station);
-            if (!station.getLatLong().isValid()) {
-                logger.warn("Station has invalid position " + station);
-            }
-        }
-
-        if (!container.hasRouteStationId(RouteStation.createId(stationId, route.getId()))) {
-            RouteStation routeStation = factory.createRouteStation(station, route);
-            container.addRouteStation(routeStation);
-        }
-    }
 
     private TripAndServices loadTripsAndServices(WriteableTransportData buildable, Stream<TripData> tripDataStream,
                                                  ExcludedRoutes excludedRoutes,
@@ -564,6 +444,165 @@ public class TransportDataFromFiles implements TransportDataFactory {
             trips.getOrAdd(tripId, () -> factory.createTrip(tripData, service, route));
         }
 
+    }
+
+    private static class StopTimeDataLoader {
+        private final IdMap<Service> addedServices;
+        private final IdSet<Station> excludedStations;
+        private final MissingPlatforms missingPlatforms;
+        private final WriteableTransportData buildable;
+        private final PreloadedStationsAndPlatforms preloadStations;
+        private final TransportEntityFactory factory;
+        private final GTFSSourceConfig dataSourceConfig;
+        private final TripAndServices tripAndServices;
+        private final AtomicInteger stopTimesLoaded;
+
+        public StopTimeDataLoader(WriteableTransportData buildable, PreloadedStationsAndPlatforms preloadStations,
+                                  TransportEntityFactory factory, GTFSSourceConfig dataSourceConfig, TripAndServices tripAndServices) {
+            this.buildable = buildable;
+            this.preloadStations = preloadStations;
+            this.factory = factory;
+            this.dataSourceConfig = dataSourceConfig;
+            this.tripAndServices = tripAndServices;
+
+            addedServices = new IdMap<>();
+            excludedStations = new IdSet<>();
+            missingPlatforms = new MissingPlatforms();
+            stopTimesLoaded = new AtomicInteger();
+        }
+
+        public void load(StopTimeData stopTimeData) {
+            final String stopId = stopTimeData.getStopId();
+            final IdFor<Station> stationId = factory.formStationId(stopId);
+            final IdFor<Trip> stopTripId = stopTimeData.getTripId();
+
+            if (preloadStations.hasId(stationId)) {
+                final MutableTrip trip = tripAndServices.getTrip(stopTripId);
+                final Route route = getRouteFrom(trip);
+                final MutableStation station = preloadStations.get(stationId);
+
+                if (expectedPlatformsForRoute(dataSourceConfig, route) && !station.hasPlatforms()) {
+                    missingPlatforms.record(stationId, stopTripId);
+                } else {
+                    Service added = addStopTimeData(buildable, preloadStations, tripAndServices, factory, dataSourceConfig,
+                            stopTimeData, trip, station, route);
+                    addedServices.add(added);
+                    stopTimesLoaded.getAndIncrement();
+                }
+
+            } else {
+                excludedStations.add(stationId);
+                if (tripAndServices.hasId(stopTripId)) {
+                    MutableTrip trip = tripAndServices.getTrip(stopTripId);
+                    trip.setFiltered(true);
+                } else {
+                    logger.warn(format("No trip %s for filtered stopcall %s", stopTripId, stationId));
+                }
+            }
+        }
+
+        @NotNull
+        private Route getRouteFrom(MutableTrip trip) {
+            Route route = trip.getRoute();
+
+            if (route == null) {
+                throw new RuntimeException("Null route for " + trip.getId());
+            }
+            return route;
+        }
+
+        private boolean expectedPlatformsForRoute(GTFSSourceConfig dataSourceConfig, Route route) {
+            return dataSourceConfig.getTransportModesWithPlatforms().contains(route.getTransportMode());
+        }
+
+        private Service addStopTimeData(WriteableTransportData buildable, PreloadedStationsAndPlatforms preloadStations,
+                                        TripAndServices tripAndServices, TransportEntityFactory factory,
+                                        GTFSSourceConfig dataSourceConfig, StopTimeData stopTimeData,
+                                        MutableTrip trip, MutableStation station, Route route) {
+            addStationTo(buildable, route, station, factory);
+            addPlatformsForStation(buildable, station, preloadStations);
+
+            StopCall stopCall = createStopCall(buildable, stopTimeData, route, trip, station,
+                    factory, dataSourceConfig);
+
+            trip.addStop(stopCall);
+
+            if (!buildable.hasTripId(trip.getId())) {
+                buildable.addTrip(trip); // seen at least one stop for this trip
+            }
+
+            final MutableService service = tripAndServices.getService(trip.getService().getId());
+
+            final MutableRoute mutableRoute = buildable.getMutableRoute(route.getId());
+            mutableRoute.addTrip(trip);
+            mutableRoute.addService(service);
+
+            buildable.addService(service);
+
+            return service;
+        }
+
+        private void addStationTo(WriteableTransportData container, Route route, MutableStation station, TransportEntityFactory factory) {
+            station.addRoute(route);
+
+            IdFor<Station> stationId = station.getId();
+            if (!container.hasStationId(stationId)) {
+                container.addStation(station);
+                if (!station.getLatLong().isValid()) {
+                    logger.warn("Station has invalid position " + station);
+                }
+            }
+
+            if (!container.hasRouteStationId(RouteStation.createId(stationId, route.getId()))) {
+                RouteStation routeStation = factory.createRouteStation(station, route);
+                container.addRouteStation(routeStation);
+            }
+        }
+
+        private void addPlatformsForStation(WriteableTransportData buildable, Station station, PreloadedStationsAndPlatforms preloadStations) {
+            station.getPlatforms().stream().
+                    map(HasId::getId).
+                    filter(platformId -> !buildable.hasPlatformId(platformId)).
+                    map(preloadStations::getPlatform).
+                    forEach(buildable::addPlatform);
+        }
+
+        private StopCall createStopCall(WriteableTransportData buildable, StopTimeData stopTimeData,
+                                        Route route, Trip trip, Station station, TransportEntityFactory factory,
+                                        GTFSSourceConfig sourceConfig) {
+            IdFor<Platform> platformId = stopTimeData.getPlatformId();
+            TransportMode transportMode = route.getTransportMode();
+
+            if (sourceConfig.getTransportModesWithPlatforms().contains(transportMode)) {
+                if (buildable.hasPlatformId(platformId)) {
+                    MutablePlatform platform = buildable.getMutablePlatform(platformId);
+                    platform.addRoute(route);
+                    return factory.createPlatformStopCall(trip, platform, station, stopTimeData);
+                } else {
+                    IdFor<Route> routeId = route.getId();
+                    logger.error("Missing platform " + platformId + " For transport mode " + transportMode + " and route " + routeId);
+                    return factory.createNoPlatformStopCall(trip, station, stopTimeData);
+                }
+            } else {
+                return factory.createNoPlatformStopCall(trip, station, stopTimeData);
+            }
+        }
+
+        public IdMap<Service> getAddedServices() {
+            return addedServices;
+        }
+
+        public void close() {
+            String sourceName = dataSourceConfig.getName();
+            if (!excludedStations.isEmpty()) {
+                logger.warn("Excluded the following station ids (flagged out of area) : " + excludedStations + " for " + sourceName);
+                excludedStations.clear();
+            }
+            missingPlatforms.recordInLog(dataSourceConfig);
+            missingPlatforms.clear();
+
+            logger.info("Loaded " + stopTimesLoaded.get() + " stop times for " + sourceName);
+        }
     }
 
     private static class ExcludedRoutes {
