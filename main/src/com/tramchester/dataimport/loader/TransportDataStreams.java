@@ -26,11 +26,11 @@ public class TransportDataStreams implements Iterable<TransportDataSource> {
     private static final Logger logger = LoggerFactory.getLogger(TransportDataStreams.class);
 
     private final List<TransportDataSource> theList;
-    private final TransportDataLoader dataLoader;
+    private final TransportDataReaderFactory dataLoader;
     private final NaptanRespository naptanRespository;
 
     @Inject
-    public TransportDataStreams(TransportDataLoader dataLoader, NaptanRespository naptanRespository,
+    public TransportDataStreams(TransportDataReaderFactory dataLoader, NaptanRespository naptanRespository,
                                 UnzipFetchedData.Ready dataIsDownloadedAndUnzipped) {
         this.dataLoader = dataLoader;
         this.naptanRespository = naptanRespository;

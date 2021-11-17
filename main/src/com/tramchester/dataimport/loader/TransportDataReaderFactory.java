@@ -22,8 +22,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 @LazySingleton
-public class TransportDataLoaderFiles implements TransportDataLoader {
-    private static final Logger logger = LoggerFactory.getLogger(TransportDataLoaderFiles.class);
+public class TransportDataReaderFactory {
+    private static final Logger logger = LoggerFactory.getLogger(TransportDataReaderFactory.class);
 
     private final TramchesterConfig tramchesterConfig;
     private final List<TransportDataReader> dataReaders;
@@ -31,7 +31,7 @@ public class TransportDataLoaderFiles implements TransportDataLoader {
     private final CsvMapper mapper;
 
     @Inject
-    public TransportDataLoaderFiles(TramchesterConfig tramchesterConfig, FetchFileModTime fetchFileModTime, CsvMapper mapper) {
+    public TransportDataReaderFactory(TramchesterConfig tramchesterConfig, FetchFileModTime fetchFileModTime, CsvMapper mapper) {
         this.fetchFileModTime = fetchFileModTime;
         this.mapper = mapper;
         dataReaders = new ArrayList<>();

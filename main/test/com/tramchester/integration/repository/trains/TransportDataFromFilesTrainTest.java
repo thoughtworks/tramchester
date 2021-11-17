@@ -5,7 +5,7 @@ import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.config.GTFSSourceConfig;
 import com.tramchester.config.TramchesterConfig;
-import com.tramchester.dataimport.loader.TransportDataLoaderFiles;
+import com.tramchester.dataimport.loader.TransportDataReaderFactory;
 import com.tramchester.dataimport.loader.TransportDataReader;
 import com.tramchester.dataimport.data.CalendarDateData;
 import com.tramchester.domain.*;
@@ -140,7 +140,7 @@ public class TransportDataFromFilesTrainTest {
     @Test
     void shouldBeApplyingExceptionalDatesCorrectly() {
 
-        TransportDataLoaderFiles dataReaderFactory = componentContainer.get(TransportDataLoaderFiles.class);
+        TransportDataReaderFactory dataReaderFactory = componentContainer.get(TransportDataReaderFactory.class);
         List<TransportDataReader> transportDataReaders = dataReaderFactory.getReaders();
         TransportDataReader transportDataReader = transportDataReaders.get(0); // yuk
         Stream<CalendarDateData> calendarsDates = transportDataReader.getCalendarDates();
