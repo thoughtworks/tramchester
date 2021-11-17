@@ -97,8 +97,8 @@ public class ServiceHeuristics {
         return reasons.recordReason(ServiceReason.DoesNotOperateOnTime(currentElapsed, howIGotHere));
     }
 
-    public ServiceReason interestedInHour(HowIGotHere howIGotHere, Node node, TramTime journeyClockTime,
-                                          ServiceReasons reasons, int maxWait,  EnumSet<GraphLabel> labels) {
+    public ServiceReason interestedInHour(HowIGotHere howIGotHere, TramTime journeyClockTime,
+                                          ServiceReasons reasons, int maxWait, EnumSet<GraphLabel> labels) {
         reasons.incrementTotalChecked();
 
         int queryTimeHour = journeyClockTime.getHourOfDay();

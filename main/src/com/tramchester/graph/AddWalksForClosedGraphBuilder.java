@@ -8,7 +8,7 @@ import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.places.Station;
 import com.tramchester.geo.CoordinateTransforms;
 import com.tramchester.geo.MarginInMeters;
-import com.tramchester.geo.StationLocations;
+import com.tramchester.geo.StationLocationsRepository;
 import com.tramchester.graph.filters.GraphFilter;
 import com.tramchester.graph.graphbuild.CreateNodesAndRelationships;
 import com.tramchester.graph.graphbuild.GraphLabel;
@@ -31,7 +31,7 @@ import java.util.stream.Collectors;
 
 import static com.tramchester.domain.id.HasId.asIds;
 import static com.tramchester.graph.GraphPropertyKey.SOURCE_NAME_PROP;
-import static com.tramchester.graph.TransportRelationshipTypes.*;
+import static com.tramchester.graph.TransportRelationshipTypes.DIVERSION;
 
 @LazySingleton
 public class AddWalksForClosedGraphBuilder extends CreateNodesAndRelationships {
@@ -40,14 +40,15 @@ public class AddWalksForClosedGraphBuilder extends CreateNodesAndRelationships {
     private final GraphDatabase database;
     private final StationRepository stationRepository;
     private final GraphQuery graphQuery;
-    private final StationLocations stationLocations;
+    private final StationLocationsRepository stationLocations;
     private final TramchesterConfig config;
     private final GraphFilter filter;
 
     @Inject
-    public AddWalksForClosedGraphBuilder(GraphDatabase database, GraphFilter filter, GraphQuery graphQuery, StationRepository repository,
+    public AddWalksForClosedGraphBuilder(GraphDatabase database, GraphFilter filter, GraphQuery graphQuery,
+                                         StationRepository repository,
                                          TramchesterConfig config, StationsAndLinksGraphBuilder.Ready ready,
-                                         StationLocations stationLocations) {
+                                         StationLocationsRepository stationLocations) {
         super(database);
         this.database = database;
         this.filter = filter;

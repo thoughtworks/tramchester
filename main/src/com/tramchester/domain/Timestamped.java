@@ -10,6 +10,7 @@ import com.tramchester.mappers.serialisation.LocalDateTimeJsonSerializeAsMillis;
 
 import java.time.LocalDateTime;
 
+@SuppressWarnings("unused")
 public class Timestamped  {
     private LocalDateTime when; // Serialised as Millis since epoch
     private String id;
@@ -28,7 +29,6 @@ public class Timestamped  {
         this.id = id;
     }
 
-    @SuppressWarnings("unused")
     public Timestamped() {
         // deserialisation
     }

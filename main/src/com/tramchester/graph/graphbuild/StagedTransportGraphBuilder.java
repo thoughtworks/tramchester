@@ -525,12 +525,4 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
         }
     }
 
-    public interface StationAndRouteStations {
-        IdFor<Station> getStation();
-
-        default Set<RouteStation> getRouteStations(TransportData transportData) {
-            return transportData.getRouteStationsFor(getStation());
-        }
-    }
-
 }

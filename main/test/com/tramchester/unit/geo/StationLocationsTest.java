@@ -1,6 +1,5 @@
 package com.tramchester.unit.geo;
 
-import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.DataSourceID;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.LatLong;
@@ -34,7 +33,6 @@ class StationLocationsTest extends EasyMockSupport {
     void onceBeforeEachTest() {
         stationRepository = createMock(StationRepository.class);
         compositeStationRepository = createMock(CompositeStationRepository.class);
-        TramchesterConfig config = TestEnv.GET();
         stationLocations = new StationLocations(stationRepository, compositeStationRepository);
     }
 

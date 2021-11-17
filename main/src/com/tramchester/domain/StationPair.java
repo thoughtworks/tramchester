@@ -4,9 +4,6 @@ import com.tramchester.domain.input.StopCalls;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
 
-import java.util.Set;
-import java.util.stream.Stream;
-
 public class StationPair {
     private final Station begin;
     private final Station end;
@@ -24,12 +21,12 @@ public class StationPair {
         return new StationPair(leg.getFirstStation(), leg.getSecondStation());
     }
 
-    public static Stream<StationPair> combinationsOf(Set<Station> starts, Set<Station> ends) {
-        return starts.stream().
-                flatMap(start -> ends.stream().
-                        filter(end -> !end.equals(start)).map(end -> of(start,end))
-                );
-    }
+//    public static Stream<StationPair> combinationsOf(Set<Station> starts, Set<Station> ends) {
+//        return starts.stream().
+//                flatMap(start -> ends.stream().
+//                        filter(end -> !end.equals(start)).map(end -> of(start,end))
+//                );
+//    }
 
     @Override
     public String toString() {

@@ -195,7 +195,7 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
         // -->Hour
         // check time, just hour first
         if (labels.contains(GraphLabel.HOUR)) {
-            if (!serviceHeuristics.interestedInHour(howIGotHere, nextNode, visitingTime, reasons, timeToWait, labels).isValid()) {
+            if (!serviceHeuristics.interestedInHour(howIGotHere, visitingTime, reasons, timeToWait, labels).isValid()) {
                 return ServiceReason.ReasonCode.NotAtHour;
             }
         }

@@ -153,16 +153,15 @@ class ServiceHeuristicsTest extends EasyMockSupport {
 
         int costSoFar = 58; // 9.59
         TramTime elapsed = queryTime.plusMinutes(costSoFar);
-        Node node = createMock(Node.class);
 
         replayAll();
         ServiceHeuristics serviceHeuristics = new ServiceHeuristics(stationRepository, nodeContentsCache,
                 journeyConstraints, queryTime, MAX_NUM_CHANGES);
 
-        assertFalse(serviceHeuristics.interestedInHour(howIGotHere, node, elapsed, reasons, MAX_WAIT, EnumSet.of(HOUR_8)).isValid());
-        assertTrue(serviceHeuristics.interestedInHour(howIGotHere, node, elapsed, reasons, MAX_WAIT, EnumSet.of(HOUR_9)).isValid());
-        assertTrue(serviceHeuristics.interestedInHour(howIGotHere, node, elapsed, reasons, MAX_WAIT, EnumSet.of(HOUR_10)).isValid());
-        assertFalse(serviceHeuristics.interestedInHour(howIGotHere, node, elapsed, reasons, MAX_WAIT, EnumSet.of(HOUR_11)).isValid());
+        assertFalse(serviceHeuristics.interestedInHour(howIGotHere, elapsed, reasons, MAX_WAIT, EnumSet.of(HOUR_8)).isValid());
+        assertTrue(serviceHeuristics.interestedInHour(howIGotHere, elapsed, reasons, MAX_WAIT, EnumSet.of(HOUR_9)).isValid());
+        assertTrue(serviceHeuristics.interestedInHour(howIGotHere, elapsed, reasons, MAX_WAIT, EnumSet.of(HOUR_10)).isValid());
+        assertFalse(serviceHeuristics.interestedInHour(howIGotHere, elapsed, reasons, MAX_WAIT, EnumSet.of(HOUR_11)).isValid());
         verifyAll();
     }
 
@@ -175,16 +174,15 @@ class ServiceHeuristicsTest extends EasyMockSupport {
         EasyMock.expect(journeyConstraints.getFewestChangesCalculator()).andReturn(fewestHopsForRoutes);
 
         TramTime elapsed = TramTime.of(10,29);
-        Node node = createMock(Node.class);
 
         replayAll();
         ServiceHeuristics serviceHeuristics = new ServiceHeuristics(stationRepository, nodeContentsCache,
                 journeyConstraints, queryTime, MAX_NUM_CHANGES);
 
-        assertFalse(serviceHeuristics.interestedInHour(howIGotHere, node, elapsed, reasons, MAX_WAIT, EnumSet.of(HOUR_8)).isValid());
-        assertFalse(serviceHeuristics.interestedInHour(howIGotHere, node, elapsed, reasons, MAX_WAIT, EnumSet.of(HOUR_9)).isValid());
-        assertTrue(serviceHeuristics.interestedInHour(howIGotHere, node, elapsed, reasons, MAX_WAIT, EnumSet.of(HOUR_10)).isValid());
-        assertFalse(serviceHeuristics.interestedInHour(howIGotHere, node, elapsed, reasons, MAX_WAIT, EnumSet.of(HOUR_11)).isValid());
+        assertFalse(serviceHeuristics.interestedInHour(howIGotHere, elapsed, reasons, MAX_WAIT, EnumSet.of(HOUR_8)).isValid());
+        assertFalse(serviceHeuristics.interestedInHour(howIGotHere, elapsed, reasons, MAX_WAIT, EnumSet.of(HOUR_9)).isValid());
+        assertTrue(serviceHeuristics.interestedInHour(howIGotHere, elapsed, reasons, MAX_WAIT, EnumSet.of(HOUR_10)).isValid());
+        assertFalse(serviceHeuristics.interestedInHour(howIGotHere, elapsed, reasons, MAX_WAIT, EnumSet.of(HOUR_11)).isValid());
         verifyAll();
     }
 
@@ -199,16 +197,14 @@ class ServiceHeuristicsTest extends EasyMockSupport {
         int costSoFar = 15;  // 23.25
         TramTime elapsed = queryTime.plusMinutes(costSoFar);
 
-        Node node = createMock(Node.class);
-
         replayAll();
         ServiceHeuristics serviceHeuristics = new ServiceHeuristics(stationRepository, nodeContentsCache,
                 journeyConstraints, queryTime, MAX_NUM_CHANGES);
 
-        assertFalse(serviceHeuristics.interestedInHour(howIGotHere, node, elapsed, reasons, MAX_WAIT, EnumSet.of(HOUR_22)).isValid());
-        assertTrue(serviceHeuristics.interestedInHour(howIGotHere, node, elapsed, reasons, MAX_WAIT, EnumSet.of(HOUR_23)).isValid());
-        assertFalse(serviceHeuristics.interestedInHour(howIGotHere, node, elapsed, reasons, MAX_WAIT, EnumSet.of(HOUR_0)).isValid());
-        assertFalse(serviceHeuristics.interestedInHour(howIGotHere, node, elapsed, reasons, MAX_WAIT, EnumSet.of(HOUR_1)).isValid());
+        assertFalse(serviceHeuristics.interestedInHour(howIGotHere, elapsed, reasons, MAX_WAIT, EnumSet.of(HOUR_22)).isValid());
+        assertTrue(serviceHeuristics.interestedInHour(howIGotHere, elapsed, reasons, MAX_WAIT, EnumSet.of(HOUR_23)).isValid());
+        assertFalse(serviceHeuristics.interestedInHour(howIGotHere, elapsed, reasons, MAX_WAIT, EnumSet.of(HOUR_0)).isValid());
+        assertFalse(serviceHeuristics.interestedInHour(howIGotHere, elapsed, reasons, MAX_WAIT, EnumSet.of(HOUR_1)).isValid());
         verifyAll();
     }
 
@@ -223,16 +219,14 @@ class ServiceHeuristicsTest extends EasyMockSupport {
         int costSoFar = 15;  // 23.55
         TramTime elapsed = queryTime.plusMinutes(costSoFar);
 
-        Node node = createMock(Node.class);
-
         replayAll();
         ServiceHeuristics serviceHeuristics = new ServiceHeuristics(stationRepository, nodeContentsCache,
                 journeyConstraints, queryTime, MAX_NUM_CHANGES);
 
-        assertFalse(serviceHeuristics.interestedInHour(howIGotHere, node, elapsed, reasons, MAX_WAIT, EnumSet.of(HOUR_22)).isValid()); // before
-        assertTrue(serviceHeuristics.interestedInHour(howIGotHere, node, elapsed, reasons, MAX_WAIT, EnumSet.of(HOUR_23)).isValid());
-        assertTrue(serviceHeuristics.interestedInHour(howIGotHere, node, elapsed, reasons, MAX_WAIT, EnumSet.of(HOUR_0)).isValid());
-        assertFalse(serviceHeuristics.interestedInHour(howIGotHere, node, elapsed, reasons, MAX_WAIT, EnumSet.of(HOUR_1)).isValid());
+        assertFalse(serviceHeuristics.interestedInHour(howIGotHere, elapsed, reasons, MAX_WAIT, EnumSet.of(HOUR_22)).isValid()); // before
+        assertTrue(serviceHeuristics.interestedInHour(howIGotHere, elapsed, reasons, MAX_WAIT, EnumSet.of(HOUR_23)).isValid());
+        assertTrue(serviceHeuristics.interestedInHour(howIGotHere, elapsed, reasons, MAX_WAIT, EnumSet.of(HOUR_0)).isValid());
+        assertFalse(serviceHeuristics.interestedInHour(howIGotHere, elapsed, reasons, MAX_WAIT, EnumSet.of(HOUR_1)).isValid());
         verifyAll();
     }
 
@@ -247,15 +241,13 @@ class ServiceHeuristicsTest extends EasyMockSupport {
         int costSoFar = 15;  // = 23.55
         TramTime elapsed = queryTime.plusMinutes(costSoFar);
 
-        Node node = createMock(Node.class);
-
         replayAll();
         ServiceHeuristics serviceHeuristics = new ServiceHeuristics(stationRepository, nodeContentsCache,
                 journeyConstraints, queryTime, MAX_NUM_CHANGES);
 
-        assertFalse(serviceHeuristics.interestedInHour(howIGotHere, node, elapsed, reasons, MAX_WAIT, EnumSet.of(HOUR_23)).isValid());
-        assertTrue(serviceHeuristics.interestedInHour(howIGotHere, node, elapsed, reasons, MAX_WAIT, EnumSet.of(HOUR_0)).isValid());
-        assertFalse(serviceHeuristics.interestedInHour(howIGotHere, node, elapsed, reasons, MAX_WAIT, EnumSet.of(HOUR_1)).isValid());
+        assertFalse(serviceHeuristics.interestedInHour(howIGotHere, elapsed, reasons, MAX_WAIT, EnumSet.of(HOUR_23)).isValid());
+        assertTrue(serviceHeuristics.interestedInHour(howIGotHere, elapsed, reasons, MAX_WAIT, EnumSet.of(HOUR_0)).isValid());
+        assertFalse(serviceHeuristics.interestedInHour(howIGotHere, elapsed, reasons, MAX_WAIT, EnumSet.of(HOUR_1)).isValid());
         verifyAll();
     }
 
@@ -270,15 +262,13 @@ class ServiceHeuristicsTest extends EasyMockSupport {
         int costSoFar = 15;
         TramTime elapsed = queryTime.plusMinutes(costSoFar);
 
-        Node node = createMock(Node.class);
-
         replayAll();
         ServiceHeuristics serviceHeuristics = new ServiceHeuristics(stationRepository, nodeContentsCache,
                 journeyConstraints, queryTime, MAX_NUM_CHANGES);
 
-        assertFalse(serviceHeuristics.interestedInHour(howIGotHere, node, elapsed, reasons, MAX_WAIT, EnumSet.of(HOUR_23)).isValid());
-        assertFalse(serviceHeuristics.interestedInHour(howIGotHere, node, elapsed, reasons, MAX_WAIT, EnumSet.of(HOUR_0)).isValid());
-        assertTrue(serviceHeuristics.interestedInHour(howIGotHere, node, elapsed, reasons, MAX_WAIT, EnumSet.of(HOUR_1)).isValid());
+        assertFalse(serviceHeuristics.interestedInHour(howIGotHere, elapsed, reasons, MAX_WAIT, EnumSet.of(HOUR_23)).isValid());
+        assertFalse(serviceHeuristics.interestedInHour(howIGotHere, elapsed, reasons, MAX_WAIT, EnumSet.of(HOUR_0)).isValid());
+        assertTrue(serviceHeuristics.interestedInHour(howIGotHere, elapsed, reasons, MAX_WAIT, EnumSet.of(HOUR_1)).isValid());
         verifyAll();
     }
 
@@ -360,16 +350,15 @@ class ServiceHeuristicsTest extends EasyMockSupport {
         EasyMock.expect(journeyConstraints.getFewestChangesCalculator()).andReturn(fewestHopsForRoutes);
 
         TramTime elapsed = TramTime.of(0,1);
-        Node node = createStrictMock(Node.class);
 
         replayAll();
         ServiceHeuristics serviceHeuristics = new ServiceHeuristics(stationRepository, nodeContentsCache,
                 journeyConstraints, queryTime, MAX_NUM_CHANGES);
 
-        assertFalse(serviceHeuristics.interestedInHour(howIGotHere, node, elapsed, reasons, MAX_WAIT, EnumSet.of(HOUR_22)).isValid());
-        assertFalse(serviceHeuristics.interestedInHour(howIGotHere, node, elapsed, reasons, MAX_WAIT, EnumSet.of(HOUR_23)).isValid());
-        assertTrue(serviceHeuristics.interestedInHour(howIGotHere, node, elapsed, reasons, MAX_WAIT, EnumSet.of(HOUR_0)).isValid());
-        assertFalse(serviceHeuristics.interestedInHour(howIGotHere, node, elapsed, reasons, MAX_WAIT, EnumSet.of(HOUR_1)).isValid());
+        assertFalse(serviceHeuristics.interestedInHour(howIGotHere, elapsed, reasons, MAX_WAIT, EnumSet.of(HOUR_22)).isValid());
+        assertFalse(serviceHeuristics.interestedInHour(howIGotHere, elapsed, reasons, MAX_WAIT, EnumSet.of(HOUR_23)).isValid());
+        assertTrue(serviceHeuristics.interestedInHour(howIGotHere, elapsed, reasons, MAX_WAIT, EnumSet.of(HOUR_0)).isValid());
+        assertFalse(serviceHeuristics.interestedInHour(howIGotHere, elapsed, reasons, MAX_WAIT, EnumSet.of(HOUR_1)).isValid());
         verifyAll();
     }
 

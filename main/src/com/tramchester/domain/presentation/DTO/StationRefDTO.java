@@ -5,6 +5,7 @@ import com.tramchester.domain.places.Location;
 
 import java.util.Set;
 
+@SuppressWarnings("unused")
 public class StationRefDTO {
     private String id;
     private String name;

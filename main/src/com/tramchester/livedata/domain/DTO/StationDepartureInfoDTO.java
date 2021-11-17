@@ -14,6 +14,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
+@SuppressWarnings("unused")
 public class StationDepartureInfoDTO  {
     private String lineName;
     private String stationPlatform;
@@ -47,7 +48,6 @@ public class StationDepartureInfoDTO  {
                 info.getStation().getName());
     }
 
-    @SuppressWarnings("unused")
     public StationDepartureInfoDTO() {
         // deserialisation
     }

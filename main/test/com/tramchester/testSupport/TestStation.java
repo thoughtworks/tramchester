@@ -1,10 +1,11 @@
 package com.tramchester.testSupport;
 
-import com.tramchester.domain.*;
+import com.tramchester.domain.DataSourceID;
+import com.tramchester.domain.Platform;
+import com.tramchester.domain.Route;
 import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.places.MutableStation;
 import com.tramchester.domain.places.Station;
-import com.tramchester.domain.places.StationBuilder;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.geo.CoordinateTransforms;
@@ -90,26 +91,6 @@ public class TestStation extends MutableStation {
 
     public static Station real(StationRepositoryPublic repository, TestStations hasId) {
         return repository.getStationById(hasId.getId());
-    }
-
-    public static class Builder implements StationBuilder {
-
-        private final TestStation testStation;
-
-        private Builder(TestStation testStation) {
-
-            this.testStation = testStation;
-        }
-
-        @Override
-        public void addRoute(Route route) {
-            testStation.addRoute(route);
-        }
-
-        @Override
-        public void addPlatform(Platform platform) {
-            testStation.addPlatform(platform);
-        }
     }
 
 }

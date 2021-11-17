@@ -3,6 +3,7 @@ package com.tramchester.dataimport.NaPTAN;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.tramchester.geo.GridPosition;
 
+
 public class StopsData {
 
     // Matches ID for TFGM gtfs data

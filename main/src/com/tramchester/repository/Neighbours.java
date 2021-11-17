@@ -7,7 +7,7 @@ import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.geo.MarginInMeters;
-import com.tramchester.geo.StationLocations;
+import com.tramchester.geo.StationLocationsRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -27,13 +27,13 @@ public class Neighbours implements NeighboursRepository {
     private static final boolean DIFF_MODES_ONLY = true;
 
     private final StationRepository stationRepository;
-    private final StationLocations stationLocations;
+    private final StationLocationsRepository stationLocations;
     private final MarginInMeters marginInMeters;
 
     private final Map<IdFor<Station>, Set<StationLink>> neighbours;
 
     @Inject
-    public Neighbours(StationRepository stationRepository, StationLocations stationLocations, TramchesterConfig config) {
+    public Neighbours(StationRepository stationRepository, StationLocationsRepository stationLocations, TramchesterConfig config) {
         this.stationRepository = stationRepository;
         this.stationLocations = stationLocations;
         this.marginInMeters = MarginInMeters.of(config.getDistanceToNeighboursKM());
