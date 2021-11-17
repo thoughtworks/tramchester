@@ -274,10 +274,6 @@ public class TransportDataFromFiles implements TransportDataFactory {
         return false;
     }
 
-
-
-
-
     private TripAndServices loadTripsAndServices(WriteableTransportData buildable, Stream<TripData> tripDataStream,
                                                  ExcludedRoutes excludedRoutes,
                                                  TransportEntityFactory factory) {
@@ -443,7 +439,6 @@ public class TransportDataFromFiles implements TransportDataFactory {
         public void createTripIfMissing(IdFor<Trip> tripId, TripData tripData, Service service, Route route) {
             trips.getOrAdd(tripId, () -> factory.createTrip(tripData, service, route));
         }
-
     }
 
     private static class StopTimeDataLoader {
@@ -481,11 +476,10 @@ public class TransportDataFromFiles implements TransportDataFactory {
                 final Route route = getRouteFrom(trip);
                 final MutableStation station = preloadStations.get(stationId);
 
-                if (expectedPlatformsForRoute(dataSourceConfig, route) && !station.hasPlatforms()) {
+                if (expectedPlatformsForRoute(route) && !station.hasPlatforms()) {
                     missingPlatforms.record(stationId, stopTripId);
                 } else {
-                    Service added = addStopTimeData(buildable, preloadStations, tripAndServices, factory, dataSourceConfig,
-                            stopTimeData, trip, station, route);
+                    Service added = addStopTimeData(stopTimeData, trip, station, route);
                     addedServices.add(added);
                     stopTimesLoaded.getAndIncrement();
                 }
@@ -511,19 +505,15 @@ public class TransportDataFromFiles implements TransportDataFactory {
             return route;
         }
 
-        private boolean expectedPlatformsForRoute(GTFSSourceConfig dataSourceConfig, Route route) {
+        private boolean expectedPlatformsForRoute(Route route) {
             return dataSourceConfig.getTransportModesWithPlatforms().contains(route.getTransportMode());
         }
 
-        private Service addStopTimeData(WriteableTransportData buildable, PreloadedStationsAndPlatforms preloadStations,
-                                        TripAndServices tripAndServices, TransportEntityFactory factory,
-                                        GTFSSourceConfig dataSourceConfig, StopTimeData stopTimeData,
-                                        MutableTrip trip, MutableStation station, Route route) {
-            addStationTo(buildable, route, station, factory);
-            addPlatformsForStation(buildable, station, preloadStations);
+        private Service addStopTimeData(StopTimeData stopTimeData, MutableTrip trip, MutableStation station, Route route) {
+            addStationAndRouteStation(route, station);
+            addPlatformsForStation(station);
 
-            StopCall stopCall = createStopCall(buildable, stopTimeData, route, trip, station,
-                    factory, dataSourceConfig);
+            StopCall stopCall = createStopCall(stopTimeData, route, trip, station);
 
             trip.addStop(stopCall);
 
@@ -542,24 +532,24 @@ public class TransportDataFromFiles implements TransportDataFactory {
             return service;
         }
 
-        private void addStationTo(WriteableTransportData container, Route route, MutableStation station, TransportEntityFactory factory) {
+        private void addStationAndRouteStation(Route route, MutableStation station) {
             station.addRoute(route);
 
             IdFor<Station> stationId = station.getId();
-            if (!container.hasStationId(stationId)) {
-                container.addStation(station);
+            if (!buildable.hasStationId(stationId)) {
+                buildable.addStation(station);
                 if (!station.getLatLong().isValid()) {
                     logger.warn("Station has invalid position " + station);
                 }
             }
 
-            if (!container.hasRouteStationId(RouteStation.createId(stationId, route.getId()))) {
+            if (!buildable.hasRouteStationId(RouteStation.createId(stationId, route.getId()))) {
                 RouteStation routeStation = factory.createRouteStation(station, route);
-                container.addRouteStation(routeStation);
+                buildable.addRouteStation(routeStation);
             }
         }
 
-        private void addPlatformsForStation(WriteableTransportData buildable, Station station, PreloadedStationsAndPlatforms preloadStations) {
+        private void addPlatformsForStation(Station station) {
             station.getPlatforms().stream().
                     map(HasId::getId).
                     filter(platformId -> !buildable.hasPlatformId(platformId)).
@@ -567,13 +557,11 @@ public class TransportDataFromFiles implements TransportDataFactory {
                     forEach(buildable::addPlatform);
         }
 
-        private StopCall createStopCall(WriteableTransportData buildable, StopTimeData stopTimeData,
-                                        Route route, Trip trip, Station station, TransportEntityFactory factory,
-                                        GTFSSourceConfig sourceConfig) {
+        private StopCall createStopCall(StopTimeData stopTimeData, Route route, Trip trip, Station station) {
             IdFor<Platform> platformId = stopTimeData.getPlatformId();
             TransportMode transportMode = route.getTransportMode();
 
-            if (sourceConfig.getTransportModesWithPlatforms().contains(transportMode)) {
+            if (dataSourceConfig.getTransportModesWithPlatforms().contains(transportMode)) {
                 if (buildable.hasPlatformId(platformId)) {
                     MutablePlatform platform = buildable.getMutablePlatform(platformId);
                     platform.addRoute(route);
