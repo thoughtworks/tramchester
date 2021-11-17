@@ -9,7 +9,7 @@ import com.tramchester.modules.GetReadyModule;
 import com.tramchester.modules.GraphFilterModule;
 import com.tramchester.modules.TransportDataFactoryModule;
 import com.tramchester.dataimport.TransportDataFactory;
-import com.tramchester.dataimport.TransportDataFromFiles;
+import com.tramchester.dataimport.loader.TransportDataFromFiles;
 
 import java.util.Arrays;
 import java.util.List;

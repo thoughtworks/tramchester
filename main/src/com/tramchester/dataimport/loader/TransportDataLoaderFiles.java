@@ -1,11 +1,13 @@
-package com.tramchester.dataimport;
+package com.tramchester.dataimport.loader;
 
 import com.fasterxml.jackson.dataformat.csv.CsvMapper;
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.config.GTFSSourceConfig;
 import com.tramchester.config.TramchesterConfig;
-import com.tramchester.domain.DataSourceInfo;
+import com.tramchester.dataimport.DataLoaderFactory;
+import com.tramchester.dataimport.FetchFileModTime;
 import com.tramchester.domain.DataSourceID;
+import com.tramchester.domain.DataSourceInfo;
 import com.tramchester.domain.reference.TransportMode;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;

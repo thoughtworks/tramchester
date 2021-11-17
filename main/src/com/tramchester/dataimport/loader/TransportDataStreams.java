@@ -1,16 +1,14 @@
-package com.tramchester.dataimport.data;
+package com.tramchester.dataimport.loader;
 
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.config.GTFSSourceConfig;
-import com.tramchester.dataimport.TransportDataLoader;
-import com.tramchester.dataimport.TransportDataReader;
+import com.tramchester.dataimport.data.*;
 import com.tramchester.dataimport.UnzipFetchedData;
 import com.tramchester.domain.DataSourceID;
 import com.tramchester.domain.FeedInfo;
 import com.tramchester.domain.factory.TransportEntityFactory;
 import com.tramchester.domain.factory.TransportEntityFactoryForGBRail;
 import com.tramchester.domain.factory.TransportEntityFactoryForTFGM;
-import com.tramchester.dataimport.TransportDataSource;
 import com.tramchester.repository.naptan.NaptanRespository;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;

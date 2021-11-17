@@ -1,6 +1,6 @@
 package com.tramchester.integration.dataimport;
 
-import com.tramchester.dataimport.TransportDataReader;
+import com.tramchester.dataimport.loader.TransportDataReader;
 import com.tramchester.dataimport.Unzipper;
 import org.apache.commons.io.FileUtils;
 import org.junit.jupiter.api.AfterEach;
