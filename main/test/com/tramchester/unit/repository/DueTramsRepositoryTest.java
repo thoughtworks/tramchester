@@ -35,7 +35,7 @@ class DueTramsRepositoryTest extends EasyMockSupport {
     private DueTramsRepository repository;
     private LocalDateTime lastUpdate;
     private MutableStation station;
-    private MutablePlatform platform;
+    private Platform platform;
 
     @BeforeEach
     void beforeEachTestRuns() {
@@ -46,7 +46,7 @@ class DueTramsRepositoryTest extends EasyMockSupport {
         lastUpdate = LocalDateTime.of(today, LocalTime.of(15,42));
 
         station = TramStations.of(Shudehill);
-        platform = new MutablePlatform("someId1", "Shudehill platform 1", Shudehill.getLatLong());
+        platform = MutablePlatform.build("someId1", "Shudehill platform 1", Shudehill.getLatLong());
         station.addPlatform(platform);
     }
 
@@ -61,7 +61,7 @@ class DueTramsRepositoryTest extends EasyMockSupport {
 
         // second station, has due tram
         MutableStation secondStation = of(Altrincham);
-        MutablePlatform platfromForSecondStation = new MutablePlatform("a1", "Altrincham platform 1", Altrincham.getLatLong());
+        Platform platfromForSecondStation = MutablePlatform.build("a1", "Altrincham platform 1", Altrincham.getLatLong());
         secondStation.addPlatform(platfromForSecondStation);
 
         DueTram dueTramOther = new DueTram(of(ManAirport), "Due", 12, "Double", lastUpdate.toLocalTime());
@@ -70,7 +70,7 @@ class DueTramsRepositoryTest extends EasyMockSupport {
 
         // third, no due trams
         Station thirdStation = of(TraffordCentre);
-        MutablePlatform platfromForThirdStation = new MutablePlatform("b2", "Intu platform 2", TraffordCentre.getLatLong());
+        Platform platfromForThirdStation = MutablePlatform.build("b2", "Intu platform 2", TraffordCentre.getLatLong());
         secondStation.addPlatform(platfromForSecondStation);
         StationDepartureInfo thirdStationInfo = new StationDepartureInfo("displayId3", Lines.Airport,
                 LineDirection.Incoming, platfromForThirdStation.getId(), thirdStation, "message 3", lastUpdate);
@@ -97,7 +97,7 @@ class DueTramsRepositoryTest extends EasyMockSupport {
                 "some message", station, dueTram);
 
         MutableStation otherStation = of(Altrincham);
-        MutablePlatform otherPlatform = new MutablePlatform("other1", "Altrincham platform 1", otherStation.getLatLong());
+        Platform otherPlatform = MutablePlatform.build("other1", "Altrincham platform 1", otherStation.getLatLong());
         otherStation.addPlatform(otherPlatform);
 
         Station destinationManAirport = of(ManAirport);

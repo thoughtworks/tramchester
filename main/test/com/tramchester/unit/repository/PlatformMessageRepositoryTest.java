@@ -1,17 +1,18 @@
 package com.tramchester.unit.repository;
 
 import com.tramchester.config.TramchesterConfig;
-import com.tramchester.domain.places.Station;
-import com.tramchester.metrics.CacheMetrics;
-import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.MutablePlatform;
+import com.tramchester.domain.Platform;
+import com.tramchester.domain.id.StringIdFor;
+import com.tramchester.domain.places.MutableStation;
+import com.tramchester.domain.places.Station;
+import com.tramchester.domain.time.ProvidesNow;
+import com.tramchester.domain.time.TramTime;
 import com.tramchester.livedata.domain.liveUpdates.LineDirection;
 import com.tramchester.livedata.domain.liveUpdates.Lines;
 import com.tramchester.livedata.domain.liveUpdates.PlatformMessage;
 import com.tramchester.livedata.domain.liveUpdates.StationDepartureInfo;
-import com.tramchester.domain.places.MutableStation;
-import com.tramchester.domain.time.ProvidesNow;
-import com.tramchester.domain.time.TramTime;
+import com.tramchester.metrics.CacheMetrics;
 import com.tramchester.repository.PlatformMessageRepository;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.TramStations;
@@ -38,7 +39,7 @@ class PlatformMessageRepositoryTest  extends EasyMockSupport {
     private PlatformMessageRepository repository;
     private LocalDateTime lastUpdate;
     private MutableStation station;
-    private MutablePlatform platform;
+    private Platform platform;
     private TramchesterConfig config;
 
     @BeforeEach
@@ -52,7 +53,7 @@ class PlatformMessageRepositoryTest  extends EasyMockSupport {
         lastUpdate = LocalDateTime.of(today, LocalTime.of(15,42));
 
         station = TramStations.of(TramStations.Shudehill);
-        platform = new MutablePlatform("someId1", "Shudehill platform 1", station.getLatLong());
+        platform =MutablePlatform.build("someId1", "Shudehill platform 1", station.getLatLong());
         station.addPlatform(platform);
 
     }
@@ -97,7 +98,7 @@ class PlatformMessageRepositoryTest  extends EasyMockSupport {
         assertEquals("some message", stationMessages.get(0).getMessage());
 
         MutableStation otherStation = TramStations.of(TramStations.Ashton);
-        otherStation.addPlatform(new MutablePlatform("XXXX", "platform name", otherStation.getLatLong()));
+        otherStation.addPlatform(MutablePlatform.build("XXXX", "platform name", otherStation.getLatLong()));
 
         List<PlatformMessage> noStationMsg = repository.messagesFor(otherStation, lastUpdate.toLocalDate(), updateTime);
         assertTrue(noStationMsg.isEmpty());

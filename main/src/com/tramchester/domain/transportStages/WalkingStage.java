@@ -1,7 +1,7 @@
 package com.tramchester.domain.transportStages;
 
-import com.tramchester.domain.MutablePlatform;
 import com.tramchester.domain.MutableRoute;
+import com.tramchester.domain.Platform;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.places.Location;
 import com.tramchester.domain.presentation.TransportStage;
@@ -60,7 +60,7 @@ public abstract class  WalkingStage<FROM extends Location<?>, DEST extends Locat
     }
 
     @Override
-    public MutablePlatform getBoardingPlatform() {
+    public Platform getBoardingPlatform() {
         throw new RuntimeException("No platform");
     }
 

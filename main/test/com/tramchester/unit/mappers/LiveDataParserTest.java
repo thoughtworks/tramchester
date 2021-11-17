@@ -50,10 +50,10 @@ class LiveDataParserTest extends EasyMockSupport {
         parser = new LiveDataParser(tramStationByName, stationRepository);
 
         MutableStation mediaCity = of(MediaCityUK);
-        mediaCity.addPlatform(new MutablePlatform("9400ZZMAMCU2", "Media City Platform 2", MediaCityUK.getLatLong()));
+        mediaCity.addPlatform(MutablePlatform.build("9400ZZMAMCU2", "Media City Platform 2", MediaCityUK.getLatLong()));
 
         MutableStation airport = of(ManAirport);
-        airport.addPlatform(new MutablePlatform("9400ZZMAAIR1", "Manchester Airport Platform 2", ManAirport.getLatLong()));
+        airport.addPlatform(MutablePlatform.build("9400ZZMAAIR1", "Manchester Airport Platform 2", ManAirport.getLatLong()));
 
         EasyMock.expect(stationRepository.getStationById(MediaCityUK.getId())).andStubReturn(mediaCity);
         EasyMock.expect(stationRepository.getStationById(ManAirport.getId())).andStubReturn(airport);

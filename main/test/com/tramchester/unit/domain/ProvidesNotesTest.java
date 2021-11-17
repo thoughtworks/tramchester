@@ -1,14 +1,11 @@
 package com.tramchester.unit.domain;
 
-import com.tramchester.domain.Journey;
-import com.tramchester.domain.MutableService;
-import com.tramchester.domain.MutablePlatform;
-import com.tramchester.domain.Service;
+import com.tramchester.domain.*;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.input.MutableTrip;
 import com.tramchester.domain.input.Trip;
-import com.tramchester.domain.places.MyLocation;
 import com.tramchester.domain.places.MutableStation;
+import com.tramchester.domain.places.MyLocation;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.*;
 import com.tramchester.domain.reference.TransportMode;
@@ -389,7 +386,7 @@ class ProvidesNotesTest extends EasyMockSupport {
     }
 
     private PlatformMessage createPlatformMessage(LocalDateTime lastUpdate, MutableStation station, String message) {
-        MutablePlatform platform = new MutablePlatform(station.forDTO() + "1", station.getName() + " platform 1", station.getLatLong());
+        Platform platform = MutablePlatform.build(station.forDTO() + "1", station.getName() + " platform 1", station.getLatLong());
         station.addPlatform(platform);
         return new PlatformMessage(platform.getId(), message, lastUpdate, station, "displayId");
     }
@@ -402,7 +399,7 @@ class ProvidesNotesTest extends EasyMockSupport {
 
         // TODO
         List<Integer> passedStations = new ArrayList<>();
-        MutablePlatform platform = new MutablePlatform(platformId, "platformName", latLong);
+        Platform platform = MutablePlatform.build(platformId, "platformName", latLong);
         final MutableStation firstStation = of(Ashton);
         firstStation.addPlatform(platform);
         VehicleStage vehicleStage = new VehicleStage(firstStation, TestEnv.getTramTestRoute(), Tram,

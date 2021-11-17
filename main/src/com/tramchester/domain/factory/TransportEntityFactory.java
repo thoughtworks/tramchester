@@ -56,7 +56,7 @@ public abstract class TransportEntityFactory {
         return new RouteStation(station, route);
     }
 
-    public StopCall createPlatformStopCall(Trip trip, MutablePlatform platform, Station station, StopTimeData stopTimeData) {
+    public StopCall createPlatformStopCall(Trip trip, Platform platform, Station station, StopTimeData stopTimeData) {
         return new PlatformStopCall(trip, platform, station, stopTimeData);
     }
 

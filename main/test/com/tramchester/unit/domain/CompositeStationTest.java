@@ -1,9 +1,6 @@
 package com.tramchester.unit.domain;
 
-import com.tramchester.domain.DataSourceID;
-import com.tramchester.domain.MutableRoute;
-import com.tramchester.domain.MutablePlatform;
-import com.tramchester.domain.Route;
+import com.tramchester.domain.*;
 import com.tramchester.domain.id.CompositeId;
 import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.places.CompositeStation;
@@ -37,7 +34,7 @@ class CompositeStationTest {
         Route route = TestEnv.getTramTestRoute();
         stationA.addRoute(route);
 
-        MutablePlatform platform = new MutablePlatform("platformId", "platformName", latLong);
+        Platform platform = MutablePlatform.build("platformId", "platformName", latLong);
         stationA.addPlatform(platform);
 
         CompositeStation compositeStation = new CompositeStation(Collections.singleton(stationA), "compArea", "compName");
@@ -73,7 +70,7 @@ class CompositeStationTest {
         Route routeA = TestEnv.getTramTestRoute(StringIdFor.createId("routeA"), "routeName");
 
         stationA.addRoute(routeA);
-        MutablePlatform platformA = new MutablePlatform("platformIdA", "platformNameA",  new LatLong(2, 4));
+        Platform platformA = MutablePlatform.build("platformIdA", "platformNameA",  new LatLong(2, 4));
         stationA.addPlatform(platformA);
 
         MutableStation stationB = TestStation.forTest("idB", "areaB", "stopNameB",
@@ -81,7 +78,7 @@ class CompositeStationTest {
         Route routeB = MutableRoute.getRoute(StringIdFor.createId("routeB"), "routeCodeB", "routeNameB", TestEnv.StagecoachManchester, Bus);
         stationB.addRoute(routeB);
         stationB.addRoute(routeA);
-        MutablePlatform platformB = new MutablePlatform("platformIdB", "platformNameB",  new LatLong(4, 8));
+        Platform platformB = MutablePlatform.build("platformIdB", "platformNameB",  new LatLong(4, 8));
         stationB.addPlatform(platformB);
 
         Set<Station> stations = new HashSet<>(Arrays.asList(stationA, stationB));

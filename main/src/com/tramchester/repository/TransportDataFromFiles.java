@@ -353,12 +353,12 @@ public class TransportDataFromFiles implements TransportDataFactory {
             if (buildable.hasPlatformId(platformId)) {
                 MutablePlatform platform = buildable.getMutablePlatform(platformId);
                 platform.addRoute(route);
+                return factory.createPlatformStopCall(trip, platform, station, stopTimeData);
             } else {
                 IdFor<Route> routeId = route.getId();
-                logger.warn("Missing platform " + platformId + " For transport mode " + transportMode + " and route " + routeId);
+                logger.error("Missing platform " + platformId + " For transport mode " + transportMode + " and route " + routeId);
+                return factory.createNoPlatformStopCall(trip, station, stopTimeData);
             }
-            MutablePlatform platform = buildable.getMutablePlatform(platformId);
-            return factory.createPlatformStopCall(trip, platform, station, stopTimeData);
         } else {
             return factory.createNoPlatformStopCall(trip, station, stopTimeData);
         }
@@ -370,13 +370,9 @@ public class TransportDataFromFiles implements TransportDataFactory {
         IdFor<Station> stationId = station.getId();
         if (!container.hasStationId(stationId)) {
             container.addStation(station);
-//            if (station.hasPlatforms()) {
-//                station.getPlatforms().forEach(container::addPlatform);
-//            }
             if (!station.getLatLong().isValid()) {
                 logger.warn("Station has invalid position " + station);
             }
-
         }
 
         if (!container.hasRouteStationId(RouteStation.createId(stationId, route.getId()))) {

@@ -187,13 +187,12 @@ public class TransportDataContainer implements TransportData, WriteableTransport
         return platforms.get(platformId);
     }
 
-
     public MutablePlatform getMutablePlatform(IdFor<Platform> platformId) {
         return platforms.get(platformId);
     }
 
     @Override
-    public Set<MutablePlatform> getPlatforms() {
+    public Set<Platform> getPlatforms() {
         return Collections.unmodifiableSet(platforms.getValues());
     }
 

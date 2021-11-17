@@ -18,11 +18,6 @@ public class MutablePlatform implements Platform {
     private final String platformNumber;
     private final LatLong latLong;
 
-    @Override
-    public String getPlatformNumber() {
-        return platformNumber;
-    }
-
     public MutablePlatform(String id, String name, LatLong latLong) {
         this.id = StringIdFor.createId(id);
         platformNumber = id.substring(id.length()-1);
@@ -31,6 +26,11 @@ public class MutablePlatform implements Platform {
 
         this.latLong = latLong;
         servesRoutes = new HashSet<>();
+    }
+
+    // test support
+    public static Platform build(String id, String name, LatLong latLong) {
+        return new MutablePlatform(id, name, latLong);
     }
 
     @Override
@@ -60,6 +60,11 @@ public class MutablePlatform implements Platform {
         MutablePlatform platform = (MutablePlatform) o;
 
         return id.equals(platform.id);
+    }
+
+    @Override
+    public String getPlatformNumber() {
+        return platformNumber;
     }
 
     @Override
