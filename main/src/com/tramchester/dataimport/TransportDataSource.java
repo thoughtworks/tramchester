@@ -1,4 +1,4 @@
-package com.tramchester.repository;
+package com.tramchester.dataimport;
 
 import com.tramchester.config.GTFSSourceConfig;
 import com.tramchester.dataimport.data.*;
@@ -9,13 +9,13 @@ import com.tramchester.domain.factory.TransportEntityFactory;
 import java.util.stream.Stream;
 
 public class TransportDataSource {
-    final Stream<StopData> stops;
-    final Stream<RouteData> routes;
-    final Stream<TripData> trips;
-    final Stream<StopTimeData> stopTimes;
-    final Stream<CalendarData> calendars;
-    final Stream<CalendarDateData> calendarsDates;
-    final Stream<AgencyData> agencies;
+    private final Stream<StopData> stops;
+    private final Stream<RouteData> routes;
+    private final Stream<TripData> trips;
+    private final Stream<StopTimeData> stopTimes;
+    private final Stream<CalendarData> calendars;
+    private final Stream<CalendarDateData> calendarsDates;
+    private final Stream<AgencyData> agencies;
     private final Stream<FeedInfo> feedInfo;
 
     private final GTFSSourceConfig config;
@@ -51,7 +51,7 @@ public class TransportDataSource {
         agencies.close();
     }
 
-    protected Stream<FeedInfo> getFeedInfoStream() {
+    public Stream<FeedInfo> getFeedInfoStream() {
         return feedInfo;
     }
 
@@ -65,5 +65,33 @@ public class TransportDataSource {
 
     public TransportEntityFactory getEntityFactory() {
         return entityFactory;
+    }
+
+    public Stream<StopData> getStops() {
+        return stops;
+    }
+
+    public Stream<AgencyData> getAgencies() {
+        return agencies;
+    }
+
+    public Stream<RouteData> getRoutes() {
+        return routes;
+    }
+
+    public Stream<TripData> getTrips() {
+        return trips;
+    }
+
+    public Stream<StopTimeData> getStopTimes() {
+        return stopTimes;
+    }
+
+    public Stream<CalendarData> getCalendars() {
+        return calendars;
+    }
+
+    public Stream<CalendarDateData> getCalendarsDates() {
+        return calendarsDates;
     }
 }

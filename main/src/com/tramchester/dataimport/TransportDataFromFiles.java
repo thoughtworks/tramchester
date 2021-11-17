@@ -1,4 +1,4 @@
-package com.tramchester.repository;
+package com.tramchester.dataimport;
 
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.config.GTFSSourceConfig;
@@ -20,6 +20,7 @@ import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.geo.BoundingBox;
 import com.tramchester.geo.CoordinateTransforms;
 import com.tramchester.geo.GridPosition;
+import com.tramchester.repository.*;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -101,19 +102,19 @@ public class TransportDataFromFiles implements TransportDataFactory {
 
         TransportEntityFactory entityFactory = dataSource.getEntityFactory();
 
-        PreloadedStationsAndPlatforms allStations = preLoadStations(dataSource.stops, entityFactory);
+        PreloadedStationsAndPlatforms allStations = preLoadStations(dataSource.getStops(), entityFactory);
 
-        CompositeIdMap<Agency, MutableAgency> allAgencies = preloadAgencys(sourceName, dataSource.agencies, entityFactory);
-        ExcludedRoutes excludedRoutes = populateRoutes(buildable, dataSource.routes, allAgencies,
+        CompositeIdMap<Agency, MutableAgency> allAgencies = preloadAgencys(sourceName, dataSource.getAgencies(), entityFactory);
+        ExcludedRoutes excludedRoutes = populateRoutes(buildable, dataSource.getRoutes(), allAgencies,
                 sourceConfig, entityFactory);
         logger.info("Excluding " + excludedRoutes.numOfExcluded() + " routes ");
 
         allAgencies.clear();
 
-        TripAndServices tripsAndServices = loadTripsAndServices(buildable, dataSource.trips, excludedRoutes,
+        TripAndServices tripsAndServices = loadTripsAndServices(buildable, dataSource.getTrips(), excludedRoutes,
                 entityFactory);
 
-        IdMap<Service> services = populateStopTimes(buildable, dataSource.stopTimes, allStations,
+        IdMap<Service> services = populateStopTimes(buildable, dataSource.getStopTimes(), allStations,
                 tripsAndServices, entityFactory,
                 sourceConfig);
 
@@ -121,7 +122,7 @@ public class TransportDataFromFiles implements TransportDataFactory {
 
         allStations.clear();
 
-        populateCalendars(buildable, dataSource.calendars, dataSource.calendarsDates, services, sourceConfig, entityFactory);
+        populateCalendars(buildable, dataSource.getCalendars(), dataSource.getCalendarsDates(), services, sourceConfig, entityFactory);
 
         tripsAndServices.clear();
 

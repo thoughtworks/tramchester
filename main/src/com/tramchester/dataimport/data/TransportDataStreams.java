@@ -10,7 +10,7 @@ import com.tramchester.domain.FeedInfo;
 import com.tramchester.domain.factory.TransportEntityFactory;
 import com.tramchester.domain.factory.TransportEntityFactoryForGBRail;
 import com.tramchester.domain.factory.TransportEntityFactoryForTFGM;
-import com.tramchester.repository.TransportDataSource;
+import com.tramchester.dataimport.TransportDataSource;
 import com.tramchester.repository.naptan.NaptanRespository;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;

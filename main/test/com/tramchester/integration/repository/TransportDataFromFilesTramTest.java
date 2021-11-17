@@ -21,7 +21,7 @@ import com.tramchester.domain.time.TramTime;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
 import com.tramchester.repository.InterchangeRepository;
 import com.tramchester.repository.TransportData;
-import com.tramchester.repository.TransportDataFromFiles;
+import com.tramchester.dataimport.TransportDataFromFiles;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TramRouteHelper;
 import com.tramchester.testSupport.reference.TramStations;

@@ -1,7 +1,7 @@
 package com.tramchester.modules;
 
 import com.google.inject.AbstractModule;
-import com.tramchester.repository.TransportDataFactory;
+import com.tramchester.dataimport.TransportDataFactory;
 
 public class TransportDataFactoryModule <FACTORY extends TransportDataFactory>  extends AbstractModule  {
     private final Class<FACTORY> factoryType;
