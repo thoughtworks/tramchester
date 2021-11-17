@@ -50,23 +50,17 @@ public class TransportEntityFactoryForTFGM extends TransportEntityFactory {
 
         String area = getAreaFor(stationId);
 
-        // NOTE: Tram data has unique positions for each platform
-        // TODO What is the right position to use for a tram station?
+        // NOTE: Tram data has unique positions for each platform todo What is the right position to use for a tram station give
+        // Check for duplicate names - handled by CompositeStationRepository
+
         final String stationName = createStationName(stopData);
-        final MutableStation station = new MutableStation(stationId, area, workAroundName(stationName), stopData.getLatLong(), position,
-                getDataSourceId());
 
         // metrolink tram station, has platforms
-        addPlatformIfMissing(stopData, station);
+        //addPlatformIfMissing(stopData, station);
 
-        // Check for duplicate names - handled by CompositeStationRepository
-        return station;
+        return new MutableStation(stationId, area, workAroundName(stationName), stopData.getLatLong(), position,
+                getDataSourceId());
     }
-
-//    @Override
-//    public void updateStation(MutableStation station, StopData stopData) {
-//        addPlatformIfMissing(stopData, station);
-//    }
 
     @Override
     public Optional<MutablePlatform> maybeCreatePlatform(StopData stopData) {
@@ -74,15 +68,6 @@ public class TransportEntityFactoryForTFGM extends TransportEntityFactory {
             return Optional.of(new MutablePlatform(stopData.getId(), createStationName(stopData), stopData.getLatLong()));
         } else {
             return Optional.empty();
-        }
-    }
-
-    private void addPlatformIfMissing(StopData stopData, MutableStation station) {
-        if (isMetrolinkTram(stopData)) {
-            MutablePlatform platform = new MutablePlatform(stopData.getId(), createStationName(stopData), stopData.getLatLong());
-            if (!station.getPlatforms().contains(platform)) {
-                station.addPlatform(platform);
-            }
         }
     }
 
