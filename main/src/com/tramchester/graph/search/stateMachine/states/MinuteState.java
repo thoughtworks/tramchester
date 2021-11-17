@@ -88,9 +88,9 @@ public class MinuteState extends TraversalState {
         return trip.getService().getId();
     }
 
-    public IdFor<Trip> getTripId() {
-        return trip.getId();
-    }
+//    public IdFor<Trip> getTripId() {
+//        return trip.getId();
+//    }
 
     @Override
     protected RouteStationStateOnTrip toRouteStationOnTrip(RouteStationStateOnTrip.Builder towardsRouteStation,

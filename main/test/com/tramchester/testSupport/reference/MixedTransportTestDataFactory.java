@@ -256,17 +256,17 @@ public class MixedTransportTestDataFactory implements TransportDataFactory {
             return getStationById(StringIdFor.createId(SECOND_STATION));
         }
 
-        public Station getInterchange() {
-            return getStationById(StringIdFor.createId(INTERCHANGE));
-        }
+//        public Station getInterchange() {
+//            return getStationById(StringIdFor.createId(INTERCHANGE));
+//        }
 
         public Station getLast() {
             return getStationById(StringIdFor.createId(LAST_STATION));
         }
 
-        public Station getFifthStation() {
-            return getStationById(StringIdFor.createId(STATION_FIVE));
-        }
+//        public Station getFifthStation() {
+//            return getStationById(StringIdFor.createId(STATION_FIVE));
+//        }
 
         public Station getFourthStation() {
             return getStationById(StringIdFor.createId(STATION_FOUR));

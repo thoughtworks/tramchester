@@ -6,14 +6,16 @@ import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
 import com.tramchester.graph.graphbuild.GraphLabel;
-import org.neo4j.graphdb.*;
+import org.neo4j.graphdb.Direction;
+import org.neo4j.graphdb.Node;
+import org.neo4j.graphdb.Relationship;
+import org.neo4j.graphdb.Transaction;
 
 import javax.inject.Inject;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 /***
  * Make sure have correct dependencies on "Ready" tokens alongside this class, it makes no guarantees for any
@@ -75,12 +77,6 @@ public class GraphQuery {
         List<Relationship> result = new LinkedList<>();
         routeStationNode.getRelationships(direction, TransportRelationshipTypes.forPlanning()).forEach(result::add);
         return result;
-    }
-
-    public boolean hasAnyNodesWithLabel(Transaction txn, GraphLabel label) {
-        ResourceIterator<Node> query = graphDatabase.findNodes(txn, label);
-        List<Node> nodes = query.stream().collect(Collectors.toList());
-        return !nodes.isEmpty();
     }
 
     public boolean hasAnyNodesWithLabelAndId(Transaction txn, GraphLabel label, String property, String key) {

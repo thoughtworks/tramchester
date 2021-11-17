@@ -88,7 +88,7 @@ public class JourneyState implements ImmutableJourneyState, JourneyStateUpdate {
     }
 
     @Override
-    public void endWalk(Node stationNode, boolean atDestination) {
+    public void endWalk(Node stationNode) {
         // noop
     }
 

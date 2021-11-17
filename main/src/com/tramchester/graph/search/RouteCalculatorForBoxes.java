@@ -94,7 +94,7 @@ public class RouteCalculatorForBoxes extends RouteCalculatorSupport {
                         flatMap(pathRequest -> findShortestPath(txn, destinationNodeIds, destinations,
                                 createServiceReasons(journeyRequest, originalTime), pathRequest, journeyConstraints.getFewestChangesCalculator(),
                                 createPreviousVisits(), lowestCostSeenForBox, begin)).
-                        map(timedPath -> createJourney(txn, journeyRequest, timedPath, destinations, lowestCostForDestinations));
+                        map(timedPath -> createJourney(journeyRequest, timedPath, destinations, lowestCostForDestinations));
 
                 Set<Journey> collect = journeys.
                         filter(journey -> !journey.getStages().isEmpty()).

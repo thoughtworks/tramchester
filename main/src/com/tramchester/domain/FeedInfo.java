@@ -5,6 +5,7 @@ import com.tramchester.dataimport.data.ParsesDate;
 
 import java.time.LocalDate;
 
+@SuppressWarnings("unused")
 public class FeedInfo extends ParsesDate {
 
     //feed_publisher_name,feed_publisher_url,feed_timezone,feed_lang,feed_valid_from,feed_valid_to,feed_version

@@ -16,6 +16,7 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.Objects;
 
+@SuppressWarnings("unused")
 @JsonPropertyOrder(alphabetic = true)
 @JsonIgnoreProperties(value = "when", allowGetters = true)
 public class DepartureDTO implements Comparable<DepartureDTO> {
@@ -42,7 +43,6 @@ public class DepartureDTO implements Comparable<DepartureDTO> {
         this.wait = wait;
     }
 
-    @SuppressWarnings("unused")
     public DepartureDTO() {
         // for deserialisation
     }

@@ -14,6 +14,6 @@ public interface JourneyStateUpdate {
     void recordTime(TramTime time, int totalCost) throws TramchesterException;
     void beginTrip(IdFor<Trip> newTripId);
     void beginWalk(Node beforeWalkNode, boolean atStart, int cost);
-    void endWalk(Node stationNode, boolean atDestination);
+    void endWalk(Node stationNode);
     void toNeighbour(Node startNode, Node endNode, int cost);
 }

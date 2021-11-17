@@ -119,7 +119,7 @@ class JourneyStateTest extends EasyMockSupport {
         state.beginWalk(node, true, 42);
         assertEquals(2, state.getNumberWalkingConnections());
 
-        state.endWalk(node, true);
+        state.endWalk(node);
         assertEquals(2, state.getNumberWalkingConnections());
     }
 

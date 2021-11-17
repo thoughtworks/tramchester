@@ -8,6 +8,7 @@ import com.tramchester.mappers.serialisation.LocalDateJsonSerializer;
 
 import java.time.LocalDate;
 
+@SuppressWarnings("unused")
 public class DataVersionDTO {
     private String version;
     private LocalDate validFrom;

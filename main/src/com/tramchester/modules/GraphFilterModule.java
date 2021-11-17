@@ -16,6 +16,7 @@ public class GraphFilterModule extends AbstractModule {
         this.setupGraphFilter = setupGraphFilter;
     }
 
+    @SuppressWarnings("unused")
     @LazySingleton
     @Provides
     GraphFilter providesConfiguredGraphFilter() {

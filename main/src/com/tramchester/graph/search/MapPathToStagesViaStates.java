@@ -64,7 +64,7 @@ public class MapPathToStagesViaStates implements PathToStages {
     }
 
     @Override
-    public List<TransportStage<?, ?>> mapDirect(Transaction txn, RouteCalculator.TimedPath timedPath, JourneyRequest journeyRequest,
+    public List<TransportStage<?, ?>> mapDirect(RouteCalculator.TimedPath timedPath, JourneyRequest journeyRequest,
                                                 LowestCostsForRoutes lowestCostForRoutes, Set<Station> endStations) {
         Path path = timedPath.getPath();
         TramTime queryTime = timedPath.getQueryTime();

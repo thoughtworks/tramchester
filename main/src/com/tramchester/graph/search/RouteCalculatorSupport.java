@@ -142,10 +142,10 @@ public class RouteCalculatorSupport {
     }
 
     @NotNull
-    protected Journey createJourney(Transaction txn, JourneyRequest journeyRequest, RouteCalculator.TimedPath path,
+    protected Journey createJourney(JourneyRequest journeyRequest, RouteCalculator.TimedPath path,
                                     Set<Station> endStations, LowestCostsForRoutes lowestCostForRoutes) {
 
-        final List<TransportStage<?, ?>> stages = pathToStages.mapDirect(txn, path, journeyRequest, lowestCostForRoutes, endStations);
+        final List<TransportStage<?, ?>> stages = pathToStages.mapDirect(path, journeyRequest, lowestCostForRoutes, endStations);
         final List<Location<?>> locationList = mapPathToLocations.mapToLocations(path.getPath());
 
         if (stages.isEmpty()) {

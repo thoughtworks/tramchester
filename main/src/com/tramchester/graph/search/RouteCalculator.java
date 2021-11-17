@@ -129,7 +129,7 @@ public class RouteCalculator extends RouteCalculatorSupport implements TramRoute
                         lowestCostSeen, begin)).
                 takeWhile(finished::notDoneYet).
                 //limit(journeyRequest.getMaxNumberOfJourneys()).
-                map(path -> createJourney(txn, journeyRequest, path, destinations, lowestCostsForRoutes));
+                map(path -> createJourney(journeyRequest, path, destinations, lowestCostsForRoutes));
 
         results.onClose(() -> logger.info("Journey stream closed"));
 

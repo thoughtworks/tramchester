@@ -244,7 +244,7 @@ public class MapPathToStagesViaStatesTest {
         RouteCalculator.TimedPath timedPath = timedPaths.get(0);
 
         LowestCostsForRoutes lowestCostForRoutes = routeToRouteCosts.getLowestCostCalcutatorFor(destinationStations);
-        final List<TransportStage<?, ?>> transportStages = pathToStages.mapDirect(txn, timedPath, journeyRequest, lowestCostForRoutes, destinationStations);
+        final List<TransportStage<?, ?>> transportStages = pathToStages.mapDirect(timedPath, journeyRequest, lowestCostForRoutes, destinationStations);
 
         locationJourneyPlanner.removeWalkNodeAndRelationships(addedRelationships, endNodeWalkNode);
 
@@ -268,7 +268,7 @@ public class MapPathToStagesViaStatesTest {
         RouteCalculator.TimedPath timedPath = timedPaths.get(0);
 
         LowestCostsForRoutes lowestCostForRoutes = routeToRouteCosts.getLowestCostCalcutatorFor(endStations);
-        final List<TransportStage<?, ?>> transportStages = pathToStages.mapDirect(txn, timedPath, journeyRequest, lowestCostForRoutes, endStations);
+        final List<TransportStage<?, ?>> transportStages = pathToStages.mapDirect(timedPath, journeyRequest, lowestCostForRoutes, endStations);
 
         locationJourneyPlanner.removeWalkNodeAndRelationships(addedRelationships, startOfWalkNode);
 
@@ -285,7 +285,7 @@ public class MapPathToStagesViaStatesTest {
         RouteCalculator.TimedPath timedPath = timedPaths.get(0);
 
         LowestCostsForRoutes lowestCostForRoutes = routeToRouteCosts.getLowestCostCalcutatorFor(endStations);
-        return pathToStages.mapDirect(txn, timedPath, journeyRequest, lowestCostForRoutes, endStations);
+        return pathToStages.mapDirect(timedPath, journeyRequest, lowestCostForRoutes, endStations);
     }
 
     private List<RouteCalculator.TimedPath> getPathFor(Station startStation, Station destination, Set<Station> endStations,

@@ -180,7 +180,7 @@ public class IdSet<T extends GraphProperty> implements Iterable<IdFor<T>> {
         return theSet.containsAll(other.theSet);
     }
 
-    public Stream<IdFor<T>> parallelStream() {
-        return theSet.parallelStream();
-    }
+//    public Stream<IdFor<T>> parallelStream() {
+//        return theSet.parallelStream();
+//    }
 }

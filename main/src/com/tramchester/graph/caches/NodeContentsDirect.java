@@ -14,6 +14,7 @@ import java.util.EnumSet;
 import java.util.Set;
 
 // KEEP for assisting with debugging
+@SuppressWarnings("unused")
 public class NodeContentsDirect implements NodeContentsRepository {
 
     @Override

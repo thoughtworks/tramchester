@@ -159,7 +159,7 @@ class MapStatesToStages implements JourneyStateUpdate {
     }
 
     @Override
-    public void endWalk(Node endWalkNode, boolean atDestination) {
+    public void endWalk(Node endWalkNode) {
 
         int duration = TramTime.diffenceAsMinutes(beginWalkClock, getActualClock());
 
