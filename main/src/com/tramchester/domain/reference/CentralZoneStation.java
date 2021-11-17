@@ -1,49 +1,32 @@
 package com.tramchester.domain.reference;
 
 import com.tramchester.domain.id.IdFor;
-import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.id.IdSet;
+import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.places.Station;
-import com.tramchester.livedata.domain.liveUpdates.Lines;
-import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.Arrays;
-import java.util.Map;
-import java.util.stream.Collectors;
-
-import static com.tramchester.livedata.domain.liveUpdates.Lines.*;
 
 public enum CentralZoneStation {
-    // Station Id -> Live Data Line
-    Cornbrook("9400ZZMACRN", Eccles),
-    StPetersSquare("9400ZZMASTP", Eccles),
-    PiccadillyGardens("9400ZZMAPGD", Bury),
-    TraffordBar("9400ZZMATRA", Altrincham),
-    StWerbergsRoad("9400ZZMASTW", SouthManchester),
-    Victoria("9400ZZMAVIC", Altrincham),
-    Deansgate("9400ZZMAGMX", Altrincham),
-    Piccadilly("9400ZZMAPIC", Bury),
-    MarketStreet("9400ZZMAMKT", Bury),
-    Firswood("9400ZZMAFIR", SouthManchester),
-    Shudehill("9400ZZMASHU", Altrincham),
-    Pomona("9400ZZMAPOM", Eccles),
-    Chorlton("9400ZZMACHO", SouthManchester),
-    ExchangeSquare("9400ZZMAEXS", Eccles);
+    Cornbrook("9400ZZMACRN"),
+    StPetersSquare("9400ZZMASTP"),
+    PiccadillyGardens("9400ZZMAPGD"),
+    TraffordBar("9400ZZMATRA"),
+    StWerbergsRoad("9400ZZMASTW"),
+    Victoria("9400ZZMAVIC"),
+    Deansgate("9400ZZMAGMX"),
+    Piccadilly("9400ZZMAPIC"),
+    MarketStreet("9400ZZMAMKT"),
+    Firswood("9400ZZMAFIR"),
+    Shudehill("9400ZZMASHU"),
+    Pomona("9400ZZMAPOM"),
+    Chorlton("9400ZZMACHO"),
+    ExchangeSquare("9400ZZMAEXS");
 
     private final IdFor<Station> stationId;
-    private final Lines line;
 
-    CentralZoneStation(String stationId, Lines line) {
+    CentralZoneStation(String stationId) {
         this.stationId = createId(stationId);
-        this.line = line;
-    }
-
-    public static boolean contains(Station current) {
-        return ids.contains(current.getId());
-    }
-
-    public boolean matches(Station station) {
-        return stationId.equals(station.getId());
     }
 
     public IdFor<Station> getId() {
@@ -51,19 +34,13 @@ public enum CentralZoneStation {
     }
 
     public static final IdSet<Station> ids;
-    public static final Map<IdFor<Station>, CentralZoneStation> map;
 
     static {
         ids = Arrays.stream(CentralZoneStation.values()).map(CentralZoneStation::getId).collect(IdSet.idCollector());
-        map = Arrays.stream(CentralZoneStation.values()).map(element -> Pair.of(element.getId(),element)).
-                collect(Collectors.toMap(Pair::getLeft, Pair::getRight));
     }
 
     private IdFor<Station> createId(String stationId) {
         return StringIdFor.createId(stationId);
     }
 
-    public Lines getLine() {
-        return line;
-    }
 }

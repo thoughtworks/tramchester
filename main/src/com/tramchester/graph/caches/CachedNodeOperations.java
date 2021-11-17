@@ -66,6 +66,7 @@ public class CachedNodeOperations implements ReportsCacheStats, NodeContentsRepo
                 reduce(Long::sum).orElse(0L);
     }
 
+    @SuppressWarnings("unused")
     @PreDestroy
     public void dispose() {
         logger.info("dispose");

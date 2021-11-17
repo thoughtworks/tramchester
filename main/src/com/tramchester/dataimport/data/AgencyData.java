@@ -5,6 +5,7 @@ import com.tramchester.domain.Agency;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.StringIdFor;
 
+@SuppressWarnings("unused")
 public class AgencyData {
 
     @JsonProperty("agency_id")

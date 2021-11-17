@@ -10,7 +10,7 @@ import java.util.Set;
 @ImplementedBy(RouteToRouteCosts.class)
 public interface BetweenRoutesCostRepository {
     int getFor(Route routeA, Route routeB);
-    int size();
+    //int size();
 
     NumberOfChanges getNumberOfChanges(Set<Station> starts, Set<Station> destinations);
     NumberOfChanges getNumberOfChanges(Station startStation, Station destination);

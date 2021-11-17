@@ -6,7 +6,6 @@ import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.StationPair;
 import com.tramchester.domain.places.Station;
-import com.tramchester.testSupport.TramRouteHelper;
 import com.tramchester.graph.RouteReachable;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
 import com.tramchester.repository.StationRepository;
@@ -20,16 +19,18 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static com.tramchester.testSupport.reference.KnownTramRoute.*;
-import static com.tramchester.testSupport.reference.TramStations.*;
-import static org.junit.jupiter.api.Assertions.*;
+import static com.tramchester.testSupport.reference.KnownTramRoute.AltrinchamManchesterBury;
+import static com.tramchester.testSupport.reference.KnownTramRoute.AltrinchamPiccadilly;
+import static com.tramchester.testSupport.reference.TramStations.Altrincham;
+import static com.tramchester.testSupport.reference.TramStations.NavigationRoad;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class RouteReachableTramTest {
     private static ComponentContainer componentContainer;
 
     private RouteReachable reachable;
     private StationRepository stationRepository;
-    private TramRouteHelper tramRouteHelper;
 
     @BeforeAll
     static void onceBeforeAnyTestRuns() {
@@ -47,7 +48,7 @@ class RouteReachableTramTest {
     void beforeEachTestRuns() {
         stationRepository = componentContainer.get(StationRepository.class);
         reachable = componentContainer.get(RouteReachable.class);
-        tramRouteHelper = new TramRouteHelper(componentContainer);
+        //TramRouteHelper tramRouteHelper = new TramRouteHelper(componentContainer);
     }
 
     @Test

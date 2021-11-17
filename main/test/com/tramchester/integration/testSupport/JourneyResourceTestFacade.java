@@ -27,13 +27,12 @@ import static org.assertj.core.api.Fail.fail;
 
 public class JourneyResourceTestFacade {
 
-    private final ObjectMapper mapper = new ObjectMapper();
-
     private final IntegrationAppExtension appExtension;
     private final ParseStream<JourneyDTO> parseStream;
 
     public JourneyResourceTestFacade(IntegrationAppExtension appExtension) {
         this.appExtension = appExtension;
+        ObjectMapper mapper = new ObjectMapper();
         parseStream = new ParseStream<>(mapper);
     }
 

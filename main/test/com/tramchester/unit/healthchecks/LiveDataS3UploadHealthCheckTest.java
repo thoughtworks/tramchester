@@ -45,7 +45,7 @@ class LiveDataS3UploadHealthCheckTest extends EasyMockSupport {
     }
 
     @Test
-    void shouldReportHealthIfUpToDateDataIsInS3() throws Exception {
+    void shouldReportHealthIfUpToDateDataIsInS3() {
         EasyMock.expect(providesLocalNow.getDateTime()).andStubReturn(now);
         EasyMock.expect(countsUploadedLiveData.count(now.minus(expectedDuration), expectedDuration))
                 .andReturn(1L);
@@ -60,7 +60,7 @@ class LiveDataS3UploadHealthCheckTest extends EasyMockSupport {
     }
 
     @Test
-    void shouldReportUnhealthIfNoDataFound() throws Exception {
+    void shouldReportUnhealthIfNoDataFound() {
         EasyMock.expect(providesLocalNow.getDateTime()).andStubReturn(now);
         EasyMock.expect(countsUploadedLiveData.count(now.minus(expectedDuration), expectedDuration))
                 .andReturn(0L);

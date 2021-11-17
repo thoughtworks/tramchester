@@ -8,7 +8,6 @@ import com.tramchester.domain.Route;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.GraphDatabase;
-import com.tramchester.graph.GraphQuery;
 import com.tramchester.graph.filters.ConfigurableGraphFilter;
 import com.tramchester.graph.search.RouteCalculator;
 import com.tramchester.integration.testSupport.RouteCalculatorTestFacade;
@@ -38,14 +37,11 @@ class RouteCalculatorSubGraphEcclesAshtonLine {
     private static GraphDatabase database;
     private static SubgraphConfig config;
 
-    private GraphQuery graphQuery;
-
     private RouteCalculatorTestFacade calculator;
     private final LocalDate when = TestEnv.testDay();
 
     private Transaction txn;
     private int maxJourneyDuration;
-    private StationRepository stationRepository;
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() throws IOException {
@@ -73,11 +69,11 @@ class RouteCalculatorSubGraphEcclesAshtonLine {
 
     @BeforeEach
     void beforeEachTestRuns() {
-        stationRepository = componentContainer.get(StationRepository.class);
+        StationRepository stationRepository = componentContainer.get(StationRepository.class);
         txn = database.beginTx();
         calculator = new RouteCalculatorTestFacade(componentContainer.get(RouteCalculator.class), stationRepository, txn);
 
-        graphQuery = componentContainer.get(GraphQuery.class);
+        //GraphQuery graphQuery = componentContainer.get(GraphQuery.class);
         maxJourneyDuration = config.getMaxJourneyDuration();
     }
 

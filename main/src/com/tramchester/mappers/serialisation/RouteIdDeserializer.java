@@ -1,7 +1,6 @@
 package com.tramchester.mappers.serialisation;
 
 import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.ObjectCodec;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -23,7 +22,7 @@ public class RouteIdDeserializer extends StdDeserializer<IdFor<Route>> {
     }
 
     @Override
-    public IdFor<Route> deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException, JsonProcessingException {
+    public IdFor<Route> deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException {
         ObjectCodec oc = jsonParser.getCodec();
         JsonNode node = oc.readTree(jsonParser);
         return StringIdFor.createId(node.asText());

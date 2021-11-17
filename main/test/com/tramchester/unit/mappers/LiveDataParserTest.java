@@ -40,12 +40,11 @@ class LiveDataParserTest extends EasyMockSupport {
 
 
     private LiveDataParser parser;
-    private StationRepository stationRepository;
     private TramStationByName tramStationByName;
 
     @BeforeEach
     void beforeEachTestRuns() {
-        stationRepository = createStrictMock(StationRepository.class);
+        StationRepository stationRepository = createStrictMock(StationRepository.class);
         tramStationByName = createStrictMock(TramStationByName.class);
         parser = new LiveDataParser(tramStationByName, stationRepository);
 

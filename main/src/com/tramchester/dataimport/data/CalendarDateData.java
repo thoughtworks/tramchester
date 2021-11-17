@@ -8,6 +8,7 @@ import com.tramchester.domain.id.StringIdFor;
 import java.time.LocalDate;
 
 // holds exceptions to main calendar
+@SuppressWarnings("unused")
 public class CalendarDateData extends ParsesDate {
 
     // TODO into Enum

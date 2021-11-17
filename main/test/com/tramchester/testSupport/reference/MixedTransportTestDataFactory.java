@@ -83,6 +83,7 @@ public class MixedTransportTestDataFactory implements TransportDataFactory {
         MutableRoute routeC = new MutableRoute(StringIdFor.createId("WBTR05A:I:"), "5A",
                 "Alty to Stockport", WarringtonsOwnBuses, Bus);
 
+        // todo guessing this is a bug
         MutableAgency agencyA = highPeakBuses; //routeA.getAgency();
         MutableAgency agencyB = highPeakBuses; //routeA.getAgency();
         MutableAgency agencyC = highPeakBuses; //routeA.getAgency();

@@ -26,7 +26,6 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.io.IOException;
 import java.nio.file.Path;
 import java.util.Collections;
 import java.util.List;
@@ -62,7 +61,7 @@ public class RouteToRouteCostsTest {
     }
 
     @AfterAll
-    static void OnceAfterAllTestsAreFinished() throws IOException {
+    static void OnceAfterAllTestsAreFinished() {
         TestEnv.clearDataCache(componentContainer);
         componentContainer.close();
     }

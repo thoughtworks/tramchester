@@ -9,6 +9,7 @@ import com.tramchester.domain.time.TramServiceDate;
 import com.tramchester.geo.CoordinateTransforms;
 import com.tramchester.mappers.JourneyToDTOMapper;
 
+@SuppressWarnings("unused")
 @JsonTypeName("BoxWithCost")
 @JsonTypeInfo(include=JsonTypeInfo.As.WRAPPER_OBJECT, use=JsonTypeInfo.Id.NAME)
 public class BoxWithCostDTO {
@@ -25,7 +26,6 @@ public class BoxWithCostDTO {
         this.journey = journey;
     }
 
-    @SuppressWarnings("unused")
     public BoxWithCostDTO() {
         // deserialisation
     }
@@ -48,12 +48,10 @@ public class BoxWithCostDTO {
         return minutes;
     }
 
-    @SuppressWarnings("unused")
     public LatLong getBottomLeft() {
         return bottomLeft;
     }
 
-    @SuppressWarnings("unused")
     public LatLong getTopRight() {
         return topRight;
     }
