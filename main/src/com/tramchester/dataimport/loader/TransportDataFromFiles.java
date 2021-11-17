@@ -4,21 +4,15 @@ import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.config.GTFSSourceConfig;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.dataimport.TransportDataFactory;
-import com.tramchester.dataimport.data.*;
+import com.tramchester.dataimport.data.CalendarData;
+import com.tramchester.dataimport.data.CalendarDateData;
 import com.tramchester.domain.*;
 import com.tramchester.domain.factory.TransportEntityFactory;
 import com.tramchester.domain.id.CompositeIdMap;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdMap;
 import com.tramchester.domain.id.IdSet;
-import com.tramchester.domain.input.Trip;
-import com.tramchester.domain.places.Station;
-import com.tramchester.domain.presentation.LatLong;
-import com.tramchester.domain.reference.GTFSTransportationType;
 import com.tramchester.domain.time.ProvidesNow;
-import com.tramchester.geo.BoundingBox;
-import com.tramchester.geo.CoordinateTransforms;
-import com.tramchester.geo.GridPosition;
 import com.tramchester.repository.TransportData;
 import com.tramchester.repository.TransportDataContainer;
 import com.tramchester.repository.WriteableTransportData;
@@ -78,51 +72,50 @@ public class TransportDataFromFiles implements TransportDataFactory {
     private void load(TransportDataSource dataSource, WriteableTransportData buildable) {
         DataSourceInfo dataSourceInfo = dataSource.getDataSourceInfo();
 
-        DataSourceID sourceName = dataSourceInfo.getID();
+        DataSourceID dataSourceInfoID = dataSourceInfo.getID();
         GTFSSourceConfig sourceConfig = dataSource.getConfig();
 
-        logger.info("Loading data for " + sourceName);
+        logger.info("Loading data for " + dataSourceInfoID);
 
         if(sourceConfig.getHasFeedInfo()) {
             // replace version string (which is from mod time) with the one from the feedinfo file, if present
             Optional<FeedInfo> maybeFeedinfo = dataSource.getFeedInfoStream().findFirst();
             maybeFeedinfo.ifPresent(feedInfo -> {
                 logger.info("Updating data source info from " + feedInfo);
-                buildable.addDataSourceInfo(new DataSourceInfo(sourceName, feedInfo.getVersion(),
+                buildable.addDataSourceInfo(new DataSourceInfo(dataSourceInfoID, feedInfo.getVersion(),
                         dataSourceInfo.getLastModTime(), dataSource.getDataSourceInfo().getModes()));
-                buildable.addFeedInfo(sourceName, feedInfo);
+                buildable.addFeedInfo(dataSourceInfoID, feedInfo);
             });
 
         } else {
-            logger.warn("No feedinfo for " + sourceName);
+            logger.warn("No feedinfo for " + dataSourceInfoID);
             buildable.addDataSourceInfo(dataSourceInfo);
         }
 
         TransportEntityFactory entityFactory = dataSource.getEntityFactory();
+        StopDataLoader stopDataLoader = new StopDataLoader(entityFactory, config);
+        AgencyDataLoader agencyDataLoader = new AgencyDataLoader(dataSourceInfoID, entityFactory);
+        RouteDataLoader routeDataLoader = new RouteDataLoader(buildable, sourceConfig, entityFactory);
+        TripLoader tripLoader = new TripLoader(buildable, entityFactory);
+        StopTimeLoader stopTimeLoader = new StopTimeLoader(buildable, entityFactory, sourceConfig);
 
-        PreloadedStationsAndPlatforms allStations = preLoadStations(dataSource.getStops(), entityFactory);
-
-        CompositeIdMap<Agency, MutableAgency> allAgencies = preloadAgencys(sourceName, dataSource.getAgencies(), entityFactory);
-        ExcludedRoutes excludedRoutes = populateRoutes(buildable, dataSource.getRoutes(), allAgencies,
-                sourceConfig, entityFactory);
+        PreloadedStationsAndPlatforms interimStations = stopDataLoader.load(dataSource.getStops());
+        CompositeIdMap<Agency, MutableAgency> interimAgencies = agencyDataLoader.load(dataSource.getAgencies());
+        RouteDataLoader.ExcludedRoutes excludedRoutes = routeDataLoader.load(dataSource.getRoutes(), interimAgencies);
         logger.info("Excluding " + excludedRoutes.numOfExcluded() + " routes ");
+        interimAgencies.clear();
 
-        allAgencies.clear();
+        TripAndServices interimTripsAndServices = tripLoader.load(dataSource.getTrips(), excludedRoutes);
 
-        TripAndServices tripsAndServices = loadTripsAndServices(buildable, dataSource.getTrips(), excludedRoutes,
-                entityFactory);
-
-        IdMap<Service> services = populateStopTimes(buildable, dataSource.getStopTimes(), allStations,
-                tripsAndServices, entityFactory,
-                sourceConfig);
+        IdMap<Service> interimServices = stopTimeLoader.load(dataSource.getStopTimes(), interimStations, interimTripsAndServices);
 
         excludedRoutes.clear();
+        interimStations.clear();
 
-        allStations.clear();
+        populateCalendars(buildable, dataSource.getCalendars(), dataSource.getCalendarsDates(), interimServices, sourceConfig, entityFactory);
 
-        populateCalendars(buildable, dataSource.getCalendars(), dataSource.getCalendarsDates(), services, sourceConfig, entityFactory);
-
-        tripsAndServices.clear();
+        interimTripsAndServices.clear();
+        interimServices.clear();
 
         buildable.reportNumbers();
 
@@ -130,14 +123,14 @@ public class TransportDataFromFiles implements TransportDataFactory {
 
         //buildable.getServices().stream().
         buildable.getServicesWithoutCalendar().
-                forEach(svc -> logger.warn(format("source %s Service %s has missing calendar", sourceName, svc.getId()))
+                forEach(svc -> logger.warn(format("source %s Service %s has missing calendar", dataSourceInfoID, svc.getId()))
         );
 
         reportZeroDaysServices(buildable);
 
         dataSource.closeAll();
 
-        logger.info("Finishing Loading data for " + sourceName);
+        logger.info("Finishing Loading data for " + dataSourceInfoID);
     }
 
     private void reportZeroDaysServices(WriteableTransportData buildable) {
@@ -248,195 +241,19 @@ public class TransportDataFromFiles implements TransportDataFactory {
         }
     }
 
-    private IdMap<Service> populateStopTimes(WriteableTransportData buildable, Stream<StopTimeData> stopTimes,
-                                             PreloadedStationsAndPlatforms preloadStations, TripAndServices tripAndServices,
-                                             TransportEntityFactory factory, GTFSSourceConfig dataSourceConfig) {
-        String sourceName = dataSourceConfig.getName();
-
-        StopTimeDataLoader stopTimeDataLoader = new StopTimeDataLoader(buildable, preloadStations, factory, dataSourceConfig, tripAndServices);
-
-        logger.info("Loading stop times for " + sourceName);
-        stopTimes.
-                filter(stopTimeData -> tripAndServices.hasId(stopTimeData.getTripId())).
-                filter(this::isValid).
-                forEach(stopTimeDataLoader::load);
-
-        stopTimeDataLoader.close();
-        return stopTimeDataLoader.getAddedServices();
-    }
-
-    private boolean isValid(StopTimeData stopTimeData) {
-        if (stopTimeData.isValid()) {
-            return true;
-        }
-        logger.warn("StopTimeData is invalid: " + stopTimeData);
-        return false;
-    }
-
-    private TripAndServices loadTripsAndServices(WriteableTransportData buildable, Stream<TripData> tripDataStream,
-                                                 ExcludedRoutes excludedRoutes,
-                                                 TransportEntityFactory factory) {
-        logger.info("Loading trips");
-        TripAndServices results = new TripAndServices(factory);
-
-        AtomicInteger count = new AtomicInteger();
-
-        tripDataStream.forEach((tripData) -> {
-            IdFor<Service> serviceId = tripData.getServiceId();
-            IdFor<Route> routeId = factory.createRouteId(tripData.getRouteId());
-            IdFor<Trip> tripId = tripData.getTripId();
-
-            if (buildable.hasRouteId(routeId)) {
-                Route route = buildable.getMutableRoute(routeId);
-                Service service = results.getOrCreateService(serviceId);
-                results.createTripIfMissing(tripId, tripData, service, route);
-                count.getAndIncrement();
-            } else {
-                if (!excludedRoutes.wasExcluded(routeId)) {
-                    logger.warn(format("Unable to find RouteId '%s' for trip '%s", routeId, tripData));
-                }
-            }
-        });
-        logger.info("Loaded " + count.get() + " trips");
-        return results;
-    }
-
-    private CompositeIdMap<Agency, MutableAgency> preloadAgencys(DataSourceID dataSourceID, Stream<AgencyData> agencyDataStream,
-                                                                 TransportEntityFactory factory) {
-        logger.info("Loading all agencies for " + dataSourceID);
-        CompositeIdMap<Agency, MutableAgency> agencies = new CompositeIdMap<>();
-        agencyDataStream.forEach(agencyData -> agencies.add(factory.createAgency(dataSourceID, agencyData)));
-        logger.info("Loaded " + agencies.size() + " agencies for " + dataSourceID);
-        return agencies;
-    }
-
-    private ExcludedRoutes populateRoutes(WriteableTransportData buildable, Stream<RouteData> routeDataStream,
-                                          CompositeIdMap<Agency, MutableAgency> allAgencies, GTFSSourceConfig sourceConfig,
-                                          TransportEntityFactory factory) {
-        Set<GTFSTransportationType> transportModes = sourceConfig.getTransportGTFSModes();
-        AtomicInteger count = new AtomicInteger();
-
-        ExcludedRoutes excludedRoutes = new ExcludedRoutes();
-
-        logger.info("Loading routes for transport modes " + transportModes.toString());
-        routeDataStream.forEach(routeData -> {
-            IdFor<Agency> agencyId = routeData.getAgencyId();
-            boolean missingAgency = !allAgencies.hasId(agencyId);
-            if (missingAgency) {
-                logger.error("Missing agency " + agencyId);
-            }
-
-            GTFSTransportationType routeType = factory.getRouteType(routeData, agencyId);
-
-            if (transportModes.contains(routeType)) {
-                DataSourceID dataSourceID = sourceConfig.getDataSourceId();
-                MutableAgency agency = missingAgency ? createMissingAgency(dataSourceID, allAgencies, agencyId, factory)
-                        : allAgencies.get(agencyId);
-
-                MutableRoute route = factory.createRoute(routeType, routeData, agency);
-
-                agency.addRoute(route);
-                if (!buildable.hasAgencyId(agencyId)) {
-                    buildable.addAgency(agency);
-                }
-                buildable.addRoute(route);
-
-                count.getAndIncrement();
-
-            } else {
-                IdFor<Route> routeId = routeData.getId();
-                excludedRoutes.excludeRoute(factory.createRouteId(routeId));
-            }
-        });
-        excludedRoutes.recordInLog(transportModes);
-        logger.info("Loaded " + count.get() + " routes of transport types " + transportModes + " excluded "+ excludedRoutes.numOfExcluded());
-        return excludedRoutes;
-    }
 
 
 
-    private MutableAgency createMissingAgency(DataSourceID dataSourceID, CompositeIdMap<Agency, MutableAgency> allAgencies, IdFor<Agency> agencyId,
-                                              TransportEntityFactory factory) {
-        MutableAgency unknown = factory.createUnknownAgency(dataSourceID, agencyId);
-        logger.error("Created agency" + unknown + " for " + dataSourceID);
-        allAgencies.add(unknown);
-        return unknown;
-    }
 
-    private PreloadedStationsAndPlatforms preLoadStations(Stream<StopData> stops, TransportEntityFactory factory) {
-        logger.info("Loading stops within bounds");
-        BoundingBox bounds = config.getBounds();
 
-        PreloadedStationsAndPlatforms allStations = new PreloadedStationsAndPlatforms(factory);
 
-        stops.forEach((stopData) -> {
-            LatLong latLong = stopData.getLatLong();
-            if (latLong.isValid()) {
-                GridPosition position = getGridPosition(stopData.getLatLong());
-                if (bounds.contained(position)) {
-                    preLoadStation(allStations, stopData, position, factory);
-                } else {
-                    // Don't know which transport modes the station serves at this stage, so no way to filter further
-                    logger.info("Excluding stop outside of bounds" + stopData);
-                }
-            } else {
-                preLoadStation(allStations, stopData, GridPosition.Invalid, factory);
-            }
-        });
-        logger.info("Pre Loaded " + allStations.size() + " stations");
-        return allStations;
-    }
 
-    private void preLoadStation(PreloadedStationsAndPlatforms allStations, StopData stopData, GridPosition position,
-                                TransportEntityFactory factory) {
-        String stopId = stopData.getId();
-        IdFor<Station> stationId = factory.formStationId(stopId);
 
-        if (allStations.hasId(stationId)) {
-            allStations.updateStation(stationId, stopData);
-        } else {
-            allStations.createAndAdd(stationId, stopData, position);
-        }
-    }
 
-    private GridPosition getGridPosition(LatLong latLong) {
-        return CoordinateTransforms.getGridPosition(latLong);
-    }
 
-    private static class ExcludedRoutes {
-        private final IdSet<Route> excludedRouteIds;
 
-        private ExcludedRoutes() {
-            excludedRouteIds = new IdSet<>();
-        }
 
-        public void excludeRoute(IdFor<Route> routeId) {
-            excludedRouteIds.add(routeId);
-        }
 
-        public boolean wasExcluded(IdFor<Route> routeId) {
-            return excludedRouteIds.contains(routeId);
-        }
-
-        public IdSet<Route> getExcluded() {
-            return excludedRouteIds;
-        }
-
-        public int numOfExcluded() {
-            return excludedRouteIds.size();
-        }
-
-        public void clear() {
-            excludedRouteIds.clear();
-        }
-
-        public void recordInLog(Set<GTFSTransportationType> transportModes) {
-            if (excludedRouteIds.isEmpty()) {
-                return;
-            }
-            logger.info("Excluded the following route id's as did not match modes " + transportModes + " routes: " + excludedRouteIds);
-        }
-    }
 
 
 }
