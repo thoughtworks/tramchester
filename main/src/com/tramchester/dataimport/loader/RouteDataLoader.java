@@ -67,6 +67,7 @@ public class RouteDataLoader {
         });
         excludedRoutes.recordInLog(transportModes);
         logger.info("Loaded " + count.get() + " routes of transport types " + transportModes + " excluded "+ excludedRoutes.numOfExcluded());
+
         return excludedRoutes;
     }
 
