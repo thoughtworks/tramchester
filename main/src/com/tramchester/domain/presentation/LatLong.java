@@ -65,6 +65,6 @@ public class LatLong {
     }
 
     public boolean isValid() {
-        return ((lat>=-90) && (lat<=90) && (lon>=-180) && (lat<=180));
+        return ((lat>=-90) && (lat<=90) && (lon>=-180) && (lon<=180));
     }
 }

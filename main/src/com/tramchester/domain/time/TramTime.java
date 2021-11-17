@@ -38,16 +38,16 @@ public class TramTime implements Comparable<TramTime> {
         return factory.of(time);
     }
 
-    public static TramTime midnight() {
-        return factory.midnight();
-    }
-
     private static TramTime of(int hours, int minutes, int offsetDays) {
         return factory.of(hours, minutes, offsetDays);
     }
 
     public static TramTime of(int hours, int minutes) {
         return factory.of(hours, minutes, 0);
+    }
+
+    public static TramTime midnight() {
+        return factory.midnight();
     }
 
     public static Optional<TramTime> parse(String text) {
