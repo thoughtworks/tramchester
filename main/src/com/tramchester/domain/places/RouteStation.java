@@ -33,9 +33,13 @@ public class RouteStation implements HasId<RouteStation>, GraphProperty, Locatio
         return id;
     }
 
-    public Agency getAgency() {
-        return route.getAgency();
-    }
+//    public Agency getAgency() {
+//        return route.getAgency();
+//    }
+
+//    public TransportMode getTransportMode() {
+//        return route.getTransportMode();
+//    }
 
     @Override
     public String toString() {
@@ -94,10 +98,6 @@ public class RouteStation implements HasId<RouteStation>, GraphProperty, Locatio
     @Override
     public Set<TransportMode> getTransportModes() {
         return Collections.singleton(route.getTransportMode());
-    }
-
-    public TransportMode getTransportMode() {
-        return route.getTransportMode();
     }
 
     @Override

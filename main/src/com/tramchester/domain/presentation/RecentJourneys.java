@@ -3,9 +3,7 @@ package com.tramchester.domain.presentation;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.Timestamped;
-import com.tramchester.domain.places.Station;
 
 import java.io.IOException;
 import java.net.URLDecoder;
@@ -50,15 +48,15 @@ public class RecentJourneys  {
         return timestamps;
     }
 
-    @JsonIgnore
-    public boolean containsStationId(StringIdFor<Station> id) {
-        for (Timestamped timestamp : timestamps) {
-            if (timestamp.getId().equals(id.forDTO())) {
-                return true;
-            }
-        }
-        return false;
-    }
+//    @JsonIgnore
+//    public boolean containsStationId(StringIdFor<Station> id) {
+//        for (Timestamped timestamp : timestamps) {
+//            if (timestamp.getId().equals(id.forDTO())) {
+//                return true;
+//            }
+//        }
+//        return false;
+//    }
 
     public static RecentJourneys empty() {
         return new RecentJourneys().setTimestamps(new HashSet<>());

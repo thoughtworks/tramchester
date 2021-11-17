@@ -24,7 +24,7 @@ public class RouteCalculatorArriveBy implements TramRouteCalculator {
     private static final Logger logger = LoggerFactory.getLogger(RouteCalculatorArriveBy.class);
 
     private final RouteCostCalculator costCalculator;
-    private final RouteCalculator routeCalculator;
+    private final TramRouteCalculator routeCalculator;
     private final TramchesterConfig config;
 
     @Inject

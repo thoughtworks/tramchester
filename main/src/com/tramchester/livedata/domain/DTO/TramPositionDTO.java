@@ -1,10 +1,10 @@
 package com.tramchester.livedata.domain.DTO;
 
 import com.tramchester.domain.presentation.DTO.StationRefWithPosition;
-import com.tramchester.livedata.domain.DTO.DepartureDTO;
 
 import java.util.Set;
 
+@SuppressWarnings("unused")
 public class TramPositionDTO {
     private StationRefWithPosition first;
     private StationRefWithPosition second;

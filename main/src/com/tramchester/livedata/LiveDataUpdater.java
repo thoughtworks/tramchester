@@ -1,11 +1,12 @@
 package com.tramchester.livedata;
 
 import com.netflix.governator.guice.lazy.LazySingleton;
-import com.tramchester.livedata.domain.liveUpdates.StationDepartureInfo;
 import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.domain.time.TramTime;
+import com.tramchester.livedata.domain.liveUpdates.StationDepartureInfo;
 import com.tramchester.livedata.mappers.LiveDataParser;
 import com.tramchester.livedata.repository.DueTramsRepository;
+import com.tramchester.livedata.repository.LiveDataCache;
 import com.tramchester.livedata.repository.LiveDataObserver;
 import com.tramchester.repository.PlatformMessageRepository;
 import org.jetbrains.annotations.NotNull;
@@ -30,7 +31,7 @@ public class LiveDataUpdater {
 
     private final List<LiveDataObserver> observers;
     private final PlatformMessageRepository platformMessageRepository;
-    private final DueTramsRepository dueTramsRepository;
+    private final LiveDataCache dueTramsRepository;
 
     private final LiveDataFetcher fetcher;
     private final LiveDataParser parser;

@@ -30,9 +30,9 @@ public abstract class  WalkingStage<FROM extends Location<?>, DEST extends Locat
         return duration;
     }
 
-    public DEST getDestination() {
-        return destination;
-    }
+//    public DEST getDestination() {
+//        return destination;
+//    }
 
     public abstract boolean getTowardsMyLocation();
 

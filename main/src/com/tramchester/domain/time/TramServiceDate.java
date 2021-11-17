@@ -2,7 +2,6 @@ package com.tramchester.domain.time;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.Month;
 import java.time.format.DateTimeFormatter;
 
@@ -11,10 +10,6 @@ public class TramServiceDate {
 
     public static TramServiceDate of(LocalDate date) {
         return new TramServiceDate(date);
-    }
-
-    public static TramServiceDate of(LocalDateTime dateAndTime) {
-        return of(dateAndTime.toLocalDate());
     }
 
     public TramServiceDate(LocalDate date) {
@@ -37,9 +32,9 @@ public class TramServiceDate {
                 '}';
     }
 
-    public String toDateString() {
-        return date.format(DateTimeFormatter.ISO_LOCAL_DATE);
-    }
+//    public String toDateString() {
+//        return date.format(DateTimeFormatter.ISO_LOCAL_DATE);
+//    }
 
     public boolean isWeekend() {
         DayOfWeek dayOfWeek = date.getDayOfWeek();

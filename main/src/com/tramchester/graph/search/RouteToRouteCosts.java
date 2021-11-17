@@ -352,20 +352,20 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
             }
         }
 
-        public int size() {
-            return map.size();
-        }
+//        public int size() {
+//            return map.size();
+//        }
 
         public int find(IdFor<Route> from) {
             return map.get(from);
         }
 
-        public IdFor<Route> find(int index) {
-            return map.entrySet().stream().
-                    filter(entry -> entry.getValue()==index).
-                    map(Map.Entry::getKey).
-                    findFirst().orElseThrow();
-        }
+//        public IdFor<Route> find(int index) {
+//            return map.entrySet().stream().
+//                    filter(entry -> entry.getValue()==index).
+//                    map(Map.Entry::getKey).
+//                    findFirst().orElseThrow();
+//        }
 
         @Override
         public void cacheTo(DataSaver<RouteIndexData> saver) {

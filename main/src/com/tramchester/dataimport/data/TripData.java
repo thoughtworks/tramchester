@@ -7,6 +7,7 @@ import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.input.Trip;
 
+@SuppressWarnings("unused")
 public class TripData {
 
     @JsonProperty("route_id")

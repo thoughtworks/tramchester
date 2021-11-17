@@ -2,6 +2,7 @@ package com.tramchester.acceptance;
 
 import com.tramchester.acceptance.infra.ProvidesChromeDateInput;
 import com.tramchester.acceptance.infra.ProvidesFirefoxDateInput;
+import com.tramchester.acceptance.pages.ProvidesDateInput;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -10,8 +11,8 @@ import java.time.LocalTime;
 
 class DateInputTest {
 
-    private final ProvidesFirefoxDateInput firefoxProvider = new ProvidesFirefoxDateInput();
-    private final ProvidesChromeDateInput chromeProvider = new ProvidesChromeDateInput();
+    private final ProvidesDateInput firefoxProvider = new ProvidesFirefoxDateInput();
+    private final ProvidesDateInput chromeProvider = new ProvidesChromeDateInput();
 
     @Test
     void shouldGetFirefoxDateCorrectly() {

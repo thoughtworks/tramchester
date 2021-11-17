@@ -173,8 +173,8 @@ public class RouteCalculationCombinations {
                     '}';
         }
 
-        public Journey get() {
-            return journey;
-        }
+//        public Journey get() {
+//            return journey;
+//        }
     }
 }

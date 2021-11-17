@@ -1,11 +1,9 @@
 package com.tramchester.testSupport;
 
-import com.tramchester.App;
 import com.tramchester.ComponentContainer;
 import com.tramchester.domain.MutableAgency;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.id.IdSet;
-import com.tramchester.integration.testSupport.IntegrationAppExtension;
 import com.tramchester.repository.RouteRepository;
 import com.tramchester.testSupport.reference.KnownTramRoute;
 
@@ -25,14 +23,14 @@ public class TramRouteHelper {
         this(componentContainer.get(RouteRepository.class));
     }
 
-    public TramRouteHelper(IntegrationAppExtension appExtension) {
-       this(getRepositoryFrom(appExtension));
-    }
+//    public TramRouteHelper(IntegrationAppExtension appExtension) {
+//       this(getRepositoryFrom(appExtension));
+//    }
 
-    private static RouteRepository getRepositoryFrom(IntegrationAppExtension appExtension) {
-        App app =  appExtension.getApplication();
-        return app.getDependencies().get(RouteRepository.class);
-    }
+//    private static RouteRepository getRepositoryFrom(IntegrationAppExtension appExtension) {
+//        App app =  appExtension.getApplication();
+//        return app.getDependencies().get(RouteRepository.class);
+//    }
 
     public TramRouteHelper(RouteRepository routeRepository) {
         map = new HashMap<>();

@@ -30,12 +30,14 @@ public class MappersAndConfigurationModule extends AbstractModule {
         bind(NodeContentsRepository.class).to(CachedNodeOperations.class);
     }
 
+    @SuppressWarnings("unused")
     @LazySingleton
     @Provides
     CsvMapper providesCsvMapper() {
         return  CsvMapper.builder().addModule(new AfterburnerModule()).build();
     }
 
+    @SuppressWarnings("unused")
     @LazySingleton
     @Provides
     ObjectMapper providesObjectMapper() {

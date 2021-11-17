@@ -8,6 +8,7 @@ import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import java.nio.file.Path;
 
+@SuppressWarnings("unused")
 @Valid
 @JsonIgnoreProperties(ignoreUnknown = false)
 public class RemoteDataSourceAppConfig extends Configuration implements RemoteDataSourceConfig {

@@ -40,10 +40,10 @@ public class PreviousVisits implements ReportsCacheStats {
                 recordStats().build();
     }
 
-    public void clear() {
-        timeNodePrevious.invalidateAll();
-        hourNodePrevious.invalidateAll();
-    }
+//    public void clear() {
+//        timeNodePrevious.invalidateAll();
+//        hourNodePrevious.invalidateAll();
+//    }
 
     public void recordVisitIfUseful(ServiceReason.ReasonCode result, Node node, ImmutableJourneyState journeyState, EnumSet<GraphLabel> labels) {
         if (labels.contains(GraphLabel.MINUTE) || labels.contains(GraphLabel.HOUR)) {

@@ -16,9 +16,9 @@ public class RelationshipWithRoute implements HasId<Route> {
         this.relationship = relationship;
     }
 
-    public IdFor<Route> getRouteId() {
-        return routeId;
-    }
+//    public IdFor<Route> getRouteId() {
+//        return routeId;
+//    }
 
     public Relationship getRelationship() {
         return relationship;

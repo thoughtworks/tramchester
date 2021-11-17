@@ -28,9 +28,9 @@ public class RunningServices {
         return serviceIds.contains(serviceId);
     }
 
-    public long count() {
-        return serviceIds.size();
-    }
+//    public long count() {
+//        return serviceIds.size();
+//    }
 
     @Override
     public String toString() {

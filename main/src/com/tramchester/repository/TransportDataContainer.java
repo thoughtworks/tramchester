@@ -85,9 +85,9 @@ public class TransportDataContainer implements TransportData, WriteableTransport
         return count.orElse(Integer.MIN_VALUE);
     }
 
-    public Service getService(IdFor<Service> serviceId) {
-        return services.get(serviceId);
-    }
+//    public Service getService(IdFor<Service> serviceId) {
+//        return services.get(serviceId);
+//    }
 
     @Override
     public boolean hasStationId(IdFor<Station> stationId) {
