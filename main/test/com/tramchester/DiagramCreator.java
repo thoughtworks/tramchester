@@ -20,6 +20,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
 import java.io.*;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
 
@@ -40,6 +41,8 @@ public class DiagramCreator {
             new TransportRelationshipTypes[]{LINKED, ON_ROUTE, ROUTE_TO_STATION, STATION_TO_ROUTE, };
     private final CompositeStationRepository stationRepository;
 
+    private static Path diagramsFolder = Path.of("diagrams");
+
     @Inject
     public DiagramCreator(GraphDatabase graphDatabase, GraphQuery graphQuery, CompositeStationRepository stationRepository) {
         // ready is token to express dependency on having a built graph DB
@@ -52,7 +55,11 @@ public class DiagramCreator {
         create(filename, Collections.singleton(station), depthLimit, topLevel);
     }
 
-    public void create(Path filePath, Collection<Station> startPointsList, int depthLimit, boolean topLevel) throws IOException {
+    public void create(Path diagramFile, Collection<Station> startPointsList, int depthLimit, boolean topLevel) throws IOException {
+
+        createFolderIfRequired();
+
+        Path filePath = diagramsFolder.resolve(diagramFile);
         logger.info("Creating diagram " + filePath.toAbsolutePath());
 
         Set<Long> nodeSeen = new HashSet<>();
@@ -90,6 +97,13 @@ public class DiagramCreator {
         fileStream.close();
 
         logger.info("Finished diagram");
+    }
+
+    private void createFolderIfRequired() throws IOException {
+        if (Files.exists(diagramsFolder)) {
+            return;
+        }
+        Files.createDirectory(diagramsFolder);
     }
 
     private void visit(Node node, DiagramBuild builder, int depth, Set<Long> nodeSeen, Set<Long> relationshipSeen, boolean topLevel) {
