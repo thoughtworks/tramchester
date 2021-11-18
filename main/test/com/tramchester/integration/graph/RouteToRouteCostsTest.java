@@ -4,7 +4,7 @@ import com.fasterxml.jackson.dataformat.csv.CsvMapper;
 import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.config.TramchesterConfig;
-import com.tramchester.dataimport.loader.TransportDataFromFile;
+import com.tramchester.dataimport.loader.files.TransportDataFromFile;
 import com.tramchester.dataimport.data.RouteIndexData;
 import com.tramchester.dataimport.data.RouteMatrixData;
 import com.tramchester.domain.NumberOfChanges;

@@ -1,6 +1,7 @@
-package com.tramchester.dataimport.loader;
+package com.tramchester.dataimport.loader.files;
 
 import com.fasterxml.jackson.dataformat.csv.CsvMapper;
+import com.tramchester.dataimport.loader.TransportDataReader;
 
 import java.nio.file.Path;
 

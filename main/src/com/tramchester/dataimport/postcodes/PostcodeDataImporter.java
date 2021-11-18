@@ -4,7 +4,7 @@ import com.fasterxml.jackson.dataformat.csv.CsvMapper;
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.config.RemoteDataSourceConfig;
 import com.tramchester.config.TramchesterConfig;
-import com.tramchester.dataimport.loader.TransportDataFromFile;
+import com.tramchester.dataimport.loader.files.TransportDataFromFile;
 import com.tramchester.dataimport.FetchFileModTime;
 import com.tramchester.dataimport.UnzipFetchedData;
 import com.tramchester.domain.DataSourceID;

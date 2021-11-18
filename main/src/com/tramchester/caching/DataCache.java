@@ -5,7 +5,7 @@ import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.config.RemoteDataSourceConfig;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.dataexport.DataSaver;
-import com.tramchester.dataimport.loader.TransportDataFromFile;
+import com.tramchester.dataimport.loader.files.TransportDataFromFile;
 import com.tramchester.dataimport.RemoteDataRefreshed;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;

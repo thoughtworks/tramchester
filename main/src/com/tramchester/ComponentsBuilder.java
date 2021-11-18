@@ -9,7 +9,7 @@ import com.tramchester.modules.GetReadyModule;
 import com.tramchester.modules.GraphFilterModule;
 import com.tramchester.modules.TransportDataFactoryModule;
 import com.tramchester.dataimport.loader.TransportDataFactory;
-import com.tramchester.dataimport.loader.TransportDataFromFiles;
+import com.tramchester.dataimport.loader.PopulateTransportDataFromSources;
 
 import java.util.Arrays;
 import java.util.List;
@@ -19,7 +19,7 @@ public class ComponentsBuilder {
     private SetupGraphFilter setupGraphFilter;
 
     public ComponentsBuilder() {
-        this.transportDataFactoryType = TransportDataFromFiles.class;
+        this.transportDataFactoryType = PopulateTransportDataFromSources.class;
         setupGraphFilter = null;
     }
 

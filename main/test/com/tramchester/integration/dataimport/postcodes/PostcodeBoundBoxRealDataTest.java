@@ -4,7 +4,7 @@ import com.fasterxml.jackson.dataformat.csv.CsvMapper;
 import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.config.RemoteDataSourceConfig;
-import com.tramchester.dataimport.loader.TransportDataFromFile;
+import com.tramchester.dataimport.loader.files.TransportDataFromFile;
 import com.tramchester.dataimport.postcodes.PostcodeBoundingBoxs;
 import com.tramchester.dataimport.postcodes.PostcodeData;
 import com.tramchester.domain.DataSourceID;

@@ -1,7 +1,7 @@
 package com.tramchester.unit.dataimport.postcodes;
 
 import com.fasterxml.jackson.dataformat.csv.CsvMapper;
-import com.tramchester.dataimport.loader.TransportDataFromFile;
+import com.tramchester.dataimport.loader.files.TransportDataFromFile;
 import com.tramchester.dataimport.postcodes.PostcodeData;
 import com.tramchester.geo.GridPosition;
 import org.junit.jupiter.api.BeforeEach;

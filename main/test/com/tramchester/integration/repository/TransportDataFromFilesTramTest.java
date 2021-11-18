@@ -21,7 +21,7 @@ import com.tramchester.domain.time.TramTime;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
 import com.tramchester.repository.InterchangeRepository;
 import com.tramchester.repository.TransportData;
-import com.tramchester.dataimport.loader.TransportDataFromFiles;
+import com.tramchester.dataimport.loader.PopulateTransportDataFromSources;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TramRouteHelper;
 import com.tramchester.testSupport.reference.TramStations;
@@ -548,7 +548,7 @@ public class TransportDataFromFilesTramTest {
     @Disabled("Performance tests")
     @Test
     void shouldLoadData() {
-        TransportDataFromFiles transportDataFromFiles = componentContainer.get(TransportDataFromFiles.class);
+        PopulateTransportDataFromSources transportDataFromFiles = componentContainer.get(PopulateTransportDataFromSources.class);
 
         int count = 10;
         //int count = 1;

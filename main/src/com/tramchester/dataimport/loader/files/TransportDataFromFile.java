@@ -1,4 +1,4 @@
-package com.tramchester.dataimport.loader;
+package com.tramchester.dataimport.loader.files;
 
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.MappingIterator;

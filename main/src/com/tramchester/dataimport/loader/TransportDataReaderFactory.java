@@ -5,6 +5,7 @@ import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.config.GTFSSourceConfig;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.dataimport.FetchFileModTime;
+import com.tramchester.dataimport.loader.files.TransportDataFromFileFactory;
 import com.tramchester.domain.DataSourceID;
 import com.tramchester.domain.DataSourceInfo;
 import com.tramchester.domain.reference.TransportMode;
@@ -58,6 +59,7 @@ public class TransportDataReaderFactory {
 
             TransportDataFromFileFactory factory = new TransportDataFromFileFactory(path, mapper);
             TransportDataReader transportLoader = new TransportDataReader(dataSourceInfo, factory, sourceConfig);
+
             dataReaders.add(transportLoader);
         });
         logger.info("started");

@@ -3,6 +3,7 @@ package com.tramchester.dataimport.loader;
 
 import com.tramchester.config.GTFSSourceConfig;
 import com.tramchester.dataimport.data.*;
+import com.tramchester.dataimport.loader.files.TransportDataFromFileFactory;
 import com.tramchester.domain.FeedInfo;
 import com.tramchester.domain.DataSourceInfo;
 

@@ -3,7 +3,7 @@ package com.tramchester.integration.dataimport.postcodes;
 import com.fasterxml.jackson.dataformat.csv.CsvMapper;
 import com.tramchester.caching.DataCache;
 import com.tramchester.config.TramchesterConfig;
-import com.tramchester.dataimport.loader.TransportDataFromFile;
+import com.tramchester.dataimport.loader.files.TransportDataFromFile;
 import com.tramchester.dataimport.RemoteDataRefreshed;
 import com.tramchester.dataimport.data.PostcodeHintData;
 import com.tramchester.dataimport.postcodes.PostcodeBoundingBoxs;

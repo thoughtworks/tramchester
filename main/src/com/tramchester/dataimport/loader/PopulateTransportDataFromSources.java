@@ -23,8 +23,8 @@ import java.util.Optional;
 import static java.lang.String.format;
 
 @LazySingleton
-public class TransportDataFromFiles implements TransportDataFactory {
-    private static final Logger logger = LoggerFactory.getLogger(TransportDataFromFiles.class);
+public class PopulateTransportDataFromSources implements TransportDataFactory {
+    private static final Logger logger = LoggerFactory.getLogger(PopulateTransportDataFromSources.class);
 
     private final TransportDataSourceFactory transportDataSourceFactory;
     private final TramchesterConfig tramchesterConfig;
@@ -35,8 +35,8 @@ public class TransportDataFromFiles implements TransportDataFactory {
     // NOTE: cannot inject GraphFilter here as circular dependency on being able to find routes which
     // needs transport data to be loaded....
     @Inject
-    public TransportDataFromFiles(TransportDataSourceFactory transportDataSourceFactory,
-                                  TramchesterConfig tramchesterConfig, ProvidesNow providesNow) {
+    public PopulateTransportDataFromSources(TransportDataSourceFactory transportDataSourceFactory,
+                                            TramchesterConfig tramchesterConfig, ProvidesNow providesNow) {
         this.transportDataSourceFactory = transportDataSourceFactory;
         this.tramchesterConfig = tramchesterConfig;
         this.providesNow = providesNow;
