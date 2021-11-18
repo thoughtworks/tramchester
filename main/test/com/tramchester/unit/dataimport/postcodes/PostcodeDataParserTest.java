@@ -1,7 +1,7 @@
 package com.tramchester.unit.dataimport.postcodes;
 
 import com.fasterxml.jackson.dataformat.csv.CsvMapper;
-import com.tramchester.dataimport.DataLoader;
+import com.tramchester.dataimport.loader.TransportDataFromFile;
 import com.tramchester.dataimport.postcodes.PostcodeData;
 import com.tramchester.geo.GridPosition;
 import org.junit.jupiter.api.BeforeEach;
@@ -14,14 +14,14 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class PostcodeDataParserTest  {
 
-    private DataLoader<PostcodeData> dataDataLoader;
+    private TransportDataFromFile<PostcodeData> dataDataLoader;
 
     @BeforeEach
     void setUp() {
 
         // NOTE: no headers in postcode data csvs
         CsvMapper mapper = CsvMapper.builder().build();
-        dataDataLoader = new DataLoader<>(Paths.get("unused"), PostcodeData.class, PostcodeData.CVS_HEADER, mapper);
+        dataDataLoader = new TransportDataFromFile<>(Paths.get("unused"), PostcodeData.class, PostcodeData.CVS_HEADER, mapper);
 
     }
 

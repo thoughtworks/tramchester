@@ -3,7 +3,6 @@ package com.tramchester.dataimport.loader;
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.config.GTFSSourceConfig;
 import com.tramchester.config.TramchesterConfig;
-import com.tramchester.dataimport.TransportDataFactory;
 import com.tramchester.domain.*;
 import com.tramchester.domain.factory.TransportEntityFactory;
 import com.tramchester.domain.id.CompositeIdMap;

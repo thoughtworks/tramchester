@@ -2,7 +2,6 @@ package com.tramchester.dataimport.loader;
 
 
 import com.tramchester.config.GTFSSourceConfig;
-import com.tramchester.dataimport.DataLoaderFactory;
 import com.tramchester.dataimport.data.*;
 import com.tramchester.domain.FeedInfo;
 import com.tramchester.domain.DataSourceInfo;
@@ -22,9 +21,9 @@ public class TransportDataReader {
         trips, stops, routes, feed_info, calendar, stop_times, calendar_dates, agency
     }
 
-    private final DataLoaderFactory factory;
+    private final TransportDataFromFileFactory factory;
 
-    public TransportDataReader(DataSourceInfo dataSourceInfo, DataLoaderFactory factory, GTFSSourceConfig config) {
+    public TransportDataReader(DataSourceInfo dataSourceInfo, TransportDataFromFileFactory factory, GTFSSourceConfig config) {
         this.dataSourceInfo = dataSourceInfo;
         this.factory = factory;
         this.config = config;

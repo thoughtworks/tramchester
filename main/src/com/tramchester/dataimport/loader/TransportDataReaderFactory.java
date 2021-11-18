@@ -4,7 +4,6 @@ import com.fasterxml.jackson.dataformat.csv.CsvMapper;
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.config.GTFSSourceConfig;
 import com.tramchester.config.TramchesterConfig;
-import com.tramchester.dataimport.DataLoaderFactory;
 import com.tramchester.dataimport.FetchFileModTime;
 import com.tramchester.domain.DataSourceID;
 import com.tramchester.domain.DataSourceInfo;
@@ -57,7 +56,7 @@ public class TransportDataReaderFactory {
 
             DataSourceInfo dataSourceInfo = createSourceInfoFrom(sourceConfig);
 
-            DataLoaderFactory factory = new DataLoaderFactory(path, mapper);
+            TransportDataFromFileFactory factory = new TransportDataFromFileFactory(path, mapper);
             TransportDataReader transportLoader = new TransportDataReader(dataSourceInfo, factory, sourceConfig);
             dataReaders.add(transportLoader);
         });

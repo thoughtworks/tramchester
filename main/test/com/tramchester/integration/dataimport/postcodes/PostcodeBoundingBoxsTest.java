@@ -3,7 +3,7 @@ package com.tramchester.integration.dataimport.postcodes;
 import com.fasterxml.jackson.dataformat.csv.CsvMapper;
 import com.tramchester.caching.DataCache;
 import com.tramchester.config.TramchesterConfig;
-import com.tramchester.dataimport.DataLoader;
+import com.tramchester.dataimport.loader.TransportDataFromFile;
 import com.tramchester.dataimport.RemoteDataRefreshed;
 import com.tramchester.dataimport.data.PostcodeHintData;
 import com.tramchester.dataimport.postcodes.PostcodeBoundingBoxs;
@@ -90,7 +90,7 @@ class PostcodeBoundingBoxsTest {
 
         // check file on disc is as expected
         assertTrue(Files.exists(hintsFile), "cache file missing " + hintsFile);
-        DataLoader<PostcodeHintData> loader = new DataLoader<>(hintsFile, PostcodeHintData.class, mapper);
+        TransportDataFromFile<PostcodeHintData> loader = new TransportDataFromFile<>(hintsFile, PostcodeHintData.class, mapper);
         List<PostcodeHintData> loadedFromFile = loader.load().collect(Collectors.toList());
         assertEquals(1, loadedFromFile.size());
         PostcodeHintData hintData = loadedFromFile.get(0);

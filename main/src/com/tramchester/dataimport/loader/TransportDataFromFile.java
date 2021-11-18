@@ -1,4 +1,4 @@
-package com.tramchester.dataimport;
+package com.tramchester.dataimport.loader;
 
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.MappingIterator;
@@ -16,23 +16,23 @@ import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
 
-public class DataLoader<T> {
-    private static final Logger logger = LoggerFactory.getLogger(DataLoader.class);
+public class TransportDataFromFile<T> {
+    private static final Logger logger = LoggerFactory.getLogger(TransportDataFromFile.class);
 
     private final Path filePath;
     private final Class<T> targetType;
     private final List<String> columns;
     private final CsvMapper mapper;
 
-    public DataLoader(Path filePath, Class<T> targetType, CsvMapper mapper) {
+    public TransportDataFromFile(Path filePath, Class<T> targetType, CsvMapper mapper) {
         this(filePath, targetType, Collections.emptyList(), mapper);
     }
 
-    public DataLoader(Path filePath, Class<T> targetType, String cvsHeader, CsvMapper mapper) {
+    public TransportDataFromFile(Path filePath, Class<T> targetType, String cvsHeader, CsvMapper mapper) {
         this(filePath, targetType, Arrays.asList(cvsHeader.split(",")), mapper);
     }
 
-    private DataLoader(Path filePath, Class<T> targetType, List<String> columns, CsvMapper mapper) {
+    private TransportDataFromFile(Path filePath, Class<T> targetType, List<String> columns, CsvMapper mapper) {
         this.filePath = filePath.toAbsolutePath();
         this.targetType = targetType;
         this.columns = columns;

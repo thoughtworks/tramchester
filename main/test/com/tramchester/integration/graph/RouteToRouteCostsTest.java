@@ -4,7 +4,7 @@ import com.fasterxml.jackson.dataformat.csv.CsvMapper;
 import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.config.TramchesterConfig;
-import com.tramchester.dataimport.DataLoader;
+import com.tramchester.dataimport.loader.TransportDataFromFile;
 import com.tramchester.dataimport.data.RouteIndexData;
 import com.tramchester.dataimport.data.RouteMatrixData;
 import com.tramchester.domain.NumberOfChanges;
@@ -203,7 +203,7 @@ public class RouteToRouteCostsTest {
 
         assertTrue(indexFile.toFile().exists(), "Missing " + indexFile.toAbsolutePath());
 
-        DataLoader<RouteIndexData> indexLoader = new DataLoader<>(indexFile, RouteIndexData.class, mapper);
+        TransportDataFromFile<RouteIndexData> indexLoader = new TransportDataFromFile<>(indexFile, RouteIndexData.class, mapper);
         Stream<RouteIndexData> indexFromFile = indexLoader.load();
         List<RouteIndexData> resultsForIndex = indexFromFile.collect(Collectors.toList());
 
@@ -220,7 +220,7 @@ public class RouteToRouteCostsTest {
 
         assertTrue(matrixFile.toFile().exists(), "Missing " + matrixFile.toAbsolutePath());
 
-        DataLoader<RouteMatrixData> indexLoader = new DataLoader<>(matrixFile, RouteMatrixData.class, mapper);
+        TransportDataFromFile<RouteMatrixData> indexLoader = new TransportDataFromFile<>(matrixFile, RouteMatrixData.class, mapper);
         Stream<RouteMatrixData> indexFromFile = indexLoader.load();
         List<RouteMatrixData> resultsForMatrix = indexFromFile.collect(Collectors.toList());
 

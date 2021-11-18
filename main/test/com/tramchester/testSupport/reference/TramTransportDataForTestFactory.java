@@ -17,7 +17,7 @@ import com.tramchester.geo.CoordinateTransforms;
 import com.tramchester.geo.GridPosition;
 import com.tramchester.repository.TransportData;
 import com.tramchester.repository.TransportDataContainer;
-import com.tramchester.dataimport.TransportDataFactory;
+import com.tramchester.dataimport.loader.TransportDataFactory;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TestStation;
 import org.slf4j.Logger;

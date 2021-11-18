@@ -4,7 +4,7 @@ import com.fasterxml.jackson.dataformat.csv.CsvMapper;
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.config.RemoteDataSourceConfig;
 import com.tramchester.config.TramchesterConfig;
-import com.tramchester.dataimport.DataLoader;
+import com.tramchester.dataimport.loader.TransportDataFromFile;
 import com.tramchester.dataimport.UnzipFetchedData;
 import com.tramchester.domain.DataSourceID;
 import org.slf4j.Logger;
@@ -66,7 +66,7 @@ public class NaPTANDataImporter {
         Path dataPath = sourceConfig.getDataPath();
         Path filePath = dataPath.resolve("Stops.csv");
         logger.info("Loading data from " + filePath.toAbsolutePath());
-        DataLoader<StopsData> dataLoader = new DataLoader<>(filePath, StopsData.class, mapper);
+        TransportDataFromFile<StopsData> dataLoader = new TransportDataFromFile<>(filePath, StopsData.class, mapper);
 
         stream = dataLoader.load();
         open = true;

@@ -1,4 +1,4 @@
-package com.tramchester.dataimport;
+package com.tramchester.dataimport.loader;
 
 import com.tramchester.repository.TransportData;
 

@@ -10,7 +10,7 @@ import com.tramchester.graph.graphbuild.CompositeStationGraphBuilder;
 import com.tramchester.graph.graphbuild.StagedTransportGraphBuilder;
 import com.tramchester.graph.graphbuild.StationsAndLinksGraphBuilder;
 import com.tramchester.repository.TransportData;
-import com.tramchester.dataimport.TransportDataFactory;
+import com.tramchester.dataimport.loader.TransportDataFactory;
 
 @SuppressWarnings("unused")
 public class GetReadyModule extends AbstractModule {
