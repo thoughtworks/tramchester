@@ -4,6 +4,7 @@ import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.geo.CoordinateTransforms;
 import com.tramchester.geo.GridPosition;
 import com.tramchester.testSupport.TestEnv;
+import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -69,5 +70,15 @@ class CoordinateTransformsTest {
         LatLong expected = TestEnv.nearWythenshaweHosp;
         assertEquals(expected.getLat(), result.getLat(), 0.01);
         assertEquals(expected.getLon(), result.getLon(), 0.01);
+    }
+
+    @Test
+    void shouldConvertForRailFormatGrid() {
+        LatLong derby = new LatLong(52.9161645,-1.4655347);
+
+        @NotNull GridPosition grid = CoordinateTransforms.getGridPosition(derby);
+
+        assertEquals(436036, grid.getEastings());
+        assertEquals(335549, grid.getNorthings());
     }
 }

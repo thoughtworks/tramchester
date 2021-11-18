@@ -9,6 +9,7 @@ public enum DataSourceID {
     gbRailGTFS,
     postcode,
     naptan,
+    rail,
     unknown;
 
     private static final Logger logger = LoggerFactory.getLogger(DataSourceID.class);
