@@ -11,19 +11,23 @@ import com.tramchester.domain.reference.TransportMode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class TransportEntityFactoryForGBRail extends TransportEntityFactory {
-    private static final Logger logger = LoggerFactory.getLogger(TransportEntityFactoryForGBRail.class);
+/***
+ * The GTFS feed for this data source is no longer available
+ */
+@Deprecated
+public class TransportEntityFactoryForGTFSGBRail extends TransportEntityFactory {
+    private static final Logger logger = LoggerFactory.getLogger(TransportEntityFactoryForGTFSGBRail.class);
 
     private static final String FROM = "from ";
     private static final String TO = " to ";
 
-    public TransportEntityFactoryForGBRail() {
+    public TransportEntityFactoryForGTFSGBRail() {
         super();
     }
 
     @Override
     public DataSourceID getDataSourceId() {
-        return DataSourceID.gbRail;
+        return DataSourceID.gbRailGTFS;
     }
 
     @Override

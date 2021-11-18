@@ -75,7 +75,7 @@ class ConfigMismatchTest {
     @Test
     void shouldHaveKeyParametersSameForTrainIntegrationTests() throws IOException, ConfigurationException {
 
-        AppConfiguration appConfig = loadConfigFromFile("trains.yml");
+        AppConfiguration appConfig = loadConfigFromFile("trains_gtfs.yml");
         IntegrationTrainTestConfig testConfig = new IntegrationTrainTestConfig();
 
         validateCoreParameters(true, appConfig, testConfig);

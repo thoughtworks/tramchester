@@ -28,7 +28,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class GraphDatabaseStartStopTest extends EasyMockSupport {
 
-    private static final DataSourceID SRC_1_NAME = DataSourceID.gbRail;
+    private static final DataSourceID SRC_1_NAME = DataSourceID.gbRailGTFS;
     private static final String VERSION_1_VALID = "version1";
 
     private Set<DataSourceInfo> namesAndVersions;

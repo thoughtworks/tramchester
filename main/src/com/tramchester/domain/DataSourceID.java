@@ -6,7 +6,7 @@ import org.slf4j.LoggerFactory;
 public enum DataSourceID {
     internal, // for walks, MyLocation, etc
     tfgm,
-    gbRail,
+    gbRailGTFS,
     postcode,
     naptan,
     unknown;

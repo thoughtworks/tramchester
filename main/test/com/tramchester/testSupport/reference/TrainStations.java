@@ -26,7 +26,7 @@ public enum TrainStations implements TestStations {
 
     TrainStations(String id, String name, LatLong latlong) {
         @NotNull GridPosition grid = CoordinateTransforms.getGridPosition(latlong);
-        this.station = new TestStation(id, "", name, latlong, grid, TransportMode.Train, DataSourceID.gbRail);
+        this.station = new TestStation(id, "", name, latlong, grid, TransportMode.Train, DataSourceID.gbRailGTFS);
     }
 
     public static Station of(TrainStations enumValue) {

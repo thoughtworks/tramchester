@@ -80,8 +80,10 @@ public class TestEnv {
     public static final String BRISTOL_BUSSTOP_OCTOCODE = "0100053338";
 
     private static final Agency MET = MutableAgency.build(DataSourceID.tfgm, MutableAgency.METL, "Metrolink");
-    public static final Agency ArrivaTrainsWales = MutableAgency.build(DataSourceID.gbRail, createId("AW"),
+
+    public static final Agency ArrivaTrainsWales = MutableAgency.build(DataSourceID.gbRailGTFS, createId("AW"),
             "Arriva Trains Wales");
+
     public static final Agency StagecoachManchester = MutableAgency.build(DataSourceID.tfgm, createId("SCMN"),
             "Stagecoach Manchester");
     public static final Agency WarringtonsOwnBuses = MutableAgency.build(DataSourceID.tfgm, createId("WBTR"),

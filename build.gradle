@@ -181,7 +181,7 @@ task trains(type:JavaExec, dependsOn: 'webpack') {
     mainClass = mainClassName
     classpath = sourceSets.main.runtimeClasspath
     maxHeapSize = "3g"
-    args 'server', 'config/trains.yml'
+    args 'server', 'config/trains_gtfs.yml'
 }
 
 task all(type:JavaExec, dependsOn: 'webpack') {

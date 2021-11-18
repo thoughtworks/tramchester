@@ -6,7 +6,7 @@ import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.geo.BoundingBox;
 import com.tramchester.integration.testSupport.tfgm.TFGMGTFSSourceTestConfig;
 import com.tramchester.integration.testSupport.tfgm.TFGMRemoteDataSourceConfig;
-import com.tramchester.integration.testSupport.train.RailRemoteDataSourceConfig;
+import com.tramchester.integration.testSupport.train.RailGTFSRemoteDataSourceConfig;
 import com.tramchester.integration.testSupport.train.RailTestDataSourceConfig;
 import com.tramchester.testSupport.AdditionalTramInterchanges;
 import com.tramchester.testSupport.TestEnv;
@@ -25,7 +25,7 @@ import static com.tramchester.domain.reference.TransportMode.Tram;
 public class AllModesTestConfig extends IntegrationTestConfig {
 
     private TFGMRemoteDataSourceConfig remoteTfgmSourceConfig;
-    private RailRemoteDataSourceConfig remoteDataRailConfig;
+    private RailGTFSRemoteDataSourceConfig remoteDataRailConfig;
 
     public AllModesTestConfig() {
         super(new DBConfig("allModesTest", "allModesTest.db"));
@@ -41,7 +41,7 @@ public class AllModesTestConfig extends IntegrationTestConfig {
         RailTestDataSourceConfig railSourceConfig = new RailTestDataSourceConfig("data/trains");
 
         remoteTfgmSourceConfig = new TFGMRemoteDataSourceConfig("data/bus");
-        remoteDataRailConfig = new RailRemoteDataSourceConfig("data/trains");
+        remoteDataRailConfig = new RailGTFSRemoteDataSourceConfig("data/trains");
 
         return Arrays.asList(tfgmDataSource, railSourceConfig);
     }
