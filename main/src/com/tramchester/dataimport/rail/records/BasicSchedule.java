@@ -29,12 +29,15 @@ package com.tramchester.dataimport.rail.records;
 //   ‘N’ = New STP schedule. ‘O’ = STP overlay of permanent schedule. ‘P’ = Permanent.
 //   Read in association with the Transaction Type in Field 2
 
+import org.jetbrains.annotations.NotNull;
+
 public class BasicSchedule implements RailTimetableRecord {
 
     public enum TransactionType {
         N, // new
         D, // delete
-        R // Revise
+        R, // Revise
+        Unknown
     }
 
     private final TransactionType transactionType;
@@ -44,9 +47,20 @@ public class BasicSchedule implements RailTimetableRecord {
     }
 
     public static BasicSchedule parse(String line) {
-        String transactionTypeRaw = RecordHelper.extract(line, 3, 3);
-        TransactionType transactionType = TransactionType.valueOf(transactionTypeRaw);
+        String transactionTypeRaw = RecordHelper.extract(line, 3, 4);
+        TransactionType transactionType = getTransactionType(transactionTypeRaw);
         return new BasicSchedule(transactionType);
+    }
+
+    @NotNull
+    private static TransactionType getTransactionType(String transactionTypeRaw) {
+        try {
+            return TransactionType.valueOf(transactionTypeRaw);
+        }
+        catch (IllegalArgumentException unexpectcedValue) {
+            return TransactionType.Unknown;
+        }
+
     }
 
     public TransactionType getTransactionType() {
