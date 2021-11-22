@@ -63,11 +63,6 @@ public class TramTime implements Comparable<TramTime> {
 
     public static TramTime parse(String text) {
         return factory.parse(text);
-//        final TramTime tramTime = factory.parse(text);
-//        if (tramTime.isValid()) {
-//            return Optional.of(tramTime);
-//        }
-//        return Optional.empty();
     }
 
     public static TramTime nextDay(int hour, int minute) {

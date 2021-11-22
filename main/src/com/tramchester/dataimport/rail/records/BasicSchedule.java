@@ -29,9 +29,24 @@ package com.tramchester.dataimport.rail.records;
 //   ‘N’ = New STP schedule. ‘O’ = STP overlay of permanent schedule. ‘P’ = Permanent.
 //   Read in association with the Transaction Type in Field 2
 
+import com.tramchester.domain.time.ProvidesNow;
 import org.jetbrains.annotations.NotNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.time.DayOfWeek;
+import java.time.LocalDate;
+import java.util.HashSet;
+import java.util.Set;
 
 public class BasicSchedule implements RailTimetableRecord {
+    private static final Logger logger = LoggerFactory.getLogger(BasicSchedule.class);
+
+    private final LocalDate startDate;
+    private final LocalDate endDate;
+    private final TransactionType transactionType;
+    private final String uniqueTrainId;
+    private final Set<DayOfWeek> daysOfWeek;
 
     public enum TransactionType {
         N, // new
@@ -40,16 +55,38 @@ public class BasicSchedule implements RailTimetableRecord {
         Unknown
     }
 
-    private final TransactionType transactionType;
-
-    public BasicSchedule(TransactionType transactionType) {
+    public BasicSchedule(TransactionType transactionType, String uniqueTrainId, LocalDate startDate, LocalDate endDate,
+                         Set<DayOfWeek> daysOfWeek) {
         this.transactionType = transactionType;
+        this.uniqueTrainId = uniqueTrainId;
+        this.startDate = startDate;
+        this.endDate = endDate;
+        this.daysOfWeek = daysOfWeek;
     }
 
-    public static BasicSchedule parse(String line) {
+    public static BasicSchedule parse(String line, ProvidesNow providesNow) {
         String transactionTypeRaw = RecordHelper.extract(line, 3, 4);
         TransactionType transactionType = getTransactionType(transactionTypeRaw);
-        return new BasicSchedule(transactionType);
+        String uniqueTrainId = RecordHelper.extract(line, 4, 9+1);
+        LocalDate startDate = RecordHelper.extractDate(line, 10, 15+1, providesNow);
+        LocalDate endDate = RecordHelper.extractDate(line, 16, 21+1, providesNow);
+        Set<DayOfWeek> daysOfWeek = extractDays(line, 22, 28+1);
+        return new BasicSchedule(transactionType, uniqueTrainId, startDate, endDate, daysOfWeek);
+    }
+
+    private static Set<DayOfWeek> extractDays(String line, int begin, int end) {
+        String days = RecordHelper.extract(line, begin, end);
+        if (days.length()!=7) {
+            logger.error("No ennough days of the week");
+        }
+
+        Set<DayOfWeek> result = new HashSet<>();
+        for (int day = 0; day < 7; day++) {
+            if (days.charAt(day) == '1') {
+                result.add(DayOfWeek.of(day+1));
+            }
+        }
+        return result;
     }
 
     @NotNull
@@ -67,7 +104,20 @@ public class BasicSchedule implements RailTimetableRecord {
         return transactionType;
     }
 
+    public String getUniqueTrainId() {
+        return uniqueTrainId;
+    }
 
+    public LocalDate getStartDate() {
+        return startDate;
+    }
 
+    public LocalDate getEndDate() {
+        return endDate;
+    }
+
+    public Set<DayOfWeek> getDaysOfWeek() {
+        return daysOfWeek;
+    }
 
 }
