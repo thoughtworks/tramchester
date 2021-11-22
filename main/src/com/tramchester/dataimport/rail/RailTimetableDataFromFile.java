@@ -58,12 +58,14 @@ public class RailTimetableDataFromFile {
     }
 
     public Stream<RailTimetableRecord> load(Reader in) {
+        logger.info("Loading lines");
         BufferedReader bufferedReader = new BufferedReader(in);
         return bufferedReader.lines().map(this::processLine);
     }
 
     private RailTimetableRecord processLine(String line) {
         RecordType recordType = getRecordTypeFor(line);
+        logger.info("Processing " + recordType);
         return switch (recordType) {
             case TI -> factory.createTIPLOC(line);
             default -> throw new RuntimeException("Missing record type for " + line);

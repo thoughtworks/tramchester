@@ -2,6 +2,8 @@ package com.tramchester.unit.rail;
 
 import com.tramchester.dataimport.rail.RailTimetableDataFromFile;
 import com.tramchester.dataimport.rail.RailDataRecordFactory;
+import com.tramchester.dataimport.rail.records.RailTimetableRecord;
+import com.tramchester.dataimport.rail.records.TIPLOCInsert;
 import org.easymock.EasyMock;
 import org.easymock.EasyMockSupport;
 import org.junit.jupiter.api.BeforeEach;
@@ -9,6 +11,9 @@ import org.junit.jupiter.api.Test;
 
 import java.io.StringReader;
 import java.nio.file.Path;
+import java.util.stream.Stream;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class RailTimetableDataFromFileTest extends EasyMockSupport {
 
@@ -24,12 +29,14 @@ public class RailTimetableDataFromFileTest extends EasyMockSupport {
     @Test
     void shouldConsumeSomething() {
         final String line = "TIAACHEN 00081601LAACHEN                    00005   0";
-        factory.createTIPLOC(line);
-        EasyMock.expectLastCall();
-        StringReader reader = new StringReader(line +System.lineSeparator());
+        StringReader reader = new StringReader(line + System.lineSeparator());
+
+        final TIPLOCInsert tiplocInsert = new TIPLOCInsert(line);
+        EasyMock.expect(factory.createTIPLOC(line)).andReturn(tiplocInsert);
 
         replayAll();
-        railTimetableDataFromFile.load(reader);
+        Stream<RailTimetableRecord> results = railTimetableDataFromFile.load(reader);
+        assertEquals(1, results.filter(item -> item.equals(tiplocInsert)).count());
         verifyAll();
     }
 }
