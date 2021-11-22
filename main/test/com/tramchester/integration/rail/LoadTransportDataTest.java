@@ -18,7 +18,6 @@ import java.util.Set;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 
-@Disabled("WIP")
 public class LoadTransportDataTest {
     private static ComponentContainer componentContainer;
     private TransportData loaded;
@@ -29,7 +28,6 @@ public class LoadTransportDataTest {
         IntegrationTramTestConfig configuration = new IntegrationTramTestConfig(true);
         componentContainer = new ComponentsBuilder().create(configuration, TestEnv.NoopRegisterMetrics());
         componentContainer.initialise();
-
     }
 
     @AfterAll

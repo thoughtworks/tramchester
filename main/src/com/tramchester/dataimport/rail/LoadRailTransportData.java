@@ -1,8 +1,10 @@
 package com.tramchester.dataimport.rail;
 
 import com.netflix.governator.guice.lazy.LazySingleton;
+import com.tramchester.config.RailConfig;
 import com.tramchester.dataimport.loader.TransportDataFactory;
 import com.tramchester.dataimport.rail.records.PhysicalStationRecord;
+import com.tramchester.dataimport.rail.records.RailTimetableRecord;
 import com.tramchester.domain.DataSourceID;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.StringIdFor;
@@ -19,7 +21,6 @@ import org.slf4j.LoggerFactory;
 
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
-import java.nio.file.Path;
 import java.util.stream.Stream;
 
 @LazySingleton
@@ -27,14 +28,15 @@ public class LoadRailTransportData implements TransportDataFactory {
     private static final Logger logger = LoggerFactory.getLogger(LoadRailTransportData.class);
 
     private final TransportDataContainer dataContainer;
-    final private RailStationDataFromFile railStationDataFromFile;
+    private final RailStationDataFromFile railStationDataFromFile;
+    private final RailTimetableDataFromFile railTimetableDataFromFile;
 
     @Inject
-    public LoadRailTransportData(ProvidesNow providesNow) {
-        // TODO
-        Path railStationFile = Path.of("data", "rail", "ttisf187.msn");
+    public LoadRailTransportData(RailDataRecordFactory factory, ProvidesNow providesNow, RailConfig railConfig) {
 
-        this.railStationDataFromFile = new RailStationDataFromFile(railStationFile);
+        railStationDataFromFile = new RailStationDataFromFile(railConfig.getRailStationFile());
+        railTimetableDataFromFile = new RailTimetableDataFromFile(railConfig.getRailTimetableFile(), factory);
+
         String sourceName = "rail";
         dataContainer = new TransportDataContainer(providesNow, sourceName);
     }
@@ -43,6 +45,14 @@ public class LoadRailTransportData implements TransportDataFactory {
     public void start() {
         Stream<PhysicalStationRecord> physicalRecords = railStationDataFromFile.load();
         addStations(physicalRecords);
+
+        Stream<RailTimetableRecord> timetableRecords = railTimetableDataFromFile.load();
+        processTimetableRecords(timetableRecords);
+
+    }
+
+    private void processTimetableRecords(Stream<RailTimetableRecord> timetableRecords) {
+        // TODO
     }
 
     private void addStations(Stream<PhysicalStationRecord> physicalRecords) {

@@ -46,10 +46,10 @@ public class RailTimetableDataFromFile {
         return results;
     }
 
-    public void load() {
+    public Stream<RailTimetableRecord> load() {
         try {
             Reader reader = new FileReader(filePath.toString());
-            load(reader);
+            return load(reader);
         } catch (FileNotFoundException e) {
             String msg = "Unable to load from file " + filePath;
             logger.error(msg, e);
@@ -68,6 +68,10 @@ public class RailTimetableDataFromFile {
         logger.info("Processing " + recordType);
         return switch (recordType) {
             case TI -> factory.createTIPLOC(line);
+            case BS -> factory.createBasicSchedule(line);
+            case LO -> factory.createOrigin(line);
+            case LI -> factory.createIntermediate(line);
+            case LT -> factory.createTerminating(line);
             default -> throw new RuntimeException("Missing record type for " + line);
         };
     }
