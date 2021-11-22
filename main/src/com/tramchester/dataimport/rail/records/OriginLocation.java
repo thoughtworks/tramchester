@@ -12,6 +12,7 @@ package com.tramchester.dataimport.rail.records;
 // 10 Performance Allowance 2 42-43
 // 11 Spare 37 44-80
 
+import com.tramchester.dataimport.rail.RailRecordType;
 import com.tramchester.domain.time.TramTime;
 
 public class OriginLocation extends OriginOrTerminatingLocation  implements RailTimetableRecord {
@@ -25,5 +26,10 @@ public class OriginLocation extends OriginOrTerminatingLocation  implements Rail
 
     public TramTime getPublicDepartureTime() {
         return super.getPublicTime();
+    }
+
+    @Override
+    public RailRecordType getRecordType() {
+        return RailRecordType.OriginLocation;
     }
 }

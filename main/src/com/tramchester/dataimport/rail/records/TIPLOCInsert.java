@@ -13,6 +13,8 @@ package com.tramchester.dataimport.rail.records;
 // 10 Description 16 57-72 Description used in CAPRI.
 // 11 Spare 8 73-80
 
+import com.tramchester.dataimport.rail.RailRecordType;
+
 public class TIPLOCInsert implements RailTimetableRecord {
 
     private final String tiplocCode;
@@ -28,5 +30,10 @@ public class TIPLOCInsert implements RailTimetableRecord {
 
     public String getTiplocCode() {
         return tiplocCode;
+    }
+
+    @Override
+    public RailRecordType getRecordType() {
+        return RailRecordType.TiplocInsert;
     }
 }

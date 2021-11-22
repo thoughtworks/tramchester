@@ -35,6 +35,7 @@ public class BasicScheduleTest {
         Set<DayOfWeek> daysOfWeek = basicSchedule.getDaysOfWeek();
         assertEquals(1, daysOfWeek.size());
         assertTrue(daysOfWeek.contains(DayOfWeek.SUNDAY));
+        assertEquals(BasicSchedule.ShortTermPlanIndicator.Permanent, basicSchedule.getSTPIndicator());
 
     }
 }

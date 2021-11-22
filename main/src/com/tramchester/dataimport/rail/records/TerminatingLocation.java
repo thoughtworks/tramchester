@@ -9,6 +9,7 @@ package com.tramchester.dataimport.rail.records;
 // 7 Activity 12 26-37
 // 8 Spare 43 38-80
 
+import com.tramchester.dataimport.rail.RailRecordType;
 import com.tramchester.domain.time.TramTime;
 
 public class TerminatingLocation extends OriginOrTerminatingLocation implements RailTimetableRecord {
@@ -23,5 +24,10 @@ public class TerminatingLocation extends OriginOrTerminatingLocation implements 
 
     public TramTime getPublicArrivalTime() {
         return super.getPublicTime();
+    }
+
+    @Override
+    public RailRecordType getRecordType() {
+        return RailRecordType.TerminatingLocation;
     }
 }

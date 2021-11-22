@@ -35,4 +35,5 @@ public class RailDataRecordFactory {
     public TerminatingLocation createTerminating(String line) {
         return TerminatingLocation.parse(line);
     }
+
 }

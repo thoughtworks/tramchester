@@ -51,8 +51,10 @@ public class LoadRailTransportData implements TransportDataFactory {
 
     }
 
-    private void processTimetableRecords(Stream<RailTimetableRecord> timetableRecords) {
-        // TODO
+    private void processTimetableRecords(Stream<RailTimetableRecord> recordStream) {
+        logger.info("Process timetable stream");
+        RailTimetableMapper mapper = new RailTimetableMapper(dataContainer);
+        recordStream.forEach(mapper::seen);
     }
 
     private void addStations(Stream<PhysicalStationRecord> physicalRecords) {

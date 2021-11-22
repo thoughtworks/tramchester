@@ -69,14 +69,14 @@ public class PhysicalStationRecord {
             return Integer.MIN_VALUE;
         }
         if (field.charAt(0) != expectedPrefix) {
-            logger.error(format("Expected %s field to being with '%s', got %s and line %s", fieldName, expectedPrefix, field, line));
+            logger.warn(format("Expected %s field to being with '%s', got %s and line %s", fieldName, expectedPrefix, field, line));
             return Integer.MAX_VALUE;
         }
         try {
             return Integer.parseInt(field.substring(1));
         }
         catch (NumberFormatException numberFormatException) {
-            logger.error(format("Cannot extract %s from '%s' as not a valid integer, line was %s", fieldName, field, line));
+            logger.warn(format("Cannot extract %s from '%s' as not a valid integer, line was %s", fieldName, field, line));
             return Integer.MAX_VALUE;
         }
     }

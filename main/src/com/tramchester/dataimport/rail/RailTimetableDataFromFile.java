@@ -1,6 +1,8 @@
 package com.tramchester.dataimport.rail;
 
 import com.tramchester.dataimport.rail.records.RailTimetableRecord;
+import com.tramchester.dataimport.rail.records.SkippedRecord;
+import com.tramchester.dataimport.rail.records.UnknownRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -19,18 +21,7 @@ public class RailTimetableDataFromFile {
 
     private final Path filePath;
     private final RailDataRecordFactory factory;
-    private final Map<String, RecordType> recordTypes;
-
-    public enum RecordType {
-        TI, // tiploc insert
-        BS, // basic schedule
-        BX, // basic schedule extra
-        CR, // Changes En Route
-        LI, // Intermediate Location
-        LO, // Origin Location
-        LT, // TerminatingLocation
-        Unknown
-    }
+    private final Map<String, RailRecordType> recordTypes;
 
     public RailTimetableDataFromFile(Path filePath, RailDataRecordFactory factory) {
         this.filePath = filePath.toAbsolutePath();
@@ -38,10 +29,10 @@ public class RailTimetableDataFromFile {
         recordTypes = createRecordTypes();
     }
 
-    private Map<String, RecordType> createRecordTypes() {
-        HashMap<String, RecordType> results = new HashMap<>();
-        for (RecordType value : RecordType.values()) {
-            results.put(value.name(), value);
+    private Map<String, RailRecordType> createRecordTypes() {
+        HashMap<String, RailRecordType> results = new HashMap<>();
+        for (RailRecordType value : RailRecordType.values()) {
+            results.put(value.code(), value);
         }
         return results;
     }
@@ -64,24 +55,37 @@ public class RailTimetableDataFromFile {
     }
 
     private RailTimetableRecord processLine(String line) {
-        RecordType recordType = getRecordTypeFor(line);
-        logger.info("Processing " + recordType);
+        RailRecordType recordType = getRecordTypeFor(line);
+        //logger.info("Processing " + recordType);
         return switch (recordType) {
-            case TI -> factory.createTIPLOC(line);
-            case BS -> factory.createBasicSchedule(line);
-            case LO -> factory.createOrigin(line);
-            case LI -> factory.createIntermediate(line);
-            case LT -> factory.createTerminating(line);
+            case TiplocInsert -> factory.createTIPLOC(line);
+            case BasicSchedule -> factory.createBasicSchedule(line);
+            case OriginLocation -> factory.createOrigin(line);
+            case IntermediateLocation -> factory.createIntermediate(line);
+            case TerminatingLocation -> factory.createTerminating(line);
+            case Header -> logHeader(line);
+            case Association, BasicScheduleExtra, ChangesEnRoute, Trailer
+                    -> skipRecord(recordType, line);
             default -> throw new RuntimeException("Missing record type for " + line);
         };
     }
 
-    private RecordType getRecordTypeFor(String line) {
+    private RailTimetableRecord skipRecord(RailRecordType recordType, String line) {
+        // Record that for now we choose to ignore
+        return new SkippedRecord(recordType, line);
+    }
+
+    private RailTimetableRecord logHeader(String line) {
+        logger.info("Header: '" + line + "'");
+        return new UnknownRecord(line);
+    }
+
+    private RailRecordType getRecordTypeFor(String line) {
         String rawType = line.substring(0, 2);
         if (recordTypes.containsKey(rawType)) {
             return recordTypes.get(rawType);
         }
-        return RecordType.Unknown;
+        return RailRecordType.Unknown;
     }
 
 }

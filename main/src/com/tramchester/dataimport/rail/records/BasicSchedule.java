@@ -29,6 +29,7 @@ package com.tramchester.dataimport.rail.records;
 //   ‘N’ = New STP schedule. ‘O’ = STP overlay of permanent schedule. ‘P’ = Permanent.
 //   Read in association with the Transaction Type in Field 2
 
+import com.tramchester.dataimport.rail.RailRecordType;
 import com.tramchester.domain.time.ProvidesNow;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
@@ -47,6 +48,12 @@ public class BasicSchedule implements RailTimetableRecord {
     private final TransactionType transactionType;
     private final String uniqueTrainId;
     private final Set<DayOfWeek> daysOfWeek;
+    private final ShortTermPlanIndicator stpIndicator;
+
+    @Override
+    public RailRecordType getRecordType() {
+        return RailRecordType.BasicSchedule;
+    }
 
     public enum TransactionType {
         N, // new
@@ -55,13 +62,21 @@ public class BasicSchedule implements RailTimetableRecord {
         Unknown
     }
 
+    public enum ShortTermPlanIndicator {
+        Cancellation,
+        New,
+        Overlay,
+        Unknown, Permanent
+    }
+
     public BasicSchedule(TransactionType transactionType, String uniqueTrainId, LocalDate startDate, LocalDate endDate,
-                         Set<DayOfWeek> daysOfWeek) {
+                         Set<DayOfWeek> daysOfWeek, ShortTermPlanIndicator stpIndicator) {
         this.transactionType = transactionType;
         this.uniqueTrainId = uniqueTrainId;
         this.startDate = startDate;
         this.endDate = endDate;
         this.daysOfWeek = daysOfWeek;
+        this.stpIndicator = stpIndicator;
     }
 
     public static BasicSchedule parse(String line, ProvidesNow providesNow) {
@@ -71,8 +86,12 @@ public class BasicSchedule implements RailTimetableRecord {
         LocalDate startDate = RecordHelper.extractDate(line, 10, 15+1, providesNow);
         LocalDate endDate = RecordHelper.extractDate(line, 16, 21+1, providesNow);
         Set<DayOfWeek> daysOfWeek = extractDays(line, 22, 28+1);
-        return new BasicSchedule(transactionType, uniqueTrainId, startDate, endDate, daysOfWeek);
+        char stpIndicatorRaw = line.charAt(80-1);
+        ShortTermPlanIndicator stpIndicator = getSTPIndicator(stpIndicatorRaw);
+        return new BasicSchedule(transactionType, uniqueTrainId, startDate, endDate, daysOfWeek, stpIndicator);
     }
+
+
 
     private static Set<DayOfWeek> extractDays(String line, int begin, int end) {
         String days = RecordHelper.extract(line, begin, end);
@@ -97,7 +116,16 @@ public class BasicSchedule implements RailTimetableRecord {
         catch (IllegalArgumentException unexpectcedValue) {
             return TransactionType.Unknown;
         }
+    }
 
+    private static ShortTermPlanIndicator getSTPIndicator(char stpIndicatorRaw) {
+        return switch (stpIndicatorRaw) {
+            case 'C' -> ShortTermPlanIndicator.Cancellation;
+            case 'N' -> ShortTermPlanIndicator.New;
+            case 'O' -> ShortTermPlanIndicator.Overlay;
+            case 'P' -> ShortTermPlanIndicator.Permanent;
+            default -> ShortTermPlanIndicator.Unknown;
+        };
     }
 
     public TransactionType getTransactionType() {
@@ -120,4 +148,18 @@ public class BasicSchedule implements RailTimetableRecord {
         return daysOfWeek;
     }
 
+    public ShortTermPlanIndicator getSTPIndicator() {
+        return stpIndicator;
+    }
+
+    @Override
+    public String toString() {
+        return "BasicSchedule{" +
+                "startDate=" + startDate +
+                ", endDate=" + endDate +
+                ", transactionType=" + transactionType +
+                ", uniqueTrainId='" + uniqueTrainId + '\'' +
+                ", daysOfWeek=" + daysOfWeek +
+                '}';
+    }
 }

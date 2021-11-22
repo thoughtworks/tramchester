@@ -69,4 +69,9 @@ public class LoadTransportDataTest {
         assertFalse(result.getGridPosition().isValid());
         assertFalse(result.getLatLong().isValid());
     }
+
+    @Test
+    void shouldFindSomething() {
+        loaded.getServices();
+    }
 }

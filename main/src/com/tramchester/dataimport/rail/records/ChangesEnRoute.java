@@ -1,6 +1,6 @@
 package com.tramchester.dataimport.rail.records;
 
-public class ChangesEnRoute implements RailTimetableRecord {
+public abstract class ChangesEnRoute implements RailTimetableRecord {
     // 1 Record Identity 2 1-2 With the constant value ‘CR’.
     // 2 Location 8 3-10 TIPLOC + Suffix.
     // 3 Train Category 2 11-12

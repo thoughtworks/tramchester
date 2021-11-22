@@ -16,6 +16,7 @@ package com.tramchester.dataimport.rail.records;
 // 14 Performance Allowance 2 59-60
 // 15 Spare 20 61-80
 
+import com.tramchester.dataimport.rail.RailRecordType;
 import com.tramchester.domain.time.TramTime;
 
 public class IntermediateLocation implements RailTimetableRecord {
@@ -53,5 +54,10 @@ public class IntermediateLocation implements RailTimetableRecord {
 
     public String getPlatform() {
         return platform;
+    }
+
+    @Override
+    public RailRecordType getRecordType() {
+        return RailRecordType.IntermediateLocation;
     }
 }
