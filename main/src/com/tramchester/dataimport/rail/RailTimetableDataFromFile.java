@@ -63,8 +63,9 @@ public class RailTimetableDataFromFile {
             case OriginLocation -> factory.createOrigin(line);
             case IntermediateLocation -> factory.createIntermediate(line);
             case TerminatingLocation -> factory.createTerminating(line);
+            case BasicScheduleExtra -> factory.createBasicScheduleExtraDetails(line);
             case Header -> logHeader(line);
-            case Association, BasicScheduleExtra, ChangesEnRoute, Trailer
+            case Association, ChangesEnRoute, Trailer
                     -> skipRecord(recordType, line);
             default -> throw new RuntimeException("Missing record type for " + line);
         };

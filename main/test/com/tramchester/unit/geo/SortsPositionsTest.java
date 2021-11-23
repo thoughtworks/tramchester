@@ -3,6 +3,7 @@ package com.tramchester.unit.geo;
 import com.tramchester.domain.DataSourceID;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdSet;
+import com.tramchester.domain.places.MutableStation;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.reference.TransportMode;
@@ -28,7 +29,7 @@ class SortsPositionsTest {
     private Station stationNearShudehill;
     private Station stationNearAltrincham;
     private Station StationNearStockportBus;
-    private Station alsoNearAlty;
+    private MutableStation alsoNearAlty;
     private Station startionNearWythenshawHosp;
 
     @BeforeEach

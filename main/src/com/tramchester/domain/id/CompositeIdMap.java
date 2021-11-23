@@ -69,8 +69,8 @@ public class CompositeIdMap<S extends HasId<S> & GraphProperty, T extends S> imp
         return value;
     }
 
-    public Stream<T> filterStream(Filter<T> theFilter) {
-        return theMap.values().stream().filter(theFilter::include);
+    public Stream<S> filterStream(Filter<S> theFilter) {
+        return getValuesStream().filter(theFilter::include);
     }
 
     protected CompositeIdMap<S,T> addAll(CompositeIdMap<S,T> others) {
@@ -78,8 +78,8 @@ public class CompositeIdMap<S extends HasId<S> & GraphProperty, T extends S> imp
         return this;
     }
 
-    public Stream<T> getValuesStream() {
-        return theMap.values().stream();
+    public Stream<S> getValuesStream() {
+        return theMap.values().stream().map(item -> item);
     }
 
     public boolean isEmpty() {

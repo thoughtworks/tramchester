@@ -15,7 +15,7 @@ package com.tramchester.dataimport.rail.records;
 import com.tramchester.dataimport.rail.RailRecordType;
 import com.tramchester.domain.time.TramTime;
 
-public class OriginLocation extends OriginOrTerminatingLocation  implements RailTimetableRecord {
+public class OriginLocation extends OriginOrTerminatingLocation  implements RailTimetableRecord, RailLocationRecord {
     public OriginLocation(String tiplocCode, TramTime publicDeptTime, String platform) {
         super(tiplocCode, publicDeptTime, platform);
     }
@@ -24,12 +24,28 @@ public class OriginLocation extends OriginOrTerminatingLocation  implements Rail
         return OriginOrTerminatingLocation.parse(line, OriginLocation::new);
     }
 
-    public TramTime getPublicDepartureTime() {
+    @Override
+    public RailRecordType getRecordType() {
+        return RailRecordType.OriginLocation;
+    }
+
+    @Override
+    public TramTime getPublicArrival() {
         return super.getPublicTime();
     }
 
     @Override
-    public RailRecordType getRecordType() {
-        return RailRecordType.OriginLocation;
+    public TramTime getPublicDeparture() {
+        return super.getPublicTime();
+    }
+
+    @Override
+    public boolean hasCallingTimes() {
+        return true;
+    }
+
+    @Override
+    public String toString() {
+        return "OriginLocation{} " + super.toString();
     }
 }

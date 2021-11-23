@@ -193,7 +193,7 @@ public class MixedTransportTestDataFactory implements TransportDataFactory {
         container.addService(serviceC);
     }
 
-    private void addAStation(TransportDataContainer container, Station station) {
+    private void addAStation(TransportDataContainer container, MutableStation station) {
         container.addStation(station);
     }
 
@@ -244,7 +244,7 @@ public class MixedTransportTestDataFactory implements TransportDataFactory {
         }
 
         @Override
-        public void addStation(Station station) {
+        public void addStation(MutableStation station) {
             super.addStation(station);
         }
 

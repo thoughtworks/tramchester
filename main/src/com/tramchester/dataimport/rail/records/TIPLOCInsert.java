@@ -18,14 +18,17 @@ import com.tramchester.dataimport.rail.RailRecordType;
 public class TIPLOCInsert implements RailTimetableRecord {
 
     private final String tiplocCode;
+    private final String name;
 
-    public TIPLOCInsert(String tiplocCode) {
+    public TIPLOCInsert(String tiplocCode, String name) {
         this.tiplocCode = tiplocCode;
+        this.name = name;
     }
 
     public static TIPLOCInsert parse(String line) {
-        String tiplocCode = RecordHelper.extract(line, 3, 9);
-        return new TIPLOCInsert(tiplocCode);
+        String tiplocCode = RecordHelper.extract(line, 3, 9+1);
+        String name = RecordHelper.extract(line, 19, 44+1);
+        return new TIPLOCInsert(tiplocCode, name);
     }
 
     public String getTiplocCode() {
@@ -35,5 +38,9 @@ public class TIPLOCInsert implements RailTimetableRecord {
     @Override
     public RailRecordType getRecordType() {
         return RailRecordType.TiplocInsert;
+    }
+
+    public String getName() {
+        return name;
     }
 }

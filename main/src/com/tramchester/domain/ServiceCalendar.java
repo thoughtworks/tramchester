@@ -9,6 +9,7 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
+// TODO Extract readonly interface
 public class ServiceCalendar {
     private final LocalDate startDate;
     private final LocalDate endDate;

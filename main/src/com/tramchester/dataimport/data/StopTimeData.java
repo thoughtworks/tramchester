@@ -5,6 +5,7 @@ import com.tramchester.domain.Platform;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.input.Trip;
+import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.GTFSPickupDropoffType;
 import com.tramchester.domain.time.TramTime;
 
@@ -41,6 +42,12 @@ public class StopTimeData {
         this.stopSequence = stopSequence;
         this.pickupType = pickupType.getText();
         this.dropOffType = dropOffType.getText();
+    }
+
+    // TODO Rework handling of types here
+    public StopTimeData(IdFor<Trip> id, TramTime arrivalTime, TramTime departureTime, IdFor<Station> stopId, int seqNumber,
+                        GTFSPickupDropoffType pickup, GTFSPickupDropoffType dropoff) {
+        this(id.forDTO(), arrivalTime, departureTime, stopId.forDTO(), seqNumber, pickup, dropoff);
     }
 
     public static StopTimeData forTestOnly(String tripId, TramTime arrivalTime, TramTime departureTime, String stopId,

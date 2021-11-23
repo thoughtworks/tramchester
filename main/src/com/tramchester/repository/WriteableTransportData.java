@@ -5,6 +5,7 @@ import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.input.MutableTrip;
 import com.tramchester.domain.input.Trip;
+import com.tramchester.domain.places.MutableStation;
 import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
 
@@ -17,11 +18,11 @@ public interface WriteableTransportData {
 
     void addRouteStation(RouteStation routeStation);
 
-    void addAgency(Agency agency);
+    void addAgency(MutableAgency agency);
 
     void addRoute(MutableRoute route);
 
-    void addStation(Station station);
+    void addStation(MutableStation station);
 
     void addPlatform(MutablePlatform platform);
 
@@ -49,7 +50,10 @@ public interface WriteableTransportData {
 
     ////
 
+    MutableStation getMutableStation(IdFor<Station> stationId);
     MutablePlatform getMutablePlatform(IdFor<Platform> id);
-    MutableService getServiceById(IdFor<Service> serviceId);
+    MutableService getMutableService(IdFor<Service> serviceId);
     MutableRoute getMutableRoute(IdFor<Route> id);
+    MutableAgency getMutableAgency(IdFor<Agency> agencyId);
+    MutableTrip getMutableTrip(IdFor<Trip> tripId);
 }

@@ -19,25 +19,35 @@ package com.tramchester.dataimport.rail.records;
 import com.tramchester.dataimport.rail.RailRecordType;
 import com.tramchester.domain.time.TramTime;
 
-public class IntermediateLocation implements RailTimetableRecord {
+public class IntermediateLocation implements RailTimetableRecord, RailLocationRecord {
     private final String tiplocCode;
     private final TramTime publicArrival;
     private final TramTime publicDeparture;
     private final String platform;
+    private final boolean hasCallingTimes;
 
-    public IntermediateLocation(String tiplocCode, TramTime publicArrival, TramTime publicDeparture, String platform) {
+    public IntermediateLocation(String tiplocCode, TramTime publicArrival, TramTime publicDeparture, String platform, boolean hasCallingTimes) {
         this.tiplocCode = tiplocCode;
         this.publicArrival = publicArrival;
         this.publicDeparture = publicDeparture;
         this.platform = platform;
+        this.hasCallingTimes = hasCallingTimes;
     }
 
     public static IntermediateLocation parse(String line) {
-        String tiplocCode = RecordHelper.extract(line, 3, 10+1);
+        String tiplocCode = RecordHelper.extract(line, 3, 10); // tiploc is 7 long
         TramTime publicArrival = RecordHelper.extractTime(line, 25, 28+1);
         TramTime publicDeparture = RecordHelper.extractTime(line, 29, 32+1);
         String platform = RecordHelper.extract(line, 34, 36+1);
-        return new IntermediateLocation(tiplocCode, publicArrival, publicDeparture, platform);
+        boolean hasCallingTimes = checkForCallingTimes(line);
+        return new IntermediateLocation(tiplocCode, publicArrival, publicDeparture, platform, hasCallingTimes);
+    }
+
+    // calling times (non public) are blank for Intermediate Locations where train does not stop
+    // Maybe these are signals, junctions, etc?
+    private static boolean checkForCallingTimes(String line) {
+        String region = line.substring(10, 19);
+        return !region.isBlank();
     }
 
     public String getTiplocCode() {
@@ -59,5 +69,19 @@ public class IntermediateLocation implements RailTimetableRecord {
     @Override
     public RailRecordType getRecordType() {
         return RailRecordType.IntermediateLocation;
+    }
+
+    @Override
+    public String toString() {
+        return "IntermediateLocation{" +
+                "tiplocCode='" + tiplocCode + '\'' +
+                ", publicArrival=" + publicArrival +
+                ", publicDeparture=" + publicDeparture +
+                ", platform='" + platform + '\'' +
+                '}';
+    }
+
+    public boolean hasCallingTimes() {
+        return hasCallingTimes;
     }
 }

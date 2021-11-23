@@ -55,6 +55,7 @@ public class LoadRailTransportData implements TransportDataFactory {
         logger.info("Process timetable stream");
         RailTimetableMapper mapper = new RailTimetableMapper(dataContainer);
         recordStream.forEach(mapper::seen);
+        dataContainer.reportNumbers();
     }
 
     private void addStations(Stream<PhysicalStationRecord> physicalRecords) {
@@ -80,7 +81,7 @@ public class LoadRailTransportData implements TransportDataFactory {
         return true;
     }
 
-    private Station createStationFor(PhysicalStationRecord record) {
+    private MutableStation createStationFor(PhysicalStationRecord record) {
         IdFor<Station> id = StringIdFor.createId(record.getTiplocCode());
         String name = record.getName();
         String area = "";

@@ -36,4 +36,7 @@ public class RailDataRecordFactory {
         return TerminatingLocation.parse(line);
     }
 
+    public RailTimetableRecord createBasicScheduleExtraDetails(String line) {
+        return BasicScheduleExtraDetails.parse(line);
+    }
 }

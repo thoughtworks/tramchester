@@ -33,7 +33,7 @@ public class CalendarLoader {
         IdSet<Service> missingCalendar = services.getIds();
         calendars.forEach(calendarData -> {
             IdFor<Service> serviceId = calendarData.getServiceId();
-            MutableService service = buildable.getServiceById(serviceId);
+            MutableService service = buildable.getMutableService(serviceId);
 
             if (service != null) {
                 countCalendars.getAndIncrement();

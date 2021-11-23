@@ -7,6 +7,7 @@ import com.tramchester.domain.id.IdMap;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.input.MutableTrip;
 import com.tramchester.domain.input.Trip;
+import com.tramchester.domain.places.MutableStation;
 import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
@@ -28,12 +29,12 @@ public class TransportDataContainer implements TransportData, WriteableTransport
     private final ProvidesNow providesNow;
 
     private final CompositeIdMap<Trip, MutableTrip> trips = new CompositeIdMap<>();        // trip id -> trip
-    private final IdMap<Station> stationsById = new IdMap<>();  // station id -> station
+    private final CompositeIdMap<Station, MutableStation> stationsById = new CompositeIdMap<>();  // station id -> station
     private final CompositeIdMap<Service, MutableService> services = new CompositeIdMap<>();  // service id -> service
     private final CompositeIdMap<Route, MutableRoute> routes = new CompositeIdMap<>();      // route id -> route
     private final CompositeIdMap<Platform, MutablePlatform> platforms = new CompositeIdMap<>(); // platformId -> platform
     private final IdMap<RouteStation> routeStations = new IdMap<>(); // routeStationId - > RouteStation
-    private final IdMap<Agency> agencies = new IdMap<>(); // agencyId -> agencies
+    private final CompositeIdMap<Agency, MutableAgency> agencies = new CompositeIdMap<>(); // agencyId -> agencies
 
     private final Set<DataSourceInfo> dataSourceInfos = new HashSet<>();
 
@@ -146,7 +147,7 @@ public class TransportDataContainer implements TransportData, WriteableTransport
 
     @Override
     public Stream<Station> getStationsFromSource(DataSourceID dataSourceID) {
-        return this.stationsById.getValuesStream().filter(station -> station.getDataSourceID()==dataSourceID);
+        return this.stationsById.filterStream(station -> station.getDataSourceID()==dataSourceID);
     }
 
     @Override
@@ -162,6 +163,11 @@ public class TransportDataContainer implements TransportData, WriteableTransport
     @Override
     public Set<Service> getServices() {
         return Collections.unmodifiableSet(services.getValues());
+    }
+
+    @Override
+    public Service getServiceById(IdFor<Service> serviceId) {
+        return services.get(serviceId);
     }
 
     @Override
@@ -212,7 +218,7 @@ public class TransportDataContainer implements TransportData, WriteableTransport
     }
 
     @Override
-    public MutableService getServiceById(IdFor<Service> serviceId) {
+    public MutableService getMutableService(IdFor<Service> serviceId) {
         // logging into callers
         if (!services.hasId(serviceId)) {
             logger.debug("No such service " + serviceId);
@@ -223,6 +229,16 @@ public class TransportDataContainer implements TransportData, WriteableTransport
     @Override
     public MutableRoute getMutableRoute(IdFor<Route> id) {
         return routes.get(id);
+    }
+
+    @Override
+    public MutableAgency getMutableAgency(IdFor<Agency> agencyId) {
+        return agencies.get(agencyId);
+    }
+
+    @Override
+    public MutableTrip getMutableTrip(IdFor<Trip> tripId) {
+        return trips.get(tripId);
     }
 
     @Override
@@ -242,6 +258,11 @@ public class TransportDataContainer implements TransportData, WriteableTransport
                 }
         );
         return noDayServices;
+    }
+
+    @Override
+    public MutableStation getMutableStation(IdFor<Station> stationId) {
+        return stationsById.get(stationId);
     }
 
     @Override
@@ -270,7 +291,7 @@ public class TransportDataContainer implements TransportData, WriteableTransport
     }
 
     @Override
-    public void addAgency(Agency agency) {
+    public void addAgency(MutableAgency agency) {
         agencies.add(agency);
     }
 
@@ -285,7 +306,7 @@ public class TransportDataContainer implements TransportData, WriteableTransport
     }
 
     @Override
-    public void addStation(Station station) {
+    public void addStation(MutableStation station) {
         stationsById.add(station);
     }
 

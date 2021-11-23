@@ -220,7 +220,7 @@ public class TramTransportDataForTestFactory implements TransportDataFactory {
                 knownRoute.mode());
     }
 
-    private void addAStation(TransportDataContainer container, Station station) {
+    private void addAStation(TransportDataContainer container, MutableStation station) {
         container.addStation(station);
     }
 

@@ -15,7 +15,9 @@ public abstract class OriginOrTerminatingLocation {
     }
 
     protected static <T extends OriginOrTerminatingLocation> T parse(String line, Constructor<T> builder) {
-        String tiplocCode = RecordHelper.extract(line, 3, 10+1);
+        // NOTE: for terminating and originating locations a suffix is added and docs give total length as 8
+        // but this causes stations not to be found, so use length of 7 here
+        String tiplocCode = RecordHelper.extract(line, 3, 10);
         TramTime tramTime = RecordHelper.extractTime(line, 15, 18+1);
         String platform = RecordHelper.extract(line, 20, 22+1);
         return builder.create(tiplocCode, tramTime, platform);
@@ -35,5 +37,14 @@ public abstract class OriginOrTerminatingLocation {
 
     protected interface Constructor<T> {
         T create(String tiplocCode, TramTime tramTime, String platform);
+    }
+
+    @Override
+    public String toString() {
+        return "OriginOrTerminatingLocation{" +
+                "tiplocCode='" + tiplocCode + '\'' +
+                ", publicTime=" + publicTime +
+                ", platform='" + platform + '\'' +
+                '}';
     }
 }

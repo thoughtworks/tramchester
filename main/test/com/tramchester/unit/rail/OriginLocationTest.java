@@ -15,7 +15,7 @@ public class OriginLocationTest {
         OriginLocation originLocation = OriginLocation.parse(line);
 
         assertEquals("LINCLNC", originLocation.getTiplocCode());
-        assertEquals(TramTime.of(12, 38), originLocation.getPublicDepartureTime());
+        assertEquals(TramTime.of(12, 38), originLocation.getPublicDeparture());
         assertEquals("4A", originLocation.getPlatform());
     }
 }

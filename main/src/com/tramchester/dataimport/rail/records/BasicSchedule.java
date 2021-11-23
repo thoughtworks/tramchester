@@ -49,6 +49,7 @@ public class BasicSchedule implements RailTimetableRecord {
     private final String uniqueTrainId;
     private final Set<DayOfWeek> daysOfWeek;
     private final ShortTermPlanIndicator stpIndicator;
+    private final String trainIdentity;
 
     @Override
     public RailRecordType getRecordType() {
@@ -66,31 +67,33 @@ public class BasicSchedule implements RailTimetableRecord {
         Cancellation,
         New,
         Overlay,
-        Unknown, Permanent
+        Unknown,
+        Permanent
     }
 
     public BasicSchedule(TransactionType transactionType, String uniqueTrainId, LocalDate startDate, LocalDate endDate,
-                         Set<DayOfWeek> daysOfWeek, ShortTermPlanIndicator stpIndicator) {
+                         Set<DayOfWeek> daysOfWeek, ShortTermPlanIndicator stpIndicator, String headcode) {
         this.transactionType = transactionType;
         this.uniqueTrainId = uniqueTrainId;
         this.startDate = startDate;
         this.endDate = endDate;
         this.daysOfWeek = daysOfWeek;
         this.stpIndicator = stpIndicator;
+        this.trainIdentity = headcode;
     }
 
     public static BasicSchedule parse(String line, ProvidesNow providesNow) {
         String transactionTypeRaw = RecordHelper.extract(line, 3, 4);
         TransactionType transactionType = getTransactionType(transactionTypeRaw);
         String uniqueTrainId = RecordHelper.extract(line, 4, 9+1);
+        String headcode = RecordHelper.extract(line, 33, 36+1);
         LocalDate startDate = RecordHelper.extractDate(line, 10, 15+1, providesNow);
         LocalDate endDate = RecordHelper.extractDate(line, 16, 21+1, providesNow);
         Set<DayOfWeek> daysOfWeek = extractDays(line, 22, 28+1);
         char stpIndicatorRaw = line.charAt(80-1);
         ShortTermPlanIndicator stpIndicator = getSTPIndicator(stpIndicatorRaw);
-        return new BasicSchedule(transactionType, uniqueTrainId, startDate, endDate, daysOfWeek, stpIndicator);
+        return new BasicSchedule(transactionType, uniqueTrainId, startDate, endDate, daysOfWeek, stpIndicator, headcode);
     }
-
 
 
     private static Set<DayOfWeek> extractDays(String line, int begin, int end) {
@@ -150,6 +153,10 @@ public class BasicSchedule implements RailTimetableRecord {
 
     public ShortTermPlanIndicator getSTPIndicator() {
         return stpIndicator;
+    }
+
+    public String getTrainIdentity() {
+        return trainIdentity;
     }
 
     @Override

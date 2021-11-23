@@ -41,7 +41,7 @@ public class CalendarDateLoader {
 
         calendarsDates.forEach(date -> {
             IdFor<Service> serviceId = date.getServiceId();
-            MutableService service = buildable.getServiceById(serviceId);
+            MutableService service = buildable.getMutableService(serviceId);
             if (service != null) {
                 if (service.hasCalendar()) {
                     countCalendarDates.getAndIncrement();
