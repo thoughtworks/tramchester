@@ -140,7 +140,7 @@ class JourneyToDTOMapperTest extends EasyMockSupport {
     void shouldMapJourneyWithConnectingStage() {
         TramTime time = TramTime.of(15,45);
         final MutableStation startStation = of(Altrincham);
-        Platform platform = MutablePlatform.build(startStation.forDTO() + "1", "platform name", startStation.getLatLong());
+        Platform platform = MutablePlatform.buildForTFGMTram(startStation.forDTO() + "1", "platform name", startStation.getLatLong());
         startStation.addPlatform(platform);
 
         ConnectingStage connectingStage = new ConnectingStage(
@@ -184,12 +184,12 @@ class JourneyToDTOMapperTest extends EasyMockSupport {
     void shouldMapThreeStageJourneyWithWalk() {
         TramTime am10 = TramTime.of(10,0);
         MutableStation begin = of(Altrincham);
-        Platform platformA = MutablePlatform.build(begin.forDTO() + "1", "platform name", begin.getLatLong());
+        Platform platformA = MutablePlatform.buildForTFGMTram(begin.forDTO() + "1", "platform name", begin.getLatLong());
         begin.addPlatform(platformA);
 
         MyLocation middleA = nearPiccGardensLocation;
         MutableStation middleB = of(MarketStreet);
-        Platform platformB = MutablePlatform.build(middleB.forDTO() + "1", "platform name", middleB.getLatLong());
+        Platform platformB = MutablePlatform.buildForTFGMTram(middleB.forDTO() + "1", "platform name", middleB.getLatLong());
         middleB.addPlatform(platformB);
 
         Station end = of(Bury);
@@ -242,7 +242,7 @@ class JourneyToDTOMapperTest extends EasyMockSupport {
         Station start = transportData.getFirst();
         Station middle = transportData.getSecond();
         Station finish = transportData.getInterchange();
-        Platform platform = MutablePlatform.build(start.forDTO() + "1", "platform name", start.getLatLong());
+        Platform platform = MutablePlatform.buildForTFGMTram(start.forDTO() + "1", "platform name", start.getLatLong());
 
         VehicleStage rawStageA = getRawVehicleStage(start, middle, createRoute("route text"), startTime,
                 18, platform);

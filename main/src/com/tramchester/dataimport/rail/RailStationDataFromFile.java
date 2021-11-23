@@ -40,11 +40,12 @@ public class RailStationDataFromFile {
     }
 
     public Stream<PhysicalStationRecord> load() {
+        logger.info("Load from " + filePath.toAbsolutePath());
         try {
             Reader reader = new FileReader(filePath.toString());
             return load(reader);
         } catch (FileNotFoundException e) {
-            String msg = "Unable to load from file " + filePath;
+            String msg = "Unable to load from file " + filePath.toAbsolutePath();
             logger.error(msg, e);
             throw new RuntimeException(msg, e);
         }

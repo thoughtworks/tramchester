@@ -130,15 +130,16 @@ public class MixedTransportTestDataFactory implements TransportDataFactory {
                 TramTime.of(8, 0), 1);
         tripA.addStop(stopA);
 
-        MutableStation second = new TestNoPlatformStation(MixedTransportTestData.SECOND_STATION, "area2", "secondStation", TestEnv.nearPiccGardens,
-                TestEnv.nearPiccGardensGrid, TransportMode.Bus, dataSourceID);
+        MutableStation second = new TestNoPlatformStation(MixedTransportTestData.SECOND_STATION, "area2", "secondStation",
+                TestEnv.nearPiccGardens, TestEnv.nearPiccGardensGrid, TransportMode.Bus, dataSourceID);
         addAStation(container, second);
         addRouteStation(container, second, routeA);
         NoPlatformStopCall stopB = createStop(tripA, second, TramTime.of(8, 11),
                 TramTime.of(8, 11), 2);
         tripA.addStop(stopB);
 
-        MutableStation interchangeStation = new TestNoPlatformStation(MixedTransportTestData.INTERCHANGE, "area3", "cornbrookStation", TestEnv.nearShudehill,
+        MutableStation interchangeStation = new TestNoPlatformStation(MixedTransportTestData.INTERCHANGE, "area3",
+                "cornbrookStation", TestEnv.nearShudehill,
                 TestEnv.nearShudehillGrid, TransportMode.Bus, dataSourceID);
         addAStation(container, interchangeStation);
         addRouteStation(container, interchangeStation, routeA);
@@ -146,7 +147,8 @@ public class MixedTransportTestDataFactory implements TransportDataFactory {
                 TramTime.of(8, 20), 3);
         tripA.addStop(stopC);
 
-        MutableStation last = new TestNoPlatformStation(MixedTransportTestData.LAST_STATION, "area4", "endStation", TestEnv.nearPiccGardens,
+        MutableStation last = new TestNoPlatformStation(MixedTransportTestData.LAST_STATION, "area4", "endStation",
+                TestEnv.nearPiccGardens,
                 TestEnv.nearPiccGardensGrid,  TransportMode.Bus, dataSourceID);
         addAStation(container, last);
         addRouteStation(container, last, routeA);
@@ -157,11 +159,13 @@ public class MixedTransportTestDataFactory implements TransportDataFactory {
         // service A
         routeA.addTrip(tripA);
 
-        MutableStation stationFour = new TestNoPlatformStation(MixedTransportTestData.STATION_FOUR, "area4", "Station4", TestEnv.nearPiccGardens,
+        MutableStation stationFour = new TestNoPlatformStation(MixedTransportTestData.STATION_FOUR, "area4",
+                "Station4", TestEnv.nearPiccGardens,
                 TestEnv.nearPiccGardensGrid,  TransportMode.Bus, dataSourceID);
         addAStation(container, stationFour);
 
-        MutableStation stationFive = new TestNoPlatformStation(MixedTransportTestData.STATION_FIVE, "area5", "Station5", TestEnv.nearStockportBus,
+        MutableStation stationFive = new TestNoPlatformStation(MixedTransportTestData.STATION_FIVE, "area5",
+                "Station5", TestEnv.nearStockportBus,
                 TestEnv.nearStockportBusGrid,  TransportMode.Bus, dataSourceID);
         addAStation(container, stationFive);
 
@@ -181,9 +185,12 @@ public class MixedTransportTestDataFactory implements TransportDataFactory {
         addRouteStation(container, stationFour, ferryRoute);
         addRouteStation(container, interchangeStation, ferryRoute);
 
-        createInterchangeToStation4Trip(container,ferryRoute, serviceB, interchangeStation, stationFour, LocalTime.of(8, 26), "tripBId");
-        createInterchangeToStation4Trip(container,ferryRoute, serviceB, interchangeStation, stationFour, LocalTime.of(9, 10), "tripB2Id");
-        createInterchangeToStation4Trip(container,ferryRoute, serviceB, interchangeStation, stationFour, LocalTime.of(9, 20), "tripB3Id");
+        createInterchangeToStation4Trip(container,ferryRoute, serviceB, interchangeStation, stationFour,
+                LocalTime.of(8, 26), "tripBId");
+        createInterchangeToStation4Trip(container,ferryRoute, serviceB, interchangeStation, stationFour,
+                LocalTime.of(9, 10), "tripB2Id");
+        createInterchangeToStation4Trip(container,ferryRoute, serviceB, interchangeStation, stationFour,
+                LocalTime.of(9, 20), "tripB3Id");
 
         container.addTrip(tripA);
         container.addTrip(tripC);
@@ -232,12 +239,12 @@ public class MixedTransportTestDataFactory implements TransportDataFactory {
 
         public static final String TRIP_A_ID = "tripAId";
         public static final String PREFIX = "XXX";
-        public static final String FIRST_STATION = PREFIX + "_ST_FIRST";
-        public static final String SECOND_STATION = PREFIX + "_ST_SECOND";
-        public static final String LAST_STATION = PREFIX + "_ST_LAST";
-        public static final String INTERCHANGE = PREFIX + "_INTERCHANGE";
-        public static final String STATION_FOUR = PREFIX + "_ST_FOUR";
-        public static final String STATION_FIVE = PREFIX + "_ST_FIVE";
+        public static final String FIRST_STATION = PREFIX + ":ST:FIRST";
+        public static final String SECOND_STATION = PREFIX + ":ST:SECOND";
+        public static final String LAST_STATION = PREFIX + ":ST:LAST";
+        public static final String INTERCHANGE = PREFIX + ":INTERCHANGE";
+        public static final String STATION_FOUR = PREFIX + ":ST:FOUR";
+        public static final String STATION_FIVE = PREFIX + ":ST:FIVE";
 
         public MixedTransportTestData(ProvidesNow providesNow) {
             super(providesNow, "MixedTransportTestData");

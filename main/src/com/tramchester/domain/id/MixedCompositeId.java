@@ -2,6 +2,8 @@ package com.tramchester.domain.id;
 
 import com.tramchester.domain.GraphProperty;
 
+import static java.lang.String.format;
+
 public class MixedCompositeId<DOMAINTYPE extends GraphProperty, A extends GraphProperty, B extends GraphProperty>
         implements IdFor<DOMAINTYPE>{
 
@@ -15,6 +17,10 @@ public class MixedCompositeId<DOMAINTYPE extends GraphProperty, A extends GraphP
     }
 
     public static <T extends GraphProperty, A extends GraphProperty, B extends GraphProperty> IdFor<T> createId(IdFor<A> itemA, IdFor<B> itemB) {
+        if (itemA.forDTO().contains(DIVIDER) || itemB.forDTO().contains(DIVIDER)) {
+            String message = format("Component ids must not contain divider idA:'%s' idB:'%s'", itemA, itemB);
+            throw new RuntimeException(message);
+        }
         return new MixedCompositeId<>(itemA, itemB);
     }
 

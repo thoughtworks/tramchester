@@ -46,7 +46,7 @@ class DueTramsRepositoryTest extends EasyMockSupport {
         lastUpdate = LocalDateTime.of(today, LocalTime.of(15,42));
 
         station = TramStations.of(Shudehill);
-        platform = MutablePlatform.build("someId1", "Shudehill platform 1", Shudehill.getLatLong());
+        platform = MutablePlatform.buildForTFGMTram("someId1", "Shudehill platform 1", Shudehill.getLatLong());
         station.addPlatform(platform);
     }
 
@@ -61,7 +61,7 @@ class DueTramsRepositoryTest extends EasyMockSupport {
 
         // second station, has due tram
         MutableStation secondStation = of(Altrincham);
-        Platform platfromForSecondStation = MutablePlatform.build("a1", "Altrincham platform 1", Altrincham.getLatLong());
+        Platform platfromForSecondStation = MutablePlatform.buildForTFGMTram("a1", "Altrincham platform 1", Altrincham.getLatLong());
         secondStation.addPlatform(platfromForSecondStation);
 
         DueTram dueTramOther = new DueTram(of(ManAirport), "Due", 12, "Double", lastUpdate.toLocalTime());
@@ -70,7 +70,7 @@ class DueTramsRepositoryTest extends EasyMockSupport {
 
         // third, no due trams
         Station thirdStation = of(TraffordCentre);
-        Platform platfromForThirdStation = MutablePlatform.build("b2", "Intu platform 2", TraffordCentre.getLatLong());
+        Platform platfromForThirdStation = MutablePlatform.buildForTFGMTram("b2", "Intu platform 2", TraffordCentre.getLatLong());
         secondStation.addPlatform(platfromForSecondStation);
         StationDepartureInfo thirdStationInfo = new StationDepartureInfo("displayId3", Lines.Airport,
                 LineDirection.Incoming, platfromForThirdStation.getId(), thirdStation, "message 3", lastUpdate);
@@ -97,7 +97,7 @@ class DueTramsRepositoryTest extends EasyMockSupport {
                 "some message", station, dueTram);
 
         MutableStation otherStation = of(Altrincham);
-        Platform otherPlatform = MutablePlatform.build("other1", "Altrincham platform 1", otherStation.getLatLong());
+        Platform otherPlatform = MutablePlatform.buildForTFGMTram("other1", "Altrincham platform 1", otherStation.getLatLong());
         otherStation.addPlatform(otherPlatform);
 
         Station destinationManAirport = of(ManAirport);

@@ -386,7 +386,7 @@ class ProvidesNotesTest extends EasyMockSupport {
     }
 
     private PlatformMessage createPlatformMessage(LocalDateTime lastUpdate, MutableStation station, String message) {
-        Platform platform = MutablePlatform.build(station.forDTO() + "1", station.getName() + " platform 1", station.getLatLong());
+        Platform platform = MutablePlatform.buildForTFGMTram(station.forDTO() + "1", station.getName() + " platform 1", station.getLatLong());
         station.addPlatform(platform);
         return new PlatformMessage(platform.getId(), message, lastUpdate, station, "displayId");
     }
@@ -399,7 +399,7 @@ class ProvidesNotesTest extends EasyMockSupport {
 
         // TODO
         List<Integer> passedStations = new ArrayList<>();
-        Platform platform = MutablePlatform.build(platformId, "platformName", latLong);
+        Platform platform = MutablePlatform.buildForTFGMTram(platformId, "platformName", latLong);
         final MutableStation firstStation = of(Ashton);
         firstStation.addPlatform(platform);
         VehicleStage vehicleStage = new VehicleStage(firstStation, TestEnv.getTramTestRoute(), Tram,

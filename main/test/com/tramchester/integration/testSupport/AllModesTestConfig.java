@@ -6,8 +6,8 @@ import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.geo.BoundingBox;
 import com.tramchester.integration.testSupport.tfgm.TFGMGTFSSourceTestConfig;
 import com.tramchester.integration.testSupport.tfgm.TFGMRemoteDataSourceConfig;
-import com.tramchester.integration.testSupport.train.RailGTFSRemoteDataSourceConfig;
-import com.tramchester.integration.testSupport.train.RailTestDataSourceConfig;
+import com.tramchester.integration.testSupport.train.TrainGTFSRemoteDataSourceConfig;
+import com.tramchester.integration.testSupport.train.TrainTestDataSourceConfig;
 import com.tramchester.testSupport.AdditionalTramInterchanges;
 import com.tramchester.testSupport.TestEnv;
 import org.junit.jupiter.api.condition.DisabledIfEnvironmentVariable;
@@ -25,7 +25,7 @@ import static com.tramchester.domain.reference.TransportMode.Tram;
 public class AllModesTestConfig extends IntegrationTestConfig {
 
     private TFGMRemoteDataSourceConfig remoteTfgmSourceConfig;
-    private RailGTFSRemoteDataSourceConfig remoteDataRailConfig;
+    private TrainGTFSRemoteDataSourceConfig remoteDataRailConfig;
 
     public AllModesTestConfig() {
         super(new DBConfig("allModesTest", "allModesTest.db"));
@@ -38,10 +38,10 @@ public class AllModesTestConfig extends IntegrationTestConfig {
 
         final TFGMGTFSSourceTestConfig tfgmDataSource = new TFGMGTFSSourceTestConfig("data/bus", TestEnv.tramAndBus,
                 modesWithPlatforms, AdditionalTramInterchanges.get(), compositeStationModes, Collections.emptyList());
-        RailTestDataSourceConfig railSourceConfig = new RailTestDataSourceConfig("data/trains");
+        TrainTestDataSourceConfig railSourceConfig = new TrainTestDataSourceConfig("data/trains");
 
         remoteTfgmSourceConfig = new TFGMRemoteDataSourceConfig("data/bus");
-        remoteDataRailConfig = new RailGTFSRemoteDataSourceConfig("data/trains");
+        remoteDataRailConfig = new TrainGTFSRemoteDataSourceConfig("data/trains");
 
         return Arrays.asList(tfgmDataSource, railSourceConfig);
     }

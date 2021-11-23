@@ -34,7 +34,7 @@ class CompositeStationTest {
         Route route = TestEnv.getTramTestRoute();
         stationA.addRoute(route);
 
-        Platform platform = MutablePlatform.build("platformId", "platformName", latLong);
+        Platform platform = MutablePlatform.buildForTFGMTram("platformId", "platformName", latLong);
         stationA.addPlatform(platform);
 
         CompositeStation compositeStation = new CompositeStation(Collections.singleton(stationA), "compArea", "compName");
@@ -70,7 +70,7 @@ class CompositeStationTest {
         Route routeA = TestEnv.getTramTestRoute(StringIdFor.createId("routeA"), "routeName");
 
         stationA.addRoute(routeA);
-        Platform platformA = MutablePlatform.build("platformIdA", "platformNameA",  new LatLong(2, 4));
+        Platform platformA = MutablePlatform.buildForTFGMTram("platformIdA", "platformNameA",  new LatLong(2, 4));
         stationA.addPlatform(platformA);
 
         MutableStation stationB = TestStation.forTest("idB", "areaB", "stopNameB",
@@ -78,7 +78,7 @@ class CompositeStationTest {
         Route routeB = MutableRoute.getRoute(StringIdFor.createId("routeB"), "routeCodeB", "routeNameB", TestEnv.StagecoachManchester, Bus);
         stationB.addRoute(routeB);
         stationB.addRoute(routeA);
-        Platform platformB = MutablePlatform.build("platformIdB", "platformNameB",  new LatLong(4, 8));
+        Platform platformB = MutablePlatform.buildForTFGMTram("platformIdB", "platformNameB",  new LatLong(4, 8));
         stationB.addPlatform(platformB);
 
         Set<Station> stations = new HashSet<>(Arrays.asList(stationA, stationB));

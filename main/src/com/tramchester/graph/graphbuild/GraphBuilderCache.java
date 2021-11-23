@@ -74,13 +74,13 @@ public class GraphBuilderCache {
     }
 
     protected Node getRouteStation(Transaction txn, Route route, IdFor<Station> stationId) {
-        IdFor<RouteStation> id = RouteStation.createId(stationId, route.getId());
-        if (!routeStations.containsKey(id)) {
-            String message = "Cannot find routestation node in cache " + id + " cache " + routeStations;
+        IdFor<RouteStation> routeStationId = RouteStation.createId(stationId, route.getId());
+        if (!routeStations.containsKey(routeStationId)) {
+            String message = "Cannot find routestation node in cache " + routeStationId; // + " cache " + routeStations;
             logger.error(message);
             throw new RuntimeException(message);
         }
-        return txn.getNodeById(routeStations.get(id));
+        return txn.getNodeById(routeStations.get(routeStationId));
     }
 
     protected Node getRouteStation(Transaction txn, IdFor<RouteStation> id) {

@@ -53,7 +53,7 @@ class PlatformMessageRepositoryTest  extends EasyMockSupport {
         lastUpdate = LocalDateTime.of(today, LocalTime.of(15,42));
 
         station = TramStations.of(TramStations.Shudehill);
-        platform =MutablePlatform.build("someId1", "Shudehill platform 1", station.getLatLong());
+        platform =MutablePlatform.buildForTFGMTram("someId1", "Shudehill platform 1", station.getLatLong());
         station.addPlatform(platform);
 
     }
@@ -98,7 +98,7 @@ class PlatformMessageRepositoryTest  extends EasyMockSupport {
         assertEquals("some message", stationMessages.get(0).getMessage());
 
         MutableStation otherStation = TramStations.of(TramStations.Ashton);
-        otherStation.addPlatform(MutablePlatform.build("XXXX", "platform name", otherStation.getLatLong()));
+        otherStation.addPlatform(MutablePlatform.buildForTFGMTram("XXXX", "platform name", otherStation.getLatLong()));
 
         List<PlatformMessage> noStationMsg = repository.messagesFor(otherStation, lastUpdate.toLocalDate(), updateTime);
         assertTrue(noStationMsg.isEmpty());

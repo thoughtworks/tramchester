@@ -65,7 +65,10 @@ public class TransportEntityFactoryForTFGM extends TransportEntityFactory {
     @Override
     public Optional<MutablePlatform> maybeCreatePlatform(StopData stopData) {
         if (isMetrolinkTram(stopData)) {
-            return Optional.of(new MutablePlatform(stopData.getId(), createStationName(stopData), stopData.getLatLong()));
+            String stopId = stopData.getId();
+            String platformNumber = stopId.substring(stopId.length()-1);
+            return Optional.of(new MutablePlatform(StringIdFor.createId(stopId), createStationName(stopData),
+                    platformNumber, stopData.getLatLong()));
         } else {
             return Optional.empty();
         }

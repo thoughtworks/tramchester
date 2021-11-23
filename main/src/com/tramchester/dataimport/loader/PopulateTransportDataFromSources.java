@@ -27,6 +27,7 @@ public class PopulateTransportDataFromSources implements TransportDataFactory {
     private static final Logger logger = LoggerFactory.getLogger(PopulateTransportDataFromSources.class);
 
     private final TransportDataSourceFactory transportDataSourceFactory;
+    private final DirectDataSourceFactory directDataSourceFactory;
     private final TramchesterConfig tramchesterConfig;
     private final ProvidesNow providesNow;
 
@@ -36,8 +37,10 @@ public class PopulateTransportDataFromSources implements TransportDataFactory {
     // needs transport data to be loaded....
     @Inject
     public PopulateTransportDataFromSources(TransportDataSourceFactory transportDataSourceFactory,
+                                            DirectDataSourceFactory directDataSourceFactory,
                                             TramchesterConfig tramchesterConfig, ProvidesNow providesNow) {
         this.transportDataSourceFactory = transportDataSourceFactory;
+        this.directDataSourceFactory = directDataSourceFactory;
         this.tramchesterConfig = tramchesterConfig;
         this.providesNow = providesNow;
         dataContainer = new TransportDataContainer(providesNow, "TransportDataFromFiles");
@@ -53,7 +56,12 @@ public class PopulateTransportDataFromSources implements TransportDataFactory {
     @PostConstruct
     public void start() {
         logger.info("start");
-        transportDataSourceFactory.forEach(transportDataSource -> load(transportDataSource, dataContainer));
+        if (transportDataSourceFactory.hasDataSources()) {
+            logger.info("Load for gtfs sources");
+            transportDataSourceFactory.forEach(transportDataSource -> load(transportDataSource, dataContainer));
+        }
+        logger.info("Load for direct sources");
+        directDataSourceFactory.forEach(dataSource -> dataSource.loadInto(dataContainer));
         logger.info("started");
     }
 

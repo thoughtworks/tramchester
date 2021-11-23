@@ -2,30 +2,45 @@ package com.tramchester.integration.rail;
 
 import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
-import com.tramchester.dataimport.rail.LoadRailTransportData;
+import com.tramchester.domain.Platform;
+import com.tramchester.domain.Route;
+import com.tramchester.domain.Service;
+import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.StringIdFor;
+import com.tramchester.domain.input.StopCall;
+import com.tramchester.domain.input.StopCalls;
+import com.tramchester.domain.input.Trip;
+import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.LatLong;
+import com.tramchester.domain.reference.GTFSPickupDropoffType;
 import com.tramchester.geo.CoordinateTransforms;
 import com.tramchester.geo.GridPosition;
-import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
+import com.tramchester.integration.testSupport.rail.IntegrationRailTestConfig;
 import com.tramchester.repository.TransportData;
 import com.tramchester.testSupport.TestEnv;
-import org.junit.jupiter.api.*;
+import com.tramchester.testSupport.testTags.TrainTest;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.DisabledIfEnvironmentVariable;
 
+import java.util.Optional;
 import java.util.Set;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.*;
 
+@TrainTest
+@DisabledIfEnvironmentVariable(named = "CI", matches = "true")
 public class LoadTransportDataTest {
     private static ComponentContainer componentContainer;
-    private TransportData loaded;
+    private TransportData transportData;
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
         // TODO rail config?
-        IntegrationTramTestConfig configuration = new IntegrationTramTestConfig(true);
+        IntegrationRailTestConfig configuration = new IntegrationRailTestConfig();
         componentContainer = new ComponentsBuilder().create(configuration, TestEnv.NoopRegisterMetrics());
         componentContainer.initialise();
     }
@@ -37,19 +52,18 @@ public class LoadTransportDataTest {
 
     @BeforeEach
     void beforeEachTestRuns() {
-        LoadRailTransportData loadRailTransportData = componentContainer.get(LoadRailTransportData.class);
-        loaded = loadRailTransportData.getData();
+        transportData = componentContainer.get(TransportData.class);
     }
 
     @Test
     void shouldLoadStations() {
-        Set<Station> allStations = loaded.getStations();
+        Set<Station> allStations = transportData.getStations();
         assertFalse(allStations.isEmpty());
     }
 
     @Test
     void shouldGetSpecificStation() {
-        Station result = loaded.getStationById(StringIdFor.createId("DRBY"));
+        Station result = transportData.getStationById(StringIdFor.createId("DRBY"));
 
         assertEquals("DERBY", result.getName());
         final GridPosition expectedGrid = new GridPosition(436200, 335600);
@@ -63,7 +77,7 @@ public class LoadTransportDataTest {
     void shouldGetSpecificStationWithoutPosition() {
         // A    KILLARNEY   (CIE              0KILARNYKLL   KLL00000E00000 5
 
-        Station result = loaded.getStationById(StringIdFor.createId("KILARNY"));
+        Station result = transportData.getStationById(StringIdFor.createId("KILARNY"));
 
         assertEquals("KILLARNEY   (CIE", result.getName());
         assertFalse(result.getGridPosition().isValid());
@@ -71,7 +85,93 @@ public class LoadTransportDataTest {
     }
 
     @Test
-    void shouldFindSomething() {
-        loaded.getServices();
+    void shouldFindServiceAndTrip() {
+        Station startStation = transportData.getStationById(StringIdFor.createId("DRBY"));
+        Station endStation = transportData.getStationById(StringIdFor.createId("STPX"));
+
+        Service service = transportData.getServiceById(StringIdFor.createId("G91001"));
+        assertNotNull(service);
+
+        Trip trip = transportData.getTripById(StringIdFor.createId("G91001"));
+        assertNotNull(trip);
+        assertEquals(service, trip.getService());
+
+        StopCalls stops = trip.getStopCalls();
+        final StopCall firstStopCall = stops.getStopBySequenceNumber(1);
+        assertEquals(startStation, firstStopCall.getStation());
+        assertEquals(GTFSPickupDropoffType.None, firstStopCall.getDropoffType());
+        assertEquals(GTFSPickupDropoffType.Regular, firstStopCall.getPickupType());
+
+        assertEquals(21, stops.numberOfCallingPoints());
+
+        final StopCall lastStopCall = stops.getStopBySequenceNumber(stops.numberOfCallingPoints());
+        assertEquals(endStation, lastStopCall.getStation());
+        assertEquals(GTFSPickupDropoffType.Regular, lastStopCall.getDropoffType());
+        assertEquals(GTFSPickupDropoffType.None, lastStopCall.getPickupType());
+
+        Route route = trip.getRoute();
+        assertNotNull(route);
+
+        RouteStation firstRouteStation = transportData.getRouteStation(startStation, route);
+        assertNotNull(firstRouteStation);
     }
+
+    @Test
+    void shouldHaveRouteStationConsistency() {
+
+        IdFor<Station> stationId = StringIdFor.createId("WDON");
+        Station station = transportData.getStationById(stationId);
+
+        Set<Route> routesFromStaiton = station.getRoutes();
+
+        routesFromStaiton.forEach(route -> assertNotNull(transportData.getRouteStation(station, route), route.toString()));
+    }
+
+    @Test
+    void shouldHaveCorrectPlatforms() {
+        IdFor<Station> stationId = StringIdFor.createId("WATRLMN");
+        Station station = transportData.getStationById(stationId);
+
+        IdFor<Platform> platformId = StringIdFor.createId("WATRLMN_12");
+
+        Optional<Platform> result = station.getPlatforms().stream().filter(platform -> platform.getId().equals(platformId)).findFirst();
+
+        assertTrue(result.isPresent());
+        final Platform platform12 = result.get();
+        assertEquals("12", platform12.getPlatformNumber());
+        assertEquals("LONDON WATERLOO Platform 12", platform12.getName());
+
+        // todo routes
+    }
+
+    @Test
+    void shouldHaveRouteStation() {
+        IdFor<Route> routeId = StringIdFor.createId("SW:FRBRMN=>WEYMTH");
+        IdFor<Station> stationId = StringIdFor.createId("WDON");
+
+        Route route = transportData.getRouteById(routeId);
+        assertNotNull(route);
+
+        Station station = transportData.getStationById(stationId);
+        assertNotNull(station);
+
+        Set<RouteStation> routeStations = transportData.getRouteStationsFor(stationId);
+        assertFalse(routeStations.isEmpty(), routeStations.toString());
+
+        route.getTrips().forEach(trip -> {
+                    StopCalls stops = trip.getStopCalls();
+                    stops.getLegs().forEach(leg -> {
+                        Station first = leg.getFirstStation();
+                        RouteStation routeStationA = transportData.getRouteStation(first, route);
+                        assertNotNull(routeStationA, "first:"+first+" "+trip);
+                        Station second = leg.getSecondStation();
+                        RouteStation routeStationB = transportData.getRouteStation(second, route);
+                        assertNotNull(routeStationB, "second:"+second+" "+trip);
+                    });
+                });
+
+        RouteStation routeStation = transportData.getRouteStationById(RouteStation.createId(stationId, routeId));
+        assertNotNull(routeStation, routeStations.toString());
+    }
+
 }

@@ -249,19 +249,20 @@ public class RailTimetableMapper {
             int stopSequence = 1;
             populateForLocation(originLocation, route, trip, stopSequence, false, agencyId, schedule);
             stopSequence = stopSequence + 1;
-            for (int i = 0; i < intermediateLocations.size(); i++) {
-                populateForLocation(intermediateLocations.get(i), route, trip, stopSequence+i, false, agencyId, schedule);
+            for (IntermediateLocation intermediateLocation : intermediateLocations) {
+                if (populateForLocation(intermediateLocation, route, trip, stopSequence, false, agencyId, schedule)) {
+                    stopSequence = stopSequence + 1;
+                }
             }
-            stopSequence = stopSequence + intermediateLocations.size();
             populateForLocation(terminatingLocation, route, trip, stopSequence, true, agencyId, schedule);
         }
 
-        private void populateForLocation(RailLocationRecord railLocation, MutableRoute route, MutableTrip trip, int stopSequence,
+        private boolean populateForLocation(RailLocationRecord railLocation, MutableRoute route, MutableTrip trip, int stopSequence,
                                          boolean lastStop, IdFor<Agency> agencyId, BasicSchedule schedule) {
 
             if (!isStation(railLocation)) {
                 missingStationDiagnosticsFor(railLocation, agencyId, schedule);
-                return;
+                return false;
             }
 
             // Station
@@ -282,10 +283,12 @@ public class RailTimetableMapper {
 
             // Stop Call
             TramTime arrivalTime = railLocation.getPublicArrival();
-            TramTime departureTime = railLocation.getPublicDeparture(); // same arrive & depart for first stop
+            TramTime departureTime = railLocation.getPublicDeparture();
             PlatformStopCall stopCall = createStopCall(trip, station, platform, stopSequence,
                     arrivalTime, departureTime, pickup, dropoff);
             trip.addStop(stopCall);
+
+            return true;
         }
 
         private void missingStationDiagnosticsFor(RailLocationRecord railLocation, IdFor<Agency> agencyId, BasicSchedule schedule) {
@@ -339,14 +342,13 @@ public class RailTimetableMapper {
         }
 
         private MutablePlatform getOrCreatePlatform(MutableStation originStation, RailLocationRecord originLocation) {
-            String platformText = originLocation.getPlatform();
-            final String platformIdText = originLocation.getTiplocCode() + "_" + platformText;
-            IdFor<Platform> platformId = StringIdFor.createId(platformIdText);
+            String platformNumber = originLocation.getPlatform();
+            IdFor<Platform> platformId = StringIdFor.createId(originLocation.getTiplocCode() + ":" + platformNumber);
             MutablePlatform platform;
             if (container.hasPlatformId(platformId)) {
                 platform = container.getMutablePlatform(platformId);
             } else {
-                platform = new MutablePlatform(platformIdText, originStation.getName() + " Platform " + platformText,
+                platform = new MutablePlatform(platformId, originStation.getName(), platformNumber,
                         originStation.getLatLong());
                 container.addPlatform(platform);
             }
@@ -366,7 +368,8 @@ public class RailTimetableMapper {
             return trip;
         }
 
-        private MutableRoute getOrCreateRoute(CurrentSchedule currentSchedule, OriginLocation originLocation, MutableAgency mutableAgency, String atocCode) {
+        private MutableRoute getOrCreateRoute(CurrentSchedule currentSchedule, OriginLocation originLocation,
+                                              MutableAgency mutableAgency, String atocCode) {
             MutableRoute route;
             String shortName = createRouteShortName(originLocation, currentSchedule.terminatingLocation,
                     atocCode);
@@ -420,7 +423,7 @@ public class RailTimetableMapper {
         }
 
         private String createRouteShortName(OriginLocation originLocation, TerminatingLocation terminatingLocation, String atocCode) {
-            return format("%s_%s_%s", atocCode, originLocation.getTiplocCode(), terminatingLocation.getTiplocCode());
+            return format("%s:%s=>%s", atocCode, originLocation.getTiplocCode(), terminatingLocation.getTiplocCode());
         }
 
     }

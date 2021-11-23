@@ -13,7 +13,8 @@ class PlatformTest {
 
     @Test
     void shouldCreatePlatformCorrectly() {
-        MutablePlatform platform = new MutablePlatform("9400ZZ_Name2", "StationName", TestEnv.nearAltrincham);
+        MutablePlatform platform = new MutablePlatform(StringIdFor.createId("9400ZZ_Name2"), "StationName", "2",
+                TestEnv.nearAltrincham);
 
         assertEquals("StationName platform 2", platform.getName());
         assertEquals(StringIdFor.createId("9400ZZ_Name2"), platform.getId());

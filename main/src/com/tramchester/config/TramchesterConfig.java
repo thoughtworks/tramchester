@@ -87,6 +87,9 @@ public abstract class TramchesterConfig extends Configuration implements HasRemo
     // live transport data config
     public abstract LiveDataConfig getLiveDataConfig();
 
+    // rail data
+    public abstract RailConfig getRailConfig();
+
     // Graph DB Config
     public abstract GraphDBConfig getGraphDBConfig();
 

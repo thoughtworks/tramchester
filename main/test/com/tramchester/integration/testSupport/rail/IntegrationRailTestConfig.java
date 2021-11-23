@@ -1,7 +1,8 @@
-package com.tramchester.integration.testSupport.train;
+package com.tramchester.integration.testSupport.rail;
 
 import com.tramchester.config.GTFSSourceConfig;
 import com.tramchester.config.GraphDBConfig;
+import com.tramchester.config.RailConfig;
 import com.tramchester.config.RemoteDataSourceConfig;
 import com.tramchester.geo.BoundingBox;
 import com.tramchester.integration.testSupport.GraphDBTestConfig;
@@ -9,26 +10,42 @@ import com.tramchester.integration.testSupport.IntegrationTestConfig;
 import com.tramchester.testSupport.TestEnv;
 
 import java.nio.file.Path;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-public class IntegrationTrainTestConfig extends IntegrationTestConfig {
+public class IntegrationRailTestConfig extends IntegrationTestConfig {
 
-    private final TrainTestDataSourceConfig sourceConfig;
-    private final RemoteDataSourceConfig remoteDataRailConfig;
     private final GraphDBConfig graphDBConfig;
 
-    public IntegrationTrainTestConfig() {
-        this("train_tramchester.db");
+    public IntegrationRailTestConfig() {
+        this("rail_tramchester.db");
     }
 
-    protected IntegrationTrainTestConfig(String dbFilename) {
-        super(new GraphDBIntegrationTrainTestConfig("integrationTrainTest", dbFilename));
-        graphDBConfig = new GraphDBIntegrationTrainTestConfig("integrationTrainTest", dbFilename);
-        sourceConfig = new TrainTestDataSourceConfig("data/trains");
-        remoteDataRailConfig = new TrainGTFSRemoteDataSourceConfig("data/trains");
+    protected IntegrationRailTestConfig(String dbFilename) {
+        super(new GraphDBIntegrationRailTestConfig("integrationTrainTest", dbFilename));
+        graphDBConfig = new GraphDBIntegrationRailTestConfig("integrationTrainTest", dbFilename);
+    }
 
+    private final String CURRENT_PREFIX = "ttisf187";
+
+    @Override
+    public RailConfig getRailConfig() {
+        return new RailConfig() {
+            @Override
+            public Path getDataPath() {
+                return Path.of("data/rail");
+            }
+
+            @Override
+            public Path getStations() {
+                return Path.of(CURRENT_PREFIX +".msn");
+            }
+
+            @Override
+            public Path getTimetable() {
+                return Path.of(CURRENT_PREFIX+".mca");
+            }
+        };
     }
 
     @Override
@@ -38,12 +55,12 @@ public class IntegrationTrainTestConfig extends IntegrationTestConfig {
 
     @Override
     protected List<GTFSSourceConfig> getDataSourceFORTESTING() {
-        return Collections.singletonList(sourceConfig);
+        return Collections.emptyList();
     }
 
     @Override
     public List<RemoteDataSourceConfig> getRemoteDataSourceConfig() {
-        return Arrays.asList(remoteDataRailConfig, remoteNaptanConfig);
+        return Collections.emptyList();
     }
 
     @Override
@@ -79,12 +96,12 @@ public class IntegrationTrainTestConfig extends IntegrationTestConfig {
 
     @Override
     public Path getCacheFolder() {
-        return TestEnv.CACHE_DIR.resolve("trainIntegration");
+        return TestEnv.CACHE_DIR.resolve("railIntegration");
     }
 
-    private static class GraphDBIntegrationTrainTestConfig extends GraphDBTestConfig {
+    private static class GraphDBIntegrationRailTestConfig extends GraphDBTestConfig {
 
-        public GraphDBIntegrationTrainTestConfig(String folder, String dbName) {
+        public GraphDBIntegrationRailTestConfig(String folder, String dbName) {
             super(folder, dbName);
         }
 

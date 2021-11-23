@@ -59,7 +59,7 @@ class StageDTOFactoryTest extends EasyMockSupport {
         Trip trip = MutableTrip.build(createId("tripId"), "headSign", service, testRoute);
 
         List<Integer> stopCallIndexes = Arrays.asList(1,2,3,4);
-        Platform platform = MutablePlatform.build("platFormId", "platformName", new LatLong(1,1));
+        Platform platform = MutablePlatform.buildForTFGMTram("platFormId", "platformName", new LatLong(1,1));
         final MutableStation firstStation = of(MarketStreet);
         firstStation.addPlatform(platform);
         VehicleStage vehicleStage = new VehicleStage(firstStation, testRoute,

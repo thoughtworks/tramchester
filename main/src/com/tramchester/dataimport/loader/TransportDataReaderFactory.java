@@ -77,4 +77,7 @@ public class TransportDataReaderFactory {
                 TransportMode.fromGTFS(config.getTransportGTFSModes()));
     }
 
+    public boolean hasReaders() {
+        return !dataReaders.isEmpty();
+    }
 }

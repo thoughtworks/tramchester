@@ -2,7 +2,8 @@ package com.tramchester.dataimport.rail;
 
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.config.RailConfig;
-import com.tramchester.dataimport.loader.TransportDataFactory;
+import com.tramchester.config.TramchesterConfig;
+import com.tramchester.dataimport.loader.DirectDataSourceFactory;
 import com.tramchester.dataimport.rail.records.PhysicalStationRecord;
 import com.tramchester.dataimport.rail.records.RailTimetableRecord;
 import com.tramchester.domain.DataSourceID;
@@ -14,44 +15,62 @@ import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.geo.CoordinateTransforms;
 import com.tramchester.geo.GridPosition;
-import com.tramchester.repository.TransportData;
 import com.tramchester.repository.TransportDataContainer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
+import java.nio.file.Path;
 import java.util.stream.Stream;
 
 @LazySingleton
-public class LoadRailTransportData implements TransportDataFactory {
+public class LoadRailTransportData implements DirectDataSourceFactory.PopulatesContainer {
     private static final Logger logger = LoggerFactory.getLogger(LoadRailTransportData.class);
 
-    private final TransportDataContainer dataContainer;
     private final RailStationDataFromFile railStationDataFromFile;
     private final RailTimetableDataFromFile railTimetableDataFromFile;
+    private final boolean enabled;
 
     @Inject
-    public LoadRailTransportData(RailDataRecordFactory factory, ProvidesNow providesNow, RailConfig railConfig) {
-
-        railStationDataFromFile = new RailStationDataFromFile(railConfig.getRailStationFile());
-        railTimetableDataFromFile = new RailTimetableDataFromFile(railConfig.getRailTimetableFile(), factory);
-
-        String sourceName = "rail";
-        dataContainer = new TransportDataContainer(providesNow, sourceName);
+    public LoadRailTransportData(RailDataRecordFactory factory, ProvidesNow providesNow, TramchesterConfig config) {
+        final RailConfig railConfig = config.getRailConfig();
+        enabled = (railConfig!=null);
+        if (enabled) {
+            final Path dataPath = railConfig.getDataPath();
+            Path stationsPath = dataPath.resolve(railConfig.getStations());
+            Path timetablePath = dataPath.resolve(railConfig.getTimetable());
+            railStationDataFromFile = new RailStationDataFromFile(stationsPath);
+            railTimetableDataFromFile = new RailTimetableDataFromFile(timetablePath, factory);
+        } else {
+            railStationDataFromFile = null;
+            railTimetableDataFromFile = null;
+        }
     }
 
     @PostConstruct
     public void start() {
-        Stream<PhysicalStationRecord> physicalRecords = railStationDataFromFile.load();
-        addStations(physicalRecords);
-
-        Stream<RailTimetableRecord> timetableRecords = railTimetableDataFromFile.load();
-        processTimetableRecords(timetableRecords);
-
+        logger.info("start");
+        if (enabled) {
+            logger.info("Enabled");
+        } else {
+            logger.info("Disabled");
+        }
+        logger.info("started");
     }
 
-    private void processTimetableRecords(Stream<RailTimetableRecord> recordStream) {
+    @Override
+    public void loadInto(TransportDataContainer dataContainer) {
+        logger.info("Load stations");
+        Stream<PhysicalStationRecord> physicalRecords = railStationDataFromFile.load();
+        addStations(dataContainer, physicalRecords);
+
+        logger.info("Load timetable");
+        Stream<RailTimetableRecord> timetableRecords = railTimetableDataFromFile.load();
+        processTimetableRecords(dataContainer, timetableRecords);
+    }
+
+    private void processTimetableRecords(TransportDataContainer dataContainer, Stream<RailTimetableRecord> recordStream) {
         logger.info("Process timetable stream");
         RailTimetableMapper mapper = new RailTimetableMapper(dataContainer);
         recordStream.forEach(mapper::seen);
@@ -59,7 +78,7 @@ public class LoadRailTransportData implements TransportDataFactory {
         mapper.reportDiagnostics();
     }
 
-    private void addStations(Stream<PhysicalStationRecord> physicalRecords) {
+    private void addStations(TransportDataContainer dataContainer, Stream<PhysicalStationRecord> physicalRecords) {
         physicalRecords.
                 filter(this::validRecord).
                 map(this::createStationFor).
@@ -106,8 +125,13 @@ public class LoadRailTransportData implements TransportDataFactory {
         return new GridPosition(easting* 100L, northing* 100L);
     }
 
-    @Override
-    public TransportData getData() {
-        return dataContainer;
+    public boolean isEnabled() {
+        return enabled;
     }
+
+//    @Override
+//    public TransportData getData() {
+//        return dataContainer;
+//    }
+
 }

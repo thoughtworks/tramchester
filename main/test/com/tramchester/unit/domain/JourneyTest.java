@@ -200,8 +200,8 @@ class JourneyTest {
         final MutableStation stPeters = of(StPetersSquare);
         final Station victoria = of(Victoria);
 
-        final Platform platform1 = MutablePlatform.build("platformId1", "platformNameA", TestEnv.nearAltrincham);
-        final Platform platform2 = MutablePlatform.build("platformId2", "platformNameA", TestEnv.nearStPetersSquare);
+        final Platform platform1 = MutablePlatform.buildForTFGMTram("platformId1", "platformNameA", TestEnv.nearAltrincham);
+        final Platform platform2 = MutablePlatform.buildForTFGMTram("platformId2", "platformNameA", TestEnv.nearStPetersSquare);
         alty.addPlatform(platform1);
         stPeters.addPlatform(platform2);
 

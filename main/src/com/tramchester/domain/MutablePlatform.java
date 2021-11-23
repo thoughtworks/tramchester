@@ -18,19 +18,18 @@ public class MutablePlatform implements Platform {
     private final String platformNumber;
     private final LatLong latLong;
 
-    public MutablePlatform(String id, String name, LatLong latLong) {
-        this.id = StringIdFor.createId(id);
-        platformNumber = id.substring(id.length()-1);
-
-        this.name = format("%s platform %s", name, platformNumber);
-
+    public MutablePlatform(IdFor<Platform> id, String stationName, String platformNumber, LatLong latLong) {
+        this.id = id;
+        this.platformNumber = platformNumber;
+        this.name = format("%s platform %s", stationName, platformNumber);
         this.latLong = latLong;
         servesRoutes = new HashSet<>();
     }
 
     // test support
-    public static Platform build(String id, String name, LatLong latLong) {
-        return new MutablePlatform(id, name, latLong);
+    public static Platform buildForTFGMTram(String id, String stationName, LatLong latLong) {
+        String platformNumber = id.substring(id.length() - 1);
+        return new MutablePlatform(StringIdFor.createId(id), stationName, platformNumber, latLong);
     }
 
     @Override

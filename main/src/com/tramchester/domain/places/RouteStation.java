@@ -33,14 +33,6 @@ public class RouteStation implements HasId<RouteStation>, GraphProperty, Locatio
         return id;
     }
 
-//    public Agency getAgency() {
-//        return route.getAgency();
-//    }
-
-//    public TransportMode getTransportMode() {
-//        return route.getTransportMode();
-//    }
-
     @Override
     public String toString() {
         return "RouteStation{" +

@@ -37,6 +37,11 @@ public class TransportDataSourceFactory implements Iterable<TransportDataSource>
         theList = new ArrayList<>();
     }
 
+
+    public boolean hasDataSources() {
+        return readerFactory.hasReaders();
+    }
+
     // Note: feedinfo is not mandatory in the standard
     @PostConstruct
     public void start() {
@@ -91,4 +96,5 @@ public class TransportDataSourceFactory implements Iterable<TransportDataSource>
     public Iterator<TransportDataSource> iterator() {
         return theList.iterator();
     }
+
 }

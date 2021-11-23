@@ -125,6 +125,9 @@ public class AppConfiguration extends TramchesterConfig {
     @JsonProperty("liveData")
     private LiveDataAppConfig liveDataConfig;
 
+    @JsonProperty("railConfig")
+    private RailConfig railConfig;
+
     @NotNull
     @JsonProperty("bounds")
     private BoundingBox bounds;
@@ -148,6 +151,7 @@ public class AppConfiguration extends TramchesterConfig {
     @NotNull
     @JsonProperty("cloudWatchMetricsFrequencyMinutes")
     private Long cloudWatchMetricsFrequencyMinutes;
+
 
     @Override
     public String getInstanceDataUrl() {
@@ -264,6 +268,11 @@ public class AppConfiguration extends TramchesterConfig {
     @Override
     public LiveDataConfig getLiveDataConfig() {
         return liveDataConfig;
+    }
+
+    @Override
+    public RailConfig getRailConfig() {
+        return railConfig;
     }
 
     @Valid

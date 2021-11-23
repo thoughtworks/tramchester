@@ -12,10 +12,10 @@ import java.util.*;
 
 import static com.tramchester.domain.reference.GTFSTransportationType.*;
 
-public class RailTestDataSourceConfig implements GTFSSourceConfig {
+public class TrainTestDataSourceConfig implements GTFSSourceConfig {
     private final String dataPath;
 
-    public RailTestDataSourceConfig(String dataPath) {
+    public TrainTestDataSourceConfig(String dataPath) {
         this.dataPath = dataPath;
     }
 
