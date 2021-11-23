@@ -3,8 +3,10 @@ package com.tramchester.dataimport.rail;
 import com.tramchester.dataimport.data.StopTimeData;
 import com.tramchester.dataimport.rail.records.*;
 import com.tramchester.dataimport.rail.records.reference.ShortTermPlanIndicator;
+import com.tramchester.dataimport.rail.records.reference.TrainCategory;
 import com.tramchester.domain.*;
 import com.tramchester.domain.id.IdFor;
+import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.input.MutableTrip;
 import com.tramchester.domain.input.PlatformStopCall;
@@ -154,13 +156,15 @@ public class RailTimetableMapper {
 
         private final TransportDataContainer container;
         private final Map<String, TIPLOCInsert> tiplocInsertRecords;
-        private final MissingStations missingStations;
+        private final MissingStations missingStations; // stations missing unexpectedly
+        private final IdSet<Service> skippedServices; // services skipped due to train category etc.
 
         private CreatesTransportDataForRail(TransportDataContainer container, Map<String, TIPLOCInsert> tiplocInsertRecords,
                                             MissingStations missingStations) {
             this.container = container;
             this.tiplocInsertRecords = tiplocInsertRecords;
             this.missingStations = missingStations;
+            skippedServices = new IdSet<>();
         }
 
         public void consume(CurrentSchedule currentSchedule) {
@@ -184,14 +188,16 @@ public class RailTimetableMapper {
         }
 
         private void recordCancellations(BasicSchedule basicSchedule) {
-            final IdFor<Service> serviceId = StringIdFor.createId(basicSchedule.getUniqueTrainId());
+            final IdFor<Service> serviceId = getServiceIdFor(basicSchedule);
             if (container.hasServiceId(serviceId)) {
                 logger.debug("Making cancellations for schedule " + basicSchedule.getUniqueTrainId());
                 Service service = container.getMutableService(serviceId);
                 ServiceCalendar calendar = service.getCalendar();
                 addServiceExceptions(calendar, basicSchedule.getStartDate(), basicSchedule.getEndDate(), basicSchedule.getDaysOfWeek());
             } else {
-                logger.error("Failed to find service to amend for " + basicSchedule);
+                if (!skippedServices.contains(serviceId)) {
+                    logger.warn("Failed to find service to amend for " + basicSchedule);
+                }
             }
         }
 
@@ -207,11 +213,20 @@ public class RailTimetableMapper {
 
         private void createNew(CurrentSchedule currentSchedule) {
             final BasicSchedule schedule = currentSchedule.basicScheduleRecord;
+            TrainCategory cat = schedule.getTrainCategory();
+            final String uniqueTrainId = schedule.getUniqueTrainId();
+            if (cat==TrainCategory.LondonUndergroundOrMetroService || cat==TrainCategory.BusService) {
+                logger.debug(format("Skipping %s of category %s and status %s", uniqueTrainId, schedule.getTrainCategory(),
+                        schedule.getTrainStatus()));
+                skippedServices.add(getServiceIdFor(schedule));
+                return;
+            }
+
             final OriginLocation originLocation = currentSchedule.originLocation;
             final List<IntermediateLocation> intermediateLocations = currentSchedule.intermediateLocations;
             final TerminatingLocation terminatingLocation = currentSchedule.terminatingLocation;
 
-            logger.debug("Create schedule for " + schedule.getUniqueTrainId());
+            logger.debug("Create schedule for " + uniqueTrainId);
             final String atocCode = currentSchedule.extraDetails.getAtocCode();
 
             // Agency
@@ -369,7 +384,7 @@ public class RailTimetableMapper {
 
         private MutableService getOrCreateService(BasicSchedule schedule) {
             MutableService service;
-            final IdFor<Service> serviceId = StringIdFor.createId(schedule.getUniqueTrainId());
+            final IdFor<Service> serviceId = getServiceIdFor(schedule);
             if (container.hasServiceId(serviceId)) {
                 service = container.getMutableService(serviceId);
             } else {
@@ -408,6 +423,11 @@ public class RailTimetableMapper {
             return format("%s_%s_%s", atocCode, originLocation.getTiplocCode(), terminatingLocation.getTiplocCode());
         }
 
+    }
+
+    @NotNull
+    private static IdFor<Service> getServiceIdFor(BasicSchedule basicSchedule) {
+        return StringIdFor.createId(basicSchedule.getUniqueTrainId());
     }
 
     private static class MissingStations {
