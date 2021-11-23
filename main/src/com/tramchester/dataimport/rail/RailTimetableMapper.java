@@ -2,6 +2,7 @@ package com.tramchester.dataimport.rail;
 
 import com.tramchester.dataimport.data.StopTimeData;
 import com.tramchester.dataimport.rail.records.*;
+import com.tramchester.dataimport.rail.records.reference.ShortTermPlanIndicator;
 import com.tramchester.domain.*;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.StringIdFor;
@@ -34,12 +35,12 @@ public class RailTimetableMapper {
     private CurrentSchedule currentSchedule;
     private final CreatesTransportDataForRail processor;
     private final Map<String,TIPLOCInsert> tiplocInsertRecords;
-    private final Map<String, Set<RailLocationRecord>> missingStations;
+    private final MissingStations missingStations;
 
     public RailTimetableMapper(TransportDataContainer container) {
         currentState = State.Between;
         tiplocInsertRecords = new HashMap<>();
-        missingStations = new HashMap<>();
+        missingStations = new MissingStations();
         processor = new CreatesTransportDataForRail(container, tiplocInsertRecords, missingStations);
     }
 
@@ -89,7 +90,7 @@ public class RailTimetableMapper {
         guardState(State.Between, record);
 
         currentSchedule = new CurrentSchedule(basicSchedule);
-        if (basicSchedule.getSTPIndicator()== BasicSchedule.ShortTermPlanIndicator.Cancellation) {
+        if (basicSchedule.getSTPIndicator()==ShortTermPlanIndicator.Cancellation) {
             processor.recordCancellations(basicSchedule);
             currentState = State.Between;
         } else {
@@ -98,15 +99,11 @@ public class RailTimetableMapper {
     }
 
     public void reportDiagnostics() {
-        if (missingStations.isEmpty()) {
-            return;
-        }
-        missingStations.forEach((tiploc, records) -> {
-            logger.warn("Missing tiploc " + tiploc + " for records " + records);
-            if (tiplocInsertRecords.containsKey(tiploc)) {
-                logger.info("Found TI record: " + tiplocInsertRecords.get(tiploc));
-            }
-        });
+        Set<String> missingTiplocs = missingStations.report(logger);
+        missingTiplocs.stream().
+                filter(tiplocInsertRecords::containsKey).
+                map(tiplocInsertRecords::get).
+                forEach(record -> logger.info("Had record for missing tiploc: "+record));
     }
 
     private enum State {
@@ -157,10 +154,10 @@ public class RailTimetableMapper {
 
         private final TransportDataContainer container;
         private final Map<String, TIPLOCInsert> tiplocInsertRecords;
-        private final Map<String, Set<RailLocationRecord>> missingStations;
+        private final MissingStations missingStations;
 
         private CreatesTransportDataForRail(TransportDataContainer container, Map<String, TIPLOCInsert> tiplocInsertRecords,
-                                            Map<String, Set<RailLocationRecord>> missingStations) {
+                                            MissingStations missingStations) {
             this.container = container;
             this.tiplocInsertRecords = tiplocInsertRecords;
             this.missingStations = missingStations;
@@ -219,9 +216,10 @@ public class RailTimetableMapper {
 
             // Agency
             MutableAgency mutableAgency = getOrCreateAgency(atocCode);
+            final IdFor<Agency> agencyId = mutableAgency.getId();
 
             // Service
-            MutableService service = getOrCreateService(currentSchedule, schedule);
+            MutableService service = getOrCreateService(schedule);
 
             // Route
             MutableRoute route = getOrCreateRoute(currentSchedule, originLocation, mutableAgency, atocCode);
@@ -234,21 +232,20 @@ public class RailTimetableMapper {
 
             // Stations, Platforms, StopCalls
             int stopSequence = 1;
-            populateForLocation(originLocation, route, trip, stopSequence, false);
+            populateForLocation(originLocation, route, trip, stopSequence, false, agencyId, schedule);
             stopSequence = stopSequence + 1;
             for (int i = 0; i < intermediateLocations.size(); i++) {
-                populateForLocation(intermediateLocations.get(i), route, trip, stopSequence+i, false);
+                populateForLocation(intermediateLocations.get(i), route, trip, stopSequence+i, false, agencyId, schedule);
             }
             stopSequence = stopSequence + intermediateLocations.size();
-            populateForLocation(terminatingLocation, route, trip, stopSequence, true);
-
+            populateForLocation(terminatingLocation, route, trip, stopSequence, true, agencyId, schedule);
         }
 
         private void populateForLocation(RailLocationRecord railLocation, MutableRoute route, MutableTrip trip, int stopSequence,
-                                         boolean lastStop) {
+                                         boolean lastStop, IdFor<Agency> agencyId, BasicSchedule schedule) {
 
             if (!isStation(railLocation)) {
-                missingStationDiagnosticsFor(railLocation);
+                missingStationDiagnosticsFor(railLocation, agencyId, schedule);
                 return;
             }
 
@@ -276,7 +273,7 @@ public class RailTimetableMapper {
             trip.addStop(stopCall);
         }
 
-        private void missingStationDiagnosticsFor(RailLocationRecord railLocation) {
+        private void missingStationDiagnosticsFor(RailLocationRecord railLocation, IdFor<Agency> agencyId, BasicSchedule schedule) {
             final RailRecordType recordType = railLocation.getRecordType();
             boolean intermediate = (recordType==RailRecordType.IntermediateLocation);
             if (intermediate) {
@@ -284,18 +281,7 @@ public class RailTimetableMapper {
             }
 
             String tiplocCode = railLocation.getTiplocCode();
-            if (!missingStations.containsKey(tiplocCode)) {
-                missingStations.put(tiplocCode, new HashSet<>());
-            }
-            missingStations.get(tiplocCode).add(railLocation);
-//            boolean warn = (recordType==RailRecordType.TerminatingLocation) || (recordType==RailRecordType.OriginLocation);
-//            String message = "Tiploc '" + railLocation.getTiplocCode() + "' was not a station at " + railLocation;
-//            if (warn) {
-//                logger.warn(message);
-//            } else {
-//                // passing points etc
-//                logger.debug(message);
-//            }
+            missingStations.record(tiplocCode, railLocation, agencyId, schedule);
         }
 
         private boolean isStation(RailLocationRecord record) {
@@ -381,9 +367,8 @@ public class RailTimetableMapper {
             return route;
         }
 
-        private MutableService getOrCreateService(CurrentSchedule currentSchedule, BasicSchedule schedule) {
+        private MutableService getOrCreateService(BasicSchedule schedule) {
             MutableService service;
-            //final IdFor<Service> serviceId = StringIdFor.createId(currentSchedule.extraDetails.getRetailServiceID());
             final IdFor<Service> serviceId = StringIdFor.createId(schedule.getUniqueTrainId());
             if (container.hasServiceId(serviceId)) {
                 service = container.getMutableService(serviceId);
@@ -423,5 +408,73 @@ public class RailTimetableMapper {
             return format("%s_%s_%s", atocCode, originLocation.getTiplocCode(), terminatingLocation.getTiplocCode());
         }
 
+    }
+
+    private static class MissingStations {
+        private final Map<String, MissingStation> missing;
+
+        private MissingStations() {
+            missing = new HashMap<>();
+        }
+
+        public void record(String tiplocCode, RailLocationRecord railLocation, IdFor<Agency> agencyId, BasicSchedule schedule) {
+            if (!missing.containsKey(tiplocCode)) {
+                missing.put(tiplocCode,new MissingStation(tiplocCode, agencyId, schedule));
+            }
+            missing.get(tiplocCode).addRecord(railLocation);
+        }
+
+        public Set<String> report(Logger logger) {
+            if (missing.isEmpty()) {
+                return Collections.emptySet();
+            }
+            Set<String> tiplocCodes = new HashSet<>();
+            missing.forEach((tiplocCode, missingStation) -> {
+                missingStation.report(logger);
+                tiplocCodes.add(tiplocCode);
+            });
+            return tiplocCodes;
+        }
+    }
+
+    private static class MissingStation {
+        private final String tiplocCode;
+        private final Set<RailLocationRecord> records;
+        private final IdFor<Agency> agencyId;
+        private final BasicSchedule schedule;
+
+        private MissingStation(String tiplocCode, IdFor<Agency> agencyId, BasicSchedule schedule) {
+            this.tiplocCode = tiplocCode;
+            this.agencyId = agencyId;
+            this.schedule = schedule;
+            records = new HashSet<>();
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+
+            MissingStation that = (MissingStation) o;
+
+            if (!tiplocCode.equals(that.tiplocCode)) return false;
+            return agencyId.equals(that.agencyId);
+        }
+
+        @Override
+        public int hashCode() {
+            int result = tiplocCode.hashCode();
+            result = 31 * result + agencyId.hashCode();
+            return result;
+        }
+
+        public void addRecord(RailLocationRecord railLocation) {
+            records.add(railLocation);
+        }
+
+        public void report(Logger logger) {
+            logger.info(format("Missing tiplocCode %s for %s %s in records %s",
+                    tiplocCode, agencyId, schedule, records));
+        }
     }
 }
