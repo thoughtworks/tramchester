@@ -18,7 +18,6 @@ public class IntermediateLocationTest {
         assertEquals(TramTime.of(18,53), intermediateLocation.getPublicArrival());
         assertEquals(TramTime.of(18,54), intermediateLocation.getPublicDeparture());
         assertEquals("123", intermediateLocation.getPlatform());
-        assertTrue(intermediateLocation.hasCallingTimes());
     }
 
     @Test
@@ -28,7 +27,6 @@ public class IntermediateLocationTest {
         IntermediateLocation intermediateLocation = IntermediateLocation.parse(line);
 
         assertEquals("BATRSPJ", intermediateLocation.getTiplocCode());
-        assertFalse(intermediateLocation.hasCallingTimes());
     }
 
     @Test
@@ -39,5 +37,24 @@ public class IntermediateLocationTest {
 
         assertEquals(7, intermediateLocation.getTiplocCode().length());
         assertEquals("KEWGRDN", intermediateLocation.getTiplocCode());
+    }
+
+    @Test
+    void shouldParseCorrectlyWhenNoPublicArrivalOrDepart() {
+        // LIFARE825 1242H1246H     00000000         OPA
+
+        // from TI insert record
+        // TIFARE82500590001EFAREHAM SIGNAL E825       86238   0
+
+        // from railway codes
+        // Location 	            CRS 	NLC 	    TIPLOC 	    STANME 	    STANOX
+        // Fareham Signal E825              590001      FARE825     FAREHM825   86238
+
+        String line = "LIFARE825 1242H1246H     00000000         OPA";
+
+        IntermediateLocation intermediateLocation = IntermediateLocation.parse(line);
+
+        assertEquals(7, intermediateLocation.getTiplocCode().length());
+        assertEquals("FARE825", intermediateLocation.getTiplocCode());
     }
 }

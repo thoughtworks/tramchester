@@ -11,11 +11,9 @@ import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.MutableStation;
 import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
-import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.reference.GTFSPickupDropoffType;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramTime;
-import com.tramchester.geo.GridPosition;
 import com.tramchester.repository.TransportDataContainer;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
@@ -30,15 +28,19 @@ import static com.tramchester.domain.reference.GTFSPickupDropoffType.Regular;
 import static java.lang.String.format;
 
 public class RailTimetableMapper {
+    private static final Logger logger = LoggerFactory.getLogger(RailTimetableMapper.class);
+
     private State currentState;
     private CurrentSchedule currentSchedule;
     private final CreatesTransportDataForRail processor;
     private final Map<String,TIPLOCInsert> tiplocInsertRecords;
+    private final Map<String, Set<RailLocationRecord>> missingStations;
 
     public RailTimetableMapper(TransportDataContainer container) {
         currentState = State.Between;
         tiplocInsertRecords = new HashMap<>();
-        processor = new CreatesTransportDataForRail(container, tiplocInsertRecords);
+        missingStations = new HashMap<>();
+        processor = new CreatesTransportDataForRail(container, tiplocInsertRecords, missingStations);
     }
 
     public void seen(RailTimetableRecord record) {
@@ -95,6 +97,18 @@ public class RailTimetableMapper {
         }
     }
 
+    public void reportDiagnostics() {
+        if (missingStations.isEmpty()) {
+            return;
+        }
+        missingStations.forEach((tiploc, records) -> {
+            logger.warn("Missing tiploc " + tiploc + " for records " + records);
+            if (tiplocInsertRecords.containsKey(tiploc)) {
+                logger.info("Found TI record: " + tiplocInsertRecords.get(tiploc));
+            }
+        });
+    }
+
     private enum State {
         SeenSchedule,
         SeenScheduleExtra,
@@ -143,10 +157,13 @@ public class RailTimetableMapper {
 
         private final TransportDataContainer container;
         private final Map<String, TIPLOCInsert> tiplocInsertRecords;
+        private final Map<String, Set<RailLocationRecord>> missingStations;
 
-        private CreatesTransportDataForRail(TransportDataContainer container, Map<String, TIPLOCInsert> tiplocInsertRecords) {
+        private CreatesTransportDataForRail(TransportDataContainer container, Map<String, TIPLOCInsert> tiplocInsertRecords,
+                                            Map<String, Set<RailLocationRecord>> missingStations) {
             this.container = container;
             this.tiplocInsertRecords = tiplocInsertRecords;
+            this.missingStations = missingStations;
         }
 
         public void consume(CurrentSchedule currentSchedule) {
@@ -230,8 +247,8 @@ public class RailTimetableMapper {
         private void populateForLocation(RailLocationRecord railLocation, MutableRoute route, MutableTrip trip, int stopSequence,
                                          boolean lastStop) {
 
-            if (!railLocation.hasCallingTimes()) {
-                logger.debug("No calling times, will skip " + railLocation);
+            if (!isStation(railLocation)) {
+                missingStationDiagnosticsFor(railLocation);
                 return;
             }
 
@@ -259,27 +276,43 @@ public class RailTimetableMapper {
             trip.addStop(stopCall);
         }
 
-        private MutableStation getStationFor(RailLocationRecord railLocation) {
-            final String tiplocCode = railLocation.getTiplocCode();
+        private void missingStationDiagnosticsFor(RailLocationRecord railLocation) {
+            final RailRecordType recordType = railLocation.getRecordType();
+            boolean intermediate = (recordType==RailRecordType.IntermediateLocation);
+            if (intermediate) {
+                return;
+            }
+
+            String tiplocCode = railLocation.getTiplocCode();
+            if (!missingStations.containsKey(tiplocCode)) {
+                missingStations.put(tiplocCode, new HashSet<>());
+            }
+            missingStations.get(tiplocCode).add(railLocation);
+//            boolean warn = (recordType==RailRecordType.TerminatingLocation) || (recordType==RailRecordType.OriginLocation);
+//            String message = "Tiploc '" + railLocation.getTiplocCode() + "' was not a station at " + railLocation;
+//            if (warn) {
+//                logger.warn(message);
+//            } else {
+//                // passing points etc
+//                logger.debug(message);
+//            }
+        }
+
+        private boolean isStation(RailLocationRecord record) {
+            final String tiplocCode = record.getTiplocCode();
+            IdFor<Station> stationId = StringIdFor.createId(tiplocCode);
+            return container.hasStationId(stationId);
+        }
+
+        private MutableStation getStationFor(RailLocationRecord record) {
+            final String tiplocCode = record.getTiplocCode();
             IdFor<Station> stationId = StringIdFor.createId(tiplocCode);
             MutableStation station;
             if (!container.hasStationId(stationId)) {
-                if (tiplocInsertRecords.containsKey(tiplocCode)) {
-                    logger.info(format("Using tiploc insert to create station for %s and %s", stationId, railLocation));
-                    station = createStationFrom(stationId, tiplocInsertRecords.get(tiplocCode));
-                } else {
-                    throw new RuntimeException(format("Missing stationid %s encountered for %s", stationId, railLocation));
-                }
+                    throw new RuntimeException(format("Missing stationid %s encountered for %s", stationId, record));
             } else {
                 station = container.getMutableStation(stationId);
             }
-            return station;
-        }
-
-        private MutableStation createStationFrom(IdFor<Station> stationId, TIPLOCInsert tiplocInsert) {
-            MutableStation station = new MutableStation(stationId, "", tiplocInsert.getName(), LatLong.Invalid,
-                    GridPosition.Invalid, DataSourceID.rail);
-            container.addStation(station);
             return station;
         }
 
@@ -364,9 +397,26 @@ public class RailTimetableMapper {
         }
 
         private String createRouteName(OriginLocation originLocation, TerminatingLocation terminatingLocation, String atocCode) {
-            Station start = getStationFor(originLocation);
-            Station end = getStationFor(terminatingLocation);
-            return format("%s service from %s to %s", atocCode, start.getName(), end.getName());
+            final String startName = getNameForRoute(originLocation);
+            final String endName = getNameForRoute(terminatingLocation);
+            return format("%s service from %s to %s", atocCode, startName, endName);
+        }
+
+        private String getNameForRoute(RailLocationRecord originLocation) {
+            String name;
+            if (isStation(originLocation)) {
+                Station start = getStationFor(originLocation);
+                 name = start.getName();
+            } else {
+                final String tiplocCode = originLocation.getTiplocCode();
+                if (tiplocInsertRecords.containsKey(tiplocCode)) {
+                    name = tiplocInsertRecords.get(tiplocCode).getName();
+                } else {
+                    logger.warn("Cannot find name for " + tiplocCode);
+                    name = tiplocCode;
+                }
+            }
+            return name;
         }
 
         private String createRouteShortName(OriginLocation originLocation, TerminatingLocation terminatingLocation, String atocCode) {

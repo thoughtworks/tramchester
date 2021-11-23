@@ -10,26 +10,42 @@ public class TerminatingLocationTest {
 
     // LTWLWYNGC 1918 19184     TF
     // LTUPMNLT 21022H1023      TF
+    // LTDRBY    0825 0825   BUSTF
+    // 0123456789012345678901234567890
 
     @Test
     void shouldParseRecord() {
-        String line = "LTWLWYNGC 1918 19184     TF";
+        String text = "LTWLWYNGC 1918 19184     TF";
 
-        TerminatingLocation terminatingLocation = TerminatingLocation.parse(line);
+        TerminatingLocation terminatingLocation = TerminatingLocation.parse(text);
 
         assertEquals("WLWYNGC", terminatingLocation.getTiplocCode());
         assertEquals(TramTime.of(19,18), terminatingLocation.getPublicArrival());
         assertEquals("4", terminatingLocation.getPlatform());
+        assertEquals("", terminatingLocation.getPath());
     }
 
     @Test
     void shouldParseRecordFromFile() {
-        String line = "LTUPMNLT 21022H1023      TF";
+        String text = "LTUPMNLT 21022H1023      TF";
 
-        TerminatingLocation terminatingLocation = TerminatingLocation.parse(line);
+        TerminatingLocation terminatingLocation = TerminatingLocation.parse(text);
 
         assertEquals("UPMNLT", terminatingLocation.getTiplocCode());
         assertEquals(TramTime.of(10,23), terminatingLocation.getPublicArrival());
         assertEquals("", terminatingLocation.getPlatform());
+        assertEquals("", terminatingLocation.getPath());
+    }
+
+    @Test
+    void shouldParseRecordBus() {
+        String text =  "LTDRBY    0825 0825   BUSTF           ";
+
+        TerminatingLocation terminatingLocation = TerminatingLocation.parse(text);
+
+        assertEquals("DRBY", terminatingLocation.getTiplocCode());
+        assertEquals(TramTime.of(8,25), terminatingLocation.getPublicArrival());
+        assertEquals("", terminatingLocation.getPlatform());
+        assertEquals("BUS", terminatingLocation.getPath());
     }
 }

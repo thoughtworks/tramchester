@@ -56,6 +56,7 @@ public class LoadRailTransportData implements TransportDataFactory {
         RailTimetableMapper mapper = new RailTimetableMapper(dataContainer);
         recordStream.forEach(mapper::seen);
         dataContainer.reportNumbers();
+        mapper.reportDiagnostics();
     }
 
     private void addStations(Stream<PhysicalStationRecord> physicalRecords) {

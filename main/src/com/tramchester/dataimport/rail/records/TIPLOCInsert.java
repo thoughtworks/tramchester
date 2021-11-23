@@ -43,4 +43,12 @@ public class TIPLOCInsert implements RailTimetableRecord {
     public String getName() {
         return name;
     }
+
+    @Override
+    public String toString() {
+        return "TIPLOCInsert{" +
+                "tiplocCode='" + tiplocCode + '\'' +
+                ", name='" + name + '\'' +
+                '}';
+    }
 }

@@ -26,23 +26,23 @@ public class RecordHelper {
 
     /***
      *
-     * @param line string to extract record from
+     * @param text string to extract record from
      * @param begin counting from 1, as per docs
      * @param end counting from 1, as per docs
      * @return the extracted record
      */
-    public static String extract(String line, int begin, int end) {
-        return line.substring(begin-1, end-1).trim();
+    public static String extract(String text, int begin, int end) {
+        return text.substring(begin-1, end-1).trim();
     }
 
-    public static LocalDate extractDate(String line, int begin, int end, ProvidesNow providesNow) {
+    public static LocalDate extractDate(String text, int begin, int end, ProvidesNow providesNow) {
         String fullYear = providesNow.getDate().format(century);
-        String rawDateWithCentury = fullYear.substring(0, 2) + extract(line, begin, end);
+        String rawDateWithCentury = fullYear.substring(0, 2) + extract(text, begin, end);
         return LocalDate.parse(rawDateWithCentury, dateFormat);
     }
 
-    public static TramTime extractTime(String line, int begin, int end) {
-        String rawTime = line.substring(begin, end);
+    public static TramTime extractTime(String text, int begin, int end) {
+        String rawTime = text.substring(begin, end);
         if (rawTime.length()!=4) {
             final String message = "Wrong length for time";
             logger.error(message);

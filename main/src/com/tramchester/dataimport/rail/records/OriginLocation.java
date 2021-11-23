@@ -15,13 +15,17 @@ package com.tramchester.dataimport.rail.records;
 import com.tramchester.dataimport.rail.RailRecordType;
 import com.tramchester.domain.time.TramTime;
 
-public class OriginLocation extends OriginOrTerminatingLocation  implements RailTimetableRecord, RailLocationRecord {
-    public OriginLocation(String tiplocCode, TramTime publicDeptTime, String platform) {
+public class OriginLocation extends OriginOrTerminatingLocation  implements RailLocationRecord {
+    private final String line;
+
+    public OriginLocation(String tiplocCode, TramTime publicDeptTime, String platform, String line) {
         super(tiplocCode, publicDeptTime, platform);
+        this.line = line;
     }
 
-    public static OriginLocation parse(String line) {
-        return OriginOrTerminatingLocation.parse(line, OriginLocation::new);
+    public static OriginLocation parse(String text) {
+        String line = RecordHelper.extract(text, 23,25+1);
+        return OriginOrTerminatingLocation.parse(text, new Creator(line));
     }
 
     @Override
@@ -40,12 +44,44 @@ public class OriginLocation extends OriginOrTerminatingLocation  implements Rail
     }
 
     @Override
-    public boolean hasCallingTimes() {
-        return true;
+    public String toString() {
+        return "OriginLocation{" +
+                "line='" + line + '\'' +
+                "} " + super.toString();
     }
 
     @Override
-    public String toString() {
-        return "OriginLocation{} " + super.toString();
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        if (!super.equals(o)) return false;
+
+        OriginLocation that = (OriginLocation) o;
+
+        return line.equals(that.line);
+    }
+
+    @Override
+    public int hashCode() {
+        int result = super.hashCode();
+        result = 31 * result + line.hashCode();
+        return result;
+    }
+
+    public String getLine() {
+        return line;
+    }
+
+    private static class Creator implements Constructor<OriginLocation> {
+        private final String line;
+
+        private Creator(String line) {
+            this.line = line;
+        }
+
+        @Override
+        public OriginLocation create(String tiplocCode, TramTime tramTime, String platform) {
+            return new OriginLocation(tiplocCode, tramTime, platform, line);
+        }
     }
 }

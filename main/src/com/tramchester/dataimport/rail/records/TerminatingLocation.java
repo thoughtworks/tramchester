@@ -12,14 +12,18 @@ package com.tramchester.dataimport.rail.records;
 import com.tramchester.dataimport.rail.RailRecordType;
 import com.tramchester.domain.time.TramTime;
 
-public class TerminatingLocation extends OriginOrTerminatingLocation implements RailTimetableRecord, RailLocationRecord {
+public class TerminatingLocation extends OriginOrTerminatingLocation implements RailLocationRecord {
 
-    protected TerminatingLocation(String tiplocCode, TramTime publicDeptTime, String platform) {
+    private final String path;
+
+    protected TerminatingLocation(String tiplocCode, TramTime publicDeptTime, String platform, String path) {
         super(tiplocCode, publicDeptTime, platform);
+        this.path = path;
     }
 
-    public static TerminatingLocation parse(String line) {
-        return OriginOrTerminatingLocation.parse(line, TerminatingLocation::new);
+    public static TerminatingLocation parse(String text) {
+        String path = RecordHelper.extract(text,23, 25+1);
+        return OriginOrTerminatingLocation.parse(text, new Creator(path));
     }
 
     @Override
@@ -28,13 +32,15 @@ public class TerminatingLocation extends OriginOrTerminatingLocation implements 
     }
 
     @Override
-    public TramTime getPublicDeparture() {
-        return super.getPublicTime();
+    public String toString() {
+        return "TerminatingLocation{" +
+                "path='" + path + '\'' +
+                "} " + super.toString();
     }
 
     @Override
-    public boolean hasCallingTimes() {
-        return true;
+    public TramTime getPublicDeparture() {
+        return super.getPublicTime();
     }
 
     @Override
@@ -42,8 +48,40 @@ public class TerminatingLocation extends OriginOrTerminatingLocation implements 
         return RailRecordType.TerminatingLocation;
     }
 
-    @Override
-    public String toString() {
-        return "TerminatingLocation{} " + super.toString();
+    public String getPath() {
+        return path;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        if (!super.equals(o)) return false;
+
+        TerminatingLocation that = (TerminatingLocation) o;
+
+        return path.equals(that.path);
+    }
+
+    @Override
+    public int hashCode() {
+        int result = super.hashCode();
+        result = 31 * result + path.hashCode();
+        return result;
+    }
+
+    private static class Creator implements Constructor<TerminatingLocation> {
+
+        private final String path;
+
+        public Creator(String path) {
+            this.path = path;
+        }
+
+        @Override
+        public TerminatingLocation create(String tiplocCode, TramTime tramTime, String platform) {
+            return new TerminatingLocation(tiplocCode, tramTime, platform, path);
+        }
+    }
+
 }
