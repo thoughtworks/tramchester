@@ -1,6 +1,6 @@
 package com.tramchester.unit.domain;
 
-import com.tramchester.domain.ServiceCalendar;
+import com.tramchester.domain.MutableServiceCalendar;
 import com.tramchester.testSupport.TestEnv;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -10,7 +10,7 @@ import java.time.LocalDate;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class ServiceCalendarTest {
+class MutableServiceCalendarTest {
 
     // TODO CalendarDates seen but no calendar??
 
@@ -20,7 +20,7 @@ class ServiceCalendarTest {
         LocalDate startDate = LocalDate.of(2014, 10, 5);
         LocalDate endDate = LocalDate.of(2014, 12, 25);
 
-        ServiceCalendar serviceCalendar = new ServiceCalendar(startDate, endDate, TestEnv.allDays());
+        MutableServiceCalendar serviceCalendar = new MutableServiceCalendar(startDate, endDate, TestEnv.allDays());
 
         assertTrue(serviceCalendar.operatesOn(startDate));
         assertTrue(serviceCalendar.operatesOn(endDate));
@@ -36,7 +36,7 @@ class ServiceCalendarTest {
         LocalDate startDate = LocalDate.of(2020, 10, 5);
         LocalDate endDate = LocalDate.of(2020, 12, 10);
 
-        ServiceCalendar serviceCalendar = new ServiceCalendar(startDate, endDate, TestEnv.allDays());
+        MutableServiceCalendar serviceCalendar = new MutableServiceCalendar(startDate, endDate, TestEnv.allDays());
 
         LocalDate queryDate = LocalDate.of(2020, 12, 1);
         assertTrue(serviceCalendar.operatesOn(queryDate));
@@ -53,7 +53,7 @@ class ServiceCalendarTest {
         LocalDate testDay = TestEnv.testDay();
 
         DayOfWeek dayOfWeek = testDay.getDayOfWeek();
-        ServiceCalendar serviceCalendar = new ServiceCalendar(startDate, endDate, dayOfWeek);
+        MutableServiceCalendar serviceCalendar = new MutableServiceCalendar(startDate, endDate, dayOfWeek);
 
         assertTrue(serviceCalendar.operatesOn(testDay));
 
@@ -75,7 +75,7 @@ class ServiceCalendarTest {
     @Test
     void shouldSetWeekendDaysOnService() {
 
-        ServiceCalendar serviceCalendar = new ServiceCalendar(TestEnv.LocalNow().toLocalDate(), TestEnv.testDay().plusWeeks(2),
+        MutableServiceCalendar serviceCalendar = new MutableServiceCalendar(TestEnv.LocalNow().toLocalDate(), TestEnv.testDay().plusWeeks(2),
                 DayOfWeek.SATURDAY, DayOfWeek.SUNDAY);
 
         Assertions.assertFalse(serviceCalendar.operatesOn(TestEnv.testDay().plusWeeks(1)));

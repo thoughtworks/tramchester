@@ -215,7 +215,7 @@ class TransportDataFromFilesBusTest {
 
         applyToCurrentServices.forEach(exception -> {
             Service service = transportData.getServiceById(exception.getServiceId());
-            ServiceCalendar calendar = service.getCalendar();
+            MutableServiceCalendar calendar = service.getCalendar();
 
             LocalDate exceptionDate = exception.getDate();
             int exceptionType = exception.getExceptionType();

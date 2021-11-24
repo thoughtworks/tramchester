@@ -4,7 +4,7 @@ import com.tramchester.config.GTFSSourceConfig;
 import com.tramchester.dataimport.data.CalendarDateData;
 import com.tramchester.domain.MutableService;
 import com.tramchester.domain.Service;
-import com.tramchester.domain.ServiceCalendar;
+import com.tramchester.domain.MutableServiceCalendar;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdMap;
 import com.tramchester.domain.id.IdSet;
@@ -78,7 +78,7 @@ public class CalendarDateLoader {
 
     }
 
-    private void addException(CalendarDateData date, ServiceCalendar calendar, IdFor<Service> serviceId, Set<LocalDate> noServices) {
+    private void addException(CalendarDateData date, MutableServiceCalendar calendar, IdFor<Service> serviceId, Set<LocalDate> noServices) {
         int exceptionType = date.getExceptionType();
         LocalDate exceptionDate = date.getDate();
         if (exceptionType == CalendarDateData.ADDED) {

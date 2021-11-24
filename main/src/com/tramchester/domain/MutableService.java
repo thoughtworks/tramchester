@@ -10,7 +10,7 @@ import java.util.Objects;
 public class MutableService implements Service {
 
     private final IdFor<Service> serviceId;
-    private ServiceCalendar calendar;
+    private MutableServiceCalendar calendar;
 
     public MutableService(IdFor<Service> serviceId) {
         this.serviceId = serviceId;
@@ -58,7 +58,7 @@ public class MutableService implements Service {
         return GraphPropertyKey.SERVICE_ID;
     }
 
-    public void setCalendar(ServiceCalendar serviceCalendar) {
+    public void setCalendar(MutableServiceCalendar serviceCalendar) {
         if (this.calendar!=null) {
             throw new RuntimeException("Attempt to overwrite calendar for service " + this.serviceId + " overwrite was " + serviceCalendar);
         }
@@ -66,7 +66,7 @@ public class MutableService implements Service {
     }
 
     @Override
-    public ServiceCalendar getCalendar() {
+    public MutableServiceCalendar getCalendar() {
         return calendar;
     }
 

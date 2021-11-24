@@ -64,8 +64,8 @@ public abstract class TransportEntityFactory {
         return new NoPlatformStopCall(trip, station, stopTimeData);
     }
 
-    public ServiceCalendar createServiceCalendar(CalendarData calendarData) {
-        return new ServiceCalendar(calendarData);
+    public MutableServiceCalendar createServiceCalendar(CalendarData calendarData) {
+        return new MutableServiceCalendar(calendarData);
     }
 
     public GTFSTransportationType getRouteType(RouteData routeData, IdFor<Agency> agencyId) {

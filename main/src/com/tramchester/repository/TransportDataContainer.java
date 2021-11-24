@@ -246,7 +246,7 @@ public class TransportDataContainer implements TransportData, WriteableTransport
     public IdSet<Service> getServicesWithZeroDays() {
         IdSet<Service> noDayServices = new IdSet<>();
         services.getValues().stream().filter(MutableService::hasCalendar).forEach(service -> {
-                    ServiceCalendar calendar = service.getCalendar();
+                    MutableServiceCalendar calendar = service.getCalendar();
                     if (calendar.operatesNoDays()) {
                         // feedvalidator flags these as warnings also
                         noDayServices.add(service.getId());

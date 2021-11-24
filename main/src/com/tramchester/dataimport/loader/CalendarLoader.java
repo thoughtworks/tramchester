@@ -3,7 +3,7 @@ package com.tramchester.dataimport.loader;
 import com.tramchester.dataimport.data.CalendarData;
 import com.tramchester.domain.MutableService;
 import com.tramchester.domain.Service;
-import com.tramchester.domain.ServiceCalendar;
+import com.tramchester.domain.MutableServiceCalendar;
 import com.tramchester.domain.factory.TransportEntityFactory;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdMap;
@@ -38,7 +38,7 @@ public class CalendarLoader {
             if (service != null) {
                 countCalendars.getAndIncrement();
                 missingCalendar.remove(serviceId);
-                ServiceCalendar serviceCalendar = factory.createServiceCalendar(calendarData);
+                MutableServiceCalendar serviceCalendar = factory.createServiceCalendar(calendarData);
                 service.setCalendar(serviceCalendar);
             } else {
                 // legit, we filter services based on the route transport mode

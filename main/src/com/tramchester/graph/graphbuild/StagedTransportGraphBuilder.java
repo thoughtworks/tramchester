@@ -37,6 +37,7 @@ import java.util.stream.Stream;
 import static com.tramchester.graph.TransportRelationshipTypes.*;
 import static com.tramchester.graph.graphbuild.GraphLabel.INTERCHANGE;
 import static com.tramchester.graph.graphbuild.GraphProps.*;
+import static java.lang.String.format;
 import static org.neo4j.graphdb.Direction.OUTGOING;
 
 @LazySingleton
@@ -316,11 +317,13 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
             IdFor<Station> beginId = leg.getFirstStation().getId();
             IdFor<Station> endId = leg.getSecondStation().getId();
             if (!routeBuilderCache.hasRouteStation(route, beginId)) {
-                String message = "Missing route station in cache for " + route + leg.getFirst();
+                String message = format("Missing first route station (%s, %s) in cache for %s and %s",
+                        route.getId(), beginId, route, leg.getFirst());
                 throw new RuntimeException(message);
             }
             if (!routeBuilderCache.hasRouteStation(route, endId)) {
-                String message = "Missing route station in cache for " + route + leg.getSecond();
+                String message = format("Missing second route station (%s, %s) in cache for %s and %s",
+                        route.getId(), beginId, route, leg.getFirst());
                 throw new RuntimeException(message);
             }
             Node startNode = routeBuilderCache.getRouteStation(tx, route, beginId);

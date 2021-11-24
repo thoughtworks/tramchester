@@ -111,9 +111,9 @@ public class MixedTransportTestDataFactory implements TransportDataFactory {
         LocalDate startDate = LocalDate.of(2014, 2, 10);
         LocalDate endDate = LocalDate.of(2020, 8, 15);
 
-        ServiceCalendar serviceCalendarA = new ServiceCalendar(startDate, endDate, DayOfWeek.MONDAY);
-        ServiceCalendar serviceCalendarB = new ServiceCalendar(startDate, endDate, DayOfWeek.MONDAY);
-        ServiceCalendar serviceCalendarC = new ServiceCalendar(startDate, endDate, DayOfWeek.MONDAY);
+        MutableServiceCalendar serviceCalendarA = new MutableServiceCalendar(startDate, endDate, DayOfWeek.MONDAY);
+        MutableServiceCalendar serviceCalendarB = new MutableServiceCalendar(startDate, endDate, DayOfWeek.MONDAY);
+        MutableServiceCalendar serviceCalendarC = new MutableServiceCalendar(startDate, endDate, DayOfWeek.MONDAY);
 
         serviceA.setCalendar(serviceCalendarA);
         serviceB.setCalendar(serviceCalendarB);

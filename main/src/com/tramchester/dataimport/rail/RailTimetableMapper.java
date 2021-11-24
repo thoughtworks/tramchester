@@ -202,13 +202,12 @@ public class RailTimetableMapper {
 
         }
 
-
         public void overlay(RawService rawService) {
             BasicSchedule basicSchedule = rawService.basicScheduleRecord;
             final IdFor<Service> serviceId = getServiceIdFor(basicSchedule);
             final Service service = container.getServiceById(serviceId);
-            if (service ==null) {
-                logger.warn("Overlay found for service, but existing service not found " + serviceId);
+            if (service == null) {
+                logger.warn(format("Overlay, but missing service '%s' %s", basicSchedule, serviceId));
             }
             consume(rawService); // service Id will match so will overwrite existing service record
         }
@@ -226,16 +225,16 @@ public class RailTimetableMapper {
             if (container.hasServiceId(serviceId)) {
                 logger.debug("Making cancellations for schedule " + basicSchedule.getUniqueTrainId());
                 Service service = container.getMutableService(serviceId);
-                ServiceCalendar calendar = service.getCalendar();
+                MutableServiceCalendar calendar = service.getCalendar();
                 addServiceExceptions(calendar, basicSchedule.getStartDate(), basicSchedule.getEndDate(), basicSchedule.getDaysOfWeek());
             } else {
                 if (!skippedServices.contains(serviceId)) {
-                    logger.warn("Failed to find service to amend for " + basicSchedule);
+                    logger.warn(format("Failed to find service %s to amend for %s", serviceId, basicSchedule));
                 }
             }
         }
 
-        private void addServiceExceptions(ServiceCalendar calendar, LocalDate startDate, LocalDate endDate, Set<DayOfWeek> excludedDays) {
+        private void addServiceExceptions(MutableServiceCalendar calendar, LocalDate startDate, LocalDate endDate, Set<DayOfWeek> excludedDays) {
             LocalDate current = startDate;
             while (!current.isAfter(endDate)) {
                 if (excludedDays.contains(current.getDayOfWeek())) {
@@ -430,7 +429,7 @@ public class RailTimetableMapper {
                 service = container.getMutableService(serviceId);
             } else {
                 service = new MutableService(serviceId);
-                ServiceCalendar calendar = new ServiceCalendar(schedule.getStartDate(), schedule.getEndDate(), schedule.getDaysOfWeek());
+                MutableServiceCalendar calendar = new MutableServiceCalendar(schedule.getStartDate(), schedule.getEndDate(), schedule.getDaysOfWeek());
                 service.setCalendar(calendar);
                 container.addService(service);
             }
