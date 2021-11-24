@@ -143,17 +143,13 @@ public class LoadTransportDataTest {
 
     }
 
-    // BSNC675592112182203120000010 POO2H54    113560015 EMU    075D     S            P
-    // BSNC675592112252201010000010            1                                      C
-    // BSNC675592205142205140000010 POO2H54    113560015 EMU    075D     S            P
-
     @Test
     void shouldHaveRouteStation() {
 
         // MixedCompositeId{Id{'SN:HYWRDSH=>POLGATE'},Id{'HMPDNPK'}}
 
-        IdFor<Route> routeId = StringIdFor.createId("SW:CLPHMJW=>STRWBYH");
-        IdFor<Station> stationId = StringIdFor.createId("WATRLMN");
+        IdFor<Route> routeId = StringIdFor.createId("SN:HYWRDSH=>POLGATE");
+        IdFor<Station> stationId = StringIdFor.createId("HMPDNPK");
 
         Route route = transportData.getRouteById(routeId);
         assertNotNull(route);

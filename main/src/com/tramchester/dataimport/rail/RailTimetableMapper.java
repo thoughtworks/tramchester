@@ -50,7 +50,7 @@ public class RailTimetableMapper {
 
     private State currentState;
     private boolean overlay;
-    private CurrentSchedule currentSchedule;
+    private RawService rawService;
     private final CreatesTransportDataForRail processor;
     private final Map<String,TIPLOCInsert> tiplocInsertRecords;
     private final MissingStations missingStations;
@@ -82,30 +82,29 @@ public class RailTimetableMapper {
 
     private void seenExtraInfo(RailTimetableRecord record) {
         guardState(State.SeenSchedule, record);
-        currentSchedule.addScheduleExtra(record);
+        rawService.addScheduleExtra(record);
         currentState = State.SeenScheduleExtra;
     }
 
     private void seenIntermediate(RailTimetableRecord record) {
         guardState(State.SeenOrigin, record);
-        currentSchedule.addIntermediate(record);
+        rawService.addIntermediate(record);
     }
 
     private void seenOrigin(RailTimetableRecord record) {
         guardState(State.SeenScheduleExtra, record);
-        currentSchedule.addOrigin(record);
+        rawService.addOrigin(record);
         currentState = State.SeenOrigin;
     }
 
     private void seenEnd(RailTimetableRecord record) {
         guardState(State.SeenOrigin, record);
-        currentSchedule.finish(record);
+        rawService.finish(record);
         if (overlay) {
-            processor.overlay(currentSchedule);
+            processor.overlay(rawService);
         } else {
-            processor.consume(currentSchedule);
+            processor.consume(rawService);
         }
-        processor.consume(currentSchedule);
         currentState = State.Between;
         overlay = false;
     }
@@ -114,7 +113,7 @@ public class RailTimetableMapper {
         BasicSchedule basicSchedule = (BasicSchedule) record;
         guardState(State.Between, record);
 
-        currentSchedule = new CurrentSchedule(basicSchedule);
+        rawService = new RawService(basicSchedule);
 
         switch (basicSchedule.getSTPIndicator()) {
             case Cancellation -> {
@@ -145,7 +144,7 @@ public class RailTimetableMapper {
         }
     }
 
-    private static class CurrentSchedule {
+    private static class RawService {
 
         private final BasicSchedule basicScheduleRecord;
         private final List<IntermediateLocation> intermediateLocations;
@@ -153,7 +152,7 @@ public class RailTimetableMapper {
         private TerminatingLocation terminatingLocation;
         private BasicScheduleExtraDetails extraDetails;
 
-        public CurrentSchedule(RailTimetableRecord basicScheduleRecord) {
+        public RawService(RailTimetableRecord basicScheduleRecord) {
             this.basicScheduleRecord = (BasicSchedule) basicScheduleRecord;
             intermediateLocations = new ArrayList<>();
         }
@@ -191,35 +190,35 @@ public class RailTimetableMapper {
             skippedServices = new IdSet<>();
         }
 
-        public void consume(CurrentSchedule currentSchedule) {
-            BasicSchedule basicSchedule = currentSchedule.basicScheduleRecord;
+        public void consume(RawService rawService) {
+            BasicSchedule basicSchedule = rawService.basicScheduleRecord;
 
             switch (basicSchedule.getTransactionType()) {
-                case N -> createNew(currentSchedule);
-                case D -> delete(currentSchedule.basicScheduleRecord);
-                case R -> revise(currentSchedule);
-                case Unknown -> logger.warn("Unknown transaction type for " + currentSchedule.basicScheduleRecord);
+                case N -> createNew(rawService);
+                case D -> delete(rawService.basicScheduleRecord);
+                case R -> revise(rawService);
+                case Unknown -> logger.warn("Unknown transaction type for " + rawService.basicScheduleRecord);
             }
 
         }
 
 
-        public void overlay(CurrentSchedule currentSchedule) {
-            BasicSchedule basicSchedule = currentSchedule.basicScheduleRecord;
+        public void overlay(RawService rawService) {
+            BasicSchedule basicSchedule = rawService.basicScheduleRecord;
             final IdFor<Service> serviceId = getServiceIdFor(basicSchedule);
             final Service service = container.getServiceById(serviceId);
             if (service ==null) {
                 logger.warn("Overlay found for service, but existing service not found " + serviceId);
             }
-            consume(currentSchedule); // service Id will match so will overwrite existing service record
+            consume(rawService); // service Id will match so will overwrite existing service record
         }
 
         private void delete(BasicSchedule basicScheduleRecord) {
             logger.info("Delete schedule " + basicScheduleRecord);
         }
 
-        private void revise(CurrentSchedule currentSchedule) {
-            logger.info("Revise schedule " + currentSchedule);
+        private void revise(RawService rawService) {
+            logger.info("Revise schedule " + rawService);
         }
 
         private void recordCancellations(BasicSchedule basicSchedule) {
@@ -246,30 +245,30 @@ public class RailTimetableMapper {
             }
         }
 
-        private void createNew(CurrentSchedule currentSchedule) {
-            final BasicSchedule schedule = currentSchedule.basicScheduleRecord;
-            TrainCategory cat = schedule.getTrainCategory();
-            final String uniqueTrainId = schedule.getUniqueTrainId();
+        private void createNew(RawService rawService) {
+            final BasicSchedule basicSchedule = rawService.basicScheduleRecord;
+            TrainCategory cat = basicSchedule.getTrainCategory();
+            final String uniqueTrainId = basicSchedule.getUniqueTrainId();
             if (cat==TrainCategory.LondonUndergroundOrMetroService || cat==TrainCategory.BusService) {
-                logger.debug(format("Skipping %s of category %s and status %s", uniqueTrainId, schedule.getTrainCategory(),
-                        schedule.getTrainStatus()));
-                skippedServices.add(getServiceIdFor(schedule));
+                logger.debug(format("Skipping %s of category %s and status %s", uniqueTrainId, basicSchedule.getTrainCategory(),
+                        basicSchedule.getTrainStatus()));
+                skippedServices.add(getServiceIdFor(basicSchedule));
                 return;
             }
 
-            final OriginLocation originLocation = currentSchedule.originLocation;
-            final List<IntermediateLocation> intermediateLocations = currentSchedule.intermediateLocations;
-            final TerminatingLocation terminatingLocation = currentSchedule.terminatingLocation;
+            final OriginLocation originLocation = rawService.originLocation;
+            final List<IntermediateLocation> intermediateLocations = rawService.intermediateLocations;
+            final TerminatingLocation terminatingLocation = rawService.terminatingLocation;
 
             logger.debug("Create schedule for " + uniqueTrainId);
-            final String atocCode = currentSchedule.extraDetails.getAtocCode();
+            final String atocCode = rawService.extraDetails.getAtocCode();
 
             // Agency
             MutableAgency mutableAgency = getOrCreateAgency(atocCode);
             final IdFor<Agency> agencyId = mutableAgency.getId();
 
             // Service
-            MutableService service = getOrCreateService(schedule);
+            MutableService service = getOrCreateService(basicSchedule);
 
             // Route
             MutableRoute route = getOrCreateRoute(originLocation, terminatingLocation, mutableAgency, atocCode);
@@ -277,19 +276,19 @@ public class RailTimetableMapper {
             mutableAgency.addRoute(route);
 
             // Trip
-            MutableTrip trip = getOrCreateTrip(schedule, service, route);
+            MutableTrip trip = getOrCreateTrip(basicSchedule, service, route);
             route.addTrip(trip);
 
             // Stations, Platforms, StopCalls
             int stopSequence = 1;
-            populateForLocation(originLocation, route, trip, stopSequence, false, agencyId, schedule);
+            populateForLocation(originLocation, route, trip, stopSequence, false, agencyId, basicSchedule);
             stopSequence = stopSequence + 1;
             for (IntermediateLocation intermediateLocation : intermediateLocations) {
-                if (populateForLocation(intermediateLocation, route, trip, stopSequence, false, agencyId, schedule)) {
+                if (populateForLocation(intermediateLocation, route, trip, stopSequence, false, agencyId, basicSchedule)) {
                     stopSequence = stopSequence + 1;
                 }
             }
-            populateForLocation(terminatingLocation, route, trip, stopSequence, true, agencyId, schedule);
+            populateForLocation(terminatingLocation, route, trip, stopSequence, true, agencyId, basicSchedule);
         }
 
         private boolean populateForLocation(RailLocationRecord railLocation, MutableRoute route, MutableTrip trip, int stopSequence,
@@ -394,7 +393,7 @@ public class RailTimetableMapper {
             MutableTrip trip;
             IdFor<Trip> tripId = createTripIdFor(schedule);
             if (container.hasTripId(tripId)) {
-                logger.info("Had existing tripId: " + tripId);
+                logger.info("Had existing tripId: " + tripId + " for " + schedule);
                 trip = container.getMutableTrip(tripId);
             } else {
                 trip = new MutableTrip(tripId, schedule.getTrainIdentity(), service, route);
