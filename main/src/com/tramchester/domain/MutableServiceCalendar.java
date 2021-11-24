@@ -9,7 +9,6 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
-// TODO Extract readonly interface
 public class MutableServiceCalendar implements ServiceCalendar {
     private final LocalDate startDate;
     private final LocalDate endDate;
@@ -122,6 +121,7 @@ public class MutableServiceCalendar implements ServiceCalendar {
         }
     }
 
+    @Override
     public boolean operatesNoDays() {
         return days.isEmpty() && additional.isEmpty();
     }

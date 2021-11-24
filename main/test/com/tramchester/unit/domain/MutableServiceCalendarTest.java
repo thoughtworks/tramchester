@@ -1,6 +1,7 @@
 package com.tramchester.unit.domain;
 
 import com.tramchester.domain.MutableServiceCalendar;
+import com.tramchester.domain.ServiceCalendar;
 import com.tramchester.testSupport.TestEnv;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -20,7 +21,7 @@ class MutableServiceCalendarTest {
         LocalDate startDate = LocalDate.of(2014, 10, 5);
         LocalDate endDate = LocalDate.of(2014, 12, 25);
 
-        MutableServiceCalendar serviceCalendar = new MutableServiceCalendar(startDate, endDate, TestEnv.allDays());
+        ServiceCalendar serviceCalendar = new MutableServiceCalendar(startDate, endDate, TestEnv.allDays());
 
         assertTrue(serviceCalendar.operatesOn(startDate));
         assertTrue(serviceCalendar.operatesOn(endDate));
@@ -75,7 +76,7 @@ class MutableServiceCalendarTest {
     @Test
     void shouldSetWeekendDaysOnService() {
 
-        MutableServiceCalendar serviceCalendar = new MutableServiceCalendar(TestEnv.LocalNow().toLocalDate(), TestEnv.testDay().plusWeeks(2),
+        ServiceCalendar serviceCalendar = new MutableServiceCalendar(TestEnv.LocalNow().toLocalDate(), TestEnv.testDay().plusWeeks(2),
                 DayOfWeek.SATURDAY, DayOfWeek.SUNDAY);
 
         Assertions.assertFalse(serviceCalendar.operatesOn(TestEnv.testDay().plusWeeks(1)));
