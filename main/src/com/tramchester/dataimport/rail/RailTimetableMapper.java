@@ -1,15 +1,14 @@
 package com.tramchester.dataimport.rail;
 
-import com.tramchester.dataimport.data.StopTimeData;
 import com.tramchester.dataimport.rail.records.*;
-import com.tramchester.dataimport.rail.records.reference.ShortTermPlanIndicator;
 import com.tramchester.dataimport.rail.records.reference.TrainCategory;
 import com.tramchester.domain.*;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.input.MutableTrip;
-import com.tramchester.domain.input.PlatformStopCall;
+import com.tramchester.domain.input.RailPlatformStopCall;
+import com.tramchester.domain.input.StopCall;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.MutableStation;
 import com.tramchester.domain.places.RouteStation;
@@ -24,16 +23,33 @@ import org.slf4j.LoggerFactory;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeFormatterBuilder;
 import java.util.*;
 
 import static com.tramchester.domain.reference.GTFSPickupDropoffType.None;
 import static com.tramchester.domain.reference.GTFSPickupDropoffType.Regular;
 import static java.lang.String.format;
+import static java.time.temporal.ChronoField.*;
 
 public class RailTimetableMapper {
     private static final Logger logger = LoggerFactory.getLogger(RailTimetableMapper.class);
 
+    private static final DateTimeFormatter dateFormatter = new DateTimeFormatterBuilder()
+                .parseCaseInsensitive()
+                .appendValue(YEAR, 4)
+                .appendValue(MONTH_OF_YEAR, 2)
+                .appendValue(DAY_OF_MONTH, 2).toFormatter();
+
+    private enum State {
+        SeenSchedule,
+        SeenScheduleExtra,
+        SeenOrigin,
+        Between
+    }
+
     private State currentState;
+    private boolean overlay;
     private CurrentSchedule currentSchedule;
     private final CreatesTransportDataForRail processor;
     private final Map<String,TIPLOCInsert> tiplocInsertRecords;
@@ -41,6 +57,7 @@ public class RailTimetableMapper {
 
     public RailTimetableMapper(TransportDataContainer container) {
         currentState = State.Between;
+        overlay = false;
         tiplocInsertRecords = new HashMap<>();
         missingStations = new MissingStations();
         processor = new CreatesTransportDataForRail(container, tiplocInsertRecords, missingStations);
@@ -83,8 +100,14 @@ public class RailTimetableMapper {
     private void seenEnd(RailTimetableRecord record) {
         guardState(State.SeenOrigin, record);
         currentSchedule.finish(record);
+        if (overlay) {
+            processor.overlay(currentSchedule);
+        } else {
+            processor.consume(currentSchedule);
+        }
         processor.consume(currentSchedule);
         currentState = State.Between;
+        overlay = false;
     }
 
     private void seenBegin(RailTimetableRecord record) {
@@ -92,12 +115,20 @@ public class RailTimetableMapper {
         guardState(State.Between, record);
 
         currentSchedule = new CurrentSchedule(basicSchedule);
-        if (basicSchedule.getSTPIndicator()==ShortTermPlanIndicator.Cancellation) {
-            processor.recordCancellations(basicSchedule);
-            currentState = State.Between;
-        } else {
-            currentState = State.SeenSchedule;
+
+        switch (basicSchedule.getSTPIndicator()) {
+            case Cancellation -> {
+                processor.recordCancellations(basicSchedule);
+                currentState = State.Between;
+            }
+            case New, Permanent -> currentState = State.SeenSchedule;
+            case Overlay -> {
+                overlay = true;
+                currentState = State.SeenSchedule;
+            }
+            default -> logger.warn("Not handling " + basicSchedule);
         }
+
     }
 
     public void reportDiagnostics() {
@@ -106,13 +137,6 @@ public class RailTimetableMapper {
                 filter(tiplocInsertRecords::containsKey).
                 map(tiplocInsertRecords::get).
                 forEach(record -> logger.info("Had record for missing tiploc: "+record));
-    }
-
-    private enum State {
-        SeenSchedule,
-        SeenScheduleExtra,
-        SeenOrigin,
-        Between
     }
 
     private void guardState(State expectedState, RailTimetableRecord record) {
@@ -179,6 +203,17 @@ public class RailTimetableMapper {
 
         }
 
+
+        public void overlay(CurrentSchedule currentSchedule) {
+            BasicSchedule basicSchedule = currentSchedule.basicScheduleRecord;
+            final IdFor<Service> serviceId = getServiceIdFor(basicSchedule);
+            final Service service = container.getServiceById(serviceId);
+            if (service ==null) {
+                logger.warn("Overlay found for service, but existing service not found " + serviceId);
+            }
+            consume(currentSchedule); // service Id will match so will overwrite existing service record
+        }
+
         private void delete(BasicSchedule basicScheduleRecord) {
             logger.info("Delete schedule " + basicScheduleRecord);
         }
@@ -237,7 +272,7 @@ public class RailTimetableMapper {
             MutableService service = getOrCreateService(schedule);
 
             // Route
-            MutableRoute route = getOrCreateRoute(currentSchedule, originLocation, mutableAgency, atocCode);
+            MutableRoute route = getOrCreateRoute(originLocation, terminatingLocation, mutableAgency, atocCode);
             route.addService(service);
             mutableAgency.addRoute(route);
 
@@ -284,7 +319,7 @@ public class RailTimetableMapper {
             // Stop Call
             TramTime arrivalTime = railLocation.getPublicArrival();
             TramTime departureTime = railLocation.getPublicDeparture();
-            PlatformStopCall stopCall = createStopCall(trip, station, platform, stopSequence,
+            StopCall stopCall = createStopCall(trip, station, platform, stopSequence,
                     arrivalTime, departureTime, pickup, dropoff);
             trip.addStop(stopCall);
 
@@ -321,11 +356,10 @@ public class RailTimetableMapper {
         }
 
         @NotNull
-        private PlatformStopCall createStopCall(MutableTrip trip, MutableStation station,
+        private RailPlatformStopCall createStopCall(MutableTrip trip, MutableStation station,
                                                 MutablePlatform platform, int stopSequence, TramTime arrivalTime,
                                                 TramTime departureTime, GTFSPickupDropoffType pickup, GTFSPickupDropoffType dropoff) {
-            StopTimeData stopTimeData = new StopTimeData(trip.getId(), arrivalTime, departureTime, station.getId(), stopSequence, pickup, dropoff);
-            return new PlatformStopCall(trip, platform, station, stopTimeData);
+            return new RailPlatformStopCall(station, arrivalTime, departureTime, stopSequence, pickup, dropoff, trip, platform);
         }
 
         private MutableAgency getOrCreateAgency(String atocCode) {
@@ -358,8 +392,9 @@ public class RailTimetableMapper {
 
         private MutableTrip getOrCreateTrip(BasicSchedule schedule, MutableService service, MutableRoute route) {
             MutableTrip trip;
-            IdFor<Trip> tripId = StringIdFor.createId(schedule.getUniqueTrainId());
+            IdFor<Trip> tripId = createTripIdFor(schedule);
             if (container.hasTripId(tripId)) {
+                logger.info("Had existing tripId: " + tripId);
                 trip = container.getMutableTrip(tripId);
             } else {
                 trip = new MutableTrip(tripId, schedule.getTrainIdentity(), service, route);
@@ -368,17 +403,21 @@ public class RailTimetableMapper {
             return trip;
         }
 
-        private MutableRoute getOrCreateRoute(CurrentSchedule currentSchedule, OriginLocation originLocation,
+        private IdFor<Trip> createTripIdFor(BasicSchedule schedule) {
+            String startDate = schedule.getStartDate().format(dateFormatter);
+            String endDate = schedule.getEndDate().format(dateFormatter);
+            return StringIdFor.createId(format("%s:%s:%s", schedule.getUniqueTrainId(), startDate, endDate));
+        }
+
+        private MutableRoute getOrCreateRoute(OriginLocation originLocation, TerminatingLocation terminatingLocation,
                                               MutableAgency mutableAgency, String atocCode) {
             MutableRoute route;
-            String shortName = createRouteShortName(originLocation, currentSchedule.terminatingLocation,
-                    atocCode);
+            String shortName = createRouteShortName(originLocation, terminatingLocation, atocCode);
             IdFor<Route> routeId = StringIdFor.createId(shortName);
             if (container.hasRouteId(routeId)) {
                 route = container.getMutableRoute(routeId);
             } else {
-                String routeName = createRouteName(originLocation, currentSchedule.terminatingLocation,
-                        atocCode);
+                String routeName = createRouteName(originLocation, terminatingLocation, atocCode);
                 route = new MutableRoute(routeId, shortName, routeName, mutableAgency, TransportMode.Train);
                 container.addRoute(route);
             }
@@ -429,8 +468,12 @@ public class RailTimetableMapper {
     }
 
     @NotNull
-    private static IdFor<Service> getServiceIdFor(BasicSchedule basicSchedule) {
-        return StringIdFor.createId(basicSchedule.getUniqueTrainId());
+    private static IdFor<Service> getServiceIdFor(BasicSchedule schedule) {
+        // need to use unique id otherwise no way to process cancellations since dates will not match
+        return StringIdFor.createId(schedule.getUniqueTrainId());
+//        String startDate = schedule.getStartDate().format(dateFormatter);
+//        String endDate = schedule.getEndDate().format(dateFormatter);
+//        return StringIdFor.createId(format("%s:%s:%s", schedule.getUniqueTrainId(), startDate, endDate));
     }
 
     private static class MissingStations {

@@ -297,14 +297,14 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
 
     private void createOnRouteRelationships(Transaction tx, Route route, GraphBuilderCache routeBuilderCache) {
 
-        Map<StationIdPair, Integer> pairs = new HashMap<>();
+        Map<StopCalls.StopLeg, Integer> pairs = new HashMap<>();
         route.getTrips().forEach(trip -> {
             StopCalls stops = trip.getStopCalls();
             stops.getLegs().forEach(leg -> {
                 if (includeBothStops(leg)) {
-                    if (!pairs.containsKey(StationIdPair.of(leg.getFirstStation(), leg.getSecondStation()))) {
+                    if (!pairs.containsKey(leg)) {
                         int cost = leg.getCost();
-                        pairs.put(StationIdPair.of(leg.getFirstStation(), leg.getSecondStation()), cost);
+                        pairs.put(leg, cost);
                     }
                 }
             });
@@ -312,9 +312,19 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
 
         // TODO assumed cost between nodes does not change for this specific route i.e. trips on route have same costs
         // which might not be true?
-        pairs.forEach((pair, cost) -> {
-            Node startNode = routeBuilderCache.getRouteStation(tx, route, pair.getBeginId());
-            Node endNode = routeBuilderCache.getRouteStation(tx, route, pair.getEndId());
+        pairs.forEach((leg, cost) -> {
+            IdFor<Station> beginId = leg.getFirstStation().getId();
+            IdFor<Station> endId = leg.getSecondStation().getId();
+            if (!routeBuilderCache.hasRouteStation(route, beginId)) {
+                String message = "Missing route station in cache for " + route + leg.getFirst();
+                throw new RuntimeException(message);
+            }
+            if (!routeBuilderCache.hasRouteStation(route, endId)) {
+                String message = "Missing route station in cache for " + route + leg.getSecond();
+                throw new RuntimeException(message);
+            }
+            Node startNode = routeBuilderCache.getRouteStation(tx, route, beginId);
+            Node endNode = routeBuilderCache.getRouteStation(tx, route, endId);
             createOnRouteRelationship(startNode, endNode, route, cost);
         });
 }

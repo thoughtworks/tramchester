@@ -19,19 +19,36 @@ public abstract class StopCall {
     private final int dwellTime;
     private final Trip trip;
 
-    protected StopCall(Station station, StopTimeData stopTimeData, Trip trip) {
+    protected StopCall(Station station, TramTime arrivalTime, TramTime departureTime, int sequenceNumber, GTFSPickupDropoffType pickupType,
+                       GTFSPickupDropoffType dropoffType, Trip trip) {
         this.station = station;
-        this.arrivalTime = stopTimeData.getArrivalTime();
-        this.trip = trip;
-        if (stopTimeData.arriveDepartSameTime()) {
-            this.dwellTime = 0;
+        this.arrivalTime = arrivalTime;
+        this.sequenceNumber = sequenceNumber;
+        this.pickupType = pickupType;
+        this.dropoffType = dropoffType;
+        if (arrivalTime.equals(departureTime)) {
+            dwellTime = 0;
         } else {
-            TramTime departureTime = stopTimeData.getDepartureTime();
             dwellTime = TramTime.diffenceAsMinutes(arrivalTime, departureTime);
         }
-        this.sequenceNumber = stopTimeData.getStopSequence();
-        this.pickupType = stopTimeData.getPickupType();
-        this.dropoffType = stopTimeData.getDropOffType();
+        this.trip = trip;
+    }
+
+    protected StopCall(Station station, StopTimeData stopTimeData, Trip trip) {
+        this(station, stopTimeData.getArrivalTime(), stopTimeData.getDepartureTime(), stopTimeData.getStopSequence(),
+                stopTimeData.getPickupType(), stopTimeData.getDropOffType(), trip);
+//        this.station = station;
+//        this.arrivalTime = stopTimeData.getArrivalTime();
+//        this.trip = trip;
+//        if (stopTimeData.arriveDepartSameTime()) {
+//            this.dwellTime = 0;
+//        } else {
+//            TramTime departureTime = stopTimeData.getDepartureTime();
+//            dwellTime = TramTime.diffenceAsMinutes(arrivalTime, departureTime);
+//        }
+//        this.sequenceNumber = stopTimeData.getStopSequence();
+//        this.pickupType = stopTimeData.getPickupType();
+//        this.dropoffType = stopTimeData.getDropOffType();
     }
 
     public TramTime getArrivalTime() {

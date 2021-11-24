@@ -92,7 +92,7 @@ public class LoadTransportDataTest {
         Service service = transportData.getServiceById(StringIdFor.createId("G91001"));
         assertNotNull(service);
 
-        Trip trip = transportData.getTripById(StringIdFor.createId("G91001"));
+        Trip trip = transportData.getTripById(StringIdFor.createId("G91001:20210517:20211206"));
         assertNotNull(trip);
         assertEquals(service, trip.getService());
 
@@ -132,22 +132,28 @@ public class LoadTransportDataTest {
         IdFor<Station> stationId = StringIdFor.createId("WATRLMN");
         Station station = transportData.getStationById(stationId);
 
-        IdFor<Platform> platformId = StringIdFor.createId("WATRLMN_12");
+        IdFor<Platform> platformId = StringIdFor.createId("WATRLMN:12");
 
         Optional<Platform> result = station.getPlatforms().stream().filter(platform -> platform.getId().equals(platformId)).findFirst();
 
         assertTrue(result.isPresent());
         final Platform platform12 = result.get();
         assertEquals("12", platform12.getPlatformNumber());
-        assertEquals("LONDON WATERLOO Platform 12", platform12.getName());
+        assertEquals("LONDON WATERLOO platform 12", platform12.getName());
 
-        // todo routes
     }
+
+    // BSNC675592112182203120000010 POO2H54    113560015 EMU    075D     S            P
+    // BSNC675592112252201010000010            1                                      C
+    // BSNC675592205142205140000010 POO2H54    113560015 EMU    075D     S            P
 
     @Test
     void shouldHaveRouteStation() {
-        IdFor<Route> routeId = StringIdFor.createId("SW:FRBRMN=>WEYMTH");
-        IdFor<Station> stationId = StringIdFor.createId("WDON");
+
+        // MixedCompositeId{Id{'SN:HYWRDSH=>POLGATE'},Id{'HMPDNPK'}}
+
+        IdFor<Route> routeId = StringIdFor.createId("SW:CLPHMJW=>STRWBYH");
+        IdFor<Station> stationId = StringIdFor.createId("WATRLMN");
 
         Route route = transportData.getRouteById(routeId);
         assertNotNull(route);
@@ -157,18 +163,6 @@ public class LoadTransportDataTest {
 
         Set<RouteStation> routeStations = transportData.getRouteStationsFor(stationId);
         assertFalse(routeStations.isEmpty(), routeStations.toString());
-
-        route.getTrips().forEach(trip -> {
-                    StopCalls stops = trip.getStopCalls();
-                    stops.getLegs().forEach(leg -> {
-                        Station first = leg.getFirstStation();
-                        RouteStation routeStationA = transportData.getRouteStation(first, route);
-                        assertNotNull(routeStationA, "first:"+first+" "+trip);
-                        Station second = leg.getSecondStation();
-                        RouteStation routeStationB = transportData.getRouteStation(second, route);
-                        assertNotNull(routeStationB, "second:"+second+" "+trip);
-                    });
-                });
 
         RouteStation routeStation = transportData.getRouteStationById(RouteStation.createId(stationId, routeId));
         assertNotNull(routeStation, routeStations.toString());

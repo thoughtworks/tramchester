@@ -19,8 +19,8 @@ public class PlatformStopCall extends StopCall {
 
     @Override
     public String toString() {
-        return "TramStopCall{" +
-                "callingPlatform=" + callingPlatform +
+        return "PlatformStopCall{" +
+                "callingPlatform=" + callingPlatform.getId() +
                 "} " + super.toString();
     }
 

@@ -92,6 +92,11 @@ public class GraphBuilderCache {
         return txn.getNodeById(routeStations.get(id));
     }
 
+    public boolean hasRouteStation(Route route, IdFor<Station> stationId) {
+        IdFor<RouteStation> routeStationId = RouteStation.createId(stationId, route.getId());
+        return routeStations.containsKey(routeStationId);
+    }
+
     protected Node getStation(Transaction txn, IdFor<Station> stationId) {
         if (!stationsToNodeId.containsKey(stationId)) {
             String message = "Missing station in cache, station: " + stationId + " Cache: " + stationsToNodeId;
@@ -176,6 +181,8 @@ public class GraphBuilderCache {
     public boolean hasHourNode(IdFor<Route> routeId, Service service, IdFor<Station> startId, Integer hour) {
         return hourNodes.containsKey(CreateKeys.getHourKey(routeId, service.getId(), startId, hour));
     }
+
+
 
     private static class CreateKeys {
 
