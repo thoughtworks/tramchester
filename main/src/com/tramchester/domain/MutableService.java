@@ -70,13 +70,15 @@ public class MutableService implements Service {
         return calendar;
     }
 
-
-
     public boolean hasCalendar() {
         return calendar!=null;
     }
 
     public MutableServiceCalendar getMutableCalendar() {
         return calendar;
+    }
+
+    public void markCancelled() {
+        calendar.cancel();
     }
 }

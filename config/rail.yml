@@ -1,0 +1,76 @@
+server:
+  applicationContextPath: /
+  rootPath: /api/*
+  applicationConnectors:
+    - type: http
+      port: 8080
+  adminContextPath: /admin
+  adminConnectors:
+    - type: http
+      port: 8081
+  gzip:
+    enabled: true
+    bufferSize: 8KiB
+    minimumEntitySize: 160B
+secureHost: tramchester.com
+staticAssetCacheTimeSeconds: 300
+graphDBConfig:
+  graphName: rail.db
+  neo4jPagecacheMemory: 100m
+instanceDataUrl: http://169.254.169.254
+gtfsSourceConfig: []
+remoteSources: []
+cacheFolder: data/cache/rail
+calcTimeoutMillis: 3500
+bounds:
+  minEastings: 147588
+  minNorthings: 30599
+  maxEasting: 654747
+  maxNorthings: 967921
+rail:
+  dataPath: data/rail
+  stations: ttisf187.msn
+  timetable: ttisf187.mca
+planningEnabled: true
+createNeighbours: false
+maxNeighbourConnections: 0
+distanceToNeighboursKM: 0.4
+maxWait: 25
+maxInitialWait: 65
+numberQueries: 6
+queryInterval: 10
+maxNumberResults: 5
+maxWalkingConnections: 3
+maxJourneyDuration: 700
+nearestStopRangeKM: 1.6
+nearestStopForWalkingRangeKM: 1.6
+numOfNearestStopsToOffer: 5
+numOfNearestStopsForWalking: 3
+walkingMPH: 3.0
+recentStopsToShow: 5
+dataExpiryThreadhold: 3
+changeAtInterchangeOnly: true
+sendCloudWatchMetrics: true
+cloudWatchMetricsFrequencyMinutes: 2
+
+swagger:
+  resourcePackage: com.tramchester.resources
+  title: tramchester
+
+logging:
+  level: INFO
+
+  appenders:
+    - type: console
+      threshold: INFO
+    - type: syslog
+      host: localhost
+      port: 514
+      threshold: WARN
+    - type: file
+      currentLogFilename: logs/tramchester_rail.log
+      threshold: INFO
+      archive: true
+      archivedLogFilenamePattern: logs/tramchester_rail-%d.log
+      archivedFileCount: 5
+      timeZone: UTC

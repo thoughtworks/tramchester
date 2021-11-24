@@ -25,11 +25,47 @@ class MutableServiceCalendarTest {
 
         assertTrue(serviceCalendar.operatesOn(startDate));
         assertTrue(serviceCalendar.operatesOn(endDate));
-        assertTrue(serviceCalendar.operatesOn(LocalDate.of(2014,11,30)));
+        assertTrue(serviceCalendar.operatesOn(LocalDate.of(2014, 11, 30)));
 
-        assertFalse(serviceCalendar.operatesOn(LocalDate.of(2016,11,30)));
+        assertFalse(serviceCalendar.operatesOn(LocalDate.of(2016, 11, 30)));
         assertFalse(serviceCalendar.operatesOn(startDate.minusDays(1)));
         assertFalse(serviceCalendar.operatesOn(endDate.plusDays(1)));
+    }
+
+    @Test
+    void shouldHaveOverlap() {
+        LocalDate startDate = LocalDate.of(2014, 10, 5);
+        LocalDate endDate = LocalDate.of(2014, 12, 25);
+
+        ServiceCalendar serviceCalendar = new MutableServiceCalendar(startDate, endDate, TestEnv.allDays());
+        assertTrue(serviceCalendar.overlapsWith(startDate, endDate));
+
+        assertTrue(serviceCalendar.overlapsWith(startDate.minusDays(1), startDate.plusDays(1)));
+        assertTrue(serviceCalendar.overlapsWith(endDate.minusDays(1), endDate.plusDays(1)));
+        assertTrue(serviceCalendar.overlapsWith(startDate.minusDays(1), endDate.plusDays(1)));
+        assertTrue(serviceCalendar.overlapsWith(startDate.minusDays(1), endDate.plusDays(1)));
+        assertTrue(serviceCalendar.overlapsWith(startDate.plusDays(1), endDate.minusDays(1)));
+
+        assertFalse(serviceCalendar.overlapsWith(endDate.plusDays(2), endDate.plusDays(3)));
+        assertFalse(serviceCalendar.overlapsWith(startDate.minusDays(3), startDate.minusDays(2)));
+
+    }
+
+    @Test
+    void shouldCancel() {
+
+        LocalDate startDate = LocalDate.of(2014, 10, 5);
+        LocalDate endDate = LocalDate.of(2014, 12, 25);
+
+        MutableServiceCalendar serviceCalendar = new MutableServiceCalendar(startDate, endDate, TestEnv.allDays());
+
+        assertTrue(serviceCalendar.operatesOn(LocalDate.of(2014, 11, 30)));
+
+        serviceCalendar.cancel();
+
+        startDate.datesUntil(endDate.plusDays(1)).forEach(date -> assertFalse(serviceCalendar.operatesOn(date), date.toString()));
+
+        assertTrue(serviceCalendar.operatesNoDays());
     }
 
     @Test

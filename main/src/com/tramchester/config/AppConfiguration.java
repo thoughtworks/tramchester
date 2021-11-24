@@ -125,8 +125,8 @@ public class AppConfiguration extends TramchesterConfig {
     @JsonProperty("liveData")
     private LiveDataAppConfig liveDataConfig;
 
-    @JsonProperty("railConfig")
-    private RailConfig railConfig;
+    @JsonProperty("rail")
+    private RailAppConfig railConfig;
 
     @NotNull
     @JsonProperty("bounds")

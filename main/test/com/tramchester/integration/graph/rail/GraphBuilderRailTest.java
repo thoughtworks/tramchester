@@ -27,7 +27,6 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import static com.tramchester.graph.TransportRelationshipTypes.LINKED;
-import static com.tramchester.testSupport.reference.TrainStations.Knutsford;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -77,12 +76,12 @@ class GraphBuilderRailTest {
         Iterable<Relationship> outboundLinks = startNode.getRelationships(Direction.OUTGOING, LINKED);
 
         List<Relationship> list = Lists.newArrayList(outboundLinks);
-        assertEquals(2, list.size(), list.toString());
+        assertEquals(18, list.size(), list.toString());
 
         Set<IdFor<Station>> destinations = list.stream().map(Relationship::getEndNode).
                 map(GraphProps::getStationId).collect(Collectors.toSet());
 
-        assertTrue(destinations.contains(Knutsford.getId()), destinations.toString());
+        assertTrue(destinations.contains(StringIdFor.createId("STKP")), destinations.toString());
     }
 
 

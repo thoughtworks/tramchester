@@ -60,8 +60,9 @@ public class Interchanges implements InterchangeRepository {
 
     @PostConstruct
     public void start() {
-        logger.info("Starting");
         Set<TransportMode> enabledModes = config.getTransportModes();
+
+        logger.info("Starting for " + enabledModes);
 
         enabledModes.stream().filter(this::discoveryEnabled).forEach(mode -> {
             int linkThreshhold = getLinkThreshhold(mode);
@@ -76,6 +77,7 @@ public class Interchanges implements InterchangeRepository {
             addNeighboursAsInterchangesBetweenModes();
         }
 
+        logger.info("Total number of interchanges: " + interchanges.size());
         logger.info("started");
     }
 

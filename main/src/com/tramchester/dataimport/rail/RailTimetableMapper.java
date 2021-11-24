@@ -4,7 +4,6 @@ import com.tramchester.dataimport.rail.records.*;
 import com.tramchester.dataimport.rail.records.reference.TrainCategory;
 import com.tramchester.domain.*;
 import com.tramchester.domain.id.IdFor;
-import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.input.MutableTrip;
 import com.tramchester.domain.input.RailPlatformStopCall;
@@ -21,8 +20,6 @@ import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.time.DayOfWeek;
-import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeFormatterBuilder;
 import java.util.*;
@@ -35,7 +32,7 @@ import static java.time.temporal.ChronoField.*;
 public class RailTimetableMapper {
     private static final Logger logger = LoggerFactory.getLogger(RailTimetableMapper.class);
 
-    private static final DateTimeFormatter dateFormatter = new DateTimeFormatterBuilder()
+    public static final DateTimeFormatter dateFormatter = new DateTimeFormatterBuilder()
                 .parseCaseInsensitive()
                 .appendValue(YEAR, 4)
                 .appendValue(MONTH_OF_YEAR, 2)
@@ -100,11 +97,7 @@ public class RailTimetableMapper {
     private void seenEnd(RailTimetableRecord record) {
         guardState(State.SeenOrigin, record);
         rawService.finish(record);
-        if (overlay) {
-            processor.overlay(rawService);
-        } else {
-            processor.consume(rawService);
-        }
+        processor.consume(rawService, overlay);
         currentState = State.Between;
         overlay = false;
     }
@@ -180,21 +173,22 @@ public class RailTimetableMapper {
         private final TransportDataContainer container;
         private final Map<String, TIPLOCInsert> tiplocInsertRecords;
         private final MissingStations missingStations; // stations missing unexpectedly
-        private final IdSet<Service> skippedServices; // services skipped due to train category etc.
+        private final RailServiceGroups railServiceGroups;
 
         private CreatesTransportDataForRail(TransportDataContainer container, Map<String, TIPLOCInsert> tiplocInsertRecords,
                                             MissingStations missingStations) {
             this.container = container;
             this.tiplocInsertRecords = tiplocInsertRecords;
             this.missingStations = missingStations;
-            skippedServices = new IdSet<>();
+
+            this.railServiceGroups = new RailServiceGroups(container);
         }
 
-        public void consume(RawService rawService) {
+        public void consume(RawService rawService, boolean isOverlay) {
             BasicSchedule basicSchedule = rawService.basicScheduleRecord;
 
             switch (basicSchedule.getTransactionType()) {
-                case N -> createNew(rawService);
+                case N -> createNew(rawService, isOverlay);
                 case D -> delete(rawService.basicScheduleRecord);
                 case R -> revise(rawService);
                 case Unknown -> logger.warn("Unknown transaction type for " + rawService.basicScheduleRecord);
@@ -202,56 +196,26 @@ public class RailTimetableMapper {
 
         }
 
-        public void overlay(RawService rawService) {
-            BasicSchedule basicSchedule = rawService.basicScheduleRecord;
-            final IdFor<Service> serviceId = getServiceIdFor(basicSchedule);
-            final Service service = container.getServiceById(serviceId);
-            if (service == null) {
-                logger.warn(format("Overlay, but missing service '%s' %s", basicSchedule, serviceId));
-            }
-            consume(rawService); // service Id will match so will overwrite existing service record
-        }
-
         private void delete(BasicSchedule basicScheduleRecord) {
-            logger.info("Delete schedule " + basicScheduleRecord);
+            logger.error("Delete schedule " + basicScheduleRecord);
         }
 
         private void revise(RawService rawService) {
-            logger.info("Revise schedule " + rawService);
+            logger.error("Revise schedule " + rawService);
         }
 
         private void recordCancellations(BasicSchedule basicSchedule) {
-            final IdFor<Service> serviceId = getServiceIdFor(basicSchedule);
-            if (container.hasServiceId(serviceId)) {
-                logger.debug("Making cancellations for schedule " + basicSchedule.getUniqueTrainId());
-                MutableService service = container.getMutableService(serviceId);
-                MutableServiceCalendar calendar = service.getMutableCalendar();
-                addServiceExceptions(calendar, basicSchedule.getStartDate(), basicSchedule.getEndDate(), basicSchedule.getDaysOfWeek());
-            } else {
-                if (!skippedServices.contains(serviceId)) {
-                    logger.warn(format("Failed to find service %s to amend for %s", serviceId, basicSchedule));
-                }
-            }
+            railServiceGroups.applyCancellation(basicSchedule);
         }
 
-        private void addServiceExceptions(MutableServiceCalendar calendar, LocalDate startDate, LocalDate endDate, Set<DayOfWeek> excludedDays) {
-            LocalDate current = startDate;
-            while (!current.isAfter(endDate)) {
-                if (excludedDays.contains(current.getDayOfWeek())) {
-                    calendar.excludeDate(current);
-                }
-                current = current.plusDays(1);
-            }
-        }
-
-        private void createNew(RawService rawService) {
+        private void createNew(RawService rawService, boolean isOverlay) {
             final BasicSchedule basicSchedule = rawService.basicScheduleRecord;
             TrainCategory cat = basicSchedule.getTrainCategory();
             final String uniqueTrainId = basicSchedule.getUniqueTrainId();
             if (cat==TrainCategory.LondonUndergroundOrMetroService || cat==TrainCategory.BusService) {
                 logger.debug(format("Skipping %s of category %s and status %s", uniqueTrainId, basicSchedule.getTrainCategory(),
                         basicSchedule.getTrainStatus()));
-                skippedServices.add(getServiceIdFor(basicSchedule));
+                railServiceGroups.recordSkip(basicSchedule);
                 return;
             }
 
@@ -267,7 +231,7 @@ public class RailTimetableMapper {
             final IdFor<Agency> agencyId = mutableAgency.getId();
 
             // Service
-            MutableService service = getOrCreateService(basicSchedule);
+            MutableService service = railServiceGroups.getOrCreateService(basicSchedule, isOverlay);
 
             // Route
             MutableRoute route = getOrCreateRoute(originLocation, terminatingLocation, mutableAgency, atocCode);
@@ -390,7 +354,7 @@ public class RailTimetableMapper {
 
         private MutableTrip getOrCreateTrip(BasicSchedule schedule, MutableService service, MutableRoute route) {
             MutableTrip trip;
-            IdFor<Trip> tripId = createTripIdFor(schedule);
+            IdFor<Trip> tripId = createTripIdFor(service);
             if (container.hasTripId(tripId)) {
                 logger.info("Had existing tripId: " + tripId + " for " + schedule);
                 trip = container.getMutableTrip(tripId);
@@ -401,11 +365,15 @@ public class RailTimetableMapper {
             return trip;
         }
 
-        private IdFor<Trip> createTripIdFor(BasicSchedule schedule) {
-            String startDate = schedule.getStartDate().format(dateFormatter);
-            String endDate = schedule.getEndDate().format(dateFormatter);
-            return StringIdFor.createId(format("%s:%s:%s", schedule.getUniqueTrainId(), startDate, endDate));
+        private IdFor<Trip> createTripIdFor(MutableService service) {
+            return StringIdFor.createId("trip:"+service.getId().forDTO());
         }
+
+//        private IdFor<Trip> createTripIdFor(BasicSchedule schedule) {
+//            String startDate = schedule.getStartDate().format(dateFormatter);
+//            String endDate = schedule.getEndDate().format(dateFormatter);
+//            return StringIdFor.createId(format("%s:%s:%s", schedule.getUniqueTrainId(), startDate, endDate));
+//        }
 
         private MutableRoute getOrCreateRoute(OriginLocation originLocation, TerminatingLocation terminatingLocation,
                                               MutableAgency mutableAgency, String atocCode) {
@@ -422,19 +390,7 @@ public class RailTimetableMapper {
             return route;
         }
 
-        private MutableService getOrCreateService(BasicSchedule schedule) {
-            MutableService service;
-            final IdFor<Service> serviceId = getServiceIdFor(schedule);
-            if (container.hasServiceId(serviceId)) {
-                service = container.getMutableService(serviceId);
-            } else {
-                service = new MutableService(serviceId);
-                MutableServiceCalendar calendar = new MutableServiceCalendar(schedule.getStartDate(), schedule.getEndDate(), schedule.getDaysOfWeek());
-                service.setCalendar(calendar);
-                container.addService(service);
-            }
-            return service;
-        }
+
 
         private String createRouteName(OriginLocation originLocation, TerminatingLocation terminatingLocation, String atocCode) {
             final String startName = getNameForRoute(originLocation);
@@ -463,15 +419,6 @@ public class RailTimetableMapper {
             return format("%s:%s=>%s", atocCode, originLocation.getTiplocCode(), terminatingLocation.getTiplocCode());
         }
 
-    }
-
-    @NotNull
-    private static IdFor<Service> getServiceIdFor(BasicSchedule schedule) {
-        // need to use unique id otherwise no way to process cancellations since dates will not match
-        return StringIdFor.createId(schedule.getUniqueTrainId());
-//        String startDate = schedule.getStartDate().format(dateFormatter);
-//        String endDate = schedule.getEndDate().format(dateFormatter);
-//        return StringIdFor.createId(format("%s:%s:%s", schedule.getUniqueTrainId(), startDate, endDate));
     }
 
     private static class MissingStations {

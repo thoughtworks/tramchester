@@ -101,7 +101,7 @@ public class BasicSchedule implements RailTimetableRecord {
     private static Set<DayOfWeek> extractDays(String line, int begin, int end) {
         String days = RecordHelper.extract(line, begin, end);
         if (days.length()!=7) {
-            logger.error("No ennough days of the week");
+            logger.error("Not enough days of the week");
         }
 
         Set<DayOfWeek> result = new HashSet<>();
@@ -162,10 +162,10 @@ public class BasicSchedule implements RailTimetableRecord {
     @Override
     public String toString() {
         return "BasicSchedule{" +
-                "startDate=" + startDate +
+                "uniqueTrainId='" + uniqueTrainId + '\'' +
+                ", startDate=" + startDate +
                 ", endDate=" + endDate +
                 ", transactionType=" + transactionType +
-                ", uniqueTrainId='" + uniqueTrainId + '\'' +
                 ", daysOfWeek=" + daysOfWeek +
                 ", stpIndicator=" + stpIndicator +
                 ", trainIdentity='" + trainIdentity + '\'' +

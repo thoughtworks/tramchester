@@ -89,10 +89,10 @@ public class LoadTransportDataTest {
         Station startStation = transportData.getStationById(StringIdFor.createId("DRBY"));
         Station endStation = transportData.getStationById(StringIdFor.createId("STPX"));
 
-        Service service = transportData.getServiceById(StringIdFor.createId("G91001"));
+        Service service = transportData.getServiceById(StringIdFor.createId("G91001:20210517:20211206"));
         assertNotNull(service);
 
-        Trip trip = transportData.getTripById(StringIdFor.createId("G91001:20210517:20211206"));
+        Trip trip = transportData.getTripById(StringIdFor.createId("trip:G91001:20210517:20211206"));
         assertNotNull(trip);
         assertEquals(service, trip.getService());
 

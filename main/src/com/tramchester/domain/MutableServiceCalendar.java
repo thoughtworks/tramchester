@@ -15,6 +15,7 @@ public class MutableServiceCalendar implements ServiceCalendar {
     private final Set<DayOfWeek> days;
     private final Set<LocalDate> additional;
     private final Set<LocalDate> removed;
+    private boolean cancelled;
 
     public MutableServiceCalendar(CalendarData calendarData) {
         this(calendarData.getStartDate(), calendarData.getEndDate(), daysOfWeekFrom(calendarData.isMonday(),
@@ -36,6 +37,7 @@ public class MutableServiceCalendar implements ServiceCalendar {
         days = operatingDays;
         additional = new HashSet<>();
         removed = new HashSet<>();
+        cancelled = false;
     }
 
     public void includeExtraDate(LocalDate date) {
@@ -48,7 +50,7 @@ public class MutableServiceCalendar implements ServiceCalendar {
 
     @Override
     public boolean operatesOn(LocalDate queryDate) {
-        if (isExcluded(queryDate)) {
+        if (cancelled || isExcluded(queryDate)) {
             return false;
         }
 
@@ -59,8 +61,7 @@ public class MutableServiceCalendar implements ServiceCalendar {
         return operatesOnIgnoringExcpetionDates(queryDate);
     }
 
-    @Override
-    public boolean isExcluded(LocalDate queryDate) {
+    private boolean isExcluded(LocalDate queryDate) {
         return removed.contains(queryDate);
     }
 
@@ -76,6 +77,9 @@ public class MutableServiceCalendar implements ServiceCalendar {
 
     @Override
     public void summariseDates(PrintStream printStream) {
+        if (cancelled) {
+            printStream.print("CANCELLED: ");
+        }
         printStream.printf("starts %s ends %s days %s%n",
                 startDate, endDate, reportDays());
         if (!additional.isEmpty()) {
@@ -89,6 +93,9 @@ public class MutableServiceCalendar implements ServiceCalendar {
     private String reportDays() {
         if (days.isEmpty()) {
             return "SPECIAL/NONE";
+        }
+        if (cancelled) {
+            return "CANCELLED";
         }
 
         StringBuilder found = new StringBuilder();
@@ -123,22 +130,42 @@ public class MutableServiceCalendar implements ServiceCalendar {
 
     @Override
     public boolean operatesNoDays() {
-        return days.isEmpty() && additional.isEmpty();
+        return cancelled || (days.isEmpty() && additional.isEmpty());
+    }
+
+    @Override
+    public boolean overlapsWith(LocalDate rangeBegin, LocalDate rangeEnd) {
+        return between(rangeBegin, rangeEnd, startDate) ||
+                between(rangeBegin, rangeEnd, endDate) ||
+                between(startDate, endDate, rangeBegin) ||
+                between(startDate, endDate, rangeEnd);
+    }
+
+    private boolean between(LocalDate rangeBegin, LocalDate rangeEnd, LocalDate date) {
+        if (date.equals(rangeBegin) || date.equals(rangeEnd)) {
+            return true;
+        }
+        return (date.isAfter(rangeBegin)  && date.isBefore(rangeEnd));
     }
 
     @Override
     public String toString() {
-        return "ServiceCalendar{" +
+        return "MutableServiceCalendar{" +
                 "startDate=" + startDate +
                 ", endDate=" + endDate +
                 ", days=" + days +
                 ", additional=" + additional +
                 ", removed=" + removed +
+                ", cancelled=" + cancelled +
                 '}';
     }
 
     @Override
     public LocalDate getEndDate() {
         return endDate;
+    }
+
+    public void cancel() {
+        cancelled = true;
     }
 }

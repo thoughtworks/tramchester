@@ -97,10 +97,16 @@ public abstract class TramchesterConfig extends Configuration implements HasRemo
     public abstract BoundingBox getBounds();
 
     public Set<TransportMode> getTransportModes() {
-        return getGTFSDataSource().stream().
+        final Set<TransportMode> modes = getGTFSDataSource().stream().
                 map(GTFSSourceConfig::getTransportModes).
                 flatMap(Collection::stream).
                 collect(Collectors.toSet());
+
+        RailConfig railConfig = getRailConfig();
+        if (railConfig!=null) {
+            modes.add(TransportMode.Train);
+        }
+        return modes;
     }
 
     public RemoteDataSourceConfig getDataRemoteSourceConfig(DataSourceID dataSourceID) {

@@ -32,10 +32,6 @@ public class TramServiceDate {
                 '}';
     }
 
-//    public String toDateString() {
-//        return date.format(DateTimeFormatter.ISO_LOCAL_DATE);
-//    }
-
     public boolean isWeekend() {
         DayOfWeek dayOfWeek = date.getDayOfWeek();
         return (dayOfWeek==DayOfWeek.SATURDAY) || (dayOfWeek==DayOfWeek.SUNDAY);
