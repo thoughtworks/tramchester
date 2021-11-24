@@ -10,5 +10,5 @@ public interface Service extends HasId<Service>, GraphProperty {
 
     void summariseDates(PrintStream printStream);
 
-    MutableServiceCalendar getCalendar();
+    ServiceCalendar getCalendar();
 }

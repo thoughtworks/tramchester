@@ -224,8 +224,8 @@ public class RailTimetableMapper {
             final IdFor<Service> serviceId = getServiceIdFor(basicSchedule);
             if (container.hasServiceId(serviceId)) {
                 logger.debug("Making cancellations for schedule " + basicSchedule.getUniqueTrainId());
-                Service service = container.getMutableService(serviceId);
-                MutableServiceCalendar calendar = service.getCalendar();
+                MutableService service = container.getMutableService(serviceId);
+                MutableServiceCalendar calendar = service.getMutableCalendar();
                 addServiceExceptions(calendar, basicSchedule.getStartDate(), basicSchedule.getEndDate(), basicSchedule.getDaysOfWeek());
             } else {
                 if (!skippedServices.contains(serviceId)) {

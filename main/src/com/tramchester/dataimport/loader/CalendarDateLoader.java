@@ -46,7 +46,7 @@ public class CalendarDateLoader {
                 if (service.hasCalendar()) {
                     countCalendarDates.getAndIncrement();
                     missingCalendarDates.remove(serviceId);
-                    addException(date, service.getCalendar(), serviceId, noServices);
+                    addException(date, service.getMutableCalendar(), serviceId, noServices);
                 } else {
                     // TODO Create a one off entry? Auto populate based on all exceptions? i.e. days of week
                     logger.error("Missing calendar for service " + service.getId() + " so could not add " + date);
@@ -71,7 +71,10 @@ public class CalendarDateLoader {
         logger.warn("Adding no service dates from source config " + noServices);
         services.forEach(service -> {
             if (!missingCalendarDates.contains(service.getId())) {
-                noServices.forEach(noServiceDate -> service.getCalendar().excludeDate(noServiceDate));
+                noServices.forEach(noServiceDate -> {
+                    MutableService mutableService = buildable.getMutableService(service.getId());
+                    mutableService.getMutableCalendar().excludeDate(noServiceDate);
+                });
             }
         });
         logger.info("Added service dates");

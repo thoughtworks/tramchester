@@ -66,11 +66,17 @@ public class MutableService implements Service {
     }
 
     @Override
-    public MutableServiceCalendar getCalendar() {
+    public ServiceCalendar getCalendar() {
         return calendar;
     }
 
+
+
     public boolean hasCalendar() {
         return calendar!=null;
+    }
+
+    public MutableServiceCalendar getMutableCalendar() {
+        return calendar;
     }
 }
