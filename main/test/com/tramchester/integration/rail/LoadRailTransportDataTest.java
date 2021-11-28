@@ -6,6 +6,7 @@ import com.tramchester.domain.Platform;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.Service;
 import com.tramchester.domain.id.IdFor;
+import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.input.StopCall;
 import com.tramchester.domain.input.StopCalls;
@@ -14,11 +15,13 @@ import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.reference.GTFSPickupDropoffType;
+import com.tramchester.domain.time.TramTime;
 import com.tramchester.geo.CoordinateTransforms;
 import com.tramchester.geo.GridPosition;
 import com.tramchester.integration.testSupport.rail.IntegrationRailTestConfig;
 import com.tramchester.repository.TransportData;
 import com.tramchester.testSupport.TestEnv;
+import com.tramchester.testSupport.reference.TramTransportDataForTestFactory;
 import com.tramchester.testSupport.testTags.TrainTest;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
@@ -26,14 +29,17 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.DisabledIfEnvironmentVariable;
 
+import java.time.LocalDate;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
+import static com.tramchester.integration.testSupport.rail.RailStationIds.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 @TrainTest
 @DisabledIfEnvironmentVariable(named = "CI", matches = "true")
-public class LoadTransportDataTest {
+public class LoadRailTransportDataTest {
     private static ComponentContainer componentContainer;
     private TransportData transportData;
 
@@ -86,8 +92,8 @@ public class LoadTransportDataTest {
 
     @Test
     void shouldFindServiceAndTrip() {
-        Station startStation = transportData.getStationById(StringIdFor.createId("DRBY"));
-        Station endStation = transportData.getStationById(StringIdFor.createId("STPX"));
+        Station startStation = transportData.getStationById(Derby.getId());
+        Station endStation = transportData.getStationById(LondonStPancras.getId());
 
         Service service = transportData.getServiceById(StringIdFor.createId("G91001:20210517:20211206"));
         assertNotNull(service);
@@ -119,7 +125,7 @@ public class LoadTransportDataTest {
     @Test
     void shouldHaveRouteStationConsistency() {
 
-        IdFor<Station> stationId = StringIdFor.createId("WDON");
+        IdFor<Station> stationId = Wimbledon.getId(); //StringIdFor.createId("WDON");
         Station station = transportData.getStationById(stationId);
 
         Set<Route> routesFromStaiton = station.getRoutes();
@@ -129,7 +135,7 @@ public class LoadTransportDataTest {
 
     @Test
     void shouldHaveCorrectPlatforms() {
-        IdFor<Station> stationId = StringIdFor.createId("WATRLMN");
+        IdFor<Station> stationId = LondonWaterloo.getId();
         Station station = transportData.getStationById(stationId);
 
         IdFor<Platform> platformId = StringIdFor.createId("WATRLMN:12");
@@ -140,28 +146,58 @@ public class LoadTransportDataTest {
         final Platform platform12 = result.get();
         assertEquals("12", platform12.getPlatformNumber());
         assertEquals("LONDON WATERLOO platform 12", platform12.getName());
-
     }
 
     @Test
-    void shouldHaveRouteStation() {
-
-        // MixedCompositeId{Id{'SN:HYWRDSH=>POLGATE'},Id{'HMPDNPK'}}
-
-        IdFor<Route> routeId = StringIdFor.createId("SN:HYWRDSH=>POLGATE");
-        IdFor<Station> stationId = StringIdFor.createId("HMPDNPK");
-
-        Route route = transportData.getRouteById(routeId);
-        assertNotNull(route);
-
-        Station station = transportData.getStationById(stationId);
-        assertNotNull(station);
-
-        Set<RouteStation> routeStations = transportData.getRouteStationsFor(stationId);
-        assertFalse(routeStations.isEmpty(), routeStations.toString());
-
-        RouteStation routeStation = transportData.getRouteStationById(RouteStation.createId(stationId, routeId));
-        assertNotNull(routeStation, routeStations.toString());
+    void shouldMultipleRouteForSameStartEndDependingOnCallingPoints() {
+        Set<Route> matchingRoutes = transportData.getTrips().stream().
+                filter(trip -> matches(ManchesterPiccadilly.getId(), LondonEuston.getId(), trip)).
+                map(Trip::getRoute).
+                collect(Collectors.toSet());
+        assertNotEquals(1, matchingRoutes.size(), matchingRoutes.toString());
     }
+
+    @Test
+    void shouldHaveRouteFromManchesterToLondon() {
+        Set<Route> matchingRoutes = transportData.getTrips().stream().
+                filter(trip -> matches(ManchesterPiccadilly.getId(), LondonEuston.getId(), trip)).
+                map(Trip::getRoute).
+                collect(Collectors.toSet());
+
+        assertFalse(matchingRoutes.isEmpty());
+        IdSet<Route> routeIds = matchingRoutes.stream().collect(IdSet.collector());
+        assertTrue(routeIds.contains(StringIdFor.createId("VT:MNCRPIC=>EUSTON:1")), "did find route " + routeIds);
+
+        Set<Service> matchingServices = matchingRoutes.stream().
+                flatMap(route -> route.getServices().stream()).collect(Collectors.toSet());
+
+        assertFalse(matchingServices.isEmpty(), "no services for " + matchingRoutes);
+
+        LocalDate when = TestEnv.testDay();
+
+        Set<Service> runningServices = matchingServices.stream().
+                filter(service -> service.getCalendar().operatesOn(when)).collect(Collectors.toSet());
+
+        assertFalse(runningServices.isEmpty(), "none running from " + runningServices);
+
+        TramTime time = TramTime.of(8,5);
+
+        Set<Trip> am8Trips = transportData.getTrips().stream().filter(trip -> runningServices.contains(trip.getService())).
+                filter(trip -> trip.earliestDepartTime().isBefore(time) && trip.latestDepartTime().isAfter(time)).
+                collect(Collectors.toSet());
+
+        assertFalse(am8Trips.isEmpty(), "No trip at required time " + runningServices);
+
+    }
+
+    private boolean matches(IdFor<Station> firstId, IdFor<Station> secondId, Trip trip) {
+        StopCall firstCall = trip.getStopCalls().getStopBySequenceNumber(trip.getSeqNumOfFirstStop());
+        if (!firstCall.getStationId().equals(firstId)) {
+            return false;
+        }
+        StopCall finalCall = trip.getStopCalls().getStopBySequenceNumber(trip.getSeqNumOfLastStop());
+        return secondId.equals(finalCall.getStationId());
+    }
+
 
 }

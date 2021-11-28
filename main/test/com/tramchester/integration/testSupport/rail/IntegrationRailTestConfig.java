@@ -26,7 +26,7 @@ public class IntegrationRailTestConfig extends IntegrationTestConfig {
         graphDBConfig = new GraphDBIntegrationRailTestConfig("integrationTrainTest", dbFilename);
     }
 
-    private final String CURRENT_PREFIX = "ttisf187";
+    private final String CURRENT_PREFIX = "ttisf194";
 
     @Override
     public RailConfig getRailConfig() {
@@ -80,12 +80,12 @@ public class IntegrationRailTestConfig extends IntegrationTestConfig {
 
     @Override
     public int getMaxInitialWait() {
-        return 25;
+        return 35;
     }
 
     @Override
     public int getMaxWait() {
-        return 35;
+        return 25;
     }
 
     @Override

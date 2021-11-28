@@ -20,7 +20,7 @@ public class WalkingState extends TraversalState {
         public void register(RegistersFromState registers) {
             registers.add(NotStartedState.class, this);
             registers.add(NoPlatformStationState.class, this);
-            registers.add(TramStationState.class, this);
+            registers.add(PlatformStationState.class, this);
 
             // todo needed?
             //registers.add(GroupedStationState.class, this);
@@ -64,8 +64,8 @@ public class WalkingState extends TraversalState {
     }
 
     @Override
-    protected TramStationState toTramStation(TramStationState.Builder towardsStation, Node node, int cost,
-                                             JourneyStateUpdate journeyState) {
+    protected PlatformStationState toTramStation(PlatformStationState.Builder towardsStation, Node node, int cost,
+                                                 JourneyStateUpdate journeyState) {
         journeyState.endWalk(node);
         return towardsStation.fromWalking(this, node, cost);
     }

@@ -19,7 +19,7 @@ public class GroupedStationState extends TraversalState {
 
         @Override
         public void register(RegistersFromState registers) {
-            registers.add(TramStationState.class, this);
+            registers.add(PlatformStationState.class, this);
             registers.add(NoPlatformStationState.class, this);
             registers.add(NotStartedState.class, this);
         }
@@ -61,7 +61,7 @@ public class GroupedStationState extends TraversalState {
     }
 
     @Override
-    protected TramStationState toTramStation(TramStationState.Builder towardsStation, Node node, int cost, JourneyStateUpdate journeyState) {
+    protected PlatformStationState toTramStation(PlatformStationState.Builder towardsStation, Node node, int cost, JourneyStateUpdate journeyState) {
         return towardsStation.fromGrouped(this, node, cost);
     }
 

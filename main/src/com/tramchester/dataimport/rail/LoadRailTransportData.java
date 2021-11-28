@@ -129,9 +129,4 @@ public class LoadRailTransportData implements DirectDataSourceFactory.PopulatesC
         return enabled;
     }
 
-//    @Override
-//    public TransportData getData() {
-//        return dataContainer;
-//    }
-
 }

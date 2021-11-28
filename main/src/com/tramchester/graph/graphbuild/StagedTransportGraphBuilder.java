@@ -420,7 +420,6 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
         routeBuilderCache.putBoarding(platformOrStation.getId(), routeStationNode.getId());
     }
 
-
     private void createOnRouteRelationship(Node from, Node to, Route route, int cost) {
         Set<Node> endNodes = new HashSet<>();
 

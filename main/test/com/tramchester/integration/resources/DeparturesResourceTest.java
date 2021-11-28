@@ -109,7 +109,7 @@ class DeparturesResourceTest {
         LatLong where = TestEnv.nearAltrinchamInterchange;
         LocalTime queryTime = TestEnv.LocalNow().toLocalTime();
         SortedSet<DepartureDTO> departures = getDeparturesForLatlongTime(where.getLat(), where.getLon(), queryTime);
-        assertFalse(departures.isEmpty(), "no departures");
+        assertFalse(departures.isEmpty(), "no departures for lat/long altrincham");
     }
 
     @Test

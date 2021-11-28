@@ -11,10 +11,9 @@ import java.util.stream.Stream;
 import static com.tramchester.graph.TransportRelationshipTypes.*;
 import static org.neo4j.graphdb.Direction.OUTGOING;
 
-// todo rename PlatformStationState
-public class TramStationState extends StationState {
+public class PlatformStationState extends StationState {
 
-    public static class Builder extends StationStateBuilder implements TowardsStation<TramStationState>  {
+    public static class Builder extends StationStateBuilder implements TowardsStation<PlatformStationState>  {
 
         @Override
         public void register(RegistersFromState registers) {
@@ -22,64 +21,64 @@ public class TramStationState extends StationState {
             registers.add(PlatformState.class, this);
             registers.add(NotStartedState.class, this);
             registers.add(NoPlatformStationState.class, this);
-            registers.add(TramStationState.class, this);
+            registers.add(PlatformStationState.class, this);
             registers.add(GroupedStationState.class, this);
         }
 
         @Override
-        public Class<TramStationState> getDestination() {
-            return TramStationState.class;
+        public Class<PlatformStationState> getDestination() {
+            return PlatformStationState.class;
         }
 
-        public TramStationState fromWalking(WalkingState walkingState, Node stationNode, int cost) {
+        public PlatformStationState fromWalking(WalkingState walkingState, Node stationNode, int cost) {
             final Iterable<Relationship> relationships = stationNode.getRelationships(OUTGOING, ENTER_PLATFORM, GROUPED_TO_PARENT,
                     NEIGHBOUR);
-            return new TramStationState(walkingState, relationships, cost, stationNode);
+            return new PlatformStationState(walkingState, relationships, cost, stationNode);
         }
 
-        public TramStationState fromPlatform(PlatformState platformState, Node stationNode, int cost) {
+        public PlatformStationState fromPlatform(PlatformState platformState, Node stationNode, int cost) {
             final Iterable<Relationship> initial = stationNode.getRelationships(OUTGOING, WALKS_FROM, ENTER_PLATFORM,
                     NEIGHBOUR, GROUPED_TO_PARENT);
             Stream<Relationship> relationships = addValidDiversions(stationNode, initial, platformState);
-            return new TramStationState(platformState, filterExcludingEndNode(relationships, platformState), cost, stationNode);
+            return new PlatformStationState(platformState, filterExcludingEndNode(relationships, platformState), cost, stationNode);
         }
 
-        public TramStationState fromStart(NotStartedState notStartedState, Node stationNode, int cost) {
+        public PlatformStationState fromStart(NotStartedState notStartedState, Node stationNode, int cost) {
             final Iterable<Relationship> initial = stationNode.getRelationships(OUTGOING, WALKS_FROM, ENTER_PLATFORM,
                     NEIGHBOUR, GROUPED_TO_PARENT);
             Stream<Relationship> relationships = addValidDiversions(stationNode, initial, notStartedState);
-            return new TramStationState(notStartedState, relationships, cost, stationNode);
+            return new PlatformStationState(notStartedState, relationships, cost, stationNode);
         }
 
         @Override
-        public TramStationState fromNeighbour(StationState stationState, Node stationNode, int cost) {
+        public PlatformStationState fromNeighbour(StationState stationState, Node stationNode, int cost) {
             final Iterable<Relationship> initial = stationNode.getRelationships(OUTGOING, ENTER_PLATFORM, GROUPED_TO_PARENT);
             Stream<Relationship> relationships = addValidDiversions(stationNode, initial, stationState);
-            return new TramStationState(stationState, relationships, cost, stationNode);
+            return new PlatformStationState(stationState, relationships, cost, stationNode);
         }
 
-        public TramStationState fromGrouped(GroupedStationState groupedStationState, Node stationNode, int cost) {
+        public PlatformStationState fromGrouped(GroupedStationState groupedStationState, Node stationNode, int cost) {
             final Iterable<Relationship> relationships = stationNode.getRelationships(OUTGOING, ENTER_PLATFORM, NEIGHBOUR);
-            return new TramStationState(groupedStationState, relationships, cost, stationNode);
+            return new PlatformStationState(groupedStationState, relationships, cost, stationNode);
         }
 
     }
 
     private final Node stationNode;
 
-    private TramStationState(TraversalState parent, Stream<Relationship> relationships, int cost, Node stationNode) {
+    private PlatformStationState(TraversalState parent, Stream<Relationship> relationships, int cost, Node stationNode) {
         super(parent, relationships, cost);
         this.stationNode = stationNode;
     }
 
-    private TramStationState(TraversalState parent, Iterable<Relationship> relationships, int cost, Node stationNode) {
+    private PlatformStationState(TraversalState parent, Iterable<Relationship> relationships, int cost, Node stationNode) {
         super(parent, relationships, cost);
         this.stationNode = stationNode;
     }
 
     @Override
     public String toString() {
-        return "TramStationState{" +
+        return "PlatformStationState{" +
                 "stationNodeId=" + stationNode.getId() +
                 "} " + super.toString();
     }
@@ -103,7 +102,7 @@ public class TramStationState extends StationState {
     }
 
     @Override
-    protected TramStationState toTramStation(Builder towardsStation, Node node, int cost, JourneyStateUpdate journeyState) {
+    protected PlatformStationState toTramStation(Builder towardsStation, Node node, int cost, JourneyStateUpdate journeyState) {
         journeyState.toNeighbour(stationNode, node, cost);
         return towardsStation.fromNeighbour(this, node, cost);
     }

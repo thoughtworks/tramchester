@@ -27,7 +27,7 @@ public class NoPlatformStationState extends StationState {
             registers.add(RouteStationStateOnTrip.class, this);
             registers.add(RouteStationStateEndTrip.class, this);
             registers.add(NoPlatformStationState.class, this);
-            registers.add(TramStationState.class, this);
+            registers.add(PlatformStationState.class, this);
             registers.add(GroupedStationState.class, this);
         }
 
@@ -96,7 +96,7 @@ public class NoPlatformStationState extends StationState {
     }
 
     @Override
-    protected TramStationState toTramStation(TramStationState.Builder towardsStation, Node next, int cost, JourneyStateUpdate journeyState) {
+    protected PlatformStationState toTramStation(PlatformStationState.Builder towardsStation, Node next, int cost, JourneyStateUpdate journeyState) {
         journeyState.toNeighbour(stationNode, next, cost);
         return towardsStation.fromNeighbour(this, next, cost);
     }

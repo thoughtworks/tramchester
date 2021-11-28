@@ -115,7 +115,7 @@ public abstract class TraversalState implements ImmuatableTraversalState {
         throw new RuntimeException("No such transition at " + this.getClass());
     }
 
-    protected TramStationState toTramStation(TramStationState.Builder towardsStation, Node node, int cost, JourneyStateUpdate journeyState) {
+    protected PlatformStationState toTramStation(PlatformStationState.Builder towardsStation, Node node, int cost, JourneyStateUpdate journeyState) {
         throw new RuntimeException("No such transition at " + this.getClass());
     }
 

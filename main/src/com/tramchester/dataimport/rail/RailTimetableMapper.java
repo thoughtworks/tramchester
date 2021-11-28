@@ -23,6 +23,8 @@ import org.slf4j.LoggerFactory;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeFormatterBuilder;
 import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static com.tramchester.domain.reference.GTFSPickupDropoffType.None;
 import static com.tramchester.domain.reference.GTFSPickupDropoffType.Regular;
@@ -120,7 +122,6 @@ public class RailTimetableMapper {
             }
             default -> logger.warn("Not handling " + basicSchedule);
         }
-
     }
 
     public void reportDiagnostics() {
@@ -174,6 +175,7 @@ public class RailTimetableMapper {
         private final Map<String, TIPLOCInsert> tiplocInsertRecords;
         private final MissingStations missingStations; // stations missing unexpectedly
         private final RailServiceGroups railServiceGroups;
+        private final RailRouteIDBuilder railRouteIDBuilder;
 
         private CreatesTransportDataForRail(TransportDataContainer container, Map<String, TIPLOCInsert> tiplocInsertRecords,
                                             MissingStations missingStations) {
@@ -182,6 +184,7 @@ public class RailTimetableMapper {
             this.missingStations = missingStations;
 
             this.railServiceGroups = new RailServiceGroups(container);
+            this.railRouteIDBuilder = new RailRouteIDBuilder();
         }
 
         public void consume(RawService rawService, boolean isOverlay) {
@@ -234,7 +237,7 @@ public class RailTimetableMapper {
             MutableService service = railServiceGroups.getOrCreateService(basicSchedule, isOverlay);
 
             // Route
-            MutableRoute route = getOrCreateRoute(originLocation, terminatingLocation, mutableAgency, atocCode);
+            MutableRoute route = getOrCreateRoute(rawService, mutableAgency, atocCode);
             route.addService(service);
             mutableAgency.addRoute(route);
 
@@ -369,42 +372,69 @@ public class RailTimetableMapper {
             return StringIdFor.createId("trip:"+service.getId().forDTO());
         }
 
-//        private IdFor<Trip> createTripIdFor(BasicSchedule schedule) {
-//            String startDate = schedule.getStartDate().format(dateFormatter);
-//            String endDate = schedule.getEndDate().format(dateFormatter);
-//            return StringIdFor.createId(format("%s:%s:%s", schedule.getUniqueTrainId(), startDate, endDate));
-//        }
-
-        private MutableRoute getOrCreateRoute(OriginLocation originLocation, TerminatingLocation terminatingLocation,
+        private MutableRoute getOrCreateRoute(RawService rawService,
                                               MutableAgency mutableAgency, String atocCode) {
             MutableRoute route;
-            String shortName = createRouteShortName(originLocation, terminatingLocation, atocCode);
-            IdFor<Route> routeId = StringIdFor.createId(shortName);
+            List<Station> callingPoints = routeCallingPoints(rawService);
+            String shortName = createRouteShortName(atocCode, callingPoints);
+            IdFor<Route> routeId = railRouteIDBuilder.getIdFor(atocCode, callingPoints);
+
             if (container.hasRouteId(routeId)) {
                 route = container.getMutableRoute(routeId);
             } else {
-                String routeName = createRouteName(originLocation, terminatingLocation, atocCode);
+                String routeName = createRouteName(atocCode, rawService);
                 route = new MutableRoute(routeId, shortName, routeName, mutableAgency, TransportMode.Train);
                 container.addRoute(route);
             }
             return route;
         }
 
+        private String createRouteShortName(String atocCode, List<Station> callingPoints) {
+            Station first = callingPoints.get(0);
+            Station last = callingPoints.get(callingPoints.size()-1);
+            StringBuilder inters = new StringBuilder();
+            for (int i = 1; i < callingPoints.size()-1; i++) {
+                inters.append(' ').append(callingPoints.get(i).getName());
+            }
+            return format("%s:%s to %s via%s", atocCode, first.getName(), last.getName(), inters);
 
-
-        private String createRouteName(OriginLocation originLocation, TerminatingLocation terminatingLocation, String atocCode) {
-            final String startName = getNameForRoute(originLocation);
-            final String endName = getNameForRoute(terminatingLocation);
-            return format("%s service from %s to %s", atocCode, startName, endName);
         }
 
-        private String getNameForRoute(RailLocationRecord originLocation) {
+        private List<Station> routeCallingPoints(RawService rawService) {
+            List<Station> result = new ArrayList<>();
+            if (isStation(rawService.originLocation)) {
+                result.add(getStationFor(rawService.originLocation));
+            }
+            List<Station> inters = rawService.intermediateLocations.stream().
+                    filter(this::isStation).
+                    map(this::getStationFor).
+                    collect(Collectors.toList());
+            result.addAll(inters);
+            if (isStation(rawService.terminatingLocation)) {
+                result.add(getStationFor(rawService.terminatingLocation));
+            }
+            return result;
+        }
+
+        private String createRouteName(String atocCode, RawService rawService) {
+            final String startName = getNameForRoute(rawService.originLocation);
+            final String endName = getNameForRoute(rawService.terminatingLocation);
+            Stream<String> names = rawService.intermediateLocations.stream().
+                    filter(this::isStation).
+                    map(this::getStationFor).
+                    map(MutableStation::getName);
+            StringBuilder callingPoints = new StringBuilder();
+            names.forEach(callingPoints::append);
+            return format("%s service from %s to %s via %s", atocCode, startName, endName, callingPoints);
+        }
+
+        private String getNameForRoute(RailLocationRecord locationRecord) {
             String name;
-            if (isStation(originLocation)) {
-                Station start = getStationFor(originLocation);
+            if (isStation(locationRecord)) {
+                Station start = getStationFor(locationRecord);
                  name = start.getName();
             } else {
-                final String tiplocCode = originLocation.getTiplocCode();
+                final String tiplocCode = locationRecord.getTiplocCode();
                 if (tiplocInsertRecords.containsKey(tiplocCode)) {
                     name = tiplocInsertRecords.get(tiplocCode).getName();
                 } else {
@@ -415,7 +445,7 @@ public class RailTimetableMapper {
             return name;
         }
 
-        private String createRouteShortName(OriginLocation originLocation, TerminatingLocation terminatingLocation, String atocCode) {
+        private String createRouteShortName(OriginLocation originLocation, TerminatingLocation terminatingLocation, List<IntermediateLocation> intermediateLocations, String atocCode) {
             return format("%s:%s=>%s", atocCode, originLocation.getTiplocCode(), terminatingLocation.getTiplocCode());
         }
 

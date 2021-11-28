@@ -210,6 +210,9 @@ public class StationsAndLinksGraphBuilder extends GraphBuilder {
             Node platformNode = createGraphNode(txn, GraphLabel.PLATFORM);
             setProperty(platformNode, platform);
             setProperty(platformNode, station);
+
+            setTransportMode(station, platformNode);
+
             routeBuilderCache.putPlatform(platform.getId(), platformNode);
         }
     }
@@ -222,15 +225,19 @@ public class StationsAndLinksGraphBuilder extends GraphBuilder {
         setProperty(routeStationNode, routeStation.getStation());
         setProperty(routeStationNode, routeStation.getRoute());
 
-        Set<TransportMode> modes = routeStation.getTransportModes();
-        if (modes.size()==1) {
-            setProperty(routeStationNode, modes.iterator().next());
-        } else {
-            logger.error("Unable to set transportmode property as more than one mode for " + routeStation);
-        }
+        setTransportMode(routeStation, routeStationNode);
 
         builderCache.putRouteStation(routeStation.getId(), routeStationNode);
         return routeStationNode;
+    }
+
+    private void setTransportMode(HasTransportModes hasTransportModes, Node node) {
+        Set<TransportMode> modes = hasTransportModes.getTransportModes();
+        if (modes.size()==1) {
+            setProperty(node, modes.iterator().next());
+        } else {
+            logger.error("Unable to set transportmode property, more than one mode for " + hasTransportModes);
+        }
     }
 
 

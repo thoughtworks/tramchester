@@ -18,7 +18,7 @@ public class DestinationState extends TraversalState
         public void register(RegistersFromState registers) {
             registers.add(NoPlatformStationState.class, this);
             registers.add(WalkingState.class, this);
-            registers.add(TramStationState.class, this);
+            registers.add(PlatformStationState.class, this);
             registers.add(GroupedStationState.class, this);
         }
 
@@ -35,8 +35,8 @@ public class DestinationState extends TraversalState
             return new DestinationState(walkingState, cost);
         }
 
-        public DestinationState from(TramStationState tramStationState, int cost) {
-            return new DestinationState(tramStationState, cost);
+        public DestinationState from(PlatformStationState platformStationState, int cost) {
+            return new DestinationState(platformStationState, cost);
         }
 
         public DestinationState from(GroupedStationState groupedStationState, int cost) {

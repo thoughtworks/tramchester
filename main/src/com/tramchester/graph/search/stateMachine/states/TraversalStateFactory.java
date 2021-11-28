@@ -40,7 +40,7 @@ public class TraversalStateFactory {
         registersStates.addBuilder(new HourState.Builder(depthFirst, nodeContents));
         registersStates.addBuilder(new JustBoardedState.Builder(depthFirst));
         registersStates.addBuilder(new NoPlatformStationState.Builder());
-        registersStates.addBuilder(new TramStationState.Builder());
+        registersStates.addBuilder(new PlatformStationState.Builder());
         registersStates.addBuilder(new WalkingState.Builder());
         registersStates.addBuilder(new ServiceState.Builder(depthFirst, nodeContents));
         registersStates.addBuilder(new PlatformState.Builder());
@@ -72,8 +72,8 @@ public class TraversalStateFactory {
         return getFor(from, HourState.class);
     }
 
-    public TramStationState.Builder getTowardsStation(Class<? extends TraversalState> from) {
-        return getFor(from, TramStationState.class);
+    public PlatformStationState.Builder getTowardsStation(Class<? extends TraversalState> from) {
+        return getFor(from, PlatformStationState.class);
     }
 
     public DestinationState.Builder getTowardsDestination(Class<? extends TraversalState> from) {

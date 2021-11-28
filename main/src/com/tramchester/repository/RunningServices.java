@@ -28,14 +28,14 @@ public class RunningServices {
         return serviceIds.contains(serviceId);
     }
 
-//    public long count() {
-//        return serviceIds.size();
-//    }
-
     @Override
     public String toString() {
         return "RunningServices{" +
                 "serviceIds=" + serviceIds +
                 '}';
+    }
+
+    public int size() {
+        return serviceIds.size();
     }
 }

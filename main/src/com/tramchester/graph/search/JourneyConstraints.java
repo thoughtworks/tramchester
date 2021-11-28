@@ -108,7 +108,7 @@ public class JourneyConstraints {
     @Override
     public String toString() {
         return "JourneyConstraints{" +
-                "runningServices=" + runningServices +
+                "runningServices=" + runningServices.size() +
                 ", maxPathLength=" + maxPathLength +
                 ", endStations=" + HasId.asIds(endStations) +
                 ", closedStations=" + closedStations +

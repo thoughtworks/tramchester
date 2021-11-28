@@ -111,7 +111,9 @@ public class RouteStationStateOnTrip extends RouteStationState implements NodeId
 
     @Override
     protected TraversalState toPlatform(PlatformState.Builder towardsPlatform, Node node, int cost, JourneyStateUpdate journeyState) {
-        leaveVehicle(journeyState, TransportMode.Tram, "Unable to process platform");
+        //TransportMode actualMode = GraphProps.getTransportMode(node);
+
+        leaveVehicle(journeyState, transportMode, "Unable to process platform");
         return towardsPlatform.fromRouteStationOnTrip(this, node, cost);
     }
 

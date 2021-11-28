@@ -28,7 +28,6 @@ public class IntegrationTrainTestConfig extends IntegrationTestConfig {
         graphDBConfig = new GraphDBIntegrationTrainTestConfig("integrationTrainTest", dbFilename);
         sourceConfig = new TrainTestDataSourceConfig("data/trains");
         remoteDataRailConfig = new TrainGTFSRemoteDataSourceConfig("data/trains");
-
     }
 
     @Override
@@ -79,7 +78,7 @@ public class IntegrationTrainTestConfig extends IntegrationTestConfig {
 
     @Override
     public Path getCacheFolder() {
-        return TestEnv.CACHE_DIR.resolve("trainIntegration");
+        return TestEnv.CACHE_DIR.resolve("railIntegration");
     }
 
     private static class GraphDBIntegrationTrainTestConfig extends GraphDBTestConfig {

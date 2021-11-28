@@ -32,7 +32,7 @@ public class NotStartedState extends TraversalState {
     }
 
     @Override
-    protected TramStationState toTramStation(TramStationState.Builder towardsStation, Node node, int cost, JourneyStateUpdate journeyState) {
+    protected PlatformStationState toTramStation(PlatformStationState.Builder towardsStation, Node node, int cost, JourneyStateUpdate journeyState) {
         return towardsStation.fromStart(this, node, cost);
     }
 
