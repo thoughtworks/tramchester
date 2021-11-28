@@ -43,12 +43,9 @@ public class RecordHelper {
 
     public static TramTime extractTime(String text, int begin, int end) {
         String rawTime = text.substring(begin, end);
-        if (rawTime.length()!=4) {
-            final String message = "Wrong length for time";
-            logger.error(message);
-            throw new RuntimeException(message);
+        if (rawTime.length()!=4 || rawTime.isBlank()) {
+            return TramTime.invalid();
         }
-        //logger.debug("Parse time " + rawTime);
         int hour = Integer.parseUnsignedInt(rawTime,0, 2 ,10);
         int minite = Integer.parseUnsignedInt(rawTime,2, 4 ,10);
         return TramTime.of(hour, minite);

@@ -75,7 +75,6 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
                 dataCache.loadInto(costs, RouteMatrixData.class);
             } else {
                 buildIndexAndCostMatrix();
-
                 dataCache.save(index, RouteIndexData.class);
                 dataCache.save(costs, RouteMatrixData.class);
             }
@@ -92,11 +91,10 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
     }
 
     private void populateCosts() {
-        List<Route> routes = new ArrayList<>(routeRepository.getRoutes());
-        int size = routes.size();
+        final int size = routeRepository.numberOfRoutes();
         logger.info("Find costs between " + size + " routes");
         final int fullyConnected = size * size;
-        double fullyConnectedPercentage = fullyConnected / 100D;
+        final double fullyConnectedPercentage = fullyConnected / 100D;
 
         // route -> [reachable routes]
         InterimResults linksForRoutes = addInitialConnectionsFromInterchanges();
@@ -105,8 +103,9 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
 
         // for existing connections infer next degree of connections, stop if no more added
         for (byte currentDegree = 1; currentDegree <= MAX_DEPTH; currentDegree++) {
+            logger.info("Adding connections for degree " + currentDegree);
             // create new: route -> [reachable routes]
-            InterimResults newLinksForRoutes = addConnectionsFor(currentDegree, linksForRoutes);
+            final InterimResults newLinksForRoutes = addConnectionsFor(currentDegree, linksForRoutes);
             if (newLinksForRoutes.isEmpty()) {
                 logger.info("Finished at degree " + (currentDegree-1));
                 linksForRoutes.clear();
@@ -114,7 +113,6 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
             } else {
                 logger.info("Total is " + costs.size() + " " + costs.size()/fullyConnectedPercentage +"%");
             }
-            //linksForRoutes.clear();
             linksForRoutes = newLinksForRoutes;
         }
 
@@ -126,16 +124,17 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
     }
 
     private InterimResults addConnectionsFor(byte currentDegree, InterimResults currentlyReachableRoutes) {
-        Instant startTime = Instant.now();
+        final Instant startTime = Instant.now();
         final byte nextDegree = (byte)(currentDegree+1);
-        InterimResults additional = new InterimResults(); // discovered route -> [route] for this degree
+        final InterimResults additional = new InterimResults(); // discovered route -> [route] for this degree
         for(Map.Entry<Integer, Set<Integer>> entry : currentlyReachableRoutes.entrySet()) {
 
             final int routeIndex = entry.getKey();
             final Set<Integer> connectedToRoute = entry.getValue(); // routes we can currently reach for current key
 
             // for each reachable route, find the routes we can in turn reach from them not already found previous degree
-            final Set<Integer> newConnections = connectedToRoute.parallelStream().
+            final Set<Integer> newConnections =
+                    connectedToRoute.parallelStream().
                     filter(currentlyReachableRoutes::containsKey).
                     map(currentlyReachableRoutes::get).
                     filter(routeSet -> !routeSet.isEmpty()).
@@ -149,18 +148,18 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
         }
         logger.info("Discover " + Duration.between(startTime, Instant.now()).toMillis() + " ms");
 
-        int before = costs.size();
+        final int before = costs.size();
         additional.addTo(costs, nextDegree);
         final int added = costs.size() - before;
 
-        long took = Duration.between(startTime, Instant.now()).toMillis();
+        final long took = Duration.between(startTime, Instant.now()).toMillis();
         logger.info("Added " + added + " extra connections for degree " + currentDegree + " in " + took + " ms");
         return additional;
     }
 
     private InterimResults addInitialConnectionsFromInterchanges() {
         // seed connections between routes using interchanges
-        InterimResults linksForRoutes = new InterimResults();
+        final InterimResults linksForRoutes = new InterimResults();
         // same mode interchanges
         interchangeRepository.getAllInterchanges().
                 forEach(station -> addOverlapsFor(station, linksForRoutes));
@@ -170,10 +169,11 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
 
     private void addOverlapsFor(InterchangeStation interchange, InterimResults linksForDegree) {
 
-        List<IdFor<Route>> source = interchange.getSourceRoutes().stream().map(Route::getId).collect(Collectors.toList());
-        int sourceSize = source.size();
-        List<IdFor<Route>> dest = interchange.getDestinationRoutes().stream().map(Route::getId).collect(Collectors.toList());
-        int destSize = dest.size();
+        final List<IdFor<Route>> source = interchange.getSourceRoutes().stream().map(Route::getId).collect(Collectors.toList());
+        final List<IdFor<Route>> dest = interchange.getDestinationRoutes().stream().map(Route::getId).collect(Collectors.toList());
+
+        final int sourceSize = source.size();
+        final int destSize = dest.size();
 
         for (int i = 0; i < sourceSize; i++) {
             final IdFor<Route> fromId = source.get(i);
@@ -187,7 +187,6 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
                     final int towards = index.find(towardsId);
                     linksForDegree.get(from).add(towards);
                     if (!costs.contains(from, towards)) {
-
                         costs.put(from, towards, (byte) 1);
                     }
                 }
@@ -201,7 +200,7 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
         }
         final IdFor<Route> idA = routeA.getId();
         final IdFor<Route> idB = routeB.getId();
-        byte result = costs.get(index.find(idA), index.find(idB));
+        final byte result = costs.get(index.find(idA), index.find(idB));
         if (result==Costs.MAX_VALUE) {
             if (routeA.getTransportMode()==routeB.getTransportMode()) {
                 // for mixed transport mode having no value is quite normal
@@ -352,20 +351,9 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
             }
         }
 
-//        public int size() {
-//            return map.size();
-//        }
-
         public int find(IdFor<Route> from) {
             return map.get(from);
         }
-
-//        public IdFor<Route> find(int index) {
-//            return map.entrySet().stream().
-//                    filter(entry -> entry.getValue()==index).
-//                    map(Map.Entry::getKey).
-//                    findFirst().orElseThrow();
-//        }
 
         @Override
         public void cacheTo(DataSaver<RouteIndexData> saver) {

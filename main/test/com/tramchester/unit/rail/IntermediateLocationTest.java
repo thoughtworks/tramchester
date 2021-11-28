@@ -18,15 +18,23 @@ public class IntermediateLocationTest {
         assertEquals(TramTime.of(18,53), intermediateLocation.getPublicArrival());
         assertEquals(TramTime.of(18,54), intermediateLocation.getPublicDeparture());
         assertEquals("123", intermediateLocation.getPlatform());
+        assertFalse(intermediateLocation.isPassingRecord());
     }
 
     @Test
-    void shouldParseNonStopRecord() {
+    void shouldParsePassingRecord() {
+        // i.e. record records passing a location but not calling at
+
+        //             LIBATRSPJ           0112H00000000
         String line = "LIBATRSPJ           2125H00000000                          H";
 
         IntermediateLocation intermediateLocation = IntermediateLocation.parse(line);
 
         assertEquals("BATRSPJ", intermediateLocation.getTiplocCode());
+        assertTrue(intermediateLocation.isPassingRecord());
+        assertEquals(TramTime.of(21,25), intermediateLocation.getPassingTime());
+        assertFalse(intermediateLocation.getPublicArrival().isValid());
+        assertFalse(intermediateLocation.getPublicDeparture().isValid());
     }
 
     @Test
@@ -37,6 +45,7 @@ public class IntermediateLocationTest {
 
         assertEquals(7, intermediateLocation.getTiplocCode().length());
         assertEquals("KEWGRDN", intermediateLocation.getTiplocCode());
+        assertFalse(intermediateLocation.isPassingRecord());
     }
 
     @Test
@@ -56,5 +65,6 @@ public class IntermediateLocationTest {
 
         assertEquals(7, intermediateLocation.getTiplocCode().length());
         assertEquals("FARE825", intermediateLocation.getTiplocCode());
+        assertFalse(intermediateLocation.isPassingRecord());
     }
 }

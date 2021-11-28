@@ -5,6 +5,7 @@ import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.places.Station;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -22,6 +23,7 @@ public class RailRouteIDBuilder {
     }
 
     public IdFor<Route> getIdFor(String atocCode, List<Station> callingPoints) {
+        // form unique route id based on the atoc code and list of calling points
         List<IdFor<Station>> idList = callingPoints.stream().map(Station::getId).collect(Collectors.toList());
         if (callingPointsToId.containsKey(idList)) {
             return callingPointsToId.get(idList);
@@ -46,7 +48,7 @@ public class RailRouteIDBuilder {
     private String createBaseIdForRoute(String atocCode, List<Station> callingPoints) {
         String firstName = callingPoints.get(0).getId().forDTO();
         String lastName = callingPoints.get(callingPoints.size()-1).getId().forDTO();
-        String baseIdText = format("%s:%s=>%s", atocCode, firstName, lastName);
-        return baseIdText;
+        return format("%s:%s=>%s", atocCode, firstName, lastName);
     }
+
 }

@@ -2,9 +2,7 @@ package com.tramchester.integration.rail;
 
 import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
-import com.tramchester.domain.Platform;
-import com.tramchester.domain.Route;
-import com.tramchester.domain.Service;
+import com.tramchester.domain.*;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.id.StringIdFor;
@@ -19,9 +17,9 @@ import com.tramchester.domain.time.TramTime;
 import com.tramchester.geo.CoordinateTransforms;
 import com.tramchester.geo.GridPosition;
 import com.tramchester.integration.testSupport.rail.IntegrationRailTestConfig;
+import com.tramchester.integration.testSupport.rail.RailStationIds;
 import com.tramchester.repository.TransportData;
 import com.tramchester.testSupport.TestEnv;
-import com.tramchester.testSupport.reference.TramTransportDataForTestFactory;
 import com.tramchester.testSupport.testTags.TrainTest;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
@@ -30,6 +28,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.DisabledIfEnvironmentVariable;
 
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -188,6 +187,34 @@ public class LoadRailTransportDataTest {
 
         assertFalse(am8Trips.isEmpty(), "No trip at required time " + runningServices);
 
+    }
+
+    @Test
+    void shouldHaveRoutesForAgencyStartAndEnd() {
+        IdFor<Agency> agencyId = StringIdFor.createId("VT");
+        Optional<Agency> foundAgency = transportData.getAgencies().stream().
+                filter(agency -> agency.getId().equals(agencyId)).findFirst();
+
+        IdFor<Station> startId = ManchesterPiccadilly.getId();
+        IdFor<Station> endId = LondonEuston.getId();
+
+        assertTrue(foundAgency.isPresent());
+        Agency agency = foundAgency.get();
+
+        Set<MutableRailRoute> routes = transportData.getRoutes().stream().
+                filter(route -> route instanceof MutableRailRoute).
+                filter(route -> route.getAgency().equals(agency)).
+                map(route -> (MutableRailRoute)route).
+                filter(route -> route.getBegin().getId().equals(startId)).
+                filter(route -> route.getEnd().getId().equals(endId)).
+                collect(Collectors.toSet());
+
+        Set<List<Station>> uniqueCallingPoints = routes.stream().
+                map(MutableRailRoute::getCallingPoiints).collect(Collectors.toSet());
+
+        assertEquals(routes.size(), uniqueCallingPoints.size());
+
+        assertEquals(38, routes.size(), routes.toString());
     }
 
     private boolean matches(IdFor<Station> firstId, IdFor<Station> secondId, Trip trip) {

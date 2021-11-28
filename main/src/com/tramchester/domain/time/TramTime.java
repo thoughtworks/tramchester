@@ -49,6 +49,10 @@ public class TramTime implements Comparable<TramTime> {
         return factory.of(hours, minutes, offsetDays);
     }
 
+    public static TramTime invalid() {
+        return Factory.Invalid();
+    }
+
     public boolean isValid() {
         return this != Factory.Invalid();
     }

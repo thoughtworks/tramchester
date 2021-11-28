@@ -18,26 +18,47 @@ package com.tramchester.dataimport.rail.records;
 
 import com.tramchester.dataimport.rail.RailRecordType;
 import com.tramchester.domain.time.TramTime;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class IntermediateLocation implements RailLocationRecord {
+    private static final Logger logger = LoggerFactory.getLogger(IntermediateLocation.class);
+    public static final TramTime missingPublicTime = TramTime.of(0, 0);
+
     private final String tiplocCode;
     private final TramTime publicArrival;
     private final TramTime publicDeparture;
+    private final TramTime passingTime;
     private final String platform;
 
-    public IntermediateLocation(String tiplocCode, TramTime publicArrival, TramTime publicDeparture, String platform) {
+    public IntermediateLocation(String tiplocCode, TramTime publicArrival, TramTime publicDeparture, String platform,
+                                TramTime passingTime) {
         this.tiplocCode = tiplocCode;
         this.publicArrival = publicArrival;
         this.publicDeparture = publicDeparture;
         this.platform = platform;
+        this.passingTime = passingTime;
     }
 
-    public static IntermediateLocation parse(String line) {
-        String tiplocCode = RecordHelper.extract(line, 3, 10); // tiploc is 7 long
-        TramTime publicArrival = RecordHelper.extractTime(line, 25, 28+1);
-        TramTime publicDeparture = RecordHelper.extractTime(line, 29, 32+1);
-        String platform = RecordHelper.extract(line, 34, 36+1);
-        return new IntermediateLocation(tiplocCode, publicArrival, publicDeparture, platform);
+    public static IntermediateLocation parse(String text) {
+        String tiplocCode = RecordHelper.extract(text, 3, 10); // tiploc is 7 long
+        TramTime passingTime = RecordHelper.extractTime(text, 20, 23+1);
+        boolean isPassing = passingTime.isValid();
+        TramTime publicArrival = getPublicTime(text, isPassing, 25, 28 + 1);
+        TramTime publicDeparture = getPublicTime(text, isPassing, 29, 32+1);
+        String platform = RecordHelper.extract(text, 34, 36+1);
+        return new IntermediateLocation(tiplocCode, publicArrival, publicDeparture, platform, passingTime);
+    }
+
+    private static TramTime getPublicTime(String text, boolean isPassing, int begin, int end) {
+        TramTime result = RecordHelper.extractTime(text, begin, end);
+        if (isPassing) {
+            if (!result.equals(missingPublicTime)) {
+                logger.warn("Passing is set but valid public time of " + result);
+            }
+            return TramTime.invalid();
+        }
+        return result;
     }
 
     public String getTiplocCode() {
@@ -91,5 +112,13 @@ public class IntermediateLocation implements RailLocationRecord {
         result = 31 * result + publicDeparture.hashCode();
         result = 31 * result + platform.hashCode();
         return result;
+    }
+
+    public boolean isPassingRecord() {
+        return passingTime.isValid();
+    }
+
+    public TramTime getPassingTime() {
+        return passingTime;
     }
 }
