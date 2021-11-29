@@ -249,9 +249,9 @@ public class TestEnv {
         };
     }
 
-    public static Set<DayOfWeek> allDays() {
-        return new HashSet<>(Arrays.asList(DayOfWeek.MONDAY, DayOfWeek.TUESDAY, DayOfWeek.WEDNESDAY, DayOfWeek.THURSDAY,
-                DayOfWeek.FRIDAY, DayOfWeek.SATURDAY, DayOfWeek.SUNDAY));
+    public static EnumSet<DayOfWeek> allDays() {
+        return EnumSet.of(DayOfWeek.MONDAY, DayOfWeek.TUESDAY, DayOfWeek.WEDNESDAY, DayOfWeek.THURSDAY,
+                DayOfWeek.FRIDAY, DayOfWeek.SATURDAY, DayOfWeek.SUNDAY);
     }
 
     public static void deleteDBIfPresent(TramchesterConfig config) throws IOException {

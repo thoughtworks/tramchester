@@ -40,6 +40,7 @@ import org.slf4j.LoggerFactory;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
+import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -50,7 +51,7 @@ public class BasicSchedule implements RailTimetableRecord {
     private final LocalDate endDate;
     private final TransactionType transactionType;
     private final String uniqueTrainId;
-    private final Set<DayOfWeek> daysOfWeek;
+    private final EnumSet<DayOfWeek> daysOfWeek;
     private final ShortTermPlanIndicator stpIndicator;
     private final String trainIdentity;
     private final TrainStatus trainStatus;
@@ -69,7 +70,7 @@ public class BasicSchedule implements RailTimetableRecord {
     }
 
     public BasicSchedule(TransactionType transactionType, String uniqueTrainId, LocalDate startDate, LocalDate endDate,
-                         Set<DayOfWeek> daysOfWeek, ShortTermPlanIndicator stpIndicator, String headcode,
+                         EnumSet<DayOfWeek> daysOfWeek, ShortTermPlanIndicator stpIndicator, String headcode,
                          TrainStatus trainStatus, TrainCategory trainCategory) {
         this.transactionType = transactionType;
         this.uniqueTrainId = uniqueTrainId;
@@ -89,7 +90,7 @@ public class BasicSchedule implements RailTimetableRecord {
         String headcode = RecordHelper.extract(text, 33, 36+1);
         LocalDate startDate = RecordHelper.extractDate(text, 10, 15+1, providesNow);
         LocalDate endDate = RecordHelper.extractDate(text, 16, 21+1, providesNow);
-        Set<DayOfWeek> daysOfWeek = extractDays(text, 22, 28+1);
+        EnumSet<DayOfWeek> daysOfWeek = extractDays(text, 22, 28+1);
         char stpIndicatorRaw = text.charAt(80-1);
         char trainStatusRaw = text.charAt(29);
         String trainCategoryRaw = RecordHelper.extract(text, 31, 32+1);
@@ -98,7 +99,7 @@ public class BasicSchedule implements RailTimetableRecord {
                 TrainStatus.getFor(trainStatusRaw), TrainCategory.getFor(trainCategoryRaw));
     }
 
-    private static Set<DayOfWeek> extractDays(String line, int begin, int end) {
+    private static EnumSet<DayOfWeek> extractDays(String line, int begin, int end) {
         String days = RecordHelper.extract(line, begin, end);
         if (days.length()!=7) {
             logger.error("Not enough days of the week");
@@ -110,7 +111,7 @@ public class BasicSchedule implements RailTimetableRecord {
                 result.add(DayOfWeek.of(day+1));
             }
         }
-        return result;
+        return EnumSet.copyOf(result);
     }
 
     @NotNull
@@ -139,7 +140,7 @@ public class BasicSchedule implements RailTimetableRecord {
         return endDate;
     }
 
-    public Set<DayOfWeek> getDaysOfWeek() {
+    public EnumSet<DayOfWeek> getDaysOfWeek() {
         return daysOfWeek;
     }
 

@@ -8,7 +8,9 @@ import org.junit.jupiter.api.Test;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
+import java.util.EnumSet;
 
+import static java.time.DayOfWeek.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 class MutableServiceCalendarTest {
@@ -33,22 +35,35 @@ class MutableServiceCalendarTest {
     }
 
     @Test
-    void shouldHaveOverlap() {
+    void shouldHaveOverlapAllDays() {
         LocalDate startDate = LocalDate.of(2014, 10, 5);
         LocalDate endDate = LocalDate.of(2014, 12, 25);
 
         ServiceCalendar serviceCalendar = new MutableServiceCalendar(startDate, endDate, TestEnv.allDays());
-        assertTrue(serviceCalendar.overlapsWith(startDate, endDate));
+        assertTrue(serviceCalendar.overlapsDatesWith(startDate, endDate));
 
-        assertTrue(serviceCalendar.overlapsWith(startDate.minusDays(1), startDate.plusDays(1)));
-        assertTrue(serviceCalendar.overlapsWith(endDate.minusDays(1), endDate.plusDays(1)));
-        assertTrue(serviceCalendar.overlapsWith(startDate.minusDays(1), endDate.plusDays(1)));
-        assertTrue(serviceCalendar.overlapsWith(startDate.minusDays(1), endDate.plusDays(1)));
-        assertTrue(serviceCalendar.overlapsWith(startDate.plusDays(1), endDate.minusDays(1)));
+        assertTrue(serviceCalendar.overlapsDatesWith(startDate.minusDays(1), startDate.plusDays(1)));
+        assertTrue(serviceCalendar.overlapsDatesWith(endDate.minusDays(1), endDate.plusDays(1)));
+        assertTrue(serviceCalendar.overlapsDatesWith(startDate.minusDays(1), endDate.plusDays(1)));
+        assertTrue(serviceCalendar.overlapsDatesWith(startDate.minusDays(1), endDate.plusDays(1)));
+        assertTrue(serviceCalendar.overlapsDatesWith(startDate.plusDays(1), endDate.minusDays(1)));
 
-        assertFalse(serviceCalendar.overlapsWith(endDate.plusDays(2), endDate.plusDays(3)));
-        assertFalse(serviceCalendar.overlapsWith(startDate.minusDays(3), startDate.minusDays(2)));
+        assertFalse(serviceCalendar.overlapsDatesWith(endDate.plusDays(2), endDate.plusDays(3)));
+        assertFalse(serviceCalendar.overlapsDatesWith(startDate.minusDays(3), startDate.minusDays(2)));
+    }
 
+    @Test
+    void shouldHaveOverlapSomeDays() {
+        LocalDate startDate = LocalDate.of(2014, 10, 5);
+        LocalDate endDate = LocalDate.of(2014, 12, 25);
+
+        ServiceCalendar serviceCalendar = new MutableServiceCalendar(startDate, endDate, EnumSet.of(MONDAY));
+
+        assertTrue(serviceCalendar.overlapsDatesAndDaysWith(startDate.plusDays(1), endDate.minusDays(1), EnumSet.of(MONDAY)));
+        assertTrue(serviceCalendar.overlapsDatesAndDaysWith(startDate.plusDays(1), endDate.minusDays(1), EnumSet.of(SUNDAY,MONDAY)));
+
+        assertFalse(serviceCalendar.overlapsDatesAndDaysWith(startDate.plusDays(1), endDate.minusDays(1), EnumSet.of(TUESDAY)));
+        assertFalse(serviceCalendar.overlapsDatesAndDaysWith(endDate.plusDays(5), endDate.plusDays(10), EnumSet.of(MONDAY)));
     }
 
     @Test

@@ -1,18 +1,20 @@
 package com.tramchester.domain;
 
+import com.google.common.collect.Sets;
 import com.tramchester.dataimport.data.CalendarData;
 
 import java.io.PrintStream;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.util.Arrays;
+import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.Set;
 
 public class MutableServiceCalendar implements ServiceCalendar {
     private final LocalDate startDate;
     private final LocalDate endDate;
-    private final Set<DayOfWeek> days;
+    private final EnumSet<DayOfWeek> days;
     private final Set<LocalDate> additional;
     private final Set<LocalDate> removed;
     private boolean cancelled;
@@ -28,16 +30,20 @@ public class MutableServiceCalendar implements ServiceCalendar {
     }
 
     public MutableServiceCalendar(LocalDate startDate, LocalDate endDate, DayOfWeek... operatingDays) {
-        this(startDate, endDate, new HashSet<>(Arrays.asList(operatingDays)));
+        this(startDate, endDate, enumFrom(operatingDays));
     }
 
-    public MutableServiceCalendar(LocalDate startDate, LocalDate endDate, Set<DayOfWeek> operatingDays) {
+    public MutableServiceCalendar(LocalDate startDate, LocalDate endDate, EnumSet<DayOfWeek> operatingDays) {
         this.startDate = startDate;
         this.endDate = endDate;
         days = operatingDays;
         additional = new HashSet<>();
         removed = new HashSet<>();
         cancelled = false;
+    }
+
+    private static EnumSet<DayOfWeek> enumFrom(DayOfWeek[] operatingDays) {
+        return EnumSet.copyOf(Arrays.asList(operatingDays));
     }
 
     public void includeExtraDate(LocalDate date) {
@@ -108,7 +114,7 @@ public class MutableServiceCalendar implements ServiceCalendar {
         return found.toString();
     }
 
-    private static Set<DayOfWeek> daysOfWeekFrom(boolean monday, boolean tuesday,
+    private static EnumSet<DayOfWeek> daysOfWeekFrom(boolean monday, boolean tuesday,
                                                  boolean wednesday, boolean thursday, boolean friday, boolean saturday, boolean sunday)
     {
         HashSet<DayOfWeek> result = new HashSet<>();
@@ -119,7 +125,7 @@ public class MutableServiceCalendar implements ServiceCalendar {
         addIf(friday, DayOfWeek.FRIDAY, result);
         addIf(saturday, DayOfWeek.SATURDAY, result);
         addIf(sunday, DayOfWeek.SUNDAY, result);
-        return result;
+        return EnumSet.copyOf(result);
     }
 
     private static void addIf(boolean flag, DayOfWeek dayOfWeek, HashSet<DayOfWeek> accumulator) {
@@ -134,11 +140,20 @@ public class MutableServiceCalendar implements ServiceCalendar {
     }
 
     @Override
-    public boolean overlapsWith(LocalDate rangeBegin, LocalDate rangeEnd) {
+    public boolean overlapsDatesWith(LocalDate rangeBegin, LocalDate rangeEnd) {
         return between(rangeBegin, rangeEnd, startDate) ||
                 between(rangeBegin, rangeEnd, endDate) ||
                 between(startDate, endDate, rangeBegin) ||
                 between(startDate, endDate, rangeEnd);
+    }
+
+    @Override
+    public boolean overlapsDatesAndDaysWith(LocalDate startDate, LocalDate endDate, EnumSet<DayOfWeek> daysOfWeek) {
+        Sets.SetView<DayOfWeek> intersection = Sets.intersection(days, daysOfWeek);
+        if (intersection.isEmpty()) {
+            return false;
+        }
+        return overlapsDatesWith(startDate, endDate);
     }
 
     private boolean between(LocalDate rangeBegin, LocalDate rangeEnd, LocalDate date) {

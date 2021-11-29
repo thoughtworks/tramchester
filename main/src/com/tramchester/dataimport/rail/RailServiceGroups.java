@@ -73,7 +73,7 @@ public class RailServiceGroups {
         LocalDate endDate = basicSchedule.getEndDate();
 
         return existingServices.stream().
-                filter(service -> service.getCalendar().overlapsWith(startDate, endDate)).
+                filter(service -> service.getCalendar().overlapsDatesWith(startDate, endDate)).
                 collect(Collectors.toSet());
     }
 
