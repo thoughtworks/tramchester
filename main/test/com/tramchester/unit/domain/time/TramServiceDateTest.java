@@ -1,4 +1,4 @@
-package com.tramchester.unit.domain;
+package com.tramchester.unit.domain.time;
 
 import com.tramchester.domain.time.TramServiceDate;
 import org.junit.jupiter.api.Assertions;

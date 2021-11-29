@@ -1,4 +1,4 @@
-package com.tramchester.unit.domain;
+package com.tramchester.unit.domain.time;
 
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.testSupport.TestEnv;

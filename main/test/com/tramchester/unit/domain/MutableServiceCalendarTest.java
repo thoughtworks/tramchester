@@ -42,15 +42,7 @@ class MutableServiceCalendarTest {
 
         ServiceCalendar serviceCalendar = new MutableServiceCalendar(DateRange.of(startDate, endDate), TestEnv.allDays());
         assertTrue(serviceCalendar.overlapsDatesWith(DateRange.of(startDate, endDate)));
-
-        assertTrue(serviceCalendar.overlapsDatesWith(DateRange.of(startDate.minusDays(1), startDate.plusDays(1))));
-        assertTrue(serviceCalendar.overlapsDatesWith(DateRange.of(endDate.minusDays(1), endDate.plusDays(1))));
-        assertTrue(serviceCalendar.overlapsDatesWith(DateRange.of(startDate.minusDays(1), endDate.plusDays(1))));
-        assertTrue(serviceCalendar.overlapsDatesWith(DateRange.of(startDate.minusDays(1), endDate.plusDays(1))));
-        assertTrue(serviceCalendar.overlapsDatesWith(DateRange.of(startDate.plusDays(1), endDate.minusDays(1))));
-
         assertFalse(serviceCalendar.overlapsDatesWith(DateRange.of(endDate.plusDays(2), endDate.plusDays(3))));
-        assertFalse(serviceCalendar.overlapsDatesWith(DateRange.of(startDate.minusDays(3), startDate.minusDays(2))));
     }
 
     @Test
