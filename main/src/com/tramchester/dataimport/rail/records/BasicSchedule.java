@@ -33,6 +33,7 @@ import com.tramchester.dataimport.rail.RailRecordType;
 import com.tramchester.dataimport.rail.records.reference.ShortTermPlanIndicator;
 import com.tramchester.dataimport.rail.records.reference.TrainCategory;
 import com.tramchester.dataimport.rail.records.reference.TrainStatus;
+import com.tramchester.domain.time.DateRange;
 import com.tramchester.domain.time.ProvidesNow;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
@@ -131,13 +132,9 @@ public class BasicSchedule implements RailTimetableRecord {
     public String getUniqueTrainId() {
         return uniqueTrainId;
     }
-
-    public LocalDate getStartDate() {
-        return startDate;
-    }
-
-    public LocalDate getEndDate() {
-        return endDate;
+    
+    public DateRange getDateRange() {
+        return new DateRange(startDate, endDate);
     }
 
     public EnumSet<DayOfWeek> getDaysOfWeek() {

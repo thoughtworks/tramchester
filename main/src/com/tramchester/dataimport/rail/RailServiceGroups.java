@@ -6,6 +6,7 @@ import com.tramchester.domain.MutableServiceCalendar;
 import com.tramchester.domain.Service;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.StringIdFor;
+import com.tramchester.domain.time.DateRange;
 import com.tramchester.repository.TransportDataContainer;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
@@ -49,31 +50,16 @@ public class RailServiceGroups {
 
         cancellationApplies.forEach(service -> {
                     MutableServiceCalendar calendar = service.getMutableCalendar();
-                    addServiceExceptions(calendar, basicSchedule.getStartDate(), basicSchedule.getEndDate(), basicSchedule.getDaysOfWeek());
+                    addServiceExceptions(calendar, basicSchedule.getDateRange(), basicSchedule.getDaysOfWeek());
                 });
 
-        //final IdFor<Service> serviceId = getServiceIdFor(basicSchedule);
-//        if (container.hasServiceId(serviceId)) {
-//            logger.debug("Making cancellations for schedule " + basicSchedule.getUniqueTrainId());
-//
-//            // todo only those services where the dates overlap
-//            MutableService service = container.getMutableService(serviceId);
-//            MutableServiceCalendar calendar = service.getMutableCalendar();
-//            addServiceExceptions(calendar, basicSchedule.getStartDate(), basicSchedule.getEndDate(), basicSchedule.getDaysOfWeek());
-//        } else {
-//            if (!skippedServices.contains(serviceId)) {
-//                logger.warn(format("Failed to find service %s to amend for %s", serviceId, basicSchedule));
-//            }
-//        }
     }
 
     @NotNull
     private Set<MutableService> filterByScheduleDates(BasicSchedule basicSchedule, List<MutableService> existingServices) {
-        LocalDate startDate = basicSchedule.getStartDate();
-        LocalDate endDate = basicSchedule.getEndDate();
 
         return existingServices.stream().
-                filter(service -> service.getCalendar().overlapsDatesWith(startDate, endDate)).
+                filter(service -> service.getCalendar().overlapsDatesWith(basicSchedule.getDateRange())).
                 collect(Collectors.toSet());
     }
 
@@ -82,7 +68,7 @@ public class RailServiceGroups {
 
         final IdFor<Service> serviceId = getServiceIdFor(schedule, isOverlay);
         MutableService service = new MutableService(serviceId);
-        MutableServiceCalendar calendar = new MutableServiceCalendar(schedule.getStartDate(), schedule.getEndDate(), schedule.getDaysOfWeek());
+        MutableServiceCalendar calendar = new MutableServiceCalendar(schedule.getDateRange(), schedule.getDaysOfWeek());
         service.setCalendar(calendar);
 
         if (isOverlay) {
@@ -98,7 +84,7 @@ public class RailServiceGroups {
                 } else {
                     // mark overlay dates as no longer applying
                     MutableServiceCalendar impactedCalendar = impactedService.getMutableCalendar();
-                    addServiceExceptions(impactedCalendar, schedule.getStartDate(), schedule.getEndDate(), schedule.getDaysOfWeek());
+                    addServiceExceptions(impactedCalendar, schedule.getDateRange(), schedule.getDaysOfWeek());
                 }
             });
         } else {
@@ -106,20 +92,12 @@ public class RailServiceGroups {
             serviceGroups.addService(scheduleId, service);
         }
 
-//        if (container.hasServiceId(serviceId)) {
-//            service = container.getMutableService(serviceId);
-//        } else {
-//            service = new MutableService(serviceId);
-//            MutableServiceCalendar calendar = new MutableServiceCalendar(schedule.getStartDate(), schedule.getEndDate(), schedule.getDaysOfWeek());
-//            service.setCalendar(calendar);
-//            container.addService(service);
-//        }
-
         return service;
     }
 
-    private void addServiceExceptions(MutableServiceCalendar calendar, LocalDate startDate, LocalDate endDate, Set<DayOfWeek> excludedDays) {
-        LocalDate current = startDate;
+    private void addServiceExceptions(MutableServiceCalendar calendar, DateRange dateRange, Set<DayOfWeek> excludedDays) {
+        LocalDate endDate = dateRange.getEndDate();
+        LocalDate current = dateRange.getStartDate();
         while (!current.isAfter(endDate)) {
             if (excludedDays.contains(current.getDayOfWeek())) {
                 calendar.excludeDate(current);
@@ -133,8 +111,9 @@ public class RailServiceGroups {
     }
 
     private IdFor<Service> getServiceIdFor(BasicSchedule schedule, boolean isOverlay) {
-        final String startDate = schedule.getStartDate().format(RailTimetableMapper.dateFormatter);
-        final String endDate = schedule.getEndDate().format(RailTimetableMapper.dateFormatter);
+        final DateRange dateRange = schedule.getDateRange();
+        final String startDate = dateRange.getStartDate().format(RailTimetableMapper.dateFormatter);
+        final String endDate = dateRange.getEndDate().format(RailTimetableMapper.dateFormatter);
         String text = format("%s:%s:%s", schedule.getUniqueTrainId(), startDate, endDate);
         if (isOverlay) {
             text = text + "OVERLAY";

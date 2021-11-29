@@ -1,5 +1,7 @@
 package com.tramchester.domain;
 
+import com.tramchester.domain.time.DateRange;
+
 import java.io.PrintStream;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
@@ -14,7 +16,8 @@ public interface ServiceCalendar {
 
     boolean operatesNoDays();
 
-    boolean overlapsDatesWith(LocalDate startDate, LocalDate endDate);
+    boolean overlapsDatesWith(DateRange dateRange);
 
-    boolean overlapsDatesAndDaysWith(LocalDate startDate, LocalDate endDate, EnumSet<DayOfWeek> daysOfWeek);
+    boolean overlapsDatesAndDaysWith(DateRange dateRange, EnumSet<DayOfWeek> daysOfWeek);
+
 }

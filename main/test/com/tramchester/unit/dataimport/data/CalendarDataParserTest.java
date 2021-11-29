@@ -1,6 +1,7 @@
 package com.tramchester.unit.dataimport.data;
 
 import com.tramchester.dataimport.data.CalendarData;
+import com.tramchester.domain.time.DateRange;
 import com.tramchester.unit.dataimport.ParserTestHelper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -21,6 +22,7 @@ class CalendarDataParserTest extends ParserTestHelper<CalendarData> {
 
         String calendar = "Serv000001,1,1,1,1,1,0,0,20141020,20141219";
         CalendarData calendarData = parse(calendar);
+
         assertThat(calendarData.getServiceId().forDTO()).isEqualTo("Serv000001");
         assertThat(calendarData.isMonday()).isEqualTo(true);
         assertThat(calendarData.isTuesday()).isEqualTo(true);
@@ -29,8 +31,9 @@ class CalendarDataParserTest extends ParserTestHelper<CalendarData> {
         assertThat(calendarData.isFriday()).isEqualTo(true);
         assertThat(calendarData.isSaturday()).isEqualTo(false);
         assertThat(calendarData.isSunday()).isEqualTo(false);
-        assertThat(calendarData.getStartDate()).isEqualTo(LocalDate.of(2014, 10, 20));
-        assertThat(calendarData.getEndDate()).isEqualTo(LocalDate.of(2014, 12, 19));
+        DateRange dateRange = calendarData.getDateRange();
+        assertThat(dateRange.getStartDate()).isEqualTo(LocalDate.of(2014, 10, 20));
+        assertThat(dateRange.getEndDate()).isEqualTo(LocalDate.of(2014, 12, 19));
     }
 
 

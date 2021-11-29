@@ -292,7 +292,6 @@ public class TransportDataFromFilesTramTest {
                 collect(Collectors.toSet());
 
         assertNotEquals(services, expiringServices, "all services are expiring");
-        //assertEquals(Collections.emptySet(), expiringServices, "Expiring svcs " +HasId.asIds(expiringServices));
     }
 
     @Disabled("Solved by removing reboarding filter which does not impact depth first performance")

@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.tramchester.domain.Service;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.StringIdFor;
+import com.tramchester.domain.time.DateRange;
 
 import java.time.LocalDate;
 
@@ -74,12 +75,16 @@ public class CalendarData extends ParsesDate {
         return isFlagSet(sunday);
     }
 
-    public LocalDate getEndDate() {
-        return end;
-    }
+//    public LocalDate getEndDate() {
+//        return end;
+//    }
 
-    public LocalDate getStartDate() {
-        return start;
+//    public LocalDate getStartDate() {
+//        return start;
+//    }
+
+    public DateRange getDateRange() {
+        return new DateRange(start, end);
     }
 
 

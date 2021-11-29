@@ -2,6 +2,7 @@ package com.tramchester.domain;
 
 import com.google.common.collect.Sets;
 import com.tramchester.dataimport.data.CalendarData;
+import com.tramchester.domain.time.DateRange;
 
 import java.io.PrintStream;
 import java.time.DayOfWeek;
@@ -12,15 +13,14 @@ import java.util.HashSet;
 import java.util.Set;
 
 public class MutableServiceCalendar implements ServiceCalendar {
-    private final LocalDate startDate;
-    private final LocalDate endDate;
+    private final DateRange dateRange;
     private final EnumSet<DayOfWeek> days;
     private final Set<LocalDate> additional;
     private final Set<LocalDate> removed;
     private boolean cancelled;
 
     public MutableServiceCalendar(CalendarData calendarData) {
-        this(calendarData.getStartDate(), calendarData.getEndDate(), daysOfWeekFrom(calendarData.isMonday(),
+        this(calendarData.getDateRange(), daysOfWeekFrom(calendarData.isMonday(),
                 calendarData.isTuesday(),
                 calendarData.isWednesday(),
                 calendarData.isThursday(),
@@ -30,12 +30,11 @@ public class MutableServiceCalendar implements ServiceCalendar {
     }
 
     public MutableServiceCalendar(LocalDate startDate, LocalDate endDate, DayOfWeek... operatingDays) {
-        this(startDate, endDate, enumFrom(operatingDays));
+        this(new DateRange(startDate, endDate), enumFrom(operatingDays));
     }
 
-    public MutableServiceCalendar(LocalDate startDate, LocalDate endDate, EnumSet<DayOfWeek> operatingDays) {
-        this.startDate = startDate;
-        this.endDate = endDate;
+    public MutableServiceCalendar(DateRange dateRange, EnumSet<DayOfWeek> operatingDays) {
+        this.dateRange = dateRange;
         days = operatingDays;
         additional = new HashSet<>();
         removed = new HashSet<>();
@@ -72,10 +71,7 @@ public class MutableServiceCalendar implements ServiceCalendar {
     }
 
     private boolean operatesOnIgnoringExcpetionDates(LocalDate queryDate) {
-        if  (queryDate.isAfter(startDate) && queryDate.isBefore(endDate)) {
-            return days.contains(queryDate.getDayOfWeek());
-        }
-        if (queryDate.equals(startDate) || queryDate.equals(endDate)) {
+        if (dateRange.contains(queryDate)) {
             return days.contains(queryDate.getDayOfWeek());
         }
         return false;
@@ -86,8 +82,7 @@ public class MutableServiceCalendar implements ServiceCalendar {
         if (cancelled) {
             printStream.print("CANCELLED: ");
         }
-        printStream.printf("starts %s ends %s days %s%n",
-                startDate, endDate, reportDays());
+        printStream.printf("%s days %s%n", dateRange, reportDays());
         if (!additional.isEmpty()) {
             printStream.println("Additional on: " + additional);
         }
@@ -140,34 +135,23 @@ public class MutableServiceCalendar implements ServiceCalendar {
     }
 
     @Override
-    public boolean overlapsDatesWith(LocalDate rangeBegin, LocalDate rangeEnd) {
-        return between(rangeBegin, rangeEnd, startDate) ||
-                between(rangeBegin, rangeEnd, endDate) ||
-                between(startDate, endDate, rangeBegin) ||
-                between(startDate, endDate, rangeEnd);
+    public boolean overlapsDatesWith(DateRange otherRange) {
+        return dateRange.overlapsWith(otherRange);
     }
 
     @Override
-    public boolean overlapsDatesAndDaysWith(LocalDate startDate, LocalDate endDate, EnumSet<DayOfWeek> daysOfWeek) {
+    public boolean overlapsDatesAndDaysWith(DateRange dateRange, EnumSet<DayOfWeek> daysOfWeek) {
         Sets.SetView<DayOfWeek> intersection = Sets.intersection(days, daysOfWeek);
         if (intersection.isEmpty()) {
             return false;
         }
-        return overlapsDatesWith(startDate, endDate);
-    }
-
-    private boolean between(LocalDate rangeBegin, LocalDate rangeEnd, LocalDate date) {
-        if (date.equals(rangeBegin) || date.equals(rangeEnd)) {
-            return true;
-        }
-        return (date.isAfter(rangeBegin)  && date.isBefore(rangeEnd));
+        return overlapsDatesWith(dateRange);
     }
 
     @Override
     public String toString() {
         return "MutableServiceCalendar{" +
-                "startDate=" + startDate +
-                ", endDate=" + endDate +
+                "dateRange=" + dateRange +
                 ", days=" + days +
                 ", additional=" + additional +
                 ", removed=" + removed +
@@ -177,7 +161,7 @@ public class MutableServiceCalendar implements ServiceCalendar {
 
     @Override
     public LocalDate getEndDate() {
-        return endDate;
+        return dateRange.getEndDate();
     }
 
     public void cancel() {

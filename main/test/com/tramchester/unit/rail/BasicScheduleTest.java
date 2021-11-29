@@ -4,6 +4,7 @@ import com.tramchester.dataimport.rail.records.BasicSchedule;
 import com.tramchester.dataimport.rail.records.reference.ShortTermPlanIndicator;
 import com.tramchester.dataimport.rail.records.reference.TrainCategory;
 import com.tramchester.dataimport.rail.records.reference.TrainStatus;
+import com.tramchester.domain.time.DateRange;
 import com.tramchester.domain.time.ProvidesLocalNow;
 import com.tramchester.domain.time.ProvidesNow;
 import org.junit.jupiter.api.BeforeEach;
@@ -39,8 +40,9 @@ public class BasicScheduleTest {
 
         assertEquals(BasicSchedule.TransactionType.N, basicSchedule.getTransactionType());
         assertEquals("C53290", basicSchedule.getUniqueTrainId());
-        assertEquals(LocalDate.of(2017, 5, 24), basicSchedule.getStartDate());
-        assertEquals(LocalDate.of(2017, 9, 20), basicSchedule.getEndDate());
+        DateRange dateRange = basicSchedule.getDateRange();
+        assertEquals(LocalDate.of(2017, 5, 24), dateRange.getStartDate());
+        assertEquals(LocalDate.of(2017, 9, 20), dateRange.getEndDate());
 
         Set<DayOfWeek> daysOfWeek = basicSchedule.getDaysOfWeek();
         assertEquals(1, daysOfWeek.size());
@@ -59,8 +61,9 @@ public class BasicScheduleTest {
 
         assertEquals(BasicSchedule.TransactionType.N, basicSchedule.getTransactionType());
         assertEquals("G54660", basicSchedule.getUniqueTrainId());
-        assertEquals(LocalDate.of(2021, 12, 12), basicSchedule.getStartDate());
-        assertEquals(LocalDate.of(2021, 12, 19), basicSchedule.getEndDate());
+        DateRange dateRange = basicSchedule.getDateRange();
+        assertEquals(LocalDate.of(2021, 12, 12), dateRange.getStartDate());
+        assertEquals(LocalDate.of(2021, 12, 19), dateRange.getEndDate());
 
         Set<DayOfWeek> daysOfWeek = basicSchedule.getDaysOfWeek();
         assertEquals(1, daysOfWeek.size());
