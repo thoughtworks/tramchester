@@ -125,6 +125,9 @@ public class MutableServiceCalendar implements ServiceCalendar {
         addIf(friday, DayOfWeek.FRIDAY, result);
         addIf(saturday, DayOfWeek.SATURDAY, result);
         addIf(sunday, DayOfWeek.SUNDAY, result);
+        if (result.isEmpty()) {
+            return EnumSet.noneOf(DayOfWeek.class);
+        }
         return EnumSet.copyOf(result);
     }
 

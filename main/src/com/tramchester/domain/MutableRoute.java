@@ -15,9 +15,6 @@ import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.Set;
 
-import static java.time.DayOfWeek.MONDAY;
-import static java.time.DayOfWeek.TUESDAY;
-
 public class MutableRoute implements Route {
 
     private final IdFor<Route> id;
@@ -28,8 +25,7 @@ public class MutableRoute implements Route {
     private final Set<Service> services;
     private final Set<Trip> trips;
 
-    private DateRange dateRange;
-    private EnumSet<DayOfWeek> operatingDays;
+    private final ServiceDateCache serviceDateCache;
 
     public static final Route Walking;
     static {
@@ -47,8 +43,7 @@ public class MutableRoute implements Route {
         services = new HashSet<>();
         trips  = new HashSet<>();
 
-        dateRange = new DateRange(LocalDate.MAX, LocalDate.MIN);
-        operatingDays = EnumSet.noneOf(DayOfWeek.class);
+        serviceDateCache = new ServiceDateCache();
     }
 
     // test support
@@ -77,13 +72,10 @@ public class MutableRoute implements Route {
 
     public void addService(Service service) {
         services.add(service);
-        if (!service.hasCalendar()) {
-            throw new RuntimeException("Service must have calendar to add service");
-        }
-        ServiceCalendar calendar = service.getCalendar();
-        this.operatingDays = EnumSet.copyOf(Sets.union(operatingDays, calendar.getOperatingDays()));
-        DateRange otherRange = calendar.getDateRange();
-        this.dateRange = DateRange.broadest(this.dateRange, otherRange);
+        // can't check this due to data load order
+//        if (!service.hasCalendar()) {
+//            throw new RuntimeException("Service must have calendar to add service");
+//        }
     }
 
     @Override
@@ -144,19 +136,55 @@ public class MutableRoute implements Route {
         if (services.isEmpty()) {
             throw new RuntimeException("Route has no services");
         }
-        if (Sets.intersection(operatingDays, otherRoute.getOperatingDays()).isEmpty()) {
+        if (Sets.intersection(getOperatingDays(), otherRoute.getOperatingDays()).isEmpty()) {
             return false;
         }
-        return dateRange.overlapsWith(otherRoute.getDateRange());
+        return getDateRange().overlapsWith(otherRoute.getDateRange());
     }
 
     @Override
     public EnumSet<DayOfWeek> getOperatingDays() {
-        return operatingDays;
+        return serviceDateCache.getOperatingDays(services);
     }
 
     @Override
     public DateRange getDateRange() {
-        return dateRange;
+        return serviceDateCache.getDateRange(services);
+    }
+
+    private static class ServiceDateCache {
+        private boolean loaded;
+        private EnumSet<DayOfWeek> operatingDays;
+        private DateRange dateRange;
+
+        ServiceDateCache() {
+            loaded = false;
+            operatingDays = EnumSet.noneOf(DayOfWeek.class);
+            dateRange = new DateRange(LocalDate.MAX, LocalDate.MIN);
+        }
+
+        private void loadFrom(Set<Service> services) {
+            services.stream().map(Service::getCalendar).
+                    forEach(calendar -> {
+                        operatingDays = EnumSet.copyOf(Sets.union(operatingDays, calendar.getOperatingDays()));
+                        DateRange otherRange = calendar.getDateRange();
+                        dateRange = DateRange.broadest(dateRange, otherRange);
+                    });
+            loaded = true;
+        }
+
+        public EnumSet<DayOfWeek> getOperatingDays(Set<Service> services) {
+            if (!loaded) {
+                loadFrom(services);
+            }
+            return operatingDays;
+        }
+
+        public DateRange getDateRange(Set<Service> services) {
+            if (!loaded) {
+                loadFrom(services);
+            }
+            return dateRange;
+        }
     }
 }

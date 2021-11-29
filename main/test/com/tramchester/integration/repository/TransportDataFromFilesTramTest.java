@@ -292,7 +292,7 @@ public class TransportDataFromFilesTramTest {
 
         Set<Service> services = transportData.getServices();
         Set<Service> expiringServices = services.stream().
-                filter(service -> service.getCalendar().getDateRange().overlapsWith(dateRange)).
+                filter(service -> !service.getCalendar().getDateRange().overlapsWith(dateRange)).
                 collect(Collectors.toSet());
 
         assertNotEquals(services, expiringServices, "all services are expiring");

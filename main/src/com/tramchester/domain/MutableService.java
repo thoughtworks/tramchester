@@ -59,7 +59,7 @@ public class MutableService implements Service {
     }
 
     public void setCalendar(MutableServiceCalendar serviceCalendar) {
-        if (this.calendar!=null) {
+        if (calendar!=null) {
             throw new RuntimeException("Attempt to overwrite calendar for service " + this.serviceId + " overwrite was " + serviceCalendar);
         }
         this.calendar = serviceCalendar;
