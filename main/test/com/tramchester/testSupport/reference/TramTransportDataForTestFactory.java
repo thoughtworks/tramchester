@@ -94,16 +94,6 @@ public class TramTransportDataForTestFactory implements TransportDataFactory {
         MutableService serviceB = new MutableService(TramTransportDataForTest.serviceBId);
         MutableService serviceC = new MutableService(TramTransportDataForTest.serviceCId);
 
-        routeA.addService(serviceA);
-        routeB.addService(serviceB);
-        routeC.addService(serviceC);
-        routeD.addService(serviceA);
-
-        container.addRoute(routeA);
-        container.addRoute(routeB);
-        container.addRoute(routeC);
-        container.addRoute(routeD);
-
         LocalDate startDate = LocalDate.of(2014, 2, 10);
         LocalDate endDate = LocalDate.of(2020, 8, 15);
 
@@ -114,6 +104,16 @@ public class TramTransportDataForTestFactory implements TransportDataFactory {
         serviceA.setCalendar(serviceCalendarA);
         serviceB.setCalendar(serviceCalendarB);
         serviceC.setCalendar(serviceCalendarC);
+
+        routeA.addService(serviceA);
+        routeB.addService(serviceB);
+        routeC.addService(serviceC);
+        routeD.addService(serviceA);
+
+        container.addRoute(routeA);
+        container.addRoute(routeB);
+        container.addRoute(routeC);
+        container.addRoute(routeD);
 
         // tripA: FIRST_STATION -> SECOND_STATION -> INTERCHANGE -> LAST_STATION
         MutableTrip tripA = new MutableTrip(StringIdFor.createId(TramTransportDataForTest.TRIP_A_ID), "headSign", serviceA, routeA);

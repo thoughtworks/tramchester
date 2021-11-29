@@ -16,6 +16,12 @@ public class DateRange {
         return new DateRange(startDate, endDate);
     }
 
+    public static DateRange broadest(DateRange rangeA, DateRange rangeB) {
+        LocalDate earliest = rangeA.startDate.isBefore(rangeB.startDate) ? rangeA.startDate : rangeB.startDate;
+        LocalDate latest = rangeA.endDate.isAfter(rangeB.endDate) ? rangeA.endDate : rangeB.endDate;
+        return new DateRange(earliest, latest);
+    }
+
     public boolean contains(LocalDate queryDate) {
         if (queryDate.equals(startDate) || queryDate.equals(endDate)) {
             return true;

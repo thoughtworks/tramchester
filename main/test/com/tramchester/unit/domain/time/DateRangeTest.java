@@ -20,6 +20,27 @@ public class DateRangeTest {
     }
 
     @Test
+    void shouldHaveBroadest() {
+        LocalDate startDate = LocalDate.of(2014, 10, 5);
+        LocalDate endDate = LocalDate.of(2014, 10, 25);
+
+        DateRange rangeA = DateRange.of(startDate, endDate);
+        DateRange rangeB = DateRange.of(startDate.plusDays(1), endDate.minusDays(1));
+
+        assertEquals(rangeA, DateRange.broadest(rangeA, rangeB));
+
+        DateRange rangeC = DateRange.of(startDate.minusDays(1), endDate.plusDays(1));
+        assertEquals(rangeC, DateRange.broadest(rangeA, rangeC));
+
+        DateRange rangeD = DateRange.of(startDate.minusDays(10), endDate.minusDays(1));
+        assertEquals(DateRange.of(startDate.minusDays(10), endDate), DateRange.broadest(rangeA, rangeD));
+
+        DateRange rangeE = DateRange.of(startDate, endDate.plusDays(1));
+        assertEquals(DateRange.of(startDate, endDate.plusDays(1)), DateRange.broadest(rangeA, rangeE));
+
+    }
+
+    @Test
     void shouldCheckContainedCorrectly() {
         LocalDate startDate = LocalDate.of(2014, 10, 5);
         LocalDate endDate = LocalDate.of(2014, 12, 25);

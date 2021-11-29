@@ -16,6 +16,7 @@ import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
+import com.tramchester.domain.time.DateRange;
 import com.tramchester.domain.time.TramServiceDate;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
@@ -284,11 +285,14 @@ public class TransportDataFromFilesTramTest {
     @Test
     void shouldHaveServiceEndDatesBeyondNextNDays() {
 
-        LocalDate queryDate = LocalDate.now().plusDays(DAYS_AHEAD);
+        LocalDate startDate = LocalDate.now();
+        LocalDate endDate = startDate.plusDays(DAYS_AHEAD);
+
+        DateRange dateRange = DateRange.of(startDate, endDate);
 
         Set<Service> services = transportData.getServices();
         Set<Service> expiringServices = services.stream().
-                filter(service -> service.getCalendar().getEndDate().isBefore(queryDate)).
+                filter(service -> service.getCalendar().getDateRange().overlapsWith(dateRange)).
                 collect(Collectors.toSet());
 
         assertNotEquals(services, expiringServices, "all services are expiring");

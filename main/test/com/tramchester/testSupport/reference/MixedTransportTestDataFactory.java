@@ -100,6 +100,18 @@ public class MixedTransportTestDataFactory implements TransportDataFactory {
         MutableService serviceB = new MutableService(MixedTransportTestData.serviceBId);
         MutableService serviceC = new MutableService(MixedTransportTestData.serviceCId);
 
+        LocalDate startDate = LocalDate.of(2014, 2, 10);
+        LocalDate endDate = LocalDate.of(2020, 8, 15);
+
+        MutableServiceCalendar serviceCalendarA = new MutableServiceCalendar(startDate, endDate, DayOfWeek.MONDAY);
+        serviceA.setCalendar(serviceCalendarA);
+
+        MutableServiceCalendar serviceCalendarB = new MutableServiceCalendar(startDate, endDate, DayOfWeek.MONDAY);
+        serviceB.setCalendar(serviceCalendarB);
+
+        MutableServiceCalendar serviceCalendarC = new MutableServiceCalendar(startDate, endDate, DayOfWeek.MONDAY);
+        serviceC.setCalendar(serviceCalendarC);
+
         routeA.addService(serviceA);
         ferryRoute.addService(serviceB);
         routeC.addService(serviceC);
@@ -107,17 +119,6 @@ public class MixedTransportTestDataFactory implements TransportDataFactory {
         container.addRoute(routeA);
         container.addRoute(ferryRoute);
         container.addRoute(routeC);
-
-        LocalDate startDate = LocalDate.of(2014, 2, 10);
-        LocalDate endDate = LocalDate.of(2020, 8, 15);
-
-        MutableServiceCalendar serviceCalendarA = new MutableServiceCalendar(startDate, endDate, DayOfWeek.MONDAY);
-        MutableServiceCalendar serviceCalendarB = new MutableServiceCalendar(startDate, endDate, DayOfWeek.MONDAY);
-        MutableServiceCalendar serviceCalendarC = new MutableServiceCalendar(startDate, endDate, DayOfWeek.MONDAY);
-
-        serviceA.setCalendar(serviceCalendarA);
-        serviceB.setCalendar(serviceCalendarB);
-        serviceC.setCalendar(serviceCalendarC);
 
         // tripA: FIRST_STATION -> SECOND_STATION -> INTERCHANGE -> LAST_STATION
         MutableTrip tripA = new MutableTrip(StringIdFor.createId(MixedTransportTestData.TRIP_A_ID), "headSign", serviceA, routeA);

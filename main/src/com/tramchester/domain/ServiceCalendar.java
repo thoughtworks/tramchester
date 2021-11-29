@@ -12,7 +12,7 @@ public interface ServiceCalendar {
 
     void summariseDates(PrintStream printStream);
 
-    LocalDate getEndDate();
+    DateRange getDateRange();
 
     boolean operatesNoDays();
 
@@ -20,4 +20,5 @@ public interface ServiceCalendar {
 
     boolean overlapsDatesAndDaysWith(DateRange dateRange, EnumSet<DayOfWeek> daysOfWeek);
 
+    EnumSet<DayOfWeek> getOperatingDays();
 }

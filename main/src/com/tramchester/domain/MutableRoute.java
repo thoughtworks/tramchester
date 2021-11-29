@@ -1,14 +1,22 @@
 package com.tramchester.domain;
 
+import com.google.common.collect.Sets;
 import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.reference.TransportMode;
+import com.tramchester.domain.time.DateRange;
 import com.tramchester.graph.GraphPropertyKey;
 
+import java.time.DayOfWeek;
+import java.time.LocalDate;
+import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.Set;
+
+import static java.time.DayOfWeek.MONDAY;
+import static java.time.DayOfWeek.TUESDAY;
 
 public class MutableRoute implements Route {
 
@@ -19,6 +27,9 @@ public class MutableRoute implements Route {
     private final TransportMode transportMode;
     private final Set<Service> services;
     private final Set<Trip> trips;
+
+    private DateRange dateRange;
+    private EnumSet<DayOfWeek> operatingDays;
 
     public static final Route Walking;
     static {
@@ -35,6 +46,9 @@ public class MutableRoute implements Route {
         this.transportMode = transportMode;
         services = new HashSet<>();
         trips  = new HashSet<>();
+
+        dateRange = new DateRange(LocalDate.MAX, LocalDate.MIN);
+        operatingDays = EnumSet.noneOf(DayOfWeek.class);
     }
 
     // test support
@@ -63,6 +77,13 @@ public class MutableRoute implements Route {
 
     public void addService(Service service) {
         services.add(service);
+        if (!service.hasCalendar()) {
+            throw new RuntimeException("Service must have calendar to add service");
+        }
+        ServiceCalendar calendar = service.getCalendar();
+        this.operatingDays = EnumSet.copyOf(Sets.union(operatingDays, calendar.getOperatingDays()));
+        DateRange otherRange = calendar.getDateRange();
+        this.dateRange = DateRange.broadest(this.dateRange, otherRange);
     }
 
     @Override
@@ -116,5 +137,26 @@ public class MutableRoute implements Route {
     @Override
     public Set<Trip> getTrips() {
         return trips;
+    }
+
+    @Override
+    public boolean isDateOverlap(Route otherRoute) {
+        if (services.isEmpty()) {
+            throw new RuntimeException("Route has no services");
+        }
+        if (Sets.intersection(operatingDays, otherRoute.getOperatingDays()).isEmpty()) {
+            return false;
+        }
+        return dateRange.overlapsWith(otherRoute.getDateRange());
+    }
+
+    @Override
+    public EnumSet<DayOfWeek> getOperatingDays() {
+        return operatingDays;
+    }
+
+    @Override
+    public DateRange getDateRange() {
+        return dateRange;
     }
 }

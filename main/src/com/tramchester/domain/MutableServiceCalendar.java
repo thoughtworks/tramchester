@@ -91,6 +91,11 @@ public class MutableServiceCalendar implements ServiceCalendar {
         }
     }
 
+    @Override
+    public DateRange getDateRange() {
+        return dateRange;
+    }
+
     private String reportDays() {
         if (days.isEmpty()) {
             return "SPECIAL/NONE";
@@ -149,6 +154,11 @@ public class MutableServiceCalendar implements ServiceCalendar {
     }
 
     @Override
+    public EnumSet<DayOfWeek> getOperatingDays() {
+        return days;
+    }
+
+    @Override
     public String toString() {
         return "MutableServiceCalendar{" +
                 "dateRange=" + dateRange +
@@ -157,11 +167,6 @@ public class MutableServiceCalendar implements ServiceCalendar {
                 ", removed=" + removed +
                 ", cancelled=" + cancelled +
                 '}';
-    }
-
-    @Override
-    public LocalDate getEndDate() {
-        return dateRange.getEndDate();
     }
 
     public void cancel() {

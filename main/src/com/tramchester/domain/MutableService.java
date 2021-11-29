@@ -70,6 +70,7 @@ public class MutableService implements Service {
         return calendar;
     }
 
+    @Override
     public boolean hasCalendar() {
         return calendar!=null;
     }
