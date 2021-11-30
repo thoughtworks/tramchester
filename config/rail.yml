@@ -16,10 +16,20 @@ secureHost: tramchester.com
 staticAssetCacheTimeSeconds: 300
 graphDBConfig:
   graphName: rail.db
-  neo4jPagecacheMemory: 100m
+  neo4jPagecacheMemory: 1000m
 instanceDataUrl: http://169.254.169.254
 gtfsSourceConfig: []
-remoteSources: []
+rail:
+  dataPath: data/rail
+  stations: ttisf201.msn
+  timetable: ttisf201.mca
+remoteSources:
+  -
+    name: rail
+    dataURL: s3://tramchester2dist/railData/ttis201.zip
+    dataCheckURL: s3://tramchester2dist/railData/ttis201.zip
+    dataPath: data/rail
+    filename: ttis201.zip
 cacheFolder: data/cache/rail
 calcTimeoutMillis: 3500
 bounds:
@@ -27,21 +37,18 @@ bounds:
   minNorthings: 30599
   maxEasting: 654747
   maxNorthings: 967921
-rail:
-  dataPath: data/rail
-  stations: ttisf187.msn
-  timetable: ttisf187.mca
+
 planningEnabled: true
 createNeighbours: false
 maxNeighbourConnections: 0
 distanceToNeighboursKM: 0.4
 maxWait: 25
-maxInitialWait: 65
+maxInitialWait: 35
 numberQueries: 6
 queryInterval: 10
 maxNumberResults: 5
 maxWalkingConnections: 3
-maxJourneyDuration: 700
+maxJourneyDuration: 840
 nearestStopRangeKM: 1.6
 nearestStopForWalkingRangeKM: 1.6
 numOfNearestStopsToOffer: 5

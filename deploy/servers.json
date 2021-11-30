@@ -52,13 +52,13 @@
 					"Fn::Join":[
 						"", [
 							"#include", "\n",
-							{"Ref":"baseUrl"}, "/", {"Ref":"bucketName"}, "/", {"Ref":"build"}, "/",
+							{"Ref":"baseUrl"}, "/", {"Ref":"bucketName"}, "/dist/", {"Ref":"build"}, "/",
 								{"Ref":"bootstrapCloudInit"}, "\n",
-							{"Ref":"baseUrl"}, "/", {"Ref":"bucketName"}, "/", {"Ref":"build"}, "/",
+							{"Ref":"baseUrl"}, "/", {"Ref":"bucketName"}, "/dist/", {"Ref":"build"}, "/",
 								{"Ref":"bootstrapWebScript"}, "\n",
 							"# WAITURL=", {"Ref":"webDoneWaitHandle"}, "\n",
 							"# ENV=", {"Ref":"env"}, "\n",
-							"# ARTIFACTSURL=", {"Ref":"baseUrl"}, "/", {"Ref":"bucketName"}, "\n",
+							"# ARTIFACTSURL=", {"Ref":"baseUrl"}, "/", {"Ref":"bucketName"}, "/dist\n",
 							"# BUILD=", {"Ref":"build"}, "\n",
 							"# TFGMAPIKEY=", {"Ref":"TFGMAPIKEY"}, "\n"
 						]

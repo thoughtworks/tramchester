@@ -1,7 +1,13 @@
 
+plugins {
+    id 'com.mgd.core.gradle.s3' version '1.1.4'
+}
+
 apply plugin: 'java'
 apply plugin: 'idea'
 apply plugin: 'application'
+
+import com.mgd.core.gradle.*
 
 mainClassName = 'com.tramchester.App'
 
@@ -10,6 +16,11 @@ def candidate = System.getenv("CIRCLE_BUILD_NUM") ?: "0"
 def buildNumber = System.getenv("RELEASE_NUMBER") ?: candidate
 def environment = System.getenv("ENV") ?: "Dev"
 def isWindows = System.getProperty('os.name').toLowerCase(Locale.ROOT).contains('windows')
+def s3prefix = 'dist/' + buildNumber
+
+s3 {
+    bucket = 'tramchester2dist'
+}
 
 // this is used in the generated dist zip filename
 version = 1.0
@@ -252,6 +263,16 @@ task dataUpdated(type: Test, dependsOn: compileJava) {
     }
 }
 
+task s3Test(type: Test, dependsOn: compileJava) {
+    useJUnitPlatform {
+        includeTags "S3Test"
+    }
+    testLogging {
+        exceptionFormat "full" // default is "short"
+        events "passed", "skipped", "failed", "started", "standardError" //, "standardOut"
+    }
+}
+
 task integrationBus(type: Test, dependsOn: compileJava) {
     minHeapSize = "1000m"
     maxHeapSize = "3000m"
@@ -394,6 +415,7 @@ jar {
     into 'app', {
         from 'build/resources/main/app'
     }
+    exclude('app/*')
 }
 
 task webpack(type: Exec, dependsOn: npmInstall) {
@@ -434,38 +456,39 @@ task buildDatabase(type:JavaExec, dependsOn:classes) {
     args 'config/local.yml'
 }
 
-task uploadApp(dependsOn: ['cfnassist', 'distZip', 'uploadSupportFiles'])  {
-    doLast {
-        ant.cfnassist(buildNumber: buildNumber, bucketname: 'tramchester2dist') {
-            Artifact(name: 'package', value: 'build/distributions/tramchester-1.0.zip')
-            S3Create()
-        }
-    }
-}
-
 task zipDB(type:Zip, dependsOn: 'buildDatabase') {
     from 'tramchester.db'
     archiveFileName = 'tramchester.db.zip'
 }
 
-task uploadData(dependsOn: ['cfnassist', 'pullData', 'zipDB']) {
-    doLast {
-        ant.cfnassist(buildNumber: buildNumber, bucketname: 'tramchester2dist') {
-            Artifact(name: 'data', value: 'data/tram/tfgm_data.zip')
-            Artifact(name: 'db', value: 'build/distributions/tramchester.db.zip')
-            S3Create()
-        }
-    }
+task uploadApp(type: S3Upload, dependsOn: ['distZip', 'uploadDeployScript', 'uploadCloudInit'])  {
+    key = s3prefix + '/tramchester-1.0.zip'
+    file = 'build/distributions/tramchester-1.0.zip'
+    overwrite = true
 }
 
-task uploadSupportFiles(dependsOn: 'cfnassist') {
-    doLast {
-        ant.cfnassist(buildNumber: buildNumber, bucketname: 'tramchester2dist') {
-            Artifact(name: 'install', value: 'deploy/setupTramWebServerAWSLinux.sh')
-            Artifact(name: 'cloudinit', value: 'deploy/cloudInitAWSLinux.txt')
-            S3Create()
-        }
-    }
+task uploadData(type: S3Upload, dependsOn: ['zipDB','uploadTFGMData']) {
+    key = s3prefix + '/tramchester.db.zip'
+    file = 'build/distributions/tramchester.db.zip'
+    overwrite = true
+}
+
+task uploadTFGMData(type: S3Upload, dependsOn: ['pullData']) {
+    key = s3prefix + '/tfgm_data.zip'
+    file = 'data/tram/tfgm_data.zip'
+    overwrite = true
+}
+
+task uploadDeployScript(type: S3Upload) {
+    key = s3prefix + '/setupTramWebServerAWSLinux.sh'
+    file = 'deploy/setupTramWebServerAWSLinux.sh'
+    overwrite = true
+}
+
+task uploadCloudInit(type: S3Upload) {
+    key = s3prefix + '/cloudInitAWSLinux.txt'
+    file = 'deploy/cloudInitAWSLinux.txt'
+    overwrite = true
 }
 
 task infra(dependsOn: cfnassist) {
