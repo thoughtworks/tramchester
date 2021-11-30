@@ -30,4 +30,9 @@ public class PostCodeDatasourceConfig implements RemoteDataSourceConfig {
         return "postcode";
     }
 
+    @Override
+    public boolean getIsS3() {
+        return false;
+    }
+
 }

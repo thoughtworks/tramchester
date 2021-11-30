@@ -1,7 +1,7 @@
 package com.tramchester.livedata.cloud;
 
 import com.netflix.governator.guice.lazy.LazySingleton;
-import com.tramchester.cloud.data.ClientForS3;
+import com.tramchester.cloud.data.LiveDataClientForS3;
 import com.tramchester.cloud.data.S3Keys;
 import com.tramchester.cloud.data.StationDepartureMapper;
 import com.tramchester.livedata.domain.DTO.StationDepartureInfoDTO;
@@ -23,12 +23,12 @@ import static java.lang.String.format;
 public class DownloadsLiveDataFromS3 {
     private static final Logger logger = LoggerFactory.getLogger(DownloadsLiveDataFromS3.class);
 
-    private final ClientForS3 s3Client;
+    private final LiveDataClientForS3 s3Client;
     private final S3Keys s3Keys;
     private final StationDepartureMapper mapper;
 
     @Inject
-    public DownloadsLiveDataFromS3(ClientForS3 s3Client, StationDepartureMapper mapper, S3Keys s3Keys) {
+    public DownloadsLiveDataFromS3(LiveDataClientForS3 s3Client, StationDepartureMapper mapper, S3Keys s3Keys) {
         this.s3Client = s3Client;
         this.mapper = mapper;
         this.s3Keys = s3Keys;

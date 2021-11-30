@@ -49,7 +49,6 @@ class RouteCostCalculatorTest {
     void shouldComputeSimpleCostBetweenStationsAltyNavRoad() {
         assertEquals(5, getApproxCostBetween(txn, TramStations.NavigationRoad, Altrincham));
         assertEquals(6, getApproxCostBetween(txn, Altrincham, TramStations.NavigationRoad));
-
     }
 
     @Test

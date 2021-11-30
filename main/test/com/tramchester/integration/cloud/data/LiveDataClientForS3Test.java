@@ -1,11 +1,13 @@
 package com.tramchester.integration.cloud.data;
 
 import com.tramchester.cloud.data.ClientForS3;
+import com.tramchester.cloud.data.LiveDataClientForS3;
 import com.tramchester.config.GTFSSourceConfig;
 import com.tramchester.config.LiveDataConfig;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
 import com.tramchester.testSupport.TestConfig;
 import com.tramchester.testSupport.TestLiveDataConfig;
+import com.tramchester.testSupport.testTags.S3Test;
 import org.apache.commons.codec.binary.Base64;
 import org.junit.jupiter.api.*;
 import software.amazon.awssdk.core.ResponseInputStream;
@@ -25,7 +27,8 @@ import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class ClientForS3Test {
+@S3Test
+class LiveDataClientForS3Test {
 
     private static final String TEST_BUCKET_NAME = "tramchestertestlivedatabucket";
     private static final String PREFIX = "test";
@@ -34,8 +37,9 @@ class ClientForS3Test {
     private static S3Client s3;
     private static S3Waiter s3Waiter;
     private static S3TestSupport s3TestSupport;
+    private static ClientForS3 clientForS3;
 
-    private ClientForS3 clientForS3;
+    private LiveDataClientForS3 liveDataClientForS3;
 
     @BeforeAll
     static void beforeAnyDone() {
@@ -44,10 +48,14 @@ class ClientForS3Test {
 
         s3TestSupport = new S3TestSupport(s3, s3Waiter, TEST_BUCKET_NAME);
         s3TestSupport.createOrCleanBucket();
+
+        clientForS3 = new ClientForS3();
+        clientForS3.start();
     }
 
     @AfterAll
     static void afterAllDone() {
+        clientForS3.stop();
         s3TestSupport.deleteBucket();
         s3Waiter.close();
         s3.close();
@@ -55,14 +63,14 @@ class ClientForS3Test {
 
     @BeforeEach
     void beforeEachTestRuns() {
-        clientForS3 = new ClientForS3(new IntegrationTramTestConfig(true));
-        clientForS3.start();
+        liveDataClientForS3 = new LiveDataClientForS3(new IntegrationTramTestConfig(true), clientForS3);
+        liveDataClientForS3.start();
         s3TestSupport.cleanBucket();
     }
 
     @AfterEach
     void afterEachTestRuns() {
-        clientForS3.stop();
+        liveDataClientForS3.stop();
         s3TestSupport.cleanBucket();
     }
 
@@ -70,7 +78,7 @@ class ClientForS3Test {
     void shouldUploadOkIfBucketExist() throws IOException {
 
         String contents = "someJsonData";
-        boolean uploaded = clientForS3.upload(KEY, contents);
+        boolean uploaded = liveDataClientForS3.upload(KEY, contents);
         assertTrue(uploaded, "uploaded");
 
         ListObjectsRequest listRequest = ListObjectsRequest.builder().bucket(TEST_BUCKET_NAME).build();
@@ -96,7 +104,7 @@ class ClientForS3Test {
 
     @Test
     void shouldReturnFalseIfNonExistentBucket() {
-        ClientForS3 anotherClient = new ClientForS3(new NoSuchBucketExistsConfig());
+        LiveDataClientForS3 anotherClient = new LiveDataClientForS3(new NoSuchBucketExistsConfig(), clientForS3);
         anotherClient.start();
         boolean uploaded = anotherClient.upload(KEY, "someText");
         anotherClient.stop();
@@ -111,15 +119,15 @@ class ClientForS3Test {
         s3.putObject(request, RequestBody.fromString("contents"));
         s3Waiter.waitUntilObjectExists(existsCheckRequest);
 
-        assertTrue(clientForS3.keyExists(PREFIX, KEY), "exists"); //waiter will throw if times out
-        Set<String> keys = clientForS3.getKeysFor(PREFIX);
+        assertTrue(liveDataClientForS3.keyExists(PREFIX, KEY), "exists"); //waiter will throw if times out
+        Set<String> keys = liveDataClientForS3.getKeysFor(PREFIX);
         assertTrue(keys.contains(KEY));
 
         DeleteObjectRequest deleteRequest = DeleteObjectRequest.builder().bucket(TEST_BUCKET_NAME).key(KEY).build();
         s3.deleteObject(deleteRequest);
         s3Waiter.waitUntilObjectNotExists(existsCheckRequest);
 
-        assertFalse(clientForS3.keyExists(PREFIX, KEY), "deleted");
+        assertFalse(liveDataClientForS3.keyExists(PREFIX, KEY), "deleted");
     }
 
     @Test
@@ -136,9 +144,9 @@ class ClientForS3Test {
         s3.putObject(request, RequestBody.fromString(payload));
         s3Waiter.waitUntilObjectExists(existsCheckRequest);
 
-        ClientForS3.ResponseMapper<String> transformer = incoming -> Collections.singletonList(new String(incoming, StandardCharsets.US_ASCII));
+        LiveDataClientForS3.ResponseMapper<String> transformer = incoming -> Collections.singletonList(new String(incoming, StandardCharsets.US_ASCII));
 
-        List<String> results = clientForS3.downloadAndMap(Collections.singleton(key), transformer).collect(Collectors.toList());
+        List<String> results = liveDataClientForS3.downloadAndMap(Collections.singleton(key), transformer).collect(Collectors.toList());
         assertEquals(1, results.size());
         assertEquals(payload, results.get(0));
     }

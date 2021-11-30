@@ -3,7 +3,7 @@ package com.tramchester.healthchecks;
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.dataimport.FetchFileModTime;
-import com.tramchester.dataimport.URLDownloadAndModTime;
+import com.tramchester.dataimport.HttpDownloadAndModTime;
 import com.tramchester.domain.ServiceTimeLimits;
 
 import javax.annotation.PostConstruct;
@@ -17,13 +17,13 @@ import java.util.List;
 public class NewDataAvailableHealthCheckFactory implements HealthCheckFactory {
 
     private final TramchesterConfig config;
-    private final URLDownloadAndModTime urlDownloader;
+    private final HttpDownloadAndModTime urlDownloader;
     private final FetchFileModTime fileModTime;
     private final List<TramchesterHealthCheck> healthCheckList;
     private final ServiceTimeLimits serviceTimeLimits;
 
     @Inject
-    public NewDataAvailableHealthCheckFactory(TramchesterConfig config, URLDownloadAndModTime urlDownloader,
+    public NewDataAvailableHealthCheckFactory(TramchesterConfig config, HttpDownloadAndModTime urlDownloader,
                                               FetchFileModTime fileModTime, ServiceTimeLimits serviceTimeLimits) {
         this.config = config;
         this.urlDownloader = urlDownloader;

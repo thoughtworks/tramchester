@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tramchester.config.*;
 import com.tramchester.integration.testSupport.bus.IntegrationBusTestConfig;
+import com.tramchester.integration.testSupport.rail.IntegrationRailTestConfig;
 import com.tramchester.integration.testSupport.train.IntegrationTrainTestConfig;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
 import io.dropwizard.configuration.ConfigurationException;
@@ -79,6 +80,26 @@ class ConfigMismatchTest {
         IntegrationTrainTestConfig testConfig = new IntegrationTrainTestConfig();
 
         validateCoreParameters(true, appConfig, testConfig);
+    }
+
+
+    @Test
+    void shouldHaveKeyParametersSameForRailntegrationTests() throws IOException, ConfigurationException {
+
+        AppConfiguration appConfig = loadConfigFromFile("rail.yml");
+        IntegrationRailTestConfig testConfig = new IntegrationRailTestConfig();
+
+        validateCoreParameters(true, appConfig, testConfig);
+
+        List<RemoteDataSourceConfig> remoteSources = appConfig.getRemoteDataSourceConfig();
+        List<RemoteDataSourceConfig> testRemoteSources = testConfig.getRemoteDataSourceConfig();
+        assertEquals(remoteSources.size(), testRemoteSources.size());
+        assertEquals(1, testRemoteSources.size());
+
+        assertEquals(remoteSources.get(0).getDataCheckUrl(), testRemoteSources.get(0).getDataCheckUrl());
+        assertEquals(remoteSources.get(0).getDataUrl(), testRemoteSources.get(0).getDataUrl());
+        assertEquals(remoteSources.get(0).getDownloadFilename(), testRemoteSources.get(0).getDownloadFilename());
+
     }
 
     @Test

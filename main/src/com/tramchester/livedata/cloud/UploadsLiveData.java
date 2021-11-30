@@ -2,7 +2,7 @@ package com.tramchester.livedata.cloud;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.netflix.governator.guice.lazy.LazySingleton;
-import com.tramchester.cloud.data.ClientForS3;
+import com.tramchester.cloud.data.LiveDataClientForS3;
 import com.tramchester.cloud.data.S3Keys;
 import com.tramchester.cloud.data.StationDepartureMapper;
 import com.tramchester.livedata.domain.liveUpdates.StationDepartureInfo;
@@ -25,11 +25,11 @@ public class UploadsLiveData implements LiveDataObserver {
     private static final Logger logger = LoggerFactory.getLogger(UploadsLiveData.class);
 
     private final StationDepartureMapper mapper;
-    private final ClientForS3 s3;
+    private final LiveDataClientForS3 s3;
     private final S3Keys s3Keys;
 
     @Inject
-    public UploadsLiveData(ClientForS3 s3, StationDepartureMapper mapper, S3Keys s3Keys) {
+    public UploadsLiveData(LiveDataClientForS3 s3, StationDepartureMapper mapper, S3Keys s3Keys) {
         this.s3 = s3;
         this.mapper = mapper;
         this.s3Keys = s3Keys;

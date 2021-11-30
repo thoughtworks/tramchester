@@ -57,4 +57,9 @@ public class RemoteDataSourceAppConfig extends Configuration implements RemoteDa
     public String getName() {
         return name;
     }
+
+    @Override
+    public boolean getIsS3() {
+        return dataURL.startsWith("s3://");
+    }
 }

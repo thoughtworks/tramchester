@@ -2,7 +2,7 @@ package com.tramchester.healthchecks;
 
 import com.google.inject.Inject;
 import com.netflix.governator.guice.lazy.LazySingleton;
-import com.tramchester.cloud.data.ClientForS3;
+import com.tramchester.cloud.data.LiveDataClientForS3;
 import com.tramchester.config.LiveDataConfig;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.ServiceTimeLimits;
@@ -12,11 +12,11 @@ import static java.lang.String.format;
 @LazySingleton
 public class ClientForS3Healthcheck extends TramchesterHealthCheck {
 
-    private final ClientForS3 clientForS3;
+    private final LiveDataClientForS3 clientForS3;
     private final TramchesterConfig config;
 
     @Inject
-    public ClientForS3Healthcheck(ClientForS3 clientForS3, TramchesterConfig config, ServiceTimeLimits serviceTimeLimits) {
+    public ClientForS3Healthcheck(LiveDataClientForS3 clientForS3, TramchesterConfig config, ServiceTimeLimits serviceTimeLimits) {
         super(serviceTimeLimits);
         this.clientForS3 = clientForS3;
         this.config = config;

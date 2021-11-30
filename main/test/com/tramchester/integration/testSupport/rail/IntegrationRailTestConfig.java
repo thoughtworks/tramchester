@@ -16,6 +16,7 @@ import java.util.List;
 public class IntegrationRailTestConfig extends IntegrationTestConfig {
 
     private final GraphDBConfig graphDBConfig;
+    private final RailRemoteDataSourceConfig remoteConfig;
 
     public IntegrationRailTestConfig() {
         this("rail_tramchester.db");
@@ -24,9 +25,9 @@ public class IntegrationRailTestConfig extends IntegrationTestConfig {
     protected IntegrationRailTestConfig(String dbFilename) {
         super(new GraphDBIntegrationRailTestConfig("integrationTrainTest", dbFilename));
         graphDBConfig = new GraphDBIntegrationRailTestConfig("integrationTrainTest", dbFilename);
+        remoteConfig = new RailRemoteDataSourceConfig("data/rail");
     }
 
-    private final String CURRENT_PREFIX = "ttisf194";
 
     @Override
     public RailConfig getRailConfig() {
@@ -38,12 +39,12 @@ public class IntegrationRailTestConfig extends IntegrationTestConfig {
 
             @Override
             public Path getStations() {
-                return Path.of(CURRENT_PREFIX +".msn");
+                return Path.of(remoteConfig.getFilePrefix() + ".msn");
             }
 
             @Override
             public Path getTimetable() {
-                return Path.of(CURRENT_PREFIX+".mca");
+                return Path.of(remoteConfig.getFilePrefix() + ".mca");
             }
         };
     }
@@ -60,7 +61,7 @@ public class IntegrationRailTestConfig extends IntegrationTestConfig {
 
     @Override
     public List<RemoteDataSourceConfig> getRemoteDataSourceConfig() {
-        return Collections.emptyList();
+        return Collections.singletonList(remoteConfig);
     }
 
     @Override

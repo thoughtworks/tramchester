@@ -1,6 +1,6 @@
 package com.tramchester.unit.cloud.data;
 
-import com.tramchester.cloud.data.ClientForS3;
+import com.tramchester.cloud.data.LiveDataClientForS3;
 import com.tramchester.livedata.cloud.DownloadsLiveDataFromS3;
 import com.tramchester.cloud.data.S3Keys;
 import com.tramchester.cloud.data.StationDepartureMapper;
@@ -26,16 +26,16 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class DownloadsLiveDataFromS3Test extends EasyMockSupport {
 
-    private ClientForS3 clientForS3;
+    private LiveDataClientForS3 clientForS3;
     private DownloadsLiveDataFromS3 downloader;
     private S3Keys s3Keys;
     private StationDepartureInfoDTO departsDTO;
 
-    private Capture<ClientForS3.ResponseMapper<StationDepartureInfoDTO>> responseMapperCapture;
+    private Capture<LiveDataClientForS3.ResponseMapper<StationDepartureInfoDTO>> responseMapperCapture;
 
     @BeforeEach
     void beforeEachTestRuns() {
-        clientForS3 = createStrictMock(ClientForS3.class);
+        clientForS3 = createStrictMock(LiveDataClientForS3.class);
         StationDepartureMapper stationDepartureMapper = createStrictMock(StationDepartureMapper.class);
         s3Keys = createMock(S3Keys.class);
 

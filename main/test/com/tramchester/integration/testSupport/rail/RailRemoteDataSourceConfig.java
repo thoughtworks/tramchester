@@ -6,7 +6,10 @@ import com.tramchester.domain.DataSourceID;
 import java.nio.file.Path;
 
 public class RailRemoteDataSourceConfig implements RemoteDataSourceConfig {
-    private static final String RAIL_LATEST_ZIP = "https://s3.eu-west-2.amazonaws.com/feeds.planar.network/gb-rail-latest.zip";
+
+    private static final String CURRENT_PREFIX = "ttis201";
+
+    private static final String RAIL_LATEST_ZIP = String.format("s3://tramchester2dist/railData/%s.zip", CURRENT_PREFIX);
 
     private final String dataPath;
 
@@ -31,16 +34,25 @@ public class RailRemoteDataSourceConfig implements RemoteDataSourceConfig {
 
     @Override
     public String getDownloadFilename() {
-        return "gb-rail-latest.zip";
+        return CURRENT_PREFIX+".zip";
     }
 
     @Override
     public String getName() {
-        return "gbRailIntegrationTest";
+        return "railIntegrationTest";
     }
 
     @Override
     public DataSourceID getDataSourceId() {
         return DataSourceID.gbRailGTFS;
+    }
+
+    @Override
+    public boolean getIsS3() {
+        return true;
+    }
+
+    public String getFilePrefix() {
+        return CURRENT_PREFIX.replace("ttis", "ttisf");
     }
 }

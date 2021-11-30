@@ -46,4 +46,9 @@ public class TFGMRemoteDataSourceConfig implements RemoteDataSourceConfig {
     public DataSourceID getDataSourceId() {
         return DataSourceID.tfgm;
     }
+
+    @Override
+    public boolean getIsS3() {
+        return false;
+    }
 }

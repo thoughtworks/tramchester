@@ -18,9 +18,10 @@ import java.time.LocalDateTime;
 
 import static java.lang.String.format;
 
-public class URLDownloadAndModTime {
-    private static final Logger logger = LoggerFactory.getLogger(URLDownloadAndModTime.class);
+public class HttpDownloadAndModTime implements DownloadAndModTime {
+    private static final Logger logger = LoggerFactory.getLogger(HttpDownloadAndModTime.class);
 
+    @Override
     public LocalDateTime getModTime(String url) throws IOException {
         logger.info(format("Check mod time for %s", url));
 
@@ -54,6 +55,7 @@ public class URLDownloadAndModTime {
         return LocalDateTime.ofInstant(Instant.ofEpochSecond(serverModMillis / 1000), TramchesterConfig.TimeZone);
     }
 
+    @Override
     public void downloadTo(Path path, String url) throws IOException {
         try {
             File targetFile = path.toFile();

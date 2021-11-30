@@ -40,4 +40,9 @@ public class NaptanRemoteDataSourceConfig implements RemoteDataSourceConfig {
     public String getName() {
         return "naptan";
     }
+
+    @Override
+    public boolean getIsS3() {
+        return false;
+    }
 }

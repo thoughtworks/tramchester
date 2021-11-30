@@ -29,14 +29,19 @@ public class FetchDataFromUrl implements RemoteDataRefreshed {
     // TODO Config?
     public static final long DEFAULT_EXPIRY_MINS = 12 * 60;
 
-    private final URLDownloadAndModTime downloader;
+    // TODO create facade to choose correct downloader based on url schem
+    private final HttpDownloadAndModTime httpDownloader;
+    private final S3DownloadAndModTime s3Downloader;
+
     private final List<RemoteDataSourceConfig> configs;
     private final ProvidesNow providesLocalNow;
     private final List<String> refreshed;
 
     @Inject
-    public FetchDataFromUrl(URLDownloadAndModTime downloader, HasRemoteDataSourceConfig config, ProvidesNow providesLocalNow) {
-        this.downloader = downloader;
+    public FetchDataFromUrl(HttpDownloadAndModTime httpDownloader, S3DownloadAndModTime s3Downloader,
+                            HasRemoteDataSourceConfig config, ProvidesNow providesLocalNow) {
+        this.httpDownloader = httpDownloader;
+        this.s3Downloader = s3Downloader;
         this.configs = config.getRemoteDataSourceConfig();
         this.providesLocalNow = providesLocalNow;
         refreshed = new ArrayList<>();
@@ -70,6 +75,7 @@ public class FetchDataFromUrl implements RemoteDataRefreshed {
     }
 
     private boolean refreshDataIfNewerAvailable(RemoteDataSourceConfig config) throws IOException {
+        boolean isS3 = config.getIsS3();
         String url = config.getDataUrl();
         Path downloadDirectory = config.getDataPath();
         String targetFile = config.getDownloadFilename();
@@ -83,12 +89,12 @@ public class FetchDataFromUrl implements RemoteDataRefreshed {
             if (config.getDataCheckUrl().isBlank()) {
                 // skip mod time check
                 logger.info("Skipping mod time check for " + config.getName());
-                return loadIfCachePeriodExpired(url, destination, localMod);
+                return loadIfCachePeriodExpired(url, destination, localMod, isS3);
             }
 
-            LocalDateTime serverMod = downloader.getModTime(url);
+            LocalDateTime serverMod = getModTime(url, isS3);
             if (serverMod.isEqual(LocalDateTime.MIN)) {
-                return loadIfCachePeriodExpired(url, destination, localMod);
+                return loadIfCachePeriodExpired(url, destination, localMod, isS3);
             }
 
             if (serverMod.isEqual(LocalDateTime.MAX)) {
@@ -101,7 +107,7 @@ public class FetchDataFromUrl implements RemoteDataRefreshed {
             try {
                 if (serverMod.isAfter(localMod)) {
                     logger.warn(name + ": server time is after local, downloading new data");
-                    downloader.downloadTo(destination, url);
+                    downloadTo(url, destination, isS3);
                     return true;
                 }
                 logger.info(name + ": no newer data");
@@ -114,19 +120,34 @@ public class FetchDataFromUrl implements RemoteDataRefreshed {
         } else {
             logger.info(name + ": no local file " + destination + " so down loading new data from " + url);
             FileUtils.forceMkdir(downloadDirectory.toAbsolutePath().toFile());
-            downloader.downloadTo(destination, url);
+            downloadTo(url, destination, isS3);
             return true;
         }
     }
 
-    private boolean loadIfCachePeriodExpired(String url, Path destination, LocalDateTime fileModTime)  {
+    private void downloadTo(String url, Path destination, boolean isS3) throws IOException {
+        if (isS3) {
+            s3Downloader.downloadTo(destination, url);
+        } else {
+            httpDownloader.downloadTo(destination, url);
+        }
+    }
+
+    private LocalDateTime getModTime(String url, boolean isS3) throws IOException {
+        if (isS3) {
+            return s3Downloader.getModTime(url);
+        }
+        return httpDownloader.getModTime(url);
+    }
+
+    private boolean loadIfCachePeriodExpired(String url, Path destination, LocalDateTime fileModTime, boolean isS3)  {
         LocalDateTime localNow = providesLocalNow.getDateTime();
         String prefix = format("Local mod time: %s Current Local Time: %s ", fileModTime, localNow);
         boolean downloaded = false;
         try {
             if (fileModTime.plusMinutes(DEFAULT_EXPIRY_MINS).isBefore(localNow)) {
                 logger.info(prefix + " expired downloading from " + url);
-                downloader.downloadTo(destination, url);
+                downloadTo(url, destination, isS3);
                 downloaded = true;
             } else {
                 logger.info(prefix + " not expired, using current " + destination);

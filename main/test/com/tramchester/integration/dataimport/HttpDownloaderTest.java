@@ -1,6 +1,6 @@
 package com.tramchester.integration.dataimport;
 
-import com.tramchester.dataimport.URLDownloadAndModTime;
+import com.tramchester.dataimport.HttpDownloadAndModTime;
 import com.tramchester.testSupport.TestEnv;
 import org.apache.commons.io.FileUtils;
 import org.junit.jupiter.api.AfterEach;
@@ -14,14 +14,14 @@ import java.time.LocalDateTime;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-class URLDownloaderTest {
+class HttpDownloaderTest {
 
     private Path temporaryFile;
-    private URLDownloadAndModTime urlDownloader;
+    private HttpDownloadAndModTime urlDownloader;
 
     @BeforeEach
     void beforeEachTestRuns() {
-        urlDownloader = new URLDownloadAndModTime();
+        urlDownloader = new HttpDownloadAndModTime();
 
         temporaryFile = Paths.get(FileUtils.getTempDirectoryPath(), "downloadAFile");
         tidyFile();
@@ -41,7 +41,6 @@ class URLDownloaderTest {
     @Test
     void shouldDownloadSomething() throws IOException {
         String url = "https://github.com/fluidicon.png";
-
 
         LocalDateTime modTime = urlDownloader.getModTime(url);
         assertTrue(modTime.isBefore(TestEnv.LocalNow()));

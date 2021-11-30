@@ -1,7 +1,7 @@
 package com.tramchester.unit.cloud.data;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.tramchester.cloud.data.ClientForS3;
+import com.tramchester.cloud.data.LiveDataClientForS3;
 import com.tramchester.cloud.data.S3Keys;
 import com.tramchester.cloud.data.StationDepartureMapper;
 import com.tramchester.livedata.cloud.UploadsLiveData;
@@ -25,7 +25,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class UploadsLiveDataTest extends EasyMockSupport {
 
-    private ClientForS3 clientForS3;
+    private LiveDataClientForS3 clientForS3;
     private UploadsLiveData uploadsLiveData;
     private List<StationDepartureInfo> liveData;
     private StationDepartureMapper mapper;
@@ -36,7 +36,7 @@ class UploadsLiveDataTest extends EasyMockSupport {
     void beforeEachTestRuns() {
         lastUpdateTime = LocalDateTime.parse("2018-11-15T15:06:32");
 
-        clientForS3 = createStrictMock(ClientForS3.class);
+        clientForS3 = createStrictMock(LiveDataClientForS3.class);
         mapper = createStrictMock(StationDepartureMapper.class);
 
         s3Keys = createMock(S3Keys.class);

@@ -2,7 +2,7 @@ package com.tramchester.integration.cloud.data;
 
 import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
-import com.tramchester.cloud.data.ClientForS3;
+import com.tramchester.cloud.data.LiveDataClientForS3;
 import com.tramchester.livedata.cloud.DownloadsLiveDataFromS3;
 import com.tramchester.config.LiveDataConfig;
 import com.tramchester.config.TramchesterConfig;
@@ -10,6 +10,7 @@ import com.tramchester.livedata.domain.DTO.StationDepartureInfoDTO;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TestLiveDataConfig;
+import com.tramchester.testSupport.testTags.S3Test;
 import org.junit.jupiter.api.*;
 
 import java.time.Duration;
@@ -21,6 +22,7 @@ import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+@S3Test
 class DownloadsLiveDataFromS3Test {
     private static final int NUM_OF_DISPLAYS = 189;
     private static final String PREFIX = "uat/20200227/";
@@ -28,7 +30,7 @@ class DownloadsLiveDataFromS3Test {
 
     private static ComponentContainer componentContainer;
     private DownloadsLiveDataFromS3 downloader;
-    private ClientForS3 clientForS3;
+    private LiveDataClientForS3 clientForS3;
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
@@ -45,7 +47,7 @@ class DownloadsLiveDataFromS3Test {
     @BeforeEach
     void beforeEachTest() {
         downloader = componentContainer.get(DownloadsLiveDataFromS3.class);
-        clientForS3 = componentContainer.get(ClientForS3.class);
+        clientForS3 = componentContainer.get(LiveDataClientForS3.class);
     }
 
     @Test

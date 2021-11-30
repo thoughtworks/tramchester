@@ -5,6 +5,7 @@ import com.tramchester.domain.DataSourceID;
 
 import java.nio.file.Path;
 
+@Deprecated
 public class TrainGTFSRemoteDataSourceConfig implements RemoteDataSourceConfig {
     private static final String RAIL_LATEST_ZIP = "https://s3.eu-west-2.amazonaws.com/feeds.planar.network/gb-rail-latest.zip";
 
@@ -42,5 +43,10 @@ public class TrainGTFSRemoteDataSourceConfig implements RemoteDataSourceConfig {
     @Override
     public DataSourceID getDataSourceId() {
         return DataSourceID.gbRailGTFS;
+    }
+
+    @Override
+    public boolean getIsS3() {
+        return false;
     }
 }

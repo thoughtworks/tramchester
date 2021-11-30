@@ -24,4 +24,6 @@ public interface RemoteDataSourceConfig extends HasDataPath {
         return DataSourceID.findOrUnknown(getName());
     }
 
+    @JsonIgnore
+    boolean getIsS3();
 }

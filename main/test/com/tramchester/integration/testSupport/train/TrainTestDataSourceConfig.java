@@ -12,6 +12,7 @@ import java.util.*;
 
 import static com.tramchester.domain.reference.GTFSTransportationType.*;
 
+@Deprecated
 public class TrainTestDataSourceConfig implements GTFSSourceConfig {
     private final String dataPath;
 

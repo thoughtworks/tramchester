@@ -5,7 +5,7 @@ import com.tramchester.config.GTFSSourceConfig;
 import com.tramchester.config.RemoteDataSourceConfig;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.dataimport.FetchFileModTime;
-import com.tramchester.dataimport.URLDownloadAndModTime;
+import com.tramchester.dataimport.HttpDownloadAndModTime;
 import com.tramchester.domain.ServiceTimeLimits;
 import com.tramchester.healthchecks.NewDataAvailableHealthCheck;
 import com.tramchester.integration.testSupport.tfgm.TFGMRemoteDataSourceConfig;
@@ -27,7 +27,7 @@ import java.util.List;
 
 class NewDataAvailableHealthCheckTest extends EasyMockSupport {
 
-    private URLDownloadAndModTime urlDownloader;
+    private HttpDownloadAndModTime urlDownloader;
     private FetchFileModTime fetchFileModTime;
     private NewDataAvailableHealthCheck healthCheck;
     private String expectedURL;
@@ -37,7 +37,7 @@ class NewDataAvailableHealthCheckTest extends EasyMockSupport {
     @BeforeEach
     void beforeEachTestRuns() throws IOException {
         TramchesterConfig config = new LocalTestConfig(Files.createTempDirectory("FetchDataFromUrlTest"));
-        urlDownloader = createMock(URLDownloadAndModTime.class);
+        urlDownloader = createMock(HttpDownloadAndModTime.class);
         fetchFileModTime = createMock(FetchFileModTime.class);
         dataSourceConfig = config.getRemoteDataSourceConfig().get(0);
         expectedURL = dataSourceConfig.getDataUrl();

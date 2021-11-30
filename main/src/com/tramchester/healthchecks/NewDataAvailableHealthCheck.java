@@ -2,7 +2,7 @@ package com.tramchester.healthchecks;
 
 import com.tramchester.config.RemoteDataSourceConfig;
 import com.tramchester.dataimport.FetchFileModTime;
-import com.tramchester.dataimport.URLDownloadAndModTime;
+import com.tramchester.dataimport.HttpDownloadAndModTime;
 import com.tramchester.domain.ServiceTimeLimits;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,10 +14,10 @@ public class NewDataAvailableHealthCheck extends TramchesterHealthCheck {
     private static final Logger logger = LoggerFactory.getLogger(NewDataAvailableHealthCheck.class);
 
     private final RemoteDataSourceConfig config;
-    private final URLDownloadAndModTime urlDownloader;
+    private final HttpDownloadAndModTime urlDownloader;
     private final FetchFileModTime fetchFileModTime;
 
-    public NewDataAvailableHealthCheck(RemoteDataSourceConfig config, URLDownloadAndModTime urlDownloader,
+    public NewDataAvailableHealthCheck(RemoteDataSourceConfig config, HttpDownloadAndModTime urlDownloader,
                                        FetchFileModTime fetchFileModTime, ServiceTimeLimits serviceTimeLimits) {
         super(serviceTimeLimits);
         this.config = config;
