@@ -82,7 +82,6 @@ class ConfigMismatchTest {
         validateCoreParameters(true, appConfig, testConfig);
     }
 
-
     @Test
     void shouldHaveKeyParametersSameForRailntegrationTests() throws IOException, ConfigurationException {
 
@@ -99,6 +98,12 @@ class ConfigMismatchTest {
         assertEquals(remoteSources.get(0).getDataCheckUrl(), testRemoteSources.get(0).getDataCheckUrl());
         assertEquals(remoteSources.get(0).getDataUrl(), testRemoteSources.get(0).getDataUrl());
         assertEquals(remoteSources.get(0).getDownloadFilename(), testRemoteSources.get(0).getDownloadFilename());
+
+        RailConfig rail = appConfig.getRailConfig();
+        RailConfig testRail = appConfig.getRailConfig();
+
+        assertEquals(rail.getStations(), testRail.getStations());
+        assertEquals(rail.getTimetable(), testRail.getTimetable());
 
     }
 
