@@ -37,18 +37,6 @@ public abstract class StopCall {
     protected StopCall(Station station, StopTimeData stopTimeData, Trip trip) {
         this(station, stopTimeData.getArrivalTime(), stopTimeData.getDepartureTime(), stopTimeData.getStopSequence(),
                 stopTimeData.getPickupType(), stopTimeData.getDropOffType(), trip);
-//        this.station = station;
-//        this.arrivalTime = stopTimeData.getArrivalTime();
-//        this.trip = trip;
-//        if (stopTimeData.arriveDepartSameTime()) {
-//            this.dwellTime = 0;
-//        } else {
-//            TramTime departureTime = stopTimeData.getDepartureTime();
-//            dwellTime = TramTime.diffenceAsMinutes(arrivalTime, departureTime);
-//        }
-//        this.sequenceNumber = stopTimeData.getStopSequence();
-//        this.pickupType = stopTimeData.getPickupType();
-//        this.dropoffType = stopTimeData.getDropOffType();
     }
 
     public TramTime getArrivalTime() {

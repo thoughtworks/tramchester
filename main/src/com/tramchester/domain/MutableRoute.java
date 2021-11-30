@@ -166,11 +166,21 @@ public class MutableRoute implements Route {
         private void loadFrom(Set<Service> services) {
             services.stream().map(Service::getCalendar).
                     forEach(calendar -> {
-                        operatingDays = EnumSet.copyOf(Sets.union(operatingDays, calendar.getOperatingDays()));
+                        operatingDays = getUnionOf(calendar);
                         DateRange otherRange = calendar.getDateRange();
                         dateRange = DateRange.broadest(dateRange, otherRange);
                     });
             loaded = true;
+        }
+
+        private EnumSet<DayOfWeek> getUnionOf(ServiceCalendar other) {
+            if (operatingDays.isEmpty()) {
+                return other.getOperatingDays();
+            }
+            if (other.getOperatingDays().isEmpty()) {
+                return operatingDays;
+            }
+            return EnumSet.copyOf(Sets.union(operatingDays, other.getOperatingDays()));
         }
 
         public EnumSet<DayOfWeek> getOperatingDays(Set<Service> services) {

@@ -114,6 +114,7 @@ public class IntermediateLocation implements RailLocationRecord {
         return result;
     }
 
+    @Override
     public boolean isPassingRecord() {
         return passingTime.isValid();
     }

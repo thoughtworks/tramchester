@@ -107,7 +107,7 @@ public class LoadRailTransportDataTest {
         assertEquals(GTFSPickupDropoffType.None, firstStopCall.getDropoffType());
         assertEquals(GTFSPickupDropoffType.Regular, firstStopCall.getPickupType());
 
-        assertEquals(21, stops.numberOfCallingPoints());
+        assertEquals(9, stops.numberOfCallingPoints());
 
         final StopCall lastStopCall = stops.getStopBySequenceNumber(stops.numberOfCallingPoints());
         assertEquals(endStation, lastStopCall.getStation());
@@ -216,6 +216,15 @@ public class LoadRailTransportDataTest {
 
         assertEquals(38, routes.size(), routes.toString());
     }
+
+    @Test
+    void shouldHaveAllRoutesWithOperatingDays() {
+        Set<Route> noDays = transportData.getRoutes().stream().
+                filter(route -> route.getOperatingDays().isEmpty()).
+                collect(Collectors.toSet());
+        assertTrue(noDays.isEmpty());
+    }
+
 
     private boolean matches(IdFor<Station> firstId, IdFor<Station> secondId, Trip trip) {
         StopCall firstCall = trip.getStopCalls().getStopBySequenceNumber(trip.getSeqNumOfFirstStop());

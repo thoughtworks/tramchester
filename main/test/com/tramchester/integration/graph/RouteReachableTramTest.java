@@ -48,7 +48,6 @@ class RouteReachableTramTest {
     void beforeEachTestRuns() {
         stationRepository = componentContainer.get(StationRepository.class);
         reachable = componentContainer.get(RouteReachable.class);
-        //TramRouteHelper tramRouteHelper = new TramRouteHelper(componentContainer);
     }
 
     @Test

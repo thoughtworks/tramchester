@@ -7,4 +7,6 @@ public interface RailLocationRecord extends RailTimetableRecord {
     TramTime getPublicArrival();
     TramTime getPublicDeparture();
     String getPlatform();
+
+    boolean isPassingRecord();
 }

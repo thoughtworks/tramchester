@@ -255,6 +255,10 @@ public class RailTimetableMapper {
         private boolean populateForLocation(RailLocationRecord railLocation, MutableRoute route, MutableTrip trip, int stopSequence,
                                          boolean lastStop, IdFor<Agency> agencyId, BasicSchedule schedule) {
 
+            if (railLocation.isPassingRecord()) {
+                return false;
+            }
+
             if (!isStation(railLocation)) {
                 missingStationDiagnosticsFor(railLocation, agencyId, schedule);
                 return false;

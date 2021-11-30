@@ -238,6 +238,9 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
                 StopCalls stops = trip.getStopCalls();
                 List<StopCalls.StopLeg> legs = stops.getLegs();
                 legs.forEach(leg -> {
+                    if (!leg.getDepartureTime().isValid()) {
+                        throw new RuntimeException("Invalid dept time for " + leg);
+                    }
                     if (includeBothStops(leg)) {
                         IdFor<Station> beginId = leg.getFirstStation().getId();
                         IdFor<Station> endId = leg.getSecondStation().getId();
