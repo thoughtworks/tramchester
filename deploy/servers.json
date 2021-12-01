@@ -16,6 +16,8 @@
 	"bootstrapWebScript":{"Type":"String", "Default":"setupTramWebServerAWSLinux.sh"},
 	"keypairname": { "Type" : "String" , "Description" : "::CFN_TAG" },
 	"TFGMAPIKEY": { "Type" : "String", "Description" : "::ENV", "NoEcho" : "true"},
+	"NESSUSINSTALLER": { "Type" : "String", "Description" : "::ENV", "NoEcho" : "true"},
+	"NESSUSLINKINGKEY": { "Type" : "String", "Description" : "::ENV", "NoEcho" : "true"},
 	"instanceProfile":{"Type":"String", "Description":"::InstanceProfile"} }, 
 	"Mappings":{
 	"environMap":{
@@ -60,6 +62,7 @@
 							"# ENV=", {"Ref":"env"}, "\n",
 							"# ARTIFACTSURL=", {"Ref":"baseUrl"}, "/", {"Ref":"bucketName"}, "/dist\n",
 							"# BUILD=", {"Ref":"build"}, "\n",
+							"# NESSUS_LINKING_KEY=", {"Ref":"NESSUSLINKINGKEY"}, "\n",
 							"# TFGMAPIKEY=", {"Ref":"TFGMAPIKEY"}, "\n"
 						]
 					]
@@ -81,9 +84,11 @@
 						]
 					]
 				}
-				}, {
-					"Key":"CFN_ASSIST_TYPE", "Value":"web"
-				}
+				},
+					{"Key":"CFN_ASSIST_TYPE", "Value":"web"},
+					{"Key":"NESSUS_INSTALLER", "Value": { "Ref":"NESSUSINSTALLER"}},
+					{"Key":"ENV", "Value":  { "Ref":"env"}},
+					{"Key":"BUILD", "Value": {"Ref":"build"}}
 			]
 		}
 	}, "TramWebServerB":{
@@ -104,14 +109,15 @@
 					"Fn::Join":[
 						"", [
 							"#include", "\n",
-							{"Ref":"baseUrl"}, "/", {"Ref":"bucketName"}, "/", {"Ref":"build"}, "/",
+							{"Ref":"baseUrl"}, "/", {"Ref":"bucketName"}, "/dist/", {"Ref":"build"}, "/",
 							{"Ref":"bootstrapCloudInit"}, "\n",
-							{"Ref":"baseUrl"}, "/", {"Ref":"bucketName"}, "/", {"Ref":"build"}, "/",
+							{"Ref":"baseUrl"}, "/", {"Ref":"bucketName"}, "/dist/", {"Ref":"build"}, "/",
 							{"Ref":"bootstrapWebScript"}, "\n",
 							"# WAITURL=", {"Ref":"webDoneWaitHandle"}, "\n",
 							"# ENV=", {"Ref":"env"}, "\n",
-							"# ARTIFACTSURL=", {"Ref":"baseUrl"}, "/", {"Ref":"bucketName"}, "\n",
+							"# ARTIFACTSURL=", {"Ref":"baseUrl"}, "/", {"Ref":"bucketName"}, "/dist\n",
 							"# BUILD=", {"Ref":"build"}, "\n" ,
+							"# NESSUS_LINKING_KEY=", {"Ref":"NESSUSLINKINGKEY"}, "\n" ,
 							"# TFGMAPIKEY=", {"Ref":"TFGMAPIKEY"}, "\n"
 						]
 					]
@@ -133,9 +139,11 @@
 						]
 					]
 				}
-				}, {
-					"Key":"CFN_ASSIST_TYPE", "Value":"web"
-				}
+				},
+					{"Key":"CFN_ASSIST_TYPE", "Value":"web"},
+					{"Key":"NESSUS_INSTALLER", "Value": { "Ref":"NESSUSINSTALLER"}},
+					{"Key":"ENV", "Value":  { "Ref":"env"}},
+					{"Key":"BUILD", "Value": {"Ref":"build"}}
 			]
 		}
 	}

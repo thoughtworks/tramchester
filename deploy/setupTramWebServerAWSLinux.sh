@@ -6,13 +6,15 @@ logger Begin setup of tramchester server
 
 export USERDATA=http://169.254.169.254/latest/user-data
 
-wget -nv $USERDATA -O userdata.txt
+wget -nv $USERDATA -O /tmp/userdata.txt
 
-export PLACE=`cat userdata.txt | grep ENV | cut -d = -f 2-`
-export BUILD=`cat userdata.txt | grep BUILD | cut -d = -f 2-`
-export ARTIFACTSURL=`cat userdata.txt | grep ARTIFACTSURL | cut -d = -f 2-`
-export REDIRECTHTTP=`cat userdata.txt | grep REDIRECTHTTP | cut -d = -f 2-`
-export TFGMAPIKEY=`cat userdata.txt | grep TFGMAPIKEY | cut -d = -f 2-`
+export PLACE=`cat /tmp/userdata.txt | grep ENV | cut -d = -f 2-`
+export BUILD=`cat /tmp/userdata.txt | grep BUILD | cut -d = -f 2-`
+export ARTIFACTSURL=`cat /tmp/userdata.txt | grep ARTIFACTSURL | cut -d = -f 2-`
+export REDIRECTHTTP=`cat /tmp/userdata.txt | grep REDIRECTHTTP | cut -d = -f 2-`
+export TFGMAPIKEY=`cat /tmp/userdata.txt | grep TFGMAPIKEY | cut -d = -f 2-`
+export NESSUS_LINKING_KEY=`cat /tmp/userdata.txt | grep NESSUS_LINKING_KEY | cut -d = -f 2-`
+
 target=tramchester-1.0
 
 if [ "$BUILD" == '' ]; then
@@ -40,13 +42,13 @@ dist=`basename $distUrl`
 # set up overrides for server config so data is pulled from S3 at start up
 export TRAM_DATAURL=$ARTIFACTSURL/$BUILD/tfgm_data.zip
 
-cd ~ec2-user
+cd ~ec2-user || (logger Could not cd to ec2-user && exit)
 mkdir -p server
-cd server
+cd server || (logger Could not cd to ec2-user/server && exit)
 
 logger Get $distUrl
 wget -nv $distUrl -O $dist
-unzip $dist
+unzip $dist || (logger Could not unzip from $dist from $distUrl && exit)
 
 # cloudwatch logs agent (NEW)
 logger set up amazon cloudwatch logs agent new
@@ -63,6 +65,11 @@ unzip tramchester.db.zip -d tramchester.db
 
 # fix ownership
 chown -R ec2-user .
+
+## install nessus agent if key is provided
+if [ "$NESSUS_LINKING_KEY" != '' ]; then
+  sudo -E bash ./$target/bin/nessus_agent_install.sh &
+fi
 
 # start 
 logger Start tramchester

@@ -1,5 +1,6 @@
 package com.tramchester.cloud;
 
+import com.netflix.governator.guice.lazy.LazySingleton;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.StatusLine;
@@ -15,6 +16,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.UUID;
 
+@LazySingleton
 public class SignalToCloudformationReady {
     private static final Logger logger = LoggerFactory.getLogger(SignalToCloudformationReady.class);
     private final String url;
