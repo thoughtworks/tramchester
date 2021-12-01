@@ -12,6 +12,7 @@ data/bus
 data/tram
 data/all
 data/trains
+data/rail
 data/naptan
 data/postcodes
 data/cache**/
