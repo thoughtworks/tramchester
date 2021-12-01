@@ -44,7 +44,7 @@ public class RailRemoteDataSourceConfig implements RemoteDataSourceConfig {
 
     @Override
     public DataSourceID getDataSourceId() {
-        return DataSourceID.gbRailGTFS;
+        return DataSourceID.rail;
     }
 
     @Override

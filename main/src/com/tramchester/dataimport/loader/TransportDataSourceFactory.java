@@ -2,12 +2,11 @@ package com.tramchester.dataimport.loader;
 
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.config.GTFSSourceConfig;
-import com.tramchester.dataimport.data.*;
 import com.tramchester.dataimport.UnzipFetchedData;
+import com.tramchester.dataimport.data.*;
 import com.tramchester.domain.DataSourceID;
 import com.tramchester.domain.FeedInfo;
 import com.tramchester.domain.factory.TransportEntityFactory;
-import com.tramchester.domain.factory.TransportEntityFactoryForGTFSGBRail;
 import com.tramchester.domain.factory.TransportEntityFactoryForTFGM;
 import com.tramchester.repository.naptan.NaptanRespository;
 import org.jetbrains.annotations.NotNull;
@@ -84,8 +83,6 @@ public class TransportDataSourceFactory implements Iterable<TransportDataSource>
         DataSourceID sourceID = DataSourceID.valueOf(sourceConfig.getName());
         if (DataSourceID.tfgm == sourceID) {
             return new TransportEntityFactoryForTFGM(naptanRespository);
-        } else if (DataSourceID.gbRailGTFS == sourceID) {
-            return new TransportEntityFactoryForGTFSGBRail();
         } else {
             throw new RuntimeException("No entity factory is defined for " + sourceConfig.getName());
         }

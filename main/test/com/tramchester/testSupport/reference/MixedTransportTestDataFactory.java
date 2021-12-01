@@ -67,7 +67,7 @@ public class MixedTransportTestDataFactory implements TransportDataFactory {
     private static final MutableRoute FERRY_ROUTE;
 
     static {
-        final Agency agency = MutableAgency.build(DataSourceID.gbRailGTFS, StringIdFor.createId("FER"), "ferryAgency");
+        final Agency agency = MutableAgency.build(DataSourceID.rail, StringIdFor.createId("FER"), "ferryAgency");
         FERRY_ROUTE = new MutableRoute(StringIdFor.createId("FER:42:C"), "42", "Lakes",
                 agency, TransportMode.Ferry);
     }

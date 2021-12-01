@@ -23,7 +23,7 @@ class TransportDataContainerTest {
         TransportDataContainer container = new TransportDataContainer(providesLocalNow, "local");
         DataSourceInfo dataSourceA = new DataSourceInfo(DataSourceID.tfgm, "v1", baseTime.plusHours(1), Collections.singleton(Tram));
         DataSourceInfo dataSourceB = new DataSourceInfo(DataSourceID.tfgm, "v1", baseTime.minusHours(1), Collections.singleton(Bus));
-        DataSourceInfo dataSourceC = new DataSourceInfo(DataSourceID.gbRailGTFS, "v1", baseTime, Collections.singleton(Tram));
+        DataSourceInfo dataSourceC = new DataSourceInfo(DataSourceID.rail, "v1", baseTime, Collections.singleton(Tram));
 
         container.addDataSourceInfo(dataSourceA);
         container.addDataSourceInfo(dataSourceB);
