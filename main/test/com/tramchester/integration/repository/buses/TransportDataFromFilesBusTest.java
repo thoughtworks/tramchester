@@ -23,6 +23,7 @@ import com.tramchester.testSupport.reference.BusStations;
 import com.tramchester.testSupport.testTags.BusTest;
 import com.tramchester.testSupport.testTags.DataUpdateTest;
 import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.condition.DisabledIfEnvironmentVariable;
 
 import java.time.LocalDate;
 import java.util.*;
@@ -35,6 +36,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 @DataUpdateTest
 @BusTest
+@DisabledIfEnvironmentVariable(named = "CI", matches = "true")
 public
 class TransportDataFromFilesBusTest {
 

@@ -66,4 +66,13 @@ public class TransportDataReader {
         return factory.getLoaderFor(InputFiles.agency, AgencyData.class).load();
     }
 
+
+    @Override
+    public String toString() {
+        return "TransportDataReader{" +
+                "dataSourceInfo=" + dataSourceInfo +
+                ", source name=" + config.getName() +
+                '}';
+    }
+
 }

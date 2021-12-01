@@ -48,6 +48,8 @@ public class TransportDataSourceFactory implements Iterable<TransportDataSource>
 
         List<TransportDataReader> transportDataReaders = readerFactory.getReaders();
 
+        logger.info("Loading for " + transportDataReaders.size() + " readers ");
+
         // streams, so no data read yet
 
         transportDataReaders.forEach(transportDataReader -> {
