@@ -3,6 +3,7 @@ package com.tramchester.testSupport;
 import com.tramchester.domain.DataSourceID;
 import com.tramchester.domain.Platform;
 import com.tramchester.domain.Route;
+import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.places.MutableStation;
 import com.tramchester.domain.places.Station;
@@ -21,8 +22,14 @@ public class TestStation extends MutableStation {
     private boolean platformsAdded;
     private boolean routesAdded;
 
-    public TestStation(String id, String area, String stationName, LatLong latLong, GridPosition gridPosition, TransportMode initialMode, DataSourceID dataSourceID) {
-        super(StringIdFor.createId(id), area, stationName, latLong, gridPosition, dataSourceID);
+    public TestStation(String id, String area, String stationName, LatLong latLong, GridPosition gridPosition,
+                       TransportMode initialMode, DataSourceID dataSourceID) {
+        this(StringIdFor.createId(id), area, stationName, latLong, gridPosition, initialMode, dataSourceID);
+    }
+
+    public TestStation(IdFor<Station> id, String area, String stationName, LatLong latLong, GridPosition gridPosition,
+                       TransportMode initialMode, DataSourceID dataSourceID) {
+        super(id, area, stationName, latLong, gridPosition, dataSourceID);
         this.initialMode = initialMode;
         platformsAdded = false;
         routesAdded = false;

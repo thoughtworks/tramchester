@@ -9,9 +9,10 @@ import com.tramchester.domain.places.Station;
 import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.GraphQuery;
 import com.tramchester.graph.graphbuild.GraphProps;
-import com.tramchester.integration.testSupport.train.IntegrationTrainTestConfig;
+import com.tramchester.integration.testSupport.rail.IntegrationRailTestConfig;
+import com.tramchester.integration.testSupport.rail.RailStationIds;
+import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.TestEnv;
-import com.tramchester.testSupport.reference.TrainStations;
 import com.tramchester.testSupport.testTags.TrainTest;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.condition.DisabledIfEnvironmentVariable;
@@ -20,11 +21,11 @@ import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
 import org.neo4j.graphdb.Transaction;
 
-import java.util.*;
+import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import static com.tramchester.graph.TransportRelationshipTypes.LINKED;
-import static com.tramchester.testSupport.reference.TrainStations.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -35,10 +36,11 @@ class GraphBuilderTrainTest {
 
     private Transaction txn;
     private GraphQuery graphQuery;
+    private StationRepository stationRepository;
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
-        TramchesterConfig testConfig = new IntegrationTrainTestConfig();
+        TramchesterConfig testConfig = new IntegrationRailTestConfig();
         componentContainer = new ComponentsBuilder().create(testConfig, TestEnv.NoopRegisterMetrics());
         componentContainer.initialise();
     }
@@ -46,6 +48,7 @@ class GraphBuilderTrainTest {
     @BeforeEach
     void beforeEachTestRuns() {
         graphQuery = componentContainer.get(GraphQuery.class);
+        stationRepository = componentContainer.get(StationRepository.class);
         GraphDatabase service = componentContainer.get(GraphDatabase.class);
         txn = service.beginTx();
     }
@@ -62,7 +65,7 @@ class GraphBuilderTrainTest {
 
     @Test
     void shouldHaveLinkRelationshipsCorrectForNonInterchange() {
-        Station mobberley = TrainStations.of(TrainStations.Mobberley);
+        Station mobberley = stationRepository.getStationById(RailStationIds.Mobberley.getId());
         Node mobberleyNode = graphQuery.getStationNode(txn, mobberley);
         Iterable<Relationship> outboundLinks = mobberleyNode.getRelationships(Direction.OUTGOING, LINKED);
 
@@ -72,13 +75,13 @@ class GraphBuilderTrainTest {
         Set<IdFor<Station>> destinations = list.stream().map(Relationship::getEndNode).
                 map(GraphProps::getStationId).collect(Collectors.toSet());
 
-        assertTrue(destinations.contains(Knutsford.getId()));
+        assertTrue(destinations.contains(RailStationIds.Knutsford.getId()));
     }
 
     @Test
     void shouldHaveLinkRelationshipsCorrectForInterchange() {
-        Station cornbrook = TrainStations.of(ManchesterPiccadilly);
-        Node manPiccNode = graphQuery.getStationNode(txn, cornbrook);
+        Station station = stationRepository.getStationById(RailStationIds.ManchesterPiccadilly.getId());
+        Node manPiccNode = graphQuery.getStationNode(txn, station);
         Iterable<Relationship> outboundLinks = manPiccNode.getRelationships(Direction.OUTGOING, LINKED);
 
         List<Relationship> list = Lists.newArrayList(outboundLinks);
@@ -87,7 +90,7 @@ class GraphBuilderTrainTest {
         Set<IdFor<Station>> destinations = list.stream().map(Relationship::getEndNode).
                 map(GraphProps::getStationId).collect(Collectors.toSet());
 
-        assertTrue(destinations.contains(Stockport.getId()));
+        assertTrue(destinations.contains(RailStationIds.Stockport.getId()));
     }
 
 }

@@ -4,28 +4,24 @@ import com.tramchester.config.GTFSSourceConfig;
 import com.tramchester.config.RemoteDataSourceConfig;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.geo.BoundingBox;
+import com.tramchester.integration.testSupport.rail.RailRemoteDataSourceConfig;
+import com.tramchester.integration.testSupport.rail.RailTestDataSourceConfig;
 import com.tramchester.integration.testSupport.tfgm.TFGMGTFSSourceTestConfig;
 import com.tramchester.integration.testSupport.tfgm.TFGMRemoteDataSourceConfig;
-import com.tramchester.integration.testSupport.train.TrainGTFSRemoteDataSourceConfig;
-import com.tramchester.integration.testSupport.train.TrainTestDataSourceConfig;
 import com.tramchester.testSupport.AdditionalTramInterchanges;
 import com.tramchester.testSupport.TestEnv;
 import org.junit.jupiter.api.condition.DisabledIfEnvironmentVariable;
 
 import java.nio.file.Path;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
-import static com.tramchester.domain.reference.TransportMode.Bus;
-import static com.tramchester.domain.reference.TransportMode.Tram;
+import static com.tramchester.domain.reference.TransportMode.*;
 
 @DisabledIfEnvironmentVariable(named = "CI", matches = "true")
 public class AllModesTestConfig extends IntegrationTestConfig {
 
     private TFGMRemoteDataSourceConfig remoteTfgmSourceConfig;
-    private TrainGTFSRemoteDataSourceConfig remoteDataRailConfig;
+    private RailRemoteDataSourceConfig remoteDataRailConfig;
 
     public AllModesTestConfig() {
         super(new DBConfig("allModesTest", "allModesTest.db"));
@@ -33,15 +29,15 @@ public class AllModesTestConfig extends IntegrationTestConfig {
 
     @Override
     protected List<GTFSSourceConfig> getDataSourceFORTESTING() {
-        final Set<TransportMode> modesWithPlatforms = Collections.singleton(Tram);
+        final Set<TransportMode> modesWithPlatforms = new HashSet<>(Arrays.asList(Tram, Train));
         final Set<TransportMode> compositeStationModes = Collections.singleton(Bus);
 
         final TFGMGTFSSourceTestConfig tfgmDataSource = new TFGMGTFSSourceTestConfig("data/bus", TestEnv.tramAndBus,
                 modesWithPlatforms, AdditionalTramInterchanges.get(), compositeStationModes, Collections.emptyList());
-        TrainTestDataSourceConfig railSourceConfig = new TrainTestDataSourceConfig("data/trains");
+        RailTestDataSourceConfig railSourceConfig = new RailTestDataSourceConfig("data/trains");
 
         remoteTfgmSourceConfig = new TFGMRemoteDataSourceConfig("data/bus");
-        remoteDataRailConfig = new TrainGTFSRemoteDataSourceConfig("data/trains");
+        remoteDataRailConfig = new RailRemoteDataSourceConfig("data/rail");
 
         return Arrays.asList(tfgmDataSource, railSourceConfig);
     }

@@ -7,9 +7,9 @@ import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.graph.FindStationsByNumberLinks;
-import com.tramchester.integration.testSupport.train.IntegrationTrainTestConfig;
+import com.tramchester.integration.testSupport.rail.IntegrationRailTestConfig;
+import com.tramchester.integration.testSupport.rail.RailStationIds;
 import com.tramchester.testSupport.TestEnv;
-import com.tramchester.testSupport.reference.TrainStations;
 import com.tramchester.testSupport.testTags.TrainTest;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
@@ -27,7 +27,7 @@ class FindStationsByNumberLinksTrainTest {
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
-        TramchesterConfig config = new IntegrationTrainTestConfig();
+        TramchesterConfig config = new IntegrationRailTestConfig();
 
         componentContainer = new ComponentsBuilder().create(config, TestEnv.NoopRegisterMetrics());
         componentContainer.initialise();
@@ -49,12 +49,12 @@ class FindStationsByNumberLinksTrainTest {
         IdSet<Station> found = discoverer.findAtLeastNConnectionsFrom(TransportMode.Train, threshhold);
 
 
-        assertTrue(found.contains(TrainStations.ManchesterPiccadilly.getId()));
-        assertTrue(found.contains(TrainStations.LondonEuston.getId()));
-        assertTrue(found.contains(TrainStations.Stockport.getId()));
+        assertTrue(found.contains(RailStationIds.ManchesterPiccadilly.getId()));
+        assertTrue(found.contains(RailStationIds.LondonEuston.getId()));
+        assertTrue(found.contains(RailStationIds.Stockport.getId()));
 
-        assertFalse(found.contains(TrainStations.Mobberley.getId()));
-        assertFalse(found.contains(TrainStations.Hale.getId()));
+        assertFalse(found.contains(RailStationIds.Mobberley.getId()));
+        assertFalse(found.contains(RailStationIds.Hale.getId()));
 
         assertEquals(901, found.size());
     }

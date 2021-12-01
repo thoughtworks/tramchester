@@ -4,19 +4,18 @@ import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.DiagramCreator;
 import com.tramchester.domain.Journey;
+import com.tramchester.domain.JourneyRequest;
+import com.tramchester.domain.places.Station;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.filters.ConfigurableGraphFilter;
-import com.tramchester.domain.JourneyRequest;
 import com.tramchester.graph.search.RouteCalculator;
 import com.tramchester.integration.testSupport.RouteCalculatorTestFacade;
-import com.tramchester.integration.testSupport.train.IntegrationTrainTestConfig;
+import com.tramchester.integration.testSupport.rail.RailStationIds;
+import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.TestEnv;
-import com.tramchester.testSupport.TestStations;
-import com.tramchester.testSupport.reference.TrainStations;
 import com.tramchester.testSupport.testTags.TrainTest;
-import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.condition.DisabledIfEnvironmentVariable;
 import org.neo4j.graphdb.Transaction;
@@ -28,7 +27,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 
-import static com.tramchester.testSupport.reference.TrainStations.*;
 import static java.lang.String.format;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -43,7 +41,8 @@ class SubGraphAroundKnutsfordTrainTest {
     private RouteCalculatorTestFacade testFacade;
     private final LocalDate when = TestEnv.testDay();
 
-    private static final List<TrainStations> stations = Arrays.asList(Hale, Ashley, Mobberley, Knutsford);
+    private static final List<RailStationIds> stations = Arrays.asList(RailStationIds.Hale,
+            RailStationIds.Ashley, RailStationIds.Mobberley, RailStationIds.Knutsford);
 
     private Transaction txn;
     private TramTime tramTime;
@@ -95,15 +94,15 @@ class SubGraphAroundKnutsfordTrainTest {
 
     @Test
     void shouldHaveKnutsfordToAndFromHale() {
-        validateAtLeastOneJourney(Hale, Knutsford);
-        validateAtLeastOneJourney(Knutsford, Hale);
+        validateAtLeastOneJourney(RailStationIds.Hale, RailStationIds.Knutsford);
+        validateAtLeastOneJourney(RailStationIds.Knutsford, RailStationIds.Hale);
     }
 
     @SuppressWarnings("JUnitTestMethodWithNoAssertions")
     @Test
     void shouldHaveJourneysBetweenAllStations() {
-        for (TrainStations start: stations) {
-            for (TrainStations destination: stations) {
+        for (RailStationIds start: stations) {
+            for (RailStationIds destination: stations) {
                 if (!start.equals(destination)) {
                     validateAtLeastOneJourney(start, destination);
                 }
@@ -113,32 +112,29 @@ class SubGraphAroundKnutsfordTrainTest {
 
     @Test
     void shouldHaveSimpleJourney() {
-        Set<Journey> results = getJourneys(Hale, Knutsford, when);
+        JourneyRequest journeyRequest = new JourneyRequest(when, tramTime, false, 0,
+                30, 1);
+        Set<Journey> results = testFacade.calculateRouteAsSet(RailStationIds.Hale.getId(), RailStationIds.Knutsford.getId(), journeyRequest);
         Assertions.assertTrue(results.size()>0);
     }
 
     @Test
     void produceDiagramOfGraphSubset() throws IOException {
         DiagramCreator creator = componentContainer.get(DiagramCreator.class);
-        creator.create(Path.of(format("%s_trains.dot", "around_hale")), TrainStations.of(Hale), 100, false);
+        final Station station = stationRepository.getStationById(RailStationIds.Hale.getId());
+        assertNotNull(station);
+        creator.create(Path.of(format("%s_trains.dot", "around_hale")), station, 100, false);
     }
 
-    @NotNull
-    private Set<Journey> getJourneys(TestStations start, TestStations destination, LocalDate when) {
-        JourneyRequest journeyRequest = new JourneyRequest(when, tramTime, false, 0,
-                30, 1);
-        return testFacade.calculateRouteAsSet(start,destination, journeyRequest);
-    }
-
-    private void validateAtLeastOneJourney(TestStations start, TestStations dest) {
+    private void validateAtLeastOneJourney(RailStationIds start, RailStationIds dest) {
         JourneyRequest journeyRequest = new JourneyRequest(when, tramTime, false, 0,
                 30, 1);
 
-        Set<Journey> results = testFacade.calculateRouteAsSet(start, dest, journeyRequest);
+        Set<Journey> results = testFacade.calculateRouteAsSet(start.getId(), dest.getId(), journeyRequest);
         assertFalse(results.isEmpty(), "No results from " + start + " to " + dest);
     }
 
-    private static class SubgraphConfig extends IntegrationTrainTestConfig {
+    private static class SubgraphConfig extends IntegrationTramTestConfig {
         public SubgraphConfig() {
             super("subgraph_hale_trains_tramchester.db");
         }

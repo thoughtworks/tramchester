@@ -5,7 +5,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tramchester.config.*;
 import com.tramchester.integration.testSupport.bus.IntegrationBusTestConfig;
 import com.tramchester.integration.testSupport.rail.IntegrationRailTestConfig;
-import com.tramchester.integration.testSupport.train.IntegrationTrainTestConfig;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
 import io.dropwizard.configuration.ConfigurationException;
 import io.dropwizard.configuration.YamlConfigurationFactory;
@@ -69,15 +68,6 @@ class ConfigMismatchTest {
 
         AppConfiguration appConfig = loadConfigFromFile("buses.yml");
         IntegrationBusTestConfig testConfig = new IntegrationBusTestConfig();
-
-        validateCoreParameters(true, appConfig, testConfig);
-    }
-
-    @Test
-    void shouldHaveKeyParametersSameForTrainIntegrationTests() throws IOException, ConfigurationException {
-
-        AppConfiguration appConfig = loadConfigFromFile("trains_gtfs.yml");
-        IntegrationTrainTestConfig testConfig = new IntegrationTrainTestConfig();
 
         validateCoreParameters(true, appConfig, testConfig);
     }

@@ -16,6 +16,10 @@ public enum RailStationIds {
     LondonStPancras(createId("STPX")),
     Macclesfield(createId("MACLSFD")),
     MiltonKeynesCentral(createId("MKNSCEN")),
+    Hale(createId("HALE")),
+    Knutsford(createId("KNUTSFD")),
+    Ashley(createId("ASHLEY")),
+    Mobberley(createId("MOBERLY")),
     StokeOnTrent(createId("STOKEOT"));
 
     private final IdFor<Station> id;

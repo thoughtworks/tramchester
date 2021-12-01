@@ -14,6 +14,7 @@ import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.search.RouteCalculator;
 import com.tramchester.integration.testSupport.AllModesTestConfig;
 import com.tramchester.integration.testSupport.RouteCalculatorTestFacade;
+import com.tramchester.integration.testSupport.rail.RailStationIds;
 import com.tramchester.repository.CompositeStationRepository;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.TestEnv;
@@ -29,8 +30,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import static com.tramchester.domain.reference.TransportMode.Tram;
-import static com.tramchester.testSupport.reference.TrainStations.ManchesterPiccadilly;
-import static com.tramchester.testSupport.reference.TrainStations.Stockport;
+import static com.tramchester.integration.testSupport.rail.RailStationIds.ManchesterPiccadilly;
 import static com.tramchester.testSupport.reference.TramStations.Bury;
 import static com.tramchester.testSupport.reference.TramStations.Victoria;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -122,18 +122,18 @@ public class AllModesJourneysTest {
     }
 
     @Test
-    void shouldHaveStockportToManPicc() {
+    void shouldHaveStockportToManPiccRail() {
         TramTime travelTime = TramTime.of(8, 0);
 
         JourneyRequest request = new JourneyRequest(new TramServiceDate(when), travelTime, false, 1,
                 30, 1);
 
-        Set<Journey> journeys = routeCalculator.calculateRouteAsSet(Stockport, ManchesterPiccadilly, request);
+        Set<Journey> journeys = routeCalculator.calculateRouteAsSet(RailStationIds.Stockport.getId(), ManchesterPiccadilly.getId(), request);
         assertFalse(journeys.isEmpty());
 
         // At least one direct
         List<Journey> direct = journeys.stream().filter(journey -> journey.getStages().size() == 1).collect(Collectors.toList());
-        assertFalse(direct.isEmpty(), "No direct from " + Stockport + " to " + ManchesterPiccadilly);
+        assertFalse(direct.isEmpty(), "No direct from " + RailStationIds.Stockport + " to " + ManchesterPiccadilly);
     }
 
 }

@@ -4,6 +4,7 @@ import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.Journey;
+import com.tramchester.domain.JourneyRequest;
 import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.input.StopCall;
 import com.tramchester.domain.places.Station;
@@ -12,13 +13,12 @@ import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramServiceDate;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.GraphDatabase;
-import com.tramchester.domain.JourneyRequest;
 import com.tramchester.graph.search.RouteCalculator;
 import com.tramchester.integration.testSupport.RouteCalculatorTestFacade;
-import com.tramchester.integration.testSupport.train.IntegrationTrainTestConfig;
+import com.tramchester.integration.testSupport.rail.IntegrationRailTestConfig;
+import com.tramchester.integration.testSupport.rail.RailStationIds;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.TestEnv;
-import com.tramchester.testSupport.reference.TrainStations;
 import com.tramchester.testSupport.testTags.TrainTest;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.condition.DisabledIfEnvironmentVariable;
@@ -30,7 +30,7 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
-import static com.tramchester.testSupport.reference.TrainStations.*;
+import static com.tramchester.integration.testSupport.rail.RailStationIds.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 @TrainTest
@@ -49,7 +49,7 @@ class TrainRouteCalculatorTest {
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
-        TramchesterConfig testConfig = new IntegrationTrainTestConfig();
+        TramchesterConfig testConfig = new IntegrationRailTestConfig();
         componentContainer = new ComponentsBuilder().create(testConfig, TestEnv.NoopRegisterMetrics());
         componentContainer.initialise();
         stationRepository = componentContainer.get(StationRepository.class);
@@ -80,7 +80,8 @@ class TrainRouteCalculatorTest {
 
         JourneyRequest request = new JourneyRequest(new TramServiceDate(when), travelTime, false, 0,
                 3*60, 3);
-        Set<Journey> journeys = testFacade.calculateRouteAsSet(TrainStations.LondonEuston, ManchesterPiccadilly,
+        Set<Journey> journeys = testFacade.calculateRouteAsSet(RailStationIds.LondonEuston.getId(),
+                ManchesterPiccadilly.getId(),
                 request);
         assertFalse(journeys.isEmpty());
 
@@ -163,8 +164,8 @@ class TrainRouteCalculatorTest {
         assertEquals(3, results.size(), results.toString());
     }
 
-    private void atLeastOneDirect(JourneyRequest request, TrainStations start, TrainStations dest) {
-        Set<Journey> journeys = testFacade.calculateRouteAsSet(start, dest, request);
+    private void atLeastOneDirect(JourneyRequest request, RailStationIds start, RailStationIds dest) {
+        Set<Journey> journeys = testFacade.calculateRouteAsSet(start.getId(), dest.getId(), request);
         assertFalse(journeys.isEmpty());
 
         // At least one direct
