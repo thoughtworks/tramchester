@@ -24,11 +24,20 @@ public class MutableStation implements Station {
     private final Set<Route> servesRoutes;
     private final Set<Agency> servesAgencies;
     private final DataSourceID dataSourceID;
+    private final boolean isMarkedInterchange;
 
     public MutableStation(IdFor<Station> id, String area, String stationName, LatLong latLong, GridPosition gridPosition,
                           DataSourceID dataSourceID) {
+        this(id, area, stationName, latLong, gridPosition, dataSourceID, false);
+
+    }
+
+    // for some data sources we know if station is an interchange
+    public MutableStation(IdFor<Station> id, String area, String stationName, LatLong latLong, GridPosition gridPosition,
+                          DataSourceID dataSourceID, boolean isMarkedInterchange) {
         this.gridPosition = gridPosition;
         this.dataSourceID = dataSourceID;
+        this.isMarkedInterchange = isMarkedInterchange;
         platforms = new HashSet<>();
         servesRoutes = new HashSet<>();
         servesAgencies = new HashSet<>();
@@ -139,6 +148,11 @@ public class MutableStation implements Station {
     }
 
     @Override
+    public boolean isMarkedInterchange() {
+        return isMarkedInterchange;
+    }
+
+    @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null) return false;
@@ -165,6 +179,7 @@ public class MutableStation implements Station {
                 ", mode=" + getTransportModes() +
                 ", platforms=" + HasId.asIds(platforms) +
                 ", servesRoutes=" + HasId.asIds(servesRoutes) +
+                ", isMarkedInterchange=" + isMarkedInterchange +
                 '}';
     }
 

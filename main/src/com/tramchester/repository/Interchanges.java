@@ -117,13 +117,19 @@ public class Interchanges implements InterchangeRepository {
     }
 
     private void populateInterchangesFor(TransportMode mode, int linkThreshhold) {
+        logger.info("Adding stations marked as interchanges");
+        Set<Station> markedAsInterchange = stationRepository.getStationsForMode(mode).
+                stream().filter(Station::isMarkedInterchange).collect(Collectors.toSet());
+        addStations(markedAsInterchange);
+        logger.info(format("Added %s %s stations marked as as interchange", markedAsInterchange.size(), mode));
+
         logger.info("Finding interchanges for " + mode + " and threshhold " + linkThreshhold);
-
-        IdSet<Station> foundIds = findStationsByNumberConnections.findAtLeastNConnectionsFrom(mode, linkThreshhold);
-        logger.info(format("Added %s interchanges for %s and link threshold %s", foundIds.size(), mode, linkThreshhold));
-
-        Set<Station> found = foundIds.stream().map(stationRepository::getStationById).collect(Collectors.toSet());
-        addStations(found);
+        IdSet<Station> foundIdsViaLinks = findStationsByNumberConnections.findAtLeastNConnectionsFrom(mode, linkThreshhold);
+        Set<Station> foundViaLinks = foundIdsViaLinks.stream().map(stationRepository::getStationById).
+                filter(station -> !station.isMarkedInterchange()).
+                collect(Collectors.toSet());
+        logger.info(format("Added %s interchanges for %s and link threshold %s", foundIdsViaLinks.size(), mode, linkThreshhold));
+        addStations(foundViaLinks);
     }
 
     private void addCompositeStations(TransportMode mode) {

@@ -6,6 +6,7 @@ import com.tramchester.config.TramchesterConfig;
 import com.tramchester.dataimport.loader.DirectDataSourceFactory;
 import com.tramchester.dataimport.rail.records.PhysicalStationRecord;
 import com.tramchester.dataimport.rail.records.RailTimetableRecord;
+import com.tramchester.dataimport.rail.records.reference.RailInterchangeType;
 import com.tramchester.domain.DataSourceID;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.StringIdFor;
@@ -118,7 +119,9 @@ public class LoadRailTransportData implements DirectDataSourceFactory.PopulatesC
             latLong = CoordinateTransforms.getLatLong(grid);
         }
 
-        return new MutableStation(id, area, name, latLong, grid, DataSourceID.rail);
+        boolean isInterchange = (record.getRailInterchangeType()!= RailInterchangeType.None);
+
+        return new MutableStation(id, area, name, latLong, grid, DataSourceID.rail, isInterchange);
     }
 
     private GridPosition convertToOsGrid(int easting, int northing) {

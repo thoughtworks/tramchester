@@ -53,4 +53,6 @@ public interface Station extends Location<Station> {
     boolean hasPlatformsForRoute(Route route);
 
     boolean serves(TransportMode mode);
+
+    boolean isMarkedInterchange();
 }
