@@ -201,6 +201,7 @@ public class LoadRailTransportDataTest {
         assertTrue(foundAgency.isPresent());
         Agency agency = foundAgency.get();
 
+        // all routes for VT between start and end
         Set<MutableRailRoute> routes = transportData.getRoutes().stream().
                 filter(route -> route instanceof MutableRailRoute).
                 filter(route -> route.getAgency().equals(agency)).
@@ -209,12 +210,13 @@ public class LoadRailTransportDataTest {
                 filter(route -> route.getEnd().getId().equals(endId)).
                 collect(Collectors.toSet());
 
+        // get unique sets of calling points
         Set<List<Station>> uniqueCallingPoints = routes.stream().
                 map(MutableRailRoute::getCallingPoiints).collect(Collectors.toSet());
 
         assertEquals(routes.size(), uniqueCallingPoints.size());
 
-        assertEquals(38, routes.size(), routes.toString());
+        assertEquals(45, routes.size(), routes.toString());
     }
 
     @Test
@@ -224,7 +226,6 @@ public class LoadRailTransportDataTest {
                 collect(Collectors.toSet());
         assertTrue(noDays.isEmpty());
     }
-
 
     private boolean matches(IdFor<Station> firstId, IdFor<Station> secondId, Trip trip) {
         StopCall firstCall = trip.getStopCalls().getStopBySequenceNumber(trip.getSeqNumOfFirstStop());

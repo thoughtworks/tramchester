@@ -236,22 +236,30 @@ public class ClientForS3 {
         return s3Client != null;
     }
 
-    public LocalDateTime getModTimeFor(String url) throws IOException {
+    public LocalDateTime getModTimeFor(String url) {
         logger.info("Mod time for for url " + url);
 
         BucketKey bucketKey = BucketKey.convertFromURI(url);
 
-        GetObjectRequest getObjectRequest = createRequestFor(bucketKey);
-        ResponseInputStream<GetObjectResponse> response = s3Client.getObject(getObjectRequest);
-        Instant lastModinstant = response.response().lastModified();
-        response.close();
-        return LocalDateTime.ofInstant(lastModinstant, TramchesterConfig.TimeZone);
+        ListObjectsV2Request request = ListObjectsV2Request.builder().
+                bucket(bucketKey.bucket).prefix(bucketKey.key).maxKeys(1).
+                build();
+        ListObjectsV2Response response = s3Client.listObjectsV2(request);
 
+        if (response.keyCount()!=1) {
+            logger.warn("Unexpected number of objects, needed 1 got " + response.keyCount());
+        }
+        S3Object s3Object = response.contents().get(0);
+
+        Instant lastModinstant = s3Object.lastModified();
+        return LocalDateTime.ofInstant(lastModinstant, TramchesterConfig.TimeZone);
     }
 
     private GetObjectRequest createRequestFor(BucketKey bucketKey) {
         logger.info("Create getRequest for " + bucketKey);
-        return GetObjectRequest.builder().bucket(bucketKey.bucket).key(bucketKey.key).build();
+        return GetObjectRequest.builder().
+                bucket(bucketKey.bucket).key(bucketKey.key).
+                build();
     }
 
     public void downloadTo(Path path, String url) throws IOException {
