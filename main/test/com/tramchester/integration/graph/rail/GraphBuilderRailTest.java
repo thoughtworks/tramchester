@@ -76,7 +76,7 @@ class GraphBuilderRailTest {
         Iterable<Relationship> outboundLinks = startNode.getRelationships(Direction.OUTGOING, LINKED);
 
         List<Relationship> list = Lists.newArrayList(outboundLinks);
-        assertEquals(18, list.size(), list.toString());
+        assertEquals(29, list.size(), list.toString());
 
         Set<IdFor<Station>> destinations = list.stream().map(Relationship::getEndNode).
                 map(GraphProps::getStationId).collect(Collectors.toSet());
