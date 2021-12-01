@@ -1,6 +1,7 @@
 package com.tramchester.unit.rail;
 
 import com.tramchester.dataimport.rail.records.PhysicalStationRecord;
+import com.tramchester.dataimport.rail.records.reference.RailInterchangeType;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -17,6 +18,7 @@ public class PhysicalStationRecordTest {
         assertEquals("DRBY", result.getTiplocCode());
         assertEquals(4362, result.getEasting());
         assertEquals(3356, result.getNorthing());
+        assertEquals(RailInterchangeType.Medium, result.getRailInterchangeType());
     }
 
     @Test
@@ -29,6 +31,8 @@ public class PhysicalStationRecordTest {
         assertEquals("CATZBSG", result.getTiplocCode());
         assertEquals(Integer.MIN_VALUE, result.getEasting());
         assertEquals(Integer.MIN_VALUE, result.getNorthing());
+        assertEquals(RailInterchangeType.None, result.getRailInterchangeType());
+
     }
 
     @Test
