@@ -89,10 +89,13 @@ class StationTest {
         assertTrue(agencies.contains(TestEnv.MetAgency()));
         assertTrue(agencies.contains(TestEnv.StagecoachManchester));
 
-        Set<Route> allRoutes = station.getRoutes();
-        assertEquals(2, allRoutes.size());
-        assertTrue(allRoutes.contains(routeA));
-        assertTrue(allRoutes.contains(routeB));
+        Set<Route> dropOffRoutes = station.getDropoffRoutes();
+        assertEquals(1, dropOffRoutes.size());
+        assertTrue(dropOffRoutes.contains(routeB));
+
+        Set<Route> pickupRoutes = station.getPickupRoutes();
+        assertEquals(1, pickupRoutes.size());
+        assertTrue(pickupRoutes.contains(routeA));
 
         assertTrue(station.servesRoutePickup(routeA));
         assertFalse(station.servesRoutePickup(routeB));

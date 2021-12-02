@@ -27,9 +27,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.nio.file.Path;
-import java.util.Collections;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -79,12 +77,26 @@ public class RouteToRouteCostsTest {
         Set<Route> routes = routeRepository.getRoutes();
         for (Route start : routes) {
             for (Route end : routes) {
-                if (!start.equals(end)) {
+                if (!start.equals(end) && start.isDateOverlap(end)) {
                     assertNotEquals(Integer.MAX_VALUE, routesCostRepository.getFor(start, end),
-                            "no path between " + start + " " + end);
+                            "no path between routes " + start.getId() + " " + end.getId());
                 }
             }
         }
+    }
+
+    @Test
+    void shouldFailToFindIfNoDateOverlop() {
+        List<Route> routesA = new ArrayList<>(routeHelper.get(AltrinchamPiccadilly));
+        Set<Route> routesB = routeHelper.get(PiccadillyAltrincham);
+
+        Route firstRouteA = routesA.get(0);
+        Optional<Route> mayBeNoDateOverlap = routesB.stream().filter(route -> !firstRouteA.isDateOverlap(route)).findFirst();
+
+        assertTrue(mayBeNoDateOverlap.isPresent());
+
+        assertEquals(Integer.MAX_VALUE, routesCostRepository.getFor(firstRouteA, mayBeNoDateOverlap.get()));
+
     }
 
     @Test
@@ -100,8 +112,10 @@ public class RouteToRouteCostsTest {
         Set<Route> routesB = routeHelper.get(PiccadillyAltrincham);
 
         routesA.forEach(routeA -> routesB.forEach(routeB -> {
-            assertEquals(1, routesCostRepository.getFor(routeA, routeB));
-            assertEquals(1, routesCostRepository.getFor(routeB, routeA));
+            if (routeA.isDateOverlap(routeB)) {
+                assertEquals(1, routesCostRepository.getFor(routeA, routeB), "wrong for " + routeA.getId() + " " + routeB.getId());
+                assertEquals(1, routesCostRepository.getFor(routeB, routeA), "wrong for " + routeB.getId() + " " + routeA.getId());
+            }
         }));
     }
 
@@ -111,8 +125,10 @@ public class RouteToRouteCostsTest {
         Set<Route> routesB = routeHelper.get(BuryPiccadilly);
 
         routesA.forEach(routeA -> routesB.forEach(routeB -> {
-            assertEquals(2, routesCostRepository.getFor(routeA, routeB));
-            assertEquals(2, routesCostRepository.getFor(routeB, routeA));
+            if (routeA.isDateOverlap(routeB)) {
+                assertEquals(2, routesCostRepository.getFor(routeA, routeB), "wrong for " + routeA.getId() + " " + routeB.getId());
+                assertEquals(2, routesCostRepository.getFor(routeB, routeA), "wrong for " + routeB.getId() + " " + routeA.getId());
+            }
         }));
 
     }
@@ -123,8 +139,10 @@ public class RouteToRouteCostsTest {
         Set<Route> routesB = routeHelper.get(VictoriaWythenshaweManchesterAirport);
 
         routesA.forEach(routeA -> routesB.forEach(routeB -> {
-            assertEquals(1, routesCostRepository.getFor(routeA, routeB));
-            assertEquals(1, routesCostRepository.getFor(routeB, routeA));
+            if (routeA.isDateOverlap(routeB)) {
+                assertEquals(1, routesCostRepository.getFor(routeA, routeB), "wrong for " + routeA.getId() + " " + routeB.getId());
+                assertEquals(1, routesCostRepository.getFor(routeB, routeA), "wrong for " + routeB.getId() + " " + routeA.getId());
+            }
         }));
     }
 

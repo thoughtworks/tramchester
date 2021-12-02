@@ -3,10 +3,12 @@ package com.tramchester.integration.resources;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tramchester.App;
-import com.tramchester.domain.Route;
 import com.tramchester.domain.Timestamped;
 import com.tramchester.domain.places.Station;
-import com.tramchester.domain.presentation.DTO.*;
+import com.tramchester.domain.presentation.DTO.LocationDTO;
+import com.tramchester.domain.presentation.DTO.PlatformDTO;
+import com.tramchester.domain.presentation.DTO.RouteRefDTO;
+import com.tramchester.domain.presentation.DTO.StationRefDTO;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.presentation.RecentJourneys;
 import com.tramchester.integration.testSupport.APIClient;
@@ -69,9 +71,9 @@ class StationResourceTest {
         assertFalse(routeRefDTOS.isEmpty());
 
         Station station = stationRepo.getStationById(TramStations.StPetersSquare.getId());
-        Set<Route> stationRoutes = station.getRoutes();
+        int stationRoutesNumber = station.getPickupRoutes().size() + station.getDropoffRoutes().size();
 
-        assertEquals(routeRefDTOS.size(), stationRoutes.size());
+        assertEquals(routeRefDTOS.size(),stationRoutesNumber);
 
     }
 

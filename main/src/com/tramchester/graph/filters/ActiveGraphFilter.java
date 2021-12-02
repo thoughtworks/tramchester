@@ -80,7 +80,7 @@ public class ActiveGraphFilter implements GraphFilter, ConfigurableGraphFilter {
      */
     @Override
     public boolean shouldInclude(Station station) {
-        if (shouldIncludeRoutes(station.getRoutes())) {
+        if (shouldIncludeRoutes(station.getPickupRoutes()) || shouldIncludeRoutes(station.getDropoffRoutes())) {
             return shouldInclude(station.getId());
         }
         return false;

@@ -21,6 +21,11 @@ public class InterchangeStation {
         this.connectedToRoutes = new HashSet<>(connectedToRoutes);
     }
 
+    public InterchangeStation(Station station) {
+        this.station = station;
+        this.connectedToRoutes = new HashSet<>(station.getPickupRoutes());
+    }
+
     public boolean isMultiMode() {
         Set<TransportMode> uniqueModes = connectedToRoutes.stream().map(Route::getTransportMode).collect(Collectors.toSet());
         uniqueModes.addAll(station.getTransportModes());
@@ -51,7 +56,7 @@ public class InterchangeStation {
     }
 
     public Set<Route> getSourceRoutes() {
-        return station.getRoutes();
+        return Collections.unmodifiableSet(station.getDropoffRoutes());
     }
 
     public Set<Route> getDestinationRoutes() {

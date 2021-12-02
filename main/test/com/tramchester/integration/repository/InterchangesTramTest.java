@@ -20,10 +20,9 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static com.tramchester.domain.reference.CentralZoneStation.Shudehill;
-import static com.tramchester.domain.reference.TransportMode.Tram;
-import static com.tramchester.integration.testSupport.InterchangeRepositoryTestSupport.RoutesWithInterchanges;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class InterchangesTramTest {
@@ -72,7 +71,15 @@ public class InterchangesTramTest {
 
     @Test
     void shouldHaveReachableInterchangeForEveryRoute() {
-        Set<Route> routesWithInterchanges = RoutesWithInterchanges(interchangeRepository, Tram);
+        Set<InterchangeStation> interchanges = interchangeRepository.getAllInterchanges();
+        Set<Route> dropOffRoutes = interchanges.stream().flatMap(interchangeStation -> interchangeStation.getSourceRoutes().stream()).collect(Collectors.toSet());
+        Set<Route> pickupRoutes = interchanges.stream().flatMap(interchangeStation -> interchangeStation.getDestinationRoutes().stream()).collect(Collectors.toSet());
+
+        Set<Route> routesWithInterchanges = routeRepository.getRoutes().stream().
+                filter(dropOffRoutes::contains).
+                filter(pickupRoutes::contains).
+                collect(Collectors.toSet());;
+
         Set<Route> all = routeRepository.getRoutes();
 
         assertEquals(all, routesWithInterchanges);

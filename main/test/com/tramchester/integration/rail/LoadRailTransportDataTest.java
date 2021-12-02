@@ -2,7 +2,6 @@ package com.tramchester.integration.rail;
 
 import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
-import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.*;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdSet;
@@ -131,9 +130,11 @@ public class LoadRailTransportDataTest {
         IdFor<Station> stationId = Wimbledon.getId(); //StringIdFor.createId("WDON");
         Station station = transportData.getStationById(stationId);
 
-        Set<Route> routesFromStaiton = station.getRoutes();
+        Set<Route> pickupRoutes = station.getPickupRoutes();
+        pickupRoutes.forEach(route -> assertNotNull(transportData.getRouteStation(station, route), route.toString()));
 
-        routesFromStaiton.forEach(route -> assertNotNull(transportData.getRouteStation(station, route), route.toString()));
+        Set<Route> dropoffRoutes = station.getDropoffRoutes();
+        dropoffRoutes.forEach(route -> assertNotNull(transportData.getRouteStation(station, route), route.toString()));
     }
 
     @Test

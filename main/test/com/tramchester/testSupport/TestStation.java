@@ -102,6 +102,18 @@ public class TestStation extends MutableStation {
         return super.getRoutes();
     }
 
+    @Override
+    public Set<Route> getDropoffRoutes() {
+        guardRoutesAddedIntent();
+        return super.getDropoffRoutes();
+    }
+
+    @Override
+    public Set<Route> getPickupRoutes() {
+        guardRoutesAddedIntent();
+        return super.getPickupRoutes();
+    }
+
     public static Station real(StationRepositoryPublic repository, TestStations hasId) {
         return repository.getStationById(hasId.getId());
     }

@@ -79,8 +79,8 @@ public class TraversalOpsTest {
 
         Station altrincham = stationRepository.getStationById(TramStations.Altrincham.getId());
 
-        HasId<Route> otherRoute = altrincham.getRoutes().iterator().next();
-        HasId<Route> vicToAirport = manchesterAirport.getRoutes().iterator().next();
+        HasId<Route> otherRoute = altrincham.getPickupRoutes().iterator().next();
+        HasId<Route> vicToAirport = manchesterAirport.getPickupRoutes().iterator().next();
 
         assertEquals(0, traversalOps.onDestRouteFirst(vicToAirport, vicToAirport));
         assertEquals(-1, traversalOps.onDestRouteFirst(vicToAirport, otherRoute));
@@ -88,8 +88,9 @@ public class TraversalOpsTest {
         assertEquals(0, traversalOps.onDestRouteFirst(otherRoute, otherRoute));
 
         Station sameRouteStation = stationRepository.getStationById(TramStations.PeelHall.getId());
-        HasId<Route> sameRoute = sameRouteStation.getRoutes().iterator().next();
+        HasId<Route> sameRoute = sameRouteStation.getPickupRoutes().iterator().next();
 
+        // same
         assertEquals(0, traversalOps.onDestRouteFirst(sameRoute, vicToAirport));
         assertEquals(0, traversalOps.onDestRouteFirst(vicToAirport, sameRoute));
     }

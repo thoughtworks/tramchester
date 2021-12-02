@@ -134,6 +134,8 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
             final int routeIndex = currentlyReachable.getKey();
             final Set<Integer> connectedToRoute = currentlyReachable.getValue(); // routes we can currently reach for current key
 
+            // TODO Account for pickup vs dropoff routes at stations
+
             // for each reachable route, find the routes we can in turn reach from them, if not already found previous degree
             final Set<Integer> newConnections =
                     connectedToRoute.parallelStream().
@@ -165,7 +167,7 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
         final InterimResults linksForRoutes = new InterimResults();
         // same mode interchanges
         interchangeRepository.getAllInterchanges().
-                forEach(station -> addOverlapsFor(station, linksForRoutes));
+                forEach(interchange -> addOverlapsFor(interchange, linksForRoutes));
 
         return linksForRoutes;
     }

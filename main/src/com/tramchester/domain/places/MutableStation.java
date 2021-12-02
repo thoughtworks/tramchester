@@ -117,6 +117,16 @@ public class MutableStation implements Station {
     }
 
     @Override
+    public Set<Route> getDropoffRoutes() {
+        return Collections.unmodifiableSet(servesRoutesDropoff);
+    }
+
+    @Override
+    public Set<Route> getPickupRoutes() {
+        return Collections.unmodifiableSet(servesRoutesPickup);
+    }
+
+    @Override
     public Set<Agency> getAgencies() {
         return Collections.unmodifiableSet(servesAgencies);
     }

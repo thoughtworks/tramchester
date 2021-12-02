@@ -51,7 +51,7 @@ class CompositeStationTest {
 
         assertTrue(compositeStation.hasPlatforms());
         assertEquals(Collections.singleton(platform), compositeStation.getPlatforms());
-        assertEquals(Collections.singleton(route), compositeStation.getRoutes());
+        assertEquals(Collections.singleton(route), compositeStation.getPickupRoutes());
 
         assertEquals(1, compositeStation.getTransportModes().size());
         assertTrue(compositeStation.serves(Tram));
@@ -98,7 +98,8 @@ class CompositeStationTest {
         assertTrue(compositeStation.serves(Tram));
         assertTrue(compositeStation.serves(Bus));
 
-        assertEquals(2, compositeStation.getRoutes().size());
+        assertEquals(2, compositeStation.getDropoffRoutes().size());
+        assertEquals(1, compositeStation.getPickupRoutes().size());
         assertEquals(2, compositeStation.getAgencies().size());
 
         Set<Station> containted = compositeStation.getContained();

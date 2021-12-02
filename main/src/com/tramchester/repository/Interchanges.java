@@ -90,7 +90,10 @@ public class Interchanges implements InterchangeRepository {
         int before = interchanges.size();
         neighbours.forEach(stationLink -> {
             final IdFor<Station> beginId = stationLink.getBegin().getId();
+
+            // TODO use pickups here
             final Set<Route> routesAtLinkedStation = stationLink.getEnd().getRoutes();
+
             if (interchanges.containsKey(beginId)) {
                 // already flagged as an interchange, add the additional routes from the other station
                 InterchangeStation existing = interchanges.get(beginId);
@@ -160,7 +163,7 @@ public class Interchanges implements InterchangeRepository {
 
     private void addStations(Set<Station> stations) {
         Map<IdFor<Station>, InterchangeStation> toAdd = stations.stream().
-                map(found -> new InterchangeStation(found, found.getRoutes())).
+                map(InterchangeStation::new).
                 collect(Collectors.toMap(InterchangeStation::getStationId, item -> item));
         interchanges.putAll(toAdd);
     }

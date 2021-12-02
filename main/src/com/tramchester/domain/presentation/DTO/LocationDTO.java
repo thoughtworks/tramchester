@@ -9,6 +9,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @SuppressWarnings("unused")
 public class LocationDTO {
@@ -33,7 +34,7 @@ public class LocationDTO {
     public LocationDTO(Station source) {
         this(source,
                 source.hasPlatforms() ? source.getPlatforms().stream().map(PlatformDTO::new).collect(Collectors.toList()) : Collections.emptyList(),
-                source.getRoutes().stream().map(RouteRefDTO::new).collect(Collectors.toList()));
+                Stream.concat(source.getDropoffRoutes().stream(), source.getPickupRoutes().stream()).map(RouteRefDTO::new).collect(Collectors.toList()));
     }
 
     private LocationDTO(Location<?> source, List<PlatformDTO> platforms, List<RouteRefDTO> routes) {

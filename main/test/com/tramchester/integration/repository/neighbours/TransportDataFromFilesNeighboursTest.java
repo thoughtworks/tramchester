@@ -133,7 +133,8 @@ public class TransportDataFromFilesNeighboursTest {
         Set<Route> tramRoutes = getTramRoutes(routeRepository).collect(Collectors.toSet());
 
         Set<Station> stationsOnTramRoutes = stationRepository.getStationsForMode(Tram).stream().
-                filter(station -> station.getRoutes().stream().anyMatch(tramRoutes::contains)).
+                filter(station -> station.getPickupRoutes().stream().anyMatch(tramRoutes::contains) ||
+                        station.getDropoffRoutes().stream().anyMatch(tramRoutes::contains)).
                 collect(Collectors.toSet());
 
         assertEquals(NUM_TFGM_TRAM_STATIONS, stationsOnTramRoutes.size());

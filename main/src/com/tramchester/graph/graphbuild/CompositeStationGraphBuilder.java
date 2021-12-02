@@ -92,13 +92,18 @@ public class CompositeStationGraphBuilder extends CreateNodesAndRelationships {
         try(TimedTransaction timedTransaction = new TimedTransaction(graphDatabase, logger, logMessage)) {
             Transaction txn = timedTransaction.transaction();
             allComposite.stream().filter(graphFilter::shouldInclude).
-                filter(station -> graphFilter.shouldIncludeRoutes(station.getRoutes())).
+                filter(this::shouldInclude).
                 forEach(compositeStation -> {
                     Node stationNode = createGroupedStationNodes(txn, compositeStation);
                     linkStations(txn, stationNode, compositeStation);
             });
             timedTransaction.commit();
         }
+    }
+
+    private boolean shouldInclude(CompositeStation station) {
+        return graphFilter.shouldIncludeRoutes(station.getPickupRoutes()) ||
+                graphFilter.shouldIncludeRoutes(station.getDropoffRoutes());
     }
 
     private Node createGroupedStationNodes(Transaction txn, CompositeStation compositeStation) {
