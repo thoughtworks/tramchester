@@ -210,6 +210,27 @@ public class TransportDataFromFilesTramTest {
     }
 
     @Test
+    void shouldHaveEndOfLinesExpectedPickupAndDropoffRoutes() {
+        Route fromAltrincamToPicc = transportData.getRouteById(StringIdFor.createId("METLPURP:I:CURRENT"));
+        Route fromPiccToAltrincham = transportData.getRouteById(StringIdFor.createId("METLPURP:O:CURRENT"));
+
+        Station endOfLine = transportData.getStationById(Altrincham.getId());
+
+        assertFalse(endOfLine.servesRouteDropoff(fromAltrincamToPicc));
+        assertTrue(endOfLine.servesRoutePickup(fromAltrincamToPicc));
+
+        assertTrue(endOfLine.servesRouteDropoff(fromPiccToAltrincham));
+        assertFalse(endOfLine.servesRoutePickup(fromPiccToAltrincham));
+
+        Station notEndOfLine = transportData.getStationById(NavigationRoad.getId());
+
+        assertTrue(notEndOfLine.servesRouteDropoff(fromAltrincamToPicc));
+        assertTrue(notEndOfLine.servesRoutePickup(fromAltrincamToPicc));
+        assertTrue(notEndOfLine.servesRouteDropoff(fromPiccToAltrincham));
+        assertTrue(notEndOfLine.servesRoutePickup(fromPiccToAltrincham));
+    }
+
+    @Test
     void shouldGetRouteStationsForStation() {
         Set<RouteStation> routeStations = transportData.getRouteStationsFor(Shudehill.getId());
 

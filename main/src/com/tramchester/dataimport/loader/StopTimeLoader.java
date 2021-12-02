@@ -160,10 +160,10 @@ public class StopTimeLoader {
 
         private void addStationAndRouteStation(Route route, MutableStation station, GTFSPickupDropoffType pickupType, GTFSPickupDropoffType dropOffType) {
             if (pickupType!=GTFSPickupDropoffType.None) {
-                station.addRouteDropOff(route);
+                station.addRoutePickUp(route);
             }
             if (dropOffType!=GTFSPickupDropoffType.None) {
-                station.addRoutePickUp(route);
+                station.addRouteDropOff(route);
             }
 
             IdFor<Station> stationId = station.getId();
