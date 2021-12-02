@@ -39,9 +39,6 @@ public interface Station extends Location<Station> {
 
     boolean hasPlatform(IdFor<Platform> platformId);
 
-    @Deprecated
-    Set<Route> getRoutes();
-
     Set<Route> getDropoffRoutes();
 
     Set<Route> getPickupRoutes();

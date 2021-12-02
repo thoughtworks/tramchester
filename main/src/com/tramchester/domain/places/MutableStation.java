@@ -110,12 +110,6 @@ public class MutableStation implements Station {
         return platforms.stream().map(Platform::getId).anyMatch(id -> id.equals(platformId));
     }
 
-    @Deprecated
-    @Override
-    public Set<Route> getRoutes() {
-        return Stream.concat(servesRoutesDropoff.stream(), servesRoutesPickup.stream()).collect(Collectors.toSet());
-    }
-
     @Override
     public Set<Route> getDropoffRoutes() {
         return Collections.unmodifiableSet(servesRoutesDropoff);

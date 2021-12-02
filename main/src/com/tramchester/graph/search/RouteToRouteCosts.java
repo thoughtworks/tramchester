@@ -204,6 +204,9 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
         if (routeA.equals(routeB)) {
             return 0;
         }
+        if (!routeA.isDateOverlap(routeB)) {
+            return Integer.MAX_VALUE;
+        }
         final IdFor<Route> idA = routeA.getId();
         final IdFor<Route> idB = routeB.getId();
         final byte result = costs.get(index.indexFor(idA), index.indexFor(idB));
@@ -225,23 +228,23 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
     @Override
     public NumberOfChanges getNumberOfChanges(Set<Station> starts, Set<Station> destinations) {
         if (areNeighbours(starts, destinations)) {
-            return new NumberOfChanges(0, maxHops(routesFor(starts), routesFor(destinations)));
+            return new NumberOfChanges(0, maxHops(pickupRoutesFor(starts), dropoffRoutesFor(destinations)));
         }
-        return getNumberOfHops(routesFor(starts), routesFor(destinations));
+        return getNumberOfHops(pickupRoutesFor(starts), dropoffRoutesFor(destinations));
     }
 
     @Override
     public NumberOfChanges getNumberOfChanges(Station startStation, Station destination) {
         if (areNeighbours(startStation, destination)) {
-            return new NumberOfChanges(0, maxHops(startStation.getRoutes(), destination.getRoutes()));
+            return new NumberOfChanges(0, maxHops(startStation.getPickupRoutes(), destination.getDropoffRoutes()));
         }
-        return getNumberOfHops(startStation.getRoutes(), destination.getRoutes());
+        return getNumberOfHops(startStation.getPickupRoutes(), destination.getDropoffRoutes());
     }
 
     @Override
     public LowestCostsForRoutes getLowestCostCalcutatorFor(Set<Station> destinations) {
         Set<Route> destinationRoutes = destinations.stream().
-                map(Station::getRoutes).flatMap(Collection::stream).collect(Collectors.toUnmodifiableSet());
+                map(Station::getDropoffRoutes).flatMap(Collection::stream).collect(Collectors.toUnmodifiableSet());
         return new LowestCostForDestinations(this, destinationRoutes);
     }
 
@@ -277,12 +280,16 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
     private Integer maxHops(Set<Route> startRoutes, Set<Route> endRoutes) {
         return startRoutes.stream().
                 flatMap(startRoute -> endRoutes.stream().map(endRoute -> getFor(startRoute, endRoute))).
-                filter(result -> result!=Integer.MAX_VALUE).
+                filter(result -> result != Integer.MAX_VALUE).
                 max(Integer::compare).orElse(Integer.MAX_VALUE);
     }
 
-    private Set<Route> routesFor(Set<Station> stations) {
-        return stations.stream().flatMap(station -> station.getRoutes().stream()).collect(Collectors.toSet());
+    private Set<Route> dropoffRoutesFor(Set<Station> stations) {
+        return stations.stream().flatMap(station -> station.getDropoffRoutes().stream()).collect(Collectors.toSet());
+    }
+
+    private Set<Route> pickupRoutesFor(Set<Station> stations) {
+        return stations.stream().flatMap(station -> station.getPickupRoutes().stream()).collect(Collectors.toSet());
     }
 
     private static class LowestCostForDestinations implements LowestCostsForRoutes {

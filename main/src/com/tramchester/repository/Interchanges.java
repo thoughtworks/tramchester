@@ -91,16 +91,15 @@ public class Interchanges implements InterchangeRepository {
         neighbours.forEach(stationLink -> {
             final IdFor<Station> beginId = stationLink.getBegin().getId();
 
-            // TODO use pickups here
-            final Set<Route> routesAtLinkedStation = stationLink.getEnd().getRoutes();
+            final Set<Route> dropoffRoutesAtEnd = stationLink.getEnd().getDropoffRoutes();
 
             if (interchanges.containsKey(beginId)) {
                 // already flagged as an interchange, add the additional routes from the other station
                 InterchangeStation existing = interchanges.get(beginId);
-                existing.addLinkedRoutes(routesAtLinkedStation);
+                existing.addLinkedRoutes(dropoffRoutesAtEnd);
             } else {
                 // not an interchange yet, so only add the routes from the linked station
-                interchanges.put(beginId, new InterchangeStation(stationLink.getBegin(), routesAtLinkedStation));
+                interchanges.put(beginId, new InterchangeStation(stationLink.getBegin(), dropoffRoutesAtEnd));
             }
         });
         final int count = interchanges.size() - before;
@@ -169,7 +168,7 @@ public class Interchanges implements InterchangeRepository {
     }
 
     private void addStationToInterchanges(Station station) {
-        interchanges.put(station.getId(), new InterchangeStation(station, station.getRoutes()));
+        interchanges.put(station.getId(), new InterchangeStation(station));
     }
 
     private int getLinkThreshhold(TransportMode mode) {

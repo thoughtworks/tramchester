@@ -77,12 +77,6 @@ public class CompositeStation extends MutableStation {
         return anyMatch(Station::hasPlatforms);
     }
 
-    @Deprecated
-    @Override
-    public Set<Route> getRoutes() {
-        return flatten(Station::getRoutes);
-    }
-
     @Override
     public Set<Route> getDropoffRoutes() {
         return flatten(Station::getDropoffRoutes);

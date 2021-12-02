@@ -97,12 +97,6 @@ public class TestStation extends MutableStation {
     }
 
     @Override
-    public Set<Route> getRoutes() {
-        guardRoutesAddedIntent();
-        return super.getRoutes();
-    }
-
-    @Override
     public Set<Route> getDropoffRoutes() {
         guardRoutesAddedIntent();
         return super.getDropoffRoutes();

@@ -50,7 +50,7 @@ public class TraversalOps {
         this.sortsPositions = sortsPositions;
         this.destinationStationIds = destinationStations.stream().collect(IdSet.collector());
         this.destinationRoutes = destinationStations.stream().
-                flatMap(station -> station.getRoutes().stream()).
+                flatMap(station -> station.getDropoffRoutes().stream()).
                 collect(IdSet.collector());
         this.destinationLatLon = destinationLatLon;
         this.lowestCostsForRoutes = lowestCostsForRoutes;

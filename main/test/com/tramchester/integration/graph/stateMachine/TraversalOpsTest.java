@@ -67,32 +67,28 @@ public class TraversalOpsTest {
 
     @Test
     void shouldHaveCorrectOrderingCompare() {
+        TramServiceDate queryDate = new TramServiceDate(TestEnv.testDay());
 
         Set<Station> destinationStations = new HashSet<>();
         final Station manchesterAirport = stationRepository.getStationById(ManAirport.getId());
         destinationStations.add(manchesterAirport);
         LatLong destinationLatLon = TestEnv.nearPiccGardens;
+
         LowestCostsForRoutes lowestCostForRoutes = routeToRouteCosts.getLowestCostCalcutatorFor(destinationStations);
-        TramServiceDate queryDate = new TramServiceDate(TestEnv.testDay());
-        TraversalOps traversalOps = new TraversalOps(nodeOperations, tripRepository,
+
+        TraversalOps traversalOpsForDest = new TraversalOps(nodeOperations, tripRepository,
                 sortsPositions, destinationStations, destinationLatLon, lowestCostForRoutes, queryDate);
 
         Station altrincham = stationRepository.getStationById(TramStations.Altrincham.getId());
 
-        HasId<Route> otherRoute = altrincham.getPickupRoutes().iterator().next();
-        HasId<Route> vicToAirport = manchesterAirport.getPickupRoutes().iterator().next();
+        HasId<Route> pickupAtAlty = altrincham.getPickupRoutes().iterator().next();
+        Route vicToAirport = manchesterAirport.getDropoffRoutes().iterator().next();
 
-        assertEquals(0, traversalOps.onDestRouteFirst(vicToAirport, vicToAirport));
-        assertEquals(-1, traversalOps.onDestRouteFirst(vicToAirport, otherRoute));
-        assertEquals(+1, traversalOps.onDestRouteFirst(otherRoute, vicToAirport));
-        assertEquals(0, traversalOps.onDestRouteFirst(otherRoute, otherRoute));
+        assertEquals(0, traversalOpsForDest.onDestRouteFirst(vicToAirport, vicToAirport));
+        assertEquals(-1, traversalOpsForDest.onDestRouteFirst(vicToAirport, pickupAtAlty), "wrong for " + vicToAirport.getId() + " " + pickupAtAlty.getId());
+        assertEquals(+1, traversalOpsForDest.onDestRouteFirst(pickupAtAlty, vicToAirport));
+        assertEquals(0, traversalOpsForDest.onDestRouteFirst(pickupAtAlty, pickupAtAlty));
 
-        Station sameRouteStation = stationRepository.getStationById(TramStations.PeelHall.getId());
-        HasId<Route> sameRoute = sameRouteStation.getPickupRoutes().iterator().next();
-
-        // same
-        assertEquals(0, traversalOps.onDestRouteFirst(sameRoute, vicToAirport));
-        assertEquals(0, traversalOps.onDestRouteFirst(vicToAirport, sameRoute));
     }
 
 }
