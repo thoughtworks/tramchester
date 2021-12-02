@@ -1,6 +1,9 @@
 package com.tramchester.domain.places;
 
-import com.tramchester.domain.*;
+import com.tramchester.domain.Agency;
+import com.tramchester.domain.DataSourceID;
+import com.tramchester.domain.Platform;
+import com.tramchester.domain.Route;
 import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.presentation.LatLong;
@@ -12,6 +15,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class MutableStation implements Station {
 
@@ -21,7 +25,8 @@ public class MutableStation implements Station {
     private final LatLong latLong;
     private final GridPosition gridPosition;
     private final Set<Platform> platforms;
-    private final Set<Route> servesRoutes;
+    private final Set<Route> servesRoutesPickup;
+    private final Set<Route> servesRoutesDropoff;
     private final Set<Agency> servesAgencies;
     private final DataSourceID dataSourceID;
     private final boolean isMarkedInterchange;
@@ -39,7 +44,8 @@ public class MutableStation implements Station {
         this.dataSourceID = dataSourceID;
         this.isMarkedInterchange = isMarkedInterchange;
         platforms = new HashSet<>();
-        servesRoutes = new HashSet<>();
+        servesRoutesPickup = new HashSet<>();
+        servesRoutesDropoff = new HashSet<>();
         servesAgencies = new HashSet<>();
 
         this.id = id;
@@ -80,7 +86,8 @@ public class MutableStation implements Station {
 
     @Override
     public Set<TransportMode> getTransportModes() {
-        return servesRoutes.stream().map(Route::getTransportMode).collect(Collectors.toUnmodifiableSet());
+        return Stream.concat(servesRoutesDropoff.stream(), servesRoutesPickup.stream()).
+                map(Route::getTransportMode).collect(Collectors.toUnmodifiableSet());
     }
 
     @Override
@@ -103,9 +110,10 @@ public class MutableStation implements Station {
         return platforms.stream().map(Platform::getId).anyMatch(id -> id.equals(platformId));
     }
 
+    @Deprecated
     @Override
     public Set<Route> getRoutes() {
-        return Collections.unmodifiableSet(servesRoutes);
+        return Stream.concat(servesRoutesDropoff.stream(), servesRoutesPickup.stream()).collect(Collectors.toSet());
     }
 
     @Override
@@ -118,9 +126,11 @@ public class MutableStation implements Station {
         return  Collections.unmodifiableSet(platforms);
     }
 
+    @Deprecated
     @Override
     public boolean servesRoute(Route route) {
-        return servesRoutes.contains(route);
+        return Stream.concat(servesRoutesDropoff.stream(), servesRoutesPickup.stream()).
+                anyMatch(item -> item.equals(route));
     }
 
     @Override
@@ -144,7 +154,8 @@ public class MutableStation implements Station {
 
     @Override
     public boolean serves(TransportMode mode) {
-        return servesRoutes.stream().anyMatch(route -> route.getTransportMode().equals(mode));
+        return Stream.concat(servesRoutesDropoff.stream(), servesRoutesPickup.stream()).
+                anyMatch(route -> route.getTransportMode().equals(mode));
     }
 
     @Override
@@ -178,7 +189,8 @@ public class MutableStation implements Station {
                 ", latLong=" + latLong +
                 ", mode=" + getTransportModes() +
                 ", platforms=" + HasId.asIds(platforms) +
-                ", servesRoutes=" + HasId.asIds(servesRoutes) +
+                ", servesRoutesPickup=" + HasId.asIds(servesRoutesPickup) +
+                ", servesRoutesDropoff=" + HasId.asIds(servesRoutesDropoff) +
                 ", isMarkedInterchange=" + isMarkedInterchange +
                 '}';
     }
@@ -187,9 +199,20 @@ public class MutableStation implements Station {
         platforms.add(platform);
     }
 
+    @Deprecated
     public void addRoute(Route route) {
-        servesRoutes.add(route);
+        servesRoutesDropoff.add(route);
+        servesRoutesPickup.add(route);
         servesAgencies.add(route.getAgency());
     }
 
+    public void addRouteDropOff(Route dropoffFromRoute) {
+        servesAgencies.add(dropoffFromRoute.getAgency());
+        servesRoutesDropoff.add(dropoffFromRoute);
+    }
+
+    public void addRoutePickUp(Route pickupFromRoute) {
+        servesAgencies.add(pickupFromRoute.getAgency());
+        servesRoutesPickup.add(pickupFromRoute);
+    }
 }

@@ -264,9 +264,17 @@ public class RailTimetableMapper {
                 return false;
             }
 
+            final GTFSPickupDropoffType pickup = lastStop ? None : Regular;
+            final GTFSPickupDropoffType dropoff = stopSequence==1 ? None : Regular;
+
             // Station
             MutableStation station = getStationFor(railLocation);
-            station.addRoute(route);
+            if (pickup != None) {
+                station.addRoutePickUp(route);
+            }
+            if (dropoff != None) {
+                station.addRoutePickUp(route);
+            }
 
             // Route Station
             RouteStation routeStation = new RouteStation(station, route);
@@ -277,8 +285,7 @@ public class RailTimetableMapper {
             platform.addRoute(route);
             station.addPlatform(platform);
 
-            final GTFSPickupDropoffType pickup = lastStop ? None : Regular;
-            final GTFSPickupDropoffType dropoff = stopSequence==1 ? None : Regular;
+
 
             // Stop Call
             TramTime arrivalTime = railLocation.getPublicArrival();

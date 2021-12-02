@@ -43,11 +43,6 @@ public class StopTimeData {
         this.dropOffType = dropOffType.getText();
     }
 
-//    public StopTimeData(IdFor<Trip> id, TramTime arrivalTime, TramTime departureTime, IdFor<Station> stopId, int seqNumber,
-//                        GTFSPickupDropoffType pickup, GTFSPickupDropoffType dropoff) {
-//        this(id.forDTO(), arrivalTime, departureTime, stopId.forDTO(), seqNumber, pickup, dropoff);
-//    }
-
     public static StopTimeData forTestOnly(String tripId, TramTime arrivalTime, TramTime departureTime, String stopId,
                                            int stopSequence, GTFSPickupDropoffType pickupType, GTFSPickupDropoffType dropOffType)
     {

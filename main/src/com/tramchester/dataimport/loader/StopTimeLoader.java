@@ -14,6 +14,7 @@ import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.MutableStation;
 import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
+import com.tramchester.domain.reference.GTFSPickupDropoffType;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.repository.WriteableTransportData;
 import org.jetbrains.annotations.NotNull;
@@ -135,7 +136,7 @@ public class StopTimeLoader {
         }
 
         private Service addStopTimeData(StopTimeData stopTimeData, MutableTrip trip, MutableStation station, Route route) {
-            addStationAndRouteStation(route, station);
+            addStationAndRouteStation(route, station, stopTimeData.getPickupType(), stopTimeData.getDropOffType());
             addPlatformsForStation(station);
 
             StopCall stopCall = createStopCall(stopTimeData, route, trip, station);
@@ -157,8 +158,13 @@ public class StopTimeLoader {
             return service;
         }
 
-        private void addStationAndRouteStation(Route route, MutableStation station) {
-            station.addRoute(route);
+        private void addStationAndRouteStation(Route route, MutableStation station, GTFSPickupDropoffType pickupType, GTFSPickupDropoffType dropOffType) {
+            if (pickupType!=GTFSPickupDropoffType.None) {
+                station.addRouteDropOff(route);
+            }
+            if (dropOffType!=GTFSPickupDropoffType.None) {
+                station.addRoutePickUp(route);
+            }
 
             IdFor<Station> stationId = station.getId();
             if (!buildable.hasStationId(stationId)) {
