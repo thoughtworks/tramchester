@@ -92,4 +92,9 @@ public class TFGMGTFSSourceTestConfig implements GTFSSourceConfig {
     public boolean getAddWalksForClosed() {
         return !closedStations.isEmpty();
     }
+
+    @Override
+    public boolean getOnlyMarkedInterchanges() {
+        return false;
+    }
 }

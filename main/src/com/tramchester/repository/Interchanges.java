@@ -125,10 +125,13 @@ public class Interchanges implements InterchangeRepository {
 
         logger.info("Finding interchanges for " + mode + " and threshhold " + linkThreshhold);
         IdSet<Station> foundIdsViaLinks = findStationsByNumberConnections.findAtLeastNConnectionsFrom(mode, linkThreshhold);
+
+        // filter out any station already marked as interchange, or if data source only uses marked interchanges
         Set<Station> foundViaLinks = foundIdsViaLinks.stream().map(stationRepository::getStationById).
                 filter(station -> !station.isMarkedInterchange()).
+                filter(station -> !config.onlyMarkedInterchange(station)).
                 collect(Collectors.toSet());
-        logger.info(format("Added %s interchanges for %s and link threshold %s", foundIdsViaLinks.size(), mode, linkThreshhold));
+        logger.info(format("Added %s interchanges for %s and link threshold %s", foundViaLinks.size(), mode, linkThreshhold));
         addStations(foundViaLinks);
     }
 

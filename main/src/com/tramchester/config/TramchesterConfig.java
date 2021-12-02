@@ -1,6 +1,7 @@
 package com.tramchester.config;
 
 import com.tramchester.domain.DataSourceID;
+import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.geo.BoundingBox;
 import io.dropwizard.Configuration;
@@ -8,14 +9,18 @@ import io.federecio.dropwizard.swagger.SwaggerBundleConfiguration;
 
 import java.nio.file.Path;
 import java.time.ZoneId;
-import java.util.Collection;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public abstract class TramchesterConfig extends Configuration implements HasRemoteDataSourceConfig, HasGraphDBConfig {
 
     public static final ZoneId TimeZone = ZoneId.of("Europe/London");
+
+    private final Map<DataSourceID, TransportDataSourceConfig> dataSources;
+
+    protected TramchesterConfig() {
+        dataSources = new HashMap<>();
+    }
 
     public abstract Integer getStaticAssetCacheTimeSeconds();
 
@@ -142,4 +147,26 @@ public abstract class TramchesterConfig extends Configuration implements HasRemo
     public abstract long GetCloudWatchMetricsFrequencyMinutes();
 
     public abstract boolean getPlanningEnabled();
+
+    public boolean onlyMarkedInterchange(Station station) {
+        DataSourceID sourceId = station.getDataSourceID();
+        TransportDataSourceConfig sourceConfig = getGetSourceConfigFor(sourceId);
+        return sourceConfig.getOnlyMarkedInterchanges();
+    }
+
+    private TransportDataSourceConfig getGetSourceConfigFor(DataSourceID sourceId) {
+        populateDataSourceMap();
+        return dataSources.get(sourceId);
+    }
+
+    private void populateDataSourceMap() {
+        if (dataSources.isEmpty()) {
+            List<GTFSSourceConfig> gtfsSources = getGTFSDataSource();
+            gtfsSources.forEach(gtfsSource -> dataSources.put(gtfsSource.getDataSourceId(), gtfsSource));
+            RailConfig railConfig = getRailConfig();
+            if (railConfig != null) {
+                dataSources.put(railConfig.getDataSourceId(), railConfig);
+            }
+        }
+    }
 }

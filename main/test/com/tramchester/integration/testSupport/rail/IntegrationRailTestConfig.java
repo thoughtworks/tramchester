@@ -4,10 +4,12 @@ import com.tramchester.config.GTFSSourceConfig;
 import com.tramchester.config.GraphDBConfig;
 import com.tramchester.config.RailConfig;
 import com.tramchester.config.RemoteDataSourceConfig;
+import com.tramchester.domain.DataSourceID;
 import com.tramchester.geo.BoundingBox;
 import com.tramchester.integration.testSupport.GraphDBTestConfig;
 import com.tramchester.integration.testSupport.IntegrationTestConfig;
 import com.tramchester.testSupport.TestEnv;
+import org.junit.Test;
 
 import java.nio.file.Path;
 import java.util.Collections;
@@ -28,25 +30,9 @@ public class IntegrationRailTestConfig extends IntegrationTestConfig {
         remoteConfig = new RailRemoteDataSourceConfig("data/rail");
     }
 
-
     @Override
     public RailConfig getRailConfig() {
-        return new RailConfig() {
-            @Override
-            public Path getDataPath() {
-                return Path.of("data/rail");
-            }
-
-            @Override
-            public Path getStations() {
-                return Path.of(remoteConfig.getFilePrefix() + ".msn");
-            }
-
-            @Override
-            public Path getTimetable() {
-                return Path.of(remoteConfig.getFilePrefix() + ".mca");
-            }
-        };
+       return new TestRailConfig(remoteConfig);
     }
 
     @Override

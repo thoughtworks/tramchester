@@ -13,7 +13,6 @@ import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.places.MutableStation;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.LatLong;
-import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.geo.CoordinateTransforms;
 import com.tramchester.geo.GridPosition;
 import com.tramchester.repository.TransportDataContainer;
@@ -34,7 +33,7 @@ public class LoadRailTransportData implements DirectDataSourceFactory.PopulatesC
     private final boolean enabled;
 
     @Inject
-    public LoadRailTransportData(RailDataRecordFactory factory, ProvidesNow providesNow, TramchesterConfig config) {
+    public LoadRailTransportData(RailDataRecordFactory factory, TramchesterConfig config) {
         final RailConfig railConfig = config.getRailConfig();
         enabled = (railConfig!=null);
         if (enabled) {

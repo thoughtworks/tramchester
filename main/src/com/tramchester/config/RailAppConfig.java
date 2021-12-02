@@ -1,6 +1,7 @@
 package com.tramchester.config;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.tramchester.domain.DataSourceID;
 import io.dropwizard.Configuration;
 
 import java.nio.file.Path;
@@ -21,6 +22,16 @@ public class RailAppConfig extends Configuration implements RailConfig {
 
     public Path getDataPath() {
         return dataPath;
+    }
+
+    @Override
+    public boolean getOnlyMarkedInterchanges() {
+        return true;
+    }
+
+    @Override
+    public DataSourceID getDataSourceId() {
+        return DataSourceID.rail;
     }
 
     public Path getStations() {

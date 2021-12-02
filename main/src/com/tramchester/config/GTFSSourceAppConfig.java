@@ -110,4 +110,8 @@ public class GTFSSourceAppConfig extends Configuration implements GTFSSourceConf
         return addWalksForClosed;
     }
 
+    @Override
+    public boolean getOnlyMarkedInterchanges() {
+        return false;
+    }
 }

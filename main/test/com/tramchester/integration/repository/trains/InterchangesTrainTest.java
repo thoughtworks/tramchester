@@ -15,19 +15,20 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.DisabledIfEnvironmentVariable;
 
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 @TrainTest
 @DisabledIfEnvironmentVariable(named = "CI", matches = "true")
 class InterchangesTrainTest {
     private static ComponentContainer componentContainer;
+    private static IntegrationRailTestConfig config;
     private InterchangeRepository interchangeRepository;
     private StationRepository stationRepository;
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
-        componentContainer = new ComponentsBuilder().create(new IntegrationRailTestConfig(), TestEnv.NoopRegisterMetrics());
+        config = new IntegrationRailTestConfig();
+        componentContainer = new ComponentsBuilder().create(config, TestEnv.NoopRegisterMetrics());
         componentContainer.initialise();
     }
 
@@ -52,6 +53,22 @@ class InterchangesTrainTest {
         assertFalse(interchangeRepository.isInterchange(getStation(RailStationIds.Hale)));
         assertFalse(interchangeRepository.isInterchange(getStation(RailStationIds.Knutsford)));
         assertFalse(interchangeRepository.isInterchange(getStation(RailStationIds.Mobberley)));
+    }
+
+    @Test
+    void shouldHaveExpectedConfig() {
+        assertTrue(config.getRailConfig().getOnlyMarkedInterchanges());
+        Station station = getStation(RailStationIds.ManchesterPiccadilly);
+        assertTrue(config.onlyMarkedInterchange(station));
+    }
+
+    @Test
+    void shouldNotAddAnyInterchangeNotAlreadyMarked() {
+        long interchangeButNotMarked = stationRepository.getStations().stream().
+                filter(station -> interchangeRepository.isInterchange(station)).
+                filter(found -> !found.isMarkedInterchange()).count();
+
+        assertEquals(0, interchangeButNotMarked);
     }
 
     private Station getStation(RailStationIds railStationIds) {

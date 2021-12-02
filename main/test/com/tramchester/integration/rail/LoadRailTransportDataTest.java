@@ -2,6 +2,7 @@ package com.tramchester.integration.rail;
 
 import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
+import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.*;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdSet;
@@ -17,7 +18,6 @@ import com.tramchester.domain.time.TramTime;
 import com.tramchester.geo.CoordinateTransforms;
 import com.tramchester.geo.GridPosition;
 import com.tramchester.integration.testSupport.rail.IntegrationRailTestConfig;
-import com.tramchester.integration.testSupport.rail.RailStationIds;
 import com.tramchester.repository.TransportData;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.testTags.TrainTest;
@@ -44,7 +44,6 @@ public class LoadRailTransportDataTest {
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
-        // TODO rail config?
         IntegrationRailTestConfig configuration = new IntegrationRailTestConfig();
         componentContainer = new ComponentsBuilder().create(configuration, TestEnv.NoopRegisterMetrics());
         componentContainer.initialise();
@@ -76,6 +75,9 @@ public class LoadRailTransportDataTest {
 
         final LatLong expectedLatLong = CoordinateTransforms.getLatLong(expectedGrid);
         assertEquals(expectedLatLong, result.getLatLong());
+
+        assertEquals(DataSourceID.rail, result.getDataSourceID());
+        assertTrue(result.isMarkedInterchange());
     }
 
     @Test
@@ -87,6 +89,8 @@ public class LoadRailTransportDataTest {
         assertEquals("KILLARNEY   (CIE", result.getName());
         assertFalse(result.getGridPosition().isValid());
         assertFalse(result.getLatLong().isValid());
+        assertEquals(DataSourceID.rail, result.getDataSourceID());
+        assertFalse(result.isMarkedInterchange());
     }
 
     @Test

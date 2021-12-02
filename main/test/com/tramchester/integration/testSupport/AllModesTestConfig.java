@@ -1,11 +1,12 @@
 package com.tramchester.integration.testSupport;
 
 import com.tramchester.config.GTFSSourceConfig;
+import com.tramchester.config.RailConfig;
 import com.tramchester.config.RemoteDataSourceConfig;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.geo.BoundingBox;
 import com.tramchester.integration.testSupport.rail.RailRemoteDataSourceConfig;
-import com.tramchester.integration.testSupport.rail.RailTestDataSourceConfig;
+import com.tramchester.integration.testSupport.rail.TestRailConfig;
 import com.tramchester.integration.testSupport.tfgm.TFGMGTFSSourceTestConfig;
 import com.tramchester.integration.testSupport.tfgm.TFGMRemoteDataSourceConfig;
 import com.tramchester.testSupport.AdditionalTramInterchanges;
@@ -34,13 +35,18 @@ public class AllModesTestConfig extends IntegrationTestConfig {
 
         final TFGMGTFSSourceTestConfig tfgmDataSource = new TFGMGTFSSourceTestConfig("data/bus", TestEnv.tramAndBus,
                 modesWithPlatforms, AdditionalTramInterchanges.get(), compositeStationModes, Collections.emptyList());
-        RailTestDataSourceConfig railSourceConfig = new RailTestDataSourceConfig("data/trains");
 
         remoteTfgmSourceConfig = new TFGMRemoteDataSourceConfig("data/bus");
         remoteDataRailConfig = new RailRemoteDataSourceConfig("data/rail");
 
-        return Arrays.asList(tfgmDataSource, railSourceConfig);
+        return List.of(tfgmDataSource);
     }
+
+    @Override
+    public RailConfig getRailConfig() {
+        return new TestRailConfig(remoteDataRailConfig);
+    }
+
 
     @Override
     public BoundingBox getBounds() {

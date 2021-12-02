@@ -13,12 +13,13 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 @JsonDeserialize(as = GTFSSourceAppConfig.class)
-public interface GTFSSourceConfig extends HasDataPath {
+public interface GTFSSourceConfig extends HasDataPath, TransportDataSourceConfig {
 
     // name for diag, logging and entity factory selection
     String getName();
 
     // TODO Best way to deal with this??
+    @Override
     @JsonIgnore
     default DataSourceID getDataSourceId() {
         return DataSourceID.findOrUnknown(getName());
