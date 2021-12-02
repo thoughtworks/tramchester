@@ -5,10 +5,13 @@ import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.config.GTFSSourceConfig;
 import com.tramchester.config.TramchesterConfig;
-import com.tramchester.dataimport.loader.TransportDataReaderFactory;
-import com.tramchester.dataimport.loader.TransportDataReader;
 import com.tramchester.dataimport.data.CalendarDateData;
-import com.tramchester.domain.*;
+import com.tramchester.dataimport.loader.TransportDataReader;
+import com.tramchester.dataimport.loader.TransportDataReaderFactory;
+import com.tramchester.domain.Agency;
+import com.tramchester.domain.Route;
+import com.tramchester.domain.Service;
+import com.tramchester.domain.ServiceCalendar;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.id.StringIdFor;
@@ -23,7 +26,6 @@ import com.tramchester.testSupport.reference.BusStations;
 import com.tramchester.testSupport.testTags.BusTest;
 import com.tramchester.testSupport.testTags.DataUpdateTest;
 import org.junit.jupiter.api.*;
-import org.junit.jupiter.api.condition.DisabledIfEnvironmentVariable;
 
 import java.time.LocalDate;
 import java.util.*;
@@ -36,13 +38,12 @@ import static org.junit.jupiter.api.Assertions.*;
 
 @DataUpdateTest
 @BusTest
-@DisabledIfEnvironmentVariable(named = "CI", matches = "true")
 public
 class TransportDataFromFilesBusTest {
 
     public static final int TGFM_BUS_AGENCIES = 43;
-    public static final int TGFM_BUS_ROUTES = 2178;
-    public static final int NUM_TFGM_BUS_STATIONS = 15763;
+    public static final int TGFM_BUS_ROUTES = 2202;
+    public static final int NUM_TFGM_BUS_STATIONS = 15760;
     private static ComponentContainer componentContainer;
     private static TramchesterConfig config;
 
