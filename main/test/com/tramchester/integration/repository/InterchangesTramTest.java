@@ -19,10 +19,12 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 import static com.tramchester.domain.reference.CentralZoneStation.Shudehill;
+import static com.tramchester.domain.reference.CentralZoneStation.StWerbergsRoad;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class InterchangesTramTest {
@@ -64,6 +66,21 @@ public class InterchangesTramTest {
     }
 
     @Test
+    void shouldHaveExpectedPickupsAndDropoffs() {
+        Optional<InterchangeStation> shouldHaveInterchange = interchangeRepository.getAllInterchanges().stream().
+                filter(interchangeStation -> interchangeStation.getStationId().equals(StWerbergsRoad.getId())).
+                findFirst();
+        assertTrue(shouldHaveInterchange.isPresent());
+
+        Station station = stationRepository.getStationById(StWerbergsRoad.getId());
+
+        InterchangeStation interchangeStation = shouldHaveInterchange.get();
+
+        assertEquals(interchangeStation.getPickupRoutes(), station.getPickupRoutes());
+        assertEquals(interchangeStation.getDropoffRoutes(), station.getDropoffRoutes());
+    }
+
+    @Test
     void shouldAllBeSingleModeForTram() {
         Set<InterchangeStation> interchanges = interchangeRepository.getAllInterchanges();
         interchanges.forEach(interchangeStation -> assertFalse(interchangeStation.isMultiMode(), interchangeStation.toString()));
@@ -72,8 +89,8 @@ public class InterchangesTramTest {
     @Test
     void shouldHaveReachableInterchangeForEveryRoute() {
         Set<InterchangeStation> interchanges = interchangeRepository.getAllInterchanges();
-        Set<Route> dropOffRoutes = interchanges.stream().flatMap(interchangeStation -> interchangeStation.getSourceRoutes().stream()).collect(Collectors.toSet());
-        Set<Route> pickupRoutes = interchanges.stream().flatMap(interchangeStation -> interchangeStation.getDestinationRoutes().stream()).collect(Collectors.toSet());
+        Set<Route> dropOffRoutes = interchanges.stream().flatMap(interchangeStation -> interchangeStation.getDropoffRoutes().stream()).collect(Collectors.toSet());
+        Set<Route> pickupRoutes = interchanges.stream().flatMap(interchangeStation -> interchangeStation.getPickupRoutes().stream()).collect(Collectors.toSet());
 
         Set<Route> routesWithInterchanges = routeRepository.getRoutes().stream().
                 filter(dropOffRoutes::contains).

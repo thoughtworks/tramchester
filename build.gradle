@@ -160,7 +160,7 @@ clean {
 
 run {
     // see deploy/setupTramWebServerAWSLinux.sh
-    maxHeapSize = '550m'
+    maxHeapSize = '650m'
     dependsOn 'webpack'
     args 'server', 'config/local.yml'
 }

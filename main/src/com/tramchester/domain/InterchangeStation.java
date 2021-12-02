@@ -14,20 +14,20 @@ import static com.tramchester.domain.id.HasId.asIds;
 public class InterchangeStation {
     private final Station station;
 
-    private final Set<Route> connectedToRoutes;
+    private final Set<Route> pickupFromInterchange;
 
-    public InterchangeStation(Station station, Set<Route> connectedToRoutes) {
+    public InterchangeStation(Station station, Set<Route> pickupFromInterchange) {
         this.station = station;
-        this.connectedToRoutes = new HashSet<>(connectedToRoutes);
+        this.pickupFromInterchange = new HashSet<>(pickupFromInterchange);
     }
 
     public InterchangeStation(Station station) {
         this.station = station;
-        this.connectedToRoutes = new HashSet<>(station.getPickupRoutes());
+        this.pickupFromInterchange = new HashSet<>(station.getPickupRoutes());
     }
 
     public boolean isMultiMode() {
-        Set<TransportMode> uniqueModes = connectedToRoutes.stream().map(Route::getTransportMode).collect(Collectors.toSet());
+        Set<TransportMode> uniqueModes = pickupFromInterchange.stream().map(Route::getTransportMode).collect(Collectors.toSet());
         uniqueModes.addAll(station.getTransportModes());
         return uniqueModes.size()>1;
     }
@@ -36,7 +36,7 @@ public class InterchangeStation {
     public String toString() {
         return "InterchangeStation{" +
                 "station=" + station.getId() +
-                ", connectingRoutes=" + asIds(connectedToRoutes) +
+                ", connectingRoutes=" + asIds(pickupFromInterchange) +
                 '}';
     }
 
@@ -55,19 +55,19 @@ public class InterchangeStation {
         return station.hashCode();
     }
 
-    public Set<Route> getSourceRoutes() {
+    public Set<Route> getDropoffRoutes() {
         return Collections.unmodifiableSet(station.getDropoffRoutes());
     }
 
-    public Set<Route> getDestinationRoutes() {
-        return Collections.unmodifiableSet(connectedToRoutes);
+    public Set<Route> getPickupRoutes() {
+        return Collections.unmodifiableSet(pickupFromInterchange);
     }
 
     public IdFor<Station> getStationId() {
         return station.getId();
     }
 
-    public void addLinkedRoutes(Set<Route> additionalRoutes) {
-        connectedToRoutes.addAll(additionalRoutes);
+    public void addPickupRoutes(Set<Route> additionalPickupRoutes) {
+        pickupFromInterchange.addAll(additionalPickupRoutes);
     }
 }

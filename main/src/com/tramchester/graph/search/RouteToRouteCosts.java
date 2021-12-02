@@ -22,6 +22,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
 import javax.inject.Inject;
 import java.time.Duration;
 import java.time.Instant;
@@ -79,20 +80,26 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
                 dataCache.save(costs, RouteMatrixData.class);
             }
         }
-
         logger.info("started");
+   }
+
+   @PreDestroy
+   public void stop() {
+        logger.info("stopping");
+        index.clear();
+        logger.info("stopped");
    }
 
     private void buildIndexAndCostMatrix() {
         try (Timing ignored = new Timing(logger, "RouteToRouteCosts")) {
             index.populateFrom(routeRepository);
-            RouteDateAnDayOverlap routeDateAnDayOverlap = new RouteDateAnDayOverlap(index);
-            routeDateAnDayOverlap.populateFor(routeRepository);
-            populateCosts(routeDateAnDayOverlap);
+            RouteDateAndDayOverlap routeDateAndDayOverlap = new RouteDateAndDayOverlap(index);
+            routeDateAndDayOverlap.populateFor(routeRepository);
+            populateCosts(routeDateAndDayOverlap);
         }
     }
 
-    private void populateCosts(RouteDateAnDayOverlap routeDateAnDayOverlap) {
+    private void populateCosts(RouteDateAndDayOverlap routeDateAndDayOverlap) {
         final int size = routeRepository.numberOfRoutes();
         logger.info("Find costs between " + size + " routes");
         final int fullyConnected = size * size;
@@ -107,7 +114,7 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
         for (byte currentDegree = 1; currentDegree <= MAX_DEPTH; currentDegree++) {
             logger.info("Adding connections for degree " + currentDegree);
             // create new: route -> [reachable routes]
-            final InterimResults newLinksForRoutes = addConnectionsFor(routeDateAnDayOverlap, currentDegree, linksForRoutes);
+            final InterimResults newLinksForRoutes = addConnectionsFor(routeDateAndDayOverlap, currentDegree, linksForRoutes);
             if (newLinksForRoutes.isEmpty()) {
                 logger.info("Finished at degree " + (currentDegree-1));
                 linksForRoutes.clear();
@@ -125,30 +132,30 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
         }
     }
 
-    private InterimResults addConnectionsFor(RouteDateAnDayOverlap routeDateAnDayOverlap, byte currentDegree, InterimResults currentlyReachableRoutes) {
+    private InterimResults addConnectionsFor(RouteDateAndDayOverlap routeDateAndDayOverlap, byte currentDegree, InterimResults currentlyReachableRoutes) {
         final Instant startTime = Instant.now();
         final byte nextDegree = (byte)(currentDegree+1);
-        final InterimResults additional = new InterimResults(); // discovered route -> [route] for this degree
+        final InterimResults additional = new InterimResults();
         for(Map.Entry<Integer, Set<Integer>> currentlyReachable : currentlyReachableRoutes.entrySet()) {
 
-            final int routeIndex = currentlyReachable.getKey();
-            final Set<Integer> connectedToRoute = currentlyReachable.getValue(); // routes we can currently reach for current key
+            final int sourceRouteIndex = currentlyReachable.getKey();
+            final Set<Integer> connectedRoutesIndex = currentlyReachable.getValue(); // routes we can currently reach for current key
 
             // TODO Account for pickup vs dropoff routes at stations
 
             // for each reachable route, find the routes we can in turn reach from them, if not already found previous degree
             final Set<Integer> newConnections =
-                    connectedToRoute.parallelStream().
+                    connectedRoutesIndex.parallelStream().
                     filter(currentlyReachableRoutes::containsKey).
                     map(currentlyReachableRoutes::get).
                     filter(routeSet -> !routeSet.isEmpty()).
-                    map(routeSet -> routeDateAnDayOverlap.overlaps(routeIndex, routeSet)).
-                    map(routeSet -> costs.notAlreadyAdded(routeIndex, routeSet)).
+                    map(routeSet -> routeDateAndDayOverlap.overlaps(sourceRouteIndex, routeSet)).
+                    map(routeSet -> costs.notAlreadyAdded(sourceRouteIndex, routeSet)).
                     flatMap(Collection::stream).
                     collect(Collectors.toSet());
 
             if (!newConnections.isEmpty()) {
-                additional.put(routeIndex, newConnections);
+                additional.put(sourceRouteIndex, newConnections);
             }
         }
         logger.info("Discover " + Duration.between(startTime, Instant.now()).toMillis() + " ms");
@@ -174,27 +181,30 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
 
     private void addOverlapsFor(InterchangeStation interchange, InterimResults linksForDegree) {
 
-        final List<Route> source = new ArrayList<>(interchange.getSourceRoutes());
-        final List<Route> dests = new ArrayList<>(interchange.getDestinationRoutes());
+        final List<Route> dropOffAtInterchange = new ArrayList<>(interchange.getDropoffRoutes());
+        final List<Route> pickupAtInterchange = new ArrayList<>(interchange.getPickupRoutes());
 
-        final int sourceSize = source.size();
-        final int destSize = dests.size();
+        final int sourceSize = dropOffAtInterchange.size();
+        final int destSize = pickupAtInterchange.size();
 
         for (int i = 0; i < sourceSize; i++) {
-            Route from = source.get(i);
-            final IdFor<Route> fromId = from.getId();
-            final int fromIndex = index.indexFor(fromId);
-            if (!linksForDegree.containsKey(fromIndex)) {
-                linksForDegree.put(fromIndex, new HashSet<>());
+            Route dropOff = dropOffAtInterchange.get(i);
+            final IdFor<Route> dropOffId = dropOff.getId();
+            final int dropOffIndex = index.indexFor(dropOffId);
+            if (!linksForDegree.containsKey(dropOffIndex)) {
+                linksForDegree.put(dropOffIndex, new HashSet<>());
             }
             for (int j = 0; j < destSize; j++) {
                 if (i != j) {
-                    final Route dest = dests.get(j);
-                    final int towards = index.indexFor(dest.getId());
-                    linksForDegree.get(fromIndex).add(towards);
-                    if (!costs.contains(fromIndex, towards) && from.isDateOverlap(dest)) {
-                        costs.put(fromIndex, towards, (byte) 1);
+                    final Route pickup = pickupAtInterchange.get(j);
+                    final int pickupIndex = index.indexFor(pickup.getId());
+                    linksForDegree.get(dropOffIndex).add(pickupIndex);
+                    if (dropOff.isDateOverlap(pickup)) {
+                        if (!costs.contains(dropOffIndex, pickupIndex)) {
+                            costs.put(dropOffIndex, pickupIndex, (byte) 1);
+                        }
                     }
+
                 }
             }
         }
@@ -398,6 +408,11 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
         public IdFor<Route> getIdFor(int routeIndex) {
             return mapIndexToRouteId.get(routeIndex);
         }
+
+        public void clear() {
+            mapRouteIdToIndex.clear();
+            mapIndexToRouteId.clear();
+        }
     }
 
     private static class Costs implements DataCache.Cacheable<RouteMatrixData> {
@@ -543,12 +558,12 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
         }
     }
 
-    private static class RouteDateAnDayOverlap {
+    private static class RouteDateAndDayOverlap {
 
         private final boolean[][] overlaps;
         private final Index index;
 
-        private RouteDateAnDayOverlap(Index index) {
+        private RouteDateAndDayOverlap(Index index) {
             this.index = index;
             overlaps = new boolean[index.numberOfRoutes][index.numberOfRoutes];
         }
@@ -575,7 +590,6 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
             }
             logger.info("Finished matrix for route date/day overlap");
         }
-
     }
 
 }

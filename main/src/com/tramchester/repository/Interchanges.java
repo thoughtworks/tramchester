@@ -96,7 +96,7 @@ public class Interchanges implements InterchangeRepository {
             if (interchanges.containsKey(beginId)) {
                 // already flagged as an interchange, add the additional routes from the other station
                 InterchangeStation existing = interchanges.get(beginId);
-                existing.addLinkedRoutes(dropoffRoutesAtEnd);
+                existing.addPickupRoutes(dropoffRoutesAtEnd);
             } else {
                 // not an interchange yet, so only add the routes from the linked station
                 interchanges.put(beginId, new InterchangeStation(stationLink.getBegin(), dropoffRoutesAtEnd));
