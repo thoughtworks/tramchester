@@ -19,8 +19,7 @@ import java.util.Set;
 import static com.tramchester.domain.MutableAgency.Walking;
 import static com.tramchester.domain.reference.TransportMode.*;
 import static com.tramchester.testSupport.TestEnv.nearPiccGardens;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 class StationTest {
 
@@ -59,10 +58,10 @@ class StationTest {
 
         final Route route = MutableRoute.getRoute(StringIdFor.createId("routeIdA"), "shortName", "name",
                 TestEnv.MetAgency(), Tram);
-        station.addRoute(route);
+        station.addRouteDropOff(route);
         assertTrue(station.serves(Tram));
 
-        station.addRoute(MutableRoute.getRoute(StringIdFor.createId("routeIdB"), "trainShort", "train",
+        station.addRouteDropOff(MutableRoute.getRoute(StringIdFor.createId("routeIdB"), "trainShort", "train",
                 Walking, Train));
         assertTrue(station.serves(Train));
 
@@ -95,8 +94,11 @@ class StationTest {
         assertTrue(allRoutes.contains(routeA));
         assertTrue(allRoutes.contains(routeB));
 
-        assertTrue(station.servesRoute(routeA));
-        assertTrue(station.servesRoute(routeB));
+        assertTrue(station.servesRoutePickup(routeA));
+        assertFalse(station.servesRoutePickup(routeB));
+
+        assertTrue(station.servesRouteDropoff(routeB));
+        assertFalse(station.servesRouteDropoff(routeA));
 
         // TODO Routes for platforms?
     }

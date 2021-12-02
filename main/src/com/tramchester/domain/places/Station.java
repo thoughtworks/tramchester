@@ -46,7 +46,9 @@ public interface Station extends Location<Station> {
     @Override
     Set<Platform> getPlatforms();
 
-    boolean servesRoute(Route route);
+    boolean servesRoutePickup(Route route);
+
+    boolean servesRouteDropoff(Route route);
 
     GridPosition getGridPosition();
 

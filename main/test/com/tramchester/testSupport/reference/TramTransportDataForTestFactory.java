@@ -227,7 +227,8 @@ public class TramTransportDataForTestFactory implements TransportDataFactory {
     private static void addRouteStation(TransportDataContainer container, MutableStation station, Route route) {
         RouteStation routeStation = new RouteStation(station, route);
         container.addRouteStation(routeStation);
-        station.addRoute(route);
+        station.addRoutePickUp(route);
+        station.addRouteDropOff(route);
     }
 
     private static void createInterchangeToStation4Trip(TransportDataContainer container, MutableRoute route, Service service,

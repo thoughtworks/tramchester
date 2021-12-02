@@ -82,9 +82,19 @@ public class CompositeStation extends MutableStation {
         return flatten(Station::getRoutes);
     }
 
+//    @Override
+//    public boolean servesRoute(Route route) {
+//        return anyMatch(station -> station.servesRoute(route));
+//    }
+
     @Override
-    public boolean servesRoute(Route route) {
-        return anyMatch(station -> station.servesRoute(route));
+    public boolean servesRoutePickup(Route route) {
+        return anyMatch(station -> station.servesRoutePickup(route));
+    }
+
+    @Override
+    public boolean servesRouteDropoff(Route route) {
+        return anyMatch(station -> station.servesRouteDropoff(route));
     }
 
     @Override

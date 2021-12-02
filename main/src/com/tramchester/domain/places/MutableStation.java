@@ -126,11 +126,14 @@ public class MutableStation implements Station {
         return  Collections.unmodifiableSet(platforms);
     }
 
-    @Deprecated
     @Override
-    public boolean servesRoute(Route route) {
-        return Stream.concat(servesRoutesDropoff.stream(), servesRoutesPickup.stream()).
-                anyMatch(item -> item.equals(route));
+    public boolean servesRoutePickup(Route route) {
+        return servesRoutesPickup.stream().anyMatch(item -> item.equals(route));
+    }
+
+    @Override
+    public boolean servesRouteDropoff(Route route) {
+        return servesRoutesDropoff.stream().anyMatch(item -> item.equals(route));
     }
 
     @Override

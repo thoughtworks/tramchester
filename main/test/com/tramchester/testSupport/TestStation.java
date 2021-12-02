@@ -58,8 +58,14 @@ public class TestStation extends MutableStation {
     }
 
     @Override
-    public void addRoute(Route route) {
-        super.addRoute(route);
+    public void addRouteDropOff(Route dropoffFromRoute) {
+        super.addRouteDropOff(dropoffFromRoute);
+        routesAdded = true;
+    }
+
+    @Override
+    public void addRoutePickUp(Route pickupFromRoute) {
+        super.addRoutePickUp(pickupFromRoute);
         routesAdded = true;
     }
 

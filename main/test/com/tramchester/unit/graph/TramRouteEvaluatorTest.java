@@ -76,7 +76,8 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
         MutableStation forTest = TestStation.forTest("destinationStationId", "area", "name",
                 new LatLong(1, 1), TransportMode.Tram, DataSourceID.tfgm);
         destinationStations = Collections.singleton(forTest);
-        forTest.addRoute(TestEnv.getTramTestRoute());
+        forTest.addRouteDropOff(TestEnv.getTramTestRoute());
+        forTest.addRoutePickUp(TestEnv.getTramTestRoute());
 
         lowestCostSeen = createMock(LowestCostSeen.class);
         previousSuccessfulVisit = createMock(PreviousVisits.class);
