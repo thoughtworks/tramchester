@@ -41,6 +41,7 @@ public class BusRouteToRouteCostsTest {
         TramchesterConfig config = new IntegrationBusTestConfig();
         componentContainer = new ComponentsBuilder().create(config, TestEnv.NoopRegisterMetrics());
         componentContainer.initialise();
+        TestEnv.clearDataCache(componentContainer);
     }
 
     @AfterAll

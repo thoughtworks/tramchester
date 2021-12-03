@@ -33,7 +33,6 @@ public class RouteToRouteCostsRailTest {
         componentContainer = new ComponentsBuilder().create(config, TestEnv.NoopRegisterMetrics());
         componentContainer.initialise();
         TestEnv.clearDataCache(componentContainer);
-
     }
 
     @AfterAll

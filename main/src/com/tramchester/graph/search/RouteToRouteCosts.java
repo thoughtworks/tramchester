@@ -28,7 +28,6 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -132,7 +131,8 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
         }
     }
 
-    private InterimResults addConnectionsFor(RouteDateAndDayOverlap routeDateAndDayOverlap, byte currentDegree, InterimResults currentlyReachableRoutes) {
+    private InterimResults addConnectionsFor(RouteDateAndDayOverlap routeDateAndDayOverlap, byte currentDegree,
+                                             InterimResults currentlyReachableRoutes) {
         final Instant startTime = Instant.now();
         final byte nextDegree = (byte)(currentDegree+1);
 
@@ -142,18 +142,16 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
             final int sourceRouteIndex = currentlyReachable.getKey();
             final Set<Integer> connectedRoutesIndexes = currentlyReachable.getValue(); // routes we can currently reach for current key
 
-            // TODO Account for pickup vs dropoff routes at stations
+            final DateOverflatFilter overlapfilter = routeDateAndDayOverlap.createFilterFor(sourceRouteIndex);
+            final AlreadyPresentFilter alreadyPresentFilter = costs.createFilterFor(sourceRouteIndex);
 
-            // for each reachable route, find the routes we can in turn reach from them, if not already found previous degree
             final Set<Integer> newConnectionsForARoute =
-                    connectedRoutesIndexes.parallelStream().
-                    filter(currentlyReachableRoutes::hasRoute).
-                    map(currentlyReachableRoutes::getReachableRoutes).
-                    //filter(routeSet -> !routeSet.isEmpty()).
-                    map(reachableFromConnectedRoute -> routeDateAndDayOverlap.filterByDateOverlap(sourceRouteIndex, reachableFromConnectedRoute)).
-                    map(reachableFromConnectedRoute -> costs.notAlreadyAdded(sourceRouteIndex, reachableFromConnectedRoute)).
-                    flatMap(Collection::stream).
-                    collect(Collectors.toSet());
+                    connectedRoutesIndexes.stream().
+                            filter(currentlyReachableRoutes::hasRoute).
+                            flatMap(index -> currentlyReachableRoutes.getReachableRoutes(index).stream()).
+                            parallel().
+                            filter(routeIndex -> overlapfilter.overlaps(routeIndex) && alreadyPresentFilter.notPresent(routeIndex)).
+                            collect(Collectors.toSet());
 
             if (!newConnectionsForARoute.isEmpty()) {
                 results.put(sourceRouteIndex, newConnectionsForARoute);
@@ -413,22 +411,21 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
     private static class Costs implements DataCache.Cacheable<RouteMatrixData> {
         public static final byte MAX_VALUE = Byte.MAX_VALUE;
 
-        private final byte[][] array;
-        private final int[] numberSetFor;
+        private final byte[][] costArray;
         private final AtomicInteger count;
         private final int numRoutes;
 
         private Costs(int numRoutes) {
             count = new AtomicInteger(0);
             this.numRoutes = numRoutes;
-            array = new byte[numRoutes][numRoutes];
+            costArray = new byte[numRoutes][numRoutes];
             resetArray(numRoutes);
-            numberSetFor = new int[numRoutes];
+            //numberSetFor = new int[numRoutes];
         }
 
         private void resetArray(int size) {
             for (int i = 0; i < size; i++) {
-                Arrays.fill(array[i], MAX_VALUE);
+                Arrays.fill(costArray[i], MAX_VALUE);
             }
         }
 
@@ -437,38 +434,23 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
         }
 
         public boolean contains(int i, int j) {
-            return array[i][j] != MAX_VALUE;
+            return costArray[i][j] != MAX_VALUE;
         }
 
         public void put(int indexA, int indexB, byte value) {
             count.incrementAndGet();
-            array[indexA][indexB] = value;
-            numberSetFor[indexA]++;
+            costArray[indexA][indexB] = value;
         }
 
         public byte get(int a, int b) {
-            return array[a][b];
-        }
-
-        // Collectors.toList marginally faster, parallelStream slower
-        public List<Integer> notAlreadyAdded(int routeIndex, Set<Integer> routeSet) {
-            if (numberSetFor[routeIndex] == numRoutes) {
-                return Collections.emptyList();
-            }
-            final byte[] forIndex = array[routeIndex]; // get row for current routeIndex
-            return routeSet.stream().filter(present(forIndex)).collect(Collectors.toList());
-        }
-
-        @NotNull
-        private Predicate<Integer> present(byte[] forIndex) {
-            return found -> forIndex[found] == MAX_VALUE;
+            return costArray[a][b];
         }
 
         @Override
         public void cacheTo(DataSaver<RouteMatrixData> saver) {
             List<RouteMatrixData> dataToSave = new ArrayList<>(numRoutes);
             for (int i = 0; i < numRoutes; i++) {
-                byte[] row = array[i];
+                byte[] row = costArray[i];
                 List<Integer> destinations = new ArrayList<>(numRoutes);
                 for (int j = 0; j < numRoutes; j++) {
                     destinations.add(j, (int) row[j]);
@@ -495,7 +477,7 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
                         List<Integer> dest = item.getDestinations();
                         for (int j = 0; j < numRoutes; j++) {
                             final byte value = dest.get(j).byteValue();
-                            array[source][j] = value;
+                            costArray[source][j] = value;
                             if (value != Byte.MAX_VALUE) {
                                 count.incrementAndGet();
                             }
@@ -507,6 +489,10 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
                 throw new DataCache.CacheLoadException("Could not load all rows, mismatch on number routes, loaded " +
                         loadedOk.get() + " expected " + numRoutes);
             }
+        }
+
+        public AlreadyPresentFilter createFilterFor(int sourceRouteIndex) {
+            return new AlreadyPresentFilter(costArray[sourceRouteIndex], numRoutes);
         }
     }
 
@@ -567,12 +553,6 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
             overlaps = new boolean[index.numberOfRoutes][index.numberOfRoutes];
         }
 
-        public Set<Integer> filterByDateOverlap(int originIndex, Set<Integer> destIndexes) {
-            boolean[] overlapsForOrigin = overlaps[originIndex];
-            return destIndexes.stream().filter(destIndex -> overlapsForOrigin[destIndex]).
-                    collect(Collectors.toSet());
-        }
-
         public void populateFor(RouteRepository repository) {
             logger.info("Creating matrix for route date/day overlap");
             int numberOfRoutes = index.numberOfRoutes;
@@ -589,6 +569,37 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
             }
             logger.info("Finished matrix for route date/day overlap");
         }
+
+        public DateOverflatFilter createFilterFor(int sourceRouteIndex) {
+            boolean[] row = overlaps[sourceRouteIndex];
+            return new DateOverflatFilter(row);
+        }
     }
 
+    private static class DateOverflatFilter {
+        private final boolean[] row;
+
+        public DateOverflatFilter(boolean[] row) {
+            this.row = row;
+        }
+
+        public boolean overlaps(int newRoute) {
+            return row[newRoute];
+        }
+    }
+
+    private static class AlreadyPresentFilter {
+        private final boolean[] notPresent;
+
+        public AlreadyPresentFilter(byte[] values, int size) {
+            notPresent = new boolean[size];
+            for (int i = 0; i < size; i++) {
+                notPresent[i] = (values[i]==Costs.MAX_VALUE);
+            }
+        }
+
+        public boolean notPresent(int newRoute) {
+            return notPresent[newRoute];
+        }
+    }
 }
