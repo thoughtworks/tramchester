@@ -32,10 +32,13 @@ public class RouteToRouteCostsRailTest {
         TramchesterConfig config = new IntegrationRailTestConfig();
         componentContainer = new ComponentsBuilder().create(config, TestEnv.NoopRegisterMetrics());
         componentContainer.initialise();
+        TestEnv.clearDataCache(componentContainer);
+
     }
 
     @AfterAll
     static void OnceAfterAllTestsAreFinished() {
+        TestEnv.clearDataCache(componentContainer);
         componentContainer.close();
     }
 
@@ -48,8 +51,7 @@ public class RouteToRouteCostsRailTest {
         stationRepository = componentContainer.get(StationRepository.class);
 
         // full rebuild of graph, including version node so we avoid rebuild every test run
-        StagedTransportGraphBuilder stagedTransportGraphBuilder = componentContainer.get(StagedTransportGraphBuilder.class);
-
+        componentContainer.get(StagedTransportGraphBuilder.class);
     }
 
     @AfterEach
