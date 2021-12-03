@@ -50,6 +50,7 @@ public class GraphDatabaseMetaInfo {
     }
 
     public void createVersionNode(Transaction tx, Set<DataSourceInfo> infos) {
+        logger.info("Setting version data in DB for " + infos);
         Node node = tx.createNode(GraphLabel.VERSION);
         infos.forEach(nameAndVersion -> GraphProps.setProp(node, nameAndVersion));
     }

@@ -2,8 +2,11 @@ package com.tramchester.integration.testSupport.rail;
 
 import com.tramchester.config.RailConfig;
 import com.tramchester.domain.DataSourceID;
+import com.tramchester.domain.reference.TransportMode;
 
 import java.nio.file.Path;
+import java.util.Collections;
+import java.util.Set;
 
 public class TestRailConfig implements RailConfig {
     private final RailRemoteDataSourceConfig remoteConfig;
@@ -36,5 +39,10 @@ public class TestRailConfig implements RailConfig {
         public Path getTimetable() {
             return Path.of(remoteConfig.getFilePrefix() + ".mca");
         }
+
+    @Override
+    public Set<TransportMode> getModes() {
+        return Collections.singleton(TransportMode.Train);
+    }
 
 }

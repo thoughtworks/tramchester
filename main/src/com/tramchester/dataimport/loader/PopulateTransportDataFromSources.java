@@ -61,7 +61,11 @@ public class PopulateTransportDataFromSources implements TransportDataFactory {
             transportDataSourceFactory.forEach(transportDataSource -> load(transportDataSource, dataContainer));
         }
         logger.info("Load for direct sources");
-        directDataSourceFactory.forEach(dataSource -> dataSource.loadInto(dataContainer));
+        directDataSourceFactory.forEach(directDataSource -> {
+            directDataSource.loadInto(dataContainer);
+            dataContainer.addDataSourceInfo(directDataSource.getDataSourceInfo());
+            dataContainer.reportNumbers();
+        } );
         logger.info("started");
     }
 

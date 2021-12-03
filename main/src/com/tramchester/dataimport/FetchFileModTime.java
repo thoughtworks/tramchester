@@ -16,7 +16,6 @@ public class FetchFileModTime {
 
     public LocalDateTime getFor(HasDataPath config) {
         Path dataPath = config.getDataPath();
-        //Path path = dataPath.resolve(config.getDownloadFilename());
         return getFor(dataPath);
     }
 }

@@ -2,9 +2,12 @@ package com.tramchester.config;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.tramchester.domain.DataSourceID;
+import com.tramchester.domain.reference.TransportMode;
 import io.dropwizard.Configuration;
 
 import java.nio.file.Path;
+import java.util.Collections;
+import java.util.Set;
 
 public class RailAppConfig extends Configuration implements RailConfig {
 
@@ -40,6 +43,11 @@ public class RailAppConfig extends Configuration implements RailConfig {
 
     public Path getTimetable() {
         return timetable;
+    }
+
+    @Override
+    public Set<TransportMode> getModes() {
+        return Collections.singleton(TransportMode.Train);
     }
 
 }

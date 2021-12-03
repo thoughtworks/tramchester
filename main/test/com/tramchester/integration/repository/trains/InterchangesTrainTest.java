@@ -45,7 +45,6 @@ class InterchangesTrainTest {
 
     @Test
     void shouldHaveExpectedInterchanges() {
-
         assertTrue(interchangeRepository.isInterchange(getStation(RailStationIds.ManchesterPiccadilly)));
         assertTrue(interchangeRepository.isInterchange(getStation(RailStationIds.Stockport)));
         assertTrue(interchangeRepository.isInterchange(getStation(RailStationIds.LondonEuston)));

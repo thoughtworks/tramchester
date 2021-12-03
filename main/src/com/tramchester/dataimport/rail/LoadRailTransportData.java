@@ -2,12 +2,15 @@ package com.tramchester.dataimport.rail;
 
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.config.RailConfig;
+import com.tramchester.config.RemoteDataSourceConfig;
 import com.tramchester.config.TramchesterConfig;
+import com.tramchester.dataimport.FetchFileModTime;
 import com.tramchester.dataimport.loader.DirectDataSourceFactory;
 import com.tramchester.dataimport.rail.records.PhysicalStationRecord;
 import com.tramchester.dataimport.rail.records.RailTimetableRecord;
 import com.tramchester.dataimport.rail.records.reference.RailInterchangeType;
 import com.tramchester.domain.DataSourceID;
+import com.tramchester.domain.DataSourceInfo;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.places.MutableStation;
@@ -22,6 +25,7 @@ import org.slf4j.LoggerFactory;
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import java.nio.file.Path;
+import java.time.LocalDateTime;
 import java.util.stream.Stream;
 
 @LazySingleton
@@ -31,12 +35,15 @@ public class LoadRailTransportData implements DirectDataSourceFactory.PopulatesC
     private final RailStationDataFromFile railStationDataFromFile;
     private final RailTimetableDataFromFile railTimetableDataFromFile;
     private final boolean enabled;
+    private final RailConfig railConfig;
+    private final RemoteDataSourceConfig railRemoteSourceConfig;
 
     @Inject
     public LoadRailTransportData(RailDataRecordFactory factory, TramchesterConfig config) {
-        final RailConfig railConfig = config.getRailConfig();
+        railConfig = config.getRailConfig();
         enabled = (railConfig!=null);
         if (enabled) {
+            railRemoteSourceConfig = config.getDataRemoteSourceConfig(railConfig.getDataSourceId());
             final Path dataPath = railConfig.getDataPath();
             Path stationsPath = dataPath.resolve(railConfig.getStations());
             Path timetablePath = dataPath.resolve(railConfig.getTimetable());
@@ -45,6 +52,7 @@ public class LoadRailTransportData implements DirectDataSourceFactory.PopulatesC
         } else {
             railStationDataFromFile = null;
             railTimetableDataFromFile = null;
+            railRemoteSourceConfig = null;
         }
     }
 
@@ -70,11 +78,24 @@ public class LoadRailTransportData implements DirectDataSourceFactory.PopulatesC
         processTimetableRecords(dataContainer, timetableRecords);
     }
 
+    @Override
+    public DataSourceInfo getDataSourceInfo() {
+        if (!enabled) {
+            throw new RuntimeException("Not enabled");
+        }
+        String zipFilename = railRemoteSourceConfig.getDownloadFilename();
+        Path downloadedZip = railRemoteSourceConfig.getDataPath().resolve(zipFilename);
+        FetchFileModTime fileModTime = new FetchFileModTime();
+        LocalDateTime modTime = fileModTime.getFor(downloadedZip);
+        final DataSourceInfo dataSourceInfo = new DataSourceInfo(railConfig.getDataSourceId(), zipFilename, modTime, railConfig.getModes());
+        logger.info("Generated  " + dataSourceInfo);
+        return dataSourceInfo;
+    }
+
     private void processTimetableRecords(TransportDataContainer dataContainer, Stream<RailTimetableRecord> recordStream) {
         logger.info("Process timetable stream");
         RailTimetableMapper mapper = new RailTimetableMapper(dataContainer);
         recordStream.forEach(mapper::seen);
-        dataContainer.reportNumbers();
         mapper.reportDiagnostics();
     }
 

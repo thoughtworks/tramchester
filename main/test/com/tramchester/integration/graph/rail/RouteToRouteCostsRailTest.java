@@ -5,7 +5,8 @@ import com.tramchester.ComponentsBuilder;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.places.Station;
 import com.tramchester.graph.GraphDatabase;
-import com.tramchester.graph.RouteCostCalculator;
+import com.tramchester.graph.graphbuild.StagedTransportGraphBuilder;
+import com.tramchester.graph.search.RouteToRouteCosts;
 import com.tramchester.integration.testSupport.rail.IntegrationRailTestConfig;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.TestEnv;
@@ -19,12 +20,12 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @TrainTest
 @DisabledIfEnvironmentVariable(named = "CI", matches = "true")
-public class RailRouteCostsTest {
+public class RouteToRouteCostsRailTest {
     private static ComponentContainer componentContainer;
 
+    private RouteToRouteCosts routeToRouteCosts;
     private StationRepository stationRepository;
     private Transaction txn;
-    private RouteCostCalculator routeCostCalculator;
 
     @BeforeAll
     static void onceBeforeAnyTestRuns() {
@@ -43,8 +44,12 @@ public class RailRouteCostsTest {
         GraphDatabase database = componentContainer.get(GraphDatabase.class);
 
         txn = database.beginTx();
+        routeToRouteCosts = componentContainer.get(RouteToRouteCosts.class);
         stationRepository = componentContainer.get(StationRepository.class);
-        routeCostCalculator = componentContainer.get(RouteCostCalculator.class);
+
+        // full rebuild of graph, including version node so we avoid rebuild every test run
+        StagedTransportGraphBuilder stagedTransportGraphBuilder = componentContainer.get(StagedTransportGraphBuilder.class);
+
     }
 
     @AfterEach
@@ -57,7 +62,7 @@ public class RailRouteCostsTest {
         Station stockport = stationRepository.getStationById(Stockport.getId());
         Station manPicc = stationRepository.getStationById(ManchesterPiccadilly.getId());
 
-        assertEquals(10, routeCostCalculator.getApproxCostBetween(txn, stockport, manPicc));
+        assertEquals(0, routeToRouteCosts.getNumberOfChanges(stockport, manPicc).getMin());
     }
 
     @Test
@@ -65,7 +70,7 @@ public class RailRouteCostsTest {
         Station manPicc = stationRepository.getStationById(ManchesterPiccadilly.getId());
         Station londonEuston = stationRepository.getStationById(LondonEuston.getId());
 
-        assertEquals(126, routeCostCalculator.getApproxCostBetween(txn, manPicc, londonEuston));
+        assertEquals(0, routeToRouteCosts.getNumberOfChanges(manPicc, londonEuston).getMin());
     }
 
     @Test
@@ -73,7 +78,6 @@ public class RailRouteCostsTest {
         Station altrincham = stationRepository.getStationById(Altrincham.getId());
         Station londonEuston = stationRepository.getStationById(LondonEuston.getId());
 
-        assertEquals(180, routeCostCalculator.getApproxCostBetween(txn, altrincham, londonEuston));
+        assertEquals(1, routeToRouteCosts.getNumberOfChanges(altrincham, londonEuston).getMin());
     }
-
 }

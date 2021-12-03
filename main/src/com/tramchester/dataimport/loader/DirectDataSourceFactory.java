@@ -2,6 +2,7 @@ package com.tramchester.dataimport.loader;
 
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.dataimport.rail.LoadRailTransportData;
+import com.tramchester.domain.DataSourceInfo;
 import com.tramchester.repository.TransportDataContainer;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
@@ -44,6 +45,7 @@ public class DirectDataSourceFactory implements Iterable<DirectDataSourceFactory
 
     public interface PopulatesContainer {
         void loadInto(TransportDataContainer dataContainer);
+        DataSourceInfo getDataSourceInfo();
     }
 
 }

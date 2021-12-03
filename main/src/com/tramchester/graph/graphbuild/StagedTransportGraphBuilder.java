@@ -100,7 +100,7 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
     }
 
     private void buildGraphwithFilter(GraphDatabase graphDatabase, GraphBuilderCache builderCache) {
-        logger.info("Building graph for feedinfo: " + transportData.getDataSourceInfo());
+        logger.info("Building graph for data source: " + transportData.getDataSourceInfo());
         logMemory("Before graph build");
 
         try(Timing ignored = new Timing(logger, "Graph rebuild")) {
@@ -148,6 +148,11 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
     }
 
     private void addVersionNode(GraphDatabase graphDatabase, Set<DataSourceInfo> infos) {
+        if (infos.isEmpty()) {
+            logger.error("No data source info was provided, version will not be set in the DB");
+            return;
+        }
+
         try(Transaction tx = graphDatabase.beginTx()) {
             logger.info("Adding version node to the DB");
             databaseMetaInfo.createVersionNode(tx, infos);

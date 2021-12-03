@@ -273,7 +273,7 @@ public class RailTimetableMapper {
                 station.addRoutePickUp(route);
             }
             if (dropoff != None) {
-                station.addRoutePickUp(route);
+                station.addRouteDropOff(route);
             }
 
             // Route Station

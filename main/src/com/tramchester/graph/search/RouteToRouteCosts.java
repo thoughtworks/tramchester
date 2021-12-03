@@ -173,8 +173,9 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
         // seed connections between routes using interchanges
         final InterimResults linksForRoutes = new InterimResults();
         // same mode interchanges
-        interchangeRepository.getAllInterchanges().
-                forEach(interchange -> addOverlapsFor(interchange, linksForRoutes));
+        final Set<InterchangeStation> interchanges = interchangeRepository.getAllInterchanges();
+        logger.info("Prepopulate route to route costs from " + interchanges.size() + " interchanges");
+        interchanges.forEach(interchange -> addOverlapsFor(interchange, linksForRoutes));
 
         return linksForRoutes;
     }
@@ -204,7 +205,6 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
                             costs.put(dropOffIndex, pickupIndex, (byte) 1);
                         }
                     }
-
                 }
             }
         }
@@ -221,10 +221,11 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
         final IdFor<Route> idB = routeB.getId();
         final byte result = costs.get(index.indexFor(idA), index.indexFor(idB));
         if (result==Costs.MAX_VALUE) {
-            if (routeA.getTransportMode()==routeB.getTransportMode()) {
+            if (routeA.getTransportMode()==routeB.getTransportMode() ) {
+                // TODO Why so many hits here?
                 // for mixed transport mode having no value is quite normal
                 final String msg = "Missing (routeId:" + idA + ", routeId:" + idB + ")";
-                logger.warn(msg);
+                logger.debug(msg);
             }
             return Integer.MAX_VALUE;
         }

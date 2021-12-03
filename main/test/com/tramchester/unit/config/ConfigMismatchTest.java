@@ -94,6 +94,7 @@ class ConfigMismatchTest {
 
         assertEquals(rail.getStations(), testRail.getStations());
         assertEquals(rail.getTimetable(), testRail.getTimetable());
+        assertEquals(rail.getModes(), testRail.getModes());
 
     }
 

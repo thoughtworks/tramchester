@@ -27,11 +27,10 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.DisabledIfEnvironmentVariable;
 
 import java.time.LocalDate;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
+import static com.tramchester.domain.reference.TransportMode.Train;
 import static com.tramchester.integration.testSupport.rail.RailStationIds.*;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -131,10 +130,26 @@ public class LoadRailTransportDataTest {
         Station station = transportData.getStationById(stationId);
 
         Set<Route> pickupRoutes = station.getPickupRoutes();
+        assertFalse(pickupRoutes.isEmpty());
         pickupRoutes.forEach(route -> assertNotNull(transportData.getRouteStation(station, route), route.toString()));
 
         Set<Route> dropoffRoutes = station.getDropoffRoutes();
+        assertFalse(dropoffRoutes.isEmpty());
         dropoffRoutes.forEach(route -> assertNotNull(transportData.getRouteStation(station, route), route.toString()));
+    }
+
+    @Test
+    void shouldHaveDatasourceInfo() {
+        Set<DataSourceInfo> infos = transportData.getDataSourceInfo();
+        assertFalse(infos.isEmpty());
+
+        List<DataSourceInfo> dataSourceInfos = new ArrayList<>(infos);
+        assertEquals(1,dataSourceInfos.size());
+
+        DataSourceInfo info = dataSourceInfos.get(0);
+        assertEquals(DataSourceID.rail, info.getID());
+        assertEquals(Collections.singleton(Train), info.getModes());
+
     }
 
     @Test
