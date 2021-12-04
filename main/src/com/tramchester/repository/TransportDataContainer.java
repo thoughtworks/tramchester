@@ -16,6 +16,7 @@ import com.tramchester.domain.time.TramServiceDate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -350,6 +351,12 @@ public class TransportDataContainer implements TransportData, WriteableTransport
                 collect(Collectors.toUnmodifiableSet());
     }
 
+    @Override
+    public IdSet<Route> getRoutesRunningOn(TramServiceDate tramServiceDate) {
+        LocalDate date = tramServiceDate.getDate();
+        return routes.filterStream(route -> route.isAvailableOn(date)).collect(IdSet.collector());
+    }
+
     public boolean hasRouteId(IdFor<Route> routeId) {
         return routes.hasId(routeId);
     }
@@ -374,6 +381,8 @@ public class TransportDataContainer implements TransportData, WriteableTransport
                 filter(route -> route.getName().equals(longName)).
                 collect(Collectors.toUnmodifiableSet());
     }
+
+
 
     @Override
     public void addDataSourceInfo(DataSourceInfo dataSourceInfo) {

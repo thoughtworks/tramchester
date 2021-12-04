@@ -18,6 +18,7 @@ import com.tramchester.graph.caches.LowestCostSeen;
 import com.tramchester.graph.caches.NodeContentsRepository;
 import com.tramchester.graph.search.stateMachine.states.TraversalStateFactory;
 import com.tramchester.repository.ClosedStationsRepository;
+import com.tramchester.repository.RouteRepository;
 import com.tramchester.repository.ServiceRepository;
 import com.tramchester.repository.TransportData;
 import org.neo4j.graphdb.Node;
@@ -42,6 +43,7 @@ public class RouteCalculator extends RouteCalculatorSupport implements TramRoute
     private final TramchesterConfig config;
     private final CreateQueryTimes createQueryTimes;
     private final ClosedStationsRepository closedStationsRepository;
+    private final RouteRepository routeRepository;
 
     @Inject
     public RouteCalculator(TransportData transportData, NodeContentsRepository nodeOperations, PathToStages pathToStages,
@@ -55,6 +57,7 @@ public class RouteCalculator extends RouteCalculatorSupport implements TramRoute
                 traversalStateFactory, providesNow, sortsPosition, mapPathToLocations,
                 transportData, config, transportData, routeToRouteCosts, reasonToGraphViz);
         this.serviceRepository = transportData;
+        this.routeRepository = transportData;
         this.config = config;
         this.createQueryTimes = createQueryTimes;
         this.closedStationsRepository = closedStationsRepository;
@@ -90,7 +93,8 @@ public class RouteCalculator extends RouteCalculatorSupport implements TramRoute
     }
 
     public Stream<Journey> calculateRouteWalkAtStartAndEnd(Transaction txn, Node startNode, Node endNode,
-                                                           Set<Station> destinationStations, JourneyRequest journeyRequest, NumberOfChanges numberOfChanges) {
+                                                           Set<Station> destinationStations, JourneyRequest journeyRequest,
+                                                           NumberOfChanges numberOfChanges) {
         return getJourneyStream(txn, startNode, endNode, journeyRequest, destinationStations, true, numberOfChanges);
     }
 
@@ -108,10 +112,11 @@ public class RouteCalculator extends RouteCalculatorSupport implements TramRoute
 
         // can only be shared as same date and same set of destinations, will eliminate previously seen paths/results
         LowestCostsForRoutes lowestCostsForRoutes = routeToRouteCosts.getLowestCostCalcutatorFor(destinations);
-        final JourneyConstraints journeyConstraints = new JourneyConstraints(config, serviceRepository,
+        final JourneyConstraints journeyConstraints = new JourneyConstraints(config, routeRepository, serviceRepository,
                 journeyRequest, closedStationsRepository, destinations, lowestCostsForRoutes);
 
         logger.info("Journey Constraints: " + journeyConstraints);
+        logger.info("Query times: " + queryTimes);
 
         final LowestCostSeen lowestCostSeen = new LowestCostSeen();
 
@@ -128,7 +133,6 @@ public class RouteCalculator extends RouteCalculatorSupport implements TramRoute
                         createServiceReasons(journeyRequest, pathRequest), pathRequest, lowestCostsForRoutes, createPreviousVisits(),
                         lowestCostSeen, begin)).
                 takeWhile(finished::notDoneYet).
-                //limit(journeyRequest.getMaxNumberOfJourneys()).
                 map(path -> createJourney(journeyRequest, path, destinations, lowestCostsForRoutes));
 
         results.onClose(() -> logger.info("Journey stream closed"));

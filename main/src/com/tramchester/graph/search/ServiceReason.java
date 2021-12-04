@@ -1,5 +1,6 @@
 package com.tramchester.graph.search;
 
+import com.tramchester.domain.Route;
 import com.tramchester.domain.Service;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.places.Station;
@@ -12,12 +13,14 @@ import static java.lang.String.format;
 
 public abstract class ServiceReason {
 
+
     public enum ReasonCode {
 
         ServiceDateOk, ServiceTimeOk, NumChangesOK, TimeOk, HourOk, Reachable, ReachableNoCheck, DurationOk,
         WalkOk, StationOpen, Continue, NumConnectionsOk, NumWalkingConnectionsOk, NeighbourConnectionsOk,
 
         NotOnQueryDate,
+        RouteNotOnQueryDate,
         DoesNotOperateOnTime,
         NotReachable,
         ServiceNotRunningAtTime,
@@ -156,7 +159,28 @@ public abstract class ServiceReason {
         }
     }
 
-    //////////////
+    ///////
+
+    private static class RouteNotAvailableOnQueryDate extends ServiceReason {
+        private final IdFor<Route> routeId;
+
+        protected RouteNotAvailableOnQueryDate(HowIGotHere path, IdFor<Route> routeId) {
+            super(ReasonCode.RouteNotOnQueryDate, path);
+            this.routeId = routeId;
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            return obj instanceof DoesNotRunOnQueryDate;
+        }
+
+        @Override
+        public String textForGraph() {
+            return format("%s%s%s", ReasonCode.RouteNotOnQueryDate.name(), System.lineSeparator(), routeId);
+        }
+    }
+
+        //////////////
 
     private static class DoesNotRunOnQueryDate extends ServiceReason
     {
@@ -377,5 +401,8 @@ public abstract class ServiceReason {
         return new ServiceReason.TimedOut(howIGotHere);
     }
 
+    public static ServiceReason RouteNotToday(HowIGotHere howIGotHere, IdFor<Route> id) {
+        return new ServiceReason.RouteNotAvailableOnQueryDate(howIGotHere, id);
+    }
 
 }

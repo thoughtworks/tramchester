@@ -420,24 +420,32 @@ class ServiceHeuristicsTest extends EasyMockSupport {
 
         Node node = createMock(Node.class);
 
+        TramTime visitTime = queryTime.plusMinutes(20);
+
         final IdFor<RouteStation> routeStationId = RouteStation.createId(stationId, routeId);
         EasyMock.expect(nodeContentsCache.getRouteStationId(node)).andStubReturn(routeStationId);
         EasyMock.expect(stationRepository.getRouteStationById(routeStationId)).andStubReturn(routeStation);
         EasyMock.expect(journeyConstraints.getFewestChangesCalculator()).andReturn(fewestHopsForRoutes);
 
         // 1
+        EasyMock.expect(journeyConstraints.isUnavailable(route, visitTime)).andReturn(false);
         EasyMock.expect(fewestHopsForRoutes.getFewestChanges(route)).andReturn(1);
 
         // 2
+        EasyMock.expect(journeyConstraints.isUnavailable(route, visitTime)).andReturn(false);
         EasyMock.expect(fewestHopsForRoutes.getFewestChanges(route)).andReturn(2);
+
+        // 3
+        EasyMock.expect(journeyConstraints.isUnavailable(route, visitTime)).andReturn(true);
 
         replayAll();
         ServiceHeuristics serviceHeuristics = new ServiceHeuristics(stationRepository, nodeContentsCache,
                 journeyConstraints, queryTime,
                 2);
 
-        assertTrue(serviceHeuristics.canReachDestination(node, 1, howIGotHere, reasons).isValid());
-        assertFalse(serviceHeuristics.canReachDestination(node, 1, howIGotHere, reasons).isValid());
+        assertTrue(serviceHeuristics.canReachDestination(node, 1, howIGotHere, reasons, visitTime).isValid());
+        assertFalse(serviceHeuristics.canReachDestination(node, 1, howIGotHere, reasons, visitTime).isValid());
+        assertFalse(serviceHeuristics.canReachDestination(node, 1, howIGotHere, reasons, visitTime).isValid());
         verifyAll();
     }
 

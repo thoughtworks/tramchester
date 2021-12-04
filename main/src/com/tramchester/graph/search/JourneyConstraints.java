@@ -2,14 +2,17 @@ package com.tramchester.graph.search;
 
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.JourneyRequest;
+import com.tramchester.domain.Route;
 import com.tramchester.domain.Service;
 import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
+import com.tramchester.domain.time.TramTime;
 import com.tramchester.repository.ClosedStationsRepository;
-import com.tramchester.repository.RunningServices;
+import com.tramchester.repository.RouteRepository;
+import com.tramchester.repository.RunningRoutesAndServices;
 import com.tramchester.repository.ServiceRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,7 +30,7 @@ public class JourneyConstraints {
 
     private static final Logger logger = LoggerFactory.getLogger(JourneyConstraints.class);
 
-    private final RunningServices runningServices;
+    private final RunningRoutesAndServices runningRoutesAndServices;
     private final TramchesterConfig config;
     private final int maxPathLength;
     private final Set<Station> endStations;
@@ -37,12 +40,39 @@ public class JourneyConstraints {
     private final int maxNeighbourConnections;
     private final LowestCostsForRoutes lowestCostForDestinations;
 
-    public JourneyConstraints(TramchesterConfig config, ServiceRepository serviceRepository, JourneyRequest journeyRequest,
+    public JourneyConstraints(TramchesterConfig config, RouteRepository routeRepository, ServiceRepository serviceRepository,
+                              JourneyRequest journeyRequest,
                               ClosedStationsRepository closedStationsRepository, Set<Station> endStations,
+                              LowestCostsForRoutes lowestCostForDestinations) {
+        this(config, new RunningRoutesAndServices(journeyRequest.getDate(), serviceRepository, routeRepository),
+                journeyRequest, closedStationsRepository.getClosedStationsFor(journeyRequest.getDate()),
+                endStations,
+                lowestCostForDestinations);
+//        this.config = config;
+//        this.lowestCostForDestinations = lowestCostForDestinations;
+//        this.runningRoutesAndServices = new RunningRoutesAndServices(journeyRequest.getDate(), serviceRepository,
+//                routeRepository);
+//        this.maxPathLength = computeMaxPathLength();
+//
+//        this.endStations = endStations;
+//        this.maxJourneyDuration = journeyRequest.getMaxJourneyDuration();
+//        this.maxWalkingConnections = config.getMaxWalkingConnections();
+//        this.maxNeighbourConnections = config.getMaxNeighbourConnections();
+//
+//        this.closedStations = closedStationsRepository.getClosedStationsFor(journeyRequest.getDate());
+//
+//        if (!closedStations.isEmpty()) {
+//            logger.info("Have closed stations " + closedStations);
+//        }
+    }
+
+    public JourneyConstraints(TramchesterConfig config, RunningRoutesAndServices runningRoutesAndServices,
+                              JourneyRequest journeyRequest,
+                              IdSet<Station> closedStations, Set<Station> endStations,
                               LowestCostsForRoutes lowestCostForDestinations) {
         this.config = config;
         this.lowestCostForDestinations = lowestCostForDestinations;
-        this.runningServices = new RunningServices(journeyRequest.getDate(), serviceRepository);
+        this.runningRoutesAndServices = runningRoutesAndServices;
         this.maxPathLength = computeMaxPathLength();
 
         this.endStations = endStations;
@@ -50,7 +80,7 @@ public class JourneyConstraints {
         this.maxWalkingConnections = config.getMaxWalkingConnections();
         this.maxNeighbourConnections = config.getMaxNeighbourConnections();
 
-        this.closedStations = closedStationsRepository.getClosedStationsFor(journeyRequest.getDate());
+        this.closedStations = closedStations;
 
         if (!closedStations.isEmpty()) {
             logger.info("Have closed stations " + closedStations);
@@ -74,7 +104,7 @@ public class JourneyConstraints {
     }
 
     public boolean isRunning(IdFor<Service> serviceId) {
-        return runningServices.isRunning(serviceId);
+        return runningRoutesAndServices.isRunning(serviceId);
     }
 
     public int getMaxPathLength() {
@@ -108,7 +138,7 @@ public class JourneyConstraints {
     @Override
     public String toString() {
         return "JourneyConstraints{" +
-                "runningServices=" + runningServices.size() +
+                "runningServices=" + runningRoutesAndServices.size() +
                 ", maxPathLength=" + maxPathLength +
                 ", endStations=" + HasId.asIds(endStations) +
                 ", closedStations=" + closedStations +
@@ -116,5 +146,10 @@ public class JourneyConstraints {
                 ", maxWalkingConnections=" + maxWalkingConnections +
                 ", maxNeighbourConnections=" + maxNeighbourConnections +
                 '}';
+    }
+
+    // TODO next day?
+    public boolean isUnavailable(Route route, TramTime currentElapsed) {
+        return !runningRoutesAndServices.isRouteRunning(route.getId());
     }
 }

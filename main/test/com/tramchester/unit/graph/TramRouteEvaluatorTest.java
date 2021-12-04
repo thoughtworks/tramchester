@@ -420,7 +420,7 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
         final EnumSet<GraphLabel> labels = EnumSet.of(ROUTE_STATION);
         EasyMock.expect(contentsRepository.getLabels(node)).andReturn(labels);
 
-        EasyMock.expect(serviceHeuristics.canReachDestination(node, 0, howIGotHere, reasons)).
+        EasyMock.expect(serviceHeuristics.canReachDestination(node, 0, howIGotHere, reasons, time)).
                 andReturn(ServiceReason.StationNotReachable(howIGotHere));
 
         EasyMock.expect(previousSuccessfulVisit.getPreviousResult(node, journeyState, labels)).andReturn(ServiceReason.ReasonCode.PreviousCacheMiss);
@@ -462,7 +462,7 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
         final EnumSet<GraphLabel> labels = EnumSet.of(ROUTE_STATION);
         EasyMock.expect(contentsRepository.getLabels(node)).andReturn(labels);
 
-        EasyMock.expect(serviceHeuristics.canReachDestination(node, 0, howIGotHere, reasons)).
+        EasyMock.expect(serviceHeuristics.canReachDestination(node, 0, howIGotHere, reasons, time)).
                 andReturn(ServiceReason.IsValid(ServiceReason.ReasonCode.Reachable, howIGotHere));
         EasyMock.expect(serviceHeuristics.checkStationOpen(node, howIGotHere, reasons)).
                 andReturn(ServiceReason.StationClosed(howIGotHere, TramStations.of(Shudehill)));
@@ -507,7 +507,7 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
 
         EasyMock.expect(lastRelationship.isType(WALKS_TO)).andReturn(true);
 
-        EasyMock.expect(serviceHeuristics.canReachDestination(node, 0, howIGotHere, reasons)).
+        EasyMock.expect(serviceHeuristics.canReachDestination(node, 0, howIGotHere, reasons, time)).
                 andReturn(ServiceReason.IsValid(ServiceReason.ReasonCode.Reachable, howIGotHere));
         EasyMock.expect(serviceHeuristics.checkStationOpen(node, howIGotHere, reasons)).
                 andReturn(ServiceReason.IsValid(ServiceReason.ReasonCode.StationOpen, howIGotHere));
@@ -609,6 +609,7 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
         EasyMock.expect(journeyState.getTotalCostSoFar()).andReturn(costSoFar);
         EasyMock.expect(journeyState.getNumberChanges()).andReturn(10);
         EasyMock.expect(journeyState.getTraversalStateName()).andReturn("aName");
+        EasyMock.expect(path.length()).andReturn(42);
 
         branchState.setState(journeyState);
         final EnumSet<GraphLabel> labels = EnumSet.of(ROUTE_STATION);

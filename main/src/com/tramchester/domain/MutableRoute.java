@@ -152,6 +152,15 @@ public class MutableRoute implements Route {
         return serviceDateCache.getDateRange(services);
     }
 
+    @Override
+    public boolean isAvailableOn(LocalDate date) {
+        DayOfWeek day = date.getDayOfWeek();
+        if  (getOperatingDays().contains(day)) {
+            return getDateRange().contains(date);
+        }
+        return false;
+    }
+
     private static class ServiceDateCache {
         private boolean loaded;
         private EnumSet<DayOfWeek> operatingDays;

@@ -18,6 +18,7 @@ import com.tramchester.graph.caches.LowestCostSeen;
 import com.tramchester.graph.caches.NodeContentsRepository;
 import com.tramchester.graph.search.stateMachine.states.TraversalStateFactory;
 import com.tramchester.repository.ClosedStationsRepository;
+import com.tramchester.repository.RouteRepository;
 import com.tramchester.repository.ServiceRepository;
 import com.tramchester.repository.TransportData;
 import org.neo4j.graphdb.Transaction;
@@ -41,6 +42,7 @@ public class RouteCalculatorForBoxes extends RouteCalculatorSupport {
     private final ServiceRepository serviceRepository;
     private final GraphDatabase graphDatabaseService;
     private final ClosedStationsRepository closedStationsRepository;
+    private final RouteRepository routeRepository;
 
     @Inject
     public RouteCalculatorForBoxes(TramchesterConfig config,
@@ -56,6 +58,7 @@ public class RouteCalculatorForBoxes extends RouteCalculatorSupport {
                 transportData, config, transportData, routeToRouteCosts, reasonToGraphViz);
         this.config = config;
         this.serviceRepository = transportData;
+        this.routeRepository = transportData;
         this.graphDatabaseService = graphDatabaseService;
         this.closedStationsRepository = closedStationsRepository;
     }
@@ -70,7 +73,7 @@ public class RouteCalculatorForBoxes extends RouteCalculatorSupport {
         final TramServiceDate queryDate = journeyRequest.getDate();
 
         final LowestCostsForRoutes lowestCostForDestinations = routeToRouteCosts.getLowestCostCalcutatorFor(destinations);
-        final JourneyConstraints journeyConstraints = new JourneyConstraints(config, serviceRepository,
+        final JourneyConstraints journeyConstraints = new JourneyConstraints(config, routeRepository, serviceRepository,
                 journeyRequest, closedStationsRepository, destinations, lowestCostForDestinations);
 
         final Set<Long> destinationNodeIds = getDestinationNodeIds(destinations);

@@ -134,7 +134,8 @@ public class ServiceHeuristics {
 
     }
 
-    public ServiceReason canReachDestination(Node endNode, int currentNumberOfChanges, HowIGotHere howIGotHere, ServiceReasons reasons) {
+    public ServiceReason canReachDestination(Node endNode, int currentNumberOfChanges, HowIGotHere howIGotHere,
+                                             ServiceReasons reasons, TramTime currentElapsed) {
 
         IdFor<RouteStation> routeStationId = nodeOperations.getRouteStationId(endNode);
         RouteStation routeStation = stationRepository.getRouteStationById(routeStationId);
@@ -150,6 +151,11 @@ public class ServiceHeuristics {
         }
 
         Route currentRoute = routeStation.getRoute();
+
+        if (journeyConstraints.isUnavailable(currentRoute, currentElapsed)) {
+            return reasons.recordReason(ServiceReason.RouteNotToday(howIGotHere, currentRoute.getId()));
+        }
+
         int fewestChanges = lowestCosts.getFewestChanges(currentRoute);
 
         if ((fewestChanges+currentNumberOfChanges) > currentChangesLimit) {
@@ -173,6 +179,5 @@ public class ServiceHeuristics {
     public int getMaxPathLength() {
         return journeyConstraints.getMaxPathLength();
     }
-
 
 }

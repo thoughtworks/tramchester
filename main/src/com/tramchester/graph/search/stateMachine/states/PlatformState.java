@@ -11,7 +11,6 @@ import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
 
 import java.util.List;
-import java.util.stream.Stream;
 
 import static com.tramchester.graph.TransportRelationshipTypes.*;
 import static java.lang.String.format;
@@ -73,11 +72,6 @@ public class PlatformState extends TraversalState implements NodeId {
 
     private final Node platformNode;
 
-//    private PlatformState(TraversalState parent, Stream<Relationship> relationships, Node platformNode, int cost) {
-//        super(parent, relationships, cost);
-//        this.platformNode = platformNode;
-//    }
-
     private PlatformState(TraversalState parent, Iterable<Relationship> relationships, Node platformNode, int cost) {
         super(parent, relationships, cost);
         this.platformNode = platformNode;
@@ -97,7 +91,6 @@ public class PlatformState extends TraversalState implements NodeId {
             if (actualMode==null) {
                 throw new RuntimeException(format("Unable get transport mode at %s for %s", node.getLabels(), node.getAllProperties()));
             }
-//            TransportMode actualMode = TransportMode.Tram;
             journeyState.board(actualMode, platformNode, true);
         } catch (TramchesterException e) {
             throw new RuntimeException("unable to board tram", e);

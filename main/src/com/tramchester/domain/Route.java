@@ -8,6 +8,7 @@ import com.tramchester.domain.time.DateRange;
 import com.tramchester.graph.GraphPropertyKey;
 
 import java.time.DayOfWeek;
+import java.time.LocalDate;
 import java.util.EnumSet;
 import java.util.Set;
 
@@ -34,4 +35,6 @@ public interface Route extends HasId<Route>, HasTransportMode, GraphProperty {
     EnumSet<DayOfWeek> getOperatingDays();
 
     DateRange getDateRange();
+
+    boolean isAvailableOn(LocalDate date);
 }

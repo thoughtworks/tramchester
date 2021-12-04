@@ -127,7 +127,7 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
                 reasons.recordReason(ServiceReason.Longer(howIGotHere));
                 return ServiceReason.ReasonCode.LongerPath;
             }
-        } else if (lowestCostSeen.everArrived()) { // Not arrived, but we have seen at least one successful route
+        } else if (lowestCostSeen.everArrived()) { // Not arrived this time, but we have seen at least one successful route
             if (totalCostSoFar > lowestCostSeen.getLowestCost()) {
                 // already longer that current shortest, no need to continue
                 reasons.recordReason(ServiceReason.Longer(howIGotHere));
@@ -135,8 +135,8 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
             }
             final long durationMillis = begin.until(providesNow.getInstant(), ChronoUnit.MILLIS);
             if (durationMillis > timeout) {
-                logger.warn(format("Timed out after %s ms, current cost %s, changes %s",
-                        durationMillis, totalCostSoFar, numberChanges));
+                logger.warn(format("Timed out after %s ms, current journey cost %s, changes %s, path %s",
+                        durationMillis, totalCostSoFar, numberChanges, thePath.length()));
                 reasons.recordReason(ServiceReason.TimedOut(howIGotHere));
                 return ServiceReason.ReasonCode.TimedOut;
             }
@@ -212,7 +212,7 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
         // is reachable from here?
         // is the station open?
         if (labels.contains(GraphLabel.ROUTE_STATION)) {
-            if (!serviceHeuristics.canReachDestination(nextNode, journeyState.getNumberChanges(), howIGotHere, reasons).isValid()) {
+            if (!serviceHeuristics.canReachDestination(nextNode, journeyState.getNumberChanges(), howIGotHere, reasons, visitingTime).isValid()) {
                 return ServiceReason.ReasonCode.NotReachable;
             }
             if (!serviceHeuristics.checkStationOpen(nextNode, howIGotHere, reasons).isValid()) {

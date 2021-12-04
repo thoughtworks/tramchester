@@ -4,6 +4,8 @@ import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.DiagramCreator;
 import com.tramchester.domain.Journey;
+import com.tramchester.domain.Route;
+import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.presentation.TransportStage;
@@ -15,6 +17,7 @@ import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.RouteCostCalculator;
 import com.tramchester.domain.JourneyRequest;
 import com.tramchester.graph.search.RouteCalculator;
+import com.tramchester.repository.RouteRepository;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.repository.TransportData;
 import com.tramchester.resources.LocationJourneyPlanner;
@@ -97,6 +100,15 @@ class TramRouteTest {
     }
 
     @Test
+    void shouldHaveRoutesSetupCorrectly() {
+        RouteRepository routeRepository = componentContainer.get(RouteRepository.class);
+
+        IdSet<Route> running = routeRepository.getRoutesRunningOn(queryDate);
+
+        assertEquals(routeRepository.numberOfRoutes(), running.size());
+    }
+
+    @Test
     void shouldTestSimpleJourneyIsPossible() {
         JourneyRequest journeyRequest = createJourneyRequest(queryTime, 0);
 
@@ -108,6 +120,7 @@ class TramRouteTest {
 
         Journey journey = journeys.iterator().next();
         final TransportStage<?, ?> transportStage = journey.getStages().get(0);
+
         assertEquals(transportData.getFirst(), transportStage.getFirstStation());
         assertEquals(transportData.getSecond(), transportStage.getLastStation());
         assertEquals(0, transportStage.getPassedStopsCount());

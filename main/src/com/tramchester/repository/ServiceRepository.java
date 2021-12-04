@@ -14,6 +14,4 @@ public interface ServiceRepository {
     boolean hasServiceId(IdFor<Service> serviceId);
 
     Set<Service> getServicesOnDate(TramServiceDate date);
-
-
 }
