@@ -4,9 +4,8 @@ import com.fasterxml.jackson.dataformat.csv.CsvMapper;
 import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.config.TramchesterConfig;
-import com.tramchester.dataimport.loader.files.TransportDataFromFile;
 import com.tramchester.dataimport.data.RouteIndexData;
-import com.tramchester.dataimport.data.RouteMatrixData;
+import com.tramchester.dataimport.loader.files.TransportDataFromFile;
 import com.tramchester.domain.NumberOfChanges;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.id.HasId;
@@ -21,10 +20,7 @@ import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TramRouteHelper;
 import com.tramchester.testSupport.reference.TramStations;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 
 import java.nio.file.Path;
 import java.util.*;
@@ -42,7 +38,6 @@ public class RouteToRouteCostsTest {
     private TramRouteHelper routeHelper;
     private RouteRepository routeRepository;
     private static Path indexFile;
-    private static Path matrixFile;
     private StationRepository stationRepository;
 
     @BeforeAll
@@ -51,7 +46,6 @@ public class RouteToRouteCostsTest {
         final Path cacheFolder = config.getCacheFolder();
 
         indexFile = cacheFolder.resolve(RouteToRouteCosts.INDEX_FILE);
-        matrixFile = cacheFolder.resolve(RouteToRouteCosts.ROUTE_MATRIX_FILE);
 
         componentContainer = new ComponentsBuilder().create(config, TestEnv.NoopRegisterMetrics());
         componentContainer.initialise();
@@ -73,7 +67,7 @@ public class RouteToRouteCostsTest {
     }
 
     @Test
-    void shouldHaveExpectedNumberOfInterconnections() {
+    void shouldHaveFullyConnectedForTramsWhereDatesOverlaps() {
         Set<Route> routes = routeRepository.getRoutes();
         for (Route start : routes) {
             for (Route end : routes) {
@@ -232,23 +226,4 @@ public class RouteToRouteCostsTest {
         assertEquals(expected, idsFromIndex);
     }
 
-    @Test
-    void shouldSaveMatrixAsExpected() {
-        CsvMapper mapper = new CsvMapper();
-
-        assertTrue(matrixFile.toFile().exists(), "Missing " + matrixFile.toAbsolutePath());
-
-        TransportDataFromFile<RouteMatrixData> indexLoader = new TransportDataFromFile<>(matrixFile, RouteMatrixData.class, mapper);
-        Stream<RouteMatrixData> indexFromFile = indexLoader.load();
-        List<RouteMatrixData> resultsForMatrix = indexFromFile.collect(Collectors.toList());
-
-        final int numberOfRoutes = routeRepository.numberOfRoutes();
-        assertEquals(numberOfRoutes, resultsForMatrix.size());
-
-        resultsForMatrix.forEach(row -> {
-            assertTrue(row.getSource()>=0);
-            assertTrue(row.getSource()<numberOfRoutes);
-            assertEquals(row.getDestinations().size(), numberOfRoutes);
-        });
-    }
 }

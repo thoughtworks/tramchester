@@ -4,7 +4,6 @@ import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.caching.DataCache;
 import com.tramchester.dataexport.DataSaver;
 import com.tramchester.dataimport.data.RouteIndexData;
-import com.tramchester.dataimport.data.RouteMatrixData;
 import com.tramchester.domain.InterchangeStation;
 import com.tramchester.domain.NumberOfChanges;
 import com.tramchester.domain.Route;
@@ -12,7 +11,6 @@ import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.places.Station;
 import com.tramchester.graph.filters.GraphFilter;
-import com.tramchester.metrics.Timing;
 import com.tramchester.repository.InterchangeRepository;
 import com.tramchester.repository.NeighboursRepository;
 import com.tramchester.repository.RouteRepository;
@@ -27,7 +25,6 @@ import javax.inject.Inject;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.*;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -36,7 +33,6 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
     private static final Logger logger = LoggerFactory.getLogger(RouteToRouteCosts.class);
 
     public final static String INDEX_FILE = "route_index.csv";
-    public final static String ROUTE_MATRIX_FILE = "route_matrix.csv";
 
     public static final int MAX_DEPTH = 4;
 
@@ -46,8 +42,9 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
 
     private final Costs costs;
     private final Index index;
-    private final DataCache dataCache;
+    private final int numberOfRoutes;
     private final GraphFilter graphFilter;
+    private final DataCache dataCache;
 
     @Inject
     public RouteToRouteCosts(RouteRepository routeRepository, InterchangeRepository interchangeRepository,
@@ -55,12 +52,12 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
         this.routeRepository = routeRepository;
         this.interchangeRepository = interchangeRepository;
         this.neighboursRepository = neighboursRepository;
-        this.dataCache = dataCache;
-        this.graphFilter = graphFilter;
 
-        int numberOfRoutes = routeRepository.numberOfRoutes();
+        numberOfRoutes = routeRepository.numberOfRoutes();
+        this.graphFilter = graphFilter;
+        this.dataCache = dataCache;
         index = new Index(numberOfRoutes);
-        costs = new Costs(numberOfRoutes);
+        costs = new Costs(numberOfRoutes, MAX_DEPTH+1);
     }
 
    @PostConstruct
@@ -68,118 +65,92 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
         logger.info("starting");
         if (graphFilter.isFiltered()) {
            logger.warn("Filtering is enabled, skipping all caching");
-           buildIndexAndCostMatrix();
+           index.populateFrom(routeRepository);
         } else {
-            if (dataCache.has(index) && dataCache.has(costs)) {
+            if (dataCache.has(index)) {
                 dataCache.loadInto(index, RouteIndexData.class);
-                dataCache.loadInto(costs, RouteMatrixData.class);
             } else {
-                buildIndexAndCostMatrix();
+                index.populateFrom(routeRepository);
                 dataCache.save(index, RouteIndexData.class);
-                dataCache.save(costs, RouteMatrixData.class);
             }
         }
-        logger.info("started");
+       buildRouteConnectionMatrix();
+
+       logger.info("started");
    }
 
-   @PreDestroy
+    @PreDestroy
    public void stop() {
         logger.info("stopping");
         index.clear();
         logger.info("stopped");
    }
 
-    private void buildIndexAndCostMatrix() {
-        try (Timing ignored = new Timing(logger, "RouteToRouteCosts")) {
-            index.populateFrom(routeRepository);
-            RouteDateAndDayOverlap routeDateAndDayOverlap = new RouteDateAndDayOverlap(index);
-            routeDateAndDayOverlap.populateFor(routeRepository);
-            populateCosts(routeDateAndDayOverlap);
-        }
+    private void buildRouteConnectionMatrix() {
+        RouteDateAndDayOverlap routeDateAndDayOverlap = new RouteDateAndDayOverlap(index, numberOfRoutes);
+        routeDateAndDayOverlap.populateFor(routeRepository);
+        populateCosts(routeDateAndDayOverlap);
     }
 
     private void populateCosts(RouteDateAndDayOverlap routeDateAndDayOverlap) {
         final int size = routeRepository.numberOfRoutes();
         logger.info("Find costs between " + size + " routes");
         final int fullyConnected = size * size;
-        final double fullyConnectedPercentage = fullyConnected / 100D;
 
-        // route -> [reachable routes]
-        InterimResults linksForRoutes = addInitialConnectionsFromInterchanges();
+        addInitialConnectionsFromInterchanges();
 
-        logger.info("Have " +  costs.size() + " connections from " + interchangeRepository.size() + " interchanges");
-
-        // for existing connections infer next degree of connections, stop if no more added
-        for (byte currentDegree = 1; currentDegree <= MAX_DEPTH; currentDegree++) {
-            logger.info("Adding connections for degree " + currentDegree);
-            // create new: route -> [reachable routes]
-            final InterimResults newLinksForRoutes = addConnectionsFor(routeDateAndDayOverlap, currentDegree, linksForRoutes);
-            if (newLinksForRoutes.isEmpty()) {
-                logger.info("Finished at degree " + (currentDegree-1));
-                linksForRoutes.clear();
+        for (byte currentDegree = 1; currentDegree < MAX_DEPTH; currentDegree++) {
+            addConnectionsFor(routeDateAndDayOverlap, currentDegree);
+            final int currentTotal = costs.size();
+            logger.info("Total number of connections " + currentTotal);
+            if (currentTotal>=fullyConnected) {
                 break;
-            } else {
-                logger.info("Total is " + costs.size() + " " + costs.size()/fullyConnectedPercentage +"%");
             }
-            linksForRoutes = newLinksForRoutes;
         }
 
         final int finalSize = costs.size();
         logger.info("Added cost for " + finalSize + " route combinations");
-        if (finalSize != fullyConnected) {
+        if (finalSize < fullyConnected) {
             logger.warn("Not fully connected, only " + finalSize + " of " + fullyConnected);
         }
     }
 
-    private InterimResults addConnectionsFor(RouteDateAndDayOverlap routeDateAndDayOverlap, byte currentDegree,
-                                             InterimResults currentlyReachableRoutes) {
+    private void addConnectionsFor(RouteDateAndDayOverlap routeDateAndDayOverlap, byte currentDegree) {
         final Instant startTime = Instant.now();
-        final byte nextDegree = (byte)(currentDegree+1);
+        final int nextDegree = currentDegree+1;
 
-        final InterimResults results = new InterimResults();
-        for(Map.Entry<Integer, Set<Integer>> currentlyReachable : currentlyReachableRoutes.routeAndReachableRoutes()) {
+        final CostsForDegree currentMatrix = costs.costsFor(currentDegree);
+        final CostsForDegree newMatrix = costs.costsFor(nextDegree);
 
-            final int sourceRouteIndex = currentlyReachable.getKey();
-            final Set<Integer> connectedRoutesIndexes = currentlyReachable.getValue(); // routes we can currently reach for current key
+        for (int routeIndex = 0; routeIndex < numberOfRoutes; routeIndex++) {
 
-            final DateOverflatFilter overlapfilter = routeDateAndDayOverlap.createFilterFor(sourceRouteIndex);
-            final AlreadyPresentFilter alreadyPresentFilter = costs.createFilterFor(sourceRouteIndex);
-
-            final Set<Integer> newConnectionsForARoute =
-                    connectedRoutesIndexes.stream().
-                            filter(currentlyReachableRoutes::hasRoute).
-                            flatMap(index -> currentlyReachableRoutes.getReachableRoutes(index).stream()).
-                            parallel().
-                            filter(routeIndex -> overlapfilter.overlaps(routeIndex) && alreadyPresentFilter.notPresent(routeIndex)).
-                            collect(Collectors.toSet());
-
-            if (!newConnectionsForARoute.isEmpty()) {
-                results.put(sourceRouteIndex, newConnectionsForARoute);
+            BitSet currentConnectionsForRoute = currentMatrix.getConnectionsFor(routeIndex);
+            BitSet result = new BitSet(numberOfRoutes);
+            for (int connectionIndex = 0; connectionIndex < numberOfRoutes; connectionIndex++) {
+                if (currentConnectionsForRoute.get(connectionIndex)) {
+                    // if current routeIndex is connected to a route, then for next degree include that other routes connections
+                    BitSet otherRoutesConnections = currentMatrix.getConnectionsFor(connectionIndex);
+                    result.or(otherRoutesConnections);
+                }
             }
+            final BitSet dateOverlapMask = routeDateAndDayOverlap.overlapsFor(routeIndex);  // only those routes whose dates overlap
+            result.and(dateOverlapMask);
+            result.andNot(currentConnectionsForRoute);
+            newMatrix.insert(routeIndex, result);
         }
-        logger.info("Discover " + Duration.between(startTime, Instant.now()).toMillis() + " ms");
-
-        final int before = costs.size();
-        results.addRoutesToCosts(costs, nextDegree);
-        final int added = costs.size() - before;
 
         final long took = Duration.between(startTime, Instant.now()).toMillis();
-        logger.info("Added " + added + " extra connections for degree " + currentDegree + " in " + took + " ms");
-        return results;
+        logger.info("Added connections " + newMatrix.numberOfConnections() + "  Degree " + nextDegree + " in " + took + " ms");
     }
 
-    private InterimResults addInitialConnectionsFromInterchanges() {
-        // seed connections between routes using interchanges
-        final InterimResults linksForRoutes = new InterimResults();
-        // same mode interchanges
+    private void addInitialConnectionsFromInterchanges() {
         final Set<InterchangeStation> interchanges = interchangeRepository.getAllInterchanges();
         logger.info("Pre-populate route to route costs from " + interchanges.size() + " interchanges");
-        interchanges.forEach(interchange -> addOverlapsFor(interchange, linksForRoutes));
-
-        return linksForRoutes;
+        interchanges.forEach(this::addOverlapsFor);
+        logger.info("Add " + costs.size() + " connections for interchanges");
     }
 
-    private void addOverlapsFor(InterchangeStation interchange, InterimResults interimResults) {
+    private void addOverlapsFor(InterchangeStation interchange) {
 
         final Set<Route> dropOffAtInterchange = interchange.getDropoffRoutes();
         final Set<Route> pickupAtInterchange = interchange.getPickupRoutes();
@@ -188,14 +159,12 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
             final IdFor<Route> dropOffId = dropOff.getId();
             final int dropOffIndex = index.indexFor(dropOffId);
 
+            // todo, could use bitset Or and And with DateOverlapMask here
             for (final Route pickup : pickupAtInterchange) {
                 if (!dropOff.equals(pickup)) {
                     final int pickupIndex = index.indexFor(pickup.getId());
                     if (dropOff.isDateOverlap(pickup)) {
-                        if (!costs.contains(dropOffIndex, pickupIndex)) {
-                            costs.put(dropOffIndex, pickupIndex, (byte) 1);
-                            interimResults.add(dropOffIndex, pickupIndex);
-                        }
+                        costs.set(1, dropOffIndex, pickupIndex);
                     }
                 }
             }
@@ -336,7 +305,7 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
             }
             // note: IntStream uses int in implementation so avoids any boxing overhead
             int result = destinationIndexs.stream().mapToInt(item -> item).
-                    filter(dest -> routeToRouteCosts.costs.contains(indexOfStart, dest)).
+                    //filter(dest -> routeToRouteCosts.costs.contains(indexOfStart, dest)).
                     map(dest -> routeToRouteCosts.costs.get(indexOfStart, dest)).
                     min().
                     orElse(Integer.MAX_VALUE);
@@ -391,7 +360,10 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
         @Override
         public void loadFrom(Stream<RouteIndexData> stream) throws DataCache.CacheLoadException {
             logger.info("Loading from cache");
-            stream.forEach(item -> mapRouteIdToIndex.put(item.getRouteId(), item.getIndex()));
+            stream.forEach(item -> {
+                mapRouteIdToIndex.put(item.getRouteId(), item.getIndex());
+                mapIndexToRouteId.put(item.getIndex(), item.getRouteId());
+            });
             if (mapRouteIdToIndex.size()!=numberOfRoutes) {
                 throw new DataCache.CacheLoadException("Mismatch on number of routes, got " + mapRouteIdToIndex.size() +
                         " expected " + numberOfRoutes);
@@ -408,198 +380,128 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
         }
     }
 
-    private static class Costs implements DataCache.Cacheable<RouteMatrixData> {
-        public static final byte MAX_VALUE = Byte.MAX_VALUE;
+    private static class CostsForDegree {
+        private final BitSet[] rows;
+        private final int numberOfRoutes;
 
-        private final byte[][] costArray;
-        private final AtomicInteger count;
-        private final int numRoutes;
-
-        private Costs(int numRoutes) {
-            count = new AtomicInteger(0);
-            this.numRoutes = numRoutes;
-            costArray = new byte[numRoutes][numRoutes];
-            resetArray(numRoutes);
-            //numberSetFor = new int[numRoutes];
-        }
-
-        private void resetArray(int size) {
-            for (int i = 0; i < size; i++) {
-                Arrays.fill(costArray[i], MAX_VALUE);
+        private CostsForDegree(int numberOfRoutes) {
+            rows = new BitSet[numberOfRoutes];
+            this.numberOfRoutes = numberOfRoutes;
+            for (int i = 0; i < numberOfRoutes; i++) {
+                rows[i] = new BitSet(numberOfRoutes);
             }
         }
 
-        public int size() {
-            return count.get();
+        public void set(int indexA, int indexB) {
+            rows[indexA].set(indexB);
         }
 
-        public boolean contains(int i, int j) {
-            return costArray[i][j] != MAX_VALUE;
+        public boolean isSet(int indexA, int indexB) {
+            return rows[indexA].get(indexB);
         }
 
-        public void put(int indexA, int indexB, byte value) {
-            count.incrementAndGet();
-            costArray[indexA][indexB] = value;
+        public BitSet getConnectionsFor(int routesIndex) {
+            return rows[routesIndex];
         }
 
-        public byte get(int a, int b) {
-            return costArray[a][b];
+        public void insert(int routeIndex, BitSet connectionsForRoute) {
+            rows[routeIndex] = connectionsForRoute;
         }
 
-        @Override
-        public void cacheTo(DataSaver<RouteMatrixData> saver) {
-            List<RouteMatrixData> dataToSave = new ArrayList<>(numRoutes);
-            for (int i = 0; i < numRoutes; i++) {
-                byte[] row = costArray[i];
-                List<Integer> destinations = new ArrayList<>(numRoutes);
-                for (int j = 0; j < numRoutes; j++) {
-                    destinations.add(j, (int) row[j]);
-                }
-                RouteMatrixData routeMatrixData = new RouteMatrixData(i, destinations);
-                dataToSave.add(i, routeMatrixData);
+        public int numberOfConnections() {
+            int count = 0;
+            for (int row = 0; row < numberOfRoutes; row++) {
+                count = count + rows[row].cardinality();
             }
-            saver.save(dataToSave);
-            dataToSave.clear();
-        }
-
-        @Override
-        public String getFilename() {
-            return ROUTE_MATRIX_FILE;
-        }
-
-        @Override
-        public void loadFrom(Stream<RouteMatrixData> stream) throws DataCache.CacheLoadException {
-            AtomicInteger loadedOk = new AtomicInteger(0);
-
-            stream.filter(item -> item.getDestinations().size()==numRoutes).
-                    forEach(item -> {
-                        int source = item.getSource();
-                        List<Integer> dest = item.getDestinations();
-                        for (int j = 0; j < numRoutes; j++) {
-                            final byte value = dest.get(j).byteValue();
-                            costArray[source][j] = value;
-                            if (value != Byte.MAX_VALUE) {
-                                count.incrementAndGet();
-                            }
-                        }
-                        loadedOk.incrementAndGet();
-                    });
-
-            if (loadedOk.get() != numRoutes) {
-                throw new DataCache.CacheLoadException("Could not load all rows, mismatch on number routes, loaded " +
-                        loadedOk.get() + " expected " + numRoutes);
-            }
-        }
-
-        public AlreadyPresentFilter createFilterFor(int sourceRouteIndex) {
-            return new AlreadyPresentFilter(costArray[sourceRouteIndex], numRoutes);
+            return count;
         }
     }
 
-    private static class InterimResults {
-        private final Map<Integer, Set<Integer>> theMap;
+    private static class Costs {
+        public static final byte MAX_VALUE = Byte.MAX_VALUE;
 
-        private InterimResults() {
-            theMap = new TreeMap<>();
-        }
+        private final CostsForDegree[] costsForDegree;
+        private final int maxDepth;
 
-        public void clear() {
-            theMap.clear();
-        }
-
-        public boolean isEmpty() {
-            return theMap.isEmpty();
-        }
-
-        public Iterable<? extends Map.Entry<Integer, Set<Integer>>> routeAndReachableRoutes() {
-            return Collections.unmodifiableSet(theMap.entrySet());
-        }
-
-        // only storing new things to add here, hence the put
-        public void put(int routeIndex, Set<Integer> routes) {
-            theMap.put(routeIndex, routes);
-        }
-
-        public void addRoutesToCosts(Costs costs, byte degree) {
-            // todo could optimise further by getting row first, then updating each element for that row
-            theMap.forEach((route, dests) ->
-                    dests.forEach(dest -> costs.put(route, dest, degree)));
-        }
-
-        public boolean hasRoute(int integer) {
-            return theMap.containsKey(integer);
-        }
-
-        public void add(int dropOffIndex, int pickupIndex) {
-            if (!theMap.containsKey(dropOffIndex)) {
-                theMap.put(dropOffIndex, new HashSet<>());
+        private Costs(int numRoutes, int maxDepth) {
+            this.maxDepth = maxDepth;
+            costsForDegree = new CostsForDegree[maxDepth];
+            for (int degree = 1; degree < maxDepth; degree++) {
+                costsForDegree[degree] = new CostsForDegree(numRoutes);
             }
-            theMap.get(dropOffIndex).add(pickupIndex);
         }
 
-        public Set<Integer> getReachableRoutes(int integer) {
-            return theMap.get(integer);
+
+        public int size() {
+            int result = 0;
+            for (int i = 1; i < maxDepth; i++) {
+                result = result + costsForDegree[i].numberOfConnections();
+            }
+            return result;
         }
 
+        public boolean contains(int degree, int routeIndexA, int routeIndexB) {
+            return costsForDegree[degree].isSet(routeIndexA, routeIndexB);
+        }
+
+        public void set(int degree, int indexA, int indexB) {
+            costsForDegree[degree].set(indexA, indexB);
+        }
+
+        public byte get(int indexA, int indexB) {
+            if (indexA==indexB) {
+                return 0;
+            }
+            for (int i = 1; i < maxDepth; i++) {
+                if (costsForDegree[i].isSet(indexA, indexB)) {
+                    return (byte) i;
+                }
+            }
+            return MAX_VALUE;
+        }
+
+        public CostsForDegree costsFor(int currentDegree) {
+            return costsForDegree[currentDegree];
+        }
     }
 
     private static class RouteDateAndDayOverlap {
 
-        private final boolean[][] overlaps;
+        private final BitSet[] overlapMasks;
         private final Index index;
 
-        private RouteDateAndDayOverlap(Index index) {
+        private RouteDateAndDayOverlap(Index index, int numberOfRoutes) {
             this.index = index;
-            overlaps = new boolean[index.numberOfRoutes][index.numberOfRoutes];
+            overlapMasks = new BitSet[numberOfRoutes];
         }
 
         public void populateFor(RouteRepository repository) {
             logger.info("Creating matrix for route date/day overlap");
             int numberOfRoutes = index.numberOfRoutes;
             for (int i = 0; i < numberOfRoutes; i++) {
+                final IdFor<Route> fromId = index.getIdFor(i);
+                final Route from = repository.getRouteById(fromId);
+                BitSet resultsForRoute = new BitSet(numberOfRoutes);
                 for (int j = 0; j < numberOfRoutes; j++) {
-                    if (i!=j) {
-                        IdFor<Route> fromId = index.getIdFor(i);
+                    if (i==j) {
+                        resultsForRoute.set(j);
+                    } else {
                         IdFor<Route> toId = index.getIdFor(j);
-                        Route from = repository.getRouteById(fromId);
                         Route to = repository.getRouteById(toId);
-                        overlaps[i][j] = from.isDateOverlap(to);
+                        final boolean hasOverlap = from.isDateOverlap(to);
+                        if (hasOverlap) {
+                            resultsForRoute.set(j);
+                        }
                     }
                 }
+                overlapMasks[i] = resultsForRoute;
             }
             logger.info("Finished matrix for route date/day overlap");
         }
 
-        public DateOverflatFilter createFilterFor(int sourceRouteIndex) {
-            boolean[] row = overlaps[sourceRouteIndex];
-            return new DateOverflatFilter(row);
+        public BitSet overlapsFor(int routeIndex) {
+            return overlapMasks[routeIndex];
         }
     }
 
-    private static class DateOverflatFilter {
-        private final boolean[] row;
-
-        public DateOverflatFilter(boolean[] row) {
-            this.row = row;
-        }
-
-        public boolean overlaps(int newRoute) {
-            return row[newRoute];
-        }
-    }
-
-    private static class AlreadyPresentFilter {
-        private final boolean[] notPresent;
-
-        public AlreadyPresentFilter(byte[] values, int size) {
-            notPresent = new boolean[size];
-            for (int i = 0; i < size; i++) {
-                notPresent[i] = (values[i]==Costs.MAX_VALUE);
-            }
-        }
-
-        public boolean notPresent(int newRoute) {
-            return notPresent[newRoute];
-        }
-    }
 }
