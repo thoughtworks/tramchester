@@ -99,7 +99,7 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
         logger.info("Find costs between " + size + " routes");
         final int fullyConnected = size * size;
 
-        addInitialConnectionsFromInterchanges();
+        addInitialConnectionsFromInterchanges(routeDateAndDayOverlap);
 
         for (byte currentDegree = 1; currentDegree < MAX_DEPTH; currentDegree++) {
             addConnectionsFor(routeDateAndDayOverlap, currentDegree);
@@ -146,31 +146,32 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
         logger.info("Added connections " + newMatrix.numberOfConnections() + "  Degree " + nextDegree + " in " + took + " ms");
     }
 
-    private void addInitialConnectionsFromInterchanges() {
+    private void addInitialConnectionsFromInterchanges(RouteDateAndDayOverlap routeDateAndDayOverlap) {
         final Set<InterchangeStation> interchanges = interchangeRepository.getAllInterchanges();
         logger.info("Pre-populate route to route costs from " + interchanges.size() + " interchanges");
-        interchanges.forEach(this::addOverlapsFor);
+        final CostsForDegree forDegreeOne = costs.costsForDegree[1];
+        interchanges.forEach(interchange -> addOverlapsFor(forDegreeOne, interchange, routeDateAndDayOverlap));
         logger.info("Add " + costs.size() + " connections for interchanges");
     }
 
-    private void addOverlapsFor(InterchangeStation interchange) {
+    private void addOverlapsFor(CostsForDegree forDegreeOne, InterchangeStation interchange, RouteDateAndDayOverlap routeDateAndDayOverlap) {
 
+        // record interchanges, where we can go from being dropped off (routes) to being picked up (routes)
         final Set<Route> dropOffAtInterchange = interchange.getDropoffRoutes();
         final Set<Route> pickupAtInterchange = interchange.getPickupRoutes();
 
         for (final Route dropOff : dropOffAtInterchange) {
-            final IdFor<Route> dropOffId = dropOff.getId();
-            final int dropOffIndex = index.indexFor(dropOffId);
-
+            final int dropOffIndex = index.indexFor(dropOff.getId());
+            BitSet forDropOffRoute = forDegreeOne.getConnectionsFor(dropOffIndex);
             // todo, could use bitset Or and And with DateOverlapMask here
             for (final Route pickup : pickupAtInterchange) {
                 if (!dropOff.equals(pickup)) {
                     final int pickupIndex = index.indexFor(pickup.getId());
-                    if (dropOff.isDateOverlap(pickup)) {
-                        costs.set(1, dropOffIndex, pickupIndex);
-                    }
+                    forDropOffRoute.set(pickupIndex);
                 }
             }
+            // apply dates and days
+            forDropOffRoute.and(routeDateAndDayOverlap.overlapsFor(dropOffIndex));
         }
     }
 
@@ -447,9 +448,9 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
             return costsForDegree[degree].isSet(routeIndexA, routeIndexB);
         }
 
-        public void set(int degree, int indexA, int indexB) {
-            costsForDegree[degree].set(indexA, indexB);
-        }
+//        public void set(int degree, int indexA, int indexB) {
+//            costsForDegree[degree].set(indexA, indexB);
+//        }
 
         public byte get(int indexA, int indexB) {
             if (indexA==indexB) {
@@ -469,18 +470,20 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
     }
 
     private static class RouteDateAndDayOverlap {
+        // Create a bitmask corresponding to the dates and days routes overlap
 
         private final BitSet[] overlapMasks;
+        private final int numberOfRoutes;
         private final Index index;
 
         private RouteDateAndDayOverlap(Index index, int numberOfRoutes) {
             this.index = index;
             overlapMasks = new BitSet[numberOfRoutes];
+            this.numberOfRoutes = numberOfRoutes;
         }
 
         public void populateFor(RouteRepository repository) {
             logger.info("Creating matrix for route date/day overlap");
-            int numberOfRoutes = index.numberOfRoutes;
             for (int i = 0; i < numberOfRoutes; i++) {
                 final IdFor<Route> fromId = index.getIdFor(i);
                 final Route from = repository.getRouteById(fromId);
@@ -491,8 +494,7 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
                     } else {
                         IdFor<Route> toId = index.getIdFor(j);
                         Route to = repository.getRouteById(toId);
-                        final boolean hasOverlap = from.isDateOverlap(to);
-                        if (hasOverlap) {
+                        if (from.isDateOverlap(to)) {
                             resultsForRoute.set(j);
                         }
                     }
