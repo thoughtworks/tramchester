@@ -28,6 +28,8 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static java.lang.String.format;
+
 @LazySingleton
 public class RouteToRouteCosts implements BetweenRoutesCostRepository {
     private static final Logger logger = LoggerFactory.getLogger(RouteToRouteCosts.class);
@@ -111,7 +113,8 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
         final int finalSize = costs.size();
         logger.info("Added cost for " + finalSize + " route combinations");
         if (finalSize < fullyConnected) {
-            logger.warn("Not fully connected, only " + finalSize + " of " + fullyConnected);
+            double percentage = ((double)finalSize/(double)fullyConnected);
+            logger.warn(format("Not fully connected, only %s (%s) of %s ", finalSize, percentage, fullyConnected));
         }
     }
 
