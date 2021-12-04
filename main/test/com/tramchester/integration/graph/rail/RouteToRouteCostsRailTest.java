@@ -26,6 +26,9 @@ public class RouteToRouteCostsRailTest {
     private RouteToRouteCosts routeToRouteCosts;
     private StationRepository stationRepository;
     private Transaction txn;
+    private Station manPicc;
+    private Station stockport;
+    private Station londonEuston;
 
     @BeforeAll
     static void onceBeforeAnyTestRuns() {
@@ -51,6 +54,10 @@ public class RouteToRouteCostsRailTest {
 
         // full rebuild of graph, including version node so we avoid rebuild every test run
         componentContainer.get(StagedTransportGraphBuilder.class);
+
+        manPicc = stationRepository.getStationById(ManchesterPiccadilly.getId());
+        stockport = stationRepository.getStationById(Stockport.getId());
+        londonEuston = stationRepository.getStationById(LondonEuston.getId());
     }
 
     @AfterEach
@@ -60,25 +67,22 @@ public class RouteToRouteCostsRailTest {
 
     @Test
     void shouldGetNumberOfRouteHopsBetweenStockportAndManPicc() {
-        Station stockport = stationRepository.getStationById(Stockport.getId());
-        Station manPicc = stationRepository.getStationById(ManchesterPiccadilly.getId());
-
         assertEquals(0, routeToRouteCosts.getNumberOfChanges(stockport, manPicc).getMin());
     }
 
     @Test
-    void shouldGetNumberOfRouteHopsBetweenManPiccAndLondonEustom() {
-        Station manPicc = stationRepository.getStationById(ManchesterPiccadilly.getId());
-        Station londonEuston = stationRepository.getStationById(LondonEuston.getId());
+    void shouldHaveExpectedNumberHopsChangesManToStockport() {
+        assertEquals(0, routeToRouteCosts.getNumberOfChanges(manPicc, stockport).getMin());
+    }
 
+    @Test
+    void shouldGetNumberOfRouteHopsBetweenManPiccAndLondonEustom() {
         assertEquals(0, routeToRouteCosts.getNumberOfChanges(manPicc, londonEuston).getMin());
     }
 
     @Test
     void shouldGetNumberOfRouteHopsBetweenAltrinchamAndManPicc() {
         Station altrincham = stationRepository.getStationById(Altrincham.getId());
-        Station londonEuston = stationRepository.getStationById(LondonEuston.getId());
-
         assertEquals(1, routeToRouteCosts.getNumberOfChanges(altrincham, londonEuston).getMin());
     }
 }

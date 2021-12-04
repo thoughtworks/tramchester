@@ -26,6 +26,7 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 import static java.lang.String.format;
@@ -58,7 +59,7 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
         numberOfRoutes = routeRepository.numberOfRoutes();
         this.graphFilter = graphFilter;
         this.dataCache = dataCache;
-        index = new Index(numberOfRoutes);
+        index = new Index(routeRepository);
         costs = new Costs(numberOfRoutes, MAX_DEPTH+1);
     }
 
@@ -90,7 +91,7 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
 
     private void buildRouteConnectionMatrix() {
         RouteDateAndDayOverlap routeDateAndDayOverlap = new RouteDateAndDayOverlap(index, numberOfRoutes);
-        routeDateAndDayOverlap.populateFor(routeRepository);
+        routeDateAndDayOverlap.populateFor();
         populateCosts(routeDateAndDayOverlap);
     }
 
@@ -319,14 +320,16 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
     }
 
     private static class Index implements DataCache.Cacheable<RouteIndexData> {
+        private final RouteRepository routeRepository;
         private final Map<IdFor<Route>, Integer> mapRouteIdToIndex;
         private final Map<Integer, IdFor<Route>>  mapIndexToRouteId;
         private final int numberOfRoutes;
 
-        private Index(int numberOfRoutes) {
+        private Index(RouteRepository routeRepository) {
+            this.routeRepository = routeRepository;
+            this.numberOfRoutes = routeRepository.numberOfRoutes();
             mapRouteIdToIndex = new HashMap<>(numberOfRoutes);
             mapIndexToRouteId = new HashMap<>(numberOfRoutes);
-            this.numberOfRoutes = numberOfRoutes;
         }
 
         public void populateFrom(RouteRepository routeRepository) {
@@ -381,6 +384,10 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
         public void clear() {
             mapRouteIdToIndex.clear();
             mapIndexToRouteId.clear();
+        }
+
+        public Route getRouteFor(int index) {
+            return routeRepository.getRouteById(mapIndexToRouteId.get(index));
         }
     }
 
@@ -482,23 +489,19 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
             this.numberOfRoutes = numberOfRoutes;
         }
 
-        public void populateFor(RouteRepository repository) {
+        public void populateFor() {
             logger.info("Creating matrix for route date/day overlap");
+
             for (int i = 0; i < numberOfRoutes; i++) {
-                final IdFor<Route> fromId = index.getIdFor(i);
-                final Route from = repository.getRouteById(fromId);
+                final Route from = index.getRouteFor(i);
                 BitSet resultsForRoute = new BitSet(numberOfRoutes);
-                for (int j = 0; j < numberOfRoutes; j++) {
-                    if (i==j) {
-                        resultsForRoute.set(j);
-                    } else {
-                        IdFor<Route> toId = index.getIdFor(j);
-                        Route to = repository.getRouteById(toId);
-                        if (from.isDateOverlap(to)) {
-                            resultsForRoute.set(j);
-                        }
-                    }
-                }
+                final int fromIndex = i;
+                // thread safety: split into list and then application of list to bitset
+                List<Integer> toSet = IntStream.range(0, numberOfRoutes).
+                        parallel().
+                        filter(toIndex -> (fromIndex == toIndex) || from.isDateOverlap(index.getRouteFor(toIndex))).
+                        boxed().collect(Collectors.toList());
+                toSet.forEach(resultsForRoute::set);
                 overlapMasks[i] = resultsForRoute;
             }
             logger.info("Finished matrix for route date/day overlap");

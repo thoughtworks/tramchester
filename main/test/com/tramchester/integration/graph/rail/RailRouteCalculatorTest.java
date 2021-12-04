@@ -5,13 +5,18 @@ import com.tramchester.ComponentsBuilder;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.Journey;
 import com.tramchester.domain.JourneyRequest;
+import com.tramchester.domain.id.IdFor;
+import com.tramchester.domain.input.StopCall;
 import com.tramchester.domain.places.Station;
+import com.tramchester.domain.presentation.TransportStage;
+import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramServiceDate;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.search.RouteCalculator;
 import com.tramchester.integration.testSupport.RouteCalculatorTestFacade;
 import com.tramchester.integration.testSupport.rail.IntegrationRailTestConfig;
+import com.tramchester.integration.testSupport.rail.RailStationIds;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.testTags.TrainTest;
@@ -26,7 +31,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import static com.tramchester.integration.testSupport.rail.RailStationIds.*;
-import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.*;
 
 @TrainTest
 @DisabledIfEnvironmentVariable(named = "CI", matches = "true")
@@ -153,6 +158,76 @@ public class RailRouteCalculatorTest {
         atLeastOneDirect(request, manchesterPiccadilly, londonEuston);
     }
 
+    @Test
+    void shouldHaveHaleToKnutsford() {
+        TramTime travelTime = TramTime.of(9, 0);
+
+        JourneyRequest request = new JourneyRequest(new TramServiceDate(when), travelTime, false, 1,
+                30, 1);
+        atLeastOneDirect(request, Hale.getId(), Knutsford.getId());
+    }
+
+    @Test
+    void shouldHaveKnutsfordToHale9am() {
+        TramTime travelTime = TramTime.of(9, 0);
+
+        JourneyRequest request = new JourneyRequest(new TramServiceDate(when), travelTime, false, 1,
+                120, 1);
+
+        atLeastOneDirect(request, Knutsford.getId(), Hale.getId());
+    }
+
+    @Test
+    void shouldFindCorrectNumberOfJourneys() {
+        TramTime travelTime = TramTime.of(11,4);
+
+        JourneyRequest journeyRequest = new JourneyRequest(new TramServiceDate(when), travelTime, false, 3,
+                840, 3);
+
+        Set<Journey> results = testFacade.calculateRouteAsSet(Derby.getId(), Altrincham.getId(), journeyRequest);
+
+        assertEquals(3, results.size(), results.toString());
+    }
+
+    @Test
+    void shouldHaveSimpleJourneyEustonToManchester() {
+        TramTime travelTime = TramTime.of(8, 0);
+
+        JourneyRequest request = new JourneyRequest(new TramServiceDate(when), travelTime, false, 0,
+                3*60, 3);
+        Set<Journey> journeys = testFacade.calculateRouteAsSet(RailStationIds.LondonEuston.getId(),
+                ManchesterPiccadilly.getId(),
+                request);
+        assertFalse(journeys.isEmpty());
+
+        journeys.forEach(journey -> {
+            List<TransportStage<?, ?>> stages = journey.getStages();
+            assertEquals(1, stages.size());
+
+            TransportStage<?, ?> trainStage = stages.get(0);
+
+            assertEquals(TransportMode.Train, trainStage.getMode());
+            assertEquals(4, trainStage.getPassedStopsCount(), trainStage.toString());
+
+            List<StopCall> callingPoints = trainStage.getCallingPoints();
+            final int numCallingPoints = callingPoints.size();
+            assertTrue(numCallingPoints==3 || numCallingPoints==4, callingPoints.toString());
+            if (numCallingPoints==4) {
+                // milton K -> Stoke -> Macclesfield -> Stockport
+                assertEquals(MiltonKeynesCentral.getId(), callingPoints.get(0).getStationId());
+                assertEquals(StokeOnTrent.getId(), callingPoints.get(1).getStationId());
+                assertEquals(Macclesfield.getId(), callingPoints.get(2).getStationId());
+                assertEquals(Stockport.getId(), callingPoints.get(3).getStationId());
+            } else {
+                // TODO
+                // crewe -> wilmslow -> stockport
+                assertEquals("CRE", callingPoints.get(0).getStationId().forDTO());
+                assertEquals("WML", callingPoints.get(1).getStationId().forDTO());
+                assertEquals(Stockport.getId(), callingPoints.get(2).getStationId());
+            }
+        });
+    }
+
     @Disabled("performance")
     @Test
     void shouldHaveAltrinchamToLondonEuston() {
@@ -165,6 +240,10 @@ public class RailRouteCalculatorTest {
     }
 
     private void atLeastOneDirect(JourneyRequest request, Station start, Station dest) {
+        atLeastOneDirect(request, start.getId(), dest.getId());
+    }
+
+    private void atLeastOneDirect(JourneyRequest request, IdFor<Station> start, IdFor<Station> dest) {
         Set<Journey> journeys = testFacade.calculateRouteAsSet(start, dest, request);
         assertFalse(journeys.isEmpty());
 
