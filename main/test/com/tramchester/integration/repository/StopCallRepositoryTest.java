@@ -7,7 +7,6 @@ import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.input.StopCall;
 import com.tramchester.domain.places.Station;
-import com.tramchester.domain.time.TramServiceDate;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
 import com.tramchester.repository.ServiceRepository;
@@ -53,7 +52,7 @@ public class StopCallRepositoryTest {
     @Test
     void shouldGetStopCallsForAStation() {
         final LocalDate date = TestEnv.testDay();
-        IdSet<Service> servicesForDate = serviceRepository.getServicesOnDate(TramServiceDate.of(date));
+        IdSet<Service> servicesForDate = serviceRepository.getServicesOnDate(date);
 
         final IdFor<Station> stationId = TramStations.ManAirport.getId();
 

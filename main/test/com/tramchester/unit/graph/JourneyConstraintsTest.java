@@ -74,7 +74,7 @@ public class JourneyConstraintsTest extends EasyMockSupport {
         Route route = TestEnv.getTramTestRoute();
         TramTime time = TramTime.of(10,11);
 
-        EasyMock.expect(filterForDate.isRouteRunning(route.getId())).andReturn(true);
+        EasyMock.expect(filterForDate.isRouteRunning(route.getId(), time)).andReturn(true);
 
         replayAll();
         boolean result = journeyConstraints.isUnavailable(route, time);
@@ -87,10 +87,12 @@ public class JourneyConstraintsTest extends EasyMockSupport {
     void shouldCheckIfServiceRunning() {
         IdFor<Service> serviceId = StringIdFor.createId("serviceA");
 
-        EasyMock.expect(filterForDate.isServiceRunning(serviceId)).andReturn(true);
+        TramTime visitTime = TramTime.of(13,56);
+
+        EasyMock.expect(filterForDate.isServiceRunning(serviceId, visitTime)).andReturn(true);
 
         replayAll();
-        boolean result = journeyConstraints.isRunning(serviceId);
+        boolean result = journeyConstraints.isRunning(serviceId, visitTime);
         verifyAll();
 
         assertTrue(result);

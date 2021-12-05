@@ -43,12 +43,12 @@ public class ServiceHeuristics {
         this.lowestCosts = journeyConstraints.getFewestChangesCalculator();
     }
     
-    public ServiceReason checkServiceDate(Node node, HowIGotHere howIGotHere, ServiceReasons reasons) {
+    public ServiceReason checkServiceDate(Node node, HowIGotHere howIGotHere, ServiceReasons reasons, TramTime visitTime) {
         reasons.incrementTotalChecked();
 
         IdFor<Service> nodeServiceId = nodeOperations.getServiceId(node);
 
-        if (journeyConstraints.isRunning(nodeServiceId)) {
+        if (journeyConstraints.isRunning(nodeServiceId, visitTime)) {
             return valid(ServiceReason.ReasonCode.ServiceDateOk, howIGotHere, reasons);
         }
 

@@ -7,7 +7,6 @@ import com.tramchester.domain.input.StopCall;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.GTFSPickupDropoffType;
-import com.tramchester.domain.time.TramServiceDate;
 import com.tramchester.domain.time.TramTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -68,7 +67,7 @@ public class StopCallRepository {
 
     // visualisation of frequency support
     public Set<StopCall> getStopCallsFor(Station station, LocalDate date, TramTime begin, TramTime end) {
-        IdSet<Service> runningOnDate = serviceRepository.getServicesOnDate(TramServiceDate.of(date));
+        IdSet<Service> runningOnDate = serviceRepository.getServicesOnDate(date);
         Set<StopCall> allForStation = stopCalls.get(station);
 
         return allForStation.stream().

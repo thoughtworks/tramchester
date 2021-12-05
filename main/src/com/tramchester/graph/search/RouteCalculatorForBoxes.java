@@ -69,7 +69,7 @@ public class RouteCalculatorForBoxes extends RouteCalculatorSupport {
         final TramServiceDate queryDate = journeyRequest.getDate();
 
         final LowestCostsForRoutes lowestCostForDestinations = routeToRouteCosts.getLowestCostCalcutatorFor(destinations);
-        RunningRoutesAndServices.FilterForDate routeAndServicesFilter = runningRoutesAndService.getFor(queryDate);
+        RunningRoutesAndServices.FilterForDate routeAndServicesFilter = runningRoutesAndService.getFor(queryDate.getDate());
         final JourneyConstraints journeyConstraints = new JourneyConstraints(config, routeAndServicesFilter, journeyRequest, closedStationsRepository,
                 destinations, lowestCostForDestinations);
 

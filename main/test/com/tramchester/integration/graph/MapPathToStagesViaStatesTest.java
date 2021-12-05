@@ -307,7 +307,7 @@ public class MapPathToStagesViaStatesTest {
 
         LowestCostsForRoutes lowestCostCalculator = routeToRouteCosts.getLowestCostCalcutatorFor(endStations);
 
-        RunningRoutesAndServices.FilterForDate filter = runningRoutesAndService.getFor(queryDate);
+        RunningRoutesAndServices.FilterForDate filter = runningRoutesAndService.getFor(queryDate.getDate());
         JourneyConstraints journeyConstraints = new JourneyConstraints(config, filter,
                 journeyRequest, closedStationsRepository, endStations, lowestCostCalculator);
         ServiceHeuristics serviceHeuristics =  new ServiceHeuristics(stationRepository, nodeContentsRepository,

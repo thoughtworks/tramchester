@@ -18,7 +18,6 @@ import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.DateRange;
-import com.tramchester.domain.time.TramServiceDate;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
 import com.tramchester.repository.InterchangeRepository;
@@ -264,8 +263,7 @@ public class TransportDataFromFilesTramTest {
     @Test
     void shouldGetServicesByDate() {
         LocalDate nextSaturday = TestEnv.nextSaturday();
-        TramServiceDate date = new TramServiceDate(nextSaturday);
-        IdSet<Service> results = transportData.getServicesOnDate(date);
+        IdSet<Service> results = transportData.getServicesOnDate(nextSaturday);
 
         assertFalse(results.isEmpty());
         long onCorrectDate = results.stream().
@@ -275,24 +273,15 @@ public class TransportDataFromFilesTramTest {
         assertEquals(results.size(), onCorrectDate, "should all be on the specified date");
 
         LocalDate noTramsDate = TestEnv.LocalNow().plusMonths(36).toLocalDate(); //transportData.getFeedInfo().validUntil().plusMonths(12);
-        results = transportData.getServicesOnDate(new TramServiceDate(noTramsDate));
+        results = transportData.getServicesOnDate(noTramsDate);
         assertTrue(results.isEmpty());
-    }
-
-    @Test
-    void shouldHaveCorrectDatesAndServicesForChirstmas2020() {
-        LocalDate christmasDay = LocalDate.of(2020, 12, 25);
-
-        IdSet<Service> services = transportData.getServicesOnDate(TramServiceDate.of(christmasDay));
-
-        assertTrue(services.isEmpty());
     }
 
     @Test
     void shouldHaveSundayServicesFromCornbrook() {
         LocalDate nextSunday = TestEnv.nextSunday();
 
-        IdSet<Service> sundayServiceIds = transportData.getServicesOnDate(new TramServiceDate(nextSunday));
+        IdSet<Service> sundayServiceIds = transportData.getServicesOnDate(nextSunday);
 
         Set<Trip> cornbrookTrips = transportData.getTrips().stream().
                 filter(trip -> trip.getStopCalls().callsAt(Cornbrook)).collect(Collectors.toSet());
@@ -349,8 +338,7 @@ public class TransportDataFromFilesTramTest {
 
         for (int day = 0; day < DAYS_AHEAD; day++) {
             LocalDate date = TestEnv.testDay().plusDays(day);
-            TramServiceDate tramServiceDate = new TramServiceDate(date);
-            IdSet<Service> servicesOnDateIds = transportData.getServicesOnDate(tramServiceDate);
+            IdSet<Service> servicesOnDateIds = transportData.getServicesOnDate(date);
 
             transportData.getStations().forEach(station -> {
                 Set<Trip> callingTripsOnDate = transportData.getTrips().stream().

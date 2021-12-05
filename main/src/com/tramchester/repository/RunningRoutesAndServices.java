@@ -6,13 +6,15 @@ import com.tramchester.domain.Service;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.input.Trip;
-import com.tramchester.domain.time.TramServiceDate;
+import com.tramchester.domain.time.TramTime;
+import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.inject.Inject;
+import java.time.LocalDate;
 
 @LazySingleton
 public class RunningRoutesAndServices {
@@ -48,15 +50,19 @@ public class RunningRoutesAndServices {
         logger.info("stopped");
     }
 
-    public FilterForDate getFor(TramServiceDate date) {
-        IdSet<Service> serviceIds =  serviceRepository.getServicesOnDate(date);
-        if (serviceIds.size()>0) {
-            logger.info("Found " + serviceIds.size() + " running services for " + date);
-        } else
-        {
-            logger.warn("No running services found on " + date);
-        }
+    public FilterForDate getFor(LocalDate date) {
+        IdSet<Service> serviceIds = getServicesFor(date);
+        IdSet<Route> routeIds = getRoutesFor(date);
 
+        LocalDate nextDay = date.plusDays(1);
+        IdSet<Service> runningServicesNextDay = getServicesFor(nextDay);
+        IdSet<Route> runningRoutesNextDay = getRoutesFor(nextDay);
+
+        return new FilterForDate(serviceIds, routeIds, runningServicesNextDay, runningRoutesNextDay);
+    }
+
+    @NotNull
+    private IdSet<Route> getRoutesFor(LocalDate date) {
         IdSet<Route> routeIds = routeRepository.getRoutesRunningOn(date);
         if (routeIds.size()>0) {
             logger.info("Found " + routeIds.size() + " running routes for " + date);
@@ -64,8 +70,19 @@ public class RunningRoutesAndServices {
         {
             logger.warn("No running routes found on " + date);
         }
+        return routeIds;
+    }
 
-        return new FilterForDate(serviceIds, routeIds);
+    @NotNull
+    private IdSet<Service> getServicesFor(LocalDate date) {
+        IdSet<Service> serviceIds =  serviceRepository.getServicesOnDate(date);
+        if (serviceIds.size()>0) {
+            logger.info("Found " + serviceIds.size() + " running services for " + date);
+        } else
+        {
+            logger.warn("No running services found on " + date);
+        }
+        return serviceIds;
     }
 
     public boolean intoNextDay(IdFor<Service> id) {
@@ -75,19 +92,29 @@ public class RunningRoutesAndServices {
     public static class FilterForDate {
         private final IdSet<Service> runningServices;
         private final IdSet<Route> runningRoutes;
+        private final IdSet<Service> runningServicesNextDay;
+        private final IdSet<Route> runningRoutesNextDay;
 
-        private FilterForDate(IdSet<Service> runningServices, IdSet<Route> runningRoutes) {
+        private FilterForDate(IdSet<Service> runningServices, IdSet<Route> runningRoutes,
+                              IdSet<Service> runningServicesNextDay, IdSet<Route> runningRoutesNextDay) {
             this.runningServices = runningServices;
             this.runningRoutes = runningRoutes;
+            this.runningServicesNextDay = runningServicesNextDay;
+            this.runningRoutesNextDay = runningRoutesNextDay;
         }
 
-        // TODO next day?
-        public boolean isServiceRunning(IdFor<Service> serviceId) {
+        public boolean isServiceRunning(IdFor<Service> serviceId, TramTime time) {
+            if (time.isNextDay() && runningServicesNextDay.contains(serviceId)) {
+                return true;
+            }
             return runningServices.contains(serviceId);
         }
 
         // TODO next day?
-        public boolean isRouteRunning(IdFor<Route> routeId) {
+        public boolean isRouteRunning(IdFor<Route> routeId, TramTime time) {
+            if (time.isNextDay() && runningRoutesNextDay.contains(routeId)) {
+                return true;
+            }
             return runningRoutes.contains(routeId);
         }
 

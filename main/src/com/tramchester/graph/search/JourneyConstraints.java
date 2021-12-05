@@ -125,13 +125,12 @@ public class JourneyConstraints {
                 '}';
     }
 
-    // TODO next day?
-    public boolean isUnavailable(Route route, TramTime currentElapsed) {
-        return !routesAndServicesFilter.isRouteRunning(route.getId());
+    public boolean isUnavailable(Route route, TramTime visitTime) {
+        return !routesAndServicesFilter.isRouteRunning(route.getId(), visitTime);
     }
 
-    public boolean isRunning(IdFor<Service> serviceId) {
-        return routesAndServicesFilter.isServiceRunning(serviceId);
+    public boolean isRunning(IdFor<Service> serviceId, TramTime visitTime) {
+        return routesAndServicesFilter.isServiceRunning(serviceId, visitTime);
     }
 
 }

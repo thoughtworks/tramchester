@@ -86,8 +86,9 @@ class ServiceHeuristicsTest extends EasyMockSupport {
         JourneyRequest journeyRequest = getJourneyRequest(queryTime);
         ServiceReasons reasons = new ServiceReasons(journeyRequest, queryTime, providesLocalNow);
 
-        EasyMock.expect(journeyConstraints.isRunning(serviceIdA)).andReturn(true);
-        EasyMock.expect(journeyConstraints.isRunning(serviceIdB)).andReturn(false);
+        TramTime visitTime =  queryTime.plusMinutes(35);
+        EasyMock.expect(journeyConstraints.isRunning(serviceIdA, visitTime)).andReturn(true);
+        EasyMock.expect(journeyConstraints.isRunning(serviceIdB, visitTime)).andReturn(false);
         EasyMock.expect(journeyConstraints.getFewestChangesCalculator()).andReturn(fewestHopsForRoutes);
 
         Node node = createMock(Node.class);
@@ -98,10 +99,10 @@ class ServiceHeuristicsTest extends EasyMockSupport {
         ServiceHeuristics serviceHeuristics = new ServiceHeuristics(stationRepository, nodeContentsCache,
                 journeyConstraints, queryTime, MAX_NUM_CHANGES);
 
-        ServiceReason result = serviceHeuristics.checkServiceDate(node, howIGotHere, reasons);
+        ServiceReason result = serviceHeuristics.checkServiceDate(node, howIGotHere, reasons, visitTime);
         assertTrue(result.isValid());
 
-        result = serviceHeuristics.checkServiceDate(node, howIGotHere, reasons);
+        result = serviceHeuristics.checkServiceDate(node, howIGotHere, reasons, visitTime);
         assertEquals(ServiceReason.ReasonCode.NotOnQueryDate, result.getReasonCode());
         verifyAll();
     }

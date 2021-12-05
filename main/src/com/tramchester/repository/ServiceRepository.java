@@ -4,8 +4,8 @@ import com.google.inject.ImplementedBy;
 import com.tramchester.domain.Service;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdSet;
-import com.tramchester.domain.time.TramServiceDate;
 
+import java.time.LocalDate;
 import java.util.Set;
 
 @ImplementedBy(TransportData.class)
@@ -14,6 +14,6 @@ public interface ServiceRepository {
     Service getServiceById(IdFor<Service> serviceId);
     boolean hasServiceId(IdFor<Service> serviceId);
 
-    IdSet<Service> getServicesOnDate(TramServiceDate date);
+    IdSet<Service> getServicesOnDate(LocalDate date);
 
 }

@@ -203,7 +203,7 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
         // -->Service
         final boolean isService = labels.contains(GraphLabel.SERVICE); //nodeTypeRepository.isService(nextNode);
         if (isService) {
-            if (!serviceHeuristics.checkServiceDate(nextNode, howIGotHere, reasons).isValid()) {
+            if (!serviceHeuristics.checkServiceDate(nextNode, howIGotHere, reasons, visitingTime).isValid()) {
                 return ServiceReason.ReasonCode.NotOnQueryDate;
             }
         }

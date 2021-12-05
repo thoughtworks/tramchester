@@ -103,7 +103,7 @@ class TramRouteTest {
     void shouldHaveRoutesSetupCorrectly() {
         RouteRepository routeRepository = componentContainer.get(RouteRepository.class);
 
-        IdSet<Route> running = routeRepository.getRoutesRunningOn(queryDate);
+        IdSet<Route> running = routeRepository.getRoutesRunningOn(queryDate.getDate());
 
         assertEquals(routeRepository.numberOfRoutes(), running.size());
     }

@@ -36,11 +36,9 @@ import static java.lang.String.format;
 @LazySingleton
 public class RouteCalculator extends RouteCalculatorSupport implements TramRouteCalculator {
     private static final Logger logger = LoggerFactory.getLogger(RouteCalculator.class);
-    private final ServiceRepository serviceRepository;
     private final TramchesterConfig config;
     private final CreateQueryTimes createQueryTimes;
     private final ClosedStationsRepository closedStationsRepository;
-    private final RouteRepository routeRepository;
     private final RunningRoutesAndServices runningRoutesAndServices;
 
     @Inject
@@ -54,8 +52,6 @@ public class RouteCalculator extends RouteCalculatorSupport implements TramRoute
         super(graphQuery, pathToStages, nodeOperations, graphDatabaseService,
                 traversalStateFactory, providesNow, sortsPosition, mapPathToLocations,
                 transportData, config, transportData, routeToRouteCosts, reasonToGraphViz);
-        this.serviceRepository = transportData;
-        this.routeRepository = transportData;
         this.config = config;
         this.createQueryTimes = createQueryTimes;
         this.closedStationsRepository = closedStationsRepository;
@@ -111,7 +107,7 @@ public class RouteCalculator extends RouteCalculatorSupport implements TramRoute
 
         // can only be shared as same date and same set of destinations, will eliminate previously seen paths/results
         LowestCostsForRoutes lowestCostsForRoutes = routeToRouteCosts.getLowestCostCalcutatorFor(destinations);
-        final JourneyConstraints journeyConstraints = new JourneyConstraints(config, runningRoutesAndServices.getFor(queryDate),
+        final JourneyConstraints journeyConstraints = new JourneyConstraints(config, runningRoutesAndServices.getFor(queryDate.getDate()),
                 journeyRequest, closedStationsRepository, destinations, lowestCostsForRoutes);
 
         logger.info("Journey Constraints: " + journeyConstraints);
@@ -134,6 +130,7 @@ public class RouteCalculator extends RouteCalculatorSupport implements TramRoute
                 takeWhile(finished::notDoneYet).
                 map(path -> createJourney(journeyRequest, path, destinations, lowestCostsForRoutes));
 
+        //noinspection ResultOfMethodCallIgnored
         results.onClose(() -> logger.info("Journey stream closed"));
 
         return results;

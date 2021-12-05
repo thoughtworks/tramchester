@@ -18,7 +18,6 @@ import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
-import com.tramchester.domain.time.TramServiceDate;
 import com.tramchester.integration.testSupport.bus.IntegrationBusTestConfig;
 import com.tramchester.repository.TransportData;
 import com.tramchester.testSupport.TestEnv;
@@ -148,8 +147,7 @@ class TransportDataFromFilesBusTest {
     @Test
     void shouldGetServicesByDate() {
         LocalDate nextSaturday = TestEnv.nextSaturday();
-        TramServiceDate date = new TramServiceDate(nextSaturday);
-        IdSet<Service> results = transportData.getServicesOnDate(date);
+        IdSet<Service> results = transportData.getServicesOnDate(nextSaturday);
 
         assertFalse(results.isEmpty());
         long onCorrectDate = results.stream().
@@ -158,7 +156,7 @@ class TransportDataFromFilesBusTest {
         assertEquals(results.size(), onCorrectDate, "should all be on the specified date");
 
         LocalDate noBusesDate = TestEnv.LocalNow().plusMonths(36).toLocalDate();
-        IdSet<Service> futureServices = transportData.getServicesOnDate(new TramServiceDate(noBusesDate));
+        IdSet<Service> futureServices = transportData.getServicesOnDate(noBusesDate);
         assertTrue(results.size() > futureServices.size());
     }
 

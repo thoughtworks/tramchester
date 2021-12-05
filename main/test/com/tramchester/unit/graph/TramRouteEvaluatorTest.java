@@ -373,10 +373,11 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
         final EnumSet<GraphLabel> labels = EnumSet.of(SERVICE);
         EasyMock.expect(contentsRepository.getLabels(node)).andReturn(labels);
 
-        EasyMock.expect(serviceHeuristics.checkServiceDate(node, howIGotHere, reasons)).
+        TramTime time = TramTime.of(8, 15);
+
+        EasyMock.expect(serviceHeuristics.checkServiceDate(node, howIGotHere, reasons, time)).
                 andReturn(ServiceReason.DoesNotRunOnQueryDate(howIGotHere, StringIdFor.createId("nodeServiceId")));
 
-        TramTime time = TramTime.of(8, 15);
         NotStartedState traversalState = getNotStartedState();
         final JourneyState journeyState = new JourneyState(time, traversalState);
         branchState.setState(journeyState);
