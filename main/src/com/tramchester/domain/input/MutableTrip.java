@@ -20,6 +20,7 @@ public class MutableTrip implements Trip {
     private int lastIndex;
     private int firstIndex;
     private boolean filtered; // at least one station on this trip was filtered out
+    private boolean intoNextDay;
 
     public MutableTrip(IdFor<Trip> tripId, String headSign, Service service, Route route) {
         this.tripId = tripId;
@@ -150,5 +151,10 @@ public class MutableTrip implements Trip {
     @Override
     public boolean isFiltered() {
         return filtered;
+    }
+
+    @Override
+    public boolean intoNextDay() {
+        return stopCalls.intoNextDay();
     }
 }

@@ -32,4 +32,6 @@ public interface Trip extends HasId<Trip>, HasTransportMode, GraphProperty {
     GraphPropertyKey getProp();
 
     boolean isFiltered();
+
+    boolean intoNextDay();
 }

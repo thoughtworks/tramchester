@@ -5,7 +5,6 @@ import com.tramchester.domain.input.MutableTrip;
 import com.tramchester.domain.input.PlatformStopCall;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.reference.TransportMode;
-import com.tramchester.domain.time.TramTime;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.TramStations;
 import org.junit.jupiter.api.BeforeEach;
@@ -15,6 +14,8 @@ import java.util.LinkedList;
 import java.util.List;
 
 import static com.tramchester.domain.id.StringIdFor.createId;
+import static com.tramchester.domain.time.TramTime.nextDay;
+import static com.tramchester.domain.time.TramTime.of;
 import static org.junit.jupiter.api.Assertions.*;
 
 class TripTest {
@@ -39,15 +40,15 @@ class TripTest {
     @Test
     void shouldModelCircularTripsCorrectly() {
 
-        PlatformStopCall firstStop = TestEnv.createTramStopCall(trip, "statA1", stationA, (byte) 1, TramTime.of(10, 0), TramTime.of(10, 1));
-        PlatformStopCall secondStop = TestEnv.createTramStopCall(trip, "statB1", stationB, (byte) 2, TramTime.of(10, 5), TramTime.of(10, 6));
-        PlatformStopCall thirdStop = TestEnv.createTramStopCall(trip, "statA1", stationA, (byte) 3, TramTime.of(10, 10), TramTime.of(10, 10));
+        PlatformStopCall firstStop = TestEnv.createTramStopCall(trip, "statA1", stationA, (byte) 1, of(10, 0), of(10, 1));
+        PlatformStopCall secondStop = TestEnv.createTramStopCall(trip, "statB1", stationB, (byte) 2, of(10, 5), of(10, 6));
+        PlatformStopCall thirdStop = TestEnv.createTramStopCall(trip, "statA1", stationA, (byte) 3, of(10, 10), of(10, 10));
 
         trip.addStop(firstStop);
         trip.addStop(secondStop);
         trip.addStop(thirdStop);
 
-        assertEquals(TramTime.of(10, 1), trip.earliestDepartTime());
+        assertEquals(of(10, 1), trip.earliestDepartTime());
 
         // sequence respected
         List<Integer> seqNums = new LinkedList<>();
@@ -58,39 +59,53 @@ class TripTest {
     }
 
     @Test
+    void shouldCheckIfNotCrossesIntoNextDay() {
+        PlatformStopCall firstStop = TestEnv.createTramStopCall(trip, "stop1", stationA, (byte) 2, of(23, 45), of(23, 46));
+        PlatformStopCall secondStop = TestEnv.createTramStopCall(trip, "stop2", stationB, (byte) 3, of(23, 59), of(0, 1));
+
+        trip.addStop(firstStop);
+        trip.addStop(secondStop);
+
+        assertFalse(trip.intoNextDay());
+    }
+
+    @Test
     void shouldFindEarliestDepartCorrectlyCrossingMidnight() {
 
-        PlatformStopCall firstStop = TestEnv.createTramStopCall(trip, "stop1", stationA, (byte) 2, TramTime.of(23, 45), TramTime.of(23, 46));
-        PlatformStopCall secondStop = TestEnv.createTramStopCall(trip, "stop2", stationB, (byte) 3, TramTime.of(23, 59), TramTime.of(0, 1));
-        PlatformStopCall thirdStop = TestEnv.createTramStopCall(trip, "stop3", stationC, (byte) 4, TramTime.of(0, 10), TramTime.of(0, 11));
-        PlatformStopCall fourthStop = TestEnv.createTramStopCall(trip, "stop4", stationC, (byte) 1, TramTime.of(6, 30), TramTime.of(6, 30));
+        PlatformStopCall firstStop = TestEnv.createTramStopCall(trip, "stop1", stationA, (byte) 2, of(23, 45), of(23, 46));
+        PlatformStopCall secondStop = TestEnv.createTramStopCall(trip, "stop2", stationB, (byte) 3, of(23, 59), of(0, 1));
+        PlatformStopCall thirdStop = TestEnv.createTramStopCall(trip, "stop3", stationC, (byte) 4, nextDay(0, 10), nextDay(0, 11));
+        PlatformStopCall fourthStop = TestEnv.createTramStopCall(trip, "stop4", stationC, (byte) 1, of(22, 45), of(22, 46));
 
         trip.addStop(firstStop);
         trip.addStop(secondStop);
         trip.addStop(thirdStop);
         trip.addStop(fourthStop);
 
-        assertEquals(TramTime.of(6,30), trip.earliestDepartTime());
+        // trip uses seq number for earliest depart i.e. lowest seq is assumed to be the first depart
+        assertEquals(of(22,46), trip.earliestDepartTime());
+
+        assertTrue(trip.intoNextDay());
     }
 
     @Test
     void shouldFindEarliestDepartCorrectly() {
 
-        PlatformStopCall thirdStop = TestEnv.createTramStopCall(trip, "stop3", stationC, (byte) 3, TramTime.of(0, 10), TramTime.of(0, 11));
-        PlatformStopCall fourthStop = TestEnv.createTramStopCall(trip, "stop4", stationC, (byte) 1, TramTime.of(6, 30), TramTime.of(6, 31));
+        PlatformStopCall thirdStop = TestEnv.createTramStopCall(trip, "stop3", stationC, (byte) 3, of(0, 10), of(0, 11));
+        PlatformStopCall fourthStop = TestEnv.createTramStopCall(trip, "stop4", stationC, (byte) 1, of(6, 30), of(6, 31));
 
         trip.addStop(thirdStop);
         trip.addStop(fourthStop);
 
-        assertEquals(TramTime.of(6,31), trip.earliestDepartTime());
+        assertEquals(of(6,31), trip.earliestDepartTime());
     }
 
     @Test
     void shouldFindLatestDepartCorrectly() {
-        trip.addStop(TestEnv.createTramStopCall(trip, "stopId3", TramStations.Deansgate, (byte) 3, TramTime.of(10, 25), TramTime.of(10, 26)));
-        trip.addStop(TestEnv.createTramStopCall(trip, "stopId4", TramStations.Deansgate, (byte) 4, TramTime.of(0, 1), TramTime.of(0, 1)));
+        trip.addStop(TestEnv.createTramStopCall(trip, "stopId3", TramStations.Deansgate, (byte) 3, of(10, 25), of(10, 26)));
+        trip.addStop(TestEnv.createTramStopCall(trip, "stopId4", TramStations.Deansgate, (byte) 4, of(0, 1), of(0, 1)));
 
-        assertEquals(TramTime.of(0,1), trip.latestDepartTime());
+        assertEquals(of(0,1), trip.latestDepartTime());
 
     }
 

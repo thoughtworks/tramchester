@@ -18,10 +18,12 @@ public class StopCalls {
 
     private final SortedMap<Integer, StopCall> orderedStopCalls;
     private final IdFor<Trip> parent;
+    private boolean intoNextDay;
 
     public StopCalls(IdFor<Trip> parent) {
         this.parent = parent;
         orderedStopCalls = new TreeMap<>();
+        intoNextDay = false;
     }
 
     public void add(StopCall stop) {
@@ -30,6 +32,7 @@ public class StopCalls {
             logger.error("Stop is missing station " + parent);
         } else {
             orderedStopCalls.put(stop.getGetSequenceNumber(), stop);
+            intoNextDay = intoNextDay || stop.intoNextDay();
         }
     }
 
@@ -79,6 +82,10 @@ public class StopCalls {
             legs.add(new StopLeg(calls.get(i), calls.get(i+1)));
         }
         return legs;
+    }
+
+    public boolean intoNextDay() {
+        return intoNextDay;
     }
 
     public static class StopLeg {

@@ -1,12 +1,16 @@
 package com.tramchester.unit.domain;
 
 
+import com.tramchester.dataimport.data.StopTimeData;
+import com.tramchester.domain.MutablePlatform;
 import com.tramchester.domain.MutableService;
+import com.tramchester.domain.Platform;
 import com.tramchester.domain.Service;
 import com.tramchester.domain.input.MutableTrip;
 import com.tramchester.domain.input.PlatformStopCall;
 import com.tramchester.domain.input.StopCalls;
 import com.tramchester.domain.input.Trip;
+import com.tramchester.domain.time.TramTime;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.TramStations;
 import org.junit.jupiter.api.BeforeEach;
@@ -15,6 +19,8 @@ import org.junit.jupiter.api.Test;
 import java.util.List;
 
 import static com.tramchester.domain.id.StringIdFor.createId;
+import static com.tramchester.domain.reference.GTFSPickupDropoffType.None;
+import static com.tramchester.domain.reference.GTFSPickupDropoffType.Regular;
 import static com.tramchester.domain.time.TramTime.of;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -27,17 +33,21 @@ class PlatformStopCallsTest {
     private PlatformStopCall stopB;
     private PlatformStopCall stopC;
     private StopCalls stops;
+    private Trip trip;
+    private Platform platformD;
 
     @BeforeEach
     void beforeEachTestRuns() {
 
         stationA = TramStations.Ashton;
+
         stationB = TramStations.Broadway;
         stationC = TramStations.Cornbrook;
         stationD = TramStations.Deansgate;
+        platformD = MutablePlatform.buildForTFGMTram("statD1", "name:" + "statD1", stationD.getLatLong());
 
         Service service = MutableService.build(createId("svc1"));
-        Trip trip = MutableTrip.build(createId("tripId"), "headSign", service,
+        trip = MutableTrip.build(createId("tripId"), "headSign", service,
                 TestEnv.getTramTestRoute());
 
         stopA = TestEnv.createTramStopCall(trip, "statA1", stationA, 3, of(10, 10), of(10, 11));
@@ -49,6 +59,41 @@ class PlatformStopCallsTest {
         stops.add(stopA);
         stops.add(stopB);
         stops.add(stopC);
+    }
+
+    @Test
+    void shouldHaveStopCallFromStopData() {
+        StopTimeData stopCallData = StopTimeData.forTestOnly("tripId", of(11,14), of (11, 15),
+                "stopId",5, None, Regular);
+        PlatformStopCall platformStopCall = new PlatformStopCall(trip, platformD, TramStations.of(stationD), stopCallData);
+
+        assertEquals(of(11,14), platformStopCall.getArrivalTime());
+        assertEquals(of (11,15), platformStopCall.getDepartureTime());
+        assertEquals(5, platformStopCall.getGetSequenceNumber());
+        assertEquals(None, platformStopCall.getPickupType());
+        assertEquals(Regular, platformStopCall.getDropoffType());
+
+        assertEquals(stationD.getId(), platformStopCall.getStationId());
+        assertEquals(platformD, platformStopCall.getPlatform());
+    }
+
+    @Test
+    void shouldRecordIfIntoNextDay() {
+        assertFalse(stopA.intoNextDay());
+
+        TramTime nextDay = TramTime.nextDay(0,14);
+
+        PlatformStopCall stopE = new PlatformStopCall(platformD, TramStations.of(stationD), nextDay, nextDay.plusMinutes(5), 4,
+                Regular, Regular, trip);
+        assertTrue(stopE.intoNextDay());
+
+        PlatformStopCall stopD = new PlatformStopCall(platformD, TramStations.of(stationD), of(23, 59), nextDay, 5,
+                Regular, Regular, trip);
+        assertTrue(stopD.intoNextDay());
+
+        assertFalse(stops.intoNextDay());
+        stops.add(stopD);
+        assertTrue(stops.intoNextDay());
     }
 
     @Test

@@ -7,7 +7,6 @@ import com.tramchester.config.AppConfiguration;
 import com.tramchester.config.GTFSSourceConfig;
 import com.tramchester.config.LiveDataConfig;
 import com.tramchester.config.TramchesterConfig;
-import com.tramchester.dataimport.data.StopTimeData;
 import com.tramchester.domain.*;
 import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.id.IdFor;
@@ -211,9 +210,9 @@ public class TestEnv {
                                                       TramTime depart) {
         Platform platform = MutablePlatform.buildForTFGMTram(stopId, "name:" + stopId, station.getLatLong());
         GTFSPickupDropoffType pickupDropoff = GTFSPickupDropoffType.Regular;
-        StopTimeData stopTimeData = StopTimeData.forTestOnly(trip.getId().forDTO(), arrive, depart, stopId, seq,
-                pickupDropoff, pickupDropoff);
-        return new PlatformStopCall(trip, platform, TramStations.of(station), stopTimeData);
+        //StopTimeData stopTimeData = StopTimeData.forTestOnly(trip.getId().forDTO(), arrive, depart, stopId, seq,
+        //        pickupDropoff, pickupDropoff);
+        return new PlatformStopCall(platform, TramStations.of(station), arrive, depart, seq, pickupDropoff, pickupDropoff, trip);
     }
 
     public static BoundingBox getTFGMBusBounds() {

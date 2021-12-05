@@ -18,6 +18,12 @@ public abstract class StopCall {
     private final GTFSPickupDropoffType dropoffType;
     private final int dwellTime;
     private final Trip trip;
+    private final boolean intoNextDay;
+
+    protected StopCall(Station station, StopTimeData stopTimeData, Trip trip) {
+        this(station, stopTimeData.getArrivalTime(), stopTimeData.getDepartureTime(), stopTimeData.getStopSequence(),
+                stopTimeData.getPickupType(), stopTimeData.getDropOffType(), trip);
+    }
 
     protected StopCall(Station station, TramTime arrivalTime, TramTime departureTime, int sequenceNumber, GTFSPickupDropoffType pickupType,
                        GTFSPickupDropoffType dropoffType, Trip trip) {
@@ -26,17 +32,15 @@ public abstract class StopCall {
         this.sequenceNumber = sequenceNumber;
         this.pickupType = pickupType;
         this.dropoffType = dropoffType;
+        this.trip = trip;
+
+        // small optimisations
         if (arrivalTime.equals(departureTime)) {
             dwellTime = 0;
         } else {
             dwellTime = TramTime.diffenceAsMinutes(arrivalTime, departureTime);
         }
-        this.trip = trip;
-    }
-
-    protected StopCall(Station station, StopTimeData stopTimeData, Trip trip) {
-        this(station, stopTimeData.getArrivalTime(), stopTimeData.getDepartureTime(), stopTimeData.getStopSequence(),
-                stopTimeData.getPickupType(), stopTimeData.getDropOffType(), trip);
+        intoNextDay = arrivalTime.isNextDay() || departureTime.isNextDay();
     }
 
     public TramTime getArrivalTime() {
@@ -93,5 +97,9 @@ public abstract class StopCall {
 
     public Trip getTrip() {
         return trip;
+    }
+
+    public boolean intoNextDay() {
+        return intoNextDay;
     }
 }
