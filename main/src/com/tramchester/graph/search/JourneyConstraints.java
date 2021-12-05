@@ -48,22 +48,6 @@ public class JourneyConstraints {
                 journeyRequest, closedStationsRepository.getClosedStationsFor(journeyRequest.getDate()),
                 endStations,
                 lowestCostForDestinations);
-//        this.config = config;
-//        this.lowestCostForDestinations = lowestCostForDestinations;
-//        this.runningRoutesAndServices = new RunningRoutesAndServices(journeyRequest.getDate(), serviceRepository,
-//                routeRepository);
-//        this.maxPathLength = computeMaxPathLength();
-//
-//        this.endStations = endStations;
-//        this.maxJourneyDuration = journeyRequest.getMaxJourneyDuration();
-//        this.maxWalkingConnections = config.getMaxWalkingConnections();
-//        this.maxNeighbourConnections = config.getMaxNeighbourConnections();
-//
-//        this.closedStations = closedStationsRepository.getClosedStationsFor(journeyRequest.getDate());
-//
-//        if (!closedStations.isEmpty()) {
-//            logger.info("Have closed stations " + closedStations);
-//        }
     }
 
     public JourneyConstraints(TramchesterConfig config, RunningRoutesAndServices runningRoutesAndServices,
