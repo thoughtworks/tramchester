@@ -22,10 +22,7 @@ import com.tramchester.graph.graphbuild.GraphLabel;
 import com.tramchester.graph.graphbuild.GraphProps;
 import com.tramchester.graph.search.*;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
-import com.tramchester.repository.ClosedStationsRepository;
-import com.tramchester.repository.RouteRepository;
-import com.tramchester.repository.ServiceRepository;
-import com.tramchester.repository.StationRepository;
+import com.tramchester.repository.*;
 import com.tramchester.resources.LocationJourneyPlanner;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.KnownTramRoute;
@@ -56,7 +53,6 @@ public class MapPathToStagesViaStatesTest {
     private Transaction txn;
     private RouteCalculator routeCalculator;
     private ProvidesLocalNow providesLocalNow;
-    private ServiceRepository serviceRepository;
     private GraphQuery graphQuery;
     private StationRepository stationRepository;
     private NodeContentsRepository nodeContentsRepository;
@@ -64,7 +60,7 @@ public class MapPathToStagesViaStatesTest {
     private LocationJourneyPlanner locationJourneyPlanner;
     private BetweenRoutesCostRepository routeToRouteCosts;
     private ClosedStationsRepository closedStationsRepository;
-    private RouteRepository routeRepository;
+    private RunningRoutesAndServices runningRoutesAndService;
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
@@ -84,8 +80,6 @@ public class MapPathToStagesViaStatesTest {
         txn = database.beginTx(TXN_TIMEOUT, TimeUnit.SECONDS);
         routeCalculator = componentContainer.get(RouteCalculator.class);
         providesLocalNow = componentContainer.get(ProvidesLocalNow.class);
-        serviceRepository = componentContainer.get(ServiceRepository.class);
-        routeRepository = componentContainer.get(RouteRepository.class);
         nodeContentsRepository = componentContainer.get(NodeContentsRepository.class);
         graphQuery = componentContainer.get(GraphQuery.class);
         stationRepository = componentContainer.get(StationRepository.class);
@@ -93,6 +87,7 @@ public class MapPathToStagesViaStatesTest {
         locationJourneyPlanner = componentContainer.get(LocationJourneyPlanner.class);
         routeToRouteCosts = componentContainer.get(RouteToRouteCosts.class);
         closedStationsRepository = componentContainer.get(ClosedStationsRepository.class);
+        runningRoutesAndService = componentContainer.get(RunningRoutesAndServices.class);
     }
 
     @AfterEach
@@ -309,8 +304,11 @@ public class MapPathToStagesViaStatesTest {
             int numChanges, TramServiceDate queryDate, TramTime queryTime) {
         PreviousVisits previous = new PreviousVisits();
         ServiceReasons reasons = new ServiceReasons(journeyRequest, queryTime, providesLocalNow);
+
         LowestCostsForRoutes lowestCostCalculator = routeToRouteCosts.getLowestCostCalcutatorFor(endStations);
-        JourneyConstraints journeyConstraints = new JourneyConstraints(config, routeRepository, serviceRepository,
+
+        RunningRoutesAndServices.FilterForDate filter = runningRoutesAndService.getFor(queryDate);
+        JourneyConstraints journeyConstraints = new JourneyConstraints(config, filter,
                 journeyRequest, closedStationsRepository, endStations, lowestCostCalculator);
         ServiceHeuristics serviceHeuristics =  new ServiceHeuristics(stationRepository, nodeContentsRepository,
                 journeyConstraints, queryTime, numChanges);

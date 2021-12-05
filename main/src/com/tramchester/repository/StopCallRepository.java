@@ -2,6 +2,7 @@ package com.tramchester.repository;
 
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.domain.Service;
+import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.input.StopCall;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.Station;
@@ -65,13 +66,14 @@ public class StopCallRepository {
         stopCalls.clear();
     }
 
+    // visualisation of frequency support
     public Set<StopCall> getStopCallsFor(Station station, LocalDate date, TramTime begin, TramTime end) {
-        Set<Service> runningOnDate = serviceRepository.getServicesOnDate(TramServiceDate.of(date));
+        IdSet<Service> runningOnDate = serviceRepository.getServicesOnDate(TramServiceDate.of(date));
         Set<StopCall> allForStation = stopCalls.get(station);
 
         return allForStation.stream().
                 filter(stopCall -> stopCall.getPickupType().equals(GTFSPickupDropoffType.Regular)).
-                filter(stopCall -> runningOnDate.contains(stopCall.getTrip().getService())).
+                filter(stopCall -> runningOnDate.contains(stopCall.getServiceId())).
                 filter(stopCall -> stopCall.getArrivalTime().between(begin, end)).
                 collect(Collectors.toSet());
     }

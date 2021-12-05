@@ -17,10 +17,7 @@ import com.tramchester.graph.GraphQuery;
 import com.tramchester.graph.caches.LowestCostSeen;
 import com.tramchester.graph.caches.NodeContentsRepository;
 import com.tramchester.graph.search.stateMachine.states.TraversalStateFactory;
-import com.tramchester.repository.ClosedStationsRepository;
-import com.tramchester.repository.RouteRepository;
-import com.tramchester.repository.ServiceRepository;
-import com.tramchester.repository.TransportData;
+import com.tramchester.repository.*;
 import org.neo4j.graphdb.Transaction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,10 +36,9 @@ public class RouteCalculatorForBoxes extends RouteCalculatorSupport {
     private static final Logger logger = LoggerFactory.getLogger(RouteCalculatorForBoxes.class);
 
     private final TramchesterConfig config;
-    private final ServiceRepository serviceRepository;
     private final GraphDatabase graphDatabaseService;
     private final ClosedStationsRepository closedStationsRepository;
-    private final RouteRepository routeRepository;
+    private final RunningRoutesAndServices runningRoutesAndService;
 
     @Inject
     public RouteCalculatorForBoxes(TramchesterConfig config,
@@ -52,15 +48,15 @@ public class RouteCalculatorForBoxes extends RouteCalculatorSupport {
                                    NodeContentsRepository nodeContentsRepository,
                                    ProvidesNow providesNow,
                                    SortsPositions sortsPosition, MapPathToLocations mapPathToLocations,
-                                   BetweenRoutesCostRepository routeToRouteCosts, ReasonsToGraphViz reasonToGraphViz, ClosedStationsRepository closedStationsRepository) {
+                                   BetweenRoutesCostRepository routeToRouteCosts, ReasonsToGraphViz reasonToGraphViz,
+                                   ClosedStationsRepository closedStationsRepository, RunningRoutesAndServices runningRoutesAndService) {
         super(graphQuery, pathToStages, nodeContentsRepository, graphDatabaseService,
                 traversalStateFactory, providesNow, sortsPosition, mapPathToLocations,
                 transportData, config, transportData, routeToRouteCosts, reasonToGraphViz);
         this.config = config;
-        this.serviceRepository = transportData;
-        this.routeRepository = transportData;
         this.graphDatabaseService = graphDatabaseService;
         this.closedStationsRepository = closedStationsRepository;
+        this.runningRoutesAndService = runningRoutesAndService;
     }
 
     public Stream<JourneysForBox> calculateRoutes(Set<Station> destinations, JourneyRequest journeyRequest,
@@ -73,8 +69,9 @@ public class RouteCalculatorForBoxes extends RouteCalculatorSupport {
         final TramServiceDate queryDate = journeyRequest.getDate();
 
         final LowestCostsForRoutes lowestCostForDestinations = routeToRouteCosts.getLowestCostCalcutatorFor(destinations);
-        final JourneyConstraints journeyConstraints = new JourneyConstraints(config, routeRepository, serviceRepository,
-                journeyRequest, closedStationsRepository, destinations, lowestCostForDestinations);
+        RunningRoutesAndServices.FilterForDate routeAndServicesFilter = runningRoutesAndService.getFor(queryDate);
+        final JourneyConstraints journeyConstraints = new JourneyConstraints(config, routeAndServicesFilter, journeyRequest, closedStationsRepository,
+                destinations, lowestCostForDestinations);
 
         final Set<Long> destinationNodeIds = getDestinationNodeIds(destinations);
 

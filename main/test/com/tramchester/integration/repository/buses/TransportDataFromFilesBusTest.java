@@ -149,14 +149,16 @@ class TransportDataFromFilesBusTest {
     void shouldGetServicesByDate() {
         LocalDate nextSaturday = TestEnv.nextSaturday();
         TramServiceDate date = new TramServiceDate(nextSaturday);
-        Set<Service> results = transportData.getServicesOnDate(date);
+        IdSet<Service> results = transportData.getServicesOnDate(date);
 
         assertFalse(results.isEmpty());
-        long onCorrectDate = results.stream().filter(svc -> svc.getCalendar().operatesOn(nextSaturday)).count();
+        long onCorrectDate = results.stream().
+                map(transportData::getServiceById).
+                filter(svc -> svc.getCalendar().operatesOn(nextSaturday)).count();
         assertEquals(results.size(), onCorrectDate, "should all be on the specified date");
 
         LocalDate noBusesDate = TestEnv.LocalNow().plusMonths(36).toLocalDate();
-        Set<Service> futureServices = transportData.getServicesOnDate(new TramServiceDate(noBusesDate));
+        IdSet<Service> futureServices = transportData.getServicesOnDate(new TramServiceDate(noBusesDate));
         assertTrue(results.size() > futureServices.size());
     }
 

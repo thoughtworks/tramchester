@@ -32,7 +32,7 @@ import static org.junit.jupiter.api.Assertions.*;
 public class JourneyConstraintsTest extends EasyMockSupport {
 
     private JourneyConstraints journeyConstraints;
-    private RunningRoutesAndServices runningRoutesAndServices;
+    private RunningRoutesAndServices.FilterForDate filterForDate;
     private TestConfigWithTramMode config;
     private LowestCostsForRoutes lowestCostForDest;
 
@@ -42,7 +42,7 @@ public class JourneyConstraintsTest extends EasyMockSupport {
 
         IdSet<Station> closedStations = IdSet.singleton(TramStations.Cornbrook.getId());
         lowestCostForDest = createMock(LowestCostsForRoutes.class);
-        runningRoutesAndServices = createMock(RunningRoutesAndServices.class);
+        filterForDate = createMock(RunningRoutesAndServices.FilterForDate.class);
 
         TramServiceDate date = TramServiceDate.of(TestEnv.testDay());
         TramTime queryTime = TramTime.of(11,45);
@@ -53,7 +53,7 @@ public class JourneyConstraintsTest extends EasyMockSupport {
                 maxJourneys);
         Set<Station> endStations = Collections.singleton(TramStations.of(TramStations.Bury));
 
-        journeyConstraints = new JourneyConstraints(config, runningRoutesAndServices, journeyRequest,
+        journeyConstraints = new JourneyConstraints(config, filterForDate, journeyRequest,
                closedStations, endStations, lowestCostForDest);
     }
 
@@ -74,7 +74,7 @@ public class JourneyConstraintsTest extends EasyMockSupport {
         Route route = TestEnv.getTramTestRoute();
         TramTime time = TramTime.of(10,11);
 
-        EasyMock.expect(runningRoutesAndServices.isRouteRunning(route.getId())).andReturn(true);
+        EasyMock.expect(filterForDate.isRouteRunning(route.getId())).andReturn(true);
 
         replayAll();
         boolean result = journeyConstraints.isUnavailable(route, time);
@@ -87,7 +87,7 @@ public class JourneyConstraintsTest extends EasyMockSupport {
     void shouldCheckIfServiceRunning() {
         IdFor<Service> serviceId = StringIdFor.createId("serviceA");
 
-        EasyMock.expect(runningRoutesAndServices.isRunning(serviceId)).andReturn(true);
+        EasyMock.expect(filterForDate.isServiceRunning(serviceId)).andReturn(true);
 
         replayAll();
         boolean result = journeyConstraints.isRunning(serviceId);

@@ -1,23 +1,55 @@
 package com.tramchester.repository;
 
+import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.Service;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdSet;
+import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.time.TramServiceDate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
+import javax.inject.Inject;
+
+@LazySingleton
 public class RunningRoutesAndServices {
     private static final Logger logger = LoggerFactory.getLogger(RunningRoutesAndServices.class);
 
-    private final IdSet<Service> serviceIds;
-    private final IdSet<Route> routeIds;
+    private final ServiceRepository serviceRepository;
+    private final RouteRepository routeRepository;
+    private final TripRepository tripRepository;
+    private IdSet<Service> intoNextDay;
 
-    public RunningRoutesAndServices(TramServiceDate date, ServiceRepository serviceRepository,
-                                    RouteRepository routeRepository) {
+    @Inject
+    public RunningRoutesAndServices(ServiceRepository serviceRepository, RouteRepository routeRepository, TripRepository tripRepository) {
+        this.serviceRepository = serviceRepository;
+        this.routeRepository = routeRepository;
+        this.tripRepository = tripRepository;
+    }
 
-        serviceIds = serviceRepository.getServicesOnDate(date).stream().collect(IdSet.collector());
+    @PostConstruct
+    public void start() {
+        logger.info("starting");
+        intoNextDay = tripRepository.getTrips().stream().filter(Trip::intoNextDay).
+                map(Trip::getService).
+                collect(IdSet.collector());
+        logger.info("started");
+    }
+
+    @PreDestroy
+    public void dispose() {
+        logger.info("stopping");
+        if (intoNextDay != null) {
+            intoNextDay.clear();
+        }
+        logger.info("stopped");
+    }
+
+    public FilterForDate getFor(TramServiceDate date) {
+        IdSet<Service> serviceIds =  serviceRepository.getServicesOnDate(date);
         if (serviceIds.size()>0) {
             logger.info("Found " + serviceIds.size() + " running services for " + date);
         } else
@@ -25,33 +57,46 @@ public class RunningRoutesAndServices {
             logger.warn("No running services found on " + date);
         }
 
-        routeIds = routeRepository.getRoutesRunningOn(date);
+        IdSet<Route> routeIds = routeRepository.getRoutesRunningOn(date);
         if (routeIds.size()>0) {
             logger.info("Found " + routeIds.size() + " running routes for " + date);
         } else
         {
             logger.warn("No running routes found on " + date);
         }
+
+        return new FilterForDate(serviceIds, routeIds);
     }
 
-    // TODO next day?
-    public boolean isRunning(IdFor<Service> serviceId) {
-        return serviceIds.contains(serviceId);
+    public boolean intoNextDay(IdFor<Service> id) {
+        return intoNextDay.contains(id);
     }
 
-    // TODO next day?
-    public boolean isRouteRunning(IdFor<Route> routeId) {
-        return routeIds.contains(routeId);
-    }
+    public static class FilterForDate {
+        private final IdSet<Service> runningServices;
+        private final IdSet<Route> runningRoutes;
 
-    @Override
-    public String toString() {
-        return "RunningServices{" +
-                "serviceIds=" + serviceIds +
-                '}';
-    }
+        private FilterForDate(IdSet<Service> runningServices, IdSet<Route> runningRoutes) {
+            this.runningServices = runningServices;
+            this.runningRoutes = runningRoutes;
+        }
 
-    public int size() {
-        return serviceIds.size();
+        // TODO next day?
+        public boolean isServiceRunning(IdFor<Service> serviceId) {
+            return runningServices.contains(serviceId);
+        }
+
+        // TODO next day?
+        public boolean isRouteRunning(IdFor<Route> routeId) {
+            return runningRoutes.contains(routeId);
+        }
+
+        @Override
+        public String toString() {
+            return "FilterForDate{" +
+                    "number of runningServices=" + runningServices.size() +
+                    ", number of runningRoutes=" + runningRoutes.size() +
+                    '}';
+        }
     }
 }

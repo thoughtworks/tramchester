@@ -123,7 +123,7 @@ public class PhysicalStationRecord {
 // https://github.com/OddEssay/atoc-timetable-import/blob/master/master_station_names.php
 //    			 * 3.2.7.2 Station Details
 //   			 * Name 					Start 	Length 	Description
-//			 * Record Type                  0       1       “A”
+//			 * Record Type                  0       1       "A"
 //			 * Spaces 					1 		4 		Spaces
 //			 * Station Name 			5 		30 		Station Name
 //			 * CATE Type 				35 		1 		Interchange Status. Values:
@@ -142,7 +142,7 @@ public class PhysicalStationRecord {
 //			 * Easting 					52 		5 		Easting in units of 100m. Stations too far south (Channel Islands) or too far north (Orkneys) or too far
 //			 * 												west (west of Carrick on Shannon) have both their Easting and Northing set to 00000. The most westerly
 //			 * 												station in range, Carrick on Shannon, has value 10000. The most easterly station, Amsterdam, has value 18690.
-//			 * Estimated                57      1       “E” means estimated coordinates, space otherwise
+//			 * Estimated                57      1       "E" means estimated coordinates, space otherwise
 //			 * Northing 				58 		5 		Northing in units of 100m. Stations too far south (Channel Islands) or too far north (Orkneys) or too far
 //			 * 												west (west of Carrick on Shannon) have both their Easting and Northing set to 00000. The most
 //			 * 												southerly station in range, Lizard (Bus), has value 60126. The most northerly station in range, Scrabster, has value 69703.

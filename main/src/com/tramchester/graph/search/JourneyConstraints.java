@@ -11,9 +11,7 @@ import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.repository.ClosedStationsRepository;
-import com.tramchester.repository.RouteRepository;
 import com.tramchester.repository.RunningRoutesAndServices;
-import com.tramchester.repository.ServiceRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,7 +28,7 @@ public class JourneyConstraints {
 
     private static final Logger logger = LoggerFactory.getLogger(JourneyConstraints.class);
 
-    private final RunningRoutesAndServices runningRoutesAndServices;
+    private final RunningRoutesAndServices.FilterForDate routesAndServicesFilter;
     private final TramchesterConfig config;
     private final int maxPathLength;
     private final Set<Station> endStations;
@@ -40,23 +38,21 @@ public class JourneyConstraints {
     private final int maxNeighbourConnections;
     private final LowestCostsForRoutes lowestCostForDestinations;
 
-    public JourneyConstraints(TramchesterConfig config, RouteRepository routeRepository, ServiceRepository serviceRepository,
+    public JourneyConstraints(TramchesterConfig config, RunningRoutesAndServices.FilterForDate routesAndServicesFilter,
                               JourneyRequest journeyRequest,
                               ClosedStationsRepository closedStationsRepository, Set<Station> endStations,
                               LowestCostsForRoutes lowestCostForDestinations) {
-        this(config, new RunningRoutesAndServices(journeyRequest.getDate(), serviceRepository, routeRepository),
-                journeyRequest, closedStationsRepository.getClosedStationsFor(journeyRequest.getDate()),
-                endStations,
-                lowestCostForDestinations);
+        this(config, routesAndServicesFilter, journeyRequest, closedStationsRepository.getClosedStationsFor(journeyRequest.getDate()),
+                endStations, lowestCostForDestinations);
     }
 
-    public JourneyConstraints(TramchesterConfig config, RunningRoutesAndServices runningRoutesAndServices,
+    public JourneyConstraints(TramchesterConfig config, RunningRoutesAndServices.FilterForDate routesAndServicesFilter,
                               JourneyRequest journeyRequest,
                               IdSet<Station> closedStations, Set<Station> endStations,
                               LowestCostsForRoutes lowestCostForDestinations) {
         this.config = config;
         this.lowestCostForDestinations = lowestCostForDestinations;
-        this.runningRoutesAndServices = runningRoutesAndServices;
+        this.routesAndServicesFilter = routesAndServicesFilter;
         this.maxPathLength = computeMaxPathLength();
 
         this.endStations = endStations;
@@ -87,9 +83,6 @@ public class JourneyConstraints {
         };
     }
 
-    public boolean isRunning(IdFor<Service> serviceId) {
-        return runningRoutesAndServices.isRunning(serviceId);
-    }
 
     public int getMaxPathLength() {
         return maxPathLength;
@@ -122,7 +115,7 @@ public class JourneyConstraints {
     @Override
     public String toString() {
         return "JourneyConstraints{" +
-                "runningServices=" + runningRoutesAndServices.size() +
+                "runningServices=" + routesAndServicesFilter +
                 ", maxPathLength=" + maxPathLength +
                 ", endStations=" + HasId.asIds(endStations) +
                 ", closedStations=" + closedStations +
@@ -134,6 +127,11 @@ public class JourneyConstraints {
 
     // TODO next day?
     public boolean isUnavailable(Route route, TramTime currentElapsed) {
-        return !runningRoutesAndServices.isRouteRunning(route.getId());
+        return !routesAndServicesFilter.isRouteRunning(route.getId());
     }
+
+    public boolean isRunning(IdFor<Service> serviceId) {
+        return routesAndServicesFilter.isServiceRunning(serviceId);
+    }
+
 }

@@ -4,9 +4,10 @@ package com.tramchester.integration.repository;
 import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.config.GTFSSourceConfig;
-import com.tramchester.dataimport.loader.TransportDataReaderFactory;
-import com.tramchester.dataimport.loader.TransportDataReader;
 import com.tramchester.dataimport.data.CalendarDateData;
+import com.tramchester.dataimport.loader.PopulateTransportDataFromSources;
+import com.tramchester.dataimport.loader.TransportDataReader;
+import com.tramchester.dataimport.loader.TransportDataReaderFactory;
 import com.tramchester.domain.*;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdSet;
@@ -21,9 +22,7 @@ import com.tramchester.domain.time.TramServiceDate;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
 import com.tramchester.repository.InterchangeRepository;
-import com.tramchester.repository.ServiceRepository;
 import com.tramchester.repository.TransportData;
-import com.tramchester.dataimport.loader.PopulateTransportDataFromSources;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TramRouteHelper;
 import com.tramchester.testSupport.reference.TramStations;
@@ -266,10 +265,13 @@ public class TransportDataFromFilesTramTest {
     void shouldGetServicesByDate() {
         LocalDate nextSaturday = TestEnv.nextSaturday();
         TramServiceDate date = new TramServiceDate(nextSaturday);
-        Set<Service> results = transportData.getServicesOnDate(date);
+        IdSet<Service> results = transportData.getServicesOnDate(date);
 
         assertFalse(results.isEmpty());
-        long onCorrectDate = results.stream().filter(svc -> svc.getCalendar().operatesOn(nextSaturday)).count();
+        long onCorrectDate = results.stream().
+                map(transportData::getServiceById).
+                filter(svc -> svc.getCalendar().operatesOn(nextSaturday)).count();
+
         assertEquals(results.size(), onCorrectDate, "should all be on the specified date");
 
         LocalDate noTramsDate = TestEnv.LocalNow().plusMonths(36).toLocalDate(); //transportData.getFeedInfo().validUntil().plusMonths(12);
@@ -281,7 +283,7 @@ public class TransportDataFromFilesTramTest {
     void shouldHaveCorrectDatesAndServicesForChirstmas2020() {
         LocalDate christmasDay = LocalDate.of(2020, 12, 25);
 
-        Set<Service> services = transportData.getServicesOnDate(TramServiceDate.of(christmasDay));
+        IdSet<Service> services = transportData.getServicesOnDate(TramServiceDate.of(christmasDay));
 
         assertTrue(services.isEmpty());
     }
@@ -290,9 +292,7 @@ public class TransportDataFromFilesTramTest {
     void shouldHaveSundayServicesFromCornbrook() {
         LocalDate nextSunday = TestEnv.nextSunday();
 
-        Set<Service> sundayServices = transportData.getServicesOnDate(new TramServiceDate(nextSunday));
-
-        IdSet<Service> sundayServiceIds = sundayServices.stream().collect(IdSet.collector());
+        IdSet<Service> sundayServiceIds = transportData.getServicesOnDate(new TramServiceDate(nextSunday));
 
         Set<Trip> cornbrookTrips = transportData.getTrips().stream().
                 filter(trip -> trip.getStopCalls().callsAt(Cornbrook)).collect(Collectors.toSet());
@@ -350,9 +350,7 @@ public class TransportDataFromFilesTramTest {
         for (int day = 0; day < DAYS_AHEAD; day++) {
             LocalDate date = TestEnv.testDay().plusDays(day);
             TramServiceDate tramServiceDate = new TramServiceDate(date);
-            Set<Service> servicesOnDate = transportData.getServicesOnDate(tramServiceDate);
-
-            IdSet<Service> servicesOnDateIds = servicesOnDate.stream().collect(IdSet.collector());
+            IdSet<Service> servicesOnDateIds = transportData.getServicesOnDate(tramServiceDate);
 
             transportData.getStations().forEach(station -> {
                 Set<Trip> callingTripsOnDate = transportData.getTrips().stream().
@@ -432,31 +430,6 @@ public class TransportDataFromFilesTramTest {
                 .filter(TramStations::isEndOfLine).collect(Collectors.toList());
 
         assertEquals(TramStations.EndOfTheLine.size(), filteredStations.size());
-    }
-
-    @Test
-    void shouldHaveTripsServicesAndRoutesThatCrossIntoNextDay() {
-        ServiceRepository serviceRepository = transportData;
-
-        Set<Trip> tripsIntoNextDay = transportData.getTrips().stream().filter(Trip::intoNextDay).collect(Collectors.toSet());
-
-        assertFalse(tripsIntoNextDay.isEmpty());
-
-        Set<Service> servicesFromTrips = tripsIntoNextDay.stream().map(Trip::getService).collect(Collectors.toSet());
-
-        servicesFromTrips.forEach(service -> assertTrue(serviceRepository.intoNextDay(service.getId()),
-                service.getId() + " should be into next day"));
-
-        Set<Service> servicesIntoNextDay = transportData.getServices().stream().
-                filter(service -> serviceRepository.intoNextDay(service.getId())).collect(Collectors.toSet());
-
-        assertEquals(servicesIntoNextDay, servicesFromTrips);
-
-        Set<Route> routesFromTrips = tripsIntoNextDay.stream().map(Trip::getRoute).collect(Collectors.toSet());
-        assertFalse(routesFromTrips.isEmpty());
-
-        Set<Route> routesIntoNextDay = transportData.getRoutes().stream().filter(Route::intoNextDay).collect(Collectors.toSet());
-        assertEquals(routesFromTrips, routesIntoNextDay);
     }
 
     @Test
