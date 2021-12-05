@@ -37,4 +37,6 @@ public interface Route extends HasId<Route>, HasTransportMode, GraphProperty {
     DateRange getDateRange();
 
     boolean isAvailableOn(LocalDate date);
+
+    boolean intoNextDay();
 }

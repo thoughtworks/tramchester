@@ -26,6 +26,7 @@ public class MutableRoute implements Route {
     private final Set<Trip> trips;
 
     private final ServiceDateCache serviceDateCache;
+    private Boolean intoNextDay;
 
     public static final Route Walking;
     static {
@@ -44,6 +45,7 @@ public class MutableRoute implements Route {
         trips  = new HashSet<>();
 
         serviceDateCache = new ServiceDateCache();
+        intoNextDay = null;
     }
 
     // test support
@@ -159,6 +161,14 @@ public class MutableRoute implements Route {
             return getDateRange().contains(date);
         }
         return false;
+    }
+
+    @Override
+    public boolean intoNextDay() {
+        if (intoNextDay==null) {
+            intoNextDay = trips.stream().anyMatch(Trip::intoNextDay);
+        }
+        return intoNextDay;
     }
 
     private static class ServiceDateCache {

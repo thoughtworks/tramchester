@@ -29,19 +29,20 @@ public class TransportDataContainer implements TransportData, WriteableTransport
 
     private final ProvidesNow providesNow;
 
-    private final CompositeIdMap<Trip, MutableTrip> trips = new CompositeIdMap<>();        // trip id -> trip
-    private final CompositeIdMap<Station, MutableStation> stationsById = new CompositeIdMap<>();  // station id -> station
-    private final CompositeIdMap<Service, MutableService> services = new CompositeIdMap<>();  // service id -> service
-    private final CompositeIdMap<Route, MutableRoute> routes = new CompositeIdMap<>();      // route id -> route
-    private final CompositeIdMap<Platform, MutablePlatform> platforms = new CompositeIdMap<>(); // platformId -> platform
-    private final IdMap<RouteStation> routeStations = new IdMap<>(); // routeStationId - > RouteStation
-    private final CompositeIdMap<Agency, MutableAgency> agencies = new CompositeIdMap<>(); // agencyId -> agencies
-
-    private final Set<DataSourceInfo> dataSourceInfos = new HashSet<>();
+    private final CompositeIdMap<Trip, MutableTrip> trips; // trip id -> trip
+    private final CompositeIdMap<Station, MutableStation> stationsById;  // station id -> station
+    private final CompositeIdMap<Service, MutableService> services;  // service id -> service
+    private final CompositeIdMap<Route, MutableRoute> routes;  // route id -> route
+    private final CompositeIdMap<Platform, MutablePlatform> platforms; // platformId -> platform
+    private final IdMap<RouteStation> routeStations; // routeStationId - > RouteStation
+    private final CompositeIdMap<Agency, MutableAgency> agencies; // agencyId -> agencies
+    private final Set<DataSourceInfo> dataSourceInfos;
 
     // data source name -> feedinfo (if present)
-    private final Map<DataSourceID, FeedInfo> feedInfoMap = new HashMap<>();
+    private final Map<DataSourceID, FeedInfo> feedInfoMap;
     private final String sourceName;
+
+    private IdSet<Service> intoNextDay;
 
     /**
      * Not container managed due to test life cycle
@@ -50,12 +51,27 @@ public class TransportDataContainer implements TransportData, WriteableTransport
         logger.info("Created for sourcename: " + sourceName);
         this.providesNow = providesNow;
         this.sourceName = sourceName;
+
+        trips = new CompositeIdMap<>();
+        stationsById = new CompositeIdMap<>();
+        services = new CompositeIdMap<>();
+        routes = new CompositeIdMap<>();
+        platforms = new CompositeIdMap<>();
+        routeStations = new IdMap<>();
+        agencies = new CompositeIdMap<>();
+        dataSourceInfos = new HashSet<>();
+        feedInfoMap = new HashMap<>();
+
+        intoNextDay = null;
     }
 
     @Override
     public void dispose() {
         logger.info("stopping for " + sourceName);
         // clear's are here due to memory usage during testing
+        if (intoNextDay!=null) {
+            intoNextDay.clear();
+        }
         trips.clear();
         stationsById.clear();
         services.clear();
@@ -352,6 +368,14 @@ public class TransportDataContainer implements TransportData, WriteableTransport
     }
 
     @Override
+    public boolean intoNextDay(IdFor<Service> id) {
+        if (intoNextDay==null) {
+            intoNextDay = trips.filterStream(Trip::intoNextDay).map(Trip::getService).collect(IdSet.collector());
+        }
+        return intoNextDay.contains(id);
+    }
+
+    @Override
     public IdSet<Route> getRoutesRunningOn(TramServiceDate tramServiceDate) {
         LocalDate date = tramServiceDate.getDate();
         return routes.filterStream(route -> route.isAvailableOn(date)).collect(IdSet.collector());
@@ -381,8 +405,6 @@ public class TransportDataContainer implements TransportData, WriteableTransport
                 filter(route -> route.getName().equals(longName)).
                 collect(Collectors.toUnmodifiableSet());
     }
-
-
 
     @Override
     public void addDataSourceInfo(DataSourceInfo dataSourceInfo) {

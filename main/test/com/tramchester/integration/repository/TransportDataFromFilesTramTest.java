@@ -21,6 +21,7 @@ import com.tramchester.domain.time.TramServiceDate;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
 import com.tramchester.repository.InterchangeRepository;
+import com.tramchester.repository.ServiceRepository;
 import com.tramchester.repository.TransportData;
 import com.tramchester.dataimport.loader.PopulateTransportDataFromSources;
 import com.tramchester.testSupport.TestEnv;
@@ -431,6 +432,31 @@ public class TransportDataFromFilesTramTest {
                 .filter(TramStations::isEndOfLine).collect(Collectors.toList());
 
         assertEquals(TramStations.EndOfTheLine.size(), filteredStations.size());
+    }
+
+    @Test
+    void shouldHaveTripsServicesAndRoutesThatCrossIntoNextDay() {
+        ServiceRepository serviceRepository = transportData;
+
+        Set<Trip> tripsIntoNextDay = transportData.getTrips().stream().filter(Trip::intoNextDay).collect(Collectors.toSet());
+
+        assertFalse(tripsIntoNextDay.isEmpty());
+
+        Set<Service> servicesFromTrips = tripsIntoNextDay.stream().map(Trip::getService).collect(Collectors.toSet());
+
+        servicesFromTrips.forEach(service -> assertTrue(serviceRepository.intoNextDay(service.getId()),
+                service.getId() + " should be into next day"));
+
+        Set<Service> servicesIntoNextDay = transportData.getServices().stream().
+                filter(service -> serviceRepository.intoNextDay(service.getId())).collect(Collectors.toSet());
+
+        assertEquals(servicesIntoNextDay, servicesFromTrips);
+
+        Set<Route> routesFromTrips = tripsIntoNextDay.stream().map(Trip::getRoute).collect(Collectors.toSet());
+        assertFalse(routesFromTrips.isEmpty());
+
+        Set<Route> routesIntoNextDay = transportData.getRoutes().stream().filter(Route::intoNextDay).collect(Collectors.toSet());
+        assertEquals(routesFromTrips, routesIntoNextDay);
     }
 
     @Test
