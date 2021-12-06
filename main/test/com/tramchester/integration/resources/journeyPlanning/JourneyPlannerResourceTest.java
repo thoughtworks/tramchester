@@ -1,10 +1,7 @@
 package com.tramchester.integration.resources.journeyPlanning;
 
 import com.tramchester.App;
-import com.tramchester.domain.presentation.DTO.JourneyDTO;
-import com.tramchester.domain.presentation.DTO.JourneyPlanRepresentation;
-import com.tramchester.domain.presentation.DTO.PlatformDTO;
-import com.tramchester.domain.presentation.DTO.StageDTO;
+import com.tramchester.domain.presentation.DTO.*;
 import com.tramchester.domain.presentation.Note;
 import com.tramchester.domain.presentation.ProvidesNotes;
 import com.tramchester.domain.reference.TransportMode;
@@ -17,6 +14,7 @@ import com.tramchester.resources.JourneyPlannerResource;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.TramStations;
 import io.dropwizard.testing.junit5.DropwizardExtensionsSupport;
+import org.apache.commons.lang3.tuple.Triple;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -29,6 +27,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static com.tramchester.testSupport.reference.TramStations.*;
 import static org.hamcrest.CoreMatchers.*;
@@ -228,6 +227,18 @@ public class JourneyPlannerResourceTest {
                 ManAirport, when, TramTime.of(23,5));
 
         assertTrue(results.getJourneys().size()>0);
+    }
+
+    @Test
+    void shouldFilterOutJourneysWithSameDepartArrivePathButDiffChanges() {
+        JourneyPlanRepresentation plan = journeyPlanner.getJourneyPlan(TestEnv.testDay(), TramTime.of(10, 43), Altrincham, Ashton, false, 1);
+
+        Set<JourneyDTO> journeys = plan.getJourneys();
+        Set<Triple<LocalDateTime, LocalDateTime, List<StationRefWithPosition>>> filtered = journeys.stream().
+                map(dto -> Triple.of(dto.getFirstDepartureTime(), dto.getExpectedArrivalTime(), dto.getPath())).
+                collect(Collectors.toSet());
+
+        assertEquals(filtered.size(), journeys.size(), "Not same " + journeys + " filtered " + filtered);
     }
 
     @Test

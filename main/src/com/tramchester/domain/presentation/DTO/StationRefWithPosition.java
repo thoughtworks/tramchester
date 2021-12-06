@@ -20,4 +20,5 @@ public class StationRefWithPosition extends StationRefDTO {
     public LatLong getLatLong() {
         return latLong;
     }
+
 }

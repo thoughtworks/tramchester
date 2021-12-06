@@ -19,8 +19,8 @@ public class JourneyDTO {
 
     private StationRefWithPosition begin;
     private List<StageDTO> stages;
-    private LocalDateTime expectedArrivalTime; // need to handle 'next day' results
-    private LocalDateTime firstDepartureTime;  // need to handle 'next day' results
+    private LocalDateTime expectedArrivalTime; // needed to handle 'next day' results
+    private LocalDateTime firstDepartureTime;  // needed to handle 'next day' results
     private List<StationRefWithPosition> changeStations;
     private TramTime queryTime;
     private List<Note> notes;

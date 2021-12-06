@@ -13,6 +13,7 @@ import com.tramchester.domain.time.TramServiceDate;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.GraphDatabase;
 import com.tramchester.domain.JourneyRequest;
+import com.tramchester.mappers.JourneyDTODuplicateFilter;
 import com.tramchester.router.ProcessPlanRequest;
 import io.dropwizard.jersey.caching.CacheControl;
 import io.swagger.annotations.Api;
@@ -27,6 +28,7 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.*;
 import java.net.URI;
 import java.time.LocalDate;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -42,12 +44,15 @@ public class JourneyPlannerResource extends UsesRecentCookie implements APIResou
     private final ProcessPlanRequest processPlanRequest;
     private final GraphDatabase graphDatabaseService;
     private final TramchesterConfig config;
+    private final JourneyDTODuplicateFilter duplicateFilter;
 
     @Inject
     public JourneyPlannerResource(UpdateRecentJourneys updateRecentJourneys,
                                   ObjectMapper objectMapper, GraphDatabase graphDatabaseService,
-                                  ProvidesNow providesNow, ProcessPlanRequest processPlanRequest, TramchesterConfig config) {
+                                  ProvidesNow providesNow, ProcessPlanRequest processPlanRequest, TramchesterConfig config,
+                                  JourneyDTODuplicateFilter duplicateFilter) {
         super(updateRecentJourneys, providesNow, objectMapper);
+        this.duplicateFilter = duplicateFilter;
         logger.info("created");
         this.processPlanRequest = processPlanRequest;
         this.graphDatabaseService = graphDatabaseService;
@@ -77,7 +82,16 @@ public class JourneyPlannerResource extends UsesRecentCookie implements APIResou
 
             Stream<JourneyDTO> dtoStream = getJourneyDTOStream(startId, endId, departureTimeRaw, departureDateRaw, lat, lon,
                     arriveByRaw, maxChanges, tx);
-            JourneyPlanRepresentation planRepresentation = new JourneyPlanRepresentation(dtoStream.collect(Collectors.toSet()));
+
+            // duplicates where same path and timings, just different change points
+            Set<JourneyDTO> journeyDTOS = dtoStream.collect(Collectors.toSet());
+            Set<JourneyDTO> filtered = duplicateFilter.apply(journeyDTOS);
+            int diff = journeyDTOS.size()-filtered.size();
+            if (diff!=0) {
+                logger.info(format("Filtered out %s of %s journeys", diff, journeyDTOS.size()));
+            }
+
+            JourneyPlanRepresentation planRepresentation = new JourneyPlanRepresentation(filtered);
             dtoStream.close();
 
             if (planRepresentation.getJourneys().size()==0) {
