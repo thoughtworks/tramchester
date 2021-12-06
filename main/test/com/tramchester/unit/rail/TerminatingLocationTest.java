@@ -20,7 +20,7 @@ public class TerminatingLocationTest {
         TerminatingLocation terminatingLocation = TerminatingLocation.parse(text);
 
         assertEquals("WLWYNGC", terminatingLocation.getTiplocCode());
-        assertEquals(TramTime.of(19,18), terminatingLocation.getPublicArrival());
+        assertEquals(TramTime.of(19,18), terminatingLocation.getArrival());
         assertEquals("4", terminatingLocation.getPlatform());
         assertEquals("", terminatingLocation.getPath());
     }
@@ -32,7 +32,7 @@ public class TerminatingLocationTest {
         TerminatingLocation terminatingLocation = TerminatingLocation.parse(text);
 
         assertEquals("UPMNLT", terminatingLocation.getTiplocCode());
-        assertEquals(TramTime.of(10,23), terminatingLocation.getPublicArrival());
+        assertEquals(TramTime.of(10,23), terminatingLocation.getArrival());
         assertEquals("", terminatingLocation.getPlatform());
         assertEquals("", terminatingLocation.getPath());
     }
@@ -44,7 +44,7 @@ public class TerminatingLocationTest {
         TerminatingLocation terminatingLocation = TerminatingLocation.parse(text);
 
         assertEquals("DRBY", terminatingLocation.getTiplocCode());
-        assertEquals(TramTime.of(8,25), terminatingLocation.getPublicArrival());
+        assertEquals(TramTime.of(8,25), terminatingLocation.getArrival());
         assertEquals("", terminatingLocation.getPlatform());
         assertEquals("BUS", terminatingLocation.getPath());
     }

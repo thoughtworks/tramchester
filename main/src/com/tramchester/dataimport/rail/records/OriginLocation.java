@@ -34,12 +34,12 @@ public class OriginLocation extends OriginOrTerminatingLocation  implements Rail
     }
 
     @Override
-    public TramTime getPublicArrival() {
+    public TramTime getArrival() {
         return super.getPublicTime();
     }
 
     @Override
-    public TramTime getPublicDeparture() {
+    public TramTime getDeparture() {
         return super.getPublicTime();
     }
 

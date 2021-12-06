@@ -5,7 +5,12 @@ import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.graph.GraphPropertyKey;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Objects;
+import java.util.Set;
+
+import static java.lang.String.format;
 
 public class MutableAgency implements Agency {
     private final Set<Route> routes;
@@ -34,6 +39,11 @@ public class MutableAgency implements Agency {
     }
 
     public void addRoute(Route route) {
+        final IdFor<Agency> routeAgencyId = route.getAgency().getId();
+        if (routeAgencyId != agencyId) {
+            throw new RuntimeException(format("Attempt add route (%s) to wrong agency %s, expected %s",
+                    route.getId(), routeAgencyId, agencyId));
+        }
         routes.add(route);
     }
 
@@ -45,10 +55,10 @@ public class MutableAgency implements Agency {
     @Override
     public String toString() {
         return "Agency{" +
-                "routes=" + HasId.asIds(routes) +
-                ", agencyId=" + agencyId +
+                "agencyId=" + agencyId +
                 ", agencyName='" + agencyName + '\'' +
                 ", dataSourceID=" + dataSourceID +
+                ", routes=" + HasId.asIds(routes) +
                 '}';
     }
 

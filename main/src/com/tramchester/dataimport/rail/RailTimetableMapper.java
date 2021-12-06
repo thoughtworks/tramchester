@@ -140,10 +140,10 @@ public class RailTimetableMapper {
     private static class RawService {
 
         private final BasicSchedule basicScheduleRecord;
-        private final List<IntermediateLocation> intermediateLocations;
-        private OriginLocation originLocation;
-        private TerminatingLocation terminatingLocation;
         private BasicScheduleExtraDetails extraDetails;
+        private OriginLocation originLocation;
+        private final List<IntermediateLocation> intermediateLocations;
+        private TerminatingLocation terminatingLocation;
 
         public RawService(RailTimetableRecord basicScheduleRecord) {
             this.basicScheduleRecord = (BasicSchedule) basicScheduleRecord;
@@ -227,12 +227,15 @@ public class RailTimetableMapper {
             // Agency
             MutableAgency mutableAgency = getOrCreateAgency(atocCode);
             final IdFor<Agency> agencyId = mutableAgency.getId();
+            if (!atocCode.equals(mutableAgency.getId().forDTO())) {
+                logger.error(format("Mismatch on atco code (%s) and found agency id %s", atocCode, agencyId));
+            }
 
             // Service
             MutableService service = railServiceGroups.getOrCreateService(basicSchedule, isOverlay);
 
             // Route
-            MutableRoute route = getOrCreateRoute(rawService, mutableAgency, atocCode);
+            MutableRoute route = getOrCreateRoute(rawService, mutableAgency);
             route.addService(service);
             mutableAgency.addRoute(route);
 
@@ -286,10 +289,9 @@ public class RailTimetableMapper {
             station.addPlatform(platform);
 
 
-
             // Stop Call
-            TramTime arrivalTime = railLocation.getPublicArrival();
-            TramTime departureTime = railLocation.getPublicDeparture();
+            TramTime arrivalTime = railLocation.getArrival();
+            TramTime departureTime = railLocation.getDeparture();
             StopCall stopCall = createStopCall(trip, station, platform, stopSequence,
                     arrivalTime, departureTime, pickup, dropoff);
             trip.addStop(stopCall);
@@ -335,11 +337,12 @@ public class RailTimetableMapper {
 
         private MutableAgency getOrCreateAgency(String atocCode) {
             MutableAgency mutableAgency;
-            final IdFor<Agency> agencyId = StringIdFor.createId(atocCode);
+            final IdFor<Agency> agencyId = getAgencyIdForAtcoCode(atocCode);
             if (container.hasAgencyId(agencyId)) {
                 mutableAgency = container.getMutableAgency(agencyId);
             } else {
                 // todo get list of atoc names
+                logger.info("Creating agency for atco code " + atocCode);
                 mutableAgency = new MutableAgency(DataSourceID.rail, agencyId, atocCode);
                 container.addAgency(mutableAgency);
             }
@@ -378,14 +381,21 @@ public class RailTimetableMapper {
             return StringIdFor.createId("trip:"+service.getId().forDTO());
         }
 
-        private MutableRoute getOrCreateRoute(RawService rawService,
-                                              MutableAgency mutableAgency, String atocCode) {
+        private MutableRoute getOrCreateRoute(RawService rawService, MutableAgency mutableAgency) {
+            IdFor<Agency> agencyId = mutableAgency.getId();
             MutableRoute route;
             List<Station> callingPoints = getRouteStationCallingPoints(rawService);
-            IdFor<Route> routeId = railRouteIDBuilder.getIdFor(atocCode, callingPoints);
+            IdFor<Route> routeId = railRouteIDBuilder.getIdFor(agencyId, callingPoints);
 
             if (container.hasRouteId(routeId)) {
                 route = container.getMutableRoute(routeId);
+                IdFor<Agency> routeAgencyCode = route.getAgency().getId();
+                if (!routeAgencyCode.equals(agencyId)) {
+                    String msg = String.format("Got route %s wrong agency id (%s) expected: %s\nSchedule: %s\nExtraDetails: %s",
+                            routeId, routeAgencyCode, agencyId, rawService.basicScheduleRecord, rawService.extraDetails);
+                    logger.error(msg);
+                    throw new RuntimeException(msg);
+                }
             } else {
                 route = new MutableRailRoute(routeId, callingPoints, mutableAgency, TransportMode.Train);
                 container.addRoute(route);
@@ -410,6 +420,11 @@ public class RailTimetableMapper {
             return result;
         }
 
+    }
+
+    @NotNull
+    private static IdFor<Agency> getAgencyIdForAtcoCode(String atocCode) {
+        return StringIdFor.createId(atocCode);
     }
 
     private static class MissingStations {

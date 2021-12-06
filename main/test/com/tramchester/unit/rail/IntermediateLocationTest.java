@@ -15,8 +15,15 @@ public class IntermediateLocationTest {
         IntermediateLocation intermediateLocation = IntermediateLocation.parse(line);
 
         assertEquals("NEWSGAT", intermediateLocation.getTiplocCode());
+
+        assertEquals(TramTime.of(18,52), intermediateLocation.getScheduledArrival());
+        assertEquals(TramTime.of(18,53), intermediateLocation.getScheduledDeparture());
+
         assertEquals(TramTime.of(18,53), intermediateLocation.getPublicArrival());
         assertEquals(TramTime.of(18,54), intermediateLocation.getPublicDeparture());
+
+        assertEquals(TramTime.of(18,53), intermediateLocation.getArrival());
+        assertEquals(TramTime.of(18,54), intermediateLocation.getDeparture());
         assertEquals("123", intermediateLocation.getPlatform());
         assertFalse(intermediateLocation.isPassingRecord());
     }
@@ -33,8 +40,8 @@ public class IntermediateLocationTest {
         assertEquals("BATRSPJ", intermediateLocation.getTiplocCode());
         assertTrue(intermediateLocation.isPassingRecord());
         assertEquals(TramTime.of(21,25), intermediateLocation.getPassingTime());
-        assertFalse(intermediateLocation.getPublicArrival().isValid());
-        assertFalse(intermediateLocation.getPublicDeparture().isValid());
+        assertFalse(intermediateLocation.getArrival().isValid());
+        assertFalse(intermediateLocation.getDeparture().isValid());
     }
 
     @Test
@@ -59,6 +66,9 @@ public class IntermediateLocationTest {
         // Location 	            CRS 	NLC 	    TIPLOC 	    STANME 	    STANOX
         // Fareham Signal E825              590001      FARE825     FAREHM825   86238
 
+        //             01234567890123456789012345678901234567890123456
+        //             0         1         2         3         4
+        //             LIMOTHRWL 2349H2359H     000023571        U
         String line = "LIFARE825 1242H1246H     00000000         OPA";
 
         IntermediateLocation intermediateLocation = IntermediateLocation.parse(line);
@@ -66,5 +76,15 @@ public class IntermediateLocationTest {
         assertEquals(7, intermediateLocation.getTiplocCode().length());
         assertEquals("FARE825", intermediateLocation.getTiplocCode());
         assertFalse(intermediateLocation.isPassingRecord());
+
+        assertEquals(TramTime.of(0,0),intermediateLocation.getPublicArrival());
+        assertEquals(TramTime.of(0,0),intermediateLocation.getPublicDeparture());
+
+        assertEquals(TramTime.of(12,42),intermediateLocation.getScheduledArrival());
+        assertEquals(TramTime.of(12,46),intermediateLocation.getScheduledDeparture());
+
+        assertEquals(TramTime.of(12,42),intermediateLocation.getArrival());
+        assertEquals(TramTime.of(12,46),intermediateLocation.getDeparture());
+
     }
 }

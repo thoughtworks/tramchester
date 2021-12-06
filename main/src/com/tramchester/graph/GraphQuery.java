@@ -19,7 +19,8 @@ import java.util.Set;
 
 /***
  * Make sure have correct dependencies on "Ready" tokens alongside this class, it makes no guarantees for any
- * data having put in the DB
+ * data having put in the DB.
+ * It can't have a ready token injected as this would create circular dependencies.
  */
 @LazySingleton
 public class GraphQuery {
@@ -28,8 +29,6 @@ public class GraphQuery {
 
     @Inject
     public GraphQuery(GraphDatabase graphDatabase) {
-        //, StagedTransportGraphBuilder.Ready dbReady, CompositeStationGraphBuilder.Ready compositeStationsReady)
-        // ready is token to express dependency on having a built graph DB
         this.graphDatabase = graphDatabase;
     }
 
@@ -69,6 +68,9 @@ public class GraphQuery {
         return graphDatabase.findNode(txn, label, hasId.getProp().getText(), hasId.getId().getGraphId());
     }
 
+    /**
+     * When calling from tests make sure relevant DB is fully built
+     */
     public List<Relationship> getRouteStationRelationships(Transaction txn, HasId<RouteStation> routeStation, Direction direction) {
         Node routeStationNode = getRouteStationNode(txn, routeStation);
         if (routeStationNode==null) {

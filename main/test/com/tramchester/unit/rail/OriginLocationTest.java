@@ -18,7 +18,7 @@ public class OriginLocationTest {
         OriginLocation originLocation = OriginLocation.parse(text);
 
         assertEquals("LINCLNC", originLocation.getTiplocCode());
-        assertEquals(TramTime.of(12, 38), originLocation.getPublicDeparture());
+        assertEquals(TramTime.of(12, 38), originLocation.getDeparture());
         assertEquals("4A", originLocation.getPlatform());
         assertEquals("", originLocation.getLine());
     }
@@ -33,7 +33,7 @@ public class OriginLocationTest {
         OriginLocation originLocation = OriginLocation.parse(text);
 
         assertEquals("DRBY", originLocation.getTiplocCode());
-        assertEquals(TramTime.of(17, 49), originLocation.getPublicDeparture());
+        assertEquals(TramTime.of(17, 49), originLocation.getDeparture());
         assertEquals("4B", originLocation.getPlatform());
         assertEquals("DTS", originLocation.getLine());
     }
@@ -49,7 +49,7 @@ public class OriginLocationTest {
         OriginLocation originLocation = OriginLocation.parse(text);
 
         assertEquals("MINEBUT", originLocation.getTiplocCode());
-        assertEquals(TramTime.of(18, 45), originLocation.getPublicDeparture());
+        assertEquals(TramTime.of(18, 45), originLocation.getDeparture());
         assertEquals("", originLocation.getPlatform());
         assertEquals("BUS", originLocation.getLine());
     }

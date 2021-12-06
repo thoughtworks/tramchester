@@ -10,6 +10,7 @@ import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.GTFSPickupDropoffType;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.graph.GraphDatabase;
+import com.tramchester.graph.GraphPropertyKey;
 import com.tramchester.graph.filters.GraphFilter;
 import com.tramchester.metrics.TimedTransaction;
 import com.tramchester.metrics.Timing;
@@ -114,6 +115,8 @@ public class StationsAndLinksGraphBuilder extends GraphBuilder {
             return;
         }
 
+        logger.info(format("Adding %s routes for agency %s", routes.size(), agency));
+
         Set<Station> filteredStations = graphFilter.isFiltered() ?
                 transportData.getStationStream().filter(graphFilter::shouldInclude)
                         .collect(Collectors.toSet()) :
@@ -124,11 +127,12 @@ public class StationsAndLinksGraphBuilder extends GraphBuilder {
             routes.forEach(route -> {
                 IdFor<Route> asId = route.getId();
                 logger.info("Adding route " + asId);
-                filteredStations.stream().filter(station -> station.servesRouteDropoff(route) || station.servesRoutePickup(route)).
-                        forEach(station -> {
-                            RouteStation routeStation = transportData.getRouteStation(station, route);
+                filteredStations.stream().
+                        filter(station -> station.servesRouteDropoff(route) || station.servesRoutePickup(route)).
+                        map(station -> transportData.getRouteStation(station, route)).
+                        forEach(routeStation -> {
                             Node routeStationNode = createRouteStationNode(tx, routeStation, builderCache);
-                            linkStationAndRouteStation(tx, station, routeStationNode);
+                            linkStationAndRouteStation(tx, routeStation.getStation(), routeStationNode);
                         });
 
                 createLinkRelationships(tx, route, builderCache);
@@ -218,6 +222,14 @@ public class StationsAndLinksGraphBuilder extends GraphBuilder {
     }
 
     private Node createRouteStationNode(Transaction tx, RouteStation routeStation, GraphBuilderCache builderCache) {
+        Node existing = graphDatabase.findNode(tx,
+                GraphLabel.ROUTE_STATION, GraphPropertyKey.ROUTE_STATION_ID.getText(), routeStation.getId().getGraphId());
+        if (existing!=null) {
+            final String msg = "Existing route station node for " + routeStation + " with id " + routeStation.getId();
+            logger.error(msg);
+            throw new RuntimeException(msg);
+        }
+
         Node routeStationNode = createGraphNode(tx, GraphLabel.ROUTE_STATION);
 
         logger.debug(format("Creating route station %s nodeId %s", routeStation.getId(), routeStationNode.getId()));

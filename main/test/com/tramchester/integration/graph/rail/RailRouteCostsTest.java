@@ -25,6 +25,12 @@ public class RailRouteCostsTest {
     private StationRepository stationRepository;
     private Transaction txn;
     private RouteCostCalculator routeCostCalculator;
+    private Station stockport;
+    private Station manPicc;
+    private Station londonEuston;
+    private Station wilmslow;
+    private Station crewe;
+    private Station miltonKeynes;
 
     @BeforeAll
     static void onceBeforeAnyTestRuns() {
@@ -45,6 +51,13 @@ public class RailRouteCostsTest {
         txn = database.beginTx();
         stationRepository = componentContainer.get(StationRepository.class);
         routeCostCalculator = componentContainer.get(RouteCostCalculator.class);
+
+        stockport = Stockport.getFrom(stationRepository);
+        manPicc = ManchesterPiccadilly.getFrom(stationRepository);
+        londonEuston = LondonEuston.getFrom(stationRepository);
+        wilmslow = Wilmslow.getFrom(stationRepository);
+        crewe = Crewe.getFrom(stationRepository);
+        miltonKeynes = MiltonKeynesCentral.getFrom(stationRepository);
     }
 
     @AfterEach
@@ -53,25 +66,43 @@ public class RailRouteCostsTest {
     }
 
     @Test
-    void shouldGetNumberOfRouteHopsBetweenStockportAndManPicc() {
-        Station stockport = stationRepository.getStationById(Stockport.getId());
-        Station manPicc = stationRepository.getStationById(ManchesterPiccadilly.getId());
-
-        assertEquals(10, routeCostCalculator.getApproxCostBetween(txn, stockport, manPicc));
+    void shouldGetApproxCostBetweenStockportAndManPiccadilly() {
+        assertEquals(7, routeCostCalculator.getApproxCostBetween(txn, stockport, manPicc));
     }
 
     @Test
-    void shouldGetNumberOfRouteHopsBetweenManPiccAndLondonEustom() {
-        Station manPicc = stationRepository.getStationById(ManchesterPiccadilly.getId());
-        Station londonEuston = stationRepository.getStationById(LondonEuston.getId());
+    void shouldGetApproxCostBetweenManPiccadillyAndStockport() {
+        assertEquals(8, routeCostCalculator.getApproxCostBetween(txn, manPicc, stockport));
+    }
 
+    @Test
+    void shouldGetApproxCostBetweenStockportAndWilmslow() {
+        assertEquals(8, routeCostCalculator.getApproxCostBetween(txn, stockport, wilmslow));
+    }
+
+    @Test
+    void shouldGetApproxCostBetweenWilmslowAndCrewe() {
+        assertEquals(17, routeCostCalculator.getApproxCostBetween(txn, wilmslow, crewe));
+    }
+
+    @Test
+    void shouldGetApproxCostCreweAndMiltonKeeny() {
+        assertEquals(60, routeCostCalculator.getApproxCostBetween(txn, crewe, miltonKeynes));
+    }
+
+    @Test
+    void shouldGetApproxCostMiltonKeynesLondon() {
+        assertEquals(34, routeCostCalculator.getApproxCostBetween(txn, miltonKeynes, londonEuston));
+    }
+
+    @Test
+    void shouldGetApproxCostBetweenManPicadillyAndLondonEuston() {
         assertEquals(126, routeCostCalculator.getApproxCostBetween(txn, manPicc, londonEuston));
     }
 
     @Test
-    void shouldGetNumberOfRouteHopsBetweenAltrinchamAndManPicc() {
-        Station altrincham = stationRepository.getStationById(Altrincham.getId());
-        Station londonEuston = stationRepository.getStationById(LondonEuston.getId());
+    void shouldGetApproxCostBetweenAltrinchamAndLondonEuston() {
+        Station altrincham = Altrincham.getFrom(stationRepository);
 
         assertEquals(180, routeCostCalculator.getApproxCostBetween(txn, altrincham, londonEuston));
     }

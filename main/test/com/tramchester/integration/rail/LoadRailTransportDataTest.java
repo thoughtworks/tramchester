@@ -79,6 +79,23 @@ public class LoadRailTransportDataTest {
     }
 
     @Test
+    void shouldHaveRouteAgencyConsistency() {
+        transportData.getAgencies().forEach(agency -> {
+            agency.getRoutes().forEach(route -> assertEquals(agency, route.getAgency(),
+                    "Agency wrong for " +route.getId() + " got " + route.getAgency().getId() + " but needed " + agency.getId()));
+        });
+    }
+
+    @Test
+    void shouldHaveNonZeroCostsForStopCallLegs() {
+        Set<Trip> allTrips = transportData.getTrips();
+        allTrips.forEach(trip -> {
+            List<StopCalls.StopLeg> legsForTrip = trip.getStopCalls().getLegs();
+            legsForTrip.forEach(leg -> assertNotEquals(0, leg.getCost(), "Zero cost for leg " + leg + " on trip " + trip));
+        });
+    }
+
+    @Test
     void shouldGetSpecificStationWithoutPosition() {
         // A    KILLARNEY   (CIE              0KILARNYKLL   KLL00000E00000 5
 

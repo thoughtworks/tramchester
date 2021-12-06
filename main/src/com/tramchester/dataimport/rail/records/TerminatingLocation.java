@@ -27,7 +27,7 @@ public class TerminatingLocation extends OriginOrTerminatingLocation implements 
     }
 
     @Override
-    public TramTime getPublicArrival() {
+    public TramTime getArrival() {
         return super.getPublicTime();
     }
 
@@ -39,7 +39,7 @@ public class TerminatingLocation extends OriginOrTerminatingLocation implements 
     }
 
     @Override
-    public TramTime getPublicDeparture() {
+    public TramTime getDeparture() {
         return super.getPublicTime();
     }
 

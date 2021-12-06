@@ -30,10 +30,15 @@ public class IntermediateLocation implements RailLocationRecord {
     private final TramTime publicDeparture;
     private final TramTime passingTime;
     private final String platform;
+    private final TramTime scheduledArrival;
+    private final TramTime scheduledDepart;
+    private final TramTime blankTime = TramTime.of(0,0); // 0000 is in some of the data records
 
-    public IntermediateLocation(String tiplocCode, TramTime publicArrival, TramTime publicDeparture, String platform,
+    public IntermediateLocation(String tiplocCode, TramTime scheduledArrival, TramTime scheduledDepart, TramTime publicArrival, TramTime publicDeparture, String platform,
                                 TramTime passingTime) {
         this.tiplocCode = tiplocCode;
+        this.scheduledArrival = scheduledArrival;
+        this.scheduledDepart = scheduledDepart;
         this.publicArrival = publicArrival;
         this.publicDeparture = publicDeparture;
         this.platform = platform;
@@ -42,12 +47,14 @@ public class IntermediateLocation implements RailLocationRecord {
 
     public static IntermediateLocation parse(String text) {
         String tiplocCode = RecordHelper.extract(text, 3, 10); // tiploc is 7 long
+        TramTime scheduledArrival = RecordHelper.extractTime(text, 10,14);
+        TramTime scheduledDepart = RecordHelper.extractTime(text, 15, 19);
         TramTime passingTime = RecordHelper.extractTime(text, 20, 23+1);
         boolean isPassing = passingTime.isValid();
         TramTime publicArrival = getPublicTime(text, isPassing, 25, 28 + 1);
         TramTime publicDeparture = getPublicTime(text, isPassing, 29, 32+1);
         String platform = RecordHelper.extract(text, 34, 36+1);
-        return new IntermediateLocation(tiplocCode, publicArrival, publicDeparture, platform, passingTime);
+        return new IntermediateLocation(tiplocCode, scheduledArrival, scheduledDepart, publicArrival, publicDeparture, platform, passingTime);
     }
 
     private static TramTime getPublicTime(String text, boolean isPassing, int begin, int end) {
@@ -63,6 +70,26 @@ public class IntermediateLocation implements RailLocationRecord {
 
     public String getTiplocCode() {
         return tiplocCode;
+    }
+
+    @Override
+    public TramTime getArrival() {
+        return pickPublicOrSchedule(publicArrival, scheduledArrival);
+    }
+
+    @Override
+    public TramTime getDeparture() {
+        return pickPublicOrSchedule(publicDeparture, scheduledDepart);
+    }
+
+    private TramTime pickPublicOrSchedule(TramTime pub, TramTime scheduled) {
+        if (pub.isValid()) {
+            if (scheduled.isValid() && pub.equals(blankTime)) {
+                return scheduled;
+            }
+            return pub;
+        }
+        return scheduled;
     }
 
     public TramTime getPublicArrival() {
@@ -121,5 +148,13 @@ public class IntermediateLocation implements RailLocationRecord {
 
     public TramTime getPassingTime() {
         return passingTime;
+    }
+
+    public TramTime getScheduledArrival() {
+        return scheduledArrival;
+    }
+
+    public TramTime getScheduledDeparture() {
+        return scheduledDepart;
     }
 }

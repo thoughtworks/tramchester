@@ -1,11 +1,11 @@
 package com.tramchester.dataimport.rail;
 
+import com.tramchester.domain.Agency;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.places.Station;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -15,22 +15,25 @@ import static java.lang.String.format;
 
 public class RailRouteIDBuilder {
     private final Map<IdFor<Route>, Integer> baseIdToIndex;
-    private final Map<List<IdFor<Station>>, IdFor<Route>> callingPointsToId;
+    private final Map<AgencyCallingPoints, IdFor<Route>> callingPointsToId;
 
     public RailRouteIDBuilder() {
         baseIdToIndex = new HashMap<>();
         callingPointsToId = new HashMap<>();
     }
 
-    public IdFor<Route> getIdFor(String atocCode, List<Station> callingPoints) {
+    public IdFor<Route> getIdFor(IdFor<Agency> agencyId, List<Station> callingPoints) {
         // form unique route id based on the atoc code and list of calling points
-        List<IdFor<Station>> idList = callingPoints.stream().map(Station::getId).collect(Collectors.toList());
-        if (callingPointsToId.containsKey(idList)) {
-            return callingPointsToId.get(idList);
+        // have to include agency id since different agencies might serve same calling points
+
+        AgencyCallingPoints agencyCallingPoints = new AgencyCallingPoints(agencyId, callingPoints);
+
+        if (callingPointsToId.containsKey(agencyCallingPoints)) {
+            return callingPointsToId.get(agencyCallingPoints);
         }
 
         // else new combination of calling stations
-        String baseIdText = createBaseIdForRoute(atocCode, callingPoints);
+        String baseIdText = createBaseIdForRoute(agencyId.getGraphId(), callingPoints);
         IdFor<Route> baseId = StringIdFor.createId(baseIdText);
 
         int newIndex = 1;
@@ -40,7 +43,7 @@ public class RailRouteIDBuilder {
 
         baseIdToIndex.put(baseId, newIndex);
         IdFor<Route> finalId = StringIdFor.createId(format("%s:%s", baseIdText, newIndex));
-        callingPointsToId.put(idList, finalId);
+        callingPointsToId.put(agencyCallingPoints, finalId);
         return finalId;
 
     }
@@ -49,6 +52,42 @@ public class RailRouteIDBuilder {
         String firstName = callingPoints.get(0).getId().forDTO();
         String lastName = callingPoints.get(callingPoints.size()-1).getId().forDTO();
         return format("%s:%s=>%s", atocCode, firstName, lastName);
+    }
+
+    private static class AgencyCallingPoints {
+        private final IdFor<Agency> agencyId;
+        private final List<IdFor<Station>> callingPoints;
+
+        private AgencyCallingPoints(IdFor<Agency> agencyId, List<Station> stationCallingPoints) {
+            this.callingPoints = stationCallingPoints.stream().map(Station::getId).collect(Collectors.toList());
+            this.agencyId = agencyId;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+
+            AgencyCallingPoints that = (AgencyCallingPoints) o;
+
+            if (!agencyId.equals(that.agencyId)) return false;
+            return callingPoints.equals(that.callingPoints);
+        }
+
+        @Override
+        public int hashCode() {
+            int result = agencyId.hashCode();
+            result = 31 * result + callingPoints.hashCode();
+            return result;
+        }
+
+        @Override
+        public String toString() {
+            return "AgencyCallingPoints{" +
+                    "agencyId=" + agencyId +
+                    ", callingPoints=" + callingPoints +
+                    '}';
+        }
     }
 
 }

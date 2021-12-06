@@ -4,8 +4,8 @@ import com.tramchester.domain.time.TramTime;
 
 public interface RailLocationRecord extends RailTimetableRecord {
     String getTiplocCode();
-    TramTime getPublicArrival();
-    TramTime getPublicDeparture();
+    TramTime getArrival();
+    TramTime getDeparture();
     String getPlatform();
 
     boolean isPassingRecord();

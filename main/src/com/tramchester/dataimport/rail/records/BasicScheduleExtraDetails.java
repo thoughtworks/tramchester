@@ -39,4 +39,12 @@ public class BasicScheduleExtraDetails implements RailTimetableRecord {
     public RailRecordType getRecordType() {
         return RailRecordType.BasicScheduleExtra;
     }
+
+    @Override
+    public String toString() {
+        return "BasicScheduleExtraDetails{" +
+                "atocCode='" + atocCode + '\'' +
+                ", retailServiceID='" + retailServiceID + '\'' +
+                '}';
+    }
 }

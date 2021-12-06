@@ -15,7 +15,11 @@ import javax.inject.Inject;
 
 import static com.tramchester.graph.GraphPropertyKey.COST;
 import static com.tramchester.graph.TransportRelationshipTypes.*;
+import static java.lang.String.format;
 
+/***
+ * Supports arrive-by calculations by finding an approx cost for a specific journey
+ */
 @LazySingleton
 public class RouteCostCalculator {
     private static final Logger logger = LoggerFactory.getLogger(RouteCostCalculator.class);
@@ -50,6 +54,7 @@ public class RouteCostCalculator {
         if (endNode==null) {
             throw new RuntimeException("Could not find end node for graph id" + endStation.getId().getGraphId());
         }
+        logger.info(format("Find approx. route cost between %s and %s", startStation, endStation));
 
         return getApproxCostBetween(txn, startNode, endNode);
     }
