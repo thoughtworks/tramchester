@@ -2,13 +2,14 @@ package com.tramchester.testSupport.reference;
 
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.dataimport.data.StopTimeData;
+import com.tramchester.dataimport.loader.TransportDataFactory;
 import com.tramchester.domain.*;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.input.MutableTrip;
 import com.tramchester.domain.input.NoPlatformStopCall;
-import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.MutableStation;
+import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.GTFSPickupDropoffType;
 import com.tramchester.domain.reference.TransportMode;
@@ -16,7 +17,6 @@ import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.repository.TransportData;
 import com.tramchester.repository.TransportDataContainer;
-import com.tramchester.dataimport.loader.TransportDataFactory;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TestNoPlatformStation;
 import org.slf4j.Logger;
@@ -32,7 +32,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static com.tramchester.domain.reference.TransportMode.Bus;
-import static com.tramchester.testSupport.TestEnv.WarringtonsOwnBuses;
 
 @LazySingleton
 public class MixedTransportTestDataFactory implements TransportDataFactory {
@@ -64,37 +63,31 @@ public class MixedTransportTestDataFactory implements TransportDataFactory {
         return container;
     }
 
-    private static final MutableRoute FERRY_ROUTE;
-
-    static {
-        final Agency agency = MutableAgency.build(DataSourceID.rail, StringIdFor.createId("FER"), "ferryAgency");
-        FERRY_ROUTE = new MutableRoute(StringIdFor.createId("FER:42:C"), "42", "Lakes",
-                agency, TransportMode.Ferry);
-    }
-
     private void populateTestData(TransportDataContainer container) {
+
+        MutableAgency ferryAgency = new MutableAgency(DataSourceID.rail, StringIdFor.createId("FER"), "ferryAgency");
+        MutableRoute ferryRoute = new MutableRoute(StringIdFor.createId("FER:42:C"), "42", "Lakes",
+                ferryAgency, TransportMode.Ferry);
+
         final MutableAgency highPeakBuses = new MutableAgency(DataSourceID.tfgm, StringIdFor.createId("HGP"),
                 "High Peak Buses");
+
+        final MutableAgency warringtonsOwnBuses = new MutableAgency(DataSourceID.tfgm, StringIdFor.createId("WBTR"),
+                "Warringtons Own Buses");
 
         MutableRoute routeA = new MutableRoute(StringIdFor.createId("HGP:199:I:"), "199",
                 "Manchester Airport - Stockport - Buxton Skyline", highPeakBuses, Bus);
 
-        MutableRoute ferryRoute = FERRY_ROUTE;
         MutableRoute routeC = new MutableRoute(StringIdFor.createId("WBTR05A:I:"), "5A",
-                "Alty to Stockport", WarringtonsOwnBuses, Bus);
+                "Alty to Stockport", warringtonsOwnBuses, Bus);
 
-        // todo guessing this is a bug
-        MutableAgency agencyA = highPeakBuses; //routeA.getAgency();
-        MutableAgency agencyB = highPeakBuses; //routeA.getAgency();
-        MutableAgency agencyC = highPeakBuses; //routeA.getAgency();
+        highPeakBuses.addRoute(routeA);
+        ferryAgency.addRoute(ferryRoute);
+        warringtonsOwnBuses.addRoute(routeC);
 
-        agencyA.addRoute(routeA);
-        agencyB.addRoute(ferryRoute);
-        agencyC.addRoute(routeC);
-
-        container.addAgency(agencyA);
-        container.addAgency(agencyB);
-        container.addAgency(agencyC);
+        container.addAgency(highPeakBuses);
+        container.addAgency(ferryAgency);
+        container.addAgency(warringtonsOwnBuses);
 
         MutableService serviceA = new MutableService(MixedTransportTestData.serviceAId);
         MutableService serviceB = new MutableService(MixedTransportTestData.serviceBId);

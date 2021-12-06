@@ -102,7 +102,7 @@ var mapApp = new Vue({
                 steps.push([link.end.latLong.lat, link.end.latLong.lon]);
                 link.transportModes.forEach(mode => {
                     var line = L.polyline(steps); // hurts performance .arrowheads({ size: '5px', frequency: 'endonly' }); 
-                    line.bindTooltip("Mode: " + mode); 
+                    line.bindTooltip(mode + " between " + link.begin.name + " and " + link.end.name); 
                     var colour = getColourFor(mode);
                     line.setStyle({color: colour, opacity: 0.6});
                     linkLayerGroup.addLayer(line);
