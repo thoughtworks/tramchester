@@ -216,7 +216,6 @@ task unit(type: Test, dependsOn: compileJava) {
     }
     testLogging {
         exceptionFormat "full" // default is "short"
-        events "passed", "skipped", "failed", "started",  "standardError"
     }
 }
 
