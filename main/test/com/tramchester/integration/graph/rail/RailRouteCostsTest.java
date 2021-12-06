@@ -60,6 +60,10 @@ public class RailRouteCostsTest {
         miltonKeynes = MiltonKeynesCentral.getFrom(stationRepository);
     }
 
+    /***
+     * May need graph rebuild if a fix made to data import code
+     */
+
     @AfterEach
     void afterEachTestRuns() {
         txn.close();
@@ -67,7 +71,7 @@ public class RailRouteCostsTest {
 
     @Test
     void shouldGetApproxCostBetweenStockportAndManPiccadilly() {
-        assertEquals(7, routeCostCalculator.getApproxCostBetween(txn, stockport, manPicc));
+        assertEquals(10, routeCostCalculator.getApproxCostBetween(txn, stockport, manPicc));
     }
 
     @Test
@@ -87,7 +91,7 @@ public class RailRouteCostsTest {
 
     @Test
     void shouldGetApproxCostCreweAndMiltonKeeny() {
-        assertEquals(60, routeCostCalculator.getApproxCostBetween(txn, crewe, miltonKeynes));
+        assertEquals(65, routeCostCalculator.getApproxCostBetween(txn, crewe, miltonKeynes));
     }
 
     @Test
@@ -97,14 +101,14 @@ public class RailRouteCostsTest {
 
     @Test
     void shouldGetApproxCostBetweenManPicadillyAndLondonEuston() {
-        assertEquals(126, routeCostCalculator.getApproxCostBetween(txn, manPicc, londonEuston));
+        assertEquals(123, routeCostCalculator.getApproxCostBetween(txn, manPicc, londonEuston));
     }
 
     @Test
     void shouldGetApproxCostBetweenAltrinchamAndLondonEuston() {
         Station altrincham = Altrincham.getFrom(stationRepository);
 
-        assertEquals(180, routeCostCalculator.getApproxCostBetween(txn, altrincham, londonEuston));
+        assertEquals(135, routeCostCalculator.getApproxCostBetween(txn, altrincham, londonEuston));
     }
 
 }
