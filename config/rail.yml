@@ -42,8 +42,8 @@ planningEnabled: true
 createNeighbours: false
 maxNeighbourConnections: 0
 distanceToNeighboursKM: 0.4
-maxWait: 25
-maxInitialWait: 35
+maxWait: 20
+maxInitialWait: 25
 numberQueries: 6
 queryInterval: 10
 maxNumberResults: 5
