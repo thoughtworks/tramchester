@@ -103,7 +103,8 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
         };
     }
 
-    private ServiceReason.ReasonCode doEvaluate(Path thePath, ImmutableJourneyState journeyState, Node nextNode, EnumSet<GraphLabel> labels) {
+    private ServiceReason.ReasonCode doEvaluate(Path thePath, ImmutableJourneyState journeyState, Node nextNode,
+                                                EnumSet<GraphLabel> nodeLabels) {
 
         final long nextNodeId = nextNode.getId();
 
@@ -111,8 +112,7 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
         final int totalCostSoFar = journeyState.getTotalCostSoFar();
         final int numberChanges = journeyState.getNumberChanges();
 
-        if (destinationNodeIds.contains(nextNodeId)) {
-            // we've arrived
+        if (destinationNodeIds.contains(nextNodeId)) { // We've Arrived
             if (lowestCostSeen.isLower(journeyState)) {
                 // a better route than seen so far
                 lowestCostSeen.setLowestCost(journeyState);
@@ -127,7 +127,7 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
                 reasons.recordReason(ServiceReason.Longer(howIGotHere));
                 return ServiceReason.ReasonCode.LongerPath;
             }
-        } else if (lowestCostSeen.everArrived()) { // Not arrived this time, but we have seen at least one successful route
+        } else if (lowestCostSeen.everArrived()) { // Not arrived, but we have seen at least one successful route
             if (totalCostSoFar > lowestCostSeen.getLowestCost()) {
                 // already longer that current shortest, no need to continue
                 reasons.recordReason(ServiceReason.Longer(howIGotHere));
@@ -135,8 +135,8 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
             }
             final long durationMillis = begin.until(providesNow.getInstant(), ChronoUnit.MILLIS);
             if (durationMillis > timeout) {
-                logger.warn(format("Timed out after %s ms, current journey cost %s, changes %s, path %s",
-                        durationMillis, totalCostSoFar, numberChanges, thePath.length()));
+                logger.warn(format("Timed out after %s ms, current journey cost %s, changes %s, path len %s, how i got here: %s",
+                        durationMillis, totalCostSoFar, numberChanges, thePath.length(), howIGotHere));
                 reasons.recordReason(ServiceReason.TimedOut(howIGotHere));
                 return ServiceReason.ReasonCode.TimedOut;
             }
@@ -182,7 +182,7 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
         final int timeToWait = journeyState.hasBegunJourney() ? maxWait : maxInitialWait;
         // --> Minute
         // check time
-        if (labels.contains(GraphLabel.MINUTE)) {
+        if (nodeLabels.contains(GraphLabel.MINUTE)) {
             ServiceReason serviceReason = serviceHeuristics.checkTime(howIGotHere, nextNode, visitingTime, reasons, timeToWait);
             if (!serviceReason.isValid()) {
                 return serviceReason.getReasonCode();
@@ -194,14 +194,14 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
 
         // -->Hour
         // check time, just hour first
-        if (labels.contains(GraphLabel.HOUR)) {
-            if (!serviceHeuristics.interestedInHour(howIGotHere, visitingTime, reasons, timeToWait, labels).isValid()) {
+        if (nodeLabels.contains(GraphLabel.HOUR)) {
+            if (!serviceHeuristics.interestedInHour(howIGotHere, visitingTime, reasons, timeToWait, nodeLabels).isValid()) {
                 return ServiceReason.ReasonCode.NotAtHour;
             }
         }
 
         // -->Service
-        final boolean isService = labels.contains(GraphLabel.SERVICE); //nodeTypeRepository.isService(nextNode);
+        final boolean isService = nodeLabels.contains(GraphLabel.SERVICE); //nodeTypeRepository.isService(nextNode);
         if (isService) {
             if (!serviceHeuristics.checkServiceDate(nextNode, howIGotHere, reasons, visitingTime).isValid()) {
                 return ServiceReason.ReasonCode.NotOnQueryDate;
@@ -209,9 +209,9 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
         }
 
         // -->Route Station
-        // is reachable from here?
+        // is reachable from here and is route operating today?
         // is the station open?
-        if (labels.contains(GraphLabel.ROUTE_STATION)) {
+        if (nodeLabels.contains(GraphLabel.ROUTE_STATION)) {
             if (!serviceHeuristics.canReachDestination(nextNode, journeyState.getNumberChanges(), howIGotHere, reasons, visitingTime).isValid()) {
                 return ServiceReason.ReasonCode.NotReachable;
             }

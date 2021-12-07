@@ -71,16 +71,16 @@ public class GraphDatabaseServiceFactory implements DatabaseEventListener {
                     setConfig(GraphDatabaseSettings.store_internal_log_level, Level.WARN ).
 
                     // see https://neo4j.com/docs/operations-manual/current/performance/memory-configuration/#heap-sizing
-                            setConfig(GraphDatabaseSettings.pagecache_memory, dbConfig.getNeo4jPagecacheMemory()).
+                    setConfig(GraphDatabaseSettings.pagecache_memory, dbConfig.getNeo4jPagecacheMemory()).
                     // TODO This one into config?
                     //setConfig(GraphDatabaseSettings.tx_state_max_off_heap_memory, SettingValueParsers.BYTES.parse("256m")).
-                            setConfig(GraphDatabaseSettings.tx_state_max_off_heap_memory, SettingValueParsers.BYTES.parse("512m")).
+                    setConfig(GraphDatabaseSettings.tx_state_max_off_heap_memory, SettingValueParsers.BYTES.parse("512m")).
 
                     // txn logs, no need to save beyond current ones
                             //setConfig(GraphDatabaseSettings.keep_logical_logs, "false").
 
                     // operating in embedded mode
-                            setConfig(HttpConnector.enabled, false).
+                    setConfig(HttpConnector.enabled, false).
                     setConfig(HttpsConnector.enabled, false).
                     setConfig(BoltConnector.enabled, false).
 

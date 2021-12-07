@@ -37,6 +37,7 @@ public class GraphDatabase implements DatabaseEventListener {
     private final GraphDBConfig graphDBConfig;
     private final GraphDatabaseLifecycleManager lifecycleManager;
     private final TramchesterConfig tramchesterConfig;
+    private boolean indexesOnline;
 
     private GraphDatabaseService databaseService;
 
@@ -47,6 +48,7 @@ public class GraphDatabase implements DatabaseEventListener {
         this.tramchesterConfig = configuration;
         this.graphDBConfig = configuration.getGraphDBConfig();
         this.lifecycleManager = lifecycleManager;
+        indexesOnline = false;
     }
 
     @PostConstruct
@@ -83,6 +85,8 @@ public class GraphDatabase implements DatabaseEventListener {
         return databaseService.beginTx();
     }
 
+
+
     public Transaction beginTx(int timeout, TimeUnit timeUnit) {
         return databaseService.beginTx(timeout, timeUnit);
     }
@@ -111,7 +115,17 @@ public class GraphDatabase implements DatabaseEventListener {
         schema.indexFor(label).on(property.getText()).create();
     }
 
-    public void waitForIndexesReady(Schema schema) {
+    public void waitForIndexes() {
+        if (indexesOnline) {
+            return;
+        }
+        try(Transaction tx = databaseService.beginTx()) {
+            waitForIndexesReady(tx.schema());
+            indexesOnline = true;
+        }
+    }
+
+    private void waitForIndexesReady(Schema schema) {
         logger.info("Wait for indexs online");
         schema.awaitIndexesOnline(5, TimeUnit.SECONDS);
 
@@ -183,4 +197,6 @@ public class GraphDatabase implements DatabaseEventListener {
     public String getDbPath() {
         return graphDBConfig.getDbPath().toAbsolutePath().toString();
     }
+
+
 }

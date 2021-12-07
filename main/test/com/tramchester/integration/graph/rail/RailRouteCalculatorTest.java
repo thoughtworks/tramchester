@@ -127,8 +127,6 @@ public class RailRouteCalculatorTest {
         JourneyRequest request = new JourneyRequest(new TramServiceDate(when), travelTime, false, 0,
                 120, 1);
 
-        request.setDiag(true);
-
         atLeastOneDirect(request, miltonKeynesCentral, manchesterPiccadilly);
     }
 
@@ -182,11 +180,13 @@ public class RailRouteCalculatorTest {
         TramTime travelTime = TramTime.of(11,4);
 
         JourneyRequest journeyRequest = new JourneyRequest(new TramServiceDate(when), travelTime, false, 3,
-                840, 3);
+                3*60, 1);
+
+        journeyRequest.setDiag(true);
 
         Set<Journey> results = testFacade.calculateRouteAsSet(Derby.getId(), Altrincham.getId(), journeyRequest);
 
-        assertEquals(3, results.size(), results.toString());
+        assertEquals(1, results.size(), results.toString());
     }
 
     @Test

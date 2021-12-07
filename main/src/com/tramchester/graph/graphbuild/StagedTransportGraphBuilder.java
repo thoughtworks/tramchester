@@ -61,7 +61,7 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
     private final InterchangeRepository interchangeRepository;
     private final GraphDatabaseMetaInfo databaseMetaInfo;
 
-    // force contsruction via guide to generate ready token, needed where no direct code dependency on this class
+    // force contsruction via guice to generate ready token, needed where no direct code dependency on this class
     public Ready getReady() {
         return new Ready();
     }
@@ -89,12 +89,11 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
                 logger.warn("Graph is filtered " + graphFilter);
             }
             buildGraphwithFilter(graphDatabase, builderCache);
+            graphDatabase.waitForIndexes();
             logger.info("Graph rebuild is finished for " + graphDBConfig.getDbPath());
         } else {
             logger.info("No rebuild of graph");
-            try(Transaction tx = graphDatabase.beginTx()) {
-                graphDatabase.waitForIndexesReady(tx.schema());
-            }
+            graphDatabase.waitForIndexes();
         }
         logger.info("started");
     }
@@ -119,10 +118,6 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
 
             // only add version node if we manage to build graph, so partial builds that fail cause a rebuild
             addVersionNode(graphDatabase, transportData.getDataSourceInfo());
-
-            try(Transaction tx = graphDatabase.beginTx()) {
-                graphDatabase.waitForIndexesReady(tx.schema());
-            }
 
         } catch (Exception except) {
             logger.error("Exception while rebuilding the graph", except);

@@ -4,12 +4,10 @@ import com.tramchester.config.GTFSSourceConfig;
 import com.tramchester.config.GraphDBConfig;
 import com.tramchester.config.RailConfig;
 import com.tramchester.config.RemoteDataSourceConfig;
-import com.tramchester.domain.DataSourceID;
 import com.tramchester.geo.BoundingBox;
 import com.tramchester.integration.testSupport.GraphDBTestConfig;
 import com.tramchester.integration.testSupport.IntegrationTestConfig;
 import com.tramchester.testSupport.TestEnv;
-import org.junit.Test;
 
 import java.nio.file.Path;
 import java.util.Collections;
@@ -67,19 +65,19 @@ public class IntegrationRailTestConfig extends IntegrationTestConfig {
 
     @Override
     public int getMaxInitialWait() {
-        return 35;
-    }
-
-    @Override
-    public int getMaxWait() {
         return 25;
     }
 
     @Override
-    public int getNumberQueries() { return 6; }
+    public int getMaxWait() {
+        return 20;
+    }
 
     @Override
-    public int getQueryInterval() { return 10; }
+    public int getNumberQueries() { return 3; }
+
+    @Override
+    public int getQueryInterval() { return 20; }
 
     @Override
     public Path getCacheFolder() {

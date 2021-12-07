@@ -71,6 +71,7 @@ public class StationsAndLinksGraphBuilder extends GraphBuilder {
             logger.info("Graph rebuild is finished for " + graphDBConfig.getDbPath());
         } else {
             logger.info("No rebuild of graph, using existing data");
+            graphDatabase.waitForIndexes();
         }
     }
 

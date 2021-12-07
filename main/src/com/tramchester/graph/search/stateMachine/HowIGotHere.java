@@ -28,10 +28,6 @@ public class HowIGotHere {
         this.traversalStateName = traversalStateName;
     }
 
-//    public static HowIGotHere None() {
-//        return new HowIGotHere(-1,-1, "NONE");
-//    }
-
     public static HowIGotHere forTest(long nodeId, long relationshipId) {
         return new HowIGotHere(nodeId, relationshipId, "TEST_ONLY");
     }
@@ -59,6 +55,7 @@ public class HowIGotHere {
         return "HowIGotHere{" +
                 "relationshipId=" + relationshipId +
                 ", nodeId=" + nodeId +
+                ", traversalStateName='" + traversalStateName + '\'' +
                 '}';
     }
 
