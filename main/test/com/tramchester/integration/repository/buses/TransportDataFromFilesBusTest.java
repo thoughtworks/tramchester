@@ -75,14 +75,16 @@ class TransportDataFromFilesBusTest {
     @Test
     void shouldHaveRouteNumbersForBus() {
         int numberRoutes = transportData.getRoutes().size();
-        assertEquals(TGFM_BUS_ROUTES, numberRoutes);
+        //assertEquals(TGFM_BUS_ROUTES, numberRoutes);
+        assertTrue(withinNPercent(TGFM_BUS_ROUTES, numberRoutes, 0.05F));
     }
 
     @Test
     void shouldHaveExpectedStationAndPlatformNumbersForBus() {
 
         int numStations = transportData.getStations().size();
-        assertEquals(NUM_TFGM_BUS_STATIONS, numStations);
+        //assertEquals(NUM_TFGM_BUS_STATIONS, numStations);
+        assertTrue(withinNPercent(NUM_TFGM_BUS_STATIONS, numStations, 0.1F));
 
         // no platforms represented in train data
         assertEquals(0, transportData.getPlatforms().size());
