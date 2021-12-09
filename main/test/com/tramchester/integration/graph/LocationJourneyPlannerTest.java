@@ -2,7 +2,8 @@ package com.tramchester.integration.graph;
 
 import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
-import com.tramchester.domain.*;
+import com.tramchester.domain.Journey;
+import com.tramchester.domain.JourneyRequest;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.places.Location;
 import com.tramchester.domain.places.Station;
@@ -12,6 +13,7 @@ import com.tramchester.domain.time.TramServiceDate;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.domain.transportStages.WalkingFromStationStage;
 import com.tramchester.domain.transportStages.WalkingToStationStage;
+import com.tramchester.geo.CoordinateTransforms;
 import com.tramchester.graph.GraphDatabase;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
 import com.tramchester.repository.StationRepository;
@@ -271,9 +273,16 @@ class LocationJourneyPlannerTest {
     void shouldHaveNearAltyToDeansgate() {
         // mirrors test in AppUserJourneyLocationsTest
 
-        // TODO Need to increase maxNumberJourneys at start so we try all walks at the beginning??
-        final JourneyRequest request = new JourneyRequest(new TramServiceDate(when), TramTime.of(10, 15),
-                false, 1, maxJourneyDuration, this.maxNumberOfJourneys);
+        final TramTime queryTime = TramTime.of(10, 15);
+
+        int toNavigation = CoordinateTransforms.calcCostInMinutes(nearAltrincham, of(NavigationRoad), testConfig.getWalkingMPH());
+        int toAltrincham = CoordinateTransforms.calcCostInMinutes(nearAltrincham, of(Altrincham), testConfig.getWalkingMPH());
+
+        int lowestCost = Math.min(toAltrincham, toNavigation);
+        TramTime earliestDepart = queryTime.plusMinutes(lowestCost);
+
+        final JourneyRequest request = new JourneyRequest(new TramServiceDate(when), queryTime,
+                false, 1, maxJourneyDuration, maxNumberOfJourneys);
 
         Set<Journey> unsorted = planner.quickestRouteForLocation(nearAltrincham, Deansgate, request, 2);
         assertFalse(unsorted.isEmpty());
@@ -281,8 +290,11 @@ class LocationJourneyPlannerTest {
         List<Journey> sorted = unsorted.stream().
                 sorted(Comparator.comparing(Journey::getDepartTime)).collect(Collectors.toList());
 
-        Journey earliestDepart = sorted.get(0);
-        assertEquals(TramTime.of(10,19), earliestDepart.getDepartTime());
+        Journey earliestJourney = sorted.get(0);
+        final TramTime actualDepartTime = earliestJourney.getDepartTime();
+        assertTrue(actualDepartTime.isAfter(earliestDepart) || actualDepartTime.equals(earliestDepart));
+        assertTrue(actualDepartTime.isBefore(TramTime.of(10,30)));
+        //assertEquals(earliestDepart, earliestJourney.getDepartTime());
     }
 
     @Test
@@ -295,7 +307,6 @@ class LocationJourneyPlannerTest {
         assertFalse(results.isEmpty(),"no results");
 
         results.forEach(journey-> {
-//            assertEquals(1, journey.getStages().size(), journey.getStages().toString());
             TransportStage<?,?> rawStage = journey.getStages().get(0);
             assertEquals(TransportMode.Walk, rawStage.getMode());
             assertEquals(PiccadillyGardens.getId(), rawStage.getLastStation().getId());

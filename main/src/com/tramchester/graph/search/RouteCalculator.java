@@ -90,7 +90,7 @@ public class RouteCalculator extends RouteCalculatorSupport implements TramRoute
     public Stream<Journey> calculateRouteWalkAtStart(Transaction txn, Set<StationWalk> stationWalks, Node startOfWalkNode, Station destination,
                                                      JourneyRequest journeyRequest, NumberOfChanges numberOfChanges) {
 
-        final Finished finished = new Finished(journeyRequest, stationWalks);
+        final InitialWalksFinished finished = new InitialWalksFinished(journeyRequest, stationWalks);
         Node endNode = getStationNodeSafe(txn, destination);
         Set<Station> destinations = Collections.singleton(destination);
         final List<TramTime> queryTimes = createQueryTimes.generate(journeyRequest.getOriginalTime(), stationWalks);
@@ -103,7 +103,7 @@ public class RouteCalculator extends RouteCalculatorSupport implements TramRoute
                                                            Set<Station> destinationStations, JourneyRequest journeyRequest,
                                                            NumberOfChanges numberOfChanges) {
 
-        final Finished finished = new Finished(journeyRequest, stationWalks);
+        final InitialWalksFinished finished = new InitialWalksFinished(journeyRequest, stationWalks);
         final List<TramTime> queryTimes = createQueryTimes.generate(journeyRequest.getOriginalTime(), stationWalks);
 
         return getJourneyStream(txn, startNode, endNode, journeyRequest, destinationStations, queryTimes, numberOfChanges).

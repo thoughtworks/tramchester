@@ -7,7 +7,6 @@ import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 public class CreateQueryTimes {
     private final TramchesterConfig config;
@@ -19,14 +18,15 @@ public class CreateQueryTimes {
 
     public List<TramTime> generate(TramTime initialQueryTime, Set<StationWalk> walksAtStart) {
 
-        List<TramTime> result = new ArrayList<>();
-        result.add(initialQueryTime);
+        return generate(initialQueryTime);
 
-        result.addAll(walksAtStart.stream().
-                map(walk -> initialQueryTime.minusMinutes(walk.getCost())).
-                sorted().
-                collect(Collectors.toList()));
+        //result.add(initialQueryTime);
 
+//        List<TramTime> result = walksAtStart.stream().
+//                map(walk -> initialQueryTime.minusMinutes(walk.getCost())).
+//                sorted().
+//                collect(Collectors.toList());
+//
 //        int interval = config.getQueryInterval();
 //        int numberQueries = config.getNumberQueries();
 //
@@ -35,8 +35,8 @@ public class CreateQueryTimes {
 //            result.add(initialQueryTime.plusMinutes(minsToAdd));
 //            minsToAdd = minsToAdd + interval;
 //        }
-
-        return result;
+//
+//        return result;
     }
 
     public List<TramTime> generate(TramTime initialQueryTime) {

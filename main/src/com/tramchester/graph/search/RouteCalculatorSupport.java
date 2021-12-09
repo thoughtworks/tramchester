@@ -4,7 +4,6 @@ import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.Journey;
 import com.tramchester.domain.JourneyRequest;
 import com.tramchester.domain.NumberOfChanges;
-import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.places.Location;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.places.StationWalk;
@@ -30,10 +29,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.time.Instant;
-import java.util.HashSet;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
@@ -242,18 +242,20 @@ public class RouteCalculatorSupport {
         }
     }
 
-    public static class Finished {
+    public static class InitialWalksFinished {
 
-        private final AtomicInteger count;
         private final long maxJourneys;
-        private final Set<Station> expectedStations;
-        private final Set<Station> seenStations;
+        private int seenMaxJourneys;
 
-        public Finished(JourneyRequest journeyRequest, Set<StationWalk> stationWalks) {
+        private final Map<Station, AtomicLong> journeysPerStation;
+
+        public InitialWalksFinished(JourneyRequest journeyRequest, Set<StationWalk> stationWalks) {
             this.maxJourneys = journeyRequest.getMaxNumberOfJourneys();
-            count = new AtomicInteger(0);
-            expectedStations = stationWalks.stream().map(StationWalk::getStation).collect(Collectors.toSet());
-            seenStations = new HashSet<>();
+            journeysPerStation = new HashMap<>();
+
+            seenMaxJourneys = 0;
+            stationWalks.stream().map(StationWalk::getStation).forEach(station -> journeysPerStation.put(station, new AtomicLong()));
+
         }
 
         public boolean notDoneYet(Journey journey) {
@@ -262,15 +264,15 @@ public class RouteCalculatorSupport {
             }
 
             WalkingStage<?, Station> walkingStage = (WalkingStage<?, Station>) journey.getStages().get(0);
-            seenStations.add(walkingStage.getLastStation());
-            final boolean seenAllStartStations = seenStations.equals(expectedStations);
 
-            if (seenAllStartStations) {
-                logger.info("Seen all start stations " + HasId.asIds(expectedStations));
+            final Station lastStation = walkingStage.getLastStation();
+            long countForStation = journeysPerStation.get(lastStation).incrementAndGet();
+            if (countForStation==maxJourneys) {
+                logger.info("Seen " + maxJourneys + " for " + lastStation.getId());
+                seenMaxJourneys = seenMaxJourneys + 1;
             }
+            return seenMaxJourneys < journeysPerStation.size();
 
-            count.incrementAndGet();
-            return count.get() <= maxJourneys || !seenAllStartStations;
         }
     }
 
