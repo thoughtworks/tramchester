@@ -4,6 +4,7 @@ import com.tramchester.domain.Journey;
 import com.tramchester.domain.JourneyRequest;
 import com.tramchester.domain.NumberOfChanges;
 import com.tramchester.domain.places.Station;
+import com.tramchester.domain.places.StationWalk;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Transaction;
 
@@ -16,9 +17,9 @@ public interface TramRouteCalculator {
     Stream<Journey> calculateRouteWalkAtEnd(Transaction txn, Station start, Node destination, Set<Station> destStations,
                                             JourneyRequest journeyRequest, NumberOfChanges numberOfChanges);
 
-    Stream<Journey> calculateRouteWalkAtStart(Transaction txn, Node startOfWalkNode, Station destination,
+    Stream<Journey> calculateRouteWalkAtStart(Transaction txn, Set<StationWalk> stationWalks, Node startOfWalkNode, Station destination,
                                               JourneyRequest journeyRequest, NumberOfChanges numberOfChanges);
 
-    Stream<Journey> calculateRouteWalkAtStartAndEnd(Transaction txn, Node startNode, Node endNode, Set<Station> destinationStations,
+    Stream<Journey> calculateRouteWalkAtStartAndEnd(Transaction txn, Set<StationWalk> stationWalks, Node startNode, Node endNode, Set<Station> destinationStations,
                                                     JourneyRequest journeyRequest, NumberOfChanges numberOfChanges);
 }

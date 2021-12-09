@@ -7,6 +7,7 @@ import com.tramchester.domain.JourneyRequest;
 import com.tramchester.domain.NumberOfChanges;
 import com.tramchester.domain.places.CompositeStation;
 import com.tramchester.domain.places.Station;
+import com.tramchester.domain.places.StationWalk;
 import com.tramchester.domain.time.CreateQueryTimes;
 import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.domain.time.TramServiceDate;
@@ -68,33 +69,49 @@ public class RouteCalculator extends RouteCalculatorSupport implements TramRoute
 
         Set<Station> destinations = Collections.singleton(destination);
 
+        final List<TramTime> queryTimes = createQueryTimes.generate(journeyRequest.getOriginalTime());
+
         NumberOfChanges numberOfChanges =  routeToRouteCosts.getNumberOfChanges(startStation, destination);
-        return getJourneyStream(txn, startNode, endNode, journeyRequest, destinations, false, numberOfChanges);
+        return getJourneyStream(txn, startNode, endNode, journeyRequest, destinations, queryTimes, numberOfChanges).
+                limit(journeyRequest.getMaxNumberOfJourneys());
     }
 
     public Stream<Journey> calculateRouteWalkAtEnd(Transaction txn, Station start, Node endOfWalk, Set<Station> desinationStations,
                                                    JourneyRequest journeyRequest, NumberOfChanges numberOfChanges)
     {
         Node startNode = getStationNodeSafe(txn, start);
-        return getJourneyStream(txn, startNode, endOfWalk, journeyRequest, desinationStations, false, numberOfChanges);
+        final List<TramTime> queryTimes = createQueryTimes.generate(journeyRequest.getOriginalTime());
+
+        return getJourneyStream(txn, startNode, endOfWalk, journeyRequest, desinationStations, queryTimes, numberOfChanges).
+                limit(journeyRequest.getMaxNumberOfJourneys());
     }
 
     @Override
-    public Stream<Journey> calculateRouteWalkAtStart(Transaction txn, Node startOfWalkNode, Station destination,
+    public Stream<Journey> calculateRouteWalkAtStart(Transaction txn, Set<StationWalk> stationWalks, Node startOfWalkNode, Station destination,
                                                      JourneyRequest journeyRequest, NumberOfChanges numberOfChanges) {
+
+        final Finished finished = new Finished(journeyRequest, stationWalks);
         Node endNode = getStationNodeSafe(txn, destination);
         Set<Station> destinations = Collections.singleton(destination);
-        return getJourneyStream(txn, startOfWalkNode, endNode, journeyRequest, destinations, true, numberOfChanges);
+        final List<TramTime> queryTimes = createQueryTimes.generate(journeyRequest.getOriginalTime(), stationWalks);
+
+        return getJourneyStream(txn, startOfWalkNode, endNode, journeyRequest, destinations, queryTimes, numberOfChanges).
+                takeWhile(finished::notDoneYet);
     }
 
-    public Stream<Journey> calculateRouteWalkAtStartAndEnd(Transaction txn, Node startNode, Node endNode,
+    public Stream<Journey> calculateRouteWalkAtStartAndEnd(Transaction txn, Set<StationWalk> stationWalks, Node startNode, Node endNode,
                                                            Set<Station> destinationStations, JourneyRequest journeyRequest,
                                                            NumberOfChanges numberOfChanges) {
-        return getJourneyStream(txn, startNode, endNode, journeyRequest, destinationStations, true, numberOfChanges);
+
+        final Finished finished = new Finished(journeyRequest, stationWalks);
+        final List<TramTime> queryTimes = createQueryTimes.generate(journeyRequest.getOriginalTime(), stationWalks);
+
+        return getJourneyStream(txn, startNode, endNode, journeyRequest, destinationStations, queryTimes, numberOfChanges).
+                takeWhile(finished::notDoneYet);
     }
 
     private Stream<Journey> getJourneyStream(Transaction txn, Node startNode, Node endNode, JourneyRequest journeyRequest,
-                                             Set<Station> unexpanded, boolean walkAtStart, NumberOfChanges numberOfChanges) {
+                                             Set<Station> unexpanded, List<TramTime> queryTimes, NumberOfChanges numberOfChanges) {
 
         final Set<Station> destinations = CompositeStation.expandStations(unexpanded);
         if (destinations.size()!=unexpanded.size()) {
@@ -102,7 +119,6 @@ public class RouteCalculator extends RouteCalculatorSupport implements TramRoute
         }
 
         final TramServiceDate queryDate = journeyRequest.getDate();
-        final List<TramTime> queryTimes = createQueryTimes.generate(journeyRequest.getOriginalTime(), walkAtStart);
         final Set<Long> destinationNodeIds = Collections.singleton(endNode.getId());
 
         // can only be shared as same date and same set of destinations, will eliminate previously seen paths/results
@@ -115,11 +131,6 @@ public class RouteCalculator extends RouteCalculatorSupport implements TramRoute
 
         final LowestCostSeen lowestCostSeen = new LowestCostSeen();
 
-        final Finished finished = new Finished(journeyRequest);
-        if (walkAtStart) {
-            finished.needToSeeAllWalksFrom(startNode);
-        }
-
         final Instant begin = providesNow.getInstant();
         final Stream<Journey> results = numChangesRange(journeyRequest, numberOfChanges).
                 flatMap(numChanges -> queryTimes.stream().
@@ -127,7 +138,6 @@ public class RouteCalculator extends RouteCalculatorSupport implements TramRoute
                 flatMap(pathRequest -> findShortestPath(txn, destinationNodeIds, destinations,
                         createServiceReasons(journeyRequest, pathRequest), pathRequest, lowestCostsForRoutes, createPreviousVisits(),
                         lowestCostSeen, begin)).
-                takeWhile(finished::notDoneYet).
                 map(path -> createJourney(journeyRequest, path, destinations, lowestCostsForRoutes));
 
         //noinspection ResultOfMethodCallIgnored

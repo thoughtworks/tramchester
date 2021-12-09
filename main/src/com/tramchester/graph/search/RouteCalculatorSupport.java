@@ -4,12 +4,15 @@ import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.Journey;
 import com.tramchester.domain.JourneyRequest;
 import com.tramchester.domain.NumberOfChanges;
+import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.places.Location;
 import com.tramchester.domain.places.Station;
+import com.tramchester.domain.places.StationWalk;
 import com.tramchester.domain.presentation.TransportStage;
 import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.domain.time.TramServiceDate;
 import com.tramchester.domain.time.TramTime;
+import com.tramchester.domain.transportStages.WalkingStage;
 import com.tramchester.geo.SortsPositions;
 import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.GraphQuery;
@@ -20,12 +23,13 @@ import com.tramchester.graph.search.stateMachine.states.TraversalStateFactory;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.repository.TripRepository;
 import org.jetbrains.annotations.NotNull;
-import org.neo4j.graphdb.*;
+import org.neo4j.graphdb.Entity;
+import org.neo4j.graphdb.Node;
+import org.neo4j.graphdb.Transaction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.time.Instant;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -34,7 +38,6 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
-import static com.tramchester.graph.TransportRelationshipTypes.WALKS_TO;
 import static java.lang.String.format;
 
 public class RouteCalculatorSupport {
@@ -243,33 +246,31 @@ public class RouteCalculatorSupport {
 
         private final AtomicInteger count;
         private final long maxJourneys;
-        private Set<Long> needToSee;
+        private final Set<Station> expectedStations;
+        private final Set<Station> seenStations;
 
-        public Finished(JourneyRequest journeyRequest) {
+        public Finished(JourneyRequest journeyRequest, Set<StationWalk> stationWalks) {
             this.maxJourneys = journeyRequest.getMaxNumberOfJourneys();
             count = new AtomicInteger(0);
-            needToSee = Collections.emptySet();
+            expectedStations = stationWalks.stream().map(StationWalk::getStation).collect(Collectors.toSet());
+            seenStations = new HashSet<>();
         }
 
-        public boolean notDoneYet(RouteCalculator.TimedPath path) {
-            if (!needToSee.isEmpty()) {
-                Relationship firstRelationship = path.getPath().relationships().iterator().next();
-                needToSee.remove(firstRelationship.getId());
-                logger.info(needToSee.size() +" walks still to be seen");
-                return true;
+        public boolean notDoneYet(Journey journey) {
+            if (!journey.firstStageIsWalk()) {
+                throw new RuntimeException("Expected walk to be first stage of " + journey);
+            }
+
+            WalkingStage<?, Station> walkingStage = (WalkingStage<?, Station>) journey.getStages().get(0);
+            seenStations.add(walkingStage.getLastStation());
+            final boolean seenAllStartStations = seenStations.equals(expectedStations);
+
+            if (seenAllStartStations) {
+                logger.info("Seen all start stations " + HasId.asIds(expectedStations));
             }
 
             count.incrementAndGet();
-            return count.get() <= maxJourneys || !needToSee.isEmpty();
-        }
-
-        public void needToSeeAllWalksFrom(Node startNode) {
-            Iterable<Relationship> walks = startNode.getRelationships(Direction.OUTGOING, WALKS_TO);
-            needToSee = new HashSet<>();
-            for (Relationship relationship : walks) {
-                needToSee.add(relationship.getId());
-            }
-            logger.info("Added " +needToSee.size() + " walks");
+            return count.get() <= maxJourneys || !seenAllStartStations;
         }
     }
 

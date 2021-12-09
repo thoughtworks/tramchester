@@ -82,7 +82,7 @@ public class LocationJourneyPlanner {
         }
 
         Node startOfWalkNode = createWalkingNode(txn, start, journeyRequest);
-        List<StationWalk> walksToStart = getStationWalks(start);
+        Set<StationWalk> walksToStart = getStationWalks(start);
 
         List<Relationship> addedRelationships = createWalksToStations(txn, startOfWalkNode, walksToStart);
 
@@ -95,9 +95,9 @@ public class LocationJourneyPlanner {
         Stream<Journey> journeys;
         NumberOfChanges numberOfChanges = findNumberChanges(walksToStart, destination);
         if (journeyRequest.getArriveBy()) {
-            journeys = routeCalculatorArriveBy.calculateRouteWalkAtStart(txn, startOfWalkNode, destination, journeyRequest, numberOfChanges);
+            journeys = routeCalculatorArriveBy.calculateRouteWalkAtStart(txn, walksToStart, startOfWalkNode, destination, journeyRequest, numberOfChanges);
         } else {
-            journeys = routeCalculator.calculateRouteWalkAtStart(txn, startOfWalkNode, destination, journeyRequest, numberOfChanges);
+            journeys = routeCalculator.calculateRouteWalkAtStart(txn, walksToStart, startOfWalkNode, destination, journeyRequest, numberOfChanges);
         }
 
         //noinspection ResultOfMethodCallIgnored
@@ -106,7 +106,7 @@ public class LocationJourneyPlanner {
     }
 
     @NotNull
-    public List<Relationship> createWalksToStations(Transaction txn, Node startOfWalkNode, List<StationWalk> walksToStart) {
+    public List<Relationship> createWalksToStations(Transaction txn, Node startOfWalkNode, Set<StationWalk> walksToStart) {
         List<Relationship> addedRelationships = new LinkedList<>();
         walksToStart.forEach(stationWalk -> addedRelationships.add(createWalkRelationship(txn, startOfWalkNode, stationWalk,
                 WALKS_TO)));
@@ -126,7 +126,7 @@ public class LocationJourneyPlanner {
             logger.warn("Destination not within station bounds " + destination);
         }
 
-        List<StationWalk> walksToDest = getStationWalks(destination);
+        Set<StationWalk> walksToDest = getStationWalks(destination);
         if (walksToDest.isEmpty()) {
             logger.warn("Cannot find any walks from " + destination + " to stations");
             return Stream.empty();
@@ -159,13 +159,13 @@ public class LocationJourneyPlanner {
         List<Relationship> addedRelationships = new LinkedList<>();
 
         // Add Walk at the Start
-        List<StationWalk> walksAtStart = getStationWalks(startLatLong);
+        Set<StationWalk> walksAtStart = getStationWalks(startLatLong);
         Node startNode = createWalkingNode(txn, startLatLong, journeyRequest);
         walksAtStart.forEach(stationWalk -> addedRelationships.add(createWalkRelationship(txn, startNode, stationWalk, WALKS_TO)));
 
         // Add Walks at the end
         Set<Station> destinationStations = new HashSet<>();
-        List<StationWalk> walksToDest = getStationWalks(destLatLong);
+        Set<StationWalk> walksToDest = getStationWalks(destLatLong);
         Node endWalk = createWalkingNode(txn, destLatLong, journeyRequest);
 
         walksToDest.forEach(stationWalk -> {
@@ -178,10 +178,10 @@ public class LocationJourneyPlanner {
         /// CALC
         Stream<Journey> journeys;
         if (journeyRequest.getArriveBy()) {
-            journeys = routeCalculatorArriveBy.calculateRouteWalkAtStartAndEnd(txn, startNode,  endWalk, destinationStations,
+            journeys = routeCalculatorArriveBy.calculateRouteWalkAtStartAndEnd(txn, walksAtStart, startNode,  endWalk, destinationStations,
                     journeyRequest, numberOfChanges);
         } else {
-            journeys = routeCalculator.calculateRouteWalkAtStartAndEnd(txn, startNode, endWalk, destinationStations,
+            journeys = routeCalculator.calculateRouteWalkAtStartAndEnd(txn, walksAtStart, startNode, endWalk, destinationStations,
                     journeyRequest, numberOfChanges);
         }
 
@@ -235,44 +235,44 @@ public class LocationJourneyPlanner {
         }
     }
 
-    public List<StationWalk> getStationWalks(LatLong latLong) {
+    public Set<StationWalk> getStationWalks(LatLong latLong) {
 
         int maxResults = config.getNumOfNearestStopsForWalking();
         List<Station> nearbyStationsWithComposites = stationLocations.nearestStationsSorted(latLong, maxResults, margin);
 
         if (nearbyStationsWithComposites.isEmpty()) {
             logger.warn(format("Failed to find stations within %s of %s", margin, latLong));
-            return Collections.emptyList();
+            return Collections.emptySet();
         }
 
         List<Station> filtered = CompositeStation.expandStations(nearbyStationsWithComposites).stream()
                 .filter(station -> !station.isComposite())
                 .filter(graphFilter::shouldInclude).collect(Collectors.toList());
 
-        List<StationWalk> stationWalks = createWalks(latLong, filtered);
+        Set<StationWalk> stationWalks = createWalks(latLong, filtered);
         logger.info(format("Stops within %s of %s are [%s]", maxResults, latLong, stationWalks));
         return stationWalks;
     }
 
-    private NumberOfChanges findNumberChanges(Station start, List<StationWalk> walksToDest) {
+    private NumberOfChanges findNumberChanges(Station start, Set<StationWalk> walksToDest) {
         Set<Station> destinations = walksToDest.stream().map(StationWalk::getStation).collect(Collectors.toSet());
         return routeToRouteCosts.getNumberOfChanges(Collections.singleton(start), destinations);
     }
 
-    private NumberOfChanges findNumberChanges(List<StationWalk> walksToStart, Station destination) {
+    private NumberOfChanges findNumberChanges(Set<StationWalk> walksToStart, Station destination) {
         Set<Station> starts = walksToStart.stream().map(StationWalk::getStation).collect(Collectors.toSet());
         return routeToRouteCosts.getNumberOfChanges(starts, Collections.singleton(destination));
     }
 
-    private NumberOfChanges findNumberChanges(List<StationWalk> walksAtStart, List<StationWalk> walksToDest) {
+    private NumberOfChanges findNumberChanges(Set<StationWalk> walksAtStart, Set<StationWalk> walksToDest) {
         Set<Station> destinations = walksToDest.stream().map(StationWalk::getStation).collect(Collectors.toSet());
         Set<Station> starts = walksAtStart.stream().map(StationWalk::getStation).collect(Collectors.toSet());
         return routeToRouteCosts.getNumberOfChanges(starts, destinations);
     }
 
-    private List<StationWalk> createWalks(LatLong latLong, List<Station> startStations) {
+    private Set<StationWalk> createWalks(LatLong latLong, List<Station> startStations) {
         return startStations.stream().map(station ->
-                new StationWalk(station, calcCostInMinutes(latLong, station, config.getWalkingMPH()))).collect(Collectors.toList());
+                new StationWalk(station, calcCostInMinutes(latLong, station, config.getWalkingMPH()))).collect(Collectors.toSet());
     }
 
 }

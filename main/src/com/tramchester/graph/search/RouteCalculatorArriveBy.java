@@ -6,6 +6,7 @@ import com.tramchester.domain.Journey;
 import com.tramchester.domain.JourneyRequest;
 import com.tramchester.domain.NumberOfChanges;
 import com.tramchester.domain.places.Station;
+import com.tramchester.domain.places.StationWalk;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.RouteCostCalculator;
 import org.neo4j.graphdb.Node;
@@ -52,21 +53,21 @@ public class RouteCalculatorArriveBy implements TramRouteCalculator {
     }
 
     @Override
-    public Stream<Journey> calculateRouteWalkAtStart(Transaction txn, Node origin, Station destination, JourneyRequest journeyRequest,
+    public Stream<Journey> calculateRouteWalkAtStart(Transaction txn, Set<StationWalk> stationWalks, Node origin, Station destination, JourneyRequest journeyRequest,
                                                      NumberOfChanges numberOfChanges) {
         int costToDest = costCalculator.getApproxCostBetween(txn, origin, destination);
         JourneyRequest departureTime = calcDepartTime(journeyRequest, costToDest);
         logger.info(format("Plan journey, arrive by %s so depart by %s", journeyRequest, departureTime));
-        return routeCalculator.calculateRouteWalkAtStart(txn, origin, destination, departureTime, numberOfChanges);
+        return routeCalculator.calculateRouteWalkAtStart(txn, stationWalks, origin, destination, departureTime, numberOfChanges);
     }
 
     @Override
-    public Stream<Journey> calculateRouteWalkAtStartAndEnd(Transaction txn, Node startNode, Node endNode, Set<Station> destinationStations,
+    public Stream<Journey> calculateRouteWalkAtStartAndEnd(Transaction txn, Set<StationWalk> stationWalks, Node startNode, Node endNode, Set<Station> destinationStations,
                                                            JourneyRequest journeyRequest, NumberOfChanges numberOfChanges) {
         int costToDest = costCalculator.getApproxCostBetween(txn, startNode, endNode);
         JourneyRequest departureTime = calcDepartTime(journeyRequest, costToDest);
         logger.info(format("Plan journey, arrive by %s so depart by %s", journeyRequest, departureTime));
-        return routeCalculator.calculateRouteWalkAtStartAndEnd(txn, startNode, endNode, destinationStations, departureTime, numberOfChanges);
+        return routeCalculator.calculateRouteWalkAtStartAndEnd(txn, stationWalks, startNode, endNode, destinationStations, departureTime, numberOfChanges);
     }
 
     private JourneyRequest calcDepartTime(JourneyRequest originalRequest, int costToDest) {
