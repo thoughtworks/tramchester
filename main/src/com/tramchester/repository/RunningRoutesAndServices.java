@@ -110,7 +110,6 @@ public class RunningRoutesAndServices {
             return runningServices.contains(serviceId);
         }
 
-        // TODO next day?
         public boolean isRouteRunning(IdFor<Route> routeId, TramTime time) {
             if (time.isNextDay() && runningRoutesNextDay.contains(routeId)) {
                 return true;

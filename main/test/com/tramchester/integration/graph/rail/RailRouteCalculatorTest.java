@@ -177,6 +177,9 @@ public class RailRouteCalculatorTest {
 
     @Test
     void shouldFindCorrectNumberOfJourneys() {
+
+        // TODO this tests causes timeouts in the search algo, need to track down why
+
         TramTime travelTime = TramTime.of(11,4);
 
         JourneyRequest journeyRequest = new JourneyRequest(new TramServiceDate(when), travelTime, false, 3,

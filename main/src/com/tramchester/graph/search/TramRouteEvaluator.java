@@ -20,6 +20,7 @@ import org.slf4j.LoggerFactory;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.EnumSet;
+import java.util.Map;
 import java.util.Set;
 
 import static com.tramchester.graph.TransportRelationshipTypes.WALKS_TO;
@@ -94,12 +95,17 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
     public static Evaluation decideEvaluationAction(ServiceReason.ReasonCode code) {
         return switch (code) {
             case ServiceDateOk, ServiceTimeOk, NumChangesOK, NumConnectionsOk, TimeOk, HourOk, Reachable, ReachableNoCheck,
-                    DurationOk, WalkOk, StationOpen, Continue -> Evaluation.INCLUDE_AND_CONTINUE;
-            case Arrived -> Evaluation.INCLUDE_AND_PRUNE;
+                    DurationOk, WalkOk, StationOpen, Continue
+                    -> Evaluation.INCLUDE_AND_CONTINUE;
+            case Arrived
+                    -> Evaluation.INCLUDE_AND_PRUNE;
             case LongerPath, ReturnedToStart, PathTooLong, TooManyChanges, TooManyWalkingConnections, NotReachable,
-                    TookTooLong, ServiceNotRunningAtTime, NotAtHour, DoesNotOperateOnTime, NotOnQueryDate,
-                    AlreadyDeparted, StationClosed, TooManyNeighbourConnections, TimedOut -> Evaluation.EXCLUDE_AND_PRUNE;
-            default -> throw new RuntimeException("Unexpected reasoncode during evaluation: " + code.name());
+                    TookTooLong, ServiceNotRunningAtTime, NotAtHour, DoesNotOperateOnTime, NotOnQueryDate, MoreChanges,
+                    AlreadyDeparted, StationClosed, TooManyNeighbourConnections, TimedOut, RouteNotOnQueryDate
+                    -> Evaluation.EXCLUDE_AND_PRUNE;
+            case OnTram, OnBus, OnTrain, NotOnVehicle, Cached , PreviousCacheMiss, NumWalkingConnectionsOk,
+                    NeighbourConnectionsOk
+                    -> throw new RuntimeException("Unexpected reasoncode during evaluation: " + code.name());
         };
     }
 
@@ -122,21 +128,27 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
                 // fewer hops can be a useful option
                 reasons.recordSuccess();
                 return ServiceReason.ReasonCode.Arrived;
-            } else {
-                // found a route, but longer or more hops than current shortest
-                reasons.recordReason(ServiceReason.Longer(howIGotHere));
-                return ServiceReason.ReasonCode.LongerPath;
             }
+            reasons.recordSuccess();
+            return ServiceReason.ReasonCode.Arrived;
+//            else {
+//                // found a route, but longer or more hops than current shortest
+//                reasons.recordReason(ServiceReason.Longer(howIGotHere));
+//                return ServiceReason.ReasonCode.LongerPath;
+//            }
         } else if (lowestCostSeen.everArrived()) { // Not arrived, but we have seen at least one successful route
             if (totalCostSoFar > lowestCostSeen.getLowestCost()) {
                 // already longer that current shortest, no need to continue
                 reasons.recordReason(ServiceReason.Longer(howIGotHere));
                 return ServiceReason.ReasonCode.LongerPath;
             }
+
             final long durationMillis = begin.until(providesNow.getInstant(), ChronoUnit.MILLIS);
             if (durationMillis > timeout) {
+                Map<String, Object> allProps = nextNode.getAllProperties();
                 logger.warn(format("Timed out after %s ms, current journey cost %s, changes %s, path len %s, how i got here: %s",
                         durationMillis, totalCostSoFar, numberChanges, thePath.length(), howIGotHere));
+                logger.warn(format("Props for node %s were %s", nextNodeId, allProps));
                 reasons.recordReason(ServiceReason.TimedOut(howIGotHere));
                 return ServiceReason.ReasonCode.TimedOut;
             }

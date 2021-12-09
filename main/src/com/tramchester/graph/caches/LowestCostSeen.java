@@ -45,4 +45,5 @@ public class LowestCostSeen {
         lowestNumChanges.getAndSet(journeyState.getNumberChanges());
         setLowestCost(journeyState.getTotalCostSoFar());
     }
+
 }

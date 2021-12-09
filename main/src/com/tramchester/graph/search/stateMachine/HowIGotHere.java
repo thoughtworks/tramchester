@@ -14,6 +14,12 @@ public class HowIGotHere {
         this(path.endNode().getId(), getRelationshipFromPath(path), immutableJourneyState.getTraversalStateName());
     }
 
+    private HowIGotHere(long nodeId, long relationshipId, String traversalStateName) {
+        this.nodeId = nodeId;
+        this.relationshipId = relationshipId;
+        this.traversalStateName = traversalStateName;
+    }
+
     private static long getRelationshipFromPath(Path path) {
         if (path.lastRelationship()==null) {
             return AT_START;
@@ -22,11 +28,6 @@ public class HowIGotHere {
         }
     }
 
-    private HowIGotHere(long nodeId, long relationshipId, String traversalStateName) {
-        this.nodeId = nodeId;
-        this.relationshipId = relationshipId;
-        this.traversalStateName = traversalStateName;
-    }
 
     public static HowIGotHere forTest(long nodeId, long relationshipId) {
         return new HowIGotHere(nodeId, relationshipId, "TEST_ONLY");

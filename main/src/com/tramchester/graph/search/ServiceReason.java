@@ -13,7 +13,6 @@ import static java.lang.String.format;
 
 public abstract class ServiceReason {
 
-
     public enum ReasonCode {
 
         ServiceDateOk, ServiceTimeOk, NumChangesOK, TimeOk, HourOk, Reachable, ReachableNoCheck, DurationOk,
@@ -35,6 +34,7 @@ public abstract class ServiceReason {
         NotOnVehicle,
         ReturnedToStart,
         TooManyChanges,
+        MoreChanges,
         TooManyWalkingConnections,
         TooManyNeighbourConnections,
         StationClosed,
@@ -381,8 +381,12 @@ public abstract class ServiceReason {
         return new ServiceReason.DoesNotOperateOnTime(ServiceReason.ReasonCode.Cached, currentElapsed, path);
     }
 
-    public static ServiceReason Longer(HowIGotHere path) {
-        return new ServiceReason.Unreachable(ReasonCode.LongerPath, path);
+    public static ServiceReason Longer(HowIGotHere howIGotHere) {
+        return new ServiceReason.Unreachable(ReasonCode.LongerPath, howIGotHere);
+    }
+
+    public static ServiceReason MoreChanges(HowIGotHere howIGotHere) {
+        return new ServiceReason.Unreachable(ReasonCode.MoreChanges, howIGotHere);
     }
 
     public static ServiceReason PathToLong(HowIGotHere path) {

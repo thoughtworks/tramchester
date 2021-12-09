@@ -34,6 +34,8 @@ public class JustBoardedState extends RouteStationState {
         }
 
         public JustBoardedState fromPlatformState(PlatformState platformState, Node node, int cost) {
+            // does this ever happen? Get on one route station only to go back to a whole different
+            // platform?
             Stream<Relationship> otherPlatforms = filterExcludingEndNode(node.getRelationships(OUTGOING, ENTER_PLATFORM),
                     platformState);
 
