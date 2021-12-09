@@ -129,13 +129,13 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
                 reasons.recordSuccess();
                 return ServiceReason.ReasonCode.Arrived;
             }
-            reasons.recordSuccess();
-            return ServiceReason.ReasonCode.Arrived;
-//            else {
-//                // found a route, but longer or more hops than current shortest
-//                reasons.recordReason(ServiceReason.Longer(howIGotHere));
-//                return ServiceReason.ReasonCode.LongerPath;
-//            }
+//            reasons.recordSuccess();
+//            return ServiceReason.ReasonCode.Arrived;
+            else {
+                // found a route, but longer or more hops than current shortest
+                reasons.recordReason(ServiceReason.Longer(howIGotHere));
+                return ServiceReason.ReasonCode.LongerPath;
+            }
         } else if (lowestCostSeen.everArrived()) { // Not arrived, but we have seen at least one successful route
             if (totalCostSoFar > lowestCostSeen.getLowestCost()) {
                 // already longer that current shortest, no need to continue

@@ -117,6 +117,7 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
         howIGotHere = HowIGotHere.forTest(42L, 24L);
 
         EasyMock.expect(node.getId()).andStubReturn(42L);
+        EasyMock.expect(node.getAllProperties()).andStubReturn(new HashMap<>());
 
         EasyMock.expect(lastRelationship.getId()).andStubReturn(24L);
 

@@ -8,12 +8,15 @@ import com.tramchester.graph.RouteCostCalculator;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.TramStations;
+import com.tramchester.testSupport.testTags.DataUpdateTest;
 import org.junit.jupiter.api.*;
 import org.neo4j.graphdb.Transaction;
 
 import static com.tramchester.testSupport.reference.TramStations.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
+@DataUpdateTest
 class RouteCostCalculatorTest {
 
     private static ComponentContainer componentContainer;
@@ -59,8 +62,13 @@ class RouteCostCalculatorTest {
 
     @Test
     void shouldComputeSimpleCostBetweenStationsAltyBury() {
-        assertEquals(64, getApproxCostBetween(txn, TramStations.Bury, Altrincham));
-        assertEquals(65, getApproxCostBetween(txn, Altrincham, TramStations.Bury));
+        // changes regularly with timetable updates
+
+        final int buryToAlty = getApproxCostBetween(txn, Bury, Altrincham);
+        final int altyToBury = getApproxCostBetween(txn, Altrincham, Bury);
+
+        assertTrue(buryToAlty==64 || buryToAlty==65);
+        assertTrue(altyToBury==64 || altyToBury==65);
     }
 
     @Test
