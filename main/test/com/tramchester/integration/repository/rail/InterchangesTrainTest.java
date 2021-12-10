@@ -1,4 +1,4 @@
-package com.tramchester.integration.repository.trains;
+package com.tramchester.integration.repository.rail;
 
 import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;

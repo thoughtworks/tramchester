@@ -23,6 +23,7 @@ public enum RailStationIds {
     Ashley(createId("ASHLEY")),
     Mobberley(createId("MOBERLY")),
     StokeOnTrent(createId("STOKEOT")),
+    Delamere(createId("DELAMER")),
     Wilmslow(createId(("WLMSL")));
 
     private final IdFor<Station> id;
