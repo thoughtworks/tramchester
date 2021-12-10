@@ -50,7 +50,7 @@ dependencies {
             'commons-io:commons-io:2.11.0',
             'org.apache.httpcomponents:httpclient:4.5.13',
             'org.apache.commons:commons-collections4:4.4',
-            'com.github.ben-manes.caffeine:caffeine:3.0.4'
+            'com.github.ben-manes.caffeine:caffeine:3.0.5'
     implementation('com.fasterxml.jackson.module:jackson-module-afterburner:2.13.0')
     implementation('com.fasterxml.jackson.dataformat:jackson-dataformat-csv:2.13.0')
     implementation('com.smoketurner:dropwizard-swagger:2.0.12-1')
@@ -67,10 +67,10 @@ dependencies {
             'software.amazon.awscdk:autoscaling:1.134.0',
             'software.amazon.awscdk:cdk-cx-api:1.134.0'
 
-    implementation('org.geotools:gt-main:26.0')
+    implementation('org.geotools:gt-main:26.1')
     implementation('org.geotools:gt-epsg-hsql:26.0')
 
-    testImplementation 'org.junit.jupiter:junit-jupiter:5.8.1',
+    testImplementation 'org.junit.jupiter:junit-jupiter:5.8.2',
             'org.assertj:assertj-core:3.21.0',
             'io.dropwizard:dropwizard-testing:' + dropwizardVersion,
             'org.easymock:easymock:4.3',
