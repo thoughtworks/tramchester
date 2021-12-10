@@ -45,12 +45,12 @@ dependencies {
     // slf4j in governator was causing race condition with dropwizard start up code on initial get of logger
     implementation('com.netflix.governator:governator:1.17.12') { exclude group:'org.slf4j', module:'slf4j-api'}
     implementation 'com.google.inject:guice:5.0.1'
-    implementation('org.neo4j:neo4j:4.3.7') { exclude group:'org.slf4j', module:'slf4j-nop' }
+    implementation('org.neo4j:neo4j:4.4.0') { exclude group:'org.slf4j', module:'slf4j-nop' }
     implementation 'com.github.cliftonlabs:json-simple:4.0.0',
             'commons-io:commons-io:2.11.0',
             'org.apache.httpcomponents:httpclient:4.5.13',
             'org.apache.commons:commons-collections4:4.4',
-            'com.github.ben-manes.caffeine:caffeine:3.0.4'
+            'com.github.ben-manes.caffeine:caffeine:3.0.5'
     implementation('com.fasterxml.jackson.module:jackson-module-afterburner:2.13.0')
     implementation('com.fasterxml.jackson.dataformat:jackson-dataformat-csv:2.13.0')
     implementation('com.smoketurner:dropwizard-swagger:2.0.12-1')
@@ -70,7 +70,7 @@ dependencies {
     implementation('org.geotools:gt-main:26.0')
     implementation('org.geotools:gt-epsg-hsql:26.0')
 
-    testImplementation 'org.junit.jupiter:junit-jupiter:5.8.1',
+    testImplementation 'org.junit.jupiter:junit-jupiter:5.8.2',
             'org.assertj:assertj-core:3.21.0',
             'io.dropwizard:dropwizard-testing:' + dropwizardVersion,
             'org.easymock:easymock:4.3',
