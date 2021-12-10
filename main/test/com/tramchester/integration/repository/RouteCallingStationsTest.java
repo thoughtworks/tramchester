@@ -52,48 +52,60 @@ class RouteCallingStationsTest {
 
     @Test
     void shouldHaveVictoriaToAirportCorrectStopsCityZone() {
-        List<Station> stations = getStationsFor(VictoriaWythenshaweManchesterAirport);
-        assertIdEquals(Victoria, stations.get(0));
-        assertIdEquals(Shudehill, stations.get(1));
-        assertIdEquals(MarketStreet, stations.get(2));
-        assertIdEquals(StWerburghsRoad, stations.get(9));
+        List<RouteCallingStations.StationWithCost> stations = getStationsFor(VictoriaWythenshaweManchesterAirport);
+        assertIdEquals(Victoria, stations.get(0).getStation());
+        assertEquals(2, stations.get(0).getCostToNextStation());
+
+        assertIdEquals(Shudehill, stations.get(1).getStation());
+        assertEquals(2, stations.get(1).getCostToNextStation());
+
+        assertIdEquals(MarketStreet, stations.get(2).getStation());
+        assertIdEquals(StWerburghsRoad, stations.get(9).getStation());
     }
 
     @Test
     void shouldGetCorrectStationsForARouteAltToPicc() {
-        List<Station> stations = getStationsFor(AltrinchamPiccadilly);
-        assertIdEquals(Altrincham, stations.get(0));
-        assertIdEquals(NavigationRoad, stations.get(1));
-        assertIdEquals(Cornbrook, stations.get(9));
-        assertIdEquals(Piccadilly, stations.get(13));
+        List<RouteCallingStations.StationWithCost> stations = getStationsFor(AltrinchamPiccadilly);
+        assertIdEquals(Altrincham, stations.get(0).getStation());
+        assertEquals(3, stations.get(0).getCostToNextStation());
+
+        assertIdEquals(NavigationRoad, stations.get(1).getStation());
+        assertEquals(2, stations.get(1).getCostToNextStation());
+
+        assertIdEquals(Cornbrook, stations.get(9).getStation());
+        assertEquals(3, stations.get(9).getCostToNextStation());
+
+        // end of line, expect 0
+        assertIdEquals(Piccadilly, stations.get(13).getStation());
+        assertEquals(0, stations.get(13).getCostToNextStation());
     }
 
     @Test
     void shouldGetCorrectStationsForARouteEcclesToAsh() {
-        List<Station> stations = getStationsFor(EcclesManchesterAshtonUnderLyne);
+        List<RouteCallingStations.StationWithCost> stations = getStationsFor(EcclesManchesterAshtonUnderLyne);
 
-        assertIdEquals(Eccles, stations.get(0));
-        assertIdEquals(MediaCityUK, stations.get(5));
-        assertIdEquals(Deansgate, stations.get(12));
-        assertIdEquals(Ashton, stations.get(27));
+        assertIdEquals(Eccles, stations.get(0).getStation());
+        assertIdEquals(MediaCityUK, stations.get(5).getStation());
+        assertIdEquals(Deansgate, stations.get(12).getStation());
+        assertIdEquals(Ashton, stations.get(27).getStation());
 
     }
 
     @Test
     void shouldGetCorrectStationsForARouteAshToEccles() {
-        List<Station> stations = getStationsFor(AshtonUnderLyneManchesterEccles);
-        assertIdEquals(Ashton, stations.get(0));
-        assertIdEquals(Piccadilly, stations.get(12));
+        List<RouteCallingStations.StationWithCost> stations = getStationsFor(AshtonUnderLyneManchesterEccles);
+        assertIdEquals(Ashton, stations.get(0).getStation());
+        assertIdEquals(Piccadilly, stations.get(12).getStation());
 
-        assertIdEquals(Eccles, stations.get(27));
-        assertIdEquals(MediaCityUK, stations.get(22));
+        assertIdEquals(Eccles, stations.get(27).getStation());
+        assertIdEquals(MediaCityUK, stations.get(22).getStation());
     }
 
     @Test
     void shouldHaveEndsOfLines() {
         IdSet<Station> foundEndOfLines = new IdSet<>();
         transportData.getRoutes().forEach(route -> {
-            List<Station> stations = callingStations.getStationsFor(route);
+            List<RouteCallingStations.StationWithCost> stations = callingStations.getStationsFor(route);
             foundEndOfLines.add(stations.get(0).getId());
         });
 
@@ -123,14 +135,16 @@ class RouteCallingStationsTest {
 
     }
 
-    private List<Station> getStationsFor(KnownTramRoute knownRoute) {
+    private List<RouteCallingStations.StationWithCost> getStationsFor(KnownTramRoute knownRoute) {
         final Set<Route> routes = routeHelper.get(knownRoute);
-        List<List<Station>> stationsForRoute = routes.stream().map(route -> callingStations.getStationsFor(route)).collect(Collectors.toList());
+        List<List<RouteCallingStations.StationWithCost>> stationsForRoute = routes.stream().
+                map(route -> callingStations.getStationsFor(route)).
+                collect(Collectors.toList());
 
         assertFalse(stationsForRoute.isEmpty(), "found none for " + knownRoute);
 
         // should all be the same
-        List<Station> first = stationsForRoute.get(0);
+        List<RouteCallingStations.StationWithCost> first = stationsForRoute.get(0);
         final int found = stationsForRoute.size();
         if (found >1) {
             for (int i = 1; i < found; i++) {

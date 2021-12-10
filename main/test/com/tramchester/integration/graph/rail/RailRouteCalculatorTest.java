@@ -178,14 +178,14 @@ public class RailRouteCalculatorTest {
     @Test
     void shouldFindCorrectNumberOfJourneys() {
 
-        // TODO this tests causes timeouts in the search algo, need to track down why
+        // TODO this tests causes timeouts in the search algo, when maxNumberJourneys >1 need to track down why
 
         TramTime travelTime = TramTime.of(11,4);
 
         JourneyRequest journeyRequest = new JourneyRequest(new TramServiceDate(when), travelTime, false, 3,
-                3*60, 1);
+                3*60, 3);
 
-        journeyRequest.setDiag(true);
+        //journeyRequest.setDiag(true);
 
         Set<Journey> results = testFacade.calculateRouteAsSet(Derby.getId(), Altrincham.getId(), journeyRequest);
 

@@ -36,7 +36,7 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
     private final Set<Long> destinationNodeIds;
     private final ServiceReasons reasons;
     private final PreviousVisits previousVisits;
-    private final LowestCostSeen lowestCostSeen;
+    private final LowestCostSeen bestResultSoFar;
 
     private final int maxWait;
     private final int maxInitialWait;
@@ -46,14 +46,14 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
 
     public TramRouteEvaluator(ServiceHeuristics serviceHeuristics, Set<Long> destinationNodeIds,
                               NodeContentsRepository nodeContentsRepository, ServiceReasons reasons,
-                              PreviousVisits previousVisits, LowestCostSeen lowestCostSeen, TramchesterConfig config,
+                              PreviousVisits previousVisits, LowestCostSeen bestResultSoFar, TramchesterConfig config,
                               long startNodeId, Instant begin, ProvidesNow providesNow) {
         this.serviceHeuristics = serviceHeuristics;
         this.destinationNodeIds = destinationNodeIds;
         this.nodeContentsRepository = nodeContentsRepository;
         this.reasons = reasons;
         this.previousVisits = previousVisits;
-        this.lowestCostSeen = lowestCostSeen;
+        this.bestResultSoFar = bestResultSoFar;
         maxWait = config.getMaxWait();
         maxInitialWait = config.getMaxInitialWait();
         timeout = config.getCalcTimeoutMillis();
@@ -119,25 +119,23 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
         final int numberChanges = journeyState.getNumberChanges();
 
         if (destinationNodeIds.contains(nextNodeId)) { // We've Arrived
-            if (lowestCostSeen.isLower(journeyState)) {
+            if (bestResultSoFar.isLower(journeyState)) {
                 // a better route than seen so far
-                lowestCostSeen.setLowestCost(journeyState);
+                bestResultSoFar.setLowestCost(journeyState);
                 reasons.recordSuccess();
                 return ServiceReason.ReasonCode.Arrived;
-            } else if (numberChanges < lowestCostSeen.getLowestNumChanges()) {
+            } else if (numberChanges < bestResultSoFar.getLowestNumChanges()) {
                 // fewer hops can be a useful option
                 reasons.recordSuccess();
                 return ServiceReason.ReasonCode.Arrived;
-            }
-//            reasons.recordSuccess();
-//            return ServiceReason.ReasonCode.Arrived;
-            else {
+            } else {
                 // found a route, but longer or more hops than current shortest
                 reasons.recordReason(ServiceReason.Longer(howIGotHere));
                 return ServiceReason.ReasonCode.LongerPath;
             }
-        } else if (lowestCostSeen.everArrived()) { // Not arrived, but we have seen at least one successful route
-            if (totalCostSoFar > lowestCostSeen.getLowestCost()) {
+        } else if (bestResultSoFar.everArrived()) { // Not arrived, but we have seen at least one successful route
+            final int lowestCostSeen = this.bestResultSoFar.getLowestCost();
+            if (totalCostSoFar > lowestCostSeen) {
                 // already longer that current shortest, no need to continue
                 reasons.recordReason(ServiceReason.Longer(howIGotHere));
                 return ServiceReason.ReasonCode.LongerPath;
@@ -146,8 +144,9 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
             final long durationMillis = begin.until(providesNow.getInstant(), ChronoUnit.MILLIS);
             if (durationMillis > timeout) {
                 Map<String, Object> allProps = nextNode.getAllProperties();
-                logger.warn(format("Timed out after %s ms, current journey cost %s, changes %s, path len %s, how i got here: %s",
-                        durationMillis, totalCostSoFar, numberChanges, thePath.length(), howIGotHere));
+                logger.warn(format("Timed out %s ms, current cost %s, changes %s, path len %s, state: %s, labels %s, best %s",
+                        durationMillis, totalCostSoFar, numberChanges, thePath.length(), howIGotHere.getTraversalStateName(),
+                        nodeLabels, bestResultSoFar));
                 logger.warn(format("Props for node %s were %s", nextNodeId, allProps));
                 reasons.recordReason(ServiceReason.TimedOut(howIGotHere));
                 return ServiceReason.ReasonCode.TimedOut;

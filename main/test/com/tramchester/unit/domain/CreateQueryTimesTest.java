@@ -14,8 +14,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import static org.junit.jupiter.api.Assertions.fail;
-
 class CreateQueryTimesTest {
 
     private final LocalConfig config = new LocalConfig();
@@ -40,11 +38,14 @@ class CreateQueryTimesTest {
         TramTime seedTime = TramTime.of(13, 20);
         Set<StationWalk> walksAtStart = new HashSet<>();
         List<TramTime> result = createQueryTimes.generate(seedTime, walksAtStart);
-        Assertions.assertEquals(1,result.size());
 
         Assertions.assertEquals(seedTime, result.get(0));
+        Assertions.assertEquals(seedTime.plusMinutes(12), result.get(1));
+        Assertions.assertEquals(seedTime.plusMinutes(24), result.get(2));
 
-        fail("todo");
+//        Assertions.assertEquals(1,result.size());
+//        Assertions.assertEquals(seedTime, result.get(0));
+
     }
 
     private static class LocalConfig extends TestConfig {

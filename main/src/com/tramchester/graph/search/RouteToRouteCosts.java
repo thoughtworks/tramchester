@@ -280,6 +280,11 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
                     collect(Collectors.toUnmodifiableSet());
         }
 
+        /***
+         * fewest number of "hops" between routes to reach a desintation route
+         * @param startingRoute current position
+         * @return min number of hops needed to reach one of the destination routes
+         */
         @Override
         public int getFewestChanges(Route startingRoute) {
             int indexOfStart = routeToRouteCosts.index.indexFor(startingRoute.getId());

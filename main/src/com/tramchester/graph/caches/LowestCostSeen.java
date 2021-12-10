@@ -46,4 +46,12 @@ public class LowestCostSeen {
         setLowestCost(journeyState.getTotalCostSoFar());
     }
 
+    @Override
+    public String toString() {
+        return "LowestCostSeen{" +
+                "cost=" + lowestCost +
+                ", changes=" + lowestNumChanges +
+                ", arrived=" + arrived +
+                '}';
+    }
 }

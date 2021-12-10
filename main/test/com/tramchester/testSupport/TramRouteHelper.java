@@ -23,15 +23,6 @@ public class TramRouteHelper {
         this(componentContainer.get(RouteRepository.class));
     }
 
-//    public TramRouteHelper(IntegrationAppExtension appExtension) {
-//       this(getRepositoryFrom(appExtension));
-//    }
-
-//    private static RouteRepository getRepositoryFrom(IntegrationAppExtension appExtension) {
-//        App app =  appExtension.getApplication();
-//        return app.getDependencies().get(RouteRepository.class);
-//    }
-
     public TramRouteHelper(RouteRepository routeRepository) {
         map = new HashMap<>();
         createMap(routeRepository);
