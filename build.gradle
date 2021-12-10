@@ -70,7 +70,7 @@ dependencies {
     implementation('org.geotools:gt-main:26.0')
     implementation('org.geotools:gt-epsg-hsql:26.0')
 
-    testImplementation 'org.junit.jupiter:junit-jupiter:5.8.1',
+    testImplementation 'org.junit.jupiter:junit-jupiter:5.8.2',
             'org.assertj:assertj-core:3.21.0',
             'io.dropwizard:dropwizard-testing:' + dropwizardVersion,
             'org.easymock:easymock:4.3',
