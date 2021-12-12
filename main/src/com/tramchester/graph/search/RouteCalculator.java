@@ -49,10 +49,11 @@ public class RouteCalculator extends RouteCalculatorSupport implements TramRoute
                            ProvidesNow providesNow, GraphQuery graphQuery,
                            SortsPositions sortsPosition, MapPathToLocations mapPathToLocations,
                            BetweenRoutesCostRepository routeToRouteCosts, ReasonsToGraphViz reasonToGraphViz,
-                           ClosedStationsRepository closedStationsRepository, RunningRoutesAndServices runningRoutesAndServices) {
+                           ClosedStationsRepository closedStationsRepository, RunningRoutesAndServices runningRoutesAndServices,
+                           RouteInterchanges routeInterchanges) {
         super(graphQuery, pathToStages, nodeOperations, graphDatabaseService,
                 traversalStateFactory, providesNow, sortsPosition, mapPathToLocations,
-                transportData, config, transportData, routeToRouteCosts, reasonToGraphViz);
+                transportData, config, transportData, routeToRouteCosts, reasonToGraphViz, routeInterchanges);
         this.config = config;
         this.createQueryTimes = createQueryTimes;
         this.closedStationsRepository = closedStationsRepository;

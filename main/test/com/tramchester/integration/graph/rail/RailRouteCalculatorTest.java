@@ -210,7 +210,8 @@ public class RailRouteCalculatorTest {
             TransportStage<?, ?> trainStage = stages.get(0);
 
             assertEquals(TransportMode.Train, trainStage.getMode());
-            assertEquals(4, trainStage.getPassedStopsCount(), trainStage.toString());
+            final int passedStopsCount = trainStage.getPassedStopsCount();
+            assertEquals(3, passedStopsCount, trainStage.toString());
 
             List<StopCall> callingPoints = trainStage.getCallingPoints();
             final int numCallingPoints = callingPoints.size();
@@ -222,10 +223,9 @@ public class RailRouteCalculatorTest {
                 assertEquals(Macclesfield.getId(), callingPoints.get(2).getStationId());
                 assertEquals(Stockport.getId(), callingPoints.get(3).getStationId());
             } else {
-                // TODO
                 // crewe -> wilmslow -> stockport
-                assertEquals("CRE", callingPoints.get(0).getStationId().forDTO());
-                assertEquals("WML", callingPoints.get(1).getStationId().forDTO());
+                assertEquals(Crewe.getId(), callingPoints.get(0).getStationId());
+                assertEquals(Wilmslow.getId(), callingPoints.get(1).getStationId());
                 assertEquals(Stockport.getId(), callingPoints.get(2).getStationId());
             }
         });

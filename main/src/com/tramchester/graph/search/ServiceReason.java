@@ -22,11 +22,13 @@ public abstract class ServiceReason {
         RouteNotOnQueryDate,
         DoesNotOperateOnTime,
         NotReachable,
+        ExchangeNotReachable,
         ServiceNotRunningAtTime,
         TookTooLong,
         NotAtHour,
         AlreadyDeparted,
-        LongerPath,
+        HigherCost,
+        HigherCostViaExchange,
         PathTooLong,
         OnTram,
         OnBus,
@@ -349,6 +351,10 @@ public abstract class ServiceReason {
         return new Unreachable(ReasonCode.NotReachable, path);
     }
 
+    public static ServiceReason ExchangeNotReachable(HowIGotHere path) {
+        return new Unreachable(ReasonCode.ExchangeNotReachable, path);
+    }
+
     public static ServiceReason DoesNotOperateOnTime(TramTime currentElapsed, HowIGotHere path) {
         return new DoesNotOperateOnTime(ReasonCode.DoesNotOperateOnTime, currentElapsed, path);
     }
@@ -382,7 +388,11 @@ public abstract class ServiceReason {
     }
 
     public static ServiceReason Longer(HowIGotHere howIGotHere) {
-        return new ServiceReason.Unreachable(ReasonCode.LongerPath, howIGotHere);
+        return new ServiceReason.Unreachable(ReasonCode.HigherCost, howIGotHere);
+    }
+
+    public static ServiceReason LongerViaExchange(HowIGotHere howIGotHere) {
+        return new ServiceReason.Unreachable(ReasonCode.HigherCostViaExchange, howIGotHere);
     }
 
     public static ServiceReason MoreChanges(HowIGotHere howIGotHere) {

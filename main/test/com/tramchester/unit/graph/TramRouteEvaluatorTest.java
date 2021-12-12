@@ -166,7 +166,7 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
 
     @Test
     void shouldHaveReasonsThatExclude() {
-        assertEquals(Evaluation.EXCLUDE_AND_PRUNE, TramRouteEvaluator.decideEvaluationAction(ServiceReason.ReasonCode.LongerPath));
+        assertEquals(Evaluation.EXCLUDE_AND_PRUNE, TramRouteEvaluator.decideEvaluationAction(ServiceReason.ReasonCode.HigherCost));
         assertEquals(Evaluation.EXCLUDE_AND_PRUNE, TramRouteEvaluator.decideEvaluationAction(ServiceReason.ReasonCode.ReturnedToStart));
         assertEquals(Evaluation.EXCLUDE_AND_PRUNE, TramRouteEvaluator.decideEvaluationAction(ServiceReason.ReasonCode.PathTooLong));
         assertEquals(Evaluation.EXCLUDE_AND_PRUNE, TramRouteEvaluator.decideEvaluationAction(ServiceReason.ReasonCode.TooManyChanges));
@@ -238,7 +238,7 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
         EasyMock.expect(lowestCostSeen.isLower(journeyState)).andReturn(false);
         EasyMock.expect(lowestCostSeen.getLowestNumChanges()).andReturn(5);
 
-        previousSuccessfulVisit.recordVisitIfUseful(ServiceReason.ReasonCode.LongerPath, node, journeyState, labels);
+        previousSuccessfulVisit.recordVisitIfUseful(ServiceReason.ReasonCode.HigherCost, node, journeyState, labels);
         EasyMock.expectLastCall();
 
         replayAll();
@@ -500,7 +500,7 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
         journeyState.board(TransportMode.Bus, node, true);
         branchState.setState(journeyState);
 
-        EasyMock.expect(lowestCostSeen.everArrived()).andReturn(false);
+        EasyMock.expect(lowestCostSeen.everArrived()).andStubReturn(false);
 
         EasyMock.expect(path.length()).andStubReturn(50);
 
@@ -657,7 +657,7 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
         EasyMock.expect(lowestCostSeen.everArrived()).andReturn(true);
         EasyMock.expect(lowestCostSeen.getLowestCost()).andReturn(10);
 
-        previousSuccessfulVisit.recordVisitIfUseful(ServiceReason.ReasonCode.LongerPath, node, journeyState, labels);
+        previousSuccessfulVisit.recordVisitIfUseful(ServiceReason.ReasonCode.HigherCost, node, journeyState, labels);
         EasyMock.expectLastCall();
 
         replayAll();

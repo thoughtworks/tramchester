@@ -238,6 +238,7 @@ task integration(type: Test, dependsOn: compileJava) {
     useJUnitPlatform {
         excludeTags "liveDataMessages" // hopefully temporary exclusion
         excludeTags "postcode" // Postcode CSV download seems to be AWOL
+        excludeTags "BusTest" // latest data seems to be missing 95% of stops etc
         //excludeTags "liveData" // for when live data is down currently
         //excludeTags "dataExpiry" // ONLY exclude when impending data expiry causes issues
     }

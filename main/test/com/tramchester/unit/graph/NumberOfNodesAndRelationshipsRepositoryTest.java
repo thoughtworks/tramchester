@@ -48,42 +48,51 @@ class NumberOfNodesAndRelationshipsRepositoryTest {
     }
 
     @Test
-    void shouldHaveCorrectNumberOfNodesOfType() {
-
+    void shouldHaveOnlyTram() {
         assertEquals(0, repository.numberOf(GraphLabel.SUBWAY_STATION));
         assertEquals(0, repository.numberOf(GraphLabel.BUS_STATION));
         assertEquals(0, repository.numberOf(GraphLabel.QUERY_NODE));
         assertEquals(0, repository.numberOf(GraphLabel.TRAIN_STATION));
-
-        assertEquals(9, repository.numberOf(GraphLabel.TRAM_STATION));
-        assertEquals(6, repository.numberOf(GraphLabel.HOUR));
-        assertEquals(5, repository.numberOf(GraphLabel.SERVICE));
-        assertEquals(7, repository.numberOf(GraphLabel.MINUTE));
-        assertEquals(9, repository.numberOf(GraphLabel.PLATFORM));
-        assertEquals(11, repository.numberOf(GraphLabel.ROUTE_STATION));
-
-    }
-
-    @Test
-    void shouldHaveCorrectNumberOfRelations() {
-
         assertEquals(0, repository.numberOf(TransportRelationshipTypes.BUS_GOES_TO));
         assertEquals(0, repository.numberOf(TransportRelationshipTypes.TRAIN_GOES_TO));
         assertEquals(0, repository.numberOf(TransportRelationshipTypes.NEIGHBOUR));
         assertEquals(0, repository.numberOf(TransportRelationshipTypes.FERRY_GOES_TO));
         assertEquals(0, repository.numberOf(TransportRelationshipTypes.WALKS_FROM));
         assertEquals(0, repository.numberOf(TransportRelationshipTypes.WALKS_TO));
+    }
 
+    @Test
+    void shouldHaveCorrectNumberOfNodesStationsAndPlatform() {
+        assertEquals(9, repository.numberOf(GraphLabel.TRAM_STATION));
+        assertEquals(9, repository.numberOf(GraphLabel.PLATFORM));
+        assertEquals(11, repository.numberOf(GraphLabel.ROUTE_STATION));
+    }
 
-        assertEquals(7, repository.numberOf(TransportRelationshipTypes.TRAM_GOES_TO));
-        assertEquals(5, repository.numberOf(TransportRelationshipTypes.TO_SERVICE));
-        assertEquals(6, repository.numberOf(TransportRelationshipTypes.TO_HOUR));
-        assertEquals(7, repository.numberOf(TransportRelationshipTypes.TO_MINUTE));
-        assertEquals(4, repository.numberOf(TransportRelationshipTypes.BOARD));
-        assertEquals(4, repository.numberOf(TransportRelationshipTypes.DEPART));
-        assertEquals(4, repository.numberOf(TransportRelationshipTypes.INTERCHANGE_BOARD));
-        assertEquals(4, repository.numberOf(TransportRelationshipTypes.INTERCHANGE_DEPART));
+    @Test
+    void shouldHaveCorrectNumberOfRelationsBoardDepartandTravel() {
 
+        assertEquals(8, repository.numberOf(TransportRelationshipTypes.TRAM_GOES_TO));
 
+        assertEquals(5, repository.numberOf(TransportRelationshipTypes.BOARD));
+        assertEquals(5, repository.numberOf(TransportRelationshipTypes.DEPART));
+
+        assertEquals(6, repository.numberOf(TransportRelationshipTypes.INTERCHANGE_BOARD));
+        assertEquals(6, repository.numberOf(TransportRelationshipTypes.INTERCHANGE_DEPART));
+
+    }
+
+    @Test
+    void shouldHaveCorrectNumberService() {
+        assertEquals(6, repository.numberOf(GraphLabel.SERVICE));
+        assertEquals(6, repository.numberOf(TransportRelationshipTypes.TO_SERVICE));
+    }
+
+    @Test
+    void shouldHaveCorrectNumberTime() {
+        assertEquals(7, repository.numberOf(GraphLabel.HOUR));
+        assertEquals(8, repository.numberOf(GraphLabel.MINUTE));
+
+        assertEquals(7, repository.numberOf(TransportRelationshipTypes.TO_HOUR));
+        assertEquals(8, repository.numberOf(TransportRelationshipTypes.TO_MINUTE));
     }
 }

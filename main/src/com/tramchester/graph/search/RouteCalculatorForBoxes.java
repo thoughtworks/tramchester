@@ -49,10 +49,11 @@ public class RouteCalculatorForBoxes extends RouteCalculatorSupport {
                                    ProvidesNow providesNow,
                                    SortsPositions sortsPosition, MapPathToLocations mapPathToLocations,
                                    BetweenRoutesCostRepository routeToRouteCosts, ReasonsToGraphViz reasonToGraphViz,
-                                   ClosedStationsRepository closedStationsRepository, RunningRoutesAndServices runningRoutesAndService) {
+                                   ClosedStationsRepository closedStationsRepository, RunningRoutesAndServices runningRoutesAndService,
+                                   RouteInterchanges routeInterchanges) {
         super(graphQuery, pathToStages, nodeContentsRepository, graphDatabaseService,
                 traversalStateFactory, providesNow, sortsPosition, mapPathToLocations,
-                transportData, config, transportData, routeToRouteCosts, reasonToGraphViz);
+                transportData, config, transportData, routeToRouteCosts, reasonToGraphViz, routeInterchanges);
         this.config = config;
         this.graphDatabaseService = graphDatabaseService;
         this.closedStationsRepository = closedStationsRepository;

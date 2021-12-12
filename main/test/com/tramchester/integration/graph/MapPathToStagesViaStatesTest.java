@@ -61,6 +61,7 @@ public class MapPathToStagesViaStatesTest {
     private BetweenRoutesCostRepository routeToRouteCosts;
     private ClosedStationsRepository closedStationsRepository;
     private RunningRoutesAndServices runningRoutesAndService;
+    private RouteInterchanges routeInterchanges;
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
@@ -88,6 +89,7 @@ public class MapPathToStagesViaStatesTest {
         routeToRouteCosts = componentContainer.get(RouteToRouteCosts.class);
         closedStationsRepository = componentContainer.get(ClosedStationsRepository.class);
         runningRoutesAndService = componentContainer.get(RunningRoutesAndServices.class);
+        routeInterchanges = componentContainer.get(RouteInterchanges.class);
     }
 
     @AfterEach
@@ -310,7 +312,7 @@ public class MapPathToStagesViaStatesTest {
         RunningRoutesAndServices.FilterForDate filter = runningRoutesAndService.getFor(queryDate.getDate());
         JourneyConstraints journeyConstraints = new JourneyConstraints(config, filter,
                 journeyRequest, closedStationsRepository, endStations, lowestCostCalculator);
-        ServiceHeuristics serviceHeuristics =  new ServiceHeuristics(stationRepository, nodeContentsRepository,
+        ServiceHeuristics serviceHeuristics =  new ServiceHeuristics(stationRepository, routeInterchanges, nodeContentsRepository,
                 journeyConstraints, queryTime, numChanges);
 
         LowestCostSeen lowestCostSeen = new LowestCostSeen();

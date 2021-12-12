@@ -56,27 +56,42 @@ public class RouteCallingStations {
     private void populateFromServices(Route route) {
         logger.debug("Populate calling stations for route " + HasId.asId(route));
 
-        Set<Trip> allTrips = route.getTrips();
+        Set<Trip> tripsForRoute = route.getTrips();
 
         // ASSUME: longest trips correspond to full end-to-end journey for the whole route
         // TODO should we use EndOfRoutes here instead?
-        Optional<Trip> longest = allTrips.stream().max(Comparator.comparingInt(a -> a.getStopCalls().numberOfCallingPoints()));
+        Optional<Trip> longest = tripsForRoute.stream().max(Comparator.comparingInt(a -> a.getStopCalls().numberOfCallingPoints()));
 
         longest.ifPresent(longestTrip -> {
             StopCalls stops = longestTrip.getStopCalls();
             List<StopCalls.StopLeg> legs = stops.getLegs();
 
             List<StationWithCost> results = new ArrayList<>(legs.size());
-            for (int i = 0; i < legs.size(); i++) {
-                final StopCalls.StopLeg currentLeg = legs.get(i);
-                results.add(new StationWithCost(currentLeg.getFirstStation(), currentLeg.getCost()));
+
+            if (legs.isEmpty()) {
+                // cope with test data
+                if (stops.numberOfCallingPoints()==1) {
+                    logger.warn("Trip with only one stop " + longest);
+                    results.add(new StationWithCost(stops.getStopBySequenceNumber(1).getStation(), 0));
+                } else {
+                    logger.error("Not stop legs found for longest trip " + longestTrip);
+                }
             }
-            StopCalls.StopLeg lastLeg = legs.get(legs.size() - 1);
-            results.add(new StationWithCost(lastLeg.getSecondStation(), 0));
-//            List<Station> inOrderStations = stops.stream().map(StopCall::getStation).collect(Collectors.toList());
-            int size = results.size();
-            logger.debug("Adding " + size + " stations for route " + HasId.asId(route) +
-                    " From:" + results.get(0).getId() + " To:"+results.get(size -1).getId());
+            else {
+                for (final StopCalls.StopLeg currentLeg : legs) {
+                    results.add(new StationWithCost(currentLeg.getFirstStation(), currentLeg.getCost()));
+                }
+
+                int indexOfLast = legs.size() == 1 ? 0 : legs.size() - 1;
+
+                StopCalls.StopLeg lastLeg = legs.get(indexOfLast);
+                results.add(new StationWithCost(lastLeg.getSecondStation(), 0));
+
+                int size = results.size();
+                logger.debug("Adding " + size + " stations for route " + HasId.asId(route) +
+                        " From:" + results.get(0).getId() + " To:"+results.get(size -1).getId());
+            }
+
             stations.put(route, results);
         });
 

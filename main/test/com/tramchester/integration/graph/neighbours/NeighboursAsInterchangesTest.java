@@ -9,6 +9,7 @@ import com.tramchester.integration.testSupport.NeighboursTestConfig;
 import com.tramchester.repository.InterchangeRepository;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.TestEnv;
+import com.tramchester.testSupport.testTags.BusTest;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -19,6 +20,7 @@ import java.util.Optional;
 import static com.tramchester.testSupport.reference.TramStations.Shudehill;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+@BusTest
 public class NeighboursAsInterchangesTest {
 
     private static GuiceContainerDependencies componentContainer;

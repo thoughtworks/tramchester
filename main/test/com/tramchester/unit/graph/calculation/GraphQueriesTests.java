@@ -64,7 +64,7 @@ class GraphQueriesTests {
 
         Set<StationLink> links = findStationLinks.findLinkedFor(Tram);
 
-        assertEquals(5, links.size());
+        assertEquals(6, links.size());
 
         Set<TransportMode> modes = Collections.singleton(Tram);
         assertTrue(links.contains(new StationLink(transportData.getFirst(), transportData.getSecond(), modes)));
@@ -72,6 +72,8 @@ class GraphQueriesTests {
         assertTrue(links.contains(new StationLink(transportData.getInterchange(), transportData.getFourthStation(), modes)));
         assertTrue(links.contains(new StationLink(transportData.getInterchange(), transportData.getFifthStation(), modes)));
         assertTrue(links.contains(new StationLink(transportData.getInterchange(), transportData.getLast(), modes)));
+        assertTrue(links.contains(new StationLink(transportData.getFirstDupName(), transportData.getFirstDup2Name(), modes)));
+
     }
 
     @Test
@@ -84,7 +86,8 @@ class GraphQueriesTests {
                 map(stationRepository::getRouteStationById).map(RouteStation::getStationId).
                 collect(IdSet.idCollector());
 
-        IdSet<Station> expectedStationIds = createSet(transportData.getFirst(), transportData.getInterchange());
+        IdSet<Station> expectedStationIds = createSet(transportData.getFirst(), transportData.getInterchange(),
+                transportData.getFirstDupName());
         assertEquals(expectedStationIds, stationIds);
     }
 
@@ -99,47 +102,9 @@ class GraphQueriesTests {
                 collect(IdSet.idCollector());
 
         IdSet<Station> expectedStationIds = createSet(transportData.getFifthStation(), transportData.getLast(),
-                transportData.getFourthStation());
+                transportData.getFourthStation(), transportData.getFirstDup2Name());
         assertEquals(expectedStationIds, stationIds);
     }
-
-//    @Test
-//    void shouldFindHourRelationships() {
-//        HourNodeCache hourNodeCache = componentContainer.get(HourNodeCache.class);
-//        GraphQuery graphQuery = componentContainer.get(GraphQuery.class);
-//        GraphDatabase graphDatabase = componentContainer.get(GraphDatabase.class);
-//
-//        Set<Long> foundFor8am = hourNodeCache.getNodeIdsFor(8);
-//        assertEquals(5, foundFor8am.size());
-//
-//        Set<Long> foundFor9am = hourNodeCache.getNodeIdsFor(9);
-//        assertEquals(1, foundFor9am.size());
-//
-//        List<Integer> hours = IntStream.rangeClosed(0,23).boxed().collect(Collectors.toList());
-//        hours.remove((Integer) 8);
-//        hours.remove((Integer) 9);
-//        hours.forEach(hour -> assertTrue(hourNodeCache.getNodeIdsFor(hour).isEmpty(), "unexpected " + hour));
-//
-//        Set<Integer> found = new HashSet<>();
-//        Set<RouteStation> routeStations = transportData.getRouteStations();
-//        try (Transaction txn = graphDatabase.beginTx()) {
-//            routeStations.forEach(routeStation -> {
-//                Node routeStationNode = graphQuery.getRouteStationNode(txn, routeStation);
-//                if (routeStationNode.hasRelationship(Direction.OUTGOING, TO_SERVICE)) {
-//                    Relationship toService = routeStationNode.getSingleRelationship(TO_SERVICE, Direction.OUTGOING);
-//                    Node serviceNode = toService.getEndNode();
-//                    Iterable<Relationship> hourRelationships = serviceNode.getRelationships(Direction.OUTGOING, TO_HOUR);
-//                    hourRelationships.forEach(hourRelationship -> {
-//                        int result = hourNodeCache.getHourFor(hourRelationship.getEndNodeId());
-//                        found.add(result);
-//                    });
-//                }
-//            });
-//        }
-//        assertEquals(2, found.size());
-//        assertTrue(found.contains(8));
-//        assertTrue(found.contains(9));
-//    }
 
     IdSet<Station> createSet(Station...stations) {
         return Arrays.stream(stations).map(Station::getId).collect(IdSet.idCollector());

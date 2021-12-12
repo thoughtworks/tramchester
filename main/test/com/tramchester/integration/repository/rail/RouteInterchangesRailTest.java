@@ -9,7 +9,6 @@ import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
 import com.tramchester.integration.testSupport.rail.IntegrationRailTestConfig;
 import com.tramchester.repository.RouteInterchanges;
-import com.tramchester.repository.RouteRepository;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.TestEnv;
 import org.junit.jupiter.api.AfterAll;
@@ -29,7 +28,6 @@ public class RouteInterchangesRailTest {
     private static ComponentContainer componentContainer;
     private RouteInterchanges routeInterchanges;
     private StationRepository stationRepository;
-    private RouteRepository routeRepository;
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
@@ -45,7 +43,6 @@ public class RouteInterchangesRailTest {
     @BeforeEach
     void onceBeforeEachTestRuns() {
         stationRepository = componentContainer.get(StationRepository.class);
-        routeRepository = componentContainer.get(RouteRepository.class);
         routeInterchanges = componentContainer.get(RouteInterchanges.class);
     }
 

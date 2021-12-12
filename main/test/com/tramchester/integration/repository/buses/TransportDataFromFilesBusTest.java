@@ -76,7 +76,7 @@ class TransportDataFromFilesBusTest {
     void shouldHaveRouteNumbersForBus() {
         int numberRoutes = transportData.getRoutes().size();
         //assertEquals(TGFM_BUS_ROUTES, numberRoutes);
-        assertTrue(withinNPercent(TGFM_BUS_ROUTES, numberRoutes, 0.05F));
+        assertWithinNPercent(TGFM_BUS_ROUTES, numberRoutes, 0.05F);
     }
 
     @Test
@@ -84,7 +84,7 @@ class TransportDataFromFilesBusTest {
 
         int numStations = transportData.getStations().size();
         //assertEquals(NUM_TFGM_BUS_STATIONS, numStations);
-        assertTrue(withinNPercent(NUM_TFGM_BUS_STATIONS, numStations, 0.1F));
+        assertWithinNPercent(NUM_TFGM_BUS_STATIONS, numStations, 0.1F);
 
         // no platforms represented in train data
         assertEquals(0, transportData.getPlatforms().size());
@@ -94,7 +94,7 @@ class TransportDataFromFilesBusTest {
     void shouldGetSpecificBusRoutes() {
         Collection<Route> results = transportData.getRoutes();
         long gmsRoutes = results.stream().filter(route -> route.getAgency().equals(StagecoachManchester)).count();
-        assertTrue(withinNPercent(492, gmsRoutes, 0.1F), Long.toString(gmsRoutes));
+        assertWithinNPercent(492, gmsRoutes, 0.1F);
     }
 
     @Test
@@ -239,12 +239,13 @@ class TransportDataFromFilesBusTest {
     }
 
     // for things changing very frequently
-    private boolean withinNPercent(long expected, long actual, float percentage) {
+    private void assertWithinNPercent(long expected, long actual, float percentage) {
         int margin = Math.round(expected * percentage);
         long upper = expected + margin;
         long lower = expected - margin;
 
-        return (actual>lower) && (actual<upper);
+        String diagnostic = String.format("%s not within %s of %s", actual, percentage, expected);
+        assertTrue( (actual>lower) && (actual<upper), diagnostic);
     }
 
 }

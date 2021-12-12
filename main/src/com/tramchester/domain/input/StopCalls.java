@@ -13,6 +13,8 @@ import java.util.SortedMap;
 import java.util.TreeMap;
 import java.util.stream.Stream;
 
+import static java.lang.String.format;
+
 public class StopCalls {
     private static final Logger logger = LoggerFactory.getLogger(StopCalls.class);
 
@@ -31,7 +33,12 @@ public class StopCalls {
         if (station==null) {
             logger.error("Stop is missing station " + parent);
         } else {
-            orderedStopCalls.put(stop.getGetSequenceNumber(), stop);
+            final int sequenceNumber = stop.getGetSequenceNumber();
+            if (orderedStopCalls.containsKey(sequenceNumber)) {
+                logger.error(format("Stop already present for trip %s, already had %s inserting %s ",
+                        parent, orderedStopCalls.get(sequenceNumber), stop));
+            }
+            orderedStopCalls.put(sequenceNumber, stop);
             intoNextDay = intoNextDay || stop.intoNextDay();
         }
     }
@@ -87,6 +94,7 @@ public class StopCalls {
     public boolean intoNextDay() {
         return intoNextDay;
     }
+
 
     public static class StopLeg {
         private final StopCall first;

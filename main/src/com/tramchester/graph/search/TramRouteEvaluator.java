@@ -99,9 +99,10 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
                     -> Evaluation.INCLUDE_AND_CONTINUE;
             case Arrived
                     -> Evaluation.INCLUDE_AND_PRUNE;
-            case LongerPath, ReturnedToStart, PathTooLong, TooManyChanges, TooManyWalkingConnections, NotReachable,
+            case HigherCost, ReturnedToStart, PathTooLong, TooManyChanges, TooManyWalkingConnections, NotReachable,
                     TookTooLong, ServiceNotRunningAtTime, NotAtHour, DoesNotOperateOnTime, NotOnQueryDate, MoreChanges,
-                    AlreadyDeparted, StationClosed, TooManyNeighbourConnections, TimedOut, RouteNotOnQueryDate
+                    AlreadyDeparted, StationClosed, TooManyNeighbourConnections, TimedOut, RouteNotOnQueryDate, HigherCostViaExchange,
+                    ExchangeNotReachable
                     -> Evaluation.EXCLUDE_AND_PRUNE;
             case OnTram, OnBus, OnTrain, NotOnVehicle, Cached , PreviousCacheMiss, NumWalkingConnectionsOk,
                     NeighbourConnectionsOk
@@ -131,14 +132,14 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
             } else {
                 // found a route, but longer or more hops than current shortest
                 reasons.recordReason(ServiceReason.Longer(howIGotHere));
-                return ServiceReason.ReasonCode.LongerPath;
+                return ServiceReason.ReasonCode.HigherCost;
             }
         } else if (bestResultSoFar.everArrived()) { // Not arrived, but we have seen at least one successful route
-            final int lowestCostSeen = this.bestResultSoFar.getLowestCost();
+            final int lowestCostSeen = bestResultSoFar.getLowestCost();
             if (totalCostSoFar > lowestCostSeen) {
                 // already longer that current shortest, no need to continue
                 reasons.recordReason(ServiceReason.Longer(howIGotHere));
-                return ServiceReason.ReasonCode.LongerPath;
+                return ServiceReason.ReasonCode.HigherCost;
             }
 
             final long durationMillis = begin.until(providesNow.getInstant(), ChronoUnit.MILLIS);
@@ -230,6 +231,13 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
                 // NOTE: might still reach the closed station via a walk, which is not via the RouteStation
                 return ServiceReason.ReasonCode.StationClosed;
             }
+            if (bestResultSoFar.everArrived()) {
+                if (!serviceHeuristics.lowerCostIncludingInterchange(nextNode, journeyState.getTotalCostSoFar(), bestResultSoFar.getLowestCost(),
+                        howIGotHere, reasons).isValid()) {
+                    return ServiceReason.ReasonCode.NotReachable;
+                }
+            }
+
         }
 
         // TODO is this still needed, should drop through via continue anyway?

@@ -2,13 +2,14 @@ package com.tramchester.testSupport.reference;
 
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.dataimport.data.StopTimeData;
+import com.tramchester.dataimport.loader.TransportDataFactory;
 import com.tramchester.domain.*;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.input.MutableTrip;
 import com.tramchester.domain.input.PlatformStopCall;
-import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.MutableStation;
+import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.GTFSPickupDropoffType;
 import com.tramchester.domain.time.ProvidesNow;
@@ -17,7 +18,6 @@ import com.tramchester.geo.CoordinateTransforms;
 import com.tramchester.geo.GridPosition;
 import com.tramchester.repository.TransportData;
 import com.tramchester.repository.TransportDataContainer;
-import com.tramchester.dataimport.loader.TransportDataFactory;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TestStation;
 import org.slf4j.Logger;
@@ -139,8 +139,10 @@ public class TramTransportDataForTestFactory implements TransportDataFactory {
                 "startStation", nearAltrincham, nearAltrinchamGrid, Tram, dataSourceID);
         addAStation(container, firstDup2Name);
         addRouteStation(container, firstDup2Name, routeD);
-        PlatformStopCall stopZZ = createStop(container, tripZ, firstDup2Name, of(12, 0), of(12, 0), 1);
+        PlatformStopCall stopZZ = createStop(container, tripZ, firstDup2Name, of(12, 0), of(12, 0), 2);
         tripZ.addStop(stopZZ);
+
+        routeD.addTrip(tripZ);
 
         MutableStation second = new TestStation(TramTransportDataForTest.SECOND_STATION, "area1", "secondStation",
                 atRoundthornTram, CoordinateTransforms.getGridPosition(atRoundthornTram), Tram, dataSourceID);
@@ -180,6 +182,8 @@ public class TramTransportDataForTestFactory implements TransportDataFactory {
         PlatformStopCall fourDupStop = createStop(container, tripZZ, fourDupName,
                 of(13, 0), of(13, 0), 1);
         tripZZ.addStop(fourDupStop);
+
+        routeD.addTrip(tripZZ);
 
         MutableStation stationFive = new TestStation(TramTransportDataForTest.STATION_FIVE, "area5", "Station5",
                 TestEnv.nearStockportBus, TestEnv.nearStockportBusGrid,  Tram, dataSourceID);
@@ -262,6 +266,9 @@ public class TramTransportDataForTestFactory implements TransportDataFactory {
         private static final IdFor<Service> serviceBId = StringIdFor.createId("serviceBId");
         private static final IdFor<Service> serviceCId = StringIdFor.createId("serviceCId");
 
+        // for the dups
+        private static final IdFor<Service> serviceZId = StringIdFor.createId("serviceZId");
+
         private static final String METROLINK_PREFIX = "9400ZZ";
 
         public static final String TRIP_A_ID = "tripAId";
@@ -311,9 +318,24 @@ public class TramTransportDataForTestFactory implements TransportDataFactory {
             return getStationById(StringIdFor.createId(STATION_FOUR));
         }
 
-
         public Station getFourthStationDupName() {
             return getStationById(StringIdFor.createId(STATION_FOUR_DUP_NAME));
+        }
+
+        public Route getRouteA() {
+            return getRouteById(CornbrookTheTraffordCentre.getFakeId());
+        }
+
+        public Route getRouteB() {
+            return getRouteById(RochdaleShawandCromptonManchesterEastDidisbury.getFakeId());
+        }
+
+        public Route getRouteC() {
+            return getRouteById(EastDidisburyManchesterShawandCromptonRochdale.getFakeId());
+        }
+
+        public Route getRouteD() {
+            return getRouteById(ManchesterAirportWythenshaweVictoria.getFakeId());
         }
 
         @Override

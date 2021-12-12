@@ -9,6 +9,7 @@ import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.caches.NodeContentsRepository;
 import com.tramchester.graph.graphbuild.GraphLabel;
 import com.tramchester.graph.search.stateMachine.HowIGotHere;
+import com.tramchester.repository.RouteInterchanges;
 import com.tramchester.repository.StationRepository;
 import org.neo4j.graphdb.Node;
 import org.slf4j.Logger;
@@ -30,11 +31,13 @@ public class ServiceHeuristics {
     private final NodeContentsRepository nodeOperations;
     private final int currentChangesLimit;
     private final LowestCostsForRoutes lowestCosts;
+    private final RouteInterchanges routeInterchanges;
 
-    public ServiceHeuristics(StationRepository stationRepository, NodeContentsRepository nodeOperations,
+    public ServiceHeuristics(StationRepository stationRepository, RouteInterchanges routeInterchanges, NodeContentsRepository nodeOperations,
                              JourneyConstraints journeyConstraints, TramTime actualQueryTime,
                              int currentChangesLimit) {
         this.stationRepository = stationRepository;
+        this.routeInterchanges = routeInterchanges;
         this.nodeOperations = nodeOperations;
 
         this.journeyConstraints = journeyConstraints;
@@ -160,6 +163,31 @@ public class ServiceHeuristics {
 
         if ((fewestChanges+currentNumberOfChanges) > currentChangesLimit) {
             return reasons.recordReason(ServiceReason.StationNotReachable(howIGotHere));
+        }
+
+        return valid(ServiceReason.ReasonCode.Reachable, howIGotHere, reasons);
+    }
+
+    public ServiceReason lowerCostIncludingInterchange(Node nextNode, int totalCostSoFar, int lowestCost, HowIGotHere howIGotHere,
+                                                 ServiceReasons reasons) {
+        IdFor<RouteStation> routeStationId = nodeOperations.getRouteStationId(nextNode);
+        RouteStation routeStation = stationRepository.getRouteStationById(routeStationId);
+
+        if  (lowestCosts.getFewestChanges(routeStation.getRoute())==0) {
+            // on same route our destination
+            return valid(ServiceReason.ReasonCode.Reachable, howIGotHere, reasons);
+        }
+        // otherwise, a change to a different route is needed
+
+        int costToFirstInterchange = routeInterchanges.costToInterchange(routeStation);
+        if (costToFirstInterchange==Integer.MAX_VALUE) {
+            // change required from current route, but no interchange is available for this station/route combination
+            return reasons.recordReason(ServiceReason.ExchangeNotReachable(howIGotHere));
+        }
+
+        if (totalCostSoFar+costToFirstInterchange>lowestCost) {
+            // cost of getting to interchange, plus current total cost, is greater than existing best effort
+            return reasons.recordReason(ServiceReason.LongerViaExchange(howIGotHere));
         }
 
         return valid(ServiceReason.ReasonCode.Reachable, howIGotHere, reasons);

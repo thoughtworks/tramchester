@@ -19,6 +19,7 @@ import com.tramchester.graph.caches.LowestCostSeen;
 import com.tramchester.graph.caches.NodeContentsRepository;
 import com.tramchester.graph.caches.PreviousVisits;
 import com.tramchester.graph.search.stateMachine.states.TraversalStateFactory;
+import com.tramchester.repository.RouteInterchanges;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.repository.TripRepository;
 import org.jetbrains.annotations.NotNull;
@@ -56,12 +57,14 @@ public class RouteCalculatorSupport {
     protected final BetweenRoutesCostRepository routeToRouteCosts;
     private final NodeContentsRepository nodeContentsRepository;
     private final ReasonsToGraphViz reasonToGraphViz;
+    private RouteInterchanges routeInterchanges;
 
     protected RouteCalculatorSupport(GraphQuery graphQuery, PathToStages pathToStages, NodeContentsRepository nodeContentsRepository,
                                      GraphDatabase graphDatabaseService, TraversalStateFactory traversalStateFactory,
                                      ProvidesNow providesNow, SortsPositions sortsPosition, MapPathToLocations mapPathToLocations,
                                      StationRepository stationRepository, TramchesterConfig config, TripRepository tripRepository,
-                                     BetweenRoutesCostRepository routeToRouteCosts, ReasonsToGraphViz reasonToGraphViz) {
+                                     BetweenRoutesCostRepository routeToRouteCosts, ReasonsToGraphViz reasonToGraphViz,
+                                     RouteInterchanges routeInterchanges) {
         this.graphQuery = graphQuery;
         this.pathToStages = pathToStages;
         this.nodeContentsRepository = nodeContentsRepository;
@@ -75,6 +78,7 @@ public class RouteCalculatorSupport {
         this.tripRepository = tripRepository;
         this.routeToRouteCosts = routeToRouteCosts;
         this.reasonToGraphViz = reasonToGraphViz;
+        this.routeInterchanges = routeInterchanges;
     }
 
     protected Node getStationNodeSafe(Transaction txn, Station station) {
@@ -122,7 +126,7 @@ public class RouteCalculatorSupport {
 
     @NotNull
     private ServiceHeuristics createHeuristics(TramTime actualQueryTime, JourneyConstraints journeyConstraints, int maxNumChanges) {
-        return new ServiceHeuristics(stationRepository, nodeContentsRepository, journeyConstraints, actualQueryTime,
+        return new ServiceHeuristics(stationRepository, routeInterchanges, nodeContentsRepository, journeyConstraints, actualQueryTime,
                 maxNumChanges);
     }
 
