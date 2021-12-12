@@ -511,6 +511,9 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
 
         EasyMock.expect(serviceHeuristics.canReachDestination(node, 0, howIGotHere, reasons, time)).
                 andReturn(ServiceReason.IsValid(ServiceReason.ReasonCode.Reachable, howIGotHere));
+        EasyMock.expect(serviceHeuristics.lowerCostIncludingInterchange(node, 0, lowestCostSeen, howIGotHere, reasons)).andReturn(
+                ServiceReason.IsValid(ServiceReason.ReasonCode.Reachable, howIGotHere));
+
         EasyMock.expect(serviceHeuristics.checkStationOpen(node, howIGotHere, reasons)).
                 andReturn(ServiceReason.IsValid(ServiceReason.ReasonCode.StationOpen, howIGotHere));
 

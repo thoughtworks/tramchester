@@ -8,6 +8,7 @@ import com.tramchester.graph.caches.NodeContentsRepository;
 import com.tramchester.graph.caches.PreviousVisits;
 import com.tramchester.graph.graphbuild.GraphLabel;
 import com.tramchester.graph.search.stateMachine.HowIGotHere;
+import org.jetbrains.annotations.NotNull;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Path;
 import org.neo4j.graphdb.Relationship;
@@ -95,7 +96,7 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
     public static Evaluation decideEvaluationAction(ServiceReason.ReasonCode code) {
         return switch (code) {
             case ServiceDateOk, ServiceTimeOk, NumChangesOK, NumConnectionsOk, TimeOk, HourOk, Reachable, ReachableNoCheck,
-                    DurationOk, WalkOk, StationOpen, Continue
+                    DurationOk, WalkOk, StationOpen, Continue, ReachableSameRoute
                     -> Evaluation.INCLUDE_AND_CONTINUE;
             case Arrived
                     -> Evaluation.INCLUDE_AND_PRUNE;
@@ -120,25 +121,12 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
         final int numberChanges = journeyState.getNumberChanges();
 
         if (destinationNodeIds.contains(nextNodeId)) { // We've Arrived
-            if (bestResultSoFar.isLower(journeyState)) {
-                // a better route than seen so far
-                bestResultSoFar.setLowestCost(journeyState);
-                reasons.recordSuccess();
-                return ServiceReason.ReasonCode.Arrived;
-            } else if (numberChanges < bestResultSoFar.getLowestNumChanges()) {
-                // fewer hops can be a useful option
-                reasons.recordSuccess();
-                return ServiceReason.ReasonCode.Arrived;
-            } else {
-                // found a route, but longer or more hops than current shortest
-                reasons.recordReason(ServiceReason.Longer(howIGotHere));
-                return ServiceReason.ReasonCode.HigherCost;
-            }
+            return processArrivalAtDest(journeyState, howIGotHere, numberChanges);
         } else if (bestResultSoFar.everArrived()) { // Not arrived, but we have seen at least one successful route
             final int lowestCostSeen = bestResultSoFar.getLowestCost();
             if (totalCostSoFar > lowestCostSeen) {
                 // already longer that current shortest, no need to continue
-                reasons.recordReason(ServiceReason.Longer(howIGotHere));
+                reasons.recordReason(ServiceReason.HigherCost(howIGotHere));
                 return ServiceReason.ReasonCode.HigherCost;
             }
 
@@ -227,15 +215,16 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
             if (!serviceHeuristics.canReachDestination(nextNode, journeyState.getNumberChanges(), howIGotHere, reasons, visitingTime).isValid()) {
                 return ServiceReason.ReasonCode.NotReachable;
             }
+
             if (!serviceHeuristics.checkStationOpen(nextNode, howIGotHere, reasons).isValid()) {
                 // NOTE: might still reach the closed station via a walk, which is not via the RouteStation
                 return ServiceReason.ReasonCode.StationClosed;
             }
-            if (bestResultSoFar.everArrived()) {
-                if (!serviceHeuristics.lowerCostIncludingInterchange(nextNode, journeyState.getTotalCostSoFar(), bestResultSoFar.getLowestCost(),
-                        howIGotHere, reasons).isValid()) {
-                    return ServiceReason.ReasonCode.NotReachable;
-                }
+
+            final ServiceReason serviceReason = serviceHeuristics.lowerCostIncludingInterchange(nextNode,
+                    journeyState.getTotalCostSoFar(), bestResultSoFar, howIGotHere, reasons);
+            if (!serviceReason.isValid()) {
+                return serviceReason.getReasonCode();
             }
 
         }
@@ -252,6 +241,24 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
 
         reasons.recordReason(ServiceReason.Continue(howIGotHere));
         return ServiceReason.ReasonCode.Continue;
+    }
+
+    @NotNull
+    private ServiceReason.ReasonCode processArrivalAtDest(ImmutableJourneyState journeyState, HowIGotHere howIGotHere, int numberChanges) {
+        if (bestResultSoFar.isLower(journeyState)) {
+            // a better route than seen so far
+            bestResultSoFar.setLowestCost(journeyState);
+            reasons.recordSuccess();
+            return ServiceReason.ReasonCode.Arrived;
+        } else if (numberChanges < bestResultSoFar.getLowestNumChanges()) {
+            // fewer hops can be a useful option
+            reasons.recordSuccess();
+            return ServiceReason.ReasonCode.Arrived;
+        } else {
+            // found a route, but longer or more hops than current shortest
+            reasons.recordReason(ServiceReason.HigherCost(howIGotHere));
+            return ServiceReason.ReasonCode.HigherCost;
+        }
     }
 
 }

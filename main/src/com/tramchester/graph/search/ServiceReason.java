@@ -17,6 +17,7 @@ public abstract class ServiceReason {
 
         ServiceDateOk, ServiceTimeOk, NumChangesOK, TimeOk, HourOk, Reachable, ReachableNoCheck, DurationOk,
         WalkOk, StationOpen, Continue, NumConnectionsOk, NumWalkingConnectionsOk, NeighbourConnectionsOk,
+        ReachableSameRoute,
 
         NotOnQueryDate,
         RouteNotOnQueryDate,
@@ -387,7 +388,7 @@ public abstract class ServiceReason {
         return new ServiceReason.DoesNotOperateOnTime(ServiceReason.ReasonCode.Cached, currentElapsed, path);
     }
 
-    public static ServiceReason Longer(HowIGotHere howIGotHere) {
+    public static ServiceReason HigherCost(HowIGotHere howIGotHere) {
         return new ServiceReason.Unreachable(ReasonCode.HigherCost, howIGotHere);
     }
 
