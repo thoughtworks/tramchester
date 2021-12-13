@@ -2,6 +2,8 @@ package com.tramchester.unit.domain;
 
 import com.tramchester.domain.*;
 import com.tramchester.domain.id.StringIdFor;
+import com.tramchester.domain.input.MutableTrip;
+import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.DateRange;
 import com.tramchester.testSupport.TestEnv;
@@ -47,6 +49,24 @@ class RouteTest {
         Set<Service> services = route.getServices();
 
         Assertions.assertEquals(2, services.size());
+    }
+
+    @Test
+    void shouldAddTrip() {
+        LocalDate startDate = LocalDate.of(2020, 11, 5);
+        LocalDate endDate = LocalDate.of(2020, 11, 25);
+
+        MutableRoute route = new MutableRoute(createId("routeId"),"code","name", TestEnv.MetAgency(),
+                TransportMode.Tram);
+
+        final Service serviceA = createService(startDate, endDate, "serviceId", EnumSet.of(MONDAY));
+
+        route.addTrip(new MutableTrip(StringIdFor.createId("tripA"), "headSignA", serviceA, route));
+        route.addTrip(new MutableTrip(StringIdFor.createId("tripB"), "headSignB", serviceA, route));
+
+        Set<Trip> trips = route.getTrips();
+
+        Assertions.assertEquals(2, trips.size());
     }
 
     @Test

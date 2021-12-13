@@ -53,7 +53,6 @@ public class RouteInterchanges {
     }
 
     private int lowestCostBetween(RouteStation routeStation, Set<InterchangeStation> interchangeStations) {
-        //logger.info("Find lowest cost to exchange for " + routeStation);
         Route currentRoute = routeStation.getRoute();
         List<RouteCallingStations.StationWithCost> stationsAlongRoute = routeCallingStations.getStationsFor(currentRoute);
         IdSet<Station> interchangeStationIds = interchangeStations.stream().map(InterchangeStation::getStationId).collect(IdSet.idCollector());
