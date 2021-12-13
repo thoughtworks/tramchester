@@ -18,6 +18,7 @@ import com.tramchester.graph.GraphQuery;
 import com.tramchester.graph.caches.LowestCostSeen;
 import com.tramchester.graph.caches.NodeContentsRepository;
 import com.tramchester.graph.search.stateMachine.states.TraversalStateFactory;
+import com.tramchester.metrics.CacheMetrics;
 import com.tramchester.repository.*;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Path;
@@ -41,6 +42,7 @@ public class RouteCalculator extends RouteCalculatorSupport implements TramRoute
     private final CreateQueryTimes createQueryTimes;
     private final ClosedStationsRepository closedStationsRepository;
     private final RunningRoutesAndServices runningRoutesAndServices;
+    private final CacheMetrics cacheMetrics;
 
     @Inject
     public RouteCalculator(TransportData transportData, NodeContentsRepository nodeOperations, PathToStages pathToStages,
@@ -50,7 +52,7 @@ public class RouteCalculator extends RouteCalculatorSupport implements TramRoute
                            SortsPositions sortsPosition, MapPathToLocations mapPathToLocations,
                            BetweenRoutesCostRepository routeToRouteCosts, ReasonsToGraphViz reasonToGraphViz,
                            ClosedStationsRepository closedStationsRepository, RunningRoutesAndServices runningRoutesAndServices,
-                           RouteInterchanges routeInterchanges) {
+                           RouteInterchanges routeInterchanges, CacheMetrics cacheMetrics) {
         super(graphQuery, pathToStages, nodeOperations, graphDatabaseService,
                 traversalStateFactory, providesNow, sortsPosition, mapPathToLocations,
                 transportData, config, transportData, routeToRouteCosts, reasonToGraphViz, routeInterchanges);
@@ -58,6 +60,7 @@ public class RouteCalculator extends RouteCalculatorSupport implements TramRoute
         this.createQueryTimes = createQueryTimes;
         this.closedStationsRepository = closedStationsRepository;
         this.runningRoutesAndServices = runningRoutesAndServices;
+        this.cacheMetrics = cacheMetrics;
     }
 
     @Override
@@ -132,7 +135,9 @@ public class RouteCalculator extends RouteCalculatorSupport implements TramRoute
 
         final LowestCostSeen lowestCostSeen = new LowestCostSeen();
 
-        final Instant begin = providesNow.getInstant();
+
+        final Instant begin = providesNow.getInstant(); // TODO REMOVE THIS?
+
         final Stream<Journey> results = numChangesRange(journeyRequest, numberOfChanges).
                 flatMap(numChanges -> queryTimes.stream().
                         map(queryTime -> createPathRequest(startNode, queryDate, queryTime, numChanges, journeyConstraints))).
@@ -142,7 +147,10 @@ public class RouteCalculator extends RouteCalculatorSupport implements TramRoute
                 map(path -> createJourney(journeyRequest, path, destinations, lowestCostsForRoutes));
 
         //noinspection ResultOfMethodCallIgnored
-        results.onClose(() -> logger.info("Journey stream closed"));
+        results.onClose(() -> {
+            cacheMetrics.report();
+            logger.info("Journey stream closed");
+        });
 
         return results;
     }

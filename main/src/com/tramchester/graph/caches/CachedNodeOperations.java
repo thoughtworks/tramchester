@@ -54,7 +54,10 @@ public class CachedNodeOperations implements ReportsCacheStats, NodeContentsRepo
         routeStationIdCache = createCache("routeStationIdCache", GraphLabel.ROUTE_STATION);
         timeNodeCache = createCache("timeNodeCache", GraphLabel.MINUTE);
         serviceNodeCache = createCache("serviceNodeCache", GraphLabel.SERVICE);
-        labelCache = Caffeine.newBuilder().maximumSize(50000).expireAfterAccess(10, TimeUnit.MINUTES).
+
+        labelCache = Caffeine.newBuilder().maximumSize(50000).
+                expireAfterAccess(10, TimeUnit.MINUTES).
+                initialCapacity(40000).
                 recordStats().build();
 
         cacheMetrics.register(this);

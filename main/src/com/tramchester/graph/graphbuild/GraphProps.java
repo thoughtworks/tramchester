@@ -156,8 +156,8 @@ public class GraphProps {
     }
 
     public static LatLong getLatLong(Entity entity) {
-        double lat = (double) getProperty(entity, LATITUDE);
-        double lon = (double) getProperty(entity, LONGITUDE);
+        final double lat = (double) getProperty(entity, LATITUDE);
+        final double lon = (double) getProperty(entity, LONGITUDE);
         return new LatLong(lat, lon);
     }
 
@@ -202,9 +202,9 @@ public class GraphProps {
     }
 
     public static EnumSet<GraphLabel> getLabelsFor(Node node) {
-        Iterable<Label> iter = node.getLabels();
+        final Iterable<Label> iter = node.getLabels();
 
-        Set<GraphLabel> set = Streams.stream(iter).map(label -> GraphLabel.valueOf(label.name())).collect(Collectors.toSet());
+        final Set<GraphLabel> set = Streams.stream(iter).map(label -> GraphLabel.valueOf(label.name())).collect(Collectors.toSet());
         return EnumSet.copyOf(set);
     }
 

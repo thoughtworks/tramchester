@@ -423,7 +423,7 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
         EasyMock.expect(contentsRepository.getLabels(node)).andReturn(labels);
 
         EasyMock.expect(serviceHeuristics.canReachDestination(node, 0, howIGotHere, reasons, time)).
-                andReturn(ServiceReason.StationNotReachable(howIGotHere));
+                andReturn(ServiceReason.StationNotReachable(howIGotHere, ServiceReason.ReasonCode.NotReachable));
 
         EasyMock.expect(previousSuccessfulVisit.getPreviousResult(node, journeyState, labels)).andReturn(ServiceReason.ReasonCode.PreviousCacheMiss);
 

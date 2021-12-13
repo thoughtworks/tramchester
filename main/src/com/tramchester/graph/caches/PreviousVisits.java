@@ -19,7 +19,7 @@ import java.util.EnumSet;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-// TODO Review if this actually makes any real difference to the performance??
+import static com.tramchester.graph.search.ServiceReason.ReasonCode.*;
 
 public class PreviousVisits implements ReportsCacheStats {
     private static final Logger logger = LoggerFactory.getLogger(PreviousVisits.class);
@@ -28,10 +28,14 @@ public class PreviousVisits implements ReportsCacheStats {
 
     private final Cache<Long, ServiceReason.ReasonCode> timeNodePrevious;
     private final Cache<Key<TramTime>, ServiceReason.ReasonCode> hourNodePrevious;
+    private final Cache<Long, ServiceReason.ReasonCode> routeStationPrevious;
+    private final Cache<Long, ServiceReason.ReasonCode> servicePrevious;
 
     public PreviousVisits() {
         timeNodePrevious = createCache(100000);
         hourNodePrevious = createCache(400000);
+        routeStationPrevious = createCache(40000);
+        servicePrevious = createCache(30000);
     }
 
     @NotNull
@@ -39,11 +43,6 @@ public class PreviousVisits implements ReportsCacheStats {
         return Caffeine.newBuilder().maximumSize(maxCacheSize).expireAfterAccess(CACHE_DURATION_MINS, TimeUnit.MINUTES).
                 recordStats().build();
     }
-
-//    public void clear() {
-//        timeNodePrevious.invalidateAll();
-//        hourNodePrevious.invalidateAll();
-//    }
 
     public void recordVisitIfUseful(ServiceReason.ReasonCode result, Node node, ImmutableJourneyState journeyState, EnumSet<GraphLabel> labels) {
         if (labels.contains(GraphLabel.MINUTE) || labels.contains(GraphLabel.HOUR)) {
@@ -53,6 +52,32 @@ public class PreviousVisits implements ReportsCacheStats {
                 case DoesNotOperateOnTime -> timeNodePrevious.put(node.getId(), result);
                 case NotAtHour -> hourNodePrevious.put(new Key<>(node, journeyClock), result);
             }
+            return;
+        }
+
+        if (labels.contains(GraphLabel.ROUTE_STATION)) {
+            if (result == RouteChanges) {
+                routeStationPrevious.put(node.getId(), result);
+            }
+            if (result == RouteNotOnQueryDate) {
+                TramTime journeyClock = journeyState.getJourneyClock();
+                boolean isNextDay = journeyClock.isNextDay();
+                if (!isNextDay) {
+                    routeStationPrevious.put(node.getId(), result);
+                }
+            }
+            return;
+        }
+
+        if (labels.contains(GraphLabel.SERVICE)) {
+            if (result==NotOnQueryDate) {
+                TramTime journeyClock = journeyState.getJourneyClock();
+                boolean isNextDay = journeyClock.isNextDay();
+                if (!isNextDay) {
+                    servicePrevious.put(node.getId(), result);
+                }
+            }
+            return;
         }
     }
 
@@ -73,6 +98,20 @@ public class PreviousVisits implements ReportsCacheStats {
             }
         }
 
+        if (labels.contains(GraphLabel.ROUTE_STATION)) {
+            ServiceReason.ReasonCode found = routeStationPrevious.getIfPresent(node.getId());
+            if (found != null) {
+                return found;
+            }
+        }
+
+        if (labels.contains(GraphLabel.SERVICE)) {
+            ServiceReason.ReasonCode found = servicePrevious.getIfPresent(node.getId());
+            if (found != null) {
+                return found;
+            }
+        }
+
         return ServiceReason.ReasonCode.PreviousCacheMiss;
     }
 
@@ -81,6 +120,9 @@ public class PreviousVisits implements ReportsCacheStats {
         List<Pair<String, CacheStats>> results = new ArrayList<>();
         results.add(Pair.of("timeNodePrevious", timeNodePrevious.stats()));
         results.add(Pair.of("hourNodePrevious", hourNodePrevious.stats()));
+        results.add(Pair.of("routeStationPrevious", routeStationPrevious.stats()));
+        results.add(Pair.of("servicePrevious", servicePrevious.stats()));
+
         return results;
     }
 

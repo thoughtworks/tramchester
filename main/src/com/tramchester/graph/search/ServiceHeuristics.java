@@ -150,10 +150,6 @@ public class ServiceHeuristics {
             throw new RuntimeException(message);
         }
 
-        if (currentNumberOfChanges > currentChangesLimit) {
-            return reasons.recordReason(ServiceReason.StationNotReachable(howIGotHere));
-        }
-
         Route currentRoute = routeStation.getRoute();
 
         if (journeyConstraints.isUnavailable(currentRoute, currentElapsed)) {
@@ -162,8 +158,12 @@ public class ServiceHeuristics {
 
         int fewestChanges = lowestCostsForRoutes.getFewestChanges(currentRoute);
 
+        if (fewestChanges > currentChangesLimit) {
+            return reasons.recordReason(ServiceReason.StationNotReachable(howIGotHere, ServiceReason.ReasonCode.RouteChanges));
+        }
+
         if ((fewestChanges+currentNumberOfChanges) > currentChangesLimit) {
-            return reasons.recordReason(ServiceReason.StationNotReachable(howIGotHere));
+            return reasons.recordReason(ServiceReason.StationNotReachable(howIGotHere, ServiceReason.ReasonCode.ChangesRequired));
         }
 
         return valid(ServiceReason.ReasonCode.Reachable, howIGotHere, reasons);

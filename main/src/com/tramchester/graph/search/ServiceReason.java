@@ -42,6 +42,9 @@ public abstract class ServiceReason {
         TooManyNeighbourConnections,
         StationClosed,
         TimedOut,
+        CurrentChanges,
+        RouteChanges,
+        ChangesRequired,
 
         Cached,
         PreviousCacheMiss,
@@ -348,8 +351,8 @@ public abstract class ServiceReason {
         return new DoesNotRunOnQueryDate(path, nodeServiceId);
     }
 
-    public static ServiceReason StationNotReachable(HowIGotHere path) {
-        return new Unreachable(ReasonCode.NotReachable, path);
+    public static ServiceReason StationNotReachable(HowIGotHere path, ReasonCode code) {
+        return new Unreachable(code, path);
     }
 
     public static ServiceReason ExchangeNotReachable(HowIGotHere path) {
@@ -385,7 +388,7 @@ public abstract class ServiceReason {
     }
 
     public static ServiceReason Cached(TramTime currentElapsed, HowIGotHere path) {
-        return new ServiceReason.DoesNotOperateOnTime(ServiceReason.ReasonCode.Cached, currentElapsed, path);
+        return new DoesNotOperateOnTime(ServiceReason.ReasonCode.Cached, currentElapsed, path);
     }
 
     public static ServiceReason HigherCost(HowIGotHere howIGotHere) {
@@ -396,9 +399,9 @@ public abstract class ServiceReason {
         return new ServiceReason.Unreachable(ReasonCode.HigherCostViaExchange, howIGotHere);
     }
 
-    public static ServiceReason MoreChanges(HowIGotHere howIGotHere) {
-        return new ServiceReason.Unreachable(ReasonCode.MoreChanges, howIGotHere);
-    }
+//    public static ServiceReason MoreChanges(HowIGotHere howIGotHere) {
+//        return new ServiceReason.Unreachable(ReasonCode.MoreChanges, howIGotHere);
+//    }
 
     public static ServiceReason PathToLong(HowIGotHere path) {
         return new ServiceReason.Unreachable(ReasonCode.PathTooLong, path);
@@ -409,11 +412,11 @@ public abstract class ServiceReason {
     }
 
     public static ServiceReason StationClosed(HowIGotHere howIGotHere, Station closed) {
-        return new ServiceReason.StationClosed(howIGotHere, closed);
+        return new StationClosed(howIGotHere, closed);
     }
 
     public static ServiceReason TimedOut(HowIGotHere howIGotHere) {
-        return new ServiceReason.TimedOut(howIGotHere);
+        return new TimedOut(howIGotHere);
     }
 
     public static ServiceReason RouteNotToday(HowIGotHere howIGotHere, IdFor<Route> id) {

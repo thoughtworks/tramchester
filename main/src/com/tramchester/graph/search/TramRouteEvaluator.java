@@ -75,7 +75,7 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
 
         final EnumSet<GraphLabel> labels = nodeContentsRepository.getLabels(nextNode);
 
-        // NOTE: This makes a very(!) significant impact on performance, without it algo explore the same
+        // NOTE: This makes a significant impact on performance, without it algo explore the same
         // path again and again for the same time in the case where it is a valid time.
         ServiceReason.ReasonCode previousResult = previousVisits.getPreviousResult(nextNode, journeyState, labels);
         if (previousResult != ServiceReason.ReasonCode.PreviousCacheMiss) {
@@ -103,7 +103,7 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
             case HigherCost, ReturnedToStart, PathTooLong, TooManyChanges, TooManyWalkingConnections, NotReachable,
                     TookTooLong, ServiceNotRunningAtTime, NotAtHour, DoesNotOperateOnTime, NotOnQueryDate, MoreChanges,
                     AlreadyDeparted, StationClosed, TooManyNeighbourConnections, TimedOut, RouteNotOnQueryDate, HigherCostViaExchange,
-                    ExchangeNotReachable
+                    ExchangeNotReachable, RouteChanges, ChangesRequired, CurrentChanges
                     -> Evaluation.EXCLUDE_AND_PRUNE;
             case OnTram, OnBus, OnTrain, NotOnVehicle, Cached , PreviousCacheMiss, NumWalkingConnectionsOk,
                     NeighbourConnectionsOk
@@ -212,8 +212,10 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
         // is reachable from here and is route operating today?
         // is the station open?
         if (nodeLabels.contains(GraphLabel.ROUTE_STATION)) {
-            if (!serviceHeuristics.canReachDestination(nextNode, journeyState.getNumberChanges(), howIGotHere, reasons, visitingTime).isValid()) {
-                return ServiceReason.ReasonCode.NotReachable;
+            final ServiceReason reachDestination = serviceHeuristics.canReachDestination(nextNode, journeyState.getNumberChanges(),
+                    howIGotHere, reasons, visitingTime);
+            if (!reachDestination.isValid()) {
+                return reachDestination.getReasonCode();
             }
 
             if (!serviceHeuristics.checkStationOpen(nextNode, howIGotHere, reasons).isValid()) {

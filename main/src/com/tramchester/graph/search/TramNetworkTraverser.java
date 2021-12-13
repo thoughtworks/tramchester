@@ -73,7 +73,7 @@ public class TramNetworkTraverser implements PathExpander<JourneyState> {
     }
 
     public Stream<Path> findPaths(Transaction txn, Node startNode, PreviousVisits previousSuccessfulVisit, LowestCostSeen lowestCostSeen,
-                                  Instant begin, LowestCostsForRoutes lowestCostsForRoutes) {
+                                  Instant unusedBegin, LowestCostsForRoutes lowestCostsForRoutes) {
         final boolean depthFirst = config.getDepthFirst();
         if (depthFirst) {
             logger.info("Depth first is enabled");
@@ -81,6 +81,7 @@ public class TramNetworkTraverser implements PathExpander<JourneyState> {
             logger.info("Breadth first is enabled");
         }
 
+        Instant begin = providesNow.getInstant();
         final TramRouteEvaluator tramRouteEvaluator = new TramRouteEvaluator(pathRequest.getServiceHeuristics(),
                 destinationNodeIds, nodeContentsRepository, reasons, previousSuccessfulVisit, lowestCostSeen, config,
                 startNode.getId(), begin, providesNow);
