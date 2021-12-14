@@ -96,7 +96,9 @@ class TramRouteTest {
     @AfterEach
     void afterEachTestRuns()
     {
-        txn.close();
+        if (txn!=null) {
+            txn.close();
+        }
     }
 
     @Test

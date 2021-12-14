@@ -11,10 +11,12 @@ import com.tramchester.integration.testSupport.rail.IntegrationRailTestConfig;
 import com.tramchester.repository.RouteInterchanges;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.TestEnv;
+import com.tramchester.testSupport.testTags.TrainTest;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.DisabledIfEnvironmentVariable;
 
 import java.util.List;
 import java.util.Set;
@@ -24,6 +26,8 @@ import static com.tramchester.integration.testSupport.rail.RailStationIds.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+@TrainTest
+@DisabledIfEnvironmentVariable(named = "CI", matches = "true")
 public class RouteInterchangesRailTest {
     private static ComponentContainer componentContainer;
     private RouteInterchanges routeInterchanges;

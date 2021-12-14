@@ -111,4 +111,19 @@ public class RouteStation implements HasId<RouteStation>, GraphProperty, Locatio
     public String forDTO() {
         return id.forDTO();
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        RouteStation that = (RouteStation) o;
+
+        return id.equals(that.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return id.hashCode();
+    }
 }

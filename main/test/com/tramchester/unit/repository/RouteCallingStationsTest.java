@@ -63,9 +63,17 @@ public class RouteCallingStationsTest {
         assertEquals(4, stationIds.size(), stationIds.size());
 
         assertTrue(stationIds.contains(transportData.getFirst().getId()));
+        assertEquals(11, routeCallingStations.costToNextFor(routeA, transportData.getFirst()).getMin());
+
         assertTrue(stationIds.contains(transportData.getSecond().getId()));
+        assertEquals(9, routeCallingStations.costToNextFor(routeA, transportData.getSecond()).getMin());
+
         assertTrue(stationIds.contains(transportData.getInterchange().getId()));
+        assertEquals(20, routeCallingStations.costToNextFor(routeA, transportData.getInterchange()).getMin());
+
         assertTrue(stationIds.contains(transportData.getLast().getId()));
+        // no cost to next for end of the line
+        // assertEquals(0, routeCallingStations.costToNextFor(routeA, transportData.getLast()).getMin());
     }
 
     @Test
@@ -100,7 +108,7 @@ public class RouteCallingStationsTest {
     }
 
     private IdSet<Station> getCallingStationIdsFor(Route route) {
-        List<RouteCallingStations.StationWithCost> routeACallingPoints = routeCallingStations.getStationsFor(route);
-        return routeACallingPoints.stream().map(RouteCallingStations.StationWithCost::getId).collect(IdSet.idCollector());
+        List<Station> routeACallingPoints = routeCallingStations.getStationsFor(route);
+        return routeACallingPoints.stream().collect(IdSet.collector());
     }
 }

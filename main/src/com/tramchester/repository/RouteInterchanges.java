@@ -54,34 +54,36 @@ public class RouteInterchanges {
 
     private int lowestCostBetween(RouteStation routeStation, Set<InterchangeStation> interchangeStations) {
         Route currentRoute = routeStation.getRoute();
-        List<RouteCallingStations.StationWithCost> stationsAlongRoute = routeCallingStations.getStationsFor(currentRoute);
-        IdSet<Station> interchangeStationIds = interchangeStations.stream().map(InterchangeStation::getStationId).collect(IdSet.idCollector());
+        List<Station> stationsAlongRoute = routeCallingStations.getStationsFor(currentRoute);
+        IdSet<Station> interchangeStationIds = interchangeStations.stream().
+                map(InterchangeStation::getStationId).collect(IdSet.idCollector());
+
+        if (interchangeStationIds.contains(routeStation.getStationId())) {
+            return 0; // already at an interchange
+        }
 
         int indexOfCurrentRouteStation = 0;
         for (int i = 0; i < stationsAlongRoute.size(); i++) {
             indexOfCurrentRouteStation = i;
-            if (stationsAlongRoute.get(i).getStation().equals(routeStation.getStation())) {
+            if (stationsAlongRoute.get(i).equals(routeStation.getStation())) {
                 break;
             }
         }
+
         if (indexOfCurrentRouteStation==stationsAlongRoute.size()) {
             throw new RuntimeException("Did not find " + routeStation + " in the list of stations for it's route");
         }
+
         if (indexOfCurrentRouteStation==stationsAlongRoute.size()-1) {
-            // end of the route
-            if (stationsAlongRoute.get(indexOfCurrentRouteStation).getCostToNextStation()==0) {
-                // end of the route, but an interchange
-                return 0;
-            } else {
-                return Integer.MAX_VALUE;
-            }
+            // end of the route, not at interchange and cannot reach one from here
+            return Integer.MAX_VALUE;
         }
 
-        // return first interchange we encounter
+        // return first interchange found between current index and end of the route
         for (int i = indexOfCurrentRouteStation; i < stationsAlongRoute.size(); i++) {
-            final Station stationToCheck = stationsAlongRoute.get(i).getStation();
+            final Station stationToCheck = stationsAlongRoute.get(i);
             if (interchangeStationIds.contains(stationToCheck.getId())) {
-                final int costOnRoute = costOnRoute(stationsAlongRoute, indexOfCurrentRouteStation, i);
+                final int costOnRoute = costOnRoute(currentRoute, stationsAlongRoute, indexOfCurrentRouteStation, i);
                 logger.debug("Found interchange for " + routeStation + " cost " + costOnRoute + " at " +
                         stationsAlongRoute.get(i).getId());
                 return costOnRoute;
@@ -91,10 +93,10 @@ public class RouteInterchanges {
         return Integer.MAX_VALUE;
     }
 
-    private int costOnRoute(List<RouteCallingStations.StationWithCost> routeStations, int beginIndex, int endIndex) {
+    private int costOnRoute(Route currentRoute, List<Station> stations, int beginIndex, int endIndex) {
         int result = 0;
         for (int i = beginIndex; i <endIndex; i++) {
-            result = result + routeStations.get(i).getCostToNextStation();
+            result = result + routeCallingStations.costToNextFor(currentRoute, stations.get(i)).getMin();
         }
         return result;
     }

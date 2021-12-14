@@ -2,6 +2,7 @@ package com.tramchester.mappers;
 
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.domain.Route;
+import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.DTO.RouteDTO;
 import com.tramchester.domain.presentation.DTO.StationRefWithPosition;
 import com.tramchester.repository.RouteCallingStations;
@@ -62,9 +63,9 @@ public class RoutesMapper {
 
     @NotNull
     private List<StationRefWithPosition> getRouteCallingStationRefDTO(Route route) {
-        List<RouteCallingStations.StationWithCost> calledAtStations = routeCallingStations.getStationsFor(route);
+        List<Station> calledAtStations = routeCallingStations.getStationsFor(route);
         List<StationRefWithPosition> stationDTOs = new ArrayList<>(calledAtStations.size());
-        calledAtStations.forEach(calledAtStation -> stationDTOs.add(new StationRefWithPosition(calledAtStation.getStation())));
+        calledAtStations.forEach(calledAtStation -> stationDTOs.add(new StationRefWithPosition(calledAtStation)));
         return stationDTOs;
     }
 

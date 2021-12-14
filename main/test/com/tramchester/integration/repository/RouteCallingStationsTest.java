@@ -4,6 +4,7 @@ import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.id.IdSet;
+import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
 import com.tramchester.repository.RouteCallingStations;
@@ -16,14 +17,14 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 import static com.tramchester.testSupport.TestEnv.assertIdEquals;
 import static com.tramchester.testSupport.reference.KnownTramRoute.*;
 import static com.tramchester.testSupport.reference.TramStations.*;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class RouteCallingStationsTest {
 
@@ -52,12 +53,12 @@ class RouteCallingStationsTest {
 
     @Test
     void shouldHaveVictoriaToAirportCorrectStopsCityZone() {
-        List<RouteCallingStations.StationWithCost> stations = getStationsFor(VictoriaWythenshaweManchesterAirport);
+        List<RouteStation> stations = getStationsFor(VictoriaWythenshaweManchesterAirport);
         assertIdEquals(Victoria, stations.get(0).getStation());
-        assertEquals(2, stations.get(0).getCostToNextStation());
+        assertEquals(2, callingStations.costToNextFor(stations.get(0)).getMin());
 
         assertIdEquals(Shudehill, stations.get(1).getStation());
-        assertEquals(2, stations.get(1).getCostToNextStation());
+        assertEquals(2, callingStations.costToNextFor(stations.get(1)).getMin());
 
         assertIdEquals(MarketStreet, stations.get(2).getStation());
         assertIdEquals(StWerburghsRoad, stations.get(9).getStation());
@@ -65,24 +66,27 @@ class RouteCallingStationsTest {
 
     @Test
     void shouldGetCorrectStationsForARouteAltToPicc() {
-        List<RouteCallingStations.StationWithCost> stations = getStationsFor(AltrinchamPiccadilly);
+        List<RouteStation> stations = getStationsFor(AltrinchamPiccadilly);
         assertIdEquals(Altrincham, stations.get(0).getStation());
-        assertEquals(3, stations.get(0).getCostToNextStation());
+        assertEquals(3, callingStations.costToNextFor(stations.get(0)).getMin());
 
         assertIdEquals(NavigationRoad, stations.get(1).getStation());
-        assertEquals(2, stations.get(1).getCostToNextStation());
+        assertEquals(2, callingStations.costToNextFor(stations.get(1)).getMin());
 
         assertIdEquals(Cornbrook, stations.get(9).getStation());
-        assertEquals(3, stations.get(9).getCostToNextStation());
+        final RouteCallingStations.Costs costs = callingStations.costToNextFor(stations.get(9));
+        assertEquals(3, costs.getMin(), costs.toString());
 
         // end of line, expect 0
         assertIdEquals(Piccadilly, stations.get(13).getStation());
-        assertEquals(0, stations.get(13).getCostToNextStation());
+
+        // there is no cost to next for end of the line
+        // assertEquals(0, callingStations.costToNextFor(stations.get(13)).getMin());
     }
 
     @Test
     void shouldGetCorrectStationsForARouteEcclesToAsh() {
-        List<RouteCallingStations.StationWithCost> stations = getStationsFor(EcclesManchesterAshtonUnderLyne);
+        List<RouteStation> stations = getStationsFor(EcclesManchesterAshtonUnderLyne);
 
         assertIdEquals(Eccles, stations.get(0).getStation());
         assertIdEquals(MediaCityUK, stations.get(5).getStation());
@@ -93,7 +97,7 @@ class RouteCallingStationsTest {
 
     @Test
     void shouldGetCorrectStationsForARouteAshToEccles() {
-        List<RouteCallingStations.StationWithCost> stations = getStationsFor(AshtonUnderLyneManchesterEccles);
+        List<RouteStation> stations = getStationsFor(AshtonUnderLyneManchesterEccles);
         assertIdEquals(Ashton, stations.get(0).getStation());
         assertIdEquals(Piccadilly, stations.get(12).getStation());
 
@@ -105,7 +109,7 @@ class RouteCallingStationsTest {
     void shouldHaveEndsOfLines() {
         IdSet<Station> foundEndOfLines = new IdSet<>();
         transportData.getRoutes().forEach(route -> {
-            List<RouteCallingStations.StationWithCost> stations = callingStations.getStationsFor(route);
+            List<Station> stations = callingStations.getStationsFor(route);
             foundEndOfLines.add(stations.get(0).getId());
         });
 
@@ -135,24 +139,29 @@ class RouteCallingStationsTest {
 
     }
 
-    private List<RouteCallingStations.StationWithCost> getStationsFor(KnownTramRoute knownRoute) {
-        final Set<Route> routes = routeHelper.get(knownRoute);
-        List<List<RouteCallingStations.StationWithCost>> stationsForRoute = routes.stream().
-                map(route -> callingStations.getStationsFor(route)).
-                collect(Collectors.toList());
+    private List<RouteStation> getStationsFor(KnownTramRoute knownRoute) {
+        final List<Route> routes = new ArrayList<>(routeHelper.get(knownRoute));
 
-        assertFalse(stationsForRoute.isEmpty(), "found none for " + knownRoute);
+        Route route = routes.get(0);
 
-        // should all be the same
-        List<RouteCallingStations.StationWithCost> first = stationsForRoute.get(0);
-        final int found = stationsForRoute.size();
-        if (found >1) {
-            for (int i = 1; i < found; i++) {
-                assertEquals(first, stationsForRoute.get(i));
-            }
-        }
+        return callingStations.getStationsFor(route).stream().map(station -> new RouteStation(station, route)).collect(Collectors.toList());
 
-        return first;
+//        List<List<RouteStation>> stationsForRoute = routes.stream().
+//                map(route -> callingStations.getStationsFor(route).stream().
+//                        map(station -> new RouteStation(station, route)).collect(Collectors.toList())).collect(Collectors.toList());
+//
+//        assertFalse(stationsForRoute.isEmpty(), "found none for " + knownRoute);
+//
+//        // should all be the same
+//        List<RouteStation> first = stationsForRoute.get(0);
+//        final int found = stationsForRoute.size();
+//        if (found >1) {
+//            for (int i = 1; i < found; i++) {
+//                assertEquals(first, stationsForRoute.get(i));
+//            }
+//        }
+//
+//        return first;
     }
 
 }

@@ -147,20 +147,19 @@ class BusRouteCalculatorSubGraphAltyToMaccRoute {
     void shouldHaveSimpleRouteWithStationsAlongTheWay() {
 
         altyToKnutsford.forEach(route -> {
-            List<RouteCallingStations.StationWithCost> stationsAlongRoute = routeCallingStations.getStationsFor(route);
+            List<Station> stationsAlongRoute = routeCallingStations.getStationsFor(route);
 
-            List<IdFor<Station>> ids = stationsAlongRoute.stream().
-                    map(RouteCallingStations.StationWithCost::getId).collect(Collectors.toList());
+            List<IdFor<Station>> ids = stationsAlongRoute.stream().map(Station::getId).collect(Collectors.toList());
 
             int knutsfordIndex = ids.indexOf(StringIdFor.createId("0600MA6022")); // services beyond here are infrequent
-            Station firstStation = stationsAlongRoute.get(0).getStation();
+            Station firstStation = stationsAlongRoute.get(0);
 
             TramTime time = TramTime.of(9, 20);
             JourneyRequest journeyRequest = new JourneyRequest(when, time, false,
                     1, 120, 1);
 
             for (int i = 1; i <= knutsfordIndex; i++) {
-                Station secondStation = stationsAlongRoute.get(i).getStation();
+                Station secondStation = stationsAlongRoute.get(i);
                 Set<Journey> result = calculator.calculateRouteAsSet(firstStation, secondStation, journeyRequest);
                 assertFalse(result.isEmpty());
             }
@@ -173,7 +172,7 @@ class BusRouteCalculatorSubGraphAltyToMaccRoute {
         DiagramCreator creator = componentContainer.get(DiagramCreator.class);
         Set<Station> stations = Streams.concat(altyToKnutsford.stream(), knutsfordToAlty.stream()).
                 flatMap(route -> routeCallingStations.getStationsFor(route).stream()).
-                map(RouteCallingStations.StationWithCost::getStation).
+                //map(RouteCallingStations.StationWithCost::getStation).
                 collect(Collectors.toSet());
         creator.create(Path.of("AltrichamKnutsfordBuses.dot"), stations, 1, true);
     }
