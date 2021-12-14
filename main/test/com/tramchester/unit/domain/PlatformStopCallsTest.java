@@ -129,4 +129,38 @@ class PlatformStopCallsTest {
         assertEquals(stopA, secondLeg.getSecond());
         assertEquals(6, secondLeg.getCost());
     }
+
+    @Test
+    void shouldHaveExpectedLegsNoDropoffOrPickup() {
+
+        PlatformStopCall stopD = new PlatformStopCall(platformD, TramStations.of(stationD),
+                of(11, 15), of(11, 16), 4, None, None, trip);
+
+        PlatformStopCall stopE = new PlatformStopCall(platformD, TramStations.of(stationD),
+                of(11, 25), of(11, 26), 5,
+                None, Regular, trip);
+
+        stops.add(stopD);
+        stops.add(stopE);
+
+        List<StopCalls.StopLeg> legs = stops.getLegs();
+
+        assertEquals(3, legs.size());
+
+        StopCalls.StopLeg firstLeg = legs.get(0);
+        assertEquals(stopC, firstLeg.getFirst());
+        assertEquals(stopB, firstLeg.getSecond());
+        assertEquals(2, firstLeg.getCost());
+
+        StopCalls.StopLeg secondLeg = legs.get(1);
+        assertEquals(stopB, secondLeg.getFirst());
+        assertEquals(stopA, secondLeg.getSecond());
+        assertEquals(6, secondLeg.getCost());
+
+        int expected = TramTime.diffenceAsMinutes(stopA.getDepartureTime(), stopE.getArrivalTime());
+        StopCalls.StopLeg thirdLeg = legs.get(2);
+        assertEquals(stopA, thirdLeg.getFirst());
+        assertEquals(stopE, thirdLeg.getSecond()); // not D, no pick-up or drop-off
+        assertEquals(expected, thirdLeg.getCost());
+    }
 }

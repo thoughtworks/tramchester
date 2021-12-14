@@ -115,12 +115,6 @@ public class RouteCallingStations {
 
     public static class Costs {
 
-        private static Costs ZeroCost() {
-            Costs result = new Costs();
-            result.addCost(0);
-            return result;
-        }
-
         private final List<Integer> theCosts;
 
         public Costs() {

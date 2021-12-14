@@ -225,6 +225,7 @@ public class StationsAndLinksGraphBuilder extends GraphBuilder {
     private Node createRouteStationNode(Transaction tx, RouteStation routeStation, GraphBuilderCache builderCache) {
         Node existing = graphDatabase.findNode(tx,
                 GraphLabel.ROUTE_STATION, GraphPropertyKey.ROUTE_STATION_ID.getText(), routeStation.getId().getGraphId());
+
         if (existing!=null) {
             final String msg = "Existing route station node for " + routeStation + " with id " + routeStation.getId();
             logger.error(msg);

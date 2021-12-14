@@ -307,6 +307,7 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
             stops.getLegs().forEach(leg -> {
                 if (includeBothStops(leg)) {
                     if (!pairs.containsKey(leg)) {
+                        // TODO use RouteCallingStations costs here
                         int cost = leg.getCost();
                         pairs.put(leg, cost);
                     }
@@ -314,14 +315,12 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
             });
         });
 
-        // TODO assumed cost between nodes does not change for this specific route i.e. trips on route have same costs
-        // which might not be true?
         pairs.forEach((leg, cost) -> {
             IdFor<Station> beginId = leg.getFirstStation().getId();
             IdFor<Station> endId = leg.getSecondStation().getId();
             if (!routeBuilderCache.hasRouteStation(route, beginId)) {
-                String message = format("Missing first route station (%s, %s) in cache for %s and %s",
-                        route.getId(), beginId, route, leg.getFirst());
+                String message = format("Missing first route station (%s, %s) in cache for route: %s and leg: %s",
+                        route.getId(), beginId, route, leg);
                 throw new RuntimeException(message);
             }
             if (!routeBuilderCache.hasRouteStation(route, endId)) {
@@ -388,10 +387,9 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
         }
 
         // NOTE: seems normal in most data sets, we go past stops without calling in
-//        if ((!(pickup||dropoff)) && (!TransportMode.isTrain(route))) {
-//            // this is normal for trains, timetable lists all passed stations, whether train stops or not
-//            logger.warn("No pickup or dropoff for " + stopCall);
-//        }
+        if (!(pickup||dropoff)) {
+            logger.debug("No pickup or dropoff for " + stopCall);
+        }
     }
 
     private void createDeparts(GraphBuilderCache routeBuilderCache, Station station, boolean isInterchange,

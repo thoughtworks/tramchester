@@ -7,12 +7,10 @@ import com.tramchester.domain.time.TramTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.SortedMap;
-import java.util.TreeMap;
+import java.util.*;
 import java.util.stream.Stream;
 
+import static com.tramchester.domain.reference.GTFSPickupDropoffType.None;
 import static java.lang.String.format;
 
 public class StopCalls {
@@ -69,6 +67,7 @@ public class StopCalls {
 
     /**
      * Create StopLeg for each pair of stopcall (a,b,c,d,e) -> (a,b), (b,c), (c,d), (d,e)
+     * Respects the dropoff and pickup types
      */
     public List<StopLeg> getLegs() {
         if (orderedStopCalls.isEmpty()) {
@@ -78,17 +77,48 @@ public class StopCalls {
         }
 
         // Assume sorted map
-        // TODO use stop sequence numbers instead?
-        int size = orderedStopCalls.size();
-        List<StopCall> calls = new ArrayList<>(size);
 
-        int numberOfLegs = Math.max(1, size - 1);
-        List<StopLeg> legs = new ArrayList<>(numberOfLegs);
-        calls.addAll(orderedStopCalls.values());
-        for (int i = 0; i < calls.size()-1; i++) {
-            legs.add(new StopLeg(calls.get(i), calls.get(i+1)));
+        List<StopLeg> legs = new ArrayList<>();
+        Iterator<StopCall> stopsIter = orderedStopCalls.values().iterator();
+        StopCall next = null;
+        while (stopsIter.hasNext()) {
+            StopCall first = findNextPickup(stopsIter, next);
+            StopCall second = findNextDropoff(stopsIter);
+            if (first!=null && second!=null) {
+                StopLeg stopLeg = new StopLeg(first, second);
+                legs.add(stopLeg);
+            }
+            next = second;
+        }
+        if (legs.isEmpty()) {
+            logger.warn("No stop legs generated for " + this);
         }
         return legs;
+    }
+
+    private StopCall findNextPickup(Iterator<StopCall> iter, StopCall next) {
+        if (next!=null) {
+            if (next.getPickupType()!=None) {
+                return next;
+            }
+        }
+        while (iter.hasNext()) {
+            StopCall current = iter.next();
+            if (current.getPickupType()!=None) {
+                return current;
+            }
+        }
+        return null;
+    }
+
+    private StopCall findNextDropoff(Iterator<StopCall> iter) {
+        while (iter.hasNext()) {
+            StopCall current = iter.next();
+            if (current.getDropoffType()!=None) {
+                return current;
+            }
+        }
+        return null;
     }
 
     public boolean intoNextDay() {

@@ -19,7 +19,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 @TrainTest
 @DisabledIfEnvironmentVariable(named = "CI", matches = "true")
-class InterchangesTrainTest {
+class InterchangesRailTest {
     private static ComponentContainer componentContainer;
     private static IntegrationRailTestConfig config;
     private InterchangeRepository interchangeRepository;
