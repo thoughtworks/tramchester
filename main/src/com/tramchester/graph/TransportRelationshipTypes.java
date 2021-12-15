@@ -19,7 +19,7 @@ public enum TransportRelationshipTypes implements RelationshipType {
     DEPART,
     INTERCHANGE_BOARD,
     INTERCHANGE_DEPART,
-    WALKS_TO,
+    WALKS_TO,       // WALKS_TO and _FROM added (and then removed) to support journeys involving a walk
     WALKS_FROM,
     ENTER_PLATFORM,
     LEAVE_PLATFORM,

@@ -35,6 +35,7 @@ public class RouteCallingStations {
      * @param route the route we want stations for
      * @return ordered list of stations, ordered by position along the route from start to finish
      */
+    @Deprecated
     public List<Station> getStationsFor(Route route) {
         return stationsOnRoute.get(route);
     }

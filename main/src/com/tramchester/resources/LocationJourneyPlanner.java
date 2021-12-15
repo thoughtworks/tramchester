@@ -81,7 +81,7 @@ public class LocationJourneyPlanner {
             logger.warn(format("Start %s not within %s of station bounds %s", startGrid, margin, stationLocations.getBounds()));
         }
 
-        Node startOfWalkNode = createWalkingNode(txn, start, journeyRequest);
+        Node startOfWalkNode = createWalkingNode(txn, start, journeyRequest.getUid());
         Set<StationWalk> walksToStart = getStationWalks(start);
 
         List<Relationship> addedRelationships = createWalksToStations(txn, startOfWalkNode, walksToStart);
@@ -133,7 +133,7 @@ public class LocationJourneyPlanner {
         }
         NumberOfChanges numberOfChanges = findNumberChanges(start, walksToDest);
 
-        Node endWalk = createWalkingNode(txn, destination, journeyRequest);
+        Node endWalk = createWalkingNode(txn, destination, journeyRequest.getUid());
         List<Relationship> addedRelationships = new LinkedList<>();
         walksToDest.forEach(stationWalk -> addedRelationships.add(createWalkRelationship(txn, endWalk, stationWalk, WALKS_FROM)));
 
@@ -160,13 +160,13 @@ public class LocationJourneyPlanner {
 
         // Add Walk at the Start
         Set<StationWalk> walksAtStart = getStationWalks(startLatLong);
-        Node startNode = createWalkingNode(txn, startLatLong, journeyRequest);
+        Node startNode = createWalkingNode(txn, startLatLong, journeyRequest.getUid());
         walksAtStart.forEach(stationWalk -> addedRelationships.add(createWalkRelationship(txn, startNode, stationWalk, WALKS_TO)));
 
         // Add Walks at the end
         Set<Station> destinationStations = new HashSet<>();
         Set<StationWalk> walksToDest = getStationWalks(destLatLong);
-        Node endWalk = createWalkingNode(txn, destLatLong, journeyRequest);
+        Node endWalk = createWalkingNode(txn, destLatLong, journeyRequest.getUid());
 
         walksToDest.forEach(stationWalk -> {
             destinationStations.add(stationWalk.getStation());
@@ -194,8 +194,6 @@ public class LocationJourneyPlanner {
                                                 TransportRelationshipTypes direction) {
         Station walkStation = stationWalk.getStation();
         int cost = stationWalk.getCost();
-        logger.info(format("Add %s relationship between %s (%s) to %s cost %s direction",
-                direction, walkStation.getId(), walkStation.getName(), walkNode,  cost));
 
         Relationship walkingRelationship;
         Node stationNode = graphQuery.getStationOrGrouped(txn, walkStation);
@@ -205,8 +203,12 @@ public class LocationJourneyPlanner {
 
         if (direction == WALKS_FROM) {
             walkingRelationship = stationNode.createRelationshipTo(walkNode, direction);
+            logger.info(format("Add %s relationship %s (%s) to node %s cost %s",
+                    direction, walkStation.getId(), walkStation.getName(), walkNode.getId(),  cost));
         } else {
             walkingRelationship = walkNode.createRelationshipTo(stationNode, direction);
+            logger.info(format("Add %s relationship between node %s to %s (%s) cost %s",
+                    direction, walkNode.getId(), walkStation.getId(), walkStation.getName(), cost));
         }
 
         GraphProps.setCostProp(walkingRelationship, cost);
@@ -214,10 +216,10 @@ public class LocationJourneyPlanner {
         return walkingRelationship;
     }
 
-    public Node createWalkingNode(Transaction txn, LatLong origin, JourneyRequest journeyRequest) {
+    public Node createWalkingNode(Transaction txn, LatLong origin, UUID uniqueId) {
         Node startOfWalkNode = graphDatabase.createNode(txn, GraphLabel.QUERY_NODE);
         GraphProps.setLatLong(startOfWalkNode, origin);
-        GraphProps.setWalkId(startOfWalkNode, origin, journeyRequest.getUid());
+        GraphProps.setWalkId(startOfWalkNode, origin, uniqueId);
         logger.info(format("Added walking node at %s as %s", origin, startOfWalkNode));
         return startOfWalkNode;
     }

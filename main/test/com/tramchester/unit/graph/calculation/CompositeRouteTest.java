@@ -180,8 +180,8 @@ class CompositeRouteTest {
     @Test
     void shouldHaveRouteCosts() {
         RouteCostCalculator routeCostCalculator = componentContainer.get(RouteCostCalculator.class);
-        assertEquals(42, routeCostCalculator.getApproxCostBetween(txn, startCompositeStation, transportData.getLast()));
-        assertEquals(42, routeCostCalculator.getApproxCostBetween(txn, transportData.getFirst(), transportData.getLast()));
+        assertEquals(40, routeCostCalculator.getApproxCostBetween(txn, startCompositeStation, transportData.getLast()));
+        assertEquals(40, routeCostCalculator.getApproxCostBetween(txn, transportData.getFirst(), transportData.getLast()));
 
         assertEquals(0, routeCostCalculator.getApproxCostBetween(txn, transportData.getFirst(), startCompositeStation));
         assertEquals(0, routeCostCalculator.getApproxCostBetween(txn, startCompositeStation, transportData.getFirst()));

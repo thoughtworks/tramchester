@@ -4,11 +4,13 @@ import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.id.IdSet;
+import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
 import com.tramchester.repository.RouteCallingStations;
 import com.tramchester.repository.RouteRepository;
+import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TramRouteHelper;
 import com.tramchester.testSupport.reference.KnownTramRoute;
@@ -25,13 +27,15 @@ import static com.tramchester.testSupport.TestEnv.assertIdEquals;
 import static com.tramchester.testSupport.reference.KnownTramRoute.*;
 import static com.tramchester.testSupport.reference.TramStations.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class RouteCallingStationsTest {
 
     private static ComponentContainer componentContainer;
-    private RouteCallingStations callingStations;
-    private RouteRepository transportData;
+    private RouteCallingStations callingStationRepository;
+    private RouteRepository routeRepository;
     private TramRouteHelper routeHelper;
+    private StationRepository stationRepository;
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
@@ -41,8 +45,9 @@ class RouteCallingStationsTest {
 
     @BeforeEach
     void beforeEachTestRuns() {
-        callingStations = componentContainer.get(RouteCallingStations.class);
-        transportData = componentContainer.get(RouteRepository.class);
+        callingStationRepository = componentContainer.get(RouteCallingStations.class);
+        routeRepository = componentContainer.get(RouteRepository.class);
+        stationRepository = componentContainer.get(StationRepository.class);
         routeHelper = new TramRouteHelper(componentContainer);
     }
 
@@ -55,10 +60,10 @@ class RouteCallingStationsTest {
     void shouldHaveVictoriaToAirportCorrectStopsCityZone() {
         List<RouteStation> stations = getStationsFor(VictoriaWythenshaweManchesterAirport);
         assertIdEquals(Victoria, stations.get(0).getStation());
-        assertEquals(2, callingStations.costToNextFor(stations.get(0)).getMin());
+        assertEquals(2, callingStationRepository.costToNextFor(stations.get(0)).getMin());
 
         assertIdEquals(Shudehill, stations.get(1).getStation());
-        assertEquals(2, callingStations.costToNextFor(stations.get(1)).getMin());
+        assertEquals(2, callingStationRepository.costToNextFor(stations.get(1)).getMin());
 
         assertIdEquals(MarketStreet, stations.get(2).getStation());
         assertIdEquals(StWerburghsRoad, stations.get(9).getStation());
@@ -68,13 +73,13 @@ class RouteCallingStationsTest {
     void shouldGetCorrectStationsForARouteAltToPicc() {
         List<RouteStation> stations = getStationsFor(AltrinchamPiccadilly);
         assertIdEquals(Altrincham, stations.get(0).getStation());
-        assertEquals(3, callingStations.costToNextFor(stations.get(0)).getMin());
+        assertEquals(3, callingStationRepository.costToNextFor(stations.get(0)).getMin());
 
         assertIdEquals(NavigationRoad, stations.get(1).getStation());
-        assertEquals(2, callingStations.costToNextFor(stations.get(1)).getMin());
+        assertEquals(2, callingStationRepository.costToNextFor(stations.get(1)).getMin());
 
         assertIdEquals(Cornbrook, stations.get(9).getStation());
-        final RouteCallingStations.Costs costs = callingStations.costToNextFor(stations.get(9));
+        final RouteCallingStations.Costs costs = callingStationRepository.costToNextFor(stations.get(9));
         assertEquals(3, costs.getMin(), costs.toString());
 
         // end of line, expect 0
@@ -108,13 +113,33 @@ class RouteCallingStationsTest {
     @Test
     void shouldHaveEndsOfLines() {
         IdSet<Station> foundEndOfLines = new IdSet<>();
-        transportData.getRoutes().forEach(route -> {
-            List<Station> stations = callingStations.getStationsFor(route);
+        routeRepository.getRoutes().forEach(route -> {
+            List<Station> stations = callingStationRepository.getStationsFor(route);
             foundEndOfLines.add(stations.get(0).getId());
         });
 
         assertEquals(11, foundEndOfLines.size());
     }
+
+    @Test
+    void shouldHaveExpectedStationsAlongRoute() {
+        Station marketStreet = stationRepository.getStationById(MarketStreet.getId());
+        Route route = routeRepository.getRouteById(StringIdFor.createId("METLNAVY:O:CURRENT"));
+
+        List<Station> stations = callingStationRepository.getStationsFor(route);
+        assertTrue(stations.contains(marketStreet));
+    }
+
+//    @Test
+//    void shouldHaveConsistencyBewteenRouteStationsAndRouteCallingStations() {
+//        Set<RouteStation> allRouteStations = stationRepository.getRouteStations();
+//
+//        allRouteStations.forEach(routeStation -> {
+//            List<Station> callingStations = callingStationRepository.getStationsFor(routeStation.getRoute());
+//            assertTrue(callingStations.contains(routeStation.getStation()),
+//                    routeStation.getStation() + " not in " + callingStations);
+//        });
+//    }
 
     @Test
     void shouldGetCorrectNumberOfStationsForRoutes() {
@@ -144,24 +169,7 @@ class RouteCallingStationsTest {
 
         Route route = routes.get(0);
 
-        return callingStations.getStationsFor(route).stream().map(station -> new RouteStation(station, route)).collect(Collectors.toList());
-
-//        List<List<RouteStation>> stationsForRoute = routes.stream().
-//                map(route -> callingStations.getStationsFor(route).stream().
-//                        map(station -> new RouteStation(station, route)).collect(Collectors.toList())).collect(Collectors.toList());
-//
-//        assertFalse(stationsForRoute.isEmpty(), "found none for " + knownRoute);
-//
-//        // should all be the same
-//        List<RouteStation> first = stationsForRoute.get(0);
-//        final int found = stationsForRoute.size();
-//        if (found >1) {
-//            for (int i = 1; i < found; i++) {
-//                assertEquals(first, stationsForRoute.get(i));
-//            }
-//        }
-//
-//        return first;
+        return callingStationRepository.getStationsFor(route).stream().map(station -> new RouteStation(station, route)).collect(Collectors.toList());
     }
 
 }

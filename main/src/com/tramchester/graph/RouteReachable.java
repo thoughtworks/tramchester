@@ -44,7 +44,6 @@ public class RouteReachable {
     public List<Route> getRoutesFromStartToNeighbour(StationPair pair) {
         List<Route> results = new ArrayList<>();
         Station startStation = pair.getBegin();
-        //Set<Route> firstRoutes = startStation.getRoutes();
         Set<Route> firstRoutes = startStation.getPickupRoutes(); // pickups from first station
         IdFor<Station> endStationId = pair.getEnd().getId();
 

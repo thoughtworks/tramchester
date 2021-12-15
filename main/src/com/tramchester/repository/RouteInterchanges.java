@@ -53,6 +53,9 @@ public class RouteInterchanges {
     }
 
     private int lowestCostBetween(RouteStation routeStation, Set<InterchangeStation> interchangeStations) {
+
+        // TODO Needs rewrite, does not work properly as is
+
         Route currentRoute = routeStation.getRoute();
         List<Station> stationsAlongRoute = routeCallingStations.getStationsFor(currentRoute);
         IdSet<Station> interchangeStationIds = interchangeStations.stream().

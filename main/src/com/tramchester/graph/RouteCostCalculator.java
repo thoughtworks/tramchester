@@ -68,7 +68,7 @@ public class RouteCostCalculator {
 
         WeightedPath path = finder.findSinglePath(startNode, endNode);
         if (path==null) {
-            logger.error("No path found ");
+            logger.error(format("No path found between node %s and node %s", startNode.getId(), endNode.getId()));
             return -1;
         }
         double weight  = Math.floor(path.weight());
@@ -78,12 +78,14 @@ public class RouteCostCalculator {
     private PathExpander<Double> fullExpanderForCostApproximation() {
         return PathExpanders.forTypesAndDirections(
                 ON_ROUTE, Direction.OUTGOING,
-                ENTER_PLATFORM, Direction.OUTGOING,
-                LEAVE_PLATFORM, Direction.OUTGOING,
-                BOARD, Direction.OUTGOING,
-                DEPART, Direction.OUTGOING,
-                INTERCHANGE_BOARD, Direction.OUTGOING,
-                INTERCHANGE_DEPART, Direction.OUTGOING,
+                STATION_TO_ROUTE, Direction.OUTGOING,
+                ROUTE_TO_STATION, Direction.OUTGOING,
+//                ENTER_PLATFORM, Direction.OUTGOING,
+//                LEAVE_PLATFORM, Direction.OUTGOING,
+//                BOARD, Direction.OUTGOING,
+//                DEPART, Direction.OUTGOING,
+//                INTERCHANGE_BOARD, Direction.OUTGOING,
+//                INTERCHANGE_DEPART, Direction.OUTGOING,
                 WALKS_TO, Direction.OUTGOING,
                 WALKS_FROM, Direction.OUTGOING,
                 NEIGHBOUR, Direction.OUTGOING,

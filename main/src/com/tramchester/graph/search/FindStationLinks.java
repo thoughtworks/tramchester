@@ -40,6 +40,7 @@ public class FindStationLinks {
         this.stationRepository = stationRepository;
     }
 
+    // supports visualisation of the transport network
     public Set<StationLink> findLinkedFor(TransportMode mode) {
         logger.info(format("Find links for %s", mode));
         Map<String, Object> params = new HashMap<>();

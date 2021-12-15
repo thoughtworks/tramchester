@@ -344,6 +344,11 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
         boolean pickup = stopCall.getPickupType().equals(GTFSPickupDropoffType.Regular);
         boolean dropoff = stopCall.getDropoffType().equals(GTFSPickupDropoffType.Regular);
 
+        if (!(pickup||dropoff)) {
+            logger.warn("No pickup or drop-off for " + stopCall);
+            return;
+        }
+
         Station station = stopCall.getStation();
 
         // TODO when filtering this isn't really valid, we might only see a small segment of a larger trip....
@@ -365,7 +370,7 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
 
         boolean isInterchange = interchangeRepository.isInterchange(station);
 
-        // If bus we board to/from station, for trams its from the platform
+        // If bus we board to/from station, for trams it is from the platform
         Node platformOrStation = station.hasPlatforms() ? routeBuilderCache.getPlatform(tx, stopCall.getPlatform().getId())
                 : routeBuilderCache.getStation(tx, station.getId());
         IdFor<RouteStation> routeStationId = RouteStation.createId(station.getId(), route.getId());
@@ -386,10 +391,6 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
             createDeparts(routeBuilderCache, station, isInterchange, platformOrStation, routeStationId, routeStationNode);
         }
 
-        // NOTE: seems normal in most data sets, we go past stops without calling in
-        if (!(pickup||dropoff)) {
-            logger.debug("No pickup or dropoff for " + stopCall);
-        }
     }
 
     private void createDeparts(GraphBuilderCache routeBuilderCache, Station station, boolean isInterchange,

@@ -208,6 +208,10 @@ public class TramTime implements Comparable<TramTime> {
 
     public TramTime minusMinutes(int amount) {
 
+        if (amount<0) {
+            throw new RuntimeException("Subtract negative number " + amount);
+        }
+
         int daysToSubtract = Integer.divideUnsigned(amount, 24*60);
 
         int hoursToSubtract = Integer.divideUnsigned(amount, 60);

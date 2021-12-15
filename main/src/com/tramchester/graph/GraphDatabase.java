@@ -85,8 +85,6 @@ public class GraphDatabase implements DatabaseEventListener {
         return databaseService.beginTx();
     }
 
-
-
     public Transaction beginTx(int timeout, TimeUnit timeUnit) {
         return databaseService.beginTx(timeout, timeUnit);
     }

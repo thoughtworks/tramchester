@@ -224,7 +224,7 @@ public class MapPathToStagesViaStatesTest {
                 150, 1);
 
         Node startNode = graphQuery.getStationNode(txn, startStation);
-        Node endNodeWalkNode = locationJourneyPlanner.createWalkingNode(txn, walkingDest, journeyRequest);
+        Node endNodeWalkNode = locationJourneyPlanner.createWalkingNode(txn, walkingDest, journeyRequest.getUid());
 
         Set<StationWalk> walksToDest = locationJourneyPlanner.getStationWalks(walkingDest);
 
@@ -256,7 +256,7 @@ public class MapPathToStagesViaStatesTest {
         JourneyRequest journeyRequest = new JourneyRequest(when, queryTime, false, numChanges, 150, 1);
 
         Node endNode = graphQuery.getStationNode(txn, destination);
-        Node startOfWalkNode = locationJourneyPlanner.createWalkingNode(txn, start, journeyRequest);
+        Node startOfWalkNode = locationJourneyPlanner.createWalkingNode(txn, start, journeyRequest.getUid());
 
         Set<StationWalk> walks = locationJourneyPlanner.getStationWalks(start);
         List<Relationship> addedRelationships =  locationJourneyPlanner.createWalksToStations(txn, startOfWalkNode, walks);

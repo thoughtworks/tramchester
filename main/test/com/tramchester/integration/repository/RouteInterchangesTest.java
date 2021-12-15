@@ -21,8 +21,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static com.tramchester.testSupport.reference.TramStations.Cornbrook;
-import static com.tramchester.testSupport.reference.TramStations.NavigationRoad;
+import static com.tramchester.testSupport.reference.TramStations.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 
@@ -80,6 +79,25 @@ public class RouteInterchangesTest {
 
         // cost to trafford bar
         assertEquals(14, cost);
+
+    }
+
+    @Test
+    void shouldGetCostToInterchangeForRouteStationAdjacent() {
+
+        Set<Route> routes = tramRouteHelper.get(KnownTramRoute.AltrinchamPiccadilly);
+
+        List<RouteStation> oldTraffordRouteStations = stationRepository.getRouteStationsFor(OldTrafford.getId()).stream().
+                filter(routeStation -> routes.contains(routeStation.getRoute())).collect(Collectors.toList());
+
+        assertFalse(oldTraffordRouteStations.isEmpty());
+
+        RouteStation oldTrafford = oldTraffordRouteStations.get(0);
+
+        int cost = routeInterchanges.costToInterchange(oldTrafford);
+
+        // cost to trafford bar
+        assertEquals(2, cost);
 
     }
 

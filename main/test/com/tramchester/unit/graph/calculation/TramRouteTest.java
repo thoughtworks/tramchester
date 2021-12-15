@@ -469,7 +469,7 @@ class TramRouteTest {
     @Test
     void shouldHaveRouteCostCalculationAsExpected() {
         RouteCostCalculator costCalculator = componentContainer.get(RouteCostCalculator.class);
-        assertEquals(42, costCalculator.getApproxCostBetween(txn, transportData.getFirst(), transportData.getLast()));
+        assertEquals(40, costCalculator.getApproxCostBetween(txn, transportData.getFirst(), transportData.getLast()));
         assertEquals(-1, costCalculator.getApproxCostBetween(txn, transportData.getLast(), transportData.getFirst()));
     }
 
