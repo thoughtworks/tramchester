@@ -1,8 +1,11 @@
 package com.tramchester.graph;
 
 import com.netflix.governator.guice.lazy.LazySingleton;
+import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
 import com.tramchester.graph.graphbuild.StagedTransportGraphBuilder;
+import com.tramchester.repository.InterchangeRepository;
+import org.assertj.core.util.Streams;
 import org.neo4j.graphalgo.EvaluationContext;
 import org.neo4j.graphalgo.GraphAlgoFactory;
 import org.neo4j.graphalgo.PathFinder;
@@ -12,6 +15,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.OptionalInt;
 
 import static com.tramchester.graph.GraphPropertyKey.COST;
 import static com.tramchester.graph.TransportRelationshipTypes.*;
@@ -26,12 +32,14 @@ public class RouteCostCalculator {
 
     private final GraphQuery graphQuery;
     private final GraphDatabase graphDatabaseService;
+    private final InterchangeRepository interchangeRepository;
 
     @Inject
     public RouteCostCalculator(GraphQuery graphQuery, GraphDatabase graphDatabaseService,
-                               StagedTransportGraphBuilder.Ready ready) {
+                               StagedTransportGraphBuilder.Ready ready, InterchangeRepository interchangeRepository) {
         this.graphQuery = graphQuery;
         this.graphDatabaseService = graphDatabaseService;
+        this.interchangeRepository = interchangeRepository;
     }
 
     public int getApproxCostBetween(Transaction txn, Station station, Node endNode) {
@@ -80,12 +88,6 @@ public class RouteCostCalculator {
                 ON_ROUTE, Direction.OUTGOING,
                 STATION_TO_ROUTE, Direction.OUTGOING,
                 ROUTE_TO_STATION, Direction.OUTGOING,
-//                ENTER_PLATFORM, Direction.OUTGOING,
-//                LEAVE_PLATFORM, Direction.OUTGOING,
-//                BOARD, Direction.OUTGOING,
-//                DEPART, Direction.OUTGOING,
-//                INTERCHANGE_BOARD, Direction.OUTGOING,
-//                INTERCHANGE_DEPART, Direction.OUTGOING,
                 WALKS_TO, Direction.OUTGOING,
                 WALKS_FROM, Direction.OUTGOING,
                 NEIGHBOUR, Direction.OUTGOING,
@@ -93,4 +95,46 @@ public class RouteCostCalculator {
                 GROUPED_TO_CHILD, Direction.OUTGOING
         );
     }
+
+    public int costToInterchange(Transaction txn, RouteStation routeStation) {
+        if (interchangeRepository.isInterchange(routeStation.getStation())) {
+            return 0;
+        }
+        return  findCostToInterchange(txn, routeStation);
+    }
+
+    private int findCostToInterchange(Transaction txn, RouteStation routeStation) {
+
+        logger.debug("Find cost to first interchange for " + routeStation);
+
+//        String query = "MATCH (start:ROUTE_STATION {route_station_id: $routeStationId}), (inter:INTERCHANGE), " +
+//                " path = shortestPath((start)-[:ON_ROUTE*]->(inter))" +
+//                " WHERE all(r in relationships(path) WHERE r.route_id=$route)" +
+//                " RETURN path";
+
+        String query = "MATCH path = (start:ROUTE_STATION {route_station_id: $routeStationId})-[:ON_ROUTE*]->(inter:INTERCHANGE) " +
+        " RETURN path";
+
+        Map<String, Object> params = new HashMap<>();
+        //params.put("route", routeStation.getRoute().getId().getGraphId());
+        params.put("routeStationId", routeStation.getId().getGraphId());
+
+        Result results = txn.execute(query, params);
+
+        OptionalInt maybeMin = results.stream().
+                filter(row -> row.containsKey("path")).
+                map(row -> (Path) row.get("path")).
+                mapToInt(this::costFor).
+                min();
+
+        return maybeMin.orElse(-1);
+    }
+
+    private int costFor(Path path) {
+        return Streams.stream(path.iterator()).
+                filter(entity -> entity.hasProperty(COST.getText())).
+                mapToInt(entity -> (int) entity.getProperty(COST.getText())).
+                sum();
+    }
+
 }

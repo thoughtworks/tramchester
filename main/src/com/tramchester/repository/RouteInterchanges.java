@@ -3,10 +3,12 @@ package com.tramchester.repository;
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.domain.InterchangeStation;
 import com.tramchester.domain.Route;
-import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.places.RouteStation;
-import com.tramchester.domain.places.Station;
+import com.tramchester.graph.GraphDatabase;
+import com.tramchester.graph.RouteCostCalculator;
+import com.tramchester.metrics.TimedTransaction;
 import org.apache.commons.lang3.tuple.Pair;
+import org.neo4j.graphdb.Transaction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -22,98 +24,60 @@ public class RouteInterchanges {
     private final RouteRepository routeRepository;
     private final StationRepository stationRepository;
     private final InterchangeRepository interchangeRepository;
-    private final RouteCallingStations routeCallingStations;
+    private final RouteCostCalculator routeCostCalculator;
+    private final GraphDatabase graphDatabase;
 
-    private final Map<Route, Set<InterchangeStation>> routeInterchanges;
+    private final Map<Route, Set<InterchangeStation>> interchangesForRoute;
     private Map<RouteStation, Integer> routeStationToInterchangeCost;
 
     @Inject
-    public RouteInterchanges(RouteRepository routeRepository, StationRepository stationRepository, InterchangeRepository interchangeRepository, RouteCallingStations routeCallingStations) {
+    public RouteInterchanges(RouteRepository routeRepository, StationRepository stationRepository, InterchangeRepository interchangeRepository,
+                             RouteCallingStations routeCallingStations, RouteCostCalculator routeCostCalculator, GraphDatabase graphDatabase) {
         this.routeRepository = routeRepository;
         this.stationRepository = stationRepository;
         this.interchangeRepository = interchangeRepository;
-        this.routeCallingStations = routeCallingStations;
-        routeInterchanges = new HashMap<>();
+        this.routeCostCalculator = routeCostCalculator;
+
+        this.graphDatabase = graphDatabase;
+        interchangesForRoute = new HashMap<>();
     }
 
     @PostConstruct
     public void start() {
         logger.info("starting");
         populateRouteToInterchangeMap();
-        populateRouteStationToFirstExchange();
+        populateRouteStationToFirstInterchange();
         logger.info("started");
     }
 
-    private void populateRouteStationToFirstExchange() {
+    private void populateRouteStationToFirstInterchange() {
         final Set<RouteStation> routeStations = stationRepository.getRouteStations();
         logger.info("Populate for " + routeStations.size() + " route stations");
-        routeStationToInterchangeCost = routeStations.stream().
-                collect(Collectors.toMap(routeStation->routeStation,
-                        routeStation -> lowestCostBetween(routeStation, routeInterchanges.get(routeStation.getRoute()))));
+        try(TimedTransaction timedTransaction = new TimedTransaction(graphDatabase, logger, "routeStationToInterchange")) {
+            routeStationToInterchangeCost = routeStations.stream().
+                    collect(Collectors.toMap(routeStation -> routeStation,
+                            routeStation -> lowestCostBetween(timedTransaction.transaction(), routeStation)));
+        }
     }
 
-    private int lowestCostBetween(RouteStation routeStation, Set<InterchangeStation> interchangeStations) {
-
-        // TODO Needs rewrite, does not work properly as is
-
-        Route currentRoute = routeStation.getRoute();
-        List<Station> stationsAlongRoute = routeCallingStations.getStationsFor(currentRoute);
-        IdSet<Station> interchangeStationIds = interchangeStations.stream().
-                map(InterchangeStation::getStationId).collect(IdSet.idCollector());
-
-        if (interchangeStationIds.contains(routeStation.getStationId())) {
-            return 0; // already at an interchange
-        }
-
-        int indexOfCurrentRouteStation = 0;
-        for (int i = 0; i < stationsAlongRoute.size(); i++) {
-            indexOfCurrentRouteStation = i;
-            if (stationsAlongRoute.get(i).equals(routeStation.getStation())) {
-                break;
-            }
-        }
-
-        if (indexOfCurrentRouteStation==stationsAlongRoute.size()) {
-            throw new RuntimeException("Did not find " + routeStation + " in the list of stations for it's route");
-        }
-
-        if (indexOfCurrentRouteStation==stationsAlongRoute.size()-1) {
-            // end of the route, not at interchange and cannot reach one from here
+    private int lowestCostBetween(Transaction txn, RouteStation routeStation) {
+        int cost = routeCostCalculator.costToInterchange(txn, routeStation);
+        if (cost<0) {
             return Integer.MAX_VALUE;
         }
-
-        // return first interchange found between current index and end of the route
-        for (int i = indexOfCurrentRouteStation; i < stationsAlongRoute.size(); i++) {
-            final Station stationToCheck = stationsAlongRoute.get(i);
-            if (interchangeStationIds.contains(stationToCheck.getId())) {
-                final int costOnRoute = costOnRoute(currentRoute, stationsAlongRoute, indexOfCurrentRouteStation, i);
-                logger.debug("Found interchange for " + routeStation + " cost " + costOnRoute + " at " +
-                        stationsAlongRoute.get(i).getId());
-                return costOnRoute;
-            }
-        }
-        // quite possible no interchange between current station and the end of the current route
-        return Integer.MAX_VALUE;
-    }
-
-    private int costOnRoute(Route currentRoute, List<Station> stations, int beginIndex, int endIndex) {
-        int result = 0;
-        for (int i = beginIndex; i <endIndex; i++) {
-            result = result + routeCallingStations.costToNextFor(currentRoute, stations.get(i)).getMin();
-        }
-        return result;
+        return cost;
     }
 
     private void populateRouteToInterchangeMap() {
-        routeRepository.getRoutes().forEach(route -> routeInterchanges.put(route, new HashSet<>()));
+        routeRepository.getRoutes().forEach(route -> interchangesForRoute.put(route, new HashSet<>()));
         Set<InterchangeStation> allInterchanges = interchangeRepository.getAllInterchanges();
         allInterchanges.stream().
                 flatMap(inter -> inter.getDropoffRoutes().stream().map(route -> Pair.of(route, inter))).
-                forEach(pair -> routeInterchanges.get(pair.getLeft()).add(pair.getRight()));
+                forEach(pair -> interchangesForRoute.get(pair.getLeft()).add(pair.getRight()));
     }
 
     public Set<InterchangeStation> getFor(Route route) {
-        return routeInterchanges.get(route);
+        return interchangesForRoute.get(route);
     }
 
     public int costToInterchange(RouteStation routeStation) {
