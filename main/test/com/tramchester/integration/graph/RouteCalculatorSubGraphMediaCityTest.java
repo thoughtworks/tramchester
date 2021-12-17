@@ -112,12 +112,15 @@ class RouteCalculatorSubGraphMediaCityTest {
                 if (!start.equals(destination)) {
                     for (int i = 0; i < DAYS_AHEAD; i++) {
                         LocalDate day = when.plusDays(i);
-                        JourneyRequest journeyRequest =
-                                new JourneyRequest(new TramServiceDate(day), TramTime.of(9,0), false,
-                                        3, config.getMaxJourneyDuration(), 1);
-                        Set<Journey> journeys = calculator.calculateRouteAsSet(start, destination, journeyRequest);
-                        if (journeys.isEmpty()) {
-                            failures.add(day.getDayOfWeek() +": "+start+"->"+destination);
+                        TramServiceDate serviceDate = new TramServiceDate(day);
+                        if (!serviceDate.isChristmasPeriod()) {
+                            JourneyRequest journeyRequest =
+                                    new JourneyRequest(new TramServiceDate(day), TramTime.of(9, 0), false,
+                                            3, config.getMaxJourneyDuration(), 1);
+                            Set<Journey> journeys = calculator.calculateRouteAsSet(start, destination, journeyRequest);
+                            if (journeys.isEmpty()) {
+                                failures.add(day.getDayOfWeek() + ": " + start + "->" + destination);
+                            }
                         }
                     }
                 }

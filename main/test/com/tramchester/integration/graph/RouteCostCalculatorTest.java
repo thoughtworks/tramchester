@@ -29,8 +29,7 @@ import java.util.stream.Collectors;
 
 import static com.tramchester.testSupport.TestEnv.nearAltrincham;
 import static com.tramchester.testSupport.reference.TramStations.*;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.*;
 
 @DataUpdateTest
 class RouteCostCalculatorTest {
@@ -41,7 +40,6 @@ class RouteCostCalculatorTest {
     private StationRepository stationRepository;
     private TramRouteHelper tramRouteHelper;
     private Transaction txn;
-
 
     @BeforeAll
     static void onceBeforeAnyTestRuns() {
@@ -89,8 +87,7 @@ class RouteCostCalculatorTest {
         final int altyToBury = getApproxCostBetween(txn, Altrincham, Bury);
 
         assertEquals(57, buryToAlty);
-        assertEquals(59, altyToBury);
-
+        assertEquals(58, altyToBury);
     }
 
     @Test
@@ -156,7 +153,6 @@ class RouteCostCalculatorTest {
 
         // cost to trafford bar
         assertEquals(14, cost);
-
     }
 
     @Test

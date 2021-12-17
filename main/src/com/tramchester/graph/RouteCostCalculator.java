@@ -62,7 +62,7 @@ public class RouteCostCalculator {
         if (endNode==null) {
             throw new RuntimeException("Could not find end node for graph id" + endStation.getId().getGraphId());
         }
-        logger.info(format("Find approx. route cost between %s and %s", startStation, endStation));
+        logger.info(format("Find approx. route cost between %s and %s", startStation.getId(), endStation.getId()));
 
         return getApproxCostBetween(txn, startNode, endNode);
     }
@@ -107,16 +107,11 @@ public class RouteCostCalculator {
 
         logger.debug("Find cost to first interchange for " + routeStation);
 
-//        String query = "MATCH (start:ROUTE_STATION {route_station_id: $routeStationId}), (inter:INTERCHANGE), " +
-//                " path = shortestPath((start)-[:ON_ROUTE*]->(inter))" +
-//                " WHERE all(r in relationships(path) WHERE r.route_id=$route)" +
-//                " RETURN path";
-
         String query = "MATCH path = (start:ROUTE_STATION {route_station_id: $routeStationId})-[:ON_ROUTE*]->(inter:INTERCHANGE) " +
-        " RETURN path";
+            " RETURN path ";
+                //+ " order by length(path) limit 1";
 
         Map<String, Object> params = new HashMap<>();
-        //params.put("route", routeStation.getRoute().getId().getGraphId());
         params.put("routeStationId", routeStation.getId().getGraphId());
 
         Result results = txn.execute(query, params);

@@ -6,6 +6,7 @@ import com.tramchester.domain.InterchangeStation;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.places.RouteStation;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
+import com.tramchester.repository.InterchangeRepository;
 import com.tramchester.repository.RouteInterchanges;
 import com.tramchester.repository.RouteRepository;
 import com.tramchester.repository.StationRepository;
@@ -22,8 +23,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import static com.tramchester.testSupport.reference.TramStations.*;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class RouteInterchangesTest {
 
@@ -31,6 +31,7 @@ public class RouteInterchangesTest {
     private RouteInterchanges routeInterchanges;
     private StationRepository stationRepository;
     private TramRouteHelper tramRouteHelper;
+    private InterchangeRepository interchangeRepository;
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
@@ -49,7 +50,7 @@ public class RouteInterchangesTest {
         RouteRepository routeRepository = componentContainer.get(RouteRepository.class);
         routeInterchanges = componentContainer.get(RouteInterchanges.class);
         tramRouteHelper = new TramRouteHelper(routeRepository);
-
+        interchangeRepository = componentContainer.get(InterchangeRepository.class);
     }
 
     @Test
@@ -132,6 +133,20 @@ public class RouteInterchangesTest {
         });
 
     }
+
+    @Test
+    void shouldHaveConsistencyOnZeroCostToInterchangeAndInterchanges() {
+        Set<RouteStation> zeroCostToInterchange = stationRepository.getRouteStations().stream().
+                filter(routeStation -> routeInterchanges.costToInterchange(routeStation) == 0).
+                collect(Collectors.toSet());
+
+        Set<RouteStation> zeroCostButNotInterchange = zeroCostToInterchange.stream().
+                filter(zeroCost -> !interchangeRepository.isInterchange(zeroCost.getStation())).
+                collect(Collectors.toSet());
+
+        assertTrue(zeroCostButNotInterchange.isEmpty(), zeroCostButNotInterchange.toString());
+    }
+
 }
 
 

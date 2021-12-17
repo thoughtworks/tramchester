@@ -18,6 +18,7 @@ import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.DateRange;
+import com.tramchester.domain.time.TramServiceDate;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
 import com.tramchester.repository.InterchangeRepository;
@@ -338,30 +339,35 @@ public class TransportDataFromFilesTramTest {
 
         for (int day = 0; day < DAYS_AHEAD; day++) {
             LocalDate date = TestEnv.testDay().plusDays(day);
-            IdSet<Service> servicesOnDateIds = transportData.getServicesOnDate(date);
 
-            transportData.getStations().forEach(station -> {
-                Set<Trip> callingTripsOnDate = transportData.getTrips().stream().
-                        filter(trip -> trip.getStopCalls().callsAt(station)).
-                        filter(trip -> servicesOnDateIds.contains(trip.getService().getId())).
-                        collect(Collectors.toSet());
-                assertFalse(callingTripsOnDate.isEmpty(), String.format("%s %s", date, station.getId()));
+            TramServiceDate tramServiceDate = new TramServiceDate(date);
+            if (!tramServiceDate.isChristmasPeriod()) {
 
-                for (int hour = earlistHour; hour < latestHour; hour++) {
-                    TramTime tramTime = TramTime.of(hour,0);
+                IdSet<Service> servicesOnDateIds = transportData.getServicesOnDate(date);
 
-                    Set<StopCall> calling = new HashSet<>();
-                    callingTripsOnDate.forEach(trip -> {
-                        Set<StopCall> onTime = trip.getStopCalls().stream().
-                                filter(stop -> stop.getStation().equals(station)).
-                                filter(stop -> tramTime.plusMinutes(maxwait).
-                                        between(stop.getArrivalTime(), stop.getArrivalTime().plusMinutes(maxwait))).
-                                collect(Collectors.toSet());
-                        calling.addAll(onTime);
-                    });
-                    assertFalse(calling.isEmpty(), String.format("Stops %s %s %s %s", date.getDayOfWeek(), date, tramTime, station.getName()));
-                }
-            });
+                transportData.getStations().forEach(station -> {
+                    Set<Trip> callingTripsOnDate = transportData.getTrips().stream().
+                            filter(trip -> trip.getStopCalls().callsAt(station)).
+                            filter(trip -> servicesOnDateIds.contains(trip.getService().getId())).
+                            collect(Collectors.toSet());
+                    assertFalse(callingTripsOnDate.isEmpty(), String.format("%s %s", date, station.getId()));
+
+                    for (int hour = earlistHour; hour < latestHour; hour++) {
+                        TramTime tramTime = TramTime.of(hour, 0);
+
+                        Set<StopCall> calling = new HashSet<>();
+                        callingTripsOnDate.forEach(trip -> {
+                            Set<StopCall> onTime = trip.getStopCalls().stream().
+                                    filter(stop -> stop.getStation().equals(station)).
+                                    filter(stop -> tramTime.plusMinutes(maxwait).
+                                            between(stop.getArrivalTime(), stop.getArrivalTime().plusMinutes(maxwait))).
+                                    collect(Collectors.toSet());
+                            calling.addAll(onTime);
+                        });
+                        assertFalse(calling.isEmpty(), String.format("Stops %s %s %s %s", date.getDayOfWeek(), date, tramTime, station.getName()));
+                    }
+                });
+            }
         }
     }
 

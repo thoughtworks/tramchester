@@ -29,8 +29,8 @@ public class ProvidesNotes {
     public static final String website = "Please check <a href=\"http://www.metrolink.co.uk/pages/pni.aspx\">TFGM</a> for details.";
     public static final String weekend = "At the weekend your journey may be affected by improvement works." + website;
     public static final String christmas = "There are changes to Metrolink services during Christmas and New Year." + website;
-    public static final String christmas2020 = "There are changes to services between 24th Dec and 3rd January. " +
-            "Please check <a = href=\"https://tfgm.com/travel-updates/christmas-services2020\">TFGM</a> for details.";
+    public static final String christmas2021 = "There are changes to services between 24th Dec and 3rd January. " +
+            "Please check <a = href=\"https://tfgm.com/christmas-services\">TFGM</a> for details.";
     private static final int MESSAGE_LIFETIME = 5;
 
     private final PlatformMessageSource platformMessageSource;
@@ -98,8 +98,8 @@ public class ProvidesNotes {
         }
         if (queryDate.isChristmasPeriod()) {
             int year = queryDate.getDate().getYear();
-            if ((year==2020) || (year==2021)) {
-                notes.add(new Note(christmas2020, Christmas));
+            if (year==2021 || year==2022) {
+                notes.add(new Note(christmas2021, Christmas));
             } else {
                 notes.add(new Note(christmas, Christmas));
             }

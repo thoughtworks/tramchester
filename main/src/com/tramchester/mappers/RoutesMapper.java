@@ -2,10 +2,12 @@ package com.tramchester.mappers;
 
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.domain.Route;
+import com.tramchester.domain.input.StopCall;
+import com.tramchester.domain.input.StopCalls;
+import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.DTO.RouteDTO;
 import com.tramchester.domain.presentation.DTO.StationRefWithPosition;
-import com.tramchester.repository.RouteCallingStations;
 import com.tramchester.repository.TransportData;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
@@ -15,6 +17,7 @@ import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.inject.Inject;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @LazySingleton
 public class RoutesMapper {
@@ -23,14 +26,11 @@ public class RoutesMapper {
     private final Map<String, RouteDTO> routeDTOs;
 
     private final TransportData transportData;
-    private final RouteCallingStations routeCallingStations;
 
     @Inject
-    public RoutesMapper(TransportData transportData, RouteCallingStations routeCallingStations) {
+    public RoutesMapper(TransportData transportData) {
         routeDTOs = new HashMap<>();
-
         this.transportData = transportData;
-        this.routeCallingStations = routeCallingStations;
     }
 
     @PostConstruct
@@ -63,10 +63,26 @@ public class RoutesMapper {
 
     @NotNull
     private List<StationRefWithPosition> getRouteCallingStationRefDTO(Route route) {
-        List<Station> calledAtStations = routeCallingStations.getStationsFor(route);
+        List<Station> calledAtStations = getStationOn(route);
         List<StationRefWithPosition> stationDTOs = new ArrayList<>(calledAtStations.size());
         calledAtStations.forEach(calledAtStation -> stationDTOs.add(new StationRefWithPosition(calledAtStation)));
         return stationDTOs;
+    }
+
+    // use for visualisation in the front-end routes map, this is approx. since some gtfs routes acutally
+    // branch TODO Use query of the graph DB to get the "real" representation
+    private List<Station> getStationOn(Route route) {
+        Set<Trip> tripsForRoute = route.getTrips();
+        Optional<Trip> maybeLongest = tripsForRoute.stream().max(Comparator.comparingInt(a -> a.getStopCalls().numberOfCallingPoints()));
+
+        if (maybeLongest.isEmpty()) {
+            logger.error("Found no longest trip for route " + route.getId());
+            return Collections.emptyList();
+        }
+
+        Trip longestTrip = maybeLongest.get();
+        StopCalls stops = longestTrip.getStopCalls();
+        return stops.stream().map(StopCall::getStation).collect(Collectors.toList());
     }
 
 }

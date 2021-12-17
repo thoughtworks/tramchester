@@ -8,6 +8,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.*;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static com.tramchester.domain.reference.GTFSPickupDropoffType.None;
@@ -125,6 +126,9 @@ public class StopCalls {
         return intoNextDay;
     }
 
+    public List<Station> getStationSequence() {
+        return orderedStopCalls.values().stream().map(StopCall::getStation).collect(Collectors.toList());
+    }
 
     public static class StopLeg {
         private final StopCall first;

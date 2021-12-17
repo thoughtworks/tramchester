@@ -8,6 +8,7 @@ import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.*;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.StringIdFor;
+import com.tramchester.domain.input.StopCalls;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramServiceDate;
@@ -42,7 +43,6 @@ class BusRouteCalculatorSubGraphAltyToMaccRoute {
     private static Set<Route> altyToKnutsford;
     private static Set<Route> knutsfordToAlty;
 
-    private RouteCallingStations routeCallingStations;
     private RouteCalculatorTestFacade calculator;
     private StationRepository stationRepository;
 
@@ -87,8 +87,6 @@ class BusRouteCalculatorSubGraphAltyToMaccRoute {
 
         stationRepository = componentContainer.get(StationRepository.class);
         compositeStationRepository =componentContainer.get(CompositeStationRepository.class);
-
-        routeCallingStations = componentContainer.get(RouteCallingStations.class);
 
         txn = database.beginTx();
         calculator = new RouteCalculatorTestFacade(componentContainer.get(RouteCalculator.class), stationRepository, txn);
@@ -146,23 +144,30 @@ class BusRouteCalculatorSubGraphAltyToMaccRoute {
     @Test
     void shouldHaveSimpleRouteWithStationsAlongTheWay() {
 
+        // TODO WIP
+
         altyToKnutsford.forEach(route -> {
-            List<Station> stationsAlongRoute = routeCallingStations.getStationsFor(route);
+            //List<Station> stationsAlongRoute = routeCallingStations.getStationsFor(route);
+            route.getTrips().forEach(trip -> {
+                StopCalls stopCalls = trip.getStopCalls();
 
-            List<IdFor<Station>> ids = stationsAlongRoute.stream().map(Station::getId).collect(Collectors.toList());
+                List<IdFor<Station>> ids = stopCalls.stream().map(stopCall -> stopCall.getStation().getId()).collect(Collectors.toList());
 
-            int knutsfordIndex = ids.indexOf(StringIdFor.createId("0600MA6022")); // services beyond here are infrequent
-            Station firstStation = stationsAlongRoute.get(0);
+                int knutsfordIndex = ids.indexOf(StringIdFor.createId("0600MA6022")); // services beyond here are infrequent
+                Station firstStation = stopCalls.getStopBySequenceNumber(0).getStation();
 
-            TramTime time = TramTime.of(9, 20);
-            JourneyRequest journeyRequest = new JourneyRequest(when, time, false,
-                    1, 120, 1);
+                TramTime time = TramTime.of(9, 20);
+                JourneyRequest journeyRequest = new JourneyRequest(when, time, false,
+                        1, 120, 1);
 
-            for (int i = 1; i <= knutsfordIndex; i++) {
-                Station secondStation = stationsAlongRoute.get(i);
-                Set<Journey> result = calculator.calculateRouteAsSet(firstStation, secondStation, journeyRequest);
-                assertFalse(result.isEmpty());
-            }
+                for (int i = 1; i <= knutsfordIndex; i++) {
+                    Station secondStation = stopCalls.getStopBySequenceNumber(i).getStation();
+                    Set<Journey> result = calculator.calculateRouteAsSet(firstStation, secondStation, journeyRequest);
+                    assertFalse(result.isEmpty());
+                }
+            });
+
+
         });
 
     }
@@ -170,9 +175,10 @@ class BusRouteCalculatorSubGraphAltyToMaccRoute {
     @Test
     void produceDiagramOfGraphSubset() throws IOException {
         DiagramCreator creator = componentContainer.get(DiagramCreator.class);
+        // all station for both sets of routes
         Set<Station> stations = Streams.concat(altyToKnutsford.stream(), knutsfordToAlty.stream()).
-                flatMap(route -> routeCallingStations.getStationsFor(route).stream()).
-                //map(RouteCallingStations.StationWithCost::getStation).
+                flatMap(route -> route.getTrips().stream()).
+                flatMap(trip -> trip.getStopCalls().getStationSequence().stream()).
                 collect(Collectors.toSet());
         creator.create(Path.of("AltrichamKnutsfordBuses.dot"), stations, 1, true);
     }

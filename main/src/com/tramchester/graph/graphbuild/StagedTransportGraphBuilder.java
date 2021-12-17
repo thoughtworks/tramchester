@@ -309,6 +309,9 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
                     if (!pairs.containsKey(leg)) {
                         // TODO use RouteCallingStations costs here
                         int cost = leg.getCost();
+                        if (cost==0) {
+                            logger.warn(format("Zero cost for trip %s for %s", trip.getId(), leg));
+                        }
                         pairs.put(leg, cost);
                     }
                 }

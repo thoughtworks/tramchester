@@ -99,7 +99,7 @@ public class RouteInterchangesRailTest {
         assertEquals(0, routeInterchanges.costToInterchange(stockport));
 
         RouteStation delamere = stationRepository.getRouteStationById(RouteStation.createId(Delamere.getId(), manchesterToChester.getId()));
-        assertEquals(16, routeInterchanges.costToInterchange(delamere));
+        assertEquals(17, routeInterchanges.costToInterchange(delamere));
 
     }
 }

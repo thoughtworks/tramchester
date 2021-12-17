@@ -181,6 +181,8 @@ public class ServiceHeuristics {
         // otherwise, a change to a different route is needed
 
         int costToFirstInterchange = routeInterchanges.costToInterchange(routeStation);
+        //logger.info("Cost to first interchange " + costToFirstInterchange);
+
         if (costToFirstInterchange==Integer.MAX_VALUE) {
             // change required from current route, but no interchange is available for this station/route combination
             return reasons.recordReason(ServiceReason.ExchangeNotReachable(howIGotHere));

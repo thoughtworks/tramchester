@@ -32,7 +32,7 @@ public class RouteInterchanges {
 
     @Inject
     public RouteInterchanges(RouteRepository routeRepository, StationRepository stationRepository, InterchangeRepository interchangeRepository,
-                             RouteCallingStations routeCallingStations, RouteCostCalculator routeCostCalculator, GraphDatabase graphDatabase) {
+                             RouteCostCalculator routeCostCalculator, GraphDatabase graphDatabase) {
         this.routeRepository = routeRepository;
         this.stationRepository = stationRepository;
         this.interchangeRepository = interchangeRepository;

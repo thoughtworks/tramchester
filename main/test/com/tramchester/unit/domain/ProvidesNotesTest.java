@@ -153,9 +153,9 @@ class ProvidesNotesTest extends EasyMockSupport {
     void shouldHaveNoteForChristmasTramServices() {
         EasyMock.expect(platformMessageSource.isEnabled()).andStubReturn(true);
 
-        int year = 2020;
+        int year = 2021;
         LocalDate date = LocalDate.of(year, 12, 23);
-        Note christmasNote = new Note(ProvidesNotes.christmas2020, Note.NoteType.Christmas);
+        Note christmasNote = new Note(ProvidesNotes.christmas2021, Note.NoteType.Christmas);
 
         Journey journey = createMock(Journey.class);
         EasyMock.expect(journey.getTransportModes()).andStubReturn(Collections.singleton(Tram));

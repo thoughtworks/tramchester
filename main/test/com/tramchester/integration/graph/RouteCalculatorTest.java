@@ -361,7 +361,7 @@ public class RouteCalculatorTest {
 
     @Test
     void shouldCheckCornbrookToStPetersSquareOnSundayMorning() {
-        JourneyRequest journeyRequest = standardJourneyRequest(when.plusDays(maxChanges), TramTime.of(11, 0), maxNumResults);
+        JourneyRequest journeyRequest = standardJourneyRequest(TestEnv.nextSunday(), TramTime.of(11, 0), maxNumResults);
         assertGetAndCheckJourneys(journeyRequest, Cornbrook, StPetersSquare);
     }
 

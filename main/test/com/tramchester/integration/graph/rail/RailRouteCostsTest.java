@@ -3,6 +3,7 @@ package com.tramchester.integration.graph.rail;
 import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.config.TramchesterConfig;
+import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.places.Station;
 import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.RouteCostCalculator;
@@ -16,6 +17,7 @@ import org.neo4j.graphdb.Transaction;
 
 import static com.tramchester.integration.testSupport.rail.RailStationIds.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
 @TrainTest
 @DisabledIfEnvironmentVariable(named = "CI", matches = "true")
@@ -91,7 +93,7 @@ public class RailRouteCostsTest {
 
     @Test
     void shouldGetApproxCostCreweAndMiltonKeeny() {
-        assertEquals(63, routeCostCalculator.getApproxCostBetween(txn, crewe, miltonKeynes));
+        assertEquals(62, routeCostCalculator.getApproxCostBetween(txn, crewe, miltonKeynes));
     }
 
     @Test
@@ -101,14 +103,24 @@ public class RailRouteCostsTest {
 
     @Test
     void shouldGetApproxCostBetweenManPicadillyAndLondonEuston() {
-        assertEquals(119, routeCostCalculator.getApproxCostBetween(txn, manPicc, londonEuston));
+        assertEquals(118, routeCostCalculator.getApproxCostBetween(txn, manPicc, londonEuston));
     }
 
     @Test
     void shouldGetApproxCostBetweenAltrinchamAndLondonEuston() {
         Station altrincham = Altrincham.getFrom(stationRepository);
 
-        assertEquals(129, routeCostCalculator.getApproxCostBetween(txn, altrincham, londonEuston));
+        assertEquals(128, routeCostCalculator.getApproxCostBetween(txn, altrincham, londonEuston));
+    }
+
+    @Test
+    void shouldReproIssueWithZeroCostLegs() {
+
+        Station start = stationRepository.getStationById(StringIdFor.createId("MLSECMB"));
+        Station end = stationRepository.getStationById(StringIdFor.createId("BRGHLRD"));
+        int result = routeCostCalculator.getApproxCostBetween(txn, start, end);
+
+        assertNotEquals(0, result);
     }
 
 }
