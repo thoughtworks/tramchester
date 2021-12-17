@@ -2,13 +2,16 @@ package com.tramchester.integration.repository;
 
 import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
+import com.tramchester.domain.Route;
 import com.tramchester.domain.Service;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdSet;
+import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.input.StopCall;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
+import com.tramchester.repository.RouteRepository;
 import com.tramchester.repository.ServiceRepository;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.repository.StopCallRepository;
@@ -30,6 +33,7 @@ public class StopCallRepositoryTest {
     private StopCallRepository stopCallRepository;
     private StationRepository stationRepository;
     private ServiceRepository serviceRepository;
+    private RouteRepository routeRepository;
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
@@ -47,6 +51,7 @@ public class StopCallRepositoryTest {
         stopCallRepository = componentContainer.get(StopCallRepository.class);
         stationRepository = componentContainer.get(StationRepository.class);
         serviceRepository = componentContainer.get(ServiceRepository.class);
+        routeRepository = componentContainer.get(RouteRepository.class);
     }
 
     @Test
@@ -77,5 +82,20 @@ public class StopCallRepositoryTest {
         assertEquals(results.size(), correctTimes);
 
         assertEquals(5, results.size(), results.toString());
+    }
+
+    @Test
+    void shouldGetCostsForAStopCall() {
+        Route route = routeRepository.getRouteById(StringIdFor.createId("METLGREE:I:CURRENT"));
+
+        Station alty = stationRepository.getStationById(TramStations.Altrincham.getId());
+        Station navigationRoad = stationRepository.getStationById(TramStations.NavigationRoad.getId());
+
+        StopCallRepository.Costs costs = stopCallRepository.getCostsBetween(route, alty, navigationRoad);
+
+        assertFalse(costs.isEmpty());
+        assertTrue(costs.consistent(), costs.toString());
+
+        assertEquals(3, costs.min(), costs.toString());
     }
 }

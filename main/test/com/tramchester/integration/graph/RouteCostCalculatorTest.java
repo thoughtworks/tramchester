@@ -86,8 +86,8 @@ class RouteCostCalculatorTest {
         final int buryToAlty = getApproxCostBetween(txn, Bury, Altrincham);
         final int altyToBury = getApproxCostBetween(txn, Altrincham, Bury);
 
-        assertEquals(57, buryToAlty);
-        assertEquals(58, altyToBury);
+        assertEquals(60, buryToAlty);
+        assertEquals(61, altyToBury);
     }
 
     @Test

@@ -21,6 +21,7 @@ import com.tramchester.graph.filters.GraphFilter;
 import com.tramchester.metrics.TimedTransaction;
 import com.tramchester.metrics.Timing;
 import com.tramchester.repository.InterchangeRepository;
+import com.tramchester.repository.StopCallRepository;
 import com.tramchester.repository.TransportData;
 import org.jetbrains.annotations.NotNull;
 import org.neo4j.graphdb.Node;
@@ -60,6 +61,7 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
     private final TransportData transportData;
     private final InterchangeRepository interchangeRepository;
     private final GraphDatabaseMetaInfo databaseMetaInfo;
+    private final StopCallRepository stopCallRepository;
 
     // force contsruction via guice to generate ready token, needed where no direct code dependency on this class
     public Ready getReady() {
@@ -73,11 +75,12 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
                                        StationsAndLinksGraphBuilder.Ready stationAndLinksBuilt,
                                        AddNeighboursGraphBuilder.Ready neighboursReady,
                                        AddWalksForClosedGraphBuilder.Ready walksForClosedReady,
-                                       GraphDatabaseMetaInfo databaseMetaInfo) {
+                                       GraphDatabaseMetaInfo databaseMetaInfo, StopCallRepository stopCallRepository) {
         super(graphDatabase, graphFilter, config, builderCache);
         this.transportData = transportData;
         this.interchangeRepository = interchangeRepository;
         this.databaseMetaInfo = databaseMetaInfo;
+        this.stopCallRepository = stopCallRepository;
     }
 
     @PostConstruct
@@ -307,7 +310,7 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
             stops.getLegs().forEach(leg -> {
                 if (includeBothStops(leg)) {
                     if (!pairs.containsKey(leg)) {
-                        // TODO use RouteCallingStations costs here
+                        // TODO need cost representative of the route as whole
                         int cost = leg.getCost();
                         if (cost==0) {
                             logger.warn(format("Zero cost for trip %s for %s", trip.getId(), leg));
@@ -318,7 +321,7 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
             });
         });
 
-        pairs.forEach((leg, cost) -> {
+        pairs.forEach((leg, unused) -> {
             IdFor<Station> beginId = leg.getFirstStation().getId();
             IdFor<Station> endId = leg.getSecondStation().getId();
             if (!routeBuilderCache.hasRouteStation(route, beginId)) {
@@ -333,7 +336,10 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
             }
             Node startNode = routeBuilderCache.getRouteStation(tx, route, beginId);
             Node endNode = routeBuilderCache.getRouteStation(tx, route, endId);
-            createOnRouteRelationship(startNode, endNode, route, cost);
+
+            StopCallRepository.Costs costs = stopCallRepository.getCostsBetween(route, leg.getFirstStation(), leg.getSecondStation());
+
+            createOnRouteRelationship(startNode, endNode, route, costs);
         });
 }
 
@@ -425,7 +431,7 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
         routeBuilderCache.putBoarding(platformOrStation.getId(), routeStationNode.getId());
     }
 
-    private void createOnRouteRelationship(Node from, Node to, Route route, int cost) {
+    private void createOnRouteRelationship(Node from, Node to, Route route, StopCallRepository.Costs costs) {
         Set<Node> endNodes = new HashSet<>();
 
         if (from.hasRelationship(OUTGOING, ON_ROUTE)) {
@@ -442,7 +448,10 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
         if (!endNodes.contains(to)) {
             Relationship onRoute = createRelationship(from, to, ON_ROUTE);
             setProperty(onRoute, route);
-            setCostProp(onRoute, cost);
+            if (!costs.consistent()) {
+                logger.warn(format("Inconsistent costs on route %s %s", route.getId(), costs));
+            }
+            setCostProp(onRoute, costs.average());
             setProperty(onRoute, route.getTransportMode());
         }
     }
