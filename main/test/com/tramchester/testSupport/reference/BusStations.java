@@ -21,7 +21,7 @@ public enum BusStations implements TestStations {
 //            new LatLong(53.4091,-2.16443890806)),
     StopAtHeatonLaneStockportBusStation("1800STIC011", "Stockport", "Stockport Heaton Lane Bus Station",
             new LatLong(53.41036253703,-2.16501729098)),
-    ShudehillInterchange("1800SHIC001", "Shudehill, Manchester City Centre", "Shudehill Interchange",
+    ShudehillInterchange("1800SHIC0A1", "Shudehill, Manchester City Centre", "Shudehill Interchange",
             new LatLong(53.48557, -2.23827)),
     ManchesterAirportStation("1800MABS001", "Manchester Airport, Manchester", "Manchester Airport The Station",
             new LatLong(53.3656, -2.27242)),
