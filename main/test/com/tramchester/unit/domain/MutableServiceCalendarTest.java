@@ -3,6 +3,7 @@ package com.tramchester.unit.domain;
 import com.tramchester.domain.MutableServiceCalendar;
 import com.tramchester.domain.ServiceCalendar;
 import com.tramchester.domain.time.DateRange;
+import com.tramchester.domain.time.TramServiceDate;
 import com.tramchester.testSupport.TestEnv;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -120,12 +121,21 @@ class MutableServiceCalendarTest {
     @Test
     void shouldSetWeekendDaysOnService() {
 
-        ServiceCalendar serviceCalendar = new MutableServiceCalendar(TestEnv.LocalNow().toLocalDate(), TestEnv.testDay().plusWeeks(2),
+        final LocalDate startDate = TestEnv.LocalNow().toLocalDate();
+        final LocalDate endDate = TestEnv.testDay().plusWeeks(4);
+
+        ServiceCalendar serviceCalendar = new MutableServiceCalendar(startDate, endDate,
                 DayOfWeek.SATURDAY, DayOfWeek.SUNDAY);
 
-        Assertions.assertFalse(serviceCalendar.operatesOn(TestEnv.testDay().plusWeeks(1)));
-        assertTrue(serviceCalendar.operatesOn(TestEnv.nextSaturday()));
-        assertTrue(serviceCalendar.operatesOn(TestEnv.nextSunday()));
+        LocalDate localDate = startDate;
+        int offset = 0;
+        while (new TramServiceDate(localDate).isChristmasPeriod()) {
+            localDate = startDate.plusWeeks(offset);
+        }
+
+        Assertions.assertFalse(serviceCalendar.operatesOn(TestEnv.testDay().plusWeeks(offset)));
+        assertTrue(serviceCalendar.operatesOn(TestEnv.nextSaturday().plusWeeks(offset)));
+        assertTrue(serviceCalendar.operatesOn(TestEnv.nextSunday().plusWeeks(offset)));
     }
 
 
