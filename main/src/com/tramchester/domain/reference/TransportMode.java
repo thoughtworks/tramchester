@@ -3,10 +3,7 @@ package com.tramchester.domain.reference;
 import com.tramchester.domain.HasTransportMode;
 import com.tramchester.domain.HasTransportModes;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 public enum TransportMode implements HasTransportMode {
     Bus((short)1),
@@ -16,41 +13,27 @@ public enum TransportMode implements HasTransportMode {
     Ferry((short)5),
     Subway((short)6),
     RailReplacementBus((short)7),
+    Ship((short)8),
 
     Connect((short)52),
-    NotSet((short)53);
-//    Depart((short)50),
-//    Board((short)51),
-//    Unknown((short)99);
 
-    private static final Map<Short, TransportMode> theMap;
+    NotSet((short)53),
+
+    Unknown((short)999);
+
+    private static final Map<Short, TransportMode> index;
 
     static {
-        theMap = new HashMap<>();
-        for (int i = 0; i < values().length; i++) {
-            TransportMode value = values()[i];
-            theMap.put(value.number, value);
+        index = new HashMap<>();
+        for(TransportMode mode : EnumSet.allOf(TransportMode.class)) {
+            index.put(mode.graphId, mode);
         }
     }
 
-    // used in graph property
-    // TODO Can now use native enum instead with neo4j
-    private final short number;
+    private final short graphId;
 
-    TransportMode(short number) {
-        this.number = number;
-    }
-
-    public static TransportMode fromGTFS(GTFSTransportationType transportationType) {
-        return switch (transportationType) {
-            case tram -> TransportMode.Tram;
-            case bus -> TransportMode.Bus;
-            case train -> TransportMode.Train;
-            case ferry -> TransportMode.Ferry;
-            case subway -> TransportMode.Subway;
-            case replacementBus -> TransportMode.RailReplacementBus;
-            default -> throw new RuntimeException("Unexpected route type (check config?) " + transportationType);
-        };
+    TransportMode(short graphId) {
+        this.graphId = graphId;
     }
 
     public static boolean isTram(HasTransportMode item) {
@@ -61,20 +44,14 @@ public enum TransportMode implements HasTransportMode {
         return hasModes.getTransportModes().contains(TransportMode.Tram);
     }
 
-    public static Set<TransportMode> fromGTFS(Set<GTFSTransportationType> gtfsTransportationTypes) {
-        Set<TransportMode> result = new HashSet<>();
-        gtfsTransportationTypes.forEach(gtfsTransportationType -> result.add(fromGTFS(gtfsTransportationType)));
-        return result;
-    }
-
     public static TransportMode fromNumber(short number) {
-        return theMap.get(number);
+        return index.get(number);
     }
 
     public static Set<TransportMode> fromNumbers(short[] numbers) {
         Set<TransportMode> result = new HashSet<>();
         for (short value : numbers) {
-            result.add(theMap.get(value));
+            result.add(index.get(value));
         }
         return result;
     }
@@ -85,6 +62,6 @@ public enum TransportMode implements HasTransportMode {
     }
 
     public short getNumber() {
-        return number;
+        return graphId;
     }
 }

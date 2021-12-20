@@ -8,7 +8,6 @@ import com.tramchester.domain.places.MutableStation;
 import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.GTFSTransportationType;
-import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.geo.GridPosition;
 
 import java.util.Optional;
@@ -33,7 +32,7 @@ public abstract class TransportEntityFactory {
         IdFor<Route> routeId = routeData.getId();
 
         return new MutableRoute(routeId, routeData.getShortName().trim(), routeData.getLongName(), agency,
-                TransportMode.fromGTFS(routeType));
+                GTFSTransportationType.toTransportMode(routeType));
 
     }
 

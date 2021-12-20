@@ -44,7 +44,7 @@ public interface GTFSSourceConfig extends HasDataPath, TransportDataSourceConfig
 
     default Set<TransportMode> getTransportModes() {
         return getTransportGTFSModes().stream().
-                map(TransportMode::fromGTFS).
+                map(GTFSTransportationType::toTransportMode).
                 collect(Collectors.toSet());
     }
 

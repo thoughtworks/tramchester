@@ -73,6 +73,10 @@ public class TramTime implements Comparable<TramTime> {
         return factory.of(hour, minute, 1);
     }
 
+    public static TramTime nextDay(TramTime other) {
+        return factory.of(other.hour, other.minute, 1);
+    }
+
     public static int diffenceAsMinutes(TramTime first, TramTime second) {
         if (first.isAfterBasic(second)) {
             return diffenceAsMinutesOverMidnight(second, first);

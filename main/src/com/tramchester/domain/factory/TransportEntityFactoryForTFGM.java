@@ -9,7 +9,6 @@ import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.places.MutableStation;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.GTFSTransportationType;
-import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.geo.GridPosition;
 import com.tramchester.repository.naptan.NaptanRespository;
 import org.jetbrains.annotations.NotNull;
@@ -42,7 +41,7 @@ public class TransportEntityFactoryForTFGM extends TransportEntityFactory {
 
         IdFor<Route> routeId = createRouteId(routeData.getId());
         String routeName = routeData.getLongName();
-        return new MutableRoute(routeId, routeData.getShortName().trim(), routeName, agency, TransportMode.fromGTFS(routeType));
+        return new MutableRoute(routeId, routeData.getShortName().trim(), routeName, agency, GTFSTransportationType.toTransportMode(routeType));
     }
 
     @Override

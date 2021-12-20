@@ -16,6 +16,8 @@ package com.tramchester.dataimport.rail.records;
 // 14 Performance Allowance 2 59-60
 // 15 Spare 20 61-80
 
+// https://wiki.openraildata.com/index.php?title=CIF_Schedule_Records
+
 import com.tramchester.dataimport.rail.RailRecordType;
 import com.tramchester.domain.time.TramTime;
 import org.slf4j.Logger;

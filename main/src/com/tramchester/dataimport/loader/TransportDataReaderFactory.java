@@ -8,7 +8,7 @@ import com.tramchester.dataimport.FetchFileModTime;
 import com.tramchester.dataimport.loader.files.TransportDataFromFileFactory;
 import com.tramchester.domain.DataSourceID;
 import com.tramchester.domain.DataSourceInfo;
-import com.tramchester.domain.reference.TransportMode;
+import com.tramchester.domain.reference.GTFSTransportationType;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -74,7 +74,7 @@ public class TransportDataReaderFactory {
         LocalDateTime modTime = fetchFileModTime.getFor(config);
         DataSourceID dataSourceId = config.getDataSourceId();
         return new DataSourceInfo(dataSourceId, modTime.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME), modTime,
-                TransportMode.fromGTFS(config.getTransportGTFSModes()));
+                GTFSTransportationType.toTransportMode(config.getTransportGTFSModes()));
     }
 
     public boolean hasReaders() {

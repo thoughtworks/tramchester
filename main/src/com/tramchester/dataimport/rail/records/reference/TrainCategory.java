@@ -16,7 +16,8 @@ public enum TrainCategory implements EnumMap.HasCodes<TrainCategory> {
     SleeperDomestic("XZ"),
     BusReplacement("BR"),
     BusService("BS"),
-    Ship("SS");
+    Ship("SS"),
+    Unknown("unknown");
 
     private static final EnumMap<TrainCategory> codes = new EnumMap<>(TrainCategory.values());
 
@@ -27,7 +28,11 @@ public enum TrainCategory implements EnumMap.HasCodes<TrainCategory> {
     }
 
     public static TrainCategory getFor(String code) {
-        return codes.get(code);
+        TrainCategory result = codes.get(code);
+        if (result==null) {
+            return Unknown;
+        }
+        return result;
     }
 
     @Override

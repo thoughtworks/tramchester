@@ -13,6 +13,7 @@ import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.reference.GTFSPickupDropoffType;
+import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.geo.CoordinateTransforms;
 import com.tramchester.geo.GridPosition;
@@ -30,7 +31,7 @@ import java.time.LocalDate;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static com.tramchester.domain.reference.TransportMode.Train;
+import static com.tramchester.domain.reference.TransportMode.*;
 import static com.tramchester.integration.testSupport.rail.RailStationIds.*;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -270,6 +271,35 @@ public class LoadRailTransportDataTest {
         assertTrue(noDays.isEmpty());
     }
 
+    @Test
+    void shouldNotHaveRailReplacementBusAsTransportModeForRoutesShouldBeTrain() {
+       transportData.getRoutes().forEach(route ->
+               assertNotEquals(TransportMode.RailReplacementBus, route.getTransportMode(),
+                       "route should be rail " +route));
+    }
+
+    @Test
+    void shouldHaveSomeRailRoutesThatContainTripsWithRailReplacementBusTransportMode() {
+        assertTrue(transportData.getRoutes().stream().
+                filter(route -> route.getTransportMode()==Train).
+                anyMatch(route -> route.getTrips().stream().anyMatch(trip -> trip.getTransportMode()==RailReplacementBus)));
+    }
+
+    @Test
+    void shouldHaveSensibleTimingsForStoplegs() {
+        // was to catch issues with crossing midnight causing wrong timings
+        Set<Route> notShips = transportData.getRoutes().stream().
+                filter(route -> route.getTransportMode()!=Ship).collect(Collectors.toSet());
+
+        for (Route route : notShips) {
+            List<StopCalls.StopLeg> over = route.getTrips().stream().flatMap(trip -> trip.getStopCalls().getLegs().stream()).
+                    filter(stopLeg -> stopLeg.getCost() > 12 * 24).
+                    collect(Collectors.toList());
+            assertTrue(over.isEmpty(), route + " " + over);
+        }
+
+    }
+
     private boolean matches(IdFor<Station> firstId, IdFor<Station> secondId, Trip trip) {
         StopCall firstCall = trip.getStopCalls().getStopBySequenceNumber(trip.getSeqNumOfFirstStop());
         if (!firstCall.getStationId().equals(firstId)) {
@@ -278,6 +308,7 @@ public class LoadRailTransportDataTest {
         StopCall finalCall = trip.getStopCalls().getStopBySequenceNumber(trip.getSeqNumOfLastStop());
         return secondId.equals(finalCall.getStationId());
     }
+
 
 
 }

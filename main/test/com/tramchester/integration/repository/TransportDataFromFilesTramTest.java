@@ -13,6 +13,7 @@ import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.input.StopCall;
+import com.tramchester.domain.input.StopCalls;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
@@ -325,6 +326,19 @@ public class TransportDataFromFilesTramTest {
                 collect(Collectors.toSet());
 
         assertTrue(endTripNotInterchange.isEmpty(), "End trip not interchange: " + endTripNotInterchange);
+    }
+
+    @Test
+    void shouldHandleStopCallsThatCrossMidnight() {
+        Set<Route> routes = transportData.getRoutes();
+
+        for (Route route : routes) {
+            List<StopCalls.StopLeg> over = route.getTrips().stream().flatMap(trip -> trip.getStopCalls().getLegs().stream()).
+                    filter(stopLeg -> stopLeg.getCost() > 12 * 24).
+                    collect(Collectors.toList());
+            assertTrue(over.isEmpty(), over.toString());
+        }
+
     }
 
     @DataExpiryCategory

@@ -1,7 +1,9 @@
 package com.tramchester.domain.reference;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 public enum GTFSTransportationType {
 
@@ -45,5 +47,24 @@ public enum GTFSTransportationType {
 
     private String getText() {
         return text;
+    }
+
+
+    public static TransportMode toTransportMode(GTFSTransportationType transportationType) {
+        return switch (transportationType) {
+            case tram -> TransportMode.Tram;
+            case bus -> TransportMode.Bus;
+            case train -> TransportMode.Train;
+            case ferry -> TransportMode.Ferry;
+            case subway -> TransportMode.Subway;
+            case replacementBus -> TransportMode.RailReplacementBus;
+            default -> throw new RuntimeException("Unexpected route type (check config?) " + transportationType);
+        };
+    }
+
+    public static Set<TransportMode> toTransportMode(Set<GTFSTransportationType> gtfsTransportationTypes) {
+        Set<TransportMode> result = new HashSet<>();
+        gtfsTransportationTypes.forEach(gtfsTransportationType -> result.add(toTransportMode(gtfsTransportationType)));
+        return result;
     }
 }

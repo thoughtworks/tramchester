@@ -27,6 +27,7 @@ import java.util.stream.Collectors;
 
 import static com.tramchester.domain.reference.GTFSPickupDropoffType.None;
 import static com.tramchester.domain.reference.GTFSPickupDropoffType.Regular;
+import static com.tramchester.domain.reference.TransportMode.*;
 import static java.lang.String.format;
 import static java.time.temporal.ChronoField.*;
 
@@ -45,7 +46,7 @@ public class RailTimetableMapper {
         SeenOrigin,
         Between
     }
-
+    
     private State currentState;
     private boolean overlay;
     private RawService rawService;
@@ -234,29 +235,33 @@ public class RailTimetableMapper {
             // Service
             MutableService service = railServiceGroups.getOrCreateService(basicSchedule, isOverlay);
 
+            TransportMode mode = getModeFor(rawService.basicScheduleRecord);
+
             // Route
-            MutableRoute route = getOrCreateRoute(rawService, mutableAgency);
+            MutableRoute route = getOrCreateRoute(rawService, mutableAgency, mode);
             route.addService(service);
             mutableAgency.addRoute(route);
 
             // Trip
-            MutableTrip trip = getOrCreateTrip(basicSchedule, service, route);
+            MutableTrip trip = getOrCreateTrip(basicSchedule, service, route, mode);
             route.addTrip(trip);
 
             // Stations, Platforms, StopCalls
             int stopSequence = 1;
-            populateForLocation(originLocation, route, trip, stopSequence, false, agencyId, basicSchedule);
+            //boolean crossMidnight = crossMidnight(originLocation, terminatingLocation);
+            TramTime originTime = originLocation.getDeparture();
+            populateForLocation(originLocation, route, trip, stopSequence, false, agencyId, basicSchedule, originTime);
             stopSequence = stopSequence + 1;
             for (IntermediateLocation intermediateLocation : intermediateLocations) {
-                if (populateForLocation(intermediateLocation, route, trip, stopSequence, false, agencyId, basicSchedule)) {
+                if (populateForLocation(intermediateLocation, route, trip, stopSequence, false, agencyId, basicSchedule, originTime)) {
                     stopSequence = stopSequence + 1;
                 }
             }
-            populateForLocation(terminatingLocation, route, trip, stopSequence, true, agencyId, basicSchedule);
+            populateForLocation(terminatingLocation, route, trip, stopSequence, true, agencyId, basicSchedule, originTime);
         }
 
         private boolean populateForLocation(RailLocationRecord railLocation, MutableRoute route, MutableTrip trip, int stopSequence,
-                                         boolean lastStop, IdFor<Agency> agencyId, BasicSchedule schedule) {
+                                            boolean lastStop, IdFor<Agency> agencyId, BasicSchedule schedule, TramTime originTime) {
 
             if (railLocation.isPassingRecord()) {
                 return false;
@@ -288,12 +293,23 @@ public class RailTimetableMapper {
             platform.addRoute(route);
             station.addPlatform(platform);
 
-
             // Stop Call
+            // TODO this doesn't cope with journeys that cross 2 days....
             TramTime arrivalTime = railLocation.getArrival();
+            if (arrivalTime.isBefore(originTime)) {
+                arrivalTime = TramTime.nextDay(arrivalTime);
+            }
+
             TramTime departureTime = railLocation.getDeparture();
+            if (departureTime.isBefore(originTime)) {
+                departureTime = TramTime.nextDay(departureTime);
+            }
+
             StopCall stopCall = createStopCall(trip, station, platform, stopSequence,
                     arrivalTime, departureTime, pickup, dropoff);
+            if (TramTime.diffenceAsMinutes(arrivalTime, departureTime)>60) {
+                logger.warn("Delay of more than one hour for " + stopCall);
+            }
             trip.addStop(stopCall);
 
             return true;
@@ -364,14 +380,14 @@ public class RailTimetableMapper {
             return platform;
         }
 
-        private MutableTrip getOrCreateTrip(BasicSchedule schedule, MutableService service, MutableRoute route) {
+        private MutableTrip getOrCreateTrip(BasicSchedule schedule, MutableService service, MutableRoute route, TransportMode mode) {
             MutableTrip trip;
             IdFor<Trip> tripId = createTripIdFor(service);
             if (container.hasTripId(tripId)) {
                 logger.info("Had existing tripId: " + tripId + " for " + schedule);
                 trip = container.getMutableTrip(tripId);
             } else {
-                trip = new MutableTrip(tripId, schedule.getTrainIdentity(), service, route);
+                trip = new MutableTrip(tripId, schedule.getTrainIdentity(), service, route, mode);
                 container.addTrip(trip);
             }
             return trip;
@@ -381,7 +397,7 @@ public class RailTimetableMapper {
             return StringIdFor.createId("trip:"+service.getId().forDTO());
         }
 
-        private MutableRoute getOrCreateRoute(RawService rawService, MutableAgency mutableAgency) {
+        private MutableRoute getOrCreateRoute(RawService rawService, MutableAgency mutableAgency, final TransportMode mode) {
             IdFor<Agency> agencyId = mutableAgency.getId();
             MutableRoute route;
             List<Station> callingPoints = getRouteStationCallingPoints(rawService);
@@ -396,11 +412,44 @@ public class RailTimetableMapper {
                     logger.error(msg);
                     throw new RuntimeException(msg);
                 }
+                if (!allowedModes(route, mode)) {
+                    String msg = String.format("Got route %s wrong TransportMode (%s) route had: %s\nSchedule: %s\nExtraDetails: %s",
+                            routeId, mode, route.getTransportMode(), rawService.basicScheduleRecord, rawService.extraDetails);
+                    logger.error(msg);
+                    throw new RuntimeException(msg);
+                }
             } else {
-                route = new MutableRailRoute(routeId, callingPoints, mutableAgency, TransportMode.Train);
+                // record rail replacement bus as a train route
+                TransportMode actualMode = (mode==RailReplacementBus) ? Train : mode;
+                route = new MutableRailRoute(routeId, callingPoints, mutableAgency, actualMode);
                 container.addRoute(route);
             }
             return route;
+        }
+
+        private boolean allowedModes(Route route, TransportMode mode) {
+            if (route.getTransportMode()==Train) {
+                return mode==RailReplacementBus || mode==Train;
+            }
+            return route.getTransportMode()==mode;
+        }
+
+        private TransportMode getModeFor(BasicSchedule basicScheduleRecord) {
+            TrainCategory category = basicScheduleRecord.getTrainCategory();
+            return switch (basicScheduleRecord.getTrainStatus()) {
+                case Bus, STPBus -> setBusMode(category);
+                case Freight, PassengerAndParcels, STPPassengerParcels, STPFreight -> Train;
+                case Ship, STPShip -> TransportMode.Ship;
+                case Trip, STPTrip -> null;
+                case Unknown -> TransportMode.Unknown;
+            };
+        }
+
+        private TransportMode setBusMode(TrainCategory category) {
+            if (category==TrainCategory.BusReplacement) {
+                return RailReplacementBus;
+            }
+            return Bus;
         }
 
         private List<Station> getRouteStationCallingPoints(RawService rawService) {

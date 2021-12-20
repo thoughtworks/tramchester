@@ -90,7 +90,9 @@ public class StopCallRepository {
             throw new RuntimeException(msg);
         }
 
-        return new Costs(allCosts, route.getId(), first.getId(), second.getId());
+        final Costs costs = new Costs(allCosts, route.getId(), first.getId(), second.getId());
+
+        return costs;
     }
 
     public static class Costs {
@@ -110,7 +112,6 @@ public class StopCallRepository {
         public int min() {
             return costs.stream().mapToInt(item -> item).min().orElse(0);
         }
-
 
         public int average() {
             double avg = costs.stream().mapToInt(item -> item).average().orElse(0D);

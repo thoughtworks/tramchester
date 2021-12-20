@@ -17,7 +17,7 @@ public enum GraphLabel implements Label {
     TRAM_STATION,
     BUS_STATION,
     TRAIN_STATION,
-    FERRY_STATION,
+    FERRY_STATION, // aka a port
     SUBWAY_STATION,
     PLATFORM,
     QUERY_NODE,
@@ -49,7 +49,7 @@ public enum GraphLabel implements Label {
             case Tram -> TRAM_STATION;
             case Bus -> BUS_STATION;
             case Train, RailReplacementBus -> TRAIN_STATION;
-            case Ferry -> FERRY_STATION;
+            case Ferry, Ship -> FERRY_STATION;
             case Subway -> SUBWAY_STATION;
             case Walk -> QUERY_NODE;
             default -> throw new RuntimeException("Unsupported mode " + mode);

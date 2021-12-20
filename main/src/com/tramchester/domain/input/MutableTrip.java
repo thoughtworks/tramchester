@@ -15,19 +15,24 @@ public class MutableTrip implements Trip {
     private final Service service;
     private final Route route;
     private final StopCalls stopCalls;
+    private final TransportMode actualMode; // used for things like RailReplacementBus where parent route has different mode
     private TramTime earliestDepart = null;
     private TramTime latestDepart = null;
     private int lastIndex;
     private int firstIndex;
     private boolean filtered; // at least one station on this trip was filtered out
-    private boolean intoNextDay;
 
     public MutableTrip(IdFor<Trip> tripId, String headSign, Service service, Route route) {
+        this(tripId, headSign, service, route, route.getTransportMode());
+    }
+
+    public MutableTrip(IdFor<Trip> tripId, String headSign, Service service, Route route, TransportMode actualMode) {
         this.tripId = tripId;
         this.headSign = headSign.intern();
         this.service = service;
         this.route = route;
         stopCalls = new StopCalls(tripId);
+        this.actualMode = actualMode;
         lastIndex = Integer.MIN_VALUE;
         firstIndex = Integer.MAX_VALUE;
         filtered = false;
@@ -126,7 +131,7 @@ public class MutableTrip implements Trip {
 
     @Override
     public TransportMode getTransportMode() {
-        return route.getTransportMode();
+        return actualMode;
     }
 
     @Override

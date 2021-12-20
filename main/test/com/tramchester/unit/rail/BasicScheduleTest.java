@@ -73,4 +73,21 @@ public class BasicScheduleTest {
         assertEquals(TrainStatus.Bus, basicSchedule.getTrainStatus());
         assertEquals(TrainCategory.BusService, basicSchedule.getTrainCategory());
     }
+
+    @Test
+    void shouldParseShipRecord() {
+        String text = "BSNP208612112142205140111110 S  0S000074122340000                 S A          P";
+
+        BasicSchedule basicSchedule = BasicSchedule.parse(text, providesNow);
+
+        assertEquals(BasicSchedule.TransactionType.N, basicSchedule.getTransactionType());
+        assertEquals("P20861", basicSchedule.getUniqueTrainId());
+        DateRange dateRange = basicSchedule.getDateRange();
+        assertEquals(LocalDate.of(2021, 12, 14), dateRange.getStartDate());
+        assertEquals(LocalDate.of(2022, 5, 14), dateRange.getEndDate());
+
+        assertEquals(TrainStatus.Ship, basicSchedule.getTrainStatus());
+        assertEquals(TrainCategory.Unknown, basicSchedule.getTrainCategory());
+
+    }
 }

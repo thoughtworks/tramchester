@@ -29,7 +29,10 @@ public class GraphLabelTest {
     @Test
     void shouldHaveLabelForEachValidMode() {
         Set<TransportMode> modes = Arrays.stream(TransportMode.values()).
-                filter(mode -> mode != TransportMode.Connect && mode != TransportMode.NotSet).collect(Collectors.toSet());
+                filter(mode -> mode != TransportMode.Connect).
+                filter(mode -> mode != TransportMode.NotSet).
+                filter(mode -> mode != TransportMode.Unknown).
+                collect(Collectors.toSet());
         for(TransportMode mode : modes) {
             assertNotNull(GraphLabel.forMode(mode));
         }
