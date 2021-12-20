@@ -2,6 +2,7 @@ package com.tramchester.dataimport.rail;
 
 import com.tramchester.dataimport.rail.records.*;
 import com.tramchester.dataimport.rail.records.reference.TrainCategory;
+import com.tramchester.dataimport.rail.records.reference.TrainStatus;
 import com.tramchester.domain.*;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.StringIdFor;
@@ -16,6 +17,7 @@ import com.tramchester.domain.reference.GTFSPickupDropoffType;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.repository.TransportDataContainer;
+import org.apache.commons.lang3.tuple.Pair;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,7 +29,8 @@ import java.util.stream.Collectors;
 
 import static com.tramchester.domain.reference.GTFSPickupDropoffType.None;
 import static com.tramchester.domain.reference.GTFSPickupDropoffType.Regular;
-import static com.tramchester.domain.reference.TransportMode.*;
+import static com.tramchester.domain.reference.TransportMode.RailReplacementBus;
+import static com.tramchester.domain.reference.TransportMode.Train;
 import static java.lang.String.format;
 import static java.time.temporal.ChronoField.*;
 
@@ -53,13 +56,15 @@ public class RailTimetableMapper {
     private final CreatesTransportDataForRail processor;
     private final Map<String,TIPLOCInsert> tiplocInsertRecords;
     private final MissingStations missingStations;
+    private final Set<Pair<TrainStatus, TrainCategory>> travelCombinations;
 
     public RailTimetableMapper(TransportDataContainer container) {
         currentState = State.Between;
         overlay = false;
         tiplocInsertRecords = new HashMap<>();
         missingStations = new MissingStations();
-        processor = new CreatesTransportDataForRail(container, missingStations);
+        travelCombinations = new HashSet<>();
+        processor = new CreatesTransportDataForRail(container, missingStations, travelCombinations);
     }
 
     public void seen(RailTimetableRecord record) {
@@ -130,6 +135,9 @@ public class RailTimetableMapper {
                 filter(tiplocInsertRecords::containsKey).
                 map(tiplocInsertRecords::get).
                 forEach(record -> logger.info("Had record for missing tiploc: "+record));
+        travelCombinations.forEach(pair -> {
+            logger.info(String.format("Rail mode Status: %s Category: %s", pair.getLeft(), pair.getRight()));
+        });
     }
 
     private void guardState(State expectedState, RailTimetableRecord record) {
@@ -174,13 +182,16 @@ public class RailTimetableMapper {
         private final TransportDataContainer container;
         private final MissingStations missingStations; // stations missing unexpectedly
         private final RailServiceGroups railServiceGroups;
+        private final Set<Pair<TrainStatus, TrainCategory>> travelCombinations;
         private final RailRouteIDBuilder railRouteIDBuilder;
 
-        private CreatesTransportDataForRail(TransportDataContainer container, MissingStations missingStations) {
+        private CreatesTransportDataForRail(TransportDataContainer container, MissingStations missingStations,
+                                            Set<Pair<TrainStatus, TrainCategory>> travelCombinations) {
             this.container = container;
             this.missingStations = missingStations;
 
             this.railServiceGroups = new RailServiceGroups(container);
+            this.travelCombinations = travelCombinations;
             this.railRouteIDBuilder = new RailRouteIDBuilder();
         }
 
@@ -209,10 +220,15 @@ public class RailTimetableMapper {
 
         private void createNew(RawService rawService, boolean isOverlay) {
             final BasicSchedule basicSchedule = rawService.basicScheduleRecord;
-            TrainCategory cat = basicSchedule.getTrainCategory();
+
+            // assists with diagnosing data issues
+            travelCombinations.add(Pair.of(basicSchedule.getTrainStatus(), basicSchedule.getTrainCategory()));
+
+            TransportMode mode = RailTransportModeMapper.getModeFor(rawService.basicScheduleRecord);
+
             final String uniqueTrainId = basicSchedule.getUniqueTrainId();
-            if (cat==TrainCategory.LondonUndergroundOrMetroService || cat==TrainCategory.BusService) {
-                logger.debug(format("Skipping %s of category %s and status %s", uniqueTrainId, basicSchedule.getTrainCategory(),
+            if (!shouldInclude(mode)) {
+                logger.info(format("Skipping %s of category %s and status %s", uniqueTrainId, basicSchedule.getTrainCategory(),
                         basicSchedule.getTrainStatus()));
                 railServiceGroups.recordSkip(basicSchedule);
                 return;
@@ -235,7 +251,6 @@ public class RailTimetableMapper {
             // Service
             MutableService service = railServiceGroups.getOrCreateService(basicSchedule, isOverlay);
 
-            TransportMode mode = getModeFor(rawService.basicScheduleRecord);
 
             // Route
             MutableRoute route = getOrCreateRoute(rawService, mutableAgency, mode);
@@ -258,6 +273,13 @@ public class RailTimetableMapper {
                 }
             }
             populateForLocation(terminatingLocation, route, trip, stopSequence, true, agencyId, basicSchedule, originTime);
+        }
+
+        private boolean shouldInclude(TransportMode mode) {
+            return switch (mode) {
+                case Train, Ship, RailReplacementBus -> true;
+                case Tram, Walk, Ferry, Bus, Connect, NotSet, Unknown, Subway -> false;
+            };
         }
 
         private boolean populateForLocation(RailLocationRecord railLocation, MutableRoute route, MutableTrip trip, int stopSequence,
@@ -432,24 +454,6 @@ public class RailTimetableMapper {
                 return mode==RailReplacementBus || mode==Train;
             }
             return route.getTransportMode()==mode;
-        }
-
-        private TransportMode getModeFor(BasicSchedule basicScheduleRecord) {
-            TrainCategory category = basicScheduleRecord.getTrainCategory();
-            return switch (basicScheduleRecord.getTrainStatus()) {
-                case Bus, STPBus -> setBusMode(category);
-                case Freight, PassengerAndParcels, STPPassengerParcels, STPFreight -> Train;
-                case Ship, STPShip -> TransportMode.Ship;
-                case Trip, STPTrip -> null;
-                case Unknown -> TransportMode.Unknown;
-            };
-        }
-
-        private TransportMode setBusMode(TrainCategory category) {
-            if (category==TrainCategory.BusReplacement) {
-                return RailReplacementBus;
-            }
-            return Bus;
         }
 
         private List<Station> getRouteStationCallingPoints(RawService rawService) {

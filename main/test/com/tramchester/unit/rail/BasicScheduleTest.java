@@ -90,4 +90,20 @@ public class BasicScheduleTest {
         assertEquals(TrainCategory.Unknown, basicSchedule.getTrainCategory());
 
     }
+
+    @Test
+    void shouldParseLondonUndergroundRecord() {
+        String text = "BSNC611912105162112050000001 POL2I01    124682004 EMU    045                   P";
+
+        BasicSchedule basicSchedule = BasicSchedule.parse(text, providesNow);
+
+        assertEquals(BasicSchedule.TransactionType.N, basicSchedule.getTransactionType());
+        assertEquals("C61191", basicSchedule.getUniqueTrainId());
+        DateRange dateRange = basicSchedule.getDateRange();
+        assertEquals(LocalDate.of(2021, 5, 16), dateRange.getStartDate());
+        assertEquals(LocalDate.of(2021, 12, 5), dateRange.getEndDate());
+
+        assertEquals(TrainStatus.PassengerAndParcels, basicSchedule.getTrainStatus());
+        assertEquals(TrainCategory.LondonUndergroundOrMetroService, basicSchedule.getTrainCategory());
+    }
 }

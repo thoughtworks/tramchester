@@ -4,7 +4,6 @@ import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
-import scala.collection.script.Start;
 
 import java.util.List;
 
@@ -17,7 +16,9 @@ public class MutableRailRoute extends MutableRoute {
     public MutableRailRoute(IdFor<Route> id, List<Station> callingPoints, Agency agency, TransportMode transportMode) {
         super(id, createShortName(agency.getId(), callingPoints), createName(agency, callingPoints), agency, transportMode);
         if (callingPoints.size()<2) {
-            throw new RuntimeException("Need at least 2 calling points");
+            final String message = format("Need at least 2 calling points route %s (%s) and calling points %s",
+                    id, transportMode, callingPoints);
+            throw new RuntimeException(message);
         }
         this.callingPoints = callingPoints;
     }
