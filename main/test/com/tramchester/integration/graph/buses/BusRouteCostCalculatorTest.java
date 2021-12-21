@@ -5,6 +5,7 @@ import com.tramchester.ComponentsBuilder;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.places.CompositeStation;
 import com.tramchester.domain.places.Station;
+import com.tramchester.domain.time.TramServiceDate;
 import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.RouteCostCalculator;
 import com.tramchester.integration.testSupport.bus.IntegrationBusTestConfig;
@@ -35,6 +36,8 @@ class BusRouteCostCalculatorTest {
     private CompositeStation stockportBusStation;
     private CompositeStation shudehillInterchange;
     private CompositeStationRepository stationRepository;
+
+    private final TramServiceDate date = new TramServiceDate(TestEnv.testDay());
 
     @BeforeAll
     static void onceBeforeAnyTestRuns() {
@@ -111,12 +114,12 @@ class BusRouteCostCalculatorTest {
     }
 
     private int getApproxCostBetween(BusStations start, BusStations end) {
-        return routeCost.getApproxCostBetween(txn,
-                TestStation.real(stationRepository,start), TestStation.real(stationRepository,end));
+        return routeCost.getAverageCostBetween(txn,
+                TestStation.real(stationRepository,start), TestStation.real(stationRepository,end), date);
     }
 
     private int getApproxCostBetween(Station start, Station end) {
-        return routeCost.getApproxCostBetween(txn, start, end);
+        return routeCost.getAverageCostBetween(txn, start, end, date);
     }
 
 }

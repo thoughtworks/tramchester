@@ -11,6 +11,7 @@ public enum GraphPropertyKey {
     TRANSPORT_MODES("transport_modes"),
 
     COST("cost"),
+    MAX_COST("max_cost"),
     HOUR("hour"),
     TIME("time"),
     DAY_OFFSET("day_offset"),

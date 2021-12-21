@@ -448,10 +448,9 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
         if (!endNodes.contains(to)) {
             Relationship onRoute = createRelationship(from, to, ON_ROUTE);
             setProperty(onRoute, route);
-            if (!costs.consistent()) {
-                logger.debug(format("Inconsistent costs on route %s %s", route.getId(), costs));
-            }
+
             setCostProp(onRoute, costs.average());
+            setMaxCostProp(onRoute, costs.max());
             setProperty(onRoute, route.getTransportMode());
         }
     }

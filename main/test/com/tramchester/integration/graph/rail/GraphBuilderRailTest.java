@@ -115,7 +115,6 @@ class GraphBuilderRailTest {
         endIsMKC.forEach(relationship -> assertTrue(GraphProps.getCost(relationship) > 10, relationship.getAllProperties().toString()));
     }
 
-
     @NotNull
     private Set<Node> getRouteStationNodes(Station station) {
         Set<RouteStation> routeStations = transportData.getRouteStationsFor(station.getId());

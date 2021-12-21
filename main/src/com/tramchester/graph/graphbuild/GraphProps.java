@@ -114,6 +114,10 @@ public class GraphProps {
         entity.setProperty(COST.getText(), value);
     }
 
+    public static void setMaxCostProp(Entity entity, int value) {
+        entity.setProperty(MAX_COST.getText(), value);
+    }
+
     public static TramTime getTime(Entity entity) {
         LocalTime localTime = (LocalTime) getProperty(entity, TIME);
         boolean nextDay = entity.hasProperty(DAY_OFFSET.getText());

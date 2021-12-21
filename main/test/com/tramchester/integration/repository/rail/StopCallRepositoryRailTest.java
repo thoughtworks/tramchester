@@ -4,19 +4,19 @@ import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.id.StringIdFor;
+import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.Station;
 import com.tramchester.integration.testSupport.rail.IntegrationRailTestConfig;
 import com.tramchester.repository.RouteRepository;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.repository.StopCallRepository;
 import com.tramchester.testSupport.TestEnv;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 public class StopCallRepositoryRailTest {
     private static ComponentContainer componentContainer;
@@ -55,7 +55,34 @@ public class StopCallRepositoryRailTest {
         assertFalse(costs.isEmpty());
 
         // was getting costs > 23 hours due to crossing midnight
-        assertTrue(costs.average()< 20, costs.toString());
-
+        assertEquals(13, costs.average(), costs.toString());
+        assertEquals(14, costs.max(), costs.toString());
     }
+
+    @Disabled("Data does contain a zero cost trip X13514:20220124:20220127")
+    @Test
+    void shouldReproIssueWithIncorrectZeroCosts() {
+        Station mulsecoomb = stationRepository.getStationById(StringIdFor.createId("MLSECMB"));
+        Station londonRoadBrighton = stationRepository.getStationById(StringIdFor.createId("BRGHLRD"));
+
+        Set<Route> calling = routeRepository.getRoutes().stream().
+                flatMap(route -> route.getTrips().stream()).
+                filter(trip -> trip.getStopCalls().callsAt(mulsecoomb) && trip.getStopCalls().callsAt(londonRoadBrighton)).
+                filter(trip -> isBefore(trip, mulsecoomb, londonRoadBrighton)).
+                map(Trip::getRoute).
+                collect(Collectors.toSet());
+
+        assertFalse(calling.isEmpty());
+
+        calling.forEach(route -> {
+            StopCallRepository.Costs costs = stopCallRepository.getCostsBetween(route, mulsecoomb, londonRoadBrighton);
+            assertNotEquals(0, costs.average(), costs.toString() + route);
+            assertNotEquals(0, costs.max(), costs.toString() + route);
+        });
+    }
+
+    private boolean isBefore(Trip trip, Station stationA, Station stationB) {
+        return trip.getStopCalls().getStationSequence().indexOf(stationA) < trip.getStopCalls().getStationSequence().indexOf(stationB);
+    }
+
 }

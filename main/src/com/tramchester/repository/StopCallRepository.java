@@ -134,9 +134,13 @@ public class StopCallRepository implements ReportsCacheStats {
             return costs.stream().mapToInt(item -> item).min().orElse(0);
         }
 
+        public int max() {
+            return costs.stream().mapToInt(item -> item).max().orElse(0);
+        }
+
         public int average() {
             double avg = costs.stream().mapToInt(item -> item).average().orElse(0D);
-            return (int)Math.ceil(avg);
+            return (int)Math.round(avg);
         }
 
         @Override

@@ -152,6 +152,9 @@ public class StationsAndLinksGraphBuilder extends GraphBuilder {
 
         GraphProps.setCostProp(stationToRoute, 0);
         GraphProps.setCostProp(routeToStation, 0);
+
+        GraphProps.setMaxCostProp(stationToRoute, 0);
+        GraphProps.setMaxCostProp(routeToStation, 0);
     }
 
     // NOTE: for services that skip some stations, but same stations not skipped by other services
