@@ -21,13 +21,6 @@ public class StationPair {
         return new StationPair(leg.getFirstStation(), leg.getSecondStation());
     }
 
-//    public static Stream<StationPair> combinationsOf(Set<Station> starts, Set<Station> ends) {
-//        return starts.stream().
-//                flatMap(start -> ends.stream().
-//                        filter(end -> !end.equals(start)).map(end -> of(start,end))
-//                );
-//    }
-
     @Override
     public String toString() {
         return "StationPair{" +

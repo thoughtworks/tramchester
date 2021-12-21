@@ -58,7 +58,7 @@ public enum TransportRelationshipTypes implements RelationshipType {
             case Train -> TRAIN_GOES_TO;
             case Bus, RailReplacementBus -> BUS_GOES_TO;
             case Tram -> TRAM_GOES_TO;
-            case Ferry -> FERRY_GOES_TO;
+            case Ferry, Ship -> FERRY_GOES_TO;
             case Subway -> SUBWAY_GOES_TO;
             default -> throw new RuntimeException("Unexpected travel mode " + transportMode);
         };

@@ -132,12 +132,12 @@ public class MutableStation implements Station {
 
     @Override
     public boolean servesRoutePickup(Route route) {
-        return servesRoutesPickup.stream().anyMatch(item -> item.equals(route));
+        return servesRoutesPickup.contains(route);
     }
 
     @Override
     public boolean servesRouteDropoff(Route route) {
-        return servesRoutesDropoff.stream().anyMatch(item -> item.equals(route));
+        return servesRoutesDropoff.contains(route);
     }
 
     @Override

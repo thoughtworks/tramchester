@@ -1,5 +1,8 @@
 package com.tramchester.repository;
 
+import com.github.benmanes.caffeine.cache.Cache;
+import com.github.benmanes.caffeine.cache.Caffeine;
+import com.github.benmanes.caffeine.cache.stats.CacheStats;
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.Service;
@@ -11,6 +14,9 @@ import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.GTFSPickupDropoffType;
 import com.tramchester.domain.time.TramTime;
+import com.tramchester.metrics.CacheMetrics;
+import org.apache.commons.lang3.tuple.Pair;
+import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -19,23 +25,29 @@ import javax.annotation.PreDestroy;
 import javax.inject.Inject;
 import java.time.LocalDate;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 @LazySingleton
-public class StopCallRepository {
+public class StopCallRepository implements ReportsCacheStats {
     private static final Logger logger = LoggerFactory.getLogger(StopCallRepository.class);
 
     private final TripRepository tripRepository;
     private final StationRepository stationRepository;
     private final ServiceRepository serviceRepository;
     private final Map<Station, Set<StopCall>> stopCalls;
+    private final Cache<CacheKey, Costs> cachedCosts;
 
     @Inject
-    public StopCallRepository(TripRepository tripRepository, StationRepository stationRepository, ServiceRepository serviceRepository) {
+    public StopCallRepository(TripRepository tripRepository, StationRepository stationRepository,
+                              ServiceRepository serviceRepository, CacheMetrics cacheMetrics) {
         this.tripRepository = tripRepository;
         this.stationRepository = stationRepository;
         this.serviceRepository = serviceRepository;
         stopCalls = new HashMap<>();
+        cachedCosts = Caffeine.newBuilder().maximumSize(20000).expireAfterAccess(10, TimeUnit.MINUTES).
+                recordStats().build();
+        cacheMetrics.register(this);
     }
 
     @PostConstruct
@@ -63,6 +75,7 @@ public class StopCallRepository {
     @PreDestroy
     public void stop() {
         stopCalls.clear();
+        cachedCosts.cleanUp();
     }
 
     // visualisation of frequency support
@@ -78,7 +91,12 @@ public class StopCallRepository {
     }
 
     public Costs getCostsBetween(Route route, Station first, Station second) {
+        CacheKey key = new CacheKey(route, first, second);
+        return cachedCosts.get(key, id -> calculateCosts(route, first, second));
+    }
 
+    @NotNull
+    private Costs calculateCosts(Route route, Station first, Station second) {
         List<Integer> allCosts = route.getTrips().stream().flatMap(trip -> trip.getStopCalls().getLegs().stream()).
                 filter(leg -> leg.getFirstStation().equals(first) && leg.getSecondStation().equals(second)).
                 map(StopCalls.StopLeg::getCost).collect(Collectors.toList());
@@ -90,9 +108,12 @@ public class StopCallRepository {
             throw new RuntimeException(msg);
         }
 
-        final Costs costs = new Costs(allCosts, route.getId(), first.getId(), second.getId());
+        return new Costs(allCosts, route.getId(), first.getId(), second.getId());
+    }
 
-        return costs;
+    @Override
+    public List<Pair<String, CacheStats>> stats() {
+        return Collections.singletonList(Pair.of("CachedCosts", cachedCosts.stats()));
     }
 
     public static class Costs {
@@ -136,5 +157,38 @@ public class StopCallRepository {
             return costs.stream().distinct().count()==1L;
         }
 
+    }
+
+    private static class CacheKey {
+        private final Route route;
+        private final Station first;
+        private final Station second;
+
+        public CacheKey(Route route, Station first, Station second) {
+
+            this.route = route;
+            this.first = first;
+            this.second = second;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+
+            CacheKey cacheKey = (CacheKey) o;
+
+            if (!route.equals(cacheKey.route)) return false;
+            if (!first.equals(cacheKey.first)) return false;
+            return second.equals(cacheKey.second);
+        }
+
+        @Override
+        public int hashCode() {
+            int result = route.hashCode();
+            result = 31 * result + first.hashCode();
+            result = 31 * result + second.hashCode();
+            return result;
+        }
     }
 }

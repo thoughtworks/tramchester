@@ -201,7 +201,7 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
         EasyMock.expect(previousSuccessfulVisit.getPreviousResult(node, journeyState, labels)).andReturn(ServiceReason.ReasonCode.PreviousCacheMiss);
 
         EasyMock.expect(lowestCostSeen.isLower(journeyState)).andReturn(true);
-        EasyMock.expect(journeyState.getTraversalStateName()).andReturn("aName");
+        EasyMock.expect(journeyState.getTraversalStateName()).andStubReturn("aName");
 
         lowestCostSeen.setLowestCost(journeyState);
         EasyMock.expectLastCall();
@@ -226,7 +226,7 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
         JourneyState journeyState = createMock(JourneyState.class);
         EasyMock.expect(journeyState.getTotalCostSoFar()).andReturn(100);
         EasyMock.expect(journeyState.getNumberChanges()).andReturn(10);
-        EasyMock.expect(journeyState.getTraversalStateName()).andReturn("aName");
+        EasyMock.expect(journeyState.getTraversalStateName()).andStubReturn("aName");
 
         branchState.setState(journeyState);
 
@@ -257,7 +257,7 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
         JourneyState journeyState = createMock(JourneyState.class);
         EasyMock.expect(journeyState.getTotalCostSoFar()).andReturn(100);
         EasyMock.expect(journeyState.getNumberChanges()).andReturn(2);
-        EasyMock.expect(journeyState.getTraversalStateName()).andReturn("aName");
+        EasyMock.expect(journeyState.getTraversalStateName()).andStubReturn("aName");
 
         branchState.setState(journeyState);
 
@@ -613,7 +613,7 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
         final int costSoFar = 100;
         EasyMock.expect(journeyState.getTotalCostSoFar()).andReturn(costSoFar);
         EasyMock.expect(journeyState.getNumberChanges()).andReturn(10);
-        EasyMock.expect(journeyState.getTraversalStateName()).andReturn("aName");
+        EasyMock.expect(journeyState.getTraversalStateName()).andStubReturn("aName");
         EasyMock.expect(path.length()).andReturn(42);
 
         branchState.setState(journeyState);
@@ -647,7 +647,7 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
         final JourneyState journeyState = createMock(JourneyState.class);
         EasyMock.expect(journeyState.getTotalCostSoFar()).andReturn(100);
         EasyMock.expect(journeyState.getNumberChanges()).andReturn(10);
-        EasyMock.expect(journeyState.getTraversalStateName()).andReturn("aName");
+        EasyMock.expect(journeyState.getTraversalStateName()).andStubReturn("aName");
 
         branchState.setState(journeyState);
         final EnumSet<GraphLabel> labels = EnumSet.of(HOUR);

@@ -125,6 +125,7 @@ public class RouteInterchangesTest {
 
         List<RouteStation> navigationRoadRouteStations = stationRepository.getRouteStationsFor(NavigationRoad.getId()).stream().
                 filter(routeStation -> routes.contains(routeStation.getRoute())).collect(Collectors.toList());
+
         assertFalse(navigationRoadRouteStations.isEmpty());
 
         navigationRoadRouteStations.forEach(routeStation -> {

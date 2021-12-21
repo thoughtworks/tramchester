@@ -70,12 +70,10 @@ public class ServiceReasons {
         }
         logger.info("Service reasons for query time: " + queryTime);
         logger.info("Total checked: " + totalChecked.get() + " for " + journeyRequest.toString());
-        Arrays.asList(ServiceReason.ReasonCode.values()).forEach(
-                code -> {
-                    if (statistics.get(code).get() > 0) {
-                        logger.info(format("%s: %s", code, statistics.get(code)));
-                    }
-                });
+        statistics.entrySet().stream().
+                filter(entry -> entry.getValue().get() > 0).
+                sorted(Comparator.comparingInt(a -> a.getValue().get())).
+                forEach(entry -> logger.info(format("%s: %s", entry.getKey(), entry.getValue().get())));
     }
 
     public ServiceReason recordReason(final ServiceReason serviceReason) {
@@ -107,9 +105,13 @@ public class ServiceReasons {
     private ServiceReason.ReasonCode getReasonCode(TransportMode transportMode) {
         return switch (transportMode) {
             case Tram -> ServiceReason.ReasonCode.OnTram;
-            case Bus -> ServiceReason.ReasonCode.OnBus;
+            case Bus, RailReplacementBus -> ServiceReason.ReasonCode.OnBus;
             case Train -> ServiceReason.ReasonCode.OnTrain;
-            default -> ServiceReason.ReasonCode.NotOnVehicle;
+            case Walk, Connect -> ServiceReason.ReasonCode.OnWalk;
+            case Ferry, Ship -> ServiceReason.ReasonCode.OnShip;
+            case Subway -> ServiceReason.ReasonCode.OnSubway;
+            case NotSet -> ServiceReason.ReasonCode.NotOnVehicle;
+            case Unknown -> throw new RuntimeException("Unknown transport mode");
         };
     }
 

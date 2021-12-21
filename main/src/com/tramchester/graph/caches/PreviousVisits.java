@@ -56,7 +56,7 @@ public class PreviousVisits implements ReportsCacheStats {
         }
 
         if (labels.contains(GraphLabel.ROUTE_STATION)) {
-            if (result == RouteChanges) {
+            if (result == TooManyInterchangesAlready) {
                 routeStationPrevious.put(node.getId(), result);
             }
             if (result == RouteNotOnQueryDate) {
@@ -77,7 +77,6 @@ public class PreviousVisits implements ReportsCacheStats {
                     servicePrevious.put(node.getId(), result);
                 }
             }
-            return;
         }
     }
 

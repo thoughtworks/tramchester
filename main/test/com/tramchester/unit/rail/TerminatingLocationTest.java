@@ -48,4 +48,17 @@ public class TerminatingLocationTest {
         assertEquals("", terminatingLocation.getPlatform());
         assertEquals("BUS", terminatingLocation.getPath());
     }
+
+    @Test
+    void shouldParseFinalStageOfLondonUndergroundRoute() {
+        String text = "LTLILBDGE 2030 2030      TF               ";
+
+        TerminatingLocation terminatingLocation = TerminatingLocation.parse(text);
+
+        assertEquals("LILBDGE", terminatingLocation.getTiplocCode());
+        assertEquals(TramTime.of(20,30), terminatingLocation.getArrival());
+        assertEquals(TramTime.of(20,30), terminatingLocation.getDeparture());
+        assertEquals("", terminatingLocation.getPlatform());
+
+    }
 }

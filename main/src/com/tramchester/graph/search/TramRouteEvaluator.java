@@ -78,11 +78,13 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
         // NOTE: This makes a significant impact on performance, without it algo explore the same
         // path again and again for the same time in the case where it is a valid time.
         ServiceReason.ReasonCode previousResult = previousVisits.getPreviousResult(nextNode, journeyState, labels);
+        final HowIGotHere howIGotHere = new HowIGotHere(path, journeyState);
         if (previousResult != ServiceReason.ReasonCode.PreviousCacheMiss) {
-            final HowIGotHere howIGotHere = new HowIGotHere(path, journeyState);
             final TramTime journeyClock = journeyState.getJourneyClock();
-            reasons.recordReason(ServiceReason.Cached(journeyClock, howIGotHere));
+            reasons.recordReason(ServiceReason.Cached(previousResult, journeyClock, howIGotHere));
             return Evaluation.EXCLUDE_AND_PRUNE;
+        } else {
+            reasons.recordReason(ServiceReason.CacheMiss(howIGotHere));
         }
 
         final ServiceReason.ReasonCode reasonCode = doEvaluate(path, journeyState, nextNode, labels);
@@ -103,11 +105,13 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
             case HigherCost, ReturnedToStart, PathTooLong, TooManyChanges, TooManyWalkingConnections, NotReachable,
                     TookTooLong, ServiceNotRunningAtTime, NotAtHour, DoesNotOperateOnTime, NotOnQueryDate, MoreChanges,
                     AlreadyDeparted, StationClosed, TooManyNeighbourConnections, TimedOut, RouteNotOnQueryDate, HigherCostViaExchange,
-                    ExchangeNotReachable, RouteChanges, ChangesRequired, CurrentChanges
+                    ExchangeNotReachable, TooManyInterchangesAlready, TooManyInterchangesRequired
                     -> Evaluation.EXCLUDE_AND_PRUNE;
             case OnTram, OnBus, OnTrain, NotOnVehicle, Cached , PreviousCacheMiss, NumWalkingConnectionsOk,
-                    NeighbourConnectionsOk
-                    -> throw new RuntimeException("Unexpected reasoncode during evaluation: " + code.name());
+                    NeighbourConnectionsOk, OnShip, OnSubway, OnWalk, CachedNotAtHour,
+                    CachedDoesNotOperateOnTime, CachedTooManyInterchangesAlready, CachedRouteNotOnQueryDate,
+                    CachedNotOnQueryDate
+                    -> throw new RuntimeException("Unexpected reason-code during evaluation: " + code.name());
         };
     }
 

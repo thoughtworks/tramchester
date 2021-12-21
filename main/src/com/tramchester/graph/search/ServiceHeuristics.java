@@ -159,11 +159,11 @@ public class ServiceHeuristics {
         int fewestChanges = lowestCostsForRoutes.getFewestChanges(currentRoute);
 
         if (fewestChanges > currentChangesLimit) {
-            return reasons.recordReason(ServiceReason.StationNotReachable(howIGotHere, ServiceReason.ReasonCode.RouteChanges));
+            return reasons.recordReason(ServiceReason.StationNotReachable(howIGotHere, ServiceReason.ReasonCode.TooManyInterchangesAlready));
         }
 
         if ((fewestChanges+currentNumberOfChanges) > currentChangesLimit) {
-            return reasons.recordReason(ServiceReason.StationNotReachable(howIGotHere, ServiceReason.ReasonCode.ChangesRequired));
+            return reasons.recordReason(ServiceReason.StationNotReachable(howIGotHere, ServiceReason.ReasonCode.TooManyInterchangesRequired));
         }
 
         return valid(ServiceReason.ReasonCode.Reachable, howIGotHere, reasons);
@@ -185,14 +185,14 @@ public class ServiceHeuristics {
 
         if (costToFirstInterchange==Integer.MAX_VALUE) {
             // change required from current route, but no interchange is available for this station/route combination
-            return reasons.recordReason(ServiceReason.ExchangeNotReachable(howIGotHere));
+            return reasons.recordReason(ServiceReason.InterchangeNotReachable(howIGotHere));
         }
 
         if (bestSoFar.everArrived()) {
             int lowestCost = bestSoFar.getLowestCost();
             if (totalCostSoFar + costToFirstInterchange > lowestCost) {
                 // cost of getting to interchange, plus current total cost, is greater than existing best effort
-                return reasons.recordReason(ServiceReason.LongerViaExchange(howIGotHere));
+                return reasons.recordReason(ServiceReason.LongerViaInterchange(howIGotHere));
             }
         }
 

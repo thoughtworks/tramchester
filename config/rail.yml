@@ -48,7 +48,7 @@ numberQueries: 6
 queryInterval: 10
 maxNumberResults: 5
 maxWalkingConnections: 3
-maxJourneyDuration: 840
+maxJourneyDuration: 820
 nearestStopRangeKM: 1.6
 nearestStopForWalkingRangeKM: 1.6
 numOfNearestStopsToOffer: 5

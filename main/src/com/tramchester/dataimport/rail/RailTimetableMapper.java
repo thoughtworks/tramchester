@@ -29,8 +29,7 @@ import java.util.stream.Collectors;
 
 import static com.tramchester.domain.reference.GTFSPickupDropoffType.None;
 import static com.tramchester.domain.reference.GTFSPickupDropoffType.Regular;
-import static com.tramchester.domain.reference.TransportMode.RailReplacementBus;
-import static com.tramchester.domain.reference.TransportMode.Train;
+import static com.tramchester.domain.reference.TransportMode.*;
 import static java.lang.String.format;
 import static java.time.temporal.ChronoField.*;
 
@@ -135,9 +134,8 @@ public class RailTimetableMapper {
                 filter(tiplocInsertRecords::containsKey).
                 map(tiplocInsertRecords::get).
                 forEach(record -> logger.info("Had record for missing tiploc: "+record));
-        travelCombinations.forEach(pair -> {
-            logger.info(String.format("Rail mode Status: %s Category: %s", pair.getLeft(), pair.getRight()));
-        });
+        travelCombinations.forEach(pair -> logger.info(String.format("Rail mode Status: %s Category: %s",
+                pair.getLeft(), pair.getRight())));
     }
 
     private void guardState(State expectedState, RailTimetableRecord record) {
@@ -228,7 +226,7 @@ public class RailTimetableMapper {
 
             final String uniqueTrainId = basicSchedule.getUniqueTrainId();
             if (!shouldInclude(mode)) {
-                logger.info(format("Skipping %s of category %s and status %s", uniqueTrainId, basicSchedule.getTrainCategory(),
+                logger.debug(format("Skipping %s of category %s and status %s", uniqueTrainId, basicSchedule.getTrainCategory(),
                         basicSchedule.getTrainStatus()));
                 railServiceGroups.recordSkip(basicSchedule);
                 return;
@@ -251,34 +249,41 @@ public class RailTimetableMapper {
             // Service
             MutableService service = railServiceGroups.getOrCreateService(basicSchedule, isOverlay);
 
-
             // Route
-            MutableRoute route = getOrCreateRoute(rawService, mutableAgency, mode);
-            route.addService(service);
-            mutableAgency.addRoute(route);
+            List<Station> callingPoints = getRouteStationCallingPoints(rawService);
+            IdFor<Route> routeId = railRouteIDBuilder.getIdFor(agencyId, callingPoints);
 
-            // Trip
-            MutableTrip trip = getOrCreateTrip(basicSchedule, service, route, mode);
-            route.addTrip(trip);
+            if (callingPoints.size()>1) {
 
-            // Stations, Platforms, StopCalls
-            int stopSequence = 1;
-            //boolean crossMidnight = crossMidnight(originLocation, terminatingLocation);
-            TramTime originTime = originLocation.getDeparture();
-            populateForLocation(originLocation, route, trip, stopSequence, false, agencyId, basicSchedule, originTime);
-            stopSequence = stopSequence + 1;
-            for (IntermediateLocation intermediateLocation : intermediateLocations) {
-                if (populateForLocation(intermediateLocation, route, trip, stopSequence, false, agencyId, basicSchedule, originTime)) {
-                    stopSequence = stopSequence + 1;
+                MutableRoute route = getOrCreateRoute(routeId, rawService, mutableAgency, mode, callingPoints);
+                route.addService(service);
+                mutableAgency.addRoute(route);
+
+                // Trip
+                MutableTrip trip = getOrCreateTrip(basicSchedule, service, route, mode);
+                route.addTrip(trip);
+
+                // Stations, Platforms, StopCalls
+                int stopSequence = 1;
+                //boolean crossMidnight = crossMidnight(originLocation, terminatingLocation);
+                TramTime originTime = originLocation.getDeparture();
+                populateForLocation(originLocation, route, trip, stopSequence, false, agencyId, basicSchedule, originTime);
+                stopSequence = stopSequence + 1;
+                for (IntermediateLocation intermediateLocation : intermediateLocations) {
+                    if (populateForLocation(intermediateLocation, route, trip, stopSequence, false, agencyId, basicSchedule, originTime)) {
+                        stopSequence = stopSequence + 1;
+                    }
                 }
+                populateForLocation(terminatingLocation, route, trip, stopSequence, true, agencyId, basicSchedule, originTime);
+            } else {
+                logger.error("Did not get enough calling points for a route " + routeId + " " + callingPoints);
             }
-            populateForLocation(terminatingLocation, route, trip, stopSequence, true, agencyId, basicSchedule, originTime);
         }
 
         private boolean shouldInclude(TransportMode mode) {
             return switch (mode) {
-                case Train, Ship, RailReplacementBus -> true;
-                case Tram, Walk, Ferry, Bus, Connect, NotSet, Unknown, Subway -> false;
+                case Train, Ship, RailReplacementBus, Subway -> true;
+                case Tram, Walk, Ferry, Bus, Connect, NotSet, Unknown -> false;
             };
         }
 
@@ -419,11 +424,10 @@ public class RailTimetableMapper {
             return StringIdFor.createId("trip:"+service.getId().forDTO());
         }
 
-        private MutableRoute getOrCreateRoute(RawService rawService, MutableAgency mutableAgency, final TransportMode mode) {
+        private MutableRoute getOrCreateRoute(IdFor<Route> routeId, RawService rawService, MutableAgency mutableAgency, final TransportMode mode,
+                                              List<Station> callingPoints) {
             IdFor<Agency> agencyId = mutableAgency.getId();
             MutableRoute route;
-            List<Station> callingPoints = getRouteStationCallingPoints(rawService);
-            IdFor<Route> routeId = railRouteIDBuilder.getIdFor(agencyId, callingPoints);
 
             if (container.hasRouteId(routeId)) {
                 route = container.getMutableRoute(routeId);
@@ -453,6 +457,9 @@ public class RailTimetableMapper {
             if (route.getTransportMode()==Train) {
                 return mode==RailReplacementBus || mode==Train;
             }
+            if (route.getTransportMode()==Subway) {
+                return mode==RailReplacementBus || mode==Subway;
+            }
             return route.getTransportMode()==mode;
         }
 
@@ -469,6 +476,10 @@ public class RailTimetableMapper {
             result.addAll(inters);
             if (isStation(rawService.terminatingLocation)) {
                 result.add(getStationFor(rawService.terminatingLocation));
+            }
+
+            if (result.size() <= 1) {
+                logger.error("Did not get enough calling points for " + rawService.basicScheduleRecord);
             }
             return result;
         }

@@ -31,10 +31,7 @@ public abstract class ServiceReason {
         HigherCost,
         HigherCostViaExchange,
         PathTooLong,
-        OnTram,
-        OnBus,
-        OnTrain,
-        NotOnVehicle,
+
         ReturnedToStart,
         TooManyChanges,
         MoreChanges,
@@ -42,12 +39,25 @@ public abstract class ServiceReason {
         TooManyNeighbourConnections,
         StationClosed,
         TimedOut,
-        CurrentChanges,
-        RouteChanges,
-        ChangesRequired,
+        TooManyInterchangesAlready,
+        TooManyInterchangesRequired,
 
         Cached,
+        CachedNotAtHour,
+        CachedDoesNotOperateOnTime,
+        CachedTooManyInterchangesAlready,
+        CachedRouteNotOnQueryDate,
+        CachedNotOnQueryDate,
         PreviousCacheMiss,
+
+        // stats for overall journey
+        OnTram,
+        OnBus,
+        OnTrain,
+        OnShip,
+        OnSubway,
+        OnWalk,
+        NotOnVehicle,
 
         Arrived
     }
@@ -355,7 +365,7 @@ public abstract class ServiceReason {
         return new Unreachable(code, path);
     }
 
-    public static ServiceReason ExchangeNotReachable(HowIGotHere path) {
+    public static ServiceReason InterchangeNotReachable(HowIGotHere path) {
         return new Unreachable(ReasonCode.ExchangeNotReachable, path);
     }
 
@@ -387,21 +397,24 @@ public abstract class ServiceReason {
         return new DoesNotOperateOnTime(ReasonCode.AlreadyDeparted, currentElapsed, path);
     }
 
-    public static ServiceReason Cached(TramTime currentElapsed, HowIGotHere path) {
-        return new DoesNotOperateOnTime(ServiceReason.ReasonCode.Cached, currentElapsed, path);
+    public static ServiceReason Cached(ServiceReason.ReasonCode code, TramTime currentElapsed, HowIGotHere path) {
+        return switch (code) {
+            case NotAtHour -> new DoesNotOperateOnTime(ReasonCode.CachedNotAtHour, currentElapsed, path);
+            case DoesNotOperateOnTime -> new DoesNotOperateOnTime(ReasonCode.CachedDoesNotOperateOnTime, currentElapsed, path);
+            case TooManyInterchangesAlready -> new DoesNotOperateOnTime(ReasonCode.CachedTooManyInterchangesAlready, currentElapsed, path);
+            case RouteNotOnQueryDate -> new DoesNotOperateOnTime(ReasonCode.CachedRouteNotOnQueryDate, currentElapsed, path);
+            case NotOnQueryDate -> new DoesNotOperateOnTime(ReasonCode.CachedNotOnQueryDate, currentElapsed, path);
+            default -> new DoesNotOperateOnTime(ReasonCode.Cached, currentElapsed, path);
+        };
     }
 
     public static ServiceReason HigherCost(HowIGotHere howIGotHere) {
         return new ServiceReason.Unreachable(ReasonCode.HigherCost, howIGotHere);
     }
 
-    public static ServiceReason LongerViaExchange(HowIGotHere howIGotHere) {
+    public static ServiceReason LongerViaInterchange(HowIGotHere howIGotHere) {
         return new ServiceReason.Unreachable(ReasonCode.HigherCostViaExchange, howIGotHere);
     }
-
-//    public static ServiceReason MoreChanges(HowIGotHere howIGotHere) {
-//        return new ServiceReason.Unreachable(ReasonCode.MoreChanges, howIGotHere);
-//    }
 
     public static ServiceReason PathToLong(HowIGotHere path) {
         return new ServiceReason.Unreachable(ReasonCode.PathTooLong, path);
@@ -421,6 +434,10 @@ public abstract class ServiceReason {
 
     public static ServiceReason RouteNotToday(HowIGotHere howIGotHere, IdFor<Route> id) {
         return new ServiceReason.RouteNotAvailableOnQueryDate(howIGotHere, id);
+    }
+
+    public static ServiceReason CacheMiss(HowIGotHere howIGotHere) {
+        return new IsValid(ReasonCode.PreviousCacheMiss, howIGotHere);
     }
 
 }

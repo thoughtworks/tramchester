@@ -10,9 +10,9 @@ public class IntermediateLocationTest {
 
     @Test
     void shouldParseRecord() {
-        String line = "LINEWSGAT 1852H1853      18531854123      T";
+        String text = "LINEWSGAT 1852H1853      18531854123      T";
 
-        IntermediateLocation intermediateLocation = IntermediateLocation.parse(line);
+        IntermediateLocation intermediateLocation = IntermediateLocation.parse(text);
 
         assertEquals("NEWSGAT", intermediateLocation.getTiplocCode());
 
@@ -33,9 +33,9 @@ public class IntermediateLocationTest {
         // i.e. record records passing a location but not calling at
 
         //             LIBATRSPJ           0112H00000000
-        String line = "LIBATRSPJ           2125H00000000                          H";
+        String text = "LIBATRSPJ           2125H00000000                          H";
 
-        IntermediateLocation intermediateLocation = IntermediateLocation.parse(line);
+        IntermediateLocation intermediateLocation = IntermediateLocation.parse(text);
 
         assertEquals("BATRSPJ", intermediateLocation.getTiplocCode());
         assertTrue(intermediateLocation.isPassingRecord());
@@ -44,16 +44,7 @@ public class IntermediateLocationTest {
         assertFalse(intermediateLocation.getDeparture().isValid());
     }
 
-    @Test
-    void shouldParseTiplocCorrectlyWhenNoSpaceAfter() {
-        String line = "LIKEWGRDN22047 2047H     204720471        T";
 
-        IntermediateLocation intermediateLocation = IntermediateLocation.parse(line);
-
-        assertEquals(7, intermediateLocation.getTiplocCode().length());
-        assertEquals("KEWGRDN", intermediateLocation.getTiplocCode());
-        assertFalse(intermediateLocation.isPassingRecord());
-    }
 
     @Test
     void shouldParseCorrectlyWhenNoPublicArrivalOrDepart() {
@@ -69,9 +60,9 @@ public class IntermediateLocationTest {
         //             01234567890123456789012345678901234567890123456
         //             0         1         2         3         4
         //             LIMOTHRWL 2349H2359H     000023571        U
-        String line = "LIFARE825 1242H1246H     00000000         OPA";
+        String text = "LIFARE825 1242H1246H     00000000         OPA";
 
-        IntermediateLocation intermediateLocation = IntermediateLocation.parse(line);
+        IntermediateLocation intermediateLocation = IntermediateLocation.parse(text);
 
         assertEquals(7, intermediateLocation.getTiplocCode().length());
         assertEquals("FARE825", intermediateLocation.getTiplocCode());
@@ -85,6 +76,39 @@ public class IntermediateLocationTest {
 
         assertEquals(TramTime.of(12,42),intermediateLocation.getArrival());
         assertEquals(TramTime.of(12,46),intermediateLocation.getDeparture());
+
+    }
+
+    @Test
+    void shouldParseTiplocCorrectlyWhenNoSpaceAfter() {
+        String text = "LIKEWGRDN22047 2047H     204720471        T";
+
+        IntermediateLocation intermediateLocation = IntermediateLocation.parse(text);
+
+        assertEquals(7, intermediateLocation.getTiplocCode().length());
+        assertEquals("KEWGRDN", intermediateLocation.getTiplocCode());
+        assertFalse(intermediateLocation.isPassingRecord());
+
+        assertEquals(TramTime.of(20,47), intermediateLocation.getPublicArrival());
+        assertEquals(TramTime.of(20,47), intermediateLocation.getPublicDeparture());
+
+    }
+
+    @Test
+    void shouldParseLondonUnderground() {
+        String text = "LIKEWGRDN           2010 000000001                            ";
+
+        IntermediateLocation intermediateLocation = IntermediateLocation.parse(text);
+
+        assertEquals(7, intermediateLocation.getTiplocCode().length());
+        assertEquals("KEWGRDN", intermediateLocation.getTiplocCode());
+
+        assertFalse(intermediateLocation.getPublicArrival().isValid());
+        assertFalse(intermediateLocation.getPublicDeparture().isValid());
+
+        assertTrue(intermediateLocation.isPassingRecord());
+        assertEquals(TramTime.of(20,10), intermediateLocation.getPassingTime());
+
 
     }
 }
