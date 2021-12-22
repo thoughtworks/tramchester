@@ -1,7 +1,6 @@
 package com.tramchester.unit.graph;
 
 import com.tramchester.config.GTFSSourceConfig;
-import com.tramchester.domain.JourneyRequest;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.Service;
 import com.tramchester.domain.id.IdFor;
@@ -9,7 +8,6 @@ import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
-import com.tramchester.domain.time.TramServiceDate;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.search.JourneyConstraints;
 import com.tramchester.graph.search.LowestCostsForRoutes;
@@ -44,24 +42,17 @@ public class JourneyConstraintsTest extends EasyMockSupport {
         lowestCostForDest = createMock(LowestCostsForRoutes.class);
         filterForDate = createMock(RunningRoutesAndServices.FilterForDate.class);
 
-        TramServiceDate date = TramServiceDate.of(TestEnv.testDay());
-        TramTime queryTime = TramTime.of(11,45);
-        int maxChanges = 3;
-        int maxDuration = 120;
-        long maxJourneys = 5;
-        JourneyRequest journeyRequest = new JourneyRequest(date, queryTime, false, maxChanges, maxDuration,
-                maxJourneys);
         Set<Station> endStations = Collections.singleton(TramStations.of(TramStations.Bury));
 
-        journeyConstraints = new JourneyConstraints(config, filterForDate, journeyRequest,
-               closedStations, endStations, lowestCostForDest);
+        journeyConstraints = new JourneyConstraints(config, filterForDate,
+                closedStations, endStations, lowestCostForDest, config.getMaxJourneyDuration());
     }
 
     @Test
     void shouldCarryBasicParams() {
         assertEquals(config.getMaxWalkingConnections(), journeyConstraints.getMaxWalkingConnections());
         assertEquals(config.getMaxNeighbourConnections(), journeyConstraints.getMaxNeighbourConnections());
-        assertEquals(120, journeyConstraints.getMaxJourneyDuration());
+        assertEquals(config.getMaxJourneyDuration(), journeyConstraints.getMaxJourneyDuration());
     }
 
     @Test

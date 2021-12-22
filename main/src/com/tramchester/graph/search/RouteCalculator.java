@@ -15,6 +15,7 @@ import com.tramchester.domain.time.TramTime;
 import com.tramchester.geo.SortsPositions;
 import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.GraphQuery;
+import com.tramchester.graph.RouteCostCalculator;
 import com.tramchester.graph.caches.LowestCostSeen;
 import com.tramchester.graph.caches.NodeContentsRepository;
 import com.tramchester.graph.search.stateMachine.states.TraversalStateFactory;
@@ -52,10 +53,10 @@ public class RouteCalculator extends RouteCalculatorSupport implements TramRoute
                            SortsPositions sortsPosition, MapPathToLocations mapPathToLocations,
                            BetweenRoutesCostRepository routeToRouteCosts, ReasonsToGraphViz reasonToGraphViz,
                            ClosedStationsRepository closedStationsRepository, RunningRoutesAndServices runningRoutesAndServices,
-                           RouteInterchanges routeInterchanges, CacheMetrics cacheMetrics) {
+                           RouteInterchanges routeInterchanges, CacheMetrics cacheMetrics, RouteCostCalculator routeCostCalculator) {
         super(graphQuery, pathToStages, nodeOperations, graphDatabaseService,
                 traversalStateFactory, providesNow, sortsPosition, mapPathToLocations,
-                transportData, config, transportData, routeToRouteCosts, reasonToGraphViz, routeInterchanges);
+                transportData, config, transportData, routeToRouteCosts, reasonToGraphViz, routeInterchanges, routeCostCalculator);
         this.config = config;
         this.createQueryTimes = createQueryTimes;
         this.closedStationsRepository = closedStationsRepository;
@@ -127,8 +128,9 @@ public class RouteCalculator extends RouteCalculatorSupport implements TramRoute
 
         // can only be shared as same date and same set of destinations, will eliminate previously seen paths/results
         LowestCostsForRoutes lowestCostsForRoutes = routeToRouteCosts.getLowestCostCalcutatorFor(destinations);
+        int maxJourneyDuration = getMaxDurationFor(txn, startNode, destinations, journeyRequest);
         final JourneyConstraints journeyConstraints = new JourneyConstraints(config, runningRoutesAndServices.getFor(queryDate.getDate()),
-                journeyRequest, closedStationsRepository, destinations, lowestCostsForRoutes);
+                journeyRequest, closedStationsRepository, destinations, lowestCostsForRoutes, maxJourneyDuration);
 
         logger.info("Journey Constraints: " + journeyConstraints);
         logger.info("Query times: " + queryTimes);
@@ -154,6 +156,8 @@ public class RouteCalculator extends RouteCalculatorSupport implements TramRoute
 
         return results;
     }
+
+
 
     public static class TimedPath {
         private final Path path;

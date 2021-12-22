@@ -14,6 +14,7 @@ import com.tramchester.geo.BoundingBoxWithStations;
 import com.tramchester.geo.SortsPositions;
 import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.GraphQuery;
+import com.tramchester.graph.RouteCostCalculator;
 import com.tramchester.graph.caches.LowestCostSeen;
 import com.tramchester.graph.caches.NodeContentsRepository;
 import com.tramchester.graph.search.stateMachine.states.TraversalStateFactory;
@@ -50,10 +51,10 @@ public class RouteCalculatorForBoxes extends RouteCalculatorSupport {
                                    SortsPositions sortsPosition, MapPathToLocations mapPathToLocations,
                                    BetweenRoutesCostRepository routeToRouteCosts, ReasonsToGraphViz reasonToGraphViz,
                                    ClosedStationsRepository closedStationsRepository, RunningRoutesAndServices runningRoutesAndService,
-                                   RouteInterchanges routeInterchanges) {
+                                   RouteInterchanges routeInterchanges, RouteCostCalculator routeCostCalculator) {
         super(graphQuery, pathToStages, nodeContentsRepository, graphDatabaseService,
                 traversalStateFactory, providesNow, sortsPosition, mapPathToLocations,
-                transportData, config, transportData, routeToRouteCosts, reasonToGraphViz, routeInterchanges);
+                transportData, config, transportData, routeToRouteCosts, reasonToGraphViz, routeInterchanges, routeCostCalculator);
         this.config = config;
         this.graphDatabaseService = graphDatabaseService;
         this.closedStationsRepository = closedStationsRepository;
@@ -71,8 +72,10 @@ public class RouteCalculatorForBoxes extends RouteCalculatorSupport {
 
         final LowestCostsForRoutes lowestCostForDestinations = routeToRouteCosts.getLowestCostCalcutatorFor(destinations);
         RunningRoutesAndServices.FilterForDate routeAndServicesFilter = runningRoutesAndService.getFor(queryDate.getDate());
+
+        int maxJourneyDuration = journeyRequest.getMaxJourneyDuration();
         final JourneyConstraints journeyConstraints = new JourneyConstraints(config, routeAndServicesFilter, journeyRequest, closedStationsRepository,
-                destinations, lowestCostForDestinations);
+                destinations, lowestCostForDestinations, maxJourneyDuration);
 
         final Set<Long> destinationNodeIds = getDestinationNodeIds(destinations);
 

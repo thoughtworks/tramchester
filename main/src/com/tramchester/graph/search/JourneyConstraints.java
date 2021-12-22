@@ -41,22 +41,21 @@ public class JourneyConstraints {
     public JourneyConstraints(TramchesterConfig config, RunningRoutesAndServices.FilterForDate routesAndServicesFilter,
                               JourneyRequest journeyRequest,
                               ClosedStationsRepository closedStationsRepository, Set<Station> endStations,
-                              LowestCostsForRoutes lowestCostForDestinations) {
-        this(config, routesAndServicesFilter, journeyRequest, closedStationsRepository.getClosedStationsFor(journeyRequest.getDate()),
-                endStations, lowestCostForDestinations);
+                              LowestCostsForRoutes lowestCostForDestinations, int maxJourneyDuration) {
+        this(config, routesAndServicesFilter, closedStationsRepository.getClosedStationsFor(journeyRequest.getDate()),
+                endStations, lowestCostForDestinations, maxJourneyDuration);
     }
 
     public JourneyConstraints(TramchesterConfig config, RunningRoutesAndServices.FilterForDate routesAndServicesFilter,
-                              JourneyRequest journeyRequest,
                               IdSet<Station> closedStations, Set<Station> endStations,
-                              LowestCostsForRoutes lowestCostForDestinations) {
+                              LowestCostsForRoutes lowestCostForDestinations, int maxJourneyDuration) {
         this.config = config;
         this.lowestCostForDestinations = lowestCostForDestinations;
         this.routesAndServicesFilter = routesAndServicesFilter;
         this.maxPathLength = computeMaxPathLength();
 
         this.endStations = endStations;
-        this.maxJourneyDuration = journeyRequest.getMaxJourneyDuration();
+        this.maxJourneyDuration = maxJourneyDuration;
         this.maxWalkingConnections = config.getMaxWalkingConnections();
         this.maxNeighbourConnections = config.getMaxNeighbourConnections();
 

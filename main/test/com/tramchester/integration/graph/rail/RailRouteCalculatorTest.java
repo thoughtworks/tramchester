@@ -183,7 +183,7 @@ public class RailRouteCalculatorTest {
         TramTime travelTime = TramTime.of(11,4);
 
         JourneyRequest journeyRequest = new JourneyRequest(new TramServiceDate(when), travelTime, false, 3,
-                3*60, 3);
+                3*60, 2);
 
         //journeyRequest.setDiag(true);
 

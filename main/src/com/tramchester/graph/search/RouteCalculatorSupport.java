@@ -8,6 +8,7 @@ import com.tramchester.domain.places.Location;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.places.StationWalk;
 import com.tramchester.domain.presentation.TransportStage;
+import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.domain.time.TramServiceDate;
 import com.tramchester.domain.time.TramTime;
@@ -15,6 +16,7 @@ import com.tramchester.domain.transportStages.WalkingStage;
 import com.tramchester.geo.SortsPositions;
 import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.GraphQuery;
+import com.tramchester.graph.RouteCostCalculator;
 import com.tramchester.graph.caches.LowestCostSeen;
 import com.tramchester.graph.caches.NodeContentsRepository;
 import com.tramchester.graph.caches.PreviousVisits;
@@ -30,10 +32,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.time.Instant;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -58,13 +57,14 @@ public class RouteCalculatorSupport {
     private final NodeContentsRepository nodeContentsRepository;
     private final ReasonsToGraphViz reasonToGraphViz;
     private final RouteInterchanges routeInterchanges;
+    private final RouteCostCalculator routeCostCalculator;
 
     protected RouteCalculatorSupport(GraphQuery graphQuery, PathToStages pathToStages, NodeContentsRepository nodeContentsRepository,
                                      GraphDatabase graphDatabaseService, TraversalStateFactory traversalStateFactory,
                                      ProvidesNow providesNow, SortsPositions sortsPosition, MapPathToLocations mapPathToLocations,
                                      StationRepository stationRepository, TramchesterConfig config, TripRepository tripRepository,
                                      BetweenRoutesCostRepository routeToRouteCosts, ReasonsToGraphViz reasonToGraphViz,
-                                     RouteInterchanges routeInterchanges) {
+                                     RouteInterchanges routeInterchanges, RouteCostCalculator routeCostCalculator) {
         this.graphQuery = graphQuery;
         this.pathToStages = pathToStages;
         this.nodeContentsRepository = nodeContentsRepository;
@@ -79,6 +79,7 @@ public class RouteCalculatorSupport {
         this.routeToRouteCosts = routeToRouteCosts;
         this.reasonToGraphViz = reasonToGraphViz;
         this.routeInterchanges = routeInterchanges;
+        this.routeCostCalculator = routeCostCalculator;
     }
 
     protected Node getStationNodeSafe(Transaction txn, Station station) {
@@ -196,6 +197,28 @@ public class RouteCalculatorSupport {
     @NotNull
     protected ServiceReasons createServiceReasons(JourneyRequest journeyRequest, PathRequest pathRequest) {
         return new ServiceReasons(journeyRequest, pathRequest.queryTime, providesNow);
+    }
+
+    protected int getMaxDurationFor(Transaction txn, Node startNode, Set<Station> destinations, JourneyRequest journeyRequest) {
+        if (config.getTransportModes().contains(TransportMode.Tram) && config.getTransportModes().size()==1) {
+            return journeyRequest.getMaxJourneyDuration();
+        }
+
+        int maxLeastCostForRoute = destinations.stream().
+                mapToInt(dest -> routeCostCalculator.getMaxCostBetween(txn, startNode, dest, journeyRequest.getDate())).
+                max().orElse(journeyRequest.getMaxJourneyDuration());
+
+        int longest = maxLeastCostForRoute * 2; // 100% margin
+
+        if (longest>journeyRequest.getMaxJourneyDuration()) {
+            logger.warn(format("Computed longest %s is more than journeyRequest %s",
+                    longest, journeyRequest.getMaxJourneyDuration()));
+        } else {
+            logger.info(format("Computed longest to be %s", longest));
+        }
+
+        return longest;
+
     }
 
     public PathRequest createPathRequest(Node startNode, TramServiceDate queryDate, TramTime actualQueryTime, int numChanges, JourneyConstraints journeyConstraints) {

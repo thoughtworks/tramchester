@@ -28,7 +28,8 @@ public class ServiceReasons {
     private final JourneyRequest journeyRequest;
     private final List<ServiceReason> reasons;
     // stats
-    private final Map<ServiceReason.ReasonCode, AtomicInteger> statistics;
+    private final Map<ServiceReason.ReasonCode, AtomicInteger> reasonCodeStats;
+    private final Map<String, AtomicInteger> stateStats;
     private final AtomicInteger totalChecked = new AtomicInteger(0);
     private final boolean diagnosticsEnabled;
 
@@ -39,16 +40,20 @@ public class ServiceReasons {
         this.providesLocalNow = providesLocalNow;
         this.journeyRequest = journeyRequest;
         reasons = new ArrayList<>();
-        statistics = new EnumMap<>(ServiceReason.ReasonCode.class);
-        Arrays.asList(ServiceReason.ReasonCode.values()).forEach(code -> statistics.put(code, new AtomicInteger(0)));
         success = false;
         diagnosticsEnabled = journeyRequest.getDiagnosticsEnabled();
+
+        reasonCodeStats = new EnumMap<>(ServiceReason.ReasonCode.class);
+        Arrays.asList(ServiceReason.ReasonCode.values()).forEach(code -> reasonCodeStats.put(code, new AtomicInteger(0)));
+
+        stateStats = new HashMap<>();
     }
 
     private void reset() {
         reasons.clear();
-        statistics.clear();
-        Arrays.asList(ServiceReason.ReasonCode.values()).forEach(code -> statistics.put(code, new AtomicInteger(0)));
+        reasonCodeStats.clear();
+        stateStats.clear();
+        Arrays.asList(ServiceReason.ReasonCode.values()).forEach(code -> reasonCodeStats.put(code, new AtomicInteger(0)));
     }
 
     public void reportReasons(Transaction transaction, RouteCalculatorSupport.PathRequest pathRequest, ReasonsToGraphViz reasonToGraphViz) {
@@ -70,10 +75,15 @@ public class ServiceReasons {
         }
         logger.info("Service reasons for query time: " + queryTime);
         logger.info("Total checked: " + totalChecked.get() + " for " + journeyRequest.toString());
-        statistics.entrySet().stream().
+        logStats("reasoncodes", reasonCodeStats);
+        logStats("states", stateStats);
+    }
+
+    private void logStats(String prefix, Map<?, AtomicInteger> stats) {
+        stats.entrySet().stream().
                 filter(entry -> entry.getValue().get() > 0).
                 sorted(Comparator.comparingInt(a -> a.getValue().get())).
-                forEach(entry -> logger.info(format("%s: %s", entry.getKey(), entry.getValue().get())));
+                forEach(entry -> logger.info(format("%s => %s: %s", prefix, entry.getKey(), entry.getValue().get())));
     }
 
     public ServiceReason recordReason(final ServiceReason serviceReason) {
@@ -89,7 +99,7 @@ public class ServiceReasons {
     }
 
     private void incrementStat(ServiceReason.ReasonCode reasonCode) {
-        statistics.get(reasonCode).incrementAndGet();
+        reasonCodeStats.get(reasonCode).incrementAndGet();
     }
 
     public void recordSuccess() {
@@ -100,6 +110,13 @@ public class ServiceReasons {
     public void recordStat(final ImmutableJourneyState journeyState) {
         ServiceReason.ReasonCode reason = getReasonCode(journeyState.getTransportMode());
         incrementStat(reason);
+
+        String name = journeyState.getTraversalState().getClass().getSimpleName();
+        if (stateStats.containsKey(name)) {
+            stateStats.get(name).incrementAndGet();
+        } else {
+            stateStats.put(name, new AtomicInteger(1));
+        }
     }
 
     private ServiceReason.ReasonCode getReasonCode(TransportMode transportMode) {

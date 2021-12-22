@@ -311,7 +311,7 @@ public class MapPathToStagesViaStatesTest {
 
         RunningRoutesAndServices.FilterForDate filter = runningRoutesAndService.getFor(queryDate.getDate());
         JourneyConstraints journeyConstraints = new JourneyConstraints(config, filter,
-                journeyRequest, closedStationsRepository, endStations, lowestCostCalculator);
+                journeyRequest, closedStationsRepository, endStations, lowestCostCalculator, config.getMaxJourneyDuration());
         ServiceHeuristics serviceHeuristics =  new ServiceHeuristics(stationRepository, routeInterchanges, nodeContentsRepository,
                 journeyConstraints, queryTime, numChanges);
 

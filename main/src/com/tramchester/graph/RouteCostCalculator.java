@@ -75,6 +75,11 @@ public class RouteCostCalculator {
         return getCostBetween(txn, start, end, MAX_COST, date.getDate());
     }
 
+    public int getMaxCostBetween(Transaction txn, Node start, Station endStation, TramServiceDate date) {
+        Node endNode = graphQuery.getStationOrGrouped(txn, endStation);
+        return calculateLeastCost(txn, start, endNode, MAX_COST, date.getDate());
+    }
+
     private int getCostBetween(Transaction txn, Station startStation, Station endStation, GraphPropertyKey key, LocalDate date) {
         Node startNode = graphQuery.getStationOrGrouped(txn, startStation);
         if (startNode==null) {
