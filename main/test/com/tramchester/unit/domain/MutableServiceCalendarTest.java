@@ -127,10 +127,9 @@ class MutableServiceCalendarTest {
         ServiceCalendar serviceCalendar = new MutableServiceCalendar(startDate, endDate,
                 DayOfWeek.SATURDAY, DayOfWeek.SUNDAY);
 
-        LocalDate localDate = startDate;
         int offset = 0;
-        while (new TramServiceDate(localDate).isChristmasPeriod()) {
-            localDate = startDate.plusWeeks(offset);
+        while (new TramServiceDate(startDate.plusWeeks(offset)).isChristmasPeriod()) {
+            offset = offset + 1;
         }
 
         Assertions.assertFalse(serviceCalendar.operatesOn(TestEnv.testDay().plusWeeks(offset)));

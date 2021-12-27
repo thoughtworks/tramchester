@@ -7,6 +7,7 @@ import com.tramchester.domain.Route;
 import com.tramchester.domain.Service;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.time.DateRange;
+import com.tramchester.domain.time.TramServiceDate;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
 import com.tramchester.repository.RunningRoutesAndServices;
@@ -80,10 +81,16 @@ public class RunningRoutesAndServicesTest {
         // need to find service running mon to fri and one running saturday
         EnumSet<DayOfWeek> weekday = EnumSet.of(MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY);
         final EnumSet<DayOfWeek> saturdays = EnumSet.of(SATURDAY);
-        final LocalDate nextMonday = TestEnv.nextMonday();
+
+        LocalDate monday = TestEnv.nextMonday();
+        while (new TramServiceDate(monday).isChristmasPeriod()) {
+            monday = monday.plusWeeks(1);
+        }
+
+        final LocalDate testDay = monday.plusWeeks(1);
 
         List<Service> weekdayServices = transportData.getServices().stream().
-                filter(service -> service.getCalendar().getDateRange().contains(nextMonday)).
+                filter(service -> service.getCalendar().getDateRange().contains(testDay)).
                 filter(service -> service.getCalendar().getOperatingDays().equals(weekday)).
                 collect(Collectors.toList());
         assertFalse(weekdayServices.isEmpty());
@@ -94,7 +101,7 @@ public class RunningRoutesAndServicesTest {
                 map(service -> service.getCalendar().getDateRange().getEndDate()).max(LocalDate::compareTo).get();
 
         DateRange weekdayDateRange = new DateRange(weekdayServicesBegin, weekdayServicesEnd);
-        assertTrue(weekdayDateRange.contains(nextMonday));
+        assertTrue(weekdayDateRange.contains(testDay));
 
         List<Service> saturdayServices = transportData.getServices().stream().
                 filter(service -> service.getCalendar().getOperatingDays().equals(saturdays)).
