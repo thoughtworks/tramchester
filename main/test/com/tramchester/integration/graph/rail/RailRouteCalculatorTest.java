@@ -40,6 +40,7 @@ public class RailRouteCalculatorTest {
     private static StationRepository stationRepository;
 
     private final LocalDate when = TestEnv.testDay();
+    private final LocalDate afterEngineering = when.plusWeeks(2);
 
     private static ComponentContainer componentContainer;
     private static GraphDatabase database;
@@ -116,7 +117,7 @@ public class RailRouteCalculatorTest {
 
     @Test
     void shouldHaveManPiccToMiltonKeynesCentral() {
-        JourneyRequest request = new JourneyRequest(new TramServiceDate(when), travelTime, false, 0,
+        JourneyRequest request = new JourneyRequest(new TramServiceDate(afterEngineering), travelTime, false, 0,
                 120, 1);
 
         atLeastOneDirect(request, manchesterPiccadilly, miltonKeynesCentral);
@@ -124,7 +125,7 @@ public class RailRouteCalculatorTest {
 
     @Test
     void shouldHaveMiltonKeynesToManchester() {
-        JourneyRequest request = new JourneyRequest(new TramServiceDate(when), travelTime, false, 0,
+        JourneyRequest request = new JourneyRequest(new TramServiceDate(afterEngineering), travelTime, false, 0,
                 120, 1);
 
         atLeastOneDirect(request, miltonKeynesCentral, manchesterPiccadilly);
@@ -150,7 +151,7 @@ public class RailRouteCalculatorTest {
     @Test
     void shouldHaveManchesterToLondonEuston() {
 
-        JourneyRequest request = new JourneyRequest(new TramServiceDate(when), travelTime, false, 0,
+        JourneyRequest request = new JourneyRequest(new TramServiceDate(afterEngineering), travelTime, false, 0,
                 240, 3);
 
         atLeastOneDirect(request, manchesterPiccadilly, londonEuston);
@@ -196,7 +197,7 @@ public class RailRouteCalculatorTest {
     void shouldHaveSimpleJourneyEustonToManchester() {
         TramTime travelTime = TramTime.of(8, 0);
 
-        JourneyRequest request = new JourneyRequest(new TramServiceDate(when), travelTime, false, 0,
+        JourneyRequest request = new JourneyRequest(new TramServiceDate(afterEngineering), travelTime, false, 0,
                 3*60, 3);
         Set<Journey> journeys = testFacade.calculateRouteAsSet(RailStationIds.LondonEuston.getId(),
                 ManchesterPiccadilly.getId(),

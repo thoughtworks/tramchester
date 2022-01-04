@@ -7,6 +7,7 @@ import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.TramStations;
+import com.tramchester.testSupport.testTags.DataUpdateTest;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -18,6 +19,7 @@ import java.util.List;
 import static com.tramchester.testSupport.TestEnv.assertLatLongEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+@DataUpdateTest
 class ValidateTramTestStations {
 
     private static ComponentContainer componentContainer;

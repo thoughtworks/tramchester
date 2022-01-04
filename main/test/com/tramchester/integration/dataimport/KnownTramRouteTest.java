@@ -7,6 +7,7 @@ import com.tramchester.testSupport.reference.KnownTramRoute;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
 import com.tramchester.repository.RouteRepository;
 import com.tramchester.testSupport.TestEnv;
+import com.tramchester.testSupport.testTags.DataUpdateTest;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -19,6 +20,7 @@ import java.util.stream.Collectors;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+@DataUpdateTest
 class KnownTramRouteTest {
     private static ComponentContainer componentContainer;
 

@@ -7,7 +7,9 @@ import java.nio.file.Path;
 
 public class RailRemoteDataSourceConfig implements RemoteDataSourceConfig {
 
-    private static final String CURRENT_PREFIX = "ttis201";
+    // http://data.atoc.org/how-to
+
+    private static final String CURRENT_PREFIX = "ttis236";
 
     private static final String RAIL_LATEST_ZIP = String.format("s3://tramchester2dist/railData/%s.zip", CURRENT_PREFIX);
 

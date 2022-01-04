@@ -9,6 +9,7 @@ import com.tramchester.dataimport.loader.PopulateTransportDataFromSources;
 import com.tramchester.dataimport.loader.TransportDataReader;
 import com.tramchester.dataimport.loader.TransportDataReaderFactory;
 import com.tramchester.domain.*;
+import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.id.StringIdFor;
@@ -267,7 +268,7 @@ public class TransportDataFromFilesTramTest {
         LocalDate nextSaturday = TestEnv.nextSaturday();
         IdSet<Service> results = transportData.getServicesOnDate(nextSaturday);
 
-        assertFalse(results.isEmpty());
+        assertFalse(results.isEmpty(), "no services next saturday");
         long onCorrectDate = results.stream().
                 map(transportData::getServiceById).
                 filter(svc -> svc.getCalendar().operatesOn(nextSaturday)).count();
@@ -339,6 +340,23 @@ public class TransportDataFromFilesTramTest {
             assertTrue(over.isEmpty(), over.toString());
         }
 
+    }
+
+    @DataExpiryCategory
+    @Test
+    void shouldHaveTramServicesAvailableNDaysAhead() {
+        Set<Service> tramServices = transportData.getServices();
+
+        for (int day = 0; day < DAYS_AHEAD; day++) {
+            LocalDate date = TestEnv.testDay().plusDays(day);
+
+            TramServiceDate tramServiceDate = new TramServiceDate(date);
+            if (!tramServiceDate.isChristmasPeriod()) {
+
+                IdSet<Service> servicesOnDateIds = transportData.getServicesOnDate(date);
+                assertFalse(servicesOnDateIds.isEmpty(), "no services on " + date + " all ids are " + HasId.asIds(tramServices));
+            }
+        }
     }
 
     @DataExpiryCategory
@@ -503,7 +521,7 @@ public class TransportDataFromFilesTramTest {
 
     @Test
     void shouldReproIssueAtMediaCityWithBranchAtCornbrook() {
-          Set<Trip> allTrips = getTripsFor(transportData.getTrips(), Cornbrook);
+        Set<Trip> allTrips = getTripsFor(transportData.getTrips(), Cornbrook);
 
         Set<Route> routes = transportData.findRoutesByShortName(MutableAgency.METL, AshtonUnderLyneManchesterEccles.shortName());
 
@@ -545,7 +563,6 @@ public class TransportDataFromFilesTramTest {
         LocalDate aMonday = TestEnv.nextMonday();
         assertEquals(DayOfWeek.MONDAY, aMonday.getDayOfWeek());
 
-        // TODO Due to exception dates makes no sense to use getDays
         IdSet<Service> mondayServices = allServices.stream()
                 .filter(svc -> svc.getCalendar().operatesOn(aMonday))
                 .collect(IdSet.collector());
