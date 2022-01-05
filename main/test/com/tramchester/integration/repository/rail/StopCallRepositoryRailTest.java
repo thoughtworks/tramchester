@@ -11,13 +11,17 @@ import com.tramchester.repository.RouteRepository;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.repository.StopCallRepository;
 import com.tramchester.testSupport.TestEnv;
+import com.tramchester.testSupport.testTags.TrainTest;
 import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.condition.DisabledIfEnvironmentVariable;
 
 import java.util.Set;
 import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+@TrainTest
+@DisabledIfEnvironmentVariable(named = "CI", matches = "true")
 public class StopCallRepositoryRailTest {
     private static ComponentContainer componentContainer;
 

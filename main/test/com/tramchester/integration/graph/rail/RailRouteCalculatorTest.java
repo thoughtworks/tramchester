@@ -179,7 +179,7 @@ public class RailRouteCalculatorTest {
     @Test
     void shouldFindCorrectNumberOfJourneys() {
 
-        // TODO this tests causes timeouts in the search algo, when maxNumberJourneys >1 need to track down why
+        // TODO takes a *long* time to eliminate the first journey option. > 11 seconds
 
         TramTime travelTime = TramTime.of(11,4);
 

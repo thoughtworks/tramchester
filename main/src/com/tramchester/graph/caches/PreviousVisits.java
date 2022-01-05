@@ -56,9 +56,9 @@ public class PreviousVisits implements ReportsCacheStats {
         }
 
         if (labels.contains(GraphLabel.ROUTE_STATION)) {
-            if (result == TooManyInterchangesAlready) {
-                routeStationPrevious.put(node.getId(), result);
-            }
+//            if (result == TooManyInterchangesAlready) {
+//                routeStationPrevious.put(node.getId(), result);
+//            }
             if (result == RouteNotOnQueryDate) {
                 TramTime journeyClock = journeyState.getJourneyClock();
                 boolean isNextDay = journeyClock.isNextDay();
@@ -70,7 +70,7 @@ public class PreviousVisits implements ReportsCacheStats {
         }
 
         if (labels.contains(GraphLabel.SERVICE)) {
-            if (result==NotOnQueryDate) {
+            if (result == NotOnQueryDate) {
                 TramTime journeyClock = journeyState.getJourneyClock();
                 boolean isNextDay = journeyClock.isNextDay();
                 if (!isNextDay) {
