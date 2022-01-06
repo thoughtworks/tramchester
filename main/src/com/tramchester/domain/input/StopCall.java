@@ -13,12 +13,13 @@ import static com.tramchester.domain.reference.GTFSPickupDropoffType.None;
 
 public abstract class StopCall {
     protected final Station station;
-    private final TramTime arrivalTime;
+    private final Trip trip;
     private final int sequenceNumber;
+
+    private final TramTime arrivalTime;
     private final GTFSPickupDropoffType pickupType;
     private final GTFSPickupDropoffType dropoffType;
     private final int dwellTime;
-    private final Trip trip;
     private final boolean intoNextDay;
 
     protected StopCall(Station station, StopTimeData stopTimeData, Trip trip) {
@@ -106,5 +107,25 @@ public abstract class StopCall {
 
     public IdFor<Service> getServiceId() {
         return trip.getService().getId();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        StopCall stopCall = (StopCall) o;
+
+        if (sequenceNumber != stopCall.sequenceNumber) return false;
+        if (!station.equals(stopCall.station)) return false;
+        return trip.equals(stopCall.trip);
+    }
+
+    @Override
+    public int hashCode() {
+        int result = station.hashCode();
+        result = 31 * result + trip.hashCode();
+        result = 31 * result + sequenceNumber;
+        return result;
     }
 }

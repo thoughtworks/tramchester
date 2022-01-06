@@ -124,7 +124,7 @@ public class MutableTrip implements Trip {
     @Override
     public TramTime latestDepartTime() {
         if (latestDepart==null) {
-            throw new RuntimeException("earliestDepart not set for tripid" + tripId);
+            throw new RuntimeException("latestDepart not set for tripid " + tripId);
         }
         return latestDepart;
     }
@@ -161,5 +161,15 @@ public class MutableTrip implements Trip {
     @Override
     public boolean intoNextDay() {
         return stopCalls.intoNextDay();
+    }
+
+    @Override
+    public TramTime departTime() {
+        return stopCalls.getFirstStop().getDepartureTime();
+    }
+
+    @Override
+    public TramTime arrivalTime() {
+        return stopCalls.getLastStop().getArrivalTime();
     }
 }

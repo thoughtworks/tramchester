@@ -62,6 +62,12 @@ class PlatformStopCallsTest {
     }
 
     @Test
+    void shouldHaveFirstAndLast() {
+        assertEquals(stopC, stops.getFirstStop());
+        assertEquals(stopA, stops.getLastStop());
+    }
+
+    @Test
     void shouldHaveStopCallFromStopData() {
         StopTimeData stopCallData = StopTimeData.forTestOnly("tripId", of(11,14), of (11, 15),
                 "stopId",5, None, Regular);

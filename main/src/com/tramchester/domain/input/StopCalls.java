@@ -130,6 +130,16 @@ public class StopCalls {
         return orderedStopCalls.values().stream().map(StopCall::getStation).collect(Collectors.toList());
     }
 
+    public StopCall getFirstStop() {
+        int firstKey = orderedStopCalls.firstKey();
+        return orderedStopCalls.get(firstKey);
+    }
+
+    public StopCall getLastStop() {
+        int lastKey = orderedStopCalls.lastKey();
+        return orderedStopCalls.get(lastKey);
+    }
+
     public static class StopLeg {
         private final StopCall first;
         private final StopCall second;

@@ -51,7 +51,7 @@ class TripTest {
         trip.addStop(secondStop);
         trip.addStop(thirdStop);
 
-        assertEquals(of(10, 1), trip.earliestDepartTime());
+//        assertEquals(of(10, 1), trip.earliestDepartTime());
 
         // sequence respected
         List<Integer> seqNums = new LinkedList<>();
@@ -59,6 +59,24 @@ class TripTest {
         assertEquals(1, seqNums.get(0).intValue());
         assertEquals(2, seqNums.get(1).intValue());
         assertEquals(3, seqNums.get(2).intValue());
+    }
+
+    @Test
+    void shouldHaveTripDepartAndArrivalTimes() {
+
+        PlatformStopCall firstStop = TestEnv.createTramStopCall(trip, "statA1", stationA, (byte) 1,
+                of(10, 0), of(10, 1));
+        PlatformStopCall secondStop = TestEnv.createTramStopCall(trip, "statB1", stationB, (byte) 2,
+                of(10, 5), of(10, 6));
+        PlatformStopCall thirdStop = TestEnv.createTramStopCall(trip, "statA1", stationA, (byte) 3,
+                of(10, 10), of(10, 10));
+
+        trip.addStop(firstStop);
+        trip.addStop(secondStop);
+        trip.addStop(thirdStop);
+
+        assertEquals(of(10, 1), trip.departTime());
+        assertEquals(of(10,10), trip.arrivalTime());
     }
 
     @Test
@@ -92,13 +110,14 @@ class TripTest {
         trip.addStop(fourthStop);
 
         // trip uses seq number for earliest depart i.e. lowest seq is assumed to be the first depart
-        assertEquals(of(22,46), trip.earliestDepartTime());
+        assertEquals(of(22,46), trip.departTime());
+        assertEquals(nextDay(0,10), trip.arrivalTime());
 
         assertTrue(trip.intoNextDay());
     }
 
     @Test
-    void shouldFindEarliestDepartCorrectly() {
+    void shouldFindDepartCorrectly() {
 
         PlatformStopCall thirdStop = TestEnv.createTramStopCall(trip, "stop3", stationC, (byte) 3,
                 of(0, 10), of(0, 11));
@@ -108,7 +127,7 @@ class TripTest {
         trip.addStop(thirdStop);
         trip.addStop(fourthStop);
 
-        assertEquals(of(6,31), trip.earliestDepartTime());
+        assertEquals(of(6,31), trip.departTime());
     }
 
     @Test
@@ -118,7 +137,7 @@ class TripTest {
         trip.addStop(TestEnv.createTramStopCall(trip, "stopId4", TramStations.Deansgate, (byte) 4,
                 of(0, 1), of(0, 1)));
 
-        assertEquals(of(0,1), trip.latestDepartTime());
+        assertEquals(of(0,1), trip.arrivalTime());
 
     }
 

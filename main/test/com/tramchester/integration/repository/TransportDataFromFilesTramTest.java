@@ -547,8 +547,8 @@ public class TransportDataFromFilesTramTest {
         TramTime time = TramTime.of(12, 0);
 
         long onTimeTrips = toMediaCity.stream().
-                filter(trip -> trip.earliestDepartTime().isBefore(time)).
-                filter(trip -> trip.latestDepartTime().isAfter(time)).
+                filter(trip -> trip.departTime().isBefore(time)).
+                filter(trip -> trip.arrivalTime().isAfter(time)).
                 count();
 
         assertTrue(onTimeTrips>0);

@@ -306,8 +306,8 @@ class MapStatesToStages implements JourneyStateUpdate {
                 return;
             }
             int lastIndex = stopSequenceNumbers.size() - 1;
-            int lastSeq = stopSequenceNumbers.get(lastIndex);
-            StopCall finalPassed = trip.getStopCalls().getStopBySequenceNumber(lastSeq);
+            int lastJourneyStopsSequenceNumber = stopSequenceNumbers.get(lastIndex);
+            StopCall finalPassed = trip.getStopCalls().getStopBySequenceNumber(lastJourneyStopsSequenceNumber);
             if (finalPassed.getStationId().equals(lastStationId)) {
                 stopSequenceNumbers.remove(lastIndex);
             }

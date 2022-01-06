@@ -98,7 +98,7 @@ public class LoadRailTransportDataTest {
                 filter(stopCalls -> stopCalls.getLegs().stream().anyMatch(stopLeg -> stopLeg.getCost() == 0)).
                 collect(Collectors.toSet());
 
-        assertEquals(73, tripWithZeroCostLegs.size(), tripWithZeroCostLegs.toString());
+        assertEquals(55, tripWithZeroCostLegs.size(), tripWithZeroCostLegs.toString());
 
     }
 
@@ -120,10 +120,21 @@ public class LoadRailTransportDataTest {
         Station startStation = transportData.getStationById(Derby.getId());
         Station endStation = transportData.getStationById(LondonStPancras.getId());
 
-        Service service = transportData.getServiceById(StringIdFor.createId("G91001:20210517:20211206"));
+        List<Trip> matchingTrips = transportData.getTrips().stream().
+                filter(trip -> trip.getStopCalls().callsAt(startStation)).
+                filter(trip -> trip.getStopCalls().callsAt(endStation)).
+                filter(trip -> trip.getStopCalls().getStationSequence().get(0).equals(startStation)).
+                filter(trip -> trip.getStopCalls().getStopBySequenceNumber(trip.getSeqNumOfLastStop()).getStation().equals(endStation)).
+                collect(Collectors.toList());
+
+        assertFalse(matchingTrips.isEmpty());
+
+        final Trip matchingTrip = matchingTrips.get(0);
+        final IdFor<Service> svcId = matchingTrip.getService().getId();
+        Service service = transportData.getServiceById(svcId);
         assertNotNull(service);
 
-        Trip trip = transportData.getTripById(StringIdFor.createId("trip:G91001:20210517:20211206"));
+        Trip trip = transportData.getTripById(matchingTrip.getId());
         assertNotNull(trip);
         assertEquals(service, trip.getService());
 
@@ -133,7 +144,7 @@ public class LoadRailTransportDataTest {
         assertEquals(GTFSPickupDropoffType.None, firstStopCall.getDropoffType());
         assertEquals(GTFSPickupDropoffType.Regular, firstStopCall.getPickupType());
 
-        assertEquals(9, stops.numberOfCallingPoints());
+        assertEquals(7, stops.numberOfCallingPoints());
 
         final StopCall lastStopCall = stops.getStopBySequenceNumber(stops.numberOfCallingPoints());
         assertEquals(endStation, lastStopCall.getStation());
@@ -225,8 +236,9 @@ public class LoadRailTransportDataTest {
 
         TramTime time = TramTime.of(8,5);
 
-        Set<Trip> am8Trips = transportData.getTrips().stream().filter(trip -> runningServices.contains(trip.getService())).
-                filter(trip -> trip.earliestDepartTime().isBefore(time) && trip.latestDepartTime().isAfter(time)).
+        Set<Trip> am8Trips = transportData.getTrips().stream().
+                filter(trip -> runningServices.contains(trip.getService())).
+                filter(trip -> trip.departTime().isBefore(time) && trip.arrivalTime().isAfter(time)).
                 collect(Collectors.toSet());
 
         assertFalse(am8Trips.isEmpty(), "No trip at required time " + runningServices);
@@ -260,7 +272,7 @@ public class LoadRailTransportDataTest {
 
         assertEquals(routes.size(), uniqueCallingPoints.size());
 
-        assertEquals(45, routes.size(), routes.toString());
+        assertEquals(59, routes.size(), routes.toString());
     }
 
     @Test
@@ -298,6 +310,13 @@ public class LoadRailTransportDataTest {
             assertTrue(over.isEmpty(), route + " " + over);
         }
 
+    }
+
+    @Test
+    void shouldSpikeServiceTimingDifferences() {
+        fail("wip");
+//        transportData.getServices().stream().
+//                filter(service -> transportData.getTrips().stream().map(trip -> trip.latestDepartTime()))
     }
 
     private boolean matches(IdFor<Station> firstId, IdFor<Station> secondId, Trip trip) {
