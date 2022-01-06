@@ -10,7 +10,7 @@ import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.search.JourneyConstraints;
-import com.tramchester.graph.search.LowestCostsForRoutes;
+import com.tramchester.graph.search.LowestCostsForDestRoutes;
 import com.tramchester.repository.RunningRoutesAndServices;
 import com.tramchester.testSupport.TestConfig;
 import com.tramchester.testSupport.TestEnv;
@@ -32,14 +32,14 @@ public class JourneyConstraintsTest extends EasyMockSupport {
     private JourneyConstraints journeyConstraints;
     private RunningRoutesAndServices.FilterForDate filterForDate;
     private TestConfigWithTramMode config;
-    private LowestCostsForRoutes lowestCostForDest;
+    private LowestCostsForDestRoutes lowestCostForDest;
 
     @BeforeEach
     void beforeEachTestRuns() {
         config = new TestConfigWithTramMode();
 
         IdSet<Station> closedStations = IdSet.singleton(TramStations.Cornbrook.getId());
-        lowestCostForDest = createMock(LowestCostsForRoutes.class);
+        lowestCostForDest = createMock(LowestCostsForDestRoutes.class);
         filterForDate = createMock(RunningRoutesAndServices.FilterForDate.class);
 
         Set<Station> endStations = Collections.singleton(TramStations.of(TramStations.Bury));

@@ -14,7 +14,7 @@ import com.tramchester.domain.time.TramTime;
 import com.tramchester.geo.SortsPositions;
 import com.tramchester.graph.caches.NodeContentsRepository;
 import com.tramchester.graph.graphbuild.GraphProps;
-import com.tramchester.graph.search.LowestCostsForRoutes;
+import com.tramchester.graph.search.LowestCostsForDestRoutes;
 import com.tramchester.graph.search.RelationshipWithRoute;
 import com.tramchester.repository.TripRepository;
 import org.neo4j.graphdb.Direction;
@@ -37,13 +37,13 @@ public class TraversalOps {
     private final IdSet<Route> destinationRoutes;
     private final LatLong destinationLatLon;
     private final SortsPositions sortsPositions;
-    private final LowestCostsForRoutes lowestCostsForRoutes;
+    private final LowestCostsForDestRoutes lowestCostsForRoutes;
     private final LocalDate queryDate;
 
     // TODO Split into fixed and journey specific, inject fixed direct into builders
     public TraversalOps(NodeContentsRepository nodeOperations, TripRepository tripRepository,
                         SortsPositions sortsPositions, Set<Station> destinationStations,
-                        LatLong destinationLatLon, LowestCostsForRoutes lowestCostsForRoutes,
+                        LatLong destinationLatLon, LowestCostsForDestRoutes lowestCostsForRoutes,
                         TramServiceDate queryDate) {
         this.tripRepository = tripRepository;
         this.nodeOperations = nodeOperations;

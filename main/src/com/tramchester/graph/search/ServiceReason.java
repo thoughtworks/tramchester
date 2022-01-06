@@ -42,12 +42,13 @@ public abstract class ServiceReason {
         TooManyRouteChangesRequired,
         TooManyInterchangesRequired,
 
-        Cached,
+        CachedUNKNOWN,
         CachedNotAtHour,
         CachedDoesNotOperateOnTime,
-        CachedTooManyInterchangesAlready,
+        CachedTooManyRouteChangesRequired,
         CachedRouteNotOnQueryDate,
         CachedNotOnQueryDate,
+        CachedTooManyInterchangesRequired,
         PreviousCacheMiss,
 
         // stats for overall journey
@@ -398,13 +399,15 @@ public abstract class ServiceReason {
     }
 
     public static ServiceReason Cached(ServiceReason.ReasonCode code, TramTime currentElapsed, HowIGotHere path) {
+
         return switch (code) {
             case NotAtHour -> new DoesNotOperateOnTime(ReasonCode.CachedNotAtHour, currentElapsed, path);
             case DoesNotOperateOnTime -> new DoesNotOperateOnTime(ReasonCode.CachedDoesNotOperateOnTime, currentElapsed, path);
-            case TooManyRouteChangesRequired -> new DoesNotOperateOnTime(ReasonCode.CachedTooManyInterchangesAlready, currentElapsed, path);
+            case TooManyRouteChangesRequired -> new DoesNotOperateOnTime(ReasonCode.CachedTooManyRouteChangesRequired, currentElapsed, path);
             case RouteNotOnQueryDate -> new DoesNotOperateOnTime(ReasonCode.CachedRouteNotOnQueryDate, currentElapsed, path);
             case NotOnQueryDate -> new DoesNotOperateOnTime(ReasonCode.CachedNotOnQueryDate, currentElapsed, path);
-            default -> new DoesNotOperateOnTime(ReasonCode.Cached, currentElapsed, path);
+            case TooManyInterchangesRequired -> new DoesNotOperateOnTime(ReasonCode.CachedTooManyInterchangesRequired, currentElapsed, path);
+            default -> new DoesNotOperateOnTime(ReasonCode.CachedUNKNOWN, currentElapsed, path);
         };
     }
 

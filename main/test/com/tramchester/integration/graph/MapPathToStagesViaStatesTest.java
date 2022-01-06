@@ -243,7 +243,7 @@ public class MapPathToStagesViaStatesTest {
 
         RouteCalculator.TimedPath timedPath = timedPaths.get(0);
 
-        LowestCostsForRoutes lowestCostForRoutes = routeToRouteCosts.getLowestCostCalcutatorFor(destinationStations);
+        LowestCostsForDestRoutes lowestCostForRoutes = routeToRouteCosts.getLowestCostCalcutatorFor(destinationStations);
         final List<TransportStage<?, ?>> transportStages = pathToStages.mapDirect(timedPath, journeyRequest, lowestCostForRoutes, destinationStations);
 
         locationJourneyPlanner.removeWalkNodeAndRelationships(addedRelationships, endNodeWalkNode);
@@ -267,7 +267,7 @@ public class MapPathToStagesViaStatesTest {
 
         RouteCalculator.TimedPath timedPath = timedPaths.get(0);
 
-        LowestCostsForRoutes lowestCostForRoutes = routeToRouteCosts.getLowestCostCalcutatorFor(endStations);
+        LowestCostsForDestRoutes lowestCostForRoutes = routeToRouteCosts.getLowestCostCalcutatorFor(endStations);
         final List<TransportStage<?, ?>> transportStages = pathToStages.mapDirect(timedPath, journeyRequest, lowestCostForRoutes, endStations);
 
         locationJourneyPlanner.removeWalkNodeAndRelationships(addedRelationships, startOfWalkNode);
@@ -284,7 +284,7 @@ public class MapPathToStagesViaStatesTest {
         assertFalse(timedPaths.isEmpty());
         RouteCalculator.TimedPath timedPath = timedPaths.get(0);
 
-        LowestCostsForRoutes lowestCostForRoutes = routeToRouteCosts.getLowestCostCalcutatorFor(endStations);
+        LowestCostsForDestRoutes lowestCostForRoutes = routeToRouteCosts.getLowestCostCalcutatorFor(endStations);
         return pathToStages.mapDirect(timedPath, journeyRequest, lowestCostForRoutes, endStations);
     }
 
@@ -307,7 +307,7 @@ public class MapPathToStagesViaStatesTest {
         PreviousVisits previous = new PreviousVisits();
         ServiceReasons reasons = new ServiceReasons(journeyRequest, queryTime, providesLocalNow);
 
-        LowestCostsForRoutes lowestCostCalculator = routeToRouteCosts.getLowestCostCalcutatorFor(endStations);
+        LowestCostsForDestRoutes lowestCostCalculator = routeToRouteCosts.getLowestCostCalcutatorFor(endStations);
 
         RunningRoutesAndServices.FilterForDate filter = runningRoutesAndService.getFor(queryDate.getDate());
         JourneyConstraints journeyConstraints = new JourneyConstraints(config, filter,

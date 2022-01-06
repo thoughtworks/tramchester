@@ -69,7 +69,7 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
     private long startNodeId;
     private LowestCostSeen lowestCostSeen;
     private ProvidesNow providesNow;
-    private LowestCostsForRoutes lowestCostsForRoutes;
+    private LowestCostsForDestRoutes lowestCostsForRoutes;
 
     @BeforeEach
     void onceBeforeEachTestRuns() {
@@ -112,7 +112,7 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
         node = createMock(Node.class);
         lastRelationship = createMock(Relationship.class);
         //routeToRouteCosts = createMock(RouteToRouteCosts.class);
-        lowestCostsForRoutes = createMock(LowestCostsForRoutes.class);
+        lowestCostsForRoutes = createMock(LowestCostsForDestRoutes.class);
 
         howIGotHere = HowIGotHere.forTest(42L, 24L);
 

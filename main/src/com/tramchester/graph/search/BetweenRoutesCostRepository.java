@@ -14,5 +14,5 @@ public interface BetweenRoutesCostRepository {
     NumberOfChanges getNumberOfChanges(Set<Station> starts, Set<Station> destinations);
     NumberOfChanges getNumberOfChanges(Station startStation, Station destination);
 
-    LowestCostsForRoutes getLowestCostCalcutatorFor(Set<Station> desintationRoutes);
+    LowestCostsForDestRoutes getLowestCostCalcutatorFor(Set<Station> desintationRoutes);
 }

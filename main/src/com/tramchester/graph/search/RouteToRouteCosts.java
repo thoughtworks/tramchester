@@ -219,7 +219,7 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
     }
 
     @Override
-    public LowestCostsForRoutes getLowestCostCalcutatorFor(Set<Station> destinations) {
+    public LowestCostsForDestRoutes getLowestCostCalcutatorFor(Set<Station> destinations) {
         Set<Route> destinationRoutes = destinations.stream().
                 map(Station::getDropoffRoutes).flatMap(Collection::stream).collect(Collectors.toUnmodifiableSet());
         return new LowestCostForDestinations(this, destinationRoutes);
@@ -269,7 +269,7 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
         return stations.stream().flatMap(station -> station.getPickupRoutes().stream()).collect(Collectors.toSet());
     }
 
-    private static class LowestCostForDestinations implements LowestCostsForRoutes {
+    private static class LowestCostForDestinations implements LowestCostsForDestRoutes {
         private final RouteToRouteCosts routeToRouteCosts;
         private final Set<Integer> destinationIndexs;
 
@@ -281,7 +281,7 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
         }
 
         /***
-         * fewest number of "hops" between routes to reach a desintation route
+         * least number of "hops" between routes to reach a destination route
          * @param startingRoute current position
          * @return min number of hops needed to reach one of the destination routes
          */
@@ -315,7 +315,6 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
             }
             // note: IntStream uses int in implementation so avoids any boxing overhead
             int result = destinationIndexs.stream().mapToInt(item -> item).
-                    //filter(dest -> routeToRouteCosts.costs.contains(indexOfStart, dest)).
                     map(dest -> routeToRouteCosts.costs.get(indexOfStart, dest)).
                     min().
                     orElse(Integer.MAX_VALUE);

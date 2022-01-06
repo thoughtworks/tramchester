@@ -4,6 +4,9 @@ import com.tramchester.domain.JourneyRequest;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.domain.time.TramTime;
+import com.tramchester.graph.search.stateMachine.HowIGotHere;
+import org.apache.commons.lang3.tuple.Pair;
+import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Transaction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,8 +31,9 @@ public class ServiceReasons {
     private final JourneyRequest journeyRequest;
     private final List<ServiceReason> reasons;
     // stats
-    private final Map<ServiceReason.ReasonCode, AtomicInteger> reasonCodeStats;
-    private final Map<String, AtomicInteger> stateStats;
+    private final Map<ServiceReason.ReasonCode, AtomicInteger> reasonCodeStats; // reason -> count
+    private final Map<String, AtomicInteger> stateStats; // State -> num visits
+    private final Map<Long, AtomicInteger> nodeVisits; // count of visits to nodes
     private final AtomicInteger totalChecked = new AtomicInteger(0);
     private final boolean diagnosticsEnabled;
 
@@ -47,12 +51,14 @@ public class ServiceReasons {
         Arrays.asList(ServiceReason.ReasonCode.values()).forEach(code -> reasonCodeStats.put(code, new AtomicInteger(0)));
 
         stateStats = new HashMap<>();
+        nodeVisits = new HashMap<>();
     }
 
     private void reset() {
         reasons.clear();
         reasonCodeStats.clear();
         stateStats.clear();
+        nodeVisits.clear();
         Arrays.asList(ServiceReason.ReasonCode.values()).forEach(code -> reasonCodeStats.put(code, new AtomicInteger(0)));
     }
 
@@ -62,13 +68,13 @@ public class ServiceReasons {
         }
 
         if (!success || diagnosticsEnabled) {
-            reportStats(pathRequest);
+            reportStats(transaction, pathRequest);
         }
 
         reset();
     }
 
-    private void reportStats(RouteCalculatorSupport.PathRequest pathRequest) {
+    private void reportStats(Transaction txn, RouteCalculatorSupport.PathRequest pathRequest) {
         if ((!success) && journeyRequest.getWarnIfNoResults()) {
             logger.warn("No result found for at " + pathRequest.getActualQueryTime() + " changes " + pathRequest.getNumChanges() +
                     " for " + journeyRequest );
@@ -77,6 +83,24 @@ public class ServiceReasons {
         logger.info("Total checked: " + totalChecked.get() + " for " + journeyRequest.toString());
         logStats("reasoncodes", reasonCodeStats);
         logStats("states", stateStats);
+        logVisits(5000, txn);
+    }
+
+    private void logVisits(int threshhold, Transaction txn) {
+        nodeVisits.entrySet().stream().
+                map(entry -> Pair.of(entry.getKey(), entry.getValue().get())).
+                filter(entry -> entry.getValue()>threshhold).
+                sorted(Comparator.comparing(Pair::getValue, Comparator.reverseOrder())).
+                limit(20).
+                map(entry -> Pair.of(txn.getNodeById(entry.getKey()), entry.getValue())).
+                map(pair -> Pair.of(nodeDetails(pair.getKey()), pair.getValue())).
+                forEach(entry -> logger.info("Visited " + entry.getKey() + " " + entry.getValue() + " times"));
+    }
+
+    private String nodeDetails(Node node) {
+        StringBuilder labels = new StringBuilder();
+        node.getLabels().forEach(label -> labels.append(" ").append(label));
+        return labels + " " + node.getAllProperties().toString();
     }
 
     private void logStats(String prefix, Map<?, AtomicInteger> stats) {
@@ -90,8 +114,21 @@ public class ServiceReasons {
         if (diagnosticsEnabled) {
             reasons.add(serviceReason);
         }
+
+        // todo push into diag only if too costly here
+        recordEndNodeVisit(serviceReason.getHowIGotHere());
+
         incrementStat(serviceReason.getReasonCode());
         return serviceReason;
+    }
+
+    private void recordEndNodeVisit(HowIGotHere howIGotHere) {
+        long endNode = howIGotHere.getEndNodeId();
+        if (nodeVisits.containsKey(endNode)) {
+            nodeVisits.get(endNode).incrementAndGet();
+        } else {
+            nodeVisits.put(endNode, new AtomicInteger(1));
+        }
     }
 
     public void incrementTotalChecked() {

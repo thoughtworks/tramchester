@@ -127,7 +127,7 @@ public class RouteCalculator extends RouteCalculatorSupport implements TramRoute
         final Set<Long> destinationNodeIds = Collections.singleton(endNode.getId());
 
         // can only be shared as same date and same set of destinations, will eliminate previously seen paths/results
-        LowestCostsForRoutes lowestCostsForRoutes = routeToRouteCosts.getLowestCostCalcutatorFor(destinations);
+        LowestCostsForDestRoutes lowestCostsForRoutes = routeToRouteCosts.getLowestCostCalcutatorFor(destinations);
         int maxJourneyDuration = getMaxDurationFor(txn, startNode, destinations, journeyRequest);
         final JourneyConstraints journeyConstraints = new JourneyConstraints(config, runningRoutesAndServices.getFor(queryDate.getDate()),
                 journeyRequest, closedStationsRepository, destinations, lowestCostsForRoutes, maxJourneyDuration);

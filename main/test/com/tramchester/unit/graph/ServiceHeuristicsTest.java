@@ -53,7 +53,7 @@ class ServiceHeuristicsTest extends EasyMockSupport {
     private JourneyConstraints journeyConstraints;
     private int maxJourneyDuration;
     private long maxNumberOfJourneys;
-    private LowestCostsForRoutes fewestHopsForRoutes;
+    private LowestCostsForDestRoutes fewestHopsForRoutes;
     private RouteInterchanges routeInterchanges;
 
     @BeforeEach
@@ -67,7 +67,7 @@ class ServiceHeuristicsTest extends EasyMockSupport {
         nodeContentsCache = createMock(CachedNodeOperations.class);
         howIGotHere = createMock(HowIGotHere.class);
         stationRepository = createMock(StationRepository.class);
-        fewestHopsForRoutes = createMock(LowestCostsForRoutes.class);
+        fewestHopsForRoutes = createMock(LowestCostsForDestRoutes.class);
         routeInterchanges = createMock(RouteInterchanges.class);
 
         int maxPathLength = 400;
@@ -75,6 +75,7 @@ class ServiceHeuristicsTest extends EasyMockSupport {
         EasyMock.expect(journeyConstraints.getMaxPathLength()).andStubReturn(maxPathLength);
         EasyMock.expect(journeyConstraints.getEndStations()).andStubReturn(endStations);
         EasyMock.expect(journeyConstraints.getMaxJourneyDuration()).andStubReturn(maxJourneyDuration);
+        EasyMock.expect(howIGotHere.getEndNodeId()).andStubReturn(42L);
     }
 
     @NotNull
@@ -332,7 +333,12 @@ class ServiceHeuristicsTest extends EasyMockSupport {
 
     private void checkForNodeTime(ServiceHeuristics serviceHeuristics, TramTime currentElapsed, LocalTime nodeTime,
                                   boolean expect, ServiceReasons reasons, Boolean nextDay) {
+
+        ////////////////
         resetAll();
+        ////////////////
+
+        EasyMock.expect(howIGotHere.getEndNodeId()).andStubReturn(42L);
 
         Node node = createMock(Node.class);
 

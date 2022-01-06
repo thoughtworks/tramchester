@@ -5,7 +5,7 @@ import com.tramchester.domain.id.HasId;
 
 import java.util.stream.Stream;
 
-public interface LowestCostsForRoutes {
+public interface LowestCostsForDestRoutes {
     int getFewestChanges(Route currentRoute);
     <T extends HasId<Route>> Stream<T> sortByDestinations(Stream<T> startingRoutes);
 }

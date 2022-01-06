@@ -107,10 +107,10 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
                     AlreadyDeparted, StationClosed, TooManyNeighbourConnections, TimedOut, RouteNotOnQueryDate, HigherCostViaExchange,
                     ExchangeNotReachable, TooManyRouteChangesRequired, TooManyInterchangesRequired
                     -> Evaluation.EXCLUDE_AND_PRUNE;
-            case OnTram, OnBus, OnTrain, NotOnVehicle, Cached , PreviousCacheMiss, NumWalkingConnectionsOk,
+            case OnTram, OnBus, OnTrain, NotOnVehicle, CachedUNKNOWN, PreviousCacheMiss, NumWalkingConnectionsOk,
                     NeighbourConnectionsOk, OnShip, OnSubway, OnWalk, CachedNotAtHour,
-                    CachedDoesNotOperateOnTime, CachedTooManyInterchangesAlready, CachedRouteNotOnQueryDate,
-                    CachedNotOnQueryDate
+                    CachedDoesNotOperateOnTime, CachedTooManyRouteChangesRequired, CachedRouteNotOnQueryDate,
+                    CachedNotOnQueryDate, CachedTooManyInterchangesRequired
                     -> throw new RuntimeException("Unexpected reason-code during evaluation: " + code.name());
         };
     }

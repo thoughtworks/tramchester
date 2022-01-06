@@ -30,16 +30,18 @@ public class PreviousVisits implements ReportsCacheStats {
     private final Cache<Key<TramTime>, ServiceReason.ReasonCode> hourNodePrevious;
     private final Cache<Long, ServiceReason.ReasonCode> routeStationPrevious;
     private final Cache<Long, ServiceReason.ReasonCode> servicePrevious;
+    private final Cache<Long, Integer> lowestNumberOfChanges;
 
     public PreviousVisits() {
         timeNodePrevious = createCache(100000);
         hourNodePrevious = createCache(400000);
         routeStationPrevious = createCache(40000);
         servicePrevious = createCache(30000);
+        lowestNumberOfChanges = createCache(20000);
     }
 
     @NotNull
-    private <KEY> Cache<KEY, ServiceReason.ReasonCode> createCache(long maxCacheSize) {
+    private <KEY, VALUE> Cache<KEY, VALUE> createCache(long maxCacheSize) {
         return Caffeine.newBuilder().maximumSize(maxCacheSize).expireAfterAccess(CACHE_DURATION_MINS, TimeUnit.MINUTES).
                 recordStats().build();
     }
@@ -58,18 +60,7 @@ public class PreviousVisits implements ReportsCacheStats {
         }
 
         if (labels.contains(GraphLabel.ROUTE_STATION)) {
-            if (result == TooManyRouteChangesRequired) {
-                // based on a route->route changes count only, invariant on current state of a journey
-                routeStationPrevious.put(node.getId(), result);
-            }
-            if (result == RouteNotOnQueryDate) {
-                // the route is unavailable for the query date
-                TramTime journeyClock = journeyState.getJourneyClock();
-                boolean isNextDay = journeyClock.isNextDay();
-                if (!isNextDay) {
-                    routeStationPrevious.put(node.getId(), result);
-                }
-            }
+            recordRouteStationVisitIfUseful(result, node.getId(), journeyState);
             return;
         }
 
@@ -80,6 +71,35 @@ public class PreviousVisits implements ReportsCacheStats {
                 boolean isNextDay = journeyClock.isNextDay();
                 if (!isNextDay) {
                     servicePrevious.put(node.getId(), result);
+                }
+            }
+        }
+    }
+
+    private void recordRouteStationVisitIfUseful(final ServiceReason.ReasonCode result, final long nodeId, final ImmutableJourneyState journeyState) {
+        if (result == TooManyRouteChangesRequired) {
+            // based on a route->route changes count only, invariant on current state of a journey
+            routeStationPrevious.put(nodeId, result);
+        }
+        if (result == RouteNotOnQueryDate) {
+            // the route is unavailable for the query date
+            TramTime journeyClock = journeyState.getJourneyClock();
+            final boolean isNextDay = journeyClock.isNextDay();
+            if (!isNextDay) {
+                routeStationPrevious.put(nodeId, result);
+            }
+        }
+        if (result == TooManyInterchangesRequired) {
+            // too many changes, record lowest number of changes on journey that gave this result
+            routeStationPrevious.put(nodeId, result);
+
+            final int numberChanges = journeyState.getNumberChanges();
+            final Integer currentLowest = lowestNumberOfChanges.getIfPresent(nodeId);
+            if (currentLowest==null) {
+                lowestNumberOfChanges.put(nodeId, numberChanges);
+            } else {
+                if (numberChanges < currentLowest) {
+                    lowestNumberOfChanges.put(nodeId, numberChanges);
                 }
             }
         }
@@ -105,7 +125,14 @@ public class PreviousVisits implements ReportsCacheStats {
         if (labels.contains(GraphLabel.ROUTE_STATION)) {
             ServiceReason.ReasonCode found = routeStationPrevious.getIfPresent(node.getId());
             if (found != null) {
-                return found;
+                if (found == TooManyInterchangesRequired) {
+                    Integer currentLowest = lowestNumberOfChanges.getIfPresent(node.getId());
+                    if (currentLowest!=null && journeyState.getNumberChanges()>=currentLowest) {
+                        return found;
+                    }
+                } else {
+                    return found;
+                }
             }
         }
 
@@ -126,6 +153,7 @@ public class PreviousVisits implements ReportsCacheStats {
         results.add(Pair.of("hourNodePrevious", hourNodePrevious.stats()));
         results.add(Pair.of("routeStationPrevious", routeStationPrevious.stats()));
         results.add(Pair.of("servicePrevious", servicePrevious.stats()));
+        results.add(Pair.of("lowestNumberOfChanges", lowestNumberOfChanges.stats()));
 
         return results;
     }

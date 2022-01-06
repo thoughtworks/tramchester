@@ -70,7 +70,7 @@ public class RouteCalculatorForBoxes extends RouteCalculatorSupport {
 
         final TramServiceDate queryDate = journeyRequest.getDate();
 
-        final LowestCostsForRoutes lowestCostForDestinations = routeToRouteCosts.getLowestCostCalcutatorFor(destinations);
+        final LowestCostsForDestRoutes lowestCostForDestinations = routeToRouteCosts.getLowestCostCalcutatorFor(destinations);
         RunningRoutesAndServices.FilterForDate routeAndServicesFilter = runningRoutesAndService.getFor(queryDate.getDate());
 
         int maxJourneyDuration = journeyRequest.getMaxJourneyDuration();

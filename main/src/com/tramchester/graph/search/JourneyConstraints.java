@@ -36,19 +36,19 @@ public class JourneyConstraints {
     private final int maxJourneyDuration;
     private final int maxWalkingConnections;
     private final int maxNeighbourConnections;
-    private final LowestCostsForRoutes lowestCostForDestinations;
+    private final LowestCostsForDestRoutes lowestCostForDestinations;
 
     public JourneyConstraints(TramchesterConfig config, RunningRoutesAndServices.FilterForDate routesAndServicesFilter,
                               JourneyRequest journeyRequest,
                               ClosedStationsRepository closedStationsRepository, Set<Station> endStations,
-                              LowestCostsForRoutes lowestCostForDestinations, int maxJourneyDuration) {
+                              LowestCostsForDestRoutes lowestCostForDestinations, int maxJourneyDuration) {
         this(config, routesAndServicesFilter, closedStationsRepository.getClosedStationsFor(journeyRequest.getDate()),
                 endStations, lowestCostForDestinations, maxJourneyDuration);
     }
 
     public JourneyConstraints(TramchesterConfig config, RunningRoutesAndServices.FilterForDate routesAndServicesFilter,
                               IdSet<Station> closedStations, Set<Station> endStations,
-                              LowestCostsForRoutes lowestCostForDestinations, int maxJourneyDuration) {
+                              LowestCostsForDestRoutes lowestCostForDestinations, int maxJourneyDuration) {
         this.config = config;
         this.lowestCostForDestinations = lowestCostForDestinations;
         this.routesAndServicesFilter = routesAndServicesFilter;
@@ -107,7 +107,7 @@ public class JourneyConstraints {
         return maxNeighbourConnections;
     }
 
-    public LowestCostsForRoutes getFewestChangesCalculator() {
+    public LowestCostsForDestRoutes getFewestChangesCalculator() {
         return lowestCostForDestinations;
     }
 

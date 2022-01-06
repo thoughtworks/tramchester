@@ -10,7 +10,7 @@ import com.tramchester.domain.time.TramServiceDate;
 import com.tramchester.geo.SortsPositions;
 import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.caches.NodeContentsRepository;
-import com.tramchester.graph.search.LowestCostsForRoutes;
+import com.tramchester.graph.search.LowestCostsForDestRoutes;
 import com.tramchester.graph.search.RouteToRouteCosts;
 import com.tramchester.graph.search.stateMachine.TraversalOps;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
@@ -74,7 +74,7 @@ public class TraversalOpsTest {
         destinationStations.add(manchesterAirport);
         LatLong destinationLatLon = TestEnv.nearPiccGardens;
 
-        LowestCostsForRoutes lowestCostForRoutes = routeToRouteCosts.getLowestCostCalcutatorFor(destinationStations);
+        LowestCostsForDestRoutes lowestCostForRoutes = routeToRouteCosts.getLowestCostCalcutatorFor(destinationStations);
 
         TraversalOps traversalOpsForDest = new TraversalOps(nodeOperations, tripRepository,
                 sortsPositions, destinationStations, destinationLatLon, lowestCostForRoutes, queryDate);

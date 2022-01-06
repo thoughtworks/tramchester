@@ -31,7 +31,7 @@ public class ServiceHeuristics {
     private final StationRepository stationRepository;
     private final NodeContentsRepository nodeOperations;
     private final int currentChangesLimit;
-    private final LowestCostsForRoutes lowestCostsForRoutes;
+    private final LowestCostsForDestRoutes lowestCostsForDestRoutes;
     private final RouteInterchanges routeInterchanges;
 
     public ServiceHeuristics(StationRepository stationRepository, RouteInterchanges routeInterchanges, NodeContentsRepository nodeOperations,
@@ -44,7 +44,7 @@ public class ServiceHeuristics {
         this.journeyConstraints = journeyConstraints;
         this.actualQueryTime = actualQueryTime;
         this.currentChangesLimit = currentChangesLimit;
-        this.lowestCostsForRoutes = journeyConstraints.getFewestChangesCalculator();
+        this.lowestCostsForDestRoutes = journeyConstraints.getFewestChangesCalculator();
     }
     
     public ServiceReason checkServiceDate(Node node, HowIGotHere howIGotHere, ServiceReasons reasons, TramTime visitTime) {
@@ -156,7 +156,7 @@ public class ServiceHeuristics {
             return reasons.recordReason(ServiceReason.RouteNotToday(howIGotHere, currentRoute.getId()));
         }
 
-        int fewestChanges = lowestCostsForRoutes.getFewestChanges(currentRoute);
+        int fewestChanges = lowestCostsForDestRoutes.getFewestChanges(currentRoute);
 
         if (fewestChanges > currentChangesLimit) {
             return reasons.recordReason(ServiceReason.StationNotReachable(howIGotHere, ServiceReason.ReasonCode.TooManyRouteChangesRequired));
@@ -174,7 +174,7 @@ public class ServiceHeuristics {
         IdFor<RouteStation> routeStationId = nodeOperations.getRouteStationId(nextNode);
         RouteStation routeStation = stationRepository.getRouteStationById(routeStationId);
 
-        if  (lowestCostsForRoutes.getFewestChanges(routeStation.getRoute())==0) {
+        if  (lowestCostsForDestRoutes.getFewestChanges(routeStation.getRoute())==0) {
             // on same route our destination
             return valid(ServiceReason.ReasonCode.ReachableSameRoute, howIGotHere, reasons);
         }
@@ -188,6 +188,7 @@ public class ServiceHeuristics {
             return reasons.recordReason(ServiceReason.InterchangeNotReachable(howIGotHere));
         }
 
+        // TODO Useful??
         if (bestSoFar.everArrived()) {
             int lowestCost = bestSoFar.getLowestCost();
             if (totalCostSoFar + costToFirstInterchange > lowestCost) {

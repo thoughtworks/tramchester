@@ -73,7 +73,7 @@ public class TramNetworkTraverser implements PathExpander<JourneyState> {
     }
 
     public Stream<Path> findPaths(Transaction txn, Node startNode, PreviousVisits previousSuccessfulVisit, LowestCostSeen lowestCostSeen,
-                                  Instant unusedBegin, LowestCostsForRoutes lowestCostsForRoutes) {
+                                  Instant unusedBegin, LowestCostsForDestRoutes lowestCostsForRoutes) {
         final boolean depthFirst = config.getDepthFirst();
         if (depthFirst) {
             logger.info("Depth first is enabled");
