@@ -20,6 +20,7 @@ import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TramRouteHelper;
 import com.tramchester.testSupport.reference.TramStations;
+import org.apache.commons.lang3.tuple.Pair;
 import org.junit.jupiter.api.*;
 
 import java.nio.file.Path;
@@ -79,18 +80,31 @@ public class RouteToRouteCostsTest {
         }
     }
 
+    @Disabled("Requires route with non-overlapping dates, which isn't the case for the current data")
     @Test
     void shouldFailToFindIfNoDateOverlop() {
-        List<Route> routesA = new ArrayList<>(routeHelper.get(AltrinchamPiccadilly));
+        Set<Route> routesA = routeHelper.get(AltrinchamPiccadilly);
         Set<Route> routesB = routeHelper.get(PiccadillyAltrincham);
 
-        Route firstRouteA = routesA.get(0);
-        Optional<Route> mayBeNoDateOverlap = routesB.stream().filter(route -> !firstRouteA.isDateOverlap(route)).findFirst();
+        // First:
+        // try to find routes with no overlap in order that can check the cost between those routes is MAX_VALUE
+        //Optional<Route> mayBeNoDateOverlap = routesB.stream().filter(route -> !firstRouteA.isDateOverlap(route)).findFirst();
 
-        assertTrue(mayBeNoDateOverlap.isPresent());
+        List<Pair<Route, Route>> nonDateOverlapPairs = routesA.stream().
+                map(routeA -> Pair.of(routeA ,
+                        routesB.stream().filter(routeB -> !routeA.isDateOverlap(routeB)).collect(Collectors.toSet()))).
+                filter(pair -> !pair.getRight().isEmpty()).
+                flatMap(pair ->
+                        pair.getRight().stream().map(other -> Pair.of(pair.getLeft(), other))).collect(Collectors.toList());
 
-        assertEquals(Integer.MAX_VALUE, routesCostRepository.getFor(firstRouteA, mayBeNoDateOverlap.get()));
+        assertFalse(nonDateOverlapPairs.isEmpty(), routesA + " no overlap " + routesB);
 
+        Pair<Route, Route> firstNonOverlap = nonDateOverlapPairs.get(0);
+
+        Route from = firstNonOverlap.getLeft();
+        Route to = firstNonOverlap.getRight();
+
+        assertEquals(Integer.MAX_VALUE, routesCostRepository.getFor(from, to));
     }
 
     @Test

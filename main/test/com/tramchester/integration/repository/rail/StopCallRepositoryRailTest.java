@@ -59,7 +59,7 @@ public class StopCallRepositoryRailTest {
         assertFalse(costs.isEmpty());
 
         // was getting costs > 23 hours due to crossing midnight
-        assertEquals(13, costs.average(), costs.toString());
+        assertEquals(14, costs.average(), costs.toString());
         assertEquals(14, costs.max(), costs.toString());
     }
 

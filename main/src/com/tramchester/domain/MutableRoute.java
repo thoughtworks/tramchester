@@ -112,14 +112,16 @@ public class MutableRoute implements Route {
 
     @Override
     public String toString() {
-        return "Route{" +
+        return "MutableRoute{" +
                 "id=" + id +
                 ", shortName='" + shortName + '\'' +
                 ", name='" + name + '\'' +
-                ", agency=" + agency.getName() +
+                ", agency=" + agency +
                 ", transportMode=" + transportMode +
                 ", services=" + HasId.asIds(services) +
-                ", trips=" + HasId.asIds(trips) +
+                ", trips=" +  HasId.asIds(trips) +
+                ", serviceDateCache=" + serviceDateCache +
+                ", intoNextDay=" + intoNextDay() +
                 '}';
     }
 
@@ -214,6 +216,14 @@ public class MutableRoute implements Route {
                 loadFrom(services);
             }
             return dateRange;
+        }
+
+        @Override
+        public String toString() {
+            return "ServiceDateCache{" +
+                    "operatingDays=" + operatingDays +
+                    ", dateRange=" + dateRange +
+                    '}';
         }
     }
 }
