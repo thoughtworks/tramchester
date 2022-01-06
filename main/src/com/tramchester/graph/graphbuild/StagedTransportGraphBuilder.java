@@ -363,7 +363,6 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
         // TODO when filtering this isn't really valid, we might only see a small segment of a larger trip....
         // In unfiltered situations (i.e. not testing) it is fine
 
-        //boolean isFirstStop = stopCall.getGetSequenceNumber() == trip.getSeqNumOfFirstStop();
         boolean isFirstStop = stopCall.equals(trip.getStopCalls().getFirstStop());
         if (isFirstStop && dropoff && !trip.isFiltered()) {
             String msg = "Drop off at first station for stop " + station.getId() + " trip " + trip.getId() + " " + stopCall.getDropoffType()
@@ -371,7 +370,7 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
             logger.info(msg);
         }
 
-        boolean isLastStop = stopCall.getGetSequenceNumber() == trip.getSeqNumOfLastStop();
+        boolean isLastStop = stopCall.equals(trip.getStopCalls().getLastStop());
         if (isLastStop && pickup && !trip.isFiltered()) {
             String msg = "Pick up at last station for stop " + station.getId() + " trip " + trip.getId() + " " + stopCall.getPickupType()
                     + " seq:" + stopCall.getGetSequenceNumber();

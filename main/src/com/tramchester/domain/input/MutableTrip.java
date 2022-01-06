@@ -16,10 +16,6 @@ public class MutableTrip implements Trip {
     private final Route route;
     private final StopCalls stopCalls;
     private final TransportMode actualMode; // used for things like RailReplacementBus where parent route has different mode
-    private TramTime earliestDepart = null;
-    private TramTime latestDepart = null;
-    private int lastIndex;
-    private int firstIndex;
     private boolean filtered; // at least one station on this trip was filtered out
 
     public MutableTrip(IdFor<Trip> tripId, String headSign, Service service, Route route) {
@@ -33,8 +29,6 @@ public class MutableTrip implements Trip {
         this.route = route;
         stopCalls = new StopCalls(tripId);
         this.actualMode = actualMode;
-        lastIndex = Integer.MIN_VALUE;
-        firstIndex = Integer.MAX_VALUE;
         filtered = false;
     }
 
@@ -68,19 +62,6 @@ public class MutableTrip implements Trip {
 
     public void addStop(StopCall stop) {
         stopCalls.add(stop);
-
-        // use stop index as avoids issues with crossing day boundaries
-        int stopIndex = stop.getGetSequenceNumber();
-        TramTime departureTime = stop.getDepartureTime();
-
-        if (stopIndex < firstIndex) {
-            firstIndex = stopIndex;
-            earliestDepart = departureTime;
-        }
-        if (stopIndex > lastIndex) {
-            lastIndex = stopIndex;
-            latestDepart = departureTime;
-        }
     }
 
     @Override
@@ -91,10 +72,6 @@ public class MutableTrip implements Trip {
                 ", service=" + HasId.asId(service) +
                 ", route=" + HasId.asId(route) +
                 ", stops=" + stopCalls +
-                ", earliestDepart=" + earliestDepart +
-                ", latestDepart=" + latestDepart +
-                ", lastIndex=" + lastIndex +
-                ", firstIndex=" + firstIndex +
                 '}';
     }
 
@@ -114,34 +91,8 @@ public class MutableTrip implements Trip {
     }
 
     @Override
-    public TramTime earliestDepartTime() {
-        if (earliestDepart==null) {
-            throw new RuntimeException("earliestDepart not set for tripid " + tripId);
-        }
-        return earliestDepart;
-    }
-
-    @Override
-    public TramTime latestDepartTime() {
-        if (latestDepart==null) {
-            throw new RuntimeException("latestDepart not set for tripid " + tripId);
-        }
-        return latestDepart;
-    }
-
-    @Override
     public TransportMode getTransportMode() {
         return actualMode;
-    }
-
-    @Override
-    public int getSeqNumOfFirstStop() {
-        return firstIndex;
-    }
-
-    @Override
-    public int getSeqNumOfLastStop() {
-        return lastIndex;
     }
 
     @Override

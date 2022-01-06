@@ -21,12 +21,6 @@ public interface Trip extends HasId<Trip>, HasTransportMode, GraphProperty {
 
     TransportMode getTransportMode();
 
-    @Deprecated
-    int getSeqNumOfFirstStop();
-
-    @Deprecated
-    int getSeqNumOfLastStop();
-
     GraphPropertyKey getProp();
 
     boolean isFiltered();
@@ -36,10 +30,4 @@ public interface Trip extends HasId<Trip>, HasTransportMode, GraphProperty {
     TramTime departTime();
 
     TramTime arrivalTime();
-
-    @Deprecated
-    TramTime earliestDepartTime();
-
-    @Deprecated
-    TramTime latestDepartTime();
 }

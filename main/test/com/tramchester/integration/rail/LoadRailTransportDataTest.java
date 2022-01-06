@@ -124,7 +124,7 @@ public class LoadRailTransportDataTest {
                 filter(trip -> trip.getStopCalls().callsAt(startStation)).
                 filter(trip -> trip.getStopCalls().callsAt(endStation)).
                 filter(trip -> trip.getStopCalls().getStationSequence().get(0).equals(startStation)).
-                filter(trip -> trip.getStopCalls().getStopBySequenceNumber(trip.getSeqNumOfLastStop()).getStation().equals(endStation)).
+                filter(trip -> trip.getStopCalls().getLastStop().getStation().equals(endStation)).
                 collect(Collectors.toList());
 
         assertFalse(matchingTrips.isEmpty());
@@ -139,7 +139,7 @@ public class LoadRailTransportDataTest {
         assertEquals(service, trip.getService());
 
         StopCalls stops = trip.getStopCalls();
-        final StopCall firstStopCall = stops.getStopBySequenceNumber(1);
+        final StopCall firstStopCall = stops.getFirstStop();
         assertEquals(startStation, firstStopCall.getStation());
         assertEquals(GTFSPickupDropoffType.None, firstStopCall.getDropoffType());
         assertEquals(GTFSPickupDropoffType.Regular, firstStopCall.getPickupType());
@@ -320,11 +320,11 @@ public class LoadRailTransportDataTest {
     }
 
     private boolean matches(IdFor<Station> firstId, IdFor<Station> secondId, Trip trip) {
-        StopCall firstCall = trip.getStopCalls().getStopBySequenceNumber(trip.getSeqNumOfFirstStop());
+        StopCall firstCall = trip.getStopCalls().getFirstStop();
         if (!firstCall.getStationId().equals(firstId)) {
             return false;
         }
-        StopCall finalCall = trip.getStopCalls().getStopBySequenceNumber(trip.getSeqNumOfLastStop());
+        StopCall finalCall = trip.getStopCalls().getLastStop();
         return secondId.equals(finalCall.getStationId());
     }
 

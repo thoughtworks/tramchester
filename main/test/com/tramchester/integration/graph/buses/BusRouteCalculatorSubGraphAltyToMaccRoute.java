@@ -154,7 +154,7 @@ class BusRouteCalculatorSubGraphAltyToMaccRoute {
                 List<IdFor<Station>> ids = stopCalls.stream().map(stopCall -> stopCall.getStation().getId()).collect(Collectors.toList());
 
                 int knutsfordIndex = ids.indexOf(StringIdFor.createId("0600MA6022")); // services beyond here are infrequent
-                Station firstStation = stopCalls.getStopBySequenceNumber(0).getStation();
+                Station firstStation = stopCalls.getFirstStop().getStation();
 
                 TramTime time = TramTime.of(9, 20);
                 JourneyRequest journeyRequest = new JourneyRequest(when, time, false,

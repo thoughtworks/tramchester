@@ -190,7 +190,7 @@ public class TransportDataFromFilesTramTest {
                 filter(trip -> trip.getStopCalls().callsAt(Shudehill)).collect(Collectors.toList());
 
         List<StopCall> fromVictoria = ecclesTripsViaShudehill.stream().
-                map(trip -> trip.getStopCalls().getStopBySequenceNumber(trip.getSeqNumOfFirstStop())).
+                map(trip -> trip.getStopCalls().getFirstStop()).
                 filter(stopCall -> stopCall.getStationId().equals(Victoria.getId())).
                 collect(Collectors.toList());
 
@@ -204,7 +204,7 @@ public class TransportDataFromFilesTramTest {
                 filter(trip -> trip.getStopCalls().callsAt(Shudehill)).collect(Collectors.toList());
 
         List<StopCall> toVictoria = ecclesTripsViaShudehill.stream().
-                map(trip -> trip.getStopCalls().getStopBySequenceNumber(trip.getSeqNumOfLastStop())).
+                map(trip -> trip.getStopCalls().getLastStop()).
                 filter(stopCall -> stopCall.getStationId().equals(Victoria.getId())).
                 collect(Collectors.toList());
 
@@ -319,7 +319,7 @@ public class TransportDataFromFilesTramTest {
         Set<Trip> allTrips = transportData.getTrips();
 
         Set<String> endTripNotInterchange = allTrips.stream().
-                map(trip -> trip.getStopCalls().getStopBySequenceNumber(trip.getSeqNumOfLastStop())).
+                map(trip -> trip.getStopCalls().getLastStop()).
                 map(StopCall::getStation).
                 filter(station -> !interchangeRepository.isInterchange(station)).
                 filter(station -> !TramStations.isEndOfLine(station)).
