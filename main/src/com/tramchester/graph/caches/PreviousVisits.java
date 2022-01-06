@@ -46,6 +46,8 @@ public class PreviousVisits implements ReportsCacheStats {
 
     public void recordVisitIfUseful(ServiceReason.ReasonCode result, Node node, ImmutableJourneyState journeyState, EnumSet<GraphLabel> labels) {
         if (labels.contains(GraphLabel.MINUTE) || labels.contains(GraphLabel.HOUR)) {
+            // time and hour nodes represent the time on the actual journey, so if we have been here before
+            // we will get the same result
             TramTime journeyClock = journeyState.getJourneyClock();
 
             switch (result) {
@@ -56,10 +58,12 @@ public class PreviousVisits implements ReportsCacheStats {
         }
 
         if (labels.contains(GraphLabel.ROUTE_STATION)) {
-//            if (result == TooManyInterchangesAlready) {
-//                routeStationPrevious.put(node.getId(), result);
-//            }
+            if (result == TooManyRouteChangesRequired) {
+                // based on a route->route changes count only, invariant on current state of a journey
+                routeStationPrevious.put(node.getId(), result);
+            }
             if (result == RouteNotOnQueryDate) {
+                // the route is unavailable for the query date
                 TramTime journeyClock = journeyState.getJourneyClock();
                 boolean isNextDay = journeyClock.isNextDay();
                 if (!isNextDay) {
@@ -71,6 +75,7 @@ public class PreviousVisits implements ReportsCacheStats {
 
         if (labels.contains(GraphLabel.SERVICE)) {
             if (result == NotOnQueryDate) {
+                // the service is unavailable for the query date
                 TramTime journeyClock = journeyState.getJourneyClock();
                 boolean isNextDay = journeyClock.isNextDay();
                 if (!isNextDay) {

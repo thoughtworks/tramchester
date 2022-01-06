@@ -159,7 +159,7 @@ public class ServiceHeuristics {
         int fewestChanges = lowestCostsForRoutes.getFewestChanges(currentRoute);
 
         if (fewestChanges > currentChangesLimit) {
-            return reasons.recordReason(ServiceReason.StationNotReachable(howIGotHere, ServiceReason.ReasonCode.TooManyInterchangesAlready));
+            return reasons.recordReason(ServiceReason.StationNotReachable(howIGotHere, ServiceReason.ReasonCode.TooManyRouteChangesRequired));
         }
 
         if ((fewestChanges+currentNumberOfChanges) > currentChangesLimit) {

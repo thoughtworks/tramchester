@@ -39,7 +39,7 @@ public abstract class ServiceReason {
         TooManyNeighbourConnections,
         StationClosed,
         TimedOut,
-        TooManyInterchangesAlready,
+        TooManyRouteChangesRequired,
         TooManyInterchangesRequired,
 
         Cached,
@@ -401,7 +401,7 @@ public abstract class ServiceReason {
         return switch (code) {
             case NotAtHour -> new DoesNotOperateOnTime(ReasonCode.CachedNotAtHour, currentElapsed, path);
             case DoesNotOperateOnTime -> new DoesNotOperateOnTime(ReasonCode.CachedDoesNotOperateOnTime, currentElapsed, path);
-            case TooManyInterchangesAlready -> new DoesNotOperateOnTime(ReasonCode.CachedTooManyInterchangesAlready, currentElapsed, path);
+            case TooManyRouteChangesRequired -> new DoesNotOperateOnTime(ReasonCode.CachedTooManyInterchangesAlready, currentElapsed, path);
             case RouteNotOnQueryDate -> new DoesNotOperateOnTime(ReasonCode.CachedRouteNotOnQueryDate, currentElapsed, path);
             case NotOnQueryDate -> new DoesNotOperateOnTime(ReasonCode.CachedNotOnQueryDate, currentElapsed, path);
             default -> new DoesNotOperateOnTime(ReasonCode.Cached, currentElapsed, path);

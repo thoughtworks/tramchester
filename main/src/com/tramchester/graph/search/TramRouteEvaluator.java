@@ -105,7 +105,7 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
             case HigherCost, ReturnedToStart, PathTooLong, TooManyChanges, TooManyWalkingConnections, NotReachable,
                     TookTooLong, ServiceNotRunningAtTime, NotAtHour, DoesNotOperateOnTime, NotOnQueryDate, MoreChanges,
                     AlreadyDeparted, StationClosed, TooManyNeighbourConnections, TimedOut, RouteNotOnQueryDate, HigherCostViaExchange,
-                    ExchangeNotReachable, TooManyInterchangesAlready, TooManyInterchangesRequired
+                    ExchangeNotReachable, TooManyRouteChangesRequired, TooManyInterchangesRequired
                     -> Evaluation.EXCLUDE_AND_PRUNE;
             case OnTram, OnBus, OnTrain, NotOnVehicle, Cached , PreviousCacheMiss, NumWalkingConnectionsOk,
                     NeighbourConnectionsOk, OnShip, OnSubway, OnWalk, CachedNotAtHour,
@@ -140,7 +140,7 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
                 logger.warn(format("Timed out %s ms, current cost %s, changes %s, path len %s, state: %s, labels %s, best %s",
                         durationMillis, totalCostSoFar, numberChanges, thePath.length(), howIGotHere.getTraversalStateName(),
                         nodeLabels, bestResultSoFar));
-                logger.warn(format("Props for node %s were %s", nextNodeId, allProps));
+                logger.warn(format("Timed out: Props for node %s were %s", nextNodeId, allProps));
                 reasons.recordReason(ServiceReason.TimedOut(howIGotHere));
                 return ServiceReason.ReasonCode.TimedOut;
             }
