@@ -16,6 +16,7 @@ import java.util.EnumSet;
 import java.util.Set;
 
 import static com.tramchester.domain.id.StringIdFor.createId;
+import static com.tramchester.domain.reference.TransportMode.Tram;
 import static java.time.DayOfWeek.MONDAY;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -25,7 +26,7 @@ class RouteTest {
     @Test
     void shouldHaveTramRoute() {
         Route route = MutableRoute.getRoute(createId("idA"),"code","name", TestEnv.MetAgency(),
-                TransportMode.Tram);
+                Tram);
         Assertions.assertTrue(TransportMode.isTram(route));
 
         final Agency agency = MutableAgency.build(DataSourceID.tfgm, createId("GMS"), "agencyName");
@@ -40,7 +41,7 @@ class RouteTest {
         LocalDate endDate = LocalDate.of(2020, 11, 25);
 
         MutableRoute route = new MutableRoute(createId("routeId"),"code","name", TestEnv.MetAgency(),
-                TransportMode.Tram);
+                Tram);
 
         route.addService(createService(startDate, endDate,"serviceId", EnumSet.of(MONDAY)));
         route.addService(createService(startDate, endDate,"serviceId", EnumSet.of(MONDAY)));
@@ -57,12 +58,12 @@ class RouteTest {
         LocalDate endDate = LocalDate.of(2020, 11, 25);
 
         MutableRoute route = new MutableRoute(createId("routeId"),"code","name", TestEnv.MetAgency(),
-                TransportMode.Tram);
+                Tram);
 
         final Service serviceA = createService(startDate, endDate, "serviceId", EnumSet.of(MONDAY));
 
-        route.addTrip(new MutableTrip(StringIdFor.createId("tripA"), "headSignA", serviceA, route));
-        route.addTrip(new MutableTrip(StringIdFor.createId("tripB"), "headSignB", serviceA, route));
+        route.addTrip(new MutableTrip(StringIdFor.createId("tripA"), "headSignA", serviceA, route, Tram));
+        route.addTrip(new MutableTrip(StringIdFor.createId("tripB"), "headSignB", serviceA, route, Tram));
 
         Set<Trip> trips = route.getTrips();
 
@@ -72,9 +73,9 @@ class RouteTest {
     @Test
     void shouldHaveDateOverlop() {
         MutableRoute routeA = new MutableRoute(createId("routeIdA"),"codeA","nameA", TestEnv.MetAgency(),
-                TransportMode.Tram);
+                Tram);
         MutableRoute routeB = new MutableRoute(createId("routeIdB"),"codeB","nameB", TestEnv.MetAgency(),
-                TransportMode.Tram);
+                Tram);
 
         LocalDate startDate = LocalDate.of(2020, 11, 5);
         LocalDate endDate = LocalDate.of(2020, 11, 25);
@@ -84,18 +85,18 @@ class RouteTest {
         Service serviceB = createService(startDate, endDate, "serviceB", EnumSet.of(DayOfWeek.SUNDAY));
 
         routeB = new MutableRoute(createId("routeIdB"),"codeB","nameB", TestEnv.MetAgency(),
-                TransportMode.Tram);
+                Tram);
         routeB.addService(serviceB);
         assertFalse(routeA.isDateOverlap(routeB));
 
         routeB = new MutableRoute(createId("routeIdB"),"codeB","nameB", TestEnv.MetAgency(),
-                TransportMode.Tram);
+                Tram);
         Service serviceC = createService(startDate.minusDays(10), startDate.minusDays(5), "serviceC", EnumSet.of(MONDAY));
         routeB.addService(serviceC);
         assertFalse(routeA.isDateOverlap(routeB));
 
         routeB = new MutableRoute(createId("routeIdB"),"codeB","nameB", TestEnv.MetAgency(),
-                TransportMode.Tram);
+                Tram);
         Service serviceD = createService(startDate, endDate, "serviceD", EnumSet.of(MONDAY));
         routeB.addService(serviceD);
         assertTrue(routeA.isDateOverlap(routeB));

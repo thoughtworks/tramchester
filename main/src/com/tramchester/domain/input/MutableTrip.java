@@ -18,10 +18,6 @@ public class MutableTrip implements Trip {
     private final TransportMode actualMode; // used for things like RailReplacementBus where parent route has different mode
     private boolean filtered; // at least one station on this trip was filtered out
 
-    public MutableTrip(IdFor<Trip> tripId, String headSign, Service service, Route route) {
-        this(tripId, headSign, service, route, route.getTransportMode());
-    }
-
     public MutableTrip(IdFor<Trip> tripId, String headSign, Service service, Route route, TransportMode actualMode) {
         this.tripId = tripId;
         this.headSign = headSign.intern();
@@ -30,11 +26,12 @@ public class MutableTrip implements Trip {
         stopCalls = new StopCalls(tripId);
         this.actualMode = actualMode;
         filtered = false;
+
     }
 
     // test support
     public static Trip build(IdFor<Trip> tripId, String headSign, Service service, Route route) {
-        return new MutableTrip(tripId, headSign, service, route);
+        return new MutableTrip(tripId, headSign, service, route, route.getTransportMode());
     }
 
     @Override

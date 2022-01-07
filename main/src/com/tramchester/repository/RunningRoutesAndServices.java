@@ -5,14 +5,11 @@ import com.tramchester.domain.Route;
 import com.tramchester.domain.Service;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdSet;
-import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.time.TramTime;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
 import javax.inject.Inject;
 import java.time.LocalDate;
 
@@ -22,32 +19,11 @@ public class RunningRoutesAndServices {
 
     private final ServiceRepository serviceRepository;
     private final RouteRepository routeRepository;
-    private final TripRepository tripRepository;
-    private IdSet<Service> intoNextDay;
 
     @Inject
-    public RunningRoutesAndServices(ServiceRepository serviceRepository, RouteRepository routeRepository, TripRepository tripRepository) {
+    public RunningRoutesAndServices(ServiceRepository serviceRepository, RouteRepository routeRepository) {
         this.serviceRepository = serviceRepository;
         this.routeRepository = routeRepository;
-        this.tripRepository = tripRepository;
-    }
-
-    @PostConstruct
-    public void start() {
-        logger.info("starting");
-        intoNextDay = tripRepository.getTrips().stream().filter(Trip::intoNextDay).
-                map(Trip::getService).
-                collect(IdSet.collector());
-        logger.info("started");
-    }
-
-    @PreDestroy
-    public void dispose() {
-        logger.info("stopping");
-        if (intoNextDay != null) {
-            intoNextDay.clear();
-        }
-        logger.info("stopped");
     }
 
     public FilterForDate getFor(LocalDate date) {
@@ -83,10 +59,6 @@ public class RunningRoutesAndServices {
             logger.warn("No running services found on " + date);
         }
         return serviceIds;
-    }
-
-    public boolean intoNextDay(IdFor<Service> id) {
-        return intoNextDay.contains(id);
     }
 
     public static class FilterForDate {

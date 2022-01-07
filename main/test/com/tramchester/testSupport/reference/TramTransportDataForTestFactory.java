@@ -116,7 +116,8 @@ public class TramTransportDataForTestFactory implements TransportDataFactory {
         container.addRoute(routeD);
 
         // tripA: FIRST_STATION -> SECOND_STATION -> INTERCHANGE -> LAST_STATION
-        MutableTrip tripA = new MutableTrip(StringIdFor.createId(TramTransportDataForTest.TRIP_A_ID), "headSign", serviceA, routeA);
+        MutableTrip tripA = new MutableTrip(StringIdFor.createId(TramTransportDataForTest.TRIP_A_ID), "headSign",
+                serviceA, routeA, Tram);
 
         MutableStation first = new TestStation(TramTransportDataForTest.FIRST_STATION, "area1", "startStation",
                 nearAltrincham, nearAltrinchamGrid, Tram, dataSourceID);
@@ -126,7 +127,7 @@ public class TramTransportDataForTestFactory implements TransportDataFactory {
         tripA.addStop(stopA);
 
         // trip Z, firstNameDup - for composite station testing
-        MutableTrip tripZ = new MutableTrip(StringIdFor.createId("tripZ"), "for dup", serviceA, routeD);
+        MutableTrip tripZ = new MutableTrip(StringIdFor.createId("tripZ"), "for dup", serviceA, routeD, Tram);
         MutableStation firstDupName = new TestStation(TramTransportDataForTest.FIRST_STATION_DUP_NAME, "area1",
                 "startStation", nearAltrincham, nearAltrinchamGrid, Tram, dataSourceID);
         addAStation(container, firstDupName);
@@ -174,7 +175,7 @@ public class TramTransportDataForTestFactory implements TransportDataFactory {
         addAStation(container, stationFour);
 
         // trip ZZ, fourthNameDup - for composite station testing
-        MutableTrip tripZZ = new MutableTrip(StringIdFor.createId("tripZZ"), "for dup of 4", serviceA, routeD);
+        MutableTrip tripZZ = new MutableTrip(StringIdFor.createId("tripZZ"), "for dup of 4", serviceA, routeD, Tram);
         MutableStation fourDupName = new TestStation(TramTransportDataForTest.STATION_FOUR_DUP_NAME, "area4",
                 "Station4", nearKnutsfordBusStation, nearKnutsfordGrid, Tram, dataSourceID);
         addAStation(container, fourDupName);
@@ -190,7 +191,7 @@ public class TramTransportDataForTestFactory implements TransportDataFactory {
         addAStation(container, stationFive);
 
         //
-        MutableTrip tripC = new MutableTrip(StringIdFor.createId("tripCId"), "headSignC", serviceC, routeC);
+        MutableTrip tripC = new MutableTrip(StringIdFor.createId("tripCId"), "headSignC", serviceC, routeC, Tram);
         PlatformStopCall stopG = createStop(container, tripC, interchangeStation, of(8, 26),
                 of(8, 27), 1);
         addRouteStation(container, interchangeStation, routeC);
@@ -237,7 +238,7 @@ public class TramTransportDataForTestFactory implements TransportDataFactory {
 
     private static void createInterchangeToStation4Trip(TransportDataContainer container, MutableRoute route, Service service,
                                                         MutableStation interchangeStation, MutableStation station, LocalTime startTime, String tripId) {
-        MutableTrip trip = new MutableTrip(StringIdFor.createId(tripId), "headSignTripB2", service, route);
+        MutableTrip trip = new MutableTrip(StringIdFor.createId(tripId), "headSignTripB2", service, route, Tram);
         PlatformStopCall stop1 = createStop(container,trip, interchangeStation, of(startTime),
                 of(startTime.plusMinutes(5)), 1);
         trip.addStop(stop1);
@@ -265,9 +266,6 @@ public class TramTransportDataForTestFactory implements TransportDataFactory {
         private static final IdFor<Service> serviceAId = StringIdFor.createId("serviceAId");
         private static final IdFor<Service> serviceBId = StringIdFor.createId("serviceBId");
         private static final IdFor<Service> serviceCId = StringIdFor.createId("serviceCId");
-
-        // for the dups
-        private static final IdFor<Service> serviceZId = StringIdFor.createId("serviceZId");
 
         private static final String METROLINK_PREFIX = "9400ZZ";
 
@@ -345,7 +343,6 @@ public class TramTransportDataForTestFactory implements TransportDataFactory {
                     LocalDate.of(2016, 6, 30), "version");
 
             Map<DataSourceID, FeedInfo> result = new HashMap<>();
-//            result.put(new DataSourceID("TransportDataForTest"), info);
             result.put(DataSourceID.unknown, info);
             return result;
         }

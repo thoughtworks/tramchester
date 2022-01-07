@@ -8,6 +8,7 @@ import com.tramchester.domain.places.MutableStation;
 import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.GTFSTransportationType;
+import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.geo.GridPosition;
 
 import java.util.Optional;
@@ -40,8 +41,10 @@ public abstract class TransportEntityFactory {
         return new MutableService(serviceId);
     }
 
-    public MutableTrip createTrip(TripData tripData, Service service, Route route) {
-        return new MutableTrip(tripData.getTripId(), tripData.getHeadsign(), service, route);
+    public MutableTrip createTrip(TripData tripData, MutableService service, Route route, TransportMode transportMode) {
+        final MutableTrip trip = new MutableTrip(tripData.getTripId(), tripData.getHeadsign(), service, route, transportMode);
+        service.addTrip(trip);
+        return trip;
     }
 
     public MutableStation createStation(IdFor<Station> stationId, StopData stopData, GridPosition position) {

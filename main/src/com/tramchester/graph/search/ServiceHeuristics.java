@@ -106,6 +106,7 @@ public class ServiceHeuristics {
         reasons.incrementTotalChecked();
 
         int queryTimeHour = journeyClockTime.getHourOfDay();
+
         //noinspection SuspiciousMethodCalls
         if (labels.contains(GraphLabel.getHourLabel(queryTimeHour))) {
             // quick win
@@ -124,6 +125,7 @@ public class ServiceHeuristics {
 
 
     public ServiceReason checkStationOpen(Node node, HowIGotHere howIGotHere, ServiceReasons reasons) {
+        reasons.incrementTotalChecked();
 
         IdFor<RouteStation> routeStationId = nodeOperations.getRouteStationId(node);
         RouteStation routeStation = stationRepository.getRouteStationById(routeStationId);
@@ -140,6 +142,7 @@ public class ServiceHeuristics {
 
     public ServiceReason canReachDestination(Node endNode, int currentNumberOfChanges, HowIGotHere howIGotHere,
                                              ServiceReasons reasons, TramTime currentElapsed) {
+        reasons.incrementTotalChecked();
 
         IdFor<RouteStation> routeStationId = nodeOperations.getRouteStationId(endNode);
         RouteStation routeStation = stationRepository.getRouteStationById(routeStationId);
@@ -171,6 +174,8 @@ public class ServiceHeuristics {
 
     public ServiceReason lowerCostIncludingInterchange(Node nextNode, int totalCostSoFar, LowestCostSeen bestSoFar,
                                                        HowIGotHere howIGotHere, ServiceReasons reasons) {
+        reasons.incrementTotalChecked();
+
         IdFor<RouteStation> routeStationId = nodeOperations.getRouteStationId(nextNode);
         RouteStation routeStation = stationRepository.getRouteStationById(routeStationId);
 
@@ -201,6 +206,8 @@ public class ServiceHeuristics {
     }
 
     public ServiceReason journeyDurationUnderLimit(final int totalCost, final HowIGotHere howIGotHere, ServiceReasons reasons) {
+        reasons.incrementTotalChecked();
+
         if (totalCost > journeyConstraints.getMaxJourneyDuration()) {
             return reasons.recordReason(ServiceReason.TookTooLong(actualQueryTime.plusMinutes(totalCost), howIGotHere));
         }

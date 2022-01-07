@@ -9,6 +9,7 @@ import com.tramchester.domain.id.CompositeIdMap;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.input.MutableTrip;
 import com.tramchester.domain.input.Trip;
+import com.tramchester.domain.reference.TransportMode;
 
 class TripAndServices {
     private final CompositeIdMap<Service, MutableService> services;
@@ -43,7 +44,7 @@ class TripAndServices {
         return services.getOrAdd(serviceId, () -> factory.createService(serviceId));
     }
 
-    public void createTripIfMissing(IdFor<Trip> tripId, TripData tripData, Service service, Route route) {
-        trips.getOrAdd(tripId, () -> factory.createTrip(tripData, service, route));
+    public void createTripIfMissing(IdFor<Trip> tripId, TripData tripData, MutableService service, Route route, TransportMode transportMode) {
+        trips.getOrAdd(tripId, () -> factory.createTrip(tripData, service, route, transportMode));
     }
 }

@@ -281,6 +281,13 @@ public class TransportDataFromFilesTramTest {
     }
 
     @Test
+    void shouldHaveSaneServiceStartAndFinishTimes() {
+        Set<Service> badTimings = allServices.stream().filter(svc -> svc.getStartTime().isAfter(svc.getFinishTime())).
+                collect(Collectors.toSet());
+        assertTrue(badTimings.isEmpty());
+    }
+
+    @Test
     void shouldHaveSundayServicesFromCornbrook() {
         LocalDate nextSunday = TestEnv.nextSunday();
 

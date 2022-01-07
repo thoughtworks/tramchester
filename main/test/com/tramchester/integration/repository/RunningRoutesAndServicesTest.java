@@ -59,16 +59,6 @@ public class RunningRoutesAndServicesTest {
 
         assertFalse(tripsIntoNextDay.isEmpty());
 
-        Set<Service> servicesFromTrips = tripsIntoNextDay.stream().map(Trip::getService).collect(Collectors.toSet());
-
-        servicesFromTrips.forEach(service -> assertTrue(runningRoutesAndServices.intoNextDay(service.getId()),
-                service.getId() + " should be into next day"));
-
-        Set<Service> servicesIntoNextDay = transportData.getServices().stream().
-                filter(service -> runningRoutesAndServices.intoNextDay(service.getId())).collect(Collectors.toSet());
-
-        assertEquals(servicesIntoNextDay, servicesFromTrips);
-
         Set<Route> routesFromTrips = tripsIntoNextDay.stream().map(Trip::getRoute).collect(Collectors.toSet());
         assertFalse(routesFromTrips.isEmpty());
 

@@ -17,7 +17,7 @@ import java.util.stream.Stream;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class RailTimetableDataFromFileTest extends EasyMockSupport {
+public class RailLoadTimetableFromFileTest extends EasyMockSupport {
 
     private RailTimetableDataFromFile railTimetableDataFromFile;
     private RailDataRecordFactory factory;

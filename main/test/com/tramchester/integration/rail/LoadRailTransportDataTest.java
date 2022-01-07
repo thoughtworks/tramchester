@@ -284,6 +284,14 @@ public class LoadRailTransportDataTest {
     }
 
     @Test
+    void shouldHaveSaneServiceStartAndFinishTimes() {
+        Set<Service> allServices = transportData.getServices();
+        Set<Service> badTimings = allServices.stream().filter(svc -> svc.getStartTime().isAfter(svc.getFinishTime())).
+                collect(Collectors.toSet());
+        assertTrue(badTimings.isEmpty());
+    }
+
+    @Test
     void shouldNotHaveRailReplacementBusAsTransportModeForRoutesShouldBeTrain() {
        transportData.getRoutes().forEach(route ->
                assertNotEquals(TransportMode.RailReplacementBus, route.getTransportMode(),
@@ -310,13 +318,6 @@ public class LoadRailTransportDataTest {
             assertTrue(over.isEmpty(), route + " " + over);
         }
 
-    }
-
-    @Test
-    void shouldSpikeServiceTimingDifferences() {
-        fail("wip");
-//        transportData.getServices().stream().
-//                filter(service -> transportData.getTrips().stream().map(trip -> trip.latestDepartTime()))
     }
 
     private boolean matches(IdFor<Station> firstId, IdFor<Station> secondId, Trip trip) {

@@ -1,6 +1,7 @@
 package com.tramchester.dataimport.loader;
 
 import com.tramchester.dataimport.data.TripData;
+import com.tramchester.domain.MutableService;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.Service;
 import com.tramchester.domain.factory.TransportEntityFactory;
@@ -39,8 +40,8 @@ public class TripLoader {
 
             if (buildable.hasRouteId(routeId)) {
                 Route route = buildable.getMutableRoute(routeId);
-                Service service = results.getOrCreateService(serviceId);
-                results.createTripIfMissing(tripId, tripData, service, route);
+                MutableService service = results.getOrCreateService(serviceId);
+                results.createTripIfMissing(tripId, tripData, service, route, route.getTransportMode());
                 count.getAndIncrement();
             } else {
                 if (!excludedRoutes.wasExcluded(routeId)) {

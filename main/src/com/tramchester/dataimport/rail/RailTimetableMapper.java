@@ -416,6 +416,7 @@ public class RailTimetableMapper {
             } else {
                 trip = new MutableTrip(tripId, schedule.getTrainIdentity(), service, route, mode);
                 container.addTrip(trip);
+                service.addTrip(trip);
             }
             return trip;
         }

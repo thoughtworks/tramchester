@@ -36,8 +36,10 @@ public class StopTimeData {
         this.tripId = tripId;
         this.stopId = stopId;
 
-        this.arrivalTime = arrivalTime.toPattern()+":00";
-        this.departureTime = departureTime.toPattern()+":00";
+        this.arrivalTime = "FAKE";
+        this.parsedArrivalTime = arrivalTime;
+        this.departureTime = "FAKE";
+        this.parsedDepartureTime = departureTime;
         this.stopSequence = stopSequence;
         this.pickupType = pickupType.getText();
         this.dropOffType = dropOffType.getText();
@@ -46,7 +48,7 @@ public class StopTimeData {
     public static StopTimeData forTestOnly(String tripId, TramTime arrivalTime, TramTime departureTime, String stopId,
                                            int stopSequence, GTFSPickupDropoffType pickupType, GTFSPickupDropoffType dropOffType)
     {
-        return new StopTimeData(tripId, arrivalTime, departureTime,stopId, stopSequence, pickupType, dropOffType);
+        return new StopTimeData(tripId, arrivalTime, departureTime, stopId, stopSequence, pickupType, dropOffType);
     }
 
     // for CSV parse via jackson
@@ -58,12 +60,14 @@ public class StopTimeData {
     public String toString() {
         return "StopTimeData{" +
                 "tripId='" + tripId + '\'' +
-                ", arrivalTime=" + arrivalTime +
-                ", departureTime=" + departureTime +
+                ", arrivalTime='" + arrivalTime + '\'' +
+                ", departureTime='" + departureTime + '\'' +
                 ", stopId='" + stopId + '\'' +
-                ", stopSequence='" + stopSequence + '\'' +
+                ", stopSequence=" + stopSequence +
                 ", pickupType='" + pickupType + '\'' +
                 ", dropOffType='" + dropOffType + '\'' +
+                ", parsedArrivalTime=" + parsedArrivalTime +
+                ", parsedDepartureTime=" + parsedDepartureTime +
                 '}';
     }
 
@@ -103,10 +107,6 @@ public class StopTimeData {
 
     public IdFor<Platform> getPlatformId() {
         return StringIdFor.createId(stopId);
-    }
-
-    public boolean arriveDepartSameTime() {
-        return arrivalTime.equals(departureTime);
     }
 
     public boolean isValid() {

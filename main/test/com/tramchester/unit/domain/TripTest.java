@@ -14,6 +14,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import static com.tramchester.domain.id.StringIdFor.createId;
+import static com.tramchester.domain.reference.TransportMode.Tram;
 import static com.tramchester.domain.time.TramTime.nextDay;
 import static com.tramchester.domain.time.TramTime.of;
 import static org.junit.jupiter.api.Assertions.*;
@@ -30,7 +31,7 @@ class TripTest {
     void beforeEachTestRuns() {
         Service service = MutableService.build(createId("svcId"));
 
-        trip = new MutableTrip(createId("tripId"),"headSign", service, TestEnv.getTramTestRoute());
+        trip = new MutableTrip(createId("tripId"),"headSign", service, TestEnv.getTramTestRoute(), Tram);
 
         stationA = TramStations.Ashton;
         stationB = TramStations.Broadway;
@@ -50,8 +51,6 @@ class TripTest {
         trip.addStop(firstStop);
         trip.addStop(secondStop);
         trip.addStop(thirdStop);
-
-//        assertEquals(of(10, 1), trip.earliestDepartTime());
 
         // sequence respected
         List<Integer> seqNums = new LinkedList<>();

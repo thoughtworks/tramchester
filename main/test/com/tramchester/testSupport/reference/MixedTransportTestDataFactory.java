@@ -114,7 +114,8 @@ public class MixedTransportTestDataFactory implements TransportDataFactory {
         container.addRoute(routeC);
 
         // tripA: FIRST_STATION -> SECOND_STATION -> INTERCHANGE -> LAST_STATION
-        MutableTrip tripA = new MutableTrip(StringIdFor.createId(MixedTransportTestData.TRIP_A_ID), "headSign", serviceA, routeA);
+        MutableTrip tripA = new MutableTrip(StringIdFor.createId(MixedTransportTestData.TRIP_A_ID), "headSign",
+                serviceA, routeA, routeA.getTransportMode());
 
         MutableStation first = new TestNoPlatformStation(MixedTransportTestData.FIRST_STATION, "area1", "startStation",
                 TestEnv.nearAltrincham, TestEnv.nearAltrinchamGrid, TransportMode.Bus, dataSourceID);
@@ -164,7 +165,8 @@ public class MixedTransportTestDataFactory implements TransportDataFactory {
         addAStation(container, stationFive);
 
         //
-        MutableTrip tripC = new MutableTrip(StringIdFor.createId("tripCId"), "headSignC", serviceC, routeC);
+        MutableTrip tripC = new MutableTrip(StringIdFor.createId("tripCId"), "headSignC",
+                serviceC, routeC, routeC.getTransportMode());
         NoPlatformStopCall stopG = createStop(tripC, interchangeStation, TramTime.of(8, 26),
                 TramTime.of(8, 27), 1);
         addRouteStation(container, interchangeStation, routeC);
@@ -207,7 +209,7 @@ public class MixedTransportTestDataFactory implements TransportDataFactory {
 
     private static void createInterchangeToStation4Trip(TransportDataContainer container, MutableRoute route, Service service,
                                                         Station interchangeStation, Station station, LocalTime startTime, String tripId) {
-        MutableTrip trip = new MutableTrip(StringIdFor.createId(tripId), "headSignTripB2", service, route);
+        MutableTrip trip = new MutableTrip(StringIdFor.createId(tripId), "headSignTripB2", service, route, route.getTransportMode());
         NoPlatformStopCall stop1 = createStop(trip, interchangeStation, TramTime.of(startTime),
                 TramTime.of(startTime.plusMinutes(5)), 1);
         trip.addStop(stop1);
