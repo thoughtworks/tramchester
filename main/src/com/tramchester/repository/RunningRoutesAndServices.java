@@ -4,7 +4,7 @@ import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.Service;
 import com.tramchester.domain.id.IdFor;
-import com.tramchester.domain.id.IdSet;
+import com.tramchester.domain.id.IdMap;
 import com.tramchester.domain.time.TramTime;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
@@ -12,6 +12,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
 import java.time.LocalDate;
+import java.util.Set;
 
 @LazySingleton
 public class RunningRoutesAndServices {
@@ -27,66 +28,66 @@ public class RunningRoutesAndServices {
     }
 
     public FilterForDate getFor(LocalDate date) {
-        IdSet<Service> serviceIds = getServicesFor(date);
-        IdSet<Route> routeIds = getRoutesFor(date);
+        IdMap<Service> serviceIds = getServicesFor(date);
+        IdMap<Route> routeIds = getRoutesFor(date);
 
         LocalDate nextDay = date.plusDays(1);
-        IdSet<Service> runningServicesNextDay = getServicesFor(nextDay);
-        IdSet<Route> runningRoutesNextDay = getRoutesFor(nextDay);
+        IdMap<Service> runningServicesNextDay = getServicesFor(nextDay);
+        IdMap<Route> runningRoutesNextDay = getRoutesFor(nextDay);
 
         return new FilterForDate(serviceIds, routeIds, runningServicesNextDay, runningRoutesNextDay);
     }
 
     @NotNull
-    private IdSet<Route> getRoutesFor(LocalDate date) {
-        IdSet<Route> routeIds = routeRepository.getRoutesRunningOn(date);
-        if (routeIds.size()>0) {
-            logger.info("Found " + routeIds.size() + " running routes for " + date);
+    private IdMap<Route> getRoutesFor(LocalDate date) {
+        Set<Route> routes = routeRepository.getRoutesRunningOn(date);
+        if (routes.size()>0) {
+            logger.info("Found " + routes.size() + " running routes for " + date);
         } else
         {
             logger.warn("No running routes found on " + date);
         }
-        return routeIds;
+        return new IdMap<>(routes);
     }
 
     @NotNull
-    private IdSet<Service> getServicesFor(LocalDate date) {
-        IdSet<Service> serviceIds =  serviceRepository.getServicesOnDate(date);
-        if (serviceIds.size()>0) {
-            logger.info("Found " + serviceIds.size() + " running services for " + date);
+    private IdMap<Service> getServicesFor(LocalDate date) {
+        Set<Service> services = serviceRepository.getServicesOnDate(date);
+        if (services.size()>0) {
+            logger.info("Found " + services.size() + " running services for " + date);
         } else
         {
             logger.warn("No running services found on " + date);
         }
-        return serviceIds;
+        return new IdMap<>(services);
     }
 
     public static class FilterForDate {
-        private final IdSet<Service> runningServices;
-        private final IdSet<Route> runningRoutes;
-        private final IdSet<Service> runningServicesNextDay;
-        private final IdSet<Route> runningRoutesNextDay;
+        private final IdMap<Service> runningServices;
+        private final IdMap<Route> runningRoutes;
+        private final IdMap<Service> runningServicesNextDay;
+        private final IdMap<Route> runningRoutesNextDay;
 
-        private FilterForDate(IdSet<Service> runningServices, IdSet<Route> runningRoutes,
-                              IdSet<Service> runningServicesNextDay, IdSet<Route> runningRoutesNextDay) {
+        private FilterForDate(IdMap<Service> runningServices, IdMap<Route> runningRoutes,
+                              IdMap<Service> runningServicesNextDay, IdMap<Route> runningRoutesNextDay) {
             this.runningServices = runningServices;
             this.runningRoutes = runningRoutes;
             this.runningServicesNextDay = runningServicesNextDay;
             this.runningRoutesNextDay = runningRoutesNextDay;
         }
 
-        public boolean isServiceRunning(IdFor<Service> serviceId, TramTime time) {
-            if (time.isNextDay() && runningServicesNextDay.contains(serviceId)) {
+        public boolean isServiceRunningByDate(IdFor<Service> serviceId, boolean nextDay) {
+            if (nextDay && runningServicesNextDay.hasId(serviceId)) {
                 return true;
             }
-            return runningServices.contains(serviceId);
+            return runningServices.hasId(serviceId);
         }
 
-        public boolean isRouteRunning(IdFor<Route> routeId, TramTime time) {
-            if (time.isNextDay() && runningRoutesNextDay.contains(routeId)) {
+        public boolean isRouteRunning(IdFor<Route> routeId, boolean nextDay) {
+            if (nextDay && runningRoutesNextDay.hasId(routeId)) {
                 return true;
             }
-            return runningRoutes.contains(routeId);
+            return runningRoutes.hasId(routeId);
         }
 
         @Override
@@ -95,6 +96,40 @@ public class RunningRoutesAndServices {
                     "number of runningServices=" + runningServices.size() +
                     ", number of runningRoutes=" + runningRoutes.size() +
                     '}';
+        }
+
+        public boolean isServiceRunningByTime(IdFor<Service> serviceId, TramTime time, int maxWait) {
+            if (runningServices.hasId(serviceId)) {
+                Service todaySvc = runningServices.get(serviceId);
+                if (serviceOperatingWithin(todaySvc, time, maxWait)) {
+                    return true;
+                }
+            }
+            if (!time.isNextDay()) {
+                return false;
+            }
+
+            // remove next day offset to get time for the following day
+            TramTime timeForNextDay = TramTime.of(time.getHourOfDay(), time.getMinuteOfHour());
+            if (runningServicesNextDay.hasId(serviceId)) {
+                Service nextDaySvc = runningServicesNextDay.get(serviceId);
+                return serviceOperatingWithin(nextDaySvc, timeForNextDay, maxWait);
+            }
+            return false;
+        }
+
+        private boolean serviceOperatingWithin(Service service, TramTime time, int maxWait) {
+            final TramTime finishTime = service.getFinishTime();
+            if (time.isAfter(finishTime)) {
+                return false;
+            }
+
+            final TramTime startTime = service.getStartTime();
+            if (time.between(startTime, finishTime)) {
+                return true;
+            }
+
+            return time.withinInterval(maxWait, startTime);
         }
     }
 }

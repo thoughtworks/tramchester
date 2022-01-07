@@ -93,6 +93,7 @@ public class TramTransportDataForTestFactory implements TransportDataFactory {
         MutableService serviceA = new MutableService(TramTransportDataForTest.serviceAId);
         MutableService serviceB = new MutableService(TramTransportDataForTest.serviceBId);
         MutableService serviceC = new MutableService(TramTransportDataForTest.serviceCId);
+        MutableService serviceD = new MutableService(TramTransportDataForTest.serviceDId);
 
         LocalDate startDate = LocalDate.of(2014, 2, 10);
         LocalDate endDate = LocalDate.of(2020, 8, 15);
@@ -100,15 +101,17 @@ public class TramTransportDataForTestFactory implements TransportDataFactory {
         MutableServiceCalendar serviceCalendarA = new MutableServiceCalendar(startDate, endDate, DayOfWeek.MONDAY);
         MutableServiceCalendar serviceCalendarB = new MutableServiceCalendar(startDate, endDate, DayOfWeek.MONDAY);
         MutableServiceCalendar serviceCalendarC = new MutableServiceCalendar(startDate, endDate,DayOfWeek.MONDAY);
+        MutableServiceCalendar serviceCalendarD = new MutableServiceCalendar(startDate, endDate,DayOfWeek.MONDAY);
 
         serviceA.setCalendar(serviceCalendarA);
         serviceB.setCalendar(serviceCalendarB);
         serviceC.setCalendar(serviceCalendarC);
+        serviceD.setCalendar(serviceCalendarD);
 
         routeA.addService(serviceA);
         routeB.addService(serviceB);
         routeC.addService(serviceC);
-        routeD.addService(serviceA);
+        routeD.addService(serviceD);
 
         container.addRoute(routeA);
         container.addRoute(routeB);
@@ -118,16 +121,18 @@ public class TramTransportDataForTestFactory implements TransportDataFactory {
         // tripA: FIRST_STATION -> SECOND_STATION -> INTERCHANGE -> LAST_STATION
         MutableTrip tripA = new MutableTrip(StringIdFor.createId(TramTransportDataForTest.TRIP_A_ID), "headSign",
                 serviceA, routeA, Tram);
+        serviceA.addTrip(tripA);
 
         MutableStation first = new TestStation(TramTransportDataForTest.FIRST_STATION, "area1", "startStation",
                 nearAltrincham, nearAltrinchamGrid, Tram, dataSourceID);
         addAStation(container, first);
         addRouteStation(container, first, routeA);
-        PlatformStopCall stopA = createStop(container, tripA, first, of(8, 0), of(8, 0), 1);
+        PlatformStopCall stopA = createStop(container, tripA, first, of(7, 55), of(8, 0), 1);
         tripA.addStop(stopA);
 
         // trip Z, firstNameDup - for composite station testing
-        MutableTrip tripZ = new MutableTrip(StringIdFor.createId("tripZ"), "for dup", serviceA, routeD, Tram);
+        MutableTrip tripZ = new MutableTrip(StringIdFor.createId("tripZ"), "for dup", serviceD, routeD, Tram);
+        serviceD.addTrip(tripZ);
         MutableStation firstDupName = new TestStation(TramTransportDataForTest.FIRST_STATION_DUP_NAME, "area1",
                 "startStation", nearAltrincham, nearAltrinchamGrid, Tram, dataSourceID);
         addAStation(container, firstDupName);
@@ -176,6 +181,7 @@ public class TramTransportDataForTestFactory implements TransportDataFactory {
 
         // trip ZZ, fourthNameDup - for composite station testing
         MutableTrip tripZZ = new MutableTrip(StringIdFor.createId("tripZZ"), "for dup of 4", serviceA, routeD, Tram);
+        serviceA.addTrip(tripZZ);
         MutableStation fourDupName = new TestStation(TramTransportDataForTest.STATION_FOUR_DUP_NAME, "area4",
                 "Station4", nearKnutsfordBusStation, nearKnutsfordGrid, Tram, dataSourceID);
         addAStation(container, fourDupName);
@@ -192,6 +198,7 @@ public class TramTransportDataForTestFactory implements TransportDataFactory {
 
         //
         MutableTrip tripC = new MutableTrip(StringIdFor.createId("tripCId"), "headSignC", serviceC, routeC, Tram);
+        serviceC.addTrip(tripC);
         PlatformStopCall stopG = createStop(container, tripC, interchangeStation, of(8, 26),
                 of(8, 27), 1);
         addRouteStation(container, interchangeStation, routeC);
@@ -236,7 +243,7 @@ public class TramTransportDataForTestFactory implements TransportDataFactory {
         station.addRouteDropOff(route);
     }
 
-    private static void createInterchangeToStation4Trip(TransportDataContainer container, MutableRoute route, Service service,
+    private static void createInterchangeToStation4Trip(TransportDataContainer container, MutableRoute route, MutableService service,
                                                         MutableStation interchangeStation, MutableStation station, LocalTime startTime, String tripId) {
         MutableTrip trip = new MutableTrip(StringIdFor.createId(tripId), "headSignTripB2", service, route, Tram);
         PlatformStopCall stop1 = createStop(container,trip, interchangeStation, of(startTime),
@@ -246,6 +253,7 @@ public class TramTransportDataForTestFactory implements TransportDataFactory {
                 of(startTime.plusMinutes(8)), 2);
         trip.addStop(stop2);
         route.addTrip(trip);
+        service.addTrip(trip);
         container.addTrip(trip);
     }
 
@@ -266,6 +274,7 @@ public class TramTransportDataForTestFactory implements TransportDataFactory {
         private static final IdFor<Service> serviceAId = StringIdFor.createId("serviceAId");
         private static final IdFor<Service> serviceBId = StringIdFor.createId("serviceBId");
         private static final IdFor<Service> serviceCId = StringIdFor.createId("serviceCId");
+        private static final IdFor<Service> serviceDId = StringIdFor.createId("serviceDId");
 
         private static final String METROLINK_PREFIX = "9400ZZ";
 

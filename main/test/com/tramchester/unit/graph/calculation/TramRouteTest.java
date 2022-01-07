@@ -4,8 +4,8 @@ import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.DiagramCreator;
 import com.tramchester.domain.Journey;
+import com.tramchester.domain.JourneyRequest;
 import com.tramchester.domain.Route;
-import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.presentation.TransportStage;
@@ -15,7 +15,6 @@ import com.tramchester.domain.time.TramTime;
 import com.tramchester.domain.transportStages.WalkingStage;
 import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.RouteCostCalculator;
-import com.tramchester.domain.JourneyRequest;
 import com.tramchester.graph.search.RouteCalculator;
 import com.tramchester.repository.RouteRepository;
 import com.tramchester.repository.StationRepository;
@@ -39,7 +38,8 @@ import java.util.stream.Collectors;
 
 import static com.tramchester.geo.CoordinateTransforms.calcCostInMinutes;
 import static com.tramchester.testSupport.reference.TramTransportDataForTestFactory.TramTransportDataForTest.*;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class TramRouteTest {
 
@@ -105,7 +105,7 @@ class TramRouteTest {
     void shouldHaveRoutesSetupCorrectly() {
         RouteRepository routeRepository = componentContainer.get(RouteRepository.class);
 
-        IdSet<Route> running = routeRepository.getRoutesRunningOn(queryDate.getDate());
+        Set<Route> running = routeRepository.getRoutesRunningOn(queryDate.getDate());
 
         assertEquals(routeRepository.numberOfRoutes(), running.size());
     }

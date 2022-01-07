@@ -1,5 +1,6 @@
 package com.tramchester.domain.id;
 
+import com.google.common.collect.Sets;
 import com.tramchester.domain.GraphProperty;
 import org.jetbrains.annotations.NotNull;
 
@@ -7,14 +8,25 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
-import java.util.function.Consumer;
+import java.util.function.*;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+// TODO Should not need GraphProperty Here
 public class CompositeIdMap<S extends HasId<S> & GraphProperty, T extends S> implements Iterable<T> {
     private final HashMap<IdFor<S>, T> theMap;
 
     public CompositeIdMap() {
         theMap = new HashMap<>();
+    }
+
+    public CompositeIdMap(Set<T> items) {
+        theMap = new HashMap<>(items.stream().collect(Collectors.toMap(HasId::getId, item -> item)));
+    }
+
+    protected static <A extends HasId<A>,B extends A> CompositeIdMap<A,B> from(Set<B> items) {
+        return items.stream().collect(collector());
     }
 
     public void add(T item) {
@@ -94,35 +106,34 @@ public class CompositeIdMap<S extends HasId<S> & GraphProperty, T extends S> imp
         boolean include(T item);
     }
 
-//    public static <S extends HasId<S>,
-//            T extends HasId<S> & GraphProperty> Collector<T, CompostiteIdMap<S,T>, CompostiteIdMap<S,T>> collector() {
-//        return new Collector<>() {
-//            @Override
-//            public Supplier<CompostiteIdMap<S,T>> supplier() {
-//                return CompostiteIdMap::new;
-//            }
-//
-//            @Override
-//            public BiConsumer<CompostiteIdMap<S,T>, T> accumulator() {
-//                return CompostiteIdMap::add;
-//            }
-//
-//            @Override
-//            public BinaryOperator<CompostiteIdMap<S,T>> combiner() {
-//                return CompostiteIdMap::addAll;
-//            }
-//
-//            @Override
-//            public Function<CompostiteIdMap<S,T>, CompostiteIdMap<S,T>> finisher() {
-//                return items -> items;
-//            }
-//
-//            @Override
-//            public Set<Characteristics> characteristics() {
-//                return Sets.immutableEnumSet(Characteristics.UNORDERED);
-//            }
-//        };
-//    }
+    private static <S extends HasId<S> & GraphProperty, T extends S > Collector<T, CompositeIdMap<S,T>, CompositeIdMap<S,T>> collector() {
+        return new Collector<>() {
+            @Override
+            public Supplier<CompositeIdMap<S,T>> supplier() {
+                return CompositeIdMap::new;
+            }
+
+            @Override
+            public BiConsumer<CompositeIdMap<S,T>, T> accumulator() {
+                return CompositeIdMap::add;
+            }
+
+            @Override
+            public BinaryOperator<CompositeIdMap<S,T>> combiner() {
+                return CompositeIdMap::addAll;
+            }
+
+            @Override
+            public Function<CompositeIdMap<S,T>, CompositeIdMap<S,T>> finisher() {
+                return items -> items;
+            }
+
+            @Override
+            public Set<Characteristics> characteristics() {
+                return Sets.immutableEnumSet(Characteristics.UNORDERED);
+            }
+        };
+    }
 
     @Override
     public String toString() {

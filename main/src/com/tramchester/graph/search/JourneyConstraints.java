@@ -125,11 +125,16 @@ public class JourneyConstraints {
     }
 
     public boolean isUnavailable(Route route, TramTime visitTime) {
-        return !routesAndServicesFilter.isRouteRunning(route.getId(), visitTime);
+        return !routesAndServicesFilter.isRouteRunning(route.getId(), visitTime.isNextDay());
     }
 
-    public boolean isRunning(IdFor<Service> serviceId, TramTime visitTime) {
-        return routesAndServicesFilter.isServiceRunning(serviceId, visitTime);
+    // time and date separate for performance reasons
+    public boolean isRunningOnDate(IdFor<Service> serviceId, TramTime visitTime) {
+        return routesAndServicesFilter.isServiceRunningByDate(serviceId, visitTime.isNextDay());
     }
 
+    // time and date separate for performance reasons
+    public boolean isRunningAtTime(IdFor<Service> serviceId, TramTime time, int maxWait) {
+        return routesAndServicesFilter.isServiceRunningByTime(serviceId, time, maxWait);
+    }
 }

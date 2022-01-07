@@ -97,7 +97,7 @@ public class RouteCostCalculator {
     // startNode and endNode must have been found within supplied txn
 
     private int calculateLeastCost(Transaction txn, Node startNode, Node endNode, GraphPropertyKey key, LocalDate date) {
-        IdSet<Route> running = routeRepository.getRoutesRunningOn(date);
+        IdSet<Route> running = IdSet.from(routeRepository.getRoutesRunningOn(date));
         // TODO fetch all the relationshipIds first
 
         EvaluationContext context = graphDatabaseService.createContext(txn);

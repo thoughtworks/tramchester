@@ -8,7 +8,6 @@ import com.tramchester.domain.Service;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.time.DateRange;
 import com.tramchester.domain.time.TramServiceDate;
-import com.tramchester.domain.time.TramTime;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
 import com.tramchester.repository.RunningRoutesAndServices;
 import com.tramchester.repository.TransportData;
@@ -111,9 +110,9 @@ public class RunningRoutesAndServicesTest {
         final Service weekdayService = weekdayServices.get(0);
         final Service saturdayService = saturdayServices.get(0);
 
-        assertTrue(filter.isServiceRunning(weekdayService.getId(), TramTime.of(23,12)));
-        assertFalse(filter.isServiceRunning(saturdayService.getId(), TramTime.of(23,12)));
-        assertTrue(filter.isServiceRunning(saturdayService.getId(), TramTime.nextDay(0,15)));
+        assertTrue(filter.isServiceRunningByDate(weekdayService.getId(), false));
+        assertFalse(filter.isServiceRunningByDate(saturdayService.getId(), false));
+        assertTrue(filter.isServiceRunningByDate(saturdayService.getId(), true));
 
     }
 }

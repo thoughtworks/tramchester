@@ -197,7 +197,7 @@ public abstract class ServiceReason {
         }
     }
 
-        //////////////
+    //////////////
 
     private static class DoesNotRunOnQueryDate extends ServiceReason
     {
@@ -317,6 +317,18 @@ public abstract class ServiceReason {
 
     //////////////
 
+    private static class ServiceDoesNotOperateOnTime extends DoesNotOperateOnTime {
+
+        private final IdFor<Service> serviceId;
+
+        protected ServiceDoesNotOperateOnTime(ReasonCode reasonCode, TramTime elapsedTime, HowIGotHere path, IdFor<Service> serviceId) {
+            super(reasonCode, elapsedTime, path);
+            this.serviceId = serviceId;
+        }
+    }
+
+    //////////////
+
     private static class DoesNotOperateOnTime extends ServiceReason
     {
         private final TramTime elapsedTime;
@@ -360,6 +372,10 @@ public abstract class ServiceReason {
 
     public static ServiceReason DoesNotRunOnQueryDate(HowIGotHere path, IdFor<Service> nodeServiceId) {
         return new DoesNotRunOnQueryDate(path, nodeServiceId);
+    }
+
+    public static ServiceReason ServiceNotRunningAtTime(HowIGotHere path, IdFor<Service> serviceId, TramTime time) {
+        return new ServiceDoesNotOperateOnTime(ReasonCode.ServiceNotRunningAtTime, time, path, serviceId);
     }
 
     public static ServiceReason StationNotReachable(HowIGotHere path, ReasonCode code) {

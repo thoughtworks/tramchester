@@ -105,8 +105,8 @@ public abstract class StopCall {
         return intoNextDay;
     }
 
-    public IdFor<Service> getServiceId() {
-        return trip.getService().getId();
+    public Service getService() {
+        return trip.getService();
     }
 
     @Override

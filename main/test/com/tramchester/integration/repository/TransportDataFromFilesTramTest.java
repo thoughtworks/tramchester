@@ -266,11 +266,10 @@ public class TransportDataFromFilesTramTest {
     @Test
     void shouldGetServicesByDate() {
         LocalDate nextSaturday = TestEnv.nextSaturday();
-        IdSet<Service> results = transportData.getServicesOnDate(nextSaturday);
+        Set<Service> results = transportData.getServicesOnDate(nextSaturday);
 
         assertFalse(results.isEmpty(), "no services next saturday");
         long onCorrectDate = results.stream().
-                map(transportData::getServiceById).
                 filter(svc -> svc.getCalendar().operatesOn(nextSaturday)).count();
 
         assertEquals(results.size(), onCorrectDate, "should all be on the specified date");
@@ -291,13 +290,13 @@ public class TransportDataFromFilesTramTest {
     void shouldHaveSundayServicesFromCornbrook() {
         LocalDate nextSunday = TestEnv.nextSunday();
 
-        IdSet<Service> sundayServiceIds = transportData.getServicesOnDate(nextSunday);
+        Set<Service> sundayServices = transportData.getServicesOnDate(nextSunday);
 
         Set<Trip> cornbrookTrips = transportData.getTrips().stream().
                 filter(trip -> trip.getStopCalls().callsAt(Cornbrook)).collect(Collectors.toSet());
 
-        Set<Trip> sundayTrips = cornbrookTrips.stream().filter(trip -> sundayServiceIds.
-                contains(trip.getService().getId())).collect(Collectors.toSet());
+        Set<Trip> sundayTrips = cornbrookTrips.stream().
+                filter(trip -> sundayServices.contains(trip.getService())).collect(Collectors.toSet());
 
         assertFalse(sundayTrips.isEmpty());
     }
@@ -360,8 +359,8 @@ public class TransportDataFromFilesTramTest {
             TramServiceDate tramServiceDate = new TramServiceDate(date);
             if (!tramServiceDate.isChristmasPeriod()) {
 
-                IdSet<Service> servicesOnDateIds = transportData.getServicesOnDate(date);
-                assertFalse(servicesOnDateIds.isEmpty(), "no services on " + date + " all ids are " + HasId.asIds(tramServices));
+                Set<Service> servicesOnDate = transportData.getServicesOnDate(date);
+                assertFalse(servicesOnDate.isEmpty(), "no services on " + date + " all ids are " + HasId.asIds(tramServices));
             }
         }
     }
@@ -382,12 +381,12 @@ public class TransportDataFromFilesTramTest {
             TramServiceDate tramServiceDate = new TramServiceDate(date);
             if (!tramServiceDate.isChristmasPeriod()) {
 
-                IdSet<Service> servicesOnDateIds = transportData.getServicesOnDate(date);
+                Set<Service> servicesOnDate = transportData.getServicesOnDate(date);
 
                 transportData.getStations().forEach(station -> {
                     Set<Trip> callingTripsOnDate = transportData.getTrips().stream().
                             filter(trip -> trip.getStopCalls().callsAt(station)).
-                            filter(trip -> servicesOnDateIds.contains(trip.getService().getId())).
+                            filter(trip -> servicesOnDate.contains(trip.getService())).
                             collect(Collectors.toSet());
                     assertFalse(callingTripsOnDate.isEmpty(), String.format("%s %s", date, station.getId()));
 

@@ -8,6 +8,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.*;
 import java.util.function.*;
 import java.util.stream.Collector;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class IdSet<T extends GraphProperty> implements Iterable<IdFor<T>> {
@@ -51,6 +52,12 @@ public class IdSet<T extends GraphProperty> implements Iterable<IdFor<T>> {
 
     public static <T extends GraphProperty> IdSet<T> emptySet() {
         return new IdSet<>(Collections.emptySet());
+    }
+
+    // TODO Rework generics for this class
+    public static <S extends GraphProperty & HasId<S>> IdSet<S> from(Set<S> items) {
+        Set<IdFor<S>> ids = items.stream().map(HasId::getId).collect(Collectors.toSet());
+        return wrap(ids);
     }
 
     public IdSet<T> addAll(IdSet<T> other) {

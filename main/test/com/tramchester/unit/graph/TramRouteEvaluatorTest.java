@@ -376,7 +376,7 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
 
         TramTime time = TramTime.of(8, 15);
 
-        EasyMock.expect(serviceHeuristics.checkServiceDate(node, howIGotHere, reasons, time)).
+        EasyMock.expect(serviceHeuristics.checkServiceDateAndTime(node, howIGotHere, reasons, time, 13)).
                 andReturn(ServiceReason.DoesNotRunOnQueryDate(howIGotHere, StringIdFor.createId("nodeServiceId")));
 
         NotStartedState traversalState = getNotStartedState();

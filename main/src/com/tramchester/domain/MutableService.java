@@ -1,6 +1,7 @@
 package com.tramchester.domain;
 
 
+import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.time.TramTime;
@@ -40,9 +41,12 @@ public class MutableService implements Service {
 
     @Override
     public String toString() {
-        return "Service{" +
+        return "MutableService{" +
                 "serviceId=" + serviceId +
+                ", trips=" + HasId.asIds(trips) +
                 ", calendar=" + calendar +
+                ", startTime=" + startTime +
+                ", finishTime=" + finishTime +
                 '}';
     }
 
@@ -101,16 +105,15 @@ public class MutableService implements Service {
     private void computeStartTime() {
         Optional<TramTime> firstDepartForTrips = trips.stream().map(Trip::departTime).min(TramTime::compareTo);
         if (firstDepartForTrips.isEmpty()) {
-            throw new RuntimeException("Missing first depart for " + trips);
+            throw new RuntimeException("Missing first depart for " + trips + " service id " + serviceId);
         }
         startTime = firstDepartForTrips.get();
     }
 
-
     private void computeFinishTime() {
         Optional<TramTime> finalArrivalForTrips = trips.stream().map(Trip::arrivalTime).max(TramTime::compareTo);
         if (finalArrivalForTrips.isEmpty()) {
-            throw new RuntimeException("Missing last arrival for " + trips);
+            throw new RuntimeException("Missing last arrival for " + trips + " service id " + serviceId);
         }
         finishTime = finalArrivalForTrips.get();
     }

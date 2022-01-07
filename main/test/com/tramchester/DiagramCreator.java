@@ -4,6 +4,7 @@ import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
+import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.GraphQuery;
 import com.tramchester.graph.TransportRelationshipTypes;
@@ -237,10 +238,12 @@ public class DiagramCreator {
             return GraphProps.getServiceId(node).getGraphId();
         }
         if (node.hasLabel(HOUR)) {
-            return GraphProps.getHour(node).toString();
+            return   GraphProps.getHour(node).toString();
         }
         if (node.hasLabel(MINUTE)) {
-            return GraphProps.getTime(node).toString();
+            final TramTime time = GraphProps.getTime(node);
+            String days = time.isNextDay() ? "+1" : "";
+            return format("%s:%s%s\n%s", time.getHourOfDay(), time.getMinuteOfHour(), days, GraphProps.getTripId(node).getGraphId());
         }
         if (node.hasLabel(GROUPED)) {
             IdFor<Station> stationId = GraphProps.getStationId(node);

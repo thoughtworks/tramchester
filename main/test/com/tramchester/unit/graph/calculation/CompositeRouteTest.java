@@ -4,6 +4,8 @@ import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.DiagramCreator;
 import com.tramchester.domain.Journey;
+import com.tramchester.domain.Service;
+import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.places.CompositeStation;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.TransportStage;
@@ -14,6 +16,7 @@ import com.tramchester.graph.RouteCostCalculator;
 import com.tramchester.domain.JourneyRequest;
 import com.tramchester.graph.search.RouteCalculator;
 import com.tramchester.repository.CompositeStationRepository;
+import com.tramchester.repository.RunningRoutesAndServices;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.repository.TransportData;
 import com.tramchester.resources.LocationJourneyPlanner;
@@ -101,6 +104,14 @@ class CompositeRouteTest {
     }
 
     @Test
+    void shouldCheckServiceIsRunning() {
+        RunningRoutesAndServices runningRoutesAndServices = componentContainer.get(RunningRoutesAndServices.class);
+        Service svcA = transportData.getServiceById(StringIdFor.createId("serviceAId"));
+        RunningRoutesAndServices.FilterForDate running = runningRoutesAndServices.getFor(queryDate.getDate());
+        assertTrue(running.isServiceRunningByTime(svcA.getId(), queryTime, 10), svcA.toString());
+    }
+
+    @Test
     void shouldHaveFirstCompositeStation() {
         assertNotNull(startCompositeStation);
         Set<Station> grouped = startCompositeStation.getContained();
@@ -123,7 +134,7 @@ class CompositeRouteTest {
     void shouldHaveJourneyFromComposite() {
         JourneyRequest journeyRequest = createJourneyRequest(queryTime, 0);
 
-        final CompositeStation start = this.startCompositeStation;
+        final CompositeStation start = startCompositeStation;
         final Station destination = transportData.getInterchange();
 
         Set<Journey> journeys = calculator.calculateRoute(txn, start, destination, journeyRequest).

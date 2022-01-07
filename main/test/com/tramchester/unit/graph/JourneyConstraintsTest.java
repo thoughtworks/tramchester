@@ -65,7 +65,7 @@ public class JourneyConstraintsTest extends EasyMockSupport {
         Route route = TestEnv.getTramTestRoute();
         TramTime time = TramTime.of(10,11);
 
-        EasyMock.expect(filterForDate.isRouteRunning(route.getId(), time)).andReturn(true);
+        EasyMock.expect(filterForDate.isRouteRunning(route.getId(), false)).andReturn(true);
 
         replayAll();
         boolean result = journeyConstraints.isUnavailable(route, time);
@@ -75,15 +75,47 @@ public class JourneyConstraintsTest extends EasyMockSupport {
     }
 
     @Test
-    void shouldCheckIfServiceRunning() {
+    void shouldCheckIfServiceRunningOnDate() {
         IdFor<Service> serviceId = StringIdFor.createId("serviceA");
 
         TramTime visitTime = TramTime.of(13,56);
 
-        EasyMock.expect(filterForDate.isServiceRunning(serviceId, visitTime)).andReturn(true);
+        EasyMock.expect(filterForDate.isServiceRunningByDate(serviceId, false)).andReturn(true);
 
         replayAll();
-        boolean result = journeyConstraints.isRunning(serviceId, visitTime);
+        boolean result = journeyConstraints.isRunningOnDate(serviceId, visitTime);
+        verifyAll();
+
+        assertTrue(result);
+    }
+
+    @Test
+    void shouldCheckIfServiceRunningOnDateNextDay() {
+        IdFor<Service> serviceId = StringIdFor.createId("serviceA");
+
+        TramTime visitTime = TramTime.nextDay(13,56);
+
+        EasyMock.expect(filterForDate.isServiceRunningByDate(serviceId, true)).andReturn(true);
+
+        replayAll();
+        boolean result = journeyConstraints.isRunningOnDate(serviceId, visitTime);
+        verifyAll();
+
+        assertTrue(result);
+    }
+
+    @Test
+    void shouldCheckIfServiceRunningAtTime() {
+        IdFor<Service> serviceId = StringIdFor.createId("serviceA");
+
+        TramTime visitTime = TramTime.of(13,56);
+
+        int maxWait = config.getMaxWait();
+
+        EasyMock.expect(filterForDate.isServiceRunningByTime(serviceId, visitTime, maxWait)).andReturn(true);
+
+        replayAll();
+        boolean result = journeyConstraints.isRunningAtTime(serviceId, visitTime, maxWait);
         verifyAll();
 
         assertTrue(result);

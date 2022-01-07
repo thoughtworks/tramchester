@@ -7,7 +7,6 @@ import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.Service;
 import com.tramchester.domain.id.IdFor;
-import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.input.StopCall;
 import com.tramchester.domain.input.StopCalls;
 import com.tramchester.domain.input.Trip;
@@ -80,12 +79,12 @@ public class StopCallRepository implements ReportsCacheStats {
 
     // visualisation of frequency support
     public Set<StopCall> getStopCallsFor(Station station, LocalDate date, TramTime begin, TramTime end) {
-        IdSet<Service> runningOnDate = serviceRepository.getServicesOnDate(date);
+        Set<Service> runningOnDate = serviceRepository.getServicesOnDate(date);
         Set<StopCall> allForStation = stopCalls.get(station);
 
         return allForStation.stream().
                 filter(stopCall -> stopCall.getPickupType().equals(GTFSPickupDropoffType.Regular)).
-                filter(stopCall -> runningOnDate.contains(stopCall.getServiceId())).
+                filter(stopCall -> runningOnDate.contains(stopCall.getService())).
                 filter(stopCall -> stopCall.getArrivalTime().between(begin, end)).
                 collect(Collectors.toSet());
     }

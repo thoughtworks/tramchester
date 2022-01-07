@@ -10,12 +10,21 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collector;
 
-public class IdMap<T extends HasId<T>>  extends CompositeIdMap<T,T> {
+public class IdMap<T extends HasId<T>> extends CompositeIdMap<T,T> {
+
+    public IdMap(Set<T> items) {
+        super(items);
+    }
+
+    public IdMap() {
+        super();
+    }
 
     private IdMap<T> addAll(IdMap<T> others) {
         super.addAll(others);
         return this;
     }
+
 
     public static <T extends HasId<T> & GraphProperty> Collector<T, IdMap<T>, IdMap<T>> collector() {
         return new Collector<>() {

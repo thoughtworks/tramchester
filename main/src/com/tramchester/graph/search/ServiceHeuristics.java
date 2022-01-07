@@ -47,16 +47,22 @@ public class ServiceHeuristics {
         this.lowestCostsForDestRoutes = journeyConstraints.getFewestChangesCalculator();
     }
     
-    public ServiceReason checkServiceDate(Node node, HowIGotHere howIGotHere, ServiceReasons reasons, TramTime visitTime) {
+    public ServiceReason checkServiceDateAndTime(Node node, HowIGotHere howIGotHere, ServiceReasons reasons,
+                                                 TramTime visitTime, int maxWait) {
         reasons.incrementTotalChecked();
 
         IdFor<Service> nodeServiceId = nodeOperations.getServiceId(node);
 
-        if (journeyConstraints.isRunning(nodeServiceId, visitTime)) {
-            return valid(ServiceReason.ReasonCode.ServiceDateOk, howIGotHere, reasons);
+        if (!journeyConstraints.isRunningOnDate(nodeServiceId, visitTime)) {
+            return reasons.recordReason(ServiceReason.DoesNotRunOnQueryDate(howIGotHere, nodeServiceId));
+
         }
 
-        return reasons.recordReason(ServiceReason.DoesNotRunOnQueryDate(howIGotHere, nodeServiceId));
+        if (!journeyConstraints.isRunningAtTime(nodeServiceId, visitTime, maxWait)) {
+            return reasons.recordReason(ServiceReason.ServiceNotRunningAtTime(howIGotHere, nodeServiceId, visitTime));
+        }
+
+        return valid(ServiceReason.ReasonCode.ServiceDateOk, howIGotHere, reasons);
     }
 
     public ServiceReason checkNumberChanges(int currentNumChanges, HowIGotHere howIGotHere, ServiceReasons reasons) {
@@ -86,19 +92,19 @@ public class ServiceHeuristics {
         return valid(ServiceReason.ReasonCode.NumWalkingConnectionsOk, howIGotHere, reasons);
     }
 
-    public ServiceReason checkTime(HowIGotHere howIGotHere, Node node, TramTime currentElapsed, ServiceReasons reasons, int maxWait) {
+    public ServiceReason checkTime(HowIGotHere howIGotHere, Node node, TramTime currentTime, ServiceReasons reasons, int maxWait) {
         reasons.incrementTotalChecked();
 
         TramTime nodeTime = nodeOperations.getTime(node);
-        if (currentElapsed.isAfter(nodeTime)) { // already departed
-            return reasons.recordReason(ServiceReason.AlreadyDeparted(currentElapsed, howIGotHere));
+        if (currentTime.isAfter(nodeTime)) { // already departed
+            return reasons.recordReason(ServiceReason.AlreadyDeparted(currentTime, howIGotHere));
         }
 
-        if (currentElapsed.withinInterval(maxWait, nodeTime)) {
+        if (currentTime.withinInterval(maxWait, nodeTime)) {
             return valid(ServiceReason.ReasonCode.TimeOk, howIGotHere, reasons);
         }
 
-        return reasons.recordReason(ServiceReason.DoesNotOperateOnTime(currentElapsed, howIGotHere));
+        return reasons.recordReason(ServiceReason.DoesNotOperateOnTime(currentTime, howIGotHere));
     }
 
     public ServiceReason interestedInHour(HowIGotHere howIGotHere, TramTime journeyClockTime,

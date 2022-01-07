@@ -5,7 +5,6 @@ import com.tramchester.ComponentsBuilder;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.Service;
 import com.tramchester.domain.id.IdFor;
-import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.input.StopCall;
 import com.tramchester.domain.places.Station;
@@ -57,7 +56,7 @@ public class StopCallRepositoryTest {
     @Test
     void shouldGetStopCallsForAStation() {
         final LocalDate date = TestEnv.testDay();
-        IdSet<Service> servicesForDate = serviceRepository.getServicesOnDate(date);
+        Set<Service> servicesForDate = serviceRepository.getServicesOnDate(date);
 
         final IdFor<Station> stationId = TramStations.ManAirport.getId();
 
@@ -72,7 +71,7 @@ public class StopCallRepositoryTest {
         results.forEach(stopCall -> assertEquals(stationId, stopCall.getStationId()));
 
         boolean wrongService = results.stream().
-                filter(stopCall -> !servicesForDate.contains(stopCall.getServiceId())).
+                filter(stopCall -> !servicesForDate.contains(stopCall.getService())).
                 findAny().isEmpty();
         assertTrue(wrongService);
 

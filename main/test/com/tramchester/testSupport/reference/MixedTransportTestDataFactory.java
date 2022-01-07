@@ -116,6 +116,7 @@ public class MixedTransportTestDataFactory implements TransportDataFactory {
         // tripA: FIRST_STATION -> SECOND_STATION -> INTERCHANGE -> LAST_STATION
         MutableTrip tripA = new MutableTrip(StringIdFor.createId(MixedTransportTestData.TRIP_A_ID), "headSign",
                 serviceA, routeA, routeA.getTransportMode());
+        serviceA.addTrip(tripA);
 
         MutableStation first = new TestNoPlatformStation(MixedTransportTestData.FIRST_STATION, "area1", "startStation",
                 TestEnv.nearAltrincham, TestEnv.nearAltrinchamGrid, TransportMode.Bus, dataSourceID);
@@ -167,6 +168,7 @@ public class MixedTransportTestDataFactory implements TransportDataFactory {
         //
         MutableTrip tripC = new MutableTrip(StringIdFor.createId("tripCId"), "headSignC",
                 serviceC, routeC, routeC.getTransportMode());
+        serviceC.addTrip(tripC);
         NoPlatformStopCall stopG = createStop(tripC, interchangeStation, TramTime.of(8, 26),
                 TramTime.of(8, 27), 1);
         addRouteStation(container, interchangeStation, routeC);
@@ -207,9 +209,10 @@ public class MixedTransportTestDataFactory implements TransportDataFactory {
         station.addRoutePickUp(route);
     }
 
-    private static void createInterchangeToStation4Trip(TransportDataContainer container, MutableRoute route, Service service,
+    private static void createInterchangeToStation4Trip(TransportDataContainer container, MutableRoute route, MutableService service,
                                                         Station interchangeStation, Station station, LocalTime startTime, String tripId) {
         MutableTrip trip = new MutableTrip(StringIdFor.createId(tripId), "headSignTripB2", service, route, route.getTransportMode());
+        service.addTrip(trip);
         NoPlatformStopCall stop1 = createStop(trip, interchangeStation, TramTime.of(startTime),
                 TramTime.of(startTime.plusMinutes(5)), 1);
         trip.addStop(stop1);
