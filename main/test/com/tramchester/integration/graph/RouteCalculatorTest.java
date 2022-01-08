@@ -386,7 +386,6 @@ public class RouteCalculatorTest {
                 uniqueStages.add(journey.getStages());
             });
         });
-
     }
 
     @Test

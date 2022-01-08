@@ -3,6 +3,7 @@ package com.tramchester.graph.search;
 import com.tramchester.domain.exceptions.TramchesterException;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.input.Trip;
+import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramTime;
 import org.neo4j.graphdb.Node;
@@ -16,4 +17,5 @@ public interface JourneyStateUpdate {
     void beginWalk(Node beforeWalkNode, boolean atStart, int cost);
     void endWalk(Node stationNode);
     void toNeighbour(Node startNode, Node endNode, int cost);
+    void seenStation(IdFor<Station> stationId);
 }

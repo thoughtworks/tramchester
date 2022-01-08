@@ -202,6 +202,11 @@ class MapStatesToStages implements JourneyStateUpdate {
         stages.add(connectingStage);
     }
 
+    @Override
+    public void seenStation(IdFor<Station> stationId) {
+        // noop
+    }
+
     public List<TransportStage<?, ?>> getStages() {
         if (walkFromStartPending != null) {
             WalkingStage<?,?> walkingStage = walkFromStartPending.createStage(getActualClock(), totalCost);

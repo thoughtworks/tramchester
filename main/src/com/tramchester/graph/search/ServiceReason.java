@@ -13,6 +13,8 @@ import static java.lang.String.format;
 
 public abstract class ServiceReason {
 
+
+
     public enum ReasonCode {
 
         ServiceDateOk, ServiceTimeOk, NumChangesOK, TimeOk, HourOk, Reachable, ReachableNoCheck, DurationOk,
@@ -31,6 +33,7 @@ public abstract class ServiceReason {
         HigherCost,
         HigherCostViaExchange,
         PathTooLong,
+        AlreadySeenStation,
 
         ReturnedToStart,
         TooManyChanges,
@@ -158,10 +161,8 @@ public abstract class ServiceReason {
 
     //////////////
 
-    private static class ReturnedToStart extends ServiceReason
-    {
+    private static class ReturnedToStart extends ServiceReason {
         protected ReturnedToStart(HowIGotHere path) {
-
             super(ReasonCode.ReturnedToStart, path);
         }
 
@@ -175,6 +176,24 @@ public abstract class ServiceReason {
             return obj instanceof DoesNotRunOnQueryDate;
         }
     }
+
+    ///////
+
+    private static class AlreadySeenStation extends ServiceReason {
+
+        private final IdFor<Station> stationId;
+
+        protected AlreadySeenStation(IdFor<Station> stationId, HowIGotHere path) {
+            super(ReasonCode.AlreadySeenStation, path);
+            this.stationId = stationId;
+        }
+
+        @Override
+        public String textForGraph() {
+            return "AlreadySeenStation:"+stationId.getGraphId();
+        }
+    }
+
 
     ///////
 
@@ -457,6 +476,10 @@ public abstract class ServiceReason {
 
     public static ServiceReason CacheMiss(HowIGotHere howIGotHere) {
         return new IsValid(ReasonCode.PreviousCacheMiss, howIGotHere);
+    }
+
+    public static ServiceReason AlreadySeenStation(IdFor<Station> stationId, HowIGotHere howIGotHere) {
+        return new AlreadySeenStation(stationId, howIGotHere);
     }
 
 }

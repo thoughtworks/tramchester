@@ -17,6 +17,7 @@ public abstract class TraversalState implements ImmuatableTraversalState {
     protected final TraversalStateFactory builders;
     protected final TraversalOps traversalOps;
 
+    // TODO switch to Stream
     private final Iterable<Relationship> outbounds;
     private final int costForLastEdge;
     private final int parentCost;

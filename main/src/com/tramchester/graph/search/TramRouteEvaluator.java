@@ -105,7 +105,7 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
             case HigherCost, ReturnedToStart, PathTooLong, TooManyChanges, TooManyWalkingConnections, NotReachable,
                     TookTooLong, ServiceNotRunningAtTime, NotAtHour, DoesNotOperateOnTime, NotOnQueryDate, MoreChanges,
                     AlreadyDeparted, StationClosed, TooManyNeighbourConnections, TimedOut, RouteNotOnQueryDate, HigherCostViaExchange,
-                    ExchangeNotReachable, TooManyRouteChangesRequired, TooManyInterchangesRequired
+                    ExchangeNotReachable, TooManyRouteChangesRequired, TooManyInterchangesRequired, AlreadySeenStation
                     -> Evaluation.EXCLUDE_AND_PRUNE;
             case OnTram, OnBus, OnTrain, NotOnVehicle, CachedUNKNOWN, PreviousCacheMiss, NumWalkingConnectionsOk,
                     NeighbourConnectionsOk, OnShip, OnSubway, OnWalk, CachedNotAtHour,
@@ -190,6 +190,13 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
             ServiceReason serviceReason = serviceHeuristics.checkTime(howIGotHere, nextNode, visitingTime, reasons, timeToWait);
             if (!serviceReason.isValid()) {
                 return serviceReason.getReasonCode();
+            }
+        }
+
+        // SPIKE!
+        if (nodeLabels.contains(GraphLabel.STATION)) {
+            if (!serviceHeuristics.notAlreadySeen(journeyState, nextNode, howIGotHere, reasons).isValid()) {
+                return ServiceReason.ReasonCode.AlreadySeenStation;
             }
         }
 

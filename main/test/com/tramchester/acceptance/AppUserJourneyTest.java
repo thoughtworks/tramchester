@@ -398,12 +398,12 @@ class AppUserJourneyTest extends UserJourneyTest {
         Stage secondStage = stages.get(1);
 
         validateAStage(firstStage, firstResult.getDepartTime(), "Board Tram", altrincham, 1,
-                altyToBuryClass, altyToBuryLineName,
-                TramStations.Bury.getName(), 7);
+                altyToPiccClass, altyToPicLineName,
+                Piccadilly.getName(), 7);
 
         // Too timetable dependent?
         String lineClass = getClassFor(VictoriaWythenshaweManchesterAirport);
-        validateAStage(secondStage, TramTime.of(10,29), "Change Tram", TraffordBar.getName(),
+        validateAStage(secondStage, TramTime.of(10,41), "Change Tram", TraffordBar.getName(),
                 2, lineClass, "Victoria - Wythenshawe - Manchester Airport",
                 TramStations.ManAirport.getName(), 17);
 

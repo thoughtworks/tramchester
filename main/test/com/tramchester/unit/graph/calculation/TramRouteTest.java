@@ -142,7 +142,7 @@ class TramRouteTest {
         Set<Journey> journeys = locationJourneyPlanner.quickestRouteForLocation(origin,  transportData.getSecond(),
                 journeyRequest, 3);
 
-        assertEquals(3, journeys.size(), journeys.toString());
+        assertEquals(1, journeys.size(), journeys.toString());
         journeys.forEach(journey ->{
             List<TransportStage<?,?>> stages = journey.getStages();
             assertEquals(2, stages.size(), "stages: " + stages);

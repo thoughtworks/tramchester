@@ -67,14 +67,14 @@ public class WalkingState extends TraversalState {
     protected PlatformStationState toTramStation(PlatformStationState.Builder towardsStation, Node node, int cost,
                                                  JourneyStateUpdate journeyState) {
         journeyState.endWalk(node);
-        return towardsStation.fromWalking(this, node, cost);
+        return towardsStation.fromWalking(this, node, cost, journeyState);
     }
 
     @Override
     protected TraversalState toNoPlatformStation(NoPlatformStationState.Builder towardsStation, Node node, int cost,
                                                  JourneyStateUpdate journeyState) {
         journeyState.endWalk(node);
-        return towardsStation.fromWalking(this, node, cost);
+        return towardsStation.fromWalking(this, node, cost, journeyState);
     }
 
     @Override

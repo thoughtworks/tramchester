@@ -9,6 +9,7 @@ import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.caches.LowestCostSeen;
 import com.tramchester.graph.caches.NodeContentsRepository;
 import com.tramchester.graph.graphbuild.GraphLabel;
+import com.tramchester.graph.graphbuild.GraphProps;
 import com.tramchester.graph.search.stateMachine.HowIGotHere;
 import com.tramchester.repository.RouteInterchanges;
 import com.tramchester.repository.StationRepository;
@@ -228,4 +229,12 @@ public class ServiceHeuristics {
         return journeyConstraints.getMaxPathLength();
     }
 
+    public ServiceReason notAlreadySeen(ImmutableJourneyState journeyState, Node nextNode, final HowIGotHere howIGotHere,
+                                        ServiceReasons reasons) {
+        IdFor<Station> stationId = GraphProps.getStationId(nextNode);
+        if (journeyState.hasVisited(stationId)) {
+            return ServiceReason.AlreadySeenStation(stationId, howIGotHere);
+        }
+        return valid(ServiceReason.ReasonCode.Continue, howIGotHere, reasons);
+    }
 }

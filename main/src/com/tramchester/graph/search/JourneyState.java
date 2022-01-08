@@ -3,12 +3,16 @@ package com.tramchester.graph.search;
 import com.tramchester.domain.exceptions.TramchesterException;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.input.Trip;
+import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.search.stateMachine.states.TraversalState;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Path;
 import org.neo4j.graphdb.traversal.InitialBranchState;
+
+import java.util.LinkedList;
+import java.util.List;
 
 public class JourneyState implements ImmutableJourneyState, JourneyStateUpdate {
 
@@ -98,6 +102,11 @@ public class JourneyState implements ImmutableJourneyState, JourneyStateUpdate {
     }
 
     @Override
+    public void seenStation(IdFor<Station> stationId) {
+        coreState.seenStation(stationId);
+    }
+
+    @Override
     public void leave(TransportMode mode, int totalCost, Node node) throws TramchesterException {
         if (!coreState.modeEquals(mode)) {
             throw new TramchesterException("Not currently on " +mode+ " was " + coreState.currentMode);
@@ -138,8 +147,6 @@ public class JourneyState implements ImmutableJourneyState, JourneyStateUpdate {
         return coreState.numberNeighbourConnections;
     }
 
-
-
     @Override
     public void board(TransportMode mode, Node node, boolean hasPlatform) throws TramchesterException {
         guardAlreadyOnboard();
@@ -164,6 +171,11 @@ public class JourneyState implements ImmutableJourneyState, JourneyStateUpdate {
     @Override
     public int getTotalCostSoFar() {
         return  traversalState.getTotalCost();
+    }
+
+    @Override
+    public boolean hasVisited(IdFor<Station> stationId) {
+        return coreState.visitedStations.contains(stationId);
     }
 
     public void updateTraversalState(TraversalState traversalState) {
@@ -208,26 +220,28 @@ public class JourneyState implements ImmutableJourneyState, JourneyStateUpdate {
         private int numberOfBoardings;
         private int numberOfWalkingConnections;
         private int numberNeighbourConnections;
+        private final List<IdFor<Station>> visitedStations;
 
         public CoreState(TramTime queryTime) {
             this(queryTime, false, 0,
-                    TransportMode.NotSet, 0, 0);
+                    TransportMode.NotSet, 0, 0, new LinkedList<>());
         }
 
         // Copy cons
         public CoreState(CoreState previous) {
             this(previous.journeyClock, previous.hasBegun, previous.numberOfBoardings, previous.currentMode, previous.numberOfWalkingConnections,
-                    previous.numberNeighbourConnections);
+                    previous.numberNeighbourConnections, previous.visitedStations);
         }
 
         private CoreState(TramTime journeyClock, boolean hasBegun, int numberOfBoardings, TransportMode currentMode,
-                          int numberOfWalkingConnections, int numberNeighbourConnections) {
+                          int numberOfWalkingConnections, int numberNeighbourConnections, List<IdFor<Station>> visitedStations) {
             this.hasBegun = hasBegun;
             this.journeyClock = journeyClock;
             this.currentMode = currentMode;
             this.numberOfBoardings = numberOfBoardings;
             this.numberOfWalkingConnections = numberOfWalkingConnections;
             this.numberNeighbourConnections = numberNeighbourConnections;
+            this.visitedStations = visitedStations;
         }
 
         public void incrementWalkingConnections() {
@@ -309,6 +323,9 @@ public class JourneyState implements ImmutableJourneyState, JourneyStateUpdate {
             return currentMode==mode;
         }
 
+        public void seenStation(IdFor<Station> stationId) {
+            visitedStations.add(stationId);
+        }
     }
 
 }

@@ -62,12 +62,12 @@ public class GroupedStationState extends TraversalState {
 
     @Override
     protected PlatformStationState toTramStation(PlatformStationState.Builder towardsStation, Node node, int cost, JourneyStateUpdate journeyState) {
-        return towardsStation.fromGrouped(this, node, cost);
+        return towardsStation.fromGrouped(this, node, cost, journeyState);
     }
 
     @Override
     protected TraversalState toNoPlatformStation(NoPlatformStationState.Builder towardsStation, Node node, int cost, JourneyStateUpdate journeyState) {
-        return towardsStation.fromGrouped(this, node, cost);
+        return towardsStation.fromGrouped(this, node, cost, journeyState);
     }
 
     @Override
