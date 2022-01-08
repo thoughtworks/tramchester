@@ -65,6 +65,7 @@ public class TransportDataContainer implements TransportData, WriteableTransport
     public void dispose() {
         logger.info("stopping for " + sourceName);
         // clear's are here due to memory usage during testing
+        trips.forEach(trip -> trip.dispose());
         trips.clear();
         stationsById.clear();
         services.clear();

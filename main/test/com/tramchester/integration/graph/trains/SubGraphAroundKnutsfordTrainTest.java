@@ -11,8 +11,8 @@ import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.filters.ConfigurableGraphFilter;
 import com.tramchester.graph.search.RouteCalculator;
 import com.tramchester.integration.testSupport.RouteCalculatorTestFacade;
+import com.tramchester.integration.testSupport.rail.IntegrationRailTestConfig;
 import com.tramchester.integration.testSupport.rail.RailStationIds;
-import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.testTags.TrainTest;
@@ -134,7 +134,7 @@ class SubGraphAroundKnutsfordTrainTest {
         assertFalse(results.isEmpty(), "No results from " + start + " to " + dest);
     }
 
-    private static class SubgraphConfig extends IntegrationTramTestConfig {
+    private static class SubgraphConfig extends IntegrationRailTestConfig {
         public SubgraphConfig() {
             super("subgraph_hale_trains_tramchester.db");
         }

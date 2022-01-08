@@ -27,6 +27,10 @@ public class StopCalls {
         intoNextDay = false;
     }
 
+    public void dispose() {
+        orderedStopCalls.clear();
+    }
+
     public void add(StopCall stop) {
         Station station = stop.getStation();
         if (station==null) {
@@ -139,6 +143,7 @@ public class StopCalls {
         int lastKey = orderedStopCalls.lastKey();
         return orderedStopCalls.get(lastKey);
     }
+
 
     public static class StopLeg {
         private final StopCall first;

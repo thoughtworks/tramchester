@@ -15,6 +15,9 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.DisabledIfEnvironmentVariable;
 
+import java.util.Set;
+import java.util.stream.Collectors;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 @TrainTest
@@ -63,11 +66,12 @@ class InterchangesRailTest {
 
     @Test
     void shouldNotAddAnyInterchangeNotAlreadyMarked() {
-        long interchangeButNotMarked = stationRepository.getStations().stream().
+        Set<Station> interchangeButNotMarked = stationRepository.getStations().stream().
                 filter(station -> interchangeRepository.isInterchange(station)).
-                filter(found -> !found.isMarkedInterchange()).count();
+                filter(station -> station.getTransportModes().size()==1).
+                filter(found -> !found.isMarkedInterchange()).collect(Collectors.toSet());
 
-        assertEquals(0, interchangeButNotMarked);
+        assertTrue(interchangeButNotMarked.isEmpty(), interchangeButNotMarked.toString());
     }
 
     private Station getStation(RailStationIds railStationIds) {

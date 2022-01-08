@@ -97,8 +97,8 @@ public class RailRouteCostsTest {
 
     @Test
     void shouldGetApproxCostCreweAndMiltonKeeny() {
-        assertEquals(64, routeCostCalculator.getAverageCostBetween(txn, crewe, miltonKeynes, date));
-        assertEquals(65, routeCostCalculator.getMaxCostBetween(txn, crewe, miltonKeynes, date));
+        assertEquals(66, routeCostCalculator.getAverageCostBetween(txn, crewe, miltonKeynes, date));
+        assertEquals(66, routeCostCalculator.getMaxCostBetween(txn, crewe, miltonKeynes, date));
     }
 
     @Test

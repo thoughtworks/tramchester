@@ -56,7 +56,6 @@ class FindStationsByNumberLinksTrainTest {
         assertFalse(found.contains(RailStationIds.Mobberley.getId()));
         assertFalse(found.contains(RailStationIds.Hale.getId()));
 
-        //assertEquals(901, found.size());
     }
 
 }

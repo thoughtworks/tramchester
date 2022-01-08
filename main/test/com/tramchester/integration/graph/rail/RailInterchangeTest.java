@@ -12,6 +12,7 @@ import com.tramchester.repository.RouteInterchanges;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.testTags.TrainTest;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -43,6 +44,11 @@ public class RailInterchangeTest {
         interchangeRepository = componentContainer.get(InterchangeRepository.class);
         stationRepository = componentContainer.get(StationRepository.class);
         routeInterchanges = componentContainer.get(RouteInterchanges.class);
+    }
+
+    @AfterAll
+    static void OnceAfterAllTestsAreFinished() {
+        componentContainer.close();
     }
 
     @Test

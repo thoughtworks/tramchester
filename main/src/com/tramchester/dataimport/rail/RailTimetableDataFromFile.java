@@ -57,7 +57,6 @@ public class RailTimetableDataFromFile {
 
     private RailTimetableRecord processLine(String line) {
         RailRecordType recordType = getRecordTypeFor(line);
-        //logger.info("Processing " + recordType);
         return switch (recordType) {
             case TiplocInsert -> factory.createTIPLOC(line);
             case BasicSchedule -> factory.createBasicSchedule(line);

@@ -61,7 +61,9 @@ class GraphBuilderRailTest {
 
     @AfterEach
     void afterEachTestRuns() {
-        txn.close();
+        if (txn!=null) {
+            txn.close();
+        }
     }
 
     @AfterAll
@@ -86,7 +88,7 @@ class GraphBuilderRailTest {
         Iterable<Relationship> outboundLinks = startNode.getRelationships(Direction.OUTGOING, LINKED);
 
         List<Relationship> list = Lists.newArrayList(outboundLinks);
-        assertEquals(29, list.size(), list.toString());
+        assertEquals(31, list.size(), list.toString());
 
         Set<IdFor<Station>> destinations = list.stream().map(Relationship::getEndNode).
                 map(GraphProps::getStationId).collect(Collectors.toSet());

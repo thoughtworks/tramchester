@@ -71,6 +71,11 @@ public class RailRouteCalculatorTest {
         txn.close();
     }
 
+    @AfterAll
+    static void afterAllTestsRun() {
+        componentContainer.close();
+    }
+
     @BeforeEach
     void beforeEachTestRuns() {
         txn = database.beginTx(TXN_TIMEOUT, TimeUnit.SECONDS);

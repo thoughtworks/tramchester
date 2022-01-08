@@ -233,7 +233,7 @@ public class ServiceHeuristics {
                                         ServiceReasons reasons) {
         IdFor<Station> stationId = GraphProps.getStationId(nextNode);
         if (journeyState.hasVisited(stationId)) {
-            return ServiceReason.AlreadySeenStation(stationId, howIGotHere);
+            return reasons.recordReason(ServiceReason.AlreadySeenStation(stationId, howIGotHere));
         }
         return valid(ServiceReason.ReasonCode.Continue, howIGotHere, reasons);
     }

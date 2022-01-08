@@ -33,6 +33,10 @@ public class MutableTrip implements Trip {
     public static Trip build(IdFor<Trip> tripId, String headSign, Service service, Route route) {
         return new MutableTrip(tripId, headSign, service, route, route.getTransportMode());
     }
+    
+    public void dispose() {
+        stopCalls.dispose();
+    }
 
     @Override
     public boolean equals(Object o) {
@@ -120,4 +124,5 @@ public class MutableTrip implements Trip {
     public TramTime arrivalTime() {
         return stopCalls.getLastStop().getArrivalTime();
     }
+
 }
