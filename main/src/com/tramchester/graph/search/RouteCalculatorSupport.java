@@ -111,7 +111,8 @@ public class RouteCalculatorSupport {
         final int computedMinChanges = computedChanges.getMin();
 
         if (requestedMaxChanges < computedMinChanges) {
-            logger.error("Requested max changes is less than computed minimum changes needed");
+            logger.error(format("Requested max changes (%s) is less than computed minimum changes (%s) needed",
+                    requestedMaxChanges, computedMaxChanges));
         }
 
         if (computedMaxChanges > requestedMaxChanges) {

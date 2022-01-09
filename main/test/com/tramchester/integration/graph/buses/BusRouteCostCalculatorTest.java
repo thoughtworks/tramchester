@@ -18,6 +18,8 @@ import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.condition.DisabledIfEnvironmentVariable;
 import org.neo4j.graphdb.Transaction;
 
+import java.util.function.BiFunction;
+
 import static com.tramchester.testSupport.reference.BusStations.*;
 import static com.tramchester.testSupport.reference.BusStations.Composites.StockportTempBusStation;
 import static org.junit.jupiter.api.Assertions.*;
@@ -25,9 +27,6 @@ import static org.junit.jupiter.api.Assertions.*;
 @BusTest
 @DisabledIfEnvironmentVariable(named = "CI", matches = "true")
 class BusRouteCostCalculatorTest {
-    public static final int SHUDEHILL_TO_ALTY = 57;
-    public static final int ALTY_TO_STOCKPORT = 51;
-    public static final int SHUDEHILL_TO_STOCKPORT = 49;
     private static ComponentContainer componentContainer;
 
     private Transaction txn;
@@ -38,6 +37,7 @@ class BusRouteCostCalculatorTest {
     private CompositeStationRepository stationRepository;
 
     private final TramServiceDate date = new TramServiceDate(TestEnv.testDay());
+    private CompositeStationRepository compositeStationRepository;
 
     @BeforeAll
     static void onceBeforeAnyTestRuns() {
@@ -54,6 +54,8 @@ class BusRouteCostCalculatorTest {
     @BeforeEach
     void beforeEachTestRuns() {
         stationRepository = componentContainer.get(CompositeStationRepository.class);
+        compositeStationRepository = componentContainer.get(CompositeStationRepository.class);
+
         GraphDatabase database = componentContainer.get(GraphDatabase.class);
 
         altrinchamInterchange = stationRepository.findByName(Composites.AltrinchamInterchange.getName());
@@ -79,47 +81,73 @@ class BusRouteCostCalculatorTest {
 
     @Test
     void shouldFindCostsCorrectlyForAltyStockportComp() {
-        assertEquals(43, getApproxCostBetween(altrinchamInterchange, stockportBusStation));
-        assertEquals(38, getApproxCostBetween(stockportBusStation, altrinchamInterchange));
+        assertEquals(26, getCostBetween(average(), altrinchamInterchange, stockportBusStation));
+        assertEquals(26, getCostBetween(average(), stockportBusStation, altrinchamInterchange));
+    }
+
+    @Test
+    void shouldFindCostsCorrectlyForAltyStockportMax() {
+        assertEquals(37, getCost(max(), StopAtAltrinchamInterchange, StockportNewbridgeLane));
+        assertEquals(39, getCost(max(), StockportNewbridgeLane, StopAtAltrinchamInterchange));
     }
 
     @Test
     void shouldFindCostsCorrectlyForAltyStockport() {
-        assertEquals(ALTY_TO_STOCKPORT, getApproxCostBetween(StopAtAltrinchamInterchange, StockportNewbridgeLane));
-        assertEquals(46, getApproxCostBetween(StockportNewbridgeLane, StopAtAltrinchamInterchange));
+        assertEquals(29, getCost(average(), StopAtAltrinchamInterchange, StockportNewbridgeLane));
+        assertEquals(28, getCost(average(), StockportNewbridgeLane, StopAtAltrinchamInterchange));
     }
 
     @Test
     void shouldFindCostsCorrectlyForShudehillAltyComp() {
-        assertEquals(53, getApproxCostBetween(altrinchamInterchange, shudehillInterchange));
-        assertEquals(SHUDEHILL_TO_ALTY, getApproxCostBetween(shudehillInterchange, altrinchamInterchange));
+        assertEquals(36, getCostBetween(average(), altrinchamInterchange, shudehillInterchange));
+        assertEquals(34, getCostBetween(average(), shudehillInterchange, altrinchamInterchange));
+    }
+
+    @Test
+    void shouldFindMaxCostsCorrectlyForShudehillAlty() {
+        assertEquals(39, getCost(max(), StopAtAltrinchamInterchange, ShudehillInterchange));
+        assertEquals(44, getCost(max(), ShudehillInterchange, StopAtAltrinchamInterchange));
     }
 
     @Test
     void shouldFindCostsCorrectlyForShudehillAlty() {
-        assertEquals(53, getApproxCostBetween(StopAtAltrinchamInterchange, ShudehillInterchange));
-        assertEquals(59, getApproxCostBetween(ShudehillInterchange, StopAtAltrinchamInterchange));
+        assertEquals(35, getCost(average(), StopAtAltrinchamInterchange, ShudehillInterchange));
+        assertEquals(36, getCost(average(), ShudehillInterchange, StopAtAltrinchamInterchange));
     }
 
     @Test
     void shouldFindCostsCorrectlyForShudehillStockportComp() {
-        assertEquals(40, getApproxCostBetween(shudehillInterchange, stockportBusStation));
-        assertEquals(42, getApproxCostBetween(stockportBusStation, shudehillInterchange));
+        assertEquals(31, getCostBetween(average(), shudehillInterchange, stockportBusStation));
+        assertEquals(29, getCostBetween(average(), stockportBusStation, shudehillInterchange));
+    }
+
+    @Test
+    void shouldFindMaxCostsCorrectlyForShudehillStockportComp() {
+        assertEquals(39, getCostBetween(max(), shudehillInterchange, stockportBusStation));
+        assertEquals(33, getCostBetween(max(), stockportBusStation, shudehillInterchange));
     }
 
     @Test
     void shouldFindCostsCorrectlyForShudehillStockport() {
-        assertEquals(SHUDEHILL_TO_STOCKPORT, getApproxCostBetween(ShudehillInterchange, StockportNewbridgeLane));
-        assertEquals(47, getApproxCostBetween(StockportNewbridgeLane, ShudehillInterchange));
+        assertEquals(34, getCost(average(), ShudehillInterchange, StockportNewbridgeLane));
+        assertEquals(28, getCost(average(), StockportNewbridgeLane, ShudehillInterchange));
     }
 
-    private int getApproxCostBetween(BusStations start, BusStations end) {
-        return routeCost.getAverageCostBetween(txn,
-                TestStation.real(stationRepository,start), TestStation.real(stationRepository,end), date);
+    private BiFunction<Station, Station, Integer> average() {
+        return (start, finish) -> routeCost.getAverageCostBetween(txn, start, finish, date);
     }
 
-    private int getApproxCostBetween(Station start, Station end) {
-        return routeCost.getAverageCostBetween(txn, start, end, date);
+    private BiFunction<Station, Station, Integer> max() {
+        return (start, finish) -> routeCost.getMaxCostBetween(txn, start, finish, date);
     }
+
+    private int getCost(BiFunction<Station, Station, Integer> function, BusStations start, BusStations end) {
+        return getCostBetween(function, TestStation.real(stationRepository,start), TestStation.real(stationRepository,end));
+    }
+
+    private int getCostBetween(BiFunction<Station, Station, Integer> function, Station start, Station end) {
+        return function.apply(start, end);
+    }
+
 
 }

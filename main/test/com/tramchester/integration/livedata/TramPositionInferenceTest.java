@@ -20,18 +20,17 @@ import com.tramchester.testSupport.testTags.LiveDataMessagesCategory;
 import com.tramchester.testSupport.testTags.LiveDataTestCategory;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.TramStations;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 class TramPositionInferenceTest {
 
     private static ComponentContainer componentContainer;
+    private static IntegrationTramTestConfig testConfig;
 
     private TramPositionInference positionInference;
     private StationRepository stationRepository;
@@ -40,7 +39,7 @@ class TramPositionInferenceTest {
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
-        IntegrationTramTestConfig testConfig = new IntegrationTramTestConfig(true);
+        testConfig = new IntegrationTramTestConfig(true);
         componentContainer = new ComponentsBuilder().create(testConfig, TestEnv.NoopRegisterMetrics());
         componentContainer.initialise();
     }
@@ -68,6 +67,14 @@ class TramPositionInferenceTest {
 
     @Test
     @LiveDataMessagesCategory
+    void needApiKeyPresentToFetchData() {
+        assertNotNull(testConfig.getLiveDataConfig().getDataSubscriptionKey(), "subscription key null");
+        assertFalse(testConfig.getLiveDataConfig().getDataSubscriptionKey().isEmpty(), "no subscription key present");
+    }
+
+    @Test
+    @LiveDataMessagesCategory
+    @Disabled("needs a tram in the right place at the right time")
     void shouldInferTramPosition() {
         // NOTE: costs are not symmetric between two stations, i.e. one direction might cost more than the other
         // Guess: this is down to signalling, track, etc.
@@ -93,10 +100,11 @@ class TramPositionInferenceTest {
 
     @Test
     @LiveDataTestCategory
-    void shouldInferAllTramPositions() {
-        List<TramPosition> results = positionInference.inferWholeNetwork(date, time);
-        long hasTrams = results.stream().filter(position -> !position.getTrams().isEmpty()).count();
+    void shouldHaveSomeTramsPresentInNetwork() {
+        List<TramPosition> results = positionInference.inferWholeNetwork(date, time).stream().
+                filter(result -> !result.getTrams().isEmpty()).collect(Collectors.toList());
 
-        assertTrue(hasTrams>0);
+        assertFalse(results.isEmpty());
+
     }
 }

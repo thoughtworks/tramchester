@@ -44,23 +44,25 @@ public class TramPositionInference {
     // todo refresh this based on live data refresh
     public List<TramPosition> inferWholeNetwork(TramServiceDate date, TramTime time) {
         logger.info("Infer tram positions for whole network");
-        List<TramPosition> results = new ArrayList<>();
         Set<StationPair> pairs = adjacenyRepository.getTramStationParis();
-        pairs.forEach(pair -> results.add(findBetween(pair, date, time)));
-        logger.info(format("Found %s pairs with trams", results.size()));
+        List<TramPosition> results = pairs.stream().
+                map(pair -> findBetween(pair, date, time)).
+                collect(Collectors.toList());
+
+        logger.info(format("Found %s station pairs with trams between them", results.size()));
         return results;
     }
 
     public TramPosition findBetween(StationPair pair, TramServiceDate date, TramTime time) {
         int cost = adjacenyRepository.getAdjacent(pair);
         if (cost<0) {
-            logger.info(format("Not adjacent %s", pair));
+            logger.warn(format("Not adjacent %s", pair));
             return new TramPosition(pair, Collections.emptySet(), cost);
         }
 
         Set<DueTram> dueTrams = getDueTrams(pair, date.getDate(), time, cost);
 
-        logger.info(format("Found %s trams between %s", dueTrams.size(), pair));
+        logger.debug(format("Found %s trams between %s", dueTrams.size(), pair));
 
         return new TramPosition(pair, dueTrams, cost);
     }

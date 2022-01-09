@@ -119,14 +119,14 @@ public class CompositeStationGraphBuilder extends CreateNodesAndRelationships {
         contained.stream().
                 filter(graphFilter::shouldInclude).
                 forEach(station -> {
-                    int cost = CoordinateTransforms.calcCostInMinutes(parent, station, mph);
+                    int walkingCost = CoordinateTransforms.calcCostInMinutes(parent, station, mph);
                     Node childNode = builderCache.getStation(txn, station.getId());
                     if (childNode==null) {
                         throw new RuntimeException("cannot find node for " + station);
                     }
 
-                    addGroupRelationshipTowardsChild(parentNode, childNode, cost);
-                    addGroupRelationshipTowardsParent(childNode, parentNode, cost);
+                    addGroupRelationshipTowardsChild(parentNode, childNode, walkingCost);
+                    addGroupRelationshipTowardsParent(childNode, parentNode, walkingCost);
         });
     }
 

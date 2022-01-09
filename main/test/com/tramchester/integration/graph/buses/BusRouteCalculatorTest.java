@@ -158,8 +158,9 @@ class BusRouteCalculatorTest {
         assertFalse(results.isEmpty());
     }
 
+    @Disabled("not realistic, journey would be composite to composite")
     @Test
-    void shouldHandleJourneyDirectViaSingleComposite() {
+    void shouldHandleJourneyDirectWithinASingleComposite() {
 
         CompositeStation piccadillyComp = compositeStationRepository.findByName("Piccadilly Rail Station");
         List<Station> stations = new ArrayList<>(piccadillyComp.getContained());
@@ -263,8 +264,8 @@ class BusRouteCalculatorTest {
     void shouldReproPerfIssueAltyToAirport() {
         CompositeStation airport = compositeStationRepository.findByName("Manchester Airport The Station");
 
-        LocalDate date =  LocalDate.of(2021, 6, 30);
-        JourneyRequest journeyRequest = new JourneyRequest(new TramServiceDate(date), TramTime.of(11,11),
+        //LocalDate date =  LocalDate.of(2021, 6, 30);
+        JourneyRequest journeyRequest = new JourneyRequest(new TramServiceDate(when), TramTime.of(11,11),
                 false, 3, maxJourneyDuration, 3);
 
         Set<Journey> results = calculator.calculateRouteAsSet(altrinchamInterchange, airport, journeyRequest);

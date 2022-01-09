@@ -118,6 +118,11 @@ public class RouteCalculator extends RouteCalculatorSupport implements TramRoute
     private Stream<Journey> getJourneyStream(Transaction txn, Node startNode, Node endNode, JourneyRequest journeyRequest,
                                              Set<Station> unexpanded, List<TramTime> queryTimes, NumberOfChanges numberOfChanges) {
 
+        if (numberOfChanges.getMin()==Integer.MAX_VALUE) {
+            logger.error(format("Computed min number of changes is MAX_VALUE, journey %s is not possible?", journeyRequest));
+            return Stream.empty();
+        }
+
         final Set<Station> destinations = CompositeStation.expandStations(unexpanded);
         if (destinations.size()!=unexpanded.size()) {
             logger.info("Expanded (composite) destinations from " + unexpanded.size() + " to " + destinations.size());

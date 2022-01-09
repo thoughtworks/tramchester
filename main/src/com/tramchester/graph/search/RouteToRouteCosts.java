@@ -215,6 +215,14 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
         if (areNeighbours(startStation, destination)) {
             return new NumberOfChanges(0, maxHops(startStation.getPickupRoutes(), destination.getDropoffRoutes()));
         }
+        if (startStation.getPickupRoutes().isEmpty()) {
+            logger.warn(format("start station %s is end of route, no pick-up routes", startStation));
+            return new NumberOfChanges(Integer.MAX_VALUE, Integer.MAX_VALUE);
+        }
+        if (destination.getDropoffRoutes().isEmpty()) {
+            logger.warn(format("destination station %s is beginning of route, no drop-off routes", destination));
+            return new NumberOfChanges(Integer.MAX_VALUE, Integer.MAX_VALUE);
+        }
         return getNumberOfHops(startStation.getPickupRoutes(), destination.getDropoffRoutes());
     }
 
@@ -446,7 +454,6 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
             }
         }
 
-
         public int size() {
             int result = 0;
             for (int i = 1; i < maxDepth; i++) {
@@ -458,10 +465,6 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
         public boolean contains(int degree, int routeIndexA, int routeIndexB) {
             return costsForDegree[degree].isSet(routeIndexA, routeIndexB);
         }
-
-//        public void set(int degree, int indexA, int indexB) {
-//            costsForDegree[degree].set(indexA, indexB);
-//        }
 
         public byte get(int indexA, int indexB) {
             if (indexA==indexB) {

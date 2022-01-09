@@ -24,14 +24,14 @@ public class RouteEndRepository {
 
     private final FindRouteEndPoints findRouteEndPoints;
     private final StationRepository stationRepository;
-    private final Map<TransportMode,IdSet<Station>> endsOfRoutes;
+    private final Map<TransportMode,IdSet<Station>> beginOrEndOfRoutes;
     private final Set<TransportMode> enabledModes;
 
     @Inject
     public RouteEndRepository(FindRouteEndPoints findRouteEndPoints, StationRepository stationRepository, TramchesterConfig config) {
         this.findRouteEndPoints = findRouteEndPoints;
         this.stationRepository = stationRepository;
-        endsOfRoutes = new HashMap<>();
+        beginOrEndOfRoutes = new HashMap<>();
         enabledModes = config.getTransportModes();
     }
 
@@ -47,7 +47,7 @@ public class RouteEndRepository {
             IdSet<Station> stationIds = getStationIds(starts);
             stationIds.addAll(getStationIds(ends));
 
-            endsOfRoutes.put(mode, stationIds);
+            beginOrEndOfRoutes.put(mode, stationIds);
             logger.info("Found " + stationIds.size() + " ends of routes for " + mode);
         }
 
@@ -57,8 +57,8 @@ public class RouteEndRepository {
     @PreDestroy
     public void stop() {
         logger.info("Stop");
-        endsOfRoutes.values().forEach(IdSet::clear);
-        endsOfRoutes.clear();
+        beginOrEndOfRoutes.values().forEach(IdSet::clear);
+        beginOrEndOfRoutes.clear();
         logger.info("stopped");
     }
 
@@ -69,12 +69,12 @@ public class RouteEndRepository {
     }
 
     public IdSet<Station> getStations(TransportMode mode) {
-        return endsOfRoutes.get(mode);
+        return beginOrEndOfRoutes.get(mode);
     }
 
     public boolean isEndRoute(IdFor<Station> stationId) {
         for (TransportMode enabledMode : enabledModes) {
-            if (endsOfRoutes.get(enabledMode).contains(stationId)) {
+            if (beginOrEndOfRoutes.get(enabledMode).contains(stationId)) {
                 return true;
             }
         }

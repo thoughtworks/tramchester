@@ -10,6 +10,7 @@ import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.GTFSPickupDropoffType;
+import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.StationTime;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.AddNeighboursGraphBuilder;
@@ -312,7 +313,8 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
                     if (!pairs.containsKey(leg)) {
                         // TODO need cost representative of the route as whole
                         int cost = leg.getCost();
-                        if (cost==0) {
+                        if (cost==0 && route.getTransportMode() != TransportMode.Bus) {
+                            // this can happen a lot for buses
                             logger.warn(format("Zero cost for trip %s for %s", trip.getId(), leg));
                         }
                         pairs.put(leg, cost);

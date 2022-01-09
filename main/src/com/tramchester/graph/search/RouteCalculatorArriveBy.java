@@ -62,7 +62,8 @@ public class RouteCalculatorArriveBy implements TramRouteCalculator {
     }
 
     @Override
-    public Stream<Journey> calculateRouteWalkAtStartAndEnd(Transaction txn, Set<StationWalk> stationWalks, Node startNode, Node endNode, Set<Station> destinationStations,
+    public Stream<Journey> calculateRouteWalkAtStartAndEnd(Transaction txn, Set<StationWalk> stationWalks, Node startNode,
+                                                           Node endNode, Set<Station> destinationStations,
                                                            JourneyRequest journeyRequest, NumberOfChanges numberOfChanges) {
         int costToDest = costCalculator.getAverageCostBetween(txn, startNode, endNode, journeyRequest.getDate());
         JourneyRequest departureTime = calcDepartTime(journeyRequest, costToDest);

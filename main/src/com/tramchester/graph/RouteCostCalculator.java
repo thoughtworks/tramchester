@@ -15,6 +15,7 @@ import org.neo4j.graphalgo.EvaluationContext;
 import org.neo4j.graphalgo.GraphAlgoFactory;
 import org.neo4j.graphalgo.PathFinder;
 import org.neo4j.graphalgo.WeightedPath;
+import org.neo4j.graphalgo.impl.util.DoubleEvaluator;
 import org.neo4j.graphdb.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -107,11 +108,13 @@ public class RouteCostCalculator {
 
         PathExpander<Double> forTypesAndDirections = fullExpanderForCostApproximation(routeFilter);
 
-        PathFinder<WeightedPath> finder = GraphAlgoFactory.dijkstra(context, forTypesAndDirections, key.getText());
+        //PathFinder<WeightedPath> finder = GraphAlgoFactory.dijkstra(context, forTypesAndDirections, key.getText());
+        PathFinder<WeightedPath> finder = GraphAlgoFactory.dijkstra(context, forTypesAndDirections, new UsefulLoggingCostEvaluator(key.getText()));
 
         WeightedPath path = finder.findSinglePath(startNode, endNode);
         if (path==null) {
-            logger.error(format("No path found between node %s and node %s", startNode.getId(), endNode.getId()));
+            logger.error(format("No (least cost) path found between node %s [%s] and node %s [%s]",
+                    startNode.getId(), startNode.getAllProperties(), endNode.getId(), endNode.getAllProperties()));
             return -1;
         }
         double weight  = Math.floor(path.weight());
@@ -130,17 +133,7 @@ public class RouteCostCalculator {
                 add(GROUPED_TO_CHILD, Direction.OUTGOING).
                 addRelationshipFilter(routeFilter).
                 build();
-//
-//        return PathExpanders.forTypesAndDirections(
-//                ON_ROUTE, Direction.OUTGOING,
-//                STATION_TO_ROUTE, Direction.OUTGOING,
-//                ROUTE_TO_STATION, Direction.OUTGOING,
-//                WALKS_TO, Direction.OUTGOING,
-//                WALKS_FROM, Direction.OUTGOING,
-//                NEIGHBOUR, Direction.OUTGOING,
-//                GROUPED_TO_PARENT, Direction.OUTGOING,
-//                GROUPED_TO_CHILD, Direction.OUTGOING
-//        );
+
     }
 
     public int costToInterchange(Transaction txn, RouteStation routeStation) {
@@ -176,6 +169,31 @@ public class RouteCostCalculator {
                 filter(entity -> entity.hasProperty(COST.getText())).
                 mapToInt(entity -> (int) entity.getProperty(COST.getText())).
                 sum();
+    }
+
+    private static class UsefulLoggingCostEvaluator extends DoubleEvaluator {
+
+        // default implementation gives zero useful diagnostics, just throws NotFoundException
+
+        private final String name;
+
+        public UsefulLoggingCostEvaluator(String costPropertyName) {
+            super(costPropertyName);
+            this.name = costPropertyName;
+        }
+
+        @Override
+        public Double getCost(Relationship relationship, Direction direction) {
+            try {
+                return super.getCost(relationship, direction);
+            }
+            catch (NotFoundException exception) {
+                final String msg = format("%s not found for %s dir %s type %s props %s",
+                        name, relationship.getId(), direction, relationship.getType(), relationship.getAllProperties());
+                logger.error(msg);
+                throw new RuntimeException(msg, exception);
+            }
+        }
     }
 
 

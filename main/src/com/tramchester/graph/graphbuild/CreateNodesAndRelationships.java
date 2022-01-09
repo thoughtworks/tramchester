@@ -64,26 +64,27 @@ public class CreateNodesAndRelationships {
         logger.info("Relationships created: " + numberRelationships);
     }
 
-    protected boolean addNeighbourRelationship(Node fromNode, Node toNode, int cost) {
-        return addRelationshipFor(fromNode, toNode, cost, NEIGHBOUR);
+    protected boolean addNeighbourRelationship(Node fromNode, Node toNode, int walkCost) {
+        return addRelationshipFor(fromNode, toNode, walkCost, NEIGHBOUR);
     }
 
-    protected void addGroupRelationshipTowardsParent(Node fromNode, Node toNode, int cost) {
-        addRelationshipFor(fromNode, toNode, cost, GROUPED_TO_PARENT);
+    protected void addGroupRelationshipTowardsParent(Node fromNode, Node toNode, int walkCost) {
+        addRelationshipFor(fromNode, toNode, walkCost, GROUPED_TO_PARENT);
     }
 
-    protected void addGroupRelationshipTowardsChild(Node fromNode, Node toNode, int cost) {
-        addRelationshipFor(fromNode, toNode, cost, GROUPED_TO_CHILD);
+    protected void addGroupRelationshipTowardsChild(Node fromNode, Node toNode, int walkCost) {
+        addRelationshipFor(fromNode, toNode, walkCost, GROUPED_TO_CHILD);
     }
 
-    private boolean addRelationshipFor(Node fromNode, Node toNode, int cost, TransportRelationshipTypes relationshipType) {
+    private boolean addRelationshipFor(Node fromNode, Node toNode, int walkCost, TransportRelationshipTypes relationshipType) {
         Set<Long> alreadyRelationship = new HashSet<>();
         fromNode.getRelationships(Direction.OUTGOING, relationshipType).
                 forEach(relationship -> alreadyRelationship.add(relationship.getEndNode().getId()));
 
         if (!alreadyRelationship.contains(toNode.getId())) {
             Relationship relationship = createRelationship(fromNode, toNode, relationshipType);
-            GraphProps.setCostProp(relationship, cost);
+            GraphProps.setCostProp(relationship, walkCost);
+            GraphProps.setMaxCostProp(relationship, walkCost);
             return true;
         }
         return false;

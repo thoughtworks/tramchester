@@ -3,8 +3,8 @@ package com.tramchester.integration.graph.buses;
 import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.config.TramchesterConfig;
-import com.tramchester.domain.NumberOfChanges;
 import com.tramchester.domain.Agency;
+import com.tramchester.domain.NumberOfChanges;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.StringIdFor;
@@ -34,7 +34,7 @@ public class BusRouteToRouteCostsTest {
 
     private RouteToRouteCosts routeToRouteCosts;
     private RouteRepository routeRepository;
-    private CompositeStationRepository stationRepository;
+    private CompositeStationRepository compositeStationRepository;
 
     @BeforeAll
     static void onceBeforeAnyTestRuns() {
@@ -53,7 +53,7 @@ public class BusRouteToRouteCostsTest {
     void beforeEachTestRuns() {
         routeToRouteCosts = componentContainer.get(RouteToRouteCosts.class);
         routeRepository = componentContainer.get(RouteRepository.class);
-        stationRepository = componentContainer.get(CompositeStationRepository.class)
+        compositeStationRepository = componentContainer.get(CompositeStationRepository.class)
 ;    }
 
     // For testing, likely to vary a lot with timetable updates
@@ -65,8 +65,8 @@ public class BusRouteToRouteCostsTest {
 
     @Test
     void shouldGetNumberOfRouteHopsBetweenAltrinchamStockport() {
-        CompositeStation start = stationRepository.findByName(Composites.AltrinchamInterchange.getName());
-        CompositeStation end = stationRepository.findByName(Composites.StockportTempBusStation.getName());
+        CompositeStation start = compositeStationRepository.findByName(Composites.AltrinchamInterchange.getName());
+        CompositeStation end = compositeStationRepository.findByName(Composites.StockportTempBusStation.getName());
 
         // one for the temp stockport bus station, was zero, seems direct alty buses terminating somewhere else
         assertEquals(1, routeToRouteCosts.getNumberOfChanges(start, end).getMin());
@@ -74,8 +74,8 @@ public class BusRouteToRouteCostsTest {
 
     @Test
     void shouldGetNumberOfRouteHopsBetweenAltrinchamShudehill() {
-        CompositeStation start = stationRepository.findByName(Composites.AltrinchamInterchange.getName());
-        CompositeStation end = stationRepository.findByName("Shudehill Interchange");
+        CompositeStation start = compositeStationRepository.findByName(Composites.AltrinchamInterchange.getName());
+        CompositeStation end = compositeStationRepository.findByName("Shudehill Interchange");
 
         NumberOfChanges numberOfChanges = routeToRouteCosts.getNumberOfChanges(start, end);
         assertEquals(1, numberOfChanges.getMin());
@@ -84,8 +84,8 @@ public class BusRouteToRouteCostsTest {
 
     @Test
     void shouldGetNumberOfRouteHopsBetweenKnutsfordAndShudehill() {
-        Station start = stationRepository.getStationById(BusStations.KnutsfordStationStand3.getId());
-        CompositeStation end = stationRepository.findByName("Shudehill Interchange");
+        Station start = compositeStationRepository.getStationById(BusStations.KnutsfordStationStand3.getId());
+        CompositeStation end = compositeStationRepository.findByName("Shudehill Interchange");
 
         NumberOfChanges numberOfChanges = routeToRouteCosts.getNumberOfChanges(start, end);
 
@@ -97,10 +97,10 @@ public class BusRouteToRouteCostsTest {
     void shouldHaveCorrectCostBetweenRoutesDiffDirections() {
         IdFor<Agency> agencyId = StringIdFor.createId("DAGC");
         Set<Route> altyToKnutsford = routeRepository.findRoutesByName(agencyId,
-                "Altrincham - Wilmslow - Knutsford - Macclesfield");
+                "Altrincham - Macclesfield");
         assertEquals(1, altyToKnutsford.size());
         Set<Route> knutsfordToAlty = routeRepository.findRoutesByName(agencyId,
-                "Macclesfield - Knutsford - Wilmslow - Altrincham");
+                "Macclesfield - Altrincham");
         assertEquals(1, knutsfordToAlty.size());
 
         assertEquals(1, routeToRouteCosts.getFor(altyToKnutsford.iterator().next(), knutsfordToAlty.iterator().next()));

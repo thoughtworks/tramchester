@@ -134,7 +134,8 @@ public class CompositeStationRepository implements StationRepositoryPublic {
     }
 
     private void groupByAreaAndAdd(TransportMode mode, String nonUniqueName, Set<Station> stationsWithSameName) {
-        Map<String, Set<Station>> groupdedByArea = stationsWithSameName.stream().collect(Collectors.groupingBy(Station::getArea, Collectors.toSet()));
+        Map<String, Set<Station>> groupdedByArea = stationsWithSameName.stream().
+                collect(Collectors.groupingBy(Station::getArea, Collectors.toSet()));
         groupdedByArea.forEach((area, stations) -> addComposite(mode, nonUniqueName, area, stations));
     }
 

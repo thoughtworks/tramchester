@@ -112,7 +112,7 @@ public class DueTramsRepository implements DueTramsSource, ReportsCacheStats, Ha
                 collect(Collectors.toSet());
 
         if (allTrams.isEmpty()) {
-            logger.info("No trams found for " + HasId.asId(station) + " at " + date + " " + queryTime);
+            logger.debug("No trams found for " + HasId.asId(station) + " at " + date + " " + queryTime);
             return Collections.emptyList();
         }
 

@@ -135,8 +135,8 @@ public class AddNeighboursGraphBuilder extends CreateNodesAndRelationships {
                 throw new RuntimeException(msg);
             }
 
-            int cost = CoordinateTransforms.calcCostInMinutes(from, to, mph);
-            if (!addNeighbourRelationship(fromNode, toNode, cost)) {
+            int walkingCost = CoordinateTransforms.calcCostInMinutes(from, to, mph);
+            if (!addNeighbourRelationship(fromNode, toNode, walkingCost)) {
                 logger.warn(format("Already neighbour link from %s to %s", from.getId(), to.getId()));
             }
         });
