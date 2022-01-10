@@ -83,11 +83,10 @@ class ConfigMismatchTest {
         List<RemoteDataSourceConfig> remoteSources = appConfig.getRemoteDataSourceConfig();
         List<RemoteDataSourceConfig> testRemoteSources = testConfig.getRemoteDataSourceConfig();
         assertEquals(remoteSources.size(), testRemoteSources.size());
-        assertEquals(1, testRemoteSources.size());
+        assertEquals(2, testRemoteSources.size());
 
-        assertEquals(remoteSources.get(0).getDataCheckUrl(), testRemoteSources.get(0).getDataCheckUrl());
-        assertEquals(remoteSources.get(0).getDataUrl(), testRemoteSources.get(0).getDataUrl());
-        assertEquals(remoteSources.get(0).getDownloadFilename(), testRemoteSources.get(0).getDownloadFilename());
+        assertRemoteSources(remoteSources, testRemoteSources, 0);
+        assertRemoteSources(remoteSources, testRemoteSources, 1);
 
         RailConfig rail = appConfig.getRailConfig();
         RailConfig testRail = appConfig.getRailConfig();
@@ -96,6 +95,12 @@ class ConfigMismatchTest {
         assertEquals(rail.getTimetable(), testRail.getTimetable());
         assertEquals(rail.getModes(), testRail.getModes());
 
+    }
+
+    private void assertRemoteSources(List<RemoteDataSourceConfig> remoteSources, List<RemoteDataSourceConfig> testRemoteSources, int index) {
+        assertEquals(remoteSources.get(index).getDataCheckUrl(), testRemoteSources.get(index).getDataCheckUrl());
+        assertEquals(remoteSources.get(index).getDataUrl(), testRemoteSources.get(index).getDataUrl());
+        assertEquals(remoteSources.get(index).getDownloadFilename(), testRemoteSources.get(index).getDownloadFilename());
     }
 
     @Test

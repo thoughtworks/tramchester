@@ -83,7 +83,7 @@ public class LoadRailTransportDataTest {
 
     @Test
     void shouldGetSpecificStation() {
-        Station result = transportData.getStationById(StringIdFor.createId("DRBY"));
+        Station result = transportData.getStationById(Derby.getId());
 
         assertEquals("Derby Rail Station", result.getName());
         assertEquals("Derby", result.getArea());
@@ -96,6 +96,14 @@ public class LoadRailTransportDataTest {
 
         assertEquals(DataSourceID.rail, result.getDataSourceID());
         assertTrue(result.isMarkedInterchange());
+    }
+
+    @Test
+    void shouldHaveSensibleNames() {
+        Station result = transportData.getStationById(ManchesterPiccadilly.getId());
+
+        assertEquals("Manchester Piccadilly Rail Station", result.getName());
+        assertEquals("Manchester City Centre", result.getArea());
     }
 
     @Test

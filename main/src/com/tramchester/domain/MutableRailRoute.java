@@ -14,7 +14,7 @@ public class MutableRailRoute extends MutableRoute {
     private final List<Station> callingPoints;
 
     public MutableRailRoute(IdFor<Route> id, List<Station> callingPoints, Agency agency, TransportMode transportMode) {
-        super(id, createShortName(agency.getId(), callingPoints), createName(agency, callingPoints), agency, transportMode);
+        super(id, createShortName(agency, callingPoints), createName(agency, callingPoints), agency, transportMode);
         if (callingPoints.size()<2) {
             final String message = format("Need at least 2 calling points route %s (%s) and calling points %s",
                     id, transportMode, callingPoints);
@@ -42,23 +42,13 @@ public class MutableRailRoute extends MutableRoute {
                 "} " + super.toString();
     }
 
-    private static String createShortName(IdFor<Agency>  agencyId, List<Station> callingPoints) {
+    private static String createShortName(Agency agency, List<Station> callingPoints) {
         Station first = callingPoints.get(0);
         int lastIndex = callingPoints.size() - 1;
         Station last = callingPoints.get(lastIndex);
 
-        StringBuilder result = new StringBuilder();
-        result.append(format("%s:%s=>%s", agencyId.forDTO(), first.forDTO(), last.forDTO()));
+        return format("%s service from %s to %s", agency.getName(), first.getName(), last.getName());
 
-        for (int i = 1; i < lastIndex; i++) {
-            if (i>1) {
-                result.append(", ");
-            } else {
-                result.append(" via ");
-            }
-            result.append(callingPoints.get(i).getId().forDTO());
-        }
-        return result.toString();
     }
 
     private static String createName(Agency agency, List<Station> callingPoints) {
