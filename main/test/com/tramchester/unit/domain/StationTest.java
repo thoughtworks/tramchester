@@ -78,8 +78,14 @@ class StationTest {
         final Route routeB = MutableRoute.getRoute(StringIdFor.createId("routeIdB"), "shortNameB", "nameB",
                 TestEnv.StagecoachManchester, Bus);
 
+        assertFalse(station.hasPickup());
+        assertFalse(station.hasDropoff());
+
         station.addRoutePickUp(routeA);
+        assertTrue(station.hasPickup());
+
         station.addRouteDropOff(routeB);
+        assertTrue(station.hasDropoff());
 
         assertTrue(station.serves(Tram));
         assertTrue(station.serves(Bus));

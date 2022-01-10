@@ -2,7 +2,8 @@ package com.tramchester.domain.places;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.tramchester.domain.*;
+import com.tramchester.domain.DataSourceID;
+import com.tramchester.domain.Platform;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.presentation.LatLong;
@@ -88,6 +89,16 @@ public class MyLocation implements Location<MyLocation> {
     @Override
     public DataSourceID getDataSourceID() {
         return DataSourceID.internal;
+    }
+
+    @Override
+    public boolean hasPickup() {
+        return true;
+    }
+
+    @Override
+    public boolean hasDropoff() {
+        return true;
     }
 
     @Override

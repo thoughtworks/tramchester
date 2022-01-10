@@ -4,6 +4,7 @@ import com.tramchester.domain.*;
 import com.tramchester.domain.id.CompositeId;
 import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.places.CompositeStation;
+import com.tramchester.domain.places.LocationType;
 import com.tramchester.domain.places.MutableStation;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.LatLong;
@@ -18,8 +19,7 @@ import java.util.Set;
 
 import static com.tramchester.domain.reference.TransportMode.Bus;
 import static com.tramchester.domain.reference.TransportMode.Tram;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 class CompositeStationTest {
 
@@ -38,6 +38,8 @@ class CompositeStationTest {
         stationA.addPlatform(platform);
 
         CompositeStation compositeStation = new CompositeStation(Collections.singleton(stationA), "compArea", "compName");
+
+        assertEquals(LocationType.CompositeStation, compositeStation.getLocationType());
 
         assertEquals("compName", compositeStation.getName());
         assertEquals(new CompositeId<MutableStation>(StringIdFor.createId("id")), compositeStation.getId());
@@ -84,6 +86,8 @@ class CompositeStationTest {
         Set<Station> stations = new HashSet<>(Arrays.asList(stationA, stationB));
         CompositeStation compositeStation = new CompositeStation(stations, "compArea", "compName");
 
+        assertEquals(LocationType.CompositeStation, compositeStation.getLocationType());
+
         assertEquals("compName", compositeStation.getName());
         CompositeId<Station> expectedId = new CompositeId<>(StringIdFor.createId("idB"), StringIdFor.createId("idA"));
         assertEquals(expectedId, compositeStation.getId());
@@ -106,6 +110,31 @@ class CompositeStationTest {
         assertEquals(2, containted.size());
         assertTrue(containted.contains(stationA));
         assertTrue(containted.contains(stationB));
+
+    }
+
+    @Test
+    void shouldHaveCorrectPickupAndDropoff() {
+        MutableStation stationA = TestStation.forTest("idA", "areaA", "stopNameA",
+                new LatLong(2, 4), Tram, dataSourceID);
+        Route routeA = TestEnv.getTramTestRoute(StringIdFor.createId("routeA"), "routeName");
+
+        MutableStation stationB = TestStation.forTest("idB", "areaB", "stopNameB",
+                new LatLong(4, 8), Bus, dataSourceID);
+        Route routeB = MutableRoute.getRoute(StringIdFor.createId("routeB"), "routeCodeB",
+                "routeNameB", TestEnv.StagecoachManchester, Bus);
+
+        Set<Station> stations = new HashSet<>(Arrays.asList(stationA, stationB));
+        CompositeStation compositeStation = new CompositeStation(stations, "compArea", "compName");
+
+        assertFalse(compositeStation.hasPickup());
+        assertFalse(compositeStation.hasDropoff());
+
+        stationA.addRouteDropOff(routeA);
+        assertTrue(compositeStation.hasDropoff());
+
+        stationB.addRoutePickUp(routeB);
+        assertTrue(compositeStation.hasPickup());
 
     }
 

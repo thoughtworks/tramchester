@@ -7,16 +7,20 @@ import java.util.Set;
 
 @SuppressWarnings("unused")
 public class StationRefDTO {
+    private boolean pickUp;
+    private boolean dropOff;
     private String id;
     private String name;
     private String area;
     private Set<TransportMode> transportModes;
 
-    public StationRefDTO(Location<?> station) {
-        this.id = station.forDTO();
-        this.name = station.getName();
-        this.transportModes = station.getTransportModes();
-        this.area = station.getArea();
+    public StationRefDTO(Location<?> location) {
+        this.id = location.forDTO();
+        this.name = location.getName();
+        this.transportModes = location.getTransportModes();
+        this.area = location.getArea();
+        this.pickUp = location.hasPickup();
+        this.dropOff = location.hasDropoff();
     }
 
     public StationRefDTO() {
@@ -62,5 +66,13 @@ public class StationRefDTO {
 
     public String getArea() {
         return area;
+    }
+
+    public boolean getPickUp() {
+        return pickUp;
+    }
+
+    public boolean getDropOff() {
+        return dropOff;
     }
 }
