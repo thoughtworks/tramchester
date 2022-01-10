@@ -36,15 +36,16 @@ function addBoxWithFrequency(boxWithFrequency) {
         [boxWithFrequency.topRight.lat, boxWithFrequency.topRight.lon]];
 
     const numberOfStopCalls = boxWithFrequency.numberOfStopcalls;
+    const modes = boxWithFrequency.modes;
 
     const frequency = getFrequency(numberOfStopCalls);
     const colour = getColourForFrequency(frequency);     
     const rectangle = L.rectangle(bounds, {weight: 0, color: colour, fillColor: colour, fill: true, fillOpacity: 0.5});
     if (numberOfStopCalls>0) {
         const displayFrequency = Math.round(frequency*100) / 100; 
-        rectangle.bindTooltip('buses per hour ' + displayFrequency);
+        rectangle.bindTooltip(modes +' per hour ' + displayFrequency);
     } else {
-        rectangle.bindTooltip('no buses');
+        rectangle.bindTooltip('no services');
     }
     rectangle.addTo(mapApp.frequencyLayer);
 }

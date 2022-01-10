@@ -24,15 +24,15 @@ function fromFormatter(value, key, row) {
 
 function nameForStation(station) {
     var name = station.name;
-    if (station.id=='MyLocationPlaceholderId') {
-        return name;
-    }
-    if (station.transportModes.includes('Tram')) {
-        return name; // tram names unambiguous so no need for area prefx
-    }
-    if (!name.includes(station.area)) {
-        name = station.area + " " + name; // add prefix if not included in name
-    }
+    // if (station.id=='MyLocationPlaceholderId') {
+    //     return name;
+    // }
+    // if (station.transportModes.includes('Tram') || station.transportModes.includes('Train')) {
+    //     return name; // names unambiguous so no need for area prefx
+    // }
+    // if (!name.includes(station.area)) {
+    //     name = station.area + " " + name; // TODO remove this and get stop names from naptan
+    // }
     return name;
 }
 
@@ -60,8 +60,8 @@ function stopsFormatter(value, key, row) {
 }
 
 function routeFormatter(mode, key, row) {
-    if (mode==='Bus') {
-        return row.route.routeName;
+    if (mode==='Train') {
+        return row.route.shortName;
     } else {
         return row.route.routeName;
     }
@@ -144,6 +144,17 @@ function lastDepartTime(journeys) {
     return lastDepart;
 }
 
+function getStageFields() {
+    return [{ key: 'firstDepartureTime', label: 'Time', tdClass: 'departTime', formatter: stageDateTimeFormatter },
+    { key: 'action', label: 'Action', tdClass: 'action', formatter: actionFormatter },
+    { key: 'actionStation.name', label: 'Station', tdClass: 'actionStation', formatter: stationFormatter },
+    { key: 'platform.platformNumber', label: 'Platform', tdClass: 'platform' },
+    { key: 'headSign', label: 'Headsign', tdClass: stageHeadsignClass },
+    { key: 'mode', label: 'Line', formatter: routeFormatter, tdClass: lineClass },
+    { key: 'passedStops', label: 'Stops', tdClass: 'passedStops', formatter: stopsFormatter },
+    { key: 'expectedArrivalTime', label: 'Arrive', tdClass: 'arriveTime', formatter: stageDateTimeFormatter }];
+}
+
 
 function toHourAndMins(date) {
     return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false });
@@ -162,13 +173,7 @@ export default {
                     , formatter: dateTimeFormatter},
                 {key:'journey.changeStations', label:'Change', tdClass:'changes', formatter: changesFormatter}
                 ],
-            stageFields: [{key:'firstDepartureTime', label:'Time', tdClass:'departTime', formatter: stageDateTimeFormatter},
-                {key:'action', label:'Action', tdClass:'action', formatter: actionFormatter },
-                {key:'actionStation.name', label:'Station', tdClass:'actionStation', formatter: stationFormatter},
-                {key:'platform.platformNumber', label:'Platform', tdClass:'platform'},
-                {key:'headSign', label:'Headsign', tdClass: stageHeadsignClass },
-                {key:'mode', label:'Line', formatter: routeFormatter, tdClass: lineClass },
-                {key:'passedStops', label:'Stops', tdClass:'passedStops', formatter: stopsFormatter}]
+            stageFields: getStageFields()
             }
       },
     props: ['journeysresponse','numjourneystodisplay'],
@@ -271,3 +276,5 @@ export default {
     </div>
     `
 }
+
+

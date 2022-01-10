@@ -47,6 +47,10 @@ function busEnabled(scope) {
     return scope.modes.includes('Bus');
 }
 
+function selectChangesEnabled(scope) {
+    return scope.modes.includes('Bus') || scope.modes.includes('Train');
+}
+
 function displayLiveData(app) {
     if (busEnabled(app)) {
         // only live data for trams
@@ -334,6 +338,9 @@ var app = new Vue({
             },
             busEnabled: function () {
                 return busEnabled(this);
+            },
+            selectChangesEnabled: function() {
+                return selectChangesEnabled(this);
             }
         }
     })
