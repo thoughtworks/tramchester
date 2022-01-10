@@ -31,8 +31,9 @@ gtfsSourceConfig:
     stationClosures: []
 rail:
   dataPath: data/rail
-  stations: ttisf201.msn
-  timetable: ttisf201.mca
+  stations: ttisf236.msn
+  timetable: ttisf236.mca
+  modes: [ Train, RailReplacementBus ]
 remoteSources:
   -
     name: tfgm

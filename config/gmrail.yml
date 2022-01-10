@@ -21,8 +21,9 @@ instanceDataUrl: http://169.254.169.254
 gtfsSourceConfig: []
 rail:
   dataPath: data/rail
-  stations: ttisf201.msn
-  timetable: ttisf201.mca
+  stations: ttisf236.msn
+  timetable: ttisf236.mca
+  modes: [ Train, RailReplacementBus ]
 remoteSources:
   -
     name: rail
@@ -30,14 +31,18 @@ remoteSources:
     dataCheckURL: s3://tramchester2dist/railData/ttis236.zip
     dataPath: data/rail
     filename: ttis236.zip
+  - name: naptan
+    dataURL: https://naptan.app.dft.gov.uk/DataRequest/Naptan.ashx?format=csv
+    dataCheckURL: ""
+    dataPath: data/naptan
+    filename: naptan_csv.zip
 cacheFolder: data/cache/gmrail
 calcTimeoutMillis: 3500
 bounds:
-  minEastings: 333200
-  minNorthings: 373250
-  maxEasting: 414500
-  maxNorthings: 437850
-
+  minEastings: 377000
+  minNorthings: 385000
+  maxEasting: 394500
+  maxNorthings: 413500
 planningEnabled: true
 createNeighbours: false
 maxNeighbourConnections: 0
