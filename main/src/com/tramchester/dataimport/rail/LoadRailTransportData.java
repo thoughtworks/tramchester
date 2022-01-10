@@ -16,6 +16,7 @@ import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.places.MutableStation;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.LatLong;
+import com.tramchester.geo.BoundingBox;
 import com.tramchester.geo.CoordinateTransforms;
 import com.tramchester.geo.GridPosition;
 import com.tramchester.repository.TransportDataContainer;
@@ -37,9 +38,11 @@ public class LoadRailTransportData implements DirectDataSourceFactory.PopulatesC
     private final boolean enabled;
     private final RailConfig railConfig;
     private final RemoteDataSourceConfig railRemoteSourceConfig;
+    private final BoundingBox bounds;
 
     @Inject
     public LoadRailTransportData(RailDataRecordFactory factory, TramchesterConfig config) {
+        bounds = config.getBounds();
         railConfig = config.getRailConfig();
         enabled = (railConfig!=null);
         if (enabled) {
@@ -102,8 +105,18 @@ public class LoadRailTransportData implements DirectDataSourceFactory.PopulatesC
     private void addStations(TransportDataContainer dataContainer, Stream<PhysicalStationRecord> physicalRecords) {
         physicalRecords.
                 filter(this::validRecord).
+                filter(this::locationWithinBounds).
                 map(this::createStationFor).
                 forEach(dataContainer::addStation);
+    }
+
+    private boolean locationWithinBounds(PhysicalStationRecord record) {
+        GridPosition gridPosition = convertToOsGrid(record.getEasting(), record.getNorthing());
+        if (gridPosition.isValid()) {
+            return bounds.contained(gridPosition);
+        }
+        logger.debug("station out of bounds " + record.getName() + " " + record.getTiplocCode());
+        return false;
     }
 
     private boolean validRecord(PhysicalStationRecord physicalStationRecord) {

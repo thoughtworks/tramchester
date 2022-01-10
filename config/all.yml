@@ -31,22 +31,11 @@ gtfsSourceConfig:
     additionalInterchanges: [ "9400ZZMACRN", "9400ZZMASTP", "9400ZZMAPGD", "9400ZZMATRA", "9400ZZMASTW",
                               "9400ZZMAVIC", "9400ZZMAGMX", "9400ZZMAPIC" ]
     compositeStationModes: [ Bus ]
-  -
-    name: gbRail
-    dataPath: data/trains
-    hasFeedInfo: false
-    transportModes: [ train ]
-    transportModesWithPlatforms: []
-    noServices: []
-    additionalInterchanges: []
-    compositeStationModes: []
+rail:
+  dataPath: data/rail
+  stations: ttisf201.msn
+  timetable: ttisf201.mca
 remoteSources:
-  -
-    name: gbRail
-    dataURL: https://s3.eu-west-2.amazonaws.com/feeds.planar.network/gb-rail-latest.zip
-    dataCheckURL: https://s3.eu-west-2.amazonaws.com/feeds.planar.network/gb-rail-latest.zip
-    dataPath: data/trains
-    filename: gb-rail-latest.zip
   -
     name: tfgm
     dataURL: ${TRAM_DATAURL:- http://odata.tfgm.com/opendata/downloads/TfGMgtfsnew.zip}
@@ -59,6 +48,11 @@ remoteSources:
     dataCheckURL: ""
     dataPath: data/naptan
     filename: naptan_csv.zip
+  - name: rail
+    dataURL: s3://tramchester2dist/railData/ttis236.zip
+    dataCheckURL: s3://tramchester2dist/railData/ttis236.zip
+    dataPath: data/rail
+    filename: ttis236.zip
 cacheFolder: data/cacheAll
 calcTimeoutMillis: 3500
 bounds:

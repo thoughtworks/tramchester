@@ -51,6 +51,8 @@ class BusRouteCalculatorTest {
     private int maxJourneyDuration;
     private CompositeStation stockportBusStation;
     private CompositeStation altrinchamInterchange;
+    private CompositeStation knutsfordBusStation;
+    private CompositeStation shudehillInterchange;
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
@@ -76,6 +78,8 @@ class BusRouteCalculatorTest {
 
         stockportBusStation = compositeStationRepository.findByName(Composites.StockportTempBusStation.getName());
         altrinchamInterchange = compositeStationRepository.findByName(Composites.AltrinchamInterchange.getName());
+        knutsfordBusStation = compositeStationRepository.findByName("Bus Station, Knutsford");
+        shudehillInterchange = compositeStationRepository.findByName("Shudehill Interchange");
     }
 
     @AfterEach
@@ -148,7 +152,7 @@ class BusRouteCalculatorTest {
 
     @Test
     void shouldHaveJourneyAltyToKnutsford() {
-        CompositeStation end = compositeStationRepository.findByName("Bus Station, Knutsford");
+        CompositeStation end = knutsfordBusStation;
 
         TramTime time = TramTime.of(10, 40);
         JourneyRequest journeyRequest = new JourneyRequest(when, time, false, 1,
@@ -179,26 +183,24 @@ class BusRouteCalculatorTest {
 
     @Test
     void shouldHaveJourneyKnutsfordToAlty() {
-        CompositeStation start = compositeStationRepository.findByName("Bus Station, Knutsford");
 
         TramTime time = TramTime.of(11, 20);
         JourneyRequest journeyRequest = new JourneyRequest(when, time, false,
                 3, 120, 1);
 
-        Set<Journey> results = calculator.calculateRouteAsSet(start, altrinchamInterchange, journeyRequest);
+        Set<Journey> results = calculator.calculateRouteAsSet(knutsfordBusStation, altrinchamInterchange, journeyRequest);
 
         assertFalse(results.isEmpty());
     }
 
     @Test
     void shouldNotRevisitSameBusStationAltyToKnutsford() {
-        CompositeStation end = compositeStationRepository.findByName("Bus Station, Knutsford");
 
         TramTime travelTime = TramTime.of(15, 55);
 
         JourneyRequest request = new JourneyRequest(new TramServiceDate(when), travelTime, false, 2,
                 maxJourneyDuration, 1);
-        Set<Journey> journeys = calculator.calculateRouteAsSet(altrinchamInterchange, end, request);
+        Set<Journey> journeys = calculator.calculateRouteAsSet(altrinchamInterchange, knutsfordBusStation, request);
 
         assertFalse(journeys.isEmpty(), "no journeys");
 
@@ -231,11 +233,22 @@ class BusRouteCalculatorTest {
         JourneyRequest journeyRequest = new JourneyRequest(new TramServiceDate(when), TramTime.of(9,40),
                 false, maxChanges, maxJourneyDuration, 3);
 
-        CompositeStation shudehill = compositeStationRepository.findByName("Shudehill Interchange");
         Station asdaBroadhealth = compositeStationRepository.getStationById(StringIdFor.createId("1800SJ18511"));
         assertNotNull(asdaBroadhealth);
 
-        Set<Journey> journeys = calculator.calculateRouteAsSet(shudehill, asdaBroadhealth, journeyRequest);
+        Set<Journey> journeys = calculator.calculateRouteAsSet(shudehillInterchange, asdaBroadhealth, journeyRequest);
+        assertFalse(journeys.isEmpty());
+    }
+
+    @Test
+    void shouldHaveAltyToShudehill() {
+        int maxChanges = 3;
+
+        LocalDate date = LocalDate.of(2022,1,9);
+        JourneyRequest journeyRequest = new JourneyRequest(new TramServiceDate(date), TramTime.of(9,52),
+                false, maxChanges, maxJourneyDuration, 3);
+
+        Set<Journey> journeys = calculator.calculateRouteAsSet(altrinchamInterchange, shudehillInterchange, journeyRequest);
         assertFalse(journeys.isEmpty());
     }
 

@@ -86,7 +86,8 @@ public class StopCallsForGridTest extends EasyMockSupport {
         EasyMock.expect(stopCallRepository.getStopCallsFor(station3, date, begin, end)).andReturn(station3Calls);
 
         replayAll();
-        Set<BoxWithServiceFrequency> results = stopCallsForGrid.getServiceFreqencies(gridSize, date, begin, end);
+        Set<BoxWithServiceFrequency> results = stopCallsForGrid.
+                getServiceFreqencies(gridSize, date, begin, end).collect(Collectors.toSet());
         verifyAll();
 
         assertEquals(2, results.size());

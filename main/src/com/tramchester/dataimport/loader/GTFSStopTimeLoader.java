@@ -28,14 +28,14 @@ import java.util.stream.Stream;
 
 import static java.lang.String.format;
 
-public class StopTimeLoader {
+public class GTFSStopTimeLoader {
     private static final Logger logger = LoggerFactory.getLogger(StopDataLoader.class);
 
     private final WriteableTransportData buildable;
     private final TransportEntityFactory factory;
     private final GTFSSourceConfig dataSourceConfig;
 
-    public StopTimeLoader(WriteableTransportData buildable, TransportEntityFactory factory, GTFSSourceConfig dataSourceConfig) {
+    public GTFSStopTimeLoader(WriteableTransportData buildable, TransportEntityFactory factory, GTFSSourceConfig dataSourceConfig) {
         this.buildable = buildable;
         this.factory = factory;
         this.dataSourceConfig = dataSourceConfig;

@@ -23,12 +23,16 @@ gtfsSourceConfig:
     name: tfgm
     dataPath: data/bus
     hasFeedInfo: true
-    transportModes: [ bus ]
+    transportModes: [ tram, bus ]
     transportModesWithPlatforms: []
     noServices: []
     additionalInterchanges: []
     compositeStationModes: [ Bus ]
     stationClosures: []
+rail:
+  dataPath: data/rail
+  stations: ttisf201.msn
+  timetable: ttisf201.mca
 remoteSources:
   -
     name: tfgm
@@ -42,7 +46,12 @@ remoteSources:
     dataCheckURL: ""
     dataPath: data/naptan
     filename: naptan_csv.zip
-cacheFolder: data/cacheBuses
+  - name: rail
+    dataURL: s3://tramchester2dist/railData/ttis236.zip
+    dataCheckURL: s3://tramchester2dist/railData/ttis236.zip
+    dataPath: data/rail
+    filename: ttis236.zip
+cacheFolder: data/cacheFrequency
 calcTimeoutMillis: 3500
 bounds:
   minEastings: 333200

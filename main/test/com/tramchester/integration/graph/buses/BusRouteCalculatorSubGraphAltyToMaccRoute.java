@@ -120,7 +120,7 @@ class BusRouteCalculatorSubGraphAltyToMaccRoute {
             txn.close();
         }
     }
-    
+
     @Test
     void shouldHaveKnutfordBusStation() {
         assertFalse(knutfordStations.isEmpty());

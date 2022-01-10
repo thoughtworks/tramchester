@@ -81,6 +81,7 @@ class PlatformStopCallsTest {
 
         assertEquals(stationD.getId(), platformStopCall.getStationId());
         assertEquals(platformD, platformStopCall.getPlatform());
+        assertEquals(trip.getTransportMode(), platformStopCall.getTransportMode());
     }
 
     @Test

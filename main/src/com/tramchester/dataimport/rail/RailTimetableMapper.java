@@ -56,6 +56,7 @@ public class RailTimetableMapper {
     private final Map<String,TIPLOCInsert> tiplocInsertRecords;
     private final MissingStations missingStations;
     private final Set<Pair<TrainStatus, TrainCategory>> travelCombinations;
+    private final Set<RawService> skipped;
 
     public RailTimetableMapper(TransportDataContainer container) {
         currentState = State.Between;
@@ -63,6 +64,7 @@ public class RailTimetableMapper {
         tiplocInsertRecords = new HashMap<>();
         missingStations = new MissingStations();
         travelCombinations = new HashSet<>();
+        skipped = new HashSet<>();
         processor = new CreatesTransportDataForRail(container, missingStations, travelCombinations);
     }
 
@@ -103,7 +105,7 @@ public class RailTimetableMapper {
     private void seenEnd(RailTimetableRecord record) {
         guardState(State.SeenOrigin, record);
         rawService.finish(record);
-        processor.consume(rawService, overlay);
+        processor.consume(rawService, overlay, skipped);
         currentState = State.Between;
         overlay = false;
     }
@@ -136,6 +138,19 @@ public class RailTimetableMapper {
                 forEach(record -> logger.info("Had record for missing tiploc: "+record));
         travelCombinations.forEach(pair -> logger.info(String.format("Rail mode Status: %s Category: %s",
                 pair.getLeft(), pair.getRight())));
+        reportSkipped(skipped);
+    }
+
+    private void reportSkipped(Set<RawService> skipped) {
+        if (skipped.isEmpty()) {
+            return;
+        }
+        logger.warn("Skipped " + skipped.size() + " records");
+//        StringBuilder builder = new StringBuilder();
+//        skipped.forEach(skip -> {
+//            builder.append(" ").append(skip.basicScheduleRecord.getUniqueTrainId());
+//        });
+//        logger.warn("Skipped following services with unique train ids " + builder);
     }
 
     private void guardState(State expectedState, RailTimetableRecord record) {
@@ -193,11 +208,15 @@ public class RailTimetableMapper {
             this.railRouteIDBuilder = new RailRouteIDBuilder();
         }
 
-        public void consume(RawService rawService, boolean isOverlay) {
+        public void consume(RawService rawService, boolean isOverlay, Set<RawService> skipped) {
             BasicSchedule basicSchedule = rawService.basicScheduleRecord;
 
             switch (basicSchedule.getTransactionType()) {
-                case N -> createNew(rawService, isOverlay);
+                case N -> {
+                    if (!createNew(rawService, isOverlay)) {
+                        skipped.add(rawService);
+                    }
+                }
                 case D -> delete(rawService.basicScheduleRecord);
                 case R -> revise(rawService);
                 case Unknown -> logger.warn("Unknown transaction type for " + rawService.basicScheduleRecord);
@@ -216,7 +235,7 @@ public class RailTimetableMapper {
             railServiceGroups.applyCancellation(basicSchedule);
         }
 
-        private void createNew(RawService rawService, boolean isOverlay) {
+        private boolean createNew(RawService rawService, boolean isOverlay) {
             final BasicSchedule basicSchedule = rawService.basicScheduleRecord;
 
             // assists with diagnosing data issues
@@ -229,7 +248,7 @@ public class RailTimetableMapper {
                 logger.debug(format("Skipping %s of category %s and status %s", uniqueTrainId, basicSchedule.getTrainCategory(),
                         basicSchedule.getTrainStatus()));
                 railServiceGroups.recordSkip(basicSchedule);
-                return;
+                return false;
             }
 
             final OriginLocation originLocation = rawService.originLocation;
@@ -246,38 +265,42 @@ public class RailTimetableMapper {
                 logger.error(format("Mismatch on atco code (%s) and found agency id %s", atocCode, agencyId));
             }
 
+            // Calling points
+            List<Station> callingPoints = getRouteStationCallingPoints(rawService);
+
+            if (callingPoints.isEmpty() || callingPoints.size()==1) {
+                // likely due to all stations being filtered out as beyond geo bounds
+                logger.debug(format("Skip, Not enough calling points (%s) for (%s)", callingPoints.stream(), rawService));
+                return false;
+            }
+
             // Service
             MutableService service = railServiceGroups.getOrCreateService(basicSchedule, isOverlay);
 
-            // Route
-            List<Station> callingPoints = getRouteStationCallingPoints(rawService);
             IdFor<Route> routeId = railRouteIDBuilder.getIdFor(agencyId, callingPoints);
 
-            if (callingPoints.size()>1) {
+            MutableRoute route = getOrCreateRoute(routeId, rawService, mutableAgency, mode, callingPoints);
+            route.addService(service);
+            mutableAgency.addRoute(route);
 
-                MutableRoute route = getOrCreateRoute(routeId, rawService, mutableAgency, mode, callingPoints);
-                route.addService(service);
-                mutableAgency.addRoute(route);
+            // Trip
+            MutableTrip trip = getOrCreateTrip(basicSchedule, service, route, mode);
+            route.addTrip(trip);
 
-                // Trip
-                MutableTrip trip = getOrCreateTrip(basicSchedule, service, route, mode);
-                route.addTrip(trip);
-
-                // Stations, Platforms, StopCalls
-                int stopSequence = 1;
-                //boolean crossMidnight = crossMidnight(originLocation, terminatingLocation);
-                TramTime originTime = originLocation.getDeparture();
-                populateForLocation(originLocation, route, trip, stopSequence, false, agencyId, basicSchedule, originTime);
-                stopSequence = stopSequence + 1;
-                for (IntermediateLocation intermediateLocation : intermediateLocations) {
-                    if (populateForLocation(intermediateLocation, route, trip, stopSequence, false, agencyId, basicSchedule, originTime)) {
-                        stopSequence = stopSequence + 1;
-                    }
+            // Stations, Platforms, StopCalls
+            int stopSequence = 1;
+            //boolean crossMidnight = crossMidnight(originLocation, terminatingLocation);
+            TramTime originTime = originLocation.getDeparture();
+            populateForLocation(originLocation, route, trip, stopSequence, false, agencyId, basicSchedule, originTime);
+            stopSequence = stopSequence + 1;
+            for (IntermediateLocation intermediateLocation : intermediateLocations) {
+                if (populateForLocation(intermediateLocation, route, trip, stopSequence, false, agencyId, basicSchedule, originTime)) {
+                    stopSequence = stopSequence + 1;
                 }
-                populateForLocation(terminatingLocation, route, trip, stopSequence, true, agencyId, basicSchedule, originTime);
-            } else {
-                logger.error("Did not get enough calling points for a route " + routeId + " " + callingPoints);
             }
+            populateForLocation(terminatingLocation, route, trip, stopSequence, true, agencyId, basicSchedule, originTime);
+
+            return true;
         }
 
         private boolean shouldInclude(TransportMode mode) {
@@ -479,8 +502,12 @@ public class RailTimetableMapper {
                 result.add(getStationFor(rawService.terminatingLocation));
             }
 
-            if (result.size() <= 1) {
-                logger.error("Did not get enough calling points for " + rawService.basicScheduleRecord);
+            if (result.isEmpty()) {
+                // likely filtered out by geo bounds
+                logger.debug("Did not get any calling points for " + rawService.basicScheduleRecord);
+            } else if (result.size()==1) {
+                // less likely to see this
+                logger.warn("Only one calling points for " + rawService.basicScheduleRecord);
             }
             return result;
         }

@@ -89,7 +89,7 @@ public class PopulateTransportDataFromSources implements TransportDataFactory {
         AgencyDataLoader agencyDataLoader = new AgencyDataLoader(dataSourceInfo, entityFactory);
         RouteDataLoader routeDataLoader = new RouteDataLoader(writeableTransportData, sourceConfig, entityFactory);
         TripLoader tripLoader = new TripLoader(writeableTransportData, entityFactory);
-        StopTimeLoader stopTimeLoader = new StopTimeLoader(writeableTransportData, entityFactory, sourceConfig);
+        GTFSStopTimeLoader stopTimeLoader = new GTFSStopTimeLoader(writeableTransportData, entityFactory, sourceConfig);
         CalendarLoader calendarLoader = new CalendarLoader(writeableTransportData, entityFactory);
         CalendarDateLoader calendarDateLoader = new CalendarDateLoader(writeableTransportData, providesNow, sourceConfig);
 

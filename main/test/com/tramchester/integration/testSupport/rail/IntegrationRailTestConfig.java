@@ -70,7 +70,7 @@ public class IntegrationRailTestConfig extends IntegrationTestConfig {
 
     @Override
     public int getMaxWait() {
-        return 20;
+        return 30;
     }
 
     @Override

@@ -7,6 +7,7 @@ import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.GTFSPickupDropoffType;
+import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramTime;
 
 import static com.tramchester.domain.reference.GTFSPickupDropoffType.None;
@@ -127,5 +128,9 @@ public abstract class StopCall {
         result = 31 * result + trip.hashCode();
         result = 31 * result + sequenceNumber;
         return result;
+    }
+
+    public TransportMode getTransportMode() {
+        return trip.getTransportMode();
     }
 }

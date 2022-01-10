@@ -15,7 +15,7 @@ server:
 secureHost: tramchester.com
 staticAssetCacheTimeSeconds: 300
 graphDBConfig:
-  graphName: rail.db
+  graphName: gm_rail.db
   neo4jPagecacheMemory: 1000m
 instanceDataUrl: http://169.254.169.254
 gtfsSourceConfig: []
@@ -30,13 +30,13 @@ remoteSources:
     dataCheckURL: s3://tramchester2dist/railData/ttis236.zip
     dataPath: data/rail
     filename: ttis236.zip
-cacheFolder: data/cache/rail
+cacheFolder: data/cache/gmrail
 calcTimeoutMillis: 3500
 bounds:
-  minEastings: 147588
-  minNorthings: 30599
-  maxEasting: 654747
-  maxNorthings: 967921
+  minEastings: 333200
+  minNorthings: 373250
+  maxEasting: 414500
+  maxNorthings: 437850
 
 planningEnabled: true
 createNeighbours: false

@@ -2,7 +2,9 @@ package com.tramchester.geo;
 
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.domain.BoxWithServiceFrequency;
+import com.tramchester.domain.input.StopCall;
 import com.tramchester.domain.places.Station;
+import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.repository.StopCallRepository;
 import org.jetbrains.annotations.NotNull;
@@ -11,9 +13,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
 import java.time.LocalDate;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -32,27 +32,28 @@ public class StopCallsForGrid {
         this.stopCallRepository = stopCallRepository;
     }
 
-    public Set<BoxWithServiceFrequency> getServiceFreqencies(long gridSize, LocalDate date, TramTime begin, TramTime end) {
+    public Stream<BoxWithServiceFrequency> getServiceFreqencies(long gridSize, LocalDate date, TramTime begin, TramTime end) {
         logger.info(format("Get stopcalls for grid size %s on %s between %s and %s", gridSize, date, begin, end));
-        Stream<BoundingBoxWithStations> boxes = stationLocations.getGroupedStations(gridSize);
 
-        return boxes.filter(BoundingBoxWithStations::hasStations).
-                map(box -> createFrequencyBox(date, begin, end, box)).
-                collect(Collectors.toSet());
-
+        return stationLocations.getGroupedStations(gridSize).
+                filter(BoundingBoxWithStations::hasStations).
+                map(box -> createFrequencyBox(date, begin, end, box));
     }
 
     @NotNull
     private BoxWithServiceFrequency createFrequencyBox(LocalDate date, TramTime begin, TramTime end, BoundingBoxWithStations box) {
         Map<Station, Integer> stationToNumberStopCalls = new HashMap<>();
+        EnumSet<TransportMode> modes = EnumSet.noneOf(TransportMode.class);
         box.getStaions().forEach(station -> {
-            int number = stopCallRepository.getStopCallsFor(station, date, begin, end).size();
-            if (number>0) {
-                stationToNumberStopCalls.put(station, number);
+            Set<StopCall> calls = stopCallRepository.getStopCallsFor(station, date, begin, end);
+            if (!calls.isEmpty()) {
+                stationToNumberStopCalls.put(station, calls.size());
+                modes.addAll(calls.stream().map(StopCall::getTransportMode).collect(Collectors.toSet()));
             }
         });
+
         int total = stationToNumberStopCalls.values().stream().mapToInt(num->num).sum();
-        return new BoxWithServiceFrequency(box, stationToNumberStopCalls.keySet(), total);
+        return new BoxWithServiceFrequency(box, stationToNumberStopCalls.keySet(), total, modes);
     }
 
 }

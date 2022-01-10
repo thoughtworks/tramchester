@@ -1,6 +1,7 @@
 package com.tramchester.domain;
 
 import com.tramchester.domain.places.Station;
+import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.geo.BoundingBox;
 
 import java.util.Set;
@@ -8,12 +9,14 @@ import java.util.Set;
 public class BoxWithServiceFrequency extends BoundingBox {
 
     private final int numberOfStopCalls;
+    private final Set<TransportMode> modes;
     private final Set<Station> stationsWithStopCalls;
 
-    public BoxWithServiceFrequency(BoundingBox box, Set<Station> stationsWithStopCalls, int numberOfStopCalls) {
+    public BoxWithServiceFrequency(BoundingBox box, Set<Station> stationsWithStopCalls, int numberOfStopCalls, Set<TransportMode> modes) {
         super(box);
         this.stationsWithStopCalls = stationsWithStopCalls;
         this.numberOfStopCalls = numberOfStopCalls;
+        this.modes = modes;
     }
 
     public int getNumberOfStopcalls() {
@@ -42,5 +45,9 @@ public class BoxWithServiceFrequency extends BoundingBox {
         result = 31 * result + numberOfStopCalls;
         result = 31 * result + (stationsWithStopCalls != null ? stationsWithStopCalls.hashCode() : 0);
         return result;
+    }
+
+    public Set<TransportMode> getModes() {
+        return modes;
     }
 }

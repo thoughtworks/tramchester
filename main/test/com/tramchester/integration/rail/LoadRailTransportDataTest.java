@@ -15,16 +15,14 @@ import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.reference.GTFSPickupDropoffType;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramTime;
+import com.tramchester.geo.BoundingBox;
 import com.tramchester.geo.CoordinateTransforms;
 import com.tramchester.geo.GridPosition;
 import com.tramchester.integration.testSupport.rail.IntegrationRailTestConfig;
 import com.tramchester.repository.TransportData;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.testTags.TrainTest;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.condition.DisabledIfEnvironmentVariable;
 
 import java.time.LocalDate;
@@ -39,12 +37,13 @@ import static org.junit.jupiter.api.Assertions.*;
 @DisabledIfEnvironmentVariable(named = "CI", matches = "true")
 public class LoadRailTransportDataTest {
     private static ComponentContainer componentContainer;
+    private static IntegrationRailTestConfig config;
     private TransportData transportData;
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
-        IntegrationRailTestConfig configuration = new IntegrationRailTestConfig();
-        componentContainer = new ComponentsBuilder().create(configuration, TestEnv.NoopRegisterMetrics());
+        config = new IntegrationRailTestConfig();
+        componentContainer = new ComponentsBuilder().create(config, TestEnv.NoopRegisterMetrics());
         componentContainer.initialise();
     }
 
@@ -62,6 +61,12 @@ public class LoadRailTransportDataTest {
     void shouldLoadStations() {
         Set<Station> allStations = transportData.getStations();
         assertFalse(allStations.isEmpty());
+
+        BoundingBox bounds = config.getBounds();
+
+        allStations.forEach(station -> {
+            assertTrue(bounds.contained(station), station + "out of bounds");
+        });
     }
 
     @Test
@@ -102,6 +107,7 @@ public class LoadRailTransportDataTest {
 
     }
 
+    @Disabled("now filtering out stations in Ireland etc")
     @Test
     void shouldGetSpecificStationWithoutPosition() {
         // A    KILLARNEY   (CIE              0KILARNYKLL   KLL00000E00000 5
@@ -242,7 +248,6 @@ public class LoadRailTransportDataTest {
                 collect(Collectors.toSet());
 
         assertFalse(am8Trips.isEmpty(), "No trip at required time " + runningServices);
-
     }
 
     @Test

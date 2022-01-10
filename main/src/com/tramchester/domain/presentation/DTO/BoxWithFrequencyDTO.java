@@ -3,6 +3,7 @@ package com.tramchester.domain.presentation.DTO;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.tramchester.domain.presentation.LatLong;
+import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.geo.BoundingBox;
 import com.tramchester.geo.CoordinateTransforms;
 
@@ -11,14 +12,17 @@ import java.util.List;
 @JsonTypeName("BoxWithFrequency")
 @JsonTypeInfo(include=JsonTypeInfo.As.WRAPPER_OBJECT, use=JsonTypeInfo.Id.NAME)
 public class BoxWithFrequencyDTO {
+    private List<TransportMode> modes;
     private LatLong bottomLeft;
     private LatLong topRight;
     private long numberOfStopcalls;
     private List<StationRefDTO> stops;
 
-    public BoxWithFrequencyDTO(BoundingBox boundingBox, List<StationRefDTO> stops, long numberOfStopcalls) {
+    public BoxWithFrequencyDTO(BoundingBox boundingBox, List<StationRefDTO> stops, long numberOfStopcalls,
+                               List<TransportMode> modes) {
         this.stops = stops;
         this.numberOfStopcalls = numberOfStopcalls;
+        this.modes = modes;
         bottomLeft = CoordinateTransforms.getLatLong(boundingBox.getBottomLeft());
         topRight = CoordinateTransforms.getLatLong(boundingBox.getTopRight());
     }
@@ -42,4 +46,6 @@ public class BoxWithFrequencyDTO {
     public List<StationRefDTO> getStops() {
         return stops;
     }
+
+    public List<TransportMode> getModes() { return modes; }
 }

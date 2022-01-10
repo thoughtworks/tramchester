@@ -45,7 +45,7 @@ public class FrequencyResourceTest {
     }
 
     @Test
-    void shouldHaveBusFrequencies() throws IOException {
+    void shouldHaveTramFrequencies() throws IOException {
 
         int gridSizeMeters = 1000;
         LocalDate date = TestEnv.testDay();

@@ -80,9 +80,9 @@ public class StopCallRepository implements ReportsCacheStats {
     // visualisation of frequency support
     public Set<StopCall> getStopCallsFor(Station station, LocalDate date, TramTime begin, TramTime end) {
         Set<Service> runningOnDate = serviceRepository.getServicesOnDate(date);
-        Set<StopCall> allForStation = stopCalls.get(station);
+        Set<StopCall> callsForStation = stopCalls.get(station);
 
-        return allForStation.stream().
+        return callsForStation.stream().
                 filter(stopCall -> stopCall.getPickupType().equals(GTFSPickupDropoffType.Regular)).
                 filter(stopCall -> runningOnDate.contains(stopCall.getService())).
                 filter(stopCall -> stopCall.getArrivalTime().between(begin, end)).

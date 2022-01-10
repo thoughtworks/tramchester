@@ -21,8 +21,8 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -60,8 +60,8 @@ public class FrequencyResource extends TransportResource implements APIResource 
         TramTime startTime = parseTime(startTimeRaw);
         TramTime endTime = parseTime(endTimeRaw);
 
-        Set<BoxWithServiceFrequency> results = stopCallsForGrid.getServiceFreqencies(gridSize, date, startTime, endTime);
-        Stream<BoxWithFrequencyDTO> dtoStream = results.stream().map(this::createDTO);
+        Stream<BoxWithServiceFrequency> results = stopCallsForGrid.getServiceFreqencies(gridSize, date, startTime, endTime);
+        Stream<BoxWithFrequencyDTO> dtoStream = results.map(this::createDTO);
         JsonStreamingOutput<BoxWithFrequencyDTO> jsonStreamingOutput = new JsonStreamingOutput<>(dtoStream, objectMapper);
 
         Response.ResponseBuilder responseBuilder = Response.ok(jsonStreamingOutput);
@@ -70,7 +70,7 @@ public class FrequencyResource extends TransportResource implements APIResource 
 
     private BoxWithFrequencyDTO createDTO(BoxWithServiceFrequency result) {
         List<StationRefDTO> stopDTOs = result.getStationsWithStopCalls().stream().map(StationRefDTO::new).collect(Collectors.toList());
-        return new BoxWithFrequencyDTO(result, stopDTOs, result.getNumberOfStopcalls());
+        return new BoxWithFrequencyDTO(result, stopDTOs, result.getNumberOfStopcalls(), new ArrayList<>(result.getModes()));
     }
 
 }

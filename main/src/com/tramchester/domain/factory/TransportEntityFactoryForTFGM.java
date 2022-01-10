@@ -52,10 +52,7 @@ public class TransportEntityFactoryForTFGM extends TransportEntityFactory {
         // NOTE: Tram data has unique positions for each platform todo What is the right position to use for a tram station give
         // Check for duplicate names - handled by CompositeStationRepository
 
-        final String stationName = createStationName(stopData);
-
-        // metrolink tram station, has platforms
-        //addPlatformIfMissing(stopData, station);
+        final String stationName = cleanStationName(stopData);
 
         return new MutableStation(stationId, area, workAroundName(stationName), stopData.getLatLong(), position,
                 getDataSourceId());
@@ -66,14 +63,14 @@ public class TransportEntityFactoryForTFGM extends TransportEntityFactory {
         if (isMetrolinkTram(stopData)) {
             String stopId = stopData.getId();
             String platformNumber = stopId.substring(stopId.length()-1);
-            return Optional.of(new MutablePlatform(StringIdFor.createId(stopId), createStationName(stopData),
+            return Optional.of(new MutablePlatform(StringIdFor.createId(stopId), cleanStationName(stopData),
                     platformNumber, stopData.getLatLong()));
         } else {
             return Optional.empty();
         }
     }
 
-    private String createStationName(StopData stopData) {
+    private String cleanStationName(StopData stopData) {
         String text = stopData.getName();
         text = text.replace("\"", "").trim();
 
