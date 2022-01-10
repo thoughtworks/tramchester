@@ -35,7 +35,6 @@ import com.tramchester.dataimport.rail.records.reference.TrainCategory;
 import com.tramchester.dataimport.rail.records.reference.TrainStatus;
 import com.tramchester.domain.time.DateRange;
 import com.tramchester.domain.time.ProvidesNow;
-import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -50,7 +49,7 @@ public class BasicSchedule implements RailTimetableRecord {
 
     private final LocalDate startDate;
     private final LocalDate endDate;
-    private final TransactionType transactionType;
+    private final RailRecordTransactionType transactionType;
     private final String uniqueTrainId;
     private final EnumSet<DayOfWeek> daysOfWeek;
     private final ShortTermPlanIndicator stpIndicator;
@@ -63,14 +62,7 @@ public class BasicSchedule implements RailTimetableRecord {
         return RailRecordType.BasicSchedule;
     }
 
-    public enum TransactionType {
-        N, // new
-        D, // delete
-        R, // Revise
-        Unknown
-    }
-
-    public BasicSchedule(TransactionType transactionType, String uniqueTrainId, LocalDate startDate, LocalDate endDate,
+    public BasicSchedule(RailRecordTransactionType transactionType, String uniqueTrainId, LocalDate startDate, LocalDate endDate,
                          EnumSet<DayOfWeek> daysOfWeek, ShortTermPlanIndicator stpIndicator, String headcode,
                          TrainStatus trainStatus, TrainCategory trainCategory) {
         this.transactionType = transactionType;
@@ -86,7 +78,7 @@ public class BasicSchedule implements RailTimetableRecord {
 
     public static BasicSchedule parse(String text, ProvidesNow providesNow) {
         String transactionTypeRaw = RecordHelper.extract(text, 3, 4);
-        TransactionType transactionType = getTransactionType(transactionTypeRaw);
+        RailRecordTransactionType transactionType = RailRecordTransactionType.parse(transactionTypeRaw);
         String uniqueTrainId = RecordHelper.extract(text, 4, 9+1);
         String headcode = RecordHelper.extract(text, 33, 36+1);
         LocalDate startDate = RecordHelper.extractDate(text, 10, 15+1, providesNow);
@@ -115,17 +107,7 @@ public class BasicSchedule implements RailTimetableRecord {
         return EnumSet.copyOf(result);
     }
 
-    @NotNull
-    private static TransactionType getTransactionType(String transactionTypeRaw) {
-        try {
-            return TransactionType.valueOf(transactionTypeRaw);
-        }
-        catch (IllegalArgumentException unexpectcedValue) {
-            return TransactionType.Unknown;
-        }
-    }
-
-    public TransactionType getTransactionType() {
+    public RailRecordTransactionType getTransactionType() {
         return transactionType;
     }
 

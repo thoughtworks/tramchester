@@ -36,7 +36,8 @@ public class IntermediateLocation implements RailLocationRecord {
     private final TramTime scheduledDepart;
     private final TramTime blankTime = TramTime.of(0,0); // 0000 is in some of the data records
 
-    public IntermediateLocation(String tiplocCode, TramTime scheduledArrival, TramTime scheduledDepart, TramTime publicArrival, TramTime publicDeparture, String platform,
+    public IntermediateLocation(String tiplocCode, TramTime scheduledArrival, TramTime scheduledDepart, TramTime publicArrival,
+                                TramTime publicDeparture, String platform,
                                 TramTime passingTime) {
         this.tiplocCode = tiplocCode;
         this.scheduledArrival = scheduledArrival;

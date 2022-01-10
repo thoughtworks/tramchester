@@ -5,8 +5,12 @@ import com.tramchester.domain.DataSourceID;
 import com.tramchester.domain.reference.TransportMode;
 
 import java.nio.file.Path;
-import java.util.Collections;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.Set;
+
+import static com.tramchester.domain.reference.TransportMode.RailReplacementBus;
+import static com.tramchester.domain.reference.TransportMode.Train;
 
 public class TestRailConfig implements RailConfig {
     private final RailRemoteDataSourceConfig remoteConfig;
@@ -42,7 +46,7 @@ public class TestRailConfig implements RailConfig {
 
     @Override
     public Set<TransportMode> getModes() {
-        return Collections.singleton(TransportMode.Train);
+        return new HashSet<>(Arrays.asList(Train, RailReplacementBus));
     }
 
 }

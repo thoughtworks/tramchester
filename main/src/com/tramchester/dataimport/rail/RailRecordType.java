@@ -1,5 +1,7 @@
 package com.tramchester.dataimport.rail;
 
+import java.util.HashMap;
+
 public enum RailRecordType {
     TiplocInsert("TI"),
     BasicSchedule("BS"),
@@ -16,11 +18,26 @@ public enum RailRecordType {
 
     private final String code;
 
+    private static final HashMap<String, RailRecordType> map = new HashMap<>();
+
+    static {
+        for(RailRecordType recordType : RailRecordType.values()) {
+            map.put(recordType.code, recordType);
+        }
+    }
+
     RailRecordType(String code) {
         this.code = code;
     }
 
     public String code() {
         return code;
+    }
+
+    public static RailRecordType parse(String code) {
+        if (map.containsKey(code)) {
+            return map.get(code);
+        }
+        return Unknown;
     }
 }

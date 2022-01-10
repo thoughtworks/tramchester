@@ -27,7 +27,8 @@ public class NaPTANDataImporter {
 
     private final TramchesterConfig config;
     private final CsvMapper mapper;
-    private Stream<StopsData> stream;
+    private Stream<StopsData> stopsDataStream;
+    private Stream<RailStationData> railStationDataStream;
     private boolean open;
 
     @Inject
@@ -43,7 +44,8 @@ public class NaPTANDataImporter {
 
         if (!isEnabled()) {
             logger.warn("Naptan is disabled, no config section found for " + DataSourceID.naptan);
-            stream = Stream.empty();
+            stopsDataStream = Stream.empty();
+            railStationDataStream = Stream.empty();
             return;
         }
 
@@ -64,17 +66,27 @@ public class NaPTANDataImporter {
         }
 
         Path dataPath = sourceConfig.getDataPath();
-        Path filePath = dataPath.resolve("Stops.csv");
-        logger.info("Loading data from " + filePath.toAbsolutePath());
-        TransportDataFromFile<StopsData> dataLoader = new TransportDataFromFile<>(filePath, StopsData.class, mapper);
 
-        stream = dataLoader.load();
+        stopsDataStream = loadFor(dataPath, "Stops.csv", StopsData.class);
+        railStationDataStream = loadFor(dataPath, "RailReferences.csv", RailStationData.class);
+
         open = true;
-        stream.onClose(this::streamClosed);
     }
 
-    private void streamClosed() {
-        logger.info("Stream closed");
+    private <T> Stream<T> loadFor(Path dataPath, String filename, Class<T> dataClass) {
+        Path filePath = dataPath.resolve(filename);
+        logger.info("Loading data from " + filePath.toAbsolutePath());
+        TransportDataFromFile<T> dataLoader = new TransportDataFromFile<>(filePath, dataClass, mapper);
+
+        Stream<T> stream = dataLoader.load();
+
+        //noinspection ResultOfMethodCallIgnored
+        stream.onClose(() ->  this.streamClosed(dataClass.getSimpleName()));
+        return stream;
+    }
+
+    private void streamClosed(String className) {
+        logger.info(className + " stream closed");
         open = false;
     }
 
@@ -83,12 +95,15 @@ public class NaPTANDataImporter {
         logger.info("Stopping");
         if (open) {
             logger.warn("Stream was not closed, closing");
-            stream.close();
+            stopsDataStream.close();
+            railStationDataStream.close();
         }
         logger.info("Stopped");
     }
 
-    public Stream<StopsData> getAll() {
-        return stream;
+    public Stream<StopsData> getStopsData() {
+        return stopsDataStream;
     }
+
+    public Stream<RailStationData> getRailStationData() { return railStationDataStream; }
 }

@@ -2,9 +2,10 @@ package com.tramchester.dataimport.NaPTAN;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.tramchester.geo.GridPosition;
+import com.tramchester.geo.HasGridPosition;
 
 
-public class StopsData {
+public class StopsData implements HasGridPosition {
 
     // Matches ID for TFGM gtfs data
     @JsonProperty("ATCOCode")
@@ -31,6 +32,9 @@ public class StopsData {
     @JsonProperty("Northing")
     private Integer northing;
 
+    @JsonProperty("CommonName")
+    private String commonName;
+
     public StopsData() {
         // deserialisation
     }
@@ -55,10 +59,15 @@ public class StopsData {
         return indicator;
     }
 
+    @Override
     public GridPosition getGridPosition() {
         if (easting==0 || northing==0) {
             return GridPosition.Invalid;
         }
         return new GridPosition(easting, northing);
+    }
+
+    public String getCommonName() {
+        return commonName;
     }
 }

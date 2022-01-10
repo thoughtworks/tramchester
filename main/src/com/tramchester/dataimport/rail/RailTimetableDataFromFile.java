@@ -11,8 +11,6 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.Reader;
 import java.nio.file.Path;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.stream.Stream;
 
 
@@ -21,20 +19,10 @@ public class RailTimetableDataFromFile {
 
     private final Path filePath;
     private final RailDataRecordFactory factory;
-    private final Map<String, RailRecordType> recordTypes;
 
     public RailTimetableDataFromFile(Path filePath, RailDataRecordFactory factory) {
         this.filePath = filePath.toAbsolutePath();
         this.factory = factory;
-        recordTypes = createRecordTypes();
-    }
-
-    private Map<String, RailRecordType> createRecordTypes() {
-        HashMap<String, RailRecordType> results = new HashMap<>();
-        for (RailRecordType value : RailRecordType.values()) {
-            results.put(value.code(), value);
-        }
-        return results;
     }
 
     public Stream<RailTimetableRecord> load() {
@@ -82,11 +70,7 @@ public class RailTimetableDataFromFile {
     }
 
     private RailRecordType getRecordTypeFor(String line) {
-        String rawType = line.substring(0, 2);
-        if (recordTypes.containsKey(rawType)) {
-            return recordTypes.get(rawType);
-        }
-        return RailRecordType.Unknown;
+        return RailRecordType.parse(line.substring(0, 2));
     }
 
 }

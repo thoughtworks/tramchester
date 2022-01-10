@@ -83,7 +83,7 @@ public class TransportEntityFactoryForTFGM extends TransportEntityFactory {
 
     protected String getAreaFor(IdFor<Station> stationId) {
         if (naptanRespository.isEnabled()) {
-            if (naptanRespository.contains(stationId)) {
+            if (naptanRespository.containsActo(stationId)) {
                 return getAreaFromNaptanData(stationId);
             } else {
                 logger.warn("No naptan data found for " + stationId);
@@ -113,7 +113,7 @@ public class TransportEntityFactoryForTFGM extends TransportEntityFactory {
 
     private String getAreaFromNaptanData(IdFor<Station> stationId) {
         String area;
-        StopsData naptapData = naptanRespository.get(stationId);
+        StopsData naptapData = naptanRespository.getForActo(stationId);
         area = naptapData.getLocalityName();
         String parent = naptapData.getParentLocalityName();
         if (!parent.isBlank()) {

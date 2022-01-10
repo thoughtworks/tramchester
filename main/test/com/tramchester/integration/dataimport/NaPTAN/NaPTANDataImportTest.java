@@ -40,7 +40,7 @@ class NaPTANDataImportTest {
     void beforeEachTestRuns() {
         dataImporter = componentContainer.get(NaPTANDataImporter.class);
         dataImporter.start();
-        dataStream = dataImporter.getAll();
+        dataStream = dataImporter.getStopsData();
     }
 
     @AfterEach

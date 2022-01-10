@@ -70,6 +70,20 @@ public class LoadRailTransportDataTest {
     }
 
     @Test
+    void shouldHaveCorrectPlatformIds() {
+        Station station = transportData.getStationById(Altrincham.getId());
+        assertTrue(station.hasPlatforms());
+
+        List<Platform> platforms = new LinkedList<>(station.getPlatforms());
+
+        // should be 2??
+        assertEquals(1, platforms.size());
+
+        assertEquals("ALTRNHM:UNK", platforms.get(0).getId().forDTO());
+        assertEquals("UNK", platforms.get(0).getPlatformNumber());
+    }
+
+    @Test
     void shouldGetSpecificStation() {
         Station result = transportData.getStationById(StringIdFor.createId("DRBY"));
 
@@ -189,7 +203,7 @@ public class LoadRailTransportDataTest {
 
         DataSourceInfo info = dataSourceInfos.get(0);
         assertEquals(DataSourceID.rail, info.getID());
-        assertEquals(Collections.singleton(Train), info.getModes());
+        assertEquals(config.getRailConfig().getModes(), info.getModes());
 
     }
 

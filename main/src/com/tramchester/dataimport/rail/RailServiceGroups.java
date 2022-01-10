@@ -33,10 +33,11 @@ public class RailServiceGroups {
     }
 
     public void applyCancellation(BasicSchedule basicSchedule) {
-        List<MutableService> existingServices = serviceGroups.servicesFor(basicSchedule.getUniqueTrainId());
+        final String uniqueTrainId = basicSchedule.getUniqueTrainId();
+        List<MutableService> existingServices = serviceGroups.servicesFor(uniqueTrainId);
         if (existingServices.isEmpty()) {
-            if (!skippedSchedules.contains(basicSchedule.getUniqueTrainId())) {
-                logger.warn("Could not apply cancellation, no existing records for " + basicSchedule);
+            if (!skippedSchedules.contains(uniqueTrainId)) {
+                logger.warn("Cancel: No existing records for " + uniqueTrainId);
             }
             return;
         }
@@ -44,7 +45,8 @@ public class RailServiceGroups {
         final Set<MutableService> cancellationApplies = filterByScheduleDates(basicSchedule, existingServices);
 
         if (cancellationApplies.isEmpty()) {
-            logger.warn("Found matching services, but cancellation does not apply " + basicSchedule);
+            logger.warn(format("Cancel: matched no services for %s, date range %s %s",
+                    uniqueTrainId, basicSchedule.getDateRange(), basicSchedule.getDaysOfWeek()));
             return;
         }
 
@@ -64,33 +66,42 @@ public class RailServiceGroups {
     }
 
     MutableService getOrCreateService(BasicSchedule schedule, boolean isOverlay) {
-        String scheduleId = schedule.getUniqueTrainId();
+        String uniqueTrainId = schedule.getUniqueTrainId();
 
         final IdFor<Service> serviceId = getServiceIdFor(schedule, isOverlay);
+
         MutableService service = new MutableService(serviceId);
         MutableServiceCalendar calendar = new MutableServiceCalendar(schedule.getDateRange(), schedule.getDaysOfWeek());
         service.setCalendar(calendar);
 
         if (isOverlay) {
-            List<MutableService> existingServices = serviceGroups.servicesFor(scheduleId);
+            List<MutableService> existingServices = serviceGroups.servicesFor(uniqueTrainId);
+            if (existingServices.isEmpty()) {
+                logger.info("Overlap: No existing services found for " + uniqueTrainId);
+            }
             Set<MutableService> impactedServices = filterByScheduleDates(schedule, existingServices);
-            if (impactedServices.isEmpty()) {
-                logger.warn("Did not find servives for overlay: " + schedule);
+            if (impactedServices.isEmpty() && !existingServices.isEmpty()) {
+                logger.info(format("Overlap: No existing services overlapped on date range (%s) for %s ",
+                        schedule.getDateRange(), uniqueTrainId));
             }
             impactedServices.forEach(impactedService -> {
-                if (impactedService.getId().equals(serviceId)) {
+                final IdFor<Service> impactedServiceId = impactedService.getId();
+                if (impactedServiceId.equals(serviceId)) {
                     // only happens if over dates exactly match existing service
+                    logger.info(format("Overlap: Marking existing service %s as cancelled", impactedServiceId));
                     impactedService.markCancelled();
                 } else {
                     // mark overlay dates as no longer applying
+                    logger.debug(format("Overlap: Marking existing service %s as cancelled for %s %s",
+                            impactedServiceId, schedule.getDateRange(), schedule.getDaysOfWeek()));
                     MutableServiceCalendar impactedCalendar = impactedService.getMutableCalendar();
                     addServiceExceptions(impactedCalendar, schedule.getDateRange(), schedule.getDaysOfWeek());
                 }
             });
-        } else {
-            container.addService(service);
-            serviceGroups.addService(scheduleId, service);
         }
+
+        container.addService(service);
+        serviceGroups.addService(uniqueTrainId, service);
 
         return service;
     }

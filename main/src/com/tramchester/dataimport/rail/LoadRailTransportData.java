@@ -97,7 +97,7 @@ public class LoadRailTransportData implements DirectDataSourceFactory.PopulatesC
 
     private void processTimetableRecords(TransportDataContainer dataContainer, Stream<RailTimetableRecord> recordStream) {
         logger.info("Process timetable stream");
-        RailTimetableMapper mapper = new RailTimetableMapper(dataContainer);
+        RailTimetableMapper mapper = new RailTimetableMapper(dataContainer, railConfig);
         recordStream.forEach(mapper::seen);
         mapper.reportDiagnostics();
     }

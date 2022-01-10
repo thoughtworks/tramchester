@@ -1,5 +1,6 @@
 package com.tramchester.dataimport.rail;
 
+import com.tramchester.config.RailConfig;
 import com.tramchester.dataimport.rail.records.*;
 import com.tramchester.dataimport.rail.records.reference.TrainCategory;
 import com.tramchester.dataimport.rail.records.reference.TrainStatus;
@@ -58,14 +59,14 @@ public class RailTimetableMapper {
     private final Set<Pair<TrainStatus, TrainCategory>> travelCombinations;
     private final Set<RawService> skipped;
 
-    public RailTimetableMapper(TransportDataContainer container) {
+    public RailTimetableMapper(TransportDataContainer container, RailConfig config) {
         currentState = State.Between;
         overlay = false;
         tiplocInsertRecords = new HashMap<>();
         missingStations = new MissingStations();
         travelCombinations = new HashSet<>();
         skipped = new HashSet<>();
-        processor = new CreatesTransportDataForRail(container, missingStations, travelCombinations);
+        processor = new CreatesTransportDataForRail(container, missingStations, travelCombinations, config);
     }
 
     public void seen(RailTimetableRecord record) {
@@ -196,15 +197,18 @@ public class RailTimetableMapper {
         private final MissingStations missingStations; // stations missing unexpectedly
         private final RailServiceGroups railServiceGroups;
         private final Set<Pair<TrainStatus, TrainCategory>> travelCombinations;
+        private final RailConfig config;
         private final RailRouteIDBuilder railRouteIDBuilder;
 
         private CreatesTransportDataForRail(TransportDataContainer container, MissingStations missingStations,
-                                            Set<Pair<TrainStatus, TrainCategory>> travelCombinations) {
+                                            Set<Pair<TrainStatus, TrainCategory>> travelCombinations,
+                                            RailConfig config) {
             this.container = container;
             this.missingStations = missingStations;
 
             this.railServiceGroups = new RailServiceGroups(container);
             this.travelCombinations = travelCombinations;
+            this.config = config;
             this.railRouteIDBuilder = new RailRouteIDBuilder();
         }
 
@@ -212,13 +216,13 @@ public class RailTimetableMapper {
             BasicSchedule basicSchedule = rawService.basicScheduleRecord;
 
             switch (basicSchedule.getTransactionType()) {
-                case N -> {
+                case New -> {
                     if (!createNew(rawService, isOverlay)) {
                         skipped.add(rawService);
                     }
                 }
-                case D -> delete(rawService.basicScheduleRecord);
-                case R -> revise(rawService);
+                case Delete -> delete(rawService.basicScheduleRecord);
+                case Revise -> revise(rawService);
                 case Unknown -> logger.warn("Unknown transaction type for " + rawService.basicScheduleRecord);
             }
         }
@@ -304,10 +308,11 @@ public class RailTimetableMapper {
         }
 
         private boolean shouldInclude(TransportMode mode) {
-            return switch (mode) {
-                case Train, Ship, RailReplacementBus, Subway -> true;
-                case Tram, Walk, Ferry, Bus, Connect, NotSet, Unknown -> false;
-            };
+            return config.getModes().contains(mode);
+//            return switch (mode) {
+//                case Train, Ship, RailReplacementBus, Subway -> true;
+//                case Tram, Walk, Ferry, Bus, Connect, NotSet, Unknown -> false;
+//            };
         }
 
         private boolean populateForLocation(RailLocationRecord railLocation, MutableRoute route, MutableTrip trip, int stopSequence,
@@ -358,7 +363,8 @@ public class RailTimetableMapper {
             StopCall stopCall = createStopCall(trip, station, platform, stopSequence,
                     arrivalTime, departureTime, pickup, dropoff);
             if (TramTime.diffenceAsMinutes(arrivalTime, departureTime)>60) {
-                logger.warn("Delay of more than one hour for " + stopCall);
+                // this definitely happens, so an info not a warning
+                logger.info("Delay of more than one hour for " + stopCall);
             }
             trip.addStop(stopCall);
 
@@ -417,6 +423,9 @@ public class RailTimetableMapper {
 
         private MutablePlatform getOrCreatePlatform(MutableStation originStation, RailLocationRecord originLocation) {
             String platformNumber = originLocation.getPlatform();
+            if (platformNumber.isBlank()) {
+                platformNumber = "UNK";
+            }
             IdFor<Platform> platformId = StringIdFor.createId(originLocation.getTiplocCode() + ":" + platformNumber);
             MutablePlatform platform;
             if (container.hasPlatformId(platformId)) {

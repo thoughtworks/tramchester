@@ -7,14 +7,15 @@ import org.jetbrains.annotations.NotNull;
 import java.util.Collection;
 
 public interface HasId<DOMAINTYPE extends GraphProperty> extends GraphProperty {
+
     IdFor<DOMAINTYPE> getId();
 
     static <T extends IdForDTO> String dtoAsIds(Collection<T> items) {
         return listToIdStringList(items, IdForDTO::forDTO);
     }
 
-    static <T extends HasId<T> & GraphProperty> String asIds(Collection<T> items) {
-        return listToIdStringList(items, item -> asId(item).toString());
+    static <S extends  T, T extends HasId<T>> String asIds(Collection<S> items) {
+        return listToIdStringList(items, item -> item.getId().toString());
     }
 
     @NotNull

@@ -3,10 +3,12 @@ package com.tramchester.repository.naptan;
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.dataimport.NaPTAN.NaPTANDataImporter;
+import com.tramchester.dataimport.NaPTAN.RailStationData;
 import com.tramchester.dataimport.NaPTAN.StopsData;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.places.Station;
 import com.tramchester.geo.BoundingBox;
+import com.tramchester.geo.HasGridPosition;
 import com.tramchester.geo.MarginInMeters;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,12 +29,14 @@ public class NaptanRespository {
     private final NaPTANDataImporter dataImporter;
     private final TramchesterConfig config;
     private Map<String, StopsData> stopData;
+    private Map<String, String> tiplocToAtco;
 
     @Inject
     public NaptanRespository(NaPTANDataImporter dataImporter, TramchesterConfig config) {
         this.dataImporter = dataImporter;
         this.config = config;
         stopData = Collections.emptyMap();
+        tiplocToAtco = Collections.emptyMap();
     }
 
     @PostConstruct
@@ -62,25 +66,58 @@ public class NaptanRespository {
         Double range = config.getNearestStopForWalkingRangeKM();
 
         MarginInMeters margin = MarginInMeters.of(range);
-        Stream<StopsData> dataStream = dataImporter.getAll();
-        stopData = dataStream.
-                filter(item -> item.getGridPosition().isValid()).
-                filter(item -> bounds.within(margin, item.getGridPosition())).
+
+        loadStopsData(bounds, margin);
+        loadStationData(bounds, margin);
+    }
+
+    private void loadStopsData(BoundingBox bounds, MarginInMeters margin) {
+        Stream<StopsData> stopsData = dataImporter.getStopsData();
+        stopData = filterBy(bounds, margin, stopsData).
                 collect(Collectors.toMap(StopsData::getAtcoCode, Function.identity()));
-        dataStream.close();
+        stopsData.close();
+
         logger.info("Loaded " + stopData.size() + " stops");
     }
 
 
-    public boolean contains(IdFor<Station> actoCode) {
+    private void loadStationData(BoundingBox bounds, MarginInMeters margin) {
+        Stream<RailStationData> stationDataStream = dataImporter.getRailStationData();
+        tiplocToAtco = filterBy(bounds, margin, stationDataStream).
+                collect(Collectors.toMap(RailStationData::getTiploc, RailStationData::getActo));
+        stationDataStream.close();
+
+        logger.info("Loaded " + tiplocToAtco.size() + " stations");
+    }
+
+    private <T extends HasGridPosition> Stream<T> filterBy(BoundingBox bounds, MarginInMeters margin, Stream<T> stream) {
+        return stream.
+                filter(item -> item.getGridPosition().isValid()).
+                filter(item -> bounds.within(margin, item.getGridPosition()));
+    }
+
+
+    public boolean containsActo(IdFor<Station> actoCode) {
         return stopData.containsKey(actoCode.forDTO());
     }
 
-    public StopsData get(IdFor<Station> actoCode) {
+    public StopsData getForActo(IdFor<Station> actoCode) {
         return stopData.get(actoCode.forDTO());
     }
 
     public boolean isEnabled() {
         return dataImporter.isEnabled();
+    }
+
+    public StopsData getForTiploc(IdFor<Station> tiploc) {
+        String acto = tiplocToAtco.get(tiploc.forDTO());
+        if (stopData.containsKey(acto)) {
+            return stopData.get(acto);
+        }
+        return null;
+    }
+
+    public boolean containsTiploc(IdFor<Station> tiploc) {
+        return tiplocToAtco.containsKey(tiploc.forDTO());
     }
 }

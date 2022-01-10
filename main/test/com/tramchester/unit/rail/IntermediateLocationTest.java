@@ -42,6 +42,8 @@ public class IntermediateLocationTest {
         assertEquals(TramTime.of(21,25), intermediateLocation.getPassingTime());
         assertFalse(intermediateLocation.getArrival().isValid());
         assertFalse(intermediateLocation.getDeparture().isValid());
+
+        assertTrue(intermediateLocation.getPlatform().isBlank());
     }
 
 
@@ -92,6 +94,8 @@ public class IntermediateLocationTest {
         assertEquals(TramTime.of(20,47), intermediateLocation.getPublicArrival());
         assertEquals(TramTime.of(20,47), intermediateLocation.getPublicDeparture());
 
+        assertEquals("1", intermediateLocation.getPlatform());
+
     }
 
     @Test
@@ -108,6 +112,8 @@ public class IntermediateLocationTest {
 
         assertTrue(intermediateLocation.isPassingRecord());
         assertEquals(TramTime.of(20,10), intermediateLocation.getPassingTime());
+
+        assertEquals("1", intermediateLocation.getPlatform());
 
 
     }

@@ -1,6 +1,7 @@
 package com.tramchester.unit.rail;
 
 import com.tramchester.dataimport.rail.records.BasicSchedule;
+import com.tramchester.dataimport.rail.records.RailRecordTransactionType;
 import com.tramchester.dataimport.rail.records.reference.ShortTermPlanIndicator;
 import com.tramchester.dataimport.rail.records.reference.TrainCategory;
 import com.tramchester.dataimport.rail.records.reference.TrainStatus;
@@ -38,7 +39,7 @@ public class BasicScheduleTest {
 
         BasicSchedule basicSchedule = BasicSchedule.parse(text, providesNow);
 
-        assertEquals(BasicSchedule.TransactionType.N, basicSchedule.getTransactionType());
+        assertEquals(RailRecordTransactionType.New, basicSchedule.getTransactionType());
         assertEquals("C53290", basicSchedule.getUniqueTrainId());
         DateRange dateRange = basicSchedule.getDateRange();
         assertEquals(LocalDate.of(2017, 5, 24), dateRange.getStartDate());
@@ -59,7 +60,7 @@ public class BasicScheduleTest {
 
         BasicSchedule basicSchedule = BasicSchedule.parse(text, providesNow);
 
-        assertEquals(BasicSchedule.TransactionType.N, basicSchedule.getTransactionType());
+        assertEquals(RailRecordTransactionType.New, basicSchedule.getTransactionType());
         assertEquals("G54660", basicSchedule.getUniqueTrainId());
         DateRange dateRange = basicSchedule.getDateRange();
         assertEquals(LocalDate.of(2021, 12, 12), dateRange.getStartDate());
@@ -80,7 +81,7 @@ public class BasicScheduleTest {
 
         BasicSchedule basicSchedule = BasicSchedule.parse(text, providesNow);
 
-        assertEquals(BasicSchedule.TransactionType.N, basicSchedule.getTransactionType());
+        assertEquals(RailRecordTransactionType.New, basicSchedule.getTransactionType());
         assertEquals("P20861", basicSchedule.getUniqueTrainId());
         DateRange dateRange = basicSchedule.getDateRange();
         assertEquals(LocalDate.of(2021, 12, 14), dateRange.getStartDate());
@@ -97,7 +98,7 @@ public class BasicScheduleTest {
 
         BasicSchedule basicSchedule = BasicSchedule.parse(text, providesNow);
 
-        assertEquals(BasicSchedule.TransactionType.N, basicSchedule.getTransactionType());
+        assertEquals(RailRecordTransactionType.New, basicSchedule.getTransactionType());
         assertEquals("C61191", basicSchedule.getUniqueTrainId());
         DateRange dateRange = basicSchedule.getDateRange();
         assertEquals(LocalDate.of(2021, 5, 16), dateRange.getStartDate());
