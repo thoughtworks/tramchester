@@ -17,7 +17,7 @@ import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.GTFSPickupDropoffType;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramTime;
-import com.tramchester.repository.TransportDataContainer;
+import com.tramchester.repository.WriteableTransportData;
 import org.apache.commons.lang3.tuple.Pair;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
@@ -59,7 +59,7 @@ public class RailTimetableMapper {
     private final Set<Pair<TrainStatus, TrainCategory>> travelCombinations;
     private final Set<RawService> skipped;
 
-    public RailTimetableMapper(TransportDataContainer container, RailConfig config) {
+    public RailTimetableMapper(WriteableTransportData container, RailConfig config) {
         currentState = State.Between;
         overlay = false;
         tiplocInsertRecords = new HashMap<>();
@@ -193,14 +193,14 @@ public class RailTimetableMapper {
     private static class CreatesTransportDataForRail {
         private static final Logger logger = LoggerFactory.getLogger(CreatesTransportDataForRail.class);
 
-        private final TransportDataContainer container;
+        private final WriteableTransportData container;
         private final MissingStations missingStations; // stations missing unexpectedly
         private final RailServiceGroups railServiceGroups;
         private final Set<Pair<TrainStatus, TrainCategory>> travelCombinations;
         private final RailConfig config;
         private final RailRouteIDBuilder railRouteIDBuilder;
 
-        private CreatesTransportDataForRail(TransportDataContainer container, MissingStations missingStations,
+        private CreatesTransportDataForRail(WriteableTransportData container, MissingStations missingStations,
                                             Set<Pair<TrainStatus, TrainCategory>> travelCombinations,
                                             RailConfig config) {
             this.container = container;

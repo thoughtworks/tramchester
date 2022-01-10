@@ -5,6 +5,7 @@ import com.tramchester.config.RailConfig;
 import com.tramchester.config.RemoteDataSourceConfig;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.dataimport.FetchFileModTime;
+import com.tramchester.dataimport.NaPTAN.StopsData;
 import com.tramchester.dataimport.loader.DirectDataSourceFactory;
 import com.tramchester.dataimport.rail.records.PhysicalStationRecord;
 import com.tramchester.dataimport.rail.records.RailTimetableRecord;
@@ -20,6 +21,8 @@ import com.tramchester.geo.BoundingBox;
 import com.tramchester.geo.CoordinateTransforms;
 import com.tramchester.geo.GridPosition;
 import com.tramchester.repository.TransportDataContainer;
+import com.tramchester.repository.WriteableTransportData;
+import com.tramchester.repository.naptan.NaptanRespository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -27,6 +30,8 @@ import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import java.nio.file.Path;
 import java.time.LocalDateTime;
+import java.util.Set;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 @LazySingleton
@@ -39,11 +44,13 @@ public class LoadRailTransportData implements DirectDataSourceFactory.PopulatesC
     private final RailConfig railConfig;
     private final RemoteDataSourceConfig railRemoteSourceConfig;
     private final BoundingBox bounds;
+    private final NaptanRespository naptanRespository;
 
     @Inject
-    public LoadRailTransportData(RailDataRecordFactory factory, TramchesterConfig config) {
+    public LoadRailTransportData(RailDataRecordFactory factory, TramchesterConfig config, NaptanRespository naptanRespository) {
         bounds = config.getBounds();
         railConfig = config.getRailConfig();
+        this.naptanRespository = naptanRespository;
         enabled = (railConfig!=null);
         if (enabled) {
             railRemoteSourceConfig = config.getDataRemoteSourceConfig(railConfig.getDataSourceId());
@@ -79,6 +86,25 @@ public class LoadRailTransportData implements DirectDataSourceFactory.PopulatesC
         logger.info("Load timetable");
         Stream<RailTimetableRecord> timetableRecords = railTimetableDataFromFile.load();
         processTimetableRecords(dataContainer, timetableRecords);
+
+        logger.info("Remove stations no transport mode");
+        // use association with the timetable data to populate station transport modes, so need to remove invalid ones
+        // afterwards
+        Set<Station> missingTransportModes = dataContainer.getStationStream().filter(station -> station.getTransportModes().isEmpty()).
+                collect(Collectors.toSet());
+        if (!missingTransportModes.isEmpty()) {
+            logger.info("Removing " + missingTransportModes.size() +" stations");
+            dataContainer.removeStations(missingTransportModes);
+        }
+
+        // this case ought not to happen as filter by mode within timetable load
+        Set<Station> wrongTransportModes = dataContainer.getStationStream().filter(station -> station.getTransportModes().isEmpty()).
+                collect(Collectors.toSet());
+        if (!wrongTransportModes.isEmpty()) {
+            logger.error("Unexpected " + wrongTransportModes.size() + " stations with incorrect modes");
+            dataContainer.removeStations(wrongTransportModes);
+        }
+
     }
 
     @Override
@@ -95,14 +121,14 @@ public class LoadRailTransportData implements DirectDataSourceFactory.PopulatesC
         return dataSourceInfo;
     }
 
-    private void processTimetableRecords(TransportDataContainer dataContainer, Stream<RailTimetableRecord> recordStream) {
+    private void processTimetableRecords(WriteableTransportData dataContainer, Stream<RailTimetableRecord> recordStream) {
         logger.info("Process timetable stream");
         RailTimetableMapper mapper = new RailTimetableMapper(dataContainer, railConfig);
         recordStream.forEach(mapper::seen);
         mapper.reportDiagnostics();
     }
 
-    private void addStations(TransportDataContainer dataContainer, Stream<PhysicalStationRecord> physicalRecords) {
+    private void addStations(WriteableTransportData dataContainer, Stream<PhysicalStationRecord> physicalRecords) {
         physicalRecords.
                 filter(this::validRecord).
                 filter(this::locationWithinBounds).
@@ -137,22 +163,31 @@ public class LoadRailTransportData implements DirectDataSourceFactory.PopulatesC
 
     private MutableStation createStationFor(PhysicalStationRecord record) {
         IdFor<Station> id = StringIdFor.createId(record.getTiplocCode());
+
         String name = record.getName();
         String area = "";
-
-        GridPosition grid;
-        LatLong latLong;
-        if (record.getEasting()==Integer.MIN_VALUE || record.getNorthing()==Integer.MIN_VALUE) {
-            // have missing grid for this station, was 00000
-            grid = GridPosition.Invalid;
-            latLong = LatLong.Invalid;
-        }
-        else {
-            grid = convertToOsGrid(record.getEasting(), record.getNorthing());
-            latLong = CoordinateTransforms.getLatLong(grid);
-        }
-
+        GridPosition grid = GridPosition.Invalid;
         boolean isInterchange = (record.getRailInterchangeType()!= RailInterchangeType.None);
+
+        if (naptanRespository.containsTiploc(id)) {
+            // prefer naptan data if available
+            StopsData stopsData = naptanRespository.getForTiploc(id);
+            grid = stopsData.getGridPosition();
+            name = stopsData.getCommonName();
+            area = stopsData.getLocalityName();
+        }
+
+        if (!grid.isValid()) {
+            // not from naptan, try to get from rail data
+            if (record.getEasting() == Integer.MIN_VALUE || record.getNorthing() == Integer.MIN_VALUE) {
+                // have missing grid for this station, was 00000
+                grid = GridPosition.Invalid;
+            } else {
+                grid = convertToOsGrid(record.getEasting(), record.getNorthing());
+            }
+        }
+
+        LatLong latLong = grid.isValid() ?  CoordinateTransforms.getLatLong(grid) : LatLong.Invalid;
 
         return new MutableStation(id, area, name, latLong, grid, DataSourceID.rail, isInterchange);
     }

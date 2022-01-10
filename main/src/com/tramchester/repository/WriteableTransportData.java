@@ -56,4 +56,7 @@ public interface WriteableTransportData {
     MutableRoute getMutableRoute(IdFor<Route> id);
     MutableAgency getMutableAgency(IdFor<Agency> agencyId);
     MutableTrip getMutableTrip(IdFor<Trip> tripId);
+
+    // have to post filter on rail data load
+    void removeStations(Set<Station> stations);
 }

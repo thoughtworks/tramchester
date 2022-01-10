@@ -2,6 +2,7 @@ package com.tramchester.integration.graph;
 
 import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
+import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.JourneysForBox;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.time.TramServiceDate;
@@ -36,7 +37,7 @@ class RouteCalculatorForBoundingBoxTest {
 
     private static ComponentContainer componentContainer;
     private static GraphDatabase database;
-    private static IntegrationTramTestConfig testConfig;
+    private static TramchesterConfig testConfig;
 
     private RouteCalculatorForBoxes calculator;
     private final LocalDate when = TestEnv.testDay();

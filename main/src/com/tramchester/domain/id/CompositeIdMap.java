@@ -98,6 +98,10 @@ public class CompositeIdMap<S extends HasId<S> & GraphProperty, T extends S> imp
         return theMap.isEmpty();
     }
 
+    public void remove(IdSet<S> keysToRemove) {
+        keysToRemove.forEach(theMap::remove);
+    }
+
     public interface Creates<T> {
         T create();
     }

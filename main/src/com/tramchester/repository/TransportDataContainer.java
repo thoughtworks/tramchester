@@ -65,7 +65,7 @@ public class TransportDataContainer implements TransportData, WriteableTransport
     public void dispose() {
         logger.info("stopping for " + sourceName);
         // clear's are here due to memory usage during testing
-        trips.forEach(trip -> trip.dispose());
+        trips.forEach(MutableTrip::dispose);
         trips.clear();
         stationsById.clear();
         services.clear();
@@ -246,6 +246,13 @@ public class TransportDataContainer implements TransportData, WriteableTransport
     @Override
     public MutableTrip getMutableTrip(IdFor<Trip> tripId) {
         return trips.get(tripId);
+    }
+
+    @Override
+    public void removeStations(Set<Station> toRemove) {
+        IdSet<Station> ids = toRemove.stream().collect(IdSet.collector());
+        stationsById.remove(ids);
+
     }
 
     @Override

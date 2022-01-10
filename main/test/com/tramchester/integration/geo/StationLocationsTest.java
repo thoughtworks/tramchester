@@ -2,6 +2,7 @@ package com.tramchester.integration.geo;
 
 import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
+import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.places.Station;
 import com.tramchester.geo.BoundingBox;
 import com.tramchester.geo.CoordinateTransforms;
@@ -17,13 +18,12 @@ import org.junit.jupiter.api.Test;
 
 import java.util.Set;
 
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class StationLocationsTest {
 
     private static ComponentContainer componentContainer;
-    private static TramWithPostcodesEnabled config;
+    private static TramchesterConfig config;
     private StationLocations locations;
 
     @BeforeAll
@@ -78,6 +78,17 @@ public class StationLocationsTest {
 
         assertFalse(locations.withinRangeOfStation(TestEnv.nearGreenwichGrid, margin));
         assertFalse(locations.withinRangeOfStation(CoordinateTransforms.getGridPosition(TestEnv.nearStockportBus), margin));
+    }
+
+    @Test
+    void shouldGetBoundsForTrams() {
+        BoundingBox box = locations.getBounds();
+
+        assertEquals(376982, box.getMinEastings());
+        assertEquals(385428, box.getMinNorthings());
+        assertEquals(394163, box.getMaxEasting());
+        assertEquals(413433, box.getMaxNorthings());
+
     }
 
 }

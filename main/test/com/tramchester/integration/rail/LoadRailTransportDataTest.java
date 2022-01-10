@@ -64,9 +64,7 @@ public class LoadRailTransportDataTest {
 
         BoundingBox bounds = config.getBounds();
 
-        allStations.forEach(station -> {
-            assertTrue(bounds.contained(station), station + "out of bounds");
-        });
+        allStations.forEach(station -> assertTrue(bounds.contained(station), station + "out of bounds"));
     }
 
     @Test
@@ -87,8 +85,10 @@ public class LoadRailTransportDataTest {
     void shouldGetSpecificStation() {
         Station result = transportData.getStationById(StringIdFor.createId("DRBY"));
 
-        assertEquals("DERBY", result.getName());
-        final GridPosition expectedGrid = new GridPosition(436200, 335600);
+        assertEquals("Derby Rail Station", result.getName());
+        assertEquals("Derby", result.getArea());
+
+        final GridPosition expectedGrid = new GridPosition(436182, 335593);
         assertEquals(expectedGrid, result.getGridPosition());
 
         final LatLong expectedLatLong = CoordinateTransforms.getLatLong(expectedGrid);
@@ -99,11 +99,22 @@ public class LoadRailTransportDataTest {
     }
 
     @Test
+    void shouldNotLoadTFGMMetStations() {
+        final IdFor<Station> unwantedStation = StringIdFor.createId("ALTRMET");
+        assertFalse(transportData.hasStationId(unwantedStation));
+
+        Set<RouteStation> routeStations = transportData.getRouteStations();
+        IdSet<Station> unwantedRouteStations = routeStations.stream().
+                map(routeStation -> routeStation.getStation().getId()).
+                filter(unwantedStation::equals).collect(IdSet.idCollector());
+        assertTrue(unwantedRouteStations.isEmpty());
+    }
+
+    @Test
     void shouldHaveRouteAgencyConsistency() {
-        transportData.getAgencies().forEach(agency -> {
-            agency.getRoutes().forEach(route -> assertEquals(agency, route.getAgency(),
-                    "Agency wrong for " +route.getId() + " got " + route.getAgency().getId() + " but needed " + agency.getId()));
-        });
+        transportData.getAgencies().forEach(agency ->
+                agency.getRoutes().forEach(route -> assertEquals(agency, route.getAgency(),
+                "Agency wrong for " +route.getId() + " got " + route.getAgency().getId() + " but needed " + agency.getId())));
     }
 
     @Test
@@ -219,7 +230,7 @@ public class LoadRailTransportDataTest {
         assertTrue(result.isPresent());
         final Platform platform12 = result.get();
         assertEquals("12", platform12.getPlatformNumber());
-        assertEquals("LONDON WATERLOO platform 12", platform12.getName());
+        assertEquals("London Waterloo Rail Station platform 12", platform12.getName());
     }
 
     @Test

@@ -7,7 +7,7 @@ import com.tramchester.domain.Service;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.time.DateRange;
-import com.tramchester.repository.TransportDataContainer;
+import com.tramchester.repository.WriteableTransportData;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,11 +22,11 @@ import static java.lang.String.format;
 public class RailServiceGroups {
     private static final Logger logger = LoggerFactory.getLogger(RailServiceGroups.class);
 
-    private final TransportDataContainer container;
+    private final WriteableTransportData container;
     private final ServiceGroups serviceGroups;
     private final Set<String> skippedSchedules; // services skipped due to train category etc.
 
-    public RailServiceGroups(TransportDataContainer container) {
+    public RailServiceGroups(WriteableTransportData container) {
         this.container = container;
         skippedSchedules = new HashSet<>();
         serviceGroups = new ServiceGroups();
