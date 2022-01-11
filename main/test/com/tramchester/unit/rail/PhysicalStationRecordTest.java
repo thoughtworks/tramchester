@@ -4,7 +4,7 @@ import com.tramchester.dataimport.rail.records.PhysicalStationRecord;
 import com.tramchester.dataimport.rail.records.reference.RailInterchangeType;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class PhysicalStationRecordTest {
 
@@ -18,7 +18,24 @@ public class PhysicalStationRecordTest {
         assertEquals("DRBY", result.getTiplocCode());
         assertEquals(4362, result.getEasting());
         assertEquals(3356, result.getNorthing());
+        assertEquals(6, result.getMinChangeTime());
         assertEquals(RailInterchangeType.Medium, result.getRailInterchangeType());
+    }
+
+    @Test
+    void shouldParseMinChangeTimeCorrectly() {
+        String edin = "A    EDINBURGH                     3EDINBUREDB   EDB13259 6673910";
+        PhysicalStationRecord resultA = PhysicalStationRecord.parse(edin);
+        assertTrue(resultA.isMinChangeTimeValid());
+        assertEquals(10, resultA.getMinChangeTime());
+
+        String missing = "A    EDINBURGH                     3EDINBUREDB   EDB13259 66739  ";
+        PhysicalStationRecord resultB = PhysicalStationRecord.parse(missing);
+        assertFalse(resultB.isMinChangeTimeValid());
+
+        String invalid = "A    EDINBURGH                     3EDINBUREDB   EDB13259 66739XX";
+        PhysicalStationRecord resultC = PhysicalStationRecord.parse(invalid);
+        assertFalse(resultC.isMinChangeTimeValid());
     }
 
     @Test
@@ -32,7 +49,6 @@ public class PhysicalStationRecordTest {
         assertEquals(Integer.MIN_VALUE, result.getEasting());
         assertEquals(Integer.MIN_VALUE, result.getNorthing());
         assertEquals(RailInterchangeType.None, result.getRailInterchangeType());
-
     }
 
     @Test

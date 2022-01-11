@@ -87,9 +87,6 @@ public class LoadRailTransportData implements DirectDataSourceFactory.PopulatesC
         Stream<RailTimetableRecord> timetableRecords = railTimetableDataFromFile.load();
         processTimetableRecords(dataContainer, timetableRecords);
 
-        logger.info("Remove stations no transport mode");
-        // use association with the timetable data to populate station transport modes, so need to remove invalid ones
-        // afterwards
         Set<Station> missingTransportModes = dataContainer.getActiveStationStream().filter(station -> station.getTransportModes().isEmpty()).
                 collect(Collectors.toSet());
         if (!missingTransportModes.isEmpty()) {

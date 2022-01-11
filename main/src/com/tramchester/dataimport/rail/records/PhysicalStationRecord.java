@@ -12,29 +12,51 @@ import static java.lang.String.format;
 public class PhysicalStationRecord {
     private static final Logger logger = LoggerFactory.getLogger(PhysicalStationRecord.class);
     public static final String MISSING_POSITION = "00000";
+    private static final int INVALID_MIN_CHANGE = Integer.MAX_VALUE;
 
     private final String name;
     private final String tiplocCode;
     private final int easting;
     private final int northing;
     private final RailInterchangeType railInterchangeType;
+    private final int minChangeTime;
 
-    public PhysicalStationRecord(String name, String tiplocCode, int easting, int northing, RailInterchangeType railInterchangeType) {
+    public PhysicalStationRecord(String name, String tiplocCode, int easting, int northing,
+                                 RailInterchangeType railInterchangeType, int minChangeTime) {
         this.name = name;
         this.tiplocCode = tiplocCode;
         this.easting = easting;
         this.northing = northing;
         this.railInterchangeType = railInterchangeType;
+        this.minChangeTime = minChangeTime;
     }
 
-    public static PhysicalStationRecord parse(String line) {
-        String name = extract(line, 6, 31);
-        String tiplocCode = extract(line, 37, 43+1); // docs?
-        int easting = getEasting(line);
-        int northing = getNorthing(line);
-        char textRailInterchangeType = line.charAt(35);
+    public static PhysicalStationRecord parse(String text) {
+        String name = extract(text, 6, 31);
+        String tiplocCode = extract(text, 37, 43+1); // docs?
+        int easting = getEasting(text);
+        int northing = getNorthing(text);
+        char textRailInterchangeType = text.charAt(35);
         RailInterchangeType railInterchangeType = RailInterchangeType.getFor(textRailInterchangeType);
-        return new PhysicalStationRecord(name, tiplocCode, easting, northing, railInterchangeType);
+        int minChangeTime = getMinChangeTime(text);
+        return new PhysicalStationRecord(name, tiplocCode, easting, northing, railInterchangeType, minChangeTime);
+    }
+
+    private static int getMinChangeTime(String text) {
+        String raw = extract(text, 64, 65+1).trim();
+        if (raw.isBlank()) {
+            return INVALID_MIN_CHANGE;
+        }
+        try {
+            return Integer.parseInt(raw);
+        }
+        catch(NumberFormatException exception) {
+            return INVALID_MIN_CHANGE;
+        }
+    }
+
+    public boolean isMinChangeTimeValid() {
+        return minChangeTime!=INVALID_MIN_CHANGE;
     }
 
     private static int getEasting(String line) {
@@ -94,6 +116,11 @@ public class PhysicalStationRecord {
     public RailInterchangeType getRailInterchangeType() {
         return railInterchangeType;
     }
+
+    public int getMinChangeTime() {
+        return minChangeTime;
+    }
+
 }
 
 // from main PDF
