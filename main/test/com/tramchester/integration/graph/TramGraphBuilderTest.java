@@ -3,6 +3,7 @@ package com.tramchester.integration.graph;
 import com.google.common.collect.Lists;
 import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
+import com.tramchester.domain.Platform;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.Service;
 import com.tramchester.domain.id.IdFor;
@@ -99,6 +100,60 @@ class TramGraphBuilderTest {
         assertTrue(destinations.contains(TraffordBar.getId()));
         assertTrue(destinations.contains(Pomona.getId()));
         assertTrue(destinations.contains(Deansgate.getId()));
+    }
+
+    @Test
+    void shouldHaveCorrectPlatformCosts() {
+        Station piccadilly = Piccadilly.getFrom(stationRepository);
+        Set<Platform> platforms = piccadilly.getPlatforms();
+
+        int expectedCost = piccadilly.getMinimumChangeCost();
+
+        platforms.forEach(platform -> {
+            Node node = graphQuery.getPlatformNode(txn, platform);
+            Relationship leave = node.getSingleRelationship(TransportRelationshipTypes.LEAVE_PLATFORM, Direction.OUTGOING);
+            int leaveCost = GraphProps.getCost(leave);
+            assertEquals(0, leaveCost, "leave cost wrong for " + platform);
+
+            Relationship enter = node.getSingleRelationship(TransportRelationshipTypes.ENTER_PLATFORM, Direction.INCOMING);
+            int enterCost = GraphProps.getCost(enter);
+            assertEquals(expectedCost, enterCost, "wrong cost for " + platform.getId());
+        });
+
+        platforms.forEach(platform -> {
+            Node node = graphQuery.getPlatformNode(txn, platform);
+            Iterable<Relationship> boards = node.getRelationships(Direction.OUTGOING, INTERCHANGE_BOARD);
+            boards.forEach(board -> {
+                int boardCost = GraphProps.getCost(board);
+                assertEquals(expectedCost, boardCost, "board cost wrong for " + platform);
+            });
+
+            Iterable<Relationship> departs = node.getRelationships(Direction.OUTGOING, INTERCHANGE_DEPART);
+            departs.forEach(depart -> {
+                int enterCost = GraphProps.getCost(depart);
+                assertEquals(0, enterCost, "depart wrong cost for " + platform.getId());
+            });
+
+        });
+    }
+
+    @Test
+    void shouldHaveCorrectRouteStationToStationRouteCosts() {
+
+        Set<RouteStation> routeStations = stationRepository.getRouteStationsFor(Piccadilly.getId());
+
+        routeStations.forEach(routeStation -> {
+            Node node = graphQuery.getRouteStationNode(txn, routeStation);
+
+            Relationship toStation = node.getSingleRelationship(ROUTE_TO_STATION, Direction.OUTGOING);
+            int costToStation = GraphProps.getCost(toStation);
+            assertEquals(0, costToStation, "wrong cost for " + routeStation);
+
+            Relationship fromStation = node.getSingleRelationship(STATION_TO_ROUTE, Direction.INCOMING);
+            int costFromStation = GraphProps.getCost(fromStation);
+            int expected = routeStation.getStation().getMinimumChangeCost();
+            assertEquals(expected, costFromStation, "wrong cost for " + routeStation);
+        });
     }
 
     @Test

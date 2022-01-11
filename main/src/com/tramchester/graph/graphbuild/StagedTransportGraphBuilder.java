@@ -410,7 +410,9 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
     private void createDeparts(GraphBuilderCache routeBuilderCache, Station station, boolean isInterchange,
                                Node boardingNode, IdFor<RouteStation> routeStationId, Node routeStationNode) {
         TransportRelationshipTypes departType = isInterchange ? INTERCHANGE_DEPART : DEPART;
-        int departCost = isInterchange ? INTERCHANGE_DEPART_COST : DEPARTS_COST;
+
+        int departCost = 0;
+        //int departCost = isInterchange ? INTERCHANGE_DEPART_COST : DEPARTS_COST;
 
         Relationship departRelationship = createRelationship(routeStationNode, boardingNode, departType);
         setCostProp(departRelationship, departCost);
@@ -423,8 +425,11 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
                                 boolean isInterchange, Node platformOrStation, IdFor<RouteStation> routeStationId,
                                 Node routeStationNode) {
         TransportRelationshipTypes boardType = isInterchange ? INTERCHANGE_BOARD : BOARD;
-        int boardCost = isInterchange ? INTERCHANGE_BOARD_COST : BOARDING_COST;
         Relationship boardRelationship = createRelationship(platformOrStation, routeStationNode, boardType);
+
+        int boardCost = 0;
+//        int boardCost = isInterchange ? INTERCHANGE_BOARD_COST : BOARDING_COST;
+
         setCostProp(boardRelationship, boardCost);
         setRouteStationProp(boardRelationship, routeStationId);
         setProperty(boardRelationship, route);
@@ -464,13 +469,17 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
         boolean isInterchange = interchangeRepository.isInterchange(station);
 
         // station -> platform
-        int enterPlatformCost = isInterchange ? ENTER_INTER_PLATFORM_COST : ENTER_PLATFORM_COST;
+        int enterPlatformCost = station.getMinimumChangeCost();
+        //int enterPlatformCost = isInterchange ? ENTER_INTER_PLATFORM_COST : ENTER_PLATFORM_COST;
+
         Relationship crossToPlatform = createRelationship(stationNode, platformNode, ENTER_PLATFORM);
         setCostProp(crossToPlatform, enterPlatformCost);
         setProperty(crossToPlatform, platform);
 
         // platform -> station
-        int leavePlatformCost = isInterchange ? LEAVE_INTER_PLATFORM_COST : LEAVE_PLATFORM_COST;
+        int leavePlatformCost = 0;
+        //int leavePlatformCost = isInterchange ? LEAVE_INTER_PLATFORM_COST : LEAVE_PLATFORM_COST;
+
         Relationship crossFromPlatform = createRelationship(platformNode, stationNode, LEAVE_PLATFORM);
         setCostProp(crossFromPlatform, leavePlatformCost);
         setProperty(crossFromPlatform, station);

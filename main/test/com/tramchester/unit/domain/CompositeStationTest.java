@@ -37,7 +37,7 @@ class CompositeStationTest {
         Platform platform = MutablePlatform.buildForTFGMTram("platformId", "platformName", latLong);
         stationA.addPlatform(platform);
 
-        CompositeStation compositeStation = new CompositeStation(Collections.singleton(stationA), "compArea", "compName");
+        CompositeStation compositeStation = new CompositeStation(Collections.singleton(stationA), "compArea", "compName",1);
 
         assertEquals(LocationType.CompositeStation, compositeStation.getLocationType());
 
@@ -84,7 +84,7 @@ class CompositeStationTest {
         stationB.addPlatform(platformB);
 
         Set<Station> stations = new HashSet<>(Arrays.asList(stationA, stationB));
-        CompositeStation compositeStation = new CompositeStation(stations, "compArea", "compName");
+        CompositeStation compositeStation = new CompositeStation(stations, "compArea", "compName",12);
 
         assertEquals(LocationType.CompositeStation, compositeStation.getLocationType());
 
@@ -125,7 +125,7 @@ class CompositeStationTest {
                 "routeNameB", TestEnv.StagecoachManchester, Bus);
 
         Set<Station> stations = new HashSet<>(Arrays.asList(stationA, stationB));
-        CompositeStation compositeStation = new CompositeStation(stations, "compArea", "compName");
+        CompositeStation compositeStation = new CompositeStation(stations, "compArea", "compName",11);
 
         assertFalse(compositeStation.hasPickup());
         assertFalse(compositeStation.hasDropoff());
@@ -136,6 +136,24 @@ class CompositeStationTest {
         stationB.addRoutePickUp(routeB);
         assertTrue(compositeStation.hasPickup());
 
+    }
+
+    @Test
+    void shouldHaveCorrectMinChangeCostForACompositeStation() {
+        final LatLong positionA = new LatLong(3, 4);
+        final LatLong positionB = new LatLong(2, 5);
+
+        MutableStation stationA = TestStation.forTest("idA", "areaA", "stopNameA",
+                positionA, Tram, dataSourceID);
+
+        MutableStation stationB = TestStation.forTest("idB", "areaB", "stopNameB",
+                positionB, Bus, dataSourceID);
+
+        CompositeStation compositeStation = new CompositeStation( new HashSet<>(Arrays.asList(stationA, stationB)),
+                "compArea", "compName", 42);
+;
+
+        assertEquals(42, compositeStation.getMinimumChangeCost());
     }
 
 }

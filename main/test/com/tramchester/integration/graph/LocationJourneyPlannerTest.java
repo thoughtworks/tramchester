@@ -142,7 +142,7 @@ class LocationJourneyPlannerTest {
         TransportStage<?,?> tramStage = firstJourney.getStages().get(0);
         TransportStage<?,?> walkStage = firstJourney.getStages().get(1);
 
-        assertTrue(walkStage.getFirstDepartureTime().isAfter(tramStage.getExpectedArrivalTime()), walkStage.toString());
+        assertTrue(walkStage.getFirstDepartureTime().isAfterOrSame(tramStage.getExpectedArrivalTime()), walkStage.toString());
         assertEquals(start.getId(), tramStage.getFirstStation().getId());
         assertEquals(walkChangeStation.getId(), tramStage.getLastStation().getId());
         assertEquals(walkChangeStation.getId(), walkStage.getFirstStation().getId());
@@ -248,7 +248,7 @@ class LocationJourneyPlannerTest {
         // find the lowest cost journey, should be tram to shudehill and then a walk
         Journey lowestCostJourney = journeyList.get(0);
 
-        assertEquals(33, RouteCalculatorTest.costOfJourney(lowestCostJourney), journeySet.toString());
+        assertEquals(32, RouteCalculatorTest.costOfJourney(lowestCostJourney), journeySet.toString());
 
         List<TransportStage<?,?>> stages = lowestCostJourney.getStages();
         assertTrue(stages.size() >= 2);
@@ -293,7 +293,7 @@ class LocationJourneyPlannerTest {
         Journey earliestJourney = sorted.get(0);
         final TramTime actualDepartTime = earliestJourney.getDepartTime();
         assertTrue(actualDepartTime.isAfter(earliestDepart) || actualDepartTime.equals(earliestDepart));
-        assertTrue(actualDepartTime.isBefore(TramTime.of(10,30)));
+        assertTrue(actualDepartTime.isAfterOrSame(TramTime.of(10,25)), actualDepartTime.toString());
         //assertEquals(earliestDepart, earliestJourney.getDepartTime());
     }
 

@@ -210,6 +210,13 @@ public class TramTime implements Comparable<TramTime> {
         return this.offsetDays>other.offsetDays;
     }
 
+    public boolean isAfterOrSame(TramTime other) {
+        if (other.equals(this)) {
+            return true;
+        }
+        return isAfter(other);
+    }
+
     public TramTime minusMinutes(int amount) {
 
         if (amount<0) {
@@ -290,6 +297,7 @@ public class TramTime implements Comparable<TramTime> {
         }
         return between(startOfInterval, time);
     }
+
 
     @FunctionalInterface
     public interface ToTramTimeFunction<T> {

@@ -23,20 +23,23 @@ import java.util.stream.Stream;
 
 public class CompositeStation implements Station {
 
+    // TODO
     private final Set<Station> containedStations;
     private final String area;
     private final String name;
+    private final int minChangeCost;
     private final IdFor<Station> id;
     private final LatLong latLong;
     private final DataSourceID dataSourceId;
 
-    public CompositeStation(Set<Station> containedStations, String area, String name) {
+    public CompositeStation(Set<Station> containedStations, String area, String name, int minChangeCost) {
         this.id = computeStationId(containedStations);
         this.latLong = computeLatLong(containedStations);
         this.dataSourceId = computeDataSourceId(containedStations);
         this.containedStations = containedStations;
         this.area = area;
         this.name = name;
+        this.minChangeCost = minChangeCost;
     }
 
     public static Set<Station> expandStations(Collection<Station> stations) {
@@ -170,6 +173,11 @@ public class CompositeStation implements Station {
     @Override
     public boolean isMarkedInterchange() {
         return false;
+    }
+
+    @Override
+    public int getMinimumChangeCost() {
+        return minChangeCost;
     }
 
     @Override

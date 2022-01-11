@@ -69,7 +69,12 @@ class CompositeStationRepositoryTest {
     @Test
     void shouldFindExpectedCompositeStations() {
         assertNotNull(repository.findByName("Shudehill Interchange"));
-        assertNotNull(repository.findByName(BusStations.Composites.AltrinchamInterchange.getName()));
+        final CompositeStation compositeStation = repository.findByName(BusStations.Composites.AltrinchamInterchange.getName());
+        assertNotNull(compositeStation);
+
+        assertTrue(compositeStation.isComposite());
+        assertEquals("Altrincham", compositeStation.getArea());
+        assertEquals(2, compositeStation.getMinimumChangeCost());
     }
 
     @Test

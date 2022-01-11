@@ -177,11 +177,15 @@ public class MutableStation implements Station {
         return getId().forDTO();
     }
 
-
-
     @Override
     public boolean isMarkedInterchange() {
         return isMarkedInterchange;
+    }
+
+    @Override
+    public int getMinimumChangeCost() {
+        // TODO
+        return 1;
     }
 
     @Override

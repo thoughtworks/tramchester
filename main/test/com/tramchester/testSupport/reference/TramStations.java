@@ -10,6 +10,7 @@ import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.geo.CoordinateTransforms;
 import com.tramchester.geo.GridPosition;
 import com.tramchester.graph.GraphPropertyKey;
+import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.TestStation;
 import com.tramchester.testSupport.TestStations;
 import org.jetbrains.annotations.NotNull;
@@ -80,8 +81,24 @@ public enum TramStations implements TestStations {
         return ids.contains(station.getId());
     }
 
+    /***
+     * unsafe, use createFor or getFrom
+     * @param enumValue the test station
+     * @return The actual station in the enum
+     */
+    @Deprecated
     public static MutableStation of(TramStations enumValue) {
         return enumValue.station;
+    }
+
+    public static MutableStation createFor(TramStations enumValue) {
+        @NotNull GridPosition grid = CoordinateTransforms.getGridPosition(enumValue.getLatLong());
+       return new TestStation(enumValue.getId(), enumValue.getArea(), enumValue.getName(), enumValue.getLatLong(),
+               grid, TransportMode.Tram, DataSourceID.tfgm);
+    }
+
+    public Station getFrom(StationRepository repository) {
+        return repository.getStationById(getId());
     }
 
     private static LatLong pos(double lat, double lon) {

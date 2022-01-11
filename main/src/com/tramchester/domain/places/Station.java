@@ -62,4 +62,6 @@ public interface Station extends Location<Station> {
     boolean servesMode(TransportMode mode);
 
     boolean isMarkedInterchange();
+
+    int getMinimumChangeCost();
 }

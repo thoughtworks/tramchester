@@ -4,6 +4,7 @@ import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.config.GTFSSourceConfig;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.DataSourceID;
+import com.tramchester.domain.StationPair;
 import com.tramchester.domain.id.CompositeId;
 import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.id.IdFor;
@@ -11,6 +12,7 @@ import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.places.CompositeStation;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
+import com.tramchester.geo.CoordinateTransforms;
 import com.tramchester.graph.filters.GraphFilter;
 import com.tramchester.repository.naptan.NaptanRespository;
 import org.jetbrains.annotations.NotNull;
@@ -150,12 +152,30 @@ public class CompositeStationRepository implements StationRepositoryPublic {
         logger.debug(format("Create for ids:%s name:%s mode:%s area:%s", HasId.asIds(stationsToGroup), nonUniqueName, mode, area));
 
         String compositeName = attemptUnqiueName(nonUniqueName, area, stationsToGroup);
-        CompositeStation compositeStation = new CompositeStation(stationsToGroup, area, compositeName);
+        int minChangeCost = computeMinChangeCost(stationsToGroup);
+        CompositeStation compositeStation = new CompositeStation(stationsToGroup, area, compositeName, minChangeCost);
 
         compositeStations.put(compositeStation.getId(), compositeStation);
         compositeStationsByName.putIfAbsent(compositeName, compositeStation); // see attemptUnqiueName, might fail to get unique name
 
         stationsToGroup.stream().map(Station::getId).collect(IdSet.idCollector()).forEach(isUnderlyingStationComposite::add);
+    }
+
+    private int computeMinChangeCost(Set<Station> stationsToGroup) {
+        // find greatest distance between the stations, then convert to a cost
+        Set<StationPair> allPairs = stationsToGroup.stream().
+                flatMap(stationA -> stationsToGroup.stream().map(stationB -> StationPair.of(stationA, stationB))).
+                filter(pair -> !pair.getBegin().equals(pair.getEnd())).
+                collect(Collectors.toSet());
+        OptionalLong furthestQuery = allPairs.stream().
+                mapToLong(pair -> CoordinateTransforms.calcCostInMinutes(pair.getBegin(), pair.getEnd(), config.getWalkingMPH())).
+                max();
+        if (furthestQuery.isEmpty()) {
+            return 1;
+        }
+
+        return (int) furthestQuery.getAsLong();
+
     }
 
     private String attemptUnqiueName(String nonUniqueName, String area, Set<Station> stations) {

@@ -74,13 +74,13 @@ class JourneyPlannerLocationResourceTest {
         //List<TramTime> possibleTimes = Arrays.asList(TramTime.of(20, 19), TramTime.of(20, 12));
 
         // todo new lockdown timetable
-        List<LocalDateTime> possibleTimes = Collections.singletonList(LocalDateTime.of(when, LocalTime.of(19, 7)));
+        List<LocalDateTime> possibleTimes = Collections.singletonList(LocalDateTime.of(when, LocalTime.of(19, 19)));
 
         assertTrue(possibleTimes.contains(departureTime), "Expected time "+departureTime.toString());
 
         // assertEquals(firstJourney.toString(), TramTime.of(20,48), firstJourney.getExpectedArrivalTime());
         // todo new lockdown timetable
-        assertEquals(LocalDateTime.of(when, LocalTime.of(19,36)), firstJourney.getExpectedArrivalTime(), firstJourney.toString());
+        assertEquals(LocalDateTime.of(when, LocalTime.of(19,48)), firstJourney.getExpectedArrivalTime(), firstJourney.toString());
     }
 
     private JourneyDTO getEarliestArrivingJourney(Set<JourneyDTO> journeys) {

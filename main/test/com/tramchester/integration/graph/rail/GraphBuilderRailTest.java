@@ -5,12 +5,14 @@ import com.google.common.collect.Streams;
 import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.config.TramchesterConfig;
+import com.tramchester.domain.Platform;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
 import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.GraphQuery;
+import com.tramchester.graph.TransportRelationshipTypes;
 import com.tramchester.graph.graphbuild.GraphProps;
 import com.tramchester.graph.graphbuild.StagedTransportGraphBuilder;
 import com.tramchester.integration.testSupport.rail.IntegrationRailTestConfig;
@@ -26,8 +28,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static com.tramchester.graph.TransportRelationshipTypes.LINKED;
-import static com.tramchester.graph.TransportRelationshipTypes.ON_ROUTE;
+import static com.tramchester.graph.TransportRelationshipTypes.*;
 import static com.tramchester.integration.testSupport.rail.RailStationIds.*;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -94,6 +95,35 @@ class GraphBuilderRailTest {
                 map(GraphProps::getStationId).collect(Collectors.toSet());
 
         assertTrue(destinations.contains(StringIdFor.createId("STKP")), destinations.toString());
+    }
+
+    @Test
+    void shouldHaveCorrectPlatformCosts() {
+        Station piccadilly = ManchesterPiccadilly.getFrom(transportData);
+        int cost = piccadilly.getMinimumChangeCost();
+        Set<Platform> platforms = piccadilly.getPlatforms();
+
+        platforms.forEach(platform -> {
+            Node node = graphQuery.getPlatformNode(txn, platform);
+            Relationship leave = node.getSingleRelationship(TransportRelationshipTypes.LEAVE_PLATFORM, Direction.OUTGOING);
+            int leaveCost = GraphProps.getCost(leave);
+            assertEquals(0, leaveCost, "leave cost wrong for " + platform);
+
+            Relationship enter = node.getSingleRelationship(TransportRelationshipTypes.ENTER_PLATFORM, Direction.INCOMING);
+            int enterCost = GraphProps.getCost(enter);
+            assertEquals(cost, enterCost, "wrong cost for " + platform.getId());
+        });
+
+        platforms.forEach(platform -> {
+            Node node = graphQuery.getPlatformNode(txn, platform);
+            Relationship board = node.getSingleRelationship(BOARD, Direction.OUTGOING);
+            int boardCost = GraphProps.getCost(board);
+            assertEquals(0, boardCost, "board cost wrong for " + platform);
+
+            Relationship depart = node.getSingleRelationship(DEPART, Direction.INCOMING);
+            int enterCost = GraphProps.getCost(depart);
+            assertEquals(0, enterCost, "depart wrong cost for " + platform.getId());
+        });
     }
 
     @Test

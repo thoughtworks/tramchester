@@ -33,7 +33,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 @TrainTest
 @DisabledIfEnvironmentVariable(named = "CI", matches = "true")
-class SubGraphAroundKnutsfordTrainTest {
+class SubGraphAroundKnutsfordRailTest {
     private static ComponentContainer componentContainer;
     private static GraphDatabase database;
     private static SubgraphConfig config;
@@ -54,7 +54,7 @@ class SubGraphAroundKnutsfordTrainTest {
         TestEnv.deleteDBIfPresent(config);
 
         componentContainer = new ComponentsBuilder().
-                configureGraphFilter(SubGraphAroundKnutsfordTrainTest::configureGraphFilter).
+                configureGraphFilter(SubGraphAroundKnutsfordRailTest::configureGraphFilter).
                 create(config, TestEnv.NoopRegisterMetrics());
         componentContainer.initialise();
 

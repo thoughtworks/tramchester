@@ -5,6 +5,7 @@ import com.tramchester.ComponentsBuilder;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.places.RouteStation;
+import com.tramchester.domain.places.Station;
 import com.tramchester.domain.places.StationWalk;
 import com.tramchester.domain.time.TramServiceDate;
 import com.tramchester.graph.GraphDatabase;
@@ -16,7 +17,6 @@ import com.tramchester.resources.LocationJourneyPlanner;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TramRouteHelper;
 import com.tramchester.testSupport.reference.KnownTramRoute;
-import com.tramchester.testSupport.reference.TramStations;
 import com.tramchester.testSupport.testTags.DataUpdateTest;
 import org.junit.jupiter.api.*;
 import org.neo4j.graphdb.Node;
@@ -30,7 +30,8 @@ import java.util.stream.Collectors;
 
 import static com.tramchester.testSupport.TestEnv.nearAltrincham;
 import static com.tramchester.testSupport.reference.TramStations.*;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 
 @DataUpdateTest
 class RouteCostCalculatorTest {
@@ -42,6 +43,9 @@ class RouteCostCalculatorTest {
     private TramRouteHelper tramRouteHelper;
     private Transaction txn;
     private final TramServiceDate date = new TramServiceDate(TestEnv.testDay());
+    private Station altrincham;
+    private Station mediaCity;
+    private Station airport;
 
     @BeforeAll
     static void onceBeforeAnyTestRuns() {
@@ -62,6 +66,10 @@ class RouteCostCalculatorTest {
         tramRouteHelper = new TramRouteHelper(componentContainer);
         GraphDatabase database = componentContainer.get(GraphDatabase.class);
         txn = database.beginTx();
+
+        altrincham = Altrincham.getFrom(stationRepository);
+        mediaCity = MediaCityUK.getFrom(stationRepository);
+        airport = ManAirport.getFrom(stationRepository);
     }
 
     @AfterEach
@@ -71,25 +79,26 @@ class RouteCostCalculatorTest {
 
     @Test
     void shouldComputeSimpleCostBetweenStationsAltyNavRoad() {
-        assertEquals(2, routeCostCalculator.getAverageCostBetween(txn, of(TramStations.NavigationRoad), of(Altrincham), date));
-        assertEquals(3, routeCostCalculator.getAverageCostBetween(txn, of(Altrincham), of(TramStations.NavigationRoad), date));
+        assertEquals(3, routeCostCalculator.getAverageCostBetween(txn, NavigationRoad.getFrom(stationRepository), altrincham, date));
+        assertEquals(4, routeCostCalculator.getAverageCostBetween(txn, altrincham, NavigationRoad.getFrom(stationRepository), date));
     }
 
     @Test
     void shouldComputeCostsForMediaCityAshton() {
-        assertEquals(54, routeCostCalculator.getAverageCostBetween(txn, of(MediaCityUK), of(Ashton), date));
-        assertEquals(51, routeCostCalculator.getAverageCostBetween(txn, of(Ashton), of(MediaCityUK), date));
+        assertEquals(55, routeCostCalculator.getAverageCostBetween(txn, mediaCity, Ashton.getFrom(stationRepository), date));
+        assertEquals(52, routeCostCalculator.getAverageCostBetween(txn,  Ashton.getFrom(stationRepository), mediaCity, date));
     }
 
     @Test
     void shouldComputeSimpleCostBetweenStationsAltyBury() {
         // changes regularly with timetable updates
 
-        final int buryToAlty = routeCostCalculator.getAverageCostBetween(txn, of(Bury), of(Altrincham), date);
-        final int altyToBury = routeCostCalculator.getAverageCostBetween(txn, of(Altrincham), of(Bury), date);
+        final Station bury = Bury.getFrom(stationRepository);
+        final int buryToAlty = routeCostCalculator.getAverageCostBetween(txn, bury, altrincham, date);
+        final int altyToBury = routeCostCalculator.getAverageCostBetween(txn, altrincham, bury, date);
 
-        assertEquals(60, buryToAlty);
-        assertEquals(61, altyToBury);
+        assertEquals(63, buryToAlty);
+        assertEquals(63, altyToBury);
     }
 
     @Test
@@ -100,16 +109,16 @@ class RouteCostCalculatorTest {
 
         UUID uniqueId = UUID.randomUUID();
         Node walkStartNode = locationJourneyPlanner.createWalkingNode(txn, nearAltrincham, uniqueId);
-        StationWalk stationWalk = new StationWalk(of(Altrincham), 13);
+        StationWalk stationWalk = new StationWalk(altrincham, 13);
         Relationship walkRelationship = locationJourneyPlanner.createWalkRelationship(txn, walkStartNode, stationWalk,
                 TransportRelationshipTypes.WALKS_TO);
 
-        int result = routeCostCalculator.getAverageCostBetween(txn, walkStartNode, of(Deansgate), date);
+        int result = routeCostCalculator.getAverageCostBetween(txn, walkStartNode, Deansgate.getFrom(stationRepository), date);
 
         walkRelationship.delete();
         walkStartNode.delete();
 
-        assertEquals(36,result);
+        assertEquals(37,result);
     }
 
     @Test
@@ -120,29 +129,29 @@ class RouteCostCalculatorTest {
 
         UUID uniqueId = UUID.randomUUID();
         Node walkEndNode = locationJourneyPlanner.createWalkingNode(txn, nearAltrincham, uniqueId);
-        StationWalk stationWalk = new StationWalk(of(Altrincham), 13);
+        StationWalk stationWalk = new StationWalk(altrincham, 13);
         Relationship walkRelationship = locationJourneyPlanner.createWalkRelationship(txn, walkEndNode, stationWalk,
                 TransportRelationshipTypes.WALKS_FROM);
 
-        int result = routeCostCalculator.getAverageCostBetween(txn, of(Deansgate), walkEndNode, date);
+        int result = routeCostCalculator.getAverageCostBetween(txn, Deansgate.getFrom(stationRepository), walkEndNode, date);
 
         walkRelationship.delete();
         walkEndNode.delete();
 
-        assertEquals(36,result);
+        assertEquals(37,result);
 
     }
 
     @Test
     void shouldComputeSimpleCostBetweenStationsMediaCityAirport() {
-        assertEquals(56, routeCostCalculator.getAverageCostBetween(txn, of(TramStations.MediaCityUK), of(TramStations.ManAirport), date));
-        assertEquals(56, routeCostCalculator.getAverageCostBetween(txn, of(TramStations.ManAirport), of(TramStations.MediaCityUK), date));
+        assertEquals(58, routeCostCalculator.getAverageCostBetween(txn, mediaCity, airport, date));
+        assertEquals(58, routeCostCalculator.getAverageCostBetween(txn, airport, mediaCity, date));
     }
 
     @Test
     void shouldComputeSimpleMaxCostBetweenStationsMediaCityAirport() {
-        assertEquals(56, routeCostCalculator.getMaxCostBetween(txn, of(TramStations.MediaCityUK), of(TramStations.ManAirport), date));
-        assertEquals(56, routeCostCalculator.getMaxCostBetween(txn, of(TramStations.ManAirport), of(TramStations.MediaCityUK), date));
+        assertEquals(58, routeCostCalculator.getMaxCostBetween(txn, mediaCity, airport, date));
+        assertEquals(58, routeCostCalculator.getMaxCostBetween(txn, airport, mediaCity, date));
     }
 
     @Test

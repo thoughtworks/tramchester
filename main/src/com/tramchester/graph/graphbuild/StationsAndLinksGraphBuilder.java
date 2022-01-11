@@ -150,10 +150,11 @@ public class StationsAndLinksGraphBuilder extends GraphBuilder {
         final Relationship stationToRoute = stationNode.createRelationshipTo(routeStationNode, STATION_TO_ROUTE);
         final Relationship routeToStation = routeStationNode.createRelationshipTo(stationNode, ROUTE_TO_STATION);
 
-        GraphProps.setCostProp(stationToRoute, 0);
+        final int minimumChangeCost = station.getMinimumChangeCost();
+        GraphProps.setCostProp(stationToRoute, minimumChangeCost);
         GraphProps.setCostProp(routeToStation, 0);
 
-        GraphProps.setMaxCostProp(stationToRoute, 0);
+        GraphProps.setMaxCostProp(stationToRoute, minimumChangeCost);
         GraphProps.setMaxCostProp(routeToStation, 0);
     }
 

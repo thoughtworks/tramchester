@@ -2,6 +2,7 @@ package com.tramchester.graph;
 
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.domain.GraphProperty;
+import com.tramchester.domain.Platform;
 import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
@@ -86,4 +87,7 @@ public class GraphQuery {
         return node != null;
     }
 
+    public Node getPlatformNode(Transaction txn, Platform platform) {
+        return findNode(txn, GraphLabel.PLATFORM, platform);
+    }
 }

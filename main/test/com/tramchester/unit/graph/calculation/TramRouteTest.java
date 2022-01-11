@@ -167,7 +167,7 @@ class TramRouteTest {
                 createJourneyRequest(queryTime, 0), 2);
 
         assertEquals(1, journeys.size());
-        journeys.forEach(journey ->{
+        journeys.forEach(journey -> {
             List<TransportStage<?,?>> stages = journey.getStages();
             assertEquals(2, stages.size());
 
@@ -177,9 +177,9 @@ class TramRouteTest {
             assertEquals(midway, walk.getLastStation());
             assertEquals(walk.getMode(), TransportMode.Walk);
             assertEquals(walkCost, walk.getDuration());
-            final int boardingCost =  2;
-            assertEquals(tramBoard.minusMinutes(boardingCost + walkCost), walk.getFirstDepartureTime());
-            assertEquals(tramBoard.minusMinutes(boardingCost), walk.getExpectedArrivalTime());
+            final int boardAndPlatformEntry =  1;
+            assertEquals(tramBoard.minusMinutes(boardAndPlatformEntry + walkCost), walk.getFirstDepartureTime(), journey.toString());
+            assertEquals(tramBoard.minusMinutes(boardAndPlatformEntry), walk.getExpectedArrivalTime());
 
             assertEquals(midway, tram.getFirstStation());
             assertEquals(destination, tram.getLastStation());
@@ -248,9 +248,7 @@ class TramRouteTest {
         int walk1Cost = calcCostInMinutes(start, endFirstWalk, config.getWalkingMPH());
         int walk2Cost = calcCostInMinutes(destination, startSecondWalk, config.getWalkingMPH());
 
-        Set<Journey> journeys = locationJourneyPlanner.quickestRouteForLocation(start,
-                destination,
-                journeyRequest, 3);
+        Set<Journey> journeys = locationJourneyPlanner.quickestRouteForLocation(start, destination, journeyRequest, 3);
         assertTrue(journeys.size() >= 1, "journeys");
         journeys.forEach(journey -> {
             assertEquals(3, journey.getStages().size());
@@ -270,11 +268,12 @@ class TramRouteTest {
             assertEquals(startSecondWalk, tram.getLastStation());
             assertEquals(startSecondWalk, walk2.getFirstStation());
 
-            assertTrue(tram.getFirstDepartureTime().isAfter(walk1.getExpectedArrivalTime()), "tram after walk 1");
-            assertTrue(tram.getExpectedArrivalTime().isBefore(walk2.getFirstDepartureTime()), "walk 2 affter tram");
+            assertTrue(tram.getFirstDepartureTime().isAfter(walk1.getExpectedArrivalTime()) ||
+                    tram.getFirstDepartureTime().equals(walk1.getExpectedArrivalTime()), "tram after walk 1");
+            assertTrue(tram.getExpectedArrivalTime().isBefore(walk2.getFirstDepartureTime()) ||
+                    tram.getExpectedArrivalTime().equals(walk2.getFirstDepartureTime()), "walk 2 affter tram");
 
             });
-
     }
 
     @Test
@@ -291,7 +290,7 @@ class TramRouteTest {
 
         TramTime boardTime = TramTime.of(8,11);
         final int tramDuration = 9;
-        final int depart = 1;
+        final int depart = 0;
 
         Set<Journey> journeys = locationJourneyPlanner.quickestRouteForLocation(start,
                 destination,
@@ -316,7 +315,8 @@ class TramRouteTest {
             assertEquals(walk.getFirstDepartureTime(), boardTime.plusMinutes(tramDuration+depart));
             assertEquals(boardTime.plusMinutes(tramDuration+depart+walkCost), walk.getExpectedArrivalTime());
 
-            assertTrue(walk.getFirstDepartureTime().isAfter(tram.getExpectedArrivalTime()),
+            assertTrue(walk.getFirstDepartureTime().isAfter(tram.getExpectedArrivalTime()) ||
+                            walk.getFirstDepartureTime().equals(tram.getExpectedArrivalTime()),
                     tram.getExpectedArrivalTime().toString());
 
         });
@@ -469,7 +469,7 @@ class TramRouteTest {
     @Test
     void shouldHaveRouteCostCalculationAsExpected() {
         RouteCostCalculator costCalculator = componentContainer.get(RouteCostCalculator.class);
-        assertEquals(40, costCalculator.getAverageCostBetween(txn, transportData.getFirst(), transportData.getLast(), queryDate));
+        assertEquals(41, costCalculator.getAverageCostBetween(txn, transportData.getFirst(), transportData.getLast(), queryDate));
         assertEquals(-1, costCalculator.getAverageCostBetween(txn, transportData.getLast(), transportData.getFirst(), queryDate));
     }
 

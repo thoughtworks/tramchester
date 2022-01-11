@@ -173,7 +173,7 @@ public class MapPathToStagesViaStatesTest {
         validateWalkTo(walkingStage, start, endOfWalk, 4);
 
         TransportStage<?, ?> tramStage = result.get(1);
-        final TramTime tramDepart = TramTime.of(9, 25);
+        final TramTime tramDepart = TramTime.of(9, 31);
         validateAltyToTraffordBar(tramStage, endOfWalk, destination, tramDepart,
                 17, NavigationRoad.getId(), 7);
     }
