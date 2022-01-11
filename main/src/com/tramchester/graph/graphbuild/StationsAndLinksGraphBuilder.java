@@ -119,7 +119,7 @@ public class StationsAndLinksGraphBuilder extends GraphBuilder {
         logger.info(format("Adding %s routes for agency %s", routes.size(), agency));
 
         Set<Station> filteredStations = graphFilter.isFiltered() ?
-                transportData.getStationStream().filter(graphFilter::shouldInclude)
+                transportData.getActiveStationStream().filter(graphFilter::shouldInclude)
                         .collect(Collectors.toSet()) :
                 transportData.getStations();
 

@@ -52,7 +52,7 @@ class RouteCalculatorTestAllJourneys {
         TransportData data = componentContainer.get(TransportData.class);
 
         final TramTime time = TramTime.of(8, 5);
-        Set<Station> haveServices = new HashSet<>(data.getStationsForMode(Tram));
+        Set<Station> haveServices = new HashSet<>(data.getStationsServing(Tram));
 
         JourneyRequest journeyRequest = new JourneyRequest(when, time, false, 2,
                 testConfig.getMaxJourneyDuration(), 1);

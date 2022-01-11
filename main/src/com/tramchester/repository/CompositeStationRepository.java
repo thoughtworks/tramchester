@@ -112,7 +112,7 @@ public class CompositeStationRepository implements StationRepositoryPublic {
 
         Map<String, Set<Station>> groupedByName = stationRepository.getStationsFromSource(dataSourceID).
                 filter(graphFilter::shouldInclude).
-                filter(station -> station.serves(mode)).
+                filter(station -> station.servesMode(mode)).
                 filter(station -> !station.getArea().isBlank()).
                 filter(station -> duplicatedNames.contains(station.getName())).
                 collect(Collectors.groupingBy(Station::getName, Collectors.toSet()));
@@ -125,7 +125,7 @@ public class CompositeStationRepository implements StationRepositoryPublic {
     private Set<String> getDuplicatedNamesFor(DataSourceID dataSourceID, TransportMode mode) {
         return stationRepository.getStationsFromSource(dataSourceID).
                 filter(graphFilter::shouldInclude).
-                filter(station -> station.serves(mode)).
+                filter(station -> station.servesMode(mode)).
                 map(Station::getName).
                 collect(Collectors.groupingBy(Function.identity(), Collectors.counting())).
                 entrySet().stream().
@@ -176,11 +176,11 @@ public class CompositeStationRepository implements StationRepositoryPublic {
      * @return stations for transport mode
      */
     @Override
-    public Set<Station> getStationsForMode(TransportMode mode) {
-        Set<Station> result = stationRepository.getStationsForMode(mode).stream().
+    public Set<Station> getStationsServing(TransportMode mode) {
+        Set<Station> result = stationRepository.getStationsServing(mode).stream().
                 filter(station -> !isUnderlyingStationComposite.contains(station.getId()))
                 .collect(Collectors.toSet());
-        result.addAll(getCompositesFor(mode));
+        result.addAll(getCompositesServing(mode));
         return result;
     }
 
@@ -189,8 +189,8 @@ public class CompositeStationRepository implements StationRepositoryPublic {
      * @return stations
      */
     @Override
-    public Stream<Station> getStationStream() {
-        Stream<Station> stationStream = stationRepository.getStationStream().
+    public Stream<Station> getActiveStationStream() {
+        Stream<Station> stationStream = stationRepository.getActiveStationStream().
                 filter(station -> !isUnderlyingStationComposite.contains(station.getId()));
         return Stream.concat(stationStream, compositeStations.values().stream());
     }
@@ -224,9 +224,9 @@ public class CompositeStationRepository implements StationRepositoryPublic {
         return compositeStations.size();
     }
 
-    public Set<CompositeStation> getCompositesFor(TransportMode mode) {
+    public Set<CompositeStation> getCompositesServing(TransportMode mode) {
         return compositeStations.values().stream().
-                filter(station -> station.serves(mode)).
+                filter(station -> station.servesMode(mode)).
                 collect(Collectors.toSet());
     }
 

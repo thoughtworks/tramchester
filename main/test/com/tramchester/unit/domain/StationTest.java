@@ -59,11 +59,11 @@ class StationTest {
         final Route route = MutableRoute.getRoute(StringIdFor.createId("routeIdA"), "shortName", "name",
                 TestEnv.MetAgency(), Tram);
         station.addRouteDropOff(route);
-        assertTrue(station.serves(Tram));
+        assertTrue(station.servesMode(Tram));
 
         station.addRouteDropOff(MutableRoute.getRoute(StringIdFor.createId("routeIdB"), "trainShort", "train",
                 Walking, Train));
-        assertTrue(station.serves(Train));
+        assertTrue(station.servesMode(Train));
 
         assertEquals(2, station.getTransportModes().size());
     }
@@ -87,8 +87,8 @@ class StationTest {
         station.addRouteDropOff(routeB);
         assertTrue(station.hasDropoff());
 
-        assertTrue(station.serves(Tram));
-        assertTrue(station.serves(Bus));
+        assertTrue(station.servesMode(Tram));
+        assertTrue(station.servesMode(Bus));
 
         Set<Agency> agencies = station.getAgencies();
         assertEquals(2, agencies.size());

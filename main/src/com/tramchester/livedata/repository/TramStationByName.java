@@ -30,7 +30,7 @@ public class TramStationByName {
     @PostConstruct
     public void start() {
         logger.info("Starting");
-        stationRepository.getStationStream().
+        stationRepository.getActiveStationStream().
                 filter(TransportMode::isTram).
                 forEach(station -> tramStationsByName.put(station.getName().toLowerCase(), station));
         logger.info("Added " + tramStationsByName.size() + " tram stations");

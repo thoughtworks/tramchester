@@ -70,7 +70,7 @@ public class TramPositionInference {
     private Set<DueTram> getDueTrams(StationPair pair, LocalDate date, TramTime time, int cost) {
         Station neighbour = pair.getEnd();
 
-        if (!pair.both(TransportMode.Tram) ) {
+        if (!pair.bothServeMode(TransportMode.Tram) ) {
             logger.info(format("Not both tram stations %s", pair));
             return Collections.emptySet();
         }

@@ -36,6 +36,7 @@ import javax.inject.Inject;
 import java.util.*;
 import java.util.stream.Stream;
 
+import static com.tramchester.domain.reference.TransportMode.Tram;
 import static com.tramchester.graph.TransportRelationshipTypes.*;
 import static com.tramchester.graph.graphbuild.GraphLabel.INTERCHANGE;
 import static com.tramchester.graph.graphbuild.GraphProps.*;
@@ -138,7 +139,7 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
 
         try(TimedTransaction timedTransaction = new TimedTransaction(graphDatabase, logger, "link stations & platfoms")) {
             Transaction txn = timedTransaction.transaction();
-            transportData.getStationStream().
+            transportData.getActiveStationStream().
                     filter(Station::hasPlatforms).
                     filter(graphFilter::shouldInclude).
                     forEach(station -> linkStationAndPlatforms(txn, station, builderCache));
@@ -352,13 +353,15 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
     private void createBoardingAndDepart(Transaction tx, GraphBuilderCache routeBuilderCache, StopCall stopCall,
                                          Route route, Trip trip) {
 
-        boolean pickup = stopCall.getPickupType().equals(GTFSPickupDropoffType.Regular);
-        boolean dropoff = stopCall.getDropoffType().equals(GTFSPickupDropoffType.Regular);
-
-        if (!(pickup||dropoff)) {
-            logger.warn("No pickup or drop-off for " + stopCall);
+        if (!stopCall.callsAtStation()) {
+            if (route.getTransportMode()==Tram) {
+                logger.warn("No pickup or drop-off for " + stopCall);
+            }
             return;
         }
+
+        boolean pickup = stopCall.getPickupType().equals(GTFSPickupDropoffType.Regular);
+        boolean dropoff = stopCall.getDropoffType().equals(GTFSPickupDropoffType.Regular);
 
         Station station = stopCall.getStation();
 

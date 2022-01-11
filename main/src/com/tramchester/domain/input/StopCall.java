@@ -95,7 +95,7 @@ public abstract class StopCall {
     public abstract boolean hasPlatfrom();
 
     public boolean callsAtStation() {
-        return (!getDropoffType().equals(None)) || (!getPickupType().equals(None));
+        return (dropoffType!=None) || (pickupType!=None);
     }
 
     public Trip getTrip() {
@@ -133,4 +133,5 @@ public abstract class StopCall {
     public TransportMode getTransportMode() {
         return trip.getTransportMode();
     }
+
 }

@@ -45,7 +45,7 @@ public class StationLocations implements StationLocationsRepository {
     @PostConstruct
     public void start() {
         logger.info("starting");
-        bounds = new CreateBoundingBox().createBoundingBox(allStationRepository.getStationStream());
+        bounds = new CreateBoundingBox().createBoundingBox(allStationRepository.getActiveStationStream());
         createQuadrants();
         logger.info("started");
     }
@@ -106,13 +106,14 @@ public class StationLocations implements StationLocationsRepository {
     // NOTE: uses composite stations
     private List<Station> nearestStationsSorted(GridPosition gridPosition, int maxToFind, MarginInMeters rangeInMeters) {
 
+        final Stream<Station> stationStream = compositeStationRepository.getActiveStationStream();
         if (maxToFind > 1) {
             // only sort if more than one, as sorting potentially expensive
-           return FindNear.getNearToSorted(compositeStationRepository.getStationStream(), gridPosition, rangeInMeters).
+           return FindNear.getNearToSorted(stationStream, gridPosition, rangeInMeters).
                     limit(maxToFind).
                     collect(Collectors.toList());
         } else {
-            return FindNear.getNearTo(compositeStationRepository.getStationStream(), gridPosition, rangeInMeters).
+            return FindNear.getNearTo(stationStream, gridPosition, rangeInMeters).
                     limit(maxToFind).
                     collect(Collectors.toList());
         }
@@ -192,7 +193,7 @@ public class StationLocations implements StationLocationsRepository {
     }
 
     private Stream<Station> getNonComposites() {
-        return allStationRepository.getStationStream().
+        return allStationRepository.getActiveStationStream().
                 filter(station -> station.getGridPosition().isValid());
     }
 

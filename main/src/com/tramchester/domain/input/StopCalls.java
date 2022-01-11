@@ -46,8 +46,8 @@ public class StopCalls {
         }
     }
 
-    public int numberOfCallingPoints() {
-        return orderedStopCalls.size();
+    public long numberOfCallingPoints() {
+        return orderedStopCalls.values().stream().filter(StopCall::callsAtStation).count();
     }
 
     public StopCall getStopBySequenceNumber(int callingNumber) {
@@ -72,7 +72,7 @@ public class StopCalls {
 
     /**
      * Create StopLeg for each pair of stopcall (a,b,c,d,e) -> (a,b), (b,c), (c,d), (d,e)
-     * Respects the dropoff and pickup types
+     * Respects the dropoff and pickup types so so skips stopcalls that just pass a station
      */
     public List<StopLeg> getLegs() {
         if (orderedStopCalls.isEmpty()) {
@@ -144,6 +144,9 @@ public class StopCalls {
         return orderedStopCalls.get(lastKey);
     }
 
+    public long totalNumber() {
+        return orderedStopCalls.size();
+    }
 
     public static class StopLeg {
         private final StopCall first;

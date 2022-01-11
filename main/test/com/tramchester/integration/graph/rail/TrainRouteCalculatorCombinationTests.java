@@ -1,4 +1,4 @@
-package com.tramchester.integration.graph.trains;
+package com.tramchester.integration.graph.rail;
 
 import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;

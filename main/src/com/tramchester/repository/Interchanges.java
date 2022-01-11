@@ -120,7 +120,7 @@ public class Interchanges implements InterchangeRepository {
 
     private void populateInterchangesFor(TransportMode mode, int linkThreshhold) {
         logger.info("Adding stations marked as interchanges");
-        Set<Station> markedAsInterchange = stationRepository.getStationsForMode(mode).
+        Set<Station> markedAsInterchange = stationRepository.getStationsServing(mode).
                 stream().filter(Station::isMarkedInterchange).collect(Collectors.toSet());
         addStations(markedAsInterchange);
         logger.info(format("Added %s %s stations marked as as interchange", markedAsInterchange.size(), mode));
@@ -140,7 +140,7 @@ public class Interchanges implements InterchangeRepository {
     private void addCompositeStations(TransportMode mode) {
         logger.info("Adding composite stations as interchanges");
 
-        Set<CompositeStation> composites = compositeStationRepository.getCompositesFor(mode);
+        Set<CompositeStation> composites = compositeStationRepository.getCompositesServing(mode);
         if (composites.isEmpty()) {
             logger.info("No composites to add");
             return;
@@ -231,7 +231,7 @@ public class Interchanges implements InterchangeRepository {
     private void addInterchangesWhereModesMatch(Set<TransportMode> enabledModes, Set<Station> stations) {
         long countBefore = interchanges.size();
         stations.forEach(station -> enabledModes.forEach(enabledMode -> {
-            if (station.serves(enabledMode)) {
+            if (station.servesMode(enabledMode)) {
                 addStationToInterchanges(station);
                 logger.info("Added interchange " + station.getId() + " for mode " + enabledMode);
             }
@@ -243,7 +243,7 @@ public class Interchanges implements InterchangeRepository {
 
     private void addMultiModeStations() {
         // NOTE: by default the train data set contains mixed mode due to replacement buses, bus links, subways etc
-        Set<Station> multimodeStations = stationRepository.getStationStream().
+        Set<Station> multimodeStations = stationRepository.getActiveStationStream().
                 filter(station -> station.getTransportModes().size() > 1).
                 collect(Collectors.toSet());
         logger.info("Adding " + multimodeStations.size() + " multimode stations");

@@ -270,20 +270,20 @@ public class RailTimetableMapper {
             }
 
             // Calling points
-            List<Station> callingPoints = getRouteStationCallingPoints(rawService);
+            List<Station> calledAtStations = getRouteStationCallingPoints(rawService);
 
-            if (callingPoints.isEmpty() || callingPoints.size()==1) {
+            if (calledAtStations.isEmpty() || calledAtStations.size()==1) {
                 // likely due to all stations being filtered out as beyond geo bounds
-                logger.debug(format("Skip, Not enough calling points (%s) for (%s)", callingPoints.stream(), rawService));
+                logger.debug(format("Skip, Not enough calling points (%s) for (%s)", calledAtStations.stream(), rawService));
                 return false;
             }
 
             // Service
             MutableService service = railServiceGroups.getOrCreateService(basicSchedule, isOverlay);
 
-            IdFor<Route> routeId = railRouteIDBuilder.getIdFor(agencyId, callingPoints);
+            IdFor<Route> routeId = railRouteIDBuilder.getIdFor(agencyId, calledAtStations);
 
-            MutableRoute route = getOrCreateRoute(routeId, rawService, mutableAgency, mode, callingPoints);
+            MutableRoute route = getOrCreateRoute(routeId, rawService, mutableAgency, mode, calledAtStations);
             route.addService(service);
             mutableAgency.addRoute(route);
 
@@ -309,26 +309,25 @@ public class RailTimetableMapper {
 
         private boolean shouldInclude(TransportMode mode) {
             return config.getModes().contains(mode);
-//            return switch (mode) {
-//                case Train, Ship, RailReplacementBus, Subway -> true;
-//                case Tram, Walk, Ferry, Bus, Connect, NotSet, Unknown -> false;
-//            };
         }
 
         private boolean populateForLocation(RailLocationRecord railLocation, MutableRoute route, MutableTrip trip, int stopSequence,
                                             boolean lastStop, IdFor<Agency> agencyId, BasicSchedule schedule, TramTime originTime) {
-
-            if (railLocation.isPassingRecord()) {
-                return false;
-            }
 
             if (!isStation(railLocation)) {
                 missingStationDiagnosticsFor(railLocation, agencyId, schedule);
                 return false;
             }
 
-            final GTFSPickupDropoffType pickup = lastStop ? None : Regular;
-            final GTFSPickupDropoffType dropoff = stopSequence==1 ? None : Regular;
+            GTFSPickupDropoffType pickup;
+            GTFSPickupDropoffType dropoff;
+            if (railLocation.isPassingRecord()) {
+                pickup = None;
+                dropoff = None;
+            } else {
+                pickup = lastStop ? None : Regular;
+                dropoff = stopSequence==1 ? None : Regular;
+            }
 
             // Station
             MutableStation station = getStationFor(railLocation);

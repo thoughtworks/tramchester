@@ -97,7 +97,7 @@ public class StationResource extends UsesRecentCookie implements APIResource {
             Response.ResponseBuilder builder = request.evaluatePreconditions(date);
 
             if (builder==null) {
-                Set<Station> matching = stationRepository.getStationsForMode(mode);
+                Set<Station> matching = stationRepository.getStationsServing(mode);
                 List<StationRefDTO> results = toStationRefDTOList(matching);
                 if (results.isEmpty()) {
                     logger.warn("No stations found for " + mode.name());

@@ -184,11 +184,15 @@ public class LoadRailTransportDataTest {
         assertEquals(GTFSPickupDropoffType.Regular, firstStopCall.getPickupType());
 
         assertEquals(7, stops.numberOfCallingPoints());
+        assertEquals(19, stops.totalNumber());
 
-        final StopCall lastStopCall = stops.getStopBySequenceNumber(stops.numberOfCallingPoints());
+        final StopCall lastStopCall = stops.getLastStop();
         assertEquals(endStation, lastStopCall.getStation());
         assertEquals(GTFSPickupDropoffType.Regular, lastStopCall.getDropoffType());
         assertEquals(GTFSPickupDropoffType.None, lastStopCall.getPickupType());
+
+        assertEquals(19, stops.getStationSequence().size());
+        assertEquals(2, stops.getStationSequence().stream().filter(station -> !station.isActive()).count());
 
         Route route = trip.getRoute();
         assertNotNull(route);
@@ -200,7 +204,7 @@ public class LoadRailTransportDataTest {
     @Test
     void shouldHaveRouteStationConsistency() {
 
-        IdFor<Station> stationId = Wimbledon.getId(); //StringIdFor.createId("WDON");
+        IdFor<Station> stationId = Wimbledon.getId();
         Station station = transportData.getStationById(stationId);
 
         Set<Route> pickupRoutes = station.getPickupRoutes();
@@ -306,7 +310,7 @@ public class LoadRailTransportDataTest {
 
         // get unique sets of calling points
         Set<List<Station>> uniqueCallingPoints = routes.stream().
-                map(MutableRailRoute::getCallingPoiints).collect(Collectors.toSet());
+                map(MutableRailRoute::getCallingPoints).collect(Collectors.toSet());
 
         assertEquals(routes.size(), uniqueCallingPoints.size());
 

@@ -80,7 +80,7 @@ public class Neighbours implements NeighboursRepository {
 
         final Set<TransportMode> walk = Collections.singleton(TransportMode.Walk);
 
-        stationRepository.getStationStream().
+        stationRepository.getActiveStationStream().
             filter(station -> station.getGridPosition().isValid()).
             forEach(begin -> {
                 Set<TransportMode> beginModes = begin.getTransportModes();

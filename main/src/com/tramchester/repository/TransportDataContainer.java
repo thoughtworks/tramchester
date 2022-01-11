@@ -7,6 +7,7 @@ import com.tramchester.domain.id.IdMap;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.input.MutableTrip;
 import com.tramchester.domain.input.Trip;
+import com.tramchester.domain.places.Location;
 import com.tramchester.domain.places.MutableStation;
 import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
@@ -90,11 +91,11 @@ public class TransportDataContainer implements TransportData, WriteableTransport
         logger.info(format("%s feedinfos", feedInfoMap.size()));
     }
 
-    private int countStopCalls(CompositeIdMap<Trip,MutableTrip> trips) {
-        Optional<Integer> count = trips.getValues().stream().
+    private long countStopCalls(CompositeIdMap<Trip,MutableTrip> trips) {
+        Optional<Long> count = trips.getValues().stream().
                 map(trip -> trip.getStopCalls().numberOfCallingPoints()).
-                reduce(Integer::sum);
-        return count.orElse(Integer.MIN_VALUE);
+                reduce(Long::sum);
+        return count.orElse(Long.MIN_VALUE);
     }
 
     @Override
@@ -118,17 +119,22 @@ public class TransportDataContainer implements TransportData, WriteableTransport
     }
 
     @Override
-    public Stream<Station> getStationStream() {
+    public Stream<Station> getActiveStationStream() {
+        return stationsById.getValuesStream().filter(Location::isActive);
+    }
+
+    @Override
+    public Stream<Station> getAllStationStream() {
         return stationsById.getValuesStream();
     }
 
     @Override
-    public Set<Station> getStationsForMode(TransportMode mode) {
-        return getStationsForModeStream(mode).collect(Collectors.toUnmodifiableSet());
+    public Set<Station> getStationsServing(TransportMode mode) {
+        return getStationsServingModeStream(mode).collect(Collectors.toUnmodifiableSet());
     }
 
-    private Stream<Station> getStationsForModeStream(TransportMode mode) {
-        return stationsById.filterStream(item -> item.serves(mode));
+    private Stream<Station> getStationsServingModeStream(TransportMode mode) {
+        return stationsById.filterStream(item -> item.servesMode(mode));
     }
 
     @Override
@@ -246,13 +252,6 @@ public class TransportDataContainer implements TransportData, WriteableTransport
     @Override
     public MutableTrip getMutableTrip(IdFor<Trip> tripId) {
         return trips.get(tripId);
-    }
-
-    @Override
-    public void removeStations(Set<Station> toRemove) {
-        IdSet<Station> ids = toRemove.stream().collect(IdSet.collector());
-        stationsById.remove(ids);
-
     }
 
     @Override

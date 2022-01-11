@@ -163,8 +163,8 @@ public class CompositeStation implements Station {
     }
 
     @Override
-    public boolean serves(TransportMode mode) {
-        return anyMatch(station -> station.serves(mode));
+    public boolean servesMode(TransportMode mode) {
+        return anyMatch(station -> station.servesMode(mode));
     }
 
     @Override

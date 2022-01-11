@@ -29,4 +29,10 @@ public interface StationRepository extends StationRepositoryPublic {
     Set<RouteStation> getRouteStationsFor(IdFor<Station> stationId);
 
     Stream<Station> getStationsFromSource(DataSourceID dataSourceID);
+
+    /***
+     * Includes 'inactive' stations, those with no pickup or dropoff's present
+     * @return stream of stations
+     */
+    Stream<Station> getAllStationStream();
 }

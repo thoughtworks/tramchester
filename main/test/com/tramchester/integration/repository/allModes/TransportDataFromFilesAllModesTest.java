@@ -55,18 +55,18 @@ public class TransportDataFromFilesAllModesTest {
 
     @Test
     void shouldHaveExpectedNumberOfTramStations() {
-        assertEquals(NUM_TFGM_TRAM_STATIONS, transportData.getStationsForMode(Tram).size());
+        assertEquals(NUM_TFGM_TRAM_STATIONS, transportData.getStationsServing(Tram).size());
     }
 
     @Test
     void shouldHaveExpectedNumberOfTrainStations() {
         // number of stations within tfgm bounds
-        assertEquals(266, transportData.getStationsForMode(Train).size());
+        assertEquals(266, transportData.getStationsServing(Train).size());
     }
 
     @Test
     void shouldHaveExpectedNumberOfBusStations() {
-        final long tfgmBuses = transportData.getStationsFromSource(DataSourceID.tfgm).filter(station -> station.serves(Bus)).count();
+        final long tfgmBuses = transportData.getStationsFromSource(DataSourceID.tfgm).filter(station -> station.servesMode(Bus)).count();
         assertEquals(NUM_TFGM_BUS_STATIONS, tfgmBuses);
     }
 

@@ -110,7 +110,7 @@ public class RouteCalculationCombinations {
     private IdSet<Station> getInterchangesFor(TransportMode mode) {
         return interchangeRepository.getAllInterchanges().stream().
                 map(InterchangeStation::getStationId).
-                filter(stationId -> stationRepository.getStationById(stationId).serves(mode)).
+                filter(stationId -> stationRepository.getStationById(stationId).servesMode(mode)).
                 collect(IdSet.idCollector());
     }
 

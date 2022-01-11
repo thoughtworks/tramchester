@@ -89,7 +89,7 @@ public class AddNeighboursGraphBuilder extends CreateNodesAndRelationships {
     private void createNeighboursInDB() {
         try(TimedTransaction timedTransaction = new TimedTransaction(database, logger, "create neighbours")) {
             Transaction txn = timedTransaction.transaction();
-                stationRepository.getStationStream().
+                stationRepository.getActiveStationStream().
                     filter(filter::shouldInclude).
                     filter(station -> neighboursRepository.hasNeighbours(station.getId())).
                     forEach(station -> {

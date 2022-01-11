@@ -74,7 +74,7 @@ class NeighboursGraphBuilderTest {
 
     @Test
     void shouldHaveNodesForAllStations() {
-        final Set<Station> stations = stationRepository.getStationsForMode(Tram);
+        final Set<Station> stations = stationRepository.getStationsServing(Tram);
         long tram = stations.size();
         assertEquals(NUM_TFGM_TRAM_STATIONS, tram);
 

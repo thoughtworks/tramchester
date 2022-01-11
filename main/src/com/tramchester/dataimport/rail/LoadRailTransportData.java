@@ -90,19 +90,17 @@ public class LoadRailTransportData implements DirectDataSourceFactory.PopulatesC
         logger.info("Remove stations no transport mode");
         // use association with the timetable data to populate station transport modes, so need to remove invalid ones
         // afterwards
-        Set<Station> missingTransportModes = dataContainer.getStationStream().filter(station -> station.getTransportModes().isEmpty()).
+        Set<Station> missingTransportModes = dataContainer.getActiveStationStream().filter(station -> station.getTransportModes().isEmpty()).
                 collect(Collectors.toSet());
         if (!missingTransportModes.isEmpty()) {
-            logger.info("Removing " + missingTransportModes.size() +" stations");
-            dataContainer.removeStations(missingTransportModes);
+            logger.warn("Stations without transport mode " + missingTransportModes.size() +" stations");
         }
 
         // this case ought not to happen as filter by mode within timetable load
-        Set<Station> wrongTransportModes = dataContainer.getStationStream().filter(station -> station.getTransportModes().isEmpty()).
+        Set<Station> wrongTransportModes = dataContainer.getActiveStationStream().filter(station -> station.getTransportModes().isEmpty()).
                 collect(Collectors.toSet());
         if (!wrongTransportModes.isEmpty()) {
             logger.error("Unexpected " + wrongTransportModes.size() + " stations with incorrect modes");
-            dataContainer.removeStations(wrongTransportModes);
         }
 
     }

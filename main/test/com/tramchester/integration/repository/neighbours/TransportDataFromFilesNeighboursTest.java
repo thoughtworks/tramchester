@@ -85,7 +85,7 @@ public class TransportDataFromFilesNeighboursTest {
     @Test
     void shouldHaveExpectedStationNumberAndPlatformsForBus() {
 
-        final Set<Station> busStations = stationRepository.getStationsForMode(Bus);
+        final Set<Station> busStations = stationRepository.getStationsServing(Bus);
         int numStations = busStations.size();
         assertTrue(numStations > 15400, "big change");
         assertTrue(numStations < 16400, "big change");
@@ -94,7 +94,7 @@ public class TransportDataFromFilesNeighboursTest {
         assertFalse(busStations.stream().anyMatch(Station::hasPlatforms));
 
         // no bus stations are also tram for tfgm
-        assertFalse(busStations.stream().anyMatch(station -> station.serves(Tram)));
+        assertFalse(busStations.stream().anyMatch(station -> station.servesMode(Tram)));
     }
 
     @Test
@@ -111,8 +111,8 @@ public class TransportDataFromFilesNeighboursTest {
 
     @Test
     void shouldNotHaveBoth() {
-        long both = stationRepository.getStationStream().
-                filter(station -> (station.serves(Tram) && station.serves(Bus))).count();
+        long both = stationRepository.getActiveStationStream().
+                filter(station -> (station.servesMode(Tram) && station.servesMode(Bus))).count();
         assertEquals(0, both);
     }
 
@@ -123,7 +123,7 @@ public class TransportDataFromFilesNeighboursTest {
         long tramRoutes = getTramRoutes(routeRepository).count();
         assertEquals(NUM_TFGM_TRAM_ROUTES, tramRoutes);
 
-        final Set<Station> stationsForMode = stationRepository.getStationsForMode(Tram);
+        final Set<Station> stationsForMode = stationRepository.getStationsServing(Tram);
         long tram = stationsForMode.size();
         assertEquals(NUM_TFGM_TRAM_STATIONS, tram);
     }
@@ -132,7 +132,7 @@ public class TransportDataFromFilesNeighboursTest {
     void shouldHaveCorrectStationsForTramRoutes() {
         Set<Route> tramRoutes = getTramRoutes(routeRepository).collect(Collectors.toSet());
 
-        Set<Station> stationsOnTramRoutes = stationRepository.getStationsForMode(Tram).stream().
+        Set<Station> stationsOnTramRoutes = stationRepository.getStationsServing(Tram).stream().
                 filter(station -> station.getPickupRoutes().stream().anyMatch(tramRoutes::contains) ||
                         station.getDropoffRoutes().stream().anyMatch(tramRoutes::contains)).
                 collect(Collectors.toSet());

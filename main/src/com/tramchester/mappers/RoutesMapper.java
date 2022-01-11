@@ -2,7 +2,6 @@ package com.tramchester.mappers;
 
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.domain.Route;
-import com.tramchester.domain.input.StopCall;
 import com.tramchester.domain.input.StopCalls;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.Station;
@@ -17,7 +16,6 @@ import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.inject.Inject;
 import java.util.*;
-import java.util.stream.Collectors;
 
 @LazySingleton
 public class RoutesMapper {
@@ -69,11 +67,12 @@ public class RoutesMapper {
         return stationDTOs;
     }
 
-    // use for visualisation in the front-end routes map, this is approx. since some gtfs routes acutally
+    // use for visualisation in the front-end routes map, this is approx. since some gtfs routes actually
     // branch TODO Use query of the graph DB to get the "real" representation
     private List<Station> getStationOn(Route route) {
         Set<Trip> tripsForRoute = route.getTrips();
-        Optional<Trip> maybeLongest = tripsForRoute.stream().max(Comparator.comparingInt(a -> a.getStopCalls().numberOfCallingPoints()));
+        Optional<Trip> maybeLongest = tripsForRoute.stream().
+                max(Comparator.comparingLong(a -> a.getStopCalls().totalNumber()));
 
         if (maybeLongest.isEmpty()) {
             logger.error("Found no longest trip for route " + route.getId());
@@ -82,7 +81,8 @@ public class RoutesMapper {
 
         Trip longestTrip = maybeLongest.get();
         StopCalls stops = longestTrip.getStopCalls();
-        return stops.stream().map(StopCall::getStation).collect(Collectors.toList());
+        return stops.getStationSequence();
+        //return stops.stream().map(StopCall::getStation).collect(Collectors.toList());
     }
 
 }

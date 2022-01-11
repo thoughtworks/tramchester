@@ -10,8 +10,8 @@ import java.util.stream.Stream;
 
 @ImplementedBy(TransportData.class)
 public interface StationRepositoryPublic {
-    Set<Station> getStationsForMode(TransportMode mode);
+    Set<Station> getStationsServing(TransportMode mode);
     Station getStationById(IdFor<Station> stationId);
     boolean hasStationId(IdFor<Station> stationId);
-    Stream<Station> getStationStream();
+    Stream<Station> getActiveStationStream();
 }

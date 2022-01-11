@@ -31,7 +31,7 @@ public class MutableRailRoute extends MutableRoute {
         return callingPoints.get(callingPoints.size()-1);
     }
 
-    public List<Station> getCallingPoiints() {
+    public List<Station> getCallingPoints() {
         return callingPoints;
     }
 

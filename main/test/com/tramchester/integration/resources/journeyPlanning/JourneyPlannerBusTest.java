@@ -68,7 +68,7 @@ class JourneyPlannerBusTest {
 
         List<StationRefDTO> results = result.readEntity(new GenericType<>() {});
 
-        Set<String> stationsIds = compositeStationRepository.getStationsForMode(TransportMode.Bus).stream().
+        Set<String> stationsIds = compositeStationRepository.getStationsServing(TransportMode.Bus).stream().
                 map(station -> station.getId().forDTO()).collect(Collectors.toSet());
 
         assertEquals(stationsIds.size(), results.size());

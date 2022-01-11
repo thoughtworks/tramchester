@@ -27,6 +27,7 @@ public class MutableStation implements Station {
     private final Set<Platform> platforms;
     private final Set<Route> servesRoutesPickup;
     private final Set<Route> servesRoutesDropoff;
+    private final Set<Route> passedByRoute;
     private final Set<Agency> servesAgencies;
     private final DataSourceID dataSourceID;
     private final boolean isMarkedInterchange;
@@ -47,6 +48,7 @@ public class MutableStation implements Station {
         servesRoutesPickup = new HashSet<>();
         servesRoutesDropoff = new HashSet<>();
         servesAgencies = new HashSet<>();
+        passedByRoute = new HashSet<>();
 
         this.id = id;
         this.name = stationName;
@@ -88,6 +90,12 @@ public class MutableStation implements Station {
     public Set<TransportMode> getTransportModes() {
         return Stream.concat(servesRoutesDropoff.stream(), servesRoutesPickup.stream()).
                 map(Route::getTransportMode).collect(Collectors.toUnmodifiableSet());
+    }
+
+    @Override
+    public boolean servesMode(TransportMode mode) {
+        return Stream.concat(servesRoutesDropoff.stream(), servesRoutesPickup.stream()).
+                anyMatch(route -> route.getTransportMode().equals(mode));
     }
 
     @Override
@@ -169,11 +177,7 @@ public class MutableStation implements Station {
         return getId().forDTO();
     }
 
-    @Override
-    public boolean serves(TransportMode mode) {
-        return Stream.concat(servesRoutesDropoff.stream(), servesRoutesPickup.stream()).
-                anyMatch(route -> route.getTransportMode().equals(mode));
-    }
+
 
     @Override
     public boolean isMarkedInterchange() {
@@ -214,13 +218,6 @@ public class MutableStation implements Station {
 
     public void addPlatform(Platform platform) {
         platforms.add(platform);
-    }
-
-    @Deprecated
-    public void addRoute(Route route) {
-        servesRoutesDropoff.add(route);
-        servesRoutesPickup.add(route);
-        servesAgencies.add(route.getAgency());
     }
 
     public void addRouteDropOff(Route dropoffFromRoute) {

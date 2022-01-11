@@ -53,9 +53,20 @@ public class StopCallRepository implements ReportsCacheStats {
     public void start() {
         logger.info("starting");
 
-        stationRepository.getStationStream().forEach(station -> stopCalls.put(station, new HashSet<>()));
+        stationRepository.getAllStationStream().forEach(station -> stopCalls.put(station, new HashSet<>()));
 
         Set<Trip> allTrips = tripRepository.getTrips();
+
+        Set<StopCall> missingStations = allTrips.stream().flatMap(trip -> trip.getStopCalls().stream()).
+                filter(stopCall -> !stationRepository.hasStationId(stopCall.getStationId())).
+                collect(Collectors.toSet());
+
+        if (!missingStations.isEmpty()) {
+            final String message = "Missing stations found in stopscall " + missingStations.size();
+            logger.error(message);
+            throw new RuntimeException(message);
+        }
+
         allTrips.stream().
                 flatMap(trip -> trip.getStopCalls().stream()).
                 forEach(stopCall -> stopCalls.get(stopCall.getStation()).add(stopCall));

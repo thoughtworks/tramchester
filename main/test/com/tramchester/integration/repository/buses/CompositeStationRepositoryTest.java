@@ -55,7 +55,7 @@ class CompositeStationRepositoryTest {
         Set<String> uniqueNames = new HashSet<>();
         Set<Station> dups = new HashSet<>();
 
-        repository.getStationsForMode(Bus).forEach(station -> {
+        repository.getStationsServing(Bus).forEach(station -> {
             String name = station.getName() + " " + station.getArea();
             if (uniqueNames.contains(name)) {
                 dups.add(station);
@@ -74,7 +74,7 @@ class CompositeStationRepositoryTest {
 
     @Test
     void shouldHaveCorrectNumberOfComposites() {
-        assertFalse(repository.getStationsForMode(Bus).isEmpty());
+        assertFalse(repository.getStationsServing(Bus).isEmpty());
 
         long duplicateNamesFromFullRepository = fullRepository.getStations().stream().map(Station::getName).
                 collect(Collectors.groupingBy(Function.identity(), Collectors.counting())).
@@ -83,14 +83,14 @@ class CompositeStationRepositoryTest {
 
         // at least this many, will be more due to additional area grouping
         assertTrue(repository.getNumberOfComposites() >= duplicateNamesFromFullRepository);
-        assertTrue(repository.getCompositesFor(Bus).size() >= duplicateNamesFromFullRepository);
+        assertTrue(repository.getCompositesServing(Bus).size() >= duplicateNamesFromFullRepository);
     }
 
     @Test
     void shouldHaveUniqueIds() {
         IdSet<Station> uniqueIds = new IdSet<>();
 
-        repository.getStationsForMode(Bus).forEach(station -> {
+        repository.getStationsServing(Bus).forEach(station -> {
             IdFor<Station> id = station.getId();
             assertFalse(uniqueIds.contains(id), "Not unique " + id);
             uniqueIds.add(id);
@@ -99,7 +99,7 @@ class CompositeStationRepositoryTest {
 
     @Test
     void shouldHaveAndFindCorrectlyForComposites() {
-        Set<CompositeStation> compositesFor = repository.getCompositesFor(Bus);
+        Set<CompositeStation> compositesFor = repository.getCompositesServing(Bus);
         assertFalse(compositesFor.isEmpty());
 
         compositesFor.forEach(station -> {
@@ -115,7 +115,7 @@ class CompositeStationRepositoryTest {
 
     @Test
     void shouldFindCorrectlyForNonComposites() {
-        IdSet<Station> compIds = repository.getCompositesFor(Bus).stream().map(Station::getId).collect(IdSet.idCollector());
+        IdSet<Station> compIds = repository.getCompositesServing(Bus).stream().map(Station::getId).collect(IdSet.idCollector());
         assertFalse(compIds.isEmpty());
 
         fullRepository.getStations().stream().filter(station -> !compIds.contains(station.getId())).forEach(station -> {
@@ -130,7 +130,7 @@ class CompositeStationRepositoryTest {
 
     @Test
     void shouldResolveContainedIdsToRealStationIds() {
-        repository.getCompositesFor(Bus).forEach(station -> {
+        repository.getCompositesServing(Bus).forEach(station -> {
             IdFor<Station> id = station.getId();
             IdSet<Station> ids = repository.resolve(id);
             ids.forEach(containedId -> assertTrue(fullRepository.hasStationId(containedId), station +

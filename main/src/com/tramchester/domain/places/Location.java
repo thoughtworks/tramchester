@@ -31,4 +31,8 @@ public interface Location<TYPE extends Location<?>> extends HasId<TYPE>, IdForDT
     boolean hasPickup();
 
     boolean hasDropoff();
+
+    default boolean isActive() {
+        return hasPickup() || hasDropoff();
+    }
 }

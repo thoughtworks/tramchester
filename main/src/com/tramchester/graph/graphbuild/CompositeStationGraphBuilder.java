@@ -81,7 +81,7 @@ public class CompositeStationGraphBuilder extends CreateNodesAndRelationships {
     }
 
     private void addCompositeNodesAndLinks(TransportMode mode) {
-        Set<CompositeStation> allComposite = stationRepository.getCompositesFor(mode);
+        Set<CompositeStation> allComposite = stationRepository.getCompositesServing(mode);
 
         if (allComposite.isEmpty()) {
             logger.info("No composite stations to add for " + mode);

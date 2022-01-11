@@ -42,18 +42,18 @@ class CompositeStationRepositoryTest {
     @Test
     void shouldHaveNoneForTramStationsAsNoDuplicatedNames() {
         assertEquals(0, repository.getNumberOfComposites());
-        assertTrue(repository.getCompositesFor(Tram).isEmpty());
+        assertTrue(repository.getCompositesServing(Tram).isEmpty());
     }
 
     @Test
     void shouldHaveSameResultsAsFullRepository() {
-        fullRepository.getStationsForMode(Tram).forEach(original -> {
+        fullRepository.getStationsServing(Tram).forEach(original -> {
             assertTrue(repository.hasStationId(original.getId()));
             Station found = repository.getStationById(original.getId());
             assertNotNull(found);
             assertEquals(original, found);
         });
 
-        assertEquals(fullRepository.getStationsForMode(Tram), repository.getStationsForMode(Tram));
+        assertEquals(fullRepository.getStationsServing(Tram), repository.getStationsServing(Tram));
     }
 }
