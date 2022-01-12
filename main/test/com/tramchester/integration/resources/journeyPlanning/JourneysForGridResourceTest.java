@@ -79,12 +79,12 @@ class JourneysForGridResourceTest {
         List<BoxWithCostDTO> notDest = results.stream().filter(result -> result.getMinutes() > 0).collect(Collectors.toList());
 
         // 40->37 summer 2021
-        assertEquals(40, notDest.size());
+        assertEquals(42, notDest.size());
         assertFalse(results.isEmpty());
         notDest.forEach(boundingBoxWithCost -> assertTrue(boundingBoxWithCost.getMinutes()<=maxDuration));
 
         List<BoxWithCostDTO> noResult = results.stream().filter(result -> result.getMinutes() < 0).collect(Collectors.toList());
-        assertEquals(4, noResult.size());
+        assertEquals(2, noResult.size());
     }
 
 

@@ -292,9 +292,8 @@ class LocationJourneyPlannerTest {
 
         Journey earliestJourney = sorted.get(0);
         final TramTime actualDepartTime = earliestJourney.getDepartTime();
+        assertTrue(actualDepartTime.isAfter(queryTime), actualDepartTime.toString());
         assertTrue(actualDepartTime.isAfter(earliestDepart) || actualDepartTime.equals(earliestDepart));
-        assertTrue(actualDepartTime.isAfterOrSame(TramTime.of(10,25)), actualDepartTime.toString());
-        //assertEquals(earliestDepart, earliestJourney.getDepartTime());
     }
 
     @Test

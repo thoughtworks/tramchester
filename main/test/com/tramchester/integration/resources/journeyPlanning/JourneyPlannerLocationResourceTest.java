@@ -26,10 +26,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.tramchester.testSupport.reference.TramStations.Deansgate;
@@ -74,13 +71,14 @@ class JourneyPlannerLocationResourceTest {
         //List<TramTime> possibleTimes = Arrays.asList(TramTime.of(20, 19), TramTime.of(20, 12));
 
         // todo new lockdown timetable
-        List<LocalDateTime> possibleTimes = Collections.singletonList(LocalDateTime.of(when, LocalTime.of(19, 19)));
+        List<LocalDateTime> possibleTimes = Arrays.asList(
+                LocalDateTime.of(when, LocalTime.of(19, 19)), LocalDateTime.of(when, LocalTime.of(19, 8)));
 
-        assertTrue(possibleTimes.contains(departureTime), "Expected time "+departureTime.toString());
+        assertTrue(possibleTimes.contains(departureTime), departureTime + " not one of "+possibleTimes);
 
         // assertEquals(firstJourney.toString(), TramTime.of(20,48), firstJourney.getExpectedArrivalTime());
         // todo new lockdown timetable
-        assertEquals(LocalDateTime.of(when, LocalTime.of(19,48)), firstJourney.getExpectedArrivalTime(), firstJourney.toString());
+        assertEquals(LocalDateTime.of(when, LocalTime.of(19,36)), firstJourney.getExpectedArrivalTime(), firstJourney.toString());
     }
 
     private JourneyDTO getEarliestArrivingJourney(Set<JourneyDTO> journeys) {

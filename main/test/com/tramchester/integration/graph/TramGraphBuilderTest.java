@@ -125,7 +125,7 @@ class TramGraphBuilderTest {
             Iterable<Relationship> boards = node.getRelationships(Direction.OUTGOING, INTERCHANGE_BOARD);
             boards.forEach(board -> {
                 int boardCost = GraphProps.getCost(board);
-                assertEquals(expectedCost, boardCost, "board cost wrong for " + platform);
+                assertEquals(0, boardCost, "board cost wrong for " + platform);
             });
 
             Iterable<Relationship> departs = node.getRelationships(Direction.OUTGOING, INTERCHANGE_DEPART);
