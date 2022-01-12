@@ -157,7 +157,7 @@ public class AppUserJourneyLocationsTest extends UserJourneyTest {
 
         final TramTime firstStageDepartTime = firstStage.getDepartTime();
         assertTrue(firstStageDepartTime.isValid());
-        assertEquals(TramTime.of(10,19), firstStageDepartTime, "departtime");
+        assertEquals(TramTime.of(10,20), firstStageDepartTime, "departtime");
         assertEquals("Walk to", firstStage.getAction(), "action");
         assertEquals(TramStations.Altrincham.getName(), firstStage.getActionStation(), "actionStation");
         assertEquals(-1, firstStage.getPlatform(), "platform");
