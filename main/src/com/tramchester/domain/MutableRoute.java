@@ -116,7 +116,7 @@ public class MutableRoute implements Route {
                 "id=" + id +
                 ", shortName='" + shortName + '\'' +
                 ", name='" + name + '\'' +
-                ", agency=" + agency +
+                ", agency=" + agency.getId() +
                 ", transportMode=" + transportMode +
                 ", services=" + HasId.asIds(services) +
                 ", trips=" +  HasId.asIds(trips) +

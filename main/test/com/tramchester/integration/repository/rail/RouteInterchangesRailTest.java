@@ -4,6 +4,7 @@ import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.domain.InterchangeStation;
 import com.tramchester.domain.Route;
+import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
@@ -18,13 +19,14 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.DisabledIfEnvironmentVariable;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 import static com.tramchester.integration.testSupport.rail.RailStationIds.*;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static java.lang.String.format;
+import static org.junit.jupiter.api.Assertions.*;
 
 @TrainTest
 @DisabledIfEnvironmentVariable(named = "CI", matches = "true")
@@ -53,16 +55,31 @@ public class RouteInterchangesRailTest {
     @Test
     void shouldGetInterchangesForARouteAllInterchanges() {
 
-        Station piccadilly = stationRepository.getStationById(ManchesterPiccadilly.getId());
+        Station piccadilly = ManchesterPiccadilly.getFrom(stationRepository);
+        Station euston = LondonEuston.getFrom(stationRepository);
 
-        // TODO new short names
-        List<Route> londonRoutes = piccadilly.getPickupRoutes().stream().
-                filter(route -> route.getShortName().equals("VT:MNCRPIC=>EUSTON via STKP, MACLSFD, STOKEOT, MKNSCEN")).
+        String routeShortName = format("%s service from %s to %s", "VT", piccadilly.getName(), euston.getName());
+
+        String longName = "VT service from Manchester Piccadilly Rail Station to London Euston Rail Station via Stockport " +
+                "Rail Station, Macclesfield Rail Station, Stoke-on-Trent Rail Station, Milton Keynes Central Rail Station";
+
+        List<Station> callingPoints = Arrays.asList(piccadilly,
+                Stockport.getFrom(stationRepository),
+                Macclesfield.getFrom(stationRepository),
+                StokeOnTrent.getFrom(stationRepository),
+                MiltonKeynesCentral.getFrom(stationRepository),
+                euston);
+
+        final List<Route> towardsLondon = piccadilly.getPickupRoutes().stream().
+                filter(route -> route.getShortName().equals(routeShortName)).collect(Collectors.toList());
+        List<Route> routes = towardsLondon.stream().
+                //filter(route -> route.getTrips().stream().allMatch(trip -> trip.getStopCalls().getStationSequence().equals(callingPoints))).
+                        filter(route -> longName.equals(route.getName())).
                 collect(Collectors.toList());
 
-        assertEquals(1, londonRoutes.size());
+        assertEquals(1, routes.size(), towardsLondon.toString());
 
-        Route londonToManchester = londonRoutes.get(0);
+        Route londonToManchester = routes.get(0);
 
         Set<InterchangeStation> interchanges = routeInterchanges.getFor(londonToManchester);
 
@@ -76,10 +93,10 @@ public class RouteInterchangesRailTest {
         assertTrue(stationIds.contains(MiltonKeynesCentral.getId()));
         assertTrue(stationIds.contains(LondonEuston.getId()));
 
-        RouteStation miltonKeynes = stationRepository.getRouteStationById(RouteStation.createId(MiltonKeynesCentral.getId(),
+        RouteStation miltonKeynesRouteStation = stationRepository.getRouteStationById(RouteStation.createId(MiltonKeynesCentral.getId(),
                 londonToManchester.getId()));
 
-        int costToNextInterchange = routeInterchanges.costToInterchange(miltonKeynes);
+        int costToNextInterchange = routeInterchanges.costToInterchange(miltonKeynesRouteStation);
         assertEquals(0, costToNextInterchange);
     }
 
@@ -87,22 +104,28 @@ public class RouteInterchangesRailTest {
     void shouldGetInterchangeForRouteWhereNotAllInterchanges() {
         Station piccadilly = stationRepository.getStationById(ManchesterPiccadilly.getId());
 
-        // TODO new short names
+        Station chester = Chester.getFrom(stationRepository);
+        Station hale = Hale.getFrom(stationRepository);
+        Station delamere = Delamere.getFrom(stationRepository);
+
+        String routeShortName = format("%s service from %s to %s", "NT", piccadilly.getName(), chester.getName());
 
         List<Route> manchesterToChesterRoutes = piccadilly.getPickupRoutes().stream().
-                filter(route -> route.getShortName().startsWith("NT:MNCRPIC=>CHST via STKP")).
-                filter(route -> route.getShortName().contains(Delamere.getId().forDTO()) && route.getShortName().contains("HALE")).
+                filter(route -> route.getShortName().equals(routeShortName)).
+                filter(route -> route.getName().contains(delamere.getName()) && route.getName().contains(hale.getName())).
                 collect(Collectors.toList());
 
-        assertEquals(1, manchesterToChesterRoutes.size(), manchesterToChesterRoutes.toString());
+        assertFalse(manchesterToChesterRoutes.isEmpty());
 
-        Route manchesterToChester = manchesterToChesterRoutes.get(0);
+        IdFor<Route> manchesterToChester = manchesterToChesterRoutes.get(0).getId();
 
-        RouteStation stockport = stationRepository.getRouteStationById(RouteStation.createId(Stockport.getId(), manchesterToChester.getId()));
-        assertEquals(0, routeInterchanges.costToInterchange(stockport));
+        RouteStation stockportRouteStation = stationRepository.getRouteStationById(RouteStation.createId(Stockport.getId(),
+                manchesterToChester));
+        assertEquals(0, routeInterchanges.costToInterchange(stockportRouteStation));
 
-        RouteStation delamere = stationRepository.getRouteStationById(RouteStation.createId(Delamere.getId(), manchesterToChester.getId()));
-        assertEquals(19, routeInterchanges.costToInterchange(delamere));
+        RouteStation delamereRouteStation = stationRepository.getRouteStationById(RouteStation.createId(delamere.getId(),
+                manchesterToChester));
+        assertEquals(19, routeInterchanges.costToInterchange(delamereRouteStation));
 
     }
 }

@@ -322,33 +322,27 @@ public class RailTimetableMapper {
                 return false;
             }
 
-            final boolean doesNotCallAtStation = railLocation.isPassingRecord();
+            MutableStation station = findStationFor(railLocation);
+
+            if (railLocation.isPassingRecord()) {
+                station.addPassingRoute(route);
+                return false;
+            }
 
             GTFSPickupDropoffType pickup;
             GTFSPickupDropoffType dropoff;
-            if (doesNotCallAtStation) {
-                pickup = None;
-                dropoff = None;
-            } else {
-                pickup = lastStop ? None : Regular;
-                dropoff = stopSequence==1 ? None : Regular;
-            }
 
-            // Station
-            MutableStation station = findStationFor(railLocation);
-            if (doesNotCallAtStation) {
-                station.addPassingRoute(route);
-            } else {
-                if (pickup != None) {
-                    station.addRoutePickUp(route);
-                }
-                if (dropoff != None) {
-                    station.addRouteDropOff(route);
-                }
+            pickup = lastStop ? None : Regular;
+            dropoff = stopSequence==1 ? None : Regular;
+
+            if (pickup != None) {
+                station.addRoutePickUp(route);
+            }
+            if (dropoff != None) {
+                station.addRouteDropOff(route);
             }
 
             // Route Station
-            // TODO Skip creation? Graph Builder will not include route stations with no dropoff or pickup
             RouteStation routeStation = new RouteStation(station, route);
             container.addRouteStation(routeStation);
 

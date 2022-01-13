@@ -7,7 +7,7 @@ import com.tramchester.repository.StationRepository;
 import static com.tramchester.domain.id.StringIdFor.createId;
 
 public enum RailStationIds {
-    Stockport (createId("STKP")),
+    Stockport(createId("STKP")),
     ManchesterPiccadilly(createId("MNCRPIC")),
     ManchesterVictoria(createId("MNCRVIC")),
     ManchesterDeansgate(createId("MNCRDGT")),
@@ -28,7 +28,8 @@ public enum RailStationIds {
     Mobberley(createId("MOBERLY")),
     StokeOnTrent(createId("STOKEOT")),
     Delamere(createId("DELAMER")),
-    Wilmslow(createId(("WLMSL")));
+    Wilmslow(createId("WLMSL")),
+    Chester(createId("CHST"));
 
     private final IdFor<Station> id;
 

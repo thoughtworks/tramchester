@@ -54,9 +54,9 @@ public class StopCalls {
         return orderedStopCalls.get(callingNumber);
     }
 
-    public boolean callsAt(HasId<Station> location) {
+    public boolean callsAt(HasId<Station> stationId) {
         return orderedStopCalls.values().stream().anyMatch(stopCall ->
-                stopCall.getStationId().equals(location.getId()));
+                stopCall.getStationId().equals(stationId.getId()));
     }
 
     public Stream<StopCall> stream() {
