@@ -25,6 +25,7 @@ import org.junit.jupiter.api.condition.DisabledIfEnvironmentVariable;
 import org.neo4j.graphdb.*;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -75,9 +76,11 @@ class GraphBuilderRailTest {
     @Test
     void shouldHaveOneNodePerRouteStation() {
         // getRouteStationNode will throw if multiple nodes are found
-        transportData.getRouteStations().forEach(routeStation -> {
-            Node found = graphQuery.getRouteStationNode(txn, routeStation);
-            assertNotNull(found, routeStation.getId().forDTO());
+        transportData.getRouteStations().stream().
+                filter(RouteStation::isActive).
+                forEach(routeStation -> {
+                    Node found = graphQuery.getRouteStationNode(txn, routeStation);
+                    assertNotNull(found, routeStation.toString());
         });
     }
 
@@ -103,6 +106,8 @@ class GraphBuilderRailTest {
         int cost = piccadilly.getMinimumChangeCost();
         Set<Platform> platforms = piccadilly.getPlatforms();
 
+        assertFalse(platforms.isEmpty());
+
         platforms.forEach(platform -> {
             Node node = graphQuery.getPlatformNode(txn, platform);
             Relationship leave = node.getSingleRelationship(TransportRelationshipTypes.LEAVE_PLATFORM, Direction.OUTGOING);
@@ -116,20 +121,27 @@ class GraphBuilderRailTest {
 
         platforms.forEach(platform -> {
             Node node = graphQuery.getPlatformNode(txn, platform);
-            Relationship board = node.getSingleRelationship(BOARD, Direction.OUTGOING);
-            int boardCost = GraphProps.getCost(board);
-            assertEquals(0, boardCost, "board cost wrong for " + platform);
+            if (node.hasRelationship(Direction.OUTGOING, BOARD)) {
+                Relationship board = node.getSingleRelationship(BOARD, Direction.OUTGOING);
+                int boardCost = GraphProps.getCost(board);
+                assertEquals(0, boardCost, "board cost wrong for " + platform);
+            }
 
-            Relationship depart = node.getSingleRelationship(DEPART, Direction.INCOMING);
-            int enterCost = GraphProps.getCost(depart);
-            assertEquals(0, enterCost, "depart wrong cost for " + platform.getId());
+            if (node.hasRelationship(Direction.INCOMING, DEPART)) {
+                Relationship depart = node.getSingleRelationship(DEPART, Direction.INCOMING);
+                int enterCost = GraphProps.getCost(depart);
+                assertEquals(0, enterCost, "depart wrong cost for " + platform.getId());
+            }
         });
     }
 
     @Test
     void shouldHaveCorrectRouteRelationshipsCreweToMKC() {
         Station miltonKeynes = MiltonKeynesCentral.getFrom(transportData);
-        Set<Long> mkNodeIds = getRouteStationNodes(miltonKeynes).stream().map(Entity::getId).collect(Collectors.toSet());;
+        final Set<Node> routeStationNodes = getRouteStationNodes(miltonKeynes);
+        assertFalse(routeStationNodes.isEmpty());
+
+        Set<Long> mkNodeIds = routeStationNodes.stream().map(Entity::getId).collect(Collectors.toSet());;
 
         Station crewe = Crewe.getFrom(transportData);
         Set<Node> creweRouteStationsNodes = getRouteStationNodes(crewe);
@@ -152,6 +164,7 @@ class GraphBuilderRailTest {
         Set<RouteStation> routeStations = transportData.getRouteStationsFor(station.getId());
         return routeStations.stream().
                 map(routeStation -> graphQuery.getRouteStationNode(txn, routeStation)).
+                filter(Objects::nonNull).
                 collect(Collectors.toSet());
     }
 

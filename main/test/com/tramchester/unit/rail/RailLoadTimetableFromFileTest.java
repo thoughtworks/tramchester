@@ -1,7 +1,7 @@
 package com.tramchester.unit.rail;
 
 import com.tramchester.dataimport.rail.RailDataRecordFactory;
-import com.tramchester.dataimport.rail.RailTimetableDataFromFile;
+import com.tramchester.dataimport.rail.LoadRailTimetableRecords;
 import com.tramchester.dataimport.rail.records.*;
 import org.easymock.EasyMock;
 import org.easymock.EasyMockSupport;
@@ -19,13 +19,13 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class RailLoadTimetableFromFileTest extends EasyMockSupport {
 
-    private RailTimetableDataFromFile railTimetableDataFromFile;
+    private LoadRailTimetableRecords loadRailTimetableRecords;
     private RailDataRecordFactory factory;
 
     @BeforeEach
     void beforeEachTestRuns() {
         factory = createMock(RailDataRecordFactory.class);
-        railTimetableDataFromFile = new RailTimetableDataFromFile(Path.of("somePath"), factory);
+        loadRailTimetableRecords = new LoadRailTimetableRecords(Path.of("somePath"), factory);
     }
 
     @Test
@@ -46,7 +46,7 @@ public class RailLoadTimetableFromFileTest extends EasyMockSupport {
         EasyMock.expect(factory.createTerminating(lineE)).andReturn(createMock(TerminatingLocation.class));
 
         replayAll();
-        Stream<RailTimetableRecord> stream = railTimetableDataFromFile.load(reader);
+        Stream<RailTimetableRecord> stream = loadRailTimetableRecords.load(reader);
         List<RailTimetableRecord> results = stream.collect(Collectors.toList());
         verifyAll();
 

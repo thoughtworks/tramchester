@@ -59,14 +59,15 @@ public class RailTimetableMapper {
     private final Set<Pair<TrainStatus, TrainCategory>> travelCombinations;
     private final Set<RawService> skipped;
 
-    public RailTimetableMapper(WriteableTransportData container, RailConfig config) {
+    public RailTimetableMapper(RailTransportDataFromFiles.StationsTemporary stations, WriteableTransportData container,
+                               RailConfig config) {
         currentState = State.Between;
         overlay = false;
         tiplocInsertRecords = new HashMap<>();
         missingStations = new MissingStations();
         travelCombinations = new HashSet<>();
         skipped = new HashSet<>();
-        processor = new CreatesTransportDataForRail(container, missingStations, travelCombinations, config);
+        processor = new CreatesTransportDataForRail(stations, container, missingStations, travelCombinations, config);
     }
 
     public void seen(RailTimetableRecord record) {
@@ -193,6 +194,7 @@ public class RailTimetableMapper {
     private static class CreatesTransportDataForRail {
         private static final Logger logger = LoggerFactory.getLogger(CreatesTransportDataForRail.class);
 
+        private final RailTransportDataFromFiles.StationsTemporary stations;
         private final WriteableTransportData container;
         private final MissingStations missingStations; // stations missing unexpectedly
         private final RailServiceGroups railServiceGroups;
@@ -200,9 +202,10 @@ public class RailTimetableMapper {
         private final RailConfig config;
         private final RailRouteIDBuilder railRouteIDBuilder;
 
-        private CreatesTransportDataForRail(WriteableTransportData container, MissingStations missingStations,
-                                            Set<Pair<TrainStatus, TrainCategory>> travelCombinations,
+        private CreatesTransportDataForRail(RailTransportDataFromFiles.StationsTemporary stations, WriteableTransportData container,
+                                            MissingStations missingStations, Set<Pair<TrainStatus, TrainCategory>> travelCombinations,
                                             RailConfig config) {
+            this.stations = stations;
             this.container = container;
             this.missingStations = missingStations;
 
@@ -319,9 +322,11 @@ public class RailTimetableMapper {
                 return false;
             }
 
+            final boolean doesNotCallAtStation = railLocation.isPassingRecord();
+
             GTFSPickupDropoffType pickup;
             GTFSPickupDropoffType dropoff;
-            if (railLocation.isPassingRecord()) {
+            if (doesNotCallAtStation) {
                 pickup = None;
                 dropoff = None;
             } else {
@@ -330,15 +335,20 @@ public class RailTimetableMapper {
             }
 
             // Station
-            MutableStation station = getStationFor(railLocation);
-            if (pickup != None) {
-                station.addRoutePickUp(route);
-            }
-            if (dropoff != None) {
-                station.addRouteDropOff(route);
+            MutableStation station = findStationFor(railLocation);
+            if (doesNotCallAtStation) {
+                station.addPassingRoute(route);
+            } else {
+                if (pickup != None) {
+                    station.addRoutePickUp(route);
+                }
+                if (dropoff != None) {
+                    station.addRouteDropOff(route);
+                }
             }
 
             // Route Station
+            // TODO Skip creation? Graph Builder will not include route stations with no dropoff or pickup
             RouteStation routeStation = new RouteStation(station, route);
             container.addRouteStation(routeStation);
 
@@ -384,18 +394,19 @@ public class RailTimetableMapper {
         private boolean isStation(RailLocationRecord record) {
             final String tiplocCode = record.getTiplocCode();
             IdFor<Station> stationId = StringIdFor.createId(tiplocCode);
-            return container.hasStationId(stationId);
+            return stations.hasStationId(stationId);
         }
 
-        private MutableStation getStationFor(RailLocationRecord record) {
+        private MutableStation findStationFor(RailLocationRecord record) {
             final String tiplocCode = record.getTiplocCode();
             IdFor<Station> stationId = StringIdFor.createId(tiplocCode);
             MutableStation station;
-            if (!container.hasStationId(stationId)) {
-                    throw new RuntimeException(format("Missing stationid %s encountered for %s", stationId, record));
+            if (!stations.hasStationId(stationId)) {
+                throw new RuntimeException(format("Missing stationid %s encountered for %s", stationId, record));
             } else {
-                station = container.getMutableStation(stationId);
+                station = stations.getMutableStation(stationId);
             }
+            stations.markAsNeeded(station);
             return station;
         }
 
@@ -498,16 +509,16 @@ public class RailTimetableMapper {
         private List<Station> getRouteStationCallingPoints(RawService rawService) {
             List<Station> result = new ArrayList<>();
             if (isStation(rawService.originLocation)) {
-                result.add(getStationFor(rawService.originLocation));
+                result.add(findStationFor(rawService.originLocation));
             }
             List<Station> inters = rawService.intermediateLocations.stream().
                     filter(intermediateLocation -> !intermediateLocation.isPassingRecord()).
                     filter(this::isStation).
-                    map(this::getStationFor).
+                    map(this::findStationFor).
                     collect(Collectors.toList());
             result.addAll(inters);
             if (isStation(rawService.terminatingLocation)) {
-                result.add(getStationFor(rawService.terminatingLocation));
+                result.add(findStationFor(rawService.terminatingLocation));
             }
 
             if (result.isEmpty()) {

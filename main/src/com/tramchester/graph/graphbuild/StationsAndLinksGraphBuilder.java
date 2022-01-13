@@ -118,10 +118,14 @@ public class StationsAndLinksGraphBuilder extends GraphBuilder {
 
         logger.info(format("Adding %s routes for agency %s", routes.size(), agency));
 
-        Set<Station> filteredStations = graphFilter.isFiltered() ?
-                transportData.getActiveStationStream().filter(graphFilter::shouldInclude)
-                        .collect(Collectors.toSet()) :
-                transportData.getStations();
+        Set<Station> filteredStations = transportData.getActiveStationStream().
+                filter(graphFilter::shouldInclude).
+                collect(Collectors.toSet());
+
+        // NOTE:
+        // The station.servesRouteDropoff(route) || station.servesRoutePickup(route) filter below means route station
+        // nodes will not be created for stations that as 'passed' by services that do not call, which is the
+        // case for rail transport data.
 
         try(TimedTransaction timedTransaction = new TimedTransaction(graphDatabase, logger, "Adding routes")){
             Transaction tx = timedTransaction.transaction();

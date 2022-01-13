@@ -1,9 +1,6 @@
 package com.tramchester.domain.places;
 
-import com.tramchester.domain.Agency;
-import com.tramchester.domain.DataSourceID;
-import com.tramchester.domain.Platform;
-import com.tramchester.domain.Route;
+import com.tramchester.domain.*;
 import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.presentation.LatLong;
@@ -27,10 +24,11 @@ public class MutableStation implements Station {
     private final Set<Platform> platforms;
     private final Set<Route> servesRoutesPickup;
     private final Set<Route> servesRoutesDropoff;
-    private final Set<Route> passedByRoute;
+    private final Set<Route> passedByRoute; // i.e. a station being passed by a train, but the train does not stop
     private final Set<Agency> servesAgencies;
     private final DataSourceID dataSourceID;
     private final boolean isMarkedInterchange;
+    private final Set<TransportMode> modes;
 
     public MutableStation(IdFor<Station> id, String area, String stationName, LatLong latLong, GridPosition gridPosition,
                           DataSourceID dataSourceID) {
@@ -54,6 +52,7 @@ public class MutableStation implements Station {
         this.name = stationName;
         this.latLong = latLong;
         this.area = area;
+        modes = new HashSet<>();
     }
 
     @Override
@@ -88,8 +87,7 @@ public class MutableStation implements Station {
 
     @Override
     public Set<TransportMode> getTransportModes() {
-        return Stream.concat(servesRoutesDropoff.stream(), servesRoutesPickup.stream()).
-                map(Route::getTransportMode).collect(Collectors.toUnmodifiableSet());
+        return modes;
     }
 
     @Override
@@ -216,6 +214,7 @@ public class MutableStation implements Station {
                 ", platforms=" + HasId.asIds(platforms) +
                 ", servesRoutesPickup=" + HasId.asIds(servesRoutesPickup) +
                 ", servesRoutesDropoff=" + HasId.asIds(servesRoutesDropoff) +
+                ", passedByRoute=" + HasId.asIds(passedByRoute) +
                 ", isMarkedInterchange=" + isMarkedInterchange +
                 '}';
     }
@@ -225,12 +224,23 @@ public class MutableStation implements Station {
     }
 
     public void addRouteDropOff(Route dropoffFromRoute) {
+        modes.add(dropoffFromRoute.getTransportMode());
         servesAgencies.add(dropoffFromRoute.getAgency());
         servesRoutesDropoff.add(dropoffFromRoute);
     }
 
     public void addRoutePickUp(Route pickupFromRoute) {
+        modes.add(pickupFromRoute.getTransportMode());
         servesAgencies.add(pickupFromRoute.getAgency());
         servesRoutesPickup.add(pickupFromRoute);
+    }
+
+    /***
+     * Station is passed by a route i.e. a station being passed by a train, but the train does not stop
+     * @param route the passing route
+     */
+    public void addPassingRoute(MutableRoute route) {
+        modes.add(route.getTransportMode());
+        passedByRoute.add(route);
     }
 }

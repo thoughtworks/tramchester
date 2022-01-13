@@ -1,7 +1,7 @@
 package com.tramchester.dataimport.loader;
 
 import com.netflix.governator.guice.lazy.LazySingleton;
-import com.tramchester.dataimport.rail.LoadRailTransportData;
+import com.tramchester.dataimport.rail.RailTransportDataFromFiles;
 import com.tramchester.domain.DataSourceInfo;
 import com.tramchester.repository.TransportDataContainer;
 import org.jetbrains.annotations.NotNull;
@@ -19,10 +19,10 @@ public class DirectDataSourceFactory implements Iterable<DirectDataSourceFactory
     private static final Logger logger = LoggerFactory.getLogger(DirectDataSourceFactory.class);
 
     private final List<PopulatesContainer> dataSources;
-    private final LoadRailTransportData loadRail;
+    private final RailTransportDataFromFiles loadRail;
 
     @Inject
-    public DirectDataSourceFactory(LoadRailTransportData loadRail) {
+    public DirectDataSourceFactory(RailTransportDataFromFiles loadRail) {
         this.loadRail = loadRail;
         dataSources = new LinkedList<>();
     }

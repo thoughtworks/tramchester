@@ -35,7 +35,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 @TrainTest
 @DisabledIfEnvironmentVariable(named = "CI", matches = "true")
-public class LoadRailTransportDataTest {
+public class RailTransportDataFromFilesTest {
     private static ComponentContainer componentContainer;
     private static IntegrationRailTestConfig config;
     private TransportData transportData;
@@ -109,7 +109,11 @@ public class LoadRailTransportDataTest {
     @Test
     void shouldNotLoadTFGMMetStations() {
         final IdFor<Station> unwantedStation = StringIdFor.createId("ALTRMET");
-        assertFalse(transportData.hasStationId(unwantedStation));
+
+        // TODO Split active vs inactive stations? Problem is don't know modes until after the load
+        // likely need to split station load into temp collection first and post filter
+        final boolean result = transportData.hasStationId(unwantedStation);
+        assertFalse(result);
 
         Set<RouteStation> routeStations = transportData.getRouteStations();
         IdSet<Station> unwantedRouteStations = routeStations.stream().

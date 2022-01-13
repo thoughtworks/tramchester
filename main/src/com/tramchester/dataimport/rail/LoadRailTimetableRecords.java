@@ -14,13 +14,13 @@ import java.nio.file.Path;
 import java.util.stream.Stream;
 
 
-public class RailTimetableDataFromFile {
-    private static final Logger logger = LoggerFactory.getLogger(RailTimetableDataFromFile.class);
+public class LoadRailTimetableRecords {
+    private static final Logger logger = LoggerFactory.getLogger(LoadRailTimetableRecords.class);
 
     private final Path filePath;
     private final RailDataRecordFactory factory;
 
-    public RailTimetableDataFromFile(Path filePath, RailDataRecordFactory factory) {
+    public LoadRailTimetableRecords(Path filePath, RailDataRecordFactory factory) {
         this.filePath = filePath.toAbsolutePath();
         this.factory = factory;
     }

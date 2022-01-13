@@ -9,6 +9,10 @@ import static com.tramchester.domain.id.StringIdFor.createId;
 public enum RailStationIds {
     Stockport (createId("STKP")),
     ManchesterPiccadilly(createId("MNCRPIC")),
+    ManchesterVictoria(createId("MNCRVIC")),
+    ManchesterDeansgate(createId("MNCRDGT")),
+    ManchesterOxfordRoad(createId("MNCROXR")),
+    SalfordCentral(createId("SLFDORD")),
     Altrincham(createId("ALTRNHM")),
     Crewe(createId("CREWE")),
     LondonEuston(createId("EUSTON")),

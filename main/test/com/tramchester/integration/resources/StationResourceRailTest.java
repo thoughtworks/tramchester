@@ -1,6 +1,7 @@
 package com.tramchester.integration.resources;
 
 import com.tramchester.App;
+import com.tramchester.domain.places.Location;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.DTO.LocationDTO;
 import com.tramchester.domain.presentation.DTO.PlatformDTO;
@@ -55,7 +56,7 @@ class StationResourceRailTest {
         LocationDTO result = response.readEntity(LocationDTO.class);
 
         assertEquals(stationId, result.getId());
-        assertEquals("MANCHESTER PICCADILLY", result.getName());
+        assertEquals("Manchester Piccadilly Rail Station", result.getName());
 
         List<PlatformDTO> platforms = result.getPlatforms();
         assertEquals(16, platforms.size(), platforms.toString());
@@ -83,7 +84,10 @@ class StationResourceRailTest {
 
         List<StationRefDTO> results = result.readEntity(new GenericType<>() {});
 
-        Set<String> expectedIds = stationRepo.getStations().stream().map(station -> station.getId().forDTO()).collect(Collectors.toSet());
+        Set<String> expectedIds = stationRepo.getStations().stream().
+                filter(Location::isActive).
+                map(station -> station.getId().forDTO()).collect(Collectors.toSet());
+
         assertEquals(expectedIds.size(), results.size());
 
         List<String> resultIds = results.stream().map(StationRefDTO::getId).collect(Collectors.toList());
@@ -107,10 +111,13 @@ class StationResourceRailTest {
 
         List<StationRefDTO> stationList = result.readEntity(new GenericType<>() {});
 
-        assertEquals(1,stationList.size());
+        assertEquals(5, stationList.size(), stationList.toString());
         Set<String> ids = stationList.stream().map(StationRefDTO::getId).collect(Collectors.toSet());
         assertTrue(ids.contains(RailStationIds.ManchesterPiccadilly.getId().forDTO()));
-
+        assertTrue(ids.contains(RailStationIds.ManchesterVictoria.getId().forDTO()));
+        assertTrue(ids.contains(RailStationIds.ManchesterDeansgate.getId().forDTO()));
+        assertTrue(ids.contains(RailStationIds.SalfordCentral.getId().forDTO()));
+        assertTrue(ids.contains(RailStationIds.ManchesterOxfordRoad.getId().forDTO()));
     }
 
 

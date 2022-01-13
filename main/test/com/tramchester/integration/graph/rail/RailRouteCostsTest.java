@@ -76,49 +76,49 @@ public class RailRouteCostsTest {
 
     @Test
     void shouldGetApproxCostBetweenStockportAndManPiccadilly() {
-        assertEquals(8, routeCostCalculator.getAverageCostBetween(txn, stockport, manPicc, date));
-        assertEquals(9, routeCostCalculator.getMaxCostBetween(txn, stockport, manPicc, date));
+        assertEquals(9, routeCostCalculator.getAverageCostBetween(txn, stockport, manPicc, date));
+        assertEquals(10, routeCostCalculator.getMaxCostBetween(txn, stockport, manPicc, date));
     }
 
     @Test
     void shouldGetApproxCostBetweenManPiccadillyAndStockport() {
-        assertEquals(6, routeCostCalculator.getAverageCostBetween(txn, manPicc, stockport, date));
+        assertEquals(7, routeCostCalculator.getAverageCostBetween(txn, manPicc, stockport, date));
     }
 
     @Test
     void shouldGetApproxCostBetweenStockportAndWilmslow() {
-        assertEquals(6, routeCostCalculator.getAverageCostBetween(txn, stockport, wilmslow, date));
+        assertEquals(7, routeCostCalculator.getAverageCostBetween(txn, stockport, wilmslow, date));
     }
 
     @Test
     void shouldGetApproxCostBetweenWilmslowAndCrewe() {
-        assertEquals(16, routeCostCalculator.getAverageCostBetween(txn, wilmslow, crewe, date));
+        assertEquals(17, routeCostCalculator.getAverageCostBetween(txn, wilmslow, crewe, date));
     }
 
     @Test
     void shouldGetApproxCostCreweAndMiltonKeeny() {
-        assertEquals(66, routeCostCalculator.getAverageCostBetween(txn, crewe, miltonKeynes, date));
-        assertEquals(66, routeCostCalculator.getMaxCostBetween(txn, crewe, miltonKeynes, date));
+        assertEquals(67, routeCostCalculator.getAverageCostBetween(txn, crewe, miltonKeynes, date));
+        assertEquals(67, routeCostCalculator.getMaxCostBetween(txn, crewe, miltonKeynes, date));
     }
 
     @Test
     void shouldGetApproxCostMiltonKeynesLondon() {
-        assertEquals(32, routeCostCalculator.getAverageCostBetween(txn, miltonKeynes, londonEuston, date));
-        assertEquals(33, routeCostCalculator.getMaxCostBetween(txn, miltonKeynes, londonEuston, date));
+        assertEquals(33, routeCostCalculator.getAverageCostBetween(txn, miltonKeynes, londonEuston, date));
+        assertEquals(34, routeCostCalculator.getMaxCostBetween(txn, miltonKeynes, londonEuston, date));
     }
 
     @Test
     void shouldGetApproxCostBetweenManPicadillyAndLondonEuston() {
-        assertEquals(122, routeCostCalculator.getAverageCostBetween(txn, manPicc, londonEuston, date));
-        assertEquals(123, routeCostCalculator.getMaxCostBetween(txn, manPicc, londonEuston, date));
+        assertEquals(125, routeCostCalculator.getAverageCostBetween(txn, manPicc, londonEuston, date));
+        assertEquals(126, routeCostCalculator.getMaxCostBetween(txn, manPicc, londonEuston, date));
     }
 
     @Test
     void shouldGetApproxCostBetweenAltrinchamAndLondonEuston() {
         Station altrincham = Altrincham.getFrom(stationRepository);
 
-        assertEquals(132, routeCostCalculator.getAverageCostBetween(txn, altrincham, londonEuston, date));
-        assertEquals(133, routeCostCalculator.getMaxCostBetween(txn, altrincham, londonEuston, date));
+        assertEquals(135, routeCostCalculator.getAverageCostBetween(txn, altrincham, londonEuston, date));
+        assertEquals(136, routeCostCalculator.getMaxCostBetween(txn, altrincham, londonEuston, date));
 
     }
 

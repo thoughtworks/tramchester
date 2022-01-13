@@ -81,4 +81,8 @@ public class RouteStation implements HasId<RouteStation>, GraphProperty, HasTran
     public int hashCode() {
         return id.hashCode();
     }
+
+    public boolean isActive() {
+        return station.servesRouteDropoff(route) || station.servesRoutePickup(route);
+    }
 }

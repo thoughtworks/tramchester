@@ -13,8 +13,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Stream;
 
-public class RailStationDataFromFile {
-    private static final Logger logger = LoggerFactory.getLogger(RailStationDataFromFile.class);
+public class LoadRailStationRecords {
+    private static final Logger logger = LoggerFactory.getLogger(LoadRailStationRecords.class);
 
     private final Path filePath;
     private final Map<String, RecordType> recordTypes;
@@ -26,7 +26,7 @@ public class RailStationDataFromFile {
         Unknown
     }
 
-    public RailStationDataFromFile(Path filePath) {
+    public LoadRailStationRecords(Path filePath) {
         this.filePath = filePath.toAbsolutePath();
         recordTypes = createRecordTypes();
     }

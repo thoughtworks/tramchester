@@ -12,7 +12,9 @@ import com.tramchester.dataimport.rail.records.RailTimetableRecord;
 import com.tramchester.dataimport.rail.records.reference.RailInterchangeType;
 import com.tramchester.domain.DataSourceID;
 import com.tramchester.domain.DataSourceInfo;
+import com.tramchester.domain.id.CompositeIdMap;
 import com.tramchester.domain.id.IdFor;
+import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.places.MutableStation;
 import com.tramchester.domain.places.Station;
@@ -35,11 +37,11 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 @LazySingleton
-public class LoadRailTransportData implements DirectDataSourceFactory.PopulatesContainer {
-    private static final Logger logger = LoggerFactory.getLogger(LoadRailTransportData.class);
+public class RailTransportDataFromFiles implements DirectDataSourceFactory.PopulatesContainer {
+    private static final Logger logger = LoggerFactory.getLogger(RailTransportDataFromFiles.class);
 
-    private final RailStationDataFromFile railStationDataFromFile;
-    private final RailTimetableDataFromFile railTimetableDataFromFile;
+    private final LoadRailStationRecords loadRailStationRecords;
+    private final LoadRailTimetableRecords loadRailTimetableRecords;
     private final boolean enabled;
     private final RailConfig railConfig;
     private final RemoteDataSourceConfig railRemoteSourceConfig;
@@ -47,7 +49,7 @@ public class LoadRailTransportData implements DirectDataSourceFactory.PopulatesC
     private final NaptanRespository naptanRespository;
 
     @Inject
-    public LoadRailTransportData(RailDataRecordFactory factory, TramchesterConfig config, NaptanRespository naptanRespository) {
+    public RailTransportDataFromFiles(RailDataRecordFactory factory, TramchesterConfig config, NaptanRespository naptanRespository) {
         bounds = config.getBounds();
         railConfig = config.getRailConfig();
         this.naptanRespository = naptanRespository;
@@ -57,11 +59,11 @@ public class LoadRailTransportData implements DirectDataSourceFactory.PopulatesC
             final Path dataPath = railConfig.getDataPath();
             Path stationsPath = dataPath.resolve(railConfig.getStations());
             Path timetablePath = dataPath.resolve(railConfig.getTimetable());
-            railStationDataFromFile = new RailStationDataFromFile(stationsPath);
-            railTimetableDataFromFile = new RailTimetableDataFromFile(timetablePath, factory);
+            loadRailStationRecords = new LoadRailStationRecords(stationsPath);
+            loadRailTimetableRecords = new LoadRailTimetableRecords(timetablePath, factory);
         } else {
-            railStationDataFromFile = null;
-            railTimetableDataFromFile = null;
+            loadRailStationRecords = null;
+            loadRailTimetableRecords = null;
             railRemoteSourceConfig = null;
         }
     }
@@ -80,25 +82,19 @@ public class LoadRailTransportData implements DirectDataSourceFactory.PopulatesC
     @Override
     public void loadInto(TransportDataContainer dataContainer) {
         logger.info("Load stations");
-        Stream<PhysicalStationRecord> physicalRecords = railStationDataFromFile.load();
-        addStations(dataContainer, physicalRecords);
+        Stream<PhysicalStationRecord> physicalRecords = loadRailStationRecords.load();
+
+        StationsTemporary stationsTemporary =  loadStations(physicalRecords);
+        logger.info("Initially loaded " + stationsTemporary.count() + " stations" );
 
         logger.info("Load timetable");
-        Stream<RailTimetableRecord> timetableRecords = railTimetableDataFromFile.load();
-        processTimetableRecords(dataContainer, timetableRecords);
+        Stream<RailTimetableRecord> timetableRecords = loadRailTimetableRecords.load();
+        processTimetableRecords(stationsTemporary, dataContainer, timetableRecords);
 
-        Set<Station> missingTransportModes = dataContainer.getActiveStationStream().filter(station -> station.getTransportModes().isEmpty()).
-                collect(Collectors.toSet());
-        if (!missingTransportModes.isEmpty()) {
-            logger.warn("Stations without transport mode " + missingTransportModes.size() +" stations");
-        }
+        stationsTemporary.getShouldInclude().forEach(dataContainer::addStation);
+        logger.info("Retained " + stationsTemporary.countNeeded() + " stations of " + stationsTemporary.count());
 
-        // this case ought not to happen as filter by mode within timetable load
-        Set<Station> wrongTransportModes = dataContainer.getActiveStationStream().filter(station -> station.getTransportModes().isEmpty()).
-                collect(Collectors.toSet());
-        if (!wrongTransportModes.isEmpty()) {
-            logger.error("Unexpected " + wrongTransportModes.size() + " stations with incorrect modes");
-        }
+        stationsTemporary.clear();
 
     }
 
@@ -116,19 +112,24 @@ public class LoadRailTransportData implements DirectDataSourceFactory.PopulatesC
         return dataSourceInfo;
     }
 
-    private void processTimetableRecords(WriteableTransportData dataContainer, Stream<RailTimetableRecord> recordStream) {
+    private void processTimetableRecords(StationsTemporary stationsTemporary, WriteableTransportData dataContainer,
+                                         Stream<RailTimetableRecord> recordStream) {
         logger.info("Process timetable stream");
-        RailTimetableMapper mapper = new RailTimetableMapper(dataContainer, railConfig);
+        RailTimetableMapper mapper = new RailTimetableMapper(stationsTemporary, dataContainer, railConfig);
         recordStream.forEach(mapper::seen);
         mapper.reportDiagnostics();
     }
 
-    private void addStations(WriteableTransportData dataContainer, Stream<PhysicalStationRecord> physicalRecords) {
+    private StationsTemporary loadStations(Stream<PhysicalStationRecord> physicalRecords) {
+        StationsTemporary stationsTemporary = new StationsTemporary();
+
         physicalRecords.
                 filter(this::validRecord).
                 filter(this::locationWithinBounds).
                 map(this::createStationFor).
-                forEach(dataContainer::addStation);
+                forEach(stationsTemporary::addStation);
+
+        return stationsTemporary;
     }
 
     private boolean locationWithinBounds(PhysicalStationRecord record) {
@@ -193,6 +194,51 @@ public class LoadRailTransportData implements DirectDataSourceFactory.PopulatesC
 
     public boolean isEnabled() {
         return enabled;
+    }
+
+    public static class StationsTemporary {
+        private final CompositeIdMap<Station, MutableStation> stations;
+        private final IdSet<Station> include;
+
+        private StationsTemporary() {
+            stations = new CompositeIdMap<>();
+            include = new IdSet<>();
+        }
+
+        public void addStation(MutableStation mutableStation) {
+            stations.add(mutableStation);
+        }
+
+        public Set<MutableStation> getShouldInclude() {
+            return stations.getValues().stream().
+                    filter(station -> include.contains(station.getId())).
+                    collect(Collectors.toSet());
+        }
+
+        public boolean hasStationId(IdFor<Station> stationId) {
+            return stations.hasId(stationId);
+        }
+
+        public MutableStation getMutableStation(IdFor<Station> stationId) {
+            return stations.get(stationId);
+        }
+
+        public void markAsNeeded(Station station) {
+            include.add(station.getId());
+        }
+
+        public void clear() {
+            stations.clear();
+            include.clear();
+        }
+
+        public int count() {
+            return stations.size();
+        }
+
+        public int countNeeded() {
+            return include.size();
+        }
     }
 
 }

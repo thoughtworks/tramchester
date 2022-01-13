@@ -55,6 +55,7 @@ public class RouteInterchangesRailTest {
 
         Station piccadilly = stationRepository.getStationById(ManchesterPiccadilly.getId());
 
+        // TODO new short names
         List<Route> londonRoutes = piccadilly.getPickupRoutes().stream().
                 filter(route -> route.getShortName().equals("VT:MNCRPIC=>EUSTON via STKP, MACLSFD, STOKEOT, MKNSCEN")).
                 collect(Collectors.toList());
@@ -85,6 +86,8 @@ public class RouteInterchangesRailTest {
     @Test
     void shouldGetInterchangeForRouteWhereNotAllInterchanges() {
         Station piccadilly = stationRepository.getStationById(ManchesterPiccadilly.getId());
+
+        // TODO new short names
 
         List<Route> manchesterToChesterRoutes = piccadilly.getPickupRoutes().stream().
                 filter(route -> route.getShortName().startsWith("NT:MNCRPIC=>CHST via STKP")).
