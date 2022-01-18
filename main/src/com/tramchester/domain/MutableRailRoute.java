@@ -11,6 +11,8 @@ import static java.lang.String.format;
 
 public class MutableRailRoute extends MutableRoute {
 
+    // used to find and name unique routes for rail, as routes are not part of the data set we have to
+    // derive them
     private final List<Station> callingPoints;
 
     public MutableRailRoute(IdFor<Route> id, List<Station> callingPoints, Agency agency, TransportMode transportMode) {

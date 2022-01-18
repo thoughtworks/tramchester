@@ -107,13 +107,15 @@ public class RouteInterchangesTest {
 
         Set<Route> routes = tramRouteHelper.get(KnownTramRoute.AltrinchamPiccadilly);
 
-        List<RouteStation> cornbrookRouteStations = stationRepository.getRouteStationsFor(Cornbrook.getId()).stream().
-                filter(routeStation -> routes.contains(routeStation.getRoute())).collect(Collectors.toList());
+        List<RouteStation> cornbrookRouteStations = stationRepository.getRouteStationsFor(Cornbrook.getId()).
+                stream().
+                filter(routeStation -> routes.contains(routeStation.getRoute())).
+                collect(Collectors.toList());
 
         assertFalse(cornbrookRouteStations.isEmpty());
 
-        cornbrookRouteStations.forEach(cornbrookRoute -> {
-                    int cost = routeInterchanges.costToInterchange(cornbrookRoute);
+        cornbrookRouteStations.forEach(routeStation -> {
+                    int cost = routeInterchanges.costToInterchange(routeStation);
                     assertEquals(0, cost);
                 }
         );
@@ -147,6 +149,8 @@ public class RouteInterchangesTest {
 
         assertTrue(zeroCostButNotInterchange.isEmpty(), zeroCostButNotInterchange.toString());
     }
+
+
 
 }
 

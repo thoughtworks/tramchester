@@ -22,6 +22,10 @@ public class StationIdPair {
         return new StationIdPair(begin, end);
     }
 
+    public static StationIdPair of(IdFor<Station> begin, IdFor<Station> end) {
+        return new StationIdPair(begin, end);
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

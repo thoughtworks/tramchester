@@ -3,14 +3,11 @@ package com.tramchester.graph;
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.id.IdSet;
-import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.time.TramServiceDate;
 import com.tramchester.graph.graphbuild.GraphProps;
 import com.tramchester.graph.graphbuild.StagedTransportGraphBuilder;
-import com.tramchester.repository.InterchangeRepository;
 import com.tramchester.repository.RouteRepository;
-import org.assertj.core.util.Streams;
 import org.neo4j.graphalgo.EvaluationContext;
 import org.neo4j.graphalgo.GraphAlgoFactory;
 import org.neo4j.graphalgo.PathFinder;
@@ -22,9 +19,6 @@ import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
 import java.time.LocalDate;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.OptionalInt;
 import java.util.function.Predicate;
 
 import static com.tramchester.graph.GraphPropertyKey.COST;
@@ -41,15 +35,13 @@ public class RouteCostCalculator {
 
     private final GraphQuery graphQuery;
     private final GraphDatabase graphDatabaseService;
-    private final InterchangeRepository interchangeRepository;
     private final RouteRepository routeRepository;
 
     @Inject
     public RouteCostCalculator(GraphQuery graphQuery, GraphDatabase graphDatabaseService,
-                               StagedTransportGraphBuilder.Ready ready, InterchangeRepository interchangeRepository, RouteRepository routeRepository) {
+                               StagedTransportGraphBuilder.Ready ready, RouteRepository routeRepository) {
         this.graphQuery = graphQuery;
         this.graphDatabaseService = graphDatabaseService;
-        this.interchangeRepository = interchangeRepository;
         this.routeRepository = routeRepository;
     }
 
@@ -134,41 +126,6 @@ public class RouteCostCalculator {
                 addRelationshipFilter(routeFilter).
                 build();
 
-    }
-
-    public int costToInterchange(Transaction txn, RouteStation routeStation) {
-        if (interchangeRepository.isInterchange(routeStation.getStation())) {
-            return 0;
-        }
-        return  findCostToInterchange(txn, routeStation);
-    }
-
-    private int findCostToInterchange(Transaction txn, RouteStation routeStation) {
-
-        logger.debug("Find cost to first interchange for " + routeStation);
-
-        String query = "MATCH path = (start:ROUTE_STATION {route_station_id: $routeStationId})-[:ON_ROUTE*]->(inter:INTERCHANGE) " +
-            " RETURN path ";
-
-        Map<String, Object> params = new HashMap<>();
-        params.put("routeStationId", routeStation.getId().getGraphId());
-
-        Result results = txn.execute(query, params);
-
-        OptionalInt maybeMin = results.stream().
-                filter(row -> row.containsKey("path")).
-                map(row -> (Path) row.get("path")).
-                mapToInt(this::costFor).
-                min();
-
-        return maybeMin.orElse(-1);
-    }
-
-    private int costFor(Path path) {
-        return Streams.stream(path.iterator()).
-                filter(entity -> entity.hasProperty(COST.getText())).
-                mapToInt(entity -> (int) entity.getProperty(COST.getText())).
-                sum();
     }
 
     private static class UsefulLoggingCostEvaluator extends DoubleEvaluator {

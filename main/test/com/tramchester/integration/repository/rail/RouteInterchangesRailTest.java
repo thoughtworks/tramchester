@@ -19,7 +19,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.DisabledIfEnvironmentVariable;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -63,12 +62,12 @@ public class RouteInterchangesRailTest {
         String longName = "VT service from Manchester Piccadilly Rail Station to London Euston Rail Station via Stockport " +
                 "Rail Station, Macclesfield Rail Station, Stoke-on-Trent Rail Station, Milton Keynes Central Rail Station";
 
-        List<Station> callingPoints = Arrays.asList(piccadilly,
-                Stockport.getFrom(stationRepository),
-                Macclesfield.getFrom(stationRepository),
-                StokeOnTrent.getFrom(stationRepository),
-                MiltonKeynesCentral.getFrom(stationRepository),
-                euston);
+//        List<Station> callingPoints = Arrays.asList(piccadilly,
+//                Stockport.getFrom(stationRepository),
+//                Macclesfield.getFrom(stationRepository),
+//                StokeOnTrent.getFrom(stationRepository),
+//                MiltonKeynesCentral.getFrom(stationRepository),
+//                euston);
 
         final List<Route> towardsLondon = piccadilly.getPickupRoutes().stream().
                 filter(route -> route.getShortName().equals(routeShortName)).collect(Collectors.toList());

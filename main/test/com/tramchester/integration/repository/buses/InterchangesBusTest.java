@@ -3,7 +3,9 @@ package com.tramchester.integration.repository.buses;
 import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.domain.InterchangeStation;
+import com.tramchester.domain.Route;
 import com.tramchester.domain.id.IdSet;
+import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.places.Station;
 import com.tramchester.integration.testSupport.bus.IntegrationBusTestConfig;
 import com.tramchester.repository.InterchangeRepository;
@@ -17,10 +19,10 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.DisabledIfEnvironmentVariable;
 
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static com.tramchester.testSupport.reference.BusStations.*;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 @BusTest
 @DisabledIfEnvironmentVariable(named = "CI", matches = "true")
@@ -61,6 +63,18 @@ class InterchangesBusTest {
         // stockport bus station is closed
         //assertTrue(interchanges.contains(StopAtStockportBusStation.getId()));
 
+    }
+
+    @Test
+    void shouldNotCountLinksForSameRoute() {
+        Route route = routeRepository.getRouteById(StringIdFor.createId("SCMN149A:O:CURRENT"));
+        Set<Station> stationsForRoute = route.getTrips().stream().
+                flatMap(trip -> trip.getStopCalls().getStationSequence().stream()).
+                collect(Collectors.toSet());
+
+        long interchanges = stationsForRoute.stream().filter(station -> interchangeRepository.isInterchange(station)).count();
+
+        assertEquals(10, interchanges, "too many interchanges for route with " + stationsForRoute.size() + " stations");
     }
 
     @Test

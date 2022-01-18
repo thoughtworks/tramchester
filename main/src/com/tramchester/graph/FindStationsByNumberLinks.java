@@ -32,6 +32,7 @@ public class FindStationsByNumberLinks {
     public IdSet<Station> findAtLeastNConnectionsFrom(TransportMode mode, int threshhold) {
         logger.info(format("Find at least N outbound for %s N=%s", mode, threshhold));
         Map<String, Object> params = new HashMap<>();
+        
         String stationLabel = GraphLabel.forMode(mode).name();
         String modesProps = GraphPropertyKey.TRANSPORT_MODES.getText();
 

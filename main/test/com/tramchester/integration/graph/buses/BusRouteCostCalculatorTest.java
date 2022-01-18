@@ -10,10 +10,10 @@ import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.RouteCostCalculator;
 import com.tramchester.integration.testSupport.bus.IntegrationBusTestConfig;
 import com.tramchester.repository.CompositeStationRepository;
-import com.tramchester.testSupport.testTags.BusTest;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TestStation;
 import com.tramchester.testSupport.reference.BusStations;
+import com.tramchester.testSupport.testTags.BusTest;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.condition.DisabledIfEnvironmentVariable;
 import org.neo4j.graphdb.Transaction;
@@ -22,7 +22,8 @@ import java.util.function.BiFunction;
 
 import static com.tramchester.testSupport.reference.BusStations.*;
 import static com.tramchester.testSupport.reference.BusStations.Composites.StockportTempBusStation;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 @BusTest
 @DisabledIfEnvironmentVariable(named = "CI", matches = "true")
@@ -34,10 +35,9 @@ class BusRouteCostCalculatorTest {
     private CompositeStation altrinchamInterchange;
     private CompositeStation stockportBusStation;
     private CompositeStation shudehillInterchange;
-    private CompositeStationRepository stationRepository;
+    private CompositeStationRepository compositeStationRepository;
 
     private final TramServiceDate date = new TramServiceDate(TestEnv.testDay());
-    private CompositeStationRepository compositeStationRepository;
 
     @BeforeAll
     static void onceBeforeAnyTestRuns() {
@@ -53,14 +53,13 @@ class BusRouteCostCalculatorTest {
 
     @BeforeEach
     void beforeEachTestRuns() {
-        stationRepository = componentContainer.get(CompositeStationRepository.class);
         compositeStationRepository = componentContainer.get(CompositeStationRepository.class);
 
         GraphDatabase database = componentContainer.get(GraphDatabase.class);
 
-        altrinchamInterchange = stationRepository.findByName(Composites.AltrinchamInterchange.getName());
-        stockportBusStation = stationRepository.findByName(StockportTempBusStation.getName());
-        shudehillInterchange = stationRepository.findByName("Shudehill Interchange");
+        altrinchamInterchange = compositeStationRepository.findByName(Composites.AltrinchamInterchange.getName());
+        stockportBusStation = compositeStationRepository.findByName(Composites.StockportTempBusStation.getName());
+        shudehillInterchange = compositeStationRepository.findByName("Shudehill Interchange");
 
         routeCost = componentContainer.get(RouteCostCalculator.class);
 
@@ -142,7 +141,7 @@ class BusRouteCostCalculatorTest {
     }
 
     private int getCost(BiFunction<Station, Station, Integer> function, BusStations start, BusStations end) {
-        return getCostBetween(function, TestStation.real(stationRepository,start), TestStation.real(stationRepository,end));
+        return getCostBetween(function, TestStation.real(compositeStationRepository,start), TestStation.real(compositeStationRepository,end));
     }
 
     private int getCostBetween(BiFunction<Station, Station, Integer> function, Station start, Station end) {
