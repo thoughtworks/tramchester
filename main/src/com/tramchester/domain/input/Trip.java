@@ -30,4 +30,6 @@ public interface Trip extends HasId<Trip>, HasTransportMode, GraphProperty {
     TramTime departTime();
 
     TramTime arrivalTime();
+
+    boolean hasStops();
 }

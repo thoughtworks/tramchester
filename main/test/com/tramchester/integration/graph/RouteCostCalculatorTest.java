@@ -67,9 +67,9 @@ class RouteCostCalculatorTest {
         GraphDatabase database = componentContainer.get(GraphDatabase.class);
         txn = database.beginTx();
 
-        altrincham = Altrincham.getFrom(stationRepository);
-        mediaCity = MediaCityUK.getFrom(stationRepository);
-        airport = ManAirport.getFrom(stationRepository);
+        altrincham = Altrincham.from(stationRepository);
+        mediaCity = MediaCityUK.from(stationRepository);
+        airport = ManAirport.from(stationRepository);
     }
 
     @AfterEach
@@ -79,21 +79,21 @@ class RouteCostCalculatorTest {
 
     @Test
     void shouldComputeSimpleCostBetweenStationsAltyNavRoad() {
-        assertEquals(3, routeCostCalculator.getAverageCostBetween(txn, NavigationRoad.getFrom(stationRepository), altrincham, date));
-        assertEquals(4, routeCostCalculator.getAverageCostBetween(txn, altrincham, NavigationRoad.getFrom(stationRepository), date));
+        assertEquals(3, routeCostCalculator.getAverageCostBetween(txn, NavigationRoad.from(stationRepository), altrincham, date));
+        assertEquals(4, routeCostCalculator.getAverageCostBetween(txn, altrincham, NavigationRoad.from(stationRepository), date));
     }
 
     @Test
     void shouldComputeCostsForMediaCityAshton() {
-        assertEquals(55, routeCostCalculator.getAverageCostBetween(txn, mediaCity, Ashton.getFrom(stationRepository), date));
-        assertEquals(52, routeCostCalculator.getAverageCostBetween(txn,  Ashton.getFrom(stationRepository), mediaCity, date));
+        assertEquals(55, routeCostCalculator.getAverageCostBetween(txn, mediaCity, Ashton.from(stationRepository), date));
+        assertEquals(52, routeCostCalculator.getAverageCostBetween(txn,  Ashton.from(stationRepository), mediaCity, date));
     }
 
     @Test
     void shouldComputeSimpleCostBetweenStationsAltyBury() {
         // changes regularly with timetable updates
 
-        final Station bury = Bury.getFrom(stationRepository);
+        final Station bury = Bury.from(stationRepository);
         final int buryToAlty = routeCostCalculator.getAverageCostBetween(txn, bury, altrincham, date);
         final int altyToBury = routeCostCalculator.getAverageCostBetween(txn, altrincham, bury, date);
 
@@ -113,7 +113,7 @@ class RouteCostCalculatorTest {
         Relationship walkRelationship = locationJourneyPlanner.createWalkRelationship(txn, walkStartNode, stationWalk,
                 TransportRelationshipTypes.WALKS_TO);
 
-        int result = routeCostCalculator.getAverageCostBetween(txn, walkStartNode, Deansgate.getFrom(stationRepository), date);
+        int result = routeCostCalculator.getAverageCostBetween(txn, walkStartNode, Deansgate.from(stationRepository), date);
 
         walkRelationship.delete();
         walkStartNode.delete();
@@ -133,7 +133,7 @@ class RouteCostCalculatorTest {
         Relationship walkRelationship = locationJourneyPlanner.createWalkRelationship(txn, walkEndNode, stationWalk,
                 TransportRelationshipTypes.WALKS_FROM);
 
-        int result = routeCostCalculator.getAverageCostBetween(txn, Deansgate.getFrom(stationRepository), walkEndNode, date);
+        int result = routeCostCalculator.getAverageCostBetween(txn, Deansgate.from(stationRepository), walkEndNode, date);
 
         walkRelationship.delete();
         walkEndNode.delete();

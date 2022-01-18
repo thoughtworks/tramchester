@@ -148,6 +148,10 @@ public class StopCalls {
         return orderedStopCalls.size();
     }
 
+    public boolean isEmpty() {
+        return orderedStopCalls.isEmpty();
+    }
+
     public static class StopLeg {
         private final StopCall first;
         private final StopCall second;

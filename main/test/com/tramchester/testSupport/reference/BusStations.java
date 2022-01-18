@@ -8,6 +8,7 @@ import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.geo.CoordinateTransforms;
 import com.tramchester.geo.GridPosition;
 import com.tramchester.graph.GraphPropertyKey;
+import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.TestStation;
 import com.tramchester.testSupport.TestStations;
 import org.jetbrains.annotations.NotNull;
@@ -21,9 +22,9 @@ public enum BusStations implements TestStations {
 //            new LatLong(53.4091,-2.16443890806)),
     StopAtHeatonLaneStockportBusStation("1800STIC011", "Stockport", "Stockport Heaton Lane Bus Station",
             new LatLong(53.41036253703,-2.16501729098)),
-    ShudehillInterchange("1800SHIC0A1", "Shudehill, Manchester City Centre", "Shudehill Interchange",
+    StopAtShudehillInterchange("1800SHIC0C1", "Shudehill, Manchester City Centre", "Shudehill Interchange",
             new LatLong(53.48557, -2.23827)),
-    ManchesterAirportStation("1800MABS001", "Manchester Airport, Manchester", "Manchester Airport The Station",
+    ManchesterAirportStation("1800MABS0E1", "Manchester Airport, Manchester", "Manchester Airport The Station",
             new LatLong(53.3656, -2.27242)),
     KnutsfordStationStand3("0600MA6022", "Knutsford", "Bus Station",
             new LatLong(53.30245, -2.37551)),
@@ -50,8 +51,13 @@ public enum BusStations implements TestStations {
         this.station = new TestStation(id, area, name, latlong, grid, TransportMode.Bus, DataSourceID.tfgm);
     }
 
+    @Deprecated
     public static Station of(BusStations enumValue) {
         return enumValue.station;
+    }
+
+    public Station from(StationRepository repository) {
+        return repository.getStationById(getId());
     }
 
     @Override

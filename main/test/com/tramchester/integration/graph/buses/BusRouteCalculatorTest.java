@@ -258,7 +258,7 @@ class BusRouteCalculatorTest {
         JourneyRequest journeyRequest = new JourneyRequest(new TramServiceDate(when), TramTime.of(8,45),
                 false, 3, maxJourneyDuration, 3);
 
-        Set<Journey> results = calculator.calculateRouteAsSet(stockportBusStation, ShudehillInterchange, journeyRequest);
+        Set<Journey> results = calculator.calculateRouteAsSet(stockportBusStation, StopAtShudehillInterchange, journeyRequest);
         assertFalse(results.isEmpty());
     }
 

@@ -23,6 +23,8 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static java.lang.String.format;
+
 @LazySingleton
 public class DataCache {
     private static final Logger logger = LoggerFactory.getLogger(DataCache.class);
@@ -143,8 +145,9 @@ public class DataCache {
             try {
                 cacheable.loadFrom(data);
             } catch (CacheLoadException exception) {
-                throw new RuntimeException("Failed to load from cache for "
-                        + cacheFile + " and " + theClass.getSimpleName(), exception);
+                final String message = format("Failed to load %s from cache file %s ", theClass.getSimpleName(), cacheFile);
+                logger.error(message);
+                throw new RuntimeException(message, exception);
             }
             data.close();
         } else {

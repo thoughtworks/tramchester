@@ -97,7 +97,7 @@ public enum TramStations implements TestStations {
                grid, TransportMode.Tram, DataSourceID.tfgm);
     }
 
-    public Station getFrom(StationRepository repository) {
+    public Station from(StationRepository repository) {
         return repository.getStationById(getId());
     }
 

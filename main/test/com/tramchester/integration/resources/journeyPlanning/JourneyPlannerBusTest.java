@@ -102,15 +102,15 @@ class JourneyPlannerBusTest {
     @Test
     void shouldPlanBusJourneySouthern() {
         TramTime queryTime = TramTime.of(8,45);
-        validateHasJourney(queryTime, ShudehillInterchange, stockportBusStation, 2);
-        validateHasJourney(queryTime, stockportBusStation, ShudehillInterchange, 2);
+        validateHasJourney(queryTime, StopAtShudehillInterchange, stockportBusStation, 2);
+        validateHasJourney(queryTime, stockportBusStation, StopAtShudehillInterchange, 3);
     }
 
     @Test
     void shouldPlanBusJourneyNorthern() {
         TramTime queryTime = TramTime.of(8,45);
-        validateHasJourney(queryTime, ShudehillInterchange, BuryInterchange, 2);
-        validateHasJourney(queryTime, BuryInterchange, ShudehillInterchange, 2);
+        validateHasJourney(queryTime, StopAtShudehillInterchange, BuryInterchange, 2);
+        validateHasJourney(queryTime, BuryInterchange, StopAtShudehillInterchange, 2);
     }
 
     @Test

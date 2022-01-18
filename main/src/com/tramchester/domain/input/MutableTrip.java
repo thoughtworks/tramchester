@@ -7,8 +7,13 @@ import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.GraphPropertyKey;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import static java.lang.String.format;
 
 public class MutableTrip implements Trip {
+    private static final Logger logger = LoggerFactory.getLogger(MutableTrip.class);
 
     private final IdFor<Trip> tripId;
     private final String headSign;
@@ -67,12 +72,14 @@ public class MutableTrip implements Trip {
 
     @Override
     public String toString() {
-        return "Trip{" +
-                "tripId='" + tripId + '\'' +
+        return "MutableTrip{" +
+                "tripId=" + tripId +
                 ", headSign='" + headSign + '\'' +
                 ", service=" + HasId.asId(service) +
                 ", route=" + HasId.asId(route) +
-                ", stops=" + stopCalls +
+                ", stopCalls=" + stopCalls +
+                ", actualMode=" + actualMode +
+                ", filtered=" + filtered +
                 '}';
     }
 
@@ -105,6 +112,10 @@ public class MutableTrip implements Trip {
         this.filtered = flag;
     }
 
+    /***
+     * Set if one or more stops has been filtered out, for example due to geographical bounds
+     * @return filtered or not
+     */
     @Override
     public boolean isFiltered() {
         return filtered;
@@ -117,12 +128,33 @@ public class MutableTrip implements Trip {
 
     @Override
     public TramTime departTime() {
+        if (stopCalls.isEmpty()) {
+            throw new RuntimeException("Cannot get stopCalls for " + this);
+        }
         return stopCalls.getFirstStop().getDepartureTime();
     }
 
     @Override
     public TramTime arrivalTime() {
+        if (stopCalls.isEmpty()) {
+            throw new RuntimeException("Cannot get stopCalls for " + this);
+        }
         return stopCalls.getLastStop().getArrivalTime();
+    }
+
+    @Override
+    public boolean hasStops() {
+        boolean noStops = stopCalls.isEmpty();
+        if (noStops) {
+            if (filtered) {
+                // this can happen when all stop calls for a trip have been filtered out by geo-bounds
+                logger.warn(format("Filtered Trip %s has no stops", tripId));
+            } else {
+                // this ought not to happen
+                logger.error(format("Unfiltered Trip %s has no stops",tripId));
+            }
+        }
+        return !noStops;
     }
 
 }

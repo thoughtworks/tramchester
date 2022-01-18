@@ -131,7 +131,6 @@ public class LocationJourneyPlanner {
             logger.warn("Cannot find any walks from " + destination + " to stations");
             return Stream.empty();
         }
-        NumberOfChanges numberOfChanges = findNumberChanges(start, walksToDest);
 
         Node endWalk = createWalkingNode(txn, destination, journeyRequest.getUid());
         List<Relationship> addedRelationships = new LinkedList<>();
@@ -139,6 +138,8 @@ public class LocationJourneyPlanner {
 
         Set<Station> destinationStations = new HashSet<>();
         walksToDest.forEach(stationWalk -> destinationStations.add(stationWalk.getStation()));
+
+        NumberOfChanges numberOfChanges = findNumberChanges(start, walksToDest);
 
         Stream<Journey> journeys;
         if (journeyRequest.getArriveBy()) {
@@ -212,6 +213,7 @@ public class LocationJourneyPlanner {
         }
 
         GraphProps.setCostProp(walkingRelationship, cost);
+        GraphProps.setMaxCostProp(walkingRelationship, cost);
         GraphProps.setProperty(walkingRelationship, walkStation);
         return walkingRelationship;
     }

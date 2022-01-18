@@ -103,7 +103,9 @@ public class MutableService implements Service {
     }
 
     private void computeStartTime() {
-        Optional<TramTime> firstDepartForTrips = trips.stream().map(Trip::departTime).min(TramTime::compareTo);
+        Optional<TramTime> firstDepartForTrips = trips.stream().
+                filter(Trip::hasStops).
+                map(Trip::departTime).min(TramTime::compareTo);
         if (firstDepartForTrips.isEmpty()) {
             throw new RuntimeException("Missing first depart for " + trips + " service id " + serviceId);
         }
@@ -111,9 +113,11 @@ public class MutableService implements Service {
     }
 
     private void computeFinishTime() {
-        Optional<TramTime> finalArrivalForTrips = trips.stream().map(Trip::arrivalTime).max(TramTime::compareTo);
+        Optional<TramTime> finalArrivalForTrips = trips.stream().
+                filter(Trip::hasStops).
+                map(Trip::arrivalTime).max(TramTime::compareTo);
         if (finalArrivalForTrips.isEmpty()) {
-            throw new RuntimeException("Missing last arrival for " + trips + " service id " + serviceId);
+            throw new RuntimeException("Missing last arrival for service id " + serviceId +  "trips " + trips);
         }
         finishTime = finalArrivalForTrips.get();
     }

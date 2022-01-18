@@ -100,7 +100,7 @@ class JourneyPlannerPostcodeBusResourceTest {
     void shouldPlanJourneyFromPostcodeToBusStation() {
 
         JourneyPlanRepresentation results = journeyPlanner.getJourneyPlan(day, time, TestPostcodes.CentralBury,
-                BusStations.ShudehillInterchange, false, 1);
+                BusStations.StopAtShudehillInterchange, false, 1);
 
         Set<JourneyDTO> journeys = results.getJourneys();
         assertFalse(journeys.isEmpty());
@@ -116,7 +116,7 @@ class JourneyPlannerPostcodeBusResourceTest {
     @Test
     void shouldPlanJourneyFromBusStationToPostcode() {
 
-        JourneyPlanRepresentation results = journeyPlanner.getJourneyPlan(day, time, BusStations.ShudehillInterchange,
+        JourneyPlanRepresentation results = journeyPlanner.getJourneyPlan(day, time, BusStations.StopAtShudehillInterchange,
                 TestPostcodes.CentralBury, false, 1);
 
         Set<JourneyDTO> journeys = results.getJourneys();

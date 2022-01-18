@@ -23,7 +23,6 @@ import com.tramchester.repository.StationRepository;
 import com.tramchester.resources.LocationJourneyPlanner;
 import com.tramchester.testSupport.LocationJourneyPlannerTestFacade;
 import com.tramchester.testSupport.TestEnv;
-import com.tramchester.testSupport.reference.BusStations;
 import com.tramchester.testSupport.testTags.BusTest;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.condition.DisabledIfEnvironmentVariable;
@@ -33,6 +32,8 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.tramchester.domain.reference.TransportMode.Tram;
+import static com.tramchester.testSupport.reference.BusStations.KnutsfordStationStand3;
+import static com.tramchester.testSupport.reference.BusStations.StockportNewbridgeLane;
 import static com.tramchester.testSupport.reference.TramStations.*;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -48,6 +49,7 @@ public class NeighbourJourneysTest {
     private Transaction txn;
     private Station shudehillBusStop;
     private LocationJourneyPlanner planner;
+    private RouteToRouteCosts routeToRouteCosts;
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
@@ -78,6 +80,9 @@ public class NeighbourJourneysTest {
         txn = graphDatabase.beginTx();
         routeCalculator = new RouteCalculatorTestFacade(componentContainer.get(RouteCalculator.class), stationRepository, txn);
         planner = componentContainer.get(LocationJourneyPlanner.class);
+
+        routeToRouteCosts = componentContainer.get(RouteToRouteCosts.class);
+
     }
 
     @AfterEach
@@ -93,32 +98,29 @@ public class NeighbourJourneysTest {
 
     @Test
     void shouldHaveCorrectRouteToRouteHopsWhenNeighbours() {
-        RouteToRouteCosts routeToRouteCosts = componentContainer.get(RouteToRouteCosts.class);
+
         NumberOfChanges busToTramHops = routeToRouteCosts.getNumberOfChanges(shudehillBusStop, shudehillTram);
-        assertEquals(0, busToTramHops.getMin());
-        assertEquals(2, busToTramHops.getMax());
+        assertEquals(1, busToTramHops.getMin());
+        assertEquals(1, busToTramHops.getMax());
 
         NumberOfChanges tramToBusHops = routeToRouteCosts.getNumberOfChanges(shudehillTram, shudehillBusStop);
-        assertEquals(0, tramToBusHops.getMin());
+        assertEquals(1, tramToBusHops.getMin());
         assertEquals(1, tramToBusHops.getMax());
     }
 
     @Test
     void shouldHaveCorrectRouteToRouteHopsWhenNeighboursSets() {
 
-        Set<Station> trams = new HashSet<>(Arrays.asList(stationRepository.getStationById(Altrincham.getId()),
-                stationRepository.getStationById(HarbourCity.getId())));
+        Set<Station> trams = new HashSet<>(Arrays.asList(Altrincham.from(stationRepository), HarbourCity.from(stationRepository)));
 
-        Set<Station> buses = new HashSet<>(Arrays.asList(stationRepository.getStationById(BusStations.KnutsfordStationStand3.getId()),
-                stationRepository.getStationById(BusStations.StockportNewbridgeLane.getId())));
+        Set<Station> buses = new HashSet<>(Arrays.asList(KnutsfordStationStand3.from(stationRepository), StockportNewbridgeLane.from(stationRepository)));
 
-        RouteToRouteCosts routeToRouteCosts = componentContainer.get(RouteToRouteCosts.class);
         NumberOfChanges busToTramHops = routeToRouteCosts.getNumberOfChanges(buses, trams);
         assertEquals(1, busToTramHops.getMin());
         assertEquals(2, busToTramHops.getMax());
 
         NumberOfChanges tramToBusHops = routeToRouteCosts.getNumberOfChanges(trams, buses);
-        assertEquals(1, tramToBusHops.getMin());
+        assertEquals(2, tramToBusHops.getMin());
         assertEquals(2, tramToBusHops.getMax());
 
         // now add neighbouring stops
@@ -132,13 +134,11 @@ public class NeighbourJourneysTest {
         tramToBusHops = routeToRouteCosts.getNumberOfChanges(trams, buses);
         assertEquals(0, tramToBusHops.getMin());
         assertEquals(2, tramToBusHops.getMax());
-
     }
 
     @Test
     void shouldFindMaxRouteHopsBetweenModes() {
-        RouteToRouteCosts routeToRoute = componentContainer.get(RouteToRouteCosts.class);
-        NumberOfChanges hops = routeToRoute.getNumberOfChanges(shudehillTram, shudehillBusStop);
+        NumberOfChanges hops = routeToRouteCosts.getNumberOfChanges(shudehillTram, shudehillBusStop);
         assertEquals(1, hops.getMax());
     }
 

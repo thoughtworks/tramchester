@@ -107,6 +107,7 @@ public class RouteCalculatorSupport {
     @NotNull
     protected Stream<Integer> numChangesRange(JourneyRequest journeyRequest, NumberOfChanges computedChanges) {
         final int requestedMaxChanges = journeyRequest.getMaxChanges();
+
         final int computedMaxChanges = computedChanges.getMax();
         final int computedMinChanges = computedChanges.getMin();
 
@@ -121,9 +122,10 @@ public class RouteCalculatorSupport {
         }
 
         int max = Math.min(computedMaxChanges, requestedMaxChanges);
+        int min = Math.min(computedMinChanges, requestedMaxChanges);
 
-        logger.info("Will check journey from " + computedMinChanges + " to " + max +" changes. Computed was " + computedChanges);
-        return IntStream.rangeClosed(computedMinChanges, max).boxed();
+        logger.info("Will check journey from " + min + " to " + max +" changes. Computed was " + computedChanges);
+        return IntStream.rangeClosed(min, max).boxed();
     }
 
     @NotNull

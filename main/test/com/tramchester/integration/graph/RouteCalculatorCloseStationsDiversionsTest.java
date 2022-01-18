@@ -2,7 +2,6 @@ package com.tramchester.integration.graph;
 
 import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
-import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.Journey;
 import com.tramchester.domain.JourneyRequest;
 import com.tramchester.domain.StationClosure;
@@ -22,6 +21,7 @@ import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.condition.DisabledIfEnvironmentVariable;
 import org.neo4j.graphdb.Transaction;
 
+import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
@@ -37,6 +37,7 @@ class RouteCalculatorCloseStationsDiversionsTest {
 
     private static ComponentContainer componentContainer;
     private static GraphDatabase database;
+    private static IntegrationTramClosedStationsTestConfig config;
 
     private RouteCalculatorTestFacade calculator;
     private final static TramServiceDate when = new TramServiceDate(TestEnv.testDay());
@@ -47,15 +48,16 @@ class RouteCalculatorCloseStationsDiversionsTest {
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
-        TramchesterConfig config = new IntegrationTramClosedStationsTestConfig("closed_stpeters_int_test_tram.db", closedStations);
+        config = new IntegrationTramClosedStationsTestConfig("closed_stpeters_int_test_tram.db", closedStations);
         componentContainer = new ComponentsBuilder().create(config, TestEnv.NoopRegisterMetrics());
         componentContainer.initialise();
         database = componentContainer.get(GraphDatabase.class);
     }
 
     @AfterAll
-    static void OnceAfterAllTestsAreFinished() {
+    static void OnceAfterAllTestsAreFinished() throws IOException {
         componentContainer.close();
+        TestEnv.deleteDBIfPresent(config);
     }
 
     @BeforeEach
@@ -96,7 +98,7 @@ class RouteCalculatorCloseStationsDiversionsTest {
 
     @Test
     void shouldFindRouteAroundCloseBackOnToTram() {
-        JourneyRequest journeyRequest = new JourneyRequest(when,TramTime.of(8,0), false,
+        JourneyRequest journeyRequest = new JourneyRequest(when, TramTime.of(8,0), false,
                 2, 120, 1);
         Set<Journey> results = calculator.calculateRouteAsSet(TramStations.Bury, TramStations.Altrincham,
                 journeyRequest);

@@ -52,7 +52,7 @@ class ValidateBusTestStations {
         testStations.forEach(enumValue -> {
             Station testStation = BusStations.of(enumValue);
 
-            Station realStation = stationRepository.getStationById(testStation.getId());
+            Station realStation = enumValue.from(stationRepository);
 
             String testStationName = testStation.getName();
             assertEquals(realStation.getName(), testStationName, "name wrong for id: " + testStation.getId());
@@ -61,6 +61,9 @@ class ValidateBusTestStations {
             assertEquals(realStation.getTransportModes(), testStation.getTransportModes(), "mode wrong for " + testStationName);
             TestEnv.assertLatLongEquals(realStation.getLatLong(), testStation.getLatLong(), 0.001,
                     "latlong wrong for " + testStationName);
+
+            assertFalse(realStation.getDropoffRoutes().isEmpty(), "no drop offs " + realStation.getName());
+            assertFalse(realStation.getPickupRoutes().isEmpty(), "no pick ups " + realStation.getName());
         });
 
     }

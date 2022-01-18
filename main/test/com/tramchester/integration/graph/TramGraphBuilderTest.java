@@ -104,7 +104,7 @@ class TramGraphBuilderTest {
 
     @Test
     void shouldHaveCorrectPlatformCosts() {
-        Station piccadilly = Piccadilly.getFrom(stationRepository);
+        Station piccadilly = Piccadilly.from(stationRepository);
         Set<Platform> platforms = piccadilly.getPlatforms();
 
         int expectedCost = piccadilly.getMinimumChangeCost();

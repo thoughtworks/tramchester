@@ -87,8 +87,8 @@ public class TransportDataFromFilesNeighboursTest {
 
         final Set<Station> busStations = stationRepository.getStationsServing(Bus);
         int numStations = busStations.size();
-        assertTrue(numStations > 15400, "big change");
-        assertTrue(numStations < 16400, "big change");
+        assertTrue(numStations > 14000, "big change " + numStations);
+        assertTrue(numStations < 16400, "big change " + numStations);
 
         // no platforms represented in train data
         assertFalse(busStations.stream().anyMatch(Station::hasPlatforms));

@@ -70,7 +70,12 @@ class TripTest {
         PlatformStopCall thirdStop = TestEnv.createTramStopCall(trip, "statA1", stationA, (byte) 3,
                 of(10, 10), of(10, 10));
 
+        assertFalse(trip.hasStops());
+
         trip.addStop(firstStop);
+
+        assertTrue(trip.hasStops());
+
         trip.addStop(secondStop);
         trip.addStop(thirdStop);
 

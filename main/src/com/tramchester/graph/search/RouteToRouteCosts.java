@@ -204,6 +204,14 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
 
     @Override
     public NumberOfChanges getNumberOfChanges(Set<Station> starts, Set<Station> destinations) {
+        if (starts.stream().allMatch(station -> station.getPickupRoutes().isEmpty())) {
+            logger.warn(format("start stations %s have no pick-up routes", HasId.asIds(starts)));
+            return new NumberOfChanges(Integer.MAX_VALUE, Integer.MAX_VALUE);
+        }
+        if (destinations.stream().allMatch(station -> station.getDropoffRoutes().isEmpty())) {
+            logger.warn(format("destination stations %s have no drop-off routes",  HasId.asIds(destinations)));
+            return new NumberOfChanges(Integer.MAX_VALUE, Integer.MAX_VALUE);
+        }
         if (areNeighbours(starts, destinations)) {
             return new NumberOfChanges(0, maxHops(pickupRoutesFor(starts), dropoffRoutesFor(destinations)));
         }
@@ -213,14 +221,14 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
     @Override
     public NumberOfChanges getNumberOfChanges(Station startStation, Station destination) {
         if (areNeighbours(startStation, destination)) {
-            return new NumberOfChanges(0, maxHops(startStation.getPickupRoutes(), destination.getDropoffRoutes()));
+            return new NumberOfChanges(1, 1);
         }
         if (startStation.getPickupRoutes().isEmpty()) {
-            logger.warn(format("start station %s is end of route, no pick-up routes", startStation));
+            logger.warn(format("start station %s has no pick-up routes", startStation));
             return new NumberOfChanges(Integer.MAX_VALUE, Integer.MAX_VALUE);
         }
         if (destination.getDropoffRoutes().isEmpty()) {
-            logger.warn(format("destination station %s is beginning of route, no drop-off routes", destination));
+            logger.warn(format("destination station %s has no drop-off routes", destination));
             return new NumberOfChanges(Integer.MAX_VALUE, Integer.MAX_VALUE);
         }
         return getNumberOfHops(startStation.getPickupRoutes(), destination.getDropoffRoutes());
@@ -252,21 +260,32 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
     @NotNull
     private NumberOfChanges getNumberOfHops(Set<Route> startRoutes, Set<Route> destinationRoutes) {
         int minHops = minHops(startRoutes, destinationRoutes);
+        if (minHops==Integer.MAX_VALUE) {
+            logger.warn(format("No results founds between %s and %s", HasId.asIds(startRoutes), HasId.asIds(destinationRoutes)));
+        }
         int maxHops = maxHops(startRoutes, destinationRoutes);
         return new NumberOfChanges(minHops, maxHops);
     }
 
     private int minHops(Set<Route> startRoutes, Set<Route> endRoutes) {
-        return startRoutes.stream().
+        final Optional<Integer> query = startRoutes.stream().
                 flatMap(startRoute -> endRoutes.stream().map(endRoute -> getFor(startRoute, endRoute))).
-                min(Integer::compare).orElse(Integer.MAX_VALUE);
+                min(Integer::compare);
+        if (query.isEmpty()) {
+            logger.warn(format("No minHops found for %s to %s", HasId.asIds(startRoutes), HasId.asIds(endRoutes)));
+        }
+        return query.orElse(Integer.MAX_VALUE);
     }
 
     private Integer maxHops(Set<Route> startRoutes, Set<Route> endRoutes) {
-        return startRoutes.stream().
+        final Optional<Integer> query = startRoutes.stream().
                 flatMap(startRoute -> endRoutes.stream().map(endRoute -> getFor(startRoute, endRoute))).
                 filter(result -> result != Integer.MAX_VALUE).
-                max(Integer::compare).orElse(Integer.MAX_VALUE);
+                max(Integer::compare);
+        if (query.isEmpty()) {
+            logger.warn(format("No maxHops found for %s to %s", HasId.asIds(startRoutes), HasId.asIds(endRoutes)));
+        }
+        return query.orElse(Integer.MAX_VALUE);
     }
 
     private Set<Route> dropoffRoutesFor(Set<Station> stations) {
