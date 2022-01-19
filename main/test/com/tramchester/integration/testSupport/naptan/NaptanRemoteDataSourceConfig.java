@@ -5,6 +5,8 @@ import com.tramchester.testSupport.TestEnv;
 
 import java.nio.file.Path;
 
+// https://naptan.api.dft.gov.uk/v1/access-nodes?dataFormat=csv
+
 public class NaptanRemoteDataSourceConfig implements RemoteDataSourceConfig {
     private final Path dataPath;
 
@@ -33,7 +35,7 @@ public class NaptanRemoteDataSourceConfig implements RemoteDataSourceConfig {
 
     @Override
     public String getDownloadFilename() {
-        return "naptan_csv.zip";
+        return "Stops.csv";
     }
 
     @Override

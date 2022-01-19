@@ -6,6 +6,7 @@ import com.tramchester.dataimport.NaPTAN.NaPTANDataImporter;
 import com.tramchester.dataimport.NaPTAN.NaptanStopData;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfigWithNaptan;
+import com.tramchester.repository.naptan.NaptanStopType;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.TramStations;
 import org.junit.jupiter.api.*;
@@ -71,7 +72,8 @@ class NaPTANDataImportTest {
 
         NaptanStopData known = foundKnown.get();
         assertEquals("Manchester City Centre", known.getLocalityName());
-        assertEquals("Manchester", known.getParentLocalityName());
+        assertEquals(NaptanStopType.tramMetroUndergroundAccess, known.getStopType());
+        //assertEquals("Manchester", known.getParentLocalityName());
     }
 
     @Test
@@ -83,6 +85,6 @@ class NaPTANDataImportTest {
         assertFalse(foundKnown.isEmpty());
         NaptanStopData known = foundKnown.get();
         assertEquals("Bristol City Centre", known.getLocalityName());
-        assertEquals("Bristol", known.getParentLocalityName());
+        //assertEquals("Bristol", known.getParentLocalityName());
     }
 }

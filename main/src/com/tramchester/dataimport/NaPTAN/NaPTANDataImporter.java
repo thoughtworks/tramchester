@@ -7,6 +7,7 @@ import com.tramchester.config.TramchesterConfig;
 import com.tramchester.dataimport.loader.files.TransportDataFromFile;
 import com.tramchester.dataimport.UnzipFetchedData;
 import com.tramchester.domain.DataSourceID;
+import com.tramchester.domain.reference.TransportMode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -68,7 +69,10 @@ public class NaPTANDataImporter {
         Path dataPath = sourceConfig.getDataPath();
 
         stopsDataStream = loadFor(dataPath, "Stops.csv", NaptanStopData.class);
-        railStationDataStream = loadFor(dataPath, "RailReferences.csv", RailStationData.class);
+
+        if (config.getTransportModes().contains(TransportMode.Train)) {
+            railStationDataStream = loadFor(dataPath, "RailReferences.csv", RailStationData.class);
+        }
 
         open = true;
     }
@@ -96,7 +100,9 @@ public class NaPTANDataImporter {
         if (open) {
             logger.warn("Stream was not closed, closing");
             stopsDataStream.close();
-            railStationDataStream.close();
+            if (config.getTransportModes().contains(TransportMode.Train)) {
+                railStationDataStream.close();
+            }
         }
         logger.info("Stopped");
     }

@@ -7,6 +7,7 @@ import com.tramchester.dataimport.NaPTAN.RailStationData;
 import com.tramchester.dataimport.NaPTAN.NaptanStopData;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.places.Station;
+import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.geo.BoundingBox;
 import com.tramchester.geo.HasGridPosition;
 import com.tramchester.geo.MarginInMeters;
@@ -70,7 +71,11 @@ public class NaptanRespository {
         MarginInMeters margin = MarginInMeters.of(range);
 
         loadStopsData(bounds, margin);
-        loadStationData(bounds, margin);
+        if (config.getTransportModes().contains(TransportMode.Train)) {
+            loadStationData(bounds, margin);
+        } else {
+            logger.info("Not loading train data, transport mode not enabled in config");
+        }
     }
 
     private void loadStopsData(BoundingBox bounds, MarginInMeters margin) {

@@ -5,7 +5,6 @@ import com.tramchester.config.RemoteDataSourceConfig;
 import com.tramchester.domain.reference.GTFSTransportationType;
 import com.tramchester.integration.testSupport.GraphDBTestConfig;
 import com.tramchester.integration.testSupport.IntegrationTestConfig;
-import com.tramchester.integration.testSupport.naptan.NaptanRemoteDataSourceConfig;
 import com.tramchester.integration.testSupport.tfgm.TFGMGTFSSourceTestConfig;
 import com.tramchester.testSupport.TestEnv;
 
@@ -30,7 +29,8 @@ public class SimpleGraphConfig extends IntegrationTestConfig {
 
     @Override
     public List<RemoteDataSourceConfig> getRemoteDataSourceConfig() {
-        return Collections.singletonList(new NaptanRemoteDataSourceConfig("data/naptan"));
+        return Collections.emptyList();
+        //return Collections.singletonList(new NaptanRemoteDataSourceConfig("data/naptan"));
     }
 
     @Override
@@ -47,4 +47,5 @@ public class SimpleGraphConfig extends IntegrationTestConfig {
     public Path getCacheFolder() {
         return TestEnv.CACHE_DIR.resolve("unit");
     }
+
 }

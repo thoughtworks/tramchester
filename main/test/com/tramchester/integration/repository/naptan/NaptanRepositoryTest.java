@@ -13,10 +13,7 @@ import com.tramchester.repository.naptan.NaptanRespository;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.BusStations;
 import com.tramchester.testSupport.reference.TramStations;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -59,6 +56,7 @@ class NaptanRepositoryTest {
         assertEquals("Manchester Airport", data.getLocalityName());
     }
 
+    @Disabled("the rail data no longer seems to be available from naptan")
     @Test
     void shouldHaveDataForTrains() {
         IdFor<Station> tiploc = RailStationIds.Macclesfield.getId();

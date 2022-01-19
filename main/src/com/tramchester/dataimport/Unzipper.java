@@ -8,8 +8,10 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.PathMatcher;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipException;
 import java.util.zip.ZipInputStream;
@@ -20,25 +22,26 @@ import static java.lang.String.format;
 public class Unzipper {
     private static final Logger logger = LoggerFactory.getLogger(Unzipper.class);
 
+    PathMatcher zipMatcher = FileSystems.getDefault().getPathMatcher("glob:**.zip");
+
     public boolean unpack(Path zipFilename, Path targetDirectory) {
-        logger.info(format("Unziping data from %s to %s ", zipFilename, targetDirectory));
         File zipFile = zipFilename.toFile();
         try {
-            ZipInputStream zipInputStream = new ZipInputStream(new FileInputStream(zipFile));
-            ZipEntry zipEntry = zipInputStream.getNextEntry();
-            while (zipEntry != null) {
-                extractEntryTo(targetDirectory, zipEntry, zipInputStream);
-                zipInputStream.closeEntry();
-                zipEntry = zipInputStream.getNextEntry();
+            if (zipMatcher.matches(zipFilename)) {
+                logger.info(format("Unziping data from %s to %s ", zipFilename, targetDirectory));
+                ZipInputStream zipInputStream = new ZipInputStream(new FileInputStream(zipFile));
+                ZipEntry zipEntry = zipInputStream.getNextEntry();
+                while (zipEntry != null) {
+                    extractEntryTo(targetDirectory, zipEntry, zipInputStream);
+                    zipInputStream.closeEntry();
+                    zipEntry = zipInputStream.getNextEntry();
+                }
+                zipInputStream.close();
+            } else {
+                logger.info(format("Skipping unzip, %s not a zip file", zipFile.getAbsoluteFile()));
             }
-            zipInputStream.close();
             // update mod time
-            long zipMod = zipFile.lastModified();
-            logger.info("Set '" + targetDirectory.toAbsolutePath() + "' mod time to: " + zipMod);
-            boolean undatedModTime = targetDirectory.toFile().setLastModified(zipMod);
-            if (!undatedModTime) {
-                logger.warn("Could not update the modification time of " + targetDirectory.toAbsolutePath());
-            }
+            updateFileModTime(targetDirectory, zipFile);
 
             return true;
         } catch (ZipException zipException) {
@@ -53,6 +56,15 @@ public class Unzipper {
             return false;
         }
 
+    }
+
+    private void updateFileModTime(Path targetDirectory, File zipFile) {
+        long zipMod = zipFile.lastModified();
+        logger.info("Set '" + targetDirectory.toAbsolutePath() + "' mod time to: " + zipMod);
+        boolean undatedModTime = targetDirectory.toFile().setLastModified(zipMod);
+        if (!undatedModTime) {
+            logger.warn("Could not update the modification time of " + targetDirectory.toAbsolutePath());
+        }
     }
 
     private void extractEntryTo(Path targetDirectory, ZipEntry zipEntry, ZipInputStream zipInputStream) throws IOException {
