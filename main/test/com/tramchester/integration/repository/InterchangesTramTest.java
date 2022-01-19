@@ -23,7 +23,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static com.tramchester.domain.reference.CentralZoneStation.Shudehill;
 import static com.tramchester.domain.reference.CentralZoneStation.StWerbergsRoad;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -110,12 +109,12 @@ public class InterchangesTramTest {
 
     /***
      * Here to validate shudehill neighbours testing and interchanges
-     * @see NeighboursAsInterchangesTest#shudehillBecomesInterchangeWhenNeighboursCreated()
+     * @see NeighboursAsInterchangesTest#altrinchamBecomesInterchangeWhenNeighboursCreated()
      */
     @Test
-    public void shudehillNotAnInterchange() {
-        Station shudehill = stationRepository.getStationById(Shudehill.getId());
-        assertFalse(interchangeRepository.isInterchange(shudehill));
+    public void altrinchamNotAnInterchange() {
+        Station station = stationRepository.getStationById(TramStations.Altrincham.getId());
+        assertFalse(interchangeRepository.isInterchange(station));
     }
 
 }

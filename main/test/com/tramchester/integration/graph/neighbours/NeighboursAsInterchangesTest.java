@@ -17,15 +17,16 @@ import org.junit.jupiter.api.Test;
 
 import java.util.Optional;
 
-import static com.tramchester.testSupport.reference.TramStations.Shudehill;
+import static com.tramchester.testSupport.reference.TramStations.Altrincham;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 @BusTest
 public class NeighboursAsInterchangesTest {
 
     private static GuiceContainerDependencies componentContainer;
     private InterchangeRepository interchangeRepository;
-    private Station shudehillTram;
+    private Station altrinchamTram;
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
@@ -44,21 +45,22 @@ public class NeighboursAsInterchangesTest {
     void onceBeforeEachTestRuns() {
         interchangeRepository = componentContainer.get(InterchangeRepository.class);
         StationRepository stationRepository = componentContainer.get(StationRepository.class);
-        shudehillTram = stationRepository.getStationById(Shudehill.getId());
+        altrinchamTram = stationRepository.getStationById(Altrincham.getId());
     }
 
     /***
-     * @see InterchangesTramTest#shudehillNotAnInterchange()
+     * @see InterchangesTramTest#altrinchamNotAnInterchange()
      */
     @Test
-    public void shudehillBecomesInterchangeWhenNeighboursCreated() {
-        assertTrue(interchangeRepository.isInterchange(shudehillTram));
+    public void altrinchamBecomesInterchangeWhenNeighboursCreated() {
+        assertTrue(interchangeRepository.isInterchange(altrinchamTram));
+        fail("todo  - need to pick a different staiton, shudehill is an interchange");
     }
 
     @Test
-    public void shouldHaveShudehillAsMultimode() {
+    public void shouldHaveAltrinchamAsMultimode() {
         Optional<InterchangeStation> results = interchangeRepository.getAllInterchanges().stream().
-                filter(interchangeStation -> interchangeStation.getStationId().equals(shudehillTram.getId()))
+                filter(interchangeStation -> interchangeStation.getStationId().equals(altrinchamTram.getId()))
                 .findFirst();
 
         assertTrue(results.isPresent(), "missing");

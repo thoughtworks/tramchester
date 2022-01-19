@@ -3,7 +3,11 @@ package com.tramchester.integration.graph;
 import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.DiagramCreator;
+import com.tramchester.config.GTFSSourceConfig;
 import com.tramchester.domain.Journey;
+import com.tramchester.domain.StationClosure;
+import com.tramchester.domain.reference.GTFSTransportationType;
+import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramServiceDate;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.GraphDatabase;
@@ -11,8 +15,10 @@ import com.tramchester.graph.filters.ConfigurableGraphFilter;
 import com.tramchester.domain.JourneyRequest;
 import com.tramchester.graph.search.RouteCalculator;
 import com.tramchester.integration.testSupport.RouteCalculatorTestFacade;
+import com.tramchester.integration.testSupport.tfgm.TFGMGTFSSourceTestConfig;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
 import com.tramchester.repository.StationRepository;
+import com.tramchester.testSupport.AdditionalTramInterchanges;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TramRouteHelper;
 import com.tramchester.testSupport.reference.TramStations;
@@ -23,10 +29,7 @@ import org.neo4j.graphdb.Transaction;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.time.LocalDate;
-import java.util.Arrays;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 import static com.tramchester.testSupport.TestEnv.DAYS_AHEAD;
 import static com.tramchester.testSupport.reference.KnownTramRoute.*;
@@ -156,6 +159,19 @@ class RouteCalculatorSubGraphMediaCityTest {
     private static class SubgraphConfig extends IntegrationTramTestConfig {
         public SubgraphConfig() {
             super("sub_mediacity_tramchester.db");
+        }
+
+        @Override
+        protected List<GTFSSourceConfig> getDataSourceFORTESTING() {
+            List<StationClosure> closed = Collections.emptyList();
+
+            Set<String> additionalInterchanges = AdditionalTramInterchanges.get();
+            additionalInterchanges.add(Cornbrook.forDTO());
+            additionalInterchanges.add(Broadway.forDTO());
+
+            TFGMGTFSSourceTestConfig gtfsSourceConfig = new TFGMGTFSSourceTestConfig("data/tram", GTFSTransportationType.tram,
+                    TransportMode.Tram, additionalInterchanges, Collections.emptySet(), closed);
+            return Collections.singletonList(gtfsSourceConfig);
         }
     }
 

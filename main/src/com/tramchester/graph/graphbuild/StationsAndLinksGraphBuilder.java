@@ -137,7 +137,7 @@ public class StationsAndLinksGraphBuilder extends GraphBuilder {
                         map(station -> transportData.getRouteStation(station, route)).
                         forEach(routeStation -> {
                             Node routeStationNode = createRouteStationNode(tx, routeStation, builderCache);
-                            linkStationAndRouteStation(tx, routeStation.getStation(), routeStationNode);
+                            linkStationAndRouteStation(tx, routeStation.getStation(), routeStationNode, route.getTransportMode());
                         });
 
                 createLinkRelationships(tx, route, builderCache);
@@ -148,7 +148,7 @@ public class StationsAndLinksGraphBuilder extends GraphBuilder {
         }
     }
 
-    private void linkStationAndRouteStation(Transaction txn, Station station, Node routeStationNode) {
+    private void linkStationAndRouteStation(Transaction txn, Station station, Node routeStationNode, TransportMode transportMode) {
         Node stationNode = builderCache.getStation(txn, station.getId());
 
         final Relationship stationToRoute = stationNode.createRelationshipTo(routeStationNode, STATION_TO_ROUTE);
@@ -157,6 +157,9 @@ public class StationsAndLinksGraphBuilder extends GraphBuilder {
         final int minimumChangeCost = station.getMinimumChangeCost();
         GraphProps.setCostProp(stationToRoute, minimumChangeCost);
         GraphProps.setCostProp(routeToStation, 0);
+
+        GraphProps.setProperty(routeToStation, transportMode);
+        GraphProps.setProperty(stationToRoute, transportMode);
 
         GraphProps.setMaxCostProp(stationToRoute, minimumChangeCost);
         GraphProps.setMaxCostProp(routeToStation, 0);
@@ -247,7 +250,8 @@ public class StationsAndLinksGraphBuilder extends GraphBuilder {
         setProperty(routeStationNode, routeStation.getStation());
         setProperty(routeStationNode, routeStation.getRoute());
 
-        setTransportMode(routeStation, routeStationNode);
+        TransportMode mode = routeStation.getRoute().getTransportMode();
+        setProperty(routeStationNode, mode);
 
         builderCache.putRouteStation(routeStation.getId(), routeStationNode);
         return routeStationNode;

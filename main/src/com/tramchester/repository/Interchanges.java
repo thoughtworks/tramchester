@@ -171,11 +171,12 @@ public class Interchanges implements InterchangeRepository {
         interchanges.put(station.getId(), new InterchangeStation(station));
     }
 
-    private int getLinkThreshhold(TransportMode mode) {
+    public static int getLinkThreshhold(TransportMode mode) {
         // todo into config? Per datasource & transport mode? Bus 2??
         return switch (mode) {
-            case Bus, Ferry -> 2;
-            case Tram, Subway, Train -> 3;
+            case Bus, Ferry -> 3;
+            case Tram -> 5;
+            case Subway, Train -> 7;
             default -> throw new RuntimeException("Todo for " + mode);
         };
     }

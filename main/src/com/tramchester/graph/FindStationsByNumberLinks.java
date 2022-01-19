@@ -32,18 +32,27 @@ public class FindStationsByNumberLinks {
     public IdSet<Station> findAtLeastNConnectionsFrom(TransportMode mode, int threshhold) {
         logger.info(format("Find at least N outbound for %s N=%s", mode, threshhold));
         Map<String, Object> params = new HashMap<>();
-        
+
         String stationLabel = GraphLabel.forMode(mode).name();
-        String modesProps = GraphPropertyKey.TRANSPORT_MODES.getText();
+        String modesProps = GraphPropertyKey.TRANSPORT_MODE.getText();
 
         params.put("count", threshhold);
         params.put("mode", mode.getNumber());
-        String query = format("MATCH (a:%s)-[r:LINKED]->(b) " +
+//        String query = format("MATCH (a:%s)-[r:LINKED]->(b) " +
+//                        "WHERE $mode in r.%s " +
+//                        "WITH a, count(r) as num " +
+//                        "WHERE num>=$count " +
+//                        "RETURN a",
+//                stationLabel, modesProps);
+
+        // number of routes a station is linked too
+        String query = format("MATCH (a:%s)-[r:STATION_TO_ROUTE]->(b:ROUTE_STATION) " +
                         "WHERE $mode in r.%s " +
                         "WITH a, count(r) as num " +
                         "WHERE num>=$count " +
                         "RETURN a",
                 stationLabel, modesProps);
+
         logger.info("Query: '" + query + '"');
 
         IdSet<Station> stationIds = new IdSet<>();

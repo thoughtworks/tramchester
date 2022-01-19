@@ -12,14 +12,10 @@ public class AdditionalTramInterchanges {
 
     private enum Interchanges {
         // official interchange points not auto-detected by InterchangeRepository, see config for tram routing also
-        CORNBROOK("9400ZZMACRN"),
-        ST_PETERS_SQUARE("9400ZZMASTP"),
-        PIC_GARDENS("9400ZZMAPGD"),
-        TRAF_BAR("9400ZZMATRA"),
         ST_WS_ROAD("9400ZZMASTW"),
-        VICTORIA("9400ZZMAVIC"),
-        DEANSGATE("9400ZZMAGMX"),
-        PICCADILLY("9400ZZMAPIC");
+        POMONA("9400ZZMAPOM"), // needed otherwise some interconnects are not possible
+        HARBOUR_CITY("9400ZZMAHCY"),
+        BROADWAY("9400ZZMABWY");
         //ETIHAD("9400ZZMAECS");
 
         private final String stationId;
