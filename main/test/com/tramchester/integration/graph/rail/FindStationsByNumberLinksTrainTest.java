@@ -46,7 +46,7 @@ class FindStationsByNumberLinksTrainTest {
     @Test
     void shouldIdForkPointsFromTrainNetwork() {
         int threshhold = 3;
-        IdSet<Station> found = discoverer.findAtLeastNConnectionsFrom(TransportMode.Train, threshhold);
+        IdSet<Station> found = discoverer.atLeastNLinkedStations(TransportMode.Train, threshhold);
 
 
         assertTrue(found.contains(RailStationIds.ManchesterPiccadilly.getId()));

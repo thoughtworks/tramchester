@@ -41,7 +41,6 @@ public class RouteInterchangesBusTest {
     @BeforeEach
     void onceBeforeEachTestRuns() {
         stationRepository = componentContainer.get(StationRepository.class);
-        //RouteRepository routeRepository = componentContainer.get(RouteRepository.class);
         interchangeRepository = componentContainer.get(InterchangeRepository.class);
 
         routeInterchanges = componentContainer.get(RouteInterchanges.class);

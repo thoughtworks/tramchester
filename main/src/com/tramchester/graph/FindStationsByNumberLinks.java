@@ -6,6 +6,7 @@ import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.graph.graphbuild.*;
 import com.tramchester.metrics.TimedTransaction;
+import org.jetbrains.annotations.NotNull;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Result;
 import org.neo4j.graphdb.Transaction;
@@ -29,35 +30,54 @@ public class FindStationsByNumberLinks {
         this.graphDatabase = graphDatabase;
     }
 
-    public IdSet<Station> findAtLeastNConnectionsFrom(TransportMode mode, int threshhold) {
+    public IdSet<Station> atLeastNLinkedStations(TransportMode mode, int threshhold) {
         logger.info(format("Find at least N outbound for %s N=%s", mode, threshhold));
         Map<String, Object> params = new HashMap<>();
 
         String stationLabel = GraphLabel.forMode(mode).name();
-        String modesProps = GraphPropertyKey.TRANSPORT_MODE.getText();
 
-        params.put("count", threshhold);
+        params.put("threshhold", threshhold);
         params.put("mode", mode.getNumber());
-//        String query = format("MATCH (a:%s)-[r:LINKED]->(b) " +
-//                        "WHERE $mode in r.%s " +
-//                        "WITH a, count(r) as num " +
-//                        "WHERE num>=$count " +
-//                        "RETURN a",
-//                stationLabel, modesProps);
+        // todo b has to be a STATION
+        String query = format("MATCH (a:%s)-[link:LINKED]->(b) " +
+                        "WHERE $mode in link.transport_modes " +
+                        "WITH a, count(link) as num " +
+                        "WHERE num>=$threshhold " +
+                        "RETURN a",
+                stationLabel);
+
+        return doQuery(mode, params, query);
+    }
+
+    // TODO this is problematic for some datasets because they duplicate routes for different date ranges
+    // so need to post filter the discovered routes to somehow spot they are not the same??
+    public IdSet<Station> atLeastNLinkedRoutes(TransportMode mode, int threshhold) {
+        logger.info(format("Find at least N outbound for %s N=%s", mode, threshhold));
+        Map<String, Object> params = new HashMap<>();
+
+        String stationLabel = GraphLabel.forMode(mode).name();
+
+        params.put("threshhold", threshhold);
+        params.put("mode", mode.getNumber());
 
         // number of routes a station is linked too
         String query = format("MATCH (a:%s)-[r:STATION_TO_ROUTE]->(b:ROUTE_STATION) " +
-                        "WHERE $mode in r.%s " +
+                        "WHERE $mode in r.transport_mode " +
                         "WITH a, count(r) as num " +
-                        "WHERE num>=$count " +
+                        "WHERE num>=$threshhold " +
                         "RETURN a",
-                stationLabel, modesProps);
+                stationLabel);
 
+        return doQuery(mode, params, query);
+    }
+
+    @NotNull
+    private IdSet<Station> doQuery(TransportMode mode, Map<String, Object> params, String query) {
         logger.info("Query: '" + query + '"');
 
         IdSet<Station> stationIds = new IdSet<>();
 
-        try (TimedTransaction timedTransaction = new TimedTransaction(graphDatabase, logger, "Outbounds for " + mode) ) {
+        try (TimedTransaction timedTransaction = new TimedTransaction(graphDatabase, logger, "linked for " + mode) ) {
             Transaction txn = timedTransaction.transaction();
             Result result = txn.execute(query, params);
             while (result.hasNext()) {

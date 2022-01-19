@@ -70,4 +70,8 @@ public class InterchangeStation {
     public void addPickupRoutes(Set<Route> additionalPickupRoutes) {
         pickupFromInterchange.addAll(additionalPickupRoutes);
     }
+
+    public Station getStation() {
+        return station;
+    }
 }

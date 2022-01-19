@@ -15,6 +15,7 @@ import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.graph.FindStationsByNumberLinks;
 import com.tramchester.graph.filters.GraphFilter;
+import com.tramchester.graph.graphbuild.StationsAndLinksGraphBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -42,7 +43,7 @@ public class Interchanges implements InterchangeRepository {
     @Inject
     public Interchanges(FindStationsByNumberLinks findStationsByNumberConnections, StationRepository stationRepository,
                         NeighboursRepository neighboursRepository, CompositeStationRepository compositeStationRepository,
-                        TramchesterConfig config, GraphFilter graphFilter) {
+                        TramchesterConfig config, GraphFilter graphFilter, StationsAndLinksGraphBuilder.Ready ready) {
         this.findStationsByNumberConnections = findStationsByNumberConnections;
         this.stationRepository = stationRepository;
         this.neighboursRepository = neighboursRepository;
@@ -64,10 +65,12 @@ public class Interchanges implements InterchangeRepository {
 
         logger.info("Starting for " + enabledModes);
 
+        enabledModes.forEach(this::addMarkedStations);
+
         enabledModes.stream().filter(this::discoveryEnabled).forEach(mode -> {
             int linkThreshhold = getLinkThreshhold(mode);
             populateInterchangesFor(mode, linkThreshhold);
-            addCompositeStations(mode); // 3 otherwise all 'pairs' of stations on single routes included
+            addCompositeStations(mode);
         });
 
         addAdditionalInterchanges(config.getGTFSDataSource());
@@ -119,14 +122,9 @@ public class Interchanges implements InterchangeRepository {
     }
 
     private void populateInterchangesFor(TransportMode mode, int linkThreshhold) {
-        logger.info("Adding stations marked as interchanges");
-        Set<Station> markedAsInterchange = stationRepository.getStationsServing(mode).
-                stream().filter(Station::isMarkedInterchange).collect(Collectors.toSet());
-        addStations(markedAsInterchange);
-        logger.info(format("Added %s %s stations marked as as interchange", markedAsInterchange.size(), mode));
 
         logger.info("Finding interchanges for " + mode + " and threshhold " + linkThreshhold);
-        IdSet<Station> foundIdsViaLinks = findStationsByNumberConnections.findAtLeastNConnectionsFrom(mode, linkThreshhold);
+        IdSet<Station> foundIdsViaLinks = findStationsByNumberConnections.atLeastNLinkedStations(mode, linkThreshhold);
 
         // filter out any station already marked as interchange, or if data source only uses marked interchanges
         Set<Station> foundViaLinks = foundIdsViaLinks.stream().map(stationRepository::getStationById).
@@ -135,6 +133,14 @@ public class Interchanges implements InterchangeRepository {
                 collect(Collectors.toSet());
         logger.info(format("Added %s interchanges for %s and link threshold %s", foundViaLinks.size(), mode, linkThreshhold));
         addStations(foundViaLinks);
+    }
+
+    private void addMarkedStations(TransportMode mode) {
+        logger.info("Adding stations marked as interchanges");
+        Set<Station> markedAsInterchange = stationRepository.getStationsServing(mode).
+                stream().filter(Station::isMarkedInterchange).collect(Collectors.toSet());
+        addStations(markedAsInterchange);
+        logger.info(format("Added %s %s stations marked as as interchange", markedAsInterchange.size(), mode));
     }
 
     private void addCompositeStations(TransportMode mode) {
@@ -174,9 +180,8 @@ public class Interchanges implements InterchangeRepository {
     public static int getLinkThreshhold(TransportMode mode) {
         // todo into config? Per datasource & transport mode? Bus 2??
         return switch (mode) {
-            case Bus, Ferry -> 3;
-            case Tram -> 5;
-            case Subway, Train -> 7;
+            case Bus, Ferry -> 2;
+            case Tram, Subway, Train -> 3;
             default -> throw new RuntimeException("Todo for " + mode);
         };
     }

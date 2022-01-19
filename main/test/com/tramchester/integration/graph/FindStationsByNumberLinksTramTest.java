@@ -60,7 +60,7 @@ class FindStationsByNumberLinksTramTest {
 
         Set<String> fromConfig = dataSource.getAdditionalInterchanges();
 
-        IdSet<Station> found = finder.findAtLeastNConnectionsFrom(TransportMode.Tram, threshhold);
+        IdSet<Station> found = finder.atLeastNLinkedStations(TransportMode.Tram, threshhold);
 
         Set<String> discovered = found.stream().map(IdFor::forDTO).collect(Collectors.toSet());
 
@@ -69,26 +69,35 @@ class FindStationsByNumberLinksTramTest {
         assertTrue(dups.isEmpty(), "Found dups in config " + dups);
     }
 
+    // TODO this is problematic for some datasets because they duplicate routes for different date ranges
+    // so need to post filter the discovered routes to somehow spot they are not the same??
     @Test
-    void shouldIdInterchangePoints() {
+    void shouldFindInterchangeRoutes() {
+        IdSet<Station> found = finder.atLeastNLinkedRoutes(TransportMode.Tram, 9);
+        assertEquals(5, found.size(), found.toString());
+        assertTrue(found.contains(TramStations.TraffordBar.getId()));
+        assertTrue(found.contains(TramStations.Cornbrook.getId()));
+        assertTrue(found.contains(TramStations.Deansgate.getId()));
+        assertTrue(found.contains(TramStations.StPetersSquare.getId()));
+        assertTrue(found.contains(TramStations.Victoria.getId()));
+    }
 
-        IdSet<Station> found = finder.findAtLeastNConnectionsFrom(TransportMode.Tram, threshhold);
-        assertEquals(9, found.size(), found.toString());
+    @Test
+    void shouldIdInterchangePointsLinked() {
+
+        IdSet<Station> found = finder.atLeastNLinkedStations(TransportMode.Tram, threshhold);
+        assertEquals(10, found.size(), found.toString());
         assertTrue(found.contains(TramStations.StPetersSquare.getId()));
         assertTrue(found.contains(TramStations.PiccadillyGardens.getId()));
         assertTrue(found.contains(TramStations.MarketStreet.getId()));
         assertTrue(found.contains(TramStations.TraffordBar.getId()));
         assertTrue(found.contains(TramStations.Cornbrook.getId()));
         assertTrue(found.contains(TramStations.Victoria.getId()));
-        assertTrue(found.contains(TramStations.Deansgate.getId()));
-        assertTrue(found.contains(TramStations.Piccadilly.getId()));
-        assertTrue(found.contains(TramStations.Shudehill.getId()));
+        assertTrue(found.contains(TramStations.StWerburghsRoad.getId()));
+        assertTrue(found.contains(TramStations.Pomona.getId()));
 
-
-        //assertTrue(found.contains(TramStations.Broadway.getId()));
-        //assertTrue(found.contains(TramStations.Pomona.getId()));
-        //assertTrue(found.contains(TramStations.StWerburghsRoad.getId()));
-        //assertTrue(found.contains(TramStations.HarbourCity.getId()));
+        assertTrue(found.contains(TramStations.Broadway.getId()));
+        assertTrue(found.contains(TramStations.HarbourCity.getId()));
 
     }
 

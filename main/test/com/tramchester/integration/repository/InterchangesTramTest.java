@@ -4,6 +4,7 @@ import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.domain.InterchangeStation;
 import com.tramchester.domain.Route;
+import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.places.Station;
 import com.tramchester.integration.graph.neighbours.NeighboursAsInterchangesTest;
@@ -19,11 +20,14 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 import static com.tramchester.domain.reference.CentralZoneStation.StWerbergsRoad;
+import static com.tramchester.testSupport.reference.TramStations.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class InterchangesTramTest {
@@ -51,12 +55,36 @@ public class InterchangesTramTest {
     }
 
     @Test
-    void shouldHaveOfficialTramInterchanges() {
+    void shouldHaveAdditionalTramInterchanges() {
         for (IdFor<Station> interchangeId : AdditionalTramInterchanges.stations()) {
             Station interchange = stationRepository.getStationById(interchangeId);
             assertTrue(interchangeRepository.isInterchange(interchange), interchange.toString());
         }
     }
+
+    @Test
+    void shouldHaveExpectedInterchanges() {
+        // todo shaw and crompton?
+
+        List<TramStations> tramStations = Arrays.asList(StWerburghsRoad, TraffordBar, Cornbrook, HarbourCity, Broadway, Pomona,
+                Cornbrook, Deansgate, StPetersSquare, PiccadillyGardens, Piccadilly, Victoria, MarketStreet);
+
+        Set<Station> expected = tramStations.stream().map(item -> item.from(stationRepository)).collect(Collectors.toSet());
+
+        Set<Station> missing = expected.stream().
+                filter(station -> !interchangeRepository.isInterchange(station)).
+                collect(Collectors.toSet());
+
+        assertTrue(missing.isEmpty(), HasId.asIds(missing));
+
+        Set<Station> unexpected = interchangeRepository.getAllInterchanges().stream().
+                map(InterchangeStation::getStation).
+                filter(station -> !expected.contains(station)).
+                collect(Collectors.toSet());
+
+        assertTrue(unexpected.isEmpty(), HasId.asIds(unexpected));
+    }
+
 
     @Test
     void shouldHaveSomeNotInterchanges() {
@@ -108,7 +136,7 @@ public class InterchangesTramTest {
     }
 
     /***
-     * Here to validate shudehill neighbours testing and interchanges
+     * Here to validate altrincham neighbours testing and interchanges
      * @see NeighboursAsInterchangesTest#altrinchamBecomesInterchangeWhenNeighboursCreated()
      */
     @Test

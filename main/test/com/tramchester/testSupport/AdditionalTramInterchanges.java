@@ -1,7 +1,7 @@
 package com.tramchester.testSupport;
 
-import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.id.IdSet;
+import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.places.Station;
 
 import java.util.Arrays;
@@ -12,11 +12,9 @@ public class AdditionalTramInterchanges {
 
     private enum Interchanges {
         // official interchange points not auto-detected by InterchangeRepository, see config for tram routing also
-        ST_WS_ROAD("9400ZZMASTW"),
-        POMONA("9400ZZMAPOM"), // needed otherwise some interconnects are not possible
-        HARBOUR_CITY("9400ZZMAHCY"),
-        BROADWAY("9400ZZMABWY");
-        //ETIHAD("9400ZZMAECS");
+        Deansgate("9400ZZMAGMX"),
+        Piccadilly("9400ZZMAPIC");
+
 
         private final String stationId;
 
