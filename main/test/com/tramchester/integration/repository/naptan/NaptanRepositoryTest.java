@@ -2,7 +2,7 @@ package com.tramchester.integration.repository.naptan;
 
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.GuiceContainerDependencies;
-import com.tramchester.dataimport.NaPTAN.StopsData;
+import com.tramchester.dataimport.NaPTAN.NaptanStopData;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.places.Station;
@@ -46,7 +46,7 @@ class NaptanRepositoryTest {
         IdFor<Station> actoCode = TramStations.Shudehill.getId();
         assertTrue(respository.containsActo(actoCode));
 
-        StopsData data = respository.getForActo(actoCode);
+        NaptanStopData data = respository.getForActo(actoCode);
         assertEquals("Manchester City Centre", data.getLocalityName());
     }
 
@@ -55,7 +55,7 @@ class NaptanRepositoryTest {
         IdFor<Station> actoCode = BusStations.ManchesterAirportStation.getId();
         assertTrue(respository.containsActo(actoCode));
 
-        StopsData data = respository.getForActo(actoCode);
+        NaptanStopData data = respository.getForActo(actoCode);
         assertEquals("Manchester Airport", data.getLocalityName());
     }
 
@@ -64,7 +64,7 @@ class NaptanRepositoryTest {
         IdFor<Station> tiploc = RailStationIds.Macclesfield.getId();
 
         assertTrue(respository.containsTiploc(tiploc));
-        StopsData data = respository.getForTiploc(tiploc);
+        NaptanStopData data = respository.getForTiploc(tiploc);
         assertEquals(data.getCommonName(), "Macclesfield Rail Station");
         assertEquals(data.getLocalityName(), "Macclesfield");
         assertEquals(data.getAtcoCode(), "9100MACLSFD");

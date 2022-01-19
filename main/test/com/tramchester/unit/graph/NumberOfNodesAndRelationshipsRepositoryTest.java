@@ -73,11 +73,11 @@ class NumberOfNodesAndRelationshipsRepositoryTest {
 
         assertEquals(8, repository.numberOf(TransportRelationshipTypes.TRAM_GOES_TO));
 
-        assertEquals(5, repository.numberOf(TransportRelationshipTypes.BOARD));
-        assertEquals(5, repository.numberOf(TransportRelationshipTypes.DEPART));
+        assertEquals(8, repository.numberOf(TransportRelationshipTypes.BOARD));
+        assertEquals(8, repository.numberOf(TransportRelationshipTypes.DEPART));
 
-        assertEquals(6, repository.numberOf(TransportRelationshipTypes.INTERCHANGE_BOARD));
-        assertEquals(6, repository.numberOf(TransportRelationshipTypes.INTERCHANGE_DEPART));
+        assertEquals(3, repository.numberOf(TransportRelationshipTypes.INTERCHANGE_BOARD));
+        assertEquals(3, repository.numberOf(TransportRelationshipTypes.INTERCHANGE_DEPART));
 
     }
 

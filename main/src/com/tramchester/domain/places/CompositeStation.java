@@ -220,4 +220,7 @@ public class CompositeStation implements Station {
         return new CompositeId<>(ids);
     }
 
+    public int numberContained() {
+        return containedStations.size();
+    }
 }

@@ -3,7 +3,7 @@ package com.tramchester.integration.dataimport.NaPTAN;
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.GuiceContainerDependencies;
 import com.tramchester.dataimport.NaPTAN.NaPTANDataImporter;
-import com.tramchester.dataimport.NaPTAN.StopsData;
+import com.tramchester.dataimport.NaPTAN.NaptanStopData;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfigWithNaptan;
 import com.tramchester.testSupport.TestEnv;
@@ -21,7 +21,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 class NaPTANDataImportTest {
 
     private static GuiceContainerDependencies componentContainer;
-    private Stream<StopsData> dataStream;
+    private Stream<NaptanStopData> dataStream;
     private NaPTANDataImporter dataImporter;
 
     @BeforeAll
@@ -51,12 +51,12 @@ class NaPTANDataImportTest {
     @Test
     void shouldLoadKnownBusStation() {
 
-        Optional<StopsData> foundKnown = dataStream.
+        Optional<NaptanStopData> foundKnown = dataStream.
                 filter(stop -> stop.getAtcoCode().equals(BuryInterchange.getId().forDTO())).
                 findFirst();
         assertFalse(foundKnown.isEmpty());
 
-        StopsData buryInterchange = foundKnown.get();
+        NaptanStopData buryInterchange = foundKnown.get();
         assertEquals("Bury", buryInterchange.getLocalityName());
         assertEquals("", buryInterchange.getParentLocalityName());
     }
@@ -64,24 +64,24 @@ class NaPTANDataImportTest {
     @Test
     void shouldLoadKnownTramStation() {
 
-        Optional<StopsData> foundKnown = dataStream.
+        Optional<NaptanStopData> foundKnown = dataStream.
                 filter(stop -> stop.getAtcoCode().equals(TramStations.StPetersSquare.getId().forDTO())).
                 findFirst();
         assertFalse(foundKnown.isEmpty());
 
-        StopsData known = foundKnown.get();
+        NaptanStopData known = foundKnown.get();
         assertEquals("Manchester City Centre", known.getLocalityName());
         assertEquals("Manchester", known.getParentLocalityName());
     }
 
     @Test
     void shouldContainOutofAreaStop() {
-        Optional<StopsData> foundKnown = dataStream.
+        Optional<NaptanStopData> foundKnown = dataStream.
                 filter(stop -> stop.getAtcoCode().equals(TestEnv.BRISTOL_BUSSTOP_OCTOCODE)).
                 findFirst();
 
         assertFalse(foundKnown.isEmpty());
-        StopsData known = foundKnown.get();
+        NaptanStopData known = foundKnown.get();
         assertEquals("Bristol City Centre", known.getLocalityName());
         assertEquals("Bristol", known.getParentLocalityName());
     }

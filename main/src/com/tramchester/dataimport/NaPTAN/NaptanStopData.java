@@ -3,9 +3,10 @@ package com.tramchester.dataimport.NaPTAN;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.tramchester.geo.GridPosition;
 import com.tramchester.geo.HasGridPosition;
+import com.tramchester.repository.naptan.NaptanStopType;
 
 
-public class StopsData implements HasGridPosition {
+public class NaptanStopData implements HasGridPosition {
 
     // Matches ID for TFGM gtfs data
     @JsonProperty("ATCOCode")
@@ -35,7 +36,10 @@ public class StopsData implements HasGridPosition {
     @JsonProperty("CommonName")
     private String commonName;
 
-    public StopsData() {
+    @JsonProperty("StopType")
+    private String stopType;
+
+    public NaptanStopData() {
         // deserialisation
     }
 
@@ -69,5 +73,9 @@ public class StopsData implements HasGridPosition {
 
     public String getCommonName() {
         return commonName;
+    }
+
+    public NaptanStopType getStopType() {
+        return NaptanStopType.parse(stopType);
     }
 }

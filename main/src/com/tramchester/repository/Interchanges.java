@@ -70,7 +70,7 @@ public class Interchanges implements InterchangeRepository {
         enabledModes.stream().filter(this::discoveryEnabled).forEach(mode -> {
             int linkThreshhold = getLinkThreshhold(mode);
             populateInterchangesFor(mode, linkThreshhold);
-            addCompositeStations(mode);
+            //addCompositeStations(mode, 3);
         });
 
         addAdditionalInterchanges(config.getGTFSDataSource());
@@ -102,7 +102,8 @@ public class Interchanges implements InterchangeRepository {
                 existing.addPickupRoutes(dropoffRoutesAtEnd);
             } else {
                 // not an interchange yet, so only add the routes from the linked station
-                interchanges.put(beginId, new InterchangeStation(stationLink.getBegin(), dropoffRoutesAtEnd));
+                interchanges.put(beginId, new InterchangeStation(stationLink.getBegin(), dropoffRoutesAtEnd,
+                        InterchangeStation.InterchangeType.NeighbourLinks));
             }
         });
         final int count = interchanges.size() - before;
@@ -132,19 +133,19 @@ public class Interchanges implements InterchangeRepository {
                 filter(station -> !config.onlyMarkedInterchange(station)).
                 collect(Collectors.toSet());
         logger.info(format("Added %s interchanges for %s and link threshold %s", foundViaLinks.size(), mode, linkThreshhold));
-        addStations(foundViaLinks);
+        addStations(foundViaLinks, InterchangeStation.InterchangeType.NumberOfLinks);
     }
 
     private void addMarkedStations(TransportMode mode) {
         logger.info("Adding stations marked as interchanges");
         Set<Station> markedAsInterchange = stationRepository.getStationsServing(mode).
                 stream().filter(Station::isMarkedInterchange).collect(Collectors.toSet());
-        addStations(markedAsInterchange);
+        addStations(markedAsInterchange, InterchangeStation.InterchangeType.FromSourceData);
         logger.info(format("Added %s %s stations marked as as interchange", markedAsInterchange.size(), mode));
     }
 
-    private void addCompositeStations(TransportMode mode) {
-        logger.info("Adding composite stations as interchanges");
+    private void addCompositeStations(TransportMode mode, int compositeThreshhold) {
+        logger.info("Adding composite stations as interchanges with threshhold " + compositeThreshhold);
 
         Set<CompositeStation> composites = compositeStationRepository.getCompositesServing(mode);
         if (composites.isEmpty()) {
@@ -152,35 +153,37 @@ public class Interchanges implements InterchangeRepository {
             return;
         }
 
-        Set<Station> expandedMatchingComposites = composites.stream().
-                map(CompositeStation::getContained).
-                filter(contained -> contained.size() >= 3).
-                flatMap(Collection::stream).
+        Set<Station> compositeStationsOverThreshhold = composites.stream().
+                filter(compositeStation -> compositeStation.numberContained() >= compositeThreshhold).
+                flatMap(compositeStation -> compositeStation.getContained().stream()).
                 collect(Collectors.toSet());
 
-        if (expandedMatchingComposites.isEmpty()) {
-            logger.warn(format("Did not find any composites matching threshold %s out of %s composites", 3, composites.size()));
+        if (compositeStationsOverThreshhold.isEmpty()) {
+            logger.warn(format("Did not find any composites matching threshold %s out of %s composites",
+                    compositeThreshhold, composites.size()));
         } else {
-            logger.info(format("Adding %s interchanges for %s composites", expandedMatchingComposites.size(), composites.size()));
+            logger.info(format("Adding %s interchanges for %s composites",
+                    compositeStationsOverThreshhold.size(), composites.size()));
         }
-        addStations(expandedMatchingComposites);
+        addStations(compositeStationsOverThreshhold, InterchangeStation.InterchangeType.CompositeLinks);
     }
 
-    private void addStations(Set<Station> stations) {
+    private void addStations(Set<Station> stations, InterchangeStation.InterchangeType type) {
         Map<IdFor<Station>, InterchangeStation> toAdd = stations.stream().
-                map(InterchangeStation::new).
+                map(station -> new InterchangeStation(station, type)).
                 collect(Collectors.toMap(InterchangeStation::getStationId, item -> item));
         interchanges.putAll(toAdd);
     }
 
-    private void addStationToInterchanges(Station station) {
-        interchanges.put(station.getId(), new InterchangeStation(station));
+    private void addStationToInterchanges(Station station, InterchangeStation.InterchangeType type) {
+        interchanges.put(station.getId(), new InterchangeStation(station, type));
     }
 
     public static int getLinkThreshhold(TransportMode mode) {
         // todo into config? Per datasource & transport mode? Bus 2??
         return switch (mode) {
-            case Bus, Ferry -> 2;
+            case Ferry -> 2;
+            case Bus -> 3;
             case Tram, Subway, Train -> 3;
             default -> throw new RuntimeException("Todo for " + mode);
         };
@@ -231,14 +234,14 @@ public class Interchanges implements InterchangeRepository {
             logger.error("For " + name + " additional interchange station ids invalid:" + invalidIds);
         }
 
-        addInterchangesWhereModesMatch(dataSource.getTransportModes(), validStationsFromConfig);
+        addInterchangesWhereModesMatch(dataSource.getTransportModes(), validStationsFromConfig, InterchangeStation.InterchangeType.FromConfig);
     }
 
-    private void addInterchangesWhereModesMatch(Set<TransportMode> enabledModes, Set<Station> stations) {
+    private void addInterchangesWhereModesMatch(Set<TransportMode> enabledModes, Set<Station> stations, InterchangeStation.InterchangeType type) {
         long countBefore = interchanges.size();
         stations.forEach(station -> enabledModes.forEach(enabledMode -> {
             if (station.servesMode(enabledMode)) {
-                addStationToInterchanges(station);
+                addStationToInterchanges(station, type);
                 logger.info("Added interchange " + station.getId() + " for mode " + enabledMode);
             }
         }));
@@ -253,7 +256,8 @@ public class Interchanges implements InterchangeRepository {
                 filter(station -> station.getTransportModes().size() > 1).
                 collect(Collectors.toSet());
         logger.info("Adding " + multimodeStations.size() + " multimode stations");
-        multimodeStations.forEach(station -> station.getTransportModes().forEach(mode -> addStationToInterchanges(station)));
+        multimodeStations.forEach(station -> station.getTransportModes().forEach(mode -> addStationToInterchanges(station,
+                InterchangeStation.InterchangeType.Multimode)));
     }
 
     @Override

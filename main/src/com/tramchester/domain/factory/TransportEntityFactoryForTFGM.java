@@ -1,6 +1,6 @@
 package com.tramchester.domain.factory;
 
-import com.tramchester.dataimport.NaPTAN.StopsData;
+import com.tramchester.dataimport.NaPTAN.NaptanStopData;
 import com.tramchester.dataimport.data.RouteData;
 import com.tramchester.dataimport.data.StopData;
 import com.tramchester.domain.*;
@@ -11,6 +11,7 @@ import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.GTFSTransportationType;
 import com.tramchester.geo.GridPosition;
 import com.tramchester.repository.naptan.NaptanRespository;
+import com.tramchester.repository.naptan.NaptanStopType;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -47,15 +48,25 @@ public class TransportEntityFactoryForTFGM extends TransportEntityFactory {
     @Override
     public MutableStation createStation(IdFor<Station> stationId, StopData stopData, GridPosition position) {
 
-        String area = getAreaFor(stationId);
+        boolean isInterchange = false;
+        String area = "";
+        if (naptanRespository.isEnabled()) {
+            // enrich details from naptan where possible
+            if (naptanRespository.containsActo(stationId)) {
+                NaptanStopData naptanData = naptanRespository.getForActo(stationId);
+                area = getAreaFromNaptanData(naptanData);
+                isInterchange = NaptanStopType.isInterchance(naptanData.getStopType());
+            }
+        }
 
-        // NOTE: Tram data has unique positions for each platform todo What is the right position to use for a tram station give
+        // NOTE: Tram data has unique positions for each platform
+        // todo Can fetch from naptan, which has entires for the stations and platforms
         // Check for duplicate names - handled by CompositeStationRepository
 
         final String stationName = cleanStationName(stopData);
 
         return new MutableStation(stationId, area, workAroundName(stationName), stopData.getLatLong(), position,
-                getDataSourceId());
+                getDataSourceId(), isInterchange);
     }
 
     @Override
@@ -81,16 +92,16 @@ public class TransportEntityFactoryForTFGM extends TransportEntityFactory {
         }
     }
 
-    protected String getAreaFor(IdFor<Station> stationId) {
-        if (naptanRespository.isEnabled()) {
-            if (naptanRespository.containsActo(stationId)) {
-                return getAreaFromNaptanData(stationId);
-            } else {
-                logger.warn("No naptan data found for " + stationId);
-            }
-        }
-        return "";
-    }
+//    private String getAreaFor(IdFor<Station> stationId) {
+//        if (naptanRespository.isEnabled()) {
+//            if (naptanRespository.containsActo(stationId)) {
+//                return getAreaFromNaptanData(stationId);
+//            } else {
+//                logger.warn("No naptan data found for " + stationId);
+//            }
+//        }
+//        return "";
+//    }
 
     @Override
     public IdFor<Station> formStationId(String text) {
@@ -111,11 +122,10 @@ public class TransportEntityFactoryForTFGM extends TransportEntityFactory {
         return stopData.getId().startsWith(METROLINK_ID_PREFIX);
     }
 
-    private String getAreaFromNaptanData(IdFor<Station> stationId) {
+    private String getAreaFromNaptanData(NaptanStopData naptanStopData) {
         String area;
-        StopsData naptapData = naptanRespository.getForActo(stationId);
-        area = naptapData.getLocalityName();
-        String parent = naptapData.getParentLocalityName();
+        area = naptanStopData.getLocalityName();
+        String parent = naptanStopData.getParentLocalityName();
         if (!parent.isBlank()) {
             area = area + ", " + parent;
         }

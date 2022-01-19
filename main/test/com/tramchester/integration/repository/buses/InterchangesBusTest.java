@@ -67,14 +67,13 @@ class InterchangesBusTest {
 
     @Test
     void shouldNotCountLinksForSameRoute() {
+        // Was here to diagnose issues with automatic id of interchanges
         Route route = routeRepository.getRouteById(StringIdFor.createId("SCMN149A:O:CURRENT"));
-        Set<Station> stationsForRoute = route.getTrips().stream().
-                flatMap(trip -> trip.getStopCalls().getStationSequence().stream()).
-                collect(Collectors.toSet());
 
-        long interchanges = stationsForRoute.stream().filter(station -> interchangeRepository.isInterchange(station)).count();
+        Set<InterchangeStation> interForRoutes = interchangeRepository.getAllInterchanges().stream().
+                filter(interchangeStation -> interchangeStation.getPickupRoutes().contains(route)).collect(Collectors.toSet());
 
-        assertEquals(10, interchanges, "too many interchanges for route with " + stationsForRoute.size() + " stations");
+        assertEquals(18, interForRoutes.size(), "too many interchanges " + interForRoutes);
     }
 
     @Test

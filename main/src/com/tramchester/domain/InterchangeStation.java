@@ -9,21 +9,34 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static com.tramchester.domain.id.HasId.asId;
 import static com.tramchester.domain.id.HasId.asIds;
 
 public class InterchangeStation {
-    private final Station station;
 
-    private final Set<Route> pickupFromInterchange;
-
-    public InterchangeStation(Station station, Set<Route> pickupFromInterchange) {
-        this.station = station;
-        this.pickupFromInterchange = new HashSet<>(pickupFromInterchange);
+    public enum InterchangeType {
+        FromSourceData,
+        NumberOfLinks,
+        CompositeLinks,
+        NeighbourLinks,
+        Multimode,
+        FromConfig
     }
 
-    public InterchangeStation(Station station) {
+    private final Station station;
+    private final Set<Route> pickupFromInterchange;
+    private final InterchangeType interchangeType;
+
+    public InterchangeStation(Station station, Set<Route> pickupFromInterchange, InterchangeType interchangeType) {
         this.station = station;
-        this.pickupFromInterchange = new HashSet<>(station.getPickupRoutes());
+        this.pickupFromInterchange = new HashSet<>(pickupFromInterchange);
+        this.interchangeType = interchangeType;
+    }
+
+    public InterchangeStation(Station station, InterchangeType interchangeType) {
+        this(station,  new HashSet<>(station.getPickupRoutes()), interchangeType);
+//        this.station = station;
+//        this.pickupFromInterchange = new HashSet<>(station.getPickupRoutes());
     }
 
     public boolean isMultiMode() {
@@ -35,8 +48,9 @@ public class InterchangeStation {
     @Override
     public String toString() {
         return "InterchangeStation{" +
-                "station=" + station.getId() +
-                ", connectingRoutes=" + asIds(pickupFromInterchange) +
+                "station=" + asId(station) +
+                ", pickupFromInterchange=" + asIds(pickupFromInterchange) +
+                ", interchangeType=" + interchangeType +
                 '}';
     }
 

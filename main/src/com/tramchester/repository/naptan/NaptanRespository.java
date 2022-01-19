@@ -4,7 +4,7 @@ import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.dataimport.NaPTAN.NaPTANDataImporter;
 import com.tramchester.dataimport.NaPTAN.RailStationData;
-import com.tramchester.dataimport.NaPTAN.StopsData;
+import com.tramchester.dataimport.NaPTAN.NaptanStopData;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.places.Station;
 import com.tramchester.geo.BoundingBox;
@@ -22,13 +22,15 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+// http://naptan.dft.gov.uk/naptan/schema/2.5/doc/NaPTANSchemaGuide-2.5-v0.67.pdf
+
 @LazySingleton
 public class NaptanRespository {
     private static final Logger logger = LoggerFactory.getLogger(NaptanRespository.class);
 
     private final NaPTANDataImporter dataImporter;
     private final TramchesterConfig config;
-    private Map<String, StopsData> stopData;
+    private Map<String, NaptanStopData> stopData;
     private Map<String, String> tiplocToAtco;
 
     @Inject
@@ -72,9 +74,9 @@ public class NaptanRespository {
     }
 
     private void loadStopsData(BoundingBox bounds, MarginInMeters margin) {
-        Stream<StopsData> stopsData = dataImporter.getStopsData();
+        Stream<NaptanStopData> stopsData = dataImporter.getStopsData();
         stopData = filterBy(bounds, margin, stopsData).
-                collect(Collectors.toMap(StopsData::getAtcoCode, Function.identity()));
+                collect(Collectors.toMap(NaptanStopData::getAtcoCode, Function.identity()));
         stopsData.close();
 
         logger.info("Loaded " + stopData.size() + " stops");
@@ -96,12 +98,11 @@ public class NaptanRespository {
                 filter(item -> bounds.within(margin, item.getGridPosition()));
     }
 
-
     public boolean containsActo(IdFor<Station> actoCode) {
         return stopData.containsKey(actoCode.forDTO());
     }
 
-    public StopsData getForActo(IdFor<Station> actoCode) {
+    public NaptanStopData getForActo(IdFor<Station> actoCode) {
         return stopData.get(actoCode.forDTO());
     }
 
@@ -109,7 +110,12 @@ public class NaptanRespository {
         return dataImporter.isEnabled();
     }
 
-    public StopsData getForTiploc(IdFor<Station> tiploc) {
+    /***
+     * Look up via train location code
+     * @param tiploc the code for the station
+     * @return data if present, null otherwise
+     */
+    public NaptanStopData getForTiploc(IdFor<Station> tiploc) {
         String acto = tiplocToAtco.get(tiploc.forDTO());
         if (stopData.containsKey(acto)) {
             return stopData.get(acto);

@@ -5,7 +5,7 @@ import com.tramchester.config.RailConfig;
 import com.tramchester.config.RemoteDataSourceConfig;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.dataimport.FetchFileModTime;
-import com.tramchester.dataimport.NaPTAN.StopsData;
+import com.tramchester.dataimport.NaPTAN.NaptanStopData;
 import com.tramchester.dataimport.loader.DirectDataSourceFactory;
 import com.tramchester.dataimport.rail.records.PhysicalStationRecord;
 import com.tramchester.dataimport.rail.records.RailTimetableRecord;
@@ -167,7 +167,7 @@ public class RailTransportDataFromFiles implements DirectDataSourceFactory.Popul
 
         if (naptanRespository.containsTiploc(id)) {
             // prefer naptan data if available
-            StopsData stopsData = naptanRespository.getForTiploc(id);
+            NaptanStopData stopsData = naptanRespository.getForTiploc(id);
             grid = stopsData.getGridPosition();
             name = stopsData.getCommonName();
             area = stopsData.getLocalityName();

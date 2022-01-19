@@ -27,7 +27,7 @@ public class NaPTANDataImporter {
 
     private final TramchesterConfig config;
     private final CsvMapper mapper;
-    private Stream<StopsData> stopsDataStream;
+    private Stream<NaptanStopData> stopsDataStream;
     private Stream<RailStationData> railStationDataStream;
     private boolean open;
 
@@ -67,7 +67,7 @@ public class NaPTANDataImporter {
 
         Path dataPath = sourceConfig.getDataPath();
 
-        stopsDataStream = loadFor(dataPath, "Stops.csv", StopsData.class);
+        stopsDataStream = loadFor(dataPath, "Stops.csv", NaptanStopData.class);
         railStationDataStream = loadFor(dataPath, "RailReferences.csv", RailStationData.class);
 
         open = true;
@@ -101,7 +101,7 @@ public class NaPTANDataImporter {
         logger.info("Stopped");
     }
 
-    public Stream<StopsData> getStopsData() {
+    public Stream<NaptanStopData> getStopsData() {
         return stopsDataStream;
     }
 
