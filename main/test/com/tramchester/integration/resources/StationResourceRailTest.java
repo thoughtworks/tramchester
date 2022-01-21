@@ -46,7 +46,6 @@ class StationResourceRailTest {
         stationRepo = app.getDependencies().get(StationRepository.class);
     }
 
-
     @Test
     void shouldGetSingleStationWithPlatforms() {
         String stationId = RailStationIds.ManchesterPiccadilly.getId().forDTO();

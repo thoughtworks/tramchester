@@ -10,7 +10,6 @@ import com.tramchester.integration.testSupport.IntegrationTestConfig;
 import com.tramchester.testSupport.TestEnv;
 
 import java.nio.file.Path;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -18,6 +17,7 @@ public class IntegrationRailTestConfig extends IntegrationTestConfig {
 
     private final GraphDBConfig graphDBConfig;
     private final RailRemoteDataSourceConfig railRemoteDataSource;
+    private final RemoteNaptanRailRefDataSourceConfig railStationRefDataSource;
 
     public IntegrationRailTestConfig() {
         this("rail_tramchester.db");
@@ -27,6 +27,7 @@ public class IntegrationRailTestConfig extends IntegrationTestConfig {
         super(new GraphDBIntegrationRailTestConfig("integrationTrainTest", dbFilename));
         graphDBConfig = new GraphDBIntegrationRailTestConfig("integrationTrainTest", dbFilename);
         railRemoteDataSource = new RailRemoteDataSourceConfig("data/rail");
+        railStationRefDataSource = new RemoteNaptanRailRefDataSourceConfig("data/naptan");
     }
 
     @Override
@@ -46,7 +47,7 @@ public class IntegrationRailTestConfig extends IntegrationTestConfig {
 
     @Override
     public List<RemoteDataSourceConfig> getRemoteDataSourceConfig() {
-        return Arrays.asList(railRemoteDataSource, remoteNaptanConfig);
+        return List.of(railRemoteDataSource, remoteNaptanConfig, railStationRefDataSource);
     }
 
     @Override

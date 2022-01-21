@@ -82,11 +82,14 @@ class ConfigMismatchTest {
 
         List<RemoteDataSourceConfig> remoteSources = appConfig.getRemoteDataSourceConfig();
         List<RemoteDataSourceConfig> testRemoteSources = testConfig.getRemoteDataSourceConfig();
+
         assertEquals(remoteSources.size(), testRemoteSources.size());
-        assertEquals(2, testRemoteSources.size());
+        assertEquals(3, testRemoteSources.size());
 
         assertRemoteSources(remoteSources, testRemoteSources, 0);
         assertRemoteSources(remoteSources, testRemoteSources, 1);
+        assertRemoteSources(remoteSources, testRemoteSources, 2);
+
 
         RailConfig rail = appConfig.getRailConfig();
         RailConfig testRail = appConfig.getRailConfig();

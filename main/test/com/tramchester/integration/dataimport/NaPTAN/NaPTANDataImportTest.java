@@ -2,7 +2,7 @@ package com.tramchester.integration.dataimport.NaPTAN;
 
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.GuiceContainerDependencies;
-import com.tramchester.dataimport.NaPTAN.NaPTANDataImporter;
+import com.tramchester.dataimport.NaPTAN.NaptanStopsDataImporter;
 import com.tramchester.dataimport.NaPTAN.NaptanStopData;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfigWithNaptan;
@@ -23,7 +23,7 @@ class NaPTANDataImportTest {
 
     private static GuiceContainerDependencies componentContainer;
     private Stream<NaptanStopData> dataStream;
-    private NaPTANDataImporter dataImporter;
+    private NaptanStopsDataImporter dataImporter;
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
@@ -39,7 +39,7 @@ class NaPTANDataImportTest {
 
     @BeforeEach
     void beforeEachTestRuns() {
-        dataImporter = componentContainer.get(NaPTANDataImporter.class);
+        dataImporter = componentContainer.get(NaptanStopsDataImporter.class);
         dataImporter.start();
         dataStream = dataImporter.getStopsData();
     }

@@ -36,6 +36,11 @@ remoteSources:
     dataCheckURL: ""
     dataPath: data/naptan
     filename: Stops.csv
+  - name: railReferences
+    dataURL: s3://tramchester2dist/railData/RailReferences.csv
+    dataCheckURL: s3://tramchester2dist/railData/RailReferences.csv
+    dataPath: data/naptan
+    filename: RailReferences.csv
 cacheFolder: data/cache/rail
 calcTimeoutMillis: 3500
 bounds:
@@ -43,7 +48,6 @@ bounds:
   minNorthings: 30599
   maxEasting: 654747
   maxNorthings: 967921
-
 planningEnabled: true
 createNeighbours: false
 maxNeighbourConnections: 0

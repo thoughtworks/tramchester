@@ -9,6 +9,7 @@ public enum DataSourceID {
     postcode,
     naptan,
     rail,
+    naptanRailReference,
     unknown;
 
     private static final Logger logger = LoggerFactory.getLogger(DataSourceID.class);
