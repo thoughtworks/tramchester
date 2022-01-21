@@ -66,6 +66,7 @@ public class NaptanRespository {
     public void stop() {
         logger.info("stopping");
         stopData.clear();
+        tiplocToAtco.clear();
         logger.info("stopped");
     }
 

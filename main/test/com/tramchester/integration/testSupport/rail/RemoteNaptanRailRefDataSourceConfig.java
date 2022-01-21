@@ -40,7 +40,7 @@ public class RemoteNaptanRailRefDataSourceConfig implements RemoteDataSourceConf
 
     @Override
     public String getName() {
-        return "railIntegrationTest";
+        return "railIntegrationTestRailReferences";
     }
 
     @Override
