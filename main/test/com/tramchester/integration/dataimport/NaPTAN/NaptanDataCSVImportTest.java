@@ -5,7 +5,7 @@ import com.tramchester.GuiceContainerDependencies;
 import com.tramchester.dataimport.NaPTAN.NaptanStopsDataImporter;
 import com.tramchester.dataimport.NaPTAN.NaptanStopData;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
-import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfigWithNaptan;
+import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfigWithCSVNaptan;
 import com.tramchester.repository.naptan.NaptanStopType;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.TramStations;
@@ -19,7 +19,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 
 
-class NaPTANDataImportTest {
+class NaptanDataCSVImportTest {
 
     private static GuiceContainerDependencies componentContainer;
     private Stream<NaptanStopData> dataStream;
@@ -27,7 +27,7 @@ class NaPTANDataImportTest {
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
-        IntegrationTramTestConfig testConfig = new IntegrationTramTestConfigWithNaptan();
+        IntegrationTramTestConfig testConfig = new IntegrationTramTestConfigWithCSVNaptan();
         componentContainer = new ComponentsBuilder().create(testConfig, TestEnv.NoopRegisterMetrics());
         componentContainer.initialise();
     }

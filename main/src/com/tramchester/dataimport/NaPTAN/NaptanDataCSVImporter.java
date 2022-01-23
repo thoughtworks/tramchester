@@ -14,8 +14,8 @@ import java.util.stream.Stream;
 
 import static java.lang.String.format;
 
-public class NaptanDataImporter<R> {
-    private static final Logger logger = LoggerFactory.getLogger(NaptanDataImporter.class);
+public class NaptanDataCSVImporter<R> {
+    private static final Logger logger = LoggerFactory.getLogger(NaptanDataCSVImporter.class);
 
     private final TramchesterConfig config;
     private final CsvMapper mapper;
@@ -25,8 +25,8 @@ public class NaptanDataImporter<R> {
     private Stream<R> dataStream;
     private boolean open;
 
-    protected NaptanDataImporter(TramchesterConfig config, CsvMapper mapper, Class<R> dataClass, DataSourceID dataSourceID,
-                                 UnzipFetchedData.Ready dataIsReady) {
+    protected NaptanDataCSVImporter(TramchesterConfig config, CsvMapper mapper, Class<R> dataClass, DataSourceID dataSourceID,
+                                    UnzipFetchedData.Ready dataIsReady) {
 
         this.config = config;
         this.mapper = mapper;

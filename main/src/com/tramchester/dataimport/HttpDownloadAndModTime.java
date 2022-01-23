@@ -66,20 +66,19 @@ public class HttpDownloadAndModTime implements DownloadAndModTime {
 
             long serverModMillis = connection.getLastModified();
             String encoding = connection.getContentType();
-            logger.info("Response encoding " + encoding);
 
+            logger.info("Response encoding " + encoding);
             logger.info("Content length is " + len);
 
             if (len>0) {
-                ReadableByteChannel rbc = Channels.newChannel(connection.getInputStream());
-                FileOutputStream fos = new FileOutputStream(targetFile);
-                fos.getChannel().transferFrom(rbc, 0, len);
-                fos.close();
-                rbc.close();
+                downloadByLength(targetFile, connection, len);
+            } else {
+                download(targetFile, connection);
+            }
 
-                long downloadedLength = targetFile.length();
-                logger.info("Finished download, file size is " + downloadedLength);
-
+            if (!targetFile.exists()) {
+                logger.error(format("Failed to download from %s to %s", url, targetFile.getAbsoluteFile()));
+            } else {
                 if (serverModMillis>0) {
                     if (!targetFile.setLastModified(serverModMillis)) {
                         logger.warn("Unable to set mod time on " + targetFile);
@@ -87,8 +86,6 @@ public class HttpDownloadAndModTime implements DownloadAndModTime {
                 } else {
                     logger.warn("Server mod time is zero, not updating local file mod time");
                 }
-            } else {
-                logger.error("Unable to download from " + url);
             }
 
             connection.disconnect();
@@ -97,6 +94,30 @@ public class HttpDownloadAndModTime implements DownloadAndModTime {
             logger.error(format("Unable to download data from %s to %s exception %s", url, path, exception));
             throw exception;
         }
+    }
+
+    private void download(File targetFile, HttpURLConnection connection) throws IOException {
+        int maxSize = 1000 * 1024 * 1024;
+        ReadableByteChannel rbc = Channels.newChannel(connection.getInputStream());
+        FileOutputStream fos = new FileOutputStream(targetFile);
+        long received = 1;
+        while (received > 0) {
+            received = fos.getChannel().transferFrom(rbc, 0, maxSize);
+            logger.info(format("Received %s bytes for %s", received, targetFile));
+        }
+        fos.close();
+        rbc.close();
+    }
+
+    private void downloadByLength(File targetFile, HttpURLConnection connection, long len) throws IOException {
+        ReadableByteChannel rbc = Channels.newChannel(connection.getInputStream());
+        FileOutputStream fos = new FileOutputStream(targetFile);
+        long received = fos.getChannel().transferFrom(rbc, 0, len);
+        fos.close();
+        rbc.close();
+
+        long downloadedLength = targetFile.length();
+        logger.info(format("Finished download, received %s file size is %s", received, downloadedLength));
     }
 
     private HttpURLConnection createConnection(String url) throws IOException {

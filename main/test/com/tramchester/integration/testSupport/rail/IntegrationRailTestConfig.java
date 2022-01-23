@@ -47,7 +47,7 @@ public class IntegrationRailTestConfig extends IntegrationTestConfig {
 
     @Override
     public List<RemoteDataSourceConfig> getRemoteDataSourceConfig() {
-        return List.of(railRemoteDataSource, remoteNaptanConfig, railStationRefDataSource);
+        return List.of(railRemoteDataSource, remoteNaptanCSVConfig, railStationRefDataSource);
     }
 
     @Override

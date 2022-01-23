@@ -14,7 +14,7 @@ import org.neo4j.graphdb.Transaction;
 import java.time.LocalDateTime;
 import java.util.*;
 
-import static com.tramchester.domain.DataSourceID.naptan;
+import static com.tramchester.domain.DataSourceID.naptancsv;
 import static com.tramchester.domain.DataSourceID.tfgm;
 import static com.tramchester.domain.reference.TransportMode.Bus;
 import static com.tramchester.domain.reference.TransportMode.Tram;
@@ -120,12 +120,12 @@ public class GraphDatabaseMetaInfoTest extends EasyMockSupport {
     void shouldCreateVersionsNode() {
         Set<DataSourceInfo> sourceInfo = new HashSet<>();
         sourceInfo.add(new DataSourceInfo(tfgm, "4.3", LocalDateTime.MAX, Collections.singleton(Tram)));
-        sourceInfo.add(new DataSourceInfo(naptan, "9.6", LocalDateTime.MIN, Collections.singleton(Bus)));
+        sourceInfo.add(new DataSourceInfo(naptancsv, "9.6", LocalDateTime.MIN, Collections.singleton(Bus)));
 
         EasyMock.expect(transaction.createNode(GraphLabel.VERSION)).andReturn(node);
         node.setProperty("tfgm", "4.3");
         EasyMock.expectLastCall();
-        node.setProperty("naptan", "9.6");
+        node.setProperty("naptancsv", "9.6");
         EasyMock.expectLastCall();
 
         replayAll();

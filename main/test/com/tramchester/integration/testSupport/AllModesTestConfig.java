@@ -55,7 +55,7 @@ public class AllModesTestConfig extends IntegrationTestConfig {
 
     @Override
     public List<RemoteDataSourceConfig> getRemoteDataSourceConfig() {
-        return Arrays.asList(remoteDataRailConfig, remoteNaptanConfig, remoteTfgmSourceConfig);
+        return Arrays.asList(remoteDataRailConfig, remoteNaptanCSVConfig, remoteTfgmSourceConfig);
     }
 
     @Override

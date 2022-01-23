@@ -5,9 +5,9 @@ import com.tramchester.config.RemoteDataSourceConfig;
 import java.util.Arrays;
 import java.util.List;
 
-public class IntegrationTramTestConfigWithNaptan extends IntegrationTramTestConfig {
+public class IntegrationTramTestConfigWithCSVNaptan extends IntegrationTramTestConfig {
     @Override
     public List<RemoteDataSourceConfig> getRemoteDataSourceConfig() {
-        return Arrays.asList(remoteTFGMConfig, remoteNaptanConfig);
+        return Arrays.asList(remoteTFGMConfig, remoteNaptanCSVConfig);
     }
 }

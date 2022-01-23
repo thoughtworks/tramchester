@@ -9,13 +9,11 @@ import java.nio.file.Path;
 
 public class NaptanRemoteDataSourceConfig implements RemoteDataSourceConfig {
     private final Path dataPath;
+    private final String format;
 
-    public NaptanRemoteDataSourceConfig(String dataPath) {
-       this(Path.of(dataPath));
-    }
-
-    private NaptanRemoteDataSourceConfig(Path dataPath) {
+    public NaptanRemoteDataSourceConfig(Path dataPath, boolean xml) {
         this.dataPath = dataPath;
+        format = xml ? "xml" : "csv";
     }
 
     @Override
@@ -30,17 +28,18 @@ public class NaptanRemoteDataSourceConfig implements RemoteDataSourceConfig {
 
     @Override
     public String getDataUrl() {
-        return TestEnv.NAPTAN_URL;
+        // ?dataFormat=csv
+        return String.format("%s?dataFormat=%s", TestEnv.NAPTAN_BASE_URL, format);
     }
 
     @Override
     public String getDownloadFilename() {
-        return "Stops.csv";
+        return "Stops." + format;
     }
 
     @Override
     public String getName() {
-        return "naptan";
+        return "naptan"+format;
     }
 
     @Override

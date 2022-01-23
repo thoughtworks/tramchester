@@ -7,7 +7,8 @@ public enum DataSourceID {
     internal, // for walks, MyLocation, etc
     tfgm,
     postcode,
-    naptan,
+    naptanxml,
+    naptancsv,
     rail,
     naptanRailReference,
     unknown;

@@ -19,7 +19,7 @@ import java.util.stream.Stream;
  * https://www.gov.uk/government/publications/national-public-transport-access-node-schema/naptan-and-nptg-data-sets-and-schema-guides
  */
 @LazySingleton
-public class NaptanRailReferecnesDataImporter extends NaptanDataImporter<RailStationData> {
+public class NaptanRailReferecnesDataImporter extends NaptanDataCSVImporter<RailStationData> {
     private static final Logger logger = LoggerFactory.getLogger(NaptanRailReferecnesDataImporter.class);
 
     @Inject

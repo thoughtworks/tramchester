@@ -19,13 +19,13 @@ import java.util.stream.Stream;
  * https://www.gov.uk/government/publications/national-public-transport-access-node-schema/naptan-and-nptg-data-sets-and-schema-guides
  */
 @LazySingleton
-public class NaptanStopsDataImporter extends NaptanDataImporter<NaptanStopData> {
+public class NaptanStopsDataImporter extends NaptanDataCSVImporter<NaptanStopData> {
     private static final Logger logger = LoggerFactory.getLogger(NaptanStopsDataImporter.class);
 
     @Inject
     protected NaptanStopsDataImporter(TramchesterConfig config, CsvMapper mapper,
                                       UnzipFetchedData.Ready dataIsReady) {
-        super(config, mapper, NaptanStopData.class, DataSourceID.naptan, dataIsReady);
+        super(config, mapper, NaptanStopData.class, DataSourceID.naptancsv, dataIsReady);
     }
 
 
