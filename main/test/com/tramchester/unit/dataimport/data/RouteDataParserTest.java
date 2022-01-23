@@ -4,13 +4,13 @@ import com.tramchester.dataimport.data.RouteData;
 import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.reference.GTFSTransportationType;
 import com.tramchester.testSupport.TestEnv;
-import com.tramchester.unit.dataimport.ParserTestHelper;
+import com.tramchester.unit.dataimport.ParserTestCSVHelper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-class RouteDataParserTest extends ParserTestHelper<RouteData> {
+class RouteDataParserTest extends ParserTestCSVHelper<RouteData> {
 
     @BeforeEach
     void beforeEach() {

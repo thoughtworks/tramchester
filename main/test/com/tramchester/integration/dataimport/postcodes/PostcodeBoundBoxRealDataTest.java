@@ -4,7 +4,7 @@ import com.fasterxml.jackson.dataformat.csv.CsvMapper;
 import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.config.RemoteDataSourceConfig;
-import com.tramchester.dataimport.loader.files.TransportDataFromFile;
+import com.tramchester.dataimport.loader.files.TransportDataFromCSVFile;
 import com.tramchester.dataimport.postcodes.PostcodeBoundingBoxs;
 import com.tramchester.dataimport.postcodes.PostcodeData;
 import com.tramchester.domain.DataSourceID;
@@ -158,7 +158,7 @@ public class PostcodeBoundBoxRealDataTest {
 
     private Set<PostcodeData> getPostcodeData(Path file) {
         CsvMapper mapper = CsvMapper.builder().build();
-        TransportDataFromFile<PostcodeData> loader = new TransportDataFromFile<>(file, PostcodeData.class, PostcodeData.CVS_HEADER, mapper);
+        TransportDataFromCSVFile<PostcodeData, PostcodeData> loader = new TransportDataFromCSVFile<>(file, PostcodeData.class, PostcodeData.CVS_HEADER, mapper);
         return loader.load().collect(Collectors.toSet());
     }
 

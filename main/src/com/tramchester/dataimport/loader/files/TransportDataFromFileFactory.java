@@ -16,8 +16,8 @@ public class TransportDataFromFileFactory {
         this.mapper = mapper;
     }
 
-    public <T> TransportDataFromFile<T> getLoaderFor(TransportDataReader.InputFiles inputfileType, Class<T> targetType) {
-        return new TransportDataFromFile<>(formPath(inputfileType), targetType, mapper);
+    public <T> TransportDataFromCSVFile<T,T> getLoaderFor(TransportDataReader.InputFiles inputfileType, Class<T> targetType) {
+        return new TransportDataFromCSVFile<>(formPath(inputfileType), targetType, mapper);
     }
 
     private Path formPath(TransportDataReader.InputFiles theType) {

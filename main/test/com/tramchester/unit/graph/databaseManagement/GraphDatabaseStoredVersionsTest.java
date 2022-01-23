@@ -15,7 +15,7 @@ import org.neo4j.graphdb.Transaction;
 import java.time.LocalDateTime;
 import java.util.*;
 
-import static com.tramchester.domain.DataSourceID.naptancsv;
+import static com.tramchester.domain.DataSourceID.naptanStopsCSV;
 import static com.tramchester.domain.DataSourceID.tfgm;
 import static com.tramchester.domain.reference.TransportMode.Bus;
 import static com.tramchester.domain.reference.TransportMode.Tram;
@@ -80,10 +80,10 @@ public class GraphDatabaseStoredVersionsTest extends EasyMockSupport {
         Map<String, String> versionMap = new HashMap<>();
 
         dataSourceInfo.add(new DataSourceInfo(tfgm, "v1.1", LocalDateTime.MIN, Collections.singleton(Tram)));
-        dataSourceInfo.add(new DataSourceInfo(naptancsv, "v2.3", LocalDateTime.MIN, Collections.singleton(Bus)));
+        dataSourceInfo.add(new DataSourceInfo(naptanStopsCSV, "v2.3", LocalDateTime.MIN, Collections.singleton(Bus)));
 
         versionMap.put("tfgm", "v1.1");
-        versionMap.put("naptancsv", "v2.3");
+        versionMap.put("naptanStopsCSV", "v2.3");
 
         EasyMock.expect(databaseService.beginTx()).andReturn(transaction);
         EasyMock.expect(databaseMetaInfo.isNeighboursEnabled(transaction)).andReturn(config.getCreateNeighbours());
@@ -105,7 +105,7 @@ public class GraphDatabaseStoredVersionsTest extends EasyMockSupport {
         Map<String, String> versionMap = new HashMap<>();
 
         dataSourceInfo.add(new DataSourceInfo(tfgm, "v1.2", LocalDateTime.MIN, Collections.singleton(Tram)));
-        dataSourceInfo.add(new DataSourceInfo(naptancsv, "v2.3", LocalDateTime.MIN, Collections.singleton(Bus)));
+        dataSourceInfo.add(new DataSourceInfo(naptanStopsCSV, "v2.3", LocalDateTime.MIN, Collections.singleton(Bus)));
 
         versionMap.put("tfgm", "v1.1");
         versionMap.put("naptancsv", "v2.3");
@@ -130,7 +130,7 @@ public class GraphDatabaseStoredVersionsTest extends EasyMockSupport {
         Map<String, String> versionMap = new HashMap<>();
 
         dataSourceInfo.add(new DataSourceInfo(tfgm, "v1.2", LocalDateTime.MIN, Collections.singleton(Tram)));
-        dataSourceInfo.add(new DataSourceInfo(naptancsv, "v2.3", LocalDateTime.MIN, Collections.singleton(Bus)));
+        dataSourceInfo.add(new DataSourceInfo(naptanStopsCSV, "v2.3", LocalDateTime.MIN, Collections.singleton(Bus)));
 
         versionMap.put("tfgm", "v1.1");
 

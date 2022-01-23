@@ -4,7 +4,7 @@ import com.fasterxml.jackson.dataformat.csv.CsvMapper;
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.config.RemoteDataSourceConfig;
 import com.tramchester.config.TramchesterConfig;
-import com.tramchester.dataimport.loader.files.TransportDataFromFile;
+import com.tramchester.dataimport.loader.files.TransportDataFromCSVFile;
 import com.tramchester.dataimport.FetchFileModTime;
 import com.tramchester.dataimport.UnzipFetchedData;
 import com.tramchester.domain.DataSourceID;
@@ -105,7 +105,7 @@ public class PostcodeDataImporter {
 
         MarginInMeters walkingDistance = MarginInMeters.of(config.getNearestStopForWalkingRangeKM());
 
-        TransportDataFromFile<PostcodeData> loader = new TransportDataFromFile<>(file, PostcodeData.class, PostcodeData.CVS_HEADER, mapper);
+        TransportDataFromCSVFile<PostcodeData, PostcodeData> loader = new TransportDataFromCSVFile<>(file, PostcodeData.class, PostcodeData.CVS_HEADER, mapper);
         Stream<PostcodeData> stream = getPostcodesFor(loader);
 
         String code = postcodeBounds.convertPathToCode(file);
@@ -132,7 +132,7 @@ public class PostcodeDataImporter {
         }
     }
 
-    private Stream<PostcodeData> getPostcodesFor(TransportDataFromFile<PostcodeData> loader) {
+    private Stream<PostcodeData> getPostcodesFor(TransportDataFromCSVFile<PostcodeData,PostcodeData> loader) {
         return loader.load().
                 filter(postcode -> postcode.getGridPosition().isValid());
     }

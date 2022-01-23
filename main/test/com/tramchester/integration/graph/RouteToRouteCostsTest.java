@@ -5,7 +5,7 @@ import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.dataimport.data.RouteIndexData;
-import com.tramchester.dataimport.loader.files.TransportDataFromFile;
+import com.tramchester.dataimport.loader.files.TransportDataFromCSVFile;
 import com.tramchester.domain.NumberOfChanges;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.id.HasId;
@@ -229,7 +229,7 @@ public class RouteToRouteCostsTest {
 
         assertTrue(indexFile.toFile().exists(), "Missing " + indexFile.toAbsolutePath());
 
-        TransportDataFromFile<RouteIndexData> indexLoader = new TransportDataFromFile<>(indexFile, RouteIndexData.class, mapper);
+        TransportDataFromCSVFile<RouteIndexData, RouteIndexData> indexLoader = new TransportDataFromCSVFile<>(indexFile, RouteIndexData.class, mapper);
         Stream<RouteIndexData> indexFromFile = indexLoader.load();
         List<RouteIndexData> resultsForIndex = indexFromFile.collect(Collectors.toList());
 

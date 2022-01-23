@@ -1,19 +1,19 @@
 package com.tramchester.unit.dataimport;
 
 import com.fasterxml.jackson.dataformat.csv.CsvMapper;
-import com.tramchester.dataimport.loader.files.TransportDataFromFile;
+import com.tramchester.dataimport.loader.files.TransportDataFromCSVFile;
 
 import java.io.StringReader;
 import java.nio.file.Paths;
 
-public class ParserTestHelper<T> {
-    private TransportDataFromFile<T> dataDataLoader;
+public class ParserTestCSVHelper<T> {
+    private TransportDataFromCSVFile<T,T> dataDataLoader;
     private String header;
 
-    protected void before(Class<T> klass, String header) {
+    protected void before(Class<T> readerType, String header) {
         CsvMapper mapper = CsvMapper.builder().build();
         this.header = header;
-        dataDataLoader = new TransportDataFromFile<>(Paths.get("unused"), klass, mapper);
+        dataDataLoader = new TransportDataFromCSVFile<>(Paths.get("unused"), readerType, mapper);
     }
 
     protected T parse(String text) {

@@ -1,12 +1,12 @@
-package com.tramchester.dataimport.NaPTAN;
+package com.tramchester.dataimport.NaPTAN.csv;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.tramchester.dataimport.NaPTAN.xml.NaptanStopData;
 import com.tramchester.geo.GridPosition;
-import com.tramchester.geo.HasGridPosition;
 import com.tramchester.repository.naptan.NaptanStopType;
 
 
-public class NaptanStopData implements HasGridPosition {
+public class NaptanStopCSVData implements NaptanStopData {
 
     // Matches ID for TFGM gtfs data
     @JsonProperty("ATCOCode")
@@ -39,7 +39,13 @@ public class NaptanStopData implements HasGridPosition {
     @JsonProperty("StopType")
     private String stopType;
 
-    public NaptanStopData() {
+    @JsonProperty("Suburb")
+    private String suburb;
+
+    @JsonProperty("Town")
+    private String town;
+
+    public NaptanStopCSVData() {
         // deserialisation
     }
 
@@ -51,12 +57,12 @@ public class NaptanStopData implements HasGridPosition {
         return naptanCode;
     }
 
-    public String getLocalityName() {
-        return localityName;
+    public String getSuburb() {
+        return suburb.isBlank() ? localityName : suburb;
     }
 
-    public String getParentLocalityName() {
-        return parentLocalityName;
+    public String getTown() {
+        return town.isBlank() ? parentLocalityName : town;
     }
 
     public String getIndicator() {

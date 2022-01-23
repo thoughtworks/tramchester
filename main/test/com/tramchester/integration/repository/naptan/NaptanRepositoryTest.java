@@ -2,7 +2,7 @@ package com.tramchester.integration.repository.naptan;
 
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.GuiceContainerDependencies;
-import com.tramchester.dataimport.NaPTAN.NaptanStopData;
+import com.tramchester.dataimport.NaPTAN.xml.NaptanStopData;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.places.Station;
@@ -44,7 +44,7 @@ class NaptanRepositoryTest {
         assertTrue(respository.containsActo(actoCode));
 
         NaptanStopData data = respository.getForActo(actoCode);
-        assertEquals("Manchester City Centre", data.getLocalityName());
+        assertEquals("Manchester City Centre", data.getSuburb());
     }
 
     @Test
@@ -53,10 +53,10 @@ class NaptanRepositoryTest {
         assertTrue(respository.containsActo(actoCode));
 
         NaptanStopData data = respository.getForActo(actoCode);
-        assertEquals("Manchester Airport", data.getLocalityName());
+        assertEquals("Manchester Airport", data.getSuburb());
     }
 
-    @Disabled("the rail data no longer seems to be available from naptan")
+    @Disabled("wip to reinstate train data from the XML feed")
     @Test
     void shouldHaveDataForTrains() {
         IdFor<Station> tiploc = RailStationIds.Macclesfield.getId();
@@ -64,7 +64,7 @@ class NaptanRepositoryTest {
         assertTrue(respository.containsTiploc(tiploc));
         NaptanStopData data = respository.getForTiploc(tiploc);
         assertEquals(data.getCommonName(), "Macclesfield Rail Station");
-        assertEquals(data.getLocalityName(), "Macclesfield");
+        assertEquals(data.getSuburb(), "Macclesfield");
         assertEquals(data.getAtcoCode(), "9100MACLSFD");
     }
 

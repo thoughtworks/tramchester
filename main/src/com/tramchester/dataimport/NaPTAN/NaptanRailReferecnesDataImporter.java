@@ -3,6 +3,7 @@ package com.tramchester.dataimport.NaPTAN;
 import com.fasterxml.jackson.dataformat.csv.CsvMapper;
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.config.TramchesterConfig;
+import com.tramchester.dataimport.NaPTAN.csv.NaptanDataCSVImporter;
 import com.tramchester.dataimport.UnzipFetchedData;
 import com.tramchester.domain.DataSourceID;
 import org.slf4j.Logger;
@@ -19,12 +20,12 @@ import java.util.stream.Stream;
  * https://www.gov.uk/government/publications/national-public-transport-access-node-schema/naptan-and-nptg-data-sets-and-schema-guides
  */
 @LazySingleton
-public class NaptanRailReferecnesDataImporter extends NaptanDataCSVImporter<RailStationData> {
+public class NaptanRailReferecnesDataImporter extends NaptanDataCSVImporter<RailStationData, RailStationData> {
     private static final Logger logger = LoggerFactory.getLogger(NaptanRailReferecnesDataImporter.class);
 
     @Inject
     public NaptanRailReferecnesDataImporter(TramchesterConfig config, CsvMapper mapper, UnzipFetchedData.Ready dataIsReady) {
-        super(config, mapper, RailStationData.class, DataSourceID.naptanRailReference, dataIsReady);
+        super(config, mapper, RailStationData.class, DataSourceID.naptanRailReferenceCSV, dataIsReady);
     }
 
     @PostConstruct

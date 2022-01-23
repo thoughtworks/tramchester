@@ -3,9 +3,11 @@ package com.tramchester.unit.config;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tramchester.config.*;
+import com.tramchester.domain.DataSourceID;
 import com.tramchester.integration.testSupport.bus.IntegrationBusTestConfig;
 import com.tramchester.integration.testSupport.rail.IntegrationRailTestConfig;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
+import com.tramchester.testSupport.TestEnv;
 import io.dropwizard.configuration.ConfigurationException;
 import io.dropwizard.configuration.YamlConfigurationFactory;
 import io.dropwizard.jackson.Jackson;
@@ -32,14 +34,37 @@ class ConfigMismatchTest {
     void shouldBeAbleToLoadAllConfigWithoutExceptions() throws IOException, ConfigurationException {
         // Note: this does not catch all the same validation cases as app start up
         @NotNull YamlConfigurationFactory<AppConfiguration> factory = getValidatingFactory();
-        Path configDir = Paths.get("config").toAbsolutePath();
-        Set<Path> configFiles = Files.list(configDir).
-                filter(Files::isRegularFile).
-                filter(path -> path.getFileName().toString().toLowerCase().endsWith(".yml")).
-                collect(Collectors.toSet());
+        Set<Path> configFiles = getConfigFiles();
 
         for (Path config : configFiles) {
             factory.build(config.toFile());
+        }
+    }
+
+    @Test
+    void shouldHaveValidIdsForRemoteConfigSections() throws IOException, ConfigurationException {
+        Set<Path> configFiles = getConfigFiles();
+
+        String expectedStopsNaptanURL = TestEnv.NAPTAN_BASE_URL + "?dataFormat=csv";
+
+        for(Path config : configFiles) {
+            AppConfiguration configuration = loadConfigFromFile(config);
+            List<RemoteDataSourceConfig> remoteSourceConfigs = configuration.getRemoteDataSourceConfig();
+            for(RemoteDataSourceConfig remoteSourceConfig : remoteSourceConfigs) {
+                final DataSourceID dataSourceID = DataSourceID.findOrUnknown(remoteSourceConfig.getName());
+                assertNotEquals(DataSourceID.unknown, dataSourceID,
+                        "Bad source id for " + remoteSourceConfig.getName() + " in " + config.toAbsolutePath());
+
+                if (dataSourceID==DataSourceID.naptanStopsCSV) {
+                    assertEquals(expectedStopsNaptanURL, remoteSourceConfig.getDataUrl(),
+                            "bad naptan stops urls for " + config.toAbsolutePath());
+                }
+
+                if (dataSourceID==DataSourceID.naptanRailReferenceCSV) {
+                    assertEquals(TestEnv.RAIL_REFERENCE_S3_LOCATION, remoteSourceConfig.getDataUrl(),
+                            "bad naptan stops urls for " + config.toAbsolutePath());
+                }
+            }
         }
     }
 
@@ -198,10 +223,13 @@ class ConfigMismatchTest {
 
     private AppConfiguration loadConfigFromFile(String configFilename) throws IOException, ConfigurationException {
         Path mainConfig = Paths.get("config", configFilename).toAbsolutePath();
+        return loadConfigFromFile(mainConfig);
+    }
 
+    private AppConfiguration loadConfigFromFile(Path fullPathToConfig) throws IOException, ConfigurationException {
         YamlConfigurationFactory<AppConfiguration> factory = getValidatingFactory();
 
-        return factory.build(mainConfig.toFile());
+        return factory.build(fullPathToConfig.toFile());
     }
 
     @NotNull
@@ -211,6 +239,15 @@ class ConfigMismatchTest {
         ObjectMapper objectMapper = Jackson.newObjectMapper();
         String properyPrefix = "dw";
         return new YamlConfigurationFactory<>(klass, validator, objectMapper, properyPrefix);
+    }
+
+    @NotNull
+    private Set<Path> getConfigFiles() throws IOException {
+        Path configDir = Paths.get("config").toAbsolutePath();
+        return Files.list(configDir).
+                filter(Files::isRegularFile).
+                filter(path -> path.getFileName().toString().toLowerCase().endsWith(".yml")).
+                collect(Collectors.toSet());
     }
 
 }

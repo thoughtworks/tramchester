@@ -8,9 +8,9 @@ public enum DataSourceID {
     tfgm,
     postcode,
     naptanxml,
-    naptancsv,
+    naptanStopsCSV,
     rail,
-    naptanRailReference,
+    naptanRailReferenceCSV,
     unknown;
 
     private static final Logger logger = LoggerFactory.getLogger(DataSourceID.class);

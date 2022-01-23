@@ -3,6 +3,11 @@ package com.tramchester.dataimport.NaPTAN;
 import com.fasterxml.jackson.dataformat.csv.CsvMapper;
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.config.TramchesterConfig;
+import com.tramchester.dataimport.NaPTAN.csv.NaptanDataCSVImporter;
+import com.tramchester.dataimport.NaPTAN.csv.NaptanStopCSVData;
+import com.tramchester.dataimport.NaPTAN.xml.NaptanDataXMLImporter;
+import com.tramchester.dataimport.NaPTAN.xml.NaptanStopData;
+import com.tramchester.dataimport.NaPTAN.xml.NaptanStopXMLData;
 import com.tramchester.dataimport.UnzipFetchedData;
 import com.tramchester.domain.DataSourceID;
 import org.slf4j.Logger;
@@ -19,32 +24,49 @@ import java.util.stream.Stream;
  * https://www.gov.uk/government/publications/national-public-transport-access-node-schema/naptan-and-nptg-data-sets-and-schema-guides
  */
 @LazySingleton
-public class NaptanStopsDataImporter extends NaptanDataCSVImporter<NaptanStopData> {
+public class NaptanStopsDataImporter  {
     private static final Logger logger = LoggerFactory.getLogger(NaptanStopsDataImporter.class);
 
-    @Inject
-    protected NaptanStopsDataImporter(TramchesterConfig config, CsvMapper mapper,
-                                      UnzipFetchedData.Ready dataIsReady) {
-        super(config, mapper, NaptanStopData.class, DataSourceID.naptancsv, dataIsReady);
-    }
+    NaptanDataImporter<NaptanStopData> importer;
 
+    @Inject
+    protected NaptanStopsDataImporter(TramchesterConfig config, CsvMapper csvMapper, UnzipFetchedData.Ready dataIsReady) {
+        if (config.hasRemoteDataSourceConfig(DataSourceID.naptanStopsCSV)) {
+            importer = new NaptanDataCSVImporter<>(config, csvMapper, NaptanStopCSVData.class, DataSourceID.naptanStopsCSV, dataIsReady);
+        } else if (config.hasRemoteDataSourceConfig(DataSourceID.naptanxml)) {
+            importer = new NaptanDataXMLImporter<>(config, NaptanStopXMLData.class, dataIsReady);
+        } else {
+            importer = null;
+            logger.warn("Naptan config is missing");
+        }
+    }
 
     @PostConstruct
     public void start() {
-        logger.info("starting");
-        super.start();
-        logger.info("started");
+        if (importer!=null) {
+            logger.info("starting");
+            importer.start();
+            logger.info("started");
+        }
     }
 
     @PreDestroy
     public void stop() {
-        logger.info("Stopping");
-        super.stop();
-        logger.info("Stopped");
+        if (importer!=null) {
+            logger.info("Stopping");
+            importer.stop();
+            logger.info("Stopped");
+        }
     }
 
     public Stream<NaptanStopData> getStopsData() {
-        return super.getDataStream();
+        if (importer==null) {
+            return Stream.empty();
+        }
+        return importer.getDataStream();
     }
 
+    public boolean isEnabled() {
+        return importer != null && importer.isEnabled();
+    }
 }

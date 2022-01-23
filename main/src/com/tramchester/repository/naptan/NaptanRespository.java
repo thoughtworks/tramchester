@@ -3,9 +3,9 @@ package com.tramchester.repository.naptan;
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.dataimport.NaPTAN.NaptanRailReferecnesDataImporter;
-import com.tramchester.dataimport.NaPTAN.NaptanStopData;
 import com.tramchester.dataimport.NaPTAN.NaptanStopsDataImporter;
 import com.tramchester.dataimport.NaPTAN.RailStationData;
+import com.tramchester.dataimport.NaPTAN.xml.NaptanStopData;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.places.Station;
 import com.tramchester.geo.BoundingBox;
@@ -19,7 +19,6 @@ import javax.annotation.PreDestroy;
 import javax.inject.Inject;
 import java.util.Collections;
 import java.util.Map;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -85,9 +84,14 @@ public class NaptanRespository {
         if (!stopsImporter.isEnabled()) {
             logger.error("Not loading stops data, import is disabled. Is this data source present in the config?");
         }
-        Stream<NaptanStopData> stopsData = stopsImporter.getStopsData();
+
+        Stream<NaptanStopData> stopsData = stopsImporter.getStopsData().
+                filter(stopData -> stopData.getAtcoCode() != null).
+                filter(stopData -> !stopData.getAtcoCode().isBlank());
+
         stopData = filterBy(bounds, margin, stopsData).
-                collect(Collectors.toMap(NaptanStopData::getAtcoCode, Function.identity()));
+                collect(Collectors.toMap(NaptanStopData::getAtcoCode, stop -> stop));
+
         stopsData.close();
 
         logger.info("Loaded " + stopData.size() + " stops");

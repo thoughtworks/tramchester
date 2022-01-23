@@ -3,7 +3,7 @@ package com.tramchester.integration.dataimport.NaPTAN;
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.GuiceContainerDependencies;
 import com.tramchester.dataimport.NaPTAN.NaptanStopsDataImporter;
-import com.tramchester.dataimport.NaPTAN.NaptanStopData;
+import com.tramchester.dataimport.NaPTAN.xml.NaptanStopData;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfigWithCSVNaptan;
 import com.tramchester.repository.naptan.NaptanStopType;
@@ -58,8 +58,8 @@ class NaptanDataCSVImportTest {
         assertFalse(foundKnown.isEmpty());
 
         NaptanStopData buryInterchange = foundKnown.get();
-        assertEquals("Bury", buryInterchange.getLocalityName());
-        assertEquals("", buryInterchange.getParentLocalityName());
+        assertEquals("Bury", buryInterchange.getSuburb());
+        assertEquals("", buryInterchange.getTown());
     }
 
     @Test
@@ -71,7 +71,7 @@ class NaptanDataCSVImportTest {
         assertFalse(foundKnown.isEmpty());
 
         NaptanStopData known = foundKnown.get();
-        assertEquals("Manchester City Centre", known.getLocalityName());
+        assertEquals("Manchester City Centre", known.getSuburb());
         assertEquals(NaptanStopType.tramMetroUndergroundAccess, known.getStopType());
         //assertEquals("Manchester", known.getParentLocalityName());
     }
@@ -84,7 +84,7 @@ class NaptanDataCSVImportTest {
 
         assertFalse(foundKnown.isEmpty());
         NaptanStopData known = foundKnown.get();
-        assertEquals("Bristol City Centre", known.getLocalityName());
+        assertEquals("Bristol City Centre", known.getSuburb());
         //assertEquals("Bristol", known.getParentLocalityName());
     }
 }

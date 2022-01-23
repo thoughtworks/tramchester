@@ -5,7 +5,7 @@ import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.config.RemoteDataSourceConfig;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.dataexport.DataSaver;
-import com.tramchester.dataimport.loader.files.TransportDataFromFile;
+import com.tramchester.dataimport.loader.files.TransportDataFromCSVFile;
 import com.tramchester.dataimport.RemoteDataRefreshed;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
@@ -140,7 +140,7 @@ public class DataCache {
             Path cacheFile = getPathFor(cacheable);
             logger.info("Loading " + cacheFile.toAbsolutePath()  + " to " + theClass.getSimpleName());
 
-            TransportDataFromFile<T> loader = new TransportDataFromFile<T>(cacheFile, theClass, mapper);
+            TransportDataFromCSVFile<T,T> loader = new TransportDataFromCSVFile<>(cacheFile, theClass, mapper);
             Stream<T> data = loader.load();
             try {
                 cacheable.loadFrom(data);

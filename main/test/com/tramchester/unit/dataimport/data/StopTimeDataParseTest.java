@@ -3,14 +3,15 @@ package com.tramchester.unit.dataimport.data;
 import com.tramchester.dataimport.data.StopTimeData;
 import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.time.TramTime;
-import com.tramchester.unit.dataimport.ParserTestHelper;
+import com.tramchester.unit.dataimport.ParserTestCSVHelper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-class StopTimeDataParseTest extends ParserTestHelper<StopTimeData> {
+class StopTimeDataParseTest extends ParserTestCSVHelper<StopTimeData> {
 
     @BeforeEach
     void beforeEachTestRuns() {

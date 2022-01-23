@@ -1,6 +1,6 @@
 package com.tramchester.domain.factory;
 
-import com.tramchester.dataimport.NaPTAN.NaptanStopData;
+import com.tramchester.dataimport.NaPTAN.xml.NaptanStopData;
 import com.tramchester.dataimport.data.RouteData;
 import com.tramchester.dataimport.data.StopData;
 import com.tramchester.domain.*;
@@ -124,8 +124,8 @@ public class TransportEntityFactoryForTFGM extends TransportEntityFactory {
 
     private String getAreaFromNaptanData(NaptanStopData naptanStopData) {
         String area;
-        area = naptanStopData.getLocalityName();
-        String parent = naptanStopData.getParentLocalityName();
+        area = naptanStopData.getSuburb();
+        String parent = naptanStopData.getTown();
         if (!parent.isBlank()) {
             area = area + ", " + parent;
         }

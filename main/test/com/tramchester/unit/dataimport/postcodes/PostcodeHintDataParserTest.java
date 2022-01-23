@@ -1,13 +1,13 @@
 package com.tramchester.unit.dataimport.postcodes;
 
 import com.tramchester.dataimport.data.PostcodeHintData;
-import com.tramchester.unit.dataimport.ParserTestHelper;
+import com.tramchester.unit.dataimport.ParserTestCSVHelper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-class PostcodeHintDataParserTest extends ParserTestHelper<PostcodeHintData> {
+class PostcodeHintDataParserTest extends ParserTestCSVHelper<PostcodeHintData> {
 
     @BeforeEach
     void beforeEach() {

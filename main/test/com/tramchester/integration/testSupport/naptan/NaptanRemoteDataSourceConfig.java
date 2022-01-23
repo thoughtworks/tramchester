@@ -1,6 +1,7 @@
 package com.tramchester.integration.testSupport.naptan;
 
 import com.tramchester.config.RemoteDataSourceConfig;
+import com.tramchester.domain.DataSourceID;
 import com.tramchester.testSupport.TestEnv;
 
 import java.nio.file.Path;
@@ -39,7 +40,14 @@ public class NaptanRemoteDataSourceConfig implements RemoteDataSourceConfig {
 
     @Override
     public String getName() {
-        return "naptan"+format;
+        if (format.equals("csv")) {
+            return DataSourceID.naptanStopsCSV.name();
+        } else if (format.equals("xml")) {
+            return DataSourceID.naptanxml.name();
+        } else {
+            throw new RuntimeException("Unknown format " + format);
+        }
+
     }
 
     @Override

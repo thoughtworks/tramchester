@@ -2,7 +2,7 @@ package com.tramchester.unit.dataimport.data;
 
 
 import com.tramchester.domain.FeedInfo;
-import com.tramchester.unit.dataimport.ParserTestHelper;
+import com.tramchester.unit.dataimport.ParserTestCSVHelper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -10,7 +10,7 @@ import java.time.LocalDate;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-class FeedInfoDataParserTest extends ParserTestHelper<FeedInfo> {
+class FeedInfoDataParserTest extends ParserTestCSVHelper<FeedInfo> {
     private static final String feedInfo = "feed_publisher_name,feed_publisher_url,feed_timezone,feed_lang,20160530,20160615,feed_version";
 
     @BeforeEach

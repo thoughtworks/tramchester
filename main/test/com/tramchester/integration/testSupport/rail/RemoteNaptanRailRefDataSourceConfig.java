@@ -2,6 +2,7 @@ package com.tramchester.integration.testSupport.rail;
 
 import com.tramchester.config.RemoteDataSourceConfig;
 import com.tramchester.domain.DataSourceID;
+import com.tramchester.testSupport.TestEnv;
 
 import java.nio.file.Path;
 
@@ -10,7 +11,7 @@ public class RemoteNaptanRailRefDataSourceConfig implements RemoteDataSourceConf
     // naptan api has dropped this file , so need to provide own copy as work around
     // this data is going to go slowly out of date, hopefully naptan will publish again soon
 
-    private static final String RefereneceDataPath = "s3://tramchester2dist/railData/RailReferences.csv";
+    private static final String RefereneceDataPath = TestEnv.RAIL_REFERENCE_S3_LOCATION;
 
     private final String dataPath;
 
@@ -45,7 +46,7 @@ public class RemoteNaptanRailRefDataSourceConfig implements RemoteDataSourceConf
 
     @Override
     public DataSourceID getDataSourceId() {
-        return DataSourceID.naptanRailReference;
+        return DataSourceID.naptanRailReferenceCSV;
     }
 
     @Override

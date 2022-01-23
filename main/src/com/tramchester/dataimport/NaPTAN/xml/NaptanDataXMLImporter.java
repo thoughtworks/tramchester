@@ -1,51 +1,54 @@
-package com.tramchester.dataimport.NaPTAN;
+package com.tramchester.dataimport.NaPTAN.xml;
 
-import com.fasterxml.jackson.dataformat.csv.CsvMapper;
 import com.tramchester.config.RemoteDataSourceConfig;
 import com.tramchester.config.TramchesterConfig;
+import com.tramchester.dataimport.NaPTAN.NaptanDataImporter;
 import com.tramchester.dataimport.UnzipFetchedData;
 import com.tramchester.dataimport.loader.files.TransportDataFromFile;
+import com.tramchester.dataimport.loader.files.TransportDataFromXMLFile;
 import com.tramchester.domain.DataSourceID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.util.stream.Stream;
 
 import static java.lang.String.format;
 
-public class NaptanDataCSVImporter<R> {
-    private static final Logger logger = LoggerFactory.getLogger(NaptanDataCSVImporter.class);
+public class NaptanDataXMLImporter<T, R extends T> implements NaptanDataImporter<T> {
+    private static final Logger logger = LoggerFactory.getLogger(NaptanDataXMLImporter.class);
+
+    private final DataSourceID dataSourceID = DataSourceID.naptanxml;
 
     private final TramchesterConfig config;
-    private final CsvMapper mapper;
-    private final DataSourceID dataSourceID;
     private final Class<R> dataClass;
 
-    private Stream<R> dataStream;
+    private Stream<T> dataStream;
     private boolean open;
 
-    protected NaptanDataCSVImporter(TramchesterConfig config, CsvMapper mapper, Class<R> dataClass, DataSourceID dataSourceID,
-                                    UnzipFetchedData.Ready dataIsReady) {
+    public NaptanDataXMLImporter(TramchesterConfig config, Class<R> dataClass, UnzipFetchedData.Ready dataIsReady) {
 
         this.config = config;
-        this.mapper = mapper;
         this.dataClass = dataClass;
-        this.dataSourceID = dataSourceID;
         open = false;
     }
 
-    protected void start() {
+    @Override
+    public void start() {
         if (!isEnabled()) {
             logger.warn(format("Naptan for %s is disabled, no config section found", dataSourceID));
             dataStream = Stream.empty();
             return;
         }
 
+        logger.info("start");
         RemoteDataSourceConfig sourceConfig = config.getDataRemoteSourceConfig(dataSourceID);
         loadForConfig(sourceConfig, dataClass);
+        logger.info("started");
     }
 
+    @Override
     public boolean isEnabled() {
         return config.hasRemoteDataSourceConfig(dataSourceID);
     }
@@ -63,12 +66,12 @@ public class NaptanDataCSVImporter<R> {
         open = true;
     }
 
-    private Stream<R> loadFor(Path dataPath, String filename, Class<R> dataClass) {
+    private Stream<T> loadFor(Path dataPath, String filename, Class<R> dataClass) {
         Path filePath = dataPath.resolve(filename);
         logger.info("Loading data from " + filePath.toAbsolutePath());
-        TransportDataFromFile<R> dataLoader = new TransportDataFromFile<>(filePath, dataClass, mapper);
+        TransportDataFromFile<T> dataLoader = new TransportDataFromXMLFile<>(filePath, StandardCharsets.UTF_8, dataClass);
 
-        Stream<R> stream = dataLoader.load();
+        Stream<T> stream = dataLoader.load();
 
         //noinspection ResultOfMethodCallIgnored
         stream.onClose(() ->  this.streamClosed(dataClass.getSimpleName()));
@@ -80,7 +83,8 @@ public class NaptanDataCSVImporter<R> {
         open = false;
     }
 
-    protected void stop() {
+    @Override
+    public void stop() {
         if (open) {
             logger.warn("Stream was not closed, closing");
             dataStream.close();
@@ -88,7 +92,8 @@ public class NaptanDataCSVImporter<R> {
         logger.info("Stopped");
     }
 
-    protected Stream<R> getDataStream() {
+    @Override
+    public Stream<T> getDataStream() {
         return dataStream;
     }
 }

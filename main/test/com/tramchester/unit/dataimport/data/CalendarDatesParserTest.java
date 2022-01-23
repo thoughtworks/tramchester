@@ -1,14 +1,14 @@
 package com.tramchester.unit.dataimport.data;
 
 import com.tramchester.dataimport.data.CalendarDateData;
-import com.tramchester.unit.dataimport.ParserTestHelper;
+import com.tramchester.unit.dataimport.ParserTestCSVHelper;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.time.LocalDate;
 
-class CalendarDatesParserTest extends ParserTestHelper<CalendarDateData> {
+class CalendarDatesParserTest extends ParserTestCSVHelper<CalendarDateData> {
 
     @BeforeEach
     void beforeEach() {
