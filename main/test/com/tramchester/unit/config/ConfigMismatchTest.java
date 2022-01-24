@@ -20,15 +20,18 @@ import java.lang.reflect.Field;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 class ConfigMismatchTest {
+
+    enum Exclusions {
+        Closures,
+        Bounds
+    }
+
 
     @Test
     void shouldBeAbleToLoadAllConfigWithoutExceptions() throws IOException, ConfigurationException {
@@ -85,7 +88,7 @@ class ConfigMismatchTest {
         AppConfiguration appConfig = loadConfigFromFile("local.yml");
         IntegrationTramTestConfig testConfig = new IntegrationTramTestConfig(true);
 
-        validateCoreParameters(false, appConfig, testConfig);
+        validateCoreParameters(Collections.singleton(Exclusions.Closures), appConfig, testConfig);
     }
 
     @Test
@@ -94,7 +97,7 @@ class ConfigMismatchTest {
         AppConfiguration appConfig = loadConfigFromFile("buses.yml");
         IntegrationBusTestConfig testConfig = new IntegrationBusTestConfig();
 
-        validateCoreParameters(true, appConfig, testConfig);
+        validateCoreParameters(Collections.emptySet(), appConfig, testConfig);
     }
 
     @Test
@@ -103,7 +106,7 @@ class ConfigMismatchTest {
         AppConfiguration appConfig = loadConfigFromFile("rail.yml");
         IntegrationRailTestConfig testConfig = new IntegrationRailTestConfig();
 
-        validateCoreParameters(true, appConfig, testConfig);
+        validateCoreParameters(Collections.emptySet(), appConfig, testConfig);
 
         List<RemoteDataSourceConfig> remoteSources = appConfig.getRemoteDataSourceConfig();
         List<RemoteDataSourceConfig> testRemoteSources = testConfig.getRemoteDataSourceConfig();
@@ -115,6 +118,30 @@ class ConfigMismatchTest {
         assertRemoteSources(remoteSources, testRemoteSources, 1);
         assertRemoteSources(remoteSources, testRemoteSources, 2);
 
+        RailConfig rail = appConfig.getRailConfig();
+        RailConfig testRail = appConfig.getRailConfig();
+
+        assertEquals(rail.getStations(), testRail.getStations());
+        assertEquals(rail.getTimetable(), testRail.getTimetable());
+        assertEquals(rail.getModes(), testRail.getModes());
+    }
+
+    @Test
+    void shouldHaveKeyParamtersSameForGMRail() throws ConfigurationException, IOException {
+        AppConfiguration appConfig = loadConfigFromFile("gmrail.yml");
+        IntegrationRailTestConfig testConfig = new IntegrationRailTestConfig();
+
+        validateCoreParameters(Collections.singleton(Exclusions.Bounds), appConfig, testConfig);
+
+        List<RemoteDataSourceConfig> remoteSources = appConfig.getRemoteDataSourceConfig();
+        List<RemoteDataSourceConfig> testRemoteSources = testConfig.getRemoteDataSourceConfig();
+
+        assertEquals(remoteSources.size(), testRemoteSources.size());
+        assertEquals(3, testRemoteSources.size());
+
+        assertRemoteSources(remoteSources, testRemoteSources, 0);
+        assertRemoteSources(remoteSources, testRemoteSources, 1);
+        assertRemoteSources(remoteSources, testRemoteSources, 2);
 
         RailConfig rail = appConfig.getRailConfig();
         RailConfig testRail = appConfig.getRailConfig();
@@ -137,13 +164,13 @@ class ConfigMismatchTest {
         AppConfiguration appConfig = loadConfigFromFile("local.yml");
         AppConfiguration accTestConfig = loadConfigFromFile("localAcceptance.yml");
 
-        validateCoreParameters(true, appConfig, accTestConfig);
+        validateCoreParameters(Collections.emptySet(), appConfig, accTestConfig);
 
         assertEquals(appConfig.getQueryInterval(), accTestConfig.getQueryInterval(), "getQueryInterval");
         assertEquals(appConfig.getNumberQueries(), accTestConfig.getNumberQueries(), "getNumberQueries");
     }
 
-    private void validateCoreParameters(boolean checkClosures, AppConfiguration expected, AppConfiguration testConfig) {
+    private void validateCoreParameters(Set<Exclusions> exclusions, AppConfiguration expected, AppConfiguration testConfig) {
         assertEquals(expected.getStaticAssetCacheTimeSeconds(), testConfig.getStaticAssetCacheTimeSeconds(), "StaticAssetCacheTimeSeconds");
         assertEquals(expected.getMaxJourneyDuration(), testConfig.getMaxJourneyDuration(), "MaxJourneyDuration");
         assertEquals(expected.getMaxWait(), testConfig.getMaxWait(), "MaxWait");
@@ -163,11 +190,13 @@ class ConfigMismatchTest {
         assertEquals(expected.getCalcTimeoutMillis(), testConfig.getCalcTimeoutMillis(), "CalcTimeoutMillis");
         assertEquals(expected.getPlanningEnabled(), testConfig.getPlanningEnabled(), "planningEnabled");
 
-        assertEquals(expected.getBounds(), testConfig.getBounds(), "bounds");
+        if (!exclusions.contains(Exclusions.Bounds)) {
+            assertEquals(expected.getBounds(), testConfig.getBounds(), "bounds");
+        }
 
         checkDBConfig(expected, testConfig);
 
-        checkGTFSSourceConfig(expected, testConfig, checkClosures);
+        checkGTFSSourceConfig(expected, testConfig, !exclusions.contains(Exclusions.Closures));
 
         checkRemoteDataSourceConfig(expected, testConfig);
 

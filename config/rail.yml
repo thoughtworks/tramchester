@@ -25,22 +25,21 @@ rail:
   timetable: ttisf236.mca
   modes: [ Train, RailReplacementBus ]
 remoteSources:
-  -
-    name: rail
+  - name: rail
     dataURL: s3://tramchester2dist/railData/ttis236.zip
     dataCheckURL: s3://tramchester2dist/railData/ttis236.zip
     dataPath: data/rail
     filename: ttis236.zip
-  - name: naptanStopsCSV
-    dataURL: https://naptan.api.dft.gov.uk/v1/access-nodes?dataFormat=csv
+  - name: naptanxml
+    dataURL: https://naptan.api.dft.gov.uk/v1/access-nodes?dataFormat=xml
     dataCheckURL: ""
     dataPath: data/naptan
-    filename: Stops.csv
-  - name: naptanRailReferenceCSV
-    dataURL: s3://tramchester2dist/railData/RailReferences.csv
-    dataCheckURL: s3://tramchester2dist/railData/RailReferences.csv
-    dataPath: data/naptan
-    filename: RailReferences.csv
+    filename: Stops.xml
+  - name: nptg
+    dataURL: http://www.dft.gov.uk/nptg/snapshot/nptgcsv.zip
+    dataCheckURL: ""
+    dataPath: data/nptg
+    filename: nptgcsv.zip
 cacheFolder: data/cache/rail
 calcTimeoutMillis: 3500
 bounds:

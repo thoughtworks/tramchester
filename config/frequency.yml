@@ -35,14 +35,12 @@ rail:
   timetable: ttisf236.mca
   modes: [ Train, RailReplacementBus ]
 remoteSources:
-  -
-    name: tfgm
+  - name: tfgm
     dataURL: ${TRAM_DATAURL:- http://odata.tfgm.com/opendata/downloads/TfGMgtfsnew.zip}
     dataCheckURL: http://odata.tfgm.com/opendata/downloads/TfGMgtfsnew.zip
     dataPath: data/bus
     filename: tfgm_data.zip
-  -
-    name: naptanStopsCSV
+  - name: naptanStopsCSV
     dataURL: https://naptan.api.dft.gov.uk/v1/access-nodes?dataFormat=csv
     dataCheckURL: ""
     dataPath: data/naptan
