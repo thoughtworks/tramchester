@@ -12,4 +12,8 @@ public class NaptanXMLRailInfo {
     public String getTiploc() {
         return annotatedRailRef.getTiplocRef();
     }
+
+    public boolean hasRailInfo() {
+        return annotatedRailRef!=null;
+    }
 }

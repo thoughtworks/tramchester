@@ -10,7 +10,7 @@ public class NaptanXMLOffStreet {
     private NaptanXMLRailInfo railInfo;
 
     public boolean hasRailInfo() {
-        return railInfo!=null;
+        return railInfo!=null && railInfo.hasRailInfo();
     }
 
     public NaptanXMLRailInfo getRailInfo() {

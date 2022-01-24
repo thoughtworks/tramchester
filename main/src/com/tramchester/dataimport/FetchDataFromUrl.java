@@ -77,43 +77,58 @@ public class FetchDataFromUrl implements RemoteDataRefreshed {
 
     private boolean refreshDataIfNewerAvailable(RemoteDataSourceConfig config) throws IOException {
         boolean isS3 = config.getIsS3();
-        String orginalUrl = config.getDataUrl();
+        String originalURL = config.getDataUrl();
         Path downloadDirectory = config.getDataPath();
         String targetFile = config.getDownloadFilename();
+        String dataSourceName = config.getName();
 
         Path destination = downloadDirectory.resolve(targetFile);
 
-        HttpDownloadAndModTime.URLStatus status = getStatusFor(orginalUrl, isS3);
+        boolean expired = false;
+        final boolean filePresent = Files.exists(destination);
+        if (filePresent) {
+            LocalDateTime localMod = getFileModLocalTime(destination);
+            LocalDateTime localNow = providesLocalNow.getDateTime();
+            expired = localMod.plusMinutes(DEFAULT_EXPIRY_MINS).isBefore(localNow);
+            logger.info(format("%s Local mod time: %s Current Local Time: %s ", destination, localMod, localNow));
+
+            // do this here as getting the status for URL is potentially slow
+            if (config.getDataCheckUrl().isBlank() && !expired) {
+                logger.info(format("%s file:%s is not expired, skip download", dataSourceName, destination));
+                return false;
+            }
+        }
+
+        HttpDownloadAndModTime.URLStatus status = getStatusFor(originalURL, isS3);
         if (!status.isOk()) {
-            logger.error(format("Status %s for Requested URL %s ", status.getStatusCode(), orginalUrl));
+            logger.error(format("Status %s for Requested URL %s ", status.getStatusCode(), originalURL));
             return false;
         }
-        String url = status.getActualURL();
+        String actualURL = status.getActualURL();
 
-        String name = config.getName();
-        if (Files.exists(destination)) {
+        if (filePresent) {
             LocalDateTime localMod = getFileModLocalTime(destination);
 
-            if (config.getDataCheckUrl().isBlank()) {
-                // skip mod time check
-                logger.info("Skipping mod time check for " + config.getName());
-                return loadIfCachePeriodExpired(url, destination, localMod, isS3);
-            }
+//            if (config.getDataCheckUrl().isBlank()) {
+//                // skip mod time check
+//                logger.info("Skipping mod time check for " + config.getName());
+//                return loadIfCachePeriodExpired(expired, actualURL, destination, isS3);
+//            }
 
             LocalDateTime serverMod = status.getModTime();
             if (serverMod.isEqual(LocalDateTime.MIN)) {
-                return loadIfCachePeriodExpired(url, destination, localMod, isS3);
+                return loadIfCachePeriodExpired(expired, actualURL, destination, isS3);
             }
 
-            logger.info(format("%s: Server mod time: %s File mod time: %s ", name, serverMod, localMod));
+            logger.info(format("%s: Server mod time: %s File mod time: %s ", dataSourceName, serverMod, localMod));
 
             try {
                 if (serverMod.isAfter(localMod)) {
-                    logger.warn(name + ": server time is after local, downloading new data");
-                    downloadTo(url, destination, isS3);
+                    logger.warn(dataSourceName + ": server time is after local, downloading new data");
+                    downloadTo(actualURL, destination, isS3);
                     return true;
                 }
-                logger.info(name + ": no newer data");
+                logger.info(dataSourceName + ": no newer data");
                 return false;
             }
             catch (UnknownHostException disconnected) {
@@ -121,9 +136,9 @@ public class FetchDataFromUrl implements RemoteDataRefreshed {
                 return false;
             }
         } else {
-            logger.info(name + ": no local file " + destination + " so down loading new data from " + url);
+            logger.info(dataSourceName + ": no local file " + destination + " so down loading new data from " + actualURL);
             FileUtils.forceMkdir(downloadDirectory.toAbsolutePath().toFile());
-            downloadTo(url, destination, isS3);
+            downloadTo(actualURL, destination, isS3);
             return true;
         }
     }
@@ -160,21 +175,23 @@ public class FetchDataFromUrl implements RemoteDataRefreshed {
         return status;
     }
 
-    private boolean loadIfCachePeriodExpired(String url, Path destination, LocalDateTime fileModTime, boolean isS3)  {
-        LocalDateTime localNow = providesLocalNow.getDateTime();
-        String prefix = format("Local mod time: %s Current Local Time: %s ", fileModTime, localNow);
+    private boolean loadIfCachePeriodExpired(boolean expired, String url, Path destination, boolean isS3)  {
+
         boolean downloaded = false;
-        try {
-            if (fileModTime.plusMinutes(DEFAULT_EXPIRY_MINS).isBefore(localNow)) {
-                logger.info(prefix + " expired downloading from " + url);
+
+        if (expired) {
+            try {
+                logger.info(destination + " expired downloading from " + url);
                 downloadTo(url, destination, isS3);
                 downloaded = true;
-            } else {
-                logger.info(prefix + " not expired, using current " + destination);
             }
-        } catch (IOException e) {
-            logger.error("Cannot download from " + url);
+            catch (IOException e) {
+                logger.error("Cannot download from " + url);
+            }
+        } else {
+            logger.info(destination + " not expired, using current");
         }
+
         return downloaded;
     }
 

@@ -15,6 +15,9 @@ public class NaptanXMLPlace {
     @JsonProperty("Town")
     private String town;
 
+    @JsonProperty("NptgLocalityRef")
+    private String nptgLocalityRef;
+
     public NaptanXMLLocation getLocation() {
         return location;
     }
@@ -25,6 +28,9 @@ public class NaptanXMLPlace {
 
     public String getTown() {
         return town==null ? "" : town;
+    }
 
+    public String getNptgLocalityRef() {
+        return nptgLocalityRef==null? "" : nptgLocalityRef;
     }
 }

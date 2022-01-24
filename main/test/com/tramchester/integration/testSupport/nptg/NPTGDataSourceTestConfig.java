@@ -20,7 +20,7 @@ public class NPTGDataSourceTestConfig implements RemoteDataSourceConfig {
 
     @Override
     public String getDataCheckUrl() {
-        return "http://www.dft.gov.uk/nptg/snapshot/nptgcsv.zip";
+        return "";
     }
 
     @Override

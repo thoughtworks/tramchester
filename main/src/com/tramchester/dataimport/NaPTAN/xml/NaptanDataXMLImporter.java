@@ -23,50 +23,36 @@ public class NaptanDataXMLImporter<T, R extends T> implements NaptanDataImporter
 
     private final TramchesterConfig config;
     private final Class<R> dataClass;
+    private final boolean enabled;
 
-    private Stream<T> dataStream;
-    private boolean open;
+    private RemoteDataSourceConfig sourceConfig;
 
     public NaptanDataXMLImporter(TramchesterConfig config, Class<R> dataClass, UnzipFetchedData.Ready dataIsReady) {
-
         this.config = config;
         this.dataClass = dataClass;
-        open = false;
+        enabled = config.hasRemoteDataSourceConfig(dataSourceID);
     }
 
     @Override
     public void start() {
-        if (!isEnabled()) {
+        if (!enabled) {
             logger.warn(format("Naptan for %s is disabled, no config section found", dataSourceID));
-            dataStream = Stream.empty();
             return;
         }
 
         logger.info("start");
-        RemoteDataSourceConfig sourceConfig = config.getDataRemoteSourceConfig(dataSourceID);
-        loadForConfig(sourceConfig, dataClass);
+        sourceConfig = config.getDataRemoteSourceConfig(dataSourceID);
         logger.info("started");
     }
 
     @Override
     public boolean isEnabled() {
-        return config.hasRemoteDataSourceConfig(dataSourceID);
+        return enabled;
     }
 
-    private void loadForConfig(RemoteDataSourceConfig sourceConfig, Class<R> dataClass) {
-        if (open) {
-            logger.warn("Already started");
-            return;
-        }
-
+    private Stream<T> loadData() {
         Path dataPath = sourceConfig.getDataPath();
-
-        dataStream = loadFor(dataPath, sourceConfig.getDownloadFilename(), dataClass);
-
-        open = true;
-    }
-
-    private Stream<T> loadFor(Path dataPath, String filename, Class<R> dataClass) {
+        String filename = sourceConfig.getDownloadFilename();
         Path filePath = dataPath.resolve(filename);
         logger.info("Loading data from " + filePath.toAbsolutePath());
         TransportDataFromFile<T> dataLoader = new TransportDataFromXMLFile<>(filePath, StandardCharsets.UTF_8, dataClass);
@@ -80,20 +66,15 @@ public class NaptanDataXMLImporter<T, R extends T> implements NaptanDataImporter
 
     private void streamClosed(String className) {
         logger.info(className + " stream closed");
-        open = false;
     }
 
     @Override
     public void stop() {
-        if (open) {
-            logger.warn("Stream was not closed, closing");
-            dataStream.close();
-        }
         logger.info("Stopped");
     }
 
     @Override
     public Stream<T> getDataStream() {
-        return dataStream;
+        return loadData();
     }
 }

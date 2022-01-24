@@ -76,7 +76,7 @@ class HttpDownloaderTest {
     }
 
     @Test
-    void shouldHaveDirectStatusAndURL() throws IOException {
+    void shouldHaveRedirectStatusAndURL() throws IOException {
         String url = "http://news.bbc.co.uk";
 
         HttpDownloadAndModTime.URLStatus result = urlDownloader.getStatusFor(url);

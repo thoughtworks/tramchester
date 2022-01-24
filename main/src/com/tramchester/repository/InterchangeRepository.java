@@ -1,7 +1,7 @@
 package com.tramchester.repository;
 
 import com.google.inject.ImplementedBy;
-import com.tramchester.domain.InterchangeStation;
+import com.tramchester.domain.places.InterchangeStation;
 import com.tramchester.domain.places.Station;
 
 import java.util.Set;

@@ -52,6 +52,11 @@ public class NaptanStopXMLData implements NaptanStopData {
     }
 
     @Override
+    public String getNptgLocality() {
+        return place.getNptgLocalityRef();
+    }
+
+    @Override
     public GridPosition getGridPosition() {
         return place.getLocation().getGridPosition();
     }
@@ -87,6 +92,7 @@ public class NaptanStopXMLData implements NaptanStopData {
                 '}';
     }
 
+    @Override
     public NaptanRailStationData getRailInfo() {
         return stopClassification.getRailInfo();
     }

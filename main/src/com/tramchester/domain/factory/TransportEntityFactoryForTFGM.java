@@ -1,12 +1,12 @@
 package com.tramchester.domain.factory;
 
-import com.tramchester.dataimport.NaPTAN.xml.NaptanStopData;
 import com.tramchester.dataimport.data.RouteData;
 import com.tramchester.dataimport.data.StopData;
 import com.tramchester.domain.*;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.places.MutableStation;
+import com.tramchester.domain.places.NaptanRecord;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.GTFSTransportationType;
 import com.tramchester.geo.GridPosition;
@@ -53,7 +53,7 @@ public class TransportEntityFactoryForTFGM extends TransportEntityFactory {
         if (naptanRespository.isEnabled()) {
             // enrich details from naptan where possible
             if (naptanRespository.containsActo(stationId)) {
-                NaptanStopData naptanData = naptanRespository.getForActo(stationId);
+                NaptanRecord naptanData = naptanRespository.getForActo(stationId);
                 area = getAreaFromNaptanData(naptanData);
                 isInterchange = NaptanStopType.isInterchance(naptanData.getStopType());
             }
@@ -122,7 +122,7 @@ public class TransportEntityFactoryForTFGM extends TransportEntityFactory {
         return stopData.getId().startsWith(METROLINK_ID_PREFIX);
     }
 
-    private String getAreaFromNaptanData(NaptanStopData naptanStopData) {
+    private String getAreaFromNaptanData(NaptanRecord naptanStopData) {
         String area;
         area = naptanStopData.getSuburb();
         String parent = naptanStopData.getTown();

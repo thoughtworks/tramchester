@@ -2,7 +2,7 @@ package com.tramchester.integration.graph.neighbours;
 
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.GuiceContainerDependencies;
-import com.tramchester.domain.InterchangeStation;
+import com.tramchester.domain.places.InterchangeStation;
 import com.tramchester.domain.places.Station;
 import com.tramchester.integration.repository.InterchangesTramTest;
 import com.tramchester.integration.testSupport.NeighboursTestConfig;

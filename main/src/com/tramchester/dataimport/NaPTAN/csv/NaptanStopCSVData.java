@@ -1,11 +1,12 @@
 package com.tramchester.dataimport.NaPTAN.csv;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.tramchester.dataimport.NaPTAN.NaptanRailStationData;
 import com.tramchester.dataimport.NaPTAN.xml.NaptanStopData;
 import com.tramchester.geo.GridPosition;
 import com.tramchester.repository.naptan.NaptanStopType;
 
-
+@Deprecated
 public class NaptanStopCSVData implements NaptanStopData {
 
     // Matches ID for TFGM gtfs data
@@ -45,6 +46,9 @@ public class NaptanStopCSVData implements NaptanStopData {
     @JsonProperty("Town")
     private String town;
 
+    @JsonProperty("NptgLocalityCode")
+    private String nptgLocalityCode;
+
     public NaptanStopCSVData() {
         // deserialisation
     }
@@ -69,9 +73,18 @@ public class NaptanStopCSVData implements NaptanStopData {
         return indicator;
     }
 
+    public String getNptgLocality() {
+        return nptgLocalityCode;
+    }
+
     @Override
     public boolean hasRailInfo() {
         return false;
+    }
+
+    @Override
+    public NaptanRailStationData getRailInfo() {
+        return null;
     }
 
     @Override

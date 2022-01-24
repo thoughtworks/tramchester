@@ -1,7 +1,7 @@
-package com.tramchester.domain;
+package com.tramchester.domain.places;
 
+import com.tramchester.domain.Route;
 import com.tramchester.domain.id.IdFor;
-import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
 
 import java.util.Collections;

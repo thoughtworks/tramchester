@@ -17,6 +17,7 @@ import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.places.MutableStation;
+import com.tramchester.domain.places.NaptanRecord;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.geo.BoundingBox;
@@ -167,9 +168,9 @@ public class RailTransportDataFromFiles implements DirectDataSourceFactory.Popul
 
         if (naptanRespository.containsTiploc(id)) {
             // prefer naptan data if available
-            NaptanStopData stopsData = naptanRespository.getForTiploc(id);
+            NaptanRecord stopsData = naptanRespository.getForTiploc(id);
             grid = stopsData.getGridPosition();
-            name = stopsData.getCommonName();
+            name = stopsData.getName();
             area = stopsData.getSuburb();
         }
 

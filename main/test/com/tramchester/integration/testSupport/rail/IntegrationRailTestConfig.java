@@ -17,7 +17,9 @@ public class IntegrationRailTestConfig extends IntegrationTestConfig {
 
     private final GraphDBConfig graphDBConfig;
     private final RailRemoteDataSourceConfig railRemoteDataSource;
-    private final RemoteNaptanRailRefDataSourceConfig railStationRefDataSource;
+
+//    @Deprecated
+//    private final RemoteNaptanRailRefDataSourceConfig railStationRefDataSource;
 
     public IntegrationRailTestConfig() {
         this("rail_tramchester.db");
@@ -27,7 +29,7 @@ public class IntegrationRailTestConfig extends IntegrationTestConfig {
         super(new GraphDBIntegrationRailTestConfig("integrationTrainTest", dbFilename));
         graphDBConfig = new GraphDBIntegrationRailTestConfig("integrationTrainTest", dbFilename);
         railRemoteDataSource = new RailRemoteDataSourceConfig("data/rail");
-        railStationRefDataSource = new RemoteNaptanRailRefDataSourceConfig("data/naptan");
+        //railStationRefDataSource = new RemoteNaptanRailRefDataSourceConfig("data/naptan");
     }
 
     @Override
@@ -47,7 +49,7 @@ public class IntegrationRailTestConfig extends IntegrationTestConfig {
 
     @Override
     public List<RemoteDataSourceConfig> getRemoteDataSourceConfig() {
-        return List.of(railRemoteDataSource, remoteNaptanCSVConfig, railStationRefDataSource);
+        return List.of(railRemoteDataSource, remoteNaptanXMLConfig, remoteNPTGconfig);
     }
 
     @Override

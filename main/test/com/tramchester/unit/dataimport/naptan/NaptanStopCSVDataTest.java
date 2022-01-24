@@ -36,6 +36,7 @@ class NaptanStopCSVDataTest extends ParserTestCSVHelper<NaptanStopCSVData> {
         assertEquals("Chadderton", data.getTown());
         assertEquals(new GridPosition(391756,405079), data.getGridPosition());
         assertEquals(tramMetroUndergroundPlatform, data.getStopType());
+        assertEquals("E0029527", data.getNptgLocality());
     }
 
     @Test

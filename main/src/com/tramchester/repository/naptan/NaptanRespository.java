@@ -6,11 +6,16 @@ import com.tramchester.dataimport.NaPTAN.NaptanRailReferecnesDataImporter;
 import com.tramchester.dataimport.NaPTAN.NaptanStopsDataImporter;
 import com.tramchester.dataimport.NaPTAN.RailStationData;
 import com.tramchester.dataimport.NaPTAN.xml.NaptanStopData;
+import com.tramchester.dataimport.nptg.NPTGData;
 import com.tramchester.domain.id.IdFor;
+import com.tramchester.domain.id.IdMap;
+import com.tramchester.domain.id.StringIdFor;
+import com.tramchester.domain.places.NaptanRecord;
 import com.tramchester.domain.places.Station;
 import com.tramchester.geo.BoundingBox;
 import com.tramchester.geo.HasGridPosition;
 import com.tramchester.geo.MarginInMeters;
+import com.tramchester.repository.nptg.NPTGRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -22,6 +27,8 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static java.lang.String.format;
+
 // http://naptan.dft.gov.uk/naptan/schema/2.5/doc/NaPTANSchemaGuide-2.5-v0.67.pdf
 
 @LazySingleton
@@ -30,17 +37,19 @@ public class NaptanRespository {
 
     private final NaptanStopsDataImporter stopsImporter;
     private final NaptanRailReferecnesDataImporter referecnesDataImporter;
+    private final NPTGRepository nptgRepository;
     private final TramchesterConfig config;
-    private Map<String, NaptanStopData> stopData;
-    private Map<String, String> tiplocToAtco;
+    private IdMap<NaptanRecord> stopData;
+    private Map<IdFor<Station>, IdFor<NaptanRecord>> tiplocToAtco;
 
     @Inject
     public NaptanRespository(NaptanStopsDataImporter stopsImporter, NaptanRailReferecnesDataImporter referecnesDataImporter,
-                             TramchesterConfig config) {
+                             NPTGRepository nptgRepository, TramchesterConfig config) {
         this.stopsImporter = stopsImporter;
         this.referecnesDataImporter = referecnesDataImporter;
+        this.nptgRepository = nptgRepository;
         this.config = config;
-        stopData = Collections.emptyMap();
+        stopData = new IdMap<>();
         tiplocToAtco = Collections.emptyMap();
     }
 
@@ -90,24 +99,58 @@ public class NaptanRespository {
                 filter(stopData -> !stopData.getAtcoCode().isBlank());
 
         stopData = filterBy(bounds, margin, stopsData).
-                collect(Collectors.toMap(NaptanStopData::getAtcoCode, stop -> stop));
+                map(this::createRecord).
+                collect(IdMap.collector());
 
         stopsData.close();
 
         logger.info("Loaded " + stopData.size() + " stops");
     }
 
+    private NaptanRecord createRecord(NaptanStopData original) {
+        IdFor<NaptanRecord> id = StringIdFor.createId(original.getAtcoCode());
+
+        String suburb = original.getSuburb();
+        String town = original.getTown();
+
+        final String nptgLocality = original.getNptgLocality();
+        if (nptgRepository.hasNptgCode(nptgLocality)) {
+            NPTGData extra = nptgRepository.getByNptgCode(nptgLocality);
+            if (suburb.isBlank()) {
+                suburb = extra.getLocalityName();
+            }
+            if (town.isBlank()) {
+                town = extra.getQualifierName();
+            }
+        } else {
+            logger.warn(format("Missing NptgLocalityRef '%s' for naptan acto '%s", nptgLocality, id));
+        }
+
+        return new NaptanRecord(id, original.getCommonName(), original.getGridPosition(), suburb, town, original.getStopType());
+    }
 
     private void loadStationData(BoundingBox bounds, MarginInMeters margin) {
-        if (!referecnesDataImporter.isEnabled()) {
-            logger.warn("Not rail station data, import is disabled. Is this data source present in the config?");
-        }
-        Stream<RailStationData> stationDataStream = referecnesDataImporter.getRailStationData();
-        tiplocToAtco = filterBy(bounds, margin, stationDataStream).
-                collect(Collectors.toMap(RailStationData::getTiploc, RailStationData::getActo));
-        stationDataStream.close();
+        if (referecnesDataImporter.isEnabled()) {
+            logger.warn("Loading rail station data from deprecated source ");
+            Stream<RailStationData> stationDataStream = referecnesDataImporter.getRailStationData();
+            tiplocToAtco = filterBy(bounds, margin, stationDataStream).
+                    collect(Collectors.toMap(data -> StringIdFor.createId(data.getTiploc()), this::createNaptanIdFor));
+            stationDataStream.close();
 
+        } else {
+            logger.info("Load rail station reference data from natpan stops");
+            tiplocToAtco = stopsImporter.getStopsData().
+                    filter(NaptanStopData::hasRailInfo).
+                    filter(stopData -> stopData.getAtcoCode() != null).
+                    filter(stopData -> !stopData.getAtcoCode().isBlank()).
+                    collect(Collectors.toMap(data -> StringIdFor.createId(data.getRailInfo().getTiploc()),
+                            data -> StringIdFor.createId(data.getAtcoCode())));
+        }
         logger.info("Loaded " + tiplocToAtco.size() + " stations");
+    }
+
+    private IdFor<NaptanRecord> createNaptanIdFor(RailStationData railStationData) {
+        return StringIdFor.createId(railStationData.getActo());
     }
 
     private <T extends HasGridPosition> Stream<T> filterBy(BoundingBox bounds, MarginInMeters margin, Stream<T> stream) {
@@ -117,11 +160,17 @@ public class NaptanRespository {
     }
 
     public boolean containsActo(IdFor<Station> actoCode) {
-        return stopData.containsKey(actoCode.forDTO());
+        IdFor<NaptanRecord> id = convertId(actoCode);
+        return stopData.hasId(id);
     }
 
-    public NaptanStopData getForActo(IdFor<Station> actoCode) {
-        return stopData.get(actoCode.forDTO());
+    public NaptanRecord getForActo(IdFor<Station> actoCode) {
+        IdFor<NaptanRecord> id = convertId(actoCode);
+        return stopData.get(id);
+    }
+
+    private IdFor<NaptanRecord> convertId(IdFor<Station> actoCode) {
+        return StringIdFor.convert(actoCode);
     }
 
     public boolean isEnabled() {
@@ -130,18 +179,21 @@ public class NaptanRespository {
 
     /***
      * Look up via train location code
-     * @param tiploc the code for the station
+     * @param railStationTiploc the code for the station
      * @return data if present, null otherwise
      */
-    public NaptanStopData getForTiploc(IdFor<Station> tiploc) {
-        String acto = tiplocToAtco.get(tiploc.forDTO());
-        if (stopData.containsKey(acto)) {
+    public NaptanRecord getForTiploc(IdFor<Station> railStationTiploc) {
+        if (!tiplocToAtco.containsKey(railStationTiploc)) {
+            return null;
+        }
+        IdFor<NaptanRecord> acto = tiplocToAtco.get(railStationTiploc);
+        if (stopData.hasId(acto)) {
             return stopData.get(acto);
         }
         return null;
     }
 
     public boolean containsTiploc(IdFor<Station> tiploc) {
-        return tiplocToAtco.containsKey(tiploc.forDTO());
+        return tiplocToAtco.containsKey(tiploc);
     }
 }

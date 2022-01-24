@@ -1,7 +1,7 @@
 package com.tramchester.integration.testSupport;
 
 import com.tramchester.ComponentContainer;
-import com.tramchester.domain.InterchangeStation;
+import com.tramchester.domain.places.InterchangeStation;
 import com.tramchester.domain.Journey;
 import com.tramchester.domain.StationIdPair;
 import com.tramchester.domain.id.IdFor;

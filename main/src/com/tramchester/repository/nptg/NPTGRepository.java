@@ -40,6 +40,7 @@ public class NPTGRepository {
         }
         logger.info("Starting");
         dataLoader.getData().forEach(item -> entries.put(item.getNptgLocalityCode(), item));
+        logger.info("Loaded " + entries.size() + " items ");
         logger.info("started");
     }
 

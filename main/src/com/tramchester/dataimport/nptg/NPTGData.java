@@ -20,6 +20,9 @@ public class NPTGData {
     @JsonProperty("AdministrativeAreaCode")
     private String administrativeAreaCode;
 
+    @JsonProperty("QualifierName")
+    private String qualifierName;
+
     public NPTGData() {
         // deserialisation
     }
@@ -35,4 +38,6 @@ public class NPTGData {
     public String getAdministrativeAreaCode() {
         return administrativeAreaCode;
     }
+
+    public String getQualifierName() { return qualifierName; }
 }

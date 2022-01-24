@@ -1,4 +1,4 @@
-package com.tramchester.integration.testSupport.rail;
+package com.tramchester.integration.testSupport.naptan;
 
 import com.tramchester.config.RemoteDataSourceConfig;
 import com.tramchester.domain.DataSourceID;
@@ -6,6 +6,7 @@ import com.tramchester.testSupport.TestEnv;
 
 import java.nio.file.Path;
 
+@Deprecated
 public class RemoteNaptanRailRefDataSourceConfig implements RemoteDataSourceConfig {
 
     // naptan api has dropped this file , so need to provide own copy as work around

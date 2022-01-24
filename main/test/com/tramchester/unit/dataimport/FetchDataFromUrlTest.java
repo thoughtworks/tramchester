@@ -69,6 +69,9 @@ class FetchDataFromUrlTest extends EasyMockSupport {
     void shouldFetchIfModTimeIsNewer() throws IOException {
         Files.newFile(zipFilename.toAbsolutePath().toString());
         LocalDateTime time = TestEnv.LocalNow();
+
+        EasyMock.expect(providesLocalNow.getDateTime()).andReturn(LocalDateTime.now());
+
         HttpDownloadAndModTime.URLStatus status = new HttpDownloadAndModTime.URLStatus(expectedDownloadURL, 200, time.plusMinutes(30));
         EasyMock.expect(httpDownloader.getStatusFor(expectedDownloadURL)).andReturn(status);
         httpDownloader.downloadTo(zipFilename, expectedDownloadURL);
@@ -100,6 +103,7 @@ class FetchDataFromUrlTest extends EasyMockSupport {
     void shouldNotFetchIfModTimeIsNotNewer() throws IOException {
         Files.newFile(zipFilename.toAbsolutePath().toString());
         LocalDateTime time = TestEnv.LocalNow();
+        EasyMock.expect(providesLocalNow.getDateTime()).andReturn(LocalDateTime.now());
         HttpDownloadAndModTime.URLStatus status = new HttpDownloadAndModTime.URLStatus(expectedDownloadURL, 200, time.minusDays(1));
         EasyMock.expect(httpDownloader.getStatusFor(expectedDownloadURL)).andReturn(status);
 
@@ -112,6 +116,8 @@ class FetchDataFromUrlTest extends EasyMockSupport {
     @Test
     void shouldCopeWithRedirects() throws IOException {
         Files.newFile(zipFilename.toAbsolutePath().toString());
+
+        EasyMock.expect(providesLocalNow.getDateTime()).andReturn(LocalDateTime.now());
 
         String redirectUrl1 = "https://resource.is.always.now.com/resource";
         String redirectUrl2 = "https://resource.is.temp.now.com/resource";
@@ -172,7 +178,8 @@ class FetchDataFromUrlTest extends EasyMockSupport {
     @Test
     void shouldHandlerFileIsMissing() throws IOException {
         Files.newFile(zipFilename.toAbsolutePath().toString());
-        //LocalDateTime fileIsMissingTime = LocalDateTime.MAX;
+
+        EasyMock.expect(providesLocalNow.getDateTime()).andReturn(LocalDateTime.now());
         HttpDownloadAndModTime.URLStatus status = new HttpDownloadAndModTime.URLStatus(expectedDownloadURL, 404);
 
         EasyMock.expect(httpDownloader.getStatusFor(expectedDownloadURL)).andReturn(status);

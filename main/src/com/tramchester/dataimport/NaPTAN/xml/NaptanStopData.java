@@ -1,5 +1,6 @@
 package com.tramchester.dataimport.NaPTAN.xml;
 
+import com.tramchester.dataimport.NaPTAN.NaptanRailStationData;
 import com.tramchester.geo.GridPosition;
 import com.tramchester.geo.HasGridPosition;
 import com.tramchester.repository.naptan.NaptanStopType;
@@ -22,4 +23,8 @@ public interface NaptanStopData extends HasGridPosition {
     String getIndicator();
 
     boolean hasRailInfo();
+
+    String getNptgLocality();
+
+    NaptanRailStationData getRailInfo();
 }

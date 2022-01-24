@@ -43,9 +43,17 @@ public class NPTGRepositoryTest {
         final String code = "N0077434";
 
         assertTrue(repository.hasNptgCode(code));
-
         NPTGData result = repository.getByNptgCode(code);
 
         assertEquals("Ashley Heath", result.getLocalityName());
+        assertEquals("083", result.getAdministrativeAreaCode());
+        assertEquals("Altrincham", result.getQualifierName());
+    }
+
+    @Test
+    void shouldFindExpectedCodes() {
+        // repro issue with naptan data enrichment
+        assertTrue(repository.hasNptgCode("E0027629"));
+        assertTrue(repository.hasNptgCode("E0027768"));
     }
 }

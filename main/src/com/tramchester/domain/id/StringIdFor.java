@@ -28,6 +28,14 @@ public class StringIdFor<T extends GraphProperty> implements IdFor<T> {
         return new StringIdFor<>();
     }
 
+    public static <FROM extends GraphProperty,TO extends GraphProperty> IdFor<TO> convert(IdFor<FROM> actoCode) {
+        if (!(actoCode instanceof StringIdFor)) {
+            throw new RuntimeException(actoCode.forDTO() + " is not a StringIdFor");
+        }
+        StringIdFor<FROM> other = (StringIdFor<FROM>) actoCode;
+        return StringIdFor.createId(other.theId);
+    }
+
     @Override
     public boolean equals(Object other) {
         if (this == other) return true;

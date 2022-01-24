@@ -2,7 +2,7 @@ package com.tramchester.integration.repository.buses;
 
 import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
-import com.tramchester.domain.InterchangeStation;
+import com.tramchester.domain.places.InterchangeStation;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.id.StringIdFor;

@@ -19,6 +19,9 @@ public class NaptanXMLStopClassification {
     }
 
     public boolean hasRailInfo() {
+        if (offStreet==null) {
+            return false;
+        }
         return offStreet.hasRailInfo();
     }
 
