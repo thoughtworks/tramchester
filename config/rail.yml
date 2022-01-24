@@ -31,12 +31,12 @@ remoteSources:
     dataCheckURL: s3://tramchester2dist/railData/ttis236.zip
     dataPath: data/rail
     filename: ttis236.zip
-  - name: naptan
+  - name: naptanStopsCSV
     dataURL: https://naptan.api.dft.gov.uk/v1/access-nodes?dataFormat=csv
     dataCheckURL: ""
     dataPath: data/naptan
     filename: Stops.csv
-  - name: railReferences
+  - name: naptanRailReferenceCSV
     dataURL: s3://tramchester2dist/railData/RailReferences.csv
     dataCheckURL: s3://tramchester2dist/railData/RailReferences.csv
     dataPath: data/naptan

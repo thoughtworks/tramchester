@@ -31,8 +31,7 @@ gtfsSourceConfig:
     addWalksForClosed: false
     stationClosures: []
 remoteSources:
-  -
-    name: tfgm
+  - name: tfgm
     dataURL: ${TRAM_DATAURL:- http://odata.tfgm.com/opendata/downloads/TfGMgtfsnew.zip}
     dataCheckURL: http://odata.tfgm.com/opendata/downloads/TfGMgtfsnew.zip
     dataPath: data/tram

@@ -12,7 +12,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDateTime;
 
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 class HttpDownloaderTest {
 
@@ -42,7 +42,7 @@ class HttpDownloaderTest {
     void shouldDownloadSomething() throws IOException {
         String url = "https://github.com/fluidicon.png";
 
-        HttpDownloadAndModTime.URLStatus status = urlDownloader.getModTime(url);
+        HttpDownloadAndModTime.URLStatus status = urlDownloader.getStatusFor(url);
         assertTrue(status.isOk());
         LocalDateTime modTime = status.getModTime();
         assertTrue(modTime.isBefore(TestEnv.LocalNow()));
@@ -58,8 +58,33 @@ class HttpDownloaderTest {
     void shouldHaveValidModTimeForTimetableData() throws IOException {
 
         String url = TestEnv.TFGM_TIMETABLE_URL;
-        HttpDownloadAndModTime.URLStatus result = urlDownloader.getModTime(url);
+        HttpDownloadAndModTime.URLStatus result = urlDownloader.getStatusFor(url);
 
         assertTrue(result.getModTime().getYear()>1970);
+    }
+
+    @Test
+    void shouldHave404StatusForMissingUrl() throws IOException {
+        String url = "http://www.google.com/nothere";
+
+        HttpDownloadAndModTime.URLStatus result = urlDownloader.getStatusFor(url);
+
+        assertFalse(result.isOk());
+        assertFalse(result.isRedirect());
+
+        assertEquals(404, result.getStatusCode());
+    }
+
+    @Test
+    void shouldHaveDirectStatusAndURL() throws IOException {
+        String url = "http://news.bbc.co.uk";
+
+        HttpDownloadAndModTime.URLStatus result = urlDownloader.getStatusFor(url);
+
+        assertFalse(result.isOk());
+        assertTrue(result.isRedirect());
+
+        assertEquals("https://www.bbc.co.uk/news", result.getActualURL());
+
     }
 }

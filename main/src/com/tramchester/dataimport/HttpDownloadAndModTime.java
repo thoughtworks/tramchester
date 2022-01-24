@@ -25,32 +25,48 @@ public class HttpDownloadAndModTime implements DownloadAndModTime {
     private static final Logger logger = LoggerFactory.getLogger(HttpDownloadAndModTime.class);
 
     @Override
-    public URLStatus getModTime(String url) throws IOException {
-        logger.info(format("Check mod time for %s", url));
+    public URLStatus getStatusFor(String originalUrl) throws IOException {
+        logger.debug(format("Check status %s", originalUrl));
 
-        HttpURLConnection connection = createConnection(url);
+        HttpURLConnection connection = createConnection(originalUrl);
         connection.connect();
         long serverModMillis = connection.getLastModified();
+        int httpStatusCode = connection.getResponseCode();
 
-        // TODO what about redirects etc?
-        boolean missing = connection.getResponseCode() != HttpStatus.SC_OK;
-        if (missing) {
-            logger.error("Response code " + connection.getResponseCode());
+        String finalUrl = originalUrl;
+        final boolean redirect = httpStatusCode == HttpStatus.SC_MOVED_PERMANENTLY || httpStatusCode == HttpStatus.SC_MOVED_TEMPORARILY;
+        if (redirect) {
+            String locationField = connection.getHeaderField("Location");
+            if (!locationField.isBlank()) {
+                logger.warn(format("Redirect status %s and Location header '%s'", httpStatusCode, locationField));
+                finalUrl = locationField;
+            } else {
+                logger.error(format("Location header missing for redirect %s, change status code to a 404 for %s",
+                        httpStatusCode, originalUrl));
+                httpStatusCode = HttpStatus.SC_NOT_FOUND;
+            }
         }
         connection.disconnect();
 
-        if (missing) {
-            return new URLStatus(connection.getResponseCode());
-        }
-
+        URLStatus result;
         if (serverModMillis==0) {
-            logger.warn("No valid mod time from server, got 0 for " + url);
-            return new URLStatus(connection.getResponseCode());
+            if (!redirect) {
+                logger.warn("No valid mod time from server, got 0 for " + originalUrl);
+            }
+            result = new URLStatus(finalUrl, httpStatusCode);
+        } else {
+            LocalDateTime modTime = getLocalDateTime(serverModMillis);
+            logger.debug(format("Mod time for %s is %s", originalUrl, modTime));
+            result = new URLStatus(finalUrl, httpStatusCode, modTime);
         }
 
-        LocalDateTime modTime = getLocalDateTime(serverModMillis);
-        logger.info(format("Mod time for %s is %s", url, modTime));
-        return new URLStatus(connection.getResponseCode(), modTime);
+        if (!result.isOk() && !result.isRedirect()) {
+            logger.warn("Response code " + httpStatusCode + " for " + originalUrl);
+        }
+
+        logger.info(result.toString());
+
+        return result;
     }
 
     @NotNull
@@ -61,6 +77,7 @@ public class HttpDownloadAndModTime implements DownloadAndModTime {
     @Override
     public void downloadTo(Path path, String url) throws IOException {
         try {
+            logger.info(format("Download from %s to %s", url, path.toAbsolutePath()));
             File targetFile = path.toFile();
             HttpURLConnection connection = createConnection(url);
             connection.setRequestProperty("Accept-Encoding", "gzip");
@@ -71,9 +88,10 @@ public class HttpDownloadAndModTime implements DownloadAndModTime {
             String contentType = connection.getContentType();
             String encoding = connection.getContentEncoding();
 
-            logger.info("Response content type " + contentType);
-            logger.info("Response encoding " + encoding);
-            logger.info("Content length is " + len);
+            final String suffix = " for " + url;
+            logger.info("Response content type " + contentType + suffix);
+            logger.info("Response encoding " + encoding + suffix);
+            logger.info("Content length is " + len + suffix);
 
             boolean gziped = "gzip".equals(encoding);
 
@@ -91,7 +109,7 @@ public class HttpDownloadAndModTime implements DownloadAndModTime {
                         logger.warn("Unable to set mod time on " + targetFile);
                     }
                 } else {
-                    logger.warn("Server mod time is zero, not updating local file mod time");
+                    logger.warn("Server mod time is zero, not updating local file mod time " + suffix);
                 }
             }
 
@@ -116,6 +134,9 @@ public class HttpDownloadAndModTime implements DownloadAndModTime {
         }
         fos.close();
         rbc.close();
+
+        long downloadedLength = targetFile.length();
+        logger.info(format("Finished download, file %s size is %s", targetFile.getPath(), downloadedLength));
     }
 
     private void downloadByLength(File targetFile, HttpURLConnection connection, boolean gziped, long len) throws IOException {
@@ -128,7 +149,8 @@ public class HttpDownloadAndModTime implements DownloadAndModTime {
         rbc.close();
 
         long downloadedLength = targetFile.length();
-        logger.info(format("Finished download, received %s file size is %s", received, downloadedLength));
+        logger.info(format("Finished download, received %s, file %s size is %s",
+                received, targetFile.getPath(), downloadedLength));
     }
 
     private HttpURLConnection createConnection(String url) throws IOException {
@@ -146,14 +168,16 @@ public class HttpDownloadAndModTime implements DownloadAndModTime {
 
     public static class URLStatus {
 
+        private final String url;
         private final int responseCode;
         private final LocalDateTime modTime;
 
-        public URLStatus(int responseCode) {
-            this(responseCode, null);
+        public URLStatus(String url, int responseCode) {
+            this(url, responseCode, null);
         }
 
-        public URLStatus(int responseCode, LocalDateTime modTime) {
+        public URLStatus(String url, int responseCode, LocalDateTime modTime) {
+            this.url = url;
             this.responseCode = responseCode;
             this.modTime = modTime;
         }
@@ -171,6 +195,43 @@ public class HttpDownloadAndModTime implements DownloadAndModTime {
 
         public int getStatusCode() {
             return responseCode;
+        }
+
+        public String getActualURL() {
+            return url;
+        }
+
+        @Override
+        public String toString() {
+            return "URLStatus{" +
+                    "url='" + url + '\'' +
+                    ", responseCode=" + responseCode +
+                    ", modTime=" + modTime +
+                    '}';
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+
+            URLStatus urlStatus = (URLStatus) o;
+
+            if (responseCode != urlStatus.responseCode) return false;
+            if (!url.equals(urlStatus.url)) return false;
+            return modTime.equals(urlStatus.modTime);
+        }
+
+        @Override
+        public int hashCode() {
+            int result = url.hashCode();
+            result = 31 * result + responseCode;
+            result = 31 * result + modTime.hashCode();
+            return result;
+        }
+
+        public boolean isRedirect() {
+            return responseCode==HttpStatus.SC_MOVED_PERMANENTLY || responseCode==HttpStatus.SC_MOVED_TEMPORARILY;
         }
     }
 }

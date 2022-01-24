@@ -21,8 +21,7 @@ import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 class FetchDataFromUrlTest extends EasyMockSupport {
 
@@ -70,8 +69,8 @@ class FetchDataFromUrlTest extends EasyMockSupport {
     void shouldFetchIfModTimeIsNewer() throws IOException {
         Files.newFile(zipFilename.toAbsolutePath().toString());
         LocalDateTime time = TestEnv.LocalNow();
-        HttpDownloadAndModTime.URLStatus status = new HttpDownloadAndModTime.URLStatus(200, time.plusMinutes(30));
-        EasyMock.expect(httpDownloader.getModTime(expectedDownloadURL)).andReturn(status);
+        HttpDownloadAndModTime.URLStatus status = new HttpDownloadAndModTime.URLStatus(expectedDownloadURL, 200, time.plusMinutes(30));
+        EasyMock.expect(httpDownloader.getStatusFor(expectedDownloadURL)).andReturn(status);
         httpDownloader.downloadTo(zipFilename, expectedDownloadURL);
         EasyMock.expectLastCall();
 
@@ -83,6 +82,11 @@ class FetchDataFromUrlTest extends EasyMockSupport {
 
     @Test
     void shouldFetchIfLocalFileNotPresent() throws IOException {
+
+        LocalDateTime time = TestEnv.LocalNow();
+        HttpDownloadAndModTime.URLStatus status = new HttpDownloadAndModTime.URLStatus(expectedDownloadURL, 200, time);
+        EasyMock.expect(httpDownloader.getStatusFor(expectedDownloadURL)).andReturn(status);
+
         httpDownloader.downloadTo(zipFilename, expectedDownloadURL);
         EasyMock.expectLastCall();
 
@@ -96,8 +100,8 @@ class FetchDataFromUrlTest extends EasyMockSupport {
     void shouldNotFetchIfModTimeIsNotNewer() throws IOException {
         Files.newFile(zipFilename.toAbsolutePath().toString());
         LocalDateTime time = TestEnv.LocalNow();
-        HttpDownloadAndModTime.URLStatus status = new HttpDownloadAndModTime.URLStatus(200, time.minusDays(1));
-        EasyMock.expect(httpDownloader.getModTime(expectedDownloadURL)).andReturn(status);
+        HttpDownloadAndModTime.URLStatus status = new HttpDownloadAndModTime.URLStatus(expectedDownloadURL, 200, time.minusDays(1));
+        EasyMock.expect(httpDownloader.getStatusFor(expectedDownloadURL)).andReturn(status);
 
         replayAll();
         Assertions.assertAll(() -> fetchDataFromUrl.fetchData());
@@ -105,19 +109,25 @@ class FetchDataFromUrlTest extends EasyMockSupport {
         assertFalse(fetchDataFromUrl.refreshed("intergationTestRemoteSource"));
     }
 
-    @Disabled("WIP")
     @Test
     void shouldCopeWithRedirects() throws IOException {
         Files.newFile(zipFilename.toAbsolutePath().toString());
-        LocalDateTime time = TestEnv.LocalNow();
-        HttpDownloadAndModTime.URLStatus status1 = new HttpDownloadAndModTime.URLStatus(301);
 
-        EasyMock.expect(httpDownloader.getModTime(expectedDownloadURL)).andReturn(status1);
+        String redirectUrl1 = "https://resource.is.always.now.com/resource";
+        String redirectUrl2 = "https://resource.is.temp.now.com/resource";
+
+        LocalDateTime time = TestEnv.LocalNow().plusMinutes(1);
+
+        HttpDownloadAndModTime.URLStatus status1 = new HttpDownloadAndModTime.URLStatus(redirectUrl1, 301);
+        HttpDownloadAndModTime.URLStatus status2 = new HttpDownloadAndModTime.URLStatus(redirectUrl2, 302);
+        HttpDownloadAndModTime.URLStatus status3 = new HttpDownloadAndModTime.URLStatus(redirectUrl2, 200, time);
+
+        EasyMock.expect(httpDownloader.getStatusFor(expectedDownloadURL)).andReturn(status1);
+        EasyMock.expect(httpDownloader.getStatusFor(redirectUrl1)).andReturn(status2);
+        EasyMock.expect(httpDownloader.getStatusFor(redirectUrl2)).andReturn(status3);
+
+        httpDownloader.downloadTo(zipFilename, redirectUrl2);
         EasyMock.expectLastCall();
-
-
-        httpDownloader.downloadTo(zipFilename, expectedDownloadURL);
-
 
         replayAll();
         Assertions.assertAll(() -> fetchDataFromUrl.fetchData());
@@ -132,8 +142,8 @@ class FetchDataFromUrlTest extends EasyMockSupport {
                 plusMinutes(FetchDataFromUrl.DEFAULT_EXPIRY_MINS).plusDays(1));
 
         //LocalDateTime fileIsMissingTime = LocalDateTime.MIN;
-        HttpDownloadAndModTime.URLStatus status = new HttpDownloadAndModTime.URLStatus(200);
-        EasyMock.expect(httpDownloader.getModTime(expectedDownloadURL)).andReturn(status);
+        HttpDownloadAndModTime.URLStatus status = new HttpDownloadAndModTime.URLStatus(expectedDownloadURL, 200);
+        EasyMock.expect(httpDownloader.getStatusFor(expectedDownloadURL)).andReturn(status);
         httpDownloader.downloadTo(zipFilename, expectedDownloadURL);
         EasyMock.expectLastCall();
 
@@ -149,9 +159,9 @@ class FetchDataFromUrlTest extends EasyMockSupport {
         EasyMock.expect(providesLocalNow.getDateTime()).andReturn(LocalDateTime.now());
 
         //LocalDateTime fileIsMissingTime = LocalDateTime.MIN;
-        HttpDownloadAndModTime.URLStatus status = new HttpDownloadAndModTime.URLStatus(200);
+        HttpDownloadAndModTime.URLStatus status = new HttpDownloadAndModTime.URLStatus(expectedDownloadURL, 200);
 
-        EasyMock.expect(httpDownloader.getModTime(expectedDownloadURL)).andReturn(status);
+        EasyMock.expect(httpDownloader.getStatusFor(expectedDownloadURL)).andReturn(status);
 
         replayAll();
         Assertions.assertAll(() -> fetchDataFromUrl.fetchData());
@@ -163,9 +173,9 @@ class FetchDataFromUrlTest extends EasyMockSupport {
     void shouldHandlerFileIsMissing() throws IOException {
         Files.newFile(zipFilename.toAbsolutePath().toString());
         //LocalDateTime fileIsMissingTime = LocalDateTime.MAX;
-        HttpDownloadAndModTime.URLStatus status = new HttpDownloadAndModTime.URLStatus(404);
+        HttpDownloadAndModTime.URLStatus status = new HttpDownloadAndModTime.URLStatus(expectedDownloadURL, 404);
 
-        EasyMock.expect(httpDownloader.getModTime(expectedDownloadURL)).andReturn(status);
+        EasyMock.expect(httpDownloader.getStatusFor(expectedDownloadURL)).andReturn(status);
 
         replayAll();
         Assertions.assertAll(() -> fetchDataFromUrl.fetchData());

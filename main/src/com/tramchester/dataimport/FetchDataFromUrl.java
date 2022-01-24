@@ -6,6 +6,7 @@ import com.tramchester.config.RemoteDataSourceConfig;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.time.ProvidesNow;
 import org.apache.commons.io.FileUtils;
+import org.apache.http.HttpStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -76,11 +77,18 @@ public class FetchDataFromUrl implements RemoteDataRefreshed {
 
     private boolean refreshDataIfNewerAvailable(RemoteDataSourceConfig config) throws IOException {
         boolean isS3 = config.getIsS3();
-        String url = config.getDataUrl();
+        String orginalUrl = config.getDataUrl();
         Path downloadDirectory = config.getDataPath();
         String targetFile = config.getDownloadFilename();
 
         Path destination = downloadDirectory.resolve(targetFile);
+
+        HttpDownloadAndModTime.URLStatus status = getStatusFor(orginalUrl, isS3);
+        if (!status.isOk()) {
+            logger.error(format("Status %s for Requested URL %s ", status.getStatusCode(), orginalUrl));
+            return false;
+        }
+        String url = status.getActualURL();
 
         String name = config.getName();
         if (Files.exists(destination)) {
@@ -92,20 +100,10 @@ public class FetchDataFromUrl implements RemoteDataRefreshed {
                 return loadIfCachePeriodExpired(url, destination, localMod, isS3);
             }
 
-            HttpDownloadAndModTime.URLStatus status = getModTime(url, isS3);
-            if (!status.isOk()) {
-                logger.error(format("Status %s for Requested URL %s ", status.getStatusCode(), url));
-                return false;
-            }
-
             LocalDateTime serverMod = status.getModTime();
             if (serverMod.isEqual(LocalDateTime.MIN)) {
                 return loadIfCachePeriodExpired(url, destination, localMod, isS3);
             }
-
-//            if (serverMod.isEqual(LocalDateTime.MAX)) {
-//
-//            }
 
             logger.info(format("%s: Server mod time: %s File mod time: %s ", name, serverMod, localMod));
 
@@ -138,11 +136,28 @@ public class FetchDataFromUrl implements RemoteDataRefreshed {
         }
     }
 
-    private HttpDownloadAndModTime.URLStatus getModTime(String url, boolean isS3) throws IOException {
+    private HttpDownloadAndModTime.URLStatus getStatusFor(String url, boolean isS3) throws IOException {
         if (isS3) {
-            return s3Downloader.getModTime(url);
+            return s3Downloader.getStatusFor(url);
         }
-        return httpDownloader.getModTime(url);
+        return getStatusFollowRedirects(url);
+    }
+
+    private HttpDownloadAndModTime.URLStatus getStatusFollowRedirects(String url) throws IOException {
+        HttpDownloadAndModTime.URLStatus status = httpDownloader.getStatusFor(url);
+
+        while (status.isRedirect()) {
+            String redirectUrl = status.getActualURL();
+            String message = String.format("Status code %s Following redirect to %s", status.getStatusCode(), redirectUrl);
+            if (status.getStatusCode()==HttpStatus.SC_MOVED_TEMPORARILY) {
+                logger.warn(message);
+            } else {
+                logger.error(message);
+            }
+            status = httpDownloader.getStatusFor(redirectUrl);
+        }
+
+        return status;
     }
 
     private boolean loadIfCachePeriodExpired(String url, Path destination, LocalDateTime fileModTime, boolean isS3)  {

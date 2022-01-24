@@ -31,7 +31,7 @@ public class NewDataAvailableHealthCheck extends TramchesterHealthCheck {
 
         try {
 
-            final HttpDownloadAndModTime.URLStatus status = urlDownloader.getModTime(dataCheckUrl);
+            final HttpDownloadAndModTime.URLStatus status = urlDownloader.getStatusFor(dataCheckUrl);
 
             if (!status.isOk()) {
                 String msg = String.format("Got http status %s for %s", status.getStatusCode(), dataCheckUrl);

@@ -56,7 +56,7 @@ public class S3DownloaderTest {
     void shouldDownloadSomething() throws IOException {
         String url = "s3://tramchester2dist/testing/ForTestSupport.txt";
 
-        HttpDownloadAndModTime.URLStatus result = downloadAndModTime.getModTime(url);
+        HttpDownloadAndModTime.URLStatus result = downloadAndModTime.getStatusFor(url);
         assertTrue(result.isOk());
 
         LocalDateTime modTime = result.getModTime();
