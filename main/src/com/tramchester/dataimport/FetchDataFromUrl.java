@@ -92,15 +92,20 @@ public class FetchDataFromUrl implements RemoteDataRefreshed {
                 return loadIfCachePeriodExpired(url, destination, localMod, isS3);
             }
 
-            LocalDateTime serverMod = getModTime(url, isS3);
+            HttpDownloadAndModTime.URLStatus status = getModTime(url, isS3);
+            if (!status.isOk()) {
+                logger.error(format("Status %s for Requested URL %s ", status.getStatusCode(), url));
+                return false;
+            }
+
+            LocalDateTime serverMod = status.getModTime();
             if (serverMod.isEqual(LocalDateTime.MIN)) {
                 return loadIfCachePeriodExpired(url, destination, localMod, isS3);
             }
 
-            if (serverMod.isEqual(LocalDateTime.MAX)) {
-                logger.error("Requested URL is (not status 200) missing " + url);
-                return false;
-            }
+//            if (serverMod.isEqual(LocalDateTime.MAX)) {
+//
+//            }
 
             logger.info(format("%s: Server mod time: %s File mod time: %s ", name, serverMod, localMod));
 
@@ -133,7 +138,7 @@ public class FetchDataFromUrl implements RemoteDataRefreshed {
         }
     }
 
-    private LocalDateTime getModTime(String url, boolean isS3) throws IOException {
+    private HttpDownloadAndModTime.URLStatus getModTime(String url, boolean isS3) throws IOException {
         if (isS3) {
             return s3Downloader.getModTime(url);
         }

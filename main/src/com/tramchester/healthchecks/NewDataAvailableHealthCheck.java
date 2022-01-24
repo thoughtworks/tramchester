@@ -31,21 +31,27 @@ public class NewDataAvailableHealthCheck extends TramchesterHealthCheck {
 
         try {
 
-            LocalDateTime serverModTime = urlDownloader.getModTime(dataCheckUrl);
+            final HttpDownloadAndModTime.URLStatus status = urlDownloader.getModTime(dataCheckUrl);
+
+            if (!status.isOk()) {
+                String msg = String.format("Got http status %s for %s", status.getStatusCode(), dataCheckUrl);
+                logger.info(msg);
+                return Result.unhealthy(msg);
+            }
+
+            LocalDateTime serverModTime = status.getModTime();
             LocalDateTime zipModTime = fetchFileModTime.getFor(config);
 
-            String diag = String.format("Local zip mod time: %s Server mod time: %s Url: %s",
-                    zipModTime, serverModTime, dataCheckUrl);
+            String diag = String.format("Local zip mod time: %s Server mod time: %s Url: %s", zipModTime, serverModTime, dataCheckUrl);
             if (serverModTime.isAfter(zipModTime)) {
                 String msg = "Newer data is available " + diag;
                 logger.warn(msg);
                 return Result.unhealthy(msg);
             } else if (serverModTime.equals(LocalDateTime.MIN)) {
-                String msg = "Source is missing, cannot check for new data at " + dataCheckUrl;
+                String msg = "No mod time was available from server for " + dataCheckUrl;
                 logger.error(msg);
                 return Result.unhealthy(msg);
-            }
-            else {
+            } else {
                 String msg = "No newer data is available " + diag;
                 logger.info(msg);
                 return Result.healthy(msg);

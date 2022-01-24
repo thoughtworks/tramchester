@@ -58,7 +58,9 @@ class NewDataAvailableHealthCheckTest extends EasyMockSupport {
     @Test
     void shouldReportHealthyWhenNONewDataAvailable() throws IOException {
 
-        EasyMock.expect(urlDownloader.getModTime(expectedURL)).andReturn(time.minusDays(1));
+        HttpDownloadAndModTime.URLStatus status = new HttpDownloadAndModTime.URLStatus(200, time.minusDays(1));
+
+        EasyMock.expect(urlDownloader.getModTime(expectedURL)).andReturn(status);
         EasyMock.expect(fetchFileModTime.getFor(dataSourceConfig)).andReturn(time);
 
         replayAll();
@@ -70,7 +72,10 @@ class NewDataAvailableHealthCheckTest extends EasyMockSupport {
     @Test
     void shouldReportUnHealthyWhenNewDataAvailable() throws IOException {
 
-        EasyMock.expect(urlDownloader.getModTime(expectedURL)).andReturn(time.plusDays(1));
+        HttpDownloadAndModTime.URLStatus status = new HttpDownloadAndModTime.URLStatus(200, time.plusDays(1));
+
+
+        EasyMock.expect(urlDownloader.getModTime(expectedURL)).andReturn(status);
         EasyMock.expect(fetchFileModTime.getFor(dataSourceConfig)).andReturn(time);
 
         replayAll();
@@ -82,7 +87,9 @@ class NewDataAvailableHealthCheckTest extends EasyMockSupport {
     @Test
     void shouldReportUnHealthyWhenDataMissing() throws IOException {
 
-        EasyMock.expect(urlDownloader.getModTime(expectedURL)).andReturn(LocalDateTime.MIN);
+        HttpDownloadAndModTime.URLStatus status = new HttpDownloadAndModTime.URLStatus(200);
+
+        EasyMock.expect(urlDownloader.getModTime(expectedURL)).andReturn(status);
         EasyMock.expect(fetchFileModTime.getFor(dataSourceConfig)).andReturn(time);
 
         replayAll();

@@ -2,11 +2,11 @@ package com.tramchester.dataimport;
 
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.cloud.data.ClientForS3;
+import org.apache.http.HttpStatus;
 
 import javax.inject.Inject;
 import java.io.IOException;
 import java.nio.file.Path;
-import java.time.LocalDateTime;
 
 @LazySingleton
 public class S3DownloadAndModTime implements DownloadAndModTime {
@@ -19,8 +19,8 @@ public class S3DownloadAndModTime implements DownloadAndModTime {
     }
 
     @Override
-    public LocalDateTime getModTime(String url) throws IOException {
-        return s3Client.getModTimeFor(url);
+    public HttpDownloadAndModTime.URLStatus getModTime(String url) throws IOException {
+        return new HttpDownloadAndModTime.URLStatus(HttpStatus.SC_OK,s3Client.getModTimeFor(url));
     }
 
     @Override

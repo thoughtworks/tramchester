@@ -4,7 +4,6 @@ import com.tramchester.dataimport.NaPTAN.xml.NaptanStopXMLData;
 import com.tramchester.geo.GridPosition;
 import com.tramchester.unit.dataimport.ParserTestXMLHelper;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import javax.xml.stream.XMLStreamException;
@@ -74,6 +73,7 @@ class NaptanStopXMLDataTest extends ParserTestXMLHelper<NaptanStopXMLData> {
 
         NaptanStopXMLData data = super.parseFirstOnly(fullBody);
         assertEquals("9400ZZMAWWD2", data.getAtcoCode(), data.toString());
+        assertFalse(data.hasRailInfo());
     }
 
     @Test
@@ -128,9 +128,9 @@ class NaptanStopXMLDataTest extends ParserTestXMLHelper<NaptanStopXMLData> {
         assertEquals("St Helens", data.getTown());
         assertEquals("Stand 2", data.getIndicator());
         assertEquals(busCoachTrolleyStationBay, data.getStopType());
+        assertFalse(data.hasRailInfo());
     }
 
-    @Disabled("wip")
     @Test
     void shouldParseAdditionalRailInfoIfPresent() throws XMLStreamException, IOException {
         String text = "<NaPTAN><StopPoints><StopPoint CreationDateTime=\"2006-09-08T14:30:00\" ModificationDateTime=\"2007-09-26T13:00:00\" Modification=\"revise\" RevisionNumber=\"1\" Sta" +
@@ -151,7 +151,9 @@ class NaptanStopXMLDataTest extends ParserTestXMLHelper<NaptanStopXMLData> {
 
         NaptanStopXMLData data = super.parseFirstOnly(text);
 
-        fail("todo");
+        assertTrue(data.hasRailInfo());
+
+        assertEquals("ABDARE", data.getRailInfo().getTiploc());
 
     }
 }

@@ -95,7 +95,12 @@ public class TransportDataFromXMLFile<T, R extends T> implements TransportDataFr
             if (closed) {
                 return false;
             }
-            return streamReader.getEventType() == XMLStreamConstants.START_ELEMENT && "StopPoint".equals(streamReader.getLocalName());
+            final String localName = streamReader.getLocalName();
+            final boolean expected = "StopPoint".equals(localName);
+            if (!expected) {
+                logger.info("Skip " + localName);
+            }
+            return streamReader.getEventType() == XMLStreamConstants.START_ELEMENT && expected;
         }
 
         @Override

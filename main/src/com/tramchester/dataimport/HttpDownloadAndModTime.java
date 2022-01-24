@@ -1,6 +1,7 @@
 package com.tramchester.dataimport;
 
 import com.tramchester.config.TramchesterConfig;
+import org.apache.http.HttpStatus;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,7 +25,7 @@ public class HttpDownloadAndModTime implements DownloadAndModTime {
     private static final Logger logger = LoggerFactory.getLogger(HttpDownloadAndModTime.class);
 
     @Override
-    public LocalDateTime getModTime(String url) throws IOException {
+    public URLStatus getModTime(String url) throws IOException {
         logger.info(format("Check mod time for %s", url));
 
         HttpURLConnection connection = createConnection(url);
@@ -32,24 +33,24 @@ public class HttpDownloadAndModTime implements DownloadAndModTime {
         long serverModMillis = connection.getLastModified();
 
         // TODO what about redirects etc?
-        boolean missing = connection.getResponseCode() != 200;
+        boolean missing = connection.getResponseCode() != HttpStatus.SC_OK;
         if (missing) {
             logger.error("Response code " + connection.getResponseCode());
         }
         connection.disconnect();
 
         if (missing) {
-            return LocalDateTime.MIN;
+            return new URLStatus(connection.getResponseCode());
         }
 
         if (serverModMillis==0) {
             logger.warn("No valid mod time from server, got 0 for " + url);
-            return LocalDateTime.MIN;
+            return new URLStatus(connection.getResponseCode());
         }
 
         LocalDateTime modTime = getLocalDateTime(serverModMillis);
         logger.info(format("Mod time for %s is %s", url, modTime));
-        return modTime;
+        return new URLStatus(connection.getResponseCode(), modTime);
     }
 
     @NotNull
@@ -140,6 +141,36 @@ public class HttpDownloadAndModTime implements DownloadAndModTime {
             return new GZIPInputStream(connection.getInputStream());
         } else {
             return connection.getInputStream();
+        }
+    }
+
+    public static class URLStatus {
+
+        private final int responseCode;
+        private final LocalDateTime modTime;
+
+        public URLStatus(int responseCode) {
+            this(responseCode, null);
+        }
+
+        public URLStatus(int responseCode, LocalDateTime modTime) {
+            this.responseCode = responseCode;
+            this.modTime = modTime;
+        }
+
+        public LocalDateTime getModTime() {
+            if (modTime==null) {
+                return LocalDateTime.MIN;
+            }
+            return modTime;
+        }
+
+        public boolean isOk() {
+            return HttpStatus.SC_OK == responseCode;
+        }
+
+        public int getStatusCode() {
+            return responseCode;
         }
     }
 }

@@ -15,23 +15,23 @@ import java.util.stream.Stream;
 
 import static java.lang.String.format;
 
-public class NaptanDataCSVImporter<Z, R extends Z> implements NaptanDataImporter<Z> {
+public class NaptanDataCSVImporter<T, R extends T> implements NaptanDataImporter<T> {
     private static final Logger logger = LoggerFactory.getLogger(NaptanDataCSVImporter.class);
 
     private final TramchesterConfig config;
     private final CsvMapper mapper;
     private final DataSourceID dataSourceID;
-    private final Class<R> readerClass;
+    private final Class<R> concreteType;
 
-    private Stream<Z> dataStream;
+    private Stream<T> dataStream;
     private boolean open;
 
-    public NaptanDataCSVImporter(TramchesterConfig config, CsvMapper mapper, Class<R> readerClass, DataSourceID dataSourceID,
+    public NaptanDataCSVImporter(TramchesterConfig config, CsvMapper mapper, Class<R> concreteType, DataSourceID dataSourceID,
                                  UnzipFetchedData.Ready dataIsReady) {
 
         this.config = config;
         this.mapper = mapper;
-        this.readerClass = readerClass;
+        this.concreteType = concreteType;
         this.dataSourceID = dataSourceID;
         open = false;
     }
@@ -46,7 +46,7 @@ public class NaptanDataCSVImporter<Z, R extends Z> implements NaptanDataImporter
 
         logger.info("start");
         RemoteDataSourceConfig sourceConfig = config.getDataRemoteSourceConfig(dataSourceID);
-        loadForConfig(sourceConfig, readerClass);
+        loadForConfig(sourceConfig, concreteType);
         logger.info("started");
     }
 
@@ -68,12 +68,12 @@ public class NaptanDataCSVImporter<Z, R extends Z> implements NaptanDataImporter
         open = true;
     }
 
-    private Stream<Z> loadFor(Path dataPath, String filename, Class<R> readerClass) {
+    private Stream<T> loadFor(Path dataPath, String filename, Class<R> readerClass) {
         Path filePath = dataPath.resolve(filename);
         logger.info("Loading data from " + filePath.toAbsolutePath());
-        TransportDataFromCSVFile<Z, R> dataLoader = new TransportDataFromCSVFile<>(filePath, readerClass, mapper);
+        TransportDataFromCSVFile<T, R> dataLoader = new TransportDataFromCSVFile<>(filePath, readerClass, mapper);
 
-        Stream<Z> stream = dataLoader.load();
+        Stream<T> stream = dataLoader.load();
 
         //noinspection ResultOfMethodCallIgnored
         stream.onClose(() ->  this.streamClosed(readerClass.getSimpleName()));
@@ -95,7 +95,7 @@ public class NaptanDataCSVImporter<Z, R extends Z> implements NaptanDataImporter
     }
 
     @Override
-    public Stream<Z> getDataStream() {
+    public Stream<T> getDataStream() {
         return dataStream;
     }
 }

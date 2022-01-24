@@ -20,4 +20,6 @@ public interface NaptanStopData extends HasGridPosition {
     String getTown();
 
     String getIndicator();
+
+    boolean hasRailInfo();
 }

@@ -1,6 +1,7 @@
 package com.tramchester.integration;
 
 import com.tramchester.cloud.data.ClientForS3;
+import com.tramchester.dataimport.HttpDownloadAndModTime;
 import com.tramchester.dataimport.S3DownloadAndModTime;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.testTags.S3Test;
@@ -55,7 +56,10 @@ public class S3DownloaderTest {
     void shouldDownloadSomething() throws IOException {
         String url = "s3://tramchester2dist/testing/ForTestSupport.txt";
 
-        LocalDateTime modTime = downloadAndModTime.getModTime(url);
+        HttpDownloadAndModTime.URLStatus result = downloadAndModTime.getModTime(url);
+        assertTrue(result.isOk());
+
+        LocalDateTime modTime = result.getModTime();
         assertTrue(modTime.isBefore(TestEnv.LocalNow()));
         assertTrue(modTime.isAfter(LocalDateTime.of(2000,1,1,12,59,22)));
 

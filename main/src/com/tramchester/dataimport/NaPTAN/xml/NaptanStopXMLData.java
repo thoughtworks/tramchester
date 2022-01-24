@@ -2,6 +2,7 @@ package com.tramchester.dataimport.NaPTAN.xml;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonRootName;
+import com.tramchester.dataimport.NaPTAN.NaptanRailStationData;
 import com.tramchester.geo.GridPosition;
 import com.tramchester.repository.naptan.NaptanStopType;
 
@@ -46,6 +47,11 @@ public class NaptanStopXMLData implements NaptanStopData {
     }
 
     @Override
+    public boolean hasRailInfo() {
+        return stopClassification.hasRailInfo();
+    }
+
+    @Override
     public GridPosition getGridPosition() {
         return place.getLocation().getGridPosition();
     }
@@ -79,5 +85,9 @@ public class NaptanStopXMLData implements NaptanStopData {
                 ", descriptor=" + descriptor +
                 ", stopClassification=" + stopClassification +
                 '}';
+    }
+
+    public NaptanRailStationData getRailInfo() {
+        return stopClassification.getRailInfo();
     }
 }

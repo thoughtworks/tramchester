@@ -8,6 +8,6 @@ import java.util.List;
 public class IntegrationTramTestConfigWithXMLNaptan extends IntegrationTramTestConfig {
     @Override
     public List<RemoteDataSourceConfig> getRemoteDataSourceConfig() {
-        return Arrays.asList(remoteTFGMConfig, remoteNaptanXMLConfig);
+        return Arrays.asList(remoteTFGMConfig, remoteNaptanXMLConfig, remoteNPTGconfig);
     }
 }

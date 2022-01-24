@@ -11,6 +11,9 @@ public class NaptanXMLLocation {
     private NaptanXMLLocationTranslation translation;
 
     public GridPosition getGridPosition() {
+        if (translation==null) {
+            return GridPosition.Invalid;
+        }
         return translation.getGridPosition();
     }
 }

@@ -56,7 +56,7 @@ class NaptanRepositoryTest {
         assertEquals("Manchester Airport", data.getSuburb());
     }
 
-    @Disabled("wip to reinstate train data from the XML feed")
+    @Disabled("awaiting rail data import from xml version of naptan feed")
     @Test
     void shouldHaveDataForTrains() {
         IdFor<Station> tiploc = RailStationIds.Macclesfield.getId();

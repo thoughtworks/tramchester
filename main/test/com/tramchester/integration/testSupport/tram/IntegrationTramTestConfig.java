@@ -4,6 +4,7 @@ import com.tramchester.config.GTFSSourceConfig;
 import com.tramchester.config.LiveDataConfig;
 import com.tramchester.config.RemoteDataSourceConfig;
 import com.tramchester.domain.StationClosure;
+import com.tramchester.integration.testSupport.nptg.NPTGDataSourceTestConfig;
 import com.tramchester.testSupport.AdditionalTramInterchanges;
 import com.tramchester.domain.reference.GTFSTransportationType;
 import com.tramchester.domain.reference.TransportMode;
@@ -24,6 +25,7 @@ public class IntegrationTramTestConfig extends IntegrationTestConfig {
 
     private final GTFSSourceConfig gtfsSourceConfig;
     protected final RemoteDataSourceConfig remoteTFGMConfig;
+    protected final RemoteDataSourceConfig remoteNPTGconfig;
     private final boolean liveDataEnabled;
 
     public IntegrationTramTestConfig() {
@@ -48,6 +50,7 @@ public class IntegrationTramTestConfig extends IntegrationTestConfig {
         gtfsSourceConfig = new TFGMGTFSSourceTestConfig("data/tram", GTFSTransportationType.tram,
                 TransportMode.Tram, AdditionalTramInterchanges.get(), Collections.emptySet(), closedStations);
         remoteTFGMConfig = new TFGMRemoteDataSourceConfig("data/tram");
+        remoteNPTGconfig = new NPTGDataSourceTestConfig();
     }
 
     @Override

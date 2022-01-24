@@ -42,7 +42,9 @@ class HttpDownloaderTest {
     void shouldDownloadSomething() throws IOException {
         String url = "https://github.com/fluidicon.png";
 
-        LocalDateTime modTime = urlDownloader.getModTime(url);
+        HttpDownloadAndModTime.URLStatus status = urlDownloader.getModTime(url);
+        assertTrue(status.isOk());
+        LocalDateTime modTime = status.getModTime();
         assertTrue(modTime.isBefore(TestEnv.LocalNow()));
         assertTrue(modTime.isAfter(LocalDateTime.of(2000,1,1,12,59,22)));
 
@@ -56,8 +58,8 @@ class HttpDownloaderTest {
     void shouldHaveValidModTimeForTimetableData() throws IOException {
 
         String url = TestEnv.TFGM_TIMETABLE_URL;
-        LocalDateTime modTime = urlDownloader.getModTime(url);
+        HttpDownloadAndModTime.URLStatus result = urlDownloader.getModTime(url);
 
-        assertTrue(modTime.getYear()>1970);
+        assertTrue(result.getModTime().getYear()>1970);
     }
 }

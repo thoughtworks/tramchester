@@ -70,6 +70,11 @@ public class NaptanStopCSVData implements NaptanStopData {
     }
 
     @Override
+    public boolean hasRailInfo() {
+        return false;
+    }
+
+    @Override
     public GridPosition getGridPosition() {
         if (easting==0 || northing==0) {
             return GridPosition.Invalid;
