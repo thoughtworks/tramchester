@@ -40,16 +40,21 @@ remoteSources:
     dataCheckURL: http://odata.tfgm.com/opendata/downloads/TfGMgtfsnew.zip
     dataPath: data/bus
     filename: tfgm_data.zip
-  - name: naptanStopsCSV
-    dataURL: https://naptan.api.dft.gov.uk/v1/access-nodes?dataFormat=csv
-    dataCheckURL: ""
-    dataPath: data/naptan
-    filename: naptan_csv.zip
   - name: rail
     dataURL: s3://tramchester2dist/railData/ttis236.zip
     dataCheckURL: s3://tramchester2dist/railData/ttis236.zip
     dataPath: data/rail
     filename: ttis236.zip
+  - name: naptanxml
+    dataURL: https://naptan.api.dft.gov.uk/v1/access-nodes?dataFormat=xml
+    dataCheckURL: ""
+    dataPath: data/naptan
+    filename: Stops.xml
+  - name: nptg
+    dataURL: http://www.dft.gov.uk/nptg/snapshot/nptgcsv.zip
+    dataCheckURL: ""
+    dataPath: data/nptg
+    filename: nptgcsv.zip
 cacheFolder: data/cacheFrequency
 calcTimeoutMillis: 3500
 bounds:

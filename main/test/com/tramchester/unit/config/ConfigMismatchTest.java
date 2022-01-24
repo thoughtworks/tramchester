@@ -32,7 +32,6 @@ class ConfigMismatchTest {
         Bounds
     }
 
-
     @Test
     void shouldBeAbleToLoadAllConfigWithoutExceptions() throws IOException, ConfigurationException {
         // Note: this does not catch all the same validation cases as app start up
@@ -48,8 +47,6 @@ class ConfigMismatchTest {
     void shouldHaveValidIdsForRemoteConfigSections() throws IOException, ConfigurationException {
         Set<Path> configFiles = getConfigFiles();
 
-        String expectedStopsNaptanURL = TestEnv.NAPTAN_BASE_URL + "?dataFormat=csv";
-
         for(Path config : configFiles) {
             AppConfiguration configuration = loadConfigFromFile(config);
             List<RemoteDataSourceConfig> remoteSourceConfigs = configuration.getRemoteDataSourceConfig();
@@ -59,8 +56,7 @@ class ConfigMismatchTest {
                         "Bad source id for " + remoteSourceConfig.getName() + " in " + config.toAbsolutePath());
 
                 if (dataSourceID==DataSourceID.naptanStopsCSV) {
-                    assertEquals(expectedStopsNaptanURL, remoteSourceConfig.getDataUrl(),
-                            "bad naptan stops urls for " + config.toAbsolutePath());
+                    fail("naptanStopsCSV no longer supported " + config.toAbsolutePath());
                 }
 
                 if (dataSourceID==DataSourceID.naptanRailReferenceCSV) {

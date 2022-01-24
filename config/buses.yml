@@ -30,20 +30,22 @@ gtfsSourceConfig:
     compositeStationModes: [ Bus ]
     stationClosures: []
 remoteSources:
-  -
-    name: tfgm
+  - name: tfgm
     dataURL: ${TRAM_DATAURL:- http://odata.tfgm.com/opendata/downloads/TfGMgtfsnew.zip}
     dataCheckURL: http://odata.tfgm.com/opendata/downloads/TfGMgtfsnew.zip
     dataPath: data/bus
     filename: tfgm_data.zip
-  -
-    name: naptanStopsCSV
-    dataURL: https://naptan.api.dft.gov.uk/v1/access-nodes?dataFormat=csv
+  - name: naptanxml
+    dataURL: https://naptan.api.dft.gov.uk/v1/access-nodes?dataFormat=xml
     dataCheckURL: ""
     dataPath: data/naptan
-    filename: Stops.csv
-  -
-    name: postcode
+    filename: Stops.xml
+  - name: nptg
+    dataURL: http://www.dft.gov.uk/nptg/snapshot/nptgcsv.zip
+    dataCheckURL: ""
+    dataPath: data/nptg
+    filename: nptgcsv.zip
+  - name: postcode
     dataURL: https://api.os.uk/downloads/v1/products/CodePointOpen/downloads?area=GB&format=CSV&redirect
     dataCheckURL: ""
     dataPath: data/postcodes
