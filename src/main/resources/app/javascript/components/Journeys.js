@@ -23,17 +23,7 @@ function fromFormatter(value, key, row) {
 }
 
 function nameForStation(station) {
-    var name = station.name;
-    // if (station.id=='MyLocationPlaceholderId') {
-    //     return name;
-    // }
-    // if (station.transportModes.includes('Tram') || station.transportModes.includes('Train')) {
-    //     return name; // names unambiguous so no need for area prefx
-    // }
-    // if (!name.includes(station.area)) {
-    //     name = station.area + " " + name; // TODO remove this and get stop names from naptan
-    // }
-    return name;
+    return station.name;
 }
 
 function stationFormatter(value, key, row) {
