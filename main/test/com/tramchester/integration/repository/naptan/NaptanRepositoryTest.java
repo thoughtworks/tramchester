@@ -61,7 +61,6 @@ class NaptanRepositoryTest {
         assertFalse(respository.containsTiploc(RailStationIds.LondonEuston.getId()));
     }
 
-    @Disabled("awaiting rail data import from xml version of naptan feed")
     @Test
     void shouldHaveDataForTrains() {
         IdFor<Station> tiploc = RailStationIds.Macclesfield.getId();
