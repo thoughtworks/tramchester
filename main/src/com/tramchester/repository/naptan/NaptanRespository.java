@@ -2,9 +2,7 @@ package com.tramchester.repository.naptan;
 
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.config.TramchesterConfig;
-import com.tramchester.dataimport.NaPTAN.NaptanRailReferecnesDataImporter;
 import com.tramchester.dataimport.NaPTAN.NaptanStopsDataImporter;
-import com.tramchester.dataimport.NaPTAN.RailStationData;
 import com.tramchester.dataimport.NaPTAN.xml.NaptanStopData;
 import com.tramchester.dataimport.nptg.NPTGData;
 import com.tramchester.domain.id.IdFor;
@@ -36,17 +34,14 @@ public class NaptanRespository {
     private static final Logger logger = LoggerFactory.getLogger(NaptanRespository.class);
 
     private final NaptanStopsDataImporter stopsImporter;
-    private final NaptanRailReferecnesDataImporter referecnesDataImporter;
     private final NPTGRepository nptgRepository;
     private final TramchesterConfig config;
     private IdMap<NaptanRecord> stopData;
     private Map<IdFor<Station>, IdFor<NaptanRecord>> tiplocToAtco;
 
     @Inject
-    public NaptanRespository(NaptanStopsDataImporter stopsImporter, NaptanRailReferecnesDataImporter referecnesDataImporter,
-                             NPTGRepository nptgRepository, TramchesterConfig config) {
+    public NaptanRespository(NaptanStopsDataImporter stopsImporter, NPTGRepository nptgRepository, TramchesterConfig config) {
         this.stopsImporter = stopsImporter;
-        this.referecnesDataImporter = referecnesDataImporter;
         this.nptgRepository = nptgRepository;
         this.config = config;
         stopData = new IdMap<>();
@@ -57,10 +52,10 @@ public class NaptanRespository {
     public void start() {
         logger.info("starting");
 
-        boolean eitherEnabled = stopsImporter.isEnabled() || referecnesDataImporter.isEnabled();
+        boolean enabled = stopsImporter.isEnabled();
 
-        if (!eitherEnabled) {
-            logger.info("Not enabled");
+        if (!enabled) {
+            logger.warn("Not enabled, imported is disable, no config for naptan?");
             return;
         } else {
             loadStopDataForConfiguredArea();
@@ -130,27 +125,17 @@ public class NaptanRespository {
     }
 
     private void loadStationData(BoundingBox bounds, MarginInMeters margin) {
-        if (referecnesDataImporter.isEnabled()) {
-            logger.warn("Loading rail station data from deprecated source ");
-            Stream<RailStationData> stationDataStream = referecnesDataImporter.getRailStationData();
-            tiplocToAtco = filterBy(bounds, margin, stationDataStream).
-                    collect(Collectors.toMap(data -> StringIdFor.createId(data.getTiploc()), this::createNaptanIdFor));
-            stationDataStream.close();
+        logger.info("Load rail station reference data from natpan stops");
 
-        } else {
-            logger.info("Load rail station reference data from natpan stops");
-            tiplocToAtco = stopsImporter.getStopsData().
-                    filter(NaptanStopData::hasRailInfo).
-                    filter(stopData -> stopData.getAtcoCode() != null).
-                    filter(stopData -> !stopData.getAtcoCode().isBlank()).
-                    collect(Collectors.toMap(data -> StringIdFor.createId(data.getRailInfo().getTiploc()),
-                            data -> StringIdFor.createId(data.getAtcoCode())));
-        }
+        Stream<NaptanStopData> railStops = stopsImporter.getStopsData().
+                filter(NaptanStopData::hasRailInfo).
+                filter(stopData -> stopData.getAtcoCode() != null).
+                filter(stopData -> !stopData.getAtcoCode().isBlank());
+
+        tiplocToAtco = filterBy(bounds, margin, railStops)
+                .collect(Collectors.toMap(data -> StringIdFor.createId(data.getRailInfo().getTiploc()),
+                        data -> StringIdFor.createId(data.getAtcoCode())));
         logger.info("Loaded " + tiplocToAtco.size() + " stations");
-    }
-
-    private IdFor<NaptanRecord> createNaptanIdFor(RailStationData railStationData) {
-        return StringIdFor.createId(railStationData.getActo());
     }
 
     private <T extends HasGridPosition> Stream<T> filterBy(BoundingBox bounds, MarginInMeters margin, Stream<T> stream) {

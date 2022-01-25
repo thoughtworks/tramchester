@@ -56,6 +56,11 @@ class NaptanRepositoryTest {
         assertEquals("Manchester Airport", data.getSuburb());
     }
 
+    @Test
+    void shouldNotContainTrainOutOfBounds() {
+        assertFalse(respository.containsTiploc(RailStationIds.LondonEuston.getId()));
+    }
+
     @Disabled("awaiting rail data import from xml version of naptan feed")
     @Test
     void shouldHaveDataForTrains() {

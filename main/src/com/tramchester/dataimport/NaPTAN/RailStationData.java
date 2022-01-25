@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.tramchester.geo.GridPosition;
 import com.tramchester.geo.HasGridPosition;
 
+@Deprecated
 public class RailStationData implements HasGridPosition {
     // Matches ID in main naptan Stops.csv file
     @JsonProperty("AtcoCode")
