@@ -27,46 +27,46 @@ import java.util.stream.Stream;
 public class NaptanStopsDataImporter  {
     private static final Logger logger = LoggerFactory.getLogger(NaptanStopsDataImporter.class);
 
-    NaptanDataImporter<NaptanStopData> importer;
+    NaptanDataImporter<NaptanStopData> theImporter;
 
     @Inject
     protected NaptanStopsDataImporter(TramchesterConfig config, CsvMapper csvMapper, UnzipFetchedData.Ready dataIsReady) {
         if (config.hasRemoteDataSourceConfig(DataSourceID.naptanStopsCSV)) {
-            importer = new NaptanDataCSVImporter<>(config, csvMapper, NaptanStopCSVData.class, DataSourceID.naptanStopsCSV, dataIsReady);
+            theImporter = new NaptanDataCSVImporter<>(config, csvMapper, NaptanStopCSVData.class, DataSourceID.naptanStopsCSV, dataIsReady);
         } else if (config.hasRemoteDataSourceConfig(DataSourceID.naptanxml)) {
-            importer = new NaptanDataXMLImporter<>(config, NaptanStopXMLData.class, dataIsReady);
+            theImporter = new NaptanDataXMLImporter<>(config, NaptanStopXMLData.class, dataIsReady);
         } else {
-            importer = null;
+            theImporter = null;
             logger.warn("Naptan config is missing");
         }
     }
 
     @PostConstruct
     public void start() {
-        if (importer!=null) {
+        if (theImporter !=null) {
             logger.info("starting");
-            importer.start();
+            theImporter.start();
             logger.info("started");
         }
     }
 
     @PreDestroy
     public void stop() {
-        if (importer!=null) {
+        if (theImporter !=null) {
             logger.info("Stopping");
-            importer.stop();
+            theImporter.stop();
             logger.info("Stopped");
         }
     }
 
     public Stream<NaptanStopData> getStopsData() {
-        if (importer==null) {
+        if (theImporter ==null) {
             return Stream.empty();
         }
-        return importer.getDataStream();
+        return theImporter.getDataStream();
     }
 
     public boolean isEnabled() {
-        return importer != null && importer.isEnabled();
+        return theImporter != null && theImporter.isEnabled();
     }
 }

@@ -41,7 +41,7 @@ public class RailRemoteDataSourceConfig implements RemoteDataSourceConfig {
 
     @Override
     public String getName() {
-        return "railIntegrationTestRailData";
+        return "rail";
     }
 
     @Override

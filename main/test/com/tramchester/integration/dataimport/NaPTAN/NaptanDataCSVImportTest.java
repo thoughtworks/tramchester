@@ -2,15 +2,22 @@ package com.tramchester.integration.dataimport.NaPTAN;
 
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.GuiceContainerDependencies;
+import com.tramchester.config.GTFSSourceConfig;
+import com.tramchester.config.RemoteDataSourceConfig;
+import com.tramchester.config.TramchesterConfig;
 import com.tramchester.dataimport.NaPTAN.NaptanStopsDataImporter;
 import com.tramchester.dataimport.NaPTAN.xml.NaptanStopData;
-import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
-import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfigWithCSVNaptan;
+import com.tramchester.integration.testSupport.GraphDBTestConfig;
+import com.tramchester.integration.testSupport.IntegrationTestConfig;
+import com.tramchester.integration.testSupport.naptan.NaptanRemoteDataSourceConfig;
 import com.tramchester.repository.naptan.NaptanStopType;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.TramStations;
 import org.junit.jupiter.api.*;
 
+import java.nio.file.Path;
+import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
 
@@ -27,7 +34,7 @@ class NaptanDataCSVImportTest {
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
-        IntegrationTramTestConfig testConfig = new IntegrationTramTestConfigWithCSVNaptan();
+        TramchesterConfig testConfig = new TestConfigWithCSVNaptan();
         componentContainer = new ComponentsBuilder().create(testConfig, TestEnv.NoopRegisterMetrics());
         componentContainer.initialise();
     }
@@ -85,6 +92,26 @@ class NaptanDataCSVImportTest {
         assertFalse(foundKnown.isEmpty());
         NaptanStopData known = foundKnown.get();
         assertEquals("Bristol City Centre", known.getSuburb());
-        //assertEquals("Bristol", known.getParentLocalityName());
+    }
+
+    private static class TestConfigWithCSVNaptan extends IntegrationTestConfig {
+
+        private final NaptanRemoteDataSourceConfig remoteNaptanCSVConfig;
+
+        public TestConfigWithCSVNaptan() {
+            super(new GraphDBTestConfig("",""));
+            final Path naptanLocalDataPath = Path.of("data/naptan");
+            remoteNaptanCSVConfig = new NaptanRemoteDataSourceConfig(naptanLocalDataPath, false);
+        }
+
+        @Override
+        protected List<GTFSSourceConfig> getDataSourceFORTESTING() {
+            return Collections.emptyList();
+        }
+
+        @Override
+        public List<RemoteDataSourceConfig> getRemoteDataSourceConfig() {
+            return List.of(remoteNaptanCSVConfig);
+        }
     }
 }

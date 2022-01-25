@@ -6,6 +6,7 @@ import com.tramchester.config.TramchesterConfig;
 import com.tramchester.dataimport.FetchDataFromUrl;
 import com.tramchester.dataimport.HttpDownloadAndModTime;
 import com.tramchester.dataimport.S3DownloadAndModTime;
+import com.tramchester.domain.DataSourceID;
 import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.integration.testSupport.tfgm.TFGMRemoteDataSourceConfig;
 import com.tramchester.testSupport.TestConfig;
@@ -40,7 +41,7 @@ class FetchDataFromUrlTest extends EasyMockSupport {
         providesLocalNow = createMock(ProvidesNow.class);
         httpDownloader = createMock(HttpDownloadAndModTime.class);
         S3DownloadAndModTime s3Downloader = createMock(S3DownloadAndModTime.class);
-        remoteDataSourceConfig = config.getRemoteDataSourceConfig().get(0);
+        remoteDataSourceConfig = config.getDataRemoteSourceConfig(DataSourceID.tfgm);
         final String targetZipFilename = remoteDataSourceConfig.getDownloadFilename();
         Path path = remoteDataSourceConfig.getDataPath();
         zipFilename = path.resolve(targetZipFilename);
@@ -80,7 +81,7 @@ class FetchDataFromUrlTest extends EasyMockSupport {
         replayAll();
         Assertions.assertAll(() -> fetchDataFromUrl.fetchData());
         verifyAll();
-        assertTrue(fetchDataFromUrl.refreshed("intergationTestRemoteSource"));
+        assertTrue(fetchDataFromUrl.refreshed("tfgm"));
     }
 
     @Test
@@ -96,7 +97,7 @@ class FetchDataFromUrlTest extends EasyMockSupport {
         replayAll();
         Assertions.assertAll(() -> fetchDataFromUrl.fetchData());
         verifyAll();
-        assertTrue(fetchDataFromUrl.refreshed("intergationTestRemoteSource"));
+        assertTrue(fetchDataFromUrl.refreshed("tfgm"));
     }
 
     @Test
@@ -110,7 +111,7 @@ class FetchDataFromUrlTest extends EasyMockSupport {
         replayAll();
         Assertions.assertAll(() -> fetchDataFromUrl.fetchData());
         verifyAll();
-        assertFalse(fetchDataFromUrl.refreshed("intergationTestRemoteSource"));
+        assertFalse(fetchDataFromUrl.refreshed("tfgm"));
     }
 
     @Test
@@ -138,7 +139,7 @@ class FetchDataFromUrlTest extends EasyMockSupport {
         replayAll();
         Assertions.assertAll(() -> fetchDataFromUrl.fetchData());
         verifyAll();
-        assertTrue(fetchDataFromUrl.refreshed("intergationTestRemoteSource"));
+        assertTrue(fetchDataFromUrl.refreshed("tfgm"));
     }
 
     @Test
@@ -156,7 +157,7 @@ class FetchDataFromUrlTest extends EasyMockSupport {
         replayAll();
         Assertions.assertAll(() -> fetchDataFromUrl.fetchData());
         verifyAll();
-        assertTrue(fetchDataFromUrl.refreshed("intergationTestRemoteSource"));
+        assertTrue(fetchDataFromUrl.refreshed("tfgm"));
     }
 
     @Test
@@ -172,7 +173,7 @@ class FetchDataFromUrlTest extends EasyMockSupport {
         replayAll();
         Assertions.assertAll(() -> fetchDataFromUrl.fetchData());
         verifyAll();
-        assertFalse(fetchDataFromUrl.refreshed("intergationTestRemoteSource"));
+        assertFalse(fetchDataFromUrl.refreshed("tfgm"));
     }
 
     @Test

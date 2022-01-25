@@ -11,49 +11,39 @@ import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.TramStations;
 import org.junit.jupiter.api.*;
 
+import java.util.List;
 import java.util.Optional;
-import java.util.stream.Stream;
+import java.util.stream.Collectors;
 
 import static com.tramchester.testSupport.reference.BusStations.BuryInterchange;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.*;
 
 class NaptanDataXMLImportTest {
 
     private static GuiceContainerDependencies componentContainer;
-    private Stream<NaptanStopData> dataStream;
-    private NaptanStopsDataImporter dataImporter;
+    private static List<NaptanStopData> loadedStops;
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
         IntegrationTramTestConfig testConfig = new IntegrationTramTestConfigWithXMLNaptan();
         componentContainer = new ComponentsBuilder().create(testConfig, TestEnv.NoopRegisterMetrics());
         componentContainer.initialise();
+
+        //private Stream<NaptanStopData> dataStream;
+        NaptanStopsDataImporter dataImporter = componentContainer.get(NaptanStopsDataImporter.class);
+        loadedStops = dataImporter.getStopsData().collect(Collectors.toList());
     }
 
     @AfterAll
     static void onceAfterAllTestsHaveRun() {
+        loadedStops.clear();
         componentContainer.close();
-    }
-
-    @BeforeEach
-    void beforeEachTestRuns() {
-        dataImporter = componentContainer.get(NaptanStopsDataImporter.class);
-        dataImporter.start();
-        dataStream = dataImporter.getStopsData();
-    }
-
-    @AfterEach
-    void afterEachTestRuns() {
-        dataStream.close();
-        dataImporter.stop();
     }
 
     // was for initial diagnostics, likely changes too often
     @Test
     void shouldHaveLoadedSomeData() {
-        long haveId = dataStream.count();
-        assertEquals(439581, haveId);
+        assertTrue(loadedStops.size() > 400000, "m");
     }
 
     @Test
@@ -61,7 +51,7 @@ class NaptanDataXMLImportTest {
 
         final String buryId = BuryInterchange.getId().forDTO();
 
-        Optional<NaptanStopData> foundKnown = dataStream.
+        Optional<NaptanStopData> foundKnown = loadedStops.stream().
                 filter(stop -> stop.getAtcoCode()!=null).
                 filter(stop -> stop.getAtcoCode().equals(buryId)).
                 findFirst();
@@ -72,7 +62,7 @@ class NaptanDataXMLImportTest {
     @Test
     void shouldLoadKnownTramStation() {
 
-        Optional<NaptanStopData> foundKnown = dataStream.
+        Optional<NaptanStopData> foundKnown = loadedStops.stream().
                 filter(stop -> stop.getAtcoCode()!=null).
                 filter(stop -> stop.getAtcoCode().equals(TramStations.StPetersSquare.getId().forDTO())).
                 findFirst();
@@ -84,7 +74,7 @@ class NaptanDataXMLImportTest {
 
     @Test
     void shouldContainOutofAreaStop() {
-        Optional<NaptanStopData> foundKnown = dataStream.
+        Optional<NaptanStopData> foundKnown = loadedStops.stream().
                 filter(stop -> stop.getAtcoCode()!=null).
                 filter(stop -> stop.getAtcoCode().equals(TestEnv.BRISTOL_BUSSTOP_OCTOCODE)).
                 findFirst();

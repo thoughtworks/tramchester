@@ -34,12 +34,12 @@ public class TFGMRemoteDataSourceConfig implements RemoteDataSourceConfig {
 
     @Override
     public String getDownloadFilename() {
-        return "tfgmData.zip";
+        return "tfgm_data.zip";
     }
 
     @Override
     public String getName() {
-        return "intergationTestRemoteSource";
+        return "tfgm";
     }
 
     @Override

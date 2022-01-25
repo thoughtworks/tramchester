@@ -226,6 +226,8 @@ public class TestEnv {
         return new BoundingBox(147588, 30599, 654747, 967921);
     }
 
+    public static BoundingBox getGreaterManchester() { return new BoundingBox(377000, 385000, 394500, 413500); }
+
     public static LatLong stPetersSquareLocation() {
         return new LatLong(53.47825,-2.24314);
     }

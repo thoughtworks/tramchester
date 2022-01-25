@@ -16,10 +16,6 @@ import java.util.List;
 public class IntegrationRailTestConfig extends IntegrationTestConfig {
 
     private final GraphDBConfig graphDBConfig;
-    private final RailRemoteDataSourceConfig railRemoteDataSource;
-
-//    @Deprecated
-//    private final RemoteNaptanRailRefDataSourceConfig railStationRefDataSource;
 
     public IntegrationRailTestConfig() {
         this("rail_tramchester.db");
@@ -28,8 +24,7 @@ public class IntegrationRailTestConfig extends IntegrationTestConfig {
     protected IntegrationRailTestConfig(String dbFilename) {
         super(new GraphDBIntegrationRailTestConfig("integrationTrainTest", dbFilename));
         graphDBConfig = new GraphDBIntegrationRailTestConfig("integrationTrainTest", dbFilename);
-        railRemoteDataSource = new RailRemoteDataSourceConfig("data/rail");
-        //railStationRefDataSource = new RemoteNaptanRailRefDataSourceConfig("data/naptan");
+
     }
 
     @Override

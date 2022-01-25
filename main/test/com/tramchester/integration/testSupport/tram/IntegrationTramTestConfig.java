@@ -43,7 +43,11 @@ public class IntegrationTramTestConfig extends IntegrationTestConfig {
     }
 
     private IntegrationTramTestConfig(String dbName, boolean liveDataEnabled, List<StationClosure> closedStations) {
-        super(new GraphDBIntegrationTramTestConfig("integrationTramTest", dbName));
+        this(new GraphDBIntegrationTramTestConfig("integrationTramTest", dbName), liveDataEnabled, closedStations);
+    }
+
+    protected IntegrationTramTestConfig(GraphDBTestConfig dbTestConfig, boolean liveDataEnabled, List<StationClosure> closedStations) {
+        super(dbTestConfig);
         this.liveDataEnabled = liveDataEnabled;
         gtfsSourceConfig = new TFGMGTFSSourceTestConfig("data/tram", GTFSTransportationType.tram,
                 TransportMode.Tram, AdditionalTramInterchanges.get(), Collections.emptySet(), closedStations);

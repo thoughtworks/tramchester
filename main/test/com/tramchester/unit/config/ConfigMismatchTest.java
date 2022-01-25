@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tramchester.config.*;
 import com.tramchester.domain.DataSourceID;
+import com.tramchester.integration.testSupport.TramAndTrainGreaterManchesterConfig;
 import com.tramchester.integration.testSupport.bus.IntegrationBusTestConfig;
 import com.tramchester.integration.testSupport.rail.IntegrationRailTestConfig;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
@@ -27,9 +28,14 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class ConfigMismatchTest {
 
-    enum Exclusions {
+    enum Category {
         Closures,
-        Bounds
+        Modes,
+        Bounds;
+
+        public boolean not(Collection<Category> excluded) {
+            return !excluded.contains(this);
+        }
     }
 
     @Test
@@ -84,7 +90,7 @@ class ConfigMismatchTest {
         AppConfiguration appConfig = loadConfigFromFile("local.yml");
         IntegrationTramTestConfig testConfig = new IntegrationTramTestConfig(true);
 
-        validateCoreParameters(Collections.singleton(Exclusions.Closures), appConfig, testConfig);
+        validateCoreParameters(Collections.singleton(Category.Closures), appConfig, testConfig);
     }
 
     @Test
@@ -124,20 +130,21 @@ class ConfigMismatchTest {
 
     @Test
     void shouldHaveKeyParamtersSameForGMRail() throws ConfigurationException, IOException {
-        AppConfiguration appConfig = loadConfigFromFile("gmrail.yml");
-        IntegrationRailTestConfig testConfig = new IntegrationRailTestConfig();
+        AppConfiguration appConfig = loadConfigFromFile("gm.yml");
+        AppConfiguration testConfig = new TramAndTrainGreaterManchesterConfig();
 
-        validateCoreParameters(Collections.singleton(Exclusions.Bounds), appConfig, testConfig);
+        validateCoreParameters(Collections.emptyList(), appConfig, testConfig);
 
         List<RemoteDataSourceConfig> remoteSources = appConfig.getRemoteDataSourceConfig();
         List<RemoteDataSourceConfig> testRemoteSources = testConfig.getRemoteDataSourceConfig();
 
         assertEquals(remoteSources.size(), testRemoteSources.size());
-        assertEquals(3, testRemoteSources.size());
+        assertEquals(4, testRemoteSources.size());
 
         assertRemoteSources(remoteSources, testRemoteSources, 0);
         assertRemoteSources(remoteSources, testRemoteSources, 1);
         assertRemoteSources(remoteSources, testRemoteSources, 2);
+        assertRemoteSources(remoteSources, testRemoteSources, 3);
 
         RailConfig rail = appConfig.getRailConfig();
         RailConfig testRail = appConfig.getRailConfig();
@@ -149,9 +156,13 @@ class ConfigMismatchTest {
     }
 
     private void assertRemoteSources(List<RemoteDataSourceConfig> remoteSources, List<RemoteDataSourceConfig> testRemoteSources, int index) {
-        assertEquals(remoteSources.get(index).getDataCheckUrl(), testRemoteSources.get(index).getDataCheckUrl());
-        assertEquals(remoteSources.get(index).getDataUrl(), testRemoteSources.get(index).getDataUrl());
-        assertEquals(remoteSources.get(index).getDownloadFilename(), testRemoteSources.get(index).getDownloadFilename());
+        final RemoteDataSourceConfig testRemoteSource = testRemoteSources.get(index);
+        final RemoteDataSourceConfig remoteSource = remoteSources.get(index);
+        assertEquals(remoteSource.getName(), testRemoteSource.getName());
+        assertEquals(remoteSource.getDataCheckUrl(), testRemoteSource.getDataCheckUrl());
+        //assertEquals(remoteSource.getDataUrl(), testRemoteSource.getDataUrl());
+        assertTrue(remoteSource.getDataUrl().contains(testRemoteSource.getDataUrl()));
+        assertEquals(remoteSource.getDownloadFilename(), testRemoteSource.getDownloadFilename());
     }
 
     @Test
@@ -166,7 +177,7 @@ class ConfigMismatchTest {
         assertEquals(appConfig.getNumberQueries(), accTestConfig.getNumberQueries(), "getNumberQueries");
     }
 
-    private void validateCoreParameters(Set<Exclusions> exclusions, AppConfiguration expected, AppConfiguration testConfig) {
+    private void validateCoreParameters(Collection<Category> excluded, AppConfiguration expected, AppConfiguration testConfig) {
         assertEquals(expected.getStaticAssetCacheTimeSeconds(), testConfig.getStaticAssetCacheTimeSeconds(), "StaticAssetCacheTimeSeconds");
         assertEquals(expected.getMaxJourneyDuration(), testConfig.getMaxJourneyDuration(), "MaxJourneyDuration");
         assertEquals(expected.getMaxWait(), testConfig.getMaxWait(), "MaxWait");
@@ -182,17 +193,20 @@ class ConfigMismatchTest {
         assertEquals(expected.getCreateNeighbours(), testConfig.getCreateNeighbours(), "CreateNeighbours");
         assertEquals(expected.getMaxNeighbourConnections(), testConfig.getMaxNeighbourConnections(), "Max neighbour connections");
         assertEquals(expected.getDistanceToNeighboursKM(), testConfig.getDistanceToNeighboursKM(), "DistanceToNeighboursKM");
-        assertEquals(expected.getTransportModes(), testConfig.getTransportModes(), "getTransportModes");
+
+        if (Category.Modes.not(excluded)) {
+            assertEquals(expected.getTransportModes(), testConfig.getTransportModes(), "getTransportModes");
+        }
         assertEquals(expected.getCalcTimeoutMillis(), testConfig.getCalcTimeoutMillis(), "CalcTimeoutMillis");
         assertEquals(expected.getPlanningEnabled(), testConfig.getPlanningEnabled(), "planningEnabled");
 
-        if (!exclusions.contains(Exclusions.Bounds)) {
+        if (Category.Bounds.not(excluded)) {
             assertEquals(expected.getBounds(), testConfig.getBounds(), "bounds");
         }
 
         checkDBConfig(expected, testConfig);
 
-        checkGTFSSourceConfig(expected, testConfig, !exclusions.contains(Exclusions.Closures));
+        checkGTFSSourceConfig(expected, testConfig, Category.Closures.not(excluded));
 
         checkRemoteDataSourceConfig(expected, testConfig);
 
@@ -233,7 +247,7 @@ class ConfigMismatchTest {
     private void checkDBConfig(AppConfiguration expected, AppConfiguration testConfig) {
         GraphDBConfig expectedGraphDBConfig = expected.getGraphDBConfig();
         GraphDBConfig testGraphDBConfig = testConfig.getGraphDBConfig();
-        assertEquals(expectedGraphDBConfig.getNeo4jPagecacheMemory(), testGraphDBConfig.getNeo4jPagecacheMemory());
+        assertEquals(expectedGraphDBConfig.getNeo4jPagecacheMemory(), testGraphDBConfig.getNeo4jPagecacheMemory(), "neo4jPagecacheMemory");
 
         LiveDataConfig expectedLiveDataConfig = expected.getLiveDataConfig();
 

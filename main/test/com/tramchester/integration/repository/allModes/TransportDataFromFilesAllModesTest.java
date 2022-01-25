@@ -48,11 +48,6 @@ public class TransportDataFromFilesAllModesTest {
         transportData = componentContainer.get(TransportData.class);
     }
 
-//    @Test
-//    void shouldHaveExpectedAgenciesNumbersForBus() {
-//        assertEquals(TGFM_BUS_AGENCIES+1+GB_RAIL_AGENCIES, transportData.getAgencies().size());
-//    }
-
     @Test
     void shouldHaveExpectedNumberOfTramStations() {
         assertEquals(NUM_TFGM_TRAM_STATIONS, transportData.getStationsServing(Tram).size());

@@ -199,11 +199,11 @@ task rail(type:JavaExec, dependsOn: 'webpack') {
     args 'server', 'config/rail.yml'
 }
 
-task gmrail(type:JavaExec, dependsOn: 'webpack') {
+task gm(type:JavaExec, dependsOn: 'webpack') {
     mainClass = mainClassName
     classpath = sourceSets.main.runtimeClasspath
     maxHeapSize = "3g"
-    args 'server', 'config/gmrail.yml'
+    args 'server', 'config/gm.yml'
 }
 
 task all(type:JavaExec, dependsOn: 'webpack') {

@@ -18,7 +18,17 @@ graphDBConfig:
   graphName: gm_rail.db
   neo4jPagecacheMemory: 1000m
 instanceDataUrl: http://169.254.169.254
-gtfsSourceConfig: []
+gtfsSourceConfig:
+  - name: tfgm
+    dataPath: data/tram
+    hasFeedInfo: true
+    transportModes: [ tram ]
+    transportModesWithPlatforms: [ Tram ]
+    noServices: []
+    additionalInterchanges: [9400ZZMAGMX, 9400ZZMAPIC]
+    compositeStationModes: []
+    addWalksForClosed: false
+    stationClosures: []
 rail:
   dataPath: data/rail
   stations: ttisf236.msn
@@ -30,6 +40,11 @@ remoteSources:
     dataCheckURL: s3://tramchester2dist/railData/ttis236.zip
     dataPath: data/rail
     filename: ttis236.zip
+  - name: tfgm
+    dataURL: ${TRAM_DATAURL:- http://odata.tfgm.com/opendata/downloads/TfGMgtfsnew.zip}
+    dataCheckURL: http://odata.tfgm.com/opendata/downloads/TfGMgtfsnew.zip
+    dataPath: data/tram
+    filename: tfgm_data.zip
   - name: naptanxml
     dataURL: https://naptan.api.dft.gov.uk/v1/access-nodes?dataFormat=xml
     dataCheckURL: ""
@@ -40,7 +55,15 @@ remoteSources:
     dataCheckURL: ""
     dataPath: data/nptg
     filename: nptgcsv.zip
-cacheFolder: data/cache/gmrail
+liveData:
+  dataUrl: https://api.tfgm.com/odata/Metrolinks
+  dataSubscriptionKey: ${TFGMAPIKEY:- ""}
+  s3Bucket: tramchesterlivedata
+  s3Prefix: ${PLACE:- "test"}
+  refreshPeriodSeconds: 20
+  maxNumberStationsWithoutMessages: 10
+  maxNumberStationsWithoutData: 5
+cacheFolder: data/cache/gm
 calcTimeoutMillis: 3500
 bounds:
   minEastings: 377000
@@ -51,13 +74,13 @@ planningEnabled: true
 createNeighbours: false
 maxNeighbourConnections: 0
 distanceToNeighboursKM: 0.4
-maxWait: 30
-maxInitialWait: 25
+maxWait: 25
+maxInitialWait: 13
 numberQueries: 3
 queryInterval: 20
 maxNumberResults: 5
 maxWalkingConnections: 3
-maxJourneyDuration: 820
+maxJourneyDuration: 124
 nearestStopRangeKM: 1.6
 nearestStopForWalkingRangeKM: 1.6
 numOfNearestStopsToOffer: 5
