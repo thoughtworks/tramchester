@@ -6,9 +6,12 @@ import com.tramchester.dataimport.NaPTAN.NaptanRailStationData;
 import com.tramchester.geo.GridPosition;
 import com.tramchester.repository.naptan.NaptanStopType;
 
+import java.util.Collections;
+import java.util.List;
+
 
 @JsonRootName("StopPoint")
-public class NaptanStopXMLData implements NaptanStopData {
+public class NaptanStopXMLData {
 
     // aliaises are for the xml version of the data
 
@@ -28,16 +31,17 @@ public class NaptanStopXMLData implements NaptanStopData {
     @JsonProperty("StopClassification")
     private NaptanXMLStopClassification stopClassification;
 
+    @JsonProperty("StopAreas")
+    private List<String> stopAreas;
+
     public NaptanStopXMLData() {
         // deserialisation
     }
 
-    @Override
     public String getAtcoCode() {
         return atcoCode;
     }
 
-    @Override
     public String getNaptanCode() {
         return naptanCode;
     }
@@ -46,39 +50,43 @@ public class NaptanStopXMLData implements NaptanStopData {
         return descriptor.getIndicator();
     }
 
-    @Override
     public boolean hasRailInfo() {
         return stopClassification.hasRailInfo();
     }
 
-    @Override
     public String getNptgLocality() {
         return place.getNptgLocalityRef();
     }
 
-    @Override
     public GridPosition getGridPosition() {
         return place.getLocation().getGridPosition();
     }
 
-    @Override
     public NaptanStopType getStopType() {
         return stopClassification.getStopType();
     }
 
-    @Override
     public String getCommonName() {
         return descriptor.getCommonName();
     }
 
-    @Override
     public String getSuburb() {
         return place.getSuburb();
     }
 
-    @Override
     public String getTown() {
         return place.getTown();
+    }
+
+    public List<String> getStopAreaCode() {
+        if (stopAreas==null) {
+            return Collections.emptyList();
+        }
+        return stopAreas;
+    }
+
+    public NaptanRailStationData getRailInfo() {
+        return stopClassification.getRailInfo();
     }
 
     @Override
@@ -89,11 +97,8 @@ public class NaptanStopXMLData implements NaptanStopData {
                 ", place=" + place +
                 ", descriptor=" + descriptor +
                 ", stopClassification=" + stopClassification +
+                ", stopAreas=" + stopAreas +
                 '}';
     }
 
-    @Override
-    public NaptanRailStationData getRailInfo() {
-        return stopClassification.getRailInfo();
-    }
 }

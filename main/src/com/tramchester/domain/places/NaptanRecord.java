@@ -6,6 +6,8 @@ import com.tramchester.geo.GridPosition;
 import com.tramchester.graph.GraphPropertyKey;
 import com.tramchester.repository.naptan.NaptanStopType;
 
+import java.util.List;
+
 public class NaptanRecord implements HasId<NaptanRecord> {
     private final IdFor<NaptanRecord> id;
     private final String name;
@@ -13,14 +15,17 @@ public class NaptanRecord implements HasId<NaptanRecord> {
     private final String suburb;
     private final String town;
     private final NaptanStopType stopType;
+    private final List<String> stopAreaCodes;
 
-    public NaptanRecord(IdFor<NaptanRecord> id, String name, GridPosition gridPosition, String suburb, String town, NaptanStopType stopType) {
+    public NaptanRecord(IdFor<NaptanRecord> id, String name, GridPosition gridPosition, String suburb, String town,
+                        NaptanStopType stopType, List<String> stopAreaCodes) {
         this.id = id;
         this.name = name;
         this.gridPosition = gridPosition;
         this.suburb = suburb;
         this.town = town;
         this.stopType = stopType;
+        this.stopAreaCodes = stopAreaCodes;
     }
 
     @Override
@@ -51,5 +56,12 @@ public class NaptanRecord implements HasId<NaptanRecord> {
 
     public GridPosition getGridPosition() {
         return gridPosition;
+    }
+
+    /***
+     * @return the id's for the StopArea's associated with this stop/station/location
+     */
+    public List<String> getAreaCodes() {
+        return stopAreaCodes;
     }
 }

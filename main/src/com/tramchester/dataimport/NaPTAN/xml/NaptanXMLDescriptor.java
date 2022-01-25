@@ -19,4 +19,12 @@ public class NaptanXMLDescriptor {
     public String getCommonName() {
         return commonName;
     }
+
+    @Override
+    public String toString() {
+        return "NaptanXMLDescriptor{" +
+                "indicator='" + indicator + '\'' +
+                ", commonName='" + commonName + '\'' +
+                '}';
+    }
 }

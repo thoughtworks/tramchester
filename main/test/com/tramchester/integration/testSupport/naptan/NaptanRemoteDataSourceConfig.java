@@ -12,9 +12,9 @@ public class NaptanRemoteDataSourceConfig implements RemoteDataSourceConfig {
     private final Path dataPath;
     private final String format;
 
-    public NaptanRemoteDataSourceConfig(Path dataPath, boolean xml) {
+    public NaptanRemoteDataSourceConfig(Path dataPath) {
         this.dataPath = dataPath;
-        format = xml ? "xml" : "csv";
+        format = "xml";
     }
 
     @Override
@@ -40,14 +40,7 @@ public class NaptanRemoteDataSourceConfig implements RemoteDataSourceConfig {
 
     @Override
     public String getName() {
-        if (format.equals("csv")) {
-            return DataSourceID.naptanStopsCSV.name();
-        } else if (format.equals("xml")) {
-            return DataSourceID.naptanxml.name();
-        } else {
-            throw new RuntimeException("Unknown format " + format);
-        }
-
+        return DataSourceID.naptanxml.name();
     }
 
     @Override

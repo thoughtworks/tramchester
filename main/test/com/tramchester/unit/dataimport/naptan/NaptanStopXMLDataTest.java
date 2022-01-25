@@ -2,6 +2,8 @@ package com.tramchester.unit.dataimport.naptan;
 
 import com.tramchester.dataimport.NaPTAN.xml.NaptanStopXMLData;
 import com.tramchester.geo.GridPosition;
+import com.tramchester.repository.naptan.NaptanStopType;
+import com.tramchester.testSupport.reference.TramStations;
 import com.tramchester.unit.dataimport.ParserTestXMLHelper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -16,6 +18,11 @@ import static com.tramchester.repository.naptan.NaptanStopType.tramMetroUndergro
 import static org.junit.jupiter.api.Assertions.*;
 
 class NaptanStopXMLDataTest extends ParserTestXMLHelper<NaptanStopXMLData> {
+
+    /***
+     * xml into split lines, useful for diagnosis etc
+     * cat ./data/naptan/Stops.xml | sed 's/<\/StopPoint>/<\/StopPoint>\n/g' | sed 's/<\/StopArea>/<\/StopArea>\n/g' > output.txt
+     */
 
     @BeforeEach
     void beforeEach() {
@@ -128,6 +135,7 @@ class NaptanStopXMLDataTest extends ParserTestXMLHelper<NaptanStopXMLData> {
         assertEquals("St Helens", data.getSuburb());
         assertEquals("St Helens", data.getTown());
         assertEquals("Stand 2", data.getIndicator());
+        assertEquals("280G00000001", data.getStopAreaCode().get(0));
         assertEquals(busCoachTrolleyStationBay, data.getStopType());
         assertFalse(data.hasRailInfo());
     }
@@ -155,6 +163,33 @@ class NaptanStopXMLDataTest extends ParserTestXMLHelper<NaptanStopXMLData> {
         assertTrue(data.hasRailInfo());
 
         assertEquals("ABDARE", data.getRailInfo().getTiploc());
+        assertEquals("910GABDARE", data.getStopAreaCode().get(0));
 
     }
+
+    @Test
+    void shouldParseMetrolinkTramStationInfo() throws XMLStreamException, IOException {
+        String text = "<NaPTAN><StopPoints><StopPoint CreationDateTime=\"2006-10-24T00:00:00\" ModificationDateTime=\"2021-04-16T09:27:13\" " +
+                "Modification=\"revise\" RevisionNumber=\"7\" Status=\"active\">" +
+                "<AtcoCode>9400ZZMAALT</AtcoCode><NaptanCode>mantmtmg</NaptanCode><Descriptor>" +
+                "<CommonName>Altrincham (Manchester Metrolink)</CommonName><ShortCommonName>Altrincham</ShortCommonName>" +
+                "<Landmark>Altrincham Interchange</Landmark><Street>Off Stamford New Road</Street></Descriptor>" +
+                "<Place><NptgLocalityRef>E0028261</NptgLocalityRef><LocalityCentre>1</LocalityCentre><Location><Translation>" +
+                "<GridType>UKOS</GridType><Easting>376979</Easting><Northing>387883</Northing><Longitude>-2.34759192033</Longitude>" +
+                "<Latitude>53.38728306533</Latitude></Translation></Location></Place>" +
+                "<StopClassification><StopType>MET</StopType><OffStreet><Metro><AccessArea /></Metro></OffStreet></StopClassification>" +
+                "<StopAreas><StopAreaRef CreationDateTime=\"2010-03-01T13:56:00\" ModificationDateTime=\"2010-03-01T13:56:00\" " +
+                "Modification=\"new\" RevisionNumber=\"0\" Status=\"active\">940GZZMAALT</StopAreaRef></StopAreas>" +
+                "<AdministrativeAreaRef>147</AdministrativeAreaRef>" +
+                "<PlusbusZones><PlusbusZoneRef CreationDateTime=\"2006-10-24T00:00:00\" ModificationDateTime=\"2012-01-17T14:02:00\" " +
+                "Modification=\"revise\" RevisionNumber=\"5\" Status=\"active\">MNCRPIC</PlusbusZoneRef>" +
+                "</PlusbusZones></StopPoint></StopPoints></NaPTAN>";
+
+        NaptanStopXMLData data = super.parseFirstOnly(text);
+
+        assertEquals("9400ZZMAALT", data.getAtcoCode());
+        assertEquals(TramStations.Altrincham.forDTO(), data.getAtcoCode());
+        assertEquals(NaptanStopType.tramMetroUndergroundAccess, data.getStopType());
+    }
+
 }

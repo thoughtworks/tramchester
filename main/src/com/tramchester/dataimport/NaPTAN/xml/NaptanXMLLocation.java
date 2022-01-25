@@ -16,4 +16,11 @@ public class NaptanXMLLocation {
         }
         return translation.getGridPosition();
     }
+
+    @Override
+    public String toString() {
+        return "NaptanXMLLocation{" +
+                "translation=" + translation +
+                '}';
+    }
 }

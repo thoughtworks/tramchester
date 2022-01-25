@@ -28,4 +28,12 @@ public class NaptanXMLStopClassification {
     public NaptanRailStationData getRailInfo() {
         return new NaptanRailStationData(offStreet.getRailInfo().getTiploc());
     }
+
+    @Override
+    public String toString() {
+        return "NaptanXMLStopClassification{" +
+                "stopType='" + stopType + '\'' +
+                ", offStreet=" + offStreet +
+                '}';
+    }
 }

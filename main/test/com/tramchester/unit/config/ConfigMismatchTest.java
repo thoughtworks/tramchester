@@ -8,7 +8,6 @@ import com.tramchester.integration.testSupport.TramAndTrainGreaterManchesterConf
 import com.tramchester.integration.testSupport.bus.IntegrationBusTestConfig;
 import com.tramchester.integration.testSupport.rail.IntegrationRailTestConfig;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
-import com.tramchester.testSupport.TestEnv;
 import io.dropwizard.configuration.ConfigurationException;
 import io.dropwizard.configuration.YamlConfigurationFactory;
 import io.dropwizard.jackson.Jackson;
@@ -61,14 +60,6 @@ class ConfigMismatchTest {
                 assertNotEquals(DataSourceID.unknown, dataSourceID,
                         "Bad source id for " + remoteSourceConfig.getName() + " in " + config.toAbsolutePath());
 
-                if (dataSourceID==DataSourceID.naptanStopsCSV) {
-                    fail("naptanStopsCSV no longer supported " + config.toAbsolutePath());
-                }
-
-                if (dataSourceID==DataSourceID.naptanRailReferenceCSV) {
-                    assertEquals(TestEnv.RAIL_REFERENCE_S3_LOCATION, remoteSourceConfig.getDataUrl(),
-                            "bad naptan stops urls for " + config.toAbsolutePath());
-                }
             }
         }
     }

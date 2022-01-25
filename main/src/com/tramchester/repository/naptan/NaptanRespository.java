@@ -3,7 +3,7 @@ package com.tramchester.repository.naptan;
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.dataimport.NaPTAN.NaptanStopsDataImporter;
-import com.tramchester.dataimport.NaPTAN.xml.NaptanStopData;
+import com.tramchester.dataimport.NaPTAN.xml.NaptanStopXMLData;
 import com.tramchester.dataimport.nptg.NPTGData;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdMap;
@@ -11,7 +11,6 @@ import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.places.NaptanRecord;
 import com.tramchester.domain.places.Station;
 import com.tramchester.geo.BoundingBox;
-import com.tramchester.geo.HasGridPosition;
 import com.tramchester.geo.MarginInMeters;
 import com.tramchester.repository.nptg.NPTGRepository;
 import org.slf4j.Logger;
@@ -89,7 +88,7 @@ public class NaptanRespository {
             logger.error("Not loading stops data, import is disabled. Is this data source present in the config?");
         }
 
-        Stream<NaptanStopData> stopsData = stopsImporter.getStopsData().
+        Stream<NaptanStopXMLData> stopsData = stopsImporter.getStopsData().
                 filter(stopData -> stopData.getAtcoCode() != null).
                 filter(stopData -> !stopData.getAtcoCode().isBlank());
 
@@ -102,7 +101,7 @@ public class NaptanRespository {
         logger.info("Loaded " + stopData.size() + " stops");
     }
 
-    private NaptanRecord createRecord(NaptanStopData original) {
+    private NaptanRecord createRecord(NaptanStopXMLData original) {
         IdFor<NaptanRecord> id = StringIdFor.createId(original.getAtcoCode());
 
         String suburb = original.getSuburb();
@@ -121,14 +120,15 @@ public class NaptanRespository {
             logger.warn(format("Missing NptgLocalityRef '%s' for naptan acto '%s", nptgLocality, id));
         }
 
-        return new NaptanRecord(id, original.getCommonName(), original.getGridPosition(), suburb, town, original.getStopType());
+        return new NaptanRecord(id, original.getCommonName(), original.getGridPosition(), suburb, town,
+                original.getStopType(), original.getStopAreaCode());
     }
 
     private void loadStationData(BoundingBox bounds, MarginInMeters margin) {
         logger.info("Load rail station reference data from natpan stops");
 
-        Stream<NaptanStopData> railStops = stopsImporter.getStopsData().
-                filter(NaptanStopData::hasRailInfo).
+        Stream<NaptanStopXMLData> railStops = stopsImporter.getStopsData().
+                filter(NaptanStopXMLData::hasRailInfo).
                 filter(stopData -> stopData.getAtcoCode() != null).
                 filter(stopData -> !stopData.getAtcoCode().isBlank());
 
@@ -138,7 +138,7 @@ public class NaptanRespository {
         logger.info("Loaded " + tiplocToAtco.size() + " stations");
     }
 
-    private <T extends HasGridPosition> Stream<T> filterBy(BoundingBox bounds, MarginInMeters margin, Stream<T> stream) {
+    private Stream<NaptanStopXMLData> filterBy(BoundingBox bounds, MarginInMeters margin, Stream<NaptanStopXMLData> stream) {
         return stream.
                 filter(item -> item.getGridPosition().isValid()).
                 filter(item -> bounds.within(margin, item.getGridPosition()));

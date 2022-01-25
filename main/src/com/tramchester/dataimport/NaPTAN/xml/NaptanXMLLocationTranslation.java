@@ -19,4 +19,12 @@ public class NaptanXMLLocationTranslation {
         }
         return new GridPosition(easting, northing);
     }
+
+    @Override
+    public String toString() {
+        return "NaptanXMLLocationTranslation{" +
+                "easting=" + easting +
+                ", northing=" + northing +
+                '}';
+    }
 }

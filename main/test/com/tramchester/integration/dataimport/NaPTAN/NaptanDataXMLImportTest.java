@@ -3,7 +3,7 @@ package com.tramchester.integration.dataimport.NaPTAN;
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.GuiceContainerDependencies;
 import com.tramchester.dataimport.NaPTAN.NaptanStopsDataImporter;
-import com.tramchester.dataimport.NaPTAN.xml.NaptanStopData;
+import com.tramchester.dataimport.NaPTAN.xml.NaptanStopXMLData;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfigWithXMLNaptan;
 import com.tramchester.repository.naptan.NaptanStopType;
@@ -21,7 +21,7 @@ import static org.junit.jupiter.api.Assertions.*;
 class NaptanDataXMLImportTest {
 
     private static GuiceContainerDependencies componentContainer;
-    private static List<NaptanStopData> loadedStops;
+    private static List<NaptanStopXMLData> loadedStops;
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
@@ -29,7 +29,6 @@ class NaptanDataXMLImportTest {
         componentContainer = new ComponentsBuilder().create(testConfig, TestEnv.NoopRegisterMetrics());
         componentContainer.initialise();
 
-        //private Stream<NaptanStopData> dataStream;
         NaptanStopsDataImporter dataImporter = componentContainer.get(NaptanStopsDataImporter.class);
         loadedStops = dataImporter.getStopsData().collect(Collectors.toList());
     }
@@ -51,7 +50,7 @@ class NaptanDataXMLImportTest {
 
         final String buryId = BuryInterchange.getId().forDTO();
 
-        Optional<NaptanStopData> foundKnown = loadedStops.stream().
+        Optional<NaptanStopXMLData> foundKnown = loadedStops.stream().
                 filter(stop -> stop.getAtcoCode()!=null).
                 filter(stop -> stop.getAtcoCode().equals(buryId)).
                 findFirst();
@@ -62,25 +61,25 @@ class NaptanDataXMLImportTest {
     @Test
     void shouldLoadKnownTramStation() {
 
-        Optional<NaptanStopData> foundKnown = loadedStops.stream().
+        Optional<NaptanStopXMLData> foundKnown = loadedStops.stream().
                 filter(stop -> stop.getAtcoCode()!=null).
                 filter(stop -> stop.getAtcoCode().equals(TramStations.StPetersSquare.getId().forDTO())).
                 findFirst();
         assertFalse(foundKnown.isEmpty());
 
-        NaptanStopData known = foundKnown.get();
+        NaptanStopXMLData known = foundKnown.get();
         assertEquals(NaptanStopType.tramMetroUndergroundAccess, known.getStopType());
     }
 
     @Test
     void shouldContainOutofAreaStop() {
-        Optional<NaptanStopData> foundKnown = loadedStops.stream().
+        Optional<NaptanStopXMLData> foundKnown = loadedStops.stream().
                 filter(stop -> stop.getAtcoCode()!=null).
                 filter(stop -> stop.getAtcoCode().equals(TestEnv.BRISTOL_BUSSTOP_OCTOCODE)).
                 findFirst();
 
         assertFalse(foundKnown.isEmpty());
-        NaptanStopData known = foundKnown.get();
+        NaptanStopXMLData known = foundKnown.get();
         assertEquals(NaptanStopType.busCoachTrolleyStopOnStreet, known.getStopType());
     }
 }

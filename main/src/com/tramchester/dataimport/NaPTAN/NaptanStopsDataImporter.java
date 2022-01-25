@@ -3,10 +3,7 @@ package com.tramchester.dataimport.NaPTAN;
 import com.fasterxml.jackson.dataformat.csv.CsvMapper;
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.config.TramchesterConfig;
-import com.tramchester.dataimport.NaPTAN.csv.NaptanDataCSVImporter;
-import com.tramchester.dataimport.NaPTAN.csv.NaptanStopCSVData;
 import com.tramchester.dataimport.NaPTAN.xml.NaptanDataXMLImporter;
-import com.tramchester.dataimport.NaPTAN.xml.NaptanStopData;
 import com.tramchester.dataimport.NaPTAN.xml.NaptanStopXMLData;
 import com.tramchester.dataimport.UnzipFetchedData;
 import com.tramchester.domain.DataSourceID;
@@ -27,14 +24,15 @@ import java.util.stream.Stream;
 public class NaptanStopsDataImporter  {
     private static final Logger logger = LoggerFactory.getLogger(NaptanStopsDataImporter.class);
 
-    NaptanDataImporter<NaptanStopData> theImporter;
+    NaptanDataXMLImporter theImporter;
+
+    // TODO Unwrap this, no longer needed now only one kind of natpan data importer
+
 
     @Inject
     protected NaptanStopsDataImporter(TramchesterConfig config, CsvMapper csvMapper, UnzipFetchedData.Ready dataIsReady) {
-        if (config.hasRemoteDataSourceConfig(DataSourceID.naptanStopsCSV)) {
-            theImporter = new NaptanDataCSVImporter<>(config, csvMapper, NaptanStopCSVData.class, DataSourceID.naptanStopsCSV, dataIsReady);
-        } else if (config.hasRemoteDataSourceConfig(DataSourceID.naptanxml)) {
-            theImporter = new NaptanDataXMLImporter<>(config, NaptanStopXMLData.class, dataIsReady);
+       if (config.hasRemoteDataSourceConfig(DataSourceID.naptanxml)) {
+            theImporter = new NaptanDataXMLImporter(config, dataIsReady);
         } else {
             theImporter = null;
             logger.warn("Naptan config is missing");
@@ -59,7 +57,7 @@ public class NaptanStopsDataImporter  {
         }
     }
 
-    public Stream<NaptanStopData> getStopsData() {
+    public Stream<NaptanStopXMLData> getStopsData() {
         if (theImporter ==null) {
             return Stream.empty();
         }

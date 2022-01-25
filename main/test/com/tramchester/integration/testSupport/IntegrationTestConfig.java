@@ -20,7 +20,7 @@ public abstract class IntegrationTestConfig extends TestConfig {
 
     protected IntegrationTestConfig(GraphDBTestConfig dbConfig) {
         final Path naptanLocalDataPath = Path.of("data/naptan");
-        remoteNaptanXMLConfig = new NaptanRemoteDataSourceConfig(naptanLocalDataPath, true);
+        remoteNaptanXMLConfig = new NaptanRemoteDataSourceConfig(naptanLocalDataPath);
         remoteNPTGconfig = new NPTGDataSourceTestConfig();
         postCodeDatasourceConfig = new PostCodeDatasourceConfig();
         railRemoteDataSource = new RailRemoteDataSourceConfig("data/rail");

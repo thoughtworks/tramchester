@@ -77,15 +77,15 @@ public class TransportDataFromXMLFile<T, R extends T> implements TransportDataFr
     }
 
     private class ItemIterator implements Iterator<T> {
-        private final XMLStreamReader streamReader;
+        private final XMLStreamReader xmlStreamReader;
         private final XmlMapper mapper;
         private final Class<R> theType;
         private boolean closed;
 
-        public ItemIterator(XMLStreamReader streamReader, Class<R> theType) {
+        public ItemIterator(XMLStreamReader xmlStreamReader, Class<R> theType) {
             this.theType = theType;
             mapper = XmlMapper.builder().disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES).build();
-            this.streamReader = streamReader;
+            this.xmlStreamReader = xmlStreamReader;
             closed = false;
             logger.info("Created ItemIterator for " + theType.getSimpleName());
         }
@@ -95,19 +95,31 @@ public class TransportDataFromXMLFile<T, R extends T> implements TransportDataFr
             if (closed) {
                 return false;
             }
-            final String localName = streamReader.getLocalName();
-            final boolean expected = "StopPoint".equals(localName);
-            if (!expected) {
-                logger.info("Skip " + localName);
+
+            String localName = xmlStreamReader.getLocalName();
+            if ("StopPoints".equals(localName)) {
+                logger.warn("Second list inside of Naptan element");
+                try {
+                    xmlStreamReader.next(); // skip into the list
+                    localName = xmlStreamReader.getLocalName();
+                    logger.info("Next is " + localName);
+                } catch (XMLStreamException e) {
+                    logger.error("Could not skip into the list",e);
+                }
             }
-            return streamReader.getEventType() == XMLStreamConstants.START_ELEMENT && expected;
+
+            final boolean hasElement = "StopPoint".equals(localName);
+            if (!hasElement) {
+                logger.warn("Skip " + localName);
+            }
+            return xmlStreamReader.getEventType() == XMLStreamConstants.START_ELEMENT && hasElement;
         }
 
         @Override
         public T next() {
             try {
-                final T readValue = mapper.readValue(streamReader, theType);
-                streamReader.next();
+                final T readValue = mapper.readValue(xmlStreamReader, theType);
+                xmlStreamReader.next();
                 return readValue;
             } catch (IOException | XMLStreamException e) {
                 throw new RuntimeException(e);
@@ -118,7 +130,7 @@ public class TransportDataFromXMLFile<T, R extends T> implements TransportDataFr
             logger.info("Closed ItemIterator");
             try {
                 closed = true;
-                streamReader.close();
+                xmlStreamReader.close();
             } catch (XMLStreamException e) {
                 final String msg = "Unable to close ItemIterator";
                 logger.error(msg);

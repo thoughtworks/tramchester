@@ -33,4 +33,14 @@ public class NaptanXMLPlace {
     public String getNptgLocalityRef() {
         return nptgLocalityRef==null? "" : nptgLocalityRef;
     }
+
+    @Override
+    public String toString() {
+        return "NaptanXMLPlace{" +
+                "location=" + location +
+                ", suburb='" + suburb + '\'' +
+                ", town='" + town + '\'' +
+                ", nptgLocalityRef='" + nptgLocalityRef + '\'' +
+                '}';
+    }
 }

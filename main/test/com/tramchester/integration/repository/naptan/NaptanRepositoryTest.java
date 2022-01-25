@@ -52,8 +52,10 @@ class NaptanRepositoryTest {
         IdFor<Station> actoCode = BusStations.ManchesterAirportStation.getId();
         assertTrue(respository.containsActo(actoCode));
 
-        NaptanRecord data = respository.getForActo(actoCode);
-        assertEquals("Manchester Airport", data.getSuburb());
+        NaptanRecord record = respository.getForActo(actoCode);
+        assertEquals("Manchester Airport", record.getSuburb());
+        assertEquals(1, record.getAreaCodes().size());
+        assertEquals("180GMABS", record.getAreaCodes().get(0));
     }
 
     @Test
@@ -62,14 +64,45 @@ class NaptanRepositoryTest {
     }
 
     @Test
-    void shouldHaveDataForTrains() {
+    void shouldHaveDataForTrainStation() {
         IdFor<Station> tiploc = RailStationIds.Macclesfield.getId();
 
         assertTrue(respository.containsTiploc(tiploc));
-        NaptanRecord data = respository.getForTiploc(tiploc);
-        assertEquals(data.getName(), "Macclesfield Rail Station");
-        assertEquals(data.getSuburb(), "Macclesfield");
-        assertEquals(data.getId(), StringIdFor.createId("9100MACLSFD"));
+
+        NaptanRecord record = respository.getForTiploc(tiploc);
+        assertEquals(record.getName(), "Macclesfield Rail Station");
+        assertEquals(record.getSuburb(), "Macclesfield");
+        assertEquals(record.getId(), StringIdFor.createId("9100MACLSFD"));
+        assertEquals(1, record.getAreaCodes().size());
+        assertEquals("910GMACLSFD", record.getAreaCodes().get(0));
+    }
+
+    @Test
+    void shouldHaveAltyTrainStation() {
+        IdFor<Station> altyTrainId = RailStationIds.Altrincham.getId();
+
+        assertTrue(respository.containsTiploc(altyTrainId));
+        NaptanRecord record = respository.getForTiploc(altyTrainId);
+
+        assertEquals("Altrincham Rail Station", record.getName());
+        assertEquals("Altrincham", record.getSuburb());
+        assertEquals(StringIdFor.createId("9100ALTRNHM"), record.getId());
+        assertEquals(1, record.getAreaCodes().size());
+        assertEquals("910GALTRNHM", record.getAreaCodes().get(0));
+    }
+
+    @Test
+    void shouldHaveAltyTramStation() {
+
+        IdFor<Station> altyTramId = TramStations.Altrincham.getId();
+
+        assertTrue(respository.containsActo(altyTramId));
+        NaptanRecord record = respository.getForActo(altyTramId);
+
+        assertEquals("Altrincham (Manchester Metrolink)", record.getName());
+        assertEquals("Altrincham", record.getSuburb());
+        assertEquals(1, record.getAreaCodes().size());
+        assertEquals("940GZZMAALT", record.getAreaCodes().get(0));
     }
 
     @Test
