@@ -5,7 +5,7 @@ import com.tramchester.domain.presentation.LatLong;
 
 import java.util.Set;
 
-public interface Platform extends HasId<Platform>, GraphProperty {
+public interface Platform extends HasId<Platform>, GraphProperty, CoreDomain {
     String getPlatformNumber();
 
     String getName();

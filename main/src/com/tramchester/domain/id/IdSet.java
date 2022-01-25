@@ -2,7 +2,7 @@ package com.tramchester.domain.id;
 
 
 import com.google.common.collect.Sets;
-import com.tramchester.domain.GraphProperty;
+import com.tramchester.domain.CoreDomain;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
@@ -11,7 +11,7 @@ import java.util.stream.Collector;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-public class IdSet<T extends GraphProperty> implements Iterable<IdFor<T>> {
+public class IdSet<T extends CoreDomain> implements Iterable<IdFor<T>> {
     private final Set<IdFor<T>> theSet;
 
     public IdSet() {
@@ -22,7 +22,7 @@ public class IdSet<T extends GraphProperty> implements Iterable<IdFor<T>> {
         this(set, true);
     }
 
-    public static <W extends GraphProperty> IdSet<W> wrap(Set<IdFor<W>> set) {
+    public static <W extends CoreDomain> IdSet<W> wrap(Set<IdFor<W>> set) {
         return new IdSet<>(set, false);
     }
 
@@ -44,18 +44,18 @@ public class IdSet<T extends GraphProperty> implements Iterable<IdFor<T>> {
         theSet = new HashSet<>(initialCapabicity);
     }
 
-    public static <T extends GraphProperty> IdSet<T> singleton(IdFor<T> id) {
+    public static <T extends CoreDomain> IdSet<T> singleton(IdFor<T> id) {
         IdSet<T> result = new IdSet<>();
         result.add(id);
         return result;
     }
 
-    public static <T extends GraphProperty> IdSet<T> emptySet() {
+    public static <T extends CoreDomain> IdSet<T> emptySet() {
         return new IdSet<>(Collections.emptySet());
     }
 
     // TODO Rework generics for this class
-    public static <S extends GraphProperty & HasId<S>> IdSet<S> from(Set<S> items) {
+    public static <S extends CoreDomain & HasId<S>> IdSet<S> from(Set<S> items) {
         Set<IdFor<S>> ids = items.stream().map(HasId::getId).collect(Collectors.toSet());
         return wrap(ids);
     }
@@ -94,7 +94,7 @@ public class IdSet<T extends GraphProperty> implements Iterable<IdFor<T>> {
         return theSet.stream();
     }
 
-    public static <T extends HasId<T> & GraphProperty> Collector<T, IdSet<T>, IdSet<T>> collector() {
+    public static <T extends HasId<T> & CoreDomain> Collector<T, IdSet<T>, IdSet<T>> collector() {
         return new Collector<>() {
             @Override
             public Supplier<IdSet<T>> supplier() {
@@ -123,7 +123,7 @@ public class IdSet<T extends GraphProperty> implements Iterable<IdFor<T>> {
         };
     }
 
-    public static <T extends HasId<T> & GraphProperty> Collector<IdFor<T>, IdSet<T>, IdSet<T>> idCollector() {
+    public static <T extends HasId<T> & CoreDomain> Collector<IdFor<T>, IdSet<T>, IdSet<T>> idCollector() {
         return new Collector<>() {
             @Override
             public Supplier<IdSet<T>> supplier() {

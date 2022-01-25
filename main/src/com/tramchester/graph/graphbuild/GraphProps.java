@@ -32,7 +32,7 @@ public class GraphProps {
         node.setProperty(sourceID.name(), dataSourceInfo.getVersion());
     }
 
-    public static <C extends GraphProperty> void setProperty(Entity entity, HasId<C> item) {
+    public static <C extends GraphProperty & CoreDomain & HasId<C>> void setProperty(Entity entity, C item) {
         entity.setProperty(item.getProp().getText(), item.getId().getGraphId());
     }
 

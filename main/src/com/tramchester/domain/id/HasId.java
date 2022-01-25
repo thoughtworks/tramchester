@@ -1,12 +1,12 @@
 package com.tramchester.domain.id;
 
-import com.tramchester.domain.GraphProperty;
+import com.tramchester.domain.CoreDomain;
 import com.tramchester.domain.places.IdForDTO;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Collection;
 
-public interface HasId<DOMAINTYPE extends GraphProperty> extends GraphProperty {
+public interface HasId<DOMAINTYPE extends CoreDomain> {
 
     IdFor<DOMAINTYPE> getId();
 
@@ -14,7 +14,7 @@ public interface HasId<DOMAINTYPE extends GraphProperty> extends GraphProperty {
         return listToIdStringList(items, IdForDTO::forDTO);
     }
 
-    static <S extends  T, T extends HasId<T>> String asIds(Collection<S> items) {
+    static <S extends  T, T extends HasId<T> & CoreDomain> String asIds(Collection<S> items) {
         return listToIdStringList(items, item -> item.getId().toString());
     }
 
@@ -27,7 +27,7 @@ public interface HasId<DOMAINTYPE extends GraphProperty> extends GraphProperty {
         return ids.toString();
     }
 
-    static <T extends HasId<T>> IdFor<T> asId(T item) {
+    static <T extends HasId<T> & CoreDomain> IdFor<T> asId(T item) {
         return item.getId();
     }
 

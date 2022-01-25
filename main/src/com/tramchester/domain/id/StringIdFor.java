@@ -1,10 +1,11 @@
 package com.tramchester.domain.id;
 
+import com.tramchester.domain.CoreDomain;
 import com.tramchester.domain.GraphProperty;
 import com.tramchester.graph.GraphPropertyKey;
 import org.neo4j.graphdb.Entity;
 
-public class StringIdFor<T extends GraphProperty> implements IdFor<T> {
+public class StringIdFor<T extends CoreDomain> implements IdFor<T> {
     private final String theId;
     private final int hashcode;
 
@@ -17,18 +18,18 @@ public class StringIdFor<T extends GraphProperty> implements IdFor<T> {
         this("");
     }
 
-    public static <C extends GraphProperty> IdFor<C> createId(String text) {
+    public static <C extends CoreDomain> IdFor<C> createId(String text) {
         if (CompositeId.isComposite(text)) {
             return CompositeId.parse(text);
         }
         return new StringIdFor<>(text);
     }
 
-    public static <CLASS extends GraphProperty> StringIdFor<CLASS> invalid() {
+    public static <CLASS extends CoreDomain> StringIdFor<CLASS> invalid() {
         return new StringIdFor<>();
     }
 
-    public static <FROM extends GraphProperty,TO extends GraphProperty> IdFor<TO> convert(IdFor<FROM> actoCode) {
+    public static <FROM extends CoreDomain,TO extends CoreDomain> IdFor<TO> convert(IdFor<FROM> actoCode) {
         if (!(actoCode instanceof StringIdFor)) {
             throw new RuntimeException(actoCode.forDTO() + " is not a StringIdFor");
         }
@@ -71,13 +72,13 @@ public class StringIdFor<T extends GraphProperty> implements IdFor<T> {
         return !theId.isEmpty();
     }
 
-    public static <Z extends GraphProperty> IdFor<Z> getIdFromGraphEntity(Entity entity, GraphPropertyKey propertyKey) {
+    public static <Z extends CoreDomain> IdFor<Z> getIdFromGraphEntity(Entity entity, GraphPropertyKey propertyKey) {
         String value =  entity.getProperty(propertyKey.getText()).toString();
         return createId(value);
 
     }
 
-    public static <Z extends GraphProperty> IdFor<Z> getCompositeIdFromGraphEntity(Entity entity, GraphPropertyKey propertyKey) {
+    public static <Z extends CoreDomain & GraphProperty> IdFor<Z> getCompositeIdFromGraphEntity(Entity entity, GraphPropertyKey propertyKey) {
         String value = entity.getProperty(propertyKey.getText()).toString();
         return MixedCompositeId.parse(value);
     }

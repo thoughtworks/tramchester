@@ -8,6 +8,7 @@ import com.tramchester.dataimport.nptg.NPTGData;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdMap;
 import com.tramchester.domain.id.StringIdFor;
+import com.tramchester.domain.places.NaptanArea;
 import com.tramchester.domain.places.NaptanRecord;
 import com.tramchester.domain.places.Station;
 import com.tramchester.geo.BoundingBox;
@@ -180,5 +181,9 @@ public class NaptanRespository {
 
     public boolean containsTiploc(IdFor<Station> tiploc) {
         return tiplocToAtco.containsKey(tiploc);
+    }
+
+    public NaptanArea getAreaFor(String stopAreaCode) {
+        return null;
     }
 }

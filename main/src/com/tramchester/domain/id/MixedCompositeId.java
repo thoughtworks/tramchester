@@ -1,10 +1,10 @@
 package com.tramchester.domain.id;
 
-import com.tramchester.domain.GraphProperty;
+import com.tramchester.domain.CoreDomain;
 
 import static java.lang.String.format;
 
-public class MixedCompositeId<DOMAINTYPE extends GraphProperty, A extends GraphProperty, B extends GraphProperty>
+public class MixedCompositeId<DOMAINTYPE extends CoreDomain, A extends CoreDomain, B extends CoreDomain>
         implements IdFor<DOMAINTYPE>{
 
     private static final String DIVIDER = "_";
@@ -16,7 +16,7 @@ public class MixedCompositeId<DOMAINTYPE extends GraphProperty, A extends GraphP
         this.idB = idB;
     }
 
-    public static <T extends GraphProperty, A extends GraphProperty, B extends GraphProperty> IdFor<T> createId(IdFor<A> itemA, IdFor<B> itemB) {
+    public static <T extends CoreDomain, A extends CoreDomain, B extends CoreDomain> IdFor<T> createId(IdFor<A> itemA, IdFor<B> itemB) {
         if (itemA.forDTO().contains(DIVIDER) || itemB.forDTO().contains(DIVIDER)) {
             String message = format("Component ids must not contain divider idA:'%s' idB:'%s'", itemA, itemB);
             throw new RuntimeException(message);
@@ -24,7 +24,7 @@ public class MixedCompositeId<DOMAINTYPE extends GraphProperty, A extends GraphP
         return new MixedCompositeId<>(itemA, itemB);
     }
 
-    public static <T extends GraphProperty, AAA extends HasId<AAA>, BBB extends HasId<BBB>> IdFor<T> parse(String value) {
+    public static <T extends CoreDomain, AAA extends HasId<AAA> & CoreDomain, BBB extends HasId<BBB> & CoreDomain> IdFor<T> parse(String value) {
         int indexOf = value.indexOf(DIVIDER);
         String partA = value.substring(0, indexOf);
         String partB = value.substring(indexOf+1);

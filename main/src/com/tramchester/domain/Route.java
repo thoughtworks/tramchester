@@ -12,7 +12,7 @@ import java.time.LocalDate;
 import java.util.EnumSet;
 import java.util.Set;
 
-public interface Route extends HasId<Route>, HasTransportMode, GraphProperty {
+public interface Route extends HasId<Route>, HasTransportMode, GraphProperty, CoreDomain {
     IdFor<Route> getId();
 
     String getName();

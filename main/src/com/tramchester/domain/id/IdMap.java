@@ -1,7 +1,7 @@
 package com.tramchester.domain.id;
 
 import com.google.common.collect.Sets;
-import com.tramchester.domain.GraphProperty;
+import com.tramchester.domain.CoreDomain;
 
 import java.util.Set;
 import java.util.function.BiConsumer;
@@ -10,7 +10,7 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collector;
 
-public class IdMap<T extends HasId<T>> extends CompositeIdMap<T,T> {
+public class IdMap<T extends HasId<T> & CoreDomain> extends CompositeIdMap<T,T> {
 
     public IdMap(Set<T> items) {
         super(items);
@@ -26,7 +26,7 @@ public class IdMap<T extends HasId<T>> extends CompositeIdMap<T,T> {
     }
 
 
-    public static <T extends HasId<T> & GraphProperty> Collector<T, IdMap<T>, IdMap<T>> collector() {
+    public static <T extends HasId<T> & CoreDomain> Collector<T, IdMap<T>, IdMap<T>> collector() {
         return new Collector<>() {
             @Override
             public Supplier<IdMap<T>> supplier() {

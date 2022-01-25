@@ -1,7 +1,7 @@
 package com.tramchester.domain.id;
 
 import com.google.common.collect.Sets;
-import com.tramchester.domain.GraphProperty;
+import com.tramchester.domain.CoreDomain;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.HashMap;
@@ -13,8 +13,7 @@ import java.util.stream.Collector;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-// TODO Should not need GraphProperty Here
-public class CompositeIdMap<S extends HasId<S> & GraphProperty, T extends S> implements Iterable<T> {
+public class CompositeIdMap<S extends HasId<S> & CoreDomain, T extends S> implements Iterable<T> {
     private final HashMap<IdFor<S>, T> theMap;
 
     public CompositeIdMap() {
@@ -25,7 +24,7 @@ public class CompositeIdMap<S extends HasId<S> & GraphProperty, T extends S> imp
         theMap = new HashMap<>(items.stream().collect(Collectors.toMap(HasId::getId, item -> item)));
     }
 
-    protected static <A extends HasId<A>,B extends A> CompositeIdMap<A,B> from(Set<B> items) {
+    protected static <A extends HasId<A> & CoreDomain,B extends A> CompositeIdMap<A,B> from(Set<B> items) {
         return items.stream().collect(collector());
     }
 
@@ -110,7 +109,7 @@ public class CompositeIdMap<S extends HasId<S> & GraphProperty, T extends S> imp
         boolean include(T item);
     }
 
-    private static <S extends HasId<S> & GraphProperty, T extends S > Collector<T, CompositeIdMap<S,T>, CompositeIdMap<S,T>> collector() {
+    private static <S extends HasId<S> & CoreDomain, T extends S > Collector<T, CompositeIdMap<S,T>, CompositeIdMap<S,T>> collector() {
         return new Collector<>() {
             @Override
             public Supplier<CompositeIdMap<S,T>> supplier() {

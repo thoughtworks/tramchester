@@ -4,8 +4,10 @@ import com.tramchester.ComponentsBuilder;
 import com.tramchester.GuiceContainerDependencies;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.StringIdFor;
+import com.tramchester.domain.places.NaptanArea;
 import com.tramchester.domain.places.NaptanRecord;
 import com.tramchester.domain.places.Station;
+import com.tramchester.geo.GridPosition;
 import com.tramchester.integration.testSupport.rail.RailStationIds;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfigWithXMLNaptan;
@@ -13,7 +15,10 @@ import com.tramchester.repository.naptan.NaptanRespository;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.BusStations;
 import com.tramchester.testSupport.reference.TramStations;
-import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -89,6 +94,14 @@ class NaptanRepositoryTest {
         assertEquals(StringIdFor.createId("9100ALTRNHM"), record.getId());
         assertEquals(1, record.getAreaCodes().size());
         assertEquals("910GALTRNHM", record.getAreaCodes().get(0));
+    }
+
+    @Test
+    void shouldHaveNaptanAreaForAltrinchamStation() {
+
+        NaptanArea area = respository.getAreaFor("910GALTRNHM");
+        assertEquals("Altrincham Rail Station", area.getName());
+        assertEquals(new GridPosition(377026, 387931), area.getGridPosition());
     }
 
     @Test

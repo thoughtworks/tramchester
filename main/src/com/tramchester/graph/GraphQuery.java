@@ -1,6 +1,7 @@
 package com.tramchester.graph;
 
 import com.netflix.governator.guice.lazy.LazySingleton;
+import com.tramchester.domain.CoreDomain;
 import com.tramchester.domain.GraphProperty;
 import com.tramchester.domain.Platform;
 import com.tramchester.domain.id.HasId;
@@ -36,8 +37,8 @@ public class GraphQuery {
     /**
      * When calling from tests make sure relevant DB is fully built
      */
-    public Node getRouteStationNode(Transaction txn, HasId<RouteStation> id) {
-        return findNode(txn, GraphLabel.ROUTE_STATION, id);
+    public Node getRouteStationNode(Transaction txn, RouteStation routeStation) {
+        return findNode(txn, GraphLabel.ROUTE_STATION, routeStation);
     }
 
     /**
@@ -65,14 +66,14 @@ public class GraphQuery {
         }
     }
 
-    private <C extends GraphProperty>  Node findNode(Transaction txn, GraphLabel label, HasId<C> hasId) {
+    private <C extends GraphProperty & CoreDomain & HasId<C>>  Node findNode(Transaction txn, GraphLabel label, C hasId) {
         return graphDatabase.findNode(txn, label, hasId.getProp().getText(), hasId.getId().getGraphId());
     }
 
     /**
      * When calling from tests make sure relevant DB is fully built
      */
-    public List<Relationship> getRouteStationRelationships(Transaction txn, HasId<RouteStation> routeStation, Direction direction) {
+    public List<Relationship> getRouteStationRelationships(Transaction txn, RouteStation routeStation, Direction direction) {
         Node routeStationNode = getRouteStationNode(txn, routeStation);
         if (routeStationNode==null) {
             return Collections.emptyList();

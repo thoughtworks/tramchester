@@ -3,13 +3,12 @@ package com.tramchester.testSupport.reference;
 import com.tramchester.domain.DataSourceID;
 import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.id.IdFor;
-import com.tramchester.domain.places.Station;
-import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.places.MutableStation;
+import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.LatLong;
+import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.geo.CoordinateTransforms;
 import com.tramchester.geo.GridPosition;
-import com.tramchester.graph.GraphPropertyKey;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.TestStation;
 import com.tramchester.testSupport.TestStations;
@@ -91,11 +90,11 @@ public enum TramStations implements TestStations {
         return enumValue.station;
     }
 
-    public static MutableStation createFor(TramStations enumValue) {
-        @NotNull GridPosition grid = CoordinateTransforms.getGridPosition(enumValue.getLatLong());
-       return new TestStation(enumValue.getId(), enumValue.getArea(), enumValue.getName(), enumValue.getLatLong(),
-               grid, TransportMode.Tram, DataSourceID.tfgm);
-    }
+//    public static MutableStation createFor(TramStations enumValue) {
+//        @NotNull GridPosition grid = CoordinateTransforms.getGridPosition(enumValue.getLatLong());
+//       return new TestStation(enumValue.getId(), enumValue.getArea(), enumValue.getName(), enumValue.getLatLong(),
+//               grid, TransportMode.Tram, DataSourceID.tfgm);
+//    }
 
     public Station from(StationRepository repository) {
         return repository.getStationById(getId());
@@ -115,11 +114,6 @@ public enum TramStations implements TestStations {
     @Override
     public IdFor<Station> getId() {
         return station.getId();
-    }
-
-    @Override
-    public GraphPropertyKey getProp() {
-        return station.getProp();
     }
 
     public String getName() {

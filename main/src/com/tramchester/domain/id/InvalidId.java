@@ -1,8 +1,8 @@
 package com.tramchester.domain.id;
 
-import com.tramchester.domain.GraphProperty;
+import com.tramchester.domain.CoreDomain;
 
-public class InvalidId<T extends GraphProperty> implements IdFor<T> {
+public class InvalidId<T extends CoreDomain> implements IdFor<T> {
 
     public InvalidId() {
 

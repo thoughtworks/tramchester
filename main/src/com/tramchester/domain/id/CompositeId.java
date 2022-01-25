@@ -1,12 +1,12 @@
 package com.tramchester.domain.id;
 
-import com.tramchester.domain.GraphProperty;
+import com.tramchester.domain.CoreDomain;
 
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class CompositeId<DOMAINTYPE extends GraphProperty> implements IdFor<DOMAINTYPE> {
+public class CompositeId<DOMAINTYPE extends CoreDomain> implements IdFor<DOMAINTYPE> {
 
     private static final char BEGIN = '[';
     private static final char END = ']';
@@ -24,7 +24,7 @@ public class CompositeId<DOMAINTYPE extends GraphProperty> implements IdFor<DOMA
     }
 
     // <T extends HasId<T> & GraphProperty>
-    public static <T extends GraphProperty> CompositeId<T> parse(String text) {
+    public static <T extends CoreDomain> CompositeId<T> parse(String text) {
         if (!isComposite(text)) {
             throw new RuntimeException("Could not parse " + text);
         }

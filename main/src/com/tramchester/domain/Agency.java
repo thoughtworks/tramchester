@@ -2,11 +2,10 @@ package com.tramchester.domain;
 
 import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.id.IdFor;
-import com.tramchester.graph.GraphPropertyKey;
 
 import java.util.Collection;
 
-public interface Agency extends HasId<Agency>, GraphProperty {
+public interface Agency extends HasId<Agency>, CoreDomain {
     static boolean IsMetrolink(IdFor<Agency> agencyId) {
         return MutableAgency.METL.equals(agencyId);
     }
@@ -16,7 +15,5 @@ public interface Agency extends HasId<Agency>, GraphProperty {
     IdFor<Agency> getId();
 
     String getName();
-
-    @Override
-    GraphPropertyKey getProp();
+    
 }

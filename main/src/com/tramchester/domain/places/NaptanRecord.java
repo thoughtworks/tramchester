@@ -1,14 +1,14 @@
 package com.tramchester.domain.places;
 
+import com.tramchester.domain.CoreDomain;
 import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.geo.GridPosition;
-import com.tramchester.graph.GraphPropertyKey;
 import com.tramchester.repository.naptan.NaptanStopType;
 
 import java.util.List;
 
-public class NaptanRecord implements HasId<NaptanRecord> {
+public class NaptanRecord implements HasId<NaptanRecord>, CoreDomain {
     private final IdFor<NaptanRecord> id;
     private final String name;
     private final GridPosition gridPosition;
@@ -26,11 +26,6 @@ public class NaptanRecord implements HasId<NaptanRecord> {
         this.town = town;
         this.stopType = stopType;
         this.stopAreaCodes = stopAreaCodes;
-    }
-
-    @Override
-    public GraphPropertyKey getProp() {
-        return null;
     }
 
     @Override

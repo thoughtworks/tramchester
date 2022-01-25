@@ -1,5 +1,6 @@
 package com.tramchester.domain.places;
 
+import com.tramchester.domain.CoreDomain;
 import com.tramchester.domain.GraphProperty;
 import com.tramchester.domain.HasTransportModes;
 import com.tramchester.domain.Route;
@@ -12,7 +13,7 @@ import com.tramchester.graph.GraphPropertyKey;
 import java.util.Collections;
 import java.util.Set;
 
-public class RouteStation implements HasId<RouteStation>, GraphProperty, HasTransportModes {
+public class RouteStation implements HasId<RouteStation>, GraphProperty, HasTransportModes, CoreDomain {
     // A station that serves a specific route
 
     private final Station station;

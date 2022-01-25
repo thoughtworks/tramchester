@@ -8,7 +8,6 @@ import com.tramchester.config.GTFSSourceConfig;
 import com.tramchester.config.LiveDataConfig;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.*;
-import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.input.PlatformStopCall;
 import com.tramchester.domain.input.Trip;
@@ -237,9 +236,9 @@ public class TestEnv {
        return "M239LT";
     }
 
-    public static <T extends GraphProperty> void assertIdEquals(HasId<T> itemA, HasId<T> itemB) {
-        assertEquals(itemA.getId(), itemB.getId());
-    }
+//    public static <T extends CoreDomain> void assertIdEquals(HasId<T> itemA, HasId<T> itemB) {
+//        assertEquals(itemA.getId(), itemB.getId());
+//    }
 
     public static CacheMetrics.RegistersCacheMetrics NoopRegisterMetrics() {
         return new CacheMetrics.RegistersCacheMetrics() {

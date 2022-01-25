@@ -6,7 +6,7 @@ import com.tramchester.domain.time.TramTime;
 
 import java.io.PrintStream;
 
-public interface Service extends HasId<Service>, GraphProperty {
+public interface Service extends HasId<Service>, GraphProperty, CoreDomain {
     IdFor<Service> getId();
 
     void summariseDates(PrintStream printStream);

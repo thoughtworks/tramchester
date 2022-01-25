@@ -3,7 +3,6 @@ package com.tramchester.domain;
 import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.StringIdFor;
-import com.tramchester.graph.GraphPropertyKey;
 
 import java.util.Collection;
 import java.util.HashSet;
@@ -83,11 +82,6 @@ public class MutableAgency implements Agency {
     @Override
     public String getName() {
         return agencyName;
-    }
-
-    @Override
-    public GraphPropertyKey getProp() {
-        throw new RuntimeException("No ID property for agency");
     }
 
 }

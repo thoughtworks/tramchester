@@ -7,7 +7,7 @@ import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.GraphPropertyKey;
 
-public interface Trip extends HasId<Trip>, HasTransportMode, GraphProperty {
+public interface Trip extends HasId<Trip>, HasTransportMode, GraphProperty, CoreDomain {
 
     IdFor<Trip> getId();
 
