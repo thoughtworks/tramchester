@@ -98,10 +98,16 @@ class NaptanRepositoryTest {
 
     @Test
     void shouldHaveNaptanAreaForAltrinchamStation() {
-
-        NaptanArea area = respository.getAreaFor("910GALTRNHM");
+        final IdFor<NaptanArea> altyRailStationArea = StringIdFor.createId("910GALTRNHM");
+        assertTrue(respository.containsArea(altyRailStationArea));
+        NaptanArea area = respository.getAreaFor(altyRailStationArea);
         assertEquals("Altrincham Rail Station", area.getName());
         assertEquals(new GridPosition(377026, 387931), area.getGridPosition());
+    }
+
+    @Test
+    void shouldNotContainAreaOutOfBounds() {
+        assertFalse(respository.containsArea(StringIdFor.createId("910GEUSTON")));
     }
 
     @Test

@@ -1,4 +1,4 @@
-package com.tramchester.dataimport.NaPTAN.xml;
+package com.tramchester.dataimport.NaPTAN.xml.stopPoint;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeName;

@@ -1,8 +1,10 @@
-package com.tramchester.dataimport.NaPTAN.xml;
+package com.tramchester.dataimport.NaPTAN.xml.stopPoint;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonRootName;
+import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.tramchester.dataimport.NaPTAN.NaptanRailStationData;
+import com.tramchester.dataimport.NaPTAN.NaptanXMLData;
 import com.tramchester.geo.GridPosition;
 import com.tramchester.repository.naptan.NaptanStopType;
 
@@ -10,8 +12,9 @@ import java.util.Collections;
 import java.util.List;
 
 
-@JsonRootName("StopPoint")
-public class NaptanStopXMLData {
+@JsonRootName("StopPoints")
+@JsonTypeName("StopPoint")
+public class NaptanStopData implements NaptanXMLData {
 
     // aliaises are for the xml version of the data
 
@@ -34,7 +37,7 @@ public class NaptanStopXMLData {
     @JsonProperty("StopAreas")
     private List<String> stopAreas;
 
-    public NaptanStopXMLData() {
+    public NaptanStopData() {
         // deserialisation
     }
 

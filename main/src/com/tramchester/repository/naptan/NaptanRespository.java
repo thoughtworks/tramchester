@@ -2,8 +2,10 @@ package com.tramchester.repository.naptan;
 
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.config.TramchesterConfig;
-import com.tramchester.dataimport.NaPTAN.NaptanStopsDataImporter;
-import com.tramchester.dataimport.NaPTAN.xml.NaptanStopXMLData;
+import com.tramchester.dataimport.NaPTAN.NaptanDataImporter;
+import com.tramchester.dataimport.NaPTAN.NaptanXMLData;
+import com.tramchester.dataimport.NaPTAN.xml.stopArea.NaptanStopAreaData;
+import com.tramchester.dataimport.NaPTAN.xml.stopPoint.NaptanStopData;
 import com.tramchester.dataimport.nptg.NPTGData;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdMap;
@@ -33,18 +35,20 @@ import static java.lang.String.format;
 public class NaptanRespository {
     private static final Logger logger = LoggerFactory.getLogger(NaptanRespository.class);
 
-    private final NaptanStopsDataImporter stopsImporter;
+    private final NaptanDataImporter naptanDataImporter;
     private final NPTGRepository nptgRepository;
     private final TramchesterConfig config;
-    private IdMap<NaptanRecord> stopData;
+    private IdMap<NaptanRecord> stops;
+    private IdMap<NaptanArea> areas;
     private Map<IdFor<Station>, IdFor<NaptanRecord>> tiplocToAtco;
 
     @Inject
-    public NaptanRespository(NaptanStopsDataImporter stopsImporter, NPTGRepository nptgRepository, TramchesterConfig config) {
-        this.stopsImporter = stopsImporter;
+    public NaptanRespository(NaptanDataImporter naptanDataImporter, NPTGRepository nptgRepository, TramchesterConfig config) {
+        this.naptanDataImporter = naptanDataImporter;
         this.nptgRepository = nptgRepository;
         this.config = config;
-        stopData = new IdMap<>();
+        stops = new IdMap<>();
+        areas = new IdMap<>();
         tiplocToAtco = Collections.emptyMap();
     }
 
@@ -52,7 +56,7 @@ public class NaptanRespository {
     public void start() {
         logger.info("starting");
 
-        boolean enabled = stopsImporter.isEnabled();
+        boolean enabled = naptanDataImporter.isEnabled();
 
         if (!enabled) {
             logger.warn("Not enabled, imported is disable, no config for naptan?");
@@ -68,7 +72,7 @@ public class NaptanRespository {
     @PreDestroy
     public void stop() {
         logger.info("stopping");
-        stopData.clear();
+        stops.clear();
         tiplocToAtco.clear();
         logger.info("stopped");
     }
@@ -82,27 +86,60 @@ public class NaptanRespository {
 
         loadStopsData(bounds, margin);
         loadStationData(bounds, margin);
+        loadAreaData(bounds, margin);
+    }
+
+    private void loadAreaData(BoundingBox bounds, MarginInMeters margin) {
+        logger.info("Load naptan area reference data");
+
+        Stream<NaptanStopAreaData> areaDataStream = naptanDataImporter.getAreasData().
+                filter(area -> !area.getStopAreaCode().isBlank());
+
+        areas = filterBy(bounds, margin, areaDataStream).
+                map(this::createArea).
+                collect(IdMap.collector());
+
+        logger.info("Loaded " + areas.size() + " areas");
+    }
+
+    private NaptanArea createArea(NaptanStopAreaData areaData) {
+        IdFor<NaptanArea> id = StringIdFor.createId(areaData.getStopAreaCode());
+        return new NaptanArea(id, areaData.getName(), areaData.getGridPosition());
     }
 
     private void loadStopsData(BoundingBox bounds, MarginInMeters margin) {
-        if (!stopsImporter.isEnabled()) {
-            logger.error("Not loading stops data, import is disabled. Is this data source present in the config?");
-        }
+        logger.info("Load naptan stop reference data");
 
-        Stream<NaptanStopXMLData> stopsData = stopsImporter.getStopsData().
+        Stream<NaptanStopData> stopsData = naptanDataImporter.getStopsData().
                 filter(stopData -> stopData.getAtcoCode() != null).
                 filter(stopData -> !stopData.getAtcoCode().isBlank());
 
-        stopData = filterBy(bounds, margin, stopsData).
+        stops = filterBy(bounds, margin, stopsData).
                 map(this::createRecord).
                 collect(IdMap.collector());
 
         stopsData.close();
 
-        logger.info("Loaded " + stopData.size() + " stops");
+        logger.info("Loaded " + stops.size() + " stops");
     }
 
-    private NaptanRecord createRecord(NaptanStopXMLData original) {
+    private void loadStationData(BoundingBox bounds, MarginInMeters margin) {
+        logger.info("Load rail station reference data from natpan stops");
+
+        // TODO do this in a way that avoids streaming the stops data twice
+
+        Stream<NaptanStopData> railStops = naptanDataImporter.getStopsData().
+                filter(NaptanStopData::hasRailInfo).
+                filter(stopData -> stopData.getAtcoCode() != null).
+                filter(stopData -> !stopData.getAtcoCode().isBlank());
+
+        tiplocToAtco = filterBy(bounds, margin, railStops)
+                .collect(Collectors.toMap(data -> StringIdFor.createId(data.getRailInfo().getTiploc()),
+                        data -> StringIdFor.createId(data.getAtcoCode())));
+        logger.info("Loaded " + tiplocToAtco.size() + " stations");
+    }
+
+    private NaptanRecord createRecord(NaptanStopData original) {
         IdFor<NaptanRecord> id = StringIdFor.createId(original.getAtcoCode());
 
         String suburb = original.getSuburb();
@@ -125,21 +162,7 @@ public class NaptanRespository {
                 original.getStopType(), original.getStopAreaCode());
     }
 
-    private void loadStationData(BoundingBox bounds, MarginInMeters margin) {
-        logger.info("Load rail station reference data from natpan stops");
-
-        Stream<NaptanStopXMLData> railStops = stopsImporter.getStopsData().
-                filter(NaptanStopXMLData::hasRailInfo).
-                filter(stopData -> stopData.getAtcoCode() != null).
-                filter(stopData -> !stopData.getAtcoCode().isBlank());
-
-        tiplocToAtco = filterBy(bounds, margin, railStops)
-                .collect(Collectors.toMap(data -> StringIdFor.createId(data.getRailInfo().getTiploc()),
-                        data -> StringIdFor.createId(data.getAtcoCode())));
-        logger.info("Loaded " + tiplocToAtco.size() + " stations");
-    }
-
-    private Stream<NaptanStopXMLData> filterBy(BoundingBox bounds, MarginInMeters margin, Stream<NaptanStopXMLData> stream) {
+    private <T extends NaptanXMLData> Stream<T> filterBy(BoundingBox bounds, MarginInMeters margin, Stream<T> stream) {
         return stream.
                 filter(item -> item.getGridPosition().isValid()).
                 filter(item -> bounds.within(margin, item.getGridPosition()));
@@ -147,12 +170,12 @@ public class NaptanRespository {
 
     public boolean containsActo(IdFor<Station> actoCode) {
         IdFor<NaptanRecord> id = convertId(actoCode);
-        return stopData.hasId(id);
+        return stops.hasId(id);
     }
 
     public NaptanRecord getForActo(IdFor<Station> actoCode) {
         IdFor<NaptanRecord> id = convertId(actoCode);
-        return stopData.get(id);
+        return stops.get(id);
     }
 
     private IdFor<NaptanRecord> convertId(IdFor<Station> actoCode) {
@@ -160,7 +183,7 @@ public class NaptanRespository {
     }
 
     public boolean isEnabled() {
-        return stopsImporter.isEnabled();
+        return naptanDataImporter.isEnabled();
     }
 
     /***
@@ -173,8 +196,8 @@ public class NaptanRespository {
             return null;
         }
         IdFor<NaptanRecord> acto = tiplocToAtco.get(railStationTiploc);
-        if (stopData.hasId(acto)) {
-            return stopData.get(acto);
+        if (stops.hasId(acto)) {
+            return stops.get(acto);
         }
         return null;
     }
@@ -183,7 +206,11 @@ public class NaptanRespository {
         return tiplocToAtco.containsKey(tiploc);
     }
 
-    public NaptanArea getAreaFor(String stopAreaCode) {
-        return null;
+    public NaptanArea getAreaFor(IdFor<NaptanArea> id) {
+        return areas.get(id);
+    }
+
+    public boolean containsArea(IdFor<NaptanArea> id) {
+        return areas.hasId(id);
     }
 }

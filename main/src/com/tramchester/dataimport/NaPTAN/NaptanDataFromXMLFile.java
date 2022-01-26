@@ -1,7 +1,10 @@
-package com.tramchester.dataimport.loader.files;
+package com.tramchester.dataimport.NaPTAN;
 
+import com.fasterxml.jackson.annotation.JsonRootName;
+import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
+import com.tramchester.dataimport.loader.files.TransportDataFromFile;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -18,14 +21,16 @@ import java.util.Iterator;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
-public class TransportDataFromXMLFile<T, R extends T> implements TransportDataFromFile<T> {
-    private static final Logger logger = LoggerFactory.getLogger(TransportDataFromXMLFile.class);
+import static java.lang.String.format;
+
+public class NaptanDataFromXMLFile<T extends NaptanXMLData> implements TransportDataFromFile<T> {
+    private static final Logger logger = LoggerFactory.getLogger(NaptanDataFromXMLFile.class);
 
     private final Path filePath;
-    private final Class<R> concreteType;
+    private final Class<T> concreteType;
     private final Charset charset;
 
-    public TransportDataFromXMLFile(Path filePath, Charset charset, Class<R> concreteType) {
+    public NaptanDataFromXMLFile(Path filePath, Charset charset, Class<T> concreteType) {
         this.filePath = filePath.toAbsolutePath();
         this.charset = charset;
         this.concreteType = concreteType;
@@ -53,17 +58,12 @@ public class TransportDataFromXMLFile<T, R extends T> implements TransportDataFr
         checkStartElement(streamReader);
         logger.info("Document root is " + streamReader.getLocalName());
 
-        streamReader.next();
-        checkStartElement(streamReader);
-        logger.info("Container element " + streamReader.getLocalName());
-
-        streamReader.next();
-
         final ItemIterator itemIterator = new ItemIterator(streamReader, concreteType);
 
         Iterable<T> iterable = () -> itemIterator;
 
         final Stream<T> stream = StreamSupport.stream(iterable.spliterator(), false);
+
         //noinspection ResultOfMethodCallIgnored
         stream.onClose(itemIterator::close);
 
@@ -79,15 +79,29 @@ public class TransportDataFromXMLFile<T, R extends T> implements TransportDataFr
     private class ItemIterator implements Iterator<T> {
         private final XMLStreamReader xmlStreamReader;
         private final XmlMapper mapper;
-        private final Class<R> theType;
+        private final Class<T> theType;
         private boolean closed;
+        private boolean insideContainingElement;
+        private final String containingElement;
+        private final String elementName;
 
-        public ItemIterator(XMLStreamReader xmlStreamReader, Class<R> theType) {
+        public ItemIterator(XMLStreamReader xmlStreamReader, Class<T> theType) {
             this.theType = theType;
             mapper = XmlMapper.builder().disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES).build();
             this.xmlStreamReader = xmlStreamReader;
             closed = false;
-            logger.info("Created ItemIterator for " + theType.getSimpleName());
+            JsonTypeName elementType = theType.getAnnotation(JsonTypeName.class);
+            JsonRootName container = theType.getAnnotation(JsonRootName.class);
+
+            if (elementType==null || container==null) {
+                throw new RuntimeException(theType.getSimpleName() + " needs have annotations for both JsonRootName and JsonTypeName");
+            }
+
+            containingElement = container.value();
+            elementName = elementType.value();
+            insideContainingElement = false;
+            logger.info(format("Created ItemIterator for element %s container %s to populate type %s",
+                    elementName, containingElement, theType.getSimpleName()));
         }
 
         @Override
@@ -96,32 +110,47 @@ public class TransportDataFromXMLFile<T, R extends T> implements TransportDataFr
                 return false;
             }
 
-            String localName = xmlStreamReader.getLocalName();
-            if ("StopPoints".equals(localName)) {
-                logger.warn("Second list inside of Naptan element");
-                try {
-                    xmlStreamReader.next(); // skip into the list
-                    localName = xmlStreamReader.getLocalName();
-                    logger.info("Next is " + localName);
-                } catch (XMLStreamException e) {
-                    logger.error("Could not skip into the list",e);
+            try {
+
+                if (!insideContainingElement) {
+                    if (!findElement(containingElement)) {
+                        logger.warn("Failed to find containing element " + containingElement);
+                        return false;
+                    }
+                    logger.info("Found containing element " + containingElement);
                 }
+
+                insideContainingElement = true;
+
+                return findElement(elementName);
+            }
+            catch(XMLStreamException e) {
+                logger.error("Exception during interation", e);
+                return false;
+            }
+        }
+
+        private boolean findElement(String name) throws XMLStreamException {
+            // loop until find containing element, or no more tokens
+            while (xmlStreamReader.hasNext() && (!foundStartOfElement(name))) {
+                xmlStreamReader.next();
             }
 
-            final boolean hasElement = "StopPoint".equals(localName);
-            if (!hasElement) {
-                logger.warn("Skip " + localName);
+            return xmlStreamReader.hasNext();
+        }
+
+        private boolean foundStartOfElement(String name) {
+            if (xmlStreamReader.getEventType()!=XMLStreamConstants.START_ELEMENT) {
+                return false;
             }
-            return xmlStreamReader.getEventType() == XMLStreamConstants.START_ELEMENT && hasElement;
+            return name.equals(xmlStreamReader.getLocalName());
         }
 
         @Override
         public T next() {
             try {
-                final T readValue = mapper.readValue(xmlStreamReader, theType);
-                xmlStreamReader.next();
-                return readValue;
-            } catch (IOException | XMLStreamException e) {
+                return mapper.readValue(xmlStreamReader, theType);
+            } catch (IOException e) {
                 throw new RuntimeException(e);
             }
         }
