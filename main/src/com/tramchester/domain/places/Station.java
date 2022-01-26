@@ -5,6 +5,7 @@ import com.tramchester.domain.DataSourceID;
 import com.tramchester.domain.Platform;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.id.IdFor;
+import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.geo.GridPosition;
@@ -12,6 +13,7 @@ import com.tramchester.geo.GridPosition;
 import java.util.Set;
 
 public interface Station extends Location<Station> {
+
     @Override
     IdFor<Station> getId();
 
@@ -64,4 +66,8 @@ public interface Station extends Location<Station> {
     boolean isMarkedInterchange();
 
     int getMinimumChangeCost();
+
+    static IdFor<Station> createId(String text) {
+        return StringIdFor.createId(text);
+    }
 }

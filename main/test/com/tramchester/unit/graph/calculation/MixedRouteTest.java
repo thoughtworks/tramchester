@@ -7,6 +7,7 @@ import com.tramchester.config.GTFSSourceConfig;
 import com.tramchester.config.RemoteDataSourceConfig;
 import com.tramchester.domain.Journey;
 import com.tramchester.domain.JourneyRequest;
+import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.presentation.TransportStage;
 import com.tramchester.domain.reference.GTFSTransportationType;
 import com.tramchester.domain.reference.TransportMode;
@@ -171,7 +172,7 @@ class MixedRouteTest {
 
             TFGMGTFSSourceTestConfig tfgmTestDataSourceConfig = new TFGMGTFSSourceTestConfig("unused",
                     modes, Collections.singleton(TransportMode.Tram),
-                    Collections.emptySet(), Collections.emptySet(), Collections.emptyList());
+                    IdSet.emptySet(), Collections.emptySet(), Collections.emptyList());
             return Collections.singletonList(tfgmTestDataSourceConfig);
         }
 

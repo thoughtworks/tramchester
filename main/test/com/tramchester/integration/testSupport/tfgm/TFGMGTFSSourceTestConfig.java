@@ -2,6 +2,8 @@ package com.tramchester.integration.testSupport.tfgm;
 
 import com.tramchester.config.GTFSSourceConfig;
 import com.tramchester.domain.StationClosure;
+import com.tramchester.domain.id.IdSet;
+import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.GTFSTransportationType;
 import com.tramchester.domain.reference.TransportMode;
 
@@ -21,12 +23,12 @@ public class TFGMGTFSSourceTestConfig implements GTFSSourceConfig {
     private final String dataFolder;
     private final Set<GTFSTransportationType> sourceModes;
     private final Set<TransportMode> modesWithPlatforms;
-    private final Set<String> additionalInterchanges;
+    private final IdSet<Station> additionalInterchanges;
     private final Set<TransportMode> compositeStationModes;
     private final List<StationClosure> closedStations;
 
     public TFGMGTFSSourceTestConfig(String dataFolder, Set<GTFSTransportationType> sourceModes,
-                                    Set<TransportMode> modesWithPlatforms, Set<String> additionalInterchanges,
+                                    Set<TransportMode> modesWithPlatforms, IdSet<Station> additionalInterchanges,
                                     Set<TransportMode> compositeStationModes, List<StationClosure> closedStations) {
         this.dataFolder = dataFolder;
         this.sourceModes = sourceModes;
@@ -37,7 +39,7 @@ public class TFGMGTFSSourceTestConfig implements GTFSSourceConfig {
     }
 
     public TFGMGTFSSourceTestConfig(String dataFolder, GTFSTransportationType mode, TransportMode modeWithPlatform,
-                                    Set<String> additionalInterchanges, Set<TransportMode> compositeStationModes,
+                                    IdSet<Station> additionalInterchanges, Set<TransportMode> compositeStationModes,
                                     List<StationClosure> closedStations) {
         this(dataFolder, Collections.singleton(mode), Collections.singleton(modeWithPlatform),
                 additionalInterchanges, compositeStationModes, closedStations);
@@ -74,7 +76,7 @@ public class TFGMGTFSSourceTestConfig implements GTFSSourceConfig {
     }
 
     @Override
-    public Set<String> getAdditionalInterchanges() {
+    public IdSet<Station> getAdditionalInterchanges() {
         return additionalInterchanges;
     }
 

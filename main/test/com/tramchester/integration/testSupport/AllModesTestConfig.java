@@ -34,7 +34,7 @@ public class AllModesTestConfig extends IntegrationTestConfig {
         final Set<TransportMode> compositeStationModes = Collections.singleton(Bus);
 
         final TFGMGTFSSourceTestConfig tfgmDataSource = new TFGMGTFSSourceTestConfig("data/bus", TestEnv.tramAndBus,
-                modesWithPlatforms, AdditionalTramInterchanges.get(), compositeStationModes, Collections.emptyList());
+                modesWithPlatforms, AdditionalTramInterchanges.stations(), compositeStationModes, Collections.emptyList());
 
         remoteTfgmSourceConfig = new TFGMRemoteDataSourceConfig("data/bus");
         remoteDataRailConfig = new RailRemoteDataSourceConfig("data/rail");

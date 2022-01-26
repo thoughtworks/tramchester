@@ -27,7 +27,7 @@ public class NeighboursTestConfig extends IntegrationBusTestConfig {
         final Set<TransportMode> compositeStationModes = Collections.singleton(Bus);
         return Collections.singletonList(
                 new TFGMGTFSSourceTestConfig("data/bus", TestEnv.tramAndBus,
-                        modesWithPlatforms, AdditionalTramInterchanges.get(), compositeStationModes, Collections.emptyList()));
+                        modesWithPlatforms, AdditionalTramInterchanges.stations(), compositeStationModes, Collections.emptyList()));
     }
 
     @Override

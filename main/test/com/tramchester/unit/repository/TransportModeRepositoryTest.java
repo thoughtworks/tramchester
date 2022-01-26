@@ -2,6 +2,8 @@ package com.tramchester.unit.repository;
 
 import com.tramchester.config.GTFSSourceConfig;
 import com.tramchester.config.TramchesterConfig;
+import com.tramchester.domain.id.IdSet;
+import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.GTFSTransportationType;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.integration.testSupport.tfgm.TFGMGTFSSourceTestConfig;
@@ -18,7 +20,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 class TransportModeRepositoryTest {
 
     private final Set<TransportMode> modesWithPlatforms = Collections.singleton(TransportMode.Tram);
-    private final Set<String> additionalInterchanges = Collections.emptySet();
+    private final IdSet<Station> additionalInterchanges = IdSet.emptySet();
 
     @Test
     void shouldHaveCorrectTransportModesSingle() {

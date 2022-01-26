@@ -5,8 +5,6 @@ import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.places.Station;
 
 import java.util.Arrays;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 public class AdditionalTramInterchanges {
 
@@ -34,7 +32,9 @@ public class AdditionalTramInterchanges {
         return ids;
     }
 
-    public static Set<String> get() {
-        return Arrays.stream(Interchanges.values()).map(interchange -> interchange.stationId).collect(Collectors.toSet());
-    }
+//    public static IdSet<Station> get() {
+//        return Arrays.stream(Interchanges.values()).
+//                map(interchange -> Station.createId(interchange.stationId)).
+//                collect(IdSet.idCollector());
+//    }
 }

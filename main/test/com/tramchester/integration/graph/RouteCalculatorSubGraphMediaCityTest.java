@@ -6,6 +6,8 @@ import com.tramchester.DiagramCreator;
 import com.tramchester.config.GTFSSourceConfig;
 import com.tramchester.domain.Journey;
 import com.tramchester.domain.StationClosure;
+import com.tramchester.domain.id.IdSet;
+import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.GTFSTransportationType;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramServiceDate;
@@ -165,9 +167,9 @@ class RouteCalculatorSubGraphMediaCityTest {
         protected List<GTFSSourceConfig> getDataSourceFORTESTING() {
             List<StationClosure> closed = Collections.emptyList();
 
-            Set<String> additionalInterchanges = AdditionalTramInterchanges.get();
-            additionalInterchanges.add(Cornbrook.forDTO());
-            additionalInterchanges.add(Broadway.forDTO());
+            IdSet<Station> additionalInterchanges = AdditionalTramInterchanges.stations();
+            additionalInterchanges.add(Cornbrook.getId());
+            additionalInterchanges.add(Broadway.getId());
 
             TFGMGTFSSourceTestConfig gtfsSourceConfig = new TFGMGTFSSourceTestConfig("data/tram", GTFSTransportationType.tram,
                     TransportMode.Tram, additionalInterchanges, Collections.emptySet(), closed);

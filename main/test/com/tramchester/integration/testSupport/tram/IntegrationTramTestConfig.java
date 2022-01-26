@@ -50,7 +50,7 @@ public class IntegrationTramTestConfig extends IntegrationTestConfig {
         super(dbTestConfig);
         this.liveDataEnabled = liveDataEnabled;
         gtfsSourceConfig = new TFGMGTFSSourceTestConfig("data/tram", GTFSTransportationType.tram,
-                TransportMode.Tram, AdditionalTramInterchanges.get(), Collections.emptySet(), closedStations);
+                TransportMode.Tram, AdditionalTramInterchanges.stations(), Collections.emptySet(), closedStations);
         remoteTFGMConfig = new TFGMRemoteDataSourceConfig("data/tram");
     }
 

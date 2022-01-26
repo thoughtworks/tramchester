@@ -2,6 +2,8 @@ package com.tramchester.unit.graph.calculation;
 
 
 import com.tramchester.config.GTFSSourceConfig;
+import com.tramchester.domain.id.IdSet;
+import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.GTFSTransportationType;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.integration.testSupport.tfgm.TFGMGTFSSourceTestConfig;
@@ -21,7 +23,7 @@ public class SimpleCompositeGraphConfig extends SimpleGraphConfig {
     @Override
     protected List<GTFSSourceConfig> getDataSourceFORTESTING() {
         final Set<TransportMode> compositeStationModes = Collections.singleton(Tram);
-        final Set<String> additionalInterchanges = Collections.singleton(TramStations.Cornbrook.forDTO());
+        final IdSet<Station> additionalInterchanges = IdSet.singleton(TramStations.Cornbrook.getId());
         TFGMGTFSSourceTestConfig tfgmTestDataSourceConfig = new TFGMGTFSSourceTestConfig("data/tram",
                 GTFSTransportationType.tram, Tram, additionalInterchanges, compositeStationModes, Collections.emptyList());
         return Collections.singletonList(tfgmTestDataSourceConfig);

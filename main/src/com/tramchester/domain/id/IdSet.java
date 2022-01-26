@@ -54,7 +54,6 @@ public class IdSet<T extends CoreDomain> implements Iterable<IdFor<T>> {
         return new IdSet<>(Collections.emptySet());
     }
 
-    // TODO Rework generics for this class
     public static <S extends CoreDomain & HasId<S>> IdSet<S> from(Set<S> items) {
         Set<IdFor<S>> ids = items.stream().map(HasId::getId).collect(Collectors.toSet());
         return wrap(ids);

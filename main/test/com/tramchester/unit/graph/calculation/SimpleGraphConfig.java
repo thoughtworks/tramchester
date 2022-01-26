@@ -2,6 +2,7 @@ package com.tramchester.unit.graph.calculation;
 
 import com.tramchester.config.GTFSSourceConfig;
 import com.tramchester.config.RemoteDataSourceConfig;
+import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.reference.GTFSTransportationType;
 import com.tramchester.integration.testSupport.GraphDBTestConfig;
 import com.tramchester.integration.testSupport.IntegrationTestConfig;
@@ -23,14 +24,13 @@ public class SimpleGraphConfig extends IntegrationTestConfig {
     @Override
     protected List<GTFSSourceConfig> getDataSourceFORTESTING() {
         TFGMGTFSSourceTestConfig tfgmTestDataSourceConfig = new TFGMGTFSSourceTestConfig("data/tram",
-                GTFSTransportationType.tram, Tram, Collections.emptySet(), Collections.emptySet(), Collections.emptyList());
+                GTFSTransportationType.tram, Tram, IdSet.emptySet(), Collections.emptySet(), Collections.emptyList());
         return Collections.singletonList(tfgmTestDataSourceConfig);
     }
 
     @Override
     public List<RemoteDataSourceConfig> getRemoteDataSourceConfig() {
         return Collections.emptyList();
-        //return Collections.singletonList(new NaptanRemoteDataSourceConfig("data/naptan"));
     }
 
     @Override

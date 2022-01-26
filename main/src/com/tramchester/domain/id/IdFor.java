@@ -4,7 +4,7 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.tramchester.domain.CoreDomain;
 import org.jetbrains.annotations.NotNull;
 
-@JsonDeserialize(as= StringIdFor.class)
+@JsonDeserialize(as=StringIdFor.class)
 public interface IdFor<T extends CoreDomain> extends Comparable<IdFor<T>> {
 
     static <T extends CoreDomain> IdFor<T> invalid() {

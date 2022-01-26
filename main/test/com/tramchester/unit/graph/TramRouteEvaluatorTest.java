@@ -5,6 +5,7 @@ import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.DataSourceID;
 import com.tramchester.domain.JourneyRequest;
 import com.tramchester.domain.exceptions.TramchesterException;
+import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.places.MutableStation;
 import com.tramchester.domain.places.Station;
@@ -91,7 +92,7 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
             @Override
             protected List<GTFSSourceConfig> getDataSourceFORTESTING() {
                 return Collections.singletonList(new TFGMGTFSSourceTestConfig("data/tram",
-                       GTFSTransportationType.tram, TransportMode.Tram, Collections.emptySet(),
+                       GTFSTransportationType.tram, TransportMode.Tram, IdSet.emptySet(),
                         Collections.emptySet(), Collections.emptyList()));
             }
         };

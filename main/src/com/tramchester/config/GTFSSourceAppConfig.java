@@ -3,6 +3,9 @@ package com.tramchester.config;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.tramchester.domain.StationClosure;
+import com.tramchester.domain.id.IdFor;
+import com.tramchester.domain.id.IdSet;
+import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.GTFSTransportationType;
 import com.tramchester.domain.reference.TransportMode;
 import io.dropwizard.Configuration;
@@ -46,7 +49,7 @@ public class GTFSSourceAppConfig extends Configuration implements GTFSSourceConf
 
     @NotNull
     @JsonProperty("additionalInterchanges")
-    private Set<String> additionalInterchanges;
+    private Set<IdFor<Station>> additionalInterchanges;
 
     @NotNull
     @JsonProperty("compositeStationModes")
@@ -86,8 +89,8 @@ public class GTFSSourceAppConfig extends Configuration implements GTFSSourceConf
     }
 
     @Override
-    public Set<String> getAdditionalInterchanges() {
-        return additionalInterchanges;
+    public IdSet<Station> getAdditionalInterchanges() {
+        return IdSet.wrap(additionalInterchanges);
     }
 
     @Override

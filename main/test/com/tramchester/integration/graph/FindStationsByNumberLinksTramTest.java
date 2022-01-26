@@ -5,7 +5,6 @@ import com.tramchester.ComponentsBuilder;
 import com.tramchester.config.GTFSSourceConfig;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.DataSourceID;
-import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
@@ -20,8 +19,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -58,13 +55,13 @@ class FindStationsByNumberLinksTramTest {
         GTFSSourceConfig dataSource = dataSources.get(0);
         assertEquals(DataSourceID.tfgm, dataSource.getDataSourceId());
 
-        Set<String> fromConfig = dataSource.getAdditionalInterchanges();
+        IdSet<Station> fromConfig = dataSource.getAdditionalInterchanges();
 
         IdSet<Station> found = finder.atLeastNLinkedStations(TransportMode.Tram, threshhold);
 
-        Set<String> discovered = found.stream().map(IdFor::forDTO).collect(Collectors.toSet());
+        //Set<String> discovered = found.stream().map(IdFor::forDTO).collect(Collectors.toSet());
 
-        Set<String> dups = fromConfig.stream().filter(discovered::contains).collect(Collectors.toSet());
+        IdSet<Station> dups = fromConfig.stream().filter(found::contains).collect(IdSet.idCollector());
 
         assertTrue(dups.isEmpty(), "Found dups in config " + dups);
     }

@@ -3,14 +3,13 @@ package com.tramchester.repository;
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.config.GTFSSourceConfig;
 import com.tramchester.config.TramchesterConfig;
-import com.tramchester.domain.places.InterchangeStation;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.StationLink;
 import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdSet;
-import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.places.CompositeStation;
+import com.tramchester.domain.places.InterchangeStation;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.graph.FindStationsByNumberLinks;
@@ -189,10 +188,6 @@ public class Interchanges implements InterchangeRepository {
         };
     }
 
-    private IdFor<Station> formStationId(String raw) {
-        return StringIdFor.createId(raw);
-    }
-
     private void addAdditionalInterchanges(List<GTFSSourceConfig> gtfsDataSource) {
         long countBefore = interchanges.size();
 
@@ -207,11 +202,10 @@ public class Interchanges implements InterchangeRepository {
 
     private void addAdditionalInterchangesForSource(GTFSSourceConfig dataSource) {
         final String name = dataSource.getName();
-        final Set<String> additionalInterchanges = dataSource.getAdditionalInterchanges();
+        IdSet<Station> additionalInterchanges = dataSource.getAdditionalInterchanges();
         logger.info("For source " + name + " attempt to add " + additionalInterchanges.size() + " interchange stations");
 
         Set<Station> validStationsFromConfig = additionalInterchanges.stream().
-                map(this::formStationId).
                 filter(graphFilter::shouldInclude).
                 filter(stationRepository::hasStationId).
                 map(stationRepository::getStationById).
@@ -229,7 +223,6 @@ public class Interchanges implements InterchangeRepository {
 
         if (validStationsFromConfig.size() != additionalInterchanges.size()) {
             IdSet<Station> invalidIds = additionalInterchanges.stream().
-                    map(this::formStationId).
                     filter(id -> !stationRepository.hasStationId(id)).collect(IdSet.idCollector());
             logger.error("For " + name + " additional interchange station ids invalid:" + invalidIds);
         }

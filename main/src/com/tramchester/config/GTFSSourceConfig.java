@@ -4,6 +4,8 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.tramchester.domain.DataSourceID;
 import com.tramchester.domain.StationClosure;
+import com.tramchester.domain.id.IdSet;
+import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.GTFSTransportationType;
 import com.tramchester.domain.reference.TransportMode;
 
@@ -40,7 +42,7 @@ public interface GTFSSourceConfig extends HasDataPath, TransportDataSourceConfig
 
     // additional interchanges
     // interchange to add to those auto discovered by the interchange repository
-    Set<String> getAdditionalInterchanges();
+    IdSet<Station> getAdditionalInterchanges();
 
     default Set<TransportMode> getTransportModes() {
         return getTransportGTFSModes().stream().
