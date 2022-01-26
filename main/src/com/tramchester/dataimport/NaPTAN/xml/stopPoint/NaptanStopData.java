@@ -5,6 +5,9 @@ import com.fasterxml.jackson.annotation.JsonRootName;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.tramchester.dataimport.NaPTAN.NaptanRailStationData;
 import com.tramchester.dataimport.NaPTAN.NaptanXMLData;
+import com.tramchester.domain.id.IdFor;
+import com.tramchester.domain.id.StringIdFor;
+import com.tramchester.domain.places.NaptanRecord;
 import com.tramchester.geo.GridPosition;
 import com.tramchester.repository.naptan.NaptanStopType;
 
@@ -41,8 +44,8 @@ public class NaptanStopData implements NaptanXMLData {
         // deserialisation
     }
 
-    public String getAtcoCode() {
-        return atcoCode;
+    public IdFor<NaptanRecord> getAtcoCode() {
+        return StringIdFor.createId(atcoCode);
     }
 
     public String getNaptanCode() {

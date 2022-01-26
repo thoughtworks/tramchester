@@ -1,6 +1,7 @@
 package com.tramchester.unit.dataimport.naptan;
 
 import com.tramchester.dataimport.NaPTAN.xml.stopPoint.NaptanStopData;
+import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.geo.GridPosition;
 import com.tramchester.repository.naptan.NaptanStopType;
 import com.tramchester.testSupport.reference.TramStations;
@@ -13,6 +14,7 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 
+import static com.tramchester.integration.testSupport.Assertions.assertIdEquals;
 import static com.tramchester.repository.naptan.NaptanStopType.busCoachTrolleyStationBay;
 import static com.tramchester.repository.naptan.NaptanStopType.tramMetroUndergroundPlatform;
 import static org.junit.jupiter.api.Assertions.*;
@@ -44,7 +46,7 @@ class NaptanStopDataTest extends ParserTestXMLHelper<NaptanStopData> {
                 "usZoneRef CreationDateTime=\"2013-12-17T14:30:00\" ModificationDateTime=\"2013-12-17T14:31:00\" Modification=\"revise\" Revisi" +
                 "onNumber=\"1\" Status=\"active\">MNCRPIC</PlusbusZoneRef></PlusbusZones></StopPoint></StopPoints></NaPTAN>");
 
-        assertEquals("9400ZZMAWWD2", data.getAtcoCode(), data.toString());
+        assertIdEquals("9400ZZMAWWD2", data.getAtcoCode(), data.toString());
         assertEquals("mantwgdp", data.getNaptanCode());
         assertEquals("Westwood (Manchester Metrolink)", data.getCommonName());
         assertEquals("", data.getSuburb());
@@ -80,7 +82,7 @@ class NaptanStopDataTest extends ParserTestXMLHelper<NaptanStopData> {
                         + text + "</NaPTAN>";
 
         NaptanStopData data = super.parseFirstOnly(fullBody);
-        assertEquals("9400ZZMAWWD2", data.getAtcoCode(), data.toString());
+        assertIdEquals("9400ZZMAWWD2", data.getAtcoCode(), data.toString());
         assertFalse(data.hasRailInfo());
     }
 
@@ -111,8 +113,8 @@ class NaptanStopDataTest extends ParserTestXMLHelper<NaptanStopData> {
 
         assertEquals(data.size(), 2);
 
-        assertEquals("acto1111", data.get(0).getAtcoCode());
-        assertEquals("acto2222", data.get(1).getAtcoCode());
+        assertIdEquals("acto1111", data.get(0).getAtcoCode());
+        assertIdEquals("acto2222", data.get(1).getAtcoCode());
     }
 
     @Test
@@ -129,7 +131,7 @@ class NaptanStopDataTest extends ParserTestXMLHelper<NaptanStopData> {
                 ":45.1995824Z\">280G00000001</StopAreaRef></StopAreas><AdministrativeAreaRef>280</AdministrativeAreaRef>" +
                 "</StopPoint></StopPoints></NaPTAN>");
 
-        assertEquals("2800S16001B", data.getAtcoCode());
+        assertIdEquals("2800S16001B", data.getAtcoCode());
         assertEquals("mergjtpm", data.getNaptanCode());
         assertEquals("St Helens Bus Station", data.getCommonName());
         assertEquals("St Helens", data.getSuburb());
@@ -187,8 +189,8 @@ class NaptanStopDataTest extends ParserTestXMLHelper<NaptanStopData> {
 
         NaptanStopData data = super.parseFirstOnly(text);
 
-        assertEquals("9400ZZMAALT", data.getAtcoCode());
-        assertEquals(TramStations.Altrincham.forDTO(), data.getAtcoCode());
+        assertIdEquals("9400ZZMAALT", data.getAtcoCode());
+        assertEquals(StringIdFor.convert(TramStations.Altrincham.getId()), data.getAtcoCode());
         assertEquals(NaptanStopType.tramMetroUndergroundAccess, data.getStopType());
     }
 

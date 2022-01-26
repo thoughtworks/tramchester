@@ -5,12 +5,17 @@ import com.tramchester.GuiceContainerDependencies;
 import com.tramchester.dataimport.NaPTAN.NaptanDataImporter;
 import com.tramchester.dataimport.NaPTAN.xml.stopArea.NaptanStopAreaData;
 import com.tramchester.dataimport.NaPTAN.xml.stopPoint.NaptanStopData;
+import com.tramchester.domain.id.IdFor;
+import com.tramchester.domain.id.StringIdFor;
+import com.tramchester.domain.places.NaptanRecord;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfigWithXMLNaptan;
 import com.tramchester.repository.naptan.NaptanStopType;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.TramStations;
-import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
 import java.util.List;
 import java.util.Optional;
@@ -52,10 +57,10 @@ class NaptanDataImporterTest {
     @Test
     void shouldLoadKnownBusStation() {
 
-        final String buryId = BuryInterchange.getId().forDTO();
+        IdFor<NaptanRecord> buryId = StringIdFor.convert(BuryInterchange.getId());
 
         Optional<NaptanStopData> foundKnown = loadedStops.stream().
-                filter(stop -> stop.getAtcoCode()!=null).
+                filter(stop -> stop.getAtcoCode().isValid()).
                 filter(stop -> stop.getAtcoCode().equals(buryId)).
                 findFirst();
 
@@ -65,9 +70,11 @@ class NaptanDataImporterTest {
     @Test
     void shouldLoadKnownTramStation() {
 
+        IdFor<NaptanRecord> id = StringIdFor.convert(TramStations.StPetersSquare.getId());
+
         Optional<NaptanStopData> foundKnown = loadedStops.stream().
-                filter(stop -> stop.getAtcoCode()!=null).
-                filter(stop -> stop.getAtcoCode().equals(TramStations.StPetersSquare.getId().forDTO())).
+                filter(stop -> stop.getAtcoCode().isValid()).
+                filter(stop -> stop.getAtcoCode().equals(id)).
                 findFirst();
         assertFalse(foundKnown.isEmpty());
 
@@ -77,9 +84,11 @@ class NaptanDataImporterTest {
 
     @Test
     void shouldContainOutofAreaStop() {
+        IdFor<NaptanRecord> id = StringIdFor.createId(TestEnv.BRISTOL_BUSSTOP_OCTOCODE);
+
         Optional<NaptanStopData> foundKnown = loadedStops.stream().
-                filter(stop -> stop.getAtcoCode()!=null).
-                filter(stop -> stop.getAtcoCode().equals(TestEnv.BRISTOL_BUSSTOP_OCTOCODE)).
+                filter(stop -> stop.getAtcoCode().isValid()).
+                filter(stop -> stop.getAtcoCode().equals(id)).
                 findFirst();
 
         assertFalse(foundKnown.isEmpty());

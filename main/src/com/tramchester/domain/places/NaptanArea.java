@@ -3,6 +3,7 @@ package com.tramchester.domain.places;
 import com.tramchester.domain.CoreDomain;
 import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.id.IdFor;
+import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.geo.GridPosition;
 import com.tramchester.geo.HasGridPosition;
 
@@ -15,6 +16,10 @@ public class NaptanArea implements HasGridPosition, HasId<NaptanArea>, CoreDomai
         this.id = id;
         this.name = name;
         this.gridPosition = gridPosition;
+    }
+
+    public static IdFor<NaptanArea> createId(String text) {
+        return StringIdFor.createId(text);
     }
 
     public String getName() {

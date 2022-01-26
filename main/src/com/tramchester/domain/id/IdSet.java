@@ -123,7 +123,7 @@ public class IdSet<T extends CoreDomain> implements Iterable<IdFor<T>> {
         };
     }
 
-    public static <T extends HasId<T> & CoreDomain> Collector<IdFor<T>, IdSet<T>, IdSet<T>> idCollector() {
+    public static <T extends CoreDomain> Collector<IdFor<T>, IdSet<T>, IdSet<T>> idCollector() {
         return new Collector<>() {
             @Override
             public Supplier<IdSet<T>> supplier() {
@@ -187,7 +187,12 @@ public class IdSet<T extends CoreDomain> implements Iterable<IdFor<T>> {
         return theSet.containsAll(other.theSet);
     }
 
-//    public Stream<IdFor<T>> parallelStream() {
-//        return theSet.parallelStream();
-//    }
+    /***
+     * primarily for test support
+     * @return a new list containing the idset
+     */
+    public List<IdFor<T>> toList() {
+        return new ArrayList<>(theSet);
+    }
+
 }

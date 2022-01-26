@@ -20,6 +20,9 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.util.List;
+
+import static com.tramchester.integration.testSupport.Assertions.assertIdEquals;
 import static org.junit.jupiter.api.Assertions.*;
 
 class NaptanRepositoryTest {
@@ -59,8 +62,10 @@ class NaptanRepositoryTest {
 
         NaptanRecord record = respository.getForActo(actoCode);
         assertEquals("Manchester Airport", record.getSuburb());
-        assertEquals(1, record.getAreaCodes().size());
-        assertEquals("180GMABS", record.getAreaCodes().get(0));
+
+        final List<IdFor<NaptanArea>> areaCodes = record.getAreaCodes().toList();
+        assertEquals(1, areaCodes.size());
+        assertIdEquals("180GMABS", areaCodes.get(0));
     }
 
     @Test
@@ -78,8 +83,11 @@ class NaptanRepositoryTest {
         assertEquals(record.getName(), "Macclesfield Rail Station");
         assertEquals(record.getSuburb(), "Macclesfield");
         assertEquals(record.getId(), StringIdFor.createId("9100MACLSFD"));
-        assertEquals(1, record.getAreaCodes().size());
-        assertEquals("910GMACLSFD", record.getAreaCodes().get(0));
+
+        final List<IdFor<NaptanArea>> areaCodes = record.getAreaCodes().toList();
+
+        assertEquals(1, areaCodes.size());
+        assertIdEquals("910GMACLSFD", areaCodes.get(0));
     }
 
     @Test
@@ -92,8 +100,10 @@ class NaptanRepositoryTest {
         assertEquals("Altrincham Rail Station", record.getName());
         assertEquals("Altrincham", record.getSuburb());
         assertEquals(StringIdFor.createId("9100ALTRNHM"), record.getId());
-        assertEquals(1, record.getAreaCodes().size());
-        assertEquals("910GALTRNHM", record.getAreaCodes().get(0));
+
+        final List<IdFor<NaptanArea>> areaCodes = record.getAreaCodes().toList();
+        assertEquals(1, areaCodes.size());
+        assertIdEquals("910GALTRNHM", areaCodes.get(0));
     }
 
     @Test
@@ -120,8 +130,10 @@ class NaptanRepositoryTest {
 
         assertEquals("Altrincham (Manchester Metrolink)", record.getName());
         assertEquals("Altrincham", record.getSuburb());
-        assertEquals(1, record.getAreaCodes().size());
-        assertEquals("940GZZMAALT", record.getAreaCodes().get(0));
+
+        final List<IdFor<NaptanArea>> areaCodes = record.getAreaCodes().toList();
+        assertEquals(1, areaCodes.size());
+        assertIdEquals("940GZZMAALT", areaCodes.get(0));
     }
 
     @Test

@@ -111,8 +111,7 @@ public class NaptanRespository {
         logger.info("Load naptan stop reference data");
 
         Stream<NaptanStopData> stopsData = naptanDataImporter.getStopsData().
-                filter(stopData -> stopData.getAtcoCode() != null).
-                filter(stopData -> !stopData.getAtcoCode().isBlank());
+                filter(stopData -> stopData.getAtcoCode().isValid());
 
         stops = filterBy(bounds, margin, stopsData).
                 map(this::createRecord).
@@ -130,17 +129,15 @@ public class NaptanRespository {
 
         Stream<NaptanStopData> railStops = naptanDataImporter.getStopsData().
                 filter(NaptanStopData::hasRailInfo).
-                filter(stopData -> stopData.getAtcoCode() != null).
-                filter(stopData -> !stopData.getAtcoCode().isBlank());
+                filter(stopData -> stopData.getAtcoCode().isValid());
 
         tiplocToAtco = filterBy(bounds, margin, railStops)
-                .collect(Collectors.toMap(data -> StringIdFor.createId(data.getRailInfo().getTiploc()),
-                        data -> StringIdFor.createId(data.getAtcoCode())));
+                .collect(Collectors.toMap(data -> StringIdFor.createId(data.getRailInfo().getTiploc()), NaptanStopData::getAtcoCode));
         logger.info("Loaded " + tiplocToAtco.size() + " stations");
     }
 
     private NaptanRecord createRecord(NaptanStopData original) {
-        IdFor<NaptanRecord> id = StringIdFor.createId(original.getAtcoCode());
+        IdFor<NaptanRecord> id = original.getAtcoCode();
 
         String suburb = original.getSuburb();
         String town = original.getTown();

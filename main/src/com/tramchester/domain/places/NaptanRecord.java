@@ -3,6 +3,7 @@ package com.tramchester.domain.places;
 import com.tramchester.domain.CoreDomain;
 import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.id.IdFor;
+import com.tramchester.domain.id.IdSet;
 import com.tramchester.geo.GridPosition;
 import com.tramchester.repository.naptan.NaptanStopType;
 
@@ -56,7 +57,8 @@ public class NaptanRecord implements HasId<NaptanRecord>, CoreDomain {
     /***
      * @return the id's for the StopArea's associated with this stop/station/location
      */
-    public List<String> getAreaCodes() {
-        return stopAreaCodes;
+    public IdSet<NaptanArea> getAreaCodes() {
+        return stopAreaCodes.stream().map(NaptanArea::createId).collect(IdSet.idCollector());
     }
+
 }

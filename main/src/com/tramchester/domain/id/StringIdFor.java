@@ -19,6 +19,12 @@ public class StringIdFor<T extends CoreDomain> implements IdFor<T> {
     }
 
     public static <C extends CoreDomain> IdFor<C> createId(String text) {
+        if (text==null) {
+            return invalid();
+        }
+        if (text.isBlank()) {
+            return invalid();
+        }
         if (CompositeId.isComposite(text)) {
             return CompositeId.parse(text);
         }
@@ -31,7 +37,7 @@ public class StringIdFor<T extends CoreDomain> implements IdFor<T> {
 
     public static <FROM extends CoreDomain,TO extends CoreDomain> IdFor<TO> convert(IdFor<FROM> actoCode) {
         if (!(actoCode instanceof StringIdFor)) {
-            throw new RuntimeException(actoCode.forDTO() + " is not a StringIdFor");
+            throw new RuntimeException(actoCode + " is not a StringIdFor");
         }
         StringIdFor<FROM> other = (StringIdFor<FROM>) actoCode;
         return StringIdFor.createId(other.theId);
