@@ -21,7 +21,7 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-public class CompositeStation implements Station {
+public class GroupedStations implements Station {
 
     // TODO
     private final Set<Station> containedStations;
@@ -32,7 +32,7 @@ public class CompositeStation implements Station {
     private final LatLong latLong;
     private final DataSourceID dataSourceId;
 
-    public CompositeStation(Set<Station> containedStations, String area, String name, int minChangeCost) {
+    public GroupedStations(Set<Station> containedStations, String area, String name, int minChangeCost) {
         this.id = computeStationId(containedStations);
         this.latLong = computeLatLong(containedStations);
         this.dataSourceId = computeDataSourceId(containedStations);
@@ -43,15 +43,15 @@ public class CompositeStation implements Station {
     }
 
     public static Set<Station> expandStations(Collection<Station> stations) {
-        return stations.stream().flatMap(CompositeStation::expandStation).collect(Collectors.toSet());
+        return stations.stream().flatMap(GroupedStations::expandStation).collect(Collectors.toSet());
     }
 
     private static Stream<Station> expandStation(Station station) {
-        if (!(station instanceof CompositeStation)) {
+        if (!(station instanceof GroupedStations)) {
             return Stream.of(station);
         }
 
-        CompositeStation compositeStation = (CompositeStation) station;
+        GroupedStations compositeStation = (GroupedStations) station;
         return Streams.concat(compositeStation.getContained().stream(), Stream.of(station));
     }
 

@@ -5,7 +5,7 @@ import com.tramchester.ComponentsBuilder;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.Journey;
 import com.tramchester.domain.JourneyRequest;
-import com.tramchester.domain.places.CompositeStation;
+import com.tramchester.domain.places.GroupedStations;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.TransportStage;
 import com.tramchester.domain.time.TramServiceDate;
@@ -80,7 +80,7 @@ public class AllModesJourneysTest {
 
     @Test
     void shouldHaveBusToTram() {
-        CompositeStation stockport = compositeStationRepository.findByName(BusStations.Composites.StockportTempBusStation.getName());
+        GroupedStations stockport = compositeStationRepository.findByName(BusStations.Composites.StockportTempBusStation.getName());
         Station alty = compositeStationRepository.getStationById(TramStations.Altrincham.getId());
 
         TramTime travelTime = TramTime.of(9, 0);
@@ -110,8 +110,8 @@ public class AllModesJourneysTest {
     @Test
     void shouldHaveStockToAltyBusJourney() {
 
-        CompositeStation stockport = compositeStationRepository.findByName(BusStations.Composites.StockportTempBusStation.getName());
-        CompositeStation alty = compositeStationRepository.findByName(BusStations.Composites.AltrinchamInterchange.getName());
+        GroupedStations stockport = compositeStationRepository.findByName(BusStations.Composites.StockportTempBusStation.getName());
+        GroupedStations alty = compositeStationRepository.findByName(BusStations.Composites.AltrinchamInterchange.getName());
 
         TramTime travelTime = TramTime.of(9, 0);
 

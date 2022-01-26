@@ -4,7 +4,7 @@ import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdSet;
-import com.tramchester.domain.places.CompositeStation;
+import com.tramchester.domain.places.GroupedStations;
 import com.tramchester.domain.places.Station;
 import com.tramchester.integration.testSupport.bus.IntegrationBusTestConfig;
 import com.tramchester.repository.CompositeStationRepository;
@@ -27,7 +27,7 @@ import static com.tramchester.testSupport.reference.BusStations.ManchesterAirpor
 import static org.junit.jupiter.api.Assertions.*;
 
 @BusTest
-class CompositeStationRepositoryTest {
+class GroupedStationsRepositoryTest {
     private CompositeStationRepository repository;
     private StationRepository fullRepository;
 
@@ -69,12 +69,12 @@ class CompositeStationRepositoryTest {
     @Test
     void shouldFindExpectedCompositeStations() {
         assertNotNull(repository.findByName("Shudehill Interchange"));
-        final CompositeStation compositeStation = repository.findByName(BusStations.Composites.AltrinchamInterchange.getName());
-        assertNotNull(compositeStation);
+        final GroupedStations groupedStations = repository.findByName(BusStations.Composites.AltrinchamInterchange.getName());
+        assertNotNull(groupedStations);
 
-        assertTrue(compositeStation.isComposite());
-        assertEquals("Altrincham", compositeStation.getArea());
-        assertEquals(2, compositeStation.getMinimumChangeCost());
+        assertTrue(groupedStations.isComposite());
+        assertEquals("Altrincham", groupedStations.getArea());
+        assertEquals(2, groupedStations.getMinimumChangeCost());
     }
 
     @Test
@@ -104,7 +104,7 @@ class CompositeStationRepositoryTest {
 
     @Test
     void shouldHaveAndFindCorrectlyForComposites() {
-        Set<CompositeStation> compositesFor = repository.getCompositesServing(Bus);
+        Set<GroupedStations> compositesFor = repository.getCompositesServing(Bus);
         assertFalse(compositesFor.isEmpty());
 
         compositesFor.forEach(station -> {

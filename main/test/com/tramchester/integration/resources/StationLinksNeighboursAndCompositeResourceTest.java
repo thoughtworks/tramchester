@@ -3,7 +3,7 @@ package com.tramchester.integration.resources;
 import com.tramchester.App;
 import com.tramchester.GuiceContainerDependencies;
 import com.tramchester.config.AppConfiguration;
-import com.tramchester.domain.places.CompositeStation;
+import com.tramchester.domain.places.GroupedStations;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.DTO.StationGroupDTO;
 import com.tramchester.domain.presentation.DTO.StationLinkDTO;
@@ -41,7 +41,7 @@ class StationLinksNeighboursAndCompositeResourceTest {
     private static final IntegrationAppExtension appExtension = new IntegrationAppExtension(App.class, configuration);
     private static GuiceContainerDependencies dependencies;
 
-    private CompositeStation shudehillCompositeBus;
+    private GroupedStations shudehillCompositeBus;
     private Station shudehillTram;
     private CompositeStationRepository compositeStationRepository;
 
@@ -106,7 +106,7 @@ class StationLinksNeighboursAndCompositeResourceTest {
     @Test
     void shouldGetCompositeStations() {
         final String altrinchamInterchange = BusStations.Composites.AltrinchamInterchange.getName();
-        CompositeStation actualComposite = compositeStationRepository.findByName(altrinchamInterchange);
+        GroupedStations actualComposite = compositeStationRepository.findByName(altrinchamInterchange);
         Set<String> expectedIds = actualComposite.getContained().stream().
                 map(Station::forDTO).
                 collect(Collectors.toSet());

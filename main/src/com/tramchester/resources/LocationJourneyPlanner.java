@@ -4,7 +4,7 @@ import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.Journey;
 import com.tramchester.domain.NumberOfChanges;
-import com.tramchester.domain.places.CompositeStation;
+import com.tramchester.domain.places.GroupedStations;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.places.StationWalk;
 import com.tramchester.domain.presentation.LatLong;
@@ -249,7 +249,7 @@ public class LocationJourneyPlanner {
             return Collections.emptySet();
         }
 
-        List<Station> filtered = CompositeStation.expandStations(nearbyStationsWithComposites).stream()
+        List<Station> filtered = GroupedStations.expandStations(nearbyStationsWithComposites).stream()
                 .filter(station -> !station.isComposite())
                 .filter(graphFilter::shouldInclude).collect(Collectors.toList());
 

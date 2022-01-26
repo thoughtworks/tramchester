@@ -2,7 +2,7 @@ package com.tramchester.graph.graphbuild;
 
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.config.TramchesterConfig;
-import com.tramchester.domain.places.CompositeStation;
+import com.tramchester.domain.places.GroupedStations;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.geo.CoordinateTransforms;
@@ -81,7 +81,7 @@ public class CompositeStationGraphBuilder extends CreateNodesAndRelationships {
     }
 
     private void addCompositeNodesAndLinks(TransportMode mode) {
-        Set<CompositeStation> allComposite = stationRepository.getCompositesServing(mode);
+        Set<GroupedStations> allComposite = stationRepository.getCompositesServing(mode);
 
         if (allComposite.isEmpty()) {
             logger.info("No composite stations to add for " + mode);
@@ -101,18 +101,18 @@ public class CompositeStationGraphBuilder extends CreateNodesAndRelationships {
         }
     }
 
-    private boolean shouldInclude(CompositeStation station) {
+    private boolean shouldInclude(GroupedStations station) {
         return graphFilter.shouldIncludeRoutes(station.getPickupRoutes()) ||
                 graphFilter.shouldIncludeRoutes(station.getDropoffRoutes());
     }
 
-    private Node createGroupedStationNodes(Transaction txn, CompositeStation compositeStation) {
+    private Node createGroupedStationNodes(Transaction txn, GroupedStations groupedStations) {
         Node stationNode = createGraphNode(txn, GraphLabel.GROUPED);
-        setProperty(stationNode, compositeStation);
+        setProperty(stationNode, groupedStations);
         return stationNode;
     }
 
-    private void linkStations(Transaction txn, Node parentNode, CompositeStation parent) {
+    private void linkStations(Transaction txn, Node parentNode, GroupedStations parent) {
         Set<Station> contained = parent.getContained();
         double mph = config.getWalkingMPH();
 

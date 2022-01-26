@@ -15,7 +15,7 @@ import org.junit.jupiter.api.Test;
 import static com.tramchester.domain.reference.TransportMode.Tram;
 import static org.junit.jupiter.api.Assertions.*;
 
-class CompositeStationRepositoryTest {
+class GroupedStationsRepositoryTest {
 
     private static GuiceContainerDependencies componentContainer;
     private CompositeStationRepository repository;

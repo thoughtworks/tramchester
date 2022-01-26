@@ -5,7 +5,7 @@ import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.Journey;
 import com.tramchester.domain.JourneyRequest;
 import com.tramchester.domain.NumberOfChanges;
-import com.tramchester.domain.places.CompositeStation;
+import com.tramchester.domain.places.GroupedStations;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.places.StationWalk;
 import com.tramchester.domain.time.CreateQueryTimes;
@@ -123,7 +123,7 @@ public class RouteCalculator extends RouteCalculatorSupport implements TramRoute
             return Stream.empty();
         }
 
-        final Set<Station> destinations = CompositeStation.expandStations(unexpanded);
+        final Set<Station> destinations = GroupedStations.expandStations(unexpanded);
         if (destinations.size()!=unexpanded.size()) {
             logger.info("Expanded (composite) destinations from " + unexpanded.size() + " to " + destinations.size());
         }

@@ -4,7 +4,7 @@ import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.Journey;
-import com.tramchester.domain.places.CompositeStation;
+import com.tramchester.domain.places.GroupedStations;
 import com.tramchester.domain.time.TramServiceDate;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.GraphDatabase;
@@ -77,7 +77,7 @@ class LocationJourneyPlannerBusTest {
         JourneyRequest journeyRequest = new JourneyRequest(new TramServiceDate(nextMonday), travelTime, false, 3,
                 maxDuration, 1);
 
-        CompositeStation end = compositeStationRepository.findByName(Composites.StockportTempBusStation.getName());
+        GroupedStations end = compositeStationRepository.findByName(Composites.StockportTempBusStation.getName());
 
         Set<Journey> results = planner.quickestRouteForLocation(nearAltrinchamInterchange, end, journeyRequest, 5);
 
@@ -87,7 +87,7 @@ class LocationJourneyPlannerBusTest {
     @Test
     void shouldHaveSimpleBusAndWalk() {
 
-        CompositeStation stockportBusStation = compositeStationRepository.findByName(Composites.StockportTempBusStation.getName());
+        GroupedStations stockportBusStation = compositeStationRepository.findByName(Composites.StockportTempBusStation.getName());
 
         TramTime travelTime = TramTime.of(8, 0);
 
@@ -103,7 +103,7 @@ class LocationJourneyPlannerBusTest {
     @Test
     void shouldFindAltyToKnutford() {
 
-        CompositeStation alty = compositeStationRepository.findByName(Composites.AltrinchamInterchange.getName());
+        GroupedStations alty = compositeStationRepository.findByName(Composites.AltrinchamInterchange.getName());
 
         TramTime travelTime = TramTime.of(10, 30);
 

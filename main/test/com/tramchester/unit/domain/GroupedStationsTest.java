@@ -4,7 +4,7 @@ import com.tramchester.domain.*;
 import com.tramchester.domain.id.CompositeId;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.id.StringIdFor;
-import com.tramchester.domain.places.CompositeStation;
+import com.tramchester.domain.places.GroupedStations;
 import com.tramchester.domain.places.LocationType;
 import com.tramchester.domain.places.MutableStation;
 import com.tramchester.domain.places.Station;
@@ -23,7 +23,7 @@ import static com.tramchester.domain.reference.TransportMode.Bus;
 import static com.tramchester.domain.reference.TransportMode.Tram;
 import static org.junit.jupiter.api.Assertions.*;
 
-class CompositeStationTest {
+class GroupedStationsTest {
 
     private final DataSourceID dataSourceID = DataSourceID.tfgm;
 
@@ -39,32 +39,32 @@ class CompositeStationTest {
         Platform platform = MutablePlatform.buildForTFGMTram("platformId", "platformName", latLong);
         stationA.addPlatform(platform);
 
-        CompositeStation compositeStation = new CompositeStation(Collections.singleton(stationA), "compArea",
+        GroupedStations groupedStations = new GroupedStations(Collections.singleton(stationA), "compArea",
                 "compName",1);
 
-        assertEquals(LocationType.CompositeStation, compositeStation.getLocationType());
+        assertEquals(LocationType.CompositeStation, groupedStations.getLocationType());
 
-        assertEquals("compName", compositeStation.getName());
+        assertEquals("compName", groupedStations.getName());
         IdSet<Station> expected = IdSet.singleton(Station.createId("id"));
-        assertEquals(new CompositeId<>(expected), compositeStation.getId());
-        assertEquals(-2.0, compositeStation.getLatLong().getLat(),0);
-        assertEquals(2.3, compositeStation.getLatLong().getLon(),0);
-        assertEquals("compArea", compositeStation.getArea());
+        assertEquals(new CompositeId<>(expected), groupedStations.getId());
+        assertEquals(-2.0, groupedStations.getLatLong().getLat(),0);
+        assertEquals(2.3, groupedStations.getLatLong().getLon(),0);
+        assertEquals("compArea", groupedStations.getArea());
 
-        assertEquals("[id]", compositeStation.forDTO());
-        assertEquals("[id]", compositeStation.getId().getGraphId());
-        assertEquals("[id]", compositeStation.getId().forDTO());
+        assertEquals("[id]", groupedStations.forDTO());
+        assertEquals("[id]", groupedStations.getId().getGraphId());
+        assertEquals("[id]", groupedStations.getId().forDTO());
 
-        assertTrue(compositeStation.hasPlatforms());
-        assertEquals(Collections.singleton(platform), compositeStation.getPlatforms());
-        assertEquals(Collections.singleton(route), compositeStation.getPickupRoutes());
+        assertTrue(groupedStations.hasPlatforms());
+        assertEquals(Collections.singleton(platform), groupedStations.getPlatforms());
+        assertEquals(Collections.singleton(route), groupedStations.getPickupRoutes());
 
-        assertEquals(1, compositeStation.getTransportModes().size());
-        assertTrue(compositeStation.servesMode(Tram));
+        assertEquals(1, groupedStations.getTransportModes().size());
+        assertTrue(groupedStations.servesMode(Tram));
 
-        assertEquals(1, compositeStation.getAgencies().size());
+        assertEquals(1, groupedStations.getAgencies().size());
 
-        Set<Station> containted = compositeStation.getContained();
+        Set<Station> containted = groupedStations.getContained();
         assertEquals(1, containted.size());
         assertTrue(containted.contains(stationA));
     }
@@ -88,29 +88,29 @@ class CompositeStationTest {
         stationB.addPlatform(platformB);
 
         Set<Station> stations = new HashSet<>(Arrays.asList(stationA, stationB));
-        CompositeStation compositeStation = new CompositeStation(stations, "compArea", "compName",12);
+        GroupedStations groupedStations = new GroupedStations(stations, "compArea", "compName",12);
 
-        assertEquals(LocationType.CompositeStation, compositeStation.getLocationType());
+        assertEquals(LocationType.CompositeStation, groupedStations.getLocationType());
 
-        assertEquals("compName", compositeStation.getName());
+        assertEquals("compName", groupedStations.getName());
         IdSet<Station> expected = Stream.of("idB", "idA").map(Station::createId).collect(IdSet.idCollector());
-        assertEquals(new CompositeId<>(expected), compositeStation.getId());
-        assertEquals("[idA_idB]", compositeStation.forDTO());
-        assertEquals("[idA_idB]", compositeStation.getId().getGraphId());
-        assertEquals("[idA_idB]", compositeStation.getId().forDTO());
+        assertEquals(new CompositeId<>(expected), groupedStations.getId());
+        assertEquals("[idA_idB]", groupedStations.forDTO());
+        assertEquals("[idA_idB]", groupedStations.getId().getGraphId());
+        assertEquals("[idA_idB]", groupedStations.getId().forDTO());
 
-        assertEquals(3, compositeStation.getLatLong().getLat(),0);
-        assertEquals(6, compositeStation.getLatLong().getLon(),0);
-        assertEquals("compArea", compositeStation.getArea());
-        assertEquals(2, compositeStation.getTransportModes().size());
-        assertTrue(compositeStation.servesMode(Tram));
-        assertTrue(compositeStation.servesMode(Bus));
+        assertEquals(3, groupedStations.getLatLong().getLat(),0);
+        assertEquals(6, groupedStations.getLatLong().getLon(),0);
+        assertEquals("compArea", groupedStations.getArea());
+        assertEquals(2, groupedStations.getTransportModes().size());
+        assertTrue(groupedStations.servesMode(Tram));
+        assertTrue(groupedStations.servesMode(Bus));
 
-        assertEquals(2, compositeStation.getDropoffRoutes().size());
-        assertEquals(1, compositeStation.getPickupRoutes().size());
-        assertEquals(2, compositeStation.getAgencies().size());
+        assertEquals(2, groupedStations.getDropoffRoutes().size());
+        assertEquals(1, groupedStations.getPickupRoutes().size());
+        assertEquals(2, groupedStations.getAgencies().size());
 
-        Set<Station> containted = compositeStation.getContained();
+        Set<Station> containted = groupedStations.getContained();
         assertEquals(2, containted.size());
         assertTrue(containted.contains(stationA));
         assertTrue(containted.contains(stationB));
@@ -129,16 +129,16 @@ class CompositeStationTest {
                 "routeNameB", TestEnv.StagecoachManchester, Bus);
 
         Set<Station> stations = new HashSet<>(Arrays.asList(stationA, stationB));
-        CompositeStation compositeStation = new CompositeStation(stations, "compArea", "compName",11);
+        GroupedStations groupedStations = new GroupedStations(stations, "compArea", "compName",11);
 
-        assertFalse(compositeStation.hasPickup());
-        assertFalse(compositeStation.hasDropoff());
+        assertFalse(groupedStations.hasPickup());
+        assertFalse(groupedStations.hasDropoff());
 
         stationA.addRouteDropOff(routeA);
-        assertTrue(compositeStation.hasDropoff());
+        assertTrue(groupedStations.hasDropoff());
 
         stationB.addRoutePickUp(routeB);
-        assertTrue(compositeStation.hasPickup());
+        assertTrue(groupedStations.hasPickup());
 
     }
 
@@ -153,11 +153,11 @@ class CompositeStationTest {
         MutableStation stationB = TestStation.forTest("idB", "areaB", "stopNameB",
                 positionB, Bus, dataSourceID);
 
-        CompositeStation compositeStation = new CompositeStation( new HashSet<>(Arrays.asList(stationA, stationB)),
+        GroupedStations groupedStations = new GroupedStations( new HashSet<>(Arrays.asList(stationA, stationB)),
                 "compArea", "compName", 42);
 ;
 
-        assertEquals(42, compositeStation.getMinimumChangeCost());
+        assertEquals(42, groupedStations.getMinimumChangeCost());
     }
 
 }

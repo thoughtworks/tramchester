@@ -2,7 +2,7 @@ package com.tramchester.integration.dataimport;
 
 import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
-import com.tramchester.domain.places.CompositeStation;
+import com.tramchester.domain.places.GroupedStations;
 import com.tramchester.domain.places.Station;
 import com.tramchester.integration.testSupport.bus.IntegrationBusTestConfig;
 import com.tramchester.repository.CompositeStationRepository;
@@ -73,7 +73,7 @@ class ValidateBusTestStations {
         List<BusStations.Composites> composites = Arrays.asList(BusStations.Composites.values());
 
         composites.forEach(enumValue -> {
-            CompositeStation found = compositeStationRepository.findByName(enumValue.getName());
+            GroupedStations found = compositeStationRepository.findByName(enumValue.getName());
             assertNotNull(found, enumValue.getName());
             assertTrue(found.getContained().size()>1);
         });

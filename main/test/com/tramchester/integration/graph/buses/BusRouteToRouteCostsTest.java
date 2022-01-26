@@ -8,7 +8,7 @@ import com.tramchester.domain.NumberOfChanges;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.StringIdFor;
-import com.tramchester.domain.places.CompositeStation;
+import com.tramchester.domain.places.GroupedStations;
 import com.tramchester.domain.places.Station;
 import com.tramchester.graph.search.RouteToRouteCosts;
 import com.tramchester.integration.testSupport.bus.IntegrationBusTestConfig;
@@ -65,8 +65,8 @@ public class BusRouteToRouteCostsTest {
 
     @Test
     void shouldGetNumberOfRouteHopsBetweenAltrinchamStockport() {
-        CompositeStation start = compositeStationRepository.findByName(Composites.AltrinchamInterchange.getName());
-        CompositeStation end = compositeStationRepository.findByName(Composites.StockportTempBusStation.getName());
+        GroupedStations start = compositeStationRepository.findByName(Composites.AltrinchamInterchange.getName());
+        GroupedStations end = compositeStationRepository.findByName(Composites.StockportTempBusStation.getName());
 
         // one for the temp stockport bus station, was zero, seems direct alty buses terminating somewhere else
         assertEquals(1, routeToRouteCosts.getNumberOfChanges(start, end).getMin());
@@ -74,8 +74,8 @@ public class BusRouteToRouteCostsTest {
 
     @Test
     void shouldGetNumberOfRouteHopsBetweenAltrinchamShudehill() {
-        CompositeStation start = compositeStationRepository.findByName(Composites.AltrinchamInterchange.getName());
-        CompositeStation end = compositeStationRepository.findByName("Shudehill Interchange");
+        GroupedStations start = compositeStationRepository.findByName(Composites.AltrinchamInterchange.getName());
+        GroupedStations end = compositeStationRepository.findByName("Shudehill Interchange");
 
         NumberOfChanges numberOfChanges = routeToRouteCosts.getNumberOfChanges(start, end);
         assertEquals(1, numberOfChanges.getMin());
@@ -85,7 +85,7 @@ public class BusRouteToRouteCostsTest {
     @Test
     void shouldGetNumberOfRouteHopsBetweenKnutsfordAndShudehill() {
         Station start = compositeStationRepository.getStationById(BusStations.KnutsfordStationStand3.getId());
-        CompositeStation end = compositeStationRepository.findByName("Shudehill Interchange");
+        GroupedStations end = compositeStationRepository.findByName("Shudehill Interchange");
 
         NumberOfChanges numberOfChanges = routeToRouteCosts.getNumberOfChanges(start, end);
 

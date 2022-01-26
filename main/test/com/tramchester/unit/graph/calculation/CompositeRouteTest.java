@@ -6,7 +6,7 @@ import com.tramchester.DiagramCreator;
 import com.tramchester.domain.Journey;
 import com.tramchester.domain.Service;
 import com.tramchester.domain.id.StringIdFor;
-import com.tramchester.domain.places.CompositeStation;
+import com.tramchester.domain.places.GroupedStations;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.TransportStage;
 import com.tramchester.domain.time.TramServiceDate;
@@ -48,9 +48,9 @@ class CompositeRouteTest {
 
     private TramServiceDate queryDate;
     private Transaction txn;
-    private CompositeStation startCompositeStation;
+    private GroupedStations startCompositeStation;
     private TramTime queryTime;
-    private CompositeStation fourthStationComposite;
+    private GroupedStations fourthStationComposite;
     private LocationJourneyPlannerTestFacade locationJourneyPlanner;
 
     @BeforeAll
@@ -134,7 +134,7 @@ class CompositeRouteTest {
     void shouldHaveJourneyFromComposite() {
         JourneyRequest journeyRequest = createJourneyRequest(queryTime, 0);
 
-        final CompositeStation start = startCompositeStation;
+        final GroupedStations start = startCompositeStation;
         final Station destination = transportData.getInterchange();
 
         Set<Journey> journeys = calculator.calculateRoute(txn, start, destination, journeyRequest).

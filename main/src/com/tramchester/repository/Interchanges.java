@@ -8,7 +8,7 @@ import com.tramchester.domain.StationLink;
 import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdSet;
-import com.tramchester.domain.places.CompositeStation;
+import com.tramchester.domain.places.GroupedStations;
 import com.tramchester.domain.places.InterchangeStation;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
@@ -146,7 +146,7 @@ public class Interchanges implements InterchangeRepository {
     private void addCompositeStations(TransportMode mode, int compositeThreshhold) {
         logger.info("Adding composite stations as interchanges with threshhold " + compositeThreshhold);
 
-        Set<CompositeStation> composites = compositeStationRepository.getCompositesServing(mode);
+        Set<GroupedStations> composites = compositeStationRepository.getCompositesServing(mode);
         if (composites.isEmpty()) {
             logger.info("No composites to add");
             return;

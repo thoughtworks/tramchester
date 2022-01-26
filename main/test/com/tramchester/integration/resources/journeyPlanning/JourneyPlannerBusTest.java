@@ -3,7 +3,7 @@ package com.tramchester.integration.resources.journeyPlanning;
 
 import com.tramchester.App;
 import com.tramchester.domain.id.HasId;
-import com.tramchester.domain.places.CompositeStation;
+import com.tramchester.domain.places.GroupedStations;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.DTO.ConfigDTO;
 import com.tramchester.domain.presentation.DTO.JourneyDTO;
@@ -47,7 +47,7 @@ class JourneyPlannerBusTest {
     private LocalDate when;
     private JourneyResourceTestFacade journeyResourceTestFacade;
     private CompositeStationRepository compositeStationRepository;
-    private CompositeStation stockportBusStation;
+    private GroupedStations stockportBusStation;
 
     @BeforeEach
     void beforeEachTestRuns() {

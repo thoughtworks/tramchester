@@ -3,7 +3,7 @@ package com.tramchester.integration.graph.neighbours;
 import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.config.TramchesterConfig;
-import com.tramchester.domain.places.CompositeStation;
+import com.tramchester.domain.places.GroupedStations;
 import com.tramchester.domain.places.Station;
 import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.GraphQuery;
@@ -35,7 +35,7 @@ import static org.neo4j.graphdb.Direction.OUTGOING;
 class AddNeighboursGraphBuilderTest {
 
     private static GraphDatabase graphDatabase;
-    private CompositeStation shudehillCompositeBus;
+    private GroupedStations shudehillCompositeBus;
     private Station shudehillTram;
 
     private static ComponentContainer componentContainer;

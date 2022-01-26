@@ -8,7 +8,7 @@ import com.tramchester.domain.StationPair;
 import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdSet;
-import com.tramchester.domain.places.CompositeStation;
+import com.tramchester.domain.places.GroupedStations;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.geo.CoordinateTransforms;
@@ -44,8 +44,8 @@ public class CompositeStationRepository implements StationRepositoryPublic {
     private final IdSet<Station> isUnderlyingStationComposite;
 
     // TODO use IdMap<CompositeStation>
-    private final Map<IdFor<Station>, CompositeStation> compositeStations;
-    private final Map<String, CompositeStation> compositeStationsByName;
+    private final Map<IdFor<Station>, GroupedStations> compositeStations;
+    private final Map<String, GroupedStations> compositeStationsByName;
 
     @Inject
     public CompositeStationRepository(StationRepository stationRepository, TramchesterConfig config,
@@ -152,10 +152,10 @@ public class CompositeStationRepository implements StationRepositoryPublic {
 
         String compositeName = attemptUnqiueName(nonUniqueName, area, stationsToGroup);
         int minChangeCost = computeMinChangeCost(stationsToGroup);
-        CompositeStation compositeStation = new CompositeStation(stationsToGroup, area, compositeName, minChangeCost);
+        GroupedStations groupedStations = new GroupedStations(stationsToGroup, area, compositeName, minChangeCost);
 
-        compositeStations.put(compositeStation.getId(), compositeStation);
-        compositeStationsByName.putIfAbsent(compositeName, compositeStation); // see attemptUnqiueName, might fail to get unique name
+        compositeStations.put(groupedStations.getId(), groupedStations);
+        compositeStationsByName.putIfAbsent(compositeName, groupedStations); // see attemptUnqiueName, might fail to get unique name
 
         stationsToGroup.stream().map(Station::getId).collect(IdSet.idCollector()).forEach(isUnderlyingStationComposite::add);
     }
@@ -234,17 +234,17 @@ public class CompositeStationRepository implements StationRepositoryPublic {
         return compositeStations.size();
     }
 
-    public Set<CompositeStation> getCompositesServing(TransportMode mode) {
+    public Set<GroupedStations> getCompositesServing(TransportMode mode) {
         return compositeStations.values().stream().
                 filter(station -> station.servesMode(mode)).
                 collect(Collectors.toSet());
     }
 
-    public CompositeStation findByName(String name) {
+    public GroupedStations findByName(String name) {
         return compositeStationsByName.get(name);
     }
 
-    public Set<CompositeStation> getAllComposites() {
+    public Set<GroupedStations> getAllComposites() {
         return new HashSet<>(compositeStations.values());
     }
 }

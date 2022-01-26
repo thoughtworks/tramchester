@@ -1,6 +1,6 @@
 package com.tramchester.domain.presentation.DTO;
 
-import com.tramchester.domain.places.CompositeStation;
+import com.tramchester.domain.places.GroupedStations;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -45,9 +45,9 @@ public class StationGroupDTO {
         return result;
     }
 
-    public static StationGroupDTO create(CompositeStation compositeStation) {
-        StationRefWithPosition parent = new StationRefWithPosition(compositeStation);
-        List<StationRefWithPosition> contained = compositeStation.getContained().stream().
+    public static StationGroupDTO create(GroupedStations groupedStations) {
+        StationRefWithPosition parent = new StationRefWithPosition(groupedStations);
+        List<StationRefWithPosition> contained = groupedStations.getContained().stream().
                 map(StationRefWithPosition::new).collect(Collectors.toList());
         return new StationGroupDTO(parent, contained);
     }
