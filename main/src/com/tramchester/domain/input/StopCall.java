@@ -1,6 +1,5 @@
 package com.tramchester.domain.input;
 
-import com.tramchester.dataimport.data.StopTimeData;
 import com.tramchester.domain.Platform;
 import com.tramchester.domain.Service;
 import com.tramchester.domain.id.HasId;
@@ -22,11 +21,6 @@ public abstract class StopCall {
     private final GTFSPickupDropoffType dropoffType;
     private final int dwellTime;
     private final boolean intoNextDay;
-
-    protected StopCall(Station station, StopTimeData stopTimeData, Trip trip) {
-        this(station, stopTimeData.getArrivalTime(), stopTimeData.getDepartureTime(), stopTimeData.getStopSequence(),
-                stopTimeData.getPickupType(), stopTimeData.getDropOffType(), trip);
-    }
 
     protected StopCall(Station station, TramTime arrivalTime, TramTime departureTime, int sequenceNumber, GTFSPickupDropoffType pickupType,
                        GTFSPickupDropoffType dropoffType, Trip trip) {

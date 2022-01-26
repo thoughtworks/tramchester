@@ -1,7 +1,6 @@
 package com.tramchester.testSupport.reference;
 
 import com.netflix.governator.guice.lazy.LazySingleton;
-import com.tramchester.dataimport.data.StopTimeData;
 import com.tramchester.dataimport.loader.TransportDataFactory;
 import com.tramchester.domain.*;
 import com.tramchester.domain.id.IdFor;
@@ -264,9 +263,11 @@ public class TramTransportDataForTestFactory implements TransportDataFactory {
                 format("%s platform 1", station.getName()), "1", station.getLatLong());
         container.addPlatform(platform);
         station.addPlatform(platform);
-        StopTimeData stopTimeData = StopTimeData.forTestOnly(trip.getId().forDTO(), arrivalTime, departureTime, platformId,sequenceNum,
-                GTFSPickupDropoffType.Regular, GTFSPickupDropoffType.Regular);
-        return new PlatformStopCall(trip, platform, station, stopTimeData);
+//        StopTimeData stopTimeData = StopTimeData.forTestOnly(trip.getId().forDTO(), arrivalTime, departureTime, platformId,sequenceNum,
+//                GTFSPickupDropoffType.Regular, GTFSPickupDropoffType.Regular);
+        return new PlatformStopCall(platform, station, arrivalTime, departureTime, sequenceNum,
+                GTFSPickupDropoffType.Regular, GTFSPickupDropoffType.Regular, trip);
+//        return new PlatformStopCall(trip, platform, station, stopTimeData);
     }
 
     public static class TramTransportDataForTest extends TransportDataContainer {

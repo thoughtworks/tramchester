@@ -42,6 +42,7 @@ import java.util.stream.Stream;
 
 import static com.tramchester.domain.reference.CentralZoneStation.StPetersSquare;
 import static com.tramchester.domain.reference.CentralZoneStation.TraffordBar;
+import static com.tramchester.integration.testSupport.Assertions.assertIdEquals;
 import static com.tramchester.testSupport.TestEnv.DAYS_AHEAD;
 import static com.tramchester.testSupport.TransportDataFilter.getTripsFor;
 import static com.tramchester.testSupport.reference.KnownTramRoute.*;
@@ -101,7 +102,7 @@ public class TransportDataFromFilesTramTest {
     void shouldGetAgenciesWithNames() {
         List<Agency> agencies = new ArrayList<>(transportData.getAgencies());
         assertEquals(1, agencies.size()); // just MET for trams
-        assertEquals("METL", agencies.get(0).getId().forDTO());
+        assertIdEquals("METL", agencies.get(0).getId());
         assertEquals("Metrolink", agencies.get(0).getName());
     }
 
@@ -429,7 +430,7 @@ public class TransportDataFromFilesTramTest {
         assertTrue(maybePlatformOne.isPresent());
 
         Platform platformOne = maybePlatformOne.get();
-        assertEquals( Altrincham.forDTO()+"1", platformOne.getId().forDTO());
+        assertIdEquals( Altrincham.forDTO()+"1", platformOne.getId());
         assertEquals( "1", platformOne.getPlatformNumber());
         assertEquals( "Altrincham platform 1", platformOne.getName());
 
@@ -446,12 +447,13 @@ public class TransportDataFromFilesTramTest {
 
     @Test
     void shouldHavePlatformAndAreaForCityCenter() {
-        IdFor<Platform> id = StringIdFor.createId(StPetersSquare.getId().forDTO() + "3");
+        IdFor<Platform> platformId = StPetersSquare.getPlatformId("3");
 
         //assertTrue(transportData.hasPlatformId(id));
-        Platform platform = transportData.getPlatform(id);
+        Platform platform = transportData.getPlatform(platformId);
+        assertNotNull(platform, "could not find " + platformId);
         assertEquals("St Peter's Square platform 3", platform.getName());
-        assertEquals(TramStations.StPetersSquare.forDTO()+"3", platform.getId().forDTO());
+        assertEquals(TramStations.StPetersSquare.getPlatformId("3"), platform.getId());
     }
 
     @Test

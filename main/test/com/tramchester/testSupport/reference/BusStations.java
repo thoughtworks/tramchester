@@ -68,6 +68,7 @@ public enum BusStations implements TestStations {
         return station.getName();
     }
 
+    @Deprecated
     public String forDTO() {
         return getId().forDTO();
     }

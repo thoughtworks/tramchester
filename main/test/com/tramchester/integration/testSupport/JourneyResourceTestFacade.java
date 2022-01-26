@@ -38,23 +38,23 @@ public class JourneyResourceTestFacade {
 
     public JourneyPlanRepresentation getJourneyPlan(LocalDate when, TramTime time, PostcodeLocation start, HasId<Station> end,
                                                     boolean arriveBy, int maxChanges) {
-        return getApiResponse(when, time, prefix(start), end.getId().forDTO(), null, arriveBy, maxChanges);
+        return getApiResponse(when, time, prefix(start), end.getId(), null, arriveBy, maxChanges);
     }
 
     public JourneyPlanRepresentation getJourneyPlan(LocalDate when, TramTime time, LatLong start, IdFor<Station> end,
                                                     boolean arriveBy, int maxChanges) {
-        return getApiResponse(when, time, MyLocation.MY_LOCATION_PLACEHOLDER_ID, end.forDTO(), start, arriveBy, maxChanges);
+        return getApiResponse(when, time, MyLocation.MY_LOCATION_PLACEHOLDER_ID, end, start, arriveBy, maxChanges);
     }
 
     public JourneyPlanRepresentation getJourneyPlan(LocalDate when, TramTime time, TestStations start, LatLong end,
                                                     boolean arriveBy, int maxChanges) {
-        return getApiResponse(when, time, start.getId().forDTO(), MyLocation.MY_LOCATION_PLACEHOLDER_ID, end, arriveBy, maxChanges);
+        return getApiResponse(when, time, start.getId(), MyLocation.MY_LOCATION_PLACEHOLDER_ID, end, arriveBy, maxChanges);
     }
 
 
     public JourneyPlanRepresentation getJourneyPlan(LocalDate when, TramTime time, TestStations start, PostcodeLocation end,
                                                     boolean arriveBy, int maxChanges) {
-        return getApiResponse(when, time, start.getId().forDTO(), prefix(end), null, arriveBy, maxChanges);
+        return getApiResponse(when, time, start.getId(), prefix(end), null, arriveBy, maxChanges);
     }
 
     public JourneyPlanRepresentation getJourneyPlan(LocalDate when, TramTime time, PostcodeLocation start, PostcodeLocation end,
@@ -64,7 +64,22 @@ public class JourneyResourceTestFacade {
 
     public JourneyPlanRepresentation getJourneyPlan(LocalDate when, TramTime time, HasId<Station> start, HasId<Station> end,
                                                     boolean arriveBy, int maxChanges) {
-        return getApiResponse(when, time, start.getId().forDTO(), end.getId().forDTO(), null, arriveBy, maxChanges);
+        return getApiResponse(when, time, start.getId(), end.getId(), null, arriveBy, maxChanges);
+    }
+
+    private JourneyPlanRepresentation getApiResponse(LocalDate when, TramTime time, IdFor<Station> start, IdFor<Station> end,
+                                                     LatLong position, boolean arriveBy, int maxChanges) {
+        return getApiResponse(when, time, start.forDTO(), end.forDTO(), position, arriveBy, maxChanges);
+    }
+
+    private JourneyPlanRepresentation getApiResponse(LocalDate when, TramTime time, IdFor<Station> start, String endAsString,
+                                                     LatLong position, boolean arriveBy, int maxChanges) {
+        return getApiResponse(when, time, start, endAsString, position, arriveBy, maxChanges);
+    }
+
+    private JourneyPlanRepresentation getApiResponse(LocalDate when, TramTime time, String startAsString, IdFor<Station> end,
+                                                     LatLong position, boolean arriveBy, int maxChanges) {
+        return getApiResponse(when, time, startAsString, end.forDTO(), position, arriveBy, maxChanges);
     }
 
     private JourneyPlanRepresentation getApiResponse(LocalDate when, TramTime time, String startAsString, String endAsString,

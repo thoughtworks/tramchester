@@ -30,6 +30,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.tramchester.domain.reference.TransportMode.*;
+import static com.tramchester.integration.testSupport.Assertions.assertIdEquals;
 import static com.tramchester.integration.testSupport.rail.RailStationIds.*;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -77,7 +78,7 @@ public class RailTransportDataFromFilesTest {
         // should be 2??
         assertEquals(1, platforms.size());
 
-        assertEquals("ALTRNHM:UNK", platforms.get(0).getId().forDTO());
+        assertIdEquals("ALTRNHM:UNK", platforms.get(0).getId());
         assertEquals("UNK", platforms.get(0).getPlatformNumber());
     }
 

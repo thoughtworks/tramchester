@@ -1,6 +1,5 @@
 package com.tramchester.unit.domain;
 
-import com.tramchester.dataimport.data.StopTimeData;
 import com.tramchester.domain.*;
 import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.input.MutableTrip;
@@ -42,19 +41,20 @@ class ServiceTest {
         Platform platformB = new MutablePlatform(StringIdFor.createId("platB"), "shudehill",
                 "2", TestEnv.nearShudehill);
 
-        StopTimeData stopTimeDataA = StopTimeData.forTestOnly("tripA", TramTime.of(8,15), TramTime.of(8,16),
-                "shudehill", 1, Regular, Regular);
-        StopTimeData stopTimeDataB = StopTimeData.forTestOnly("tripB", TramTime.of(16,25), TramTime.of(16,26),
-                "shudehill", 1, Regular, Regular);
-
         Route route = TestEnv.getTramTestRoute();
         MutableService service = new MutableService(StringIdFor.createId("svcA"));
 
         final MutableTrip tripA = new MutableTrip(StringIdFor.createId("tripA"), "headSignA", service, route, Tram);
-        tripA.addStop(new PlatformStopCall(tripA, platformA, of(ManAirport), stopTimeDataA));
+
+        final PlatformStopCall platformStopCallA = new PlatformStopCall(platformA, of(ManAirport),
+                TramTime.of(8,15), TramTime.of(8,16), 1, Regular, Regular, tripA);
+        tripA.addStop(platformStopCallA);
 
         final MutableTrip tripB = new MutableTrip(StringIdFor.createId("tripB"), "headSignB", service, route, Tram);
-        tripB.addStop(new PlatformStopCall(tripB, platformB, of(Shudehill), stopTimeDataB));
+
+        final PlatformStopCall platformStopCallB = new PlatformStopCall(platformB, of(Shudehill),
+                TramTime.of(16,25), TramTime.of(16,26), 1, Regular, Regular, tripB);
+        tripB.addStop(platformStopCallB);
 
         service.addTrip(tripA);
         service.addTrip(tripB);
@@ -71,21 +71,22 @@ class ServiceTest {
         Platform platformB = new MutablePlatform(StringIdFor.createId("platB"), "shudehill",
                 "2", TestEnv.nearShudehill);
 
-        StopTimeData stopTimeDataA = StopTimeData.forTestOnly("tripA",
-                TramTime.of(8,15), TramTime.of(8,16),
-                "shudehill", 1, Regular, Regular);
-        StopTimeData stopTimeDataB = StopTimeData.forTestOnly("tripB",
-                TramTime.nextDay(0,10), TramTime.nextDay(0,15),
-                "shudehill", 1, Regular, Regular);
-
         Route route = TestEnv.getTramTestRoute();
         MutableService service = new MutableService(StringIdFor.createId("svcA"));
 
         final MutableTrip tripA = new MutableTrip(StringIdFor.createId("tripA"), "headSignA", service, route, Tram);
-        tripA.addStop(new PlatformStopCall(tripA, platformA, of(ManAirport), stopTimeDataA));
+
+        final PlatformStopCall platformStopCallA = new PlatformStopCall(platformA, of(ManAirport),
+                TramTime.of(8,15), TramTime.of(8,16), 1, Regular, Regular, tripA);
+
+        tripA.addStop(platformStopCallA);
 
         final MutableTrip tripB = new MutableTrip(StringIdFor.createId("tripB"), "headSignB", service, route, Tram);
-        tripB.addStop(new PlatformStopCall(tripB, platformB, of(Shudehill), stopTimeDataB));
+
+        final PlatformStopCall platformStopCallB = new PlatformStopCall(platformB, of(Shudehill),
+                TramTime.nextDay(0,10), TramTime.nextDay(0,15), 1, Regular, Regular, tripB);
+
+        tripB.addStop(platformStopCallB);
 
         service.addTrip(tripA);
         service.addTrip(tripB);

@@ -1,8 +1,8 @@
 package com.tramchester.domain.reference;
 
+import com.tramchester.domain.Platform;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdSet;
-import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.places.Station;
 
 import java.util.Arrays;
@@ -23,14 +23,16 @@ public enum CentralZoneStation {
     Chorlton("9400ZZMACHO"),
     ExchangeSquare("9400ZZMAEXS");
 
-    private final IdFor<Station> stationId;
+    //private final IdFor<Station> stationId;
+
+    private final String stationId;
 
     CentralZoneStation(String stationId) {
-        this.stationId = createId(stationId);
+        this.stationId = stationId;
     }
 
     public IdFor<Station> getId() {
-        return stationId;
+        return Station.createId(stationId);
     }
 
     public static final IdSet<Station> ids;
@@ -39,8 +41,7 @@ public enum CentralZoneStation {
         ids = Arrays.stream(CentralZoneStation.values()).map(CentralZoneStation::getId).collect(IdSet.idCollector());
     }
 
-    private IdFor<Station> createId(String stationId) {
-        return StringIdFor.createId(stationId);
+    public IdFor<Platform> getPlatformId(String platform) {
+        return Platform.createId(stationId+platform);
     }
-
 }

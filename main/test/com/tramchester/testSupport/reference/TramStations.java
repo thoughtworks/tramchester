@@ -1,6 +1,7 @@
 package com.tramchester.testSupport.reference;
 
 import com.tramchester.domain.DataSourceID;
+import com.tramchester.domain.Platform;
 import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.places.MutableStation;
@@ -71,6 +72,13 @@ public enum TramStations implements TestStations {
             Bury,
             TraffordCentre));
 
+    private final TestStation station;
+
+    TramStations(String id, String area, String name, LatLong latlong) {
+        @NotNull GridPosition grid = CoordinateTransforms.getGridPosition(latlong);
+        this.station = new TestStation(id, area, name, latlong, grid, TransportMode.Tram, DataSourceID.tfgm);
+    }
+
     public static boolean isEndOfLine(HasId<Station> station) {
         return containedIn(station, EndOfTheLine);
     }
@@ -104,12 +112,6 @@ public enum TramStations implements TestStations {
         return new LatLong(lat, lon);
     }
 
-    private final MutableStation station;
-
-    TramStations(String id, String area, String name, LatLong latlong) {
-        @NotNull GridPosition grid = CoordinateTransforms.getGridPosition(latlong);
-        this.station = new TestStation(id, area, name, latlong, grid, TransportMode.Tram, DataSourceID.tfgm);
-    }
 
     @Override
     public IdFor<Station> getId() {
@@ -132,4 +134,7 @@ public enum TramStations implements TestStations {
         return station.getArea();
     }
 
+    public IdFor<Platform> getPlatformId(String platform) {
+        return station.getPlatformId(platform);
+    }
 }

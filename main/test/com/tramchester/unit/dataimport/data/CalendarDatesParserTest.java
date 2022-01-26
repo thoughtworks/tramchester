@@ -8,6 +8,8 @@ import org.junit.jupiter.api.Test;
 
 import java.time.LocalDate;
 
+import static com.tramchester.integration.testSupport.Assertions.assertIdEquals;
+
 class CalendarDatesParserTest extends ParserTestCSVHelper<CalendarDateData> {
 
     @BeforeEach
@@ -21,7 +23,7 @@ class CalendarDatesParserTest extends ParserTestCSVHelper<CalendarDateData> {
         String example = "Serv000001,20200831,2";
         CalendarDateData result = parse(example);
 
-        Assertions.assertEquals(result.getServiceId().forDTO(), "Serv000001");
+        assertIdEquals("Serv000001", result.getServiceId());
         Assertions.assertEquals(LocalDate.of(2020, 8, 31), result.getDate());
         Assertions.assertEquals(2, result.getExceptionType());
     }

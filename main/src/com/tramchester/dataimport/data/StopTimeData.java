@@ -46,8 +46,8 @@ public class StopTimeData {
     }
 
     public static StopTimeData forTestOnly(String tripId, TramTime arrivalTime, TramTime departureTime, String stopId,
-                                           int stopSequence, GTFSPickupDropoffType pickupType, GTFSPickupDropoffType dropOffType)
-    {
+                                           int stopSequence, GTFSPickupDropoffType pickupType,
+                                           GTFSPickupDropoffType dropOffType) {
         return new StopTimeData(tripId, arrivalTime, departureTime, stopId, stopSequence, pickupType, dropOffType);
     }
 

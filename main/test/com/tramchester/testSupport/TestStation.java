@@ -16,24 +16,30 @@ import com.tramchester.repository.StationRepositoryPublic;
 import java.util.HashSet;
 import java.util.Set;
 
+@Deprecated
 public class TestStation extends MutableStation {
 
     private final TransportMode initialMode;
     private boolean platformsAdded;
     private boolean routesAdded;
+    private final String rawId;
 
     public TestStation(String id, String area, String stationName, LatLong latLong, GridPosition gridPosition,
                        TransportMode initialMode, DataSourceID dataSourceID) {
-        this(StringIdFor.createId(id), area, stationName, latLong, gridPosition, initialMode, dataSourceID);
-    }
+        super(StringIdFor.createId(id), area, stationName, latLong, gridPosition, dataSourceID);
+        rawId = id;
 
-    public TestStation(IdFor<Station> id, String area, String stationName, LatLong latLong, GridPosition gridPosition,
-                       TransportMode initialMode, DataSourceID dataSourceID) {
-        super(id, area, stationName, latLong, gridPosition, dataSourceID);
         this.initialMode = initialMode;
         platformsAdded = false;
         routesAdded = false;
     }
+
+//    public TestStation(IdFor<Station> id, String area, String stationName, LatLong latLong, GridPosition gridPosition,
+//                       TransportMode initialMode, DataSourceID dataSourceID) {
+//        super(id, area, stationName, latLong, gridPosition, dataSourceID);
+//
+//    }
+//
 
     public static MutableStation forTest(String id, String area, String stationName, LatLong latLong, TransportMode mode, DataSourceID dataSourceID) {
         return new TestStation(id, area, stationName, latLong, CoordinateTransforms.getGridPosition(latLong), mode, dataSourceID);
@@ -112,4 +118,7 @@ public class TestStation extends MutableStation {
         return repository.getStationById(hasId.getId());
     }
 
+    public IdFor<Platform> getPlatformId(String platform) {
+        return StringIdFor.createId(rawId+platform);
+    }
 }

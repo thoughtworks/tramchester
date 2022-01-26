@@ -59,11 +59,15 @@ public abstract class TransportEntityFactory {
     }
 
     public StopCall createPlatformStopCall(Trip trip, Platform platform, Station station, StopTimeData stopTimeData) {
-        return new PlatformStopCall(trip, platform, station, stopTimeData);
+        return new PlatformStopCall(platform, station, stopTimeData.getArrivalTime(), stopTimeData.getDepartureTime(),
+            stopTimeData.getStopSequence(), stopTimeData.getPickupType(), stopTimeData.getDropOffType(), trip);
+        //return new PlatformStopCall(trip, platform, station, stopTimeData);
     }
 
     public StopCall createNoPlatformStopCall(Trip trip, Station station, StopTimeData stopTimeData) {
-        return new NoPlatformStopCall(trip, station, stopTimeData);
+        return new NoPlatformStopCall(station, stopTimeData.getArrivalTime(), stopTimeData.getDepartureTime(),
+                stopTimeData.getStopSequence(), stopTimeData.getPickupType(), stopTimeData.getDropOffType(), trip);
+        //return new NoPlatformStopCall(trip, station, stopTimeData);
     }
 
     public MutableServiceCalendar createServiceCalendar(CalendarData calendarData) {

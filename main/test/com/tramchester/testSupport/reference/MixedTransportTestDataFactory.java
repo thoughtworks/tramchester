@@ -1,7 +1,6 @@
 package com.tramchester.testSupport.reference;
 
 import com.netflix.governator.guice.lazy.LazySingleton;
-import com.tramchester.dataimport.data.StopTimeData;
 import com.tramchester.dataimport.loader.TransportDataFactory;
 import com.tramchester.domain.*;
 import com.tramchester.domain.id.IdFor;
@@ -11,7 +10,6 @@ import com.tramchester.domain.input.NoPlatformStopCall;
 import com.tramchester.domain.places.MutableStation;
 import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
-import com.tramchester.domain.reference.GTFSPickupDropoffType;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.domain.time.TramTime;
@@ -31,6 +29,7 @@ import java.time.LocalTime;
 import java.util.HashMap;
 import java.util.Map;
 
+import static com.tramchester.domain.reference.GTFSPickupDropoffType.Regular;
 import static com.tramchester.domain.reference.TransportMode.Bus;
 
 @LazySingleton
@@ -225,9 +224,7 @@ public class MixedTransportTestDataFactory implements TransportDataFactory {
 
     private static NoPlatformStopCall createStop(MutableTrip trip, Station station,
                                                  TramTime arrivalTime, TramTime departureTime, int sequenceNum) {
-        StopTimeData stopTimeData = StopTimeData.forTestOnly(trip.getId().forDTO(), arrivalTime, departureTime, station.forDTO(),
-                sequenceNum, GTFSPickupDropoffType.Regular, GTFSPickupDropoffType.Regular);
-        return new NoPlatformStopCall(trip, station, stopTimeData);
+        return new NoPlatformStopCall(station, arrivalTime, departureTime, sequenceNum, Regular, Regular, trip);
     }
 
 

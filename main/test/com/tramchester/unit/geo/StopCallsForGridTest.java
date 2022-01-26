@@ -1,6 +1,5 @@
 package com.tramchester.unit.geo;
 
-import com.tramchester.dataimport.data.StopTimeData;
 import com.tramchester.domain.BoxWithServiceFrequency;
 import com.tramchester.domain.MutableService;
 import com.tramchester.domain.Service;
@@ -106,11 +105,8 @@ public class StopCallsForGridTest extends EasyMockSupport {
 
         for (int i = 0; i < number; i++) {
             TramTime arrivalTime = first.plusMinutes(intervalMins*number);
-            String stopId = "stopId" + i;
-            StopTimeData stopTimeData = StopTimeData.forTestOnly(trip.getId().forDTO(), arrivalTime, arrivalTime.plusMinutes(1),
-                    stopId, i, GTFSPickupDropoffType.Regular, GTFSPickupDropoffType.Regular);
-
-            NoPlatformStopCall stopCall = new NoPlatformStopCall(trip, station, stopTimeData);
+            NoPlatformStopCall stopCall = new NoPlatformStopCall(station, arrivalTime, arrivalTime.plusMinutes(1),
+                    i, GTFSPickupDropoffType.Regular, GTFSPickupDropoffType.Regular, trip);
             stopCalls.add(stopCall);
         }
         return stopCalls;

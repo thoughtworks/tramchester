@@ -8,6 +8,7 @@ import org.junit.jupiter.api.Test;
 
 import java.time.LocalDate;
 
+import static com.tramchester.integration.testSupport.Assertions.assertIdEquals;
 import static org.assertj.core.api.Assertions.assertThat;
 
 class CalendarDataParserTest extends ParserTestCSVHelper<CalendarData> {
@@ -23,7 +24,8 @@ class CalendarDataParserTest extends ParserTestCSVHelper<CalendarData> {
         String calendar = "Serv000001,1,1,1,1,1,0,0,20141020,20141219";
         CalendarData calendarData = parse(calendar);
 
-        assertThat(calendarData.getServiceId().forDTO()).isEqualTo("Serv000001");
+        assertIdEquals("Serv000001", calendarData.getServiceId());
+        //assertThat(calendarData.getServiceId().forDTO()).isEqualTo("Serv000001");
         assertThat(calendarData.isMonday()).isEqualTo(true);
         assertThat(calendarData.isTuesday()).isEqualTo(true);
         assertThat(calendarData.isWednesday()).isEqualTo(true);

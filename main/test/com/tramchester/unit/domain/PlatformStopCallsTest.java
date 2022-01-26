@@ -1,7 +1,6 @@
 package com.tramchester.unit.domain;
 
 
-import com.tramchester.dataimport.data.StopTimeData;
 import com.tramchester.domain.MutablePlatform;
 import com.tramchester.domain.MutableService;
 import com.tramchester.domain.Platform;
@@ -68,10 +67,10 @@ class PlatformStopCallsTest {
     }
 
     @Test
-    void shouldHaveStopCallFromStopData() {
-        StopTimeData stopCallData = StopTimeData.forTestOnly("tripId", of(11,14), of (11, 15),
-                "stopId",5, None, Regular);
-        PlatformStopCall platformStopCall = new PlatformStopCall(trip, platformD, TramStations.of(stationD), stopCallData);
+    void shouldCreateStopCall() {
+
+        PlatformStopCall platformStopCall = new PlatformStopCall(platformD, TramStations.of(stationD),
+                of(11,14), of (11, 15), 5, None, Regular, trip);
 
         assertEquals(of(11,14), platformStopCall.getArrivalTime());
         assertEquals(of (11,15), platformStopCall.getDepartureTime());
