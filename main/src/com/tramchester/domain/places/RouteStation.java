@@ -6,7 +6,7 @@ import com.tramchester.domain.HasTransportModes;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.id.IdFor;
-import com.tramchester.domain.id.MixedCompositeId;
+import com.tramchester.domain.id.RouteStationId;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.graph.GraphPropertyKey;
 
@@ -27,7 +27,7 @@ public class RouteStation implements HasId<RouteStation>, GraphProperty, HasTran
     }
 
     public static IdFor<RouteStation> createId(IdFor<Station> station, IdFor<Route> route) {
-        return MixedCompositeId.createId(route, station);
+        return RouteStationId.createId(route, station);
     }
 
     public IdFor<RouteStation> getId() {

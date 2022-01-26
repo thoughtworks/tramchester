@@ -5,7 +5,6 @@ import com.tramchester.config.GTFSSourceConfig;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.DataSourceID;
 import com.tramchester.domain.StationPair;
-import com.tramchester.domain.id.CompositeId;
 import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdSet;
@@ -229,15 +228,6 @@ public class CompositeStationRepository implements StationRepositoryPublic {
             return true;
         }
         return stationRepository.hasStationId(stationId);
-    }
-
-    public IdSet<Station> resolve(IdFor<Station> id) {
-        if (!compositeStations.containsKey(id)) {
-            logger.warn(id + " was not a composite station");
-            return IdSet.singleton(id);
-        }
-        CompositeId<Station> compositeId = CompositeId.parse(id.forDTO());
-        return compositeId.getIds();
     }
 
     public long getNumberOfComposites() {

@@ -2,6 +2,7 @@ package com.tramchester.unit.domain;
 
 import com.tramchester.domain.*;
 import com.tramchester.domain.id.CompositeId;
+import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.places.CompositeStation;
 import com.tramchester.domain.places.LocationType;
@@ -16,6 +17,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.stream.Stream;
 
 import static com.tramchester.domain.reference.TransportMode.Bus;
 import static com.tramchester.domain.reference.TransportMode.Tram;
@@ -37,12 +39,14 @@ class CompositeStationTest {
         Platform platform = MutablePlatform.buildForTFGMTram("platformId", "platformName", latLong);
         stationA.addPlatform(platform);
 
-        CompositeStation compositeStation = new CompositeStation(Collections.singleton(stationA), "compArea", "compName",1);
+        CompositeStation compositeStation = new CompositeStation(Collections.singleton(stationA), "compArea",
+                "compName",1);
 
         assertEquals(LocationType.CompositeStation, compositeStation.getLocationType());
 
         assertEquals("compName", compositeStation.getName());
-        assertEquals(new CompositeId<MutableStation>(StringIdFor.createId("id")), compositeStation.getId());
+        IdSet<Station> expected = IdSet.singleton(Station.createId("id"));
+        assertEquals(new CompositeId<>(expected), compositeStation.getId());
         assertEquals(-2.0, compositeStation.getLatLong().getLat(),0);
         assertEquals(2.3, compositeStation.getLatLong().getLon(),0);
         assertEquals("compArea", compositeStation.getArea());
@@ -89,8 +93,8 @@ class CompositeStationTest {
         assertEquals(LocationType.CompositeStation, compositeStation.getLocationType());
 
         assertEquals("compName", compositeStation.getName());
-        CompositeId<Station> expectedId = new CompositeId<>(StringIdFor.createId("idB"), StringIdFor.createId("idA"));
-        assertEquals(expectedId, compositeStation.getId());
+        IdSet<Station> expected = Stream.of("idB", "idA").map(Station::createId).collect(IdSet.idCollector());
+        assertEquals(new CompositeId<>(expected), compositeStation.getId());
         assertEquals("[idA_idB]", compositeStation.forDTO());
         assertEquals("[idA_idB]", compositeStation.getId().getGraphId());
         assertEquals("[idA_idB]", compositeStation.getId().forDTO());

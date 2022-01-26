@@ -55,15 +55,17 @@ class FindStationsByNumberLinksTramTest {
         GTFSSourceConfig dataSource = dataSources.get(0);
         assertEquals(DataSourceID.tfgm, dataSource.getDataSourceId());
 
-        IdSet<Station> fromConfig = dataSource.getAdditionalInterchanges();
+        IdSet<Station> interchangesFromTFGMConfig = dataSource.getAdditionalInterchanges();
 
-        IdSet<Station> found = finder.atLeastNLinkedStations(TransportMode.Tram, threshhold);
+        IdSet<Station> stationWithLinks = finder.atLeastNLinkedStations(TransportMode.Tram, threshhold);
 
         //Set<String> discovered = found.stream().map(IdFor::forDTO).collect(Collectors.toSet());
 
-        IdSet<Station> dups = fromConfig.stream().filter(found::contains).collect(IdSet.idCollector());
+        IdSet<Station> inConfigAndStationsWithLinks = interchangesFromTFGMConfig.
+                stream().filter(stationWithLinks::contains).
+                collect(IdSet.idCollector());
 
-        assertTrue(dups.isEmpty(), "Found dups in config " + dups);
+        assertTrue(inConfigAndStationsWithLinks.isEmpty(), "Found over in config " + inConfigAndStationsWithLinks);
     }
 
     // TODO this is problematic for some datasets because they duplicate routes for different date ranges

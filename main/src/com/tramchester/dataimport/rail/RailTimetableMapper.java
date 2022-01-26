@@ -267,10 +267,13 @@ public class RailTimetableMapper {
 
             // Agency
             MutableAgency mutableAgency = getOrCreateAgency(atocCode);
+
             final IdFor<Agency> agencyId = mutableAgency.getId();
-            if (!atocCode.equals(mutableAgency.getId().forDTO())) {
-                logger.error(format("Mismatch on atco code (%s) and found agency id %s", atocCode, agencyId));
-            }
+
+            // this can't happen, look up or create agency based on atocCode alone now
+//            if (!atocCode.equals(mutableAgency.getId().forDTO())) {
+//                logger.error(format("Mismatch on atco code (%s) and found agency id %s", atocCode, agencyId));
+//            }
 
             // Calling points
             List<Station> calledAtStations = getRouteStationCallingPoints(rawService);
@@ -413,12 +416,14 @@ public class RailTimetableMapper {
 
         private MutableAgency getOrCreateAgency(String atocCode) {
             MutableAgency mutableAgency;
-            final IdFor<Agency> agencyId = getAgencyIdForAtcoCode(atocCode);
+            final IdFor<Agency> agencyId = Agency.createId(atocCode);
             if (container.hasAgencyId(agencyId)) {
                 mutableAgency = container.getMutableAgency(agencyId);
             } else {
                 // todo get list of atoc names
                 logger.info("Creating agency for atco code " + atocCode);
+
+                // todo - need to look up the actual agency name here, just using the id at the moment
                 mutableAgency = new MutableAgency(DataSourceID.rail, agencyId, atocCode);
                 container.addAgency(mutableAgency);
             }
@@ -458,7 +463,7 @@ public class RailTimetableMapper {
         }
 
         private IdFor<Trip> createTripIdFor(MutableService service) {
-            return StringIdFor.createId("trip:"+service.getId().forDTO());
+            return StringIdFor.withPrefix("trip:", service.getId());
         }
 
         private MutableRoute getOrCreateRoute(IdFor<Route> routeId, RawService rawService, MutableAgency mutableAgency, final TransportMode mode,
@@ -525,11 +530,6 @@ public class RailTimetableMapper {
             return result;
         }
 
-    }
-
-    @NotNull
-    private static IdFor<Agency> getAgencyIdForAtcoCode(String atocCode) {
-        return StringIdFor.createId(atocCode);
     }
 
     private static class MissingStations {

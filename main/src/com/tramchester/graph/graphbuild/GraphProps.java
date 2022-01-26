@@ -4,6 +4,7 @@ import com.google.common.collect.Streams;
 import com.tramchester.domain.*;
 import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.id.IdFor;
+import com.tramchester.domain.id.RouteStationId;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
@@ -21,7 +22,6 @@ import java.time.LocalTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static com.tramchester.domain.id.StringIdFor.getCompositeIdFromGraphEntity;
 import static com.tramchester.domain.id.StringIdFor.getIdFromGraphEntity;
 import static com.tramchester.graph.GraphPropertyKey.*;
 
@@ -198,7 +198,8 @@ public class GraphProps {
     }
 
     public static IdFor<RouteStation> getRouteStationIdFrom(Entity entity) {
-        return getCompositeIdFromGraphEntity(entity, ROUTE_STATION_ID);
+        String value = entity.getProperty(ROUTE_STATION_ID.getText()).toString();
+        return RouteStationId.parse(value);
     }
 
     public static IdFor<Platform> getPlatformIdFrom(Entity entity) {

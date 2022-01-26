@@ -1,11 +1,8 @@
 package com.tramchester.unit.domain.id;
 
-import com.tramchester.domain.Route;
 import com.tramchester.domain.id.CompositeId;
 import com.tramchester.domain.id.IdFor;
-import com.tramchester.domain.id.MixedCompositeId;
 import com.tramchester.domain.id.StringIdFor;
-import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
 import org.junit.jupiter.api.Test;
 
@@ -50,22 +47,7 @@ class IdTest {
         assertEquals(compositeIdA.getGraphId(), compositeIdB.getGraphId());
     }
 
-    @Test
-    void shouldHaveMixedCompositeEquality() {
-        IdFor<Route> routeA = StringIdFor.createId("routeA");
-        IdFor<Route> routeB = StringIdFor.createId("routeB");
 
-        IdFor<RouteStation> compositeIdA = MixedCompositeId.createId(routeA, idA);
-        IdFor<RouteStation> compositeIdB = MixedCompositeId.createId(routeA, idA);
-        IdFor<RouteStation> compositeIdC = MixedCompositeId.createId(routeB, idA);
-
-        assertEquals(compositeIdA, compositeIdA);
-        assertEquals(compositeIdA, compositeIdB);
-        assertEquals(compositeIdB, compositeIdA);
-
-        assertNotEquals(compositeIdA, compositeIdC);
-        assertNotEquals(compositeIdC, compositeIdA);
-    }
 
     @Test
     void shouldMapToNormalOrCompositeId() {
@@ -76,7 +58,8 @@ class IdTest {
         String text = "[Id1_Id2_Id3]";
         assertTrue(CompositeId.isComposite(text));
         IdFor<Station> comp = StringIdFor.createId(text);
-        CompositeId<Station> exepected = new CompositeId<>(StringIdFor.createId("Id1"), StringIdFor.createId("Id2"), StringIdFor.createId("Id3"));
+        CompositeId<Station> exepected = new CompositeId<>(StringIdFor.createId("Id1"),
+                StringIdFor.createId("Id2"), StringIdFor.createId("Id3"));
 
         assertEquals(exepected, comp);
     }
@@ -87,17 +70,6 @@ class IdTest {
 
         String forDto = compositeIdA.forDTO();
         CompositeId<Station> result = CompositeId.parse(forDto);
-
-        assertEquals(compositeIdA, result);
-    }
-
-    @Test
-    void shouldRoundTripParseMixedComposite() {
-        IdFor<Route> routeA = StringIdFor.createId("routeA");
-        IdFor<RouteStation> compositeIdA = MixedCompositeId.createId(routeA, idA);
-
-        String forDto = compositeIdA.forDTO();
-        IdFor<RouteStation> result = MixedCompositeId.parse(forDto);
 
         assertEquals(compositeIdA, result);
     }

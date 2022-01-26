@@ -6,20 +6,20 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class CompositeId<DOMAINTYPE extends CoreDomain> implements IdFor<DOMAINTYPE> {
+public class CompositeId<T extends CoreDomain> implements IdFor<T> {
 
     private static final char BEGIN = '[';
     private static final char END = ']';
     private static final String DIVIDER = "_";
 
-    private final IdSet<DOMAINTYPE> ids;
+    private final IdSet<T> ids;
 
-    public CompositeId(IdSet<DOMAINTYPE> ids) {
+    public CompositeId(IdSet<T> ids) {
         this.ids = ids;
     }
 
     @SafeVarargs
-    public CompositeId(IdFor<DOMAINTYPE> ...ids) {
+    public CompositeId(IdFor<T> ...ids) {
         this.ids = new IdSet<>(Arrays.asList(ids));
     }
 
@@ -72,7 +72,7 @@ public class CompositeId<DOMAINTYPE extends CoreDomain> implements IdFor<DOMAINT
         String asString(IdFor<?> id);
     }
 
-    private List<IdFor<DOMAINTYPE>> getSorted() {
+    private List<IdFor<T>> getSorted() {
         return ids.stream().sorted().collect(Collectors.toList());
     }
 
@@ -88,7 +88,7 @@ public class CompositeId<DOMAINTYPE extends CoreDomain> implements IdFor<DOMAINT
                 '}';
     }
 
-    public IdSet<DOMAINTYPE> getIds() {
+    public IdSet<T> getIds() {
         return ids;
     }
 

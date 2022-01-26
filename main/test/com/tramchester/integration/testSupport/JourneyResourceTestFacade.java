@@ -74,7 +74,7 @@ public class JourneyResourceTestFacade {
 
     private JourneyPlanRepresentation getApiResponse(LocalDate when, TramTime time, IdFor<Station> start, String endAsString,
                                                      LatLong position, boolean arriveBy, int maxChanges) {
-        return getApiResponse(when, time, start, endAsString, position, arriveBy, maxChanges);
+        return getApiResponse(when, time, start.forDTO(), endAsString, position, arriveBy, maxChanges);
     }
 
     private JourneyPlanRepresentation getApiResponse(LocalDate when, TramTime time, String startAsString, IdFor<Station> end,

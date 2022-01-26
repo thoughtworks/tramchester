@@ -2,12 +2,17 @@ package com.tramchester.domain;
 
 import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.id.IdFor;
+import com.tramchester.domain.id.StringIdFor;
 
 import java.util.Collection;
 
 public interface Agency extends HasId<Agency>, CoreDomain {
     static boolean IsMetrolink(IdFor<Agency> agencyId) {
         return MutableAgency.METL.equals(agencyId);
+    }
+
+    static IdFor<Agency> createId(String text) {
+        return StringIdFor.createId(text);
     }
 
     Collection<Route> getRoutes();

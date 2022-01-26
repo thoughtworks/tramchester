@@ -36,13 +36,15 @@ public class RailRouteIDBuilder {
         String baseIdText = createBaseIdForRoute(agencyId.getGraphId(), callingPoints);
         IdFor<Route> baseId = StringIdFor.createId(baseIdText);
 
+        // TODO baseId = Route.createId(agencyId, callingPoints);
+
         int newIndex = 1;
         if (baseIdToIndex.containsKey(baseId)) {
             newIndex = baseIdToIndex.get(baseId) + 1;
         }
 
         baseIdToIndex.put(baseId, newIndex);
-        IdFor<Route> finalId = StringIdFor.createId(format("%s:%s", baseIdText, newIndex));
+        IdFor<Route> finalId = StringIdFor.withSuffix(baseId, ":"+ newIndex);
         callingPointsToId.put(agencyCallingPoints, finalId);
         return finalId;
 

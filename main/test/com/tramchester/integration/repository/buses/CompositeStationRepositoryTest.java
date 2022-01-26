@@ -134,16 +134,6 @@ class CompositeStationRepositoryTest {
     }
 
     @Test
-    void shouldResolveContainedIdsToRealStationIds() {
-        repository.getCompositesServing(Bus).forEach(station -> {
-            IdFor<Station> id = station.getId();
-            IdSet<Station> ids = repository.resolve(id);
-            ids.forEach(containedId -> assertTrue(fullRepository.hasStationId(containedId), station +
-                    " had missing id " + containedId));
-        });
-    }
-
-    @Test
     void shouldGetCorrectForNonCompositeStation() {
         Station resultA = repository.getStationById(ManchesterAirportStation.getId());
         Station resultFull = fullRepository.getStationById(ManchesterAirportStation.getId());
