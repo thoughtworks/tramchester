@@ -68,7 +68,7 @@ public class TransportEntityFactoryForTFGM extends TransportEntityFactory {
 
         final String stationName = cleanStationName(stopData);
 
-        return new MutableStation(stationId, "", areaId, workAroundName(stationName), stopData.getLatLong(), position,
+        return new MutableStation(stationId, areaId, workAroundName(stationName), stopData.getLatLong(), position,
                 getDataSourceId(), isInterchange);
     }
 

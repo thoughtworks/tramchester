@@ -15,7 +15,7 @@ import com.tramchester.graph.search.RouteCalculator;
 import com.tramchester.integration.testSupport.AllModesTestConfig;
 import com.tramchester.integration.testSupport.RouteCalculatorTestFacade;
 import com.tramchester.integration.testSupport.rail.RailStationIds;
-import com.tramchester.repository.CompositeStationRepository;
+import com.tramchester.repository.StationGroupsRepository;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.BusStations;
@@ -43,7 +43,8 @@ public class AllModesJourneysTest {
 
     private static ComponentContainer componentContainer;
     private Transaction txn;
-    private CompositeStationRepository compositeStationRepository;
+    private StationRepository stationRepository;
+    private StationGroupsRepository stationGroupsRepository;
     private int maxJourneyDuration;
     private LocalDate when;
 
@@ -70,7 +71,7 @@ public class AllModesJourneysTest {
 
         txn = graphDatabase.beginTx();
         routeCalculator = new RouteCalculatorTestFacade(componentContainer.get(RouteCalculator.class), stationRepository, txn);
-        compositeStationRepository = componentContainer.get(CompositeStationRepository.class);
+        this.stationRepository = componentContainer.get(StationRepository.class);
     }
 
     @AfterEach
@@ -80,8 +81,8 @@ public class AllModesJourneysTest {
 
     @Test
     void shouldHaveBusToTram() {
-        GroupedStations stockport = compositeStationRepository.findByName(BusStations.Composites.StockportTempBusStation.getName());
-        Station alty = compositeStationRepository.getStationById(TramStations.Altrincham.getId());
+        GroupedStations stockport = stationGroupsRepository.findByName(BusStations.Composites.StockportTempBusStation.getName());
+        Station alty = stationRepository.getStationById(TramStations.Altrincham.getId());
 
         TramTime travelTime = TramTime.of(9, 0);
 
@@ -110,8 +111,8 @@ public class AllModesJourneysTest {
     @Test
     void shouldHaveStockToAltyBusJourney() {
 
-        GroupedStations stockport = compositeStationRepository.findByName(BusStations.Composites.StockportTempBusStation.getName());
-        GroupedStations alty = compositeStationRepository.findByName(BusStations.Composites.AltrinchamInterchange.getName());
+        GroupedStations stockport = stationGroupsRepository.findByName(BusStations.Composites.StockportTempBusStation.getName());
+        GroupedStations alty = stationGroupsRepository.findByName(BusStations.Composites.AltrinchamInterchange.getName());
 
         TramTime travelTime = TramTime.of(9, 0);
 

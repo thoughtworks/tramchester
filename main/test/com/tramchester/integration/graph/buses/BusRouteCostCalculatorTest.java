@@ -9,9 +9,9 @@ import com.tramchester.domain.time.TramServiceDate;
 import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.RouteCostCalculator;
 import com.tramchester.integration.testSupport.bus.IntegrationBusTestConfig;
-import com.tramchester.repository.CompositeStationRepository;
+import com.tramchester.repository.StationGroupsRepository;
+import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.TestEnv;
-import com.tramchester.testSupport.TestStation;
 import com.tramchester.testSupport.reference.BusStations;
 import com.tramchester.testSupport.testTags.BusTest;
 import org.junit.jupiter.api.*;
@@ -35,7 +35,7 @@ class BusRouteCostCalculatorTest {
     private GroupedStations altrinchamInterchange;
     private GroupedStations stockportBusStation;
     private GroupedStations shudehillInterchange;
-    private CompositeStationRepository compositeStationRepository;
+    private StationRepository stationRepository;
 
     private final TramServiceDate date = new TramServiceDate(TestEnv.testDay());
 
@@ -53,13 +53,14 @@ class BusRouteCostCalculatorTest {
 
     @BeforeEach
     void beforeEachTestRuns() {
-        compositeStationRepository = componentContainer.get(CompositeStationRepository.class);
+        StationGroupsRepository stationGroupsRepository = componentContainer.get(StationGroupsRepository.class);
+        stationRepository = componentContainer.get(StationRepository.class);
 
         GraphDatabase database = componentContainer.get(GraphDatabase.class);
 
-        altrinchamInterchange = compositeStationRepository.findByName(Composites.AltrinchamInterchange.getName());
-        stockportBusStation = compositeStationRepository.findByName(Composites.StockportTempBusStation.getName());
-        shudehillInterchange = compositeStationRepository.findByName("Shudehill Interchange");
+        altrinchamInterchange = stationGroupsRepository.findByName(Composites.AltrinchamInterchange.getName());
+        stockportBusStation = stationGroupsRepository.findByName(Composites.StockportTempBusStation.getName());
+        shudehillInterchange = stationGroupsRepository.findByName("Shudehill Interchange");
 
         routeCost = componentContainer.get(RouteCostCalculator.class);
 
@@ -86,20 +87,20 @@ class BusRouteCostCalculatorTest {
 
     @Test
     void shouldFindCostsCorrectlyForAltyStockportMax() {
-        assertEquals(50, getCost(max(), StopAtAltrinchamInterchange, StockportNewbridgeLane));
+        assertEquals(71, getCost(max(), StopAtAltrinchamInterchange, StockportNewbridgeLane));
         assertEquals(50, getCost(max(), StockportNewbridgeLane, StopAtAltrinchamInterchange));
     }
 
     @Test
     void shouldFindCostsCorrectlyForAltyStockport() {
-        assertEquals(44, getCost(average(), StopAtAltrinchamInterchange, StockportNewbridgeLane));
+        assertEquals(61, getCost(average(), StopAtAltrinchamInterchange, StockportNewbridgeLane));
         assertEquals(45, getCost(average(), StockportNewbridgeLane, StopAtAltrinchamInterchange));
     }
 
     @Test
     void shouldFindCostsCorrectlyForShudehillAltyComp() {
         assertEquals(54, getCostBetween(average(), altrinchamInterchange, shudehillInterchange));
-        assertEquals(54, getCostBetween(average(), shudehillInterchange, altrinchamInterchange));
+        assertEquals(53, getCostBetween(average(), shudehillInterchange, altrinchamInterchange));
     }
 
     @Test
@@ -111,7 +112,7 @@ class BusRouteCostCalculatorTest {
     @Test
     void shouldFindCostsCorrectlyForShudehillAlty() {
         assertEquals(56, getCost(average(), StopAtAltrinchamInterchange, StopAtShudehillInterchange));
-        assertEquals(55, getCost(average(), StopAtShudehillInterchange, StopAtAltrinchamInterchange));
+        assertEquals(54, getCost(average(), StopAtShudehillInterchange, StopAtAltrinchamInterchange));
     }
 
     @Test
@@ -122,13 +123,13 @@ class BusRouteCostCalculatorTest {
 
     @Test
     void shouldFindMaxCostsCorrectlyForShudehillStockportComp() {
-        assertEquals(53, getCostBetween(max(), shudehillInterchange, stockportBusStation));
+        assertEquals(51, getCostBetween(max(), shudehillInterchange, stockportBusStation));
         assertEquals(42, getCostBetween(max(), stockportBusStation, shudehillInterchange));
     }
 
     @Test
     void shouldFindCostsCorrectlyForShudehillStockport() {
-        assertEquals(53, getCost(average(), StopAtShudehillInterchange, StockportNewbridgeLane));
+        assertEquals(65, getCost(average(), StopAtShudehillInterchange, StockportNewbridgeLane));
         assertEquals(42, getCost(average(), StockportNewbridgeLane, StopAtShudehillInterchange));
     }
 
@@ -141,7 +142,7 @@ class BusRouteCostCalculatorTest {
     }
 
     private int getCost(BiFunction<Station, Station, Integer> function, BusStations start, BusStations end) {
-        return getCostBetween(function, TestStation.real(compositeStationRepository,start), TestStation.real(compositeStationRepository,end));
+        return getCostBetween(function, start.from(stationRepository), end.from(stationRepository));
     }
 
     private int getCostBetween(BiFunction<Station, Station, Integer> function, Station start, Station end) {

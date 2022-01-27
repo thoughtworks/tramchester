@@ -105,8 +105,8 @@ class FastestRoutesForBoxesTest {
         GridPosition grid = CoordinateTransforms.getGridPosition(latLong);
 
         IdFor<NaptanArea> areaId = IdFor.invalid();
-        Station destination = new MutableStation(testStationWithInvalidPosition.getId(), testStationWithInvalidPosition.getArea(),
-                areaId, testStationWithInvalidPosition.getName(), latLong, grid, DataSourceID.tfgm);
+        Station destination = new MutableStation(testStationWithInvalidPosition.getId(), areaId,
+                testStationWithInvalidPosition.getName(), latLong, grid, DataSourceID.tfgm);
 
         TramTime time = TramTime.of(9,15);
         JourneyRequest journeyRequest = new JourneyRequest(

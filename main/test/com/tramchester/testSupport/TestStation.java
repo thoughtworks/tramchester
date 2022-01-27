@@ -25,9 +25,9 @@ public class TestStation extends MutableStation {
     private boolean routesAdded;
     private final String rawId;
 
-    public TestStation(String id, String area, IdFor<NaptanArea> areaId, String stationName, LatLong latLong, GridPosition gridPosition,
+    public TestStation(String id, IdFor<NaptanArea> areaId, String stationName, LatLong latLong, GridPosition gridPosition,
                        TransportMode initialMode, DataSourceID dataSourceID) {
-        super(StringIdFor.createId(id), area, areaId, stationName, latLong, gridPosition, dataSourceID);
+        super(StringIdFor.createId(id), areaId, stationName, latLong, gridPosition, dataSourceID);
         rawId = id;
 
         this.initialMode = initialMode;
@@ -37,7 +37,7 @@ public class TestStation extends MutableStation {
 
     public static MutableStation forTest(String id, String area, String stationName, LatLong latLong, TransportMode mode, DataSourceID dataSourceID) {
         IdFor<NaptanArea> areaId = StringIdFor.createId(area);
-        return new TestStation(id, "", areaId, stationName, latLong, CoordinateTransforms.getGridPosition(latLong), mode, dataSourceID);
+        return new TestStation(id, areaId, stationName, latLong, CoordinateTransforms.getGridPosition(latLong), mode, dataSourceID);
     }
 
     private void guardPlatformsAddedIntent() {

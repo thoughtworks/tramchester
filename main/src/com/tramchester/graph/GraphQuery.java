@@ -52,14 +52,16 @@ public class GraphQuery {
     }
 
     private Node getGroupedNode(Transaction txn, Station station) {
-        return findNode(txn, GraphLabel.GROUPED, station);
+        // uses Area Id, not station Id
+        // TODO make this change to GroupedStations?
+        return graphDatabase.findNode(txn, GraphLabel.GROUPED, station.getProp().getText(), station.getAreaId().getGraphId());
     }
 
     /**
      * When calling from tests make sure relevant DB is fully built
      */
     public Node getStationOrGrouped(Transaction txn, Station station) {
-        if (station.isComposite()) {
+        if (station.isStationGroup()) {
             return getGroupedNode(txn, station);
         } else {
             return getStationNode(txn, station);

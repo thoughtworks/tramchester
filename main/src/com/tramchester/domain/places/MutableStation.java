@@ -16,9 +16,6 @@ import java.util.stream.Stream;
 
 public class MutableStation implements Station {
 
-    @Deprecated
-    private final String area;
-
     private final IdFor<NaptanArea> areaId;
     private final IdFor<Station> id;
     private final String name;
@@ -33,14 +30,14 @@ public class MutableStation implements Station {
     private final boolean isMarkedInterchange;
     private final Set<TransportMode> modes;
 
-    public MutableStation(IdFor<Station> id, String area, IdFor<NaptanArea> areaId, String stationName, LatLong latLong, GridPosition gridPosition,
+    public MutableStation(IdFor<Station> id, IdFor<NaptanArea> areaId, String stationName, LatLong latLong, GridPosition gridPosition,
                           DataSourceID dataSourceID) {
-        this(id, area, areaId, stationName, latLong, gridPosition, dataSourceID, false);
+        this(id, areaId, stationName, latLong, gridPosition, dataSourceID, false);
 
     }
 
     // for some data sources we know if station is an interchange
-    public MutableStation(IdFor<Station> id, String area, IdFor<NaptanArea> areaId, String stationName, LatLong latLong, GridPosition gridPosition,
+    public MutableStation(IdFor<Station> id, IdFor<NaptanArea> areaId, String stationName, LatLong latLong, GridPosition gridPosition,
                           DataSourceID dataSourceID, boolean isMarkedInterchange) {
         this.areaId = areaId;
         this.gridPosition = gridPosition;
@@ -55,7 +52,6 @@ public class MutableStation implements Station {
         this.id = id;
         this.name = stationName;
         this.latLong = latLong;
-        this.area = area;
         modes = new HashSet<>();
     }
 
@@ -75,11 +71,6 @@ public class MutableStation implements Station {
     }
 
     @Override
-    public String getArea() {
-        return area;
-    }
-
-    @Override
     public IdFor<NaptanArea> getAreaId() {
         return areaId;
     }
@@ -90,7 +81,7 @@ public class MutableStation implements Station {
     }
 
     @Override
-    public boolean isComposite() {
+    public boolean isStationGroup() {
         return false;
     }
 
@@ -215,7 +206,7 @@ public class MutableStation implements Station {
     @Override
     public String toString() {
         return "Station{" +
-                "area='" + area + '\'' +
+                "areaId='" + areaId + '\'' +
                 ", id='" + id + '\'' +
                 ", name='" + name + '\'' +
                 ", latLong=" + latLong +

@@ -9,7 +9,7 @@ import com.tramchester.domain.presentation.DTO.StationGroupDTO;
 import com.tramchester.domain.presentation.DTO.StationLinkDTO;
 import com.tramchester.geo.StationLocations;
 import com.tramchester.graph.search.FindStationLinks;
-import com.tramchester.repository.CompositeStationRepository;
+import com.tramchester.repository.StationGroupsRepository;
 import com.tramchester.repository.NeighboursRepository;
 import io.dropwizard.jersey.caching.CacheControl;
 import io.swagger.annotations.Api;
@@ -38,18 +38,18 @@ public class StationLinksResource implements APIResource, JourneyPlanningMarker 
 
     private final FindStationLinks findStationLinks;
     private final NeighboursRepository neighboursRepository;
-    private final CompositeStationRepository compositeStationRepository;
+    private final StationGroupsRepository stationGroupsRepository;
     private final TramchesterConfig config;
     private final StationLocations stationLocations;
 
     @Inject
     public StationLinksResource(FindStationLinks findStationLinks, NeighboursRepository neighboursRepository,
-                                CompositeStationRepository compositeStationRepository, TramchesterConfig config,
+                                StationGroupsRepository stationGroupsRepository, TramchesterConfig config,
                                 StationLocations stationLocations) {
         logger.info("created");
         this.findStationLinks = findStationLinks;
         this.neighboursRepository = neighboursRepository;
-        this.compositeStationRepository = compositeStationRepository;
+        this.stationGroupsRepository = stationGroupsRepository;
         this.config = config;
         this.stationLocations = stationLocations;
     }
@@ -109,7 +109,7 @@ public class StationLinksResource implements APIResource, JourneyPlanningMarker 
 
         List<StationGroupDTO> groups = new ArrayList<>();
         config.getTransportModes().forEach(mode ->
-                groups.addAll(compositeStationRepository.getCompositesServing(mode).stream().
+                groups.addAll(stationGroupsRepository.getCompositesServing(mode).stream().
                         map(StationGroupDTO::create).collect(Collectors.toSet())));
 
         return Response.ok(groups).build();

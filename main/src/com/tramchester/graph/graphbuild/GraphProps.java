@@ -6,6 +6,7 @@ import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.RouteStationId;
 import com.tramchester.domain.input.Trip;
+import com.tramchester.domain.places.NaptanArea;
 import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.LatLong;
@@ -213,4 +214,11 @@ public class GraphProps {
         return EnumSet.copyOf(set);
     }
 
+    public static IdFor<NaptanArea> getAreaIdFromGrouped(Entity entity) {
+        return getIdFromGraphEntity(entity, AREA_ID);
+    }
+
+    public static void setProperty(Entity entity, IdFor<NaptanArea> areaId) {
+        entity.setProperty(AREA_ID.getText(), areaId.getGraphId());
+    }
 }

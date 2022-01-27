@@ -3,7 +3,6 @@ package com.tramchester.geo;
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.LatLong;
-import com.tramchester.repository.CompositeStationRepository;
 import com.tramchester.repository.StationRepository;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
@@ -26,17 +25,15 @@ public class StationLocations implements StationLocationsRepository {
     private static final int DEPTH_LIMIT = 20;
     private static final int GRID_SIZE_METERS = 1000;
 
-    private final StationRepository allStationRepository;
-    private final CompositeStationRepository compositeStationRepository;
+    private final StationRepository stationRepository;
     private final Set<BoundingBox> quadrants;
 
     private final Map<BoundingBox, Set<Station>> stations;
     private BoundingBox bounds;
 
     @Inject
-    public StationLocations(StationRepository stationRepository, CompositeStationRepository compositeRepository) {
-        this.allStationRepository = stationRepository;
-        this.compositeStationRepository = compositeRepository;
+    public StationLocations(StationRepository stationRepository) {
+        this.stationRepository = stationRepository;
         // TODO Remove this
         quadrants = new HashSet<>();
         stations = new HashMap<>();
@@ -45,7 +42,7 @@ public class StationLocations implements StationLocationsRepository {
     @PostConstruct
     public void start() {
         logger.info("starting");
-        bounds = new CreateBoundingBox().createBoundingBox(allStationRepository.getActiveStationStream());
+        bounds = new CreateBoundingBox().createBoundingBox(stationRepository.getActiveStationStream());
         createQuadrants();
         logger.info("started");
     }
@@ -104,9 +101,10 @@ public class StationLocations implements StationLocationsRepository {
 
     // TODO Use quadrants for this search
     // NOTE: uses composite stations
+    // TODO Station Groups here?
     private List<Station> nearestStationsSorted(GridPosition gridPosition, int maxToFind, MarginInMeters rangeInMeters) {
 
-        final Stream<Station> stationStream = compositeStationRepository.getActiveStationStream();
+        final Stream<Station> stationStream = stationRepository.getActiveStationStream();
         if (maxToFind > 1) {
             // only sort if more than one, as sorting potentially expensive
            return FindNear.getNearToSorted(stationStream, gridPosition, rangeInMeters).
@@ -193,7 +191,7 @@ public class StationLocations implements StationLocationsRepository {
     }
 
     private Stream<Station> getNonComposites() {
-        return allStationRepository.getActiveStationStream().
+        return stationRepository.getActiveStationStream().
                 filter(station -> station.getGridPosition().isValid());
     }
 

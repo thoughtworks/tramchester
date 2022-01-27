@@ -5,7 +5,7 @@ import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.geo.*;
-import com.tramchester.repository.CompositeStationRepository;
+import com.tramchester.repository.StationGroupsRepository;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TestStation;
@@ -27,13 +27,13 @@ class StationLocationsTest extends EasyMockSupport {
 
     private StationLocations stationLocations;
     private StationRepository stationRepository;
-    private CompositeStationRepository compositeStationRepository;
+    private StationGroupsRepository stationGroupsRepository;
 
     @BeforeEach
     void onceBeforeEachTest() {
         stationRepository = createMock(StationRepository.class);
-        compositeStationRepository = createMock(CompositeStationRepository.class);
-        stationLocations = new StationLocations(stationRepository, compositeStationRepository);
+        stationGroupsRepository = createMock(StationGroupsRepository.class);
+        stationLocations = new StationLocations(stationRepository);
     }
 
     @Test
@@ -68,7 +68,7 @@ class StationLocationsTest extends EasyMockSupport {
 
         EasyMock.expect(stationRepository.getActiveStationStream()).andStubAnswer(() ->
                 Stream.of(stationA, stationC));
-        EasyMock.expect(compositeStationRepository.getActiveStationStream()).andStubAnswer(Stream::empty);
+//        EasyMock.expect(stationGroupsRepository.getActiveStationStream()).andStubAnswer(Stream::empty);
 
         MarginInMeters margin = MarginInMeters.of(1600);
 
@@ -95,9 +95,10 @@ class StationLocationsTest extends EasyMockSupport {
         GridPosition gridA = stationA.getGridPosition();
         GridPosition gridB = stationD.getGridPosition();
 
-        EasyMock.expect(stationRepository.getActiveStationStream()).andStubAnswer(Stream::empty);
-        EasyMock.expect(compositeStationRepository.getActiveStationStream()).andStubAnswer(() ->
+        EasyMock.expect(stationRepository.getActiveStationStream()).andStubAnswer(() ->
                 Stream.of(stationA, stationB, stationC, stationD));
+//        EasyMock.expect(stationGroupsRepository.getActiveStationStream()).andStubAnswer(() ->
+//                Stream.of(stationA, stationB, stationC, stationD));
 
         replayAll();
         stationLocations.start();
@@ -120,8 +121,7 @@ class StationLocationsTest extends EasyMockSupport {
         Station stationB = createTestStation("id456", "nameB", TestEnv.nearPiccGardens);
         Station stationC = createTestStation("id789", "nameC", nearShudehill);
 
-        EasyMock.expect(stationRepository.getActiveStationStream()).andStubAnswer(Stream::empty);
-        EasyMock.expect(compositeStationRepository.getActiveStationStream()).andStubAnswer(() -> Stream.of(stationA, stationB, stationC));
+        EasyMock.expect(stationRepository.getActiveStationStream()).andStubAnswer(() -> Stream.of(stationA, stationB, stationC));
 
         replayAll();
         stationLocations.start();
@@ -133,7 +133,6 @@ class StationLocationsTest extends EasyMockSupport {
         assertEquals(stationA, results.get(0));
         assertEquals(stationB, results.get(1));
         assertEquals(stationC, results.get(2));
-
     }
 
     @Test
@@ -142,13 +141,11 @@ class StationLocationsTest extends EasyMockSupport {
         Station stationB = createTestStation("id456", "nameB", TestEnv.nearPiccGardens);
         Station stationC = createTestStation("id789", "nameC", nearShudehill);
 
-        EasyMock.expect(stationRepository.getActiveStationStream()).andStubAnswer(Stream::empty);
-        EasyMock.expect(compositeStationRepository.getActiveStationStream()).andStubAnswer(() -> Stream.of(stationA, stationB, stationC));
+        EasyMock.expect(stationRepository.getActiveStationStream()).andStubAnswer(() -> Stream.of(stationA, stationB, stationC));
 
         replayAll();
         stationLocations.start();
-        List<Station> results = stationLocations.nearestStationsSorted(nearAltrincham, 1,
-                MarginInMeters.of(20));
+        List<Station> results = stationLocations.nearestStationsSorted(nearAltrincham, 1, MarginInMeters.of(20));
         verifyAll();
 
         assertEquals(1, results.size());
@@ -159,8 +156,8 @@ class StationLocationsTest extends EasyMockSupport {
     void shouldFindNearbyStationRespectingRange() {
         Station testStation = createTestStation("id123", "name", nearAltrincham);
 
-        EasyMock.expect(compositeStationRepository.getActiveStationStream()).andReturn(Stream.of(testStation));
-        EasyMock.expect(compositeStationRepository.getActiveStationStream()).andReturn(Stream.of(testStation));
+        EasyMock.expect(stationRepository.getActiveStationStream()).andReturn(Stream.of(testStation));
+        EasyMock.expect(stationRepository.getActiveStationStream()).andReturn(Stream.of(testStation));
 
         replayAll();
         List<Station> results = stationLocations.nearestStationsSorted(TestEnv.nearPiccGardens, 3,

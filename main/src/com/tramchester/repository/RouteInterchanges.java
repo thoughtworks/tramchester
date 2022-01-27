@@ -64,18 +64,18 @@ public class RouteInterchanges {
 //                            routeStation -> lowestCostBetween(timedTransaction.transaction(), routeStation)));
 //        }
         routeStationToInterchangeCost = new HashMap<>();
-        try(TimedTransaction timedTransaction = new TimedTransaction(graphDatabase, logger, "spike")) {
-            routeRepository.getRoutes().forEach(route -> spike(timedTransaction.transaction(), route));
+        try(TimedTransaction timedTransaction = new TimedTransaction(graphDatabase, logger, "populateForRoutes")) {
+            routeRepository.getRoutes().forEach(route -> populateForRoute(timedTransaction.transaction(), route));
         }
     }
 
-    private int lowestCostBetween(Transaction txn, RouteStation routeStation) {
-        int cost = lowestCostInterchangeSameRoute(txn, routeStation);
-        if (cost<0) {
-            return Integer.MAX_VALUE;
-        }
-        return cost;
-    }
+//    private int lowestCostBetween(Transaction txn, RouteStation routeStation) {
+//        int cost = lowestCostInterchangeSameRoute(txn, routeStation);
+//        if (cost<0) {
+//            return Integer.MAX_VALUE;
+//        }
+//        return cost;
+//    }
 
     private void populateRouteToInterchangeMap() {
         try (Timing ignored = new Timing(logger,"Populate interchanges for routes")) {
@@ -109,7 +109,7 @@ public class RouteInterchanges {
         return  findCostToInterchangeB(txn, routeStation);
     }
 
-    private void spike(Transaction txn, Route route) {
+    private void populateForRoute(Transaction txn, Route route) {
         IdFor<Route> routeId = route.getId();
 
         long maxNodes = route.getTrips().stream().flatMap(trip -> trip.getStopCalls().getStationSequence().stream()).distinct().count();
@@ -133,7 +133,7 @@ public class RouteInterchanges {
                 map(path -> Pair.of(GraphProps.getStationId(path.startNode()), length(path))).
                 collect(Collectors.toList());
 
-        logger.info("Got " + pairs.size() + " for " + routeId);
+        logger.debug("Got " + pairs.size() + " for " + routeId);
 
         Map<IdFor<Station>, Integer> stationToInterPair = new HashMap<>();
 
@@ -149,7 +149,7 @@ public class RouteInterchanges {
             }
         });
 
-        logger.info("Found " + stationToInterPair.size() + " results for " + routeId);
+        logger.debug("Found " + stationToInterPair.size() + " results for " + routeId);
 
         stationToInterPair.forEach((stationIdPair, cost) -> {
             RouteStation routeStation = stationRepository.getRouteStationById(RouteStation.createId(stationIdPair, routeId));

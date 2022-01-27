@@ -54,7 +54,7 @@ public abstract class TransportEntityFactory {
         final String area = "";
 
         IdFor<NaptanArea> areaId = IdFor.invalid();
-        return new MutableStation(stationId, area, areaId, stopData.getName(), stopData.getLatLong(), position, getDataSourceId());
+        return new MutableStation(stationId, areaId, stopData.getName(), stopData.getLatLong(), position, getDataSourceId());
     }
 
     public RouteStation createRouteStation(Station station, Route route) {

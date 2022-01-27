@@ -1,7 +1,5 @@
 package com.tramchester.domain.places;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tramchester.domain.DataSourceID;
 import com.tramchester.domain.Platform;
 import com.tramchester.domain.id.IdFor;
@@ -20,24 +18,18 @@ public class MyLocation implements Location<MyLocation> {
     public static final String MY_LOCATION_PLACEHOLDER_ID = "MyLocationPlaceholderId";
     private static final IdFor<MyLocation> LocationPlaceHolder = StringIdFor.createId(MY_LOCATION_PLACEHOLDER_ID);
 
-    private final String area;
     private final LatLong latLong;
 
-    public static MyLocation create(ObjectMapper mapper, LatLong latLong) {
-        try {
-            return new MyLocation(mapper.writeValueAsString(latLong), latLong);
-        } catch (JsonProcessingException e) {
-            throw new RuntimeException(e);
-        }
+    public static MyLocation create(LatLong latLong) {
+        return new MyLocation(latLong);
     }
 
     @Override
     public String toString() {
-        return "MyLocation{" + area + '}';
+        return "MyLocation{" + latLong + '}';
     }
 
-    public MyLocation(String area, LatLong latLong) {
-        this.area = area;
+    public MyLocation(LatLong latLong) {
         this.latLong = latLong;
     }
 
@@ -59,11 +51,6 @@ public class MyLocation implements Location<MyLocation> {
     @Override
     public GridPosition getGridPosition() {
         return CoordinateTransforms.getGridPosition(latLong);
-    }
-
-    @Override
-    public String getArea() {
-        return area;
     }
 
     @Override

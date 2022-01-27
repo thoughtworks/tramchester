@@ -2,15 +2,20 @@ package com.tramchester.graph.search;
 
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.domain.id.IdFor;
+import com.tramchester.domain.places.NaptanArea;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.caches.NodeContentsRepository;
 import com.tramchester.graph.graphbuild.GraphLabel;
 import com.tramchester.graph.graphbuild.GraphProps;
 import com.tramchester.graph.search.stateMachine.HowIGotHere;
-import com.tramchester.repository.CompositeStationRepository;
+import com.tramchester.repository.StationRepository;
+import com.tramchester.repository.naptan.NaptanRespository;
 import org.apache.commons.lang3.tuple.Pair;
-import org.neo4j.graphdb.*;
+import org.neo4j.graphdb.Node;
+import org.neo4j.graphdb.Relationship;
+import org.neo4j.graphdb.RelationshipType;
+import org.neo4j.graphdb.Transaction;
 
 import javax.inject.Inject;
 import java.util.EnumSet;
@@ -23,13 +28,16 @@ import static java.lang.String.format;
 @LazySingleton
 public class ReasonsToGraphViz {
 
-    private final CompositeStationRepository stationRepository;
+    private final NaptanRespository naptanRespository;
+    private final StationRepository stationRepository;
     private final NodeContentsRepository nodeContentsRepository;
 
     private static final boolean includeAll = true;
 
     @Inject
-    public ReasonsToGraphViz(CompositeStationRepository stationRepository, NodeContentsRepository nodeContentsRepository) {
+    public ReasonsToGraphViz(NaptanRespository naptanRespository, StationRepository stationRepository,
+                             NodeContentsRepository nodeContentsRepository) {
+        this.naptanRespository = naptanRespository;
         this.stationRepository = stationRepository;
         this.nodeContentsRepository = nodeContentsRepository;
     }
@@ -88,6 +96,13 @@ public class ReasonsToGraphViz {
     private String getIdsFor(Node node) {
         StringBuilder ids = new StringBuilder();
         EnumSet<GraphLabel> labels = nodeContentsRepository.getLabels(node);
+
+        if (labels.contains(GraphLabel.GROUPED)) {
+            IdFor<NaptanArea> areaId = GraphProps.getAreaIdFromGrouped(node);
+            NaptanArea area = naptanRespository.getAreaFor(areaId);
+            ids.append(System.lineSeparator()).append(area.getName());
+            return ids.toString();
+        }
 
         if (labels.contains(GraphLabel.STATION)) {
             IdFor<Station> stationIdFrom = GraphProps.getStationIdFrom(node);

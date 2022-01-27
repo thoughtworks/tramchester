@@ -4,7 +4,7 @@ import com.tramchester.ComponentsBuilder;
 import com.tramchester.GuiceContainerDependencies;
 import com.tramchester.dataimport.nptg.NPTGData;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
-import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfigWithXMLNaptan;
+import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfigWithNaptan;
 import com.tramchester.repository.nptg.NPTGRepository;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.testTags.TrainTest;
@@ -23,7 +23,7 @@ public class NPTGRepositoryTest {
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
-        IntegrationTramTestConfig testConfig = new IntegrationTramTestConfigWithXMLNaptan();
+        IntegrationTramTestConfig testConfig = new IntegrationTramTestConfigWithNaptan();
         componentContainer = new ComponentsBuilder().create(testConfig, TestEnv.NoopRegisterMetrics());
         componentContainer.initialise();
     }

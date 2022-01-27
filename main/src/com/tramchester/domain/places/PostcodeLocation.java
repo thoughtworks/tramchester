@@ -23,7 +23,6 @@ public class PostcodeLocation implements Location<PostcodeLocation>, HasCaseInse
 
     private LatLong latLong;
     private GridPosition gridPosition;
-    private final String area;
 
     public PostcodeLocation(LatLong latLong, CaseInsensitiveId<PostcodeLocation> id, String area) {
         this(id, area, latLong, null);
@@ -36,7 +35,6 @@ public class PostcodeLocation implements Location<PostcodeLocation>, HasCaseInse
     private PostcodeLocation(CaseInsensitiveId<PostcodeLocation> id, String area, LatLong latLong, GridPosition gridPosition) {
         this.id = id;
         this.name = id.forDTO();
-        this.area = area;
 
         this.latLong = latLong;
         this.gridPosition = gridPosition;
@@ -66,12 +64,6 @@ public class PostcodeLocation implements Location<PostcodeLocation>, HasCaseInse
             gridPosition = CoordinateTransforms.getGridPosition(latLong);
         }
         return gridPosition;
-    }
-
-    @Deprecated
-    @Override
-    public String getArea() {
-        return area;
     }
 
     @Override
@@ -144,7 +136,6 @@ public class PostcodeLocation implements Location<PostcodeLocation>, HasCaseInse
                 ", name='" + name + '\'' +
                 ", latLong=" + latLong +
                 ", gridPosition=" + gridPosition +
-                ", area='" + area + '\'' +
                 '}';
     }
 

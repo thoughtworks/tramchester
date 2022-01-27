@@ -56,7 +56,7 @@ class StationTest {
     @Test
     void shouldHaveCorrectTransportModes() {
         IdFor<NaptanArea> areaId = IdFor.invalid();
-        MutableStation station = new MutableStation(StringIdFor.createId("stationId"), "area", areaId, "name", nearPiccGardens,
+        MutableStation station = new MutableStation(StringIdFor.createId("stationId"), areaId, "name", nearPiccGardens,
                 CoordinateTransforms.getGridPosition(nearPiccGardens), DataSourceID.tfgm);
 
         assertTrue(station.getTransportModes().isEmpty());
@@ -76,7 +76,7 @@ class StationTest {
     @Test
     void shouldHavePickupAndDropoffRoutes() {
         IdFor<NaptanArea> areaId = IdFor.invalid();
-        MutableStation station = new MutableStation(StringIdFor.createId("stationId"), "area", areaId, "name", nearPiccGardens,
+        MutableStation station = new MutableStation(StringIdFor.createId("stationId"), areaId, "name", nearPiccGardens,
                 CoordinateTransforms.getGridPosition(nearPiccGardens), DataSourceID.tfgm);
 
         final Route routeA = MutableRoute.getRoute(StringIdFor.createId("routeIdA"), "shortNameA", "nameA",

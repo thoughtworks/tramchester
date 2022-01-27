@@ -9,7 +9,7 @@ import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.places.NaptanRecord;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
-import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfigWithXMLNaptan;
+import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfigWithNaptan;
 import com.tramchester.repository.naptan.NaptanStopType;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.TramStations;
@@ -32,7 +32,7 @@ class NaptanDataImporterTest {
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
-        IntegrationTramTestConfig testConfig = new IntegrationTramTestConfigWithXMLNaptan();
+        IntegrationTramTestConfig testConfig = new IntegrationTramTestConfigWithNaptan();
         componentContainer = new ComponentsBuilder().create(testConfig, TestEnv.NoopRegisterMetrics());
         componentContainer.initialise();
 

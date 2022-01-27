@@ -5,6 +5,7 @@ import com.tramchester.ComponentsBuilder;
 import com.tramchester.DiagramCreator;
 import com.tramchester.config.GTFSSourceConfig;
 import com.tramchester.domain.Journey;
+import com.tramchester.domain.JourneyRequest;
 import com.tramchester.domain.StationClosure;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.places.Station;
@@ -14,11 +15,10 @@ import com.tramchester.domain.time.TramServiceDate;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.filters.ConfigurableGraphFilter;
-import com.tramchester.domain.JourneyRequest;
 import com.tramchester.graph.search.RouteCalculator;
 import com.tramchester.integration.testSupport.RouteCalculatorTestFacade;
 import com.tramchester.integration.testSupport.tfgm.TFGMGTFSSourceTestConfig;
-import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
+import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfigWithNaptan;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.AdditionalTramInterchanges;
 import com.tramchester.testSupport.TestEnv;
@@ -158,7 +158,7 @@ class RouteCalculatorSubGraphMediaCityTest {
         creator.create(Path.of("subgraph_mediacity_trams.dot"), TramStations.of(MediaCityUK), 100, true);
     }
 
-    private static class SubgraphConfig extends IntegrationTramTestConfig {
+    private static class SubgraphConfig extends IntegrationTramTestConfigWithNaptan {
         public SubgraphConfig() {
             super("sub_mediacity_tramchester.db");
         }
@@ -171,8 +171,10 @@ class RouteCalculatorSubGraphMediaCityTest {
             additionalInterchanges.add(Cornbrook.getId());
             additionalInterchanges.add(Broadway.getId());
 
+            final Set<TransportMode> groupStationModes = Collections.singleton(TransportMode.Bus);
             TFGMGTFSSourceTestConfig gtfsSourceConfig = new TFGMGTFSSourceTestConfig("data/tram", GTFSTransportationType.tram,
-                    TransportMode.Tram, additionalInterchanges, Collections.emptySet(), closed);
+                    TransportMode.Tram, additionalInterchanges, groupStationModes, closed);
+
             return Collections.singletonList(gtfsSourceConfig);
         }
     }

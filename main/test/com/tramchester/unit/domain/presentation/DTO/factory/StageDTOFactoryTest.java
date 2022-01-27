@@ -42,7 +42,7 @@ class StageDTOFactoryTest extends EasyMockSupport {
     @SuppressWarnings("JUnitTestMethodWithNoAssertions")
     @Test
     void shouldCreateStageDTOCorrectlyForWalking() {
-        MyLocation location = new MyLocation("nearAlty", TestEnv.nearAltrincham);
+        MyLocation location = new MyLocation(TestEnv.nearAltrincham);
         WalkingFromStationStage stage = new WalkingFromStationStage(TramStations.of(Altrincham), location, 15,
                 TramTime.of(8,11));
 

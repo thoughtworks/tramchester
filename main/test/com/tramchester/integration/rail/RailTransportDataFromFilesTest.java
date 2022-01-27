@@ -87,7 +87,7 @@ public class RailTransportDataFromFilesTest {
         Station result = transportData.getStationById(Derby.getId());
 
         assertEquals("Derby Rail Station", result.getName());
-        assertEquals("Derby", result.getArea());
+        assertEquals("TODO", result.getAreaId());
 
         final GridPosition expectedGrid = new GridPosition(436182, 335593);
         assertEquals(expectedGrid, result.getGridPosition());
@@ -104,7 +104,7 @@ public class RailTransportDataFromFilesTest {
         Station result = transportData.getStationById(ManchesterPiccadilly.getId());
 
         assertEquals("Manchester Piccadilly Rail Station", result.getName());
-        assertEquals("Manchester City Centre", result.getArea());
+        assertEquals("TODO", result.getAreaId());
     }
 
     @Test

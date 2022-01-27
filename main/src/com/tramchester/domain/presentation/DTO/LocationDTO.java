@@ -13,7 +13,6 @@ import java.util.stream.Stream;
 
 @SuppressWarnings("unused")
 public class LocationDTO {
-    private String area;
     private String id;
     private String name;
     private LatLong latLong;
@@ -42,7 +41,6 @@ public class LocationDTO {
         this.name = source.getName();
         this.latLong = source.getLatLong();
         this.transportModes = source.getTransportModes();
-        this.area = source.getArea();
         this.locationType = source.getLocationType();
         this.platforms = platforms;
         this.routes = routes;
@@ -63,10 +61,6 @@ public class LocationDTO {
     @JsonInclude(JsonInclude.Include.NON_DEFAULT)
     public boolean isTram() {
         return transportModes.contains(TransportMode.Tram);
-    }
-
-    public String getArea() {
-        return area;
     }
 
     @JsonInclude(JsonInclude.Include.NON_DEFAULT)
@@ -107,8 +101,7 @@ public class LocationDTO {
     @Override
     public String toString() {
         return "LocationDTO{" +
-                "area='" + area + '\'' +
-                ", id='" + id + '\'' +
+                "id='" + id + '\'' +
                 ", name='" + name + '\'' +
                 ", latLong=" + latLong +
                 ", platforms=" + platforms +

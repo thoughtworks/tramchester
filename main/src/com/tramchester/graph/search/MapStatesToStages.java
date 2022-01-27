@@ -1,6 +1,5 @@
 package com.tramchester.graph.search;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tramchester.domain.Platform;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.input.StopCall;
@@ -13,10 +12,7 @@ import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.domain.transportStages.*;
 import com.tramchester.graph.graphbuild.GraphProps;
-import com.tramchester.repository.CompositeStationRepository;
-import com.tramchester.repository.PlatformRepository;
-import com.tramchester.repository.StationRepositoryPublic;
-import com.tramchester.repository.TripRepository;
+import com.tramchester.repository.*;
 import org.neo4j.graphdb.Entity;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
@@ -32,11 +28,10 @@ import static com.tramchester.graph.GraphPropertyKey.STATION_ID;
 class MapStatesToStages implements JourneyStateUpdate {
     private static final Logger logger = LoggerFactory.getLogger(MapStatesToStages.class);
 
-    private final CompositeStationRepository stationRepository;
+    private final StationRepository stationRepository;
     private final PlatformRepository platformRepository;
     private final TripRepository tripRepository;
     private final List<TransportStage<?, ?>> stages;
-    private final ObjectMapper mapper;
 
     private boolean onVehicle;
     private IdFor<Trip> tripId;
@@ -57,12 +52,11 @@ class MapStatesToStages implements JourneyStateUpdate {
     private VehicleStagePending vehicleStagePending;
 
 
-    public MapStatesToStages(CompositeStationRepository stationRepository, PlatformRepository platformRepository,
-                             TripRepository tripRepository, TramTime queryTime, ObjectMapper mapper) {
+    public MapStatesToStages(StationRepository stationRepository, PlatformRepository platformRepository,
+                             TripRepository tripRepository, TramTime queryTime) {
         this.stationRepository = stationRepository;
         this.platformRepository = platformRepository;
         this.tripRepository = tripRepository;
-        this.mapper = mapper;
 
         actualTime = queryTime;
         stages = new ArrayList<>();
@@ -147,7 +141,7 @@ class MapStatesToStages implements JourneyStateUpdate {
         logger.debug("Walk cost " + cost);
         if (atStart) {
             LatLong walkStartLocation = GraphProps.getLatLong(beforeWalkNode);
-            walkFromStartPending = new WalkFromStartPending(mapper, walkStartLocation);
+            walkFromStartPending = new WalkFromStartPending(walkStartLocation);
             walkStartStation = null;
             beginWalkClock = getActualClock();
             logger.info("Begin walk from start " + walkStartLocation);
@@ -177,7 +171,7 @@ class MapStatesToStages implements JourneyStateUpdate {
                 // walk from a station
                 Station walkStation = stationRepository.getStationById(walkStartStation);
                 LatLong walkEnd = GraphProps.getLatLong(endWalkNode);
-                MyLocation destination = MyLocation.create(mapper, walkEnd);
+                MyLocation destination = MyLocation.create(walkEnd);
 
                 logger.info("End walk from station to " + walkEnd + " duration " + duration);
                 WalkingFromStationStage stage = new WalkingFromStationStage(walkStation, destination,
@@ -222,14 +216,12 @@ class MapStatesToStages implements JourneyStateUpdate {
 
     private static class WalkFromStartPending {
 
-        private final ObjectMapper mapper;
         private final LatLong walkStart;
         private int totalCostAtDestination;
         private Station destination;
         private int duration;
 
-        public WalkFromStartPending(ObjectMapper mapper, LatLong walkStart) {
-            this.mapper = mapper;
+        public WalkFromStartPending(LatLong walkStart) {
             this.walkStart = walkStart;
         }
 
@@ -240,7 +232,7 @@ class MapStatesToStages implements JourneyStateUpdate {
         }
 
         public WalkingToStationStage createStage(TramTime actualTime, int totalCostNow) {
-            MyLocation walkStation = MyLocation.create(mapper, walkStart);
+            MyLocation walkStation = MyLocation.create(walkStart);
             logger.info("End walk to station " + destination.getId() + " duration " + duration);
 
             // offset for boarding cost

@@ -1,16 +1,14 @@
 package com.tramchester.graph.search;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.domain.id.IdFor;
-import com.tramchester.domain.places.Location;
-import com.tramchester.domain.places.MyLocation;
-import com.tramchester.domain.places.Station;
+import com.tramchester.domain.places.*;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.graph.caches.NodeContentsRepository;
 import com.tramchester.graph.graphbuild.GraphLabel;
 import com.tramchester.graph.graphbuild.GraphProps;
-import com.tramchester.repository.CompositeStationRepository;
+import com.tramchester.repository.StationGroupsRepository;
+import com.tramchester.repository.StationRepository;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Path;
 
@@ -21,19 +19,20 @@ import java.util.List;
 import java.util.Optional;
 
 import static com.tramchester.graph.graphbuild.GraphLabel.*;
+import static java.lang.String.format;
 
 @LazySingleton
 public class MapPathToLocations {
-    private final CompositeStationRepository stationRepository;
-    private final ObjectMapper mapper;
+    private final StationRepository stationRepository;
     private final NodeContentsRepository nodeContentsRepository;
+    private final StationGroupsRepository stationGroupsRepository;
 
     @Inject
-    public MapPathToLocations(CompositeStationRepository stationRepository, ObjectMapper mapper,
-                              NodeContentsRepository nodeContentsRepository) {
+    public MapPathToLocations(StationRepository stationRepository, NodeContentsRepository nodeContentsRepository,
+                              StationGroupsRepository stationGroupsRepository) {
         this.stationRepository = stationRepository;
-        this.mapper = mapper;
         this.nodeContentsRepository = nodeContentsRepository;
+        this.stationGroupsRepository = stationGroupsRepository;
     }
 
     public List<Location<?>> mapToLocations(Path path) {
@@ -59,17 +58,26 @@ public class MapPathToLocations {
 
     private Optional<Location<?>> mapNode(Node node) {
         EnumSet<GraphLabel> labels = nodeContentsRepository.getLabels(node);
+        if (labels.contains(GROUPED)) {
+            IdFor<NaptanArea> areaId = GraphProps.getAreaIdFromGrouped(node);
+            final GroupedStations stationGroup = stationGroupsRepository.getStationGroup(areaId);
+            if (stationGroup==null) {
+                throw new RuntimeException(format("Missing grouped station %s for %s labels %s props %s",
+                        areaId, node.getId(), node.getLabels(), node.getAllProperties()));
+            }
+            return Optional.of(stationGroup);
+        }
         if (labels.contains(STATION)) {
             IdFor<Station> stationId = GraphProps.getStationIdFrom(node);
             return Optional.of(stationRepository.getStationById(stationId));
         }
         if (labels.contains(ROUTE_STATION)) {
             IdFor<Station> stationId = GraphProps.getStationIdFrom(node);
-            return  Optional.of(stationRepository.getStationById(stationId));
+            return Optional.of(stationRepository.getStationById(stationId));
         }
         if (labels.contains(QUERY_NODE)) {
             LatLong latLong = GraphProps.getLatLong(node);
-            return  Optional.of(MyLocation.create(mapper, latLong));
+            return  Optional.of(MyLocation.create(latLong));
         }
         return Optional.empty();
     }

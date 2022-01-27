@@ -19,8 +19,8 @@ import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.geo.MarginInMeters;
 import com.tramchester.geo.StationLocations;
 import com.tramchester.repository.ClosedStationsRepository;
-import com.tramchester.repository.CompositeStationRepository;
 import com.tramchester.repository.DataSourceRepository;
+import com.tramchester.repository.StationRepository;
 import com.tramchester.repository.StationRepositoryPublic;
 import io.dropwizard.jersey.caching.CacheControl;
 import io.swagger.annotations.Api;
@@ -53,10 +53,11 @@ public class StationResource extends UsesRecentCookie implements APIResource {
     private final TramchesterConfig config;
 
     @Inject
-    public StationResource(CompositeStationRepository stationRepository,
+    public StationResource(StationRepository stationRepository,
                            UpdateRecentJourneys updateRecentJourneys, ObjectMapper mapper,
                            ProvidesNow providesNow,
-                           DataSourceRepository dataSourceRepository, StationLocations stationLocations, ClosedStationsRepository closedStationsRepository, TramchesterConfig config) {
+                           DataSourceRepository dataSourceRepository, StationLocations stationLocations,
+                           ClosedStationsRepository closedStationsRepository, TramchesterConfig config) {
         super(updateRecentJourneys, providesNow, mapper);
         logger.info("created");
         this.stationRepository = stationRepository;

@@ -43,7 +43,7 @@ class PostcodeResourceTest {
 
         PostcodeDTO result = found.get();
 
-        assertEquals("m", result.getArea());
+        //assertEquals("m", result.getArea());
         assertEquals(TestEnv.postcodeForWythenshaweHosp(), result.getName());
 
         LatLong expected = TestEnv.nearWythenshaweHosp;

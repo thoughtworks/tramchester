@@ -15,7 +15,8 @@ import com.tramchester.integration.testSupport.APIClient;
 import com.tramchester.integration.testSupport.IntegrationAppExtension;
 import com.tramchester.integration.testSupport.JourneyResourceTestFacade;
 import com.tramchester.integration.testSupport.bus.IntegrationBusTestConfig;
-import com.tramchester.repository.CompositeStationRepository;
+import com.tramchester.repository.StationGroupsRepository;
+import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.testTags.BusTest;
 import io.dropwizard.testing.junit5.DropwizardExtensionsSupport;
@@ -46,8 +47,8 @@ class JourneyPlannerBusTest {
 
     private LocalDate when;
     private JourneyResourceTestFacade journeyResourceTestFacade;
-    private CompositeStationRepository compositeStationRepository;
     private GroupedStations stockportBusStation;
+    private StationRepository stationRepository;
 
     @BeforeEach
     void beforeEachTestRuns() {
@@ -55,9 +56,10 @@ class JourneyPlannerBusTest {
         journeyResourceTestFacade = new JourneyResourceTestFacade(appExt);
         App app = appExt.getApplication();
 
-        compositeStationRepository = app.getDependencies().get(CompositeStationRepository.class);
+        stationRepository = app.getDependencies().get(StationRepository.class);
 
-        stockportBusStation = compositeStationRepository.findByName(Composites.StockportTempBusStation.getName());
+        StationGroupsRepository stationGroupsRepository = app.getDependencies().get(StationGroupsRepository.class);
+        stockportBusStation = stationGroupsRepository.findByName(Composites.StockportTempBusStation.getName());
     }
 
     @Test
@@ -68,7 +70,7 @@ class JourneyPlannerBusTest {
 
         List<StationRefDTO> results = result.readEntity(new GenericType<>() {});
 
-        Set<String> stationsIds = compositeStationRepository.getStationsServing(TransportMode.Bus).stream().
+        Set<String> stationsIds = stationRepository.getStationsServing(TransportMode.Bus).stream().
                 map(station -> station.getId().forDTO()).collect(Collectors.toSet());
 
         assertEquals(stationsIds.size(), results.size());

@@ -14,7 +14,7 @@ import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.search.RouteCalculator;
 import com.tramchester.integration.testSupport.RouteCalculatorTestFacade;
 import com.tramchester.integration.testSupport.bus.IntegrationBusTestConfig;
-import com.tramchester.repository.CompositeStationRepository;
+import com.tramchester.repository.StationGroupsRepository;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.testTags.BusTest;
@@ -44,7 +44,8 @@ class BusRouteCalculatorTest {
     private static IntegrationBusTestConfig testConfig;
 
     private RouteCalculatorTestFacade calculator;
-    private CompositeStationRepository compositeStationRepository;
+    private StationGroupsRepository compositeStationRepository;
+    private StationRepository stationRepository;
 
     private final LocalDate when = TestEnv.testDay();
     private Transaction txn;
@@ -72,8 +73,8 @@ class BusRouteCalculatorTest {
     void beforeEachTestRuns() {
         maxJourneyDuration = testConfig.getMaxJourneyDuration();
         txn = database.beginTx(TXN_TIMEOUT, TimeUnit.SECONDS);
-        StationRepository stationRepository = componentContainer.get(StationRepository.class);
-        compositeStationRepository = componentContainer.get(CompositeStationRepository.class);
+        stationRepository = componentContainer.get(StationRepository.class);
+        compositeStationRepository = componentContainer.get(StationGroupsRepository.class);
         calculator = new RouteCalculatorTestFacade(componentContainer.get(RouteCalculator.class), stationRepository, txn);
 
         stockportBusStation = compositeStationRepository.findByName(Composites.StockportTempBusStation.getName());
@@ -233,7 +234,7 @@ class BusRouteCalculatorTest {
         JourneyRequest journeyRequest = new JourneyRequest(new TramServiceDate(when), TramTime.of(9,40),
                 false, maxChanges, maxJourneyDuration, 3);
 
-        Station asdaBroadhealth = compositeStationRepository.getStationById(StringIdFor.createId("1800SJ18511"));
+        Station asdaBroadhealth = stationRepository.getStationById(StringIdFor.createId("1800SJ18511"));
         assertNotNull(asdaBroadhealth);
 
         Set<Journey> journeys = calculator.calculateRouteAsSet(shudehillInterchange, asdaBroadhealth, journeyRequest);

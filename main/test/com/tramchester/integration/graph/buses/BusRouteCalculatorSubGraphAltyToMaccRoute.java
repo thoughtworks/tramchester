@@ -53,7 +53,7 @@ class BusRouteCalculatorSubGraphAltyToMaccRoute {
 
     private Transaction txn;
     private TramServiceDate when;
-    private CompositeStationRepository compositeStationRepository;
+    private StationGroupsRepository stationGroupsRepository;
     private GroupedStations altrinchamInterchange;
     private List<Station> knutfordStations;
 
@@ -93,7 +93,7 @@ class BusRouteCalculatorSubGraphAltyToMaccRoute {
         GraphDatabase database = componentContainer.get(GraphDatabase.class);
 
         StationRepository stationRepository = componentContainer.get(StationRepository.class);
-        compositeStationRepository = componentContainer.get(CompositeStationRepository.class);
+        stationGroupsRepository = componentContainer.get(StationGroupsRepository.class);
 
         txn = database.beginTx();
 
@@ -101,7 +101,7 @@ class BusRouteCalculatorSubGraphAltyToMaccRoute {
 
         when = new TramServiceDate(TestEnv.testDay());
 
-        altrinchamInterchange = compositeStationRepository.findByName("Altrincham Interchange");
+        altrinchamInterchange = stationGroupsRepository.findByName("Altrincham Interchange");
 
         LatLong nearKnutsfordBusStation = new LatLong(53.30262,-2.3775267);
         StationLocations stationLocations = componentContainer.get(StationLocations.class);
@@ -151,7 +151,7 @@ class BusRouteCalculatorSubGraphAltyToMaccRoute {
 
         //Station start = compositeStationRepository.findByName("Bus Station");
         Station start = knutfordStations.get(0);
-        assertNotNull(start, compositeStationRepository.getAllComposites().toString());
+        assertNotNull(start, stationGroupsRepository.getAllGroups().toString());
 
         TramTime time = TramTime.of(11, 20);
         JourneyRequest journeyRequest = new JourneyRequest(when, time, false,

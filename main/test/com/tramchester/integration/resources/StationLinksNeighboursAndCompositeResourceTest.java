@@ -11,7 +11,8 @@ import com.tramchester.domain.presentation.DTO.StationRefDTO;
 import com.tramchester.integration.testSupport.IntegrationAppExtension;
 import com.tramchester.integration.testSupport.APIClient;
 import com.tramchester.integration.testSupport.NeighboursTestConfig;
-import com.tramchester.repository.CompositeStationRepository;
+import com.tramchester.repository.StationGroupsRepository;
+import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.reference.BusStations;
 import com.tramchester.testSupport.testTags.BusTest;
 import io.dropwizard.testing.junit5.DropwizardExtensionsSupport;
@@ -43,7 +44,8 @@ class StationLinksNeighboursAndCompositeResourceTest {
 
     private GroupedStations shudehillCompositeBus;
     private Station shudehillTram;
-    private CompositeStationRepository compositeStationRepository;
+    private StationGroupsRepository stationGroupsRepository;
+    private StationRepository stationRepository;
 
     @BeforeAll
     public static void beforeAnyTestsRun() {
@@ -53,10 +55,12 @@ class StationLinksNeighboursAndCompositeResourceTest {
 
     @BeforeEach
     public void onceBeforeEachTest() {
-        compositeStationRepository = dependencies.get(CompositeStationRepository.class);
+        stationGroupsRepository = dependencies.get(StationGroupsRepository.class);
+        stationRepository = dependencies.get(StationRepository.class);
+
         String shudehill_interchange = "Shudehill Interchange";
-        shudehillCompositeBus = compositeStationRepository.findByName(shudehill_interchange);
-        shudehillTram = compositeStationRepository.getStationById(Shudehill.getId());
+        shudehillCompositeBus = stationGroupsRepository.findByName(shudehill_interchange);
+        shudehillTram = stationRepository.getStationById(Shudehill.getId());
     }
 
     @Test
@@ -100,13 +104,13 @@ class StationLinksNeighboursAndCompositeResourceTest {
     @Test
     void expectedNumbers() {
         List<StationLinkDTO> results = getLinks();
-        assertEquals(2494, results.size(), "count of links");
+        assertEquals(2476, results.size(), "count of links");
     }
 
     @Test
     void shouldGetCompositeStations() {
         final String altrinchamInterchange = BusStations.Composites.AltrinchamInterchange.getName();
-        GroupedStations actualComposite = compositeStationRepository.findByName(altrinchamInterchange);
+        GroupedStations actualComposite = stationGroupsRepository.findByName(altrinchamInterchange);
         Set<String> expectedIds = actualComposite.getContained().stream().
                 map(Station::forDTO).
                 collect(Collectors.toSet());

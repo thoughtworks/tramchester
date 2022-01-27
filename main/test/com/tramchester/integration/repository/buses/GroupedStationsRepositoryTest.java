@@ -7,7 +7,7 @@ import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.places.GroupedStations;
 import com.tramchester.domain.places.Station;
 import com.tramchester.integration.testSupport.bus.IntegrationBusTestConfig;
-import com.tramchester.repository.CompositeStationRepository;
+import com.tramchester.repository.StationGroupsRepository;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.reference.BusStations;
 import com.tramchester.testSupport.testTags.BusTest;
@@ -28,8 +28,8 @@ import static org.junit.jupiter.api.Assertions.*;
 
 @BusTest
 class GroupedStationsRepositoryTest {
-    private CompositeStationRepository repository;
-    private StationRepository fullRepository;
+    private StationGroupsRepository stationGroupsRepository;
+    private StationRepository stationRepository;
 
     private static ComponentContainer componentContainer;
 
@@ -46,8 +46,8 @@ class GroupedStationsRepositoryTest {
 
     @BeforeEach
     void onceBeforeEachTestRuns() {
-        repository = componentContainer.get(CompositeStationRepository.class);
-        fullRepository = componentContainer.get(StationRepository.class);
+        stationGroupsRepository = componentContainer.get(StationGroupsRepository.class);
+        stationRepository = componentContainer.get(StationRepository.class);
     }
 
     @Test
@@ -55,8 +55,8 @@ class GroupedStationsRepositoryTest {
         Set<String> uniqueNames = new HashSet<>();
         Set<Station> dups = new HashSet<>();
 
-        repository.getStationsServing(Bus).forEach(station -> {
-            String name = station.getName() + " " + station.getArea();
+        stationRepository.getStationsServing(Bus).forEach(station -> {
+            String name = station.getName(); // + " " + station.getArea();
             if (uniqueNames.contains(name)) {
                 dups.add(station);
             }
@@ -68,34 +68,34 @@ class GroupedStationsRepositoryTest {
 
     @Test
     void shouldFindExpectedCompositeStations() {
-        assertNotNull(repository.findByName("Shudehill Interchange"));
-        final GroupedStations groupedStations = repository.findByName(BusStations.Composites.AltrinchamInterchange.getName());
+        assertNotNull(stationGroupsRepository.findByName("Shudehill Interchange"));
+        final GroupedStations groupedStations = stationGroupsRepository.findByName(BusStations.Composites.AltrinchamInterchange.getName());
         assertNotNull(groupedStations);
 
-        assertTrue(groupedStations.isComposite());
-        assertEquals("Altrincham", groupedStations.getArea());
+        assertTrue(groupedStations.isStationGroup());
+        assertEquals("TODO", groupedStations.getAreaId());
         assertEquals(2, groupedStations.getMinimumChangeCost());
     }
 
     @Test
     void shouldHaveCorrectNumberOfComposites() {
-        assertFalse(repository.getStationsServing(Bus).isEmpty());
+        assertFalse(stationRepository.getStationsServing(Bus).isEmpty());
 
-        long duplicateNamesFromFullRepository = fullRepository.getStations().stream().map(Station::getName).
+        long duplicateNamesFromFullRepository = stationRepository.getStations().stream().map(Station::getName).
                 collect(Collectors.groupingBy(Function.identity(), Collectors.counting())).
                 values().stream().
                 filter(count -> count > 1).count();
 
         // at least this many, will be more due to additional area grouping
-        assertTrue(repository.getNumberOfComposites() >= duplicateNamesFromFullRepository);
-        assertTrue(repository.getCompositesServing(Bus).size() >= duplicateNamesFromFullRepository);
+        assertTrue(stationGroupsRepository.getNumberOfGroups() >= duplicateNamesFromFullRepository);
+        assertTrue(stationGroupsRepository.getCompositesServing(Bus).size() >= duplicateNamesFromFullRepository);
     }
 
     @Test
     void shouldHaveUniqueIds() {
         IdSet<Station> uniqueIds = new IdSet<>();
 
-        repository.getStationsServing(Bus).forEach(station -> {
+        stationRepository.getStationsServing(Bus).forEach(station -> {
             IdFor<Station> id = station.getId();
             assertFalse(uniqueIds.contains(id), "Not unique " + id);
             uniqueIds.add(id);
@@ -104,30 +104,30 @@ class GroupedStationsRepositoryTest {
 
     @Test
     void shouldHaveAndFindCorrectlyForComposites() {
-        Set<GroupedStations> compositesFor = repository.getCompositesServing(Bus);
+        Set<GroupedStations> compositesFor = stationGroupsRepository.getCompositesServing(Bus);
         assertFalse(compositesFor.isEmpty());
 
         compositesFor.forEach(station -> {
             IdFor<Station> id = station.getId();
 
-            assertTrue(repository.hasStationId(id), "could not find " + id);
-            assertNotNull(repository.getStationById(id), "could not get " + id);
+            assertTrue(stationRepository.hasStationId(id), "could not find " + id);
+            assertNotNull(stationRepository.getStationById(id), "could not get " + id);
 
-            assertFalse(fullRepository.hasStationId(id), "comp id should not be in full repos");
+            assertFalse(stationRepository.hasStationId(id), "comp id should not be in full repos");
 
         });
     }
 
     @Test
     void shouldFindCorrectlyForNonComposites() {
-        IdSet<Station> compIds = repository.getCompositesServing(Bus).stream().map(Station::getId).collect(IdSet.idCollector());
+        IdSet<Station> compIds = stationGroupsRepository.getCompositesServing(Bus).stream().map(Station::getId).collect(IdSet.idCollector());
         assertFalse(compIds.isEmpty());
 
-        fullRepository.getStations().stream().filter(station -> !compIds.contains(station.getId())).forEach(station -> {
+        stationRepository.getStations().stream().filter(station -> !compIds.contains(station.getId())).forEach(station -> {
             IdFor<Station> id = station.getId();
 
-            assertTrue(repository.hasStationId(id));
-            Station foundViaRepos = repository.getStationById(id);
+            assertTrue(stationRepository.hasStationId(id));
+            Station foundViaRepos = stationRepository.getStationById(id);
             assertNotNull(foundViaRepos);
             assertEquals(station, foundViaRepos);
         });
@@ -135,8 +135,8 @@ class GroupedStationsRepositoryTest {
 
     @Test
     void shouldGetCorrectForNonCompositeStation() {
-        Station resultA = repository.getStationById(ManchesterAirportStation.getId());
-        Station resultFull = fullRepository.getStationById(ManchesterAirportStation.getId());
+        Station resultA = stationRepository.getStationById(ManchesterAirportStation.getId());
+        Station resultFull = stationRepository.getStationById(ManchesterAirportStation.getId());
 
         assertEquals(resultFull, resultA);
 

@@ -1,9 +1,9 @@
 package com.tramchester.graph.search;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.domain.JourneyRequest;
 import com.tramchester.domain.id.IdFor;
+import com.tramchester.domain.places.NaptanArea;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.presentation.TransportStage;
@@ -17,10 +17,14 @@ import com.tramchester.graph.search.stateMachine.TraversalOps;
 import com.tramchester.graph.search.stateMachine.states.NotStartedState;
 import com.tramchester.graph.search.stateMachine.states.TraversalState;
 import com.tramchester.graph.search.stateMachine.states.TraversalStateFactory;
-import com.tramchester.repository.CompositeStationRepository;
 import com.tramchester.repository.PlatformRepository;
+import com.tramchester.repository.StationGroupsRepository;
+import com.tramchester.repository.StationRepository;
 import com.tramchester.repository.TripRepository;
-import org.neo4j.graphdb.*;
+import org.neo4j.graphdb.Entity;
+import org.neo4j.graphdb.Node;
+import org.neo4j.graphdb.Path;
+import org.neo4j.graphdb.Relationship;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -40,27 +44,27 @@ public class MapPathToStagesViaStates implements PathToStages {
 
     private static final Logger logger = LoggerFactory.getLogger(MapPathToStagesViaStates.class);
 
-    private final CompositeStationRepository stationRepository;
+    private final StationRepository stationRepository;
     private final PlatformRepository platformRepository;
     private final TraversalStateFactory stateFactory;
+    private final StationGroupsRepository stationGroupsRepository;
     private final NodeContentsRepository nodeContentsRepository;
     private final TripRepository tripRepository;
     private final SortsPositions sortsPosition;
-    private final ObjectMapper mapper;
 
     @Inject
-    public MapPathToStagesViaStates(CompositeStationRepository stationRepository, PlatformRepository platformRepository,
-                                    TraversalStateFactory stateFactory, NodeContentsRepository nodeContentsRepository,
-                                    TripRepository tripRepository, SortsPositions sortsPosition,
-                                    ObjectMapper mapper) {
+    public MapPathToStagesViaStates(StationRepository stationRepository, PlatformRepository platformRepository,
+                                    TraversalStateFactory stateFactory, StationGroupsRepository stationGroupsRepository,
+                                    NodeContentsRepository nodeContentsRepository,
+                                    TripRepository tripRepository, SortsPositions sortsPosition) {
         this.stationRepository = stationRepository;
         this.platformRepository = platformRepository;
         this.stateFactory = stateFactory;
+        this.stationGroupsRepository = stationGroupsRepository;
         this.nodeContentsRepository = nodeContentsRepository;
         this.tripRepository = tripRepository;
         this.sortsPosition = sortsPosition;
 
-        this.mapper = mapper;
     }
 
     @Override
@@ -76,7 +80,7 @@ public class MapPathToStagesViaStates implements PathToStages {
         TraversalOps traversalOps = new TraversalOps(nodeContentsRepository, tripRepository, sortsPosition, endStations,
                 destinationLatLon, lowestCostForRoutes, journeyRequest.getDate());
 
-        MapStatesToStages mapStatesToStages = new MapStatesToStages(stationRepository, platformRepository, tripRepository, queryTime, mapper);
+        MapStatesToStages mapStatesToStages = new MapStatesToStages(stationRepository, platformRepository, tripRepository, queryTime);
 
         TraversalState previous = new NotStartedState(traversalOps, stateFactory);
 
@@ -124,11 +128,16 @@ public class MapPathToStagesViaStates implements PathToStages {
     private void addViaCompositeStation(Path path, JourneyRequest journeyRequest, List<TransportStage<?, ?>> stages) {
         logger.info("Add ConnectingStage Journey via single composite node");
 
-        IdFor<Station> startId = GraphProps.getStationId(path.startNode());
-        IdFor<Station> endId = GraphProps.getStationId(path.endNode());
+//        IdFor<Station> startId = GraphProps.getStationId(path.startNode());
+//        IdFor<Station> endId = GraphProps.getStationId(path.endNode());
+//        Station start = stationRepository.getStationById(startId);
+//        Station end = stationRepository.getStationById(endId);
 
-        Station start = stationRepository.getStationById(startId);
-        Station end = stationRepository.getStationById(endId);
+        IdFor<NaptanArea> startId = GraphProps.getAreaIdFromGrouped(path.startNode());
+        IdFor<NaptanArea> endId = GraphProps.getAreaIdFromGrouped(path.endNode());
+        Station start = stationGroupsRepository.getStationGroup(startId);
+        Station end = stationGroupsRepository.getStationGroup(endId);
+
         ConnectingStage connectingStage = new ConnectingStage(start, end, 0, journeyRequest.getOriginalTime());
         stages.add(connectingStage);
     }

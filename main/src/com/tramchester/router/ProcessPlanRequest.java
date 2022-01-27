@@ -3,6 +3,7 @@ package com.tramchester.router;
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.Journey;
+import com.tramchester.domain.JourneyRequest;
 import com.tramchester.domain.id.CaseInsensitiveId;
 import com.tramchester.domain.id.CompositeId;
 import com.tramchester.domain.id.IdFor;
@@ -14,11 +15,10 @@ import com.tramchester.domain.presentation.DTO.JourneyDTO;
 import com.tramchester.domain.presentation.DTO.PostcodeDTO;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.time.TramServiceDate;
-import com.tramchester.domain.JourneyRequest;
 import com.tramchester.graph.search.RouteCalculator;
 import com.tramchester.graph.search.RouteCalculatorArriveBy;
 import com.tramchester.mappers.JourneyToDTOMapper;
-import com.tramchester.repository.CompositeStationRepository;
+import com.tramchester.repository.StationRepository;
 import com.tramchester.repository.StationRepositoryPublic;
 import com.tramchester.repository.postcodes.PostcodeRepository;
 import com.tramchester.resources.LocationJourneyPlanner;
@@ -44,7 +44,7 @@ public class ProcessPlanRequest {
 
     @Inject
     public ProcessPlanRequest(TramchesterConfig config, LocationJourneyPlanner locToLocPlanner, RouteCalculator routeCalculator,
-                              RouteCalculatorArriveBy routeCalculatorArriveBy, CompositeStationRepository stationRepository,
+                              RouteCalculatorArriveBy routeCalculatorArriveBy, StationRepository stationRepository,
                               PostcodeRepository postcodeRepository, JourneyToDTOMapper journeyToDTOMapper) {
         this.locToLocPlanner = locToLocPlanner;
 

@@ -17,7 +17,7 @@ import com.tramchester.graph.search.RouteCalculator;
 import com.tramchester.graph.search.RouteToRouteCosts;
 import com.tramchester.integration.testSupport.NeighboursTestConfig;
 import com.tramchester.integration.testSupport.RouteCalculatorTestFacade;
-import com.tramchester.repository.CompositeStationRepository;
+import com.tramchester.repository.StationGroupsRepository;
 import com.tramchester.repository.InterchangeRepository;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.resources.LocationJourneyPlanner;
@@ -69,13 +69,14 @@ public class NeighbourJourneysTest {
         GraphDatabase graphDatabase = componentContainer.get(GraphDatabase.class);
         stationRepository = componentContainer.get(StationRepository.class);
 
-        CompositeStationRepository compositeStationRepository = componentContainer.get(CompositeStationRepository.class);
-        GroupedStations shudehillCompositeBus = compositeStationRepository.findByName("Shudehill Interchange");
+        StationGroupsRepository stationGroupsRepository = componentContainer.get(StationGroupsRepository.class);
+        StationRepository stationRepository = componentContainer.get(StationRepository.class);
+        GroupedStations shudehillCompositeBus = stationGroupsRepository.findByName("Shudehill Interchange");
 
         Optional<Station> maybeStop = shudehillCompositeBus.getContained().stream().findAny();
         maybeStop.ifPresent(stop -> shudehillBusStop = stop);
 
-        shudehillTram = compositeStationRepository.getStationById(Shudehill.getId());
+        shudehillTram = stationRepository.getStationById(Shudehill.getId());
 
         txn = graphDatabase.beginTx();
         routeCalculator = new RouteCalculatorTestFacade(componentContainer.get(RouteCalculator.class), stationRepository, txn);

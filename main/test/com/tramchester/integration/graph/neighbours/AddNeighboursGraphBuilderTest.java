@@ -10,7 +10,8 @@ import com.tramchester.graph.GraphQuery;
 import com.tramchester.graph.graphbuild.CompositeStationGraphBuilder;
 import com.tramchester.graph.graphbuild.StagedTransportGraphBuilder;
 import com.tramchester.integration.testSupport.NeighboursTestConfig;
-import com.tramchester.repository.CompositeStationRepository;
+import com.tramchester.repository.StationGroupsRepository;
+import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.TramStations;
 import com.tramchester.testSupport.testTags.BusTest;
@@ -66,12 +67,13 @@ class AddNeighboursGraphBuilderTest {
     @BeforeEach
     void onceBeforeEachTest() {
 
-        CompositeStationRepository compositeStationRepository = componentContainer.get(CompositeStationRepository.class);
+        StationRepository stationRepository = componentContainer.get(StationRepository.class);
+        StationGroupsRepository stationGroupsRepository = componentContainer.get(StationGroupsRepository.class);
 
         graphQuery = componentContainer.get(GraphQuery.class);
 
-        shudehillCompositeBus = compositeStationRepository.findByName("Shudehill Interchange");
-        shudehillTram = compositeStationRepository.getStationById(Shudehill.getId());
+        shudehillCompositeBus = stationGroupsRepository.findByName("Shudehill Interchange");
+        shudehillTram = stationRepository.getStationById(Shudehill.getId());
 
         // force init of main DB and hence save of VERSION node, so avoid multiple rebuilds of the DB
         componentContainer.get(StagedTransportGraphBuilder.Ready.class);

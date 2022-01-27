@@ -11,14 +11,12 @@ public class StationRefDTO {
     private boolean dropOff;
     private String id;
     private String name;
-    private String area;
     private Set<TransportMode> transportModes;
 
     public StationRefDTO(Location<?> location) {
         this.id = location.forDTO();
         this.name = location.getName();
         this.transportModes = location.getTransportModes();
-        this.area = location.getArea();
         this.pickUp = location.hasPickup();
         this.dropOff = location.hasDropoff();
     }
@@ -40,7 +38,6 @@ public class StationRefDTO {
         return "StationRefDTO{" +
                 "id='" + id + '\'' +
                 ", name='" + name + '\'' +
-                ", area='" + area + '\'' +
                 ", transportModes=" + transportModes +
                 '}';
     }
@@ -62,10 +59,6 @@ public class StationRefDTO {
 
     public Set<TransportMode> getTransportModes() {
         return transportModes;
-    }
-
-    public String getArea() {
-        return area;
     }
 
     public boolean getPickUp() {

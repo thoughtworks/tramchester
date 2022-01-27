@@ -2,6 +2,7 @@ package com.tramchester;
 
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.domain.id.IdFor;
+import com.tramchester.domain.places.NaptanArea;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramTime;
@@ -10,7 +11,8 @@ import com.tramchester.graph.GraphQuery;
 import com.tramchester.graph.TransportRelationshipTypes;
 import com.tramchester.graph.graphbuild.GraphLabel;
 import com.tramchester.graph.graphbuild.GraphProps;
-import com.tramchester.repository.CompositeStationRepository;
+import com.tramchester.repository.StationRepository;
+import com.tramchester.repository.naptan.NaptanRespository;
 import org.jetbrains.annotations.NotNull;
 import org.neo4j.graphdb.Direction;
 import org.neo4j.graphdb.Node;
@@ -25,9 +27,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
 
-import static com.tramchester.graph.GraphPropertyKey.*;
+import static com.tramchester.graph.GraphPropertyKey.PLATFORM_ID;
 import static com.tramchester.graph.TransportRelationshipTypes.*;
-import static com.tramchester.graph.graphbuild.GraphLabel.HOUR;
 import static com.tramchester.graph.graphbuild.GraphLabel.*;
 import static java.lang.String.format;
 
@@ -40,16 +41,19 @@ public class DiagramCreator {
     private final GraphQuery graphQuery;
     private final TransportRelationshipTypes[] toplevelRelationships =
             new TransportRelationshipTypes[]{LINKED, ON_ROUTE, ROUTE_TO_STATION, STATION_TO_ROUTE, };
-    private final CompositeStationRepository stationRepository;
+    private final StationRepository stationRepository;
+    private final NaptanRespository naptanRespository;
 
     private static Path diagramsFolder = Path.of("diagrams");
 
     @Inject
-    public DiagramCreator(GraphDatabase graphDatabase, GraphQuery graphQuery, CompositeStationRepository stationRepository) {
+    public DiagramCreator(GraphDatabase graphDatabase, GraphQuery graphQuery, StationRepository stationRepository,
+                          NaptanRespository naptanRespository) {
         // ready is token to express dependency on having a built graph DB
         this.graphDatabase = graphDatabase;
         this.graphQuery = graphQuery;
         this.stationRepository = stationRepository;
+        this.naptanRespository = naptanRespository;
     }
 
     public void create(Path filename, Station station, int depthLimit, boolean topLevel) throws IOException {
@@ -229,10 +233,15 @@ public class DiagramCreator {
             String routeId = GraphProps.getRouteIdFrom(node).getGraphId();
             return format("%s\n%s\n%s", routeId, stationId, mode.name());
         }
+        if (node.hasLabel(GROUPED)) {
+            IdFor<NaptanArea> areaId = GraphProps.getAreaIdFromGrouped(node);
+            NaptanArea area = naptanRespository.getAreaFor(areaId);
+            return format("%s\n%s", area.getName(), areaId.getGraphId());
+        }
         if (node.hasLabel(TRAM_STATION) || node.hasLabel(BUS_STATION) || node.hasLabel(TRAIN_STATION)) {
             IdFor<Station> stationId = GraphProps.getStationId(node);
             Station station = stationRepository.getStationById(stationId);
-            return format("%s\n%s\n%s", station.getName(), station.getArea(), stationId.getGraphId());
+            return format("%s\n%s", station.getName(), stationId.getGraphId());
         }
         if (node.hasLabel(SERVICE)) {
             return GraphProps.getServiceId(node).getGraphId();

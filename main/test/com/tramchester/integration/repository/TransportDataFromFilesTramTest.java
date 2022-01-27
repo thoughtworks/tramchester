@@ -442,7 +442,6 @@ public class TransportDataFromFilesTramTest {
     void shouldHaveAreaForCityCenterStop() {
         Station station = transportData.getStationById(StPetersSquare.getId());
         assertEquals("St Peter's Square", station.getName());
-        assertEquals("Manchester City Centre, Manchester", station.getArea());
     }
 
     @Test

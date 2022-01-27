@@ -18,41 +18,41 @@ import org.jetbrains.annotations.NotNull;
 @Deprecated
 public enum BusStations implements TestStations {
 
-    StopAtAltrinchamInterchange("1800AMIC0C1", "Altrincham", "Altrincham Interchange",
+    StopAtAltrinchamInterchange("1800AMIC0C1", "Altrincham Interchange",
             new LatLong(53.38745, -2.34771)),
     // stockport bus stations is no more, at least for now
 //    StopAtStockportBusStation("1800SGQ0021", "Stockport", "Stockport Bus Station",
 //            new LatLong(53.4091,-2.16443890806)),
-    StopAtHeatonLaneStockportBusStation("1800STIC011", "Stockport", "Stockport Heaton Lane Bus Station",
+    StopAtHeatonLaneStockportBusStation("1800STIC011", "Stockport Heaton Lane Bus Station",
             new LatLong(53.41036253703,-2.16501729098)),
-    StopAtShudehillInterchange("1800SHIC0C1", "Shudehill, Manchester City Centre", "Shudehill Interchange",
+    StopAtShudehillInterchange("1800SHIC0C1", "Shudehill Interchange",
             new LatLong(53.48557, -2.23827)),
-    ManchesterAirportStation("1800MABS0E1", "Manchester Airport, Manchester", "Manchester Airport The Station",
+    ManchesterAirportStation("1800MABS0E1", "Manchester Airport The Station",
             new LatLong(53.3656, -2.27242)),
-    KnutsfordStationStand3("0600MA6022", "Knutsford", "Bus Station",
+    KnutsfordStationStand3("0600MA6022", "Bus Station",
             new LatLong(53.30245, -2.37551)),
-    BuryInterchange("1800BYIC0C1", "Bury", "Bury Interchange",
+    BuryInterchange("1800BYIC0C1", "Bury Interchange",
             new LatLong(53.59134, -2.29706)),
-    PiccadilyStationStopA("1800EB01201", "Manchester City Centre, Manchester", "Manchester Piccadilly Rail Station",
+    PiccadilyStationStopA("1800EB01201", "Manchester Piccadilly Rail Station",
             new LatLong(53.47683, -2.23146)),
-    PiccadillyGardensStopH("1800SB05001", "Piccadilly Gardens, Manchester City Centre", "Piccadilly Gardens",
+    PiccadillyGardensStopH("1800SB05001", "Piccadilly Gardens",
             new LatLong(53.48063,-2.23825)),
-    PiccadillyGardensStopN("1800SB04721", "Piccadilly Gardens, Manchester City Centre", "Piccadilly Gardens",
+    PiccadillyGardensStopN("1800SB04721", "Piccadilly Gardens",
             new LatLong(53.48017, -2.23723)),
     // No longer in the data?
 //    MacclefieldBusStationBay1("0600MA6154", "Macclesfield", "Macclesfield, Bus Station (Bay 1)",
 //            new LatLong(53.25831, -2.12502)),
-    StockportAtAldi("1800SG15721", "Stockport", "Aldi",
+    StockportAtAldi("1800SG15721", "Aldi",
             new LatLong(53.41115, -2.15221)),
-    StockportNewbridgeLane("1800SG15561", "Stockport", "Newbridge Lane",
+    StockportNewbridgeLane("1800SG15561", "Newbridge Lane",
             new LatLong(53.41149, -2.15438));
 
     private final TestStation station;
 
-    BusStations(String id, String area, String name, LatLong latlong) {
+    BusStations(String id, String name, LatLong latlong) {
         @NotNull GridPosition grid = CoordinateTransforms.getGridPosition(latlong);
         IdFor<NaptanArea> areaId = IdFor.invalid();
-        this.station = new TestStation(id, area, areaId, name, latlong, grid, TransportMode.Bus, DataSourceID.tfgm);
+        this.station = new TestStation(id, areaId, name, latlong, grid, TransportMode.Bus, DataSourceID.tfgm);
     }
 
     @Deprecated

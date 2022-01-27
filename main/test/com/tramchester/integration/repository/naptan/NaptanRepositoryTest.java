@@ -10,7 +10,7 @@ import com.tramchester.domain.places.Station;
 import com.tramchester.geo.GridPosition;
 import com.tramchester.integration.testSupport.rail.RailStationIds;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
-import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfigWithXMLNaptan;
+import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfigWithNaptan;
 import com.tramchester.repository.naptan.NaptanRespository;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.BusStations;
@@ -31,7 +31,7 @@ class NaptanRepositoryTest {
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
-        IntegrationTramTestConfig testConfig = new IntegrationTramTestConfigWithXMLNaptan();
+        IntegrationTramTestConfig testConfig = new IntegrationTramTestConfigWithNaptan();
         componentContainer = new ComponentsBuilder().create(testConfig, TestEnv.NoopRegisterMetrics());
         componentContainer.initialise();
     }

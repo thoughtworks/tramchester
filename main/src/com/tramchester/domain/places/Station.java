@@ -24,12 +24,9 @@ public interface Station extends Location<Station> {
     LatLong getLatLong();
 
     @Override
-    String getArea();
-
-    @Override
     boolean hasPlatforms();
 
-    boolean isComposite();
+    boolean isStationGroup();
 
     @Override
     Set<TransportMode> getTransportModes();

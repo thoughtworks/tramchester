@@ -33,7 +33,7 @@ public class Interchanges implements InterchangeRepository {
     private final FindStationsByNumberLinks findStationsByNumberConnections;
     private final StationRepository stationRepository;
     private final NeighboursRepository neighboursRepository;
-    private final CompositeStationRepository compositeStationRepository;
+    private final StationGroupsRepository compositeStationRepository;
     private final TramchesterConfig config;
     private final GraphFilter graphFilter;
 
@@ -41,7 +41,7 @@ public class Interchanges implements InterchangeRepository {
 
     @Inject
     public Interchanges(FindStationsByNumberLinks findStationsByNumberConnections, StationRepository stationRepository,
-                        NeighboursRepository neighboursRepository, CompositeStationRepository compositeStationRepository,
+                        NeighboursRepository neighboursRepository, StationGroupsRepository compositeStationRepository,
                         TramchesterConfig config, GraphFilter graphFilter, StationsAndLinksGraphBuilder.Ready ready) {
         this.findStationsByNumberConnections = findStationsByNumberConnections;
         this.stationRepository = stationRepository;

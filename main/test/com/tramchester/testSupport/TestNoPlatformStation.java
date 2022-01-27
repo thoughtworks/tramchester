@@ -16,7 +16,7 @@ public class TestNoPlatformStation extends TestStation {
 
     public TestNoPlatformStation(String id, String area, IdFor<NaptanArea> areaId, String stationName, LatLong latLong,
                                  GridPosition gridPosition, TransportMode mode, DataSourceID dataSourceID) {
-        super(id, "", areaId, stationName, latLong, gridPosition, mode, dataSourceID);
+        super(id, areaId, stationName, latLong, gridPosition, mode, dataSourceID);
     }
 
     @Override

@@ -250,7 +250,7 @@ public class LocationJourneyPlanner {
         }
 
         List<Station> filtered = GroupedStations.expandStations(nearbyStationsWithComposites).stream()
-                .filter(station -> !station.isComposite())
+                .filter(station -> !station.isStationGroup())
                 .filter(graphFilter::shouldInclude).collect(Collectors.toList());
 
         Set<StationWalk> stationWalks = createWalks(latLong, filtered);

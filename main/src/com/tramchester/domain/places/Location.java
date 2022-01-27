@@ -16,9 +16,6 @@ public interface Location<TYPE extends Location<?>> extends HasId<TYPE>, IdForDT
 
     GridPosition getGridPosition();
 
-    @Deprecated
-    String getArea();
-
     IdFor<NaptanArea> getAreaId();
 
     boolean hasPlatforms();

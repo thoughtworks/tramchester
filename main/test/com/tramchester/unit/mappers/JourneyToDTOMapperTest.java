@@ -72,7 +72,7 @@ class JourneyToDTOMapperTest extends EasyMockSupport {
         mapper = new JourneyToDTOMapper(stageFactory, providesNotes);
         stages = new LinkedList<>();
         tramServiceDate = new TramServiceDate(when);
-        nearPiccGardensLocation = new MyLocation("Manchester", TestEnv.nearPiccGardens);
+        nearPiccGardensLocation = new MyLocation(TestEnv.nearPiccGardens);
     }
 
     private Route createRoute(String name) {

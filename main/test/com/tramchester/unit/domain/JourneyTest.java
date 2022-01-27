@@ -42,7 +42,7 @@ class JourneyTest {
         queryTime = TramTime.of(9,16);
         path = Collections.emptyList();
         stopSequenceNumbers = Arrays.asList(10,11,12,13);
-        myLocation = new MyLocation(MyLocation.MY_LOCATION_PLACEHOLDER_ID, TestEnv.nearWythenshaweHosp);
+        myLocation = new MyLocation(TestEnv.nearWythenshaweHosp);
     }
 
     @Test

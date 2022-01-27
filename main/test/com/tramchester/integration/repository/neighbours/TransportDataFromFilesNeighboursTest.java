@@ -8,7 +8,7 @@ import com.tramchester.domain.places.GroupedStations;
 import com.tramchester.domain.places.Station;
 import com.tramchester.integration.testSupport.NeighboursTestConfig;
 import com.tramchester.repository.AgencyRepository;
-import com.tramchester.repository.CompositeStationRepository;
+import com.tramchester.repository.StationGroupsRepository;
 import com.tramchester.repository.RouteRepository;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.TestEnv;
@@ -37,7 +37,7 @@ import static org.junit.jupiter.api.Assertions.*;
 @DisabledIfEnvironmentVariable(named = "CI", matches = "true")
 public class TransportDataFromFilesNeighboursTest {
     private static ComponentContainer componentContainer;
-    private CompositeStationRepository compositeStationRepository;
+    private StationGroupsRepository stationGroupsRepository;
     private StationRepository stationRepository;
     private RouteRepository routeRepository;
     private AgencyRepository agencyRepository;
@@ -61,12 +61,12 @@ public class TransportDataFromFilesNeighboursTest {
         routeRepository = componentContainer.get(RouteRepository.class);
         agencyRepository = componentContainer.get(AgencyRepository.class);
 
-        compositeStationRepository = componentContainer.get(CompositeStationRepository.class);
+        stationGroupsRepository = componentContainer.get(StationGroupsRepository.class);
     }
 
     @Test
     void shouldHaveTramStation() {
-        Station shudehillTram = compositeStationRepository.getStationById(Shudehill.getId());
+        Station shudehillTram = stationRepository.getStationById(Shudehill.getId());
         assertNotNull(shudehillTram);
     }
 
@@ -99,7 +99,7 @@ public class TransportDataFromFilesNeighboursTest {
 
     @Test
     void shouldFindTheCompositeBusStation() {
-        GroupedStations shudehillCompositeBus = compositeStationRepository.findByName("Shudehill Interchange");
+        GroupedStations shudehillCompositeBus = stationGroupsRepository.findByName("Shudehill Interchange");
 
         assertNotNull(shudehillCompositeBus);
 

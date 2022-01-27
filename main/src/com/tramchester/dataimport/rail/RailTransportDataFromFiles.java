@@ -187,7 +187,7 @@ public class RailTransportDataFromFiles implements DirectDataSourceFactory.Popul
 
         LatLong latLong = grid.isValid() ?  CoordinateTransforms.getLatLong(grid) : LatLong.Invalid;
 
-        return new MutableStation(id, "", areaId, name, latLong, grid, DataSourceID.rail, isInterchange);
+        return new MutableStation(id, areaId, name, latLong, grid, DataSourceID.rail, isInterchange);
     }
 
     private GridPosition convertToOsGrid(int easting, int northing) {

@@ -2,14 +2,16 @@ package com.tramchester.graph.graphbuild;
 
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.config.TramchesterConfig;
+import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.places.GroupedStations;
+import com.tramchester.domain.places.NaptanArea;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.geo.CoordinateTransforms;
 import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.filters.GraphFilter;
 import com.tramchester.metrics.TimedTransaction;
-import com.tramchester.repository.CompositeStationRepository;
+import com.tramchester.repository.StationGroupsRepository;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.ResourceIterator;
 import org.neo4j.graphdb.Transaction;
@@ -22,8 +24,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static com.tramchester.graph.graphbuild.GraphProps.setProperty;
-
 /***
  * Add nodes and relationships for composite stations to the exitsing graph
  */
@@ -32,7 +32,7 @@ public class CompositeStationGraphBuilder extends CreateNodesAndRelationships {
     private static final Logger logger = LoggerFactory.getLogger(CompositeStationGraphBuilder.class);
 
     private final GraphDatabase graphDatabase;
-    private final CompositeStationRepository stationRepository;
+    private final StationGroupsRepository stationGroupsRepository;
     private final TramchesterConfig config;
     private final GraphFilter graphFilter;
     private final GraphBuilderCache builderCache;
@@ -41,13 +41,13 @@ public class CompositeStationGraphBuilder extends CreateNodesAndRelationships {
     //private final GraphQuery graphQuery;
 
     @Inject
-    public CompositeStationGraphBuilder(GraphDatabase graphDatabase, CompositeStationRepository stationRepository,
+    public CompositeStationGraphBuilder(GraphDatabase graphDatabase, StationGroupsRepository stationGroupsRepository,
                                         TramchesterConfig config, GraphFilter graphFilter,
                                         StationsAndLinksGraphBuilder.Ready stationsAndLinksAreBuilt,
                                         GraphBuilderCache builderCache) {
         super(graphDatabase);
         this.graphDatabase = graphDatabase;
-        this.stationRepository = stationRepository;
+        this.stationGroupsRepository = stationGroupsRepository;
         this.config = config;
         this.graphFilter = graphFilter;
         this.builderCache = builderCache;
@@ -61,6 +61,10 @@ public class CompositeStationGraphBuilder extends CreateNodesAndRelationships {
     }
 
     private void addCompositesStationsToDB() {
+        if (!stationGroupsRepository.isEnabled()) {
+            logger.warn("Disabled, StationGroupsRepository is not enabled");
+            return;
+        }
         try(Transaction txn = graphDatabase.beginTx()) {
             if (hasDBFlag(txn)) {
                 logger.info("Already present in DB");
@@ -81,7 +85,7 @@ public class CompositeStationGraphBuilder extends CreateNodesAndRelationships {
     }
 
     private void addCompositeNodesAndLinks(TransportMode mode) {
-        Set<GroupedStations> allComposite = stationRepository.getCompositesServing(mode);
+        Set<GroupedStations> allComposite = stationGroupsRepository.getCompositesServing(mode);
 
         if (allComposite.isEmpty()) {
             logger.info("No composite stations to add for " + mode);
@@ -108,7 +112,8 @@ public class CompositeStationGraphBuilder extends CreateNodesAndRelationships {
 
     private Node createGroupedStationNodes(Transaction txn, GroupedStations groupedStations) {
         Node stationNode = createGraphNode(txn, GraphLabel.GROUPED);
-        setProperty(stationNode, groupedStations);
+        IdFor<NaptanArea> areaId = groupedStations.getAreaId();
+        GraphProps.setProperty(stationNode, areaId);
         return stationNode;
     }
 

@@ -6,6 +6,7 @@ import com.tramchester.domain.DataSourceID;
 import com.tramchester.domain.Platform;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.id.CompositeId;
+import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.presentation.LatLong;
@@ -21,11 +22,16 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-public class GroupedStations implements Station {
+// TODO Should the ID here be NaptanArea Id not station ID?
 
-    // TODO
-    private final Set<Station> groupedStations;
+/***
+ * Stations grouped togther as in same naptan area id
+ *
+ * see also class: com.tramchester.graph.GraphQuery::getGroupedNode
+ */
+public class GroupedStations implements Station {
     private final IdFor<NaptanArea> areaId;
+    private final Set<Station> groupedStations;
     private final String name;
     private final int minChangeCost;
     private final IdFor<Station> id;
@@ -90,12 +96,6 @@ public class GroupedStations implements Station {
         return latLong;
     }
 
-    @Deprecated
-    @Override
-    public String getArea() {
-        throw new RuntimeException("removable WIP");
-    }
-
     @Override
     public IdFor<NaptanArea> getAreaId() {
         return areaId;
@@ -132,13 +132,13 @@ public class GroupedStations implements Station {
     }
 
     @Override
-    public boolean isComposite() {
+    public boolean isStationGroup() {
         return true;
     }
 
     @Override
     public GraphPropertyKey getProp() {
-        return GraphPropertyKey.STATION_ID;
+        return GraphPropertyKey.AREA_ID;
     }
 
     @Override
@@ -233,5 +233,20 @@ public class GroupedStations implements Station {
 
     public int numberContained() {
         return groupedStations.size();
+    }
+
+
+
+    @Override
+    public String toString() {
+        return "GroupedStations{" +
+                "areaId=" + areaId +
+                ", groupedStations=" + HasId.asIds(groupedStations) +
+                ", name='" + name + '\'' +
+                ", minChangeCost=" + minChangeCost +
+                ", id=" + id +
+                ", latLong=" + latLong +
+                ", dataSourceId=" + dataSourceId +
+                '}';
     }
 }

@@ -39,10 +39,10 @@ public class TFGMGTFSSourceTestConfig implements GTFSSourceConfig {
     }
 
     public TFGMGTFSSourceTestConfig(String dataFolder, GTFSTransportationType mode, TransportMode modeWithPlatform,
-                                    IdSet<Station> additionalInterchanges, Set<TransportMode> compositeStationModes,
+                                    IdSet<Station> additionalInterchanges, Set<TransportMode> groupStationModes,
                                     List<StationClosure> closedStations) {
         this(dataFolder, Collections.singleton(mode), Collections.singleton(modeWithPlatform),
-                additionalInterchanges, compositeStationModes, closedStations);
+                additionalInterchanges, groupStationModes, closedStations);
     }
 
     @Override

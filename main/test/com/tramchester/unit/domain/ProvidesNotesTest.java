@@ -314,7 +314,7 @@ class ProvidesNotesTest extends EasyMockSupport {
         VehicleStage stageA = createStageWithBoardingPlatform("platformId1", Bury.getLatLong());
         VehicleStage stageB = createStageWithBoardingPlatform("platformId2", Cornbrook.getLatLong());
         VehicleStage stageC = createStageWithBoardingPlatform("platformId3", NavigationRoad.getLatLong());
-        WalkingToStationStage stageD = new WalkingToStationStage(new MyLocation("Altrincham", TestEnv.nearAltrincham),
+        WalkingToStationStage stageD = new WalkingToStationStage(new MyLocation(TestEnv.nearAltrincham),
                 TramStations.of(Ashton), 7, TramTime.of(8,11));
         VehicleStage stageE = createStageWithBoardingPlatform("platformId5", Altrincham.getLatLong());
 

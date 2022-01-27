@@ -11,7 +11,7 @@ import java.util.stream.Collectors;
 import static java.lang.String.format;
 
 public enum GraphLabel implements Label {
-    GROUPED,  // composite station node
+    GROUPED,  // grouped station node
     ROUTE_STATION,
     STATION, // any station node must have this label
     TRAM_STATION,
