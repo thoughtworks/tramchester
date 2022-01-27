@@ -67,6 +67,11 @@ public class MyLocation implements Location<MyLocation> {
     }
 
     @Override
+    public IdFor<NaptanArea> getAreaId() {
+        return StringIdFor.invalid();
+    }
+
+    @Override
     public boolean hasPlatforms() {
         return false;
     }
@@ -98,6 +103,11 @@ public class MyLocation implements Location<MyLocation> {
 
     @Override
     public boolean hasDropoff() {
+        return true;
+    }
+
+    @Override
+    public boolean isActive() {
         return true;
     }
 

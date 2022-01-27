@@ -2,12 +2,10 @@ package com.tramchester.unit.domain;
 
 import com.tramchester.domain.*;
 import com.tramchester.domain.id.CompositeId;
+import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.id.StringIdFor;
-import com.tramchester.domain.places.GroupedStations;
-import com.tramchester.domain.places.LocationType;
-import com.tramchester.domain.places.MutableStation;
-import com.tramchester.domain.places.Station;
+import com.tramchester.domain.places.*;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TestStation;
@@ -39,7 +37,8 @@ class GroupedStationsTest {
         Platform platform = MutablePlatform.buildForTFGMTram("platformId", "platformName", latLong);
         stationA.addPlatform(platform);
 
-        GroupedStations groupedStations = new GroupedStations(Collections.singleton(stationA), "compArea",
+        IdFor<NaptanArea> areaId = StringIdFor.createId("areaId");
+        GroupedStations groupedStations = new GroupedStations(Collections.singleton(stationA), areaId,
                 "compName",1);
 
         assertEquals(LocationType.CompositeStation, groupedStations.getLocationType());
@@ -49,8 +48,8 @@ class GroupedStationsTest {
         assertEquals(new CompositeId<>(expected), groupedStations.getId());
         assertEquals(-2.0, groupedStations.getLatLong().getLat(),0);
         assertEquals(2.3, groupedStations.getLatLong().getLon(),0);
-        assertEquals("compArea", groupedStations.getArea());
 
+        assertEquals(areaId, groupedStations.getAreaId());
         assertEquals("[id]", groupedStations.forDTO());
         assertEquals("[id]", groupedStations.getId().getGraphId());
         assertEquals("[id]", groupedStations.getId().forDTO());
@@ -88,7 +87,8 @@ class GroupedStationsTest {
         stationB.addPlatform(platformB);
 
         Set<Station> stations = new HashSet<>(Arrays.asList(stationA, stationB));
-        GroupedStations groupedStations = new GroupedStations(stations, "compArea", "compName",12);
+        IdFor<NaptanArea> areaId = StringIdFor.createId("areaId");
+        GroupedStations groupedStations = new GroupedStations(stations, areaId, "compName",12);
 
         assertEquals(LocationType.CompositeStation, groupedStations.getLocationType());
 
@@ -101,7 +101,8 @@ class GroupedStationsTest {
 
         assertEquals(3, groupedStations.getLatLong().getLat(),0);
         assertEquals(6, groupedStations.getLatLong().getLon(),0);
-        assertEquals("compArea", groupedStations.getArea());
+        assertEquals(areaId, groupedStations.getAreaId());
+
         assertEquals(2, groupedStations.getTransportModes().size());
         assertTrue(groupedStations.servesMode(Tram));
         assertTrue(groupedStations.servesMode(Bus));
@@ -129,7 +130,8 @@ class GroupedStationsTest {
                 "routeNameB", TestEnv.StagecoachManchester, Bus);
 
         Set<Station> stations = new HashSet<>(Arrays.asList(stationA, stationB));
-        GroupedStations groupedStations = new GroupedStations(stations, "compArea", "compName",11);
+        IdFor<NaptanArea> areaId = StringIdFor.createId("areaId");
+        GroupedStations groupedStations = new GroupedStations(stations, areaId, "compName",11);
 
         assertFalse(groupedStations.hasPickup());
         assertFalse(groupedStations.hasDropoff());
@@ -153,9 +155,11 @@ class GroupedStationsTest {
         MutableStation stationB = TestStation.forTest("idB", "areaB", "stopNameB",
                 positionB, Bus, dataSourceID);
 
+        IdFor<NaptanArea> areaId = StringIdFor.createId("areaId");
+
         GroupedStations groupedStations = new GroupedStations( new HashSet<>(Arrays.asList(stationA, stationB)),
-                "compArea", "compName", 42);
-;
+                areaId, "compName", 42);
+
 
         assertEquals(42, groupedStations.getMinimumChangeCost());
     }

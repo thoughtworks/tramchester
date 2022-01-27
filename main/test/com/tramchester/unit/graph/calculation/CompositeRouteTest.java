@@ -48,7 +48,7 @@ class CompositeRouteTest {
 
     private TramServiceDate queryDate;
     private Transaction txn;
-    private GroupedStations startCompositeStation;
+    private GroupedStations startGroup;
     private TramTime queryTime;
     private GroupedStations fourthStationComposite;
     private LocationJourneyPlannerTestFacade locationJourneyPlanner;
@@ -82,8 +82,11 @@ class CompositeRouteTest {
         queryTime = TramTime.of(7, 57);
 
         CompositeStationRepository compositeStationRepository = componentContainer.get(CompositeStationRepository.class);
-        startCompositeStation = compositeStationRepository.findByName("startStation");
-        fourthStationComposite = compositeStationRepository.findByName("Station4");
+
+        // using fallback areas names as Naptan data is not loaded for this configuration
+        // TODO update module injection code to allow naptan test data to be injected?
+        startGroup = compositeStationRepository.findByName("Id{'area1'}");
+        fourthStationComposite = compositeStationRepository.findByName("Id{'area4'}");
 
         txn = database.beginTx();
 
@@ -113,8 +116,8 @@ class CompositeRouteTest {
 
     @Test
     void shouldHaveFirstCompositeStation() {
-        assertNotNull(startCompositeStation);
-        Set<Station> grouped = startCompositeStation.getContained();
+        assertNotNull(startGroup);
+        Set<Station> grouped = startGroup.getContained();
         assertEquals(3, grouped.size());
         assertTrue(grouped.contains(transportData.getFirst()));
         assertTrue(grouped.contains(transportData.getFirstDupName()));
@@ -134,7 +137,7 @@ class CompositeRouteTest {
     void shouldHaveJourneyFromComposite() {
         JourneyRequest journeyRequest = createJourneyRequest(queryTime, 0);
 
-        final GroupedStations start = startCompositeStation;
+        final GroupedStations start = startGroup;
         final Station destination = transportData.getInterchange();
 
         Set<Journey> journeys = calculator.calculateRoute(txn, start, destination, journeyRequest).
@@ -184,18 +187,18 @@ class CompositeRouteTest {
 
     @Test
     void shouldFindTheCompositeStations() {
-        assertNotNull(startCompositeStation);
+        assertNotNull(startGroup);
         assertNotNull(fourthStationComposite);
     }
 
     @Test
     void shouldHaveRouteCosts() {
         RouteCostCalculator routeCostCalculator = componentContainer.get(RouteCostCalculator.class);
-        assertEquals(41, routeCostCalculator.getAverageCostBetween(txn, startCompositeStation, transportData.getLast(), queryDate));
+        assertEquals(41, routeCostCalculator.getAverageCostBetween(txn, startGroup, transportData.getLast(), queryDate));
         assertEquals(41, routeCostCalculator.getAverageCostBetween(txn, transportData.getFirst(), transportData.getLast(), queryDate));
 
-        assertEquals(0, routeCostCalculator.getAverageCostBetween(txn, transportData.getFirst(), startCompositeStation, queryDate));
-        assertEquals(0, routeCostCalculator.getAverageCostBetween(txn, startCompositeStation, transportData.getFirst(), queryDate));
+        assertEquals(0, routeCostCalculator.getAverageCostBetween(txn, transportData.getFirst(), startGroup, queryDate));
+        assertEquals(0, routeCostCalculator.getAverageCostBetween(txn, startGroup, transportData.getFirst(), queryDate));
     }
 
     @Test

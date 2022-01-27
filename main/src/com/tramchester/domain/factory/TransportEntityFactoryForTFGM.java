@@ -6,6 +6,7 @@ import com.tramchester.domain.*;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.places.MutableStation;
+import com.tramchester.domain.places.NaptanArea;
 import com.tramchester.domain.places.NaptanRecord;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.GTFSTransportationType;
@@ -49,12 +50,14 @@ public class TransportEntityFactoryForTFGM extends TransportEntityFactory {
     public MutableStation createStation(IdFor<Station> stationId, StopData stopData, GridPosition position) {
 
         boolean isInterchange = false;
-        String area = "";
+        IdFor<NaptanArea> areaId = IdFor.invalid();
+        //String area = "";
         if (naptanRespository.isEnabled()) {
             // enrich details from naptan where possible
             if (naptanRespository.containsActo(stationId)) {
                 NaptanRecord naptanData = naptanRespository.getForActo(stationId);
-                area = getAreaFromNaptanData(naptanData);
+                areaId = chooseArea(naptanRespository, naptanData.getAreaCodes());
+                //area = getAreaFromNaptanData(naptanData);
                 isInterchange = NaptanStopType.isInterchance(naptanData.getStopType());
             }
         }
@@ -65,7 +68,7 @@ public class TransportEntityFactoryForTFGM extends TransportEntityFactory {
 
         final String stationName = cleanStationName(stopData);
 
-        return new MutableStation(stationId, area, workAroundName(stationName), stopData.getLatLong(), position,
+        return new MutableStation(stationId, "", areaId, workAroundName(stationName), stopData.getLatLong(), position,
                 getDataSourceId(), isInterchange);
     }
 
@@ -91,17 +94,6 @@ public class TransportEntityFactoryForTFGM extends TransportEntityFactory {
             return text;
         }
     }
-
-//    private String getAreaFor(IdFor<Station> stationId) {
-//        if (naptanRespository.isEnabled()) {
-//            if (naptanRespository.containsActo(stationId)) {
-//                return getAreaFromNaptanData(stationId);
-//            } else {
-//                logger.warn("No naptan data found for " + stationId);
-//            }
-//        }
-//        return "";
-//    }
 
     @Override
     public IdFor<Station> formStationId(String text) {

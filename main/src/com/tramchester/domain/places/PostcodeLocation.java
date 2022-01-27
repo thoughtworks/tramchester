@@ -4,6 +4,8 @@ import com.tramchester.domain.DataSourceID;
 import com.tramchester.domain.Platform;
 import com.tramchester.domain.id.CaseInsensitiveId;
 import com.tramchester.domain.id.HasCaseInsensitiveId;
+import com.tramchester.domain.id.IdFor;
+import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.geo.CoordinateTransforms;
@@ -66,9 +68,15 @@ public class PostcodeLocation implements Location<PostcodeLocation>, HasCaseInse
         return gridPosition;
     }
 
+    @Deprecated
     @Override
     public String getArea() {
         return area;
+    }
+
+    @Override
+    public IdFor<NaptanArea> getAreaId() {
+        return StringIdFor.invalid();
     }
 
     @Override
@@ -103,6 +111,11 @@ public class PostcodeLocation implements Location<PostcodeLocation>, HasCaseInse
 
     @Override
     public boolean hasDropoff() {
+        return true;
+    }
+
+    @Override
+    public boolean isActive() {
         return true;
     }
 

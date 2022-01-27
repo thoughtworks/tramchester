@@ -14,12 +14,12 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.util.stream.Stream;
 
-public class NaptanDataImporter {
-    private static final Logger logger = LoggerFactory.getLogger(NaptanDataImporter.class);
+public class NaptanDataXMLImporter {
+    private static final Logger logger = LoggerFactory.getLogger(NaptanDataXMLImporter.class);
 
     private final RemoteDataSourceConfig sourceConfig;
 
-    public NaptanDataImporter(TramchesterConfig config, UnzipFetchedData.Ready dataIsReady) {
+    public NaptanDataXMLImporter(TramchesterConfig config, UnzipFetchedData.Ready dataIsReady) {
         sourceConfig = config.getDataRemoteSourceConfig(DataSourceID.naptanxml);
     }
 

@@ -6,9 +6,11 @@ import com.tramchester.dataimport.NaPTAN.NaptanDataImporter;
 import com.tramchester.dataimport.NaPTAN.NaptanXMLData;
 import com.tramchester.dataimport.NaPTAN.xml.stopArea.NaptanStopAreaData;
 import com.tramchester.dataimport.NaPTAN.xml.stopPoint.NaptanStopData;
+import com.tramchester.dataimport.NaPTAN.xml.stopPoint.NaptanXMLStopAreaRef;
 import com.tramchester.dataimport.nptg.NPTGData;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdMap;
+import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.places.NaptanArea;
 import com.tramchester.domain.places.NaptanRecord;
@@ -23,6 +25,7 @@ import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.inject.Inject;
 import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -104,7 +107,10 @@ public class NaptanRespository {
 
     private NaptanArea createArea(NaptanStopAreaData areaData) {
         IdFor<NaptanArea> id = StringIdFor.createId(areaData.getStopAreaCode());
-        return new NaptanArea(id, areaData.getName(), areaData.getGridPosition());
+        if (areaData.getStatus().isEmpty()) {
+            logger.warn("No status set for " + areaData.getStopAreaCode());
+        }
+        return new NaptanArea(id, areaData.getName(), areaData.getGridPosition(), areaData.isActive());
     }
 
     private void loadStopsData(BoundingBox bounds, MarginInMeters margin) {
@@ -155,9 +161,21 @@ public class NaptanRespository {
             logger.warn(format("Missing NptgLocalityRef '%s' for naptan acto '%s", nptgLocality, id));
         }
 
+        final List<NaptanXMLStopAreaRef> stopAreaRefs = original.stopAreasRefs();
+
+        List<String> stopAreaIds = stopAreaRefs.stream().
+                filter(NaptanXMLStopAreaRef::isActive).
+                map(NaptanXMLStopAreaRef::getId).
+                collect(Collectors.toList());
+
+        if (stopAreaIds.size()>1) {
+            logger.warn("Multiple stop area refs active for " + id);
+        }
+
         return new NaptanRecord(id, original.getCommonName(), original.getGridPosition(), suburb, town,
-                original.getStopType(), original.getStopAreaCode());
+                original.getStopType(), stopAreaIds);
     }
+
 
     private <T extends NaptanXMLData> Stream<T> filterBy(BoundingBox bounds, MarginInMeters margin, Stream<T> stream) {
         return stream.
@@ -209,5 +227,11 @@ public class NaptanRespository {
 
     public boolean containsArea(IdFor<NaptanArea> id) {
         return areas.hasId(id);
+    }
+
+    public IdSet<NaptanArea> activeCodes(IdSet<NaptanArea> ids) {
+        return ids.stream().
+                filter(id -> areas.hasId(id)).
+                filter(id -> areas.get(id).isActive()).collect(IdSet.idCollector());
     }
 }

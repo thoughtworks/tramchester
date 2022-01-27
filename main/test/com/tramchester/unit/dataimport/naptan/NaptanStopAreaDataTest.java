@@ -12,6 +12,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class NaptanStopAreaDataTest extends ParserTestXMLHelper<NaptanStopAreaData> {
 
@@ -36,6 +37,8 @@ public class NaptanStopAreaDataTest extends ParserTestXMLHelper<NaptanStopAreaDa
 
         assertEquals("Altrincham Rail Station", result.getName());
         assertEquals("910GALTRNHM", result.getStopAreaCode());
+        assertEquals("active", result.getStatus());
+        assertTrue(result.isActive());
         assertEquals(new GridPosition(377026,387931), result.getGridPosition());
     }
 

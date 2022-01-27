@@ -1,6 +1,7 @@
 package com.tramchester.unit.dataimport.naptan;
 
 import com.tramchester.dataimport.NaPTAN.xml.stopPoint.NaptanStopData;
+import com.tramchester.dataimport.NaPTAN.xml.stopPoint.NaptanXMLStopAreaRef;
 import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.geo.GridPosition;
 import com.tramchester.repository.naptan.NaptanStopType;
@@ -137,7 +138,8 @@ class NaptanStopDataTest extends ParserTestXMLHelper<NaptanStopData> {
         assertEquals("St Helens", data.getSuburb());
         assertEquals("St Helens", data.getTown());
         assertEquals("Stand 2", data.getIndicator());
-        assertEquals("280G00000001", data.getStopAreaCode().get(0));
+        assertEquals(1, data.stopAreasRefs().size());
+        assertEquals("280G00000001", data.stopAreasRefs().get(0).getId());
         assertEquals(busCoachTrolleyStationBay, data.getStopType());
         assertFalse(data.hasRailInfo());
     }
@@ -165,8 +167,8 @@ class NaptanStopDataTest extends ParserTestXMLHelper<NaptanStopData> {
         assertTrue(data.hasRailInfo());
 
         assertEquals("ABDARE", data.getRailInfo().getTiploc());
-        assertEquals("910GABDARE", data.getStopAreaCode().get(0));
-
+        assertEquals(1, data.stopAreasRefs().size());
+        assertEquals("910GABDARE", data.stopAreasRefs().get(0).getId());
     }
 
     @Test
@@ -192,6 +194,44 @@ class NaptanStopDataTest extends ParserTestXMLHelper<NaptanStopData> {
         assertIdEquals("9400ZZMAALT", data.getAtcoCode());
         assertEquals(StringIdFor.convert(TramStations.Altrincham.getId()), data.getAtcoCode());
         assertEquals(NaptanStopType.tramMetroUndergroundAccess, data.getStopType());
+        assertEquals(1, data.stopAreasRefs().size());
+    }
+
+    @Test
+    void shouldCorrectlyHandleStopWithTwoStopAreaRefs() throws XMLStreamException, IOException {
+        String text = "<NaPTAN><StopPoints>" +
+                "<StopPoint CreationDateTime=\"2017-07-07T14:13:22\" ModificationDateTime=\"2021-06-02T11:07:09\" " +
+                "Modification=\"revise\" RevisionNumber=\"2\" Status=\"active\"><AtcoCode>1800BNIN0Y1</AtcoCode>" +
+                "<NaptanCode>MANWAGJP</NaptanCode><Descriptor><CommonName>Bolton Interchange</CommonName>" +
+                "<ShortCommonName>Interchange</ShortCommonName><Indicator>Stand Y</Indicator></Descriptor><Place>" +
+                "<NptgLocalityRef>E0057777</NptgLocalityRef><LocalityCentre>1</LocalityCentre><Location>" +
+                "<Translation><GridType>UKOS</GridType><Easting>371785</Easting><Northing>408929</Northing>" +
+                "<Longitude>-2.427582</Longitude><Latitude>53.57619</Latitude></Translation></Location></Place>" +
+                "<StopClassification><StopType>BCS</StopType><OffStreet><BusAndCoach><Bay><TimingStatus>PTP</TimingStatus>" +
+                "</Bay></BusAndCoach></OffStreet></StopClassification>" +
+                "<StopAreas>" +
+                "<StopAreaRef CreationDateTime=\"2017-09-22T14:58:24\" ModificationDateTime=\"2020-08-10T16:46:29\" " +
+                "Modification=\"delete\" RevisionNumber=\"3\">1800BNIN</StopAreaRef>" +
+                "<StopAreaRef CreationDateTime=\"2020-07-23T15:19:47\" ModificationDateTime=\"2020-08-11T11:21:43\" " +
+                "Modification=\"revise\" RevisionNumber=\"2\">180GBNIN</StopAreaRef>" +
+                "</StopAreas>" +
+                "<AdministrativeAreaRef>083</AdministrativeAreaRef><Public>false</Public>" +
+                "</StopPoint></StopPoints></NaPTAN>";
+
+        NaptanStopData data = super.parseFirstOnly(text);
+
+        assertEquals(2, data.stopAreasRefs().size());
+
+        final NaptanXMLStopAreaRef firstRef = data.stopAreasRefs().get(0);
+        final NaptanXMLStopAreaRef secondRef = data.stopAreasRefs().get(1);
+
+        assertEquals("1800BNIN", firstRef.getId());
+        assertEquals("delete", firstRef.getModification());
+        assertFalse(firstRef.isActive());
+
+        assertEquals( "180GBNIN", secondRef.getId());
+        assertEquals("revise", secondRef.getModification());
+        assertTrue(secondRef.isActive());
     }
 
 }

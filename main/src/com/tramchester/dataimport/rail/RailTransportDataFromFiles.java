@@ -11,11 +11,13 @@ import com.tramchester.dataimport.rail.records.RailTimetableRecord;
 import com.tramchester.dataimport.rail.records.reference.RailInterchangeType;
 import com.tramchester.domain.DataSourceID;
 import com.tramchester.domain.DataSourceInfo;
+import com.tramchester.domain.factory.TransportEntityFactory;
 import com.tramchester.domain.id.CompositeIdMap;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.places.MutableStation;
+import com.tramchester.domain.places.NaptanArea;
 import com.tramchester.domain.places.NaptanRecord;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.LatLong;
@@ -161,8 +163,8 @@ public class RailTransportDataFromFiles implements DirectDataSourceFactory.Popul
         IdFor<Station> id = StringIdFor.createId(record.getTiplocCode());
 
         String name = record.getName();
-        String area = "";
         GridPosition grid = GridPosition.Invalid;
+        IdFor<NaptanArea> areaId = IdFor.invalid();
         boolean isInterchange = (record.getRailInterchangeType()!= RailInterchangeType.None);
 
         if (naptanRespository.containsTiploc(id)) {
@@ -170,7 +172,7 @@ public class RailTransportDataFromFiles implements DirectDataSourceFactory.Popul
             NaptanRecord stopsData = naptanRespository.getForTiploc(id);
             grid = stopsData.getGridPosition();
             name = stopsData.getName();
-            area = stopsData.getSuburb();
+            areaId = TransportEntityFactory.chooseArea(naptanRespository, stopsData.getAreaCodes());
         }
 
         if (!grid.isValid()) {
@@ -185,7 +187,7 @@ public class RailTransportDataFromFiles implements DirectDataSourceFactory.Popul
 
         LatLong latLong = grid.isValid() ?  CoordinateTransforms.getLatLong(grid) : LatLong.Invalid;
 
-        return new MutableStation(id, area, name, latLong, grid, DataSourceID.rail, isInterchange);
+        return new MutableStation(id, "", areaId, name, latLong, grid, DataSourceID.rail, isInterchange);
     }
 
     private GridPosition convertToOsGrid(int easting, int northing) {

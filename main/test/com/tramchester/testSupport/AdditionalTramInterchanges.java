@@ -1,7 +1,6 @@
 package com.tramchester.testSupport;
 
 import com.tramchester.domain.id.IdSet;
-import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.places.Station;
 
 import java.util.Arrays;
@@ -13,7 +12,6 @@ public class AdditionalTramInterchanges {
         Deansgate("9400ZZMAGMX"),
         Piccadilly("9400ZZMAPIC");
 
-
         private final String stationId;
 
         Interchanges(String stationId) {
@@ -21,20 +19,8 @@ public class AdditionalTramInterchanges {
         }
     }
 
-    private static final IdSet<Station> ids;
-
-    static {
-        ids = new IdSet<>();
-        Arrays.asList(Interchanges.values()).forEach(interchange -> ids.add(StringIdFor.createId(interchange.stationId)));
-    }
-
     public static IdSet<Station> stations() {
-        return ids;
+        return Arrays.stream(Interchanges.values()).map(id -> Station.createId(id.stationId)).collect(IdSet.idCollector());
     }
 
-//    public static IdSet<Station> get() {
-//        return Arrays.stream(Interchanges.values()).
-//                map(interchange -> Station.createId(interchange.stationId)).
-//                collect(IdSet.idCollector());
-//    }
 }

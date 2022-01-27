@@ -3,6 +3,7 @@ package com.tramchester.dataimport.NaPTAN;
 import com.fasterxml.jackson.dataformat.csv.CsvMapper;
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.config.TramchesterConfig;
+import com.tramchester.dataimport.NaPTAN.xml.NaptanDataXMLImporter;
 import com.tramchester.dataimport.NaPTAN.xml.stopArea.NaptanStopAreaData;
 import com.tramchester.dataimport.NaPTAN.xml.stopPoint.NaptanStopData;
 import com.tramchester.dataimport.UnzipFetchedData;
@@ -26,12 +27,12 @@ import static java.lang.String.format;
 public class NaptanDataImporter {
     private static final Logger logger = LoggerFactory.getLogger(NaptanDataImporter.class);
 
-    private final com.tramchester.dataimport.NaPTAN.xml.NaptanDataImporter theImporter;
+    private final NaptanDataXMLImporter theImporter;
 
     @Inject
     protected NaptanDataImporter(TramchesterConfig config, CsvMapper csvMapper, UnzipFetchedData.Ready dataIsReady) {
        if (config.hasRemoteDataSourceConfig(DataSourceID.naptanxml)) {
-            theImporter = new com.tramchester.dataimport.NaPTAN.xml.NaptanDataImporter(config, dataIsReady);
+            theImporter = new NaptanDataXMLImporter(config, dataIsReady);
         } else {
             theImporter = null;
             logger.warn(format("Naptan for %s is disabled, no config section found", DataSourceID.naptanxml));

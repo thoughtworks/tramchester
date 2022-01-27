@@ -248,7 +248,7 @@ public class DiagramCreator {
         if (node.hasLabel(GROUPED)) {
             IdFor<Station> stationId = GraphProps.getStationId(node);
             Station station = stationRepository.getStationById(stationId);
-            return format("%s\n%s\n%s", station.getName(), station.getArea(), stationId.getGraphId());
+            return format("%s\n%s\n%s", station.getName(), station.getAreaId(), stationId.getGraphId());
         }
 
         return "No_Label";

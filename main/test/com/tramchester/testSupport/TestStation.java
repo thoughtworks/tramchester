@@ -6,6 +6,7 @@ import com.tramchester.domain.Route;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.places.MutableStation;
+import com.tramchester.domain.places.NaptanArea;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.reference.TransportMode;
@@ -24,9 +25,9 @@ public class TestStation extends MutableStation {
     private boolean routesAdded;
     private final String rawId;
 
-    public TestStation(String id, String area, String stationName, LatLong latLong, GridPosition gridPosition,
+    public TestStation(String id, String area, IdFor<NaptanArea> areaId, String stationName, LatLong latLong, GridPosition gridPosition,
                        TransportMode initialMode, DataSourceID dataSourceID) {
-        super(StringIdFor.createId(id), area, stationName, latLong, gridPosition, dataSourceID);
+        super(StringIdFor.createId(id), area, areaId, stationName, latLong, gridPosition, dataSourceID);
         rawId = id;
 
         this.initialMode = initialMode;
@@ -34,15 +35,9 @@ public class TestStation extends MutableStation {
         routesAdded = false;
     }
 
-//    public TestStation(IdFor<Station> id, String area, String stationName, LatLong latLong, GridPosition gridPosition,
-//                       TransportMode initialMode, DataSourceID dataSourceID) {
-//        super(id, area, stationName, latLong, gridPosition, dataSourceID);
-//
-//    }
-//
-
     public static MutableStation forTest(String id, String area, String stationName, LatLong latLong, TransportMode mode, DataSourceID dataSourceID) {
-        return new TestStation(id, area, stationName, latLong, CoordinateTransforms.getGridPosition(latLong), mode, dataSourceID);
+        IdFor<NaptanArea> areaId = StringIdFor.createId(area);
+        return new TestStation(id, "", areaId, stationName, latLong, CoordinateTransforms.getGridPosition(latLong), mode, dataSourceID);
     }
 
     private void guardPlatformsAddedIntent() {

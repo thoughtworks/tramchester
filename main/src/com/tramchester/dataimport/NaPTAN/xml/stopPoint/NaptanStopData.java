@@ -3,6 +3,7 @@ package com.tramchester.dataimport.NaPTAN.xml.stopPoint;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonRootName;
 import com.fasterxml.jackson.annotation.JsonTypeName;
+import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 import com.tramchester.dataimport.NaPTAN.NaptanRailStationData;
 import com.tramchester.dataimport.NaPTAN.NaptanXMLData;
 import com.tramchester.domain.id.IdFor;
@@ -37,8 +38,8 @@ public class NaptanStopData implements NaptanXMLData {
     @JsonProperty("StopClassification")
     private NaptanXMLStopClassification stopClassification;
 
-    @JsonProperty("StopAreas")
-    private List<String> stopAreas;
+    @JacksonXmlProperty(localName = "StopAreas")
+    private List<NaptanXMLStopAreaRef> stopAreas;
 
     public NaptanStopData() {
         // deserialisation
@@ -84,7 +85,7 @@ public class NaptanStopData implements NaptanXMLData {
         return place.getTown();
     }
 
-    public List<String> getStopAreaCode() {
+    public List<NaptanXMLStopAreaRef> stopAreasRefs() {
         if (stopAreas==null) {
             return Collections.emptyList();
         }

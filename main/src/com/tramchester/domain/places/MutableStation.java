@@ -16,7 +16,10 @@ import java.util.stream.Stream;
 
 public class MutableStation implements Station {
 
+    @Deprecated
     private final String area;
+
+    private final IdFor<NaptanArea> areaId;
     private final IdFor<Station> id;
     private final String name;
     private final LatLong latLong;
@@ -30,15 +33,16 @@ public class MutableStation implements Station {
     private final boolean isMarkedInterchange;
     private final Set<TransportMode> modes;
 
-    public MutableStation(IdFor<Station> id, String area, String stationName, LatLong latLong, GridPosition gridPosition,
+    public MutableStation(IdFor<Station> id, String area, IdFor<NaptanArea> areaId, String stationName, LatLong latLong, GridPosition gridPosition,
                           DataSourceID dataSourceID) {
-        this(id, area, stationName, latLong, gridPosition, dataSourceID, false);
+        this(id, area, areaId, stationName, latLong, gridPosition, dataSourceID, false);
 
     }
 
     // for some data sources we know if station is an interchange
-    public MutableStation(IdFor<Station> id, String area, String stationName, LatLong latLong, GridPosition gridPosition,
+    public MutableStation(IdFor<Station> id, String area, IdFor<NaptanArea> areaId, String stationName, LatLong latLong, GridPosition gridPosition,
                           DataSourceID dataSourceID, boolean isMarkedInterchange) {
+        this.areaId = areaId;
         this.gridPosition = gridPosition;
         this.dataSourceID = dataSourceID;
         this.isMarkedInterchange = isMarkedInterchange;
@@ -73,6 +77,11 @@ public class MutableStation implements Station {
     @Override
     public String getArea() {
         return area;
+    }
+
+    @Override
+    public IdFor<NaptanArea> getAreaId() {
+        return areaId;
     }
 
     @Override

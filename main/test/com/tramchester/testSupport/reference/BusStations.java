@@ -2,6 +2,7 @@ package com.tramchester.testSupport.reference;
 
 import com.tramchester.domain.DataSourceID;
 import com.tramchester.domain.id.IdFor;
+import com.tramchester.domain.places.NaptanArea;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.reference.TransportMode;
@@ -12,6 +13,9 @@ import com.tramchester.testSupport.TestStation;
 import com.tramchester.testSupport.TestStations;
 import org.jetbrains.annotations.NotNull;
 
+// TODO
+
+@Deprecated
 public enum BusStations implements TestStations {
 
     StopAtAltrinchamInterchange("1800AMIC0C1", "Altrincham", "Altrincham Interchange",
@@ -47,7 +51,8 @@ public enum BusStations implements TestStations {
 
     BusStations(String id, String area, String name, LatLong latlong) {
         @NotNull GridPosition grid = CoordinateTransforms.getGridPosition(latlong);
-        this.station = new TestStation(id, area, name, latlong, grid, TransportMode.Bus, DataSourceID.tfgm);
+        IdFor<NaptanArea> areaId = IdFor.invalid();
+        this.station = new TestStation(id, area, areaId, name, latlong, grid, TransportMode.Bus, DataSourceID.tfgm);
     }
 
     @Deprecated

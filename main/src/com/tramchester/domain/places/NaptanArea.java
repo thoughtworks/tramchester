@@ -11,11 +11,13 @@ public class NaptanArea implements HasGridPosition, HasId<NaptanArea>, CoreDomai
     private final IdFor<NaptanArea> id;
     private final String name;
     private final GridPosition gridPosition;
+    private final boolean active;
 
-    public NaptanArea(IdFor<NaptanArea> id, String name, GridPosition gridPosition) {
+    public NaptanArea(IdFor<NaptanArea> id, String name, GridPosition gridPosition, boolean active) {
         this.id = id;
         this.name = name;
         this.gridPosition = gridPosition;
+        this.active = active;
     }
 
     public static IdFor<NaptanArea> createId(String text) {
@@ -42,6 +44,11 @@ public class NaptanArea implements HasGridPosition, HasId<NaptanArea>, CoreDomai
                 "id=" + id +
                 ", name='" + name + '\'' +
                 ", gridPosition=" + gridPosition +
+                ", active=" + active +
                 '}';
+    }
+
+    public boolean isActive() {
+        return active;
     }
 }

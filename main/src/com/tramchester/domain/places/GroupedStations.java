@@ -24,20 +24,20 @@ import java.util.stream.Stream;
 public class GroupedStations implements Station {
 
     // TODO
-    private final Set<Station> containedStations;
-    private final String area;
+    private final Set<Station> groupedStations;
+    private final IdFor<NaptanArea> areaId;
     private final String name;
     private final int minChangeCost;
     private final IdFor<Station> id;
     private final LatLong latLong;
     private final DataSourceID dataSourceId;
 
-    public GroupedStations(Set<Station> containedStations, String area, String name, int minChangeCost) {
-        this.id = computeStationId(containedStations);
-        this.latLong = computeLatLong(containedStations);
-        this.dataSourceId = computeDataSourceId(containedStations);
-        this.containedStations = containedStations;
-        this.area = area;
+    public GroupedStations(Set<Station> groupedStations, IdFor<NaptanArea> areaId, String name, int minChangeCost) {
+        this.id = computeStationId(groupedStations);
+        this.latLong = computeLatLong(groupedStations);
+        this.dataSourceId = computeDataSourceId(groupedStations);
+        this.groupedStations = groupedStations;
+        this.areaId = areaId;
         this.name = name;
         this.minChangeCost = minChangeCost;
     }
@@ -90,9 +90,15 @@ public class GroupedStations implements Station {
         return latLong;
     }
 
+    @Deprecated
     @Override
     public String getArea() {
-        return area;
+        throw new RuntimeException("removable WIP");
+    }
+
+    @Override
+    public IdFor<NaptanArea> getAreaId() {
+        return areaId;
     }
 
     @Override
@@ -156,6 +162,11 @@ public class GroupedStations implements Station {
     }
 
     @Override
+    public boolean isActive() {
+        return anyMatch(Location::isActive);
+    }
+
+    @Override
     public String forDTO() {
         return id.forDTO();
     }
@@ -186,17 +197,17 @@ public class GroupedStations implements Station {
     }
 
     private boolean anyMatch(Predicate<Station> predicate) {
-        return containedStations.stream().anyMatch(predicate);
+        return groupedStations.stream().anyMatch(predicate);
     }
 
     private <R> Set<R> flatten(Function<Station, Collection<R>> map) {
-        return containedStations.stream().
+        return groupedStations.stream().
                 flatMap(station -> map.apply(station).stream()).
                 collect(Collectors.toUnmodifiableSet());
     }
 
     public Set<Station> getContained() {
-        return containedStations;
+        return groupedStations;
     }
 
     private static DataSourceID computeDataSourceId(Set<Station> stations) {
@@ -221,6 +232,6 @@ public class GroupedStations implements Station {
     }
 
     public int numberContained() {
-        return containedStations.size();
+        return groupedStations.size();
     }
 }

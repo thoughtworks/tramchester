@@ -5,6 +5,7 @@ import com.tramchester.domain.Platform;
 import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.places.MutableStation;
+import com.tramchester.domain.places.NaptanArea;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.reference.TransportMode;
@@ -76,7 +77,9 @@ public enum TramStations implements TestStations {
 
     TramStations(String id, String area, String name, LatLong latlong) {
         @NotNull GridPosition grid = CoordinateTransforms.getGridPosition(latlong);
-        this.station = new TestStation(id, area, name, latlong, grid, TransportMode.Tram, DataSourceID.tfgm);
+
+        IdFor<NaptanArea> areaId = IdFor.invalid();
+        this.station = new TestStation(id, area, areaId, name, latlong, grid, TransportMode.Tram, DataSourceID.tfgm);
     }
 
     public static boolean isEndOfLine(HasId<Station> station) {

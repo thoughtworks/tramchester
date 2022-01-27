@@ -4,7 +4,9 @@ import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.domain.BoundingBoxWithCost;
 import com.tramchester.domain.DataSourceID;
+import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.places.MutableStation;
+import com.tramchester.domain.places.NaptanArea;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.time.TramServiceDate;
@@ -101,17 +103,20 @@ class FastestRoutesForBoxesTest {
 
         LatLong latLong = TestEnv.stPetersSquareLocation();
         GridPosition grid = CoordinateTransforms.getGridPosition(latLong);
+
+        IdFor<NaptanArea> areaId = IdFor.invalid();
         Station destination = new MutableStation(testStationWithInvalidPosition.getId(), testStationWithInvalidPosition.getArea(),
-                testStationWithInvalidPosition.getName(), latLong, grid, DataSourceID.tfgm);
+                areaId, testStationWithInvalidPosition.getName(), latLong, grid, DataSourceID.tfgm);
+
         TramTime time = TramTime.of(9,15);
         JourneyRequest journeyRequest = new JourneyRequest(
                 new TramServiceDate(TestEnv.testDay()), time, false, 2, 120, 3);
 
         Stream<BoundingBoxWithCost> results = calculator.findForGrid(destination, 2000, journeyRequest);
 
-        List<BoundingBoxWithCost> noRoute = results.filter(result -> result.getMinutes() <= 0).collect(Collectors.toList());
+        List<BoundingBoxWithCost> found = results.filter(result -> result.getMinutes() <= 0).collect(Collectors.toList());
 
-        assertEquals(1, noRoute.size());
-        assertTrue( noRoute.get(0).contained(destination.getGridPosition()));
+        assertEquals(1, found.size());
+        assertTrue( found.get(0).contained(destination.getGridPosition()));
     }
 }

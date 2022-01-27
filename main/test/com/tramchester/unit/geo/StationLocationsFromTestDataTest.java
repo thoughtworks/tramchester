@@ -60,14 +60,18 @@ public class StationLocationsFromTestDataTest {
     void shouldFindFirstStation() {
         List<Station> results = stationLocations.nearestStationsSorted(nearAltrincham, 3, MarginInMeters.of(1000));
         assertEquals(1, results.size(), results.toString());
-        assertEquals(compositeStationRepository.findByName("startStation"), results.get(0));
+
+        // fallback name, no naptan area data loaded
+        assertEquals(compositeStationRepository.findByName("Id{'area1'}"), results.get(0));
     }
 
     @Test
     void shouldFindFourthStation() {
         List<Station> results = stationLocations.nearestStationsSorted(nearKnutsfordBusStation, 3, MarginInMeters.of(1000));
         assertEquals(1, results.size(), results.toString());
-        assertEquals(compositeStationRepository.findByName("Station4"), results.get(0));
+
+        // fallback name, no naptan area data loaded
+        assertEquals(compositeStationRepository.findByName("Id{'area4'}"), results.get(0));
     }
 
     @Test

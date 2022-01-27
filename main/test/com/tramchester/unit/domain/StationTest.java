@@ -5,8 +5,10 @@ import com.tramchester.domain.Agency;
 import com.tramchester.domain.DataSourceID;
 import com.tramchester.domain.MutableRoute;
 import com.tramchester.domain.Route;
+import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.places.MutableStation;
+import com.tramchester.domain.places.NaptanArea;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.geo.CoordinateTransforms;
@@ -23,6 +25,8 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class StationTest {
 
+    private final IdFor<NaptanArea> areaId = StringIdFor.createId("area");
+
     @Test
     void testShouldCreateCorrecly() {
         Station tramStation = TestStation.forTest("id", "area", "stopName",
@@ -32,7 +36,7 @@ class StationTest {
         assertEquals(StringIdFor.createId("id"), tramStation.getId());
         assertEquals(-2.0, tramStation.getLatLong().getLat(),0);
         assertEquals(2.3, tramStation.getLatLong().getLon(),0);
-        assertEquals("area", tramStation.getArea());
+        assertEquals(areaId, tramStation.getAreaId());
         assertEquals(DataSourceID.tfgm, tramStation.getDataSourceID());
     }
 
@@ -45,13 +49,14 @@ class StationTest {
         assertEquals(StringIdFor.createId("id"), busStation.getId());
         assertEquals(-2.0, busStation.getLatLong().getLat(),0);
         assertEquals(2.3, busStation.getLatLong().getLon(),0);
-        assertEquals("area", busStation.getArea());
+        assertEquals(areaId, busStation.getAreaId());
         //assertTrue(TransportMode.isBus(busStation));
     }
 
     @Test
     void shouldHaveCorrectTransportModes() {
-        MutableStation station = new MutableStation(StringIdFor.createId("stationId"), "area", "name", nearPiccGardens,
+        IdFor<NaptanArea> areaId = IdFor.invalid();
+        MutableStation station = new MutableStation(StringIdFor.createId("stationId"), "area", areaId, "name", nearPiccGardens,
                 CoordinateTransforms.getGridPosition(nearPiccGardens), DataSourceID.tfgm);
 
         assertTrue(station.getTransportModes().isEmpty());
@@ -70,7 +75,8 @@ class StationTest {
 
     @Test
     void shouldHavePickupAndDropoffRoutes() {
-        MutableStation station = new MutableStation(StringIdFor.createId("stationId"), "area", "name", nearPiccGardens,
+        IdFor<NaptanArea> areaId = IdFor.invalid();
+        MutableStation station = new MutableStation(StringIdFor.createId("stationId"), "area", areaId, "name", nearPiccGardens,
                 CoordinateTransforms.getGridPosition(nearPiccGardens), DataSourceID.tfgm);
 
         final Route routeA = MutableRoute.getRoute(StringIdFor.createId("routeIdA"), "shortNameA", "nameA",

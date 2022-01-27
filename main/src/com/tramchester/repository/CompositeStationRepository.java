@@ -9,6 +9,7 @@ import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.places.GroupedStations;
+import com.tramchester.domain.places.NaptanArea;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.geo.CoordinateTransforms;
@@ -30,7 +31,7 @@ import static com.tramchester.domain.reference.TransportMode.Bus;
 import static java.lang.String.format;
 
 /***
- * Wrap stations with duplicate names inside of a composite so at API/UI level see unique list of station names
+ * Wrap stations with duplicate names inside of a group so at API/UI level see unique list of station names
  */
 @LazySingleton
 public class CompositeStationRepository implements StationRepositoryPublic {
@@ -43,7 +44,7 @@ public class CompositeStationRepository implements StationRepositoryPublic {
 
     private final IdSet<Station> isUnderlyingStationComposite;
 
-    // TODO use IdMap<CompositeStation>
+    // TODO UseNaptan area id not IdFor<Staiton>
     private final Map<IdFor<Station>, GroupedStations> compositeStations;
     private final Map<String, GroupedStations> compositeStationsByName;
 
@@ -114,10 +115,11 @@ public class CompositeStationRepository implements StationRepositoryPublic {
         Map<String, Set<Station>> groupedByName = stationRepository.getStationsFromSource(dataSourceID).
                 filter(graphFilter::shouldInclude).
                 filter(station -> station.servesMode(mode)).
-                filter(station -> !station.getArea().isBlank()).
+                filter(station -> station.getAreaId().isValid()).
+                // TODO Just use the area id from naptan here
                 filter(station -> duplicatedNames.contains(station.getName())).
                 collect(Collectors.groupingBy(Station::getName, Collectors.toSet()));
-        groupedByName.forEach((name, stations) -> groupByAreaAndAdd(mode, name, stations));
+        groupedByName.forEach(this::groupByAreaAndAdd);
 
         logger.info("Created " + compositeStations.size() + " composite stations");
     }
@@ -134,28 +136,34 @@ public class CompositeStationRepository implements StationRepositoryPublic {
                 map(Map.Entry::getKey).collect(Collectors.toSet());
     }
 
-    private void groupByAreaAndAdd(TransportMode mode, String nonUniqueName, Set<Station> stationsWithSameName) {
-        Map<String, Set<Station>> groupdedByArea = stationsWithSameName.stream().
-                collect(Collectors.groupingBy(Station::getArea, Collectors.toSet()));
-        groupdedByArea.forEach((area, stations) -> addComposite(mode, nonUniqueName, area, stations));
+    private void groupByAreaAndAdd(String nonUniqueName, Set<Station> stationsWithSameName) {
+        Map<IdFor<NaptanArea>, Set<Station>> groupdedByArea = stationsWithSameName.stream().
+                collect(Collectors.groupingBy(Station::getAreaId, Collectors.toSet()));
+        groupdedByArea.forEach((areaId, stations) -> addComposite(nonUniqueName, areaId, stations));
     }
 
-    private void addComposite(TransportMode mode, String nonUniqueName, String area, Set<Station> stationsToGroup) {
+    private void addComposite(String nonUniqueName, IdFor<NaptanArea> areaId, Set<Station> stationsToGroup) {
         if (stationsToGroup.size()==1) {
             Station single = stationsToGroup.iterator().next();
             logger.debug(format("Not grouping for area:%s name:%s as single station matched id:%s",
-                    area, nonUniqueName, single.getId()));
+                    areaId, nonUniqueName, single.getId()));
             return;
         }
 
-        logger.debug(format("Create for ids:%s name:%s mode:%s area:%s", HasId.asIds(stationsToGroup), nonUniqueName, mode, area));
-
-        String compositeName = attemptUnqiueName(nonUniqueName, area, stationsToGroup);
         int minChangeCost = computeMinChangeCost(stationsToGroup);
-        GroupedStations groupedStations = new GroupedStations(stationsToGroup, area, compositeName, minChangeCost);
+
+        String groupName  = areaId.toString();
+        if (naptanRespository.containsArea(areaId)) {
+            NaptanArea area = naptanRespository.getAreaFor(areaId);
+            groupName = area.getName();
+        } else {
+            logger.error(format("Using %s as name, missing area code %s for station group %s", groupName, areaId, HasId.asIds(stationsToGroup)));
+        }
+
+        GroupedStations groupedStations = new GroupedStations(stationsToGroup, areaId, groupName, minChangeCost);
 
         compositeStations.put(groupedStations.getId(), groupedStations);
-        compositeStationsByName.putIfAbsent(compositeName, groupedStations); // see attemptUnqiueName, might fail to get unique name
+        compositeStationsByName.putIfAbsent(groupName, groupedStations);
 
         stationsToGroup.stream().map(Station::getId).collect(IdSet.idCollector()).forEach(isUnderlyingStationComposite::add);
     }

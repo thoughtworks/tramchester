@@ -2,6 +2,7 @@ package com.tramchester.domain.places;
 
 import com.tramchester.domain.*;
 import com.tramchester.domain.id.HasId;
+import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.geo.GridPosition;
 
@@ -15,7 +16,10 @@ public interface Location<TYPE extends Location<?>> extends HasId<TYPE>, IdForDT
 
     GridPosition getGridPosition();
 
+    @Deprecated
     String getArea();
+
+    IdFor<NaptanArea> getAreaId();
 
     boolean hasPlatforms();
 

@@ -3,13 +3,16 @@ package com.tramchester.domain.factory;
 import com.tramchester.dataimport.data.*;
 import com.tramchester.domain.*;
 import com.tramchester.domain.id.IdFor;
+import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.input.*;
 import com.tramchester.domain.places.MutableStation;
+import com.tramchester.domain.places.NaptanArea;
 import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.GTFSTransportationType;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.geo.GridPosition;
+import com.tramchester.repository.naptan.NaptanRespository;
 
 import java.util.Optional;
 
@@ -48,10 +51,10 @@ public abstract class TransportEntityFactory {
     }
 
     public MutableStation createStation(IdFor<Station> stationId, StopData stopData, GridPosition position) {
-
         final String area = "";
 
-        return new MutableStation(stationId, area, stopData.getName(), stopData.getLatLong(), position, getDataSourceId());
+        IdFor<NaptanArea> areaId = IdFor.invalid();
+        return new MutableStation(stationId, area, areaId, stopData.getName(), stopData.getLatLong(), position, getDataSourceId());
     }
 
     public RouteStation createRouteStation(Station station, Route route) {
@@ -84,9 +87,21 @@ public abstract class TransportEntityFactory {
 
     public abstract IdFor<Station> formStationId(String stopId);
 
-//    public abstract void updateStation(MutableStation station, StopData stopData);
-
     public Optional<MutablePlatform> maybeCreatePlatform(StopData stopData) {
         return Optional.empty();
+    }
+
+    public static IdFor<NaptanArea> chooseArea(NaptanRespository naptanRespository, IdSet<NaptanArea> areaCodes) {
+        if (areaCodes.isEmpty()) {
+            return IdFor.invalid();
+        }
+
+        IdSet<NaptanArea> active = naptanRespository.activeCodes(areaCodes);
+        if (active.size()==1) {
+            return active.toList().get(0);
+        }
+        // TODO this seems not to happen, while StopPoints have more that one area it always seemed be marked
+        // inactive in the StopPoint or the StopArea
+        throw new RuntimeException("Todo, need to check if more than one active code is present in the data set " + areaCodes);
     }
 }
