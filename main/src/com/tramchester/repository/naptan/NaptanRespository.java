@@ -27,6 +27,7 @@ import javax.inject.Inject;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -56,7 +57,7 @@ public class NaptanRespository {
     }
 
     @PostConstruct
-    public void start() {
+    private void start() {
         logger.info("starting");
 
         boolean enabled = naptanDataImporter.isEnabled();
@@ -73,7 +74,7 @@ public class NaptanRespository {
 
 
     @PreDestroy
-    public void stop() {
+    private void stop() {
         logger.info("stopping");
         stops.clear();
         tiplocToAtco.clear();
@@ -233,5 +234,9 @@ public class NaptanRespository {
         return ids.stream().
                 filter(id -> areas.hasId(id)).
                 filter(id -> areas.get(id).isActive()).collect(IdSet.idCollector());
+    }
+
+    public Set<NaptanRecord> getRecordsFor(IdFor<NaptanArea> areaId) {
+        return stops.filterStream(stop -> stop.getAreaCodes().contains(areaId)).collect(Collectors.toSet());
     }
 }

@@ -128,4 +128,17 @@ public abstract class StopCall {
         return trip.getTransportMode();
     }
 
+    public boolean same(StopCall stopCall) {
+        if (sequenceNumber != stopCall.sequenceNumber) return false;
+        if (dwellTime!=stopCall.dwellTime) return false;
+        if (pickupType!=stopCall.pickupType) return false;
+        if (dropoffType!=stopCall.dropoffType) return false;
+        if (intoNextDay!=stopCall.intoNextDay) return false;
+
+        if (!station.equals(stopCall.station)) return false;
+        if (!trip.equals(stopCall.trip)) return false;
+        if (!arrivalTime.equals(stopCall.arrivalTime)) return false;
+
+        return true;
+    }
 }

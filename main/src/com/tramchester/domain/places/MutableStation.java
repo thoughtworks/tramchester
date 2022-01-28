@@ -7,6 +7,7 @@ import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.geo.GridPosition;
 import com.tramchester.graph.GraphPropertyKey;
+import com.tramchester.graph.graphbuild.GraphLabel;
 
 import java.util.Collections;
 import java.util.HashSet;
@@ -81,11 +82,6 @@ public class MutableStation implements Station {
     }
 
     @Override
-    public boolean isStationGroup() {
-        return false;
-    }
-
-    @Override
     public Set<TransportMode> getTransportModes() {
         return modes;
     }
@@ -115,6 +111,8 @@ public class MutableStation implements Station {
     public boolean hasDropoff() {
         return !servesRoutesDropoff.isEmpty();
     }
+
+
 
     @Override
     public Set<Platform> getPlatformsForRoute(Route route) {
@@ -167,8 +165,8 @@ public class MutableStation implements Station {
     }
 
     @Override
-    public boolean hasPlatformsForRoute(Route route) {
-        return platforms.stream().anyMatch(platform -> platform.servesRoute(route));
+    public GraphLabel getNodeLabel() {
+        return GraphLabel.STATION;
     }
 
     public String forDTO()  {

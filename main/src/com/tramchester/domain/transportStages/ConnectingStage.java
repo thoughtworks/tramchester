@@ -7,7 +7,6 @@ import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.input.StopCall;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.Location;
-import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.TransportStage;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramTime;
@@ -15,13 +14,13 @@ import com.tramchester.domain.time.TramTime;
 import java.util.Collections;
 import java.util.List;
 
-public class ConnectingStage implements TransportStage<Station, Station>  {
-    private final Station start;
-    private final Station end;
+public class ConnectingStage<FROM extends Location<?>, DEST extends Location<?>> implements TransportStage<FROM, DEST>  {
+    private final FROM start;
+    private final DEST end;
     private final int cost;
     private final TramTime walkStartTime;
 
-    public ConnectingStage(Station start, Station end, int cost, TramTime walkStartTime) {
+    public ConnectingStage(FROM start, DEST end, int cost, TramTime walkStartTime) {
         this.start = start;
         this.end = end;
         this.cost = cost;
@@ -39,17 +38,17 @@ public class ConnectingStage implements TransportStage<Station, Station>  {
     }
 
     @Override
-    public Location<Station> getActionStation() {
+    public Location<?> getActionStation() {
         return start;
     }
 
     @Override
-    public Station getLastStation() {
+    public DEST getLastStation() {
         return end;
     }
 
     @Override
-    public Station getFirstStation() {
+    public FROM getFirstStation() {
         return start;
     }
 

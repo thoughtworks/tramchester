@@ -191,7 +191,7 @@ class MapStatesToStages implements JourneyStateUpdate {
         IdFor<Station> endId = GraphProps.getStationId(endNode);
         Station start = stationRepository.getStationById(startId);
         Station end = stationRepository.getStationById(endId);
-        ConnectingStage connectingStage = new ConnectingStage(start, end, cost, getActualClock());
+        ConnectingStage<Station,Station> connectingStage = new ConnectingStage<>(start, end, cost, getActualClock());
         logger.info("Added stage " + connectingStage);
         stages.add(connectingStage);
     }

@@ -2,6 +2,7 @@ package com.tramchester.domain.places;
 
 import com.tramchester.domain.DataSourceID;
 import com.tramchester.domain.Platform;
+import com.tramchester.domain.Route;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.presentation.LatLong;
@@ -9,6 +10,7 @@ import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.geo.CoordinateTransforms;
 import com.tramchester.geo.GridPosition;
 import com.tramchester.graph.GraphPropertyKey;
+import com.tramchester.graph.graphbuild.GraphLabel;
 
 import java.util.Collections;
 import java.util.Set;
@@ -96,6 +98,21 @@ public class MyLocation implements Location<MyLocation> {
     @Override
     public boolean isActive() {
         return true;
+    }
+
+    @Override
+    public Set<Route> getDropoffRoutes() {
+        return Collections.emptySet();
+    }
+
+    @Override
+    public Set<Route> getPickupRoutes() {
+        return Collections.emptySet();
+    }
+
+    @Override
+    public GraphLabel getNodeLabel() {
+        return GraphLabel.QUERY_NODE;
     }
 
     @Override

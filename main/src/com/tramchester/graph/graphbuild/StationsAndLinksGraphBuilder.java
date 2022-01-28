@@ -131,7 +131,7 @@ public class StationsAndLinksGraphBuilder extends GraphBuilder {
             Transaction tx = timedTransaction.transaction();
             routes.forEach(route -> {
                 IdFor<Route> asId = route.getId();
-                logger.info("Adding route " + asId);
+                logger.debug("Adding route " + asId);
                 filteredStations.stream().
                         filter(station -> station.servesRouteDropoff(route) || station.servesRoutePickup(route)).
                         map(station -> transportData.getRouteStation(station, route)).
@@ -175,7 +175,7 @@ public class StationsAndLinksGraphBuilder extends GraphBuilder {
         Map<StationIdPair, Integer> pairs = new HashMap<>(); // (start, dest) -> cost
         route.getTrips().forEach(trip -> {
                 StopCalls stops = trip.getStopCalls();
-                stops.getLegs().forEach(leg -> {
+                stops.getLegs(graphFilter.isFiltered()).forEach(leg -> {
                     if (includeBothStops(graphFilter, leg)) {
                         GTFSPickupDropoffType pickup = leg.getFirst().getPickupType();
                         GTFSPickupDropoffType dropOff = leg.getSecond().getDropoffType();

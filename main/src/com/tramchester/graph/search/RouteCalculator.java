@@ -5,7 +5,6 @@ import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.Journey;
 import com.tramchester.domain.JourneyRequest;
 import com.tramchester.domain.NumberOfChanges;
-import com.tramchester.domain.places.GroupedStations;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.places.StationWalk;
 import com.tramchester.domain.time.CreateQueryTimes;
@@ -20,7 +19,10 @@ import com.tramchester.graph.caches.LowestCostSeen;
 import com.tramchester.graph.caches.NodeContentsRepository;
 import com.tramchester.graph.search.stateMachine.states.TraversalStateFactory;
 import com.tramchester.metrics.CacheMetrics;
-import com.tramchester.repository.*;
+import com.tramchester.repository.ClosedStationsRepository;
+import com.tramchester.repository.RouteInterchanges;
+import com.tramchester.repository.RunningRoutesAndServices;
+import com.tramchester.repository.TransportData;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Path;
 import org.neo4j.graphdb.Transaction;
@@ -116,17 +118,18 @@ public class RouteCalculator extends RouteCalculatorSupport implements TramRoute
     }
 
     private Stream<Journey> getJourneyStream(Transaction txn, Node startNode, Node endNode, JourneyRequest journeyRequest,
-                                             Set<Station> unexpanded, List<TramTime> queryTimes, NumberOfChanges numberOfChanges) {
+                                             Set<Station> destinations, List<TramTime> queryTimes, NumberOfChanges numberOfChanges) {
 
         if (numberOfChanges.getMin()==Integer.MAX_VALUE) {
             logger.error(format("Computed min number of changes is MAX_VALUE, journey %s is not possible?", journeyRequest));
             return Stream.empty();
         }
 
-        final Set<Station> destinations = GroupedStations.expandStations(unexpanded);
-        if (destinations.size()!=unexpanded.size()) {
-            logger.info("Expanded (composite) destinations from " + unexpanded.size() + " to " + destinations.size());
-        }
+        // TODO groups will need their own method, or get expanded much earlier on
+        //final Set<Station> destinations = GroupedStations.expandStations(unexpanded);
+//        if (destinations.size()!=unexpanded.size()) {
+//            logger.info("Expanded (composite) destinations from " + unexpanded.size() + " to " + destinations.size());
+//        }
 
         final TramServiceDate queryDate = journeyRequest.getDate();
         final Set<Long> destinationNodeIds = Collections.singleton(endNode.getId());
@@ -141,7 +144,6 @@ public class RouteCalculator extends RouteCalculatorSupport implements TramRoute
         logger.info("Query times: " + queryTimes);
 
         final LowestCostSeen lowestCostSeen = new LowestCostSeen();
-
 
         final Instant begin = providesNow.getInstant(); // TODO REMOVE THIS?
 

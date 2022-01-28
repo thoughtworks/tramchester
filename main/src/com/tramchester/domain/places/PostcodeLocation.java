@@ -2,6 +2,7 @@ package com.tramchester.domain.places;
 
 import com.tramchester.domain.DataSourceID;
 import com.tramchester.domain.Platform;
+import com.tramchester.domain.Route;
 import com.tramchester.domain.id.CaseInsensitiveId;
 import com.tramchester.domain.id.HasCaseInsensitiveId;
 import com.tramchester.domain.id.IdFor;
@@ -11,6 +12,7 @@ import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.geo.CoordinateTransforms;
 import com.tramchester.geo.GridPosition;
 import com.tramchester.graph.GraphPropertyKey;
+import com.tramchester.graph.graphbuild.GraphLabel;
 
 import java.util.Collections;
 import java.util.Objects;
@@ -109,6 +111,21 @@ public class PostcodeLocation implements Location<PostcodeLocation>, HasCaseInse
     @Override
     public boolean isActive() {
         return true;
+    }
+
+    @Override
+    public Set<Route> getDropoffRoutes() {
+        return Collections.emptySet();
+    }
+
+    @Override
+    public Set<Route> getPickupRoutes() {
+        return Collections.emptySet();
+    }
+
+    @Override
+    public GraphLabel getNodeLabel() {
+        throw new RuntimeException("Not implemented for postcode");
     }
 
     @Override

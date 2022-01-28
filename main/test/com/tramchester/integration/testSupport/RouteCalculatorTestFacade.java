@@ -32,14 +32,6 @@ public class RouteCalculatorTestFacade {
         return calculateRouteAsSet(real(start), real(dest), request);
     }
 
-    @NotNull
-    public Set<Journey> calculateRouteAsSet(Station start, Station dest, JourneyRequest request) {
-        Stream<Journey> stream = routeCalculator.calculateRoute(txn, start, dest, request);
-        Set<Journey> result = stream.collect(Collectors.toSet());
-        stream.close();
-        return result;
-    }
-
     public Set<Journey> calculateRouteAsSet(IdFor<Station> start, IdFor<Station> dest, JourneyRequest request) {
         return calculateRouteAsSet(get(start), get(dest), request);
     }
@@ -57,6 +49,27 @@ public class RouteCalculatorTestFacade {
     }
 
     public Set<Journey> calculateRouteAsSet(BusStations start, GroupedStations end, JourneyRequest journeyRequest) {
-        return calculateRouteAsSet(real(start), end, journeyRequest);
+        throw new RuntimeException("todo");
+//        return calculateRouteAsSet(real(start), end, journeyRequest);
+    }
+
+    public Set<Journey> calculateRouteAsSet(GroupedStations start, GroupedStations end, JourneyRequest journeyRequest) {
+        throw new RuntimeException("todo");
+    }
+
+    public Set<Journey> calculateRouteAsSet(GroupedStations start, Station end, JourneyRequest journeyRequest) {
+        throw new RuntimeException("todo");
+    }
+
+    @NotNull
+    public Set<Journey> calculateRouteAsSet(Station start, Station dest, JourneyRequest request) {
+        Stream<Journey> stream = routeCalculator.calculateRoute(txn, start, dest, request);
+        Set<Journey> result = stream.collect(Collectors.toSet());
+        stream.close();
+        return result;
+    }
+
+    public Set<Journey> calculateRouteAsSet(Station start, GroupedStations dests, JourneyRequest journeyRequest) {
+        throw new RuntimeException("todo");
     }
 }

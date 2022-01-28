@@ -3,6 +3,7 @@ package com.tramchester.graph;
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.id.IdSet;
+import com.tramchester.domain.places.Location;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.time.TramServiceDate;
 import com.tramchester.graph.graphbuild.GraphProps;
@@ -50,39 +51,55 @@ public class RouteCostCalculator {
     }
 
     public int getAverageCostBetween(Transaction txn, Station station, Node endNode, TramServiceDate date) {
-        Node startNode = graphQuery.getStationOrGrouped(txn, station);
+        Node startNode = graphQuery.getStationNode(txn, station);
         return calculateLeastCost(txn, startNode, endNode, COST, date.getDate());
     }
 
     // startNode must have been found within supplied txn
     public int getAverageCostBetween(Transaction txn, Node startNode, Station endStation, TramServiceDate date) {
-        Node endNode = graphQuery.getStationOrGrouped(txn, endStation);
+        Node endNode = graphQuery.getStationNode(txn, endStation);
         return calculateLeastCost(txn, startNode, endNode, COST, date.getDate());
     }
 
-    public int getAverageCostBetween(Transaction txn, Station startStation, Station endStation, TramServiceDate date) {
+    public int getAverageCostBetween(Transaction txn, Location<?> startStation, Location<?> endStation, TramServiceDate date) {
         return getCostBetween(txn, startStation, endStation, COST, date.getDate());
     }
 
-    public int getMaxCostBetween(Transaction txn, Station start, Station end, TramServiceDate date) {
+    public int getMaxCostBetween(Transaction txn, Location<?> start, Location<?> end, TramServiceDate date) {
         return getCostBetween(txn, start, end, MAX_COST, date.getDate());
     }
 
     public int getMaxCostBetween(Transaction txn, Node start, Station endStation, TramServiceDate date) {
-        Node endNode = graphQuery.getStationOrGrouped(txn, endStation);
+        Node endNode = graphQuery.getStationNode(txn, endStation);
         return calculateLeastCost(txn, start, endNode, MAX_COST, date.getDate());
     }
 
     private int getCostBetween(Transaction txn, Station startStation, Station endStation, GraphPropertyKey key, LocalDate date) {
-        Node startNode = graphQuery.getStationOrGrouped(txn, startStation);
+        Node startNode = graphQuery.getStationNode(txn, startStation);
         if (startNode==null) {
             throw new RuntimeException("Could not find start node for graph id " + startStation.getId().getGraphId());
         }
-        Node endNode = graphQuery.getStationOrGrouped(txn, endStation);
+        Node endNode = graphQuery.getStationNode(txn, endStation);
         if (endNode==null) {
             throw new RuntimeException("Could not find end node for graph id" + endStation.getId().getGraphId());
         }
         logger.info(format("Find approx. route cost between %s and %s", startStation.getId(), endStation.getId()));
+
+        return calculateLeastCost(txn, startNode, endNode, key, date);
+    }
+
+    private int getCostBetween(Transaction txn, Location<?> startLocation, Location<?> endLocation, GraphPropertyKey key, LocalDate date) {
+        //Node startNode = graphQuery.getStationNode(txn, startStation);
+        Node startNode = graphQuery.getLocationNode(txn, startLocation);
+        if (startNode==null) {
+            throw new RuntimeException("Could not find start node for graph id " + startLocation.getId().getGraphId());
+        }
+//        Node endNode = graphQuery.getStationNode(txn, endLocation);
+        Node endNode = graphQuery.getLocationNode(txn, endLocation);
+        if (endNode==null) {
+            throw new RuntimeException("Could not find end node for graph id" + endLocation.getId().getGraphId());
+        }
+        logger.info(format("Find approx. route cost between %s and %s", startLocation.getId(), endLocation.getId()));
 
         return calculateLeastCost(txn, startNode, endNode, key, date);
     }

@@ -79,13 +79,23 @@ class BusRouteCalculatorTest {
 
         stockportBusStation = compositeStationRepository.findByName(Composites.StockportTempBusStation.getName());
         altrinchamInterchange = compositeStationRepository.findByName(Composites.AltrinchamInterchange.getName());
-        knutsfordBusStation = compositeStationRepository.findByName("Bus Station, Knutsford");
+
+
+        knutsfordBusStation = compositeStationRepository.getStationGroup(KnutfordStationAreaId);
         shudehillInterchange = compositeStationRepository.findByName("Shudehill Interchange");
     }
 
     @AfterEach
     void afterEachTestRuns() {
         txn.close();
+    }
+
+    @Test
+    void shouldHaveValidStations() {
+        assertNotNull(stockportBusStation);
+        assertNotNull(altrinchamInterchange);
+        assertNotNull(knutsfordBusStation);
+        assertNotNull(shudehillInterchange);
     }
 
     @Test

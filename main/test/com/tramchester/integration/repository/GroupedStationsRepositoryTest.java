@@ -14,18 +14,16 @@ import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfigWit
 import com.tramchester.repository.StationGroupsRepository;
 import com.tramchester.testSupport.AdditionalTramInterchanges;
 import com.tramchester.testSupport.TestEnv;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
-import static com.tramchester.integration.testSupport.Assertions.assertIdEquals;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
+@Disabled("for tram stations none of the groups have more that one station")
 class GroupedStationsRepositoryTest {
 
     private static GuiceContainerDependencies componentContainer;
@@ -57,18 +55,20 @@ class GroupedStationsRepositoryTest {
     void shouldHaveExpectedTramStationGroup() {
         GroupedStations found = stationGroupsRepository.getStationGroup(StringIdFor.createId("940GZZMAALT"));
 
-        assertNotNull(found, stationGroupsRepository.getAllGroups().toString());
+        // only load groups with more than one stop, for tram stops this is none at all
+        assertNull(found, stationGroupsRepository.getAllGroups().toString());
 
-        assertEquals("Altrincham (Manchester Metrolink)", found.getName());
+//        assertEquals("Altrincham (Manchester Metrolink)", found.getName());
     }
 
     @Test
     void shouldFindGroupByName() {
         GroupedStations found = stationGroupsRepository.findByName("Altrincham (Manchester Metrolink)");
 
-        assertNotNull(found);
+        // only load groups with more than one stop, for tram stops this is none at all
+        assertNull(found);
 
-        assertIdEquals("940GZZMAALT", found.getAreaId());
+        //assertIdEquals("940GZZMAALT", found.getAreaId());
     }
 
     public static class TestConfigWithGroupsEnabledWithTram extends IntegrationTramTestConfigWithNaptan {

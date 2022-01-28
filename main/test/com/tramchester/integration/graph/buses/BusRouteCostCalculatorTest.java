@@ -4,7 +4,7 @@ import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.places.GroupedStations;
-import com.tramchester.domain.places.Station;
+import com.tramchester.domain.places.Location;
 import com.tramchester.domain.time.TramServiceDate;
 import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.RouteCostCalculator;
@@ -133,19 +133,19 @@ class BusRouteCostCalculatorTest {
         assertEquals(42, getCost(average(), StockportNewbridgeLane, StopAtShudehillInterchange));
     }
 
-    private BiFunction<Station, Station, Integer> average() {
+    private BiFunction<Location<?>, Location<?>, Integer> average() {
         return (start, finish) -> routeCost.getAverageCostBetween(txn, start, finish, date);
     }
 
-    private BiFunction<Station, Station, Integer> max() {
+    private BiFunction<Location<?>, Location<?>, Integer> max() {
         return (start, finish) -> routeCost.getMaxCostBetween(txn, start, finish, date);
     }
 
-    private int getCost(BiFunction<Station, Station, Integer> function, BusStations start, BusStations end) {
+    private int getCost(BiFunction<Location<?>, Location<?>, Integer> function, BusStations start, BusStations end) {
         return getCostBetween(function, start.from(stationRepository), end.from(stationRepository));
     }
 
-    private int getCostBetween(BiFunction<Station, Station, Integer> function, Station start, Station end) {
+    private int getCostBetween(BiFunction<Location<?>, Location<?>, Integer> function, Location<?> start, Location<?> end) {
         return function.apply(start, end);
     }
 

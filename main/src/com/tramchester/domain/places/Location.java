@@ -8,7 +8,7 @@ import com.tramchester.geo.GridPosition;
 
 import java.util.Set;
 
-public interface Location<TYPE extends Location<?>> extends HasId<TYPE>, IdForDTO, HasTransportModes, GraphProperty, CoreDomain {
+public interface Location<TYPE extends Location<?>> extends HasId<TYPE>, IdForDTO, HasTransportModes, GraphProperty, GraphNode, CoreDomain {
 
     String getName();
 
@@ -33,4 +33,9 @@ public interface Location<TYPE extends Location<?>> extends HasId<TYPE>, IdForDT
     default boolean isActive() {
         return hasPickup() || hasDropoff();
     }
+
+    Set<Route> getDropoffRoutes();
+
+    Set<Route> getPickupRoutes();
+
 }

@@ -117,7 +117,7 @@ public class AddNeighboursGraphBuilder extends CreateNodesAndRelationships {
     }
 
     private void addNeighbourRelationships(Transaction txn, GraphFilter filter, Station from, Set<Station> others) {
-        Node fromNode = graphQuery.getStationOrGrouped(txn, from);
+        Node fromNode = graphQuery.getStationNode(txn, from);
         if (fromNode==null) {
             String msg = "Could not find database node for from: " + from.getId();
             logger.error(msg);
@@ -128,7 +128,7 @@ public class AddNeighboursGraphBuilder extends CreateNodesAndRelationships {
         logger.debug("Adding neighbour relations from " + from.getId());
         others.stream().filter(filter::shouldInclude).forEach(to -> {
 
-            Node toNode = graphQuery.getStationOrGrouped(txn, to);
+            Node toNode = graphQuery.getStationNode(txn, to);
             if (toNode==null) {
                 String msg = "Could not find database node for to: " + to.getId();
                 logger.error(msg);

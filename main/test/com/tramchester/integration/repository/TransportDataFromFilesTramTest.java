@@ -341,7 +341,7 @@ public class TransportDataFromFilesTramTest {
         Set<Route> routes = transportData.getRoutes();
 
         for (Route route : routes) {
-            List<StopCalls.StopLeg> over = route.getTrips().stream().flatMap(trip -> trip.getStopCalls().getLegs().stream()).
+            List<StopCalls.StopLeg> over = route.getTrips().stream().flatMap(trip -> trip.getStopCalls().getLegs(false).stream()).
                     filter(stopLeg -> stopLeg.getCost() > 12 * 24).
                     collect(Collectors.toList());
             assertTrue(over.isEmpty(), over.toString());

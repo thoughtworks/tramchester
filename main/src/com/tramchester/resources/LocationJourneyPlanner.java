@@ -3,8 +3,8 @@ package com.tramchester.resources;
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.Journey;
+import com.tramchester.domain.JourneyRequest;
 import com.tramchester.domain.NumberOfChanges;
-import com.tramchester.domain.places.GroupedStations;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.places.StationWalk;
 import com.tramchester.domain.presentation.LatLong;
@@ -16,7 +16,6 @@ import com.tramchester.graph.caches.NodeContentsRepository;
 import com.tramchester.graph.filters.GraphFilter;
 import com.tramchester.graph.graphbuild.GraphLabel;
 import com.tramchester.graph.graphbuild.GraphProps;
-import com.tramchester.domain.JourneyRequest;
 import com.tramchester.graph.search.BetweenRoutesCostRepository;
 import com.tramchester.graph.search.RouteCalculator;
 import com.tramchester.graph.search.RouteCalculatorArriveBy;
@@ -197,7 +196,7 @@ public class LocationJourneyPlanner {
         int cost = stationWalk.getCost();
 
         Relationship walkingRelationship;
-        Node stationNode = graphQuery.getStationOrGrouped(txn, walkStation);
+        Node stationNode = graphQuery.getStationNode(txn, walkStation);
         if (stationNode==null) {
             throw new RuntimeException("Could not find node for " + walkStation);
         }
@@ -249,8 +248,8 @@ public class LocationJourneyPlanner {
             return Collections.emptySet();
         }
 
-        List<Station> filtered = GroupedStations.expandStations(nearbyStationsWithComposites).stream()
-                .filter(station -> !station.isStationGroup())
+        List<Station> filtered = nearbyStationsWithComposites.stream()
+                //.filter(station -> !station.isStationGroup())
                 .filter(graphFilter::shouldInclude).collect(Collectors.toList());
 
         Set<StationWalk> stationWalks = createWalks(latLong, filtered);

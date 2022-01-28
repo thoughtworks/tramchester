@@ -36,12 +36,12 @@ public class JourneyResourceTestFacade {
         parseStream = new ParseStream<>(mapper);
     }
 
-    public JourneyPlanRepresentation getJourneyPlan(LocalDate when, TramTime time, PostcodeLocation start, HasId<Station> end,
+    public JourneyPlanRepresentation getJourneyPlan(LocalDate when, TramTime time, PostcodeLocation start, HasId<?> end,
                                                     boolean arriveBy, int maxChanges) {
         return getApiResponse(when, time, prefix(start), end.getId(), null, arriveBy, maxChanges);
     }
 
-    public JourneyPlanRepresentation getJourneyPlan(LocalDate when, TramTime time, LatLong start, IdFor<Station> end,
+    public JourneyPlanRepresentation getJourneyPlan(LocalDate when, TramTime time, LatLong start, IdFor<?> end,
                                                     boolean arriveBy, int maxChanges) {
         return getApiResponse(when, time, MyLocation.MY_LOCATION_PLACEHOLDER_ID, end, start, arriveBy, maxChanges);
     }
@@ -62,22 +62,22 @@ public class JourneyResourceTestFacade {
         return getApiResponse(when, time, prefix(start), prefix(end), null, arriveBy, maxChanges);
     }
 
-    public JourneyPlanRepresentation getJourneyPlan(LocalDate when, TramTime time, HasId<Station> start, HasId<Station> end,
+    public JourneyPlanRepresentation getJourneyPlan(LocalDate when, TramTime time, HasId<?> start, HasId<?> end,
                                                     boolean arriveBy, int maxChanges) {
         return getApiResponse(when, time, start.getId(), end.getId(), null, arriveBy, maxChanges);
     }
 
-    private JourneyPlanRepresentation getApiResponse(LocalDate when, TramTime time, IdFor<Station> start, IdFor<Station> end,
+    private JourneyPlanRepresentation getApiResponse(LocalDate when, TramTime time, IdFor<?> start, IdFor<?> end,
                                                      LatLong position, boolean arriveBy, int maxChanges) {
         return getApiResponse(when, time, start.forDTO(), end.forDTO(), position, arriveBy, maxChanges);
     }
 
-    private JourneyPlanRepresentation getApiResponse(LocalDate when, TramTime time, IdFor<Station> start, String endAsString,
+    private JourneyPlanRepresentation getApiResponse(LocalDate when, TramTime time, IdFor<?> start, String endAsString,
                                                      LatLong position, boolean arriveBy, int maxChanges) {
         return getApiResponse(when, time, start.forDTO(), endAsString, position, arriveBy, maxChanges);
     }
 
-    private JourneyPlanRepresentation getApiResponse(LocalDate when, TramTime time, String startAsString, IdFor<Station> end,
+    private JourneyPlanRepresentation getApiResponse(LocalDate when, TramTime time, String startAsString, IdFor<?> end,
                                                      LatLong position, boolean arriveBy, int maxChanges) {
         return getApiResponse(when, time, startAsString, end.forDTO(), position, arriveBy, maxChanges);
     }

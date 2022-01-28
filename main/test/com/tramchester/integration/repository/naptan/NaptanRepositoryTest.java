@@ -3,6 +3,7 @@ package com.tramchester.integration.repository.naptan;
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.GuiceContainerDependencies;
 import com.tramchester.domain.id.IdFor;
+import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.places.NaptanArea;
 import com.tramchester.domain.places.NaptanRecord;
@@ -23,6 +24,7 @@ import org.junit.jupiter.api.Test;
 import java.util.List;
 
 import static com.tramchester.integration.testSupport.Assertions.assertIdEquals;
+import static com.tramchester.testSupport.reference.BusStations.KnutfordStationAreaId;
 import static org.junit.jupiter.api.Assertions.*;
 
 class NaptanRepositoryTest {
@@ -134,6 +136,27 @@ class NaptanRepositoryTest {
         final List<IdFor<NaptanArea>> areaCodes = record.getAreaCodes().toList();
         assertEquals(1, areaCodes.size());
         assertIdEquals("940GZZMAALT", areaCodes.get(0));
+    }
+
+    @Test
+    void shouldFindKnutsford() {
+
+        final IdFor<Station> stopId = StringIdFor.createId("0600MA6020");
+        NaptanRecord fromNaptan = respository.getForActo(stopId);
+        assertNotNull(fromNaptan);
+
+        IdSet<NaptanArea> areaCodes = fromNaptan.getAreaCodes();
+        assertFalse(areaCodes.isEmpty());
+
+        IdSet<NaptanArea> activeAreaCodes = respository.activeCodes(areaCodes);
+        assertFalse(activeAreaCodes.isEmpty());
+        assertTrue(activeAreaCodes.contains(KnutfordStationAreaId));
+
+        IdSet<NaptanRecord> allRecordsForArea = activeAreaCodes.stream().
+                flatMap(activeArea -> respository.getRecordsFor(activeArea).stream()).
+                collect(IdSet.collector());
+
+        assertEquals(4, allRecordsForArea.size(), allRecordsForArea.toString());
     }
 
     @Test

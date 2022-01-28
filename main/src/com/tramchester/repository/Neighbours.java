@@ -31,17 +31,23 @@ public class Neighbours implements NeighboursRepository {
     private final MarginInMeters marginInMeters;
 
     private final Map<IdFor<Station>, Set<StationLink>> neighbours;
+    private final boolean enabled;
 
     @Inject
     public Neighbours(StationRepository stationRepository, StationLocationsRepository stationLocations, TramchesterConfig config) {
         this.stationRepository = stationRepository;
         this.stationLocations = stationLocations;
         this.marginInMeters = MarginInMeters.of(config.getDistanceToNeighboursKM());
+        enabled = config.getCreateNeighbours();
         neighbours = new HashMap<>();
     }
 
     @PostConstruct
     private void start() {
+        if (!enabled) {
+            logger.warn("Disabled in config");
+            return;
+        }
         logger.info("Starting");
         createNeighboursFor();
         logger.info("Started");

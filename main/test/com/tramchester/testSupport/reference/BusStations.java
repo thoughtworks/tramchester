@@ -2,6 +2,7 @@ package com.tramchester.testSupport.reference;
 
 import com.tramchester.domain.DataSourceID;
 import com.tramchester.domain.id.IdFor;
+import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.places.NaptanArea;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.LatLong;
@@ -94,4 +95,6 @@ public enum BusStations implements TestStations {
             return compositeName;
         }
     }
+
+    public static final IdFor<NaptanArea> KnutfordStationAreaId = StringIdFor.createId("060GMA294");
 }

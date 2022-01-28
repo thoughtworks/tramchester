@@ -8,7 +8,6 @@ import com.tramchester.domain.StationLink;
 import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdSet;
-import com.tramchester.domain.places.GroupedStations;
 import com.tramchester.domain.places.InterchangeStation;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
@@ -143,29 +142,29 @@ public class Interchanges implements InterchangeRepository {
         logger.info(format("Added %s %s stations marked as as interchange", markedAsInterchange.size(), mode));
     }
 
-    private void addCompositeStations(TransportMode mode, int compositeThreshhold) {
-        logger.info("Adding composite stations as interchanges with threshhold " + compositeThreshhold);
-
-        Set<GroupedStations> composites = compositeStationRepository.getCompositesServing(mode);
-        if (composites.isEmpty()) {
-            logger.info("No composites to add");
-            return;
-        }
-
-        Set<Station> compositeStationsOverThreshhold = composites.stream().
-                filter(compositeStation -> compositeStation.numberContained() >= compositeThreshhold).
-                flatMap(compositeStation -> compositeStation.getContained().stream()).
-                collect(Collectors.toSet());
-
-        if (compositeStationsOverThreshhold.isEmpty()) {
-            logger.warn(format("Did not find any composites matching threshold %s out of %s composites",
-                    compositeThreshhold, composites.size()));
-        } else {
-            logger.info(format("Adding %s interchanges for %s composites",
-                    compositeStationsOverThreshhold.size(), composites.size()));
-        }
-        addStations(compositeStationsOverThreshhold, InterchangeStation.InterchangeType.CompositeLinks);
-    }
+//    private void addCompositeStations(TransportMode mode, int compositeThreshhold) {
+//        logger.info("Adding composite stations as interchanges with threshhold " + compositeThreshhold);
+//
+//        Set<GroupedStations> composites = compositeStationRepository.getCompositesServing(mode);
+//        if (composites.isEmpty()) {
+//            logger.info("No composites to add");
+//            return;
+//        }
+//
+//        Set<Station> compositeStationsOverThreshhold = composites.stream().
+//                filter(compositeStation -> compositeStation.numberContained() >= compositeThreshhold).
+//                flatMap(compositeStation -> compositeStation.getContained().stream()).
+//                collect(Collectors.toSet());
+//
+//        if (compositeStationsOverThreshhold.isEmpty()) {
+//            logger.warn(format("Did not find any composites matching threshold %s out of %s composites",
+//                    compositeThreshhold, composites.size()));
+//        } else {
+//            logger.info(format("Adding %s interchanges for %s composites",
+//                    compositeStationsOverThreshhold.size(), composites.size()));
+//        }
+//        addStations(compositeStationsOverThreshhold, InterchangeStation.InterchangeType.CompositeLinks);
+//    }
 
     private void addStations(Set<Station> stations, InterchangeStation.InterchangeType type) {
         Map<IdFor<Station>, InterchangeStation> toAdd = stations.stream().

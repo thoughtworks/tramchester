@@ -220,7 +220,7 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
                                          Map<StationTime, Node> timeNodes) {
         StopCalls stops = trip.getStopCalls();
 
-        stops.getLegs().forEach(leg -> {
+        stops.getLegs(graphFilter.isFiltered()).forEach(leg -> {
             if (includeBothStops(leg)) {
                 StopCall first = leg.getFirst();
                 StopCall second = leg.getSecond();
@@ -241,7 +241,7 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
     private void createServiceAndHourNodesForRoute(Transaction tx, Route route, GraphBuilderCache stationCache) {
         route.getTrips().forEach(trip -> {
                 StopCalls stops = trip.getStopCalls();
-                List<StopCalls.StopLeg> legs = stops.getLegs();
+                List<StopCalls.StopLeg> legs = stops.getLegs(graphFilter.isFiltered());
                 legs.forEach(leg -> {
                     if (!leg.getDepartureTime().isValid()) {
                         throw new RuntimeException("Invalid dept time for " + leg);
@@ -309,7 +309,7 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
         Map<StopCalls.StopLeg, Integer> pairs = new HashMap<>();
         route.getTrips().forEach(trip -> {
             StopCalls stops = trip.getStopCalls();
-            stops.getLegs().forEach(leg -> {
+            stops.getLegs(graphFilter.isFiltered()).forEach(leg -> {
                 if (includeBothStops(leg)) {
                     if (!pairs.containsKey(leg)) {
                         // TODO need cost representative of the route as whole
@@ -510,7 +510,7 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
         Map<StationTime, Node> timeNodes = new HashMap<>();
 
         StopCalls stops = trip.getStopCalls();
-        stops.getLegs().forEach(leg -> {
+        stops.getLegs(graphFilter.isFiltered()).forEach(leg -> {
             if (includeBothStops(leg)) {
                 Station start = leg.getFirstStation();
                 TramTime departureTime = leg.getDepartureTime();

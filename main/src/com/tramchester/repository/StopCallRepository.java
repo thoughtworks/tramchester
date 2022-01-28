@@ -13,6 +13,7 @@ import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.GTFSPickupDropoffType;
 import com.tramchester.domain.time.TramTime;
+import com.tramchester.graph.filters.GraphFilter;
 import com.tramchester.metrics.CacheMetrics;
 import org.apache.commons.lang3.tuple.Pair;
 import org.jetbrains.annotations.NotNull;
@@ -34,15 +35,18 @@ public class StopCallRepository implements ReportsCacheStats {
     private final TripRepository tripRepository;
     private final StationRepository stationRepository;
     private final ServiceRepository serviceRepository;
+    private final GraphFilter graphFilter;
     private final Map<Station, Set<StopCall>> stopCalls;
     private final Cache<CacheKey, Costs> cachedCosts;
 
     @Inject
     public StopCallRepository(TripRepository tripRepository, StationRepository stationRepository,
-                              ServiceRepository serviceRepository, CacheMetrics cacheMetrics) {
+                              ServiceRepository serviceRepository, CacheMetrics cacheMetrics,
+                              GraphFilter graphFilter) {
         this.tripRepository = tripRepository;
         this.stationRepository = stationRepository;
         this.serviceRepository = serviceRepository;
+        this.graphFilter = graphFilter;
         stopCalls = new HashMap<>();
         cachedCosts = Caffeine.newBuilder().maximumSize(20000).expireAfterAccess(10, TimeUnit.MINUTES).
                 recordStats().build();
@@ -107,7 +111,8 @@ public class StopCallRepository implements ReportsCacheStats {
 
     @NotNull
     private Costs calculateCosts(Route route, Station first, Station second) {
-        List<Integer> allCosts = route.getTrips().stream().flatMap(trip -> trip.getStopCalls().getLegs().stream()).
+        List<Integer> allCosts = route.getTrips().stream().
+                flatMap(trip -> trip.getStopCalls().getLegs(graphFilter.isFiltered()).stream()).
                 filter(leg -> leg.getFirstStation().equals(first) && leg.getSecondStation().equals(second)).
                 map(StopCalls.StopLeg::getCost).collect(Collectors.toList());
 

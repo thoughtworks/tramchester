@@ -3,6 +3,7 @@ package com.tramchester.graph.search;
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.domain.JourneyRequest;
 import com.tramchester.domain.id.IdFor;
+import com.tramchester.domain.places.GroupedStations;
 import com.tramchester.domain.places.NaptanArea;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.LatLong;
@@ -135,10 +136,10 @@ public class MapPathToStagesViaStates implements PathToStages {
 
         IdFor<NaptanArea> startId = GraphProps.getAreaIdFromGrouped(path.startNode());
         IdFor<NaptanArea> endId = GraphProps.getAreaIdFromGrouped(path.endNode());
-        Station start = stationGroupsRepository.getStationGroup(startId);
-        Station end = stationGroupsRepository.getStationGroup(endId);
+        GroupedStations start = stationGroupsRepository.getStationGroup(startId);
+        GroupedStations end = stationGroupsRepository.getStationGroup(endId);
 
-        ConnectingStage connectingStage = new ConnectingStage(start, end, 0, journeyRequest.getOriginalTime());
+        ConnectingStage<GroupedStations, GroupedStations> connectingStage = new ConnectingStage<>(start, end, 0, journeyRequest.getOriginalTime());
         stages.add(connectingStage);
     }
 

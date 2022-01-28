@@ -26,13 +26,8 @@ public interface Station extends Location<Station> {
     @Override
     boolean hasPlatforms();
 
-    boolean isStationGroup();
-
     @Override
     Set<TransportMode> getTransportModes();
-
-    @Override
-    LocationType getLocationType();
 
     @Override
     DataSourceID getDataSourceID();
@@ -40,10 +35,6 @@ public interface Station extends Location<Station> {
     Set<Platform> getPlatformsForRoute(Route route);
 
     boolean hasPlatform(IdFor<Platform> platformId);
-
-    Set<Route> getDropoffRoutes();
-
-    Set<Route> getPickupRoutes();
 
     Set<Agency> getAgencies();
 
@@ -55,8 +46,6 @@ public interface Station extends Location<Station> {
     boolean servesRouteDropoff(Route route);
 
     GridPosition getGridPosition();
-
-    boolean hasPlatformsForRoute(Route route);
 
     boolean servesMode(TransportMode mode);
 

@@ -4,12 +4,13 @@ import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.caching.DataCache;
 import com.tramchester.dataexport.DataSaver;
 import com.tramchester.dataimport.data.RouteIndexData;
-import com.tramchester.domain.places.InterchangeStation;
+import com.tramchester.domain.id.IdSet;
+import com.tramchester.domain.id.StringIdFor;
+import com.tramchester.domain.places.*;
 import com.tramchester.domain.NumberOfChanges;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.id.IdFor;
-import com.tramchester.domain.places.Station;
 import com.tramchester.graph.filters.GraphFilter;
 import com.tramchester.repository.InterchangeRepository;
 import com.tramchester.repository.NeighboursRepository;
@@ -203,6 +204,11 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
     }
 
     @Override
+    public NumberOfChanges getNumberOfChanges(GroupedStations start, GroupedStations end) {
+        return getNumberOfChanges(start.getContained(), end.getContained());
+    }
+
+    @Override
     public NumberOfChanges getNumberOfChanges(Set<Station> starts, Set<Station> destinations) {
         if (starts.stream().allMatch(station -> station.getPickupRoutes().isEmpty())) {
             logger.warn(format("start stations %s have no pick-up routes", HasId.asIds(starts)));
@@ -219,7 +225,7 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
     }
 
     @Override
-    public NumberOfChanges getNumberOfChanges(Station startStation, Station destination) {
+    public NumberOfChanges getNumberOfChanges(Location<?> startStation, Location<?> destination) {
         if (areNeighbours(startStation, destination)) {
             return new NumberOfChanges(1, 1);
         }
@@ -234,6 +240,7 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
         return getNumberOfHops(startStation.getPickupRoutes(), destination.getDropoffRoutes());
     }
 
+
     @Override
     public LowestCostsForDestRoutes getLowestCostCalcutatorFor(Set<Station> destinations) {
         Set<Route> destinationRoutes = destinations.stream().
@@ -241,12 +248,17 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
         return new LowestCostForDestinations(this, destinationRoutes);
     }
 
-    private boolean areNeighbours(Station startStation, Station destination) {
-        if (!neighboursRepository.hasNeighbours(startStation.getId())) {
-            return false;
+    private boolean areNeighbours(Location<?> start, Location<?> destination) {
+        if (start.getLocationType()==LocationType.Station && destination.getLocationType()==LocationType.Station) {
+            IdFor<Station> stationId = StringIdFor.convert(start.getId());
+            IdFor<Station> destinationId = StringIdFor.convert(destination.getId());
+            if (!neighboursRepository.hasNeighbours(stationId)) {
+                return false;
+            }
+            IdSet<Station> neighbours = neighboursRepository.getNeighboursFor(stationId).stream().collect(IdSet.collector());
+            return neighbours.contains(destinationId);
         }
-        Set<Station> neighbours = neighboursRepository.getNeighboursFor(startStation.getId());
-        return neighbours.contains(destination);
+        return false;
     }
 
     private boolean areNeighbours(Set<Station> starts, Set<Station> destinations) {

@@ -13,10 +13,16 @@ import com.tramchester.domain.reference.GTFSTransportationType;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.geo.GridPosition;
 import com.tramchester.repository.naptan.NaptanRespository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Optional;
 
+import static java.lang.String.format;
+
 public abstract class TransportEntityFactory {
+
+    private static final Logger logger = LoggerFactory.getLogger(TransportEntityFactory.class);
 
     public TransportEntityFactory() {
     }
@@ -51,7 +57,6 @@ public abstract class TransportEntityFactory {
     }
 
     public MutableStation createStation(IdFor<Station> stationId, StopData stopData, GridPosition position) {
-        final String area = "";
 
         IdFor<NaptanArea> areaId = IdFor.invalid();
         return new MutableStation(stationId, areaId, stopData.getName(), stopData.getLatLong(), position, getDataSourceId());
@@ -64,13 +69,11 @@ public abstract class TransportEntityFactory {
     public StopCall createPlatformStopCall(Trip trip, Platform platform, Station station, StopTimeData stopTimeData) {
         return new PlatformStopCall(platform, station, stopTimeData.getArrivalTime(), stopTimeData.getDepartureTime(),
             stopTimeData.getStopSequence(), stopTimeData.getPickupType(), stopTimeData.getDropOffType(), trip);
-        //return new PlatformStopCall(trip, platform, station, stopTimeData);
     }
 
     public StopCall createNoPlatformStopCall(Trip trip, Station station, StopTimeData stopTimeData) {
         return new NoPlatformStopCall(station, stopTimeData.getArrivalTime(), stopTimeData.getDepartureTime(),
                 stopTimeData.getStopSequence(), stopTimeData.getPickupType(), stopTimeData.getDropOffType(), trip);
-        //return new NoPlatformStopCall(trip, station, stopTimeData);
     }
 
     public MutableServiceCalendar createServiceCalendar(CalendarData calendarData) {
@@ -97,11 +100,16 @@ public abstract class TransportEntityFactory {
         }
 
         IdSet<NaptanArea> active = naptanRespository.activeCodes(areaCodes);
+        if (active.isEmpty()) {
+            logger.info(format("None of the area codes %s were active ", areaCodes));
+            return IdFor.invalid();
+        }
         if (active.size()==1) {
             return active.toList().get(0);
         }
-        // TODO this seems not to happen, while StopPoints have more that one area it always seemed be marked
-        // inactive in the StopPoint or the StopArea
-        throw new RuntimeException("Todo, need to check if more than one active code is present in the data set " + areaCodes);
+
+        final String message = "More than one active code is present in the data set " + areaCodes;
+        logger.error(message);
+        throw new RuntimeException(message);
     }
 }

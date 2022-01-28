@@ -1,7 +1,6 @@
 package com.tramchester.unit.domain;
 
 import com.tramchester.domain.*;
-import com.tramchester.domain.id.CompositeId;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.id.StringIdFor;
@@ -19,6 +18,7 @@ import java.util.stream.Stream;
 
 import static com.tramchester.domain.reference.TransportMode.Bus;
 import static com.tramchester.domain.reference.TransportMode.Tram;
+import static com.tramchester.integration.testSupport.Assertions.assertIdEquals;
 import static org.junit.jupiter.api.Assertions.*;
 
 class GroupedStationsTest {
@@ -41,18 +41,17 @@ class GroupedStationsTest {
         GroupedStations groupedStations = new GroupedStations(Collections.singleton(stationA), areaId,
                 "compName",1);
 
-        assertEquals(LocationType.CompositeStation, groupedStations.getLocationType());
+        assertEquals(LocationType.StationGroup, groupedStations.getLocationType());
 
         assertEquals("compName", groupedStations.getName());
-        IdSet<Station> expected = IdSet.singleton(Station.createId("id"));
-        assertEquals(new CompositeId<>(expected), groupedStations.getId());
+        assertIdEquals("areaId", groupedStations.getId());
         assertEquals(-2.0, groupedStations.getLatLong().getLat(),0);
         assertEquals(2.3, groupedStations.getLatLong().getLon(),0);
 
         assertEquals(areaId, groupedStations.getAreaId());
-        assertEquals("[id]", groupedStations.forDTO());
-        assertEquals("[id]", groupedStations.getId().getGraphId());
-        assertEquals("[id]", groupedStations.getId().forDTO());
+        assertEquals("areaId", groupedStations.forDTO());
+        assertEquals("areaId", groupedStations.getId().getGraphId());
+        assertEquals("areaId", groupedStations.getId().forDTO());
 
         assertTrue(groupedStations.hasPlatforms());
         assertEquals(Collections.singleton(platform), groupedStations.getPlatforms());
@@ -90,14 +89,14 @@ class GroupedStationsTest {
         IdFor<NaptanArea> areaId = StringIdFor.createId("areaId");
         GroupedStations groupedStations = new GroupedStations(stations, areaId, "compName",12);
 
-        assertEquals(LocationType.CompositeStation, groupedStations.getLocationType());
+        assertEquals(LocationType.StationGroup, groupedStations.getLocationType());
 
         assertEquals("compName", groupedStations.getName());
         IdSet<Station> expected = Stream.of("idB", "idA").map(Station::createId).collect(IdSet.idCollector());
-        assertEquals(new CompositeId<>(expected), groupedStations.getId());
-        assertEquals("[idA_idB]", groupedStations.forDTO());
-        assertEquals("[idA_idB]", groupedStations.getId().getGraphId());
-        assertEquals("[idA_idB]", groupedStations.getId().forDTO());
+        assertIdEquals("areaId", groupedStations.getId());
+        assertEquals("areaId", groupedStations.forDTO());
+        assertEquals("areaId", groupedStations.getId().getGraphId());
+        assertEquals("areaId", groupedStations.getId().forDTO());
 
         assertEquals(3, groupedStations.getLatLong().getLat(),0);
         assertEquals(6, groupedStations.getLatLong().getLon(),0);

@@ -173,7 +173,7 @@ public class AddWalksForClosedGraphBuilder extends CreateNodesAndRelationships {
 
     private void addWalkRelationships(Transaction txn, GraphFilter filter, Station closedStation, Set<Station> others,
                                       StationClosure closure) {
-        Node closedNode = graphQuery.getStationOrGrouped(txn, closedStation);
+        Node closedNode = graphQuery.getStationNode(txn, closedStation);
         if (closedNode==null) {
             String msg = "Could not find database node for from: " + closedStation.getId();
             logger.error(msg);
@@ -187,7 +187,7 @@ public class AddWalksForClosedGraphBuilder extends CreateNodesAndRelationships {
 
             int cost = CoordinateTransforms.calcCostInMinutes(closedStation, otherStation, mph);
 
-            Node otherNode = graphQuery.getStationOrGrouped(txn, otherStation);
+            Node otherNode = graphQuery.getStationNode(txn, otherStation);
             if (otherNode==null) {
                 String msg = "Could not find database node for to: " + otherStation.getId();
                 logger.error(msg);

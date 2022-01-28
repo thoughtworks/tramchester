@@ -87,7 +87,7 @@ public class RailTransportDataFromFilesTest {
         Station result = transportData.getStationById(Derby.getId());
 
         assertEquals("Derby Rail Station", result.getName());
-        assertEquals("TODO", result.getAreaId());
+        assertIdEquals("910GDRBY", result.getAreaId());
 
         final GridPosition expectedGrid = new GridPosition(436182, 335593);
         assertEquals(expectedGrid, result.getGridPosition());
@@ -104,7 +104,7 @@ public class RailTransportDataFromFilesTest {
         Station result = transportData.getStationById(ManchesterPiccadilly.getId());
 
         assertEquals("Manchester Piccadilly Rail Station", result.getName());
-        assertEquals("TODO", result.getAreaId());
+        assertIdEquals("910GMNCRPIC", result.getAreaId());
     }
 
     @Test
@@ -166,7 +166,7 @@ public class RailTransportDataFromFilesTest {
 
         Set<Trip> allTrips = transportData.getTrips();
         Set<StopCalls> tripWithZeroCostLegs = allTrips.stream().map(Trip::getStopCalls).
-                filter(stopCalls -> stopCalls.getLegs().stream().anyMatch(stopLeg -> stopLeg.getCost() == 0)).
+                filter(stopCalls -> stopCalls.getLegs(false).stream().anyMatch(stopLeg -> stopLeg.getCost() == 0)).
                 collect(Collectors.toSet());
 
         assertEquals(55, tripWithZeroCostLegs.size(), tripWithZeroCostLegs.toString());
@@ -392,7 +392,7 @@ public class RailTransportDataFromFilesTest {
                 filter(route -> route.getTransportMode()!=Ship).collect(Collectors.toSet());
 
         for (Route route : notShips) {
-            List<StopCalls.StopLeg> over = route.getTrips().stream().flatMap(trip -> trip.getStopCalls().getLegs().stream()).
+            List<StopCalls.StopLeg> over = route.getTrips().stream().flatMap(trip -> trip.getStopCalls().getLegs(false).stream()).
                     filter(stopLeg -> stopLeg.getCost() > 12 * 24).
                     collect(Collectors.toList());
             assertTrue(over.isEmpty(), route + " " + over);

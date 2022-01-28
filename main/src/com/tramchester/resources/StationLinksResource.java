@@ -109,7 +109,7 @@ public class StationLinksResource implements APIResource, JourneyPlanningMarker 
 
         List<StationGroupDTO> groups = new ArrayList<>();
         config.getTransportModes().forEach(mode ->
-                groups.addAll(stationGroupsRepository.getCompositesServing(mode).stream().
+                groups.addAll(stationGroupsRepository.getStationGroupsFor(mode).stream().
                         map(StationGroupDTO::create).collect(Collectors.toSet())));
 
         return Response.ok(groups).build();

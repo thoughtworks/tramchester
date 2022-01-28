@@ -35,8 +35,6 @@ public class InterchangeStation {
 
     public InterchangeStation(Station station, InterchangeType interchangeType) {
         this(station,  new HashSet<>(station.getPickupRoutes()), interchangeType);
-//        this.station = station;
-//        this.pickupFromInterchange = new HashSet<>(station.getPickupRoutes());
     }
 
     public boolean isMultiMode() {

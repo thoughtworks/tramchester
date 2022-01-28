@@ -61,4 +61,16 @@ public class NaptanRecord implements HasId<NaptanRecord>, CoreDomain {
         return stopAreaCodes.stream().map(NaptanArea::createId).collect(IdSet.idCollector());
     }
 
+    @Override
+    public String toString() {
+        return "NaptanRecord{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", gridPosition=" + gridPosition +
+                ", suburb='" + suburb + '\'' +
+                ", town='" + town + '\'' +
+                ", stopType=" + stopType +
+                ", stopAreaCodes=" + stopAreaCodes +
+                '}';
+    }
 }

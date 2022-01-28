@@ -1,6 +1,7 @@
 package com.tramchester.testSupport;
 
 import com.tramchester.domain.Journey;
+import com.tramchester.domain.places.GroupedStations;
 import com.tramchester.domain.places.PostcodeLocation;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.LatLong;
@@ -61,6 +62,14 @@ public class LocationJourneyPlannerTestFacade {
         return TestStation.real(stationRepository, testStation);
     }
 
+    public Set<Journey> quickestRouteForLocation(LatLong start, GroupedStations end, JourneyRequest journeyRequest, int maxStages) {
+        throw new RuntimeException("todo");
+    }
+
+    public Set<Journey> quickestRouteForLocation(GroupedStations start, LatLong end, JourneyRequest journeyRequest, int maxStages) {
+        throw new RuntimeException("todo");
+    }
+
     @NotNull
     private Set<Journey> asSetClosed(Stream<Journey> theStream, int maxStages) {
         Set<Journey> result = theStream.
@@ -69,5 +78,6 @@ public class LocationJourneyPlannerTestFacade {
         theStream.close();
         return result;
     }
+
 
 }

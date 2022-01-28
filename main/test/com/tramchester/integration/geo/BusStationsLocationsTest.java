@@ -50,20 +50,20 @@ class BusStationsLocationsTest {
     void shouldGetAllStationsCloseToPiccGardens() {
         List<Station> result = stationLocations.nearestStationsSorted(TestPostcodes.NearPiccadillyGardens.getLatLong(),
                 500, inMeters);
-        assertEquals(24, result.size());
+        assertEquals(51, result.size());
     }
 
     @Test
     void shouldGetAllStationsCloseToCentralBury() {
         List<Station> result = stationLocations.nearestStationsSorted(TestPostcodes.CentralBury.getLatLong(),
                 500, inMeters);
-        assertEquals(11, result.size());
+        assertEquals(38, result.size());
     }
 
     @Test
     void shouldGetAllStationsCloseToCentralAlty() {
         List<Station> result = stationLocations.nearestStationsSorted(TramStations.Altrincham.getLatLong(),
                 500, inMeters);
-        assertEquals(10, result.size());
+        assertEquals(17, result.size());
     }
 }

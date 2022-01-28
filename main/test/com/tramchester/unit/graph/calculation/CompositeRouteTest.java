@@ -15,6 +15,7 @@ import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.RouteCostCalculator;
 import com.tramchester.domain.JourneyRequest;
 import com.tramchester.graph.search.RouteCalculator;
+import com.tramchester.integration.testSupport.RouteCalculatorTestFacade;
 import com.tramchester.repository.StationGroupsRepository;
 import com.tramchester.repository.RunningRoutesAndServices;
 import com.tramchester.repository.StationRepository;
@@ -45,7 +46,6 @@ class CompositeRouteTest {
     private static SimpleGraphConfig config;
 
     private TramTransportDataForTestFactory.TramTransportDataForTest transportData;
-    private RouteCalculator calculator;
 
     private TramServiceDate queryDate;
     private Transaction txn;
@@ -53,6 +53,7 @@ class CompositeRouteTest {
     private TramTime queryTime;
     private GroupedStations fourthStationComposite;
     private LocationJourneyPlannerTestFacade locationJourneyPlanner;
+    private RouteCalculatorTestFacade calculator;
 
     @BeforeAll
     static void onceBeforeAllTestRuns() throws IOException {
@@ -77,7 +78,7 @@ class CompositeRouteTest {
         transportData = (TramTransportDataForTestFactory.TramTransportDataForTest) componentContainer.get(TransportData.class);
         GraphDatabase database = componentContainer.get(GraphDatabase.class);
         StationRepository stationRepository = componentContainer.get(StationRepository.class);
-        calculator = componentContainer.get(RouteCalculator.class);
+        RouteCalculator routeCalculator = componentContainer.get(RouteCalculator.class);
 
         queryDate = new TramServiceDate(LocalDate.of(2014,6,30));
         queryTime = TramTime.of(7, 57);
@@ -93,6 +94,8 @@ class CompositeRouteTest {
 
         locationJourneyPlanner = new LocationJourneyPlannerTestFacade(componentContainer.get(LocationJourneyPlanner.class),
                 stationRepository, txn);
+
+        calculator = new RouteCalculatorTestFacade(routeCalculator, stationRepository, txn);
 
     }
 
@@ -141,8 +144,9 @@ class CompositeRouteTest {
         final GroupedStations start = startGroup;
         final Station destination = transportData.getInterchange();
 
-        Set<Journey> journeys = calculator.calculateRoute(txn, start, destination, journeyRequest).
-                collect(Collectors.toSet());
+//        Set<Journey> journeys = calculator.calculateRoute(txn, start, destination, journeyRequest).collect(Collectors.toSet());
+        Set<Journey> journeys =  calculator.calculateRouteAsSet(start, destination, journeyRequest);
+
         Assertions.assertEquals(1, journeys.size());
         Journey journey = (Journey) journeys.toArray()[0];
 
@@ -170,8 +174,11 @@ class CompositeRouteTest {
     void shouldHaveJourneyToComposite() {
         JourneyRequest journeyRequest = createJourneyRequest(queryTime, 1);
 
-        Set<Journey> journeys = calculator.calculateRoute(txn, transportData.getFirst(),
-                fourthStationComposite, journeyRequest).collect(Collectors.toSet());
+//        Set<Journey> journeys = calculator.calculateRoute(txn, transportData.getFirst(),
+//                fourthStationComposite, journeyRequest).collect(Collectors.toSet());
+
+        Set<Journey> journeys = calculator.calculateRouteAsSet(transportData.getFirst(), fourthStationComposite, journeyRequest);
+
         assertTrue(journeys.size()>=1);
         journeys.forEach(journey-> assertEquals(2, journey.getStages().size()));
     }

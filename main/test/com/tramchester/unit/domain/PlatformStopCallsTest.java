@@ -121,7 +121,7 @@ class PlatformStopCallsTest {
 
     @Test
     void shouldHaveExpectedLegs() {
-        List<StopCalls.StopLeg> legs = stops.getLegs();
+        List<StopCalls.StopLeg> legs = stops.getLegs(false);
 
         assertEquals(2, legs.size());
 
@@ -149,7 +149,7 @@ class PlatformStopCallsTest {
         stops.add(stopD);
         stops.add(stopE);
 
-        List<StopCalls.StopLeg> legs = stops.getLegs();
+        List<StopCalls.StopLeg> legs = stops.getLegs(false);
 
         assertEquals(3, legs.size());
 

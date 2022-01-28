@@ -115,9 +115,12 @@ public class StationGroupsRepository {
                 filter(station -> station.servesMode(mode)).
                 filter(station -> station.getAreaId().isValid()).
                 collect(Collectors.groupingBy(Station::getAreaId, Collectors.toSet()));
-        groupedByName.forEach(this::groupByAreaAndAdd);
 
-        logger.info("Created " + stationGroups.size() + " composite stations");
+        groupedByName.entrySet().stream().
+                filter(item -> item.getValue().size() > 1).
+                forEach(item -> groupByAreaAndAdd(item.getKey(), item.getValue()));
+
+        logger.info("Created " + stationGroups.size() + " composite stations from " + groupedByName.size());
     }
 
     private void groupByAreaAndAdd(IdFor<NaptanArea> areaId, Set<Station> stationsInArea) {
@@ -139,7 +142,6 @@ public class StationGroupsRepository {
         GroupedStations groupedStations = new GroupedStations(stationsToGroup, areaId, areaName, minChangeCost);
 
         stationGroups.put(areaId, groupedStations);
-        //compositeStationsByName.putIfAbsent(areaName, groupedStations);
         stationGroupsByName.put(areaName, groupedStations);
     }
 
@@ -169,12 +171,12 @@ public class StationGroupsRepository {
         throw new RuntimeException(msg);
     }
 
-    public long getNumberOfGroups() {
-        guardIsEnabled();
-        return stationGroups.size();
-    }
+//    public long getNumberOfGroups() {
+//        guardIsEnabled();
+//        return stationGroups.size();
+//    }
 
-    public Set<GroupedStations> getCompositesServing(TransportMode mode) {
+    public Set<GroupedStations> getStationGroupsFor(TransportMode mode) {
         guardIsEnabled();
         return stationGroups.values().stream().
                 filter(station -> station.servesMode(mode)).

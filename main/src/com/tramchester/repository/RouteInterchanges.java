@@ -21,8 +21,12 @@ import org.slf4j.LoggerFactory;
 
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
+import java.time.Duration;
+import java.time.Instant;
 import java.util.*;
 import java.util.stream.Collectors;
+
+import static java.lang.String.format;
 
 @LazySingleton
 public class RouteInterchanges {
@@ -102,25 +106,28 @@ public class RouteInterchanges {
     }
 
 
-    public int lowestCostInterchangeSameRoute(Transaction txn, RouteStation routeStation) {
-        if (interchangeRepository.isInterchange(routeStation.getStation())) {
-            return 0;
-        }
-        return  findCostToInterchangeB(txn, routeStation);
-    }
+//    public int lowestCostInterchangeSameRoute(Transaction txn, RouteStation routeStation) {
+//        if (interchangeRepository.isInterchange(routeStation.getStation())) {
+//            return 0;
+//        }
+//        return  findCostToInterchangeB(txn, routeStation);
+//    }
 
     private void populateForRoute(Transaction txn, Route route) {
+
+        Instant startTime = Instant.now();
+
         IdFor<Route> routeId = route.getId();
 
         long maxNodes = route.getTrips().stream().flatMap(trip -> trip.getStopCalls().getStationSequence().stream()).distinct().count();
 
-        logger.info("Find stations to interchange least costs for " + routeId + " max nodes " + maxNodes);
+        logger.debug("Find stations to interchange least costs for " + routeId + " max nodes " + maxNodes);
 
         String template = "MATCH path = (rs:ROUTE_STATION {route_id:$id})-[:ON_ROUTE*1..%s {route_id:$id}]->(:INTERCHANGE {route_id:$id})" +
                 " WHERE NOT rs:INTERCHANGE " +
                 " RETURN path";
 
-        String query = String.format(template, maxNodes);
+        String query = format(template, maxNodes);
 
         Map<String, Object> params = new HashMap<>();
         params.put("id", routeId.getGraphId());
@@ -157,6 +164,12 @@ public class RouteInterchanges {
         });
 
         stationToInterPair.clear();
+
+        Instant finish = Instant.now();
+        long durationMs = Duration.between(startTime, finish).toMillis();
+        if (durationMs>1000) {
+            logger.warn(format("Route %s max nodes %s took %s milli", route.getId(), maxNodes, durationMs));
+        }
     }
 
     private int length(Path path) {

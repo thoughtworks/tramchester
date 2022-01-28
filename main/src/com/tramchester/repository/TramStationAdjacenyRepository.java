@@ -5,6 +5,7 @@ import com.tramchester.domain.StationPair;
 import com.tramchester.domain.input.StopCalls;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.reference.TransportMode;
+import com.tramchester.graph.filters.GraphFilter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -25,10 +26,12 @@ public class TramStationAdjacenyRepository  {
 
     private final Map<StationPair, Integer> matrix;
     private final TransportData transportData;
+    private final GraphFilter graphFilter;
 
     @Inject
-    public TramStationAdjacenyRepository(TransportData transportData) {
+    public TramStationAdjacenyRepository(TransportData transportData, GraphFilter graphFilter) {
         this.transportData = transportData;
+        this.graphFilter = graphFilter;
         matrix = new HashMap<>();
     }
 
@@ -38,7 +41,7 @@ public class TramStationAdjacenyRepository  {
         Collection<Trip> trips = transportData.getTrips();
         trips.stream().filter(TransportMode::isTram).forEach(trip -> {
             StopCalls stops = trip.getStopCalls();
-            stops.getLegs().forEach(leg -> {
+            stops.getLegs(graphFilter.isFiltered()).forEach(leg -> {
                 StationPair pair = StationPair.of(leg);
                 if (!matrix.containsKey(pair)) {
                     matrix.put(pair, leg.getCost());

@@ -5,6 +5,8 @@ import com.tramchester.domain.CoreDomain;
 import com.tramchester.domain.GraphProperty;
 import com.tramchester.domain.Platform;
 import com.tramchester.domain.id.HasId;
+import com.tramchester.domain.places.GroupedStations;
+import com.tramchester.domain.places.Location;
 import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
 import com.tramchester.graph.graphbuild.GraphLabel;
@@ -51,25 +53,32 @@ public class GraphQuery {
         return findNode(txn, label, station);
     }
 
-    private Node getGroupedNode(Transaction txn, Station station) {
+    public Node getGroupedNode(Transaction txn, GroupedStations groupedStations) {
         // uses Area Id, not station Id
         // TODO make this change to GroupedStations?
-        return graphDatabase.findNode(txn, GraphLabel.GROUPED, station.getProp().getText(), station.getAreaId().getGraphId());
+        //return graphDatabase.findNode(txn, GraphLabel.GROUPED, station.getProp().getText(), station.getAreaId().getGraphId());
+        return findNode(txn, GraphLabel.GROUPED, groupedStations);
     }
 
     /**
      * When calling from tests make sure relevant DB is fully built
      */
-    public Node getStationOrGrouped(Transaction txn, Station station) {
-        if (station.isStationGroup()) {
-            return getGroupedNode(txn, station);
-        } else {
-            return getStationNode(txn, station);
-        }
-    }
+//    @Deprecated
+//    public Node getStationOrGrouped(Transaction txn, Station station) {
+//        return getStationNode(txn, station);
+//        if (station.isStationGroup()) {
+//            return getGroupedNode(txn, station);
+//        } else {
+//            return getStationNode(txn, station);
+//        }
+//    }
 
     private <C extends GraphProperty & CoreDomain & HasId<C>>  Node findNode(Transaction txn, GraphLabel label, C hasId) {
         return graphDatabase.findNode(txn, label, hasId.getProp().getText(), hasId.getId().getGraphId());
+    }
+
+    public Node getLocationNode(Transaction txn, Location<?> location) {
+        return graphDatabase.findNode(txn, location.getNodeLabel(), location.getProp().getText(), location.getId().getGraphId());
     }
 
     /**
@@ -93,4 +102,5 @@ public class GraphQuery {
     public Node getPlatformNode(Transaction txn, Platform platform) {
         return findNode(txn, GraphLabel.PLATFORM, platform);
     }
+
 }

@@ -4,7 +4,6 @@ package com.tramchester.integration.resources.journeyPlanning;
 import com.tramchester.App;
 import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.places.GroupedStations;
-import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.DTO.ConfigDTO;
 import com.tramchester.domain.presentation.DTO.JourneyDTO;
 import com.tramchester.domain.presentation.DTO.JourneyPlanRepresentation;
@@ -186,7 +185,7 @@ class JourneyPlannerBusTest {
         return found;
     }
 
-    private void validateHasJourney(TramTime queryTime, HasId<Station>  start, HasId<Station>  end, int maxChanges) {
+    private void validateHasJourney(TramTime queryTime, HasId<?> start, HasId<?>  end, int maxChanges) {
         JourneyPlanRepresentation plan = journeyResourceTestFacade.getJourneyPlan(when, queryTime, start, end, false, maxChanges);
         List<JourneyDTO> found = getValidJourneysAfter(queryTime, plan);
         Assertions.assertFalse(found.isEmpty());

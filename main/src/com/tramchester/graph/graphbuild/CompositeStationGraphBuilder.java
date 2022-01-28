@@ -85,7 +85,7 @@ public class CompositeStationGraphBuilder extends CreateNodesAndRelationships {
     }
 
     private void addCompositeNodesAndLinks(TransportMode mode) {
-        Set<GroupedStations> allComposite = stationGroupsRepository.getCompositesServing(mode);
+        Set<GroupedStations> allComposite = stationGroupsRepository.getStationGroupsFor(mode);
 
         if (allComposite.isEmpty()) {
             logger.info("No composite stations to add for " + mode);
@@ -93,6 +93,7 @@ public class CompositeStationGraphBuilder extends CreateNodesAndRelationships {
         }
 
         final String logMessage = "adding " + allComposite.size() + " composite stations for " + mode;
+
         try(TimedTransaction timedTransaction = new TimedTransaction(graphDatabase, logger, logMessage)) {
             Transaction txn = timedTransaction.transaction();
             allComposite.stream().filter(graphFilter::shouldInclude).
@@ -111,20 +112,21 @@ public class CompositeStationGraphBuilder extends CreateNodesAndRelationships {
     }
 
     private Node createGroupedStationNodes(Transaction txn, GroupedStations groupedStations) {
-        Node stationNode = createGraphNode(txn, GraphLabel.GROUPED);
+        Node groupNode = createGraphNode(txn, GraphLabel.GROUPED);
         IdFor<NaptanArea> areaId = groupedStations.getAreaId();
-        GraphProps.setProperty(stationNode, areaId);
-        return stationNode;
+        GraphProps.setProperty(groupNode, areaId);
+        GraphProps.setProperty(groupNode, groupedStations);
+        return groupNode;
     }
 
-    private void linkStations(Transaction txn, Node parentNode, GroupedStations parent) {
-        Set<Station> contained = parent.getContained();
+    private void linkStations(Transaction txn, Node parentNode, GroupedStations groupedStations) {
+        Set<Station> contained = groupedStations.getContained();
         double mph = config.getWalkingMPH();
 
         contained.stream().
                 filter(graphFilter::shouldInclude).
                 forEach(station -> {
-                    int walkingCost = CoordinateTransforms.calcCostInMinutes(parent, station, mph);
+                    int walkingCost = CoordinateTransforms.calcCostInMinutes(groupedStations.getLatLong(), station, mph);
                     Node childNode = builderCache.getStation(txn, station.getId());
                     if (childNode==null) {
                         throw new RuntimeException("cannot find node for " + station);

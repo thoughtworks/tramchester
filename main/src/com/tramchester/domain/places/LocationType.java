@@ -4,5 +4,5 @@ public enum LocationType {
     Station,
     Postcode,
     Mobile,
-    CompositeStation
+    StationGroup
 }

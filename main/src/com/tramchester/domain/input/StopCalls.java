@@ -31,19 +31,26 @@ public class StopCalls {
         orderedStopCalls.clear();
     }
 
-    public void add(StopCall stop) {
-        Station station = stop.getStation();
+    public void add(StopCall stopCall) {
+        Station station = stopCall.getStation();
         if (station==null) {
             logger.error("Stop is missing station " + parent);
-        } else {
-            final int sequenceNumber = stop.getGetSequenceNumber();
-            if (orderedStopCalls.containsKey(sequenceNumber)) {
-                logger.error(format("Stop already present for trip %s, already had %s inserting %s ",
-                        parent, orderedStopCalls.get(sequenceNumber), stop));
-            }
-            orderedStopCalls.put(sequenceNumber, stop);
-            intoNextDay = intoNextDay || stop.intoNextDay();
+            return;
         }
+
+        final int sequenceNumber = stopCall.getGetSequenceNumber();
+        if (orderedStopCalls.containsKey(sequenceNumber)) {
+            // this can happen as duplicated stop calls occur in tfgm data occasionally
+            if (!stopCall.same(orderedStopCalls.get(sequenceNumber))) {
+                logger.error(format("Different stop already present for trip %s, already had %s inserting %s ",
+                        parent, orderedStopCalls.get(sequenceNumber), stopCall));
+            } else {
+                logger.debug("Duplicated stopcall " + stopCall);
+            }
+        }
+        orderedStopCalls.put(sequenceNumber, stopCall);
+        intoNextDay = intoNextDay || stopCall.intoNextDay();
+
     }
 
     public long numberOfCallingPoints() {
@@ -73,8 +80,9 @@ public class StopCalls {
     /**
      * Create StopLeg for each pair of stopcall (a,b,c,d,e) -> (a,b), (b,c), (c,d), (d,e)
      * Respects the dropoff and pickup types so so skips stopcalls that just pass a station
+     * @param filtered
      */
-    public List<StopLeg> getLegs() {
+    public List<StopLeg> getLegs(boolean filtered) {
         if (orderedStopCalls.isEmpty()) {
             String msg = "Missing stops, parent trip " + parent;
             logger.error(msg);
@@ -95,7 +103,7 @@ public class StopCalls {
             }
             next = second;
         }
-        if (legs.isEmpty()) {
+        if (legs.isEmpty() && !filtered) {
             logger.warn("No stop legs generated for " + this);
         }
         return legs;
