@@ -9,19 +9,12 @@ import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.geo.CoordinateTransforms;
 import com.tramchester.geo.GridPosition;
-import com.tramchester.testSupport.TestStations;
 import org.jetbrains.annotations.NotNull;
 
-// TODO
-
-@Deprecated
-public enum BusStations implements TestStations {
+public enum BusStations implements FakeStation {
 
     StopAtAltrinchamInterchange("1800AMIC0C1", "Altrincham Interchange",
             new LatLong(53.38745, -2.34771)),
-    // stockport bus stations is no more, at least for now
-//    StopAtStockportBusStation("1800SGQ0021", "Stockport", "Stockport Bus Station",
-//            new LatLong(53.4091,-2.16443890806)),
     StopAtHeatonLaneStockportBusStation("1800STIC011", "Stockport Heaton Lane Bus Station",
             new LatLong(53.41036253703,-2.16501729098)),
     StopAtShudehillInterchange("1800SHIC0C1", "Shudehill Interchange",
@@ -38,39 +31,58 @@ public enum BusStations implements TestStations {
             new LatLong(53.48063,-2.23825)),
     PiccadillyGardensStopN("1800SB04721", "Piccadilly Gardens",
             new LatLong(53.48017, -2.23723)),
-    // No longer in the data?
-//    MacclefieldBusStationBay1("0600MA6154", "Macclesfield", "Macclesfield, Bus Station (Bay 1)",
-//            new LatLong(53.25831, -2.12502)),
     StockportAtAldi("1800SG15721", "Aldi",
             new LatLong(53.41115, -2.15221)),
     StockportNewbridgeLane("1800SG15561", "Newbridge Lane",
             new LatLong(53.41149, -2.15438));
 
-    private final Station station;
+    // stockport bus stations is no more, at least for now
+//    StopAtStockportBusStation("1800SGQ0021", "Stockport", "Stockport Bus Station",
+//            new LatLong(53.4091,-2.16443890806)),
+
+    // No longer in the data?
+//    MacclefieldBusStationBay1("0600MA6154", "Macclesfield", "Macclesfield, Bus Station (Bay 1)",
+//            new LatLong(53.25831, -2.12502)),
+
+    private final String id;
+    private final String name;
+    private final LatLong latlong;
 
     BusStations(String id, String name, LatLong latlong) {
-        @NotNull GridPosition grid = CoordinateTransforms.getGridPosition(latlong);
-        IdFor<NaptanArea> areaId = IdFor.invalid();
-        this.station = new MutableStation(StringIdFor.createId(id), areaId, name, latlong, grid, DataSourceID.tfgm);
+        this.id = id;
+        this.name = name;
+        this.latlong = latlong;
     }
 
     @Deprecated
     public static Station of(BusStations enumValue) {
-        return enumValue.station;
+        return enumValue.fake();
     }
 
     @Override
-    public IdFor<Station> getId() {
-        return station.getId();
-    }
-    
     public String getName() {
-        return station.getName();
+        return name;
     }
 
-    @Deprecated
-    public String forDTO() {
-        return getId().forDTO();
+    @Override
+    public LatLong getLatLong() {
+        return latlong;
+    }
+
+    @Override
+    public String getRawId() {
+        return id;
+    }
+
+    @Override
+    public Station fake() {
+        return createMutable();
+    }
+
+    @NotNull
+    private MutableStation createMutable() {
+        GridPosition grid = CoordinateTransforms.getGridPosition(latlong);
+        return new MutableStation(getId(), IdFor.invalid(), name, latlong, grid, DataSourceID.tfgm);
     }
 
     public enum Composites {

@@ -2,7 +2,6 @@ package com.tramchester.testSupport.reference;
 
 import com.tramchester.domain.DataSourceID;
 import com.tramchester.domain.Platform;
-import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.places.MutableStation;
@@ -10,14 +9,13 @@ import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.geo.CoordinateTransforms;
 import com.tramchester.geo.GridPosition;
-import com.tramchester.repository.StationRepository;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
-public enum TramStations implements HasId<Station> {
+public enum TramStations implements FakeStation {
 
     Altrincham("9400ZZMAALT", "Altrincham", pos(53.38726, -2.34755)),
     Ashton("9400ZZMAAUL", "Ashton-Under-Lyne", pos(53.49035, -2.09798)),
@@ -91,32 +89,28 @@ public enum TramStations implements HasId<Station> {
     private static LatLong pos(double lat, double lon) {
         return new LatLong(lat, lon);
     }
-    
+
     @Override
-    public IdFor<Station> getId() {
-        return Station.createId(id);
+    public String getRawId() {
+        return id;
     }
 
+    @Override
     public String getName() {
         return name;
     }
 
+    @Override
     public LatLong getLatLong() {
         return latlong;
     }
 
-    public String getRawId() {
-        return id;
-    }
 
     public IdFor<Platform> createIdFor(String platform) {
         return Platform.createId(getRawId()+platform);
     }
 
-    public Station from(StationRepository stationRepository) {
-        return stationRepository.getStationById(getId());
-    }
-
+    @Override
     public Station fake() {
         return createMutable();
     }

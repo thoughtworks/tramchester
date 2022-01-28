@@ -92,7 +92,7 @@ class JourneyPlannerPostcodeBusResourceTest {
         oneStage.forEach(journeyDTO -> {
             final List<StageDTO> stages = journeyDTO.getStages();
             assertEquals(TransportMode.Walk, stages.get(0).getMode(), stages.get(0).toString());
-            assertEquals(BusStations.BuryInterchange.forDTO(), journeyDTO.getBegin().getId());
+            assertEquals(BusStations.BuryInterchange.getRawId(), journeyDTO.getBegin().getId());
         });
     }
 

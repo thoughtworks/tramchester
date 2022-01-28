@@ -12,7 +12,6 @@ import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.testSupport.ParseStream;
 import com.tramchester.testSupport.TestEnv;
-import com.tramchester.testSupport.TestStations;
 import org.junit.jupiter.api.Assertions;
 
 import javax.ws.rs.core.Response;
@@ -49,12 +48,6 @@ public class JourneyResourceTestFacade {
     public JourneyPlanRepresentation getJourneyPlan(LocalDate when, TramTime time, IdFor<Station> startId, LatLong end,
                                                     boolean arriveBy, int maxChanges) {
         return getApiResponse(when, time, startId, MyLocation.MY_LOCATION_PLACEHOLDER_ID, end, arriveBy, maxChanges);
-    }
-
-
-    public JourneyPlanRepresentation getJourneyPlan(LocalDate when, TramTime time, TestStations start, PostcodeLocation end,
-                                                    boolean arriveBy, int maxChanges) {
-        return getApiResponse(when, time, start.getId(), prefix(end), null, arriveBy, maxChanges);
     }
 
     public JourneyPlanRepresentation getJourneyPlan(LocalDate when, TramTime time, PostcodeLocation start, PostcodeLocation end,
