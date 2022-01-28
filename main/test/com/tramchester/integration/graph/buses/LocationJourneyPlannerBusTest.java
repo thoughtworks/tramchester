@@ -4,19 +4,19 @@ import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.Journey;
+import com.tramchester.domain.JourneyRequest;
 import com.tramchester.domain.places.StationGroup;
 import com.tramchester.domain.time.TramServiceDate;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.GraphDatabase;
-import com.tramchester.domain.JourneyRequest;
 import com.tramchester.integration.testSupport.bus.IntegrationBusTestConfig;
 import com.tramchester.repository.StationGroupsRepository;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.resources.LocationJourneyPlanner;
-import com.tramchester.testSupport.reference.BusStations.Composites;
-import com.tramchester.testSupport.testTags.BusTest;
 import com.tramchester.testSupport.LocationJourneyPlannerTestFacade;
 import com.tramchester.testSupport.TestEnv;
+import com.tramchester.testSupport.reference.BusStations.Composites;
+import com.tramchester.testSupport.testTags.BusTest;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.condition.DisabledIfEnvironmentVariable;
 import org.neo4j.graphdb.Transaction;
@@ -25,7 +25,8 @@ import java.time.LocalDate;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
-import static com.tramchester.testSupport.TestEnv.nearAltrinchamInterchange;
+import static com.tramchester.testSupport.reference.KnownLocations.nearAltrinchamInterchange;
+import static com.tramchester.testSupport.reference.KnownLocations.nearKnutsfordBusStation;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 
 @BusTest
@@ -109,7 +110,7 @@ class LocationJourneyPlannerBusTest {
 
         JourneyRequest request = new JourneyRequest(new TramServiceDate(nextMonday), travelTime, false, 3,
                 maxDuration, 1);
-        Set<Journey> journeys =  planner.quickestRouteForLocation(alty, TestEnv.nearKnutsfordBusStation, request, 5);
+        Set<Journey> journeys =  planner.quickestRouteForLocation(alty, nearKnutsfordBusStation, request, 5);
 
         assertFalse(journeys.isEmpty());
     }

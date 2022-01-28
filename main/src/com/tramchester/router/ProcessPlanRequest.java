@@ -16,8 +16,6 @@ import com.tramchester.domain.presentation.DTO.JourneyDTO;
 import com.tramchester.domain.presentation.DTO.PostcodeDTO;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.time.TramServiceDate;
-import com.tramchester.graph.search.RouteCalculator;
-import com.tramchester.graph.search.RouteCalculatorArriveBy;
 import com.tramchester.mappers.JourneyToDTOMapper;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.repository.StationRepositoryPublic;
@@ -37,20 +35,17 @@ public class ProcessPlanRequest {
     private static final Logger logger = LoggerFactory.getLogger(ProcessPlanRequest.class);
 
     private final LocationJourneyPlanner locToLocPlanner;
-    //private final RouteCalculator routeCalculator;
-    //private final RouteCalculatorArriveBy routeCalculatorArriveBy;
+
     private final StationRepositoryPublic stationRepository;
     private final PostcodeRepository postcodeRepository;
     private final JourneyToDTOMapper journeyToDTOMapper;
 
     @Inject
-    public ProcessPlanRequest(TramchesterConfig config, LocationJourneyPlanner locToLocPlanner, RouteCalculator routeCalculator,
-                              RouteCalculatorArriveBy routeCalculatorArriveBy, StationRepository stationRepository,
+    public ProcessPlanRequest(TramchesterConfig config, LocationJourneyPlanner locToLocPlanner, StationRepository stationRepository,
                               PostcodeRepository postcodeRepository, JourneyToDTOMapper journeyToDTOMapper) {
         this.locToLocPlanner = locToLocPlanner;
 
-//        this.routeCalculator = routeCalculator;
-//        this.routeCalculatorArriveBy = routeCalculatorArriveBy;
+
         this.stationRepository = stationRepository;
         this.postcodeRepository = postcodeRepository;
         this.journeyToDTOMapper = journeyToDTOMapper;
@@ -118,16 +113,6 @@ public class ProcessPlanRequest {
 
         return locToLocPlanner.quickestRouteForLocation(txn, start, dest, journeyRequest);
     }
-
-//    private Stream<Journey> stationToStation(Transaction txn, Location<?> start, Location<?> dest, JourneyRequest journeyRequest) {
-//        Stream<Journey> journeys;
-//        if (journeyRequest.getArriveBy()) {
-//            journeys = routeCalculatorArriveBy.calculateRoute(txn, start, dest, journeyRequest);
-//        } else {
-//            journeys = routeCalculator.calculateRoute(txn, start, dest, journeyRequest);
-//        }
-//        return journeys;
-//    }
 
     private PostcodeLocation getPostcode(String text, String diagnostic) {
 

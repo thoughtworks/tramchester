@@ -22,6 +22,7 @@ import com.tramchester.geo.CoordinateTransforms;
 import com.tramchester.geo.GridPosition;
 import com.tramchester.metrics.CacheMetrics;
 import com.tramchester.repository.RouteRepository;
+import com.tramchester.testSupport.reference.KnownLocations;
 import com.tramchester.testSupport.reference.KnownTramRoute;
 import com.tramchester.testSupport.reference.TramStations;
 import org.apache.commons.io.FileUtils;
@@ -53,17 +54,16 @@ public class TestEnv {
     private static final LocalDate sunday;
     private static final LocalDate monday;
 
-    public static final LatLong nearAltrincham = new LatLong(53.387483D, -2.351463D);
-    public static final LatLong nearAltrinchamInterchange = new LatLong(53.3873279D,-2.3498573D);
-    public static final LatLong nearPiccGardens = new LatLong(53.4805248D, -2.2394929D);
-    public static final LatLong nearShudehill = new LatLong(53.485846, -2.239472);
-    public static final LatLong atMancArena = new LatLong(53.4871468,-2.2445687);
-    public static final LatLong nearStockportBus = new LatLong(53.408735,-2.1656593);
-    public static final LatLong nearGreenwichLondon = new LatLong(51.477928, -0.001545);
-    public static final LatLong nearKnutsfordBusStation = new LatLong(53.3026112D,-2.3774635D);
-    public static final LatLong nearStPetersSquare = new LatLong(53.4776898D,-2.2432105D);
-    public final static LatLong nearWythenshaweHosp =  new LatLong(53.3874309,-2.2945628);
-    public final static LatLong atRoundthornTram = new LatLong(53.389264, -2.2971255);
+    public static final LatLong nearAltrincham = KnownLocations.nearAltrincham.latLong();
+    public static final LatLong nearAltrinchamInterchange = KnownLocations.nearAltrinchamInterchange.latLong();
+    public static final LatLong nearPiccGardens = KnownLocations.nearPiccGardens.latLong();
+    public static final LatLong nearShudehill = KnownLocations.nearShudehill.latLong();
+    public static final LatLong nearStockportBus = KnownLocations.nearStockportBus.latLong();
+    public static final LatLong nearGreenwichLondon = KnownLocations.nearGreenwichLondon.latLong();
+    public static final LatLong nearKnutsfordBusStation = KnownLocations.nearKnutsfordBusStation.latLong();
+    public static final LatLong nearStPetersSquare = KnownLocations.nearStPetersSquare.latLong();
+    public final static LatLong nearWythenshaweHosp =  KnownLocations.nearWythenshaweHosp.latLong();
+    public final static LatLong atRoundthornTram = KnownLocations.atRoundthornTram.latLong();
 
     public static final GridPosition nearAltrinchamGrid;
     public static final GridPosition nearPiccGardensGrid;

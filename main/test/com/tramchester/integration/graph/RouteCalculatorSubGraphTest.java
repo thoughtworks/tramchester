@@ -28,6 +28,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 
+import static com.tramchester.testSupport.reference.KnownLocations.nearStPetersSquare;
 import static com.tramchester.testSupport.reference.TramStations.Cornbrook;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 
@@ -139,9 +140,7 @@ class RouteCalculatorSubGraphTest {
                 maxJourneyDuration,1);
         //journeyRequest.setDiag(true);
         final Station station = stationRepository.getStationById(TramStations.Pomona.getId());
-        Set<Journey> results = testFacade.quickestRouteForLocation(station,
-                TestEnv.nearStPetersSquare,
-                journeyRequest, 4);
+        Set<Journey> results = testFacade.quickestRouteForLocation(station, nearStPetersSquare, journeyRequest, 4);
         assertFalse(results.isEmpty());
     }
 

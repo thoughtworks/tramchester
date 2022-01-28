@@ -34,8 +34,8 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Set;
 
-import static com.tramchester.testSupport.TestEnv.nearAltrincham;
-import static com.tramchester.testSupport.TestEnv.nearKnutsfordBusStation;
+import static com.tramchester.testSupport.reference.KnownLocations.nearAltrincham;
+import static com.tramchester.testSupport.reference.KnownLocations.nearKnutsfordBusStation;
 import static org.junit.jupiter.api.Assertions.*;
 
 @Disabled("Need way to inject naptan test data here")
@@ -164,8 +164,7 @@ class CompositeRouteTest {
         final Station destination = transportData.getInterchange();
 
         // nearAltrincham = station 1
-        Set<Journey> journeys = locationJourneyPlanner.quickestRouteForLocation(nearAltrincham,
-                destination, journeyRequest, 3);
+        Set<Journey> journeys = locationJourneyPlanner.quickestRouteForLocation(nearAltrincham.location(), destination, journeyRequest, 3);
         assertFalse(journeys.isEmpty());
     }
 
@@ -187,8 +186,8 @@ class CompositeRouteTest {
         JourneyRequest journeyRequest = createJourneyRequest(queryTime, 4);
 
         // nearKnutsfordBusStation = station 4
-        Set<Journey> journeys = locationJourneyPlanner.quickestRouteForLocation(transportData.getFirst(),
-                nearKnutsfordBusStation, journeyRequest, 3);
+        Set<Journey> journeys = locationJourneyPlanner.quickestRouteForLocation(transportData.getFirst(), nearKnutsfordBusStation.location(),
+                journeyRequest, 3);
         assertFalse(journeys.isEmpty());
     }
 

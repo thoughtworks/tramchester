@@ -30,7 +30,7 @@ import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
-import static com.tramchester.testSupport.TestEnv.*;
+import static com.tramchester.testSupport.reference.KnownLocations.*;
 import static com.tramchester.testSupport.reference.TramStations.*;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -47,6 +47,7 @@ class LocationJourneyPlannerTest {
     private TramServiceDate date;
     private int maxJourneyDuration;
     private long maxNumberOfJourneys;
+    private StationRepository stationRepository;
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
@@ -66,7 +67,7 @@ class LocationJourneyPlannerTest {
         maxJourneyDuration = testConfig.getMaxJourneyDuration();
         date = new TramServiceDate(when);
         txn = database.beginTx(TXN_TIMEOUT, TimeUnit.SECONDS);
-        StationRepository stationRepository = componentContainer.get(StationRepository.class);
+        stationRepository = componentContainer.get(StationRepository.class);
         planner = new LocationJourneyPlannerTestFacade(componentContainer.get(LocationJourneyPlanner.class), stationRepository, txn);
         maxNumberOfJourneys = 3;
     }
@@ -90,14 +91,14 @@ class LocationJourneyPlannerTest {
         unsortedResults.forEach(journey -> {
             List<TransportStage<?,?>> stages = journey.getStages();
             WalkingToStationStage first = (WalkingToStationStage) stages.get(0);
-            assertEquals(nearPiccGardens, first.getFirstStation().getLatLong());
+            assertEquals(nearPiccGardens.latLong(), first.getFirstStation().getLatLong());
             assertEquals(PiccadillyGardens.getId(), first.getLastStation().getId());
         });
 
         unsortedResults.forEach(journey -> {
             List<Location<?>> callingPoints = journey.getPath();
             assertEquals(2, callingPoints.size());
-            assertEquals(nearPiccGardens, callingPoints.get(0).getLatLong());
+            assertEquals(nearPiccGardens.latLong(), callingPoints.get(0).getLatLong());
             assertEquals(PiccadillyGardens.getId(), callingPoints.get(1).getId());
         });
     }
@@ -108,15 +109,14 @@ class LocationJourneyPlannerTest {
 
         JourneyRequest journeyRequest = new JourneyRequest(queryDate, TramTime.of(9, 0),
                 false, 1, maxJourneyDuration, maxNumberOfJourneys);
-        Set<Journey> unsortedResults = planner.quickestRouteForLocation(PiccadillyGardens,
-                nearPiccGardens, journeyRequest, 2);
+        Set<Journey> unsortedResults = planner.quickestRouteForLocation(PiccadillyGardens, nearPiccGardens, journeyRequest, 2);
 
         assertFalse(unsortedResults.isEmpty());
         unsortedResults.forEach(journey -> {
             List<TransportStage<?,?>> stages = journey.getStages();
             WalkingFromStationStage first = (WalkingFromStationStage) stages.get(0);
             assertEquals(PiccadillyGardens.getId(), first.getFirstStation().getId());
-            assertEquals(nearPiccGardens, first.getLastStation().getLatLong());
+            assertEquals(nearPiccGardens.latLong(), first.getLastStation().getLatLong());
         });
     }
 
@@ -210,7 +210,7 @@ class LocationJourneyPlannerTest {
             final int numCallingPoints = 11;
             assertEquals(numCallingPoints, callingPoints.size());
             assertEquals(NavigationRoad.getId(), callingPoints.get(numCallingPoints-2).getId());
-            assertEquals(nearAltrincham, callingPoints.get(numCallingPoints-1).getLatLong());
+            assertEquals(nearAltrincham.latLong(), callingPoints.get(numCallingPoints-1).getLatLong());
         });
     }
 
@@ -229,7 +229,7 @@ class LocationJourneyPlannerTest {
             List<Location<?>> callingPoints = journey.getPath();
             assertEquals(2, callingPoints.size());
             assertEquals(TramStations.Shudehill.getId(), callingPoints.get(0).getId());
-            assertEquals(nearShudehill, callingPoints.get(1).getLatLong());
+            assertEquals(nearShudehill.latLong(), callingPoints.get(1).getLatLong());
         });
     }
 
@@ -275,8 +275,9 @@ class LocationJourneyPlannerTest {
 
         final TramTime queryTime = TramTime.of(10, 15);
 
-        int toNavigation = CoordinateTransforms.calcCostInMinutes(nearAltrincham, NavigationRoad.fake(), testConfig.getWalkingMPH());
-        int toAltrincham = CoordinateTransforms.calcCostInMinutes(nearAltrincham, Altrincham.fake(), testConfig.getWalkingMPH());
+        final double walkingMPH = testConfig.getWalkingMPH();
+        int toNavigation = CoordinateTransforms.calcCostInMinutes(nearAltrincham.location(), NavigationRoad.from(stationRepository), walkingMPH);
+        int toAltrincham = CoordinateTransforms.calcCostInMinutes(nearAltrincham.location(), Altrincham.from(stationRepository), walkingMPH);
 
         int lowestCost = Math.min(toAltrincham, toNavigation);
         TramTime earliestDepart = queryTime.plusMinutes(lowestCost);
@@ -309,7 +310,7 @@ class LocationJourneyPlannerTest {
             TransportStage<?,?> rawStage = journey.getStages().get(0);
             assertEquals(TransportMode.Walk, rawStage.getMode());
             assertEquals(PiccadillyGardens.getId(), rawStage.getLastStation().getId());
-            assertEquals(nearPiccGardens, rawStage.getFirstStation().getLatLong());
+            assertEquals(nearPiccGardens.latLong(), rawStage.getFirstStation().getLatLong());
             assertEquals(3, rawStage.getDuration());
         });
     }

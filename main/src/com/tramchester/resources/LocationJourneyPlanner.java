@@ -221,7 +221,6 @@ public class LocationJourneyPlanner {
         }
 
         List<Station> filtered = nearbyStationsWithComposites.stream()
-                //.filter(station -> !station.isStationGroup())
                 .filter(graphFilter::shouldInclude).collect(Collectors.toList());
 
         Set<StationWalk> stationWalks = createWalks(latLong, filtered);
@@ -246,8 +245,9 @@ public class LocationJourneyPlanner {
     }
 
     private Set<StationWalk> createWalks(LatLong latLong, List<Station> startStations) {
-        return startStations.stream().map(station ->
-                new StationWalk(station, calcCostInMinutes(latLong, station, config.getWalkingMPH()))).collect(Collectors.toSet());
+        return startStations.stream().
+                map(station -> new StationWalk(station, calcCostInMinutes(latLong, station, config.getWalkingMPH()))).
+                collect(Collectors.toSet());
     }
 
     private static class WalkNodesAndRelationships {

@@ -92,7 +92,7 @@ class PostcodeTramJourneyPlannerTest {
     @ParameterizedTest
     @MethodSource("getRequest")
     void shouldHaveJourneyFromCentralPostcodeToBury(JourneyRequest request) {
-        Set<Journey> journeySet =  planner.quickestRouteForLocation(centralLocation.getLatLong(), TramStations.Bury, request, maxStages);
+        Set<Journey> journeySet =  planner.quickestRouteForLocation(centralLocation, TramStations.Bury, request, maxStages);
 
         assertFalse(journeySet.isEmpty());
         journeySet.forEach(journey -> assertEquals(TransportMode.Walk, journey.getStages().get(0).getMode()));
@@ -103,7 +103,7 @@ class PostcodeTramJourneyPlannerTest {
     @ParameterizedTest
     @MethodSource("getRequest")
     void shouldHaveJourneyFromBuryToCentralPostcode(JourneyRequest request) {
-        Set<Journey> journeySet =  planner.quickestRouteForLocation(TramStations.Bury, centralLocation.getLatLong(), request, maxStages);
+        Set<Journey> journeySet =  planner.quickestRouteForLocation(TramStations.Bury, centralLocation, request, maxStages);
 
         assertFalse(journeySet.isEmpty());
         journeySet.forEach(journey -> assertEquals(TransportMode.Tram, journey.getStages().get(0).getMode()));
@@ -118,8 +118,7 @@ class PostcodeTramJourneyPlannerTest {
 
         PostcodeLocation buryPostcode = repository.getPostcode(TestPostcodes.CentralBury.getId());
 
-        Set<Journey> journeySet = planner.quickestRouteForLocation(centralLocation.getLatLong(),
-                buryPostcode.getLatLong(), request, maxStages);
+        Set<Journey> journeySet = planner.quickestRouteForLocation(centralLocation, buryPostcode, request, maxStages);
 
         assertFalse(journeySet.isEmpty());
         journeySet.forEach(journey -> assertTrue(journey.getStages().size()>=3));

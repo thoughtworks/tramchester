@@ -35,6 +35,7 @@ import java.util.stream.Collectors;
 import static com.tramchester.domain.reference.TransportMode.Tram;
 import static com.tramchester.testSupport.reference.BusStations.KnutsfordStationStand3;
 import static com.tramchester.testSupport.reference.BusStations.StockportNewbridgeLane;
+import static com.tramchester.testSupport.reference.KnownLocations.nearStPetersSquare;
 import static com.tramchester.testSupport.reference.TramStations.*;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -185,7 +186,7 @@ public class NeighbourJourneysTest {
         JourneyRequest request = new JourneyRequest(new TramServiceDate(TestEnv.testDay()),
                 TramTime.of(11,53), false, 0, config.getMaxJourneyDuration(), 1);
 
-        Set<Journey> allJourneys = facade.quickestRouteForLocation(Altrincham.from(stationRepository), TestEnv.nearStPetersSquare, request, 4);
+        Set<Journey> allJourneys = facade.quickestRouteForLocation(Altrincham.from(stationRepository), nearStPetersSquare, request, 4);
         assertFalse(allJourneys.isEmpty(), "No journeys");
 
         Set<Journey> maybeTram = allJourneys.stream().

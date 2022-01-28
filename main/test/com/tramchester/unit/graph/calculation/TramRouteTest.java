@@ -6,8 +6,8 @@ import com.tramchester.DiagramCreator;
 import com.tramchester.domain.Journey;
 import com.tramchester.domain.JourneyRequest;
 import com.tramchester.domain.Route;
+import com.tramchester.domain.places.Location;
 import com.tramchester.domain.places.Station;
-import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.presentation.TransportStage;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramServiceDate;
@@ -37,6 +37,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import static com.tramchester.geo.CoordinateTransforms.calcCostInMinutes;
+import static com.tramchester.testSupport.reference.KnownLocations.*;
 import static com.tramchester.testSupport.reference.TramTransportDataForTestFactory.TramTransportDataForTest.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -135,7 +136,7 @@ class TramRouteTest {
 
     @Test
     void shouldHaveJourneyWithLocationBasedStartViaComposite() {
-        LatLong origin = TestEnv.nearAltrincham;
+        Location<?> origin = nearAltrincham.location();
 
         JourneyRequest journeyRequest = createJourneyRequest(TramTime.of(7, 57), 0);
 
@@ -153,7 +154,7 @@ class TramRouteTest {
 
     @Test
     void shouldHaveJourneyWithLocationBasedStart() {
-        final LatLong start = TestEnv.nearWythenshaweHosp;
+        final Location<?> start = nearWythenshaweHosp.location();
         final Station destination = transportData.getInterchange();
         final Station midway = transportData.getSecond();
 
@@ -192,7 +193,7 @@ class TramRouteTest {
     @Test
     void shouldHaveWalkDirectFromStart() {
         final JourneyRequest journeyRequest = createJourneyRequest(queryTime, 0);
-        final LatLong start = TestEnv.nearWythenshaweHosp;
+        final Location<?> start = nearWythenshaweHosp.location();
         final Station destination = transportData.getSecond();
 
         int walkCost = calcCostInMinutes(start, destination, config.getWalkingMPH());
@@ -216,7 +217,7 @@ class TramRouteTest {
     void shouldHaveWalkDirectAtEnd() {
         final JourneyRequest journeyRequest = createJourneyRequest(queryTime, 0);
         final Station start = transportData.getSecond();
-        final LatLong destination = TestEnv.nearWythenshaweHosp;
+        final Location<?> destination = nearWythenshaweHosp.location();
 
         int walkCost = calcCostInMinutes(destination, start, config.getWalkingMPH());
         assertEquals(4, walkCost);
@@ -239,8 +240,8 @@ class TramRouteTest {
     void shouldHaveWalkAtStartAndEnd() {
         final JourneyRequest journeyRequest = createJourneyRequest(queryTime, 2);
 
-        final LatLong start = TestEnv.nearWythenshaweHosp;
-        final LatLong destination = TestEnv.atMancArena;
+        final Location<?> start = nearWythenshaweHosp.location();
+        final Location<?> destination = atMancArena.location();
 
         final Station endFirstWalk = transportData.getSecond();
         final Station startSecondWalk = transportData.getInterchange();
@@ -281,7 +282,7 @@ class TramRouteTest {
 
         final JourneyRequest journeyRequest = createJourneyRequest(queryTime, 1);
 
-        final LatLong destination = TestEnv.atMancArena;
+        final Location<?> destination = atMancArena.location();
         final Station start = transportData.getSecond();
         final Station midway = transportData.getInterchange();
 
@@ -411,7 +412,7 @@ class TramRouteTest {
         JourneyRequest journeyRequest = createJourneyRequest(queryTime, 1);
 
         Set<Journey> journeys = locationJourneyPlanner.quickestRouteForLocation(transportData.getFirst(),
-                TestEnv.nearGreenwichLondon, journeyRequest,3);
+                nearGreenwichLondon, journeyRequest,3);
         assertTrue(journeys.isEmpty());
     }
 
@@ -419,7 +420,7 @@ class TramRouteTest {
     void shouldReturnZeroJourneysIfDestOutOfRange() {
         JourneyRequest journeyRequest = createJourneyRequest(queryTime, 1);
 
-        Set<Journey> journeys = locationJourneyPlanner.quickestRouteForLocation(TestEnv.nearGreenwichLondon,
+        Set<Journey> journeys = locationJourneyPlanner.quickestRouteForLocation(nearGreenwichLondon,
                 transportData.getFirst(), journeyRequest,3);
         assertTrue(journeys.isEmpty());
     }
@@ -429,8 +430,7 @@ class TramRouteTest {
         JourneyRequest journeyRequest = createJourneyRequest(queryTime, 1);
 
         // nearStockportBus == station 5
-        Set<Journey> journeys = locationJourneyPlanner.quickestRouteForLocation(transportData.getFirst(),
-                TestEnv.nearStockportBus, journeyRequest,3);
+        Set<Journey> journeys = locationJourneyPlanner.quickestRouteForLocation(transportData.getFirst(), nearStockportBus, journeyRequest,3);
 
         assertTrue(journeys.size()>=1);
         journeys.forEach(journey-> {
