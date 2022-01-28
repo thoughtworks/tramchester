@@ -22,7 +22,7 @@ import com.tramchester.graph.search.stateMachine.states.TraversalStateFactory;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.repository.TripRepository;
 import com.tramchester.testSupport.TestEnv;
-import com.tramchester.testSupport.TestStation;
+import com.tramchester.testSupport.reference.StationHelper;
 import com.tramchester.testSupport.reference.TramStations;
 import com.tramchester.testSupport.reference.TramTransportDataForTestFactory;
 import org.easymock.EasyMock;
@@ -48,7 +48,7 @@ class JourneyStateTest extends EasyMockSupport {
 
         node = EasyMock.createMock(Node.class);
 
-        MutableStation station = TestStation.forTest("destinationStationId", "area", "name", new LatLong(1,1),
+        MutableStation station = StationHelper.forTest("destinationStationId", "area", "name", new LatLong(1,1),
                 TransportMode.Tram, DataSourceID.tfgm);
         station.addRoutePickUp(TestEnv.getTramTestRoute());
 

@@ -82,7 +82,7 @@ public class JourneyPlannerResourceTest {
 
             assertEquals("1", platform.getPlatformNumber());
             assertEquals("Altrincham platform 1", platform.getName());
-            assertEquals(Altrincham.forDTO() + "1", platform.getId());
+            assertEquals(Altrincham.getRawId() + "1", platform.getId());
 
             journey.getStages().forEach(stage -> assertEquals(when, stage.getQueryDate()));
         });
@@ -142,7 +142,7 @@ public class JourneyPlannerResourceTest {
 
             assertEquals("1", platform1.getPlatformNumber());
             assertEquals( "Altrincham platform 1", platform1.getName());
-            assertEquals( TramStations.Altrincham.forDTO()+"1", platform1.getId());
+            assertEquals( TramStations.Altrincham.getRawId()+"1", platform1.getId());
 
             StageDTO secondStage = journey.getStages().get(1);
             PlatformDTO platform2 = secondStage.getPlatform();
@@ -156,10 +156,10 @@ public class JourneyPlannerResourceTest {
                     "Deansgate-Castlefield platform 1",
                     "Piccadilly platform 1", // summer 2021 only?
                     "St Peter's Square platform 2")));
-            assertThat( platform2.getId(), is(oneOf(Cornbrook.forDTO()+platformNumber,
-                    Deansgate.forDTO()+platformNumber,
-                    StPetersSquare.forDTO()+platformNumber,
-                    Piccadilly.forDTO()+platformNumber // <- summer 2021 only?
+            assertThat( platform2.getId(), is(oneOf(Cornbrook.getRawId()+platformNumber,
+                    Deansgate.getRawId()+platformNumber,
+                    StPetersSquare.getRawId()+platformNumber,
+                    Piccadilly.getRawId()+platformNumber // <- summer 2021 only?
             )));
         });
 

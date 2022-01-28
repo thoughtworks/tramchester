@@ -16,7 +16,7 @@ import com.tramchester.domain.time.TramTime;
 import com.tramchester.repository.TransportData;
 import com.tramchester.repository.TransportDataContainer;
 import com.tramchester.testSupport.TestEnv;
-import com.tramchester.testSupport.TestNoPlatformStation;
+import com.tramchester.unit.TestNoPlatformStation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

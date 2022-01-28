@@ -59,11 +59,11 @@ class RouteMapperTest {
 
             List<StationRefWithPosition> stations = dtos.get(index).getStations();
             StationRefWithPosition stationRefWithPosition = stations.get(0);
-            assertEquals(TramStations.ManAirport.forDTO(), stationRefWithPosition.getId());
+            assertEquals(TramStations.ManAirport.getRawId(), stationRefWithPosition.getId());
             TestEnv.assertLatLongEquals(TramStations.ManAirport.getLatLong(), stationRefWithPosition.getLatLong(),
                     0.00001, "position");
             assertTrue(stationRefWithPosition.getTransportModes().contains(TransportMode.Tram));
-            assertEquals(TramStations.Victoria.forDTO(), stations.get(stations.size()-1).getId());
+            assertEquals(TramStations.Victoria.getRawId(), stations.get(stations.size()-1).getId());
         });
 
 

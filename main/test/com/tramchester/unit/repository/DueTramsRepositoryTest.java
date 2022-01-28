@@ -3,7 +3,6 @@ package com.tramchester.unit.repository;
 import com.tramchester.domain.MutablePlatform;
 import com.tramchester.domain.Platform;
 import com.tramchester.domain.id.IdFor;
-import com.tramchester.domain.places.MutableStation;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.domain.time.TramTime;
@@ -11,7 +10,7 @@ import com.tramchester.livedata.domain.liveUpdates.*;
 import com.tramchester.livedata.repository.DueTramsRepository;
 import com.tramchester.metrics.CacheMetrics;
 import com.tramchester.testSupport.TestEnv;
-import com.tramchester.testSupport.reference.TramStations;
+import com.tramchester.testSupport.reference.StationHelper;
 import org.easymock.EasyMock;
 import org.easymock.EasyMockSupport;
 import org.junit.jupiter.api.BeforeEach;
@@ -34,7 +33,7 @@ class DueTramsRepositoryTest extends EasyMockSupport {
     private ProvidesNow providesNow;
     private DueTramsRepository repository;
     private LocalDateTime lastUpdate;
-    private MutableStation station;
+    private Station station;
     private Platform platform;
 
     @BeforeEach
@@ -45,9 +44,9 @@ class DueTramsRepositoryTest extends EasyMockSupport {
         LocalDate today = TestEnv.LocalNow().toLocalDate();
         lastUpdate = LocalDateTime.of(today, LocalTime.of(15,42));
 
-        station = TramStations.of(Shudehill);
         platform = MutablePlatform.buildForTFGMTram("someId1", "Shudehill platform 1", Shudehill.getLatLong());
-        station.addPlatform(platform);
+        station = StationHelper.forTest(Shudehill, platform);
+//        station.addPlatform(platform);
     }
 
     @Test
@@ -60,18 +59,21 @@ class DueTramsRepositoryTest extends EasyMockSupport {
                 "message 1", station, dueTram);
 
         // second station, has due tram
-        MutableStation secondStation = of(Altrincham);
         Platform platfromForSecondStation = MutablePlatform.buildForTFGMTram("a1", "Altrincham platform 1", Altrincham.getLatLong());
-        secondStation.addPlatform(platfromForSecondStation);
+        Station secondStation = StationHelper.forTest(Altrincham, platfromForSecondStation);
+        //secondStation.addPlatform(platfromForSecondStation);
 
         DueTram dueTramOther = new DueTram(of(ManAirport), "Due", 12, "Double", lastUpdate.toLocalTime());
         addStationInfoWithDueTram(infos, lastUpdate, "displayId2", platfromForSecondStation.getId(),
                 "message 2", secondStation, dueTramOther);
 
         // third, no due trams
-        Station thirdStation = of(TraffordCentre);
         Platform platfromForThirdStation = MutablePlatform.buildForTFGMTram("b2", "Intu platform 2", TraffordCentre.getLatLong());
-        secondStation.addPlatform(platfromForSecondStation);
+        Station thirdStation = StationHelper.forTest(TraffordCentre, platfromForThirdStation);
+
+        // todo following looks suspect...? Should have been platfromForThirdStation into thirdStation?
+        //secondStation.addPlatform(platfromForSecondStation);
+
         StationDepartureInfo thirdStationInfo = new StationDepartureInfo("displayId3", Lines.Airport,
                 LineDirection.Incoming, platfromForThirdStation.getId(), thirdStation, "message 3", lastUpdate);
         infos.add(thirdStationInfo);
@@ -96,9 +98,8 @@ class DueTramsRepositoryTest extends EasyMockSupport {
         addStationInfoWithDueTram(infos, lastUpdate, "displayId", platform.getId(),
                 "some message", station, dueTram);
 
-        MutableStation otherStation = of(Altrincham);
-        Platform otherPlatform = MutablePlatform.buildForTFGMTram("other1", "Altrincham platform 1", otherStation.getLatLong());
-        otherStation.addPlatform(otherPlatform);
+        Platform otherPlatform = MutablePlatform.buildForTFGMTram("other1", "Altrincham platform 1", Altrincham.getLatLong());
+        Station otherStation = StationHelper.forTest(Altrincham, otherPlatform);
 
         Station destinationManAirport = of(ManAirport);
         DueTram dueTramOther = new DueTram(destinationManAirport, "Due", 12, "Double", lastUpdate.toLocalTime());

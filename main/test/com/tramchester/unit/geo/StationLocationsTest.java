@@ -5,10 +5,9 @@ import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.geo.*;
-import com.tramchester.repository.StationGroupsRepository;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.TestEnv;
-import com.tramchester.testSupport.TestStation;
+import com.tramchester.unit.TestStation;
 import org.easymock.EasyMock;
 import org.easymock.EasyMockSupport;
 import org.jetbrains.annotations.NotNull;
@@ -27,12 +26,11 @@ class StationLocationsTest extends EasyMockSupport {
 
     private StationLocations stationLocations;
     private StationRepository stationRepository;
-    private StationGroupsRepository stationGroupsRepository;
+    //private StationGroupsRepository stationGroupsRepository;
 
     @BeforeEach
     void onceBeforeEachTest() {
         stationRepository = createMock(StationRepository.class);
-        stationGroupsRepository = createMock(StationGroupsRepository.class);
         stationLocations = new StationLocations(stationRepository);
     }
 

@@ -31,7 +31,7 @@ import static org.junit.jupiter.api.Assertions.*;
 class DeparturesResourceTest {
 
     private static final IntegrationAppExtension appExtension = new IntegrationAppExtension(App.class,
-            new ResourceTramTestConfig<DeparturesResource>(DeparturesResource.class, true));
+            new ResourceTramTestConfig<>(DeparturesResource.class, true));
 
     private final TramStations stationWithNotes = LiveDataUpdaterTest.StationWithNotes;
 
@@ -40,7 +40,7 @@ class DeparturesResourceTest {
     void shouldGetDueTramsForStation() {
         // split out messages to own test as need to be able to disable those seperately
         Response response = APIClient.getApiResponse(
-                appExtension, String.format("departures/station/%s", stationWithNotes.forDTO()));
+                appExtension, String.format("departures/station/%s", stationWithNotes.getRawId()));
         assertEquals(200, response.getStatus());
         DepartureListDTO departureList = response.readEntity(DepartureListDTO.class);
 
@@ -53,7 +53,7 @@ class DeparturesResourceTest {
     @LiveDataMessagesCategory
     void shouldHaveMessagesForStation() {
         Response response = APIClient.getApiResponse(
-                appExtension, String.format("departures/station/%s", stationWithNotes.forDTO()));
+                appExtension, String.format("departures/station/%s", stationWithNotes.getRawId()));
         assertEquals(200, response.getStatus());
         DepartureListDTO departureList = response.readEntity(DepartureListDTO.class);
 
@@ -96,7 +96,7 @@ class DeparturesResourceTest {
     private SortedSet<DepartureDTO> getDeparturesForStationTime(LocalTime queryTime, TramStations station) {
         String time = queryTime.format(TestEnv.timeFormatter);
         Response response = APIClient.getApiResponse(
-                appExtension, String.format("departures/station/%s?querytime=%s", station.forDTO(), time));
+                appExtension, String.format("departures/station/%s?querytime=%s", station.getRawId(), time));
         assertEquals(200, response.getStatus());
 
         DepartureListDTO departureList = response.readEntity(DepartureListDTO.class);
@@ -191,7 +191,7 @@ class DeparturesResourceTest {
 
         // Notes disabled
         Response response = APIClient.getApiResponse(
-                appExtension, String.format("departures/station/%s?notes=0", station.forDTO()));
+                appExtension, String.format("departures/station/%s?notes=0", station.getRawId()));
         assertEquals(200, response.getStatus());
 
         DepartureListDTO departureList = response.readEntity(DepartureListDTO.class);
@@ -199,7 +199,7 @@ class DeparturesResourceTest {
 
         // Notes enabled
         response = APIClient.getApiResponse(
-                appExtension, String.format("departures/station/%s?notes=1", station.forDTO()));
+                appExtension, String.format("departures/station/%s?notes=1", station.getRawId()));
         assertEquals(200, response.getStatus());
 
         departureList = response.readEntity(DepartureListDTO.class);

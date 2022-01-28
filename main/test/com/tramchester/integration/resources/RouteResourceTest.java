@@ -47,9 +47,9 @@ class RouteResourceTest {
 
         assertEquals("Blue Line", ashtonRoute.getShortName().trim());
         List<String> ids = ashtonRouteStations.stream().map(StationRefDTO::getId).collect(Collectors.toList());
-        assertTrue(ids.contains(TramStations.Ashton.forDTO()));
+        assertTrue(ids.contains(TramStations.Ashton.getRawId()));
 
-        assertTrue(ids.contains(TramStations.Eccles.forDTO()));
+        assertTrue(ids.contains(TramStations.Eccles.getRawId()));
     }
 
     @Test
@@ -65,11 +65,11 @@ class RouteResourceTest {
         RouteDTO airRoute = airRoutes.get(0);
         List<StationRefWithPosition> stations = airRoute.getStations();
         StationRefWithPosition first = stations.get(0);
-        assertEquals(TramStations.ManAirport.forDTO(), first.getId());
+        assertEquals(TramStations.ManAirport.getRawId(), first.getId());
         TestEnv.assertLatLongEquals(TramStations.ManAirport.getLatLong(), first.getLatLong(), 0.00001, "lat long");
         assertTrue(first.getTransportModes().contains(TransportMode.Tram));
 
-        assertEquals(TramStations.Victoria.forDTO(), stations.get(stations.size()-1).getId());
+        assertEquals(TramStations.Victoria.getRawId(), stations.get(stations.size()-1).getId());
     }
 
     private List<RouteDTO> getRouteResponse() {

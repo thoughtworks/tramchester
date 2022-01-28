@@ -221,8 +221,9 @@ public class MutableStation implements Station {
                 '}';
     }
 
-    public void addPlatform(Platform platform) {
+    public MutableStation addPlatform(Platform platform) {
         platforms.add(platform);
+        return this;
     }
 
     public void addRouteDropOff(Route dropoffFromRoute) {

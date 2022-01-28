@@ -4,7 +4,6 @@ import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.MutablePlatform;
 import com.tramchester.domain.Platform;
 import com.tramchester.domain.id.StringIdFor;
-import com.tramchester.domain.places.MutableStation;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.domain.time.TramTime;
@@ -15,6 +14,7 @@ import com.tramchester.livedata.domain.liveUpdates.StationDepartureInfo;
 import com.tramchester.metrics.CacheMetrics;
 import com.tramchester.repository.PlatformMessageRepository;
 import com.tramchester.testSupport.TestEnv;
+import com.tramchester.testSupport.reference.StationHelper;
 import com.tramchester.testSupport.reference.TramStations;
 import org.easymock.EasyMock;
 import org.easymock.EasyMockSupport;
@@ -29,7 +29,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
-import static com.tramchester.testSupport.reference.TramStations.Altrincham;
+import static com.tramchester.testSupport.reference.TramStations.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -38,7 +38,7 @@ class PlatformMessageRepositoryTest  extends EasyMockSupport {
     private ProvidesNow providesNow;
     private PlatformMessageRepository repository;
     private LocalDateTime lastUpdate;
-    private MutableStation station;
+    private Station station;
     private Platform platform;
     private TramchesterConfig config;
 
@@ -52,10 +52,8 @@ class PlatformMessageRepositoryTest  extends EasyMockSupport {
         LocalDate today = TestEnv.LocalNow().toLocalDate();
         lastUpdate = LocalDateTime.of(today, LocalTime.of(15,42));
 
-        station = TramStations.of(TramStations.Shudehill);
-        platform =MutablePlatform.buildForTFGMTram("someId1", "Shudehill platform 1", station.getLatLong());
-        station.addPlatform(platform);
-
+        platform = MutablePlatform.buildForTFGMTram("someId1", "Shudehill platform 1", Shudehill.getLatLong());
+        station = StationHelper.forTest(TramStations.Shudehill, platform);
     }
 
     @Test
@@ -97,8 +95,8 @@ class PlatformMessageRepositoryTest  extends EasyMockSupport {
         assertEquals(1, stationMessages.size());
         assertEquals("some message", stationMessages.get(0).getMessage());
 
-        MutableStation otherStation = TramStations.of(TramStations.Ashton);
-        otherStation.addPlatform(MutablePlatform.buildForTFGMTram("XXXX", "platform name", otherStation.getLatLong()));
+        final Platform platform = MutablePlatform.buildForTFGMTram("XXXX", "platform name", Ashton.getLatLong());
+        Station otherStation = StationHelper.forTest(TramStations.Ashton, platform);
 
         List<PlatformMessage> noStationMsg = repository.messagesFor(otherStation, lastUpdate.toLocalDate(), updateTime);
         assertTrue(noStationMsg.isEmpty());

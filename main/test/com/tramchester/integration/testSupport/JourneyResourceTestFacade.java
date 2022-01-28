@@ -46,9 +46,9 @@ public class JourneyResourceTestFacade {
         return getApiResponse(when, time, MyLocation.MY_LOCATION_PLACEHOLDER_ID, end, start, arriveBy, maxChanges);
     }
 
-    public JourneyPlanRepresentation getJourneyPlan(LocalDate when, TramTime time, TestStations start, LatLong end,
+    public JourneyPlanRepresentation getJourneyPlan(LocalDate when, TramTime time, IdFor<Station> startId, LatLong end,
                                                     boolean arriveBy, int maxChanges) {
-        return getApiResponse(when, time, start.getId(), MyLocation.MY_LOCATION_PLACEHOLDER_ID, end, arriveBy, maxChanges);
+        return getApiResponse(when, time, startId, MyLocation.MY_LOCATION_PLACEHOLDER_ID, end, arriveBy, maxChanges);
     }
 
 

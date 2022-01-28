@@ -8,7 +8,8 @@ import com.tramchester.domain.places.*;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.testSupport.TestEnv;
-import com.tramchester.testSupport.TestStation;
+import com.tramchester.testSupport.reference.StationHelper;
+import com.tramchester.unit.TestStation;
 import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
@@ -29,7 +30,7 @@ class StationGroupTest {
     @Test
     void shouldHaveCorrectValuesForOneStation() {
         LatLong latLong = new LatLong(-2.0, 2.3);
-        MutableStation stationA = TestStation.forTest("id", "area", "stopName",
+        MutableStation stationA = StationHelper.forTest("id", "area", "stopName",
                 latLong, Tram, dataSourceID);
 
         Route route = TestEnv.getTramTestRoute();

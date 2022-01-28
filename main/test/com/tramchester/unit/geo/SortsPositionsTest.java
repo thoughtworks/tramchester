@@ -5,14 +5,13 @@ import com.tramchester.domain.LocationSet;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.places.MutableStation;
+import com.tramchester.domain.places.NaptanArea;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.LatLong;
-import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.ProvidesLocalNow;
 import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.geo.SortsPositions;
 import com.tramchester.testSupport.TestEnv;
-import com.tramchester.testSupport.TestStation;
 import com.tramchester.testSupport.reference.TramTransportDataForTestFactory;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -30,8 +29,9 @@ class SortsPositionsTest {
     private Station stationNearShudehill;
     private Station stationNearAltrincham;
     private Station StationNearStockportBus;
-    private MutableStation alsoNearAlty;
     private Station startionNearWythenshawHosp;
+
+    private MutableStation alsoNearAlty;
 
     @BeforeEach
     void beforeEachTestRuns() {
@@ -46,8 +46,8 @@ class SortsPositionsTest {
         stationNearShudehill = dataForTest.getInterchange();   // near Shudehill
         StationNearStockportBus = dataForTest.getFifthStation();  // nearStockportBus
 
-        alsoNearAlty = TestStation.forTest("ALSO1122", "area2", "alsoNearAltr",
-                TestEnv.nearAltrincham, TransportMode.Tram, DataSourceID.tfgm);
+        alsoNearAlty = new MutableStation(Station.createId("ALSO1122"), NaptanArea.createId("area2"),
+                "alsoNearAltr", TestEnv.nearAltrincham, TestEnv.nearAltrinchamGrid, DataSourceID.tfgm);
         dataForTest.addStation(alsoNearAlty);
     }
 
@@ -136,6 +136,7 @@ class SortsPositionsTest {
         private final Station station;
 
         private StationFacade(Station station) {
+            assertNotNull(station);
             this.station = station;
         }
 

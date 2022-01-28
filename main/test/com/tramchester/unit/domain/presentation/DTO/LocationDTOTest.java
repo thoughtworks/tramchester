@@ -4,13 +4,13 @@ import com.tramchester.domain.DataSourceID;
 import com.tramchester.domain.MutablePlatform;
 import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.places.MutableStation;
+import com.tramchester.domain.places.NaptanArea;
+import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.DTO.LocationDTO;
 import com.tramchester.domain.presentation.DTO.PlatformDTO;
 import com.tramchester.domain.presentation.DTO.RouteRefDTO;
 import com.tramchester.domain.presentation.LatLong;
-import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.testSupport.TestEnv;
-import com.tramchester.testSupport.TestStation;
 import com.tramchester.testSupport.reference.TramStations;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Test;
@@ -28,8 +28,9 @@ class LocationDTOTest {
     @Test
     void shouldCreateDTOAsExpected() {
 
-        MutableStation testStation = TestStation.forTest("9400ZZMAALT", "Altrincham area", "Altrincham",
-                new LatLong(1,1), TransportMode.Tram, DataSourceID.tfgm);
+        MutableStation testStation = new MutableStation(Station.createId("9400ZZMAALT"),
+                NaptanArea.createId("Altrincham area"), "Altrincham",
+                TestEnv.nearAltrincham, TestEnv.nearAltrinchamGrid, DataSourceID.tfgm);
 
         testStation.addRouteDropOff(TestEnv.getTramTestRoute(StringIdFor.createId("routeIdA"), "routeNameA"));
         testStation.addRoutePickUp(TestEnv.getTramTestRoute(StringIdFor.createId("routeIdB"), "routeNameB"));
@@ -53,13 +54,13 @@ class LocationDTOTest {
         assertTrue(dto.hasPlatforms());
         assertEquals(2, dto.getPlatforms().size());
 
-        Optional<PlatformDTO> findPlatformOne = getPlatformById(dto, TramStations.Altrincham.forDTO() + "1");
+        Optional<PlatformDTO> findPlatformOne = getPlatformById(dto, TramStations.Altrincham.getRawId() + "1");
         assertTrue(findPlatformOne.isPresent());
         PlatformDTO platformDTOA = findPlatformOne.get();
         assertEquals("Altrincham platform 1", platformDTOA.getName());
         assertEquals("1", platformDTOA.getPlatformNumber());
 
-        Optional<PlatformDTO> findPlatformTwo = getPlatformById(dto, TramStations.Altrincham.forDTO() + "2");
+        Optional<PlatformDTO> findPlatformTwo = getPlatformById(dto, TramStations.Altrincham.getRawId() + "2");
         assertTrue(findPlatformTwo.isPresent());
         PlatformDTO platformDTOB = findPlatformTwo.get();
         assertEquals("Altrincham platform 2", platformDTOB.getName());

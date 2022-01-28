@@ -4,23 +4,19 @@ import com.tramchester.domain.DataSourceID;
 import com.tramchester.domain.Platform;
 import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.id.IdFor;
+import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.places.MutableStation;
-import com.tramchester.domain.places.NaptanArea;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.LatLong;
-import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.geo.CoordinateTransforms;
 import com.tramchester.geo.GridPosition;
-import com.tramchester.testSupport.TestStation;
-import com.tramchester.testSupport.TestStations;
-import org.jetbrains.annotations.NotNull;
+import com.tramchester.repository.StationRepository;
 
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.stream.Collectors;
 
-public enum TramStations implements TestStations {
+public enum TramStations implements HasId<Station> {
 
     Altrincham("9400ZZMAALT", "Altrincham", pos(53.38726, -2.34755)),
     Ashton("9400ZZMAAUL", "Ashton-Under-Lyne", pos(53.49035, -2.09798)),
@@ -72,57 +68,70 @@ public enum TramStations implements TestStations {
             Bury,
             TraffordCentre));
 
-    private final TestStation station;
+    private final String id;
+    private final String name;
+    private final LatLong latlong;
 
     TramStations(String id, String name, LatLong latlong) {
-        @NotNull GridPosition grid = CoordinateTransforms.getGridPosition(latlong);
-
-        IdFor<NaptanArea> areaId = IdFor.invalid();
-        this.station = new TestStation(id, areaId, name, latlong, grid, TransportMode.Tram, DataSourceID.tfgm);
+        this.id = id;
+        this.name = name;
+        this.latlong = latlong;
     }
 
-    public static boolean isEndOfLine(HasId<Station> station) {
-        return containedIn(station, EndOfTheLine);
+    public static boolean isEndOfLine(Station station) {
+        return containedIn(station.getId(), EndOfTheLine);
     }
 
-    private static boolean containedIn(HasId<Station> station, Set<TramStations> theSet) {
-        Set<IdFor<Station>> ids = theSet.stream().map(TramStations::getId).collect(Collectors.toSet());
-        return ids.contains(station.getId());
-    }
-
-    /***
-     * unsafe, use createFor or getFrom
-     * @param enumValue the test station
-     * @return The actual station in the enum
-     */
-    @Deprecated
-    public static MutableStation of(TramStations enumValue) {
-        return enumValue.station;
+    private static boolean containedIn(IdFor<Station> stationId, Set<TramStations> theSet) {
+        IdSet<Station> ids = theSet.stream().map(TramStations::getId).collect(IdSet.idCollector());
+        return ids.contains(stationId);
     }
 
     private static LatLong pos(double lat, double lon) {
         return new LatLong(lat, lon);
     }
 
+    @Deprecated
+    // inline me
+    public static Station of(TramStations tramStations) {
+        return tramStations.fake();
+    }
+
+    @Deprecated
+    // inline me
+    public String forDTO() {
+        return getRawId();
+    }
 
     @Override
     public IdFor<Station> getId() {
-        return station.getId();
+        return Station.createId(id);
     }
 
     public String getName() {
-        return station.getName();
+        return name;
     }
 
     public LatLong getLatLong() {
-        return station.getLatLong();
+        return latlong;
     }
 
-    public String forDTO() {
-        return station.forDTO();
+    public String getRawId() {
+        return id;
     }
 
-    public IdFor<Platform> getPlatformId(String platform) {
-        return station.getPlatformId(platform);
+    public IdFor<Platform> createIdFor(String platform) {
+        return Platform.createId(getRawId()+platform);
     }
+
+    public Station from(StationRepository stationRepository) {
+        return stationRepository.getStationById(getId());
+    }
+
+    public MutableStation fake() {
+        GridPosition grid = CoordinateTransforms.getGridPosition(latlong);
+        return new MutableStation(getId(), IdFor.invalid(), name, latlong, grid, DataSourceID.tfgm);
+    }
+
+
 }

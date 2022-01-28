@@ -6,7 +6,6 @@ import com.tramchester.domain.input.MutableTrip;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.Location;
 import com.tramchester.domain.places.MyLocation;
-import com.tramchester.domain.places.MutableStation;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.TransportStage;
 import com.tramchester.domain.reference.TransportMode;
@@ -15,6 +14,7 @@ import com.tramchester.domain.transportStages.VehicleStage;
 import com.tramchester.domain.transportStages.WalkingFromStationStage;
 import com.tramchester.domain.transportStages.WalkingToStationStage;
 import com.tramchester.testSupport.TestEnv;
+import com.tramchester.testSupport.reference.StationHelper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -196,18 +196,17 @@ class JourneyTest {
     @Test
     void shouldHaveCallingPlatformIds() {
         final TramTime departureTimeA = queryTime.plusMinutes(10);
-        final MutableStation alty = of(Altrincham);
-        final MutableStation stPeters = of(StPetersSquare);
-        final Station victoria = of(Victoria);
 
         final Platform platform1 = MutablePlatform.buildForTFGMTram("platformId1", "platformNameA", TestEnv.nearAltrincham);
+        final Station alty = StationHelper.forTest(Altrincham, platform1);
+
         final Platform platform2 = MutablePlatform.buildForTFGMTram("platformId2", "platformNameA", TestEnv.nearStPetersSquare);
-        alty.addPlatform(platform1);
-        stPeters.addPlatform(platform2);
+        final Station stPeters = StationHelper.forTest(StPetersSquare, platform2);
 
         final VehicleStage stageA = createVehicleStage(alty, stPeters, Bus, departureTimeA, 13);
         stageA.setPlatform(platform1);
 
+        final Station victoria = StationHelper.forTest(Victoria);
         final VehicleStage stageB = createVehicleStage(stPeters, victoria, Train, departureTimeA.plusMinutes(14), 19);
         stageB.setPlatform(platform2);
 

@@ -13,7 +13,7 @@ import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.geo.CoordinateTransforms;
 import com.tramchester.testSupport.TestEnv;
-import com.tramchester.testSupport.TestStation;
+import com.tramchester.testSupport.reference.StationHelper;
 import org.junit.jupiter.api.Test;
 
 import java.util.Set;
@@ -29,7 +29,7 @@ class StationTest {
 
     @Test
     void testShouldCreateCorrecly() {
-        Station tramStation = TestStation.forTest("id", "area", "stopName",
+        Station tramStation = StationHelper.forTest("id", "area", "stopName",
                 new LatLong(-2.0, 2.3), Tram, DataSourceID.tfgm);
 
         assertEquals("stopName", tramStation.getName());
@@ -42,7 +42,7 @@ class StationTest {
 
     @Test
     void testShouldSetBusNameCorrecly() {
-        Station busStation = TestStation.forTest("id", "area", "stopName",
+        Station busStation = StationHelper.forTest("id", "area", "stopName",
                 new LatLong(-2.0, 2.3), Bus, DataSourceID.tfgm);
 
         assertEquals("stopName", busStation.getName());

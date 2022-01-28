@@ -3,10 +3,10 @@ package com.tramchester.testSupport;
 import com.tramchester.domain.Journey;
 import com.tramchester.domain.JourneyRequest;
 import com.tramchester.domain.places.Location;
-import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.resources.LocationJourneyPlanner;
+import com.tramchester.testSupport.reference.TramStations;
 import org.jetbrains.annotations.NotNull;
 import org.neo4j.graphdb.Transaction;
 
@@ -35,19 +35,27 @@ public class LocationJourneyPlannerTestFacade {
 
 
     public Set<Journey> quickestRouteForLocation(TestStations start, Location<?> dest, JourneyRequest request, int maxStages) {
-        return quickestRouteForLocation(getReal(start), dest.getLatLong(), request, maxStages);
+        return quickestRouteForLocation(start.from(stationRepository), dest.getLatLong(), request, maxStages);
     }
 
     public Set<Journey> quickestRouteForLocation(Location<?> start, TestStations dest, JourneyRequest request, int maxStages) {
-        return quickestRouteForLocation(start, getReal(dest), request, maxStages);
+        return quickestRouteForLocation(start, dest.from(stationRepository), request, maxStages);
     }
 
-    public Set<Journey> quickestRouteForLocation(LatLong start, TestStations dest, JourneyRequest request, int maxStages) {
-        return quickestRouteForLocation(start, getReal(dest), request, maxStages);
+//    public Set<Journey> quickestRouteForLocation(LatLong start, TestStations dest, JourneyRequest request, int maxStages) {
+//        return quickestRouteForLocation(start, dest.from(stationRepository), request, maxStages);
+//    }
+//
+//    public Set<Journey> quickestRouteForLocation(TestStations start, LatLong dest, JourneyRequest request, int maxStages) {
+//        return quickestRouteForLocation(start.from(stationRepository), dest, request, maxStages);
+//    }
+
+    public Set<Journey> quickestRouteForLocation(LatLong latLong, TramStations destination, JourneyRequest journeyRequest, int maxStages) {
+        return quickestRouteForLocation(latLong, destination.from(stationRepository), journeyRequest, maxStages);
     }
 
-    public Set<Journey> quickestRouteForLocation(TestStations start, LatLong dest, JourneyRequest request, int maxStages) {
-        return quickestRouteForLocation(getReal(start), dest, request, maxStages);
+    public Set<Journey> quickestRouteForLocation(TramStations start, LatLong dest, JourneyRequest journeyRequest, int maxStages) {
+        return quickestRouteForLocation(start.from(stationRepository), dest, journeyRequest, maxStages);
     }
 
     ////
@@ -58,10 +66,6 @@ public class LocationJourneyPlannerTestFacade {
 
     public Set<Journey> quickestRouteForLocation(Location<?> start, Location<?> dest, JourneyRequest request, int maxStages) {
         return asSetClosed(planner.quickestRouteForLocation(txn, start.getLatLong(), dest.getLatLong(), request), maxStages);
-    }
-
-    private Station getReal(TestStations testStation) {
-        return testStation.from(stationRepository);
     }
 
     @NotNull

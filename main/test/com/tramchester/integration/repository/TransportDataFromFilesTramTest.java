@@ -430,7 +430,7 @@ public class TransportDataFromFilesTramTest {
         assertTrue(maybePlatformOne.isPresent());
 
         Platform platformOne = maybePlatformOne.get();
-        assertIdEquals( Altrincham.forDTO()+"1", platformOne.getId());
+        assertEquals( Altrincham.createIdFor("1"), platformOne.getId());
         assertEquals( "1", platformOne.getPlatformNumber());
         assertEquals( "Altrincham platform 1", platformOne.getName());
 
@@ -452,7 +452,7 @@ public class TransportDataFromFilesTramTest {
         Platform platform = transportData.getPlatform(platformId);
         assertNotNull(platform, "could not find " + platformId);
         assertEquals("St Peter's Square platform 3", platform.getName());
-        assertEquals(TramStations.StPetersSquare.getPlatformId("3"), platform.getId());
+        assertEquals(TramStations.StPetersSquare.createIdFor("3"), platform.getId());
     }
 
     @Test

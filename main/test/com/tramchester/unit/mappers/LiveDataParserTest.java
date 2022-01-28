@@ -1,16 +1,18 @@
 package com.tramchester.unit.mappers;
 
 import com.tramchester.config.TramchesterConfig;
-import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.MutablePlatform;
-import com.tramchester.livedata.domain.liveUpdates.LineDirection;
+import com.tramchester.domain.Platform;
+import com.tramchester.domain.id.StringIdFor;
+import com.tramchester.domain.places.Station;
 import com.tramchester.livedata.domain.liveUpdates.DueTram;
+import com.tramchester.livedata.domain.liveUpdates.LineDirection;
 import com.tramchester.livedata.domain.liveUpdates.Lines;
 import com.tramchester.livedata.domain.liveUpdates.StationDepartureInfo;
-import com.tramchester.domain.places.MutableStation;
 import com.tramchester.livedata.mappers.LiveDataParser;
-import com.tramchester.repository.StationRepository;
 import com.tramchester.livedata.repository.TramStationByName;
+import com.tramchester.repository.StationRepository;
+import com.tramchester.testSupport.reference.StationHelper;
 import com.tramchester.testSupport.reference.TramStations;
 import org.easymock.EasyMock;
 import org.easymock.EasyMockSupport;
@@ -48,11 +50,14 @@ class LiveDataParserTest extends EasyMockSupport {
         tramStationByName = createStrictMock(TramStationByName.class);
         parser = new LiveDataParser(tramStationByName, stationRepository);
 
-        MutableStation mediaCity = of(MediaCityUK);
-        mediaCity.addPlatform(MutablePlatform.buildForTFGMTram("9400ZZMAMCU2", "Media City Platform 2", MediaCityUK.getLatLong()));
+        final Platform platformMC = MutablePlatform.buildForTFGMTram("9400ZZMAMCU2", "Media City Platform 2", MediaCityUK.getLatLong());
+        Station mediaCity = StationHelper.forTest(MediaCityUK, platformMC);
+//        mediaCity.addPlatform(platform);
 
-        MutableStation airport = of(ManAirport);
-        airport.addPlatform(MutablePlatform.buildForTFGMTram("9400ZZMAAIR1", "Manchester Airport Platform 2", ManAirport.getLatLong()));
+        final Platform platformAirport = MutablePlatform.buildForTFGMTram("9400ZZMAAIR1", "Manchester Airport Platform 2",
+                ManAirport.getLatLong());
+        Station airport = StationHelper.forTest(ManAirport, platformAirport);
+//        airport.addPlatform(platformAirport);
 
         EasyMock.expect(stationRepository.getStationById(MediaCityUK.getId())).andStubReturn(mediaCity);
         EasyMock.expect(stationRepository.getStationById(ManAirport.getId())).andStubReturn(airport);

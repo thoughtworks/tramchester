@@ -87,7 +87,7 @@ class TramGraphBuilderTest {
 
     @Test
     void shouldHaveLinkRelationshipsCorrectForInterchange() {
-        Station cornbrook = TramStations.of(Cornbrook);
+        Station cornbrook = Cornbrook.from(stationRepository);
         Node cornbrookNode = graphQuery.getStationNode(txn, cornbrook);
         Iterable<Relationship> outboundLinks = cornbrookNode.getRelationships(Direction.OUTGOING, LINKED);
 
@@ -158,7 +158,7 @@ class TramGraphBuilderTest {
 
     @Test
     void shouldHaveLinkRelationshipsCorrectForEndOfLine() {
-        Station alty = TramStations.of(Altrincham);
+        Station alty = Altrincham.from(stationRepository);
         Node altyNode = graphQuery.getStationNode(txn, alty);
         Iterable<Relationship> outboundLinks = altyNode.getRelationships(Direction.OUTGOING, LINKED);
 
@@ -181,7 +181,7 @@ class TramGraphBuilderTest {
 
     @Test
     void shouldHaveLinkRelationshipsCorrectForNonInterchange() {
-        Station exchangeSq = TramStations.of(ExchangeSquare);
+        Station exchangeSq = ExchangeSquare.from(stationRepository);
         Node exchangeSqNode = graphQuery.getStationNode(txn, exchangeSq);
         Iterable<Relationship> outboundLinks = exchangeSqNode.getRelationships(Direction.OUTGOING, LINKED);
 
@@ -198,7 +198,7 @@ class TramGraphBuilderTest {
     @Test
     void shouldHaveCorrectOutboundsAtMediaCity() {
 
-        Station mediaCityUK = TramStations.of(MediaCityUK);
+        Station mediaCityUK = MediaCityUK.from(stationRepository);
 
         List<Relationship> outbounds = new ArrayList<>();
 
@@ -229,8 +229,10 @@ class TramGraphBuilderTest {
     @Test
     void shouldHaveCorrectRelationshipsAtCornbrook() {
 
+        final Station cornbrook = Cornbrook.from(stationRepository);
+
         tramRoutesAltPicc.forEach(tramRouteAltPicc -> {
-            RouteStation routeStationCornbrookAltyPiccRoute = stationRepository.getRouteStation(of(Cornbrook), tramRouteAltPicc);
+            RouteStation routeStationCornbrookAltyPiccRoute = stationRepository.getRouteStation(cornbrook, tramRouteAltPicc);
             List<Relationship> outbounds = graphQuery.getRouteStationRelationships(txn, routeStationCornbrookAltyPiccRoute, Direction.OUTGOING);
 
             assertTrue(outbounds.size()>1, "have at least one outbound");
@@ -238,7 +240,7 @@ class TramGraphBuilderTest {
 
         tramRoutesAshtonEccles.forEach(tramRouteAshtonEccles -> {
 
-            RouteStation routeStationCornbrookAshtonEcclesRoute = stationRepository.getRouteStation(of(Cornbrook), tramRouteAshtonEccles);
+            RouteStation routeStationCornbrookAshtonEcclesRoute = stationRepository.getRouteStation(cornbrook, tramRouteAshtonEccles);
             List<Relationship> outbounds = graphQuery.getRouteStationRelationships(txn, routeStationCornbrookAshtonEcclesRoute, Direction.OUTGOING);
 
             assertTrue(outbounds.size()>1);
@@ -285,7 +287,7 @@ class TramGraphBuilderTest {
     }
 
     private void checkOutboundConsistency(TramStations tramStation, KnownTramRoute knownRoute) {
-        Station station = of(tramStation);
+        Station station = tramStation.from(stationRepository);
         Set<Route> routes = tramRouteHelper.get(knownRoute);
 
         routes.forEach(route -> checkOutboundConsistency(station, route));
@@ -329,7 +331,7 @@ class TramGraphBuilderTest {
 
     private void checkInboundConsistency(TramStations tramStation, KnownTramRoute knownRoute) {
         Set<Route> routes = tramRouteHelper.get(knownRoute);
-        Station station = of(tramStation);
+        Station station = tramStation.from(stationRepository);
 
         routes.forEach(route -> checkInboundConsistency(station, route));
     }

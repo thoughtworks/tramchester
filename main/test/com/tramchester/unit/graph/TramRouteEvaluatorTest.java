@@ -9,12 +9,14 @@ import com.tramchester.domain.exceptions.TramchesterException;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.places.MutableStation;
+import com.tramchester.domain.places.NaptanArea;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.reference.GTFSTransportationType;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.domain.time.TramServiceDate;
 import com.tramchester.domain.time.TramTime;
+import com.tramchester.geo.GridPosition;
 import com.tramchester.geo.SortsPositions;
 import com.tramchester.graph.caches.LowestCostSeen;
 import com.tramchester.graph.caches.NodeContentsRepository;
@@ -30,7 +32,6 @@ import com.tramchester.integration.testSupport.tfgm.TFGMGTFSSourceTestConfig;
 import com.tramchester.repository.TripRepository;
 import com.tramchester.testSupport.TestConfig;
 import com.tramchester.testSupport.TestEnv;
-import com.tramchester.testSupport.TestStation;
 import com.tramchester.testSupport.reference.TramStations;
 import org.easymock.EasyMock;
 import org.easymock.EasyMockSupport;
@@ -74,8 +75,10 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
 
     @BeforeEach
     void onceBeforeEachTestRuns() {
-        MutableStation forTest = TestStation.forTest("destinationStationId", "area", "name",
-                new LatLong(1, 1), TransportMode.Tram, DataSourceID.tfgm);
+        MutableStation forTest = new MutableStation(StringIdFor.createId("destinationStationId"),
+                NaptanArea.createId("area"), "name",
+                new LatLong(1, 1), new GridPosition(1000,1000), DataSourceID.tfgm);
+
         destinationStations = LocationSet.singleton(forTest);
         forTest.addRouteDropOff(TestEnv.getTramTestRoute());
         forTest.addRoutePickUp(TestEnv.getTramTestRoute());

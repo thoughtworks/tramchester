@@ -1,4 +1,4 @@
-package com.tramchester.testSupport;
+package com.tramchester.unit;
 
 import com.tramchester.domain.DataSourceID;
 import com.tramchester.domain.Platform;
@@ -10,9 +10,11 @@ import com.tramchester.domain.places.NaptanArea;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.reference.TransportMode;
-import com.tramchester.geo.CoordinateTransforms;
 import com.tramchester.geo.GridPosition;
 import com.tramchester.repository.StationRepositoryPublic;
+import com.tramchester.testSupport.TestStations;
+import com.tramchester.testSupport.reference.StationHelper;
+import com.tramchester.testSupport.reference.TramStations;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -35,9 +37,11 @@ public class TestStation extends MutableStation {
         routesAdded = false;
     }
 
+    @Deprecated
     public static MutableStation forTest(String id, String area, String stationName, LatLong latLong, TransportMode mode, DataSourceID dataSourceID) {
-        IdFor<NaptanArea> areaId = StringIdFor.createId(area);
-        return new TestStation(id, areaId, stationName, latLong, CoordinateTransforms.getGridPosition(latLong), mode, dataSourceID);
+        return StationHelper.forTest(id, area, stationName, latLong, mode, dataSourceID);
+//        IdFor<NaptanArea> areaId = StringIdFor.createId(area);
+//        return new MutableStation(Station.createId(id), areaId, stationName, latLong, CoordinateTransforms.getGridPosition(latLong), dataSourceID);
     }
 
     private void guardPlatformsAddedIntent() {
@@ -52,10 +56,25 @@ public class TestStation extends MutableStation {
         }
     }
 
+    /***
+     * unsafe, use createFor or getFrom
+     * @param enumValue the test station
+     * @return The actual station in the enum
+     */
+    @Deprecated
+    public static MutableStation of(TramStations enumValue) {
+        return enumValue.fake();
+//        GridPosition grid = CoordinateTransforms.getGridPosition(enumValue.getLatLong());
+//
+//        IdFor<NaptanArea> areaId = IdFor.invalid();
+//        return new TestStation( enumValue.getRawId(), areaId, enumValue.getName(), enumValue.getLatLong(), grid, TransportMode.Tram, DataSourceID.tfgm);
+    }
+
     @Override
-    public void addPlatform(Platform platform) {
+    public MutableStation addPlatform(Platform platform) {
         super.addPlatform(platform);
         platformsAdded = true;
+        return this;
     }
 
     @Override

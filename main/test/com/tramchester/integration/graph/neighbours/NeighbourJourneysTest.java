@@ -167,7 +167,7 @@ public class NeighbourJourneysTest {
         JourneyRequest request = new JourneyRequest(new TramServiceDate(TestEnv.testDay()),
                 TramTime.of(11,53), false, 0, config.getMaxJourneyDuration(), 1);
 
-        Set<Journey> journeys = routeCalculator.calculateRouteAsSet(Bury, Victoria, request);
+        Set<Journey> journeys = routeCalculator.calculateRouteAsSet(Bury.from(stationRepository), Victoria.from(stationRepository), request);
         assertFalse(journeys.isEmpty());
 
         journeys.forEach(journey -> {
@@ -185,7 +185,7 @@ public class NeighbourJourneysTest {
         JourneyRequest request = new JourneyRequest(new TramServiceDate(TestEnv.testDay()),
                 TramTime.of(11,53), false, 0, config.getMaxJourneyDuration(), 1);
 
-        Set<Journey> allJourneys = facade.quickestRouteForLocation(Altrincham, TestEnv.nearStPetersSquare, request, 4);
+        Set<Journey> allJourneys = facade.quickestRouteForLocation(Altrincham.from(stationRepository), TestEnv.nearStPetersSquare, request, 4);
         assertFalse(allJourneys.isEmpty(), "No journeys");
 
         Set<Journey> maybeTram = allJourneys.stream().

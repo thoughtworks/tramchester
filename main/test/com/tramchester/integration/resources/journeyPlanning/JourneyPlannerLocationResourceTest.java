@@ -15,7 +15,6 @@ import com.tramchester.integration.testSupport.JourneyResourceTestFacade;
 import com.tramchester.integration.testSupport.tram.ResourceTramTestConfig;
 import com.tramchester.resources.JourneyPlannerResource;
 import com.tramchester.testSupport.TestEnv;
-import com.tramchester.testSupport.TestStations;
 import com.tramchester.testSupport.reference.TramStations;
 import io.dropwizard.testing.junit5.DropwizardExtensionsSupport;
 import org.jetbrains.annotations.NotNull;
@@ -26,7 +25,10 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import static com.tramchester.testSupport.reference.TramStations.Deansgate;
@@ -250,8 +252,8 @@ class JourneyPlannerLocationResourceTest {
         return validateJourneyPresent(plan);
     }
 
-    private Set<JourneyDTO> validateJourneyToLocation(TestStations start, LatLong destination, TramTime queryTime, boolean arriveBy) {
-        JourneyPlanRepresentation plan = journeyPlanner.getJourneyPlan(when, queryTime, start, destination, arriveBy, 3);
+    private Set<JourneyDTO> validateJourneyToLocation(TramStations start, LatLong destination, TramTime queryTime, boolean arriveBy) {
+        JourneyPlanRepresentation plan = journeyPlanner.getJourneyPlan(when, queryTime, start.getId(), destination, arriveBy, 3);
         return validateJourneyPresent(plan);
     }
 

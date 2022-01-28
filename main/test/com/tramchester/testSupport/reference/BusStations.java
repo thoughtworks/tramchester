@@ -3,13 +3,12 @@ package com.tramchester.testSupport.reference;
 import com.tramchester.domain.DataSourceID;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.StringIdFor;
+import com.tramchester.domain.places.MutableStation;
 import com.tramchester.domain.places.NaptanArea;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.LatLong;
-import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.geo.CoordinateTransforms;
 import com.tramchester.geo.GridPosition;
-import com.tramchester.testSupport.TestStation;
 import com.tramchester.testSupport.TestStations;
 import org.jetbrains.annotations.NotNull;
 
@@ -47,12 +46,12 @@ public enum BusStations implements TestStations {
     StockportNewbridgeLane("1800SG15561", "Newbridge Lane",
             new LatLong(53.41149, -2.15438));
 
-    private final TestStation station;
+    private final Station station;
 
     BusStations(String id, String name, LatLong latlong) {
         @NotNull GridPosition grid = CoordinateTransforms.getGridPosition(latlong);
         IdFor<NaptanArea> areaId = IdFor.invalid();
-        this.station = new TestStation(id, areaId, name, latlong, grid, TransportMode.Bus, DataSourceID.tfgm);
+        this.station = new MutableStation(StringIdFor.createId(id), areaId, name, latlong, grid, DataSourceID.tfgm);
     }
 
     @Deprecated

@@ -46,18 +46,15 @@ class ValidateTramTestStations {
     void shouldHaveCorrectTestTramStations() {
         List<TramStations> testStations = Arrays.asList(TramStations.values());
 
-        testStations.forEach(enumValue -> {
-            Station testStation = TramStations.of(enumValue);
+        testStations.forEach(testStation -> {
 
             Station realStation = transportData.getStationById(testStation.getId());
 
             String testStationName = testStation.getName();
+
             assertEquals(realStation.getName(), testStationName, "name wrong for id: " + testStation.getId());
 
-            // area no longer in tfgm data
-            assertEquals(realStation.getTransportModes(), testStation.getTransportModes(), "mode wrong for " + testStationName);
-            assertLatLongEquals(realStation.getLatLong(), testStation.getLatLong(), 0.001,
-                    "latlong wrong for " + testStationName);
+            assertLatLongEquals(realStation.getLatLong(), testStation.getLatLong(), 0.001, "latlong wrong for " + testStationName);
 
         });
     }
