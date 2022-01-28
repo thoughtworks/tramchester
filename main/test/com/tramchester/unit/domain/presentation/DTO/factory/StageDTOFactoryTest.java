@@ -3,8 +3,8 @@ package com.tramchester.unit.domain.presentation.DTO.factory;
 import com.tramchester.domain.*;
 import com.tramchester.domain.input.MutableTrip;
 import com.tramchester.domain.input.Trip;
-import com.tramchester.domain.places.MutableStation;
 import com.tramchester.domain.places.MyLocation;
+import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.DTO.StageDTO;
 import com.tramchester.domain.presentation.DTO.factory.StageDTOFactory;
 import com.tramchester.domain.presentation.LatLong;
@@ -15,6 +15,7 @@ import com.tramchester.domain.time.TramTime;
 import com.tramchester.domain.transportStages.VehicleStage;
 import com.tramchester.domain.transportStages.WalkingFromStationStage;
 import com.tramchester.testSupport.TestEnv;
+import com.tramchester.testSupport.reference.StationHelper;
 import com.tramchester.testSupport.reference.TramStations;
 import org.easymock.EasyMockSupport;
 import org.junit.jupiter.api.BeforeEach;
@@ -59,9 +60,12 @@ class StageDTOFactoryTest extends EasyMockSupport {
         Trip trip = MutableTrip.build(createId("tripId"), "headSign", service, testRoute);
 
         List<Integer> stopCallIndexes = Arrays.asList(1,2,3,4);
+
         Platform platform = MutablePlatform.buildForTFGMTram("platFormId", "platformName", new LatLong(1,1));
-        final MutableStation firstStation = MarketStreet.fake();
-        firstStation.addPlatform(platform);
+        //final MutableStation firstStation = MarketStreet.fake();
+        //firstStation.addPlatform(platform);
+        Station firstStation = StationHelper.forTest(MarketStreet, platform);
+
         VehicleStage vehicleStage = new VehicleStage(firstStation, testRoute,
                 TransportMode.Tram, trip, TramTime.of(0, 0), TramStations.of(Bury),
                 stopCallIndexes

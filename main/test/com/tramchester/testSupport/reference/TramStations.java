@@ -11,6 +11,7 @@ import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.geo.CoordinateTransforms;
 import com.tramchester.geo.GridPosition;
 import com.tramchester.repository.StationRepository;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Arrays;
 import java.util.HashSet;
@@ -97,12 +98,6 @@ public enum TramStations implements HasId<Station> {
         return tramStations.fake();
     }
 
-    @Deprecated
-    // inline me
-    public String forDTO() {
-        return getRawId();
-    }
-
     @Override
     public IdFor<Station> getId() {
         return Station.createId(id);
@@ -128,10 +123,18 @@ public enum TramStations implements HasId<Station> {
         return stationRepository.getStationById(getId());
     }
 
-    public MutableStation fake() {
+    public Station fake() {
+        return createMutable();
+    }
+
+    public Station fakeWith(Platform platform) {
+        return createMutable().addPlatform(platform);
+    }
+
+    @NotNull
+    private MutableStation createMutable() {
         GridPosition grid = CoordinateTransforms.getGridPosition(latlong);
         return new MutableStation(getId(), IdFor.invalid(), name, latlong, grid, DataSourceID.tfgm);
     }
-
 
 }

@@ -23,6 +23,7 @@ import com.tramchester.domain.transportStages.WalkingToStationStage;
 import com.tramchester.mappers.JourneyToDTOMapper;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.BusStations;
+import com.tramchester.testSupport.reference.StationHelper;
 import com.tramchester.testSupport.reference.TramStations;
 import com.tramchester.testSupport.reference.TramTransportDataForTestFactory;
 import org.easymock.EasyMock;
@@ -139,9 +140,11 @@ class JourneyToDTOMapperTest extends EasyMockSupport {
     @Test
     void shouldMapJourneyWithConnectingStage() {
         TramTime time = TramTime.of(15,45);
-        final MutableStation startStation = Altrincham.fake();
-        Platform platform = MutablePlatform.buildForTFGMTram(startStation.forDTO() + "1", "platform name", startStation.getLatLong());
-        startStation.addPlatform(platform);
+
+        Platform platform = MutablePlatform.buildForTFGMTram(Altrincham.getRawId() + "1", "platform name", Altrincham.getLatLong());
+        //final MutableStation startStation = Altrincham.fake();
+        //startStation.addPlatform(platform);
+        Station startStation = StationHelper.forTest(Altrincham, platform);
 
         ConnectingStage<Station,Station> connectingStage = new ConnectingStage<>(BusStations.of(StopAtAltrinchamInterchange),
                 startStation, 1, time);
@@ -183,14 +186,17 @@ class JourneyToDTOMapperTest extends EasyMockSupport {
     @Test
     void shouldMapThreeStageJourneyWithWalk() {
         TramTime am10 = TramTime.of(10,0);
-        MutableStation begin = Altrincham.fake();
-        Platform platformA = MutablePlatform.buildForTFGMTram(begin.forDTO() + "1", "platform name", begin.getLatLong());
-        begin.addPlatform(platformA);
+        Platform platformA = MutablePlatform.buildForTFGMTram(Altrincham.getRawId() + "1", "platform name", Altrincham.getLatLong());
+//        begin.addPlatform(platformA);
+        Station begin = StationHelper.forTest(Altrincham, platformA);
+
 
         MyLocation middleA = nearPiccGardensLocation;
-        MutableStation middleB = MarketStreet.fake();
-        Platform platformB = MutablePlatform.buildForTFGMTram(middleB.forDTO() + "1", "platform name", middleB.getLatLong());
-        middleB.addPlatform(platformB);
+
+        Platform platformB = MutablePlatform.buildForTFGMTram(MarketStreet.getRawId() + "1", "platform name", MarketStreet.getLatLong());
+        //        MutableStation middleB = MarketStreet.fake();
+        // middleB.addPlatform(platformB);
+        Station middleB = StationHelper.forTest(MarketStreet, platformB);
 
         Station end = Bury.fake();
 
