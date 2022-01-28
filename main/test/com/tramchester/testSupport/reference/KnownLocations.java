@@ -3,6 +3,8 @@ package com.tramchester.testSupport.reference;
 import com.tramchester.domain.places.Location;
 import com.tramchester.domain.places.MyLocation;
 import com.tramchester.domain.presentation.LatLong;
+import com.tramchester.geo.CoordinateTransforms;
+import com.tramchester.geo.GridPosition;
 
 public enum KnownLocations {
     nearAltrincham(53.387483D, -2.351463D),
@@ -29,5 +31,9 @@ public enum KnownLocations {
 
     public LatLong latLong() {
         return latLong;
+    }
+
+    public GridPosition grid() {
+        return CoordinateTransforms.getGridPosition(latLong);
     }
 }

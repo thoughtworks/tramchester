@@ -105,7 +105,6 @@ public enum TramStations implements FakeStation {
         return latlong;
     }
 
-
     public IdFor<Platform> createIdFor(String platform) {
         return Platform.createId(getRawId()+platform);
     }

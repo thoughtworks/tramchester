@@ -18,6 +18,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.Set;
 
+import static com.tramchester.testSupport.reference.KnownLocations.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class StationLocationsTest {
@@ -59,24 +60,24 @@ public class StationLocationsTest {
         MarginInMeters margin = MarginInMeters.of(config.getNearestStopForWalkingRangeKM());
         final BoundingBox fullBoundsOfAllTramStations = locations.getBounds();
 
-        assertTrue(fullBoundsOfAllTramStations.contained(TestEnv.nearShudehillGrid));
-        assertTrue(fullBoundsOfAllTramStations.contained(TestEnv.nearPiccGardensGrid));
+        assertTrue(fullBoundsOfAllTramStations.contained(nearShudehill.grid()));
+        assertTrue(fullBoundsOfAllTramStations.contained(nearPiccGardens.grid()));
 
-        assertTrue(fullBoundsOfAllTramStations.within(margin, TestEnv.nearAltrinchamGrid));
+        assertTrue(fullBoundsOfAllTramStations.within(margin, nearAltrincham.grid()));
 
-        assertFalse(fullBoundsOfAllTramStations.contained(TestEnv.nearGreenwichGrid));
+        assertFalse(fullBoundsOfAllTramStations.contained(nearGreenwichLondon.grid()));
     }
 
     @Test
     void shouldHaveExpectedStationLocations() {
         MarginInMeters margin = MarginInMeters.of(config.getNearestStopForWalkingRangeKM());
 
-        assertTrue(locations.withinRangeOfStation(TestEnv.nearShudehillGrid, margin));
-        assertTrue(locations.withinRangeOfStation(TestEnv.nearPiccGardensGrid, margin));
+        assertTrue(locations.withinRangeOfStation(nearShudehill.grid(), margin));
+        assertTrue(locations.withinRangeOfStation(nearPiccGardens.grid(), margin));
 
-        assertTrue(locations.withinRangeOfStation(TestEnv.nearAltrinchamGrid, margin));
+        assertTrue(locations.withinRangeOfStation(nearAltrincham.grid(), margin));
 
-        assertFalse(locations.withinRangeOfStation(TestEnv.nearGreenwichGrid, margin));
+        assertFalse(locations.withinRangeOfStation(nearGreenwichLondon.grid(), margin));
         assertFalse(locations.withinRangeOfStation(CoordinateTransforms.getGridPosition(TestEnv.nearStockportBus), margin));
     }
 

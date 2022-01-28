@@ -16,6 +16,7 @@ import org.junit.jupiter.api.*;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static com.tramchester.testSupport.reference.KnownLocations.nearPiccGardens;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
@@ -63,7 +64,7 @@ class PostcodeRepositoryTest {
     @PostcodeTestCategory
     @Test
     void shouldHavePostcodesNear() {
-        GridPosition place = TestEnv.nearPiccGardensGrid;
+        GridPosition place = nearPiccGardens.grid();
 
         Set<PostcodeLocation> found = repository.getPostcodesNear(place, MarginInMeters.of(500)).collect(Collectors.toSet());
         assertFalse(found.isEmpty());

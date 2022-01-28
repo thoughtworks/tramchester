@@ -21,4 +21,9 @@ public class StationHelper {
         return new MutableStation(Station.createId(id), areaId, stationName, latLong, CoordinateTransforms.getGridPosition(latLong), dataSourceID);
     }
 
+    public static MutableStation forTestMutable(String id, String area, String stationName, KnownLocations knowLocation, DataSourceID dataSourceID) {
+        IdFor<NaptanArea> areaId = StringIdFor.createId(area);
+        return new MutableStation(Station.createId(id), areaId, stationName, knowLocation.latLong(), knowLocation.grid(), dataSourceID);
+    }
+
 }

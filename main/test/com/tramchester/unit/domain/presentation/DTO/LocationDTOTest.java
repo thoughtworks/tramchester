@@ -4,13 +4,12 @@ import com.tramchester.domain.DataSourceID;
 import com.tramchester.domain.MutablePlatform;
 import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.places.MutableStation;
-import com.tramchester.domain.places.NaptanArea;
-import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.DTO.LocationDTO;
 import com.tramchester.domain.presentation.DTO.PlatformDTO;
 import com.tramchester.domain.presentation.DTO.RouteRefDTO;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.testSupport.TestEnv;
+import com.tramchester.testSupport.reference.StationHelper;
 import com.tramchester.testSupport.reference.TramStations;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Test;
@@ -19,6 +18,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static com.tramchester.testSupport.reference.KnownLocations.nearAltrincham;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -28,9 +28,8 @@ class LocationDTOTest {
     @Test
     void shouldCreateDTOAsExpected() {
 
-        MutableStation testStation = new MutableStation(Station.createId("9400ZZMAALT"),
-                NaptanArea.createId("Altrincham area"), "Altrincham",
-                TestEnv.nearAltrincham, TestEnv.nearAltrinchamGrid, DataSourceID.tfgm);
+        MutableStation testStation = StationHelper.forTestMutable("9400ZZMAALT", "Altrincham area", "Altrincham",
+                nearAltrincham, DataSourceID.tfgm);
 
         testStation.addRouteDropOff(TestEnv.getTramTestRoute(StringIdFor.createId("routeIdA"), "routeNameA"));
         testStation.addRoutePickUp(TestEnv.getTramTestRoute(StringIdFor.createId("routeIdB"), "routeNameB"));

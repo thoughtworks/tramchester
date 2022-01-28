@@ -5,13 +5,12 @@ import com.tramchester.domain.LocationSet;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.places.MutableStation;
-import com.tramchester.domain.places.NaptanArea;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.time.ProvidesLocalNow;
 import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.geo.SortsPositions;
-import com.tramchester.testSupport.TestEnv;
+import com.tramchester.testSupport.reference.StationHelper;
 import com.tramchester.testSupport.reference.TramTransportDataForTestFactory;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -21,6 +20,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import static com.tramchester.testSupport.reference.KnownLocations.nearAltrincham;
 import static org.junit.jupiter.api.Assertions.*;
 
 class SortsPositionsTest {
@@ -46,8 +46,8 @@ class SortsPositionsTest {
         stationNearShudehill = dataForTest.getInterchange();   // near Shudehill
         StationNearStockportBus = dataForTest.getFifthStation();  // nearStockportBus
 
-        alsoNearAlty = new MutableStation(Station.createId("ALSO1122"), NaptanArea.createId("area2"),
-                "alsoNearAltr", TestEnv.nearAltrincham, TestEnv.nearAltrinchamGrid, DataSourceID.tfgm);
+        alsoNearAlty = StationHelper.forTestMutable("ALSO1122", "area2", "alsoNearAltr", nearAltrincham, DataSourceID.tfgm);
+
         dataForTest.addStation(alsoNearAlty);
     }
 

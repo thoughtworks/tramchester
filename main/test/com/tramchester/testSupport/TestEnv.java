@@ -18,8 +18,6 @@ import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramServiceDate;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.geo.BoundingBox;
-import com.tramchester.geo.CoordinateTransforms;
-import com.tramchester.geo.GridPosition;
 import com.tramchester.metrics.CacheMetrics;
 import com.tramchester.repository.RouteRepository;
 import com.tramchester.testSupport.reference.KnownLocations;
@@ -64,12 +62,6 @@ public class TestEnv {
     public static final LatLong nearStPetersSquare = KnownLocations.nearStPetersSquare.latLong();
     public final static LatLong nearWythenshaweHosp =  KnownLocations.nearWythenshaweHosp.latLong();
     public final static LatLong atRoundthornTram = KnownLocations.atRoundthornTram.latLong();
-
-    public static final GridPosition nearAltrinchamGrid;
-    public static final GridPosition nearPiccGardensGrid;
-    public static final GridPosition nearShudehillGrid;
-    public static final GridPosition nearStockportBusGrid;
-    public static final GridPosition nearGreenwichGrid;
 
     public static final DateTimeFormatter dateFormatDashes = DateTimeFormatter.ofPattern("yyyy-MM-dd");
     public static final DateTimeFormatter dateFormatSimple = DateTimeFormatter.ofPattern("ddMMyyyy");
@@ -126,11 +118,6 @@ public class TestEnv {
         saturday = getNextDate(DayOfWeek.SATURDAY, today);
         sunday = getNextDate(DayOfWeek.SUNDAY, today);
         monday = getNextDate(DayOfWeek.MONDAY, today);
-        nearAltrinchamGrid = CoordinateTransforms.getGridPosition(nearAltrincham);
-        nearPiccGardensGrid = CoordinateTransforms.getGridPosition(nearPiccGardens);
-        nearShudehillGrid = CoordinateTransforms.getGridPosition(nearShudehill);
-        nearStockportBusGrid = CoordinateTransforms.getGridPosition(nearStockportBus);
-        nearGreenwichGrid = CoordinateTransforms.getGridPosition(nearGreenwichLondon);
     }
 
     public static LocalDate nextSaturday() {
@@ -199,11 +186,6 @@ public class TestEnv {
     public static boolean isCircleci() {
         return System.getenv("CIRCLECI") != null;
     }
-
-//    public static PlatformStopCall createTramStopCall(Trip trip, String stopId, TramStations station, int seq,
-//                                                      TramTime arrive, TramTime depart) {
-//        return createTramStopCall(trip, stopId, station, seq, arrive, depart);
-//    }
 
     public static PlatformStopCall createTramStopCall(Trip trip, String stopId, TramStations station, int seq, TramTime arrive,
                                                       TramTime depart) {
