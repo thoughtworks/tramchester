@@ -8,6 +8,7 @@ import com.tramchester.domain.id.CaseInsensitiveId;
 import com.tramchester.domain.id.CompositeId;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.StringIdFor;
+import com.tramchester.domain.places.Location;
 import com.tramchester.domain.places.MyLocation;
 import com.tramchester.domain.places.PostcodeLocation;
 import com.tramchester.domain.places.Station;
@@ -36,8 +37,8 @@ public class ProcessPlanRequest {
     private static final Logger logger = LoggerFactory.getLogger(ProcessPlanRequest.class);
 
     private final LocationJourneyPlanner locToLocPlanner;
-    private final RouteCalculator routeCalculator;
-    private final RouteCalculatorArriveBy routeCalculatorArriveBy;
+    //private final RouteCalculator routeCalculator;
+    //private final RouteCalculatorArriveBy routeCalculatorArriveBy;
     private final StationRepositoryPublic stationRepository;
     private final PostcodeRepository postcodeRepository;
     private final JourneyToDTOMapper journeyToDTOMapper;
@@ -48,8 +49,8 @@ public class ProcessPlanRequest {
                               PostcodeRepository postcodeRepository, JourneyToDTOMapper journeyToDTOMapper) {
         this.locToLocPlanner = locToLocPlanner;
 
-        this.routeCalculator = routeCalculator;
-        this.routeCalculatorArriveBy = routeCalculatorArriveBy;
+//        this.routeCalculator = routeCalculator;
+//        this.routeCalculatorArriveBy = routeCalculatorArriveBy;
         this.stationRepository = stationRepository;
         this.postcodeRepository = postcodeRepository;
         this.journeyToDTOMapper = journeyToDTOMapper;
@@ -60,11 +61,13 @@ public class ProcessPlanRequest {
         Stream<Journey> journeys;
 
         if (MyLocation.isUserLocation(startId)) {
-            LatLong latLong = decodeLatLong(lat, lon);
-            journeys = startsWithPosition(txn, latLong, endId, journeyRequest);
+            MyLocation start = new MyLocation(decodeLatLong(lat, lon));
+            Station dest = getStation(endId, "end");
+            journeys = locationToLocation(txn, start, dest, journeyRequest);
         } else if (MyLocation.isUserLocation(endId)) {
-            LatLong latLong = decodeLatLong(lat, lon);
-            journeys = endsWithPosition(txn, startId, latLong, journeyRequest);
+            Station start = getStation(startId, "start");
+            MyLocation dest = new MyLocation(decodeLatLong(lat, lon));
+            journeys = locationToLocation(txn, start, dest, journeyRequest);
         } else {
             journeys = createJourneyPlan(txn, startId, endId, journeyRequest);
         }
@@ -87,56 +90,44 @@ public class ProcessPlanRequest {
         if (firstIsStation && secondIsStation) {
             Station start = getStation(startId, "start");
             Station dest = getStation(endId, "end");
-            return stationToStation(txn, start, dest, journeyRequest);
+            return locationToLocation(txn, start, dest, journeyRequest);
         }
 
         // Station -> Postcode
         if (firstIsStation) {
+            Station start = getStation(startId, "start");
             PostcodeLocation dest = getPostcode(endId, "end");
-            return endsWithPosition(txn, startId, dest.getLatLong(), journeyRequest);
+            return locationToLocation(txn, start, dest, journeyRequest);
         }
 
         // Postcode -> Station
         if (secondIsStation) {
             PostcodeLocation start = getPostcode(startId, "start");
-            return startsWithPosition(txn, start.getLatLong(), endId, journeyRequest);
+            Station dest = getStation(endId, "end");
+            return locationToLocation(txn, start, dest, journeyRequest);
         }
 
-        return postcodeToPostcode(startId, endId, journeyRequest, txn);
-    }
-
-    private Stream<Journey> postcodeToPostcode(String startId, String endId, JourneyRequest journeyRequest, Transaction txn) {
         PostcodeLocation start = getPostcode(startId, "start");
         PostcodeLocation dest = getPostcode(endId, "end");
-        return locToLocPlanner.quickestRouteForLocation(txn, start.getLatLong(), dest.getLatLong(), journeyRequest);
+        return locationToLocation(txn, start, dest, journeyRequest);
     }
 
-    private Stream<Journey> startsWithPosition(Transaction txn, LatLong latLong, String destId,
-                                                         JourneyRequest journeyRequest) {
-        logger.info(format("Plan journey from %s to %s on %s", latLong, destId, journeyRequest));
+    private Stream<Journey> locationToLocation(Transaction txn, Location<?> start, Location<?> dest,
+                                               JourneyRequest journeyRequest) {
+        logger.info(format("Plan journey from %s to %s on %s", start, dest, journeyRequest));
 
-        Station dest = getStation(destId, "end");
-
-        return locToLocPlanner.quickestRouteForLocation(txn, latLong, dest, journeyRequest);
+        return locToLocPlanner.quickestRouteForLocation(txn, start, dest, journeyRequest);
     }
 
-    private Stream<Journey> endsWithPosition(Transaction txn, String startId, LatLong latLong, JourneyRequest journeyRequest) {
-        logger.info(format("Plan journey from %s to %s on %s", startId, latLong, journeyRequest));
-
-        Station start = getStation(startId, "start");
-
-        return locToLocPlanner.quickestRouteForLocation(txn, start, latLong, journeyRequest);
-    }
-
-    private Stream<Journey> stationToStation(Transaction txn, Station start, Station dest, JourneyRequest journeyRequest) {
-        Stream<Journey> journeys;
-        if (journeyRequest.getArriveBy()) {
-            journeys = routeCalculatorArriveBy.calculateRoute(txn, start, dest, journeyRequest);
-        } else {
-            journeys = routeCalculator.calculateRoute(txn, start, dest, journeyRequest);
-        }
-        return journeys;
-    }
+//    private Stream<Journey> stationToStation(Transaction txn, Location<?> start, Location<?> dest, JourneyRequest journeyRequest) {
+//        Stream<Journey> journeys;
+//        if (journeyRequest.getArriveBy()) {
+//            journeys = routeCalculatorArriveBy.calculateRoute(txn, start, dest, journeyRequest);
+//        } else {
+//            journeys = routeCalculator.calculateRoute(txn, start, dest, journeyRequest);
+//        }
+//        return journeys;
+//    }
 
     private PostcodeLocation getPostcode(String text, String diagnostic) {
 

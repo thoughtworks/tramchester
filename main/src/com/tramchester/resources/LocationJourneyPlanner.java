@@ -71,7 +71,31 @@ public class LocationJourneyPlanner {
         this.routeToRouteCosts = routeToRouteCosts;
     }
 
-    public Stream<Journey> quickestRouteForLocation(Transaction txn, LatLong start, Location<?> destination,
+    public Stream<Journey> quickestRouteForLocation(Transaction txn, Location<?> start, Location<?> destination,
+                                                    JourneyRequest journeyRequest) {
+        logger.info(format("Finding shortest path for %s --> %s (%s) for %s", start, destination.getId(), destination.getName(), journeyRequest));
+        boolean walkAtStart = start.getLocationType().isWalk();
+        boolean walkAtEnd = destination.getLocationType().isWalk();
+
+        if (walkAtStart && walkAtEnd) {
+            return quickestRouteForLocation(txn, start.getLatLong(), destination.getLatLong(), journeyRequest);
+        }
+        if (walkAtStart) {
+            return quickestRouteForLocation(txn, start.getLatLong(), destination, journeyRequest);
+        }
+        if (walkAtEnd) {
+            return quickestRouteForLocation(txn, start, destination.getLatLong(), journeyRequest);
+        }
+
+        // station => station
+        if (journeyRequest.getArriveBy()) {
+            return routeCalculatorArriveBy.calculateRoute(txn, start, destination, journeyRequest);
+        } else {
+            return routeCalculator.calculateRoute(txn, start, destination, journeyRequest);
+        }
+    }
+
+    private Stream<Journey> quickestRouteForLocation(Transaction txn, LatLong start, Location<?> destination,
                                                     JourneyRequest journeyRequest) {
         logger.info(format("Finding shortest path for %s --> %s (%s) for %s", start,
                 destination.getId(), destination.getName(), journeyRequest));
@@ -104,7 +128,7 @@ public class LocationJourneyPlanner {
         return journeys;
     }
 
-    public Stream<Journey> quickestRouteForLocation(Transaction txn, Location<?> start, LatLong destination, JourneyRequest journeyRequest) {
+    private Stream<Journey> quickestRouteForLocation(Transaction txn, Location<?> start, LatLong destination, JourneyRequest journeyRequest) {
         logger.info(format("Finding shortest path for %s (%s) --> %s for %s", start.getId(), start.getName(),
                 destination, journeyRequest));
 
@@ -150,19 +174,18 @@ public class LocationJourneyPlanner {
         return journeys;
     }
 
-    public Stream<Journey> quickestRouteForLocation(Transaction txn, LatLong startLatLong, LatLong destLatLong, JourneyRequest journeyRequest) {
+    private Stream<Journey> quickestRouteForLocation(Transaction txn, LatLong startLatLong, LatLong destLatLong, JourneyRequest journeyRequest) {
         logger.info(format("Finding shortest path for %s --> %s on %s", startLatLong, destLatLong, journeyRequest));
-
-        Set<StationWalk> walksAtStart = getStationWalks(startLatLong);
-        Set<StationWalk> walksToDest = getStationWalks(destLatLong);
 
         WalkNodesAndRelationships nodesAndRelationships = new WalkNodesAndRelationships(txn, graphDatabase, graphQuery, nodeOperations);
 
         // Add Walk at the Start
+        Set<StationWalk> walksAtStart = getStationWalks(startLatLong);
         Node startNode = nodesAndRelationships.createWalkingNode(startLatLong, journeyRequest);
         nodesAndRelationships.createWalksToStart(startNode, walksAtStart);
 
         // Add Walks at the end
+        Set<StationWalk> walksToDest = getStationWalks(destLatLong);
         Node endWalk = nodesAndRelationships.createWalkingNode(destLatLong, journeyRequest);
         nodesAndRelationships.createWalksToDest(endWalk, walksToDest);
 
