@@ -83,7 +83,7 @@ class StationLinksResourceTest {
     }
 
     private StationLinkDTO createLink(TramStations begin, TramStations end) {
-        return new StationLinkDTO(new StationRefWithPosition(TramStations.of(begin)),
-                new StationRefWithPosition(TramStations.of(end)), Collections.singleton(Tram));
+        return new StationLinkDTO(new StationRefWithPosition(begin.fake()),
+                new StationRefWithPosition(end.fake()), Collections.singleton(Tram));
     }
 }

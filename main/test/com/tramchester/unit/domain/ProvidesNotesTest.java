@@ -15,7 +15,6 @@ import com.tramchester.domain.transportStages.WalkingToStationStage;
 import com.tramchester.livedata.domain.liveUpdates.PlatformMessage;
 import com.tramchester.livedata.repository.PlatformMessageSource;
 import com.tramchester.testSupport.TestEnv;
-import com.tramchester.testSupport.reference.StationHelper;
 import com.tramchester.testSupport.reference.TramStations;
 import org.easymock.EasyMock;
 import org.easymock.EasyMockSupport;
@@ -52,7 +51,7 @@ class ProvidesNotesTest extends EasyMockSupport {
     }
 
     private Station createStationFor(TramStations tramStation) {
-        return StationHelper.forTest(tramStation);
+        return tramStation.fake();
     }
 
     @Test
@@ -320,7 +319,7 @@ class ProvidesNotesTest extends EasyMockSupport {
         VehicleStage stageB = createStageWithBoardingPlatform("platformId2", Cornbrook.getLatLong());
         VehicleStage stageC = createStageWithBoardingPlatform("platformId3", NavigationRoad.getLatLong());
         WalkingToStationStage stageD = new WalkingToStationStage(new MyLocation(TestEnv.nearAltrincham),
-                TramStations.of(Ashton), 7, TramTime.of(8,11));
+                Ashton.fake(), 7, TramTime.of(8,11));
         VehicleStage stageE = createStageWithBoardingPlatform("platformId5", Altrincham.getLatLong());
 
         TramServiceDate serviceDate = new TramServiceDate(lastUpdate.toLocalDate());
@@ -400,7 +399,7 @@ class ProvidesNotesTest extends EasyMockSupport {
 
         Platform platform = MutablePlatform.buildForTFGMTram(tramStation.getRawId() + "1", tramStation.getName() + " platform 1",
                 tramStation.getLatLong());
-        Station station = StationHelper.forTest(tramStation, platform);
+        Station station = tramStation.fakeWith(platform);
         //station.addPlatform(platform);
 
         return new PlatformMessage(platform.getId(), message, lastUpdate, station, "displayId");
@@ -416,7 +415,7 @@ class ProvidesNotesTest extends EasyMockSupport {
         List<Integer> passedStations = new ArrayList<>();
 
         Platform platform = MutablePlatform.buildForTFGMTram(platformId, "platformName", latLong);
-        final Station firstStation = StationHelper.forTest(Ashton, platform);
+        final Station firstStation = Ashton.fakeWith(platform);
         //firstStation.addPlatform(platform);
 
         VehicleStage vehicleStage = new VehicleStage(firstStation, TestEnv.getTramTestRoute(), Tram,

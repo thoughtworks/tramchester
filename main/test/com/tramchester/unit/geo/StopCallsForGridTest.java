@@ -56,9 +56,9 @@ public class StopCallsForGridTest extends EasyMockSupport {
         TramTime begin = TramTime.of(11,30);
         TramTime end = TramTime.of(13,45);
 
-        final Station station1 = TramStations.of(TramStations.Altrincham);
-        final Station station2 = TramStations.of(TramStations.Bury);
-        final Station station3 = TramStations.of(TramStations.Anchorage);
+        final Station station1 = TramStations.Altrincham.fake();
+        final Station station2 = TramStations.Bury.fake();
+        final Station station3 = TramStations.Anchorage.fake();
 
         Set<Station> gridAStations = new HashSet<>();
         gridAStations.add(station1);

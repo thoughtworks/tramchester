@@ -69,7 +69,7 @@ class PlatformStopCallsTest {
     @Test
     void shouldCreateStopCall() {
 
-        PlatformStopCall platformStopCall = new PlatformStopCall(platformD, TramStations.of(stationD),
+        PlatformStopCall platformStopCall = new PlatformStopCall(platformD, stationD.fake(),
                 of(11,14), of (11, 15), 5, None, Regular, trip);
 
         assertEquals(of(11,14), platformStopCall.getArrivalTime());
@@ -89,11 +89,11 @@ class PlatformStopCallsTest {
 
         TramTime nextDay = TramTime.nextDay(0,14);
 
-        PlatformStopCall stopE = new PlatformStopCall(platformD, TramStations.of(stationD), nextDay, nextDay.plusMinutes(5), 4,
+        PlatformStopCall stopE = new PlatformStopCall(platformD, stationD.fake(), nextDay, nextDay.plusMinutes(5), 4,
                 Regular, Regular, trip);
         assertTrue(stopE.intoNextDay());
 
-        PlatformStopCall stopD = new PlatformStopCall(platformD, TramStations.of(stationD), of(23, 59), nextDay, 5,
+        PlatformStopCall stopD = new PlatformStopCall(platformD, stationD.fake(), of(23, 59), nextDay, 5,
                 Regular, Regular, trip);
         assertTrue(stopD.intoNextDay());
 
@@ -139,10 +139,10 @@ class PlatformStopCallsTest {
     @Test
     void shouldHaveExpectedLegsNoDropoffOrPickup() {
 
-        PlatformStopCall stopD = new PlatformStopCall(platformD, TramStations.of(stationD),
+        PlatformStopCall stopD = new PlatformStopCall(platformD, stationD.fake(),
                 of(11, 15), of(11, 16), 4, None, None, trip);
 
-        PlatformStopCall stopE = new PlatformStopCall(platformD, TramStations.of(stationD),
+        PlatformStopCall stopE = new PlatformStopCall(platformD, stationD.fake(),
                 of(11, 25), of(11, 26), 5,
                 None, Regular, trip);
 

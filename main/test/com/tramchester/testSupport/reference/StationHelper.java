@@ -1,7 +1,6 @@
 package com.tramchester.testSupport.reference;
 
 import com.tramchester.domain.DataSourceID;
-import com.tramchester.domain.Platform;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.places.MutableStation;
@@ -22,13 +21,4 @@ public class StationHelper {
         return new MutableStation(Station.createId(id), areaId, stationName, latLong, CoordinateTransforms.getGridPosition(latLong), dataSourceID);
     }
 
-    // todo inline
-    public static Station forTest(TramStations tramStation) {
-        return tramStation.fake();
-    }
-    
-
-    public static Station forTest(TramStations tramStation, Platform platform) {
-        return tramStation.fakeWith(platform);
-    }
 }

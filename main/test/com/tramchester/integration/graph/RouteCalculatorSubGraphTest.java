@@ -173,7 +173,7 @@ class RouteCalculatorSubGraphTest {
     void produceDiagramOfGraphSubset() throws IOException {
         DiagramCreator creator = componentContainer.get(DiagramCreator.class);
         //DiagramCreator creator = new DiagramCreator(database);
-        creator.create(Path.of("subgraph_trams.dot"), TramStations.of(Cornbrook), 100, false);
+        creator.create(Path.of("subgraph_trams.dot"), Cornbrook.fake(), 100, false);
     }
 
     private static class SubgraphConfig extends IntegrationTramTestConfig {

@@ -43,7 +43,7 @@ class DownloadsLiveDataFromS3Test extends EasyMockSupport {
 
         StationDepartureInfo stationDepartureInfo = LiveDataUpdaterTest.createDepartureInfoWithDueTram(
                 LocalDateTime.parse("2018-11-15T15:06:32"), "displayId",
-                "platforId", "messageTxt", TramStations.of(TramStations.NavigationRoad));
+                "platforId", "messageTxt", TramStations.NavigationRoad.fake());
         departsDTO = new StationDepartureInfoDTO(stationDepartureInfo);
 
         responseMapperCapture = Capture.newInstance();
@@ -76,7 +76,7 @@ class DownloadsLiveDataFromS3Test extends EasyMockSupport {
     void shouldDownloadDataForGivenRangeMultipleKeys() throws S3Keys.S3KeyException {
 
         StationDepartureInfo other = LiveDataUpdaterTest.createDepartureInfoWithDueTram(LocalDateTime.parse("2018-11-15T15:06:54"), "displayIdB",
-                "platforIdB", "messageTxt", TramStations.of(TramStations.Bury));
+                "platforIdB", "messageTxt", TramStations.Bury.fake());
         StationDepartureInfoDTO otherDTO = new StationDepartureInfoDTO(other);
 
         LocalDateTime start = LocalDateTime.of(2020,11,29, 15,1);
@@ -117,7 +117,7 @@ class DownloadsLiveDataFromS3Test extends EasyMockSupport {
     void shouldDownloadDataForGivenMutipleDays() throws S3Keys.S3KeyException {
 
         StationDepartureInfo other = LiveDataUpdaterTest.createDepartureInfoWithDueTram(LocalDateTime.parse("2018-11-15T15:06:54"),
-                "displayIdB", "platforIdB", "messageTxt", TramStations.of(TramStations.Bury));
+                "displayIdB", "platforIdB", "messageTxt", TramStations.Bury.fake());
         StationDepartureInfoDTO otherDTO = new StationDepartureInfoDTO(other);
 
         LocalDateTime start = LocalDateTime.of(2020,11,29, 15,1);

@@ -275,8 +275,8 @@ class LocationJourneyPlannerTest {
 
         final TramTime queryTime = TramTime.of(10, 15);
 
-        int toNavigation = CoordinateTransforms.calcCostInMinutes(nearAltrincham, of(NavigationRoad), testConfig.getWalkingMPH());
-        int toAltrincham = CoordinateTransforms.calcCostInMinutes(nearAltrincham, of(Altrincham), testConfig.getWalkingMPH());
+        int toNavigation = CoordinateTransforms.calcCostInMinutes(nearAltrincham, NavigationRoad.fake(), testConfig.getWalkingMPH());
+        int toAltrincham = CoordinateTransforms.calcCostInMinutes(nearAltrincham, Altrincham.fake(), testConfig.getWalkingMPH());
 
         int lowestCost = Math.min(toAltrincham, toNavigation);
         TramTime earliestDepart = queryTime.plusMinutes(lowestCost);

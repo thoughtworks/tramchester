@@ -43,7 +43,7 @@ public class JourneyConstraintsTest extends EasyMockSupport {
         lowestCostForDest = createMock(LowestCostsForDestRoutes.class);
         filterForDate = createMock(RunningRoutesAndServices.FilterForDate.class);
 
-        LocationSet endStations = LocationSet.singleton(TramStations.of(TramStations.Bury));
+        LocationSet endStations = LocationSet.singleton(TramStations.Bury.fake());
 
         journeyConstraints = new JourneyConstraints(config, filterForDate,
                 closedStations, endStations, lowestCostForDest, config.getMaxJourneyDuration());
@@ -124,8 +124,8 @@ public class JourneyConstraintsTest extends EasyMockSupport {
 
     @Test
     void shouldCheckIfClosedStation() {
-        Station stationA = TramStations.of(TramStations.Anchorage);
-        Station stationB = TramStations.of(TramStations.Cornbrook);
+        Station stationA = TramStations.Anchorage.fake();
+        Station stationB = TramStations.Cornbrook.fake();
 
         replayAll();
         assertFalse(journeyConstraints.isClosed(stationA));
@@ -138,7 +138,7 @@ public class JourneyConstraintsTest extends EasyMockSupport {
 
         LocationSet result = journeyConstraints.getEndStations();
         assertEquals(1, result.size());
-        assertTrue(result.contains(TramStations.of(TramStations.Bury)));
+        assertTrue(result.contains(TramStations.Bury.fake()));
     }
 
     @Test

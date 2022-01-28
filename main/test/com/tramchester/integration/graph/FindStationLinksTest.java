@@ -71,7 +71,7 @@ class FindStationLinksTest {
     }
 
     private StationLink createLink(TramStations stationA, TramStations stationB) {
-        return new StationLink(TramStations.of(stationA), TramStations.of(stationB),
+        return new StationLink(stationA.fake(), stationB.fake(),
                 Collections.singleton(Tram));
     }
 

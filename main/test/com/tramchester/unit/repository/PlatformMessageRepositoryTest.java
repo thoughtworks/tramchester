@@ -14,7 +14,6 @@ import com.tramchester.livedata.domain.liveUpdates.StationDepartureInfo;
 import com.tramchester.metrics.CacheMetrics;
 import com.tramchester.repository.PlatformMessageRepository;
 import com.tramchester.testSupport.TestEnv;
-import com.tramchester.testSupport.reference.StationHelper;
 import com.tramchester.testSupport.reference.TramStations;
 import org.easymock.EasyMock;
 import org.easymock.EasyMockSupport;
@@ -53,7 +52,7 @@ class PlatformMessageRepositoryTest  extends EasyMockSupport {
         lastUpdate = LocalDateTime.of(today, LocalTime.of(15,42));
 
         platform = MutablePlatform.buildForTFGMTram("someId1", "Shudehill platform 1", Shudehill.getLatLong());
-        station = StationHelper.forTest(TramStations.Shudehill, platform);
+        station = TramStations.Shudehill.fakeWith(platform);
     }
 
     @Test
@@ -66,7 +65,7 @@ class PlatformMessageRepositoryTest  extends EasyMockSupport {
                 LineDirection.Incoming, platform.getId(), station,
                 "some message", lastUpdate);
         StationDepartureInfo departureInfoB = new StationDepartureInfo("yyy", Lines.Eccles,
-                LineDirection.Incoming, StringIdFor.createId("someOther"), TramStations.of(Altrincham),
+                LineDirection.Incoming, StringIdFor.createId("someOther"), Altrincham.fake(),
                 "some different message", lastUpdate);
         infos.add(departureInfoA);
         infos.add(departureInfoB);
@@ -96,7 +95,7 @@ class PlatformMessageRepositoryTest  extends EasyMockSupport {
         assertEquals("some message", stationMessages.get(0).getMessage());
 
         final Platform platform = MutablePlatform.buildForTFGMTram("XXXX", "platform name", Ashton.getLatLong());
-        Station otherStation = StationHelper.forTest(TramStations.Ashton, platform);
+        Station otherStation = TramStations.Ashton.fakeWith(platform);
 
         List<PlatformMessage> noStationMsg = repository.messagesFor(otherStation, lastUpdate.toLocalDate(), updateTime);
         assertTrue(noStationMsg.isEmpty());

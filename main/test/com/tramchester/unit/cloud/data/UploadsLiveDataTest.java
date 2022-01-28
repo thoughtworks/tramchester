@@ -45,7 +45,7 @@ class UploadsLiveDataTest extends EasyMockSupport {
 
         liveData = new LinkedList<>();
         liveData.add(LiveDataUpdaterTest.createDepartureInfoWithDueTram(lastUpdateTime, "displayId",
-                "platforId", "messageTxt", TramStations.of(TramStations.NavigationRoad)));
+                "platforId", "messageTxt", TramStations.NavigationRoad.fake()));
 
     }
 

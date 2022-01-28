@@ -3,7 +3,6 @@ package com.tramchester.unit.domain.presentation.DTO;
 import com.tramchester.domain.StationLink;
 import com.tramchester.domain.presentation.DTO.StationLinkDTO;
 import com.tramchester.domain.reference.TransportMode;
-import com.tramchester.testSupport.reference.TramStations;
 import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
@@ -20,7 +19,7 @@ class StationLinkDTOTest {
     @Test
     void shouldCreateTramLink() {
         Set<TransportMode> modes = new HashSet<>(Arrays.asList(TransportMode.Bus, TransportMode.Tram));
-        StationLink stationLink = new StationLink(TramStations.of(Altrincham), TramStations.of(StPetersSquare), modes);
+        StationLink stationLink = new StationLink(Altrincham.fake(), StPetersSquare.fake(), modes);
 
         StationLinkDTO dto = StationLinkDTO.create(stationLink);
 

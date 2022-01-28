@@ -102,7 +102,7 @@ class AddNeighboursGraphBuilderTest {
         Node tramNode = graphQuery.getStationNode(txn, shudehillTram);
         assertNotNull(tramNode);
 
-        Station victoria = TramStations.of(TramStations.Victoria);
+        Station victoria = TramStations.Victoria.fake();
 
         Set<Relationship> outFromTram = getRelationships(tramNode, OUTGOING);
         Set<Relationship> towardsTram = getRelationships(tramNode, INCOMING);

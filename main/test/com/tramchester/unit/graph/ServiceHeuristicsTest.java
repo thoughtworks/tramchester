@@ -40,7 +40,7 @@ class ServiceHeuristicsTest extends EasyMockSupport {
 
     private static final int MAX_WAIT = 30;
     private static final int MAX_NUM_CHANGES = 5;
-    private final LocationSet endStations = LocationSet.singleton(TramStations.of(TramStations.Deansgate));
+    private final LocationSet endStations = LocationSet.singleton(TramStations.Deansgate.fake());
 
     private final TramchesterConfig config30MinsWait = new NeedMaxWaitConfig(MAX_WAIT);
     private NodeContentsRepository nodeContentsCache;
@@ -147,11 +147,11 @@ class ServiceHeuristicsTest extends EasyMockSupport {
         JourneyRequest journeyRequest = getJourneyRequest(queryTime);
         ServiceReasons reasons = new ServiceReasons(journeyRequest, queryTime, providesLocalNow);
 
-        RouteStation routeStationA = new RouteStation(TramStations.of(Bury), TestEnv.getTramTestRoute());
-        RouteStation routeStationB = new RouteStation(TramStations.of(Shudehill), TestEnv.getTramTestRoute());
+        RouteStation routeStationA = new RouteStation(Bury.fake(), TestEnv.getTramTestRoute());
+        RouteStation routeStationB = new RouteStation(Shudehill.fake(), TestEnv.getTramTestRoute());
 
-        EasyMock.expect(journeyConstraints.isClosed(TramStations.of(Bury))).andReturn(false);
-        EasyMock.expect(journeyConstraints.isClosed(TramStations.of(Shudehill))).andReturn(true);
+        EasyMock.expect(journeyConstraints.isClosed(Bury.fake())).andReturn(false);
+        EasyMock.expect(journeyConstraints.isClosed(Shudehill.fake())).andReturn(true);
         EasyMock.expect(journeyConstraints.getFewestChangesCalculator()).andReturn(fewestHopsForRoutes);
 
         Node node = createMock(Node.class);
@@ -456,7 +456,7 @@ class ServiceHeuristicsTest extends EasyMockSupport {
         IdFor<Station> stationId = TramStations.Altrincham.getId();
         IdFor<Route> routeId = StringIdFor.createId("currentRoute");
         Route route = TestEnv.getTramTestRoute(routeId, "routeName");
-        final RouteStation routeStation = new RouteStation(TramStations.of(TramStations.Altrincham), route);
+        final RouteStation routeStation = new RouteStation(TramStations.Altrincham.fake(), route);
 
         Node node = createMock(Node.class);
 

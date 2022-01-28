@@ -15,8 +15,6 @@ import com.tramchester.domain.time.TramTime;
 import com.tramchester.domain.transportStages.VehicleStage;
 import com.tramchester.domain.transportStages.WalkingFromStationStage;
 import com.tramchester.testSupport.TestEnv;
-import com.tramchester.testSupport.reference.StationHelper;
-import com.tramchester.testSupport.reference.TramStations;
 import org.easymock.EasyMockSupport;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -44,7 +42,7 @@ class StageDTOFactoryTest extends EasyMockSupport {
     @Test
     void shouldCreateStageDTOCorrectlyForWalking() {
         MyLocation location = new MyLocation(TestEnv.nearAltrincham);
-        WalkingFromStationStage stage = new WalkingFromStationStage(TramStations.of(Altrincham), location, 15,
+        WalkingFromStationStage stage = new WalkingFromStationStage(Altrincham.fake(), location, 15,
                 TramTime.of(8,11));
 
         StageDTO build = factory.build(stage, TravelAction.WalkTo, when);
@@ -64,10 +62,10 @@ class StageDTOFactoryTest extends EasyMockSupport {
         Platform platform = MutablePlatform.buildForTFGMTram("platFormId", "platformName", new LatLong(1,1));
         //final MutableStation firstStation = MarketStreet.fake();
         //firstStation.addPlatform(platform);
-        Station firstStation = StationHelper.forTest(MarketStreet, platform);
+        Station firstStation = MarketStreet.fakeWith(platform);
 
         VehicleStage vehicleStage = new VehicleStage(firstStation, testRoute,
-                TransportMode.Tram, trip, TramTime.of(0, 0), TramStations.of(Bury),
+                TransportMode.Tram, trip, TramTime.of(0, 0), Bury.fake(),
                 stopCallIndexes
         );
         vehicleStage.setCost(5);

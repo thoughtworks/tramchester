@@ -23,7 +23,6 @@ import com.tramchester.domain.transportStages.WalkingToStationStage;
 import com.tramchester.mappers.JourneyToDTOMapper;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.BusStations;
-import com.tramchester.testSupport.reference.StationHelper;
 import com.tramchester.testSupport.reference.TramStations;
 import com.tramchester.testSupport.reference.TramTransportDataForTestFactory;
 import org.easymock.EasyMock;
@@ -144,7 +143,7 @@ class JourneyToDTOMapperTest extends EasyMockSupport {
         Platform platform = MutablePlatform.buildForTFGMTram(Altrincham.getRawId() + "1", "platform name", Altrincham.getLatLong());
         //final MutableStation startStation = Altrincham.fake();
         //startStation.addPlatform(platform);
-        Station startStation = StationHelper.forTest(Altrincham, platform);
+        Station startStation = Altrincham.fakeWith(platform);
 
         ConnectingStage<Station,Station> connectingStage = new ConnectingStage<>(BusStations.of(StopAtAltrinchamInterchange),
                 startStation, 1, time);
@@ -188,7 +187,7 @@ class JourneyToDTOMapperTest extends EasyMockSupport {
         TramTime am10 = TramTime.of(10,0);
         Platform platformA = MutablePlatform.buildForTFGMTram(Altrincham.getRawId() + "1", "platform name", Altrincham.getLatLong());
 //        begin.addPlatform(platformA);
-        Station begin = StationHelper.forTest(Altrincham, platformA);
+        Station begin = Altrincham.fakeWith(platformA);
 
 
         MyLocation middleA = nearPiccGardensLocation;
@@ -196,7 +195,7 @@ class JourneyToDTOMapperTest extends EasyMockSupport {
         Platform platformB = MutablePlatform.buildForTFGMTram(MarketStreet.getRawId() + "1", "platform name", MarketStreet.getLatLong());
         //        MutableStation middleB = MarketStreet.fake();
         // middleB.addPlatform(platformB);
-        Station middleB = StationHelper.forTest(MarketStreet, platformB);
+        Station middleB = MarketStreet.fakeWith(platformB);
 
         Station end = Bury.fake();
 

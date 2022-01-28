@@ -47,8 +47,8 @@ class RouteCalculatorArriveByTest extends EasyMockSupport {
         TramTime arriveByTime = TramTime.of(14,35);
         LocalDate localDate = TestEnv.testDay();
 
-        Station start = TramStations.of(TramStations.Bury);
-        Station destinationId = TramStations.of(TramStations.Cornbrook);
+        Station start = TramStations.Bury.fake();
+        Station destinationId = TramStations.Cornbrook.fake();
         TramServiceDate serviceDate = TramServiceDate.of(localDate);
 
         Stream<Journey> journeyStream = Stream.empty();

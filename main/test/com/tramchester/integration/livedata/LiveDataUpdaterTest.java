@@ -59,6 +59,6 @@ public class LiveDataUpdaterTest {
     void shouldHaveMessagesForTestStation() {
         Set<Station> stations = messageRepo.getStationsWithMessages(TestEnv.LocalNow().toLocalTime());
 
-        assertTrue(stations.contains(TramStations.of(StationWithNotes)), stations.toString());
+        assertTrue(stations.contains(StationWithNotes.fake()), stations.toString());
     }
 }

@@ -16,7 +16,6 @@ import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TramRouteHelper;
 import com.tramchester.testSupport.reference.KnownTramRoute;
-import com.tramchester.testSupport.reference.TramStations;
 import org.junit.jupiter.api.*;
 import org.neo4j.graphdb.Transaction;
 
@@ -94,22 +93,22 @@ class RouteCalculatorSubGraphEcclesAshtonLine {
     @Test
     void produceDiagramOfGraphSubset() throws IOException {
         DiagramCreator creator = componentContainer.get(DiagramCreator.class);
-        List<Station> starts = Arrays.asList( TramStations.of(VeloPark), TramStations.of(Etihad));
+        List<Station> starts = Arrays.asList(VeloPark.fake(), Etihad.fake());
         creator.create(Path.of("subgraph_eccles_ashton_velo.dot"),starts, 2, true);
     }
 
     @Test
     void produceDiagramOfGraphSubsetEtihad() throws IOException {
         DiagramCreator creator = componentContainer.get(DiagramCreator.class);
-        List<Station> starts = Collections.singletonList(of(Etihad));
+        List<Station> starts = Collections.singletonList(Etihad.fake());
         creator.create(Path.of("subgraph_eccles_ashton_etihad.dot"),starts, 1, false);
     }
 
     @Test
     void produceDiagramOfGraphSubsetMediaCity() throws IOException {
         DiagramCreator creator = componentContainer.get(DiagramCreator.class);
-        List<Station> starts = Arrays.asList( TramStations.of(MediaCityUK), TramStations.of(HarbourCity),
-                TramStations.of(Broadway));
+        List<Station> starts = Arrays.asList(MediaCityUK.fake(), HarbourCity.fake(),
+                Broadway.fake());
         creator.create(Path.of("subgraph_eccles_ashton_mediaCity.dot"),starts, 2, true);
     }
 

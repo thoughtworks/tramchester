@@ -14,7 +14,6 @@ import com.tramchester.domain.transportStages.VehicleStage;
 import com.tramchester.domain.transportStages.WalkingFromStationStage;
 import com.tramchester.domain.transportStages.WalkingToStationStage;
 import com.tramchester.testSupport.TestEnv;
-import com.tramchester.testSupport.reference.StationHelper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -50,7 +49,7 @@ class JourneyTest {
         List<TransportStage<?, ?>> stages = new ArrayList<>();
 
         final TramTime departureTime = queryTime.plusMinutes(10);
-        stages.add(createVehicleStage(of(Altrincham), of(StPetersSquare), Tram, departureTime, 15));
+        stages.add(createVehicleStage(Altrincham.fake(), StPetersSquare.fake(), Tram, departureTime, 15));
         Journey journey = new Journey(departureTime, queryTime, departureTime.plusMinutes(15), stages, path, requestedNumberChanges);
 
         Set<TransportMode> result = journey.getTransportModes();
@@ -69,7 +68,7 @@ class JourneyTest {
 
         final TramTime departureTime = queryTime.plusMinutes(10);
 
-        stages.add(new WalkingToStationStage(myLocation, of(Bury), 42, departureTime));
+        stages.add(new WalkingToStationStage(myLocation, Bury.fake(), 42, departureTime));
 
         Journey journey = new Journey(departureTime, queryTime, departureTime.plusMinutes(15), stages, path, requestedNumberChanges);
 
@@ -89,7 +88,7 @@ class JourneyTest {
 
         final TramTime departureTime = queryTime.plusMinutes(10);
 
-        stages.add(new WalkingFromStationStage(of(Bury), myLocation, 42, departureTime));
+        stages.add(new WalkingFromStationStage(Bury.fake(), myLocation, 42, departureTime));
 
         Journey journey = new Journey(departureTime, queryTime, departureTime.plusMinutes(15), stages, path, requestedNumberChanges);
 
@@ -109,8 +108,8 @@ class JourneyTest {
 
         final TramTime departureTime = queryTime.plusMinutes(10);
 
-        stages.add(new WalkingToStationStage(myLocation, of(Bury), 42, departureTime));
-        stages.add(createVehicleStage(of(Bury), of(StPetersSquare), Tram, departureTime.plusMinutes(42), 13));
+        stages.add(new WalkingToStationStage(myLocation, Bury.fake(), 42, departureTime));
+        stages.add(createVehicleStage(Bury.fake(), StPetersSquare.fake(), Tram, departureTime.plusMinutes(42), 13));
 
         Journey journey = new Journey(departureTime, queryTime, departureTime.plusMinutes(15), stages, path, requestedNumberChanges);
 
@@ -131,9 +130,9 @@ class JourneyTest {
 
         final TramTime departureTime = queryTime.plusMinutes(10);
 
-        stages.add(new WalkingToStationStage(myLocation, of(Bury), 42, departureTime));
-        stages.add(createVehicleStage(of(Bury), of(StPetersSquare), Tram, departureTime.plusMinutes(42), 13));
-        stages.add(createVehicleStage(of(Victoria), of(ManAirport), Tram, departureTime.plusMinutes(42), 13));
+        stages.add(new WalkingToStationStage(myLocation, Bury.fake(), 42, departureTime));
+        stages.add(createVehicleStage(Bury.fake(), StPetersSquare.fake(), Tram, departureTime.plusMinutes(42), 13));
+        stages.add(createVehicleStage(Victoria.fake(), ManAirport.fake(), Tram, departureTime.plusMinutes(42), 13));
 
         Journey journey = new Journey(departureTime, queryTime, departureTime.plusMinutes(15), stages, path, requestedNumberChanges);
 
@@ -147,8 +146,8 @@ class JourneyTest {
 
         final TramTime departureTime = queryTime.plusMinutes(10);
 
-        stages.add(createVehicleStage(of(Altrincham), of(StPetersSquare), Tram, departureTime.plusMinutes(5), 13));
-        stages.add(new WalkingFromStationStage(of(Bury), myLocation, 42, departureTime.plusMinutes(18)));
+        stages.add(createVehicleStage(Altrincham.fake(), StPetersSquare.fake(), Tram, departureTime.plusMinutes(5), 13));
+        stages.add(new WalkingFromStationStage(Bury.fake(), myLocation, 42, departureTime.plusMinutes(18)));
 
         Journey journey = new Journey(departureTime, queryTime, departureTime.plusMinutes(15), stages, path, requestedNumberChanges);
 
@@ -168,8 +167,8 @@ class JourneyTest {
         List<TransportStage<?, ?>> stages = new ArrayList<>();
         final TramTime departureTimeA = queryTime.plusMinutes(10);
 
-        stages.add(createVehicleStage(of(Altrincham), of(StPetersSquare), Bus, departureTimeA, 13));
-        stages.add(createVehicleStage(of(StPetersSquare), of(Victoria), Train, departureTimeA.plusMinutes(14), 19));
+        stages.add(createVehicleStage(Altrincham.fake(), StPetersSquare.fake(), Bus, departureTimeA, 13));
+        stages.add(createVehicleStage(StPetersSquare.fake(), Victoria.fake(), Train, departureTimeA.plusMinutes(14), 19));
 
         Journey journey = new Journey(queryTime.plusMinutes(5), queryTime, queryTime.plusMinutes(10), stages, path, requestedNumberChanges);
 
@@ -198,19 +197,19 @@ class JourneyTest {
         final TramTime departureTimeA = queryTime.plusMinutes(10);
 
         final Platform platform1 = MutablePlatform.buildForTFGMTram("platformId1", "platformNameA", TestEnv.nearAltrincham);
-        final Station alty = StationHelper.forTest(Altrincham, platform1);
+        final Station alty = Altrincham.fakeWith(platform1);
 
         final Platform platform2 = MutablePlatform.buildForTFGMTram("platformId2", "platformNameA", TestEnv.nearStPetersSquare);
-        final Station stPeters = StationHelper.forTest(StPetersSquare, platform2);
+        final Station stPeters = StPetersSquare.fakeWith(platform2);
 
         final VehicleStage stageA = createVehicleStage(alty, stPeters, Bus, departureTimeA, 13);
         stageA.setPlatform(platform1);
 
-        final Station victoria = StationHelper.forTest(Victoria);
+        final Station victoria = Victoria.fake();
         final VehicleStage stageB = createVehicleStage(stPeters, victoria, Train, departureTimeA.plusMinutes(14), 19);
         stageB.setPlatform(platform2);
 
-        final VehicleStage stageC = createVehicleStage(victoria, of(ManAirport), Train, departureTimeA.plusMinutes(30), 5);
+        final VehicleStage stageC = createVehicleStage(victoria, ManAirport.fake(), Train, departureTimeA.plusMinutes(30), 5);
 
         List<TransportStage<?, ?>> stages = Arrays.asList(stageA, stageB, stageC);
 

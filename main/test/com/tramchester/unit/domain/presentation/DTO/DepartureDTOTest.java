@@ -39,7 +39,7 @@ class DepartureDTOTest {
         }
 
         DueTram dueTram = getDueTram(updateTime, TramStations.Bury, 42);
-        DepartureDTO departureDTO = new DepartureDTO(TramStations.of(StPetersSquare), dueTram, updateDate);
+        DepartureDTO departureDTO = new DepartureDTO(StPetersSquare.fake(), dueTram, updateDate);
 
         Assertions.assertEquals(StPetersSquare.getName(), departureDTO.getFrom());
         Assertions.assertEquals("Bury", departureDTO.getDestination());
@@ -53,7 +53,7 @@ class DepartureDTOTest {
     @Test
     void shouldCompareBasedOnWhenTramDue() {
 
-        Station stPetersSquare = TramStations.of(StPetersSquare);
+        Station stPetersSquare = StPetersSquare.fake();
         DepartureDTO departureDTOA = new DepartureDTO(stPetersSquare,
                 getDueTram(updateTime, TramStations.Deansgate, 5), updateDate);
         DepartureDTO departureDTOB = new DepartureDTO(stPetersSquare,
@@ -74,6 +74,6 @@ class DepartureDTOTest {
 
     @NotNull
     private DueTram getDueTram(LocalTime updateTime, TramStations station, int wait) {
-        return new DueTram(TramStations.of(station), "status", wait, "carriages", updateTime);
+        return new DueTram(station.fake(), "status", wait, "carriages", updateTime);
     }
 }

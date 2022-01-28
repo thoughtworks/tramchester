@@ -91,13 +91,7 @@ public enum TramStations implements HasId<Station> {
     private static LatLong pos(double lat, double lon) {
         return new LatLong(lat, lon);
     }
-
-    @Deprecated
-    // inline me
-    public static Station of(TramStations tramStations) {
-        return tramStations.fake();
-    }
-
+    
     @Override
     public IdFor<Station> getId() {
         return Station.createId(id);

@@ -136,6 +136,6 @@ class JourneyDTODuplicateFilterTest {
     }
 
     private StationRefWithPosition getStationRef(TramStations tramStations) {
-        return new StationRefWithPosition(of(tramStations));
+        return new StationRefWithPosition(tramStations.fake());
     }
 }

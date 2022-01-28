@@ -12,7 +12,6 @@ import com.tramchester.livedata.domain.liveUpdates.StationDepartureInfo;
 import com.tramchester.livedata.mappers.LiveDataParser;
 import com.tramchester.livedata.repository.TramStationByName;
 import com.tramchester.repository.StationRepository;
-import com.tramchester.testSupport.reference.StationHelper;
 import com.tramchester.testSupport.reference.TramStations;
 import org.easymock.EasyMock;
 import org.easymock.EasyMockSupport;
@@ -51,12 +50,12 @@ class LiveDataParserTest extends EasyMockSupport {
         parser = new LiveDataParser(tramStationByName, stationRepository);
 
         final Platform platformMC = MutablePlatform.buildForTFGMTram("9400ZZMAMCU2", "Media City Platform 2", MediaCityUK.getLatLong());
-        Station mediaCity = StationHelper.forTest(MediaCityUK, platformMC);
+        Station mediaCity = MediaCityUK.fakeWith(platformMC);
 //        mediaCity.addPlatform(platform);
 
         final Platform platformAirport = MutablePlatform.buildForTFGMTram("9400ZZMAAIR1", "Manchester Airport Platform 2",
                 ManAirport.getLatLong());
-        Station airport = StationHelper.forTest(ManAirport, platformAirport);
+        Station airport = ManAirport.fakeWith(platformAirport);
 //        airport.addPlatform(platformAirport);
 
         EasyMock.expect(stationRepository.getStationById(MediaCityUK.getId())).andStubReturn(mediaCity);
@@ -76,7 +75,7 @@ class LiveDataParserTest extends EasyMockSupport {
     }
 
     private void expectationByName(TramStations station) {
-        EasyMock.expect(tramStationByName.getTramStationByName(station.getName())).andStubReturn(Optional.of(of(station)));
+        EasyMock.expect(tramStationByName.getTramStationByName(station.getName())).andStubReturn(Optional.of(station.fake()));
     }
 
     @Test

@@ -211,7 +211,7 @@ public class TestEnv {
         GTFSPickupDropoffType pickupDropoff = GTFSPickupDropoffType.Regular;
         //StopTimeData stopTimeData = StopTimeData.forTestOnly(trip.getId().forDTO(), arrive, depart, stopId, seq,
         //        pickupDropoff, pickupDropoff);
-        return new PlatformStopCall(platform, TramStations.of(station), arrive, depart, seq, pickupDropoff, pickupDropoff, trip);
+        return new PlatformStopCall(platform, station.fake(), arrive, depart, seq, pickupDropoff, pickupDropoff, trip);
     }
 
     public static BoundingBox getTFGMBusBounds() {

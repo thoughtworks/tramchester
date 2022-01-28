@@ -25,25 +25,25 @@ public class LocationSetTest {
 
     @BeforeEach
     void beforeEachTestRuns() {
-        stationList = Arrays.asList(of(Altrincham), of(Bury), of(Cornbrook));
+        stationList = Arrays.asList(Altrincham.fake(), Bury.fake(), Cornbrook.fake());
         location = new MyLocation(TestEnv.nearShudehill);
     }
 
     private void assertListElementsPresent(LocationSet locationSet) {
         assertEquals(stationList.size(), locationSet.size());
 
-        assertTrue(locationSet.contains(of(Altrincham)));
-        assertTrue(locationSet.contains(of(Bury)));
-        assertTrue(locationSet.contains(of(Cornbrook)));
+        assertTrue(locationSet.contains(Altrincham.fake()));
+        assertTrue(locationSet.contains(Bury.fake()));
+        assertTrue(locationSet.contains(Cornbrook.fake()));
     }
 
     @Test
     void shouldCreateSingleton() {
-        LocationSet locationSet = LocationSet.singleton(of(Altrincham));
+        LocationSet locationSet = LocationSet.singleton(Altrincham.fake());
 
         assertEquals(1, locationSet.size());
-        assertTrue(locationSet.contains(of(Altrincham)));
-        assertFalse(locationSet.contains(of(StPetersSquare)));
+        assertTrue(locationSet.contains(Altrincham.fake()));
+        assertFalse(locationSet.contains(StPetersSquare.fake()));
     }
 
     @Test
@@ -53,7 +53,7 @@ public class LocationSetTest {
         LocationSet locationSet = new LocationSet(stations);
 
         assertListElementsPresent(locationSet);
-        assertFalse(locationSet.contains(of(StPetersSquare)));
+        assertFalse(locationSet.contains(StPetersSquare.fake()));
     }
 
     @Test
@@ -64,7 +64,7 @@ public class LocationSetTest {
         LocationSet locationSet = stream.collect(LocationSet.stationCollector());
 
         assertListElementsPresent(locationSet);
-        assertFalse(locationSet.contains(of(StPetersSquare)));
+        assertFalse(locationSet.contains(StPetersSquare.fake()));
     }
 
     @Test
@@ -74,10 +74,10 @@ public class LocationSetTest {
 
         assertTrue(locationSet.isEmpty());
 
-        locationSet.add(of(Altrincham));
-        locationSet.add(of(Altrincham));
-        locationSet.add(of(Bury));
-        locationSet.add(of(Cornbrook));
+        locationSet.add(Altrincham.fake());
+        locationSet.add(Altrincham.fake());
+        locationSet.add(Bury.fake());
+        locationSet.add(Cornbrook.fake());
 
         assertListElementsPresent(locationSet);
 
@@ -102,9 +102,9 @@ public class LocationSetTest {
         assertEquals(4, result.size());
 
         assertTrue(result.contains(location));
-        assertTrue(result.contains(of(Altrincham)));
-        assertTrue(result.contains(of(Bury)));
-        assertTrue(result.contains(of(Cornbrook)));
+        assertTrue(result.contains(Altrincham.fake()));
+        assertTrue(result.contains(Bury.fake()));
+        assertTrue(result.contains(Cornbrook.fake()));
     }
 
     @Test
@@ -120,8 +120,8 @@ public class LocationSetTest {
 
         assertEquals(3, result.size());
 
-        assertTrue(result.contains(of(Altrincham)));
-        assertTrue(result.contains(of(Bury)));
-        assertTrue(result.contains(of(Cornbrook)));
+        assertTrue(result.contains(Altrincham.fake()));
+        assertTrue(result.contains(Bury.fake()));
+        assertTrue(result.contains(Cornbrook.fake()));
     }
 }

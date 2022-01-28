@@ -4,7 +4,6 @@ import com.tramchester.livedata.domain.liveUpdates.DueTram;
 import com.tramchester.livedata.domain.DTO.DepartureDTO;
 import com.tramchester.livedata.mappers.DeparturesMapper;
 import com.tramchester.testSupport.TestEnv;
-import com.tramchester.testSupport.reference.TramStations;
 import org.easymock.EasyMockSupport;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -31,10 +30,10 @@ class DeparturesMapperTest extends EasyMockSupport {
 
     @Test
     void shouldMapToDTOCorrectly() {
-        Collection<DueTram> dueTrams = Collections.singletonList(new DueTram(TramStations.of(PiccadillyGardens),
+        Collection<DueTram> dueTrams = Collections.singletonList(new DueTram(PiccadillyGardens.fake(),
                 "DUE", 9, "single", LocalTime.of(10, 32)));
 
-        Set<DepartureDTO> results = mapper.mapToDTO(TramStations.of(Bury), dueTrams, queryDate);
+        Set<DepartureDTO> results = mapper.mapToDTO(Bury.fake(), dueTrams, queryDate);
 
         List<DepartureDTO> list = new LinkedList<>(results);
 
@@ -52,10 +51,10 @@ class DeparturesMapperTest extends EasyMockSupport {
 
     @Test
     void shouldHandleCrossingMidnight() {
-        Collection<DueTram> dueTrams = Collections.singletonList(new DueTram(TramStations.of(PiccadillyGardens),
+        Collection<DueTram> dueTrams = Collections.singletonList(new DueTram(PiccadillyGardens.fake(),
                 "DUE", 9, "single", LocalTime.of(23, 58)));
 
-        Set<DepartureDTO> results = mapper.mapToDTO(TramStations.of(Bury), dueTrams, queryDate);
+        Set<DepartureDTO> results = mapper.mapToDTO(Bury.fake(), dueTrams, queryDate);
 
         List<DepartureDTO> list = new LinkedList<>(results);
 

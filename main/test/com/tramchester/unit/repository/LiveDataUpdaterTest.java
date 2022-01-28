@@ -15,7 +15,6 @@ import com.tramchester.livedata.repository.DueTramsRepository;
 import com.tramchester.livedata.LiveDataUpdater;
 import com.tramchester.repository.PlatformMessageRepository;
 import com.tramchester.testSupport.TestEnv;
-import com.tramchester.testSupport.reference.TramStations;
 import org.easymock.EasyMock;
 import org.easymock.EasyMockSupport;
 import org.junit.jupiter.api.BeforeEach;
@@ -56,9 +55,9 @@ public class LiveDataUpdaterTest extends EasyMockSupport {
         List<StationDepartureInfo> info = new LinkedList<>();
 
         info.add(createDepartureInfoWithDueTram(lastUpdate, "yyy", "platformIdA",
-                "some message", TramStations.of(Altrincham)));
+                "some message", Altrincham.fake()));
         info.add(createDepartureInfoWithDueTram(lastUpdate, "303", "platformIdB",
-                "some message", TramStations.of(Altrincham)));
+                "some message", Altrincham.fake()));
 
         EasyMock.expect(providesNow.getNow()).andStubReturn(TramTime.of(lastUpdate.toLocalTime()));
         EasyMock.expect(providesNow.getDate()).andStubReturn(lastUpdate.toLocalDate());
@@ -78,7 +77,7 @@ public class LiveDataUpdaterTest extends EasyMockSupport {
     void shouldUpdateRepositoriesIgnoringStaleData() {
         List<StationDepartureInfo> info = new LinkedList<>();
 
-        Station station = of(Altrincham);
+        Station station = Altrincham.fake();
         StationDepartureInfo departureInfo = createDepartureInfoWithDueTram(lastUpdate, "yyy", "platformIdA",
                 "some message", station);
 
@@ -108,7 +107,7 @@ public class LiveDataUpdaterTest extends EasyMockSupport {
                                                                       Station location) {
         StationDepartureInfo departureInfo = new StationDepartureInfo(displayId, Lines.Airport,
                 LineDirection.Incoming, StringIdFor.createId(platformId), location, message, lastUpdate);
-        DueTram dueTram = new DueTram(TramStations.of(Bury), "Due", 42, "Single", lastUpdate.toLocalTime());
+        DueTram dueTram = new DueTram(Bury.fake(), "Due", 42, "Single", lastUpdate.toLocalTime());
         departureInfo.addDueTram(dueTram);
         return departureInfo;
     }
