@@ -3,7 +3,7 @@ package com.tramchester.integration.graph.buses;
 import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.config.TramchesterConfig;
-import com.tramchester.domain.places.GroupedStations;
+import com.tramchester.domain.places.StationGroup;
 import com.tramchester.domain.places.Location;
 import com.tramchester.domain.time.TramServiceDate;
 import com.tramchester.graph.GraphDatabase;
@@ -32,9 +32,9 @@ class BusRouteCostCalculatorTest {
 
     private Transaction txn;
     private RouteCostCalculator routeCost;
-    private GroupedStations altrinchamInterchange;
-    private GroupedStations stockportBusStation;
-    private GroupedStations shudehillInterchange;
+    private StationGroup altrinchamInterchange;
+    private StationGroup stockportBusStation;
+    private StationGroup shudehillInterchange;
     private StationRepository stationRepository;
 
     private final TramServiceDate date = new TramServiceDate(TestEnv.testDay());

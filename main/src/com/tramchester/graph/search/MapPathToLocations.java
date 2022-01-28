@@ -60,7 +60,7 @@ public class MapPathToLocations {
         EnumSet<GraphLabel> labels = nodeContentsRepository.getLabels(node);
         if (labels.contains(GROUPED)) {
             IdFor<NaptanArea> areaId = GraphProps.getAreaIdFromGrouped(node);
-            final GroupedStations stationGroup = stationGroupsRepository.getStationGroup(areaId);
+            final StationGroup stationGroup = stationGroupsRepository.getStationGroup(areaId);
             if (stationGroup==null) {
                 throw new RuntimeException(format("Missing grouped station %s for %s labels %s props %s",
                         areaId, node.getId(), node.getLabels(), node.getAllProperties()));

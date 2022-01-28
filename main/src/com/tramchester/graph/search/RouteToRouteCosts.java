@@ -205,7 +205,7 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
     }
 
     @Override
-    public NumberOfChanges getNumberOfChanges(GroupedStations start, GroupedStations end) {
+    public NumberOfChanges getNumberOfChanges(StationGroup start, StationGroup end) {
         return getNumberOfChanges(LocationSet.of(start.getContained()), LocationSet.of(end.getContained()));
     }
 

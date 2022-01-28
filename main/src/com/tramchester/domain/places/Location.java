@@ -30,9 +30,12 @@ public interface Location<TYPE extends Location<?>> extends HasId<TYPE>, IdForDT
 
     boolean hasDropoff();
 
-    default boolean isActive() {
-        return hasPickup() || hasDropoff();
-    }
+    boolean isActive();
+
+    // this default makes no sense for walking locations etc
+//    default boolean isActive() {
+//        return hasPickup() || hasDropoff();
+//    }
 
     Set<Route> getDropoffRoutes();
 

@@ -6,6 +6,7 @@ import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.places.*;
 import com.tramchester.domain.presentation.LatLong;
+import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TestStation;
 import org.junit.jupiter.api.Test;
@@ -21,7 +22,7 @@ import static com.tramchester.domain.reference.TransportMode.Tram;
 import static com.tramchester.integration.testSupport.Assertions.assertIdEquals;
 import static org.junit.jupiter.api.Assertions.*;
 
-class GroupedStationsTest {
+class StationGroupTest {
 
     private final DataSourceID dataSourceID = DataSourceID.tfgm;
 
@@ -38,7 +39,7 @@ class GroupedStationsTest {
         stationA.addPlatform(platform);
 
         IdFor<NaptanArea> areaId = StringIdFor.createId("areaId");
-        GroupedStations groupedStations = new GroupedStations(Collections.singleton(stationA), areaId,
+        StationGroup groupedStations = new StationGroup(Collections.singleton(stationA), areaId,
                 "compName",1);
 
         assertEquals(LocationType.StationGroup, groupedStations.getLocationType());
@@ -57,10 +58,9 @@ class GroupedStationsTest {
         assertEquals(Collections.singleton(platform), groupedStations.getPlatforms());
         assertEquals(Collections.singleton(route), groupedStations.getPickupRoutes());
 
-        assertEquals(1, groupedStations.getTransportModes().size());
-        assertTrue(groupedStations.servesMode(Tram));
-
-        assertEquals(1, groupedStations.getAgencies().size());
+        final Set<TransportMode> transportModes = groupedStations.getTransportModes();
+        assertEquals(1, transportModes.size());
+        assertTrue(transportModes.contains(Tram));
 
         Set<Station> containted = groupedStations.getContained();
         assertEquals(1, containted.size());
@@ -87,30 +87,31 @@ class GroupedStationsTest {
 
         Set<Station> stations = new HashSet<>(Arrays.asList(stationA, stationB));
         IdFor<NaptanArea> areaId = StringIdFor.createId("areaId");
-        GroupedStations groupedStations = new GroupedStations(stations, areaId, "compName",12);
+        StationGroup stationGroup = new StationGroup(stations, areaId, "compName",12);
 
-        assertEquals(LocationType.StationGroup, groupedStations.getLocationType());
+        assertEquals(LocationType.StationGroup, stationGroup.getLocationType());
 
-        assertEquals("compName", groupedStations.getName());
+        assertEquals("compName", stationGroup.getName());
         IdSet<Station> expected = Stream.of("idB", "idA").map(Station::createId).collect(IdSet.idCollector());
-        assertIdEquals("areaId", groupedStations.getId());
-        assertEquals("areaId", groupedStations.forDTO());
-        assertEquals("areaId", groupedStations.getId().getGraphId());
-        assertEquals("areaId", groupedStations.getId().forDTO());
+        assertIdEquals("areaId", stationGroup.getId());
+        assertEquals("areaId", stationGroup.forDTO());
+        assertEquals("areaId", stationGroup.getId().getGraphId());
+        assertEquals("areaId", stationGroup.getId().forDTO());
 
-        assertEquals(3, groupedStations.getLatLong().getLat(),0);
-        assertEquals(6, groupedStations.getLatLong().getLon(),0);
-        assertEquals(areaId, groupedStations.getAreaId());
+        assertEquals(3, stationGroup.getLatLong().getLat(),0);
+        assertEquals(6, stationGroup.getLatLong().getLon(),0);
+        assertEquals(areaId, stationGroup.getAreaId());
 
-        assertEquals(2, groupedStations.getTransportModes().size());
-        assertTrue(groupedStations.servesMode(Tram));
-        assertTrue(groupedStations.servesMode(Bus));
+        final Set<TransportMode> transportModes = stationGroup.getTransportModes();
+        assertEquals(2, transportModes.size());
+        assertTrue(transportModes.contains(Tram));
+        assertTrue(transportModes.contains(Bus));
 
-        assertEquals(2, groupedStations.getDropoffRoutes().size());
-        assertEquals(1, groupedStations.getPickupRoutes().size());
-        assertEquals(2, groupedStations.getAgencies().size());
+        assertEquals(2, stationGroup.getDropoffRoutes().size());
+        assertEquals(1, stationGroup.getPickupRoutes().size());
+//        assertEquals(2, stationGroup.getAgencies().size());
 
-        Set<Station> containted = groupedStations.getContained();
+        Set<Station> containted = stationGroup.getContained();
         assertEquals(2, containted.size());
         assertTrue(containted.contains(stationA));
         assertTrue(containted.contains(stationB));
@@ -130,16 +131,16 @@ class GroupedStationsTest {
 
         Set<Station> stations = new HashSet<>(Arrays.asList(stationA, stationB));
         IdFor<NaptanArea> areaId = StringIdFor.createId("areaId");
-        GroupedStations groupedStations = new GroupedStations(stations, areaId, "compName",11);
+        StationGroup stationGroup = new StationGroup(stations, areaId, "compName",11);
 
-        assertFalse(groupedStations.hasPickup());
-        assertFalse(groupedStations.hasDropoff());
+        assertFalse(stationGroup.hasPickup());
+        assertFalse(stationGroup.hasDropoff());
 
         stationA.addRouteDropOff(routeA);
-        assertTrue(groupedStations.hasDropoff());
+        assertTrue(stationGroup.hasDropoff());
 
         stationB.addRoutePickUp(routeB);
-        assertTrue(groupedStations.hasPickup());
+        assertTrue(stationGroup.hasPickup());
 
     }
 
@@ -156,11 +157,11 @@ class GroupedStationsTest {
 
         IdFor<NaptanArea> areaId = StringIdFor.createId("areaId");
 
-        GroupedStations groupedStations = new GroupedStations( new HashSet<>(Arrays.asList(stationA, stationB)),
+        StationGroup stationGroup = new StationGroup( new HashSet<>(Arrays.asList(stationA, stationB)),
                 areaId, "compName", 42);
 
 
-        assertEquals(42, groupedStations.getMinimumChangeCost());
+        assertEquals(42, stationGroup.getMinimumChangeCost());
     }
 
 }

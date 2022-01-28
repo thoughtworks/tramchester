@@ -6,7 +6,7 @@ import com.tramchester.domain.Service;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.input.StopCall;
-import com.tramchester.domain.places.GroupedStations;
+import com.tramchester.domain.places.StationGroup;
 import com.tramchester.domain.places.Station;
 
 import java.util.Set;
@@ -69,8 +69,8 @@ public class ActiveGraphFilter implements GraphFilter, ConfigurableGraphFilter {
         return routes.stream().anyMatch(route -> routeIds.contains(route.getId()));
     }
 
-    public boolean shouldInclude(GroupedStations groupedStations) {
-        return groupedStations.getContained().stream().anyMatch(this::shouldInclude);
+    public boolean shouldInclude(StationGroup stationGroup) {
+        return stationGroup.getContained().stream().anyMatch(this::shouldInclude);
     }
 
     /**

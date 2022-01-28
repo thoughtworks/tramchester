@@ -102,4 +102,8 @@ public class LocationSet {
             }
         };
     }
+
+    public boolean isEmpty() {
+        return locations.isEmpty();
+    }
 }

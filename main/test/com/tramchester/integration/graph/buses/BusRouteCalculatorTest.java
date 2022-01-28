@@ -5,7 +5,7 @@ import com.tramchester.ComponentsBuilder;
 import com.tramchester.domain.Journey;
 import com.tramchester.domain.JourneyRequest;
 import com.tramchester.domain.id.StringIdFor;
-import com.tramchester.domain.places.GroupedStations;
+import com.tramchester.domain.places.StationGroup;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramServiceDate;
@@ -50,10 +50,10 @@ class BusRouteCalculatorTest {
     private final LocalDate when = TestEnv.testDay();
     private Transaction txn;
     private int maxJourneyDuration;
-    private GroupedStations stockportBusStation;
-    private GroupedStations altrinchamInterchange;
-    private GroupedStations knutsfordBusStation;
-    private GroupedStations shudehillInterchange;
+    private StationGroup stockportBusStation;
+    private StationGroup altrinchamInterchange;
+    private StationGroup knutsfordBusStation;
+    private StationGroup shudehillInterchange;
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
@@ -150,7 +150,7 @@ class BusRouteCalculatorTest {
     @Test
     void shouldFindJourneyInFutureCorrectly() {
         // attempt to repro seen in ui where zero journeys
-        GroupedStations start = compositeStationRepository.findByName("Taylor Road, Oldfield Brow, Altrincham");
+        StationGroup start = compositeStationRepository.findByName("Taylor Road, Oldfield Brow, Altrincham");
 
         assertNotNull(start);
 
@@ -165,7 +165,7 @@ class BusRouteCalculatorTest {
 
     @Test
     void shouldHaveJourneyAltyToKnutsford() {
-        GroupedStations end = knutsfordBusStation;
+        StationGroup end = knutsfordBusStation;
 
         TramTime time = TramTime.of(10, 40);
         JourneyRequest journeyRequest = new JourneyRequest(when, time, false, 1,
@@ -179,7 +179,7 @@ class BusRouteCalculatorTest {
     @Test
     void shouldHandleJourneyDirectWithinASingleComposite() {
 
-        GroupedStations piccadillyComp = compositeStationRepository.findByName("Piccadilly Rail Station");
+        StationGroup piccadillyComp = compositeStationRepository.findByName("Piccadilly Rail Station");
         List<Station> stations = new ArrayList<>(piccadillyComp.getContained());
         assertTrue(stations.size()>2);
         Station start = stations.get(0);
@@ -288,7 +288,7 @@ class BusRouteCalculatorTest {
 
     @Test
     void shouldReproPerfIssueAltyToAirport() {
-        GroupedStations airport = compositeStationRepository.findByName("Manchester Airport The Station");
+        StationGroup airport = compositeStationRepository.findByName("Manchester Airport The Station");
 
         //LocalDate date =  LocalDate.of(2021, 6, 30);
         JourneyRequest journeyRequest = new JourneyRequest(new TramServiceDate(when), TramTime.of(11,11),

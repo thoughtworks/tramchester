@@ -112,6 +112,10 @@ public class MutableStation implements Station {
         return !servesRoutesDropoff.isEmpty();
     }
 
+    @Override
+    public boolean isActive() {
+        return hasPickup() || hasDropoff();
+    }
 
 
     @Override

@@ -5,7 +5,7 @@ import com.tramchester.domain.CoreDomain;
 import com.tramchester.domain.GraphProperty;
 import com.tramchester.domain.Platform;
 import com.tramchester.domain.id.HasId;
-import com.tramchester.domain.places.GroupedStations;
+import com.tramchester.domain.places.StationGroup;
 import com.tramchester.domain.places.Location;
 import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
@@ -53,11 +53,11 @@ public class GraphQuery {
         return findNode(txn, label, station);
     }
 
-    public Node getGroupedNode(Transaction txn, GroupedStations groupedStations) {
+    public Node getGroupedNode(Transaction txn, StationGroup stationGroup) {
         // uses Area Id, not station Id
         // TODO make this change to GroupedStations?
         //return graphDatabase.findNode(txn, GraphLabel.GROUPED, station.getProp().getText(), station.getAreaId().getGraphId());
-        return findNode(txn, GraphLabel.GROUPED, groupedStations);
+        return findNode(txn, GraphLabel.GROUPED, stationGroup);
     }
 
     /**

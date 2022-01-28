@@ -6,7 +6,7 @@ import com.tramchester.config.GTFSSourceConfig;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.StationClosure;
 import com.tramchester.domain.id.StringIdFor;
-import com.tramchester.domain.places.GroupedStations;
+import com.tramchester.domain.places.StationGroup;
 import com.tramchester.domain.reference.GTFSTransportationType;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.integration.testSupport.tfgm.TFGMGTFSSourceTestConfig;
@@ -24,7 +24,7 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @Disabled("for tram stations none of the groups have more that one station")
-class GroupedStationsRepositoryTest {
+class StationGroupRepositoryTest {
 
     private static GuiceContainerDependencies componentContainer;
     private StationGroupsRepository stationGroupsRepository;
@@ -53,7 +53,7 @@ class GroupedStationsRepositoryTest {
 
     @Test
     void shouldHaveExpectedTramStationGroup() {
-        GroupedStations found = stationGroupsRepository.getStationGroup(StringIdFor.createId("940GZZMAALT"));
+        StationGroup found = stationGroupsRepository.getStationGroup(StringIdFor.createId("940GZZMAALT"));
 
         // only load groups with more than one stop, for tram stops this is none at all
         assertNull(found, stationGroupsRepository.getAllGroups().toString());
@@ -63,7 +63,7 @@ class GroupedStationsRepositoryTest {
 
     @Test
     void shouldFindGroupByName() {
-        GroupedStations found = stationGroupsRepository.findByName("Altrincham (Manchester Metrolink)");
+        StationGroup found = stationGroupsRepository.findByName("Altrincham (Manchester Metrolink)");
 
         // only load groups with more than one stop, for tram stops this is none at all
         assertNull(found);

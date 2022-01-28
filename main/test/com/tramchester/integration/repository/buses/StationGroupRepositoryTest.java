@@ -4,7 +4,8 @@ import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdSet;
-import com.tramchester.domain.places.GroupedStations;
+import com.tramchester.domain.places.StationGroup;
+import com.tramchester.domain.places.LocationType;
 import com.tramchester.domain.places.Station;
 import com.tramchester.integration.testSupport.bus.IntegrationBusTestConfig;
 import com.tramchester.repository.StationGroupsRepository;
@@ -25,7 +26,7 @@ import static com.tramchester.testSupport.reference.BusStations.ManchesterAirpor
 import static org.junit.jupiter.api.Assertions.*;
 
 @BusTest
-class GroupedStationsRepositoryTest {
+class StationGroupRepositoryTest {
     private StationGroupsRepository stationGroupsRepository;
     private StationRepository stationRepository;
 
@@ -51,12 +52,12 @@ class GroupedStationsRepositoryTest {
     @Test
     void shouldFindExpectedCompositeStations() {
         assertNotNull(stationGroupsRepository.findByName("Shudehill Interchange"));
-        final GroupedStations groupedStations = stationGroupsRepository.findByName(BusStations.Composites.AltrinchamInterchange.getName());
+        final StationGroup groupedStations = stationGroupsRepository.findByName(BusStations.Composites.AltrinchamInterchange.getName());
         assertNotNull(groupedStations);
 
         assertEquals(6, groupedStations.getContained().size());
 
-        assertTrue(groupedStations.isStationGroup());
+        assertEquals(LocationType.StationGroup, groupedStations.getLocationType());
         assertIdEquals("180GAMIC", groupedStations.getAreaId());
         assertEquals(2, groupedStations.getMinimumChangeCost());
     }
@@ -74,7 +75,7 @@ class GroupedStationsRepositoryTest {
 
     @Test
     void shouldHaveValidStationsInGroupedStation() {
-        Set<GroupedStations> compositesFor = stationGroupsRepository.getStationGroupsFor(Bus);
+        Set<StationGroup> compositesFor = stationGroupsRepository.getStationGroupsFor(Bus);
         assertFalse(compositesFor.isEmpty());
 
         compositesFor.forEach(group -> {

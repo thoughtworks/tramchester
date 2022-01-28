@@ -3,7 +3,7 @@ package com.tramchester.integration.testSupport;
 import com.tramchester.domain.Journey;
 import com.tramchester.domain.JourneyRequest;
 import com.tramchester.domain.id.IdFor;
-import com.tramchester.domain.places.GroupedStations;
+import com.tramchester.domain.places.StationGroup;
 import com.tramchester.domain.places.Location;
 import com.tramchester.domain.places.Station;
 import com.tramchester.graph.search.RouteCalculator;
@@ -36,11 +36,11 @@ public class RouteCalculatorTestFacade {
         return calculateRouteAsSet(get(start), get(dest), request);
     }
 
-    public Set<Journey> calculateRouteAsSet(GroupedStations start, TestStations end, JourneyRequest journeyRequest) {
+    public Set<Journey> calculateRouteAsSet(StationGroup start, TestStations end, JourneyRequest journeyRequest) {
         return calculateRouteAsSet(start, get(end), journeyRequest);
     }
 
-    public Set<Journey> calculateRouteAsSet(BusStations start, GroupedStations end, JourneyRequest journeyRequest) {
+    public Set<Journey> calculateRouteAsSet(BusStations start, StationGroup end, JourneyRequest journeyRequest) {
         return calculateRouteAsSet(get(start), end, journeyRequest);
     }
 

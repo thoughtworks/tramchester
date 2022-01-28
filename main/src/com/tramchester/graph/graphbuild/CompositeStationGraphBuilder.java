@@ -3,7 +3,7 @@ package com.tramchester.graph.graphbuild;
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.id.IdFor;
-import com.tramchester.domain.places.GroupedStations;
+import com.tramchester.domain.places.StationGroup;
 import com.tramchester.domain.places.NaptanArea;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
@@ -85,7 +85,7 @@ public class CompositeStationGraphBuilder extends CreateNodesAndRelationships {
     }
 
     private void addCompositeNodesAndLinks(TransportMode mode) {
-        Set<GroupedStations> allComposite = stationGroupsRepository.getStationGroupsFor(mode);
+        Set<StationGroup> allComposite = stationGroupsRepository.getStationGroupsFor(mode);
 
         if (allComposite.isEmpty()) {
             logger.info("No composite stations to add for " + mode);
@@ -106,27 +106,27 @@ public class CompositeStationGraphBuilder extends CreateNodesAndRelationships {
         }
     }
 
-    private boolean shouldInclude(GroupedStations station) {
+    private boolean shouldInclude(StationGroup station) {
         return graphFilter.shouldIncludeRoutes(station.getPickupRoutes()) ||
                 graphFilter.shouldIncludeRoutes(station.getDropoffRoutes());
     }
 
-    private Node createGroupedStationNodes(Transaction txn, GroupedStations groupedStations) {
+    private Node createGroupedStationNodes(Transaction txn, StationGroup stationGroup) {
         Node groupNode = createGraphNode(txn, GraphLabel.GROUPED);
-        IdFor<NaptanArea> areaId = groupedStations.getAreaId();
+        IdFor<NaptanArea> areaId = stationGroup.getAreaId();
         GraphProps.setProperty(groupNode, areaId);
-        GraphProps.setProperty(groupNode, groupedStations);
+        GraphProps.setProperty(groupNode, stationGroup);
         return groupNode;
     }
 
-    private void linkStations(Transaction txn, Node parentNode, GroupedStations groupedStations) {
-        Set<Station> contained = groupedStations.getContained();
+    private void linkStations(Transaction txn, Node parentNode, StationGroup stationGroup) {
+        Set<Station> contained = stationGroup.getContained();
         double mph = config.getWalkingMPH();
 
         contained.stream().
                 filter(graphFilter::shouldInclude).
                 forEach(station -> {
-                    int walkingCost = CoordinateTransforms.calcCostInMinutes(groupedStations.getLatLong(), station, mph);
+                    int walkingCost = CoordinateTransforms.calcCostInMinutes(stationGroup.getLatLong(), station, mph);
                     Node childNode = builderCache.getStation(txn, station.getId());
                     if (childNode==null) {
                         throw new RuntimeException("cannot find node for " + station);

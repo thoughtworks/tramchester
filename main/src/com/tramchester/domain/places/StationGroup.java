@@ -1,10 +1,11 @@
 package com.tramchester.domain.places;
 
-import com.tramchester.domain.Agency;
 import com.tramchester.domain.DataSourceID;
 import com.tramchester.domain.Platform;
 import com.tramchester.domain.Route;
-import com.tramchester.domain.id.*;
+import com.tramchester.domain.id.HasId;
+import com.tramchester.domain.id.IdFor;
+import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.geo.CoordinateTransforms;
@@ -25,8 +26,8 @@ import java.util.stream.Collectors;
  *
  * see also class: com.tramchester.graph.GraphQuery::getGroupedNode
  */
-public class GroupedStations implements Location<GroupedStations> {
-    private final IdFor<GroupedStations> id;
+public class StationGroup implements Location<StationGroup> {
+    private final IdFor<StationGroup> id;
     private final IdFor<NaptanArea> areaId;
     private final Set<Station> groupedStations;
     private final String name;
@@ -35,7 +36,7 @@ public class GroupedStations implements Location<GroupedStations> {
     private final LatLong latLong;
     private final DataSourceID dataSourceId;
 
-    public GroupedStations(Set<Station> groupedStations, IdFor<NaptanArea> areaId, String name, int minChangeCost) {
+    public StationGroup(Set<Station> groupedStations, IdFor<NaptanArea> areaId, String name, int minChangeCost) {
         this.id = StringIdFor.convert(areaId);
         this.latLong = computeLatLong(groupedStations);
         this.dataSourceId = computeDataSourceId(groupedStations);
@@ -45,22 +46,8 @@ public class GroupedStations implements Location<GroupedStations> {
         this.minChangeCost = minChangeCost;
     }
 
-//    public static Set<Station> expandStations(Collection<Station> stations) {
-//        return stations.stream().flatMap(GroupedStations::expandStation).collect(Collectors.toSet());
-//    }
-
-//    private static Stream<Station> expandStation(Station station) {
-//        if (!(station instanceof GroupedStations)) {
-//            return Stream.of(station);
-//        }
-//
-//        GroupedStations compositeStation = (GroupedStations) station;
-//        return Streams.concat(compositeStation.getContained().stream(), Stream.of(station));
-//    }
-
-//    @Override
-    public boolean hasPlatform(IdFor<Platform> platformId) {
-        return anyMatch(station -> station.hasPlatform(platformId));
+    public Set<Station> getContained() {
+        return groupedStations;
     }
 
     @Override
@@ -68,18 +55,8 @@ public class GroupedStations implements Location<GroupedStations> {
         return flatten(Station::getPlatforms);
     }
 
-//    @Override
-//    public Set<Platform> getPlatformsForRoute(Route route) {
-//        return flatten(station -> station.getPlatformsForRoute(route));
-//    }
-
-//    @Override
-//    public boolean hasPlatformsForRoute(Route route) {
-//        return anyMatch(station -> station.hasPlatformsForRoute(route));
-//    }
-
     @Override
-    public IdFor<GroupedStations> getId() {
+    public IdFor<StationGroup> getId() {
         return id;
     }
 
@@ -103,34 +80,19 @@ public class GroupedStations implements Location<GroupedStations> {
         return anyMatch(Station::hasPlatforms);
     }
 
-//    @Override
+    @Override
     public Set<Route> getDropoffRoutes() {
         return flatten(Station::getDropoffRoutes);
     }
 
-//    @Override
+    @Override
     public Set<Route> getPickupRoutes() {
         return flatten(Station::getPickupRoutes);
     }
 
-//    @Override
-//    public boolean servesRoutePickup(Route route) {
-//        return anyMatch(station -> station.servesRoutePickup(route));
-//    }
-//
-//    @Override
-//    public boolean servesRouteDropoff(Route route) {
-//        return anyMatch(station -> station.servesRouteDropoff(route));
-//    }
-
     @Override
     public GridPosition getGridPosition() {
         return CoordinateTransforms.getGridPosition(latLong);
-    }
-
-//    @Override
-    public boolean isStationGroup() {
-        return true;
     }
 
     @Override
@@ -168,8 +130,6 @@ public class GroupedStations implements Location<GroupedStations> {
         return anyMatch(Location::isActive);
     }
 
-
-
     @Override
     public String forDTO() {
         return id.forDTO();
@@ -180,24 +140,9 @@ public class GroupedStations implements Location<GroupedStations> {
         return flatten(Station::getTransportModes);
     }
 
-//    @Override
-    public boolean servesMode(TransportMode mode) {
-        return anyMatch(station -> station.servesMode(mode));
-    }
-
-//    @Override
-    public boolean isMarkedInterchange() {
-        return false;
-    }
-
-//    @Override
+    // TODO Wire this up
     public int getMinimumChangeCost() {
         return minChangeCost;
-    }
-
-//    @Override
-    public Set<Agency> getAgencies() {
-        return flatten(Station::getAgencies);
     }
 
     private boolean anyMatch(Predicate<Station> predicate) {
@@ -210,9 +155,6 @@ public class GroupedStations implements Location<GroupedStations> {
                 collect(Collectors.toUnmodifiableSet());
     }
 
-    public Set<Station> getContained() {
-        return groupedStations;
-    }
 
     private static DataSourceID computeDataSourceId(Set<Station> stations) {
         Set<DataSourceID> sourceIds = stations.stream().map(Station::getDataSourceID).collect(Collectors.toSet());
@@ -229,15 +171,6 @@ public class GroupedStations implements Location<GroupedStations> {
                 average().orElse(Double.NaN);
         return new LatLong(lat, lon);
     }
-
-    private static IdFor<Station> computeStationId(Set<Station> stations) {
-        IdSet<Station> ids = stations.stream().map(Station::getId).collect(IdSet.idCollector());
-        return new CompositeId<>(ids);
-    }
-
-//    public int numberContained() {
-//        return groupedStations.size();
-//    }
 
     @Override
     public String toString() {

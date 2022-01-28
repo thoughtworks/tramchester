@@ -4,7 +4,7 @@ import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.Route;
-import com.tramchester.domain.places.GroupedStations;
+import com.tramchester.domain.places.StationGroup;
 import com.tramchester.domain.places.Station;
 import com.tramchester.integration.testSupport.NeighboursTestConfig;
 import com.tramchester.repository.AgencyRepository;
@@ -99,7 +99,7 @@ public class TransportDataFromFilesNeighboursTest {
 
     @Test
     void shouldFindTheCompositeBusStation() {
-        GroupedStations shudehillCompositeBus = stationGroupsRepository.findByName("Shudehill Interchange");
+        StationGroup shudehillCompositeBus = stationGroupsRepository.findByName("Shudehill Interchange");
 
         assertNotNull(shudehillCompositeBus);
 

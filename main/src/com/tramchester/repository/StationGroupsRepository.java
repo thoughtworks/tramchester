@@ -7,7 +7,7 @@ import com.tramchester.domain.DataSourceID;
 import com.tramchester.domain.StationPair;
 import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.id.IdFor;
-import com.tramchester.domain.places.GroupedStations;
+import com.tramchester.domain.places.StationGroup;
 import com.tramchester.domain.places.NaptanArea;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
@@ -40,8 +40,8 @@ public class StationGroupsRepository {
 
     private final boolean enabled;
 
-    private final Map<IdFor<NaptanArea>, GroupedStations> stationGroups;
-    private final Map<String, GroupedStations> stationGroupsByName;
+    private final Map<IdFor<NaptanArea>, StationGroup> stationGroups;
+    private final Map<String, StationGroup> stationGroupsByName;
 
     @Inject
     public StationGroupsRepository(StationRepository stationRepository, TramchesterConfig config,
@@ -139,10 +139,10 @@ public class StationGroupsRepository {
             logger.error(format("Using %s as name, missing area code %s for station group %s", areaName, areaId, HasId.asIds(stationsToGroup)));
         }
 
-        GroupedStations groupedStations = new GroupedStations(stationsToGroup, areaId, areaName, minChangeCost);
+        StationGroup stationGroup = new StationGroup(stationsToGroup, areaId, areaName, minChangeCost);
 
-        stationGroups.put(areaId, groupedStations);
-        stationGroupsByName.put(areaName, groupedStations);
+        stationGroups.put(areaId, stationGroup);
+        stationGroupsByName.put(areaName, stationGroup);
     }
 
     private int computeMinChangeCost(Set<Station> stationsToGroup) {
@@ -171,29 +171,24 @@ public class StationGroupsRepository {
         throw new RuntimeException(msg);
     }
 
-//    public long getNumberOfGroups() {
-//        guardIsEnabled();
-//        return stationGroups.size();
-//    }
-
-    public Set<GroupedStations> getStationGroupsFor(TransportMode mode) {
+    public Set<StationGroup> getStationGroupsFor(TransportMode mode) {
         guardIsEnabled();
         return stationGroups.values().stream().
-                filter(station -> station.servesMode(mode)).
+                filter(station -> station.getTransportModes().contains(mode)).
                 collect(Collectors.toSet());
     }
 
-    public GroupedStations findByName(String name) {
+    public StationGroup findByName(String name) {
         guardIsEnabled();
         return stationGroupsByName.get(name);
     }
 
-    public Set<GroupedStations> getAllGroups() {
+    public Set<StationGroup> getAllGroups() {
         guardIsEnabled();
         return new HashSet<>(stationGroups.values());
     }
 
-    public GroupedStations getStationGroup(IdFor<NaptanArea> areaId) {
+    public StationGroup getStationGroup(IdFor<NaptanArea> areaId) {
         guardIsEnabled();
         return stationGroups.get(areaId);
     }

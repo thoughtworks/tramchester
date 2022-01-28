@@ -12,7 +12,7 @@ import com.tramchester.domain.Route;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.input.StopCalls;
-import com.tramchester.domain.places.GroupedStations;
+import com.tramchester.domain.places.StationGroup;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.time.TramServiceDate;
@@ -57,7 +57,7 @@ class BusRouteCalculatorSubGraphAltyToMaccRoute {
     private Transaction txn;
     private TramServiceDate when;
     private StationGroupsRepository stationGroupsRepository;
-    private GroupedStations altrinchamInterchange;
+    private StationGroup altrinchamInterchange;
     private List<Station> knutfordStations;
 
     @BeforeAll

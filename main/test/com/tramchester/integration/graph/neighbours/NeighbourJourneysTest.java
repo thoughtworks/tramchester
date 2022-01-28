@@ -7,7 +7,7 @@ import com.tramchester.domain.Journey;
 import com.tramchester.domain.JourneyRequest;
 import com.tramchester.domain.LocationSet;
 import com.tramchester.domain.NumberOfChanges;
-import com.tramchester.domain.places.GroupedStations;
+import com.tramchester.domain.places.StationGroup;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.TransportStage;
 import com.tramchester.domain.reference.TransportMode;
@@ -72,7 +72,7 @@ public class NeighbourJourneysTest {
 
         StationGroupsRepository stationGroupsRepository = componentContainer.get(StationGroupsRepository.class);
         StationRepository stationRepository = componentContainer.get(StationRepository.class);
-        GroupedStations shudehillCompositeBus = stationGroupsRepository.findByName("Shudehill Interchange");
+        StationGroup shudehillCompositeBus = stationGroupsRepository.findByName("Shudehill Interchange");
 
         Optional<Station> maybeStop = shudehillCompositeBus.getContained().stream().findAny();
         maybeStop.ifPresent(stop -> shudehillBusStop = stop);

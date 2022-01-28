@@ -6,7 +6,7 @@ import com.tramchester.DiagramCreator;
 import com.tramchester.domain.Journey;
 import com.tramchester.domain.Service;
 import com.tramchester.domain.id.StringIdFor;
-import com.tramchester.domain.places.GroupedStations;
+import com.tramchester.domain.places.StationGroup;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.TransportStage;
 import com.tramchester.domain.time.TramServiceDate;
@@ -33,7 +33,6 @@ import java.nio.file.Path;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import static com.tramchester.testSupport.TestEnv.nearAltrincham;
 import static com.tramchester.testSupport.TestEnv.nearKnutsfordBusStation;
@@ -49,9 +48,9 @@ class CompositeRouteTest {
 
     private TramServiceDate queryDate;
     private Transaction txn;
-    private GroupedStations startGroup;
+    private StationGroup startGroup;
     private TramTime queryTime;
-    private GroupedStations fourthStationComposite;
+    private StationGroup fourthStationComposite;
     private LocationJourneyPlannerTestFacade locationJourneyPlanner;
     private RouteCalculatorTestFacade calculator;
 
@@ -141,7 +140,7 @@ class CompositeRouteTest {
     void shouldHaveJourneyFromComposite() {
         JourneyRequest journeyRequest = createJourneyRequest(queryTime, 0);
 
-        final GroupedStations start = startGroup;
+        final StationGroup start = startGroup;
         final Station destination = transportData.getInterchange();
 
 //        Set<Journey> journeys = calculator.calculateRoute(txn, start, destination, journeyRequest).collect(Collectors.toSet());
