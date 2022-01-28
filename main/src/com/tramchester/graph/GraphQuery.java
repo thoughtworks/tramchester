@@ -56,22 +56,9 @@ public class GraphQuery {
     public Node getGroupedNode(Transaction txn, StationGroup stationGroup) {
         // uses Area Id, not station Id
         // TODO make this change to GroupedStations?
-        //return graphDatabase.findNode(txn, GraphLabel.GROUPED, station.getProp().getText(), station.getAreaId().getGraphId());
         return findNode(txn, GraphLabel.GROUPED, stationGroup);
     }
 
-    /**
-     * When calling from tests make sure relevant DB is fully built
-     */
-//    @Deprecated
-//    public Node getStationOrGrouped(Transaction txn, Station station) {
-//        return getStationNode(txn, station);
-//        if (station.isStationGroup()) {
-//            return getGroupedNode(txn, station);
-//        } else {
-//            return getStationNode(txn, station);
-//        }
-//    }
 
     private <C extends GraphProperty & CoreDomain & HasId<C>>  Node findNode(Transaction txn, GraphLabel label, C hasId) {
         return graphDatabase.findNode(txn, label, hasId.getProp().getText(), hasId.getId().getGraphId());

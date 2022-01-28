@@ -81,7 +81,7 @@ public class DiagramCreator {
 
             startPointsList.forEach(startPoint -> {
 
-                Node startNode = graphQuery.getStationNode(txn, startPoint);
+                Node startNode = graphQuery.getLocationNode(txn, startPoint);
 
                 if (startNode==null) {
                     logger.error("Can't find start node for station " + startPoint.getId());
