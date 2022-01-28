@@ -16,7 +16,6 @@ import com.tramchester.domain.time.TramTime;
 import com.tramchester.repository.TransportData;
 import com.tramchester.repository.TransportDataContainer;
 import com.tramchester.testSupport.TestEnv;
-import com.tramchester.unit.TestNoPlatformStation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -117,35 +116,32 @@ public class MixedTransportTestDataFactory implements TransportDataFactory {
                 serviceA, routeA, routeA.getTransportMode());
         serviceA.addTrip(tripA);
 
-        MutableStation first = new TestNoPlatformStation(MixedTransportTestData.FIRST_STATION, "area1",
-                StringIdFor.createId("area1"), "startStation",
-                TestEnv.nearAltrincham, TestEnv.nearAltrinchamGrid, TransportMode.Bus, dataSourceID);
+        MutableStation first = StationHelper.forTestMutable(MixedTransportTestData.FIRST_STATION, "area1", "startStation",
+                TestEnv.nearAltrincham, dataSourceID);
         addAStation(container, first);
         addRouteStation(container, first, routeA);
         NoPlatformStopCall stopA = createStop(tripA, first, TramTime.of(8, 0),
                 TramTime.of(8, 0), 1);
         tripA.addStop(stopA);
 
-        MutableStation second = new TestNoPlatformStation(MixedTransportTestData.SECOND_STATION, "area2", StringIdFor.createId("area2"),
-                "secondStation", TestEnv.nearPiccGardens, TestEnv.nearPiccGardensGrid, TransportMode.Bus, dataSourceID);
+        MutableStation second = StationHelper.forTestMutable(MixedTransportTestData.SECOND_STATION, "area2",
+                "secondStation", TestEnv.nearPiccGardens, dataSourceID);
         addAStation(container, second);
         addRouteStation(container, second, routeA);
         NoPlatformStopCall stopB = createStop(tripA, second, TramTime.of(8, 11),
                 TramTime.of(8, 11), 2);
         tripA.addStop(stopB);
 
-        MutableStation interchangeStation = new TestNoPlatformStation(MixedTransportTestData.INTERCHANGE, "area3",
-                StringIdFor.createId("area3"), "cornbrookStation", TestEnv.nearShudehill,
-                TestEnv.nearShudehillGrid, TransportMode.Bus, dataSourceID);
+        MutableStation interchangeStation = StationHelper.forTestMutable(MixedTransportTestData.INTERCHANGE, "area3"
+                , "cornbrookStation", TestEnv.nearShudehill, dataSourceID);
         addAStation(container, interchangeStation);
         addRouteStation(container, interchangeStation, routeA);
         NoPlatformStopCall stopC = createStop(tripA, interchangeStation, TramTime.of(8, 20),
                 TramTime.of(8, 20), 3);
         tripA.addStop(stopC);
 
-        MutableStation last = new TestNoPlatformStation(MixedTransportTestData.LAST_STATION, "area4",
-                StringIdFor.createId("area4"), "endStation",
-                TestEnv.nearPiccGardens, TestEnv.nearPiccGardensGrid,  TransportMode.Bus, dataSourceID);
+        MutableStation last =  StationHelper.forTestMutable(MixedTransportTestData.LAST_STATION, "area4",
+                "endStation", TestEnv.nearPiccGardens, dataSourceID);
         addAStation(container, last);
         addRouteStation(container, last, routeA);
         NoPlatformStopCall stopD = createStop(tripA, last, TramTime.of(8, 40),
@@ -155,14 +151,12 @@ public class MixedTransportTestDataFactory implements TransportDataFactory {
         // service A
         routeA.addTrip(tripA);
 
-        MutableStation stationFour = new TestNoPlatformStation(MixedTransportTestData.STATION_FOUR, "area4",
-                StringIdFor.createId("area4"), "Station4", TestEnv.nearPiccGardens,
-                TestEnv.nearPiccGardensGrid,  TransportMode.Bus, dataSourceID);
+        MutableStation stationFour = StationHelper.forTestMutable(MixedTransportTestData.STATION_FOUR, "area4",
+                "Station4", TestEnv.nearPiccGardens, dataSourceID);
         addAStation(container, stationFour);
 
-        MutableStation stationFive = new TestNoPlatformStation(MixedTransportTestData.STATION_FIVE, "area5",
-                StringIdFor.createId("area5"), "Station5", TestEnv.nearStockportBus,
-                TestEnv.nearStockportBusGrid,  TransportMode.Bus, dataSourceID);
+        MutableStation stationFive = StationHelper.forTestMutable(MixedTransportTestData.STATION_FIVE, "area5",
+                 "Station5", TestEnv.nearStockportBus, dataSourceID);
         addAStation(container, stationFive);
 
         //

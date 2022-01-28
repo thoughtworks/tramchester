@@ -48,8 +48,8 @@ class JourneyStateTest extends EasyMockSupport {
 
         node = EasyMock.createMock(Node.class);
 
-        MutableStation station = StationHelper.forTest("destinationStationId", "area", "name", new LatLong(1,1),
-                TransportMode.Tram, DataSourceID.tfgm);
+        MutableStation station = StationHelper.forTestMutable("destinationStationId", "area", "name", new LatLong(1,1),
+                DataSourceID.tfgm);
         station.addRoutePickUp(TestEnv.getTramTestRoute());
 
         LocationSet destinations = LocationSet.singleton(station);

@@ -34,7 +34,6 @@ public class MutableStation implements Station {
     public MutableStation(IdFor<Station> id, IdFor<NaptanArea> areaId, String stationName, LatLong latLong, GridPosition gridPosition,
                           DataSourceID dataSourceID) {
         this(id, areaId, stationName, latLong, gridPosition, dataSourceID, false);
-
     }
 
     // for some data sources we know if station is an interchange

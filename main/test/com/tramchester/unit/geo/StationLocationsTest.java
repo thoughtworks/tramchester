@@ -3,11 +3,10 @@ package com.tramchester.unit.geo;
 import com.tramchester.domain.DataSourceID;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.LatLong;
-import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.geo.*;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.TestEnv;
-import com.tramchester.unit.TestStation;
+import com.tramchester.testSupport.reference.StationHelper;
 import org.easymock.EasyMock;
 import org.easymock.EasyMockSupport;
 import org.jetbrains.annotations.NotNull;
@@ -55,7 +54,7 @@ class StationLocationsTest extends EasyMockSupport {
 
     @NotNull
     private Station createTestStation(String id, String name, LatLong location) {
-        return TestStation.forTest(id, "area", name, location, TransportMode.Tram, DataSourceID.tfgm);
+        return StationHelper.forTest(id, "area", name, location, DataSourceID.tfgm);
     }
 
     @Test
@@ -95,8 +94,6 @@ class StationLocationsTest extends EasyMockSupport {
 
         EasyMock.expect(stationRepository.getActiveStationStream()).andStubAnswer(() ->
                 Stream.of(stationA, stationB, stationC, stationD));
-//        EasyMock.expect(stationGroupsRepository.getActiveStationStream()).andStubAnswer(() ->
-//                Stream.of(stationA, stationB, stationC, stationD));
 
         replayAll();
         stationLocations.start();

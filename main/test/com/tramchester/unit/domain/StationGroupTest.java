@@ -9,7 +9,6 @@ import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.StationHelper;
-import com.tramchester.unit.TestStation;
 import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
@@ -30,8 +29,8 @@ class StationGroupTest {
     @Test
     void shouldHaveCorrectValuesForOneStation() {
         LatLong latLong = new LatLong(-2.0, 2.3);
-        MutableStation stationA = StationHelper.forTest("id", "area", "stopName",
-                latLong, Tram, dataSourceID);
+        MutableStation stationA = StationHelper.forTestMutable("id", "area", "stopName",
+                latLong, dataSourceID);
 
         Route route = TestEnv.getTramTestRoute();
         stationA.addRoutePickUp(route);
@@ -70,16 +69,16 @@ class StationGroupTest {
 
     @Test
     void shouldHaveCorrectValuesForTwoStation() {
-        MutableStation stationA = TestStation.forTest("idA", "areaA", "stopNameA",
-                new LatLong(2, 4), Tram, dataSourceID);
+        MutableStation stationA = StationHelper.forTestMutable("idA", "areaA", "stopNameA",
+                new LatLong(2, 4), dataSourceID);
         Route routeA = TestEnv.getTramTestRoute(StringIdFor.createId("routeA"), "routeName");
 
         stationA.addRouteDropOff(routeA);
         Platform platformA = MutablePlatform.buildForTFGMTram("platformIdA", "platformNameA",  new LatLong(2, 4));
         stationA.addPlatform(platformA);
 
-        MutableStation stationB = TestStation.forTest("idB", "areaB", "stopNameB",
-                new LatLong(4, 8), Bus, dataSourceID);
+        MutableStation stationB = StationHelper.forTestMutable("idB", "areaB", "stopNameB",
+                new LatLong(4, 8), dataSourceID);
         Route routeB = MutableRoute.getRoute(StringIdFor.createId("routeB"), "routeCodeB", "routeNameB", TestEnv.StagecoachManchester, Bus);
         stationB.addRouteDropOff(routeB);
         stationB.addRoutePickUp(routeA);
@@ -121,12 +120,12 @@ class StationGroupTest {
 
     @Test
     void shouldHaveCorrectPickupAndDropoff() {
-        MutableStation stationA = TestStation.forTest("idA", "areaA", "stopNameA",
-                new LatLong(2, 4), Tram, dataSourceID);
+        MutableStation stationA = StationHelper.forTestMutable("idA", "areaA", "stopNameA",
+                new LatLong(2, 4), dataSourceID);
         Route routeA = TestEnv.getTramTestRoute(StringIdFor.createId("routeA"), "routeName");
 
-        MutableStation stationB = TestStation.forTest("idB", "areaB", "stopNameB",
-                new LatLong(4, 8), Bus, dataSourceID);
+        MutableStation stationB = StationHelper.forTestMutable("idB", "areaB", "stopNameB",
+                new LatLong(4, 8), dataSourceID);
         Route routeB = MutableRoute.getRoute(StringIdFor.createId("routeB"), "routeCodeB",
                 "routeNameB", TestEnv.StagecoachManchester, Bus);
 
@@ -150,11 +149,11 @@ class StationGroupTest {
         final LatLong positionA = new LatLong(3, 4);
         final LatLong positionB = new LatLong(2, 5);
 
-        MutableStation stationA = TestStation.forTest("idA", "areaA", "stopNameA",
-                positionA, Tram, dataSourceID);
+        Station stationA = StationHelper.forTest("idA", "areaA", "stopNameA",
+                positionA, dataSourceID);
 
-        MutableStation stationB = TestStation.forTest("idB", "areaB", "stopNameB",
-                positionB, Bus, dataSourceID);
+        Station stationB = StationHelper.forTest("idB", "areaB", "stopNameB",
+                positionB, dataSourceID);
 
         IdFor<NaptanArea> areaId = StringIdFor.createId("areaId");
 
