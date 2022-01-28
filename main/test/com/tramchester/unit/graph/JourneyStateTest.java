@@ -2,9 +2,9 @@ package com.tramchester.unit.graph;
 
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.DataSourceID;
+import com.tramchester.domain.LocationSet;
 import com.tramchester.domain.exceptions.TramchesterException;
 import com.tramchester.domain.places.MutableStation;
-import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.ProvidesLocalNow;
@@ -31,9 +31,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.neo4j.graphdb.Node;
 
-import java.util.Collections;
-import java.util.Set;
-
 import static org.junit.jupiter.api.Assertions.*;
 
 class JourneyStateTest extends EasyMockSupport {
@@ -54,8 +51,8 @@ class JourneyStateTest extends EasyMockSupport {
         MutableStation station = TestStation.forTest("destinationStationId", "area", "name", new LatLong(1,1),
                 TransportMode.Tram, DataSourceID.tfgm);
         station.addRoutePickUp(TestEnv.getTramTestRoute());
-        
-        Set<Station> destinations = Collections.singleton(station);
+
+        LocationSet destinations = LocationSet.singleton(station);
         ProvidesNow providesNow = new ProvidesLocalNow();
         StationRepository repository = new TramTransportDataForTestFactory(providesNow).getData();
         SortsPositions sortsPositions = new SortsPositions(repository);

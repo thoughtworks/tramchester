@@ -6,6 +6,7 @@ import com.tramchester.ComponentsBuilder;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.dataimport.data.RouteIndexData;
 import com.tramchester.dataimport.loader.files.TransportDataFromCSVFile;
+import com.tramchester.domain.LocationSet;
 import com.tramchester.domain.NumberOfChanges;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.id.HasId;
@@ -207,7 +208,7 @@ public class RouteToRouteCostsTest {
         Set<Route> routesC = routeHelper.get(BuryPiccadilly);
 
         Station destination = stationRepository.getStationById(TramStations.TraffordCentre.getId());
-        LowestCostsForDestRoutes sorts = routesCostRepository.getLowestCostCalcutatorFor(Collections.singleton(destination));
+        LowestCostsForDestRoutes sorts = routesCostRepository.getLowestCostCalcutatorFor(LocationSet.singleton(destination));
 
         routesA.forEach(routeA -> routesB.forEach(routeB -> routesC.forEach(routeC -> {
 

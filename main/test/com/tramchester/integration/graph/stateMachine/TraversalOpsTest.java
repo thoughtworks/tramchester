@@ -2,6 +2,7 @@ package com.tramchester.integration.graph.stateMachine;
 
 import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
+import com.tramchester.domain.LocationSet;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.places.Station;
@@ -20,9 +21,6 @@ import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.TramStations;
 import org.junit.jupiter.api.*;
 import org.neo4j.graphdb.Transaction;
-
-import java.util.HashSet;
-import java.util.Set;
 
 import static com.tramchester.testSupport.reference.TramStations.ManAirport;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -69,7 +67,7 @@ public class TraversalOpsTest {
     void shouldHaveCorrectOrderingCompare() {
         TramServiceDate queryDate = new TramServiceDate(TestEnv.testDay());
 
-        Set<Station> destinationStations = new HashSet<>();
+        LocationSet destinationStations = new LocationSet();
         final Station manchesterAirport = stationRepository.getStationById(ManAirport.getId());
         destinationStations.add(manchesterAirport);
         LatLong destinationLatLon = TestEnv.nearPiccGardens;

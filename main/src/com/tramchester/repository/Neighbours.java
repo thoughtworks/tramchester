@@ -19,6 +19,8 @@ import java.util.stream.Collectors;
 
 import static java.lang.String.format;
 
+// TODO Location<?> not Station
+
 @LazySingleton
 public class Neighbours implements NeighboursRepository {
     private static final Logger logger = LoggerFactory.getLogger(Neighbours.class);

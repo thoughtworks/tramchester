@@ -2,9 +2,9 @@ package com.tramchester.graph.search;
 
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.JourneyRequest;
+import com.tramchester.domain.LocationSet;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.Service;
-import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.places.Station;
@@ -14,8 +14,6 @@ import com.tramchester.repository.ClosedStationsRepository;
 import com.tramchester.repository.RunningRoutesAndServices;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.Set;
 
 public class JourneyConstraints {
 
@@ -31,7 +29,7 @@ public class JourneyConstraints {
     private final RunningRoutesAndServices.FilterForDate routesAndServicesFilter;
     private final TramchesterConfig config;
     private final int maxPathLength;
-    private final Set<Station> endStations;
+    private final LocationSet endStations;
     private final IdSet<Station> closedStations;
     private final int maxJourneyDuration;
     private final int maxWalkingConnections;
@@ -40,14 +38,14 @@ public class JourneyConstraints {
 
     public JourneyConstraints(TramchesterConfig config, RunningRoutesAndServices.FilterForDate routesAndServicesFilter,
                               JourneyRequest journeyRequest,
-                              ClosedStationsRepository closedStationsRepository, Set<Station> endStations,
+                              ClosedStationsRepository closedStationsRepository, LocationSet endStations,
                               LowestCostsForDestRoutes lowestCostForDestinations, int maxJourneyDuration) {
         this(config, routesAndServicesFilter, closedStationsRepository.getClosedStationsFor(journeyRequest.getDate()),
                 endStations, lowestCostForDestinations, maxJourneyDuration);
     }
 
     public JourneyConstraints(TramchesterConfig config, RunningRoutesAndServices.FilterForDate routesAndServicesFilter,
-                              IdSet<Station> closedStations, Set<Station> endStations,
+                              IdSet<Station> closedStations, LocationSet endStations,
                               LowestCostsForDestRoutes lowestCostForDestinations, int maxJourneyDuration) {
         this.config = config;
         this.lowestCostForDestinations = lowestCostForDestinations;
@@ -87,7 +85,7 @@ public class JourneyConstraints {
         return maxPathLength;
     }
 
-    public Set<Station> getEndStations() {
+    public LocationSet getEndStations() {
         return endStations;
     }
 
@@ -116,7 +114,7 @@ public class JourneyConstraints {
         return "JourneyConstraints{" +
                 "runningServices=" + routesAndServicesFilter +
                 ", maxPathLength=" + maxPathLength +
-                ", endStations=" + HasId.asIds(endStations) +
+                ", endStations=" + endStations +
                 ", closedStations=" + closedStations +
                 ", maxJourneyDuration=" + maxJourneyDuration +
                 ", maxWalkingConnections=" + maxWalkingConnections +

@@ -1,13 +1,13 @@
 package com.tramchester.integration.testSupport;
 
 import com.tramchester.domain.Journey;
+import com.tramchester.domain.JourneyRequest;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.places.GroupedStations;
-import com.tramchester.domain.JourneyRequest;
+import com.tramchester.domain.places.Location;
 import com.tramchester.domain.places.Station;
 import com.tramchester.graph.search.RouteCalculator;
 import com.tramchester.repository.StationRepository;
-import com.tramchester.testSupport.TestStation;
 import com.tramchester.testSupport.TestStations;
 import com.tramchester.testSupport.reference.BusStations;
 import org.jetbrains.annotations.NotNull;
@@ -19,57 +19,44 @@ import java.util.stream.Stream;
 
 public class RouteCalculatorTestFacade {
     private final RouteCalculator routeCalculator;
-    private final StationRepository repository;
+    private final StationRepository stationRepository;
     private final Transaction txn;
 
-    public RouteCalculatorTestFacade(RouteCalculator routeCalculator, StationRepository repository, Transaction txn) {
+    public RouteCalculatorTestFacade(RouteCalculator routeCalculator, StationRepository stationRepository, Transaction txn) {
        this.routeCalculator = routeCalculator;
-        this.repository = repository;
+        this.stationRepository = stationRepository;
         this.txn = txn;
     }
 
     public Set<Journey> calculateRouteAsSet(TestStations start, TestStations dest, JourneyRequest request) {
-        return calculateRouteAsSet(real(start), real(dest), request);
+        return calculateRouteAsSet(get(start), get(dest), request);
     }
 
     public Set<Journey> calculateRouteAsSet(IdFor<Station> start, IdFor<Station> dest, JourneyRequest request) {
         return calculateRouteAsSet(get(start), get(dest), request);
     }
 
-    private Station get(IdFor<Station> id) {
-        return repository.getStationById(id);
-    }
-
-    private Station real(TestStations start) {
-        return TestStation.real(repository, start);
-    }
-
     public Set<Journey> calculateRouteAsSet(GroupedStations start, TestStations end, JourneyRequest journeyRequest) {
-        return calculateRouteAsSet(start, real(end), journeyRequest);
+        return calculateRouteAsSet(start, get(end), journeyRequest);
     }
 
     public Set<Journey> calculateRouteAsSet(BusStations start, GroupedStations end, JourneyRequest journeyRequest) {
-        throw new RuntimeException("todo");
-//        return calculateRouteAsSet(real(start), end, journeyRequest);
-    }
-
-    public Set<Journey> calculateRouteAsSet(GroupedStations start, GroupedStations end, JourneyRequest journeyRequest) {
-        throw new RuntimeException("todo");
-    }
-
-    public Set<Journey> calculateRouteAsSet(GroupedStations start, Station end, JourneyRequest journeyRequest) {
-        throw new RuntimeException("todo");
+        return calculateRouteAsSet(get(start), end, journeyRequest);
     }
 
     @NotNull
-    public Set<Journey> calculateRouteAsSet(Station start, Station dest, JourneyRequest request) {
+    public Set<Journey> calculateRouteAsSet(Location<?> start, Location<?> dest, JourneyRequest request) {
         Stream<Journey> stream = routeCalculator.calculateRoute(txn, start, dest, request);
         Set<Journey> result = stream.collect(Collectors.toSet());
         stream.close();
         return result;
     }
 
-    public Set<Journey> calculateRouteAsSet(Station start, GroupedStations dests, JourneyRequest journeyRequest) {
-        throw new RuntimeException("todo");
+    private Station get(IdFor<Station> id) {
+        return stationRepository.getStationById(id);
+    }
+
+    private Station get(TestStations start) {
+        return start.from(stationRepository);
     }
 }

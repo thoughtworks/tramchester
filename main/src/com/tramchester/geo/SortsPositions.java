@@ -1,8 +1,10 @@
 package com.tramchester.geo;
 
 import com.netflix.governator.guice.lazy.LazySingleton;
+import com.tramchester.domain.LocationSet;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdSet;
+import com.tramchester.domain.places.Location;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.repository.StationRepository;
@@ -71,12 +73,12 @@ public class SortsPositions {
 
     }
 
-    public LatLong midPointFrom(Set<Station> destinationStations) {
-        Set<LatLong> dests = destinationStations.stream().map(Station::getLatLong).collect(Collectors.toSet());
+    public LatLong midPointFrom(LocationSet locations) {
+        Set<LatLong> dests = locations.stream().map(Location::getLatLong).collect(Collectors.toSet());
         int size = dests.size();
 
         if (dests.isEmpty()) {
-            logger.warn("No destination locations found for " + destinationStations);
+            logger.warn("No destination locations found for " + locations);
         }
 
         return dests.stream().

@@ -152,6 +152,8 @@ class BusRouteCalculatorTest {
         // attempt to repro seen in ui where zero journeys
         GroupedStations start = compositeStationRepository.findByName("Taylor Road, Oldfield Brow, Altrincham");
 
+        assertNotNull(start);
+
         final LocalDate futureDate = TestEnv.testDay().plusDays(14);
         JourneyRequest journeyRequest = new JourneyRequest(futureDate,
                 TramTime.of(8,19), false, 3, maxJourneyDuration, 1);
@@ -269,7 +271,7 @@ class BusRouteCalculatorTest {
         JourneyRequest journeyRequest = new JourneyRequest(new TramServiceDate(when), TramTime.of(8,45),
                 false, 3, maxJourneyDuration, 3);
 
-        Set<Journey> results = calculator.calculateRouteAsSet(stockportBusStation, StopAtShudehillInterchange, journeyRequest);
+        Set<Journey> results = calculator.calculateRouteAsSet(stockportBusStation, shudehillInterchange, journeyRequest);
         assertFalse(results.isEmpty());
     }
 

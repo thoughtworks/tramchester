@@ -1,6 +1,7 @@
 package com.tramchester.unit.geo;
 
 import com.tramchester.domain.DataSourceID;
+import com.tramchester.domain.LocationSet;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.places.MutableStation;
@@ -111,7 +112,7 @@ class SortsPositionsTest {
     @Test
     void shouldCalculateMidPointOf() {
         SortsPositions sortsPositions = new SortsPositions(dataForTest);
-        Set<Station> stations = new HashSet<>();
+        LocationSet stations = new LocationSet();
         stations.add(startionNearWythenshawHosp);
         stations.add(stationNearAltrincham);
         stations.add(stationNearShudehill);

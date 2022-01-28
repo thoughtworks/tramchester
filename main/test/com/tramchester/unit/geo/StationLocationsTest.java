@@ -241,20 +241,20 @@ class StationLocationsTest extends EasyMockSupport {
         assertEquals(2, boxedStations.size());
 
         // one box should contain the two central stations
-        Optional<BoundingBoxWithStations> maybeCentral = boxedStations.stream().filter(box -> box.getStaions().size() == 2).findFirst();
+        Optional<BoundingBoxWithStations> maybeCentral = boxedStations.stream().filter(box -> box.getStations().size() == 2).findFirst();
         assertTrue(maybeCentral.isPresent());
         BoundingBoxWithStations centralBox = maybeCentral.get();
-        Set<Station> central = centralBox.getStaions();
+        Set<Station> central = centralBox.getStations();
         assertEquals(2, central.size());
         assertTrue(central.containsAll(Arrays.asList(testStationB, testStationC)));
         assertTrue(centralBox.contained(getGridPosition(nearShudehill)));
         assertTrue(centralBox.contained(getGridPosition(TestEnv.nearPiccGardens)));
 
         // other box should contain the one non-central
-        Optional<BoundingBoxWithStations> maybeAlty = boxedStations.stream().filter(box -> box.getStaions().size() == 1).findFirst();
+        Optional<BoundingBoxWithStations> maybeAlty = boxedStations.stream().filter(box -> box.getStations().size() == 1).findFirst();
         assertTrue(maybeAlty.isPresent());
         BoundingBoxWithStations altyBox = maybeAlty.get();
-        Set<Station> alty = altyBox.getStaions();
+        Set<Station> alty = altyBox.getStations();
         assertEquals(1, alty.size());
         assertTrue(alty.contains(testStationA));
         assertTrue(altyBox.contained(getGridPosition(nearAltrincham)));

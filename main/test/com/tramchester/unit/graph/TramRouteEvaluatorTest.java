@@ -4,11 +4,11 @@ import com.tramchester.config.GTFSSourceConfig;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.DataSourceID;
 import com.tramchester.domain.JourneyRequest;
+import com.tramchester.domain.LocationSet;
 import com.tramchester.domain.exceptions.TramchesterException;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.places.MutableStation;
-import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.reference.GTFSTransportationType;
 import com.tramchester.domain.reference.TransportMode;
@@ -53,7 +53,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class TramRouteEvaluatorTest extends EasyMockSupport {
 
-    private Set<Station> destinationStations;
+    private LocationSet destinationStations;
     private ServiceHeuristics serviceHeuristics;
     private NodeContentsRepository contentsRepository;
     private Path path;
@@ -76,7 +76,7 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
     void onceBeforeEachTestRuns() {
         MutableStation forTest = TestStation.forTest("destinationStationId", "area", "name",
                 new LatLong(1, 1), TransportMode.Tram, DataSourceID.tfgm);
-        destinationStations = Collections.singleton(forTest);
+        destinationStations = LocationSet.singleton(forTest);
         forTest.addRouteDropOff(TestEnv.getTramTestRoute());
         forTest.addRoutePickUp(TestEnv.getTramTestRoute());
 

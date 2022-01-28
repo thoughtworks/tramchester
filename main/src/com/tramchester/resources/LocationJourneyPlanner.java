@@ -4,7 +4,9 @@ import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.Journey;
 import com.tramchester.domain.JourneyRequest;
+import com.tramchester.domain.LocationSet;
 import com.tramchester.domain.NumberOfChanges;
+import com.tramchester.domain.places.Location;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.places.StationWalk;
 import com.tramchester.domain.presentation.LatLong;
@@ -70,7 +72,7 @@ public class LocationJourneyPlanner {
         this.routeToRouteCosts = routeToRouteCosts;
     }
 
-    public Stream<Journey> quickestRouteForLocation(Transaction txn, LatLong start, Station destination,
+    public Stream<Journey> quickestRouteForLocation(Transaction txn, LatLong start, Location<?> destination,
                                                     JourneyRequest journeyRequest) {
         logger.info(format("Finding shortest path for %s --> %s (%s) for %s", start,
                 destination.getId(), destination.getName(), journeyRequest));
@@ -112,7 +114,7 @@ public class LocationJourneyPlanner {
         return addedRelationships;
     }
 
-    public Stream<Journey> quickestRouteForLocation(Transaction txn, Station start, LatLong destination, JourneyRequest journeyRequest) {
+    public Stream<Journey> quickestRouteForLocation(Transaction txn, Location<?> start, LatLong destination, JourneyRequest journeyRequest) {
         logger.info(format("Finding shortest path for %s (%s) --> %s for %s", start.getId(), start.getName(),
                 destination, journeyRequest));
 
@@ -135,7 +137,7 @@ public class LocationJourneyPlanner {
         List<Relationship> addedRelationships = new LinkedList<>();
         walksToDest.forEach(stationWalk -> addedRelationships.add(createWalkRelationship(txn, endWalk, stationWalk, WALKS_FROM)));
 
-        Set<Station> destinationStations = new HashSet<>();
+        LocationSet destinationStations = new LocationSet();
         walksToDest.forEach(stationWalk -> destinationStations.add(stationWalk.getStation()));
 
         NumberOfChanges numberOfChanges = findNumberChanges(start, walksToDest);
@@ -164,7 +166,7 @@ public class LocationJourneyPlanner {
         walksAtStart.forEach(stationWalk -> addedRelationships.add(createWalkRelationship(txn, startNode, stationWalk, WALKS_TO)));
 
         // Add Walks at the end
-        Set<Station> destinationStations = new HashSet<>();
+        LocationSet destinationStations = new LocationSet();
         Set<StationWalk> walksToDest = getStationWalks(destLatLong);
         Node endWalk = createWalkingNode(txn, destLatLong, journeyRequest.getUid());
 
@@ -257,19 +259,19 @@ public class LocationJourneyPlanner {
         return stationWalks;
     }
 
-    private NumberOfChanges findNumberChanges(Station start, Set<StationWalk> walksToDest) {
-        Set<Station> destinations = walksToDest.stream().map(StationWalk::getStation).collect(Collectors.toSet());
-        return routeToRouteCosts.getNumberOfChanges(Collections.singleton(start), destinations);
+    private NumberOfChanges findNumberChanges(Location<?> start, Set<StationWalk> walksToDest) {
+        LocationSet destinations = walksToDest.stream().map(StationWalk::getStation).collect(LocationSet.stationCollector());
+        return routeToRouteCosts.getNumberOfChanges(LocationSet.singleton(start), destinations);
     }
 
-    private NumberOfChanges findNumberChanges(Set<StationWalk> walksToStart, Station destination) {
-        Set<Station> starts = walksToStart.stream().map(StationWalk::getStation).collect(Collectors.toSet());
-        return routeToRouteCosts.getNumberOfChanges(starts, Collections.singleton(destination));
+    private NumberOfChanges findNumberChanges(Set<StationWalk> walksToStart, Location<?> destination) {
+        LocationSet starts = walksToStart.stream().map(StationWalk::getStation).collect(LocationSet.stationCollector());
+        return routeToRouteCosts.getNumberOfChanges(starts, LocationSet.singleton(destination));
     }
 
     private NumberOfChanges findNumberChanges(Set<StationWalk> walksAtStart, Set<StationWalk> walksToDest) {
-        Set<Station> destinations = walksToDest.stream().map(StationWalk::getStation).collect(Collectors.toSet());
-        Set<Station> starts = walksAtStart.stream().map(StationWalk::getStation).collect(Collectors.toSet());
+        LocationSet destinations = walksToDest.stream().map(StationWalk::getStation).collect(LocationSet.stationCollector());
+        LocationSet starts = walksAtStart.stream().map(StationWalk::getStation).collect(LocationSet.stationCollector());
         return routeToRouteCosts.getNumberOfChanges(starts, destinations);
     }
 

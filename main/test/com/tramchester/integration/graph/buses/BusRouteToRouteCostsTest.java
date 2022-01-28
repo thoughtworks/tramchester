@@ -4,6 +4,7 @@ import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.Agency;
+import com.tramchester.domain.LocationSet;
 import com.tramchester.domain.NumberOfChanges;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.id.IdFor;
@@ -12,8 +13,8 @@ import com.tramchester.domain.places.GroupedStations;
 import com.tramchester.domain.places.Station;
 import com.tramchester.graph.search.RouteToRouteCosts;
 import com.tramchester.integration.testSupport.bus.IntegrationBusTestConfig;
-import com.tramchester.repository.StationGroupsRepository;
 import com.tramchester.repository.RouteRepository;
+import com.tramchester.repository.StationGroupsRepository;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.BusStations;
@@ -22,7 +23,6 @@ import com.tramchester.testSupport.testTags.BusTest;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.condition.DisabledIfEnvironmentVariable;
 
-import java.util.Collections;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -91,7 +91,7 @@ public class BusRouteToRouteCostsTest {
         Station start = stationRepository.getStationById(BusStations.KnutsfordStationStand3.getId());
         GroupedStations end = stationGroupsRepository.findByName("Shudehill Interchange");
 
-        NumberOfChanges numberOfChanges = routeToRouteCosts.getNumberOfChanges(Collections.singleton(start), end.getContained());
+        NumberOfChanges numberOfChanges = routeToRouteCosts.getNumberOfChanges(LocationSet.singleton(start), LocationSet.of(end.getContained()));
 
         assertEquals(2, numberOfChanges.getMin());
         assertEquals(3, numberOfChanges.getMax());

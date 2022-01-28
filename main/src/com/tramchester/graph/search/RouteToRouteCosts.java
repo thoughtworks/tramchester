@@ -4,6 +4,7 @@ import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.caching.DataCache;
 import com.tramchester.dataexport.DataSaver;
 import com.tramchester.dataimport.data.RouteIndexData;
+import com.tramchester.domain.LocationSet;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.places.*;
@@ -205,11 +206,11 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
 
     @Override
     public NumberOfChanges getNumberOfChanges(GroupedStations start, GroupedStations end) {
-        return getNumberOfChanges(start.getContained(), end.getContained());
+        return getNumberOfChanges(LocationSet.of(start.getContained()), LocationSet.of(end.getContained()));
     }
 
     @Override
-    public NumberOfChanges getNumberOfChanges(Set<Station> starts, Set<Station> destinations) {
+    public NumberOfChanges getNumberOfChanges(LocationSet starts, LocationSet destinations) {
         if (starts.stream().allMatch(station -> station.getPickupRoutes().isEmpty())) {
             logger.warn(format("start stations %s have no pick-up routes", HasId.asIds(starts)));
             return new NumberOfChanges(Integer.MAX_VALUE, Integer.MAX_VALUE);
@@ -242,9 +243,9 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
 
 
     @Override
-    public LowestCostsForDestRoutes getLowestCostCalcutatorFor(Set<Station> destinations) {
+    public LowestCostsForDestRoutes getLowestCostCalcutatorFor(LocationSet destinations) {
         Set<Route> destinationRoutes = destinations.stream().
-                map(Station::getDropoffRoutes).flatMap(Collection::stream).collect(Collectors.toUnmodifiableSet());
+                map(Location::getDropoffRoutes).flatMap(Collection::stream).collect(Collectors.toUnmodifiableSet());
         return new LowestCostForDestinations(this, destinationRoutes);
     }
 
@@ -261,12 +262,12 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
         return false;
     }
 
-    private boolean areNeighbours(Set<Station> starts, Set<Station> destinations) {
-        return starts.stream().
-                map(Station::getId).
+    private boolean areNeighbours(LocationSet starts, LocationSet destinations) {
+        return starts.stationsOnlyStream().
+                map(Location::getId).
                 filter(neighboursRepository::hasNeighbours).
                 map(neighboursRepository::getNeighboursFor).
-                anyMatch(neighbours -> destinations.stream().anyMatch(neighbours::contains));
+                anyMatch(neighbours -> destinations.stationsOnlyStream().anyMatch(neighbours::contains));
     }
 
     @NotNull
@@ -300,12 +301,12 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
         return query.orElse(Integer.MAX_VALUE);
     }
 
-    private Set<Route> dropoffRoutesFor(Set<Station> stations) {
-        return stations.stream().flatMap(station -> station.getDropoffRoutes().stream()).collect(Collectors.toSet());
+    private Set<Route> dropoffRoutesFor(LocationSet locations) {
+        return locations.stream().flatMap(station -> station.getDropoffRoutes().stream()).collect(Collectors.toSet());
     }
 
-    private Set<Route> pickupRoutesFor(Set<Station> stations) {
-        return stations.stream().flatMap(station -> station.getPickupRoutes().stream()).collect(Collectors.toSet());
+    private Set<Route> pickupRoutesFor(LocationSet locations) {
+        return locations.stream().flatMap(station -> station.getPickupRoutes().stream()).collect(Collectors.toSet());
     }
 
     private static class LowestCostForDestinations implements LowestCostsForDestRoutes {
@@ -420,9 +421,9 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
             }
         }
 
-        public IdFor<Route> getIdFor(int routeIndex) {
-            return mapIndexToRouteId.get(routeIndex);
-        }
+//        public IdFor<Route> getIdFor(int routeIndex) {
+//            return mapIndexToRouteId.get(routeIndex);
+//        }
 
         public void clear() {
             mapRouteIdToIndex.clear();

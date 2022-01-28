@@ -44,7 +44,7 @@ public class StopCallsForGrid {
     private BoxWithServiceFrequency createFrequencyBox(LocalDate date, TramTime begin, TramTime end, BoundingBoxWithStations box) {
         Map<Station, Integer> stationToNumberStopCalls = new HashMap<>();
         EnumSet<TransportMode> modes = EnumSet.noneOf(TransportMode.class);
-        box.getStaions().forEach(station -> {
+        box.getStations().forEach(station -> {
             Set<StopCall> calls = stopCallRepository.getStopCallsFor(station, date, begin, end);
             if (!calls.isEmpty()) {
                 stationToNumberStopCalls.put(station, calls.size());

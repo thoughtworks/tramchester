@@ -1,12 +1,15 @@
 package com.tramchester.graph.search.stateMachine;
 
 import com.google.common.collect.Streams;
+import com.tramchester.domain.LocationSet;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.Service;
 import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdSet;
+import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.input.Trip;
+import com.tramchester.domain.places.Location;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.time.TramServiceDate;
@@ -42,19 +45,23 @@ public class TraversalOps {
 
     // TODO Split into fixed and journey specific, inject fixed direct into builders
     public TraversalOps(NodeContentsRepository nodeOperations, TripRepository tripRepository,
-                        SortsPositions sortsPositions, Set<Station> destinationStations,
+                        SortsPositions sortsPositions, LocationSet destinations,
                         LatLong destinationLatLon, LowestCostsForDestRoutes lowestCostsForRoutes,
                         TramServiceDate queryDate) {
         this.tripRepository = tripRepository;
         this.nodeOperations = nodeOperations;
         this.sortsPositions = sortsPositions;
-        this.destinationStationIds = destinationStations.stream().collect(IdSet.collector());
-        this.destinationRoutes = destinationStations.stream().
+        this.destinationStationIds = destinations.stationsOnlyStream().collect(IdSet.collector());
+        this.destinationRoutes = destinations.stream().
                 flatMap(station -> station.getDropoffRoutes().stream()).
                 collect(IdSet.collector());
         this.destinationLatLon = destinationLatLon;
         this.lowestCostsForRoutes = lowestCostsForRoutes;
         this.queryDate = queryDate.getDate();
+    }
+
+    private IdFor<Station> getStationIdFor(Location<?> location) {
+        return StringIdFor.convert(location.getId());
     }
 
     public List<Relationship> getTowardsDestination(Iterable<Relationship> outgoing) {

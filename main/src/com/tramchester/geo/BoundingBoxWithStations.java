@@ -17,7 +17,7 @@ public class BoundingBoxWithStations extends BoundingBox {
         return !stationsWithin.isEmpty();
     }
 
-    public Set<Station> getStaions() {
+    public Set<Station> getStations() {
         return stationsWithin;
     }
 

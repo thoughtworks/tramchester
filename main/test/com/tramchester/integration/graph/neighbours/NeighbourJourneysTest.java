@@ -5,6 +5,7 @@ import com.tramchester.ComponentsBuilder;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.Journey;
 import com.tramchester.domain.JourneyRequest;
+import com.tramchester.domain.LocationSet;
 import com.tramchester.domain.NumberOfChanges;
 import com.tramchester.domain.places.GroupedStations;
 import com.tramchester.domain.places.Station;
@@ -112,9 +113,9 @@ public class NeighbourJourneysTest {
     @Test
     void shouldHaveCorrectRouteToRouteHopsWhenNeighboursSets() {
 
-        Set<Station> trams = new HashSet<>(Arrays.asList(Altrincham.from(stationRepository), HarbourCity.from(stationRepository)));
+        LocationSet trams = new LocationSet(Arrays.asList(Altrincham.from(stationRepository), HarbourCity.from(stationRepository)));
 
-        Set<Station> buses = new HashSet<>(Arrays.asList(KnutsfordStationStand3.from(stationRepository), StockportNewbridgeLane.from(stationRepository)));
+        LocationSet buses = new LocationSet(Arrays.asList(KnutsfordStationStand3.from(stationRepository), StockportNewbridgeLane.from(stationRepository)));
 
         NumberOfChanges busToTramHops = routeToRouteCosts.getNumberOfChanges(buses, trams);
         assertEquals(1, busToTramHops.getMin());

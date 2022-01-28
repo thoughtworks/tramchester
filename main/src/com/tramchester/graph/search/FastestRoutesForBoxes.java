@@ -1,10 +1,7 @@
 package com.tramchester.graph.search;
 
 import com.netflix.governator.guice.lazy.LazySingleton;
-import com.tramchester.domain.BoundingBoxWithCost;
-import com.tramchester.domain.Journey;
-import com.tramchester.domain.JourneyRequest;
-import com.tramchester.domain.JourneysForBox;
+import com.tramchester.domain.*;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.geo.BoundingBoxWithStations;
@@ -54,7 +51,7 @@ public class FastestRoutesForBoxes {
                 filter(box -> box.contained(destinationGrid)).findFirst().
                 orElseThrow(() -> new RuntimeException("Unable to find destination in any boxes " + destinationGrid));
 
-        Set<Station> destinations = searchBoxWithDest.getStaions();
+        LocationSet destinations = LocationSet.of(searchBoxWithDest.getStations());
 
         logger.info(format("Using %s groups and %s destinations", searchGrid.size(), destinations.size()));
 

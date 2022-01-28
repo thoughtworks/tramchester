@@ -1,6 +1,7 @@
 package com.tramchester.domain.id;
 
 import com.tramchester.domain.CoreDomain;
+import com.tramchester.domain.LocationSet;
 import com.tramchester.domain.places.IdForDTO;
 import org.jetbrains.annotations.NotNull;
 
@@ -16,6 +17,10 @@ public interface HasId<DOMAINTYPE extends CoreDomain> {
 
     static <S extends  T, T extends HasId<T> & CoreDomain> String asIds(Collection<S> items) {
         return listToIdStringList(items, item -> item.getId().toString());
+    }
+
+    static String asIds(LocationSet locationSet) {
+        return locationSet.asIds();
     }
 
     @NotNull

@@ -1,6 +1,7 @@
 package com.tramchester.unit.graph;
 
 import com.tramchester.config.GTFSSourceConfig;
+import com.tramchester.domain.LocationSet;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.Service;
 import com.tramchester.domain.id.IdFor;
@@ -42,7 +43,7 @@ public class JourneyConstraintsTest extends EasyMockSupport {
         lowestCostForDest = createMock(LowestCostsForDestRoutes.class);
         filterForDate = createMock(RunningRoutesAndServices.FilterForDate.class);
 
-        Set<Station> endStations = Collections.singleton(TramStations.of(TramStations.Bury));
+        LocationSet endStations = LocationSet.singleton(TramStations.of(TramStations.Bury));
 
         journeyConstraints = new JourneyConstraints(config, filterForDate,
                 closedStations, endStations, lowestCostForDest, config.getMaxJourneyDuration());
@@ -135,7 +136,7 @@ public class JourneyConstraintsTest extends EasyMockSupport {
     @Test
     void shouldGetEndStations() {
 
-        Set<Station> result = journeyConstraints.getEndStations();
+        LocationSet result = journeyConstraints.getEndStations();
         assertEquals(1, result.size());
         assertTrue(result.contains(TramStations.of(TramStations.Bury)));
     }

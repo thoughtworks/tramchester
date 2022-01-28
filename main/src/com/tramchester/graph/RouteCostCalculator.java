@@ -50,14 +50,14 @@ public class RouteCostCalculator {
         return calculateLeastCost(txn, startNode, endNode, COST, date.getDate());
     }
 
-    public int getAverageCostBetween(Transaction txn, Station station, Node endNode, TramServiceDate date) {
-        Node startNode = graphQuery.getStationNode(txn, station);
+    public int getAverageCostBetween(Transaction txn, Location<?> station, Node endNode, TramServiceDate date) {
+        Node startNode = graphQuery.getLocationNode(txn, station);
         return calculateLeastCost(txn, startNode, endNode, COST, date.getDate());
     }
 
     // startNode must have been found within supplied txn
-    public int getAverageCostBetween(Transaction txn, Node startNode, Station endStation, TramServiceDate date) {
-        Node endNode = graphQuery.getStationNode(txn, endStation);
+    public int getAverageCostBetween(Transaction txn, Node startNode, Location<?> endStation, TramServiceDate date) {
+        Node endNode = graphQuery.getLocationNode(txn, endStation);
         return calculateLeastCost(txn, startNode, endNode, COST, date.getDate());
     }
 
@@ -69,8 +69,8 @@ public class RouteCostCalculator {
         return getCostBetween(txn, start, end, MAX_COST, date.getDate());
     }
 
-    public int getMaxCostBetween(Transaction txn, Node start, Station endStation, TramServiceDate date) {
-        Node endNode = graphQuery.getStationNode(txn, endStation);
+    public int getMaxCostBetween(Transaction txn, Node start, Location<?> endStation, TramServiceDate date) {
+        Node endNode = graphQuery.getLocationNode(txn, endStation);
         return calculateLeastCost(txn, start, endNode, MAX_COST, date.getDate());
     }
 

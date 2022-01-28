@@ -1,7 +1,7 @@
 package com.tramchester.graph.search;
 
 import com.tramchester.config.TramchesterConfig;
-import com.tramchester.domain.places.Station;
+import com.tramchester.domain.LocationSet;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.domain.time.TramTime;
@@ -42,7 +42,7 @@ public class TramNetworkTraverser implements PathExpander<JourneyState> {
     private final TripRepository tripRespository;
     private final TramTime actualQueryTime;
     private final Set<Long> destinationNodeIds;
-    private final Set<Station> endStations;
+    private final LocationSet destinations;
     private final TramchesterConfig config;
     private final ServiceReasons reasons;
     private final SortsPositions sortsPosition;
@@ -53,7 +53,7 @@ public class TramNetworkTraverser implements PathExpander<JourneyState> {
 
     public TramNetworkTraverser(GraphDatabase graphDatabaseService, RouteCalculatorSupport.PathRequest pathRequest,
                                 SortsPositions sortsPosition, NodeContentsRepository nodeContentsRepository, TripRepository tripRespository,
-                                TraversalStateFactory traversalStateFactory, Set<Station> endStations, TramchesterConfig config,
+                                TraversalStateFactory traversalStateFactory, LocationSet destinations, TramchesterConfig config,
                                 Set<Long> destinationNodeIds, ServiceReasons reasons,
                                 ReasonsToGraphViz reasonToGraphViz, ProvidesNow providesNow) {
         this.graphDatabaseService = graphDatabaseService;
@@ -62,7 +62,7 @@ public class TramNetworkTraverser implements PathExpander<JourneyState> {
         this.tripRespository = tripRespository;
         this.traversalStateFactory = traversalStateFactory;
         this.destinationNodeIds = destinationNodeIds;
-        this.endStations = endStations;
+        this.destinations = destinations;
         this.config = config;
         this.reasons = reasons;
         this.pathRequest = pathRequest;
@@ -86,9 +86,9 @@ public class TramNetworkTraverser implements PathExpander<JourneyState> {
                 destinationNodeIds, nodeContentsRepository, reasons, previousSuccessfulVisit, lowestCostSeen, config,
                 startNode.getId(), begin, providesNow);
 
-        LatLong destinationLatLon = sortsPosition.midPointFrom(endStations);
+        LatLong destinationLatLon = sortsPosition.midPointFrom(destinations);
 
-        TraversalOps traversalOps = new TraversalOps(nodeContentsRepository, tripRespository, sortsPosition, endStations,
+        TraversalOps traversalOps = new TraversalOps(nodeContentsRepository, tripRespository, sortsPosition, destinations,
                 destinationLatLon, lowestCostsForRoutes, pathRequest.getQueryDate());
 
         final NotStartedState traversalState = new NotStartedState(traversalOps, traversalStateFactory);

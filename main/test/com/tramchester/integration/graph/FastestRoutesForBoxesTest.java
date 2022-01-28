@@ -81,7 +81,7 @@ class FastestRoutesForBoxesTest {
 
     private boolean isPresentIn(List<BoundingBoxWithStations> grouped, Station station) {
         for (BoundingBoxWithStations group:grouped) {
-            if (group.getStaions().contains(station)) {
+            if (group.getStations().contains(station)) {
                 return true;
             }
         }

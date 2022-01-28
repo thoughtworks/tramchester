@@ -3,6 +3,7 @@ package com.tramchester.graph.search;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.Journey;
 import com.tramchester.domain.JourneyRequest;
+import com.tramchester.domain.LocationSet;
 import com.tramchester.domain.NumberOfChanges;
 import com.tramchester.domain.places.Location;
 import com.tramchester.domain.places.Station;
@@ -32,7 +33,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.time.Instant;
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -93,12 +97,23 @@ public class RouteCalculatorSupport {
         return stationNode;
     }
 
+    protected Node getLocationNodeSafe(Transaction txn, Location<?> location) {
+//        Node stationNode = graphQuery.getStationOrGrouped(txn, station);
+        Node stationNode = graphQuery.getLocationNode(txn, location);
+        if (stationNode == null) {
+            String msg = "Unable to find node for " + location;
+            logger.error(msg);
+            throw new RuntimeException(msg);
+        }
+        return stationNode;
+    }
+
     @NotNull
-    public Set<Long> getDestinationNodeIds(Set<Station> destinations) {
+    public Set<Long> getDestinationNodeIds(LocationSet destinations) {
         Set<Long> destinationNodeIds;
         try(Transaction txn = graphDatabaseService.beginTx()) {
             destinationNodeIds = destinations.stream().
-                    map(station -> getStationNodeSafe(txn, station)).
+                    map(location -> getLocationNodeSafe(txn, location)).
                     map(Entity::getId).
                     collect(Collectors.toSet());
         }
@@ -136,7 +151,7 @@ public class RouteCalculatorSupport {
     }
 
     public Stream<RouteCalculator.TimedPath> findShortestPath(Transaction txn, Set<Long> destinationNodeIds,
-                                                              final Set<Station> endStations,
+                                                              final LocationSet endStations,
                                                               ServiceReasons reasons, PathRequest pathRequest,
                                                               LowestCostsForDestRoutes lowestCostsForRoutes, PreviousVisits previousSuccessfulVisit,
                                                               LowestCostSeen lowestCostSeen, Instant begin) {
@@ -155,9 +170,9 @@ public class RouteCalculatorSupport {
 
     @NotNull
     protected Journey createJourney(JourneyRequest journeyRequest, RouteCalculator.TimedPath path,
-                                    Set<Station> endStations, LowestCostsForDestRoutes lowestCostForRoutes) {
+                                    LocationSet destinations, LowestCostsForDestRoutes lowestCostForRoutes) {
 
-        final List<TransportStage<?, ?>> stages = pathToStages.mapDirect(path, journeyRequest, lowestCostForRoutes, endStations);
+        final List<TransportStage<?, ?>> stages = pathToStages.mapDirect(path, journeyRequest, lowestCostForRoutes, destinations);
         final List<Location<?>> locationList = mapPathToLocations.mapToLocations(path.getPath());
 
         if (stages.isEmpty()) {
@@ -203,7 +218,7 @@ public class RouteCalculatorSupport {
         return new ServiceReasons(journeyRequest, pathRequest.queryTime, providesNow);
     }
 
-    protected int getMaxDurationFor(Transaction txn, Node startNode, Set<Station> destinations, JourneyRequest journeyRequest) {
+    protected int getMaxDurationFor(Transaction txn, Node startNode, LocationSet destinations, JourneyRequest journeyRequest) {
         if (config.getTransportModes().contains(TransportMode.Tram) && config.getTransportModes().size()==1) {
             return journeyRequest.getMaxJourneyDuration();
         }

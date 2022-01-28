@@ -2,11 +2,7 @@ package com.tramchester.graph.search;
 
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.config.TramchesterConfig;
-import com.tramchester.domain.Journey;
-import com.tramchester.domain.JourneyRequest;
-import com.tramchester.domain.JourneysForBox;
-import com.tramchester.domain.NumberOfChanges;
-import com.tramchester.domain.places.Station;
+import com.tramchester.domain.*;
 import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.domain.time.TramServiceDate;
 import com.tramchester.domain.time.TramTime;
@@ -18,7 +14,10 @@ import com.tramchester.graph.RouteCostCalculator;
 import com.tramchester.graph.caches.LowestCostSeen;
 import com.tramchester.graph.caches.NodeContentsRepository;
 import com.tramchester.graph.search.stateMachine.states.TraversalStateFactory;
-import com.tramchester.repository.*;
+import com.tramchester.repository.ClosedStationsRepository;
+import com.tramchester.repository.RouteInterchanges;
+import com.tramchester.repository.RunningRoutesAndServices;
+import com.tramchester.repository.TransportData;
 import org.neo4j.graphdb.Transaction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -61,7 +60,7 @@ public class RouteCalculatorForBoxes extends RouteCalculatorSupport {
         this.runningRoutesAndService = runningRoutesAndService;
     }
 
-    public Stream<JourneysForBox> calculateRoutes(Set<Station> destinations, JourneyRequest journeyRequest,
+    public Stream<JourneysForBox> calculateRoutes(LocationSet destinations, JourneyRequest journeyRequest,
                                                   List<BoundingBoxWithStations> grouped) {
         logger.info("Finding routes for bounding boxes");
 
@@ -82,7 +81,7 @@ public class RouteCalculatorForBoxes extends RouteCalculatorSupport {
         return grouped.parallelStream().map(box -> {
 
             logger.info(format("Finding shortest path for %s --> %s for %s", box, destinations, journeyRequest));
-            final Set<Station> startingStations = box.getStaions();
+            final LocationSet startingStations = LocationSet.of(box.getStations());
             final LowestCostSeen lowestCostSeenForBox = new LowestCostSeen();
 
             final NumberOfChanges numberOfChanges = computeNumberOfChanges(startingStations, destinations);
@@ -92,7 +91,7 @@ public class RouteCalculatorForBoxes extends RouteCalculatorSupport {
             try(Transaction txn = graphDatabaseService.beginTx()) {
                 Stream<Journey> journeys = startingStations.stream().
                         filter(start -> !destinations.contains(start)).
-                        map(start -> getStationNodeSafe(txn, start)).
+                        map(start -> getLocationNodeSafe(txn, start)).
                         flatMap(startNode -> numChangesRange(journeyRequest, numberOfChanges).
                                 map(numChanges -> createPathRequest(startNode, queryDate, originalTime, numChanges, journeyConstraints))).
                         flatMap(pathRequest -> findShortestPath(txn, destinationNodeIds, destinations,
@@ -112,7 +111,7 @@ public class RouteCalculatorForBoxes extends RouteCalculatorSupport {
 
     }
 
-    private NumberOfChanges computeNumberOfChanges(Set<Station> starts, Set<Station> destinations) {
+    private NumberOfChanges computeNumberOfChanges(LocationSet starts, LocationSet destinations) {
         return routeToRouteCosts.getNumberOfChanges(starts, destinations);
     }
 }

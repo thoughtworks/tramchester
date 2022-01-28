@@ -3,6 +3,7 @@ package com.tramchester.integration.graph;
 import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.domain.JourneyRequest;
+import com.tramchester.domain.LocationSet;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.input.StopCall;
 import com.tramchester.domain.places.Station;
@@ -22,7 +23,10 @@ import com.tramchester.graph.graphbuild.GraphLabel;
 import com.tramchester.graph.graphbuild.GraphProps;
 import com.tramchester.graph.search.*;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
-import com.tramchester.repository.*;
+import com.tramchester.repository.ClosedStationsRepository;
+import com.tramchester.repository.RouteInterchanges;
+import com.tramchester.repository.RunningRoutesAndServices;
+import com.tramchester.repository.StationRepository;
 import com.tramchester.resources.LocationJourneyPlanner;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.KnownTramRoute;
@@ -233,7 +237,7 @@ public class MapPathToStagesViaStatesTest {
                 locationJourneyPlanner.createWalkRelationship(txn, endNodeWalkNode, stationWalk,
                 TransportRelationshipTypes.WALKS_FROM)));
 
-        Set<Station> destinationStations = new HashSet<>();
+        LocationSet destinationStations = new LocationSet();
         walksToDest.forEach(stationWalk -> destinationStations.add(stationWalk.getStation()));
 
         Set<Long> destinationNodeIds = Collections.singleton(endNodeWalkNode.getId());
@@ -252,7 +256,7 @@ public class MapPathToStagesViaStatesTest {
     }
 
     private List<TransportStage<?, ?>> getStagesFor(TramTime queryTime, int numChanges, LatLong start, Station destination) {
-        Set<Station> endStations = Collections.singleton(destination);
+        LocationSet endStations = LocationSet.singleton(destination);
         JourneyRequest journeyRequest = new JourneyRequest(when, queryTime, false, numChanges, 150, 1);
 
         Node endNode = graphQuery.getStationNode(txn, destination);
@@ -276,7 +280,7 @@ public class MapPathToStagesViaStatesTest {
     }
 
     private List<TransportStage<?, ?>> getStagesFor(TramTime queryTime, int numChanges, Station startStation, Station destination) {
-        Set<Station> endStations = Collections.singleton(destination);
+        LocationSet endStations = LocationSet.singleton(destination);
 
         JourneyRequest journeyRequest = new JourneyRequest(when, queryTime, false, numChanges, 150, 1);
 
@@ -288,7 +292,7 @@ public class MapPathToStagesViaStatesTest {
         return pathToStages.mapDirect(timedPath, journeyRequest, lowestCostForRoutes, endStations);
     }
 
-    private List<RouteCalculator.TimedPath> getPathFor(Station startStation, Station destination, Set<Station> endStations,
+    private List<RouteCalculator.TimedPath> getPathFor(Station startStation, Station destination, LocationSet endStations,
                                                        JourneyRequest journeyRequest) {
 
         int numChanges = journeyRequest.getMaxChanges();
@@ -302,7 +306,7 @@ public class MapPathToStagesViaStatesTest {
     }
 
     private List<RouteCalculator.TimedPath> getPathBetweenNodes(
-            JourneyRequest journeyRequest, Node startNode, Set<Long> destinationNodeIds, Set<Station> endStations,
+            JourneyRequest journeyRequest, Node startNode, Set<Long> destinationNodeIds, LocationSet endStations,
             int numChanges, TramServiceDate queryDate, TramTime queryTime) {
         PreviousVisits previous = new PreviousVisits();
         ServiceReasons reasons = new ServiceReasons(journeyRequest, queryTime, providesLocalNow);

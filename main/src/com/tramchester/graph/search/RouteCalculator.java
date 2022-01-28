@@ -4,8 +4,9 @@ import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.Journey;
 import com.tramchester.domain.JourneyRequest;
+import com.tramchester.domain.LocationSet;
 import com.tramchester.domain.NumberOfChanges;
-import com.tramchester.domain.places.Station;
+import com.tramchester.domain.places.Location;
 import com.tramchester.domain.places.StationWalk;
 import com.tramchester.domain.time.CreateQueryTimes;
 import com.tramchester.domain.time.ProvidesNow;
@@ -67,14 +68,14 @@ public class RouteCalculator extends RouteCalculatorSupport implements TramRoute
     }
 
     @Override
-    public Stream<Journey> calculateRoute(Transaction txn, Station startStation, Station destination, JourneyRequest journeyRequest) {
+    public Stream<Journey> calculateRoute(Transaction txn, Location<?> startStation, Location<?> destination, JourneyRequest journeyRequest) {
         logger.info(format("Finding shortest path for %s (%s) --> %s (%s) for %s",
                 startStation.getName(), startStation.getId(), destination.getName(), destination.getId(), journeyRequest));
 
-        Node startNode = getStationNodeSafe(txn, startStation);
-        Node endNode = getStationNodeSafe(txn, destination);
+        Node startNode = getLocationNodeSafe(txn, startStation);
+        Node endNode = getLocationNodeSafe(txn, destination);
 
-        Set<Station> destinations = Collections.singleton(destination);
+        LocationSet destinations = LocationSet.singleton(destination);
 
         final List<TramTime> queryTimes = createQueryTimes.generate(journeyRequest.getOriginalTime());
 
@@ -83,23 +84,23 @@ public class RouteCalculator extends RouteCalculatorSupport implements TramRoute
                 limit(journeyRequest.getMaxNumberOfJourneys());
     }
 
-    public Stream<Journey> calculateRouteWalkAtEnd(Transaction txn, Station start, Node endOfWalk, Set<Station> desinationStations,
+    public Stream<Journey> calculateRouteWalkAtEnd(Transaction txn, Location<?> start, Node endOfWalk, LocationSet destintations,
                                                    JourneyRequest journeyRequest, NumberOfChanges numberOfChanges)
     {
-        Node startNode = getStationNodeSafe(txn, start);
+        Node startNode = getLocationNodeSafe(txn, start);
         final List<TramTime> queryTimes = createQueryTimes.generate(journeyRequest.getOriginalTime());
 
-        return getJourneyStream(txn, startNode, endOfWalk, journeyRequest, desinationStations, queryTimes, numberOfChanges).
+        return getJourneyStream(txn, startNode, endOfWalk, journeyRequest, destintations, queryTimes, numberOfChanges).
                 limit(journeyRequest.getMaxNumberOfJourneys());
     }
 
     @Override
-    public Stream<Journey> calculateRouteWalkAtStart(Transaction txn, Set<StationWalk> stationWalks, Node startOfWalkNode, Station destination,
+    public Stream<Journey> calculateRouteWalkAtStart(Transaction txn, Set<StationWalk> stationWalks, Node startOfWalkNode, Location<?> destination,
                                                      JourneyRequest journeyRequest, NumberOfChanges numberOfChanges) {
 
         final InitialWalksFinished finished = new InitialWalksFinished(journeyRequest, stationWalks);
-        Node endNode = getStationNodeSafe(txn, destination);
-        Set<Station> destinations = Collections.singleton(destination);
+        Node endNode = getLocationNodeSafe(txn, destination);
+        LocationSet destinations = LocationSet.singleton(destination);
         final List<TramTime> queryTimes = createQueryTimes.generate(journeyRequest.getOriginalTime(), stationWalks);
 
         return getJourneyStream(txn, startOfWalkNode, endNode, journeyRequest, destinations, queryTimes, numberOfChanges).
@@ -107,7 +108,7 @@ public class RouteCalculator extends RouteCalculatorSupport implements TramRoute
     }
 
     public Stream<Journey> calculateRouteWalkAtStartAndEnd(Transaction txn, Set<StationWalk> stationWalks, Node startNode, Node endNode,
-                                                           Set<Station> destinationStations, JourneyRequest journeyRequest,
+                                                           LocationSet destinationStations, JourneyRequest journeyRequest,
                                                            NumberOfChanges numberOfChanges) {
 
         final InitialWalksFinished finished = new InitialWalksFinished(journeyRequest, stationWalks);
@@ -118,7 +119,7 @@ public class RouteCalculator extends RouteCalculatorSupport implements TramRoute
     }
 
     private Stream<Journey> getJourneyStream(Transaction txn, Node startNode, Node endNode, JourneyRequest journeyRequest,
-                                             Set<Station> destinations, List<TramTime> queryTimes, NumberOfChanges numberOfChanges) {
+                                             LocationSet destinations, List<TramTime> queryTimes, NumberOfChanges numberOfChanges) {
 
         if (numberOfChanges.getMin()==Integer.MAX_VALUE) {
             logger.error(format("Computed min number of changes is MAX_VALUE, journey %s is not possible?", journeyRequest));

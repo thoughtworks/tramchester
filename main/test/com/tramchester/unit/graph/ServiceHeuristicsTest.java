@@ -2,6 +2,7 @@ package com.tramchester.unit.graph;
 
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.JourneyRequest;
+import com.tramchester.domain.LocationSet;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.Service;
 import com.tramchester.domain.id.IdFor;
@@ -28,9 +29,7 @@ import org.junit.jupiter.api.Test;
 import org.neo4j.graphdb.Node;
 
 import java.time.LocalTime;
-import java.util.Collections;
 import java.util.EnumSet;
-import java.util.Set;
 
 import static com.tramchester.graph.graphbuild.GraphLabel.*;
 import static com.tramchester.testSupport.reference.TramStations.Bury;
@@ -41,7 +40,7 @@ class ServiceHeuristicsTest extends EasyMockSupport {
 
     private static final int MAX_WAIT = 30;
     private static final int MAX_NUM_CHANGES = 5;
-    private final Set<Station> endStations = Collections.singleton(TramStations.of(TramStations.Deansgate));
+    private final LocationSet endStations = LocationSet.singleton(TramStations.of(TramStations.Deansgate));
 
     private final TramchesterConfig config30MinsWait = new NeedMaxWaitConfig(MAX_WAIT);
     private NodeContentsRepository nodeContentsCache;

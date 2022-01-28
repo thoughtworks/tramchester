@@ -3,33 +3,31 @@ package com.tramchester.integration.graph;
 import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.config.TramchesterConfig;
+import com.tramchester.domain.JourneyRequest;
 import com.tramchester.domain.JourneysForBox;
-import com.tramchester.domain.places.Station;
+import com.tramchester.domain.LocationSet;
 import com.tramchester.domain.time.TramServiceDate;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.geo.BoundingBox;
 import com.tramchester.geo.BoundingBoxWithStations;
 import com.tramchester.geo.StationLocations;
 import com.tramchester.graph.GraphDatabase;
-import com.tramchester.domain.JourneyRequest;
 import com.tramchester.graph.search.RouteCalculatorForBoxes;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.TestEnv;
-import com.tramchester.testSupport.TestStation;
 import com.tramchester.testSupport.reference.TramStations;
 import org.junit.jupiter.api.*;
 import org.neo4j.graphdb.Transaction;
 
 import java.time.LocalDate;
-import java.util.Collections;
 import java.util.List;
-import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class RouteCalculatorForBoundingBoxTest {
     // Note this needs to be > time for whole test fixture, see note below in @After
@@ -83,7 +81,7 @@ class RouteCalculatorForBoundingBoxTest {
         JourneyRequest journeyRequest = new JourneyRequest(new TramServiceDate(when), TramTime.of(9,30),
                 false, 3, testConfig.getMaxJourneyDuration(), maxNumberOfJourneys);
 
-        Set<Station> destinations = Collections.singleton(TestStation.real(stationRepository, TramStations.StPetersSquare));
+        LocationSet destinations = LocationSet.singleton(TramStations.StPetersSquare.from(stationRepository));
 
         Stream<JourneysForBox> stream = calculator.calculateRoutes(destinations, journeyRequest, grouped);
         List<JourneysForBox> groupedJourneys = stream.collect(Collectors.toList());
