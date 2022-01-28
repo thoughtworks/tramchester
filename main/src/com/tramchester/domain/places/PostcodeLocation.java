@@ -26,15 +26,15 @@ public class PostcodeLocation implements Location<PostcodeLocation>, HasCaseInse
     private LatLong latLong;
     private GridPosition gridPosition;
 
-    public PostcodeLocation(LatLong latLong, CaseInsensitiveId<PostcodeLocation> id, String area) {
-        this(id, area, latLong, null);
+    public PostcodeLocation(LatLong latLong, CaseInsensitiveId<PostcodeLocation> id) {
+        this(id, latLong, CoordinateTransforms.getGridPosition(latLong));
     }
 
-    public PostcodeLocation(GridPosition gridPosition, CaseInsensitiveId<PostcodeLocation> id, String area) {
-        this(id, area, null, gridPosition);
+    public PostcodeLocation(GridPosition gridPosition, CaseInsensitiveId<PostcodeLocation> id) {
+        this(id, CoordinateTransforms.getLatLong(gridPosition), gridPosition);
     }
 
-    private PostcodeLocation(CaseInsensitiveId<PostcodeLocation> id, String area, LatLong latLong, GridPosition gridPosition) {
+    private PostcodeLocation(CaseInsensitiveId<PostcodeLocation> id, LatLong latLong, GridPosition gridPosition) {
         this.id = id;
         this.name = id.forDTO();
 

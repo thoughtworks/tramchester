@@ -47,7 +47,7 @@ import org.neo4j.graphdb.traversal.Evaluation;
 import java.time.Instant;
 import java.util.*;
 
-import static com.tramchester.graph.TransportRelationshipTypes.WALKS_TO;
+import static com.tramchester.graph.TransportRelationshipTypes.WALKS_TO_STATION;
 import static com.tramchester.graph.graphbuild.GraphLabel.*;
 import static com.tramchester.testSupport.reference.TramStations.Shudehill;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -511,7 +511,7 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
         final EnumSet<GraphLabel> labels = EnumSet.of(ROUTE_STATION);
         EasyMock.expect(contentsRepository.getLabels(node)).andReturn(labels);
 
-        EasyMock.expect(lastRelationship.isType(WALKS_TO)).andReturn(true);
+        EasyMock.expect(lastRelationship.isType(WALKS_TO_STATION)).andReturn(true);
 
         EasyMock.expect(serviceHeuristics.canReachDestination(node, 0, howIGotHere, reasons, time)).
                 andReturn(ServiceReason.IsValid(ServiceReason.ReasonCode.Reachable, howIGotHere));
@@ -553,7 +553,7 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
         final EnumSet<GraphLabel> labels = EnumSet.of(QUERY_NODE);
         EasyMock.expect(contentsRepository.getLabels(node)).andReturn(labels);
 
-        EasyMock.expect(lastRelationship.isType(WALKS_TO)).andReturn(true);
+        EasyMock.expect(lastRelationship.isType(WALKS_TO_STATION)).andReturn(true);
 
         TramTime time = TramTime.of(8, 15);
         NotStartedState traversalState = getNotStartedState();
@@ -800,7 +800,7 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
         EasyMock.expect(lowestCostSeen.everArrived()).andReturn(false);
 
         EasyMock.expect(path.length()).andStubReturn(50);
-        EasyMock.expect(lastRelationship.isType(WALKS_TO)).andReturn(false);
+        EasyMock.expect(lastRelationship.isType(WALKS_TO_STATION)).andReturn(false);
 
         final EnumSet<GraphLabel> labels = EnumSet.of(GROUPED);
         EasyMock.expect(contentsRepository.getLabels(node)).andReturn(labels);

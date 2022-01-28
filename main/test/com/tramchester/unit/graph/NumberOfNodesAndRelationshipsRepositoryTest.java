@@ -57,8 +57,8 @@ class NumberOfNodesAndRelationshipsRepositoryTest {
         assertEquals(0, repository.numberOf(TransportRelationshipTypes.TRAIN_GOES_TO));
         assertEquals(0, repository.numberOf(TransportRelationshipTypes.NEIGHBOUR));
         assertEquals(0, repository.numberOf(TransportRelationshipTypes.FERRY_GOES_TO));
-        assertEquals(0, repository.numberOf(TransportRelationshipTypes.WALKS_FROM));
-        assertEquals(0, repository.numberOf(TransportRelationshipTypes.WALKS_TO));
+        assertEquals(0, repository.numberOf(TransportRelationshipTypes.WALKS_FROM_STATION));
+        assertEquals(0, repository.numberOf(TransportRelationshipTypes.WALKS_TO_STATION));
     }
 
     @Test

@@ -280,7 +280,7 @@ public class DiagramCreator {
         return switch (relationshipType) {
             case ENTER_PLATFORM -> "E";
             case LEAVE_PLATFORM -> "L";
-            case WALKS_TO -> "WT";
+            case WALKS_TO_STATION -> "WT";
             case BOARD -> "B";
             case TO_SERVICE -> "Svc";
             case TO_HOUR -> "H";
@@ -301,7 +301,7 @@ public class DiagramCreator {
             case GROUPED_TO_PARENT -> "groupParent";
             case ROUTE_TO_STATION -> "RS";
             case STATION_TO_ROUTE -> "SR";
-            case WALKS_FROM -> "WF";
+            case WALKS_FROM_STATION -> "WF";
         };
     }
 

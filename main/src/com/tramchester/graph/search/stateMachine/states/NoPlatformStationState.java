@@ -43,21 +43,21 @@ public class NoPlatformStationState extends StationState {
         }
 
         public NoPlatformStationState fromStart(NotStartedState notStartedState, Node node, int cost, JourneyStateUpdate journeyState) {
-            final Stream<Relationship> initial = boardRelationshipsPlus(node, WALKS_FROM, NEIGHBOUR, GROUPED_TO_PARENT);
+            final Stream<Relationship> initial = boardRelationshipsPlus(node, WALKS_FROM_STATION, NEIGHBOUR, GROUPED_TO_PARENT);
             Stream<Relationship> relationships = addValidDiversions(node, initial, notStartedState);
             return new NoPlatformStationState(notStartedState, relationships, cost, node, journeyState);
         }
 
         public TraversalState fromRouteStation(RouteStationStateEndTrip routeStationState, Node node, int cost, JourneyStateUpdate journeyState) {
             // end of a trip, may need to go back to this route station to catch new service
-            final Stream<Relationship> initial = boardRelationshipsPlus(node, WALKS_FROM, NEIGHBOUR, GROUPED_TO_PARENT);
+            final Stream<Relationship> initial = boardRelationshipsPlus(node, WALKS_FROM_STATION, NEIGHBOUR, GROUPED_TO_PARENT);
             Stream<Relationship> relationships = addValidDiversions(node, initial, routeStationState);
             return new NoPlatformStationState(routeStationState, relationships, cost, node, journeyState);
         }
 
         public TraversalState fromRouteStation(RouteStationStateOnTrip onTrip, Node node, int cost, JourneyStateUpdate journeyState) {
             // filter so we don't just get straight back on tram if just boarded, or if we are on an existing trip
-            final Stream<Relationship> relationships = boardRelationshipsPlus(node, WALKS_FROM, NEIGHBOUR, GROUPED_TO_PARENT);
+            final Stream<Relationship> relationships = boardRelationshipsPlus(node, WALKS_FROM_STATION, NEIGHBOUR, GROUPED_TO_PARENT);
             Stream<Relationship> stationRelationships = filterExcludingEndNode(relationships, onTrip);
             return new NoPlatformStationState(onTrip, stationRelationships, cost, node, journeyState);
         }

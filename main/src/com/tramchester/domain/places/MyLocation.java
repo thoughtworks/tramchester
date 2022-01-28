@@ -77,7 +77,7 @@ public class MyLocation implements Location<MyLocation> {
 
     @Override
     public LocationType getLocationType() {
-        return LocationType.Mobile;
+        return LocationType.MyLocation;
     }
 
     @Override

@@ -135,8 +135,8 @@ public class RouteCostCalculator {
                 add(ON_ROUTE, Direction.OUTGOING).
                 add(STATION_TO_ROUTE, Direction.OUTGOING).
                 add(ROUTE_TO_STATION, Direction.OUTGOING).
-                add(WALKS_TO, Direction.OUTGOING).
-                add(WALKS_FROM, Direction.OUTGOING).
+                add(WALKS_TO_STATION, Direction.OUTGOING).
+                add(WALKS_FROM_STATION, Direction.OUTGOING).
                 add(NEIGHBOUR, Direction.OUTGOING).
                 add(GROUPED_TO_PARENT, Direction.OUTGOING).
                 add(GROUPED_TO_CHILD, Direction.OUTGOING).

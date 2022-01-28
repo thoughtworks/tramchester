@@ -38,7 +38,7 @@ public class PlatformStationState extends StationState {
 
         public PlatformStationState fromPlatform(PlatformState platformState, Node stationNode, int cost,
                                                  JourneyStateUpdate journeyState) {
-            final Iterable<Relationship> initial = stationNode.getRelationships(OUTGOING, WALKS_FROM, ENTER_PLATFORM,
+            final Iterable<Relationship> initial = stationNode.getRelationships(OUTGOING, WALKS_FROM_STATION, ENTER_PLATFORM,
                     NEIGHBOUR, GROUPED_TO_PARENT);
             Stream<Relationship> relationships = addValidDiversions(stationNode, initial, platformState);
             return new PlatformStationState(platformState, filterExcludingEndNode(relationships, platformState), cost,
@@ -46,7 +46,7 @@ public class PlatformStationState extends StationState {
         }
 
         public PlatformStationState fromStart(NotStartedState notStartedState, Node stationNode, int cost, JourneyStateUpdate journeyState) {
-            final Iterable<Relationship> initial = stationNode.getRelationships(OUTGOING, WALKS_FROM, ENTER_PLATFORM,
+            final Iterable<Relationship> initial = stationNode.getRelationships(OUTGOING, WALKS_FROM_STATION, ENTER_PLATFORM,
                     NEIGHBOUR, GROUPED_TO_PARENT);
             Stream<Relationship> relationships = addValidDiversions(stationNode, initial, notStartedState);
             return new PlatformStationState(notStartedState, relationships, cost, stationNode, journeyState);

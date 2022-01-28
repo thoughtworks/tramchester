@@ -11,15 +11,15 @@ class PostcodeLocationTest {
     @Test
     void shouldGetAreaAndName() {
         LatLong latLon = new LatLong(1,1);
-        PostcodeLocation locationA = new PostcodeLocation(latLon, CaseInsensitiveId.createIdFor("M17AB"), "M");
+        PostcodeLocation locationA = new PostcodeLocation(latLon, CaseInsensitiveId.createIdFor("M17AB"));
         Assertions.assertEquals("M17AB", locationA.getName());
         Assertions.assertEquals("M17AB", locationA.forDTO());
 
-        PostcodeLocation locationB = new PostcodeLocation(latLon, CaseInsensitiveId.createIdFor("wa114ab"), "wa");
+        PostcodeLocation locationB = new PostcodeLocation(latLon, CaseInsensitiveId.createIdFor("wa114ab"));
         Assertions.assertEquals("WA114AB", locationB.getName());
         Assertions.assertEquals("WA114AB", locationB.forDTO());
 
-        PostcodeLocation locationC = new PostcodeLocation(latLon, CaseInsensitiveId.createIdFor("B114AB"), "B");
+        PostcodeLocation locationC = new PostcodeLocation(latLon, CaseInsensitiveId.createIdFor("B114AB"));
         Assertions.assertEquals("B114AB", locationC.getName());
         Assertions.assertEquals("B114AB", locationC.forDTO());
 

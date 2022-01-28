@@ -1,7 +1,6 @@
 package com.tramchester.geo;
 
 import com.tramchester.domain.places.Location;
-import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.LatLong;
 import org.geotools.geometry.GeneralDirectPosition;
 import org.geotools.referencing.ReferencingFactoryFinder;
@@ -107,7 +106,7 @@ public class CoordinateTransforms {
         return Math.sqrt((deltaLat*deltaLat)+(deltaLon*deltaLon));
     }
 
-    public static int calcCostInMinutes(Station stationA, Station stationB, double mph) {
+    public static int calcCostInMinutes(Location<?> stationA, Location<?> stationB, double mph) {
         return calcCostInMinutes(stationA.getLatLong(), stationB, mph);
     }
 

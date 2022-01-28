@@ -9,7 +9,7 @@ import org.neo4j.graphdb.Relationship;
 import java.util.List;
 import java.util.stream.Stream;
 
-import static com.tramchester.graph.TransportRelationshipTypes.WALKS_TO;
+import static com.tramchester.graph.TransportRelationshipTypes.WALKS_TO_STATION;
 import static org.neo4j.graphdb.Direction.OUTGOING;
 
 public class WalkingState extends TraversalState {
@@ -32,7 +32,7 @@ public class WalkingState extends TraversalState {
         }
 
         public TraversalState fromStart(NotStartedState notStartedState, Node firstNode, int cost) {
-            final Iterable<Relationship> relationships = firstNode.getRelationships(OUTGOING, WALKS_TO);
+            final Iterable<Relationship> relationships = firstNode.getRelationships(OUTGOING, WALKS_TO_STATION);
             List<Relationship> towardsDest = notStartedState.traversalOps.getTowardsDestination(relationships);
 
             // prioritise a direct walk from start if one is available

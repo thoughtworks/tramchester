@@ -84,7 +84,7 @@ public class PostcodeRepository {
 
         final IdMap<PostcodeLocation> postcodes = stream.
                 map(postcodeData -> new PostcodeLocation(postcodeData.getGridPosition(),
-                        CaseInsensitiveId.createIdFor(postcodeData.getId()), postcodeArea)).
+                        CaseInsensitiveId.createIdFor(postcodeData.getId()))).
                 collect(IdMap.collector());
         stream.close();
         postcodesAreas.put(postcodeArea, postcodes);

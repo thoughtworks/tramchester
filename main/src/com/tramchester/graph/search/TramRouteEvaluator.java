@@ -24,7 +24,7 @@ import java.util.EnumSet;
 import java.util.Map;
 import java.util.Set;
 
-import static com.tramchester.graph.TransportRelationshipTypes.WALKS_TO;
+import static com.tramchester.graph.TransportRelationshipTypes.WALKS_TO_STATION;
 import static java.lang.String.format;
 
 public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
@@ -246,7 +246,7 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
         final Relationship inboundRelationship = thePath.lastRelationship();
         if (inboundRelationship != null) {
             // for walking routes we do want to include them all even if at same time
-            if (inboundRelationship.isType(WALKS_TO)) {
+            if (inboundRelationship.isType(WALKS_TO_STATION)) {
                 reasons.recordReason(ServiceReason.IsValid(ServiceReason.ReasonCode.WalkOk, howIGotHere));
                 return ServiceReason.ReasonCode.WalkOk;
             }

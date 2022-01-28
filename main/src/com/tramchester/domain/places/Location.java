@@ -5,10 +5,12 @@ import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.geo.GridPosition;
+import com.tramchester.geo.HasGridPosition;
 
 import java.util.Set;
 
-public interface Location<TYPE extends Location<?>> extends HasId<TYPE>, IdForDTO, HasTransportModes, GraphProperty, GraphNode, CoreDomain {
+public interface Location<TYPE extends Location<?>> extends HasId<TYPE>, IdForDTO, HasGridPosition, HasTransportModes,
+        GraphProperty, GraphNode, CoreDomain {
 
     String getName();
 
@@ -31,11 +33,6 @@ public interface Location<TYPE extends Location<?>> extends HasId<TYPE>, IdForDT
     boolean hasDropoff();
 
     boolean isActive();
-
-    // this default makes no sense for walking locations etc
-//    default boolean isActive() {
-//        return hasPickup() || hasDropoff();
-//    }
 
     Set<Route> getDropoffRoutes();
 

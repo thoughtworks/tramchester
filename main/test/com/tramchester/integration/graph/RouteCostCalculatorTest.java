@@ -4,25 +4,17 @@ import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.places.Station;
-import com.tramchester.domain.places.StationWalk;
 import com.tramchester.domain.time.TramServiceDate;
 import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.RouteCostCalculator;
-import com.tramchester.graph.TransportRelationshipTypes;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
 import com.tramchester.repository.StationRepository;
-import com.tramchester.resources.LocationJourneyPlanner;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TramRouteHelper;
 import com.tramchester.testSupport.testTags.DataUpdateTest;
 import org.junit.jupiter.api.*;
-import org.neo4j.graphdb.Node;
-import org.neo4j.graphdb.Relationship;
 import org.neo4j.graphdb.Transaction;
 
-import java.util.UUID;
-
-import static com.tramchester.testSupport.TestEnv.nearAltrincham;
 import static com.tramchester.testSupport.reference.TramStations.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -94,46 +86,46 @@ class RouteCostCalculatorTest {
         assertEquals(63, altyToBury);
     }
 
-    @Test
-    void shouldTestWithWalkAtStart() {
-        // nearAltrincham to Deansgate
+//    @Test
+//    void shouldTestWithWalkAtStart() {
+//        // nearAltrincham to Deansgate
+//
+//        LocationJourneyPlanner locationJourneyPlanner = componentContainer.get(LocationJourneyPlanner.class);
+//
+//        UUID uniqueId = UUID.randomUUID();
+//        Node walkStartNode = locationJourneyPlanner.createWalkingNode(txn, nearAltrincham, uniqueId);
+//        StationWalk stationWalk = new StationWalk(altrincham, 13);
+//        Relationship walkRelationship = locationJourneyPlanner.createWalkRelationship(txn, walkStartNode, stationWalk,
+//                TransportRelationshipTypes.WALKS_TO);
+//
+//        int result = routeCostCalculator.getAverageCostBetween(txn, walkStartNode, Deansgate.from(stationRepository), date);
+//
+//        walkRelationship.delete();
+//        walkStartNode.delete();
+//
+//        assertEquals(37,result);
+//    }
 
-        LocationJourneyPlanner locationJourneyPlanner = componentContainer.get(LocationJourneyPlanner.class);
-
-        UUID uniqueId = UUID.randomUUID();
-        Node walkStartNode = locationJourneyPlanner.createWalkingNode(txn, nearAltrincham, uniqueId);
-        StationWalk stationWalk = new StationWalk(altrincham, 13);
-        Relationship walkRelationship = locationJourneyPlanner.createWalkRelationship(txn, walkStartNode, stationWalk,
-                TransportRelationshipTypes.WALKS_TO);
-
-        int result = routeCostCalculator.getAverageCostBetween(txn, walkStartNode, Deansgate.from(stationRepository), date);
-
-        walkRelationship.delete();
-        walkStartNode.delete();
-
-        assertEquals(37,result);
-    }
-
-    @Test
-    void shouldTestWithWalkAtEnd() {
-        // Deansgate, nearAltrincham
-
-        LocationJourneyPlanner locationJourneyPlanner = componentContainer.get(LocationJourneyPlanner.class);
-
-        UUID uniqueId = UUID.randomUUID();
-        Node walkEndNode = locationJourneyPlanner.createWalkingNode(txn, nearAltrincham, uniqueId);
-        StationWalk stationWalk = new StationWalk(altrincham, 13);
-        Relationship walkRelationship = locationJourneyPlanner.createWalkRelationship(txn, walkEndNode, stationWalk,
-                TransportRelationshipTypes.WALKS_FROM);
-
-        int result = routeCostCalculator.getAverageCostBetween(txn, Deansgate.from(stationRepository), walkEndNode, date);
-
-        walkRelationship.delete();
-        walkEndNode.delete();
-
-        assertEquals(37,result);
-
-    }
+//    @Test
+//    void shouldTestWithWalkAtEnd() {
+//        // Deansgate, nearAltrincham
+//
+//        LocationJourneyPlanner locationJourneyPlanner = componentContainer.get(LocationJourneyPlanner.class);
+//
+//        UUID uniqueId = UUID.randomUUID();
+//        Node walkEndNode = locationJourneyPlanner.createWalkingNode(txn, nearAltrincham, uniqueId);
+//        StationWalk stationWalk = new StationWalk(altrincham, 13);
+//        Relationship walkRelationship = locationJourneyPlanner.createWalkRelationship(txn, walkEndNode, stationWalk,
+//                TransportRelationshipTypes.WALKS_FROM);
+//
+//        int result = routeCostCalculator.getAverageCostBetween(txn, Deansgate.from(stationRepository), walkEndNode, date);
+//
+//        walkRelationship.delete();
+//        walkEndNode.delete();
+//
+//        assertEquals(37,result);
+//
+//    }
 
     @Test
     void shouldComputeSimpleCostBetweenStationsMediaCityAirport() {

@@ -108,8 +108,8 @@ public class TramNetworkTraverser implements PathExpander<JourneyState> {
                 relationships(DEPART, Direction.OUTGOING).
                 relationships(INTERCHANGE_BOARD, Direction.OUTGOING).
                 relationships(INTERCHANGE_DEPART, Direction.OUTGOING).
-                relationships(WALKS_TO, Direction.OUTGOING).
-                relationships(WALKS_FROM, Direction.OUTGOING).
+                relationships(WALKS_TO_STATION, Direction.OUTGOING).
+                relationships(WALKS_FROM_STATION, Direction.OUTGOING).
                 relationships(ENTER_PLATFORM, Direction.OUTGOING).
                 relationships(LEAVE_PLATFORM, Direction.OUTGOING).
                 relationships(TO_SERVICE, Direction.OUTGOING).

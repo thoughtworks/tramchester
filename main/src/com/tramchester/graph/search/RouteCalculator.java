@@ -68,29 +68,29 @@ public class RouteCalculator extends RouteCalculatorSupport implements TramRoute
     }
 
     @Override
-    public Stream<Journey> calculateRoute(Transaction txn, Location<?> startStation, Location<?> destination, JourneyRequest journeyRequest) {
+    public Stream<Journey> calculateRoute(Transaction txn, Location<?> start, Location<?> destination, JourneyRequest journeyRequest) {
         logger.info(format("Finding shortest path for %s (%s) --> %s (%s) for %s",
-                startStation.getName(), startStation.getId(), destination.getName(), destination.getId(), journeyRequest));
+                start.getName(), start.getId(), destination.getName(), destination.getId(), journeyRequest));
 
-        Node startNode = getLocationNodeSafe(txn, startStation);
+        Node startNode = getLocationNodeSafe(txn, start);
         Node endNode = getLocationNodeSafe(txn, destination);
 
         LocationSet destinations = LocationSet.singleton(destination);
 
         final List<TramTime> queryTimes = createQueryTimes.generate(journeyRequest.getOriginalTime());
 
-        NumberOfChanges numberOfChanges =  routeToRouteCosts.getNumberOfChanges(startStation, destination);
+        NumberOfChanges numberOfChanges =  routeToRouteCosts.getNumberOfChanges(start, destination);
         return getJourneyStream(txn, startNode, endNode, journeyRequest, destinations, queryTimes, numberOfChanges).
                 limit(journeyRequest.getMaxNumberOfJourneys());
     }
 
-    public Stream<Journey> calculateRouteWalkAtEnd(Transaction txn, Location<?> start, Node endOfWalk, LocationSet destintations,
+    public Stream<Journey> calculateRouteWalkAtEnd(Transaction txn, Location<?> start, Node endOfWalk, LocationSet destinations,
                                                    JourneyRequest journeyRequest, NumberOfChanges numberOfChanges)
     {
         Node startNode = getLocationNodeSafe(txn, start);
         final List<TramTime> queryTimes = createQueryTimes.generate(journeyRequest.getOriginalTime());
 
-        return getJourneyStream(txn, startNode, endOfWalk, journeyRequest, destintations, queryTimes, numberOfChanges).
+        return getJourneyStream(txn, startNode, endOfWalk, journeyRequest, destinations, queryTimes, numberOfChanges).
                 limit(journeyRequest.getMaxNumberOfJourneys());
     }
 
