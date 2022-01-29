@@ -18,6 +18,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
+import static com.tramchester.testSupport.reference.KnownLocations.nearWythenshaweHosp;
 import static org.junit.jupiter.api.Assertions.*;
 
 @ExtendWith(DropwizardExtensionsSupport.class)
@@ -46,7 +47,7 @@ class PostcodeResourceTest {
         //assertEquals("m", result.getArea());
         assertEquals(TestEnv.postcodeForWythenshaweHosp(), result.getName());
 
-        LatLong expected = TestEnv.nearWythenshaweHosp;
+        LatLong expected = nearWythenshaweHosp.latLong();
         LatLong position = result.getLatLong();
         assertEquals(expected.getLat(), position.getLat(), 0.01);
         assertEquals(expected.getLon(), position.getLon(), 0.01);

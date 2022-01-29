@@ -11,7 +11,6 @@ import com.tramchester.domain.places.MutableStation;
 import com.tramchester.domain.places.NaptanArea;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.LatLong;
-import com.tramchester.geo.CoordinateTransforms;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.StationHelper;
 import org.junit.jupiter.api.Test;
@@ -20,7 +19,7 @@ import java.util.Set;
 
 import static com.tramchester.domain.MutableAgency.Walking;
 import static com.tramchester.domain.reference.TransportMode.*;
-import static com.tramchester.testSupport.TestEnv.nearPiccGardens;
+import static com.tramchester.testSupport.reference.KnownLocations.nearPiccGardens;
 import static org.junit.jupiter.api.Assertions.*;
 
 class StationTest {
@@ -56,8 +55,8 @@ class StationTest {
     @Test
     void shouldHaveCorrectTransportModes() {
         IdFor<NaptanArea> areaId = IdFor.invalid();
-        MutableStation station = new MutableStation(StringIdFor.createId("stationId"), areaId, "name", nearPiccGardens,
-                CoordinateTransforms.getGridPosition(nearPiccGardens), DataSourceID.tfgm);
+        MutableStation station = new MutableStation(StringIdFor.createId("stationId"), areaId, "name", nearPiccGardens.latLong(),
+                nearPiccGardens.grid(), DataSourceID.tfgm);
 
         assertTrue(station.getTransportModes().isEmpty());
 
@@ -76,8 +75,8 @@ class StationTest {
     @Test
     void shouldHavePickupAndDropoffRoutes() {
         IdFor<NaptanArea> areaId = IdFor.invalid();
-        MutableStation station = new MutableStation(StringIdFor.createId("stationId"), areaId, "name", nearPiccGardens,
-                CoordinateTransforms.getGridPosition(nearPiccGardens), DataSourceID.tfgm);
+        MutableStation station = new MutableStation(StringIdFor.createId("stationId"), areaId, "name", nearPiccGardens.latLong(),
+                nearPiccGardens.grid(), DataSourceID.tfgm);
 
         final Route routeA = MutableRoute.getRoute(StringIdFor.createId("routeIdA"), "shortNameA", "nameA",
                 TestEnv.MetAgency(), Tram);

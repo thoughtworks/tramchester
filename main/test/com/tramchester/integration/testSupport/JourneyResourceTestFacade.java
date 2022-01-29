@@ -12,6 +12,7 @@ import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.testSupport.ParseStream;
 import com.tramchester.testSupport.TestEnv;
+import com.tramchester.testSupport.reference.KnownLocations;
 import org.junit.jupiter.api.Assertions;
 
 import javax.ws.rs.core.Response;
@@ -40,14 +41,14 @@ public class JourneyResourceTestFacade {
         return getApiResponse(when, time, prefix(start), end.getId(), null, arriveBy, maxChanges);
     }
 
-    public JourneyPlanRepresentation getJourneyPlan(LocalDate when, TramTime time, LatLong start, IdFor<?> end,
+    public JourneyPlanRepresentation getJourneyPlan(LocalDate when, TramTime time, KnownLocations start, IdFor<?> end,
                                                     boolean arriveBy, int maxChanges) {
-        return getApiResponse(when, time, MyLocation.MY_LOCATION_PLACEHOLDER_ID, end, start, arriveBy, maxChanges);
+        return getApiResponse(when, time, MyLocation.MY_LOCATION_PLACEHOLDER_ID, end, start.latLong(), arriveBy, maxChanges);
     }
 
-    public JourneyPlanRepresentation getJourneyPlan(LocalDate when, TramTime time, IdFor<Station> startId, LatLong end,
+    public JourneyPlanRepresentation getJourneyPlan(LocalDate when, TramTime time, IdFor<Station> startId, KnownLocations end,
                                                     boolean arriveBy, int maxChanges) {
-        return getApiResponse(when, time, startId, MyLocation.MY_LOCATION_PLACEHOLDER_ID, end, arriveBy, maxChanges);
+        return getApiResponse(when, time, startId, MyLocation.MY_LOCATION_PLACEHOLDER_ID, end.latLong(), arriveBy, maxChanges);
     }
 
     public JourneyPlanRepresentation getJourneyPlan(LocalDate when, TramTime time, PostcodeLocation start, PostcodeLocation end,

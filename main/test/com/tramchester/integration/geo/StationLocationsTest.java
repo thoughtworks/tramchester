@@ -5,7 +5,6 @@ import com.tramchester.ComponentsBuilder;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.places.Station;
 import com.tramchester.geo.BoundingBox;
-import com.tramchester.geo.CoordinateTransforms;
 import com.tramchester.geo.MarginInMeters;
 import com.tramchester.geo.StationLocations;
 import com.tramchester.integration.testSupport.tram.TramWithPostcodesEnabled;
@@ -78,7 +77,7 @@ public class StationLocationsTest {
         assertTrue(locations.withinRangeOfStation(nearAltrincham.grid(), margin));
 
         assertFalse(locations.withinRangeOfStation(nearGreenwichLondon.grid(), margin));
-        assertFalse(locations.withinRangeOfStation(CoordinateTransforms.getGridPosition(TestEnv.nearStockportBus), margin));
+        assertFalse(locations.withinRangeOfStation(nearStockportBus.grid(), margin));
     }
 
     @Test

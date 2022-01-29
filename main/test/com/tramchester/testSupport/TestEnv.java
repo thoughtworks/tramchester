@@ -20,7 +20,6 @@ import com.tramchester.domain.time.TramTime;
 import com.tramchester.geo.BoundingBox;
 import com.tramchester.metrics.CacheMetrics;
 import com.tramchester.repository.RouteRepository;
-import com.tramchester.testSupport.reference.KnownLocations;
 import com.tramchester.testSupport.reference.KnownTramRoute;
 import com.tramchester.testSupport.reference.TramStations;
 import org.apache.commons.io.FileUtils;
@@ -51,18 +50,7 @@ public class TestEnv {
     private static final LocalDate saturday;
     private static final LocalDate sunday;
     private static final LocalDate monday;
-
-    public static final LatLong nearAltrincham = KnownLocations.nearAltrincham.latLong();
-    public static final LatLong nearAltrinchamInterchange = KnownLocations.nearAltrinchamInterchange.latLong();
-    public static final LatLong nearPiccGardens = KnownLocations.nearPiccGardens.latLong();
-    public static final LatLong nearShudehill = KnownLocations.nearShudehill.latLong();
-    public static final LatLong nearStockportBus = KnownLocations.nearStockportBus.latLong();
-    public static final LatLong nearGreenwichLondon = KnownLocations.nearGreenwichLondon.latLong();
-    public static final LatLong nearKnutsfordBusStation = KnownLocations.nearKnutsfordBusStation.latLong();
-    public static final LatLong nearStPetersSquare = KnownLocations.nearStPetersSquare.latLong();
-    public final static LatLong nearWythenshaweHosp =  KnownLocations.nearWythenshaweHosp.latLong();
-    public final static LatLong atRoundthornTram = KnownLocations.atRoundthornTram.latLong();
-
+    
     public static final DateTimeFormatter dateFormatDashes = DateTimeFormatter.ofPattern("yyyy-MM-dd");
     public static final DateTimeFormatter dateFormatSimple = DateTimeFormatter.ofPattern("ddMMyyyy");
     public static final Path LiveDataExampleFile = Paths.get("data","test","liveDataSample.json");
@@ -215,10 +203,6 @@ public class TestEnv {
        return "M239LT";
     }
 
-//    public static <T extends CoreDomain> void assertIdEquals(HasId<T> itemA, HasId<T> itemB) {
-//        assertEquals(itemA.getId(), itemB.getId());
-//    }
-
     public static CacheMetrics.RegistersCacheMetrics NoopRegisterMetrics() {
         return new CacheMetrics.RegistersCacheMetrics() {
             @Override
@@ -253,12 +237,6 @@ public class TestEnv {
         assertTrue(routes.size()>=1, "Found "+ routes + " for " + knownTramRoute);
 
         return routes;
-    }
-
-    public static Route singleRoute(RouteRepository routeRepository, IdFor<Agency> agencyId, String shortName) {
-        Set<Route> routes = routeRepository.findRoutesByShortName(agencyId, shortName);
-        assertEquals(1, routes.size(), format("expected to find only one route for %s and %s", agencyId, shortName));
-        return routes.iterator().next();
     }
 
     public static void clearDataCache(ComponentContainer componentContainer) {

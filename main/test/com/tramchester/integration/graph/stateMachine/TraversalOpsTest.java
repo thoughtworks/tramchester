@@ -22,6 +22,7 @@ import com.tramchester.testSupport.reference.TramStations;
 import org.junit.jupiter.api.*;
 import org.neo4j.graphdb.Transaction;
 
+import static com.tramchester.testSupport.reference.KnownLocations.nearPiccGardens;
 import static com.tramchester.testSupport.reference.TramStations.ManAirport;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -70,7 +71,7 @@ public class TraversalOpsTest {
         LocationSet destinationStations = new LocationSet();
         final Station manchesterAirport = stationRepository.getStationById(ManAirport.getId());
         destinationStations.add(manchesterAirport);
-        LatLong destinationLatLon = TestEnv.nearPiccGardens;
+        LatLong destinationLatLon = nearPiccGardens.latLong();
 
         LowestCostsForDestRoutes lowestCostForRoutes = routeToRouteCosts.getLowestCostCalcutatorFor(destinationStations);
 

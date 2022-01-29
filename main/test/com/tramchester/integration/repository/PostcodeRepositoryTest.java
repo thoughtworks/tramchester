@@ -17,6 +17,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import static com.tramchester.testSupport.reference.KnownLocations.nearPiccGardens;
+import static com.tramchester.testSupport.reference.KnownLocations.nearWythenshaweHosp;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
@@ -51,7 +52,7 @@ class PostcodeRepositoryTest {
     @Test
     void shouldLoadPostcodes() {
 
-        LatLong expected = TestEnv.nearWythenshaweHosp;
+        LatLong expected = nearWythenshaweHosp.latLong();
 
         PostcodeLocation result = repository.getPostcode(CaseInsensitiveId.createIdFor(TestEnv.postcodeForWythenshaweHosp()));
 

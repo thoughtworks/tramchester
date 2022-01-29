@@ -4,7 +4,6 @@ import com.tramchester.domain.LocationSet;
 import com.tramchester.domain.places.Location;
 import com.tramchester.domain.places.MyLocation;
 import com.tramchester.domain.places.Station;
-import com.tramchester.testSupport.TestEnv;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -15,6 +14,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static com.tramchester.testSupport.reference.KnownLocations.nearShudehill;
 import static com.tramchester.testSupport.reference.TramStations.*;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -26,7 +26,7 @@ public class LocationSetTest {
     @BeforeEach
     void beforeEachTestRuns() {
         stationList = Arrays.asList(Altrincham.fake(), Bury.fake(), Cornbrook.fake());
-        location = new MyLocation(TestEnv.nearShudehill);
+        location = nearShudehill.location();
     }
 
     private void assertListElementsPresent(LocationSet locationSet) {

@@ -36,6 +36,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.tramchester.testSupport.reference.BusStations.StopAtAltrinchamInterchange;
+import static com.tramchester.testSupport.reference.KnownLocations.nearPiccGardens;
 import static com.tramchester.testSupport.reference.TramStations.*;
 import static com.tramchester.testSupport.reference.TramTransportDataForTestFactory.TramTransportDataForTest.TRIP_A_ID;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -72,7 +73,7 @@ class JourneyToDTOMapperTest extends EasyMockSupport {
         mapper = new JourneyToDTOMapper(stageFactory, providesNotes);
         stages = new LinkedList<>();
         tramServiceDate = new TramServiceDate(when);
-        nearPiccGardensLocation = new MyLocation(TestEnv.nearPiccGardens);
+        nearPiccGardensLocation = nearPiccGardens.location();
     }
 
     private Route createRoute(String name) {

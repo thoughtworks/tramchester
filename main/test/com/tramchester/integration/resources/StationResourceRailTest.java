@@ -14,7 +14,6 @@ import com.tramchester.integration.testSupport.rail.RailStationIds;
 import com.tramchester.integration.testSupport.rail.ResourceRailTestConfig;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.resources.StationResource;
-import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.testTags.TrainTest;
 import io.dropwizard.testing.junit5.DropwizardExtensionsSupport;
 import org.junit.jupiter.api.BeforeEach;
@@ -29,6 +28,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static com.tramchester.testSupport.reference.KnownLocations.nearPiccGardens;
 import static org.junit.jupiter.api.Assertions.*;
 
 @TrainTest
@@ -104,9 +104,9 @@ class StationResourceRailTest {
     @Test
     void shouldGetNearestTrainStations() {
 
-        LatLong nearPiccGardens = TestEnv.nearPiccGardens;
+        LatLong place = nearPiccGardens.latLong();
         Response result = APIClient.getApiResponse(appExtension, String.format("stations/near?lat=%s&lon=%s",
-                nearPiccGardens.getLat(), nearPiccGardens.getLon()));
+                place.getLat(), place.getLon()));
         assertEquals(200, result.getStatus());
 
         List<StationRefDTO> stationList = result.readEntity(new GenericType<>() {});

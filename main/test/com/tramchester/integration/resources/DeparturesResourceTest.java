@@ -25,6 +25,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.SortedSet;
 
+import static com.tramchester.testSupport.reference.KnownLocations.nearAltrinchamInterchange;
 import static org.junit.jupiter.api.Assertions.*;
 
 @ExtendWith(DropwizardExtensionsSupport.class)
@@ -106,7 +107,7 @@ class DeparturesResourceTest {
     @Test
     @LiveDataTestCategory
     void shouldGetNearbyDeparturesQuerytimeNow() {
-        LatLong where = TestEnv.nearAltrinchamInterchange;
+        LatLong where = nearAltrinchamInterchange.latLong();
         LocalTime queryTime = TestEnv.LocalNow().toLocalTime();
         SortedSet<DepartureDTO> departures = getDeparturesForLatlongTime(where.getLat(), where.getLon(), queryTime);
         assertFalse(departures.isEmpty(), "no departures for lat/long altrincham");
@@ -154,13 +155,10 @@ class DeparturesResourceTest {
     @Test
     @LiveDataTestCategory
     void shouldNotGetNearbyIfOutsideOfThreshold() {
-        LatLong where = TestEnv.nearAltrinchamInterchange;
+        LatLong where = nearAltrinchamInterchange.latLong();
 
         final List<String> nearAlty = Arrays.asList(TramStations.Altrincham.getName(),
                 TramStations.NavigationRoad.getName());
-
-//        double lat = 53.4804263d;
-//        double lon = -2.2392436d;
 
         Response response = APIClient.getApiResponse(appExtension, String.format("departures/%s/%s",
                 where.getLat(), where.getLon()));

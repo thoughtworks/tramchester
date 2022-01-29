@@ -6,6 +6,7 @@ import com.tramchester.domain.MutablePlatform;
 import com.tramchester.testSupport.TestEnv;
 import org.junit.jupiter.api.Test;
 
+import static com.tramchester.testSupport.reference.KnownLocations.nearAltrincham;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -14,12 +15,12 @@ class PlatformTest {
     @Test
     void shouldCreatePlatformCorrectly() {
         MutablePlatform platform = new MutablePlatform(StringIdFor.createId("9400ZZ_Name2"), "StationName", "2",
-                TestEnv.nearAltrincham);
+                nearAltrincham.latLong());
 
         assertEquals("StationName platform 2", platform.getName());
         assertEquals(StringIdFor.createId("9400ZZ_Name2"), platform.getId());
         assertEquals( "2", platform.getPlatformNumber());
-        assertEquals(TestEnv.nearAltrincham, platform.getLatLong());
+        assertEquals(nearAltrincham.latLong(), platform.getLatLong());
 
         assertTrue(platform.getRoutes().isEmpty());
         final Route tramTestRoute = TestEnv.getTramTestRoute();

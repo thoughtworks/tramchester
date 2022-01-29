@@ -3,10 +3,10 @@ package com.tramchester.unit.geo;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.geo.CoordinateTransforms;
 import com.tramchester.geo.GridPosition;
-import com.tramchester.testSupport.TestEnv;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Test;
 
+import static com.tramchester.testSupport.reference.KnownLocations.nearWythenshaweHosp;
 import static org.junit.jupiter.api.Assertions.*;
 
 class CoordinateTransformsTest {
@@ -67,7 +67,7 @@ class CoordinateTransformsTest {
 
         LatLong result = CoordinateTransforms.getLatLong(position);
 
-        LatLong expected = TestEnv.nearWythenshaweHosp;
+        LatLong expected = nearWythenshaweHosp.latLong();
         assertEquals(expected.getLat(), result.getLat(), 0.01);
         assertEquals(expected.getLon(), result.getLon(), 0.01);
     }

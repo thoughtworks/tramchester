@@ -34,6 +34,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.tramchester.testSupport.reference.BusStations.*;
+import static com.tramchester.testSupport.reference.KnownLocations.nearAltrincham;
 import static org.junit.jupiter.api.Assertions.*;
 
 @BusTest
@@ -136,7 +137,7 @@ class JourneyPlannerBusTest {
     @Test
     void shouldPlanSimpleBusJourneyFromLocation() {
         TramTime queryTime = TramTime.of(8,45);
-        JourneyPlanRepresentation plan = journeyResourceTestFacade.getJourneyPlan(when, queryTime, TestEnv.nearAltrincham,
+        JourneyPlanRepresentation plan = journeyResourceTestFacade.getJourneyPlan(when, queryTime, nearAltrincham,
                 stockportBusStation.getId(),
                 false, 2);
 
@@ -147,7 +148,7 @@ class JourneyPlannerBusTest {
     @Test
     void shouldPlanDirectWalkToBusStopFromLocation() {
         TramTime queryTime = TramTime.of(8,15);
-        JourneyPlanRepresentation plan = journeyResourceTestFacade.getJourneyPlan(when, queryTime, TestEnv.nearAltrincham,
+        JourneyPlanRepresentation plan = journeyResourceTestFacade.getJourneyPlan(when, queryTime, nearAltrincham,
                 StopAtAltrinchamInterchange.getId(), false, 3);
 
         List<JourneyDTO> found = getValidJourneysAfter(queryTime, plan);

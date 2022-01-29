@@ -26,6 +26,8 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static com.tramchester.testSupport.reference.KnownLocations.nearAltrincham;
+import static com.tramchester.testSupport.reference.KnownLocations.nearShudehill;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class PostcodeBoundBoxRealDataTest {
@@ -126,11 +128,11 @@ public class PostcodeBoundBoxRealDataTest {
     void shouldGetCodeForLocation() {
         // NOTE: these are bounding boxs which cover significantly more area than the postcodes themselves,
         // and can overlap
-        Set<String> codes = boundingBoxs.getCodesFor(CoordinateTransforms.getGridPosition(TestEnv.nearShudehill),
+        Set<String> codes = boundingBoxs.getCodesFor(nearShudehill.grid(),
                 MarginInMeters.of(0));
         assertTrue(codes.contains("m"));
 
-        Set<String> codesForAlty = boundingBoxs.getCodesFor(CoordinateTransforms.getGridPosition(TestEnv.nearAltrincham),
+        Set<String> codesForAlty = boundingBoxs.getCodesFor(nearAltrincham.grid(),
                 MarginInMeters.of(0));
         assertTrue(codesForAlty.contains("wa"));
 

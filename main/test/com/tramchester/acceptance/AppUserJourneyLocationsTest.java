@@ -23,6 +23,7 @@ import java.util.stream.Stream;
 
 import static com.tramchester.acceptance.AppUserJourneyTest.desiredJourney;
 import static com.tramchester.acceptance.AppUserJourneyTest.validateAStage;
+import static com.tramchester.testSupport.reference.KnownLocations.nearAltrincham;
 import static org.hamcrest.CoreMatchers.hasItems;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
@@ -172,7 +173,7 @@ public class AppUserJourneyLocationsTest extends UserJourneyTest {
     }
 
     private AppPage prepare(ProvidesDriver providesDriver) throws IOException {
-        providesDriver.setStubbedLocation(TestEnv.nearAltrincham);
+        providesDriver.setStubbedLocation(nearAltrincham.latLong());
 
         return prepare(providesDriver, url);
     }

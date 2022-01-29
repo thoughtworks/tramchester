@@ -31,6 +31,7 @@ import javax.ws.rs.core.Response;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static com.tramchester.testSupport.reference.KnownLocations.nearPiccGardens;
 import static org.junit.jupiter.api.Assertions.*;
 
 @ExtendWith(DropwizardExtensionsSupport.class)
@@ -131,9 +132,9 @@ class StationResourceTest {
     @Test
     void shouldGetNearestStations() {
 
-        LatLong nearPiccGardens = TestEnv.nearPiccGardens;
+        LatLong place = nearPiccGardens.latLong();
         Response result = APIClient.getApiResponse(appExtension, String.format("stations/near?lat=%s&lon=%s",
-                nearPiccGardens.getLat(), nearPiccGardens.getLon()));
+                place.getLat(), place.getLon()));
         assertEquals(200, result.getStatus());
 
         List<StationRefDTO> stationList = result.readEntity(new GenericType<>() {});

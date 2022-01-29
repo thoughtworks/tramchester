@@ -24,6 +24,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import static com.tramchester.domain.id.StringIdFor.createId;
+import static com.tramchester.testSupport.reference.KnownLocations.nearAltrincham;
 import static com.tramchester.testSupport.reference.TramStations.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -41,7 +42,7 @@ class StageDTOFactoryTest extends EasyMockSupport {
     @SuppressWarnings("JUnitTestMethodWithNoAssertions")
     @Test
     void shouldCreateStageDTOCorrectlyForWalking() {
-        MyLocation location = new MyLocation(TestEnv.nearAltrincham);
+        MyLocation location = nearAltrincham.location();
         WalkingFromStationStage stage = new WalkingFromStationStage(Altrincham.fake(), location, 15,
                 TramTime.of(8,11));
 

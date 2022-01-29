@@ -1,12 +1,12 @@
 package com.tramchester.testSupport.reference;
 
-import com.tramchester.domain.places.Location;
 import com.tramchester.domain.places.MyLocation;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.geo.CoordinateTransforms;
 import com.tramchester.geo.GridPosition;
+import com.tramchester.geo.HasGridPosition;
 
-public enum KnownLocations {
+public enum KnownLocations implements HasGridPosition {
     nearAltrincham(53.387483D, -2.351463D),
     nearAltrinchamInterchange(53.3873279D,-2.3498573D),
     nearPiccGardens(53.4805248D, -2.2394929D),
@@ -25,7 +25,7 @@ public enum KnownLocations {
         latLong = new LatLong(lat,lon);
     }
 
-    public Location<?> location() {
+    public MyLocation location() {
         return new MyLocation(latLong);
     }
 
@@ -35,5 +35,10 @@ public enum KnownLocations {
 
     public GridPosition grid() {
         return CoordinateTransforms.getGridPosition(latLong);
+    }
+
+    @Override
+    public GridPosition getGridPosition() {
+        return grid();
     }
 }

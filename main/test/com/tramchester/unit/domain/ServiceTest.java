@@ -13,6 +13,8 @@ import java.time.LocalDate;
 
 import static com.tramchester.domain.reference.GTFSPickupDropoffType.Regular;
 import static com.tramchester.domain.reference.TransportMode.Tram;
+import static com.tramchester.testSupport.reference.KnownLocations.nearShudehill;
+import static com.tramchester.testSupport.reference.KnownLocations.nearWythenshaweHosp;
 import static com.tramchester.testSupport.reference.TramStations.*;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -37,9 +39,9 @@ class ServiceTest {
     @Test
     void shouldHaveTimeRange() {
         Platform platformA = new MutablePlatform(StringIdFor.createId("platA"), "man airport",
-                "1", TestEnv.nearWythenshaweHosp);
+                "1", nearWythenshaweHosp.latLong());
         Platform platformB = new MutablePlatform(StringIdFor.createId("platB"), "shudehill",
-                "2", TestEnv.nearShudehill);
+                "2", nearShudehill.latLong());
 
         Route route = TestEnv.getTramTestRoute();
         MutableService service = new MutableService(StringIdFor.createId("svcA"));
@@ -67,9 +69,9 @@ class ServiceTest {
     @Test
     void shouldHaveTimeRangeCrossesMidnight() {
         Platform platformA = new MutablePlatform(StringIdFor.createId("platA"), "man airport",
-                "1", TestEnv.nearWythenshaweHosp);
+                "1", nearWythenshaweHosp.latLong());
         Platform platformB = new MutablePlatform(StringIdFor.createId("platB"), "shudehill",
-                "2", TestEnv.nearShudehill);
+                "2", nearShudehill.latLong());
 
         Route route = TestEnv.getTramTestRoute();
         MutableService service = new MutableService(StringIdFor.createId("svcA"));

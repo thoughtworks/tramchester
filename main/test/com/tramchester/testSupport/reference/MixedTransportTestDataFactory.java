@@ -15,7 +15,6 @@ import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.repository.TransportData;
 import com.tramchester.repository.TransportDataContainer;
-import com.tramchester.testSupport.TestEnv;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,6 +29,7 @@ import java.util.Map;
 
 import static com.tramchester.domain.reference.GTFSPickupDropoffType.Regular;
 import static com.tramchester.domain.reference.TransportMode.Bus;
+import static com.tramchester.testSupport.reference.KnownLocations.*;
 
 @LazySingleton
 public class MixedTransportTestDataFactory implements TransportDataFactory {
@@ -117,7 +117,7 @@ public class MixedTransportTestDataFactory implements TransportDataFactory {
         serviceA.addTrip(tripA);
 
         MutableStation first = StationHelper.forTestMutable(MixedTransportTestData.FIRST_STATION, "area1", "startStation",
-                TestEnv.nearAltrincham, dataSourceID);
+                nearAltrincham, dataSourceID);
         addAStation(container, first);
         addRouteStation(container, first, routeA);
         NoPlatformStopCall stopA = createStop(tripA, first, TramTime.of(8, 0),
@@ -125,7 +125,7 @@ public class MixedTransportTestDataFactory implements TransportDataFactory {
         tripA.addStop(stopA);
 
         MutableStation second = StationHelper.forTestMutable(MixedTransportTestData.SECOND_STATION, "area2",
-                "secondStation", TestEnv.nearPiccGardens, dataSourceID);
+                "secondStation", nearPiccGardens, dataSourceID);
         addAStation(container, second);
         addRouteStation(container, second, routeA);
         NoPlatformStopCall stopB = createStop(tripA, second, TramTime.of(8, 11),
@@ -133,7 +133,7 @@ public class MixedTransportTestDataFactory implements TransportDataFactory {
         tripA.addStop(stopB);
 
         MutableStation interchangeStation = StationHelper.forTestMutable(MixedTransportTestData.INTERCHANGE, "area3"
-                , "cornbrookStation", TestEnv.nearShudehill, dataSourceID);
+                , "cornbrookStation", nearShudehill, dataSourceID);
         addAStation(container, interchangeStation);
         addRouteStation(container, interchangeStation, routeA);
         NoPlatformStopCall stopC = createStop(tripA, interchangeStation, TramTime.of(8, 20),
@@ -141,7 +141,7 @@ public class MixedTransportTestDataFactory implements TransportDataFactory {
         tripA.addStop(stopC);
 
         MutableStation last =  StationHelper.forTestMutable(MixedTransportTestData.LAST_STATION, "area4",
-                "endStation", TestEnv.nearPiccGardens, dataSourceID);
+                "endStation", nearPiccGardens, dataSourceID);
         addAStation(container, last);
         addRouteStation(container, last, routeA);
         NoPlatformStopCall stopD = createStop(tripA, last, TramTime.of(8, 40),
@@ -152,11 +152,11 @@ public class MixedTransportTestDataFactory implements TransportDataFactory {
         routeA.addTrip(tripA);
 
         MutableStation stationFour = StationHelper.forTestMutable(MixedTransportTestData.STATION_FOUR, "area4",
-                "Station4", TestEnv.nearPiccGardens, dataSourceID);
+                "Station4", nearPiccGardens, dataSourceID);
         addAStation(container, stationFour);
 
         MutableStation stationFive = StationHelper.forTestMutable(MixedTransportTestData.STATION_FIVE, "area5",
-                 "Station5", TestEnv.nearStockportBus, dataSourceID);
+                 "Station5", nearStockportBus, dataSourceID);
         addAStation(container, stationFive);
 
         //
@@ -255,17 +255,9 @@ public class MixedTransportTestDataFactory implements TransportDataFactory {
             return getStationById(StringIdFor.createId(SECOND_STATION));
         }
 
-//        public Station getInterchange() {
-//            return getStationById(StringIdFor.createId(INTERCHANGE));
-//        }
-
         public Station getLast() {
             return getStationById(StringIdFor.createId(LAST_STATION));
         }
-
-//        public Station getFifthStation() {
-//            return getStationById(StringIdFor.createId(STATION_FIVE));
-//        }
 
         public Station getFourthStation() {
             return getStationById(StringIdFor.createId(STATION_FOUR));

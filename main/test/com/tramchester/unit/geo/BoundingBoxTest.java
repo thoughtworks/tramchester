@@ -13,6 +13,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 
+import static com.tramchester.testSupport.reference.KnownLocations.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 class BoundingBoxTest {
@@ -21,15 +22,15 @@ class BoundingBoxTest {
     void shouldHaveContained() {
         BoundingBox box = TestEnv.getTFGMBusBounds();
 
-        List<LatLong> withinBox = Arrays.asList(TestEnv.nearPiccGardens, TestEnv.nearShudehill,
-                TramStations.ManAirport.getLatLong(), TestEnv.nearAltrincham, TestEnv.nearStockportBus);
+        List<LatLong> withinBox = Arrays.asList(nearPiccGardens.latLong(), nearShudehill.latLong(),
+                TramStations.ManAirport.getLatLong(), nearAltrincham.latLong(), nearStockportBus.latLong());
 
         withinBox.forEach(latLong -> {
             @NotNull GridPosition grid = CoordinateTransforms.getGridPosition(latLong);
             assertTrue(box.contained(grid), grid.toString());
         });
 
-        LatLong outsideBox = TestEnv.nearGreenwichLondon;
+        LatLong outsideBox = nearGreenwichLondon.latLong();
         assertFalse(box.contained(CoordinateTransforms.getGridPosition(outsideBox)));
     }
 

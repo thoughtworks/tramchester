@@ -21,6 +21,7 @@ import java.util.*;
 
 import static com.tramchester.domain.id.StringIdFor.createId;
 import static com.tramchester.domain.reference.TransportMode.*;
+import static com.tramchester.testSupport.reference.KnownLocations.*;
 import static com.tramchester.testSupport.reference.TramStations.*;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -41,7 +42,7 @@ class JourneyTest {
         queryTime = TramTime.of(9,16);
         path = Collections.emptyList();
         stopSequenceNumbers = Arrays.asList(10,11,12,13);
-        myLocation = new MyLocation(TestEnv.nearWythenshaweHosp);
+        myLocation = nearWythenshaweHosp.location();
     }
 
     @Test
@@ -196,10 +197,10 @@ class JourneyTest {
     void shouldHaveCallingPlatformIds() {
         final TramTime departureTimeA = queryTime.plusMinutes(10);
 
-        final Platform platform1 = MutablePlatform.buildForTFGMTram("platformId1", "platformNameA", TestEnv.nearAltrincham);
+        final Platform platform1 = MutablePlatform.buildForTFGMTram("platformId1", "platformNameA", nearAltrincham.latLong());
         final Station alty = Altrincham.fakeWith(platform1);
 
-        final Platform platform2 = MutablePlatform.buildForTFGMTram("platformId2", "platformNameA", TestEnv.nearStPetersSquare);
+        final Platform platform2 = MutablePlatform.buildForTFGMTram("platformId2", "platformNameA", nearStPetersSquare.latLong());
         final Station stPeters = StPetersSquare.fakeWith(platform2);
 
         final VehicleStage stageA = createVehicleStage(alty, stPeters, Bus, departureTimeA, 13);
