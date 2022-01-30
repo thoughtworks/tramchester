@@ -119,7 +119,7 @@ function getStations(app) {
             app.location = pos;
             // populate current location into drop down 
             app.stops.currentLocation.push({
-                name: "Current Location", id: pos.coords.latitude +"," + pos.coords.longitude,
+                name: "My Location", id: pos.coords.latitude +"," + pos.coords.longitude,
                 locationType: "MyLocation"
             })
             getStationsFromServer(app);
