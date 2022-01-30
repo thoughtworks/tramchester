@@ -282,9 +282,8 @@ public class JourneyPlannerResourceTest {
 
     private JourneyPlanRepresentation validateAtLeastOneJourney(TramStations start, TramStations end,
                                                                 LocalDate date, TramTime queryTime)  {
-        JourneyPlanRepresentation results = journeyPlanner.getJourneyPlan(date,
-                queryTime,
-                start, end, false, 3);
+        JourneyPlanRepresentation results = journeyPlanner.getJourneyPlan(date, queryTime, start, end, false, 3);
+
         Set<JourneyDTO> journeys = results.getJourneys();
 
         String message = String.format("from %s to %s at %s on %s", start, end, queryTime, date);

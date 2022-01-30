@@ -50,7 +50,7 @@ public class TestEnv {
     private static final LocalDate saturday;
     private static final LocalDate sunday;
     private static final LocalDate monday;
-    
+
     public static final DateTimeFormatter dateFormatDashes = DateTimeFormatter.ofPattern("yyyy-MM-dd");
     public static final DateTimeFormatter dateFormatSimple = DateTimeFormatter.ofPattern("ddMMyyyy");
     public static final Path LiveDataExampleFile = Paths.get("data","test","liveDataSample.json");

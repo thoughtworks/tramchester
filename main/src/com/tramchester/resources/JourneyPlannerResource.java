@@ -59,10 +59,22 @@ public class JourneyPlannerResource extends UsesRecentCookie implements APIResou
         this.config = config;
     }
 
+    // Content-Type header in the POST request with a value of application/json
+    @POST
+    @Timed
+    @ApiOperation(value = "Find quickest route", response = JourneyPlanRepresentation.class)
+    @CacheControl(maxAge = 1, maxAgeUnit = TimeUnit.MINUTES)
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response quickestRoutePost() {
+        return Response.serverError().build();
+    }
+
     @GET
     @Timed
     @ApiOperation(value = "Find quickest route", response = JourneyPlanRepresentation.class)
     @CacheControl(maxAge = 1, maxAgeUnit = TimeUnit.MINUTES)
+    @Produces(MediaType.APPLICATION_JSON)
     public Response quickestRoute(@QueryParam("start") String startId,
                                   @QueryParam("end") String endId,
                                   @QueryParam("departureTime") String departureTimeRaw,

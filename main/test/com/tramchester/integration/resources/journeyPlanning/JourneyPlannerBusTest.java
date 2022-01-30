@@ -2,7 +2,6 @@ package com.tramchester.integration.resources.journeyPlanning;
 
 
 import com.tramchester.App;
-import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.places.StationGroup;
 import com.tramchester.domain.presentation.DTO.ConfigDTO;
 import com.tramchester.domain.presentation.DTO.JourneyDTO;
@@ -97,22 +96,45 @@ class JourneyPlannerBusTest {
     @Test
     void shouldBusJourneyWestEast() {
         TramTime queryTime = TramTime.of(8,45);
-        validateHasJourney(queryTime, StopAtAltrinchamInterchange, stockportBusStation, 2);
-        validateHasJourney(queryTime, stockportBusStation, StopAtAltrinchamInterchange, 2);
+
+        JourneyPlanRepresentation planA = journeyResourceTestFacade.getJourneyPlan(when, queryTime,
+                StopAtAltrinchamInterchange, stockportBusStation, false, 2);
+        List<JourneyDTO> foundA = getValidJourneysAfter(queryTime, planA);
+        Assertions.assertFalse(foundA.isEmpty());
+
+        JourneyPlanRepresentation planB = journeyResourceTestFacade.getJourneyPlan(when, queryTime,
+                stockportBusStation, StopAtAltrinchamInterchange, false, 2);
+        List<JourneyDTO> foundB = getValidJourneysAfter(queryTime, planB);
+        Assertions.assertFalse(foundB.isEmpty());
     }
 
     @Test
     void shouldPlanBusJourneySouthern() {
         TramTime queryTime = TramTime.of(8,45);
-        validateHasJourney(queryTime, StopAtShudehillInterchange, stockportBusStation, 2);
-        validateHasJourney(queryTime, stockportBusStation, StopAtShudehillInterchange, 3);
+        JourneyPlanRepresentation southNorth = journeyResourceTestFacade.getJourneyPlan(when, queryTime,
+                StopAtShudehillInterchange, stockportBusStation, false, 2);
+        List<JourneyDTO> southNorthFound = getValidJourneysAfter(queryTime, southNorth);
+        Assertions.assertFalse(southNorthFound.isEmpty());
+
+        JourneyPlanRepresentation northSouth = journeyResourceTestFacade.getJourneyPlan(when, queryTime,
+                stockportBusStation, StopAtShudehillInterchange, false, 3);
+        List<JourneyDTO> foundWith3Changes = getValidJourneysAfter(queryTime, northSouth);
+        Assertions.assertFalse(foundWith3Changes.isEmpty());
     }
 
     @Test
     void shouldPlanBusJourneyNorthern() {
         TramTime queryTime = TramTime.of(8,45);
-        validateHasJourney(queryTime, StopAtShudehillInterchange, BuryInterchange, 2);
-        validateHasJourney(queryTime, BuryInterchange, StopAtShudehillInterchange, 2);
+        JourneyPlanRepresentation planA = journeyResourceTestFacade.getJourneyPlan(when, queryTime,
+                StopAtShudehillInterchange, BuryInterchange, false, 2);
+        List<JourneyDTO> foundA = getValidJourneysAfter(queryTime, planA);
+        Assertions.assertFalse(foundA.isEmpty());
+
+
+        JourneyPlanRepresentation planB = journeyResourceTestFacade.getJourneyPlan(when, queryTime,
+                BuryInterchange, StopAtShudehillInterchange, false, 2);
+        List<JourneyDTO> foundB = getValidJourneysAfter(queryTime, planB);
+        Assertions.assertFalse(foundB.isEmpty());
     }
 
     @Test
@@ -137,9 +159,8 @@ class JourneyPlannerBusTest {
     @Test
     void shouldPlanSimpleBusJourneyFromLocation() {
         TramTime queryTime = TramTime.of(8,45);
-        JourneyPlanRepresentation plan = journeyResourceTestFacade.getJourneyPlan(when, queryTime, nearAltrincham,
-                stockportBusStation.getId(),
-                false, 2);
+        JourneyPlanRepresentation plan = journeyResourceTestFacade.getJourneyPlan(when, queryTime,
+                nearAltrincham, stockportBusStation, false, 2);
 
         List<JourneyDTO> found = getValidJourneysAfter(queryTime, plan);
         Assertions.assertFalse(found.isEmpty());
@@ -148,8 +169,8 @@ class JourneyPlannerBusTest {
     @Test
     void shouldPlanDirectWalkToBusStopFromLocation() {
         TramTime queryTime = TramTime.of(8,15);
-        JourneyPlanRepresentation plan = journeyResourceTestFacade.getJourneyPlan(when, queryTime, nearAltrincham,
-                StopAtAltrinchamInterchange.getId(), false, 3);
+        JourneyPlanRepresentation plan = journeyResourceTestFacade.getJourneyPlan(when, queryTime,
+                nearAltrincham.location(), StopAtAltrinchamInterchange, false, 3);
 
         List<JourneyDTO> found = getValidJourneysAfter(queryTime, plan);
         Assertions.assertFalse(found.isEmpty());
@@ -184,12 +205,6 @@ class JourneyPlannerBusTest {
             }
         });
         return found;
-    }
-
-    private void validateHasJourney(TramTime queryTime, HasId<?> start, HasId<?>  end, int maxChanges) {
-        JourneyPlanRepresentation plan = journeyResourceTestFacade.getJourneyPlan(when, queryTime, start, end, false, maxChanges);
-        List<JourneyDTO> found = getValidJourneysAfter(queryTime, plan);
-        Assertions.assertFalse(found.isEmpty());
     }
 
 }
