@@ -33,10 +33,12 @@ export default {
             this.$emit('input', value);
         },
         getArea: function(station) {
-            if (station.area === "") {
-                return "";
-            }
-            return ", " + station.area;
+                    // TODO remove
+            return "";
+            // if (station.area === "") {
+            //     return "";
+            // }
+            // return ", " + station.area;
         },
         serialize: function(station) {
             if (station==null) {
@@ -80,19 +82,21 @@ export default {
                 v-if="!bus">
             <option :value="null" disabled>Please select {{name}}</option>
                 <optgroup label="Nearby" name="Nearby" :id="name+'GroupNearby'" v-if="geo">
-                    <option class="stop" value="MyLocationPlaceholderId">My Location</option>
+                    <!--<option class="stop" value="MyLocationPlaceholderId">My Location</option>-->
+                    <option class="stop" v-for="stop in stops.currentLocation" :value="stop" 
+                        :disabled="stop.id == otherId">{{stop.name}}</option>
                 </optgroup>
                 <optgroup label="Nearest Stops" name="Nearest Stops" :id="name+'GroupNearestStops'" v-if="geo">
                     <option class="stop" v-for="stop in stops.nearestStops" :value="stop" 
-                    :disabled="stop.id == otherId">{{stop.name}}</option>
+                        :disabled="stop.id == otherId">{{stop.name}}</option>
                 </optgroup>
                 <optgroup label="Recent" name="Recent" :id="name+'GroupRecent'">
                     <option class="stop" v-for="stop in stops.recentStops" :value="stop"
-                    :disabled="stop.id == otherId">{{stop.name}}</option>
+                        :disabled="stop.id == otherId">{{stop.name}}</option>
                 </optgroup>
                 <optgroup label="All Stops" name="All Stops" :id="name+'GroupAllStops'">
                     <option class="stop" v-for="stop in allstops" :value="stop"
-                    :disabled="stop.id == otherId">{{stop.name}}</option>
+                        :disabled="stop.id == otherId">{{stop.name}}</option>
                 </optgroup>
         </b-form-select>
     <!-- Typeahead selection mode -->

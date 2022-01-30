@@ -1,5 +1,6 @@
 package com.tramchester.domain.presentation.DTO;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.tramchester.domain.places.LocationType;
@@ -7,7 +8,7 @@ import com.tramchester.domain.places.LocationType;
 import java.time.LocalDate;
 import java.time.LocalTime;
 
-@JsonTypeName("JourneryQuery")
+@JsonTypeName("JourneyQuery")
 public class JourneyQueryDTO  {
     @JsonProperty("date")
     private LocalDate date;
@@ -94,5 +95,10 @@ public class JourneyQueryDTO  {
 
     public int getMaxChanges() {
         return maxChanges;
+    }
+
+    @JsonIgnore
+    public boolean valid() {
+        return startId!=null && startType!=null && destId!=null && destType!=null && date!=null;
     }
 }

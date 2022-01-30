@@ -36,7 +36,8 @@ function livedataUrlFromLocation() {
 }
 
 function livedataUrl() {
-    if (app.startStop==null || app.startStop==='MyLocationPlaceholderId') {
+    //if (app.startStop==null || app.startStop==='MyLocationPlaceholderId') {
+    if (app.startStop==null || app.startStop.locationType=='MyLocation') {
         return livedataUrlFromLocation(app)+'?querytime='+app.time;
     } else {
         return '/api/departures/station/'+app.startStop.id+'?querytime='+app.time;
@@ -116,6 +117,11 @@ function getStations(app) {
     if (app.hasGeo) {
         navigator.geolocation.getCurrentPosition(pos => {
             app.location = pos;
+            // populate current location into drop down 
+            app.stops.currentLocation.push({
+                name: "Current Location", id: pos.coords.latitude +"," + pos.coords.longitude,
+                locationType: "MyLocation"
+            })
             getStationsFromServer(app);
         }, err => {
             console.log("Location disabled: " + err.message);
@@ -199,19 +205,16 @@ function addParsedDatesToLive(liveData) {
     return liveData;
 }
 
- function queryServerForJourneys(app, startStop, endStop, time, date, arriveBy, changes) {
-    var startStopId = (startStop=='MyLocationPlaceholderId') ? 'MyLocationPlaceholderId' : startStop.id;
-    var endStopId = (endStop=='MyLocationPlaceholderId') ? 'MyLocationPlaceholderId' : endStop.id;
-    var urlParams = {
-        start: startStopId, end: endStopId, departureTime: time, departureDate: date, 
-        arriveby: arriveBy, maxChanges: changes
+function queryServerForJourneysPost(app, startStop, endStop, queryTime, queryDate, queryArriveBy, changes) {
+
+    var query = { 
+        startId: startStop.id, destId: endStop.id, time: queryTime, date: queryDate, 
+        arriveBy: queryArriveBy, maxChanges: changes,
+        startType: startStop.locationType,
+        destType: endStop.locationType
     };
-    if (startStop == 'MyLocationPlaceholderId' || endStop == 'MyLocationPlaceholderId') {
-        const place = app.location;
-        urlParams.lat = place.coords.latitude;
-        urlParams.lon = place.coords.longitude;
-    }
-    axios.get('/api/journey/', { params: urlParams, timeout: 60000 }).
+
+    axios.post('/api/journey/', query, {timeout: 60000 }).
         then(function (response) {
             app.networkError = false;
             app.journeys = addParsedDatesToJourney(response.data.journeys);
@@ -242,7 +245,8 @@ function addParsedDatesToLive(liveData) {
     stops: {
         allStops: null,        // (station) id->station
         nearestStops: [],
-        recentStops: []
+        recentStops: [],
+        currentLocation: []
     },
     startStop: null,
     endStop: null,
@@ -299,7 +303,7 @@ var app = new Vue({
                 });
             },
             queryServer() {
-                queryServerForJourneys(app, this.startStop, this.endStop, this.time,
+                queryServerForJourneysPost(app, this.startStop, this.endStop, this.time,
                     this.date, this.arriveBy, this.maxChanges);
                 displayLiveData(app);
             },

@@ -79,6 +79,16 @@ public class JourneyPlannerResource extends UsesRecentCookie implements APIResou
     {
         logger.info("Got journey query " + query);
 
+        if (query==null) {
+            logger.warn("Got null query");
+            return Response.serverError().build();
+        }
+
+        if (!query.valid()) {
+            logger.error("Problem with received: " + query);
+            return Response.serverError().build();
+        }
+
         Location<?> start = locationRepository.getLocation(query.getStartType(), query.getStartId());
         Location<?> dest = locationRepository.getLocation(query.getDestType(), query.getDestId());
 

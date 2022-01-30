@@ -1,5 +1,6 @@
 package com.tramchester.domain.presentation.DTO;
 
+import com.tramchester.domain.places.LocationType;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.places.Location;
 
@@ -7,6 +8,7 @@ import java.util.Set;
 
 @SuppressWarnings("unused")
 public class StationRefDTO {
+    private LocationType locationType;
     private boolean pickUp;
     private boolean dropOff;
     private String id;
@@ -17,6 +19,7 @@ public class StationRefDTO {
         this.id = location.forDTO();
         this.name = location.getName();
         this.transportModes = location.getTransportModes();
+        this.locationType = location.getLocationType();
         this.pickUp = location.hasPickup();
         this.dropOff = location.hasDropoff();
     }
@@ -67,5 +70,9 @@ public class StationRefDTO {
 
     public boolean getDropOff() {
         return dropOff;
+    }
+
+    public LocationType getLocationType() {
+        return locationType;
     }
 }
