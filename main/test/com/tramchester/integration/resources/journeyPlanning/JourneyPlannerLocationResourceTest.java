@@ -47,7 +47,7 @@ class JourneyPlannerLocationResourceTest {
 
     @BeforeEach
     void beforeEachTestRuns() {
-        journeyPlanner = new JourneyResourceTestFacade(appExtension);
+        journeyPlanner = new JourneyResourceTestFacade(appExtension, true);
         when = TestEnv.testDay();
     }
 

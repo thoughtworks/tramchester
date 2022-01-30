@@ -8,10 +8,7 @@ import com.tramchester.domain.id.CaseInsensitiveId;
 import com.tramchester.domain.id.CompositeId;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.StringIdFor;
-import com.tramchester.domain.places.Location;
-import com.tramchester.domain.places.MyLocation;
-import com.tramchester.domain.places.PostcodeLocation;
-import com.tramchester.domain.places.Station;
+import com.tramchester.domain.places.*;
 import com.tramchester.domain.presentation.DTO.JourneyDTO;
 import com.tramchester.domain.presentation.DTO.PostcodeDTO;
 import com.tramchester.domain.presentation.LatLong;
@@ -51,6 +48,12 @@ public class ProcessPlanRequest {
         this.journeyToDTOMapper = journeyToDTOMapper;
     }
 
+    public Stream<JourneyDTO> directRequest(Transaction txn, Location<?> start, Location<?> dest, JourneyRequest journeyRequest) {
+        Stream<Journey> journeys = locationToLocation(txn, start, dest, journeyRequest);
+        return mapToDTOStream(journeyRequest.getDate(), journeys);
+    }
+
+    @Deprecated
     public Stream<JourneyDTO> directRequest(Transaction txn, String startId, String endId, JourneyRequest journeyRequest,
                                             String lat, String lon) {
         Stream<Journey> journeys;
@@ -76,6 +79,7 @@ public class ProcessPlanRequest {
                 map(journey -> journeyToDTOMapper.createJourneyDTO(journey, queryDate));
     }
 
+    @Deprecated
     private Stream<Journey> createJourneyPlan(Transaction txn, String startId, String endId, JourneyRequest journeyRequest) {
         logger.info(format("Plan journey from %s to %s on %s", startId, endId, journeyRequest));
 
@@ -114,6 +118,7 @@ public class ProcessPlanRequest {
         return locToLocPlanner.quickestRouteForLocation(txn, start, dest, journeyRequest);
     }
 
+    @Deprecated
     private PostcodeLocation getPostcode(String text, String diagnostic) {
 
         CaseInsensitiveId<PostcodeLocation> postcodeId = PostcodeDTO.decodePostcodeId(text);
@@ -126,6 +131,7 @@ public class ProcessPlanRequest {
         return postcodeRepository.getPostcode(postcodeId);
     }
 
+    @Deprecated
     private Station getStation(String text, String diagnostic) {
 
         IdFor<Station> stationId = StringIdFor.createId(text);

@@ -146,7 +146,7 @@ class LocationJourneyPlannerTest {
         assertEquals(start.getId(), tramStage.getFirstStation().getId());
         assertEquals(walkChangeStation.getId(), tramStage.getLastStation().getId());
         assertEquals(walkChangeStation.getId(), walkStage.getFirstStation().getId());
-        assertEquals("MyLocationPlaceholderId", walkStage.getLastStation().forDTO());
+        assertEquals("53.387483,-2.351463", walkStage.getLastStation().forDTO());
         assertEquals(walkChangeStation.getId(), walkStage.getActionStation().getId());
     }
 

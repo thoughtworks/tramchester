@@ -5,15 +5,18 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tramchester.RedirectToHttpsUsingELBProtoHeader;
 import com.tramchester.config.TramchesterConfig;
+import com.tramchester.domain.JourneyRequest;
 import com.tramchester.domain.UpdateRecentJourneys;
+import com.tramchester.domain.places.Location;
 import com.tramchester.domain.presentation.DTO.JourneyDTO;
 import com.tramchester.domain.presentation.DTO.JourneyPlanRepresentation;
+import com.tramchester.domain.presentation.DTO.JourneyQueryDTO;
 import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.domain.time.TramServiceDate;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.GraphDatabase;
-import com.tramchester.domain.JourneyRequest;
 import com.tramchester.mappers.JourneyDTODuplicateFilter;
+import com.tramchester.repository.LocationRepository;
 import com.tramchester.router.ProcessPlanRequest;
 import io.dropwizard.jersey.caching.CacheControl;
 import io.swagger.annotations.Api;
@@ -28,6 +31,7 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.*;
 import java.net.URI;
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -45,14 +49,16 @@ public class JourneyPlannerResource extends UsesRecentCookie implements APIResou
     private final GraphDatabase graphDatabaseService;
     private final TramchesterConfig config;
     private final JourneyDTODuplicateFilter duplicateFilter;
+    private final LocationRepository locationRepository;
 
     @Inject
     public JourneyPlannerResource(UpdateRecentJourneys updateRecentJourneys,
                                   ObjectMapper objectMapper, GraphDatabase graphDatabaseService,
                                   ProvidesNow providesNow, ProcessPlanRequest processPlanRequest, TramchesterConfig config,
-                                  JourneyDTODuplicateFilter duplicateFilter) {
+                                  JourneyDTODuplicateFilter duplicateFilter, LocationRepository locationRepository) {
         super(updateRecentJourneys, providesNow, objectMapper);
         this.duplicateFilter = duplicateFilter;
+        this.locationRepository = locationRepository;
         logger.info("created");
         this.processPlanRequest = processPlanRequest;
         this.graphDatabaseService = graphDatabaseService;
@@ -66,9 +72,47 @@ public class JourneyPlannerResource extends UsesRecentCookie implements APIResou
     @CacheControl(maxAge = 1, maxAgeUnit = TimeUnit.MINUTES)
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public Response quickestRoutePost() {
-        return Response.serverError().build();
+    public Response quickestRoutePost(JourneyQueryDTO query,
+                                      @CookieParam(StationResource.TRAMCHESTER_RECENT) Cookie cookie,
+                                      @HeaderParam(RedirectToHttpsUsingELBProtoHeader.X_FORWARDED_PROTO) String forwardedHeader,
+                                      @Context UriInfo uriInfo)
+    {
+        logger.info("Got journey query " + query);
+
+        Location<?> start = locationRepository.getLocation(query.getStartType(), query.getStartId());
+        Location<?> dest = locationRepository.getLocation(query.getDestType(), query.getDestId());
+
+        try(Transaction tx = graphDatabaseService.beginTx() ) {
+
+            Stream<JourneyDTO> dtoStream = getJourneyDTOStream(tx, query.getDate(), query.getTime(), start, dest, query.isArriveBy(),
+                    query.getMaxChanges());
+
+            // duplicates where same path and timings, just different change points
+            Set<JourneyDTO> journeyDTOS = dtoStream.collect(Collectors.toSet());
+            Set<JourneyDTO> filtered = duplicateFilter.apply(journeyDTOS);
+            int diff = journeyDTOS.size()-filtered.size();
+            if (diff!=0) {
+                logger.info(format("Filtered out %s of %s journeys", diff, journeyDTOS.size()));
+            }
+
+            JourneyPlanRepresentation planRepresentation = new JourneyPlanRepresentation(filtered);
+            dtoStream.close();
+
+            if (planRepresentation.getJourneys().size()==0) {
+                logger.warn(format("No journeys found from %s to %s at %s on %s", start, dest ,query.getTime(), query.getDate()));
+            }
+
+            boolean secure = isHttps(forwardedHeader);
+
+            return buildResponse(Response.ok(planRepresentation), start, dest, cookie, uriInfo, secure);
+
+        } catch(Exception exception) {
+            logger.error("Problem processing response", exception);
+            return Response.serverError().build();
+        }
+
     }
+
 
     @GET
     @Timed
@@ -156,6 +200,7 @@ public class JourneyPlannerResource extends UsesRecentCookie implements APIResou
         }
     }
 
+    @Deprecated
     private Response buildResponse(Response.ResponseBuilder responseBuilder, String startId, String endId, Cookie cookie,
                                    UriInfo uriInfo, boolean secure) throws JsonProcessingException {
         URI baseUri = uriInfo.getBaseUri();
@@ -163,6 +208,24 @@ public class JourneyPlannerResource extends UsesRecentCookie implements APIResou
         return responseBuilder.build();
     }
 
+    private Response buildResponse(Response.ResponseBuilder responseBuilder, Location<?> start, Location<?> dest, Cookie cookie,
+                                   UriInfo uriInfo, boolean secure) throws JsonProcessingException {
+        URI baseUri = uriInfo.getBaseUri();
+        responseBuilder.cookie(createRecentCookie(cookie, start, dest, secure, baseUri));
+        return responseBuilder.build();
+    }
+
+
+    private Stream<JourneyDTO> getJourneyDTOStream(Transaction tx, LocalDate date, LocalTime time, Location<?> start,
+                                                   Location<?> dest, boolean arriveBy, int maxChanges) {
+        TramTime queryTime = TramTime.of(time);
+        JourneyRequest journeyRequest = new JourneyRequest(date, queryTime, arriveBy, maxChanges,
+                config.getMaxJourneyDuration(),  config.getMaxNumResults());
+
+        return processPlanRequest.directRequest(tx, start, dest, journeyRequest);
+    }
+
+    @Deprecated
     private Stream<JourneyDTO> getJourneyDTOStream(String startId, String endId, String departureTimeRaw,
                                                    String departureDateRaw, String lat, String lon, String arriveByRaw,
                                                    int maxChanges, Transaction tx) {

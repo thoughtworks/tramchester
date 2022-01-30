@@ -9,7 +9,6 @@ import com.tramchester.domain.time.TramTime;
 import com.tramchester.integration.testSupport.IntegrationAppExtension;
 import com.tramchester.integration.testSupport.JourneyResourceTestFacade;
 import com.tramchester.integration.testSupport.bus.IntegrationBusTestConfig;
-import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.BusStations;
 import com.tramchester.testSupport.reference.TestPostcodes;
@@ -38,16 +37,16 @@ class JourneyPlannerPostcodeBusResourceTest {
     private LocalDate day;
     private TramTime time;
     private JourneyResourceTestFacade journeyPlanner;
-    private StationRepository stationRepository;
+//    private StationRepository stationRepository;
 
     @BeforeEach
     void beforeEachTestRuns() {
         day = TestEnv.testDay();
         time = TramTime.of(9,35);
-        journeyPlanner = new JourneyResourceTestFacade(appExtension);
+        journeyPlanner = new JourneyResourceTestFacade(appExtension, false);
 
         App app =  appExtension.getApplication();
-        stationRepository = app.getDependencies().get(StationRepository .class);
+//        stationRepository = app.getDependencies().get(StationRepository .class);
     }
 
     @Test

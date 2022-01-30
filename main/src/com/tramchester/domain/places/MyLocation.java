@@ -17,13 +17,30 @@ import java.util.Set;
 
 public class MyLocation implements Location<MyLocation> {
 
+    @Deprecated
     public static final String MY_LOCATION_PLACEHOLDER_ID = "MyLocationPlaceholderId";
-    private static final IdFor<MyLocation> LocationPlaceHolder = StringIdFor.createId(MY_LOCATION_PLACEHOLDER_ID);
+
+//    @Deprecated
+//    private static final IdFor<MyLocation> LocationPlaceHolder = StringIdFor.createId(MY_LOCATION_PLACEHOLDER_ID);
+//
+    public static IdFor<MyLocation> createId(LatLong latLong) {
+        return StringIdFor.createId(String.format("%s,%s", latLong.getLat(), latLong.getLon()));
+    }
 
     private final LatLong latLong;
 
     public static MyLocation create(LatLong latLong) {
         return new MyLocation(latLong);
+    }
+
+    public static MyLocation parseFromId(String rawId) {
+        String[] parts = rawId.split(",");
+        if (parts.length!=2) {
+            throw new NumberFormatException("Cannot parse LatLong " + rawId);
+        }
+        double lat = Double.parseDouble(parts[0]);
+        double lon = Double.parseDouble(parts[1]);
+        return new MyLocation(new LatLong(lat, lon));
     }
 
     @Override
@@ -37,7 +54,7 @@ public class MyLocation implements Location<MyLocation> {
 
     @Override
     public IdFor<MyLocation> getId() {
-        return LocationPlaceHolder;
+        return createId(latLong);
     }
 
     @Override
@@ -124,6 +141,7 @@ public class MyLocation implements Location<MyLocation> {
         return getId().forDTO();
     }
 
+    @Deprecated
     public static boolean isUserLocation(String text) {
         return MY_LOCATION_PLACEHOLDER_ID.equals(text);
     }

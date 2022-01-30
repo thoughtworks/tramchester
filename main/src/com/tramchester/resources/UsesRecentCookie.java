@@ -4,6 +4,8 @@ package com.tramchester.resources;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tramchester.domain.UpdateRecentJourneys;
+import com.tramchester.domain.places.Location;
+import com.tramchester.domain.places.LocationType;
 import com.tramchester.domain.places.MyLocation;
 import com.tramchester.domain.presentation.RecentJourneys;
 import com.tramchester.domain.time.ProvidesNow;
@@ -47,6 +49,26 @@ public class UsesRecentCookie extends TransportResource {
         }
     }
 
+    protected NewCookie createRecentCookie(Cookie cookie, Location<?> start,  Location<?> dest, boolean secure, URI baseURI) throws JsonProcessingException {
+        logger.info(format("Updating recent stations cookie with %s and %s ",start, dest));
+        RecentJourneys recentJourneys = recentFromCookie(cookie);
+
+        if (start.getLocationType() == LocationType.Station) {
+            recentJourneys = updateRecentJourneys.createNewJourneys(recentJourneys, providesNow, start);
+        }
+        if (dest.getLocationType() == LocationType.Station) {
+            recentJourneys = updateRecentJourneys.createNewJourneys(recentJourneys, providesNow, dest);
+        }
+
+        int maxAgeSecs = 60 * 60 * 24 * 100;
+
+        // NOTE: SameSite is set via ResponseCookieFilter as NewCookie can't set SameSite (yet, TODO)
+        return new NewCookie(TRAMCHESTER_RECENT, RecentJourneys.encodeCookie(mapper, recentJourneys)
+                , "/api", baseURI.getHost(), VERSION,
+                "tramchester recent journeys", maxAgeSecs, secure);
+    }
+
+    @Deprecated
     protected NewCookie createRecentCookie(Cookie cookie, String fromId, String endId, boolean secure, URI baseURI) throws JsonProcessingException {
         logger.info(format("Updating recent stations cookie with %s and %s ",fromId, endId));
         RecentJourneys recentJourneys = recentFromCookie(cookie);
@@ -64,6 +86,7 @@ public class UsesRecentCookie extends TransportResource {
                 "tramchester recent journeys", maxAgeSecs, secure);
     }
 
+    @Deprecated
     private boolean isFromMyLocation(String startId) {
         return MyLocation.MY_LOCATION_PLACEHOLDER_ID.equals(startId);
     }

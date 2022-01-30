@@ -2,6 +2,7 @@ package com.tramchester.domain;
 
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.config.TramchesterConfig;
+import com.tramchester.domain.places.Location;
 import com.tramchester.domain.presentation.RecentJourneys;
 import com.tramchester.domain.time.ProvidesNow;
 import org.slf4j.Logger;
@@ -27,6 +28,20 @@ public class UpdateRecentJourneys {
         }
     }
 
+    public RecentJourneys createNewJourneys(RecentJourneys recentJourneys, ProvidesNow providesNow, Location<?> location) {
+        Timestamped timestamped = new Timestamped(location, providesNow.getDateTime());
+        Set<Timestamped> from = new HashSet<>(recentJourneys.getRecentIds());
+        if (from.contains(timestamped)) {
+            from.remove(timestamped);
+        } else if (from.size()>=limit) {
+            Timestamped last = findOldest(from);
+            from.remove(last);
+        }
+        from.add(timestamped);
+        return new RecentJourneys().setTimestamps(from);
+    }
+
+    @Deprecated
     public RecentJourneys createNewJourneys(RecentJourneys recentJourneys, ProvidesNow providesNow, String stationId) {
         Timestamped timestamped = new Timestamped(stationId, providesNow.getDateTime());
         Set<Timestamped> from = new HashSet<>(recentJourneys.getRecentIds());

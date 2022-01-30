@@ -7,6 +7,7 @@ import com.tramchester.domain.places.LocationType;
 import com.tramchester.domain.places.MyLocation;
 import com.tramchester.domain.presentation.DTO.JourneyDTO;
 import com.tramchester.domain.presentation.DTO.JourneyPlanRepresentation;
+import com.tramchester.domain.presentation.DTO.JourneyQueryDTO;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.repository.StationRepository;
@@ -16,11 +17,13 @@ import com.tramchester.testSupport.reference.FakeStation;
 import com.tramchester.testSupport.reference.KnownLocations;
 import org.junit.jupiter.api.Assertions;
 
+import  javax.ws.rs.core.Cookie;
 import javax.ws.rs.core.Response;
 import java.io.IOException;
 import java.io.InputStream;
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.Collections;
 import java.util.List;
 
 import static com.tramchester.testSupport.TestEnv.dateFormatDashes;
@@ -31,14 +34,17 @@ public class JourneyResourceTestFacade {
     private final IntegrationAppExtension appExtension;
     private final ParseStream<JourneyDTO> parseStream;
     private final StationRepository stationRepository;
+    private final boolean usePost;
 
-    public JourneyResourceTestFacade(IntegrationAppExtension appExtension) {
+    public JourneyResourceTestFacade(IntegrationAppExtension appExtension, boolean post) {
         this.appExtension = appExtension;
         App app =  appExtension.getApplication();
         stationRepository = app.getDependencies().get(StationRepository.class);
 
         ObjectMapper mapper = new ObjectMapper();
         parseStream = new ParseStream<>(mapper);
+
+       this.usePost = post;
     }
 
     public JourneyPlanRepresentation getJourneyPlan(LocalDate when, TramTime time, Location<?> start, Location<?> end,
@@ -70,8 +76,8 @@ public class JourneyResourceTestFacade {
     public List<JourneyDTO> getJourneyPlanStreamed(LocalDate queryDate, TramTime time, FakeStation start,
                                                    FakeStation dest, boolean arriveBy, int maxChanges) throws IOException {
 
-        Response response = fetchJourneyResponceGET(queryDate, time.asLocalTime(), start.from(stationRepository),
-                dest.from(stationRepository), arriveBy, maxChanges, true);
+        Response response = getFromAPI(queryDate, time.asLocalTime(), start.from(stationRepository),
+                dest.from(stationRepository), arriveBy, maxChanges, true, Collections.emptyList());
 
         Assertions.assertEquals(200, response.getStatus());
 
@@ -83,15 +89,36 @@ public class JourneyResourceTestFacade {
     private JourneyPlanRepresentation getPlan(LocalDate when, TramTime time, Location<?> start, Location<?> dest,
                                               boolean arriveBy, int maxChanges) {
 
-        Response response = fetchJourneyResponceGET(when, time.asLocalTime(), start, dest, arriveBy, maxChanges, false);
+        Response response = getFromAPI(when, time.asLocalTime(), start, dest, arriveBy, maxChanges, false, Collections.emptyList());
 
         Assertions.assertEquals(200, response.getStatus());
         return response.readEntity(JourneyPlanRepresentation.class);
     }
 
-    private Response fetchJourneyResponceGET(LocalDate date, LocalTime time, Location<?> start,  Location<?> dest,
-                                             boolean arriveBy, int maxChanges, boolean streamed) {
+    public Response getFromAPI(LocalDate date, LocalTime time, Location<?> start, Location<?> dest,
+                                boolean arriveBy, int maxChanges, boolean streamed, List<Cookie> cookies) {
 
+        if (usePost) {
+            return getJourneyFromAPIPOST(date, time, start, dest, arriveBy, maxChanges, streamed, cookies);
+        } else {
+            return getJourneyFromAPIGET(date, time, start, dest, arriveBy, maxChanges, streamed, cookies);
+        }
+    }
+
+    private Response getJourneyFromAPIPOST(LocalDate date, LocalTime time, Location<?> start, Location<?> dest,
+                                           boolean arriveBy, int maxChanges, boolean streamed, List<Cookie> cookies) {
+        String startId = start.getId().forDTO();
+        String destId = dest.getId().forDTO();
+        LocationType startType = start.getLocationType();
+        LocationType destType = dest.getLocationType();
+
+        JourneyQueryDTO query = new JourneyQueryDTO(date, time, startType, startId, destType, destId, arriveBy, maxChanges);
+        String prefix = streamed ? "journey/streamed" : "journey";
+        return APIClient.postAPIRequest(appExtension, prefix, query, cookies);
+    }
+
+    private Response getJourneyFromAPIGET(LocalDate date, LocalTime time, Location<?> start, Location<?> dest,
+                                          boolean arriveBy, int maxChanges, boolean streamed, List<Cookie> cookies) {
         String startAsString = getStringId(start);
         String destAsString = getStringId(dest);
 
@@ -105,15 +132,15 @@ public class JourneyResourceTestFacade {
         String queryString = String.format("%s?start=%s&end=%s&departureTime=%s&departureDate=%s&arriveby=%s&maxChanges=%s",
                 prefix, startAsString, destAsString, timeString, dateString, arriveBy, maxChanges);
 
-        if (MyLocation.MY_LOCATION_PLACEHOLDER_ID.equals(startAsString) || MyLocation.MY_LOCATION_PLACEHOLDER_ID.equals(destAsString)) {
+        if (start.getLocationType()==LocationType.MyLocation || dest.getLocationType()==LocationType.MyLocation) {
             // todo remove the null check once all callers pass invalid instead
-            if (latLong==null || !latLong.isValid()) {
+            if (latLong == null || !latLong.isValid()) {
                 fail("must provide latlong");
             } else {
                 queryString = String.format("%s&lat=%f&lon=%f", queryString, latLong.getLat(), latLong.getLon());
             }
         }
-        return APIClient.getApiResponse(appExtension, queryString);
+        return APIClient.getApiResponse(appExtension, queryString, cookies);
     }
 
 

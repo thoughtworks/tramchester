@@ -4,6 +4,8 @@ package com.tramchester.domain;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.tramchester.domain.id.IdFor;
+import com.tramchester.domain.places.Location;
+import com.tramchester.domain.places.LocationType;
 import com.tramchester.domain.places.Station;
 import com.tramchester.mappers.serialisation.LocalDateTimeJsonDeserializerAsMillis;
 import com.tramchester.mappers.serialisation.LocalDateTimeJsonSerializeAsMillis;
@@ -37,6 +39,14 @@ public class Timestamped  {
         this(id.forDTO(), when);
     }
 
+    public Timestamped(Location<?> location, LocalDateTime when) {
+        this(location.getId().forDTO(), when);
+        if (location.getLocationType()!= LocationType.Station) {
+            throw new RuntimeException("Only recent stations support in cookies currently");
+        }
+    }
+
+    @Deprecated
     public Timestamped(String id, LocalDateTime when) {
         this.id = id;
         this.when = when;

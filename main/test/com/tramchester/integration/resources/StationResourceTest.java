@@ -154,7 +154,7 @@ class StationResourceTest {
         Cookie cookie = createRecentsCookieFor(TramStations.Altrincham, TramStations.Bury, TramStations.ManAirport);
 
         // All
-        Response result = APIClient.getApiResponse(appExtension, "stations/recent", cookie);
+        Response result = APIClient.getApiResponse(appExtension, "stations/recent", List.of(cookie));
         assertEquals(200, result.getStatus());
 
         List<StationRefDTO> stationDtos = result.readEntity(new GenericType<>() {});
