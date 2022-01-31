@@ -52,7 +52,7 @@ class JourneyPlannerBusTest {
     @BeforeEach
     void beforeEachTestRuns() {
         when = TestEnv.testDay();
-        journeyResourceTestFacade = new JourneyResourceTestFacade(appExt, true);
+        journeyResourceTestFacade = new JourneyResourceTestFacade(appExt);
         App app = appExt.getApplication();
 
         stationRepository = app.getDependencies().get(StationRepository.class);

@@ -31,7 +31,7 @@ public class JourneyPlannerResourceStreamingTest {
     @BeforeEach
     void beforeEachTestRuns() {
         when = TestEnv.testDay();
-        journeyPlanner = new JourneyResourceTestFacade(appExtension, true);
+        journeyPlanner = new JourneyResourceTestFacade(appExtension);
     }
 
     @Test

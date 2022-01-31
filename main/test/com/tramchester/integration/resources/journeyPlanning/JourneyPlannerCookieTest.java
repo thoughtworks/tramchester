@@ -47,7 +47,7 @@ public class JourneyPlannerCookieTest {
 
     @BeforeEach
     void beforeEachTestRuns() {
-        journeyPlanner = new JourneyResourceTestFacade(appExtension, true);
+        journeyPlanner = new JourneyResourceTestFacade(appExtension);
         now = TestEnv.LocalNow();
     }
 

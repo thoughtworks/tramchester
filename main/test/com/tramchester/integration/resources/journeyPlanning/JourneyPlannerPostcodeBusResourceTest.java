@@ -37,16 +37,12 @@ class JourneyPlannerPostcodeBusResourceTest {
     private LocalDate day;
     private TramTime time;
     private JourneyResourceTestFacade journeyPlanner;
-//    private StationRepository stationRepository;
 
     @BeforeEach
     void beforeEachTestRuns() {
         day = TestEnv.testDay();
         time = TramTime.of(9,35);
-        journeyPlanner = new JourneyResourceTestFacade(appExtension, false);
-
-        App app =  appExtension.getApplication();
-//        stationRepository = app.getDependencies().get(StationRepository .class);
+        journeyPlanner = new JourneyResourceTestFacade(appExtension);
     }
 
     @Test

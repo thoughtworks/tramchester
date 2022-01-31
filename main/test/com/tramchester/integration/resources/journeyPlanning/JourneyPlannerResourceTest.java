@@ -49,7 +49,7 @@ public class JourneyPlannerResourceTest {
     void beforeEachTestRuns() {
         when = TestEnv.testDay();
         tramServiceDate = new TramServiceDate(when);
-        journeyPlanner = new JourneyResourceTestFacade(appExtension, true);
+        journeyPlanner = new JourneyResourceTestFacade(appExtension);
     }
 
     @Test

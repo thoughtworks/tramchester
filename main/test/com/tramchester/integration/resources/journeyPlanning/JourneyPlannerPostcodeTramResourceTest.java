@@ -37,7 +37,7 @@ class JourneyPlannerPostcodeTramResourceTest {
     void beforeEachTestRuns() {
         day = TestEnv.testDay();
         time = TramTime.of(9,35);
-        journeyPlanner = new JourneyResourceTestFacade(appExtension, true);
+        journeyPlanner = new JourneyResourceTestFacade(appExtension);
     }
 
     @Test
