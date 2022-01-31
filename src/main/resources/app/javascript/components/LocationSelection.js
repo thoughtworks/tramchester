@@ -22,6 +22,7 @@ export default {
         VueTypeaheadBootstrap
     },
     /// NOTE: don't camel case these, browser will treat them as all lowercase....
+    // TODO Add whether selection is for a dropoff or a pickup
     props: ['value','other','name','bus','stops','geo','disabled'], 
     data: function () {
         return {
@@ -32,19 +33,11 @@ export default {
         updateValue(value) {
             this.$emit('input', value);
         },
-        getArea: function(station) {
-                    // TODO remove
-            return "";
-            // if (station.area === "") {
-            //     return "";
-            // }
-            // return ", " + station.area;
-        },
         serialize: function(station) {
             if (station==null) {
                 return "";
             }
-            return station.name + this.getArea(station) +' (' + station.transportModes +')';
+            return station.name + ' (' + station.transportModes + ')';
         }
     },
     computed: {
