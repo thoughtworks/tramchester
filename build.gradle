@@ -64,7 +64,7 @@ dependencies {
     implementation('software.amazon.awssdk:cloudformation:2.17.99')
     // aws cdk
     implementation 'software.amazon.awscdk:core:1.134.0',
-            'software.amazon.awscdk:s3:1.134.0',
+            'software.amazon.awscdk:s3:1.143.0',
             'software.amazon.awscdk:ec2:1.134.0',
             'software.amazon.awscdk:elasticloadbalancingv2:1.134.0',
             'software.amazon.awscdk:autoscaling:1.134.0',
@@ -126,6 +126,7 @@ task cleanGraph() {
                 'databases/integrationTrainTest',
                 'databases/integrationNeighboursTest',
                 'databases/neighboursTest',
+                'databases/integrationTramTrainGMTest',
                 'databases/tramchesterAcceptance.db',
                 'databases/all.db',
                 'tramchester.db', 'buses.db', 'trains.db', 'all.db', 'rail.db', 'gm_rail.db'
@@ -250,7 +251,7 @@ task integration(type: Test, dependsOn: compileJava) {
         //excludeTags "liveDataMessages" // these go away periodically...
         //excludeTags "liveData" // also goes away on occasion
         //excludeTags "dataExpiry" // can be useful to exclude when big changes to timetable are upcoming
-        //excludeTags "postcode" // not needed for tram, but used by buses
+        excludeTags "postcode" // not needed for tram, but used by buses
         excludeTags "BusTest"
         excludeTags "TrainTest"
     }
