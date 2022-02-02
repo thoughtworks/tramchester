@@ -9,7 +9,7 @@ import com.tramchester.domain.presentation.DTO.AreaBoundaryDTO;
 import com.tramchester.domain.presentation.DTO.BoxDTO;
 import com.tramchester.domain.presentation.DTO.StationGroupDTO;
 import com.tramchester.domain.presentation.DTO.StationLinkDTO;
-import com.tramchester.domain.presentation.DTO.factory.StationDTOFactory;
+import com.tramchester.domain.presentation.DTO.factory.DTOFactory;
 import com.tramchester.geo.StationLocations;
 import com.tramchester.graph.search.FindStationLinks;
 import com.tramchester.repository.NeighboursRepository;
@@ -46,12 +46,12 @@ public class StationGeographyResource implements APIResource, JourneyPlanningMar
     private final TramchesterConfig config;
     private final StationLocations stationLocations;
     private final NaptanRespository naptanRespository;
-    private final StationDTOFactory dtoFactory;
+    private final DTOFactory dtoFactory;
 
     @Inject
     public StationGeographyResource(FindStationLinks findStationLinks, NeighboursRepository neighboursRepository,
                                     StationGroupsRepository stationGroupsRepository, TramchesterConfig config,
-                                    StationLocations stationLocations, NaptanRespository naptanRespository, StationDTOFactory dtoFactory) {
+                                    StationLocations stationLocations, NaptanRespository naptanRespository, DTOFactory dtoFactory) {
         this.naptanRespository = naptanRespository;
         this.dtoFactory = dtoFactory;
         this.findStationLinks = findStationLinks;

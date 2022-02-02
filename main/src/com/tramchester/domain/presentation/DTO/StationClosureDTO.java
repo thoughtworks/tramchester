@@ -9,11 +9,11 @@ import java.time.LocalDate;
 import java.util.List;
 
 public class StationClosureDTO {
-    private List<StationRefDTO> stations;
+    private List<LocationRefDTO> stations;
     private LocalDate begin;
     private LocalDate end;
 
-    public StationClosureDTO(LocalDate begin, LocalDate end, List<StationRefDTO> stations) {
+    public StationClosureDTO(LocalDate begin, LocalDate end, List<LocationRefDTO> stations) {
         this.stations = stations;
         this.begin = begin;
         this.end = end;
@@ -24,7 +24,7 @@ public class StationClosureDTO {
         // deserialisation
     }
 
-    public List<StationRefDTO> getStations() {
+    public List<LocationRefDTO> getStations() {
         return stations;
     }
 

@@ -4,8 +4,8 @@ import com.codahale.metrics.annotation.Timed;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tramchester.domain.BoxWithServiceFrequency;
 import com.tramchester.domain.presentation.DTO.BoxWithFrequencyDTO;
-import com.tramchester.domain.presentation.DTO.StationRefDTO;
-import com.tramchester.domain.presentation.DTO.factory.StationDTOFactory;
+import com.tramchester.domain.presentation.DTO.LocationRefDTO;
+import com.tramchester.domain.presentation.DTO.factory.DTOFactory;
 import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.geo.StopCallsForGrid;
@@ -36,14 +36,14 @@ public class FrequencyResource extends TransportResource implements APIResource 
     private static final Logger logger = LoggerFactory.getLogger(FrequencyResource.class);
 
     private final ObjectMapper objectMapper;
-    private final StationDTOFactory stationDTOFactory;
+    private final DTOFactory DTOFactory;
     private final StopCallsForGrid stopCallsForGrid;
 
     @Inject
     public FrequencyResource(ObjectMapper objectMapper, StopCallsForGrid stopCallsForGrid, ProvidesNow providesNow,
-                             StationDTOFactory stationDTOFactory) {
+                             DTOFactory DTOFactory) {
         super(providesNow);
-        this.stationDTOFactory = stationDTOFactory;
+        this.DTOFactory = DTOFactory;
         logger.info("created");
         this.objectMapper = objectMapper;
         this.stopCallsForGrid = stopCallsForGrid;
@@ -73,8 +73,8 @@ public class FrequencyResource extends TransportResource implements APIResource 
     }
 
     private BoxWithFrequencyDTO createDTO(BoxWithServiceFrequency result) {
-        List<StationRefDTO> stopDTOs = result.getStationsWithStopCalls().stream().
-                map(stationDTOFactory::createStationRefDTO).
+        List<LocationRefDTO> stopDTOs = result.getStationsWithStopCalls().stream().
+                map(DTOFactory::createLocationRefDTO).
                 collect(Collectors.toList());
 
         return new BoxWithFrequencyDTO(result, stopDTOs, result.getNumberOfStopcalls(), new ArrayList<>(result.getModes()));

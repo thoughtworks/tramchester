@@ -11,9 +11,9 @@ import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.DTO.LocationDTO;
 import com.tramchester.domain.presentation.DTO.StationClosureDTO;
-import com.tramchester.domain.presentation.DTO.StationRefDTO;
-import com.tramchester.domain.presentation.DTO.StationRefWithPosition;
-import com.tramchester.domain.presentation.DTO.factory.StationDTOFactory;
+import com.tramchester.domain.presentation.DTO.LocationRefDTO;
+import com.tramchester.domain.presentation.DTO.LocationRefWithPosition;
+import com.tramchester.domain.presentation.DTO.factory.DTOFactory;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.presentation.RecentJourneys;
 import com.tramchester.domain.reference.TransportMode;
@@ -52,7 +52,7 @@ public class StationResource extends UsesRecentCookie implements APIResource {
     private final DataSourceRepository dataSourceRepository;
     private final StationLocations stationLocations;
     private final ClosedStationsRepository closedStationsRepository;
-    private final StationDTOFactory stationDTOFactory;
+    private final DTOFactory DTOFactory;
     private final TramchesterConfig config;
 
     @Inject
@@ -60,10 +60,10 @@ public class StationResource extends UsesRecentCookie implements APIResource {
                            UpdateRecentJourneys updateRecentJourneys, ObjectMapper mapper,
                            ProvidesNow providesNow,
                            DataSourceRepository dataSourceRepository, StationLocations stationLocations,
-                           ClosedStationsRepository closedStationsRepository, StationDTOFactory stationDTOFactory,
+                           ClosedStationsRepository closedStationsRepository, DTOFactory DTOFactory,
                            TramchesterConfig config) {
         super(updateRecentJourneys, providesNow, mapper);
-        this.stationDTOFactory = stationDTOFactory;
+        this.DTOFactory = DTOFactory;
         logger.info("created");
         this.stationRepository = stationRepository;
         this.dataSourceRepository = dataSourceRepository;
@@ -89,7 +89,7 @@ public class StationResource extends UsesRecentCookie implements APIResource {
     @GET
     @Timed
     @Path("/mode/{mode}")
-    @ApiOperation(value = "Get all stations for transport mode", response = StationRefDTO.class, responseContainer = "List")
+    @ApiOperation(value = "Get all stations for transport mode", response = LocationRefDTO.class, responseContainer = "List")
     @CacheControl(maxAge = 1, maxAgeUnit = TimeUnit.HOURS, isPrivate = false)
     public Response getByMode(@PathParam("mode") String rawMode, @Context Request request) {
         logger.info("Get stations for transport mode: " + rawMode);
@@ -104,7 +104,7 @@ public class StationResource extends UsesRecentCookie implements APIResource {
 
             if (builder==null) {
                 Set<Station> matching = stationRepository.getStationsServing(mode);
-                List<StationRefDTO> results = toStationRefDTOList(matching);
+                List<LocationRefDTO> results = toStationRefDTOList(matching);
                 if (results.isEmpty()) {
                     logger.warn("No stations found for " + mode.name());
                 } else {
@@ -125,13 +125,13 @@ public class StationResource extends UsesRecentCookie implements APIResource {
     @GET
     @Timed
     @Path("/all")
-    @ApiOperation(value = "Get all stations", response = StationRefDTO.class, responseContainer = "List")
+    @ApiOperation(value = "Get all stations", response = LocationRefDTO.class, responseContainer = "List")
     @CacheControl(maxAge = 1, maxAgeUnit = TimeUnit.HOURS, isPrivate = false)
     public Response getByMode(@Context Request request) {
         logger.info("Get all stations");
 
-        List<StationRefWithPosition> results = stationRepository.getActiveStationStream().
-                map(stationDTOFactory::createStationRefWithPosition).
+        List<LocationRefWithPosition> results = stationRepository.getActiveStationStream().
+                map(DTOFactory::createLocationRefWithPosition).
                 collect(Collectors.toList());
         return Response.ok(results).build();
     }
@@ -139,7 +139,7 @@ public class StationResource extends UsesRecentCookie implements APIResource {
     @GET
     @Timed
     @Path("/near")
-    @ApiOperation(value = "Get stations close to a given lat/lon", response = StationRefDTO.class, responseContainer = "List")
+    @ApiOperation(value = "Get stations close to a given lat/lon", response = LocationRefDTO.class, responseContainer = "List")
     @CacheControl(noCache = true)
     public Response getNear(@QueryParam("lat") double lat, @QueryParam("lon") double lon) {
         MarginInMeters margin = MarginInMeters.of(config.getNearestStopRangeKM());
@@ -150,7 +150,7 @@ public class StationResource extends UsesRecentCookie implements APIResource {
         List<Station> nearestStations = stationLocations.nearestStationsSorted(latLong,
                 config.getNumOfNearestStopsToOffer(), margin);
 
-        List<StationRefDTO> results = toStationRefDTOList(nearestStations);
+        List<LocationRefDTO> results = toStationRefDTOList(nearestStations);
 
         return Response.ok(results).build();
     }
@@ -158,7 +158,7 @@ public class StationResource extends UsesRecentCookie implements APIResource {
     @GET
     @Timed
     @Path("/recent")
-    @ApiOperation(value = "Get recent stations based on supplied cookie", response = StationRefDTO.class, responseContainer = "List")
+    @ApiOperation(value = "Get recent stations based on supplied cookie", response = LocationRefDTO.class, responseContainer = "List")
     @CacheControl(noCache = true)
     public Response getRecent(@CookieParam(TRAMCHESTER_RECENT) Cookie cookie) {
         logger.info(format("Get recent stations for cookie %s", cookie));
@@ -170,15 +170,15 @@ public class StationResource extends UsesRecentCookie implements APIResource {
                 map(id -> stationRepository.getStationById(StringIdFor.createId(id))).
                 collect(Collectors.toSet());
 
-        List<StationRefDTO> results = toStationRefDTOList(recent);
+        List<LocationRefDTO> results = toStationRefDTOList(recent);
 
         return Response.ok(results).build();
     }
 
     @NotNull
-    private List<StationRefDTO> toStationRefDTOList(Collection<Station> stations) {
+    private List<LocationRefDTO> toStationRefDTOList(Collection<Station> stations) {
         return stations.stream().
-                map(stationDTOFactory::createStationRefDTO).
+                map(DTOFactory::createLocationRefDTO).
                 // sort server side is here as an optimisation for front end sorting time
                 sorted(Comparator.comparing(dto -> dto.getName().toLowerCase())).
                 collect(Collectors.toList());
@@ -203,10 +203,10 @@ public class StationResource extends UsesRecentCookie implements APIResource {
 
     }
 
-    private List<StationRefDTO> toRefs(StationClosure closure) {
+    private List<LocationRefDTO> toRefs(StationClosure closure) {
         return closure.getStations().stream().
                 map(stationRepository::getStationById).
-                map(stationDTOFactory::createStationRefDTO).
+                map(DTOFactory::createLocationRefDTO).
                 collect(Collectors.toList());
     }
 

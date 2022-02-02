@@ -1,23 +1,23 @@
 package com.tramchester.domain.presentation;
 
-import com.tramchester.domain.presentation.DTO.StationRefDTO;
+import com.tramchester.domain.presentation.DTO.LocationRefDTO;
 
 public class StationNote extends Note {
 
-    private StationRefDTO stationRef;
+    private LocationRefDTO stationRef;
 
     public StationNote() {
         // deserialisation
         super();
     }
 
-    public StationNote(NoteType noteType, String text, StationRefDTO stationRefDTO) {
+    public StationNote(NoteType noteType, String text, LocationRefDTO locationRefDTO) {
         super(text, noteType);
-        this.stationRef = stationRefDTO;
+        this.stationRef = locationRefDTO;
     }
 
     @SuppressWarnings("WeakerAccess")
-    public StationRefDTO getStationRef() {
+    public LocationRefDTO getStationRef() {
         return stationRef;
     }
 

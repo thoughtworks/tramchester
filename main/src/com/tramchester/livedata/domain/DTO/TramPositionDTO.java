@@ -1,13 +1,13 @@
 package com.tramchester.livedata.domain.DTO;
 
-import com.tramchester.domain.presentation.DTO.StationRefWithPosition;
+import com.tramchester.domain.presentation.DTO.LocationRefWithPosition;
 
 import java.util.Set;
 
 @SuppressWarnings("unused")
 public class TramPositionDTO {
-    private StationRefWithPosition first;
-    private StationRefWithPosition second;
+    private LocationRefWithPosition first;
+    private LocationRefWithPosition second;
     private Set<DepartureDTO> trams;
     private int cost;
 
@@ -15,18 +15,18 @@ public class TramPositionDTO {
         // deserialisation
     }
 
-    public TramPositionDTO(StationRefWithPosition first, StationRefWithPosition second, Set<DepartureDTO> trams, int cost) {
+    public TramPositionDTO(LocationRefWithPosition first, LocationRefWithPosition second, Set<DepartureDTO> trams, int cost) {
         this.first = first;
         this.second = second;
         this.trams = trams;
         this.cost = cost;
     }
 
-    public StationRefWithPosition getFirst() {
+    public LocationRefWithPosition getFirst() {
         return first;
     }
 
-    public StationRefWithPosition getSecond() {
+    public LocationRefWithPosition getSecond() {
         return second;
     }
 

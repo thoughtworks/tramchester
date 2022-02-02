@@ -5,7 +5,7 @@ import com.tramchester.domain.Journey;
 import com.tramchester.domain.Platform;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.places.Station;
-import com.tramchester.domain.presentation.DTO.factory.StationDTOFactory;
+import com.tramchester.domain.presentation.DTO.factory.DTOFactory;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramServiceDate;
 import com.tramchester.domain.time.TramTime;
@@ -35,10 +35,10 @@ public class ProvidesNotes {
     private static final int MESSAGE_LIFETIME = 5;
 
     private final PlatformMessageSource platformMessageSource;
-    private final StationDTOFactory stationDTOFactory;
+    private final DTOFactory stationDTOFactory;
 
     @Inject
-    public ProvidesNotes(PlatformMessageSource platformMessageSource, StationDTOFactory stationDTOFactory) {
+    public ProvidesNotes(PlatformMessageSource platformMessageSource, DTOFactory stationDTOFactory) {
         this.platformMessageSource = platformMessageSource;
         this.stationDTOFactory = stationDTOFactory;
     }

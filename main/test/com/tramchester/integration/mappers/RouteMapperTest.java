@@ -4,7 +4,7 @@ import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.presentation.DTO.RouteDTO;
-import com.tramchester.domain.presentation.DTO.StationRefWithPosition;
+import com.tramchester.domain.presentation.DTO.LocationRefWithPosition;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
 import com.tramchester.mappers.RoutesMapper;
@@ -59,8 +59,8 @@ class RouteMapperTest {
 
             int index = dtos.indexOf(query);
 
-            List<StationRefWithPosition> stations = dtos.get(index).getStations();
-            StationRefWithPosition stationRefWithPosition = stations.get(0);
+            List<LocationRefWithPosition> stations = dtos.get(index).getStations();
+            LocationRefWithPosition stationRefWithPosition = stations.get(0);
             assertEquals(TramStations.ManAirport.getRawId(), stationRefWithPosition.getId());
             TestEnv.assertLatLongEquals(TramStations.ManAirport.getLatLong(), stationRefWithPosition.getLatLong(),
                     0.00001, "position");

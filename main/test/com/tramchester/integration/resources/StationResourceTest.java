@@ -8,7 +8,7 @@ import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.DTO.LocationDTO;
 import com.tramchester.domain.presentation.DTO.PlatformDTO;
 import com.tramchester.domain.presentation.DTO.RouteRefDTO;
-import com.tramchester.domain.presentation.DTO.StationRefDTO;
+import com.tramchester.domain.presentation.DTO.LocationRefDTO;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.presentation.RecentJourneys;
 import com.tramchester.integration.testSupport.APIClient;
@@ -85,15 +85,15 @@ class StationResourceTest {
 
         assertEquals(200, result.getStatus());
 
-        List<StationRefDTO> results = result.readEntity(new GenericType<>() {});
+        List<LocationRefDTO> results = result.readEntity(new GenericType<>() {});
 
         Set<String> expectedIds = stationRepository.getStations().stream().map(station -> station.getId().forDTO()).collect(Collectors.toSet());
         assertEquals(expectedIds.size(), results.size());
 
-        List<String> resultIds = results.stream().map(StationRefDTO::getId).collect(Collectors.toList());
+        List<String> resultIds = results.stream().map(LocationRefDTO::getId).collect(Collectors.toList());
         assertTrue(expectedIds.containsAll(resultIds));
 
-        ArrayList<StationRefDTO> sortedResults = new ArrayList<>(results);
+        ArrayList<LocationRefDTO> sortedResults = new ArrayList<>(results);
         sortedResults.sort(Comparator.comparing(item -> item.getName().toLowerCase()));
 
         for (int i = 0; i < sortedResults.size(); i++) {
@@ -141,7 +141,7 @@ class StationResourceTest {
         assertEquals(200, result.getStatus());
 
         // buses disabled, but should still get a list back, albeit empty
-        List<StationRefDTO> results = result.readEntity(new GenericType<>() {});
+        List<LocationRefDTO> results = result.readEntity(new GenericType<>() {});
         assertEquals(0, results.size());
     }
 
@@ -159,10 +159,10 @@ class StationResourceTest {
                 place.getLat(), place.getLon()));
         assertEquals(200, result.getStatus());
 
-        List<StationRefDTO> stationList = result.readEntity(new GenericType<>() {});
+        List<LocationRefDTO> stationList = result.readEntity(new GenericType<>() {});
 
         assertEquals(5,stationList.size());
-        Set<String> ids = stationList.stream().map(StationRefDTO::getId).collect(Collectors.toSet());
+        Set<String> ids = stationList.stream().map(LocationRefDTO::getId).collect(Collectors.toSet());
         assertTrue(ids.contains(TramStations.PiccadillyGardens.getRawId()));
         //assertTrue(ids.contains(TramStations.Piccadilly.forDTO()));
         assertTrue(ids.contains(TramStations.StPetersSquare.getRawId()));
@@ -179,11 +179,11 @@ class StationResourceTest {
         Response result = APIClient.getApiResponse(appExtension, "stations/recent", List.of(cookie));
         assertEquals(200, result.getStatus());
 
-        List<StationRefDTO> stationDtos = result.readEntity(new GenericType<>() {});
+        List<LocationRefDTO> stationDtos = result.readEntity(new GenericType<>() {});
 
         assertEquals(3, stationDtos.size());
 
-        Set<String> ids = stationDtos.stream().map(StationRefDTO::getId).collect(Collectors.toSet());
+        Set<String> ids = stationDtos.stream().map(LocationRefDTO::getId).collect(Collectors.toSet());
 
         assertTrue(ids.contains(TramStations.Altrincham.getRawId()));
         assertTrue(ids.contains(TramStations.Bury.getRawId()));

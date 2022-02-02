@@ -6,9 +6,9 @@ import java.util.List;
 
 public class RouteDTO extends RouteRefDTO {
 
-    private List<StationRefWithPosition> stations;
+    private List<LocationRefWithPosition> stations;
 
-    public RouteDTO(Route route, List<StationRefWithPosition> stations) {
+    public RouteDTO(Route route, List<LocationRefWithPosition> stations) {
         super(route);
         this.stations = stations;
     }
@@ -18,7 +18,7 @@ public class RouteDTO extends RouteRefDTO {
         // deserialisation
     }
 
-    public List<StationRefWithPosition> getStations() {
+    public List<LocationRefWithPosition> getStations() {
         return stations;
     }
 

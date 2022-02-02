@@ -6,7 +6,7 @@ import com.tramchester.domain.places.StationGroup;
 import com.tramchester.domain.presentation.DTO.ConfigDTO;
 import com.tramchester.domain.presentation.DTO.JourneyDTO;
 import com.tramchester.domain.presentation.DTO.JourneyPlanRepresentation;
-import com.tramchester.domain.presentation.DTO.StationRefDTO;
+import com.tramchester.domain.presentation.DTO.LocationRefDTO;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.integration.testSupport.APIClient;
@@ -67,14 +67,14 @@ class JourneyPlannerBusTest {
 
         assertEquals(200, result.getStatus());
 
-        List<StationRefDTO> results = result.readEntity(new GenericType<>() {});
+        List<LocationRefDTO> results = result.readEntity(new GenericType<>() {});
 
         Set<String> stationsIds = stationRepository.getStationsServing(TransportMode.Bus).stream().
                 map(station -> station.getId().forDTO()).collect(Collectors.toSet());
 
         assertEquals(stationsIds.size(), results.size());
 
-        Set<String> resultIds = results.stream().map(StationRefDTO::getId).collect(Collectors.toSet());
+        Set<String> resultIds = results.stream().map(LocationRefDTO::getId).collect(Collectors.toSet());
 
         assertTrue(stationsIds.containsAll(resultIds));
     }

@@ -7,7 +7,7 @@ import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.DTO.AreaBoundaryDTO;
 import com.tramchester.domain.presentation.DTO.BoxDTO;
 import com.tramchester.domain.presentation.DTO.StationLinkDTO;
-import com.tramchester.domain.presentation.DTO.factory.StationDTOFactory;
+import com.tramchester.domain.presentation.DTO.factory.DTOFactory;
 import com.tramchester.geo.BoundingBox;
 import com.tramchester.geo.CoordinateTransforms;
 import com.tramchester.geo.StationLocations;
@@ -40,7 +40,7 @@ class StationGeographyResourceTest {
             new ResourceTramTestConfigWithNaptan<>(StationGeographyResource.class));
 
     private static GuiceContainerDependencies dependencies;
-    private StationDTOFactory stationDTOFactory;
+    private DTOFactory DTOFactory;
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
@@ -50,7 +50,7 @@ class StationGeographyResourceTest {
 
     @BeforeEach
     void beforeEachTestRuns() {
-        stationDTOFactory = dependencies.get(StationDTOFactory.class);
+        DTOFactory = dependencies.get(DTOFactory.class);
     }
 
     @Test
@@ -126,8 +126,8 @@ class StationGeographyResourceTest {
     }
 
     private StationLinkDTO createLink(TramStations begin, TramStations end) {
-        return new StationLinkDTO(stationDTOFactory.createStationRefWithPosition(begin.fake()),
-                stationDTOFactory.createStationRefWithPosition(end.fake()),
+        return new StationLinkDTO(DTOFactory.createLocationRefWithPosition(begin.fake()),
+                DTOFactory.createLocationRefWithPosition(end.fake()),
                 Collections.singleton(Tram));
     }
 }

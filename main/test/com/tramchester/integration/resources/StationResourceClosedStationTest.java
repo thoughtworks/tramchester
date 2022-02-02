@@ -4,7 +4,7 @@ import com.tramchester.App;
 import com.tramchester.config.AppConfiguration;
 import com.tramchester.domain.StationClosure;
 import com.tramchester.domain.presentation.DTO.StationClosureDTO;
-import com.tramchester.domain.presentation.DTO.StationRefDTO;
+import com.tramchester.domain.presentation.DTO.LocationRefDTO;
 import com.tramchester.domain.time.TramServiceDate;
 import com.tramchester.integration.testSupport.APIClient;
 import com.tramchester.integration.testSupport.IntegrationAppExtension;
@@ -48,7 +48,7 @@ public class StationResourceClosedStationTest {
 
         assertEquals(1, results.size());
         StationClosureDTO stationClosure = results.get(0);
-        List<StationRefDTO> stations = stationClosure.getStations();
+        List<LocationRefDTO> stations = stationClosure.getStations();
         assertEquals(1, stations.size());
         assertEquals(closedStation.getRawId(), stations.get(0).getId());
         assertEquals(when.getDate(), stationClosure.getBegin());

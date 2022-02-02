@@ -4,18 +4,18 @@ import java.util.List;
 
 public class StationGroupDTO {
     private String areaId;
-    private List<StationRefWithPosition> contained;
+    private List<LocationRefWithPosition> contained;
 
     public StationGroupDTO() {
         // deserialization
     }
 
-    public StationGroupDTO(String areaId, List<StationRefWithPosition> contained) {
+    public StationGroupDTO(String areaId, List<LocationRefWithPosition> contained) {
         this.areaId = areaId;
         this.contained = contained;
     }
 
-    public List<StationRefWithPosition> getContained() {
+    public List<LocationRefWithPosition> getContained() {
         return contained;
     }
 

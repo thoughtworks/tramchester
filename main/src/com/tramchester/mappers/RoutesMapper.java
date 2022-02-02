@@ -6,8 +6,8 @@ import com.tramchester.domain.input.StopCalls;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.DTO.RouteDTO;
-import com.tramchester.domain.presentation.DTO.StationRefWithPosition;
-import com.tramchester.domain.presentation.DTO.factory.StationDTOFactory;
+import com.tramchester.domain.presentation.DTO.LocationRefWithPosition;
+import com.tramchester.domain.presentation.DTO.factory.DTOFactory;
 import com.tramchester.repository.TransportData;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
@@ -25,11 +25,11 @@ public class RoutesMapper {
     private final Map<String, RouteDTO> routeDTOs;
 
     private final TransportData transportData;
-    private final StationDTOFactory stationDTOFactory;
+    private final DTOFactory DTOFactory;
 
     @Inject
-    public RoutesMapper(TransportData transportData, StationDTOFactory stationDTOFactory) {
-        this.stationDTOFactory = stationDTOFactory;
+    public RoutesMapper(TransportData transportData, DTOFactory DTOFactory) {
+        this.DTOFactory = DTOFactory;
         routeDTOs = new HashMap<>();
         this.transportData = transportData;
     }
@@ -39,7 +39,7 @@ public class RoutesMapper {
         logger.info("Starting");
         Collection<Route> routes = transportData.getRoutes();
         routes.forEach(route -> {
-            List<StationRefWithPosition> callingStations = getRouteCallingStationRefDTO(route);
+            List<LocationRefWithPosition> callingStations = getRouteCallingStationRefDTO(route);
             String name = route.getName();
             if (routeDTOs.containsKey(name)) {
                 if (!routeDTOs.get(name).getStations().equals(callingStations)) {
@@ -63,10 +63,10 @@ public class RoutesMapper {
     }
 
     @NotNull
-    private List<StationRefWithPosition> getRouteCallingStationRefDTO(Route route) {
+    private List<LocationRefWithPosition> getRouteCallingStationRefDTO(Route route) {
         List<Station> calledAtStations = getStationOn(route);
-        List<StationRefWithPosition> stationDTOs = new ArrayList<>(calledAtStations.size());
-        calledAtStations.forEach(calledAtStation -> stationDTOs.add(stationDTOFactory.createStationRefWithPosition(calledAtStation)));
+        List<LocationRefWithPosition> stationDTOs = new ArrayList<>(calledAtStations.size());
+        calledAtStations.forEach(calledAtStation -> stationDTOs.add(DTOFactory.createLocationRefWithPosition(calledAtStation)));
         return stationDTOs;
     }
 

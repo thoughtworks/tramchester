@@ -6,9 +6,9 @@ import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.MyLocation;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.DTO.StageDTO;
-import com.tramchester.domain.presentation.DTO.StationRefWithPosition;
+import com.tramchester.domain.presentation.DTO.LocationRefWithPosition;
 import com.tramchester.domain.presentation.DTO.factory.StageDTOFactory;
-import com.tramchester.domain.presentation.DTO.factory.StationDTOFactory;
+import com.tramchester.domain.presentation.DTO.factory.DTOFactory;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.presentation.TransportStage;
 import com.tramchester.domain.presentation.TravelAction;
@@ -35,11 +35,11 @@ class StageDTOFactoryTest extends EasyMockSupport {
 
     private StageDTOFactory factory;
     private LocalDate when;
-    private StationDTOFactory stationDTOFactory;
+    private DTOFactory stationDTOFactory;
 
     @BeforeEach
     void beforeEachTestRun() {
-        stationDTOFactory = createMock(StationDTOFactory.class);
+        stationDTOFactory = createMock(DTOFactory.class);
         factory = new StageDTOFactory(stationDTOFactory);
         when = TestEnv.testDay();
     }
@@ -52,12 +52,12 @@ class StageDTOFactoryTest extends EasyMockSupport {
         WalkingFromStationStage stage = new WalkingFromStationStage(Altrincham.fake(), location, 15,
                 TramTime.of(8,11));
 
-        EasyMock.expect(stationDTOFactory.createStationRefWithPosition(Altrincham.fake())).
-                andReturn(new StationRefWithPosition(Altrincham.fake()));
-        EasyMock.expect(stationDTOFactory.createStationRefWithPosition(Altrincham.fake())).
-                andReturn(new StationRefWithPosition(Altrincham.fake()));
-        EasyMock.expect(stationDTOFactory.createStationRefWithPosition(location)).
-                andReturn(new StationRefWithPosition(location));
+        EasyMock.expect(stationDTOFactory.createLocationRefWithPosition(Altrincham.fake())).
+                andReturn(new LocationRefWithPosition(Altrincham.fake()));
+        EasyMock.expect(stationDTOFactory.createLocationRefWithPosition(Altrincham.fake())).
+                andReturn(new LocationRefWithPosition(Altrincham.fake()));
+        EasyMock.expect(stationDTOFactory.createLocationRefWithPosition(location)).
+                andReturn(new LocationRefWithPosition(location));
 
         replayAll();
         StageDTO build = factory.build(stage, TravelAction.WalkTo, when);
@@ -85,10 +85,10 @@ class StageDTOFactoryTest extends EasyMockSupport {
 
         vehicleStage.setPlatform(platform);
 
-        EasyMock.expect(stationDTOFactory.createStationRefWithPosition(firstStation)).
-                andStubReturn(new StationRefWithPosition(firstStation));
-        EasyMock.expect(stationDTOFactory.createStationRefWithPosition(Bury.fake())).
-                andReturn(new StationRefWithPosition(Bury.fake()));
+        EasyMock.expect(stationDTOFactory.createLocationRefWithPosition(firstStation)).
+                andStubReturn(new LocationRefWithPosition(firstStation));
+        EasyMock.expect(stationDTOFactory.createLocationRefWithPosition(Bury.fake())).
+                andReturn(new LocationRefWithPosition(Bury.fake()));
 
         replayAll();
         StageDTO stageDTO = factory.build(vehicleStage, TravelAction.Board, when);

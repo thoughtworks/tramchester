@@ -6,8 +6,8 @@ import com.tramchester.domain.input.MutableTrip;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.*;
-import com.tramchester.domain.presentation.DTO.StationRefDTO;
-import com.tramchester.domain.presentation.DTO.factory.StationDTOFactory;
+import com.tramchester.domain.presentation.DTO.LocationRefDTO;
+import com.tramchester.domain.presentation.DTO.factory.DTOFactory;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramServiceDate;
 import com.tramchester.domain.time.TramTime;
@@ -46,12 +46,12 @@ class ProvidesNotesTest extends EasyMockSupport {
     private PlatformMessageSource platformMessageSource;
     private LocalDateTime lastUpdate;
     private final int requestedNumberChanges = 2;
-    private StationDTOFactory stationDTOFactory;
+    private DTOFactory stationDTOFactory;
 
     @BeforeEach
     void beforeEachTestRuns() {
         platformMessageSource = createStrictMock(PlatformMessageSource.class);
-        stationDTOFactory = createMock(StationDTOFactory.class);
+        stationDTOFactory = createMock(DTOFactory.class);
         providesNotes = new ProvidesNotes(platformMessageSource, stationDTOFactory);
         lastUpdate = TestEnv.LocalNow();
     }
@@ -60,8 +60,8 @@ class ProvidesNotesTest extends EasyMockSupport {
         return tramStation.fake();
     }
 
-    private StationRefDTO createStationRefFor(TramStations station) {
-        return new StationRefDTO(createStationFor(station));
+    private LocationRefDTO createStationRefFor(TramStations station) {
+        return new LocationRefDTO(createStationFor(station));
     }
 
     @Test

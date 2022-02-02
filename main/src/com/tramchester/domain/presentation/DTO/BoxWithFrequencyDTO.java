@@ -16,9 +16,9 @@ public class BoxWithFrequencyDTO {
     private LatLong bottomLeft;
     private LatLong topRight;
     private long numberOfStopcalls;
-    private List<StationRefDTO> stops;
+    private List<LocationRefDTO> stops;
 
-    public BoxWithFrequencyDTO(BoundingBox boundingBox, List<StationRefDTO> stops, long numberOfStopcalls,
+    public BoxWithFrequencyDTO(BoundingBox boundingBox, List<LocationRefDTO> stops, long numberOfStopcalls,
                                List<TransportMode> modes) {
         this.stops = stops;
         this.numberOfStopcalls = numberOfStopcalls;
@@ -43,7 +43,7 @@ public class BoxWithFrequencyDTO {
         return numberOfStopcalls;
     }
 
-    public List<StationRefDTO> getStops() {
+    public List<LocationRefDTO> getStops() {
         return stops;
     }
 

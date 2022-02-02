@@ -1,7 +1,7 @@
 package com.tramchester.resources;
 
 import com.codahale.metrics.annotation.Timed;
-import com.tramchester.domain.presentation.DTO.factory.StationDTOFactory;
+import com.tramchester.domain.presentation.DTO.factory.DTOFactory;
 import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.domain.time.TramServiceDate;
 import com.tramchester.livedata.TramPosition;
@@ -32,13 +32,13 @@ public class TramPositionsResource implements APIResource, JourneyPlanningMarker
 
     private final TramPositionInference positionInference;
     private final DeparturesMapper depatureMapper;
-    private final StationDTOFactory stationDTOFactory;
+    private final DTOFactory DTOFactory;
     private final ProvidesNow providesNow;
 
     @Inject
     public TramPositionsResource(TramPositionInference positionInference, DeparturesMapper depatureMapper,
-                                 StationDTOFactory stationDTOFactory, ProvidesNow providesNow) {
-        this.stationDTOFactory = stationDTOFactory;
+                                 DTOFactory DTOFactory, ProvidesNow providesNow) {
+        this.DTOFactory = DTOFactory;
         logger.info("created");
         this.positionInference = positionInference;
         this.depatureMapper = depatureMapper;
@@ -62,8 +62,8 @@ public class TramPositionsResource implements APIResource, JourneyPlanningMarker
         List<TramPositionDTO> dtoList = results.stream().
                 filter(pos -> unfilteredFlag || (!pos.getTrams().isEmpty())).
                 map(pos -> new TramPositionDTO(
-                        stationDTOFactory.createStationRefWithPosition(pos.getFirst()),
-                        stationDTOFactory.createStationRefWithPosition(pos.getSecond()),
+                        DTOFactory.createLocationRefWithPosition(pos.getFirst()),
+                        DTOFactory.createLocationRefWithPosition(pos.getSecond()),
                         depatureMapper.mapToDTO(pos.getSecond(), pos.getTrams(), localDate),
                         pos.getCost())).
                 collect(Collectors.toList());

@@ -234,7 +234,7 @@ public class JourneyPlannerResourceTest {
         JourneyPlanRepresentation plan = journeyPlanner.getJourneyPlan(TestEnv.testDay(), TramTime.of(10, 43), Altrincham, Ashton, false, 1);
 
         Set<JourneyDTO> journeys = plan.getJourneys();
-        Set<Triple<LocalDateTime, LocalDateTime, List<StationRefWithPosition>>> filtered = journeys.stream().
+        Set<Triple<LocalDateTime, LocalDateTime, List<LocationRefWithPosition>>> filtered = journeys.stream().
                 map(dto -> Triple.of(dto.getFirstDepartureTime(), dto.getExpectedArrivalTime(), dto.getPath())).
                 collect(Collectors.toSet());
 

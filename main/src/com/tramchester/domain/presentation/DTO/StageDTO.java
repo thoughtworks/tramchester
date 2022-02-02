@@ -14,9 +14,9 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 public class StageDTO {
-    private StationRefWithPosition firstStation;
-    private StationRefWithPosition lastStation;
-    private StationRefWithPosition actionStation;
+    private LocationRefWithPosition firstStation;
+    private LocationRefWithPosition lastStation;
+    private LocationRefWithPosition actionStation;
 
     private boolean hasPlatform;
     private PlatformDTO platform;
@@ -35,7 +35,7 @@ public class StageDTO {
     private RouteRefDTO route;
     private String tripId;
 
-    public StageDTO(StationRefWithPosition firstStation, StationRefWithPosition lastStation, StationRefWithPosition actionStation,
+    public StageDTO(LocationRefWithPosition firstStation, LocationRefWithPosition lastStation, LocationRefWithPosition actionStation,
                     LocalDateTime firstDepartureTime, LocalDateTime expectedArrivalTime, int duration,
                     String headSign, TransportMode mode, int passedStops,
                     RouteRefDTO route, TravelAction action, LocalDate queryDate, String tripId) {
@@ -56,7 +56,7 @@ public class StageDTO {
         this.tripId = tripId;
     }
 
-    public StageDTO(StationRefWithPosition firstStation, StationRefWithPosition lastStation, StationRefWithPosition actionStation,
+    public StageDTO(LocationRefWithPosition firstStation, LocationRefWithPosition lastStation, LocationRefWithPosition actionStation,
                     PlatformDTO boardingPlatform, LocalDateTime firstDepartureTime, LocalDateTime expectedArrivalTime, int duration,
                     String headSign, TransportMode mode, int passedStops,
                     RouteRefDTO route, TravelAction action, LocalDate queryDate, String tripId) {
@@ -75,15 +75,15 @@ public class StageDTO {
         return headSign;
     }
 
-    public StationRefWithPosition getActionStation() {
+    public LocationRefWithPosition getActionStation() {
         return actionStation;
     }
 
-    public StationRefWithPosition getLastStation() {
+    public LocationRefWithPosition getLastStation() {
         return lastStation;
     }
 
-    public StationRefWithPosition getFirstStation() {
+    public LocationRefWithPosition getFirstStation() {
         return firstStation;
     }
 

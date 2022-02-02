@@ -6,7 +6,7 @@ import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.DTO.LocationDTO;
 import com.tramchester.domain.presentation.DTO.PlatformDTO;
 import com.tramchester.domain.presentation.DTO.RouteRefDTO;
-import com.tramchester.domain.presentation.DTO.StationRefDTO;
+import com.tramchester.domain.presentation.DTO.LocationRefDTO;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.integration.testSupport.APIClient;
 import com.tramchester.integration.testSupport.IntegrationAppExtension;
@@ -82,7 +82,7 @@ class StationResourceRailTest {
 
         assertEquals(200, result.getStatus());
 
-        List<StationRefDTO> results = result.readEntity(new GenericType<>() {});
+        List<LocationRefDTO> results = result.readEntity(new GenericType<>() {});
 
         Set<String> expectedIds = stationRepo.getStations().stream().
                 filter(Location::isActive).
@@ -90,10 +90,10 @@ class StationResourceRailTest {
 
         assertEquals(expectedIds.size(), results.size());
 
-        List<String> resultIds = results.stream().map(StationRefDTO::getId).collect(Collectors.toList());
+        List<String> resultIds = results.stream().map(LocationRefDTO::getId).collect(Collectors.toList());
         assertTrue(expectedIds.containsAll(resultIds));
 
-        ArrayList<StationRefDTO> sortedResults = new ArrayList<>(results);
+        ArrayList<LocationRefDTO> sortedResults = new ArrayList<>(results);
         sortedResults.sort(Comparator.comparing(item -> item.getName().toLowerCase()));
 
         for (int i = 0; i < sortedResults.size(); i++) {
@@ -109,10 +109,10 @@ class StationResourceRailTest {
                 place.getLat(), place.getLon()));
         assertEquals(200, result.getStatus());
 
-        List<StationRefDTO> stationList = result.readEntity(new GenericType<>() {});
+        List<LocationRefDTO> stationList = result.readEntity(new GenericType<>() {});
 
         assertEquals(5, stationList.size(), stationList.toString());
-        Set<String> ids = stationList.stream().map(StationRefDTO::getId).collect(Collectors.toSet());
+        Set<String> ids = stationList.stream().map(LocationRefDTO::getId).collect(Collectors.toSet());
         assertTrue(ids.contains(RailStationIds.ManchesterPiccadilly.getId().forDTO()));
         assertTrue(ids.contains(RailStationIds.ManchesterVictoria.getId().forDTO()));
         assertTrue(ids.contains(RailStationIds.ManchesterDeansgate.getId().forDTO()));

@@ -5,9 +5,9 @@ import com.tramchester.domain.Journey;
 import com.tramchester.domain.places.Location;
 import com.tramchester.domain.presentation.DTO.JourneyDTO;
 import com.tramchester.domain.presentation.DTO.StageDTO;
-import com.tramchester.domain.presentation.DTO.StationRefWithPosition;
+import com.tramchester.domain.presentation.DTO.LocationRefWithPosition;
 import com.tramchester.domain.presentation.DTO.factory.StageDTOFactory;
-import com.tramchester.domain.presentation.DTO.factory.StationDTOFactory;
+import com.tramchester.domain.presentation.DTO.factory.DTOFactory;
 import com.tramchester.domain.presentation.Note;
 import com.tramchester.domain.presentation.ProvidesNotes;
 import com.tramchester.domain.presentation.TransportStage;
@@ -29,13 +29,13 @@ import java.util.stream.Collectors;
 public class JourneyToDTOMapper {
     private static final Logger logger = LoggerFactory.getLogger(JourneyToDTOMapper.class);
     private final StageDTOFactory stageFactory;
-    private final StationDTOFactory stationDTOFactory;
+    private final DTOFactory stationDTOFactory;
     private final ProvidesNotes providesNotes;
 
     @Inject
-    public JourneyToDTOMapper(StageDTOFactory stageFactory, StationDTOFactory stationDTOFactory, ProvidesNotes providesNotes) {
+    public JourneyToDTOMapper(StageDTOFactory stageFactory, DTOFactory DTOFactory, ProvidesNotes providesNotes) {
         this.stageFactory = stageFactory;
-        this.stationDTOFactory = stationDTOFactory;
+        this.stationDTOFactory = DTOFactory;
         this.providesNotes = providesNotes;
     }
 
@@ -60,11 +60,11 @@ public class JourneyToDTOMapper {
 
         List<Note> notes = providesNotes.createNotesForJourney(journey, queryDate);
 
-        StationRefWithPosition begin = stationDTOFactory.createStationRefWithPosition(journey.getBeginning());
+        LocationRefWithPosition begin = stationDTOFactory.createLocationRefWithPosition(journey.getBeginning());
 
-        List<StationRefWithPosition> changeStations = asListOf(journey.getChangeStations());
+        List<LocationRefWithPosition> changeStations = asListOf(journey.getChangeStations());
 
-        List<StationRefWithPosition> path = asListOf(journey.getPath());
+        List<LocationRefWithPosition> path = asListOf(journey.getPath());
 
         LocalDate date = queryDate.getDate();
         return new JourneyDTO(begin, stages,
@@ -73,8 +73,8 @@ public class JourneyToDTOMapper {
                 path, date);
     }
 
-    private List<StationRefWithPosition> asListOf(List<Location<?>> locations) {
-        return locations.stream().map(stationDTOFactory::createStationRefWithPosition).collect(Collectors.toList());
+    private List<LocationRefWithPosition> asListOf(List<Location<?>> locations) {
+        return locations.stream().map(stationDTOFactory::createLocationRefWithPosition).collect(Collectors.toList());
     }
 
     private TravelAction decideTravelAction(List<StageDTO> stages, TransportStage<?,?> rawStage) {

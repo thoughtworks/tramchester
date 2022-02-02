@@ -17,24 +17,24 @@ import java.util.List;
 @JsonTypeInfo(include=JsonTypeInfo.As.WRAPPER_OBJECT, use= JsonTypeInfo.Id.NAME)
 public class JourneyDTO {
 
-    private StationRefWithPosition begin;
+    private LocationRefWithPosition begin;
     private List<StageDTO> stages;
     private LocalDateTime expectedArrivalTime; // needed to handle 'next day' results
     private LocalDateTime firstDepartureTime;  // needed to handle 'next day' results
-    private List<StationRefWithPosition> changeStations;
+    private List<LocationRefWithPosition> changeStations;
     private TramTime queryTime;
     private List<Note> notes;
-    private List<StationRefWithPosition> path;
+    private List<LocationRefWithPosition> path;
     private LocalDate queryDate;
 
     public JourneyDTO() {
         // Deserialization
     }
 
-    public JourneyDTO(StationRefWithPosition begin, List<StageDTO> stages,
+    public JourneyDTO(LocationRefWithPosition begin, List<StageDTO> stages,
                       LocalDateTime expectedArrivalTime, LocalDateTime firstDepartureTime,
-                      List<StationRefWithPosition> changeStations, TramTime queryTime, List<Note> notes,
-                      List<StationRefWithPosition> path, LocalDate queryDate) {
+                      List<LocationRefWithPosition> changeStations, TramTime queryTime, List<Note> notes,
+                      List<LocationRefWithPosition> path, LocalDate queryDate) {
         this.begin = begin;
         this.stages = stages;
         this.expectedArrivalTime = expectedArrivalTime;
@@ -62,11 +62,11 @@ public class JourneyDTO {
         return expectedArrivalTime;
     }
 
-    public StationRefDTO getBegin() {
+    public LocationRefDTO getBegin() {
         return begin;
     }
 
-    public List<StationRefWithPosition> getChangeStations() {
+    public List<LocationRefWithPosition> getChangeStations() {
         return changeStations;
     }
 
@@ -92,7 +92,7 @@ public class JourneyDTO {
         return notes;
     }
 
-    public List<StationRefWithPosition> getPath() {
+    public List<LocationRefWithPosition> getPath() {
         return path;
     }
 

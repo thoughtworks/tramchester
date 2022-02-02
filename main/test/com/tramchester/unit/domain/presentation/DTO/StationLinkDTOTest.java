@@ -3,7 +3,7 @@ package com.tramchester.unit.domain.presentation.DTO;
 import com.tramchester.domain.StationLink;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.DTO.StationLinkDTO;
-import com.tramchester.domain.presentation.DTO.factory.StationDTOFactory;
+import com.tramchester.domain.presentation.DTO.factory.DTOFactory;
 import com.tramchester.domain.reference.TransportMode;
 import org.easymock.EasyMockSupport;
 import org.junit.jupiter.api.BeforeEach;
@@ -20,11 +20,11 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class StationLinkDTOTest extends EasyMockSupport {
 
-    private StationDTOFactory stationDTOFactory;
+    private DTOFactory stationDTOFactory;
 
     @BeforeEach
     void beforeEachTestRuns() {
-        stationDTOFactory = new StationDTOFactory();
+        stationDTOFactory = new DTOFactory();
     }
 
     @Test

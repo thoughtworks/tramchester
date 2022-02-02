@@ -4,16 +4,16 @@ import com.tramchester.domain.places.Location;
 import com.tramchester.domain.presentation.LatLong;
 
 @SuppressWarnings("unused")
-public class StationRefWithPosition extends StationRefDTO {
+public class LocationRefWithPosition extends LocationRefDTO {
 
     private LatLong latLong;
 
-    public StationRefWithPosition(Location<?> location) {
+    public LocationRefWithPosition(Location<?> location) {
         super(location);
         this.latLong = location.getLatLong();
     }
 
-    public StationRefWithPosition() {
+    public LocationRefWithPosition() {
         // deserialisation
     }
 
@@ -21,4 +21,10 @@ public class StationRefWithPosition extends StationRefDTO {
         return latLong;
     }
 
+    @Override
+    public String toString() {
+        return "LocationRefWithPosition{" +
+                "latLong=" + latLong +
+                "} " + super.toString();
+    }
 }

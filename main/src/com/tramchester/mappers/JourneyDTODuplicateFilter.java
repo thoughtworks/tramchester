@@ -2,7 +2,7 @@ package com.tramchester.mappers;
 
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.domain.presentation.DTO.JourneyDTO;
-import com.tramchester.domain.presentation.DTO.StationRefWithPosition;
+import com.tramchester.domain.presentation.DTO.LocationRefWithPosition;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -22,7 +22,7 @@ public class JourneyDTODuplicateFilter {
         private final JourneyDTO journeyDTO;
         private final LocalDateTime departTime;
         private final LocalDateTime arrivalTime;
-        private final List<StationRefWithPosition> path;
+        private final List<LocationRefWithPosition> path;
 
         private EqualityFacade(JourneyDTO journeyDTO) {
             this.journeyDTO = journeyDTO;

@@ -7,7 +7,7 @@ import com.tramchester.domain.places.Location;
 import java.util.Set;
 
 @SuppressWarnings("unused")
-public class StationRefDTO {
+public class LocationRefDTO {
     private LocationType locationType;
     private boolean pickUp;
     private boolean dropOff;
@@ -15,7 +15,7 @@ public class StationRefDTO {
     private String name;
     private Set<TransportMode> transportModes;
 
-    public StationRefDTO(Location<?> location) {
+    public LocationRefDTO(Location<?> location) {
         this.id = location.forDTO();
         this.name = location.getName();
         this.transportModes = location.getTransportModes();
@@ -24,7 +24,7 @@ public class StationRefDTO {
         this.dropOff = location.hasDropoff();
     }
 
-    public StationRefDTO() {
+    public LocationRefDTO() {
         // deserialization
     }
 
@@ -54,8 +54,11 @@ public class StationRefDTO {
 
     @Override
     public String toString() {
-        return "StationRefDTO{" +
-                "id='" + id + '\'' +
+        return "LocationRefDTO{" +
+                "locationType=" + locationType +
+                ", pickUp=" + pickUp +
+                ", dropOff=" + dropOff +
+                ", id='" + id + '\'' +
                 ", name='" + name + '\'' +
                 ", transportModes=" + transportModes +
                 '}';
@@ -66,7 +69,7 @@ public class StationRefDTO {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        StationRefDTO that = (StationRefDTO) o;
+        LocationRefDTO that = (LocationRefDTO) o;
 
         return getId().equals(that.getId());
     }

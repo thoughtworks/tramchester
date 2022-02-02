@@ -5,11 +5,11 @@ import com.tramchester.domain.reference.TransportMode;
 import java.util.Set;
 
 public class StationLinkDTO {
-    private StationRefWithPosition begin;
-    private StationRefWithPosition end;
+    private LocationRefWithPosition begin;
+    private LocationRefWithPosition end;
     private Set<TransportMode> transportModes;
 
-    public StationLinkDTO(StationRefWithPosition begin, StationRefWithPosition end, Set<TransportMode> transportModes) {
+    public StationLinkDTO(LocationRefWithPosition begin, LocationRefWithPosition end, Set<TransportMode> transportModes) {
         this.begin = begin;
         this.end = end;
         this.transportModes = transportModes;
@@ -19,11 +19,11 @@ public class StationLinkDTO {
         // deserialisation
     }
 
-    public StationRefWithPosition getBegin() {
+    public LocationRefWithPosition getBegin() {
         return begin;
     }
 
-    public StationRefWithPosition getEnd() {
+    public LocationRefWithPosition getEnd() {
         return end;
     }
 

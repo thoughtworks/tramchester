@@ -2,8 +2,8 @@ package com.tramchester.integration.resources;
 
 import com.tramchester.App;
 import com.tramchester.domain.presentation.DTO.RouteDTO;
-import com.tramchester.domain.presentation.DTO.StationRefDTO;
-import com.tramchester.domain.presentation.DTO.StationRefWithPosition;
+import com.tramchester.domain.presentation.DTO.LocationRefDTO;
+import com.tramchester.domain.presentation.DTO.LocationRefWithPosition;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.integration.testSupport.APIClient;
 import com.tramchester.integration.testSupport.IntegrationAppExtension;
@@ -43,10 +43,10 @@ class RouteResourceTest {
                 findFirst().orElseThrow();
 
         assertTrue(ashtonRoute.isTram());
-        List<StationRefWithPosition> ashtonRouteStations = ashtonRoute.getStations();
+        List<LocationRefWithPosition> ashtonRouteStations = ashtonRoute.getStations();
 
         assertEquals("Blue Line", ashtonRoute.getShortName().trim());
-        List<String> ids = ashtonRouteStations.stream().map(StationRefDTO::getId).collect(Collectors.toList());
+        List<String> ids = ashtonRouteStations.stream().map(LocationRefDTO::getId).collect(Collectors.toList());
         assertTrue(ids.contains(TramStations.Ashton.getRawId()));
 
         assertTrue(ids.contains(TramStations.Eccles.getRawId()));
@@ -63,8 +63,8 @@ class RouteResourceTest {
         assertEquals(1, airRoutes.size());
 
         RouteDTO airRoute = airRoutes.get(0);
-        List<StationRefWithPosition> stations = airRoute.getStations();
-        StationRefWithPosition first = stations.get(0);
+        List<LocationRefWithPosition> stations = airRoute.getStations();
+        LocationRefWithPosition first = stations.get(0);
         assertEquals(TramStations.ManAirport.getRawId(), first.getId());
         TestEnv.assertLatLongEquals(TramStations.ManAirport.getLatLong(), first.getLatLong(), 0.00001, "lat long");
         assertTrue(first.getTransportModes().contains(TransportMode.Tram));

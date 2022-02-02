@@ -3,7 +3,7 @@ package com.tramchester.integration.resources;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tramchester.App;
 import com.tramchester.domain.presentation.DTO.BoxWithFrequencyDTO;
-import com.tramchester.domain.presentation.DTO.StationRefDTO;
+import com.tramchester.domain.presentation.DTO.LocationRefDTO;
 import com.tramchester.geo.BoundingBox;
 import com.tramchester.geo.CoordinateTransforms;
 import com.tramchester.geo.GridPosition;
@@ -73,7 +73,7 @@ public class FrequencyResourceTest {
         BoxWithFrequencyDTO airportBox = containsAirport.get(0);
 
         assertEquals(6, airportBox.getNumberOfStopcalls());
-        List<StationRefDTO> stops = airportBox.getStops();
+        List<LocationRefDTO> stops = airportBox.getStops();
         boolean airportStopPresent = stops.stream().anyMatch(stop -> stop.getId().equals(airportStation.getId().forDTO()));
         assertTrue(airportStopPresent);
     }

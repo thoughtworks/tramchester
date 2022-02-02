@@ -5,7 +5,7 @@ import com.tramchester.domain.Route;
 import com.tramchester.domain.presentation.DTO.PlatformDTO;
 import com.tramchester.domain.presentation.DTO.RouteRefDTO;
 import com.tramchester.domain.presentation.DTO.StageDTO;
-import com.tramchester.domain.presentation.DTO.StationRefWithPosition;
+import com.tramchester.domain.presentation.DTO.LocationRefWithPosition;
 import com.tramchester.domain.presentation.TransportStage;
 import com.tramchester.domain.presentation.TravelAction;
 
@@ -18,19 +18,19 @@ import java.time.LocalDateTime;
 @LazySingleton
 public class StageDTOFactory {
 
-    private final StationDTOFactory stationDTOFactory;
+    private final DTOFactory stationDTOFactory;
 
     @Inject
-    public StageDTOFactory(StationDTOFactory stationDTOFactory) {
+    public StageDTOFactory(DTOFactory stationDTOFactory) {
 
         this.stationDTOFactory = stationDTOFactory;
     }
 
     public StageDTO build(TransportStage<?,?> source, TravelAction travelAction, LocalDate queryDate) {
 
-        StationRefWithPosition firstStation = stationDTOFactory.createStationRefWithPosition(source.getFirstStation());
-        StationRefWithPosition lastStation = stationDTOFactory.createStationRefWithPosition(source.getLastStation());
-        StationRefWithPosition actionStation = stationDTOFactory.createStationRefWithPosition(source.getActionStation());
+        LocationRefWithPosition firstStation = stationDTOFactory.createLocationRefWithPosition(source.getFirstStation());
+        LocationRefWithPosition lastStation = stationDTOFactory.createLocationRefWithPosition(source.getLastStation());
+        LocationRefWithPosition actionStation = stationDTOFactory.createLocationRefWithPosition(source.getActionStation());
         LocalDateTime firstDepartureTime = source.getFirstDepartureTime().toDate(queryDate);
         LocalDateTime expectedArrivalTime = source.getExpectedArrivalTime().toDate(queryDate);
 

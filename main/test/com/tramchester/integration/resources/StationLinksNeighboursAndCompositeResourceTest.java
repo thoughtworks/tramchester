@@ -7,7 +7,7 @@ import com.tramchester.domain.places.StationGroup;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.DTO.StationGroupDTO;
 import com.tramchester.domain.presentation.DTO.StationLinkDTO;
-import com.tramchester.domain.presentation.DTO.StationRefDTO;
+import com.tramchester.domain.presentation.DTO.LocationRefDTO;
 import com.tramchester.integration.testSupport.IntegrationAppExtension;
 import com.tramchester.integration.testSupport.APIClient;
 import com.tramchester.integration.testSupport.NeighboursTestConfig;
@@ -127,7 +127,7 @@ class StationLinksNeighboursAndCompositeResourceTest {
         StationGroupDTO group = found.get();
         assertEquals(expectedIds.size(), group.getContained().size());
 
-        Set<String> receivedIds = group.getContained().stream().map(StationRefDTO::getId).collect(Collectors.toSet());
+        Set<String> receivedIds = group.getContained().stream().map(LocationRefDTO::getId).collect(Collectors.toSet());
         assertTrue(expectedIds.containsAll(receivedIds));
     }
 
