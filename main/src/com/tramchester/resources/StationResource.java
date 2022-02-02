@@ -10,10 +10,10 @@ import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.DTO.LocationDTO;
-import com.tramchester.domain.presentation.DTO.StationClosureDTO;
 import com.tramchester.domain.presentation.DTO.LocationRefDTO;
-import com.tramchester.domain.presentation.DTO.LocationRefWithPosition;
+import com.tramchester.domain.presentation.DTO.StationClosureDTO;
 import com.tramchester.domain.presentation.DTO.factory.DTOFactory;
+import com.tramchester.domain.presentation.DTO.factory.LocationDTOFactory;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.presentation.RecentJourneys;
 import com.tramchester.domain.reference.TransportMode;
@@ -53,6 +53,7 @@ public class StationResource extends UsesRecentCookie implements APIResource {
     private final StationLocations stationLocations;
     private final ClosedStationsRepository closedStationsRepository;
     private final DTOFactory DTOFactory;
+    private final LocationDTOFactory locationDTOFactory;
     private final TramchesterConfig config;
 
     @Inject
@@ -61,9 +62,10 @@ public class StationResource extends UsesRecentCookie implements APIResource {
                            ProvidesNow providesNow,
                            DataSourceRepository dataSourceRepository, StationLocations stationLocations,
                            ClosedStationsRepository closedStationsRepository, DTOFactory DTOFactory,
-                           TramchesterConfig config) {
+                           LocationDTOFactory locationDTOFactory, TramchesterConfig config) {
         super(updateRecentJourneys, providesNow, mapper);
         this.DTOFactory = DTOFactory;
+        this.locationDTOFactory = locationDTOFactory;
         logger.info("created");
         this.stationRepository = stationRepository;
         this.dataSourceRepository = dataSourceRepository;
@@ -83,7 +85,8 @@ public class StationResource extends UsesRecentCookie implements APIResource {
         IdFor<Station> id = StringIdFor.createId(text);
         guardForStationNotExisting(stationRepository, id);
 
-        return Response.ok(new LocationDTO(stationRepository.getStationById(id))).build();
+        final LocationDTO locationDTO = locationDTOFactory.createLocationDTO(stationRepository.getStationById(id));
+        return Response.ok(locationDTO).build();
     }
 
     @GET
@@ -130,8 +133,8 @@ public class StationResource extends UsesRecentCookie implements APIResource {
     public Response getByMode(@Context Request request) {
         logger.info("Get all stations");
 
-        List<LocationRefWithPosition> results = stationRepository.getActiveStationStream().
-                map(DTOFactory::createLocationRefWithPosition).
+        List<LocationDTO> results = stationRepository.getActiveStationStream().
+                map(locationDTOFactory::createLocationDTO).
                 collect(Collectors.toList());
         return Response.ok(results).build();
     }

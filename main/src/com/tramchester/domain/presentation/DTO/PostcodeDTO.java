@@ -11,6 +11,7 @@ import com.tramchester.domain.places.PostcodeLocation;
 import com.tramchester.domain.time.TramTime;
 
 import java.io.IOException;
+import java.util.Collections;
 import java.util.Optional;
 
 @SuppressWarnings("unused")
@@ -19,7 +20,8 @@ public class PostcodeDTO extends LocationDTO {
     private static final String PREFIX = "POSTCODE_";
 
     public PostcodeDTO(PostcodeLocation postcodeLocation) {
-        super(postcodeLocation);
+        // no platforms or routes
+        super(postcodeLocation, Collections.emptyList(), Collections.emptyList());
     }
 
     public PostcodeDTO() {

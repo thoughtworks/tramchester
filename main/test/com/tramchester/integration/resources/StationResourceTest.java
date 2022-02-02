@@ -4,11 +4,12 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tramchester.App;
 import com.tramchester.domain.Timestamped;
+import com.tramchester.domain.places.LocationType;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.DTO.LocationDTO;
+import com.tramchester.domain.presentation.DTO.LocationRefDTO;
 import com.tramchester.domain.presentation.DTO.PlatformDTO;
 import com.tramchester.domain.presentation.DTO.RouteRefDTO;
-import com.tramchester.domain.presentation.DTO.LocationRefDTO;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.presentation.RecentJourneys;
 import com.tramchester.integration.testSupport.APIClient;
@@ -22,7 +23,6 @@ import io.dropwizard.testing.junit5.DropwizardExtensionsSupport;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
@@ -113,7 +113,6 @@ class StationResourceTest {
         assertEquals(304, resultB.getStatus());
     }
 
-    @Disabled("WIP")
     @Test
     void shouldGetAllStationsWithDetails() {
         Response response = APIClient.getApiResponse(appExtension, "stations/all");
@@ -131,7 +130,11 @@ class StationResourceTest {
 
         LocationDTO result = found.get();
 
-        assertTrue(result.getIsInterchange());
+        assertEquals(LocationType.Station, result.getLocationType());
+        assertEquals(expected.getPlatforms().size(), result.getPlatforms().size());
+
+        // WIP
+        //assertTrue(result.getIsInterchange());
     }
 
     @Test

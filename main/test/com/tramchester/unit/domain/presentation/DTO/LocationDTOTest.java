@@ -7,11 +7,13 @@ import com.tramchester.domain.places.MutableStation;
 import com.tramchester.domain.presentation.DTO.LocationDTO;
 import com.tramchester.domain.presentation.DTO.PlatformDTO;
 import com.tramchester.domain.presentation.DTO.RouteRefDTO;
+import com.tramchester.domain.presentation.DTO.factory.LocationDTOFactory;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.StationHelper;
 import com.tramchester.testSupport.reference.TramStations;
 import org.jetbrains.annotations.NotNull;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.util.Optional;
@@ -25,6 +27,13 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class LocationDTOTest {
 
+    private LocationDTOFactory factory;
+
+    @BeforeEach
+    void beforeEachTestRuns() {
+        factory = new LocationDTOFactory();
+    }
+
     @Test
     void shouldCreateDTOAsExpected() {
 
@@ -37,7 +46,7 @@ class LocationDTOTest {
         testStation.addPlatform(MutablePlatform.buildForTFGMTram("9400ZZMAALT1", "Altrincham", new LatLong(1.2,1)));
         testStation.addPlatform(MutablePlatform.buildForTFGMTram("9400ZZMAALT2", "Altrincham", new LatLong(1.1,1)));
 
-        LocationDTO dto = new LocationDTO(testStation);
+        LocationDTO dto = factory.createLocationDTO(testStation); //new LocationDTO(testStation);
 
         assertEquals(testStation.forDTO(), dto.getId());
         assertEquals(testStation.getTransportModes(), dto.getTransportModes());

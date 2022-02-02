@@ -1,42 +1,25 @@
 package com.tramchester.domain.presentation.DTO;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.tramchester.domain.places.*;
-import com.tramchester.domain.reference.TransportMode;
+import com.tramchester.domain.places.Location;
+import com.tramchester.domain.places.LocationType;
 import com.tramchester.domain.presentation.LatLong;
+import com.tramchester.domain.reference.TransportMode;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @SuppressWarnings("unused")
 public class LocationDTO {
     private String id;
     private String name;
     private LatLong latLong;
-    private List<PlatformDTO> platforms;
-
-    private List<RouteRefDTO> routes;
     private Set<TransportMode> transportModes;
     private LocationType locationType;
+    private List<PlatformDTO> platforms;
+    private List<RouteRefDTO> routes;
 
-    public LocationDTO() {
-        // deserialisation
-    }
-
-    public LocationDTO(PostcodeLocation source) {
-        this(source, Collections.emptyList(), Collections.emptyList());
-    }
-
-    public LocationDTO(Station source) {
-        this(source,
-                source.hasPlatforms() ? source.getPlatforms().stream().map(PlatformDTO::new).collect(Collectors.toList()) : Collections.emptyList(),
-                Stream.concat(source.getDropoffRoutes().stream(), source.getPickupRoutes().stream()).map(RouteRefDTO::new).collect(Collectors.toList()));
-    }
-
-    private LocationDTO(Location<?> source, List<PlatformDTO> platforms, List<RouteRefDTO> routes) {
+    public LocationDTO(Location<?> source, List<PlatformDTO> platforms, List<RouteRefDTO> routes) {
         this.id = source.getId().forDTO();
         this.name = source.getName();
         this.latLong = source.getLatLong();
@@ -44,6 +27,10 @@ public class LocationDTO {
         this.locationType = source.getLocationType();
         this.platforms = platforms;
         this.routes = routes;
+    }
+
+    public LocationDTO() {
+        // deserialisation
     }
 
     public String getId() {
@@ -111,6 +98,7 @@ public class LocationDTO {
                 ", platforms=" + platforms +
                 ", routes=" + routes +
                 ", transportModes=" + transportModes +
+                ", locationType=" + locationType +
                 '}';
     }
 }

@@ -8,10 +8,11 @@ import com.tramchester.domain.presentation.LatLong;
 @SuppressWarnings("unused")
 public class PlatformDTO {
 
+    private IdFor<Platform> platformId;
+
     private String id;
     private String name;
     private String platformNumber;
-    private IdFor<Platform> platformId;
     private LatLong latLong;
 
     public PlatformDTO() {
