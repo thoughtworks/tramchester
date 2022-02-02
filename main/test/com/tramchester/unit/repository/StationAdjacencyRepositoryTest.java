@@ -4,7 +4,7 @@ import com.tramchester.domain.StationPair;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.time.ProvidesLocalNow;
 import com.tramchester.domain.time.ProvidesNow;
-import com.tramchester.graph.filters.IncludeAllFilter;
+import com.tramchester.graph.filters.GraphFilterActive;
 import com.tramchester.repository.TramStationAdjacenyRepository;
 import com.tramchester.testSupport.reference.TramTransportDataForTestFactory;
 import org.junit.jupiter.api.Assertions;
@@ -24,7 +24,7 @@ class StationAdjacencyRepositoryTest {
         dataForTestProvider.start();
         transportDataSource = dataForTestProvider.getTestData();
 
-        repository = new TramStationAdjacenyRepository(transportDataSource, new IncludeAllFilter());
+        repository = new TramStationAdjacenyRepository(transportDataSource, new GraphFilterActive(false));
         repository.start();
     }
 

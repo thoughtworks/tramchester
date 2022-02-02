@@ -32,7 +32,6 @@ public class Interchanges implements InterchangeRepository {
     private final FindStationsByNumberLinks findStationsByNumberConnections;
     private final StationRepository stationRepository;
     private final NeighboursRepository neighboursRepository;
-    private final StationGroupsRepository compositeStationRepository;
     private final TramchesterConfig config;
     private final GraphFilter graphFilter;
 
@@ -40,12 +39,11 @@ public class Interchanges implements InterchangeRepository {
 
     @Inject
     public Interchanges(FindStationsByNumberLinks findStationsByNumberConnections, StationRepository stationRepository,
-                        NeighboursRepository neighboursRepository, StationGroupsRepository compositeStationRepository,
+                        NeighboursRepository neighboursRepository,
                         TramchesterConfig config, GraphFilter graphFilter, StationsAndLinksGraphBuilder.Ready ready) {
         this.findStationsByNumberConnections = findStationsByNumberConnections;
         this.stationRepository = stationRepository;
         this.neighboursRepository = neighboursRepository;
-        this.compositeStationRepository = compositeStationRepository;
         this.config = config;
         this.graphFilter = graphFilter;
 
@@ -141,30 +139,6 @@ public class Interchanges implements InterchangeRepository {
         addStations(markedAsInterchange, InterchangeStation.InterchangeType.FromSourceData);
         logger.info(format("Added %s %s stations marked as as interchange", markedAsInterchange.size(), mode));
     }
-
-//    private void addCompositeStations(TransportMode mode, int compositeThreshhold) {
-//        logger.info("Adding composite stations as interchanges with threshhold " + compositeThreshhold);
-//
-//        Set<GroupedStations> composites = compositeStationRepository.getCompositesServing(mode);
-//        if (composites.isEmpty()) {
-//            logger.info("No composites to add");
-//            return;
-//        }
-//
-//        Set<Station> compositeStationsOverThreshhold = composites.stream().
-//                filter(compositeStation -> compositeStation.numberContained() >= compositeThreshhold).
-//                flatMap(compositeStation -> compositeStation.getContained().stream()).
-//                collect(Collectors.toSet());
-//
-//        if (compositeStationsOverThreshhold.isEmpty()) {
-//            logger.warn(format("Did not find any composites matching threshold %s out of %s composites",
-//                    compositeThreshhold, composites.size()));
-//        } else {
-//            logger.info(format("Adding %s interchanges for %s composites",
-//                    compositeStationsOverThreshhold.size(), composites.size()));
-//        }
-//        addStations(compositeStationsOverThreshhold, InterchangeStation.InterchangeType.CompositeLinks);
-//    }
 
     private void addStations(Set<Station> stations, InterchangeStation.InterchangeType type) {
         Map<IdFor<Station>, InterchangeStation> toAdd = stations.stream().

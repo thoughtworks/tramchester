@@ -9,6 +9,11 @@ import com.tramchester.domain.places.Station;
 
 import java.util.Set;
 
+/***
+ * DO NOT use this is just need to determine if filtering is active during transport data load, otherwise
+ * you will create a circular dependency
+ * @see com.tramchester.graph.filters.GraphFilterActive
+ */
 public interface GraphFilter {
     boolean isFiltered();
 

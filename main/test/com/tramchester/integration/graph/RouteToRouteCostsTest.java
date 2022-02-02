@@ -65,7 +65,7 @@ public class RouteToRouteCostsTest {
         stationRepository = componentContainer.get(StationRepository.class);
         routesCostRepository = componentContainer.get(BetweenRoutesCostRepository.class);
         routeRepository = componentContainer.get(RouteRepository.class);
-        routeHelper = new TramRouteHelper(routeRepository);
+        routeHelper = new TramRouteHelper();
     }
 
     @Test
@@ -84,8 +84,8 @@ public class RouteToRouteCostsTest {
     @Disabled("Requires route with non-overlapping dates, which isn't the case for the current data")
     @Test
     void shouldFailToFindIfNoDateOverlop() {
-        Set<Route> routesA = routeHelper.get(AltrinchamPiccadilly);
-        Set<Route> routesB = routeHelper.get(PiccadillyAltrincham);
+        Set<Route> routesA = routeHelper.get(AltrinchamPiccadilly, routeRepository);
+        Set<Route> routesB = routeHelper.get(PiccadillyAltrincham, routeRepository);
 
         // First:
         // try to find routes with no overlap in order that can check the cost between those routes is MAX_VALUE
@@ -110,15 +110,15 @@ public class RouteToRouteCostsTest {
 
     @Test
     void shouldComputeCostsSameRoute() {
-        Set<Route> routesA = routeHelper.get(AltrinchamPiccadilly);
+        Set<Route> routesA = routeHelper.get(AltrinchamPiccadilly, routeRepository);
 
         routesA.forEach(routeA -> assertEquals(0, routesCostRepository.getFor(routeA, routeA)));
     }
 
     @Test
     void shouldComputeCostsRouteOtherDirection() {
-        Set<Route> routesA = routeHelper.get(AltrinchamPiccadilly);
-        Set<Route> routesB = routeHelper.get(PiccadillyAltrincham);
+        Set<Route> routesA = routeHelper.get(AltrinchamPiccadilly, routeRepository);
+        Set<Route> routesB = routeHelper.get(PiccadillyAltrincham, routeRepository);
 
         routesA.forEach(routeA -> routesB.forEach(routeB -> {
             if (routeA.isDateOverlap(routeB)) {
@@ -130,8 +130,8 @@ public class RouteToRouteCostsTest {
 
     @Test
     void shouldComputeCostsDifferentRoutesOneChange() {
-        Set<Route> routesA = routeHelper.get(CornbrookTheTraffordCentre);
-        Set<Route> routesB = routeHelper.get(BuryPiccadilly);
+        Set<Route> routesA = routeHelper.get(CornbrookTheTraffordCentre, routeRepository);
+        Set<Route> routesB = routeHelper.get(BuryPiccadilly, routeRepository);
 
         routesA.forEach(routeA -> routesB.forEach(routeB -> {
             if (routeA.isDateOverlap(routeB)) {
@@ -144,8 +144,8 @@ public class RouteToRouteCostsTest {
 
     @Test
     void shouldComputeCostsDifferentRoutesTwoChanges() {
-        Set<Route> routesA = routeHelper.get(AltrinchamPiccadilly);
-        Set<Route> routesB = routeHelper.get(VictoriaWythenshaweManchesterAirport);
+        Set<Route> routesA = routeHelper.get(AltrinchamPiccadilly, routeRepository);
+        Set<Route> routesB = routeHelper.get(VictoriaWythenshaweManchesterAirport, routeRepository);
 
         routesA.forEach(routeA -> routesB.forEach(routeB -> {
             if (routeA.isDateOverlap(routeB)) {
@@ -203,9 +203,9 @@ public class RouteToRouteCostsTest {
     @Test
     void shouldSortAsExpected() {
 
-        Set<Route> routesA = routeHelper.get(CornbrookTheTraffordCentre);
-        Set<Route> routesB = routeHelper.get(VictoriaWythenshaweManchesterAirport);
-        Set<Route> routesC = routeHelper.get(BuryPiccadilly);
+        Set<Route> routesA = routeHelper.get(CornbrookTheTraffordCentre, routeRepository);
+        Set<Route> routesB = routeHelper.get(VictoriaWythenshaweManchesterAirport, routeRepository);
+        Set<Route> routesC = routeHelper.get(BuryPiccadilly, routeRepository);
 
         Station destination = stationRepository.getStationById(TramStations.TraffordCentre.getId());
         LowestCostsForDestRoutes sorts = routesCostRepository.getLowestCostCalcutatorFor(LocationSet.singleton(destination));

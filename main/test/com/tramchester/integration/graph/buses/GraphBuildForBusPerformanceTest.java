@@ -7,6 +7,7 @@ import com.tramchester.graph.graphbuild.CompositeStationGraphBuilder;
 import com.tramchester.graph.graphbuild.StagedTransportGraphBuilder;
 import com.tramchester.graph.graphbuild.StationsAndLinksGraphBuilder;
 import com.tramchester.integration.testSupport.bus.IntegrationBusTestConfig;
+import com.tramchester.repository.TransportData;
 import com.tramchester.testSupport.testTags.BusTest;
 import com.tramchester.testSupport.TestEnv;
 import org.junit.jupiter.api.AfterAll;
@@ -34,7 +35,7 @@ class GraphBuildForBusPerformanceTest {
         componentContainer.initialise();
     }
 
-    private static void configureFilter(ConfigurableGraphFilter graphFilter) {
+    private static void configureFilter(ConfigurableGraphFilter graphFilter, TransportData transportData) {
         graphFilter.addAgency(TestEnv.StagecoachManchester.getId());
     }
 

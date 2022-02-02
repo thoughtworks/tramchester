@@ -32,6 +32,7 @@ public class RouteInterchangesTest {
     private StationRepository stationRepository;
     private TramRouteHelper tramRouteHelper;
     private InterchangeRepository interchangeRepository;
+    private RouteRepository routeRepository;
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
@@ -47,16 +48,16 @@ public class RouteInterchangesTest {
     @BeforeEach
     void onceBeforeEachTestRuns() {
         stationRepository = componentContainer.get(StationRepository.class);
-        RouteRepository routeRepository = componentContainer.get(RouteRepository.class);
+        routeRepository = componentContainer.get(RouteRepository.class);
         routeInterchanges = componentContainer.get(RouteInterchanges.class);
-        tramRouteHelper = new TramRouteHelper(routeRepository);
+        tramRouteHelper = new TramRouteHelper();
         interchangeRepository = componentContainer.get(InterchangeRepository.class);
     }
 
     @Test
     void shouldGetInterchangesForARoute() {
 
-        Set<Route> routes = tramRouteHelper.get(KnownTramRoute.BuryManchesterAltrincham);
+        Set<Route> routes = tramRouteHelper.get(KnownTramRoute.BuryManchesterAltrincham, routeRepository);
 
         Set<InterchangeStation> found = routes.stream().
                 flatMap(route -> routeInterchanges.getFor(route).stream()).collect(Collectors.toSet());
@@ -67,7 +68,7 @@ public class RouteInterchangesTest {
     @Test
     void shouldGetCostToInterchangeForRouteStation() {
 
-        Set<Route> routes = tramRouteHelper.get(KnownTramRoute.AltrinchamPiccadilly);
+        Set<Route> routes = tramRouteHelper.get(KnownTramRoute.AltrinchamPiccadilly, routeRepository);
 
         List<RouteStation> navigationRoadRouteStations = stationRepository.getRouteStationsFor(NavigationRoad.getId()).stream().
                 filter(routeStation -> routes.contains(routeStation.getRoute())).collect(Collectors.toList());
@@ -86,7 +87,7 @@ public class RouteInterchangesTest {
     @Test
     void shouldGetCostToInterchangeForRouteStationAdjacent() {
 
-        Set<Route> routes = tramRouteHelper.get(KnownTramRoute.AltrinchamPiccadilly);
+        Set<Route> routes = tramRouteHelper.get(KnownTramRoute.AltrinchamPiccadilly, routeRepository);
 
         List<RouteStation> oldTraffordRouteStations = stationRepository.getRouteStationsFor(OldTrafford.getId()).stream().
                 filter(routeStation -> routes.contains(routeStation.getRoute())).collect(Collectors.toList());
@@ -105,7 +106,7 @@ public class RouteInterchangesTest {
     @Test
     void shouldGetZeroCostToInterchangeForRouteStationThatIsInterchange() {
 
-        Set<Route> routes = tramRouteHelper.get(KnownTramRoute.AltrinchamPiccadilly);
+        Set<Route> routes = tramRouteHelper.get(KnownTramRoute.AltrinchamPiccadilly, routeRepository);
 
         List<RouteStation> cornbrookRouteStations = stationRepository.getRouteStationsFor(Cornbrook.getId()).
                 stream().
@@ -123,7 +124,7 @@ public class RouteInterchangesTest {
 
     @Test
     void shouldGetMaxCostIfNoInterchangeBetweenStationAndEndOfTheRoute() {
-        Set<Route> routes = tramRouteHelper.get(KnownTramRoute.PiccadillyAltrincham);
+        Set<Route> routes = tramRouteHelper.get(KnownTramRoute.PiccadillyAltrincham, routeRepository);
 
         List<RouteStation> navigationRoadRouteStations = stationRepository.getRouteStationsFor(NavigationRoad.getId()).stream().
                 filter(routeStation -> routes.contains(routeStation.getRoute())).collect(Collectors.toList());

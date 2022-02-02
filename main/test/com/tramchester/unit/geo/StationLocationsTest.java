@@ -5,6 +5,7 @@ import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.geo.*;
 import com.tramchester.repository.StationRepository;
+import com.tramchester.repository.naptan.NaptanRespository;
 import com.tramchester.testSupport.reference.KnownLocations;
 import com.tramchester.testSupport.reference.StationHelper;
 import org.easymock.EasyMock;
@@ -24,12 +25,13 @@ class StationLocationsTest extends EasyMockSupport {
 
     private StationLocations stationLocations;
     private StationRepository stationRepository;
-    //private StationGroupsRepository stationGroupsRepository;
+    private NaptanRespository naptanRespository;
 
     @BeforeEach
     void onceBeforeEachTest() {
         stationRepository = createMock(StationRepository.class);
-        stationLocations = new StationLocations(stationRepository);
+        naptanRespository = createMock(NaptanRespository.class);
+        stationLocations = new StationLocations(stationRepository, naptanRespository);
     }
 
     @Test
@@ -62,6 +64,7 @@ class StationLocationsTest extends EasyMockSupport {
         Station stationA = createTestStation("id123", "nameA", nearAltrincham);
         Station stationC = createTestStation("id789", "nameC", nearShudehill);
 
+        EasyMock.expect(naptanRespository.isEnabled()).andReturn(false);
         EasyMock.expect(stationRepository.getActiveStationStream()).andStubAnswer(() ->
                 Stream.of(stationA, stationC));
 
@@ -91,6 +94,8 @@ class StationLocationsTest extends EasyMockSupport {
         GridPosition gridA = stationA.getGridPosition();
         GridPosition gridB = stationD.getGridPosition();
 
+        EasyMock.expect(naptanRespository.isEnabled()).andReturn(false);
+
         EasyMock.expect(stationRepository.getActiveStationStream()).andStubAnswer(() ->
                 Stream.of(stationA, stationB, stationC, stationD));
 
@@ -115,6 +120,7 @@ class StationLocationsTest extends EasyMockSupport {
         Station stationB = createTestStation("id456", "nameB", nearPiccGardens);
         Station stationC = createTestStation("id789", "nameC", nearShudehill);
 
+        EasyMock.expect(naptanRespository.isEnabled()).andReturn(false);
         EasyMock.expect(stationRepository.getActiveStationStream()).andStubAnswer(() -> Stream.of(stationA, stationB, stationC));
 
         replayAll();
@@ -135,6 +141,7 @@ class StationLocationsTest extends EasyMockSupport {
         Station stationB = createTestStation("id456", "nameB", nearPiccGardens);
         Station stationC = createTestStation("id789", "nameC", nearShudehill);
 
+        EasyMock.expect(naptanRespository.isEnabled()).andReturn(false);
         EasyMock.expect(stationRepository.getActiveStationStream()).andStubAnswer(() -> Stream.of(stationA, stationB, stationC));
 
         replayAll();
@@ -171,6 +178,7 @@ class StationLocationsTest extends EasyMockSupport {
         Station testStationB = createTestStation("id456", "name", nearShudehill);
         Station testStationC = createTestStation("id789", "nameB", nearPiccGardens);
 
+        EasyMock.expect(naptanRespository.isEnabled()).andReturn(false);
         EasyMock.expect(stationRepository.getActiveStationStream()).andStubAnswer(() -> Stream.of(testStationA, testStationB, testStationC));
 
         GridPosition posA = testStationA.getGridPosition();
@@ -196,6 +204,7 @@ class StationLocationsTest extends EasyMockSupport {
         Station testStationA = createTestStation("id123", "name", nearPiccGardens);
         Station testStationC = createTestStation("id789", "nameB", nearShudehill);
 
+        EasyMock.expect(naptanRespository.isEnabled()).andReturn(false);
         EasyMock.expect(stationRepository.getActiveStationStream()).andStubAnswer(() -> Stream.of(testStationA, testStationC));
 
         replayAll();
@@ -226,11 +235,12 @@ class StationLocationsTest extends EasyMockSupport {
         Station testStationB = createTestStation("id456", "name", nearShudehill);
         Station testStationC = createTestStation("id789", "nameB", nearPiccGardens);
 
+        EasyMock.expect(naptanRespository.isEnabled()).andReturn(false);
         EasyMock.expect(stationRepository.getActiveStationStream()).andStubAnswer(() -> Stream.of(testStationA, testStationB, testStationC));
 
         replayAll();
         stationLocations.start();
-        List<BoundingBoxWithStations> boxedStations = stationLocations.getGroupedStations(1000).collect(Collectors.toList());
+        List<BoundingBoxWithStations> boxedStations = stationLocations.getStationsInGrids(1000).collect(Collectors.toList());
 
         assertEquals(2, boxedStations.size());
 

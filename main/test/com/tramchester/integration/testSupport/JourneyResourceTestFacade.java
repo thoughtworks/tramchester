@@ -96,7 +96,7 @@ public class JourneyResourceTestFacade {
         LocationType destType = dest.getLocationType();
 
         JourneyQueryDTO query = new JourneyQueryDTO(date, time, startType, startId, destType, destId, arriveBy, maxChanges);
-        
+
         String prefix = streamed ? "journey/streamed" : "journey";
         return APIClient.postAPIRequest(appExtension, prefix, query, cookies);
     }

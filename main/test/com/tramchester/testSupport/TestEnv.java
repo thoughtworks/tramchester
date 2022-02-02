@@ -64,6 +64,8 @@ public class TestEnv {
     public static final Agency WarringtonsOwnBuses = MutableAgency.build(DataSourceID.tfgm, createId("WBTR"),
             "Warrington's Own Buses");
 
+    public static final String MANCHESTER_AIRPORT_BUS_AREA = "180GMABS";
+
     public static final String BACKUP_TIMETABLE_URL = "https://tramchester2dist.s3.eu-west-1.amazonaws.com/XXXX/tfgm_data.zip";
     public static final String TFGM_TIMETABLE_URL = "http://odata.tfgm.com/opendata/downloads/TfGMgtfsnew.zip";
 
@@ -192,7 +194,7 @@ public class TestEnv {
         return new BoundingBox(147588, 30599, 654747, 967921);
     }
 
-    public static BoundingBox getGreaterManchester() { return new BoundingBox(377000, 385000, 394500, 413500); }
+    public static BoundingBox getGreaterManchester() { return new BoundingBox(370000, 380000, 398500, 414500); }
 
     public static LatLong stPetersSquareLocation() {
         return new LatLong(53.47825,-2.24314);

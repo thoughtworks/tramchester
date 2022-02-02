@@ -1,10 +1,19 @@
 package com.tramchester.geo;
 
 import com.netflix.governator.guice.lazy.LazySingleton;
+import com.tramchester.domain.id.IdFor;
+import com.tramchester.domain.places.Location;
+import com.tramchester.domain.places.NaptanArea;
+import com.tramchester.domain.places.NaptanRecord;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.repository.StationRepository;
+import com.tramchester.repository.naptan.NaptanRespository;
+import org.geotools.metadata.iso.citation.CitationImpl;
+import org.geotools.referencing.crs.DefaultGeographicCRS;
 import org.jetbrains.annotations.NotNull;
+import org.locationtech.jts.geom.*;
+import org.opengis.metadata.citation.Citation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -16,9 +25,6 @@ import java.util.stream.Collectors;
 import java.util.stream.LongStream;
 import java.util.stream.Stream;
 
-/***
- * Note: will return composites instead of stations if composite is within range
- */
 @LazySingleton
 public class StationLocations implements StationLocationsRepository {
     private static final Logger logger = LoggerFactory.getLogger(StationLocations.class);
@@ -26,17 +32,28 @@ public class StationLocations implements StationLocationsRepository {
     private static final int GRID_SIZE_METERS = 1000;
 
     private final StationRepository stationRepository;
+    private final NaptanRespository naptanRespository;
     private final Set<BoundingBox> quadrants;
+    private final Map<IdFor<NaptanArea>, Set<Station>> stationsInArea;
 
     private final Map<BoundingBox, Set<Station>> stations;
+    private final GeometryFactory geometryFactory;
     private BoundingBox bounds;
 
     @Inject
-    public StationLocations(StationRepository stationRepository) {
+    public StationLocations(StationRepository stationRepository, NaptanRespository naptanRespository) {
         this.stationRepository = stationRepository;
-        // TODO Remove this
+        this.naptanRespository = naptanRespository;
+
         quadrants = new HashSet<>();
         stations = new HashMap<>();
+        stationsInArea = new HashMap<>();
+
+        // feels like there ought to be a better way of doing this.....
+        Citation model = new CitationImpl("EPSG");
+        int srid = Integer.parseInt(DefaultGeographicCRS.WGS84.getIdentifier(model).getCode());
+
+        geometryFactory = new GeometryFactory(new PrecisionModel(PrecisionModel.FLOATING), srid);
     }
 
     @PostConstruct
@@ -44,6 +61,11 @@ public class StationLocations implements StationLocationsRepository {
         logger.info("starting");
         bounds = new CreateBoundingBox().createBoundingBox(stationRepository.getActiveStationStream());
         createQuadrants();
+        if (naptanRespository.isEnabled()) {
+            populateAreas();
+        } else {
+            logger.warn("Naptan repository is disabled, no area data will be populated");
+        }
         logger.info("started");
     }
 
@@ -53,6 +75,7 @@ public class StationLocations implements StationLocationsRepository {
         stations.values().forEach(Set::clear);
         stations.clear();
         quadrants.clear();
+        stationsInArea.clear();
         logger.info("Stopped");
     }
 
@@ -86,8 +109,61 @@ public class StationLocations implements StationLocationsRepository {
         });
     }
 
+    private void populateAreas() {
+        stationRepository.getActiveStationStream().
+                collect(Collectors.groupingBy(Location::getAreaId)).entrySet()
+                .stream().
+                filter(entry -> !entry.getValue().isEmpty()).
+                forEach(entry -> stationsInArea.put(entry.getKey(), new HashSet<>(entry.getValue())));
+        logger.info("Added " + stationsInArea.size() + " areas which have stations");
+    }
+
     public BoundingBox getBounds() {
         return bounds;
+    }
+
+    @Override
+    public Set<Station> getStationsInArea(IdFor<NaptanArea> areaId) {
+        return stationsInArea.get(areaId);
+    }
+
+    @Override
+    public Geometry getGeometryForArea(IdFor<NaptanArea> areaId) {
+
+        // potentially slow
+
+        Set<NaptanRecord> records = naptanRespository.getRecordsFor(areaId);
+
+        List<Coordinate> points = records.stream().
+                map(NaptanRecord::getGridPosition).
+                map(CoordinateTransforms::getLatLong).
+                map(latLong -> new Coordinate(latLong.getLat(), latLong.getLon())).
+                collect(Collectors.toList());
+
+        Coordinate[] asArray = points.toArray(new Coordinate[]{});
+
+        MultiPoint multiPoint = geometryFactory.createMultiPointFromCoords(asArray);
+
+        return multiPoint.convexHull();
+    }
+
+    @Override
+    public List<LatLong> getBoundaryFor(IdFor<NaptanArea> areaId) {
+        Geometry geometry = getGeometryForArea(areaId);
+
+        if (geometry.getNumPoints()==0) {
+            logger.error("Zero points for boundary for area " + areaId);
+        }
+
+        Geometry boundary = geometry.getBoundary();
+
+        return Arrays.stream(boundary.getCoordinates()).map(LatLong::of).collect(Collectors.toList());
+    }
+
+    @Override
+    public boolean hasStationsInArea(IdFor<NaptanArea> areaId) {
+        // areas only in this colleciton if non-zero number of stations
+        return stationsInArea.containsKey(areaId);
     }
 
     public Set<BoundingBox> getQuadrants() {
@@ -137,7 +213,7 @@ public class StationLocations implements StationLocationsRepository {
         return FindNear.getNearTo(candidateStations, position, margin).findAny().isPresent();
     }
 
-    public Stream<BoundingBoxWithStations> getGroupedStations(long gridSize) {
+    public Stream<BoundingBoxWithStations> getStationsInGrids(long gridSize) {
         if (gridSize <= 0) {
             throw new RuntimeException("Invalid grid size of " + gridSize);
         }

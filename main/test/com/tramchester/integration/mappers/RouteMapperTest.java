@@ -8,6 +8,7 @@ import com.tramchester.domain.presentation.DTO.StationRefWithPosition;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
 import com.tramchester.mappers.RoutesMapper;
+import com.tramchester.repository.RouteRepository;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TramRouteHelper;
 import com.tramchester.testSupport.reference.TramStations;
@@ -37,7 +38,7 @@ class RouteMapperTest {
 
     @BeforeEach
     void beforeEachTestRuns() {
-        tramRouteHelper = new TramRouteHelper(componentContainer);
+        tramRouteHelper = new TramRouteHelper();
     }
 
     @AfterAll
@@ -47,10 +48,11 @@ class RouteMapperTest {
 
     @Test
     void shouldGetRouteStationsInCorrectOrder() {
+        RouteRepository routeRepsoitory = componentContainer.get(RouteRepository.class);
         RoutesMapper mapper = componentContainer.get(RoutesMapper.class);
 
         List<RouteDTO> dtos = mapper.getAllRoutes();
-        Set<Route> routes = tramRouteHelper.get(ManchesterAirportWythenshaweVictoria);
+        Set<Route> routes = tramRouteHelper.get(ManchesterAirportWythenshaweVictoria, routeRepsoitory);
 
         routes.forEach(route -> {
             RouteDTO query = new RouteDTO(route, new LinkedList<>());

@@ -1,7 +1,9 @@
 package com.tramchester.domain.presentation;
 
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import org.locationtech.jts.geom.Coordinate;
 
 import java.util.Objects;
 
@@ -21,6 +23,10 @@ public class LatLong {
     public LatLong(double lat, double lon) {
         this.lat = lat;
         this.lon = lon;
+    }
+
+    public static LatLong of(Coordinate coordinate) {
+        return new LatLong(coordinate.getX(), coordinate.getY());
     }
 
     @Override
@@ -66,5 +72,10 @@ public class LatLong {
 
     public boolean isValid() {
         return ((lat>=-90) && (lat<=90) && (lon>=-180) && (lon<=180));
+    }
+
+    @JsonIgnore
+    public Coordinate getCoordinate() {
+        return new Coordinate(lat, lon);
     }
 }

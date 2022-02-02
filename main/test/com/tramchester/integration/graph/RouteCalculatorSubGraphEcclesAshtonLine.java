@@ -13,6 +13,7 @@ import com.tramchester.graph.search.RouteCalculator;
 import com.tramchester.integration.testSupport.RouteCalculatorTestFacade;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
 import com.tramchester.repository.StationRepository;
+import com.tramchester.repository.TransportData;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TramRouteHelper;
 import com.tramchester.testSupport.reference.KnownTramRoute;
@@ -35,6 +36,7 @@ class RouteCalculatorSubGraphEcclesAshtonLine {
     private static ComponentContainer componentContainer;
     private static GraphDatabase database;
     private static SubgraphConfig config;
+    private static TramRouteHelper tramRouteHelper;
 
     private RouteCalculatorTestFacade calculator;
     private final LocalDate when = TestEnv.testDay();
@@ -47,6 +49,8 @@ class RouteCalculatorSubGraphEcclesAshtonLine {
         config = new SubgraphConfig();
         TestEnv.deleteDBIfPresent(config);
 
+        tramRouteHelper = new TramRouteHelper();
+
         componentContainer = new ComponentsBuilder().
                 configureGraphFilter(RouteCalculatorSubGraphEcclesAshtonLine::configureFilter).
                 create(config, TestEnv.NoopRegisterMetrics());
@@ -54,9 +58,8 @@ class RouteCalculatorSubGraphEcclesAshtonLine {
         database = componentContainer.get(GraphDatabase.class);
     }
 
-    private static void configureFilter(ConfigurableGraphFilter graphFilter) {
-        TramRouteHelper tramRouteHelper = new TramRouteHelper(componentContainer);
-        Set<Route> routes = tramRouteHelper.get(KnownTramRoute.EcclesManchesterAshtonUnderLyne);
+    private static void configureFilter(ConfigurableGraphFilter graphFilter, TransportData transportData) {
+        Set<Route> routes = tramRouteHelper.get(KnownTramRoute.EcclesManchesterAshtonUnderLyne, transportData);
         routes.forEach(route -> graphFilter.addRoute(route.getId()));
     }
 

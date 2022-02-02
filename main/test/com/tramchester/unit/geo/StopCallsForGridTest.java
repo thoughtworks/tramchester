@@ -79,7 +79,7 @@ public class StopCallsForGridTest extends EasyMockSupport {
         boundingBoxes.add(new BoundingBoxWithStations(boxB, gridBStations));
 
         final int gridSize = 2000;
-        EasyMock.expect(stationLocations.getGroupedStations(gridSize)).andReturn(boundingBoxes.stream());
+        EasyMock.expect(stationLocations.getStationsInGrids(gridSize)).andReturn(boundingBoxes.stream());
         EasyMock.expect(stopCallRepository.getStopCallsFor(station1, date, begin, end)).andReturn(station1Calls);
         EasyMock.expect(stopCallRepository.getStopCallsFor(station2, date, begin, end)).andReturn(station2Calls);
         EasyMock.expect(stopCallRepository.getStopCallsFor(station3, date, begin, end)).andReturn(station3Calls);

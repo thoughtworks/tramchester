@@ -5,14 +5,14 @@ import com.tramchester.caching.DataCache;
 import com.tramchester.dataexport.DataSaver;
 import com.tramchester.dataimport.data.RouteIndexData;
 import com.tramchester.domain.LocationSet;
-import com.tramchester.domain.id.IdSet;
-import com.tramchester.domain.id.StringIdFor;
-import com.tramchester.domain.places.*;
 import com.tramchester.domain.NumberOfChanges;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.id.IdFor;
-import com.tramchester.graph.filters.GraphFilter;
+import com.tramchester.domain.id.IdSet;
+import com.tramchester.domain.id.StringIdFor;
+import com.tramchester.domain.places.*;
+import com.tramchester.graph.filters.GraphFilterActive;
 import com.tramchester.repository.InterchangeRepository;
 import com.tramchester.repository.NeighboursRepository;
 import com.tramchester.repository.RouteRepository;
@@ -48,12 +48,12 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
     private final Costs costs;
     private final Index index;
     private final int numberOfRoutes;
-    private final GraphFilter graphFilter;
+    private final GraphFilterActive graphFilter;
     private final DataCache dataCache;
 
     @Inject
     public RouteToRouteCosts(RouteRepository routeRepository, InterchangeRepository interchangeRepository,
-                             NeighboursRepository neighboursRepository, DataCache dataCache, GraphFilter graphFilter) {
+                             NeighboursRepository neighboursRepository, DataCache dataCache, GraphFilterActive graphFilter) {
         this.routeRepository = routeRepository;
         this.interchangeRepository = interchangeRepository;
         this.neighboursRepository = neighboursRepository;

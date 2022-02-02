@@ -77,7 +77,7 @@ public class TransportDataFromFilesTramTest {
     void beforeEachTestRuns() {
         transportData = componentContainer.get(TransportData.class);
         allServices = transportData.getServices();
-        routeHelper = new TramRouteHelper(componentContainer);
+        routeHelper = new TramRouteHelper();
     }
 
     @Test
@@ -131,20 +131,20 @@ public class TransportDataFromFilesTramTest {
         //assertEquals(10, traffordBarRoutes.size());
 
         // contains -> containsAll
-        assertTrue(traffordBarRoutes.containsAll(routeHelper.getId(AltrinchamPiccadilly)));
-        assertTrue(traffordBarRoutes.containsAll(routeHelper.getId(PiccadillyAltrincham)));
+        assertTrue(traffordBarRoutes.containsAll(routeHelper.getId(AltrinchamPiccadilly, transportData)));
+        assertTrue(traffordBarRoutes.containsAll(routeHelper.getId(PiccadillyAltrincham, transportData)));
 
-        assertTrue(traffordBarRoutes.containsAll(routeHelper.getId(EastDidisburyManchesterShawandCromptonRochdale)));
-        assertTrue(traffordBarRoutes.containsAll(routeHelper.getId(RochdaleShawandCromptonManchesterEastDidisbury)));
+        assertTrue(traffordBarRoutes.containsAll(routeHelper.getId(EastDidisburyManchesterShawandCromptonRochdale, transportData)));
+        assertTrue(traffordBarRoutes.containsAll(routeHelper.getId(RochdaleShawandCromptonManchesterEastDidisbury, transportData)));
 
-        assertTrue(traffordBarRoutes.containsAll(routeHelper.getId(VictoriaWythenshaweManchesterAirport)));
-        assertTrue(traffordBarRoutes.containsAll(routeHelper.getId(ManchesterAirportWythenshaweVictoria)));
+        assertTrue(traffordBarRoutes.containsAll(routeHelper.getId(VictoriaWythenshaweManchesterAirport, transportData)));
+        assertTrue(traffordBarRoutes.containsAll(routeHelper.getId(ManchesterAirportWythenshaweVictoria, transportData)));
 
-        assertTrue(traffordBarRoutes.containsAll(routeHelper.getId(EcclesManchesterAshtonUnderLyne)));
-        assertTrue(traffordBarRoutes.containsAll(routeHelper.getId(AshtonUnderLyneManchesterEccles)));
+        assertTrue(traffordBarRoutes.containsAll(routeHelper.getId(EcclesManchesterAshtonUnderLyne, transportData)));
+        assertTrue(traffordBarRoutes.containsAll(routeHelper.getId(AshtonUnderLyneManchesterEccles, transportData)));
 
-        assertTrue(traffordBarRoutes.containsAll(routeHelper.getId(AltrinchamManchesterBury)));
-        assertTrue(traffordBarRoutes.containsAll(routeHelper.getId(BuryManchesterAltrincham)));
+        assertTrue(traffordBarRoutes.containsAll(routeHelper.getId(AltrinchamManchesterBury, transportData)));
+        assertTrue(traffordBarRoutes.containsAll(routeHelper.getId(BuryManchesterAltrincham, transportData)));
 
     }
 

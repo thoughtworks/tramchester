@@ -2,6 +2,7 @@ package com.tramchester.unit.dataimport.naptan;
 
 import com.tramchester.dataimport.NaPTAN.xml.stopArea.NaptanStopAreaData;
 import com.tramchester.geo.GridPosition;
+import com.tramchester.repository.naptan.NaptanStopAreaType;
 import com.tramchester.unit.dataimport.ParserTestXMLHelper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -39,6 +40,7 @@ public class NaptanStopAreaDataTest extends ParserTestXMLHelper<NaptanStopAreaDa
         assertEquals("910GALTRNHM", result.getStopAreaCode());
         assertEquals("active", result.getStatus());
         assertTrue(result.isActive());
+        assertEquals(NaptanStopAreaType.RailStation, result.getAreaType());
         assertEquals(new GridPosition(377026,387931), result.getGridPosition());
     }
 
@@ -65,8 +67,15 @@ public class NaptanStopAreaDataTest extends ParserTestXMLHelper<NaptanStopAreaDa
         List<NaptanStopAreaData> results = super.parseAll(text);
 
         assertEquals(2, results.size());
-        assertEquals("940GZZMAALT", results.get(0).getStopAreaCode());
-        assertEquals("910GALTRNHM", results.get(1).getStopAreaCode());
+
+        final NaptanStopAreaData firstArea = results.get(0);
+        final NaptanStopAreaData secondArea = results.get(1);
+
+        assertEquals("940GZZMAALT", firstArea.getStopAreaCode());
+        assertEquals(NaptanStopAreaType.TramMetroUndergroundStation, firstArea.getAreaType());
+        assertEquals("910GALTRNHM", secondArea.getStopAreaCode());
+        assertEquals(NaptanStopAreaType.RailStation, secondArea.getAreaType());
+
 
     }
 

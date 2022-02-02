@@ -4,13 +4,16 @@ package com.tramchester.resources;
 import com.codahale.metrics.annotation.Timed;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.StationLink;
+import com.tramchester.domain.places.NaptanArea;
+import com.tramchester.domain.presentation.DTO.AreaBoundaryDTO;
 import com.tramchester.domain.presentation.DTO.BoxDTO;
 import com.tramchester.domain.presentation.DTO.StationGroupDTO;
 import com.tramchester.domain.presentation.DTO.StationLinkDTO;
 import com.tramchester.geo.StationLocations;
 import com.tramchester.graph.search.FindStationLinks;
-import com.tramchester.repository.StationGroupsRepository;
 import com.tramchester.repository.NeighboursRepository;
+import com.tramchester.repository.StationGroupsRepository;
+import com.tramchester.repository.naptan.NaptanRespository;
 import io.dropwizard.jersey.caching.CacheControl;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -31,21 +34,23 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 @Api
-@Path("/links")
+@Path("/geo")
 @Produces(MediaType.APPLICATION_JSON)
-public class StationLinksResource implements APIResource, JourneyPlanningMarker {
-    private static final Logger logger = LoggerFactory.getLogger(StationLinksResource.class);
+public class StationGeographyResource implements APIResource, JourneyPlanningMarker {
+    private static final Logger logger = LoggerFactory.getLogger(StationGeographyResource.class);
 
     private final FindStationLinks findStationLinks;
     private final NeighboursRepository neighboursRepository;
     private final StationGroupsRepository stationGroupsRepository;
     private final TramchesterConfig config;
     private final StationLocations stationLocations;
+    private final NaptanRespository naptanRespository;
 
     @Inject
-    public StationLinksResource(FindStationLinks findStationLinks, NeighboursRepository neighboursRepository,
-                                StationGroupsRepository stationGroupsRepository, TramchesterConfig config,
-                                StationLocations stationLocations) {
+    public StationGeographyResource(FindStationLinks findStationLinks, NeighboursRepository neighboursRepository,
+                                    StationGroupsRepository stationGroupsRepository, TramchesterConfig config,
+                                    StationLocations stationLocations, NaptanRespository naptanRespository) {
+        this.naptanRespository = naptanRespository;
         logger.info("created");
         this.findStationLinks = findStationLinks;
         this.neighboursRepository = neighboursRepository;
@@ -57,8 +62,7 @@ public class StationLinksResource implements APIResource, JourneyPlanningMarker 
     @GET
     @Timed
     @Path("/all")
-    @ApiOperation(value = "Get all pairs of station links for given transport mode", response = StationLinkDTO.class,
-            responseContainer = "List")
+    @ApiOperation(value = "Get pairs of station links for given transport mode", response = StationLinkDTO.class, responseContainer = "List")
     @CacheControl(maxAge = 1, maxAgeUnit = TimeUnit.DAYS)
     public Response getAll() {
         logger.info("Get station links");
@@ -101,7 +105,31 @@ public class StationLinksResource implements APIResource, JourneyPlanningMarker 
 
     @GET
     @Timed
-    @Path("/composites")
+    @Path("/areas")
+    @ApiOperation(value = "List of boundaries for each area along with the area code", responseContainer = "List")
+    @CacheControl(maxAge = 1, maxAgeUnit = TimeUnit.DAYS)
+    public Response getAreas() {
+        logger.info("Get areas");
+
+        Set<NaptanArea> areas = naptanRespository.getAreas();
+
+        logger.info("Get boundaries for " + areas.size() + " areas");
+
+        List<AreaBoundaryDTO> allBoundaries = areas.stream().
+                filter(area -> stationLocations.hasStationsInArea(area.getId())).
+                filter(area -> naptanRespository.getNumRecordsFor(area.getId()) > 1).
+                map(area -> new AreaBoundaryDTO(stationLocations.getBoundaryFor(area.getId()), area.getId(), area.getName()))
+                .collect(Collectors.toList());
+
+        logger.info("Found " + allBoundaries.size() + " areas with boundaries");
+
+        return Response.ok(allBoundaries).build();
+    }
+
+
+    @GET
+    @Timed
+    @Path("/groups")
     @ApiOperation(value = "Get all pairs of composites (parent & child)", response = StationGroupDTO.class, responseContainer = "List")
     @CacheControl(maxAge = 1, maxAgeUnit = TimeUnit.DAYS)
     public Response getLinks() {
@@ -128,6 +156,19 @@ public class StationLinksResource implements APIResource, JourneyPlanningMarker 
                 map(BoxDTO::new).collect(Collectors.toList());
 
         return Response.ok(quadrantDTOs).build();
+    }
+
+    @GET
+    @Timed
+    @Path("/bounds")
+    @ApiOperation(value = "Get current geographical bounds in effect", response = BoxDTO.class)
+    public Response getBounds() {
+        logger.info("Get bounds");
+
+        BoxDTO quadrantDTOs = new BoxDTO(config.getBounds());
+
+        return Response.ok(quadrantDTOs).build();
+
     }
 
 

@@ -41,7 +41,7 @@ public
 class TransportDataFromFilesBusTest {
 
     public static final int TGFM_BUS_AGENCIES = 42;
-    public static final int TGFM_BUS_ROUTES = 1663;
+    public static final int TGFM_BUS_ROUTES = 1392;
     public static final int NUM_TFGM_BUS_STATIONS = 15759;
     private static ComponentContainer componentContainer;
     private static TramchesterConfig config;
@@ -126,11 +126,11 @@ class TransportDataFromFilesBusTest {
     void shouldHaveExpectedEndOfLinesAndRoutes() {
         IdFor<Agency> agencyId = StringIdFor.createId("ROST");
 
-        Set<Route> inbounds = transportData.findRoutesByName(agencyId, "Rochdale - Bacup - Rawtenstal - Haslingden - Accrington");
+        Set<Route> inbounds = transportData.findRoutesByName(agencyId, "Rochdale - Bacup - Rawtenstall - Accrington");
         assertFalse(inbounds.isEmpty());
         inbounds.forEach(inbound -> assertEquals("464", inbound.getShortName()));
 
-        Set<Route> outbounds = transportData.findRoutesByName(agencyId, "Accrington - Haslingden - Rawtenstal - Bacup - Rochdale");
+        Set<Route> outbounds = transportData.findRoutesByName(agencyId, "Accrington - Rawtenstall - Bacup - Rochdale");
         assertFalse(outbounds.isEmpty());
         outbounds.forEach(outbound -> assertEquals("464", outbound.getShortName()));
 

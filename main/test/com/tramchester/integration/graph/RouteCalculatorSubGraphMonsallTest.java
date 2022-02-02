@@ -12,6 +12,7 @@ import com.tramchester.graph.search.RouteCalculator;
 import com.tramchester.integration.testSupport.RouteCalculatorTestFacade;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
 import com.tramchester.repository.StationRepository;
+import com.tramchester.repository.TransportData;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TramRouteHelper;
 import com.tramchester.testSupport.reference.KnownTramRoute;
@@ -45,13 +46,13 @@ class RouteCalculatorSubGraphMonsallTest {
                 create(config, TestEnv.NoopRegisterMetrics());
         componentContainer.initialise();
 
-        tramRouteHelper = new TramRouteHelper(componentContainer);
+        tramRouteHelper = new TramRouteHelper();
 
         database = componentContainer.get(GraphDatabase.class);
     }
 
-    private static void configureFilter(ConfigurableGraphFilter graphFilter) {
-        graphFilter.addRoutes(tramRouteHelper.getId(KnownTramRoute.EastDidisburyManchesterShawandCromptonRochdale));
+    private static void configureFilter(ConfigurableGraphFilter graphFilter, TransportData transportData) {
+        graphFilter.addRoutes(tramRouteHelper.getId(KnownTramRoute.EastDidisburyManchesterShawandCromptonRochdale, transportData));
     }
 
     @AfterAll

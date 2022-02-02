@@ -8,6 +8,7 @@ import com.tramchester.graph.filters.ConfigurableGraphFilter;
 import com.tramchester.domain.JourneyRequest;
 import com.tramchester.integration.testSupport.RouteCalculationCombinations;
 import com.tramchester.integration.testSupport.bus.IntegrationBusTestConfig;
+import com.tramchester.repository.TransportData;
 import com.tramchester.testSupport.testTags.BusTest;
 import com.tramchester.testSupport.TestEnv;
 import org.junit.jupiter.api.*;
@@ -41,7 +42,7 @@ class RouteCalculatorKeyRoutesBusTest {
         componentContainer.initialise();
     }
 
-    static void configureFilter(ConfigurableGraphFilter graphFilter) {
+    static void configureFilter(ConfigurableGraphFilter graphFilter, TransportData transportData) {
         graphFilter.addAgency(TestEnv.WarringtonsOwnBuses.getId());
     }
 

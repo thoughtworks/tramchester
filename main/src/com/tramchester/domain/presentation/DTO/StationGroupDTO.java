@@ -6,49 +6,30 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public class StationGroupDTO {
-    private StationRefWithPosition parent;
+    private String areaId;
     private List<StationRefWithPosition> contained;
 
     public StationGroupDTO() {
         // deserialization
     }
 
-    public StationGroupDTO(StationRefWithPosition parent, List<StationRefWithPosition> contained) {
-        this.parent = parent;
+    public StationGroupDTO(String areaId, List<StationRefWithPosition> contained) {
+        this.areaId = areaId;
         this.contained = contained;
-    }
-
-
-    public StationRefWithPosition getParent() {
-        return parent;
     }
 
     public List<StationRefWithPosition> getContained() {
         return contained;
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-
-        StationGroupDTO that = (StationGroupDTO) o;
-
-        if (parent != null ? !parent.equals(that.parent) : that.parent != null) return false;
-        return contained != null ? contained.equals(that.contained) : that.contained == null;
-    }
-
-    @Override
-    public int hashCode() {
-        int result = parent != null ? parent.hashCode() : 0;
-        result = 31 * result + (contained != null ? contained.hashCode() : 0);
-        return result;
-    }
-
     public static StationGroupDTO create(StationGroup stationGroup) {
-        StationRefWithPosition parent = new StationRefWithPosition(stationGroup);
+        String areaId = stationGroup.getAreaId().forDTO();
         List<StationRefWithPosition> contained = stationGroup.getContained().stream().
                 map(StationRefWithPosition::new).collect(Collectors.toList());
-        return new StationGroupDTO(parent, contained);
+        return new StationGroupDTO(areaId, contained);
+    }
+
+    public String getAreaId() {
+        return areaId;
     }
 }

@@ -17,6 +17,7 @@ import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.GTFSPickupDropoffType;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramTime;
+import com.tramchester.graph.filters.GraphFilterActive;
 import com.tramchester.repository.WriteableTransportData;
 import org.apache.commons.lang3.tuple.Pair;
 import org.jetbrains.annotations.NotNull;
@@ -60,14 +61,14 @@ public class RailTimetableMapper {
     private final Set<RawService> skipped;
 
     public RailTimetableMapper(RailTransportDataFromFiles.StationsTemporary stations, WriteableTransportData container,
-                               RailConfig config) {
+                               RailConfig config, GraphFilterActive filter) {
         currentState = State.Between;
         overlay = false;
         tiplocInsertRecords = new HashMap<>();
         missingStations = new MissingStations();
         travelCombinations = new HashSet<>();
         skipped = new HashSet<>();
-        processor = new CreatesTransportDataForRail(stations, container, missingStations, travelCombinations, config);
+        processor = new CreatesTransportDataForRail(stations, container, missingStations, travelCombinations, config, filter);
     }
 
     public void seen(RailTimetableRecord record) {
@@ -201,10 +202,11 @@ public class RailTimetableMapper {
         private final Set<Pair<TrainStatus, TrainCategory>> travelCombinations;
         private final RailConfig config;
         private final RailRouteIDBuilder railRouteIDBuilder;
+        private final GraphFilterActive filter;
 
         private CreatesTransportDataForRail(RailTransportDataFromFiles.StationsTemporary stations, WriteableTransportData container,
                                             MissingStations missingStations, Set<Pair<TrainStatus, TrainCategory>> travelCombinations,
-                                            RailConfig config) {
+                                            RailConfig config, GraphFilterActive filter) {
             this.stations = stations;
             this.container = container;
             this.missingStations = missingStations;
@@ -212,6 +214,7 @@ public class RailTimetableMapper {
             this.railServiceGroups = new RailServiceGroups(container);
             this.travelCombinations = travelCombinations;
             this.config = config;
+            this.filter = filter;
             this.railRouteIDBuilder = new RailRouteIDBuilder();
         }
 
@@ -270,11 +273,6 @@ public class RailTimetableMapper {
 
             final IdFor<Agency> agencyId = mutableAgency.getId();
 
-            // this can't happen, look up or create agency based on atocCode alone now
-//            if (!atocCode.equals(mutableAgency.getId().forDTO())) {
-//                logger.error(format("Mismatch on atco code (%s) and found agency id %s", atocCode, agencyId));
-//            }
-
             // Calling points
             List<Station> calledAtStations = getRouteStationCallingPoints(rawService);
 
@@ -321,7 +319,10 @@ public class RailTimetableMapper {
                                             boolean lastStop, IdFor<Agency> agencyId, BasicSchedule schedule, TramTime originTime) {
 
             if (!isStation(railLocation)) {
-                missingStationDiagnosticsFor(railLocation, agencyId, schedule);
+                if (!stations.wasOutOfBounds(railLocation.getTiplocCode())) {
+                    // only log an issue if tiploc was not filtered out for being outside area of interest
+                    missingStationDiagnosticsFor(railLocation, agencyId, schedule);
+                }
                 return false;
             }
 
@@ -523,7 +524,7 @@ public class RailTimetableMapper {
             if (result.isEmpty()) {
                 // likely filtered out by geo bounds
                 logger.debug("Did not get any calling points for " + rawService.basicScheduleRecord);
-            } else if (result.size()==1) {
+            } else if (result.size()==1 && !filter.isFiltered()) {
                 // less likely to see this
                 logger.warn("Only one calling points for " + rawService.basicScheduleRecord);
             }

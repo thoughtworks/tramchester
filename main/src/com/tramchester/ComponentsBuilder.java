@@ -10,6 +10,7 @@ import com.tramchester.modules.GraphFilterModule;
 import com.tramchester.modules.TransportDataFactoryModule;
 import com.tramchester.dataimport.loader.TransportDataFactory;
 import com.tramchester.dataimport.loader.PopulateTransportDataFromSources;
+import com.tramchester.repository.TransportData;
 
 import java.util.Arrays;
 import java.util.List;
@@ -45,6 +46,6 @@ public class ComponentsBuilder {
     }
 
     public interface SetupGraphFilter {
-        void configure(ConfigurableGraphFilter filterToConfigure);
+        void configure(ConfigurableGraphFilter filterToConfigure, TransportData transportData);
     }
 }

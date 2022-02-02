@@ -45,7 +45,6 @@ class StationLinksNeighboursAndCompositeResourceTest {
     private StationGroup shudehillCompositeBus;
     private Station shudehillTram;
     private StationGroupsRepository stationGroupsRepository;
-    private StationRepository stationRepository;
 
     @BeforeAll
     public static void beforeAnyTestsRun() {
@@ -56,7 +55,7 @@ class StationLinksNeighboursAndCompositeResourceTest {
     @BeforeEach
     public void onceBeforeEachTest() {
         stationGroupsRepository = dependencies.get(StationGroupsRepository.class);
-        stationRepository = dependencies.get(StationRepository.class);
+        StationRepository stationRepository = dependencies.get(StationRepository.class);
 
         String shudehill_interchange = "Shudehill Interchange";
         shudehillCompositeBus = stationGroupsRepository.findByName(shudehill_interchange);
@@ -109,8 +108,8 @@ class StationLinksNeighboursAndCompositeResourceTest {
 
     @Test
     void shouldGetCompositeStations() {
-        final String altrinchamInterchange = BusStations.Composites.AltrinchamInterchange.getName();
-        StationGroup actualComposite = stationGroupsRepository.findByName(altrinchamInterchange);
+        final String altrinchamInterchangeName = BusStations.Composites.AltrinchamInterchange.getName();
+        StationGroup actualComposite = stationGroupsRepository.findByName(altrinchamInterchangeName);
         Set<String> expectedIds = actualComposite.getContained().stream().
                 map(Station::forDTO).
                 collect(Collectors.toSet());
@@ -122,7 +121,7 @@ class StationLinksNeighboursAndCompositeResourceTest {
         assertFalse(groups.isEmpty());
 
         Optional<StationGroupDTO> found = groups.stream().
-                filter(item -> item.getParent().getName().equals(altrinchamInterchange)).findFirst();
+                filter(item -> item.getAreaId().equals(actualComposite.getAreaId().forDTO())).findFirst();
         assertTrue(found.isPresent());
 
         StationGroupDTO group = found.get();
@@ -130,7 +129,6 @@ class StationLinksNeighboursAndCompositeResourceTest {
 
         Set<String> receivedIds = group.getContained().stream().map(StationRefDTO::getId).collect(Collectors.toSet());
         assertTrue(expectedIds.containsAll(receivedIds));
-
     }
 
     @NotNull

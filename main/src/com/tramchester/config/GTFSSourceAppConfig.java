@@ -22,6 +22,8 @@ import java.util.Set;
 @JsonIgnoreProperties(ignoreUnknown = false)
 public class GTFSSourceAppConfig extends Configuration implements GTFSSourceConfig {
 
+    // NOTE: don't use primitive types here, blocks the null detection
+
     @NotNull
     @JsonProperty(value = "name")
     private String name;
@@ -61,7 +63,11 @@ public class GTFSSourceAppConfig extends Configuration implements GTFSSourceConf
 
     @NotNull
     @JsonProperty("addWalksForClosed")
-    private boolean addWalksForClosed;
+    private Boolean addWalksForClosed;
+
+    @NotNull
+    @JsonProperty("markedInterchangesOnly")
+    private Boolean markedInterchangesOnly;
 
     @Override
     public String getName() {
@@ -113,8 +119,9 @@ public class GTFSSourceAppConfig extends Configuration implements GTFSSourceConf
         return addWalksForClosed;
     }
 
+    @NotNull
     @Override
     public boolean getOnlyMarkedInterchanges() {
-        return false;
+        return markedInterchangesOnly;
     }
 }

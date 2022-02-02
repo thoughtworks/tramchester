@@ -8,6 +8,7 @@ import com.tramchester.integration.testSupport.rail.TestRailConfig;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
 import com.tramchester.testSupport.TestEnv;
 
+import java.nio.file.Path;
 import java.util.*;
 
 public class TramAndTrainGreaterManchesterConfig extends IntegrationTramTestConfig {
@@ -49,5 +50,23 @@ public class TramAndTrainGreaterManchesterConfig extends IntegrationTramTestConf
         }
     }
 
+    @Override
+    public boolean getCreateNeighbours() {
+        return true;
+    }
 
+    @Override
+    public int getMaxNeighbourConnections() {
+        return 3;
+    }
+
+    @Override
+    public double getDistanceToNeighboursKM() {
+        return 0.5D;
+    }
+
+    @Override
+    public Path getCacheFolder() {
+        return TestEnv.CACHE_DIR.resolve("tramTrainIntegration");
+    }
 }

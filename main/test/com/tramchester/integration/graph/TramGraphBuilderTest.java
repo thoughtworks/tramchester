@@ -60,13 +60,15 @@ class TramGraphBuilderTest {
 
     @BeforeEach
     void beforeEachTestRuns() {
-        tramRouteHelper = new TramRouteHelper(componentContainer);
-        tramRoutesAshtonEccles = tramRouteHelper.get(AshtonUnderLyneManchesterEccles);
-        tramRoutesEcclesAshton = tramRouteHelper.get(EcclesManchesterAshtonUnderLyne);
-        tramRoutesAltPicc = tramRouteHelper.get(AltrinchamPiccadilly);
+
+        transportData = componentContainer.get(TransportData.class);
+
+        tramRouteHelper = new TramRouteHelper();
+        tramRoutesAshtonEccles = tramRouteHelper.get(AshtonUnderLyneManchesterEccles, transportData);
+        tramRoutesEcclesAshton = tramRouteHelper.get(EcclesManchesterAshtonUnderLyne, transportData);
+        tramRoutesAltPicc = tramRouteHelper.get(AltrinchamPiccadilly, transportData);
 
         graphQuery = componentContainer.get(GraphQuery.class);
-        transportData = componentContainer.get(TransportData.class);
         stationRepository = componentContainer.get(StationRepository.class);
         GraphDatabase service = componentContainer.get(GraphDatabase.class);
 
@@ -288,7 +290,7 @@ class TramGraphBuilderTest {
 
     private void checkOutboundConsistency(TramStations tramStation, KnownTramRoute knownRoute) {
         Station station = tramStation.from(stationRepository);
-        Set<Route> routes = tramRouteHelper.get(knownRoute);
+        Set<Route> routes = tramRouteHelper.get(knownRoute, transportData);
 
         routes.forEach(route -> checkOutboundConsistency(station, route));
     }
@@ -330,7 +332,7 @@ class TramGraphBuilderTest {
     }
 
     private void checkInboundConsistency(TramStations tramStation, KnownTramRoute knownRoute) {
-        Set<Route> routes = tramRouteHelper.get(knownRoute);
+        Set<Route> routes = tramRouteHelper.get(knownRoute, transportData);
         Station station = tramStation.from(stationRepository);
 
         routes.forEach(route -> checkInboundConsistency(station, route));

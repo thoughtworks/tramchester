@@ -10,7 +10,6 @@ import com.tramchester.graph.RouteCostCalculator;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.TestEnv;
-import com.tramchester.testSupport.TramRouteHelper;
 import com.tramchester.testSupport.testTags.DataUpdateTest;
 import org.junit.jupiter.api.*;
 import org.neo4j.graphdb.Transaction;
@@ -25,7 +24,6 @@ class RouteCostCalculatorTest {
 
     private RouteCostCalculator routeCostCalculator;
     private StationRepository stationRepository;
-    private TramRouteHelper tramRouteHelper;
     private Transaction txn;
     private final TramServiceDate date = new TramServiceDate(TestEnv.testDay());
     private Station altrincham;
@@ -48,7 +46,6 @@ class RouteCostCalculatorTest {
     void beforeEachTestRuns() {
         routeCostCalculator = componentContainer.get(RouteCostCalculator.class);
         stationRepository = componentContainer.get(StationRepository.class);
-        tramRouteHelper = new TramRouteHelper(componentContainer);
         GraphDatabase database = componentContainer.get(GraphDatabase.class);
         txn = database.beginTx();
 

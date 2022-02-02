@@ -24,10 +24,7 @@ import org.slf4j.LoggerFactory;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.inject.Inject;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -236,7 +233,27 @@ public class NaptanRespository {
                 filter(id -> areas.get(id).isActive()).collect(IdSet.idCollector());
     }
 
+    /***
+     * Naptan records for an area. For stations in an area use StationLocations.
+     * @see com.tramchester.geo.StationLocations
+     * @param areaId naptan area id
+     * @return matching record
+     */
     public Set<NaptanRecord> getRecordsFor(IdFor<NaptanArea> areaId) {
         return stops.filterStream(stop -> stop.getAreaCodes().contains(areaId)).collect(Collectors.toSet());
+    }
+
+    /***
+     * Number of Naptan records for an area. For stations in an area use StationLocations.
+     * @see com.tramchester.geo.StationLocations
+     * @param areaId naptan area id
+     * @return matching record
+     */
+    public long getNumRecordsFor(IdFor<NaptanArea> areaId) {
+        return stops.filterStream(stop -> stop.getAreaCodes().contains(areaId)).count();
+    }
+
+    public Set<NaptanArea> getAreas() {
+        return new HashSet<>(areas.getValues());
     }
 }

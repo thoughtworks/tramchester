@@ -45,7 +45,7 @@ public class FastestRoutesForBoxes {
     public Stream<BoundingBoxWithCost> findForGrid(GridPosition destinationGrid, long gridSize, JourneyRequest journeyRequest) {
         logger.info("Creating station groups for gridsize " + gridSize + " and destination " + destinationGrid);
 
-        Set<BoundingBoxWithStations> searchGrid = stationLocations.getGroupedStations(gridSize).collect(Collectors.toSet());
+        Set<BoundingBoxWithStations> searchGrid = stationLocations.getStationsInGrids(gridSize).collect(Collectors.toSet());
 
         BoundingBoxWithStations searchBoxWithDest = searchGrid.stream().
                 filter(box -> box.contained(destinationGrid)).findFirst().

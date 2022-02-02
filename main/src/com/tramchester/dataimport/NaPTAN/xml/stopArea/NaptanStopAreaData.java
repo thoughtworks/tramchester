@@ -8,6 +8,7 @@ import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 import com.tramchester.dataimport.NaPTAN.NaptanXMLData;
 import com.tramchester.dataimport.NaPTAN.xml.stopPoint.NaptanXMLLocation;
 import com.tramchester.geo.GridPosition;
+import com.tramchester.repository.naptan.NaptanStopAreaType;
 
 @JsonRootName("StopAreas")
 @JsonTypeName("StopArea")
@@ -21,6 +22,9 @@ public class NaptanStopAreaData implements NaptanXMLData {
 
     @JsonProperty("Location")
     private NaptanXMLLocation location;
+
+    @JsonProperty("StopAreaType")
+    private String stopAreaType;
 
     @JacksonXmlProperty(isAttribute = true, localName = "Status")
     private String status;
@@ -50,5 +54,9 @@ public class NaptanStopAreaData implements NaptanXMLData {
     @JsonIgnore
     public boolean isActive() {
         return "active".equals(status);
+    }
+
+    public NaptanStopAreaType getAreaType() {
+        return NaptanStopAreaType.parse(stopAreaType);
     }
 }

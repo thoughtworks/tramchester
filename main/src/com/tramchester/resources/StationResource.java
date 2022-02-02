@@ -12,6 +12,7 @@ import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.DTO.LocationDTO;
 import com.tramchester.domain.presentation.DTO.StationClosureDTO;
 import com.tramchester.domain.presentation.DTO.StationRefDTO;
+import com.tramchester.domain.presentation.DTO.StationRefWithPosition;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.presentation.RecentJourneys;
 import com.tramchester.domain.reference.TransportMode;
@@ -115,6 +116,20 @@ public class StationResource extends UsesRecentCookie implements APIResource {
             logger.warn("Unable to match transport mode string " + rawMode, missing);
             return Response.status(Response.Status.NOT_FOUND).build();
         }
+    }
+
+    @GET
+    @Timed
+    @Path("/all")
+    @ApiOperation(value = "Get all stations", response = StationRefDTO.class, responseContainer = "List")
+    @CacheControl(maxAge = 1, maxAgeUnit = TimeUnit.HOURS, isPrivate = false)
+    public Response getByMode(@Context Request request) {
+        logger.info("Get all stations");
+
+        List<StationRefWithPosition> results = stationRepository.getActiveStationStream().
+                map(StationRefWithPosition::new).
+                collect(Collectors.toList());
+        return Response.ok(results).build();
     }
 
     @GET

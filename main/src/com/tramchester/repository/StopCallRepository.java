@@ -14,6 +14,7 @@ import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.GTFSPickupDropoffType;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.filters.GraphFilter;
+import com.tramchester.graph.filters.GraphFilterActive;
 import com.tramchester.metrics.CacheMetrics;
 import org.apache.commons.lang3.tuple.Pair;
 import org.jetbrains.annotations.NotNull;
@@ -35,14 +36,14 @@ public class StopCallRepository implements ReportsCacheStats {
     private final TripRepository tripRepository;
     private final StationRepository stationRepository;
     private final ServiceRepository serviceRepository;
-    private final GraphFilter graphFilter;
+    private final GraphFilterActive graphFilter;
     private final Map<Station, Set<StopCall>> stopCalls;
     private final Cache<CacheKey, Costs> cachedCosts;
 
     @Inject
     public StopCallRepository(TripRepository tripRepository, StationRepository stationRepository,
                               ServiceRepository serviceRepository, CacheMetrics cacheMetrics,
-                              GraphFilter graphFilter) {
+                              GraphFilterActive graphFilter) {
         this.tripRepository = tripRepository;
         this.stationRepository = stationRepository;
         this.serviceRepository = serviceRepository;

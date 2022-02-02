@@ -62,7 +62,7 @@ class FastestRoutesForBoxesTest {
         StationLocations stationLocations = componentContainer.get(StationLocations.class);
         StationRepository stationsRepo = componentContainer.get(StationRepository.class);
 
-        List<BoundingBoxWithStations> grouped = stationLocations.getGroupedStations(2000).collect(Collectors.toList());
+        List<BoundingBoxWithStations> grouped = stationLocations.getStationsInGrids(2000).collect(Collectors.toList());
         List<BoundingBoxWithStations> emptyGroup = grouped.stream().filter(group -> !group.hasStations()).collect(Collectors.toList());
         assertEquals(Collections.emptyList(),emptyGroup);
 

@@ -24,6 +24,7 @@ import org.junit.jupiter.api.Test;
 import java.util.List;
 
 import static com.tramchester.integration.testSupport.Assertions.assertIdEquals;
+import static com.tramchester.testSupport.TestEnv.MANCHESTER_AIRPORT_BUS_AREA;
 import static com.tramchester.testSupport.reference.BusStations.KnutfordStationAreaId;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -67,7 +68,7 @@ class NaptanRepositoryTest {
 
         final List<IdFor<NaptanArea>> areaCodes = record.getAreaCodes().toList();
         assertEquals(1, areaCodes.size());
-        assertIdEquals("180GMABS", areaCodes.get(0));
+        assertIdEquals(MANCHESTER_AIRPORT_BUS_AREA, areaCodes.get(0));
     }
 
     @Test

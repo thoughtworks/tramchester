@@ -73,7 +73,7 @@ class BusRouteCalculatorSubGraphAltyToMaccRoute {
 
     }
 
-    private static void configureFilter(ConfigurableGraphFilter graphFilter) {
+    private static void configureFilter(ConfigurableGraphFilter graphFilter, TransportData transportData) {
         altyToKnutsford.forEach(route -> graphFilter.addRoute(route.getId()));
         knutsfordToAlty.forEach(route -> graphFilter.addRoute(route.getId()));
     }

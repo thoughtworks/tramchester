@@ -14,6 +14,7 @@ import com.tramchester.integration.testSupport.RouteCalculatorTestFacade;
 import com.tramchester.integration.testSupport.rail.IntegrationRailTestConfig;
 import com.tramchester.integration.testSupport.rail.RailStationIds;
 import com.tramchester.repository.StationRepository;
+import com.tramchester.repository.TransportData;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.testTags.TrainTest;
 import org.junit.jupiter.api.*;
@@ -61,7 +62,7 @@ class SubGraphAroundKnutsfordRailTest {
         database = componentContainer.get(GraphDatabase.class);
     }
 
-    private static void configureGraphFilter(ConfigurableGraphFilter graphFilter) {
+    private static void configureGraphFilter(ConfigurableGraphFilter graphFilter, TransportData transportData) {
         stations.forEach(station -> graphFilter.addStation(station.getId()));
     }
 

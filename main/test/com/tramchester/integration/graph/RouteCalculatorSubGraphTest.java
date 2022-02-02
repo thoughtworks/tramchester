@@ -13,6 +13,7 @@ import com.tramchester.graph.search.RouteCalculator;
 import com.tramchester.integration.testSupport.RouteCalculatorTestFacade;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
 import com.tramchester.repository.StationRepository;
+import com.tramchester.repository.TransportData;
 import com.tramchester.resources.LocationJourneyPlanner;
 import com.tramchester.testSupport.LocationJourneyPlannerTestFacade;
 import com.tramchester.testSupport.TestEnv;
@@ -61,7 +62,7 @@ class RouteCalculatorSubGraphTest {
         database = componentContainer.get(GraphDatabase.class);
     }
 
-    private static void configureFilter(ConfigurableGraphFilter graphFilter) {
+    private static void configureFilter(ConfigurableGraphFilter graphFilter, TransportData transportData) {
         stations.forEach(station -> graphFilter.addStation(station.getId()));
     }
 

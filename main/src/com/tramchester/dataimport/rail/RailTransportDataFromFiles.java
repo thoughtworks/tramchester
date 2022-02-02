@@ -24,6 +24,7 @@ import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.geo.BoundingBox;
 import com.tramchester.geo.CoordinateTransforms;
 import com.tramchester.geo.GridPosition;
+import com.tramchester.graph.filters.GraphFilterActive;
 import com.tramchester.repository.TransportDataContainer;
 import com.tramchester.repository.WriteableTransportData;
 import com.tramchester.repository.naptan.NaptanRespository;
@@ -34,6 +35,7 @@ import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import java.nio.file.Path;
 import java.time.LocalDateTime;
+import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -44,17 +46,21 @@ public class RailTransportDataFromFiles implements DirectDataSourceFactory.Popul
 
     private final LoadRailStationRecords loadRailStationRecords;
     private final LoadRailTimetableRecords loadRailTimetableRecords;
-    private final boolean enabled;
     private final RailConfig railConfig;
     private final RemoteDataSourceConfig railRemoteSourceConfig;
     private final BoundingBox bounds;
     private final NaptanRespository naptanRespository;
+    private final GraphFilterActive graphFilterActive;
+
+    private final boolean enabled;
 
     @Inject
-    public RailTransportDataFromFiles(RailDataRecordFactory factory, TramchesterConfig config, NaptanRespository naptanRespository) {
+    public RailTransportDataFromFiles(RailDataRecordFactory factory, TramchesterConfig config, NaptanRespository naptanRespository,
+                                      GraphFilterActive graphFilterActive) {
         bounds = config.getBounds();
         railConfig = config.getRailConfig();
         this.naptanRespository = naptanRespository;
+        this.graphFilterActive = graphFilterActive;
         enabled = (railConfig!=null);
         if (enabled) {
             railRemoteSourceConfig = config.getDataRemoteSourceConfig(railConfig.getDataSourceId());
@@ -97,7 +103,6 @@ public class RailTransportDataFromFiles implements DirectDataSourceFactory.Popul
         logger.info("Retained " + stationsTemporary.countNeeded() + " stations of " + stationsTemporary.count());
 
         stationsTemporary.clear();
-
     }
 
     @Override
@@ -117,17 +122,33 @@ public class RailTransportDataFromFiles implements DirectDataSourceFactory.Popul
     private void processTimetableRecords(StationsTemporary stationsTemporary, WriteableTransportData dataContainer,
                                          Stream<RailTimetableRecord> recordStream) {
         logger.info("Process timetable stream");
-        RailTimetableMapper mapper = new RailTimetableMapper(stationsTemporary, dataContainer, railConfig);
+        RailTimetableMapper mapper = new RailTimetableMapper(stationsTemporary, dataContainer, railConfig, graphFilterActive);
         recordStream.forEach(mapper::seen);
         mapper.reportDiagnostics();
     }
 
     private StationsTemporary loadStations(Stream<PhysicalStationRecord> physicalRecords) {
-        StationsTemporary stationsTemporary = new StationsTemporary();
 
-        physicalRecords.
-                filter(this::validRecord).
-                filter(this::locationWithinBounds).
+        Stream<PhysicalStationRecord> validRecords = physicalRecords.filter(this::validRecord);
+
+        Set<String> outOfBounds = new HashSet<>();
+
+        // bit of a hack to avoid processing the stream twice
+        Stream<PhysicalStationRecord> withinBounds = validRecords.
+                filter(physicalStationRecord -> {
+                    if (locationWithinBounds(physicalStationRecord)) {
+                        return true;
+                    } else {
+                        outOfBounds.add(physicalStationRecord.getTiplocCode());
+                        return false;
+                    }
+                });
+
+        StationsTemporary stationsTemporary = new StationsTemporary(outOfBounds);
+
+        withinBounds.
+//                filter(this::validRecord).
+//                filter(record -> outOfBounds.contains(record.getTiplocCode())).
                 map(this::createStationFor).
                 forEach(stationsTemporary::addStation);
 
@@ -201,8 +222,10 @@ public class RailTransportDataFromFiles implements DirectDataSourceFactory.Popul
     public static class StationsTemporary {
         private final CompositeIdMap<Station, MutableStation> stations;
         private final IdSet<Station> include;
+        private final Set<String> outOfBounds;
 
-        private StationsTemporary() {
+        private StationsTemporary(Set<String> outOfBounds) {
+            this.outOfBounds = outOfBounds;
             stations = new CompositeIdMap<>();
             include = new IdSet<>();
         }
@@ -232,6 +255,7 @@ public class RailTransportDataFromFiles implements DirectDataSourceFactory.Popul
         public void clear() {
             stations.clear();
             include.clear();
+            outOfBounds.clear();
         }
 
         public int count() {
@@ -240,6 +264,10 @@ public class RailTransportDataFromFiles implements DirectDataSourceFactory.Popul
 
         public int countNeeded() {
             return include.size();
+        }
+
+        public boolean wasOutOfBounds(String tiplocCode) {
+            return outOfBounds.contains(tiplocCode);
         }
     }
 
