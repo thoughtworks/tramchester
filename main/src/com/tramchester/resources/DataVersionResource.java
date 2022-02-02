@@ -31,7 +31,6 @@ public class DataVersionResource implements APIResource {
 
     @Inject
     public DataVersionResource(TramchesterConfig config, ProvidesFeedInfo providesFeedInfo) {
-        logger.info("created");
         this.providesFeedInfo = providesFeedInfo;
     }
 

@@ -22,6 +22,7 @@ class RouteDTOTest {
     void shouldUseRouteNameForEquality() {
 
         List<StationRefWithPosition> stations = new ArrayList<>();
+
         stations.add(new StationRefWithPosition(TraffordCentre.fake()));
         RouteDTO routeDTO = new RouteDTO(getRoute(), stations);
 

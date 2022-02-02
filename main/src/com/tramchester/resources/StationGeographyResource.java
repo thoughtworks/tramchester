@@ -9,6 +9,7 @@ import com.tramchester.domain.presentation.DTO.AreaBoundaryDTO;
 import com.tramchester.domain.presentation.DTO.BoxDTO;
 import com.tramchester.domain.presentation.DTO.StationGroupDTO;
 import com.tramchester.domain.presentation.DTO.StationLinkDTO;
+import com.tramchester.domain.presentation.DTO.factory.StationDTOFactory;
 import com.tramchester.geo.StationLocations;
 import com.tramchester.graph.search.FindStationLinks;
 import com.tramchester.repository.NeighboursRepository;
@@ -45,13 +46,14 @@ public class StationGeographyResource implements APIResource, JourneyPlanningMar
     private final TramchesterConfig config;
     private final StationLocations stationLocations;
     private final NaptanRespository naptanRespository;
+    private final StationDTOFactory dtoFactory;
 
     @Inject
     public StationGeographyResource(FindStationLinks findStationLinks, NeighboursRepository neighboursRepository,
                                     StationGroupsRepository stationGroupsRepository, TramchesterConfig config,
-                                    StationLocations stationLocations, NaptanRespository naptanRespository) {
+                                    StationLocations stationLocations, NaptanRespository naptanRespository, StationDTOFactory dtoFactory) {
         this.naptanRespository = naptanRespository;
-        logger.info("created");
+        this.dtoFactory = dtoFactory;
         this.findStationLinks = findStationLinks;
         this.neighboursRepository = neighboursRepository;
         this.stationGroupsRepository = stationGroupsRepository;
@@ -76,7 +78,8 @@ public class StationGeographyResource implements APIResource, JourneyPlanningMar
 
         List<StationLinkDTO> results = allLinks.stream().
                 filter(StationLink::hasValidLatlongs).
-                map(StationLinkDTO::create).collect(Collectors.toList());
+                map(dtoFactory::createStationLinkDTO).
+                collect(Collectors.toList());
 
         return Response.ok(results).build();
     }
@@ -98,7 +101,7 @@ public class StationGeographyResource implements APIResource, JourneyPlanningMar
 
         List<StationLinkDTO> results = allLinks.stream().
                 filter(StationLink::hasValidLatlongs).
-                map(StationLinkDTO::create).collect(Collectors.toList());
+                map(dtoFactory::createStationLinkDTO).collect(Collectors.toList());
 
         return Response.ok(results).build();
     }
@@ -138,7 +141,7 @@ public class StationGeographyResource implements APIResource, JourneyPlanningMar
         List<StationGroupDTO> groups = new ArrayList<>();
         config.getTransportModes().forEach(mode ->
                 groups.addAll(stationGroupsRepository.getStationGroupsFor(mode).stream().
-                        map(StationGroupDTO::create).collect(Collectors.toSet())));
+                        map(dtoFactory::createStationGroupDTO).collect(Collectors.toSet())));
 
         return Response.ok(groups).build();
 

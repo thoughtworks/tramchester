@@ -7,6 +7,7 @@ import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.DTO.RouteDTO;
 import com.tramchester.domain.presentation.DTO.StationRefWithPosition;
+import com.tramchester.domain.presentation.DTO.factory.StationDTOFactory;
 import com.tramchester.repository.TransportData;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
@@ -24,9 +25,11 @@ public class RoutesMapper {
     private final Map<String, RouteDTO> routeDTOs;
 
     private final TransportData transportData;
+    private final StationDTOFactory stationDTOFactory;
 
     @Inject
-    public RoutesMapper(TransportData transportData) {
+    public RoutesMapper(TransportData transportData, StationDTOFactory stationDTOFactory) {
+        this.stationDTOFactory = stationDTOFactory;
         routeDTOs = new HashMap<>();
         this.transportData = transportData;
     }
@@ -63,7 +66,7 @@ public class RoutesMapper {
     private List<StationRefWithPosition> getRouteCallingStationRefDTO(Route route) {
         List<Station> calledAtStations = getStationOn(route);
         List<StationRefWithPosition> stationDTOs = new ArrayList<>(calledAtStations.size());
-        calledAtStations.forEach(calledAtStation -> stationDTOs.add(new StationRefWithPosition(calledAtStation)));
+        calledAtStations.forEach(calledAtStation -> stationDTOs.add(stationDTOFactory.createStationRefWithPosition(calledAtStation)));
         return stationDTOs;
     }
 

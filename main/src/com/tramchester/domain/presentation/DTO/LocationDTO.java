@@ -83,6 +83,10 @@ public class LocationDTO {
 
     public LocationType getLocationType() { return locationType; }
 
+    public boolean getIsInterchange() {
+        return false;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -109,6 +113,4 @@ public class LocationDTO {
                 ", transportModes=" + transportModes +
                 '}';
     }
-
-
 }

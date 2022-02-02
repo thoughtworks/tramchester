@@ -53,8 +53,8 @@ public class GraphDatabase implements DatabaseEventListener {
 
     @PostConstruct
     public void start() {
-        logger.info("start");
         if (tramchesterConfig.getPlanningEnabled()) {
+            logger.info("start");
             Set<DataSourceInfo> dataSourceInfo = transportData.getDataSourceInfo();
             final Path dbPath = graphDBConfig.getDbPath();
             boolean fileExists = Files.exists(dbPath);
@@ -116,6 +116,9 @@ public class GraphDatabase implements DatabaseEventListener {
     public void waitForIndexes() {
         if (indexesOnline) {
             return;
+        }
+        if (databaseService==null) {
+            throw new RuntimeException("Database service was not started");
         }
         try(Transaction tx = databaseService.beginTx()) {
             waitForIndexesReady(tx.schema());

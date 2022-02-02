@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tramchester.domain.BoxWithServiceFrequency;
 import com.tramchester.domain.presentation.DTO.BoxWithFrequencyDTO;
 import com.tramchester.domain.presentation.DTO.StationRefDTO;
+import com.tramchester.domain.presentation.DTO.factory.StationDTOFactory;
 import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.geo.StopCallsForGrid;
@@ -35,11 +36,14 @@ public class FrequencyResource extends TransportResource implements APIResource 
     private static final Logger logger = LoggerFactory.getLogger(FrequencyResource.class);
 
     private final ObjectMapper objectMapper;
+    private final StationDTOFactory stationDTOFactory;
     private final StopCallsForGrid stopCallsForGrid;
 
     @Inject
-    public FrequencyResource(ObjectMapper objectMapper, StopCallsForGrid stopCallsForGrid, ProvidesNow providesNow) {
+    public FrequencyResource(ObjectMapper objectMapper, StopCallsForGrid stopCallsForGrid, ProvidesNow providesNow,
+                             StationDTOFactory stationDTOFactory) {
         super(providesNow);
+        this.stationDTOFactory = stationDTOFactory;
         logger.info("created");
         this.objectMapper = objectMapper;
         this.stopCallsForGrid = stopCallsForGrid;
@@ -69,7 +73,10 @@ public class FrequencyResource extends TransportResource implements APIResource 
     }
 
     private BoxWithFrequencyDTO createDTO(BoxWithServiceFrequency result) {
-        List<StationRefDTO> stopDTOs = result.getStationsWithStopCalls().stream().map(StationRefDTO::new).collect(Collectors.toList());
+        List<StationRefDTO> stopDTOs = result.getStationsWithStopCalls().stream().
+                map(stationDTOFactory::createStationRefDTO).
+                collect(Collectors.toList());
+
         return new BoxWithFrequencyDTO(result, stopDTOs, result.getNumberOfStopcalls(), new ArrayList<>(result.getModes()));
     }
 

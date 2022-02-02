@@ -1,13 +1,13 @@
 package com.tramchester.resources;
 
 import com.codahale.metrics.annotation.Timed;
-import com.tramchester.domain.presentation.DTO.StationRefWithPosition;
-import com.tramchester.livedata.domain.DTO.TramsPositionsDTO;
-import com.tramchester.livedata.domain.DTO.TramPositionDTO;
-import com.tramchester.domain.time.TramServiceDate;
+import com.tramchester.domain.presentation.DTO.factory.StationDTOFactory;
 import com.tramchester.domain.time.ProvidesNow;
+import com.tramchester.domain.time.TramServiceDate;
 import com.tramchester.livedata.TramPosition;
 import com.tramchester.livedata.TramPositionInference;
+import com.tramchester.livedata.domain.DTO.TramPositionDTO;
+import com.tramchester.livedata.domain.DTO.TramsPositionsDTO;
 import com.tramchester.livedata.mappers.DeparturesMapper;
 import io.dropwizard.jersey.caching.CacheControl;
 import io.swagger.annotations.Api;
@@ -32,11 +32,13 @@ public class TramPositionsResource implements APIResource, JourneyPlanningMarker
 
     private final TramPositionInference positionInference;
     private final DeparturesMapper depatureMapper;
+    private final StationDTOFactory stationDTOFactory;
     private final ProvidesNow providesNow;
 
     @Inject
     public TramPositionsResource(TramPositionInference positionInference, DeparturesMapper depatureMapper,
-                                 ProvidesNow providesNow) {
+                                 StationDTOFactory stationDTOFactory, ProvidesNow providesNow) {
+        this.stationDTOFactory = stationDTOFactory;
         logger.info("created");
         this.positionInference = positionInference;
         this.depatureMapper = depatureMapper;
@@ -60,8 +62,8 @@ public class TramPositionsResource implements APIResource, JourneyPlanningMarker
         List<TramPositionDTO> dtoList = results.stream().
                 filter(pos -> unfilteredFlag || (!pos.getTrams().isEmpty())).
                 map(pos -> new TramPositionDTO(
-                        new StationRefWithPosition(pos.getFirst()),
-                        new StationRefWithPosition(pos.getSecond()),
+                        stationDTOFactory.createStationRefWithPosition(pos.getFirst()),
+                        stationDTOFactory.createStationRefWithPosition(pos.getSecond()),
                         depatureMapper.mapToDTO(pos.getSecond(), pos.getTrams(), localDate),
                         pos.getCost())).
                 collect(Collectors.toList());

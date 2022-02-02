@@ -26,6 +26,7 @@ gtfsSourceConfig:
     transportModes: [ bus ]
     transportModesWithPlatforms: []
     noServices: []
+    markedInterchangesOnly: false
     additionalInterchanges: []
     compositeStationModes: [ Bus ]
     stationClosures: []

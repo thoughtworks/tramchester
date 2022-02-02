@@ -1,6 +1,5 @@
 package com.tramchester.domain.presentation;
 
-import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.DTO.StationRefDTO;
 
 public class StationNote extends Note {
@@ -12,9 +11,9 @@ public class StationNote extends Note {
         super();
     }
 
-    public StationNote(NoteType noteType, String text, Station station) {
+    public StationNote(NoteType noteType, String text, StationRefDTO stationRefDTO) {
         super(text, noteType);
-        this.stationRef = new StationRefDTO(station);
+        this.stationRef = stationRefDTO;
     }
 
     @SuppressWarnings("WeakerAccess")

@@ -7,7 +7,7 @@ import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.DTO.AreaBoundaryDTO;
 import com.tramchester.domain.presentation.DTO.BoxDTO;
 import com.tramchester.domain.presentation.DTO.StationLinkDTO;
-import com.tramchester.domain.presentation.DTO.StationRefWithPosition;
+import com.tramchester.domain.presentation.DTO.factory.StationDTOFactory;
 import com.tramchester.geo.BoundingBox;
 import com.tramchester.geo.CoordinateTransforms;
 import com.tramchester.geo.StationLocations;
@@ -19,6 +19,7 @@ import com.tramchester.resources.StationGeographyResource;
 import com.tramchester.testSupport.reference.TramStations;
 import io.dropwizard.testing.junit5.DropwizardExtensionsSupport;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
@@ -39,11 +40,17 @@ class StationGeographyResourceTest {
             new ResourceTramTestConfigWithNaptan<>(StationGeographyResource.class));
 
     private static GuiceContainerDependencies dependencies;
+    private StationDTOFactory stationDTOFactory;
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
         App app = appExtension.getTestSupport().getApplication();
         dependencies = app.getDependencies();
+    }
+
+    @BeforeEach
+    void beforeEachTestRuns() {
+        stationDTOFactory = dependencies.get(StationDTOFactory.class);
     }
 
     @Test
@@ -119,7 +126,8 @@ class StationGeographyResourceTest {
     }
 
     private StationLinkDTO createLink(TramStations begin, TramStations end) {
-        return new StationLinkDTO(new StationRefWithPosition(begin.fake()),
-                new StationRefWithPosition(end.fake()), Collections.singleton(Tram));
+        return new StationLinkDTO(stationDTOFactory.createStationRefWithPosition(begin.fake()),
+                stationDTOFactory.createStationRefWithPosition(end.fake()),
+                Collections.singleton(Tram));
     }
 }

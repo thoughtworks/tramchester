@@ -25,6 +25,7 @@ gtfsSourceConfig:
     transportModes: [ tram ]
     transportModesWithPlatforms: [ Tram ]
     noServices: []
+    markedInterchangesOnly: false
     additionalInterchanges: [9400ZZMAGMX, 9400ZZMAPIC]
     compositeStationModes: []
     addWalksForClosed: false
@@ -66,14 +67,14 @@ liveData:
 cacheFolder: data/cache/gm
 calcTimeoutMillis: 3500
 bounds:
-  minEastings: 377000
-  minNorthings: 385000
-  maxEasting: 394500
-  maxNorthings: 413500
+  minEastings: 370000
+  minNorthings: 380000
+  maxEasting: 398500
+  maxNorthings: 414500
 planningEnabled: true
-createNeighbours: false
-maxNeighbourConnections: 0
-distanceToNeighboursKM: 0.4
+createNeighbours: true
+maxNeighbourConnections: 3
+distanceToNeighboursKM: 0.5
 maxWait: 25
 maxInitialWait: 13
 numberQueries: 3

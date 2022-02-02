@@ -26,6 +26,7 @@ gtfsSourceConfig:
     transportModes: [ tram ]
     transportModesWithPlatforms: [ Tram ]
     noServices: []
+    markedInterchangesOnly: false
     additionalInterchanges: [9400ZZMAGMX, 9400ZZMAPIC]
     compositeStationModes: []
     addWalksForClosed: false

@@ -7,6 +7,7 @@ import com.tramchester.domain.presentation.DTO.JourneyDTO;
 import com.tramchester.domain.presentation.DTO.StageDTO;
 import com.tramchester.domain.presentation.DTO.StationRefWithPosition;
 import com.tramchester.domain.presentation.DTO.factory.StageDTOFactory;
+import com.tramchester.domain.presentation.DTO.factory.StationDTOFactory;
 import com.tramchester.domain.presentation.Note;
 import com.tramchester.domain.presentation.ProvidesNotes;
 import com.tramchester.domain.presentation.TransportStage;
@@ -28,11 +29,13 @@ import java.util.stream.Collectors;
 public class JourneyToDTOMapper {
     private static final Logger logger = LoggerFactory.getLogger(JourneyToDTOMapper.class);
     private final StageDTOFactory stageFactory;
+    private final StationDTOFactory stationDTOFactory;
     private final ProvidesNotes providesNotes;
 
     @Inject
-    public JourneyToDTOMapper(StageDTOFactory stageFactory, ProvidesNotes providesNotes) {
+    public JourneyToDTOMapper(StageDTOFactory stageFactory, StationDTOFactory stationDTOFactory, ProvidesNotes providesNotes) {
         this.stageFactory = stageFactory;
+        this.stationDTOFactory = stationDTOFactory;
         this.providesNotes = providesNotes;
     }
 
@@ -57,7 +60,7 @@ public class JourneyToDTOMapper {
 
         List<Note> notes = providesNotes.createNotesForJourney(journey, queryDate);
 
-        StationRefWithPosition begin = new StationRefWithPosition(journey.getBeginning());
+        StationRefWithPosition begin = stationDTOFactory.createStationRefWithPosition(journey.getBeginning());
 
         List<StationRefWithPosition> changeStations = asListOf(journey.getChangeStations());
 
@@ -71,7 +74,7 @@ public class JourneyToDTOMapper {
     }
 
     private List<StationRefWithPosition> asListOf(List<Location<?>> locations) {
-        return locations.stream().map(StationRefWithPosition::new).collect(Collectors.toList());
+        return locations.stream().map(stationDTOFactory::createStationRefWithPosition).collect(Collectors.toList());
     }
 
     private TravelAction decideTravelAction(List<StageDTO> stages, TransportStage<?,?> rawStage) {

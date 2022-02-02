@@ -46,7 +46,7 @@ public class StationsAndLinksGraphBuilder extends GraphBuilder {
 
     private final TransportData transportData;
 
-    // force contsruction via guide to generate ready token, needed where no direct code dependency on this class
+    // force construction via guide to generate ready token, needed where no direct code dependency on this class
     public Ready getReady() {
         return new Ready();
     }

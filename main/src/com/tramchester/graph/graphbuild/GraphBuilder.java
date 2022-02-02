@@ -12,16 +12,6 @@ import static java.lang.String.format;
 public abstract class GraphBuilder extends CreateNodesAndRelationships {
     private static final Logger logger = LoggerFactory.getLogger(GraphBuilder.class);
 
-    protected static final int INTERCHANGE_DEPART_COST = 1;
-    protected static final int INTERCHANGE_BOARD_COST = 1;
-    protected static final int DEPARTS_COST = 1;
-    protected static final int BOARDING_COST = 2;
-    // TODO compute actual costs depend on physical configuration of platforms at the station? No data available yet.
-    protected static final int ENTER_PLATFORM_COST = 0;
-    protected static final int LEAVE_PLATFORM_COST = 0;
-    protected static final int ENTER_INTER_PLATFORM_COST = 0;
-    protected static final int LEAVE_INTER_PLATFORM_COST = 0;
-
     protected final GraphDBConfig graphDBConfig;
     protected final GraphFilter graphFilter;
     protected final GraphBuilderCache builderCache;

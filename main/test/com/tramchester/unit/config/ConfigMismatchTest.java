@@ -232,6 +232,7 @@ class ConfigMismatchTest {
             if (checkClosures) {
                 assertEquals(expectedDataSource.getStationClosures(), dataSourceConfig.getStationClosures(), "station closures");
             }
+            assertEquals(expectedDataSource.getOnlyMarkedInterchanges(), dataSourceConfig.getOnlyMarkedInterchanges());
         }
     }
 

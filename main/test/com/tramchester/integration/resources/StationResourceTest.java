@@ -22,6 +22,7 @@ import io.dropwizard.testing.junit5.DropwizardExtensionsSupport;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
@@ -41,12 +42,12 @@ class StationResourceTest {
             new IntegrationAppExtension(App.class, new ResourceTramTestConfig<>(StationResource.class));
 
     private final ObjectMapper mapper = new ObjectMapper();
-    private StationRepository stationRepo;
+    private StationRepository stationRepository;
 
     @BeforeEach
     void beforeEachTestRuns() {
         App app =  appExtension.getApplication();
-        stationRepo = app.getDependencies().get(StationRepository.class);
+        stationRepository = app.getDependencies().get(StationRepository.class);
     }
 
     @Test
@@ -71,7 +72,7 @@ class StationResourceTest {
 
         assertFalse(routeRefDTOS.isEmpty());
 
-        Station station = stationRepo.getStationById(TramStations.StPetersSquare.getId());
+        Station station = stationRepository.getStationById(TramStations.StPetersSquare.getId());
         int stationRoutesNumber = station.getPickupRoutes().size() + station.getDropoffRoutes().size();
 
         assertEquals(routeRefDTOS.size(),stationRoutesNumber);
@@ -86,7 +87,7 @@ class StationResourceTest {
 
         List<StationRefDTO> results = result.readEntity(new GenericType<>() {});
 
-        Set<String> expectedIds = stationRepo.getStations().stream().map(station -> station.getId().forDTO()).collect(Collectors.toSet());
+        Set<String> expectedIds = stationRepository.getStations().stream().map(station -> station.getId().forDTO()).collect(Collectors.toSet());
         assertEquals(expectedIds.size(), results.size());
 
         List<String> resultIds = results.stream().map(StationRefDTO::getId).collect(Collectors.toList());
@@ -110,6 +111,27 @@ class StationResourceTest {
 
         Response resultB = APIClient.getApiResponse(appExtension, "stations/mode/Tram", lastMod);
         assertEquals(304, resultB.getStatus());
+    }
+
+    @Disabled("WIP")
+    @Test
+    void shouldGetAllStationsWithDetails() {
+        Response response = APIClient.getApiResponse(appExtension, "stations/all");
+        assertEquals(200, response.getStatus());
+
+        List<LocationDTO> results = response.readEntity(new GenericType<>() {});
+
+        assertEquals(stationRepository.getStations().size(), results.size());
+
+        Station expected = TramStations.StPetersSquare.from(stationRepository);
+
+        Optional<LocationDTO> found = results.stream().filter(item -> item.getId().equals(expected.getId().forDTO())).findFirst();
+
+        assertTrue(found.isPresent());
+
+        LocationDTO result = found.get();
+
+        assertTrue(result.getIsInterchange());
     }
 
     @Test

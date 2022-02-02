@@ -18,15 +18,19 @@ import java.time.LocalDateTime;
 @LazySingleton
 public class StageDTOFactory {
 
+    private final StationDTOFactory stationDTOFactory;
+
     @Inject
-    public StageDTOFactory() {
+    public StageDTOFactory(StationDTOFactory stationDTOFactory) {
+
+        this.stationDTOFactory = stationDTOFactory;
     }
 
     public StageDTO build(TransportStage<?,?> source, TravelAction travelAction, LocalDate queryDate) {
 
-        StationRefWithPosition firstStation = new StationRefWithPosition(source.getFirstStation());
-        StationRefWithPosition lastStation = new StationRefWithPosition(source.getLastStation());
-        StationRefWithPosition actionStation = new StationRefWithPosition(source.getActionStation());
+        StationRefWithPosition firstStation = stationDTOFactory.createStationRefWithPosition(source.getFirstStation());
+        StationRefWithPosition lastStation = stationDTOFactory.createStationRefWithPosition(source.getLastStation());
+        StationRefWithPosition actionStation = stationDTOFactory.createStationRefWithPosition(source.getActionStation());
         LocalDateTime firstDepartureTime = source.getFirstDepartureTime().toDate(queryDate);
         LocalDateTime expectedArrivalTime = source.getExpectedArrivalTime().toDate(queryDate);
 

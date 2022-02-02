@@ -21,7 +21,7 @@ public class GraphFilterModule extends AbstractModule {
     @LazySingleton
     @Provides
     GraphFilterActive providesGraphFilterPresent() {
-        return new GraphFilterActive(overideDefaultIncludeAllFilter !=null);
+        return new GraphFilterActive(overideDefaultIncludeAllFilter != null);
     }
 
     @LazySingleton

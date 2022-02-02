@@ -5,6 +5,7 @@ import com.tramchester.domain.Journey;
 import com.tramchester.domain.Platform;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.places.Station;
+import com.tramchester.domain.presentation.DTO.factory.StationDTOFactory;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramServiceDate;
 import com.tramchester.domain.time.TramTime;
@@ -34,10 +35,12 @@ public class ProvidesNotes {
     private static final int MESSAGE_LIFETIME = 5;
 
     private final PlatformMessageSource platformMessageSource;
+    private final StationDTOFactory stationDTOFactory;
 
     @Inject
-    public ProvidesNotes(PlatformMessageSource platformMessageSource) {
+    public ProvidesNotes(PlatformMessageSource platformMessageSource, StationDTOFactory stationDTOFactory) {
         this.platformMessageSource = platformMessageSource;
+        this.stationDTOFactory = stationDTOFactory;
     }
 
     @PostConstruct
@@ -147,7 +150,7 @@ public class ProvidesNotes {
         String message = info.getMessage();
         if (usefulNote(message)) {
             logger.info("Added message from " + info);
-            notes.add(new StationNote(Live, message, info.getStation()));
+            notes.add(stationDTOFactory.createStationNote(Live, message, info.getStation()));
         } else {
             logger.info("Filtered message from " + info);
         }

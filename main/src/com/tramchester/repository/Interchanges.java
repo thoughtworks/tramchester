@@ -8,7 +8,10 @@ import com.tramchester.domain.StationLink;
 import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdSet;
+import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.places.InterchangeStation;
+import com.tramchester.domain.places.Location;
+import com.tramchester.domain.places.LocationType;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.graph.FindStationsByNumberLinks;
@@ -203,7 +206,8 @@ public class Interchanges implements InterchangeRepository {
         addInterchangesWhereModesMatch(dataSource.getTransportModes(), validStationsFromConfig, InterchangeStation.InterchangeType.FromConfig);
     }
 
-    private void addInterchangesWhereModesMatch(Set<TransportMode> enabledModes, Set<Station> stations, InterchangeStation.InterchangeType type) {
+    private void addInterchangesWhereModesMatch(Set<TransportMode> enabledModes, Set<Station> stations,
+                                                InterchangeStation.InterchangeType type) {
         long countBefore = interchanges.size();
         stations.forEach(station -> enabledModes.forEach(enabledMode -> {
             if (station.servesMode(enabledMode)) {
@@ -227,8 +231,13 @@ public class Interchanges implements InterchangeRepository {
     }
 
     @Override
-    public boolean isInterchange(Station station) {
-        return interchanges.containsKey(station.getId());
+    public boolean isInterchange(Location<?> location) {
+        if (location.getLocationType() == LocationType.Station) {
+            IdFor<Station> stationId = StringIdFor.convert(location.getId());
+            return interchanges.containsKey(stationId);
+        } else {
+            return false;
+        }
     }
 
     /***

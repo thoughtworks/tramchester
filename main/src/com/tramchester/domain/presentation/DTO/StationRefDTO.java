@@ -36,6 +36,22 @@ public class StationRefDTO {
         return name;
     }
 
+    public Set<TransportMode> getTransportModes() {
+        return transportModes;
+    }
+
+    public boolean getPickUp() {
+        return pickUp;
+    }
+
+    public boolean getDropOff() {
+        return dropOff;
+    }
+
+    public LocationType getLocationType() {
+        return locationType;
+    }
+
     @Override
     public String toString() {
         return "StationRefDTO{" +
@@ -58,21 +74,5 @@ public class StationRefDTO {
     @Override
     public int hashCode() {
         return getId().hashCode();
-    }
-
-    public Set<TransportMode> getTransportModes() {
-        return transportModes;
-    }
-
-    public boolean getPickUp() {
-        return pickUp;
-    }
-
-    public boolean getDropOff() {
-        return dropOff;
-    }
-
-    public LocationType getLocationType() {
-        return locationType;
     }
 }

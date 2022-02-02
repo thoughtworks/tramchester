@@ -6,7 +6,9 @@ import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.MyLocation;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.DTO.StageDTO;
+import com.tramchester.domain.presentation.DTO.StationRefWithPosition;
 import com.tramchester.domain.presentation.DTO.factory.StageDTOFactory;
+import com.tramchester.domain.presentation.DTO.factory.StationDTOFactory;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.presentation.TransportStage;
 import com.tramchester.domain.presentation.TravelAction;
@@ -15,6 +17,7 @@ import com.tramchester.domain.time.TramTime;
 import com.tramchester.domain.transportStages.VehicleStage;
 import com.tramchester.domain.transportStages.WalkingFromStationStage;
 import com.tramchester.testSupport.TestEnv;
+import org.easymock.EasyMock;
 import org.easymock.EasyMockSupport;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -32,10 +35,12 @@ class StageDTOFactoryTest extends EasyMockSupport {
 
     private StageDTOFactory factory;
     private LocalDate when;
+    private StationDTOFactory stationDTOFactory;
 
     @BeforeEach
     void beforeEachTestRun() {
-        factory = new StageDTOFactory();
+        stationDTOFactory = createMock(StationDTOFactory.class);
+        factory = new StageDTOFactory(stationDTOFactory);
         when = TestEnv.testDay();
     }
 
@@ -43,11 +48,19 @@ class StageDTOFactoryTest extends EasyMockSupport {
     @Test
     void shouldCreateStageDTOCorrectlyForWalking() {
         MyLocation location = nearAltrincham.location();
+
         WalkingFromStationStage stage = new WalkingFromStationStage(Altrincham.fake(), location, 15,
                 TramTime.of(8,11));
 
-        StageDTO build = factory.build(stage, TravelAction.WalkTo, when);
+        EasyMock.expect(stationDTOFactory.createStationRefWithPosition(Altrincham.fake())).
+                andReturn(new StationRefWithPosition(Altrincham.fake()));
+        EasyMock.expect(stationDTOFactory.createStationRefWithPosition(Altrincham.fake())).
+                andReturn(new StationRefWithPosition(Altrincham.fake()));
+        EasyMock.expect(stationDTOFactory.createStationRefWithPosition(location)).
+                andReturn(new StationRefWithPosition(location));
+
         replayAll();
+        StageDTO build = factory.build(stage, TravelAction.WalkTo, when);
         checkValues(stage, build, false, TravelAction.WalkTo);
         verifyAll();
     }
@@ -61,8 +74,7 @@ class StageDTOFactoryTest extends EasyMockSupport {
         List<Integer> stopCallIndexes = Arrays.asList(1,2,3,4);
 
         Platform platform = MutablePlatform.buildForTFGMTram("platFormId", "platformName", new LatLong(1,1));
-        //final MutableStation firstStation = MarketStreet.fake();
-        //firstStation.addPlatform(platform);
+
         Station firstStation = MarketStreet.fakeWith(platform);
 
         VehicleStage vehicleStage = new VehicleStage(firstStation, testRoute,
@@ -72,6 +84,11 @@ class StageDTOFactoryTest extends EasyMockSupport {
         vehicleStage.setCost(5);
 
         vehicleStage.setPlatform(platform);
+
+        EasyMock.expect(stationDTOFactory.createStationRefWithPosition(firstStation)).
+                andStubReturn(new StationRefWithPosition(firstStation));
+        EasyMock.expect(stationDTOFactory.createStationRefWithPosition(Bury.fake())).
+                andReturn(new StationRefWithPosition(Bury.fake()));
 
         replayAll();
         StageDTO stageDTO = factory.build(vehicleStage, TravelAction.Board, when);

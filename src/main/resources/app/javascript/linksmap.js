@@ -20,14 +20,35 @@ require("leaflet/dist/images/marker-shadow.png");
 
 import Footer from './components/Footer';
 
+function getColourFor(station) {
+    const modes = station.transportModes;
+    if (modes.length>1) {
+        return "purple";
+    }
+    const mode = modes[0];
+    switch(mode) {
+        case "Bus": return "Green";
+        case "Train": return "DarkBlue";
+        case "Tram": return "LightBlue";
+        default: return "Orange";
+    }
+}
+
 function addStationToMap(station, stationLayerGroup, displayed) {
     if (displayed.includes(station.id)) {
         return;
     }
 
-    var lat = station.latLong.lat;
-    var lon = station.latLong.lon;
-    var marker = new L.circleMarker(L.latLng(lat, lon), { title: station.name, radius: 2 });
+    const lat = station.latLong.lat;
+    const lon = station.latLong.lon;
+    var marker;
+    const colour = getColourFor(station);
+    if (station.isInterchange) {
+        // todo really want a different kind of marker here
+        marker = new L.circleMarker(L.latLng(lat, lon), { title: station.name, radius: 3, color: colour });
+    } else {
+        marker = new L.circleMarker(L.latLng(lat, lon), { title: station.name, radius: 1, color: colour });
+    }
     marker.bindTooltip(station.name + "<br> '" + station.id + "' (" + station.transportModes + ")");
     displayed.push(station.id);
     stationLayerGroup.addLayer(marker);
