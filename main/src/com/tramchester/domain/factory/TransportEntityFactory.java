@@ -90,7 +90,7 @@ public abstract class TransportEntityFactory {
 
     public abstract IdFor<Station> formStationId(String stopId);
 
-    public Optional<MutablePlatform> maybeCreatePlatform(StopData stopData) {
+    public Optional<MutablePlatform> maybeCreatePlatform(StopData stopData, Station station) {
         return Optional.empty();
     }
 

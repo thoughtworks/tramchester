@@ -266,15 +266,17 @@ public class TramTransportDataForTestFactory implements TransportDataFactory {
     private static PlatformStopCall createStop(TransportDataContainer container, MutableTrip trip,
                                                MutableStation station, TramTime arrivalTime, TramTime departureTime, int sequenceNum) {
         String platformId = station.getId() + "1";
+        final String platformName = format("%s platform 1", station.getName());
+
         MutablePlatform platform = new MutablePlatform(StringIdFor.createId(platformId),
-                format("%s platform 1", station.getName()), "1", station.getLatLong());
+                platformName, station.getDataSourceID(), "1",
+                station.getAreaId(), station.getLatLong(), station.getGridPosition(), station.isMarkedInterchange());
+
         container.addPlatform(platform);
         station.addPlatform(platform);
-//        StopTimeData stopTimeData = StopTimeData.forTestOnly(trip.getId().forDTO(), arrivalTime, departureTime, platformId,sequenceNum,
-//                GTFSPickupDropoffType.Regular, GTFSPickupDropoffType.Regular);
+
         return new PlatformStopCall(platform, station, arrivalTime, departureTime, sequenceNum,
                 GTFSPickupDropoffType.Regular, GTFSPickupDropoffType.Regular, trip);
-//        return new PlatformStopCall(trip, platform, station, stopTimeData);
     }
 
     public static class TramTransportDataForTest extends TransportDataContainer {

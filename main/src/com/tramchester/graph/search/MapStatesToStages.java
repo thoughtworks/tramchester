@@ -12,7 +12,10 @@ import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.domain.transportStages.*;
 import com.tramchester.graph.graphbuild.GraphProps;
-import com.tramchester.repository.*;
+import com.tramchester.repository.PlatformRepository;
+import com.tramchester.repository.StationRepository;
+import com.tramchester.repository.StationRepositoryPublic;
+import com.tramchester.repository.TripRepository;
 import org.neo4j.graphdb.Entity;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
@@ -21,7 +24,6 @@ import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 import static com.tramchester.graph.GraphPropertyKey.STATION_ID;
 
@@ -287,8 +289,11 @@ class MapStatesToStages implements JourneyStateUpdate {
                     boardingTime, lastStation, stopSequenceNumbers);
             vehicleStage.setCost(cost);
             if (boardingPlatformId != null) {
-                final Optional<Platform> platformById = platformRepository.getPlatformById(boardingPlatformId);
-                platformById.ifPresent(vehicleStage::setPlatform);
+                if (platformRepository.hasPlatformId(boardingPlatformId)) {
+                    Platform platform = platformRepository.getPlatformById(boardingPlatformId);
+                    vehicleStage.setPlatform(platform);
+                }
+
             }
 
             return vehicleStage;

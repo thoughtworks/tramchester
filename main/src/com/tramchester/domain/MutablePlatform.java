@@ -1,12 +1,22 @@
 package com.tramchester.domain;
 
+import com.google.common.collect.Streams;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.StringIdFor;
+import com.tramchester.domain.places.LocationType;
+import com.tramchester.domain.places.NaptanArea;
 import com.tramchester.domain.presentation.LatLong;
+import com.tramchester.domain.reference.TransportMode;
+import com.tramchester.geo.CoordinateTransforms;
+import com.tramchester.geo.GridPosition;
 import com.tramchester.graph.GraphPropertyKey;
+import com.tramchester.graph.graphbuild.GraphLabel;
+import org.apache.commons.collections4.SetUtils;
 
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static java.lang.String.format;
 
@@ -14,22 +24,51 @@ public class MutablePlatform implements Platform {
 
     private final IdFor<Platform> id;
     private final String name;
-    private final Set<Route> servesRoutes;
     private final String platformNumber;
     private final LatLong latLong;
+    private final Set<Route> servesRoutesPickup;
+    private final Set<Route> servesRoutesDropoff;
+    private final DataSourceID dataSourceId;
+    private final IdFor<NaptanArea> areaId;
+    private final boolean isMarkedInterchange;
+    private final GridPosition gridPosition;
 
-    public MutablePlatform(IdFor<Platform> id, String stationName, String platformNumber, LatLong latLong) {
+    public MutablePlatform(IdFor<Platform> id, String platformName, DataSourceID dataSourceId, String platformNumber,
+                           IdFor<NaptanArea> areaId, LatLong latLong, GridPosition gridPosition, boolean isMarkedInterchange) {
         this.id = id;
+        this.dataSourceId = dataSourceId;
         this.platformNumber = platformNumber;
-        this.name = format("%s platform %s", stationName, platformNumber);
+        this.areaId = areaId;
+        this.gridPosition = gridPosition;
+        this.isMarkedInterchange = isMarkedInterchange;
+        this.name = format("%s platform %s", platformName, platformNumber);
         this.latLong = latLong;
-        servesRoutes = new HashSet<>();
+        servesRoutesPickup = new HashSet<>();
+        servesRoutesDropoff = new HashSet<>();
+
     }
 
-    // test support
+    @Deprecated
     public static Platform buildForTFGMTram(String id, String stationName, LatLong latLong) {
+        return buildForTFGMTram(id, stationName, latLong, DataSourceID.unknown, IdFor.invalid());
+    }
+
+    /***
+     * For testing ONLY
+     * @param id the platform id
+     * @param stationName the name of the station
+     * @param latLong the position
+     * @param dataSourceId the source
+     * @param areaId the areas
+     * @return Platform for testing only
+     */
+    public static Platform buildForTFGMTram(String id, String stationName, LatLong latLong, DataSourceID dataSourceId,
+                                            IdFor<NaptanArea> areaId) {
         String platformNumber = id.substring(id.length() - 1);
-        return new MutablePlatform(StringIdFor.createId(id), stationName, platformNumber, latLong);
+        GridPosition gridPosition = CoordinateTransforms.getGridPosition(latLong);
+        boolean isMarkedInterchange = false;
+        return new MutablePlatform(StringIdFor.createId(id), stationName, dataSourceId, platformNumber, areaId, latLong, gridPosition,
+                isMarkedInterchange);
     }
 
     @Override
@@ -71,13 +110,9 @@ public class MutablePlatform implements Platform {
         return id.hashCode();
     }
 
-    public void addRoute(Route route) {
-        servesRoutes.add(route);
-    }
-
-    @Override
+    @Deprecated
     public Set<Route> getRoutes() {
-        return servesRoutes;
+        return SetUtils.union(getDropoffRoutes(), getPickupRoutes());
     }
 
     @Override
@@ -88,5 +123,89 @@ public class MutablePlatform implements Platform {
     @Override
     public LatLong getLatLong() {
         return latLong;
+    }
+
+    @Override
+    public GridPosition getGridPosition() {
+        return gridPosition;
+    }
+
+    @Override
+    public IdFor<NaptanArea> getAreaId() {
+        return areaId;
+    }
+
+    @Override
+    public boolean hasPlatforms() {
+        return false;
+    }
+
+    @Override
+    public Set<Platform> getPlatforms() {
+        return Collections.emptySet();
+    }
+
+    @Override
+    public LocationType getLocationType() {
+        return LocationType.Platform;
+    }
+
+    @Override
+    public DataSourceID getDataSourceID() {
+        return dataSourceId;
+    }
+
+    @Override
+    public boolean hasPickup() {
+        return !servesRoutesPickup.isEmpty();
+    }
+
+    @Override
+    public boolean hasDropoff() {
+        return !servesRoutesDropoff.isEmpty();
+    }
+
+    @Override
+    public boolean isActive() {
+        return hasDropoff() || hasPickup();
+    }
+
+    @Override
+    public Set<Route> getDropoffRoutes() {
+        return servesRoutesDropoff;
+    }
+
+    @Override
+    public Set<Route> getPickupRoutes() {
+        return servesRoutesPickup;
+    }
+
+    @Override
+    public boolean isMarkedInterchange() {
+        return isMarkedInterchange;
+    }
+
+    public void addRouteDropOff(Route route) {
+        servesRoutesDropoff.add(route);
+    }
+
+    public void addRoutePickUp(Route route) {
+        servesRoutesPickup.add(route);
+    }
+
+    @Override
+    public GraphLabel getNodeLabel() {
+        return GraphLabel.PLATFORM;
+    }
+
+    @Override
+    public Set<TransportMode> getTransportModes() {
+        return Streams.concat(servesRoutesDropoff.stream(), servesRoutesPickup.stream()).
+                map(Route::getTransportMode).collect(Collectors.toSet());
+    }
+
+    @Override
+    public String forDTO() {
+        return id.forDTO();
     }
 }

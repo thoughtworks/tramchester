@@ -34,4 +34,11 @@ public enum GTFSPickupDropoffType {
         return text;
     }
 
+    public boolean isPickup() {
+        return this!=None;
+    }
+
+    public boolean isDropOff() {
+        return this!=None;
+    }
 }

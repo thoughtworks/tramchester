@@ -9,8 +9,6 @@ import com.tramchester.domain.reference.GTFSPickupDropoffType;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramTime;
 
-import static com.tramchester.domain.reference.GTFSPickupDropoffType.None;
-
 public abstract class StopCall {
     protected final Station station;
     private final Trip trip;
@@ -89,7 +87,7 @@ public abstract class StopCall {
     public abstract boolean hasPlatfrom();
 
     public boolean callsAtStation() {
-        return (dropoffType!=None) || (pickupType!=None);
+        return dropoffType.isDropOff() || pickupType.isPickup();
     }
 
     public Trip getTrip() {

@@ -16,7 +16,7 @@ public class LocationRefDTO {
     private Set<TransportMode> transportModes;
 
     public LocationRefDTO(Location<?> location) {
-        this.id = location.forDTO();
+        this.id = location.getId().forDTO();
         this.name = location.getName();
         this.transportModes = location.getTransportModes();
         this.locationType = location.getLocationType();

@@ -198,14 +198,6 @@ public class TransportDataContainer implements TransportData, WriteableTransport
        routeStations.add(routeStation);
     }
 
-    public boolean hasPlatformId(IdFor<Platform> platformId) {
-        return platforms.hasId(platformId);
-    }
-
-    public Platform getPlatform(IdFor<Platform> platformId) {
-        return platforms.get(platformId);
-    }
-
     public MutablePlatform getMutablePlatform(IdFor<Platform> platformId) {
         return platforms.get(platformId);
     }
@@ -213,6 +205,11 @@ public class TransportDataContainer implements TransportData, WriteableTransport
     @Override
     public Set<Platform> getPlatforms() {
         return Collections.unmodifiableSet(platforms.getValues());
+    }
+
+    @Override
+    public boolean hasPlatformId(IdFor<Platform> id) {
+        return platforms.hasId(id);
     }
 
     @Override
@@ -354,11 +351,8 @@ public class TransportDataContainer implements TransportData, WriteableTransport
     }
 
     @Override
-    public Optional<Platform> getPlatformById(IdFor<Platform> platformId) {
-        if (platforms.hasId(platformId)) {
-            return Optional.of(platforms.get(platformId));
-        }
-        return Optional.empty();
+    public Platform getPlatformById(IdFor<Platform> platformId) {
+        return platforms.get(platformId);
     }
 
     @Override

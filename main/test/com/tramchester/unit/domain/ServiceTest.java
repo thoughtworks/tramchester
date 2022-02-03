@@ -1,9 +1,11 @@
 package com.tramchester.unit.domain;
 
 import com.tramchester.domain.*;
+import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.input.MutableTrip;
 import com.tramchester.domain.input.PlatformStopCall;
+import com.tramchester.domain.places.NaptanArea;
 import com.tramchester.domain.time.DateRange;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.testSupport.TestEnv;
@@ -19,6 +21,10 @@ import static com.tramchester.testSupport.reference.TramStations.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 class ServiceTest {
+
+    private final DataSourceID dataSourceId = DataSourceID.tfgm;
+    private final IdFor<NaptanArea> areaId = IdFor.invalid();
+    private final boolean isMarkedInterchange = false;
 
     @Test
     void shouldNoticeNoDatesSet() {
@@ -39,9 +45,9 @@ class ServiceTest {
     @Test
     void shouldHaveTimeRange() {
         Platform platformA = new MutablePlatform(StringIdFor.createId("platA"), "man airport",
-                "1", nearWythenshaweHosp.latLong());
+                dataSourceId, "1", areaId, nearWythenshaweHosp.latLong(), nearWythenshaweHosp.grid(), isMarkedInterchange);
         Platform platformB = new MutablePlatform(StringIdFor.createId("platB"), "shudehill",
-                "2", nearShudehill.latLong());
+                dataSourceId, "2", areaId, nearShudehill.latLong(), nearShudehill.grid(), isMarkedInterchange);
 
         Route route = TestEnv.getTramTestRoute();
         MutableService service = new MutableService(StringIdFor.createId("svcA"));
@@ -69,9 +75,9 @@ class ServiceTest {
     @Test
     void shouldHaveTimeRangeCrossesMidnight() {
         Platform platformA = new MutablePlatform(StringIdFor.createId("platA"), "man airport",
-                "1", nearWythenshaweHosp.latLong());
+                dataSourceId, "1", areaId, nearWythenshaweHosp.latLong(), nearWythenshaweHosp.grid(), isMarkedInterchange);
         Platform platformB = new MutablePlatform(StringIdFor.createId("platB"), "shudehill",
-                "2", nearShudehill.latLong());
+                dataSourceId, "2", areaId, nearShudehill.latLong(), nearShudehill.grid(), isMarkedInterchange);
 
         Route route = TestEnv.getTramTestRoute();
         MutableService service = new MutableService(StringIdFor.createId("svcA"));

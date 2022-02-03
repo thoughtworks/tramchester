@@ -42,7 +42,7 @@ class PreloadedStationsAndPlatforms {
     public void createAndAdd(IdFor<Station> stationId, StopData stopData, GridPosition position) {
         MutableStation mutableStation = factory.createStation(stationId, stopData, position);
 
-        Optional<MutablePlatform> possiblePlatform = factory.maybeCreatePlatform(stopData);
+        Optional<MutablePlatform> possiblePlatform = factory.maybeCreatePlatform(stopData, mutableStation);
         possiblePlatform.ifPresent(platform -> {
             platforms.add(platform);
             mutableStation.addPlatform(platform);
@@ -52,10 +52,12 @@ class PreloadedStationsAndPlatforms {
     }
 
     public void updateStation(IdFor<Station> stationId, StopData stopData) {
-        Optional<MutablePlatform> possiblePlatform = factory.maybeCreatePlatform(stopData);
+        final MutableStation station = stations.get(stationId);
+
+        Optional<MutablePlatform> possiblePlatform = factory.maybeCreatePlatform(stopData, station);
         possiblePlatform.ifPresent(platform -> {
             platforms.add(platform);
-            stations.get(stationId).addPlatform(platform);
+            station.addPlatform(platform);
         });
     }
 

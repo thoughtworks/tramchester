@@ -60,7 +60,7 @@ public class Journey implements Iterable<TransportStage<?,?>>, CallsAtPlatforms 
                 ", departTime=" + departTime +
                 ", requestedNumberChanges=" + requestedNumberChanges +
                 ", stages=" + stages +
-                ", path=" + HasId.dtoAsIds(path) +
+                ", path=" + HasId.asIds(path) +
                 '}';
     }
 

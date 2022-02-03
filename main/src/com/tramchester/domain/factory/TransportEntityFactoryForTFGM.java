@@ -10,6 +10,7 @@ import com.tramchester.domain.places.NaptanArea;
 import com.tramchester.domain.places.NaptanRecord;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.GTFSTransportationType;
+import com.tramchester.geo.CoordinateTransforms;
 import com.tramchester.geo.GridPosition;
 import com.tramchester.repository.naptan.NaptanRespository;
 import com.tramchester.repository.naptan.NaptanStopType;
@@ -51,13 +52,11 @@ public class TransportEntityFactoryForTFGM extends TransportEntityFactory {
 
         boolean isInterchange = false;
         IdFor<NaptanArea> areaId = IdFor.invalid();
-        //String area = "";
         if (naptanRespository.isEnabled()) {
             // enrich details from naptan where possible
             if (naptanRespository.containsActo(stationId)) {
                 NaptanRecord naptanData = naptanRespository.getForActo(stationId);
                 areaId = chooseArea(naptanRespository, naptanData.getAreaCodes());
-                //area = getAreaFromNaptanData(naptanData);
                 isInterchange = NaptanStopType.isInterchance(naptanData.getStopType());
             }
         }
@@ -73,15 +72,30 @@ public class TransportEntityFactoryForTFGM extends TransportEntityFactory {
     }
 
     @Override
-    public Optional<MutablePlatform> maybeCreatePlatform(StopData stopData) {
-        if (isMetrolinkTram(stopData)) {
-            String stopId = stopData.getId();
-            String platformNumber = stopId.substring(stopId.length()-1);
-            return Optional.of(new MutablePlatform(StringIdFor.createId(stopId), cleanStationName(stopData),
-                    platformNumber, stopData.getLatLong()));
-        } else {
+    public Optional<MutablePlatform> maybeCreatePlatform(StopData stopData, Station station) {
+        if (!isMetrolinkTram(stopData)) {
             return Optional.empty();
         }
+
+        String stopId = stopData.getId();
+        final IdFor<Platform> platformId = StringIdFor.createId(stopId);
+
+        String platformNumber = stopId.substring(stopId.length()-1);
+
+        IdFor<NaptanArea> areaId = IdFor.invalid();
+        GridPosition gridPosition = CoordinateTransforms.getGridPosition(stopData.getLatLong());
+        if (naptanRespository.isEnabled()) {
+            NaptanRecord naptanData = naptanRespository.getForActo(platformId);
+            areaId = chooseArea(naptanRespository, naptanData.getAreaCodes());
+            gridPosition = naptanData.getGridPosition(); // often more accurate
+
+            // TODO Add logging if there is a significant diff in position data?
+        }
+
+        final MutablePlatform platform = new MutablePlatform(platformId, cleanStationName(stopData),
+                getDataSourceId(), platformNumber, areaId, stopData.getLatLong(), gridPosition, station.isMarkedInterchange());
+        return Optional.of(platform);
+
     }
 
     private String cleanStationName(StopData stopData) {

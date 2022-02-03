@@ -12,6 +12,7 @@ import com.tramchester.domain.input.RailPlatformStopCall;
 import com.tramchester.domain.input.StopCall;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.MutableStation;
+import com.tramchester.domain.places.NaptanArea;
 import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.GTFSPickupDropoffType;
@@ -43,6 +44,7 @@ public class RailTimetableMapper {
                 .appendValue(YEAR, 4)
                 .appendValue(MONTH_OF_YEAR, 2)
                 .appendValue(DAY_OF_MONTH, 2).toFormatter();
+    private static DataSourceID dataSourceID;
 
     private enum State {
         SeenSchedule,
@@ -339,21 +341,25 @@ public class RailTimetableMapper {
             pickup = lastStop ? None : Regular;
             dropoff = stopSequence==1 ? None : Regular;
 
-            if (pickup != None) {
+            // Platform
+            IdFor<NaptanArea> areaId = station.getAreaId(); // naptan seems only to have rail stations, not platforms
+            MutablePlatform platform = getOrCreatePlatform(station, railLocation, areaId);
+            //platform.addRoute(route);
+            station.addPlatform(platform);
+
+            if (pickup.isPickup()) {
                 station.addRoutePickUp(route);
+                platform.addRoutePickUp(route);
             }
-            if (dropoff != None) {
+            if (dropoff.isDropOff()) {
                 station.addRouteDropOff(route);
+                platform.addRouteDropOff(route);
             }
 
             // Route Station
             RouteStation routeStation = new RouteStation(station, route);
             container.addRouteStation(routeStation);
 
-            // Platform
-            MutablePlatform platform = getOrCreatePlatform(station, railLocation);
-            platform.addRoute(route);
-            station.addPlatform(platform);
 
             // Stop Call
             // TODO this doesn't cope with journeys that cross 2 days....
@@ -425,13 +431,14 @@ public class RailTimetableMapper {
                 logger.info("Creating agency for atco code " + atocCode);
 
                 // todo - need to look up the actual agency name here, just using the id at the moment
-                mutableAgency = new MutableAgency(DataSourceID.rail, agencyId, atocCode);
+                dataSourceID = DataSourceID.rail;
+                mutableAgency = new MutableAgency(dataSourceID, agencyId, atocCode);
                 container.addAgency(mutableAgency);
             }
             return mutableAgency;
         }
 
-        private MutablePlatform getOrCreatePlatform(MutableStation originStation, RailLocationRecord originLocation) {
+        private MutablePlatform getOrCreatePlatform(MutableStation originStation, RailLocationRecord originLocation, IdFor<NaptanArea> areaId) {
             String platformNumber = originLocation.getPlatform();
             if (platformNumber.isBlank()) {
                 platformNumber = "UNK";
@@ -441,8 +448,8 @@ public class RailTimetableMapper {
             if (container.hasPlatformId(platformId)) {
                 platform = container.getMutablePlatform(platformId);
             } else {
-                platform = new MutablePlatform(platformId, originStation.getName(), platformNumber,
-                        originStation.getLatLong());
+                platform = new MutablePlatform(platformId, originStation.getName(), dataSourceID, platformNumber,
+                        areaId, originStation.getLatLong(), originStation.getGridPosition(), originStation.isMarkedInterchange());
                 container.addPlatform(platform);
             }
 

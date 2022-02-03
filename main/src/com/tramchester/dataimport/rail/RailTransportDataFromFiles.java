@@ -147,8 +147,6 @@ public class RailTransportDataFromFiles implements DirectDataSourceFactory.Popul
         StationsTemporary stationsTemporary = new StationsTemporary(outOfBounds);
 
         withinBounds.
-//                filter(this::validRecord).
-//                filter(record -> outOfBounds.contains(record.getTiplocCode())).
                 map(this::createStationFor).
                 forEach(stationsTemporary::addStation);
 

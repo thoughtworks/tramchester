@@ -449,7 +449,7 @@ public class TransportDataFromFilesTramTest {
         IdFor<Platform> platformId = StPetersSquare.getPlatformId("3");
 
         //assertTrue(transportData.hasPlatformId(id));
-        Platform platform = transportData.getPlatform(platformId);
+        Platform platform = transportData.getPlatformById(platformId);
         assertNotNull(platform, "could not find " + platformId);
         assertEquals("St Peter's Square platform 3", platform.getName());
         assertEquals(TramStations.StPetersSquare.createIdFor("3"), platform.getId());

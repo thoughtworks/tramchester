@@ -111,13 +111,13 @@ public class StopCalls {
 
     private StopCall findNextPickup(Iterator<StopCall> iter, StopCall next) {
         if (next!=null) {
-            if (next.getPickupType()!=None) {
+            if (next.getPickupType().isPickup()) {
                 return next;
             }
         }
         while (iter.hasNext()) {
             StopCall current = iter.next();
-            if (current.getPickupType()!=None) {
+            if (current.getPickupType().isPickup()) {
                 return current;
             }
         }

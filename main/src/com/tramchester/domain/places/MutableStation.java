@@ -116,7 +116,6 @@ public class MutableStation implements Station {
         return hasPickup() || hasDropoff();
     }
 
-
     @Override
     public Set<Platform> getPlatformsForRoute(Route route) {
         return platforms.stream().filter(platform -> platform.getRoutes().contains(route)).collect(Collectors.toUnmodifiableSet());

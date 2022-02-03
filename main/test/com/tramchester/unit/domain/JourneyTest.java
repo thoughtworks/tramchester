@@ -197,10 +197,12 @@ class JourneyTest {
     void shouldHaveCallingPlatformIds() {
         final TramTime departureTimeA = queryTime.plusMinutes(10);
 
-        final Platform platform1 = MutablePlatform.buildForTFGMTram("platformId1", "platformNameA", nearAltrincham.latLong());
+        final Platform platform1 = MutablePlatform.buildForTFGMTram("platformId1", "platformNameA",
+                nearAltrincham.latLong());
         final Station alty = Altrincham.fakeWith(platform1);
 
-        final Platform platform2 = MutablePlatform.buildForTFGMTram("platformId2", "platformNameA", nearStPetersSquare.latLong());
+        final Platform platform2 = MutablePlatform.buildForTFGMTram("platformId2", "platformNameA",
+                nearStPetersSquare.latLong());
         final Station stPeters = StPetersSquare.fakeWith(platform2);
 
         final VehicleStage stageA = createVehicleStage(alty, stPeters, Bus, departureTimeA, 13);

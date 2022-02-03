@@ -182,13 +182,14 @@ public class NaptanRespository {
                 filter(item -> bounds.within(margin, item.getGridPosition()));
     }
 
+    // TODO Check or diag on NaptanStopType
     public <T extends Location<?>>  boolean containsActo(IdFor<T> locationId) {
         IdFor<NaptanRecord> id = convertId(locationId);
         return stops.hasId(id);
     }
 
-
-    public NaptanRecord getForActo(IdFor<Station> actoCode) {
+    // TODO Check or diag on NaptanStopType
+    public <T extends Location<?>> NaptanRecord getForActo(IdFor<T> actoCode) {
         IdFor<NaptanRecord> id = convertId(actoCode);
         return stops.get(id);
     }

@@ -4,6 +4,7 @@ public enum LocationType {
     Station(false),
     Postcode(true),
     MyLocation(true),
+    Platform(false),
     StationGroup(false);
 
     private final boolean walk;

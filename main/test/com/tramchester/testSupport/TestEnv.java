@@ -181,8 +181,7 @@ public class TestEnv {
                                                       TramTime depart) {
         Platform platform = MutablePlatform.buildForTFGMTram(stopId, "name:" + stopId, station.getLatLong());
         GTFSPickupDropoffType pickupDropoff = GTFSPickupDropoffType.Regular;
-        //StopTimeData stopTimeData = StopTimeData.forTestOnly(trip.getId().forDTO(), arrive, depart, stopId, seq,
-        //        pickupDropoff, pickupDropoff);
+
         return new PlatformStopCall(platform, station.fake(), arrive, depart, seq, pickupDropoff, pickupDropoff, trip);
     }
 

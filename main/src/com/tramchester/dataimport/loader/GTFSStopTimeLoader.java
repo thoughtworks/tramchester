@@ -160,10 +160,10 @@ public class GTFSStopTimeLoader {
 
         private void addStationAndRouteStation(Route route, MutableStation station, GTFSPickupDropoffType pickupType,
                                                GTFSPickupDropoffType dropOffType) {
-            if (pickupType!=GTFSPickupDropoffType.None) {
+            if (pickupType.isPickup()) {
                 station.addRoutePickUp(route);
             }
-            if (dropOffType!=GTFSPickupDropoffType.None) {
+            if (dropOffType.isDropOff()) {
                 station.addRouteDropOff(route);
             }
 
@@ -196,7 +196,16 @@ public class GTFSStopTimeLoader {
             if (dataSourceConfig.getTransportModesWithPlatforms().contains(transportMode)) {
                 if (buildable.hasPlatformId(platformId)) {
                     MutablePlatform platform = buildable.getMutablePlatform(platformId);
-                    platform.addRoute(route);
+
+                    if (stopTimeData.getPickupType().isPickup()) {
+                        platform.addRoutePickUp(route);
+                    }
+                    if (stopTimeData.getDropOffType().isDropOff()) {
+                        platform.addRouteDropOff(route);
+                    }
+
+                    //platform.addRoute(route);
+
                     return factory.createPlatformStopCall(trip, platform, station, stopTimeData);
                 } else {
                     IdFor<Route> routeId = route.getId();

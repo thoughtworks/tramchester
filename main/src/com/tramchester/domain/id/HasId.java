@@ -2,20 +2,21 @@ package com.tramchester.domain.id;
 
 import com.tramchester.domain.CoreDomain;
 import com.tramchester.domain.LocationSet;
-import com.tramchester.domain.places.IdForDTO;
+import com.tramchester.domain.places.Location;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Collection;
+import java.util.List;
 
 public interface HasId<DOMAINTYPE extends CoreDomain> {
 
     IdFor<DOMAINTYPE> getId();
 
-    static <T extends IdForDTO> String dtoAsIds(Collection<T> items) {
-        return listToIdStringList(items, IdForDTO::forDTO);
+    static <S extends  T, T extends HasId<T> & CoreDomain> String asIds(Collection<S> items) {
+        return listToIdStringList(items, item -> item.getId().toString());
     }
 
-    static <S extends  T, T extends HasId<T> & CoreDomain> String asIds(Collection<S> items) {
+    static String asIds(List<Location<?>> items) {
         return listToIdStringList(items, item -> item.getId().toString());
     }
 
