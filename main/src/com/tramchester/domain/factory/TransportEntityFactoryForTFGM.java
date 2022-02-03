@@ -9,6 +9,7 @@ import com.tramchester.domain.places.MutableStation;
 import com.tramchester.domain.places.NaptanArea;
 import com.tramchester.domain.places.NaptanRecord;
 import com.tramchester.domain.places.Station;
+import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.reference.GTFSTransportationType;
 import com.tramchester.geo.CoordinateTransforms;
 import com.tramchester.geo.GridPosition;
@@ -48,26 +49,28 @@ public class TransportEntityFactoryForTFGM extends TransportEntityFactory {
     }
 
     @Override
-    public MutableStation createStation(IdFor<Station> stationId, StopData stopData, GridPosition position) {
+    public MutableStation createStation(IdFor<Station> stationId, StopData stopData) {
 
         boolean isInterchange = false;
         IdFor<NaptanArea> areaId = IdFor.invalid();
+        LatLong latLong = stopData.getLatLong();
+        GridPosition position = CoordinateTransforms.getGridPosition(latLong);
+
         if (naptanRespository.isEnabled()) {
             // enrich details from naptan where possible
             if (naptanRespository.containsActo(stationId)) {
                 NaptanRecord naptanData = naptanRespository.getForActo(stationId);
-                areaId = chooseArea(naptanRespository, naptanData.getAreaCodes());
+
                 isInterchange = NaptanStopType.isInterchance(naptanData.getStopType());
+                areaId = chooseArea(naptanRespository, naptanData.getAreaCodes());
+                position = naptanData.getGridPosition();
+                latLong = naptanData.getLatLong();
             }
         }
 
-        // NOTE: Tram data has unique positions for each platform
-        // todo Can fetch from naptan, which has entires for the stations and platforms
-        // Check for duplicate names - handled by CompositeStationRepository
-
         final String stationName = cleanStationName(stopData);
 
-        return new MutableStation(stationId, areaId, workAroundName(stationName), stopData.getLatLong(), position,
+        return new MutableStation(stationId, areaId, workAroundName(stationName), latLong, position,
                 getDataSourceId(), isInterchange);
     }
 
@@ -83,17 +86,21 @@ public class TransportEntityFactoryForTFGM extends TransportEntityFactory {
         String platformNumber = stopId.substring(stopId.length()-1);
 
         IdFor<NaptanArea> areaId = IdFor.invalid();
-        GridPosition gridPosition = CoordinateTransforms.getGridPosition(stopData.getLatLong());
+        LatLong latLong = stopData.getLatLong();
+        GridPosition gridPosition = CoordinateTransforms.getGridPosition(latLong);
+
         if (naptanRespository.isEnabled()) {
             NaptanRecord naptanData = naptanRespository.getForActo(platformId);
+            
             areaId = chooseArea(naptanRespository, naptanData.getAreaCodes());
-            gridPosition = naptanData.getGridPosition(); // often more accurate
+            gridPosition = naptanData.getGridPosition();
+            latLong = naptanData.getLatLong();
 
             // TODO Add logging if there is a significant diff in position data?
         }
 
         final MutablePlatform platform = new MutablePlatform(platformId, cleanStationName(stopData),
-                getDataSourceId(), platformNumber, areaId, stopData.getLatLong(), gridPosition, station.isMarkedInterchange());
+                getDataSourceId(), platformNumber, areaId, latLong, gridPosition, station.isMarkedInterchange());
         return Optional.of(platform);
 
     }

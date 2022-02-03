@@ -3,6 +3,7 @@ package com.tramchester.unit.dataimport.naptan;
 import com.tramchester.dataimport.NaPTAN.xml.stopPoint.NaptanStopData;
 import com.tramchester.dataimport.NaPTAN.xml.stopPoint.NaptanXMLStopAreaRef;
 import com.tramchester.domain.id.StringIdFor;
+import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.geo.GridPosition;
 import com.tramchester.repository.naptan.NaptanStopType;
 import com.tramchester.testSupport.reference.TramStations;
@@ -53,6 +54,7 @@ class NaptanStopDataTest extends ParserTestXMLHelper<NaptanStopData> {
         assertEquals("", data.getSuburb());
         assertEquals("", data.getTown());
         assertEquals(new GridPosition(391760,405082), data.getGridPosition());
+        assertEquals(new LatLong(53.54231581884D, -2.12581352411D), data.getLatLong());
         assertEquals("E0029527", data.getNptgLocality());
         assertEquals(tramMetroUndergroundPlatform, data.getStopType());
     }

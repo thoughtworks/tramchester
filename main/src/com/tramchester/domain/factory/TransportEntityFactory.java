@@ -11,6 +11,7 @@ import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.GTFSTransportationType;
 import com.tramchester.domain.reference.TransportMode;
+import com.tramchester.geo.CoordinateTransforms;
 import com.tramchester.geo.GridPosition;
 import com.tramchester.repository.naptan.NaptanRespository;
 import org.slf4j.Logger;
@@ -56,9 +57,10 @@ public abstract class TransportEntityFactory {
         return trip;
     }
 
-    public MutableStation createStation(IdFor<Station> stationId, StopData stopData, GridPosition position) {
+    public MutableStation createStation(IdFor<Station> stationId, StopData stopData) {
 
         IdFor<NaptanArea> areaId = IdFor.invalid();
+        GridPosition position = CoordinateTransforms.getGridPosition(stopData.getLatLong());
         return new MutableStation(stationId, areaId, stopData.getName(), stopData.getLatLong(), position, getDataSourceId());
     }
 

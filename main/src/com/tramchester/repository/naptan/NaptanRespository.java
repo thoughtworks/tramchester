@@ -171,8 +171,8 @@ public class NaptanRespository {
             logger.warn("Multiple stop area refs active for " + id);
         }
 
-        return new NaptanRecord(id, original.getCommonName(), original.getGridPosition(), suburb, town,
-                original.getStopType(), stopAreaIds);
+        return new NaptanRecord(id, original.getCommonName(), original.getGridPosition(), original.getLatLong(),
+                suburb, town, original.getStopType(), stopAreaIds);
     }
 
 

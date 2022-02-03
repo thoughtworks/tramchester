@@ -9,6 +9,7 @@ import com.tramchester.dataimport.NaPTAN.NaptanXMLData;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.places.NaptanRecord;
+import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.geo.GridPosition;
 import com.tramchester.repository.naptan.NaptanStopType;
 
@@ -67,6 +68,10 @@ public class NaptanStopData implements NaptanXMLData {
 
     public GridPosition getGridPosition() {
         return place.getLocation().getGridPosition();
+    }
+
+    public LatLong getLatLong() {
+        return place.getLocation().getLatLong();
     }
 
     public NaptanStopType getStopType() {

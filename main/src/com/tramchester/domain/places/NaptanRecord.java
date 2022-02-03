@@ -4,6 +4,7 @@ import com.tramchester.domain.CoreDomain;
 import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdSet;
+import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.geo.GridPosition;
 import com.tramchester.repository.naptan.NaptanStopType;
 
@@ -17,12 +18,14 @@ public class NaptanRecord implements HasId<NaptanRecord>, CoreDomain {
     private final String town;
     private final NaptanStopType stopType;
     private final List<String> stopAreaCodes;
+    private final LatLong latlong;
 
-    public NaptanRecord(IdFor<NaptanRecord> id, String name, GridPosition gridPosition, String suburb, String town,
+    public NaptanRecord(IdFor<NaptanRecord> id, String name, GridPosition gridPosition, LatLong latlong, String suburb, String town,
                         NaptanStopType stopType, List<String> stopAreaCodes) {
         this.id = id;
         this.name = name;
         this.gridPosition = gridPosition;
+        this.latlong = latlong;
         this.suburb = suburb;
         this.town = town;
         this.stopType = stopType;
@@ -46,12 +49,12 @@ public class NaptanRecord implements HasId<NaptanRecord>, CoreDomain {
         return stopType;
     }
 
-    public String getTown() {
-        return town;
-    }
-
     public GridPosition getGridPosition() {
         return gridPosition;
+    }
+
+    public LatLong getLatLong() {
+        return latlong;
     }
 
     /***
@@ -73,4 +76,5 @@ public class NaptanRecord implements HasId<NaptanRecord>, CoreDomain {
                 ", stopAreaCodes=" + stopAreaCodes +
                 '}';
     }
+
 }

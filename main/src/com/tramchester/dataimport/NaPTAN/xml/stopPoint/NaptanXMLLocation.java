@@ -2,6 +2,7 @@ package com.tramchester.dataimport.NaPTAN.xml.stopPoint;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeName;
+import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.geo.GridPosition;
 
 @JsonTypeName("Location")
@@ -22,5 +23,12 @@ public class NaptanXMLLocation {
         return "NaptanXMLLocation{" +
                 "translation=" + translation +
                 '}';
+    }
+
+    public LatLong getLatLong() {
+        if (translation==null) {
+            return LatLong.Invalid;
+        }
+        return translation.getLatLong();
     }
 }

@@ -36,21 +36,20 @@ public class StopDataLoader {
             if (latLong.isValid()) {
                 GridPosition position = getGridPosition(stopData.getLatLong());
                 if (bounds.contained(position)) {
-                    preLoadStation(allStations, stopData, position, factory);
+                    preLoadStation(allStations, stopData, factory);
                 } else {
                     // Don't know which transport modes the station serves at this stage, so no way to filter further
                     logger.info("Excluding stop outside of bounds" + stopData);
                 }
             } else {
-                preLoadStation(allStations, stopData, GridPosition.Invalid, factory);
+                preLoadStation(allStations, stopData, factory);
             }
         });
         logger.info("Pre Loaded " + allStations.size() + " stations");
         return allStations;
     }
 
-    private void preLoadStation(PreloadedStationsAndPlatforms allStations, StopData stopData, GridPosition position,
-                                TransportEntityFactory factory) {
+    private void preLoadStation(PreloadedStationsAndPlatforms allStations, StopData stopData,TransportEntityFactory factory) {
         String stopId = stopData.getId();
 
         IdFor<Station> stationId = factory.formStationId(stopId);
@@ -58,7 +57,7 @@ public class StopDataLoader {
         if (allStations.hasId(stationId)) {
             allStations.updateStation(stationId, stopData);
         } else {
-            allStations.createAndAdd(stationId, stopData, position);
+            allStations.createAndAdd(stationId, stopData);
         }
     }
 

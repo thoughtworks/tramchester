@@ -8,7 +8,6 @@ import com.tramchester.domain.id.CompositeIdMap;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.places.MutableStation;
 import com.tramchester.domain.places.Station;
-import com.tramchester.geo.GridPosition;
 
 import java.util.Optional;
 
@@ -39,10 +38,11 @@ class PreloadedStationsAndPlatforms {
         return stations.get(stationId);
     }
 
-    public void createAndAdd(IdFor<Station> stationId, StopData stopData, GridPosition position) {
-        MutableStation mutableStation = factory.createStation(stationId, stopData, position);
+    public void createAndAdd(IdFor<Station> stationId, StopData stopData) {
+        MutableStation mutableStation = factory.createStation(stationId, stopData);
 
         Optional<MutablePlatform> possiblePlatform = factory.maybeCreatePlatform(stopData, mutableStation);
+
         possiblePlatform.ifPresent(platform -> {
             platforms.add(platform);
             mutableStation.addPlatform(platform);
