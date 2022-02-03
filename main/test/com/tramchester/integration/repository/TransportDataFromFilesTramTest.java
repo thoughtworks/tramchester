@@ -16,6 +16,7 @@ import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.input.StopCall;
 import com.tramchester.domain.input.StopCalls;
 import com.tramchester.domain.input.Trip;
+import com.tramchester.domain.places.LocationType;
 import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
@@ -430,9 +431,17 @@ public class TransportDataFromFilesTramTest {
         assertTrue(maybePlatformOne.isPresent());
 
         Platform platformOne = maybePlatformOne.get();
-        assertEquals( Altrincham.createIdFor("1"), platformOne.getId());
+        final IdFor<Platform> expectedId = Altrincham.createIdFor("1");
+
+        assertEquals(expectedId, platformOne.getId());
         assertEquals( "1", platformOne.getPlatformNumber());
         assertEquals( "Altrincham platform 1", platformOne.getName());
+
+        // Needs naptan enabled to work
+        //assertEquals(station.getAreaId(), platformOne.getAreaId());
+
+        assertEquals(station.getDataSourceID(), platformOne.getDataSourceID());
+        assertEquals(LocationType.Platform, platformOne.getLocationType());
 
         assertEquals(DataSourceID.tfgm, station.getDataSourceID());
     }

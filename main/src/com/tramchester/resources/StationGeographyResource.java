@@ -119,7 +119,7 @@ public class StationGeographyResource implements APIResource, GraphDatabaseDepen
         logger.info("Get boundaries for " + areas.size() + " areas");
 
         List<AreaBoundaryDTO> allBoundaries = areas.stream().
-                filter(area -> stationLocations.hasStationsInArea(area.getId())).
+                filter(area -> stationLocations.hasStationsOrPlatformsIn(area.getId())).
                 filter(area -> naptanRespository.getNumRecordsFor(area.getId()) > 1).
                 map(area -> new AreaBoundaryDTO(stationLocations.getBoundaryFor(area.getId()), area))
                 .collect(Collectors.toList());

@@ -9,7 +9,6 @@ import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -20,17 +19,17 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class LocationSetTest {
 
-    private List<Station> stationList;
+    private Set<Station> stations;
     private MyLocation location;
 
     @BeforeEach
     void beforeEachTestRuns() {
-        stationList = Arrays.asList(Altrincham.fake(), Bury.fake(), Cornbrook.fake());
+        stations = new HashSet<>(Arrays.asList(Altrincham.fake(), Bury.fake(), Cornbrook.fake()));
         location = nearShudehill.location();
     }
 
     private void assertListElementsPresent(LocationSet locationSet) {
-        assertEquals(stationList.size(), locationSet.size());
+        assertEquals(stations.size(), locationSet.size());
 
         assertTrue(locationSet.contains(Altrincham.fake()));
         assertTrue(locationSet.contains(Bury.fake()));
@@ -48,7 +47,7 @@ public class LocationSetTest {
 
     @Test
     void shouldCreateFromSet() {
-        Set<Station> stations = new HashSet<>(stationList);
+        Set<Station> stations = new HashSet<>(this.stations);
 
         LocationSet locationSet = new LocationSet(stations);
 
@@ -59,7 +58,7 @@ public class LocationSetTest {
     @Test
     void shouldCollectStationsAsExpected() {
 
-        Stream<Station> stream = stationList.stream();
+        Stream<Station> stream = stations.stream();
 
         LocationSet locationSet = stream.collect(LocationSet.stationCollector());
 
@@ -91,7 +90,7 @@ public class LocationSetTest {
     @Test
     void shouldGetMixedStream() {
 
-        LocationSet locationSet = new LocationSet(new HashSet<>(stationList));
+        LocationSet locationSet = new LocationSet(stations);
 
         locationSet.add(location);
 
@@ -110,7 +109,7 @@ public class LocationSetTest {
     @Test
     void shouldGetStationOnlyStream() {
 
-        LocationSet locationSet = new LocationSet(new HashSet<>(stationList));
+        LocationSet locationSet = new LocationSet(stations);
 
         locationSet.add(location);
 

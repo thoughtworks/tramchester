@@ -2,6 +2,7 @@ package com.tramchester.integration.geo;
 
 import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
+import com.tramchester.domain.LocationSet;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.places.NaptanArea;
@@ -21,11 +22,13 @@ import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.locationtech.jts.geom.*;
+import org.locationtech.jts.geom.Geometry;
+import org.locationtech.jts.geom.GeometryFactory;
+import org.locationtech.jts.geom.Point;
+import org.locationtech.jts.geom.PrecisionModel;
 import org.opengis.metadata.citation.Citation;
 
 import java.util.List;
-import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -86,7 +89,7 @@ class BusStationsLocationsTest {
     void shouldGetStationsWithinAnArea() {
         IdFor<NaptanArea> areaId = StringIdFor.createId(SHUDEHILL_INTERCHANGE_AREA_CODE);
 
-        Set<Station> result = stationLocations.getStationsInArea(areaId);
+        LocationSet result = stationLocations.getLocationsWithin(areaId);
 
         assertEquals(9, result.size());
 

@@ -23,8 +23,8 @@ public class LocationSet {
         locations = new HashSet<>();
     }
 
-    public LocationSet(Collection<Station> stations) {
-        locations = new HashSet<>(stations);
+    public <T extends Location<T>> LocationSet(Collection<T> stations) {
+        this.locations = new HashSet<>(stations);
     }
 
     public int size() {
@@ -67,14 +67,18 @@ public class LocationSet {
         return locationSet;
     }
 
-    private static LocationSet addAll(LocationSet setA, LocationSet setB) {
+    public void addAll(LocationSet other) {
+        this.locations.addAll(other.locations);
+    }
+
+    private static LocationSet combine(LocationSet setA, LocationSet setB) {
         LocationSet result = new LocationSet();
         result.locations.addAll(setA.locations);
         result.locations.addAll(setB.locations);
         return result;
     }
 
-    public static <T extends CoreDomain> Collector<Station, LocationSet, LocationSet> stationCollector() {
+    public static Collector<Station, LocationSet, LocationSet> stationCollector() {
         return new Collector<>() {
             @Override
             public Supplier<LocationSet> supplier() {
@@ -88,7 +92,7 @@ public class LocationSet {
 
             @Override
             public BinaryOperator<LocationSet> combiner() {
-                return LocationSet::addAll;
+                return LocationSet::combine;
             }
 
             @Override
@@ -106,4 +110,5 @@ public class LocationSet {
     public boolean isEmpty() {
         return locations.isEmpty();
     }
+
 }

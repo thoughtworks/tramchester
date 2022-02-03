@@ -10,14 +10,11 @@ public interface Platform extends GraphProperty, CoreDomain, Location<Platform> 
 
     String getPlatformNumber();
 
-    //String getName();
-
     @Deprecated
     Set<Route> getRoutes();
-
-//    LatLong getLatLong();
 
     static IdFor<Platform> createId(String text) {
         return StringIdFor.createId(text);
     }
+
 }

@@ -1,6 +1,7 @@
 package com.tramchester.geo;
 
 import com.google.inject.ImplementedBy;
+import com.tramchester.domain.LocationSet;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.places.NaptanArea;
 import com.tramchester.domain.places.Station;
@@ -8,7 +9,6 @@ import com.tramchester.domain.presentation.LatLong;
 import org.locationtech.jts.geom.Geometry;
 
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Stream;
 
 @ImplementedBy(StationLocations.class)
@@ -20,11 +20,11 @@ public interface StationLocationsRepository {
 
     BoundingBox getBounds();
 
-    Set<Station> getStationsInArea(IdFor<NaptanArea> areaId);
+    LocationSet getLocationsWithin(IdFor<NaptanArea> areaId);
 
     Geometry getGeometryForArea(IdFor<NaptanArea> areaId);
 
     List<LatLong> getBoundaryFor(IdFor<NaptanArea> areaId);
 
-    boolean hasStationsInArea(IdFor<NaptanArea> areaId);
+    boolean hasStationsOrPlatformsIn(IdFor<NaptanArea> areaId);
 }

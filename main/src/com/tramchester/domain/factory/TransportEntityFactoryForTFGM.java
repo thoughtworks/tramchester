@@ -128,16 +128,6 @@ public class TransportEntityFactoryForTFGM extends TransportEntityFactory {
         return stopData.getId().startsWith(METROLINK_ID_PREFIX);
     }
 
-    private String getAreaFromNaptanData(NaptanRecord naptanStopData) {
-        String area;
-        area = naptanStopData.getSuburb();
-        String parent = naptanStopData.getTown();
-        if (!parent.isBlank()) {
-            area = area + ", " + parent;
-        }
-        return area;
-    }
-
     // TODO Consolidate handling of various TFGM mappings and monitor if still needed
     // spelt different ways within data
     private String workAroundName(String name) {

@@ -1,12 +1,14 @@
 package com.tramchester.geo;
 
 import com.netflix.governator.guice.lazy.LazySingleton;
+import com.tramchester.domain.LocationSet;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.places.Location;
 import com.tramchester.domain.places.NaptanArea;
 import com.tramchester.domain.places.NaptanRecord;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.LatLong;
+import com.tramchester.repository.PlatformRepository;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.repository.naptan.NaptanRespository;
 import org.geotools.metadata.iso.citation.CitationImpl;
@@ -32,22 +34,25 @@ public class StationLocations implements StationLocationsRepository {
     private static final int GRID_SIZE_METERS = 1000;
 
     private final StationRepository stationRepository;
+    private final PlatformRepository platformRepository;
     private final NaptanRespository naptanRespository;
     private final Set<BoundingBox> quadrants;
-    private final Map<IdFor<NaptanArea>, Set<Station>> stationsInArea;
+
+    private final Map<IdFor<NaptanArea>, LocationSet> locationsInNaptanArea;
 
     private final Map<BoundingBox, Set<Station>> stations;
     private final GeometryFactory geometryFactory;
     private BoundingBox bounds;
 
     @Inject
-    public StationLocations(StationRepository stationRepository, NaptanRespository naptanRespository) {
+    public StationLocations(StationRepository stationRepository, PlatformRepository platformRepository, NaptanRespository naptanRespository) {
         this.stationRepository = stationRepository;
+        this.platformRepository = platformRepository;
         this.naptanRespository = naptanRespository;
 
         quadrants = new HashSet<>();
         stations = new HashMap<>();
-        stationsInArea = new HashMap<>();
+        locationsInNaptanArea = new HashMap<>();
 
         // feels like there ought to be a better way of doing this.....
         Citation model = new CitationImpl("EPSG");
@@ -75,7 +80,7 @@ public class StationLocations implements StationLocationsRepository {
         stations.values().forEach(Set::clear);
         stations.clear();
         quadrants.clear();
-        stationsInArea.clear();
+        locationsInNaptanArea.clear();
         logger.info("Stopped");
     }
 
@@ -111,11 +116,28 @@ public class StationLocations implements StationLocationsRepository {
 
     private void populateAreas() {
         stationRepository.getActiveStationStream().
+                filter(location -> location.getAreaId().isValid()).
                 collect(Collectors.groupingBy(Location::getAreaId)).entrySet()
                 .stream().
                 filter(entry -> !entry.getValue().isEmpty()).
-                forEach(entry -> stationsInArea.put(entry.getKey(), new HashSet<>(entry.getValue())));
-        logger.info("Added " + stationsInArea.size() + " areas which have stations");
+                forEach(entry -> locationsInNaptanArea.put(entry.getKey(), new LocationSet(entry.getValue())));
+
+        platformRepository.getPlaformStream().
+                filter(Location::isActive).
+                collect(Collectors.groupingBy(Location::getAreaId)).entrySet()
+                .stream().
+                filter(entry -> !entry.getValue().isEmpty()).
+                forEach(entry -> updateLocations(entry.getKey(), new LocationSet(entry.getValue())));
+
+        logger.info("Added " + locationsInNaptanArea.size() + " areas which have stations");
+    }
+
+    private void updateLocations(IdFor<NaptanArea> areaId, LocationSet toAdd) {
+        if (locationsInNaptanArea.containsKey(areaId)) {
+            locationsInNaptanArea.get(areaId).addAll(toAdd);
+        } else {
+            locationsInNaptanArea.put(areaId, toAdd);
+        }
     }
 
     public BoundingBox getBounds() {
@@ -123,8 +145,8 @@ public class StationLocations implements StationLocationsRepository {
     }
 
     @Override
-    public Set<Station> getStationsInArea(IdFor<NaptanArea> areaId) {
-        return stationsInArea.get(areaId);
+    public LocationSet getLocationsWithin(IdFor<NaptanArea> areaId) {
+        return locationsInNaptanArea.get(areaId);
     }
 
     @Override
@@ -161,9 +183,9 @@ public class StationLocations implements StationLocationsRepository {
     }
 
     @Override
-    public boolean hasStationsInArea(IdFor<NaptanArea> areaId) {
-        // areas only in this colleciton if non-zero number of stations
-        return stationsInArea.containsKey(areaId);
+    public boolean hasStationsOrPlatformsIn(IdFor<NaptanArea> areaId) {
+        // map only populated if an area does contain a station or platform
+        return locationsInNaptanArea.containsKey(areaId);
     }
 
     public Set<BoundingBox> getQuadrants() {

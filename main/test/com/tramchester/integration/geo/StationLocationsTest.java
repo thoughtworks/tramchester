@@ -3,13 +3,18 @@ package com.tramchester.integration.geo;
 import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.config.TramchesterConfig;
+import com.tramchester.domain.LocationSet;
+import com.tramchester.domain.Platform;
+import com.tramchester.domain.id.IdFor;
+import com.tramchester.domain.places.NaptanArea;
 import com.tramchester.domain.places.Station;
 import com.tramchester.geo.BoundingBox;
 import com.tramchester.geo.MarginInMeters;
 import com.tramchester.geo.StationLocations;
-import com.tramchester.integration.testSupport.tram.TramWithPostcodesEnabled;
+import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfigWithNaptan;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.TestEnv;
+import com.tramchester.testSupport.reference.TramStations;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -25,10 +30,11 @@ public class StationLocationsTest {
     private static ComponentContainer componentContainer;
     private static TramchesterConfig config;
     private StationLocations locations;
+    private StationRepository stationRepository;
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
-        config = new TramWithPostcodesEnabled();
+        config = new IntegrationTramTestConfigWithNaptan();
         componentContainer = new ComponentsBuilder().create(config, TestEnv.NoopRegisterMetrics());
         componentContainer.initialise();
     }
@@ -40,6 +46,7 @@ public class StationLocationsTest {
 
     @BeforeEach
     void beforeEachTestRuns() {
+        stationRepository = componentContainer.get(StationRepository.class);
         locations = componentContainer.get(StationLocations.class);
     }
 
@@ -78,6 +85,41 @@ public class StationLocationsTest {
 
         assertFalse(locations.withinRangeOfStation(nearGreenwichLondon.grid(), margin));
         assertFalse(locations.withinRangeOfStation(nearStockportBus.grid(), margin));
+    }
+
+    @Test
+    void shouldHaveStationsInAnArea() {
+        Station station = TramStations.StPetersSquare.from(stationRepository);
+
+        IdFor<NaptanArea> areaId = station.getAreaId();
+        assertTrue(areaId.isValid());
+
+        assertTrue(locations.hasStationsOrPlatformsIn(areaId));
+
+        LocationSet found = locations.getLocationsWithin(areaId);
+        assertFalse(found.isEmpty());
+        assertTrue(found.contains(station));
+    }
+
+    @Test
+    void shouldHavePlatformsInAnArea() {
+        Station stPeters = TramStations.StPetersSquare.from(stationRepository);
+
+        Set<Platform> platforms = stPeters.getPlatforms();
+        assertEquals(4, platforms.size());
+
+        platforms.forEach(platform -> {
+            IdFor<NaptanArea> areaId = platform.getAreaId();
+            assertTrue(areaId.isValid(), "platform " + platform);
+
+            assertTrue(locations.hasStationsOrPlatformsIn(areaId), "platform " + platform);
+
+            LocationSet found = locations.getLocationsWithin(areaId);
+            assertFalse(found.isEmpty(), "platform " + platform);
+            assertTrue(found.contains(platform), "platform " + platform + " not in " + found);
+
+        });
+
     }
 
     @Test

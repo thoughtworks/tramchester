@@ -356,6 +356,11 @@ public class TransportDataContainer implements TransportData, WriteableTransport
     }
 
     @Override
+    public Stream<Platform> getPlaformStream() {
+        return platforms.getValuesStream();
+    }
+
+    @Override
     public Set<Service> getServicesOnDate(LocalDate date) {
         return services.filterStream(item -> item.getCalendar().operatesOn(date)).
                 collect(Collectors.toSet());
