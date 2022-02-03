@@ -163,6 +163,7 @@ public class GraphDatabase implements DatabaseEventListener {
 
     public boolean isAvailable(long timeoutMillis) {
         if (databaseService == null) {
+            logger.error("Checking for DB available when not started, this is will likely be a bug");
             return false;
         }
         return databaseService.isAvailable(timeoutMillis);

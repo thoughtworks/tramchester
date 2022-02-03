@@ -128,6 +128,11 @@ public class MyLocation implements Location<MyLocation> {
     }
 
     @Override
+    public boolean isMarkedInterchange() {
+        return false;
+    }
+
+    @Override
     public GraphLabel getNodeLabel() {
         return GraphLabel.QUERY_NODE;
     }

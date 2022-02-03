@@ -34,23 +34,27 @@ function getColourFor(station) {
     }
 }
 
-function addStationToMap(station, stationLayerGroup, displayed) {
-    if (displayed.includes(station.id)) {
-        return;
-    }
-
+function addStationToMap(station, stationLayerGroup, isInterchange) {
     const lat = station.latLong.lat;
     const lon = station.latLong.lon;
-    var marker;
     const colour = getColourFor(station);
-    if (station.isInterchange) {
+
+    var marker;
+    if (isInterchange) {
         // todo really want a different kind of marker here
         marker = new L.circleMarker(L.latLng(lat, lon), { title: station.name, radius: 3, color: colour });
     } else {
         marker = new L.circleMarker(L.latLng(lat, lon), { title: station.name, radius: 1, color: colour });
     }
-    marker.bindTooltip(station.name + "<br> '" + station.id + "' (" + station.transportModes + ")");
-    displayed.push(station.id);
+    var stationText = station.name + "<br> '" + station.id + "' (" + station.transportModes + ")";
+    if (isInterchange) {
+        stationText = stationText + "<br>interchange"
+    }
+    if (station.isMarkedInterchange) {
+        stationText = stationText + "<br>marked interchange at source"
+    }
+    marker.bindTooltip(stationText);
+
     stationLayerGroup.addLayer(marker);
 }
 
@@ -68,6 +72,7 @@ var mapApp = new Vue({
             feedinfo: [],
             areas: [],
             stations: [],
+            interchanges: [], // list of station id's
             bounds: null
         }
     },
@@ -75,12 +80,12 @@ var mapApp = new Vue({
         networkErrorOccured() {
             app.networkError = true;
         },
-        addStations: function(map, stations) {
-            var displayed = [];
+        addStations: function(map, stations, interchanges) {
 
             var stationLayerGroup = L.layerGroup();
             stations.forEach(station => {
-                addStationToMap(station, stationLayerGroup, displayed);
+                const isInterchange = interchanges.includes(station.id);
+                addStationToMap(station, stationLayerGroup, isInterchange);
             })
             stationLayerGroup.addTo(map);
         },
@@ -93,7 +98,7 @@ var mapApp = new Vue({
                 var points = [];
                 boundary.forEach(latLong => points.push([latLong.lat, latLong.lon]));
                 var polygon = L.polygon(points, { stroke: true, weight: 1, fill: true,  fillOpacity: 0.5, color: "purple"});
-                polygon.bindTooltip("area " + areaId + " " + area.areaName);
+                polygon.bindTooltip("area " + areaId + "<br> " + area.areaName + "<br>" + area.type);
                 areaLayerGroup.addLayer(polygon);
             })
 
@@ -143,7 +148,6 @@ var mapApp = new Vue({
                 steps.push([link.end.latLong.lat, link.end.latLong.lon]);
                 var line = L.polyline(steps); // hurts performance .arrowheads({ size: '5px', frequency: 'endonly' });
                 line.bindTooltip("Link between " + link.begin.name + " and " + link.end.name);
-                //var colour = getColourFor(mode);
                 line.setStyle({color: "yellow", opacity: 0.6});
                 linkLayerGroup.addLayer(line);
             });
@@ -171,7 +175,7 @@ var mapApp = new Vue({
             mapApp.addQuadrants(map, mapApp.quadrants);
             mapApp.addAreas(map, mapApp.areas);
             mapApp.addLinks(map, mapApp.neighbours);
-            mapApp.addStations(map, mapApp.stations);
+            mapApp.addStations(map, mapApp.stations, mapApp.interchanges);
         }
     },
     mounted () {
@@ -191,14 +195,16 @@ var mapApp = new Vue({
             axios.get("/api/geo/quadrants"),
             axios.get("/api/geo/bounds"),
             axios.get("/api/geo/areas"),
-            axios.get("/api/stations/all")
-        ]).then(axios.spread((neighboursResp, quadResp, boundsResp, areasResp, stationsResp) => {
+            axios.get("/api/stations/all"),
+            axios.get("/api/interchanges/all")
+        ]).then(axios.spread((neighboursResp, quadResp, boundsResp, areasResp, stationsResp, interchangeResp) => {
                 mapApp.networkError = false;
                 mapApp.neighbours = neighboursResp.data;
                 mapApp.quadrants = quadResp.data;
                 mapApp.bounds = boundsResp.data;
                 mapApp.areas = areasResp.data;
                 mapApp.stations = stationsResp.data;
+                mapApp.interchanges = interchangeResp.data;
                 mapApp.draw();
             })).catch(error => {
                 mapApp.networkError = true;

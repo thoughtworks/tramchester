@@ -37,7 +37,7 @@ import java.util.stream.Collectors;
 @Api
 @Path("/geo")
 @Produces(MediaType.APPLICATION_JSON)
-public class StationGeographyResource implements APIResource, JourneyPlanningMarker {
+public class StationGeographyResource implements APIResource, GraphDatabaseDependencyMarker {
     private static final Logger logger = LoggerFactory.getLogger(StationGeographyResource.class);
 
     private final FindStationLinks findStationLinks;
@@ -63,7 +63,7 @@ public class StationGeographyResource implements APIResource, JourneyPlanningMar
 
     @GET
     @Timed
-    @Path("/all")
+    @Path("/links")
     @ApiOperation(value = "Get pairs of station links for given transport mode", response = StationLinkDTO.class, responseContainer = "List")
     @CacheControl(maxAge = 1, maxAgeUnit = TimeUnit.DAYS)
     public Response getAll() {
@@ -121,7 +121,7 @@ public class StationGeographyResource implements APIResource, JourneyPlanningMar
         List<AreaBoundaryDTO> allBoundaries = areas.stream().
                 filter(area -> stationLocations.hasStationsInArea(area.getId())).
                 filter(area -> naptanRespository.getNumRecordsFor(area.getId()) > 1).
-                map(area -> new AreaBoundaryDTO(stationLocations.getBoundaryFor(area.getId()), area.getId(), area.getName()))
+                map(area -> new AreaBoundaryDTO(stationLocations.getBoundaryFor(area.getId()), area))
                 .collect(Collectors.toList());
 
         logger.info("Found " + allBoundaries.size() + " areas with boundaries");

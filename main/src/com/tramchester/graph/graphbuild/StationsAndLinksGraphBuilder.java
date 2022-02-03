@@ -60,6 +60,11 @@ public class StationsAndLinksGraphBuilder extends GraphBuilder {
 
     @PostConstruct
     public void start() {
+        if (!graphDatabase.isAvailable(1000)) {
+            final String message = "Graph database is not available (if this is test: check ResourceTramTestConfig and for JourneyPlanningMarker)";
+            logger.error(message);
+            throw new RuntimeException(message);
+        }
         logger.info("start");
         logger.info("Data source name " + transportData.getSourceName());
         if (graphDatabase.isCleanDB()) {

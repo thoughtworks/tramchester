@@ -2,14 +2,14 @@ package com.tramchester.integration.testSupport.rail;
 
 
 import com.tramchester.resources.APIResource;
-import com.tramchester.resources.JourneyPlanningMarker;
+import com.tramchester.resources.GraphDatabaseDependencyMarker;
 
 public class ResourceRailTestConfig<T extends APIResource>  extends IntegrationRailTestConfig {
     private final boolean planningEnabled;
 
     public ResourceRailTestConfig(Class<T> resourceClass) {
         super();
-        planningEnabled =  JourneyPlanningMarker.class.isAssignableFrom(resourceClass);
+        planningEnabled =  GraphDatabaseDependencyMarker.class.isAssignableFrom(resourceClass);
     }
 
     @Override

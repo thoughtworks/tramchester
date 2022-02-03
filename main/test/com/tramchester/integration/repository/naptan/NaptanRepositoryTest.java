@@ -2,6 +2,7 @@ package com.tramchester.integration.repository.naptan;
 
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.GuiceContainerDependencies;
+import com.tramchester.domain.Platform;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.id.StringIdFor;
@@ -13,13 +14,11 @@ import com.tramchester.integration.testSupport.rail.RailStationIds;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfigWithNaptan;
 import com.tramchester.repository.naptan.NaptanRespository;
+import com.tramchester.repository.naptan.NaptanStopType;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.BusStations;
 import com.tramchester.testSupport.reference.TramStations;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 
 import java.util.List;
 
@@ -121,6 +120,34 @@ class NaptanRepositoryTest {
     @Test
     void shouldNotContainAreaOutOfBounds() {
         assertFalse(respository.containsArea(StringIdFor.createId("910GEUSTON")));
+    }
+
+    @Disabled("WIP")
+    @Test
+    void shouldHaveExpectedStructureForMultiplatformTram() {
+
+        IdFor<Station> stationId = TramStations.StPetersSquare.getId();
+
+        assertTrue(respository.containsActo(stationId));
+        NaptanRecord stationRecord = respository.getForActo(stationId);
+
+        assertEquals(NaptanStopType.tramMetroUndergroundAccess, stationRecord.getStopType());
+
+        IdSet<NaptanArea> stationAreaCodes = stationRecord.getAreaCodes();
+
+        IdFor<Platform> platformId = StringIdFor.createId("9400ZZMASTP1");
+
+//        assertTrue(respository.containsActo(platformId));
+//        NaptanRecord platform1Record = respository.getForActo(platformId);
+//
+//        assertEquals(NaptanStopType.tramMetroUndergroundPlatform, platform1Record.getStopType());
+//        assertEquals("Platform 1", platform1Record.getName());
+//
+//        IdSet<NaptanArea> platformAreaCodes = platform1Record.getAreaCodes();
+//
+//        IdSet<NaptanArea> overlaps = stationAreaCodes.intersection(platformAreaCodes);
+//        assertFalse(overlaps.isEmpty());
+
     }
 
     @Test

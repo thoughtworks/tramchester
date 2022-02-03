@@ -49,8 +49,6 @@ public interface Station extends Location<Station> {
 
     boolean servesMode(TransportMode mode);
 
-    boolean isMarkedInterchange();
-
     int getMinimumChangeCost();
 
     static IdFor<Station> createId(String text) {

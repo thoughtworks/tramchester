@@ -6,18 +6,21 @@ import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.geo.GridPosition;
 import com.tramchester.geo.HasGridPosition;
+import com.tramchester.repository.naptan.NaptanStopAreaType;
 
 public class NaptanArea implements HasGridPosition, HasId<NaptanArea>, CoreDomain {
     private final IdFor<NaptanArea> id;
     private final String name;
     private final GridPosition gridPosition;
     private final boolean active;
+    private final NaptanStopAreaType type;
 
-    public NaptanArea(IdFor<NaptanArea> id, String name, GridPosition gridPosition, boolean active) {
+    public NaptanArea(IdFor<NaptanArea> id, String name, GridPosition gridPosition, boolean active, NaptanStopAreaType type) {
         this.id = id;
         this.name = name;
         this.gridPosition = gridPosition;
         this.active = active;
+        this.type = type;
     }
 
     public static IdFor<NaptanArea> createId(String text) {
@@ -45,10 +48,15 @@ public class NaptanArea implements HasGridPosition, HasId<NaptanArea>, CoreDomai
                 ", name='" + name + '\'' +
                 ", gridPosition=" + gridPosition +
                 ", active=" + active +
+                ", type=" + type +
                 '}';
     }
 
     public boolean isActive() {
         return active;
+    }
+
+    public NaptanStopAreaType getType() {
+        return type;
     }
 }

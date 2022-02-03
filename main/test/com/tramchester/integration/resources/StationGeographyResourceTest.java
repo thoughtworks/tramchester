@@ -55,7 +55,7 @@ class StationGeographyResourceTest {
 
     @Test
     void shouldGetStationLinks() {
-        String endPoint = "geo/all";
+        String endPoint = "geo/links";
 
         Response response = APIClient.getApiResponse(appExtension, endPoint);
         assertEquals(200, response.getStatus(), "status");

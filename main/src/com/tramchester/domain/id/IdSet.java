@@ -1,9 +1,9 @@
 package com.tramchester.domain.id;
 
 
-import com.google.common.collect.Sets;
 import com.tramchester.domain.CoreDomain;
 import com.tramchester.domain.places.NaptanArea;
+import org.apache.commons.collections4.SetUtils;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
@@ -122,7 +122,7 @@ public class IdSet<T extends CoreDomain> implements Iterable<IdFor<T>> {
 
             @Override
             public Set<Characteristics> characteristics() {
-                return Sets.immutableEnumSet(Characteristics.UNORDERED);
+                return SetUtils.unmodifiableSet(Characteristics.UNORDERED);
             }
         };
     }
@@ -151,7 +151,7 @@ public class IdSet<T extends CoreDomain> implements Iterable<IdFor<T>> {
 
             @Override
             public Set<Characteristics> characteristics() {
-                return Sets.immutableEnumSet(Characteristics.UNORDERED);
+                return SetUtils.unmodifiableSet(Characteristics.UNORDERED);
             }
         };
     }
@@ -199,4 +199,8 @@ public class IdSet<T extends CoreDomain> implements Iterable<IdFor<T>> {
         return new ArrayList<>(theSet);
     }
 
+    public IdSet<T> intersection(IdSet<T> other) {
+        return new IdSet<>(SetUtils.intersection(this.theSet, other.theSet));
+        //return new IdSet<>(Sets.intersection(this.theSet, other.theSet));
+    }
 }

@@ -86,11 +86,6 @@ public class MutablePlatform implements Platform {
     }
 
     @Override
-    public boolean servesRoute(Route route) {
-        return servesRoutes.contains(route);
-    }
-
-    @Override
     public LatLong getLatLong() {
         return latLong;
     }

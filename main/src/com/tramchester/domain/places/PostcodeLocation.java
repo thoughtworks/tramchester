@@ -124,6 +124,11 @@ public class PostcodeLocation implements Location<PostcodeLocation>, HasCaseInse
     }
 
     @Override
+    public boolean isMarkedInterchange() {
+        return false;
+    }
+
+    @Override
     public GraphLabel getNodeLabel() {
         throw new RuntimeException("Not implemented for postcode");
     }

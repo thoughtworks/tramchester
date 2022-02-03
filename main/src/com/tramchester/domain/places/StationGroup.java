@@ -91,6 +91,11 @@ public class StationGroup implements Location<StationGroup> {
     }
 
     @Override
+    public boolean isMarkedInterchange() {
+        return anyMatch(Station::isMarkedInterchange);
+    }
+
+    @Override
     public GridPosition getGridPosition() {
         return CoordinateTransforms.getGridPosition(latLong);
     }

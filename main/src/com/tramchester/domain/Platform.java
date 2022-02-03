@@ -15,8 +15,6 @@ public interface Platform extends HasId<Platform>, GraphProperty, CoreDomain {
 
     Set<Route> getRoutes();
 
-    boolean servesRoute(Route route);
-
     LatLong getLatLong();
 
     static IdFor<Platform> createId(String text) {

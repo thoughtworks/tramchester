@@ -18,6 +18,7 @@ public class LocationDTO {
     private LocationType locationType;
     private List<PlatformDTO> platforms;
     private List<RouteRefDTO> routes;
+    private boolean markedInterchange;
 
     public LocationDTO(Location<?> source, List<PlatformDTO> platforms, List<RouteRefDTO> routes) {
         this.id = source.getId().forDTO();
@@ -27,6 +28,7 @@ public class LocationDTO {
         this.locationType = source.getLocationType();
         this.platforms = platforms;
         this.routes = routes;
+        this.markedInterchange = source.isMarkedInterchange();
     }
 
     public LocationDTO() {
@@ -70,9 +72,10 @@ public class LocationDTO {
 
     public LocationType getLocationType() { return locationType; }
 
-    public boolean getIsInterchange() {
-        return false;
+    public boolean getIsMarkedInterchange() {
+        return markedInterchange;
     }
+
 
     @Override
     public boolean equals(Object o) {
@@ -95,10 +98,11 @@ public class LocationDTO {
                 "id='" + id + '\'' +
                 ", name='" + name + '\'' +
                 ", latLong=" + latLong +
-                ", platforms=" + platforms +
-                ", routes=" + routes +
                 ", transportModes=" + transportModes +
                 ", locationType=" + locationType +
+                ", platforms=" + platforms +
+                ", routes=" + routes +
+                ", markedInterchange=" + markedInterchange +
                 '}';
     }
 }

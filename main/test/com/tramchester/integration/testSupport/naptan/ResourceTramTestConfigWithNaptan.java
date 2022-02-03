@@ -3,13 +3,13 @@ package com.tramchester.integration.testSupport.naptan;
 
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfigWithNaptan;
 import com.tramchester.resources.APIResource;
-import com.tramchester.resources.JourneyPlanningMarker;
+import com.tramchester.resources.GraphDatabaseDependencyMarker;
 
 public class ResourceTramTestConfigWithNaptan<T extends APIResource>  extends IntegrationTramTestConfigWithNaptan {
     private final boolean planningEnabled;
 
     public ResourceTramTestConfigWithNaptan(Class<T> resourceClass) {
-        planningEnabled =  JourneyPlanningMarker.class.isAssignableFrom(resourceClass);
+        planningEnabled =  GraphDatabaseDependencyMarker.class.isAssignableFrom(resourceClass);
     }
 
     @Override

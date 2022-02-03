@@ -32,10 +32,14 @@ public interface Location<TYPE extends Location<?>> extends HasId<TYPE>, IdForDT
 
     boolean hasDropoff();
 
+    // can be used as a part of a journey, see also closed stations which are temporary changes
     boolean isActive();
 
     Set<Route> getDropoffRoutes();
 
     Set<Route> getPickupRoutes();
+
+    // marked as an interchange in the source data
+    boolean isMarkedInterchange();
 
 }

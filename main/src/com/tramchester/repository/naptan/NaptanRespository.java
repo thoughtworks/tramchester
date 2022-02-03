@@ -12,6 +12,7 @@ import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdMap;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.id.StringIdFor;
+import com.tramchester.domain.places.Location;
 import com.tramchester.domain.places.NaptanArea;
 import com.tramchester.domain.places.NaptanRecord;
 import com.tramchester.domain.places.Station;
@@ -108,7 +109,7 @@ public class NaptanRespository {
         if (areaData.getStatus().isEmpty()) {
             logger.warn("No status set for " + areaData.getStopAreaCode());
         }
-        return new NaptanArea(id, areaData.getName(), areaData.getGridPosition(), areaData.isActive());
+        return new NaptanArea(id, areaData.getName(), areaData.getGridPosition(), areaData.isActive(), areaData.getAreaType());
     }
 
     private void loadStopsData(BoundingBox bounds, MarginInMeters margin) {
@@ -181,17 +182,18 @@ public class NaptanRespository {
                 filter(item -> bounds.within(margin, item.getGridPosition()));
     }
 
-    public boolean containsActo(IdFor<Station> actoCode) {
-        IdFor<NaptanRecord> id = convertId(actoCode);
+    public <T extends Location<?>>  boolean containsActo(IdFor<T> locationId) {
+        IdFor<NaptanRecord> id = convertId(locationId);
         return stops.hasId(id);
     }
+
 
     public NaptanRecord getForActo(IdFor<Station> actoCode) {
         IdFor<NaptanRecord> id = convertId(actoCode);
         return stops.get(id);
     }
 
-    private IdFor<NaptanRecord> convertId(IdFor<Station> actoCode) {
+    private <T extends Location<?>> IdFor<NaptanRecord> convertId(IdFor<T> actoCode) {
         return StringIdFor.convert(actoCode);
     }
 
@@ -256,4 +258,5 @@ public class NaptanRespository {
     public Set<NaptanArea> getAreas() {
         return new HashSet<>(areas.getValues());
     }
+
 }

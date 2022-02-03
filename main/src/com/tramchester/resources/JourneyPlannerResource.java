@@ -40,7 +40,7 @@ import static java.lang.String.format;
 @Api
 @Path("/journey")
 @Produces(MediaType.APPLICATION_JSON)
-public class JourneyPlannerResource extends UsesRecentCookie implements APIResource, JourneyPlanningMarker {
+public class JourneyPlannerResource extends UsesRecentCookie implements APIResource, GraphDatabaseDependencyMarker {
     private static final Logger logger = LoggerFactory.getLogger(JourneyPlannerResource.class);
 
     private final LocationJourneyPlanner locToLocPlanner;

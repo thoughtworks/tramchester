@@ -17,7 +17,7 @@ import com.tramchester.metrics.RegistersMetricsWithDropwizard;
 import com.tramchester.livedata.repository.DueTramsRepository;
 import com.tramchester.repository.PlatformMessageRepository;
 import com.tramchester.repository.VersionRepository;
-import com.tramchester.resources.JourneyPlanningMarker;
+import com.tramchester.resources.GraphDatabaseDependencyMarker;
 import io.dropwizard.Application;
 import io.dropwizard.assets.AssetsBundle;
 import io.dropwizard.configuration.EnvironmentVariableSubstitutor;
@@ -195,7 +195,7 @@ public class App extends Application<AppConfiguration>  {
             if (planningEnabled) {
                 register = true;
             } else {
-                boolean forPlanning = JourneyPlanningMarker.class.isAssignableFrom(apiResourceType);
+                boolean forPlanning = GraphDatabaseDependencyMarker.class.isAssignableFrom(apiResourceType);
                 register = !forPlanning;
             }
 

@@ -19,7 +19,7 @@ public class InterchangeStation {
         NumberOfLinks,
         CompositeLinks,
         NeighbourLinks,
-        Multimode,
+        Multimodal,
         FromConfig
     }
 

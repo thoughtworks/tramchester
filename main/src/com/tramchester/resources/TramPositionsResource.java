@@ -27,7 +27,7 @@ import java.util.stream.Collectors;
 @Api
 @Path("/positions")
 @Produces(MediaType.APPLICATION_JSON)
-public class TramPositionsResource implements APIResource, JourneyPlanningMarker {
+public class TramPositionsResource implements APIResource, GraphDatabaseDependencyMarker {
     private static final Logger logger = LoggerFactory.getLogger(TramPositionsResource.class);
 
     private final TramPositionInference positionInference;

@@ -38,7 +38,7 @@ import static java.lang.String.format;
 @Api
 @Path("/grid")
 @Produces(MediaType.APPLICATION_JSON)
-public class JourneysForGridResource implements APIResource, JourneyPlanningMarker {
+public class JourneysForGridResource implements APIResource, GraphDatabaseDependencyMarker {
     private static final Logger logger = LoggerFactory.getLogger(JourneysForGridResource.class);
 
     private final StationRepository repository;
