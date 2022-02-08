@@ -109,8 +109,8 @@ public class RailRouteCostsTest {
 
     @Test
     void shouldGetApproxCostBetweenManPicadillyAndLondonEuston() {
-        assertEquals(125, routeCostCalculator.getAverageCostBetween(txn, manPicc, londonEuston, date));
-        assertEquals(126, routeCostCalculator.getMaxCostBetween(txn, manPicc, londonEuston, date));
+        assertEquals(124, routeCostCalculator.getAverageCostBetween(txn, manPicc, londonEuston, date));
+        assertEquals(124, routeCostCalculator.getMaxCostBetween(txn, manPicc, londonEuston, date));
     }
 
     @Test
@@ -118,7 +118,7 @@ public class RailRouteCostsTest {
         Station altrincham = Altrincham.getFrom(stationRepository);
 
         assertEquals(135, routeCostCalculator.getAverageCostBetween(txn, altrincham, londonEuston, date));
-        assertEquals(136, routeCostCalculator.getMaxCostBetween(txn, altrincham, londonEuston, date));
+        assertEquals(135, routeCostCalculator.getMaxCostBetween(txn, altrincham, londonEuston, date));
 
     }
 

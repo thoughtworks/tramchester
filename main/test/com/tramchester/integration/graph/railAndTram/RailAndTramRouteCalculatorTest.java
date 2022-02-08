@@ -52,7 +52,6 @@ public class RailAndTramRouteCalculatorTest {
 
     private TramTime travelTime;
 
-
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
         TramchesterConfig testConfig = new TramAndTrainGreaterManchesterConfig();
@@ -123,6 +122,7 @@ public class RailAndTramRouteCalculatorTest {
         atLeastOneDirect(request, tram(TramStations.Altrincham), tram(TramStations.StPetersSquare), Tram);
     }
 
+    @Disabled("WIP")
     @Test
     void shouldBuryToStockportViaTramAndTrain() {
         JourneyRequest request = new JourneyRequest(new TramServiceDate(when), travelTime, false, 0,
