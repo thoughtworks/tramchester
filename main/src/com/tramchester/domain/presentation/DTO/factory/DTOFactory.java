@@ -43,7 +43,7 @@ public class DTOFactory {
     public StationLinkDTO createStationLinkDTO(StationLink stationLink) {
         LocationRefWithPosition begin = createLocationRefWithPosition(stationLink.getBegin());
         LocationRefWithPosition end = createLocationRefWithPosition(stationLink.getEnd());
-        return new StationLinkDTO(begin, end, stationLink.getLinkingModes());
+        return new StationLinkDTO(begin, end, stationLink.getLinkingModes(), stationLink.getDistanceInMeters());
     }
 
 

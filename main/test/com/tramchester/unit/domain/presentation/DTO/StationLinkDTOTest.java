@@ -34,7 +34,8 @@ class StationLinkDTOTest extends EasyMockSupport {
 
         Set<TransportMode> modes = new HashSet<>(Arrays.asList(TransportMode.Bus, TransportMode.Tram));
 
-        StationLink stationLink = new StationLink(altrincham, stPeters, modes);
+        double distance = 42.5768D;
+        StationLink stationLink = new StationLink(altrincham, stPeters, modes, distance);
 
         replayAll();
         StationLinkDTO dto = stationDTOFactory.createStationLinkDTO(stationLink);
@@ -47,6 +48,8 @@ class StationLinkDTOTest extends EasyMockSupport {
 
         assertTrue( dto.getTransportModes().contains(TransportMode.Bus));
         assertTrue( dto.getTransportModes().contains(TransportMode.Tram));
+
+        assertEquals(distance, dto.getDistanceInMeters());
 
     }
 }

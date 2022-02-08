@@ -76,6 +76,6 @@ public class LatLong {
 
     @JsonIgnore
     public Coordinate getCoordinate() {
-        return new Coordinate(lat, lon);
+        return new Coordinate(lon, lat);
     }
 }

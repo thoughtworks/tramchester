@@ -117,9 +117,7 @@ public class StationLocationsTest {
             LocationSet found = locations.getLocationsWithin(areaId);
             assertFalse(found.isEmpty(), "platform " + platform);
             assertTrue(found.contains(platform), "platform " + platform + " not in " + found);
-
         });
-
     }
 
     @Test
@@ -131,6 +129,16 @@ public class StationLocationsTest {
         assertEquals(394169, box.getMaxEasting());
         assertEquals(413431, box.getMaxNorthings());
 
+    }
+
+    @Test
+    void shouldGetDistanceBetweenLocations() {
+        Station stPeters = TramStations.StPetersSquare.from(stationRepository);
+        Station piccGardens = TramStations.PiccadillyGardens.from(stationRepository);
+
+        double distance = locations.getDistanceBetweenInMeters(stPeters, piccGardens);
+
+        assertEquals(460.8524D, distance, 0.0001);
     }
 
 }

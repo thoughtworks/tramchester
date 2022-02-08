@@ -8,11 +8,14 @@ public class StationLinkDTO {
     private LocationRefWithPosition begin;
     private LocationRefWithPosition end;
     private Set<TransportMode> transportModes;
+    private Double distanceInMeters;
 
-    public StationLinkDTO(LocationRefWithPosition begin, LocationRefWithPosition end, Set<TransportMode> transportModes) {
+    public StationLinkDTO(LocationRefWithPosition begin, LocationRefWithPosition end, Set<TransportMode> transportModes,
+                          Double distanceInMeters) {
         this.begin = begin;
         this.end = end;
         this.transportModes = transportModes;
+        this.distanceInMeters = distanceInMeters;
     }
 
     public StationLinkDTO() {
@@ -29,6 +32,10 @@ public class StationLinkDTO {
 
     public Set<TransportMode> getTransportModes() {
         return transportModes;
+    }
+
+    public Double getDistanceInMeters() {
+        return distanceInMeters;
     }
 
     @Override

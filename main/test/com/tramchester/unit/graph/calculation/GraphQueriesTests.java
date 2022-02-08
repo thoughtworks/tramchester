@@ -7,12 +7,14 @@ import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
+import com.tramchester.geo.StationLocationsRepository;
 import com.tramchester.graph.FindRouteEndPoints;
 import com.tramchester.graph.search.FindStationLinks;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.repository.TransportData;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.TramTransportDataForTestFactory;
+import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -33,6 +35,7 @@ class GraphQueriesTests {
     private static SimpleGraphConfig config;
     private TramTransportDataForTestFactory.TramTransportDataForTest transportData;
     private StationRepository stationRepository;
+    private StationLocationsRepository stationLocations;
 
     @BeforeAll
     static void onceBeforeAllTestRuns() throws IOException {
@@ -54,6 +57,7 @@ class GraphQueriesTests {
 
     @BeforeEach
     void beforeEachTestRuns() {
+        stationLocations = componentContainer.get(StationLocationsRepository.class);
         stationRepository = componentContainer.get(StationRepository.class);
         transportData = (TramTransportDataForTestFactory.TramTransportDataForTest) componentContainer.get(TransportData.class);
     }
@@ -67,13 +71,18 @@ class GraphQueriesTests {
         assertEquals(6, links.size());
 
         Set<TransportMode> modes = Collections.singleton(Tram);
-        assertTrue(links.contains(new StationLink(transportData.getFirst(), transportData.getSecond(), modes)));
-        assertTrue(links.contains(new StationLink(transportData.getSecond(), transportData.getInterchange(), modes)));
-        assertTrue(links.contains(new StationLink(transportData.getInterchange(), transportData.getFourthStation(), modes)));
-        assertTrue(links.contains(new StationLink(transportData.getInterchange(), transportData.getFifthStation(), modes)));
-        assertTrue(links.contains(new StationLink(transportData.getInterchange(), transportData.getLast(), modes)));
-        assertTrue(links.contains(new StationLink(transportData.getFirstDupName(), transportData.getFirstDup2Name(), modes)));
+        assertTrue(links.contains(createStationLink(modes, transportData.getFirst(), transportData.getSecond())));
+        assertTrue(links.contains(createStationLink(modes, transportData.getSecond(), transportData.getInterchange())));
+        assertTrue(links.contains(createStationLink(modes, transportData.getInterchange(), transportData.getFourthStation())));
+        assertTrue(links.contains(createStationLink(modes, transportData.getInterchange(), transportData.getFifthStation())));
+        assertTrue(links.contains(createStationLink(modes, transportData.getInterchange(), transportData.getLast())));
+        assertTrue(links.contains(createStationLink(modes, transportData.getFirstDupName(), transportData.getFirstDup2Name())));
 
+    }
+
+    @NotNull
+    private StationLink createStationLink(Set<TransportMode> modes, Station first, Station second) {
+        return new StationLink(first, second, modes, stationLocations.getDistanceBetweenInMeters(first, second));
     }
 
     @Test

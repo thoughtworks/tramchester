@@ -3,6 +3,7 @@ package com.tramchester.geo;
 import com.google.inject.ImplementedBy;
 import com.tramchester.domain.LocationSet;
 import com.tramchester.domain.id.IdFor;
+import com.tramchester.domain.places.Location;
 import com.tramchester.domain.places.NaptanArea;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.LatLong;
@@ -27,4 +28,6 @@ public interface StationLocationsRepository {
     List<LatLong> getBoundaryFor(IdFor<NaptanArea> areaId);
 
     boolean hasStationsOrPlatformsIn(IdFor<NaptanArea> areaId);
+
+    double getDistanceBetweenInMeters(Location<?> placeA, Location<?> placeB);
 }

@@ -3,10 +3,13 @@ package com.tramchester.geo;
 import com.tramchester.domain.places.Location;
 import com.tramchester.domain.presentation.LatLong;
 import org.geotools.geometry.GeneralDirectPosition;
+import org.geotools.metadata.iso.citation.CitationImpl;
 import org.geotools.referencing.ReferencingFactoryFinder;
+import org.geotools.referencing.crs.DefaultGeographicCRS;
 import org.geotools.referencing.operation.DefaultCoordinateOperationFactory;
 import org.jetbrains.annotations.NotNull;
 import org.opengis.geometry.DirectPosition;
+import org.opengis.metadata.citation.Citation;
 import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.crs.CRSAuthorityFactory;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
@@ -21,16 +24,25 @@ public class CoordinateTransforms {
     private static final double EARTH_RADIUS = 3958.75;
     private static final CoordinateOperation gridToLatLong;
     private static final CoordinateOperation latLongToGrid;
+    private static final String latLongCode;
+
+    public static final String AUTHORITY = "EPSG";
 
     static {
         logger = LoggerFactory.getLogger(CoordinateTransforms.class);
-        CRSAuthorityFactory authorityFactory = ReferencingFactoryFinder.getCRSAuthorityFactory("EPSG", null);
+
+        CRSAuthorityFactory authorityFactory = ReferencingFactoryFinder.getCRSAuthorityFactory(AUTHORITY, null);
+        Citation citation = new CitationImpl(AUTHORITY);
+
+        latLongCode = DefaultGeographicCRS.WGS84.getIdentifier(citation).getCode();
 
         try {
             CoordinateReferenceSystem nationalGridRefSys = authorityFactory.createCoordinateReferenceSystem("27700");
-            CoordinateReferenceSystem latLongRef = authorityFactory.createCoordinateReferenceSystem("4326");
+            CoordinateReferenceSystem latLongRef = authorityFactory.createCoordinateReferenceSystem(latLongCode);
+
             latLongToGrid = new DefaultCoordinateOperationFactory().createOperation(latLongRef, nationalGridRefSys);
             gridToLatLong = new DefaultCoordinateOperationFactory().createOperation(nationalGridRefSys, latLongRef);
+
         } catch (FactoryException e) {
             String msg = "Unable to init geotools factory or transform";
             logger.error(msg, e);
@@ -50,6 +62,7 @@ public class CoordinateTransforms {
         }
 
         try {
+            // note the lat(y) lon(x) ordering here
             DirectPosition directPositionLatLong = new GeneralDirectPosition(position.getLat(), position.getLon());
             DirectPosition directPositionGrid = latLongToGrid.getMathTransform().transform(directPositionLatLong, null);
 
@@ -83,6 +96,7 @@ public class CoordinateTransforms {
         }
     }
 
+    @Deprecated
     private static double distanceInMiles(LatLong point1, LatLong point2) {
         double lat1 = point1.getLat();
         double lat2 = point2.getLat();
@@ -118,4 +132,7 @@ public class CoordinateTransforms {
         return (int)Math.ceil(hours * 60D);
     }
 
+    public static String getLatLongCode() {
+        return latLongCode;
+    }
 }

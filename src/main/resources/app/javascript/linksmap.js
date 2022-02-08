@@ -93,7 +93,6 @@ var mapApp = new Vue({
             app.networkError = true;
         },
         addStations: function(map, stations, interchanges) {
-
             var stationLayerGroup = L.layerGroup();
             stations.forEach(station => {
                 const isInterchange = interchanges.includes(station.id);
@@ -159,7 +158,7 @@ var mapApp = new Vue({
                 steps.push([link.begin.latLong.lat, link.begin.latLong.lon]);
                 steps.push([link.end.latLong.lat, link.end.latLong.lon]);
                 var line = L.polyline(steps); // hurts performance .arrowheads({ size: '5px', frequency: 'endonly' });
-                line.bindTooltip("Link between " + link.begin.name + " and " + link.end.name);
+                line.bindTooltip("Link between " + link.begin.name + " and " + link.end.name + "<br> " + link.distanceInMeters + "m");
                 line.setStyle({color: "yellow", opacity: 0.6});
                 linkLayerGroup.addLayer(line);
             });

@@ -3,8 +3,11 @@ package com.tramchester.integration.graph;
 import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.domain.StationLink;
+import com.tramchester.domain.reference.TransportMode;
+import com.tramchester.geo.StationLocationsRepository;
 import com.tramchester.graph.search.FindStationLinks;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
+import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.TramStations;
 import org.junit.jupiter.api.AfterAll;
@@ -23,6 +26,8 @@ class FindStationLinksTest {
 
     private static ComponentContainer componentContainer;
     private FindStationLinks findStationLinks;
+    private StationLocationsRepository stationLocations;
+    private StationRepository stationRepository;
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
@@ -38,6 +43,8 @@ class FindStationLinksTest {
 
     @BeforeEach
     void beforeEachOfTheTestsRun() {
+        stationLocations = componentContainer.get(StationLocationsRepository.class);
+        stationRepository = componentContainer.get(StationRepository.class);
         findStationLinks = componentContainer.get(FindStationLinks.class);
     }
 
@@ -71,8 +78,9 @@ class FindStationLinksTest {
     }
 
     private StationLink createLink(TramStations stationA, TramStations stationB) {
-        return new StationLink(stationA.fake(), stationB.fake(),
-                Collections.singleton(Tram));
+        final Set<TransportMode> singleton = Collections.singleton(Tram);
+        return StationLink.create(stationA.from(stationRepository), stationB.from(stationRepository),
+                singleton, stationLocations);
     }
 
 }

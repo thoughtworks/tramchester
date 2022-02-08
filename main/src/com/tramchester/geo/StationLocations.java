@@ -11,11 +11,10 @@ import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.repository.PlatformRepository;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.repository.naptan.NaptanRespository;
-import org.geotools.metadata.iso.citation.CitationImpl;
+import org.geotools.referencing.GeodeticCalculator;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
 import org.jetbrains.annotations.NotNull;
 import org.locationtech.jts.geom.*;
-import org.opengis.metadata.citation.Citation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -41,7 +40,7 @@ public class StationLocations implements StationLocationsRepository {
     private final Map<IdFor<NaptanArea>, LocationSet> locationsInNaptanArea;
 
     private final Map<BoundingBox, Set<Station>> stations;
-    private final GeometryFactory geometryFactory;
+    private final GeometryFactory geometryFactoryLatLong;
     private BoundingBox bounds;
 
     @Inject
@@ -54,11 +53,8 @@ public class StationLocations implements StationLocationsRepository {
         stations = new HashMap<>();
         locationsInNaptanArea = new HashMap<>();
 
-        // feels like there ought to be a better way of doing this.....
-        Citation model = new CitationImpl("EPSG");
-        int srid = Integer.parseInt(DefaultGeographicCRS.WGS84.getIdentifier(model).getCode());
-
-        geometryFactory = new GeometryFactory(new PrecisionModel(PrecisionModel.FLOATING), srid);
+        int srid = Integer.parseInt(CoordinateTransforms.getLatLongCode());
+        geometryFactoryLatLong = new GeometryFactory(new PrecisionModel(PrecisionModel.FLOATING), srid);
     }
 
     @PostConstruct
@@ -149,6 +145,11 @@ public class StationLocations implements StationLocationsRepository {
         return locationsInNaptanArea.get(areaId);
     }
 
+    /***
+     * Uses Latitude/Longitude and EPSG
+     * @param areaId the area id
+     * @return A convex hull representing the points within the given area, with the coordinates in lat/long format
+     */
     @Override
     public Geometry getGeometryForArea(IdFor<NaptanArea> areaId) {
 
@@ -164,7 +165,7 @@ public class StationLocations implements StationLocationsRepository {
 
         Coordinate[] asArray = points.toArray(new Coordinate[]{});
 
-        MultiPoint multiPoint = geometryFactory.createMultiPointFromCoords(asArray);
+        MultiPoint multiPoint = geometryFactoryLatLong.createMultiPointFromCoords(asArray);
 
         return multiPoint.convexHull();
     }
@@ -186,6 +187,20 @@ public class StationLocations implements StationLocationsRepository {
     public boolean hasStationsOrPlatformsIn(IdFor<NaptanArea> areaId) {
         // map only populated if an area does contain a station or platform
         return locationsInNaptanArea.containsKey(areaId);
+    }
+
+    @Override
+    public double getDistanceBetweenInMeters(Location<?> placeA, Location<?> placeB) {
+        Point pointA = geometryFactoryLatLong.createPoint(placeA.getLatLong().getCoordinate());
+        Point pointB = geometryFactoryLatLong.createPoint(placeB.getLatLong().getCoordinate());
+
+        GeodeticCalculator geodeticCalculator = new GeodeticCalculator(DefaultGeographicCRS.WGS84);
+
+        geodeticCalculator.setStartingGeographicPoint(pointA.getX(), pointA.getY());
+        geodeticCalculator.setDestinationGeographicPoint(pointB.getX(), pointB.getY());
+
+        // todo quantity here?
+        return geodeticCalculator.getOrthodromicDistance();
     }
 
     public Set<BoundingBox> getQuadrants() {

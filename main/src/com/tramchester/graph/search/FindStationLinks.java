@@ -4,6 +4,7 @@ import com.tramchester.domain.StationLink;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
+import com.tramchester.geo.StationLocations;
 import com.tramchester.graph.FindStationsByNumberLinks;
 import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.GraphPropertyKey;
@@ -32,12 +33,14 @@ public class FindStationLinks {
 
     private final GraphDatabase graphDatabase;
     private final StationRepository stationRepository;
+    private final StationLocations stationLocations;
 
     @Inject
     public FindStationLinks(GraphDatabase graphDatabase, StationsAndLinksGraphBuilder.Ready readyToken,
-                            StationRepository stationRepository) {
+                            StationRepository stationRepository, StationLocations stationLocations) {
         this.graphDatabase = graphDatabase;
         this.stationRepository = stationRepository;
+        this.stationLocations = stationLocations;
     }
 
     // supports visualisation of the transport network
@@ -85,7 +88,7 @@ public class FindStationLinks {
 
         Set<TransportMode> modes = GraphProps.getTransportModes(relationship);
 
-        return new StationLink(start, end, modes);
+        return StationLink.create(start, end, modes, stationLocations);
     }
 
 }

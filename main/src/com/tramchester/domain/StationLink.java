@@ -2,16 +2,23 @@ package com.tramchester.domain;
 
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
+import com.tramchester.geo.StationLocationsRepository;
 
 import java.util.Set;
 
 public class StationLink {
     private final StationPair pair;
     private final Set<TransportMode> modes;
+    private final double distanceBetweenInMeters;
 
-    public StationLink(Station begin, Station end, Set<TransportMode> modes) {
+    public StationLink(Station begin, Station end, Set<TransportMode> modes, double distanceBetweenInMeters) {
+        this.distanceBetweenInMeters = distanceBetweenInMeters;
         this.pair = StationPair.of(begin, end);
         this.modes = modes;
+    }
+
+    public static StationLink create(Station begin, Station end, Set<TransportMode> modes, StationLocationsRepository stationLocations) {
+        return new StationLink(begin, end, modes, stationLocations.getDistanceBetweenInMeters(begin, end));
     }
 
     public Station getBegin() {
@@ -27,6 +34,7 @@ public class StationLink {
         return "StationLink{" +
                 "pair=" + pair +
                 ", modes=" + modes +
+                ", distanceBetweenInMeters=" + distanceBetweenInMeters +
                 '}';
     }
 
@@ -61,4 +69,7 @@ public class StationLink {
         return pair.getBegin().getLatLong().isValid() && pair.getEnd().getLatLong().isValid();
     }
 
+    public Double getDistanceInMeters() {
+        return distanceBetweenInMeters;
+    }
 }

@@ -126,8 +126,9 @@ class StationGeographyResourceTest {
     }
 
     private StationLinkDTO createLink(TramStations begin, TramStations end) {
+        Double distance = 42D; // not used in the equality for the DTO
         return new StationLinkDTO(DTOFactory.createLocationRefWithPosition(begin.fake()),
                 DTOFactory.createLocationRefWithPosition(end.fake()),
-                Collections.singleton(Tram));
+                Collections.singleton(Tram), distance);
     }
 }

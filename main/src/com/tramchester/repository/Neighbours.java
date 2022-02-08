@@ -96,7 +96,7 @@ public class Neighbours implements NeighboursRepository {
                 Set<StationLink> links = stationLocations.nearestStationsUnsorted(begin, marginInMeters).
                     filter(nearby -> !nearby.equals(begin)).
                     filter(nearby -> DIFF_MODES_ONLY && noOverlapModes(beginModes, nearby.getTransportModes())).
-                    map(nearby -> new StationLink(begin, nearby, walk)).
+                    map(nearby -> StationLink.create(begin, nearby, walk, stationLocations)).
                     collect(Collectors.toUnmodifiableSet());
                 neighbours.put(begin.getId(), links);
             });
