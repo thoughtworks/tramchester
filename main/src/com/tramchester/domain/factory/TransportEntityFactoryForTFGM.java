@@ -91,7 +91,7 @@ public class TransportEntityFactoryForTFGM extends TransportEntityFactory {
 
         if (naptanRespository.isEnabled()) {
             NaptanRecord naptanData = naptanRespository.getForActo(platformId);
-            
+
             areaId = chooseArea(naptanRespository, naptanData.getAreaCodes());
             gridPosition = naptanData.getGridPosition();
             latLong = naptanData.getLatLong();

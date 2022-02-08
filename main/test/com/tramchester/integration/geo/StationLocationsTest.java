@@ -126,10 +126,10 @@ public class StationLocationsTest {
     void shouldGetBoundsForTrams() {
         BoundingBox box = locations.getBounds();
 
-        assertEquals(376982, box.getMinEastings());
-        assertEquals(385428, box.getMinNorthings());
-        assertEquals(394163, box.getMaxEasting());
-        assertEquals(413433, box.getMaxNorthings());
+        assertEquals(376979, box.getMinEastings());
+        assertEquals(385427, box.getMinNorthings());
+        assertEquals(394169, box.getMaxEasting());
+        assertEquals(413431, box.getMaxNorthings());
 
     }
 
