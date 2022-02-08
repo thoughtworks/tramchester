@@ -86,9 +86,9 @@ public class NaptanRespository {
 
         MarginInMeters margin = MarginInMeters.of(range);
 
-        loadStopsData(bounds, margin);
-        loadStationData(bounds, margin);
         loadAreaData(bounds, margin);
+        loadStopsData(bounds, margin);
+        loadRailStationData(bounds, margin);
     }
 
     private void loadAreaData(BoundingBox bounds, MarginInMeters margin) {
@@ -127,7 +127,7 @@ public class NaptanRespository {
         logger.info("Loaded " + stops.size() + " stops");
     }
 
-    private void loadStationData(BoundingBox bounds, MarginInMeters margin) {
+    private void loadRailStationData(BoundingBox bounds, MarginInMeters margin) {
         logger.info("Load rail station reference data from natpan stops");
 
         // TODO do this in a way that avoids streaming the stops data twice
@@ -137,7 +137,8 @@ public class NaptanRespository {
                 filter(stopData -> stopData.getAtcoCode().isValid());
 
         tiplocToAtco = filterBy(bounds, margin, railStops)
-                .collect(Collectors.toMap(data -> StringIdFor.createId(data.getRailInfo().getTiploc()), NaptanStopData::getAtcoCode));
+                .collect(Collectors.toMap(data ->
+                        StringIdFor.createId(data.getRailInfo().getTiploc()), NaptanStopData::getAtcoCode));
         logger.info("Loaded " + tiplocToAtco.size() + " stations");
     }
 
@@ -162,17 +163,29 @@ public class NaptanRespository {
 
         final List<NaptanXMLStopAreaRef> stopAreaRefs = original.stopAreasRefs();
 
-        List<String> stopAreaIds = stopAreaRefs.stream().
-                filter(NaptanXMLStopAreaRef::isActive).
+        List<String> areaIds = stopAreaRefs.stream().
+                filter(NaptanXMLStopAreaRef::isActive). // filter out if marked in-active for *this* stop
+                filter(this::checkIfActive). // filter out if area is marked in-active
                 map(NaptanXMLStopAreaRef::getId).
                 collect(Collectors.toList());
 
-        if (stopAreaIds.size()>1) {
+        if (areaIds.size()>1) {
             logger.warn("Multiple stop area refs active for " + id);
         }
 
         return new NaptanRecord(id, original.getCommonName(), original.getGridPosition(), original.getLatLong(),
-                suburb, town, original.getStopType(), stopAreaIds);
+                suburb, town, original.getStopType(), areaIds);
+    }
+
+    private boolean checkIfActive(NaptanXMLStopAreaRef area) {
+        IdFor<NaptanArea> areaId = StringIdFor.createId(area.getId());
+        if (areas.hasId(areaId)) {
+            return areas.get(areaId).isActive();
+        } else {
+            // this seems to happen a lot, perhaps area ids are generated automatically?
+            //logger.warn(format("Area %s is not present in areas, but is referenced by a stop", area.getId()));
+            return false;
+        }
     }
 
 

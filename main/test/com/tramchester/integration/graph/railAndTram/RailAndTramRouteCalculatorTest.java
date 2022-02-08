@@ -122,11 +122,10 @@ public class RailAndTramRouteCalculatorTest {
         atLeastOneDirect(request, tram(TramStations.Altrincham), tram(TramStations.StPetersSquare), Tram);
     }
 
-    @Disabled("WIP")
     @Test
     void shouldBuryToStockportViaTramAndTrain() {
-        JourneyRequest request = new JourneyRequest(new TramServiceDate(when), travelTime, false, 0,
-                30, 1);
+        JourneyRequest request = new JourneyRequest(new TramServiceDate(when), travelTime, false, 2,
+                110, 1);
 
         Set<Journey> journeys = testFacade.calculateRouteAsSet(tram(TramStations.Bury), rail(Stockport), request);
         assertFalse(journeys.isEmpty());

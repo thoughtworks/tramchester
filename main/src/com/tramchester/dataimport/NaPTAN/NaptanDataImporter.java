@@ -54,14 +54,16 @@ public class NaptanDataImporter {
     }
 
     public Stream<NaptanStopData> getStopsData() {
-        if (theImporter ==null) {
+        if (theImporter == null) {
+            logger.warn("Disabled, but getStopsData() called");
             return Stream.empty();
         }
         return theImporter.loadData(NaptanStopData.class);
     }
 
     public Stream<NaptanStopAreaData> getAreasData() {
-        if (theImporter ==null) {
+        if (theImporter == null) {
+            logger.warn("Disabled, but getAreasData() called");
             return Stream.empty();
         }
         return theImporter.loadData(NaptanStopAreaData.class);
