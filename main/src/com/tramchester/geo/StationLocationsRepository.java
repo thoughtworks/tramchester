@@ -9,6 +9,8 @@ import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.LatLong;
 import org.locationtech.jts.geom.Geometry;
 
+import javax.measure.Quantity;
+import javax.measure.quantity.Length;
 import java.util.List;
 import java.util.stream.Stream;
 
@@ -29,5 +31,5 @@ public interface StationLocationsRepository {
 
     boolean hasStationsOrPlatformsIn(IdFor<NaptanArea> areaId);
 
-    double getDistanceBetweenInMeters(Location<?> placeA, Location<?> placeB);
+    Quantity<Length> getDistanceBetweenInMeters(Location<?> placeA, Location<?> placeB);
 }

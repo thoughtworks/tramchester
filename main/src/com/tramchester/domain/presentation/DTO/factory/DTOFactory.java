@@ -11,6 +11,7 @@ import com.tramchester.domain.presentation.DTO.LocationRefDTO;
 import com.tramchester.domain.presentation.DTO.LocationRefWithPosition;
 import com.tramchester.domain.presentation.Note;
 import com.tramchester.domain.presentation.StationNote;
+import tec.units.ri.unit.Units;
 
 import javax.inject.Inject;
 import java.util.List;
@@ -43,7 +44,8 @@ public class DTOFactory {
     public StationLinkDTO createStationLinkDTO(StationLink stationLink) {
         LocationRefWithPosition begin = createLocationRefWithPosition(stationLink.getBegin());
         LocationRefWithPosition end = createLocationRefWithPosition(stationLink.getEnd());
-        return new StationLinkDTO(begin, end, stationLink.getLinkingModes(), stationLink.getDistanceInMeters());
+        Double distanceInMeters = stationLink.getDistanceInMeters().to(Units.METRE).getValue().doubleValue();
+        return new StationLinkDTO(begin, end, stationLink.getLinkingModes(), distanceInMeters);
     }
 
 

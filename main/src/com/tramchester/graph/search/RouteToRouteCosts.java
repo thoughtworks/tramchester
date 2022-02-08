@@ -9,9 +9,9 @@ import com.tramchester.domain.NumberOfChanges;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.id.IdFor;
-import com.tramchester.domain.id.IdSet;
-import com.tramchester.domain.id.StringIdFor;
-import com.tramchester.domain.places.*;
+import com.tramchester.domain.places.InterchangeStation;
+import com.tramchester.domain.places.Location;
+import com.tramchester.domain.places.StationGroup;
 import com.tramchester.graph.filters.GraphFilterActive;
 import com.tramchester.repository.InterchangeRepository;
 import com.tramchester.repository.NeighboursRepository;
@@ -219,7 +219,7 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
             logger.warn(format("destination stations %s have no drop-off routes",  HasId.asIds(destinations)));
             return new NumberOfChanges(Integer.MAX_VALUE, Integer.MAX_VALUE);
         }
-        if (areNeighbours(starts, destinations)) {
+        if (neighboursRepository.areNeighbours(starts, destinations)) {
             return new NumberOfChanges(0, maxHops(pickupRoutesFor(starts), dropoffRoutesFor(destinations)));
         }
         return getNumberOfHops(pickupRoutesFor(starts), dropoffRoutesFor(destinations));
@@ -227,7 +227,7 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
 
     @Override
     public NumberOfChanges getNumberOfChanges(Location<?> startStation, Location<?> destination) {
-        if (areNeighbours(startStation, destination)) {
+        if (neighboursRepository.areNeighbours(startStation, destination)) {
             return new NumberOfChanges(1, 1);
         }
         if (startStation.getPickupRoutes().isEmpty()) {
@@ -247,27 +247,6 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
         Set<Route> destinationRoutes = destinations.stream().
                 map(Location::getDropoffRoutes).flatMap(Collection::stream).collect(Collectors.toUnmodifiableSet());
         return new LowestCostForDestinations(this, destinationRoutes);
-    }
-
-    private boolean areNeighbours(Location<?> start, Location<?> destination) {
-        if (start.getLocationType()==LocationType.Station && destination.getLocationType()==LocationType.Station) {
-            IdFor<Station> stationId = StringIdFor.convert(start.getId());
-            IdFor<Station> destinationId = StringIdFor.convert(destination.getId());
-            if (!neighboursRepository.hasNeighbours(stationId)) {
-                return false;
-            }
-            IdSet<Station> neighbours = neighboursRepository.getNeighboursFor(stationId).stream().collect(IdSet.collector());
-            return neighbours.contains(destinationId);
-        }
-        return false;
-    }
-
-    private boolean areNeighbours(LocationSet starts, LocationSet destinations) {
-        return starts.stationsOnlyStream().
-                map(Location::getId).
-                filter(neighboursRepository::hasNeighbours).
-                map(neighboursRepository::getNeighboursFor).
-                anyMatch(neighbours -> destinations.stationsOnlyStream().anyMatch(neighbours::contains));
     }
 
     @NotNull

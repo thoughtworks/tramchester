@@ -7,7 +7,6 @@ import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
-import com.tramchester.geo.StationLocationsRepository;
 import com.tramchester.graph.FindRouteEndPoints;
 import com.tramchester.graph.search.FindStationLinks;
 import com.tramchester.repository.StationRepository;
@@ -19,7 +18,11 @@ import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import tec.units.ri.quantity.Quantities;
+import tec.units.ri.unit.Units;
 
+import javax.measure.Quantity;
+import javax.measure.quantity.Length;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collections;
@@ -35,7 +38,6 @@ class GraphQueriesTests {
     private static SimpleGraphConfig config;
     private TramTransportDataForTestFactory.TramTransportDataForTest transportData;
     private StationRepository stationRepository;
-    private StationLocationsRepository stationLocations;
 
     @BeforeAll
     static void onceBeforeAllTestRuns() throws IOException {
@@ -57,7 +59,6 @@ class GraphQueriesTests {
 
     @BeforeEach
     void beforeEachTestRuns() {
-        stationLocations = componentContainer.get(StationLocationsRepository.class);
         stationRepository = componentContainer.get(StationRepository.class);
         transportData = (TramTransportDataForTestFactory.TramTransportDataForTest) componentContainer.get(TransportData.class);
     }
@@ -82,7 +83,10 @@ class GraphQueriesTests {
 
     @NotNull
     private StationLink createStationLink(Set<TransportMode> modes, Station first, Station second) {
-        return new StationLink(first, second, modes, stationLocations.getDistanceBetweenInMeters(first, second));
+        // distance and time not used in equality
+        Quantity<Length> distance = Quantities.getQuantity(11.1111D, Units.METRE);
+        int walkingTimeMins = 42;
+        return new StationLink(first, second, modes, distance, walkingTimeMins);
     }
 
     @Test

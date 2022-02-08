@@ -20,6 +20,8 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import javax.measure.Quantity;
+import javax.measure.quantity.Length;
 import java.util.Set;
 
 import static com.tramchester.testSupport.reference.KnownLocations.*;
@@ -136,9 +138,10 @@ public class StationLocationsTest {
         Station stPeters = TramStations.StPetersSquare.from(stationRepository);
         Station piccGardens = TramStations.PiccadillyGardens.from(stationRepository);
 
-        double distance = locations.getDistanceBetweenInMeters(stPeters, piccGardens);
+        Quantity<Length> distance = locations.getDistanceBetweenInMeters(stPeters, piccGardens);
 
-        assertEquals(460.8524D, distance, 0.0001);
+        assertEquals(TestEnv.MetersBetweenStPeterSqAndPiccGardens.getValue().doubleValue(),
+                distance.getValue().doubleValue(), 0.0001);
     }
 
 }

@@ -3,22 +3,29 @@ package com.tramchester.domain;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.geo.StationLocationsRepository;
+import com.tramchester.mappers.Geography;
 
+import javax.measure.Quantity;
+import javax.measure.quantity.Length;
 import java.util.Set;
 
 public class StationLink {
     private final StationPair pair;
     private final Set<TransportMode> modes;
-    private final double distanceBetweenInMeters;
+    private final Quantity<Length> distanceBetweenInMeters;
+    private final int walkingTimeMins;
 
-    public StationLink(Station begin, Station end, Set<TransportMode> modes, double distanceBetweenInMeters) {
+    public StationLink(Station begin, Station end, Set<TransportMode> modes, Quantity<Length> distanceBetweenInMeters, int walkingTimeMins) {
         this.distanceBetweenInMeters = distanceBetweenInMeters;
+        this.walkingTimeMins = walkingTimeMins;
         this.pair = StationPair.of(begin, end);
         this.modes = modes;
     }
 
-    public static StationLink create(Station begin, Station end, Set<TransportMode> modes, StationLocationsRepository stationLocations) {
-        return new StationLink(begin, end, modes, stationLocations.getDistanceBetweenInMeters(begin, end));
+    public static StationLink create(Station begin, Station end, Set<TransportMode> modes,
+                                     StationLocationsRepository stationLocations, Geography geography) {
+        Quantity<Length> distance = stationLocations.getDistanceBetweenInMeters(begin, end);
+        return new StationLink(begin, end, modes, distance, geography.getWalkingTimeInMinutes(distance));
     }
 
     public Station getBegin() {
@@ -69,7 +76,11 @@ public class StationLink {
         return pair.getBegin().getLatLong().isValid() && pair.getEnd().getLatLong().isValid();
     }
 
-    public Double getDistanceInMeters() {
+    public Quantity<Length> getDistanceInMeters() {
         return distanceBetweenInMeters;
+    }
+
+    public int getWalkingTimeMins() {
+        return walkingTimeMins;
     }
 }

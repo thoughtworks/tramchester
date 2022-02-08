@@ -2,8 +2,8 @@ package com.tramchester.graph;
 
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.config.TramchesterConfig;
+import com.tramchester.domain.StationLink;
 import com.tramchester.domain.places.Station;
-import com.tramchester.geo.CoordinateTransforms;
 import com.tramchester.graph.databaseManagement.GraphDatabaseMetaInfo;
 import com.tramchester.graph.filters.GraphFilter;
 import com.tramchester.graph.graphbuild.CreateNodesAndRelationships;
@@ -93,8 +93,8 @@ public class AddNeighboursGraphBuilder extends CreateNodesAndRelationships {
                     filter(filter::shouldInclude).
                     filter(station -> neighboursRepository.hasNeighbours(station.getId())).
                     forEach(station -> {
-                        Set<Station> neighbours = neighboursRepository.getNeighboursFor(station.getId());
-                        addNeighbourRelationships(txn, filter, station, neighbours);
+                        Set<StationLink> links = neighboursRepository.getNeighbourLinksFor(station.getId());
+                        addNeighbourRelationships(txn, filter, station, links);
                 });
             timedTransaction.commit();
         }
@@ -103,7 +103,6 @@ public class AddNeighboursGraphBuilder extends CreateNodesAndRelationships {
     private boolean hasDBFlag() {
         boolean flag;
         try (Transaction txn = graphDatabase.beginTx()) {
-//            flag = graphQuery.hasAnyNodesWithLabel(txn, GraphLabel.NEIGHBOURS_ENABLED);
             flag = databaseMetaInfo.isNeighboursEnabled(txn);
         }
         return flag;
@@ -116,7 +115,7 @@ public class AddNeighboursGraphBuilder extends CreateNodesAndRelationships {
         }
     }
 
-    private void addNeighbourRelationships(Transaction txn, GraphFilter filter, Station from, Set<Station> others) {
+    private void addNeighbourRelationships(Transaction txn, GraphFilter filter, Station from, Set<StationLink> links) {
         Node fromNode = graphQuery.getStationNode(txn, from);
         if (fromNode==null) {
             String msg = "Could not find database node for from: " + from.getId();
@@ -124,22 +123,26 @@ public class AddNeighboursGraphBuilder extends CreateNodesAndRelationships {
             throw new RuntimeException(msg);
         }
 
-        double mph = config.getWalkingMPH();
+        //double mph = config.getWalkingMPH();
         logger.debug("Adding neighbour relations from " + from.getId());
-        others.stream().filter(filter::shouldInclude).forEach(to -> {
 
-            Node toNode = graphQuery.getStationNode(txn, to);
-            if (toNode==null) {
-                String msg = "Could not find database node for to: " + to.getId();
-                logger.error(msg);
-                throw new RuntimeException(msg);
-            }
+        links.stream().
+                filter(link -> filter.shouldInclude(link.getBegin())).
+        //others.stream().filter(filter::shouldInclude)
+                forEach(link -> {
 
-            int walkingCost = CoordinateTransforms.calcCostInMinutes(from, to, mph);
-            if (!addNeighbourRelationship(fromNode, toNode, walkingCost)) {
-                logger.warn(format("Already neighbour link from %s to %s", from.getId(), to.getId()));
-            }
-        });
+                Node toNode = graphQuery.getStationNode(txn, link.getEnd());
+                if (toNode==null) {
+                    String msg = "Could not find database node for to: " + link.getEnd().getId();
+                    logger.error(msg);
+                    throw new RuntimeException(msg);
+                }
+
+                int walkingCost = link.getWalkingTimeMins();
+                if (!addNeighbourRelationship(fromNode, toNode, walkingCost)) {
+                    logger.warn(format("Already neighbour link between %s", link));
+                }
+            });
     }
 
     public class Ready {

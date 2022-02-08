@@ -2,12 +2,18 @@ package com.tramchester.repository;
 
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.config.TramchesterConfig;
+import com.tramchester.domain.LocationSet;
 import com.tramchester.domain.StationLink;
 import com.tramchester.domain.id.IdFor;
+import com.tramchester.domain.id.IdSet;
+import com.tramchester.domain.id.StringIdFor;
+import com.tramchester.domain.places.Location;
+import com.tramchester.domain.places.LocationType;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.geo.MarginInMeters;
 import com.tramchester.geo.StationLocationsRepository;
+import com.tramchester.mappers.Geography;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,14 +37,18 @@ public class Neighbours implements NeighboursRepository {
     private final StationRepository stationRepository;
     private final StationLocationsRepository stationLocations;
     private final MarginInMeters marginInMeters;
+    private final Geography geography;
+
 
     private final Map<IdFor<Station>, Set<StationLink>> neighbours;
     private final boolean enabled;
 
     @Inject
-    public Neighbours(StationRepository stationRepository, StationLocationsRepository stationLocations, TramchesterConfig config) {
+    public Neighbours(StationRepository stationRepository, StationLocationsRepository stationLocations, TramchesterConfig config, Geography geography) {
         this.stationRepository = stationRepository;
         this.stationLocations = stationLocations;
+        this.geography = geography;
+
         this.marginInMeters = MarginInMeters.of(config.getDistanceToNeighboursKM());
         enabled = config.getCreateNeighbours();
         neighbours = new HashMap<>();
@@ -73,8 +83,36 @@ public class Neighbours implements NeighboursRepository {
     }
 
     @Override
+    public Set<StationLink> getNeighbourLinksFor(IdFor<Station> id) {
+        return neighbours.get(id);
+    }
+
+    @Override
     public boolean hasNeighbours(IdFor<Station> id) {
         return neighbours.containsKey(id);
+    }
+
+    @Override
+    public boolean areNeighbours(Location<?> start, Location<?> destination) {
+        if (start.getLocationType()== LocationType.Station && destination.getLocationType()==LocationType.Station) {
+            IdFor<Station> stationId = StringIdFor.convert(start.getId());
+            IdFor<Station> destinationId = StringIdFor.convert(destination.getId());
+            if (!hasNeighbours(stationId)) {
+                return false;
+            }
+            IdSet<Station> neighbours = getNeighboursFor(stationId).stream().collect(IdSet.collector());
+            return neighbours.contains(destinationId);
+        }
+        return false;
+    }
+
+    @Override
+    public boolean areNeighbours(LocationSet starts, LocationSet destinations) {
+        return starts.stationsOnlyStream().
+                map(Location::getId).
+                filter(this::hasNeighbours).
+                map(this::getNeighboursFor).
+                anyMatch(neighbours -> destinations.stationsOnlyStream().anyMatch(neighbours::contains));
     }
 
     @Override
@@ -96,7 +134,7 @@ public class Neighbours implements NeighboursRepository {
                 Set<StationLink> links = stationLocations.nearestStationsUnsorted(begin, marginInMeters).
                     filter(nearby -> !nearby.equals(begin)).
                     filter(nearby -> DIFF_MODES_ONLY && noOverlapModes(beginModes, nearby.getTransportModes())).
-                    map(nearby -> StationLink.create(begin, nearby, walk, stationLocations)).
+                    map(nearby -> StationLink.create(begin, nearby, walk, stationLocations, geography)).
                     collect(Collectors.toUnmodifiableSet());
                 neighbours.put(begin.getId(), links);
             });

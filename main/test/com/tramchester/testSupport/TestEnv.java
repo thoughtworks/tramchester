@@ -24,7 +24,10 @@ import com.tramchester.testSupport.reference.KnownTramRoute;
 import com.tramchester.testSupport.reference.TramStations;
 import org.apache.commons.io.FileUtils;
 import org.slf4j.LoggerFactory;
+import tec.units.ri.quantity.Quantities;
 
+import javax.measure.Quantity;
+import javax.measure.quantity.Length;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -39,6 +42,7 @@ import static com.tramchester.domain.id.StringIdFor.createId;
 import static java.lang.String.format;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static tec.units.ri.unit.Units.METRE;
 
 public class TestEnv {
     public static final Path CACHE_DIR = Path.of("testData","cache");
@@ -73,6 +77,8 @@ public class TestEnv {
 
     public final static HashSet<GTFSTransportationType> tramAndBus =
             new HashSet<>(Arrays.asList(GTFSTransportationType.tram, GTFSTransportationType.bus));
+
+    public static Quantity<Length> MetersBetweenStPeterSqAndPiccGardens = Quantities.getQuantity(460.8524D, METRE);
 
 
     public static AppConfiguration GET() {

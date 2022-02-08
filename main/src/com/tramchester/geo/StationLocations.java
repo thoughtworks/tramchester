@@ -17,10 +17,14 @@ import org.jetbrains.annotations.NotNull;
 import org.locationtech.jts.geom.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import tec.units.ri.quantity.Quantities;
+import tec.units.ri.unit.Units;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.inject.Inject;
+import javax.measure.Quantity;
+import javax.measure.quantity.Length;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.LongStream;
@@ -190,7 +194,7 @@ public class StationLocations implements StationLocationsRepository {
     }
 
     @Override
-    public double getDistanceBetweenInMeters(Location<?> placeA, Location<?> placeB) {
+    public Quantity<Length> getDistanceBetweenInMeters(Location<?> placeA, Location<?> placeB) {
         Point pointA = geometryFactoryLatLong.createPoint(placeA.getLatLong().getCoordinate());
         Point pointB = geometryFactoryLatLong.createPoint(placeB.getLatLong().getCoordinate());
 
@@ -199,8 +203,7 @@ public class StationLocations implements StationLocationsRepository {
         geodeticCalculator.setStartingGeographicPoint(pointA.getX(), pointA.getY());
         geodeticCalculator.setDestinationGeographicPoint(pointB.getX(), pointB.getY());
 
-        // todo quantity here?
-        return geodeticCalculator.getOrthodromicDistance();
+        return Quantities.getQuantity(geodeticCalculator.getOrthodromicDistance(), Units.METRE);
     }
 
     public Set<BoundingBox> getQuadrants() {

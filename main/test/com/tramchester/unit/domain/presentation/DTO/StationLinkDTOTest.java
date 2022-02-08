@@ -8,7 +8,11 @@ import com.tramchester.domain.reference.TransportMode;
 import org.easymock.EasyMockSupport;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import tec.units.ri.quantity.Quantities;
+import tec.units.ri.unit.Units;
 
+import javax.measure.Quantity;
+import javax.measure.quantity.Length;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
@@ -34,8 +38,8 @@ class StationLinkDTOTest extends EasyMockSupport {
 
         Set<TransportMode> modes = new HashSet<>(Arrays.asList(TransportMode.Bus, TransportMode.Tram));
 
-        double distance = 42.5768D;
-        StationLink stationLink = new StationLink(altrincham, stPeters, modes, distance);
+        Quantity<Length> distance = Quantities.getQuantity(42.5768D, Units.METRE);
+        StationLink stationLink = new StationLink(altrincham, stPeters, modes, distance, 124);
 
         replayAll();
         StationLinkDTO dto = stationDTOFactory.createStationLinkDTO(stationLink);
@@ -49,7 +53,7 @@ class StationLinkDTOTest extends EasyMockSupport {
         assertTrue( dto.getTransportModes().contains(TransportMode.Bus));
         assertTrue( dto.getTransportModes().contains(TransportMode.Tram));
 
-        assertEquals(distance, dto.getDistanceInMeters());
+        assertEquals(distance.getValue().doubleValue(), dto.getDistanceInMeters());
 
     }
 }

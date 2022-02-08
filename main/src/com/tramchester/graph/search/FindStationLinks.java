@@ -11,6 +11,7 @@ import com.tramchester.graph.GraphPropertyKey;
 import com.tramchester.graph.graphbuild.GraphLabel;
 import com.tramchester.graph.graphbuild.GraphProps;
 import com.tramchester.graph.graphbuild.StationsAndLinksGraphBuilder;
+import com.tramchester.mappers.Geography;
 import com.tramchester.metrics.TimedTransaction;
 import com.tramchester.repository.StationRepository;
 import org.neo4j.graphdb.Node;
@@ -34,13 +35,15 @@ public class FindStationLinks {
     private final GraphDatabase graphDatabase;
     private final StationRepository stationRepository;
     private final StationLocations stationLocations;
+    private final Geography geography;
 
     @Inject
     public FindStationLinks(GraphDatabase graphDatabase, StationsAndLinksGraphBuilder.Ready readyToken,
-                            StationRepository stationRepository, StationLocations stationLocations) {
+                            StationRepository stationRepository, StationLocations stationLocations, Geography geography) {
         this.graphDatabase = graphDatabase;
         this.stationRepository = stationRepository;
         this.stationLocations = stationLocations;
+        this.geography = geography;
     }
 
     // supports visualisation of the transport network
@@ -88,7 +91,7 @@ public class FindStationLinks {
 
         Set<TransportMode> modes = GraphProps.getTransportModes(relationship);
 
-        return StationLink.create(start, end, modes, stationLocations);
+        return StationLink.create(start, end, modes, stationLocations, geography);
     }
 
 }

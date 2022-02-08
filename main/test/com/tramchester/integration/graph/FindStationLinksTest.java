@@ -7,6 +7,7 @@ import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.geo.StationLocationsRepository;
 import com.tramchester.graph.search.FindStationLinks;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
+import com.tramchester.mappers.Geography;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.TramStations;
@@ -28,6 +29,7 @@ class FindStationLinksTest {
     private FindStationLinks findStationLinks;
     private StationLocationsRepository stationLocations;
     private StationRepository stationRepository;
+    private Geography geography;
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
@@ -46,6 +48,7 @@ class FindStationLinksTest {
         stationLocations = componentContainer.get(StationLocationsRepository.class);
         stationRepository = componentContainer.get(StationRepository.class);
         findStationLinks = componentContainer.get(FindStationLinks.class);
+        geography = componentContainer.get(Geography.class);
     }
 
     @Test
@@ -80,7 +83,7 @@ class FindStationLinksTest {
     private StationLink createLink(TramStations stationA, TramStations stationB) {
         final Set<TransportMode> singleton = Collections.singleton(Tram);
         return StationLink.create(stationA.from(stationRepository), stationB.from(stationRepository),
-                singleton, stationLocations);
+                singleton, stationLocations, geography);
     }
 
 }
