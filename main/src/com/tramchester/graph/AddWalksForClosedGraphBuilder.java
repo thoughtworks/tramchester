@@ -6,7 +6,6 @@ import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.StationClosure;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.places.Station;
-import com.tramchester.geo.CoordinateTransforms;
 import com.tramchester.geo.MarginInMeters;
 import com.tramchester.geo.StationLocationsRepository;
 import com.tramchester.graph.filters.GraphFilter;
@@ -14,6 +13,7 @@ import com.tramchester.graph.graphbuild.CreateNodesAndRelationships;
 import com.tramchester.graph.graphbuild.GraphLabel;
 import com.tramchester.graph.graphbuild.GraphProps;
 import com.tramchester.graph.graphbuild.StationsAndLinksGraphBuilder;
+import com.tramchester.mappers.Geography;
 import com.tramchester.metrics.TimedTransaction;
 import com.tramchester.repository.StationRepository;
 import org.neo4j.graphdb.Node;
@@ -25,6 +25,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
+import java.time.Duration;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -43,12 +44,13 @@ public class AddWalksForClosedGraphBuilder extends CreateNodesAndRelationships {
     private final StationLocationsRepository stationLocations;
     private final TramchesterConfig config;
     private final GraphFilter filter;
+    private final Geography geography;
 
     @Inject
     public AddWalksForClosedGraphBuilder(GraphDatabase database, GraphFilter filter, GraphQuery graphQuery,
                                          StationRepository repository,
                                          TramchesterConfig config, StationsAndLinksGraphBuilder.Ready ready,
-                                         StationLocationsRepository stationLocations) {
+                                         StationLocationsRepository stationLocations, Geography geography) {
         super(database);
         this.database = database;
         this.filter = filter;
@@ -57,6 +59,7 @@ public class AddWalksForClosedGraphBuilder extends CreateNodesAndRelationships {
         this.config = config;
 
         this.stationLocations = stationLocations;
+        this.geography = geography;
     }
 
     @PostConstruct
@@ -180,12 +183,13 @@ public class AddWalksForClosedGraphBuilder extends CreateNodesAndRelationships {
             throw new RuntimeException(msg);
         }
 
-        double mph = config.getWalkingMPH();
+//        double mph = config.getWalkingMPH();
         logger.info("Adding walk relations from closed " + closedStation.getId() + " to " + asIds(others));
 
         others.stream().filter(filter::shouldInclude).forEach(otherStation -> {
 
-            int cost = CoordinateTransforms.calcCostInMinutes(closedStation, otherStation, mph);
+            //int cost = CoordinateTransforms.calcCostInMinutes(closedStation, otherStation, mph);
+            Duration cost = geography.getWalkingDuration(closedStation, otherStation);
 
             Node otherNode = graphQuery.getStationNode(txn, otherStation);
             if (otherNode==null) {
@@ -206,7 +210,7 @@ public class AddWalksForClosedGraphBuilder extends CreateNodesAndRelationships {
         });
     }
 
-    private void setCommonProperties(Relationship relationship, int cost, StationClosure closure) {
+    private void setCommonProperties(Relationship relationship, Duration cost, StationClosure closure) {
         GraphProps.setCostProp(relationship, cost);
         GraphProps.setStartDate(relationship, closure.getBegin());
         GraphProps.setEndDate(relationship, closure.getEnd());

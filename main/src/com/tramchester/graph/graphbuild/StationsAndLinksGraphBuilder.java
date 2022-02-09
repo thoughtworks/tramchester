@@ -23,6 +23,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
+import java.time.Duration;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -159,15 +160,15 @@ public class StationsAndLinksGraphBuilder extends GraphBuilder {
         final Relationship stationToRoute = stationNode.createRelationshipTo(routeStationNode, STATION_TO_ROUTE);
         final Relationship routeToStation = routeStationNode.createRelationshipTo(stationNode, ROUTE_TO_STATION);
 
-        final int minimumChangeCost = station.getMinimumChangeCost();
+        final Duration minimumChangeCost = Duration.ofMinutes(station.getMinimumChangeCost());
         GraphProps.setCostProp(stationToRoute, minimumChangeCost);
-        GraphProps.setCostProp(routeToStation, 0);
+        GraphProps.setCostProp(routeToStation, Duration.ZERO);
 
         GraphProps.setProperty(routeToStation, transportMode);
         GraphProps.setProperty(stationToRoute, transportMode);
 
         GraphProps.setMaxCostProp(stationToRoute, minimumChangeCost);
-        GraphProps.setMaxCostProp(routeToStation, 0);
+        GraphProps.setMaxCostProp(routeToStation, Duration.ZERO);
     }
 
     // NOTE: for services that skip some stations, but same stations not skipped by other services

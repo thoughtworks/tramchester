@@ -33,6 +33,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
+import java.time.Duration;
 import java.util.*;
 import java.util.stream.Stream;
 
@@ -285,7 +286,7 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
         Node routeStationStart = routeBuilderCache.getRouteStation(tx, route, beginId);
         Relationship svcRelationship = createRelationship(routeStationStart, svcNode, TO_SERVICE);
         setProperty(svcRelationship, service);
-        setCostProp(svcRelationship, 0);
+        setCostProp(svcRelationship, Duration.ZERO);
         setProperty(svcRelationship, route);
         return svcNode;
 
@@ -411,7 +412,7 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
                                Node boardingNode, IdFor<RouteStation> routeStationId, Node routeStationNode) {
         TransportRelationshipTypes departType = isInterchange ? INTERCHANGE_DEPART : DEPART;
 
-        int departCost = 0;
+        Duration departCost = Duration.ZERO;
         //int departCost = isInterchange ? INTERCHANGE_DEPART_COST : DEPARTS_COST;
 
         Relationship departRelationship = createRelationship(routeStationNode, boardingNode, departType);
@@ -427,7 +428,7 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
         TransportRelationshipTypes boardType = isInterchange ? INTERCHANGE_BOARD : BOARD;
         Relationship boardRelationship = createRelationship(platformOrStation, routeStationNode, boardType);
 
-        int boardCost = 0;
+        Duration boardCost = Duration.ZERO;
 //        int boardCost = isInterchange ? INTERCHANGE_BOARD_COST : BOARDING_COST;
 
         setCostProp(boardRelationship, boardCost);
@@ -459,8 +460,8 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
             Relationship onRoute = createRelationship(from, to, ON_ROUTE);
             setProperty(onRoute, route);
 
-            setCostProp(onRoute, costs.average());
-            setMaxCostProp(onRoute, costs.max());
+            setCostProp(onRoute, Duration.ofMinutes(costs.average()));
+            setMaxCostProp(onRoute, Duration.ofMinutes(costs.max()));
             setProperty(onRoute, route.getTransportMode());
         }
     }
@@ -469,7 +470,7 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
         boolean isInterchange = interchangeRepository.isInterchange(station);
 
         // station -> platform
-        int enterPlatformCost = station.getMinimumChangeCost();
+        Duration enterPlatformCost = Duration.ofMinutes(station.getMinimumChangeCost());
         //int enterPlatformCost = isInterchange ? ENTER_INTER_PLATFORM_COST : ENTER_PLATFORM_COST;
 
         Relationship crossToPlatform = createRelationship(stationNode, platformNode, ENTER_PLATFORM);
@@ -477,7 +478,7 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
         setProperty(crossToPlatform, platform);
 
         // platform -> station
-        int leavePlatformCost = 0;
+        Duration leavePlatformCost = Duration.ZERO;
         //int leavePlatformCost = isInterchange ? LEAVE_INTER_PLATFORM_COST : LEAVE_PLATFORM_COST;
 
         Relationship crossFromPlatform = createRelationship(platformNode, stationNode, LEAVE_PLATFORM);
@@ -498,7 +499,8 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
         Relationship goesToRelationship = createRelationship(timeNode, routeStationEnd, transportRelationshipType);
         // properties on relationship
         setProperty(goesToRelationship, trip);
-        int cost = TramTime.diffenceAsMinutes(endStop.getArrivalTime(), departureTime);
+
+        Duration cost = Duration.ofMinutes(TramTime.diffenceAsMinutes(endStop.getArrivalTime(), departureTime));
         setCostProp(goesToRelationship, cost);
         setProperty(goesToRelationship, trip.getService()); // TODO Still useful?
         setProperty(goesToRelationship, route);
@@ -532,7 +534,7 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
         // hour node -> time node
         Node hourNode = builderCache.getHourNode(tx, trip.getRoute().getId(), trip.getService(), startId, departureTime.getHourOfDay());
         Relationship fromPrevious = createRelationship(hourNode, timeNode, TransportRelationshipTypes.TO_MINUTE);
-        setCostProp(fromPrevious, 0);
+        setCostProp(fromPrevious, Duration.ZERO);
         setTimeProp(fromPrevious, departureTime);
         setProperty(fromPrevious, trip);
 
@@ -552,7 +554,7 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
             // service node -> time node
             //Node serviceNode = stationCache.getServiceNode(tx, routeId, service, startId, endId);
             Relationship serviceNodeToHour = createRelationship(serviceNode, hourNode, TransportRelationshipTypes.TO_HOUR);
-            setCostProp(serviceNodeToHour, 0);
+            setCostProp(serviceNodeToHour, Duration.ZERO);
             setHourProp(serviceNodeToHour, hour);
         }
 

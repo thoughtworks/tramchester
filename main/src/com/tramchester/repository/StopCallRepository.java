@@ -13,7 +13,6 @@ import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.GTFSPickupDropoffType;
 import com.tramchester.domain.time.TramTime;
-import com.tramchester.graph.filters.GraphFilter;
 import com.tramchester.graph.filters.GraphFilterActive;
 import com.tramchester.metrics.CacheMetrics;
 import org.apache.commons.lang3.tuple.Pair;
@@ -150,10 +149,14 @@ public class StopCallRepository implements ReportsCacheStats {
             return costs.stream().mapToInt(item -> item).min().orElse(0);
         }
 
+        // todo return duration
+        @Deprecated
         public int max() {
             return costs.stream().mapToInt(item -> item).max().orElse(0);
         }
 
+        // todo return duration
+        @Deprecated
         public int average() {
             double avg = costs.stream().mapToInt(item -> item).average().orElse(0D);
             return (int)Math.round(avg);

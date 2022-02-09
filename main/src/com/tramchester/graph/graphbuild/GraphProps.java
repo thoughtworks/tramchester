@@ -13,7 +13,6 @@ import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.GraphPropertyKey;
-import org.jetbrains.annotations.NotNull;
 import org.neo4j.graphdb.Entity;
 import org.neo4j.graphdb.Label;
 import org.neo4j.graphdb.Node;
@@ -109,34 +108,26 @@ public class GraphProps {
         return entity.getProperty(graphPropertyKey.getText());
     }
 
+    // TODO Return duration, store in graph as seconds
     public static int getCost(Entity entity) {
         return (int) getProperty(entity, COST);
     }
 
-    @Deprecated
-    public static void setCostProp(Entity entity, int value) {
-        entity.setProperty(COST.getText(), value);
-    }
-
+    // TODO Change to seconds, not minutes
     public static void setCostProp(Entity entity, Duration duration) {
         int minutes = roundUpNearestMinute(duration);
         entity.setProperty(COST.getText(), minutes);
     }
 
-    @NotNull
-    private static int roundUpNearestMinute(Duration duration) {
-        Double minutes = Math.ceil(duration.toSeconds()/60D);
-        return minutes.intValue();
-    }
-
-    @Deprecated
-    public static void setMaxCostProp(Entity entity, int value) {
-        entity.setProperty(MAX_COST.getText(), value);
-    }
-
+    // TODO Change to seconds, not minutes
     public static void setMaxCostProp(Entity entity, Duration duration) {
         int minutes = roundUpNearestMinute(duration);
         entity.setProperty(MAX_COST.getText(), minutes);
+    }
+
+    private static int roundUpNearestMinute(Duration duration) {
+        Double minutes = Math.ceil(duration.toSeconds()/60D);
+        return minutes.intValue();
     }
 
     public static TramTime getTime(Entity entity) {
