@@ -206,13 +206,24 @@ public class StationLocations implements StationLocationsRepository {
         return Quantities.getQuantity(geodeticCalculator.getOrthodromicDistance(), Units.METRE);
     }
 
+    @Override
+    public boolean withinBounds(Location<?> location) {
+        return getBounds().contained(location);
+    }
+
     public Set<BoundingBox> getQuadrants() {
         return quadrants;
     }
 
+    @Deprecated
     @Override
     public List<Station> nearestStationsSorted(LatLong latLong, int maxToFind, MarginInMeters rangeInMeters) {
         return nearestStationsSorted(CoordinateTransforms.getGridPosition(latLong), maxToFind, rangeInMeters);
+    }
+
+    @Override
+    public List<Station> nearestStationsSorted(Location<?> location, int maxToFind, MarginInMeters rangeInMeters) {
+        return nearestStationsSorted(CoordinateTransforms.getGridPosition(location.getLatLong()), maxToFind, rangeInMeters);
     }
 
     // TODO Use quadrants for this search

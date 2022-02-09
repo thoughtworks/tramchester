@@ -120,6 +120,7 @@ public class CoordinateTransforms {
         return Math.sqrt((deltaLat*deltaLat)+(deltaLon*deltaLon));
     }
 
+    @Deprecated
     public static int calcCostInMinutes(Location<?> stationA, Location<?> stationB, double mph) {
         return calcCostInMinutes(stationA.getLatLong(), stationB, mph);
     }

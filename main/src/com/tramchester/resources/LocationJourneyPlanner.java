@@ -10,7 +10,10 @@ import com.tramchester.domain.places.Location;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.places.StationWalk;
 import com.tramchester.domain.presentation.LatLong;
-import com.tramchester.geo.*;
+import com.tramchester.geo.GridPosition;
+import com.tramchester.geo.MarginInMeters;
+import com.tramchester.geo.StationLocations;
+import com.tramchester.geo.StationLocationsRepository;
 import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.GraphQuery;
 import com.tramchester.graph.TransportRelationshipTypes;
@@ -22,6 +25,7 @@ import com.tramchester.graph.search.BetweenRoutesCostRepository;
 import com.tramchester.graph.search.RouteCalculator;
 import com.tramchester.graph.search.RouteCalculatorArriveBy;
 import com.tramchester.graph.search.RouteToRouteCosts;
+import com.tramchester.mappers.Geography;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
 import org.neo4j.graphdb.Transaction;
@@ -29,11 +33,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
+import javax.measure.Quantity;
+import javax.measure.quantity.Length;
+import java.time.Duration;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static com.tramchester.geo.CoordinateTransforms.calcCostInMinutes;
 import static com.tramchester.graph.TransportRelationshipTypes.WALKS_FROM_STATION;
 import static com.tramchester.graph.TransportRelationshipTypes.WALKS_TO_STATION;
 import static java.lang.String.format;
@@ -52,12 +58,14 @@ public class LocationJourneyPlanner {
     private final GraphDatabase graphDatabase;
     private final MarginInMeters margin;
     private final BetweenRoutesCostRepository routeToRouteCosts;
+    private final Geography geography;
 
     @Inject
     public LocationJourneyPlanner(StationLocations stationLocations, TramchesterConfig config, RouteCalculator routeCalculator,
                                   RouteCalculatorArriveBy routeCalculatorArriveBy, NodeContentsRepository nodeOperations,
                                   GraphQuery graphQuery, GraphDatabase graphDatabase,
-                                  GraphFilter graphFilter, RouteToRouteCosts routeToRouteCosts) {
+                                  GraphFilter graphFilter, RouteToRouteCosts routeToRouteCosts, Geography geography) {
+        this.geography = geography;
         logger.info("created");
         this.config = config;
         this.routeCalculator = routeCalculator;
@@ -78,13 +86,13 @@ public class LocationJourneyPlanner {
         boolean walkAtEnd = destination.getLocationType().isWalk();
 
         if (walkAtStart && walkAtEnd) {
-            return quickestRouteForLocation(txn, start.getLatLong(), destination.getLatLong(), journeyRequest);
+            return quickestRouteWalkAtStartAndEnd(txn, start, destination, journeyRequest);
         }
         if (walkAtStart) {
-            return quickestRouteForLocation(txn, start.getLatLong(), destination, journeyRequest);
+            return quickRouteWalkAtStart(txn, start, destination, journeyRequest);
         }
         if (walkAtEnd) {
-            return quickestRouteForLocation(txn, start, destination.getLatLong(), journeyRequest);
+            return quickestRouteWalkAtEnd(txn, start, destination, journeyRequest);
         }
 
         // station => station
@@ -95,12 +103,12 @@ public class LocationJourneyPlanner {
         }
     }
 
-    private Stream<Journey> quickestRouteForLocation(Transaction txn, LatLong start, Location<?> destination,
-                                                    JourneyRequest journeyRequest) {
+    private Stream<Journey> quickRouteWalkAtStart(Transaction txn, Location<?> start, Location<?> destination,
+                                                  JourneyRequest journeyRequest) {
         logger.info(format("Finding shortest path for %s --> %s (%s) for %s", start,
                 destination.getId(), destination.getName(), journeyRequest));
 
-        GridPosition startGrid = CoordinateTransforms.getGridPosition(start);
+        GridPosition startGrid = start.getGridPosition();
         if (!stationLocations.getBounds().within(margin, startGrid)) {
             logger.warn(format("Start %s not within %s of station bounds %s", startGrid, margin, stationLocations.getBounds()));
         }
@@ -128,12 +136,13 @@ public class LocationJourneyPlanner {
         return journeys;
     }
 
-    private Stream<Journey> quickestRouteForLocation(Transaction txn, Location<?> start, LatLong destination, JourneyRequest journeyRequest) {
+    private Stream<Journey> quickestRouteWalkAtEnd(Transaction txn, Location<?> start, Location<?> destination,
+                                                   JourneyRequest journeyRequest) {
         logger.info(format("Finding shortest path for %s (%s) --> %s for %s", start.getId(), start.getName(),
                 destination, journeyRequest));
 
-        GridPosition endGrid = CoordinateTransforms.getGridPosition(destination);
-        if (!stationLocations.getBounds().within(margin, endGrid)) {
+        GridPosition endGrid = destination.getGridPosition();
+        if (!stationLocations.withinBounds(destination)) {
             logger.warn(format("Destination %s not within %s of station bounds %s", endGrid, margin, stationLocations.getBounds()));
         }
 
@@ -174,19 +183,20 @@ public class LocationJourneyPlanner {
         return journeys;
     }
 
-    private Stream<Journey> quickestRouteForLocation(Transaction txn, LatLong startLatLong, LatLong destLatLong, JourneyRequest journeyRequest) {
-        logger.info(format("Finding shortest path for %s --> %s on %s", startLatLong, destLatLong, journeyRequest));
+    private Stream<Journey> quickestRouteWalkAtStartAndEnd(Transaction txn, Location<?> start, Location<?> dest,
+                                                           JourneyRequest journeyRequest) {
+        logger.info(format("Finding shortest path for %s --> %s on %s", start, dest, journeyRequest));
 
         WalkNodesAndRelationships nodesAndRelationships = new WalkNodesAndRelationships(txn, graphDatabase, graphQuery, nodeOperations);
 
         // Add Walk at the Start
-        Set<StationWalk> walksAtStart = getStationWalks(startLatLong);
-        Node startNode = nodesAndRelationships.createWalkingNode(startLatLong, journeyRequest);
+        Set<StationWalk> walksAtStart = getStationWalks(start);
+        Node startNode = nodesAndRelationships.createWalkingNode(start, journeyRequest);
         nodesAndRelationships.createWalksToStart(startNode, walksAtStart);
 
         // Add Walks at the end
-        Set<StationWalk> walksToDest = getStationWalks(destLatLong);
-        Node endWalk = nodesAndRelationships.createWalkingNode(destLatLong, journeyRequest);
+        Set<StationWalk> walksToDest = getStationWalks(dest);
+        Node endWalk = nodesAndRelationships.createWalkingNode(dest, journeyRequest);
         nodesAndRelationships.createWalksToDest(endWalk, walksToDest);
 
         // where destination walks take us
@@ -210,21 +220,21 @@ public class LocationJourneyPlanner {
         return journeys;
     }
 
-    public Set<StationWalk> getStationWalks(LatLong latLong) {
+    public Set<StationWalk> getStationWalks(Location<?> location) {
 
         int maxResults = config.getNumOfNearestStopsForWalking();
-        List<Station> nearbyStationsWithComposites = stationLocations.nearestStationsSorted(latLong, maxResults, margin);
+        List<Station> nearbyStationsWithComposites = stationLocations.nearestStationsSorted(location, maxResults, margin);
 
         if (nearbyStationsWithComposites.isEmpty()) {
-            logger.warn(format("Failed to find stations within %s of %s", margin, latLong));
+            logger.warn(format("Failed to find stations within %s of %s", margin, location));
             return Collections.emptySet();
         }
 
         List<Station> filtered = nearbyStationsWithComposites.stream()
                 .filter(graphFilter::shouldInclude).collect(Collectors.toList());
 
-        Set<StationWalk> stationWalks = createWalks(latLong, filtered);
-        logger.info(format("Stops within %s of %s are [%s]", maxResults, latLong, stationWalks));
+        Set<StationWalk> stationWalks = createWalks(location, filtered);
+        logger.info(format("Stops within %s of %s are [%s]", maxResults, location, stationWalks));
         return stationWalks;
     }
 
@@ -244,10 +254,16 @@ public class LocationJourneyPlanner {
         return routeToRouteCosts.getNumberOfChanges(starts, destinations);
     }
 
-    private Set<StationWalk> createWalks(LatLong latLong, List<Station> startStations) {
+    private Set<StationWalk> createWalks(Location<?> location, List<Station> startStations) {
         return startStations.stream().
-                map(station -> new StationWalk(station, calcCostInMinutes(latLong, station, config.getWalkingMPH()))).
+                map(station -> new StationWalk(station, calculateDuration(location, station))).
                 collect(Collectors.toSet());
+    }
+
+    // TODO into stationLocations
+    private Duration calculateDuration(Location<?> location, Station station) {
+        Quantity<Length> distance = stationLocations.getDistanceBetweenInMeters(location, station);
+        return geography.getWalkingDuration(distance);
     }
 
     private static class WalkNodesAndRelationships {
@@ -287,6 +303,13 @@ public class LocationJourneyPlanner {
             relationships.addAll(relationshipList);
         }
 
+        public Node createWalkingNode(Location<?> location, JourneyRequest journeyRequest) {
+            Node walkingNode = createWalkingNode(txn, location.getLatLong(), journeyRequest.getUid());
+            nodes.add(walkingNode);
+            return walkingNode;
+        }
+
+        @Deprecated
         public Node createWalkingNode(LatLong start, JourneyRequest journeyRequest) {
             Node walkingNode = createWalkingNode(txn, start, journeyRequest.getUid());
             nodes.add(walkingNode);
@@ -309,7 +332,7 @@ public class LocationJourneyPlanner {
 
         private Relationship createWalkRelationship(Node walkNode, StationWalk stationWalk, TransportRelationshipTypes direction) {
             Station walkStation = stationWalk.getStation();
-            int cost = stationWalk.getCost();
+            Duration cost = stationWalk.getCost();
 
             Relationship walkingRelationship;
             Node stationNode = graphQuery.getStationNode(txn, walkStation);

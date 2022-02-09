@@ -13,9 +13,11 @@ import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramServiceDate;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.domain.transportStages.WalkingStage;
+import com.tramchester.geo.StationLocationsRepository;
 import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.RouteCostCalculator;
 import com.tramchester.graph.search.RouteCalculator;
+import com.tramchester.mappers.Geography;
 import com.tramchester.repository.RouteRepository;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.repository.TransportData;
@@ -27,8 +29,11 @@ import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.*;
 import org.neo4j.graphdb.Transaction;
 
+import javax.measure.Quantity;
+import javax.measure.quantity.Length;
 import java.io.IOException;
 import java.nio.file.Path;
+import java.time.Duration;
 import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.Collections;
@@ -36,7 +41,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static com.tramchester.geo.CoordinateTransforms.calcCostInMinutes;
 import static com.tramchester.testSupport.reference.KnownLocations.*;
 import static com.tramchester.testSupport.reference.TramTransportDataForTestFactory.TramTransportDataForTest.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -50,6 +54,8 @@ class TramRouteTest {
 
     private TramTransportDataForTestFactory.TramTransportDataForTest transportData;
     private RouteCalculator calculator;
+    private Geography geography;
+    private StationLocationsRepository stationLocations;
 
     private TramServiceDate queryDate;
     private TramTime queryTime;
@@ -82,6 +88,9 @@ class TramRouteTest {
         queryDate = new TramServiceDate(LocalDate.of(2014,6,30));
         queryTime = TramTime.of(7, 57);
         StationRepository stationRepo = componentContainer.get(StationRepository.class);
+
+        stationLocations = componentContainer.get(StationLocationsRepository.class);
+        geography = componentContainer.get(Geography.class);
 
         txn = database.beginTx();
 
@@ -158,7 +167,7 @@ class TramRouteTest {
         final Station destination = transportData.getInterchange();
         final Station midway = transportData.getSecond();
 
-        int walkCost = calcCostInMinutes(start, midway, config.getWalkingMPH());
+        int walkCost = getWalkCost(start, midway);
         assertEquals(4, walkCost);
 
         int tramDur = 9;
@@ -196,7 +205,7 @@ class TramRouteTest {
         final Location<?> start = nearWythenshaweHosp.location();
         final Station destination = transportData.getSecond();
 
-        int walkCost = calcCostInMinutes(start, destination, config.getWalkingMPH());
+        int walkCost = getWalkCost(start, destination);
         assertEquals(4, walkCost);
 
         Set<Journey> journeys = locationJourneyPlanner.quickestRouteForLocation(start, destination,
@@ -213,13 +222,20 @@ class TramRouteTest {
         });
     }
 
+    private int getWalkCost(Location<?> start, Station destination) {
+        Quantity<Length> distance = stationLocations.getDistanceBetweenInMeters(start, destination);
+        Duration duration = geography.getWalkingDuration(distance);
+        return (int) Math.ceil(duration.getSeconds()/60D);
+        //return calcCostInMinutes(start, destination, config.getWalkingMPH());
+    }
+
     @Test
     void shouldHaveWalkDirectAtEnd() {
         final JourneyRequest journeyRequest = createJourneyRequest(queryTime, 0);
         final Station start = transportData.getSecond();
         final Location<?> destination = nearWythenshaweHosp.location();
 
-        int walkCost = calcCostInMinutes(destination, start, config.getWalkingMPH());
+        int walkCost = getWalkCost(destination, start);
         assertEquals(4, walkCost);
 
         Set<Journey> journeys = locationJourneyPlanner.quickestRouteForLocation(start, destination,
@@ -246,8 +262,8 @@ class TramRouteTest {
         final Station endFirstWalk = transportData.getSecond();
         final Station startSecondWalk = transportData.getInterchange();
 
-        int walk1Cost = calcCostInMinutes(start, endFirstWalk, config.getWalkingMPH());
-        int walk2Cost = calcCostInMinutes(destination, startSecondWalk, config.getWalkingMPH());
+        int walk1Cost = getWalkCost(start, endFirstWalk);
+        int walk2Cost = getWalkCost(destination, startSecondWalk);
 
         Set<Journey> journeys = locationJourneyPlanner.quickestRouteForLocation(start, destination, journeyRequest, 3);
         assertTrue(journeys.size() >= 1, "journeys");
@@ -286,7 +302,7 @@ class TramRouteTest {
         final Station start = transportData.getSecond();
         final Station midway = transportData.getInterchange();
 
-        int walkCost = calcCostInMinutes(destination, midway, config.getWalkingMPH());
+        int walkCost = getWalkCost(destination, midway);
         assertEquals(5, walkCost);
 
         TramTime boardTime = TramTime.of(8,11);

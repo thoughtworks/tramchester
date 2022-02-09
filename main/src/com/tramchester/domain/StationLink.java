@@ -15,7 +15,8 @@ public class StationLink {
     private final Quantity<Length> distanceBetweenInMeters;
     private final int walkingTimeMins;
 
-    public StationLink(Station begin, Station end, Set<TransportMode> modes, Quantity<Length> distanceBetweenInMeters, int walkingTimeMins) {
+    public StationLink(Station begin, Station end, Set<TransportMode> modes, Quantity<Length> distanceBetweenInMeters,
+                       int walkingTimeMins) {
         this.distanceBetweenInMeters = distanceBetweenInMeters;
         this.walkingTimeMins = walkingTimeMins;
         this.pair = StationPair.of(begin, end);
