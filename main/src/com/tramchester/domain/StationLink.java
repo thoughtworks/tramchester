@@ -2,31 +2,31 @@ package com.tramchester.domain;
 
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
-import com.tramchester.geo.StationLocationsRepository;
 import com.tramchester.mappers.Geography;
 
 import javax.measure.Quantity;
 import javax.measure.quantity.Length;
+import java.time.Duration;
 import java.util.Set;
 
 public class StationLink {
     private final StationPair pair;
     private final Set<TransportMode> modes;
     private final Quantity<Length> distanceBetweenInMeters;
-    private final int walkingTimeMins;
+    private final Duration walkingTime;
 
     public StationLink(Station begin, Station end, Set<TransportMode> modes, Quantity<Length> distanceBetweenInMeters,
-                       int walkingTimeMins) {
+                       Duration walkingTime) {
         this.distanceBetweenInMeters = distanceBetweenInMeters;
-        this.walkingTimeMins = walkingTimeMins;
+        this.walkingTime = walkingTime;
         this.pair = StationPair.of(begin, end);
         this.modes = modes;
     }
 
-    public static StationLink create(Station begin, Station end, Set<TransportMode> modes,
-                                     StationLocationsRepository stationLocations, Geography geography) {
-        Quantity<Length> distance = stationLocations.getDistanceBetweenInMeters(begin, end);
-        return new StationLink(begin, end, modes, distance, geography.getWalkingTimeInMinutes(distance));
+    public static StationLink create(Station begin, Station end, Set<TransportMode> modes, Geography geography) {
+        Quantity<Length> distance = geography.getDistanceBetweenInMeters(begin, end);
+        final Duration walkingDuration = geography.getWalkingDuration(begin, end);
+        return new StationLink(begin, end, modes, distance, walkingDuration);
     }
 
     public Station getBegin() {
@@ -81,7 +81,7 @@ public class StationLink {
         return distanceBetweenInMeters;
     }
 
-    public int getWalkingTimeMins() {
-        return walkingTimeMins;
+    public Duration getWalkingTime() {
+        return walkingTime;
     }
 }

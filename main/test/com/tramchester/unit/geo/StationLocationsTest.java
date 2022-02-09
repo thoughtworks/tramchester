@@ -4,6 +4,7 @@ import com.tramchester.domain.DataSourceID;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.geo.*;
+import com.tramchester.mappers.Geography;
 import com.tramchester.repository.PlatformRepository;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.repository.naptan.NaptanRespository;
@@ -33,7 +34,8 @@ class StationLocationsTest extends EasyMockSupport {
         stationRepository = createMock(StationRepository.class);
         naptanRespository = createMock(NaptanRespository.class);
         PlatformRepository platformRepository = createMock(PlatformRepository.class);
-        stationLocations = new StationLocations(stationRepository, platformRepository, naptanRespository);
+        Geography geography = createMock(Geography.class);
+        stationLocations = new StationLocations(stationRepository, platformRepository, naptanRespository, geography);
     }
 
     @Test

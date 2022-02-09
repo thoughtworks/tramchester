@@ -2,18 +2,23 @@ package com.tramchester.unit.mappers;
 
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.places.Location;
+import com.tramchester.domain.places.Station;
 import com.tramchester.geo.CoordinateTransforms;
 import com.tramchester.mappers.Geography;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.TramStations;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import tec.units.ri.quantity.Quantities;
 import tec.units.ri.unit.Units;
 
 import javax.measure.Quantity;
+import javax.measure.quantity.Length;
 import javax.measure.quantity.Time;
+import java.time.Duration;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static tec.units.ri.unit.Units.METRE;
 
 public class GeographyTest {
     private Geography geography;
@@ -25,6 +30,9 @@ public class GeographyTest {
         geography = new Geography(config);
     }
 
+    public static Quantity<Length> BetweenStPeterSqAndPiccGardens = Quantities.getQuantity(463.7D, METRE);
+
+
     @Test
     void shouldGetWalkingTime() {
 
@@ -33,7 +41,7 @@ public class GeographyTest {
 
         int expected = CoordinateTransforms.calcCostInMinutes(start, end, config.getWalkingMPH());
 
-        Quantity<Time> result = geography.getWalkingTime(TestEnv.MetersBetweenStPeterSqAndPiccGardens);
+        Quantity<Time> result = geography.getWalkingTime(BetweenStPeterSqAndPiccGardens);
 
         assertEquals(expected, Math.ceil(result.to(Units.MINUTE).getValue().doubleValue()));
     }
@@ -44,10 +52,21 @@ public class GeographyTest {
         Location<?> start = TramStations.StPetersSquare.fake();
         Location<?> end = TramStations.PiccadillyGardens.fake();
 
-        int expected = CoordinateTransforms.calcCostInMinutes(start, end, config.getWalkingMPH());
+        int expectedSeconds = 345;
 
-        int result = geography.getWalkingTimeInMinutes(TestEnv.MetersBetweenStPeterSqAndPiccGardens);
+        Duration result = geography.getWalkingDuration(start, end);
 
-        assertEquals(expected, result);
+        assertEquals(expectedSeconds, result.getSeconds());
+    }
+
+    @Test
+    void shouldGetDistanceBetweenLocations() {
+        Station stPeters = TramStations.StPetersSquare.fake();
+        Station piccGardens = TramStations.PiccadillyGardens.fake();
+
+        Quantity<Length> distance = geography.getDistanceBetweenInMeters(stPeters, piccGardens);
+
+        assertEquals(BetweenStPeterSqAndPiccGardens.getValue().doubleValue(),
+                distance.getValue().doubleValue(), 0.1);
     }
 }

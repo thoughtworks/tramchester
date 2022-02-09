@@ -8,23 +8,18 @@ import com.tramchester.domain.places.NaptanArea;
 import com.tramchester.domain.places.NaptanRecord;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.LatLong;
+import com.tramchester.mappers.Geography;
 import com.tramchester.repository.PlatformRepository;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.repository.naptan.NaptanRespository;
-import org.geotools.referencing.GeodeticCalculator;
-import org.geotools.referencing.crs.DefaultGeographicCRS;
 import org.jetbrains.annotations.NotNull;
 import org.locationtech.jts.geom.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import tec.units.ri.quantity.Quantities;
-import tec.units.ri.unit.Units;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.inject.Inject;
-import javax.measure.Quantity;
-import javax.measure.quantity.Length;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.LongStream;
@@ -39,26 +34,25 @@ public class StationLocations implements StationLocationsRepository {
     private final StationRepository stationRepository;
     private final PlatformRepository platformRepository;
     private final NaptanRespository naptanRespository;
+    private final Geography geography;
     private final Set<BoundingBox> quadrants;
 
     private final Map<IdFor<NaptanArea>, LocationSet> locationsInNaptanArea;
 
     private final Map<BoundingBox, Set<Station>> stations;
-    private final GeometryFactory geometryFactoryLatLong;
     private BoundingBox bounds;
 
     @Inject
-    public StationLocations(StationRepository stationRepository, PlatformRepository platformRepository, NaptanRespository naptanRespository) {
+    public StationLocations(StationRepository stationRepository, PlatformRepository platformRepository,
+                            NaptanRespository naptanRespository, Geography geography) {
         this.stationRepository = stationRepository;
         this.platformRepository = platformRepository;
         this.naptanRespository = naptanRespository;
+        this.geography = geography;
 
         quadrants = new HashSet<>();
         stations = new HashMap<>();
         locationsInNaptanArea = new HashMap<>();
-
-        int srid = Integer.parseInt(CoordinateTransforms.getLatLongCode());
-        geometryFactoryLatLong = new GeometryFactory(new PrecisionModel(PrecisionModel.FLOATING), srid);
     }
 
     @PostConstruct
@@ -157,21 +151,14 @@ public class StationLocations implements StationLocationsRepository {
     @Override
     public Geometry getGeometryForArea(IdFor<NaptanArea> areaId) {
 
-        // potentially slow
-
         Set<NaptanRecord> records = naptanRespository.getRecordsFor(areaId);
 
-        List<Coordinate> points = records.stream().
+        List<LatLong> points = records.stream().
                 map(NaptanRecord::getGridPosition).
                 map(CoordinateTransforms::getLatLong).
-                map(latLong -> new Coordinate(latLong.getLat(), latLong.getLon())).
                 collect(Collectors.toList());
 
-        Coordinate[] asArray = points.toArray(new Coordinate[]{});
-
-        MultiPoint multiPoint = geometryFactoryLatLong.createMultiPointFromCoords(asArray);
-
-        return multiPoint.convexHull();
+        return geography.createBoundaryFor(points);
     }
 
     @Override
@@ -193,18 +180,7 @@ public class StationLocations implements StationLocationsRepository {
         return locationsInNaptanArea.containsKey(areaId);
     }
 
-    @Override
-    public Quantity<Length> getDistanceBetweenInMeters(Location<?> placeA, Location<?> placeB) {
-        Point pointA = geometryFactoryLatLong.createPoint(placeA.getLatLong().getCoordinate());
-        Point pointB = geometryFactoryLatLong.createPoint(placeB.getLatLong().getCoordinate());
 
-        GeodeticCalculator geodeticCalculator = new GeodeticCalculator(DefaultGeographicCRS.WGS84);
-
-        geodeticCalculator.setStartingGeographicPoint(pointA.getX(), pointA.getY());
-        geodeticCalculator.setDestinationGeographicPoint(pointB.getX(), pointB.getY());
-
-        return Quantities.getQuantity(geodeticCalculator.getOrthodromicDistance(), Units.METRE);
-    }
 
     @Override
     public boolean withinBounds(Location<?> location) {

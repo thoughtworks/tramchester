@@ -10,6 +10,7 @@ import org.neo4j.graphdb.Transaction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.time.Duration;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -64,19 +65,19 @@ public class CreateNodesAndRelationships {
         logger.info("Relationships created: " + numberRelationships);
     }
 
-    protected boolean addNeighbourRelationship(Node fromNode, Node toNode, int walkCost) {
+    protected boolean addNeighbourRelationship(Node fromNode, Node toNode, Duration walkCost) {
         return addRelationshipFor(fromNode, toNode, walkCost, NEIGHBOUR);
     }
 
-    protected void addGroupRelationshipTowardsParent(Node fromNode, Node toNode, int walkCost) {
+    protected void addGroupRelationshipTowardsParent(Node fromNode, Node toNode, Duration walkCost) {
         addRelationshipFor(fromNode, toNode, walkCost, GROUPED_TO_PARENT);
     }
 
-    protected void addGroupRelationshipTowardsChild(Node fromNode, Node toNode, int walkCost) {
+    protected void addGroupRelationshipTowardsChild(Node fromNode, Node toNode, Duration walkCost) {
         addRelationshipFor(fromNode, toNode, walkCost, GROUPED_TO_CHILD);
     }
 
-    private boolean addRelationshipFor(Node fromNode, Node toNode, int walkCost, TransportRelationshipTypes relationshipType) {
+    private boolean addRelationshipFor(Node fromNode, Node toNode, Duration walkCost, TransportRelationshipTypes relationshipType) {
         Set<Long> alreadyRelationship = new HashSet<>();
         fromNode.getRelationships(Direction.OUTGOING, relationshipType).
                 forEach(relationship -> alreadyRelationship.add(relationship.getEndNode().getId()));

@@ -260,10 +260,8 @@ public class LocationJourneyPlanner {
                 collect(Collectors.toSet());
     }
 
-    // TODO into stationLocations
     private Duration calculateDuration(Location<?> location, Station station) {
-        Quantity<Length> distance = stationLocations.getDistanceBetweenInMeters(location, station);
-        return geography.getWalkingDuration(distance);
+        return geography.getWalkingDuration(location, station);
     }
 
     private static class WalkNodesAndRelationships {

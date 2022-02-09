@@ -18,6 +18,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
+import java.time.Duration;
 import java.util.Set;
 
 import static java.lang.String.format;
@@ -123,12 +124,10 @@ public class AddNeighboursGraphBuilder extends CreateNodesAndRelationships {
             throw new RuntimeException(msg);
         }
 
-        //double mph = config.getWalkingMPH();
         logger.debug("Adding neighbour relations from " + from.getId());
 
         links.stream().
-                filter(link -> filter.shouldInclude(link.getBegin())).
-        //others.stream().filter(filter::shouldInclude)
+                filter(link -> filter.shouldInclude(link.getEnd())).
                 forEach(link -> {
 
                 Node toNode = graphQuery.getStationNode(txn, link.getEnd());
@@ -138,7 +137,7 @@ public class AddNeighboursGraphBuilder extends CreateNodesAndRelationships {
                     throw new RuntimeException(msg);
                 }
 
-                int walkingCost = link.getWalkingTimeMins();
+                Duration walkingCost = link.getWalkingTime();
                 if (!addNeighbourRelationship(fromNode, toNode, walkingCost)) {
                     logger.warn(format("Already neighbour link between %s", link));
                 }

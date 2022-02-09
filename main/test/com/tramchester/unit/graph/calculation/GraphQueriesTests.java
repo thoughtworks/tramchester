@@ -24,6 +24,7 @@ import tec.units.ri.unit.Units;
 import javax.measure.Quantity;
 import javax.measure.quantity.Length;
 import java.io.IOException;
+import java.time.Duration;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Set;
@@ -85,7 +86,7 @@ class GraphQueriesTests {
     private StationLink createStationLink(Set<TransportMode> modes, Station first, Station second) {
         // distance and time not used in equality
         Quantity<Length> distance = Quantities.getQuantity(11.1111D, Units.METRE);
-        int walkingTimeMins = 42;
+        Duration walkingTimeMins = Duration.ofSeconds(42);
         return new StationLink(first, second, modes, distance, walkingTimeMins);
     }
 

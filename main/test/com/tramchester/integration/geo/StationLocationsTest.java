@@ -133,15 +133,5 @@ public class StationLocationsTest {
 
     }
 
-    @Test
-    void shouldGetDistanceBetweenLocations() {
-        Station stPeters = TramStations.StPetersSquare.from(stationRepository);
-        Station piccGardens = TramStations.PiccadillyGardens.from(stationRepository);
-
-        Quantity<Length> distance = locations.getDistanceBetweenInMeters(stPeters, piccGardens);
-
-        assertEquals(TestEnv.MetersBetweenStPeterSqAndPiccGardens.getValue().doubleValue(),
-                distance.getValue().doubleValue(), 0.0001);
-    }
 
 }

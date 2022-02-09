@@ -20,6 +20,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
+import java.time.Duration;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -126,12 +127,13 @@ public class CompositeStationGraphBuilder extends CreateNodesAndRelationships {
         contained.stream().
                 filter(graphFilter::shouldInclude).
                 forEach(station -> {
-                    int walkingCost = CoordinateTransforms.calcCostInMinutes(stationGroup.getLatLong(), station, mph);
+                    int walkingCostMins = CoordinateTransforms.calcCostInMinutes(stationGroup.getLatLong(), station, mph);
                     Node childNode = builderCache.getStation(txn, station.getId());
                     if (childNode==null) {
                         throw new RuntimeException("cannot find node for " + station);
                     }
 
+                    Duration walkingCost = Duration.ofMinutes(walkingCostMins);
                     addGroupRelationshipTowardsChild(parentNode, childNode, walkingCost);
                     addGroupRelationshipTowardsParent(childNode, parentNode, walkingCost);
         });

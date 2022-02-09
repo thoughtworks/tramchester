@@ -83,7 +83,7 @@ class FindStationLinksTest {
     private StationLink createLink(TramStations stationA, TramStations stationB) {
         final Set<TransportMode> singleton = Collections.singleton(Tram);
         return StationLink.create(stationA.from(stationRepository), stationB.from(stationRepository),
-                singleton, stationLocations, geography);
+                singleton, geography);
     }
 
 }

@@ -91,7 +91,7 @@ public class FindStationLinks {
 
         Set<TransportMode> modes = GraphProps.getTransportModes(relationship);
 
-        return StationLink.create(start, end, modes, stationLocations, geography);
+        return StationLink.create(start, end, modes, geography);
     }
 
 }

@@ -13,6 +13,7 @@ import tec.units.ri.unit.Units;
 
 import javax.measure.Quantity;
 import javax.measure.quantity.Length;
+import java.time.Duration;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
@@ -39,7 +40,7 @@ class StationLinkDTOTest extends EasyMockSupport {
         Set<TransportMode> modes = new HashSet<>(Arrays.asList(TransportMode.Bus, TransportMode.Tram));
 
         Quantity<Length> distance = Quantities.getQuantity(42.5768D, Units.METRE);
-        StationLink stationLink = new StationLink(altrincham, stPeters, modes, distance, 124);
+        StationLink stationLink = new StationLink(altrincham, stPeters, modes, distance, Duration.ofSeconds(124));
 
         replayAll();
         StationLinkDTO dto = stationDTOFactory.createStationLinkDTO(stationLink);

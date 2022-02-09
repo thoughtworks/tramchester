@@ -126,6 +126,7 @@ public class CoordinateTransforms {
     }
 
     // TODO Use Grid Position instead of LatLong??
+    @Deprecated
     public static int calcCostInMinutes(LatLong latLong, Location<?> location, double mph) {
 
         double distanceInMiles = distanceInMiles(latLong, location.getLatLong());

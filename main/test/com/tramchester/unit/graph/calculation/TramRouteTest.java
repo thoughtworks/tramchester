@@ -29,8 +29,6 @@ import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.*;
 import org.neo4j.graphdb.Transaction;
 
-import javax.measure.Quantity;
-import javax.measure.quantity.Length;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.time.Duration;
@@ -223,10 +221,8 @@ class TramRouteTest {
     }
 
     private int getWalkCost(Location<?> start, Station destination) {
-        Quantity<Length> distance = stationLocations.getDistanceBetweenInMeters(start, destination);
-        Duration duration = geography.getWalkingDuration(distance);
+        Duration duration = geography.getWalkingDuration(start, destination);
         return (int) Math.ceil(duration.getSeconds()/60D);
-        //return calcCostInMinutes(start, destination, config.getWalkingMPH());
     }
 
     @Test
