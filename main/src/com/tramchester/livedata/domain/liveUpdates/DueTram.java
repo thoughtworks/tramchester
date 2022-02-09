@@ -20,7 +20,7 @@ public class DueTram {
         this.status = status;
         this.wait = wait;
         this.carriages = carriages;
-        this.when  = TramTime.of(updateTime).plusMinutes(wait);
+        this.when  = TramTime.ofHourMins(updateTime).plusMinutes(wait);
     }
 
     public Station getDestination() {

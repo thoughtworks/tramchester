@@ -3,6 +3,7 @@ package com.tramchester.domain.time;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.Serializable;
+import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -41,8 +42,24 @@ public class TramTime implements Comparable<TramTime> {
         toPattern = "invalid";
     }
 
+    /***
+     * A new tram time using only the hours and minutes from the local time
+     * @see com.tramchester.domain.time.TramTime::ofHourMins
+     * @param time local time
+     * @return Tram time
+     */
+    @Deprecated
     public static TramTime of(LocalTime time) {
-        return factory.of(time);
+        return factory.of(time.getHour(), time.getMinute(), 0);
+    }
+
+    /***
+     * A new tram time using only the hours and minutes from the local time
+     * @param time local time
+     * @return Tram time
+     */
+    public static TramTime ofHourMins(LocalTime time) {
+        return factory.of(time.getHour(), time.getMinute(), 0);
     }
 
     private static TramTime of(int hours, int minutes, int offsetDays) {
@@ -298,6 +315,14 @@ public class TramTime implements Comparable<TramTime> {
         return between(startOfInterval, time);
     }
 
+    public TramTime minus(Duration duration) {
+        long seconds = duration.getSeconds();
+        int mod = Math.floorMod(seconds, 60);
+        if (mod!=0) {
+            throw new RuntimeException("Accuracy lost attemping to subtract " + duration);
+        }
+        return this.minusMinutes((int) Math.floorDiv(seconds, 60));
+    }
 
     @FunctionalInterface
     public interface ToTramTimeFunction<T> {
@@ -319,7 +344,12 @@ public class TramTime implements Comparable<TramTime> {
         }
 
         private TramTime of(LocalTime time) {
-            return tramTimes[0][time.getHour()][time.getMinute()];
+            final TramTime result = tramTimes[0][time.getHour()][time.getMinute()];
+            if (result.asLocalTime().compareTo(time)!=0) {
+                // right now only represent times to a one minute accuracy
+                throw new RuntimeException("Accuracy lost converting " + time + " to a tram time " + result);
+            }
+            return result;
         }
 
         private TramTime midnight() {

@@ -265,7 +265,7 @@ class ProvidesNotesTest extends EasyMockSupport {
 
         VehicleStage stageA = createStageWithBoardingPlatform("platformId", nearPiccGardens);
 
-        TramTime queryTime = TramTime.of(lastUpdate.toLocalTime().minusHours(4));
+        TramTime queryTime = TramTime.ofHourMins(lastUpdate.toLocalTime().minusHours(4));
         TramServiceDate serviceDate = new TramServiceDate(lastUpdate.toLocalDate());
 
         PlatformMessage info = createPlatformMessage(lastUpdate, Pomona, "a message");
@@ -297,7 +297,7 @@ class ProvidesNotesTest extends EasyMockSupport {
 
         LocalDate localDate = lastUpdate.toLocalDate().plusDays(2);
         TramServiceDate queryDate = new TramServiceDate(localDate);
-        TramTime queryTime = TramTime.of(lastUpdate.toLocalTime());
+        TramTime queryTime = TramTime.ofHourMins(lastUpdate.toLocalTime());
 
         PlatformMessage info = createPlatformMessage(lastUpdate, Pomona, "a message");
 
@@ -332,7 +332,7 @@ class ProvidesNotesTest extends EasyMockSupport {
         VehicleStage stageE = createStageWithBoardingPlatform("platformId5", Altrincham);
 
         TramServiceDate serviceDate = new TramServiceDate(lastUpdate.toLocalDate());
-        TramTime queryTime = TramTime.of(lastUpdate.toLocalTime());
+        TramTime queryTime = TramTime.ofHourMins(lastUpdate.toLocalTime());
 
         final String messageOne = "Some long message";
         final String messageTwo = "Some Location Long message";
@@ -404,7 +404,7 @@ class ProvidesNotesTest extends EasyMockSupport {
         LocalDate localDate = LocalDate.of(2016, 10, 25);
         TramServiceDate queryDate = new TramServiceDate(localDate);
 
-        TramTime queryTime = TramTime.of(lastUpdate.toLocalTime());
+        TramTime queryTime = TramTime.ofHourMins(lastUpdate.toLocalTime());
         EasyMock.expect(platformMessageSource.messagesFor(pomona, localDate, queryTime)).
                 andReturn(Collections.singletonList(createPlatformMessage(lastUpdate, Pomona, "second message")));
         EasyMock.expect(platformMessageSource.messagesFor(velopark, localDate, queryTime)).

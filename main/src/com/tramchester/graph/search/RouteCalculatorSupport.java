@@ -10,6 +10,7 @@ import com.tramchester.domain.places.Station;
 import com.tramchester.domain.places.StationWalk;
 import com.tramchester.domain.presentation.TransportStage;
 import com.tramchester.domain.reference.TransportMode;
+import com.tramchester.domain.time.InvalidDurationException;
 import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.domain.time.TramServiceDate;
 import com.tramchester.domain.time.TramTime;
@@ -32,6 +33,7 @@ import org.neo4j.graphdb.Transaction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.time.Duration;
 import java.time.Instant;
 import java.util.HashMap;
 import java.util.List;
@@ -218,26 +220,36 @@ public class RouteCalculatorSupport {
         return new ServiceReasons(journeyRequest, pathRequest.queryTime, providesNow);
     }
 
-    protected int getMaxDurationFor(Transaction txn, Node startNode, LocationSet destinations, JourneyRequest journeyRequest) {
+    protected Duration getMaxDurationFor(Transaction txn, Node startNode, LocationSet destinations, JourneyRequest journeyRequest) {
+        final Duration maxDuration = Duration.ofMinutes(journeyRequest.getMaxJourneyDuration());
+
         if (config.getTransportModes().contains(TransportMode.Tram) && config.getTransportModes().size()==1) {
-            return journeyRequest.getMaxJourneyDuration();
+            return maxDuration;
         }
 
-        int maxLeastCostForRoute = destinations.stream().
-                mapToInt(dest -> routeCostCalculator.getMaxCostBetween(txn, startNode, dest, journeyRequest.getDate())).
-                max().orElse(journeyRequest.getMaxJourneyDuration());
+        Duration maxLeastCostForRoute = destinations.stream().
+                map(dest -> getMaxCostBetween(txn, startNode, journeyRequest, dest)).
+                filter(duration -> !duration.isNegative()).
+                max(Duration::compareTo).orElse(maxDuration);
 
-        int longest = maxLeastCostForRoute * 2; // 100% margin
+        //int longest = maxLeastCostForRoute * 2; // 100% margin
+        Duration longest = maxLeastCostForRoute.multipliedBy(2);
 
-        if (longest>journeyRequest.getMaxJourneyDuration()) {
-            logger.warn(format("Computed longest %s is more than journeyRequest %s",
-                    longest, journeyRequest.getMaxJourneyDuration()));
+        if (longest.compareTo(maxDuration)>0) {
+            logger.warn(format("Computed longest %s is more than journeyRequest %s", longest, maxDuration));
         } else {
             logger.info(format("Computed longest to be %s", longest));
         }
 
         return longest;
+    }
 
+    private Duration getMaxCostBetween(Transaction txn, Node startNode, JourneyRequest journeyRequest, Location<?> dest) {
+        try {
+            return routeCostCalculator.getMaxCostBetween(txn, startNode, dest, journeyRequest.getDate());
+        } catch (InvalidDurationException invalidDurationException) {
+            return Duration.ofSeconds(-1);
+        }
     }
 
     public PathRequest createPathRequest(Node startNode, TramServiceDate queryDate, TramTime actualQueryTime, int numChanges, JourneyConstraints journeyConstraints) {

@@ -28,6 +28,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.neo4j.graphdb.Node;
 
+import java.time.Duration;
 import java.time.LocalTime;
 import java.util.EnumSet;
 
@@ -73,7 +74,7 @@ class ServiceHeuristicsTest extends EasyMockSupport {
         journeyConstraints = createMock(JourneyConstraints.class);
         EasyMock.expect(journeyConstraints.getMaxPathLength()).andStubReturn(maxPathLength);
         EasyMock.expect(journeyConstraints.getEndStations()).andStubReturn(endStations);
-        EasyMock.expect(journeyConstraints.getMaxJourneyDuration()).andStubReturn(maxJourneyDuration);
+        EasyMock.expect(journeyConstraints.getMaxJourneyDuration()).andStubReturn(Duration.ofMinutes(maxJourneyDuration));
         EasyMock.expect(howIGotHere.getEndNodeId()).andStubReturn(42L);
     }
 

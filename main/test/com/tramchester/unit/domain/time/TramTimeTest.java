@@ -5,6 +5,7 @@ import com.tramchester.testSupport.TestEnv;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
+import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -326,6 +327,40 @@ class TramTimeTest {
 
         assertEquals(10, result.getHourOfDay());
         assertEquals(34, result.getMinuteOfHour());
+    }
+
+    @Test
+    void shouldSubtractDuration() {
+        TramTime reference = of(12, 4);
+
+        TramTime result = reference.minus(Duration.ofMinutes(30));
+        assertEquals(11, result.getHourOfDay());
+        assertEquals(34, result.getMinuteOfHour());
+
+        result = reference.minus(Duration.ofSeconds(60));
+        assertEquals(12, result.getHourOfDay());
+        assertEquals(3, result.getMinuteOfHour());
+
+        result = reference.minus(Duration.ofSeconds(60*30));
+        assertEquals(11, result.getHourOfDay());
+        assertEquals(34, result.getMinuteOfHour());
+
+    }
+
+    @Test
+    void shouldThrowIfAccuracyIsLostOnSubtraction() {
+        TramTime reference = of(12, 4);
+
+        assertThrows(RuntimeException.class, () -> reference.minus(Duration.ofSeconds(31)));
+        assertThrows(RuntimeException.class, () -> reference.minus(Duration.ofSeconds(29)));
+    }
+
+    @Test
+    void shouldNotThrowIfSafeConversationIsUsed() {
+        LocalTime now = LocalTime.now();
+        final LocalTime time = now.getSecond()==0 ? now.plusSeconds(1) : now;
+
+        TramTime.ofHourMins(time);
     }
 
     @Test

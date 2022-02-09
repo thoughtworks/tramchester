@@ -10,6 +10,7 @@ import com.tramchester.domain.places.Location;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.TransportStage;
 import com.tramchester.domain.reference.TransportMode;
+import com.tramchester.domain.time.InvalidDurationException;
 import com.tramchester.domain.time.TramServiceDate;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.domain.transportStages.WalkingStage;
@@ -39,10 +40,10 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static com.tramchester.testSupport.TestEnv.assertMinutesEquals;
 import static com.tramchester.testSupport.reference.KnownLocations.*;
 import static com.tramchester.testSupport.reference.TramTransportDataForTestFactory.TramTransportDataForTest.*;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 class TramRouteTest {
 
@@ -479,10 +480,20 @@ class TramRouteTest {
     }
 
     @Test
-    void shouldHaveRouteCostCalculationAsExpected() {
+    void shouldHaveRouteCostCalculationAsExpected() throws InvalidDurationException {
         RouteCostCalculator costCalculator = componentContainer.get(RouteCostCalculator.class);
-        assertEquals(41, costCalculator.getAverageCostBetween(txn, transportData.getFirst(), transportData.getLast(), queryDate));
-        assertEquals(-1, costCalculator.getAverageCostBetween(txn, transportData.getLast(), transportData.getFirst(), queryDate));
+        assertMinutesEquals(41, costCalculator.getAverageCostBetween(txn,
+                transportData.getFirst(), transportData.getLast(), queryDate));
+
+//        assertEquals(-1, costCalculator.getAverageCostBetween(txn, transportData.getLast(), transportData.getFirst(), queryDate));
+    }
+
+    @Test
+    void shouldThrowIfDurationIsInvalid() {
+        RouteCostCalculator costCalculator = componentContainer.get(RouteCostCalculator.class);
+
+        assertThrows(InvalidDurationException.class,
+                () -> costCalculator.getAverageCostBetween(txn, transportData.getLast(), transportData.getFirst(), queryDate));
     }
 
     @Test

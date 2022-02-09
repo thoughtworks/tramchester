@@ -15,6 +15,8 @@ import com.tramchester.repository.RunningRoutesAndServices;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.time.Duration;
+
 public class JourneyConstraints {
 
     private static final int TRAMS_MAX_PATH_LENGTH = 400; // likely bigger than needed, but does not impact performance
@@ -31,7 +33,7 @@ public class JourneyConstraints {
     private final int maxPathLength;
     private final LocationSet endStations;
     private final IdSet<Station> closedStations;
-    private final int maxJourneyDuration;
+    private final Duration maxJourneyDuration;
     private final int maxWalkingConnections;
     private final int maxNeighbourConnections;
     private final LowestCostsForDestRoutes lowestCostForDestinations;
@@ -39,14 +41,14 @@ public class JourneyConstraints {
     public JourneyConstraints(TramchesterConfig config, RunningRoutesAndServices.FilterForDate routesAndServicesFilter,
                               JourneyRequest journeyRequest,
                               ClosedStationsRepository closedStationsRepository, LocationSet endStations,
-                              LowestCostsForDestRoutes lowestCostForDestinations, int maxJourneyDuration) {
+                              LowestCostsForDestRoutes lowestCostForDestinations, Duration maxJourneyDuration) {
         this(config, routesAndServicesFilter, closedStationsRepository.getClosedStationsFor(journeyRequest.getDate()),
                 endStations, lowestCostForDestinations, maxJourneyDuration);
     }
 
     public JourneyConstraints(TramchesterConfig config, RunningRoutesAndServices.FilterForDate routesAndServicesFilter,
                               IdSet<Station> closedStations, LocationSet endStations,
-                              LowestCostsForDestRoutes lowestCostForDestinations, int maxJourneyDuration) {
+                              LowestCostsForDestRoutes lowestCostForDestinations, Duration maxJourneyDuration) {
         this.config = config;
         this.lowestCostForDestinations = lowestCostForDestinations;
         this.routesAndServicesFilter = routesAndServicesFilter;
@@ -89,7 +91,7 @@ public class JourneyConstraints {
         return endStations;
     }
 
-    public int getMaxJourneyDuration() {
+    public Duration getMaxJourneyDuration() {
         return maxJourneyDuration;
     }
 

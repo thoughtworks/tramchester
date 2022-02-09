@@ -3,6 +3,7 @@ package com.tramchester.unit.graph;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.Journey;
 import com.tramchester.domain.places.Station;
+import com.tramchester.domain.time.InvalidDurationException;
 import com.tramchester.domain.time.TramServiceDate;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.RouteCostCalculator;
@@ -17,6 +18,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.neo4j.graphdb.Transaction;
 
+import java.time.Duration;
 import java.time.LocalDate;
 import java.util.stream.Stream;
 
@@ -42,7 +44,7 @@ class RouteCalculatorArriveByTest extends EasyMockSupport {
     }
 
     @Test
-    void shouldArriveByTramNoWalk() {
+    void shouldArriveByTramNoWalk() throws InvalidDurationException {
         long maxNumberOfJourneys = 3;
         TramTime arriveByTime = TramTime.of(14,35);
         LocalDate localDate = TestEnv.testDay();
@@ -53,7 +55,8 @@ class RouteCalculatorArriveByTest extends EasyMockSupport {
 
         Stream<Journey> journeyStream = Stream.empty();
 
-        EasyMock.expect(costCalculator.getAverageCostBetween(txn, start, destinationId, serviceDate)).andReturn(costBetweenStartDest);
+        Duration duration = Duration.ofMinutes(15);
+        EasyMock.expect(costCalculator.getAverageCostBetween(txn, start, destinationId, serviceDate)).andReturn(duration);
         TramTime requiredDepartTime = arriveByTime.minusMinutes(costBetweenStartDest).minusMinutes(17); // 17 = 34/2
 
         JourneyRequest updatedWithComputedDepartTime = new JourneyRequest(serviceDate, requiredDepartTime, true,

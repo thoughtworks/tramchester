@@ -30,6 +30,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.DayOfWeek;
+import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -227,6 +228,10 @@ public class TestEnv {
     public static void assertLatLongEquals(LatLong expected, LatLong actual, double delta, String message) {
         assertEquals(expected.getLat(), actual.getLat(), delta, "lat:" + message);
         assertEquals(expected.getLon(), actual.getLon(), delta, "lon: " +message);
+    }
+
+    public static void assertMinutesEquals(int minutes, Duration duration) {
+        assertEquals(Duration.ofMinutes(minutes), duration, "Duration %s did match %d minutes".formatted(duration, minutes));
     }
 
     /**

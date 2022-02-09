@@ -17,6 +17,7 @@ import org.neo4j.graphdb.Node;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.time.Duration;
 import java.util.EnumSet;
 
 public class ServiceHeuristics {
@@ -212,10 +213,12 @@ public class ServiceHeuristics {
         return valid(ServiceReason.ReasonCode.Reachable, howIGotHere, reasons);
     }
 
+    // TODO Duration
     public ServiceReason journeyDurationUnderLimit(final int totalCost, final HowIGotHere howIGotHere, ServiceReasons reasons) {
         reasons.incrementTotalChecked();
 
-        if (totalCost > journeyConstraints.getMaxJourneyDuration()) {
+        Duration totalDuration = Duration.ofMinutes(totalCost);
+        if (totalDuration.compareTo(journeyConstraints.getMaxJourneyDuration()) > 0) {
             return reasons.recordReason(ServiceReason.TookTooLong(actualQueryTime.plusMinutes(totalCost), howIGotHere));
         }
         return valid(ServiceReason.ReasonCode.DurationOk, howIGotHere, reasons);

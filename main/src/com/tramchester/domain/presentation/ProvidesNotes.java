@@ -135,7 +135,7 @@ public class ProvidesNotes {
             logger.info("No messages available for " + queryDate + " last up date was " + lastUpdate);
             return;
         }
-        TramTime updateTime = TramTime.of(lastUpdate.toLocalTime());
+        TramTime updateTime = TramTime.ofHourMins(lastUpdate.toLocalTime());
         // 1 minutes here as time sync on live api has been out by 1 min
         if (!queryTime.between(updateTime.minusMinutes(1), updateTime.plusMinutes(MESSAGE_LIFETIME))) {
             logger.info("No data available for " + queryTime + " as not between " + updateTime.minusMinutes(1) +

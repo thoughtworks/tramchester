@@ -4,7 +4,7 @@ import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.places.Location;
-import com.tramchester.domain.places.Station;
+import com.tramchester.domain.time.InvalidDurationException;
 import com.tramchester.domain.time.TramServiceDate;
 import com.tramchester.graph.graphbuild.GraphProps;
 import com.tramchester.graph.graphbuild.StagedTransportGraphBuilder;
@@ -19,6 +19,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
+import java.time.Duration;
 import java.time.LocalDate;
 import java.util.function.Predicate;
 
@@ -46,55 +47,53 @@ public class RouteCostCalculator {
         this.routeRepository = routeRepository;
     }
 
-    public int getAverageCostBetween(Transaction txn, Node startNode, Node endNode, TramServiceDate date) {
+    public Duration getAverageCostBetween(Transaction txn, Node startNode, Node endNode, TramServiceDate date) throws InvalidDurationException {
         return calculateLeastCost(txn, startNode, endNode, COST, date.getDate());
     }
 
-    public int getAverageCostBetween(Transaction txn, Location<?> station, Node endNode, TramServiceDate date) {
+    public Duration getAverageCostBetween(Transaction txn, Location<?> station, Node endNode, TramServiceDate date) throws InvalidDurationException {
         Node startNode = graphQuery.getLocationNode(txn, station);
         return calculateLeastCost(txn, startNode, endNode, COST, date.getDate());
     }
 
     // startNode must have been found within supplied txn
-    public int getAverageCostBetween(Transaction txn, Node startNode, Location<?> endStation, TramServiceDate date) {
+    public Duration getAverageCostBetween(Transaction txn, Node startNode, Location<?> endStation, TramServiceDate date) throws InvalidDurationException {
         Node endNode = graphQuery.getLocationNode(txn, endStation);
         return calculateLeastCost(txn, startNode, endNode, COST, date.getDate());
     }
 
-    public int getAverageCostBetween(Transaction txn, Location<?> startStation, Location<?> endStation, TramServiceDate date) {
+    public Duration getAverageCostBetween(Transaction txn, Location<?> startStation, Location<?> endStation, TramServiceDate date) throws InvalidDurationException {
         return getCostBetween(txn, startStation, endStation, COST, date.getDate());
     }
 
-    public int getMaxCostBetween(Transaction txn, Location<?> start, Location<?> end, TramServiceDate date) {
+    public Duration getMaxCostBetween(Transaction txn, Location<?> start, Location<?> end, TramServiceDate date) throws InvalidDurationException {
         return getCostBetween(txn, start, end, MAX_COST, date.getDate());
     }
 
-    public int getMaxCostBetween(Transaction txn, Node start, Location<?> endStation, TramServiceDate date) {
+    public Duration getMaxCostBetween(Transaction txn, Node start, Location<?> endStation, TramServiceDate date) throws InvalidDurationException {
         Node endNode = graphQuery.getLocationNode(txn, endStation);
         return calculateLeastCost(txn, start, endNode, MAX_COST, date.getDate());
     }
 
-    private int getCostBetween(Transaction txn, Station startStation, Station endStation, GraphPropertyKey key, LocalDate date) {
-        Node startNode = graphQuery.getStationNode(txn, startStation);
-        if (startNode==null) {
-            throw new RuntimeException("Could not find start node for graph id " + startStation.getId().getGraphId());
-        }
-        Node endNode = graphQuery.getStationNode(txn, endStation);
-        if (endNode==null) {
-            throw new RuntimeException("Could not find end node for graph id" + endStation.getId().getGraphId());
-        }
-        logger.info(format("Find approx. route cost between %s and %s", startStation.getId(), endStation.getId()));
+//    private int getCostBetween(Transaction txn, Station startStation, Station endStation, GraphPropertyKey key, LocalDate date) {
+//        Node startNode = graphQuery.getStationNode(txn, startStation);
+//        if (startNode==null) {
+//            throw new RuntimeException("Could not find start node for graph id " + startStation.getId().getGraphId());
+//        }
+//        Node endNode = graphQuery.getStationNode(txn, endStation);
+//        if (endNode==null) {
+//            throw new RuntimeException("Could not find end node for graph id" + endStation.getId().getGraphId());
+//        }
+//        logger.info(format("Find approx. route cost between %s and %s", startStation.getId(), endStation.getId()));
+//
+//        return calculateLeastCost(txn, startNode, endNode, key, date);
+//    }
 
-        return calculateLeastCost(txn, startNode, endNode, key, date);
-    }
-
-    private int getCostBetween(Transaction txn, Location<?> startLocation, Location<?> endLocation, GraphPropertyKey key, LocalDate date) {
-        //Node startNode = graphQuery.getStationNode(txn, startStation);
+    private Duration getCostBetween(Transaction txn, Location<?> startLocation, Location<?> endLocation, GraphPropertyKey key, LocalDate date) throws InvalidDurationException {
         Node startNode = graphQuery.getLocationNode(txn, startLocation);
         if (startNode==null) {
             throw new RuntimeException("Could not find start node for graph id " + startLocation.getId().getGraphId());
         }
-//        Node endNode = graphQuery.getStationNode(txn, endLocation);
         Node endNode = graphQuery.getLocationNode(txn, endLocation);
         if (endNode==null) {
             throw new RuntimeException("Could not find end node for graph id" + endLocation.getId().getGraphId());
@@ -106,7 +105,7 @@ public class RouteCostCalculator {
 
     // startNode and endNode must have been found within supplied txn
 
-    private int calculateLeastCost(Transaction txn, Node startNode, Node endNode, GraphPropertyKey key, LocalDate date) {
+    private Duration calculateLeastCost(Transaction txn, Node startNode, Node endNode, GraphPropertyKey key, LocalDate date) throws InvalidDurationException {
         IdSet<Route> running = IdSet.from(routeRepository.getRoutesRunningOn(date));
         // TODO fetch all the relationshipIds first
 
@@ -117,17 +116,21 @@ public class RouteCostCalculator {
 
         PathExpander<Double> forTypesAndDirections = fullExpanderForCostApproximation(routeFilter);
 
-        //PathFinder<WeightedPath> finder = GraphAlgoFactory.dijkstra(context, forTypesAndDirections, key.getText());
-        PathFinder<WeightedPath> finder = GraphAlgoFactory.dijkstra(context, forTypesAndDirections, new UsefulLoggingCostEvaluator(key.getText()));
+        PathFinder<WeightedPath> finder = GraphAlgoFactory.dijkstra(context, forTypesAndDirections,
+                new UsefulLoggingCostEvaluator(key.getText()));
 
         WeightedPath path = finder.findSinglePath(startNode, endNode);
         if (path==null) {
-            logger.error(format("No (least cost) path found between node %s [%s] and node %s [%s]",
-                    startNode.getId(), startNode.getAllProperties(), endNode.getId(), endNode.getAllProperties()));
-            return -1;
+            final String message = format("No (least cost) path found between node %s [%s] and node %s [%s]",
+                    startNode.getId(), startNode.getAllProperties(), endNode.getId(), endNode.getAllProperties());
+            logger.error(message);
+            throw new InvalidDurationException(message);
         }
         double weight  = Math.floor(path.weight());
-        return (int) weight;
+
+        // todo pass in Chronounits here?
+        int value = (int) weight;
+        return Duration.ofMinutes(value);
     }
 
     private PathExpander<Double> fullExpanderForCostApproximation(Predicate<? super Relationship> routeFilter) {

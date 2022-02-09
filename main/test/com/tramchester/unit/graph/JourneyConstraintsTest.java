@@ -21,11 +21,13 @@ import org.easymock.EasyMockSupport;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.time.Duration;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
 import static com.tramchester.domain.reference.TransportMode.Tram;
+import static com.tramchester.testSupport.TestEnv.assertMinutesEquals;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class JourneyConstraintsTest extends EasyMockSupport {
@@ -45,15 +47,16 @@ public class JourneyConstraintsTest extends EasyMockSupport {
 
         LocationSet endStations = LocationSet.singleton(TramStations.Bury.fake());
 
+        final Duration maxJourneyDuration = Duration.ofMinutes(config.getMaxJourneyDuration());
         journeyConstraints = new JourneyConstraints(config, filterForDate,
-                closedStations, endStations, lowestCostForDest, config.getMaxJourneyDuration());
+                closedStations, endStations, lowestCostForDest, maxJourneyDuration);
     }
 
     @Test
     void shouldCarryBasicParams() {
         assertEquals(config.getMaxWalkingConnections(), journeyConstraints.getMaxWalkingConnections());
         assertEquals(config.getMaxNeighbourConnections(), journeyConstraints.getMaxNeighbourConnections());
-        assertEquals(config.getMaxJourneyDuration(), journeyConstraints.getMaxJourneyDuration());
+        assertMinutesEquals(config.getMaxJourneyDuration(), journeyConstraints.getMaxJourneyDuration());
     }
 
     @Test

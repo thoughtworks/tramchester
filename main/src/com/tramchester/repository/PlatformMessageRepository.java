@@ -237,7 +237,7 @@ public class PlatformMessageRepository implements PlatformMessageSource, Reports
 
     @NotNull
     public Set<Station> getStationsWithMessages(LocalTime time) {
-        TramTime queryTime = TramTime.of(time);
+        TramTime queryTime = TramTime.ofHourMins(time);
         return messageCache.asMap().values().stream().
                 filter(entry -> withinTime(queryTime, entry.getLastUpdate().toLocalTime())).
                 map(PlatformMessage::getStation).collect(Collectors.toSet());

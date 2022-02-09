@@ -31,6 +31,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
+import java.time.Duration;
 import java.time.Instant;
 import java.util.Collections;
 import java.util.List;
@@ -137,7 +138,8 @@ public class RouteCalculator extends RouteCalculatorSupport implements TramRoute
 
         // can only be shared as same date and same set of destinations, will eliminate previously seen paths/results
         LowestCostsForDestRoutes lowestCostsForRoutes = routeToRouteCosts.getLowestCostCalcutatorFor(destinations);
-        int maxJourneyDuration = getMaxDurationFor(txn, startNode, destinations, journeyRequest);
+        Duration maxJourneyDuration = getMaxDurationFor(txn, startNode, destinations, journeyRequest);
+
         final JourneyConstraints journeyConstraints = new JourneyConstraints(config, runningRoutesAndServices.getFor(queryDate.getDate()),
                 journeyRequest, closedStationsRepository, destinations, lowestCostsForRoutes, maxJourneyDuration);
 

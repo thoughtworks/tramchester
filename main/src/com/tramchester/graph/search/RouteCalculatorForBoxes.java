@@ -23,6 +23,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
+import java.time.Duration;
 import java.time.Instant;
 import java.util.List;
 import java.util.Set;
@@ -72,7 +73,7 @@ public class RouteCalculatorForBoxes extends RouteCalculatorSupport {
         final LowestCostsForDestRoutes lowestCostForDestinations = routeToRouteCosts.getLowestCostCalcutatorFor(destinations);
         RunningRoutesAndServices.FilterForDate routeAndServicesFilter = runningRoutesAndService.getFor(queryDate.getDate());
 
-        int maxJourneyDuration = journeyRequest.getMaxJourneyDuration();
+        Duration maxJourneyDuration = Duration.ofMinutes(journeyRequest.getMaxJourneyDuration());
         final JourneyConstraints journeyConstraints = new JourneyConstraints(config, routeAndServicesFilter, journeyRequest, closedStationsRepository,
                 destinations, lowestCostForDestinations, maxJourneyDuration);
 

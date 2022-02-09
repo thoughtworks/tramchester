@@ -9,6 +9,7 @@ import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.places.StationGroup;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.TransportStage;
+import com.tramchester.domain.time.InvalidDurationException;
 import com.tramchester.domain.time.TramServiceDate;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.GraphDatabase;
@@ -34,6 +35,7 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Set;
 
+import static com.tramchester.testSupport.TestEnv.assertMinutesEquals;
 import static com.tramchester.testSupport.reference.KnownLocations.nearAltrincham;
 import static com.tramchester.testSupport.reference.KnownLocations.nearKnutsfordBusStation;
 import static org.junit.jupiter.api.Assertions.*;
@@ -198,13 +200,14 @@ class CompositeRouteTest {
     }
 
     @Test
-    void shouldHaveRouteCosts() {
+    void shouldHaveRouteCosts() throws InvalidDurationException {
         RouteCostCalculator routeCostCalculator = componentContainer.get(RouteCostCalculator.class);
-        assertEquals(41, routeCostCalculator.getAverageCostBetween(txn, startGroup, transportData.getLast(), queryDate));
-        assertEquals(41, routeCostCalculator.getAverageCostBetween(txn, transportData.getFirst(), transportData.getLast(), queryDate));
+        assertMinutesEquals(41, routeCostCalculator.getAverageCostBetween(txn, startGroup, transportData.getLast(), queryDate));
+        assertMinutesEquals(41, routeCostCalculator.getAverageCostBetween(txn, transportData.getFirst(),
+                transportData.getLast(), queryDate));
 
-        assertEquals(0, routeCostCalculator.getAverageCostBetween(txn, transportData.getFirst(), startGroup, queryDate));
-        assertEquals(0, routeCostCalculator.getAverageCostBetween(txn, startGroup, transportData.getFirst(), queryDate));
+        assertMinutesEquals(0, routeCostCalculator.getAverageCostBetween(txn, transportData.getFirst(), startGroup, queryDate));
+        assertMinutesEquals(0, routeCostCalculator.getAverageCostBetween(txn, startGroup, transportData.getFirst(), queryDate));
     }
 
     @Test

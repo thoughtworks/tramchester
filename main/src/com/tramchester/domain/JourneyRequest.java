@@ -93,6 +93,8 @@ public class JourneyRequest {
         return this;
     }
 
+    // TODO Return duration
+    @Deprecated
     public int getMaxJourneyDuration() {
         return maxJourneyDuration;
     }
