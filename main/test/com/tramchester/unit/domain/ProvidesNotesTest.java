@@ -1,6 +1,7 @@
 package com.tramchester.unit.domain;
 
 import com.tramchester.domain.*;
+import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.input.MutableTrip;
 import com.tramchester.domain.input.Trip;
@@ -430,8 +431,7 @@ class ProvidesNotesTest extends EasyMockSupport {
 
     private PlatformMessage createPlatformMessage(LocalDateTime lastUpdate, TramStations tramStation, String message) {
 
-        Platform platform = MutablePlatform.buildForTFGMTram(tramStation.getRawId() + "1", tramStation.getName() + " platform 1",
-                tramStation.getLatLong());
+        Platform platform = MutablePlatform.buildForTFGMTram(tramStation.getRawId() + "1", tramStation.getName() + " platform 1", tramStation.getLatLong(), DataSourceID.unknown, IdFor.invalid());
         Station station = tramStation.fakeWith(platform);
         //station.addPlatform(platform);
 
@@ -455,7 +455,7 @@ class ProvidesNotesTest extends EasyMockSupport {
         // TODO
         List<Integer> passedStations = new ArrayList<>();
 
-        Platform platform = MutablePlatform.buildForTFGMTram(platformId, "platformName", latLong);
+        Platform platform = MutablePlatform.buildForTFGMTram(platformId, "platformName", latLong, DataSourceID.unknown, IdFor.invalid());
         final Station firstStation = Ashton.fakeWith(platform);
         //firstStation.addPlatform(platform);
 

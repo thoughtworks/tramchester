@@ -1,6 +1,7 @@
 package com.tramchester.unit.domain;
 
 import com.tramchester.domain.*;
+import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.input.MutableTrip;
 import com.tramchester.domain.input.Trip;
@@ -198,12 +199,10 @@ class JourneyTest {
     void shouldHaveCallingPlatformIds() {
         final TramTime departureTimeA = queryTime.plusMinutes(10);
 
-        final Platform platform1 = MutablePlatform.buildForTFGMTram("platformId1", "platformNameA",
-                nearAltrincham.latLong());
+        final Platform platform1 = MutablePlatform.buildForTFGMTram("platformId1", "platformNameA", nearAltrincham.latLong(), DataSourceID.unknown, IdFor.invalid());
         final Station alty = Altrincham.fakeWith(platform1);
 
-        final Platform platform2 = MutablePlatform.buildForTFGMTram("platformId2", "platformNameA",
-                nearStPetersSquare.latLong());
+        final Platform platform2 = MutablePlatform.buildForTFGMTram("platformId2", "platformNameA", nearStPetersSquare.latLong(), DataSourceID.unknown, IdFor.invalid());
         final Station stPeters = StPetersSquare.fakeWith(platform2);
 
         final VehicleStage stageA = createVehicleStage(alty, stPeters, Bus, departureTimeA, 13);

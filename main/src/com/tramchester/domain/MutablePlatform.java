@@ -48,11 +48,6 @@ public class MutablePlatform implements Platform {
 
     }
 
-    @Deprecated
-    public static Platform buildForTFGMTram(String id, String stationName, LatLong latLong) {
-        return buildForTFGMTram(id, stationName, latLong, DataSourceID.unknown, IdFor.invalid());
-    }
-
     /***
      * For testing ONLY
      * @param id the platform id

@@ -36,7 +36,7 @@ class StationGroupTest {
         Route route = TestEnv.getTramTestRoute();
         stationA.addRoutePickUp(route);
 
-        Platform platform = MutablePlatform.buildForTFGMTram("platformId", "platformName", latLong);
+        Platform platform = MutablePlatform.buildForTFGMTram("platformId", "platformName", latLong, DataSourceID.unknown, IdFor.invalid());
         stationA.addPlatform(platform);
 
         IdFor<NaptanArea> areaId = StringIdFor.createId("areaId");
@@ -75,7 +75,7 @@ class StationGroupTest {
         Route routeA = TestEnv.getTramTestRoute(StringIdFor.createId("routeA"), "routeName");
 
         stationA.addRouteDropOff(routeA);
-        Platform platformA = MutablePlatform.buildForTFGMTram("platformIdA", "platformNameA",  new LatLong(2, 4));
+        Platform platformA = MutablePlatform.buildForTFGMTram("platformIdA", "platformNameA", new LatLong(2, 4), DataSourceID.unknown, IdFor.invalid());
         stationA.addPlatform(platformA);
 
         MutableStation stationB = StationHelper.forTestMutable("idB", "areaB", "stopNameB",
@@ -83,7 +83,7 @@ class StationGroupTest {
         Route routeB = MutableRoute.getRoute(StringIdFor.createId("routeB"), "routeCodeB", "routeNameB", TestEnv.StagecoachManchester, Bus);
         stationB.addRouteDropOff(routeB);
         stationB.addRoutePickUp(routeA);
-        Platform platformB = MutablePlatform.buildForTFGMTram("platformIdB", "platformNameB",  new LatLong(4, 8));
+        Platform platformB = MutablePlatform.buildForTFGMTram("platformIdB", "platformNameB", new LatLong(4, 8), DataSourceID.unknown, IdFor.invalid());
         stationB.addPlatform(platformB);
 
         Set<Station> stations = new HashSet<>(Arrays.asList(stationA, stationB));

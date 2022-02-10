@@ -1,5 +1,6 @@
 package com.tramchester.unit.repository;
 
+import com.tramchester.domain.DataSourceID;
 import com.tramchester.domain.MutablePlatform;
 import com.tramchester.domain.Platform;
 import com.tramchester.domain.id.IdFor;
@@ -45,7 +46,7 @@ class DueTramsRepositoryTest extends EasyMockSupport {
         LocalDate today = TestEnv.LocalNow().toLocalDate();
         lastUpdate = LocalDateTime.of(today, LocalTime.of(15,42));
 
-        platform = MutablePlatform.buildForTFGMTram("someId1", "Shudehill platform 1", Shudehill.getLatLong());
+        platform = MutablePlatform.buildForTFGMTram("someId1", "Shudehill platform 1", Shudehill.getLatLong(), DataSourceID.unknown, IdFor.invalid());
         station = Shudehill.fakeWith(platform);
 //        station.addPlatform(platform);
     }
@@ -60,7 +61,7 @@ class DueTramsRepositoryTest extends EasyMockSupport {
                 "message 1", station, dueTram);
 
         // second station, has due tram
-        Platform platfromForSecondStation = MutablePlatform.buildForTFGMTram("a1", "Altrincham platform 1", Altrincham.getLatLong());
+        Platform platfromForSecondStation = MutablePlatform.buildForTFGMTram("a1", "Altrincham platform 1", Altrincham.getLatLong(), DataSourceID.unknown, IdFor.invalid());
         Station secondStation = Altrincham.fakeWith(platfromForSecondStation);
         //secondStation.addPlatform(platfromForSecondStation);
 
@@ -69,7 +70,7 @@ class DueTramsRepositoryTest extends EasyMockSupport {
                 "message 2", secondStation, dueTramOther);
 
         // third, no due trams
-        Platform platfromForThirdStation = MutablePlatform.buildForTFGMTram("b2", "Intu platform 2", TraffordCentre.getLatLong());
+        Platform platfromForThirdStation = MutablePlatform.buildForTFGMTram("b2", "Intu platform 2", TraffordCentre.getLatLong(), DataSourceID.unknown, IdFor.invalid());
         Station thirdStation = TraffordCentre.fakeWith(platfromForThirdStation);
 
         // todo following looks suspect...? Should have been platfromForThirdStation into thirdStation?
@@ -99,7 +100,7 @@ class DueTramsRepositoryTest extends EasyMockSupport {
         addStationInfoWithDueTram(infos, lastUpdate, "displayId", platform.getId(),
                 "some message", station, dueTram);
 
-        Platform otherPlatform = MutablePlatform.buildForTFGMTram("other1", "Altrincham platform 1", Altrincham.getLatLong());
+        Platform otherPlatform = MutablePlatform.buildForTFGMTram("other1", "Altrincham platform 1", Altrincham.getLatLong(), DataSourceID.unknown, IdFor.invalid());
         Station otherStation = Altrincham.fakeWith(otherPlatform);
 
         Station destinationManAirport = ManAirport.fake();

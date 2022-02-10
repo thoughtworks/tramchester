@@ -1,10 +1,8 @@
 package com.tramchester.unit.domain;
 
 
-import com.tramchester.domain.MutablePlatform;
-import com.tramchester.domain.MutableService;
-import com.tramchester.domain.Platform;
-import com.tramchester.domain.Service;
+import com.tramchester.domain.*;
+import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.input.MutableTrip;
 import com.tramchester.domain.input.PlatformStopCall;
 import com.tramchester.domain.input.StopCalls;
@@ -44,7 +42,7 @@ class PlatformStopCallsTest {
         stationB = TramStations.Broadway;
         stationC = TramStations.Cornbrook;
         stationD = TramStations.Deansgate;
-        platformD = MutablePlatform.buildForTFGMTram("statD1", "name:" + "statD1", stationD.getLatLong());
+        platformD = MutablePlatform.buildForTFGMTram("statD1", "name:" + "statD1", stationD.getLatLong(), DataSourceID.unknown, IdFor.invalid());
 
         Service service = MutableService.build(createId("svc1"));
         trip = MutableTrip.build(createId("tripId"), "headSign", service,

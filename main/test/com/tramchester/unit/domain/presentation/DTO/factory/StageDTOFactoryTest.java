@@ -1,6 +1,7 @@
 package com.tramchester.unit.domain.presentation.DTO.factory;
 
 import com.tramchester.domain.*;
+import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.input.MutableTrip;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.MyLocation;
@@ -74,7 +75,7 @@ class StageDTOFactoryTest extends EasyMockSupport {
 
         List<Integer> stopCallIndexes = Arrays.asList(1,2,3,4);
 
-        Platform platform = MutablePlatform.buildForTFGMTram("platFormId", "platformName", new LatLong(1,1));
+        Platform platform = MutablePlatform.buildForTFGMTram("platFormId", "platformName", new LatLong(1, 1), DataSourceID.unknown, IdFor.invalid());
 
         Station firstStation = MarketStreet.fakeWith(platform);
 
