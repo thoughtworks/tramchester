@@ -265,6 +265,26 @@ public class TramTime implements Comparable<TramTime> {
         return TramTime.of(newHours, newMins, newOffsetDays);
     }
 
+    public TramTime plus(Duration duration) {
+        final int minutes = getMinutesSafe(duration);
+        return plusMinutes(minutes);
+    }
+
+    public TramTime minus(Duration duration) {
+        final int minutes = getMinutesSafe(duration);
+        return minusMinutes(minutes);
+    }
+
+    // TODO Store seconds in tram time
+    private int getMinutesSafe(Duration duration) {
+        long seconds = duration.getSeconds();
+        int mod = Math.floorMod(seconds, 60);
+        if (mod!=0) {
+            throw new RuntimeException("Accuracy lost attempting to convert " + duration + " to minutes");
+        }
+        return (int) Math.floorDiv(seconds, 60);
+    }
+
     public TramTime plusMinutes(int amount) {
         int hoursToAdd = Integer.divideUnsigned(amount, 60);
         int minutesToAdd = amount - (hoursToAdd*60);
@@ -315,14 +335,6 @@ public class TramTime implements Comparable<TramTime> {
         return between(startOfInterval, time);
     }
 
-    public TramTime minus(Duration duration) {
-        long seconds = duration.getSeconds();
-        int mod = Math.floorMod(seconds, 60);
-        if (mod!=0) {
-            throw new RuntimeException("Accuracy lost attemping to subtract " + duration);
-        }
-        return this.minusMinutes((int) Math.floorDiv(seconds, 60));
-    }
 
     @FunctionalInterface
     public interface ToTramTimeFunction<T> {

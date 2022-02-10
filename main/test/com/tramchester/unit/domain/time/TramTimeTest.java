@@ -308,6 +308,19 @@ class TramTimeTest {
     }
 
     @Test
+    void shouldAddDuration() {
+        TramTime ref = of(0,0);
+        assertEquals(of(0,42), ref.plus(Duration.ofMinutes(42)));
+        assertEquals(of(2,42), ref.plus(Duration.ofMinutes(42+120)));
+        assertEquals(of(0,42), ref.plus(Duration.ofSeconds(42*60)));
+
+        ref = of(23,10);
+        assertEquals(of(23,52), ref.plus(Duration.ofMinutes(42)));
+        assertEquals(nextDay(0,9), ref.plus(Duration.ofMinutes((59))));
+
+    }
+
+    @Test
     void shouldAddSubMinsNextDay() {
         TramTime ref = nextDay(11,42);
         assertEquals(nextDay(11,52), ref.plusMinutes(10));
@@ -344,7 +357,6 @@ class TramTimeTest {
         result = reference.minus(Duration.ofSeconds(60*30));
         assertEquals(11, result.getHourOfDay());
         assertEquals(34, result.getMinuteOfHour());
-
     }
 
     @Test
@@ -353,6 +365,14 @@ class TramTimeTest {
 
         assertThrows(RuntimeException.class, () -> reference.minus(Duration.ofSeconds(31)));
         assertThrows(RuntimeException.class, () -> reference.minus(Duration.ofSeconds(29)));
+    }
+
+    @Test
+    void shouldThrowIfAccuracyIsLostOnAddition() {
+        TramTime reference = of(12, 4);
+
+        assertThrows(RuntimeException.class, () -> reference.plus(Duration.ofSeconds(31)));
+        assertThrows(RuntimeException.class, () -> reference.plus(Duration.ofSeconds(29)));
     }
 
     @Test

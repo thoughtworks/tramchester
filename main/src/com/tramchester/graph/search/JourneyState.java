@@ -19,7 +19,7 @@ public class JourneyState implements ImmutableJourneyState, JourneyStateUpdate {
 
     private final CoreState coreState;
 
-    private int journeyOffset;
+    private Duration journeyOffset;
     private TramTime boardingTime;
     private TraversalState traversalState;
 
@@ -27,7 +27,7 @@ public class JourneyState implements ImmutableJourneyState, JourneyStateUpdate {
         coreState = new CoreState(queryTime);
 
         this.traversalState = traversalState;
-        journeyOffset = 0;
+        journeyOffset = Duration.ZERO;
     }
 
     public static JourneyState fromPrevious(ImmutableJourneyState previousState) {
@@ -66,7 +66,7 @@ public class JourneyState implements ImmutableJourneyState, JourneyStateUpdate {
     @Deprecated
     @Override
     public void updateTotalCost(int currentTotalCost) {
-        int costForTrip = currentTotalCost - journeyOffset;
+        int costForTrip = (int) (currentTotalCost - journeyOffset.toMinutes());
 
         if (coreState.onBoard()) {
             coreState.setJourneyClock(boardingTime.plusMinutes(costForTrip));
@@ -76,12 +76,27 @@ public class JourneyState implements ImmutableJourneyState, JourneyStateUpdate {
     }
 
     @Override
-    public void updateTotalDuration(Duration total) {
-        // TODO Store Duration?
-        updateTotalCost((int) total.toMinutes());
+    public void updateTotalDuration(Duration currentTotalCost) {
+        Duration costForTrip = currentTotalCost.minus(journeyOffset);
+
+        if (coreState.onBoard()) {
+            coreState.setJourneyClock(boardingTime.plus(costForTrip));
+        } else {
+            coreState.incrementJourneyClock(costForTrip);
+        }
     }
 
+    @Deprecated
     public void recordTime(TramTime boardingTime, int currentCost) throws TramchesterException {
+        if ( !coreState.onBoard() ) {
+            throw new TramchesterException("Not on a bus or tram");
+        }
+        coreState.setJourneyClock(boardingTime);
+        this.boardingTime = boardingTime;
+        this.journeyOffset = Duration.ofMinutes(currentCost);
+    }
+
+    public void recordTime(TramTime boardingTime, Duration currentCost) throws TramchesterException {
         if ( !coreState.onBoard() ) {
             throw new TramchesterException("Not on a bus or tram");
         }
@@ -116,21 +131,24 @@ public class JourneyState implements ImmutableJourneyState, JourneyStateUpdate {
     }
 
     @Override
-    public void leave(TransportMode mode, int totalCost, Node node) throws TramchesterException {
+    public void leave(TransportMode mode, int totalCostMinutes, Node node) throws TramchesterException {
+        Duration totalDuration = Duration.ofMinutes(totalCostMinutes);
+
         if (!coreState.modeEquals(mode)) {
             throw new TramchesterException("Not currently on " +mode+ " was " + coreState.currentMode);
         }
-        leave(totalCost);
+        leave(totalDuration);
         coreState.leaveVehicle();
     }
 
-    private void leave(int currentTotalCost) {
-        if (currentTotalCost<journeyOffset) {
+    private void leave(Duration currentTotalCost) {
+        if (currentTotalCost.compareTo(journeyOffset) < 0) {
             throw new RuntimeException("Invalid total cost "+currentTotalCost+" less that current total offset " +journeyOffset);
         }
 
-        int tripCost = currentTotalCost - journeyOffset;
-        coreState.setJourneyClock(boardingTime.plusMinutes(tripCost));
+        Duration tripCost = currentTotalCost.minus(journeyOffset); //currentTotalCost - journeyOffset;
+
+        coreState.setJourneyClock(boardingTime.plus(tripCost));
 
         journeyOffset = currentTotalCost;
         boardingTime = null;
@@ -277,8 +295,13 @@ public class JourneyState implements ImmutableJourneyState, JourneyStateUpdate {
             journeyClock = time;
         }
 
+        @Deprecated
         public void incrementJourneyClock(int minutes) {
             journeyClock = journeyClock.plusMinutes(minutes);
+        }
+
+        public void incrementJourneyClock(Duration duration) {
+            journeyClock = journeyClock.plus(duration);
         }
 
         public boolean onBoard() {
