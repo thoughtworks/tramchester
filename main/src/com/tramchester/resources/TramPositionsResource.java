@@ -58,7 +58,7 @@ public class TramPositionsResource implements APIResource, GraphDatabaseDependen
         boolean unfilteredFlag = unfilteredRaw.equals("true");
 
         LocalDate localDate = providesNow.getDate();
-        List<TramPosition> results = positionInference.inferWholeNetwork(TramServiceDate.of(localDate), providesNow.getNow());
+        List<TramPosition> results = positionInference.inferWholeNetwork(TramServiceDate.of(localDate), providesNow.getNowHourMins());
         List<TramPositionDTO> dtoList = results.stream().
                 filter(pos -> unfilteredFlag || (!pos.getTrams().isEmpty())).
                 map(pos -> new TramPositionDTO(

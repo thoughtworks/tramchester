@@ -22,7 +22,7 @@ public abstract class TransportResource {
 
     protected TramTime parseOptionalTimeOrNow(String text) {
         if (text.isEmpty()) {
-            return providesNow.getNow();
+            return providesNow.getNowHourMins();
         }
         return parseTime(text);
 

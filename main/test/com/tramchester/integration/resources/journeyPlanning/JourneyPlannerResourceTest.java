@@ -247,13 +247,13 @@ public class JourneyPlannerResourceTest {
         TramTime queryTime = TramTime.of(17,45);
 
         JourneyPlanRepresentation results = journeyPlanner.getJourneyPlan(TestEnv.testDay(),
-                TramTime.of(queryTime.asLocalTime()), Altrincham, Ashton, false, 3);
+                TramTime.ofHourMins(queryTime.asLocalTime()), Altrincham, Ashton, false, 3);
 
         Set<JourneyDTO> journeys = results.getJourneys();
 
         Optional<TramTime> earliest = journeys.stream().map(JourneyDTO::getFirstDepartureTime).
                 map(LocalDateTime::toLocalTime).
-                map(TramTime::of).
+                map(TramTime::ofHourMins).
                 min(TramTime.comparing(time->time));
 
         assertTrue(earliest.isPresent());

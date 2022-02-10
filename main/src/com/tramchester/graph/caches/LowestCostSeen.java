@@ -4,30 +4,30 @@ import com.tramchester.graph.search.ImmutableJourneyState;
 
 import java.time.Duration;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
 
 public class LowestCostSeen {
-    private final AtomicInteger lowestCost;
+    private final AtomicReference<Duration> lowestCost;
     private final AtomicInteger lowestNumChanges;
     private final AtomicInteger arrived;
 
     public LowestCostSeen() {
-        lowestCost = new AtomicInteger(Integer.MAX_VALUE);
+        lowestCost = new AtomicReference<>(Duration.ofMinutes(Integer.MAX_VALUE));
         lowestNumChanges = new AtomicInteger(Integer.MAX_VALUE);
         arrived = new AtomicInteger(0);
     }
 
     @Deprecated
     public int getLowestCost() {
-        return lowestCost.get();
+        return (int) lowestCost.get().toMinutes();
     }
 
     public Duration getLowestDuration() {
-        return Duration.ofMinutes(lowestCost.get());
+        return lowestCost.get();
     }
 
-    @Deprecated
-    public void setLowestCost(int cost) {
-        lowestCost.getAndSet(cost);
+    public void setLowestCost(Duration duration) {
+        lowestCost.getAndSet(duration);
     }
 
     public int getLowestNumChanges() {
@@ -43,7 +43,6 @@ public class LowestCostSeen {
         // An alternative to this would be to search over a finer grained list of times and catch alternatives
         // that way
 
-        // journeyState.getTotalCostSoFar() <= getLowestCost()
         boolean durationLower = journeyState.getTotalDurationSoFar().compareTo(getLowestDuration()) <= 0;
         return  durationLower && journeyState.getNumberChanges() <= getLowestNumChanges();
 
@@ -52,7 +51,7 @@ public class LowestCostSeen {
     public void setLowestCost(ImmutableJourneyState journeyState) {
         arrived.incrementAndGet();
         lowestNumChanges.getAndSet(journeyState.getNumberChanges());
-        setLowestCost(journeyState.getTotalCostSoFar());
+        setLowestCost(journeyState.getTotalDurationSoFar());
     }
 
     @Override

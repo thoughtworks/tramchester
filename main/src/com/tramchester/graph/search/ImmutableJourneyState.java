@@ -17,9 +17,5 @@ public interface ImmutableJourneyState extends HasTransportMode {
     boolean hasBegunJourney();
     int getNumberNeighbourConnections();
     boolean hasVisited(IdFor<Station> stationId);
-
-    @Deprecated
-    int getTotalCostSoFar();
-
     Duration getTotalDurationSoFar();
 }

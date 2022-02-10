@@ -85,7 +85,7 @@ public class LiveDataUpdater {
 
     @NotNull
     private List<StationDepartureInfo> filterForFreshness(List<StationDepartureInfo> receivedInfos) {
-        TramTime now = providesNow.getNow();
+        TramTime now = providesNow.getNowHourMins();
         LocalDate date = providesNow.getDate();
         int stale = 0;
 
@@ -115,7 +115,7 @@ public class LiveDataUpdater {
         }
         TramTime updateTime = TramTime.ofHourMins(newDepartureInfo.getLastUpdate().toLocalTime());
         if (TramTime.diffenceAsMinutes(now, updateTime) > TIME_LIMIT) {
-            logger.info(format("Received out of date update. Local Now: %s Update: %s ", providesNow.getNow(), updateTime));
+            logger.info(format("Received out of date update. Local Now: %s Update: %s ", providesNow.getNowHourMins(), updateTime));
             return false;
         }
 

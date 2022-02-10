@@ -57,7 +57,7 @@ class TramPositionInferenceTest {
         positionInference = new TramPositionInference(dueTramsRepo, adjacenyMatrix, routeReachable);
         stationRepository = componentContainer.get(StationRepository.class);
         date = TramServiceDate.of(providesLocalNow.getDate());
-        time = providesLocalNow.getNow();
+        time = providesLocalNow.getNowHourMins();
     }
 
     @AfterAll

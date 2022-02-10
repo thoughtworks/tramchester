@@ -74,11 +74,6 @@ public class JourneyState implements ImmutableJourneyState, JourneyStateUpdate {
         }
     }
 
-//    @Deprecated
-//    public void recordTime(TramTime boardingTime, int currentCost) throws TramchesterException {
-//        recordTime(boardingTime, Duration.ofMinutes(currentCost));
-//    }
-
     public void recordTime(TramTime boardingTime, Duration currentCost) throws TramchesterException {
         if ( !coreState.onBoard() ) {
             throw new TramchesterException("Not on a bus or tram");
@@ -174,12 +169,6 @@ public class JourneyState implements ImmutableJourneyState, JourneyStateUpdate {
     @Override
     public String getTraversalStateName() {
         return traversalState.getClass().getSimpleName();
-    }
-
-    @Deprecated
-    @Override
-    public int getTotalCostSoFar() {
-        return (int) traversalState.getTotalCost().toMinutes();
     }
 
     @Override
