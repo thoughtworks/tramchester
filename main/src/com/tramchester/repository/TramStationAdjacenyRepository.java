@@ -12,6 +12,7 @@ import org.slf4j.LoggerFactory;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.inject.Inject;
+import java.time.Duration;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -24,7 +25,7 @@ public class TramStationAdjacenyRepository  {
 
     private static final Logger logger = LoggerFactory.getLogger(TramStationAdjacenyRepository.class);
 
-    private final Map<StationPair, Integer> matrix;
+    private final Map<StationPair, Duration> matrix;
     private final TransportData transportData;
     private final GraphFilterActive graphFilter;
 
@@ -59,12 +60,12 @@ public class TramStationAdjacenyRepository  {
     //
     // Distance between two adjacent stations, or -1 if not next to each other
     //
-    public int getAdjacent(StationPair id) {
+    public Duration getAdjacent(StationPair id) {
         //StationPair id = StationPair.of(firstStation, secondStation);
         if (matrix.containsKey(id)) {
             return matrix.get(id);
         }
-        return -1;
+        return Duration.ofMinutes(-999);
     }
 
     public Set<StationPair> getTramStationParis() {

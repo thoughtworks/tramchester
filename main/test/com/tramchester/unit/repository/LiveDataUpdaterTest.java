@@ -20,6 +20,7 @@ import org.easymock.EasyMockSupport;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.LinkedList;
@@ -107,7 +108,7 @@ public class LiveDataUpdaterTest extends EasyMockSupport {
                                                                       Station location) {
         StationDepartureInfo departureInfo = new StationDepartureInfo(displayId, Lines.Airport,
                 LineDirection.Incoming, StringIdFor.createId(platformId), location, message, lastUpdate);
-        DueTram dueTram = new DueTram(Bury.fake(), "Due", 42, "Single", lastUpdate.toLocalTime());
+        DueTram dueTram = new DueTram(Bury.fake(), "Due", Duration.ofMinutes(42), "Single", lastUpdate.toLocalTime());
         departureInfo.addDueTram(dueTram);
         return departureInfo;
     }

@@ -35,6 +35,7 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.junit.jupiter.api.*;
 
 import java.time.DayOfWeek;
+import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.*;
@@ -343,7 +344,7 @@ public class TransportDataFromFilesTramTest {
 
         for (Route route : routes) {
             List<StopCalls.StopLeg> over = route.getTrips().stream().flatMap(trip -> trip.getStopCalls().getLegs(false).stream()).
-                    filter(stopLeg -> stopLeg.getCost() > 12 * 24).
+                    filter(stopLeg -> stopLeg.getCost().compareTo(Duration.ofMinutes(12*24)) > 0).
                     collect(Collectors.toList());
             assertTrue(over.isEmpty(), over.toString());
         }

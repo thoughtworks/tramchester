@@ -10,6 +10,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -74,6 +75,6 @@ class DepartureDTOTest {
 
     @NotNull
     private DueTram getDueTram(LocalTime updateTime, TramStations station, int wait) {
-        return new DueTram(station.fake(), "status", wait, "carriages", updateTime);
+        return new DueTram(station.fake(), "status", Duration.ofMinutes(wait), "carriages", updateTime);
     }
 }

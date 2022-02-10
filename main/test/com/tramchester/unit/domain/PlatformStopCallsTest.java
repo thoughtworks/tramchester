@@ -21,6 +21,7 @@ import static com.tramchester.domain.id.StringIdFor.createId;
 import static com.tramchester.domain.reference.GTFSPickupDropoffType.None;
 import static com.tramchester.domain.reference.GTFSPickupDropoffType.Regular;
 import static com.tramchester.domain.time.TramTime.of;
+import static com.tramchester.testSupport.TestEnv.assertMinutesEquals;
 import static org.junit.jupiter.api.Assertions.*;
 
 class PlatformStopCallsTest {
@@ -128,12 +129,12 @@ class PlatformStopCallsTest {
         StopCalls.StopLeg firstLeg = legs.get(0);
         assertEquals(stopC, firstLeg.getFirst());
         assertEquals(stopB, firstLeg.getSecond());
-        assertEquals(2, firstLeg.getCost());
+        assertMinutesEquals(2, firstLeg.getCost());
 
         StopCalls.StopLeg secondLeg = legs.get(1);
         assertEquals(stopB, secondLeg.getFirst());
         assertEquals(stopA, secondLeg.getSecond());
-        assertEquals(6, secondLeg.getCost());
+        assertMinutesEquals(6, secondLeg.getCost());
     }
 
     @Test
@@ -156,17 +157,17 @@ class PlatformStopCallsTest {
         StopCalls.StopLeg firstLeg = legs.get(0);
         assertEquals(stopC, firstLeg.getFirst());
         assertEquals(stopB, firstLeg.getSecond());
-        assertEquals(2, firstLeg.getCost());
+        assertMinutesEquals(2, firstLeg.getCost());
 
         StopCalls.StopLeg secondLeg = legs.get(1);
         assertEquals(stopB, secondLeg.getFirst());
         assertEquals(stopA, secondLeg.getSecond());
-        assertEquals(6, secondLeg.getCost());
+        assertMinutesEquals(6, secondLeg.getCost());
 
         int expected = TramTime.diffenceAsMinutes(stopA.getDepartureTime(), stopE.getArrivalTime());
         StopCalls.StopLeg thirdLeg = legs.get(2);
         assertEquals(stopA, thirdLeg.getFirst());
         assertEquals(stopE, thirdLeg.getSecond()); // not D, no pick-up or drop-off
-        assertEquals(expected, thirdLeg.getCost());
+        assertMinutesEquals(expected, thirdLeg.getCost());
     }
 }

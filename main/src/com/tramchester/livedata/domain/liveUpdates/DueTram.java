@@ -4,23 +4,24 @@ import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.time.TramTime;
 
+import java.time.Duration;
 import java.time.LocalTime;
 import java.util.Objects;
 
 public class DueTram {
 
-    private final int wait;
+    private final Duration wait;
     private final String carriages; // double/single
     private final String status; // due, arrived, etc
     private final Station destination;
     private final TramTime when;
 
-    public DueTram(Station destination, String status, int wait, String carriages, LocalTime updateTime) {
+    public DueTram(Station destination, String status, Duration wait, String carriages, LocalTime updateTime) {
         this.destination = destination;
         this.status = status;
         this.wait = wait;
         this.carriages = carriages;
-        this.when  = TramTime.ofHourMins(updateTime).plusMinutes(wait);
+        this.when  = TramTime.ofHourMins(updateTime).plus(wait);
     }
 
     public Station getDestination() {
@@ -31,7 +32,7 @@ public class DueTram {
         return status;
     }
 
-    public int getWait() {
+    public Duration getWait() {
         return wait;
     }
 

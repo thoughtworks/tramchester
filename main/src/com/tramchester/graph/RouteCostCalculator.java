@@ -75,20 +75,6 @@ public class RouteCostCalculator {
         return calculateLeastCost(txn, start, endNode, MAX_COST, date.getDate());
     }
 
-//    private int getCostBetween(Transaction txn, Station startStation, Station endStation, GraphPropertyKey key, LocalDate date) {
-//        Node startNode = graphQuery.getStationNode(txn, startStation);
-//        if (startNode==null) {
-//            throw new RuntimeException("Could not find start node for graph id " + startStation.getId().getGraphId());
-//        }
-//        Node endNode = graphQuery.getStationNode(txn, endStation);
-//        if (endNode==null) {
-//            throw new RuntimeException("Could not find end node for graph id" + endStation.getId().getGraphId());
-//        }
-//        logger.info(format("Find approx. route cost between %s and %s", startStation.getId(), endStation.getId()));
-//
-//        return calculateLeastCost(txn, startNode, endNode, key, date);
-//    }
-
     private Duration getCostBetween(Transaction txn, Location<?> startLocation, Location<?> endLocation, GraphPropertyKey key, LocalDate date) throws InvalidDurationException {
         Node startNode = graphQuery.getLocationNode(txn, startLocation);
         if (startNode==null) {
@@ -117,7 +103,7 @@ public class RouteCostCalculator {
         PathExpander<Double> forTypesAndDirections = fullExpanderForCostApproximation(routeFilter);
 
         PathFinder<WeightedPath> finder = GraphAlgoFactory.dijkstra(context, forTypesAndDirections,
-                new UsefulLoggingCostEvaluator(key.getText()));
+                new UsefulLoggingCostEvaluator(key));
 
         WeightedPath path = finder.findSinglePath(startNode, endNode);
         if (path==null) {
@@ -154,9 +140,9 @@ public class RouteCostCalculator {
 
         private final String name;
 
-        public UsefulLoggingCostEvaluator(String costPropertyName) {
-            super(costPropertyName);
-            this.name = costPropertyName;
+        public UsefulLoggingCostEvaluator(GraphPropertyKey costProperty) {
+            super(costProperty.getText());
+            this.name = costProperty.getText();
         }
 
         @Override

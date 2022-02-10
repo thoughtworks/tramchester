@@ -2,6 +2,7 @@ package com.tramchester.livedata.domain.DTO;
 
 import com.tramchester.domain.presentation.DTO.LocationRefWithPosition;
 
+import java.time.Duration;
 import java.util.Set;
 
 @SuppressWarnings("unused")
@@ -15,11 +16,11 @@ public class TramPositionDTO {
         // deserialisation
     }
 
-    public TramPositionDTO(LocationRefWithPosition first, LocationRefWithPosition second, Set<DepartureDTO> trams, int cost) {
+    public TramPositionDTO(LocationRefWithPosition first, LocationRefWithPosition second, Set<DepartureDTO> trams, Duration cost) {
         this.first = first;
         this.second = second;
         this.trams = trams;
-        this.cost = cost;
+        this.cost = (int) cost.toMinutes();
     }
 
     public LocationRefWithPosition getFirst() {

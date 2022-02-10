@@ -25,6 +25,7 @@ import com.tramchester.testSupport.testTags.TrainTest;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.condition.DisabledIfEnvironmentVariable;
 
+import java.time.Duration;
 import java.time.LocalDate;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -166,7 +167,7 @@ public class RailTransportDataFromFilesTest {
 
         Set<Trip> allTrips = transportData.getTrips();
         Set<StopCalls> tripWithZeroCostLegs = allTrips.stream().map(Trip::getStopCalls).
-                filter(stopCalls -> stopCalls.getLegs(false).stream().anyMatch(stopLeg -> stopLeg.getCost() == 0)).
+                filter(stopCalls -> stopCalls.getLegs(false).stream().anyMatch(stopLeg -> stopLeg.getCost().isZero())).
                 collect(Collectors.toSet());
 
         assertEquals(55, tripWithZeroCostLegs.size(), tripWithZeroCostLegs.toString());
@@ -393,7 +394,7 @@ public class RailTransportDataFromFilesTest {
 
         for (Route route : notShips) {
             List<StopCalls.StopLeg> over = route.getTrips().stream().flatMap(trip -> trip.getStopCalls().getLegs(false).stream()).
-                    filter(stopLeg -> stopLeg.getCost() > 12 * 24).
+                    filter(stopLeg -> stopLeg.getCost().compareTo(Duration.ofMinutes(12*24)) > 0).
                     collect(Collectors.toList());
             assertTrue(over.isEmpty(), route + " " + over);
         }

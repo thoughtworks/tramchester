@@ -12,11 +12,14 @@ import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.TramStations;
 import org.junit.jupiter.api.*;
 
+import java.time.Duration;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static com.tramchester.testSupport.TestEnv.assertMinutesEquals;
 import static com.tramchester.testSupport.reference.TramStations.*;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class StationAdjacencyRepositoryTest {
     private static ComponentContainer componentContainer;
@@ -43,12 +46,12 @@ class StationAdjacencyRepositoryTest {
 
     @Test
     void shouldGiveCorrectCostForAdjaceny() {
-        Assertions.assertEquals(3, getAdjacent(Altrincham, NavigationRoad));
-        Assertions.assertEquals(3, getAdjacent(Altrincham, NavigationRoad));
-        Assertions.assertEquals(3, getAdjacent(Cornbrook, Deansgate));
-        Assertions.assertEquals(3, getAdjacent(Deansgate, Cornbrook));
+        assertMinutesEquals(3, getAdjacent(Altrincham, NavigationRoad));
+        assertMinutesEquals(3, getAdjacent(Altrincham, NavigationRoad));
+        assertMinutesEquals(3, getAdjacent(Cornbrook, Deansgate));
+        assertMinutesEquals(3, getAdjacent(Deansgate, Cornbrook));
 
-        Assertions.assertEquals(-1, getAdjacent(NavigationRoad, Cornbrook));
+        assertTrue(getAdjacent(NavigationRoad, Cornbrook).isNegative());
     }
 
     @Test
@@ -63,7 +66,7 @@ class StationAdjacencyRepositoryTest {
         Assertions.assertEquals(4, results.size(), pairs.toString());
     }
 
-    private int getAdjacent(TramStations first, TramStations second) {
+    private Duration getAdjacent(TramStations first, TramStations second) {
         StationPair pair = StationPair.of(transportDataSource.getStationById(first.getId()),
                 transportDataSource.getStationById(second.getId()));
         return repository.getAdjacent(pair);

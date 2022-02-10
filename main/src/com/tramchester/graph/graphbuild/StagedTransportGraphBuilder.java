@@ -307,15 +307,15 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
 
     private void createOnRouteRelationships(Transaction tx, Route route, GraphBuilderCache routeBuilderCache) {
 
-        Map<StopCalls.StopLeg, Integer> pairs = new HashMap<>();
+        Map<StopCalls.StopLeg, Duration> pairs = new HashMap<>();
         route.getTrips().forEach(trip -> {
             StopCalls stops = trip.getStopCalls();
             stops.getLegs(graphFilter.isFiltered()).forEach(leg -> {
                 if (includeBothStops(leg)) {
                     if (!pairs.containsKey(leg)) {
                         // TODO need cost representative of the route as whole
-                        int cost = leg.getCost();
-                        if (cost==0 && route.getTransportMode() != TransportMode.Bus) {
+                        Duration cost = leg.getCost();
+                        if (cost.isZero() && route.getTransportMode() != TransportMode.Bus) {
                             // this can happen a lot for buses
                             logger.warn(format("Zero cost for trip %s for %s", trip.getId(), leg));
                         }
@@ -460,8 +460,8 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
             Relationship onRoute = createRelationship(from, to, ON_ROUTE);
             setProperty(onRoute, route);
 
-            setCostProp(onRoute, Duration.ofMinutes(costs.average()));
-            setMaxCostProp(onRoute, Duration.ofMinutes(costs.max()));
+            setCostProp(onRoute, costs.average());
+            setMaxCostProp(onRoute, costs.max());
             setProperty(onRoute, route.getTransportMode());
         }
     }

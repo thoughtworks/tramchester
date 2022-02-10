@@ -4,14 +4,15 @@ import com.tramchester.domain.StationPair;
 import com.tramchester.domain.places.Station;
 import com.tramchester.livedata.domain.liveUpdates.DueTram;
 
+import java.time.Duration;
 import java.util.Set;
 
 public class TramPosition {
     private final StationPair stationPair;
     private final Set<DueTram> trams;
-    private final int cost;
+    private final Duration cost;
 
-    public TramPosition(StationPair stationPair, Set<DueTram> trams, int cost) {
+    public TramPosition(StationPair stationPair, Set<DueTram> trams, Duration cost) {
         this.stationPair = stationPair;
         this.trams = trams;
         this.cost = cost;
@@ -29,7 +30,7 @@ public class TramPosition {
         return trams;
     }
 
-    public int getCost() {
+    public Duration getCost() {
         return cost;
     }
 

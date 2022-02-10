@@ -9,6 +9,7 @@ import com.tramchester.livedata.domain.DTO.StationDepartureInfoDTO;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
@@ -35,9 +36,9 @@ class StationDepartureMapperTest {
         departures = new ArrayList<>();
         LocalDateTime lastUpdate = LocalDateTime.of(2018,11,15,15,6,32);
 
-        int wait = 42;
-        LocalDateTime dueTime = lastUpdate.plusMinutes(wait).truncatedTo(ChronoUnit.MINUTES);
-        DueTram dueTram = new DueTram(Bury.fake(), "Due", wait, "Single", dueTime.toLocalTime().minusMinutes(wait));
+        Duration wait = Duration.ofMinutes(42);
+        LocalDateTime dueTime = lastUpdate.plus(wait).truncatedTo(ChronoUnit.MINUTES);
+        DueTram dueTram = new DueTram(Bury.fake(), "Due", wait, "Single", dueTime.toLocalTime().minus(wait));
         final DepartureDTO departureDTO = new DepartureDTO(NavigationRoad.fake(), dueTram, dueTime.toLocalDate());
 
         List<DepartureDTO> dueTrams = Collections.singletonList(departureDTO);

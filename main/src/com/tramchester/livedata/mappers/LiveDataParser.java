@@ -22,10 +22,7 @@ import org.slf4j.LoggerFactory;
 import javax.inject.Inject;
 import java.math.BigDecimal;
 import java.sql.Date;
-import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
-import java.time.ZonedDateTime;
+import java.time.*;
 import java.util.*;
 
 import static com.tramchester.livedata.domain.liveUpdates.LineDirection.Both;
@@ -213,11 +210,11 @@ public class LiveDataParser {
                 maybeDestStation.ifPresentOrElse(station -> {
                             String status = getNumberedField(jsonObject, "Status", index);
                             String waitString = getNumberedField(jsonObject, "Wait", index);
-                            int wait = Integer.parseInt(waitString);
+                            int waitInMinutes = Integer.parseInt(waitString);
                             String carriages = getNumberedField(jsonObject, "Carriages", index);
                             LocalTime lastUpdate = departureInfo.getLastUpdate().toLocalTime();
 
-                            DueTram dueTram = new DueTram(station, status, wait, carriages, lastUpdate);
+                            DueTram dueTram = new DueTram(station, status, Duration.ofMinutes(waitInMinutes), carriages, lastUpdate);
                             departureInfo.addDueTram(dueTram);
                         },
 

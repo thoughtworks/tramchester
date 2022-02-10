@@ -15,13 +15,15 @@ import com.tramchester.livedata.TramPosition;
 import com.tramchester.livedata.TramPositionInference;
 import com.tramchester.livedata.repository.DueTramsRepository;
 import com.tramchester.livedata.repository.DueTramsSource;
-import com.tramchester.repository.*;
-import com.tramchester.testSupport.testTags.LiveDataMessagesCategory;
-import com.tramchester.testSupport.testTags.LiveDataTestCategory;
+import com.tramchester.repository.StationRepository;
+import com.tramchester.repository.TramStationAdjacenyRepository;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.TramStations;
+import com.tramchester.testSupport.testTags.LiveDataMessagesCategory;
+import com.tramchester.testSupport.testTags.LiveDataTestCategory;
 import org.junit.jupiter.api.*;
 
+import java.time.Duration;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -79,7 +81,7 @@ class TramPositionInferenceTest {
         // NOTE: costs are not symmetric between two stations, i.e. one direction might cost more than the other
         // Guess: this is down to signalling, track, etc.
 
-        int cost = 3; // cost between the stations, no due trams outside this limit should appear
+        Duration cost = Duration.ofMinutes(3); // cost between the stations, no due trams outside this limit should appear
 
         Station first = stationRepository.getStationById(TramStations.Deansgate.getId());
         Station second = stationRepository.getStationById(TramStations.Cornbrook.getId());
@@ -90,12 +92,14 @@ class TramPositionInferenceTest {
         assertEquals(second, between.getSecond());
         assertTrue(between.getTrams().size()>=1, "trams between");
         assertEquals(cost, between.getCost());
-        between.getTrams().forEach(dueTram -> assertFalse((dueTram.getWait())> cost, Integer.toString(dueTram.getWait())));
+        between.getTrams().
+                forEach(dueTram -> assertFalse((dueTram.getWait().compareTo(cost)) > 0, dueTram.getWait().toString()));
 
         TramPosition otherDirection = positionInference.findBetween(pair, date, time);
         assertTrue(otherDirection.getTrams().size()>=1, "no trams in other direction");
         assertEquals(cost, between.getCost());
-        otherDirection.getTrams().forEach(dueTram -> assertFalse((dueTram.getWait())> cost, Integer.toString(dueTram.getWait())));
+        otherDirection.getTrams().
+                forEach(dueTram -> assertFalse((dueTram.getWait().compareTo(cost)) > 0, dueTram.getWait().toString()));
     }
 
     @Test

@@ -17,6 +17,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
+import java.time.Duration;
 import java.time.LocalDate;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -54,8 +55,8 @@ public class TramPositionInference {
     }
 
     public TramPosition findBetween(StationPair pair, TramServiceDate date, TramTime time) {
-        int cost = adjacenyRepository.getAdjacent(pair);
-        if (cost<0) {
+        Duration cost = adjacenyRepository.getAdjacent(pair);
+        if (cost.isNegative()) {
             logger.warn(format("Not adjacent %s", pair));
             return new TramPosition(pair, Collections.emptySet(), cost);
         }
@@ -67,7 +68,7 @@ public class TramPositionInference {
         return new TramPosition(pair, dueTrams, cost);
     }
 
-    private Set<DueTram> getDueTrams(StationPair pair, LocalDate date, TramTime time, int cost) {
+    private Set<DueTram> getDueTrams(StationPair pair, LocalDate date, TramTime time, Duration cost) {
         Station neighbour = pair.getEnd();
 
         if (!pair.bothServeMode(TransportMode.Tram) ) {

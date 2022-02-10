@@ -178,7 +178,7 @@ public class StationsAndLinksGraphBuilder extends GraphBuilder {
         // TODO this uses the first cost we encounter for the link, while this is accurate for tfgm trams it does
         //  not give the correct results for buses and trains where time between station can vary depending upon the
         //  service
-        Map<StationIdPair, Integer> pairs = new HashMap<>(); // (start, dest) -> cost
+        Map<StationIdPair, Duration> pairs = new HashMap<>(); // (start, dest) -> cost
         route.getTrips().forEach(trip -> {
                 StopCalls stops = trip.getStopCalls();
                 stops.getLegs(graphFilter.isFiltered()).forEach(leg -> {
@@ -188,7 +188,7 @@ public class StationsAndLinksGraphBuilder extends GraphBuilder {
                         StationIdPair legStations = StationIdPair.of(leg.getFirstStation(), leg.getSecondStation());
                         if (pickup==Regular && dropOff==Regular &&
                                 !pairs.containsKey(legStations)) {
-                            int cost = leg.getCost();
+                            Duration cost = leg.getCost();
                             pairs.put(legStations, cost);
                         }
                     }

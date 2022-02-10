@@ -23,6 +23,7 @@ import org.slf4j.LoggerFactory;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.inject.Inject;
+import java.time.Duration;
 import java.time.LocalDate;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
@@ -111,7 +112,7 @@ public class StopCallRepository implements ReportsCacheStats {
 
     @NotNull
     private Costs calculateCosts(Route route, Station first, Station second) {
-        List<Integer> allCosts = route.getTrips().stream().
+        List<Duration> allCosts = route.getTrips().stream().
                 flatMap(trip -> trip.getStopCalls().getLegs(graphFilter.isFiltered()).stream()).
                 filter(leg -> leg.getFirstStation().equals(first) && leg.getSecondStation().equals(second)).
                 map(StopCalls.StopLeg::getCost).collect(Collectors.toList());
@@ -133,33 +134,32 @@ public class StopCallRepository implements ReportsCacheStats {
 
     public static class Costs {
 
-        private final List<Integer> costs;
+        private final List<Duration> costs;
         private final IdFor<Route> route;
         private final IdFor<Station> startId;
         private final IdFor<Station> endId;
 
-        public Costs(List<Integer> costs, IdFor<Route> route, IdFor<Station> startId, IdFor<Station> endId) {
+        public Costs(List<Duration> costs, IdFor<Route> route, IdFor<Station> startId, IdFor<Station> endId) {
             this.costs = costs;
             this.route = route;
             this.startId = startId;
             this.endId = endId;
         }
 
-        public int min() {
-            return costs.stream().mapToInt(item -> item).min().orElse(0);
+        public Duration min() {
+            return costs.stream().min(Duration::compareTo).orElse(Duration.ZERO);
         }
 
-        // todo return duration
-        @Deprecated
-        public int max() {
-            return costs.stream().mapToInt(item -> item).max().orElse(0);
+        public Duration max() {
+            return costs.stream().max(Duration::compareTo).orElse(Duration.ZERO);
         }
 
-        // todo return duration
-        @Deprecated
-        public int average() {
-            double avg = costs.stream().mapToInt(item -> item).average().orElse(0D);
-            return (int)Math.round(avg);
+        public Duration average() {
+            double avg = costs.stream().
+                    mapToLong(Duration::getSeconds).average().orElse(0D);
+            @SuppressWarnings("WrapperTypeMayBePrimitive")
+            final Double ceil = Math.ceil(avg);
+            return Duration.ofSeconds( ceil.intValue() );
         }
 
         @Override

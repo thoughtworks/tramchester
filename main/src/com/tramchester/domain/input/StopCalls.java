@@ -7,6 +7,7 @@ import com.tramchester.domain.time.TramTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.time.Duration;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -215,8 +216,8 @@ public class StopCalls {
             return first.getDepartureTime();
         }
 
-        public int getCost() {
-            return TramTime.diffenceAsMinutes(first.getDepartureTime(), second.getArrivalTime());
+        public Duration getCost() {
+            return TramTime.difference(first.getDepartureTime(), second.getArrivalTime());
         }
     }
 }

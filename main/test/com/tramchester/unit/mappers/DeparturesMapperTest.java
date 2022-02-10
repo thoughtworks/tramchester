@@ -8,6 +8,7 @@ import org.easymock.EasyMockSupport;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -31,7 +32,7 @@ class DeparturesMapperTest extends EasyMockSupport {
     @Test
     void shouldMapToDTOCorrectly() {
         Collection<DueTram> dueTrams = Collections.singletonList(new DueTram(PiccadillyGardens.fake(),
-                "DUE", 9, "single", LocalTime.of(10, 32)));
+                "DUE", Duration.ofMinutes(9), "single", LocalTime.of(10, 32)));
 
         Set<DepartureDTO> results = mapper.mapToDTO(Bury.fake(), dueTrams, queryDate);
 
@@ -52,7 +53,7 @@ class DeparturesMapperTest extends EasyMockSupport {
     @Test
     void shouldHandleCrossingMidnight() {
         Collection<DueTram> dueTrams = Collections.singletonList(new DueTram(PiccadillyGardens.fake(),
-                "DUE", 9, "single", LocalTime.of(23, 58)));
+                "DUE", Duration.ofMinutes(9), "single", LocalTime.of(23, 58)));
 
         Set<DepartureDTO> results = mapper.mapToDTO(Bury.fake(), dueTrams, queryDate);
 

@@ -4,6 +4,7 @@ import com.tramchester.domain.Platform;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.places.Station;
 
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -43,8 +44,9 @@ public class PlatformDueTrams {
         return dueTrams;
     }
 
-    public List<DueTram> getDueTramsWithinWindow(int minutes) {
-        return dueTrams.stream().filter(dueTram -> dueTram.getWait()<=minutes).collect(Collectors.toList());
+    public List<DueTram> getDueTramsWithinWindow(Duration window) {
+        return dueTrams.stream().
+                filter(dueTram -> dueTram.getWait().compareTo(window)<=0).collect(Collectors.toList());
     }
 
     public IdFor<Station> getStation() {

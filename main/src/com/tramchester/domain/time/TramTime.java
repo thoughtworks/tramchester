@@ -70,8 +70,6 @@ public class TramTime implements Comparable<TramTime> {
         return Factory.Invalid();
     }
 
-
-
     public boolean isValid() {
         return this != Factory.Invalid();
     }
@@ -97,6 +95,7 @@ public class TramTime implements Comparable<TramTime> {
     }
 
     public static Duration difference(TramTime first, TramTime second) {
+        // todo seconds resolution
         return Duration.ofMinutes(diffenceAsMinutes(first, second));
     }
 
