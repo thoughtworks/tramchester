@@ -11,6 +11,7 @@ import com.tramchester.domain.presentation.TransportStage;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramTime;
 
+import java.time.Duration;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -49,8 +50,8 @@ public class VehicleStage implements TransportStage<Station, Station> {
     }
 
     @Override
-    public int getDuration() {
-        return cost;
+    public Duration getDuration() {
+        return Duration.ofMinutes(cost);
     }
 
     public Station getLastStation() {

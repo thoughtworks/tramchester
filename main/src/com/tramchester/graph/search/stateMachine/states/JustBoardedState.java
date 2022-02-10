@@ -7,6 +7,7 @@ import com.tramchester.graph.search.stateMachine.TraversalOps;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
 
+import java.time.Duration;
 import java.util.stream.Stream;
 
 import static com.tramchester.graph.TransportRelationshipTypes.*;
@@ -33,7 +34,7 @@ public class JustBoardedState extends RouteStationState {
             return JustBoardedState.class;
         }
 
-        public JustBoardedState fromPlatformState(PlatformState platformState, Node node, int cost) {
+        public JustBoardedState fromPlatformState(PlatformState platformState, Node node, Duration cost) {
             // does this ever happen? Get on one route station only to go back to a whole different
             // platform?
             Stream<Relationship> otherPlatforms = filterExcludingEndNode(node.getRelationships(OUTGOING, ENTER_PLATFORM),
@@ -49,7 +50,7 @@ public class JustBoardedState extends RouteStationState {
             return new JustBoardedState(platformState, Stream.concat(services, otherPlatforms), cost);
         }
 
-        public JustBoardedState fromNoPlatformStation(NoPlatformStationState noPlatformStation, Node node, int cost) {
+        public JustBoardedState fromNoPlatformStation(NoPlatformStationState noPlatformStation, Node node, Duration cost) {
             Stream<Relationship> filteredDeparts = filterExcludingEndNode(node.getRelationships(OUTGOING, DEPART, INTERCHANGE_DEPART),
                     noPlatformStation);
             Stream<Relationship> services = orderServicesByRouteMetric(node, noPlatformStation.traversalOps);
@@ -83,12 +84,12 @@ public class JustBoardedState extends RouteStationState {
         return "RouteStationStateJustBoarded{} " + super.toString();
     }
 
-    private JustBoardedState(TraversalState traversalState, Stream<Relationship> outbounds, int cost) {
+    private JustBoardedState(TraversalState traversalState, Stream<Relationship> outbounds, Duration cost) {
         super(traversalState, outbounds, cost);
     }
 
     @Override
-    protected TraversalState toService(ServiceState.Builder towardsService, Node node, int cost) {
+    protected TraversalState toService(ServiceState.Builder towardsService, Node node, Duration cost) {
         return towardsService.fromRouteStation(this, node, cost);
     }
 }

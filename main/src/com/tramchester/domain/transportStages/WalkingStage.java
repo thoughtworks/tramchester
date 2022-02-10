@@ -8,6 +8,8 @@ import com.tramchester.domain.presentation.TransportStage;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramTime;
 
+import java.time.Duration;
+
 public abstract class  WalkingStage<FROM extends Location<?>, DEST extends Location<?>> implements TransportStage<FROM, DEST> {
     private final FROM start;
     protected final DEST destination;
@@ -26,8 +28,8 @@ public abstract class  WalkingStage<FROM extends Location<?>, DEST extends Locat
         return TransportMode.Walk;
     }
     
-    public int getDuration() {
-        return duration;
+    public Duration getDuration() {
+        return Duration.ofMinutes(duration);
     }
 
 //    public DEST getDestination() {
@@ -56,7 +58,7 @@ public abstract class  WalkingStage<FROM extends Location<?>, DEST extends Locat
 
     @Override
     public TramTime getExpectedArrivalTime() {
-        return beginTime.plusMinutes(getDuration());
+        return beginTime.plus(getDuration());
     }
 
     @Override

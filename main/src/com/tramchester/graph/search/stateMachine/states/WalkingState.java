@@ -6,6 +6,7 @@ import com.tramchester.graph.search.stateMachine.Towards;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
 
+import java.time.Duration;
 import java.util.List;
 import java.util.stream.Stream;
 
@@ -31,7 +32,7 @@ public class WalkingState extends TraversalState {
             return WalkingState.class;
         }
 
-        public TraversalState fromStart(NotStartedState notStartedState, Node firstNode, int cost) {
+        public TraversalState fromStart(NotStartedState notStartedState, Node firstNode, Duration cost) {
             final Iterable<Relationship> relationships = firstNode.getRelationships(OUTGOING, WALKS_TO_STATION);
             List<Relationship> towardsDest = notStartedState.traversalOps.getTowardsDestination(relationships);
 
@@ -43,18 +44,18 @@ public class WalkingState extends TraversalState {
             }
         }
 
-        public TraversalState fromStation(StationState station, Node node, int cost) {
+        public TraversalState fromStation(StationState station, Node node, Duration cost) {
             return new WalkingState(station,
                     filterExcludingEndNode(node.getRelationships(OUTGOING), station), cost);
         }
 
     }
 
-    private WalkingState(TraversalState parent, Stream<Relationship> relationships, int cost) {
+    private WalkingState(TraversalState parent, Stream<Relationship> relationships, Duration cost) {
         super(parent, relationships, cost);
     }
 
-    private WalkingState(TraversalState parent, Iterable<Relationship> relationships, int cost) {
+    private WalkingState(TraversalState parent, Iterable<Relationship> relationships, Duration cost) {
         super(parent, relationships, cost);
     }
 
@@ -64,21 +65,21 @@ public class WalkingState extends TraversalState {
     }
 
     @Override
-    protected PlatformStationState toTramStation(PlatformStationState.Builder towardsStation, Node node, int cost,
+    protected PlatformStationState toTramStation(PlatformStationState.Builder towardsStation, Node node, Duration cost,
                                                  JourneyStateUpdate journeyState) {
         journeyState.endWalk(node);
         return towardsStation.fromWalking(this, node, cost, journeyState);
     }
 
     @Override
-    protected TraversalState toNoPlatformStation(NoPlatformStationState.Builder towardsStation, Node node, int cost,
+    protected TraversalState toNoPlatformStation(NoPlatformStationState.Builder towardsStation, Node node, Duration cost,
                                                  JourneyStateUpdate journeyState) {
         journeyState.endWalk(node);
         return towardsStation.fromWalking(this, node, cost, journeyState);
     }
 
     @Override
-    protected void toDestination(DestinationState.Builder towardsDestination, Node node, int cost,
+    protected void toDestination(DestinationState.Builder towardsDestination, Node node, Duration cost,
                                  JourneyStateUpdate journeyState) {
         journeyState.endWalk(node);
         towardsDestination.from(this, cost);

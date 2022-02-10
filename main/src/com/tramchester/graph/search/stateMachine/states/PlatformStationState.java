@@ -6,6 +6,7 @@ import com.tramchester.graph.search.stateMachine.TowardsStation;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
 
+import java.time.Duration;
 import java.util.stream.Stream;
 
 import static com.tramchester.graph.TransportRelationshipTypes.*;
@@ -30,13 +31,13 @@ public class PlatformStationState extends StationState {
             return PlatformStationState.class;
         }
 
-        public PlatformStationState fromWalking(WalkingState walkingState, Node stationNode, int cost, JourneyStateUpdate journeyState) {
+        public PlatformStationState fromWalking(WalkingState walkingState, Node stationNode, Duration cost, JourneyStateUpdate journeyState) {
             final Iterable<Relationship> relationships = stationNode.getRelationships(OUTGOING, ENTER_PLATFORM, GROUPED_TO_PARENT,
                     NEIGHBOUR);
             return new PlatformStationState(walkingState, relationships, cost, stationNode, journeyState);
         }
 
-        public PlatformStationState fromPlatform(PlatformState platformState, Node stationNode, int cost,
+        public PlatformStationState fromPlatform(PlatformState platformState, Node stationNode, Duration cost,
                                                  JourneyStateUpdate journeyState) {
             final Iterable<Relationship> initial = stationNode.getRelationships(OUTGOING, WALKS_FROM_STATION, ENTER_PLATFORM,
                     NEIGHBOUR, GROUPED_TO_PARENT);
@@ -45,7 +46,7 @@ public class PlatformStationState extends StationState {
                     stationNode, journeyState);
         }
 
-        public PlatformStationState fromStart(NotStartedState notStartedState, Node stationNode, int cost, JourneyStateUpdate journeyState) {
+        public PlatformStationState fromStart(NotStartedState notStartedState, Node stationNode, Duration cost, JourneyStateUpdate journeyState) {
             final Iterable<Relationship> initial = stationNode.getRelationships(OUTGOING, WALKS_FROM_STATION, ENTER_PLATFORM,
                     NEIGHBOUR, GROUPED_TO_PARENT);
             Stream<Relationship> relationships = addValidDiversions(stationNode, initial, notStartedState);
@@ -53,13 +54,13 @@ public class PlatformStationState extends StationState {
         }
 
         @Override
-        public PlatformStationState fromNeighbour(StationState stationState, Node stationNode, int cost, JourneyStateUpdate journeyState) {
+        public PlatformStationState fromNeighbour(StationState stationState, Node stationNode, Duration cost, JourneyStateUpdate journeyState) {
             final Iterable<Relationship> initial = stationNode.getRelationships(OUTGOING, ENTER_PLATFORM, GROUPED_TO_PARENT);
             Stream<Relationship> relationships = addValidDiversions(stationNode, initial, stationState);
             return new PlatformStationState(stationState, relationships, cost, stationNode, journeyState);
         }
 
-        public PlatformStationState fromGrouped(GroupedStationState groupedStationState, Node stationNode, int cost,
+        public PlatformStationState fromGrouped(GroupedStationState groupedStationState, Node stationNode, Duration cost,
                                                 JourneyStateUpdate journeyState) {
             final Iterable<Relationship> relationships = stationNode.getRelationships(OUTGOING, ENTER_PLATFORM, NEIGHBOUR);
             return new PlatformStationState(groupedStationState, relationships, cost, stationNode, journeyState);
@@ -67,12 +68,12 @@ public class PlatformStationState extends StationState {
 
     }
 
-    private PlatformStationState(TraversalState parent, Stream<Relationship> relationships, int cost, Node stationNode,
+    private PlatformStationState(TraversalState parent, Stream<Relationship> relationships, Duration cost, Node stationNode,
                                  JourneyStateUpdate journeyState) {
         super(parent, relationships, cost, stationNode, journeyState);
     }
 
-    private PlatformStationState(TraversalState parent, Iterable<Relationship> relationships, int cost, Node stationNode,
+    private PlatformStationState(TraversalState parent, Iterable<Relationship> relationships, Duration cost, Node stationNode,
                                  JourneyStateUpdate journeyState) {
         super(parent, relationships, cost, stationNode, journeyState);
     }
@@ -91,35 +92,35 @@ public class PlatformStationState extends StationState {
     }
 
     @Override
-    protected TraversalState toWalk(WalkingState.Builder towardsWalk, Node node, int cost, JourneyStateUpdate journeyState) {
+    protected TraversalState toWalk(WalkingState.Builder towardsWalk, Node node, Duration cost, JourneyStateUpdate journeyState) {
         journeyState.beginWalk(stationNode, false, cost);
         return towardsWalk.fromStation(this, node, cost);
     }
 
     @Override
-    protected TraversalState toNoPlatformStation(NoPlatformStationState.Builder toStation, Node node, int cost, JourneyStateUpdate journeyState) {
+    protected TraversalState toNoPlatformStation(NoPlatformStationState.Builder toStation, Node node, Duration cost, JourneyStateUpdate journeyState) {
         journeyState.toNeighbour(stationNode, node, cost);
         return toStation.fromNeighbour(this, node, cost, journeyState);
     }
 
     @Override
-    protected PlatformStationState toTramStation(Builder towardsStation, Node node, int cost, JourneyStateUpdate journeyState) {
+    protected PlatformStationState toTramStation(Builder towardsStation, Node node, Duration cost, JourneyStateUpdate journeyState) {
         journeyState.toNeighbour(stationNode, node, cost);
         return towardsStation.fromNeighbour(this, node, cost, journeyState);
     }
 
     @Override
-    protected TraversalState toGrouped(GroupedStationState.Builder towardsGroup, Node node, int cost, JourneyStateUpdate journeyState) {
+    protected TraversalState toGrouped(GroupedStationState.Builder towardsGroup, Node node, Duration cost, JourneyStateUpdate journeyState) {
         return towardsGroup.fromChildStation(this, node, cost);
     }
 
     @Override
-    protected TraversalState toPlatform(PlatformState.Builder towardsPlatform, Node node, int cost, JourneyStateUpdate journeyState) {
+    protected TraversalState toPlatform(PlatformState.Builder towardsPlatform, Node node, Duration cost, JourneyStateUpdate journeyState) {
         return towardsPlatform.from(this, node, cost);
     }
 
     @Override
-    protected void toDestination(DestinationState.Builder towardsDestination, Node node, int cost, JourneyStateUpdate journeyStateUpdate) {
+    protected void toDestination(DestinationState.Builder towardsDestination, Node node, Duration cost, JourneyStateUpdate journeyStateUpdate) {
         towardsDestination.from(this, cost);
     }
 }

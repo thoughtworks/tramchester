@@ -3,6 +3,7 @@ package com.tramchester.graph.search.stateMachine.states;
 import com.tramchester.graph.search.stateMachine.RegistersFromState;
 import com.tramchester.graph.search.stateMachine.Towards;
 
+import java.time.Duration;
 import java.util.LinkedList;
 
 /**
@@ -27,25 +28,25 @@ public class DestinationState extends TraversalState
             return DestinationState.class;
         }
 
-        public DestinationState from(NoPlatformStationState noPlatformStation, int cost) {
+        public DestinationState from(NoPlatformStationState noPlatformStation, Duration cost) {
             return new DestinationState(noPlatformStation, cost);
         }
 
-        public DestinationState from(WalkingState walkingState, int cost) {
+        public DestinationState from(WalkingState walkingState, Duration cost) {
             return new DestinationState(walkingState, cost);
         }
 
-        public DestinationState from(PlatformStationState platformStationState, int cost) {
+        public DestinationState from(PlatformStationState platformStationState, Duration cost) {
             return new DestinationState(platformStationState, cost);
         }
 
-        public DestinationState from(GroupedStationState groupedStationState, int cost) {
+        public DestinationState from(GroupedStationState groupedStationState, Duration cost) {
             return new DestinationState(groupedStationState, cost);
         }
 
     }
 
-    private DestinationState(TraversalState parent, int cost) {
+    private DestinationState(TraversalState parent, Duration cost) {
         super(parent, new LinkedList<>(), cost);
     }
 

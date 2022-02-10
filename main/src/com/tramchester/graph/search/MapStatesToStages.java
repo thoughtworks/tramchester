@@ -83,6 +83,13 @@ class MapStatesToStages implements JourneyStateUpdate {
     }
 
     @Override
+    public void recordTime(TramTime time, Duration totalCost) {
+        int minutes = getMinutesSafe(totalCost);
+        recordTime(time, minutes);
+    }
+
+    @Deprecated
+    @Override
     public void recordTime(TramTime time, int totalCost) {
         logger.debug("Record actual time " + time + " total cost:" + totalCost);
         this.actualTime = time;
@@ -100,6 +107,13 @@ class MapStatesToStages implements JourneyStateUpdate {
     }
 
     @Override
+    public void leave(TransportMode mode, Duration totalCost, Node routeStationNode) {
+        int minutes = getMinutesSafe(totalCost);
+        leave(mode, minutes, routeStationNode);
+    }
+
+    @Deprecated
+    @Override
     public void leave(TransportMode mode, int totalCost, Node routeStationNode) {
         if (!onVehicle) {
             throw new RuntimeException("Not on vehicle");
@@ -110,6 +124,16 @@ class MapStatesToStages implements JourneyStateUpdate {
         stages.add(vehicleStage);
         logger.info("Added " + vehicleStage);
         reset();
+    }
+
+    @Deprecated
+    private int getMinutesSafe(Duration duration) {
+        long seconds = duration.getSeconds();
+        int mod = Math.floorMod(seconds, 60);
+        if (mod!=0) {
+            throw new RuntimeException("Accuracy lost attempting to convert " + duration + " to minutes");
+        }
+        return (int) Math.floorDiv(seconds, 60);
     }
 
     protected void passStop(Relationship fromMinuteNodeRelationship) {
@@ -132,7 +156,7 @@ class MapStatesToStages implements JourneyStateUpdate {
 
     // TODO Store duration
     @Override
-    public void updateTotalDuration(Duration total) {
+    public void updateTotalCost(Duration total) {
         this.totalCost = (int) total.toMinutes();
     }
 
@@ -147,7 +171,7 @@ class MapStatesToStages implements JourneyStateUpdate {
     }
 
     @Override
-    public void beginWalk(Node beforeWalkNode, boolean atStart, int cost) {
+    public void beginWalk(Node beforeWalkNode, boolean atStart, Duration cost) {
         logger.debug("Walk cost " + cost);
         if (atStart) {
             LatLong walkStartLocation = GraphProps.getLatLong(beforeWalkNode);
@@ -157,7 +181,7 @@ class MapStatesToStages implements JourneyStateUpdate {
             logger.info("Begin walk from start " + walkStartLocation);
         } else {
             walkStartStation = GraphProps.getStationId(beforeWalkNode);
-            beginWalkClock = getActualClock().minusMinutes(cost);
+            beginWalkClock = getActualClock().minus(cost);
             logger.info("Begin walk from station " + walkStartStation + " at " + beginWalkClock);
         }
     }
@@ -196,7 +220,7 @@ class MapStatesToStages implements JourneyStateUpdate {
     }
 
     @Override
-    public void toNeighbour(Node startNode, Node endNode, int cost) {
+    public void toNeighbour(Node startNode, Node endNode, Duration cost) {
         IdFor<Station> startId = GraphProps.getStationId(startNode);
         IdFor<Station> endId = GraphProps.getStationId(endNode);
         Station start = stationRepository.getStationById(startId);

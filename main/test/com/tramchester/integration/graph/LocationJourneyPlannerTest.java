@@ -30,6 +30,7 @@ import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
+import static com.tramchester.testSupport.TestEnv.assertMinutesEquals;
 import static com.tramchester.testSupport.reference.KnownLocations.*;
 import static com.tramchester.testSupport.reference.TramStations.*;
 import static org.junit.jupiter.api.Assertions.*;
@@ -311,7 +312,7 @@ class LocationJourneyPlannerTest {
             assertEquals(TransportMode.Walk, rawStage.getMode());
             assertEquals(PiccadillyGardens.getId(), rawStage.getLastStation().getId());
             assertEquals(nearPiccGardens.latLong(), rawStage.getFirstStation().getLatLong());
-            assertEquals(3, rawStage.getDuration());
+            assertMinutesEquals(3, rawStage.getDuration());
         });
     }
 

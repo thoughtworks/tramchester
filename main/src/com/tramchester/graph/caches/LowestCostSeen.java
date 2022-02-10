@@ -21,6 +21,7 @@ public class LowestCostSeen {
         return lowestCost.get();
     }
 
+    @Deprecated
     public void setLowestCost(int cost) {
         lowestCost.getAndSet(cost);
     }

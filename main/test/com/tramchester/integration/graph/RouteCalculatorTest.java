@@ -521,7 +521,7 @@ public class RouteCalculatorTest {
                     assertFalse(
                             stage.getFirstDepartureTime().isBefore(earliestAtNextStage), stage + " arrived before " + earliestAtNextStage);
                 }
-                earliestAtNextStage = stage.getFirstDepartureTime().plusMinutes(stage.getDuration());
+                earliestAtNextStage = stage.getFirstDepartureTime().plus(stage.getDuration());
             }
         });
         return journeys;

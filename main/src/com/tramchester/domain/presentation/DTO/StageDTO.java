@@ -3,13 +3,14 @@ package com.tramchester.domain.presentation.DTO;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.presentation.TravelAction;
+import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.mappers.serialisation.LocalDateJsonDeserializer;
 import com.tramchester.mappers.serialisation.LocalDateJsonSerializer;
 import com.tramchester.mappers.serialisation.LocalDateTimeJsonDeserializer;
 import com.tramchester.mappers.serialisation.LocalDateTimeJsonSerializer;
 
+import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
@@ -24,7 +25,7 @@ public class StageDTO {
     private LocalDate queryDate;
     private LocalDateTime firstDepartureTime;
     private LocalDateTime expectedArrivalTime;
-    private int duration;
+    private long duration;
 
     private String headSign;
 
@@ -36,7 +37,7 @@ public class StageDTO {
     private String tripId;
 
     public StageDTO(LocationRefWithPosition firstStation, LocationRefWithPosition lastStation, LocationRefWithPosition actionStation,
-                    LocalDateTime firstDepartureTime, LocalDateTime expectedArrivalTime, int duration,
+                    LocalDateTime firstDepartureTime, LocalDateTime expectedArrivalTime, Duration duration,
                     String headSign, TransportMode mode, int passedStops,
                     RouteRefDTO route, TravelAction action, LocalDate queryDate, String tripId) {
         this.firstStation = firstStation;
@@ -46,7 +47,6 @@ public class StageDTO {
         this.platform = null;
         this.firstDepartureTime = firstDepartureTime;
         this.expectedArrivalTime = expectedArrivalTime;
-        this.duration = duration;
         this.headSign = headSign;
         this.mode = mode;
         this.passedStops = passedStops;
@@ -54,10 +54,15 @@ public class StageDTO {
         this.action = action.toString();
         this.queryDate = queryDate;
         this.tripId = tripId;
+
+        // todo seconds?
+        this.duration = duration.toMinutes();
+
     }
 
     public StageDTO(LocationRefWithPosition firstStation, LocationRefWithPosition lastStation, LocationRefWithPosition actionStation,
-                    PlatformDTO boardingPlatform, LocalDateTime firstDepartureTime, LocalDateTime expectedArrivalTime, int duration,
+                    PlatformDTO boardingPlatform, LocalDateTime firstDepartureTime, LocalDateTime expectedArrivalTime,
+                    Duration duration,
                     String headSign, TransportMode mode, int passedStops,
                     RouteRefDTO route, TravelAction action, LocalDate queryDate, String tripId) {
         this(firstStation, lastStation, actionStation, firstDepartureTime, expectedArrivalTime, duration, headSign, mode,
@@ -105,7 +110,7 @@ public class StageDTO {
         return queryDate;
     }
 
-    public int getDuration() {
+    public long getDuration() {
         return duration;
     }
 

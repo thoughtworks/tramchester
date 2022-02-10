@@ -76,7 +76,7 @@ public class JourneyState implements ImmutableJourneyState, JourneyStateUpdate {
     }
 
     @Override
-    public void updateTotalDuration(Duration currentTotalCost) {
+    public void updateTotalCost(Duration currentTotalCost) {
         Duration costForTrip = currentTotalCost.minus(journeyOffset);
 
         if (coreState.onBoard()) {
@@ -88,12 +88,13 @@ public class JourneyState implements ImmutableJourneyState, JourneyStateUpdate {
 
     @Deprecated
     public void recordTime(TramTime boardingTime, int currentCost) throws TramchesterException {
-        if ( !coreState.onBoard() ) {
-            throw new TramchesterException("Not on a bus or tram");
-        }
-        coreState.setJourneyClock(boardingTime);
-        this.boardingTime = boardingTime;
-        this.journeyOffset = Duration.ofMinutes(currentCost);
+        recordTime(boardingTime, Duration.ofMinutes(currentCost));
+//        if ( !coreState.onBoard() ) {
+//            throw new TramchesterException("Not on a bus or tram");
+//        }
+//        coreState.setJourneyClock(boardingTime);
+//        this.boardingTime = boardingTime;
+//        this.journeyOffset = Duration.ofMinutes(currentCost);
     }
 
     public void recordTime(TramTime boardingTime, Duration currentCost) throws TramchesterException {
@@ -106,7 +107,7 @@ public class JourneyState implements ImmutableJourneyState, JourneyStateUpdate {
     }
 
     @Override
-    public void beginWalk(Node beforeWalkNode, boolean atStart, int cost) {
+    public void beginWalk(Node beforeWalkNode, boolean atStart, Duration unused) {
         coreState.incrementWalkingConnections();
     }
 
@@ -121,7 +122,7 @@ public class JourneyState implements ImmutableJourneyState, JourneyStateUpdate {
     }
 
     @Override
-    public void toNeighbour(Node startNode, Node endNode, int cost) {
+    public void toNeighbour(Node startNode, Node endNode, Duration cost) {
         coreState.incrementNeighbourConnections();
     }
 
@@ -130,10 +131,14 @@ public class JourneyState implements ImmutableJourneyState, JourneyStateUpdate {
         coreState.seenStation(stationId);
     }
 
+    @Deprecated
     @Override
     public void leave(TransportMode mode, int totalCostMinutes, Node node) throws TramchesterException {
-        Duration totalDuration = Duration.ofMinutes(totalCostMinutes);
+        leave(mode, Duration.ofMinutes(totalCostMinutes), node);
+    }
 
+    @Override
+    public void leave(TransportMode mode, Duration totalDuration, Node node) throws TramchesterException {
         if (!coreState.modeEquals(mode)) {
             throw new TramchesterException("Not currently on " +mode+ " was " + coreState.currentMode);
         }
@@ -198,7 +203,7 @@ public class JourneyState implements ImmutableJourneyState, JourneyStateUpdate {
     @Deprecated
     @Override
     public int getTotalCostSoFar() {
-        return  traversalState.getTotalCost();
+        return (int) traversalState.getTotalCost().toMinutes();
     }
 
     @Override

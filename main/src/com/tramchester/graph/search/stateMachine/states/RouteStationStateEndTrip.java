@@ -10,6 +10,7 @@ import org.geotools.data.store.EmptyIterator;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
 
+import java.time.Duration;
 import java.util.List;
 
 import static com.tramchester.graph.TransportRelationshipTypes.DEPART;
@@ -43,7 +44,7 @@ public class RouteStationStateEndTrip extends RouteStationState {
             return RouteStationStateEndTrip.class;
         }
 
-        public RouteStationStateEndTrip fromMinuteState(MinuteState minuteState, Node node, int cost, boolean isInterchange) {
+        public RouteStationStateEndTrip fromMinuteState(MinuteState minuteState, Node node, Duration cost, boolean isInterchange) {
             TransportMode transportMode = GraphProps.getTransportMode(node);
 
             Iterable<Relationship> allDeparts = node.getRelationships(OUTGOING, DEPART, INTERCHANGE_DEPART);
@@ -74,7 +75,7 @@ public class RouteStationStateEndTrip extends RouteStationState {
     private final TransportMode mode;
     private final Node routeStationNode;
 
-    private RouteStationStateEndTrip(MinuteState minuteState, Iterable<Relationship> routeStationOutbound, int cost,
+    private RouteStationStateEndTrip(MinuteState minuteState, Iterable<Relationship> routeStationOutbound, Duration cost,
                                      TransportMode mode, Node routeStationNode) {
         super(minuteState, routeStationOutbound, cost);
         this.mode = mode;
@@ -82,25 +83,25 @@ public class RouteStationStateEndTrip extends RouteStationState {
     }
 
     @Override
-    protected TraversalState toService(ServiceState.Builder towardsService, Node node, int cost) {
+    protected TraversalState toService(ServiceState.Builder towardsService, Node node, Duration cost) {
         return towardsService.fromRouteStation(this, node, cost);
     }
 
     @Override
-    protected TraversalState toNoPlatformStation(NoPlatformStationState.Builder towardsStation, Node node, int cost, JourneyStateUpdate journeyState) {
+    protected TraversalState toNoPlatformStation(NoPlatformStationState.Builder towardsStation, Node node, Duration cost, JourneyStateUpdate journeyState) {
         leaveVehicle(journeyState);
         return towardsStation.fromRouteStation(this, node, cost, journeyState);
     }
 
     @Override
-    protected TraversalState toPlatform(PlatformState.Builder towardsPlatform, Node node, int cost, JourneyStateUpdate journeyState) {
+    protected TraversalState toPlatform(PlatformState.Builder towardsPlatform, Node node, Duration cost, JourneyStateUpdate journeyState) {
         leaveVehicle(journeyState);
         return towardsPlatform.fromRouteStatiomEndTrip(this, node, cost);
     }
 
     private void leaveVehicle(JourneyStateUpdate journeyState) {
         try {
-            journeyState.leave(mode, getTotalCost(), routeStationNode);
+            journeyState.leave(mode, getTotalDuration(), routeStationNode);
         } catch (TramchesterException e) {
             throw new RuntimeException("Unable to leave " + mode, e);
         }

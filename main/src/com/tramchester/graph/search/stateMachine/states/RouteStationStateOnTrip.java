@@ -15,6 +15,7 @@ import com.tramchester.graph.search.stateMachine.TowardsRouteStation;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
 
+import java.time.Duration;
 import java.util.List;
 import java.util.stream.Stream;
 
@@ -47,7 +48,7 @@ public class RouteStationStateOnTrip extends RouteStationState implements NodeId
             return RouteStationStateOnTrip.class;
         }
 
-        public RouteStationStateOnTrip fromMinuteState(MinuteState minuteState, Node node, int cost, boolean isInterchange,
+        public RouteStationStateOnTrip fromMinuteState(MinuteState minuteState, Node node, Duration cost, boolean isInterchange,
                                                        Trip trip) {
             TransportMode transportMode = GraphProps.getTransportMode(node);
 
@@ -89,7 +90,7 @@ public class RouteStationStateOnTrip extends RouteStationState implements NodeId
 
     }
 
-    private RouteStationStateOnTrip(TraversalState parent, Stream<Relationship> relationships, int cost,
+    private RouteStationStateOnTrip(TraversalState parent, Stream<Relationship> relationships, Duration cost,
                                     Node routeStationNode, IdFor<Trip> tripId, TransportMode transportMode) {
         super(parent, relationships, cost);
         this.routeStationNode = routeStationNode;
@@ -98,19 +99,19 @@ public class RouteStationStateOnTrip extends RouteStationState implements NodeId
     }
 
     @Override
-    protected TraversalState toService(ServiceState.Builder towardsService, Node node, int cost) {
+    protected TraversalState toService(ServiceState.Builder towardsService, Node node, Duration cost) {
         return towardsService.fromRouteStation(this, tripId, node, cost);
     }
 
     @Override
-    protected TraversalState toNoPlatformStation(NoPlatformStationState.Builder towardsNoPlatformStation, Node node, int cost,
+    protected TraversalState toNoPlatformStation(NoPlatformStationState.Builder towardsNoPlatformStation, Node node, Duration cost,
                                                  JourneyStateUpdate journeyState) {
         leaveVehicle(journeyState, transportMode, "Unable to depart tram");
         return towardsNoPlatformStation.fromRouteStation(this, node, cost, journeyState);
     }
 
     @Override
-    protected TraversalState toPlatform(PlatformState.Builder towardsPlatform, Node node, int cost, JourneyStateUpdate journeyState) {
+    protected TraversalState toPlatform(PlatformState.Builder towardsPlatform, Node node, Duration cost, JourneyStateUpdate journeyState) {
         //TransportMode actualMode = GraphProps.getTransportMode(node);
 
         leaveVehicle(journeyState, transportMode, "Unable to process platform");
@@ -119,7 +120,7 @@ public class RouteStationStateOnTrip extends RouteStationState implements NodeId
 
     private void leaveVehicle(JourneyStateUpdate journeyState, TransportMode transportMode, String diag) {
         try {
-            journeyState.leave(transportMode, getTotalCost(), routeStationNode);
+            journeyState.leave(transportMode, getTotalDuration(), routeStationNode);
         } catch (TramchesterException e) {
             throw new RuntimeException(diag, e);
         }

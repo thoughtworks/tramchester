@@ -11,16 +11,17 @@ import com.tramchester.domain.presentation.TransportStage;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramTime;
 
+import java.time.Duration;
 import java.util.Collections;
 import java.util.List;
 
 public class ConnectingStage<FROM extends Location<?>, DEST extends Location<?>> implements TransportStage<FROM, DEST>  {
     private final FROM start;
     private final DEST end;
-    private final int cost;
+    private final Duration cost;
     private final TramTime walkStartTime;
 
-    public ConnectingStage(FROM start, DEST end, int cost, TramTime walkStartTime) {
+    public ConnectingStage(FROM start, DEST end, Duration cost, TramTime walkStartTime) {
         this.start = start;
         this.end = end;
         this.cost = cost;
@@ -59,11 +60,11 @@ public class ConnectingStage<FROM extends Location<?>, DEST extends Location<?>>
 
     @Override
     public TramTime getExpectedArrivalTime() {
-        return walkStartTime.plusMinutes(getDuration());
+        return walkStartTime.plus(getDuration());
     }
 
     @Override
-    public int getDuration() {
+    public Duration getDuration() {
         return cost;
     }
 

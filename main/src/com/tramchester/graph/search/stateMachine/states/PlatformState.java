@@ -10,6 +10,7 @@ import com.tramchester.graph.search.stateMachine.Towards;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
 
+import java.time.Duration;
 import java.util.List;
 
 import static com.tramchester.graph.TransportRelationshipTypes.*;
@@ -32,13 +33,13 @@ public class PlatformState extends TraversalState implements NodeId {
             return PlatformState.class;
         }
 
-        public PlatformState from(PlatformStationState platformStationState, Node node, int cost) {
+        public PlatformState from(PlatformStationState platformStationState, Node node, Duration cost) {
             // inc. board here since might be starting journey
             return new PlatformState(platformStationState,
                     node.getRelationships(OUTGOING, INTERCHANGE_BOARD, BOARD), node, cost);
         }
 
-        public TraversalState fromRouteStationOnTrip(RouteStationStateOnTrip routeStationStateOnTrip, Node node, int cost) {
+        public TraversalState fromRouteStationOnTrip(RouteStationStateOnTrip routeStationStateOnTrip, Node node, Duration cost) {
 
             // towards final destination, just follow this one
             List<Relationship> towardsDest = routeStationStateOnTrip.traversalOps.
@@ -55,7 +56,7 @@ public class PlatformState extends TraversalState implements NodeId {
             return new PlatformState(routeStationStateOnTrip, platformRelationships, node, cost);
         }
 
-        public TraversalState fromRouteStatiomEndTrip(RouteStationStateEndTrip routeStationState, Node node, int cost) {
+        public TraversalState fromRouteStatiomEndTrip(RouteStationStateEndTrip routeStationState, Node node, Duration cost) {
             // towards final destination, just follow this one
             List<Relationship> towardsDest = routeStationState.traversalOps.getTowardsDestination(node.getRelationships(OUTGOING, LEAVE_PLATFORM));
             if (!towardsDest.isEmpty()) {
@@ -72,7 +73,7 @@ public class PlatformState extends TraversalState implements NodeId {
 
     private final Node platformNode;
 
-    private PlatformState(TraversalState parent, Iterable<Relationship> relationships, Node platformNode, int cost) {
+    private PlatformState(TraversalState parent, Iterable<Relationship> relationships, Node platformNode, Duration cost) {
         super(parent, relationships, cost);
         this.platformNode = platformNode;
     }
@@ -85,7 +86,7 @@ public class PlatformState extends TraversalState implements NodeId {
     }
 
     @Override
-    protected JustBoardedState toJustBoarded(JustBoardedState.Builder towardsJustBoarded, Node node, int cost, JourneyStateUpdate journeyState) {
+    protected JustBoardedState toJustBoarded(JustBoardedState.Builder towardsJustBoarded, Node node, Duration cost, JourneyStateUpdate journeyState) {
         try {
             TransportMode actualMode = GraphProps.getTransportMode(node);
             if (actualMode==null) {
@@ -99,7 +100,7 @@ public class PlatformState extends TraversalState implements NodeId {
     }
 
     @Override
-    protected PlatformStationState toTramStation(PlatformStationState.Builder towardsStation, Node node, int cost, JourneyStateUpdate journeyState) {
+    protected PlatformStationState toTramStation(PlatformStationState.Builder towardsStation, Node node, Duration cost, JourneyStateUpdate journeyState) {
         return towardsStation.fromPlatform(this, node, cost, journeyState);
     }
 

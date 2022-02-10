@@ -22,8 +22,8 @@ public abstract class TraversalState implements ImmuatableTraversalState {
 
     // TODO switch to Stream
     private final Iterable<Relationship> outbounds;
-    private final int costForLastEdge;
-    private final int parentCost;
+    private final Duration costForLastEdge;
+    private final Duration parentCost;
     private final TraversalState parent;
 
     private TraversalState child;
@@ -33,35 +33,35 @@ public abstract class TraversalState implements ImmuatableTraversalState {
         this.traversalOps = traversalOps;
         this.builders = traversalStateFactory;
 
-        this.costForLastEdge = 0;
-        this.parentCost = 0;
+        this.costForLastEdge = Duration.ZERO;
+        this.parentCost = Duration.ZERO;
         this.parent = null;
         this.outbounds = new ArrayList<>();
     }
 
-    protected TraversalState(TraversalState parent, Stream<Relationship> outbounds, int costForLastEdge) {
+    protected TraversalState(TraversalState parent, Stream<Relationship> outbounds, Duration costForLastEdge) {
         this(parent, outbounds::iterator, costForLastEdge);
     }
 
-    protected TraversalState(TraversalState parent, Iterable<Relationship> outbounds, int costForLastEdge) {
+    protected TraversalState(TraversalState parent, Iterable<Relationship> outbounds, Duration costForLastEdge) {
         this.traversalOps = parent.traversalOps;
         this.builders = parent.builders;
         this.parent = parent;
 
         this.outbounds = outbounds;
         this.costForLastEdge = costForLastEdge;
-        this.parentCost = parent.getTotalCost();
+        this.parentCost = parent.getTotalDuration();
     }
 
-    public TraversalState nextState(Set<GraphLabel> nodeLabels, Node node,
-                                    JourneyStateUpdate journeyState, Duration duration) {
-        // TODO Store Duration, not minutes
-        final long mins = duration.toMinutes();
-        return nextState(nodeLabels, node, journeyState, (int) mins);
-    }
+//    public TraversalState nextState(Set<GraphLabel> nodeLabels, Node node,
+//                                    JourneyStateUpdate journeyState, Duration duration) {
+//        // TODO Store Duration, not minutes
+//        final long mins = duration.toMinutes();
+//        return nextState(nodeLabels, node, journeyState, (int) mins);
+//    }
 
     public TraversalState nextState(Set<GraphLabel> nodeLabels, Node node,
-                                    JourneyStateUpdate journeyState, int cost) {
+                                    JourneyStateUpdate journeyState, Duration cost) {
 
         boolean isInterchange = nodeLabels.contains(GraphLabel.INTERCHANGE);
         boolean hasPlatforms = nodeLabels.contains(GraphLabel.HAS_PLATFORMS);
@@ -94,65 +94,65 @@ public abstract class TraversalState implements ImmuatableTraversalState {
         }
     }
 
-    public void toDestination(TraversalState from, Node finalNode, int cost, JourneyStateUpdate journeyState) {
+    public void toDestination(TraversalState from, Node finalNode, Duration cost, JourneyStateUpdate journeyState) {
         toDestination(builders.getTowardsDestination(from.getClass()), finalNode, cost, journeyState);
     }
 
-    protected JustBoardedState toJustBoarded(JustBoardedState.Builder towardsJustBoarded, Node node, int cost, JourneyStateUpdate journeyState) {
+    protected JustBoardedState toJustBoarded(JustBoardedState.Builder towardsJustBoarded, Node node, Duration cost, JourneyStateUpdate journeyState) {
         throw new RuntimeException("No such transition at " + this.getClass());
     }
 
-    protected TraversalState toWalk(WalkingState.Builder towardsWalk, Node node, int cost, JourneyStateUpdate journeyState) {
+    protected TraversalState toWalk(WalkingState.Builder towardsWalk, Node node, Duration cost, JourneyStateUpdate journeyState) {
         throw new RuntimeException("No such transition at " + this.getClass());
     }
 
-    protected TraversalState toPlatform(PlatformState.Builder towardsPlatform, Node node, int cost, JourneyStateUpdate journeyState) {
+    protected TraversalState toPlatform(PlatformState.Builder towardsPlatform, Node node, Duration cost, JourneyStateUpdate journeyState) {
         throw new RuntimeException("No such transition at " + this.getClass());
     }
 
-    protected TraversalState toService(ServiceState.Builder towardsService, Node node, int cost) {
+    protected TraversalState toService(ServiceState.Builder towardsService, Node node, Duration cost) {
         throw new RuntimeException("No such transition at " + this.getClass());
     }
 
-    protected TraversalState toNoPlatformStation(NoPlatformStationState.Builder towardsNoPlatformStation, Node node, int cost, JourneyStateUpdate journeyState) {
+    protected TraversalState toNoPlatformStation(NoPlatformStationState.Builder towardsNoPlatformStation, Node node, Duration cost, JourneyStateUpdate journeyState) {
         throw new RuntimeException("No such transition at " + this.getClass());
     }
 
-    protected TraversalState toGrouped(GroupedStationState.Builder towardsGroup, Node node, int cost, JourneyStateUpdate journeyState) {
+    protected TraversalState toGrouped(GroupedStationState.Builder towardsGroup, Node node, Duration cost, JourneyStateUpdate journeyState) {
         throw new RuntimeException("No such transition at " + this.getClass());
     }
 
-    protected TraversalState toMinute(MinuteState.Builder towardsMinute, Node node, int cost, JourneyStateUpdate journeyState) {
+    protected TraversalState toMinute(MinuteState.Builder towardsMinute, Node node, Duration cost, JourneyStateUpdate journeyState) {
         throw new RuntimeException("No such transition at " + this.getClass());
     }
 
-    protected PlatformStationState toTramStation(PlatformStationState.Builder towardsStation, Node node, int cost, JourneyStateUpdate journeyState) {
+    protected PlatformStationState toTramStation(PlatformStationState.Builder towardsStation, Node node, Duration cost, JourneyStateUpdate journeyState) {
         throw new RuntimeException("No such transition at " + this.getClass());
     }
 
-    protected void toDestination(DestinationState.Builder towardsDestination, Node node, int cost, JourneyStateUpdate journeyStateUpdate) {
+    protected void toDestination(DestinationState.Builder towardsDestination, Node node, Duration cost, JourneyStateUpdate journeyStateUpdate) {
         throw new RuntimeException("No such transition at " + this.getClass());
     }
 
-    protected HourState toHour(HourState.Builder towardsHour, Node node, int cost) {
+    protected HourState toHour(HourState.Builder towardsHour, Node node, Duration cost) {
         throw new RuntimeException("No such transition at " + this.getClass());
     }
 
     protected RouteStationStateOnTrip toRouteStationOnTrip(RouteStationStateOnTrip.Builder towardsRouteStation,
-                                                           Node node, int cost, boolean isInterchange) {
+                                                           Node node, Duration cost, boolean isInterchange) {
         throw new RuntimeException("No such transition at " + this.getClass());
     }
 
     protected RouteStationStateEndTrip toRouteStationEndTrip(RouteStationStateEndTrip.Builder towardsRouteStation,
-                                                             Node node, int cost, boolean isInterchange) {
+                                                             Node node, Duration cost, boolean isInterchange) {
         throw new RuntimeException("No such transition at " + this.getClass());
     }
 
-    private TraversalState toPlatformedStation(Node node, JourneyStateUpdate journeyState, int cost) {
+    private TraversalState toPlatformedStation(Node node, JourneyStateUpdate journeyState, Duration cost) {
         return toTramStation(builders.getTowardsStation(this.getClass()), node, cost, journeyState);
     }
 
-    private TraversalState toStation(Node node, JourneyStateUpdate journeyState, int cost, boolean hasPlatforms) {
+    private TraversalState toStation(Node node, JourneyStateUpdate journeyState, Duration cost, boolean hasPlatforms) {
         if (hasPlatforms) {
             return toPlatformedStation(node, journeyState, cost);
         } else {
@@ -160,11 +160,11 @@ public abstract class TraversalState implements ImmuatableTraversalState {
         }
     }
 
-    private TraversalState toGrouped(Node node, int cost, JourneyStateUpdate journeyState) {
+    private TraversalState toGrouped(Node node, Duration cost, JourneyStateUpdate journeyState) {
         return toGrouped(builders.getTowardsGroup(this.getClass()), node, cost, journeyState);
     }
 
-    private RouteStationState toRouteStation(Class<? extends TraversalState> from, Node node, int cost, JourneyStateUpdate journeyState,
+    private RouteStationState toRouteStation(Class<? extends TraversalState> from, Node node, Duration cost, JourneyStateUpdate journeyState,
                                              boolean isInterchange) {
 
         if (from.equals(PlatformState.class) || from.equals(NoPlatformStationState.class)) {
@@ -207,29 +207,28 @@ public abstract class TraversalState implements ImmuatableTraversalState {
 
     /***
      * Use duration
-     * @return minutes
      */
     @Deprecated
-    public int getTotalCost() {
-        return parentCost + getCurrentCost();
+    public Duration getTotalCost() {
+        return getTotalDuration();
     }
 
     /***
      * Use duration
-     * @return minutes
      */
     @Deprecated
-    private int getCurrentCost() {
-        return costForLastEdge;
+    private Duration getCurrentCost() {
+        return getCurrentDuration();
     }
 
     public Duration getTotalDuration() {
-        return Duration.ofMinutes(parentCost + getCurrentCost());
+        return parentCost.plus(getCurrentCost());
     }
 
-    private Duration getCurrentDuration() {
-        return Duration.ofMinutes(costForLastEdge);
+    public Duration getCurrentDuration() {
+        return costForLastEdge;
     }
+
 
     @Override
     public String toString() {

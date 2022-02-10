@@ -137,7 +137,7 @@ class TramRouteTest {
         assertEquals(0, transportStage.getPassedStopsCount());
         assertEquals("Red Line", transportStage.getRoute().getShortName());
         assertEquals(transportStage.getFirstStation(), transportStage.getActionStation());
-        assertEquals(11, transportStage.getDuration());
+        assertMinutesEquals(11, transportStage.getDuration());
         assertEquals(TramTime.of(8,0), transportStage.getFirstDepartureTime());
         assertEquals(TramTime.of(8,11), transportStage.getExpectedArrivalTime()); // +1 for dep cost
     }
@@ -185,14 +185,14 @@ class TramRouteTest {
 
             assertEquals(midway, walk.getLastStation());
             assertEquals(walk.getMode(), TransportMode.Walk);
-            assertEquals(walkCost, walk.getDuration());
+            assertMinutesEquals(walkCost, walk.getDuration());
             final int boardAndPlatformEntry =  1;
             assertEquals(tramBoard.minusMinutes(boardAndPlatformEntry + walkCost), walk.getFirstDepartureTime(), journey.toString());
             assertEquals(tramBoard.minusMinutes(boardAndPlatformEntry), walk.getExpectedArrivalTime());
 
             assertEquals(midway, tram.getFirstStation());
             assertEquals(destination, tram.getLastStation());
-            assertEquals(tramDur, tram.getDuration());
+            assertMinutesEquals(tramDur, tram.getDuration());
             assertEquals(tramBoard, tram.getFirstDepartureTime());
             assertEquals(tramBoard.plusMinutes(tramDur), tram.getExpectedArrivalTime());
         });
@@ -217,7 +217,7 @@ class TramRouteTest {
             assertEquals(TransportMode.Walk, walk.getMode());
             assertEquals(destination, walk.getLastStation());
             assertEquals(queryTime, walk.getFirstDepartureTime());
-            assertEquals(walkCost, walk.getDuration());
+            assertMinutesEquals(walkCost, walk.getDuration());
         });
     }
 
@@ -245,7 +245,7 @@ class TramRouteTest {
             assertEquals(TransportMode.Walk, walk.getMode());
             assertEquals(start, walk.getFirstStation());
             assertEquals(queryTime, walk.getFirstDepartureTime());
-            assertEquals(walkCost, walk.getDuration());
+            assertMinutesEquals(walkCost, walk.getDuration());
         });
     }
 
@@ -274,8 +274,8 @@ class TramRouteTest {
             assertEquals(TransportMode.Walk, walk2.getMode());
             assertEquals(TransportMode.Tram, tram.getMode());
 
-            assertEquals(walk1Cost, walk1.getDuration());
-            assertEquals(walk2Cost, walk2.getDuration());
+            assertMinutesEquals(walk1Cost, walk1.getDuration());
+            assertMinutesEquals(walk2Cost, walk2.getDuration());
 
             assertEquals(endFirstWalk, walk1.getLastStation());
             assertEquals(endFirstWalk, tram.getFirstStation());
@@ -325,7 +325,7 @@ class TramRouteTest {
 
             assertEquals(walk.getMode(), TransportMode.Walk);
             assertEquals(walk.getFirstStation(), midway);
-            assertEquals(walkCost, walk.getDuration());
+            assertMinutesEquals(walkCost, walk.getDuration());
             assertEquals(walk.getFirstDepartureTime(), boardTime.plusMinutes(tramDuration+depart));
             assertEquals(boardTime.plusMinutes(tramDuration+depart+walkCost), walk.getExpectedArrivalTime());
 
@@ -470,10 +470,10 @@ class TramRouteTest {
             final TransportStage<?, ?> secondStage = journey.getStages().get(1);
 
             assertEquals(1, firstStage.getPassedStopsCount());
-            assertEquals(11+9, firstStage.getDuration());
+            assertMinutesEquals(11+9, firstStage.getDuration());
 
             assertEquals(0, secondStage.getPassedStopsCount());
-            assertEquals(4, secondStage.getDuration());
+            assertMinutesEquals(4, secondStage.getDuration());
             assertEquals(expectedPath, journey.getPath());
 
         });
@@ -516,7 +516,8 @@ class TramRouteTest {
         TramTime departTime = vehicleStage.getFirstDepartureTime();
         assertTrue(departTime.isAfter(queryTime));
 
-        assertTrue(vehicleStage.getDuration()>0);
+        assertFalse(vehicleStage.getDuration().isNegative());
+        assertFalse(vehicleStage.getDuration().isZero());
     }
 
 }

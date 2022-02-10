@@ -9,11 +9,11 @@ import java.util.Set;
 
 public interface ImmuatableTraversalState {
     @Deprecated
-    int getTotalCost();
+    Duration getTotalCost();
 
-    @Deprecated
-    TraversalState nextState(Set<GraphLabel> nodeLabels, Node node,
-                             JourneyStateUpdate journeyState, int cost);
+//    @Deprecated
+//    TraversalState nextState(Set<GraphLabel> nodeLabels, Node node,
+//                             JourneyStateUpdate journeyState, int cost);
 
     Duration getTotalDuration();
 

@@ -14,6 +14,7 @@ import com.tramchester.graph.search.stateMachine.Towards;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
 
+import java.time.Duration;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -43,7 +44,7 @@ public class MinuteState extends TraversalState {
             return MinuteState.class;
         }
 
-        public TraversalState fromHour(HourState hourState, Node node, int cost, ExistingTrip existingTrip, JourneyStateUpdate journeyState) {
+        public TraversalState fromHour(HourState hourState, Node node, Duration cost, ExistingTrip existingTrip, JourneyStateUpdate journeyState) {
             Iterable<Relationship> relationships = node.getRelationships(OUTGOING, TRAM_GOES_TO, BUS_GOES_TO, TRAIN_GOES_TO
                 ,FERRY_GOES_TO, SUBWAY_GOES_TO);
 
@@ -70,7 +71,7 @@ public class MinuteState extends TraversalState {
     private final boolean interchangesOnly;
     private final Trip trip;
 
-    private MinuteState(TraversalState parent, Iterable<Relationship> relationships, IdFor<Trip> tripId, int cost,
+    private MinuteState(TraversalState parent, Iterable<Relationship> relationships, IdFor<Trip> tripId, Duration cost,
                         boolean interchangesOnly) {
         super(parent, relationships, cost);
         this.trip = traversalOps.getTrip(tripId);
@@ -94,7 +95,7 @@ public class MinuteState extends TraversalState {
 
     @Override
     protected RouteStationStateOnTrip toRouteStationOnTrip(RouteStationStateOnTrip.Builder towardsRouteStation,
-                                                           Node routeStationNode, int cost, boolean isInterchange) {
+                                                           Node routeStationNode, Duration cost, boolean isInterchange) {
 
         return towardsRouteStation.fromMinuteState(this, routeStationNode, cost, isInterchange, trip);
     }
@@ -102,7 +103,7 @@ public class MinuteState extends TraversalState {
     @Override
     protected RouteStationStateEndTrip toRouteStationEndTrip(RouteStationStateEndTrip.Builder towardsRouteStation,
                                                              Node routeStationNode,
-                                                             int cost, boolean isInterchange) {
+                                                             Duration cost, boolean isInterchange) {
 
         return towardsRouteStation.fromMinuteState(this, routeStationNode, cost, isInterchange);
     }

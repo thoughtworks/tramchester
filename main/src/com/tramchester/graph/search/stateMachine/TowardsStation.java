@@ -7,9 +7,11 @@ import com.tramchester.graph.search.stateMachine.states.StationState;
 import com.tramchester.graph.search.stateMachine.states.WalkingState;
 import org.neo4j.graphdb.Node;
 
+import java.time.Duration;
+
 public interface TowardsStation<T extends StationState> extends Towards<T> {
-    T fromNeighbour(StationState stationState, Node next, int cost, JourneyStateUpdate journeyState);
-    T fromStart(NotStartedState notStartedState, Node firstNode, int cost, JourneyStateUpdate journeyState);
-    T fromWalking(WalkingState walkingState, Node node, int cost, JourneyStateUpdate journeyState);
-    T fromGrouped(GroupedStationState groupedStationState, Node next, int cost, JourneyStateUpdate journeyState);
+    T fromNeighbour(StationState stationState, Node next, Duration cost, JourneyStateUpdate journeyState);
+    T fromStart(NotStartedState notStartedState, Node firstNode, Duration cost, JourneyStateUpdate journeyState);
+    T fromWalking(WalkingState walkingState, Node node, Duration cost, JourneyStateUpdate journeyState);
+    T fromGrouped(GroupedStationState groupedStationState, Node next, Duration cost, JourneyStateUpdate journeyState);
 }

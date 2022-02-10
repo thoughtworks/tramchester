@@ -10,6 +10,7 @@ import com.tramchester.domain.presentation.TransportStage;
 import com.tramchester.domain.presentation.TravelAction;
 
 import javax.inject.Inject;
+import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
@@ -39,6 +40,7 @@ public class StageDTOFactory {
 
         String tripId = source.getTripId().isValid() ? source.getTripId().forDTO() : "";
 
+        final Duration duration = source.getDuration();
         if (source.hasBoardingPlatform()) {
             PlatformDTO boardingPlatform = new PlatformDTO(source.getBoardingPlatform());
 
@@ -47,7 +49,7 @@ public class StageDTOFactory {
                     actionStation,
                     boardingPlatform,
                     firstDepartureTime, expectedArrivalTime,
-                    source.getDuration(), source.getHeadSign(),
+                    duration, source.getHeadSign(),
                     source.getMode(),
                     source.getPassedStopsCount(), routeRefDTO, travelAction, queryDate, tripId);
         } else {
@@ -55,7 +57,7 @@ public class StageDTOFactory {
                     lastStation,
                     actionStation,
                     firstDepartureTime, expectedArrivalTime,
-                    source.getDuration(), source.getHeadSign(),
+                    duration, source.getHeadSign(),
                     source.getMode(),
                     source.getPassedStopsCount(), routeRefDTO, travelAction, queryDate, tripId);
         }

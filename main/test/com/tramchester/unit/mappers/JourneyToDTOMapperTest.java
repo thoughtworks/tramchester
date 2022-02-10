@@ -32,6 +32,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.time.Duration;
 import java.time.LocalDate;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -158,7 +159,7 @@ class JourneyToDTOMapperTest extends EasyMockSupport {
         Station startStation = Altrincham.fakeWith(platform);
 
         ConnectingStage<Station,Station> connectingStage = new ConnectingStage<>(BusStations.of(StopAtAltrinchamInterchange),
-                startStation, 1, time);
+                startStation, Duration.ofMinutes(1), time);
 
         VehicleStage tramStage = getRawVehicleStage(startStation, TramStations.Shudehill.fake(),
                 createRoute("route"), time.plusMinutes(1), 35, platform);

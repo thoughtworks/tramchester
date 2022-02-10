@@ -155,7 +155,7 @@ public class TramNetworkTraverser implements PathExpander<JourneyState> {
             if (cost.compareTo(Duration.ZERO) > 0) {
                 final Duration totalCost = currentState.getTotalDurationSoFar();
                 Duration total = totalCost.plus(cost);
-                journeyStateForChildren.updateTotalDuration(total);
+                journeyStateForChildren.updateTotalCost(total);
                 //journeyStateForChildren.updateTotalCost(total);
             }
         }

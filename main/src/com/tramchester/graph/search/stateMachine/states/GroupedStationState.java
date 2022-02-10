@@ -7,6 +7,7 @@ import org.neo4j.graphdb.Direction;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
 
+import java.time.Duration;
 import java.util.stream.Stream;
 
 import static com.tramchester.graph.TransportRelationshipTypes.GROUPED_TO_CHILD;
@@ -29,13 +30,13 @@ public class GroupedStationState extends TraversalState {
             return GroupedStationState.class;
         }
 
-        public TraversalState fromChildStation(StationState stationState, Node node, int cost) {
+        public TraversalState fromChildStation(StationState stationState, Node node, Duration cost) {
             return new GroupedStationState(stationState,
                     filterExcludingEndNode(node.getRelationships(Direction.OUTGOING, GROUPED_TO_CHILD),stationState),
                     cost, node.getId());
         }
 
-        public TraversalState fromStart(NotStartedState notStartedState, Node node, int cost) {
+        public TraversalState fromStart(NotStartedState notStartedState, Node node, Duration cost) {
             return new GroupedStationState(notStartedState, node.getRelationships(Direction.OUTGOING, GROUPED_TO_CHILD),
                     cost, node.getId());
         }
@@ -43,12 +44,12 @@ public class GroupedStationState extends TraversalState {
 
     private final long stationNodeId;
 
-    private GroupedStationState(TraversalState parent, Stream<Relationship> relationships, int cost, long stationNodeId) {
+    private GroupedStationState(TraversalState parent, Stream<Relationship> relationships, Duration cost, long stationNodeId) {
         super(parent, relationships, cost);
         this.stationNodeId = stationNodeId;
     }
 
-    private GroupedStationState(TraversalState parent, Iterable<Relationship> relationships, int cost, long stationNodeId) {
+    private GroupedStationState(TraversalState parent, Iterable<Relationship> relationships, Duration cost, long stationNodeId) {
         super(parent, relationships, cost);
         this.stationNodeId = stationNodeId;
     }
@@ -61,17 +62,17 @@ public class GroupedStationState extends TraversalState {
     }
 
     @Override
-    protected PlatformStationState toTramStation(PlatformStationState.Builder towardsStation, Node node, int cost, JourneyStateUpdate journeyState) {
+    protected PlatformStationState toTramStation(PlatformStationState.Builder towardsStation, Node node, Duration cost, JourneyStateUpdate journeyState) {
         return towardsStation.fromGrouped(this, node, cost, journeyState);
     }
 
     @Override
-    protected TraversalState toNoPlatformStation(NoPlatformStationState.Builder towardsStation, Node node, int cost, JourneyStateUpdate journeyState) {
+    protected TraversalState toNoPlatformStation(NoPlatformStationState.Builder towardsStation, Node node, Duration cost, JourneyStateUpdate journeyState) {
         return towardsStation.fromGrouped(this, node, cost, journeyState);
     }
 
     @Override
-    protected void toDestination(DestinationState.Builder towardsDestination, Node node, int cost, JourneyStateUpdate journeyStateUpdate) {
+    protected void toDestination(DestinationState.Builder towardsDestination, Node node, Duration cost, JourneyStateUpdate journeyStateUpdate) {
         towardsDestination.from(this, cost);
     }
 

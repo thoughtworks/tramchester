@@ -12,16 +12,25 @@ import java.time.Duration;
 
 public interface JourneyStateUpdate {
     void board(TransportMode transportMode, Node node, boolean hasPlatform) throws TramchesterException;
-    void leave(TransportMode mode, int totalCost, Node node) throws TramchesterException;
-    void recordTime(TramTime time, int totalCost) throws TramchesterException;
+
     void beginTrip(IdFor<Trip> newTripId);
-    void beginWalk(Node beforeWalkNode, boolean atStart, int cost);
+    void beginWalk(Node beforeWalkNode, boolean atStart, Duration cost);
     void endWalk(Node stationNode);
-    void toNeighbour(Node startNode, Node endNode, int cost);
+    void toNeighbour(Node startNode, Node endNode, Duration cost);
     void seenStation(IdFor<Station> stationId);
 
     // deprecated
     void updateTotalCost(int total);
 
-    void updateTotalDuration(Duration total);
+    void updateTotalCost(Duration total);
+
+    @Deprecated
+    void leave(TransportMode mode, int totalCost, Node node) throws TramchesterException;
+
+    @Deprecated
+    void recordTime(TramTime time, int totalCost) throws TramchesterException;
+
+    void leave(TransportMode mode, Duration totalCost, Node node) throws TramchesterException;
+
+    void recordTime(TramTime time, Duration totalCost) throws TramchesterException;
 }

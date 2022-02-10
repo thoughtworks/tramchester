@@ -11,6 +11,7 @@ import com.tramchester.graph.search.stateMachine.Towards;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
 
+import java.time.Duration;
 import java.util.stream.Stream;
 
 import static com.tramchester.graph.TransportRelationshipTypes.TO_MINUTE;
@@ -28,7 +29,7 @@ public class HourState extends TraversalState {
             this.nodeContents = nodeContents;
         }
 
-        public HourState fromService(ServiceState serviceState, Node node, int cost, ExistingTrip maybeExistingTrip) {
+        public HourState fromService(ServiceState serviceState, Node node, Duration cost, ExistingTrip maybeExistingTrip) {
             Stream<Relationship> relationships = getMinuteRelationships(node);
             return new HourState(serviceState, relationships, maybeExistingTrip, cost);
         }
@@ -57,16 +58,16 @@ public class HourState extends TraversalState {
     private final ExistingTrip maybeExistingTrip;
 
     private HourState(TraversalState parent, Stream<Relationship> relationships,
-                      ExistingTrip maybeExistingTrip, int cost) {
+                      ExistingTrip maybeExistingTrip, Duration cost) {
         super(parent, relationships, cost);
         this.maybeExistingTrip = maybeExistingTrip;
     }
 
     @Override
-    protected TraversalState toMinute(MinuteState.Builder towardsMinute, Node minuteNode, int cost, JourneyStateUpdate journeyState) {
+    protected TraversalState toMinute(MinuteState.Builder towardsMinute, Node minuteNode, Duration cost, JourneyStateUpdate journeyState) {
         try {
             TramTime time = traversalOps.getTimeFrom(minuteNode);
-            journeyState.recordTime(time, getTotalCost());
+            journeyState.recordTime(time, getTotalDuration());
         } catch (TramchesterException exception) {
             throw new RuntimeException("Unable to process time ordering", exception);
         }

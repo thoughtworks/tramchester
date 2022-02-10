@@ -96,7 +96,7 @@ public class MapPathToStagesViaStates implements PathToStages {
 
                 if (lastRelationshipCost.compareTo(Duration.ZERO) > 0) {
                     Duration total = previous.getTotalDuration().plus(lastRelationshipCost);
-                    mapStatesToStages.updateTotalDuration(total);
+                    mapStatesToStages.updateTotalCost(total);
                 }
                 if (relationship.hasProperty(STOP_SEQ_NUM.getText())) {
                     mapStatesToStages.passStop(relationship);
@@ -111,7 +111,7 @@ public class MapPathToStagesViaStates implements PathToStages {
                 previous = next;
             }
         }
-        previous.toDestination(previous, path.endNode(), 0, mapStatesToStages);
+        previous.toDestination(previous, path.endNode(), Duration.ZERO, mapStatesToStages);
 
         final List<TransportStage<?, ?>> stages = mapStatesToStages.getStages();
         if (stages.isEmpty()) {
@@ -140,7 +140,8 @@ public class MapPathToStagesViaStates implements PathToStages {
         StationGroup start = stationGroupsRepository.getStationGroup(startId);
         StationGroup end = stationGroupsRepository.getStationGroup(endId);
 
-        ConnectingStage<StationGroup, StationGroup> connectingStage = new ConnectingStage<>(start, end, 0, journeyRequest.getOriginalTime());
+        ConnectingStage<StationGroup, StationGroup> connectingStage =
+                new ConnectingStage<>(start, end, Duration.ZERO, journeyRequest.getOriginalTime());
         stages.add(connectingStage);
     }
 
