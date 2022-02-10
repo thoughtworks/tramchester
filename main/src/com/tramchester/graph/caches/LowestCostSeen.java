@@ -21,6 +21,10 @@ public class LowestCostSeen {
         return lowestCost.get();
     }
 
+    public Duration getLowestDuration() {
+        return Duration.ofMinutes(lowestCost.get());
+    }
+
     @Deprecated
     public void setLowestCost(int cost) {
         lowestCost.getAndSet(cost);
@@ -38,8 +42,10 @@ public class LowestCostSeen {
         // <= equals so we include multiple options and routes in the results
         // An alternative to this would be to search over a finer grained list of times and catch alternatives
         // that way
-        return  (journeyState.getTotalCostSoFar() <= getLowestCost()
-                && journeyState.getNumberChanges() <= getLowestNumChanges());
+
+        // journeyState.getTotalCostSoFar() <= getLowestCost()
+        boolean durationLower = journeyState.getTotalDurationSoFar().compareTo(getLowestDuration()) <= 0;
+        return  durationLower && journeyState.getNumberChanges() <= getLowestNumChanges();
 
     }
 
@@ -58,7 +64,4 @@ public class LowestCostSeen {
                 '}';
     }
 
-    public Duration getLowestDuration() {
-        return Duration.ofMinutes(getLowestCost());
-    }
 }

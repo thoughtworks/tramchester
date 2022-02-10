@@ -180,7 +180,7 @@ public class ServiceHeuristics {
         return valid(ServiceReason.ReasonCode.Reachable, howIGotHere, reasons);
     }
 
-    public ServiceReason lowerCostIncludingInterchange(Node nextNode, int totalCostSoFar, LowestCostSeen bestSoFar,
+    public ServiceReason lowerCostIncludingInterchange(Node nextNode, Duration totalCostSoFar, LowestCostSeen bestSoFar,
                                                        HowIGotHere howIGotHere, ServiceReasons reasons) {
         reasons.incrementTotalChecked();
 
@@ -204,7 +204,7 @@ public class ServiceHeuristics {
         // TODO Useful??
         if (bestSoFar.everArrived()) {
             Duration lowestCost = bestSoFar.getLowestDuration();
-            Duration costToNextInterchange = Duration.ofMinutes(totalCostSoFar).plus(costToFirstInterchange);
+            Duration costToNextInterchange = totalCostSoFar.plus(costToFirstInterchange);
             if (costToNextInterchange.compareTo(lowestCost) > 0) {
                 // cost of getting to interchange, plus current total cost, is greater than existing best effort
                 return reasons.recordReason(ServiceReason.LongerViaInterchange(howIGotHere));
@@ -214,13 +214,11 @@ public class ServiceHeuristics {
         return valid(ServiceReason.ReasonCode.Reachable, howIGotHere, reasons);
     }
 
-    // TODO Duration
-    public ServiceReason journeyDurationUnderLimit(final int totalCost, final HowIGotHere howIGotHere, ServiceReasons reasons) {
+    public ServiceReason journeyDurationUnderLimit(final Duration totalDuration, final HowIGotHere howIGotHere, ServiceReasons reasons) {
         reasons.incrementTotalChecked();
 
-        Duration totalDuration = Duration.ofMinutes(totalCost);
         if (totalDuration.compareTo(journeyConstraints.getMaxJourneyDuration()) > 0) {
-            return reasons.recordReason(ServiceReason.TookTooLong(actualQueryTime.plusMinutes(totalCost), howIGotHere));
+            return reasons.recordReason(ServiceReason.TookTooLong(actualQueryTime.plus(totalDuration), howIGotHere));
         }
         return valid(ServiceReason.ReasonCode.DurationOk, howIGotHere, reasons);
     }

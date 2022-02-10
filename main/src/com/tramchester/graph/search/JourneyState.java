@@ -74,10 +74,10 @@ public class JourneyState implements ImmutableJourneyState, JourneyStateUpdate {
         }
     }
 
-    @Deprecated
-    public void recordTime(TramTime boardingTime, int currentCost) throws TramchesterException {
-        recordTime(boardingTime, Duration.ofMinutes(currentCost));
-    }
+//    @Deprecated
+//    public void recordTime(TramTime boardingTime, int currentCost) throws TramchesterException {
+//        recordTime(boardingTime, Duration.ofMinutes(currentCost));
+//    }
 
     public void recordTime(TramTime boardingTime, Duration currentCost) throws TramchesterException {
         if ( !coreState.onBoard() ) {

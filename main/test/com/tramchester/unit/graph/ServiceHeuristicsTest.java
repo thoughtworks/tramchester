@@ -373,7 +373,7 @@ class ServiceHeuristicsTest extends EasyMockSupport {
 
         Node node = createMock(Node.class);
 
-        TramTime tramTime = nextDay ? TramTime.nextDay(nodeTime.getHour(), nodeTime.getMinute()) : TramTime.of(nodeTime);
+        TramTime tramTime = nextDay ? TramTime.nextDay(nodeTime.getHour(), nodeTime.getMinute()) : TramTime.ofHourMins(nodeTime);
 
         EasyMock.expect(nodeContentsCache.getTime(node)).andReturn(tramTime);
 
@@ -418,10 +418,10 @@ class ServiceHeuristicsTest extends EasyMockSupport {
         ServiceHeuristics serviceHeuristics = new ServiceHeuristics(stationRepository, routeInterchanges, nodeContentsCache,
                 journeyConstraints, queryTime, MAX_NUM_CHANGES);
 
-        assertTrue(serviceHeuristics.journeyDurationUnderLimit(5, howIGotHere, reasons).isValid());
-        assertTrue(serviceHeuristics.journeyDurationUnderLimit(overallMaxLen-1, howIGotHere, reasons).isValid());
-        assertTrue(serviceHeuristics.journeyDurationUnderLimit(overallMaxLen, howIGotHere, reasons).isValid());
-        assertFalse(serviceHeuristics.journeyDurationUnderLimit(overallMaxLen+1, howIGotHere, reasons).isValid());
+        assertTrue(serviceHeuristics.journeyDurationUnderLimit(Duration.ofMinutes(5), howIGotHere, reasons).isValid());
+        assertTrue(serviceHeuristics.journeyDurationUnderLimit(Duration.ofMinutes(overallMaxLen-1), howIGotHere, reasons).isValid());
+        assertTrue(serviceHeuristics.journeyDurationUnderLimit(Duration.ofMinutes(overallMaxLen), howIGotHere, reasons).isValid());
+        assertFalse(serviceHeuristics.journeyDurationUnderLimit(Duration.ofMinutes(overallMaxLen+1), howIGotHere, reasons).isValid());
 
         verifyAll();
     }
@@ -505,10 +505,10 @@ class ServiceHeuristicsTest extends EasyMockSupport {
                 journeyConstraints, queryTime,
                 MAX_NUM_CHANGES);
 
-        assertTrue(serviceHeuristics.journeyDurationUnderLimit(5, howIGotHere, reasons).isValid());
-        assertTrue(serviceHeuristics.journeyDurationUnderLimit(overallMaxLen-1, howIGotHere, reasons).isValid());
-        assertTrue(serviceHeuristics.journeyDurationUnderLimit(overallMaxLen, howIGotHere, reasons).isValid());
-        assertFalse(serviceHeuristics.journeyDurationUnderLimit(overallMaxLen+1, howIGotHere, reasons).isValid());
+        assertTrue(serviceHeuristics.journeyDurationUnderLimit(Duration.ofMinutes(5), howIGotHere, reasons).isValid());
+        assertTrue(serviceHeuristics.journeyDurationUnderLimit(Duration.ofMinutes(overallMaxLen-1), howIGotHere, reasons).isValid());
+        assertTrue(serviceHeuristics.journeyDurationUnderLimit(Duration.ofMinutes(overallMaxLen), howIGotHere, reasons).isValid());
+        assertFalse(serviceHeuristics.journeyDurationUnderLimit(Duration.ofMinutes(overallMaxLen+1), howIGotHere, reasons).isValid());
 
         verifyAll();
     }

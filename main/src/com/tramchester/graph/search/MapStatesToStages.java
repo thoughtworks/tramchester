@@ -100,12 +100,6 @@ class MapStatesToStages implements JourneyStateUpdate {
         }
     }
 
-    @Deprecated
-    @Override
-    public void recordTime(TramTime time, int totalCost) {
-        recordTime(time, Duration.ofMinutes(totalCost));
-    }
-
     @Override
     public void leave(TransportMode mode, Duration totalCost, Node routeStationNode) {
         if (!onVehicle) {

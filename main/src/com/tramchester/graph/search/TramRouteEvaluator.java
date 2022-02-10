@@ -18,6 +18,7 @@ import org.neo4j.graphdb.traversal.PathEvaluator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.time.Duration;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.EnumSet;
@@ -121,14 +122,14 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
         final long nextNodeId = nextNode.getId();
 
         final HowIGotHere howIGotHere = new HowIGotHere(thePath, journeyState);
-        final int totalCostSoFar = journeyState.getTotalCostSoFar();
+        final Duration totalCostSoFar = journeyState.getTotalDurationSoFar();
         final int numberChanges = journeyState.getNumberChanges();
 
         if (destinationNodeIds.contains(nextNodeId)) { // We've Arrived
             return processArrivalAtDest(journeyState, howIGotHere, numberChanges);
         } else if (bestResultSoFar.everArrived()) { // Not arrived, but we have seen at least one successful route
-            final int lowestCostSeen = bestResultSoFar.getLowestCost();
-            if (totalCostSoFar > lowestCostSeen) {
+            final Duration lowestCostSeen = bestResultSoFar.getLowestDuration();
+            if (totalCostSoFar.compareTo(lowestCostSeen) > 0 ) {
                 // already longer that current shortest, no need to continue
                 reasons.recordReason(ServiceReason.HigherCost(howIGotHere));
                 return ServiceReason.ReasonCode.HigherCost;
@@ -235,7 +236,7 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
             }
 
             final ServiceReason serviceReason = serviceHeuristics.lowerCostIncludingInterchange(nextNode,
-                    journeyState.getTotalCostSoFar(), bestResultSoFar, howIGotHere, reasons);
+                    journeyState.getTotalDurationSoFar(), bestResultSoFar, howIGotHere, reasons);
             if (!serviceReason.isValid()) {
                 return serviceReason.getReasonCode();
             }
