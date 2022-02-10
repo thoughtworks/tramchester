@@ -6,7 +6,6 @@ import com.tramchester.domain.JourneyRequest;
 import com.tramchester.domain.LocationSet;
 import com.tramchester.domain.NumberOfChanges;
 import com.tramchester.domain.places.Location;
-import com.tramchester.domain.places.Station;
 import com.tramchester.domain.places.StationWalk;
 import com.tramchester.domain.presentation.TransportStage;
 import com.tramchester.domain.reference.TransportMode;
@@ -14,7 +13,6 @@ import com.tramchester.domain.time.InvalidDurationException;
 import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.domain.time.TramServiceDate;
 import com.tramchester.domain.time.TramTime;
-import com.tramchester.domain.transportStages.WalkingStage;
 import com.tramchester.geo.SortsPositions;
 import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.GraphQuery;
@@ -88,19 +86,8 @@ public class RouteCalculatorSupport {
         this.routeCostCalculator = routeCostCalculator;
     }
 
-    protected Node getStationNodeSafe(Transaction txn, Station station) {
-//        Node stationNode = graphQuery.getStationOrGrouped(txn, station);
-        Node stationNode = graphQuery.getStationNode(txn, station);
-        if (stationNode == null) {
-            String msg = "Unable to find station (or grouped) graph node based for " + station;
-            logger.error(msg);
-            throw new RuntimeException(msg);
-        }
-        return stationNode;
-    }
 
     protected Node getLocationNodeSafe(Transaction txn, Location<?> location) {
-//        Node stationNode = graphQuery.getStationOrGrouped(txn, station);
         Node stationNode = graphQuery.getLocationNode(txn, location);
         if (stationNode == null) {
             String msg = "Unable to find node for " + location;
@@ -305,7 +292,7 @@ public class RouteCalculatorSupport {
         private final long maxJourneys;
         private int seenMaxJourneys;
 
-        private final Map<Station, AtomicLong> journeysPerStation;
+        private final Map<Location<?>, AtomicLong> journeysPerStation;
 
         public InitialWalksFinished(JourneyRequest journeyRequest, Set<StationWalk> stationWalks) {
             this.maxJourneys = journeyRequest.getMaxNumberOfJourneys();
@@ -321,9 +308,9 @@ public class RouteCalculatorSupport {
                 throw new RuntimeException("Expected walk to be first stage of " + journey);
             }
 
-            WalkingStage<?, Station> walkingStage = (WalkingStage<?, Station>) journey.getStages().get(0);
+            TransportStage<?, ?> walkingStage = journey.getStages().get(0);
 
-            final Station lastStation = walkingStage.getLastStation();
+            final Location<?> lastStation = walkingStage.getLastStation();
             long countForStation = journeysPerStation.get(lastStation).incrementAndGet();
             if (countForStation==maxJourneys) {
                 logger.info("Seen " + maxJourneys + " for " + lastStation.getId());
