@@ -9,7 +9,10 @@ import com.tramchester.graph.search.stateMachine.UnexpectedNodeTypeException;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
 
-import java.util.*;
+import java.time.Duration;
+import java.util.ArrayList;
+import java.util.Objects;
+import java.util.Set;
 import java.util.stream.Stream;
 
 public abstract class TraversalState implements ImmuatableTraversalState {
@@ -48,6 +51,13 @@ public abstract class TraversalState implements ImmuatableTraversalState {
         this.outbounds = outbounds;
         this.costForLastEdge = costForLastEdge;
         this.parentCost = parent.getTotalCost();
+    }
+
+    public TraversalState nextState(Set<GraphLabel> nodeLabels, Node node,
+                                    JourneyStateUpdate journeyState, Duration duration) {
+        // TODO Store Duration, not minutes
+        final long mins = duration.toMinutes();
+        return nextState(nodeLabels, node, journeyState, (int) mins);
     }
 
     public TraversalState nextState(Set<GraphLabel> nodeLabels, Node node,
@@ -195,12 +205,30 @@ public abstract class TraversalState implements ImmuatableTraversalState {
                 filter(relationship -> relationship.getEndNode().getId() != nodeId);
     }
 
+    /***
+     * Use duration
+     * @return minutes
+     */
+    @Deprecated
     public int getTotalCost() {
         return parentCost + getCurrentCost();
     }
 
+    /***
+     * Use duration
+     * @return minutes
+     */
+    @Deprecated
     private int getCurrentCost() {
         return costForLastEdge;
+    }
+
+    public Duration getTotalDuration() {
+        return Duration.ofMinutes(parentCost + getCurrentCost());
+    }
+
+    private Duration getCurrentDuration() {
+        return Duration.ofMinutes(costForLastEdge);
     }
 
     @Override

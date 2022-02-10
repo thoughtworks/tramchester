@@ -2,6 +2,7 @@ package com.tramchester.graph.caches;
 
 import com.tramchester.graph.search.ImmutableJourneyState;
 
+import java.time.Duration;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class LowestCostSeen {
@@ -15,6 +16,7 @@ public class LowestCostSeen {
         arrived = new AtomicInteger(0);
     }
 
+    @Deprecated
     public int getLowestCost() {
         return lowestCost.get();
     }
@@ -53,5 +55,9 @@ public class LowestCostSeen {
                 ", changes=" + lowestNumChanges +
                 ", arrived=" + arrived +
                 '}';
+    }
+
+    public Duration getLowestDuration() {
+        return Duration.ofMinutes(getLowestCost());
     }
 }

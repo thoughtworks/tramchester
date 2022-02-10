@@ -24,6 +24,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.annotation.PreDestroy;
 import javax.inject.Inject;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.List;
@@ -38,7 +39,7 @@ public class CachedNodeOperations implements ReportsCacheStats, NodeContentsRepo
     private final Cache<Long, IdFor<Service>> serviceNodeCache;
     private final Cache<Long, IdFor<RouteStation>> routeStationIdCache;
 
-    private final Cache<Long, Integer> relationshipCostCache;
+    private final Cache<Long, Duration> relationshipCostCache;
     private final Cache<Long, TramTime> timeNodeCache;
 
     private final Cache<Long, EnumSet<GraphLabel>> labelCache;
@@ -137,13 +138,14 @@ public class CachedNodeOperations implements ReportsCacheStats, NodeContentsRepo
         return labelCache.get(nodeId, id -> GraphProps.getLabelsFor(node));
     }
 
-    public int getCost(Relationship relationship) {
+    @Override
+    public Duration getCost(Relationship relationship) {
         TransportRelationshipTypes relationshipType = TransportRelationshipTypes.from(relationship);
         if (TransportRelationshipTypes.hasCost(relationshipType)) {
             long relationshipId = relationship.getId();
             return relationshipCostCache.get(relationshipId, id ->  GraphProps.getCost(relationship));
         } else {
-            return 0;
+            return Duration.ZERO;
         }
     }
 

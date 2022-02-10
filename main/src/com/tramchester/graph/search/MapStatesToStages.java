@@ -22,6 +22,7 @@ import org.neo4j.graphdb.Relationship;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -121,11 +122,18 @@ class MapStatesToStages implements JourneyStateUpdate {
         }
     }
 
+    @Deprecated
     @Override
     public void updateTotalCost(int totalCost) {
         logger.debug("Update total journeyCost " + totalCost);
         this.totalCost = totalCost;
         logger.debug("Actual clock " + getActualClock());
+    }
+
+    // TODO Store duration
+    @Override
+    public void updateTotalDuration(Duration total) {
+        this.totalCost = (int) total.toMinutes();
     }
 
     private TramTime getActualClock() {

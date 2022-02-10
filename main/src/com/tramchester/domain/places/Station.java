@@ -10,6 +10,7 @@ import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.geo.GridPosition;
 
+import java.time.Duration;
 import java.util.Set;
 
 public interface Station extends Location<Station> {
@@ -52,6 +53,8 @@ public interface Station extends Location<Station> {
     // todo return Duration
     @Deprecated
     int getMinimumChangeCost();
+
+    Duration getMinChangeDuration();
 
     static IdFor<Station> createId(String text) {
         return StringIdFor.createId(text);

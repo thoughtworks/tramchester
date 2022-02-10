@@ -234,6 +234,10 @@ public class TestEnv {
         assertEquals(Duration.ofMinutes(minutes), duration, "Duration %s did match %d minutes".formatted(duration, minutes));
     }
 
+    public static void assertMinutesEquals(int minutes, Duration duration, String message) {
+        assertEquals(Duration.ofMinutes(minutes), duration, message);
+    }
+
     /**
      * Need to find more than one for a valid test
      */
@@ -248,4 +252,6 @@ public class TestEnv {
         DataCache cache = componentContainer.get(DataCache.class);
         cache.clearFiles();
     }
+
+
 }

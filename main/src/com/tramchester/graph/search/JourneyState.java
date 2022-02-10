@@ -11,6 +11,7 @@ import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Path;
 import org.neo4j.graphdb.traversal.InitialBranchState;
 
+import java.time.Duration;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -62,6 +63,8 @@ public class JourneyState implements ImmutableJourneyState, JourneyStateUpdate {
         return coreState.journeyClock;
     }
 
+    @Deprecated
+    @Override
     public void updateTotalCost(int currentTotalCost) {
         int costForTrip = currentTotalCost - journeyOffset;
 
@@ -70,6 +73,12 @@ public class JourneyState implements ImmutableJourneyState, JourneyStateUpdate {
         } else {
             coreState.incrementJourneyClock(costForTrip);
         }
+    }
+
+    @Override
+    public void updateTotalDuration(Duration total) {
+        // TODO Store Duration?
+        updateTotalCost((int) total.toMinutes());
     }
 
     public void recordTime(TramTime boardingTime, int currentCost) throws TramchesterException {
@@ -168,9 +177,15 @@ public class JourneyState implements ImmutableJourneyState, JourneyStateUpdate {
         return traversalState.getClass().getSimpleName();
     }
 
+    @Deprecated
     @Override
     public int getTotalCostSoFar() {
         return  traversalState.getTotalCost();
+    }
+
+    @Override
+    public Duration getTotalDurationSoFar() {
+        return traversalState.getTotalDuration();
     }
 
     @Override

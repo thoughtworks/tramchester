@@ -24,6 +24,7 @@ import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.condition.DisabledIfEnvironmentVariable;
 import org.neo4j.graphdb.*;
 
+import java.time.Duration;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
@@ -31,6 +32,7 @@ import java.util.stream.Collectors;
 
 import static com.tramchester.graph.TransportRelationshipTypes.*;
 import static com.tramchester.integration.testSupport.rail.RailStationIds.*;
+import static com.tramchester.testSupport.TestEnv.assertMinutesEquals;
 import static org.junit.jupiter.api.Assertions.*;
 
 @TrainTest
@@ -111,26 +113,26 @@ class GraphBuilderRailTest {
         platforms.forEach(platform -> {
             Node node = graphQuery.getPlatformNode(txn, platform);
             Relationship leave = node.getSingleRelationship(TransportRelationshipTypes.LEAVE_PLATFORM, Direction.OUTGOING);
-            int leaveCost = GraphProps.getCost(leave);
-            assertEquals(0, leaveCost, "leave cost wrong for " + platform);
+            Duration leaveCost = GraphProps.getCost(leave);
+            assertEquals(Duration.ZERO, leaveCost, "leave cost wrong for " + platform);
 
             Relationship enter = node.getSingleRelationship(TransportRelationshipTypes.ENTER_PLATFORM, Direction.INCOMING);
-            int enterCost = GraphProps.getCost(enter);
-            assertEquals(cost, enterCost, "wrong cost for " + platform.getId());
+            Duration enterCost = GraphProps.getCost(enter);
+            assertMinutesEquals(cost, enterCost, "wrong cost for " + platform.getId());
         });
 
         platforms.forEach(platform -> {
             Node node = graphQuery.getPlatformNode(txn, platform);
             if (node.hasRelationship(Direction.OUTGOING, BOARD)) {
                 Relationship board = node.getSingleRelationship(BOARD, Direction.OUTGOING);
-                int boardCost = GraphProps.getCost(board);
-                assertEquals(0, boardCost, "board cost wrong for " + platform);
+                Duration boardCost = GraphProps.getCost(board);
+                assertEquals(Duration.ZERO, boardCost, "board cost wrong for " + platform);
             }
 
             if (node.hasRelationship(Direction.INCOMING, DEPART)) {
                 Relationship depart = node.getSingleRelationship(DEPART, Direction.INCOMING);
-                int enterCost = GraphProps.getCost(depart);
-                assertEquals(0, enterCost, "depart wrong cost for " + platform.getId());
+                Duration enterCost = GraphProps.getCost(depart);
+                assertEquals(Duration.ZERO, enterCost, "depart wrong cost for " + platform.getId());
             }
         });
     }
@@ -156,7 +158,9 @@ class GraphBuilderRailTest {
 
         assertFalse(endIsMKC.isEmpty(), outgoingFromCrewe.toString());
 
-        endIsMKC.forEach(relationship -> assertTrue(GraphProps.getCost(relationship) > 10, relationship.getAllProperties().toString()));
+        final Duration tenMins = Duration.ofMinutes(10);
+        endIsMKC.forEach(relationship -> assertTrue(
+                GraphProps.getCost(relationship).compareTo(tenMins) > 0, relationship.getAllProperties().toString()));
     }
 
     @NotNull

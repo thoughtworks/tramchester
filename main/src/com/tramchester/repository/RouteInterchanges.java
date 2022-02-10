@@ -38,7 +38,7 @@ public class RouteInterchanges {
     private final GraphDatabase graphDatabase;
 
     private final Map<Route, Set<InterchangeStation>> interchangesForRoute;
-    private Map<RouteStation, Integer> routeStationToInterchangeCost;
+    private Map<RouteStation, Duration> routeStationToInterchangeCost;
 
     @Inject
     public RouteInterchanges(RouteRepository routeRepository, StationRepository stationRepository, InterchangeRepository interchangeRepository,
@@ -95,14 +95,14 @@ public class RouteInterchanges {
         return interchangesForRoute.get(route);
     }
 
-    public int costToInterchange(RouteStation routeStation) {
+    public Duration costToInterchange(RouteStation routeStation) {
         if (interchangeRepository.isInterchange(routeStation.getStation())) {
-            return 0;
+            return Duration.ZERO;
         }
         if (routeStationToInterchangeCost.containsKey(routeStation)) {
             return routeStationToInterchangeCost.get(routeStation);
         }
-        return Integer.MAX_VALUE;
+        return Duration.ofSeconds(-999);
     }
 
 
@@ -134,21 +134,22 @@ public class RouteInterchanges {
 
         Result results = txn.execute(query, params);
 
-        List<Pair<IdFor<Station>, Integer>> pairs = results.stream().
+        List<Pair<IdFor<Station>, Duration>> pairs = results.stream().
                 filter(row -> row.containsKey("path")).
                 map(row -> (Path) row.get("path")).
-                map(path -> Pair.of(GraphProps.getStationId(path.startNode()), length(path))).
+                map(path -> Pair.of(GraphProps.getStationId(path.startNode()), totalDuration(path))).
                 collect(Collectors.toList());
 
         logger.debug("Got " + pairs.size() + " for " + routeId);
 
-        Map<IdFor<Station>, Integer> stationToInterPair = new HashMap<>();
+        Map<IdFor<Station>, Duration> stationToInterPair = new HashMap<>();
 
         pairs.forEach(pair -> {
             final IdFor<Station> key = pair.getKey();
-            final Integer cost = pair.getValue();
+            final Duration cost = pair.getValue();
             if (stationToInterPair.containsKey(key)) {
-                if (cost < stationToInterPair.get(key)) {
+                //if (cost < stationToInterPair.get(key)) {
+                if (cost.compareTo(stationToInterPair.get(key)) < 0) {
                     stationToInterPair.put(key, cost);
                 }
             } else {
@@ -172,10 +173,15 @@ public class RouteInterchanges {
         }
     }
 
-    private int length(Path path) {
+    private Duration totalDuration(Path path) {
+//        return Streams.stream(path.relationships()).
+//                filter(relationship -> relationship.hasProperty("cost")).
+//                mapToInt(GraphProps::getCost).sum();
+
         return Streams.stream(path.relationships()).
                 filter(relationship -> relationship.hasProperty("cost")).
-                mapToInt(GraphProps::getCost).sum();
+                map(GraphProps::getCost).
+                reduce(Duration.ZERO, Duration::plus);
     }
 
     private int findCostToInterchangeA(Transaction txn, RouteStation routeStation) {

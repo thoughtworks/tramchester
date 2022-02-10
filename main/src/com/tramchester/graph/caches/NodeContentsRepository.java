@@ -10,6 +10,7 @@ import com.tramchester.graph.graphbuild.GraphLabel;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
 
+import java.time.Duration;
 import java.util.EnumSet;
 
 @ImplementedBy(CachedNodeOperations.class)
@@ -22,7 +23,7 @@ public interface NodeContentsRepository  {
     int getHour(Node node);
 
     IdFor<Trip> getTrip(Relationship relationship);
-    int getCost(Relationship lastRelationship);
+    Duration getCost(Relationship lastRelationship);
     void deleteFromCostCache(Relationship relationship);
 
     EnumSet<GraphLabel> getLabels(Node node);

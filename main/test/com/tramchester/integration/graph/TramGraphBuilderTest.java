@@ -30,6 +30,7 @@ import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
 import org.neo4j.graphdb.Transaction;
 
+import java.time.Duration;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -109,16 +110,16 @@ class TramGraphBuilderTest {
         Station piccadilly = Piccadilly.from(stationRepository);
         Set<Platform> platforms = piccadilly.getPlatforms();
 
-        int expectedCost = piccadilly.getMinimumChangeCost();
+        Duration expectedCost = piccadilly.getMinChangeDuration();
 
         platforms.forEach(platform -> {
             Node node = graphQuery.getPlatformNode(txn, platform);
             Relationship leave = node.getSingleRelationship(TransportRelationshipTypes.LEAVE_PLATFORM, Direction.OUTGOING);
-            int leaveCost = GraphProps.getCost(leave);
-            assertEquals(0, leaveCost, "leave cost wrong for " + platform);
+            Duration leaveCost = GraphProps.getCost(leave);
+            assertEquals(Duration.ZERO, leaveCost, "leave cost wrong for " + platform);
 
             Relationship enter = node.getSingleRelationship(TransportRelationshipTypes.ENTER_PLATFORM, Direction.INCOMING);
-            int enterCost = GraphProps.getCost(enter);
+            Duration enterCost = GraphProps.getCost(enter);
             assertEquals(expectedCost, enterCost, "wrong cost for " + platform.getId());
         });
 
@@ -126,14 +127,14 @@ class TramGraphBuilderTest {
             Node node = graphQuery.getPlatformNode(txn, platform);
             Iterable<Relationship> boards = node.getRelationships(Direction.OUTGOING, INTERCHANGE_BOARD);
             boards.forEach(board -> {
-                int boardCost = GraphProps.getCost(board);
-                assertEquals(0, boardCost, "board cost wrong for " + platform);
+                Duration boardCost = GraphProps.getCost(board);
+                assertEquals(Duration.ZERO, boardCost, "board cost wrong for " + platform);
             });
 
             Iterable<Relationship> departs = node.getRelationships(Direction.OUTGOING, INTERCHANGE_DEPART);
             departs.forEach(depart -> {
-                int enterCost = GraphProps.getCost(depart);
-                assertEquals(0, enterCost, "depart wrong cost for " + platform.getId());
+                Duration enterCost = GraphProps.getCost(depart);
+                assertEquals(Duration.ZERO, enterCost, "depart wrong cost for " + platform.getId());
             });
 
         });
@@ -148,12 +149,12 @@ class TramGraphBuilderTest {
             Node node = graphQuery.getRouteStationNode(txn, routeStation);
 
             Relationship toStation = node.getSingleRelationship(ROUTE_TO_STATION, Direction.OUTGOING);
-            int costToStation = GraphProps.getCost(toStation);
-            assertEquals(0, costToStation, "wrong cost for " + routeStation);
+            Duration costToStation = GraphProps.getCost(toStation);
+            assertEquals(Duration.ZERO, costToStation, "wrong cost for " + routeStation);
 
             Relationship fromStation = node.getSingleRelationship(STATION_TO_ROUTE, Direction.INCOMING);
-            int costFromStation = GraphProps.getCost(fromStation);
-            int expected = routeStation.getStation().getMinimumChangeCost();
+            Duration costFromStation = GraphProps.getCost(fromStation);
+            Duration expected = routeStation.getStation().getMinChangeDuration();
             assertEquals(expected, costFromStation, "wrong cost for " + routeStation);
         });
     }

@@ -10,6 +10,7 @@ import com.tramchester.graph.graphbuild.GraphProps;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
 
+import java.time.Duration;
 import java.util.EnumSet;
 import java.util.Set;
 
@@ -43,7 +44,7 @@ public class NodeContentsDirect implements NodeContentsRepository {
     }
 
     @Override
-    public int getCost(Relationship relationship) {
+    public Duration getCost(Relationship relationship) {
         return GraphProps.getCost(relationship);
     }
 

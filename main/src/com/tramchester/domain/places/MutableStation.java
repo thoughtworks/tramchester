@@ -9,6 +9,7 @@ import com.tramchester.geo.GridPosition;
 import com.tramchester.graph.GraphPropertyKey;
 import com.tramchester.graph.graphbuild.GraphLabel;
 
+import java.time.Duration;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
@@ -184,6 +185,11 @@ public class MutableStation implements Station {
     public int getMinimumChangeCost() {
         // TODO
         return 1;
+    }
+
+    @Override
+    public Duration getMinChangeDuration() {
+        return Duration.ofMinutes(getMinimumChangeCost());
     }
 
     @Override

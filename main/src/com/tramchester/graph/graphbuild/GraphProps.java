@@ -108,9 +108,10 @@ public class GraphProps {
         return entity.getProperty(graphPropertyKey.getText());
     }
 
-    // TODO Return duration, store in graph as seconds
-    public static int getCost(Entity entity) {
-        return (int) getProperty(entity, COST);
+    // TODO Change to seconds, not minutes
+    public static Duration getCost(Entity entity) {
+        final int value = (int) getProperty(entity, COST);
+        return Duration.ofMinutes(value);
     }
 
     // TODO Change to seconds, not minutes
@@ -126,6 +127,7 @@ public class GraphProps {
     }
 
     private static int roundUpNearestMinute(Duration duration) {
+        @SuppressWarnings("WrapperTypeMayBePrimitive")
         Double minutes = Math.ceil(duration.toSeconds()/60D);
         return minutes.intValue();
     }

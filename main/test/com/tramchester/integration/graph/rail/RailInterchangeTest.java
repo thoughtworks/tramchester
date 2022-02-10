@@ -69,7 +69,7 @@ public class RailInterchangeTest {
     @Test
     void shouldHaveConsistencyOnZeroCostToInterchangeAndInterchanges() {
         Set<RouteStation> zeroCostToInterchange = stationRepository.getRouteStations().stream().
-                filter(routeStation -> routeInterchanges.costToInterchange(routeStation) == 0).
+                filter(routeStation -> routeInterchanges.costToInterchange(routeStation).isZero()).
                 collect(Collectors.toSet());
 
         Set<RouteStation> zeroCostButNotInterchange = zeroCostToInterchange.stream().

@@ -30,6 +30,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
+import java.time.Duration;
 import java.util.List;
 import java.util.Set;
 
@@ -85,7 +86,7 @@ public class MapPathToStagesViaStates implements PathToStages {
 
         TraversalState previous = new NotStartedState(traversalOps, stateFactory);
 
-        int lastRelationshipCost = 0;
+        Duration lastRelationshipCost = Duration.ZERO;
         for (Entity entity : path) {
             if (entity instanceof Relationship) {
                 Relationship relationship = (Relationship) entity;
@@ -93,9 +94,9 @@ public class MapPathToStagesViaStates implements PathToStages {
 
                 logger.debug("Seen " + relationship.getType().name() + " with cost " + lastRelationshipCost);
 
-                if (lastRelationshipCost > 0) {
-                    int total = previous.getTotalCost() + lastRelationshipCost;
-                    mapStatesToStages.updateTotalCost(total);
+                if (lastRelationshipCost.compareTo(Duration.ZERO) > 0) {
+                    Duration total = previous.getTotalDuration().plus(lastRelationshipCost);
+                    mapStatesToStages.updateTotalDuration(total);
                 }
                 if (relationship.hasProperty(STOP_SEQ_NUM.getText())) {
                     mapStatesToStages.passStop(relationship);

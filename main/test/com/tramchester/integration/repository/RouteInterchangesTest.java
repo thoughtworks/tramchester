@@ -18,10 +18,12 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.time.Duration;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static com.tramchester.testSupport.TestEnv.assertMinutesEquals;
 import static com.tramchester.testSupport.reference.TramStations.*;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -77,10 +79,10 @@ public class RouteInterchangesTest {
 
         RouteStation navigationRoad = navigationRoadRouteStations.get(0);
 
-        int cost = routeInterchanges.costToInterchange(navigationRoad);
+        Duration cost = routeInterchanges.costToInterchange(navigationRoad);
 
         // cost to trafford bar
-        assertEquals(14, cost);
+        assertMinutesEquals(14, cost);
 
     }
 
@@ -96,10 +98,10 @@ public class RouteInterchangesTest {
 
         RouteStation oldTrafford = oldTraffordRouteStations.get(0);
 
-        int cost = routeInterchanges.costToInterchange(oldTrafford);
+        Duration cost = routeInterchanges.costToInterchange(oldTrafford);
 
         // cost to trafford bar
-        assertEquals(2, cost);
+        assertMinutesEquals(2, cost);
 
     }
 
@@ -116,8 +118,8 @@ public class RouteInterchangesTest {
         assertFalse(cornbrookRouteStations.isEmpty());
 
         cornbrookRouteStations.forEach(routeStation -> {
-                    int cost = routeInterchanges.costToInterchange(routeStation);
-                    assertEquals(0, cost);
+                    Duration cost = routeInterchanges.costToInterchange(routeStation);
+                    assertTrue(cost.isZero());
                 }
         );
     }
@@ -132,8 +134,8 @@ public class RouteInterchangesTest {
         assertFalse(navigationRoadRouteStations.isEmpty());
 
         navigationRoadRouteStations.forEach(routeStation -> {
-            int cost = routeInterchanges.costToInterchange(routeStation);
-            assertEquals(Integer.MAX_VALUE, cost);
+            Duration cost = routeInterchanges.costToInterchange(routeStation);
+            assertTrue(cost.isNegative());
         });
 
     }
@@ -141,7 +143,7 @@ public class RouteInterchangesTest {
     @Test
     void shouldHaveConsistencyOnZeroCostToInterchangeAndInterchanges() {
         Set<RouteStation> zeroCostToInterchange = stationRepository.getRouteStations().stream().
-                filter(routeStation -> routeInterchanges.costToInterchange(routeStation) == 0).
+                filter(routeStation -> routeInterchanges.costToInterchange(routeStation).isZero()).
                 collect(Collectors.toSet());
 
         Set<RouteStation> zeroCostButNotInterchange = zeroCostToInterchange.stream().

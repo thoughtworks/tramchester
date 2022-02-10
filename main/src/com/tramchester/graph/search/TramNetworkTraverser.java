@@ -22,6 +22,7 @@ import org.neo4j.graphdb.traversal.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.time.Duration;
 import java.time.Instant;
 import java.util.EnumSet;
 import java.util.Set;
@@ -148,13 +149,14 @@ public class TramNetworkTraverser implements PathExpander<JourneyState> {
         final Node endNode = path.endNode();
         final JourneyState journeyStateForChildren = JourneyState.fromPrevious(currentState);
 
-        int cost = 0;
+        Duration cost = Duration.ZERO;
         if (path.lastRelationship()!=null) {
             cost = nodeContentsRepository.getCost(path.lastRelationship());
-            if (cost>0) {
-                final int totalCost = currentState.getTotalCostSoFar();
-                int total = totalCost + cost;
-                journeyStateForChildren.updateTotalCost(total);
+            if (cost.compareTo(Duration.ZERO) > 0) {
+                final Duration totalCost = currentState.getTotalDurationSoFar();
+                Duration total = totalCost.plus(cost);
+                journeyStateForChildren.updateTotalDuration(total);
+                //journeyStateForChildren.updateTotalCost(total);
             }
         }
 

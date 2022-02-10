@@ -19,6 +19,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.DisabledIfEnvironmentVariable;
 
+import java.time.Duration;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -95,8 +96,8 @@ public class RouteInterchangesRailTest {
         RouteStation miltonKeynesRouteStation = stationRepository.getRouteStationById(RouteStation.createId(MiltonKeynesCentral.getId(),
                 londonToManchester.getId()));
 
-        int costToNextInterchange = routeInterchanges.costToInterchange(miltonKeynesRouteStation);
-        assertEquals(0, costToNextInterchange);
+        Duration costToNextInterchange = routeInterchanges.costToInterchange(miltonKeynesRouteStation);
+        assertEquals(Duration.ZERO, costToNextInterchange);
     }
 
     @Test
