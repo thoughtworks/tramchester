@@ -221,7 +221,7 @@ public class RouteCalculatorSupport {
     }
 
     protected Duration getMaxDurationFor(Transaction txn, Node startNode, LocationSet destinations, JourneyRequest journeyRequest) {
-        final Duration maxDuration = Duration.ofMinutes(journeyRequest.getMaxJourneyDuration());
+        final Duration maxDuration = journeyRequest.getMaxJourneyDuration();
 
         if (config.getTransportModes().contains(TransportMode.Tram) && config.getTransportModes().size()==1) {
             return maxDuration;

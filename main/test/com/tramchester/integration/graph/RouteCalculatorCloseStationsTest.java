@@ -21,6 +21,7 @@ import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.condition.DisabledIfEnvironmentVariable;
 import org.neo4j.graphdb.Transaction;
 
+import java.time.Duration;
 import java.time.LocalDate;
 import java.util.Collections;
 import java.util.List;
@@ -74,7 +75,7 @@ class RouteCalculatorCloseStationsTest {
     @Test
     void shouldFindUnaffectedRouteNormally() {
         JourneyRequest journeyRequest = new JourneyRequest(new TramServiceDate(when),TramTime.of(8,0), false,
-                2, 120, 1);
+                2, Duration.ofMinutes(120), 1);
         Set<Journey> result = calculator.calculateRouteAsSet(TramStations.Altrincham, TramStations.TraffordBar, journeyRequest);
         assertFalse(result.isEmpty());
     }
@@ -82,7 +83,7 @@ class RouteCalculatorCloseStationsTest {
     @Test
     void shouldFindRouteAroundClosedStation() {
         JourneyRequest journeyRequest = new JourneyRequest(new TramServiceDate(when),TramTime.of(8,0), false,
-                2, 120, 1);
+                2, Duration.ofMinutes(120), 1);
         Set<Journey> result = calculator.calculateRouteAsSet(TramStations.PiccadillyGardens, TramStations.Victoria,
                 journeyRequest);
         assertFalse(result.isEmpty());
@@ -103,7 +104,7 @@ class RouteCalculatorCloseStationsTest {
     @NotNull
     private Set<Journey> getSingleStageBuryToEccles(LocalDate travelDate) {
         JourneyRequest journeyRequest = new JourneyRequest(new TramServiceDate(travelDate), TramTime.of(8, 0),
-                false, 0, 120, 1);
+                false, 0, Duration.ofMinutes(120), 1);
         Set<Journey> journeys = calculator.calculateRouteAsSet(TramStations.Bury, TramStations.Shudehill, journeyRequest);
         return journeys.stream().filter(results -> results.getStages().size() == 1).collect(Collectors.toSet());
     }

@@ -24,6 +24,7 @@ import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.condition.DisabledIfEnvironmentVariable;
 import org.neo4j.graphdb.Transaction;
 
+import java.time.Duration;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Set;
@@ -100,7 +101,7 @@ public class RailAndTramRouteCalculatorTest {
     void shouldHaveStockportToManPiccViaRail() {
 
         JourneyRequest request = new JourneyRequest(new TramServiceDate(when), travelTime, false, 1,
-                30, 1);
+                Duration.ofMinutes(30), 1);
 
         atLeastOneDirect(request, rail(Stockport), rail(ManchesterPiccadilly), Train);
     }
@@ -109,7 +110,7 @@ public class RailAndTramRouteCalculatorTest {
     void shouldHaveManPiccToStockportViaRail() {
 
         JourneyRequest request = new JourneyRequest(new TramServiceDate(when), travelTime, false, 0,
-                30, 1);
+                Duration.ofMinutes(30), 1);
 
         atLeastOneDirect(request, rail(ManchesterPiccadilly), rail(Stockport), Train);
     }
@@ -117,7 +118,7 @@ public class RailAndTramRouteCalculatorTest {
     @Test
     void shouldHaveAltyToStPetersSquareViaTram() {
         JourneyRequest request = new JourneyRequest(new TramServiceDate(when), travelTime, false, 0,
-                30, 1);
+                Duration.ofMinutes(30), 1);
 
         atLeastOneDirect(request, tram(TramStations.Altrincham), tram(TramStations.StPetersSquare), Tram);
     }
@@ -125,7 +126,7 @@ public class RailAndTramRouteCalculatorTest {
     @Test
     void shouldBuryToStockportViaTramAndTrain() {
         JourneyRequest request = new JourneyRequest(new TramServiceDate(when), travelTime, false, 2,
-                110, 1);
+                Duration.ofMinutes(110), 1);
 
         Set<Journey> journeys = testFacade.calculateRouteAsSet(tram(TramStations.Bury), rail(Stockport), request);
         assertFalse(journeys.isEmpty());

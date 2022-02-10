@@ -63,7 +63,7 @@ public abstract class TramchesterConfig extends Configuration implements HasRemo
     // how many stops show in Recent on the stations dropdowns
     public abstract int getRecentStopsToShow();
 
-    // maximum length of a journey
+    // maximum length of a journey in minutes
     public abstract int getMaxJourneyDuration();
 
     public abstract SwaggerBundleConfiguration getSwaggerBundleConfiguration();

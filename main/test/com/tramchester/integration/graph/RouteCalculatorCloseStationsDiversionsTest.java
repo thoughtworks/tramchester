@@ -22,6 +22,7 @@ import org.junit.jupiter.api.condition.DisabledIfEnvironmentVariable;
 import org.neo4j.graphdb.Transaction;
 
 import java.io.IOException;
+import java.time.Duration;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
@@ -75,7 +76,7 @@ class RouteCalculatorCloseStationsDiversionsTest {
     @Test
     void shouldFindUnaffectedRouteNormally() {
         JourneyRequest journeyRequest = new JourneyRequest(when,TramTime.of(8,0), false,
-                2, 120, 1);
+                2, Duration.ofHours(2), 1);
         Set<Journey> result = calculator.calculateRouteAsSet(TramStations.Altrincham, TramStations.TraffordBar, journeyRequest);
         assertFalse(result.isEmpty());
     }
@@ -84,7 +85,7 @@ class RouteCalculatorCloseStationsDiversionsTest {
     void shouldFindRouteWhenStartingFromClosedIfWalkPossible() {
 
         JourneyRequest journeyRequest = new JourneyRequest(when,TramTime.of(8,0), false,
-                2, 120, 1);
+                2, Duration.ofHours(2), 1);
         Set<Journey> results = calculator.calculateRouteAsSet(TramStations.StPetersSquare, TramStations.Altrincham,
                 journeyRequest);
         assertFalse(results.isEmpty());
@@ -99,7 +100,7 @@ class RouteCalculatorCloseStationsDiversionsTest {
     @Test
     void shouldFindRouteAroundCloseBackOnToTram() {
         JourneyRequest journeyRequest = new JourneyRequest(when, TramTime.of(8,0), false,
-                2, 120, 1);
+                2, Duration.ofHours(2), 1);
         Set<Journey> results = calculator.calculateRouteAsSet(TramStations.Bury, TramStations.Altrincham,
                 journeyRequest);
         assertFalse(results.isEmpty());
@@ -116,7 +117,7 @@ class RouteCalculatorCloseStationsDiversionsTest {
     @Test
     void shouldFindRouteToClosedStationViaWalkAtEnd() {
         JourneyRequest journeyRequest = new JourneyRequest(when, TramTime.of(8, 0),
-                false, 3, 120, 1);
+                false, 3, Duration.ofHours(2), 1);
         Set<Journey> results = calculator.calculateRouteAsSet(TramStations.Bury, TramStations.StPetersSquare, journeyRequest);
         assertFalse(results.isEmpty());
         results.forEach(result -> {

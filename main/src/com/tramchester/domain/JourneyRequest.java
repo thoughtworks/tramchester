@@ -3,6 +3,7 @@ package com.tramchester.domain;
 import com.tramchester.domain.time.TramServiceDate;
 import com.tramchester.domain.time.TramTime;
 
+import java.time.Duration;
 import java.time.LocalDate;
 import java.util.UUID;
 
@@ -12,19 +13,19 @@ public class JourneyRequest {
     private final boolean arriveBy;
     private final int maxChanges;
     private final UUID uid;
-    private final int maxJourneyDuration;
+    private final Duration maxJourneyDuration;
     private final long maxNumberOfJourneys;
 
     private boolean diagnostics;
     private boolean warnIfNoResults;
 
-    public JourneyRequest(LocalDate date, TramTime originalQueryTime, boolean arriveBy, int maxChanges, int maxJourneyDuration,
+    public JourneyRequest(LocalDate date, TramTime originalQueryTime, boolean arriveBy, int maxChanges, Duration maxJourneyDuration,
                           long maxNumberOfJourneys) {
         this(new TramServiceDate(date), originalQueryTime, arriveBy, maxChanges, maxJourneyDuration, maxNumberOfJourneys);
     }
 
     public JourneyRequest(TramServiceDate date, TramTime originalQueryTime, boolean arriveBy, int maxChanges,
-                          int maxJourneyDuration, long maxNumberOfJourneys) {
+                          Duration maxJourneyDuration, long maxNumberOfJourneys) {
         this.date = date;
         this.originalQueryTime = originalQueryTime;
         this.arriveBy = arriveBy;
@@ -67,20 +68,22 @@ public class JourneyRequest {
 
         JourneyRequest that = (JourneyRequest) o;
 
-        if (getArriveBy() != that.getArriveBy()) return false;
-        if (getMaxChanges() != that.getMaxChanges()) return false;
-        if (getMaxJourneyDuration() != that.getMaxJourneyDuration()) return false;
-        if (!getDate().equals(that.getDate())) return false;
-        return getOriginalTime().equals(that.getOriginalTime());
+        if (arriveBy != that.arriveBy) return false;
+        if (maxChanges != that.maxChanges) return false;
+        if (maxNumberOfJourneys != that.maxNumberOfJourneys) return false;
+        if (!date.equals(that.date)) return false;
+        if (!originalQueryTime.equals(that.originalQueryTime)) return false;
+        return maxJourneyDuration.equals(that.maxJourneyDuration);
     }
 
     @Override
     public int hashCode() {
-        int result = getDate().hashCode();
-        result = 31 * result + getOriginalTime().hashCode();
-        result = 31 * result + (getArriveBy() ? 1 : 0);
-        result = 31 * result + getMaxChanges();
-        result = 31 * result + getMaxJourneyDuration();
+        int result = date.hashCode();
+        result = 31 * result + originalQueryTime.hashCode();
+        result = 31 * result + (arriveBy ? 1 : 0);
+        result = 31 * result + maxChanges;
+        result = 31 * result + maxJourneyDuration.hashCode();
+        result = 31 * result + (int) (maxNumberOfJourneys ^ (maxNumberOfJourneys >>> 32));
         return result;
     }
 
@@ -93,9 +96,7 @@ public class JourneyRequest {
         return this;
     }
 
-    // TODO Return duration
-    @Deprecated
-    public int getMaxJourneyDuration() {
+    public Duration getMaxJourneyDuration() {
         return maxJourneyDuration;
     }
 

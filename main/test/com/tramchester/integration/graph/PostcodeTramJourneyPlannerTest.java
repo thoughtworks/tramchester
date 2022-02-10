@@ -26,6 +26,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.neo4j.graphdb.Transaction;
 
+import java.time.Duration;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Set;
@@ -79,7 +80,7 @@ class PostcodeTramJourneyPlannerTest {
 
     // IS USED - see below
     private static Stream<JourneyRequest> getRequest() {
-        int maxJourneyDuration = testConfig.getMaxJourneyDuration();
+        Duration maxJourneyDuration = Duration.ofMinutes(testConfig.getMaxJourneyDuration());
         TramServiceDate date = new TramServiceDate(when);
         int maxChanges = 2;
         long maxNumberOfJourneys = 3;

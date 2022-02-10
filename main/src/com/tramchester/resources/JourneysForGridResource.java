@@ -30,6 +30,7 @@ import javax.inject.Inject;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.time.Duration;
 import java.time.LocalDate;
 import java.util.stream.Stream;
 
@@ -70,11 +71,11 @@ public class JourneysForGridResource implements APIResource, GraphDatabaseDepend
                               @QueryParam("departureTime") String departureTimeRaw,
                               @QueryParam("departureDate") String departureDateRaw,
                               @QueryParam("maxChanges") int maxChanges,
-                              @QueryParam("maxDuration") int maxDuration,
+                              @QueryParam("maxDuration") int maxDurationMinutes,
                               @QueryParam("lat") @DefaultValue("0") String lat,
                               @QueryParam("lon") @DefaultValue("0") String lon) {
         logger.info(format("Query for quicktimes to %s for grid of size %s at %s %s maxchanges %s max duration %s",
-                destinationIdText, gridSize, departureTimeRaw, departureDateRaw, maxChanges, maxDuration));
+                destinationIdText, gridSize, departureTimeRaw, departureDateRaw, maxChanges, maxDurationMinutes));
 
         GridPosition destination = getGridPosition(destinationIdText, lat, lon);
 
@@ -88,6 +89,8 @@ public class JourneysForGridResource implements APIResource, GraphDatabaseDepend
 
         // just find the first one -- todo this won't be lowest cost route....
         long maxNumberOfJourneys = 3;
+
+        Duration maxDuration = Duration.ofMinutes(maxDurationMinutes);
 
         TramServiceDate tramServiceDate = new TramServiceDate(date);
         JourneyRequest journeyRequest = new JourneyRequest(tramServiceDate, departureTime,

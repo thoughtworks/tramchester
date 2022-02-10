@@ -52,7 +52,7 @@ public class RouteCalculatorTest {
     private RouteCalculatorTestFacade calculator;
     private final LocalDate when = TestEnv.testDay();
     private Transaction txn;
-    private int maxJourneyDuration;
+    private Duration maxJourneyDuration;
     private int maxNumResults;
 
     @BeforeAll
@@ -73,7 +73,7 @@ public class RouteCalculatorTest {
         txn = database.beginTx(TXN_TIMEOUT, TimeUnit.SECONDS);
         StationRepository stationRepository = componentContainer.get(StationRepository.class);
         calculator = new RouteCalculatorTestFacade(componentContainer.get(RouteCalculator.class), stationRepository, txn);
-        maxJourneyDuration = config.getMaxJourneyDuration();
+        maxJourneyDuration = Duration.ofMinutes(config.getMaxJourneyDuration());
         maxNumResults = config.getMaxNumResults();
     }
 
@@ -91,7 +91,7 @@ public class RouteCalculatorTest {
     @Test
     void shouldPlanSimpleJourneyFromAltyToAshtonCheckInterchanges() {
         JourneyRequest journeyRequest = new JourneyRequest(when, TramTime.of(17,45), false,
-                3, config.getMaxJourneyDuration(), 5);
+                3, maxJourneyDuration, 5);
 
         Set<String> expected = Stream.of(Cornbrook, StPetersSquare, Deansgate, Piccadilly).
                 map(TramStations::getName).collect(Collectors.toSet());

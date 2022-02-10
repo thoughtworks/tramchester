@@ -29,6 +29,7 @@ import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.condition.DisabledIfEnvironmentVariable;
 import org.neo4j.graphdb.Transaction;
 
+import java.time.Duration;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -52,6 +53,7 @@ public class NeighbourJourneysTest {
     private Station shudehillBusStop;
     private LocationJourneyPlanner planner;
     private RouteToRouteCosts routeToRouteCosts;
+    private Duration maxJourneyDuration;
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
@@ -79,6 +81,8 @@ public class NeighbourJourneysTest {
         maybeStop.ifPresent(stop -> shudehillBusStop = stop);
 
         shudehillTram = stationRepository.getStationById(Shudehill.getId());
+
+        maxJourneyDuration = Duration.ofMinutes(config.getMaxJourneyDuration());
 
         txn = graphDatabase.beginTx();
         routeCalculator = new RouteCalculatorTestFacade(componentContainer.get(RouteCalculator.class), stationRepository, txn);
@@ -166,7 +170,7 @@ public class NeighbourJourneysTest {
     void shouldTramNormally() {
 
         JourneyRequest request = new JourneyRequest(new TramServiceDate(TestEnv.testDay()),
-                TramTime.of(11,53), false, 0, config.getMaxJourneyDuration(), 1);
+                TramTime.of(11,53), false, 0, maxJourneyDuration, 1);
 
         Set<Journey> journeys = routeCalculator.calculateRouteAsSet(Bury.from(stationRepository), Victoria.from(stationRepository), request);
         assertFalse(journeys.isEmpty());
@@ -184,7 +188,7 @@ public class NeighbourJourneysTest {
         LocationJourneyPlannerTestFacade facade = new LocationJourneyPlannerTestFacade(planner, stationRepository, txn);
 
         JourneyRequest request = new JourneyRequest(new TramServiceDate(TestEnv.testDay()),
-                TramTime.of(11,53), false, 0, config.getMaxJourneyDuration(), 1);
+                TramTime.of(11,53), false, 0, maxJourneyDuration, 1);
 
         Set<Journey> allJourneys = facade.quickestRouteForLocation(Altrincham.from(stationRepository), nearStPetersSquare, request, 4);
         assertFalse(allJourneys.isEmpty(), "No journeys");
@@ -208,7 +212,7 @@ public class NeighbourJourneysTest {
     private void validateDirectWalk(Station start, Station end) {
 
         JourneyRequest request = new JourneyRequest(new TramServiceDate(TestEnv.testDay()), TramTime.of(11,45),
-                        false, 0, config.getMaxJourneyDuration(), 3);
+                        false, 0, maxJourneyDuration, 3);
 
         Set<Journey> allJourneys =  routeCalculator.calculateRouteAsSet(start, end, request);
         assertFalse(allJourneys.isEmpty(), "no journeys");

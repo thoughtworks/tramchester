@@ -73,7 +73,7 @@ public class RouteCalculatorForBoxes extends RouteCalculatorSupport {
         final LowestCostsForDestRoutes lowestCostForDestinations = routeToRouteCosts.getLowestCostCalcutatorFor(destinations);
         RunningRoutesAndServices.FilterForDate routeAndServicesFilter = runningRoutesAndService.getFor(queryDate.getDate());
 
-        Duration maxJourneyDuration = Duration.ofMinutes(journeyRequest.getMaxJourneyDuration());
+        Duration maxJourneyDuration = journeyRequest.getMaxJourneyDuration();
         final JourneyConstraints journeyConstraints = new JourneyConstraints(config, routeAndServicesFilter, journeyRequest, closedStationsRepository,
                 destinations, lowestCostForDestinations, maxJourneyDuration);
 

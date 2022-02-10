@@ -96,7 +96,8 @@ class TramRouteTest {
 
     @NotNull
     private JourneyRequest createJourneyRequest(TramTime queryTime, int maxChanges) {
-        return new JourneyRequest(queryDate, queryTime, false, maxChanges, config.getMaxJourneyDuration(), 3);
+        return new JourneyRequest(queryDate, queryTime, false, maxChanges,
+                Duration.ofMinutes(config.getMaxJourneyDuration()), 3);
     }
 
     @AfterEach

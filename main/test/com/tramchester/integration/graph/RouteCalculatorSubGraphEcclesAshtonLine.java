@@ -22,6 +22,7 @@ import org.neo4j.graphdb.Transaction;
 
 import java.io.IOException;
 import java.nio.file.Path;
+import java.time.Duration;
 import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.Collections;
@@ -42,7 +43,7 @@ class RouteCalculatorSubGraphEcclesAshtonLine {
     private final LocalDate when = TestEnv.testDay();
 
     private Transaction txn;
-    private int maxJourneyDuration;
+    private Duration maxJourneyDuration;
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() throws IOException {
@@ -76,7 +77,7 @@ class RouteCalculatorSubGraphEcclesAshtonLine {
         calculator = new RouteCalculatorTestFacade(componentContainer.get(RouteCalculator.class), stationRepository, txn);
 
         //GraphQuery graphQuery = componentContainer.get(GraphQuery.class);
-        maxJourneyDuration = config.getMaxJourneyDuration();
+        maxJourneyDuration = Duration.ofMinutes(config.getMaxJourneyDuration());
     }
 
     @AfterEach

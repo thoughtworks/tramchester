@@ -24,6 +24,7 @@ import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.condition.DisabledIfEnvironmentVariable;
 import org.neo4j.graphdb.Transaction;
 
+import java.time.Duration;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Set;
@@ -45,7 +46,7 @@ public class AllModesJourneysTest {
     private Transaction txn;
     private StationRepository stationRepository;
     private StationGroupsRepository stationGroupsRepository;
-    private int maxJourneyDuration;
+    private Duration maxJourneyDuration;
     private LocalDate when;
 
     @BeforeAll
@@ -63,7 +64,7 @@ public class AllModesJourneysTest {
 
     @BeforeEach
     void onceBeforeEachTest() {
-        maxJourneyDuration = config.getMaxJourneyDuration();
+        maxJourneyDuration = Duration.ofMinutes(config.getMaxJourneyDuration());
         when = TestEnv.testDay();
 
         GraphDatabase graphDatabase = componentContainer.get(GraphDatabase.class);
@@ -127,7 +128,7 @@ public class AllModesJourneysTest {
         TramTime travelTime = TramTime.of(8, 0);
 
         JourneyRequest request = new JourneyRequest(new TramServiceDate(when), travelTime, false, 1,
-                30, 1);
+                Duration.ofMinutes(30), 1);
 
         Set<Journey> journeys = routeCalculator.calculateRouteAsSet(RailStationIds.Stockport.getId(), ManchesterPiccadilly.getId(), request);
         assertFalse(journeys.isEmpty());

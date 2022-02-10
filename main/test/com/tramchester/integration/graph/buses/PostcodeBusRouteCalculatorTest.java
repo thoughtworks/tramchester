@@ -4,13 +4,13 @@ import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.Journey;
+import com.tramchester.domain.JourneyRequest;
 import com.tramchester.domain.places.PostcodeLocation;
 import com.tramchester.domain.presentation.TransportStage;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramServiceDate;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.GraphDatabase;
-import com.tramchester.domain.JourneyRequest;
 import com.tramchester.integration.testSupport.bus.IntegrationBusTestConfig;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.resources.LocationJourneyPlanner;
@@ -23,6 +23,7 @@ import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.condition.DisabledIfEnvironmentVariable;
 import org.neo4j.graphdb.Transaction;
 
+import java.time.Duration;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Set;
@@ -46,7 +47,7 @@ class PostcodeBusRouteCalculatorTest {
     private Transaction txn;
     private final TramTime time = TramTime.of(9,11);
     private LocationJourneyPlannerTestFacade planner;
-    private int maxJourneyDuration;
+    private Duration maxJourneyDuration;
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
@@ -67,7 +68,7 @@ class PostcodeBusRouteCalculatorTest {
         StationRepository stationRepository = componentContainer.get(StationRepository.class);
 
         planner = new LocationJourneyPlannerTestFacade(componentContainer.get(LocationJourneyPlanner.class), stationRepository, txn);
-        maxJourneyDuration = testConfig.getMaxJourneyDuration();
+        maxJourneyDuration = Duration.ofMinutes(testConfig.getMaxJourneyDuration());
     }
 
     @AfterEach

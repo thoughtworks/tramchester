@@ -20,6 +20,7 @@ import com.tramchester.testSupport.reference.TramStations;
 import org.junit.jupiter.api.*;
 import org.neo4j.graphdb.Transaction;
 
+import java.time.Duration;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -79,7 +80,7 @@ class RouteCalculatorForBoundingBoxTest {
 
         long maxNumberOfJourneys = 3;
         JourneyRequest journeyRequest = new JourneyRequest(new TramServiceDate(when), TramTime.of(9,30),
-                false, 3, testConfig.getMaxJourneyDuration(), maxNumberOfJourneys);
+                false, 3, Duration.ofMinutes(testConfig.getMaxJourneyDuration()), maxNumberOfJourneys);
 
         LocationSet destinations = LocationSet.singleton(TramStations.StPetersSquare.from(stationRepository));
 

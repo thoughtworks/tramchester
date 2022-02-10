@@ -24,6 +24,7 @@ import org.neo4j.graphdb.Transaction;
 
 import java.io.IOException;
 import java.nio.file.Path;
+import java.time.Duration;
 import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.List;
@@ -47,7 +48,7 @@ class RouteCalculatorSubGraphTest {
             TramStations.Pomona);
     private Transaction txn;
     private TramTime tramTime;
-    private int maxJourneyDuration;
+    private Duration maxJourneyDuration;
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() throws IOException {
@@ -79,7 +80,7 @@ class RouteCalculatorSubGraphTest {
         calculator = new RouteCalculatorTestFacade(componentContainer.get(RouteCalculator.class), stationRepository, txn);
 
         tramTime = TramTime.of(8, 0);
-        maxJourneyDuration = config.getMaxJourneyDuration();
+        maxJourneyDuration = Duration.ofMinutes(config.getMaxJourneyDuration());
     }
 
     @AfterEach

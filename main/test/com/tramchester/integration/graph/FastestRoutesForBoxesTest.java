@@ -26,6 +26,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.time.Duration;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -110,7 +111,8 @@ class FastestRoutesForBoxesTest {
 
         TramTime time = TramTime.of(9,15);
         JourneyRequest journeyRequest = new JourneyRequest(
-                new TramServiceDate(TestEnv.testDay()), time, false, 2, 120, 3);
+                new TramServiceDate(TestEnv.testDay()), time, false, 2,
+                Duration.ofMinutes(120), 3);
 
         Stream<BoundingBoxWithCost> results = calculator.findForGrid(destination, 2000, journeyRequest);
 

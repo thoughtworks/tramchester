@@ -21,6 +21,7 @@ import org.junit.jupiter.api.*;
 import org.neo4j.graphdb.Transaction;
 
 import java.io.IOException;
+import java.time.Duration;
 import java.time.LocalDate;
 import java.util.Set;
 
@@ -113,7 +114,7 @@ class RouteCalculatorSubGraphMonsallTest {
     private void validateNumberOfStages(TramStations start, TramStations destination, TramTime time, LocalDate date, int numStages) {
         long maxNumberOfJourneys = 1;
         JourneyRequest journeyRequest = new JourneyRequest(new TramServiceDate(date), time,
-                false, 3, config.getMaxJourneyDuration(), maxNumberOfJourneys);
+                false, 3, Duration.ofMinutes(config.getMaxJourneyDuration()), maxNumberOfJourneys);
         Set<Journey> journeys = calculator.calculateRouteAsSet(start, destination, journeyRequest);
 
         Assertions.assertFalse(journeys.isEmpty(), format("No Journeys from %s to %s found at %s on %s", start, destination, time.toString(), date));

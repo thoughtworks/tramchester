@@ -4,19 +4,20 @@ import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.Journey;
+import com.tramchester.domain.JourneyRequest;
+import com.tramchester.domain.StationIdPair;
 import com.tramchester.domain.time.TramServiceDate;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.GraphDatabase;
-import com.tramchester.domain.JourneyRequest;
 import com.tramchester.integration.testSupport.RouteCalculationCombinations;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
-import com.tramchester.testSupport.testTags.DataExpiryCategory;
-import com.tramchester.domain.StationIdPair;
 import com.tramchester.testSupport.TestEnv;
+import com.tramchester.testSupport.testTags.DataExpiryCategory;
 import org.apache.commons.lang3.tuple.Pair;
 import org.junit.jupiter.api.*;
 import org.neo4j.graphdb.Transaction;
 
+import java.time.Duration;
 import java.time.LocalDate;
 import java.util.*;
 
@@ -24,7 +25,8 @@ import static com.tramchester.domain.reference.TransportMode.Tram;
 import static com.tramchester.testSupport.TestEnv.avoidChristmasDate;
 import static com.tramchester.testSupport.reference.TramStations.Ashton;
 import static com.tramchester.testSupport.reference.TramStations.ShawAndCrompton;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @SuppressWarnings("JUnitTestMethodWithNoAssertions")
 class RouteCalculatorKeyRoutesTest {
@@ -35,7 +37,7 @@ class RouteCalculatorKeyRoutesTest {
     private final LocalDate when = TestEnv.testDay();
     private RouteCalculationCombinations combinations;
     private JourneyRequest journeyRequest;
-    private int maxJourneyDuration;
+    private Duration maxJourneyDuration;
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
@@ -52,7 +54,7 @@ class RouteCalculatorKeyRoutesTest {
 
     @BeforeEach
     void beforeEachTestRuns() {
-        maxJourneyDuration = testConfig.getMaxJourneyDuration();
+        maxJourneyDuration = Duration.ofMinutes(testConfig.getMaxJourneyDuration());
         journeyRequest = new JourneyRequest(when, TramTime.of(8, 5), false, 2,
                 maxJourneyDuration, 1);
         combinations = new RouteCalculationCombinations(componentContainer);
@@ -108,7 +110,7 @@ class RouteCalculatorKeyRoutesTest {
         List<Journey> allResults = new ArrayList<>();
 
         JourneyRequest longestJourneyRequest = new JourneyRequest(when, TramTime.of(9, 0), false, 2,
-                maxJourneyDuration * 2, 1);
+                maxJourneyDuration.multipliedBy(2), 1);
 
         Map<StationIdPair, RouteCalculationCombinations.JourneyOrNot> results =
                 combinations.validateAllHaveAtLeastOneJourney(combinations.EndOfRoutesToEndOfRoutes(Tram), longestJourneyRequest);

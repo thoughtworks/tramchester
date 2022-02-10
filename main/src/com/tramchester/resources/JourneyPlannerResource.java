@@ -28,6 +28,7 @@ import javax.inject.Inject;
 import javax.ws.rs.*;
 import javax.ws.rs.core.*;
 import java.net.URI;
+import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.Set;
@@ -170,13 +171,13 @@ public class JourneyPlannerResource extends UsesRecentCookie implements APIResou
         return responseBuilder.build();
     }
 
-
     private Stream<JourneyDTO> getJourneyDTOStream(Transaction tx, LocalDate date, LocalTime time, Location<?> start,
                                                    Location<?> dest, boolean arriveBy, int maxChanges) {
 
-        TramTime queryTime = TramTime.of(time);
+        TramTime queryTime = TramTime.ofHourMins(time);
+        final Duration maxJourneyDuration = Duration.ofMinutes(config.getMaxJourneyDuration());
         JourneyRequest journeyRequest = new JourneyRequest(date, queryTime, arriveBy, maxChanges,
-                config.getMaxJourneyDuration(),  config.getMaxNumResults());
+                maxJourneyDuration,  config.getMaxNumResults());
 
         logger.info(format("Plan journey from %s to %s on %s", start, dest, journeyRequest));
 

@@ -23,6 +23,7 @@ import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.condition.DisabledIfEnvironmentVariable;
 import org.neo4j.graphdb.Transaction;
 
+import java.time.Duration;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -49,7 +50,7 @@ class BusRouteCalculatorTest {
 
     private final LocalDate when = TestEnv.testDay();
     private Transaction txn;
-    private int maxJourneyDuration;
+    private Duration maxJourneyDuration;
     private StationGroup stockportBusStation;
     private StationGroup altrinchamInterchange;
     private StationGroup knutsfordBusStation;
@@ -71,7 +72,7 @@ class BusRouteCalculatorTest {
 
     @BeforeEach
     void beforeEachTestRuns() {
-        maxJourneyDuration = testConfig.getMaxJourneyDuration();
+        maxJourneyDuration = Duration.ofMinutes(testConfig.getMaxJourneyDuration());
         txn = database.beginTx(TXN_TIMEOUT, TimeUnit.SECONDS);
         stationRepository = componentContainer.get(StationRepository.class);
         compositeStationRepository = componentContainer.get(StationGroupsRepository.class);
@@ -169,7 +170,7 @@ class BusRouteCalculatorTest {
 
         TramTime time = TramTime.of(10, 40);
         JourneyRequest journeyRequest = new JourneyRequest(when, time, false, 1,
-                120, 1);
+                Duration.ofMinutes(120), 1);
         Set<Journey> results = calculator.calculateRouteAsSet(altrinchamInterchange, end, journeyRequest);
 
         assertFalse(results.isEmpty());
@@ -186,7 +187,7 @@ class BusRouteCalculatorTest {
         Station end = stations.get(1);
 
         JourneyRequest journeyRequest = new JourneyRequest(when, TramTime.of(7,30), false, 1,
-                120, 1);
+                Duration.ofMinutes(120), 1);
 
         Set<Journey> results = calculator.calculateRouteAsSet(start, end, journeyRequest);
 
@@ -199,7 +200,7 @@ class BusRouteCalculatorTest {
 
         TramTime time = TramTime.of(11, 20);
         JourneyRequest journeyRequest = new JourneyRequest(when, time, false,
-                3, 120, 1);
+                3, Duration.ofMinutes(120), 1);
 
         Set<Journey> results = calculator.calculateRouteAsSet(knutsfordBusStation, altrinchamInterchange, journeyRequest);
 

@@ -15,6 +15,7 @@ import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.condition.DisabledIfEnvironmentVariable;
 import org.neo4j.graphdb.Transaction;
 
+import java.time.Duration;
 import java.time.LocalDate;
 import java.util.concurrent.TimeUnit;
 
@@ -65,7 +66,7 @@ class RailRouteCalculatorCombinationTests {
         TramTime travelTime = TramTime.of(8, 0);
 
         JourneyRequest request = new JourneyRequest(new TramServiceDate(when), travelTime, false,
-                10, 8*60, 1);
+                10, Duration.ofHours(8), 1);
 
         combinations.validateAllHaveAtLeastOneJourney(combinations.InterchangeToInterchange(Train), request);
     }
@@ -75,7 +76,7 @@ class RailRouteCalculatorCombinationTests {
         TramTime travelTime = TramTime.of(8, 0);
 
         JourneyRequest request = new JourneyRequest(new TramServiceDate(when), travelTime, false,
-                10, 8*60, 1);
+                10, Duration.ofHours(8), 1);
 
         combinations.validateAllHaveAtLeastOneJourney(combinations.EndOfRoutesToEndOfRoutes(Train), request);
     }

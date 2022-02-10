@@ -35,6 +35,7 @@ import org.neo4j.graphdb.Transaction;
 
 import java.io.IOException;
 import java.nio.file.Path;
+import java.time.Duration;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -142,7 +143,7 @@ class BusRouteCalculatorSubGraphAltyToMaccRoute {
 
         TramTime time = TramTime.of(10, 40);
         JourneyRequest journeyRequest = new JourneyRequest(when, time, false, 1,
-                120, 2);
+                Duration.ofMinutes(120), 2);
         Set<Journey> results = calculator.calculateRouteAsSet(altrinchamInterchange, end, journeyRequest);
 
         assertFalse(results.isEmpty());
@@ -159,7 +160,7 @@ class BusRouteCalculatorSubGraphAltyToMaccRoute {
 
         TramTime time = TramTime.of(11, 20);
         JourneyRequest journeyRequest = new JourneyRequest(when, time, false,
-                3, 120, 2);
+                3, Duration.ofMinutes(120), 2);
 
         Set<Journey> results = calculator.calculateRouteAsSet(start, altrinchamInterchange, journeyRequest);
 
@@ -183,7 +184,7 @@ class BusRouteCalculatorSubGraphAltyToMaccRoute {
 
                 TramTime time = TramTime.of(9, 20);
                 JourneyRequest journeyRequest = new JourneyRequest(when, time, false,
-                        1, 120, 1);
+                        1, Duration.ofMinutes(120), 1);
 
                 for (int i = 1; i <= knutsfordIndex; i++) {
                     Station secondStation = stopCalls.getStopBySequenceNumber(i).getStation();

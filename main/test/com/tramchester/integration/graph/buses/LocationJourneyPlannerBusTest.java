@@ -21,6 +21,7 @@ import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.condition.DisabledIfEnvironmentVariable;
 import org.neo4j.graphdb.Transaction;
 
+import java.time.Duration;
 import java.time.LocalDate;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
@@ -37,7 +38,7 @@ class LocationJourneyPlannerBusTest {
     private static ComponentContainer componentContainer;
     private static GraphDatabase database;
     private static TramchesterConfig testConfig;
-    private int maxDuration;
+    private Duration maxDuration;
 
     private final LocalDate nextMonday = TestEnv.nextMonday();
     private Transaction txn;
@@ -63,7 +64,7 @@ class LocationJourneyPlannerBusTest {
         StationRepository stationRepository = componentContainer.get(StationRepository.class);
         stationGroupsRepository = componentContainer.get(StationGroupsRepository.class);
         planner = new LocationJourneyPlannerTestFacade(componentContainer.get(LocationJourneyPlanner.class), stationRepository, txn);
-        maxDuration = testConfig.getMaxJourneyDuration();
+        maxDuration = Duration.ofMinutes(testConfig.getMaxJourneyDuration());
     }
 
     @AfterEach

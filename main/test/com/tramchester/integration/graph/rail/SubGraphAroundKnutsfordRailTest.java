@@ -23,6 +23,7 @@ import org.neo4j.graphdb.Transaction;
 
 import java.io.IOException;
 import java.nio.file.Path;
+import java.time.Duration;
 import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.List;
@@ -114,7 +115,7 @@ class SubGraphAroundKnutsfordRailTest {
     @Test
     void shouldHaveSimpleJourney() {
         JourneyRequest journeyRequest = new JourneyRequest(when, tramTime, false, 0,
-                30, 1);
+                Duration.ofMinutes(30), 1);
         Set<Journey> results = testFacade.calculateRouteAsSet(RailStationIds.Hale.getId(), RailStationIds.Knutsford.getId(), journeyRequest);
         Assertions.assertTrue(results.size()>0);
     }
@@ -129,7 +130,7 @@ class SubGraphAroundKnutsfordRailTest {
 
     private void validateAtLeastOneJourney(RailStationIds start, RailStationIds dest) {
         JourneyRequest journeyRequest = new JourneyRequest(when, tramTime, false, 0,
-                30, 1);
+                Duration.ofMinutes(30), 1);
 
         Set<Journey> results = testFacade.calculateRouteAsSet(start.getId(), dest.getId(), journeyRequest);
         assertFalse(results.isEmpty(), "No results from " + start + " to " + dest);

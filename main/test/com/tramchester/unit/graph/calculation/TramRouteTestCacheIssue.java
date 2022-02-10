@@ -16,6 +16,7 @@ import org.junit.jupiter.api.*;
 import org.neo4j.graphdb.Transaction;
 
 import java.io.IOException;
+import java.time.Duration;
 import java.time.LocalDate;
 import java.util.Collections;
 import java.util.Set;
@@ -64,7 +65,8 @@ class TramRouteTestCacheIssue {
 
     @NotNull
     private JourneyRequest createJourneyRequest(TramTime queryTime, int maxChanges) {
-        return new JourneyRequest(queryDate, queryTime, false, maxChanges, config.getMaxJourneyDuration(), 3);
+        return new JourneyRequest(queryDate, queryTime, false, maxChanges,
+                Duration.ofMinutes(config.getMaxJourneyDuration()), 3);
     }
 
     @Test

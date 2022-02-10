@@ -25,6 +25,7 @@ import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.*;
 import org.neo4j.graphdb.Transaction;
 
+import java.time.Duration;
 import java.time.LocalDate;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
@@ -46,7 +47,7 @@ class LocationJourneyPlannerTest {
     private Transaction txn;
     private LocationJourneyPlannerTestFacade planner;
     private TramServiceDate date;
-    private int maxJourneyDuration;
+    private Duration maxJourneyDuration;
     private long maxNumberOfJourneys;
     private StationRepository stationRepository;
 
@@ -65,7 +66,7 @@ class LocationJourneyPlannerTest {
 
     @BeforeEach
     void beforeEachTestRuns() {
-        maxJourneyDuration = testConfig.getMaxJourneyDuration();
+        maxJourneyDuration = Duration.ofMinutes(testConfig.getMaxJourneyDuration());
         date = new TramServiceDate(when);
         txn = database.beginTx(TXN_TIMEOUT, TimeUnit.SECONDS);
         stationRepository = componentContainer.get(StationRepository.class);
