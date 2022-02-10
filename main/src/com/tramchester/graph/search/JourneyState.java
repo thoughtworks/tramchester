@@ -63,38 +63,20 @@ public class JourneyState implements ImmutableJourneyState, JourneyStateUpdate {
         return coreState.journeyClock;
     }
 
-    @Deprecated
-    @Override
-    public void updateTotalCost(int currentTotalCost) {
-        int costForTrip = (int) (currentTotalCost - journeyOffset.toMinutes());
-
-        if (coreState.onBoard()) {
-            coreState.setJourneyClock(boardingTime.plusMinutes(costForTrip));
-        } else {
-            coreState.incrementJourneyClock(costForTrip);
-        }
-    }
-
     @Override
     public void updateTotalCost(Duration currentTotalCost) {
-        Duration costForTrip = currentTotalCost.minus(journeyOffset);
+        Duration durationForTrip = currentTotalCost.minus(journeyOffset);
 
         if (coreState.onBoard()) {
-            coreState.setJourneyClock(boardingTime.plus(costForTrip));
+            coreState.setJourneyClock(boardingTime.plus(durationForTrip));
         } else {
-            coreState.incrementJourneyClock(costForTrip);
+            coreState.incrementJourneyClock(durationForTrip);
         }
     }
 
     @Deprecated
     public void recordTime(TramTime boardingTime, int currentCost) throws TramchesterException {
         recordTime(boardingTime, Duration.ofMinutes(currentCost));
-//        if ( !coreState.onBoard() ) {
-//            throw new TramchesterException("Not on a bus or tram");
-//        }
-//        coreState.setJourneyClock(boardingTime);
-//        this.boardingTime = boardingTime;
-//        this.journeyOffset = Duration.ofMinutes(currentCost);
     }
 
     public void recordTime(TramTime boardingTime, Duration currentCost) throws TramchesterException {
@@ -129,12 +111,6 @@ public class JourneyState implements ImmutableJourneyState, JourneyStateUpdate {
     @Override
     public void seenStation(IdFor<Station> stationId) {
         coreState.seenStation(stationId);
-    }
-
-    @Deprecated
-    @Override
-    public void leave(TransportMode mode, int totalCostMinutes, Node node) throws TramchesterException {
-        leave(mode, Duration.ofMinutes(totalCostMinutes), node);
     }
 
     @Override
@@ -298,11 +274,6 @@ public class JourneyState implements ImmutableJourneyState, JourneyStateUpdate {
 
         public void setJourneyClock(TramTime time) {
             journeyClock = time;
-        }
-
-        @Deprecated
-        public void incrementJourneyClock(int minutes) {
-            journeyClock = journeyClock.plusMinutes(minutes);
         }
 
         public void incrementJourneyClock(Duration duration) {

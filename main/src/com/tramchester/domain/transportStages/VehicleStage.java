@@ -27,7 +27,7 @@ public class VehicleStage implements TransportStage<Station, Station> {
     private final TramTime departFirstStationTime;
     private final Route route;
 
-    protected int cost;
+    protected Duration cost;
     private Platform platform;
 
     public VehicleStage(Station firstStation, Route route, TransportMode mode, Trip trip,
@@ -42,7 +42,7 @@ public class VehicleStage implements TransportStage<Station, Station> {
         this.lastStation = lastStation;
 
         this.platform = null;
-        this.cost = Integer.MAX_VALUE;
+        this.cost = Duration.ofMinutes(-999);
     }
 
     public Station getFirstStation() {
@@ -51,7 +51,7 @@ public class VehicleStage implements TransportStage<Station, Station> {
 
     @Override
     public Duration getDuration() {
-        return Duration.ofMinutes(cost);
+        return cost;
     }
 
     public Station getLastStation() {
@@ -74,7 +74,7 @@ public class VehicleStage implements TransportStage<Station, Station> {
         return mode;
     }
 
-    public VehicleStage setCost(int cost) {
+    public VehicleStage setCost(Duration cost) {
         this.cost = cost;
         return this;
     }
@@ -99,7 +99,7 @@ public class VehicleStage implements TransportStage<Station, Station> {
         return platform != null;
     }
 
-    public int getCost() {
+    public Duration getCost() {
         return cost;
     }
 
@@ -115,7 +115,7 @@ public class VehicleStage implements TransportStage<Station, Station> {
 
     @Override
     public TramTime getExpectedArrivalTime() {
-        return departFirstStationTime.plusMinutes(cost);
+        return departFirstStationTime.plus(cost);
     }
 
     public int getPassedStopsCount() {

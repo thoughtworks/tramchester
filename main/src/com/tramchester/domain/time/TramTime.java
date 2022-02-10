@@ -70,6 +70,8 @@ public class TramTime implements Comparable<TramTime> {
         return Factory.Invalid();
     }
 
+
+
     public boolean isValid() {
         return this != Factory.Invalid();
     }
@@ -94,6 +96,14 @@ public class TramTime implements Comparable<TramTime> {
         return factory.of(other.hour, other.minute, 1);
     }
 
+    public static Duration difference(TramTime first, TramTime second) {
+        return Duration.ofMinutes(diffenceAsMinutes(first, second));
+    }
+
+    /***
+     * TODO Make private
+     */
+    @Deprecated
     public static int diffenceAsMinutes(TramTime first, TramTime second) {
         if (first.isAfterBasic(second)) {
             return diffenceAsMinutesOverMidnight(second, first);

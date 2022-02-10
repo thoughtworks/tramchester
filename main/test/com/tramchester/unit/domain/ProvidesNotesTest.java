@@ -24,6 +24,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
@@ -328,7 +329,8 @@ class ProvidesNotesTest extends EasyMockSupport {
         VehicleStage stageA = createStageWithBoardingPlatform("platformId1", Bury);
         VehicleStage stageB = createStageWithBoardingPlatform("platformId2", Cornbrook);
         VehicleStage stageC = createStageWithBoardingPlatform("platformId3", NavigationRoad);
-        WalkingToStationStage stageD = new WalkingToStationStage(nearAltrincham.location(), Ashton.fake(), 7, TramTime.of(8,11));
+        WalkingToStationStage stageD = new WalkingToStationStage(nearAltrincham.location(), Ashton.fake(),
+                Duration.ofMinutes(7), TramTime.of(8,11));
         VehicleStage stageE = createStageWithBoardingPlatform("platformId5", Altrincham);
 
         TramServiceDate serviceDate = new TramServiceDate(lastUpdate.toLocalDate());

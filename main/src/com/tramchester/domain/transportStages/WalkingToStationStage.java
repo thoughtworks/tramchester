@@ -8,12 +8,13 @@ import com.tramchester.domain.places.MyLocation;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.time.TramTime;
 
+import java.time.Duration;
 import java.util.Collections;
 import java.util.List;
 
 public class WalkingToStationStage extends WalkingStage<MyLocation, Station> {
 
-    public WalkingToStationStage(MyLocation start, Station destination, int duration, TramTime beginTime) {
+    public WalkingToStationStage(MyLocation start, Station destination, Duration duration, TramTime beginTime) {
         super(start, destination, duration, beginTime);
     }
 

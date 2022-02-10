@@ -19,13 +19,7 @@ public interface JourneyStateUpdate {
     void toNeighbour(Node startNode, Node endNode, Duration cost);
     void seenStation(IdFor<Station> stationId);
 
-    // deprecated
-    void updateTotalCost(int total);
-
     void updateTotalCost(Duration total);
-
-    @Deprecated
-    void leave(TransportMode mode, int totalCost, Node node) throws TramchesterException;
 
     @Deprecated
     void recordTime(TramTime time, int totalCost) throws TramchesterException;

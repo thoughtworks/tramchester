@@ -25,6 +25,7 @@ import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.*;
 import org.neo4j.graphdb.Transaction;
 
+import java.time.Duration;
 import java.time.LocalDate;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
@@ -201,13 +202,12 @@ public class RouteCalculatorTest {
             journey.getStages().stream().
                     map(raw -> (VehicleStage) raw).
                     map(VehicleStage::getCost).
-                    forEach(cost -> assertTrue(cost>0));
-            Optional<Integer> total = journey.getStages().stream().
+                    forEach(cost -> assertFalse(cost.isZero() || cost.isNegative()));
+            Duration total = journey.getStages().stream().
                     map(raw -> (VehicleStage) raw).
                     map(VehicleStage::getCost).
-                    reduce(Integer::sum);
-            assertTrue(total.isPresent());
-            assertTrue(total.get()>20);
+                    reduce(Duration.ZERO, Duration::plus);
+            assertTrue(total.compareTo(Duration.ofMinutes(20))>0);
         });
     }
 

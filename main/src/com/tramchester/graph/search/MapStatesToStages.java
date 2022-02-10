@@ -39,9 +39,9 @@ class MapStatesToStages implements JourneyStateUpdate {
     private boolean onVehicle;
     private IdFor<Trip> tripId;
 
-    private int totalCost; // total cost of entire journey
+    private Duration totalCost; // total cost of entire journey
     private TramTime actualTime; // updated each time pass minute node and know 'actual' time
-    private int costOffsetAtActual; // total cost at point got 'actual' time update
+    private Duration costOffsetAtActual; // total cost at point got 'actual' time update
 
     @Deprecated
     private TramTime boardingTime;
@@ -64,7 +64,8 @@ class MapStatesToStages implements JourneyStateUpdate {
         actualTime = queryTime;
         stages = new ArrayList<>();
         onVehicle = false;
-        totalCost = 0;
+        totalCost = Duration.ZERO;
+        costOffsetAtActual = Duration.ZERO;
     }
 
     @Override
@@ -84,13 +85,6 @@ class MapStatesToStages implements JourneyStateUpdate {
 
     @Override
     public void recordTime(TramTime time, Duration totalCost) {
-        int minutes = getMinutesSafe(totalCost);
-        recordTime(time, minutes);
-    }
-
-    @Deprecated
-    @Override
-    public void recordTime(TramTime time, int totalCost) {
         logger.debug("Record actual time " + time + " total cost:" + totalCost);
         this.actualTime = time;
         costOffsetAtActual = totalCost;
@@ -106,15 +100,14 @@ class MapStatesToStages implements JourneyStateUpdate {
         }
     }
 
-    @Override
-    public void leave(TransportMode mode, Duration totalCost, Node routeStationNode) {
-        int minutes = getMinutesSafe(totalCost);
-        leave(mode, minutes, routeStationNode);
-    }
-
     @Deprecated
     @Override
-    public void leave(TransportMode mode, int totalCost, Node routeStationNode) {
+    public void recordTime(TramTime time, int totalCost) {
+        recordTime(time, Duration.ofMinutes(totalCost));
+    }
+
+    @Override
+    public void leave(TransportMode mode, Duration totalCost, Node routeStationNode) {
         if (!onVehicle) {
             throw new RuntimeException("Not on vehicle");
         }
@@ -124,16 +117,6 @@ class MapStatesToStages implements JourneyStateUpdate {
         stages.add(vehicleStage);
         logger.info("Added " + vehicleStage);
         reset();
-    }
-
-    @Deprecated
-    private int getMinutesSafe(Duration duration) {
-        long seconds = duration.getSeconds();
-        int mod = Math.floorMod(seconds, 60);
-        if (mod!=0) {
-            throw new RuntimeException("Accuracy lost attempting to convert " + duration + " to minutes");
-        }
-        return (int) Math.floorDiv(seconds, 60);
     }
 
     protected void passStop(Relationship fromMinuteNodeRelationship) {
@@ -146,22 +129,13 @@ class MapStatesToStages implements JourneyStateUpdate {
         }
     }
 
-    @Deprecated
-    @Override
-    public void updateTotalCost(int totalCost) {
-        logger.debug("Update total journeyCost " + totalCost);
-        this.totalCost = totalCost;
-        logger.debug("Actual clock " + getActualClock());
-    }
-
-    // TODO Store duration
     @Override
     public void updateTotalCost(Duration total) {
-        this.totalCost = (int) total.toMinutes();
+        this.totalCost = total;
     }
 
     private TramTime getActualClock() {
-        return actualTime.plusMinutes(totalCost - costOffsetAtActual);
+        return actualTime.plus(totalCost.minus(costOffsetAtActual));
     }
 
     @Override
@@ -189,7 +163,7 @@ class MapStatesToStages implements JourneyStateUpdate {
     @Override
     public void endWalk(Node endWalkNode) {
 
-        int duration = TramTime.diffenceAsMinutes(beginWalkClock, getActualClock());
+        Duration duration = TramTime.difference(beginWalkClock, getActualClock());
 
         if (walkFromStartPending != null) {
             boolean atStation = GraphProps.hasProperty(STATION_ID, endWalkNode);
@@ -208,8 +182,7 @@ class MapStatesToStages implements JourneyStateUpdate {
                 MyLocation destination = MyLocation.create(walkEnd);
 
                 logger.info("End walk from station to " + walkEnd + " duration " + duration);
-                WalkingFromStationStage stage = new WalkingFromStationStage(walkStation, destination,
-                        duration, beginWalkClock);
+                WalkingFromStationStage stage = new WalkingFromStationStage(walkStation, destination, duration, beginWalkClock);
                 stages.add(stage);
             } else {
                 throw new RuntimeException("Unexpected end of walk not form a station");
@@ -251,28 +224,28 @@ class MapStatesToStages implements JourneyStateUpdate {
     private static class WalkFromStartPending {
 
         private final LatLong walkStart;
-        private int totalCostAtDestination;
+        private Duration totalCostAtDestination;
         private Station destination;
-        private int duration;
+        private Duration duration;
 
         public WalkFromStartPending(LatLong walkStart) {
             this.walkStart = walkStart;
         }
 
-        public void setDestinationAndDuration(int totalCost, Station destination, int duration) {
+        public void setDestinationAndDuration(Duration totalCost, Station destination, Duration duration) {
             totalCostAtDestination = totalCost;
             this.destination = destination;
             this.duration = duration;
         }
 
-        public WalkingToStationStage createStage(TramTime actualTime, int totalCostNow) {
+        public WalkingToStationStage createStage(TramTime actualTime, Duration totalCostNow) {
             MyLocation walkStation = MyLocation.create(walkStart);
             logger.info("End walk to station " + destination.getId() + " duration " + duration);
 
             // offset for boarding cost
-            int offset = totalCostNow - totalCostAtDestination;
+            Duration offset = totalCostNow.minus(totalCostAtDestination);
 
-            TramTime walkStartTime = actualTime.minusMinutes(duration+offset);
+            TramTime walkStartTime = actualTime.minus(duration.plus(offset));
             return new WalkingToStationStage(walkStation, destination, duration, walkStartTime);
         }
     }
@@ -286,13 +259,13 @@ class MapStatesToStages implements JourneyStateUpdate {
         private final ArrayList<Integer> stopSequenceNumbers;
         private final IdFor<Station> actionStationId;
 
-        private final int costOffsetAtBoarding;
+        private final Duration costOffsetAtBoarding;
         private TramTime boardingTime;
         private IdFor<Platform> boardingPlatformId;
 
         public VehicleStagePending(StationRepositoryPublic stationRepository, TripRepository tripRepository,
                                    PlatformRepository platformRepository,
-                                   IdFor<Station> actionStationId, int costOffsetAtBoarding) {
+                                   IdFor<Station> actionStationId, Duration costOffsetAtBoarding) {
             this.stationRepository = stationRepository;
             this.tripRepository = tripRepository;
             this.platformRepository = platformRepository;
@@ -306,9 +279,9 @@ class MapStatesToStages implements JourneyStateUpdate {
             this.boardingPlatformId = boardingPlatformId;
         }
 
-        public VehicleStage createStage(Entity routeStationNode, int totalCost, IdFor<Trip> tripId, TransportMode mode) {
+        public VehicleStage createStage(Entity routeStationNode, Duration totalCost, IdFor<Trip> tripId, TransportMode mode) {
             IdFor<Station> lastStationId = GraphProps.getStationId(routeStationNode);
-            int cost = totalCost - costOffsetAtBoarding;
+            Duration cost = totalCost.minus(costOffsetAtBoarding);
 
             logger.info("Leave " + mode + " at " + lastStationId + "  cost = " + cost);
 

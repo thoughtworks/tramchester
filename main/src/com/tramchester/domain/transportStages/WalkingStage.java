@@ -13,10 +13,10 @@ import java.time.Duration;
 public abstract class  WalkingStage<FROM extends Location<?>, DEST extends Location<?>> implements TransportStage<FROM, DEST> {
     private final FROM start;
     protected final DEST destination;
-    private final int duration;
+    private final Duration duration;
     private final TramTime beginTime;
 
-    public WalkingStage(FROM start, DEST destination, int duration, TramTime beginTime) {
+    public WalkingStage(FROM start, DEST destination, Duration duration, TramTime beginTime) {
         this.start = start;
         this.destination = destination;
         this.duration = duration;
@@ -29,12 +29,8 @@ public abstract class  WalkingStage<FROM extends Location<?>, DEST extends Locat
     }
     
     public Duration getDuration() {
-        return Duration.ofMinutes(duration);
+        return duration;
     }
-
-//    public DEST getDestination() {
-//        return destination;
-//    }
 
     public abstract boolean getTowardsMyLocation();
 
@@ -83,9 +79,9 @@ public abstract class  WalkingStage<FROM extends Location<?>, DEST extends Locat
 
         WalkingStage<?, ?> that = (WalkingStage<?, ?>) o;
 
-        if (getDuration() != that.getDuration()) return false;
         if (!start.equals(that.start)) return false;
         if (!destination.equals(that.destination)) return false;
+        if (!duration.equals(that.duration)) return false;
         return beginTime.equals(that.beginTime);
     }
 
@@ -93,7 +89,7 @@ public abstract class  WalkingStage<FROM extends Location<?>, DEST extends Locat
     public int hashCode() {
         int result = start.hashCode();
         result = 31 * result + destination.hashCode();
-        result = 31 * result + duration;
+        result = 31 * result + duration.hashCode();
         result = 31 * result + beginTime.hashCode();
         return result;
     }

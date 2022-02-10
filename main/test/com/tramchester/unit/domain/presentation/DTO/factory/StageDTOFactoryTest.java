@@ -22,6 +22,7 @@ import org.easymock.EasyMockSupport;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.time.Duration;
 import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.List;
@@ -49,7 +50,7 @@ class StageDTOFactoryTest extends EasyMockSupport {
     void shouldCreateStageDTOCorrectlyForWalking() {
         MyLocation location = nearAltrincham.location();
 
-        WalkingFromStationStage stage = new WalkingFromStationStage(Altrincham.fake(), location, 15,
+        WalkingFromStationStage stage = new WalkingFromStationStage(Altrincham.fake(), location, Duration.ofMinutes(15),
                 TramTime.of(8,11));
 
         EasyMock.expect(stationDTOFactory.createLocationRefWithPosition(Altrincham.fake())).
@@ -81,7 +82,7 @@ class StageDTOFactoryTest extends EasyMockSupport {
                 TransportMode.Tram, trip, TramTime.of(0, 0), Bury.fake(),
                 stopCallIndexes
         );
-        vehicleStage.setCost(5);
+        vehicleStage.setCost(Duration.ofMinutes(5));
 
         vehicleStage.setPlatform(platform);
 

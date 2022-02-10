@@ -14,7 +14,6 @@ import com.tramchester.domain.time.InvalidDurationException;
 import com.tramchester.domain.time.TramServiceDate;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.domain.transportStages.WalkingStage;
-import com.tramchester.geo.StationLocationsRepository;
 import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.RouteCostCalculator;
 import com.tramchester.graph.search.RouteCalculator;
@@ -54,7 +53,6 @@ class TramRouteTest {
     private TramTransportDataForTestFactory.TramTransportDataForTest transportData;
     private RouteCalculator calculator;
     private Geography geography;
-    private StationLocationsRepository stationLocations;
 
     private TramServiceDate queryDate;
     private TramTime queryTime;
@@ -88,7 +86,6 @@ class TramRouteTest {
         queryTime = TramTime.of(7, 57);
         StationRepository stationRepo = componentContainer.get(StationRepository.class);
 
-        stationLocations = componentContainer.get(StationLocationsRepository.class);
         geography = componentContainer.get(Geography.class);
 
         txn = database.beginTx();

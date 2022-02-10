@@ -91,7 +91,8 @@ class JourneyToDTOMapperTest extends EasyMockSupport {
     void shouldMapWalkingStageJourneyFromMyLocation() {
         TramTime pm10 = TramTime.of(22,0);
 
-        WalkingToStationStage walkingStage = new WalkingToStationStage(nearPiccGardensLocation, MarketStreet.fake(), 10, pm10);
+        WalkingToStationStage walkingStage = new WalkingToStationStage(nearPiccGardensLocation, MarketStreet.fake(),
+                Duration.ofMinutes(10), pm10);
         stages.add(walkingStage);
 
         StageDTO stageDTOA = new StageDTO();
@@ -124,7 +125,8 @@ class JourneyToDTOMapperTest extends EasyMockSupport {
     void shouldMapWalkingStageJourneyToMyLocation() {
         TramTime pm10 = TramTime.of(22,0);
 
-        WalkingFromStationStage walkingStage = new WalkingFromStationStage(Deansgate.fake(), nearPiccGardensLocation, 10, pm10);
+        WalkingFromStationStage walkingStage = new WalkingFromStationStage(Deansgate.fake(), nearPiccGardensLocation,
+                Duration.ofMinutes(10), pm10);
         stages.add(walkingStage);
 
         StageDTO stageDTOA = new StageDTO();
@@ -216,7 +218,7 @@ class JourneyToDTOMapperTest extends EasyMockSupport {
         VehicleStage rawStageA = getRawVehicleStage(begin, PiccadillyGardens.fake(),
                 createRoute("route text"), am10, 42, platformA);
 
-        int walkCost = 10;
+        Duration walkCost = Duration.ofMinutes(10);
         WalkingToStationStage walkingStage = new WalkingToStationStage(middleA, middleB, walkCost, am10);
         VehicleStage finalStage = getRawVehicleStage(middleB, end, createRoute("route3 text"), am10, 42,
                 platformA);
@@ -308,7 +310,7 @@ class JourneyToDTOMapperTest extends EasyMockSupport {
     }
 
     private VehicleStage getRawVehicleStage(Station start, Station finish, Route route, TramTime startTime,
-                                            int cost, Platform platform) {
+                                            int costInMinutes, Platform platform) {
 
 
         Trip validTrip = transportData.getTripById(StringIdFor.createId(TRIP_A_ID));
@@ -317,7 +319,7 @@ class JourneyToDTOMapperTest extends EasyMockSupport {
         VehicleStage vehicleStage = new VehicleStage(start, route, TransportMode.Tram, validTrip,
                 startTime.plusMinutes(1), finish, passedStations);
 
-        vehicleStage.setCost(cost);
+        vehicleStage.setCost(Duration.ofMinutes(costInMinutes));
         vehicleStage.setPlatform(platform);
 
         return vehicleStage;
