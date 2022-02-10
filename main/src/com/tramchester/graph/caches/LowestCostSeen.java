@@ -17,11 +17,6 @@ public class LowestCostSeen {
         arrived = new AtomicInteger(0);
     }
 
-    @Deprecated
-    public int getLowestCost() {
-        return (int) lowestCost.get().toMinutes();
-    }
-
     public Duration getLowestDuration() {
         return lowestCost.get();
     }

@@ -18,6 +18,9 @@ import java.util.stream.Stream;
 
 public class MutableStation implements Station {
 
+    // TODO into config?
+    public static final int DEFAULT_MIN_CHANGE_TIME = 1;
+
     private final IdFor<NaptanArea> areaId;
     private final IdFor<Station> id;
     private final String name;
@@ -31,19 +34,23 @@ public class MutableStation implements Station {
     private final DataSourceID dataSourceID;
     private final boolean isMarkedInterchange;
     private final Set<TransportMode> modes;
+    private final Duration changeTimeNeeded;
 
     public MutableStation(IdFor<Station> id, IdFor<NaptanArea> areaId, String stationName, LatLong latLong, GridPosition gridPosition,
                           DataSourceID dataSourceID) {
-        this(id, areaId, stationName, latLong, gridPosition, dataSourceID, false);
+        // todo default change duration from config for the data source?
+        this(id, areaId, stationName, latLong, gridPosition, dataSourceID, false,
+                Duration.ofMinutes(DEFAULT_MIN_CHANGE_TIME));
     }
 
     // for some data sources we know if station is an interchange
     public MutableStation(IdFor<Station> id, IdFor<NaptanArea> areaId, String stationName, LatLong latLong, GridPosition gridPosition,
-                          DataSourceID dataSourceID, boolean isMarkedInterchange) {
+                          DataSourceID dataSourceID, boolean isMarkedInterchange, Duration changeTimeNeeded) {
         this.areaId = areaId;
         this.gridPosition = gridPosition;
         this.dataSourceID = dataSourceID;
         this.isMarkedInterchange = isMarkedInterchange;
+        this.changeTimeNeeded = changeTimeNeeded;
         platforms = new HashSet<>();
         servesRoutesPickup = new HashSet<>();
         servesRoutesDropoff = new HashSet<>();
@@ -119,7 +126,9 @@ public class MutableStation implements Station {
 
     @Override
     public Set<Platform> getPlatformsForRoute(Route route) {
-        return platforms.stream().filter(platform -> platform.getRoutes().contains(route)).collect(Collectors.toUnmodifiableSet());
+        return platforms.stream().
+                filter(platform -> platform.getDropoffRoutes().contains(route) || platform.getPickupRoutes().contains(route)).
+                collect(Collectors.toUnmodifiableSet());
     }
 
     @Override
@@ -181,15 +190,10 @@ public class MutableStation implements Station {
         return isMarkedInterchange;
     }
 
-    @Override
-    public int getMinimumChangeCost() {
-        // TODO
-        return 1;
-    }
 
     @Override
     public Duration getMinChangeDuration() {
-        return Duration.ofMinutes(getMinimumChangeCost());
+        return changeTimeNeeded;
     }
 
     @Override

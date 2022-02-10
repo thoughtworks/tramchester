@@ -28,12 +28,10 @@ public class Geography {
     private final static double KILO_PER_MILE = 1.609344D;
 
     private final GeometryFactory geometryFactoryLatLong;
-    private final TramchesterConfig config;
     private final Quantity<Speed> walkingSpeed;
 
     @Inject
     public Geography(TramchesterConfig config) {
-        this.config = config;
         final double metersPerSecond = (config.getWalkingMPH() * KILO_PER_MILE * 1000) / 3600D;
         walkingSpeed = Quantities.getQuantity(metersPerSecond, METRE_PER_SECOND);
 
@@ -44,12 +42,6 @@ public class Geography {
     public Quantity<Time> getWalkingTime(Quantity<Length> distance) {
         return distance.divide(walkingSpeed).asType(Time.class);
     }
-
-//    @Deprecated
-//    public int getWalkingTimeInMinutes(Quantity<Length> distance) {
-//        Double minutes = Math.ceil(getWalkingTime(distance).to(MINUTE).getValue().doubleValue());
-//        return minutes.intValue();
-//    }
 
     private Duration getWalkingDuration(Quantity<Length> distance) {
         Double seconds = getWalkingTime(distance).to(SECOND).getValue().doubleValue();

@@ -11,8 +11,8 @@ import com.tramchester.domain.places.StationGroup;
 import com.tramchester.domain.places.NaptanArea;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
-import com.tramchester.geo.CoordinateTransforms;
 import com.tramchester.graph.filters.GraphFilter;
+import com.tramchester.mappers.Geography;
 import com.tramchester.repository.naptan.NaptanRespository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,6 +20,7 @@ import org.slf4j.LoggerFactory;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.inject.Inject;
+import java.time.Duration;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -36,6 +37,7 @@ public class StationGroupsRepository {
     private final TramchesterConfig config;
     private final NaptanRespository naptanRespository;
     private final StationRepository stationRepository;
+    private final Geography geography;
     private final GraphFilter graphFilter;
 
     private final boolean enabled;
@@ -45,8 +47,9 @@ public class StationGroupsRepository {
 
     @Inject
     public StationGroupsRepository(StationRepository stationRepository, TramchesterConfig config,
-                                   NaptanRespository naptanRespository, GraphFilter graphFilter) {
+                                   Geography geography, NaptanRespository naptanRespository, GraphFilter graphFilter) {
         this.config = config;
+        this.geography = geography;
         this.enabled = naptanRespository.isEnabled();
 
         this.stationRepository = stationRepository;
@@ -129,7 +132,7 @@ public class StationGroupsRepository {
 
     private void addComposite(IdFor<NaptanArea> areaId, Set<Station> stationsToGroup) {
 
-        int minChangeCost = computeMinChangeCost(stationsToGroup);
+        Duration changeTimeNeeded = computeChangeTimeNeeded(stationsToGroup);
 
         String areaName  = areaId.toString();
         if (naptanRespository.containsArea(areaId)) {
@@ -139,27 +142,30 @@ public class StationGroupsRepository {
             logger.error(format("Using %s as name, missing area code %s for station group %s", areaName, areaId, HasId.asIds(stationsToGroup)));
         }
 
-        StationGroup stationGroup = new StationGroup(stationsToGroup, areaId, areaName, minChangeCost);
+        StationGroup stationGroup = new StationGroup(stationsToGroup, areaId, areaName, changeTimeNeeded);
 
         stationGroups.put(areaId, stationGroup);
         stationGroupsByName.put(areaName, stationGroup);
     }
 
-    private int computeMinChangeCost(Set<Station> stationsToGroup) {
+    private Duration computeChangeTimeNeeded(Set<Station> stationsToGroup) {
         // find greatest distance between the stations, then convert to a cost
         Set<StationPair> allPairs = stationsToGroup.stream().
                 flatMap(stationA -> stationsToGroup.stream().map(stationB -> StationPair.of(stationA, stationB))).
                 filter(pair -> !pair.getBegin().equals(pair.getEnd())).
                 collect(Collectors.toSet());
-        OptionalLong furthestQuery = allPairs.stream().
-                mapToLong(pair -> CoordinateTransforms.calcCostInMinutes(pair.getBegin(), pair.getEnd(), config.getWalkingMPH())).
-                max();
+
+        Optional<Duration> furthestQuery = allPairs.stream().
+                map(pair -> geography.getWalkingDuration(pair.getBegin(), pair.getEnd())).
+                max(Duration::compareTo);
+
         if (furthestQuery.isEmpty()) {
-            return 1;
+            final String message = "Cannot compute max link cost for " + stationsToGroup;
+            logger.error(message);
+            throw new RuntimeException(message);
         }
 
-        return (int) furthestQuery.getAsLong();
-
+        return furthestQuery.get();
     }
 
     private void guardIsEnabled() {

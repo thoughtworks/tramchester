@@ -50,10 +50,6 @@ public interface Station extends Location<Station> {
 
     boolean servesMode(TransportMode mode);
 
-    // todo return Duration
-    @Deprecated
-    int getMinimumChangeCost();
-
     Duration getMinChangeDuration();
 
     static IdFor<Station> createId(String text) {

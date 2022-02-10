@@ -116,7 +116,7 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
             // TODO Agencies could be done in parallel as should be no overlap except at station level?
             for(Agency agency : transportData.getAgencies()) {
                 if (graphFilter.shouldIncludeAgency(agency)) {
-                    try (Timing agencyTiming = new Timing(logger,"Add agency " + agency.getId() + " " + agency.getName())) {
+                    try (Timing unused = new Timing(logger,"Add agency " + agency.getId() + " " + agency.getName())) {
                         buildForAgency(graphDatabase, agency, builderCache);
                     }
                 }
@@ -173,7 +173,7 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
             timedTransaction.commit();
         }
 
-        try(Timing timing = new Timing(logger,"service, hour for " + agency.getId())) {
+        try(Timing ignored1 = new Timing(logger,"service, hour for " + agency.getId())) {
             getRoutesForAgency(agency).parallel().forEach(route -> {
                 try (Transaction tx = graphDatabase.beginTx()) {
                     createServiceAndHourNodesForRoute(tx, route, builderCache);
@@ -467,11 +467,9 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
     }
 
     private void createPlatformStationRelationships(Station station, Node stationNode, Platform platform, Node platformNode) {
-        boolean isInterchange = interchangeRepository.isInterchange(station);
 
         // station -> platform
-        Duration enterPlatformCost = Duration.ofMinutes(station.getMinimumChangeCost());
-        //int enterPlatformCost = isInterchange ? ENTER_INTER_PLATFORM_COST : ENTER_PLATFORM_COST;
+        Duration enterPlatformCost = station.getMinChangeDuration();
 
         Relationship crossToPlatform = createRelationship(stationNode, platformNode, ENTER_PLATFORM);
         setCostProp(crossToPlatform, enterPlatformCost);
@@ -479,7 +477,6 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
 
         // platform -> station
         Duration leavePlatformCost = Duration.ZERO;
-        //int leavePlatformCost = isInterchange ? LEAVE_INTER_PLATFORM_COST : LEAVE_PLATFORM_COST;
 
         Relationship crossFromPlatform = createRelationship(platformNode, stationNode, LEAVE_PLATFORM);
         setCostProp(crossFromPlatform, leavePlatformCost);

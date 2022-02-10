@@ -87,7 +87,7 @@ public class StationsAndLinksGraphBuilder extends GraphBuilder {
 
         graphDatabase.createIndexs();
 
-        try (Timing timing = new Timing(logger, "graph rebuild")) {
+        try (Timing unused = new Timing(logger, "graph rebuild")) {
             try(TimedTransaction timedTransaction = new TimedTransaction(graphDatabase, logger, "Adding stations")) {
                 Transaction tx = timedTransaction.transaction();
                 for(Station station : transportData.getStations()) {
@@ -160,7 +160,7 @@ public class StationsAndLinksGraphBuilder extends GraphBuilder {
         final Relationship stationToRoute = stationNode.createRelationshipTo(routeStationNode, STATION_TO_ROUTE);
         final Relationship routeToStation = routeStationNode.createRelationshipTo(stationNode, ROUTE_TO_STATION);
 
-        final Duration minimumChangeCost = Duration.ofMinutes(station.getMinimumChangeCost());
+        final Duration minimumChangeCost = station.getMinChangeDuration();
         GraphProps.setCostProp(stationToRoute, minimumChangeCost);
         GraphProps.setCostProp(routeToStation, Duration.ZERO);
 

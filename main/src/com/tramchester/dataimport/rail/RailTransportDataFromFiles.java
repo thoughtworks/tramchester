@@ -34,6 +34,7 @@ import org.slf4j.LoggerFactory;
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import java.nio.file.Path;
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
@@ -206,7 +207,9 @@ public class RailTransportDataFromFiles implements DirectDataSourceFactory.Popul
 
         LatLong latLong = grid.isValid() ?  CoordinateTransforms.getLatLong(grid) : LatLong.Invalid;
 
-        return new MutableStation(id, areaId, name, latLong, grid, DataSourceID.rail, isInterchange);
+        Duration minChangeTime = Duration.ofMinutes(record.getMinChangeTime());
+
+        return new MutableStation(id, areaId, name, latLong, grid, DataSourceID.rail, isInterchange, minChangeTime);
     }
 
     private GridPosition convertToOsGrid(int easting, int northing) {

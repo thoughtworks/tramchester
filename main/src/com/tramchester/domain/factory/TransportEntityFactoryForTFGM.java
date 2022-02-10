@@ -19,6 +19,7 @@ import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.time.Duration;
 import java.util.Optional;
 
 public class TransportEntityFactoryForTFGM extends TransportEntityFactory {
@@ -29,6 +30,8 @@ public class TransportEntityFactoryForTFGM extends TransportEntityFactory {
     private static final Logger logger = LoggerFactory.getLogger(TransportEntityFactoryForTFGM.class);
 
     private final NaptanRespository naptanRespository;
+
+    private final Duration minChangeDuration = Duration.ofMinutes(MutableStation.DEFAULT_MIN_CHANGE_TIME);
 
     public TransportEntityFactoryForTFGM(NaptanRespository naptanRespository) {
         super();
@@ -45,7 +48,8 @@ public class TransportEntityFactoryForTFGM extends TransportEntityFactory {
 
         IdFor<Route> routeId = createRouteId(routeData.getId());
         String routeName = routeData.getLongName();
-        return new MutableRoute(routeId, routeData.getShortName().trim(), routeName, agency, GTFSTransportationType.toTransportMode(routeType));
+        return new MutableRoute(routeId, routeData.getShortName().trim(), routeName, agency,
+                GTFSTransportationType.toTransportMode(routeType));
     }
 
     @Override
@@ -71,7 +75,7 @@ public class TransportEntityFactoryForTFGM extends TransportEntityFactory {
         final String stationName = cleanStationName(stopData);
 
         return new MutableStation(stationId, areaId, workAroundName(stationName), latLong, position,
-                getDataSourceId(), isInterchange);
+                getDataSourceId(), isInterchange, minChangeDuration);
     }
 
     @Override

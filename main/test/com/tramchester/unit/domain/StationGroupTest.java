@@ -11,6 +11,7 @@ import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.StationHelper;
 import org.junit.jupiter.api.Test;
 
+import java.time.Duration;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
@@ -40,7 +41,7 @@ class StationGroupTest {
 
         IdFor<NaptanArea> areaId = StringIdFor.createId("areaId");
         StationGroup groupedStations = new StationGroup(Collections.singleton(stationA), areaId,
-                "compName",1);
+                "compName", Duration.ofMinutes(1));
 
         assertEquals(LocationType.StationGroup, groupedStations.getLocationType());
 
@@ -87,7 +88,7 @@ class StationGroupTest {
 
         Set<Station> stations = new HashSet<>(Arrays.asList(stationA, stationB));
         IdFor<NaptanArea> areaId = StringIdFor.createId("areaId");
-        StationGroup stationGroup = new StationGroup(stations, areaId, "compName",12);
+        StationGroup stationGroup = new StationGroup(stations, areaId, "compName",Duration.ofMinutes(12));
 
         assertEquals(LocationType.StationGroup, stationGroup.getLocationType());
 
@@ -131,7 +132,7 @@ class StationGroupTest {
 
         Set<Station> stations = new HashSet<>(Arrays.asList(stationA, stationB));
         IdFor<NaptanArea> areaId = StringIdFor.createId("areaId");
-        StationGroup stationGroup = new StationGroup(stations, areaId, "compName",11);
+        StationGroup stationGroup = new StationGroup(stations, areaId, "compName",Duration.ofMinutes(11));
 
         assertFalse(stationGroup.hasPickup());
         assertFalse(stationGroup.hasDropoff());
@@ -157,11 +158,12 @@ class StationGroupTest {
 
         IdFor<NaptanArea> areaId = StringIdFor.createId("areaId");
 
+        final Duration changeTimeNeeded = Duration.ofMinutes(42);
         StationGroup stationGroup = new StationGroup( new HashSet<>(Arrays.asList(stationA, stationB)),
-                areaId, "compName", 42);
+                areaId, "compName", changeTimeNeeded);
 
 
-        assertEquals(42, stationGroup.getMinimumChangeCost());
+        assertEquals(changeTimeNeeded, stationGroup.getMinimumChangeCost());
     }
 
 }

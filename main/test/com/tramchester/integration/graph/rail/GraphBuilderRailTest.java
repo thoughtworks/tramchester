@@ -32,7 +32,6 @@ import java.util.stream.Collectors;
 
 import static com.tramchester.graph.TransportRelationshipTypes.*;
 import static com.tramchester.integration.testSupport.rail.RailStationIds.*;
-import static com.tramchester.testSupport.TestEnv.assertMinutesEquals;
 import static org.junit.jupiter.api.Assertions.*;
 
 @TrainTest
@@ -105,7 +104,7 @@ class GraphBuilderRailTest {
     @Test
     void shouldHaveCorrectPlatformCosts() {
         Station piccadilly = ManchesterPiccadilly.getFrom(transportData);
-        int cost = piccadilly.getMinimumChangeCost();
+        Duration cost = piccadilly.getMinChangeDuration();
         Set<Platform> platforms = piccadilly.getPlatforms();
 
         assertFalse(platforms.isEmpty());
@@ -118,7 +117,7 @@ class GraphBuilderRailTest {
 
             Relationship enter = node.getSingleRelationship(TransportRelationshipTypes.ENTER_PLATFORM, Direction.INCOMING);
             Duration enterCost = GraphProps.getCost(enter);
-            assertMinutesEquals(cost, enterCost, "wrong cost for " + platform.getId());
+            assertEquals(cost, enterCost, "wrong cost for " + platform.getId());
         });
 
         platforms.forEach(platform -> {
@@ -143,7 +142,7 @@ class GraphBuilderRailTest {
         final Set<Node> routeStationNodes = getRouteStationNodes(miltonKeynes);
         assertFalse(routeStationNodes.isEmpty());
 
-        Set<Long> mkNodeIds = routeStationNodes.stream().map(Entity::getId).collect(Collectors.toSet());;
+        Set<Long> mkNodeIds = routeStationNodes.stream().map(Entity::getId).collect(Collectors.toSet());
 
         Station crewe = Crewe.getFrom(transportData);
         Set<Node> creweRouteStationsNodes = getRouteStationNodes(crewe);

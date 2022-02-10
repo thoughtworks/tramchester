@@ -53,13 +53,6 @@ public abstract class TraversalState implements ImmuatableTraversalState {
         this.parentCost = parent.getTotalDuration();
     }
 
-//    public TraversalState nextState(Set<GraphLabel> nodeLabels, Node node,
-//                                    JourneyStateUpdate journeyState, Duration duration) {
-//        // TODO Store Duration, not minutes
-//        final long mins = duration.toMinutes();
-//        return nextState(nodeLabels, node, journeyState, (int) mins);
-//    }
-
     public TraversalState nextState(Set<GraphLabel> nodeLabels, Node node,
                                     JourneyStateUpdate journeyState, Duration cost) {
 

@@ -41,7 +41,7 @@ class PlatformTest {
         assertEquals(1, platform.getDropoffRoutes().size());
         assertTrue(platform.getDropoffRoutes().contains(tramTestRoute));
 
-        assertEquals(1, platform.getRoutes().size());
+        assertEquals(1, platform.getDropoffRoutes().size());
 
         Route anotherRoute = TestEnv.getTramTestRoute(Route.createId("anotherRoute"), "routeNameB");
 
@@ -49,9 +49,8 @@ class PlatformTest {
         assertEquals(1, platform.getDropoffRoutes().size());
         assertTrue(platform.getPickupRoutes().contains(anotherRoute));
 
-        final Set<Route> routes = platform.getRoutes();
-        assertEquals(2, routes.size());
-        assertTrue(routes.contains(tramTestRoute));
+        final Set<Route> routes = platform.getPickupRoutes();
+        assertEquals(1, routes.size());
         assertTrue(routes.contains(anotherRoute));
 
         final Set<TransportMode> transportModes = platform.getTransportModes();

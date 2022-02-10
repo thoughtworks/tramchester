@@ -13,6 +13,7 @@ import com.tramchester.geo.GridPosition;
 import com.tramchester.graph.GraphPropertyKey;
 import com.tramchester.graph.graphbuild.GraphLabel;
 
+import java.time.Duration;
 import java.util.Collection;
 import java.util.Set;
 import java.util.function.Function;
@@ -31,19 +32,19 @@ public class StationGroup implements Location<StationGroup> {
     private final IdFor<NaptanArea> areaId;
     private final Set<Station> groupedStations;
     private final String name;
-    private final int minChangeCost;
+    private final Duration minChangeCost;
 
     private final LatLong latLong;
     private final DataSourceID dataSourceId;
 
-    public StationGroup(Set<Station> groupedStations, IdFor<NaptanArea> areaId, String name, int minChangeCost) {
+    public StationGroup(Set<Station> groupedStations, IdFor<NaptanArea> areaId, String name, Duration changeTimeNeeded) {
         this.id = StringIdFor.convert(areaId);
         this.latLong = computeLatLong(groupedStations);
         this.dataSourceId = computeDataSourceId(groupedStations);
         this.groupedStations = groupedStations;
         this.areaId = areaId;
         this.name = name;
-        this.minChangeCost = minChangeCost;
+        this.minChangeCost = changeTimeNeeded;
     }
 
     public Set<Station> getContained() {
@@ -145,8 +146,7 @@ public class StationGroup implements Location<StationGroup> {
         return flatten(Station::getTransportModes);
     }
 
-    // TODO Wire this up
-    public int getMinimumChangeCost() {
+    public Duration getMinimumChangeCost() {
         return minChangeCost;
     }
 
