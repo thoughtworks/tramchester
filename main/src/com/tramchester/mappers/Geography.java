@@ -86,9 +86,7 @@ public class Geography {
                 collect(Streams.toArray(Coordinate.class));
 
         MultiPoint multiPoint = geometryFactoryLatLong.createMultiPointFromCoords(coords);
-
-        org.locationtech.jts.algorithm.ConvexHull
-
+        
         Geometry boundary = multiPoint.convexHull().getBoundary();
 
         if (boundary.getNumPoints()==0) {
