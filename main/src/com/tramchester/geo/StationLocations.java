@@ -12,7 +12,6 @@ import com.tramchester.mappers.Geography;
 import com.tramchester.repository.PlatformRepository;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.repository.naptan.NaptanRespository;
-import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -243,7 +242,6 @@ public class StationLocations implements StationLocationsRepository {
                         map(y -> new BoundingBox(x, y, x + gridSize, y + gridSize)));
     }
 
-    @NotNull
     private Set<BoundingBox> getQuadrantsWithinRange(GridPosition position, MarginInMeters range) {
         return this.quadrants.stream().
                 filter(quadrant -> quadrant.within(range, position)).collect(Collectors.toSet());

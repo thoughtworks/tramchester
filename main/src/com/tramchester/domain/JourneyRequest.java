@@ -1,10 +1,13 @@
 package com.tramchester.domain;
 
+import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramServiceDate;
 import com.tramchester.domain.time.TramTime;
 
 import java.time.Duration;
 import java.time.LocalDate;
+import java.util.Collections;
+import java.util.Set;
 import java.util.UUID;
 
 public class JourneyRequest {
@@ -15,6 +18,8 @@ public class JourneyRequest {
     private final UUID uid;
     private final Duration maxJourneyDuration;
     private final long maxNumberOfJourneys;
+
+    private Set<TransportMode> requestedModes;
 
     private boolean diagnostics;
     private boolean warnIfNoResults;
@@ -33,6 +38,7 @@ public class JourneyRequest {
         this.maxJourneyDuration = maxJourneyDuration;
         this.maxNumberOfJourneys = maxNumberOfJourneys;
         this.uid = UUID.randomUUID();
+        requestedModes = Collections.emptySet(); // empty means use all
         
         diagnostics = false;
         warnIfNoResults = true;
@@ -126,8 +132,15 @@ public class JourneyRequest {
                 ", uid=" + uid +
                 ", maxJourneyDuration=" + maxJourneyDuration +
                 ", maxNumberOfJourneys=" + maxNumberOfJourneys +
-                ", diagnostics=" + diagnostics +
-                ", warnIfNoResults=" + warnIfNoResults +
+                ", allowedModes=" + requestedModes +
                 '}';
+    }
+
+    public void setRequestedModes(Set<TransportMode> allowedModes) {
+        this.requestedModes = allowedModes;
+    }
+
+    public Set<TransportMode> getRequestedModes() {
+        return requestedModes;
     }
 }

@@ -26,6 +26,7 @@ import org.neo4j.graphdb.Transaction;
 
 import java.time.Duration;
 import java.time.LocalDate;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
@@ -89,12 +90,22 @@ public class RailAndTramRouteCalculatorTest {
     }
 
     @Test
-    void shouldHaveMaxHopsBetweenTramAndRail() {
+    void shouldValidHopsBetweenTramAndRail() {
         RouteToRouteCosts routeToRouteCosts = componentContainer.get(RouteToRouteCosts.class);
-        NumberOfChanges result = routeToRouteCosts.getNumberOfChanges(tram(TramStations.Bury), rail(Stockport));
+        NumberOfChanges result = routeToRouteCosts.getNumberOfChanges(tram(TramStations.Bury), rail(Stockport), Collections.emptySet());
 
         assertTrue(result.getMin()!=Integer.MAX_VALUE);
         assertTrue(result.getMax()!=Integer.MAX_VALUE);
+    }
+
+    @Test
+    void shouldNotHaveHopsBetweenTramAndRailWhenTramOnly() {
+        RouteToRouteCosts routeToRouteCosts = componentContainer.get(RouteToRouteCosts.class);
+        NumberOfChanges result = routeToRouteCosts.getNumberOfChanges(tram(TramStations.Bury), rail(Stockport),
+                Collections.singleton(Tram));
+
+        assertEquals(Integer.MAX_VALUE, result.getMin());
+        assertEquals(Integer.MAX_VALUE, result.getMax());
     }
 
     @Test
@@ -113,6 +124,19 @@ public class RailAndTramRouteCalculatorTest {
                 Duration.ofMinutes(30), 1);
 
         atLeastOneDirect(request, rail(ManchesterPiccadilly), rail(Stockport), Train);
+    }
+
+    @Test
+    void shouldNotHaveManPiccToStockportWhenTramOnly() {
+
+        JourneyRequest request = new JourneyRequest(new TramServiceDate(when), travelTime, false, 0,
+                Duration.ofMinutes(30), 1);
+
+        request.setRequestedModes(Collections.singleton(Tram));
+
+        Set<Journey> journeys = testFacade.calculateRouteAsSet(rail(ManchesterPiccadilly), rail(Stockport), request);
+        assertTrue(journeys.isEmpty());
+
     }
 
     @Test

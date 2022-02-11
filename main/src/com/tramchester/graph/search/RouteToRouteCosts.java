@@ -12,6 +12,7 @@ import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.places.InterchangeStation;
 import com.tramchester.domain.places.Location;
 import com.tramchester.domain.places.StationGroup;
+import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.graph.filters.GraphFilterActive;
 import com.tramchester.repository.InterchangeRepository;
 import com.tramchester.repository.NeighboursRepository;
@@ -213,11 +214,11 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
     public NumberOfChanges getNumberOfChanges(LocationSet starts, LocationSet destinations) {
         if (starts.stream().allMatch(station -> station.getPickupRoutes().isEmpty())) {
             logger.warn(format("start stations %s have no pick-up routes", HasId.asIds(starts)));
-            return new NumberOfChanges(Integer.MAX_VALUE, Integer.MAX_VALUE);
+            return NumberOfChanges.None();
         }
         if (destinations.stream().allMatch(station -> station.getDropoffRoutes().isEmpty())) {
             logger.warn(format("destination stations %s have no drop-off routes",  HasId.asIds(destinations)));
-            return new NumberOfChanges(Integer.MAX_VALUE, Integer.MAX_VALUE);
+            return NumberOfChanges.None();
         }
         if (neighboursRepository.areNeighbours(starts, destinations)) {
             return new NumberOfChanges(0, maxHops(pickupRoutesFor(starts), dropoffRoutesFor(destinations)));
@@ -226,21 +227,46 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
     }
 
     @Override
-    public NumberOfChanges getNumberOfChanges(Location<?> startStation, Location<?> destination) {
+    public NumberOfChanges getNumberOfChanges(Location<?> startStation, Location<?> destination,
+                                              Set<TransportMode> preferredModes) {
         if (neighboursRepository.areNeighbours(startStation, destination)) {
             return new NumberOfChanges(1, 1);
         }
-        if (startStation.getPickupRoutes().isEmpty()) {
+
+        final Set<Route> pickupRoutes = startStation.getPickupRoutes();
+        final Set<Route> dropoffRoutes = destination.getDropoffRoutes();
+
+        if (pickupRoutes.isEmpty()) {
             logger.warn(format("start station %s has no pick-up routes", startStation));
-            return new NumberOfChanges(Integer.MAX_VALUE, Integer.MAX_VALUE);
+            return NumberOfChanges.None();
         }
-        if (destination.getDropoffRoutes().isEmpty()) {
+        if (dropoffRoutes.isEmpty()) {
             logger.warn(format("destination station %s has no drop-off routes", destination));
-            return new NumberOfChanges(Integer.MAX_VALUE, Integer.MAX_VALUE);
+            return NumberOfChanges.None();
         }
-        return getNumberOfHops(startStation.getPickupRoutes(), destination.getDropoffRoutes());
+
+        if (preferredModes.isEmpty()) {
+            return getNumberOfHops(pickupRoutes, dropoffRoutes);
+        } else {
+            final Set<Route> filteredPickupRoutes = filterForModes(preferredModes, pickupRoutes);
+            final Set<Route> filteredDropoffRoutes = filterForModes(preferredModes, dropoffRoutes);
+
+            if (filteredPickupRoutes.isEmpty() || filteredDropoffRoutes.isEmpty()) {
+                logger.warn(format("No paths between routes %s and %s due to preferredModes modes %s, filtering gave %s and %s",
+                        HasId.asIds(pickupRoutes), HasId.asIds(dropoffRoutes), preferredModes, HasId.asIds(filteredPickupRoutes),
+                        HasId.asIds(filteredDropoffRoutes)));
+                return NumberOfChanges.None();
+            }
+
+            return getNumberOfHops(filteredPickupRoutes, filteredDropoffRoutes);
+        }
+
     }
 
+    @NotNull
+    private Set<Route> filterForModes(Set<TransportMode> modes, Set<Route> routes) {
+        return routes.stream().filter(route -> modes.contains(route.getTransportMode())).collect(Collectors.toSet());
+    }
 
     @Override
     public LowestCostsForDestRoutes getLowestCostCalcutatorFor(LocationSet destinations) {

@@ -8,6 +8,7 @@ import com.tramchester.domain.LocationSet;
 import com.tramchester.domain.NumberOfChanges;
 import com.tramchester.domain.places.Location;
 import com.tramchester.domain.places.StationWalk;
+import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.CreateQueryTimes;
 import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.domain.time.TramServiceDate;
@@ -80,7 +81,7 @@ public class RouteCalculator extends RouteCalculatorSupport implements TramRoute
 
         final List<TramTime> queryTimes = createQueryTimes.generate(journeyRequest.getOriginalTime());
 
-        NumberOfChanges numberOfChanges =  routeToRouteCosts.getNumberOfChanges(start, destination);
+        NumberOfChanges numberOfChanges =  routeToRouteCosts.getNumberOfChanges(start, destination, journeyRequest.getRequestedModes());
         return getJourneyStream(txn, startNode, endNode, journeyRequest, destinations, queryTimes, numberOfChanges).
                 limit(journeyRequest.getMaxNumberOfJourneys());
     }
@@ -127,6 +128,11 @@ public class RouteCalculator extends RouteCalculatorSupport implements TramRoute
             return Stream.empty();
         }
 
+        Set<TransportMode> requestedModes = journeyRequest.getRequestedModes();
+        if (!requestedModes.isEmpty()) {
+            logger.info("Specific modes requested " + requestedModes);
+        }
+
         // TODO groups will need their own method, or get expanded much earlier on
         //final Set<Station> destinations = GroupedStations.expandStations(unexpanded);
 //        if (destinations.size()!=unexpanded.size()) {
@@ -152,7 +158,7 @@ public class RouteCalculator extends RouteCalculatorSupport implements TramRoute
 
         final Stream<Journey> results = numChangesRange(journeyRequest, numberOfChanges).
                 flatMap(numChanges -> queryTimes.stream().
-                        map(queryTime -> createPathRequest(startNode, queryDate, queryTime, numChanges, journeyConstraints))).
+                        map(queryTime -> createPathRequest(startNode, queryDate, queryTime, requestedModes, numChanges, journeyConstraints))).
                 flatMap(pathRequest -> findShortestPath(txn, destinationNodeIds, destinations,
                         createServiceReasons(journeyRequest, pathRequest), pathRequest, lowestCostsForRoutes, createPreviousVisits(),
                         lowestCostSeen, begin)).
@@ -166,8 +172,6 @@ public class RouteCalculator extends RouteCalculatorSupport implements TramRoute
 
         return results;
     }
-
-
 
     public static class TimedPath {
         private final Path path;

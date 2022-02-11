@@ -7,8 +7,8 @@ import com.tramchester.domain.Journey;
 import com.tramchester.domain.JourneyRequest;
 import com.tramchester.domain.LocationSet;
 import com.tramchester.domain.NumberOfChanges;
-import com.tramchester.domain.places.StationGroup;
 import com.tramchester.domain.places.Station;
+import com.tramchester.domain.places.StationGroup;
 import com.tramchester.domain.presentation.TransportStage;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramServiceDate;
@@ -18,8 +18,8 @@ import com.tramchester.graph.search.RouteCalculator;
 import com.tramchester.graph.search.RouteToRouteCosts;
 import com.tramchester.integration.testSupport.NeighboursTestConfig;
 import com.tramchester.integration.testSupport.RouteCalculatorTestFacade;
-import com.tramchester.repository.StationGroupsRepository;
 import com.tramchester.repository.InterchangeRepository;
+import com.tramchester.repository.StationGroupsRepository;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.resources.LocationJourneyPlanner;
 import com.tramchester.testSupport.LocationJourneyPlannerTestFacade;
@@ -106,11 +106,11 @@ public class NeighbourJourneysTest {
     @Test
     void shouldHaveCorrectRouteToRouteHopsWhenNeighbours() {
 
-        NumberOfChanges busToTramHops = routeToRouteCosts.getNumberOfChanges(shudehillBusStop, shudehillTram);
+        NumberOfChanges busToTramHops = routeToRouteCosts.getNumberOfChanges(shudehillBusStop, shudehillTram, Collections.emptySet());
         assertEquals(1, busToTramHops.getMin());
         assertEquals(1, busToTramHops.getMax());
 
-        NumberOfChanges tramToBusHops = routeToRouteCosts.getNumberOfChanges(shudehillTram, shudehillBusStop);
+        NumberOfChanges tramToBusHops = routeToRouteCosts.getNumberOfChanges(shudehillTram, shudehillBusStop, Collections.emptySet());
         assertEquals(1, tramToBusHops.getMin());
         assertEquals(1, tramToBusHops.getMax());
     }
@@ -145,7 +145,7 @@ public class NeighbourJourneysTest {
 
     @Test
     void shouldFindMaxRouteHopsBetweenModes() {
-        NumberOfChanges hops = routeToRouteCosts.getNumberOfChanges(shudehillTram, shudehillBusStop);
+        NumberOfChanges hops = routeToRouteCosts.getNumberOfChanges(shudehillTram, shudehillBusStop, Collections.emptySet());
         assertEquals(1, hops.getMax());
     }
 

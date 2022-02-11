@@ -3,6 +3,7 @@ package com.tramchester.graph.search;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.Service;
 import com.tramchester.domain.id.IdFor;
+import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.search.stateMachine.HowIGotHere;
@@ -13,13 +14,11 @@ import static java.lang.String.format;
 
 public abstract class ServiceReason {
 
-
-
     public enum ReasonCode {
 
         ServiceDateOk, ServiceTimeOk, NumChangesOK, TimeOk, HourOk, Reachable, ReachableNoCheck, DurationOk,
         WalkOk, StationOpen, Continue, NumConnectionsOk, NumWalkingConnectionsOk, NeighbourConnectionsOk,
-        ReachableSameRoute,
+        ReachableSameRoute, TransportModeOk,
 
         NotOnQueryDate,
         RouteNotOnQueryDate,
@@ -34,6 +33,7 @@ public abstract class ServiceReason {
         HigherCostViaExchange,
         PathTooLong,
         AlreadySeenStation,
+        TransportModeWrong,
 
         ReturnedToStart,
         TooManyChanges,
@@ -336,6 +336,22 @@ public abstract class ServiceReason {
 
     //////////////
 
+    private static class TransportModeWrong extends ServiceReason {
+        private final RouteStation routeStation;
+
+        protected TransportModeWrong(HowIGotHere howIGotHere, RouteStation routeStation) {
+            super(ReasonCode.TransportModeWrong, howIGotHere);
+            this.routeStation = routeStation;
+        }
+
+        @Override
+        public String textForGraph() {
+            return format("%s%s%s", ReasonCode.TransportModeWrong.name(), System.lineSeparator(), routeStation.getId());
+        }
+    }
+
+    //////////////
+
     private static class ServiceDoesNotOperateOnTime extends DoesNotOperateOnTime {
 
         private final IdFor<Service> serviceId;
@@ -468,6 +484,11 @@ public abstract class ServiceReason {
 
     public static ServiceReason TimedOut(HowIGotHere howIGotHere) {
         return new TimedOut(howIGotHere);
+    }
+
+
+    public static ServiceReason TransportModeWrong(HowIGotHere howIGotHere, RouteStation routeStation) {
+        return new ServiceReason.TransportModeWrong(howIGotHere, routeStation);
     }
 
     public static ServiceReason RouteNotToday(HowIGotHere howIGotHere, IdFor<Route> id) {

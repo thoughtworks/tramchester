@@ -12,6 +12,7 @@ import com.tramchester.domain.Route;
 import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.places.Station;
+import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.graph.search.BetweenRoutesCostRepository;
 import com.tramchester.graph.search.LowestCostsForDestRoutes;
 import com.tramchester.graph.search.RouteToRouteCosts;
@@ -29,6 +30,8 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static com.tramchester.domain.reference.TransportMode.Train;
+import static com.tramchester.domain.reference.TransportMode.Tram;
 import static com.tramchester.testSupport.reference.KnownTramRoute.*;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -41,6 +44,7 @@ public class RouteToRouteCostsTest {
     private RouteRepository routeRepository;
     private static Path indexFile;
     private StationRepository stationRepository;
+    private final Set<TransportMode> modes = Collections.singleton(Tram);
 
     @BeforeAll
     static void onceBeforeAnyTestRuns() {
@@ -157,45 +161,57 @@ public class RouteToRouteCostsTest {
 
     @Test
     void shouldFindLowestHopCountForTwoStations() {
-        Station start = stationRepository.getStationById(TramStations.Altrincham.getId());
-        Station end = stationRepository.getStationById(TramStations.ManAirport.getId());
-        NumberOfChanges result = routesCostRepository.getNumberOfChanges(start, end);
+        Station start = TramStations.Altrincham.from(stationRepository);
+        Station end = TramStations.ManAirport.from(stationRepository);
+        NumberOfChanges result = routesCostRepository.getNumberOfChanges(start, end, modes);
 
         assertEquals(1, result.getMin());
     }
 
     @Test
     void shouldFindHighestHopCountForTwoStations() {
-        Station start = stationRepository.getStationById(TramStations.Ashton.getId());
-        Station end = stationRepository.getStationById(TramStations.ManAirport.getId());
-        NumberOfChanges result = routesCostRepository.getNumberOfChanges(start, end);
+        Station start = TramStations.Ashton.from(stationRepository);
+        Station end = TramStations.ManAirport.from(stationRepository);
+        NumberOfChanges result = routesCostRepository.getNumberOfChanges(start, end, modes);
 
         assertEquals(1, result.getMax());
     }
 
     @Test
     void shouldFindLowestHopCountForTwoStationsSameRoute() {
-        Station start = stationRepository.getStationById(TramStations.Victoria.getId());
-        Station end = stationRepository.getStationById(TramStations.ManAirport.getId());
-        NumberOfChanges result = routesCostRepository.getNumberOfChanges(start, end);
+        Station start = TramStations.Victoria.from(stationRepository);
+        Station end = TramStations.ManAirport.from(stationRepository);
+        NumberOfChanges result = routesCostRepository.getNumberOfChanges(start, end, modes);
 
         assertEquals(0, result.getMin());
     }
 
     @Test
+    void shouldFindNoHopeIfWrongTransportMode() {
+        Station start = TramStations.Victoria.from(stationRepository);
+        Station end = TramStations.ManAirport.from(stationRepository);
+
+        NumberOfChanges result = routesCostRepository.getNumberOfChanges(start, end, Collections.singleton(Train));
+
+        assertEquals(Integer.MAX_VALUE, result.getMin());
+        assertEquals(Integer.MAX_VALUE, result.getMax());
+
+    }
+
+    @Test
     void shouldFindMediaCityHops() {
-        Station start = stationRepository.getStationById(TramStations.MediaCityUK.getId());
-        Station end = stationRepository.getStationById(TramStations.Ashton.getId());
-        NumberOfChanges result = routesCostRepository.getNumberOfChanges(start, end);
+        Station start = TramStations.MediaCityUK.from(stationRepository);
+        Station end = TramStations.Ashton.from(stationRepository);
+        NumberOfChanges result = routesCostRepository.getNumberOfChanges(start, end, modes);
 
         assertEquals(0, result.getMin());
     }
 
     @Test
     void shouldFindHighestHopCountForTwoStationsSameRoute() {
-        Station start = stationRepository.getStationById(TramStations.Victoria.getId());
-        Station end = stationRepository.getStationById(TramStations.ManAirport.getId());
-        NumberOfChanges result = routesCostRepository.getNumberOfChanges(start, end);
+        Station start = TramStations.Victoria.from(stationRepository);
+        Station end = TramStations.ManAirport.from(stationRepository);
+        NumberOfChanges result = routesCostRepository.getNumberOfChanges(start, end, modes);
 
         assertEquals(1, result.getMax());
     }
@@ -207,7 +223,7 @@ public class RouteToRouteCostsTest {
         Set<Route> routesB = routeHelper.get(VictoriaWythenshaweManchesterAirport, routeRepository);
         Set<Route> routesC = routeHelper.get(BuryPiccadilly, routeRepository);
 
-        Station destination = stationRepository.getStationById(TramStations.TraffordCentre.getId());
+        Station destination = TramStations.TraffordCentre.from(stationRepository);
         LowestCostsForDestRoutes sorts = routesCostRepository.getLowestCostCalcutatorFor(LocationSet.singleton(destination));
 
         routesA.forEach(routeA -> routesB.forEach(routeB -> routesC.forEach(routeC -> {

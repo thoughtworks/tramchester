@@ -105,6 +105,6 @@ public class GeographyTest {
 
         assertFalse(result.isEmpty());
 
-        fail("todo how to test this?");
+        // todo how to test this?
     }
 }

@@ -1,10 +1,12 @@
 package com.tramchester.graph.search;
 
+import com.google.common.collect.Sets;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.Service;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
+import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.caches.LowestCostSeen;
 import com.tramchester.graph.caches.NodeContentsRepository;
@@ -19,6 +21,7 @@ import org.slf4j.LoggerFactory;
 
 import java.time.Duration;
 import java.util.EnumSet;
+import java.util.Set;
 
 public class ServiceHeuristics {
 
@@ -148,6 +151,16 @@ public class ServiceHeuristics {
 
     }
 
+    public ServiceReason checkModes(Node node, final Set<TransportMode> requestedModes, HowIGotHere howIGotHere, ServiceReasons reasons) {
+        IdFor<RouteStation> routeStationId = nodeOperations.getRouteStationId(node);
+        RouteStation routeStation = stationRepository.getRouteStationById(routeStationId);
+
+        if (Sets.intersection(requestedModes, routeStation.getTransportModes()).isEmpty()) {
+            return reasons.recordReason(ServiceReason.TransportModeWrong(howIGotHere, routeStation));
+        }
+        return valid(ServiceReason.ReasonCode.TransportModeOk, howIGotHere, reasons);
+    }
+
     public ServiceReason canReachDestination(Node endNode, int currentNumberOfChanges, HowIGotHere howIGotHere,
                                              ServiceReasons reasons, TramTime currentElapsed) {
         reasons.incrementTotalChecked();
@@ -239,4 +252,6 @@ public class ServiceHeuristics {
         }
         return valid(ServiceReason.ReasonCode.Continue, howIGotHere, reasons);
     }
+
+
 }

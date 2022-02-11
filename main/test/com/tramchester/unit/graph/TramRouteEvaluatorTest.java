@@ -148,8 +148,9 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
         Set<Long> destinationNodeIds = new HashSet<>();
         destinationNodeIds.add(destinationNodeId);
         Instant begin = Instant.now();
+        Set<TransportMode> requestedModes = Collections.emptySet(); // empty means all
         return new TramRouteEvaluator(serviceHeuristics, destinationNodeIds, contentsRepository,
-                reasons, previousSuccessfulVisit, lowestCostSeen, config, startNodeId, begin, providesNow);
+                reasons, previousSuccessfulVisit, lowestCostSeen, config, startNodeId, begin, providesNow, requestedModes);
     }
 
     @Test

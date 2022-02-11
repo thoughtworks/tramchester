@@ -3,6 +3,7 @@ package com.tramchester.graph.search;
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.*;
+import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.domain.time.TramServiceDate;
 import com.tramchester.domain.time.TramTime;
@@ -70,10 +71,12 @@ public class RouteCalculatorForBoxes extends RouteCalculatorSupport {
 
         final TramServiceDate queryDate = journeyRequest.getDate();
 
-        final LowestCostsForDestRoutes lowestCostForDestinations = routeToRouteCosts.getLowestCostCalcutatorFor(destinations);
-        RunningRoutesAndServices.FilterForDate routeAndServicesFilter = runningRoutesAndService.getFor(queryDate.getDate());
+        final Set<TransportMode> requestedModes = journeyRequest.getRequestedModes();
 
-        Duration maxJourneyDuration = journeyRequest.getMaxJourneyDuration();
+        final LowestCostsForDestRoutes lowestCostForDestinations = routeToRouteCosts.getLowestCostCalcutatorFor(destinations);
+        final RunningRoutesAndServices.FilterForDate routeAndServicesFilter = runningRoutesAndService.getFor(queryDate.getDate());
+
+        final Duration maxJourneyDuration = journeyRequest.getMaxJourneyDuration();
         final JourneyConstraints journeyConstraints = new JourneyConstraints(config, routeAndServicesFilter, journeyRequest, closedStationsRepository,
                 destinations, lowestCostForDestinations, maxJourneyDuration);
 
@@ -90,11 +93,12 @@ public class RouteCalculatorForBoxes extends RouteCalculatorSupport {
             final Instant begin = providesNow.getInstant();
 
             try(Transaction txn = graphDatabaseService.beginTx()) {
+
                 Stream<Journey> journeys = startingStations.stream().
                         filter(start -> !destinations.contains(start)).
                         map(start -> getLocationNodeSafe(txn, start)).
                         flatMap(startNode -> numChangesRange(journeyRequest, numberOfChanges).
-                                map(numChanges -> createPathRequest(startNode, queryDate, originalTime, numChanges, journeyConstraints))).
+                                map(numChanges -> createPathRequest(startNode, queryDate, originalTime, requestedModes, numChanges, journeyConstraints))).
                         flatMap(pathRequest -> findShortestPath(txn, destinationNodeIds, destinations,
                                 createServiceReasons(journeyRequest, originalTime), pathRequest, journeyConstraints.getFewestChangesCalculator(),
                                 createPreviousVisits(), lowestCostSeenForBox, begin)).

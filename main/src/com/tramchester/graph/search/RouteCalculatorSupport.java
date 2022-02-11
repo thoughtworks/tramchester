@@ -142,7 +142,8 @@ public class RouteCalculatorSupport {
     public Stream<RouteCalculator.TimedPath> findShortestPath(Transaction txn, Set<Long> destinationNodeIds,
                                                               final LocationSet endStations,
                                                               ServiceReasons reasons, PathRequest pathRequest,
-                                                              LowestCostsForDestRoutes lowestCostsForRoutes, PreviousVisits previousSuccessfulVisit,
+                                                              LowestCostsForDestRoutes lowestCostsForRoutes,
+                                                              PreviousVisits previousSuccessfulVisit,
                                                               LowestCostSeen lowestCostSeen, Instant begin) {
 
         TramNetworkTraverser tramNetworkTraverser = new TramNetworkTraverser(graphDatabaseService,
@@ -239,9 +240,10 @@ public class RouteCalculatorSupport {
         }
     }
 
-    public PathRequest createPathRequest(Node startNode, TramServiceDate queryDate, TramTime actualQueryTime, int numChanges, JourneyConstraints journeyConstraints) {
+    public PathRequest createPathRequest(Node startNode, TramServiceDate queryDate, TramTime actualQueryTime, Set<TransportMode>
+            requestedModes, int numChanges, JourneyConstraints journeyConstraints) {
         ServiceHeuristics serviceHeuristics = createHeuristics(actualQueryTime, journeyConstraints, numChanges);
-        return new PathRequest(startNode, queryDate, actualQueryTime, numChanges, serviceHeuristics);
+        return new PathRequest(startNode, queryDate, actualQueryTime, numChanges, serviceHeuristics, requestedModes);
     }
 
     public static class PathRequest {
@@ -250,13 +252,15 @@ public class RouteCalculatorSupport {
         private final int numChanges;
         private final ServiceHeuristics serviceHeuristics;
         private final TramServiceDate queryDate;
+        private final Set<TransportMode> requestedModes;
 
-        public PathRequest(Node startNode, TramServiceDate queryDate, TramTime queryTime, int numChanges, ServiceHeuristics serviceHeuristics) {
+        public PathRequest(Node startNode, TramServiceDate queryDate, TramTime queryTime, int numChanges, ServiceHeuristics serviceHeuristics, Set<TransportMode> requestedModes) {
             this.startNode = startNode;
             this.queryDate = queryDate;
             this.queryTime = queryTime;
             this.numChanges = numChanges;
             this.serviceHeuristics = serviceHeuristics;
+            this.requestedModes = requestedModes;
         }
 
         public ServiceHeuristics getServiceHeuristics() {
@@ -279,11 +283,16 @@ public class RouteCalculatorSupport {
                     ", numChanges=" + numChanges +
                     ", serviceHeuristics=" + serviceHeuristics +
                     ", queryDate=" + queryDate +
+                    ", requestedModes=" + requestedModes +
                     '}';
         }
 
         public TramServiceDate getQueryDate() {
             return queryDate;
+        }
+
+        public Set<TransportMode> getRequestedModes() {
+            return requestedModes;
         }
     }
 

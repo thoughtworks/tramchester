@@ -85,7 +85,7 @@ public class TramNetworkTraverser implements PathExpander<JourneyState> {
         Instant begin = providesNow.getInstant();
         final TramRouteEvaluator tramRouteEvaluator = new TramRouteEvaluator(pathRequest.getServiceHeuristics(),
                 destinationNodeIds, nodeContentsRepository, reasons, previousSuccessfulVisit, lowestCostSeen, config,
-                startNode.getId(), begin, providesNow);
+                startNode.getId(), begin, providesNow, pathRequest.getRequestedModes());
 
         LatLong destinationLatLon = sortsPosition.midPointFrom(destinations);
 

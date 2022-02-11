@@ -9,6 +9,10 @@ public class NumberOfChanges {
         this.max = max;
     }
 
+    public static NumberOfChanges None() {
+        return new NumberOfChanges(Integer.MAX_VALUE, Integer.MAX_VALUE);
+    }
+
     public int getMax() {
         return max;
     }

@@ -1,6 +1,7 @@
 package com.tramchester.graph.search;
 
 import com.tramchester.config.TramchesterConfig;
+import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.caches.LowestCostSeen;
@@ -34,6 +35,7 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
     private final ServiceHeuristics serviceHeuristics;
     private final NodeContentsRepository nodeContentsRepository;
     private final ProvidesNow providesNow;
+    private final Set<TransportMode> requestedModes;
 
     private final Set<Long> destinationNodeIds;
     private final ServiceReasons reasons;
@@ -45,11 +47,12 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
     private final long startNodeId;
     private final Instant begin;
     private final long timeout;
+    private final boolean allModes;
 
     public TramRouteEvaluator(ServiceHeuristics serviceHeuristics, Set<Long> destinationNodeIds,
                               NodeContentsRepository nodeContentsRepository, ServiceReasons reasons,
                               PreviousVisits previousVisits, LowestCostSeen bestResultSoFar, TramchesterConfig config,
-                              long startNodeId, Instant begin, ProvidesNow providesNow) {
+                              long startNodeId, Instant begin, ProvidesNow providesNow, Set<TransportMode> requestedModes) {
         this.serviceHeuristics = serviceHeuristics;
         this.destinationNodeIds = destinationNodeIds;
         this.nodeContentsRepository = nodeContentsRepository;
@@ -62,6 +65,8 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
         this.startNodeId = startNodeId;
         this.begin = begin;
         this.providesNow = providesNow;
+        this.requestedModes = requestedModes;
+        allModes = requestedModes.isEmpty();
     }
 
     @Override
@@ -99,14 +104,15 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
     public static Evaluation decideEvaluationAction(ServiceReason.ReasonCode code) {
         return switch (code) {
             case ServiceDateOk, ServiceTimeOk, NumChangesOK, NumConnectionsOk, TimeOk, HourOk, Reachable, ReachableNoCheck,
-                    DurationOk, WalkOk, StationOpen, Continue, ReachableSameRoute
+                    DurationOk, WalkOk, StationOpen, Continue, ReachableSameRoute, TransportModeOk
                     -> Evaluation.INCLUDE_AND_CONTINUE;
             case Arrived
                     -> Evaluation.INCLUDE_AND_PRUNE;
             case HigherCost, ReturnedToStart, PathTooLong, TooManyChanges, TooManyWalkingConnections, NotReachable,
                     TookTooLong, ServiceNotRunningAtTime, NotAtHour, DoesNotOperateOnTime, NotOnQueryDate, MoreChanges,
                     AlreadyDeparted, StationClosed, TooManyNeighbourConnections, TimedOut, RouteNotOnQueryDate, HigherCostViaExchange,
-                    ExchangeNotReachable, TooManyRouteChangesRequired, TooManyInterchangesRequired, AlreadySeenStation
+                    ExchangeNotReachable, TooManyRouteChangesRequired, TooManyInterchangesRequired, AlreadySeenStation,
+                    TransportModeWrong
                     -> Evaluation.EXCLUDE_AND_PRUNE;
             case OnTram, OnBus, OnTrain, NotOnVehicle, CachedUNKNOWN, PreviousCacheMiss, NumWalkingConnectionsOk,
                     NeighbourConnectionsOk, OnShip, OnSubway, OnWalk, CachedNotAtHour,
@@ -224,6 +230,14 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
         // is reachable from here and is route operating today?
         // is the station open?
         if (nodeLabels.contains(GraphLabel.ROUTE_STATION)) {
+
+            if (!allModes) {
+                ServiceReason forMode = serviceHeuristics.checkModes(nextNode, requestedModes, howIGotHere, reasons);
+                if (!forMode.isValid()) {
+                    return forMode.getReasonCode();
+                }
+            }
+
             final ServiceReason reachDestination = serviceHeuristics.canReachDestination(nextNode, journeyState.getNumberChanges(),
                     howIGotHere, reasons, visitingTime);
             if (!reachDestination.isValid()) {
