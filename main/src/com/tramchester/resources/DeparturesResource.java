@@ -6,6 +6,7 @@ import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.StringIdFor;
+import com.tramchester.domain.places.MyLocation;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.Note;
 import com.tramchester.domain.time.TramServiceDate;
@@ -76,8 +77,9 @@ public class DeparturesResource extends TransportResource implements APIResource
         MarginInMeters margin = MarginInMeters.of(config.getNearestStopRangeKM());
         logger.info("Get departures within " + margin + " of " + latLong + " at " + queryTimeRaw);
 
-        List<Station> nearbyStations = stationLocations.nearestStationsSorted(latLong,
-                config.getNumOfNearestStopsToOffer(), margin);
+        MyLocation location = new MyLocation(latLong);
+
+        List<Station> nearbyStations = stationLocations.nearestStationsSorted(location, config.getNumOfNearestStopsToOffer(), margin);
 
         LocalDate localDate = providesNow.getDate();
         TramServiceDate queryDate = new TramServiceDate(localDate);

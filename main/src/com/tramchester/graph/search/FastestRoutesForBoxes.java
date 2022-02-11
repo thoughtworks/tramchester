@@ -5,9 +5,9 @@ import com.tramchester.domain.*;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.geo.BoundingBoxWithStations;
-import com.tramchester.geo.FindNear;
 import com.tramchester.geo.GridPosition;
 import com.tramchester.geo.StationLocations;
+import com.tramchester.mappers.Geography;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,11 +26,13 @@ public class FastestRoutesForBoxes {
 
     private final StationLocations stationLocations;
     private final RouteCalculatorForBoxes calculator;
+    private final Geography geography;
 
     @Inject
-    public FastestRoutesForBoxes(StationLocations stationLocations, RouteCalculatorForBoxes calculator) {
+    public FastestRoutesForBoxes(StationLocations stationLocations, RouteCalculatorForBoxes calculator, Geography geography) {
         this.stationLocations = stationLocations;
         this.calculator = calculator;
+        this.geography = geography;
     }
 
     public Stream<BoundingBoxWithCost> findForGrid(Station destination, long gridSize, JourneyRequest journeyRequest)  {
@@ -62,7 +64,7 @@ public class FastestRoutesForBoxes {
 
     private List<BoundingBoxWithStations> sortGridNearestFirst(Set<BoundingBoxWithStations> searchGrid, GridPosition destinationGrid) {
         return searchGrid.stream().
-                sorted((a,b) -> FindNear.compareDistancesNearestFirst(destinationGrid, a.getMidPoint(), b.getMidPoint())).
+                sorted((a,b) -> geography.chooseNearestToGrid(destinationGrid, a.getMidPoint(), b.getMidPoint())).
                 collect(Collectors.toList());
     }
 

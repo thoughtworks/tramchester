@@ -1,8 +1,8 @@
 package com.tramchester.unit.geo;
 
 import com.tramchester.domain.DataSourceID;
+import com.tramchester.domain.places.MyLocation;
 import com.tramchester.domain.places.Station;
-import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.geo.*;
 import com.tramchester.mappers.Geography;
 import com.tramchester.repository.PlatformRepository;
@@ -28,13 +28,15 @@ class StationLocationsTest extends EasyMockSupport {
     private StationLocations stationLocations;
     private StationRepository stationRepository;
     private NaptanRespository naptanRespository;
+    private Geography geography;
 
     @BeforeEach
     void onceBeforeEachTest() {
         stationRepository = createMock(StationRepository.class);
         naptanRespository = createMock(NaptanRespository.class);
         PlatformRepository platformRepository = createMock(PlatformRepository.class);
-        Geography geography = createMock(Geography.class);
+        geography = createMock(Geography.class);
+
         stationLocations = new StationLocations(stationRepository, platformRepository, naptanRespository, geography);
     }
 
@@ -74,45 +76,36 @@ class StationLocationsTest extends EasyMockSupport {
 
         MarginInMeters margin = MarginInMeters.of(1600);
 
+        EasyMock.expect(geography.getNearToUnsorted(EasyMock.isA(Geography.LocationsSource.class), EasyMock.eq(nearAltrincham.grid()),
+                EasyMock.eq(margin))).andReturn(Stream.of(stationA));
+        EasyMock.expect(geography.getNearToUnsorted(EasyMock.isA(Geography.LocationsSource.class), EasyMock.eq(nearShudehill.grid()),
+                EasyMock.eq(margin))).andReturn(Stream.of(stationA));
+
         replayAll();
         stationLocations.start();
-        assertTrue(stationLocations.withinRangeOfStation(nearAltrincham.grid(), margin));
-        assertFalse(stationLocations.withinRangeOfStation(nearWythenshaweHosp.grid(), margin));
-        assertTrue(stationLocations.withinRangeOfStation(nearShudehill.grid(), margin));
-        assertFalse(stationLocations.withinRangeOfStation(nearKnutsfordBusStation.grid(), margin));
+        assertTrue(stationLocations.anyStationsWithinRangeOf(nearAltrincham.location(), margin));
+        assertFalse(stationLocations.anyStationsWithinRangeOf(nearWythenshaweHosp.location(), margin));
+        assertTrue(stationLocations.anyStationsWithinRangeOf(nearShudehill.location(), margin));
+        assertFalse(stationLocations.anyStationsWithinRangeOf(nearKnutsfordBusStation.location(), margin));
         verifyAll();
     }
 
     @Test
-    void shouldFindNearbyStation() {
-        MarginInMeters marginInMeters = MarginInMeters.of(1000);
-        KnownLocations place = nearAltrincham;
-
-        Station stationA = createTestStation("id123", "nameA", place);
+    void shouldOrderClosestFirstRespectingNumToFind() {
+        Station stationA = createTestStation("id123", "nameA", nearAltrincham);
         Station stationB = createTestStation("id456", "nameB", nearPiccGardens);
         Station stationC = createTestStation("id789", "nameC", nearShudehill);
 
-        LatLong closePlace = new LatLong(place.latLong().getLat()+0.008, place.latLong().getLon()+0.008);
-        Station stationD = StationHelper.forTest("idABC", "area", "name", closePlace, DataSourceID.tfgm);
+        MyLocation location = nearAltrincham.location();
+        final MarginInMeters rangeInMeters = MarginInMeters.of(20000);
 
-        GridPosition gridA = stationA.getGridPosition();
-        GridPosition gridB = stationD.getGridPosition();
-
-        EasyMock.expect(naptanRespository.isEnabled()).andReturn(false);
-
-        EasyMock.expect(stationRepository.getActiveStationStream()).andStubAnswer(() ->
-                Stream.of(stationA, stationB, stationC, stationD));
+        EasyMock.expect(geography.getNearToSorted(EasyMock.isA(Geography.LocationsSource.class), EasyMock.eq(location.getGridPosition()),
+                        EasyMock.eq(rangeInMeters))).
+                andReturn(Stream.of(stationA, stationB, stationC));
 
         replayAll();
-        stationLocations.start();
-        List<Station> results = stationLocations.nearestStationsSorted(place.latLong(), 3, marginInMeters);
+        List<Station> results = stationLocations.nearestStationsSorted(location, 1, rangeInMeters);
         verifyAll();
-
-        // validate within range on crude measure, but out of range on calculated position
-        assertTrue(GridPositions.withinDistNorthing(gridA, gridB, marginInMeters));
-        assertTrue(GridPositions.withinDistEasting(gridA, gridB, marginInMeters));
-        long distance = GridPositions.distanceTo(gridA, gridB);
-        assertTrue(distance > marginInMeters.get() );
 
         assertEquals(1, results.size());
         assertEquals(stationA, results.get(0));
@@ -124,56 +117,21 @@ class StationLocationsTest extends EasyMockSupport {
         Station stationB = createTestStation("id456", "nameB", nearPiccGardens);
         Station stationC = createTestStation("id789", "nameC", nearShudehill);
 
-        EasyMock.expect(naptanRespository.isEnabled()).andReturn(false);
-        EasyMock.expect(stationRepository.getActiveStationStream()).andStubAnswer(() -> Stream.of(stationA, stationB, stationC));
+        MyLocation location = nearAltrincham.location();
+        final MarginInMeters rangeInMeters = MarginInMeters.of(20000);
+
+        EasyMock.expect(geography.getNearToSorted(EasyMock.isA(Geography.LocationsSource.class), EasyMock.eq(location.getGridPosition()),
+                        EasyMock.eq(rangeInMeters))).
+                andReturn(Stream.of(stationA, stationB, stationC));
 
         replayAll();
-        stationLocations.start();
-        List<Station> results = stationLocations.nearestStationsSorted(nearAltrincham.latLong(), 3,
-                MarginInMeters.of(20000));
+        List<Station> results = stationLocations.nearestStationsSorted(location, 3, rangeInMeters);
         verifyAll();
 
         assertEquals(3, results.size());
         assertEquals(stationA, results.get(0));
         assertEquals(stationB, results.get(1));
         assertEquals(stationC, results.get(2));
-    }
-
-    @Test
-    void shouldRespectLimitOnNumberResults() {
-        Station stationA = createTestStation("id123", "nameA", nearAltrincham);
-        Station stationB = createTestStation("id456", "nameB", nearPiccGardens);
-        Station stationC = createTestStation("id789", "nameC", nearShudehill);
-
-        EasyMock.expect(naptanRespository.isEnabled()).andReturn(false);
-        EasyMock.expect(stationRepository.getActiveStationStream()).andStubAnswer(() -> Stream.of(stationA, stationB, stationC));
-
-        replayAll();
-        stationLocations.start();
-        List<Station> results = stationLocations.nearestStationsSorted(nearAltrincham.latLong(), 1, MarginInMeters.of(20));
-        verifyAll();
-
-        assertEquals(1, results.size());
-        assertEquals(stationA, results.get(0));
-    }
-
-    @Test
-    void shouldFindNearbyStationRespectingRange() {
-        Station testStation = createTestStation("id123", "name", nearAltrincham);
-
-        EasyMock.expect(stationRepository.getActiveStationStream()).andReturn(Stream.of(testStation));
-        EasyMock.expect(stationRepository.getActiveStationStream()).andReturn(Stream.of(testStation));
-
-        replayAll();
-        List<Station> results = stationLocations.nearestStationsSorted(nearPiccGardens.latLong(), 3,
-                MarginInMeters.of(1));
-        List<Station> further = stationLocations.nearestStationsSorted(nearPiccGardens.latLong(), 3,
-                MarginInMeters.of(20000));
-        verifyAll();
-
-        assertEquals(0, results.size());
-        assertEquals(1, further.size());
-        assertEquals(testStation, further.get(0));
     }
 
     @Test

@@ -2,7 +2,9 @@ package com.tramchester.unit.mappers;
 
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.places.Location;
+import com.tramchester.domain.places.MyLocation;
 import com.tramchester.domain.places.Station;
+import com.tramchester.geo.MarginInMeters;
 import com.tramchester.mappers.Geography;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.TramStations;
@@ -15,7 +17,11 @@ import javax.measure.Quantity;
 import javax.measure.quantity.Length;
 import javax.measure.quantity.Time;
 import java.time.Duration;
+import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
+import static com.tramchester.testSupport.reference.KnownLocations.nearAltrincham;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static tec.units.ri.unit.Units.METRE;
 
@@ -67,5 +73,24 @@ public class GeographyTest {
 
         assertEquals(BetweenStPeterSqAndPiccGardens.getValue().doubleValue(),
                 distance.getValue().doubleValue(), 0.1);
+    }
+
+    @Test
+    void shouldGetNearToLocationSorted() {
+        Station stationA = TramStations.Altrincham.fake();
+        Station stationB = TramStations.PiccadillyGardens.fake();
+        Station stationC = TramStations.Shudehill.fake();
+
+        MyLocation myLocation = new MyLocation(nearAltrincham.latLong());
+
+        Geography.LocationsSource<Station> provider = () -> Stream.of(stationC, stationA, stationB);
+
+        List<Station> results = geography.
+                getNearToSorted(provider, myLocation.getGridPosition(), MarginInMeters.of(20000)).collect(Collectors.toList());
+
+        assertEquals(3, results.size());
+        assertEquals(stationA, results.get(0));
+        assertEquals(stationB, results.get(1));
+        assertEquals(stationC, results.get(2));
     }
 }

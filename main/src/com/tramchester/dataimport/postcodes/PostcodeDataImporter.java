@@ -117,7 +117,7 @@ public class PostcodeDataImporter {
                 return new PostcodeDataStream(code, true,
                         stream.
                         filter(postcode -> loadedStationsBounds.within(walkingDistance, postcode.getGridPosition())).
-                        filter(postcode -> stationLocations.withinRangeOfStation(postcode.getGridPosition(), walkingDistance)));
+                        filter(postcode -> stationLocations.anyStationsWithinRangeOf(postcode.getGridPosition(), walkingDistance)));
             } else {
                 logger.debug("Skipping " + file + " as contains no positions overlapping with current bounds");
                 return PostcodeDataStream.empty(code);
@@ -128,7 +128,7 @@ public class PostcodeDataImporter {
                 stream.
                     filter(postcode -> postcodeBounds.checkOrRecord(file, postcode)).
                     filter(postcode -> loadedStationsBounds.within(walkingDistance, postcode.getGridPosition())).
-                    filter(postcode -> stationLocations.withinRangeOfStation(postcode.getGridPosition(), walkingDistance)));
+                    filter(postcode -> stationLocations.anyStationsWithinRangeOf(postcode.getGridPosition(), walkingDistance)));
         }
     }
 

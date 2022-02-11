@@ -10,9 +10,9 @@ import com.tramchester.domain.id.CaseInsensitiveId;
 import com.tramchester.domain.id.CompositeIdMap;
 import com.tramchester.domain.id.IdMap;
 import com.tramchester.domain.places.PostcodeLocation;
-import com.tramchester.geo.FindNear;
 import com.tramchester.geo.GridPosition;
 import com.tramchester.geo.MarginInMeters;
+import com.tramchester.mappers.Geography;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,14 +30,16 @@ public class PostcodeRepository {
     private final PostcodeDataImporter importer;
     private final TramchesterConfig config;
     private final PostcodeBoundingBoxs boundingBoxs;
+    private final Geography geography;
 
     private final Map<String, IdMap<PostcodeLocation>> postcodesAreas; // Id -> PostcodeLocation
 
     @Inject
-    public PostcodeRepository(PostcodeDataImporter importer, TramchesterConfig config, PostcodeBoundingBoxs boundingBoxs) {
+    public PostcodeRepository(PostcodeDataImporter importer, TramchesterConfig config, PostcodeBoundingBoxs boundingBoxs, Geography geography) {
         this.importer = importer;
         this.config = config;
         this.boundingBoxs = boundingBoxs;
+        this.geography = geography;
         postcodesAreas = new HashMap<>();
     }
 
@@ -110,6 +112,6 @@ public class PostcodeRepository {
         return postcodesAreas.entrySet().stream().
                 filter(entry -> codes.contains(entry.getKey())).
                 map(entry -> entry.getValue().getValuesStream()).
-                flatMap(postcodeLocations -> FindNear.getNearTo(postcodeLocations, location, meters));
+                flatMap(postcodeLocations -> geography.getNearToUnsorted(() -> postcodeLocations, location, meters));
     }
 }

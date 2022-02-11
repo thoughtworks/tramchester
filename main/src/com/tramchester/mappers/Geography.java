@@ -4,6 +4,9 @@ import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.places.Location;
 import com.tramchester.domain.presentation.LatLong;
+import com.tramchester.geo.GridPosition;
+import com.tramchester.geo.GridPositions;
+import com.tramchester.geo.MarginInMeters;
 import org.geotools.metadata.iso.citation.CitationImpl;
 import org.geotools.referencing.GeodeticCalculator;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
@@ -19,6 +22,7 @@ import javax.measure.quantity.Time;
 import java.time.Duration;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static java.time.temporal.ChronoUnit.SECONDS;
 import static tec.units.ri.unit.Units.METRE_PER_SECOND;
@@ -84,6 +88,37 @@ public class Geography {
     
     public static String getLatLongCode() {
         return latLongCode;
+    }
+
+    private <T extends Location<T>> Stream<T> getNearbyCrude(LocationsSource<T> locationsSource,
+                                                             GridPosition otherPosition, MarginInMeters rangeInMeters) {
+
+        return locationsSource.get().
+                filter(entry -> entry.getGridPosition().isValid()).
+                filter(entry -> GridPositions.withinDistEasting(otherPosition, entry.getGridPosition(), rangeInMeters)).
+                filter(entry -> GridPositions.withinDistNorthing(otherPosition, entry.getGridPosition(), rangeInMeters));
+    }
+
+    public <T extends Location<T>> Stream<T> getNearToUnsorted(LocationsSource<T> locationsSource, GridPosition otherPosition,
+                                                               MarginInMeters rangeInMeters) {
+        return getNearbyCrude(locationsSource, otherPosition, rangeInMeters).
+                filter(entry -> GridPositions.withinDist(otherPosition, entry.getGridPosition(), rangeInMeters));
+    }
+
+    public <T extends Location<T>> Stream<T> getNearToSorted(LocationsSource<T> locationsSource,
+                                                             GridPosition gridPosition, MarginInMeters rangeInMeters) {
+        return getNearToUnsorted(locationsSource, gridPosition, rangeInMeters).
+                sorted((a, b) -> chooseNearestToGrid(gridPosition, a.getGridPosition(), b.getGridPosition()));
+    }
+
+    public int chooseNearestToGrid(GridPosition grid, GridPosition first, GridPosition second) {
+        long firstDist = GridPositions.distanceTo(grid, first);
+        long secondDist = GridPositions.distanceTo(grid, second);
+        return Long.compare(firstDist, secondDist);
+    }
+
+    public interface LocationsSource<T extends Location<T>> {
+        Stream<T> get();
     }
 
 }

@@ -11,6 +11,7 @@ import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.geo.MarginInMeters;
 import com.tramchester.geo.StationLocations;
 import com.tramchester.integration.testSupport.bus.IntegrationBusTestConfig;
+import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.BusStations;
 import com.tramchester.testSupport.reference.TestPostcodes;
@@ -41,6 +42,7 @@ class BusStationsLocationsTest {
 
     private StationLocations stationLocations;
     private MarginInMeters inMeters;
+    private StationRepository stationRepository;
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
@@ -52,6 +54,7 @@ class BusStationsLocationsTest {
     @BeforeEach
     void beforeEachTestRuns() {
         stationLocations = componentContainer.get(StationLocations.class);
+        stationRepository = componentContainer.get(StationRepository.class);
         inMeters =  MarginInMeters.of(testConfig.getNearestStopForWalkingRangeKM());
     }
 
@@ -66,21 +69,19 @@ class BusStationsLocationsTest {
 
     @Test
     void shouldGetAllStationsCloseToPiccGardens() {
-        List<Station> result = stationLocations.nearestStationsSorted(TestPostcodes.NearPiccadillyGardens.getLatLong(),
-                500, inMeters);
+        List<Station> result = stationLocations.nearestStationsSorted(TestPostcodes.NearPiccadillyGardens, 500, inMeters);
         assertEquals(51, result.size());
     }
 
     @Test
     void shouldGetAllStationsCloseToCentralBury() {
-        List<Station> result = stationLocations.nearestStationsSorted(TestPostcodes.CentralBury.getLatLong(),
-                500, inMeters);
+        List<Station> result = stationLocations.nearestStationsSorted(TestPostcodes.CentralBury, 500, inMeters);
         assertEquals(38, result.size());
     }
 
     @Test
     void shouldGetAllStationsCloseToCentralAlty() {
-        List<Station> result = stationLocations.nearestStationsSorted(TramStations.Altrincham.getLatLong(),
+        List<Station> result = stationLocations.nearestStationsSorted(TramStations.Altrincham.from(stationRepository),
                 500, inMeters);
         assertEquals(17, result.size());
     }

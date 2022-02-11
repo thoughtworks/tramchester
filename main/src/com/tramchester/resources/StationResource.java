@@ -8,6 +8,7 @@ import com.tramchester.domain.Timestamped;
 import com.tramchester.domain.UpdateRecentJourneys;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.StringIdFor;
+import com.tramchester.domain.places.MyLocation;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.DTO.LocationDTO;
 import com.tramchester.domain.presentation.DTO.LocationRefDTO;
@@ -150,8 +151,9 @@ public class StationResource extends UsesRecentCookie implements APIResource {
 
         LatLong latLong = new LatLong(lat,lon);
 
-        List<Station> nearestStations = stationLocations.nearestStationsSorted(latLong,
-                config.getNumOfNearestStopsToOffer(), margin);
+        MyLocation location = new MyLocation(latLong);
+
+        List<Station> nearestStations = stationLocations.nearestStationsSorted(location, config.getNumOfNearestStopsToOffer(), margin);
 
         List<LocationRefDTO> results = toStationRefDTOList(nearestStations);
 

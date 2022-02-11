@@ -12,9 +12,8 @@ import com.tramchester.domain.Route;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.input.StopCalls;
-import com.tramchester.domain.places.StationGroup;
 import com.tramchester.domain.places.Station;
-import com.tramchester.domain.presentation.LatLong;
+import com.tramchester.domain.places.StationGroup;
 import com.tramchester.domain.time.TramServiceDate;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.geo.MarginInMeters;
@@ -29,6 +28,7 @@ import com.tramchester.repository.StationGroupsRepository;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.repository.TransportData;
 import com.tramchester.testSupport.TestEnv;
+import com.tramchester.testSupport.reference.KnownLocations;
 import com.tramchester.testSupport.testTags.BusTest;
 import org.junit.jupiter.api.*;
 import org.neo4j.graphdb.Transaction;
@@ -107,13 +107,16 @@ class BusRouteCalculatorSubGraphAltyToMaccRoute {
 
         altrinchamInterchange = stationGroupsRepository.findByName("Altrincham Interchange");
 
-        LatLong nearKnutsfordBusStation = new LatLong(53.30262,-2.3775267);
+
         StationLocations stationLocations = componentContainer.get(StationLocations.class);
 
         // because knutford bus station is just called "Bus Station"
         // TODO USE BusStations.KnutfordStationAreaId here
+        //LatLong nearKnutsfordBusStation = new LatLong(53.30262,-2.3775267);
+
         final MarginInMeters rangeInMeters = MarginInMeters.of(1000);
-        knutfordStations = stationLocations.nearestStationsSorted(nearKnutsfordBusStation, 10, rangeInMeters).
+        knutfordStations = stationLocations.nearestStationsSorted(KnownLocations.nearKnutsfordBusStation.location(),
+                        10, rangeInMeters).
                 stream().
                 filter(station -> station.getName().contains("Bus Station")).
                 collect(Collectors.toList());

@@ -20,8 +20,6 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import javax.measure.Quantity;
-import javax.measure.quantity.Length;
 import java.util.Set;
 
 import static com.tramchester.testSupport.reference.KnownLocations.*;
@@ -80,13 +78,13 @@ public class StationLocationsTest {
     void shouldHaveExpectedStationLocations() {
         MarginInMeters margin = MarginInMeters.of(config.getNearestStopForWalkingRangeKM());
 
-        assertTrue(locations.withinRangeOfStation(nearShudehill.grid(), margin));
-        assertTrue(locations.withinRangeOfStation(nearPiccGardens.grid(), margin));
+        assertTrue(locations.anyStationsWithinRangeOf(nearShudehill.location(), margin));
+        assertTrue(locations.anyStationsWithinRangeOf(nearPiccGardens.location(), margin));
 
-        assertTrue(locations.withinRangeOfStation(nearAltrincham.grid(), margin));
+        assertTrue(locations.anyStationsWithinRangeOf(nearAltrincham.location(), margin));
 
-        assertFalse(locations.withinRangeOfStation(nearGreenwichLondon.grid(), margin));
-        assertFalse(locations.withinRangeOfStation(nearStockportBus.grid(), margin));
+        assertFalse(locations.anyStationsWithinRangeOf(nearGreenwichLondon.location(), margin));
+        assertFalse(locations.anyStationsWithinRangeOf(nearStockportBus.location(), margin));
     }
 
     @Test

@@ -84,7 +84,8 @@ public class StationLocations implements StationLocationsRepository {
         quadrants.forEach(quadrant -> {
             // NOTE assumption - composite stations cannot be outside bounds defined by stations themselves since
             // composite location defined to be middle of composed stations
-            Set<Station> foundInQuadrant = getNonComposites().
+            Set<Station> foundInQuadrant = stationRepository.getActiveStationStream().
+                    filter(station1 -> station1.getGridPosition().isValid()).
                     filter(station -> quadrant.contained(station.getGridPosition())).
                     collect(Collectors.toSet());
             stations.put(quadrant, foundInQuadrant);
@@ -191,53 +192,41 @@ public class StationLocations implements StationLocationsRepository {
         return quadrants;
     }
 
-    @Deprecated
-    @Override
-    public List<Station> nearestStationsSorted(LatLong latLong, int maxToFind, MarginInMeters rangeInMeters) {
-        return nearestStationsSorted(CoordinateTransforms.getGridPosition(latLong), maxToFind, rangeInMeters);
-    }
-
     @Override
     public List<Station> nearestStationsSorted(Location<?> location, int maxToFind, MarginInMeters rangeInMeters) {
-        return nearestStationsSorted(CoordinateTransforms.getGridPosition(location.getLatLong()), maxToFind, rangeInMeters);
+        return nearestStationsSorted(location.getGridPosition(), maxToFind, rangeInMeters);
     }
 
-    // TODO Use quadrants for this search
-    // NOTE: uses composite stations
+    // TODO Use quadrants for this search?
     // TODO Station Groups here?
-    private List<Station> nearestStationsSorted(GridPosition gridPosition, int maxToFind, MarginInMeters rangeInMeters) {
+    public List<Station> nearestStationsSorted(GridPosition gridPosition, int maxToFind, MarginInMeters rangeInMeters) {
 
-        final Stream<Station> stationStream = stationRepository.getActiveStationStream();
-        if (maxToFind > 1) {
-            // only sort if more than one, as sorting potentially expensive
-           return FindNear.getNearToSorted(stationStream, gridPosition, rangeInMeters).
-                    limit(maxToFind).
-                    collect(Collectors.toList());
-        } else {
-            return FindNear.getNearTo(stationStream, gridPosition, rangeInMeters).
-                    limit(maxToFind).
-                    collect(Collectors.toList());
-        }
+       return geography.getNearToSorted(stationRepository::getActiveStationStream, gridPosition, rangeInMeters).
+                limit(maxToFind).
+                collect(Collectors.toList());
     }
 
     @Override
     public Stream<Station> nearestStationsUnsorted(Station station, MarginInMeters rangeInMeters) {
-        return FindNear.getNearTo(getNonComposites(), station.getGridPosition(), rangeInMeters);
+        return geography.getNearToUnsorted(stationRepository::getActiveStationStream, station.getGridPosition(), rangeInMeters);
     }
 
-    public boolean withinRangeOfStation(GridPosition position, MarginInMeters margin) {
+    public boolean anyStationsWithinRangeOf(Location<?> position, MarginInMeters margin) {
+        return anyStationsWithinRangeOf(position.getGridPosition(), margin);
+    }
 
+    public boolean anyStationsWithinRangeOf(GridPosition gridPosition, MarginInMeters margin) {
         // find if within range of a box, if we then need to check if also within range of an actual station
-        Set<BoundingBox> quadrantsWithinRange = getQuadrantsWithinRange(position, margin);
+        Set<BoundingBox> quadrantsWithinRange = getQuadrantsWithinRange(gridPosition, margin);
 
         if (quadrantsWithinRange.isEmpty()) {
-            logger.debug("No quadrant within range " + margin + " of " + position);
+            logger.debug("No quadrant within range " + margin + " of " + gridPosition);
             return false;
         }
 
         Stream<Station> candidateStations = quadrantsWithinRange.stream().flatMap(quadrant -> stations.get(quadrant).stream());
 
-        return FindNear.getNearTo(candidateStations, position, margin).findAny().isPresent();
+        return geography.getNearToUnsorted(() -> candidateStations, gridPosition, margin).findAny().isPresent();
     }
 
     public Stream<BoundingBoxWithStations> getStationsInGrids(long gridSize) {
@@ -287,15 +276,11 @@ public class StationLocations implements StationLocationsRepository {
     }
 
     private boolean containsAnyStations(BoundingBox parent, BoundingBox quadrant) {
-        return getNonComposites().
+        return stationRepository.getActiveStationStream().
                 map(Station::getGridPosition).
+                filter(GridPosition::isValid).
                 filter(parent::contained).
                 anyMatch(quadrant::contained);
-    }
-
-    private Stream<Station> getNonComposites() {
-        return stationRepository.getActiveStationStream().
-                filter(station -> station.getGridPosition().isValid());
     }
 
     private static class CreateBoundingBox {

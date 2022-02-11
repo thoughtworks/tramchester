@@ -15,9 +15,6 @@ import java.util.stream.Stream;
 @ImplementedBy(StationLocations.class)
 public interface StationLocationsRepository {
 
-    @Deprecated
-    List<Station> nearestStationsSorted(LatLong latLong, int maxToFind, MarginInMeters rangeInMeters);
-
     List<Station> nearestStationsSorted(Location<?> location, int maxToFind, MarginInMeters rangeInMeters);
 
     Stream<Station> nearestStationsUnsorted(Station station, MarginInMeters rangeInMeters);
@@ -31,8 +28,6 @@ public interface StationLocationsRepository {
     List<LatLong> getBoundaryFor(IdFor<NaptanArea> areaId);
 
     boolean hasStationsOrPlatformsIn(IdFor<NaptanArea> areaId);
-
-//    Quantity<Length> getDistanceBetweenInMeters(Location<?> placeA, Location<?> placeB);
 
     boolean withinBounds(Location<?> location);
 }

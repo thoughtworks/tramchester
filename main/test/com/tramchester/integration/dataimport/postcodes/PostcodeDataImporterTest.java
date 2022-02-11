@@ -5,10 +5,7 @@ import com.tramchester.ComponentsBuilder;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.dataimport.postcodes.PostcodeData;
 import com.tramchester.dataimport.postcodes.PostcodeDataImporter;
-import com.tramchester.domain.places.Station;
-import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.geo.BoundingBox;
-import com.tramchester.geo.CoordinateTransforms;
 import com.tramchester.geo.MarginInMeters;
 import com.tramchester.geo.StationLocations;
 import com.tramchester.integration.testSupport.tram.TramWithPostcodesEnabled;
@@ -17,7 +14,6 @@ import com.tramchester.testSupport.testTags.PostcodeTestCategory;
 import org.junit.jupiter.api.*;
 
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -119,9 +115,10 @@ class PostcodeDataImporterTest {
     }
 
     private boolean outsideStationRange(PostcodeData postcode) {
-        LatLong latLong = CoordinateTransforms.getLatLong(postcode.getGridPosition());
-        List<Station> found = stationLocations.nearestStationsSorted(latLong, 1,
+        return !stationLocations.anyStationsWithinRangeOf(postcode.getGridPosition(),
                 MarginInMeters.of(testConfig.getNearestStopForWalkingRangeKM()));
-        return found.isEmpty();
+//        List<Station> found = stationLocations.nearestStationsSorted(postcode.getGridPosition(), 1,
+//                MarginInMeters.of(testConfig.getNearestStopForWalkingRangeKM()));
+//        return found.isEmpty();
     }
 }
