@@ -13,7 +13,6 @@ import com.tramchester.domain.time.TramServiceDate;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.domain.transportStages.WalkingFromStationStage;
 import com.tramchester.domain.transportStages.WalkingToStationStage;
-import com.tramchester.geo.CoordinateTransforms;
 import com.tramchester.graph.GraphDatabase;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
 import com.tramchester.repository.StationRepository;
@@ -278,8 +277,8 @@ class LocationJourneyPlannerTest {
         final TramTime queryTime = TramTime.of(10, 15);
 
         final double walkingMPH = testConfig.getWalkingMPH();
-        int toNavigation = CoordinateTransforms.calcCostInMinutes(nearAltrincham.location(), NavigationRoad.from(stationRepository), walkingMPH);
-        int toAltrincham = CoordinateTransforms.calcCostInMinutes(nearAltrincham.location(), Altrincham.from(stationRepository), walkingMPH);
+        int toNavigation = TestEnv.calcCostInMinutes(nearAltrincham.location(), NavigationRoad.from(stationRepository), walkingMPH);
+        int toAltrincham = TestEnv.calcCostInMinutes(nearAltrincham.location(), Altrincham.from(stationRepository), walkingMPH);
 
         int lowestCost = Math.min(toAltrincham, toNavigation);
         TramTime earliestDepart = queryTime.plusMinutes(lowestCost);

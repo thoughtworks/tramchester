@@ -3,13 +3,13 @@ package com.tramchester.graph.graphbuild;
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.id.IdFor;
-import com.tramchester.domain.places.StationGroup;
 import com.tramchester.domain.places.NaptanArea;
 import com.tramchester.domain.places.Station;
+import com.tramchester.domain.places.StationGroup;
 import com.tramchester.domain.reference.TransportMode;
-import com.tramchester.geo.CoordinateTransforms;
 import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.filters.GraphFilter;
+import com.tramchester.mappers.Geography;
 import com.tramchester.metrics.TimedTransaction;
 import com.tramchester.repository.StationGroupsRepository;
 import org.neo4j.graphdb.Node;
@@ -37,6 +37,7 @@ public class CompositeStationGraphBuilder extends CreateNodesAndRelationships {
     private final TramchesterConfig config;
     private final GraphFilter graphFilter;
     private final GraphBuilderCache builderCache;
+    private final Geography geography;
 
     // NOTE: cannot use graphquery here as creates a circular dependency on this class
     //private final GraphQuery graphQuery;
@@ -45,13 +46,14 @@ public class CompositeStationGraphBuilder extends CreateNodesAndRelationships {
     public CompositeStationGraphBuilder(GraphDatabase graphDatabase, StationGroupsRepository stationGroupsRepository,
                                         TramchesterConfig config, GraphFilter graphFilter,
                                         StationsAndLinksGraphBuilder.Ready stationsAndLinksAreBuilt,
-                                        GraphBuilderCache builderCache) {
+                                        GraphBuilderCache builderCache, Geography geography) {
         super(graphDatabase);
         this.graphDatabase = graphDatabase;
         this.stationGroupsRepository = stationGroupsRepository;
         this.config = config;
         this.graphFilter = graphFilter;
         this.builderCache = builderCache;
+        this.geography = geography;
     }
 
     @PostConstruct
@@ -122,18 +124,16 @@ public class CompositeStationGraphBuilder extends CreateNodesAndRelationships {
 
     private void linkStations(Transaction txn, Node parentNode, StationGroup stationGroup) {
         Set<Station> contained = stationGroup.getContained();
-        double mph = config.getWalkingMPH();
 
         contained.stream().
                 filter(graphFilter::shouldInclude).
                 forEach(station -> {
-                    int walkingCostMins = CoordinateTransforms.calcCostInMinutes(stationGroup.getLatLong(), station, mph);
+                    final Duration walkingCost = geography.getWalkingDuration(stationGroup, station);
                     Node childNode = builderCache.getStation(txn, station.getId());
                     if (childNode==null) {
                         throw new RuntimeException("cannot find node for " + station);
                     }
 
-                    Duration walkingCost = Duration.ofMinutes(walkingCostMins);
                     addGroupRelationshipTowardsChild(parentNode, childNode, walkingCost);
                     addGroupRelationshipTowardsParent(childNode, parentNode, walkingCost);
         });

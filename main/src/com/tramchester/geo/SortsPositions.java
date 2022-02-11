@@ -27,10 +27,6 @@ public class SortsPositions {
         this.repository = repository;
     }
 
-    private Double computeDistance(Station stationA, Station stationB) {
-        return CoordinateTransforms.distanceFlat(stationA.getLatLong(), stationB.getLatLong());
-    }
-
     // List, order matters here
     public <CONTAINED> List<CONTAINED> sortedByNearTo(IdSet<Station> destinationStationIds, Set<HasStationId<CONTAINED>> startingPoints) {
 
@@ -41,7 +37,7 @@ public class SortsPositions {
             double current = Double.MAX_VALUE;
             for (Station dest : dests) {
                 Station place = repository.getStationById(container.getStationId());
-                double distance = computeDistance(place, dest);
+                double distance = distanceFlat(place.getLatLong(), dest.getLatLong());
                 if (distance < current) {
                     current = distance;
                 }
@@ -63,7 +59,7 @@ public class SortsPositions {
 
         startingPoints.forEach(container -> {
                 Station place = repository.getStationById(container.getStationId());
-                double distance = CoordinateTransforms.distanceFlat(place.getLatLong(), destination);
+                double distance = distanceFlat(place.getLatLong(), destination);
                 distances.put(container, distance);
         });
 
@@ -87,6 +83,13 @@ public class SortsPositions {
                 orElse(LatLong.Invalid);
     }
 
+    // crude but good enough for distance ranking during searches
+    private double distanceFlat(LatLong point1, LatLong point2) {
+        double deltaLat = Math.abs(point1.getLat()-point2.getLat());
+        double deltaLon = Math.abs(point1.getLon()-point2.getLon());
+
+        return Math.sqrt((deltaLat*deltaLat)+(deltaLon*deltaLon));
+    }
 
     public interface HasStationId<T> {
         IdFor<Station> getStationId();

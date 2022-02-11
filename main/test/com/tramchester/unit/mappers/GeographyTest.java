@@ -3,7 +3,6 @@ package com.tramchester.unit.mappers;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.places.Location;
 import com.tramchester.domain.places.Station;
-import com.tramchester.geo.CoordinateTransforms;
 import com.tramchester.mappers.Geography;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.TramStations;
@@ -39,7 +38,7 @@ public class GeographyTest {
         Location<?> start = TramStations.StPetersSquare.fake();
         Location<?> end = TramStations.PiccadillyGardens.fake();
 
-        int expected = CoordinateTransforms.calcCostInMinutes(start, end, config.getWalkingMPH());
+        int expected = TestEnv.calcCostInMinutes(start, end, config.getWalkingMPH());
 
         Quantity<Time> result = geography.getWalkingTime(BetweenStPeterSqAndPiccGardens);
 

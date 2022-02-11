@@ -68,12 +68,10 @@ class RouteCostCalculatorTest {
         assertMinutesEquals(4, routeCostCalculator.getAverageCostBetween(txn, altrincham, NavigationRoad.from(stationRepository), date));
     }
 
-
-
     @Test
     void shouldComputeCostsForMediaCityAshton() throws InvalidDurationException {
         assertMinutesEquals(55, routeCostCalculator.getAverageCostBetween(txn, mediaCity, Ashton.from(stationRepository), date));
-        assertMinutesEquals(52, routeCostCalculator.getAverageCostBetween(txn,  Ashton.from(stationRepository), mediaCity, date));
+        assertMinutesEquals(53, routeCostCalculator.getAverageCostBetween(txn,  Ashton.from(stationRepository), mediaCity, date));
     }
 
     @Test
@@ -87,47 +85,6 @@ class RouteCostCalculatorTest {
         assertMinutesEquals(63, buryToAlty);
         assertMinutesEquals(63, altyToBury);
     }
-
-//    @Test
-//    void shouldTestWithWalkAtStart() {
-//        // nearAltrincham to Deansgate
-//
-//        LocationJourneyPlanner locationJourneyPlanner = componentContainer.get(LocationJourneyPlanner.class);
-//
-//        UUID uniqueId = UUID.randomUUID();
-//        Node walkStartNode = locationJourneyPlanner.createWalkingNode(txn, nearAltrincham, uniqueId);
-//        StationWalk stationWalk = new StationWalk(altrincham, 13);
-//        Relationship walkRelationship = locationJourneyPlanner.createWalkRelationship(txn, walkStartNode, stationWalk,
-//                TransportRelationshipTypes.WALKS_TO);
-//
-//        int result = routeCostCalculator.getAverageCostBetween(txn, walkStartNode, Deansgate.from(stationRepository), date);
-//
-//        walkRelationship.delete();
-//        walkStartNode.delete();
-//
-//        assertEquals(37,result);
-//    }
-
-//    @Test
-//    void shouldTestWithWalkAtEnd() {
-//        // Deansgate, nearAltrincham
-//
-//        LocationJourneyPlanner locationJourneyPlanner = componentContainer.get(LocationJourneyPlanner.class);
-//
-//        UUID uniqueId = UUID.randomUUID();
-//        Node walkEndNode = locationJourneyPlanner.createWalkingNode(txn, nearAltrincham, uniqueId);
-//        StationWalk stationWalk = new StationWalk(altrincham, 13);
-//        Relationship walkRelationship = locationJourneyPlanner.createWalkRelationship(txn, walkEndNode, stationWalk,
-//                TransportRelationshipTypes.WALKS_FROM);
-//
-//        int result = routeCostCalculator.getAverageCostBetween(txn, Deansgate.from(stationRepository), walkEndNode, date);
-//
-//        walkRelationship.delete();
-//        walkEndNode.delete();
-//
-//        assertEquals(37,result);
-//
-//    }
 
     @Test
     void shouldComputeSimpleCostBetweenStationsMediaCityAirport() throws InvalidDurationException {

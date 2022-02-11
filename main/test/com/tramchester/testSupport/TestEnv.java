@@ -11,6 +11,7 @@ import com.tramchester.domain.*;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.input.PlatformStopCall;
 import com.tramchester.domain.input.Trip;
+import com.tramchester.domain.places.Location;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.reference.GTFSPickupDropoffType;
 import com.tramchester.domain.reference.GTFSTransportationType;
@@ -251,6 +252,30 @@ public class TestEnv {
     public static void clearDataCache(ComponentContainer componentContainer) {
         DataCache cache = componentContainer.get(DataCache.class);
         cache.clearFiles();
+    }
+
+    public static int calcCostInMinutes(Location<?> stationA, Location<?> stationB, double mph) {
+        double distanceInMiles = distanceInMiles(stationA.getLatLong(), stationB.getLatLong());
+        double hours = distanceInMiles / mph;
+        return (int)Math.ceil(hours * 60D);
+    }
+
+    private static double distanceInMiles(LatLong point1, LatLong point2) {
+
+        final double EARTH_RADIUS = 3958.75;
+
+        double lat1 = point1.getLat();
+        double lat2 = point2.getLat();
+        double diffLat = Math.toRadians(lat2-lat1);
+        double diffLong = Math.toRadians(point2.getLon()-point1.getLon());
+        double sineDiffLat = Math.sin(diffLat / 2D);
+        double sineDiffLong = Math.sin(diffLong / 2D);
+
+        double a = Math.pow(sineDiffLat, 2) + Math.pow(sineDiffLong, 2)
+                * Math.cos(Math.toRadians(lat1)) * Math.cos(Math.toRadians(lat2));
+
+        double fractionOfRadius = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+        return EARTH_RADIUS * fractionOfRadius;
     }
 
 

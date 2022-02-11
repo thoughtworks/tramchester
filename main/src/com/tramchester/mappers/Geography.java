@@ -4,7 +4,7 @@ import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.places.Location;
 import com.tramchester.domain.presentation.LatLong;
-import com.tramchester.geo.CoordinateTransforms;
+import org.geotools.metadata.iso.citation.CitationImpl;
 import org.geotools.referencing.GeodeticCalculator;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
 import org.locationtech.jts.geom.*;
@@ -21,11 +21,16 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import static java.time.temporal.ChronoUnit.SECONDS;
-import static tec.units.ri.unit.Units.*;
+import static tec.units.ri.unit.Units.METRE_PER_SECOND;
+import static tec.units.ri.unit.Units.SECOND;
 
 @LazySingleton
 public class Geography {
     private final static double KILO_PER_MILE = 1.609344D;
+
+    public static final String AUTHORITY = "EPSG";
+
+    private static final String latLongCode = DefaultGeographicCRS.WGS84.getIdentifier(new CitationImpl(AUTHORITY)).getCode();
 
     private final GeometryFactory geometryFactoryLatLong;
     private final Quantity<Speed> walkingSpeed;
@@ -35,7 +40,7 @@ public class Geography {
         final double metersPerSecond = (config.getWalkingMPH() * KILO_PER_MILE * 1000) / 3600D;
         walkingSpeed = Quantities.getQuantity(metersPerSecond, METRE_PER_SECOND);
 
-        int srid = Integer.parseInt(CoordinateTransforms.getLatLongCode());
+        int srid = Integer.parseInt(latLongCode);
         geometryFactoryLatLong = new GeometryFactory(new PrecisionModel(PrecisionModel.FLOATING), srid);
     }
 
@@ -75,6 +80,10 @@ public class Geography {
         MultiPoint multiPoint = geometryFactoryLatLong.createMultiPointFromCoords(asArray);
 
         return multiPoint.convexHull();
+    }
+    
+    public static String getLatLongCode() {
+        return latLongCode;
     }
 
 }
