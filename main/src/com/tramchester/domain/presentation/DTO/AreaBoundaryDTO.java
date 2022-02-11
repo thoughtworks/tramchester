@@ -6,32 +6,20 @@ import com.tramchester.repository.naptan.NaptanStopAreaType;
 
 import java.util.List;
 
-public class AreaBoundaryDTO {
-    private List<LatLong> points;
+public class AreaBoundaryDTO extends BoundaryDTO {
     private String areaId;
     private String areaName;
     private NaptanStopAreaType type;
 
     public AreaBoundaryDTO(List<LatLong> points, NaptanArea area) {
-        this.points = points;
+        super(points);
         this.areaId = area.getId().forDTO();
         this.areaName = area.getName();
         this.type = area.getType();
     }
 
-//    public AreaBoundaryDTO(List<LatLong> points, IdFor<NaptanArea> areaId, String areaName, NaptanStopAreaType type) {
-//        this.points = points;
-//        this.areaId = areaId.forDTO();
-//        this.areaName = areaName;
-//        this.type = type;
-//    }
-
     public AreaBoundaryDTO() {
         // for deserialisation
-    }
-
-    public List<LatLong> getPoints() {
-        return points;
     }
 
     public String getAreaId() {

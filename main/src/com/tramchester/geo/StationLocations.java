@@ -13,7 +13,6 @@ import com.tramchester.repository.PlatformRepository;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.repository.naptan.NaptanRespository;
 import org.jetbrains.annotations.NotNull;
-import org.locationtech.jts.geom.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -28,6 +27,7 @@ import java.util.stream.Stream;
 @LazySingleton
 public class StationLocations implements StationLocationsRepository {
     private static final Logger logger = LoggerFactory.getLogger(StationLocations.class);
+
     private static final int DEPTH_LIMIT = 20;
     private static final int GRID_SIZE_METERS = 1000;
 
@@ -38,8 +38,8 @@ public class StationLocations implements StationLocationsRepository {
     private final Set<BoundingBox> quadrants;
 
     private final Map<IdFor<NaptanArea>, LocationSet> locationsInNaptanArea;
+    private final Map<BoundingBox, Set<Station>> stationBoxes;
 
-    private final Map<BoundingBox, Set<Station>> stations;
     private BoundingBox bounds;
 
     @Inject
@@ -51,7 +51,7 @@ public class StationLocations implements StationLocationsRepository {
         this.geography = geography;
 
         quadrants = new HashSet<>();
-        stations = new HashMap<>();
+        stationBoxes = new HashMap<>();
         locationsInNaptanArea = new HashMap<>();
     }
 
@@ -71,8 +71,8 @@ public class StationLocations implements StationLocationsRepository {
     @PreDestroy
     public void dispose() {
         logger.info("Stopping");
-        stations.values().forEach(Set::clear);
-        stations.clear();
+        stationBoxes.values().forEach(Set::clear);
+        stationBoxes.clear();
         quadrants.clear();
         locationsInNaptanArea.clear();
         logger.info("Stopped");
@@ -85,10 +85,10 @@ public class StationLocations implements StationLocationsRepository {
             // NOTE assumption - composite stations cannot be outside bounds defined by stations themselves since
             // composite location defined to be middle of composed stations
             Set<Station> foundInQuadrant = stationRepository.getActiveStationStream().
-                    filter(station1 -> station1.getGridPosition().isValid()).
+                    filter(station -> station.getGridPosition().isValid()).
                     filter(station -> quadrant.contained(station.getGridPosition())).
                     collect(Collectors.toSet());
-            stations.put(quadrant, foundInQuadrant);
+            stationBoxes.put(quadrant, foundInQuadrant);
         });
     }
 
@@ -147,32 +147,29 @@ public class StationLocations implements StationLocationsRepository {
     /***
      * Uses Latitude/Longitude and EPSG
      * @param areaId the area id
-     * @return A convex hull representing the points within the given area, with the coordinates in lat/long format
+     * @return A list of points on convex hull containing the points within the given area
      */
     @Override
-    public Geometry getGeometryForArea(IdFor<NaptanArea> areaId) {
+    public List<LatLong> getBoundaryFor(IdFor<NaptanArea> areaId) {
 
         Set<NaptanRecord> records = naptanRespository.getRecordsFor(areaId);
 
-        List<LatLong> points = records.stream().
+        Stream<LatLong> points = records.stream().
                 map(NaptanRecord::getGridPosition).
-                map(CoordinateTransforms::getLatLong).
-                collect(Collectors.toList());
+                map(CoordinateTransforms::getLatLong);
 
         return geography.createBoundaryFor(points);
     }
 
-    @Override
-    public List<LatLong> getBoundaryFor(IdFor<NaptanArea> areaId) {
-        Geometry geometry = getGeometryForArea(areaId);
+    /***
+     * Uses Latitude/Longitude and EPSG
+     * @return A list of points on convex hull containing all stations
+     */
+    public List<LatLong> getBoundaryForStations() {
+        Stream<LatLong> points = stationRepository.getAllStationStream().
+                map(Station::getLatLong);
 
-        if (geometry.getNumPoints()==0) {
-            logger.error("Zero points for boundary for area " + areaId);
-        }
-
-        Geometry boundary = geometry.getBoundary();
-
-        return Arrays.stream(boundary.getCoordinates()).map(LatLong::of).collect(Collectors.toList());
+        return geography.createBoundaryFor(points);
     }
 
     @Override
@@ -180,8 +177,6 @@ public class StationLocations implements StationLocationsRepository {
         // map only populated if an area does contain a station or platform
         return locationsInNaptanArea.containsKey(areaId);
     }
-
-
 
     @Override
     public boolean withinBounds(Location<?> location) {
@@ -224,7 +219,7 @@ public class StationLocations implements StationLocationsRepository {
             return false;
         }
 
-        Stream<Station> candidateStations = quadrantsWithinRange.stream().flatMap(quadrant -> stations.get(quadrant).stream());
+        Stream<Station> candidateStations = quadrantsWithinRange.stream().flatMap(quadrant -> stationBoxes.get(quadrant).stream());
 
         return geography.getNearToUnsorted(() -> candidateStations, gridPosition, margin).findAny().isPresent();
     }
@@ -257,7 +252,7 @@ public class StationLocations implements StationLocationsRepository {
     private Set<Station> getStationsWithin(BoundingBox box) {
         Stream<BoundingBox> overlaps = quadrants.stream().filter(box::overlapsWith);
 
-        Stream<Station> candidateStations = overlaps.flatMap(quadrant -> stations.get(quadrant).stream());
+        Stream<Station> candidateStations = overlaps.flatMap(quadrant -> stationBoxes.get(quadrant).stream());
 
         return candidateStations.filter(box::contained).collect(Collectors.toSet());
     }

@@ -5,15 +5,13 @@ import com.codahale.metrics.annotation.Timed;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.StationLink;
 import com.tramchester.domain.places.NaptanArea;
-import com.tramchester.domain.presentation.DTO.AreaBoundaryDTO;
-import com.tramchester.domain.presentation.DTO.BoxDTO;
-import com.tramchester.domain.presentation.DTO.StationGroupDTO;
-import com.tramchester.domain.presentation.DTO.StationLinkDTO;
+import com.tramchester.domain.presentation.DTO.*;
 import com.tramchester.domain.presentation.DTO.factory.DTOFactory;
 import com.tramchester.geo.StationLocations;
 import com.tramchester.graph.search.FindStationLinks;
 import com.tramchester.repository.NeighboursRepository;
 import com.tramchester.repository.StationGroupsRepository;
+import com.tramchester.repository.StationRepository;
 import com.tramchester.repository.naptan.NaptanRespository;
 import io.dropwizard.jersey.caching.CacheControl;
 import io.swagger.annotations.Api;
@@ -46,13 +44,15 @@ public class StationGeographyResource implements APIResource, GraphDatabaseDepen
     private final TramchesterConfig config;
     private final StationLocations stationLocations;
     private final NaptanRespository naptanRespository;
+    private final StationRepository stationRepository;
     private final DTOFactory dtoFactory;
 
     @Inject
     public StationGeographyResource(FindStationLinks findStationLinks, NeighboursRepository neighboursRepository,
                                     StationGroupsRepository stationGroupsRepository, TramchesterConfig config,
-                                    StationLocations stationLocations, NaptanRespository naptanRespository, DTOFactory dtoFactory) {
+                                    StationLocations stationLocations, NaptanRespository naptanRespository, StationRepository stationRepository, DTOFactory dtoFactory) {
         this.naptanRespository = naptanRespository;
+        this.stationRepository = stationRepository;
         this.dtoFactory = dtoFactory;
         this.findStationLinks = findStationLinks;
         this.neighboursRepository = neighboursRepository;
@@ -109,7 +109,7 @@ public class StationGeographyResource implements APIResource, GraphDatabaseDepen
     @GET
     @Timed
     @Path("/areas")
-    @ApiOperation(value = "List of boundaries for each area along with the area code", responseContainer = "List")
+    @ApiOperation(value = "List of boundaries for each area along with the area code", response = AreaBoundaryDTO.class, responseContainer = "List")
     @CacheControl(maxAge = 1, maxAgeUnit = TimeUnit.DAYS)
     public Response getAreas() {
         logger.info("Get areas");
@@ -129,6 +129,19 @@ public class StationGeographyResource implements APIResource, GraphDatabaseDepen
         return Response.ok(allBoundaries).build();
     }
 
+    @GET
+    @Timed
+    @Path("/stationsboundary")
+    @ApiOperation(value = "Boundary around all stations", response = BoundaryDTO.class)
+    @CacheControl(maxAge = 1, maxAgeUnit = TimeUnit.DAYS)
+    public Response getBoundaryForAllStations() {
+        logger.info("Get boundary for all stations");
+
+        BoundaryDTO result = new BoundaryDTO(stationLocations.getBoundaryForStations());
+
+        return Response.ok(result).build();
+    }
+
 
     @GET
     @Timed
@@ -144,7 +157,6 @@ public class StationGeographyResource implements APIResource, GraphDatabaseDepen
                         map(dtoFactory::createStationGroupDTO).collect(Collectors.toSet())));
 
         return Response.ok(groups).build();
-
     }
 
     @GET

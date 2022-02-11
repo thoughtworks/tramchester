@@ -7,10 +7,13 @@ import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.geo.GridPosition;
 import com.tramchester.geo.GridPositions;
 import com.tramchester.geo.MarginInMeters;
+import org.apache.commons.lang3.stream.Streams;
 import org.geotools.metadata.iso.citation.CitationImpl;
 import org.geotools.referencing.GeodeticCalculator;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
 import org.locationtech.jts.geom.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import tec.units.ri.quantity.Quantities;
 import tec.units.ri.unit.Units;
 
@@ -20,6 +23,7 @@ import javax.measure.quantity.Length;
 import javax.measure.quantity.Speed;
 import javax.measure.quantity.Time;
 import java.time.Duration;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -30,6 +34,8 @@ import static tec.units.ri.unit.Units.SECOND;
 
 @LazySingleton
 public class Geography {
+    private static final Logger logger = LoggerFactory.getLogger(Geography.class);
+
     private final static double KILO_PER_MILE = 1.609344D;
 
     public static final String AUTHORITY = "EPSG";
@@ -74,16 +80,22 @@ public class Geography {
         return Quantities.getQuantity(geodeticCalculator.getOrthodromicDistance(), Units.METRE);
     }
 
-    public Geometry createBoundaryFor(List<LatLong> locations) {
-        List<Coordinate> points = locations.stream().
+    public List<LatLong> createBoundaryFor(Stream<LatLong> locations) {
+        Coordinate[] coords = locations.
                 map(latLong -> new Coordinate(latLong.getLat(), latLong.getLon())).
-                collect(Collectors.toList());
+                collect(Streams.toArray(Coordinate.class));
 
-        Coordinate[] asArray = points.toArray(new Coordinate[]{});
+        MultiPoint multiPoint = geometryFactoryLatLong.createMultiPointFromCoords(coords);
 
-        MultiPoint multiPoint = geometryFactoryLatLong.createMultiPointFromCoords(asArray);
+        org.locationtech.jts.algorithm.ConvexHull
 
-        return multiPoint.convexHull();
+        Geometry boundary = multiPoint.convexHull().getBoundary();
+
+        if (boundary.getNumPoints()==0) {
+            logger.warn("Created a boundary with zero points");
+        }
+
+        return Arrays.stream(boundary.getCoordinates()).map(LatLong::of).collect(Collectors.toList());
     }
     
     public static String getLatLongCode() {

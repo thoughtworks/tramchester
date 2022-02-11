@@ -7,7 +7,6 @@ import com.tramchester.domain.places.Location;
 import com.tramchester.domain.places.NaptanArea;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.LatLong;
-import org.locationtech.jts.geom.Geometry;
 
 import java.util.List;
 import java.util.stream.Stream;
@@ -22,8 +21,6 @@ public interface StationLocationsRepository {
     BoundingBox getBounds();
 
     LocationSet getLocationsWithin(IdFor<NaptanArea> areaId);
-
-    Geometry getGeometryForArea(IdFor<NaptanArea> areaId);
 
     List<LatLong> getBoundaryFor(IdFor<NaptanArea> areaId);
 

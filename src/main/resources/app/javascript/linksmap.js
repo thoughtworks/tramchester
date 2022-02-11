@@ -69,6 +69,13 @@ function addPlatformsToMap(platform, stationLayerGroup) {
     stationLayerGroup.addLayer(marker);
 }
 
+function createPolyForArea(area, colour) {
+    const boundary = area.points;
+    var points = [];
+    boundary.forEach(latLong => points.push([latLong.lat, latLong.lon]));
+    var polygon = L.polygon(points, { stroke: true, weight: 1, fill: true, fillOpacity: 0.2, color: colour });
+    return polygon;
+}
 
 var mapApp = new Vue({
     el: '#routeMap',
@@ -85,6 +92,7 @@ var mapApp = new Vue({
             areas: [],
             stations: [],
             interchanges: [], // list of station id's
+            stationsBoundary: [],
             bounds: null
         }
     },
@@ -104,16 +112,18 @@ var mapApp = new Vue({
             var areaLayerGroup = L.layerGroup();
             
             areas.forEach(area => {
+                var polygon = createPolyForArea(area, "purple");
                 const areaId = area.areaId;
-                const boundary = area.points;
-                var points = [];
-                boundary.forEach(latLong => points.push([latLong.lat, latLong.lon]));
-                var polygon = L.polygon(points, { stroke: true, weight: 1, fill: true,  fillOpacity: 0.5, color: "purple"});
                 polygon.bindTooltip("area " + areaId + "<br> " + area.areaName + "<br>" + area.type);
                 areaLayerGroup.addLayer(polygon);
             })
 
             areaLayerGroup.addTo(map);
+        },
+        addStationsBoundary: function(map, area) {
+            var polygon = createPolyForArea(area, "red");
+            //polygon.bindTooltip("area " + areaId + "<br> " + area.areaName + "<br>" + area.type);
+            polygon.addTo(map);
         },
         addGroups: function(map, groups) {
             var groupLayer = L.layerGroup();
@@ -183,6 +193,7 @@ var mapApp = new Vue({
             }).addTo(map);
 
             mapApp.addBounds(map, mapApp.bounds);
+            mapApp.addStationsBoundary(map, mapApp.stationsBoundary);
             mapApp.addQuadrants(map, mapApp.quadrants);
             mapApp.addAreas(map, mapApp.areas);
             mapApp.addLinks(map, mapApp.neighbours);
@@ -207,8 +218,9 @@ var mapApp = new Vue({
             axios.get("/api/geo/bounds"),
             axios.get("/api/geo/areas"),
             axios.get("/api/stations/all"),
-            axios.get("/api/interchanges/all")
-        ]).then(axios.spread((neighboursResp, quadResp, boundsResp, areasResp, stationsResp, interchangeResp) => {
+            axios.get("/api/interchanges/all"),
+            axios.get("/api/geo/stationsboundary")
+        ]).then(axios.spread((neighboursResp, quadResp, boundsResp, areasResp, stationsResp, interchangeResp, stationBounadryResp) => {
                 mapApp.networkError = false;
                 mapApp.neighbours = neighboursResp.data;
                 mapApp.quadrants = quadResp.data;
@@ -216,6 +228,7 @@ var mapApp = new Vue({
                 mapApp.areas = areasResp.data;
                 mapApp.stations = stationsResp.data;
                 mapApp.interchanges = interchangeResp.data;
+                mapApp.stationsBoundary = stationBounadryResp.data;
                 mapApp.draw();
             })).catch(error => {
                 mapApp.networkError = true;

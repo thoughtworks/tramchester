@@ -4,6 +4,7 @@ import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.places.Location;
 import com.tramchester.domain.places.MyLocation;
 import com.tramchester.domain.places.Station;
+import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.geo.MarginInMeters;
 import com.tramchester.mappers.Geography;
 import com.tramchester.testSupport.TestEnv;
@@ -22,7 +23,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static com.tramchester.testSupport.reference.KnownLocations.nearAltrincham;
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 import static tec.units.ri.unit.Units.METRE;
 
 public class GeographyTest {
@@ -92,5 +93,18 @@ public class GeographyTest {
         assertEquals(stationA, results.get(0));
         assertEquals(stationB, results.get(1));
         assertEquals(stationC, results.get(2));
+    }
+
+    @Test
+    void shouldGetBoundary() {
+        Station stationA = TramStations.Altrincham.fake();
+        Station stationB = TramStations.PiccadillyGardens.fake();
+        Station stationC = TramStations.Shudehill.fake();
+
+        List<LatLong> result = geography.createBoundaryFor(Stream.of(stationA, stationB, stationC).map(Location::getLatLong));
+
+        assertFalse(result.isEmpty());
+
+        fail("todo how to test this?");
     }
 }
