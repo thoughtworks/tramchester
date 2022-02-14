@@ -7,8 +7,10 @@ import com.tramchester.domain.Timestamped;
 import com.tramchester.domain.places.Location;
 import com.tramchester.domain.places.MyLocation;
 import com.tramchester.domain.places.Station;
+import com.tramchester.domain.presentation.DTO.JourneyQueryDTO;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.presentation.RecentJourneys;
+import com.tramchester.domain.time.TramTime;
 import com.tramchester.integration.testSupport.IntegrationAppExtension;
 import com.tramchester.integration.testSupport.JourneyResourceTestFacade;
 import com.tramchester.integration.testSupport.tram.ResourceTramTestConfig;
@@ -56,7 +58,9 @@ public class JourneyPlannerCookieTest {
         Station start = TramStations.Bury.fake();
         Station end = TramStations.ManAirport.fake();
 
-        Response result = getResponseForJourney(start, end, now.toLocalTime(), now.toLocalDate(), Collections.emptyList());
+        TramTime time = TramTime.ofHourMins(now.toLocalTime());
+
+        Response result = getResponseForJourney(start, end, time, now.toLocalDate(), Collections.emptyList());
 
         Assertions.assertEquals(200, result.getStatus());
 
@@ -72,6 +76,8 @@ public class JourneyPlannerCookieTest {
         Station start = TramStations.Bury.fake();
         Station end = TramStations.ManAirport.fake();
 
+        TramTime time = TramTime.ofHourMins(now.toLocalTime());
+
         // cookie with ashton
         RecentJourneys recentJourneys = new RecentJourneys();
         Timestamped ashton = new Timestamped(TramStations.Ashton.getId(), now);
@@ -79,7 +85,7 @@ public class JourneyPlannerCookieTest {
         Cookie cookie = new Cookie("tramchesterRecent", RecentJourneys.encodeCookie(mapper,recentJourneys));
 
         // journey to bury
-        Response response = getResponseForJourney(start, end, now.toLocalTime(), now.toLocalDate(), List.of(cookie));
+        Response response = getResponseForJourney(start, end, time, now.toLocalDate(), List.of(cookie));
 
         Assertions.assertEquals(200, response.getStatus());
 
@@ -99,7 +105,9 @@ public class JourneyPlannerCookieTest {
         MyLocation start = new MyLocation(latlong);
         Station end = TramStations.ManAirport.fake();
 
-        Response response = getResponseForJourney(start, end, now.toLocalTime(),  now.toLocalDate(), Collections.emptyList());
+        TramTime time = TramTime.ofHourMins(now.toLocalTime());
+
+        Response response = getResponseForJourney(start, end, time,  now.toLocalDate(), Collections.emptyList());
         Assertions.assertEquals(200, response.getStatus());
 
         RecentJourneys result = getRecentJourneysFromCookie(response);
@@ -119,8 +127,10 @@ public class JourneyPlannerCookieTest {
         return RecentJourneys.decodeCookie(mapper,value);
     }
 
-    private Response getResponseForJourney(Location<?> start, Location<?> end, LocalTime time, LocalDate date, List<Cookie> cookies) {
+    private Response getResponseForJourney(Location<?> start, Location<?> end, TramTime time, LocalDate date, List<Cookie> cookies) {
 
-        return journeyPlanner.getFromAPI(date, time, start, end, false, 3, false, cookies);
+        JourneyQueryDTO query = JourneyQueryDTO.create(date, time, start, end, false, 3);
+
+        return journeyPlanner.getResponse(false, cookies, query);
     }
 }

@@ -3,7 +3,10 @@ package com.tramchester.domain.presentation.DTO;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeName;
+import com.tramchester.domain.places.Location;
 import com.tramchester.domain.places.LocationType;
+import com.tramchester.domain.time.TramTime;
+import org.jetbrains.annotations.NotNull;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -49,6 +52,17 @@ public class JourneyQueryDTO  {
         this.destId = destId;
         this.arriveBy = arriveBy;
         this.maxChanges = maxChanges;
+    }
+
+    public static JourneyQueryDTO create(LocalDate date, TramTime time, Location<?> start, Location<?> dest, boolean arriveBy, int maxChanges) {
+
+        String startId = start.getId().forDTO();
+        String destId = dest.getId().forDTO();
+        LocationType startType = start.getLocationType();
+        LocationType destType = dest.getLocationType();
+
+        return new JourneyQueryDTO(date, time.asLocalTime(), startType, startId, destType, destId, arriveBy, maxChanges);
+
     }
 
     @Override

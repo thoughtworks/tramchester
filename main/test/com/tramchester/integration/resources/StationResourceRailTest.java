@@ -18,6 +18,7 @@ import com.tramchester.testSupport.testTags.TrainTest;
 import io.dropwizard.testing.junit5.DropwizardExtensionsSupport;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.DisabledIfEnvironmentVariable;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 import javax.ws.rs.core.GenericType;
@@ -33,6 +34,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 @TrainTest
 @ExtendWith(DropwizardExtensionsSupport.class)
+@DisabledIfEnvironmentVariable(named = "CI", matches = "true")
 class StationResourceRailTest {
 
     private static final IntegrationAppExtension appExtension =

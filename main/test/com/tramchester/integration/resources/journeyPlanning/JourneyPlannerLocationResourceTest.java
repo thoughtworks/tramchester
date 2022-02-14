@@ -4,6 +4,7 @@ import com.tramchester.App;
 import com.tramchester.config.AppConfiguration;
 import com.tramchester.domain.presentation.DTO.JourneyDTO;
 import com.tramchester.domain.presentation.DTO.JourneyPlanRepresentation;
+import com.tramchester.domain.presentation.DTO.JourneyQueryDTO;
 import com.tramchester.domain.presentation.DTO.StageDTO;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramTime;
@@ -231,8 +232,9 @@ class JourneyPlannerLocationResourceTest {
         TramTime queryTime = TramTime.of(23,0);
         int walkingTime = 13;
 
-        JourneyPlanRepresentation directFromStationNoWalking =  journeyPlanner.getJourneyPlan(when, queryTime.plusMinutes(walkingTime),
-                NavigationRoad, destination, false, 3);
+        JourneyQueryDTO query = journeyPlanner.getQueryDTO(when, queryTime.plusMinutes(walkingTime), NavigationRoad, destination, false, 3);
+
+        JourneyPlanRepresentation directFromStationNoWalking = journeyPlanner.getJourneyPlan(query);
 
         assertTrue(directFromStationNoWalking.getJourneys().size()>0);
         // now check walking
@@ -241,12 +243,18 @@ class JourneyPlannerLocationResourceTest {
     }
 
     private Set<JourneyDTO> validateJourneyFromLocation(KnownLocations start, FakeStation destination, TramTime queryTime, boolean arriveBy) {
-        JourneyPlanRepresentation plan = journeyPlanner.getJourneyPlan(when, queryTime, start.location(), destination, arriveBy, 3);
+
+        JourneyQueryDTO query = journeyPlanner.getQueryDTO(when, queryTime, start.location(), destination, arriveBy, 3);
+
+        JourneyPlanRepresentation plan = journeyPlanner.getJourneyPlan(query);
         return validateJourneyPresent(plan);
     }
 
     private Set<JourneyDTO> validateJourneyToLocation(FakeStation start, KnownLocations destination, TramTime queryTime, boolean arriveBy) {
-        JourneyPlanRepresentation plan = journeyPlanner.getJourneyPlan(when, queryTime, start, destination.location(), arriveBy, 3);
+
+        JourneyQueryDTO query = journeyPlanner.getQueryDTO(when, queryTime, start, destination.location(), arriveBy, 3);
+
+        JourneyPlanRepresentation plan = journeyPlanner.getJourneyPlan(query);
         return validateJourneyPresent(plan);
     }
 

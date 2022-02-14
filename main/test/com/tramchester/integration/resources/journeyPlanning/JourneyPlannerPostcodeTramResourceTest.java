@@ -3,6 +3,7 @@ package com.tramchester.integration.resources.journeyPlanning;
 import com.tramchester.App;
 import com.tramchester.domain.presentation.DTO.JourneyDTO;
 import com.tramchester.domain.presentation.DTO.JourneyPlanRepresentation;
+import com.tramchester.domain.presentation.DTO.JourneyQueryDTO;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.integration.testSupport.IntegrationAppExtension;
 import com.tramchester.integration.testSupport.JourneyResourceTestFacade;
@@ -43,8 +44,9 @@ class JourneyPlannerPostcodeTramResourceTest {
     @Test
     void shouldPlanJourneyFromPostcodeToPostcode() {
 
-        JourneyPlanRepresentation results = journeyPlanner.getJourneyPlan(day, time, TestPostcodes.CentralBury, TestPostcodes.NearPiccadillyGardens,
-                false, 5);
+        JourneyQueryDTO query = JourneyQueryDTO.create(day, time, TestPostcodes.CentralBury, TestPostcodes.NearPiccadillyGardens, false, 5);
+
+        JourneyPlanRepresentation results = journeyPlanner.getJourneyPlan(query);
 
         Set<JourneyDTO> journeys = results.getJourneys();
         assertFalse(journeys.isEmpty());
@@ -55,8 +57,10 @@ class JourneyPlannerPostcodeTramResourceTest {
 
     @Test
     void shouldPlanJourneyFromPostcodeToStation() {
-        JourneyPlanRepresentation results = journeyPlanner.getJourneyPlan(day, time, TestPostcodes.CentralBury, TramStations.Piccadilly,
-                false, 5);
+
+        JourneyQueryDTO query = journeyPlanner.getQueryDTO(day, time, TestPostcodes.CentralBury, TramStations.Piccadilly, false, 5);
+
+        JourneyPlanRepresentation results = journeyPlanner.getJourneyPlan(query);
 
         Set<JourneyDTO> journeys = results.getJourneys();
         assertFalse(journeys.isEmpty());
@@ -68,8 +72,9 @@ class JourneyPlannerPostcodeTramResourceTest {
     @Test
     void shouldPlanJourneyFromStationToPostcode() {
 
-        JourneyPlanRepresentation results = journeyPlanner.getJourneyPlan(day, time, TramStations.Piccadilly, TestPostcodes.CentralBury,
-                false, 5);
+        JourneyQueryDTO query = journeyPlanner.getQueryDTO(day, time, TramStations.Piccadilly, TestPostcodes.CentralBury, false, 5);
+
+        JourneyPlanRepresentation results = journeyPlanner.getJourneyPlan(query);
 
         Set<JourneyDTO> journeys = results.getJourneys();
         assertFalse(journeys.isEmpty());
