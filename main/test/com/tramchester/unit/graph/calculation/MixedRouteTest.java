@@ -86,7 +86,7 @@ class MixedRouteTest {
     @NotNull
     private JourneyRequest createJourneyRequest(TramTime queryTime, int maxChanges) {
         return new JourneyRequest(queryDate, queryTime, false, maxChanges,
-                Duration.ofMinutes(config.getMaxJourneyDuration()), 1);
+                Duration.ofMinutes(config.getMaxJourneyDuration()), 1, Collections.emptySet());
     }
 
     @Test

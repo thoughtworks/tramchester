@@ -26,6 +26,7 @@ import org.neo4j.graphdb.Transaction;
 
 import java.time.Duration;
 import java.time.LocalDate;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
@@ -97,16 +98,20 @@ public class RailRouteCalculatorTest {
     void shouldHaveStockportToManPicc() {
 
         JourneyRequest request = new JourneyRequest(new TramServiceDate(when), travelTime, false, 1,
-                Duration.ofMinutes(30), 1);
+                Duration.ofMinutes(30), 1, getRequestedModes());
 
         atLeastOneDirect(request, stockport, manchesterPiccadilly);
+    }
+
+    private Set<TransportMode> getRequestedModes() {
+        return Collections.emptySet();
     }
 
     @Test
     void shouldHaveManPiccToStockport() {
 
         JourneyRequest request = new JourneyRequest(new TramServiceDate(when), travelTime, false, 0,
-                Duration.ofMinutes(30), 1);
+                Duration.ofMinutes(30), 1, getRequestedModes());
 
         atLeastOneDirect(request, manchesterPiccadilly, stockport);
     }
@@ -115,7 +120,7 @@ public class RailRouteCalculatorTest {
     void shouldHaveManPiccToMacclesfield() {
 
         JourneyRequest request = new JourneyRequest(new TramServiceDate(when), travelTime, false, 0,
-                Duration.ofMinutes(45), 1);
+                Duration.ofMinutes(45), 1, getRequestedModes());
 
         atLeastOneDirect(request, manchesterPiccadilly, macclesfield);
     }
@@ -123,7 +128,7 @@ public class RailRouteCalculatorTest {
     @Test
     void shouldHaveManPiccToMiltonKeynesCentral() {
         JourneyRequest request = new JourneyRequest(new TramServiceDate(afterEngineering), travelTime, false, 0,
-                Duration.ofMinutes(120), 1);
+                Duration.ofMinutes(120), 1, getRequestedModes());
 
         atLeastOneDirect(request, manchesterPiccadilly, miltonKeynesCentral);
     }
@@ -131,7 +136,7 @@ public class RailRouteCalculatorTest {
     @Test
     void shouldHaveMiltonKeynesToManchester() {
         JourneyRequest request = new JourneyRequest(new TramServiceDate(afterEngineering), travelTime, false, 0,
-                Duration.ofMinutes(120), 1);
+                Duration.ofMinutes(120), 1, getRequestedModes());
 
         atLeastOneDirect(request, miltonKeynesCentral, manchesterPiccadilly);
     }
@@ -139,7 +144,7 @@ public class RailRouteCalculatorTest {
     @Test
     void shouldHaveManPiccToStoke() {
         JourneyRequest request = new JourneyRequest(new TramServiceDate(when), travelTime, false, 0,
-                Duration.ofMinutes(80), 1);
+                Duration.ofMinutes(80), 1, getRequestedModes());
 
         atLeastOneDirect(request, manchesterPiccadilly, stokeOnTrent);
     }
@@ -148,7 +153,7 @@ public class RailRouteCalculatorTest {
     void shouldHaveAltrinchamToStockport() {
 
         JourneyRequest request = new JourneyRequest(new TramServiceDate(when), travelTime, false, 1,
-                Duration.ofMinutes(45), 1);
+                Duration.ofMinutes(45), 1, getRequestedModes());
 
         atLeastOneDirect(request, altrincham, stockport);
     }
@@ -157,7 +162,7 @@ public class RailRouteCalculatorTest {
     void shouldHaveManchesterToLondonEuston() {
 
         JourneyRequest request = new JourneyRequest(new TramServiceDate(afterEngineering), travelTime, false, 0,
-                Duration.ofMinutes(240), 3);
+                Duration.ofMinutes(240), 3, getRequestedModes());
 
         atLeastOneDirect(request, manchesterPiccadilly, londonEuston);
     }
@@ -167,7 +172,7 @@ public class RailRouteCalculatorTest {
         TramTime travelTime = TramTime.of(9, 0);
 
         JourneyRequest request = new JourneyRequest(new TramServiceDate(when), travelTime, false, 1,
-                Duration.ofMinutes(30), 1);
+                Duration.ofMinutes(30), 1, getRequestedModes());
         atLeastOneDirect(request, Hale.getId(), Knutsford.getId());
     }
 
@@ -176,7 +181,7 @@ public class RailRouteCalculatorTest {
         TramTime travelTime = TramTime.of(9, 0);
 
         JourneyRequest request = new JourneyRequest(new TramServiceDate(when), travelTime, false, 1,
-                Duration.ofMinutes(120), 1);
+                Duration.ofMinutes(120), 1, getRequestedModes());
 
         atLeastOneDirect(request, Knutsford.getId(), Hale.getId());
     }
@@ -189,7 +194,7 @@ public class RailRouteCalculatorTest {
         TramTime travelTime = TramTime.of(11,4);
 
         JourneyRequest journeyRequest = new JourneyRequest(new TramServiceDate(when), travelTime, false, 3,
-                Duration.ofMinutes(3*60), 2);
+                Duration.ofMinutes(3*60), 2, getRequestedModes());
 
         //journeyRequest.setDiag(true);
 
@@ -203,7 +208,7 @@ public class RailRouteCalculatorTest {
         TramTime travelTime = TramTime.of(8, 0);
 
         JourneyRequest request = new JourneyRequest(new TramServiceDate(afterEngineering), travelTime, false, 0,
-                Duration.ofMinutes(3*60), 3);
+                Duration.ofMinutes(3*60), 3, getRequestedModes());
         Set<Journey> journeys = testFacade.calculateRouteAsSet(RailStationIds.LondonEuston.getId(),
                 ManchesterPiccadilly.getId(),
                 request);
@@ -244,7 +249,7 @@ public class RailRouteCalculatorTest {
         TramTime travelTime = TramTime.of(8, 0);
 
         JourneyRequest request = new JourneyRequest(new TramServiceDate(when), travelTime, false, 2,
-                Duration.ofMinutes(240), 1);
+                Duration.ofMinutes(240), 1, getRequestedModes());
 
         atLeastOneDirect(request, altrincham, londonEuston);
     }

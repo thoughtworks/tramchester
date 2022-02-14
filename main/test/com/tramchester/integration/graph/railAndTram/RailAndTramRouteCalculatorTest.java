@@ -112,16 +112,20 @@ public class RailAndTramRouteCalculatorTest {
     void shouldHaveStockportToManPiccViaRail() {
 
         JourneyRequest request = new JourneyRequest(new TramServiceDate(when), travelTime, false, 1,
-                Duration.ofMinutes(30), 1);
+                Duration.ofMinutes(30), 1, getRequestedModes());
 
         atLeastOneDirect(request, rail(Stockport), rail(ManchesterPiccadilly), Train);
+    }
+
+    private Set<TransportMode> getRequestedModes() {
+        return Collections.emptySet();
     }
 
     @Test
     void shouldHaveManPiccToStockportViaRail() {
 
         JourneyRequest request = new JourneyRequest(new TramServiceDate(when), travelTime, false, 0,
-                Duration.ofMinutes(30), 1);
+                Duration.ofMinutes(30), 1, getRequestedModes());
 
         atLeastOneDirect(request, rail(ManchesterPiccadilly), rail(Stockport), Train);
     }
@@ -130,9 +134,7 @@ public class RailAndTramRouteCalculatorTest {
     void shouldNotHaveManPiccToStockportWhenTramOnly() {
 
         JourneyRequest request = new JourneyRequest(new TramServiceDate(when), travelTime, false, 0,
-                Duration.ofMinutes(30), 1);
-
-        request.setRequestedModes(Collections.singleton(Tram));
+                Duration.ofMinutes(30), 1, Collections.singleton(Tram));
 
         Set<Journey> journeys = testFacade.calculateRouteAsSet(rail(ManchesterPiccadilly), rail(Stockport), request);
         assertTrue(journeys.isEmpty());
@@ -142,7 +144,7 @@ public class RailAndTramRouteCalculatorTest {
     @Test
     void shouldHaveAltyToStPetersSquareViaTram() {
         JourneyRequest request = new JourneyRequest(new TramServiceDate(when), travelTime, false, 0,
-                Duration.ofMinutes(30), 1);
+                Duration.ofMinutes(30), 1, getRequestedModes());
 
         atLeastOneDirect(request, tram(TramStations.Altrincham), tram(TramStations.StPetersSquare), Tram);
     }
@@ -150,7 +152,7 @@ public class RailAndTramRouteCalculatorTest {
     @Test
     void shouldBuryToStockportViaTramAndTrain() {
         JourneyRequest request = new JourneyRequest(new TramServiceDate(when), travelTime, false, 2,
-                Duration.ofMinutes(110), 1);
+                Duration.ofMinutes(110), 1, getRequestedModes());
 
         Set<Journey> journeys = testFacade.calculateRouteAsSet(tram(TramStations.Bury), rail(Stockport), request);
         assertFalse(journeys.isEmpty());

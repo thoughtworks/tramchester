@@ -8,6 +8,7 @@ import com.tramchester.domain.JourneyRequest;
 import com.tramchester.domain.places.StationGroup;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.TransportStage;
+import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramServiceDate;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.GraphDatabase;
@@ -26,6 +27,7 @@ import org.neo4j.graphdb.Transaction;
 
 import java.time.Duration;
 import java.time.LocalDate;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -88,16 +90,20 @@ public class AllModesJourneysTest {
         TramTime travelTime = TramTime.of(9, 0);
 
         JourneyRequest requestA = new JourneyRequest(new TramServiceDate(when), travelTime, false, 2,
-                maxJourneyDuration, 3);
+                maxJourneyDuration, 3, getRequestedModes());
         Set<Journey> journeys = routeCalculator.calculateRouteAsSet(stockport, alty, requestA);
         assertFalse(journeys.isEmpty());
+    }
+
+    private Set<TransportMode> getRequestedModes() {
+        return Collections.emptySet();
     }
 
     @Test
     void shouldHaveBuryVictoriaTramJourney() {
 
         JourneyRequest request = new JourneyRequest(new TramServiceDate(when),
-                TramTime.of(11,53), false, 0, maxJourneyDuration, 1);
+                TramTime.of(11,53), false, 0, maxJourneyDuration, 1, getRequestedModes());
 
         Set<Journey> journeys = routeCalculator.calculateRouteAsSet(Bury, Victoria, request);
         assertFalse(journeys.isEmpty());
@@ -118,7 +124,7 @@ public class AllModesJourneysTest {
         TramTime travelTime = TramTime.of(9, 0);
 
         JourneyRequest requestA = new JourneyRequest(new TramServiceDate(when), travelTime, false, 0,
-                maxJourneyDuration, 3);
+                maxJourneyDuration, 3, getRequestedModes());
         Set<Journey> journeys = routeCalculator.calculateRouteAsSet(stockport, alty, requestA);
         assertFalse(journeys.isEmpty());
     }
@@ -128,7 +134,7 @@ public class AllModesJourneysTest {
         TramTime travelTime = TramTime.of(8, 0);
 
         JourneyRequest request = new JourneyRequest(new TramServiceDate(when), travelTime, false, 1,
-                Duration.ofMinutes(30), 1);
+                Duration.ofMinutes(30), 1, getRequestedModes());
 
         Set<Journey> journeys = routeCalculator.calculateRouteAsSet(RailStationIds.Stockport.getId(), ManchesterPiccadilly.getId(), request);
         assertFalse(journeys.isEmpty());

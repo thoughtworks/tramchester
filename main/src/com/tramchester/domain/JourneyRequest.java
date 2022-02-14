@@ -6,7 +6,6 @@ import com.tramchester.domain.time.TramTime;
 
 import java.time.Duration;
 import java.time.LocalDate;
-import java.util.Collections;
 import java.util.Set;
 import java.util.UUID;
 
@@ -19,18 +18,18 @@ public class JourneyRequest {
     private final Duration maxJourneyDuration;
     private final long maxNumberOfJourneys;
 
-    private Set<TransportMode> requestedModes;
+    private final Set<TransportMode> requestedModes;
 
     private boolean diagnostics;
     private boolean warnIfNoResults;
 
     public JourneyRequest(LocalDate date, TramTime originalQueryTime, boolean arriveBy, int maxChanges, Duration maxJourneyDuration,
-                          long maxNumberOfJourneys) {
-        this(new TramServiceDate(date), originalQueryTime, arriveBy, maxChanges, maxJourneyDuration, maxNumberOfJourneys);
+                          long maxNumberOfJourneys, Set<TransportMode> requestedModes) {
+        this(new TramServiceDate(date), originalQueryTime, arriveBy, maxChanges, maxJourneyDuration, maxNumberOfJourneys, requestedModes);
     }
 
     public JourneyRequest(TramServiceDate date, TramTime originalQueryTime, boolean arriveBy, int maxChanges,
-                          Duration maxJourneyDuration, long maxNumberOfJourneys) {
+                          Duration maxJourneyDuration, long maxNumberOfJourneys, Set<TransportMode> requestedModes) {
         this.date = date;
         this.originalQueryTime = originalQueryTime;
         this.arriveBy = arriveBy;
@@ -38,15 +37,15 @@ public class JourneyRequest {
         this.maxJourneyDuration = maxJourneyDuration;
         this.maxNumberOfJourneys = maxNumberOfJourneys;
         this.uid = UUID.randomUUID();
-        requestedModes = Collections.emptySet(); // empty means use all
-        
+        this.requestedModes = requestedModes;
+
         diagnostics = false;
         warnIfNoResults = true;
     }
 
     public JourneyRequest(JourneyRequest originalRequest, TramTime computedDepartTime) {
         this(originalRequest.date, computedDepartTime, originalRequest.arriveBy, originalRequest.maxChanges,
-                originalRequest.maxJourneyDuration, originalRequest.maxNumberOfJourneys);
+                originalRequest.maxJourneyDuration, originalRequest.maxNumberOfJourneys, originalRequest.requestedModes);
         diagnostics = originalRequest.diagnostics;
         warnIfNoResults = originalRequest.warnIfNoResults;
     }
@@ -136,9 +135,10 @@ public class JourneyRequest {
                 '}';
     }
 
-    public void setRequestedModes(Set<TransportMode> allowedModes) {
-        this.requestedModes = allowedModes;
-    }
+//    @Deprecated
+//    public void setRequestedModes(Set<TransportMode> allowedModes) {
+//        this.requestedModes = allowedModes;
+//    }
 
     public Set<TransportMode> getRequestedModes() {
         return requestedModes;

@@ -4,6 +4,7 @@ import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.JourneyRequest;
+import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramServiceDate;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.GraphDatabase;
@@ -17,6 +18,8 @@ import org.neo4j.graphdb.Transaction;
 
 import java.time.Duration;
 import java.time.LocalDate;
+import java.util.Collections;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 import static com.tramchester.domain.reference.TransportMode.Train;
@@ -66,9 +69,13 @@ class RailRouteCalculatorCombinationTests {
         TramTime travelTime = TramTime.of(8, 0);
 
         JourneyRequest request = new JourneyRequest(new TramServiceDate(when), travelTime, false,
-                10, Duration.ofHours(8), 1);
+                10, Duration.ofHours(8), 1, getRequestedModes());
 
         combinations.validateAllHaveAtLeastOneJourney(combinations.InterchangeToInterchange(Train), request);
+    }
+
+    private Set<TransportMode> getRequestedModes() {
+        return Collections.emptySet();
     }
 
     @Test
@@ -76,7 +83,7 @@ class RailRouteCalculatorCombinationTests {
         TramTime travelTime = TramTime.of(8, 0);
 
         JourneyRequest request = new JourneyRequest(new TramServiceDate(when), travelTime, false,
-                10, Duration.ofHours(8), 1);
+                10, Duration.ofHours(8), 1, getRequestedModes());
 
         combinations.validateAllHaveAtLeastOneJourney(combinations.EndOfRoutesToEndOfRoutes(Train), request);
     }

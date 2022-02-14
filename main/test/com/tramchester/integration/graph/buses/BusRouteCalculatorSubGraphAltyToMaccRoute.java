@@ -14,6 +14,7 @@ import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.input.StopCalls;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.places.StationGroup;
+import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramServiceDate;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.geo.MarginInMeters;
@@ -36,6 +37,7 @@ import org.neo4j.graphdb.Transaction;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.time.Duration;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -146,10 +148,14 @@ class BusRouteCalculatorSubGraphAltyToMaccRoute {
 
         TramTime time = TramTime.of(10, 40);
         JourneyRequest journeyRequest = new JourneyRequest(when, time, false, 1,
-                Duration.ofMinutes(120), 2);
+                Duration.ofMinutes(120), 2, getRequestedModes());
         Set<Journey> results = calculator.calculateRouteAsSet(altrinchamInterchange, end, journeyRequest);
 
         assertFalse(results.isEmpty());
+    }
+
+    private Set<TransportMode> getRequestedModes() {
+        return Collections.emptySet();
     }
 
     @Test
@@ -163,7 +169,7 @@ class BusRouteCalculatorSubGraphAltyToMaccRoute {
 
         TramTime time = TramTime.of(11, 20);
         JourneyRequest journeyRequest = new JourneyRequest(when, time, false,
-                3, Duration.ofMinutes(120), 2);
+                3, Duration.ofMinutes(120), 2, getRequestedModes());
 
         Set<Journey> results = calculator.calculateRouteAsSet(start, altrinchamInterchange, journeyRequest);
 
@@ -187,7 +193,7 @@ class BusRouteCalculatorSubGraphAltyToMaccRoute {
 
                 TramTime time = TramTime.of(9, 20);
                 JourneyRequest journeyRequest = new JourneyRequest(when, time, false,
-                        1, Duration.ofMinutes(120), 1);
+                        1, Duration.ofMinutes(120), 1, getRequestedModes());
 
                 for (int i = 1; i <= knutsfordIndex; i++) {
                     Station secondStation = stopCalls.getStopBySequenceNumber(i).getStation();

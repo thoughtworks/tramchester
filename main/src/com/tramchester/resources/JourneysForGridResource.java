@@ -13,6 +13,7 @@ import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.DTO.BoxWithCostDTO;
 import com.tramchester.domain.presentation.DTO.PostcodeDTO;
 import com.tramchester.domain.presentation.LatLong;
+import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramServiceDate;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.geo.CoordinateTransforms;
@@ -32,6 +33,8 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.time.Duration;
 import java.time.LocalDate;
+import java.util.Collections;
+import java.util.Set;
 import java.util.stream.Stream;
 
 import static java.lang.String.format;
@@ -93,8 +96,9 @@ public class JourneysForGridResource implements APIResource, GraphDatabaseDepend
         Duration maxDuration = Duration.ofMinutes(maxDurationMinutes);
 
         TramServiceDate tramServiceDate = new TramServiceDate(date);
+        Set<TransportMode> allModes = Collections.emptySet();
         JourneyRequest journeyRequest = new JourneyRequest(tramServiceDate, departureTime,
-                false, maxChanges, maxDuration, maxNumberOfJourneys);
+                false, maxChanges, maxDuration, maxNumberOfJourneys, allModes);
         journeyRequest.setWarnIfNoResults(false);
 
         logger.info("Create search");

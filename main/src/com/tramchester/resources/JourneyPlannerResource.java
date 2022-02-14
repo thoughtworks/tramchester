@@ -11,6 +11,7 @@ import com.tramchester.domain.places.Location;
 import com.tramchester.domain.presentation.DTO.JourneyDTO;
 import com.tramchester.domain.presentation.DTO.JourneyPlanRepresentation;
 import com.tramchester.domain.presentation.DTO.JourneyQueryDTO;
+import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.GraphDatabase;
@@ -31,6 +32,7 @@ import java.net.URI;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.Collections;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -95,7 +97,7 @@ public class JourneyPlannerResource extends UsesRecentCookie implements APIResou
         try(Transaction tx = graphDatabaseService.beginTx() ) {
 
             Stream<JourneyDTO> dtoStream = getJourneyDTOStream(tx, query.getDate(), query.getTime(), start, dest, query.isArriveBy(),
-                    query.getMaxChanges());
+                    query.getMaxChanges(), query.getModes());
 
             // duplicates where same path and timings, just different change points
             Set<JourneyDTO> journeyDTOS = dtoStream.collect(Collectors.toSet());
@@ -151,7 +153,7 @@ public class JourneyPlannerResource extends UsesRecentCookie implements APIResou
 
         try {
             Stream<JourneyDTO> dtoStream = getJourneyDTOStream(tx, query.getDate(), query.getTime(), start, dest, query.isArriveBy(),
-                    query.getMaxChanges());
+                    query.getMaxChanges(), query.getModes());
 
             JsonStreamingOutput<JourneyDTO> jsonStreamingOutput = new JsonStreamingOutput<>(tx, dtoStream, super.mapper);
 
@@ -172,12 +174,14 @@ public class JourneyPlannerResource extends UsesRecentCookie implements APIResou
     }
 
     private Stream<JourneyDTO> getJourneyDTOStream(Transaction tx, LocalDate date, LocalTime time, Location<?> start,
-                                                   Location<?> dest, boolean arriveBy, int maxChanges) {
+                                                   Location<?> dest, boolean arriveBy, int maxChanges, Set<TransportMode> modes) {
 
         TramTime queryTime = TramTime.ofHourMins(time);
         final Duration maxJourneyDuration = Duration.ofMinutes(config.getMaxJourneyDuration());
+
         JourneyRequest journeyRequest = new JourneyRequest(date, queryTime, arriveBy, maxChanges,
-                maxJourneyDuration,  config.getMaxNumResults());
+                maxJourneyDuration,  config.getMaxNumResults(), modes);
+//        journeyRequest.setRequestedModes(modes);
 
         logger.info(format("Plan journey from %s to %s on %s", start, dest, journeyRequest));
 

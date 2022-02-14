@@ -1,5 +1,6 @@
 package com.tramchester.domain.reference;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.tramchester.domain.HasTransportMode;
 import com.tramchester.domain.HasTransportModes;
 
@@ -30,6 +31,7 @@ public enum TransportMode implements HasTransportMode {
         }
     }
 
+    @JsonIgnore
     private final short graphId;
 
     TransportMode(short graphId) {
@@ -56,6 +58,7 @@ public enum TransportMode implements HasTransportMode {
         return result;
     }
 
+    @JsonIgnore
     @Override
     public TransportMode getTransportMode() {
         return this;

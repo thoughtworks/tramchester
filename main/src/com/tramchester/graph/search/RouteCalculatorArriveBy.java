@@ -112,21 +112,4 @@ public class RouteCalculatorArriveBy implements TramRouteCalculator {
         return new JourneyRequest(originalRequest, newQueryTime);
     }
 
-    @Deprecated
-    private JourneyRequest calcDepartTime(JourneyRequest originalRequest, int costToDest) {
-        TramTime queryTime = originalRequest.getOriginalTime();
-
-        final TramTime departTime;
-        if (costToDest<0) {
-            logger.error("Could not find an approx cost to the destination for request: " + originalRequest);
-            departTime = queryTime;
-        } else {
-            departTime = queryTime.minusMinutes(costToDest);
-        }
-        // TODO Handle buses & trains wait time here?
-        final int waitTime = config.getMaxInitialWait() / 2;
-        TramTime newQueryTime = departTime.minusMinutes(waitTime);
-
-        return new JourneyRequest(originalRequest, newQueryTime);
-    }
 }

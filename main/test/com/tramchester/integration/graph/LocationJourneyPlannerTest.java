@@ -83,7 +83,7 @@ class LocationJourneyPlannerTest {
         TramServiceDate queryDate = new TramServiceDate(when);
 
         JourneyRequest journeyRequest = new JourneyRequest(queryDate, TramTime.of(9, 0), false,
-                0, maxJourneyDuration, maxNumberOfJourneys);
+                0, maxJourneyDuration, maxNumberOfJourneys, getRequestedModes());
         Set<Journey> unsortedResults = planner.quickestRouteForLocation(nearPiccGardens, PiccadillyGardens,
                 journeyRequest, 3);
 
@@ -104,12 +104,16 @@ class LocationJourneyPlannerTest {
         });
     }
 
+    private Set<TransportMode> getRequestedModes() {
+        return Collections.emptySet();
+    }
+
     @Test
     void shouldHaveDirectWalkFromPiccadily() {
         TramServiceDate queryDate = new TramServiceDate(when);
 
         JourneyRequest journeyRequest = new JourneyRequest(queryDate, TramTime.of(9, 0),
-                false, 1, maxJourneyDuration, maxNumberOfJourneys);
+                false, 1, maxJourneyDuration, maxNumberOfJourneys, getRequestedModes());
         Set<Journey> unsortedResults = planner.quickestRouteForLocation(PiccadillyGardens, nearPiccGardens, journeyRequest, 2);
 
         assertFalse(unsortedResults.isEmpty());
@@ -124,7 +128,7 @@ class LocationJourneyPlannerTest {
     @Test
     void shouldFindJourneyWithWalkingAtEndEarlyMorning() {
         final JourneyRequest request = new JourneyRequest(date, TramTime.of(8, 0), false,
-                3, maxJourneyDuration, 1);
+                3, maxJourneyDuration, 1, getRequestedModes());
         //request.setDiag(true);
         final TramStations walkChangeStation = NavigationRoad;
         final TramStations start = TraffordBar;
@@ -155,7 +159,7 @@ class LocationJourneyPlannerTest {
     void shouldFindJourneyWithWalkingEarlyMorning() {
 
         final JourneyRequest request = new JourneyRequest(new TramServiceDate(when), TramTime.of(8, 0),
-                false, 2, maxJourneyDuration, maxNumberOfJourneys);
+                false, 2, maxJourneyDuration, maxNumberOfJourneys, getRequestedModes());
         Set<Journey> results = planner.quickestRouteForLocation(nearAltrincham, Deansgate, request, 3);
 
         assertFalse(results.isEmpty());
@@ -186,7 +190,7 @@ class LocationJourneyPlannerTest {
         TramTime queryTime = TramTime.of(8, 0);
 
         final JourneyRequest request = new JourneyRequest(new TramServiceDate(when), queryTime, true, 3,
-                maxJourneyDuration, maxNumberOfJourneys);
+                maxJourneyDuration, maxNumberOfJourneys, getRequestedModes());
         Set<Journey> results = planner.quickestRouteForLocation(nearAltrincham, Deansgate, request, 3);
 
         assertFalse(results.isEmpty());
@@ -197,7 +201,7 @@ class LocationJourneyPlannerTest {
     void shouldFindJourneyWithWalkingAtEndEarlyMorningArriveBy() {
         TramTime queryTime = TramTime.of(8, 0);
         final JourneyRequest request = new JourneyRequest(date, queryTime, true, 2,
-                maxJourneyDuration, 1);
+                maxJourneyDuration, 1, getRequestedModes());
 
         Set<Journey> journeySet = planner.quickestRouteForLocation(Deansgate, nearAltrincham, request, 3);
         List<Journey> journeyList = sortByCost(journeySet);
@@ -218,7 +222,7 @@ class LocationJourneyPlannerTest {
     @Test
     void shouldFindJourneyWithWalkingDirectAtEndNearShudehill() {
         TramTime queryTime = TramTime.of(8, 30);
-        final JourneyRequest request = new JourneyRequest(date, queryTime, false, 3, maxJourneyDuration, maxNumberOfJourneys);
+        final JourneyRequest request = new JourneyRequest(date, queryTime, false, 3, maxJourneyDuration, maxNumberOfJourneys, getRequestedModes());
 
         Set<Journey> journeySet = planner.quickestRouteForLocation(TramStations.Shudehill, nearShudehill, request, 4);
 
@@ -238,7 +242,7 @@ class LocationJourneyPlannerTest {
     void shouldFindJourneyWithWalkingAtEndDeansgateNearShudehill() {
         TramTime queryTime = TramTime.of(8, 35);
         final JourneyRequest request = new JourneyRequest(date, queryTime, false, 2,
-                maxJourneyDuration, maxNumberOfJourneys);
+                maxJourneyDuration, maxNumberOfJourneys, getRequestedModes());
 
         Set<Journey> journeySet = planner.quickestRouteForLocation(Altrincham, nearShudehill, request, 3);
 
@@ -263,7 +267,7 @@ class LocationJourneyPlannerTest {
     @Test
     void shouldFindJourneyWithWalkingEndOfDay() {
         final JourneyRequest request = new JourneyRequest(new TramServiceDate(when), TramTime.of(23, 0),
-                false, 2, maxJourneyDuration, maxNumberOfJourneys);
+                false, 2, maxJourneyDuration, maxNumberOfJourneys, getRequestedModes());
 
         Set<Journey> results = planner.quickestRouteForLocation(nearAltrincham, Deansgate, request, 3);
         assertFalse(results.isEmpty());
@@ -284,7 +288,7 @@ class LocationJourneyPlannerTest {
         TramTime earliestDepart = queryTime.plusMinutes(lowestCost);
 
         final JourneyRequest request = new JourneyRequest(new TramServiceDate(when), queryTime,
-                false, 1, maxJourneyDuration, maxNumberOfJourneys);
+                false, 1, maxJourneyDuration, maxNumberOfJourneys, getRequestedModes());
 
         Set<Journey> unsorted = planner.quickestRouteForLocation(nearAltrincham, Deansgate, request, 2);
         assertFalse(unsorted.isEmpty());
@@ -301,7 +305,7 @@ class LocationJourneyPlannerTest {
     @Test
     void shouldFindWalkOnlyIfNearDestinationStationSingleStationWalk() {
         final JourneyRequest request = new JourneyRequest(new TramServiceDate(when), TramTime.of(9, 0),
-                false, 0, maxJourneyDuration, maxNumberOfJourneys);
+                false, 0, maxJourneyDuration, maxNumberOfJourneys, getRequestedModes());
 
         // set max stages to 1, because there is another path via walk to market street and then tram
         Set<Journey> results = planner.quickestRouteForLocation(nearPiccGardens, PiccadillyGardens, request, 1);

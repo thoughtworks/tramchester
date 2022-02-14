@@ -17,17 +17,13 @@ import io.dropwizard.testing.junit5.DropwizardExtensionsSupport;
 import org.apache.commons.lang3.tuple.Triple;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.tramchester.testSupport.reference.TramStations.*;
@@ -91,10 +87,34 @@ public class JourneyPlannerResourceTest {
         });
     }
 
-    @Disabled("WIP")
     @Test
     void shouldNotFindAnyResultsIfNoneTramModeIsRequested() {
-        fail("todo");
+
+        TramTime queryTime = TramTime.of(8,15);
+
+        JourneyQueryDTO query = journeyPlanner.getQueryDTO(tramServiceDate.getDate(), queryTime, TramStations.Altrincham,
+                TramStations.Cornbrook, false, 0);
+        query.setModes(Collections.singleton(TransportMode.Train));
+
+        JourneyPlanRepresentation plan = journeyPlanner.getJourneyPlan(query);
+
+        assertTrue(plan.getJourneys().isEmpty());
+
+    }
+
+    @Test
+    void shouldNotFindAnyResultsIfNoneTramModeIsRequestedArriveBy() {
+
+        TramTime queryTime = TramTime.of(8,15);
+
+        JourneyQueryDTO query = journeyPlanner.getQueryDTO(tramServiceDate.getDate(), queryTime, TramStations.Altrincham,
+                TramStations.Cornbrook, true, 0);
+        query.setModes(Collections.singleton(TransportMode.Train));
+
+        JourneyPlanRepresentation plan = journeyPlanner.getJourneyPlan(query);
+
+        assertTrue(plan.getJourneys().isEmpty());
+
     }
 
     @Test

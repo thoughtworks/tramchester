@@ -33,6 +33,7 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.time.Duration;
 import java.time.LocalDate;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
@@ -104,7 +105,7 @@ class CompositeRouteTest {
     @NotNull
     private JourneyRequest createJourneyRequest(TramTime queryTime, int maxChanges) {
         return new JourneyRequest(queryDate, queryTime, false, maxChanges,
-                Duration.ofMinutes(config.getMaxJourneyDuration()), 2);
+                Duration.ofMinutes(config.getMaxJourneyDuration()), 2, Collections.emptySet());
     }
 
     @AfterEach

@@ -108,7 +108,7 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
         long maxNumberOfJourneys = 2;
         JourneyRequest journeyRequest = new JourneyRequest(
                 TramServiceDate.of(TestEnv.nextSaturday()), TramTime.of(8,15), false,
-                3, Duration.ofMinutes(config.getMaxJourneyDuration()), maxNumberOfJourneys);
+                3, Duration.ofMinutes(config.getMaxJourneyDuration()), maxNumberOfJourneys, Collections.emptySet());
         reasons = new ServiceReasons(journeyRequest, TramTime.of(8,15), providesNow);
 
         serviceHeuristics = createMock(ServiceHeuristics.class);

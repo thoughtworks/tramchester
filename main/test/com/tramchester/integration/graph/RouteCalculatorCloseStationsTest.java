@@ -6,6 +6,7 @@ import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.Journey;
 import com.tramchester.domain.JourneyRequest;
 import com.tramchester.domain.StationClosure;
+import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramServiceDate;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.GraphDatabase;
@@ -75,15 +76,19 @@ class RouteCalculatorCloseStationsTest {
     @Test
     void shouldFindUnaffectedRouteNormally() {
         JourneyRequest journeyRequest = new JourneyRequest(new TramServiceDate(when),TramTime.of(8,0), false,
-                2, Duration.ofMinutes(120), 1);
+                2, Duration.ofMinutes(120), 1, getRequestedModes());
         Set<Journey> result = calculator.calculateRouteAsSet(TramStations.Altrincham, TramStations.TraffordBar, journeyRequest);
         assertFalse(result.isEmpty());
     }
-    
+
+    private Set<TransportMode> getRequestedModes() {
+        return Collections.emptySet();
+    }
+
     @Test
     void shouldFindRouteAroundClosedStation() {
         JourneyRequest journeyRequest = new JourneyRequest(new TramServiceDate(when),TramTime.of(8,0), false,
-                2, Duration.ofMinutes(120), 1);
+                2, Duration.ofMinutes(120), 1, getRequestedModes());
         Set<Journey> result = calculator.calculateRouteAsSet(TramStations.PiccadillyGardens, TramStations.Victoria,
                 journeyRequest);
         assertFalse(result.isEmpty());
@@ -104,7 +109,7 @@ class RouteCalculatorCloseStationsTest {
     @NotNull
     private Set<Journey> getSingleStageBuryToEccles(LocalDate travelDate) {
         JourneyRequest journeyRequest = new JourneyRequest(new TramServiceDate(travelDate), TramTime.of(8, 0),
-                false, 0, Duration.ofMinutes(120), 1);
+                false, 0, Duration.ofMinutes(120), 1, getRequestedModes());
         Set<Journey> journeys = calculator.calculateRouteAsSet(TramStations.Bury, TramStations.Shudehill, journeyRequest);
         return journeys.stream().filter(results -> results.getStages().size() == 1).collect(Collectors.toSet());
     }

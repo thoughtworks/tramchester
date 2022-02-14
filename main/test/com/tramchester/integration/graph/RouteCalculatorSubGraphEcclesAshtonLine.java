@@ -88,7 +88,7 @@ class RouteCalculatorSubGraphEcclesAshtonLine {
     @Test
     void ShouldReproIssueWithMediaCityToVelopark() {
         JourneyRequest request = new JourneyRequest(when, TramTime.of(8, 5), false,
-                1, maxJourneyDuration, 2);
+                1, maxJourneyDuration, 2, Collections.emptySet());
         request.setDiag(true);
 
         assertFalse(calculator.calculateRouteAsSet(MediaCityUK, VeloPark, request).isEmpty());

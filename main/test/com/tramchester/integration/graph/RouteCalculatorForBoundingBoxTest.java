@@ -22,6 +22,7 @@ import org.neo4j.graphdb.Transaction;
 
 import java.time.Duration;
 import java.time.LocalDate;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -80,7 +81,8 @@ class RouteCalculatorForBoundingBoxTest {
 
         long maxNumberOfJourneys = 3;
         JourneyRequest journeyRequest = new JourneyRequest(new TramServiceDate(when), TramTime.of(9,30),
-                false, 3, Duration.ofMinutes(testConfig.getMaxJourneyDuration()), maxNumberOfJourneys);
+                false, 3, Duration.ofMinutes(testConfig.getMaxJourneyDuration()), maxNumberOfJourneys,
+                Collections.emptySet());
 
         LocationSet destinations = LocationSet.singleton(TramStations.StPetersSquare.from(stationRepository));
 

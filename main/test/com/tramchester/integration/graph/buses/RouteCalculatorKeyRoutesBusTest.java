@@ -17,6 +17,7 @@ import org.junit.jupiter.api.condition.DisabledIfEnvironmentVariable;
 import java.io.IOException;
 import java.time.Duration;
 import java.time.LocalDate;
+import java.util.Collections;
 
 import static com.tramchester.domain.reference.TransportMode.Bus;
 
@@ -59,7 +60,7 @@ class RouteCalculatorKeyRoutesBusTest {
         TramTime time = TramTime.of(8, 0);
         int numberChanges = 3;
         journeyRequest = new JourneyRequest(when, time, false, numberChanges,
-                Duration.ofMinutes(testConfig.getMaxJourneyDuration()), 1);
+                Duration.ofMinutes(testConfig.getMaxJourneyDuration()), 1, Collections.emptySet());
     }
 
     @Test

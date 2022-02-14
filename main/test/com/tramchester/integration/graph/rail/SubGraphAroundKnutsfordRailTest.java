@@ -26,6 +26,7 @@ import java.nio.file.Path;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
@@ -115,7 +116,7 @@ class SubGraphAroundKnutsfordRailTest {
     @Test
     void shouldHaveSimpleJourney() {
         JourneyRequest journeyRequest = new JourneyRequest(when, tramTime, false, 0,
-                Duration.ofMinutes(30), 1);
+                Duration.ofMinutes(30), 1, Collections.emptySet());
         Set<Journey> results = testFacade.calculateRouteAsSet(RailStationIds.Hale.getId(), RailStationIds.Knutsford.getId(), journeyRequest);
         Assertions.assertTrue(results.size()>0);
     }
@@ -130,7 +131,7 @@ class SubGraphAroundKnutsfordRailTest {
 
     private void validateAtLeastOneJourney(RailStationIds start, RailStationIds dest) {
         JourneyRequest journeyRequest = new JourneyRequest(when, tramTime, false, 0,
-                Duration.ofMinutes(30), 1);
+                Duration.ofMinutes(30), 1, Collections.emptySet());
 
         Set<Journey> results = testFacade.calculateRouteAsSet(start.getId(), dest.getId(), journeyRequest);
         assertFalse(results.isEmpty(), "No results from " + start + " to " + dest);

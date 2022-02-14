@@ -17,6 +17,7 @@ import org.junit.jupiter.api.Test;
 
 import java.time.Duration;
 import java.time.LocalDate;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -56,7 +57,7 @@ class RouteCalculatorTestAllJourneys {
         Set<Station> haveServices = new HashSet<>(data.getStationsServing(Tram));
 
         JourneyRequest journeyRequest = new JourneyRequest(when, time, false, 2,
-                Duration.ofMinutes(testConfig.getMaxJourneyDuration()), 1);
+                Duration.ofMinutes(testConfig.getMaxJourneyDuration()), 1, Collections.emptySet());
 
         // pairs of stations to check
         Set<StationIdPair> stationIdPairs = haveServices.stream().flatMap(start -> haveServices.stream().

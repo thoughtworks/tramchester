@@ -128,7 +128,7 @@ class RouteCalculatorSubGraphMediaCityTest {
                         if (!serviceDate.isChristmasPeriod()) {
                             JourneyRequest journeyRequest =
                                     new JourneyRequest(new TramServiceDate(day), TramTime.of(9, 0), false,
-                                            3, maxJourneyDuration, 1);
+                                            3, maxJourneyDuration, 1, getRequestedModes());
                             Set<Journey> journeys = calculator.calculateRouteAsSet(start, destination, journeyRequest);
                             if (journeys.isEmpty()) {
                                 failures.add(day.getDayOfWeek() + ": " + start + "->" + destination);
@@ -139,6 +139,10 @@ class RouteCalculatorSubGraphMediaCityTest {
             }
         }
         Assertions.assertTrue(failures.isEmpty());
+    }
+
+    private Set<TransportMode> getRequestedModes() {
+        return Collections.emptySet();
     }
 
     @Test
@@ -154,7 +158,7 @@ class RouteCalculatorSubGraphMediaCityTest {
     @Test
     void shouldHaveSimpleJourney() {
         JourneyRequest journeyRequest = new JourneyRequest(new TramServiceDate(when), TramTime.of(12, 0), false, 3,
-                maxJourneyDuration, 1);
+                maxJourneyDuration, 1, getRequestedModes());
         Set<Journey> results = calculator.calculateRouteAsSet(TramStations.Pomona, MediaCityUK, journeyRequest);
         Assertions.assertTrue(results.size()>0);
     }
@@ -188,7 +192,7 @@ class RouteCalculatorSubGraphMediaCityTest {
 
     private void validateAtLeastOneJourney(TramStations start, TramStations dest, TramTime time, LocalDate date) {
         JourneyRequest journeyRequest = new JourneyRequest(date, time, false, 5,
-                maxJourneyDuration, 1);
+                maxJourneyDuration, 1, Collections.emptySet());
         Set<Journey> results = calculator.calculateRouteAsSet(start, dest, journeyRequest);
         assertFalse(results.isEmpty());
     }

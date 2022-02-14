@@ -170,7 +170,7 @@ public class NeighbourJourneysTest {
     void shouldTramNormally() {
 
         JourneyRequest request = new JourneyRequest(new TramServiceDate(TestEnv.testDay()),
-                TramTime.of(11,53), false, 0, maxJourneyDuration, 1);
+                TramTime.of(11,53), false, 0, maxJourneyDuration, 1, getRequestedModes());
 
         Set<Journey> journeys = routeCalculator.calculateRouteAsSet(Bury.from(stationRepository), Victoria.from(stationRepository), request);
         assertFalse(journeys.isEmpty());
@@ -182,13 +182,17 @@ public class NeighbourJourneysTest {
         });
     }
 
+    private Set<TransportMode> getRequestedModes() {
+        return Collections.emptySet();
+    }
+
     @Test
     void shouldTramThenWalk() {
 
         LocationJourneyPlannerTestFacade facade = new LocationJourneyPlannerTestFacade(planner, stationRepository, txn);
 
         JourneyRequest request = new JourneyRequest(new TramServiceDate(TestEnv.testDay()),
-                TramTime.of(11,53), false, 0, maxJourneyDuration, 1);
+                TramTime.of(11,53), false, 0, maxJourneyDuration, 1, getRequestedModes());
 
         Set<Journey> allJourneys = facade.quickestRouteForLocation(Altrincham.from(stationRepository), nearStPetersSquare, request, 4);
         assertFalse(allJourneys.isEmpty(), "No journeys");
@@ -212,7 +216,7 @@ public class NeighbourJourneysTest {
     private void validateDirectWalk(Station start, Station end) {
 
         JourneyRequest request = new JourneyRequest(new TramServiceDate(TestEnv.testDay()), TramTime.of(11,45),
-                        false, 0, maxJourneyDuration, 3);
+                        false, 0, maxJourneyDuration, 3, getRequestedModes());
 
         Set<Journey> allJourneys =  routeCalculator.calculateRouteAsSet(start, end, request);
         assertFalse(allJourneys.isEmpty(), "no journeys");

@@ -28,6 +28,7 @@ import org.neo4j.graphdb.Transaction;
 
 import java.time.Duration;
 import java.time.LocalDate;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
@@ -84,9 +85,10 @@ class PostcodeTramJourneyPlannerTest {
         TramServiceDate date = new TramServiceDate(when);
         int maxChanges = 2;
         long maxNumberOfJourneys = 3;
+        Set<TransportMode> modes = Collections.emptySet();
         return Stream.of(
-                new JourneyRequest(date, planningTime, false, maxChanges, maxJourneyDuration, maxNumberOfJourneys),
-                new JourneyRequest(date, planningTime, true, maxChanges, maxJourneyDuration, maxNumberOfJourneys));
+                new JourneyRequest(date, planningTime, false, maxChanges, maxJourneyDuration, maxNumberOfJourneys, modes),
+                new JourneyRequest(date, planningTime, true, maxChanges, maxJourneyDuration, maxNumberOfJourneys, modes));
     }
 
     @PostcodeTestCategory

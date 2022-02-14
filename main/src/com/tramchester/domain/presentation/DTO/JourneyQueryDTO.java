@@ -5,11 +5,13 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.tramchester.domain.places.Location;
 import com.tramchester.domain.places.LocationType;
+import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramTime;
-import org.jetbrains.annotations.NotNull;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.Collections;
+import java.util.Set;
 
 @JsonTypeName("JourneyQuery")
 public class JourneyQueryDTO  {
@@ -37,6 +39,9 @@ public class JourneyQueryDTO  {
     @JsonProperty("maxChanges")
     private int maxChanges;
 
+    @JsonProperty("modes")
+    private Set<TransportMode> modes;
+
     public JourneyQueryDTO() {
         // deserialisation
     }
@@ -52,6 +57,7 @@ public class JourneyQueryDTO  {
         this.destId = destId;
         this.arriveBy = arriveBy;
         this.maxChanges = maxChanges;
+        this.modes = Collections.emptySet();
     }
 
     public static JourneyQueryDTO create(LocalDate date, TramTime time, Location<?> start, Location<?> dest, boolean arriveBy, int maxChanges) {
@@ -76,6 +82,7 @@ public class JourneyQueryDTO  {
                 ", destId='" + destId + '\'' +
                 ", arriveBy=" + arriveBy +
                 ", maxChanges=" + maxChanges +
+                ", modes=" + modes +
                 '}';
     }
 
@@ -113,6 +120,15 @@ public class JourneyQueryDTO  {
 
     @JsonIgnore
     public boolean valid() {
-        return startId!=null && startType!=null && destId!=null && destType!=null && date!=null;
+        return startId!=null && startType!=null && destId!=null && destType!=null && date!=null
+                && modes!=null;
+    }
+
+    public void setModes(Set<TransportMode> modes) {
+        this.modes = modes;
+    }
+
+    public Set<TransportMode> getModes() {
+        return modes;
     }
 }
