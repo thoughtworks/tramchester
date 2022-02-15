@@ -3,12 +3,16 @@ const axios = require('axios');
 var Vue = require('vue');
 Vue.use(require('vue-cookies'));
 Vue.use(require('bootstrap-vue'));
+Vue.use(require('vue-multiselect'));
 
 require('file-loader?name=[name].[ext]!../index.html');
 
 import 'bootstrap/dist/css/bootstrap.css'
 import 'bootstrap-vue/dist/bootstrap-vue.css'
+import 'vue-multiselect/dist/vue-multiselect.min.css'
 import './../css/tramchester.css'
+
+import Multiselect from 'vue-multiselect';
 
 import Notes from "./components/Notes";
 import Journeys from './components/Journeys';
@@ -48,8 +52,8 @@ function busEnabled(scope) {
     return scope.modes.includes('Bus');
 }
 
-function selectChangesEnabled(scope) {
-    return scope.modes.includes('Bus') || scope.modes.includes('Train');
+function selectModesEnabled(scope) {
+    return scope.modes.length > 1;
 }
 
 function displayLiveData(app) {
@@ -103,6 +107,7 @@ function getTransportModesThenStations(app) {
         .then(function (response) {
             app.networkError = false;
             app.modes = response.data.modes;
+            app.selectedModes = app.modes; // start with all modes selected
             app.postcodesEnabled = response.data.postcodesEnabled;
             app.numberJourneysToDisplay = response.data.numberJourneysToDisplay;
             getStations(app);
@@ -186,7 +191,6 @@ async function getRecentAndNearest(app) {
     }
 }
 
-
 // json parses dates to string
 function addParsedDatesToJourney(journeysArray) {
     journeysArray.forEach(item => {
@@ -211,7 +215,8 @@ function queryServerForJourneysPost(app, startStop, endStop, queryTime, queryDat
         startId: startStop.id, destId: endStop.id, time: queryTime, date: queryDate, 
         arriveBy: queryArriveBy, maxChanges: changes,
         startType: startStop.locationType,
-        destType: endStop.locationType
+        destType: endStop.locationType,
+        modes: app.selectedModes
     };
 
     axios.post('/api/journey/', query, {timeout: 60000 }).
@@ -258,6 +263,7 @@ function queryServerForJourneysPost(app, startStop, endStop, queryTime, queryDat
     liveDepartureResponse: null,
     feedinfo: [],
     modes: [],
+    selectedModes: [],
     numberJourneysToDisplay: 0,
     searchInProgress: false,    // searching for routes
     liveInProgress: false,      // looking for live data
@@ -276,7 +282,8 @@ var app = new Vue({
             'app-footer' : Footer,
             'live-departures' : LiveDepartures,
             'location-selection': LocationSelection,
-            'closures' : Closures
+            'closures' : Closures,
+            'multiselect' : Multiselect
         },
         methods: {
             plan(event){
@@ -345,6 +352,9 @@ var app = new Vue({
             },
             selectChangesEnabled: function() {
                 return selectChangesEnabled(this);
+            },
+            selectModesEnabled: function() {
+                return selectModesEnabled(this);
             }
         }
     })

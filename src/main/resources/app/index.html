@@ -57,7 +57,14 @@
                     </b-input-group>
                 </b-col>
             </b-row>
-            <b-row class="mb-2" v-if="selectChangesEnabled">
+            <b-row class="mb-2" v-if="selectModesEnabled">
+                <b-col cols="3" class="pl-0">
+                    <b-form-group label="transport modes" label-form="transportModes">
+                        <multiselect v-model="selectedModes" :options="modes" :multiple="true" :close-on-select="false" :clear-on-select="false" 
+                            :searchable="false"  placeholder="Transport modes" :show-labels="false"  :preselect-first="true" size="sm">
+                        </multiselect>
+                    </b-form-group>
+                </b-col>
                 <b-col cols="3" class="pl-0">
                     <b-form-group label="max changes" label-form="maxChanges">
                         <b-form-input min="0" max="8" type="number" id="maxChanges" size="sm" v-model="maxChanges"></b-form-input>
