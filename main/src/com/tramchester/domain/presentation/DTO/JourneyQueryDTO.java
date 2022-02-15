@@ -1,8 +1,6 @@
 package com.tramchester.domain.presentation.DTO;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonTypeName;
+import com.fasterxml.jackson.annotation.*;
 import com.tramchester.domain.places.Location;
 import com.tramchester.domain.places.LocationType;
 import com.tramchester.domain.reference.TransportMode;
@@ -39,10 +37,12 @@ public class JourneyQueryDTO  {
     @JsonProperty("maxChanges")
     private int maxChanges;
 
+    @JsonSetter(nulls = Nulls.SKIP)
     @JsonProperty("modes")
     private Set<TransportMode> modes;
 
     public JourneyQueryDTO() {
+        modes = Collections.emptySet();
         // deserialisation
     }
 
