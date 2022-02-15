@@ -1,20 +1,31 @@
 
+import { reportError } from 'ajv/dist/compile/errors';
 import VueTypeaheadBootstrap from 'vue-typeahead-bootstrap'
 
 
-function sort(stopMap, alreadyDisplayed) {
+function sort(stopMap, alreadyDisplayed, requestedModes) {
 
     if (stopMap==null) {
         return [];
     }
 
     var stops = Array.from(stopMap.values());
-    var results = stops.filter(stop => !alreadyDisplayed.includes(stop.id));
-    return results.sort((a,b) => {
+
+    var filtered = filterStops(stops, requestedModes, alreadyDisplayed);
+
+    return filtered.sort((a,b) => {
         var x = a.name.toLowerCase();
         var y = b.name.toLowerCase();
         return x.localeCompare(y);
     });
+}
+
+function filterStops(stops, requestedModes, alreadyDisplayed) {
+    var results = stops.filter(stop => Array.from(stop.transportModes).
+    filter(stopMode => requestedModes.includes(stopMode)).length > 0).
+    filter(stop => !alreadyDisplayed.includes(stop.id));
+
+    return results;
 }
 
 export default {
@@ -23,7 +34,7 @@ export default {
     },
     /// NOTE: don't camel case these, browser will treat them as all lowercase....
     // TODO Add whether selection is for a dropoff or a pickup
-    props: ['value','other','name','bus','stops','geo','disabled'], 
+    props: ['value','other','name','modes','stops','geo','disabled'], 
     data: function () {
         return {
             current: this.value
@@ -42,7 +53,7 @@ export default {
     },
     computed: {
         allstops: function () {
-            return sort(this.stops.allStops, this.alreadyDisplayed);
+            return sort(this.stops.allStops, this.alreadyDisplayed, this.modes);
         },
         alreadyDisplayed: function () {
             var results = [];
@@ -62,6 +73,12 @@ export default {
         },
         otherId: function() {
             return this.other ? this.other.id : "";
+        },
+        bus: function() {
+            return this.modes.includes('Bus');
+        },
+        recentStops: function() {
+            return filterStops(this.stops.recentStops, this.modes, []);
         }
     },
     template: `
@@ -84,7 +101,7 @@ export default {
                         :disabled="stop.id == otherId">{{stop.name}}</option>
                 </optgroup>
                 <optgroup label="Recent" name="Recent" :id="name+'GroupRecent'">
-                    <option class="stop" v-for="stop in stops.recentStops" :value="stop"
+                    <option class="stop" v-for="stop in recentStops" :value="stop"
                         :disabled="stop.id == otherId">{{stop.name}}</option>
                 </optgroup>
                 <optgroup label="All Stops" name="All Stops" :id="name+'GroupAllStops'">
