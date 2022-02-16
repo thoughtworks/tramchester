@@ -79,6 +79,9 @@ export default {
         },
         recentStops: function() {
             return filterStops(this.stops.recentStops, this.modes, []);
+        },
+        nearestStops: function() {
+            return filterStops(this.stops.nearestStops, this.modes, []);
         }
     },
     template: `
@@ -97,7 +100,7 @@ export default {
                         :disabled="stop.id == otherId">{{stop.name}}</option>
                 </optgroup>
                 <optgroup label="Nearest Stops" name="Nearest Stops" :id="name+'GroupNearestStops'" v-if="geo">
-                    <option class="stop" v-for="stop in stops.nearestStops" :value="stop" 
+                    <option class="stop" v-for="stop in nearestStops" :value="stop" 
                         :disabled="stop.id == otherId">{{stop.name}}</option>
                 </optgroup>
                 <optgroup label="Recent" name="Recent" :id="name+'GroupRecent'">
