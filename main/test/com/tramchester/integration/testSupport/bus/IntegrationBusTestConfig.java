@@ -61,8 +61,13 @@ public class IntegrationBusTestConfig extends IntegrationTestConfig {
         return 15;
     }
 
+//    @Override
+//    public boolean getCreateNeighbours() {
+//        return false;
+//    }
+
     @Override
-    public boolean getCreateNeighbours() {
+    public boolean hasNeighbourConfig() {
         return false;
     }
 

@@ -63,11 +63,15 @@ public class AllModesTestConfig extends IntegrationTestConfig {
         return true;
     }
 
-
     @Override
-    public boolean getCreateNeighbours() {
+    public boolean hasNeighbourConfig() {
         return true;
     }
+
+//    @Override
+//    public boolean getCreateNeighbours() {
+//        return true;
+//    }
 
     @Override
     public Path getCacheFolder() {

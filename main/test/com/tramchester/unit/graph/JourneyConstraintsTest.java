@@ -55,7 +55,7 @@ public class JourneyConstraintsTest extends EasyMockSupport {
     @Test
     void shouldCarryBasicParams() {
         assertEquals(config.getMaxWalkingConnections(), journeyConstraints.getMaxWalkingConnections());
-        assertEquals(config.getMaxNeighbourConnections(), journeyConstraints.getMaxNeighbourConnections());
+//        assertEquals(config.getMaxNeighbourConnections(), journeyConstraints.getMaxNumberWalkingConnections());
         assertMinutesEquals(config.getMaxJourneyDuration(), journeyConstraints.getMaxJourneyDuration());
     }
 

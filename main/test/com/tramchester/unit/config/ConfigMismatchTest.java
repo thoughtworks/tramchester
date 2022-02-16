@@ -181,10 +181,15 @@ class ConfigMismatchTest {
         assertEquals(expected.getNumOfNearestStopsForWalking(), testConfig.getNumOfNearestStopsForWalking(), "NumOfNearestStopsForWalking");
         assertEquals(expected.getRecentStopsToShow(), testConfig.getRecentStopsToShow(), "RecentStopsToShow");
         assertEquals(expected.getMaxNumResults(), testConfig.getMaxNumResults(), "MaxNumResults");
-        assertEquals(expected.getCreateNeighbours(), testConfig.getCreateNeighbours(), "CreateNeighbours");
-        assertEquals(expected.getMaxNeighbourConnections(), testConfig.getMaxNeighbourConnections(), "Max neighbour connections");
-        assertEquals(expected.getDistanceToNeighboursKM(), testConfig.getDistanceToNeighboursKM(), "DistanceToNeighboursKM");
 
+        boolean hasNeighbourConfig = expected.hasNeighbourConfig();
+        assertEquals(hasNeighbourConfig, testConfig.hasNeighbourConfig(), "has neighbour config");
+        if (hasNeighbourConfig) {
+            NeighbourConfig expectedNeighbourConfig = expected.getNeighbourConfig();
+            NeighbourConfig neighbourConfig = testConfig.getNeighbourConfig();
+            assertEquals(expectedNeighbourConfig.getMaxNeighbourConnections(), neighbourConfig.getMaxNeighbourConnections(), "Max neighbour connections");
+            assertEquals(expectedNeighbourConfig.getDistanceToNeighboursKM(), neighbourConfig.getDistanceToNeighboursKM(), "DistanceToNeighboursKM");
+        }
         if (Category.Modes.not(excluded)) {
             assertEquals(expected.getTransportModes(), testConfig.getTransportModes(), "getTransportModes");
         }

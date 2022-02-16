@@ -78,7 +78,7 @@ public class GraphDatabaseStoredVersions {
     private boolean neighboursEnabledMismatch(Transaction txn) {
 
         boolean fromDB = databaseMetaInfo.isNeighboursEnabled(txn);
-        boolean fromConfig = config.getCreateNeighbours();
+        boolean fromConfig = config.hasNeighbourConfig();
 
         if (fromDB==fromConfig) {
             logger.info("CreateNeighbours config matches DB setting of: " + fromDB);

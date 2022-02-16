@@ -63,8 +63,9 @@ bounds:
   minNorthings: 373264
   maxEasting: 414492
   maxNorthings: 437779
-createNeighbours: true
-distanceToNeighboursKM: 0.2
+neighbourConfig:
+  distanceToNeighboursKM: 0.2
+  maxNeighbourConnections: 3
 maxWait: 35
 maxInitialWait: 45
 numberQueries: 3

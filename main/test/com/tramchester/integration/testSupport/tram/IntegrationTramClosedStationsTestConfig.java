@@ -11,8 +11,8 @@ public class IntegrationTramClosedStationsTestConfig extends IntegrationTramTest
         super(dbName,  closure);
     }
 
-    @Override
-    public int getMaxNeighbourConnections() {
-        return 3;
-    }
+//    @Override
+//    public int getMaxNeighbourConnections() {
+//        return 3;
+//    }
 }

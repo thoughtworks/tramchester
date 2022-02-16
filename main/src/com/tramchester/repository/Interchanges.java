@@ -76,7 +76,7 @@ public class Interchanges implements InterchangeRepository {
         addMultiModeStations();
 
         // Need to do this last, as checking if one of the neighbours is an interchange is required
-        if (config.getCreateNeighbours()) {
+        if (config.hasNeighbourConfig()) {
             addNeighboursAsInterchangesBetweenModes();
         }
 

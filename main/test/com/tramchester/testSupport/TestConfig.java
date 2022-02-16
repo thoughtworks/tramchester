@@ -131,16 +131,6 @@ public abstract class TestConfig extends AppConfiguration {
     }
 
     @Override
-    public boolean getCreateNeighbours() {
-        return false;
-    }
-
-    @Override
-    public double getDistanceToNeighboursKM() {
-        return 0.4;
-    }
-
-    @Override
     public @Valid BoundingBox getBounds() {
         return TestEnv.getTFGMBusBounds();
     }
@@ -156,11 +146,6 @@ public abstract class TestConfig extends AppConfiguration {
     }
 
     @Override
-    public int getMaxNeighbourConnections() {
-        return 0;
-    }
-
-    @Override
     public List<RemoteDataSourceConfig> getRemoteDataSourceConfig() {
         return Collections.emptyList();
     }
@@ -173,5 +158,10 @@ public abstract class TestConfig extends AppConfiguration {
     @Override
     public boolean getPlanningEnabled() {
         return true;
+    }
+
+    @Override
+    public boolean hasNeighbourConfig() {
+        return false;
     }
 }

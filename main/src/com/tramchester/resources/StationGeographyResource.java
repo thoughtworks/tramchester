@@ -11,7 +11,6 @@ import com.tramchester.geo.StationLocations;
 import com.tramchester.graph.search.FindStationLinks;
 import com.tramchester.repository.NeighboursRepository;
 import com.tramchester.repository.StationGroupsRepository;
-import com.tramchester.repository.StationRepository;
 import com.tramchester.repository.naptan.NaptanRespository;
 import io.dropwizard.jersey.caching.CacheControl;
 import io.swagger.annotations.Api;
@@ -44,15 +43,13 @@ public class StationGeographyResource implements APIResource, GraphDatabaseDepen
     private final TramchesterConfig config;
     private final StationLocations stationLocations;
     private final NaptanRespository naptanRespository;
-    private final StationRepository stationRepository;
     private final DTOFactory dtoFactory;
 
     @Inject
     public StationGeographyResource(FindStationLinks findStationLinks, NeighboursRepository neighboursRepository,
                                     StationGroupsRepository stationGroupsRepository, TramchesterConfig config,
-                                    StationLocations stationLocations, NaptanRespository naptanRespository, StationRepository stationRepository, DTOFactory dtoFactory) {
+                                    StationLocations stationLocations, NaptanRespository naptanRespository, DTOFactory dtoFactory) {
         this.naptanRespository = naptanRespository;
-        this.stationRepository = stationRepository;
         this.dtoFactory = dtoFactory;
         this.findStationLinks = findStationLinks;
         this.neighboursRepository = neighboursRepository;
@@ -92,7 +89,7 @@ public class StationGeographyResource implements APIResource, GraphDatabaseDepen
     public Response getNeighbours() {
         logger.info("Get station neighbours");
 
-        if (!config.getCreateNeighbours()) {
+        if (!config.hasNeighbourConfig()) {
             logger.warn("Neighbours disabled");
             return Response.ok(Collections.<StationLinkDTO>emptyList()).build();
         }

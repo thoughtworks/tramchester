@@ -1,6 +1,7 @@
 package com.tramchester.graph;
 
 import com.netflix.governator.guice.lazy.LazySingleton;
+import com.tramchester.config.NeighbourConfig;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.StationLink;
 import com.tramchester.domain.places.Station;
@@ -55,7 +56,7 @@ public class AddNeighboursGraphBuilder extends CreateNodesAndRelationships {
 
         boolean hasDBFlag = hasDBFlag();
 
-        if (!config.getCreateNeighbours()) {
+        if (!config.hasNeighbourConfig()) {
             logger.info("Create neighbours is disabled in configuration");
             if (hasDBFlag) {
                 final String message = "DB rebuild is required, mismatch on config (false) and db (true)";
@@ -65,7 +66,9 @@ public class AddNeighboursGraphBuilder extends CreateNodesAndRelationships {
             return;
         }
 
-        if (config.getMaxNeighbourConnections()==0) {
+        NeighbourConfig neighbourConfig = config.getNeighbourConfig();
+
+        if (neighbourConfig.getMaxNeighbourConnections()==0) {
             String msg = "createNeighbours is true but maxNeighbourConnections==0";
             logger.error(msg);
             throw new RuntimeException(msg);

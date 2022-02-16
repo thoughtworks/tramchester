@@ -82,8 +82,8 @@ public class AddWalksForClosedGraphBuilder extends CreateNodesAndRelationships {
             }
             // else enabled for this source
 
-            if (config.getMaxNeighbourConnections()==0) {
-                final String msg = "Max neighbours set to zero, creating walks for neighbours makes no sense";
+            if (config.getMaxWalkingConnections()==0) {
+                final String msg = "Max walkig connections set to zero, creating walks for neighbours makes no sense";
                 logger.error(msg);
                 throw new RuntimeException(msg);
             }
@@ -111,7 +111,6 @@ public class AddWalksForClosedGraphBuilder extends CreateNodesAndRelationships {
             logger.warn("No station closures are given for " + source.getName());
             return;
         }
-
 
         List<StationClosure> closures = source.getStationClosures();
         MarginInMeters range = MarginInMeters.of(config.getNearestStopForWalkingRangeKM());

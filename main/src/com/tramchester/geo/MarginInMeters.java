@@ -16,6 +16,10 @@ public class MarginInMeters {
         return new MarginInMeters(Math.round(meters));
     }
 
+    public static MarginInMeters invalid() {
+        return new MarginInMeters(Long.MIN_VALUE);
+    }
+
     public long get() {
         return meters;
     }

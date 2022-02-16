@@ -1,11 +1,13 @@
 package com.tramchester.integration.testSupport;
 
+import com.tramchester.config.NeighbourConfig;
 import com.tramchester.config.RailConfig;
 import com.tramchester.config.RemoteDataSourceConfig;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.geo.BoundingBox;
 import com.tramchester.integration.testSupport.rail.TestRailConfig;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
+import com.tramchester.testSupport.NeighbourTestConfig;
 import com.tramchester.testSupport.TestEnv;
 
 import java.nio.file.Path;
@@ -51,18 +53,13 @@ public class TramAndTrainGreaterManchesterConfig extends IntegrationTramTestConf
     }
 
     @Override
-    public boolean getCreateNeighbours() {
+    public boolean hasNeighbourConfig() {
         return true;
     }
 
     @Override
-    public int getMaxNeighbourConnections() {
-        return 3;
-    }
-
-    @Override
-    public double getDistanceToNeighboursKM() {
-        return 0.5D;
+    public NeighbourConfig getNeighbourConfig() {
+        return new NeighbourTestConfig(0.1D, 3);
     }
 
     @Override

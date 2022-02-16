@@ -77,11 +77,8 @@ public abstract class TramchesterConfig extends Configuration implements HasRemo
     // only allow changing vehicles at interchanges
     public abstract boolean getChangeAtInterchangeOnly();
 
-    // add neighbouring stations
-    public abstract boolean getCreateNeighbours();
-
-    // distance for neighbouring stations, in KM
-    public abstract double getDistanceToNeighboursKM() ;
+    // neighbours config
+    public abstract NeighbourConfig getNeighbourConfig();
 
     // config for each of the GTFS data sources
     public abstract List<GTFSSourceConfig> getGTFSDataSource();
@@ -127,9 +124,6 @@ public abstract class TramchesterConfig extends Configuration implements HasRemo
     // number of connections to make by walking
     public abstract int getMaxWalkingConnections();
 
-    // number of direct walks between stations
-    public abstract int getMaxNeighbourConnections();
-
     public abstract boolean getSendCloudWatchMetrics();
 
     public boolean liveDataEnabled() {
@@ -169,4 +163,6 @@ public abstract class TramchesterConfig extends Configuration implements HasRemo
             }
         }
     }
+
+    public abstract boolean hasNeighbourConfig();
 }

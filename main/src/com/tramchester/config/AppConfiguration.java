@@ -96,18 +96,6 @@ public class AppConfiguration extends TramchesterConfig {
     @JsonProperty("maxWalkingConnections")
     private Integer maxWalkingConnections;
 
-    @NotNull
-    @JsonProperty("maxNeighbourConnections")
-    private Integer maxNeighbourConnections;
-
-    @NotNull
-    @JsonProperty("createNeighbours")
-    private Boolean createNeighbours;
-
-    @NotNull
-    @JsonProperty("distanceToNeighboursKM")
-    private Double distanceToNeighboursKM;
-
     @Valid
     @JsonProperty("gtfsSourceConfig")
     private List<GTFSSourceConfig> gtfsSourceConfig;
@@ -152,6 +140,8 @@ public class AppConfiguration extends TramchesterConfig {
     @JsonProperty("cloudWatchMetricsFrequencyMinutes")
     private Long cloudWatchMetricsFrequencyMinutes;
 
+    @JsonProperty("neighbourConfig")
+    private NeighbourAppConfig neighbourConfig;
 
     @Override
     public String getInstanceDataUrl() {
@@ -239,18 +229,13 @@ public class AppConfiguration extends TramchesterConfig {
     }
 
     @Override
+    public NeighbourConfig getNeighbourConfig() {
+        return neighbourConfig;
+    }
+
+    @Override
     public int getMaxJourneyDuration() {
         return maxJourneyDuration;
-    }
-
-    @Override
-    public boolean getCreateNeighbours() {
-        return createNeighbours;
-    }
-
-    @Override
-    public double getDistanceToNeighboursKM() {
-        return distanceToNeighboursKM;
     }
 
     @Valid
@@ -293,11 +278,6 @@ public class AppConfiguration extends TramchesterConfig {
     }
 
     @Override
-    public int getMaxNeighbourConnections() {
-        return maxNeighbourConnections;
-    }
-
-    @Override
     public boolean getSendCloudWatchMetrics() {
         return sendCloudWatchMetrics;
     }
@@ -320,6 +300,11 @@ public class AppConfiguration extends TramchesterConfig {
     @Override
     public boolean getPlanningEnabled() {
         return planningEnabled;
+    }
+
+    @Override
+    public boolean hasNeighbourConfig() {
+        return neighbourConfig!=null;
     }
 
 }

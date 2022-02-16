@@ -46,7 +46,7 @@ public class GraphDatabaseStoredVersionsTest extends EasyMockSupport {
         Set<DataSourceInfo> dataSourceInfo = new HashSet<>();
 
         EasyMock.expect(databaseService.beginTx()).andReturn(transaction);
-        EasyMock.expect(databaseMetaInfo.isNeighboursEnabled(transaction)).andReturn(!config.getCreateNeighbours());
+        EasyMock.expect(databaseMetaInfo.isNeighboursEnabled(transaction)).andReturn(!config.hasNeighbourConfig());
         transaction.close();
         EasyMock.expectLastCall();
 
@@ -62,7 +62,7 @@ public class GraphDatabaseStoredVersionsTest extends EasyMockSupport {
         Set<DataSourceInfo> dataSourceInfo = new HashSet<>();
 
         EasyMock.expect(databaseService.beginTx()).andReturn(transaction);
-        EasyMock.expect(databaseMetaInfo.isNeighboursEnabled(transaction)).andReturn(config.getCreateNeighbours());
+        EasyMock.expect(databaseMetaInfo.isNeighboursEnabled(transaction)).andReturn(config.hasNeighbourConfig());
         EasyMock.expect(databaseMetaInfo.hasVersionInfo(transaction)).andReturn(false);
         transaction.close();
         EasyMock.expectLastCall();
@@ -86,7 +86,7 @@ public class GraphDatabaseStoredVersionsTest extends EasyMockSupport {
         versionMap.put("naptanxml", "v2.3");
 
         EasyMock.expect(databaseService.beginTx()).andReturn(transaction);
-        EasyMock.expect(databaseMetaInfo.isNeighboursEnabled(transaction)).andReturn(config.getCreateNeighbours());
+        EasyMock.expect(databaseMetaInfo.isNeighboursEnabled(transaction)).andReturn(config.hasNeighbourConfig());
         EasyMock.expect(databaseMetaInfo.hasVersionInfo(transaction)).andReturn(true);
         EasyMock.expect(databaseMetaInfo.getVersions(transaction)).andReturn(versionMap);
         transaction.close();
@@ -111,7 +111,7 @@ public class GraphDatabaseStoredVersionsTest extends EasyMockSupport {
         versionMap.put("naptanxml", "v2.3");
 
         EasyMock.expect(databaseService.beginTx()).andReturn(transaction);
-        EasyMock.expect(databaseMetaInfo.isNeighboursEnabled(transaction)).andReturn(config.getCreateNeighbours());
+        EasyMock.expect(databaseMetaInfo.isNeighboursEnabled(transaction)).andReturn(config.hasNeighbourConfig());
         EasyMock.expect(databaseMetaInfo.hasVersionInfo(transaction)).andReturn(true);
         EasyMock.expect(databaseMetaInfo.getVersions(transaction)).andReturn(versionMap);
         transaction.close();
@@ -135,7 +135,7 @@ public class GraphDatabaseStoredVersionsTest extends EasyMockSupport {
         versionMap.put("tfgm", "v1.1");
 
         EasyMock.expect(databaseService.beginTx()).andReturn(transaction);
-        EasyMock.expect(databaseMetaInfo.isNeighboursEnabled(transaction)).andReturn(config.getCreateNeighbours());
+        EasyMock.expect(databaseMetaInfo.isNeighboursEnabled(transaction)).andReturn(config.hasNeighbourConfig());
         EasyMock.expect(databaseMetaInfo.hasVersionInfo(transaction)).andReturn(true);
         EasyMock.expect(databaseMetaInfo.getVersions(transaction)).andReturn(versionMap);
         transaction.close();
@@ -159,7 +159,7 @@ public class GraphDatabaseStoredVersionsTest extends EasyMockSupport {
         versionMap.put("naptanxml", "v2.3");
 
         EasyMock.expect(databaseService.beginTx()).andReturn(transaction);
-        EasyMock.expect(databaseMetaInfo.isNeighboursEnabled(transaction)).andReturn(config.getCreateNeighbours());
+        EasyMock.expect(databaseMetaInfo.isNeighboursEnabled(transaction)).andReturn(config.hasNeighbourConfig());
         EasyMock.expect(databaseMetaInfo.hasVersionInfo(transaction)).andReturn(true);
         EasyMock.expect(databaseMetaInfo.getVersions(transaction)).andReturn(versionMap);
         transaction.close();

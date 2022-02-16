@@ -1,10 +1,12 @@
 package com.tramchester.integration.testSupport;
 
 import com.tramchester.config.GTFSSourceConfig;
+import com.tramchester.config.NeighbourConfig;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.testSupport.AdditionalTramInterchanges;
 import com.tramchester.integration.testSupport.bus.IntegrationBusTestConfig;
 import com.tramchester.integration.testSupport.tfgm.TFGMGTFSSourceTestConfig;
+import com.tramchester.testSupport.NeighbourTestConfig;
 import com.tramchester.testSupport.TestEnv;
 
 import java.nio.file.Path;
@@ -31,7 +33,7 @@ public class NeighboursTestConfig extends IntegrationBusTestConfig {
     }
 
     @Override
-    public boolean getCreateNeighbours() {
+    public boolean hasNeighbourConfig() {
         return true;
     }
 
@@ -41,7 +43,13 @@ public class NeighboursTestConfig extends IntegrationBusTestConfig {
     }
 
     @Override
-    public int getMaxNeighbourConnections() {
-        return 2;
+    public NeighbourConfig getNeighbourConfig() {
+        return new NeighbourTestConfig(0.4D, 2);
     }
+
+//
+//    @Override
+//    public int getMaxNeighbourConnections() {
+//        return 2;
+//    }
 }

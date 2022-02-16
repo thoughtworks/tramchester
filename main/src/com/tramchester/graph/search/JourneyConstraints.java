@@ -35,7 +35,7 @@ public class JourneyConstraints {
     private final IdSet<Station> closedStations;
     private final Duration maxJourneyDuration;
     private final int maxWalkingConnections;
-    private final int maxNeighbourConnections;
+    private final int maxNumberWalkingConnections;
     private final LowestCostsForDestRoutes lowestCostForDestinations;
 
     public JourneyConstraints(TramchesterConfig config, RunningRoutesAndServices.FilterForDate routesAndServicesFilter,
@@ -57,7 +57,8 @@ public class JourneyConstraints {
         this.endStations = endStations;
         this.maxJourneyDuration = maxJourneyDuration;
         this.maxWalkingConnections = config.getMaxWalkingConnections();
-        this.maxNeighbourConnections = config.getMaxNeighbourConnections();
+
+        this.maxNumberWalkingConnections = config.getMaxWalkingConnections();
 
         this.closedStations = closedStations;
 
@@ -103,9 +104,9 @@ public class JourneyConstraints {
         return maxWalkingConnections;
     }
 
-    public int getMaxNeighbourConnections() {
-        return maxNeighbourConnections;
-    }
+//    public int getMaxNumberWalkingConnections() {
+//        return maxNumberWalkingConnections;
+//    }
 
     public LowestCostsForDestRoutes getFewestChangesCalculator() {
         return lowestCostForDestinations;
@@ -120,7 +121,7 @@ public class JourneyConstraints {
                 ", closedStations=" + closedStations +
                 ", maxJourneyDuration=" + maxJourneyDuration +
                 ", maxWalkingConnections=" + maxWalkingConnections +
-                ", maxNeighbourConnections=" + maxNeighbourConnections +
+                ", maxNeighbourConnections=" + maxNumberWalkingConnections +
                 '}';
     }
 

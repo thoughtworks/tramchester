@@ -53,9 +53,6 @@ liveData:
   maxNumberStationsWithoutMessages: 10
   maxNumberStationsWithoutData: 5
 planningEnabled: true
-createNeighbours: false
-maxNeighbourConnections: 0
-distanceToNeighboursKM: 0.4
 maxWait: 25
 maxInitialWait: 13
 numberQueries: 3

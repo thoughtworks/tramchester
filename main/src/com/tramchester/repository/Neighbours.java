@@ -49,8 +49,13 @@ public class Neighbours implements NeighboursRepository {
         this.stationLocations = stationLocations;
         this.geography = geography;
 
-        this.marginInMeters = MarginInMeters.of(config.getDistanceToNeighboursKM());
-        enabled = config.getCreateNeighbours();
+        enabled = config.hasNeighbourConfig();
+
+        if (enabled) {
+            this.marginInMeters = MarginInMeters.of(config.getNeighbourConfig().getDistanceToNeighboursKM());
+        } else {
+            this.marginInMeters = MarginInMeters.invalid();
+        }
         neighbours = new HashMap<>();
     }
 

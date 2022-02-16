@@ -48,9 +48,6 @@ bounds:
   maxEasting: 654747
   maxNorthings: 967921
 planningEnabled: true
-createNeighbours: false
-maxNeighbourConnections: 0
-distanceToNeighboursKM: 0.4
 maxWait: 30
 maxInitialWait: 25
 numberQueries: 3
