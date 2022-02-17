@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tramchester.config.*;
 import com.tramchester.domain.DataSourceID;
+import com.tramchester.domain.StationIdPair;
 import com.tramchester.integration.testSupport.TramAndTrainGreaterManchesterConfig;
 import com.tramchester.integration.testSupport.bus.IntegrationBusTestConfig;
 import com.tramchester.integration.testSupport.rail.IntegrationRailTestConfig;
@@ -185,10 +186,7 @@ class ConfigMismatchTest {
         boolean hasNeighbourConfig = expected.hasNeighbourConfig();
         assertEquals(hasNeighbourConfig, testConfig.hasNeighbourConfig(), "has neighbour config");
         if (hasNeighbourConfig) {
-            NeighbourConfig expectedNeighbourConfig = expected.getNeighbourConfig();
-            NeighbourConfig neighbourConfig = testConfig.getNeighbourConfig();
-            assertEquals(expectedNeighbourConfig.getMaxNeighbourConnections(), neighbourConfig.getMaxNeighbourConnections(), "Max neighbour connections");
-            assertEquals(expectedNeighbourConfig.getDistanceToNeighboursKM(), neighbourConfig.getDistanceToNeighboursKM(), "DistanceToNeighboursKM");
+            validateNeighbourConfig(expected, testConfig);
         }
         if (Category.Modes.not(excluded)) {
             assertEquals(expected.getTransportModes(), testConfig.getTransportModes(), "getTransportModes");
@@ -206,6 +204,21 @@ class ConfigMismatchTest {
 
         checkRemoteDataSourceConfig(expected, testConfig);
 
+    }
+
+    private void validateNeighbourConfig(AppConfiguration appConfiguration, AppConfiguration testAppConfig) {
+        NeighbourConfig expected = appConfiguration.getNeighbourConfig();
+        NeighbourConfig testConfig = testAppConfig.getNeighbourConfig();
+
+        assertEquals(expected.getMaxNeighbourConnections(), testConfig.getMaxNeighbourConnections(),
+                "Max neighbour connections");
+        assertEquals(expected.getDistanceToNeighboursKM(), testConfig.getDistanceToNeighboursKM(),
+                "DistanceToNeighboursKM");
+        List<StationIdPair> expectedAdditional = expected.getAdditional();
+        assertEquals(expectedAdditional.size(), testConfig.getAdditional().size(), "additional neighbours");
+        expectedAdditional.forEach(pair ->
+                assertTrue(testConfig.getAdditional().contains(pair),
+                        pair.toString() + " is missing from " + testConfig.getAdditional()));
     }
 
     private void checkRemoteDataSourceConfig(AppConfiguration expected, AppConfiguration testConfig) {

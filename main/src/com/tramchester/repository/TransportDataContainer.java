@@ -124,6 +124,11 @@ public class TransportDataContainer implements TransportData, WriteableTransport
     }
 
     @Override
+    public StationPair getStationPair(StationIdPair idPair) {
+        return StationPair.of(getStationById(idPair.getBeginId()), getStationById(idPair.getEndId()));
+    }
+
+    @Override
     public Stream<Station> getAllStationStream() {
         return stationsById.getValuesStream();
     }

@@ -26,6 +26,19 @@ public class StationIdPair {
         return new StationIdPair(begin, end);
     }
 
+    public IdFor<Station> getBeginId() {
+        return begin;
+    }
+
+    public IdFor<Station> getEndId() {
+        return end;
+    }
+
+    public boolean same() {
+        return begin.equals(end);
+    }
+
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -44,15 +57,11 @@ public class StationIdPair {
         return result;
     }
 
-    public IdFor<Station> getBeginId() {
-        return begin;
-    }
-
-    public IdFor<Station> getEndId() {
-        return end;
-    }
-
-    public boolean same() {
-        return begin.equals(end);
+    @Override
+    public String toString() {
+        return "StationIdPair{" +
+                "begin=" + begin +
+                ", end=" + end +
+                '}';
     }
 }

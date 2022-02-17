@@ -60,12 +60,12 @@ public class RailRouteCostsTest {
         stationRepository = componentContainer.get(StationRepository.class);
         routeCostCalculator = componentContainer.get(RouteCostCalculator.class);
 
-        stockport = Stockport.getFrom(stationRepository);
-        manPicc = ManchesterPiccadilly.getFrom(stationRepository);
-        londonEuston = LondonEuston.getFrom(stationRepository);
-        wilmslow = Wilmslow.getFrom(stationRepository);
-        crewe = Crewe.getFrom(stationRepository);
-        miltonKeynes = MiltonKeynesCentral.getFrom(stationRepository);
+        stockport = Stockport.from(stationRepository);
+        manPicc = ManchesterPiccadilly.from(stationRepository);
+        londonEuston = LondonEuston.from(stationRepository);
+        wilmslow = Wilmslow.from(stationRepository);
+        crewe = Crewe.from(stationRepository);
+        miltonKeynes = MiltonKeynesCentral.from(stationRepository);
     }
 
     /***
@@ -118,7 +118,7 @@ public class RailRouteCostsTest {
 
     @Test
     void shouldGetApproxCostBetweenAltrinchamAndLondonEuston() throws InvalidDurationException {
-        Station altrincham = Altrincham.getFrom(stationRepository);
+        Station altrincham = Altrincham.from(stationRepository);
 
         assertMinutesEquals(135, routeCostCalculator.getAverageCostBetween(txn, altrincham, londonEuston, date));
         assertMinutesEquals(135, routeCostCalculator.getMaxCostBetween(txn, altrincham, londonEuston, date));

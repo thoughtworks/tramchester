@@ -71,7 +71,11 @@ public class StringIdFor<T extends CoreDomain> implements IdFor<T> {
 
     @Override
     public String toString() {
-        return "Id{'" + theId + "'}";
+        if (isValid()) {
+            return "Id{'" + theId + "'}";
+        } else {
+            return "Id{NOT_VALID}";
+        }
     }
 
     @Override

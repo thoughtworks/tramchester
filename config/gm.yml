@@ -75,6 +75,9 @@ planningEnabled: true
 neighbourConfig:
   maxNeighbourConnections: 3
   distanceToNeighboursKM: 0.1
+  additional:
+    - first: "9400ZZMAEDY"
+      second: "EDIDBRY"
 maxWait: 25
 maxInitialWait: 13
 numberQueries: 3

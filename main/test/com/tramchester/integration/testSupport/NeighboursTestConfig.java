@@ -44,12 +44,8 @@ public class NeighboursTestConfig extends IntegrationBusTestConfig {
 
     @Override
     public NeighbourConfig getNeighbourConfig() {
-        return new NeighbourTestConfig(0.4D, 2);
+        NeighbourTestConfig neighbourTestConfig = new NeighbourTestConfig(0.4D, 2);
+        return neighbourTestConfig;
     }
 
-//
-//    @Override
-//    public int getMaxNeighbourConnections() {
-//        return 2;
-//    }
 }

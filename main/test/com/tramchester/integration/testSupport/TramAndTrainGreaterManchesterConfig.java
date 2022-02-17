@@ -5,10 +5,12 @@ import com.tramchester.config.RailConfig;
 import com.tramchester.config.RemoteDataSourceConfig;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.geo.BoundingBox;
+import com.tramchester.integration.testSupport.rail.RailStationIds;
 import com.tramchester.integration.testSupport.rail.TestRailConfig;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
 import com.tramchester.testSupport.NeighbourTestConfig;
 import com.tramchester.testSupport.TestEnv;
+import com.tramchester.testSupport.reference.TramStations;
 
 import java.nio.file.Path;
 import java.util.*;
@@ -59,7 +61,9 @@ public class TramAndTrainGreaterManchesterConfig extends IntegrationTramTestConf
 
     @Override
     public NeighbourConfig getNeighbourConfig() {
-        return new NeighbourTestConfig(0.1D, 3);
+        NeighbourTestConfig config = new NeighbourTestConfig(0.1D, 3);
+        config.addStations(TramStations.EastDidsbury.getId(), RailStationIds.EastDidsbury.getId());
+        return config;
     }
 
     @Override

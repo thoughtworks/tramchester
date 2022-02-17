@@ -88,7 +88,7 @@ class GraphBuilderRailTest {
     @Test
     void shouldHaveLinkRelationshipsCorrectForNonInterchange() {
 
-        Station piccadilly = ManchesterPiccadilly.getFrom(transportData);
+        Station piccadilly = ManchesterPiccadilly.from(transportData);
         Node startNode = graphQuery.getStationNode(txn, piccadilly);
         Iterable<Relationship> outboundLinks = startNode.getRelationships(Direction.OUTGOING, LINKED);
 
@@ -103,7 +103,7 @@ class GraphBuilderRailTest {
 
     @Test
     void shouldHaveCorrectPlatformCosts() {
-        Station piccadilly = ManchesterPiccadilly.getFrom(transportData);
+        Station piccadilly = ManchesterPiccadilly.from(transportData);
         Duration cost = piccadilly.getMinChangeDuration();
         Set<Platform> platforms = piccadilly.getPlatforms();
 
@@ -138,13 +138,13 @@ class GraphBuilderRailTest {
 
     @Test
     void shouldHaveCorrectRouteRelationshipsCreweToMKC() {
-        Station miltonKeynes = MiltonKeynesCentral.getFrom(transportData);
+        Station miltonKeynes = MiltonKeynesCentral.from(transportData);
         final Set<Node> routeStationNodes = getRouteStationNodes(miltonKeynes);
         assertFalse(routeStationNodes.isEmpty());
 
         Set<Long> mkNodeIds = routeStationNodes.stream().map(Entity::getId).collect(Collectors.toSet());
 
-        Station crewe = Crewe.getFrom(transportData);
+        Station crewe = Crewe.from(transportData);
         Set<Node> creweRouteStationsNodes = getRouteStationNodes(crewe);
 
         Set<Relationship> outgoingFromCrewe = creweRouteStationsNodes.stream().

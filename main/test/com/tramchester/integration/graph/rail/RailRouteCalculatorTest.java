@@ -83,7 +83,7 @@ public class RailRouteCalculatorTest {
         txn = database.beginTx(TXN_TIMEOUT, TimeUnit.SECONDS);
         testFacade = new RouteCalculatorTestFacade(componentContainer.get(RouteCalculator.class), stationRepository, txn);
 
-        stockport = Stockport.getFrom(stationRepository);
+        stockport = Stockport.from(stationRepository);
         manchesterPiccadilly = stationRepository.getStationById(ManchesterPiccadilly.getId());
         altrincham = stationRepository.getStationById(Altrincham.getId());
         londonEuston = stationRepository.getStationById(LondonEuston.getId());

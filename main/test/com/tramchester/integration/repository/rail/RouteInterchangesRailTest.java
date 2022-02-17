@@ -55,8 +55,8 @@ public class RouteInterchangesRailTest {
     @Test
     void shouldGetInterchangesForARouteAllInterchanges() {
 
-        Station piccadilly = ManchesterPiccadilly.getFrom(stationRepository);
-        Station euston = LondonEuston.getFrom(stationRepository);
+        Station piccadilly = ManchesterPiccadilly.from(stationRepository);
+        Station euston = LondonEuston.from(stationRepository);
 
         String routeShortName = format("%s service from %s to %s", "VT", piccadilly.getName(), euston.getName());
 
@@ -104,9 +104,9 @@ public class RouteInterchangesRailTest {
     void shouldGetInterchangeForRouteWhereNotAllInterchanges() {
         Station piccadilly = stationRepository.getStationById(ManchesterPiccadilly.getId());
 
-        Station chester = Chester.getFrom(stationRepository);
-        Station hale = Hale.getFrom(stationRepository);
-        Station delamere = Delamere.getFrom(stationRepository);
+        Station chester = Chester.from(stationRepository);
+        Station hale = Hale.from(stationRepository);
+        Station delamere = Delamere.from(stationRepository);
 
         String routeShortName = format("%s service from %s to %s", "NT", piccadilly.getName(), chester.getName());
 

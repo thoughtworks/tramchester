@@ -111,17 +111,17 @@ public class RailTransportDataFromFilesTest {
     @Test
     void shouldHaveExpectedCallingPointsForTripOnARoute() {
 
-        Station piccadilly = ManchesterPiccadilly.getFrom(transportData);
-        Station euston = LondonEuston.getFrom(transportData);
+        Station piccadilly = ManchesterPiccadilly.from(transportData);
+        Station euston = LondonEuston.from(transportData);
 
         String longName = "VT service from Manchester Piccadilly Rail Station to London Euston Rail Station via Stockport " +
                 "Rail Station, Macclesfield Rail Station, Stoke-on-Trent Rail Station, Milton Keynes Central Rail Station";
 
         List<Station> expectedCallingPoints = Arrays.asList(piccadilly,
-                Stockport.getFrom(transportData),
-                Macclesfield.getFrom(transportData),
-                StokeOnTrent.getFrom(transportData),
-                MiltonKeynesCentral.getFrom(transportData),
+                Stockport.from(transportData),
+                Macclesfield.from(transportData),
+                StokeOnTrent.from(transportData),
+                MiltonKeynesCentral.from(transportData),
                 euston);
 
         Set<Route> routes = piccadilly.getPickupRoutes().stream().

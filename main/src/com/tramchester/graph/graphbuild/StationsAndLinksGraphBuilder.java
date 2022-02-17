@@ -185,7 +185,7 @@ public class StationsAndLinksGraphBuilder extends GraphBuilder {
                     if (includeBothStops(graphFilter, leg)) {
                         GTFSPickupDropoffType pickup = leg.getFirst().getPickupType();
                         GTFSPickupDropoffType dropOff = leg.getSecond().getDropoffType();
-                        StationIdPair legStations = StationIdPair.of(leg.getFirstStation(), leg.getSecondStation());
+                        StationIdPair legStations = leg.getStations();
                         if (pickup==Regular && dropOff==Regular &&
                                 !pairs.containsKey(legStations)) {
                             Duration cost = leg.getCost();

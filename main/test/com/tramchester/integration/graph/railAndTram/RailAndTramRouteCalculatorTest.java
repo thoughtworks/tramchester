@@ -16,6 +16,7 @@ import com.tramchester.graph.search.RouteToRouteCosts;
 import com.tramchester.integration.testSupport.RouteCalculatorTestFacade;
 import com.tramchester.integration.testSupport.TramAndTrainGreaterManchesterConfig;
 import com.tramchester.integration.testSupport.rail.RailStationIds;
+import com.tramchester.repository.NeighboursRepository;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.TramStations;
@@ -32,8 +33,7 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
-import static com.tramchester.domain.reference.TransportMode.Train;
-import static com.tramchester.domain.reference.TransportMode.Tram;
+import static com.tramchester.domain.reference.TransportMode.*;
 import static com.tramchester.integration.testSupport.rail.RailStationIds.ManchesterPiccadilly;
 import static com.tramchester.integration.testSupport.rail.RailStationIds.Stockport;
 import static org.junit.jupiter.api.Assertions.*;
@@ -150,6 +150,45 @@ public class RailAndTramRouteCalculatorTest {
     }
 
     @Test
+    void shouldHaveNeighboursFromConfig() {
+        NeighboursRepository neighboursRepository = componentContainer.get(NeighboursRepository.class);
+
+        Station eastDidsburyRail = RailStationIds.EastDidsbury.from(stationRepository);
+        Station eastDidsburyTram = TramStations.EastDidsbury.from(stationRepository);
+
+        Set<Station> neighbours = neighboursRepository.getNeighboursFor(eastDidsburyTram.getId());
+        assertEquals(1, neighbours.size());
+
+        assertTrue(neighbours.contains(eastDidsburyRail));
+
+        neighbours = neighboursRepository.getNeighboursFor(eastDidsburyRail.getId());
+        assertEquals(1, neighbours.size());
+
+        assertTrue(neighbours.contains(eastDidsburyTram));
+    }
+
+    @Test
+    void shouldHaveWalKFromDidsburyTramToDidsburyTrain() {
+        JourneyRequest request = new JourneyRequest(new TramServiceDate(when), travelTime, false, 0,
+                Duration.ofMinutes(30), 1, getRequestedModes());
+
+        Station start = tram(TramStations.EastDidsbury);
+        Station dest = RailStationIds.EastDidsbury.from(stationRepository);
+        Set<Journey> journeys = testFacade.calculateRouteAsSet(start, dest, request);
+        assertFalse(journeys.isEmpty());
+
+        // At least one direct
+        List<Journey> direct = journeys.stream().filter(journey -> journey.getStages().size() == 1).collect(Collectors.toList());
+        assertFalse(direct.isEmpty(), "No direct from " + start + " to " + dest);
+
+        direct.forEach(journey -> {
+            journey.getStages().forEach(stage -> assertEquals(Connect, stage.getMode(),
+                    "Mode wrong for journey " + journey + " for request " + request));
+        });
+
+    }
+
+    @Test
     void shouldBuryToStockportViaTramAndTrain() {
         JourneyRequest request = new JourneyRequest(new TramServiceDate(when), travelTime, false, 2,
                 Duration.ofMinutes(110), 1, getRequestedModes());
@@ -159,7 +198,7 @@ public class RailAndTramRouteCalculatorTest {
     }
 
     private Station rail(RailStationIds railStation) {
-        return railStation.getFrom(stationRepository);
+        return railStation.from(stationRepository);
     }
 
     private Station tram(TramStations tramStation) {

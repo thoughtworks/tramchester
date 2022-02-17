@@ -1,6 +1,8 @@
 package com.tramchester.repository;
 
 import com.google.inject.ImplementedBy;
+import com.tramchester.domain.StationIdPair;
+import com.tramchester.domain.StationPair;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
@@ -14,4 +16,6 @@ public interface StationRepositoryPublic {
     Station getStationById(IdFor<Station> stationId);
     boolean hasStationId(IdFor<Station> stationId);
     Stream<Station> getActiveStationStream();
+
+    StationPair getStationPair(StationIdPair idPair);
 }

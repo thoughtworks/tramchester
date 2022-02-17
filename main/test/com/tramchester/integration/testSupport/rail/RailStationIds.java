@@ -29,7 +29,8 @@ public enum RailStationIds {
     StokeOnTrent(createId("STOKEOT")),
     Delamere(createId("DELAMER")),
     Wilmslow(createId("WLMSL")),
-    Chester(createId("CHST"));
+    Chester(createId("CHST")),
+    EastDidsbury(createId("EDIDBRY"));
 
     private final IdFor<Station> id;
 
@@ -41,7 +42,7 @@ public enum RailStationIds {
         return id;
     }
 
-    public Station getFrom(StationRepository repository) {
+    public Station from(StationRepository repository) {
         return repository.getStationById(getId());
     }
 }

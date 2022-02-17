@@ -1,5 +1,6 @@
 package com.tramchester.domain.input;
 
+import com.tramchester.domain.StationIdPair;
 import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.places.Station;
@@ -218,6 +219,10 @@ public class StopCalls {
 
         public Duration getCost() {
             return TramTime.difference(first.getDepartureTime(), second.getArrivalTime());
+        }
+
+        public StationIdPair getStations() {
+            return StationIdPair.of(first.station, second.getStation());
         }
     }
 }
