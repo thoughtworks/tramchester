@@ -30,7 +30,9 @@ public enum RailStationIds {
     Delamere(createId("DELAMER")),
     Wilmslow(createId("WLMSL")),
     Chester(createId("CHST")),
-    EastDidsbury(createId("EDIDBRY"));
+    EastDidsbury(createId("EDIDBRY")),
+    Eccles(createId("ECCLES")),
+    Ashton(createId(("ASHONUL")));
 
     private final IdFor<Station> id;
 

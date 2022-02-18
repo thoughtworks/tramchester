@@ -51,7 +51,7 @@ class RouteMapperTest {
         RouteRepository routeRepsoitory = componentContainer.get(RouteRepository.class);
         RoutesMapper mapper = componentContainer.get(RoutesMapper.class);
 
-        List<RouteDTO> dtos = mapper.getAllRoutes();
+        List<RouteDTO> dtos = mapper.getRouteDTOs();
         Set<Route> routes = tramRouteHelper.get(ManchesterAirportWythenshaweVictoria, routeRepsoitory);
 
         routes.forEach(route -> {

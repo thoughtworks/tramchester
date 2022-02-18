@@ -35,7 +35,7 @@ public class NeighbourTestConfig implements NeighbourConfig {
         return additional;
     }
 
-    public void addStations(IdFor<Station> first, IdFor<Station> second) {
+    public void addNeighbours(IdFor<Station> first, IdFor<Station> second) {
         additional.add(StationIdPair.of(first, second));
 
     }

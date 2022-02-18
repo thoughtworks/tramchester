@@ -74,10 +74,14 @@ bounds:
 planningEnabled: true
 neighbourConfig:
   maxNeighbourConnections: 3
-  distanceToNeighboursKM: 0.1
+  distanceToNeighboursKM: 0.2
   additional:
     - first: "9400ZZMAEDY"
       second: "EDIDBRY"
+    - first: "9400ZZMAECC"
+      second: "ECCLES"
+    - first: "9400ZZMAAUL"
+      second: "ASHONUL"
 maxWait: 25
 maxInitialWait: 13
 numberQueries: 3

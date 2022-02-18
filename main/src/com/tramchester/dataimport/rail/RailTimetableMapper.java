@@ -25,6 +25,7 @@ import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.time.Duration;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeFormatterBuilder;
 import java.util.*;
@@ -330,21 +331,22 @@ public class RailTimetableMapper {
 
             MutableStation station = findStationFor(railLocation);
 
-            if (railLocation.isPassingRecord()) {
-                station.addPassingRoute(route);
-                return false;
-            }
-
             GTFSPickupDropoffType pickup;
             GTFSPickupDropoffType dropoff;
 
-            pickup = lastStop ? None : Regular;
-            dropoff = stopSequence==1 ? None : Regular;
+            if (railLocation.isPassingRecord()) {
+                pickup = None;
+                dropoff = None;
+                station.addPassingRoute(route);
+                //return false;
+            } else {
+                pickup = lastStop ? None : Regular;
+                dropoff = stopSequence==1 ? None : Regular;
+            }
 
             // Platform
             IdFor<NaptanArea> areaId = station.getAreaId(); // naptan seems only to have rail stations, not platforms
             MutablePlatform platform = getOrCreatePlatform(station, railLocation, areaId);
-            //platform.addRoute(route);
             station.addPlatform(platform);
 
             if (pickup.isPickup()) {
@@ -360,7 +362,6 @@ public class RailTimetableMapper {
             RouteStation routeStation = new RouteStation(station, route);
             container.addRouteStation(routeStation);
 
-
             // Stop Call
             // TODO this doesn't cope with journeys that cross 2 days....
             TramTime arrivalTime = railLocation.getArrival();
@@ -375,7 +376,7 @@ public class RailTimetableMapper {
 
             StopCall stopCall = createStopCall(trip, station, platform, stopSequence,
                     arrivalTime, departureTime, pickup, dropoff);
-            if (TramTime.diffenceAsMinutes(arrivalTime, departureTime)>60) {
+            if (TramTime.difference(arrivalTime, departureTime).compareTo(Duration.ofMinutes(60))>0) {
                 // this definitely happens, so an info not a warning
                 logger.info("Delay of more than one hour for " + stopCall);
             }

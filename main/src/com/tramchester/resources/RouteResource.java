@@ -24,12 +24,12 @@ import java.util.concurrent.TimeUnit;
 public class RouteResource implements APIResource {
     private static final Logger logger = LoggerFactory.getLogger(RouteResource.class);
 
-    private final RoutesMapper repository;
+    private final RoutesMapper routesMapper;
 
     @Inject
-    public RouteResource(RoutesMapper repository) {
+    public RouteResource(RoutesMapper routesMapper) {
         logger.info("created");
-        this.repository = repository;
+        this.routesMapper = routesMapper;
     }
 
     @GET
@@ -39,7 +39,7 @@ public class RouteResource implements APIResource {
     public Response getAll() {
         logger.info("getAll routes");
         try {
-            List<RouteDTO> routes = repository.getAllRoutes();
+            List<RouteDTO> routes = routesMapper.getRouteDTOs();
 
             return Response.ok(routes).build();
         }

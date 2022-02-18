@@ -61,8 +61,10 @@ public class TramAndTrainGreaterManchesterConfig extends IntegrationTramTestConf
 
     @Override
     public NeighbourConfig getNeighbourConfig() {
-        NeighbourTestConfig config = new NeighbourTestConfig(0.1D, 3);
-        config.addStations(TramStations.EastDidsbury.getId(), RailStationIds.EastDidsbury.getId());
+        NeighbourTestConfig config = new NeighbourTestConfig(0.2D, 3);
+        config.addNeighbours(TramStations.EastDidsbury.getId(), RailStationIds.EastDidsbury.getId());
+        config.addNeighbours(TramStations.Eccles.getId(), RailStationIds.Eccles.getId());
+        config.addNeighbours(TramStations.Ashton.getId(), RailStationIds.Ashton.getId());
         return config;
     }
 

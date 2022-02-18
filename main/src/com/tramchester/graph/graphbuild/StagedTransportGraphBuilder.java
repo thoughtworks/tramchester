@@ -173,7 +173,7 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
             timedTransaction.commit();
         }
 
-        try(Timing ignored1 = new Timing(logger,"service, hour for " + agency.getId())) {
+        try(Timing ignored = new Timing(logger,"service, hour for " + agency.getId())) {
             getRoutesForAgency(agency).parallel().forEach(route -> {
                 try (Transaction tx = graphDatabase.beginTx()) {
                     createServiceAndHourNodesForRoute(tx, route, builderCache);
@@ -244,10 +244,12 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
                 StopCalls stops = trip.getStopCalls();
                 List<StopCalls.StopLeg> legs = stops.getLegs(graphFilter.isFiltered());
                 legs.forEach(leg -> {
-                    if (!leg.getDepartureTime().isValid()) {
-                        throw new RuntimeException("Invalid dept time for " + leg);
-                    }
+
                     if (includeBothStops(leg)) {
+                        if (!leg.getDepartureTime().isValid()) {
+                            throw new RuntimeException("Invalid dept time for " + leg);
+                        }
+
                         IdFor<Station> beginId = leg.getFirstStation().getId();
                         IdFor<Station> endId = leg.getSecondStation().getId();
 

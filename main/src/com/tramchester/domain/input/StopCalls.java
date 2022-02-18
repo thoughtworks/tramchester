@@ -81,10 +81,10 @@ public class StopCalls {
 
     /**
      * Create StopLeg for each pair of stopcall (a,b,c,d,e) -> (a,b), (b,c), (c,d), (d,e)
-     * Respects the dropoff and pickup types so so skips stopcalls that just pass a station
-     * @param filtered
+     * Respects the dropoff and pickup types so skips stopcalls that just pass a station
+     * @param graphIsFiltered is filtering enabled, controls diagnostic messages
      */
-    public List<StopLeg> getLegs(boolean filtered) {
+    public List<StopLeg> getLegs(boolean graphIsFiltered) {
         if (orderedStopCalls.isEmpty()) {
             String msg = "Missing stops, parent trip " + parent;
             logger.error(msg);
@@ -105,7 +105,7 @@ public class StopCalls {
             }
             next = second;
         }
-        if (legs.isEmpty() && !filtered) {
+        if (legs.isEmpty() && !graphIsFiltered) {
             logger.warn("No stop legs generated for " + this);
         }
         return legs;

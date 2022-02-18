@@ -44,17 +44,6 @@ public interface Route extends HasId<Route>, HasTransportMode, GraphProperty, Co
 
     boolean intoNextDay();
 
-    static IdFor<Route> createId(IdFor<Agency> agencyId, List<Station> callingPoints) {
-        IdFor<Station> first = callingPoints.get(0).getId();
-        IdFor<Station> last = callingPoints.get(callingPoints.size() - 1).getId();
-
-        //CompositeId
-        //         String firstName = callingPoints.get(0).getId().forDTO();
-        //        String lastName = callingPoints.get(callingPoints.size()-1).getId().forDTO();
-        //        return format("%s:%s=>%s", atocCode, firstName, lastName);
-        return null;
-    }
-
     static IdFor<Route> createId(String text) {
         return StringIdFor.createId(text);
     }

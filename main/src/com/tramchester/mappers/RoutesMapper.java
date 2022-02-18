@@ -17,6 +17,7 @@ import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.inject.Inject;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @LazySingleton
 public class RoutesMapper {
@@ -39,7 +40,7 @@ public class RoutesMapper {
         logger.info("Starting");
         Collection<Route> routes = transportData.getRoutes();
         routes.forEach(route -> {
-            List<LocationRefWithPosition> callingStations = getRouteCallingStationRefDTO(route);
+            List<LocationRefWithPosition> callingStations = getLocationsAlong(route);
             String name = route.getName();
             if (routeDTOs.containsKey(name)) {
                 if (!routeDTOs.get(name).getStations().equals(callingStations)) {
@@ -58,21 +59,20 @@ public class RoutesMapper {
         routeDTOs.clear();
     }
 
-    public List<RouteDTO> getAllRoutes() {
+    public List<RouteDTO> getRouteDTOs() {
         return new ArrayList<>(routeDTOs.values());
     }
 
     @NotNull
-    private List<LocationRefWithPosition> getRouteCallingStationRefDTO(Route route) {
-        List<Station> calledAtStations = getStationOn(route);
-        List<LocationRefWithPosition> stationDTOs = new ArrayList<>(calledAtStations.size());
-        calledAtStations.forEach(calledAtStation -> stationDTOs.add(DTOFactory.createLocationRefWithPosition(calledAtStation)));
-        return stationDTOs;
+    private List<LocationRefWithPosition> getLocationsAlong(Route route) {
+        return getStationsOn(route).stream().
+                map(DTOFactory::createLocationRefWithPosition).
+                collect(Collectors.toList());
     }
 
     // use for visualisation in the front-end routes map, this is approx. since some gtfs routes actually
     // branch TODO Use query of the graph DB to get the "real" representation
-    private List<Station> getStationOn(Route route) {
+    private List<Station> getStationsOn(Route route) {
         Set<Trip> tripsForRoute = route.getTrips();
         Optional<Trip> maybeLongest = tripsForRoute.stream().
                 max(Comparator.comparingLong(a -> a.getStopCalls().totalNumber()));
@@ -85,7 +85,6 @@ public class RoutesMapper {
         Trip longestTrip = maybeLongest.get();
         StopCalls stops = longestTrip.getStopCalls();
         return stops.getStationSequence();
-        //return stops.stream().map(StopCall::getStation).collect(Collectors.toList());
     }
 
 }
