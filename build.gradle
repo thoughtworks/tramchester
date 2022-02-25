@@ -69,7 +69,7 @@ dependencies {
             'software.amazon.awscdk:s3:1.134.0',
             'software.amazon.awscdk:ec2:1.134.0',
             'software.amazon.awscdk:elasticloadbalancingv2:1.134.0',
-            'software.amazon.awscdk:autoscaling:1.134.0',
+            'software.amazon.awscdk:autoscaling:1.146.0',
             'software.amazon.awscdk:cdk-cx-api:2.1.0'
 
     implementation('org.geotools:gt-main:26.1')
