@@ -84,10 +84,10 @@ public class TransportEntityFactoryForTFGM extends TransportEntityFactory {
             return Optional.empty();
         }
 
-        String stopId = stopData.getId();
+        final String stopId = stopData.getId();
         final IdFor<Platform> platformId = StringIdFor.createId(stopId);
 
-        String platformNumber = stopId.substring(stopId.length()-1);
+        final String platformNumber = stopId.substring(stopId.length()-1);
 
         IdFor<NaptanArea> areaId = IdFor.invalid();
         LatLong latLong = stopData.getLatLong();

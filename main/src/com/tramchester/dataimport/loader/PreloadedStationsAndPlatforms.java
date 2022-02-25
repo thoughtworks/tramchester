@@ -55,6 +55,7 @@ class PreloadedStationsAndPlatforms {
         final MutableStation station = stations.get(stationId);
 
         Optional<MutablePlatform> possiblePlatform = factory.maybeCreatePlatform(stopData, station);
+
         possiblePlatform.ifPresent(platform -> {
             platforms.add(platform);
             station.addPlatform(platform);

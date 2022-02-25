@@ -82,11 +82,27 @@ class TransportDataFromFilesBusTest {
     void shouldHaveExpectedStationAndPlatformNumbersForBus() {
 
         int numStations = transportData.getStations().size();
-        //assertEquals(NUM_TFGM_BUS_STATIONS, numStations);
         assertWithinNPercent(NUM_TFGM_BUS_STATIONS, numStations, 0.1F);
 
-        // no platforms represented in train data
-        assertEquals(0, transportData.getPlatforms().size());
+        // no platforms represented in bus data
+        assertEquals(0, transportData.getPlatforms().size(), transportData.getPlatforms().toString());
+    }
+
+    @Test
+    void shouldNotHavePlatformStations() {
+        Set<Station> hasPlatforms = transportData.getActiveStationStream().
+                filter(Station::hasPlatforms).
+                collect(Collectors.toSet());
+
+        assertTrue(hasPlatforms.isEmpty(), hasPlatforms.toString());
+    }
+
+    @Test
+    void shouldJustHaveBusStations() {
+        long tram = transportData.getActiveStationStream().
+                filter(station -> station.getTransportModes().contains(TransportMode.Tram)).
+                count();
+        assertEquals(0, tram);
     }
 
     @Test

@@ -49,7 +49,7 @@ public class StopDataLoader {
         return allStations;
     }
 
-    private void preLoadStation(PreloadedStationsAndPlatforms allStations, StopData stopData,TransportEntityFactory factory) {
+    private void preLoadStation(PreloadedStationsAndPlatforms allStations, StopData stopData, TransportEntityFactory factory) {
         String stopId = stopData.getId();
 
         IdFor<Station> stationId = factory.formStationId(stopId);

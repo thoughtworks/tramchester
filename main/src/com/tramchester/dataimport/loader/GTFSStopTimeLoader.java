@@ -102,14 +102,18 @@ public class GTFSStopTimeLoader {
                 final Route route = getRouteFrom(trip);
                 final MutableStation station = preloadStations.get(stationId);
 
-                if (expectedPlatformsForRoute(route) && !station.hasPlatforms()) {
+                final boolean routePlatforms = expectedPlatformsForRoute(route);
+                final boolean stationPlatforms = station.hasPlatforms();
+                if (routePlatforms && !stationPlatforms) {
                     missingPlatforms.record(stationId, stopTripId);
+                } else if (stationPlatforms && !routePlatforms) {
+                    logger.error(format("Platform mismatch, Skipping. Station %s has platforms but route %s does not for stop time %s",
+                            station.getId(), route.getId(), stopTimeData));
                 } else {
                     Service added = addStopTimeData(stopTimeData, trip, station, route);
                     addedServices.add(added);
                     stopTimesLoaded.getAndIncrement();
                 }
-
             } else {
                 excludedStations.add(stationId);
                 if (tripAndServices.hasId(stopTripId)) {
@@ -136,6 +140,7 @@ public class GTFSStopTimeLoader {
         }
 
         private Service addStopTimeData(StopTimeData stopTimeData, MutableTrip trip, MutableStation station, Route route) {
+
             addStationAndRouteStation(route, station, stopTimeData.getPickupType(), stopTimeData.getDropOffType());
             addPlatformsForStation(station);
 
