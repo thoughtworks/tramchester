@@ -250,6 +250,7 @@ class ConfigMismatchTest {
             if (checkClosures) {
                 assertEquals(expectedDataSource.getStationClosures(), dataSourceConfig.getStationClosures(), "station closures");
             }
+            assertEquals(expectedDataSource.getAddWalksForClosed(), dataSourceConfig.getAddWalksForClosed(), "AddWalksForClosed");
             assertEquals(expectedDataSource.getOnlyMarkedInterchanges(), dataSourceConfig.getOnlyMarkedInterchanges());
         }
     }

@@ -105,11 +105,15 @@ public class MutableService implements Service {
     private void computeStartTime() {
         Optional<TramTime> firstDepartForTrips = trips.stream().
                 filter(Trip::hasStops).
-                map(Trip::departTime).min(TramTime::compareTo);
+                map(Trip::departTime).
+                min(TramTime::compareTo);
         if (firstDepartForTrips.isEmpty()) {
             throw new RuntimeException("Missing first depart for " + trips + " service id " + serviceId);
         }
         startTime = firstDepartForTrips.get();
+        if (!startTime.isValid()) {
+            throw new RuntimeException("Invalid start time for " + this);
+        }
     }
 
     private void computeFinishTime() {
@@ -120,6 +124,9 @@ public class MutableService implements Service {
             throw new RuntimeException("Missing last arrival for service id " + serviceId +  "trips " + trips);
         }
         finishTime = finalArrivalForTrips.get();
+        if (!finishTime.isValid()) {
+            throw new RuntimeException("Invalid finish time for " + this);
+        }
     }
 
     @Override

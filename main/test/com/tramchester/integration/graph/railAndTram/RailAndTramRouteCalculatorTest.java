@@ -34,8 +34,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import static com.tramchester.domain.reference.TransportMode.*;
-import static com.tramchester.integration.testSupport.rail.RailStationIds.ManchesterPiccadilly;
-import static com.tramchester.integration.testSupport.rail.RailStationIds.Stockport;
+import static com.tramchester.integration.testSupport.rail.RailStationIds.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 @TrainTest
@@ -109,6 +108,21 @@ public class RailAndTramRouteCalculatorTest {
     }
 
     @Test
+    void shouldReproIssueWithInvalidTimes() {
+        TramTime time = TramTime.of(10,49);
+        JourneyRequest request = new JourneyRequest(new TramServiceDate(when), time, false, 3,
+                Duration.ofMinutes(30), 1, getRequestedModes());
+
+        // ashton west
+        Station start = rail(Altrincham);
+        Station dest = tram(TramStations.Ashton);
+
+        Set<Journey> journeys = testFacade.calculateRouteAsSet(start, dest, request);
+        assertFalse(journeys.isEmpty());
+
+    }
+
+    @Test
     void shouldHaveStockportToManPiccViaRail() {
 
         JourneyRequest request = new JourneyRequest(new TramServiceDate(when), travelTime, false, 1,
@@ -118,6 +132,7 @@ public class RailAndTramRouteCalculatorTest {
     }
 
     private Set<TransportMode> getRequestedModes() {
+        // empty means all
         return Collections.emptySet();
     }
 

@@ -24,6 +24,7 @@ gtfsSourceConfig:
     additionalInterchanges: [9400ZZMAGMX, 9400ZZMAPIC]
     compositeStationModes: []
     stationClosures: []
+    addWalksForClosed: false
 remoteSources:
   -
     name: tfgm

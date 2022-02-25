@@ -57,6 +57,16 @@ public class IntermediateLocation implements RailLocationRecord {
         TramTime publicArrival = getPublicTime(text, isPassing, 25, 28 + 1);
         TramTime publicDeparture = getPublicTime(text, isPassing, 29, 32+1);
         String platform = RecordHelper.extract(text, 34, 36+1);
+
+        if (!isPassing) {
+            if (!scheduledArrival.isValid() && !publicArrival.isValid()) {
+                throw new RuntimeException("No valid arrival time in " + text);
+            }
+            if (!scheduledDepart.isValid() && !publicDeparture.isValid()) {
+                throw new RuntimeException("No valid depart time in " + text);
+            }
+        }
+
         return new IntermediateLocation(tiplocCode, scheduledArrival, scheduledDepart, publicArrival, publicDeparture, platform, passingTime);
     }
 
@@ -77,11 +87,19 @@ public class IntermediateLocation implements RailLocationRecord {
 
     @Override
     public TramTime getArrival() {
+        // todo subtype passing records?
+        if (this.isPassingRecord()) {
+            throw new RuntimeException("getArrival called on a passing record");
+        }
         return pickPublicOrSchedule(publicArrival, scheduledArrival);
     }
 
     @Override
     public TramTime getDeparture() {
+        // todo subtype passing records?
+        if (this.isPassingRecord()) {
+            throw new RuntimeException("getDeparture called on a passing record");
+        }
         return pickPublicOrSchedule(publicDeparture, scheduledDepart);
     }
 

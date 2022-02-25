@@ -300,12 +300,12 @@ public class RailTimetableMapper {
 
             // Stations, Platforms, StopCalls
             int stopSequence = 1;
-            //boolean crossMidnight = crossMidnight(originLocation, terminatingLocation);
             TramTime originTime = originLocation.getDeparture();
             populateForLocation(originLocation, route, trip, stopSequence, false, agencyId, basicSchedule, originTime);
             stopSequence = stopSequence + 1;
             for (IntermediateLocation intermediateLocation : intermediateLocations) {
-                if (populateForLocation(intermediateLocation, route, trip, stopSequence, false, agencyId, basicSchedule, originTime)) {
+                if (populateForLocation(intermediateLocation, route, trip, stopSequence, false, agencyId,
+                        basicSchedule, originTime)) {
                     stopSequence = stopSequence + 1;
                 }
             }
@@ -334,7 +334,9 @@ public class RailTimetableMapper {
             GTFSPickupDropoffType pickup;
             GTFSPickupDropoffType dropoff;
 
-            if (railLocation.isPassingRecord()) {
+            final boolean passingRecord = railLocation.isPassingRecord();
+
+            if (passingRecord) {
                 pickup = None;
                 dropoff = None;
                 station.addPassingRoute(route);
@@ -362,24 +364,32 @@ public class RailTimetableMapper {
             RouteStation routeStation = new RouteStation(station, route);
             container.addRouteStation(routeStation);
 
-            // Stop Call
-            // TODO this doesn't cope with journeys that cross 2 days....
-            TramTime arrivalTime = railLocation.getArrival();
-            if (arrivalTime.isBefore(originTime)) {
-                arrivalTime = TramTime.nextDay(arrivalTime);
+            StopCall stopCall;
+            if (passingRecord) {
+                TramTime passingTime = railLocation.getPassingTime();
+                stopCall = createStopCall(trip, station, platform, stopSequence,
+                        passingTime, passingTime, None, None);
+            } else {
+                // Stop Call
+                // TODO this doesn't cope with journeys that cross 2 days....
+                TramTime arrivalTime = railLocation.getArrival();
+                if (arrivalTime.isBefore(originTime)) {
+                    arrivalTime = TramTime.nextDay(arrivalTime);
+                }
+
+                TramTime departureTime = railLocation.getDeparture();
+                if (departureTime.isBefore(originTime)) {
+                    departureTime = TramTime.nextDay(departureTime);
+                }
+
+                stopCall = createStopCall(trip, station, platform, stopSequence,
+                        arrivalTime, departureTime, pickup, dropoff);
+                if (TramTime.difference(arrivalTime, departureTime).compareTo(Duration.ofMinutes(60))>0) {
+                    // this definitely happens, so an info not a warning
+                    logger.info("Delay of more than one hour for " + stopCall);
+                }
             }
 
-            TramTime departureTime = railLocation.getDeparture();
-            if (departureTime.isBefore(originTime)) {
-                departureTime = TramTime.nextDay(departureTime);
-            }
-
-            StopCall stopCall = createStopCall(trip, station, platform, stopSequence,
-                    arrivalTime, departureTime, pickup, dropoff);
-            if (TramTime.difference(arrivalTime, departureTime).compareTo(Duration.ofMinutes(60))>0) {
-                // this definitely happens, so an info not a warning
-                logger.info("Delay of more than one hour for " + stopCall);
-            }
             trip.addStop(stopCall);
 
             return true;

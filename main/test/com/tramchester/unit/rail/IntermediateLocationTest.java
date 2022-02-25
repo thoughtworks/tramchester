@@ -40,8 +40,9 @@ public class IntermediateLocationTest {
         assertEquals("BATRSPJ", intermediateLocation.getTiplocCode());
         assertTrue(intermediateLocation.isPassingRecord());
         assertEquals(TramTime.of(21,25), intermediateLocation.getPassingTime());
-        assertFalse(intermediateLocation.getArrival().isValid());
-        assertFalse(intermediateLocation.getDeparture().isValid());
+
+//        assertFalse(intermediateLocation.getArrival().isValid());
+//        assertFalse(intermediateLocation.getDeparture().isValid());
 
         assertTrue(intermediateLocation.getPlatform().isBlank());
     }

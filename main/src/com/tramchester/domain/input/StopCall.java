@@ -20,8 +20,8 @@ public abstract class StopCall {
     private final int dwellTime;
     private final boolean intoNextDay;
 
-    protected StopCall(Station station, TramTime arrivalTime, TramTime departureTime, int sequenceNumber, GTFSPickupDropoffType pickupType,
-                       GTFSPickupDropoffType dropoffType, Trip trip) {
+    protected StopCall(Station station, TramTime arrivalTime, TramTime departureTime, int sequenceNumber,
+                       GTFSPickupDropoffType pickupType, GTFSPickupDropoffType dropoffType, Trip trip) {
         this.station = station;
         this.arrivalTime = arrivalTime;
         this.sequenceNumber = sequenceNumber;

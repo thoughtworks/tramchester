@@ -91,6 +91,9 @@ public class TramTime implements Comparable<TramTime> {
     }
 
     public static TramTime nextDay(TramTime other) {
+        if (!other.isValid()) {
+            throw new RuntimeException("Called nextDay on invalid time");
+        }
         return factory.of(other.hour, other.minute, 1);
     }
 
@@ -153,6 +156,10 @@ public class TramTime implements Comparable<TramTime> {
 
     @Override
     public String toString() {
+        if (!this.isValid()) {
+            return "TramTime{INVALID}";
+        }
+
         String daysString = offsetDays>0 ?"d=" + offsetDays + " " : "";
         return "TramTime{" +
                 daysString +
@@ -244,6 +251,9 @@ public class TramTime implements Comparable<TramTime> {
     }
 
     public TramTime minusMinutes(int amount) {
+        if (!this.isValid()) {
+            throw new RuntimeException("Attempt to subtract " + amount + " from an invalid time");
+        }
 
         if (amount<0) {
             throw new RuntimeException("Subtract negative number " + amount);

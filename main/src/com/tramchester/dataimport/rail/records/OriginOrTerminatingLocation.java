@@ -1,6 +1,7 @@
 package com.tramchester.dataimport.rail.records;
 
 import com.tramchester.domain.time.TramTime;
+import org.apache.commons.lang3.NotImplementedException;
 
 public abstract class OriginOrTerminatingLocation {
 
@@ -66,5 +67,9 @@ public abstract class OriginOrTerminatingLocation {
         result = 31 * result + publicTime.hashCode();
         result = 31 * result + platform.hashCode();
         return result;
+    }
+
+    public TramTime getPassingTime() {
+        throw new NotImplementedException();
     }
 }
