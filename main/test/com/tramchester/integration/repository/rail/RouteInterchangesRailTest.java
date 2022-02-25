@@ -25,6 +25,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import static com.tramchester.integration.testSupport.rail.RailStationIds.*;
+import static com.tramchester.testSupport.TestEnv.assertMinutesEquals;
 import static java.lang.String.format;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -121,11 +122,11 @@ public class RouteInterchangesRailTest {
 
         RouteStation stockportRouteStation = stationRepository.getRouteStationById(RouteStation.createId(Stockport.getId(),
                 manchesterToChester));
-        assertEquals(0, routeInterchanges.costToInterchange(stockportRouteStation));
+        assertEquals(Duration.ZERO, routeInterchanges.costToInterchange(stockportRouteStation));
 
         RouteStation delamereRouteStation = stationRepository.getRouteStationById(RouteStation.createId(delamere.getId(),
                 manchesterToChester));
-        assertEquals(19, routeInterchanges.costToInterchange(delamereRouteStation));
+        assertMinutesEquals(20, routeInterchanges.costToInterchange(delamereRouteStation));
 
     }
 }

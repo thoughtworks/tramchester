@@ -117,7 +117,7 @@ class GraphBuilderRailTest {
 
             Relationship enter = node.getSingleRelationship(TransportRelationshipTypes.ENTER_PLATFORM, Direction.INCOMING);
             Duration enterCost = GraphProps.getCost(enter);
-            assertEquals(cost, enterCost, "wrong cost for " + platform.getId());
+            assertEquals(cost, enterCost, "wrong enter cost for " + platform.getId());
         });
 
         platforms.forEach(platform -> {

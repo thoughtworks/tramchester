@@ -128,8 +128,9 @@ public class RailTransportDataFromFilesTest {
                 filter(route -> longName.equals(route.getName())).
                 collect(Collectors.toSet());
 
-        Set<Trip> wrongCallingPoints = routes.stream().flatMap(route -> route.getTrips().stream()).
-                filter(trip -> !trip.getStopCalls().getStationSequence().equals(expectedCallingPoints)).
+        Set<Trip> wrongCallingPoints = routes.stream().
+                flatMap(route -> route.getTrips().stream()).
+                filter(trip -> !trip.getStopCalls().getStationSequence(false).equals(expectedCallingPoints)).
                 collect(Collectors.toSet());
 
         assertTrue(wrongCallingPoints.isEmpty(), wrongCallingPoints.toString());
@@ -196,7 +197,7 @@ public class RailTransportDataFromFilesTest {
         List<Trip> matchingTrips = transportData.getTrips().stream().
                 filter(trip -> trip.getStopCalls().callsAt(startStation)).
                 filter(trip -> trip.getStopCalls().callsAt(endStation)).
-                filter(trip -> trip.getStopCalls().getStationSequence().get(0).equals(startStation)).
+                filter(trip -> trip.getStopCalls().getStationSequence(false).get(0).equals(startStation)).
                 filter(trip -> trip.getStopCalls().getLastStop().getStation().equals(endStation)).
                 collect(Collectors.toList());
 
@@ -220,7 +221,7 @@ public class RailTransportDataFromFilesTest {
         assertEquals(7, stops.numberOfCallingPoints());
 
         // 19 is including passed stops, 7 otherwise
-        assertEquals(7, stops.totalNumber());
+        assertEquals(19, stops.totalNumber());
 
         final StopCall lastStopCall = stops.getLastStop();
         assertEquals(endStation, lastStopCall.getStation());
@@ -228,10 +229,12 @@ public class RailTransportDataFromFilesTest {
         assertEquals(GTFSPickupDropoffType.None, lastStopCall.getPickupType());
 
         // 19 is including passed stops, 7 otherwise
-        assertEquals(7, stops.getStationSequence().size());
+        assertEquals(7, stops.getStationSequence(false).size());
+        assertEquals(19, stops.getStationSequence(true).size());
 
         // 2 if including passed stop, 0 otherwise
-        assertEquals(0, stops.getStationSequence().stream().filter(station -> !station.isActive()).count());
+        assertEquals(0, stops.getStationSequence(false).stream().filter(station -> !station.isActive()).count());
+        assertEquals(2, stops.getStationSequence(true).stream().filter(station -> !station.isActive()).count());
 
         Route route = trip.getRoute();
         assertNotNull(route);

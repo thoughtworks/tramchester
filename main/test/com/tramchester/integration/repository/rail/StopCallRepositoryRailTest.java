@@ -15,9 +15,11 @@ import com.tramchester.testSupport.testTags.TrainTest;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.condition.DisabledIfEnvironmentVariable;
 
+import java.time.Duration;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static com.tramchester.testSupport.TestEnv.assertMinutesEquals;
 import static org.junit.jupiter.api.Assertions.*;
 
 @TrainTest
@@ -59,8 +61,8 @@ public class StopCallRepositoryRailTest {
         assertFalse(costs.isEmpty());
 
         // was getting costs > 23 hours due to crossing midnight
-        assertEquals(14, costs.average(), costs.toString());
-        assertEquals(14, costs.max(), costs.toString());
+        assertEquals(Duration.ofMinutes(13).plusSeconds(36), costs.average(), costs.toString());
+        assertMinutesEquals(14, costs.max(), costs.toString());
     }
 
     @Disabled("Data does contain a zero cost trip X13514:20220124:20220127")
@@ -80,13 +82,15 @@ public class StopCallRepositoryRailTest {
 
         calling.forEach(route -> {
             StopCallRepository.Costs costs = stopCallRepository.getCostsBetween(route, mulsecoomb, londonRoadBrighton);
-            assertNotEquals(0, costs.average(), costs.toString() + route);
-            assertNotEquals(0, costs.max(), costs.toString() + route);
+            assertNotEquals(Duration.ZERO, costs.average(), costs.toString() + route);
+            assertNotEquals(Duration.ZERO, costs.max(), costs.toString() + route);
         });
     }
 
     private boolean isBefore(Trip trip, Station stationA, Station stationB) {
-        return trip.getStopCalls().getStationSequence().indexOf(stationA) < trip.getStopCalls().getStationSequence().indexOf(stationB);
+        final boolean includeNotStopping = true;
+        return trip.getStopCalls().getStationSequence(includeNotStopping).
+                indexOf(stationA) < trip.getStopCalls().getStationSequence(includeNotStopping).indexOf(stationB);
     }
 
 }

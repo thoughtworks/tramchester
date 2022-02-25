@@ -213,7 +213,7 @@ class BusRouteCalculatorSubGraphAltyToMaccRoute {
         // all station for both sets of routes
         Set<Station> stations = Streams.concat(altyToKnutsford.stream(), knutsfordToAlty.stream()).
                 flatMap(route -> route.getTrips().stream()).
-                flatMap(trip -> trip.getStopCalls().getStationSequence().stream()).
+                flatMap(trip -> trip.getStopCalls().getStationSequence(false).stream()).
                 collect(Collectors.toSet());
         creator.create(Path.of("AltrichamKnutsfordBuses.dot"), stations, 1, true);
     }

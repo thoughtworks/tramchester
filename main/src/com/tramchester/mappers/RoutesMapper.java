@@ -40,7 +40,8 @@ public class RoutesMapper {
         logger.info("Starting");
         Collection<Route> routes = transportData.getRoutes();
         routes.forEach(route -> {
-            List<LocationRefWithPosition> callingStations = getLocationsAlong(route);
+            // TODO Need way to flag non calling stations
+            List<LocationRefWithPosition> callingStations = getLocationsAlong(route, true);
             String name = route.getName();
             if (routeDTOs.containsKey(name)) {
                 if (!routeDTOs.get(name).getStations().equals(callingStations)) {
@@ -64,15 +65,15 @@ public class RoutesMapper {
     }
 
     @NotNull
-    private List<LocationRefWithPosition> getLocationsAlong(Route route) {
-        return getStationsOn(route).stream().
+    private List<LocationRefWithPosition> getLocationsAlong(Route route, boolean includeNotStopping) {
+        return getStationsOn(route, includeNotStopping).stream().
                 map(DTOFactory::createLocationRefWithPosition).
                 collect(Collectors.toList());
     }
 
     // use for visualisation in the front-end routes map, this is approx. since some gtfs routes actually
     // branch TODO Use query of the graph DB to get the "real" representation
-    private List<Station> getStationsOn(Route route) {
+    private List<Station> getStationsOn(Route route, boolean includeNotStopping) {
         Set<Trip> tripsForRoute = route.getTrips();
         Optional<Trip> maybeLongest = tripsForRoute.stream().
                 max(Comparator.comparingLong(a -> a.getStopCalls().totalNumber()));
@@ -84,7 +85,7 @@ public class RoutesMapper {
 
         Trip longestTrip = maybeLongest.get();
         StopCalls stops = longestTrip.getStopCalls();
-        return stops.getStationSequence();
+        return stops.getStationSequence(includeNotStopping);
     }
 
 }

@@ -140,8 +140,10 @@ public class StopCalls {
         return intoNextDay;
     }
 
-    public List<Station> getStationSequence() {
-        return orderedStopCalls.values().stream().map(StopCall::getStation).collect(Collectors.toList());
+    public List<Station> getStationSequence(final boolean includeNotStopping) {
+        return orderedStopCalls.values().stream().
+                filter(stopCall -> includeNotStopping || stopCall.callsAtStation()).
+                map(StopCall::getStation).collect(Collectors.toList());
     }
 
     public StopCall getFirstStop() {

@@ -119,7 +119,8 @@ public class RouteInterchanges {
 
         IdFor<Route> routeId = route.getId();
 
-        long maxNodes = route.getTrips().stream().flatMap(trip -> trip.getStopCalls().getStationSequence().stream()).distinct().count();
+        long maxNodes = route.getTrips().stream().
+                flatMap(trip -> trip.getStopCalls().getStationSequence(false).stream()).distinct().count();
 
         logger.debug("Find stations to interchange least costs for " + routeId + " max nodes " + maxNodes);
 
