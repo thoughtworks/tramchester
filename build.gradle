@@ -19,6 +19,7 @@ def environment = System.getenv("ENV") ?: "Dev"
 def isWindows = System.getProperty('os.name').toLowerCase(Locale.ROOT).contains('windows')
 
 def s3prefix = 'dist/' + buildNumber
+def prodConfig = 'config/local.yml'
 
 s3 {
     bucket = 'tramchester2dist'
@@ -138,9 +139,8 @@ task cleanGraph() {
 }
 
 clean {
-    dependsOn 'cleanGraph'
+    dependsOn cleanGraph
     delete 'src/main/resources/app/dist/'
-    delete 'data/tram/data.zip', 'data/bus/data.zip'
     delete fileTree('data/tram') {
         include '*.txt'
         include '*.zip'
@@ -466,17 +466,16 @@ distributions {
     }
 }
 
-
 task pullData(type:JavaExec, dependsOn:classes) {
     mainClass = 'com.tramchester.deployment.cli.FetchDataCLI'
     classpath = sourceSets.main.runtimeClasspath
-    args 'config/local.yml'
+    args prodConfig
 }
 
 task buildDatabase(type:JavaExec, dependsOn:classes) {
     mainClass = 'com.tramchester.deployment.cli.BuildGraphCLI'
     classpath = sourceSets.main.runtimeClasspath
-    args 'config/local.yml'
+    args prodConfig, 'build/distributions/database'
 }
 
 task upload(dependsOn: ['uploadDataSources', 'uploadApp'])
@@ -484,11 +483,12 @@ task upload(dependsOn: ['uploadDataSources', 'uploadApp'])
 task uploadDataSources(type:JavaExec, dependsOn: ['pullData','classes']) {
     mainClass = 'com.tramchester.deployment.cli.UploadSourceDataCLI'
     classpath = sourceSets.main.runtimeClasspath
-    args 'config/local.yml', s3prefix
+    args prodConfig, s3prefix
 }
 
 task zipDB(type:Zip, dependsOn: 'buildDatabase') {
-    from 'tramchester.db'
+    from 'build/distributions/database'
+    include '*.db/**'
     archiveFileName = 'tramchester.db.zip'
 }
 
