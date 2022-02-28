@@ -466,6 +466,7 @@ distributions {
     }
 }
 
+
 task pullData(type:JavaExec, dependsOn:classes) {
     mainClass = 'com.tramchester.deployment.cli.FetchDataCLI'
     classpath = sourceSets.main.runtimeClasspath
@@ -478,6 +479,8 @@ task buildDatabase(type:JavaExec, dependsOn:classes) {
     args 'config/local.yml'
 }
 
+task upload(dependsOn: ['uploadDataSources', 'uploadApp'])
+
 task uploadDataSources(type:JavaExec, dependsOn: ['pullData','classes']) {
     mainClass = 'com.tramchester.deployment.cli.UploadSourceDataCLI'
     classpath = sourceSets.main.runtimeClasspath
@@ -489,28 +492,17 @@ task zipDB(type:Zip, dependsOn: 'buildDatabase') {
     archiveFileName = 'tramchester.db.zip'
 }
 
-task uploadApp(type: S3Upload, dependsOn: ['distZip', 'uploadDeployScript', 'uploadCloudInit'])  {
-    key = s3prefix + '/tramchester-1.0.zip'
-    file = 'build/distributions/tramchester-1.0.zip'
-    overwrite = true
+task copyIntoUploadDir(type: Copy, dependsOn: [zipDB, distZip]) {
+    from 'build/distributions/tramchester.db.zip'
+    from 'build/distributions/tramchester-1.0.zip'
+    from 'deploy/setupTramWebServerAWSLinux.sh'
+    from 'deploy/cloudInitAWSLinux.txt'
+    into 'build/distributions/uploadDir'
 }
 
-task uploadData(type: S3Upload, dependsOn: ['zipDB','uploadDataSources']) {
-    key = s3prefix + '/tramchester.db.zip'
-    file = 'build/distributions/tramchester.db.zip'
-    overwrite = true
-}
-
-task uploadDeployScript(type: S3Upload) {
-    key = s3prefix + '/setupTramWebServerAWSLinux.sh'
-    file = 'deploy/setupTramWebServerAWSLinux.sh'
-    overwrite = true
-}
-
-task uploadCloudInit(type: S3Upload) {
-    key = s3prefix + '/cloudInitAWSLinux.txt'
-    file = 'deploy/cloudInitAWSLinux.txt'
-    overwrite = true
+task uploadApp(type: S3Upload, dependsOn:copyIntoUploadDir) {
+    keyPrefix = s3prefix
+    sourceDir = 'build/distributions/uploadDir'
 }
 
 task infra(dependsOn: cfnassist) {
@@ -520,8 +512,6 @@ task infra(dependsOn: cfnassist) {
         }
     }
 }
-
-task upload(dependsOn: ['uploadData', 'uploadApp'])
 
 task deploy(dependsOn: cfnassist) {
     doLast {
