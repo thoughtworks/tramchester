@@ -16,6 +16,8 @@ def candidate = System.getenv("CIRCLE_BUILD_NUM") ?: "0"
 def buildNumber = System.getenv("RELEASE_NUMBER") ?: candidate
 def environment = System.getenv("ENV") ?: "Dev"
 def isWindows = System.getProperty('os.name').toLowerCase(Locale.ROOT).contains('windows')
+
+
 def s3prefix = 'dist/' + buildNumber
 
 s3 {
@@ -476,6 +478,12 @@ task buildDatabase(type:JavaExec, dependsOn:classes) {
     args 'config/local.yml'
 }
 
+task uploadDataSources(type:JavaExec, dependsOn: ['pullData','classes']) {
+    mainClass = 'com.tramchester.deployment.cli.UploadSourceDataCLI'
+    classpath = sourceSets.main.runtimeClasspath
+    args 'config/local.yml', s3prefix
+}
+
 task zipDB(type:Zip, dependsOn: 'buildDatabase') {
     from 'tramchester.db'
     archiveFileName = 'tramchester.db.zip'
@@ -487,17 +495,17 @@ task uploadApp(type: S3Upload, dependsOn: ['distZip', 'uploadDeployScript', 'upl
     overwrite = true
 }
 
-task uploadData(type: S3Upload, dependsOn: ['zipDB','uploadTFGMData']) {
+task uploadData(type: S3Upload, dependsOn: ['zipDB','uploadDataSources']) {
     key = s3prefix + '/tramchester.db.zip'
     file = 'build/distributions/tramchester.db.zip'
     overwrite = true
 }
 
-task uploadTFGMData(type: S3Upload, dependsOn: ['pullData']) {
-    key = s3prefix + '/tfgm_data.zip'
-    file = 'data/tram/tfgm_data.zip'
-    overwrite = true
-}
+//task uploadTFGMData(type: S3Upload, dependsOn: ['pullData']) {
+//    key = s3prefix + '/tfgm_data.zip'
+//    file = 'data/tram/tfgm_data.zip'
+//    overwrite = true
+//}
 
 task uploadDeployScript(type: S3Upload) {
     key = s3prefix + '/setupTramWebServerAWSLinux.sh'
