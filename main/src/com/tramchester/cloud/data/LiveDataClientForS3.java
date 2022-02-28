@@ -63,8 +63,9 @@ public class LiveDataClientForS3  {
         return !bucket.isEmpty();
     }
 
-    public boolean keyExists(String prefix, String key) {
-        return clientForS3.keyExists(bucket, prefix, key);
+    public boolean itemExists(String prefix, String item) {
+        logger.info(String.format("Check for prefix '%s' item '%s'", prefix, item));
+        return clientForS3.keyExists(bucket, prefix, item);
     }
 
     public boolean upload(String key, String json) {

@@ -59,7 +59,7 @@ class UploadsLiveDataTest extends EasyMockSupport {
         EasyMock.expect(s3Keys.create(lastUpdateTime)).andReturn("key");
 
         EasyMock.expect(clientForS3.isStarted()).andReturn(true);
-        EasyMock.expect(clientForS3.keyExists("prefix","key")).andReturn(false);
+        EasyMock.expect(clientForS3.itemExists("prefix","key")).andReturn(false);
         EasyMock.expect(mapper.map(dtos)).andReturn("someJson");
 
         EasyMock.expect(clientForS3.upload("key", "someJson")).andReturn(true);
@@ -78,7 +78,7 @@ class UploadsLiveDataTest extends EasyMockSupport {
         EasyMock.expect(s3Keys.create(lastUpdateTime)).andReturn("key");
 
         EasyMock.expect(clientForS3.isStarted()).andReturn(true);
-        EasyMock.expect(clientForS3.keyExists("prefix", "key")).andReturn(true);
+        EasyMock.expect(clientForS3.itemExists("prefix", "key")).andReturn(true);
 
         replayAll();
         boolean result = uploadsLiveData.seenUpdate(liveData);

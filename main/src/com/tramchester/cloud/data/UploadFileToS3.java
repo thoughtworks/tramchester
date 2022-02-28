@@ -23,19 +23,26 @@ public class UploadFileToS3 {
         this.bucket = config.getDistributionBucket();
     }
 
-    public boolean uploadFile(String prefix, Path fileToUpload) {
+    /***
+     * Upload a file to S3, DOES NOT overwrite an existing item
+     * @param s3Key where to place the item
+     * @param fileToUpload the item to upload
+     * @return true if file uploads ok, false otherwise
+     */
+    public boolean uploadFile(String s3Key, Path fileToUpload) {
         if (!clientForS3.isStarted()) {
             throw new RuntimeException("S3 client is not started");
         }
 
-        String filename = fileToUpload.getFileName().toString();
-        if (clientForS3.keyExists(bucket, prefix, filename)) {
-            logger.error(format("prefix %s key %s already exists", prefix, filename));
+        String itemId = fileToUpload.getFileName().toString();
+
+        if (clientForS3.keyExists(bucket, s3Key, itemId)) {
+            logger.warn(format("prefix %s key %s already exists", s3Key, itemId));
             return false;
         }
 
-        final String key = prefix + "/" + filename;
-        logger.info(format("Update file %s to bucket %s at %s", fileToUpload, bucket, filename));
+        final String key = s3Key + "/" + itemId;
+        logger.info(format("Upload file %s to bucket %s at %s", fileToUpload.toAbsolutePath(), bucket, key));
         return clientForS3.upload(bucket, key, fileToUpload);
     }
 

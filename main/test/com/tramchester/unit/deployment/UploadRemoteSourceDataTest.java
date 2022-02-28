@@ -4,7 +4,7 @@ import com.tramchester.cloud.data.UploadFileToS3;
 import com.tramchester.config.GTFSSourceConfig;
 import com.tramchester.config.RemoteDataSourceConfig;
 import com.tramchester.config.TramchesterConfig;
-import com.tramchester.deployment.cli.UploadRemoteData;
+import com.tramchester.deployment.UploadRemoteSourceData;
 import com.tramchester.testSupport.TestConfig;
 import org.easymock.EasyMock;
 import org.easymock.EasyMockSupport;
@@ -19,10 +19,10 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 
-class UploadRemoteDataTest extends EasyMockSupport {
+class UploadRemoteSourceDataTest extends EasyMockSupport {
 
     private UploadFileToS3 s3Uploader;
-    private UploadRemoteData uploadRemoteData;
+    private UploadRemoteSourceData uploadRemoteData;
 
     @BeforeEach
     void beforeEachTestRuns() {
@@ -35,17 +35,18 @@ class UploadRemoteDataTest extends EasyMockSupport {
         remoteConfigs.add(new DataSourceConfig(Path.of("data/bus"), "fileB.zip"));
 
         TramchesterConfig config = new ConfigWithRemoteSource(remoteConfigs);
-        uploadRemoteData = new UploadRemoteData(s3Uploader, config);
+        uploadRemoteData = new UploadRemoteSourceData(s3Uploader, config);
     }
 
     @Test
     void shouldUpdateEachRemoteDataSourceInConfigToS3() {
 
-        EasyMock.expect(s3Uploader.uploadFile("data/tram", Path.of("data/tram/fileA.zip"))).andReturn(true);
-        EasyMock.expect(s3Uploader.uploadFile("data/bus", Path.of("data/bus/fileB.zip"))).andReturn(true);
+        final String prefix = "aPrefix";
+        EasyMock.expect(s3Uploader.uploadFile(prefix, Path.of("data/tram/fileA.zip"))).andReturn(true);
+        EasyMock.expect(s3Uploader.uploadFile(prefix, Path.of("data/bus/fileB.zip"))).andReturn(true);
 
         replayAll();
-        boolean result = uploadRemoteData.upload();
+        boolean result = uploadRemoteData.upload(prefix);
         verifyAll();
 
         assertTrue(result);
@@ -54,11 +55,12 @@ class UploadRemoteDataTest extends EasyMockSupport {
     @Test
     void shouldFailIfAnyFail() {
 
-        EasyMock.expect(s3Uploader.uploadFile( "data/tram", Path.of("data/tram/fileA.zip"))).andReturn(true);
-        EasyMock.expect(s3Uploader.uploadFile( "data/bus", Path.of("data/bus/fileB.zip"))).andReturn(false);
+        final String prefix = "somePrefix";
+        EasyMock.expect(s3Uploader.uploadFile(prefix, Path.of("data/tram/fileA.zip"))).andReturn(true);
+        EasyMock.expect(s3Uploader.uploadFile(prefix, Path.of("data/bus/fileB.zip"))).andReturn(false);
 
         replayAll();
-        boolean result = uploadRemoteData.upload();
+        boolean result = uploadRemoteData.upload(prefix);
         verifyAll();
 
         assertFalse(result);

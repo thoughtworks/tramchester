@@ -32,7 +32,7 @@ class LiveDataClientForS3Test {
 
     private static final String TEST_BUCKET_NAME = "tramchestertestlivedatabucket";
     private static final String PREFIX = "test";
-    private static final String KEY = PREFIX+"/"+"key";
+    private static final String FULL_KEY = PREFIX+"/"+ "key";
 
     private static S3Client s3;
     private static S3Waiter s3Waiter;
@@ -78,7 +78,7 @@ class LiveDataClientForS3Test {
     void shouldUploadOkIfBucketExist() throws IOException {
 
         String contents = "someJsonData";
-        boolean uploaded = liveDataClientForS3.upload(KEY, contents);
+        boolean uploaded = liveDataClientForS3.upload(FULL_KEY, contents);
         assertTrue(uploaded, "uploaded");
 
         ListObjectsRequest listRequest = ListObjectsRequest.builder().bucket(TEST_BUCKET_NAME).build();
@@ -91,7 +91,7 @@ class LiveDataClientForS3Test {
 
         assertEquals("test/key", key);
 
-        GetObjectRequest getRequest = GetObjectRequest.builder().bucket(TEST_BUCKET_NAME).key(KEY).build();
+        GetObjectRequest getRequest = GetObjectRequest.builder().bucket(TEST_BUCKET_NAME).key(FULL_KEY).build();
         ResponseInputStream<GetObjectResponse> inputStream = s3.getObject(getRequest);
 
         byte[] target = new byte[contents.length()];
@@ -106,34 +106,34 @@ class LiveDataClientForS3Test {
     void shouldReturnFalseIfNonExistentBucket() {
         LiveDataClientForS3 anotherClient = new LiveDataClientForS3(new NoSuchBucketExistsConfig(), clientForS3);
         anotherClient.start();
-        boolean uploaded = anotherClient.upload(KEY, "someText");
+        boolean uploaded = anotherClient.upload(FULL_KEY, "someText");
         anotherClient.stop();
         assertFalse(uploaded);
     }
 
     @Test
     void checkForObjectExisting() {
-        HeadObjectRequest existsCheckRequest = HeadObjectRequest.builder().bucket(TEST_BUCKET_NAME).key(KEY).build();
+        HeadObjectRequest existsCheckRequest = HeadObjectRequest.builder().bucket(TEST_BUCKET_NAME).key(FULL_KEY).build();
 
-        PutObjectRequest request = PutObjectRequest.builder().bucket(TEST_BUCKET_NAME).key(KEY).build();
+        PutObjectRequest request = PutObjectRequest.builder().bucket(TEST_BUCKET_NAME).key(FULL_KEY).build();
         s3.putObject(request, RequestBody.fromString("contents"));
         s3Waiter.waitUntilObjectExists(existsCheckRequest);
 
-        assertTrue(liveDataClientForS3.keyExists(PREFIX, KEY), "exists"); //waiter will throw if times out
+        assertTrue(liveDataClientForS3.itemExists(PREFIX, "key"), "exists"); //waiter will throw if times out
         Set<String> keys = liveDataClientForS3.getKeysFor(PREFIX);
-        assertTrue(keys.contains(KEY));
+        assertTrue(keys.contains(FULL_KEY));
 
-        DeleteObjectRequest deleteRequest = DeleteObjectRequest.builder().bucket(TEST_BUCKET_NAME).key(KEY).build();
+        DeleteObjectRequest deleteRequest = DeleteObjectRequest.builder().bucket(TEST_BUCKET_NAME).key(FULL_KEY).build();
         s3.deleteObject(deleteRequest);
         s3Waiter.waitUntilObjectNotExists(existsCheckRequest);
 
-        assertFalse(liveDataClientForS3.keyExists(PREFIX, KEY), "deleted");
+        assertFalse(liveDataClientForS3.itemExists(PREFIX, "key"), "deleted");
     }
 
     @Test
     void shouldDownloadFromBucketNew() throws NoSuchAlgorithmException {
         String payload = "contents";
-        String key = KEY + "B";
+        String key = FULL_KEY + "B";
         HeadObjectRequest existsCheckRequest = HeadObjectRequest.builder().bucket(TEST_BUCKET_NAME).key(key).build();
 
         MessageDigest messageDigest = MessageDigest.getInstance("MD5");

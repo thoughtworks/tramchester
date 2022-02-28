@@ -55,7 +55,7 @@ public class UploadsLiveData implements LiveDataObserver {
             String key = s3Keys.create(timeStamp);
 
             // already uploaded by another instance
-            if (s3.keyExists(prefix, key)) {
+            if (s3.itemExists(prefix, key)) {
                 return true;
             }
 

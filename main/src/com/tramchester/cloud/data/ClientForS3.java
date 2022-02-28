@@ -20,6 +20,7 @@ import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.inject.Inject;
 import java.io.*;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -72,12 +73,15 @@ public class ClientForS3 {
     public boolean upload(String bucket, String key, Path fileToUpload) {
         logger.info(format("Uploading to bucket '%s' key '%s' file '%s'", bucket, key, fileToUpload.toAbsolutePath()));
 
-        String localMd5 = Base64.encodeBase64String(getDigestFor(fileToUpload.toFile()));
-        return uploadToS3(bucket, key, localMd5, RequestBody.fromFile(fileToUpload));
-    }
+        try {
+            byte[] buffer = Files.readAllBytes(fileToUpload);
+            String localMd5 = Base64.encodeBase64String(messageDigest.digest(buffer));
+            return uploadToS3(bucket, key, localMd5, RequestBody.fromBytes(buffer));
 
-    private byte[] getDigestFor(File file) {
-        return new byte[0];
+        } catch (IOException e) {
+           logger.info("Unable to read file " + fileToUpload.toAbsolutePath(), e);
+           return false;
+        }
     }
 
     public boolean upload(String bucket, String key, String json) {
@@ -195,19 +199,25 @@ public class ClientForS3 {
         return true;
     }
 
-    public boolean keyExists(String bucket, String prefix, String key) {
+    public boolean keyExists(String bucket, String prefix, String itemName) {
         if (!isStarted()) {
             logger.error("not started");
             return false;
         }
 
+        String fullKey = prefix + "/" + itemName;
+
         List<S3Object> items = getSummaryForPrefix(bucket, prefix);
 
         for (S3Object item : items) {
-            if (key.equals(item.key())) {
+            logger.debug("Check if " + item + " matches");
+            if (fullKey.equals(item.key())) {
+                logger.info(format("Key %s is present in bucket %s", fullKey, bucket));
                 return true;
             }
         }
+        logger.info(format("Key %s is not present in bucket %s", fullKey, bucket));
+
         return false;
     }
 
@@ -244,7 +254,7 @@ public class ClientForS3 {
             return Collections.emptyList();
         }
 
-        logger.info("Got " + results.size() + " keys for prefix " + prefix);
+        logger.info("Found " + results.size() + " keys for bucket: " + bucket + " prefix: " + prefix);
 
         return results;
     }
