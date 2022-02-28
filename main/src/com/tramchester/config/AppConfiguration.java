@@ -140,6 +140,10 @@ public class AppConfiguration extends TramchesterConfig {
     @JsonProperty("cloudWatchMetricsFrequencyMinutes")
     private Long cloudWatchMetricsFrequencyMinutes;
 
+    @NotNull
+    @JsonProperty("distributionBucket")
+    private String distributionBucket;
+
     @JsonProperty("neighbourConfig")
     private NeighbourAppConfig neighbourConfig;
 
@@ -305,6 +309,11 @@ public class AppConfiguration extends TramchesterConfig {
     @Override
     public boolean hasNeighbourConfig() {
         return neighbourConfig!=null;
+    }
+
+    @Override
+    public String getDistributionBucket() {
+        return distributionBucket;
     }
 
 }

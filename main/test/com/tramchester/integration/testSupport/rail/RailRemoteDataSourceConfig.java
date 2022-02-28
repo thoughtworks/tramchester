@@ -9,7 +9,7 @@ public class RailRemoteDataSourceConfig implements RemoteDataSourceConfig {
 
     // http://data.atoc.org/how-to
 
-    private static final String CURRENT_PREFIX = "ttis236";
+    private static final String CURRENT_PREFIX = "ttis285";
 
     private static final String RAIL_LATEST_ZIP = String.format("s3://tramchester2dist/railData/%s.zip", CURRENT_PREFIX);
 
@@ -36,7 +36,8 @@ public class RailRemoteDataSourceConfig implements RemoteDataSourceConfig {
 
     @Override
     public String getDownloadFilename() {
-        return CURRENT_PREFIX+".zip";
+        return "rail_data.zip";
+        //return CURRENT_PREFIX+".zip";
     }
 
     @Override

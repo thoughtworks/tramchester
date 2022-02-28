@@ -164,4 +164,9 @@ public abstract class TestConfig extends AppConfiguration {
     public boolean hasNeighbourConfig() {
         return false;
     }
+
+    @Override
+    public String getDistributionBucket() {
+        return "tramchester2dist";
+    }
 }

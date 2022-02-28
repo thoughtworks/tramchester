@@ -182,6 +182,7 @@ class ConfigMismatchTest {
         assertEquals(expected.getNumOfNearestStopsForWalking(), testConfig.getNumOfNearestStopsForWalking(), "NumOfNearestStopsForWalking");
         assertEquals(expected.getRecentStopsToShow(), testConfig.getRecentStopsToShow(), "RecentStopsToShow");
         assertEquals(expected.getMaxNumResults(), testConfig.getMaxNumResults(), "MaxNumResults");
+        assertEquals(expected.getDistributionBucket(), testConfig.getDistributionBucket(), "distributionBucket");
 
         boolean hasNeighbourConfig = expected.hasNeighbourConfig();
         assertEquals(hasNeighbourConfig, testConfig.hasNeighbourConfig(), "has neighbour config");

@@ -17,6 +17,7 @@ staticAssetCacheTimeSeconds: 300
 graphDBConfig:
   graphName: gm_rail.db
   neo4jPagecacheMemory: 1000m
+distributionBucket: tramchester2dist
 instanceDataUrl: http://169.254.169.254
 gtfsSourceConfig:
   - name: tfgm
@@ -32,15 +33,15 @@ gtfsSourceConfig:
     stationClosures: []
 rail:
   dataPath: data/rail
-  stations: ttisf236.msn
-  timetable: ttisf236.mca
+  stations: ttisf285.msn
+  timetable: ttisf285.mca
   modes: [ Train, RailReplacementBus ]
 remoteSources:
   - name: rail
-    dataURL: s3://tramchester2dist/railData/ttis236.zip
-    dataCheckURL: s3://tramchester2dist/railData/ttis236.zip
+    dataURL: s3://tramchester2dist/railData/ttis285.zip
+    dataCheckURL: s3://tramchester2dist/railData/ttis285.zip
     dataPath: data/rail
-    filename: ttis236.zip
+    filename: rail_data.zip
   - name: tfgm
     dataURL: ${TRAM_DATAURL:- http://odata.tfgm.com/opendata/downloads/TfGMgtfsnew.zip}
     dataCheckURL: http://odata.tfgm.com/opendata/downloads/TfGMgtfsnew.zip

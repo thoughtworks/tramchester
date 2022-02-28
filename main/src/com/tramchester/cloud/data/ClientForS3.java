@@ -38,6 +38,8 @@ public class ClientForS3 {
     private static final Logger logger = LoggerFactory.getLogger(ClientForS3.class);
 
     protected S3Client s3Client;
+    MessageDigest messageDigest;
+
 
     @Inject
     public ClientForS3() {
@@ -48,10 +50,13 @@ public class ClientForS3 {
     public void start() {
         logger.info("Starting");
         try {
+            messageDigest = MessageDigest.getInstance("MD5");
             s3Client = S3Client.create();
             logger.info("Started");
         } catch (AwsServiceException | SdkClientException exception) {
             logger.error("Unable to init S3 client", exception);
+        } catch (NoSuchAlgorithmException exception) {
+            logger.error("Unable to file algo for message digest");
         }
     }
 
@@ -62,6 +67,17 @@ public class ClientForS3 {
             s3Client.close();
             s3Client = null;
         }
+    }
+
+    public boolean upload(String bucket, String key, Path fileToUpload) {
+        logger.info(format("Uploading to bucket '%s' key '%s' file '%s'", bucket, key, fileToUpload.toAbsolutePath()));
+
+        String localMd5 = Base64.encodeBase64String(getDigestFor(fileToUpload.toFile()));
+        return uploadToS3(bucket, key, localMd5, RequestBody.fromFile(fileToUpload));
+    }
+
+    private byte[] getDigestFor(File file) {
+        return new byte[0];
     }
 
     public boolean upload(String bucket, String key, String json) {
@@ -81,17 +97,18 @@ public class ClientForS3 {
             return false;
         }
 
-        try {
-            MessageDigest messageDigest = MessageDigest.getInstance("MD5");
-            byte[] bytes = json.getBytes();
-            String localMd5 = Base64.encodeBase64String(messageDigest.digest(bytes));
+        byte[] bytes = json.getBytes();
+        String localMd5 = Base64.encodeBase64String(messageDigest.digest(bytes));
+        final RequestBody requestBody = RequestBody.fromBytes(bytes);
 
+        return uploadToS3(bucket, key, localMd5, requestBody);
+    }
+
+    private boolean uploadToS3(String bucket, String key, String localMd5, RequestBody requestBody) {
+        try {
             logger.debug("Uploading with MD5: " + localMd5);
             PutObjectRequest putObjectRequest = PutObjectRequest.builder().bucket(bucket).key(key).contentMD5(localMd5).build();
-            s3Client.putObject(putObjectRequest, RequestBody.fromBytes(bytes));
-        } catch (NoSuchAlgorithmException exception) {
-            logger.warn(format("NoSuchAlgorithmException for upload to bucket '%s' key '%s'", bucket, key), exception);
-            return false;
+            s3Client.putObject(putObjectRequest, requestBody);
         } catch (AwsServiceException awsServiceException) {
             logger.error(format("AWS exception during upload for upload to bucket '%s' key '%s'", bucket, key), awsServiceException);
             return false;

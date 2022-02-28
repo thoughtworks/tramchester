@@ -12,7 +12,7 @@ import java.nio.file.Paths;
 
 public class FetchDataCLI extends BaseCLI {
 
-    // used during build to download latest tram data from tfgm site during deployment
+    // Used during build to download latest data from each remote data source in config file provided
     // which is subsequently uploaded into S3
     public static void main(String[] args) {
         Logger logger = LoggerFactory.getLogger(FetchDataCLI.class);

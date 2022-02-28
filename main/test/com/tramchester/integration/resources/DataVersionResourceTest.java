@@ -21,7 +21,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 @ExtendWith(DropwizardExtensionsSupport.class)
 public class DataVersionResourceTest {
 
-    public static final String version = "20220225_17_52_04";
+    public static final String version = "20220228_12_58_47";
 
     private static final IntegrationAppExtension appExtension = new IntegrationAppExtension(App.class,
             new ResourceTramTestConfig<>(DataVersionResource.class));
