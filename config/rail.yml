@@ -22,13 +22,12 @@ instanceDataUrl: http://169.254.169.254
 gtfsSourceConfig: []
 rail:
   dataPath: data/rail
-  stations: ttisf285.msn
-  timetable: ttisf285.mca
+  version: 285
   modes: [ Train, RailReplacementBus ]
 remoteSources:
   - name: rail
     dataURL: s3://tramchester2dist/railData/ttis285.zip
-    dataCheckURL: s3://tramchester2dist/railData/ttis285.zip
+    dataCheckURL: ""
     dataPath: data/rail
     filename: rail_data.zip
   - name: naptanxml

@@ -32,8 +32,7 @@ gtfsSourceConfig:
     compositeStationModes: [ Bus ]
 rail:
   dataPath: data/rail
-  stations: ttisf236.msn
-  timetable: ttisf236.mca
+  version: 285
   modes: [ Train, RailReplacementBus ]
 remoteSources:
   - name: tfgm
@@ -42,8 +41,8 @@ remoteSources:
     dataPath: data/bus
     filename: tfgm_data.zip
   - name: rail
-    dataURL: s3://tramchester2dist/railData/ttis236.zip
-    dataCheckURL: s3://tramchester2dist/railData/ttis236.zip
+    dataURL: s3://tramchester2dist/railData/ttis285.zip
+    dataCheckURL: ""
     dataPath: data/rail
     filename: ttis236.zip
   - name: naptanxml

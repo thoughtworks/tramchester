@@ -26,7 +26,7 @@ public class RailRemoteDataSourceConfig implements RemoteDataSourceConfig {
 
     @Override
     public String getDataCheckUrl() {
-        return RAIL_LATEST_ZIP;
+        return "";
     }
 
     @Override

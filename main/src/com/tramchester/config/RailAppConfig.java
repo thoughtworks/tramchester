@@ -16,13 +16,15 @@ public class RailAppConfig extends Configuration implements RailConfig {
     private final Set<TransportMode> modes;
 
     public RailAppConfig(@JsonProperty(value ="dataPath", required = true) Path dataPath,
-                         @JsonProperty(value ="stations", required = true)Path stations,
-                         @JsonProperty(value ="timetable", required = true)Path timetable,
+                         @JsonProperty(value ="version", required = true)String version,
                          @JsonProperty(value="modes", required = true)Set<TransportMode> modes) {
         this.dataPath = dataPath;
-        this.stations = stations;
-        this.timetable = timetable;
         this.modes = modes;
+
+        final String filename = "ttisf" + version;
+
+        this.timetable = Path.of(String.format("%s.mca", filename));
+        this.stations = Path.of(String.format("%s.msn", filename));
     }
 
     public Path getDataPath() {
