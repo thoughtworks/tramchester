@@ -42,6 +42,7 @@ export default {
                    Contains public sector information licensed under the Open Government Licence v2.0 by
                    <a href="http://www.datagm.org.uk/" target="_blank">Data GM.</a>
                    Contains public sector information licensed under the Open Government Licence v3.0.
+                   Timetable/Fares/London Terminals data under licence from <a href="http://www.raildeliverygroup.com/">RSP</a>.
                </div>
            </b-row>
             <b-row align-h="start">

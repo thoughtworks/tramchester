@@ -31,5 +31,7 @@ Data
  
  February 2020"
 
+"Timetable/Fares/London Terminals data under licence from [RSP](http://www.raildeliverygroup.com/)"
+
 
 
