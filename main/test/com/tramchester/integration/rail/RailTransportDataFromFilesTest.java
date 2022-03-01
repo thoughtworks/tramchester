@@ -2,6 +2,7 @@ package com.tramchester.integration.rail;
 
 import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
+import com.tramchester.dataimport.rail.reference.TrainOperatingCompanies;
 import com.tramchester.domain.*;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdSet;
@@ -151,6 +152,21 @@ public class RailTransportDataFromFilesTest {
                 map(routeStation -> routeStation.getStation().getId()).
                 filter(unwantedStation::equals).collect(IdSet.idCollector());
         assertTrue(unwantedRouteStations.isEmpty());
+    }
+
+    @Test
+    void shouldHaveExpectedAgencies() {
+        Set<Agency> results = transportData.getAgencies();
+
+        assertEquals(29, results.size());
+
+        List<IdFor<Agency>> wrongNames = results.stream().
+                map(Agency::getId).
+                filter(id -> TrainOperatingCompanies.nameFor(id).equals(TrainOperatingCompanies.UNKNOWN.getName())).
+                collect(Collectors.toList());
+
+        assertTrue(wrongNames.isEmpty(), wrongNames.toString());
+
     }
 
     @Test

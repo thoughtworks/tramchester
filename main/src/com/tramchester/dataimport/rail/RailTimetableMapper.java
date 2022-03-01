@@ -4,6 +4,7 @@ import com.tramchester.config.RailConfig;
 import com.tramchester.dataimport.rail.records.*;
 import com.tramchester.dataimport.rail.records.reference.TrainCategory;
 import com.tramchester.dataimport.rail.records.reference.TrainStatus;
+import com.tramchester.dataimport.rail.reference.TrainOperatingCompanies;
 import com.tramchester.domain.*;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.StringIdFor;
@@ -443,7 +444,11 @@ public class RailTimetableMapper {
 
                 // todo - need to look up the actual agency name here, just using the id at the moment
                 dataSourceID = DataSourceID.rail;
-                mutableAgency = new MutableAgency(dataSourceID, agencyId, atocCode);
+                String agencyName = TrainOperatingCompanies.nameFor(agencyId);
+                if (agencyName==TrainOperatingCompanies.UNKNOWN.getName()) {
+                    logger.warn("Unable to find name for agency " + atocCode);
+                }
+                mutableAgency = new MutableAgency(dataSourceID, agencyId, agencyName);
                 container.addAgency(mutableAgency);
             }
             return mutableAgency;
