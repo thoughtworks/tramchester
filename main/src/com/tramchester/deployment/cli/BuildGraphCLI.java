@@ -64,7 +64,6 @@ public class BuildGraphCLI extends BaseCLI {
         logger.info(format("Copy from %s to %s", original.toAbsolutePath(), destination.toAbsolutePath()));
 
         try {
-            logger.info("Copy output from %s to %s");
             FileUtils.copyDirectory(original.toFile(), destination.toFile());
         } catch (IOException e) {
             throw new RuntimeException(format("Failed to copy from %s to %s",

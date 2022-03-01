@@ -33,6 +33,7 @@ class UploadRemoteSourceDataTest extends EasyMockSupport {
 
         remoteConfigs.add(new DataSourceConfig(Path.of("data/tram"), "fileA.zip"));
         remoteConfigs.add(new DataSourceConfig(Path.of("data/bus"), "fileB.zip"));
+        remoteConfigs.add(new DataSourceConfig(Path.of("data/naptan"), "fileC.xml"));
 
         TramchesterConfig config = new ConfigWithRemoteSource(remoteConfigs);
         uploadRemoteData = new UploadRemoteSourceData(s3Uploader, config);
@@ -42,8 +43,10 @@ class UploadRemoteSourceDataTest extends EasyMockSupport {
     void shouldUpdateEachRemoteDataSourceInConfigToS3() {
 
         final String prefix = "aPrefix";
-        EasyMock.expect(s3Uploader.uploadFile(prefix, Path.of("data/tram/fileA.zip"))).andReturn(true);
-        EasyMock.expect(s3Uploader.uploadFile(prefix, Path.of("data/bus/fileB.zip"))).andReturn(true);
+        EasyMock.expect(s3Uploader.uploadFile(prefix, Path.of("data/tram/fileA.zip"), true)).andReturn(true);
+        EasyMock.expect(s3Uploader.uploadFile(prefix, Path.of("data/bus/fileB.zip"), true)).andReturn(true);
+
+        EasyMock.expect(s3Uploader.uploadFileZipped(prefix, Path.of("data/naptan/fileC.xml"), true)).andReturn(true);
 
         replayAll();
         boolean result = uploadRemoteData.upload(prefix);
@@ -56,8 +59,8 @@ class UploadRemoteSourceDataTest extends EasyMockSupport {
     void shouldFailIfAnyFail() {
 
         final String prefix = "somePrefix";
-        EasyMock.expect(s3Uploader.uploadFile(prefix, Path.of("data/tram/fileA.zip"))).andReturn(true);
-        EasyMock.expect(s3Uploader.uploadFile(prefix, Path.of("data/bus/fileB.zip"))).andReturn(false);
+        EasyMock.expect(s3Uploader.uploadFile(prefix, Path.of("data/tram/fileA.zip"), true)).andReturn(true);
+        EasyMock.expect(s3Uploader.uploadFile(prefix, Path.of("data/bus/fileB.zip"), true)).andReturn(false);
 
         replayAll();
         boolean result = uploadRemoteData.upload(prefix);

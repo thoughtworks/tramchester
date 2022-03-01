@@ -6,6 +6,7 @@ import com.tramchester.config.TramchesterConfig;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.eclipse.emf.common.util.URI;
+import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import software.amazon.awssdk.awscore.exception.AwsServiceException;
@@ -22,6 +23,7 @@ import javax.inject.Inject;
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.attribute.FileTime;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.time.Instant;
@@ -31,6 +33,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 
 import static java.lang.String.format;
 
@@ -79,19 +83,68 @@ public class ClientForS3 {
             return uploadToS3(bucket, key, localMd5, RequestBody.fromBytes(buffer));
 
         } catch (IOException e) {
-           logger.info("Unable to read file " + fileToUpload.toAbsolutePath(), e);
+           logger.info("Unable to upload file " + fileToUpload.toAbsolutePath(), e);
            return false;
         }
     }
 
-    public boolean upload(String bucket, String key, String json) {
+    public boolean uploadZipped(String bucket, String key, Path uploadFile) {
+        logger.info(format("Upload %s zipped to bucket:%s key:%s", uploadFile, bucket, key));
+        long originalSize = uploadFile.toFile().length();
+
+        String entryName = uploadFile.getFileName().toString();
+
+        try {
+            ByteArrayOutputStream outputStream = zipFileToBuffer(uploadFile, entryName);
+
+            byte[] buffer = outputStream.toByteArray();
+
+            logger.info(format("File %s was compressed from %s to %s bytes", uploadFile, originalSize, buffer.length));
+
+            String localMd5 = Base64.encodeBase64String(messageDigest.digest(buffer));
+            return uploadToS3(bucket, key, localMd5, RequestBody.fromBytes(buffer));
+        } catch (IOException e) {
+            logger.info("Unable to upload (zipped) file " + uploadFile.toAbsolutePath(), e);
+
+            return false;
+        }
+    }
+
+    @NotNull
+    private ByteArrayOutputStream zipFileToBuffer(Path uploadFile, String entryName) throws IOException {
+        logger.info(format("Compress %s into zip, as entry %s", uploadFile, entryName));
+        final FileTime lastModifiedTime = Files.getLastModifiedTime(uploadFile);
+
+        ByteArrayOutputStream result = new ByteArrayOutputStream();
+
+        // entry for the file
+        ZipEntry entry = new ZipEntry(entryName);
+        entry.setLastModifiedTime(lastModifiedTime);
+
+        ZipOutputStream zipOutput = new ZipOutputStream(result);
+
+        // put entry and then the bytes for the fill
+        zipOutput.putNextEntry(entry);
+        byte[] bytesFromFile = Files.readAllBytes(uploadFile);
+        zipOutput.write(bytesFromFile);
+
+        zipOutput.closeEntry();
+        zipOutput.close();
+
+        result.flush();
+        result.close();
+
+        return result;
+    }
+
+    public boolean upload(String bucket, String key, String text) {
         if (!isStarted()) {
             logger.error("not started");
             return false;
         }
 
         if (logger.isDebugEnabled()) {
-            logger.debug(format("Uploading to bucket '%s' key '%s' contents '%s'", bucket, key, json));
+            logger.debug(format("Uploading to bucket '%s' key '%s' contents '%s'", bucket, key, text));
         } else {
             logger.info(format("Uploading to bucket '%s' key '%s'", bucket, key));
         }
@@ -101,7 +154,7 @@ public class ClientForS3 {
             return false;
         }
 
-        byte[] bytes = json.getBytes();
+        byte[] bytes = text.getBytes();
         String localMd5 = Base64.encodeBase64String(messageDigest.digest(bytes));
         final RequestBody requestBody = RequestBody.fromBytes(bytes);
 
@@ -111,7 +164,10 @@ public class ClientForS3 {
     private boolean uploadToS3(String bucket, String key, String localMd5, RequestBody requestBody) {
         try {
             logger.debug("Uploading with MD5: " + localMd5);
-            PutObjectRequest putObjectRequest = PutObjectRequest.builder().bucket(bucket).key(key).contentMD5(localMd5).build();
+            PutObjectRequest putObjectRequest = PutObjectRequest.builder().
+                    bucket(bucket).
+                    key(key).
+                    build();
             s3Client.putObject(putObjectRequest, requestBody);
         } catch (AwsServiceException awsServiceException) {
             logger.error(format("AWS exception during upload for upload to bucket '%s' key '%s'", bucket, key), awsServiceException);
@@ -313,6 +369,8 @@ public class ClientForS3 {
             logger.info(format("Downloaded to %s from %s MD5 match md5: '%s'", path.toAbsolutePath(), bucketKey, localMd5));
         }
     }
+
+
 
     private static class BucketKey {
         private final String bucket;

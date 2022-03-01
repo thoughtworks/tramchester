@@ -39,7 +39,13 @@ public class UploadRemoteSourceData {
 
         Path fullFilename = path.resolve(downloadFilename);
 
-        boolean result = uploadFileToS3.uploadFile(prefixForS3Key, fullFilename);
+        boolean result;
+        if (downloadFilename.toLowerCase().endsWith(".xml")) {
+            result = uploadFileToS3.uploadFileZipped(prefixForS3Key, fullFilename, true);
+        } else {
+            result = uploadFileToS3.uploadFile(prefixForS3Key, fullFilename, true);
+        }
+
         if (!result) {
             logger.error("Unable to upload for " + remoteSource.getName() + " check above logs for failures");
         }

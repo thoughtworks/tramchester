@@ -25,25 +25,57 @@ public class UploadFileToS3 {
 
     /***
      * Upload a file to S3, DOES NOT overwrite an existing item
-     * @param s3Key where to place the item
+     * @param prefixForKey where to place the item
      * @param fileToUpload the item to upload
+     * @param overWrite over-write the item if already present
      * @return true if file uploads ok, false otherwise
      */
-    public boolean uploadFile(String s3Key, Path fileToUpload) {
-        if (!clientForS3.isStarted()) {
-            throw new RuntimeException("S3 client is not started");
-        }
+    public boolean uploadFile(String prefixForKey, Path fileToUpload, boolean overWrite) {
+        guardStarted();
 
         String itemId = fileToUpload.getFileName().toString();
 
-        if (clientForS3.keyExists(bucket, s3Key, itemId)) {
-            logger.warn(format("prefix %s key %s already exists", s3Key, itemId));
-            return false;
+        if (clientForS3.keyExists(bucket, prefixForKey, itemId)) {
+            final String overwriteMessage = format("prefix %s key %s already exists", prefixForKey, itemId);
+            if (overWrite) {
+                logger.warn(overwriteMessage);
+            } else {
+                logger.error(overwriteMessage);
+                return false;
+            }
         }
 
-        final String key = s3Key + "/" + itemId;
+        final String key = prefixForKey + "/" + itemId;
         logger.info(format("Upload file %s to bucket %s at %s", fileToUpload.toAbsolutePath(), bucket, key));
         return clientForS3.upload(bucket, key, fileToUpload);
     }
+
+    public boolean uploadFileZipped(String prefixForKey, Path fileToUpdate, boolean overwrite) {
+        guardStarted();
+
+        String itemId = fileToUpdate.getFileName().toString() + ".zip";
+
+        if (clientForS3.keyExists(bucket, prefixForKey, itemId)) {
+            final String overwriteMessage = format("prefix %s key %s already exists", prefixForKey, itemId);
+            if (overwrite) {
+                logger.warn(overwriteMessage);
+            } else {
+                logger.error(overwriteMessage);
+                return false;
+            }
+        }
+
+        final String key = prefixForKey + "/" + itemId;
+        logger.info(format("Upload file %s zipped to bucket %s at %s", fileToUpdate.toAbsolutePath(), bucket, key));
+
+        return clientForS3.uploadZipped(bucket, key, fileToUpdate);
+    }
+
+    private void guardStarted() {
+        if (!clientForS3.isStarted()) {
+            throw new RuntimeException("S3 client is not started");
+        }
+    }
+
 
 }

@@ -24,7 +24,7 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
 
 @S3Test
-class UploadFileToS3Test {
+class UploadRemoteSourceDataToS3Test {
 
     private static S3Client s3;
     private static S3Waiter s3Waiter;
@@ -107,7 +107,7 @@ class UploadFileToS3Test {
         assertEquals(readSize, text.length());
 
         boolean repeatedUpload = uploadRemoteData.upload(testPrefix);
-        assertFalse(repeatedUpload, "second upload should have failed, key already exists");
+        assertTrue(repeatedUpload, "overwrite failed");
     }
 
     public static class IntegrationTestBucketConfig extends TestConfig {

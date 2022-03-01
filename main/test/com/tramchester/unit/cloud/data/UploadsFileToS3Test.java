@@ -39,7 +39,23 @@ class UploadsFileToS3Test extends EasyMockSupport {
         EasyMock.expect(clientForS3.upload("bucket", "prefix/file.zip", path)).andReturn(true);
 
         replayAll();
-        boolean result = uploadFileToS3.uploadFile("prefix", path);
+        boolean result = uploadFileToS3.uploadFile("prefix", path, false);
+        verifyAll();
+
+        assertTrue(result);
+    }
+
+    @Test
+    void shouldUploadIfNotExistsZipped() {
+
+        Path path = Path.of("data","tram", "file.txt");
+
+        EasyMock.expect(clientForS3.isStarted()).andReturn(true);
+        EasyMock.expect(clientForS3.keyExists("bucket", "prefix", "file.txt.zip")).andReturn(false);
+        EasyMock.expect(clientForS3.uploadZipped("bucket", "prefix/file.txt.zip", path)).andReturn(true);
+
+        replayAll();
+        boolean result = uploadFileToS3.uploadFileZipped("prefix", path, false);
         verifyAll();
 
         assertTrue(result);
@@ -54,10 +70,26 @@ class UploadsFileToS3Test extends EasyMockSupport {
         EasyMock.expect(clientForS3.keyExists("bucket", "prefix", "file.zip")).andReturn(true);
 
         replayAll();
-        boolean result = uploadFileToS3.uploadFile("prefix", path);
+        boolean result = uploadFileToS3.uploadFile("prefix", path, false);
         verifyAll();
 
         assertFalse(result);
+    }
+
+    @Test
+    void shouldOverwriteIfExists() {
+
+        Path path = Path.of("file.zip");
+
+        EasyMock.expect(clientForS3.isStarted()).andReturn(true);
+        EasyMock.expect(clientForS3.keyExists("bucket", "prefix", "file.zip")).andReturn(true);
+        EasyMock.expect(clientForS3.upload("bucket", "prefix/file.zip", path)).andReturn(true);
+
+        replayAll();
+        boolean result = uploadFileToS3.uploadFile("prefix", path, true);
+        verifyAll();
+
+        assertTrue(result);
     }
 
     private static class Configuration extends TestConfig {
