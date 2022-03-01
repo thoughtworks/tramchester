@@ -102,8 +102,12 @@ function getFeedinfo(app) {
         });
 }
 
-function getTransportModesThenStations(app) {
-    axios.get('/api/version/modes')
+function getTransportModesThenStations(app, beta) {
+    var url = '/api/version/modes';
+    if (beta) {
+        url = url + "?beta";
+    }
+    axios.get(url)
         .then(function (response) {
             app.networkError = false;
             app.modes = response.data.modes;
@@ -270,7 +274,8 @@ function queryServerForJourneysPost(app, startStop, endStop, queryTime, queryDat
     networkError: false,        // network error on either query
     hasGeo: false,
     location: null,
-    postcodesEnabled: false
+    postcodesEnabled: false,
+    beta: false
 }
 
 var app = new Vue({
@@ -336,7 +341,11 @@ var app = new Vue({
                 this.$refs.cookieModal.show();
             }
             getFeedinfo(this);
-            getTransportModesThenStations(this);
+            let urlParams = new URLSearchParams(window.location.search);
+            let betaRaw = urlParams.get('beta');
+            let beta = betaRaw != null;
+            getTransportModesThenStations(this, beta);
+       
         },
         created() {
             if("geolocation" in navigator) {

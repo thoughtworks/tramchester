@@ -3,8 +3,8 @@ package com.tramchester.resources;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.DataSourceID;
 import com.tramchester.domain.presentation.DTO.ConfigDTO;
-import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.presentation.Version;
+import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.repository.TransportModeRepository;
 import com.tramchester.repository.VersionRepository;
 import io.dropwizard.jersey.caching.CacheControl;
@@ -17,8 +17,10 @@ import javax.inject.Inject;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.util.Collections;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
@@ -50,10 +52,18 @@ public class VersionResource implements APIResource {
     @GET
     @ApiOperation(value = "Config from server includes, Transport modes enabled, Postcode enabled, etc", response = ConfigDTO.class)
     @Path("/modes")
-    @CacheControl(maxAge = 30, maxAgeUnit = TimeUnit.SECONDS)
-    public Response modes() {
+    @CacheControl(maxAge = 10, maxAgeUnit = TimeUnit.SECONDS)
+    public Response modes(@QueryParam("beta") String betaRaw) {
         logger.info("Get modes");
-        Set<TransportMode> modes = repository.getModes();
+
+        boolean beta = betaRaw!=null;
+        if (beta) {
+            logger.warn("Beta mode is enabled");
+        }
+
+        Set<TransportMode> modes = beta ? repository.getModes() : Collections.singleton(TransportMode.Tram);
+
+        logger.info("Returning modes " + modes);
 
         ConfigDTO configDTO = new ConfigDTO(modes, config.hasRemoteDataSourceConfig(DataSourceID.postcode),
                 config.getMaxNumResults());

@@ -63,4 +63,21 @@ class VersionResourceTest {
         assertEquals(configuration.getMaxNumResults(), results.getNumberJourneysToDisplay());
     }
 
+    @Test
+    void shouldGetTransportModesWithBetaFlag() {
+        Set<TransportMode> expectedModes = configuration.getTransportModes();
+
+        Response responce = APIClient.getApiResponse(appExtension, endPoint+"/modes?beta=true");
+        assertEquals(200, responce.getStatus());
+
+        ConfigDTO results = responce.readEntity(ConfigDTO.class);
+
+        List<TransportMode> result = results.getModes();
+
+        assertEquals(expectedModes.size(), result.size());
+        assertTrue(expectedModes.containsAll(result));
+        assertFalse(results.getPostcodesEnabled());
+        assertEquals(configuration.getMaxNumResults(), results.getNumberJourneysToDisplay());
+    }
+
 }
