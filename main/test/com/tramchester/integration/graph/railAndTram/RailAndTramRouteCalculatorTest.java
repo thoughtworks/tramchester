@@ -212,6 +212,19 @@ public class RailAndTramRouteCalculatorTest {
         assertFalse(journeys.isEmpty());
     }
 
+    @Test
+    void shouldHaveMultistageTest() {
+        // reproduces failing scenario from Acceptance tests
+        //   TramTime planTime = TramTime.of(10,0);
+        //        desiredJourney(appPage, altrincham, TramStations.ManAirport.getName(), when, planTime, false);
+
+        JourneyRequest request = new JourneyRequest(new TramServiceDate(when), TramTime.of(10,0), false, 2,
+                Duration.ofMinutes(110), 1, getRequestedModes());
+
+        Set<Journey> results = testFacade.calculateRouteAsSet(TramStations.Altrincham, TramStations.ManAirport, request);
+        assertFalse(results.isEmpty());
+    }
+
     private Station rail(RailStationIds railStation) {
         return railStation.from(stationRepository);
     }

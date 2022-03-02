@@ -169,6 +169,18 @@ class ConfigMismatchTest {
         assertEquals(appConfig.getNumberQueries(), accTestConfig.getNumberQueries(), "getNumberQueries");
     }
 
+    @Test
+    void shouldHaveKeyParametersSameForAcceptanceTestsGM() throws IOException, ConfigurationException {
+
+        AppConfiguration appConfig = loadConfigFromFile("gm.yml");
+        AppConfiguration accTestConfig = loadConfigFromFile("localAcceptanceGM.yml");
+
+        validateCoreParameters(Collections.singleton(Category.Modes), appConfig, accTestConfig);
+
+        assertEquals(appConfig.getQueryInterval(), accTestConfig.getQueryInterval(), "getQueryInterval");
+        assertEquals(appConfig.getNumberQueries(), accTestConfig.getNumberQueries(), "getNumberQueries");
+    }
+
     private void validateCoreParameters(Collection<Category> excluded, AppConfiguration expected, AppConfiguration testConfig) {
         assertEquals(expected.getStaticAssetCacheTimeSeconds(), testConfig.getStaticAssetCacheTimeSeconds(), "StaticAssetCacheTimeSeconds");
         assertEquals(expected.getMaxJourneyDuration(), testConfig.getMaxJourneyDuration(), "MaxJourneyDuration");
@@ -259,7 +271,8 @@ class ConfigMismatchTest {
     private void checkDBConfig(AppConfiguration expected, AppConfiguration testConfig) {
         GraphDBConfig expectedGraphDBConfig = expected.getGraphDBConfig();
         GraphDBConfig testGraphDBConfig = testConfig.getGraphDBConfig();
-        assertEquals(expectedGraphDBConfig.getNeo4jPagecacheMemory(), testGraphDBConfig.getNeo4jPagecacheMemory(), "neo4jPagecacheMemory");
+        assertEquals(expectedGraphDBConfig.getNeo4jPagecacheMemory(), testGraphDBConfig.getNeo4jPagecacheMemory(),
+                "neo4jPagecacheMemory");
 
         LiveDataConfig expectedLiveDataConfig = expected.getLiveDataConfig();
 

@@ -1,26 +1,21 @@
 server:
+  type: simple
   applicationContextPath: /
   rootPath: /api/*
-  applicationConnectors:
-    - type: http
-      port: 8080
   adminContextPath: /admin
-  adminConnectors:
-    - type: http
-      port: 8081
-  gzip:
-    enabled: true
-    bufferSize: 8KiB
-    minimumEntitySize: 160B
+  connector:
+    type: http
+    port: 8080
+
 secureHost: tramchester.com
 staticAssetCacheTimeSeconds: 300
 graphDBConfig:
-  graphName: gm_rail.db
+  graphName: databases/tramchesterAcceptance.db
   neo4jPagecacheMemory: 1000m
 distributionBucket: tramchester2dist
-instanceDataUrl: http://169.254.169.254
 gtfsSourceConfig:
-  - name: tfgm
+  -
+    name: tfgm
     dataPath: data/tram
     hasFeedInfo: true
     transportModes: [ tram ]
@@ -29,12 +24,8 @@ gtfsSourceConfig:
     markedInterchangesOnly: false
     additionalInterchanges: [9400ZZMAGMX, 9400ZZMAPIC]
     compositeStationModes: []
-    addWalksForClosed: false
     stationClosures: []
-rail:
-  dataPath: data/rail
-  version: 285
-  modes: [ Train, RailReplacementBus ]
+    addWalksForClosed: false
 remoteSources:
   - name: rail
     dataURL: s3://tramchester2dist/railData/ttis285.zip
@@ -56,6 +47,13 @@ remoteSources:
     dataCheckURL: ""
     dataPath: data/nptg
     filename: nptgcsv.zip
+cacheFolder: data/cache
+calcTimeoutMillis: 3500
+bounds:
+  minEastings: 370000
+  minNorthings: 380000
+  maxEasting: 398500
+  maxNorthings: 414500
 liveData:
   dataUrl: https://api.tfgm.com/odata/Metrolinks
   dataSubscriptionKey: ${TFGMAPIKEY:- ""}
@@ -64,13 +62,7 @@ liveData:
   refreshPeriodSeconds: 20
   maxNumberStationsWithoutMessages: 10
   maxNumberStationsWithoutData: 5
-cacheFolder: data/cache/gm
-calcTimeoutMillis: 3500
-bounds:
-  minEastings: 370000
-  minNorthings: 380000
-  maxEasting: 398500
-  maxNorthings: 414500
+instanceDataUrl: http://169.254.169.254
 planningEnabled: true
 neighbourConfig:
   maxNeighbourConnections: 3
@@ -84,16 +76,16 @@ neighbourConfig:
       second: "ASHONUL"
 maxWait: 25
 maxInitialWait: 13
+maxNumberResults: 5
+maxJourneyDuration:  124
 numberQueries: 3
 queryInterval: 10
-maxNumberResults: 5
 maxWalkingConnections: 3
-maxJourneyDuration: 124
 nearestStopRangeKM: 1.6
 nearestStopForWalkingRangeKM: 1.6
-numOfNearestStopsToOffer: 5
-numOfNearestStopsForWalking: 3
-walkingMPH: 3.0
+numOfNearestStopsToOffer:  5
+numOfNearestStopsForWalking:  3
+walkingMPH: 3
 recentStopsToShow: 5
 dataExpiryThreadhold: 3
 changeAtInterchangeOnly: true
@@ -106,18 +98,22 @@ swagger:
 
 logging:
   level: INFO
+  loggers:
+    root: INFO
+    com.tramchester: INFO
+    org.eclipse.jetty.servlet: INFO
+    io.dropwizard.jersey.jackson: INFO
 
   appenders:
     - type: console
-      threshold: INFO
+      threshold: WARN
     - type: syslog
       host: localhost
       port: 514
-      threshold: WARN
     - type: file
-      currentLogFilename: logs/tramchester_rail.log
+      currentLogFilename: build/reports/tests/accept_tramchester.log
       threshold: INFO
       archive: true
-      archivedLogFilenamePattern: logs/tramchester_rail-%d.log
+      archivedLogFilenamePattern: build/reports/tests/accept_tramchester-%d.log
       archivedFileCount: 5
       timeZone: UTC

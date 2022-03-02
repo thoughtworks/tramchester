@@ -32,7 +32,8 @@ import static org.junit.jupiter.api.Assertions.*;
 
 @ExtendWith(DropwizardExtensionsSupport.class)
 public class AppUserJourneyLocationsTest extends UserJourneyTest {
-    private static final String configPath = "config/localAcceptance.yml";
+
+    private static final String configPath = AppUserJourneyTest.configPath;
 
     public static final AcceptanceAppExtenstion testRule = new AcceptanceAppExtenstion(App.class, configPath);
 
