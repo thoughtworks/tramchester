@@ -20,9 +20,10 @@
       },
       "mem": {
         "measurement": [
-          "mem_used",
-          "mem_cached",
-          "mem_total"
+          "used_percent",
+          "free",
+          "total",
+          "used"
         ],
         "metrics_collection_interval": 10
       }
