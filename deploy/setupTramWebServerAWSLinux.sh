@@ -61,7 +61,7 @@ logger cloud watch agent installed
 # download pre-built DB
 logger Get DB from $ARTIFACTSURL/$BUILD/tramchester.db.zip
 wget -nv $ARTIFACTSURL/$BUILD/tramchester.db.zip -O tramchester.db.zip
-unzip tramchester.db.zip -d tramchester.db
+unzip tramchester.db.zip 
 
 # fix ownership
 chown -R ec2-user .
