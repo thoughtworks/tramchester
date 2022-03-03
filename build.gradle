@@ -171,7 +171,7 @@ run {
     // see deploy/setupTramWebServerAWSLinux.sh
     maxHeapSize = '700m'
     dependsOn 'webpack'
-    args 'server', 'config/local.yml'
+    args 'server', prodConfig
 }
 
 test {
@@ -489,11 +489,11 @@ task uploadDataSources(type:JavaExec, dependsOn: ['pullData','classes']) {
 task zipDB(type:Zip, dependsOn: 'buildDatabase') {
     from 'build/distributions/database'
     include '*.db/**'
-    archiveFileName = 'tramchester.db.zip'
+    archiveFileName = 'database.zip'
 }
 
 task copyIntoUploadDir(type: Copy, dependsOn: [zipDB, distZip]) {
-    from 'build/distributions/tramchester.db.zip'
+    from 'build/distributions/database.zip'
     from 'build/distributions/tramchester-1.0.zip'
     from 'deploy/setupTramWebServerAWSLinux.sh'
     from 'deploy/cloudInitAWSLinux.txt'

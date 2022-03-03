@@ -37,7 +37,7 @@ rail:
   modes: [ Train, RailReplacementBus ]
 remoteSources:
   - name: rail
-    dataURL: s3://tramchester2dist/railData/ttis285.zip
+    dataURL: ${RAIL_DATAURL:-s3://tramchester2dist/railData/ttis285.zip}
     dataCheckURL: ""
     dataPath: data/rail
     filename: rail_data.zip
@@ -47,12 +47,12 @@ remoteSources:
     dataPath: data/tram
     filename: tfgm_data.zip
   - name: naptanxml
-    dataURL: https://naptan.api.dft.gov.uk/v1/access-nodes?dataFormat=xml
+    dataURL: ${NAPTAN_DATAURL:- https://naptan.api.dft.gov.uk/v1/access-nodes?dataFormat=xml}
     dataCheckURL: ""
     dataPath: data/naptan
     filename: Stops.xml
   - name: nptg
-    dataURL: http://www.dft.gov.uk/nptg/snapshot/nptgcsv.zip
+    dataURL: ${NPTG_DATAURL:- http://www.dft.gov.uk/nptg/snapshot/nptgcsv.zip}
     dataCheckURL: ""
     dataPath: data/nptg
     filename: nptgcsv.zip

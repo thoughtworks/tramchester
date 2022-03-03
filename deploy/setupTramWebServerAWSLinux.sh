@@ -8,10 +8,10 @@ export USERDATA=http://169.254.169.254/latest/user-data
 
 wget -nv $USERDATA -O /tmp/userdata.txt
 
+# extract from instance user data
 export PLACE=`cat /tmp/userdata.txt | grep ENV | cut -d = -f 2-`
 export BUILD=`cat /tmp/userdata.txt | grep BUILD | cut -d = -f 2-`
 export ARTIFACTSURL=`cat /tmp/userdata.txt | grep ARTIFACTSURL | cut -d = -f 2-`
-export REDIRECTHTTP=`cat /tmp/userdata.txt | grep REDIRECTHTTP | cut -d = -f 2-`
 export TFGMAPIKEY=`cat /tmp/userdata.txt | grep TFGMAPIKEY | cut -d = -f 2-`
 export NESSUS_LINKING_KEY=`cat /tmp/userdata.txt | grep NESSUS_LINKING_KEY | cut -d = -f 2-`
 
@@ -29,9 +29,6 @@ if [ "$ARTIFACTSURL" == '' ]; then
         echo 'ARTIFACTSURL missing'
         exit;
 fi
-if [ "$REDIRECTHTTP" == '' ]; then
-        export REDIRECTHTTP=false
-fi
 
 logger Set up Web server Build: $BUILD Url: $ARTIFACTSURL Env: $PLACE
 
@@ -40,7 +37,11 @@ distUrl=$ARTIFACTSURL/$BUILD/$target.zip
 dist=`basename $distUrl`
 
 # set up overrides for server config so data is pulled from S3 at start up
+# TODO these could be s3:// urls
 export TRAM_DATAURL=$ARTIFACTSURL/$BUILD/tfgm_data.zip
+export NAPTAN_DATAURL=$ARTIFACTSURL/$BUILD/Stops.xml.zip
+export RAIL_DATAURL=$ARTIFACTSURL/$BUILD/rail_data.zip
+export NPTG_DATAURL=$ARTIFACTSURL/$BUILD/nptgcsv.zip
 
 cd ~ec2-user || (logger Could not cd to ec2-user && exit)
 mkdir -p server
@@ -59,9 +60,10 @@ sudo /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl -a fetch-c
 logger cloud watch agent installed
 
 # download pre-built DB
-logger Get DB from $ARTIFACTSURL/$BUILD/tramchester.db.zip
-wget -nv $ARTIFACTSURL/$BUILD/tramchester.db.zip -O tramchester.db.zip
-unzip tramchester.db.zip 
+dbURL=$ARTIFACTSURL/$BUILD/database.zip
+logger Get DB from $dbURL
+wget -nv $dbURL -O database.zip
+unzip database.zip
 
 # fix ownership
 chown -R ec2-user .
