@@ -62,7 +62,7 @@ public class ClientForS3Test {
     static void afterAllDone() {
         componentContainer.close();
 
-        s3TestSupport.deleteBucket();
+        //s3TestSupport.deleteBucket();
         s3Waiter.close();
         awsS3.close();
     }

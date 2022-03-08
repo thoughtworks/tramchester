@@ -111,7 +111,7 @@ task cfnassist {
     doLast {
         ant.taskdef(name: 'cfnassist', classname: 'tw.com.ant.CfnAssistAntTask') {
             classpath {
-                fileset(dir: 'lib/cfnassist-1.1.37/lib/', includes: 'cfnassist-all-1.1.37.jar')
+                fileset(dir: 'lib/cfnassist-1.2.85/lib/', includes: '*.jar')
             }
         }
     }
@@ -228,7 +228,6 @@ task unit(type: Test, dependsOn: compileJava) {
     useJUnitPlatform()
     filter {
         includeTestsMatching "com.tramchester.unit.*"
-        //excludeTestsMatching "com.tramchester.unit.graph.calculation.*"
     }
     testLogging {
         exceptionFormat "full" // default is "short"
@@ -515,7 +514,7 @@ task infra(dependsOn: cfnassist) {
 
 task deploy(dependsOn: cfnassist) {
     doLast {
-        ant.cfnassist(project: 'tramchesterB', env: environment, buildNumber: buildNumber, sns: 'true') {
+        ant.cfnassist(project: 'tramchesterB', env: environment, buildNumber: buildNumber, sns: 'true', parameters: 'config='+prodConfig) {
             Templates(target: 'deploy/servers.json')
         }
     }
