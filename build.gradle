@@ -514,7 +514,7 @@ task infra(dependsOn: cfnassist) {
 
 task deploy(dependsOn: cfnassist) {
     doLast {
-        ant.cfnassist(project: 'tramchesterB', env: environment, buildNumber: buildNumber, sns: 'true', parameters: 'config='+prodConfig) {
+        ant.cfnassist(project: 'tramchesterB', env: environment, buildNumber: buildNumber, sns: 'true') {
             Templates(target: 'deploy/servers.json')
         }
     }
