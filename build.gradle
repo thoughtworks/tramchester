@@ -465,13 +465,21 @@ distributions {
     }
 }
 
+// gm here so include both sets of data
 task pullData(type:JavaExec, dependsOn:classes) {
     mainClass = 'com.tramchester.deployment.cli.FetchDataCLI'
     classpath = sourceSets.main.runtimeClasspath
-    args prodConfig
+    args 'config/gm.yml'
 }
 
-task buildDatabase(type:JavaExec, dependsOn:classes) {
+// temp additional target while deploying train/tram version to just UAT
+task buildDatabaseUAT(type:JavaExec, dependsOn: [classes]) {
+    mainClass = 'com.tramchester.deployment.cli.BuildGraphCLI'
+    classpath = sourceSets.main.runtimeClasspath
+    args 'config/gm.yml', 'build/distributions/database'
+}
+
+task buildDatabase(type:JavaExec, dependsOn: [classes, buildDatabaseUAT]) {
     mainClass = 'com.tramchester.deployment.cli.BuildGraphCLI'
     classpath = sourceSets.main.runtimeClasspath
     args prodConfig, 'build/distributions/database'
@@ -479,10 +487,11 @@ task buildDatabase(type:JavaExec, dependsOn:classes) {
 
 task upload(dependsOn: ['uploadDataSources', 'uploadApp'])
 
+// gm here so include both sets of data
 task uploadDataSources(type:JavaExec, dependsOn: ['pullData','classes']) {
     mainClass = 'com.tramchester.deployment.cli.UploadSourceDataCLI'
     classpath = sourceSets.main.runtimeClasspath
-    args prodConfig, s3prefix
+    args 'config/gm.yml', s3prefix
 }
 
 task zipDB(type:Zip, dependsOn: 'buildDatabase') {
