@@ -1,11 +1,21 @@
 #!/bin/bash
 
 target=tramchester-1.0
-logger Start ./$target/bin/tramchester
+logger -s Start ./$target/bin/tramchester for $PLACE
 
 LOGFILE=/home/ec2-user/server/logs/tramchester_local.log
 
-until ./$target/bin/tramchester server ./$target/config/local.yml 1> /dev/null; do
+if [ "$PLACE" == 'UAT' ]; then
+  configFile=gm.yml
+else
+  configFile=local.yml
+fi
+
+CONFIG=./$target/config/$configFile
+
+logger -s Config is $CONFIG
+
+until ./$target/bin/tramchester server $CONFIG 1> /dev/null; do
     logger ERROR tramchester Stopped
     if [ -f $LOGFILE ]; then
       logger tramchester last 5 lines of $LOGFILE
