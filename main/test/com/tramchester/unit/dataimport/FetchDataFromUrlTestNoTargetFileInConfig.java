@@ -8,13 +8,15 @@ import com.tramchester.dataimport.HttpDownloadAndModTime;
 import com.tramchester.dataimport.S3DownloadAndModTime;
 import com.tramchester.domain.DataSourceID;
 import com.tramchester.domain.time.ProvidesNow;
-import com.tramchester.integration.testSupport.tfgm.TFGMRemoteDataSourceConfig;
 import com.tramchester.testSupport.TestConfig;
 import com.tramchester.testSupport.TestEnv;
 import org.assertj.core.util.Files;
 import org.easymock.EasyMock;
 import org.easymock.EasyMockSupport;
-import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.nio.file.Path;
@@ -24,7 +26,7 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class FetchDataFromUrlTest extends EasyMockSupport {
+class FetchDataFromUrlTestNoTargetFileInConfig extends EasyMockSupport {
 
     private HttpDownloadAndModTime httpDownloader;
     private FetchDataFromUrl fetchDataFromUrl;
@@ -42,7 +44,9 @@ class FetchDataFromUrlTest extends EasyMockSupport {
         httpDownloader = createMock(HttpDownloadAndModTime.class);
         S3DownloadAndModTime s3Downloader = createMock(S3DownloadAndModTime.class);
         remoteDataSourceConfig = config.getDataRemoteSourceConfig(DataSourceID.tfgm);
-        final String targetZipFilename = remoteDataSourceConfig.getDownloadFilename();
+
+        final String targetZipFilename = "TfGMgtfsnew.zip";
+
         Path path = remoteDataSourceConfig.getDataPath();
         zipFilename = path.resolve(targetZipFilename);
 
@@ -165,7 +169,6 @@ class FetchDataFromUrlTest extends EasyMockSupport {
         verifyAll();
         assertTrue(fetchDataFromUrl.refreshed(DataSourceID.tfgm));
         assertEquals(zipFilename, fetchDataFromUrl.fileFor(DataSourceID.tfgm));
-
     }
 
     @Test
@@ -215,7 +218,45 @@ class FetchDataFromUrlTest extends EasyMockSupport {
 
         @Override
         public List<RemoteDataSourceConfig> getRemoteDataSourceConfig() {
-            return Collections.singletonList(new TFGMRemoteDataSourceConfig(dataPath));
+            return Collections.singletonList(new RemoteDataSourceConfigNoTargetFile(dataPath));
+        }
+
+        private static class RemoteDataSourceConfigNoTargetFile implements RemoteDataSourceConfig {
+            private final Path dataPath;
+
+            public RemoteDataSourceConfigNoTargetFile(Path dataPath) {
+                this.dataPath = dataPath;
+            }
+
+            @Override
+            public Path getDataPath() {
+                return dataPath;
+            }
+
+            @Override
+            public String getDataCheckUrl() {
+                return TestEnv.TFGM_TIMETABLE_URL;
+            }
+
+            @Override
+            public String getDataUrl() {
+                return TestEnv.TFGM_TIMETABLE_URL;
+            }
+
+            @Override
+            public String getDownloadFilename() {
+                return "";
+            }
+
+            @Override
+            public String getName() {
+                return "tfgm";
+            }
+
+            @Override
+            public boolean getIsS3() {
+                return false;
+            }
         }
     }
 }

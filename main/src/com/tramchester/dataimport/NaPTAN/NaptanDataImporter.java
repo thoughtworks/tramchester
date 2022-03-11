@@ -6,7 +6,7 @@ import com.tramchester.config.TramchesterConfig;
 import com.tramchester.dataimport.NaPTAN.xml.NaptanDataXMLImporter;
 import com.tramchester.dataimport.NaPTAN.xml.stopArea.NaptanStopAreaData;
 import com.tramchester.dataimport.NaPTAN.xml.stopPoint.NaptanStopData;
-import com.tramchester.dataimport.UnzipFetchedData;
+import com.tramchester.dataimport.RemoteDataRefreshed;
 import com.tramchester.domain.DataSourceID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,9 +30,9 @@ public class NaptanDataImporter {
     private final NaptanDataXMLImporter theImporter;
 
     @Inject
-    protected NaptanDataImporter(TramchesterConfig config, CsvMapper csvMapper, UnzipFetchedData.Ready dataIsReady) {
+    protected NaptanDataImporter(TramchesterConfig config, CsvMapper csvMapper, RemoteDataRefreshed dataRefreshed) {
        if (config.hasRemoteDataSourceConfig(DataSourceID.naptanxml)) {
-            theImporter = new NaptanDataXMLImporter(config, dataIsReady);
+            theImporter = new NaptanDataXMLImporter(dataRefreshed);
         } else {
             theImporter = null;
             logger.warn(format("Naptan for %s is disabled, no config section found", DataSourceID.naptanxml));

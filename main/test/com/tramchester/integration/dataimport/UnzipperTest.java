@@ -46,7 +46,7 @@ class UnzipperTest {
     void shouldUnzipFileToExpectedPlaced() {
         Unzipper unzipper = new Unzipper();
 
-        unzipper.unpack(zipFilename, targetDirectory);
+        unzipper.unpackIfZipped(zipFilename, targetDirectory);
         Assertions.assertTrue(Files.isDirectory(targetDirectory));
         Assertions.assertTrue(Files.isDirectory(unpackedDir));
 

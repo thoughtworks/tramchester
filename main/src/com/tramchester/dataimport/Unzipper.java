@@ -24,11 +24,11 @@ public class Unzipper {
 
     PathMatcher zipMatcher = FileSystems.getDefault().getPathMatcher("glob:**.zip");
 
-    public boolean unpack(Path zipFilename, Path targetDirectory) {
-        File zipFile = zipFilename.toFile();
+    public boolean unpackIfZipped(Path filename, Path targetDirectory) {
+        File zipFile = filename.toFile();
         try {
-            if (zipMatcher.matches(zipFilename)) {
-                logger.info(format("Unziping data from %s to %s ", zipFilename, targetDirectory));
+            if (zipMatcher.matches(filename)) {
+                logger.info(format("Unziping data from %s to %s ", filename, targetDirectory));
                 ZipInputStream zipInputStream = new ZipInputStream(new FileInputStream(zipFile));
                 ZipEntry zipEntry = zipInputStream.getNextEntry();
                 while (zipEntry != null) {

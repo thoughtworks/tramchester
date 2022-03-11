@@ -2,9 +2,9 @@ package com.tramchester.dataimport.rail;
 
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.config.RailConfig;
-import com.tramchester.config.RemoteDataSourceConfig;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.dataimport.FetchFileModTime;
+import com.tramchester.dataimport.RemoteDataRefreshed;
 import com.tramchester.dataimport.loader.DirectDataSourceFactory;
 import com.tramchester.dataimport.rail.records.PhysicalStationRecord;
 import com.tramchester.dataimport.rail.records.RailTimetableRecord;
@@ -48,23 +48,24 @@ public class RailTransportDataFromFiles implements DirectDataSourceFactory.Popul
     private final LoadRailStationRecords loadRailStationRecords;
     private final LoadRailTimetableRecords loadRailTimetableRecords;
     private final RailConfig railConfig;
-    private final RemoteDataSourceConfig railRemoteSourceConfig;
     private final BoundingBox bounds;
     private final NaptanRespository naptanRespository;
     private final GraphFilterActive graphFilterActive;
+    private final RemoteDataRefreshed remoteDataRefreshed;
 
     private final boolean enabled;
 
     @Inject
-    public RailTransportDataFromFiles(RailDataRecordFactory factory, TramchesterConfig config, NaptanRespository naptanRespository,
-                                      GraphFilterActive graphFilterActive) {
+    public RailTransportDataFromFiles(RailDataRecordFactory factory, TramchesterConfig config,
+                                      NaptanRespository naptanRespository,
+                                      GraphFilterActive graphFilterActive, RemoteDataRefreshed remoteDataRefreshed) {
         bounds = config.getBounds();
         railConfig = config.getRailConfig();
         this.naptanRespository = naptanRespository;
         this.graphFilterActive = graphFilterActive;
+        this.remoteDataRefreshed = remoteDataRefreshed;
         enabled = (railConfig!=null);
         if (enabled) {
-            railRemoteSourceConfig = config.getDataRemoteSourceConfig(railConfig.getDataSourceId());
             final Path dataPath = railConfig.getDataPath();
             Path stationsPath = dataPath.resolve(railConfig.getStations());
             Path timetablePath = dataPath.resolve(railConfig.getTimetable());
@@ -73,7 +74,6 @@ public class RailTransportDataFromFiles implements DirectDataSourceFactory.Popul
         } else {
             loadRailStationRecords = null;
             loadRailTimetableRecords = null;
-            railRemoteSourceConfig = null;
         }
     }
 
@@ -111,11 +111,18 @@ public class RailTransportDataFromFiles implements DirectDataSourceFactory.Popul
         if (!enabled) {
             throw new RuntimeException("Not enabled");
         }
-        String zipFilename = railRemoteSourceConfig.getDownloadFilename();
-        Path downloadedZip = railRemoteSourceConfig.getDataPath().resolve(zipFilename);
+
+        if (!remoteDataRefreshed.hasFileFor(DataSourceID.rail)) {
+            String message = "Missing data source file for " + DataSourceID.rail;
+            logger.error(message);
+            throw new RuntimeException(message);
+        }
+        Path downloadedZip = remoteDataRefreshed.fileFor(DataSourceID.rail);
+
         FetchFileModTime fileModTime = new FetchFileModTime();
         LocalDateTime modTime = fileModTime.getFor(downloadedZip);
-        final DataSourceInfo dataSourceInfo = new DataSourceInfo(railConfig.getDataSourceId(), zipFilename, modTime, railConfig.getModes());
+        final DataSourceInfo dataSourceInfo = new DataSourceInfo(railConfig.getDataSourceId(),
+                railConfig.getVersion(), modTime, railConfig.getModes());
         logger.info("Generated  " + dataSourceInfo);
         return dataSourceInfo;
     }

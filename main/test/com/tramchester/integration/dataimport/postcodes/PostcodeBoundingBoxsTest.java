@@ -8,8 +8,10 @@ import com.tramchester.dataimport.RemoteDataRefreshed;
 import com.tramchester.dataimport.data.PostcodeHintData;
 import com.tramchester.dataimport.postcodes.PostcodeBoundingBoxs;
 import com.tramchester.dataimport.postcodes.PostcodeData;
+import com.tramchester.domain.DataSourceID;
 import com.tramchester.geo.BoundingBox;
 import com.tramchester.integration.testSupport.tram.TramWithPostcodesEnabled;
+import org.apache.commons.lang3.NotImplementedException;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -38,7 +40,22 @@ class PostcodeBoundingBoxsTest {
 
         hintsFile = config.getCacheFolder().resolve("postcode_hints.csv");
 
-        RemoteDataRefreshed dataRefresh = name -> false;
+        RemoteDataRefreshed dataRefresh = new RemoteDataRefreshed() {
+            @Override
+            public boolean refreshed(DataSourceID dataSourceID) {
+                return false;
+            }
+
+            @Override
+            public boolean hasFileFor(DataSourceID dataSourceID) {
+                throw new NotImplementedException();
+            }
+
+            @Override
+            public Path fileFor(DataSourceID dataSourceID) {
+                throw new NotImplementedException();
+            }
+        };
 
         dataCache = new DataCache(config, dataRefresh, mapper);
         dataCache.start();

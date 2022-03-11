@@ -4,8 +4,10 @@ import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.config.HasRemoteDataSourceConfig;
 import com.tramchester.config.RemoteDataSourceConfig;
 import com.tramchester.config.TramchesterConfig;
+import com.tramchester.domain.DataSourceID;
 import com.tramchester.domain.time.ProvidesNow;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.FilenameUtils;
 import org.apache.http.HttpStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,7 +21,9 @@ import java.nio.file.Path;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static java.lang.String.format;
 
@@ -36,7 +40,8 @@ public class FetchDataFromUrl implements RemoteDataRefreshed {
 
     private final List<RemoteDataSourceConfig> configs;
     private final ProvidesNow providesLocalNow;
-    private final List<String> refreshed;
+    private final List<DataSourceID> refreshed;
+    private final Map<DataSourceID, Path> availableFiles;
 
     @Inject
     public FetchDataFromUrl(HttpDownloadAndModTime httpDownloader, S3DownloadAndModTime s3Downloader,
@@ -45,7 +50,10 @@ public class FetchDataFromUrl implements RemoteDataRefreshed {
         this.s3Downloader = s3Downloader;
         this.configs = config.getRemoteDataSourceConfig();
         this.providesLocalNow = providesLocalNow;
+
+        // TODO Refreshed, can just check for key in downloadedFiles
         refreshed = new ArrayList<>();
+        availableFiles = new HashMap<>();
     }
 
     @PostConstruct
@@ -67,7 +75,7 @@ public class FetchDataFromUrl implements RemoteDataRefreshed {
         configs.forEach(config -> {
             try {
                 if (refreshDataIfNewerAvailable(config)) {
-                    refreshed.add(config.getName());
+                    refreshed.add(config.getDataSourceId());
                 }
             } catch (IOException e) {
                 logger.info("Unable to refresh data for config " + config);
@@ -77,10 +85,18 @@ public class FetchDataFromUrl implements RemoteDataRefreshed {
 
     private boolean refreshDataIfNewerAvailable(RemoteDataSourceConfig config) throws IOException {
         boolean isS3 = config.getIsS3();
-        String originalURL = config.getDataUrl();
         Path downloadDirectory = config.getDataPath();
+        final DataSourceID dataSourceId = config.getDataSourceId();
+
+        logger.info("Refresh data if newer is available for " + dataSourceId);
+
         String targetFile = config.getDownloadFilename();
-        String dataSourceName = config.getName();
+
+        if (targetFile.isEmpty()) {
+            String originalURL = config.getDataUrl();
+            targetFile = FilenameUtils.getName(originalURL);
+            logger.info("target file is not provided, derive from download url: " + targetFile);
+        }
 
         Path destination = downloadDirectory.resolve(targetFile);
 
@@ -94,10 +110,13 @@ public class FetchDataFromUrl implements RemoteDataRefreshed {
 
             // do this here as getting the status for URL is potentially slow
             if (config.getDataCheckUrl().isBlank() && !expired) {
-                logger.info(format("%s file:%s is not expired, skip download", dataSourceName, destination));
+                logger.info(format("%s file:%s is not expired, skip download", dataSourceId, destination));
+                availableFiles.put(dataSourceId, destination);
                 return false;
             }
         }
+
+        String originalURL = config.getDataUrl();
 
         HttpDownloadAndModTime.URLStatus status = getStatusFor(originalURL, isS3);
         if (!status.isOk()) {
@@ -109,26 +128,21 @@ public class FetchDataFromUrl implements RemoteDataRefreshed {
         if (filePresent) {
             LocalDateTime localMod = getFileModLocalTime(destination);
 
-//            if (config.getDataCheckUrl().isBlank()) {
-//                // skip mod time check
-//                logger.info("Skipping mod time check for " + config.getName());
-//                return loadIfCachePeriodExpired(expired, actualURL, destination, isS3);
-//            }
-
             LocalDateTime serverMod = status.getModTime();
             if (serverMod.isEqual(LocalDateTime.MIN)) {
-                return loadIfCachePeriodExpired(expired, actualURL, destination, isS3);
+                return loadIfCachePeriodExpired(expired, actualURL, destination, isS3, dataSourceId);
             }
 
-            logger.info(format("%s: Server mod time: %s File mod time: %s ", dataSourceName, serverMod, localMod));
+            logger.info(format("%s: Server mod time: %s File mod time: %s ", dataSourceId, serverMod, localMod));
 
             try {
                 if (serverMod.isAfter(localMod)) {
-                    logger.warn(dataSourceName + ": server time is after local, downloading new data");
-                    downloadTo(actualURL, destination, isS3);
+                    logger.warn(dataSourceId + ": server time is after local, downloading new data");
+                    downloadTo(dataSourceId, destination, actualURL, isS3);
                     return true;
                 }
-                logger.info(dataSourceName + ": no newer data");
+                logger.info(dataSourceId + ": no newer data");
+                availableFiles.put(dataSourceId, destination);
                 return false;
             }
             catch (UnknownHostException disconnected) {
@@ -136,19 +150,20 @@ public class FetchDataFromUrl implements RemoteDataRefreshed {
                 return false;
             }
         } else {
-            logger.info(dataSourceName + ": no local file " + destination + " so down loading new data from " + actualURL);
+            logger.info(dataSourceId + ": no local file " + destination + " so down loading new data from " + actualURL);
             FileUtils.forceMkdir(downloadDirectory.toAbsolutePath().toFile());
-            downloadTo(actualURL, destination, isS3);
+            downloadTo(dataSourceId, destination, actualURL, isS3);
             return true;
         }
     }
 
-    private void downloadTo(String url, Path destination, boolean isS3) throws IOException {
+    private void downloadTo(DataSourceID dataSourceID, Path destination, String url, boolean isS3) throws IOException {
         if (isS3) {
             s3Downloader.downloadTo(destination, url);
         } else {
             httpDownloader.downloadTo(destination, url);
         }
+        availableFiles.put(dataSourceID, destination);
     }
 
     private HttpDownloadAndModTime.URLStatus getStatusFor(String url, boolean isS3) throws IOException {
@@ -175,14 +190,14 @@ public class FetchDataFromUrl implements RemoteDataRefreshed {
         return status;
     }
 
-    private boolean loadIfCachePeriodExpired(boolean expired, String url, Path destination, boolean isS3)  {
+    private boolean loadIfCachePeriodExpired(boolean expired, String url, Path destination, boolean isS3, DataSourceID dataSourceId)  {
 
         boolean downloaded = false;
 
         if (expired) {
             try {
                 logger.info(destination + " expired downloading from " + url);
-                downloadTo(url, destination, isS3);
+                downloadTo(dataSourceId, destination, url, isS3);
                 downloaded = true;
             }
             catch (IOException e) {
@@ -201,8 +216,23 @@ public class FetchDataFromUrl implements RemoteDataRefreshed {
     }
 
     @Override
-    public boolean refreshed(String name) {
-        return refreshed.contains(name);
+    public boolean refreshed(DataSourceID dataSourceID) {
+        return refreshed.contains(dataSourceID);
+    }
+
+    @Override
+    public boolean hasFileFor(DataSourceID dataSourceID) {
+        return availableFiles.containsKey(dataSourceID);
+    }
+
+    @Override
+    public Path fileFor(DataSourceID dataSourceID) {
+        if (!availableFiles.containsKey(dataSourceID)) {
+            final String msg = "No data was downloaded or was available for " + dataSourceID;
+            logger.error(msg);
+            throw new RuntimeException(msg);
+        }
+        return availableFiles.get(dataSourceID);
     }
 
     public static class Ready {

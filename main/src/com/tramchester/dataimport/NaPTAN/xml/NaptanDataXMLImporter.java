@@ -1,10 +1,8 @@
 package com.tramchester.dataimport.NaPTAN.xml;
 
-import com.tramchester.config.RemoteDataSourceConfig;
-import com.tramchester.config.TramchesterConfig;
 import com.tramchester.dataimport.NaPTAN.NaptanDataFromXMLFile;
 import com.tramchester.dataimport.NaPTAN.NaptanXMLData;
-import com.tramchester.dataimport.UnzipFetchedData;
+import com.tramchester.dataimport.RemoteDataRefreshed;
 import com.tramchester.dataimport.loader.files.TransportDataFromFile;
 import com.tramchester.domain.DataSourceID;
 import org.slf4j.Logger;
@@ -17,16 +15,20 @@ import java.util.stream.Stream;
 public class NaptanDataXMLImporter {
     private static final Logger logger = LoggerFactory.getLogger(NaptanDataXMLImporter.class);
 
-    private final RemoteDataSourceConfig sourceConfig;
+    private final RemoteDataRefreshed remoteDataRefreshed;
 
-    public NaptanDataXMLImporter(TramchesterConfig config, UnzipFetchedData.Ready dataIsReady) {
-        sourceConfig = config.getDataRemoteSourceConfig(DataSourceID.naptanxml);
+    public NaptanDataXMLImporter(RemoteDataRefreshed remoteDataRefreshed) {
+        this.remoteDataRefreshed = remoteDataRefreshed;
     }
 
     public <T extends NaptanXMLData> Stream<T> loadData(Class<T> theClass) {
-        Path dataPath = sourceConfig.getDataPath();
-        String filename = sourceConfig.getDownloadFilename();
-        Path filePath = dataPath.resolve(filename);
+        if (!remoteDataRefreshed.hasFileFor(DataSourceID.naptanxml)) {
+            final String message = "Missing source file for " + DataSourceID.naptanxml;
+            logger.error(message);
+            throw new RuntimeException(message);
+        }
+
+        Path filePath = remoteDataRefreshed.fileFor(DataSourceID.naptanxml);
         logger.info("Loading data from " + filePath.toAbsolutePath());
         TransportDataFromFile<T> dataLoader = new NaptanDataFromXMLFile<>(filePath, StandardCharsets.UTF_8, theClass);
 

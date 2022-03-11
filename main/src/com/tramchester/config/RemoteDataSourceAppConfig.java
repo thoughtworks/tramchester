@@ -62,4 +62,15 @@ public class RemoteDataSourceAppConfig extends Configuration implements RemoteDa
     public boolean getIsS3() {
         return dataURL.startsWith("s3://");
     }
+
+    @Override
+    public String toString() {
+        return "RemoteDataSourceAppConfig{" +
+                "dataCheckURL='" + dataCheckURL + '\'' +
+                ", dataURL='" + dataURL + '\'' +
+                ", dataPath=" + dataPath +
+                ", filename='" + filename + '\'' +
+                ", name='" + name + '\'' +
+                "} " + super.toString();
+    }
 }

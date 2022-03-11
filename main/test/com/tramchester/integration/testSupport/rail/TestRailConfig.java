@@ -49,4 +49,9 @@ public class TestRailConfig implements RailConfig {
         return new HashSet<>(Arrays.asList(Train, RailReplacementBus));
     }
 
+    @Override
+    public String getVersion() {
+        return RailRemoteDataSourceConfig.VERSION;
+    }
+
 }

@@ -9,7 +9,9 @@ public class RailRemoteDataSourceConfig implements RemoteDataSourceConfig {
 
     // http://data.atoc.org/how-to
 
-    private static final String CURRENT_PREFIX = "ttis285";
+    public static final String VERSION = "285";
+
+    private static final String CURRENT_PREFIX = "ttis"+VERSION;
 
     private static final String RAIL_LATEST_ZIP = String.format("s3://tramchester2dist/railData/%s.zip", CURRENT_PREFIX);
 

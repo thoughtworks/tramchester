@@ -13,9 +13,15 @@ public interface RemoteDataSourceConfig extends HasDataPath {
     // url where data is located
     String getDataUrl();
 
-    // downloaded filename
+    /***
+     * Don't use this to get the actual downloaded filename, since this config can be blank to allow the remote
+     * filename from the data source to be used, instead use:
+     * @link com.tramchester.dataimport.RemoteDataRefreshed
+     * @return the value from config, which can be blank
+     */
     String getDownloadFilename();
 
+    // TODO Should be RemoteDataSourceId
     // useful name for data set
     String getName();
 

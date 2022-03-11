@@ -17,15 +17,17 @@ public class UnzipFetchedData  {
 
     private final Unzipper unzipper;
     private final List<RemoteDataSourceConfig> configs;
+    private final RemoteDataRefreshed remoteDataRefreshed;
 
     @Inject
-    public UnzipFetchedData(Unzipper unzipper, TramchesterConfig config, FetchDataFromUrl.Ready ready) {
-        this(unzipper, config.getRemoteDataSourceConfig());
+    public UnzipFetchedData(Unzipper unzipper, TramchesterConfig config, RemoteDataRefreshed remoteDataRefreshed) {
+        this(unzipper, config.getRemoteDataSourceConfig(), remoteDataRefreshed);
     }
 
-    private UnzipFetchedData(Unzipper unzipper, List<RemoteDataSourceConfig> configs) {
+    private UnzipFetchedData(Unzipper unzipper, List<RemoteDataSourceConfig> configs, RemoteDataRefreshed remoteDataRefreshed) {
         this.unzipper = unzipper;
         this.configs = configs;
+        this.remoteDataRefreshed = remoteDataRefreshed;
     }
 
     @PostConstruct
@@ -45,9 +47,14 @@ public class UnzipFetchedData  {
             logger.info("No configs present");
         }
         configs.forEach(config -> {
-            Path zipFile = config.getDataPath().resolve(config.getDownloadFilename());
-            if (!unzipper.unpack(zipFile, config.getDataPath())) {
-                logger.error("unable to unpack zip file " + zipFile.toAbsolutePath());
+            //Path zipFile = config.getDataPath().resolve(config.getDownloadFilename());
+            if (remoteDataRefreshed.hasFileFor(config.getDataSourceId())) {
+                Path dataSourceFilename = remoteDataRefreshed.fileFor(config.getDataSourceId());
+                if (!unzipper.unpackIfZipped(dataSourceFilename, config.getDataPath())) {
+                    logger.error("unable to unpack zip file " + dataSourceFilename.toAbsolutePath());
+                }
+            } else {
+                logger.error("Missing data source file for " + config);
             }
         });
     }

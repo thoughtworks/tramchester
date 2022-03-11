@@ -75,7 +75,11 @@ class UploadRemoteSourceDataToS3Test {
     @Test
     void shouldUploadOkIfBucketExist() throws IOException {
 
+        // Can't check actual remote URL, so make sure the files is not "expired" by creating a new file
+
         Path sourceFilePath = dataSource.getDataPath().resolve(dataSource.getDownloadFilename());
+
+        Files.deleteIfExists(sourceFilePath);
 
         final String text = "HereIsSomeTextForTheFile";
         Files.writeString( sourceFilePath, text);
@@ -145,12 +149,12 @@ class UploadRemoteSourceDataToS3Test {
 
         @Override
         public String getDataCheckUrl() {
-            return null;
+            return "";
         }
 
         @Override
         public String getDataUrl() {
-            return null;
+            throw new RuntimeException("Should not be downloading, not expired");
         }
 
         @Override
@@ -160,7 +164,7 @@ class UploadRemoteSourceDataToS3Test {
 
         @Override
         public String getName() {
-            return "fakeRemoteSource";
+            return "tfgm";
         }
 
         @Override

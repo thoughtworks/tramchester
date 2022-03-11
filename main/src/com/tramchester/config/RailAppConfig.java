@@ -13,6 +13,7 @@ public class RailAppConfig extends Configuration implements RailConfig {
     private final Path dataPath;
     private final Path stations;
     private final Path timetable;
+    private final String version;
     private final Set<TransportMode> modes;
 
     public RailAppConfig(@JsonProperty(value ="dataPath", required = true) Path dataPath,
@@ -21,6 +22,7 @@ public class RailAppConfig extends Configuration implements RailConfig {
         this.dataPath = dataPath;
         this.modes = modes;
 
+        this.version = version;
         final String filename = "ttisf" + version;
 
         this.timetable = Path.of(String.format("%s.mca", filename));
@@ -54,4 +56,7 @@ public class RailAppConfig extends Configuration implements RailConfig {
         return modes;
     }
 
+    public String getVersion() {
+        return version;
+    }
 }

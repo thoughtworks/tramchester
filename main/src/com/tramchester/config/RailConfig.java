@@ -9,4 +9,5 @@ public interface RailConfig extends HasDataPath, TransportDataSourceConfig {
     Path getStations();
     Path getTimetable();
     Set<TransportMode> getModes();
+    String getVersion();
 }

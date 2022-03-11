@@ -7,6 +7,7 @@ import com.tramchester.config.TramchesterConfig;
 import com.tramchester.dataexport.DataSaver;
 import com.tramchester.dataimport.loader.files.TransportDataFromCSVFile;
 import com.tramchester.dataimport.RemoteDataRefreshed;
+import com.tramchester.domain.DataSourceID;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -66,8 +67,9 @@ public class DataCache {
     }
 
     private void clearCacheIfDataRefreshed() {
-        Set<String> refreshedSources = config.getRemoteDataSourceConfig().stream().
+        Set<DataSourceID> refreshedSources = config.getRemoteDataSourceConfig().stream().
                 map(RemoteDataSourceConfig::getName).
+                map(DataSourceID::findOrUnknown).
                 filter(remoteDataRefreshed::refreshed).collect(Collectors.toSet());
         if (refreshedSources.isEmpty()) {
             return;

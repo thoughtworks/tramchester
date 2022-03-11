@@ -4,7 +4,9 @@ import com.tramchester.cloud.data.UploadFileToS3;
 import com.tramchester.config.GTFSSourceConfig;
 import com.tramchester.config.RemoteDataSourceConfig;
 import com.tramchester.config.TramchesterConfig;
+import com.tramchester.dataimport.RemoteDataRefreshed;
 import com.tramchester.deployment.UploadRemoteSourceData;
+import com.tramchester.domain.DataSourceID;
 import com.tramchester.testSupport.TestConfig;
 import org.easymock.EasyMock;
 import org.easymock.EasyMockSupport;
@@ -23,24 +25,36 @@ class UploadRemoteSourceDataTest extends EasyMockSupport {
 
     private UploadFileToS3 s3Uploader;
     private UploadRemoteSourceData uploadRemoteData;
+    private RemoteDataRefreshed dataRefreshed;
 
     @BeforeEach
     void beforeEachTestRuns() {
 
         s3Uploader = createStrictMock(UploadFileToS3.class);
+        dataRefreshed = createMock(RemoteDataRefreshed.class);
 
         List<RemoteDataSourceConfig> remoteConfigs = new ArrayList<>();
 
-        remoteConfigs.add(new DataSourceConfig(Path.of("data/tram"), "fileA.zip"));
-        remoteConfigs.add(new DataSourceConfig(Path.of("data/bus"), "fileB.zip"));
-        remoteConfigs.add(new DataSourceConfig(Path.of("data/naptan"), "fileC.xml"));
+        remoteConfigs.add(new DataSourceConfig(Path.of("data/xxx"), "aaa", DataSourceID.tfgm));
+        remoteConfigs.add(new DataSourceConfig(Path.of("data/yyy"), "bbb", DataSourceID.rail));
+        remoteConfigs.add(new DataSourceConfig(Path.of("data/zzz"), "ccc", DataSourceID.nptg));
 
         TramchesterConfig config = new ConfigWithRemoteSource(remoteConfigs);
-        uploadRemoteData = new UploadRemoteSourceData(s3Uploader, config);
+
+        uploadRemoteData = new UploadRemoteSourceData(s3Uploader, config, dataRefreshed);
     }
 
     @Test
     void shouldUpdateEachRemoteDataSourceInConfigToS3() {
+
+        EasyMock.expect(dataRefreshed.hasFileFor(DataSourceID.tfgm)).andReturn(true);
+        EasyMock.expect(dataRefreshed.hasFileFor(DataSourceID.rail)).andReturn(true);
+        EasyMock.expect(dataRefreshed.hasFileFor(DataSourceID.nptg)).andReturn(true);
+
+        EasyMock.expect(dataRefreshed.fileFor(DataSourceID.tfgm)).andReturn(Path.of("data", "tram", "fileA.zip"));
+        EasyMock.expect(dataRefreshed.fileFor(DataSourceID.rail)).andReturn(Path.of("data", "bus", "fileB.zip"));
+        EasyMock.expect(dataRefreshed.fileFor(DataSourceID.nptg)).andReturn(Path.of("data", "naptan", "fileC.xml"));
+
 
         final String prefix = "aPrefix";
         EasyMock.expect(s3Uploader.uploadFile(prefix, Path.of("data/tram/fileA.zip"), true)).andReturn(true);
@@ -57,6 +71,15 @@ class UploadRemoteSourceDataTest extends EasyMockSupport {
 
     @Test
     void shouldFailIfAnyFail() {
+
+        EasyMock.expect(dataRefreshed.hasFileFor(DataSourceID.tfgm)).andReturn(true);
+        EasyMock.expect(dataRefreshed.hasFileFor(DataSourceID.rail)).andReturn(true);
+        //EasyMock.expect(dataRefreshed.hasFileFor(DataSourceID.nptg)).andReturn(true);
+
+        EasyMock.expect(dataRefreshed.fileFor(DataSourceID.tfgm)).andReturn(Path.of("data", "tram", "fileA.zip"));
+        EasyMock.expect(dataRefreshed.fileFor(DataSourceID.rail)).andReturn(Path.of("data", "bus", "fileB.zip"));
+        //EasyMock.expect(dataRefreshed.fileFor(DataSourceID.nptg)).andReturn(Path.of("data", "naptan", "fileC.xml"));
+
 
         final String prefix = "somePrefix";
         EasyMock.expect(s3Uploader.uploadFile(prefix, Path.of("data/tram/fileA.zip"), true)).andReturn(true);
@@ -95,10 +118,12 @@ class UploadRemoteSourceDataTest extends EasyMockSupport {
     private static class DataSourceConfig implements RemoteDataSourceConfig {
         private final Path path;
         private final String filename;
+        private final DataSourceID dataSourceID;
 
-        private DataSourceConfig(Path path, String filename) {
+        private DataSourceConfig(Path path, String filename, DataSourceID dataSourceID) {
             this.path = path;
             this.filename = filename;
+            this.dataSourceID = dataSourceID;
         }
 
         @Override
@@ -123,7 +148,7 @@ class UploadRemoteSourceDataTest extends EasyMockSupport {
 
         @Override
         public String getName() {
-            return filename;
+            return dataSourceID.name();
         }
 
         @Override
