@@ -2,6 +2,7 @@ package com.tramchester.dataimport;
 
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.cloud.data.ClientForS3;
+import org.apache.commons.io.FilenameUtils;
 import org.apache.http.HttpStatus;
 
 import javax.inject.Inject;
@@ -20,7 +21,10 @@ public class S3DownloadAndModTime implements DownloadAndModTime {
 
     @Override
     public URLStatus getStatusFor(String url) {
-        return new URLStatus(url, HttpStatus.SC_OK, s3Client.getModTimeFor(url));
+        final URLStatus urlStatus = new URLStatus(url, HttpStatus.SC_OK, s3Client.getModTimeFor(url));
+        String filename = FilenameUtils.getName(url);
+        urlStatus.setFilename(filename);
+        return urlStatus;
     }
 
     @Override

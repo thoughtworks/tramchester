@@ -5,6 +5,7 @@ import com.tramchester.config.RailConfig;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.dataimport.FetchFileModTime;
 import com.tramchester.dataimport.RemoteDataRefreshed;
+import com.tramchester.dataimport.UnzipFetchedData;
 import com.tramchester.dataimport.loader.DirectDataSourceFactory;
 import com.tramchester.dataimport.rail.records.PhysicalStationRecord;
 import com.tramchester.dataimport.rail.records.RailTimetableRecord;
@@ -58,7 +59,8 @@ public class RailTransportDataFromFiles implements DirectDataSourceFactory.Popul
     @Inject
     public RailTransportDataFromFiles(RailDataRecordFactory factory, TramchesterConfig config,
                                       NaptanRespository naptanRespository,
-                                      GraphFilterActive graphFilterActive, RemoteDataRefreshed remoteDataRefreshed) {
+                                      GraphFilterActive graphFilterActive, RemoteDataRefreshed remoteDataRefreshed,
+                                      UnzipFetchedData.Ready ready) {
         bounds = config.getBounds();
         railConfig = config.getRailConfig();
         this.naptanRespository = naptanRespository;

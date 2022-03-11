@@ -1,6 +1,7 @@
 package com.tramchester.deployment.cli;
 
 import com.tramchester.GuiceContainerDependencies;
+import com.tramchester.dataimport.UnzipFetchedData;
 import com.tramchester.deployment.UploadRemoteSourceData;
 import io.dropwizard.configuration.ConfigurationException;
 import org.slf4j.Logger;
@@ -44,6 +45,9 @@ public class UploadSourceDataCLI extends BaseCLI {
 
     @Override
     public void run(Logger logger, GuiceContainerDependencies dependencies) {
+        UnzipFetchedData unzipFetchedData = dependencies.get(UnzipFetchedData.class);
+        unzipFetchedData.getReady();
+
         UploadRemoteSourceData uploadRemoteData = dependencies.get(UploadRemoteSourceData.class);
         uploadRemoteData.upload(s3Preifx);
     }

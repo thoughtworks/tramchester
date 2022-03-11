@@ -3,10 +3,7 @@ package com.tramchester.unit.dataimport;
 import com.tramchester.config.GTFSSourceConfig;
 import com.tramchester.config.RemoteDataSourceConfig;
 import com.tramchester.config.TramchesterConfig;
-import com.tramchester.dataimport.FetchDataFromUrl;
-import com.tramchester.dataimport.HttpDownloadAndModTime;
-import com.tramchester.dataimport.S3DownloadAndModTime;
-import com.tramchester.dataimport.URLStatus;
+import com.tramchester.dataimport.*;
 import com.tramchester.domain.DataSourceID;
 import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.integration.testSupport.tfgm.TFGMRemoteDataSourceConfig;
@@ -33,6 +30,7 @@ class FetchDataFromUrlTest extends EasyMockSupport {
     private final String expectedDownloadURL = TestEnv.TFGM_TIMETABLE_URL;
     private RemoteDataSourceConfig remoteDataSourceConfig;
     private ProvidesNow providesLocalNow;
+    private DownloadedRemotedDataRepository downloadedDataRepository;
 
     @BeforeEach
     void beforeEachTestRuns() throws IOException {
@@ -47,7 +45,8 @@ class FetchDataFromUrlTest extends EasyMockSupport {
         Path path = remoteDataSourceConfig.getDataPath();
         zipFilename = path.resolve(targetZipFilename);
 
-        fetchDataFromUrl = new FetchDataFromUrl(httpDownloader, s3Downloader, config, providesLocalNow);
+        downloadedDataRepository = new DownloadedRemotedDataRepository();
+        fetchDataFromUrl = new FetchDataFromUrl(httpDownloader, s3Downloader, config, providesLocalNow, downloadedDataRepository);
 
         removeTmpFile();
     }
@@ -83,8 +82,8 @@ class FetchDataFromUrlTest extends EasyMockSupport {
         replayAll();
         Assertions.assertAll(() -> fetchDataFromUrl.fetchData());
         verifyAll();
-        assertTrue(fetchDataFromUrl.refreshed(DataSourceID.tfgm));
-        assertEquals(zipFilename, fetchDataFromUrl.fileFor(DataSourceID.tfgm));
+        assertTrue(downloadedDataRepository.refreshed(DataSourceID.tfgm));
+        assertEquals(zipFilename, downloadedDataRepository.fileFor(DataSourceID.tfgm));
     }
 
     @Test
@@ -100,8 +99,8 @@ class FetchDataFromUrlTest extends EasyMockSupport {
         replayAll();
         Assertions.assertAll(() -> fetchDataFromUrl.fetchData());
         verifyAll();
-        assertTrue(fetchDataFromUrl.refreshed(DataSourceID.tfgm));
-        assertEquals(zipFilename, fetchDataFromUrl.fileFor(DataSourceID.tfgm));
+        assertTrue(downloadedDataRepository.refreshed(DataSourceID.tfgm));
+        assertEquals(zipFilename, downloadedDataRepository.fileFor(DataSourceID.tfgm));
     }
 
     @Test
@@ -115,8 +114,8 @@ class FetchDataFromUrlTest extends EasyMockSupport {
         replayAll();
         Assertions.assertAll(() -> fetchDataFromUrl.fetchData());
         verifyAll();
-        assertFalse(fetchDataFromUrl.refreshed(DataSourceID.tfgm));
-        assertEquals(zipFilename, fetchDataFromUrl.fileFor(DataSourceID.tfgm));
+        assertFalse(downloadedDataRepository.refreshed(DataSourceID.tfgm));
+        assertEquals(zipFilename, downloadedDataRepository.fileFor(DataSourceID.tfgm));
 
     }
 
@@ -145,8 +144,8 @@ class FetchDataFromUrlTest extends EasyMockSupport {
         replayAll();
         Assertions.assertAll(() -> fetchDataFromUrl.fetchData());
         verifyAll();
-        assertTrue(fetchDataFromUrl.refreshed(DataSourceID.tfgm));
-        assertEquals(zipFilename, fetchDataFromUrl.fileFor(DataSourceID.tfgm));
+        assertTrue(downloadedDataRepository.refreshed(DataSourceID.tfgm));
+        assertEquals(zipFilename, downloadedDataRepository.fileFor(DataSourceID.tfgm));
 
     }
 
@@ -164,8 +163,8 @@ class FetchDataFromUrlTest extends EasyMockSupport {
         replayAll();
         Assertions.assertAll(() -> fetchDataFromUrl.fetchData());
         verifyAll();
-        assertTrue(fetchDataFromUrl.refreshed(DataSourceID.tfgm));
-        assertEquals(zipFilename, fetchDataFromUrl.fileFor(DataSourceID.tfgm));
+        assertTrue(downloadedDataRepository.refreshed(DataSourceID.tfgm));
+        assertEquals(zipFilename, downloadedDataRepository.fileFor(DataSourceID.tfgm));
 
     }
 
@@ -182,8 +181,8 @@ class FetchDataFromUrlTest extends EasyMockSupport {
         replayAll();
         Assertions.assertAll(() -> fetchDataFromUrl.fetchData());
         verifyAll();
-        assertFalse(fetchDataFromUrl.refreshed(DataSourceID.tfgm));
-        assertFalse(fetchDataFromUrl.hasFileFor(DataSourceID.tfgm));
+        assertFalse(downloadedDataRepository.refreshed(DataSourceID.tfgm));
+        assertFalse(downloadedDataRepository.hasFileFor(DataSourceID.tfgm));
     }
 
     @Test
@@ -198,7 +197,7 @@ class FetchDataFromUrlTest extends EasyMockSupport {
         replayAll();
         Assertions.assertAll(() -> fetchDataFromUrl.fetchData());
         verifyAll();
-        assertFalse(fetchDataFromUrl.hasFileFor(DataSourceID.tfgm));
+        assertFalse(downloadedDataRepository.hasFileFor(DataSourceID.tfgm));
 
     }
 

@@ -5,7 +5,9 @@ import com.tramchester.GuiceContainerDependencies;
 import com.tramchester.config.GTFSSourceConfig;
 import com.tramchester.config.RemoteDataSourceConfig;
 import com.tramchester.config.TramchesterConfig;
+import com.tramchester.dataimport.DownloadedRemotedDataRepository;
 import com.tramchester.deployment.UploadRemoteSourceData;
+import com.tramchester.domain.DataSourceID;
 import com.tramchester.testSupport.TestConfig;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.testTags.S3Test;
@@ -21,7 +23,8 @@ import java.nio.file.Path;
 import java.util.Collections;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @S3Test
 class UploadRemoteSourceDataToS3Test {
@@ -35,6 +38,7 @@ class UploadRemoteSourceDataToS3Test {
 
     private final static String TEST_BUCKET_NAME = "tramchestertestlivedatabucket";
     private static DataSource dataSource;
+    private static DownloadedRemotedDataRepository downloadedRemoteData;
 
     @BeforeAll
     static void beforeAnyDone() {
@@ -51,6 +55,8 @@ class UploadRemoteSourceDataToS3Test {
         s3TestSupport.createOrCleanBucket();
 
         uploadRemoteData = componentContainer.get(UploadRemoteSourceData.class);
+
+        downloadedRemoteData = componentContainer.get(DownloadedRemotedDataRepository.class);
     }
 
     @AfterAll
@@ -78,15 +84,20 @@ class UploadRemoteSourceDataToS3Test {
         // Can't check actual remote URL, so make sure the files is not "expired" by creating a new file
 
         Path sourceFilePath = dataSource.getDataPath().resolve(dataSource.getDownloadFilename());
-
         Files.deleteIfExists(sourceFilePath);
+
+        downloadedRemoteData.addFileFor(DataSourceID.tfgm, sourceFilePath);
+
+        final String testPrefix = "testing/testPrefix";
+        final String key = testPrefix +"/"+ dataSource.getDownloadFilename();
 
         final String text = "HereIsSomeTextForTheFile";
         Files.writeString( sourceFilePath, text);
 
-        final String testPrefix = "testing/testPrefix";
         boolean result = uploadRemoteData.upload(testPrefix);
         assertTrue(result);
+
+        s3Waiter.waitUntilObjectExists(HeadObjectRequest.builder().bucket(TEST_BUCKET_NAME).key(key).build());
 
         ListObjectsRequest listRequest = ListObjectsRequest.builder().bucket(TEST_BUCKET_NAME).build();
         ListObjectsResponse currentContents = s3.listObjects(listRequest);
@@ -96,7 +107,6 @@ class UploadRemoteSourceDataToS3Test {
         assertEquals(1, summary.size());
         String foundKey = summary.get(0).key();
 
-        final String key = testPrefix +"/"+ dataSource.getDownloadFilename();
         assertEquals(key, foundKey);
 
         GetObjectRequest getRequest = GetObjectRequest.builder().bucket(TEST_BUCKET_NAME).key(key).build();

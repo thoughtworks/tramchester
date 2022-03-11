@@ -12,6 +12,7 @@ import org.slf4j.LoggerFactory;
 import javax.inject.Inject;
 import java.nio.file.Path;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static java.lang.String.format;
 
@@ -24,17 +25,27 @@ public class UploadRemoteSourceData {
     private final RemoteDataRefreshed remoteDataRefreshed;
 
     @Inject
-    public UploadRemoteSourceData(UploadFileToS3 uploadFileToS3, TramchesterConfig config, RemoteDataRefreshed remoteDataRefreshed) {
+    public UploadRemoteSourceData(UploadFileToS3 uploadFileToS3, TramchesterConfig config,
+                                  RemoteDataRefreshed remoteDataRefreshed) {
         this.uploadFileToS3 = uploadFileToS3;
         this.config = config;
         this.remoteDataRefreshed = remoteDataRefreshed;
     }
 
     public boolean upload(String prefixForS3Key) {
+        logger.info("Upload data sources to " + prefixForS3Key);
         List<RemoteDataSourceConfig> remoteSources = config.getRemoteDataSourceConfig();
-        return remoteSources.stream().
-                filter(dataSource -> remoteDataRefreshed.hasFileFor(dataSource.getDataSourceId())).
-                allMatch(dataSource -> upload(prefixForS3Key, dataSource.getDataSourceId()));
+        List<DataSourceID> remoteWithFiles = remoteSources.stream().
+                map(RemoteDataSourceConfig::getDataSourceId).
+                filter(remoteDataRefreshed::hasFileFor).
+                collect(Collectors.toList());
+        if (remoteWithFiles.isEmpty()) {
+            logger.error("No remote sources had files");
+        } else {
+            logger.info("Uploading " + remoteWithFiles);
+        }
+
+        return remoteWithFiles.stream().allMatch(dataSourceId -> upload(prefixForS3Key, dataSourceId));
     }
 
     private boolean upload(String prefixForS3Key, DataSourceID dataSourceId) {

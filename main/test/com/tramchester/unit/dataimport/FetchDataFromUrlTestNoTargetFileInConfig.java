@@ -3,10 +3,7 @@ package com.tramchester.unit.dataimport;
 import com.tramchester.config.GTFSSourceConfig;
 import com.tramchester.config.RemoteDataSourceConfig;
 import com.tramchester.config.TramchesterConfig;
-import com.tramchester.dataimport.FetchDataFromUrl;
-import com.tramchester.dataimport.HttpDownloadAndModTime;
-import com.tramchester.dataimport.S3DownloadAndModTime;
-import com.tramchester.dataimport.URLStatus;
+import com.tramchester.dataimport.*;
 import com.tramchester.domain.DataSourceID;
 import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.testSupport.TestConfig;
@@ -35,6 +32,7 @@ class FetchDataFromUrlTestNoTargetFileInConfig extends EasyMockSupport {
     private final String expectedDownloadURL = TestEnv.TFGM_TIMETABLE_URL;
     private RemoteDataSourceConfig remoteDataSourceConfig;
     private ProvidesNow providesLocalNow;
+    private DownloadedRemotedDataRepository downloadedDataRepository;
 
     @BeforeEach
     void beforeEachTestRuns() throws IOException {
@@ -51,7 +49,9 @@ class FetchDataFromUrlTestNoTargetFileInConfig extends EasyMockSupport {
         Path path = remoteDataSourceConfig.getDataPath();
         zipFilename = path.resolve(targetZipFilename);
 
-        fetchDataFromUrl = new FetchDataFromUrl(httpDownloader, s3Downloader, config, providesLocalNow);
+        downloadedDataRepository = new DownloadedRemotedDataRepository();
+
+        fetchDataFromUrl = new FetchDataFromUrl(httpDownloader, s3Downloader, config, providesLocalNow, downloadedDataRepository);
 
         removeTmpFile();
     }
@@ -80,15 +80,17 @@ class FetchDataFromUrlTestNoTargetFileInConfig extends EasyMockSupport {
         EasyMock.expect(providesLocalNow.getDateTime()).andReturn(LocalDateTime.now());
 
         URLStatus status = new URLStatus(expectedDownloadURL, 200, time.plusMinutes(30));
+        status.setFilename("TfGMgtfsnew.zip");
         EasyMock.expect(httpDownloader.getStatusFor(expectedDownloadURL)).andReturn(status);
+
         httpDownloader.downloadTo(zipFilename, expectedDownloadURL);
         EasyMock.expectLastCall();
 
         replayAll();
         Assertions.assertAll(() -> fetchDataFromUrl.fetchData());
         verifyAll();
-        assertTrue(fetchDataFromUrl.refreshed(DataSourceID.tfgm));
-        assertEquals(zipFilename, fetchDataFromUrl.fileFor(DataSourceID.tfgm));
+        assertTrue(downloadedDataRepository.refreshed(DataSourceID.tfgm));
+        assertEquals(zipFilename, downloadedDataRepository.fileFor(DataSourceID.tfgm));
     }
 
     @Test
@@ -96,6 +98,7 @@ class FetchDataFromUrlTestNoTargetFileInConfig extends EasyMockSupport {
 
         LocalDateTime time = TestEnv.LocalNow();
         URLStatus status = new URLStatus(expectedDownloadURL, 200, time);
+        status.setFilename("TfGMgtfsnew.zip");
         EasyMock.expect(httpDownloader.getStatusFor(expectedDownloadURL)).andReturn(status);
 
         httpDownloader.downloadTo(zipFilename, expectedDownloadURL);
@@ -104,8 +107,8 @@ class FetchDataFromUrlTestNoTargetFileInConfig extends EasyMockSupport {
         replayAll();
         Assertions.assertAll(() -> fetchDataFromUrl.fetchData());
         verifyAll();
-        assertTrue(fetchDataFromUrl.refreshed(DataSourceID.tfgm));
-        assertEquals(zipFilename, fetchDataFromUrl.fileFor(DataSourceID.tfgm));
+        assertTrue(downloadedDataRepository.refreshed(DataSourceID.tfgm));
+        assertEquals(zipFilename, downloadedDataRepository.fileFor(DataSourceID.tfgm));
     }
 
     @Test
@@ -113,14 +116,16 @@ class FetchDataFromUrlTestNoTargetFileInConfig extends EasyMockSupport {
         Files.newFile(zipFilename.toAbsolutePath().toString());
         LocalDateTime time = TestEnv.LocalNow();
         EasyMock.expect(providesLocalNow.getDateTime()).andReturn(LocalDateTime.now());
+
         URLStatus status = new URLStatus(expectedDownloadURL, 200, time.minusDays(1));
+        status.setFilename("TfGMgtfsnew.zip");
         EasyMock.expect(httpDownloader.getStatusFor(expectedDownloadURL)).andReturn(status);
 
         replayAll();
         Assertions.assertAll(() -> fetchDataFromUrl.fetchData());
         verifyAll();
-        assertFalse(fetchDataFromUrl.refreshed(DataSourceID.tfgm));
-        assertEquals(zipFilename, fetchDataFromUrl.fileFor(DataSourceID.tfgm));
+        assertFalse(downloadedDataRepository.refreshed(DataSourceID.tfgm));
+        assertEquals(zipFilename, downloadedDataRepository.fileFor(DataSourceID.tfgm));
 
     }
 
@@ -140,6 +145,7 @@ class FetchDataFromUrlTestNoTargetFileInConfig extends EasyMockSupport {
         URLStatus status1 = new URLStatus(redirectUrl1, 301);
         URLStatus status2 = new URLStatus(redirectUrl2, 302);
         URLStatus status3 = new URLStatus(redirectUrl2, 200, time);
+        status3.setFilename("actualFilename.txt");
 
         EasyMock.expect(httpDownloader.getStatusFor(expectedDownloadURL)).andReturn(status1);
         EasyMock.expect(httpDownloader.getStatusFor(redirectUrl1)).andReturn(status2);
@@ -151,8 +157,8 @@ class FetchDataFromUrlTestNoTargetFileInConfig extends EasyMockSupport {
         replayAll();
         Assertions.assertAll(() -> fetchDataFromUrl.fetchData());
         verifyAll();
-        assertTrue(fetchDataFromUrl.refreshed(DataSourceID.tfgm));
-        assertEquals(filename, fetchDataFromUrl.fileFor(DataSourceID.tfgm));
+        assertTrue(downloadedDataRepository.refreshed(DataSourceID.tfgm));
+        assertEquals(filename, downloadedDataRepository.fileFor(DataSourceID.tfgm));
 
     }
 
@@ -163,6 +169,7 @@ class FetchDataFromUrlTestNoTargetFileInConfig extends EasyMockSupport {
                 plusMinutes(FetchDataFromUrl.DEFAULT_EXPIRY_MINS).plusDays(1));
 
         URLStatus status = new URLStatus(expectedDownloadURL, 200);
+        status.setFilename("TfGMgtfsnew.zip");
         EasyMock.expect(httpDownloader.getStatusFor(expectedDownloadURL)).andReturn(status);
         httpDownloader.downloadTo(zipFilename, expectedDownloadURL);
         EasyMock.expectLastCall();
@@ -170,8 +177,8 @@ class FetchDataFromUrlTestNoTargetFileInConfig extends EasyMockSupport {
         replayAll();
         Assertions.assertAll(() -> fetchDataFromUrl.fetchData());
         verifyAll();
-        assertTrue(fetchDataFromUrl.refreshed(DataSourceID.tfgm));
-        assertEquals(zipFilename, fetchDataFromUrl.fileFor(DataSourceID.tfgm));
+        assertTrue(downloadedDataRepository.refreshed(DataSourceID.tfgm));
+        assertEquals(zipFilename, downloadedDataRepository.fileFor(DataSourceID.tfgm));
     }
 
     @Test
@@ -181,14 +188,15 @@ class FetchDataFromUrlTestNoTargetFileInConfig extends EasyMockSupport {
 
         //LocalDateTime fileIsMissingTime = LocalDateTime.MIN;
         URLStatus status = new URLStatus(expectedDownloadURL, 200);
+        status.setFilename("TfGMgtfsnew.zip");
 
         EasyMock.expect(httpDownloader.getStatusFor(expectedDownloadURL)).andReturn(status);
 
         replayAll();
         Assertions.assertAll(() -> fetchDataFromUrl.fetchData());
         verifyAll();
-        assertFalse(fetchDataFromUrl.refreshed(DataSourceID.tfgm));
-        assertFalse(fetchDataFromUrl.hasFileFor(DataSourceID.tfgm));
+        assertFalse(downloadedDataRepository.refreshed(DataSourceID.tfgm));
+        assertFalse(downloadedDataRepository.hasFileFor(DataSourceID.tfgm));
     }
 
     @Test
@@ -203,7 +211,7 @@ class FetchDataFromUrlTestNoTargetFileInConfig extends EasyMockSupport {
         replayAll();
         Assertions.assertAll(() -> fetchDataFromUrl.fetchData());
         verifyAll();
-        assertFalse(fetchDataFromUrl.hasFileFor(DataSourceID.tfgm));
+        assertFalse(downloadedDataRepository.hasFileFor(DataSourceID.tfgm));
 
     }
 

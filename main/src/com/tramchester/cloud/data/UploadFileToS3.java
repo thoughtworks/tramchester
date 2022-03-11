@@ -33,6 +33,8 @@ public class UploadFileToS3 {
     public boolean uploadFile(String prefixForKey, Path fileToUpload, boolean overWrite) {
         guardStarted();
 
+        logger.info(format("Upload %s to %s overwrite:%s", fileToUpload, prefixForKey, overWrite));
+
         String itemId = fileToUpload.getFileName().toString();
 
         if (clientForS3.keyExists(bucket, prefixForKey, itemId)) {
@@ -52,6 +54,8 @@ public class UploadFileToS3 {
 
     public boolean uploadFileZipped(String prefixForKey, Path fileToUpdate, boolean overwrite) {
         guardStarted();
+
+        logger.info(format("Upload zipped %s to %s overwrite:%s", fileToUpdate, prefixForKey, overwrite));
 
         String itemId = fileToUpdate.getFileName().toString() + ".zip";
 

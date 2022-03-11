@@ -3,6 +3,7 @@ package com.tramchester.dataimport;
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.config.RemoteDataSourceConfig;
 import com.tramchester.config.TramchesterConfig;
+import com.tramchester.domain.DataSourceID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -20,11 +21,13 @@ public class UnzipFetchedData  {
     private final RemoteDataRefreshed remoteDataRefreshed;
 
     @Inject
-    public UnzipFetchedData(Unzipper unzipper, TramchesterConfig config, RemoteDataRefreshed remoteDataRefreshed) {
-        this(unzipper, config.getRemoteDataSourceConfig(), remoteDataRefreshed);
+    public UnzipFetchedData(Unzipper unzipper, TramchesterConfig config, RemoteDataRefreshed remoteDataRefreshed,
+                            FetchDataFromUrl.Ready ready) {
+        this(unzipper, config.getRemoteDataSourceConfig(), remoteDataRefreshed, ready);
     }
 
-    private UnzipFetchedData(Unzipper unzipper, List<RemoteDataSourceConfig> configs, RemoteDataRefreshed remoteDataRefreshed) {
+    private UnzipFetchedData(Unzipper unzipper, List<RemoteDataSourceConfig> configs,
+                             RemoteDataRefreshed remoteDataRefreshed, FetchDataFromUrl.Ready ready) {
         this.unzipper = unzipper;
         this.configs = configs;
         this.remoteDataRefreshed = remoteDataRefreshed;
@@ -47,11 +50,11 @@ public class UnzipFetchedData  {
             logger.info("No configs present");
         }
         configs.forEach(config -> {
-            //Path zipFile = config.getDataPath().resolve(config.getDownloadFilename());
-            if (remoteDataRefreshed.hasFileFor(config.getDataSourceId())) {
-                Path dataSourceFilename = remoteDataRefreshed.fileFor(config.getDataSourceId());
-                if (!unzipper.unpackIfZipped(dataSourceFilename, config.getDataPath())) {
-                    logger.error("unable to unpack zip file " + dataSourceFilename.toAbsolutePath());
+            final DataSourceID sourceId = config.getDataSourceId();
+            if (remoteDataRefreshed.hasFileFor(sourceId)) {
+                Path filename = remoteDataRefreshed.fileFor(sourceId);
+                if (!unzipper.unpackIfZipped(filename, config.getDataPath())) {
+                    logger.error("unable to unpack zip file " + filename.toAbsolutePath());
                 }
             } else {
                 logger.error("Missing data source file for " + config);

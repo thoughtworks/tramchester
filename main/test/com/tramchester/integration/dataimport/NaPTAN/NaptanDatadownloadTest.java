@@ -5,6 +5,7 @@ import com.tramchester.GuiceContainerDependencies;
 import com.tramchester.config.RemoteDataSourceConfig;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.dataimport.RemoteDataRefreshed;
+import com.tramchester.dataimport.UnzipFetchedData;
 import com.tramchester.domain.DataSourceID;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfigWithNaptan;
 import com.tramchester.testSupport.TestEnv;
@@ -35,8 +36,11 @@ public class NaptanDatadownloadTest {
     }
 
     @Test
-    void shouldHaveExpectedDownloadFilePresent() {
+    void shouldHaveExpectedDownloadFilePresentOriginalURL() {
         final DataSourceID sourceID = DataSourceID.naptanxml;
+
+        UnzipFetchedData unzipFetchedData = componentContainer.get(UnzipFetchedData.class);
+        unzipFetchedData.getReady();
 
         RemoteDataRefreshed dataRefreshed = componentContainer.get(RemoteDataRefreshed.class);
 
@@ -48,7 +52,7 @@ public class NaptanDatadownloadTest {
 
         RemoteDataSourceConfig config = testConfig.getDataRemoteSourceConfig(sourceID);
 
-        Path expected = config.getDataPath().resolve("Stops.xml");
+        Path expected = config.getDataPath().resolve("NaPTAN.xml");
 
         assertEquals(expected, result);
     }

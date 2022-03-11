@@ -55,7 +55,6 @@ class UploadRemoteSourceDataTest extends EasyMockSupport {
         EasyMock.expect(dataRefreshed.fileFor(DataSourceID.rail)).andReturn(Path.of("data", "bus", "fileB.zip"));
         EasyMock.expect(dataRefreshed.fileFor(DataSourceID.nptg)).andReturn(Path.of("data", "naptan", "fileC.xml"));
 
-
         final String prefix = "aPrefix";
         EasyMock.expect(s3Uploader.uploadFile(prefix, Path.of("data/tram/fileA.zip"), true)).andReturn(true);
         EasyMock.expect(s3Uploader.uploadFile(prefix, Path.of("data/bus/fileB.zip"), true)).andReturn(true);
@@ -74,12 +73,11 @@ class UploadRemoteSourceDataTest extends EasyMockSupport {
 
         EasyMock.expect(dataRefreshed.hasFileFor(DataSourceID.tfgm)).andReturn(true);
         EasyMock.expect(dataRefreshed.hasFileFor(DataSourceID.rail)).andReturn(true);
-        //EasyMock.expect(dataRefreshed.hasFileFor(DataSourceID.nptg)).andReturn(true);
+        EasyMock.expect(dataRefreshed.hasFileFor(DataSourceID.nptg)).andReturn(true);
 
         EasyMock.expect(dataRefreshed.fileFor(DataSourceID.tfgm)).andReturn(Path.of("data", "tram", "fileA.zip"));
         EasyMock.expect(dataRefreshed.fileFor(DataSourceID.rail)).andReturn(Path.of("data", "bus", "fileB.zip"));
         //EasyMock.expect(dataRefreshed.fileFor(DataSourceID.nptg)).andReturn(Path.of("data", "naptan", "fileC.xml"));
-
 
         final String prefix = "somePrefix";
         EasyMock.expect(s3Uploader.uploadFile(prefix, Path.of("data/tram/fileA.zip"), true)).andReturn(true);

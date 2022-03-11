@@ -322,6 +322,13 @@ public class ClientForS3 {
     public LocalDateTime getModTimeFor(String url) {
         logger.info("Mod time for for url " + url);
 
+        S3Object s3Object = getS3ObjectFor(url);
+
+        Instant lastModified = s3Object.lastModified();
+        return LocalDateTime.ofInstant(lastModified, TramchesterConfig.TimeZone);
+    }
+
+    private S3Object getS3ObjectFor(String url) {
         BucketKey bucketKey = BucketKey.convertFromURI(url);
 
         ListObjectsV2Request request = ListObjectsV2Request.builder().
@@ -332,10 +339,7 @@ public class ClientForS3 {
         if (response.keyCount()!=1) {
             logger.warn("Unexpected number of objects, needed 1 got " + response.keyCount());
         }
-        S3Object s3Object = response.contents().get(0);
-
-        Instant lastModinstant = s3Object.lastModified();
-        return LocalDateTime.ofInstant(lastModinstant, TramchesterConfig.TimeZone);
+        return response.contents().get(0);
     }
 
     private GetObjectRequest createRequestFor(BucketKey bucketKey) {

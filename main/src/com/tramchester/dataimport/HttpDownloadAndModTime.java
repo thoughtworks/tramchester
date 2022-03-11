@@ -2,6 +2,7 @@ package com.tramchester.dataimport;
 
 import com.tramchester.config.TramchesterConfig;
 import org.apache.http.HttpStatus;
+import org.glassfish.jersey.media.multipart.ContentDisposition;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,6 +16,7 @@ import java.net.URL;
 import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.file.Path;
+import java.text.ParseException;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.zip.GZIPInputStream;
@@ -26,7 +28,6 @@ public class HttpDownloadAndModTime implements DownloadAndModTime {
 
     @Override
     public URLStatus getStatusFor(String originalUrl) throws IOException {
-        logger.debug(format("Check status %s", originalUrl));
 
         HttpURLConnection connection = createConnection(originalUrl);
         connection.connect();
@@ -34,11 +35,14 @@ public class HttpDownloadAndModTime implements DownloadAndModTime {
         int httpStatusCode = connection.getResponseCode();
 
         String finalUrl = originalUrl;
-        final boolean redirect = httpStatusCode == HttpStatus.SC_MOVED_PERMANENTLY || httpStatusCode == HttpStatus.SC_MOVED_TEMPORARILY;
+        final boolean redirect = httpStatusCode == HttpStatus.SC_MOVED_PERMANENTLY
+                || httpStatusCode == HttpStatus.SC_MOVED_TEMPORARILY;
+
         if (redirect) {
             String locationField = connection.getHeaderField("Location");
             if (!locationField.isBlank()) {
-                logger.warn(format("Redirect status %s and Location header '%s'", httpStatusCode, locationField));
+                logger.warn(format("URL: '%s' Redirect status %s and Location header '%s'",
+                        originalUrl, httpStatusCode, locationField));
                 finalUrl = locationField;
             } else {
                 logger.error(format("Location header missing for redirect %s, change status code to a 404 for %s",
@@ -47,25 +51,40 @@ public class HttpDownloadAndModTime implements DownloadAndModTime {
             }
         }
 
+        String filename = "";
+        final String contentDispos = connection.getHeaderField("content-disposition");
+        if (contentDispos!=null) {
+            filename = getFilenameFromHeader(contentDispos);
+            logger.info(format("Got filename '%s' from content-disposition header: '%s'", filename, contentDispos));
+        }
+
         connection.disconnect();
 
+        return createURLStatus(finalUrl, serverModMillis, httpStatusCode, redirect, filename);
+    }
+
+    @NotNull
+    private URLStatus createURLStatus(String url, long serverModMillis, int httpStatusCode, boolean redirected, String filename) {
         URLStatus result;
-        if (serverModMillis==0) {
-            if (!redirect) {
-                logger.warn("No valid mod time from server, got 0 for " + originalUrl);
+        if (serverModMillis == 0) {
+            if (!redirected) {
+                logger.warn("No valid mod time from server, got 0 for " + url);
             }
-            result = new URLStatus(finalUrl, httpStatusCode);
+            result = new URLStatus(url, httpStatusCode);
+
         } else {
             LocalDateTime modTime = getLocalDateTime(serverModMillis);
-            logger.debug(format("Mod time for %s is %s", originalUrl, modTime));
-            result = new URLStatus(finalUrl, httpStatusCode, modTime);
+            logger.debug(format("Mod time for %s is %s", url, modTime));
+            result = new URLStatus(url, httpStatusCode, modTime);
+        }
+
+        if (!filename.isBlank()) {
+            result.setFilename(filename);
         }
 
         if (!result.isOk() && !result.isRedirect()) {
-            logger.warn("Response code " + httpStatusCode + " for " + originalUrl);
+            logger.warn("Response code " + httpStatusCode + " for " + url);
         }
-
-        logger.info(result.toString());
 
         return result;
     }
@@ -165,6 +184,17 @@ public class HttpDownloadAndModTime implements DownloadAndModTime {
         } else {
             return connection.getInputStream();
         }
+    }
+
+    private String getFilenameFromHeader(String header) {
+        try {
+            ContentDisposition contentDisposition = new ContentDisposition(header);
+            return contentDisposition.getFileName();
+        } catch (ParseException e) {
+            logger.warn(format("Unable to parse content-disposition '%s'", header));
+            return "";
+        }
+
     }
 
 }
