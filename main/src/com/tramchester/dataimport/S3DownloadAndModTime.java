@@ -19,8 +19,8 @@ public class S3DownloadAndModTime implements DownloadAndModTime {
     }
 
     @Override
-    public HttpDownloadAndModTime.URLStatus getStatusFor(String url) {
-        return new HttpDownloadAndModTime.URLStatus(url, HttpStatus.SC_OK,s3Client.getModTimeFor(url));
+    public URLStatus getStatusFor(String url) {
+        return new URLStatus(url, HttpStatus.SC_OK, s3Client.getModTimeFor(url));
     }
 
     @Override

@@ -6,6 +6,7 @@ import com.tramchester.config.RemoteDataSourceConfig;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.dataimport.FetchFileModTime;
 import com.tramchester.dataimport.HttpDownloadAndModTime;
+import com.tramchester.dataimport.URLStatus;
 import com.tramchester.domain.ServiceTimeLimits;
 import com.tramchester.healthchecks.NewDataAvailableHealthCheck;
 import com.tramchester.integration.testSupport.tfgm.TFGMRemoteDataSourceConfig;
@@ -58,7 +59,7 @@ class NewDataAvailableHealthCheckTest extends EasyMockSupport {
     @Test
     void shouldReportHealthyWhenNONewDataAvailable() throws IOException {
 
-        HttpDownloadAndModTime.URLStatus status = new HttpDownloadAndModTime.URLStatus(expectedURL, 200, time.minusDays(1));
+        URLStatus status = new URLStatus(expectedURL, 200, time.minusDays(1));
 
         EasyMock.expect(urlDownloader.getStatusFor(expectedURL)).andReturn(status);
         EasyMock.expect(fetchFileModTime.getFor(dataSourceConfig)).andReturn(time);
@@ -72,7 +73,7 @@ class NewDataAvailableHealthCheckTest extends EasyMockSupport {
     @Test
     void shouldReportUnHealthyWhenNewDataAvailable() throws IOException {
 
-        HttpDownloadAndModTime.URLStatus status = new HttpDownloadAndModTime.URLStatus(expectedURL, 200, time.plusDays(1));
+        URLStatus status = new URLStatus(expectedURL, 200, time.plusDays(1));
 
         EasyMock.expect(urlDownloader.getStatusFor(expectedURL)).andReturn(status);
         EasyMock.expect(fetchFileModTime.getFor(dataSourceConfig)).andReturn(time);
@@ -86,7 +87,7 @@ class NewDataAvailableHealthCheckTest extends EasyMockSupport {
     @Test
     void shouldReportUnHealthyWhenDataMissing() throws IOException {
 
-        HttpDownloadAndModTime.URLStatus status = new HttpDownloadAndModTime.URLStatus(expectedURL, 200);
+        URLStatus status = new URLStatus(expectedURL, 200);
 
         EasyMock.expect(urlDownloader.getStatusFor(expectedURL)).andReturn(status);
         EasyMock.expect(fetchFileModTime.getFor(dataSourceConfig)).andReturn(time);

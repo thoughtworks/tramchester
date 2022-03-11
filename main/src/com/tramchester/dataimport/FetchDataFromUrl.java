@@ -15,6 +15,8 @@ import org.slf4j.LoggerFactory;
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.net.UnknownHostException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -90,15 +92,28 @@ public class FetchDataFromUrl implements RemoteDataRefreshed {
 
         logger.info("Refresh data if newer is available for " + dataSourceId);
 
-        String targetFile = config.getDownloadFilename();
+        String targetFile;
+        URLStatus status = null;
+
+        if (config.getDownloadFilename().isEmpty()) {
+            status = getStatusFromRemoteURL(config, isS3);
+            if (!status.isOk()) {
+                return false;
+            }
+            targetFile = getTargetfile(status);
+        } else {
+            targetFile = config.getDownloadFilename();
+        }
 
         if (targetFile.isEmpty()) {
-            String originalURL = config.getDataUrl();
-            targetFile = FilenameUtils.getName(originalURL);
-            logger.info("target file is not provided, derive from download url: " + targetFile);
+            logger.error(format("Unable to calculate download target for %s from '%s' or '%s'",
+                    dataSourceId, config.getDownloadFilename(), config.getDataUrl()));
+            return false;
         }
 
         Path destination = downloadDirectory.resolve(targetFile);
+
+        logger.info(format("Download target for %s is %s", dataSourceId, destination));
 
         boolean expired = false;
         final boolean filePresent = Files.exists(destination);
@@ -116,13 +131,15 @@ public class FetchDataFromUrl implements RemoteDataRefreshed {
             }
         }
 
-        String originalURL = config.getDataUrl();
-
-        HttpDownloadAndModTime.URLStatus status = getStatusFor(originalURL, isS3);
-        if (!status.isOk()) {
-            logger.error(format("Status %s for Requested URL %s ", status.getStatusCode(), originalURL));
-            return false;
+        if (status==null) {
+            // don't do this twice, is potentially expensive
+            String originalURL = config.getDataUrl();
+            status = getStatusFor(originalURL, isS3);
+            if (!status.isOk()) {
+                return false;
+            }
         }
+
         String actualURL = status.getActualURL();
 
         if (filePresent) {
@@ -157,6 +174,31 @@ public class FetchDataFromUrl implements RemoteDataRefreshed {
         }
     }
 
+    private URLStatus getStatusFromRemoteURL(RemoteDataSourceConfig config, boolean isS3) throws IOException {
+        URLStatus status;
+        String originalURL = config.getDataUrl();
+
+        logger.info("target file is not provided, derive from download url: " + originalURL);
+
+        status = getStatusFor(originalURL, isS3);
+
+        if (!status.isOk()) {
+            logger.error(format("Unable to get target filename, since status %s for Requested URL %s ", status.getStatusCode(), originalURL));
+        }
+        return status;
+    }
+
+    private String getTargetfile(URLStatus status) {
+        try {
+            URL url = new URL(status.getActualURL());
+            String path = url.getPath();
+            return FilenameUtils.getName(path);
+        } catch (MalformedURLException e) {
+            logger.error("Unable to derive target file for download from " + status.getActualURL());
+            return "";
+        }
+    }
+
     private void downloadTo(DataSourceID dataSourceID, Path destination, String url, boolean isS3) throws IOException {
         if (isS3) {
             s3Downloader.downloadTo(destination, url);
@@ -166,15 +208,15 @@ public class FetchDataFromUrl implements RemoteDataRefreshed {
         availableFiles.put(dataSourceID, destination);
     }
 
-    private HttpDownloadAndModTime.URLStatus getStatusFor(String url, boolean isS3) throws IOException {
+    private URLStatus getStatusFor(String url, boolean isS3) throws IOException {
         if (isS3) {
             return s3Downloader.getStatusFor(url);
         }
         return getStatusFollowRedirects(url);
     }
 
-    private HttpDownloadAndModTime.URLStatus getStatusFollowRedirects(String url) throws IOException {
-        HttpDownloadAndModTime.URLStatus status = httpDownloader.getStatusFor(url);
+    private URLStatus getStatusFollowRedirects(String url) throws IOException {
+        URLStatus status = httpDownloader.getStatusFor(url);
 
         while (status.isRedirect()) {
             String redirectUrl = status.getActualURL();

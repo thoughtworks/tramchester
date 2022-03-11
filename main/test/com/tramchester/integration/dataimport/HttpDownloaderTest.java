@@ -1,6 +1,7 @@
 package com.tramchester.integration.dataimport;
 
 import com.tramchester.dataimport.HttpDownloadAndModTime;
+import com.tramchester.dataimport.URLStatus;
 import com.tramchester.testSupport.TestEnv;
 import org.apache.commons.io.FileUtils;
 import org.junit.jupiter.api.AfterEach;
@@ -42,7 +43,7 @@ class HttpDownloaderTest {
     void shouldDownloadSomething() throws IOException {
         String url = "https://github.com/fluidicon.png";
 
-        HttpDownloadAndModTime.URLStatus status = urlDownloader.getStatusFor(url);
+        URLStatus status = urlDownloader.getStatusFor(url);
         assertTrue(status.isOk());
         LocalDateTime modTime = status.getModTime();
         assertTrue(modTime.isBefore(TestEnv.LocalNow()));
@@ -58,7 +59,7 @@ class HttpDownloaderTest {
     void shouldHaveValidModTimeForTimetableData() throws IOException {
 
         String url = TestEnv.TFGM_TIMETABLE_URL;
-        HttpDownloadAndModTime.URLStatus result = urlDownloader.getStatusFor(url);
+        URLStatus result = urlDownloader.getStatusFor(url);
 
         assertTrue(result.getModTime().getYear()>1970);
     }
@@ -67,7 +68,7 @@ class HttpDownloaderTest {
     void shouldHave404StatusForMissingUrl() throws IOException {
         String url = "http://www.google.com/nothere";
 
-        HttpDownloadAndModTime.URLStatus result = urlDownloader.getStatusFor(url);
+        URLStatus result = urlDownloader.getStatusFor(url);
 
         assertFalse(result.isOk());
         assertFalse(result.isRedirect());
@@ -79,7 +80,7 @@ class HttpDownloaderTest {
     void shouldHaveRedirectStatusAndURL() throws IOException {
         String url = "http://news.bbc.co.uk";
 
-        HttpDownloadAndModTime.URLStatus result = urlDownloader.getStatusFor(url);
+        URLStatus result = urlDownloader.getStatusFor(url);
 
         assertFalse(result.isOk());
         assertTrue(result.isRedirect());

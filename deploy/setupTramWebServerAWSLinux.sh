@@ -43,6 +43,11 @@ export NAPTAN_DATAURL=$ARTIFACTSURL/$BUILD/Stops.xml.zip
 export RAIL_DATAURL=$ARTIFACTSURL/$BUILD/rail_data.zip
 export NPTG_DATAURL=$ARTIFACTSURL/$BUILD/nptgcsv.zip
 
+logger TRAM_DATAURL is $TRAM_DATAURL
+logger NAPTAN_DATAURL is $NAPTAN_DATAURL
+logger RAIL_DATAURL is $RAIL_DATAURL
+logger NPTG_DATAURL is $NPTG_DATAURL
+
 cd ~ec2-user || (logger Could not cd to ec2-user && exit)
 mkdir -p server
 cd server || (logger Could not cd to ec2-user/server && exit)

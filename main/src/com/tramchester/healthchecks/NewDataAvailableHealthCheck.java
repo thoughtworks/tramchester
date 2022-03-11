@@ -3,6 +3,7 @@ package com.tramchester.healthchecks;
 import com.tramchester.config.RemoteDataSourceConfig;
 import com.tramchester.dataimport.FetchFileModTime;
 import com.tramchester.dataimport.HttpDownloadAndModTime;
+import com.tramchester.dataimport.URLStatus;
 import com.tramchester.domain.ServiceTimeLimits;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,7 +32,7 @@ public class NewDataAvailableHealthCheck extends TramchesterHealthCheck {
 
         try {
 
-            final HttpDownloadAndModTime.URLStatus status = urlDownloader.getStatusFor(dataCheckUrl);
+            final URLStatus status = urlDownloader.getStatusFor(dataCheckUrl);
 
             if (!status.isOk()) {
                 String msg = String.format("Got http status %s for %s", status.getStatusCode(), dataCheckUrl);

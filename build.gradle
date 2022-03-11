@@ -151,12 +151,14 @@ clean {
         include '*.zip'
         include '*.csv'
     }
-    delete fileTree('data/train') {
-        include '*.txt'
-        include '*.zip'
-        include '*.csv'
+    delete fileTree('data/rail') {
+        include '*.*'
     }
     delete fileTree('data/naptan') {
+        include '*.xml'
+        include '*.zip'
+    }
+    delete fileTree('data/nptg') {
         include '*.csv'
         include '*.zip'
     }

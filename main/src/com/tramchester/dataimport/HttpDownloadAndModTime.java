@@ -46,6 +46,7 @@ public class HttpDownloadAndModTime implements DownloadAndModTime {
                 httpStatusCode = HttpStatus.SC_NOT_FOUND;
             }
         }
+
         connection.disconnect();
 
         URLStatus result;
@@ -166,72 +167,4 @@ public class HttpDownloadAndModTime implements DownloadAndModTime {
         }
     }
 
-    public static class URLStatus {
-
-        private final String url;
-        private final int responseCode;
-        private final LocalDateTime modTime;
-
-        public URLStatus(String url, int responseCode) {
-            this(url, responseCode, null);
-        }
-
-        public URLStatus(String url, int responseCode, LocalDateTime modTime) {
-            this.url = url;
-            this.responseCode = responseCode;
-            this.modTime = modTime;
-        }
-
-        public LocalDateTime getModTime() {
-            if (modTime==null) {
-                return LocalDateTime.MIN;
-            }
-            return modTime;
-        }
-
-        public boolean isOk() {
-            return HttpStatus.SC_OK == responseCode;
-        }
-
-        public int getStatusCode() {
-            return responseCode;
-        }
-
-        public String getActualURL() {
-            return url;
-        }
-
-        @Override
-        public String toString() {
-            return "URLStatus{" +
-                    "url='" + url + '\'' +
-                    ", responseCode=" + responseCode +
-                    ", modTime=" + modTime +
-                    '}';
-        }
-
-        @Override
-        public boolean equals(Object o) {
-            if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
-
-            URLStatus urlStatus = (URLStatus) o;
-
-            if (responseCode != urlStatus.responseCode) return false;
-            if (!url.equals(urlStatus.url)) return false;
-            return modTime.equals(urlStatus.modTime);
-        }
-
-        @Override
-        public int hashCode() {
-            int result = url.hashCode();
-            result = 31 * result + responseCode;
-            result = 31 * result + modTime.hashCode();
-            return result;
-        }
-
-        public boolean isRedirect() {
-            return responseCode==HttpStatus.SC_MOVED_PERMANENTLY || responseCode==HttpStatus.SC_MOVED_TEMPORARILY;
-        }
-    }
 }

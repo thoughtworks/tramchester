@@ -35,7 +35,7 @@ public class NaptanRemoteDataSourceConfig implements RemoteDataSourceConfig {
 
     @Override
     public String getDownloadFilename() {
-        return "Stops." + format;
+        return ""; // empty means use the filename from the data source
     }
 
     @Override

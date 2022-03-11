@@ -1,8 +1,8 @@
 package com.tramchester.integration;
 
 import com.tramchester.cloud.data.ClientForS3;
-import com.tramchester.dataimport.HttpDownloadAndModTime;
 import com.tramchester.dataimport.S3DownloadAndModTime;
+import com.tramchester.dataimport.URLStatus;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.testTags.S3Test;
 import org.apache.commons.io.FileUtils;
@@ -56,7 +56,7 @@ public class S3DownloaderTest {
     void shouldDownloadSomething() throws IOException {
         String url = "s3://tramchester2dist/testing/ForTestSupport.txt";
 
-        HttpDownloadAndModTime.URLStatus result = downloadAndModTime.getStatusFor(url);
+        URLStatus result = downloadAndModTime.getStatusFor(url);
         assertTrue(result.isOk());
 
         LocalDateTime modTime = result.getModTime();
