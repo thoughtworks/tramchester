@@ -6,55 +6,59 @@ logger Begin setup of tramchester server
 
 export USERDATA=http://169.254.169.254/latest/user-data
 
-wget -nv $USERDATA -O /tmp/userdata.txt
+userText=/tmp/userdata.txt
+wget -nv $USERDATA -O "$userText"
+
+export S3URL=https://s3-eu-west-1.amazonaws.com
 
 # extract from instance user data
-export PLACE=`cat /tmp/userdata.txt | grep ENV | cut -d = -f 2-`
-export BUILD=`cat /tmp/userdata.txt | grep BUILD | cut -d = -f 2-`
-export ARTIFACTSURL=`cat /tmp/userdata.txt | grep ARTIFACTSURL | cut -d = -f 2-`
-export TFGMAPIKEY=`cat /tmp/userdata.txt | grep TFGMAPIKEY | cut -d = -f 2-`
-export NESSUS_LINKING_KEY=`cat /tmp/userdata.txt | grep NESSUS_LINKING_KEY | cut -d = -f 2-`
+export PLACE=$(grep ENV "$userText" | cut -d = -f 2-)
+export BUILD=$(grep BUILD "$userText" | cut -d = -f 2-)
+export BUCKET=$(grep BUCKET "$userText" | cut -d = -f 2-)
+export TFGMAPIKEY=$(grep TFGMAPIKEY "$userText" | cut -d = -f 2-)
+export NESSUS_LINKING_KEY=$(grep NESSUS_LINKING_KEY "$userText" | cut -d = -f 2-)
 
-target=tramchester-1.0
+export ARTIFACTSURL=$S3URL/$BUCKET/dist/$BUILD
+
 
 if [ "$BUILD" == '' ]; then
         echo 'BUILD missing'
+        exit;
+fi
+if [ "$BUCKET" == '' ]; then
+        echo 'BUCKET missing'
         exit;
 fi
 if [ "$PLACE" == '' ]; then
         echo 'PLACE missing'
         exit;
 fi
-if [ "$ARTIFACTSURL" == '' ]; then
-        echo 'ARTIFACTSURL missing'
-        exit;
-fi
 
-logger Set up Web server Build: $BUILD Url: $ARTIFACTSURL Env: $PLACE
-
-# fetch and install the package
-distUrl=$ARTIFACTSURL/$BUILD/$target.zip
-dist=`basename $distUrl`
+logger Set up Web server Bucket: "$BUCKET" Build: "$BUILD" Url: "$ARTIFACTSURL" Env: "$PLACE"
 
 # set up overrides for server config so data is pulled from S3 at start up
-# TODO these could be s3:// urls
-export TRAM_DATAURL=$ARTIFACTSURL/$BUILD/tfgm_data.zip
-export NAPTAN_DATAURL=$ARTIFACTSURL/$BUILD/Stops.xml.zip
-export RAIL_DATAURL=$ARTIFACTSURL/$BUILD/rail_data.zip
-export NPTG_DATAURL=$ARTIFACTSURL/$BUILD/nptgcsv.zip
+export TRAM_DATAURL=s3://$BUCKET/dist/$BUILD/tfgm_data.zip
+export NAPTAN_DATAURL=s3://$BUCKET/dist/$BUILD/NaPTAN.xml.zip
+export RAIL_DATAURL=s3://$BUCKET/dist/$BUILD/rail_data.zip
+export NPTG_DATAURL=s3://$BUCKET/dist/$BUILD/nptgcsv.zip
 
-logger TRAM_DATAURL is $TRAM_DATAURL
-logger NAPTAN_DATAURL is $NAPTAN_DATAURL
-logger RAIL_DATAURL is $RAIL_DATAURL
-logger NPTG_DATAURL is $NPTG_DATAURL
+logger TRAM_DATAURL is "$TRAM_DATAURL"
+logger NAPTAN_DATAURL is "$NAPTAN_DATAURL"
+logger RAIL_DATAURL is "$RAIL_DATAURL"
+logger NPTG_DATAURL is "$NPTG_DATAURL"
 
 cd ~ec2-user || (logger Could not cd to ec2-user && exit)
 mkdir -p server
 cd server || (logger Could not cd to ec2-user/server && exit)
 
-logger Get $distUrl
-wget -nv $distUrl -O $dist
-unzip $dist || (logger Could not unzip from $dist from $distUrl && exit)
+# fetch and install the package
+target=tramchester-1.0
+distUrl=$ARTIFACTSURL/$target.zip
+dist=$(basename "$distUrl")
+
+logger Get "$distUrl"
+wget -nv "$distUrl" -O "$dist"
+unzip "$dist" || (logger Could not unzip from "$dist" from "$distUrl" && exit)
 
 # cloudwatch logs agent (NEW)
 logger set up amazon cloudwatch logs agent new
@@ -65,9 +69,9 @@ sudo /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl -a fetch-c
 logger cloud watch agent installed
 
 # download pre-built DB
-dbURL=$ARTIFACTSURL/$BUILD/database.zip
-logger Get DB from $dbURL
-wget -nv $dbURL -O database.zip
+dbURL=$ARTIFACTSURL/database.zip
+logger Get DB from "$dbURL"
+wget -nv "$dbURL" -O database.zip
 unzip database.zip
 
 # fix ownership
@@ -83,4 +87,4 @@ logger Start tramchester
 export JAVA_OPTS="-Xmx550m"
 sudo -E -u ec2-user bash ./$target/bin/start.sh &
 
-logger Finish Web bootstrap script for $BUILD and $PLACE
+logger Finish Web bootstrap script for "$BUILD" and "$PLACE"

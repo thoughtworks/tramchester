@@ -60,8 +60,8 @@
 								{"Ref":"bootstrapWebScript"}, "\n",
 							"# WAITURL=", {"Ref":"webDoneWaitHandle"}, "\n",
 							"# ENV=", {"Ref":"env"}, "\n",
-							"# ARTIFACTSURL=", {"Ref":"baseUrl"}, "/", {"Ref":"bucketName"}, "/dist\n",
 							"# BUILD=", {"Ref":"build"}, "\n",
+							"# BUCKET=", {"Ref":"bucketName"}, "\n",
 							"# NESSUS_LINKING_KEY=", {"Ref":"NESSUSLINKINGKEY"}, "\n",
 							"# TFGMAPIKEY=", {"Ref":"TFGMAPIKEY"}, "\n"
 						]
@@ -115,8 +115,8 @@
 							{"Ref":"bootstrapWebScript"}, "\n",
 							"# WAITURL=", {"Ref":"webDoneWaitHandle"}, "\n",
 							"# ENV=", {"Ref":"env"}, "\n",
-							"# ARTIFACTSURL=", {"Ref":"baseUrl"}, "/", {"Ref":"bucketName"}, "/dist\n",
 							"# BUILD=", {"Ref":"build"}, "\n" ,
+							"# BUCKET=", {"Ref":"bucketName"}, "\n",
 							"# NESSUS_LINKING_KEY=", {"Ref":"NESSUSLINKINGKEY"}, "\n" ,
 							"# TFGMAPIKEY=", {"Ref":"TFGMAPIKEY"}, "\n"
 						]

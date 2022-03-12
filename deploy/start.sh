@@ -1,7 +1,7 @@
 #!/bin/bash
 
 target=tramchester-1.0
-logger -s Start ./$target/bin/tramchester for $PLACE
+logger -s Start ./$target/bin/tramchester for "$PLACE"
 
 LOGFILE=/home/ec2-user/server/logs/tramchester_local.log
 

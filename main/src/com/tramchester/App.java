@@ -91,10 +91,12 @@ public class App extends Application<AppConfiguration>  {
     @Override
     public void initialize(Bootstrap<AppConfiguration> bootstrap) {
         logger.info("init bootstrap");
-        bootstrap.setConfigurationSourceProvider(
-                new SubstitutingSourceProvider(
-                        bootstrap.getConfigurationSourceProvider(),
-                        new EnvironmentVariableSubstitutor(false)));
+
+        final SubstitutingSourceProvider substitutingSourceProvider = new SubstitutingSourceProvider(
+                bootstrap.getConfigurationSourceProvider(),
+                new EnvironmentVariableSubstitutor(false));
+
+        bootstrap.setConfigurationSourceProvider(substitutingSourceProvider);
 
         bootstrap.addBundle(new AssetsBundle("/app", "/app", "index.html", "app"));
 
