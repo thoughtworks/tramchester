@@ -12,12 +12,14 @@ import org.slf4j.LoggerFactory;
 
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.stream.Stream;
 
 @LazySingleton
 public class NPTGDataLoader {
     private static final Logger logger = LoggerFactory.getLogger(NPTGDataLoader.class);
+    public static final String LOCALITIES_CSV = "Localities.csv";
     private final TramchesterConfig config;
     private boolean enabled;
     private final CsvMapper mapper;
@@ -44,13 +46,19 @@ public class NPTGDataLoader {
         }
         RemoteDataSourceConfig sourceConfig = config.getDataRemoteSourceConfig(DataSourceID.nptg);
         Path dataPath = sourceConfig.getDataPath();
-        return loadFor(dataPath, "Localities.csv");
+        return loadFor(dataPath, LOCALITIES_CSV);
     }
 
     private Stream<NPTGData> loadFor(Path dataPath, String filename) {
         Path filePath = dataPath.resolve(filename);
+        if (!Files.exists(filePath)) {
+            logger.error("Expected data file is missing: " + filePath.toAbsolutePath());
+            return Stream.empty();
+        }
+
         logger.info("Loading data from " + filePath.toAbsolutePath());
-        TransportDataFromCSVFile<NPTGData, NPTGData> dataLoader = new TransportDataFromCSVFile<>(filePath, NPTGData.class, mapper);
+        TransportDataFromCSVFile<NPTGData, NPTGData> dataLoader =
+                new TransportDataFromCSVFile<>(filePath, NPTGData.class, mapper);
 
         Stream<NPTGData> stream = dataLoader.load();
 

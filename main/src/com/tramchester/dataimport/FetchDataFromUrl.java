@@ -7,7 +7,6 @@ import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.DataSourceID;
 import com.tramchester.domain.time.ProvidesNow;
 import org.apache.commons.io.FileUtils;
-import org.apache.http.HttpStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -199,13 +198,17 @@ public class FetchDataFromUrl {
 
         while (status.isRedirect()) {
             String redirectUrl = status.getActualURL();
-            String message = String.format("Status code %s Following redirect to %s", status.getStatusCode(), redirectUrl);
-            if (status.getStatusCode()==HttpStatus.SC_MOVED_TEMPORARILY) {
-                logger.warn(message);
-            } else {
-                logger.error(message);
-            }
+            logger.warn(String.format("Status code %s Following redirect to %s", status.getStatusCode(), redirectUrl));
             status = httpDownloader.getStatusFor(redirectUrl);
+        }
+
+        String message = String.format("Status: %s final url: '%s'",
+                status.getStatusCode(), status.getActualURL());
+
+        if (status.isOk()) {
+            logger.info(message);
+        } else {
+            logger.error(message);
         }
 
         return status;

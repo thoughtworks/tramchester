@@ -69,7 +69,7 @@ public class Unzipper {
 
     private void extractEntryTo(Path targetDirectory, ZipEntry zipEntry, ZipInputStream zipInputStream) throws IOException {
         Path target = targetDirectory.resolve(zipEntry.getName());
-        logger.debug("Extracting entry " + toLogString(zipEntry));
+        logger.info("Extracting entry " + toLogString(zipEntry));
 
         String absolutePath = target.toAbsolutePath().toString();
         if (zipEntry.isDirectory()) {

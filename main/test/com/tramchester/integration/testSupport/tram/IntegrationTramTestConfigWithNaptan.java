@@ -11,9 +11,9 @@ public class IntegrationTramTestConfigWithNaptan extends IntegrationTramTestConf
         super();
     }
 
-    public IntegrationTramTestConfigWithNaptan(String dbName) {
-        super(dbName);
-    }
+//    public IntegrationTramTestConfigWithNaptan(String dbName) {
+//        super(dbName);
+//    }
 
     @Override
     public List<RemoteDataSourceConfig> getRemoteDataSourceConfig() {

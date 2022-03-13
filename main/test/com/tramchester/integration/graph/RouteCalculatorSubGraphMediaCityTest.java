@@ -18,7 +18,7 @@ import com.tramchester.graph.filters.ConfigurableGraphFilter;
 import com.tramchester.graph.search.RouteCalculator;
 import com.tramchester.integration.testSupport.RouteCalculatorTestFacade;
 import com.tramchester.integration.testSupport.tfgm.TFGMGTFSSourceTestConfig;
-import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfigWithNaptan;
+import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.repository.TransportData;
 import com.tramchester.testSupport.AdditionalTramInterchanges;
@@ -169,7 +169,7 @@ class RouteCalculatorSubGraphMediaCityTest {
         creator.create(Path.of("subgraph_mediacity_trams.dot"), MediaCityUK.fake(), 100, true);
     }
 
-    private static class SubgraphConfig extends IntegrationTramTestConfigWithNaptan {
+    private static class SubgraphConfig extends IntegrationTramTestConfig {
         public SubgraphConfig() {
             super("sub_mediacity_tramchester.db");
         }

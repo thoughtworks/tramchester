@@ -24,12 +24,12 @@ public class NPTGRepository {
     private static final Logger logger = LoggerFactory.getLogger(NPTGRepository.class);
 
     private final NPTGDataLoader dataLoader;
-    private final Map<String, NPTGData> entries;
+    private final Map<String, NPTGData> nptgDataMap;
 
     @Inject
     public NPTGRepository(NPTGDataLoader dataLoader) {
         this.dataLoader = dataLoader;
-        entries = new HashMap<>();
+        nptgDataMap = new HashMap<>();
     }
 
     @PostConstruct
@@ -39,21 +39,25 @@ public class NPTGRepository {
             return;
         }
         logger.info("Starting");
-        dataLoader.getData().forEach(item -> entries.put(item.getNptgLocalityCode(), item));
-        logger.info("Loaded " + entries.size() + " items ");
+        dataLoader.getData().forEach(item -> nptgDataMap.put(item.getNptgLocalityCode(), item));
+        if (nptgDataMap.isEmpty()) {
+            logger.error("Failed to load any data.");
+        } else {
+            logger.info("Loaded " + nptgDataMap.size() + " items ");
+        }
         logger.info("started");
     }
 
     @PreDestroy
     private void stop() {
-        entries.clear();
+        nptgDataMap.clear();
     }
 
     public NPTGData getByNptgCode(String nptgLocalityCode) {
-        return entries.get(nptgLocalityCode);
+        return nptgDataMap.get(nptgLocalityCode);
     }
 
     public boolean hasNptgCode(String code) {
-        return entries.containsKey(code);
+        return nptgDataMap.containsKey(code);
     }
 }
