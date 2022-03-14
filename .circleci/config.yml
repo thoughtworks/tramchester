@@ -120,6 +120,8 @@ jobs:
           path: ~/repo/build/test-results
       - store_artifacts:
           path: ~/repo/build/reports/tests
+      - store_artifacts:
+          path: ~/logs
   deployProd:
     docker:
     # specify the version you desire here

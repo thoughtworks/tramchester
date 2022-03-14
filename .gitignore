@@ -18,6 +18,7 @@ data/postcodes
 data/nptg
 diagrams
 data/cache**/
+data/test/testFile.txt
 testData/cache/
 *.db
 .envrc

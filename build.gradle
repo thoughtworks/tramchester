@@ -112,6 +112,7 @@ task cfnassist {
         ant.taskdef(name: 'cfnassist', classname: 'tw.com.ant.CfnAssistAntTask') {
             classpath {
                 fileset(dir: 'lib/cfnassist-1.2.85/lib/', includes: '*.jar')
+                dirset(dir: 'lib/cfnassist-1.2.85/conf/')
             }
         }
     }
@@ -209,7 +210,7 @@ task rail(type:JavaExec, dependsOn: 'webpack') {
 task gm(type:JavaExec, dependsOn: 'webpack') {
     mainClass = mainClassName
     classpath = sourceSets.main.runtimeClasspath
-    maxHeapSize = "3g"
+    maxHeapSize = "1g"
     args 'server', 'config/gm.yml'
 }
 
