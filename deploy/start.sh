@@ -8,7 +8,7 @@ LOGFILE=/home/ec2-user/server/logs/tramchester_local.log
 if [ "$PLACE" == 'UAT' ]; then
   configFile=gm.yml
 else
-  configFile=local.yml
+  configFile=gm.yml
 fi
 
 CONFIG=./$target/config/$configFile
