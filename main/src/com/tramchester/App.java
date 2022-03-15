@@ -6,15 +6,15 @@ import com.tramchester.cloud.CloudWatchReporter;
 import com.tramchester.cloud.ConfigFromInstanceUserData;
 import com.tramchester.cloud.SendMetricsToCloudWatch;
 import com.tramchester.cloud.SignalToCloudformationReady;
-import com.tramchester.livedata.cloud.UploadsLiveData;
 import com.tramchester.config.AppConfiguration;
 import com.tramchester.config.LiveDataConfig;
 import com.tramchester.healthchecks.LiveDataJobHealthCheck;
 import com.tramchester.livedata.CountsUploadedLiveData;
 import com.tramchester.livedata.LiveDataUpdater;
+import com.tramchester.livedata.cloud.UploadsLiveData;
+import com.tramchester.livedata.repository.DueTramsRepository;
 import com.tramchester.metrics.CacheMetrics;
 import com.tramchester.metrics.RegistersMetricsWithDropwizard;
-import com.tramchester.livedata.repository.DueTramsRepository;
 import com.tramchester.repository.PlatformMessageRepository;
 import com.tramchester.repository.VersionRepository;
 import com.tramchester.resources.GraphDatabaseDependencyMarker;
@@ -34,7 +34,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.servlet.DispatcherType;
+import java.util.Arrays;
 import java.util.EnumSet;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
@@ -62,13 +64,14 @@ public class App extends Application<AppConfiguration>  {
     }
 
     public static void main(String[] args) {
-        logEnvironmentalVars();
+        logEnvironmentalVars(Arrays.asList("PLACE", "BUILD", "JAVA_OPTS", "BUCKET"));
         Runtime.getRuntime().addShutdownHook(new Thread(() ->
             {
                 logger.warn("Shutting down");
                 LogManager.shutdown();
             }));
         try {
+            logArgs(args);
             new App().run(args);
         } catch (Exception e) {
             logger.error("Exception, will shutdown ", e);
@@ -77,13 +80,23 @@ public class App extends Application<AppConfiguration>  {
         }
     }
 
-    private static void logEnvironmentalVars() {
+    private static void logArgs(String[] args) {
+        StringBuilder msg = new StringBuilder();
+        for (int i = 0; i < args.length; i++) {
+            if (i>0) {
+                msg.append(" ");
+            }
+            msg.append(args[i]);
+        }
+        logger.info("Args were: " + msg);
+    }
+
+    private static void logEnvironmentalVars(List<String> names) {
         Map<String, String> vars = System.getenv();
         vars.forEach((name,value) -> {
-            if (("TFGMAPIKEY".equals(name))) {
-                value = "****";
+            if (names.contains(name)) {
+                logger.info(format("Environment %s=%s", name, value));
             }
-            logger.info(format("Environment %s=%s", name, value));
         });
         logger.info("Logged environmental vars");
     }

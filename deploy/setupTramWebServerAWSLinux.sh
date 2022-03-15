@@ -84,7 +84,7 @@ fi
 
 # start 
 logger Start tramchester
-export JAVA_OPTS="-Xmx550m"
+export JAVA_OPTS="-Xmx1550m"
 sudo -E -u ec2-user bash ./$target/bin/start.sh &
 
 logger Finish Web bootstrap script for "$BUILD" and "$PLACE"

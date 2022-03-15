@@ -21,7 +21,7 @@
 	"instanceProfile":{"Type":"String", "Description":"::InstanceProfile"} }, 
 	"Mappings":{
 	"environMap":{
-		"Dev":{ "keyName":"tramchester2", "webSize":"t2.micro" }, 
+		"Dev":{ "keyName":"tramchester2", "webSize":"t3.medium" },
 		"UAT":{ "keyName":"tramchester2", "webSize":"t2.micro" }, 
 		"ProdGreen":{ "keyName":"tramchester2", "webSize":"t2.micro" },
 		"ProdBlue":{ "keyName":"tramchester2", "webSize":"t2.micro" }
