@@ -5,7 +5,7 @@ logger -s Start ./$target/bin/tramchester for "$PLACE"
 
 LOGFILE=/home/ec2-user/server/logs/tramchester_local.log
 
-if [ "$PLACE" == 'Dev' ]; then
+if [ "$PLACE" == 'UAT' ]; then
   configFile=gm.yml
 else
   configFile=local.yml
