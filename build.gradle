@@ -84,7 +84,6 @@ dependencies {
             'io.dropwizard:dropwizard-testing:' + dropwizardVersion,
             'org.easymock:easymock:4.3',
             'org.seleniumhq.selenium:selenium-java:3.141.59',
-            'io.appium:java-client:7.6.0',
             'org.hamcrest:hamcrest:2.2'
 
 }
@@ -383,7 +382,7 @@ task buildGraphTest(type: Test, dependsOn: compileJava) {
     }
 }
 
-task appium(type: Test) {
+task acceptance(type: Test) {
     dependsOn 'allowhost'
     dependsOn 'compileJava'
     dependsOn 'webpack'
@@ -400,7 +399,7 @@ task appium(type: Test) {
     }
 }
 
-task localAppium(type: Test, dependsOn: ['webpack', 'compileJava']) {
+task localAcceptance(type: Test, dependsOn: ['webpack', 'compileJava']) {
     minHeapSize = "1000m"
     maxHeapSize = "2500m"
     useJUnitPlatform()

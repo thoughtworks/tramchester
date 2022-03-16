@@ -107,7 +107,7 @@ jobs:
             source workspace/release_num.txt
             echo release number is $RELEASE_NUMBER
             export LANG="en_GB.UTF-8"
-            gradle appium --no-daemon
+            gradle acceptance --no-daemon
       - run:
           name: deployUAT
           environment:

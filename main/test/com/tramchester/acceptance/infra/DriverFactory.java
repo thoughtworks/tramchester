@@ -27,7 +27,6 @@ public class DriverFactory {
         return switch (browserName) {
             case ProvidesFirefoxDriver.Name -> new ProvidesFirefoxDriver(enableGeo);
             case ProvidesChromeDriver.Name -> new ProvidesChromeDriver(enableGeo);
-            case ProvidesChromeOnAndroid.Name -> new ProvidesChromeOnAndroid();
             default -> throw new RuntimeException("Unknown browser " + browserName);
         };
     }
