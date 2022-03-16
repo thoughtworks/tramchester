@@ -46,6 +46,10 @@
     list-style-type:circle;
 }
 
+.lineClass {
+    
+}
+
 /* NOTE: Dont set line width here as leaflet will silently fail to update it */
 
 /* Altincham to/from Bury */

@@ -6,13 +6,11 @@ import com.tramchester.acceptance.infra.ProvidesDriver;
 import com.tramchester.acceptance.pages.App.AppPage;
 import com.tramchester.acceptance.pages.App.Stage;
 import com.tramchester.acceptance.pages.App.TestResultSummaryRow;
-import com.tramchester.testSupport.reference.KnownTramRoute;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.integration.resources.DataVersionResourceTest;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.TramStations;
 import io.dropwizard.testing.junit5.DropwizardExtensionsSupport;
-import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -21,6 +19,7 @@ import org.openqa.selenium.Cookie;
 
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
+import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.Comparator;
@@ -29,8 +28,6 @@ import java.util.List;
 import java.util.stream.Stream;
 
 import static com.tramchester.integration.repository.TransportDataFromFilesTramTest.NUM_TFGM_TRAM_STATIONS;
-import static com.tramchester.testSupport.reference.KnownTramRoute.AltrinchamPiccadilly;
-import static com.tramchester.testSupport.reference.KnownTramRoute.VictoriaWythenshaweManchesterAirport;
 import static com.tramchester.testSupport.reference.TramStations.*;
 import static org.hamcrest.CoreMatchers.hasItems;
 import static org.hamcrest.CoreMatchers.not;
@@ -53,11 +50,8 @@ class AppUserJourneyTest extends UserJourneyTest {
     private final String deansgate = TramStations.Deansgate.getName();
 
     // useful consts, keep around as can swap when timetable changes
-
-    private static final String altyToBuryClass = "RouteClassGreenLine";
+    @SuppressWarnings("unused")
     private static final String altyToBuryLineName = "Altrincham - Manchester - Bury";
-
-    public static final String altyToPiccClass = getClassFor(AltrinchamPiccadilly);
     public static final String altyToPicLineName = "Altrincham - Piccadilly";
 
     private LocalDate when;
@@ -228,7 +222,7 @@ class AppUserJourneyTest extends UserJourneyTest {
         Stage stage = stages.get(0);
 
         validateAStage(stage, firstResult.getDepartTime(), "Board Tram", altrincham, 1,
-                altyToPiccClass, altyToPicLineName, Piccadilly.getName(), 9);
+                altyToPicLineName, Piccadilly.getName(), 9);
     }
 
     @ParameterizedTest(name = "{displayName} {arguments}")
@@ -327,7 +321,8 @@ class AppUserJourneyTest extends UserJourneyTest {
         TramTime updatedDepartTime = updatedResults.get(0).getDepartTime();
         assertTrue(updatedDepartTime.isValid());
         assertTrue(updatedDepartTime.isBefore(firstDepartureTime), "should be before current first departure time");
-        assertTrue(TramTime.diffenceAsMinutes(firstDepartureTime, updatedDepartTime)<60,
+        Duration difference = TramTime.difference(firstDepartureTime, updatedDepartTime);
+        assertTrue(difference.compareTo(Duration.ofMinutes(60)) < 0,
                 "Too much gap between " + firstDepartureTime + " and update: " + updatedDepartTime);
     }
 
@@ -357,7 +352,8 @@ class AppUserJourneyTest extends UserJourneyTest {
         TramTime updatedDepartTime = updatedResults.get(0).getDepartTime();
         assertTrue(updatedDepartTime.isValid());
         assertTrue(updatedDepartTime.isAfter(lastDepartureTime), "should be after current departure time");
-        assertTrue(TramTime.diffenceAsMinutes(lastDepartureTime, updatedDepartTime)<60,
+        Duration difference = TramTime.difference(lastDepartureTime, updatedDepartTime);
+        assertTrue(difference.compareTo(Duration.ofMinutes(60)) < 0,
                 "Too much gap between " + lastDepartureTime + " and update: " + updatedDepartTime);
     }
 
@@ -400,13 +396,12 @@ class AppUserJourneyTest extends UserJourneyTest {
         Stage secondStage = stages.get(1);
 
         validateAStage(firstStage, firstResult.getDepartTime(), "Board Tram", altrincham, 1,
-                altyToPiccClass, altyToPicLineName,
+                altyToPicLineName,
                 Piccadilly.getName(), 7);
 
         // Too timetable dependent?
-        String lineClass = getClassFor(VictoriaWythenshaweManchesterAirport);
         validateAStage(secondStage, TramTime.of(10,29), "Change Tram", TraffordBar.getName(),
-                2, lineClass, "Victoria - Wythenshawe - Manchester Airport",
+                2, "Victoria - Wythenshawe - Manchester Airport",
                 TramStations.ManAirport.getName(), 17);
 
         assertEquals(TraffordBar.getName(), secondStage.getActionStation());
@@ -507,7 +502,8 @@ class AppUserJourneyTest extends UserJourneyTest {
         appPage.setArriveBy(arriveBy);
     }
 
-    private static void assertJourney(AppPage appPage, String start, String dest, String time, LocalDate date, boolean arriveBy) {
+    private static void assertJourney(AppPage appPage, String start, String dest, String time, LocalDate date,
+                                      boolean arriveBy) {
         assertEquals(start, appPage.getFromStop());
         assertEquals(dest, appPage.getToStop());
         assertEquals(time, appPage.getTime());
@@ -516,20 +512,15 @@ class AppUserJourneyTest extends UserJourneyTest {
     }
 
     public static void validateAStage(Stage stage, TramTime departTime, String action, String actionStation, int platform,
-                                      String lineClass, String lineName, String headsign, int passedStops) {
+                                      String lineName, String headsign, int passedStops) {
         assertTrue(departTime.isValid(),"departTime not valid");
         assertEquals(departTime, stage.getDepartTime(), "departTime");
         assertEquals(action, stage.getAction(), "action");
         assertEquals(actionStation, stage.getActionStation(), "actionStation");
         assertEquals(platform, stage.getPlatform(), "platform");
-        assertEquals(lineName, stage.getLine(lineClass), "lineName");
+        assertEquals(lineName, stage.getLine(), "lineName");
         assertEquals(headsign, stage.getHeadsign(), "headsign");
         assertEquals(passedStops, stage.getPassedStops(), "passedStops");
-    }
-
-    @NotNull
-    private static String getClassFor(KnownTramRoute knownTramRoute) {
-        return "RouteClass"+ knownTramRoute.shortName().replaceAll(" ","");
     }
 
 }

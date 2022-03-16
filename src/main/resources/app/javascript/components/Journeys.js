@@ -92,10 +92,11 @@ function actionFormatter(value, key, row) {
 
 function lineClass(value, key, row) {
     const prefix = 'RouteClass'
+    var result = prefix + row.mode;
     if (row.mode=='Tram') {
-        return prefix + row.route.shortName.replace(/\s+/g, '');
+        result = prefix + row.route.shortName.replace(/\s+/g, '');
     }
-    return prefix + row.mode;
+    return [ result, 'lineClass'];
 }
 
 function earliestDepartTime(journeys) {

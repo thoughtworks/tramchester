@@ -39,8 +39,8 @@ public class Stage {
         return getFieldText("headsign");
     }
 
-    public String getLine(String lineClassName) {
-        return getFieldText(lineClassName);
+    public String getLine() {
+        return getFieldText("lineClass");
     }
 
     public int getPassedStops() {

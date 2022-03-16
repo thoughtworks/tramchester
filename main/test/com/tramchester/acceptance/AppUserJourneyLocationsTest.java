@@ -165,12 +165,13 @@ public class AppUserJourneyLocationsTest extends UserJourneyTest {
         assertEquals(-1, firstStage.getPlatform(), "platform");
 
         // hidden for walking stages
-        assertEquals("", firstStage.getLine("RouteClassWalk"), "lineName");
+        //assertEquals("", firstStage.getLine("RouteClassWalk"), "lineName");
+        assertEquals("", firstStage.getLine(), "lineName");
 
         Stage secondStage = stages.get(1);
         TramTime departTime = TramTime.of(10,25);
         validateAStage(secondStage, departTime, "Board Tram", TramStations.Altrincham.getName(), 1,
-                AppUserJourneyTest.altyToPiccClass, AppUserJourneyTest.altyToPicLineName, "Piccadilly", 9);
+                AppUserJourneyTest.altyToPicLineName, "Piccadilly", 9);
     }
 
     private AppPage prepare(ProvidesDriver providesDriver) throws IOException {
