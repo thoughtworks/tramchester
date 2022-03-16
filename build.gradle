@@ -83,7 +83,7 @@ dependencies {
             'org.assertj:assertj-core:3.21.0',
             'io.dropwizard:dropwizard-testing:' + dropwizardVersion,
             'org.easymock:easymock:4.3',
-            'org.seleniumhq.selenium:selenium-java:3.141.59',
+            'org.seleniumhq.selenium:selenium-java:4.1.2',
             'org.hamcrest:hamcrest:2.2'
 
 }
