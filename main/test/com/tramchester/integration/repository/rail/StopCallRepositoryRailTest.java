@@ -61,8 +61,8 @@ public class StopCallRepositoryRailTest {
         assertFalse(costs.isEmpty());
 
         // was getting costs > 23 hours due to crossing midnight
-        assertEquals(Duration.ofMinutes(13).plusSeconds(36), costs.average(), costs.toString());
-        assertMinutesEquals(14, costs.max(), costs.toString());
+        assertEquals(Duration.ofMinutes(14).plusSeconds(36), costs.average(), costs.toString());
+        assertMinutesEquals(16, costs.max(), costs.toString());
     }
 
     @Disabled("Data does contain a zero cost trip X13514:20220124:20220127")

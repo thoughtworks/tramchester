@@ -8,6 +8,9 @@ import io.dropwizard.Configuration;
 import java.nio.file.Path;
 import java.util.Set;
 
+// https://www.raildeliverygroup.com/our-services/rail-data/timetable-data.html
+// https://data.atoc.org/how-to
+
 public class RailAppConfig extends Configuration implements RailConfig {
 
     private final Path dataPath;

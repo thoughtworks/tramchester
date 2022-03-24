@@ -2,6 +2,7 @@ package com.tramchester.integration.repository.rail;
 
 import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
+import com.tramchester.dataimport.rail.reference.TrainOperatingCompanies;
 import com.tramchester.domain.places.InterchangeStation;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.id.IdFor;
@@ -59,9 +60,11 @@ public class RouteInterchangesRailTest {
         Station piccadilly = ManchesterPiccadilly.from(stationRepository);
         Station euston = LondonEuston.from(stationRepository);
 
-        String routeShortName = format("%s service from %s to %s", "VT", piccadilly.getName(), euston.getName());
+        String operatorName = TrainOperatingCompanies.VT.getName();
 
-        String longName = "VT service from Manchester Piccadilly Rail Station to London Euston Rail Station via Stockport " +
+        String routeShortName = format("%s service from %s to %s", operatorName, piccadilly.getName(), euston.getName());
+
+        String longName = operatorName + " service from Manchester Piccadilly Rail Station to London Euston Rail Station via Stockport " +
                 "Rail Station, Macclesfield Rail Station, Stoke-on-Trent Rail Station, Milton Keynes Central Rail Station";
 
 //        List<Station> callingPoints = Arrays.asList(piccadilly,
@@ -109,14 +112,15 @@ public class RouteInterchangesRailTest {
         Station hale = Hale.from(stationRepository);
         Station delamere = Delamere.from(stationRepository);
 
-        String routeShortName = format("%s service from %s to %s", "NT", piccadilly.getName(), chester.getName());
+        String routeShortName = format("%s service from %s to %s",
+                TrainOperatingCompanies.NT.getName(), piccadilly.getName(), chester.getName());
 
         List<Route> manchesterToChesterRoutes = piccadilly.getPickupRoutes().stream().
                 filter(route -> route.getShortName().equals(routeShortName)).
                 filter(route -> route.getName().contains(delamere.getName()) && route.getName().contains(hale.getName())).
                 collect(Collectors.toList());
 
-        assertFalse(manchesterToChesterRoutes.isEmpty());
+        assertFalse(manchesterToChesterRoutes.isEmpty(), "no routes found");
 
         IdFor<Route> manchesterToChester = manchesterToChesterRoutes.get(0).getId();
 
@@ -126,7 +130,7 @@ public class RouteInterchangesRailTest {
 
         RouteStation delamereRouteStation = stationRepository.getRouteStationById(RouteStation.createId(delamere.getId(),
                 manchesterToChester));
-        assertMinutesEquals(20, routeInterchanges.costToInterchange(delamereRouteStation));
+        assertMinutesEquals(19, routeInterchanges.costToInterchange(delamereRouteStation));
 
     }
 }

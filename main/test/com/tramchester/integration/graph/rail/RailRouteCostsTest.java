@@ -101,8 +101,8 @@ public class RailRouteCostsTest {
 
     @Test
     void shouldGetApproxCostCreweAndMiltonKeeny() throws InvalidDurationException {
-        assertEquals(Duration.ofHours(1).plusMinutes(16), routeCostCalculator.getAverageCostBetween(txn, crewe, miltonKeynes, date));
-        assertEquals(Duration.ofHours(1).plusMinutes(16), routeCostCalculator.getMaxCostBetween(txn, crewe, miltonKeynes, date));
+        assertEquals(Duration.ofHours(1).plusMinutes(13), routeCostCalculator.getAverageCostBetween(txn, crewe, miltonKeynes, date));
+        assertEquals(Duration.ofHours(1).plusMinutes(13), routeCostCalculator.getMaxCostBetween(txn, crewe, miltonKeynes, date));
     }
 
     @Test
@@ -113,16 +113,16 @@ public class RailRouteCostsTest {
 
     @Test
     void shouldGetApproxCostBetweenManPicadillyAndLondonEuston() throws InvalidDurationException {
-        assertEquals(Duration.ofHours(2).plusMinutes(19), routeCostCalculator.getAverageCostBetween(txn, manPicc, londonEuston, date));
-        assertEquals(Duration.ofHours(2).plusMinutes(21), routeCostCalculator.getMaxCostBetween(txn, manPicc, londonEuston, date));
+        assertEquals(Duration.ofHours(2).plusMinutes(15), routeCostCalculator.getAverageCostBetween(txn, manPicc, londonEuston, date));
+        assertEquals(Duration.ofHours(2).plusMinutes(15), routeCostCalculator.getMaxCostBetween(txn, manPicc, londonEuston, date));
     }
 
     @Test
     void shouldGetApproxCostBetweenAltrinchamAndLondonEuston() throws InvalidDurationException {
         Station altrincham = Altrincham.from(stationRepository);
 
-        assertEquals(Duration.ofHours(2).plusMinutes(27), routeCostCalculator.getAverageCostBetween(txn, altrincham, londonEuston, date));
-        assertEquals(Duration.ofHours(2).plusMinutes(30), routeCostCalculator.getMaxCostBetween(txn, altrincham, londonEuston, date));
+        assertEquals(Duration.ofHours(2).plusMinutes(24), routeCostCalculator.getAverageCostBetween(txn, altrincham, londonEuston, date));
+        assertEquals(Duration.ofHours(2).plusMinutes(24), routeCostCalculator.getMaxCostBetween(txn, altrincham, londonEuston, date));
 
     }
 

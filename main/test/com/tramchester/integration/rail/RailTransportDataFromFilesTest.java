@@ -4,6 +4,7 @@ import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.dataimport.rail.reference.TrainOperatingCompanies;
 import com.tramchester.domain.*;
+import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.id.StringIdFor;
@@ -187,7 +188,7 @@ public class RailTransportDataFromFilesTest {
                 filter(stopCalls -> stopCalls.getLegs(false).stream().anyMatch(stopLeg -> stopLeg.getCost().isZero())).
                 collect(Collectors.toSet());
 
-        assertEquals(55, tripWithZeroCostLegs.size(), tripWithZeroCostLegs.toString());
+        assertEquals(69, tripWithZeroCostLegs.size(), tripWithZeroCostLegs.toString());
 
     }
 
@@ -234,10 +235,14 @@ public class RailTransportDataFromFilesTest {
         assertEquals(GTFSPickupDropoffType.None, firstStopCall.getDropoffType());
         assertEquals(GTFSPickupDropoffType.Regular, firstStopCall.getPickupType());
 
-        assertEquals(7, stops.numberOfCallingPoints());
+        final int expectedCalls = 6;
+        final int expectedPassedStops = 21;
 
-        // 19 is including passed stops, 7 otherwise
-        assertEquals(19, stops.totalNumber());
+        assertEquals(expectedCalls, stops.numberOfCallingPoints(),
+                "wrong number of stops " + HasId.asIds(stops.getStationSequence(false)));
+
+        // 21 is including passed stops, 6 otherwise
+        assertEquals(expectedPassedStops, stops.totalNumber());
 
         final StopCall lastStopCall = stops.getLastStop();
         assertEquals(endStation, lastStopCall.getStation());
@@ -245,8 +250,8 @@ public class RailTransportDataFromFilesTest {
         assertEquals(GTFSPickupDropoffType.None, lastStopCall.getPickupType());
 
         // 19 is including passed stops, 7 otherwise
-        assertEquals(7, stops.getStationSequence(false).size());
-        assertEquals(19, stops.getStationSequence(true).size());
+        assertEquals(expectedCalls, stops.getStationSequence(false).size());
+        assertEquals(expectedPassedStops, stops.getStationSequence(true).size());
 
         // 2 if including passed stop, 0 otherwise
         assertEquals(0, stops.getStationSequence(false).stream().filter(station -> !station.isActive()).count());
@@ -372,7 +377,7 @@ public class RailTransportDataFromFilesTest {
 
         assertEquals(routes.size(), uniqueCallingPoints.size());
 
-        assertEquals(59, routes.size(), routes.toString());
+        assertEquals(47, routes.size(), routes.toString());
     }
 
     @Test
