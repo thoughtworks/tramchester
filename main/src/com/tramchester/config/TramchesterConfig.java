@@ -14,7 +14,7 @@ import java.util.stream.Collectors;
 
 public abstract class TramchesterConfig extends Configuration implements HasRemoteDataSourceConfig, HasGraphDBConfig {
 
-    public static final ZoneId TimeZone = ZoneId.of("Europe/London");
+    public static final ZoneId TimeZoneId = ZoneId.of("Europe/London");
 
     private final Map<DataSourceID, TransportDataSourceConfig> dataSources;
 

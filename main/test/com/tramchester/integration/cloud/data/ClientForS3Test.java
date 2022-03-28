@@ -19,9 +19,7 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.ZoneOffset;
+import java.time.*;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
@@ -163,14 +161,15 @@ public class ClientForS3Test {
 
         s3Waiter.waitUntilObjectExists(HeadObjectRequest.builder().bucket(BUCKET).key(key).build());
 
-        ResponseInputStream<GetObjectResponse> stream = awsS3.getObject(GetObjectRequest.builder().bucket(BUCKET).key(key).build());
+        ResponseInputStream<GetObjectResponse> stream = awsS3.getObject(
+                GetObjectRequest.builder().bucket(BUCKET).key(key).build());
         Instant instantFromS3 = stream.response().lastModified();
+        ZonedDateTime dateTimeFromS3 = instantFromS3.atZone(TramchesterConfig.TimeZoneId);
         stream.close();
 
         LocalDateTime modTime = clientForS3.getModTimeFor(format("s3://%s/%s", BUCKET, key));
 
-        // TODO Is the zone offset correct here?
-        assertEquals(instantFromS3, modTime.toInstant(ZoneOffset.UTC));
+        assertEquals(dateTimeFromS3.toLocalDateTime(), modTime);
     }
 
     @Test

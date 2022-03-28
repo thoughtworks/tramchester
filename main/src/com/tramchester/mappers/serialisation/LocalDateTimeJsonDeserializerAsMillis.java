@@ -21,6 +21,6 @@ public class LocalDateTimeJsonDeserializerAsMillis extends JsonDeserializer<Loca
         JsonNode node = oc.readTree(jsonParser);
 
         long millis = Long.parseLong(node.asText());
-        return Instant.ofEpochMilli(millis).atZone(TramchesterConfig.TimeZone).toLocalDateTime();
+        return Instant.ofEpochMilli(millis).atZone(TramchesterConfig.TimeZoneId).toLocalDateTime();
     }
 }

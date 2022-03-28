@@ -236,7 +236,7 @@ public class FetchDataFromUrl {
 
     private LocalDateTime getFileModLocalTime(Path destination) {
         long localModMillis = destination.toFile().lastModified();
-        return LocalDateTime.ofInstant(Instant.ofEpochSecond(localModMillis  / 1000), TramchesterConfig.TimeZone);
+        return LocalDateTime.ofInstant(Instant.ofEpochSecond(localModMillis  / 1000), TramchesterConfig.TimeZoneId);
     }
 
     public static class Ready {

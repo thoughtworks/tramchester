@@ -100,7 +100,7 @@ public class TestEnv {
     }
 
     public static LocalDateTime LocalNow() {
-        return LocalDateTime.now(TestConfig.TimeZone);
+        return LocalDateTime.now(TestConfig.TimeZoneId);
     }
 
     static {

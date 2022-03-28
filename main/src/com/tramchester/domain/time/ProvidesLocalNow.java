@@ -8,10 +8,10 @@ import java.time.*;
 @LazySingleton
 public class ProvidesLocalNow implements ProvidesNow {
 
-    private final Clock clock = Clock.system(TramchesterConfig.TimeZone);
+    private final Clock clock = Clock.system(TramchesterConfig.TimeZoneId);
 
     private LocalDateTime getLocalNow() {
-        return ZonedDateTime.now(TramchesterConfig.TimeZone).toLocalDateTime();
+        return ZonedDateTime.now(TramchesterConfig.TimeZoneId).toLocalDateTime();
     }
 
     @Override

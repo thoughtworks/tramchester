@@ -13,7 +13,7 @@ public class LocalDateTimeJsonSerializeAsMillis extends JsonSerializer<LocalDate
     // used for recent journey cookies
     @Override
     public void serialize(LocalDateTime time, JsonGenerator gen, SerializerProvider arg2) throws IOException {
-        long millis = time.atZone(TramchesterConfig.TimeZone).toInstant().toEpochMilli();
+        long millis = time.atZone(TramchesterConfig.TimeZoneId).toInstant().toEpochMilli();
         gen.writeNumber(millis);
     }
 }

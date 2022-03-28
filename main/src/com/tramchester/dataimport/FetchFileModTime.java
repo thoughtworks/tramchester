@@ -11,7 +11,7 @@ public class FetchFileModTime {
 
     public LocalDateTime getFor(Path filePath) {
         long localModMillis = filePath.toFile().lastModified();
-        return LocalDateTime.ofInstant(Instant.ofEpochSecond(localModMillis  / 1000), TramchesterConfig.TimeZone);
+        return LocalDateTime.ofInstant(Instant.ofEpochSecond(localModMillis  / 1000), TramchesterConfig.TimeZoneId);
     }
 
     public LocalDateTime getFor(HasDataPath config) {

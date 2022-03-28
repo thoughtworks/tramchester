@@ -39,7 +39,7 @@ public class LiveDataParser {
     private static final String NOT_IN_SERVICE = "Not in Service";
     private static final List<String> NotADestination = Arrays.asList("See Tram Front", NOT_IN_SERVICE);
 
-    private final TimeZone timeZone = TimeZone.getTimeZone(TramchesterConfig.TimeZone);
+    private final TimeZone timeZone = TimeZone.getTimeZone(TramchesterConfig.TimeZoneId);
 
     private final TramStationByName tramStationByName;
     private final StationRepository stationRepository;
@@ -176,7 +176,7 @@ public class LiveDataParser {
     private LocalDateTime getStationUpdateTime(String dateString) {
         Instant instanceOfUpdate = Instant.from(ISO_INSTANT.parse(dateString));
 
-        ZonedDateTime zonedDateTime = instanceOfUpdate.atZone(TramchesterConfig.TimeZone);
+        ZonedDateTime zonedDateTime = instanceOfUpdate.atZone(TramchesterConfig.TimeZoneId);
         LocalDateTime localDateTime = zonedDateTime.toLocalDateTime();
 
         // WORKAROUND - feed always contains 'Z' at end of date/time even though feed actually switches to BST

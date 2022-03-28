@@ -142,7 +142,7 @@ class LiveDataParserTest extends EasyMockSupport {
         assertMinutesEquals(12, dueTram.getWait());
         assertEquals("Single",dueTram.getCarriages());
 
-        ZonedDateTime expectedDateA = ZonedDateTime.of(LocalDateTime.of(2017, 11, 29, 11, 45), TramchesterConfig.TimeZone);
+        ZonedDateTime expectedDateA = ZonedDateTime.of(LocalDateTime.of(2017, 11, 29, 11, 45), TramchesterConfig.TimeZoneId);
         assertEquals(expectedDateA.toLocalDateTime(), departureInfoA.getLastUpdate());
 
         // WORKAROUND - Live data erronously gives timestamps as 'UTC'/'Z' even though they switch to DST/BST
@@ -150,7 +150,7 @@ class LiveDataParserTest extends EasyMockSupport {
         assertEquals("234", departureInfoB.getDisplayId());
 
         assertEquals(Lines.Airport, departureInfoB.getLine());
-        ZonedDateTime expectedDateB = ZonedDateTime.of(LocalDateTime.of(2017, 6, 29, 13, 55), TramchesterConfig.TimeZone);
+        ZonedDateTime expectedDateB = ZonedDateTime.of(LocalDateTime.of(2017, 6, 29, 13, 55), TramchesterConfig.TimeZoneId);
         assertEquals(expectedDateB.toLocalDateTime(), departureInfoB.getLastUpdate());
         assertEquals(LineDirection.Incoming, departureInfoB.getDirection());
     }

@@ -91,7 +91,7 @@ public class HttpDownloadAndModTime implements DownloadAndModTime {
 
     @NotNull
     private LocalDateTime getLocalDateTime(long serverModMillis) {
-        return LocalDateTime.ofInstant(Instant.ofEpochSecond(serverModMillis / 1000), TramchesterConfig.TimeZone);
+        return LocalDateTime.ofInstant(Instant.ofEpochSecond(serverModMillis / 1000), TramchesterConfig.TimeZoneId);
     }
 
     @Override

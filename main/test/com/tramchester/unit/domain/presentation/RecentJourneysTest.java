@@ -54,7 +54,7 @@ class RecentJourneysTest {
         RecentJourneys result = RecentJourneys.decodeCookie(mapper, cookie);
 
         long longValue = 1541456199236L;
-        LocalDateTime expected = Instant.ofEpochMilli(longValue).atZone(TramchesterConfig.TimeZone).toLocalDateTime();
+        LocalDateTime expected = Instant.ofEpochMilli(longValue).atZone(TramchesterConfig.TimeZoneId).toLocalDateTime();
 
         Assertions.assertEquals(1,result.getRecentIds().size());
         result.getRecentIds().contains(new Timestamped("id",expected));

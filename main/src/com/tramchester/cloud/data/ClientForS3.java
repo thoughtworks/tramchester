@@ -325,7 +325,7 @@ public class ClientForS3 {
         S3Object s3Object = getS3ObjectFor(url);
 
         Instant lastModified = s3Object.lastModified();
-        return LocalDateTime.ofInstant(lastModified, TramchesterConfig.TimeZone);
+        return LocalDateTime.ofInstant(lastModified, TramchesterConfig.TimeZoneId);
     }
 
     private S3Object getS3ObjectFor(String url) {

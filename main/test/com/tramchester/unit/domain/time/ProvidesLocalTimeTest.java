@@ -15,7 +15,7 @@ class ProvidesLocalTimeTest {
 
         LocalDateTime dateTime = providesLocalNow.getDateTime();
         // not great
-        Assertions.assertEquals(dateTime.atZone(TestConfig.TimeZone).toLocalDateTime(), dateTime);
+        Assertions.assertEquals(dateTime.atZone(TestConfig.TimeZoneId).toLocalDateTime(), dateTime);
 
     }
 }
