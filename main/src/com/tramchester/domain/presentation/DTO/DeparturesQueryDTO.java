@@ -18,10 +18,10 @@ public class DeparturesQueryDTO {
     @JsonProperty("time")
     private LocalTime time;
 
-    @JsonProperty("startType")
+    @JsonProperty("locationType")
     private LocationType locationType;
 
-    @JsonProperty("startId")
+    @JsonProperty("locationId")
     private String locationId;
 
     @JsonSetter(nulls = Nulls.SKIP)

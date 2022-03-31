@@ -5,11 +5,15 @@ import com.tramchester.domain.Platform;
 import com.tramchester.domain.id.CaseInsensitiveId;
 import com.tramchester.domain.places.*;
 import com.tramchester.repository.postcodes.PostcodeRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
 
 @LazySingleton
 public class LocationRepository {
+    private static final Logger logger = LoggerFactory.getLogger(LocationRepository.class);
+
     private final StationRepository stationRepository;
     private final StationGroupsRepository stationGroupsRepository;
     private final PostcodeRepository postcodeRepository;

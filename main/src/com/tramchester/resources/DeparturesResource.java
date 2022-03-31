@@ -169,6 +169,11 @@ public class DeparturesResource extends TransportResource implements APIResource
     @CacheControl(maxAge = 30, maxAgeUnit = TimeUnit.SECONDS)
     public Response getNearestDepartures(DeparturesQueryDTO departuresQuery) {
 
+        if (departuresQuery.getLocationType()==null || departuresQuery.getLocationId()==null) {
+            logger.error("Cannot process departure query: " + departuresQuery);
+            return Response.serverError().build();
+        }
+
         logger.info("Get departures for " + departuresQuery);
 
         Location<?> location = locationRepository.getLocation(departuresQuery.getLocationType(), departuresQuery.getLocationId());

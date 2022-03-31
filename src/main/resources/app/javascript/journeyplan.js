@@ -34,20 +34,6 @@ function getCurrentDate() {
     return now.substr(0,  now.indexOf("T")); // iso-8601 date part only as YYYY-MM-DD
 }
 
-function livedataUrlFromLocation() {
-    var place = app.location; // should not have location place holder without a valid location
-    return '/api/departures/' + place.coords.latitude + '/' + place.coords.longitude;
-}
-
-function livedataUrl() {
-    //if (app.startStop==null || app.startStop==='MyLocationPlaceholderId') {
-    if (app.startStop==null || app.startStop.locationType=='MyLocation') {
-        return livedataUrlFromLocation(app)+'?querytime='+app.time;
-    } else {
-        return '/api/departures/station/'+app.startStop.id+'?querytime='+app.time;
-    }
-}
-
 function busEnabled(scope) {
     return scope.modes.includes('Bus');
 }
@@ -65,30 +51,53 @@ function displayLiveData(app) {
             return; 
         }
     }
-    var queryDate = new Date(app.date); 
-    var today = getNow();
+    const queryDate = new Date(app.date); 
+    const today = getNow();
     // check live data for today only 
     if (today.getMonth()==queryDate.getMonth()
         && today.getYear()==queryDate.getYear()
         && today.getDate()==queryDate.getDate()) {
-        queryLiveData(livedataUrl());
+        queryLiveData(app, true);
     } else {
         app.liveDepartureResponse = null;
     }
-
 }
 
-function queryLiveData(url) {
- axios.get( url, { timeout: 11000 }).
-            then(function (response) {
-                app.liveDepartureResponse = addParsedDatesToLive(response.data);
-                app.networkError = false;
-                app.liveInProgress = false;
-            }).
-            catch(function (error) {
-                app.liveInProgress = false;
-                reportError(error);
-            });
+function queryLiveData(app, includeNotes) {
+
+    var locationType;
+    if (app.startStop==null) {
+        locationType = 'MyLocation';
+    } else {
+        locationType = app.startStop.locationType;
+    }
+
+    var locationId;
+    if (locationType=='MyLocation') {
+        const place = app.location; // should not have location place holder without a valid location
+        locationId = place.coords.latitude + ',' + place.coords.longitude
+    } else {
+        locationId = app.startStop.id    
+    }
+
+    const query = {
+        time: app.time,
+        locationType: locationType,
+        locationId: locationId,
+        notes: includeNotes
+    }
+
+    axios.post( '/api/departures/location', query, { timeout: 11000 }).
+    then(function (response) {
+        app.liveDepartureResponse = addParsedDatesToLive(response.data);
+        app.networkError = false;
+        app.liveInProgress = false;
+    }).
+    catch(function (error) {
+        app.liveInProgress = false;
+        reportError(error);
+    });
+
 }
 
 function getFeedinfo(app) {
@@ -311,7 +320,7 @@ var app = new Vue({
             queryNearbyTrams() {
                 app.liveInProgress = true;
                 this.$nextTick(function () {
-                    queryLiveData(livedataUrlFromLocation()+'?notes=1');
+                    queryLiveData(app, false);
                 });
             },
             queryServer() {
