@@ -61,6 +61,12 @@ public class APIClient {
         return APIClient.post(entity);
     }
 
+    public static <T> Response postAPIRequest(IntegrationAppExtension appExtension, String endPoint, T payload) {
+        APIClient APIClient = new APIClient(appExtension, endPoint);
+        Entity<T> entity = Entity.entity(payload, MediaType.APPLICATION_JSON_TYPE);
+        return APIClient.post(entity);
+    }
+
     public static Response getApiResponse(IntegrationAppExtension appExtension, String endPoint, Date lastMod) {
         APIClient APIClient = new APIClient(appExtension, endPoint);
         APIClient.setLastMod(lastMod);

@@ -13,6 +13,8 @@ import java.util.Set;
 
 @JsonTypeName("DeparturesQuery")
 public class DeparturesQueryDTO {
+
+    @JsonSetter(nulls = Nulls.SKIP)
     @JsonProperty("time")
     private LocalTime time;
 
@@ -30,8 +32,7 @@ public class DeparturesQueryDTO {
     @JsonProperty("notes")
     private Boolean includeNotes;
 
-    public DeparturesQueryDTO(LocalTime time, LocationType locationType, String locationId, boolean includeNotes) {
-        this.time = time;
+    public DeparturesQueryDTO(LocationType locationType, String locationId, boolean includeNotes) {
         this.locationType = locationType;
         this.locationId = locationId;
         this.includeNotes = includeNotes;
@@ -42,11 +43,16 @@ public class DeparturesQueryDTO {
     public DeparturesQueryDTO() {
         modes = Collections.emptySet();
         includeNotes = false;
+        time = LocalTime.MAX;
         // deserialisation
     }
 
     public LocalTime getTime() {
         return time;
+    }
+
+    public void setTime(LocalTime time) {
+        this.time = time;
     }
 
     public LocationType getLocationType() {
@@ -80,6 +86,11 @@ public class DeparturesQueryDTO {
                 ", locationType=" + locationType +
                 ", locationId='" + locationId + '\'' +
                 ", modes=" + modes +
+                ", includeNotes=" + includeNotes +
                 '}';
+    }
+
+    public boolean hasValidTime() {
+        return time != LocalTime.MAX;
     }
 }

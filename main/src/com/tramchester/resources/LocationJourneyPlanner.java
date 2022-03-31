@@ -33,8 +33,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
-import javax.measure.Quantity;
-import javax.measure.quantity.Length;
 import java.time.Duration;
 import java.util.*;
 import java.util.stream.Collectors;
