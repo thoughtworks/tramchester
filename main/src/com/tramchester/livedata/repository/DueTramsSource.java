@@ -14,6 +14,6 @@ import java.util.Optional;
 
 @ImplementedBy(DueTramsRepository.class)
 public interface DueTramsSource extends LiveDataCache {
-    Optional<PlatformDueTrams> allTrams(IdFor<Platform> platform, LocalDate tramServiceDate, TramTime queryTime);
-    List<DueTram> dueTramsFor(Station station, LocalDate date, TramTime queryTime);
+    Optional<PlatformDueTrams> dueTramsForPlatform(IdFor<Platform> platform, LocalDate date, TramTime queryTime);
+    List<DueTram> dueTramsForStation(Station station, LocalDate date, TramTime queryTime);
 }

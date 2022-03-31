@@ -118,7 +118,7 @@ class DueTramsRepositoryTest extends EasyMockSupport {
         assertEquals(2, repository.getNumStationsWithData(lastUpdate));
 
         TramTime queryTime = TramTime.of(lastUpdate.toLocalTime());
-        List<DueTram> results = repository.dueTramsFor(station, lastUpdate.toLocalDate(), queryTime);
+        List<DueTram> results = repository.dueTramsForStation(station, lastUpdate.toLocalDate(), queryTime);
 
         assertEquals(1, results.size());
         DueTram result = results.get(0);
@@ -127,7 +127,7 @@ class DueTramsRepositoryTest extends EasyMockSupport {
         assertEquals("Single", result.getCarriages());
         assertEquals(destination, result.getDestination());
 
-        List<DueTram> resultOther = repository.dueTramsFor(otherStation, lastUpdate.toLocalDate(), queryTime);
+        List<DueTram> resultOther = repository.dueTramsForStation(otherStation, lastUpdate.toLocalDate(), queryTime);
         assertEquals(1, resultOther.size());
         assertEquals(destinationManAirport, resultOther.get(0).getDestination());
     }
@@ -153,10 +153,10 @@ class DueTramsRepositoryTest extends EasyMockSupport {
 
         TramTime queryTime = TramTime.of(lastUpdate.toLocalTime());
 
-        Optional<PlatformDueTrams> allTramsForPlatform = repository.allTrams(platform.getId(), lastUpdate.toLocalDate(), queryTime);
+        Optional<PlatformDueTrams> allTramsForPlatform = repository.dueTramsForPlatform(platform.getId(), lastUpdate.toLocalDate(), queryTime);
         assertTrue(allTramsForPlatform.isPresent());
 
-        List<DueTram> results = repository.dueTramsFor(station, lastUpdate.toLocalDate(), queryTime);
+        List<DueTram> results = repository.dueTramsForStation(station, lastUpdate.toLocalDate(), queryTime);
         assertEquals(0, results.size());
     }
 
@@ -174,9 +174,9 @@ class DueTramsRepositoryTest extends EasyMockSupport {
         replayAll();
         repository.updateCache(info);
         LocalDate queryDate = lastUpdate.toLocalDate();
-        List<DueTram> dueTramsNow = repository.dueTramsFor(station, queryDate, TramTime.of(lastUpdateTime));
-        List<DueTram> dueTramsEarlier = repository.dueTramsFor(station, queryDate, TramTime.of(lastUpdateTime.minusMinutes(5)));
-        List<DueTram> dueTramsLater = repository.dueTramsFor(station, queryDate, TramTime.of(lastUpdateTime.plusMinutes(5)));
+        List<DueTram> dueTramsNow = repository.dueTramsForStation(station, queryDate, TramTime.of(lastUpdateTime));
+        List<DueTram> dueTramsEarlier = repository.dueTramsForStation(station, queryDate, TramTime.of(lastUpdateTime.minusMinutes(5)));
+        List<DueTram> dueTramsLater = repository.dueTramsForStation(station, queryDate, TramTime.of(lastUpdateTime.plusMinutes(5)));
         verifyAll();
 
         assertEquals(1, dueTramsNow.size());
@@ -203,9 +203,9 @@ class DueTramsRepositoryTest extends EasyMockSupport {
         replayAll();
         repository.updateCache(info);
         LocalDate queryDate = lastUpdate.toLocalDate();
-        List<DueTram> dueTramsNow = repository.dueTramsFor(station, queryDate, TramTime.of(lastUpdateTime));
-        List<DueTram> dueTramsEarlier = repository.dueTramsFor(station, queryDate, TramTime.of(earlier.toLocalTime()));
-        List<DueTram> dueTramsLater = repository.dueTramsFor(station, queryDate, TramTime.of(later.toLocalTime()));
+        List<DueTram> dueTramsNow = repository.dueTramsForStation(station, queryDate, TramTime.of(lastUpdateTime));
+        List<DueTram> dueTramsEarlier = repository.dueTramsForStation(station, queryDate, TramTime.of(earlier.toLocalTime()));
+        List<DueTram> dueTramsLater = repository.dueTramsForStation(station, queryDate, TramTime.of(later.toLocalTime()));
 
         verifyAll();
 

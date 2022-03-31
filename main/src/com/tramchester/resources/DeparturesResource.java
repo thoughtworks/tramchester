@@ -8,20 +8,21 @@ import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.places.MyLocation;
 import com.tramchester.domain.places.Station;
-import com.tramchester.domain.presentation.Note;
-import com.tramchester.domain.time.TramServiceDate;
-import com.tramchester.domain.time.TramTime;
-import com.tramchester.livedata.domain.liveUpdates.DueTram;
-import com.tramchester.livedata.domain.DTO.DepartureDTO;
-import com.tramchester.livedata.domain.DTO.DepartureListDTO;
 import com.tramchester.domain.presentation.LatLong;
+import com.tramchester.domain.presentation.Note;
 import com.tramchester.domain.presentation.ProvidesNotes;
 import com.tramchester.domain.time.ProvidesNow;
+import com.tramchester.domain.time.TramServiceDate;
+import com.tramchester.domain.time.TramTime;
 import com.tramchester.geo.MarginInMeters;
 import com.tramchester.geo.StationLocations;
 import com.tramchester.geo.StationLocationsRepository;
+import com.tramchester.livedata.domain.DTO.DepartureDTO;
+import com.tramchester.livedata.domain.DTO.DepartureListDTO;
+import com.tramchester.livedata.domain.liveUpdates.DueTram;
 import com.tramchester.livedata.mappers.DeparturesMapper;
 import com.tramchester.livedata.repository.DueTramsSource;
+import com.tramchester.repository.LocationRepository;
 import com.tramchester.repository.StationRepository;
 import io.dropwizard.jersey.caching.CacheControl;
 import io.swagger.annotations.Api;
@@ -34,7 +35,10 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.time.LocalDate;
-import java.util.*;
+import java.util.Collections;
+import java.util.List;
+import java.util.SortedSet;
+import java.util.TreeSet;
 import java.util.concurrent.TimeUnit;
 
 import static java.lang.String.format;
@@ -46,6 +50,7 @@ public class DeparturesResource extends TransportResource implements APIResource
     private static final Logger logger = LoggerFactory.getLogger(DeparturesResource.class);
 
     private final StationLocationsRepository stationLocations;
+    private final LocationRepository locationRepository;
     private final DueTramsSource dueTramsSource;
     private final DeparturesMapper departuresMapper;
     private final ProvidesNotes providesNotes;
@@ -53,17 +58,18 @@ public class DeparturesResource extends TransportResource implements APIResource
     private final TramchesterConfig config;
 
     @Inject
-    public DeparturesResource(StationLocations stationLocations, DueTramsSource dueTramsSource,
+    public DeparturesResource(StationLocations stationLocations, LocationRepository locationRepository, DueTramsSource dueTramsSource,
                               DeparturesMapper departuresMapper, ProvidesNotes providesNotes, StationRepository stationRepository,
                               ProvidesNow providesNow, TramchesterConfig config) {
         super(providesNow);
-        logger.info("created");
+        this.locationRepository = locationRepository;
         this.stationLocations = stationLocations;
         this.dueTramsSource = dueTramsSource;
         this.departuresMapper = departuresMapper;
         this.providesNotes = providesNotes;
         this.stationRepository = stationRepository;
         this.config = config;
+        logger.info("created");
     }
 
     @GET
@@ -79,7 +85,8 @@ public class DeparturesResource extends TransportResource implements APIResource
 
         MyLocation location = new MyLocation(latLong);
 
-        List<Station> nearbyStations = stationLocations.nearestStationsSorted(location, config.getNumOfNearestStopsToOffer(), margin);
+        List<Station> nearbyStations = stationLocations.nearestStationsSorted(location,
+                config.getNumOfNearestStopsToOffer(), margin);
 
         LocalDate localDate = providesNow.getDate();
         TramServiceDate queryDate = new TramServiceDate(localDate);
@@ -89,7 +96,7 @@ public class DeparturesResource extends TransportResource implements APIResource
         // trams
         SortedSet<DepartureDTO> departs = new TreeSet<>();
         nearbyStations.forEach(station -> {
-            List<DueTram> dueTrams = dueTramsSource.dueTramsFor(station, localDate, queryTime);
+            List<DueTram> dueTrams = dueTramsSource.dueTramsForStation(station, localDate, queryTime);
             departs.addAll(departuresMapper.mapToDTO(station, dueTrams, localDate));
         });
 
@@ -127,7 +134,7 @@ public class DeparturesResource extends TransportResource implements APIResource
         logger.info("Found station " + HasId.asId(station) + " Find departures at " + currentDate + " " +queryTime);
 
         //trams
-        List<DueTram> dueTramList = dueTramsSource.dueTramsFor(station, currentDate, queryTime);
+        List<DueTram> dueTramList = dueTramsSource.dueTramsForStation(station, currentDate, queryTime);
         if (dueTramList.isEmpty()) {
             logger.warn("Departures list empty for " + HasId.asId(station) + " at " + currentDate + " " +queryTime);
         }
@@ -146,6 +153,34 @@ public class DeparturesResource extends TransportResource implements APIResource
 
         return Response.ok(new DepartureListDTO(dueTrams, notes)).build();
     }
+
+//    @POST
+//    @Timed
+//    @Path("/location")
+//    @ApiOperation(value = "Get geographically close departures", response = DepartureListDTO.class)
+//    @CacheControl(maxAge = 30, maxAgeUnit = TimeUnit.SECONDS)
+//    public Response getNearestDepartures(DeparturesQueryDTO departuresQuery) {
+//
+//        logger.info("Get departures for " + departuresQuery);
+//
+//        Location<?> location = locationRepository.getLocation(departuresQuery.getLocationType(), departuresQuery.getLocationId());
+//
+//        LocalDate localDate = providesNow.getDate();
+//        TramServiceDate queryDate = new TramServiceDate(localDate);
+//
+//        TramTime queryTime = TramTime.ofHourMins(departuresQuery.getTime());
+//
+//        // trams
+//        List<DueTram> dueTrams = dueTramsSource.dueTramsForLocation(location, localDate, queryTime);
+//        SortedSet<DepartureDTO> departs = new TreeSet<>(departuresMapper.mapToDTO(location, dueTrams, localDate));
+//
+//        List<Note> notes = Collections.emptyList();
+//        if (departuresQuery.getIncludeNotes()) {
+//            notes = providesNotes.createNotesForStations(nearbyStations, queryDate, queryTime);
+//        }
+//
+//        return Response.ok(new DepartureListDTO(departs, notes)).build();
+//    }
 
 
 

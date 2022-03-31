@@ -104,9 +104,9 @@ public class DueTramsRepository implements DueTramsSource, ReportsCacheStats, Ha
     }
 
     @Override
-    public List<DueTram> dueTramsFor(Station station, LocalDate date, TramTime queryTime) {
+    public List<DueTram> dueTramsForStation(Station station, LocalDate date, TramTime queryTime) {
         Set<PlatformDueTrams> allTrams = station.getPlatforms().stream().
-                map(platform -> allTrams(platform.getId(), date, queryTime)).
+                map(platform -> dueTramsForPlatform(platform.getId(), date, queryTime)).
                 filter(Optional::isPresent).
                 map(Optional::get).
                 collect(Collectors.toSet());
@@ -130,13 +130,13 @@ public class DueTramsRepository implements DueTramsSource, ReportsCacheStats, Ha
     }
 
     @Override
-    public Optional<PlatformDueTrams> allTrams(IdFor<Platform> platform, LocalDate queryDate, TramTime queryTime) {
+    public Optional<PlatformDueTrams> dueTramsForPlatform(IdFor<Platform> platform, LocalDate date, TramTime queryTime) {
         if (lastRefresh==null) {
             logger.warn("No refresh has happened");
             return Optional.empty();
         }
-        if (!queryDate.equals(lastRefresh.toLocalDate())) {
-            logger.warn("No data for date, not querying for departure info " + queryDate);
+        if (!date.equals(lastRefresh.toLocalDate())) {
+            logger.warn("No data for date, not querying for departure info " + date);
             return Optional.empty();
         }
         Optional<PlatformDueTrams> maybe = departuresFor(platform);

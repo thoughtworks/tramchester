@@ -81,7 +81,7 @@ public class TramPositionInference {
         Set<PlatformDueTrams> platformDueTrams = new HashSet<>();
         routesBetween.forEach(route -> {
             Set<Platform> platforms = neighbour.getPlatformsForRoute(route);
-            platforms.forEach(platform -> liveDataSource.allTrams(platform.getId(), date, time).ifPresent(platformDueTrams::add));
+            platforms.forEach(platform -> liveDataSource.dueTramsForPlatform(platform.getId(), date, time).ifPresent(platformDueTrams::add));
         });
 
         if (platformDueTrams.isEmpty()) {
