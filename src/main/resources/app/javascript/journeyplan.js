@@ -34,23 +34,11 @@ function getCurrentDate() {
     return now.substr(0,  now.indexOf("T")); // iso-8601 date part only as YYYY-MM-DD
 }
 
-function busEnabled(scope) {
-    return scope.modes.includes('Bus');
-}
-
 function selectModesEnabled(scope) {
     return scope.modes.length > 1;
 }
 
 function displayLiveData(app) {
-    if (busEnabled(app)) {
-        // only live data for trams
-        // TODO nearby when buses enabled?
-        if (!app.startStop.transportModes.includes('Tram')) {
-            app.liveDepartureResponse = null;
-            return; 
-        }
-    }
     const queryDate = new Date(app.date); 
     const today = getNow();
     // check live data for today only 
@@ -65,11 +53,14 @@ function displayLiveData(app) {
 
 function queryLiveData(app, includeNotes) {
 
+    var modes;
     var locationType;
     if (app.startStop==null) {
         locationType = 'MyLocation';
+        modes = app.modes;
     } else {
         locationType = app.startStop.locationType;
+        modes = app.startStop.transportModes;
     }
 
     var locationId;
@@ -77,14 +68,16 @@ function queryLiveData(app, includeNotes) {
         const place = app.location; // should not have location place holder without a valid location
         locationId = place.coords.latitude + ',' + place.coords.longitude
     } else {
-        locationId = app.startStop.id    
+        locationId = app.startStop.id;
     }
+
 
     const query = {
         time: app.time,
         locationType: locationType,
         locationId: locationId,
-        notes: includeNotes
+        notes: includeNotes,
+        modes: modes
     }
 
     axios.post( '/api/departures/location', query, { timeout: 11000 }).
@@ -364,9 +357,6 @@ var app = new Vue({
         computed: {
             havePos: function () {
                 return this.hasGeo && (this.location!=null);
-            },
-            busEnabled: function () {
-                return busEnabled(this);
             },
             selectChangesEnabled: function() {
                 return selectChangesEnabled(this);
