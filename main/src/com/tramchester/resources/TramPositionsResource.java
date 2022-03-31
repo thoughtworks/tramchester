@@ -64,7 +64,7 @@ public class TramPositionsResource implements APIResource, GraphDatabaseDependen
                 map(pos -> new TramPositionDTO(
                         DTOFactory.createLocationRefWithPosition(pos.getFirst()),
                         DTOFactory.createLocationRefWithPosition(pos.getSecond()),
-                        depatureMapper.mapToDTO(pos.getSecond(), pos.getTrams(), localDate),
+                        depatureMapper.mapToDTO(pos.getTrams(), localDate),
                         pos.getCost())).
                 collect(Collectors.toList());
 

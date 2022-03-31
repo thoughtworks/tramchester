@@ -108,7 +108,8 @@ public class LiveDataUpdaterTest extends EasyMockSupport {
                                                                       Station location) {
         StationDepartureInfo departureInfo = new StationDepartureInfo(displayId, Lines.Airport,
                 LineDirection.Incoming, StringIdFor.createId(platformId), location, message, lastUpdate);
-        DueTram dueTram = new DueTram(Bury.fake(), "Due", Duration.ofMinutes(42), "Single", lastUpdate.toLocalTime());
+        DueTram dueTram = new DueTram(location, Bury.fake(),
+                "Due", Duration.ofMinutes(42), "Single", lastUpdate.toLocalTime());
         departureInfo.addDueTram(dueTram);
         return departureInfo;
     }

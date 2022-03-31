@@ -38,7 +38,8 @@ class StationDepartureMapperTest {
 
         Duration wait = Duration.ofMinutes(42);
         LocalDateTime dueTime = lastUpdate.plus(wait).truncatedTo(ChronoUnit.MINUTES);
-        DueTram dueTram = new DueTram(Bury.fake(), "Due", wait, "Single", dueTime.toLocalTime().minus(wait));
+        DueTram dueTram = new DueTram(NavigationRoad.fake(), Bury.fake(),
+                "Due", wait, "Single", dueTime.toLocalTime().minus(wait));
         final DepartureDTO departureDTO = new DepartureDTO(NavigationRoad.fake(), dueTram, dueTime.toLocalDate());
 
         List<DepartureDTO> dueTrams = Collections.singletonList(departureDTO);

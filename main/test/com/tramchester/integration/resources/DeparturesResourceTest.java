@@ -39,9 +39,8 @@ class DeparturesResourceTest {
     @Test
     @LiveDataTestCategory
     void shouldGetDueTramsForStation() {
-        // split out messages to own test as need to be able to disable those seperately
-        Response response = APIClient.getApiResponse(
-                appExtension, String.format("departures/station/%s", stationWithNotes.getRawId()));
+        // split out messages to own test as need to be able to disable those separately
+        Response response = getResponseForStation(stationWithNotes, false);
         assertEquals(200, response.getStatus());
         DepartureListDTO departureList = response.readEntity(DepartureListDTO.class);
 
@@ -49,12 +48,11 @@ class DeparturesResourceTest {
         assertFalse(departures.isEmpty(), "no departures found for " + stationWithNotes.getName());
         departures.forEach(depart -> assertEquals(stationWithNotes.getName(), depart.getFrom()));
     }
-
+    
     @Test
     @LiveDataMessagesCategory
     void shouldHaveMessagesForStation() {
-        Response response = APIClient.getApiResponse(
-                appExtension, String.format("departures/station/%s", stationWithNotes.getRawId()));
+        Response response = getResponseForStation(stationWithNotes, false);
         assertEquals(200, response.getStatus());
         DepartureListDTO departureList = response.readEntity(DepartureListDTO.class);
 
@@ -94,15 +92,6 @@ class DeparturesResourceTest {
         assertTrue(departures.isEmpty());
     }
 
-    private SortedSet<DepartureDTO> getDeparturesForStationTime(LocalTime queryTime, TramStations station) {
-        String time = queryTime.format(TestEnv.timeFormatter);
-        Response response = APIClient.getApiResponse(
-                appExtension, String.format("departures/station/%s?querytime=%s", station.getRawId(), time));
-        assertEquals(200, response.getStatus());
-
-        DepartureListDTO departureList = response.readEntity(DepartureListDTO.class);
-        return departureList.getDepartures();
-    }
 
     @Test
     @LiveDataTestCategory
@@ -140,18 +129,10 @@ class DeparturesResourceTest {
         double lat = 53.4804263d;
         double lon = -2.2392436d;
         String time = "28:64";
-        Response response = APIClient.getApiResponse(appExtension, String.format("departures/%s/%s?querytime=%s", lat, lon, time));
+        Response response = getResponseForLocationAndTime(lat, lon, time);
         assertEquals(500, response.getStatus());
     }
-
-    private SortedSet<DepartureDTO> getDeparturesForLatlongTime(double lat, double lon, LocalTime queryTime) {
-        String time = queryTime.format(TestEnv.timeFormatter);
-        Response response = APIClient.getApiResponse(appExtension, String.format("departures/%s/%s?querytime=%s", lat, lon, time));
-        assertEquals(200, response.getStatus());
-        DepartureListDTO departureList = response.readEntity(DepartureListDTO.class);
-        return departureList.getDepartures();
-    }
-
+    
     @Test
     @LiveDataTestCategory
     void shouldNotGetNearbyIfOutsideOfThreshold() {
@@ -160,8 +141,7 @@ class DeparturesResourceTest {
         final List<String> nearAlty = Arrays.asList(TramStations.Altrincham.getName(),
                 TramStations.NavigationRoad.getName());
 
-        Response response = APIClient.getApiResponse(appExtension, String.format("departures/%s/%s",
-                where.getLat(), where.getLon()));
+        Response response = getResponseForLocation(where);
         assertEquals(200, response.getStatus());
 
         DepartureListDTO departureList = response.readEntity(DepartureListDTO.class);
@@ -188,21 +168,54 @@ class DeparturesResourceTest {
         TramStations station = stationWithNotes;
 
         // Notes disabled
-        Response response = APIClient.getApiResponse(
-                appExtension, String.format("departures/station/%s?notes=0", station.getRawId()));
+        Response response = getResponseForStation(station, false);
         assertEquals(200, response.getStatus());
 
         DepartureListDTO departureList = response.readEntity(DepartureListDTO.class);
         assertTrue(departureList.getNotes().isEmpty(), "no notes expected");
 
         // Notes enabled
-        response = APIClient.getApiResponse(
-                appExtension, String.format("departures/station/%s?notes=1", station.getRawId()));
+        response = getResponseForStation(station, true);
         assertEquals(200, response.getStatus());
 
         departureList = response.readEntity(DepartureListDTO.class);
         assertFalse(departureList.getNotes().isEmpty(), "no notes for " + station);
 
+    }
+
+    private String getStationQueryURL(TramStations station, boolean includeNotes) {
+        String notes = includeNotes? "1" :"0";
+        return String.format("departures/station/%s?notes=%s", station.getRawId(), notes);
+    }
+
+    private Response getResponseForStation(TramStations station, boolean includeNotes) {
+        return APIClient.getApiResponse(appExtension, getStationQueryURL(station, includeNotes));
+    }
+
+    private Response getResponseForLocationAndTime(double lat, double lon, String time) {
+        return APIClient.getApiResponse(appExtension, String.format("departures/%s/%s?querytime=%s", lat, lon, time));
+    }
+
+    private Response getResponseForLocation(LatLong where) {
+        return APIClient.getApiResponse(appExtension, String.format("departures/%s/%s", where.getLat(), where.getLon()));
+    }
+
+    private SortedSet<DepartureDTO> getDeparturesForLatlongTime(double lat, double lon, LocalTime queryTime) {
+        String time = queryTime.format(TestEnv.timeFormatter);
+        //Response response = APIClient.getApiResponse(appExtension, String.format("departures/%s/%s?querytime=%s", lat, lon, time));
+        Response response = getResponseForLocationAndTime(lat, lon, time);
+        assertEquals(200, response.getStatus());
+        DepartureListDTO departureList = response.readEntity(DepartureListDTO.class);
+        return departureList.getDepartures();
+    }
+    
+    private SortedSet<DepartureDTO> getDeparturesForStationTime(LocalTime queryTime, TramStations station) {
+        String time = queryTime.format(TestEnv.timeFormatter);
+        Response response = APIClient.getApiResponse(appExtension, String.format("departures/station/%s?querytime=%s", station.getRawId(), time));
+        assertEquals(200, response.getStatus());
+
+        DepartureListDTO departureList = response.readEntity(DepartureListDTO.class);
+        return departureList.getDepartures();
     }
 
 }

@@ -18,6 +18,7 @@ import java.time.temporal.ChronoUnit;
 import java.util.Set;
 import java.util.TreeSet;
 
+import static com.tramchester.testSupport.reference.TramStations.NavigationRoad;
 import static com.tramchester.testSupport.reference.TramStations.StPetersSquare;
 
 class DepartureDTOTest {
@@ -75,6 +76,7 @@ class DepartureDTOTest {
 
     @NotNull
     private DueTram getDueTram(LocalTime updateTime, TramStations station, int wait) {
-        return new DueTram(station.fake(), "status", Duration.ofMinutes(wait), "carriages", updateTime);
+        return new DueTram(NavigationRoad.fake(),
+                station.fake(), "status", Duration.ofMinutes(wait), "carriages", updateTime);
     }
 }

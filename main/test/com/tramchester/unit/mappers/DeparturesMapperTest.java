@@ -1,5 +1,6 @@
 package com.tramchester.unit.mappers;
 
+import com.tramchester.domain.places.Station;
 import com.tramchester.livedata.domain.liveUpdates.DueTram;
 import com.tramchester.livedata.domain.DTO.DepartureDTO;
 import com.tramchester.livedata.mappers.DeparturesMapper;
@@ -14,27 +15,29 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.*;
 
-import static com.tramchester.testSupport.reference.TramStations.Bury;
-import static com.tramchester.testSupport.reference.TramStations.PiccadillyGardens;
+import static com.tramchester.testSupport.reference.TramStations.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class DeparturesMapperTest extends EasyMockSupport {
 
     private DeparturesMapper mapper;
     private LocalDate queryDate;
+    private Station displayLocation;
 
     @BeforeEach
     void beforeEachTestRuns() {
         queryDate = TestEnv.LocalNow().toLocalDate();
         mapper = new DeparturesMapper();
+        displayLocation = Bury.fake();
     }
 
     @Test
     void shouldMapToDTOCorrectly() {
-        Collection<DueTram> dueTrams = Collections.singletonList(new DueTram(PiccadillyGardens.fake(),
+        Collection<DueTram> dueTrams = Collections.singletonList(
+                new DueTram(displayLocation, PiccadillyGardens.fake(),
                 "DUE", Duration.ofMinutes(9), "single", LocalTime.of(10, 32)));
 
-        Set<DepartureDTO> results = mapper.mapToDTO(Bury.fake(), dueTrams, queryDate);
+        Set<DepartureDTO> results = mapper.mapToDTO(dueTrams, queryDate);
 
         List<DepartureDTO> list = new LinkedList<>(results);
 
@@ -52,10 +55,11 @@ class DeparturesMapperTest extends EasyMockSupport {
 
     @Test
     void shouldHandleCrossingMidnight() {
-        Collection<DueTram> dueTrams = Collections.singletonList(new DueTram(PiccadillyGardens.fake(),
+        Collection<DueTram> dueTrams = Collections.singletonList(
+                new DueTram(displayLocation, PiccadillyGardens.fake(),
                 "DUE", Duration.ofMinutes(9), "single", LocalTime.of(23, 58)));
 
-        Set<DepartureDTO> results = mapper.mapToDTO(Bury.fake(), dueTrams, queryDate);
+        Set<DepartureDTO> results = mapper.mapToDTO(dueTrams, queryDate);
 
         List<DepartureDTO> list = new LinkedList<>(results);
 

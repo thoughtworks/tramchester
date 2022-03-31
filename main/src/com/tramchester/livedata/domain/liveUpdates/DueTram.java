@@ -1,22 +1,23 @@
 package com.tramchester.livedata.domain.liveUpdates;
 
-import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.time.TramTime;
 
 import java.time.Duration;
 import java.time.LocalTime;
-import java.util.Objects;
 
 public class DueTram {
 
     private final Duration wait;
     private final String carriages; // double/single
     private final String status; // due, arrived, etc
+    private final Station displayLocation;
     private final Station destination;
     private final TramTime when;
 
-    public DueTram(Station destination, String status, Duration wait, String carriages, LocalTime updateTime) {
+    public DueTram(Station displayLocation,
+            Station destination, String status, Duration wait, String carriages, LocalTime updateTime) {
+        this.displayLocation = displayLocation;
         this.destination = destination;
         this.status = status;
         this.wait = wait;
@@ -44,30 +45,46 @@ public class DueTram {
         return when;
     }
 
+    public Station getDisplayLocation() {
+        return displayLocation;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
+
         DueTram dueTram = (DueTram) o;
-        return wait == dueTram.wait &&
-                Objects.equals(carriages, dueTram.carriages) &&
-                Objects.equals(status, dueTram.status) &&
-                Objects.equals(destination, dueTram.destination) &&
-                Objects.equals(when, dueTram.when);
+
+        if (!wait.equals(dueTram.wait)) return false;
+        if (!carriages.equals(dueTram.carriages)) return false;
+        if (!status.equals(dueTram.status)) return false;
+        if (!displayLocation.equals(dueTram.displayLocation)) return false;
+        if (!destination.equals(dueTram.destination)) return false;
+        return when.equals(dueTram.when);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(wait, carriages, status, destination, when);
+        int result = wait.hashCode();
+        result = 31 * result + carriages.hashCode();
+        result = 31 * result + status.hashCode();
+        result = 31 * result + displayLocation.hashCode();
+        result = 31 * result + destination.hashCode();
+        result = 31 * result + when.hashCode();
+        return result;
     }
 
     @Override
     public String toString() {
         return "DueTram{" +
-                "status='" + status + '\'' +
-                ", destination='" + HasId.asId(destination) + '\'' +
-                ", wait=" + wait +
+                "wait=" + wait +
                 ", carriages='" + carriages + '\'' +
+                ", status='" + status + '\'' +
+                ", displayLocation=" + displayLocation +
+                ", destination=" + destination +
+                ", when=" + when +
                 '}';
     }
+
 }

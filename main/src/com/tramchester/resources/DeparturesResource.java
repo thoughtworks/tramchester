@@ -97,7 +97,7 @@ public class DeparturesResource extends TransportResource implements APIResource
         SortedSet<DepartureDTO> departs = new TreeSet<>();
         nearbyStations.forEach(station -> {
             List<DueTram> dueTrams = dueTramsSource.dueTramsForStation(station, localDate, queryTime);
-            departs.addAll(departuresMapper.mapToDTO(station, dueTrams, localDate));
+            departs.addAll(departuresMapper.mapToDTO(dueTrams, localDate));
         });
 
         // notes
@@ -139,7 +139,7 @@ public class DeparturesResource extends TransportResource implements APIResource
             logger.warn("Departures list empty for " + HasId.asId(station) + " at " + currentDate + " " +queryTime);
         }
         // not strictly needed, but saves some cycles in the front-end
-        SortedSet<DepartureDTO> dueTrams = new TreeSet<>(departuresMapper.mapToDTO(station, dueTramList, currentDate));
+        SortedSet<DepartureDTO> dueTrams = new TreeSet<>(departuresMapper.mapToDTO(dueTramList, currentDate));
 
         //notes
         List<Note> notes = Collections.emptyList();
@@ -157,7 +157,7 @@ public class DeparturesResource extends TransportResource implements APIResource
 //    @POST
 //    @Timed
 //    @Path("/location")
-//    @ApiOperation(value = "Get geographically close departures", response = DepartureListDTO.class)
+//    @ApiOperation(value = "Get departures for a location", response = DepartureListDTO.class)
 //    @CacheControl(maxAge = 30, maxAgeUnit = TimeUnit.SECONDS)
 //    public Response getNearestDepartures(DeparturesQueryDTO departuresQuery) {
 //
@@ -172,7 +172,7 @@ public class DeparturesResource extends TransportResource implements APIResource
 //
 //        // trams
 //        List<DueTram> dueTrams = dueTramsSource.dueTramsForLocation(location, localDate, queryTime);
-//        SortedSet<DepartureDTO> departs = new TreeSet<>(departuresMapper.mapToDTO(location, dueTrams, localDate));
+//        SortedSet<DepartureDTO> departs = new TreeSet<>(departuresMapper.mapToDTO(dueTrams, localDate));
 //
 //        List<Note> notes = Collections.emptyList();
 //        if (departuresQuery.getIncludeNotes()) {

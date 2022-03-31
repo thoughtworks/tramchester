@@ -214,7 +214,9 @@ public class LiveDataParser {
                             String carriages = getNumberedField(jsonObject, "Carriages", index);
                             LocalTime lastUpdate = departureInfo.getLastUpdate().toLocalTime();
 
-                            DueTram dueTram = new DueTram(station, status, Duration.ofMinutes(waitInMinutes), carriages, lastUpdate);
+                            Station displayLocation = departureInfo.getStation();
+                            DueTram dueTram = new DueTram(displayLocation, station, status,
+                                    Duration.ofMinutes(waitInMinutes), carriages, lastUpdate);
                             departureInfo.addDueTram(dueTram);
                         },
 
