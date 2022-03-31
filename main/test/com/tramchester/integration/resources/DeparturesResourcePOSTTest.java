@@ -71,8 +71,6 @@ class DeparturesResourcePOSTTest {
                 flatMap(station -> dueTramsSource.dueTramsForStation(station, queryDate, time).stream()).
                 findAny();
         searchForDueTrams.ifPresent(dueTram -> stationWithDepartures = dueTram.getDisplayLocation());
-
-
     }
 
     @Test
