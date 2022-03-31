@@ -39,7 +39,7 @@ import static com.tramchester.testSupport.reference.KnownLocations.nearAltrincha
 import static org.junit.jupiter.api.Assertions.*;
 
 @ExtendWith(DropwizardExtensionsSupport.class)
-class DeparturesResourcePOSTTest {
+class DeparturesResourceTest {
 
     private static final IntegrationAppExtension appExtension = new IntegrationAppExtension(App.class,
             new ResourceTramTestConfig<>(DeparturesResource.class, true));
