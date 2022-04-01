@@ -5,7 +5,7 @@ import com.tramchester.config.LiveDataConfig;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.ServiceTimeLimits;
 import com.tramchester.domain.time.ProvidesNow;
-import com.tramchester.livedata.tfgm.DueTramsRepository;
+import com.tramchester.livedata.tfgm.TramDepartureRepository;
 import com.tramchester.repository.StationRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,13 +19,13 @@ import static java.lang.String.format;
 public class LiveDataHealthCheck extends TramchesterHealthCheck {
     private static final Logger logger = LoggerFactory.getLogger(LiveDataHealthCheck.class);
 
-    private final DueTramsRepository repository;
+    private final TramDepartureRepository repository;
     private final ProvidesNow providesNow;
     private final StationRepository stationRepository;
     private final LiveDataConfig config;
 
     @Inject
-    public LiveDataHealthCheck(DueTramsRepository repository, ProvidesNow providesNow, StationRepository stationRepository,
+    public LiveDataHealthCheck(TramDepartureRepository repository, ProvidesNow providesNow, StationRepository stationRepository,
                                TramchesterConfig config, ServiceTimeLimits serviceTimeLimits) {
         super(serviceTimeLimits);
         this.config = config.getLiveDataConfig();

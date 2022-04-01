@@ -12,7 +12,7 @@ import com.tramchester.healthchecks.LiveDataJobHealthCheck;
 import com.tramchester.livedata.cloud.CountsUploadedLiveData;
 import com.tramchester.livedata.tfgm.LiveDataUpdater;
 import com.tramchester.livedata.cloud.UploadsLiveData;
-import com.tramchester.livedata.tfgm.DueTramsRepository;
+import com.tramchester.livedata.tfgm.TramDepartureRepository;
 import com.tramchester.metrics.CacheMetrics;
 import com.tramchester.metrics.RegistersMetricsWithDropwizard;
 import com.tramchester.livedata.tfgm.PlatformMessageRepository;
@@ -248,13 +248,13 @@ public class App extends Application<AppConfiguration>  {
         UploadsLiveData observer = container.get(UploadsLiveData.class);
         updatesData.observeUpdates(observer);
 
-        DueTramsRepository dueTramsRepository = container.get(DueTramsRepository.class);
+        TramDepartureRepository tramDepartureRepository = container.get(TramDepartureRepository.class);
         PlatformMessageRepository messageRepository = container.get(PlatformMessageRepository.class);
         CountsUploadedLiveData countsLiveDataUploads = container.get(CountsUploadedLiveData.class);
 
         // TODO via DI
         RegistersMetricsWithDropwizard registersMetricsWithDropwizard = new RegistersMetricsWithDropwizard(metricRegistry);
-        registersMetricsWithDropwizard.registerMetricsFor(dueTramsRepository);
+        registersMetricsWithDropwizard.registerMetricsFor(tramDepartureRepository);
         registersMetricsWithDropwizard.registerMetricsFor(messageRepository);
         registersMetricsWithDropwizard.registerMetricsFor(countsLiveDataUploads);
 

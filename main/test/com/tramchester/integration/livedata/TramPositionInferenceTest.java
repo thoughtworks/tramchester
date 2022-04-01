@@ -13,7 +13,7 @@ import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
 import com.tramchester.livedata.tfgm.LiveDataUpdater;
 import com.tramchester.livedata.tfgm.TramPosition;
 import com.tramchester.livedata.tfgm.TramPositionInference;
-import com.tramchester.livedata.tfgm.DueTramsRepository;
+import com.tramchester.livedata.tfgm.TramDepartureRepository;
 import com.tramchester.livedata.repository.DueTramsSource;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.repository.TramStationAdjacenyRepository;
@@ -54,7 +54,7 @@ class TramPositionInferenceTest {
         liveDataSource.refreshRespository();
         RouteReachable routeReachable = componentContainer.get(RouteReachable.class);
         TramStationAdjacenyRepository adjacenyMatrix = componentContainer.get(TramStationAdjacenyRepository.class);
-        DueTramsSource dueTramsRepo = componentContainer.get(DueTramsRepository.class);
+        DueTramsSource dueTramsRepo = componentContainer.get(TramDepartureRepository.class);
 
         positionInference = new TramPositionInference(dueTramsRepo, adjacenyMatrix, routeReachable);
         stationRepository = componentContainer.get(StationRepository.class);

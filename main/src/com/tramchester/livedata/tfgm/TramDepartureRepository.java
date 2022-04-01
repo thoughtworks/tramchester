@@ -37,8 +37,8 @@ import java.util.stream.Stream;
 import static java.lang.String.format;
 
 @LazySingleton
-public class DueTramsRepository implements DueTramsSource, ReportsCacheStats, HasMetrics {
-    private static final Logger logger = LoggerFactory.getLogger(DueTramsRepository.class);
+public class TramDepartureRepository implements DueTramsSource, ReportsCacheStats, HasMetrics {
+    private static final Logger logger = LoggerFactory.getLogger(TramDepartureRepository.class);
 
     // TODO Correct limit here?
     private static final int TIME_LIMIT_MINS = 20; // only enrich if data is within this many minutes
@@ -51,7 +51,7 @@ public class DueTramsRepository implements DueTramsSource, ReportsCacheStats, Ha
     private LocalDateTime lastRefresh;
 
     @Inject
-    public DueTramsRepository(ProvidesNow providesNow, CacheMetrics registory) {
+    public TramDepartureRepository(ProvidesNow providesNow, CacheMetrics registory) {
         this.providesNow = providesNow;
 
         dueTramsCache = Caffeine.newBuilder().maximumSize(STATION_INFO_CACHE_SIZE).

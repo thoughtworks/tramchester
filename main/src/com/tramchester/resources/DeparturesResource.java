@@ -7,7 +7,7 @@ import com.tramchester.domain.places.Location;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.DTO.DeparturesQueryDTO;
 import com.tramchester.domain.presentation.Note;
-import com.tramchester.livedata.tfgm.ProvidesNotes;
+import com.tramchester.livedata.tfgm.ProvidesTramNotes;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.domain.time.TramServiceDate;
@@ -46,13 +46,13 @@ public class DeparturesResource extends TransportResource implements APIResource
     private final LocationRepository locationRepository;
     private final DeparturesMapper departuresMapper;
     private final DeparturesRepository departuresRepository;
-    private final ProvidesNotes providesNotes;
+    private final ProvidesTramNotes providesNotes;
     private final TramchesterConfig config;
 
     @Inject
     public DeparturesResource(LocationRepository locationRepository,
                               DeparturesMapper departuresMapper, DeparturesRepository departuresRepository,
-                              ProvidesNotes providesNotes, StationRepository stationRepository,
+                              ProvidesTramNotes providesNotes, StationRepository stationRepository,
                               ProvidesNow providesNow, TramchesterConfig config) {
         super(providesNow);
         this.locationRepository = locationRepository;

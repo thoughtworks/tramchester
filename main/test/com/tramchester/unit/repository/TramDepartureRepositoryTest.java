@@ -8,7 +8,7 @@ import com.tramchester.domain.places.Station;
 import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.livedata.domain.liveUpdates.*;
-import com.tramchester.livedata.tfgm.DueTramsRepository;
+import com.tramchester.livedata.tfgm.TramDepartureRepository;
 import com.tramchester.livedata.tfgm.Lines;
 import com.tramchester.metrics.CacheMetrics;
 import com.tramchester.testSupport.TestEnv;
@@ -31,10 +31,10 @@ import static com.tramchester.testSupport.reference.TramStations.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-class DueTramsRepositoryTest extends EasyMockSupport {
+class TramDepartureRepositoryTest extends EasyMockSupport {
 
     private ProvidesNow providesNow;
-    private DueTramsRepository repository;
+    private TramDepartureRepository repository;
     private LocalDateTime lastUpdate;
     private Station station;
     private Platform platform;
@@ -42,7 +42,7 @@ class DueTramsRepositoryTest extends EasyMockSupport {
     @BeforeEach
     void beforeEachTestRuns() {
         providesNow = createMock(ProvidesNow.class);
-        repository = new DueTramsRepository(providesNow, new CacheMetrics(TestEnv.NoopRegisterMetrics()));
+        repository = new TramDepartureRepository(providesNow, new CacheMetrics(TestEnv.NoopRegisterMetrics()));
 
         LocalDate today = TestEnv.LocalNow().toLocalDate();
         lastUpdate = LocalDateTime.of(today, LocalTime.of(15,42));

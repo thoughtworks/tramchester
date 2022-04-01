@@ -22,7 +22,7 @@ import com.tramchester.domain.transportStages.ConnectingStage;
 import com.tramchester.domain.transportStages.VehicleStage;
 import com.tramchester.domain.transportStages.WalkingFromStationStage;
 import com.tramchester.domain.transportStages.WalkingToStationStage;
-import com.tramchester.livedata.tfgm.ProvidesNotes;
+import com.tramchester.livedata.tfgm.ProvidesTramNotes;
 import com.tramchester.mappers.JourneyToDTOMapper;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.BusStations;
@@ -54,7 +54,7 @@ class JourneyToDTOMapperTest extends EasyMockSupport {
     private TramServiceDate tramServiceDate;
 
     private StageDTOFactory stageFactory;
-    private ProvidesNotes providesNotes;
+    private ProvidesTramNotes providesNotes;
     private List<Note> notes;
     private MyLocation nearPiccGardensLocation;
     private final int requestedNumberChanges = 5;
@@ -71,7 +71,7 @@ class JourneyToDTOMapperTest extends EasyMockSupport {
     @BeforeEach
     void beforeEachTestRuns() {
         stageFactory = createMock(StageDTOFactory.class);
-        providesNotes = createMock(ProvidesNotes.class);
+        providesNotes = createMock(ProvidesTramNotes.class);
 
         DTOFactory = createMock(DTOFactory.class);
 

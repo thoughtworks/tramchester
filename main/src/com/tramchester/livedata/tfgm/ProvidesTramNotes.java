@@ -24,8 +24,8 @@ import java.util.*;
 import static com.tramchester.domain.presentation.Note.NoteType.*;
 
 @LazySingleton
-public class ProvidesNotes {
-    private static final Logger logger = LoggerFactory.getLogger(ProvidesNotes.class);
+public class ProvidesTramNotes {
+    private static final Logger logger = LoggerFactory.getLogger(ProvidesTramNotes.class);
 
     private static final String EMPTY = "<no message>";
     public static final String website = "Please check <a href=\"http://www.metrolink.co.uk/pages/pni.aspx\">TFGM</a> for details.";
@@ -39,7 +39,7 @@ public class ProvidesNotes {
     private final DTOFactory stationDTOFactory;
 
     @Inject
-    public ProvidesNotes(PlatformMessageSource platformMessageSource, DTOFactory stationDTOFactory) {
+    public ProvidesTramNotes(PlatformMessageSource platformMessageSource, DTOFactory stationDTOFactory) {
         this.platformMessageSource = platformMessageSource;
         this.stationDTOFactory = stationDTOFactory;
     }

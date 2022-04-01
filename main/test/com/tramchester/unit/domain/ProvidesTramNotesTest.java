@@ -16,7 +16,7 @@ import com.tramchester.domain.transportStages.VehicleStage;
 import com.tramchester.domain.transportStages.WalkingToStationStage;
 import com.tramchester.livedata.domain.liveUpdates.PlatformMessage;
 import com.tramchester.livedata.repository.PlatformMessageSource;
-import com.tramchester.livedata.tfgm.ProvidesNotes;
+import com.tramchester.livedata.tfgm.ProvidesTramNotes;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.KnownLocations;
 import com.tramchester.testSupport.reference.TramStations;
@@ -44,8 +44,8 @@ import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-class ProvidesNotesTest extends EasyMockSupport {
-    private ProvidesNotes providesNotes;
+class ProvidesTramNotesTest extends EasyMockSupport {
+    private ProvidesTramNotes providesNotes;
     private PlatformMessageSource platformMessageSource;
     private LocalDateTime lastUpdate;
     private final int requestedNumberChanges = 2;
@@ -55,7 +55,7 @@ class ProvidesNotesTest extends EasyMockSupport {
     void beforeEachTestRuns() {
         platformMessageSource = createStrictMock(PlatformMessageSource.class);
         stationDTOFactory = createMock(DTOFactory.class);
-        providesNotes = new ProvidesNotes(platformMessageSource, stationDTOFactory);
+        providesNotes = new ProvidesTramNotes(platformMessageSource, stationDTOFactory);
         lastUpdate = TestEnv.LocalNow();
     }
 
@@ -81,7 +81,7 @@ class ProvidesNotesTest extends EasyMockSupport {
         List<Note> result = providesNotes.createNotesForJourney(journey, queryDate);
         verifyAll();
 
-        assertThat(result, hasItem(new Note(ProvidesNotes.weekend, Note.NoteType.Weekend)));
+        assertThat(result, hasItem(new Note(ProvidesTramNotes.weekend, Note.NoteType.Weekend)));
     }
 
     @Test
@@ -97,7 +97,7 @@ class ProvidesNotesTest extends EasyMockSupport {
         List<Note> result = providesNotes.createNotesForJourney(journey, queryDate);
         verifyAll();
 
-        assertThat(result, hasItem(new Note(ProvidesNotes.weekend, Note.NoteType.Weekend)));
+        assertThat(result, hasItem(new Note(ProvidesTramNotes.weekend, Note.NoteType.Weekend)));
     }
 
     @Test
@@ -129,7 +129,7 @@ class ProvidesNotesTest extends EasyMockSupport {
         List<Note> result = providesNotes.createNotesForJourney(journey, queryDate);
         verifyAll();
 
-        assertThat(result, hasItem(new Note(ProvidesNotes.weekend, Note.NoteType.Weekend)));
+        assertThat(result, hasItem(new Note(ProvidesTramNotes.weekend, Note.NoteType.Weekend)));
     }
 
     @Test
@@ -146,7 +146,7 @@ class ProvidesNotesTest extends EasyMockSupport {
         List<Note> result = providesNotes.createNotesForJourney(journey, queryDate);
         verifyAll();
 
-        assertThat(result, not(hasItem(new Note(ProvidesNotes.weekend, Note.NoteType.Weekend))));
+        assertThat(result, not(hasItem(new Note(ProvidesTramNotes.weekend, Note.NoteType.Weekend))));
     }
 
     @Test
@@ -171,7 +171,7 @@ class ProvidesNotesTest extends EasyMockSupport {
 
         int year = 2021;
         LocalDate date = LocalDate.of(year, 12, 23);
-        Note christmasNote = new Note(ProvidesNotes.christmas2021, Note.NoteType.Christmas);
+        Note christmasNote = new Note(ProvidesTramNotes.christmas2021, Note.NoteType.Christmas);
 
         Journey journey = createMock(Journey.class);
         EasyMock.expect(journey.getTransportModes()).andStubReturn(Collections.singleton(Tram));
@@ -203,7 +203,7 @@ class ProvidesNotesTest extends EasyMockSupport {
 
         int year = 2020;
         LocalDate date = LocalDate.of(year, 12, 23);
-        Note christmasNote = new Note(ProvidesNotes.christmas, Note.NoteType.Christmas);
+        Note christmasNote = new Note(ProvidesTramNotes.christmas, Note.NoteType.Christmas);
 
         Journey journey = createMock(Journey.class);
         Set<TransportMode> modes = new HashSet<>(Arrays.asList(Train, Bus, Walk));

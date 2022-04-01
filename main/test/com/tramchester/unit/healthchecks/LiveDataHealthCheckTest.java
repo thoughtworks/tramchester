@@ -5,7 +5,7 @@ import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.ServiceTimeLimits;
 import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.healthchecks.LiveDataHealthCheck;
-import com.tramchester.livedata.tfgm.DueTramsRepository;
+import com.tramchester.livedata.tfgm.TramDepartureRepository;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TestLiveDataConfig;
@@ -21,14 +21,14 @@ import java.time.LocalTime;
 
 class LiveDataHealthCheckTest extends EasyMockSupport {
 
-    private DueTramsRepository repository;
+    private TramDepartureRepository repository;
     private LiveDataHealthCheck healthCheck;
     private StationRepository stationRepository;
     private ProvidesNow providesNow;
 
     @BeforeEach
     void beforeEachTestRuns() {
-        repository = createMock(DueTramsRepository.class);
+        repository = createMock(TramDepartureRepository.class);
         stationRepository = createMock(StationRepository.class);
         providesNow = createMock(ProvidesNow.class);
         TramchesterConfig config = TestEnv.GET(new TestLiveDataConfig());

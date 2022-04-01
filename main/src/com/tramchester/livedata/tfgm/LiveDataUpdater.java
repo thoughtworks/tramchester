@@ -35,10 +35,10 @@ public class LiveDataUpdater {
     private final ProvidesNow providesNow;
 
     @Inject
-    public LiveDataUpdater(PlatformMessageRepository platformMessageRepository, DueTramsRepository dueTramsRepository,
+    public LiveDataUpdater(PlatformMessageRepository platformMessageRepository, TramDepartureRepository tramDepartureRepository,
                            LiveDataFetcher fetcher, LiveDataParser parser, ProvidesNow providesNow) {
         this.platformMessageRepository = platformMessageRepository;
-        this.dueTramsRepository = dueTramsRepository;
+        this.dueTramsRepository = tramDepartureRepository;
         this.fetcher = fetcher;
         this.parser = parser;
         this.providesNow = providesNow;

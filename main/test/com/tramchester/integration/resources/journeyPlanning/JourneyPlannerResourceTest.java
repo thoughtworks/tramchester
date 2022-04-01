@@ -3,7 +3,7 @@ package com.tramchester.integration.resources.journeyPlanning;
 import com.tramchester.App;
 import com.tramchester.domain.presentation.DTO.*;
 import com.tramchester.domain.presentation.Note;
-import com.tramchester.livedata.tfgm.ProvidesNotes;
+import com.tramchester.livedata.tfgm.ProvidesTramNotes;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramServiceDate;
 import com.tramchester.domain.time.TramTime;
@@ -219,7 +219,7 @@ public class JourneyPlannerResourceTest {
     void shouldWarnOnSaturdayAndSundayJourney() {
 
         Note weekendNote = new Note("At the weekend your journey may be affected by improvement works."
-                + ProvidesNotes.website, Note.NoteType.Weekend);
+                + ProvidesTramNotes.website, Note.NoteType.Weekend);
 
         JourneyQueryDTO query2 = journeyPlanner.getQueryDTO(TestEnv.nextSunday(), TramTime.of(11, 43), Altrincham, ManAirport, false, 3);
 

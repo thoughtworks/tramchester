@@ -11,7 +11,7 @@ import com.tramchester.livedata.domain.liveUpdates.StationDepartureInfo;
 import com.tramchester.livedata.tfgm.LiveDataFetcher;
 import com.tramchester.livedata.tfgm.LiveDataHTTPFetcher;
 import com.tramchester.livedata.tfgm.LiveDataParser;
-import com.tramchester.livedata.tfgm.DueTramsRepository;
+import com.tramchester.livedata.tfgm.TramDepartureRepository;
 import com.tramchester.livedata.tfgm.LiveDataUpdater;
 import com.tramchester.livedata.tfgm.PlatformMessageRepository;
 import com.tramchester.testSupport.TestEnv;
@@ -35,7 +35,7 @@ public class LiveDataUpdaterTest extends EasyMockSupport {
     private LiveDataUpdater repository;
     private ProvidesNow providesNow;
     private LocalDateTime lastUpdate;
-    private DueTramsRepository dueTramsRepository;
+    private TramDepartureRepository tramDepartureRepository;
     private PlatformMessageRepository platformMessageRepository;
 
     @BeforeEach
@@ -44,9 +44,9 @@ public class LiveDataUpdaterTest extends EasyMockSupport {
         mapper = createMock(LiveDataParser.class);
         providesNow = createMock(ProvidesNow.class);
         platformMessageRepository = createMock(PlatformMessageRepository.class);
-        dueTramsRepository = createMock(DueTramsRepository.class);
+        tramDepartureRepository = createMock(TramDepartureRepository.class);
 
-        repository = new LiveDataUpdater(platformMessageRepository, dueTramsRepository, fetcher, mapper, providesNow);
+        repository = new LiveDataUpdater(platformMessageRepository, tramDepartureRepository, fetcher, mapper, providesNow);
 
         lastUpdate = TestEnv.LocalNow();
     }
@@ -67,7 +67,7 @@ public class LiveDataUpdaterTest extends EasyMockSupport {
         EasyMock.expect(mapper.parse("someData")).andReturn(info);
 
         EasyMock.expect(platformMessageRepository.updateCache(info)).andReturn(2);
-        EasyMock.expect(dueTramsRepository.updateCache(info)).andReturn(2);
+        EasyMock.expect(tramDepartureRepository.updateCache(info)).andReturn(2);
 
         replayAll();
         repository.refreshRespository();
@@ -96,7 +96,7 @@ public class LiveDataUpdaterTest extends EasyMockSupport {
 
         List<StationDepartureInfo> expected = Collections.singletonList(departureInfo);
         EasyMock.expect(platformMessageRepository.updateCache(expected)).andReturn(1);
-        EasyMock.expect(dueTramsRepository.updateCache(expected)).andReturn(1);
+        EasyMock.expect(tramDepartureRepository.updateCache(expected)).andReturn(1);
 
         replayAll();
         repository.refreshRespository();
