@@ -233,6 +233,11 @@ public class TransportDataContainer implements TransportData, WriteableTransport
     }
 
     @Override
+    public Agency get(IdFor<Agency> id) {
+        return agencies.get(id);
+    }
+
+    @Override
     public MutableService getMutableService(IdFor<Service> serviceId) {
         // logging into callers
         if (!services.hasId(serviceId)) {

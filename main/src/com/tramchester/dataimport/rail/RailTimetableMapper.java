@@ -442,7 +442,6 @@ public class RailTimetableMapper {
                 // todo get list of atoc names
                 logger.info("Creating agency for atco code " + atocCode);
 
-                // todo - need to look up the actual agency name here, just using the id at the moment
                 dataSourceID = DataSourceID.rail;
                 String agencyName = TrainOperatingCompanies.nameFor(agencyId);
                 if (agencyName==TrainOperatingCompanies.UNKNOWN.getName()) {

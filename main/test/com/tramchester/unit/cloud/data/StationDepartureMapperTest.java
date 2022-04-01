@@ -3,9 +3,11 @@ package com.tramchester.unit.cloud.data;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tramchester.cloud.data.StationDepartureMapper;
-import com.tramchester.livedata.domain.liveUpdates.UpcomingDeparture;
+import com.tramchester.domain.Agency;
 import com.tramchester.livedata.domain.DTO.DepartureDTO;
 import com.tramchester.livedata.domain.DTO.StationDepartureInfoDTO;
+import com.tramchester.livedata.domain.liveUpdates.UpcomingDeparture;
+import com.tramchester.testSupport.TestEnv;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -38,8 +40,9 @@ class StationDepartureMapperTest {
 
         Duration wait = Duration.ofMinutes(42);
         LocalDateTime dueTime = lastUpdate.plus(wait).truncatedTo(ChronoUnit.MINUTES);
+        Agency agency = TestEnv.MetAgency();
         UpcomingDeparture dueTram = new UpcomingDeparture(NavigationRoad.fake(), Bury.fake(),
-                "Due", wait, "Single", dueTime.toLocalTime().minus(wait));
+                "Due", wait, "Single", dueTime.toLocalTime().minus(wait), agency);
         final DepartureDTO departureDTO = new DepartureDTO(NavigationRoad.fake(), dueTram, dueTime.toLocalDate());
 
         List<DepartureDTO> dueTrams = Collections.singletonList(departureDTO);

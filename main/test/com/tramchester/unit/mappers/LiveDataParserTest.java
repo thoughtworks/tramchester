@@ -2,18 +2,21 @@ package com.tramchester.unit.mappers;
 
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.DataSourceID;
+import com.tramchester.domain.MutableAgency;
 import com.tramchester.domain.MutablePlatform;
 import com.tramchester.domain.Platform;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.places.Station;
-import com.tramchester.livedata.domain.liveUpdates.UpcomingDeparture;
 import com.tramchester.livedata.domain.liveUpdates.LineDirection;
-import com.tramchester.livedata.tfgm.Lines;
-import com.tramchester.livedata.tfgm.StationDepartureInfo;
-import com.tramchester.livedata.tfgm.LiveDataParser;
+import com.tramchester.livedata.domain.liveUpdates.UpcomingDeparture;
 import com.tramchester.livedata.repository.StationByName;
+import com.tramchester.livedata.tfgm.Lines;
+import com.tramchester.livedata.tfgm.LiveDataParser;
+import com.tramchester.livedata.tfgm.StationDepartureInfo;
+import com.tramchester.repository.AgencyRepository;
 import com.tramchester.repository.StationRepository;
+import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.TramStations;
 import org.easymock.EasyMock;
 import org.easymock.EasyMockSupport;
@@ -51,7 +54,8 @@ class LiveDataParserTest extends EasyMockSupport {
     void beforeEachTestRuns() {
         StationRepository stationRepository = createStrictMock(StationRepository.class);
         stationByName = createStrictMock(StationByName.class);
-        parser = new LiveDataParser(stationByName, stationRepository);
+        AgencyRepository agencyRepository = createMock(AgencyRepository.class);
+        parser = new LiveDataParser(stationByName, stationRepository, agencyRepository);
 
         final Platform platformMC = MutablePlatform.buildForTFGMTram("9400ZZMAMCU2",
                 "Media City Platform 2", MediaCityUK.getLatLong(), DataSourceID.unknown, IdFor.invalid());
@@ -74,6 +78,8 @@ class LiveDataParserTest extends EasyMockSupport {
 
         EasyMock.expect(stationByName.getTramStationByName("See Tram Front")).andStubReturn(Optional.empty());
         EasyMock.expect(stationByName.getTramStationByName("")).andStubReturn(Optional.empty());
+
+        EasyMock.expect(agencyRepository.get(MutableAgency.METL)).andStubReturn(TestEnv.MetAgency());
 
     }
 
@@ -118,6 +124,7 @@ class LiveDataParserTest extends EasyMockSupport {
     void shouldMapLiveDataToStationInfo() {
 
         replayAll();
+        parser.start();
         List<StationDepartureInfo> info = parser.parse(exampleData);
         verifyAll();
 
@@ -173,6 +180,7 @@ class LiveDataParserTest extends EasyMockSupport {
                 """;
 
         replayAll();
+        parser.start();
         List<StationDepartureInfo> info = parser.parse(NoSuchMediaCityPlatform);
         verifyAll();
 
@@ -182,6 +190,7 @@ class LiveDataParserTest extends EasyMockSupport {
     @Test
     void shouldExcludeSeeTramFrontDestination()  {
         replayAll();
+        parser.start();
         List<StationDepartureInfo> info = parser.parse(exampleData);
         verifyAll();
 
@@ -196,6 +205,7 @@ class LiveDataParserTest extends EasyMockSupport {
         String notInService = exampleData.replaceFirst("Deansgate Castlefield", "Not in Service");
 
         replayAll();
+        parser.start();
         List<StationDepartureInfo> info = parser.parse(notInService);
         verifyAll();
 
@@ -210,6 +220,7 @@ class LiveDataParserTest extends EasyMockSupport {
         String bothDirections = exampleData.replaceAll("Incoming", "Incoming/Outgoing");
 
         replayAll();
+        parser.start();
         List<StationDepartureInfo> info = parser.parse(bothDirections);
         verifyAll();
         assertEquals(2, info.size());
@@ -232,6 +243,7 @@ class LiveDataParserTest extends EasyMockSupport {
                 """;
 
         replayAll();
+        parser.start();
         Assertions.assertAll(() -> parser.parse(exampleData));
         verifyAll();
     }
@@ -250,6 +262,7 @@ class LiveDataParserTest extends EasyMockSupport {
                 """;
 
         replayAll();
+        parser.start();
         Assertions.assertAll(() -> parser.parse(exampleData));
         verifyAll();
     }

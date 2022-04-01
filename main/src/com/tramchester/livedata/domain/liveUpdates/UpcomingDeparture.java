@@ -1,5 +1,6 @@
 package com.tramchester.livedata.domain.liveUpdates;
 
+import com.tramchester.domain.Agency;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.time.TramTime;
 
@@ -14,14 +15,17 @@ public class UpcomingDeparture {
     private final Station displayLocation;
     private final Station destination;
     private final TramTime when;
+    private final Agency agency;
 
-    public UpcomingDeparture(Station displayLocation,
-                             Station destination, String status, Duration wait, String carriages, LocalTime updateTime) {
+    public UpcomingDeparture(Station displayLocation, Station destination, String status, Duration wait,
+                             String carriages, LocalTime updateTime,
+                             Agency agency) {
         this.displayLocation = displayLocation;
         this.destination = destination;
         this.status = status;
         this.wait = wait;
         this.carriages = carriages;
+        this.agency = agency;
         this.when  = TramTime.ofHourMins(updateTime).plus(wait);
     }
 
@@ -49,19 +53,24 @@ public class UpcomingDeparture {
         return displayLocation;
     }
 
+    public Agency getAgency() {
+        return agency;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        UpcomingDeparture dueTram = (UpcomingDeparture) o;
+        UpcomingDeparture that = (UpcomingDeparture) o;
 
-        if (!wait.equals(dueTram.wait)) return false;
-        if (!carriages.equals(dueTram.carriages)) return false;
-        if (!status.equals(dueTram.status)) return false;
-        if (!displayLocation.equals(dueTram.displayLocation)) return false;
-        if (!destination.equals(dueTram.destination)) return false;
-        return when.equals(dueTram.when);
+        if (!wait.equals(that.wait)) return false;
+        if (!carriages.equals(that.carriages)) return false;
+        if (!status.equals(that.status)) return false;
+        if (!displayLocation.equals(that.displayLocation)) return false;
+        if (!destination.equals(that.destination)) return false;
+        if (!when.equals(that.when)) return false;
+        return agency.equals(that.agency);
     }
 
     @Override
@@ -72,18 +81,20 @@ public class UpcomingDeparture {
         result = 31 * result + displayLocation.hashCode();
         result = 31 * result + destination.hashCode();
         result = 31 * result + when.hashCode();
+        result = 31 * result + agency.hashCode();
         return result;
     }
 
     @Override
     public String toString() {
-        return "DueTram{" +
+        return "UpcomingDeparture{" +
                 "wait=" + wait +
                 ", carriages='" + carriages + '\'' +
                 ", status='" + status + '\'' +
                 ", displayLocation=" + displayLocation +
                 ", destination=" + destination +
                 ", when=" + when +
+                ", agency=" + agency +
                 '}';
     }
 

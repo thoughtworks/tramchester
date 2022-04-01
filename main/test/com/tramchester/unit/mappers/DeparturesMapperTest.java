@@ -1,5 +1,6 @@
 package com.tramchester.unit.mappers;
 
+import com.tramchester.domain.Agency;
 import com.tramchester.domain.places.Station;
 import com.tramchester.livedata.domain.liveUpdates.UpcomingDeparture;
 import com.tramchester.livedata.domain.DTO.DepartureDTO;
@@ -23,6 +24,7 @@ class DeparturesMapperTest extends EasyMockSupport {
     private DeparturesMapper mapper;
     private LocalDate queryDate;
     private Station displayLocation;
+    private final Agency agency = TestEnv.MetAgency();
 
     @BeforeEach
     void beforeEachTestRuns() {
@@ -35,7 +37,7 @@ class DeparturesMapperTest extends EasyMockSupport {
     void shouldMapToDTOCorrectly() {
         Collection<UpcomingDeparture> dueTrams = Collections.singletonList(
                 new UpcomingDeparture(displayLocation, PiccadillyGardens.fake(),
-                "DUE", Duration.ofMinutes(9), "single", LocalTime.of(10, 32)));
+                "DUE", Duration.ofMinutes(9), "single", LocalTime.of(10, 32), agency));
 
         Set<DepartureDTO> results = mapper.mapToDTO(dueTrams, queryDate);
 
@@ -57,7 +59,7 @@ class DeparturesMapperTest extends EasyMockSupport {
     void shouldHandleCrossingMidnight() {
         Collection<UpcomingDeparture> dueTrams = Collections.singletonList(
                 new UpcomingDeparture(displayLocation, PiccadillyGardens.fake(),
-                "DUE", Duration.ofMinutes(9), "single", LocalTime.of(23, 58)));
+                "DUE", Duration.ofMinutes(9), "single", LocalTime.of(23, 58), agency));
 
         Set<DepartureDTO> results = mapper.mapToDTO(dueTrams, queryDate);
 

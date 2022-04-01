@@ -5,18 +5,22 @@ import com.github.cliftonlabs.json_simple.JsonObject;
 import com.github.cliftonlabs.json_simple.Jsoner;
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.config.TramchesterConfig;
+import com.tramchester.domain.Agency;
+import com.tramchester.domain.MutableAgency;
 import com.tramchester.domain.Platform;
 import com.tramchester.domain.factory.TransportEntityFactoryForTFGM;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.places.Station;
-import com.tramchester.livedata.domain.liveUpdates.UpcomingDeparture;
 import com.tramchester.livedata.domain.liveUpdates.LineDirection;
+import com.tramchester.livedata.domain.liveUpdates.UpcomingDeparture;
 import com.tramchester.livedata.repository.StationByName;
+import com.tramchester.repository.AgencyRepository;
 import com.tramchester.repository.StationRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import java.math.BigDecimal;
 import java.sql.Date;
@@ -41,10 +45,12 @@ public class LiveDataParser {
 
     private final StationByName stationByName;
     private final StationRepository stationRepository;
+    private final AgencyRepository agencyRepository;
     private final Map<String, String> destinationNameMappings;
 
     // live data api has limit in number of results
     private static final int MAX_DUE_TRAMS = 4;
+    private Agency agency;
 
     public enum LiveDataNamesMapping {
         Firswood("Firswood", "Firswood Station"),
@@ -72,12 +78,20 @@ public class LiveDataParser {
     }
 
     @Inject
-    public LiveDataParser(StationByName stationByName, StationRepository stationRepository) {
+    public LiveDataParser(StationByName stationByName, StationRepository stationRepository, AgencyRepository agencyRepository) {
         this.stationByName = stationByName;
         destinationNameMappings = new HashMap<>();
+        this.stationRepository = stationRepository;
+        this.agencyRepository = agencyRepository;
+    }
+
+    @PostConstruct
+    public void start() {
+        logger.info("starting");
         List<LiveDataNamesMapping> referenceData = Arrays.asList(LiveDataNamesMapping.values());
         referenceData.forEach(item -> destinationNameMappings.put(item.from, item.too));
-        this.stationRepository = stationRepository;
+        agency = agencyRepository.get(MutableAgency.METL);
+        logger.info("started");
     }
 
     public List<StationDepartureInfo> parse(String rawJson) {
@@ -211,10 +225,11 @@ public class LiveDataParser {
                             int waitInMinutes = Integer.parseInt(waitString);
                             String carriages = getNumberedField(jsonObject, "Carriages", index);
                             LocalTime lastUpdate = departureInfo.getLastUpdate().toLocalTime();
+                            Set<Agency> agencies = station.getAgencies();
 
                             Station displayLocation = departureInfo.getStation();
                             UpcomingDeparture dueTram = new UpcomingDeparture(displayLocation, station, status,
-                                    Duration.ofMinutes(waitInMinutes), carriages, lastUpdate);
+                                    Duration.ofMinutes(waitInMinutes), carriages, lastUpdate, agency);
                             departureInfo.addDueTram(dueTram);
                         },
 
