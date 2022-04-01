@@ -12,6 +12,7 @@ import com.tramchester.domain.time.TramServiceDate;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.livedata.domain.liveUpdates.PlatformMessage;
 import com.tramchester.livedata.repository.PlatformMessageSource;
+import com.tramchester.livedata.repository.ProvidesNotes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -24,7 +25,7 @@ import java.util.*;
 import static com.tramchester.domain.presentation.Note.NoteType.*;
 
 @LazySingleton
-public class ProvidesTramNotes {
+public class ProvidesTramNotes implements ProvidesNotes {
     private static final Logger logger = LoggerFactory.getLogger(ProvidesTramNotes.class);
 
     private static final String EMPTY = "<no message>";
@@ -56,6 +57,7 @@ public class ProvidesTramNotes {
     /***
      * From JourneyDTO prep
      */
+    @Override
     public List<Note> createNotesForJourney(Journey journey, TramServiceDate queryDate) {
         if (!journey.getTransportModes().contains(TransportMode.Tram)) {
             logger.info("Not a tram journey, providing no notes");
@@ -74,6 +76,7 @@ public class ProvidesTramNotes {
     /***
      * From DeparturesResource
      */
+    @Override
     public List<Note> createNotesForStations(List<Station> stations, TramServiceDate queryDate, TramTime time) {
         if (!platformMessageSource.isEnabled()) {
             logger.error("Attempted to get notes for departures when live data disabled");

@@ -7,7 +7,6 @@ import com.tramchester.domain.places.Location;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.DTO.DeparturesQueryDTO;
 import com.tramchester.domain.presentation.Note;
-import com.tramchester.livedata.tfgm.ProvidesTramNotes;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.domain.time.TramServiceDate;
@@ -17,6 +16,8 @@ import com.tramchester.livedata.domain.DTO.DepartureListDTO;
 import com.tramchester.livedata.domain.liveUpdates.DueTram;
 import com.tramchester.livedata.mappers.DeparturesMapper;
 import com.tramchester.livedata.repository.DeparturesRepository;
+import com.tramchester.livedata.repository.ProvidesNotes;
+import com.tramchester.livedata.tfgm.ProvidesTramNotes;
 import com.tramchester.repository.LocationRepository;
 import com.tramchester.repository.StationRepository;
 import io.dropwizard.jersey.caching.CacheControl;
@@ -46,7 +47,7 @@ public class DeparturesResource extends TransportResource implements APIResource
     private final LocationRepository locationRepository;
     private final DeparturesMapper departuresMapper;
     private final DeparturesRepository departuresRepository;
-    private final ProvidesTramNotes providesNotes;
+    private final ProvidesNotes providesNotes;
     private final TramchesterConfig config;
 
     @Inject

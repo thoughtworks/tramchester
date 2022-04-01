@@ -9,6 +9,7 @@ import com.tramchester.domain.presentation.DTO.LocationRefWithPosition;
 import com.tramchester.domain.presentation.DTO.factory.StageDTOFactory;
 import com.tramchester.domain.presentation.DTO.factory.DTOFactory;
 import com.tramchester.domain.presentation.Note;
+import com.tramchester.livedata.repository.ProvidesNotes;
 import com.tramchester.livedata.tfgm.ProvidesTramNotes;
 import com.tramchester.domain.presentation.TransportStage;
 import com.tramchester.domain.presentation.TravelAction;
@@ -30,7 +31,7 @@ public class JourneyToDTOMapper {
     private static final Logger logger = LoggerFactory.getLogger(JourneyToDTOMapper.class);
     private final StageDTOFactory stageFactory;
     private final DTOFactory stationDTOFactory;
-    private final ProvidesTramNotes providesNotes;
+    private final ProvidesNotes providesNotes;
 
     @Inject
     public JourneyToDTOMapper(StageDTOFactory stageFactory, DTOFactory DTOFactory, ProvidesTramNotes providesNotes) {
