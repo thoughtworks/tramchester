@@ -1,4 +1,4 @@
-package com.tramchester.domain.presentation;
+package com.tramchester.livedata.tfgm;
 
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.domain.Journey;
@@ -6,6 +6,7 @@ import com.tramchester.domain.Platform;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.DTO.factory.DTOFactory;
+import com.tramchester.domain.presentation.Note;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramServiceDate;
 import com.tramchester.domain.time.TramTime;
@@ -71,7 +72,7 @@ public class ProvidesNotes {
     }
 
     /***
-     * From DepaturesResouce
+     * From DeparturesResource
      */
     public List<Note> createNotesForStations(List<Station> stations, TramServiceDate queryDate, TramTime time) {
         if (!platformMessageSource.isEnabled()) {

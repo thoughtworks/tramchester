@@ -5,7 +5,7 @@ import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.ServiceTimeLimits;
 import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.healthchecks.LiveDataMessagesHealthCheck;
-import com.tramchester.repository.PlatformMessageRepository;
+import com.tramchester.livedata.tfgm.PlatformMessageRepository;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TestLiveDataConfig;

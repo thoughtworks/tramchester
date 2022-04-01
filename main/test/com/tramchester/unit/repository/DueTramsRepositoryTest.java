@@ -8,7 +8,7 @@ import com.tramchester.domain.places.Station;
 import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.livedata.domain.liveUpdates.*;
-import com.tramchester.livedata.repository.DueTramsRepository;
+import com.tramchester.livedata.tfgm.DueTramsRepository;
 import com.tramchester.livedata.tfgm.Lines;
 import com.tramchester.metrics.CacheMetrics;
 import com.tramchester.testSupport.TestEnv;

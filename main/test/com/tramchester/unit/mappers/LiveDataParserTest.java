@@ -12,7 +12,7 @@ import com.tramchester.livedata.domain.liveUpdates.LineDirection;
 import com.tramchester.livedata.tfgm.Lines;
 import com.tramchester.livedata.domain.liveUpdates.StationDepartureInfo;
 import com.tramchester.livedata.tfgm.LiveDataParser;
-import com.tramchester.livedata.repository.TramStationByName;
+import com.tramchester.livedata.repository.StationByName;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.reference.TramStations;
 import org.easymock.EasyMock;
@@ -45,13 +45,13 @@ class LiveDataParserTest extends EasyMockSupport {
 
 
     private LiveDataParser parser;
-    private TramStationByName tramStationByName;
+    private StationByName stationByName;
 
     @BeforeEach
     void beforeEachTestRuns() {
         StationRepository stationRepository = createStrictMock(StationRepository.class);
-        tramStationByName = createStrictMock(TramStationByName.class);
-        parser = new LiveDataParser(tramStationByName, stationRepository);
+        stationByName = createStrictMock(StationByName.class);
+        parser = new LiveDataParser(stationByName, stationRepository);
 
         final Platform platformMC = MutablePlatform.buildForTFGMTram("9400ZZMAMCU2",
                 "Media City Platform 2", MediaCityUK.getLatLong(), DataSourceID.unknown, IdFor.invalid());
@@ -72,13 +72,13 @@ class LiveDataParserTest extends EasyMockSupport {
         expectationByName(Deansgate);
         expectationByName(Ashton);
 
-        EasyMock.expect(tramStationByName.getTramStationByName("See Tram Front")).andStubReturn(Optional.empty());
-        EasyMock.expect(tramStationByName.getTramStationByName("")).andStubReturn(Optional.empty());
+        EasyMock.expect(stationByName.getTramStationByName("See Tram Front")).andStubReturn(Optional.empty());
+        EasyMock.expect(stationByName.getTramStationByName("")).andStubReturn(Optional.empty());
 
     }
 
     private void expectationByName(TramStations station) {
-        EasyMock.expect(tramStationByName.getTramStationByName(station.getName())).andStubReturn(Optional.of(station.fake()));
+        EasyMock.expect(stationByName.getTramStationByName(station.getName())).andStubReturn(Optional.of(station.fake()));
     }
 
     @Test

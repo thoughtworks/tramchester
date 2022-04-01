@@ -3,7 +3,7 @@ package com.tramchester.integration.resources.journeyPlanning;
 import com.tramchester.App;
 import com.tramchester.domain.presentation.DTO.*;
 import com.tramchester.domain.presentation.Note;
-import com.tramchester.domain.presentation.ProvidesNotes;
+import com.tramchester.livedata.tfgm.ProvidesNotes;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramServiceDate;
 import com.tramchester.domain.time.TramTime;

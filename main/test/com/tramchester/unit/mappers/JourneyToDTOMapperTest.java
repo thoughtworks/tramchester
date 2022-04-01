@@ -22,6 +22,7 @@ import com.tramchester.domain.transportStages.ConnectingStage;
 import com.tramchester.domain.transportStages.VehicleStage;
 import com.tramchester.domain.transportStages.WalkingFromStationStage;
 import com.tramchester.domain.transportStages.WalkingToStationStage;
+import com.tramchester.livedata.tfgm.ProvidesNotes;
 import com.tramchester.mappers.JourneyToDTOMapper;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.BusStations;

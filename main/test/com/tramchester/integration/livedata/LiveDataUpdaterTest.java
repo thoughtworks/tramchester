@@ -5,7 +5,7 @@ import com.tramchester.ComponentsBuilder;
 import com.tramchester.domain.places.Station;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
 import com.tramchester.livedata.tfgm.LiveDataUpdater;
-import com.tramchester.repository.PlatformMessageRepository;
+import com.tramchester.livedata.tfgm.PlatformMessageRepository;
 import com.tramchester.testSupport.testTags.LiveDataMessagesCategory;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.TramStations;

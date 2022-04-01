@@ -14,7 +14,7 @@ import com.tramchester.livedata.tfgm.Lines;
 import com.tramchester.livedata.domain.liveUpdates.PlatformMessage;
 import com.tramchester.livedata.domain.liveUpdates.StationDepartureInfo;
 import com.tramchester.metrics.CacheMetrics;
-import com.tramchester.repository.PlatformMessageRepository;
+import com.tramchester.livedata.tfgm.PlatformMessageRepository;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.TramStations;
 import org.easymock.EasyMock;

@@ -15,15 +15,15 @@ import java.util.Map;
 import java.util.Optional;
 
 @LazySingleton
-public class TramStationByName {
-    private static final Logger logger = LoggerFactory.getLogger(TramStationByName.class);
+public class StationByName {
+    private static final Logger logger = LoggerFactory.getLogger(StationByName.class);
 
     private final StationRepository stationRepository;
 
     private final Map<String, Station> tramStationsByName = new HashMap<>();  // tram station name -> station
 
     @Inject
-    public TramStationByName(StationRepository stationRepository) {
+    public StationByName(StationRepository stationRepository) {
         this.stationRepository = stationRepository;
     }
 

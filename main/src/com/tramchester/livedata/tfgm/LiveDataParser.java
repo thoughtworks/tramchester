@@ -13,7 +13,7 @@ import com.tramchester.domain.places.Station;
 import com.tramchester.livedata.domain.liveUpdates.DueTram;
 import com.tramchester.livedata.domain.liveUpdates.LineDirection;
 import com.tramchester.livedata.domain.liveUpdates.StationDepartureInfo;
-import com.tramchester.livedata.repository.TramStationByName;
+import com.tramchester.livedata.repository.StationByName;
 import com.tramchester.repository.StationRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,7 +40,7 @@ public class LiveDataParser {
 
     private final TimeZone timeZone = TimeZone.getTimeZone(TramchesterConfig.TimeZoneId);
 
-    private final TramStationByName tramStationByName;
+    private final StationByName stationByName;
     private final StationRepository stationRepository;
     private final Map<String, String> destinationNameMappings;
 
@@ -73,8 +73,8 @@ public class LiveDataParser {
     }
 
     @Inject
-    public LiveDataParser(TramStationByName tramStationByName, StationRepository stationRepository) {
-        this.tramStationByName = tramStationByName;
+    public LiveDataParser(StationByName stationByName, StationRepository stationRepository) {
+        this.stationByName = stationByName;
         destinationNameMappings = new HashMap<>();
         List<LiveDataNamesMapping> referenceData = Arrays.asList(LiveDataNamesMapping.values());
         referenceData.forEach(item -> destinationNameMappings.put(item.from, item.too));
@@ -247,7 +247,7 @@ public class LiveDataParser {
         }
 
         String destinationName = mapLiveAPIToTimetableDataNames(name);
-        return tramStationByName.getTramStationByName(destinationName);
+        return stationByName.getTramStationByName(destinationName);
     }
 
     private String mapLiveAPIToTimetableDataNames(String destinationName) {

@@ -7,7 +7,7 @@ import com.tramchester.domain.places.Location;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.DTO.DeparturesQueryDTO;
 import com.tramchester.domain.presentation.Note;
-import com.tramchester.domain.presentation.ProvidesNotes;
+import com.tramchester.livedata.tfgm.ProvidesNotes;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.domain.time.TramServiceDate;

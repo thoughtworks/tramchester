@@ -13,7 +13,7 @@ import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
 import com.tramchester.livedata.tfgm.LiveDataUpdater;
 import com.tramchester.livedata.tfgm.TramPosition;
 import com.tramchester.livedata.tfgm.TramPositionInference;
-import com.tramchester.livedata.repository.DueTramsRepository;
+import com.tramchester.livedata.tfgm.DueTramsRepository;
 import com.tramchester.livedata.repository.DueTramsSource;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.repository.TramStationAdjacenyRepository;

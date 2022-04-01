@@ -6,7 +6,7 @@ import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.livedata.domain.liveUpdates.PlatformMessage;
-import com.tramchester.repository.PlatformMessageRepository;
+import com.tramchester.livedata.tfgm.PlatformMessageRepository;
 
 import java.time.LocalDate;
 import java.util.List;

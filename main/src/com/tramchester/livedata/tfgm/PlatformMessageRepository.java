@@ -1,4 +1,4 @@
-package com.tramchester.repository;
+package com.tramchester.livedata.tfgm;
 
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
@@ -18,6 +18,7 @@ import com.tramchester.livedata.repository.PlatformMessageSource;
 import com.tramchester.metrics.CacheMetrics;
 import com.tramchester.metrics.HasMetrics;
 import com.tramchester.metrics.RegistersMetrics;
+import com.tramchester.repository.ReportsCacheStats;
 import org.apache.commons.lang3.tuple.Pair;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.jetbrains.annotations.NotNull;
@@ -190,8 +191,8 @@ public class PlatformMessageRepository implements PlatformMessageSource, Reports
     }
 
     private boolean withinTime(TramTime queryTime, LocalTime updateTime) {
-        TramTime limitBefore = TramTime.of(updateTime.minusMinutes(TIME_LIMIT));
-        TramTime limitAfter = TramTime.of(updateTime.plusMinutes(TIME_LIMIT));
+        TramTime limitBefore = TramTime.ofHourMins(updateTime.minusMinutes(TIME_LIMIT));
+        TramTime limitAfter = TramTime.ofHourMins(updateTime.plusMinutes(TIME_LIMIT));
         return queryTime.between(limitBefore, limitAfter);
     }
 
