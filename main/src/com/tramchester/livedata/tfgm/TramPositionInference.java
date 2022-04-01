@@ -9,9 +9,8 @@ import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramServiceDate;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.RouteReachable;
-import com.tramchester.livedata.domain.liveUpdates.DueTram;
 import com.tramchester.livedata.domain.liveUpdates.PlatformDueTrams;
-import com.tramchester.livedata.repository.DueTramsSource;
+import com.tramchester.livedata.domain.liveUpdates.UpcomingDeparture;
 import com.tramchester.repository.TramStationAdjacenyRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,14 +29,14 @@ public class TramPositionInference {
 
     private static final String DEPARTING = "Departing";
 
-    private final DueTramsSource liveDataSource;
+    private final TramDepartureRepository departureRepository;
     private final TramStationAdjacenyRepository adjacenyRepository;
     private final RouteReachable routeReachable;
 
     @Inject
-    public TramPositionInference(DueTramsSource liveDataSource, TramStationAdjacenyRepository adjacenyRepository,
+    public TramPositionInference(TramDepartureRepository departureRepository, TramStationAdjacenyRepository adjacenyRepository,
                                  RouteReachable routeReachable) {
-        this.liveDataSource = liveDataSource;
+        this.departureRepository = departureRepository;
         this.adjacenyRepository = adjacenyRepository;
         this.routeReachable = routeReachable;
     }
@@ -61,14 +60,14 @@ public class TramPositionInference {
             return new TramPosition(pair, Collections.emptySet(), cost);
         }
 
-        Set<DueTram> dueTrams = getDueTrams(pair, date.getDate(), time, cost);
+        Set<UpcomingDeparture> dueTrams = getDueTrams(pair, date.getDate(), time, cost);
 
         logger.debug(format("Found %s trams between %s", dueTrams.size(), pair));
 
         return new TramPosition(pair, dueTrams, cost);
     }
 
-    private Set<DueTram> getDueTrams(StationPair pair, LocalDate date, TramTime time, Duration cost) {
+    private Set<UpcomingDeparture> getDueTrams(StationPair pair, LocalDate date, TramTime time, Duration cost) {
         Station neighbour = pair.getEnd();
 
         if (!pair.bothServeMode(TransportMode.Tram) ) {
@@ -81,7 +80,7 @@ public class TramPositionInference {
         Set<PlatformDueTrams> platformDueTrams = new HashSet<>();
         routesBetween.forEach(route -> {
             Set<Platform> platforms = neighbour.getPlatformsForRoute(route);
-            platforms.forEach(platform -> liveDataSource.dueTramsForPlatform(platform.getId(), date, time).ifPresent(platformDueTrams::add));
+            platforms.forEach(platform -> departureRepository.dueTramsForPlatform(platform.getId(), date, time).ifPresent(platformDueTrams::add));
         });
 
         if (platformDueTrams.isEmpty()) {

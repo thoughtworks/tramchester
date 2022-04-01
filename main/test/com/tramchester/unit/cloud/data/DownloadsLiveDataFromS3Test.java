@@ -4,7 +4,7 @@ import com.tramchester.cloud.data.LiveDataClientForS3;
 import com.tramchester.livedata.cloud.DownloadsLiveDataFromS3;
 import com.tramchester.cloud.data.S3Keys;
 import com.tramchester.cloud.data.StationDepartureMapper;
-import com.tramchester.livedata.domain.liveUpdates.StationDepartureInfo;
+import com.tramchester.livedata.tfgm.StationDepartureInfo;
 import com.tramchester.livedata.domain.DTO.StationDepartureInfoDTO;
 import com.tramchester.testSupport.reference.TramStations;
 import com.tramchester.unit.repository.LiveDataUpdaterTest;

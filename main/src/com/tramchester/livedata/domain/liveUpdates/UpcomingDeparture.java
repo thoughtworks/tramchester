@@ -6,7 +6,7 @@ import com.tramchester.domain.time.TramTime;
 import java.time.Duration;
 import java.time.LocalTime;
 
-public class DueTram {
+public class UpcomingDeparture {
 
     private final Duration wait;
     private final String carriages; // double/single
@@ -15,8 +15,8 @@ public class DueTram {
     private final Station destination;
     private final TramTime when;
 
-    public DueTram(Station displayLocation,
-            Station destination, String status, Duration wait, String carriages, LocalTime updateTime) {
+    public UpcomingDeparture(Station displayLocation,
+                             Station destination, String status, Duration wait, String carriages, LocalTime updateTime) {
         this.displayLocation = displayLocation;
         this.destination = destination;
         this.status = status;
@@ -54,7 +54,7 @@ public class DueTram {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        DueTram dueTram = (DueTram) o;
+        UpcomingDeparture dueTram = (UpcomingDeparture) o;
 
         if (!wait.equals(dueTram.wait)) return false;
         if (!carriages.equals(dueTram.carriages)) return false;

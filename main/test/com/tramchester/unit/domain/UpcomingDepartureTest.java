@@ -1,7 +1,7 @@
 package com.tramchester.unit.domain;
 
 import com.tramchester.domain.places.Station;
-import com.tramchester.livedata.domain.liveUpdates.DueTram;
+import com.tramchester.livedata.domain.liveUpdates.UpcomingDeparture;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.testSupport.reference.TramStations;
 import org.junit.jupiter.api.BeforeEach;
@@ -12,7 +12,7 @@ import java.time.LocalTime;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class DueTramTest {
+class UpcomingDepartureTest {
 
     private Station destination;
     private Station displayLocation;
@@ -26,7 +26,7 @@ class DueTramTest {
     @Test
     void calculateWhenCorrectly() {
         LocalTime updateTime = LocalTime.of(10,42);
-        DueTram dueTram = new DueTram(displayLocation, destination, "Due",
+        UpcomingDeparture dueTram = new UpcomingDeparture(displayLocation, destination, "Due",
                 Duration.ofMinutes(4), "Double", updateTime);
 
         TramTime result = dueTram.getWhen();
@@ -42,7 +42,7 @@ class DueTramTest {
     @Test
     void calculateWhenCorrectAcrossMidnight() {
         LocalTime updateTime = LocalTime.of(23,58);
-        DueTram dueTram = new DueTram(displayLocation, destination, "Due",
+        UpcomingDeparture dueTram = new UpcomingDeparture(displayLocation, destination, "Due",
                 Duration.ofMinutes(4), "Double", updateTime);
 
         TramTime result = dueTram.getWhen();

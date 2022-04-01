@@ -8,6 +8,7 @@ import com.tramchester.domain.places.Station;
 import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.livedata.domain.liveUpdates.*;
+import com.tramchester.livedata.tfgm.StationDepartureInfo;
 import com.tramchester.livedata.tfgm.TramDepartureRepository;
 import com.tramchester.livedata.tfgm.Lines;
 import com.tramchester.metrics.CacheMetrics;
@@ -57,7 +58,7 @@ class TramDepartureRepositoryTest extends EasyMockSupport {
         List<StationDepartureInfo> infos = new ArrayList<>();
 
         // first station, has due tram
-        DueTram dueTram = new DueTram(station, Bury.fake(), "Due", Duration.ofMinutes(42), "Single", lastUpdate.toLocalTime());
+        UpcomingDeparture dueTram = new UpcomingDeparture(station, Bury.fake(), "Due", Duration.ofMinutes(42), "Single", lastUpdate.toLocalTime());
         addStationInfoWithDueTram(infos, lastUpdate, "displayId1", platform.getId(),
                 "message 1", station, dueTram);
 
@@ -65,7 +66,7 @@ class TramDepartureRepositoryTest extends EasyMockSupport {
         Platform platfromForSecondStation = MutablePlatform.buildForTFGMTram("a1", "Altrincham platform 1", Altrincham.getLatLong(), DataSourceID.unknown, IdFor.invalid());
         Station secondStation = Altrincham.fakeWith(platfromForSecondStation);
 
-        DueTram dueTramOther = new DueTram(secondStation, ManAirport.fake(), "Due", Duration.ofMinutes(12), "Double", lastUpdate.toLocalTime());
+        UpcomingDeparture dueTramOther = new UpcomingDeparture(secondStation, ManAirport.fake(), "Due", Duration.ofMinutes(12), "Double", lastUpdate.toLocalTime());
         addStationInfoWithDueTram(infos, lastUpdate, "displayId2", platfromForSecondStation.getId(),
                 "message 2", secondStation, dueTramOther);
 
@@ -93,7 +94,7 @@ class TramDepartureRepositoryTest extends EasyMockSupport {
         List<StationDepartureInfo> infos = new ArrayList<>();
 
         Station destination = Bury.fake();
-        DueTram dueTram = new DueTram(station, destination, "Due", Duration.ofMinutes(42), "Single", lastUpdate.toLocalTime());
+        UpcomingDeparture dueTram = new UpcomingDeparture(station, destination, "Due", Duration.ofMinutes(42), "Single", lastUpdate.toLocalTime());
         addStationInfoWithDueTram(infos, lastUpdate, "displayId", platform.getId(),
                 "some message", station, dueTram);
 
@@ -101,7 +102,7 @@ class TramDepartureRepositoryTest extends EasyMockSupport {
         Station otherStation = Altrincham.fakeWith(otherPlatform);
 
         Station destinationManAirport = ManAirport.fake();
-        DueTram dueTramOther = new DueTram(otherStation, destinationManAirport, "Due", Duration.ofMinutes(12), "Double", lastUpdate.toLocalTime());
+        UpcomingDeparture dueTramOther = new UpcomingDeparture(otherStation, destinationManAirport, "Due", Duration.ofMinutes(12), "Double", lastUpdate.toLocalTime());
         addStationInfoWithDueTram(infos, lastUpdate, "displayXXX", otherPlatform.getId(),
                 "some message", otherStation, dueTramOther);
 
@@ -115,16 +116,16 @@ class TramDepartureRepositoryTest extends EasyMockSupport {
         assertEquals(2, repository.getNumStationsWithData(lastUpdate));
 
         TramTime queryTime = TramTime.of(lastUpdate.toLocalTime());
-        List<DueTram> results = repository.dueTramsForStation(station, lastUpdate.toLocalDate(), queryTime);
+        List<UpcomingDeparture> results = repository.dueTramsForStation(station, lastUpdate.toLocalDate(), queryTime);
 
         assertEquals(1, results.size());
-        DueTram result = results.get(0);
+        UpcomingDeparture result = results.get(0);
         assertEquals("Due", result.getStatus());
         assertMinutesEquals(42, result.getWait());
         assertEquals("Single", result.getCarriages());
         assertEquals(destination, result.getDestination());
 
-        List<DueTram> resultOther = repository.dueTramsForStation(otherStation, lastUpdate.toLocalDate(), queryTime);
+        List<UpcomingDeparture> resultOther = repository.dueTramsForStation(otherStation, lastUpdate.toLocalDate(), queryTime);
         assertEquals(1, resultOther.size());
         assertEquals(destinationManAirport, resultOther.get(0).getDestination());
     }
@@ -134,7 +135,7 @@ class TramDepartureRepositoryTest extends EasyMockSupport {
         List<StationDepartureInfo> infos = new ArrayList<>();
 
         Station destination = Bury.fake();
-        DueTram dueTram = new DueTram(station, destination, "Departed", Duration.ofMinutes(42), "Single", lastUpdate.toLocalTime());
+        UpcomingDeparture dueTram = new UpcomingDeparture(station, destination, "Departed", Duration.ofMinutes(42), "Single", lastUpdate.toLocalTime());
         addStationInfoWithDueTram(infos, lastUpdate, "displayId", platform.getId(),
                 "some message", station, dueTram);
 
@@ -153,7 +154,7 @@ class TramDepartureRepositoryTest extends EasyMockSupport {
         Optional<PlatformDueTrams> allTramsForPlatform = repository.dueTramsForPlatform(platform.getId(), lastUpdate.toLocalDate(), queryTime);
         assertTrue(allTramsForPlatform.isPresent());
 
-        List<DueTram> results = repository.dueTramsForStation(station, lastUpdate.toLocalDate(), queryTime);
+        List<UpcomingDeparture> results = repository.dueTramsForStation(station, lastUpdate.toLocalDate(), queryTime);
         assertEquals(0, results.size());
     }
 
@@ -162,7 +163,7 @@ class TramDepartureRepositoryTest extends EasyMockSupport {
         List<StationDepartureInfo> info = new LinkedList<>();
 
         final LocalTime lastUpdateTime = lastUpdate.toLocalTime();
-        DueTram dueTram = new DueTram(station, station, "Due", Duration.ofMinutes(42), "Single", lastUpdateTime);
+        UpcomingDeparture dueTram = new UpcomingDeparture(station, station, "Due", Duration.ofMinutes(42), "Single", lastUpdateTime);
         addStationInfoWithDueTram(info, lastUpdate, "displayId", platform.getId(), "some message",
                 station, dueTram);
 
@@ -171,9 +172,9 @@ class TramDepartureRepositoryTest extends EasyMockSupport {
         replayAll();
         repository.updateCache(info);
         LocalDate queryDate = lastUpdate.toLocalDate();
-        List<DueTram> dueTramsNow = repository.dueTramsForStation(station, queryDate, TramTime.of(lastUpdateTime));
-        List<DueTram> dueTramsEarlier = repository.dueTramsForStation(station, queryDate, TramTime.of(lastUpdateTime.minusMinutes(5)));
-        List<DueTram> dueTramsLater = repository.dueTramsForStation(station, queryDate, TramTime.of(lastUpdateTime.plusMinutes(5)));
+        List<UpcomingDeparture> dueTramsNow = repository.dueTramsForStation(station, queryDate, TramTime.of(lastUpdateTime));
+        List<UpcomingDeparture> dueTramsEarlier = repository.dueTramsForStation(station, queryDate, TramTime.of(lastUpdateTime.minusMinutes(5)));
+        List<UpcomingDeparture> dueTramsLater = repository.dueTramsForStation(station, queryDate, TramTime.of(lastUpdateTime.plusMinutes(5)));
         verifyAll();
 
         assertEquals(1, dueTramsNow.size());
@@ -189,7 +190,7 @@ class TramDepartureRepositoryTest extends EasyMockSupport {
         List<StationDepartureInfo> info = new LinkedList<>();
 
         final LocalTime lastUpdateTime = lastUpdate.toLocalTime();
-        DueTram dueTram = new DueTram(station, station, "Due", Duration.ofMinutes(42), "Single", lastUpdateTime);
+        UpcomingDeparture dueTram = new UpcomingDeparture(station, station, "Due", Duration.ofMinutes(42), "Single", lastUpdateTime);
         addStationInfoWithDueTram(info, lastUpdate, "displayId", platform.getId(), "some message",
                 station, dueTram);
 
@@ -200,9 +201,9 @@ class TramDepartureRepositoryTest extends EasyMockSupport {
         replayAll();
         repository.updateCache(info);
         LocalDate queryDate = lastUpdate.toLocalDate();
-        List<DueTram> dueTramsNow = repository.dueTramsForStation(station, queryDate, TramTime.of(lastUpdateTime));
-        List<DueTram> dueTramsEarlier = repository.dueTramsForStation(station, queryDate, TramTime.of(earlier.toLocalTime()));
-        List<DueTram> dueTramsLater = repository.dueTramsForStation(station, queryDate, TramTime.of(later.toLocalTime()));
+        List<UpcomingDeparture> dueTramsNow = repository.dueTramsForStation(station, queryDate, TramTime.of(lastUpdateTime));
+        List<UpcomingDeparture> dueTramsEarlier = repository.dueTramsForStation(station, queryDate, TramTime.of(earlier.toLocalTime()));
+        List<UpcomingDeparture> dueTramsLater = repository.dueTramsForStation(station, queryDate, TramTime.of(later.toLocalTime()));
 
         verifyAll();
 
@@ -221,10 +222,10 @@ class TramDepartureRepositoryTest extends EasyMockSupport {
 
     static void addStationInfoWithDueTram(List<StationDepartureInfo> info, LocalDateTime lastUpdate,
                                           String displayId, IdFor<Platform> platformId, String message,
-                                          Station location, DueTram dueTram) {
+                                          Station location, UpcomingDeparture upcomingDeparture) {
         StationDepartureInfo departureInfo = new StationDepartureInfo(displayId, Lines.Eccles,
                 LineDirection.Incoming, platformId, location, message, lastUpdate);
         info.add(departureInfo);
-        departureInfo.addDueTram(dueTram);
+        departureInfo.addDueTram(upcomingDeparture);
     }
 }

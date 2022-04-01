@@ -6,7 +6,7 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.tramchester.domain.places.Location;
-import com.tramchester.livedata.domain.liveUpdates.DueTram;
+import com.tramchester.livedata.domain.liveUpdates.UpcomingDeparture;
 import com.tramchester.mappers.serialisation.LocalDateTimeJsonDeserializer;
 import com.tramchester.mappers.serialisation.LocalDateTimeJsonSerializer;
 import com.tramchester.mappers.serialisation.LocalTimeJsonSerializer;
@@ -29,9 +29,9 @@ public class DepartureDTO implements Comparable<DepartureDTO> {
     private LocalDateTime dueTime;
     private int wait;
 
-    public DepartureDTO(Location<?> from, DueTram dueTram, LocalDate queryDate) {
-        this(from.getName(), dueTram.getDestination().getName(), dueTram.getCarriages(), dueTram.getStatus(),
-                dueTram.getWhen().toDate(queryDate), (int) dueTram.getWait().toMinutes());
+    public DepartureDTO(Location<?> from, UpcomingDeparture upcomingDeparture, LocalDate queryDate) {
+        this(from.getName(), upcomingDeparture.getDestination().getName(), upcomingDeparture.getCarriages(), upcomingDeparture.getStatus(),
+                upcomingDeparture.getWhen().toDate(queryDate), (int) upcomingDeparture.getWait().toMinutes());
     }
 
     private DepartureDTO(String from, String destination, String carriages, String status, LocalDateTime dueTime, int wait) {

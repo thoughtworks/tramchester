@@ -7,10 +7,10 @@ import com.tramchester.domain.Platform;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.places.Station;
-import com.tramchester.livedata.domain.liveUpdates.DueTram;
+import com.tramchester.livedata.domain.liveUpdates.UpcomingDeparture;
 import com.tramchester.livedata.domain.liveUpdates.LineDirection;
 import com.tramchester.livedata.tfgm.Lines;
-import com.tramchester.livedata.domain.liveUpdates.StationDepartureInfo;
+import com.tramchester.livedata.tfgm.StationDepartureInfo;
 import com.tramchester.livedata.tfgm.LiveDataParser;
 import com.tramchester.livedata.repository.StationByName;
 import com.tramchester.repository.StationRepository;
@@ -133,9 +133,9 @@ class LiveDataParserTest extends EasyMockSupport {
                 "ahead with additional time for travel.", departureInfoA.getMessage());
         assertEquals(LineDirection.Incoming, departureInfoA.getDirection());
 
-        List<DueTram> dueTrams = departureInfoA.getDueTrams();
+        List<UpcomingDeparture> dueTrams = departureInfoA.getDueTrams();
         assertEquals(3, dueTrams.size());
-        DueTram dueTram = dueTrams.get(1);
+        UpcomingDeparture dueTram = dueTrams.get(1);
 
         assertEquals("Piccadilly", dueTram.getDestination().getName());
         assertEquals("Due", dueTram.getStatus());

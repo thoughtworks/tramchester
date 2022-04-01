@@ -13,7 +13,6 @@ import com.tramchester.domain.places.Station;
 import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.livedata.domain.liveUpdates.PlatformMessage;
-import com.tramchester.livedata.domain.liveUpdates.StationDepartureInfo;
 import com.tramchester.livedata.repository.PlatformMessageSource;
 import com.tramchester.metrics.CacheMetrics;
 import com.tramchester.metrics.HasMetrics;

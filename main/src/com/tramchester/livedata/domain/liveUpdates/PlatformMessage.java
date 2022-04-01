@@ -4,6 +4,7 @@ import com.tramchester.domain.Platform;
 import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.places.Station;
+import com.tramchester.livedata.tfgm.StationDepartureInfo;
 import org.jetbrains.annotations.NotNull;
 
 import java.time.LocalDateTime;

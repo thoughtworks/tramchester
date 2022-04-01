@@ -6,9 +6,9 @@ import com.github.cliftonlabs.json_simple.Jsoner;
 import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.domain.places.Station;
-import com.tramchester.livedata.domain.liveUpdates.DueTram;
+import com.tramchester.livedata.domain.liveUpdates.UpcomingDeparture;
 import com.tramchester.livedata.tfgm.Lines;
-import com.tramchester.livedata.domain.liveUpdates.StationDepartureInfo;
+import com.tramchester.livedata.tfgm.StationDepartureInfo;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
 import com.tramchester.livedata.tfgm.LiveDataHTTPFetcher;
 import com.tramchester.livedata.tfgm.LiveDataParser;
@@ -101,7 +101,7 @@ class LiveDataHTTPFetcherTest {
         assertTrue(departureInfos.size()>0);
 
         Set<Station> destinations = departureInfos.stream().flatMap(entry -> entry.getDueTrams().stream()).
-                map(DueTram::getDestination).collect(Collectors.toSet());
+                map(UpcomingDeparture::getDestination).collect(Collectors.toSet());
 
         Set<String> stationNames = transportData.getStations().stream().map(Station::getName).collect(Collectors.toSet());
 

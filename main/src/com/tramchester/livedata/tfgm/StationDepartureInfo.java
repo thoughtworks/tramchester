@@ -1,10 +1,11 @@
-package com.tramchester.livedata.domain.liveUpdates;
+package com.tramchester.livedata.tfgm;
 
 import com.tramchester.domain.Platform;
 import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.places.Station;
-import com.tramchester.livedata.tfgm.Lines;
+import com.tramchester.livedata.domain.liveUpdates.LineDirection;
+import com.tramchester.livedata.domain.liveUpdates.UpcomingDeparture;
 
 import java.time.LocalDateTime;
 import java.util.LinkedList;
@@ -18,7 +19,7 @@ public class StationDepartureInfo  {
     private final Lines line;
     private final IdFor<Platform> stationPlatform;
     private final String message;
-    private final List<DueTram> dueTrams;
+    private final List<UpcomingDeparture> dueTrams;
     private final LocalDateTime lastUpdate;
     private final String displayId;
     private final Station station;
@@ -65,7 +66,7 @@ public class StationDepartureInfo  {
         return message;
     }
 
-    public List<DueTram> getDueTrams() {
+    public List<UpcomingDeparture> getDueTrams() {
         return dueTrams;
     }
 
@@ -73,7 +74,7 @@ public class StationDepartureInfo  {
         return lastUpdate;
     }
 
-    public void addDueTram(DueTram dueTram) {
+    public void addDueTram(UpcomingDeparture dueTram) {
         dueTrams.add(dueTram);
     }
 

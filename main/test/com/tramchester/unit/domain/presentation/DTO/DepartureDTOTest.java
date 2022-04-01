@@ -1,7 +1,7 @@
 package com.tramchester.unit.domain.presentation.DTO;
 
 import com.tramchester.domain.places.Station;
-import com.tramchester.livedata.domain.liveUpdates.DueTram;
+import com.tramchester.livedata.domain.liveUpdates.UpcomingDeparture;
 import com.tramchester.livedata.domain.DTO.DepartureDTO;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.TramStations;
@@ -40,7 +40,7 @@ class DepartureDTOTest {
             updateTime = updateTime.minusHours(1);
         }
 
-        DueTram dueTram = getDueTram(updateTime, TramStations.Bury, 42);
+        UpcomingDeparture dueTram = getDueTram(updateTime, TramStations.Bury, 42);
         DepartureDTO departureDTO = new DepartureDTO(StPetersSquare.fake(), dueTram, updateDate);
 
         Assertions.assertEquals(StPetersSquare.getName(), departureDTO.getFrom());
@@ -75,8 +75,8 @@ class DepartureDTOTest {
     }
 
     @NotNull
-    private DueTram getDueTram(LocalTime updateTime, TramStations station, int wait) {
-        return new DueTram(NavigationRoad.fake(),
+    private UpcomingDeparture getDueTram(LocalTime updateTime, TramStations station, int wait) {
+        return new UpcomingDeparture(NavigationRoad.fake(),
                 station.fake(), "status", Duration.ofMinutes(wait), "carriages", updateTime);
     }
 }

@@ -11,10 +11,9 @@ import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.RouteReachable;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
 import com.tramchester.livedata.tfgm.LiveDataUpdater;
+import com.tramchester.livedata.tfgm.TramDepartureRepository;
 import com.tramchester.livedata.tfgm.TramPosition;
 import com.tramchester.livedata.tfgm.TramPositionInference;
-import com.tramchester.livedata.tfgm.TramDepartureRepository;
-import com.tramchester.livedata.repository.DueTramsSource;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.repository.TramStationAdjacenyRepository;
 import com.tramchester.testSupport.TestEnv;
@@ -54,9 +53,9 @@ class TramPositionInferenceTest {
         liveDataSource.refreshRespository();
         RouteReachable routeReachable = componentContainer.get(RouteReachable.class);
         TramStationAdjacenyRepository adjacenyMatrix = componentContainer.get(TramStationAdjacenyRepository.class);
-        DueTramsSource dueTramsRepo = componentContainer.get(TramDepartureRepository.class);
+        TramDepartureRepository departureRepository = componentContainer.get(TramDepartureRepository.class);
 
-        positionInference = new TramPositionInference(dueTramsRepo, adjacenyMatrix, routeReachable);
+        positionInference = new TramPositionInference(departureRepository, adjacenyMatrix, routeReachable);
         stationRepository = componentContainer.get(StationRepository.class);
         date = TramServiceDate.of(providesLocalNow.getDate());
         time = providesLocalNow.getNowHourMins();

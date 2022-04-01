@@ -3,7 +3,6 @@ package com.tramchester.livedata.tfgm;
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.domain.time.TramTime;
-import com.tramchester.livedata.domain.liveUpdates.StationDepartureInfo;
 import com.tramchester.livedata.repository.LiveDataCache;
 import com.tramchester.livedata.repository.LiveDataObserver;
 import org.jetbrains.annotations.NotNull;

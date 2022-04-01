@@ -2,17 +2,17 @@ package com.tramchester.livedata.tfgm;
 
 import com.tramchester.domain.StationPair;
 import com.tramchester.domain.places.Station;
-import com.tramchester.livedata.domain.liveUpdates.DueTram;
+import com.tramchester.livedata.domain.liveUpdates.UpcomingDeparture;
 
 import java.time.Duration;
 import java.util.Set;
 
 public class TramPosition {
     private final StationPair stationPair;
-    private final Set<DueTram> trams;
+    private final Set<UpcomingDeparture> trams;
     private final Duration cost;
 
-    public TramPosition(StationPair stationPair, Set<DueTram> trams, Duration cost) {
+    public TramPosition(StationPair stationPair, Set<UpcomingDeparture> trams, Duration cost) {
         this.stationPair = stationPair;
         this.trams = trams;
         this.cost = cost;
@@ -26,7 +26,7 @@ public class TramPosition {
         return stationPair.getEnd();
     }
 
-    public Set<DueTram> getTrams() {
+    public Set<UpcomingDeparture> getTrams() {
         return trams;
     }
 

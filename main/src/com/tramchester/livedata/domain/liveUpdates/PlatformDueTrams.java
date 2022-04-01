@@ -3,6 +3,7 @@ package com.tramchester.livedata.domain.liveUpdates;
 import com.tramchester.domain.Platform;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.places.Station;
+import com.tramchester.livedata.tfgm.StationDepartureInfo;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
@@ -11,11 +12,11 @@ import java.util.stream.Collectors;
 
 public class PlatformDueTrams {
     private final IdFor<Platform> stationPlatform;
-    private final List<DueTram> dueTrams;
+    private final List<UpcomingDeparture> dueTrams;
     private final LocalDateTime lastUpdate;
     private final IdFor<Station> stationId;
 
-    private PlatformDueTrams(IdFor<Platform> stationPlatform, List<DueTram> dueTrams, LocalDateTime lastUpdate,
+    private PlatformDueTrams(IdFor<Platform> stationPlatform, List<UpcomingDeparture> dueTrams, LocalDateTime lastUpdate,
                              IdFor<Station> stationId) {
         this.stationPlatform = stationPlatform;
         this.dueTrams = dueTrams;
@@ -28,11 +29,11 @@ public class PlatformDueTrams {
                 departureInfo.getStation().getId());
     }
 
-    public boolean hasDueTram(DueTram dueTram) {
+    public boolean hasDueTram(UpcomingDeparture dueTram) {
         return dueTrams.contains(dueTram);
     }
 
-    public void addDueTram(DueTram dueTram) {
+    public void addDueTram(UpcomingDeparture dueTram) {
         dueTrams.add(dueTram);
     }
 
@@ -40,11 +41,11 @@ public class PlatformDueTrams {
         return lastUpdate;
     }
 
-    public List<DueTram> getDueTrams() {
+    public List<UpcomingDeparture> getDueTrams() {
         return dueTrams;
     }
 
-    public List<DueTram> getDueTramsWithinWindow(Duration window) {
+    public List<UpcomingDeparture> getDueTramsWithinWindow(Duration window) {
         return dueTrams.stream().
                 filter(dueTram -> dueTram.getWait().compareTo(window)<=0).collect(Collectors.toList());
     }

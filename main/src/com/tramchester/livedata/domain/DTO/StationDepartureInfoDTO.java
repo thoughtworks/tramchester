@@ -2,8 +2,8 @@ package com.tramchester.livedata.domain.DTO;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.tramchester.livedata.domain.liveUpdates.DueTram;
-import com.tramchester.livedata.domain.liveUpdates.StationDepartureInfo;
+import com.tramchester.livedata.domain.liveUpdates.UpcomingDeparture;
+import com.tramchester.livedata.tfgm.StationDepartureInfo;
 import com.tramchester.mappers.serialisation.LocalDateTimeJsonDeserializer;
 import com.tramchester.mappers.serialisation.LocalDateTimeJsonSerializer;
 
@@ -51,7 +51,7 @@ public class StationDepartureInfoDTO  {
         // deserialisation
     }
 
-    private static List<DepartureDTO> mapDueTrams(List<DueTram> dueTrams, LocalDate queryDate) {
+    private static List<DepartureDTO> mapDueTrams(List<UpcomingDeparture> dueTrams, LocalDate queryDate) {
         return dueTrams.stream().map(dueTram ->
                 new DepartureDTO(dueTram.getDisplayLocation(), dueTram, queryDate)).collect(Collectors.toList());
     }

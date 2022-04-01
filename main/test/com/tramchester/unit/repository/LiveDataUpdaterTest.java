@@ -6,8 +6,8 @@ import com.tramchester.livedata.domain.liveUpdates.LineDirection;
 import com.tramchester.livedata.tfgm.Lines;
 import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.domain.time.TramTime;
-import com.tramchester.livedata.domain.liveUpdates.DueTram;
-import com.tramchester.livedata.domain.liveUpdates.StationDepartureInfo;
+import com.tramchester.livedata.domain.liveUpdates.UpcomingDeparture;
+import com.tramchester.livedata.tfgm.StationDepartureInfo;
 import com.tramchester.livedata.tfgm.LiveDataFetcher;
 import com.tramchester.livedata.tfgm.LiveDataHTTPFetcher;
 import com.tramchester.livedata.tfgm.LiveDataParser;
@@ -108,7 +108,7 @@ public class LiveDataUpdaterTest extends EasyMockSupport {
                                                                       Station location) {
         StationDepartureInfo departureInfo = new StationDepartureInfo(displayId, Lines.Airport,
                 LineDirection.Incoming, StringIdFor.createId(platformId), location, message, lastUpdate);
-        DueTram dueTram = new DueTram(location, Bury.fake(),
+        UpcomingDeparture dueTram = new UpcomingDeparture(location, Bury.fake(),
                 "Due", Duration.ofMinutes(42), "Single", lastUpdate.toLocalTime());
         departureInfo.addDueTram(dueTram);
         return departureInfo;

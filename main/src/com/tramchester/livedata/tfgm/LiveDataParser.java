@@ -10,9 +10,8 @@ import com.tramchester.domain.factory.TransportEntityFactoryForTFGM;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.places.Station;
-import com.tramchester.livedata.domain.liveUpdates.DueTram;
+import com.tramchester.livedata.domain.liveUpdates.UpcomingDeparture;
 import com.tramchester.livedata.domain.liveUpdates.LineDirection;
-import com.tramchester.livedata.domain.liveUpdates.StationDepartureInfo;
 import com.tramchester.livedata.repository.StationByName;
 import com.tramchester.repository.StationRepository;
 import org.slf4j.Logger;
@@ -214,7 +213,7 @@ public class LiveDataParser {
                             LocalTime lastUpdate = departureInfo.getLastUpdate().toLocalTime();
 
                             Station displayLocation = departureInfo.getStation();
-                            DueTram dueTram = new DueTram(displayLocation, station, status,
+                            UpcomingDeparture dueTram = new UpcomingDeparture(displayLocation, station, status,
                                     Duration.ofMinutes(waitInMinutes), carriages, lastUpdate);
                             departureInfo.addDueTram(dueTram);
                         },

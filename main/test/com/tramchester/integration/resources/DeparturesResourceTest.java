@@ -13,9 +13,9 @@ import com.tramchester.integration.testSupport.IntegrationAppExtension;
 import com.tramchester.integration.testSupport.tram.ResourceTramTestConfig;
 import com.tramchester.livedata.domain.DTO.DepartureDTO;
 import com.tramchester.livedata.domain.DTO.DepartureListDTO;
-import com.tramchester.livedata.domain.liveUpdates.DueTram;
+import com.tramchester.livedata.domain.liveUpdates.UpcomingDeparture;
 import com.tramchester.livedata.domain.liveUpdates.PlatformMessage;
-import com.tramchester.livedata.repository.DueTramsSource;
+import com.tramchester.livedata.repository.UpcomingDeparturesSource;
 import com.tramchester.livedata.repository.PlatformMessageSource;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.resources.DeparturesResource;
@@ -65,9 +65,9 @@ class DeparturesResourceTest {
                 findAny();
         searchForMessage.ifPresent(platformMessage -> stationWithNotes = platformMessage.getStation());
 
-        DueTramsSource dueTramsSource = dependencies.get(DueTramsSource.class);
+        UpcomingDeparturesSource dueTramsSource = dependencies.get(UpcomingDeparturesSource.class);
 
-        Optional<DueTram> searchForDueTrams = stationRepository.getAllStationStream().
+        Optional<UpcomingDeparture> searchForDueTrams = stationRepository.getAllStationStream().
                 flatMap(station -> dueTramsSource.dueTramsForStation(station, queryDate, time).stream()).
                 findAny();
         searchForDueTrams.ifPresent(dueTram -> stationWithDepartures = dueTram.getDisplayLocation());

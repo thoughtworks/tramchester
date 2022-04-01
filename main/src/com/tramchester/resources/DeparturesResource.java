@@ -13,7 +13,7 @@ import com.tramchester.domain.time.TramServiceDate;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.livedata.domain.DTO.DepartureDTO;
 import com.tramchester.livedata.domain.DTO.DepartureListDTO;
-import com.tramchester.livedata.domain.liveUpdates.DueTram;
+import com.tramchester.livedata.domain.liveUpdates.UpcomingDeparture;
 import com.tramchester.livedata.mappers.DeparturesMapper;
 import com.tramchester.livedata.repository.DeparturesRepository;
 import com.tramchester.livedata.repository.ProvidesNotes;
@@ -99,7 +99,7 @@ public class DeparturesResource extends TransportResource implements APIResource
             modes = config.getTransportModes();
         }
 
-        List<DueTram> dueTrams = departuresRepository.dueTramsForLocation(location, localDate, queryTime, modes);
+        List<UpcomingDeparture> dueTrams = departuresRepository.dueTramsForLocation(location, localDate, queryTime, modes);
         if (dueTrams.isEmpty()) {
             logger.warn("Departures list empty for " + location.getId() + " at " + queryTime);
         }
@@ -108,7 +108,7 @@ public class DeparturesResource extends TransportResource implements APIResource
         List<Note> notes = Collections.emptyList();
         if (departuresQuery.getIncludeNotes()) {
             List<Station> nearbyStations = dueTrams.stream().
-                    map(DueTram::getDisplayLocation).
+                    map(UpcomingDeparture::getDisplayLocation).
                     distinct().collect(Collectors.toList());
             notes = providesNotes.createNotesForStations(nearbyStations, queryDate, queryTime);
             if (notes.isEmpty()) {

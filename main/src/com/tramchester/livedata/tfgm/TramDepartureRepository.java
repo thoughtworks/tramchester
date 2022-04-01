@@ -11,11 +11,10 @@ import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.domain.time.TramTime;
-import com.tramchester.livedata.domain.liveUpdates.DueTram;
+import com.tramchester.livedata.domain.liveUpdates.UpcomingDeparture;
 import com.tramchester.livedata.domain.liveUpdates.PlatformDueTrams;
-import com.tramchester.livedata.domain.liveUpdates.StationDepartureInfo;
 import com.tramchester.livedata.mappers.DeparturesMapper;
-import com.tramchester.livedata.repository.DueTramsSource;
+import com.tramchester.livedata.repository.UpcomingDeparturesSource;
 import com.tramchester.metrics.CacheMetrics;
 import com.tramchester.metrics.HasMetrics;
 import com.tramchester.metrics.RegistersMetrics;
@@ -37,7 +36,7 @@ import java.util.stream.Stream;
 import static java.lang.String.format;
 
 @LazySingleton
-public class TramDepartureRepository implements DueTramsSource, ReportsCacheStats, HasMetrics {
+public class TramDepartureRepository implements UpcomingDeparturesSource, ReportsCacheStats, HasMetrics {
     private static final Logger logger = LoggerFactory.getLogger(TramDepartureRepository.class);
 
     // TODO Correct limit here?
@@ -105,7 +104,7 @@ public class TramDepartureRepository implements DueTramsSource, ReportsCacheStat
     }
 
     @Override
-    public List<DueTram> dueTramsForStation(Station station, LocalDate date, TramTime queryTime) {
+    public List<UpcomingDeparture> dueTramsForStation(Station station, LocalDate date, TramTime queryTime) {
         Set<PlatformDueTrams> allTrams = station.getPlatforms().stream().
                 map(platform -> dueTramsForPlatform(platform.getId(), date, queryTime)).
                 filter(Optional::isPresent).
@@ -117,7 +116,7 @@ public class TramDepartureRepository implements DueTramsSource, ReportsCacheStat
             return Collections.emptyList();
         }
 
-        List<DueTram> dueTrams = allTrams.stream().
+        List<UpcomingDeparture> dueTrams = allTrams.stream().
                 map(PlatformDueTrams::getDueTrams).
                 flatMap(Collection::stream).
                 filter(dueTram -> DeparturesMapper.DUE.equals(dueTram.getStatus())).
