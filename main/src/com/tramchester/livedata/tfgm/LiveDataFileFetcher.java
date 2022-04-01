@@ -1,4 +1,4 @@
-package com.tramchester.livedata;
+package com.tramchester.livedata.tfgm;
 
 import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;

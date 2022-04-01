@@ -1,4 +1,4 @@
-package com.tramchester.livedata;
+package com.tramchester.livedata.tfgm;
 
 import com.google.inject.ImplementedBy;
 

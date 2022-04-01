@@ -1,4 +1,4 @@
-package com.tramchester.livedata;
+package com.tramchester.livedata.tfgm;
 
 import com.tramchester.domain.StationPair;
 import com.tramchester.domain.places.Station;

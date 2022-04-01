@@ -5,7 +5,7 @@ import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.ServiceTimeLimits;
 import com.tramchester.domain.time.ProvidesLocalNow;
 import com.tramchester.healthchecks.LiveDataS3UploadHealthCheck;
-import com.tramchester.livedata.CountsUploadedLiveData;
+import com.tramchester.livedata.cloud.CountsUploadedLiveData;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TestLiveDataConfig;
 import org.easymock.EasyMock;

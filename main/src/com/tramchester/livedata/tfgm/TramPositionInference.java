@@ -1,4 +1,4 @@
-package com.tramchester.livedata;
+package com.tramchester.livedata.tfgm;
 
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.domain.Platform;

@@ -1,4 +1,4 @@
-package com.tramchester.livedata.mappers;
+package com.tramchester.livedata.tfgm;
 
 import com.github.cliftonlabs.json_simple.JsonArray;
 import com.github.cliftonlabs.json_simple.JsonObject;
@@ -12,7 +12,6 @@ import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.places.Station;
 import com.tramchester.livedata.domain.liveUpdates.DueTram;
 import com.tramchester.livedata.domain.liveUpdates.LineDirection;
-import com.tramchester.livedata.domain.liveUpdates.Lines;
 import com.tramchester.livedata.domain.liveUpdates.StationDepartureInfo;
 import com.tramchester.livedata.repository.TramStationByName;
 import com.tramchester.repository.StationRepository;
