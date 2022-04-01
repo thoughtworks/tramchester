@@ -4,7 +4,7 @@ import com.thalesgroup.rtti._2017_10_01.ldb.types.ServiceItem;
 import com.thalesgroup.rtti._2017_10_01.ldb.types.StationBoard;
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.GuiceContainerDependencies;
-import com.tramchester.integration.testSupport.rail.IntegrationRailTestConfig;
+import com.tramchester.integration.testSupport.TramAndTrainGreaterManchesterConfig;
 import com.tramchester.integration.testSupport.rail.RailStationIds;
 import com.tramchester.livedata.openLdb.TrainDeparturesDataFetcher;
 import com.tramchester.repository.StationRepository;
@@ -26,7 +26,8 @@ class TrainDeparturesDataFetcherTest {
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
-        componentContainer = new ComponentsBuilder().create(new IntegrationRailTestConfig(), TestEnv.NoopRegisterMetrics());
+        componentContainer = new ComponentsBuilder().create(new TramAndTrainGreaterManchesterConfig(),
+                TestEnv.NoopRegisterMetrics());
         componentContainer.initialise();
 
     }
@@ -44,8 +45,8 @@ class TrainDeparturesDataFetcherTest {
 
     @Test
     void testShouldGetDeparturesForStation() {
-        StationBoard board = dataFetcher.getFor(RailStationIds.LondonStPancras.from(stationRepository));
-        assertEquals("STP", board.getCrs());
+        StationBoard board = dataFetcher.getFor(RailStationIds.ManchesterPiccadilly.from(stationRepository));
+        assertEquals("MAN", board.getCrs());
 
         List<ServiceItem> services = board.getTrainServices().getService();
 

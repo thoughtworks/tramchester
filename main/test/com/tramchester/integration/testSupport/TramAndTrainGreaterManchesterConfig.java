@@ -1,6 +1,7 @@
 package com.tramchester.integration.testSupport;
 
 import com.tramchester.config.NeighbourConfig;
+import com.tramchester.config.OpenLdbConfig;
 import com.tramchester.config.RailConfig;
 import com.tramchester.config.RemoteDataSourceConfig;
 import com.tramchester.domain.reference.TransportMode;
@@ -10,6 +11,7 @@ import com.tramchester.integration.testSupport.rail.TestRailConfig;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
 import com.tramchester.testSupport.NeighbourTestConfig;
 import com.tramchester.testSupport.TestEnv;
+import com.tramchester.testSupport.TestOpenLdbConfig;
 import com.tramchester.testSupport.reference.TramStations;
 
 import java.nio.file.Path;
@@ -71,5 +73,10 @@ public class TramAndTrainGreaterManchesterConfig extends IntegrationTramTestConf
     @Override
     public Path getCacheFolder() {
         return TestEnv.CACHE_DIR.resolve("tramTrainIntegration");
+    }
+
+    @Override
+    public OpenLdbConfig getOpenldbwsConfig() {
+        return new TestOpenLdbConfig();
     }
 }
