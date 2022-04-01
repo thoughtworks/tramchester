@@ -1,6 +1,6 @@
 package com.tramchester.config;
 
-public interface LiveDataConfig {
+public interface TfgmTramLiveDataConfig {
     String getDataUrl();
 
     String getDataSubscriptionKey();

@@ -2,6 +2,7 @@
 
 plugins {
     id 'com.mgd.core.gradle.s3' version '1.1.4'
+    id 'io.mateo.cxf-codegen' version '1.0.0-rc.3'
 }
 
 apply plugin: 'java'
@@ -86,6 +87,10 @@ dependencies {
             'org.seleniumhq.selenium:selenium-java:3.141.59',
             'org.hamcrest:hamcrest:2.2'
 
+    cxfCodegen 'jakarta.xml.ws:jakarta.xml.ws-api:2.3.3'
+    cxfCodegen 'jakarta.annotation:jakarta.annotation-api:1.3.5'
+    cxfCodegen 'ch.qos.logback:logback-classic:1.2.7'
+    implementation 'com.sun.xml.ws:jaxws-rt:2.3.3'
 }
 
 sourceSets {
@@ -101,6 +106,18 @@ sourceSets {
         resources.srcDir file('main/test/resources')
     }
 }
+
+cxfCodegen {
+    wsdl2java {
+        openLDBWS {
+            wsdl = file('wsdl/OpenLDBWS.wsdl')
+            markGenerated = true
+            extendedSoapHeaders = true
+        }
+    }
+}
+
+compileJava.dependsOn wsdl2java
 
 processResources {
     exclude('**/app/') // via webpack
@@ -137,6 +154,7 @@ task cleanGraph() {
                 'tramchester.db', 'buses.db', 'trains.db', 'all.db', 'rail.db', 'gm_rail.db'
     }
 }
+
 
 clean {
     dependsOn cleanGraph

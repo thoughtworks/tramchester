@@ -1,7 +1,7 @@
 package com.tramchester.livedata.tfgm;
 
 import com.netflix.governator.guice.lazy.LazySingleton;
-import com.tramchester.config.LiveDataConfig;
+import com.tramchester.config.TfgmTramLiveDataConfig;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.exceptions.TramchesterException;
 import org.apache.http.HttpEntity;
@@ -27,7 +27,7 @@ import static java.lang.String.format;
 public class LiveDataHTTPFetcher implements LiveDataFetcher {
     private static final Logger logger = LoggerFactory.getLogger(LiveDataHTTPFetcher.class);
 
-    private final LiveDataConfig config;
+    private final TfgmTramLiveDataConfig config;
 
     @Inject
     public LiveDataHTTPFetcher(TramchesterConfig config) {

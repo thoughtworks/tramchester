@@ -7,7 +7,7 @@ import com.tramchester.domain.time.ProvidesLocalNow;
 import com.tramchester.healthchecks.LiveDataS3UploadHealthCheck;
 import com.tramchester.livedata.cloud.CountsUploadedLiveData;
 import com.tramchester.testSupport.TestEnv;
-import com.tramchester.testSupport.TestLiveDataConfig;
+import com.tramchester.testSupport.TestTramLiveDataConfig;
 import org.easymock.EasyMock;
 import org.easymock.EasyMockSupport;
 import org.junit.jupiter.api.BeforeEach;
@@ -24,7 +24,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class LiveDataS3UploadHealthCheckTest extends EasyMockSupport {
 
-    private final TramchesterConfig configuration = TestEnv.GET(new TestLiveDataConfig());
+    private final TramchesterConfig configuration = TestEnv.GET(new TestTramLiveDataConfig());
     private LocalDateTime now;
     private ProvidesLocalNow providesLocalNow;
     private CountsUploadedLiveData countsUploadedLiveData;

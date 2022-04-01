@@ -3,10 +3,12 @@ package com.tramchester.integration.cloud.data;
 import com.tramchester.cloud.data.ClientForS3;
 import com.tramchester.cloud.data.LiveDataClientForS3;
 import com.tramchester.config.GTFSSourceConfig;
-import com.tramchester.config.LiveDataConfig;
+import com.tramchester.config.OpenLdbConfig;
+import com.tramchester.config.TfgmTramLiveDataConfig;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
 import com.tramchester.testSupport.TestConfig;
-import com.tramchester.testSupport.TestLiveDataConfig;
+import com.tramchester.testSupport.TestOpenLdbConfig;
+import com.tramchester.testSupport.TestTramLiveDataConfig;
 import com.tramchester.testSupport.testTags.S3Test;
 import org.apache.commons.codec.binary.Base64;
 import org.junit.jupiter.api.*;
@@ -154,8 +156,13 @@ class LiveDataClientForS3Test {
     private static class NoSuchBucketExistsConfig extends TestConfig {
 
         @Override
-        public LiveDataConfig getLiveDataConfig() {
+        public TfgmTramLiveDataConfig getLiveDataConfig() {
             return new LiveDataConfigNoSuchBuket();
+        }
+
+        @Override
+        public OpenLdbConfig getOpenldbwsConfig() {
+            return new TestOpenLdbConfig();
         }
 
         @Override
@@ -163,7 +170,7 @@ class LiveDataClientForS3Test {
             return Collections.emptyList();
         }
 
-        private static class LiveDataConfigNoSuchBuket extends TestLiveDataConfig {
+        private static class LiveDataConfigNoSuchBuket extends TestTramLiveDataConfig {
             @Override
             public String getS3Bucket() {
                 return "NoSuckBucketShouldExist";

@@ -1,7 +1,7 @@
 package com.tramchester.cloud.data;
 
 import com.netflix.governator.guice.lazy.LazySingleton;
-import com.tramchester.config.LiveDataConfig;
+import com.tramchester.config.TfgmTramLiveDataConfig;
 import com.tramchester.config.TramchesterConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,7 +22,7 @@ public class LiveDataClientForS3  {
 
     @Inject
     public LiveDataClientForS3(TramchesterConfig config, ClientForS3 clientForS3) {
-        LiveDataConfig liveDataConfig = config.getLiveDataConfig();
+        TfgmTramLiveDataConfig liveDataConfig = config.getLiveDataConfig();
         if (liveDataConfig!=null) {
             bucket = liveDataConfig.getS3Bucket();
         } else {

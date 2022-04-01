@@ -4,12 +4,12 @@ import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.cloud.data.LiveDataClientForS3;
 import com.tramchester.livedata.cloud.DownloadsLiveDataFromS3;
-import com.tramchester.config.LiveDataConfig;
+import com.tramchester.config.TfgmTramLiveDataConfig;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.livedata.domain.DTO.StationDepartureInfoDTO;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
 import com.tramchester.testSupport.TestEnv;
-import com.tramchester.testSupport.TestLiveDataConfig;
+import com.tramchester.testSupport.TestTramLiveDataConfig;
 import com.tramchester.testSupport.testTags.S3Test;
 import org.junit.jupiter.api.*;
 
@@ -96,19 +96,19 @@ class DownloadsLiveDataFromS3Test {
     }
 
     private static class RealBucketConfig extends IntegrationTramTestConfig {
-        private final LiveDataConfig liveDataConfig;
+        private final TfgmTramLiveDataConfig liveDataConfig;
 
-        private RealBucketConfig(LiveDataConfig liveDataConfig) {
+        private RealBucketConfig(TfgmTramLiveDataConfig liveDataConfig) {
             this.liveDataConfig = liveDataConfig;
         }
 
         @Override
-        public LiveDataConfig getLiveDataConfig() {
+        public TfgmTramLiveDataConfig getLiveDataConfig() {
             return liveDataConfig;
         }
     }
 
-    private static class RealLiveConfig extends TestLiveDataConfig {
+    private static class RealLiveConfig extends TestTramLiveDataConfig {
         private final String bucketName;
         private final String prefix;
 

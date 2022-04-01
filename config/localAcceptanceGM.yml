@@ -54,7 +54,7 @@ bounds:
   minNorthings: 380000
   maxEasting: 398500
   maxNorthings: 414500
-liveData:
+tfgmTramliveData:
   dataUrl: https://api.tfgm.com/odata/Metrolinks
   dataSubscriptionKey: ${TFGMAPIKEY:- ""}
   s3Bucket: tramchesterlivedata

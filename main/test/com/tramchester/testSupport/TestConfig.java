@@ -2,7 +2,7 @@ package com.tramchester.testSupport;
 
 import com.tramchester.config.AppConfiguration;
 import com.tramchester.config.GTFSSourceConfig;
-import com.tramchester.config.LiveDataConfig;
+import com.tramchester.config.TfgmTramLiveDataConfig;
 import com.tramchester.config.RemoteDataSourceConfig;
 import com.tramchester.geo.BoundingBox;
 import io.dropwizard.server.DefaultServerFactory;
@@ -136,7 +136,7 @@ public abstract class TestConfig extends AppConfiguration {
     }
 
     @Override
-    public LiveDataConfig getLiveDataConfig() {
+    public TfgmTramLiveDataConfig getLiveDataConfig() {
         return null;
     }
 

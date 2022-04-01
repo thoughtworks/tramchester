@@ -1,7 +1,8 @@
 package com.tramchester.integration.testSupport.tram;
 
 import com.tramchester.config.GTFSSourceConfig;
-import com.tramchester.config.LiveDataConfig;
+import com.tramchester.config.OpenLdbConfig;
+import com.tramchester.config.TfgmTramLiveDataConfig;
 import com.tramchester.config.RemoteDataSourceConfig;
 import com.tramchester.domain.StationClosure;
 import com.tramchester.domain.reference.GTFSTransportationType;
@@ -12,7 +13,8 @@ import com.tramchester.integration.testSupport.tfgm.TFGMGTFSSourceTestConfig;
 import com.tramchester.integration.testSupport.tfgm.TFGMRemoteDataSourceConfig;
 import com.tramchester.testSupport.AdditionalTramInterchanges;
 import com.tramchester.testSupport.TestEnv;
-import com.tramchester.testSupport.TestLiveDataConfig;
+import com.tramchester.testSupport.TestOpenLdbConfig;
+import com.tramchester.testSupport.TestTramLiveDataConfig;
 
 import java.nio.file.Path;
 import java.util.Collections;
@@ -73,11 +75,16 @@ public class IntegrationTramTestConfig extends IntegrationTestConfig {
     }
 
     @Override
-    public LiveDataConfig getLiveDataConfig() {
+    public TfgmTramLiveDataConfig getLiveDataConfig() {
         if (liveDataEnabled) {
-            return new TestLiveDataConfig();
+            return new TestTramLiveDataConfig();
         }
         return null;
+    }
+
+    @Override
+    public OpenLdbConfig getOpenldbwsConfig() {
+        return new TestOpenLdbConfig();
     }
 
     private static class GraphDBIntegrationTramTestConfig extends GraphDBTestConfig {

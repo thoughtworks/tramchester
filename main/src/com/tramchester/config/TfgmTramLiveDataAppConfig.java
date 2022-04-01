@@ -2,7 +2,7 @@ package com.tramchester.config;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-public class LiveDataAppConfig implements LiveDataConfig {
+public class TfgmTramLiveDataAppConfig implements TfgmTramLiveDataConfig {
 
     private final String dataUrl;
     private final String dataSubscriptionKey;
@@ -12,13 +12,13 @@ public class LiveDataAppConfig implements LiveDataConfig {
     private final Integer maxNumberStationsWithoutData;
     private final String s3Prefix;
 
-    public LiveDataAppConfig(@JsonProperty(value = "dataUrl", required = true) String dataUrl,
-                             @JsonProperty(value = "dataSubscriptionKey", required = true) String dataSubscriptionKey,
-                             @JsonProperty(value = "s3Bucket", required = true) String s3Bucket,
-                             @JsonProperty(value = "refreshPeriodSeconds", required = true) Long refreshPeriodSeconds,
-                             @JsonProperty(value = "maxNumberStationsWithoutMessages", required = true) Integer maxNumberStationsWithoutMessages,
-                             @JsonProperty(value = "maxNumberStationsWithoutData", required = true) Integer maxNumberStationsWithoutData,
-                             @JsonProperty(value = "s3Prefix", required = true) String s3Prefix) {
+    public TfgmTramLiveDataAppConfig(@JsonProperty(value = "dataUrl", required = true) String dataUrl,
+                                     @JsonProperty(value = "dataSubscriptionKey", required = true) String dataSubscriptionKey,
+                                     @JsonProperty(value = "s3Bucket", required = true) String s3Bucket,
+                                     @JsonProperty(value = "refreshPeriodSeconds", required = true) Long refreshPeriodSeconds,
+                                     @JsonProperty(value = "maxNumberStationsWithoutMessages", required = true) Integer maxNumberStationsWithoutMessages,
+                                     @JsonProperty(value = "maxNumberStationsWithoutData", required = true) Integer maxNumberStationsWithoutData,
+                                     @JsonProperty(value = "s3Prefix", required = true) String s3Prefix) {
         this.dataUrl = dataUrl;
         this.dataSubscriptionKey = dataSubscriptionKey;
         this.s3Bucket = s3Bucket;

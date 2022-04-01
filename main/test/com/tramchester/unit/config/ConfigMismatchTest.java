@@ -274,10 +274,10 @@ class ConfigMismatchTest {
         assertEquals(expectedGraphDBConfig.getNeo4jPagecacheMemory(), testGraphDBConfig.getNeo4jPagecacheMemory(),
                 "neo4jPagecacheMemory");
 
-        LiveDataConfig expectedLiveDataConfig = expected.getLiveDataConfig();
+        TfgmTramLiveDataConfig expectedLiveDataConfig = expected.getLiveDataConfig();
 
         if (expectedLiveDataConfig!=null) {
-            LiveDataConfig liveDataConfig = testConfig.getLiveDataConfig();
+            TfgmTramLiveDataConfig liveDataConfig = testConfig.getLiveDataConfig();
             assertEquals(expectedLiveDataConfig.getMaxNumberStationsWithoutMessages(), liveDataConfig.getMaxNumberStationsWithoutMessages());
             assertEquals(expectedLiveDataConfig.getMaxNumberStationsWithoutData(), liveDataConfig.getMaxNumberStationsWithoutData());
         } else {

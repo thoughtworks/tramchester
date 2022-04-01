@@ -5,7 +5,7 @@ import com.tramchester.ComponentContainer;
 import com.tramchester.caching.DataCache;
 import com.tramchester.config.AppConfiguration;
 import com.tramchester.config.GTFSSourceConfig;
-import com.tramchester.config.LiveDataConfig;
+import com.tramchester.config.TfgmTramLiveDataConfig;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.*;
 import com.tramchester.domain.id.IdFor;
@@ -85,7 +85,7 @@ public class TestEnv {
         };
     }
 
-    public static TramchesterConfig GET(TestLiveDataConfig testLiveDataConfig) {
+    public static TramchesterConfig GET(TestTramLiveDataConfig testLiveDataConfig) {
         return new TestConfig() {
             @Override
             protected List<GTFSSourceConfig> getDataSourceFORTESTING() {
@@ -93,7 +93,7 @@ public class TestEnv {
             }
 
             @Override
-            public LiveDataConfig getLiveDataConfig() {
+            public TfgmTramLiveDataConfig getLiveDataConfig() {
                 return testLiveDataConfig;
             }
         };

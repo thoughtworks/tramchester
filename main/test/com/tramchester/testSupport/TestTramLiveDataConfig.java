@@ -1,8 +1,8 @@
 package com.tramchester.testSupport;
 
-import com.tramchester.config.LiveDataConfig;
+import com.tramchester.config.TfgmTramLiveDataConfig;
 
-public class TestLiveDataConfig implements LiveDataConfig {
+public class TestTramLiveDataConfig implements TfgmTramLiveDataConfig {
 
     @Override
     public int getMaxNumberStationsWithoutMessages() {

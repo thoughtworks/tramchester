@@ -1,7 +1,7 @@
 package com.tramchester.healthchecks;
 
 import com.netflix.governator.guice.lazy.LazySingleton;
-import com.tramchester.config.LiveDataConfig;
+import com.tramchester.config.TfgmTramLiveDataConfig;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.ServiceTimeLimits;
 import com.tramchester.domain.time.ProvidesNow;
@@ -22,7 +22,7 @@ public class LiveDataHealthCheck extends TramchesterHealthCheck {
     private final TramDepartureRepository repository;
     private final ProvidesNow providesNow;
     private final StationRepository stationRepository;
-    private final LiveDataConfig config;
+    private final TfgmTramLiveDataConfig config;
 
     @Inject
     public LiveDataHealthCheck(TramDepartureRepository repository, ProvidesNow providesNow, StationRepository stationRepository,

@@ -87,7 +87,10 @@ public abstract class TramchesterConfig extends Configuration implements HasRemo
     public abstract List<RemoteDataSourceConfig> getRemoteDataSourceConfig();
 
     // live transport data config
-    public abstract LiveDataConfig getLiveDataConfig();
+    public abstract TfgmTramLiveDataConfig getLiveDataConfig();
+
+    //  Open Live Departure Boards Web Service config
+    public abstract OpenLdbConfig getOpenldbwsConfig();
 
     // rail data
     public abstract RailConfig getRailConfig();

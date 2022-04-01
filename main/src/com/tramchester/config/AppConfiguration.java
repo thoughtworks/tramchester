@@ -108,10 +108,11 @@ public class AppConfiguration extends TramchesterConfig {
     @JsonProperty("graphDBConfig")
     private GraphDBConfig graphDBConfig;
 
-    // TODO move live data config into the associated data source config section?
-    //@NotNull
-    @JsonProperty("liveData")
-    private LiveDataAppConfig liveDataConfig;
+    @JsonProperty("tfgmTramliveData")
+    private TfgmTramLiveDataAppConfig tramLiveDataAppConfig;
+
+    @JsonProperty("openLdb")
+    private OpenLdbAppConfig openLdbConfig;
 
     @JsonProperty("rail")
     private RailAppConfig railConfig;
@@ -255,8 +256,13 @@ public class AppConfiguration extends TramchesterConfig {
 
     // optional
     @Override
-    public LiveDataConfig getLiveDataConfig() {
-        return liveDataConfig;
+    public TfgmTramLiveDataConfig getLiveDataConfig() {
+        return tramLiveDataAppConfig;
+    }
+
+    @Override
+    public OpenLdbConfig getOpenldbwsConfig() {
+        return openLdbConfig;
     }
 
     @Override

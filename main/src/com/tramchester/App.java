@@ -7,7 +7,7 @@ import com.tramchester.cloud.ConfigFromInstanceUserData;
 import com.tramchester.cloud.SendMetricsToCloudWatch;
 import com.tramchester.cloud.SignalToCloudformationReady;
 import com.tramchester.config.AppConfiguration;
-import com.tramchester.config.LiveDataConfig;
+import com.tramchester.config.TfgmTramLiveDataConfig;
 import com.tramchester.healthchecks.LiveDataJobHealthCheck;
 import com.tramchester.livedata.cloud.CountsUploadedLiveData;
 import com.tramchester.livedata.tfgm.LiveDataUpdater;
@@ -227,7 +227,7 @@ public class App extends Application<AppConfiguration>  {
         });
     }
 
-    private void initLiveDataMetricAndHealthcheck(LiveDataConfig configuration, Environment environment,
+    private void initLiveDataMetricAndHealthcheck(TfgmTramLiveDataConfig configuration, Environment environment,
                                                   ScheduledExecutorService executor, MetricRegistry metricRegistry) {
         // initial load of live data
         LiveDataUpdater updatesData = container.get(LiveDataUpdater.class);

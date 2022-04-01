@@ -3,7 +3,7 @@ package com.tramchester.unit.cloud.data;
 import com.tramchester.cloud.data.S3Keys;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.testSupport.TestEnv;
-import com.tramchester.testSupport.TestLiveDataConfig;
+import com.tramchester.testSupport.TestTramLiveDataConfig;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -18,7 +18,7 @@ class s3KeysTest {
 
     @BeforeEach
     void beforeEachTest() {
-        TramchesterConfig config = TestEnv.GET(new TestLiveDataConfig());
+        TramchesterConfig config = TestEnv.GET(new TestTramLiveDataConfig());
         s3Keys = new S3Keys(config);
     }
 

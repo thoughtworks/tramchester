@@ -56,7 +56,7 @@ remoteSources:
     dataCheckURL: ""
     dataPath: data/nptg
     filename: nptgcsv.zip
-liveData:
+tfgmTramliveData:
   dataUrl: https://api.tfgm.com/odata/Metrolinks
   dataSubscriptionKey: ${TFGMAPIKEY:- ""}
   s3Bucket: tramchesterlivedata

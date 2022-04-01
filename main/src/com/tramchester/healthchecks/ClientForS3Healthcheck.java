@@ -3,7 +3,7 @@ package com.tramchester.healthchecks;
 import com.google.inject.Inject;
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.cloud.data.LiveDataClientForS3;
-import com.tramchester.config.LiveDataConfig;
+import com.tramchester.config.TfgmTramLiveDataConfig;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.ServiceTimeLimits;
 
@@ -34,7 +34,7 @@ public class ClientForS3Healthcheck extends TramchesterHealthCheck {
 
     @Override
     protected Result check() {
-        LiveDataConfig liveDataConfig = config.getLiveDataConfig();
+        TfgmTramLiveDataConfig liveDataConfig = config.getLiveDataConfig();
 
         if (clientForS3.isStarted()) {
             return Result.healthy(format("Running for %s %s", liveDataConfig.getS3Bucket(),
