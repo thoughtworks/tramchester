@@ -153,7 +153,8 @@ public class StationResource extends UsesRecentCookie implements APIResource {
 
         MyLocation location = new MyLocation(latLong);
 
-        List<Station> nearestStations = stationLocations.nearestStationsSorted(location, config.getNumOfNearestStopsToOffer(), margin);
+        List<Station> nearestStations = stationLocations.nearestStationsSorted(location,
+                config.getNumOfNearestStopsToOffer(), margin, config.getTransportModes());
 
         List<LocationRefDTO> results = toStationRefDTOList(nearestStations);
 

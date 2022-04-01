@@ -7,14 +7,16 @@ import com.tramchester.domain.places.Location;
 import com.tramchester.domain.places.NaptanArea;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.LatLong;
+import com.tramchester.domain.reference.TransportMode;
 
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Stream;
 
 @ImplementedBy(StationLocations.class)
 public interface StationLocationsRepository {
 
-    List<Station> nearestStationsSorted(Location<?> location, int maxToFind, MarginInMeters rangeInMeters);
+    List<Station> nearestStationsSorted(Location<?> location, int maxToFind, MarginInMeters rangeInMeters, Set<TransportMode> modes);
 
     Stream<Station> nearestStationsUnsorted(Station station, MarginInMeters rangeInMeters);
 

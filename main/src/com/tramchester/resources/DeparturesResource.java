@@ -2,11 +2,13 @@ package com.tramchester.resources;
 
 
 import com.codahale.metrics.annotation.Timed;
+import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.places.Location;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.DTO.DeparturesQueryDTO;
 import com.tramchester.domain.presentation.Note;
 import com.tramchester.domain.presentation.ProvidesNotes;
+import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.domain.time.TramServiceDate;
 import com.tramchester.domain.time.TramTime;
@@ -31,10 +33,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.time.LocalDate;
-import java.util.Collections;
-import java.util.List;
-import java.util.SortedSet;
-import java.util.TreeSet;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
@@ -48,17 +47,19 @@ public class DeparturesResource extends TransportResource implements APIResource
     private final DeparturesMapper departuresMapper;
     private final DeparturesRepository departuresRepository;
     private final ProvidesNotes providesNotes;
+    private final TramchesterConfig config;
 
     @Inject
     public DeparturesResource(LocationRepository locationRepository,
                               DeparturesMapper departuresMapper, DeparturesRepository departuresRepository,
                               ProvidesNotes providesNotes, StationRepository stationRepository,
-                              ProvidesNow providesNow) {
+                              ProvidesNow providesNow, TramchesterConfig config) {
         super(providesNow);
         this.locationRepository = locationRepository;
         this.departuresMapper = departuresMapper;
         this.departuresRepository = departuresRepository;
         this.providesNotes = providesNotes;
+        this.config = config;
         logger.info("created");
     }
 
@@ -78,7 +79,8 @@ public class DeparturesResource extends TransportResource implements APIResource
 
         logger.info("Get departures for " + departuresQuery);
 
-        Location<?> location = locationRepository.getLocation(departuresQuery.getLocationType(), departuresQuery.getLocationId());
+        Location<?> location = locationRepository.getLocation(departuresQuery.getLocationType(),
+                departuresQuery.getLocationId());
 
         LocalDate localDate = providesNow.getDate();
         TramServiceDate queryDate = new TramServiceDate(localDate);
@@ -90,7 +92,13 @@ public class DeparturesResource extends TransportResource implements APIResource
             queryTime = providesNow.getNowHourMins();
         }
 
-        List<DueTram> dueTrams = departuresRepository.dueTramsForLocation(location, localDate, queryTime);
+        Set<TransportMode> modes = departuresQuery.getModes();
+        if (modes.isEmpty()) {
+            logger.warn("modes not supplied, fall back to all configured modes");
+            modes = config.getTransportModes();
+        }
+
+        List<DueTram> dueTrams = departuresRepository.dueTramsForLocation(location, localDate, queryTime, modes);
         if (dueTrams.isEmpty()) {
             logger.warn("Departures list empty for " + location.getId() + " at " + queryTime);
         }

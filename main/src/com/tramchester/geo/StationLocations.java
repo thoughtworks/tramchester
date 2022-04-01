@@ -8,6 +8,7 @@ import com.tramchester.domain.places.NaptanArea;
 import com.tramchester.domain.places.NaptanRecord;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.LatLong;
+import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.mappers.Geography;
 import com.tramchester.repository.PlatformRepository;
 import com.tramchester.repository.StationRepository;
@@ -187,17 +188,32 @@ public class StationLocations implements StationLocationsRepository {
     }
 
     @Override
-    public List<Station> nearestStationsSorted(Location<?> location, int maxToFind, MarginInMeters rangeInMeters) {
-        return nearestStationsSorted(location.getGridPosition(), maxToFind, rangeInMeters);
+    public List<Station> nearestStationsSorted(Location<?> location, int maxToFind, MarginInMeters rangeInMeters,
+                                               Set<TransportMode> modes) {
+        return nearestStationsSorted(location.getGridPosition(), maxToFind, rangeInMeters, modes);
     }
 
     // TODO Use quadrants for this search?
     // TODO Station Groups here?
-    public List<Station> nearestStationsSorted(GridPosition gridPosition, int maxToFind, MarginInMeters rangeInMeters) {
+    public List<Station> nearestStationsSorted(GridPosition gridPosition, int maxToFind, MarginInMeters rangeInMeters,
+                                               Set<TransportMode> modes) {
 
-       return geography.getNearToSorted(stationRepository::getActiveStationStream, gridPosition, rangeInMeters).
+        final Geography.LocationsSource<Station> source;
+        if (modes.isEmpty()) {
+            logger.warn("No station modes provided, will not filter stations by mode");
+            source = stationRepository::getActiveStationStream;
+        } else {
+            source = () -> getStationModeFilteredStations(modes);
+        }
+
+        return geography.getNearToSorted(source, gridPosition, rangeInMeters).
                 limit(maxToFind).
                 collect(Collectors.toList());
+    }
+
+    private Stream<Station> getStationModeFilteredStations(Set<TransportMode> modes) {
+        return stationRepository.getActiveStationStream().
+                filter(station -> TransportMode.intersects(modes, station.getTransportModes()));
     }
 
     @Override

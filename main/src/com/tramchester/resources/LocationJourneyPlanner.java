@@ -10,6 +10,7 @@ import com.tramchester.domain.places.Location;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.places.StationWalk;
 import com.tramchester.domain.presentation.LatLong;
+import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.geo.GridPosition;
 import com.tramchester.geo.MarginInMeters;
 import com.tramchester.geo.StationLocations;
@@ -111,7 +112,7 @@ public class LocationJourneyPlanner {
             logger.warn(format("Start %s not within %s of station bounds %s", startGrid, margin, stationLocations.getBounds()));
         }
 
-        Set<StationWalk> walksToStart = getStationWalks(start);
+        Set<StationWalk> walksToStart = getStationWalks(start, journeyRequest.getRequestedModes());
         if (walksToStart.isEmpty()) {
             logger.warn("No walks to start found " +start);
             return Stream.empty();
@@ -148,7 +149,7 @@ public class LocationJourneyPlanner {
             logger.warn("Destination not within station bounds " + destination);
         }
 
-        Set<StationWalk> walksToDest = getStationWalks(destination);
+        Set<StationWalk> walksToDest = getStationWalks(destination, journeyRequest.getRequestedModes());
         if (walksToDest.isEmpty()) {
             logger.warn("Cannot find any walks from " + destination + " to stations");
             return Stream.empty();
@@ -188,12 +189,12 @@ public class LocationJourneyPlanner {
         WalkNodesAndRelationships nodesAndRelationships = new WalkNodesAndRelationships(txn, graphDatabase, graphQuery, nodeOperations);
 
         // Add Walk at the Start
-        Set<StationWalk> walksAtStart = getStationWalks(start);
+        Set<StationWalk> walksAtStart = getStationWalks(start, journeyRequest.getRequestedModes());
         Node startNode = nodesAndRelationships.createWalkingNode(start, journeyRequest);
         nodesAndRelationships.createWalksToStart(startNode, walksAtStart);
 
         // Add Walks at the end
-        Set<StationWalk> walksToDest = getStationWalks(dest);
+        Set<StationWalk> walksToDest = getStationWalks(dest, journeyRequest.getRequestedModes());
         Node endWalk = nodesAndRelationships.createWalkingNode(dest, journeyRequest);
         nodesAndRelationships.createWalksToDest(endWalk, walksToDest);
 
@@ -218,10 +219,10 @@ public class LocationJourneyPlanner {
         return journeys;
     }
 
-    public Set<StationWalk> getStationWalks(Location<?> location) {
+    public Set<StationWalk> getStationWalks(Location<?> location, Set<TransportMode> modes) {
 
         int maxResults = config.getNumOfNearestStopsForWalking();
-        List<Station> nearbyStationsWithComposites = stationLocations.nearestStationsSorted(location, maxResults, margin);
+        List<Station> nearbyStationsWithComposites = stationLocations.nearestStationsSorted(location, maxResults, margin, modes);
 
         if (nearbyStationsWithComposites.isEmpty()) {
             logger.warn(format("Failed to find stations within %s of %s", margin, location));

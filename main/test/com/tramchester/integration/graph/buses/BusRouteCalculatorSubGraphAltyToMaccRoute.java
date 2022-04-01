@@ -118,7 +118,7 @@ class BusRouteCalculatorSubGraphAltyToMaccRoute {
 
         final MarginInMeters rangeInMeters = MarginInMeters.of(1000);
         knutfordStations = stationLocations.nearestStationsSorted(KnownLocations.nearKnutsfordBusStation.location(),
-                        10, rangeInMeters).
+                        10, rangeInMeters, config.getTransportModes()).
                 stream().
                 filter(station -> station.getName().contains("Bus Station")).
                 collect(Collectors.toList());

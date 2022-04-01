@@ -7,6 +7,7 @@ import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.places.NaptanArea;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.LatLong;
+import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.geo.MarginInMeters;
 import com.tramchester.geo.StationLocations;
 import com.tramchester.integration.testSupport.bus.IntegrationBusTestConfig;
@@ -21,6 +22,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
+import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -29,6 +31,7 @@ class BusStationsLocationsTest {
     public static final String SHUDEHILL_INTERCHANGE_AREA_CODE = "180GSHIC";
     private static ComponentContainer componentContainer;
     private static IntegrationBusTestConfig testConfig;
+    private static Set<TransportMode> modes;
 
     private StationLocations stationLocations;
     private MarginInMeters inMeters;
@@ -39,6 +42,7 @@ class BusStationsLocationsTest {
         testConfig = new IntegrationBusTestConfig();
         componentContainer = new ComponentsBuilder().create(testConfig, TestEnv.NoopRegisterMetrics());
         componentContainer.initialise();
+        modes = testConfig.getTransportModes();
     }
 
     @BeforeEach
@@ -59,20 +63,22 @@ class BusStationsLocationsTest {
 
     @Test
     void shouldGetAllStationsCloseToPiccGardens() {
-        List<Station> result = stationLocations.nearestStationsSorted(TestPostcodes.NearPiccadillyGardens, 500, inMeters);
-        assertEquals(51, result.size());
+        List<Station> result = stationLocations.nearestStationsSorted(TestPostcodes.NearPiccadillyGardens, 500,
+                inMeters, modes);
+        assertEquals(50, result.size());
     }
 
     @Test
     void shouldGetAllStationsCloseToCentralBury() {
-        List<Station> result = stationLocations.nearestStationsSorted(TestPostcodes.CentralBury, 500, inMeters);
+        List<Station> result = stationLocations.nearestStationsSorted(TestPostcodes.CentralBury, 500,
+                inMeters, modes);
         assertEquals(38, result.size());
     }
 
     @Test
     void shouldGetAllStationsCloseToCentralAlty() {
         List<Station> result = stationLocations.nearestStationsSorted(TramStations.Altrincham.from(stationRepository),
-                500, inMeters);
+                500, inMeters, modes);
         assertEquals(17, result.size());
     }
 

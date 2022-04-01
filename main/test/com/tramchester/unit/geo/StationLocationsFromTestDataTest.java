@@ -3,6 +3,7 @@ package com.tramchester.unit.geo;
 import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.domain.places.Station;
+import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.geo.MarginInMeters;
 import com.tramchester.geo.StationLocations;
 import com.tramchester.repository.StationGroupsRepository;
@@ -15,6 +16,7 @@ import org.junit.jupiter.api.*;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Set;
 
 import static com.tramchester.testSupport.reference.KnownLocations.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -24,6 +26,7 @@ public class StationLocationsFromTestDataTest {
 
     private static ComponentContainer componentContainer;
     private static SimpleGraphConfig config;
+    private static Set<TransportMode> modes;
     private TramTransportDataForTestFactory.TramTransportDataForTest transportData;
     private StationLocations stationLocations;
     private StationGroupsRepository compositeStationRepository;
@@ -37,6 +40,8 @@ public class StationLocationsFromTestDataTest {
                 overrideProvider(TramTransportDataForTestFactory.class).
                 create(config, TestEnv.NoopRegisterMetrics());
         componentContainer.initialise();
+
+        modes = config.getTransportModes();
     }
 
     @AfterAll
@@ -56,7 +61,8 @@ public class StationLocationsFromTestDataTest {
     @Disabled("Need way to inject naptan test data here")
     @Test
     void shouldFindFirstStation() {
-        List<Station> results = stationLocations.nearestStationsSorted(nearAltrincham.getGridPosition(), 3, MarginInMeters.of(1000));
+        List<Station> results = stationLocations.nearestStationsSorted(nearAltrincham.getGridPosition(), 3,
+                MarginInMeters.of(1000), modes);
         assertEquals(1, results.size(), results.toString());
 
         // fallback name, no naptan area data loaded
@@ -66,7 +72,8 @@ public class StationLocationsFromTestDataTest {
     @Disabled("Need way to inject naptan test data here")
     @Test
     void shouldFindFourthStation() {
-        List<Station> results = stationLocations.nearestStationsSorted(nearKnutsfordBusStation.location(), 3, MarginInMeters.of(1000));
+        List<Station> results = stationLocations.nearestStationsSorted(nearKnutsfordBusStation.location(), 3,
+                MarginInMeters.of(1000), modes);
         assertEquals(1, results.size(), results.toString());
 
         // fallback name, no naptan area data loaded
@@ -75,28 +82,32 @@ public class StationLocationsFromTestDataTest {
 
     @Test
     void shouldFindSecondStation() {
-        List<Station> results = stationLocations.nearestStationsSorted(nearWythenshaweHosp.location(), 3, MarginInMeters.of(500));
+        List<Station> results = stationLocations.nearestStationsSorted(nearWythenshaweHosp.location(), 3,
+                MarginInMeters.of(500), modes);
         assertEquals(1, results.size(), results.toString());
         assertTrue(results.contains(transportData.getSecond()));
     }
 
     @Test
     void shouldFindLastStation() {
-        List<Station> results = stationLocations.nearestStationsSorted(nearPiccGardens.location(), 3, MarginInMeters.of(500));
+        List<Station> results = stationLocations.nearestStationsSorted(nearPiccGardens.location(), 3,
+                MarginInMeters.of(500), modes);
         assertEquals(1, results.size(), results.toString());
         assertTrue(results.contains(transportData.getLast()));
     }
 
     @Test
     void shouldFindInterchange() {
-        List<Station> results = stationLocations.nearestStationsSorted(nearShudehill.location(), 3, MarginInMeters.of(500));
+        List<Station> results = stationLocations.nearestStationsSorted(nearShudehill.location(), 3,
+                MarginInMeters.of(500), modes);
         assertEquals(1, results.size(), results.toString());
         assertTrue(results.contains(transportData.getInterchange()));
     }
 
     @Test
     void shouldFindNearStockport() {
-        List<Station> results = stationLocations.nearestStationsSorted(nearStockportBus.location(), 3, MarginInMeters.of(500));
+        List<Station> results = stationLocations.nearestStationsSorted(nearStockportBus.location(), 3,
+                MarginInMeters.of(500), modes);
         assertEquals(1, results.size(), results.toString());
         assertTrue(results.contains(transportData.getFifthStation()));
     }

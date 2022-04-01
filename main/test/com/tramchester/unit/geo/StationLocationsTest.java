@@ -3,6 +3,7 @@ package com.tramchester.unit.geo;
 import com.tramchester.domain.DataSourceID;
 import com.tramchester.domain.places.MyLocation;
 import com.tramchester.domain.places.Station;
+import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.geo.*;
 import com.tramchester.mappers.Geography;
 import com.tramchester.repository.PlatformRepository;
@@ -29,6 +30,7 @@ class StationLocationsTest extends EasyMockSupport {
     private StationRepository stationRepository;
     private NaptanRespository naptanRespository;
     private Geography geography;
+    private Set<TransportMode> modes;
 
     @BeforeEach
     void onceBeforeEachTest() {
@@ -38,6 +40,8 @@ class StationLocationsTest extends EasyMockSupport {
         geography = createMock(Geography.class);
 
         stationLocations = new StationLocations(stationRepository, platformRepository, naptanRespository, geography);
+
+        modes = Collections.singleton(TransportMode.Tram);
     }
 
     @Test
@@ -104,7 +108,7 @@ class StationLocationsTest extends EasyMockSupport {
                 andReturn(Stream.of(stationA, stationB, stationC));
 
         replayAll();
-        List<Station> results = stationLocations.nearestStationsSorted(location, 1, rangeInMeters);
+        List<Station> results = stationLocations.nearestStationsSorted(location, 1, rangeInMeters, modes);
         verifyAll();
 
         assertEquals(1, results.size());
@@ -125,7 +129,7 @@ class StationLocationsTest extends EasyMockSupport {
                 andReturn(Stream.of(stationA, stationB, stationC));
 
         replayAll();
-        List<Station> results = stationLocations.nearestStationsSorted(location, 3, rangeInMeters);
+        List<Station> results = stationLocations.nearestStationsSorted(location, 3, rangeInMeters, modes);
         verifyAll();
 
         assertEquals(3, results.size());
