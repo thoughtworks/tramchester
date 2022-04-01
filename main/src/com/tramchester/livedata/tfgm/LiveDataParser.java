@@ -12,6 +12,7 @@ import com.tramchester.domain.factory.TransportEntityFactoryForTFGM;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.places.Station;
+import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.livedata.domain.liveUpdates.LineDirection;
 import com.tramchester.livedata.domain.liveUpdates.UpcomingDeparture;
 import com.tramchester.livedata.repository.StationByName;
@@ -225,11 +226,11 @@ public class LiveDataParser {
                             int waitInMinutes = Integer.parseInt(waitString);
                             String carriages = getNumberedField(jsonObject, "Carriages", index);
                             LocalTime lastUpdate = departureInfo.getLastUpdate().toLocalTime();
-                            Set<Agency> agencies = station.getAgencies();
 
                             Station displayLocation = departureInfo.getStation();
                             UpcomingDeparture dueTram = new UpcomingDeparture(displayLocation, station, status,
-                                    Duration.ofMinutes(waitInMinutes), carriages, lastUpdate, agency);
+                                    Duration.ofMinutes(waitInMinutes), carriages, lastUpdate, agency,
+                                    TransportMode.Tram);
                             departureInfo.addDueTram(dueTram);
                         },
 

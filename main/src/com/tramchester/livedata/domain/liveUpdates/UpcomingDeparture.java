@@ -2,6 +2,7 @@ package com.tramchester.livedata.domain.liveUpdates;
 
 import com.tramchester.domain.Agency;
 import com.tramchester.domain.places.Station;
+import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramTime;
 
 import java.time.Duration;
@@ -16,16 +17,18 @@ public class UpcomingDeparture {
     private final Station destination;
     private final TramTime when;
     private final Agency agency;
+    private final TransportMode mode;
 
     public UpcomingDeparture(Station displayLocation, Station destination, String status, Duration wait,
                              String carriages, LocalTime updateTime,
-                             Agency agency) {
+                             Agency agency, TransportMode mode) {
         this.displayLocation = displayLocation;
         this.destination = destination;
         this.status = status;
         this.wait = wait;
         this.carriages = carriages;
         this.agency = agency;
+        this.mode = mode;
         this.when  = TramTime.ofHourMins(updateTime).plus(wait);
     }
 
@@ -57,6 +60,10 @@ public class UpcomingDeparture {
         return agency;
     }
 
+    public TransportMode getMode() {
+        return mode;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -70,7 +77,8 @@ public class UpcomingDeparture {
         if (!displayLocation.equals(that.displayLocation)) return false;
         if (!destination.equals(that.destination)) return false;
         if (!when.equals(that.when)) return false;
-        return agency.equals(that.agency);
+        if (!agency.equals(that.agency)) return false;
+        return mode == that.mode;
     }
 
     @Override
@@ -82,6 +90,7 @@ public class UpcomingDeparture {
         result = 31 * result + destination.hashCode();
         result = 31 * result + when.hashCode();
         result = 31 * result + agency.hashCode();
+        result = 31 * result + mode.hashCode();
         return result;
     }
 
@@ -95,6 +104,7 @@ public class UpcomingDeparture {
                 ", destination=" + destination +
                 ", when=" + when +
                 ", agency=" + agency +
+                ", mode=" + mode +
                 '}';
     }
 

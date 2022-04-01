@@ -1,6 +1,7 @@
 package com.tramchester.unit.domain.presentation.DTO;
 
 import com.tramchester.domain.places.Station;
+import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.livedata.domain.liveUpdates.UpcomingDeparture;
 import com.tramchester.livedata.domain.DTO.DepartureDTO;
 import com.tramchester.testSupport.TestEnv;
@@ -77,6 +78,7 @@ class DepartureDTOTest {
     @NotNull
     private UpcomingDeparture getDueTram(LocalTime updateTime, TramStations station, int wait) {
         return new UpcomingDeparture(NavigationRoad.fake(),
-                station.fake(), "status", Duration.ofMinutes(wait), "carriages", updateTime, TestEnv.MetAgency());
+                station.fake(), "status", Duration.ofMinutes(wait), "carriages", updateTime,
+                TestEnv.MetAgency(), TransportMode.Tram);
     }
 }

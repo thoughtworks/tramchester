@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tramchester.cloud.data.StationDepartureMapper;
 import com.tramchester.domain.Agency;
+import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.livedata.domain.DTO.DepartureDTO;
 import com.tramchester.livedata.domain.DTO.StationDepartureInfoDTO;
 import com.tramchester.livedata.domain.liveUpdates.UpcomingDeparture;
@@ -42,7 +43,7 @@ class StationDepartureMapperTest {
         LocalDateTime dueTime = lastUpdate.plus(wait).truncatedTo(ChronoUnit.MINUTES);
         Agency agency = TestEnv.MetAgency();
         UpcomingDeparture dueTram = new UpcomingDeparture(NavigationRoad.fake(), Bury.fake(),
-                "Due", wait, "Single", dueTime.toLocalTime().minus(wait), agency);
+                "Due", wait, "Single", dueTime.toLocalTime().minus(wait), agency, TransportMode.Tram);
         final DepartureDTO departureDTO = new DepartureDTO(NavigationRoad.fake(), dueTram, dueTime.toLocalDate());
 
         List<DepartureDTO> dueTrams = Collections.singletonList(departureDTO);

@@ -2,6 +2,7 @@ package com.tramchester.unit.repository;
 
 import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.places.Station;
+import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.livedata.domain.liveUpdates.LineDirection;
 import com.tramchester.livedata.tfgm.Lines;
 import com.tramchester.domain.time.ProvidesNow;
@@ -109,7 +110,8 @@ public class LiveDataUpdaterTest extends EasyMockSupport {
         StationDepartureInfo departureInfo = new StationDepartureInfo(displayId, Lines.Airport,
                 LineDirection.Incoming, StringIdFor.createId(platformId), location, message, lastUpdate);
         UpcomingDeparture dueTram = new UpcomingDeparture(location, Bury.fake(),
-                "Due", Duration.ofMinutes(42), "Single", lastUpdate.toLocalTime(), TestEnv.MetAgency());
+                "Due", Duration.ofMinutes(42), "Single", lastUpdate.toLocalTime(), TestEnv.MetAgency(),
+                TransportMode.Tram);
         departureInfo.addDueTram(dueTram);
         return departureInfo;
     }

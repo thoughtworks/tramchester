@@ -2,6 +2,7 @@ package com.tramchester.unit.domain;
 
 import com.tramchester.domain.Agency;
 import com.tramchester.domain.places.Station;
+import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.livedata.domain.liveUpdates.UpcomingDeparture;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.testSupport.TestEnv;
@@ -19,6 +20,7 @@ class UpcomingDepartureTest {
     private Station destination;
     private Station displayLocation;
     private final Agency agency = TestEnv.MetAgency();
+    private final TransportMode mode = TransportMode.Tram;
 
     @BeforeEach
     void setUp() {
@@ -30,7 +32,7 @@ class UpcomingDepartureTest {
     void calculateWhenCorrectly() {
         LocalTime updateTime = LocalTime.of(10,42);
         UpcomingDeparture dueTram = new UpcomingDeparture(displayLocation, destination, "Due",
-                Duration.ofMinutes(4), "Double", updateTime, agency);
+                Duration.ofMinutes(4), "Double", updateTime, agency, mode);
 
         TramTime result = dueTram.getWhen();
         assertEquals(updateTime.plusMinutes(4), result.asLocalTime());
@@ -46,7 +48,7 @@ class UpcomingDepartureTest {
     void calculateWhenCorrectAcrossMidnight() {
         LocalTime updateTime = LocalTime.of(23,58);
         UpcomingDeparture dueTram = new UpcomingDeparture(displayLocation, destination, "Due",
-                Duration.ofMinutes(4), "Double", updateTime, agency);
+                Duration.ofMinutes(4), "Double", updateTime, agency, mode);
 
         TramTime result = dueTram.getWhen();
         assertEquals(LocalTime.of(0,2), result.asLocalTime());
