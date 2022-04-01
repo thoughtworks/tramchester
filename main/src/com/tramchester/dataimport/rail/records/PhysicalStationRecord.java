@@ -20,15 +20,17 @@ public class PhysicalStationRecord {
     private final int northing;
     private final RailInterchangeType railInterchangeType;
     private final int minChangeTime;
+    private final String crs;
 
     public PhysicalStationRecord(String name, String tiplocCode, int easting, int northing,
-                                 RailInterchangeType railInterchangeType, int minChangeTime) {
+                                 RailInterchangeType railInterchangeType, int minChangeTime, String crs) {
         this.name = name;
         this.tiplocCode = tiplocCode;
         this.easting = easting;
         this.northing = northing;
         this.railInterchangeType = railInterchangeType;
         this.minChangeTime = minChangeTime;
+        this.crs = crs;
     }
 
     public static PhysicalStationRecord parse(String text) {
@@ -39,7 +41,8 @@ public class PhysicalStationRecord {
         char textRailInterchangeType = text.charAt(35);
         RailInterchangeType railInterchangeType = RailInterchangeType.getFor(textRailInterchangeType);
         int minChangeTime = getMinChangeTime(text);
-        return new PhysicalStationRecord(name, tiplocCode, easting, northing, railInterchangeType, minChangeTime);
+        String crs = extract(text,50, 52+1);
+        return new PhysicalStationRecord(name, tiplocCode, easting, northing, railInterchangeType, minChangeTime, crs);
     }
 
     private static int getMinChangeTime(String text) {
@@ -103,6 +106,10 @@ public class PhysicalStationRecord {
         return northing;
     }
 
+    public String getCRS() {
+        return crs;
+    }
+
     @Override
     public String toString() {
         return "PhysicalStationRecord{" +
@@ -110,6 +117,9 @@ public class PhysicalStationRecord {
                 ", tiplocCode='" + tiplocCode + '\'' +
                 ", easting=" + easting +
                 ", northing=" + northing +
+                ", railInterchangeType=" + railInterchangeType +
+                ", minChangeTime=" + minChangeTime +
+                ", crs='" + crs + '\'' +
                 '}';
     }
 
@@ -120,6 +130,7 @@ public class PhysicalStationRecord {
     public int getMinChangeTime() {
         return minChangeTime;
     }
+
 
 }
 

@@ -1,13 +1,11 @@
 package com.tramchester.integration.testSupport.rail;
 
-import com.tramchester.config.GTFSSourceConfig;
-import com.tramchester.config.GraphDBConfig;
-import com.tramchester.config.RailConfig;
-import com.tramchester.config.RemoteDataSourceConfig;
+import com.tramchester.config.*;
 import com.tramchester.geo.BoundingBox;
 import com.tramchester.integration.testSupport.GraphDBTestConfig;
 import com.tramchester.integration.testSupport.IntegrationTestConfig;
 import com.tramchester.testSupport.TestEnv;
+import com.tramchester.testSupport.TestOpenLdbConfig;
 
 import java.nio.file.Path;
 import java.util.Collections;
@@ -93,5 +91,10 @@ public class IntegrationRailTestConfig extends IntegrationTestConfig {
         public String getNeo4jPagecacheMemory() {
             return "1000m";
         }
+    }
+
+    @Override
+    public OpenLdbConfig getOpenldbwsConfig() {
+        return new TestOpenLdbConfig();
     }
 }

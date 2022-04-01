@@ -10,6 +10,7 @@ import com.tramchester.dataimport.loader.DirectDataSourceFactory;
 import com.tramchester.dataimport.rail.records.PhysicalStationRecord;
 import com.tramchester.dataimport.rail.records.RailTimetableRecord;
 import com.tramchester.dataimport.rail.records.reference.RailInterchangeType;
+import com.tramchester.dataimport.rail.repository.RailStationCRSRepository;
 import com.tramchester.domain.DataSourceID;
 import com.tramchester.domain.DataSourceInfo;
 import com.tramchester.domain.factory.TransportEntityFactory;
@@ -53,6 +54,7 @@ public class RailTransportDataFromFiles implements DirectDataSourceFactory.Popul
     private final NaptanRespository naptanRespository;
     private final GraphFilterActive graphFilterActive;
     private final RemoteDataRefreshed remoteDataRefreshed;
+    private final RailStationCRSRepository crsRepository;
 
     private final boolean enabled;
 
@@ -60,12 +62,13 @@ public class RailTransportDataFromFiles implements DirectDataSourceFactory.Popul
     public RailTransportDataFromFiles(RailDataRecordFactory factory, TramchesterConfig config,
                                       NaptanRespository naptanRespository,
                                       GraphFilterActive graphFilterActive, RemoteDataRefreshed remoteDataRefreshed,
-                                      UnzipFetchedData.Ready ready) {
+                                      UnzipFetchedData.Ready ready, RailStationCRSRepository crsRepository) {
         bounds = config.getBounds();
         railConfig = config.getRailConfig();
         this.naptanRespository = naptanRespository;
         this.graphFilterActive = graphFilterActive;
         this.remoteDataRefreshed = remoteDataRefreshed;
+        this.crsRepository = crsRepository;
         enabled = (railConfig!=null);
         if (enabled) {
             final Path dataPath = railConfig.getDataPath();
@@ -103,6 +106,8 @@ public class RailTransportDataFromFiles implements DirectDataSourceFactory.Popul
         processTimetableRecords(stationsTemporary, dataContainer, timetableRecords);
 
         stationsTemporary.getShouldInclude().forEach(dataContainer::addStation);
+
+        crsRepository.keepOnly(dataContainer.getStations());
         logger.info("Retained " + stationsTemporary.countNeeded() + " stations of " + stationsTemporary.count());
 
         stationsTemporary.clear();
@@ -157,7 +162,7 @@ public class RailTransportDataFromFiles implements DirectDataSourceFactory.Popul
         StationsTemporary stationsTemporary = new StationsTemporary(outOfBounds);
 
         withinBounds.
-                map(this::createStationFor).
+                map(this::createStationAndRecordCRS).
                 forEach(stationsTemporary::addStation);
 
         return stationsTemporary;
@@ -188,7 +193,7 @@ public class RailTransportDataFromFiles implements DirectDataSourceFactory.Popul
         return true;
     }
 
-    private MutableStation createStationFor(PhysicalStationRecord record) {
+    private MutableStation createStationAndRecordCRS(PhysicalStationRecord record) {
         IdFor<Station> id = StringIdFor.createId(record.getTiplocCode());
 
         String name = record.getName();
@@ -218,7 +223,10 @@ public class RailTransportDataFromFiles implements DirectDataSourceFactory.Popul
 
         Duration minChangeTime = Duration.ofMinutes(record.getMinChangeTime());
 
-        return new MutableStation(id, areaId, name, latLong, grid, DataSourceID.rail, isInterchange, minChangeTime);
+        final MutableStation mutableStation = new MutableStation(id, areaId, name, latLong, grid, DataSourceID.rail, isInterchange, minChangeTime);
+
+        crsRepository.putCRS(mutableStation, record.getCRS());
+        return mutableStation;
     }
 
     private GridPosition convertToOsGrid(int easting, int northing) {

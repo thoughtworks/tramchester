@@ -19,6 +19,8 @@ public class PhysicalStationRecordTest {
         assertEquals(4362, result.getEasting());
         assertEquals(3356, result.getNorthing());
         assertEquals(6, result.getMinChangeTime());
+        assertEquals("DBY", result.getCRS());
+
         assertEquals(RailInterchangeType.Medium, result.getRailInterchangeType());
     }
 
@@ -72,6 +74,7 @@ public class PhysicalStationRecordTest {
         assertEquals("KEWGRDN", result.getTiplocCode());
         assertEquals(5192, result.getEasting());
         assertEquals(1768, result.getNorthing());
+        assertEquals("KWG", result.getCRS());
         assertEquals(RailInterchangeType.None, result.getRailInterchangeType());
 
     }
