@@ -3,7 +3,9 @@ package com.tramchester.integration.graph.neighbours;
 import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.config.TramchesterConfig;
+import com.tramchester.domain.DataSourceID;
 import com.tramchester.domain.places.Station;
+import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.GraphQuery;
 import com.tramchester.graph.graphbuild.GraphLabel;
@@ -86,7 +88,7 @@ class NeighboursGraphBuilderTest {
     @Test
     void shouldHaveExpectedNumbersForBusStations() {
 
-        long busStations = stationRepository.getNumberOfStations()-NUM_TFGM_TRAM_STATIONS;
+        long busStations = stationRepository.getNumberOfStations(DataSourceID.tfgm, TransportMode.Bus);
 
         assertEquals(busStations, countNodes(GraphLabel.BUS_STATION));
     }

@@ -2,7 +2,9 @@ package com.tramchester.unit.healthchecks;
 
 import com.codahale.metrics.health.HealthCheck;
 import com.tramchester.config.TramchesterConfig;
+import com.tramchester.domain.DataSourceID;
 import com.tramchester.domain.ServiceTimeLimits;
+import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.healthchecks.LiveDataMessagesHealthCheck;
 import com.tramchester.livedata.tfgm.PlatformMessageRepository;
@@ -42,10 +44,11 @@ class LiveDataMessagesHealthCheckTest extends EasyMockSupport {
 
         EasyMock.expect(providesNow.getDateTime()).andReturn(daytime);
         EasyMock.expect(repository.numberOfEntries()).andReturn(42);
-        EasyMock.expect(stationRepository.getNumberOfStations()).andReturn(123);
+        EasyMock.expect(stationRepository.getNumberOfStations(DataSourceID.tfgm, TransportMode.Tram)).andReturn(123L);
         EasyMock.expect(repository.numberStationsWithMessages(daytime)).andReturn(123);
 
         replayAll();
+        healthCheck.start();
         HealthCheck.Result result = healthCheck.check();
         verifyAll();
 
@@ -59,10 +62,11 @@ class LiveDataMessagesHealthCheckTest extends EasyMockSupport {
         EasyMock.expect(providesNow.getDateTime()).andReturn(daytime);
         EasyMock.expect(repository.numberOfEntries()).andReturn(42);
 
-        EasyMock.expect(stationRepository.getNumberOfStations()).andReturn(123);
+        EasyMock.expect(stationRepository.getNumberOfStations(DataSourceID.tfgm, TransportMode.Tram)).andReturn(123L);
         EasyMock.expect(repository.numberStationsWithMessages(daytime)).andReturn(119);
 
         replayAll();
+        healthCheck.start();
         HealthCheck.Result result = healthCheck.check();
         verifyAll();
 
@@ -87,10 +91,11 @@ class LiveDataMessagesHealthCheckTest extends EasyMockSupport {
 
         EasyMock.expect(providesNow.getDateTime()).andReturn(daytime);
         EasyMock.expect(repository.numberOfEntries()).andReturn(42);
-        EasyMock.expect(stationRepository.getNumberOfStations()).andReturn(123);
+        EasyMock.expect(stationRepository.getNumberOfStations(DataSourceID.tfgm, TransportMode.Tram)).andReturn(123L);
         EasyMock.expect(repository.numberStationsWithMessages(daytime)).andReturn(10);
 
         replayAll();
+        healthCheck.start();
         HealthCheck.Result result = healthCheck.check();
         verifyAll();
 
@@ -104,10 +109,11 @@ class LiveDataMessagesHealthCheckTest extends EasyMockSupport {
 
         EasyMock.expect(providesNow.getDateTime()).andReturn(lateNight);
         EasyMock.expect(repository.numberOfEntries()).andReturn(42);
-        EasyMock.expect(stationRepository.getNumberOfStations()).andReturn(123);
+        EasyMock.expect(stationRepository.getNumberOfStations(DataSourceID.tfgm, TransportMode.Tram)).andReturn(123L);
         EasyMock.expect(repository.numberStationsWithMessages(lateNight)).andReturn(10);
 
         replayAll();
+        healthCheck.start();
         HealthCheck.Result result = healthCheck.check();
         verifyAll();
 

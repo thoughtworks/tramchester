@@ -3,7 +3,7 @@ package com.tramchester.livedata.tfgm;
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.domain.time.TramTime;
-import com.tramchester.livedata.repository.LiveDataCache;
+import com.tramchester.livedata.repository.TramLiveDataCache;
 import com.tramchester.livedata.repository.LiveDataObserver;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
@@ -27,7 +27,7 @@ public class LiveDataUpdater {
 
     private final List<LiveDataObserver> observers;
     private final PlatformMessageRepository platformMessageRepository;
-    private final LiveDataCache dueTramsRepository;
+    private final TramLiveDataCache dueTramsRepository;
 
     private final LiveDataFetcher fetcher;
     private final LiveDataParser parser;
@@ -53,14 +53,14 @@ public class LiveDataUpdater {
     public void refreshRespository()  {
         logger.info("Refresh repository");
         String payload  = fetcher.fetch();
-        List<StationDepartureInfo> receivedInfos = Collections.emptyList();
+        List<TramStationDepartureInfo> receivedInfos = Collections.emptyList();
         if (payload.length()>0) {
             receivedInfos = parser.parse(payload);
         }
         int received = receivedInfos.size();
         logger.info(format("Received %s updates", received));
 
-        List<StationDepartureInfo> fresh = filterForFreshness(receivedInfos);
+        List<TramStationDepartureInfo> fresh = filterForFreshness(receivedInfos);
         int freshCount = fresh.size();
         String msg = freshCount + " of received " + received + " are fresh";
         if (freshCount > 0) {
@@ -80,13 +80,13 @@ public class LiveDataUpdater {
     }
 
     @NotNull
-    private List<StationDepartureInfo> filterForFreshness(List<StationDepartureInfo> receivedInfos) {
+    private List<TramStationDepartureInfo> filterForFreshness(List<TramStationDepartureInfo> receivedInfos) {
         TramTime now = providesNow.getNowHourMins();
         LocalDate date = providesNow.getDate();
         int stale = 0;
 
-        List<StationDepartureInfo> fresh = new ArrayList<>();
-        for (StationDepartureInfo departureInfo : receivedInfos) {
+        List<TramStationDepartureInfo> fresh = new ArrayList<>();
+        for (TramStationDepartureInfo departureInfo : receivedInfos) {
             if (isTimely(departureInfo, date, now)) {
                 fresh.add(departureInfo);
             } else {
@@ -103,7 +103,7 @@ public class LiveDataUpdater {
         return fresh;
     }
 
-    private boolean isTimely(StationDepartureInfo newDepartureInfo, LocalDate date, TramTime now) {
+    private boolean isTimely(TramStationDepartureInfo newDepartureInfo, LocalDate date, TramTime now) {
         LocalDate updateDate = newDepartureInfo.getLastUpdate().toLocalDate();
         if (!updateDate.equals(date)) {
             logger.info("Received invalid update, date was " + updateDate);
@@ -118,7 +118,7 @@ public class LiveDataUpdater {
         return true;
     }
 
-    private void invokeObservers(List<StationDepartureInfo> receivedInfos) {
+    private void invokeObservers(List<TramStationDepartureInfo> receivedInfos) {
         try {
             observers.forEach(observer -> observer.seenUpdate(receivedInfos));
         }

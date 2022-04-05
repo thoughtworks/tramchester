@@ -4,7 +4,7 @@ import com.tramchester.cloud.data.LiveDataClientForS3;
 import com.tramchester.livedata.cloud.DownloadsLiveDataFromS3;
 import com.tramchester.cloud.data.S3Keys;
 import com.tramchester.cloud.data.StationDepartureMapper;
-import com.tramchester.livedata.tfgm.StationDepartureInfo;
+import com.tramchester.livedata.tfgm.TramStationDepartureInfo;
 import com.tramchester.livedata.domain.DTO.StationDepartureInfoDTO;
 import com.tramchester.testSupport.reference.TramStations;
 import com.tramchester.unit.repository.LiveDataUpdaterTest;
@@ -41,7 +41,7 @@ class DownloadsLiveDataFromS3Test extends EasyMockSupport {
 
         downloader = new DownloadsLiveDataFromS3(clientForS3, stationDepartureMapper, s3Keys);
 
-        StationDepartureInfo stationDepartureInfo = LiveDataUpdaterTest.createDepartureInfoWithDueTram(
+        TramStationDepartureInfo stationDepartureInfo = LiveDataUpdaterTest.createDepartureInfoWithDueTram(
                 LocalDateTime.parse("2018-11-15T15:06:32"), "displayId",
                 "platforId", "messageTxt", TramStations.NavigationRoad.fake());
         departsDTO = new StationDepartureInfoDTO(stationDepartureInfo);
@@ -75,7 +75,7 @@ class DownloadsLiveDataFromS3Test extends EasyMockSupport {
     @Test
     void shouldDownloadDataForGivenRangeMultipleKeys() throws S3Keys.S3KeyException {
 
-        StationDepartureInfo other = LiveDataUpdaterTest.createDepartureInfoWithDueTram(LocalDateTime.parse("2018-11-15T15:06:54"), "displayIdB",
+        TramStationDepartureInfo other = LiveDataUpdaterTest.createDepartureInfoWithDueTram(LocalDateTime.parse("2018-11-15T15:06:54"), "displayIdB",
                 "platforIdB", "messageTxt", TramStations.Bury.fake());
         StationDepartureInfoDTO otherDTO = new StationDepartureInfoDTO(other);
 
@@ -116,7 +116,7 @@ class DownloadsLiveDataFromS3Test extends EasyMockSupport {
     @Test
     void shouldDownloadDataForGivenMutipleDays() throws S3Keys.S3KeyException {
 
-        StationDepartureInfo other = LiveDataUpdaterTest.createDepartureInfoWithDueTram(LocalDateTime.parse("2018-11-15T15:06:54"),
+        TramStationDepartureInfo other = LiveDataUpdaterTest.createDepartureInfoWithDueTram(LocalDateTime.parse("2018-11-15T15:06:54"),
                 "displayIdB", "platforIdB", "messageTxt", TramStations.Bury.fake());
         StationDepartureInfoDTO otherDTO = new StationDepartureInfoDTO(other);
 

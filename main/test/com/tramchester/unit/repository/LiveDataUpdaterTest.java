@@ -8,7 +8,7 @@ import com.tramchester.livedata.tfgm.Lines;
 import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.livedata.domain.liveUpdates.UpcomingDeparture;
-import com.tramchester.livedata.tfgm.StationDepartureInfo;
+import com.tramchester.livedata.tfgm.TramStationDepartureInfo;
 import com.tramchester.livedata.tfgm.LiveDataFetcher;
 import com.tramchester.livedata.tfgm.LiveDataHTTPFetcher;
 import com.tramchester.livedata.tfgm.LiveDataParser;
@@ -54,7 +54,7 @@ public class LiveDataUpdaterTest extends EasyMockSupport {
 
     @Test
     void shouldUpdateRepositories() {
-        List<StationDepartureInfo> info = new LinkedList<>();
+        List<TramStationDepartureInfo> info = new LinkedList<>();
 
         info.add(createDepartureInfoWithDueTram(lastUpdate, "yyy", "platformIdA",
                 "some message", Altrincham.fake()));
@@ -77,10 +77,10 @@ public class LiveDataUpdaterTest extends EasyMockSupport {
 
     @Test
     void shouldUpdateRepositoriesIgnoringStaleData() {
-        List<StationDepartureInfo> info = new LinkedList<>();
+        List<TramStationDepartureInfo> info = new LinkedList<>();
 
         Station station = Altrincham.fake();
-        StationDepartureInfo departureInfo = createDepartureInfoWithDueTram(lastUpdate, "yyy", "platformIdA",
+        TramStationDepartureInfo departureInfo = createDepartureInfoWithDueTram(lastUpdate, "yyy", "platformIdA",
                 "some message", station);
 
         info.add(departureInfo);
@@ -95,7 +95,7 @@ public class LiveDataUpdaterTest extends EasyMockSupport {
         EasyMock.expect(fetcher.fetch()).andReturn("someData");
         EasyMock.expect(mapper.parse("someData")).andReturn(info);
 
-        List<StationDepartureInfo> expected = Collections.singletonList(departureInfo);
+        List<TramStationDepartureInfo> expected = Collections.singletonList(departureInfo);
         EasyMock.expect(platformMessageRepository.updateCache(expected)).andReturn(1);
         EasyMock.expect(tramDepartureRepository.updateCache(expected)).andReturn(1);
 
@@ -104,12 +104,12 @@ public class LiveDataUpdaterTest extends EasyMockSupport {
         verifyAll();
     }
 
-    public static StationDepartureInfo createDepartureInfoWithDueTram(LocalDateTime lastUpdate,
-                                                                      String displayId, String platformId, String message,
-                                                                      Station location) {
-        StationDepartureInfo departureInfo = new StationDepartureInfo(displayId, Lines.Airport,
+    public static TramStationDepartureInfo createDepartureInfoWithDueTram(LocalDateTime lastUpdate,
+                                                                          String displayId, String platformId, String message,
+                                                                          Station location) {
+        TramStationDepartureInfo departureInfo = new TramStationDepartureInfo(displayId, Lines.Airport,
                 LineDirection.Incoming, StringIdFor.createId(platformId), location, message, lastUpdate);
-        UpcomingDeparture dueTram = new UpcomingDeparture(location, Bury.fake(),
+        UpcomingDeparture dueTram = new UpcomingDeparture(lastUpdate.toLocalDate(), location, Bury.fake(),
                 "Due", Duration.ofMinutes(42), "Single", lastUpdate.toLocalTime(), TestEnv.MetAgency(),
                 TransportMode.Tram);
         departureInfo.addDueTram(dueTram);

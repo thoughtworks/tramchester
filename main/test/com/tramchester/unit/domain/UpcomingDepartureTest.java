@@ -11,6 +11,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.time.Duration;
+import java.time.LocalDate;
 import java.time.LocalTime;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -32,7 +33,8 @@ class UpcomingDepartureTest {
     @Test
     void calculateWhenCorrectly() {
         LocalTime updateTime = LocalTime.of(10,42);
-        UpcomingDeparture dueTram = new UpcomingDeparture(displayLocation, destination, "Due",
+        LocalDate date = LocalDate.of(2022,4,30);
+        UpcomingDeparture dueTram = new UpcomingDeparture(date, displayLocation, destination, "Due",
                 Duration.ofMinutes(4), "Double", updateTime, agency, mode);
 
         TramTime result = dueTram.getWhen();
@@ -44,13 +46,16 @@ class UpcomingDepartureTest {
         assertEquals("Double", dueTram.getCarriages());
         assertEquals(TransportMode.Tram, dueTram.getMode());
         assertEquals(agency, dueTram.getAgency());
+        assertEquals(date, dueTram.getDate());
 
     }
 
     @Test
     void calculateWhenCorrectAcrossMidnight() {
         LocalTime updateTime = LocalTime.of(23,58);
-        UpcomingDeparture dueTram = new UpcomingDeparture(displayLocation, destination, "Due",
+        LocalDate date = LocalDate.of(2022,4,30);
+
+        UpcomingDeparture dueTram = new UpcomingDeparture(date, displayLocation, destination, "Due",
                 Duration.ofMinutes(4), "Double", updateTime, agency, mode);
 
         TramTime result = dueTram.getWhen();

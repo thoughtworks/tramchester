@@ -3,13 +3,16 @@ package com.tramchester.healthchecks;
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.config.TfgmTramLiveDataConfig;
 import com.tramchester.config.TramchesterConfig;
+import com.tramchester.domain.DataSourceID;
 import com.tramchester.domain.ServiceTimeLimits;
+import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.livedata.tfgm.PlatformMessageRepository;
 import com.tramchester.repository.StationRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import java.time.LocalDateTime;
 
@@ -23,6 +26,7 @@ public class LiveDataMessagesHealthCheck extends TramchesterHealthCheck {
     private final ProvidesNow currentTimeProvider;
     private final TfgmTramLiveDataConfig config;
     private final StationRepository stationRepository;
+    private int numberOfStations;
 
     @Inject
     public LiveDataMessagesHealthCheck(TramchesterConfig config, PlatformMessageRepository repository,
@@ -33,6 +37,12 @@ public class LiveDataMessagesHealthCheck extends TramchesterHealthCheck {
         this.repository = repository;
         this.currentTimeProvider = currentTimeProvider;
         this.stationRepository = stationRepository;
+    }
+
+    @PostConstruct
+    public void start() {
+        // TODO Correct way to know which count to get?
+        numberOfStations = (int) stationRepository.getNumberOfStations(DataSourceID.tfgm, TransportMode.Tram);
     }
 
     @Override
@@ -55,24 +65,23 @@ public class LiveDataMessagesHealthCheck extends TramchesterHealthCheck {
             return Result.unhealthy(msg);
         }
 
-        int numberStations = stationRepository.getNumberOfStations();
         LocalDateTime dateTime = currentTimeProvider.getDateTime();
         int stationsWithMessages = repository.numberStationsWithMessages(dateTime);
 
-        int offset = numberStations - stationsWithMessages;
+        int offset = numberOfStations - stationsWithMessages;
         boolean lateNight = isLateNight(dateTime);
 
         if (offset > config.getMaxNumberStationsWithoutMessages()) {
             if (!lateNight) {
                 String message = format("Not enough messages present, %s entries, %s out of %s stations",
-                        entries, stationsWithMessages, numberStations);
+                        entries, stationsWithMessages, numberOfStations);
                 logger.warn(message);
                 return Result.unhealthy(message);
             }
         }
 
         String msg = format("Live data messages healthy with %s entries for %s out of %s stations ",
-                entries, stationsWithMessages, numberStations);
+                entries, stationsWithMessages, numberOfStations);
         logger.info(msg);
         return Result.healthy(msg);
     }

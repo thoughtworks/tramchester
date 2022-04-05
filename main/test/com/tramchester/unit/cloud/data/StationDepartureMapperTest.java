@@ -42,7 +42,7 @@ class StationDepartureMapperTest {
         Duration wait = Duration.ofMinutes(42);
         LocalDateTime dueTime = lastUpdate.plus(wait).truncatedTo(ChronoUnit.MINUTES);
         Agency agency = TestEnv.MetAgency();
-        UpcomingDeparture dueTram = new UpcomingDeparture(NavigationRoad.fake(), Bury.fake(),
+        UpcomingDeparture dueTram = new UpcomingDeparture(lastUpdate.toLocalDate(), NavigationRoad.fake(), Bury.fake(),
                 "Due", wait, "Single", dueTime.toLocalTime().minus(wait), agency, TransportMode.Tram);
         final DepartureDTO departureDTO = new DepartureDTO(NavigationRoad.fake(), dueTram, dueTime.toLocalDate());
 

@@ -5,7 +5,7 @@ import com.tramchester.cloud.data.LiveDataClientForS3;
 import com.tramchester.cloud.data.S3Keys;
 import com.tramchester.cloud.data.StationDepartureMapper;
 import com.tramchester.livedata.cloud.UploadsLiveData;
-import com.tramchester.livedata.tfgm.StationDepartureInfo;
+import com.tramchester.livedata.tfgm.TramStationDepartureInfo;
 import com.tramchester.livedata.domain.DTO.StationDepartureInfoDTO;
 import com.tramchester.testSupport.reference.TramStations;
 import com.tramchester.unit.repository.LiveDataUpdaterTest;
@@ -27,7 +27,7 @@ class UploadsLiveDataTest extends EasyMockSupport {
 
     private LiveDataClientForS3 clientForS3;
     private UploadsLiveData uploadsLiveData;
-    private List<StationDepartureInfo> liveData;
+    private List<TramStationDepartureInfo> liveData;
     private StationDepartureMapper mapper;
     private S3Keys s3Keys;
     private LocalDateTime lastUpdateTime;

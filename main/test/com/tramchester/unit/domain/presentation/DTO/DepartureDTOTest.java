@@ -77,7 +77,7 @@ class DepartureDTOTest {
 
     @NotNull
     private UpcomingDeparture getDueTram(LocalTime updateTime, TramStations station, int wait) {
-        return new UpcomingDeparture(NavigationRoad.fake(),
+        return new UpcomingDeparture(updateDate, NavigationRoad.fake(),
                 station.fake(), "status", Duration.ofMinutes(wait), "carriages", updateTime,
                 TestEnv.MetAgency(), TransportMode.Tram);
     }

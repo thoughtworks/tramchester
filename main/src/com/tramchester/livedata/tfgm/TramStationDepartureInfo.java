@@ -12,7 +12,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
 
-public class StationDepartureInfo  {
+public class TramStationDepartureInfo {
 
     private static final String NO_MESSAGE = "<no message>";
 
@@ -26,8 +26,8 @@ public class StationDepartureInfo  {
     private final LineDirection direction;
 
     // station code here is the actocode
-    public StationDepartureInfo(String displayId, Lines line, LineDirection direction, IdFor<Platform> stationPlatform,
-                                Station station, String message, LocalDateTime lastUpdate) {
+    public TramStationDepartureInfo(String displayId, Lines line, LineDirection direction, IdFor<Platform> stationPlatform,
+                                    Station station, String message, LocalDateTime lastUpdate) {
         this.displayId = displayId;
         this.line = line;
         this.direction = direction;
@@ -90,7 +90,7 @@ public class StationDepartureInfo  {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        StationDepartureInfo that = (StationDepartureInfo) o;
+        TramStationDepartureInfo that = (TramStationDepartureInfo) o;
         return line.equals(that.line) &&
                 stationPlatform.equals(that.stationPlatform) &&
                 message.equals(that.message) &&

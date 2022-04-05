@@ -3,13 +3,16 @@ package com.tramchester.healthchecks;
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.config.TfgmTramLiveDataConfig;
 import com.tramchester.config.TramchesterConfig;
+import com.tramchester.domain.DataSourceID;
 import com.tramchester.domain.ServiceTimeLimits;
+import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.livedata.tfgm.TramDepartureRepository;
 import com.tramchester.repository.StationRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import java.time.LocalDateTime;
 
@@ -23,6 +26,7 @@ public class LiveDataHealthCheck extends TramchesterHealthCheck {
     private final ProvidesNow providesNow;
     private final StationRepository stationRepository;
     private final TfgmTramLiveDataConfig config;
+    private int numberOfStations;
 
     @Inject
     public LiveDataHealthCheck(TramDepartureRepository repository, ProvidesNow providesNow, StationRepository stationRepository,
@@ -33,6 +37,12 @@ public class LiveDataHealthCheck extends TramchesterHealthCheck {
         this.repository = repository;
         this.providesNow = providesNow;
         this.stationRepository = stationRepository;
+    }
+
+    @PostConstruct
+    public void start() {
+        // TODO Correct way to know which count to get?
+        numberOfStations = (int) stationRepository.getNumberOfStations(DataSourceID.tfgm, TransportMode.Tram);
     }
 
     @Override
@@ -52,7 +62,7 @@ public class LiveDataHealthCheck extends TramchesterHealthCheck {
             return Result.unhealthy(noEntriesPresent);
         }
 
-        int numberOfStations = stationRepository.getNumberOfStations();
+//        int numberOfStations = stationRepository.getNumberOfStations();
         LocalDateTime dateTime = providesNow.getDateTime();
         int stationsWithData = repository.getNumStationsWithData(dateTime);
         int offset = numberOfStations-stationsWithData;

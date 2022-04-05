@@ -8,7 +8,7 @@ import com.tramchester.ComponentsBuilder;
 import com.tramchester.domain.places.Station;
 import com.tramchester.livedata.domain.liveUpdates.UpcomingDeparture;
 import com.tramchester.livedata.tfgm.Lines;
-import com.tramchester.livedata.tfgm.StationDepartureInfo;
+import com.tramchester.livedata.tfgm.TramStationDepartureInfo;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
 import com.tramchester.livedata.tfgm.LiveDataHTTPFetcher;
 import com.tramchester.livedata.tfgm.LiveDataParser;
@@ -75,16 +75,16 @@ class LiveDataHTTPFetcherTest {
     @Test
     @LiveDataMessagesCategory
     void shouldFetchValidDataFromTFGMAPI() {
-        List<StationDepartureInfo> departureInfos = parser.parse(payload);
+        List<TramStationDepartureInfo> departureInfos = parser.parse(payload);
 
         assertTrue(departureInfos.size()>0);
 
-        Optional<StationDepartureInfo> hasMsgs = departureInfos.stream().
+        Optional<TramStationDepartureInfo> hasMsgs = departureInfos.stream().
                 filter(info -> !info.getMessage().isEmpty()).findAny();
 
         assertTrue(hasMsgs.isPresent(), "display with msgs");
 
-        StationDepartureInfo display = hasMsgs.get();
+        TramStationDepartureInfo display = hasMsgs.get();
 
         // this assert will fail if run at certain times of day....
         // assertTrue(aDisplay.getDueTrams().size()>0);
@@ -96,7 +96,7 @@ class LiveDataHTTPFetcherTest {
     @Test
     @LiveDataTestCategory
     void shouldHaveCrosscheckOnLiveDateDestinations() {
-        List<StationDepartureInfo> departureInfos = parser.parse(payload);
+        List<TramStationDepartureInfo> departureInfos = parser.parse(payload);
 
         assertTrue(departureInfos.size()>0);
 
@@ -138,9 +138,9 @@ class LiveDataHTTPFetcherTest {
     @Test
     @LiveDataTestCategory
     void shouldMapAllLinesCorrectly() {
-        List<StationDepartureInfo> departureInfos = parser.parse(payload);
+        List<TramStationDepartureInfo> departureInfos = parser.parse(payload);
 
-        Set<Lines> uniqueLines = departureInfos.stream().map(StationDepartureInfo::getLine).collect(Collectors.toSet());
+        Set<Lines> uniqueLines = departureInfos.stream().map(TramStationDepartureInfo::getLine).collect(Collectors.toSet());
 
         assertFalse(uniqueLines.contains(Lines.UnknownLine));
 
@@ -150,7 +150,7 @@ class LiveDataHTTPFetcherTest {
     @Test
     @LiveDataTestCategory
     void shouldSpikeDisplayDirectionsForRoutes() {
-        List<StationDepartureInfo> departureInfos = parser.parse(payload);
+        List<TramStationDepartureInfo> departureInfos = parser.parse(payload);
 
         Set<Station> stations = transportData.getStations();
 
@@ -166,9 +166,9 @@ class LiveDataHTTPFetcherTest {
         mappings.forEach(mapping -> assertTrue(stationByName.getTramStationByName(mapping.getToo()).isPresent(), mapping.name()));
     }
 
-    private Set<Lines> getLineAndDirectionFor(List<StationDepartureInfo> departureInfos, Station station) {
+    private Set<Lines> getLineAndDirectionFor(List<TramStationDepartureInfo> departureInfos, Station station) {
         return departureInfos.stream().filter(departureInfo -> departureInfo.getStation().equals(station)).
-                map(StationDepartureInfo::getLine).collect(Collectors.toSet());
+                map(TramStationDepartureInfo::getLine).collect(Collectors.toSet());
     }
 
 

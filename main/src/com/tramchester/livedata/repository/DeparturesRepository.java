@@ -45,12 +45,13 @@ public class DeparturesRepository {
 
     public List<UpcomingDeparture> dueTramsForLocation(Location<?> location, LocalDate date, TramTime time,
                                                        Set<TransportMode> modes) {
-        return switch (location.getLocationType()) {
+        List<UpcomingDeparture> departures = switch (location.getLocationType()) {
             case Station -> getStationDepartures((Station) location, date, time, modes);
             case StationGroup -> getStationGroupDepartures((StationGroup) location, date, time, modes);
             case MyLocation, Postcode -> getDeparturesNearTo(location, date, time, modes);
             case Platform -> getPlatformDepartrues((Platform) location, date, time, modes);
         };
+        return departures.stream().filter(departure -> departure.getDate().equals(date)).collect(Collectors.toList());
     }
 
     private List<UpcomingDeparture> getPlatformDepartrues(Platform platform, LocalDate date, TramTime time, Set<TransportMode> modes) {
@@ -58,11 +59,6 @@ public class DeparturesRepository {
             logger.error(format("Platform %s does not match supplied modes %s", platform, modes));
         }
         return tramDepartureRepository.dueTramsForPlatform(platform.getId(), date, time);
-//        Optional<PlatformDueTrams> platformDue = tramDepartureRepository.dueTramsForPlatform(platform.getId(), date, time);
-//        if (platformDue.isEmpty()) {
-//            return Collections.emptyList();
-//        }
-//        return platformDue.get().getDueTrams().stream().distinct().collect(Collectors.toList());
     }
 
     private List<UpcomingDeparture> getDeparturesNearTo(Location<?> location, LocalDate date, TramTime time, Set<TransportMode> modes) {

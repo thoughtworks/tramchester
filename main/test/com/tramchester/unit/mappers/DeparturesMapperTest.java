@@ -38,7 +38,7 @@ class DeparturesMapperTest extends EasyMockSupport {
     @Test
     void shouldMapToDTOCorrectly() {
         Collection<UpcomingDeparture> dueTrams = Collections.singletonList(
-                new UpcomingDeparture(displayLocation, PiccadillyGardens.fake(),
+                new UpcomingDeparture(queryDate, displayLocation, PiccadillyGardens.fake(),
                 "DUE", Duration.ofMinutes(9), "single", LocalTime.of(10, 32), agency, mode));
 
         Set<DepartureDTO> results = mapper.mapToDTO(dueTrams, queryDate);
@@ -60,7 +60,7 @@ class DeparturesMapperTest extends EasyMockSupport {
     @Test
     void shouldHandleCrossingMidnight() {
         Collection<UpcomingDeparture> dueTrams = Collections.singletonList(
-                new UpcomingDeparture(displayLocation, PiccadillyGardens.fake(),
+                new UpcomingDeparture(queryDate, displayLocation, PiccadillyGardens.fake(),
                 "DUE", Duration.ofMinutes(9), "single", LocalTime.of(23, 58), agency, mode));
 
         Set<DepartureDTO> results = mapper.mapToDTO(dueTrams, queryDate);

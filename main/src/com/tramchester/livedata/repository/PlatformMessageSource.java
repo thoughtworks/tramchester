@@ -13,7 +13,7 @@ import java.util.List;
 import java.util.Optional;
 
 @ImplementedBy(PlatformMessageRepository.class)
-public interface PlatformMessageSource extends LiveDataCache {
+public interface PlatformMessageSource extends TramLiveDataCache {
     Optional<PlatformMessage> messagesFor(IdFor<Platform> platformId, LocalDate queryDate, TramTime queryTime);
     List<PlatformMessage> messagesFor(Station station, LocalDate queryDate, TramTime queryTime);
 

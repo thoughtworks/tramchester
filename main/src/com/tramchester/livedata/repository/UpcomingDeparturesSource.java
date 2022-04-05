@@ -9,7 +9,10 @@ import com.tramchester.livedata.domain.liveUpdates.UpcomingDeparture;
 import java.time.LocalDate;
 import java.util.List;
 
-public interface UpcomingDeparturesSource extends LiveDataCache {
-    List<UpcomingDeparture>dueTramsForPlatform(IdFor<Platform> platform, LocalDate date, TramTime queryTime);
+public interface UpcomingDeparturesSource  {
+
+    @Deprecated
+    List<UpcomingDeparture> dueTramsForPlatform(IdFor<Platform> platform, LocalDate date, TramTime queryTime);
+
     List<UpcomingDeparture> dueTramsForStation(Station station, LocalDate date, TramTime queryTime);
 }

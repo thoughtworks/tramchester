@@ -81,7 +81,7 @@ public class PlatformMessageRepository implements PlatformMessageSource, Reports
      * from LiveDataUpdater, which only running if live data is configured
      */
     @Override
-    public int updateCache(List<StationDepartureInfo> departureInfos) {
+    public int updateCache(List<TramStationDepartureInfo> departureInfos) {
         if (!isEnabled()) {
             logger.error("Unexpected call of updateCache since live data is disabled");
         }
@@ -94,11 +94,11 @@ public class PlatformMessageRepository implements PlatformMessageSource, Reports
         return entries;
     }
 
-    private void consumeDepartInfo(List<StationDepartureInfo> departureInfos) {
+    private void consumeDepartInfo(List<TramStationDepartureInfo> departureInfos) {
         IdSet<Platform> platformsSeen = new IdSet<>();
         int emptyMessages = 0;
 
-        for (StationDepartureInfo departureInfo : departureInfos) {
+        for (TramStationDepartureInfo departureInfo : departureInfos) {
             if (!updateCacheFor(departureInfo, platformsSeen)) {
                 emptyMessages = emptyMessages + 1;
             }
@@ -111,7 +111,7 @@ public class PlatformMessageRepository implements PlatformMessageSource, Reports
         }
     }
 
-    private boolean updateCacheFor(StationDepartureInfo departureInfo, IdSet<Platform> platformsSeenForUpdate) {
+    private boolean updateCacheFor(TramStationDepartureInfo departureInfo, IdSet<Platform> platformsSeenForUpdate) {
         IdFor<Platform> platformId = departureInfo.getStationPlatform();
         if (platformsSeenForUpdate.contains(platformId)) {
             if (!departureInfo.getMessage().isEmpty()) {

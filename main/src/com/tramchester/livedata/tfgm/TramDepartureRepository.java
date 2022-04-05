@@ -13,6 +13,7 @@ import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.livedata.domain.liveUpdates.UpcomingDeparture;
 import com.tramchester.livedata.mappers.DeparturesMapper;
+import com.tramchester.livedata.repository.TramLiveDataCache;
 import com.tramchester.livedata.repository.UpcomingDeparturesSource;
 import com.tramchester.metrics.CacheMetrics;
 import com.tramchester.metrics.HasMetrics;
@@ -38,7 +39,7 @@ import java.util.stream.Stream;
 import static java.lang.String.format;
 
 @LazySingleton
-public class TramDepartureRepository implements UpcomingDeparturesSource, ReportsCacheStats, HasMetrics {
+public class TramDepartureRepository implements UpcomingDeparturesSource, TramLiveDataCache, ReportsCacheStats, HasMetrics {
     private static final Logger logger = LoggerFactory.getLogger(TramDepartureRepository.class);
 
     // TODO Correct limit here?
@@ -67,7 +68,7 @@ public class TramDepartureRepository implements UpcomingDeparturesSource, Report
     }
 
     @Override
-    public int updateCache(List<StationDepartureInfo> departureInfos) {
+    public int updateCache(List<TramStationDepartureInfo> departureInfos) {
         int consumed = consumeDepartInfo(departureInfos);
         dueTramsCache.cleanUp();
         lastRefresh = providesNow.getDateTime();
@@ -75,17 +76,17 @@ public class TramDepartureRepository implements UpcomingDeparturesSource, Report
         return consumed;
     }
 
-    private int consumeDepartInfo(List<StationDepartureInfo> departureInfos) {
+    private int consumeDepartInfo(List<TramStationDepartureInfo> departureInfos) {
         IdSet<Platform> platformsSeen = new IdSet<>();
 
-        for (StationDepartureInfo departureInfo : departureInfos) {
+        for (TramStationDepartureInfo departureInfo : departureInfos) {
             updateCacheFor(departureInfo, platformsSeen);
         }
 
         return platformsSeen.size();
     }
 
-    private void updateCacheFor(StationDepartureInfo newDepartureInfo, IdSet<Platform> platformsSeen) {
+    private void updateCacheFor(TramStationDepartureInfo newDepartureInfo, IdSet<Platform> platformsSeen) {
         IdFor<Platform> platformId = newDepartureInfo.getStationPlatform();
         if (!platformsSeen.contains(platformId)) {
             platformsSeen.add(platformId);
@@ -236,7 +237,7 @@ public class TramDepartureRepository implements UpcomingDeparturesSource, Report
             this.stationId = stationId;
         }
 
-        public PlatformDueTrams(StationDepartureInfo departureInfo) {
+        public PlatformDueTrams(TramStationDepartureInfo departureInfo) {
             this(departureInfo.getStationPlatform(), departureInfo.getDueTrams(), departureInfo.getLastUpdate(),
                     departureInfo.getStation().getId());
         }

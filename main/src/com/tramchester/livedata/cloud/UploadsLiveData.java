@@ -5,7 +5,7 @@ import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.cloud.data.LiveDataClientForS3;
 import com.tramchester.cloud.data.S3Keys;
 import com.tramchester.cloud.data.StationDepartureMapper;
-import com.tramchester.livedata.tfgm.StationDepartureInfo;
+import com.tramchester.livedata.tfgm.TramStationDepartureInfo;
 import com.tramchester.livedata.domain.DTO.StationDepartureInfoDTO;
 import com.tramchester.livedata.repository.LiveDataObserver;
 import org.slf4j.Logger;
@@ -35,7 +35,7 @@ public class UploadsLiveData implements LiveDataObserver {
         this.s3Keys = s3Keys;
     }
 
-    public boolean seenUpdate(Collection<StationDepartureInfo> stationDepartureInfos) {
+    public boolean seenUpdate(Collection<TramStationDepartureInfo> stationDepartureInfos) {
         if (!s3.isStarted()) {
             logger.warn("S3 client not started, no live data will be archived");
             return false;

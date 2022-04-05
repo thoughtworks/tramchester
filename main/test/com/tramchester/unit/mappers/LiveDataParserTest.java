@@ -13,7 +13,7 @@ import com.tramchester.livedata.domain.liveUpdates.UpcomingDeparture;
 import com.tramchester.livedata.repository.StationByName;
 import com.tramchester.livedata.tfgm.Lines;
 import com.tramchester.livedata.tfgm.LiveDataParser;
-import com.tramchester.livedata.tfgm.StationDepartureInfo;
+import com.tramchester.livedata.tfgm.TramStationDepartureInfo;
 import com.tramchester.repository.AgencyRepository;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.TestEnv;
@@ -111,7 +111,7 @@ class LiveDataParserTest extends EasyMockSupport {
         message.append(footer);
 
         replayAll();
-        List<StationDepartureInfo> info = parser.parse(message.toString());
+        List<TramStationDepartureInfo> info = parser.parse(message.toString());
         assertEquals(11, info.size());
         for (int i = 1; i < 12; i++) {
             LocalDateTime expected = LocalDateTime.of(2017, 11, 29, i, 45);
@@ -125,12 +125,12 @@ class LiveDataParserTest extends EasyMockSupport {
 
         replayAll();
         parser.start();
-        List<StationDepartureInfo> info = parser.parse(exampleData);
+        List<TramStationDepartureInfo> info = parser.parse(exampleData);
         verifyAll();
 
         assertEquals(2, info.size());
 
-        StationDepartureInfo departureInfoA = info.get(0);
+        TramStationDepartureInfo departureInfoA = info.get(0);
         assertEquals("1", departureInfoA.getDisplayId());
         assertEquals(Lines.Eccles, departureInfoA.getLine());
         assertEquals(StringIdFor.createId("9400ZZMAMCU2"), departureInfoA.getStationPlatform());
@@ -153,7 +153,7 @@ class LiveDataParserTest extends EasyMockSupport {
         assertEquals(expectedDateA.toLocalDateTime(), departureInfoA.getLastUpdate());
 
         // WORKAROUND - Live data erronously gives timestamps as 'UTC'/'Z' even though they switch to DST/BST
-        StationDepartureInfo departureInfoB = info.get(1);
+        TramStationDepartureInfo departureInfoB = info.get(1);
         assertEquals("234", departureInfoB.getDisplayId());
 
         assertEquals(Lines.Airport, departureInfoB.getLine());
@@ -181,7 +181,7 @@ class LiveDataParserTest extends EasyMockSupport {
 
         replayAll();
         parser.start();
-        List<StationDepartureInfo> info = parser.parse(NoSuchMediaCityPlatform);
+        List<TramStationDepartureInfo> info = parser.parse(NoSuchMediaCityPlatform);
         verifyAll();
 
         assertEquals(2, info.size());
@@ -191,11 +191,11 @@ class LiveDataParserTest extends EasyMockSupport {
     void shouldExcludeSeeTramFrontDestination()  {
         replayAll();
         parser.start();
-        List<StationDepartureInfo> info = parser.parse(exampleData);
+        List<TramStationDepartureInfo> info = parser.parse(exampleData);
         verifyAll();
 
         assertEquals(2, info.size());
-        StationDepartureInfo departureInfoB = info.get(1);
+        TramStationDepartureInfo departureInfoB = info.get(1);
         assertEquals(ManAirport.getId(), departureInfoB.getStation().getId());
         assertEquals(2, departureInfoB.getDueTrams().size());
     }
@@ -206,11 +206,11 @@ class LiveDataParserTest extends EasyMockSupport {
 
         replayAll();
         parser.start();
-        List<StationDepartureInfo> info = parser.parse(notInService);
+        List<TramStationDepartureInfo> info = parser.parse(notInService);
         verifyAll();
 
         assertEquals(2, info.size());
-        StationDepartureInfo departureInfoB = info.get(1);
+        TramStationDepartureInfo departureInfoB = info.get(1);
         assertEquals(ManAirport.getId(), departureInfoB.getStation().getId());
         assertEquals(1, departureInfoB.getDueTrams().size());
     }
@@ -221,7 +221,7 @@ class LiveDataParserTest extends EasyMockSupport {
 
         replayAll();
         parser.start();
-        List<StationDepartureInfo> info = parser.parse(bothDirections);
+        List<TramStationDepartureInfo> info = parser.parse(bothDirections);
         verifyAll();
         assertEquals(2, info.size());
         assertEquals(LineDirection.Both, info.get(0).getDirection());

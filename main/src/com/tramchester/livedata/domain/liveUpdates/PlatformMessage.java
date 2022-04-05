@@ -4,7 +4,7 @@ import com.tramchester.domain.Platform;
 import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.places.Station;
-import com.tramchester.livedata.tfgm.StationDepartureInfo;
+import com.tramchester.livedata.tfgm.TramStationDepartureInfo;
 import org.jetbrains.annotations.NotNull;
 
 import java.time.LocalDateTime;
@@ -24,7 +24,7 @@ public class PlatformMessage {
         this.displayId = displayId;
     }
 
-    public PlatformMessage(StationDepartureInfo departureInfo) {
+    public PlatformMessage(TramStationDepartureInfo departureInfo) {
         this(departureInfo.getStationPlatform(), departureInfo.getMessage(), departureInfo.getLastUpdate(),
                 departureInfo.getStation(), departureInfo.getDisplayId());
     }

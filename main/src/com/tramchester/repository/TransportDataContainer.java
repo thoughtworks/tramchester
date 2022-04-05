@@ -143,8 +143,11 @@ public class TransportDataContainer implements TransportData, WriteableTransport
     }
 
     @Override
-    public int getNumberOfStations() {
-        return stationsById.size();
+    public long getNumberOfStations(DataSourceID dataSourceID, TransportMode mode) {
+        return stationsById.getValues().stream().
+                filter(station -> station.getDataSourceID().equals(dataSourceID)).
+                filter(station -> station.getTransportModes().contains(mode)).count();
+        //return stationsById.size();
     }
 
     @Override

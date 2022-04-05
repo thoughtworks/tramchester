@@ -3,7 +3,7 @@ package com.tramchester.livedata.domain.DTO;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.tramchester.livedata.domain.liveUpdates.UpcomingDeparture;
-import com.tramchester.livedata.tfgm.StationDepartureInfo;
+import com.tramchester.livedata.tfgm.TramStationDepartureInfo;
 import com.tramchester.mappers.serialisation.LocalDateTimeJsonDeserializer;
 import com.tramchester.mappers.serialisation.LocalDateTimeJsonSerializer;
 
@@ -37,7 +37,7 @@ public class StationDepartureInfoDTO  {
         this.location = location;
     }
 
-    public StationDepartureInfoDTO(StationDepartureInfo info) {
+    public StationDepartureInfoDTO(TramStationDepartureInfo info) {
         this(info.getLine().name(),
                 info.getStationPlatform().forDTO(),
                 info.getMessage(),

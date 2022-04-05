@@ -12,7 +12,7 @@ import com.tramchester.domain.time.TramTime;
 import com.tramchester.livedata.domain.liveUpdates.LineDirection;
 import com.tramchester.livedata.tfgm.Lines;
 import com.tramchester.livedata.domain.liveUpdates.PlatformMessage;
-import com.tramchester.livedata.tfgm.StationDepartureInfo;
+import com.tramchester.livedata.tfgm.TramStationDepartureInfo;
 import com.tramchester.metrics.CacheMetrics;
 import com.tramchester.livedata.tfgm.PlatformMessageRepository;
 import com.tramchester.testSupport.TestEnv;
@@ -59,14 +59,14 @@ class PlatformMessageRepositoryTest  extends EasyMockSupport {
 
     @Test
     void shouldUpdateMessageCacheAndFetch() {
-        List<StationDepartureInfo> infos = new LinkedList<>();
+        List<TramStationDepartureInfo> infos = new LinkedList<>();
 
         EasyMock.expect(config.liveDataEnabled()).andStubReturn(true);
 
-        StationDepartureInfo departureInfoA = new StationDepartureInfo("yyy", Lines.Eccles,
+        TramStationDepartureInfo departureInfoA = new TramStationDepartureInfo("yyy", Lines.Eccles,
                 LineDirection.Incoming, platform.getId(), station,
                 "some message", lastUpdate);
-        StationDepartureInfo departureInfoB = new StationDepartureInfo("yyy", Lines.Eccles,
+        TramStationDepartureInfo departureInfoB = new TramStationDepartureInfo("yyy", Lines.Eccles,
                 LineDirection.Incoming, StringIdFor.createId("someOther"), Altrincham.fake(),
                 "some different message", lastUpdate);
         infos.add(departureInfoA);
@@ -105,11 +105,11 @@ class PlatformMessageRepositoryTest  extends EasyMockSupport {
 
     @Test
     void shouldIgnoreAPIProvidedEmptyMessage() {
-        List<StationDepartureInfo> infos = new LinkedList<>();
+        List<TramStationDepartureInfo> infos = new LinkedList<>();
 
         EasyMock.expect(config.liveDataEnabled()).andReturn(true);
 
-        StationDepartureInfo departureInfo = new StationDepartureInfo("yyy", Lines.Eccles,
+        TramStationDepartureInfo departureInfo = new TramStationDepartureInfo("yyy", Lines.Eccles,
                 LineDirection.Incoming, platform.getId(), station,
                 "<no message>", lastUpdate);
         infos.add(departureInfo);
@@ -125,10 +125,10 @@ class PlatformMessageRepositoryTest  extends EasyMockSupport {
 
     @Test
     void shouldIgnorEmptyMessage() {
-        List<StationDepartureInfo> infos = new LinkedList<>();
+        List<TramStationDepartureInfo> infos = new LinkedList<>();
 
         EasyMock.expect(config.liveDataEnabled()).andReturn(true);
-        StationDepartureInfo departureInfo = new StationDepartureInfo("yyy", Lines.Eccles,
+        TramStationDepartureInfo departureInfo = new TramStationDepartureInfo("yyy", Lines.Eccles,
                 LineDirection.Incoming, platform.getId(), station,
                 "", lastUpdate);
         infos.add(departureInfo);
@@ -152,11 +152,11 @@ class PlatformMessageRepositoryTest  extends EasyMockSupport {
 
     @Test
     void shouldGiveNoMessagesIfOutOfDateRefresh() {
-        List<StationDepartureInfo> infos = new LinkedList<>();
+        List<TramStationDepartureInfo> infos = new LinkedList<>();
 
         EasyMock.expect(config.liveDataEnabled()).andStubReturn(true);
 
-        StationDepartureInfo departureInfo = new StationDepartureInfo("yyy", Lines.Eccles,
+        TramStationDepartureInfo departureInfo = new TramStationDepartureInfo("yyy", Lines.Eccles,
                 LineDirection.Incoming, platform.getId(), station,
                 "some msg", lastUpdate);
         infos.add(departureInfo);
@@ -175,10 +175,10 @@ class PlatformMessageRepositoryTest  extends EasyMockSupport {
 
     @Test
     void shouldGiveNoMessagesIfOldRefresh() {
-        List<StationDepartureInfo> infos = new LinkedList<>();
+        List<TramStationDepartureInfo> infos = new LinkedList<>();
         EasyMock.expect(config.liveDataEnabled()).andStubReturn(true);
 
-        StationDepartureInfo departureInfo = new StationDepartureInfo("yyy", Lines.Eccles,
+        TramStationDepartureInfo departureInfo = new TramStationDepartureInfo("yyy", Lines.Eccles,
                 LineDirection.Incoming, platform.getId(), station,
                 "some msg", lastUpdate.minusMinutes(30));
         infos.add(departureInfo);
@@ -197,14 +197,14 @@ class PlatformMessageRepositoryTest  extends EasyMockSupport {
 
     @Test
     void shouldIgnoreDuplicateUpdatesForPlatforms() {
-        List<StationDepartureInfo> infos = new LinkedList<>();
+        List<TramStationDepartureInfo> infos = new LinkedList<>();
 
         EasyMock.expect(config.liveDataEnabled()).andStubReturn(true);
 
-        StationDepartureInfo departureInfoA = new StationDepartureInfo("123", Lines.Eccles,
+        TramStationDepartureInfo departureInfoA = new TramStationDepartureInfo("123", Lines.Eccles,
                 LineDirection.Incoming, platform.getId(), station,
                 "some message", lastUpdate);
-        StationDepartureInfo departureInfoB = new StationDepartureInfo("456", Lines.Eccles,
+        TramStationDepartureInfo departureInfoB = new TramStationDepartureInfo("456", Lines.Eccles,
                 LineDirection.Incoming, platform.getId(), station,
                 "some other message", lastUpdate);
         infos.add(departureInfoA);
@@ -226,13 +226,13 @@ class PlatformMessageRepositoryTest  extends EasyMockSupport {
 
     @Test
     void shouldIgnoreEmptyDuplicateUpdatesForPlatforms() {
-        List<StationDepartureInfo> infos = new LinkedList<>();
+        List<TramStationDepartureInfo> infos = new LinkedList<>();
         EasyMock.expect(config.liveDataEnabled()).andStubReturn(true);
 
-        StationDepartureInfo departureInfoA = new StationDepartureInfo("123", Lines.Eccles,
+        TramStationDepartureInfo departureInfoA = new TramStationDepartureInfo("123", Lines.Eccles,
                 LineDirection.Incoming, platform.getId(), station,
                 "some message", lastUpdate);
-        StationDepartureInfo departureInfoB = new StationDepartureInfo("456", Lines.Airport,
+        TramStationDepartureInfo departureInfoB = new TramStationDepartureInfo("456", Lines.Airport,
                 LineDirection.Incoming, platform.getId(), station,
                 "", lastUpdate);
         infos.add(departureInfoA);

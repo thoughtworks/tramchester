@@ -95,8 +95,8 @@ public class LiveDataParser {
         logger.info("started");
     }
 
-    public List<StationDepartureInfo> parse(String rawJson) {
-        List<StationDepartureInfo> result = new LinkedList<>();
+    public List<TramStationDepartureInfo> parse(String rawJson) {
+        List<TramStationDepartureInfo> result = new LinkedList<>();
 
         JsonObject parsed = Jsoner.deserialize(rawJson, new JsonObject());
         if (parsed.containsKey("value")) {
@@ -104,7 +104,7 @@ public class LiveDataParser {
 
             if (infoList!=null) {
                 for (Object anInfoList : infoList) {
-                    Optional<StationDepartureInfo> item = parseItem((JsonObject) anInfoList);
+                    Optional<TramStationDepartureInfo> item = parseItem((JsonObject) anInfoList);
                     item.ifPresent(result::add);
                 }
             }
@@ -115,7 +115,7 @@ public class LiveDataParser {
         return result;
     }
 
-    private Optional<StationDepartureInfo> parseItem(JsonObject jsonObject) {
+    private Optional<TramStationDepartureInfo> parseItem(JsonObject jsonObject) {
         logger.debug(format("Parsing JSON '%s'", jsonObject));
 
         final BigDecimal displayId = (BigDecimal) jsonObject.get("Id");
@@ -155,7 +155,7 @@ public class LiveDataParser {
             //return Optional.empty();
         }
 
-        StationDepartureInfo departureInfo = new StationDepartureInfo(displayId.toString(), line, direction,
+        TramStationDepartureInfo departureInfo = new TramStationDepartureInfo(displayId.toString(), line, direction,
                 platformId, station, message, updateTime);
         parseDueTrams(jsonObject, departureInfo);
 
@@ -201,7 +201,7 @@ public class LiveDataParser {
         return localDateTime;
     }
 
-    private void parseDueTrams(JsonObject jsonObject, StationDepartureInfo departureInfo) {
+    private void parseDueTrams(JsonObject jsonObject, TramStationDepartureInfo departureInfo) {
         for (int i = 0; i < MAX_DUE_TRAMS; i++) {
             final int index = i;
             String destinationName = getNumberedField(jsonObject, "Dest", index);
@@ -226,9 +226,10 @@ public class LiveDataParser {
                             int waitInMinutes = Integer.parseInt(waitString);
                             String carriages = getNumberedField(jsonObject, "Carriages", index);
                             LocalTime lastUpdate = departureInfo.getLastUpdate().toLocalTime();
-
+                            LocalDate date = departureInfo.getLastUpdate().toLocalDate();
                             Station displayLocation = departureInfo.getStation();
-                            UpcomingDeparture dueTram = new UpcomingDeparture(displayLocation, station, status,
+
+                            UpcomingDeparture dueTram = new UpcomingDeparture(date, displayLocation, station, status,
                                     Duration.ofMinutes(waitInMinutes), carriages, lastUpdate, agency,
                                     TransportMode.Tram);
                             departureInfo.addDueTram(dueTram);
