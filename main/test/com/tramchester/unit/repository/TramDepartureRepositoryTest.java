@@ -9,10 +9,11 @@ import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.domain.time.TramTime;
-import com.tramchester.livedata.domain.liveUpdates.*;
+import com.tramchester.livedata.domain.liveUpdates.LineDirection;
+import com.tramchester.livedata.domain.liveUpdates.UpcomingDeparture;
+import com.tramchester.livedata.tfgm.Lines;
 import com.tramchester.livedata.tfgm.StationDepartureInfo;
 import com.tramchester.livedata.tfgm.TramDepartureRepository;
-import com.tramchester.livedata.tfgm.Lines;
 import com.tramchester.metrics.CacheMetrics;
 import com.tramchester.testSupport.TestEnv;
 import org.easymock.EasyMock;
@@ -27,12 +28,11 @@ import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Optional;
 
 import static com.tramchester.testSupport.TestEnv.assertMinutesEquals;
 import static com.tramchester.testSupport.reference.TramStations.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 
 class TramDepartureRepositoryTest extends EasyMockSupport {
 
@@ -163,9 +163,9 @@ class TramDepartureRepositoryTest extends EasyMockSupport {
 
         TramTime queryTime = TramTime.ofHourMins(lastUpdate.toLocalTime());
 
-        Optional<PlatformDueTrams> allTramsForPlatform = repository.dueTramsForPlatform(platform.getId(),
+        List<UpcomingDeparture> allTramsForPlatform = repository.dueTramsForPlatform(platform.getId(),
                 lastUpdate.toLocalDate(), queryTime);
-        assertTrue(allTramsForPlatform.isPresent());
+        assertFalse(allTramsForPlatform.isEmpty());
 
         List<UpcomingDeparture> results = repository.dueTramsForStation(station, lastUpdate.toLocalDate(), queryTime);
         assertEquals(0, results.size());

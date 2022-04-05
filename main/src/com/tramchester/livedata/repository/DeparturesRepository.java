@@ -11,7 +11,6 @@ import com.tramchester.domain.time.TramTime;
 import com.tramchester.geo.MarginInMeters;
 import com.tramchester.geo.StationLocationsRepository;
 import com.tramchester.livedata.domain.liveUpdates.UpcomingDeparture;
-import com.tramchester.livedata.domain.liveUpdates.PlatformDueTrams;
 import com.tramchester.livedata.tfgm.TramDepartureRepository;
 import com.tramchester.repository.StationGroupsRepository;
 import org.apache.commons.collections4.SetUtils;
@@ -20,9 +19,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
 import java.time.LocalDate;
-import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -46,7 +43,8 @@ public class DeparturesRepository {
         this.config = config;
     }
 
-    public List<UpcomingDeparture> dueTramsForLocation(Location<?> location, LocalDate date, TramTime time, Set<TransportMode> modes) {
+    public List<UpcomingDeparture> dueTramsForLocation(Location<?> location, LocalDate date, TramTime time,
+                                                       Set<TransportMode> modes) {
         return switch (location.getLocationType()) {
             case Station -> getStationDepartures((Station) location, date, time, modes);
             case StationGroup -> getStationGroupDepartures((StationGroup) location, date, time, modes);
@@ -59,11 +57,12 @@ public class DeparturesRepository {
         if (!TransportMode.intersects(modes, platform.getTransportModes())) {
             logger.error(format("Platform %s does not match supplied modes %s", platform, modes));
         }
-        Optional<PlatformDueTrams> platformDue = tramDepartureRepository.dueTramsForPlatform(platform.getId(), date, time);
-        if (platformDue.isEmpty()) {
-            return Collections.emptyList();
-        }
-        return platformDue.get().getDueTrams().stream().distinct().collect(Collectors.toList());
+        return tramDepartureRepository.dueTramsForPlatform(platform.getId(), date, time);
+//        Optional<PlatformDueTrams> platformDue = tramDepartureRepository.dueTramsForPlatform(platform.getId(), date, time);
+//        if (platformDue.isEmpty()) {
+//            return Collections.emptyList();
+//        }
+//        return platformDue.get().getDueTrams().stream().distinct().collect(Collectors.toList());
     }
 
     private List<UpcomingDeparture> getDeparturesNearTo(Location<?> location, LocalDate date, TramTime time, Set<TransportMode> modes) {

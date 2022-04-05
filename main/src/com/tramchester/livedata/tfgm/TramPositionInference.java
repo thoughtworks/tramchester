@@ -9,7 +9,6 @@ import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramServiceDate;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.RouteReachable;
-import com.tramchester.livedata.domain.liveUpdates.PlatformDueTrams;
 import com.tramchester.livedata.domain.liveUpdates.UpcomingDeparture;
 import com.tramchester.repository.TramStationAdjacenyRepository;
 import org.slf4j.Logger;
@@ -18,7 +17,10 @@ import org.slf4j.LoggerFactory;
 import javax.inject.Inject;
 import java.time.Duration;
 import java.time.LocalDate;
-import java.util.*;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import static java.lang.String.format;
@@ -77,22 +79,26 @@ public class TramPositionInference {
         List<Route> routesBetween = routeReachable.getRoutesFromStartToNeighbour(pair);
 
         // get departure info at neighbouring station for relevant routes
-        Set<PlatformDueTrams> platformDueTrams = new HashSet<>();
+        Set<UpcomingDeparture> departures = new HashSet<>();
         routesBetween.forEach(route -> {
             Set<Platform> platforms = neighbour.getPlatformsForRoute(route);
-            platforms.forEach(platform -> departureRepository.dueTramsForPlatform(platform.getId(), date, time).ifPresent(platformDueTrams::add));
+            platforms.forEach(platform ->
+                    departures.addAll(departureRepository.dueTramsForPlatform(platform.getId(), date, time)));
         });
 
-        if (platformDueTrams.isEmpty()) {
+        if (departures.isEmpty()) {
             logger.warn("Unable to find departure information for " + neighbour.getPlatforms());
             return Collections.emptySet();
         } else {
-            return platformDueTrams.stream().
-                    map(info -> info.getDueTramsWithinWindow(cost)).
-                    flatMap(Collection::stream).
-                    filter(dueTram -> !DEPARTING.equals(dueTram.getStatus())).
+            return departures.stream().
+                    filter(departure -> isWithinWindow(departure, cost)).
+                    filter(departure -> !DEPARTING.equals(departure.getStatus())).
                     collect(Collectors.toSet());
         }
 
+    }
+
+    private boolean isWithinWindow(UpcomingDeparture departure, Duration window) {
+        return departure.getWait().compareTo(window)<=0;
     }
 }

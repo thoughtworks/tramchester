@@ -12,7 +12,6 @@ import com.tramchester.domain.places.Station;
 import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.livedata.domain.liveUpdates.UpcomingDeparture;
-import com.tramchester.livedata.domain.liveUpdates.PlatformDueTrams;
 import com.tramchester.livedata.mappers.DeparturesMapper;
 import com.tramchester.livedata.repository.UpcomingDeparturesSource;
 import com.tramchester.metrics.CacheMetrics;
@@ -28,7 +27,10 @@ import javax.inject.Inject;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.util.*;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -105,10 +107,8 @@ public class TramDepartureRepository implements UpcomingDeparturesSource, Report
 
     @Override
     public List<UpcomingDeparture> dueTramsForStation(Station station, LocalDate date, TramTime queryTime) {
-        Set<PlatformDueTrams> allTrams = station.getPlatforms().stream().
-                map(platform -> dueTramsForPlatform(platform.getId(), date, queryTime)).
-                filter(Optional::isPresent).
-                map(Optional::get).
+        Set<UpcomingDeparture> allTrams = station.getPlatforms().stream().
+                flatMap(platform -> dueTramsForPlatform(platform.getId(), date, queryTime).stream()).
                 collect(Collectors.toSet());
 
         if (allTrams.isEmpty()) {
@@ -117,8 +117,6 @@ public class TramDepartureRepository implements UpcomingDeparturesSource, Report
         }
 
         List<UpcomingDeparture> dueTrams = allTrams.stream().
-                map(PlatformDueTrams::getDueTrams).
-                flatMap(Collection::stream).
                 filter(dueTram -> DeparturesMapper.DUE.equals(dueTram.getStatus())).
                 collect(Collectors.toList());
 
@@ -130,33 +128,33 @@ public class TramDepartureRepository implements UpcomingDeparturesSource, Report
     }
 
     @Override
-    public Optional<PlatformDueTrams> dueTramsForPlatform(IdFor<Platform> platform, LocalDate date, TramTime queryTime) {
+    public List<UpcomingDeparture> dueTramsForPlatform(IdFor<Platform> platform, LocalDate date, TramTime queryTime) {
         if (lastRefresh==null) {
             logger.warn("No refresh has happened");
-            return Optional.empty();
+            return Collections.emptyList();
         }
         if (!date.equals(lastRefresh.toLocalDate())) {
             logger.warn("No data for date, not querying for departure info " + date);
-            return Optional.empty();
+            return Collections.emptyList();
         }
         Optional<PlatformDueTrams> maybe = departuresFor(platform);
         if (maybe.isEmpty()) {
             logger.info("No due trams found for platform: " + platform);
-            return Optional.empty();
+            return Collections.emptyList();
         }
         PlatformDueTrams departureInfo = maybe.get();
 
         LocalDateTime infoLastUpdate = departureInfo.getLastUpdate();
         if (!withinTime(queryTime, infoLastUpdate.toLocalTime())) {
             logger.info("Last update of departure info (" + infoLastUpdate +") not within query time " + queryTime);
-            return Optional.empty();
+            return Collections.emptyList();
         }
-        return Optional.of(departureInfo);
+        return departureInfo.getDueTrams();
     }
 
     private boolean withinTime(TramTime queryTime, LocalTime updateTime) {
-        TramTime limitBefore = TramTime.of(updateTime.minusMinutes(TIME_LIMIT_MINS));
-        TramTime limitAfter = TramTime.of(updateTime.plusMinutes(TIME_LIMIT_MINS));
+        TramTime limitBefore = TramTime.ofHourMins(updateTime.minusMinutes(TIME_LIMIT_MINS));
+        TramTime limitAfter = TramTime.ofHourMins(updateTime.plusMinutes(TIME_LIMIT_MINS));
         return queryTime.between(limitBefore, limitAfter);
     }
 
@@ -189,7 +187,7 @@ public class TramDepartureRepository implements UpcomingDeparturesSource, Report
             return 0;
         }
 
-        TramTime queryTime = TramTime.of(queryDateTime.toLocalTime());
+        TramTime queryTime = TramTime.ofHourMins(queryDateTime.toLocalTime());
         return getEntryStream(queryTime).
                 map(PlatformDueTrams::getStation).collect(Collectors.toSet()).size();
     }
@@ -199,7 +197,7 @@ public class TramDepartureRepository implements UpcomingDeparturesSource, Report
             return 0;
         }
 
-        TramTime queryTime = TramTime.of(dateTime.toLocalTime());
+        TramTime queryTime = TramTime.ofHourMins(dateTime.toLocalTime());
         return getEntryStream(queryTime).filter(entry -> !entry.getDueTrams().isEmpty())
                 .map(PlatformDueTrams::getStation).collect(Collectors.toSet()).size();
     }
@@ -222,5 +220,55 @@ public class TramDepartureRepository implements UpcomingDeparturesSource, Report
 
     private Integer getNumStationsWithTramsNow() {
         return getNumStationsWithTrams(providesNow.getDateTime());
+    }
+
+    private static class PlatformDueTrams {
+        private final IdFor<Platform> stationPlatform;
+        private final List<UpcomingDeparture> dueTrams;
+        private final LocalDateTime lastUpdate;
+        private final IdFor<Station> stationId;
+
+        private PlatformDueTrams(IdFor<Platform> stationPlatform, List<UpcomingDeparture> dueTrams, LocalDateTime lastUpdate,
+                                 IdFor<Station> stationId) {
+            this.stationPlatform = stationPlatform;
+            this.dueTrams = dueTrams;
+            this.lastUpdate = lastUpdate;
+            this.stationId = stationId;
+        }
+
+        public PlatformDueTrams(StationDepartureInfo departureInfo) {
+            this(departureInfo.getStationPlatform(), departureInfo.getDueTrams(), departureInfo.getLastUpdate(),
+                    departureInfo.getStation().getId());
+        }
+
+        public boolean hasDueTram(UpcomingDeparture dueTram) {
+            return dueTrams.contains(dueTram);
+        }
+
+        public void addDueTram(UpcomingDeparture dueTram) {
+            dueTrams.add(dueTram);
+        }
+
+        public LocalDateTime getLastUpdate() {
+            return lastUpdate;
+        }
+
+        public List<UpcomingDeparture> getDueTrams() {
+            return dueTrams;
+        }
+
+        public IdFor<Station> getStation() {
+            return stationId;
+        }
+
+        @Override
+        public String toString() {
+            return "PlatformDueTrams{" +
+                    "stationPlatform=" + stationPlatform +
+                    ", stationId=" + stationId +
+                    ", dueTrams=" + dueTrams +
+                    ", lastUpdate=" + lastUpdate +
+                    '}';
+        }
     }
 }
