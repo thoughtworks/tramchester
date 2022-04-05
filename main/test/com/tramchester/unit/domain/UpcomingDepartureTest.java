@@ -14,6 +14,7 @@ import java.time.Duration;
 import java.time.LocalTime;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class UpcomingDepartureTest {
 
@@ -41,6 +42,8 @@ class UpcomingDepartureTest {
         assertEquals(destination, dueTram.getDestination());
         assertEquals("Due", dueTram.getStatus());
         assertEquals("Double", dueTram.getCarriages());
+        assertEquals(TransportMode.Tram, dueTram.getMode());
+        assertEquals(agency, dueTram.getAgency());
 
     }
 
