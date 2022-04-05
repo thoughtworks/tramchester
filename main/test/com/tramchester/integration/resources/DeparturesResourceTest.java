@@ -69,7 +69,7 @@ class DeparturesResourceTest {
         UpcomingDeparturesSource dueTramsSource = dependencies.get(TramDepartureRepository.class);
 
         Optional<UpcomingDeparture> searchForDueTrams = stationRepository.getAllStationStream().
-                flatMap(station -> dueTramsSource.dueTramsForStation(station, queryDate, time).stream()).
+                flatMap(station -> dueTramsSource.dueTramsForStation(station, time).stream()).
                 findAny();
         searchForDueTrams.ifPresent(dueTram -> stationWithDepartures = dueTram.getDisplayLocation());
     }
@@ -229,7 +229,6 @@ class DeparturesResourceTest {
         DepartureListDTO departureList = response.readEntity(DepartureListDTO.class);
         return departureList.getDepartures();
     }
-
 
     private SortedSet<DepartureDTO> getDeparturesForStationTime(Station station, LocalTime queryTime) {
         DeparturesQueryDTO queryDTO = getQueryDTO(station, false);

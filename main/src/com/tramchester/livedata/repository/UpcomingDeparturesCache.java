@@ -18,7 +18,6 @@ import org.slf4j.LoggerFactory;
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import java.time.Duration;
-import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -50,12 +49,12 @@ public class UpcomingDeparturesCache implements  UpcomingDeparturesSource {
     }
 
     @Override
-    public List<UpcomingDeparture> dueTramsForPlatform(IdFor<Platform> platform, LocalDate date, TramTime queryTime) {
+    public List<UpcomingDeparture> dueTramsForPlatform(IdFor<Platform> platform, TramTime queryTime) {
         throw new RuntimeException("WIP");
     }
 
     @Override
-    public List<UpcomingDeparture> dueTramsForStation(Station station, LocalDate date, TramTime queryTime) {
+    public List<UpcomingDeparture> dueTramsForStation(Station station, TramTime queryTime) {
         DataSourceID dataSourceID = station.getDataSourceID();
         if (!caches.containsKey(dataSourceID)) {
             final String msg = "No live data available for " + dataSourceID;

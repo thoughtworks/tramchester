@@ -16,7 +16,6 @@ import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
 import java.time.Duration;
-import java.time.LocalDate;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -62,14 +61,15 @@ public class TramPositionInference {
             return new TramPosition(pair, Collections.emptySet(), cost);
         }
 
-        Set<UpcomingDeparture> dueTrams = getDueTrams(pair, date.getDate(), time, cost);
+        Set<UpcomingDeparture> dueTrams = getDueTrams(pair, time, cost).stream().
+                filter(departure -> departure.getDate().equals(date.getDate())).collect(Collectors.toSet());
 
         logger.debug(format("Found %s trams between %s", dueTrams.size(), pair));
 
         return new TramPosition(pair, dueTrams, cost);
     }
 
-    private Set<UpcomingDeparture> getDueTrams(StationPair pair, LocalDate date, TramTime time, Duration cost) {
+    private Set<UpcomingDeparture> getDueTrams(StationPair pair, TramTime time, Duration cost) {
         Station neighbour = pair.getEnd();
 
         if (!pair.bothServeMode(TransportMode.Tram) ) {
@@ -83,7 +83,7 @@ public class TramPositionInference {
         routesBetween.forEach(route -> {
             Set<Platform> platforms = neighbour.getPlatformsForRoute(route);
             platforms.forEach(platform ->
-                    departures.addAll(departureRepository.dueTramsForPlatform(platform.getId(), date, time)));
+                    departures.addAll(departureRepository.dueTramsForPlatform(platform.getId(), time)));
         });
 
         if (departures.isEmpty()) {

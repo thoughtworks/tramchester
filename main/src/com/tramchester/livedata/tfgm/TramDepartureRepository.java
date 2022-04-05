@@ -25,7 +25,6 @@ import org.slf4j.LoggerFactory;
 
 import javax.annotation.PreDestroy;
 import javax.inject.Inject;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.Collections;
@@ -107,13 +106,13 @@ public class TramDepartureRepository implements UpcomingDeparturesSource, TramLi
     }
 
     @Override
-    public List<UpcomingDeparture> dueTramsForStation(Station station, LocalDate date, TramTime queryTime) {
+    public List<UpcomingDeparture> dueTramsForStation(Station station, TramTime queryTime) {
         Set<UpcomingDeparture> allTrams = station.getPlatforms().stream().
-                flatMap(platform -> dueTramsForPlatform(platform.getId(), date, queryTime).stream()).
+                flatMap(platform -> dueTramsForPlatform(platform.getId(), queryTime).stream()).
                 collect(Collectors.toSet());
 
         if (allTrams.isEmpty()) {
-            logger.debug("No trams found for " + HasId.asId(station) + " at " + date + " " + queryTime);
+            logger.debug("No trams found for " + HasId.asId(station) + " at " + queryTime);
             return Collections.emptyList();
         }
 
@@ -122,20 +121,16 @@ public class TramDepartureRepository implements UpcomingDeparturesSource, TramLi
                 collect(Collectors.toList());
 
         if (dueTrams.isEmpty()) {
-            logger.info("No DUE trams found for " + HasId.asId(station) + " at " + date + " " + queryTime);
+            logger.info("No DUE trams found for " + HasId.asId(station) + " at " + queryTime);
         }
 
         return dueTrams;
     }
 
     @Override
-    public List<UpcomingDeparture> dueTramsForPlatform(IdFor<Platform> platform, LocalDate date, TramTime queryTime) {
+    public List<UpcomingDeparture> dueTramsForPlatform(IdFor<Platform> platform, TramTime queryTime) {
         if (lastRefresh==null) {
             logger.warn("No refresh has happened");
-            return Collections.emptyList();
-        }
-        if (!date.equals(lastRefresh.toLocalDate())) {
-            logger.warn("No data for date, not querying for departure info " + date);
             return Collections.emptyList();
         }
         Optional<PlatformDueTrams> maybe = departuresFor(platform);
