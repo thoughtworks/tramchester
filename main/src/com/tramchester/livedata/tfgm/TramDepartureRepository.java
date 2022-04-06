@@ -106,13 +106,13 @@ public class TramDepartureRepository implements UpcomingDeparturesSource, TramLi
     }
 
     @Override
-    public List<UpcomingDeparture> dueTramsForStation(Station station, TramTime queryTime) {
+    public List<UpcomingDeparture> dueTramsForStation(Station station) {
         Set<UpcomingDeparture> allTrams = station.getPlatforms().stream().
-                flatMap(platform -> dueTramsForPlatform(platform.getId(), queryTime).stream()).
+                flatMap(platform -> dueTramsForPlatform(platform.getId()).stream()).
                 collect(Collectors.toSet());
 
         if (allTrams.isEmpty()) {
-            logger.debug("No trams found for " + HasId.asId(station) + " at " + queryTime);
+            logger.debug("No trams found for " + HasId.asId(station));
             return Collections.emptyList();
         }
 
@@ -121,14 +121,14 @@ public class TramDepartureRepository implements UpcomingDeparturesSource, TramLi
                 collect(Collectors.toList());
 
         if (dueTrams.isEmpty()) {
-            logger.info("No DUE trams found for " + HasId.asId(station) + " at " + queryTime);
+            logger.info("No DUE trams found for " + HasId.asId(station));
         }
 
         return dueTrams;
     }
 
     @Override
-    public List<UpcomingDeparture> dueTramsForPlatform(IdFor<Platform> platform, TramTime queryTime) {
+    public List<UpcomingDeparture> dueTramsForPlatform(IdFor<Platform> platform) {
         if (lastRefresh==null) {
             logger.warn("No refresh has happened");
             return Collections.emptyList();
@@ -138,13 +138,8 @@ public class TramDepartureRepository implements UpcomingDeparturesSource, TramLi
             logger.info("No due trams found for platform: " + platform);
             return Collections.emptyList();
         }
-        PlatformDueTrams departureInfo = maybe.get();
 
-        LocalDateTime infoLastUpdate = departureInfo.getLastUpdate();
-        if (!withinTime(queryTime, infoLastUpdate.toLocalTime())) {
-            logger.info("Last update of departure info (" + infoLastUpdate +") not within query time " + queryTime);
-            return Collections.emptyList();
-        }
+        PlatformDueTrams departureInfo = maybe.get();
         return departureInfo.getDueTrams();
     }
 

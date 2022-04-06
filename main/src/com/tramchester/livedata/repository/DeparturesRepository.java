@@ -18,6 +18,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
+import java.time.Duration;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Set;
@@ -46,23 +47,32 @@ public class DeparturesRepository {
     public List<UpcomingDeparture> dueTramsForLocation(Location<?> location, LocalDate date, TramTime time,
                                                        Set<TransportMode> modes) {
         List<UpcomingDeparture> departures = switch (location.getLocationType()) {
-            case Station -> getStationDepartures((Station) location, time, modes);
-            case StationGroup -> getStationGroupDepartures((StationGroup) location, time, modes);
-            case MyLocation, Postcode -> getDeparturesNearTo(location, time, modes);
-            case Platform -> getPlatformDepartrues((Platform) location, time, modes);
+            case Station -> getStationDepartures((Station) location, modes);
+            case StationGroup -> getStationGroupDepartures((StationGroup) location, modes);
+            case MyLocation, Postcode -> getDeparturesNearTo(location, modes);
+            case Platform -> getPlatformDepartrues((Platform) location, modes);
         };
 
-        return departures.stream().filter(departure -> departure.getDate().equals(date)).collect(Collectors.toList());
+        return departures.stream().
+                filter(departure -> departure.getDate().equals(date)).
+                filter(departure -> isTimely(time, departure)).
+                collect(Collectors.toList());
     }
 
-    private List<UpcomingDeparture> getPlatformDepartrues(Platform platform, TramTime time, Set<TransportMode> modes) {
+    private boolean isTimely(TramTime time, UpcomingDeparture departure) {
+        TramTime beginRange = time.minus(Duration.ofMinutes(20));
+        TramTime endRange = time.plus(Duration.ofMinutes(20));
+        return departure.getWhen().between(beginRange, endRange);
+    }
+
+    private List<UpcomingDeparture> getPlatformDepartrues(Platform platform, Set<TransportMode> modes) {
         if (!TransportMode.intersects(modes, platform.getTransportModes())) {
             logger.error(format("Platform %s does not match supplied modes %s", platform, modes));
         }
-        return tramDepartureRepository.dueTramsForPlatform(platform.getId(), time);
+        return tramDepartureRepository.dueTramsForPlatform(platform.getId());
     }
 
-    private List<UpcomingDeparture> getDeparturesNearTo(Location<?> location, TramTime time, Set<TransportMode> modes) {
+    private List<UpcomingDeparture> getDeparturesNearTo(Location<?> location, Set<TransportMode> modes) {
         final MarginInMeters margin = MarginInMeters.of(config.getNearestStopRangeKM());
         final int numOfNearestStopsToOffer = config.getNumOfNearestStopsToOffer();
 
@@ -70,33 +80,33 @@ public class DeparturesRepository {
                 margin, modes);
 
         return nearbyStations.stream().
-                flatMap(station -> getStationDepartures(station, time, modes).stream()).
+                flatMap(station -> getStationDepartures(station, modes).stream()).
                 distinct().
                 collect(Collectors.toList());
     }
 
-    private List<UpcomingDeparture> getStationGroupDepartures(StationGroup stationGroup, TramTime time, Set<TransportMode> modes) {
+    private List<UpcomingDeparture> getStationGroupDepartures(StationGroup stationGroup,  Set<TransportMode> modes) {
         return stationGroup.getContained().stream().
                 filter(station -> TransportMode.intersects(station.getTransportModes(), modes)).
-                flatMap(station -> getStationDepartures(station, time, modes).stream()).
+                flatMap(station -> getStationDepartures(station, modes).stream()).
                 distinct().collect(Collectors.toList());
 
     }
 
-    private List<UpcomingDeparture> getStationDepartures(Station station, TramTime time, Set<TransportMode> modes) {
+    private List<UpcomingDeparture> getStationDepartures(Station station, Set<TransportMode> modes) {
         SetUtils.SetView<TransportMode> toFetch = SetUtils.intersection(station.getTransportModes(), modes);
         if (toFetch.isEmpty()) {
             logger.error(format("Station modes %s and filter modes %s do not overlap", station, modes));
         }
 
         return toFetch.stream().
-                flatMap(mode -> getDeparturesFor(mode, station, time)).
+                flatMap(mode -> getDeparturesFor(mode, station)).
                 collect(Collectors.toList());
     }
 
-    private Stream<UpcomingDeparture> getDeparturesFor(TransportMode mode, Station station, TramTime time) {
+    private Stream<UpcomingDeparture> getDeparturesFor(TransportMode mode, Station station) {
         return switch (mode) {
-            case Tram -> tramDepartureRepository.dueTramsForStation(station, time).stream();
+            case Tram -> tramDepartureRepository.dueTramsForStation(station).stream();
             default -> {
                 final String msg = "TODO - live data for " + mode + " is not implemented yet";
                 logger.info(msg);

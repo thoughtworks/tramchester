@@ -69,7 +69,7 @@ class DeparturesResourceTest {
         UpcomingDeparturesSource dueTramsSource = dependencies.get(TramDepartureRepository.class);
 
         Optional<UpcomingDeparture> searchForDueTrams = stationRepository.getAllStationStream().
-                flatMap(station -> dueTramsSource.dueTramsForStation(station, time).stream()).
+                flatMap(station -> dueTramsSource.dueTramsForStation(station).stream()).
                 findAny();
         searchForDueTrams.ifPresent(dueTram -> stationWithDepartures = dueTram.getDisplayLocation());
     }

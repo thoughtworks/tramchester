@@ -8,12 +8,11 @@ import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.ProvidesNow;
-import com.tramchester.domain.time.TramTime;
 import com.tramchester.livedata.domain.liveUpdates.LineDirection;
 import com.tramchester.livedata.domain.liveUpdates.UpcomingDeparture;
 import com.tramchester.livedata.tfgm.Lines;
-import com.tramchester.livedata.tfgm.TramStationDepartureInfo;
 import com.tramchester.livedata.tfgm.TramDepartureRepository;
+import com.tramchester.livedata.tfgm.TramStationDepartureInfo;
 import com.tramchester.metrics.CacheMetrics;
 import com.tramchester.testSupport.TestEnv;
 import org.easymock.EasyMock;
@@ -128,8 +127,7 @@ class TramDepartureRepositoryTest extends EasyMockSupport {
         assertEquals(2, repository.upToDateEntries());
         assertEquals(2, repository.getNumStationsWithData(lastUpdate));
 
-        TramTime queryTime = TramTime.ofHourMins(lastUpdate.toLocalTime());
-        List<UpcomingDeparture> results = repository.dueTramsForStation(station, queryTime);
+        List<UpcomingDeparture> results = repository.dueTramsForStation(station);
 
         assertEquals(1, results.size());
         UpcomingDeparture result = results.get(0);
@@ -138,7 +136,7 @@ class TramDepartureRepositoryTest extends EasyMockSupport {
         assertEquals("Single", result.getCarriages());
         assertEquals(destination, result.getDestination());
 
-        List<UpcomingDeparture> resultOther = repository.dueTramsForStation(otherStation, queryTime);
+        List<UpcomingDeparture> resultOther = repository.dueTramsForStation(otherStation);
         assertEquals(1, resultOther.size());
         assertEquals(destinationManAirport, resultOther.get(0).getDestination());
     }
@@ -163,12 +161,10 @@ class TramDepartureRepositoryTest extends EasyMockSupport {
         assertEquals(1, repository.getNumStationsWithData(lastUpdate));
         assertEquals(1, repository.getNumStationsWithTrams(lastUpdate));
 
-        TramTime queryTime = TramTime.ofHourMins(lastUpdate.toLocalTime());
-
-        List<UpcomingDeparture> allTramsForPlatform = repository.dueTramsForPlatform(platform.getId(), queryTime);
+        List<UpcomingDeparture> allTramsForPlatform = repository.dueTramsForPlatform(platform.getId());
         assertFalse(allTramsForPlatform.isEmpty());
 
-        List<UpcomingDeparture> results = repository.dueTramsForStation(station, queryTime);
+        List<UpcomingDeparture> results = repository.dueTramsForStation(station);
         assertEquals(0, results.size());
     }
 
@@ -185,13 +181,9 @@ class TramDepartureRepositoryTest extends EasyMockSupport {
 
         replayAll();
         repository.updateCache(info);
-        LocalDate queryDate = lastUpdate.toLocalDate();
-        List<UpcomingDeparture> dueTramsNow = repository.dueTramsForStation(station,
-                TramTime.ofHourMins(lastUpdateTime));
-        List<UpcomingDeparture> dueTramsEarlier = repository.dueTramsForStation(station,
-                TramTime.ofHourMins(lastUpdateTime.minusMinutes(5)));
-        List<UpcomingDeparture> dueTramsLater = repository.dueTramsForStation(station,
-                TramTime.ofHourMins(lastUpdateTime.plusMinutes(5)));
+        List<UpcomingDeparture> dueTramsNow = repository.dueTramsForStation(station);
+        List<UpcomingDeparture> dueTramsEarlier = repository.dueTramsForStation(station);
+        List<UpcomingDeparture> dueTramsLater = repository.dueTramsForStation(station);
         verifyAll();
 
         assertEquals(1, dueTramsNow.size());
@@ -201,41 +193,6 @@ class TramDepartureRepositoryTest extends EasyMockSupport {
         assertEquals(1, repository.getNumStationsWithData(lastUpdate.minusMinutes(5)));
         assertEquals(1, repository.getNumStationsWithData(lastUpdate.plusMinutes(5)));
     }
-
-    @Test
-    void shouldIgnoreDueTramOutsideTimeLimits() {
-        List<TramStationDepartureInfo> info = new LinkedList<>();
-
-        final LocalTime lastUpdateTime = lastUpdate.toLocalTime();
-        UpcomingDeparture dueTram = new UpcomingDeparture(date, station, station, "Due", Duration.ofMinutes(42), "Single", lastUpdateTime, agency, mode);
-        addStationInfoWithDueTram(info, lastUpdate, "displayId", platform.getId(), "some message",
-                station, dueTram);
-
-        EasyMock.expect(providesNow.getDateTime()).andStubReturn(lastUpdate);
-        LocalDateTime earlier = lastUpdate.minusMinutes(21);
-        LocalDateTime later = lastUpdate.plusMinutes(21);
-
-        replayAll();
-        repository.updateCache(info);
-        LocalDate queryDate = lastUpdate.toLocalDate();
-        List<UpcomingDeparture> dueTramsNow = repository.dueTramsForStation(station, TramTime.ofHourMins(lastUpdateTime));
-        List<UpcomingDeparture> dueTramsEarlier = repository.dueTramsForStation(station, TramTime.ofHourMins(earlier.toLocalTime()));
-        List<UpcomingDeparture> dueTramsLater = repository.dueTramsForStation(station, TramTime.ofHourMins(later.toLocalTime()));
-
-        verifyAll();
-
-        assertEquals(1, dueTramsNow.size());
-        assertEquals(1, repository.getNumStationsWithTrams(lastUpdate));
-        assertEquals(0, dueTramsEarlier.size());
-        assertEquals(0, dueTramsLater.size());
-
-        assertEquals(0, repository.getNumStationsWithData(earlier));
-        assertEquals(0, repository.getNumStationsWithData(later));
-        assertEquals(0, repository.getNumStationsWithTrams(earlier));
-        assertEquals(0, repository.getNumStationsWithTrams(later));
-
-    }
-
 
     static void addStationInfoWithDueTram(List<TramStationDepartureInfo> info, LocalDateTime lastUpdate,
                                           String displayId, IdFor<Platform> platformId, String message,

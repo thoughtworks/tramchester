@@ -8,7 +8,6 @@ import com.tramchester.domain.Platform;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
-import com.tramchester.domain.time.TramTime;
 import com.tramchester.livedata.domain.liveUpdates.UpcomingDeparture;
 import com.tramchester.livedata.tfgm.TramDepartureRepository;
 import com.tramchester.repository.StationRepository;
@@ -49,12 +48,12 @@ public class UpcomingDeparturesCache implements  UpcomingDeparturesSource {
     }
 
     @Override
-    public List<UpcomingDeparture> dueTramsForPlatform(IdFor<Platform> platform, TramTime queryTime) {
+    public List<UpcomingDeparture> dueTramsForPlatform(IdFor<Platform> platform) {
         throw new RuntimeException("WIP");
     }
 
     @Override
-    public List<UpcomingDeparture> dueTramsForStation(Station station, TramTime queryTime) {
+    public List<UpcomingDeparture> dueTramsForStation(Station station) {
         DataSourceID dataSourceID = station.getDataSourceID();
         if (!caches.containsKey(dataSourceID)) {
             final String msg = "No live data available for " + dataSourceID;
