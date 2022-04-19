@@ -436,7 +436,7 @@ class ProvidesTramNotesTest extends EasyMockSupport {
         Station station = tramStation.fakeWith(platform);
         //station.addPlatform(platform);
 
-        return new PlatformMessage(platform.getId(), message, lastUpdate, station, "displayId");
+        return new PlatformMessage(platform, message, lastUpdate, station, "displayId");
     }
 
     private VehicleStage createStageWithBoardingPlatform(String platformId, KnownLocations location) {

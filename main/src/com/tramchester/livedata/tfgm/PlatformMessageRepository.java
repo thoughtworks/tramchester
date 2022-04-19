@@ -99,8 +99,12 @@ public class PlatformMessageRepository implements PlatformMessageSource, Reports
         int emptyMessages = 0;
 
         for (TramStationDepartureInfo departureInfo : departureInfos) {
-            if (!updateCacheFor(departureInfo, platformsSeen)) {
-                emptyMessages = emptyMessages + 1;
+            if (departureInfo.hasStationPlatform()) {
+                if (!updateCacheFor(departureInfo, platformsSeen)) {
+                    emptyMessages = emptyMessages + 1;
+                }
+            } else {
+                logger.warn("No platform, skipping " + departureInfo);
             }
         }
 
@@ -112,7 +116,10 @@ public class PlatformMessageRepository implements PlatformMessageSource, Reports
     }
 
     private boolean updateCacheFor(TramStationDepartureInfo departureInfo, IdSet<Platform> platformsSeenForUpdate) {
-        IdFor<Platform> platformId = departureInfo.getStationPlatform();
+
+
+        final Platform stationPlatform = departureInfo.getStationPlatform();
+        IdFor<Platform> platformId = stationPlatform.getId();
         if (platformsSeenForUpdate.contains(platformId)) {
             if (!departureInfo.getMessage().isEmpty()) {
                 PlatformMessage current = messageCache.getIfPresent(platformId);

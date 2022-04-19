@@ -1,20 +1,12 @@
 package com.tramchester.unit.repository;
 
-import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
-import com.tramchester.livedata.domain.liveUpdates.LineDirection;
-import com.tramchester.livedata.tfgm.Lines;
 import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.domain.time.TramTime;
+import com.tramchester.livedata.domain.liveUpdates.LineDirection;
 import com.tramchester.livedata.domain.liveUpdates.UpcomingDeparture;
-import com.tramchester.livedata.tfgm.TramStationDepartureInfo;
-import com.tramchester.livedata.tfgm.LiveDataFetcher;
-import com.tramchester.livedata.tfgm.LiveDataHTTPFetcher;
-import com.tramchester.livedata.tfgm.LiveDataParser;
-import com.tramchester.livedata.tfgm.TramDepartureRepository;
-import com.tramchester.livedata.tfgm.LiveDataUpdater;
-import com.tramchester.livedata.tfgm.PlatformMessageRepository;
+import com.tramchester.livedata.tfgm.*;
 import com.tramchester.testSupport.TestEnv;
 import org.easymock.EasyMock;
 import org.easymock.EasyMockSupport;
@@ -27,7 +19,8 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
-import static com.tramchester.testSupport.reference.TramStations.*;
+import static com.tramchester.testSupport.reference.TramStations.Altrincham;
+import static com.tramchester.testSupport.reference.TramStations.Bury;
 
 public class LiveDataUpdaterTest extends EasyMockSupport {
 
@@ -106,10 +99,11 @@ public class LiveDataUpdaterTest extends EasyMockSupport {
 
     public static TramStationDepartureInfo createDepartureInfoWithDueTram(LocalDateTime lastUpdate,
                                                                           String displayId, String platformId, String message,
-                                                                          Station location) {
+                                                                          Station station) {
         TramStationDepartureInfo departureInfo = new TramStationDepartureInfo(displayId, Lines.Airport,
-                LineDirection.Incoming, StringIdFor.createId(platformId), location, message, lastUpdate);
-        UpcomingDeparture dueTram = new UpcomingDeparture(lastUpdate.toLocalDate(), location, Bury.fake(),
+                LineDirection.Incoming, station, message, lastUpdate);
+        departureInfo.setStationPlatform(TestEnv.createPlatformFor(station, platformId));
+        UpcomingDeparture dueTram = new UpcomingDeparture(lastUpdate.toLocalDate(), station, Bury.fake(),
                 "Due", Duration.ofMinutes(42), "Single", lastUpdate.toLocalTime(), TestEnv.MetAgency(),
                 TransportMode.Tram);
         departureInfo.addDueTram(dueTram);

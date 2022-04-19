@@ -3,6 +3,7 @@ package com.tramchester.repository;
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.Service;
+import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdMap;
 import com.tramchester.domain.time.TramTime;
@@ -93,8 +94,10 @@ public class RunningRoutesAndServices {
         @Override
         public String toString() {
             return "FilterForDate{" +
-                    "number of runningServices=" + runningServices.size() +
-                    ", number of runningRoutes=" + runningRoutes.size() +
+                    "runningServices=" + HasId.asIds(runningServices) +
+                    ", runningRoutes=" + HasId.asIds(runningRoutes) +
+                    ", runningServicesNextDay=" + HasId.asIds(runningServicesNextDay) +
+                    ", runningRoutesNextDay=" + HasId.asIds(runningRoutesNextDay) +
                     '}';
         }
 

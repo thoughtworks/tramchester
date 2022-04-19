@@ -1,7 +1,12 @@
 package com.tramchester.unit.domain;
 
 import com.tramchester.domain.Agency;
+import com.tramchester.domain.DataSourceID;
+import com.tramchester.domain.MutablePlatform;
+import com.tramchester.domain.Platform;
+import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.places.Station;
+import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.livedata.domain.liveUpdates.UpcomingDeparture;
 import com.tramchester.domain.time.TramTime;
@@ -34,19 +39,29 @@ class UpcomingDepartureTest {
     void calculateWhenCorrectly() {
         LocalTime updateTime = LocalTime.of(10,42);
         LocalDate date = LocalDate.of(2022,4,30);
-        UpcomingDeparture dueTram = new UpcomingDeparture(date, displayLocation, destination, "Due",
+        UpcomingDeparture departure = new UpcomingDeparture(date, displayLocation, destination, "Due",
                 Duration.ofMinutes(4), "Double", updateTime, agency, mode);
 
-        TramTime result = dueTram.getWhen();
+        TramTime result = departure.getWhen();
         assertEquals(updateTime.plusMinutes(4), result.asLocalTime());
         assertFalse(result.isNextDay());
-        assertEquals(displayLocation, dueTram.getDisplayLocation());
-        assertEquals(destination, dueTram.getDestination());
-        assertEquals("Due", dueTram.getStatus());
-        assertEquals("Double", dueTram.getCarriages());
-        assertEquals(TransportMode.Tram, dueTram.getMode());
-        assertEquals(agency, dueTram.getAgency());
-        assertEquals(date, dueTram.getDate());
+        assertEquals(displayLocation, departure.getDisplayLocation());
+        assertEquals(destination, departure.getDestination());
+        assertEquals("Due", departure.getStatus());
+        assertEquals("Double", departure.getCarriages());
+        assertEquals(TransportMode.Tram, departure.getMode());
+        assertEquals(agency, departure.getAgency());
+        assertEquals(date, departure.getDate());
+
+        assertFalse(departure.hasPlatform());
+
+        LatLong nearBury = TestEnv.stPetersSquareLocation();
+        Platform platform = MutablePlatform.buildForTFGMTram("id", "Bury", nearBury, DataSourceID.tfgm,
+                StringIdFor.createId("areaId1"));
+        departure.setPlatform(platform);
+
+        assertTrue(departure.hasPlatform());
+        assertEquals(platform, departure.getPlatform());
 
     }
 

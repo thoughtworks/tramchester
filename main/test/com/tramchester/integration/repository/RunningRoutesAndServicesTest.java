@@ -68,26 +68,30 @@ public class RunningRoutesAndServicesTest {
     @Test
     void shouldTakeAccountOfCrossingIntoNextDayForRunningServices() {
         // need to find service running mon to fri and one running saturday
-        EnumSet<DayOfWeek> weekday = EnumSet.of(MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY);
+        EnumSet<DayOfWeek> weekdays = EnumSet.of(MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY);
         final EnumSet<DayOfWeek> saturdays = EnumSet.of(SATURDAY);
 
         LocalDate testDay = TestEnv.nextMonday();
+
         while (new TramServiceDate(testDay).isChristmasPeriod()) {
             testDay = testDay.plusWeeks(1);
         }
 
-        final LocalDate nextMonday = testDay.plusWeeks(1);
+        final LocalDate nextMonday = testDay;
 
         List<Service> weekdayServices = transportData.getServices().stream().
                 filter(service -> service.getCalendar().getDateRange().contains(nextMonday)).
-                filter(service -> service.getCalendar().getOperatingDays().equals(weekday)).
+                filter(service -> service.getCalendar().getOperatingDays().equals(weekdays)).
                 collect(Collectors.toList());
         assertFalse(weekdayServices.isEmpty());
 
         LocalDate weekdayServicesBegin = weekdayServices.stream().
-                map(service -> service.getCalendar().getDateRange().getStartDate()).min(LocalDate::compareTo).get();
+                map(service -> service.getCalendar().getDateRange().getStartDate()).
+                min(LocalDate::compareTo).get();
+
         LocalDate weekdayServicesEnd = weekdayServices.stream().
-                map(service -> service.getCalendar().getDateRange().getEndDate()).max(LocalDate::compareTo).get();
+                map(service -> service.getCalendar().getDateRange().getEndDate()).
+                max(LocalDate::compareTo).get();
 
         DateRange weekdayDateRange = new DateRange(weekdayServicesBegin, weekdayServicesEnd);
         assertTrue(weekdayDateRange.contains(nextMonday));
@@ -98,20 +102,29 @@ public class RunningRoutesAndServicesTest {
                 collect(Collectors.toList());
         assertFalse(saturdayServices.isEmpty(), weekdayDateRange.toString());
 
-        int offset = 1;
-        while (weekdayServicesBegin.plusDays(offset).getDayOfWeek()!=FRIDAY) {
-            offset++;
-        }
-        LocalDate friday = weekdayServicesBegin.plusDays(offset);
+//        int offsetToFriday = 1;
+//        while (nextMonday.plusDays(offsetToFriday).getDayOfWeek()!=FRIDAY) {
+//            offsetToFriday++;
+//        }
+
+        LocalDate friday = TestEnv.nextSaturday().minusDays(1); // weekdayServicesBegin.plusDays(offsetToFriday);
         assertTrue(weekdayDateRange.contains(friday));
 
         RunningRoutesAndServices.FilterForDate filter = runningRoutesAndServices.getFor(friday);
 
-        final Service weekdayService = weekdayServices.get(0);
+        Set<Service> weekdayFiltered = weekdayServices.stream().
+                filter(svc -> filter.isServiceRunningByDate(svc.getId(), false))
+                .collect(Collectors.toSet());
+
+        assertFalse(weekdayFiltered.isEmpty(), "Filter " + filter + " matched none of "
+                + weekdayServices + " testday: " + testDay);
+
         final Service saturdayService = saturdayServices.get(0);
 
-        assertTrue(filter.isServiceRunningByDate(weekdayService.getId(), false));
+        // not including next day
         assertFalse(filter.isServiceRunningByDate(saturdayService.getId(), false));
+
+        // including next day
         assertTrue(filter.isServiceRunningByDate(saturdayService.getId(), true));
 
     }

@@ -78,15 +78,22 @@ public class TramDepartureRepository implements UpcomingDeparturesSource, TramLi
     private int consumeDepartInfo(List<TramStationDepartureInfo> departureInfos) {
         IdSet<Platform> platformsSeen = new IdSet<>();
 
+        // TODO See platforms in live data not present in the timetable data
         for (TramStationDepartureInfo departureInfo : departureInfos) {
-            updateCacheFor(departureInfo, platformsSeen);
+            if (departureInfo.hasStationPlatform()) {
+                updateCacheFor(departureInfo, platformsSeen);
+            } else {
+                logger.warn("No platform, skipping " + departureInfo);
+            }
         }
 
         return platformsSeen.size();
     }
 
     private void updateCacheFor(TramStationDepartureInfo newDepartureInfo, IdSet<Platform> platformsSeen) {
-        IdFor<Platform> platformId = newDepartureInfo.getStationPlatform();
+
+        Platform platform = newDepartureInfo.getStationPlatform();
+        IdFor<Platform> platformId = platform.getId();
         if (!platformsSeen.contains(platformId)) {
             platformsSeen.add(platformId);
             dueTramsCache.put(platformId, new PlatformDueTrams(newDepartureInfo));
@@ -214,12 +221,12 @@ public class TramDepartureRepository implements UpcomingDeparturesSource, TramLi
     }
 
     private static class PlatformDueTrams {
-        private final IdFor<Platform> stationPlatform;
+        private final Platform stationPlatform;
         private final List<UpcomingDeparture> dueTrams;
         private final LocalDateTime lastUpdate;
         private final IdFor<Station> stationId;
 
-        private PlatformDueTrams(IdFor<Platform> stationPlatform, List<UpcomingDeparture> dueTrams, LocalDateTime lastUpdate,
+        private PlatformDueTrams(Platform stationPlatform, List<UpcomingDeparture> dueTrams, LocalDateTime lastUpdate,
                                  IdFor<Station> stationId) {
             this.stationPlatform = stationPlatform;
             this.dueTrams = dueTrams;
@@ -255,7 +262,7 @@ public class TramDepartureRepository implements UpcomingDeparturesSource, TramLi
         @Override
         public String toString() {
             return "PlatformDueTrams{" +
-                    "stationPlatform=" + stationPlatform +
+                    "stationPlatform=" + stationPlatform.getId() +
                     ", stationId=" + stationId +
                     ", dueTrams=" + dueTrams +
                     ", lastUpdate=" + lastUpdate +

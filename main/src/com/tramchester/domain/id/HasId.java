@@ -20,6 +20,10 @@ public interface HasId<DOMAINTYPE extends CoreDomain> {
         return listToIdStringList(items, item -> item.getId().toString());
     }
 
+    static String asIds(IdMap<?> idMap) {
+        return idMap.getIds().toString();
+    }
+
     static String asIds(LocationSet locationSet) {
         return locationSet.asIds();
     }

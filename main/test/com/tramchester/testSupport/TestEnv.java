@@ -12,6 +12,7 @@ import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.input.PlatformStopCall;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.Location;
+import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.reference.GTFSPickupDropoffType;
 import com.tramchester.domain.reference.GTFSTransportationType;
@@ -279,4 +280,8 @@ public class TestEnv {
     }
 
 
+    public static Platform createPlatformFor(Station station, String platformId) {
+        return MutablePlatform.buildForTFGMTram(platformId, station.getName(), station.getLatLong(),
+                station.getDataSourceID(), station.getAreaId());
+    }
 }

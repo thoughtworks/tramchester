@@ -2,7 +2,6 @@ package com.tramchester.livedata.tfgm;
 
 import com.tramchester.domain.Platform;
 import com.tramchester.domain.id.HasId;
-import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.places.Station;
 import com.tramchester.livedata.domain.liveUpdates.LineDirection;
 import com.tramchester.livedata.domain.liveUpdates.UpcomingDeparture;
@@ -17,7 +16,7 @@ public class TramStationDepartureInfo {
     private static final String NO_MESSAGE = "<no message>";
 
     private final Lines line;
-    private final IdFor<Platform> stationPlatform;
+    private Platform stationPlatform;
     private final String message;
     private final List<UpcomingDeparture> dueTrams;
     private final LocalDateTime lastUpdate;
@@ -26,18 +25,18 @@ public class TramStationDepartureInfo {
     private final LineDirection direction;
 
     // station code here is the actocode
-    public TramStationDepartureInfo(String displayId, Lines line, LineDirection direction, IdFor<Platform> stationPlatform,
+    public TramStationDepartureInfo(String displayId, Lines line, LineDirection direction,
                                     Station station, String message, LocalDateTime lastUpdate) {
         this.displayId = displayId;
         this.line = line;
         this.direction = direction;
-        this.stationPlatform = stationPlatform;
         this.station = station;
         if (invalidMessage(message)) {
             this.message= "";
         } else {
             this.message = message;
         }
+        this.stationPlatform = null;
         this.lastUpdate = lastUpdate;
         dueTrams = new LinkedList<>();
     }
@@ -58,7 +57,15 @@ public class TramStationDepartureInfo {
         return direction;
     }
 
-    public IdFor<Platform> getStationPlatform() {
+    public boolean hasStationPlatform() {
+        return stationPlatform!=null;
+    }
+
+    public void setStationPlatform(Platform stationPlatform) {
+        this.stationPlatform = stationPlatform;
+    }
+
+    public Platform getStationPlatform() {
         return stationPlatform;
     }
 

@@ -15,6 +15,7 @@ import com.tramchester.livedata.tfgm.Lines;
 import com.tramchester.livedata.tfgm.LiveDataParser;
 import com.tramchester.livedata.tfgm.TramStationDepartureInfo;
 import com.tramchester.repository.AgencyRepository;
+import com.tramchester.repository.PlatformRepository;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.TramStations;
@@ -49,15 +50,17 @@ class LiveDataParserTest extends EasyMockSupport {
 
     private LiveDataParser parser;
     private StationByName stationByName;
+    private Platform platformMC;
+    private PlatformRepository platformRepository;
 
     @BeforeEach
     void beforeEachTestRuns() {
         StationRepository stationRepository = createStrictMock(StationRepository.class);
         stationByName = createStrictMock(StationByName.class);
         AgencyRepository agencyRepository = createMock(AgencyRepository.class);
-        parser = new LiveDataParser(stationByName, stationRepository, agencyRepository);
+        platformRepository = createMock(PlatformRepository.class);
 
-        final Platform platformMC = MutablePlatform.buildForTFGMTram("9400ZZMAMCU2",
+        platformMC = MutablePlatform.buildForTFGMTram("9400ZZMAMCU2",
                 "Media City Platform 2", MediaCityUK.getLatLong(), DataSourceID.unknown, IdFor.invalid());
         Station mediaCity = MediaCityUK.fakeWith(platformMC);
 
@@ -70,6 +73,12 @@ class LiveDataParserTest extends EasyMockSupport {
         EasyMock.expect(stationRepository.hasStationId(MediaCityUK.getId())).andStubReturn(true);
         EasyMock.expect(stationRepository.hasStationId(ManAirport.getId())).andStubReturn(true);
 
+        EasyMock.expect(platformRepository.hasPlatformId(platformMC.getId())).andStubReturn(true);
+        EasyMock.expect(platformRepository.getPlatformById(platformMC.getId())).andStubReturn(platformMC);
+
+        EasyMock.expect(platformRepository.hasPlatformId(platformAirport.getId())).andStubReturn(true);
+        EasyMock.expect(platformRepository.getPlatformById(platformAirport.getId())).andStubReturn(platformAirport);
+
         expectationByName(Piccadilly);
         expectationByName(MediaCityUK);
         expectationByName(ManAirport);
@@ -80,6 +89,9 @@ class LiveDataParserTest extends EasyMockSupport {
         EasyMock.expect(stationByName.getTramStationByName("")).andStubReturn(Optional.empty());
 
         EasyMock.expect(agencyRepository.get(MutableAgency.METL)).andStubReturn(TestEnv.MetAgency());
+
+        parser = new LiveDataParser(stationByName, stationRepository, platformRepository, agencyRepository);
+
 
     }
 
@@ -133,7 +145,7 @@ class LiveDataParserTest extends EasyMockSupport {
         TramStationDepartureInfo departureInfoA = info.get(0);
         assertEquals("1", departureInfoA.getDisplayId());
         assertEquals(Lines.Eccles, departureInfoA.getLine());
-        assertEquals(StringIdFor.createId("9400ZZMAMCU2"), departureInfoA.getStationPlatform());
+        assertEquals(platformMC, departureInfoA.getStationPlatform());
         assertEquals(MediaCityUK.getId(), departureInfoA.getStation().getId());
         assertEquals("Today Manchester City welcome Southampton at the Etihad Stadium KO is at 20:00 and " +
                 "services are expected to be busier than usual. Please plan your journey " +
@@ -178,6 +190,8 @@ class LiveDataParserTest extends EasyMockSupport {
                     }]
                  }
                 """;
+
+        EasyMock.expect(platformRepository.hasPlatformId(StringIdFor.createId("9400ZZMAMCU5"))).andReturn(false);
 
         replayAll();
         parser.start();

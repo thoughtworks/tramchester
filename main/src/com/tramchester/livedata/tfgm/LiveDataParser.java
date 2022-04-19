@@ -17,6 +17,7 @@ import com.tramchester.livedata.domain.liveUpdates.LineDirection;
 import com.tramchester.livedata.domain.liveUpdates.UpcomingDeparture;
 import com.tramchester.livedata.repository.StationByName;
 import com.tramchester.repository.AgencyRepository;
+import com.tramchester.repository.PlatformRepository;
 import com.tramchester.repository.StationRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,6 +34,10 @@ import static com.tramchester.livedata.domain.liveUpdates.LineDirection.Unknown;
 import static java.lang.String.format;
 import static java.time.format.DateTimeFormatter.ISO_INSTANT;
 
+
+
+// TODO Split parse and create concerns here
+
 @LazySingleton
 public class LiveDataParser {
     private static final Logger logger = LoggerFactory.getLogger(LiveDataParser.class);
@@ -46,6 +51,7 @@ public class LiveDataParser {
 
     private final StationByName stationByName;
     private final StationRepository stationRepository;
+    private final PlatformRepository platformRepository;
     private final AgencyRepository agencyRepository;
     private final Map<String, String> destinationNameMappings;
 
@@ -79,11 +85,14 @@ public class LiveDataParser {
     }
 
     @Inject
-    public LiveDataParser(StationByName stationByName, StationRepository stationRepository, AgencyRepository agencyRepository) {
+    public LiveDataParser(StationByName stationByName, StationRepository stationRepository,
+                          PlatformRepository platformRepository, AgencyRepository agencyRepository) {
         this.stationByName = stationByName;
-        destinationNameMappings = new HashMap<>();
+        this.platformRepository = platformRepository;
         this.stationRepository = stationRepository;
         this.agencyRepository = agencyRepository;
+
+        destinationNameMappings = new HashMap<>();
     }
 
     @PostConstruct
@@ -124,15 +133,18 @@ public class LiveDataParser {
         final String message = (String) jsonObject.get("MessageBoard");
         final String dateString = (String) jsonObject.get("LastUpdated");
         final String rawDirection = (String)jsonObject.get("Direction");
+        LocalDateTime updateTime = getStationUpdateTime(dateString);
 
         LineDirection direction = getDirection(rawDirection);
-        if (direction==Unknown) {
-            logger.warn("Display '" + displayId +"' Unable to map direction code name "+ rawDirection + " for JSON " + jsonObject);
+        if (direction == Unknown) {
+            logger.warn("Display '" + displayId +"' Unable to map direction code name "+ rawDirection +
+                    " for JSON " + jsonObject);
         }
 
         Lines line = getLine(rawLine);
-        if (line== Lines.UnknownLine) {
-            logger.warn("Display '" + displayId +"' Unable to map line name "+ rawLine + " for JSON " + jsonObject);
+        if (line == Lines.UnknownLine) {
+            logger.warn("Display '" + displayId +"' Unable to map line name "+ rawLine +
+                    " for JSON " + jsonObject);
         }
 
         Optional<Station> maybeStation = getStationByAtcoCode(atcoCode);
@@ -142,21 +154,24 @@ public class LiveDataParser {
         }
         Station station = maybeStation.get();
 
-        LocalDateTime updateTime = getStationUpdateTime(dateString);
-        logger.debug("Parsed lived data with update time: "+updateTime);
+        TramStationDepartureInfo departureInfo = new TramStationDepartureInfo(displayId.toString(), line, direction,
+                station, message, updateTime);
 
         IdFor<Platform> platformId = StringIdFor.createId(atcoCode);
-        if (!station.hasPlatform(platformId)) {
-            // info not warn as currently a permanent issue with the data
-            logger.info(format("Display '%s' Platform '%s' not in timetable data for station %s and Json %s",
-                    displayId, atcoCode, station.getId(), jsonObject));
-            // Seems to be legit, at very least some single platform stations (i.e. navigation road) appear to have
-            // two platforms in the live data feed...
-            //return Optional.empty();
+        if (platformRepository.hasPlatformId(platformId)) {
+            Platform platform = platformRepository.getPlatformById(platformId);
+            departureInfo.setStationPlatform(platform);
+            if (!station.hasPlatform(platformId)) {
+                // NOTE: some single platform stations (i.e. navigation road) appear to have
+                // two platforms in the live data feed...but not in the station reference data
+                logger.info(format("Display '%s' Platform '%s' not in timetable data for station %s and Json %s",
+                        displayId, atcoCode, station.getId(), jsonObject));
+
+            }
+        } else {
+            logger.warn("Did not find platform for '" + atcoCode + "' and Json " + jsonObject);
         }
 
-        TramStationDepartureInfo departureInfo = new TramStationDepartureInfo(displayId.toString(), line, direction,
-                platformId, station, message, updateTime);
         parseDueTrams(jsonObject, departureInfo);
 
         logger.debug("Parsed live data to " + departureInfo);

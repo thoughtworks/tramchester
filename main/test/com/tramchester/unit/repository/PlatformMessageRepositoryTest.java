@@ -64,15 +64,16 @@ class PlatformMessageRepositoryTest  extends EasyMockSupport {
         EasyMock.expect(config.liveDataEnabled()).andStubReturn(true);
 
         TramStationDepartureInfo departureInfoA = new TramStationDepartureInfo("yyy", Lines.Eccles,
-                LineDirection.Incoming, platform.getId(), station,
-                "some message", lastUpdate);
+                LineDirection.Incoming, station, "some message", lastUpdate);
+        departureInfoA.setStationPlatform(platform);
         TramStationDepartureInfo departureInfoB = new TramStationDepartureInfo("yyy", Lines.Eccles,
-                LineDirection.Incoming, StringIdFor.createId("someOther"), Altrincham.fake(),
+                LineDirection.Incoming, Altrincham.fake(),
                 "some different message", lastUpdate);
+        departureInfoB.setStationPlatform(TestEnv.createPlatformFor(Altrincham.fake(), "someOther"));
         infos.add(departureInfoA);
         infos.add(departureInfoB);
 
-        TramTime updateTime = TramTime.of(lastUpdate.toLocalTime());
+        TramTime updateTime = TramTime.ofHourMins(lastUpdate.toLocalTime());
         EasyMock.expect(providesNow.getDate()).andStubReturn(lastUpdate.toLocalDate());
 
         replayAll();
@@ -110,8 +111,8 @@ class PlatformMessageRepositoryTest  extends EasyMockSupport {
         EasyMock.expect(config.liveDataEnabled()).andReturn(true);
 
         TramStationDepartureInfo departureInfo = new TramStationDepartureInfo("yyy", Lines.Eccles,
-                LineDirection.Incoming, platform.getId(), station,
-                "<no message>", lastUpdate);
+                LineDirection.Incoming, station, "<no message>", lastUpdate);
+        departureInfo.setStationPlatform(platform);
         infos.add(departureInfo);
 
         EasyMock.expect(providesNow.getDate()).andStubReturn(lastUpdate.toLocalDate());
@@ -129,8 +130,8 @@ class PlatformMessageRepositoryTest  extends EasyMockSupport {
 
         EasyMock.expect(config.liveDataEnabled()).andReturn(true);
         TramStationDepartureInfo departureInfo = new TramStationDepartureInfo("yyy", Lines.Eccles,
-                LineDirection.Incoming, platform.getId(), station,
-                "", lastUpdate);
+                LineDirection.Incoming, station, "", lastUpdate);
+        departureInfo.setStationPlatform(platform);
         infos.add(departureInfo);
 
         EasyMock.expect(providesNow.getDate()).andStubReturn(lastUpdate.toLocalDate());
@@ -146,7 +147,7 @@ class PlatformMessageRepositoryTest  extends EasyMockSupport {
     void shouldGiveNoMessagesIfNoRefresh() {
         // no refresh
         Optional<PlatformMessage> result = repository.messagesFor(platform.getId(), lastUpdate.toLocalDate(),
-                TramTime.of(lastUpdate.toLocalTime()));
+                TramTime.ofHourMins(lastUpdate.toLocalTime()));
         assertTrue(result.isEmpty());
     }
 
@@ -157,8 +158,8 @@ class PlatformMessageRepositoryTest  extends EasyMockSupport {
         EasyMock.expect(config.liveDataEnabled()).andStubReturn(true);
 
         TramStationDepartureInfo departureInfo = new TramStationDepartureInfo("yyy", Lines.Eccles,
-                LineDirection.Incoming, platform.getId(), station,
-                "some msg", lastUpdate);
+                LineDirection.Incoming, station, "some msg", lastUpdate);
+        departureInfo.setStationPlatform(platform);
         infos.add(departureInfo);
 
         EasyMock.expect(providesNow.getDate()).andStubReturn(lastUpdate.toLocalDate().minusDays(1));
@@ -169,7 +170,7 @@ class PlatformMessageRepositoryTest  extends EasyMockSupport {
 
         // no refresh
         Optional<PlatformMessage> result = repository.messagesFor(platform.getId(), lastUpdate.toLocalDate(),
-                TramTime.of(lastUpdate.toLocalTime()));
+                TramTime.ofHourMins(lastUpdate.toLocalTime()));
         assertTrue(result.isEmpty());
     }
 
@@ -179,8 +180,8 @@ class PlatformMessageRepositoryTest  extends EasyMockSupport {
         EasyMock.expect(config.liveDataEnabled()).andStubReturn(true);
 
         TramStationDepartureInfo departureInfo = new TramStationDepartureInfo("yyy", Lines.Eccles,
-                LineDirection.Incoming, platform.getId(), station,
-                "some msg", lastUpdate.minusMinutes(30));
+                LineDirection.Incoming, station, "some msg", lastUpdate.minusMinutes(30));
+        departureInfo.setStationPlatform(platform);
         infos.add(departureInfo);
 
         EasyMock.expect(providesNow.getDate()).andStubReturn(lastUpdate.toLocalDate());
@@ -191,7 +192,7 @@ class PlatformMessageRepositoryTest  extends EasyMockSupport {
 
         // no refresh
         Optional<PlatformMessage> result = repository.messagesFor(platform.getId(), lastUpdate.toLocalDate(),
-                TramTime.of(lastUpdate.toLocalTime()));
+                TramTime.ofHourMins(lastUpdate.toLocalTime()));
         assertTrue(result.isEmpty());
     }
 
@@ -202,15 +203,16 @@ class PlatformMessageRepositoryTest  extends EasyMockSupport {
         EasyMock.expect(config.liveDataEnabled()).andStubReturn(true);
 
         TramStationDepartureInfo departureInfoA = new TramStationDepartureInfo("123", Lines.Eccles,
-                LineDirection.Incoming, platform.getId(), station,
-                "some message", lastUpdate);
+                LineDirection.Incoming, station, "some message", lastUpdate);
+        departureInfoA.setStationPlatform(platform);
         TramStationDepartureInfo departureInfoB = new TramStationDepartureInfo("456", Lines.Eccles,
-                LineDirection.Incoming, platform.getId(), station,
-                "some other message", lastUpdate);
+                LineDirection.Incoming, station, "some other message", lastUpdate);
+        departureInfoB.setStationPlatform(platform);
+
         infos.add(departureInfoA);
         infos.add(departureInfoB);
 
-        TramTime updateTime = TramTime.of(lastUpdate.toLocalTime());
+        TramTime updateTime = TramTime.ofHourMins(lastUpdate.toLocalTime());
         EasyMock.expect(providesNow.getDate()).andStubReturn(lastUpdate.toLocalDate());
 
         replayAll();
@@ -230,15 +232,15 @@ class PlatformMessageRepositoryTest  extends EasyMockSupport {
         EasyMock.expect(config.liveDataEnabled()).andStubReturn(true);
 
         TramStationDepartureInfo departureInfoA = new TramStationDepartureInfo("123", Lines.Eccles,
-                LineDirection.Incoming, platform.getId(), station,
-                "some message", lastUpdate);
+                LineDirection.Incoming, station, "some message", lastUpdate);
+        departureInfoA.setStationPlatform(platform);
         TramStationDepartureInfo departureInfoB = new TramStationDepartureInfo("456", Lines.Airport,
-                LineDirection.Incoming, platform.getId(), station,
-                "", lastUpdate);
+                LineDirection.Incoming, station, "", lastUpdate);
+        departureInfoB.setStationPlatform(platform);
         infos.add(departureInfoA);
         infos.add(departureInfoB);
 
-        TramTime updateTime = TramTime.of(lastUpdate.toLocalTime());
+        TramTime updateTime = TramTime.ofHourMins(lastUpdate.toLocalTime());
         EasyMock.expect(providesNow.getDate()).andStubReturn(lastUpdate.toLocalDate());
 
         replayAll();

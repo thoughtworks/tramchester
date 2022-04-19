@@ -1,6 +1,7 @@
 package com.tramchester.livedata.domain.liveUpdates;
 
 import com.tramchester.domain.Agency;
+import com.tramchester.domain.Platform;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramTime;
@@ -20,6 +21,7 @@ public class UpcomingDeparture {
     private final TramTime when;
     private final Agency agency;
     private final TransportMode mode;
+    private Platform platform;
 
     public UpcomingDeparture(LocalDate date, Station displayLocation, Station destination, String status, Duration wait,
                              String carriages, LocalTime updateTime,
@@ -33,6 +35,7 @@ public class UpcomingDeparture {
         this.agency = agency;
         this.mode = mode;
         this.when  = TramTime.ofHourMins(updateTime).plus(wait);
+        platform = null;
     }
 
     public Station getDestination() {
@@ -69,6 +72,18 @@ public class UpcomingDeparture {
 
     public LocalDate getDate() {
         return date;
+    }
+
+    public void setPlatform(Platform platform) {
+        this.platform = platform;
+    }
+
+    public boolean hasPlatform() {
+        return platform!=null;
+    }
+
+    public Platform getPlatform() {
+        return platform;
     }
 
     @Override
