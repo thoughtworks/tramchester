@@ -18,6 +18,6 @@ public interface Platform extends GraphProperty, CoreDomain, Location<Platform> 
         return StringIdFor.createId(text);
     }
 
-    public Station getStation();
+    Station getStation();
 
 }

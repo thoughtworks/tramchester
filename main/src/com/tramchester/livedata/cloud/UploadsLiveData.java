@@ -46,7 +46,9 @@ public class UploadsLiveData implements LiveDataObserver {
         }
 
         List<StationDepartureInfoDTO> dtoToUpload = stationDepartureInfos.stream().
-                map(StationDepartureInfoDTO::new).collect(Collectors.toList());
+                filter(TramStationDepartureInfo::hasStationPlatform).
+                map(StationDepartureInfoDTO::new).
+                collect(Collectors.toList());
         LocalDateTime timeStamp = extractMostRecent(dtoToUpload);
 
         try {
