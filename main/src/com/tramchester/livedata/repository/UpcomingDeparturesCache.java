@@ -48,11 +48,6 @@ public class UpcomingDeparturesCache implements  UpcomingDeparturesSource {
     }
 
     @Override
-    public List<UpcomingDeparture> dueTramsForPlatform(IdFor<Platform> platform) {
-        throw new RuntimeException("WIP");
-    }
-
-    @Override
     public List<UpcomingDeparture> dueTramsForStation(Station station) {
         DataSourceID dataSourceID = station.getDataSourceID();
         if (!caches.containsKey(dataSourceID)) {

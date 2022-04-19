@@ -8,6 +8,7 @@ import com.tramchester.domain.MutablePlatform;
 import com.tramchester.domain.places.NaptanArea;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.testSupport.TestEnv;
+import com.tramchester.testSupport.reference.TramStations;
 import org.junit.jupiter.api.Test;
 
 import java.util.Set;
@@ -22,8 +23,8 @@ class PlatformTest {
     void shouldCreatePlatformCorrectly() {
         IdFor<NaptanArea> areaId = StringIdFor.createId("area55");
         boolean isMarkedInterchange = true;
-        MutablePlatform platform = new MutablePlatform(StringIdFor.createId("9400ZZ_Name2"), "StationName",
-                DataSourceID.tfgm, "2",
+        MutablePlatform platform = new MutablePlatform(StringIdFor.createId("9400ZZ_Name2"),
+                TramStations.Altrincham.fake(), "StationName", DataSourceID.tfgm, "2",
                 areaId, nearAltrincham.latLong(), nearAltrincham.grid(), isMarkedInterchange);
 
         assertEquals("StationName platform 2", platform.getName());

@@ -2,7 +2,6 @@ package com.tramchester.unit.domain;
 
 import com.tramchester.domain.*;
 import com.tramchester.domain.id.IdFor;
-import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.places.*;
 import com.tramchester.domain.presentation.LatLong;
@@ -16,7 +15,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.stream.Stream;
 
 import static com.tramchester.domain.reference.TransportMode.Bus;
 import static com.tramchester.domain.reference.TransportMode.Tram;
@@ -36,7 +34,7 @@ class StationGroupTest {
         Route route = TestEnv.getTramTestRoute();
         stationA.addRoutePickUp(route);
 
-        Platform platform = MutablePlatform.buildForTFGMTram("platformId", "platformName", latLong, DataSourceID.unknown, IdFor.invalid());
+        Platform platform = MutablePlatform.buildForTFGMTram("platformId", stationA, latLong, DataSourceID.unknown, IdFor.invalid());
         stationA.addPlatform(platform);
 
         IdFor<NaptanArea> areaId = StringIdFor.createId("areaId");
@@ -75,7 +73,8 @@ class StationGroupTest {
         Route routeA = TestEnv.getTramTestRoute(StringIdFor.createId("routeA"), "routeName");
 
         stationA.addRouteDropOff(routeA);
-        Platform platformA = MutablePlatform.buildForTFGMTram("platformIdA", "platformNameA", new LatLong(2, 4), DataSourceID.unknown, IdFor.invalid());
+        Platform platformA = MutablePlatform.buildForTFGMTram("platformIdA", stationA,
+                new LatLong(2, 4), DataSourceID.unknown, IdFor.invalid());
         stationA.addPlatform(platformA);
 
         MutableStation stationB = StationHelper.forTestMutable("idB", "areaB", "stopNameB",
@@ -83,7 +82,8 @@ class StationGroupTest {
         Route routeB = MutableRoute.getRoute(StringIdFor.createId("routeB"), "routeCodeB", "routeNameB", TestEnv.StagecoachManchester, Bus);
         stationB.addRouteDropOff(routeB);
         stationB.addRoutePickUp(routeA);
-        Platform platformB = MutablePlatform.buildForTFGMTram("platformIdB", "platformNameB", new LatLong(4, 8), DataSourceID.unknown, IdFor.invalid());
+        Platform platformB = MutablePlatform.buildForTFGMTram("platformIdB", stationB,
+                new LatLong(4, 8), DataSourceID.unknown, IdFor.invalid());
         stationB.addPlatform(platformB);
 
         Set<Station> stations = new HashSet<>(Arrays.asList(stationA, stationB));
@@ -93,7 +93,7 @@ class StationGroupTest {
         assertEquals(LocationType.StationGroup, stationGroup.getLocationType());
 
         assertEquals("compName", stationGroup.getName());
-        IdSet<Station> expected = Stream.of("idB", "idA").map(Station::createId).collect(IdSet.idCollector());
+        //IdSet<Station> expected = Stream.of("idB", "idA").map(Station::createId).collect(IdSet.idCollector());
         assertIdEquals("areaId", stationGroup.getId());
         assertEquals("areaId", stationGroup.forDTO());
         assertEquals("areaId", stationGroup.getId().getGraphId());

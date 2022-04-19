@@ -44,9 +44,9 @@ class ServiceTest {
 
     @Test
     void shouldHaveTimeRange() {
-        Platform platformA = new MutablePlatform(StringIdFor.createId("platA"), "man airport",
+        Platform platformA = new MutablePlatform(StringIdFor.createId("platA"), ManAirport.fake(), "man airport",
                 dataSourceId, "1", areaId, nearWythenshaweHosp.latLong(), nearWythenshaweHosp.grid(), isMarkedInterchange);
-        Platform platformB = new MutablePlatform(StringIdFor.createId("platB"), "shudehill",
+        Platform platformB = new MutablePlatform(StringIdFor.createId("platB"), Shudehill.fake(), "shudehill",
                 dataSourceId, "2", areaId, nearShudehill.latLong(), nearShudehill.grid(), isMarkedInterchange);
 
         Route route = TestEnv.getTramTestRoute();
@@ -74,9 +74,9 @@ class ServiceTest {
 
     @Test
     void shouldHaveTimeRangeCrossesMidnight() {
-        Platform platformA = new MutablePlatform(StringIdFor.createId("platA"), "man airport",
+        Platform platformA = new MutablePlatform(StringIdFor.createId("platA"), ManAirport.fake(), "man airport",
                 dataSourceId, "1", areaId, nearWythenshaweHosp.latLong(), nearWythenshaweHosp.grid(), isMarkedInterchange);
-        Platform platformB = new MutablePlatform(StringIdFor.createId("platB"), "shudehill",
+        Platform platformB = new MutablePlatform(StringIdFor.createId("platB"), Shudehill.fake(), "shudehill",
                 dataSourceId, "2", areaId, nearShudehill.latLong(), nearShudehill.grid(), isMarkedInterchange);
 
         Route route = TestEnv.getTramTestRoute();

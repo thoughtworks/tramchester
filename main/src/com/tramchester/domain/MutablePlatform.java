@@ -5,6 +5,7 @@ import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.places.LocationType;
 import com.tramchester.domain.places.NaptanArea;
+import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.geo.CoordinateTransforms;
@@ -32,10 +33,12 @@ public class MutablePlatform implements Platform {
     private final IdFor<NaptanArea> areaId;
     private final boolean isMarkedInterchange;
     private final GridPosition gridPosition;
+    private final Station station;
 
-    public MutablePlatform(IdFor<Platform> id, String platformName, DataSourceID dataSourceId, String platformNumber,
+    public MutablePlatform(IdFor<Platform> id, Station station, String platformName, DataSourceID dataSourceId, String platformNumber,
                            IdFor<NaptanArea> areaId, LatLong latLong, GridPosition gridPosition, boolean isMarkedInterchange) {
         this.id = id;
+        this.station = station;
         this.dataSourceId = dataSourceId;
         this.platformNumber = platformNumber;
         this.areaId = areaId;
@@ -51,19 +54,19 @@ public class MutablePlatform implements Platform {
     /***
      * For testing ONLY
      * @param id the platform id
-     * @param stationName the name of the station
+     * @param station the parent station
      * @param latLong the position
      * @param dataSourceId the source
      * @param areaId the areas
      * @return Platform for testing only
      */
-    public static Platform buildForTFGMTram(String id, String stationName, LatLong latLong, DataSourceID dataSourceId,
+    public static Platform buildForTFGMTram(String id, Station station, LatLong latLong, DataSourceID dataSourceId,
                                             IdFor<NaptanArea> areaId) {
         String platformNumber = id.substring(id.length() - 1);
         GridPosition gridPosition = CoordinateTransforms.getGridPosition(latLong);
         boolean isMarkedInterchange = false;
-        return new MutablePlatform(StringIdFor.createId(id), stationName, dataSourceId, platformNumber, areaId, latLong, gridPosition,
-                isMarkedInterchange);
+        return new MutablePlatform(StringIdFor.createId(id), station, station.getName(), dataSourceId, platformNumber,
+                areaId, latLong, gridPosition, isMarkedInterchange);
     }
 
     @Override
@@ -108,6 +111,11 @@ public class MutablePlatform implements Platform {
     @Deprecated
     public Set<Route> getRoutes() {
         return SetUtils.union(getDropoffRoutes(), getPickupRoutes());
+    }
+
+    @Override
+    public Station getStation() {
+        return station;
     }
 
     @Override

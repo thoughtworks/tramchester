@@ -134,8 +134,7 @@ public class TramDepartureRepository implements UpcomingDeparturesSource, TramLi
         return dueTrams;
     }
 
-    @Override
-    public List<UpcomingDeparture> dueTramsForPlatform(IdFor<Platform> platform) {
+    private List<UpcomingDeparture> dueTramsForPlatform(IdFor<Platform> platform) {
         if (lastRefresh==null) {
             logger.warn("No refresh has happened");
             return Collections.emptyList();

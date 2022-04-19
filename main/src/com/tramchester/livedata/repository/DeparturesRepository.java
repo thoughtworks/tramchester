@@ -69,7 +69,12 @@ public class DeparturesRepository {
         if (!TransportMode.intersects(modes, platform.getTransportModes())) {
             logger.error(format("Platform %s does not match supplied modes %s", platform, modes));
         }
-        return tramDepartureRepository.dueTramsForPlatform(platform.getId());
+        return tramDepartureRepository.dueTramsForStation(platform.getStation()).
+                stream().
+                filter(UpcomingDeparture::hasPlatform).
+                filter(departure -> departure.getPlatform().equals(platform)).
+                collect(Collectors.toList());
+//        return tramDepartureRepository.dueTramsForPlatform(platform.getId());
     }
 
     private List<UpcomingDeparture> getDeparturesNearTo(Location<?> location, Set<TransportMode> modes) {

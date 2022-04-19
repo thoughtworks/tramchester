@@ -90,7 +90,7 @@ class DeparturesResourceTest {
     @LiveDataTestCategory
     void shouldGetDueTramsForStation() {
         // split out messages to own test as need to be able to disable those separately
-        Response response = getResponseForStation(stationWithDepartures, false);
+        Response response = getResponseForStation(stationWithNotes, false);
         assertEquals(200, response.getStatus());
         DepartureListDTO departureList = response.readEntity(DepartureListDTO.class);
 

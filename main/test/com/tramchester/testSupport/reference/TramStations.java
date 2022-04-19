@@ -1,10 +1,12 @@
 package com.tramchester.testSupport.reference;
 
 import com.tramchester.domain.DataSourceID;
+import com.tramchester.domain.MutablePlatform;
 import com.tramchester.domain.Platform;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.places.MutableStation;
+import com.tramchester.domain.places.NaptanArea;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.geo.CoordinateTransforms;
@@ -114,9 +116,9 @@ public enum TramStations implements FakeStation {
         return createMutable();
     }
 
-    public Station fakeWith(Platform platform) {
-        return createMutable().addPlatform(platform);
-    }
+//    public Station fakeWith(Platform platform) {
+//        return createMutable().addPlatform(platform);
+//    }
 
     @NotNull
     private MutableStation createMutable() {
@@ -124,4 +126,13 @@ public enum TramStations implements FakeStation {
         return new MutableStation(getId(), IdFor.invalid(), name, latlong, grid, DataSourceID.tfgm);
     }
 
+    public Station fakeWithPlatform(String platformId, LatLong latLong, DataSourceID dataSourceID,
+                                    IdFor<NaptanArea> naptanAreaId) {
+        MutableStation station = createMutable();
+        final Platform platform = MutablePlatform.buildForTFGMTram(platformId, station,
+                latLong, dataSourceID, naptanAreaId);
+        station.addPlatform(platform);
+        return station;
+
+    }
 }

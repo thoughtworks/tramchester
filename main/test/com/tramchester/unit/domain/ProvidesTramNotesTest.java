@@ -432,10 +432,10 @@ class ProvidesTramNotesTest extends EasyMockSupport {
 
     private PlatformMessage createPlatformMessage(LocalDateTime lastUpdate, TramStations tramStation, String message) {
 
-        Platform platform = MutablePlatform.buildForTFGMTram(tramStation.getRawId() + "1", tramStation.getName() + " platform 1", tramStation.getLatLong(), DataSourceID.unknown, IdFor.invalid());
-        Station station = tramStation.fakeWith(platform);
-        //station.addPlatform(platform);
+        Station station = tramStation.fakeWithPlatform(tramStation.getRawId() + "1",
+                tramStation.getLatLong(), DataSourceID.unknown, IdFor.invalid());
 
+        Platform platform = TestEnv.onlyPlatform(station);
         return new PlatformMessage(platform, message, lastUpdate, station, "displayId");
     }
 
@@ -456,14 +456,12 @@ class ProvidesTramNotesTest extends EasyMockSupport {
         // TODO
         List<Integer> passedStations = new ArrayList<>();
 
-        Platform platform = MutablePlatform.buildForTFGMTram(platformId, "platformName", latLong, DataSourceID.unknown, IdFor.invalid());
-        final Station firstStation = Ashton.fakeWith(platform);
-        //firstStation.addPlatform(platform);
+        final Station firstStation = Ashton.fakeWithPlatform(platformId,  latLong, DataSourceID.unknown, IdFor.invalid());
 
         VehicleStage vehicleStage = new VehicleStage(firstStation, TestEnv.getTramTestRoute(), Tram,
                 trip, departTime, createStationFor(PiccadillyGardens), passedStations);
 
-        vehicleStage.setPlatform(platform);
+        vehicleStage.setPlatform(TestEnv.onlyPlatform(firstStation));
         return vehicleStage;
     }
 

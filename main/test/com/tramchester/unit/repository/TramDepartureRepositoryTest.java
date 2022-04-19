@@ -2,7 +2,6 @@ package com.tramchester.unit.repository;
 
 import com.tramchester.domain.Agency;
 import com.tramchester.domain.DataSourceID;
-import com.tramchester.domain.MutablePlatform;
 import com.tramchester.domain.Platform;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.places.Station;
@@ -27,6 +26,7 @@ import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static com.tramchester.testSupport.TestEnv.assertMinutesEquals;
 import static com.tramchester.testSupport.reference.TramStations.*;
@@ -53,9 +53,9 @@ class TramDepartureRepositoryTest extends EasyMockSupport {
         date = today;
         lastUpdate = LocalDateTime.of(today, LocalTime.of(15,42));
 
-        platform = MutablePlatform.buildForTFGMTram("someId1", "Shudehill platform 1",
-                Shudehill.getLatLong(), DataSourceID.unknown, IdFor.invalid());
-        station = Shudehill.fakeWith(platform);
+        station = Shudehill.fakeWithPlatform("someId1", Shudehill.getLatLong(),
+                DataSourceID.unknown, IdFor.invalid());
+        platform = TestEnv.onlyPlatform(station);
     }
 
     @Test
@@ -69,22 +69,22 @@ class TramDepartureRepositoryTest extends EasyMockSupport {
                 "message 1", station, dueTram);
 
         // second station, has due tram
-        Platform platfromForSecondStation = MutablePlatform.buildForTFGMTram("a1", "Altrincham platform 1",
-                Altrincham.getLatLong(), DataSourceID.unknown, IdFor.invalid());
-        Station secondStation = Altrincham.fakeWith(platfromForSecondStation);
+        Station secondStation = Altrincham.fakeWithPlatform("a1", Altrincham.getLatLong(), DataSourceID.unknown,
+                IdFor.invalid());
+        Platform platfromForSecondStation = TestEnv.onlyPlatform(secondStation);
 
         UpcomingDeparture dueTramOther = new UpcomingDeparture(date, secondStation, ManAirport.fake(), "Due",
-                Duration.ofMinutes(12), "Double", lastUpdate.toLocalTime(), agency, mode);
+        Duration.ofMinutes(12), "Double", lastUpdate.toLocalTime(), agency, mode);
         addStationInfoWithDueTram(infos, lastUpdate, "displayId2", platfromForSecondStation,
                 "message 2", secondStation, dueTramOther);
 
         // third, no due trams
-        Platform platfromForThirdStation = MutablePlatform.buildForTFGMTram("b2", "Intu platform 2",
-                TraffordCentre.getLatLong(), DataSourceID.unknown, IdFor.invalid());
-        Station thirdStation = TraffordCentre.fakeWith(platfromForThirdStation);
+        Station thirdStation = TraffordCentre.fakeWithPlatform("b2", TraffordCentre.getLatLong(),
+                DataSourceID.unknown, IdFor.invalid());
+        Platform platfromForThirdStation = TestEnv.onlyPlatform(thirdStation);
 
         TramStationDepartureInfo thirdStationInfo = new TramStationDepartureInfo("displayId3", Lines.Airport,
-                LineDirection.Incoming, thirdStation, "message 3", lastUpdate);
+        LineDirection.Incoming, thirdStation, "message 3", lastUpdate);
         thirdStationInfo.setStationPlatform(platfromForThirdStation);
         infos.add(thirdStationInfo);
 
@@ -109,11 +109,11 @@ class TramDepartureRepositoryTest extends EasyMockSupport {
         addStationInfoWithDueTram(infos, lastUpdate, "displayId", platform,
                 "some message", station, dueTram);
 
-        Platform otherPlatform = MutablePlatform.buildForTFGMTram("other1", "Altrincham platform 1",
-                Altrincham.getLatLong(), DataSourceID.unknown, IdFor.invalid());
-        Station otherStation = Altrincham.fakeWith(otherPlatform);
+        Station otherStation = Altrincham.fakeWithPlatform("other1", Altrincham.getLatLong(),
+                DataSourceID.unknown, IdFor.invalid());
+        Platform otherPlatform = TestEnv.onlyPlatform(otherStation);
 
-        Station destinationManAirport = ManAirport.fake();
+                Station destinationManAirport = ManAirport.fake();
         UpcomingDeparture dueTramOther = new UpcomingDeparture(date, otherStation, destinationManAirport, "Due",
                 Duration.ofMinutes(12), "Double", lastUpdate.toLocalTime(), agency, mode);
         addStationInfoWithDueTram(infos, lastUpdate, "displayXXX", otherPlatform,
@@ -147,8 +147,10 @@ class TramDepartureRepositoryTest extends EasyMockSupport {
         List<TramStationDepartureInfo> infos = new ArrayList<>();
 
         Station destination = Bury.fake();
-        UpcomingDeparture dueTram = new UpcomingDeparture(date, station, destination, "Departed", Duration.ofMinutes(42),
+        UpcomingDeparture dueTram = new UpcomingDeparture(date, station, destination, "Due", Duration.ofMinutes(42),
                 "Single", lastUpdate.toLocalTime(), agency, mode);
+        dueTram.setPlatform(platform);
+
         addStationInfoWithDueTram(infos, lastUpdate, "displayId", platform,
                 "some message", station, dueTram);
 
@@ -162,11 +164,15 @@ class TramDepartureRepositoryTest extends EasyMockSupport {
         assertEquals(1, departureRepository.getNumStationsWithData(lastUpdate));
         assertEquals(1, departureRepository.getNumStationsWithTrams(lastUpdate));
 
-        List<UpcomingDeparture> allTramsForPlatform = departureRepository.dueTramsForPlatform(platform.getId());
+
+        List<UpcomingDeparture> allTramsForStation = departureRepository.dueTramsForStation(station);
+
+        List<UpcomingDeparture> allTramsForPlatform = allTramsForStation.stream().
+                filter(departure -> departure.getPlatform().equals(platform))
+                        .collect(Collectors.toList());
+
         assertFalse(allTramsForPlatform.isEmpty());
 
-        List<UpcomingDeparture> results = departureRepository.dueTramsForStation(station);
-        assertEquals(0, results.size());
     }
 
     @Test
@@ -202,7 +208,10 @@ class TramDepartureRepositoryTest extends EasyMockSupport {
         TramStationDepartureInfo departureInfo = new TramStationDepartureInfo(displayId, Lines.Eccles,
                 LineDirection.Incoming, location, message, lastUpdate);
         departureInfo.setStationPlatform(platform);
-        info.add(departureInfo);
         departureInfo.addDueTram(upcomingDeparture);
+        departureInfo.setStationPlatform(platform);
+
+        info.add(departureInfo);
+
     }
 }

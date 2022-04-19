@@ -17,7 +17,6 @@ import org.slf4j.LoggerFactory;
 import javax.inject.Inject;
 import java.time.Duration;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -61,7 +60,7 @@ public class TramPositionInference {
             return new TramPosition(pair, Collections.emptySet(), cost);
         }
 
-        Set<UpcomingDeparture> dueTrams = getDueTrams(pair, time, cost).stream().
+        Set<UpcomingDeparture> dueTrams = getDueTrams(pair, cost).stream().
                 filter(departure -> departure.getDate().equals(date.getDate())).collect(Collectors.toSet());
 
         logger.debug(format("Found %s trams between %s", dueTrams.size(), pair));
@@ -69,32 +68,53 @@ public class TramPositionInference {
         return new TramPosition(pair, dueTrams, cost);
     }
 
-    private Set<UpcomingDeparture> getDueTrams(StationPair pair, TramTime time, Duration cost) {
+    private Set<UpcomingDeparture> getDueTrams(StationPair pair, Duration cost) {
         Station neighbour = pair.getEnd();
 
-        if (!pair.bothServeMode(TransportMode.Tram) ) {
+        if (!pair.bothServeMode(TransportMode.Tram)) {
             logger.info(format("Not both tram stations %s", pair));
             return Collections.emptySet();
         }
+
+        List<UpcomingDeparture> neighbourDepartures = departureRepository.dueTramsForStation(neighbour);
+
+        if (neighbourDepartures.isEmpty()) {
+            logger.info("No departures at " + neighbour);
+            return Collections.emptySet();
+        }
+
         List<Route> routesBetween = routeReachable.getRoutesFromStartToNeighbour(pair);
 
+        if (routesBetween.isEmpty()) {
+            logger.warn("No routes between " + pair);
+            return Collections.emptySet();
+        }
+
         // get departure info at neighbouring station for relevant routes
-        Set<UpcomingDeparture> departures = new HashSet<>();
-        routesBetween.forEach(route -> {
-            Set<Platform> platforms = neighbour.getPlatformsForRoute(route);
-            platforms.forEach(platform ->
-                    departures.addAll(departureRepository.dueTramsForPlatform(platform.getId())));
-        });
+//        routesBetween.forEach(route -> {
+//            Set<Platform> platforms = neighbour.getPlatformsForRoute(route);
+//            platforms.forEach(platform ->
+//                    departures.addAll(departureRepository.dueTramsForPlatform(platform.getId())));
+//        });
+
+        Set<Platform> platforms = routesBetween.stream().
+                flatMap(route -> neighbour.getPlatformsForRoute(route).stream()).
+                collect(Collectors.toSet());
+
+        Set<UpcomingDeparture> departures = neighbourDepartures.stream().
+                filter(UpcomingDeparture::hasPlatform).
+                filter(departure -> platforms.contains(departure.getPlatform())).
+                collect(Collectors.toSet());
 
         if (departures.isEmpty()) {
-            logger.warn("Unable to find departure information for " + neighbour.getPlatforms());
+            logger.warn("Unable to find departure information for " + neighbour.getPlatforms() + " from " + neighbourDepartures);
             return Collections.emptySet();
-        } else {
-            return departures.stream().
-                    filter(departure -> isWithinWindow(departure, cost)).
-                    filter(departure -> !DEPARTING.equals(departure.getStatus())).
-                    collect(Collectors.toSet());
         }
+
+        return departures.stream().
+                filter(departure -> isWithinWindow(departure, cost)).
+                filter(departure -> !DEPARTING.equals(departure.getStatus())).
+                collect(Collectors.toSet());
 
     }
 

@@ -44,8 +44,8 @@ class LocationDTOTest {
         testStation.addRouteDropOff(TestEnv.getTramTestRoute(StringIdFor.createId("routeIdA"), "routeNameA"));
         testStation.addRoutePickUp(TestEnv.getTramTestRoute(StringIdFor.createId("routeIdB"), "routeNameB"));
 
-        testStation.addPlatform(MutablePlatform.buildForTFGMTram("9400ZZMAALT1", "Altrincham", new LatLong(1.2, 1), DataSourceID.unknown, IdFor.invalid()));
-        testStation.addPlatform(MutablePlatform.buildForTFGMTram("9400ZZMAALT2", "Altrincham", new LatLong(1.1, 1), DataSourceID.unknown, IdFor.invalid()));
+        testStation.addPlatform(MutablePlatform.buildForTFGMTram("9400ZZMAALT1", testStation, new LatLong(1.2, 1), DataSourceID.unknown, IdFor.invalid()));
+        testStation.addPlatform(MutablePlatform.buildForTFGMTram("9400ZZMAALT2", testStation, new LatLong(1.1, 1), DataSourceID.unknown, IdFor.invalid()));
 
         LocationDTO dto = factory.createLocationDTO(testStation); //new LocationDTO(testStation);
 

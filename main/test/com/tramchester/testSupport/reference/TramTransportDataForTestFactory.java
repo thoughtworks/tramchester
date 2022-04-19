@@ -269,7 +269,7 @@ public class TramTransportDataForTestFactory implements TransportDataFactory {
         final String platformName = format("%s platform 1", station.getName());
 
         MutablePlatform platform = new MutablePlatform(StringIdFor.createId(platformId),
-                platformName, station.getDataSourceID(), "1",
+                station, platformName, station.getDataSourceID(), "1",
                 station.getAreaId(), station.getLatLong(), station.getGridPosition(), station.isMarkedInterchange());
 
         container.addPlatform(platform);

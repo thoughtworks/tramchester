@@ -247,7 +247,11 @@ public class LiveDataParser {
                             UpcomingDeparture dueTram = new UpcomingDeparture(date, displayLocation, station, status,
                                     Duration.ofMinutes(waitInMinutes), carriages, lastUpdate, agency,
                                     TransportMode.Tram);
+                            if (departureInfo.hasStationPlatform()) {
+                                dueTram.setPlatform(departureInfo.getStationPlatform());
+                            }
                             departureInfo.addDueTram(dueTram);
+
                         },
 
                         () -> logger.warn("Display id '" + departureInfo.getDisplayId() +

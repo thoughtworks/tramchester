@@ -463,7 +463,7 @@ public class RailTimetableMapper {
             if (container.hasPlatformId(platformId)) {
                 platform = container.getMutablePlatform(platformId);
             } else {
-                platform = new MutablePlatform(platformId, originStation.getName(), dataSourceID, platformNumber,
+                platform = new MutablePlatform(platformId, originStation, originStation.getName(), dataSourceID, platformNumber,
                         areaId, originStation.getLatLong(), originStation.getGridPosition(), originStation.isMarkedInterchange());
                 container.addPlatform(platform);
             }

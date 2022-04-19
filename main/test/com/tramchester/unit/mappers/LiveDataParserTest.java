@@ -3,7 +3,6 @@ package com.tramchester.unit.mappers;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.DataSourceID;
 import com.tramchester.domain.MutableAgency;
-import com.tramchester.domain.MutablePlatform;
 import com.tramchester.domain.Platform;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.StringIdFor;
@@ -60,13 +59,13 @@ class LiveDataParserTest extends EasyMockSupport {
         AgencyRepository agencyRepository = createMock(AgencyRepository.class);
         platformRepository = createMock(PlatformRepository.class);
 
-        platformMC = MutablePlatform.buildForTFGMTram("9400ZZMAMCU2",
-                "Media City Platform 2", MediaCityUK.getLatLong(), DataSourceID.unknown, IdFor.invalid());
-        Station mediaCity = MediaCityUK.fakeWith(platformMC);
+        Station mediaCity = MediaCityUK.fakeWithPlatform("9400ZZMAMCU2", MediaCityUK.getLatLong(),
+                DataSourceID.unknown, IdFor.invalid());
+        platformMC = TestEnv.onlyPlatform(mediaCity);
 
-        final Platform platformAirport = MutablePlatform.buildForTFGMTram("9400ZZMAAIR1",
-                "Manchester Airport Platform 2", ManAirport.getLatLong(), DataSourceID.unknown, IdFor.invalid());
-        Station airport = ManAirport.fakeWith(platformAirport);
+        Station airport = ManAirport.fakeWithPlatform("9400ZZMAAIR1",
+                ManAirport.getLatLong(), DataSourceID.unknown, IdFor.invalid());
+        final Platform platformAirport = TestEnv.onlyPlatform(airport);
 
         EasyMock.expect(stationRepository.getStationById(MediaCityUK.getId())).andStubReturn(mediaCity);
         EasyMock.expect(stationRepository.getStationById(ManAirport.getId())).andStubReturn(airport);

@@ -125,11 +125,12 @@ public class UpcomingDeparture {
                 ", wait=" + wait +
                 ", carriages='" + carriages + '\'' +
                 ", status='" + status + '\'' +
-                ", displayLocation=" + displayLocation +
-                ", destination=" + destination +
+                ", displayLocation=" + displayLocation.getId() +
+                ", destination=" + destination.getId() +
                 ", when=" + when +
                 ", agency=" + agency +
                 ", mode=" + mode +
+                ", platform=" + platform +
                 '}';
     }
 

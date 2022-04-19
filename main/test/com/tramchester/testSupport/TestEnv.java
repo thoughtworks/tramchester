@@ -179,12 +179,15 @@ public class TestEnv {
         return System.getenv("CIRCLECI") != null;
     }
 
-    public static PlatformStopCall createTramStopCall(Trip trip, String stopId, TramStations station, int seq, TramTime arrive,
+    public static PlatformStopCall createTramStopCall(Trip trip, String stopId, TramStations tramStation, int seq, TramTime arrive,
                                                       TramTime depart) {
-        Platform platform = MutablePlatform.buildForTFGMTram(stopId, "name:" + stopId, station.getLatLong(), DataSourceID.unknown, IdFor.invalid());
+        final Station station = tramStation.fake();
+
+        Platform platform = MutablePlatform.buildForTFGMTram(stopId, station, tramStation.getLatLong(),
+                DataSourceID.unknown, IdFor.invalid());
         GTFSPickupDropoffType pickupDropoff = GTFSPickupDropoffType.Regular;
 
-        return new PlatformStopCall(platform, station.fake(), arrive, depart, seq, pickupDropoff, pickupDropoff, trip);
+        return new PlatformStopCall(platform, station, arrive, depart, seq, pickupDropoff, pickupDropoff, trip);
     }
 
     public static BoundingBox getTFGMBusBounds() {
@@ -281,7 +284,18 @@ public class TestEnv {
 
 
     public static Platform createPlatformFor(Station station, String platformId) {
-        return MutablePlatform.buildForTFGMTram(platformId, station.getName(), station.getLatLong(),
+        return MutablePlatform.buildForTFGMTram(platformId, station, station.getLatLong(),
                 station.getDataSourceID(), station.getAreaId());
+    }
+
+    public static Platform onlyPlatform(Station station) {
+        if (!station.hasPlatforms()) {
+            throw new RuntimeException("No platforms");
+        }
+        List<Platform> platforms = new ArrayList<>(station.getPlatforms());
+        if (platforms.size()!=1) {
+            throw new RuntimeException("Wrong number of platforms " + platforms.size());
+        }
+        return platforms.get(0);
     }
 }

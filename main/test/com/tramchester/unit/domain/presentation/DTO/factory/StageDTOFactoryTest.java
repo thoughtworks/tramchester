@@ -75,9 +75,8 @@ class StageDTOFactoryTest extends EasyMockSupport {
 
         List<Integer> stopCallIndexes = Arrays.asList(1,2,3,4);
 
-        Platform platform = MutablePlatform.buildForTFGMTram("platFormId", "platformName", new LatLong(1, 1), DataSourceID.unknown, IdFor.invalid());
-
-        Station firstStation = MarketStreet.fakeWith(platform);
+        Station firstStation = MarketStreet.fakeWithPlatform("platFormId",
+                new LatLong(1, 1), DataSourceID.unknown, IdFor.invalid());
 
         VehicleStage vehicleStage = new VehicleStage(firstStation, testRoute,
                 TransportMode.Tram, trip, TramTime.of(0, 0), Bury.fake(),
@@ -85,7 +84,7 @@ class StageDTOFactoryTest extends EasyMockSupport {
         );
         vehicleStage.setCost(Duration.ofMinutes(5));
 
-        vehicleStage.setPlatform(platform);
+        vehicleStage.setPlatform(TestEnv.onlyPlatform(firstStation));
 
         EasyMock.expect(stationDTOFactory.createLocationRefWithPosition(firstStation)).
                 andStubReturn(new LocationRefWithPosition(firstStation));

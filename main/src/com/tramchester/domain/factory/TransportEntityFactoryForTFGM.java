@@ -103,7 +103,7 @@ public class TransportEntityFactoryForTFGM extends TransportEntityFactory {
             // TODO Add logging if there is a significant diff in position data?
         }
 
-        final MutablePlatform platform = new MutablePlatform(platformId, cleanStationName(stopData),
+        final MutablePlatform platform = new MutablePlatform(platformId, station, cleanStationName(stopData),
                 getDataSourceId(), platformNumber, areaId, latLong, gridPosition, station.isMarkedInterchange());
         return Optional.of(platform);
 

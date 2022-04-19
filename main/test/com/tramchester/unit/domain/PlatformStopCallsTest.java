@@ -42,7 +42,8 @@ class PlatformStopCallsTest {
         stationB = TramStations.Broadway;
         stationC = TramStations.Cornbrook;
         stationD = TramStations.Deansgate;
-        platformD = MutablePlatform.buildForTFGMTram("statD1", "name:" + "statD1", stationD.getLatLong(), DataSourceID.unknown, IdFor.invalid());
+        platformD = MutablePlatform.buildForTFGMTram("statD1", stationD.fake(),
+                stationD.getLatLong(), DataSourceID.unknown, IdFor.invalid());
 
         Service service = MutableService.build(createId("svc1"));
         trip = MutableTrip.build(createId("tripId"), "headSign", service,

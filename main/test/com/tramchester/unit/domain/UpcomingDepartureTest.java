@@ -56,7 +56,7 @@ class UpcomingDepartureTest {
         assertFalse(departure.hasPlatform());
 
         LatLong nearBury = TestEnv.stPetersSquareLocation();
-        Platform platform = MutablePlatform.buildForTFGMTram("id", "Bury", nearBury, DataSourceID.tfgm,
+        Platform platform = MutablePlatform.buildForTFGMTram("id", TramStations.Bury.fake(), nearBury, DataSourceID.tfgm,
                 StringIdFor.createId("areaId1"));
         departure.setPlatform(platform);
 
