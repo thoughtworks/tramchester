@@ -69,7 +69,7 @@ public class DeparturesRepository {
         if (!TransportMode.intersects(modes, platform.getTransportModes())) {
             logger.error(format("Platform %s does not match supplied modes %s", platform, modes));
         }
-        return tramDepartureRepository.dueTramsForStation(platform.getStation()).
+        return tramDepartureRepository.forStation(platform.getStation()).
                 stream().
                 filter(UpcomingDeparture::hasPlatform).
                 filter(departure -> departure.getPlatform().equals(platform)).
@@ -111,7 +111,7 @@ public class DeparturesRepository {
 
     private Stream<UpcomingDeparture> getDeparturesFor(TransportMode mode, Station station) {
         return switch (mode) {
-            case Tram -> tramDepartureRepository.dueTramsForStation(station).stream();
+            case Tram -> tramDepartureRepository.forStation(station).stream();
             default -> {
                 final String msg = "TODO - live data for " + mode + " is not implemented yet";
                 logger.info(msg);

@@ -7,5 +7,5 @@ import java.util.List;
 
 public interface UpcomingDeparturesSource  {
 
-    List<UpcomingDeparture> dueTramsForStation(Station station);
+    List<UpcomingDeparture> forStation(Station station);
 }

@@ -48,7 +48,7 @@ public class UpcomingDeparturesCache implements  UpcomingDeparturesSource {
     }
 
     @Override
-    public List<UpcomingDeparture> dueTramsForStation(Station station) {
+    public List<UpcomingDeparture> forStation(Station station) {
         DataSourceID dataSourceID = station.getDataSourceID();
         if (!caches.containsKey(dataSourceID)) {
             final String msg = "No live data available for " + dataSourceID;

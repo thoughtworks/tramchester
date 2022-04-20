@@ -3,6 +3,7 @@ package com.tramchester.domain.places;
 import com.tramchester.domain.*;
 import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.id.IdFor;
+import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.geo.GridPosition;
@@ -61,6 +62,11 @@ public class MutableStation implements Station {
         this.name = stationName;
         this.latLong = latLong;
         modes = new HashSet<>();
+    }
+
+    public static Station Unknown(DataSourceID dataSourceID) {
+        return new MutableStation(StringIdFor.createId("unknown"), NaptanArea.Invalid().getId(), "Unknown",
+                LatLong.Invalid, GridPosition.Invalid, dataSourceID, false, Duration.ZERO);
     }
 
     @Override

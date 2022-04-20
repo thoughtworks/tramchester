@@ -7,4 +7,7 @@ import com.tramchester.domain.places.Station;
 public interface CRSRepository {
     String getCRSFor(Station station);
     boolean hasStation(Station station);
+
+    Station getFor(String crs);
+    boolean hasCrs(String crs);
 }

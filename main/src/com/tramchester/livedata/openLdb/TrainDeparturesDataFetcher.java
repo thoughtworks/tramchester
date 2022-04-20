@@ -61,7 +61,7 @@ public class TrainDeparturesDataFetcher {
         StationBoardResponseType departureBoard = soapService.getDepartureBoard(params, accessToken);
 
         final StationBoard stationBoardResult = departureBoard.getGetStationBoardResult();
-        logger.info(format("Got departure board %s at %s for %s", stationBoardResult.getFilterLocationName(),
+        logger.info(format("Got departure board %s at %s for %s", stationBoardResult.getLocationName(),
                 stationBoardResult.getGeneratedAt(), crs));
 
         return stationBoardResult;

@@ -27,6 +27,11 @@ public class NaptanArea implements HasGridPosition, HasId<NaptanArea>, CoreDomai
         return StringIdFor.createId(text);
     }
 
+    public static NaptanArea Invalid() {
+        return new NaptanArea(StringIdFor.createId("Invalid"), "Invalid", GridPosition.Invalid, false,
+                NaptanStopAreaType.Unknown);
+    }
+
     public String getName() {
         return name;
     }

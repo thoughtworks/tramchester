@@ -374,15 +374,6 @@ public class TramTime implements Comparable<TramTime> {
             }
         }
 
-//        private TramTime of(LocalTime time) {
-//            final TramTime result = tramTimes[0][time.getHour()][time.getMinute()];
-//            if (result.asLocalTime().compareTo(time)!=0) {
-//                // right now only represent times to a one minute accuracy
-//                throw new RuntimeException("Accuracy lost converting " + time + " to a tram time " + result);
-//            }
-//            return result;
-//        }
-
         private TramTime midnight() {
             return tramTimes[1][0][0];
         }

@@ -24,7 +24,6 @@ import java.util.List;
 
 import static com.tramchester.integration.testSupport.Assertions.assertIdEquals;
 import static com.tramchester.testSupport.TestEnv.MANCHESTER_AIRPORT_BUS_AREA;
-import static com.tramchester.testSupport.reference.BusStations.KnutfordStationAreaId;
 import static org.junit.jupiter.api.Assertions.*;
 
 class NaptanRepositoryTest {
@@ -55,6 +54,16 @@ class NaptanRepositoryTest {
 
         NaptanRecord data = respository.getForActo(actoCode);
         assertEquals("Manchester City Centre", data.getSuburb());
+
+        IdSet<NaptanArea> activeAreaCodes = respository.activeCodes(data.getAreaCodes());
+        assertFalse(activeAreaCodes.isEmpty());
+        //assertTrue(activeAreaCodes.contains(data.getAreaCodes()));
+
+        IdSet<NaptanRecord> allRecordsForArea = activeAreaCodes.stream().
+                flatMap(activeArea -> respository.getRecordsFor(activeArea).stream()).
+                collect(IdSet.collector());
+
+        assertEquals(3, allRecordsForArea.size(), allRecordsForArea.toString());
     }
 
     @Test
@@ -173,18 +182,19 @@ class NaptanRepositoryTest {
         NaptanRecord fromNaptan = respository.getForActo(stopId);
         assertNotNull(fromNaptan);
 
-        IdSet<NaptanArea> areaCodes = fromNaptan.getAreaCodes();
-        assertFalse(areaCodes.isEmpty());
-
-        IdSet<NaptanArea> activeAreaCodes = respository.activeCodes(areaCodes);
-        assertFalse(activeAreaCodes.isEmpty());
-        assertTrue(activeAreaCodes.contains(KnutfordStationAreaId));
-
-        IdSet<NaptanRecord> allRecordsForArea = activeAreaCodes.stream().
-                flatMap(activeArea -> respository.getRecordsFor(activeArea).stream()).
-                collect(IdSet.collector());
-
-        assertEquals(4, allRecordsForArea.size(), allRecordsForArea.toString());
+        // knutsford no longer has an area code in the data
+//        IdSet<NaptanArea> areaCodes = fromNaptan.getAreaCodes();
+//        assertFalse(areaCodes.isEmpty(), "no area codes " + fromNaptan);
+//
+//        IdSet<NaptanArea> activeAreaCodes = respository.activeCodes(areaCodes);
+//        assertFalse(activeAreaCodes.isEmpty());
+//        assertTrue(activeAreaCodes.contains(KnutfordStationAreaId));
+//
+//        IdSet<NaptanRecord> allRecordsForArea = activeAreaCodes.stream().
+//                flatMap(activeArea -> respository.getRecordsFor(activeArea).stream()).
+//                collect(IdSet.collector());
+//
+//        assertEquals(4, allRecordsForArea.size(), allRecordsForArea.toString());
     }
 
     @Test

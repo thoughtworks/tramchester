@@ -76,7 +76,7 @@ public class TramPositionInference {
             return Collections.emptySet();
         }
 
-        List<UpcomingDeparture> neighbourDepartures = departureRepository.dueTramsForStation(neighbour);
+        List<UpcomingDeparture> neighbourDepartures = departureRepository.forStation(neighbour);
 
         if (neighbourDepartures.isEmpty()) {
             logger.info("No departures at " + neighbour);

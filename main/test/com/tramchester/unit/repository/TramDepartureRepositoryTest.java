@@ -128,7 +128,7 @@ class TramDepartureRepositoryTest extends EasyMockSupport {
         assertEquals(2, departureRepository.upToDateEntries());
         assertEquals(2, departureRepository.getNumStationsWithData(lastUpdate));
 
-        List<UpcomingDeparture> results = departureRepository.dueTramsForStation(station);
+        List<UpcomingDeparture> results = departureRepository.forStation(station);
 
         assertEquals(1, results.size());
         UpcomingDeparture result = results.get(0);
@@ -137,7 +137,7 @@ class TramDepartureRepositoryTest extends EasyMockSupport {
         assertEquals("Single", result.getCarriages());
         assertEquals(destination, result.getDestination());
 
-        List<UpcomingDeparture> resultOther = departureRepository.dueTramsForStation(otherStation);
+        List<UpcomingDeparture> resultOther = departureRepository.forStation(otherStation);
         assertEquals(1, resultOther.size());
         assertEquals(destinationManAirport, resultOther.get(0).getDestination());
     }
@@ -165,7 +165,7 @@ class TramDepartureRepositoryTest extends EasyMockSupport {
         assertEquals(1, departureRepository.getNumStationsWithTrams(lastUpdate));
 
 
-        List<UpcomingDeparture> allTramsForStation = departureRepository.dueTramsForStation(station);
+        List<UpcomingDeparture> allTramsForStation = departureRepository.forStation(station);
 
         List<UpcomingDeparture> allTramsForPlatform = allTramsForStation.stream().
                 filter(departure -> departure.getPlatform().equals(platform))
@@ -188,9 +188,9 @@ class TramDepartureRepositoryTest extends EasyMockSupport {
 
         replayAll();
         departureRepository.updateCache(info);
-        List<UpcomingDeparture> dueTramsNow = departureRepository.dueTramsForStation(station);
-        List<UpcomingDeparture> dueTramsEarlier = departureRepository.dueTramsForStation(station);
-        List<UpcomingDeparture> dueTramsLater = departureRepository.dueTramsForStation(station);
+        List<UpcomingDeparture> dueTramsNow = departureRepository.forStation(station);
+        List<UpcomingDeparture> dueTramsEarlier = departureRepository.forStation(station);
+        List<UpcomingDeparture> dueTramsLater = departureRepository.forStation(station);
         verifyAll();
 
         assertEquals(1, dueTramsNow.size());

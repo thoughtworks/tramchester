@@ -113,7 +113,7 @@ public class TramDepartureRepository implements UpcomingDeparturesSource, TramLi
     }
 
     @Override
-    public List<UpcomingDeparture> dueTramsForStation(Station station) {
+    public List<UpcomingDeparture> forStation(Station station) {
         Set<UpcomingDeparture> allTrams = station.getPlatforms().stream().
                 flatMap(platform -> dueTramsForPlatform(platform.getId()).stream()).
                 collect(Collectors.toSet());
