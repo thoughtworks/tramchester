@@ -103,7 +103,7 @@ public class DeparturesResource extends TransportResource implements APIResource
         if (dueTrams.isEmpty()) {
             logger.warn("Departures list empty for " + location.getId() + " at " + queryTime);
         }
-        SortedSet<DepartureDTO> departs = new TreeSet<>(departuresMapper.mapToDTO(dueTrams, localDate));
+        SortedSet<DepartureDTO> departs = new TreeSet<>(departuresMapper.mapToDTO(dueTrams, providesNow.getDateTime()));
 
         List<Note> notes = Collections.emptyList();
         if (departuresQuery.getIncludeNotes()) {

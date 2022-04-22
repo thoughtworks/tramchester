@@ -104,8 +104,8 @@ public class LiveDataUpdaterTest extends EasyMockSupport {
                 LineDirection.Incoming, station, message, lastUpdate);
         departureInfo.setStationPlatform(TestEnv.createPlatformFor(station, platformId));
         UpcomingDeparture dueTram = new UpcomingDeparture(lastUpdate.toLocalDate(), station, Bury.fake(),
-                "Due", Duration.ofMinutes(42), "Single", lastUpdate.toLocalTime(), TestEnv.MetAgency(),
-                TransportMode.Tram);
+                "Due", TramTime.ofHourMins(lastUpdate.toLocalTime()).plusMinutes(42), "Single",
+                TestEnv.MetAgency(), TransportMode.Tram);
         departureInfo.addDueTram(dueTram);
         return departureInfo;
     }

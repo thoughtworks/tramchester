@@ -2,6 +2,7 @@ package com.tramchester.unit.domain.presentation.DTO;
 
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
+import com.tramchester.domain.time.TramTime;
 import com.tramchester.livedata.domain.liveUpdates.UpcomingDeparture;
 import com.tramchester.livedata.domain.DTO.DepartureDTO;
 import com.tramchester.testSupport.TestEnv;
@@ -26,10 +27,11 @@ class DepartureDTOTest {
 
     private LocalTime updateTime;
     private LocalDate updateDate;
+    private LocalDateTime now;
 
     @BeforeEach
     void beforeEachTestRuns() {
-        LocalDateTime now = TestEnv.LocalNow();
+        now = TestEnv.LocalNow();
         updateTime = now.toLocalTime();
         updateDate = now.toLocalDate();
     }
@@ -42,7 +44,7 @@ class DepartureDTOTest {
         }
 
         UpcomingDeparture dueTram = getDueTram(updateTime, TramStations.Bury, 42);
-        DepartureDTO departureDTO = new DepartureDTO(StPetersSquare.fake(), dueTram, updateDate);
+        DepartureDTO departureDTO = new DepartureDTO(StPetersSquare.fake(), dueTram, now);
 
         Assertions.assertEquals(StPetersSquare.getName(), departureDTO.getFrom());
         Assertions.assertEquals("Bury", departureDTO.getDestination());
@@ -58,11 +60,11 @@ class DepartureDTOTest {
 
         Station stPetersSquare = StPetersSquare.fake();
         DepartureDTO departureDTOA = new DepartureDTO(stPetersSquare,
-                getDueTram(updateTime, TramStations.Deansgate, 5), updateDate);
+                getDueTram(updateTime, TramStations.Deansgate, 5), now);
         DepartureDTO departureDTOB = new DepartureDTO(stPetersSquare,
-                getDueTram(updateTime, TramStations.Bury, 3), updateDate);
+                getDueTram(updateTime, TramStations.Bury, 3), now);
         DepartureDTO departureDTOC = new DepartureDTO(stPetersSquare,
-                getDueTram(updateTime, TramStations.Piccadilly, 12), updateDate);
+                getDueTram(updateTime, TramStations.Piccadilly, 12), now);
 
         Set<DepartureDTO> list = new TreeSet<>();
         list.add(departureDTOA);
@@ -77,8 +79,9 @@ class DepartureDTOTest {
 
     @NotNull
     private UpcomingDeparture getDueTram(LocalTime updateTime, TramStations station, int wait) {
+        TramTime dueTime = TramTime.ofHourMins(updateTime.plusMinutes(wait));
         return new UpcomingDeparture(updateDate, NavigationRoad.fake(),
-                station.fake(), "status", Duration.ofMinutes(wait), "carriages", updateTime,
+                station.fake(), "status", dueTime, "carriages",
                 TestEnv.MetAgency(), TransportMode.Tram);
     }
 }

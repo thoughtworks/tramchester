@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectReader;
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.livedata.domain.DTO.StationDepartureInfoDTO;
+import com.tramchester.livedata.domain.DTO.archived.ArchivedStationDepartureInfoDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,8 +33,8 @@ public class StationDepartureMapper {
         return json;
     }
 
-    public List<StationDepartureInfoDTO> parse(String json) {
-        ObjectReader reader = mapper.readerForListOf(StationDepartureInfoDTO.class);
+    public List<ArchivedStationDepartureInfoDTO> parse(String json) {
+        ObjectReader reader = mapper.readerForListOf(ArchivedStationDepartureInfoDTO.class);
         if (logger.isDebugEnabled()) {
             logger.debug("Parsing json with length " + json.length());
             logger.debug("Parse json: " + json);
@@ -51,8 +52,9 @@ public class StationDepartureMapper {
                 int offset = (int) location.getCharOffset();
                 char badChar = json.charAt(offset);
                 String context = json.substring(Math.max(0,offset-10), Math.min(json.length()-1,offset+10));
-                logger.warn(format("Unable to process json at offset %s, context '%s' and char was '%s' (%s)",
+                logger.warn(format("Unable to process json at offset %s, context '%s' and char was '%s' (char %s)",
                         offset, context, badChar, (int)badChar));
+                logger.warn("Json:" + json + " Exception:" + exception);
             }
             return Collections.emptyList();
         }

@@ -4,6 +4,7 @@ import com.tramchester.livedata.cloud.DownloadsLiveDataFromS3;
 import com.tramchester.livedata.domain.DTO.StationDepartureInfoDTO;
 import com.tramchester.domain.time.ProvidesLocalNow;
 import com.tramchester.livedata.cloud.CountsUploadedLiveData;
+import com.tramchester.livedata.domain.DTO.archived.ArchivedStationDepartureInfoDTO;
 import com.tramchester.testSupport.TestEnv;
 import org.easymock.EasyMock;
 import org.easymock.EasyMockSupport;
@@ -41,9 +42,9 @@ class CountsUploadedLiveDataTest extends EasyMockSupport {
     @Test
     void shouldCountUpToDateDataIsInS3() {
 
-        StationDepartureInfoDTO item = new StationDepartureInfoDTO();
-        List<StationDepartureInfoDTO> liveData = Collections.singletonList(item);
-        Stream<StationDepartureInfoDTO> liveDataSteam = liveData.stream();
+        ArchivedStationDepartureInfoDTO item = new ArchivedStationDepartureInfoDTO();
+        List<ArchivedStationDepartureInfoDTO> liveData = Collections.singletonList(item);
+        Stream<ArchivedStationDepartureInfoDTO> liveDataSteam = liveData.stream();
 
         EasyMock.expect(downloadsLiveData.downloadFor(checkTime, expectedDuration))
                 .andReturn(liveDataSteam);
@@ -71,9 +72,9 @@ class CountsUploadedLiveDataTest extends EasyMockSupport {
     @Test
     void shouldCountNow() {
 
-        StationDepartureInfoDTO item = new StationDepartureInfoDTO();
-        List<StationDepartureInfoDTO> liveData = Collections.singletonList(item);
-        Stream<StationDepartureInfoDTO> liveDataSteam = liveData.stream();
+        ArchivedStationDepartureInfoDTO item = new ArchivedStationDepartureInfoDTO();
+        List<ArchivedStationDepartureInfoDTO> liveData = Collections.singletonList(item);
+        Stream<ArchivedStationDepartureInfoDTO> liveDataSteam = liveData.stream();
 
         EasyMock.expect(providesLocalNow.getDateTime()).andStubReturn(checkTime);
         EasyMock.expect(downloadsLiveData.downloadFor(checkTime, Duration.of(1, MINUTES)))

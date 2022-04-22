@@ -36,11 +36,13 @@ class UpcomingDepartureTest {
     }
 
     @Test
-    void calculateWhenCorrectly() {
+    void populateCorrectly() {
         LocalTime updateTime = LocalTime.of(10,42);
+        TramTime when = TramTime.ofHourMins(updateTime.plusMinutes(4));
         LocalDate date = LocalDate.of(2022,4,30);
+
         UpcomingDeparture departure = new UpcomingDeparture(date, displayLocation, destination, "Due",
-                Duration.ofMinutes(4), "Double", updateTime, agency, mode);
+                when, "Double",  agency, mode);
 
         TramTime result = departure.getWhen();
         assertEquals(updateTime.plusMinutes(4), result.asLocalTime());
@@ -69,9 +71,10 @@ class UpcomingDepartureTest {
     void calculateWhenCorrectAcrossMidnight() {
         LocalTime updateTime = LocalTime.of(23,58);
         LocalDate date = LocalDate.of(2022,4,30);
+        TramTime when = TramTime.ofHourMins(updateTime).plusMinutes(4);
 
         UpcomingDeparture dueTram = new UpcomingDeparture(date, displayLocation, destination, "Due",
-                Duration.ofMinutes(4), "Double", updateTime, agency, mode);
+                when, "Double",  agency, mode);
 
         TramTime result = dueTram.getWhen();
         assertEquals(LocalTime.of(0,2), result.asLocalTime());

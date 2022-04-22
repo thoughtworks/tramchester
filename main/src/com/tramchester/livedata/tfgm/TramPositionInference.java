@@ -16,6 +16,9 @@ import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
 import java.time.Duration;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
@@ -42,33 +45,36 @@ public class TramPositionInference {
     }
 
     // todo refresh this based on live data refresh
-    public List<TramPosition> inferWholeNetwork(TramServiceDate date, TramTime time) {
+    public List<TramPosition> inferWholeNetwork(LocalDateTime now) {
         logger.info("Infer tram positions for whole network");
         Set<StationPair> pairs = adjacenyRepository.getTramStationParis();
         List<TramPosition> results = pairs.stream().
-                map(pair -> findBetween(pair, date, time)).
+                map(pair -> findBetween(pair, now)).
                 collect(Collectors.toList());
 
         logger.info(format("Found %s station pairs with trams between them", results.size()));
         return results;
     }
 
-    public TramPosition findBetween(StationPair pair, TramServiceDate date, TramTime time) {
-        Duration cost = adjacenyRepository.getAdjacent(pair);
-        if (cost.isNegative()) {
+    public TramPosition findBetween(StationPair pair, LocalDateTime now) {
+        Duration costBetweenPair = adjacenyRepository.getAdjacent(pair);
+        if (costBetweenPair.isNegative()) {
             logger.warn(format("Not adjacent %s", pair));
-            return new TramPosition(pair, Collections.emptySet(), cost);
+            return new TramPosition(pair, Collections.emptySet(), costBetweenPair);
         }
 
-        Set<UpcomingDeparture> dueTrams = getDueTrams(pair, cost).stream().
-                filter(departure -> departure.getDate().equals(date.getDate())).collect(Collectors.toSet());
+        TramTime cutOff = TramTime.ofHourMins(now.toLocalTime().plus(costBetweenPair));
+
+        Set<UpcomingDeparture> dueTrams = getDueTrams(pair, cutOff).stream().
+                filter(departure -> departure.getDate().equals(now.toLocalDate())).
+                collect(Collectors.toSet());
 
         logger.debug(format("Found %s trams between %s", dueTrams.size(), pair));
 
-        return new TramPosition(pair, dueTrams, cost);
+        return new TramPosition(pair, dueTrams, costBetweenPair);
     }
 
-    private Set<UpcomingDeparture> getDueTrams(StationPair pair, Duration cost) {
+    private Set<UpcomingDeparture> getDueTrams(StationPair pair, TramTime cutoff) {
         Station neighbour = pair.getEnd();
 
         if (!pair.bothServeMode(TransportMode.Tram)) {
@@ -90,13 +96,6 @@ public class TramPositionInference {
             return Collections.emptySet();
         }
 
-        // get departure info at neighbouring station for relevant routes
-//        routesBetween.forEach(route -> {
-//            Set<Platform> platforms = neighbour.getPlatformsForRoute(route);
-//            platforms.forEach(platform ->
-//                    departures.addAll(departureRepository.dueTramsForPlatform(platform.getId())));
-//        });
-
         Set<Platform> platforms = routesBetween.stream().
                 flatMap(route -> neighbour.getPlatformsForRoute(route).stream()).
                 collect(Collectors.toSet());
@@ -112,13 +111,14 @@ public class TramPositionInference {
         }
 
         return departures.stream().
-                filter(departure -> isWithinWindow(departure, cost)).
+                filter(departure -> isWithinWindow(departure, cutoff)).
                 filter(departure -> !DEPARTING.equals(departure.getStatus())).
                 collect(Collectors.toSet());
 
     }
 
-    private boolean isWithinWindow(UpcomingDeparture departure, Duration window) {
-        return departure.getWait().compareTo(window)<=0;
+    private boolean isWithinWindow(UpcomingDeparture departure, TramTime cutoff) {
+        TramTime departureWhen = departure.getWhen();
+        return departureWhen.equals(cutoff) || departureWhen.isBefore(cutoff);
     }
 }

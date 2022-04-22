@@ -61,7 +61,7 @@ class PlatformMessageRepositoryTest  extends EasyMockSupport {
     void shouldUpdateMessageCacheAndFetch() {
         List<TramStationDepartureInfo> infos = new LinkedList<>();
 
-        EasyMock.expect(config.liveDataEnabled()).andStubReturn(true);
+        EasyMock.expect(config.liveTfgmTramDataEnabled()).andStubReturn(true);
 
         TramStationDepartureInfo departureInfoA = new TramStationDepartureInfo("yyy", Lines.Eccles,
                 LineDirection.Incoming, station, "some message", lastUpdate);
@@ -109,7 +109,7 @@ class PlatformMessageRepositoryTest  extends EasyMockSupport {
     void shouldIgnoreAPIProvidedEmptyMessage() {
         List<TramStationDepartureInfo> infos = new LinkedList<>();
 
-        EasyMock.expect(config.liveDataEnabled()).andReturn(true);
+        EasyMock.expect(config.liveTfgmTramDataEnabled()).andReturn(true);
 
         TramStationDepartureInfo departureInfo = new TramStationDepartureInfo("yyy", Lines.Eccles,
                 LineDirection.Incoming, station, "<no message>", lastUpdate);
@@ -129,7 +129,7 @@ class PlatformMessageRepositoryTest  extends EasyMockSupport {
     void shouldIgnorEmptyMessage() {
         List<TramStationDepartureInfo> infos = new LinkedList<>();
 
-        EasyMock.expect(config.liveDataEnabled()).andReturn(true);
+        EasyMock.expect(config.liveTfgmTramDataEnabled()).andReturn(true);
         TramStationDepartureInfo departureInfo = new TramStationDepartureInfo("yyy", Lines.Eccles,
                 LineDirection.Incoming, station, "", lastUpdate);
         departureInfo.setStationPlatform(platform);
@@ -156,7 +156,7 @@ class PlatformMessageRepositoryTest  extends EasyMockSupport {
     void shouldGiveNoMessagesIfOutOfDateRefresh() {
         List<TramStationDepartureInfo> infos = new LinkedList<>();
 
-        EasyMock.expect(config.liveDataEnabled()).andStubReturn(true);
+        EasyMock.expect(config.liveTfgmTramDataEnabled()).andStubReturn(true);
 
         TramStationDepartureInfo departureInfo = new TramStationDepartureInfo("yyy", Lines.Eccles,
                 LineDirection.Incoming, station, "some msg", lastUpdate);
@@ -178,7 +178,7 @@ class PlatformMessageRepositoryTest  extends EasyMockSupport {
     @Test
     void shouldGiveNoMessagesIfOldRefresh() {
         List<TramStationDepartureInfo> infos = new LinkedList<>();
-        EasyMock.expect(config.liveDataEnabled()).andStubReturn(true);
+        EasyMock.expect(config.liveTfgmTramDataEnabled()).andStubReturn(true);
 
         TramStationDepartureInfo departureInfo = new TramStationDepartureInfo("yyy", Lines.Eccles,
                 LineDirection.Incoming, station, "some msg", lastUpdate.minusMinutes(30));
@@ -201,7 +201,7 @@ class PlatformMessageRepositoryTest  extends EasyMockSupport {
     void shouldIgnoreDuplicateUpdatesForPlatforms() {
         List<TramStationDepartureInfo> infos = new LinkedList<>();
 
-        EasyMock.expect(config.liveDataEnabled()).andStubReturn(true);
+        EasyMock.expect(config.liveTfgmTramDataEnabled()).andStubReturn(true);
 
         TramStationDepartureInfo departureInfoA = new TramStationDepartureInfo("123", Lines.Eccles,
                 LineDirection.Incoming, station, "some message", lastUpdate);
@@ -230,7 +230,7 @@ class PlatformMessageRepositoryTest  extends EasyMockSupport {
     @Test
     void shouldIgnoreEmptyDuplicateUpdatesForPlatforms() {
         List<TramStationDepartureInfo> infos = new LinkedList<>();
-        EasyMock.expect(config.liveDataEnabled()).andStubReturn(true);
+        EasyMock.expect(config.liveTfgmTramDataEnabled()).andStubReturn(true);
 
         TramStationDepartureInfo departureInfoA = new TramStationDepartureInfo("123", Lines.Eccles,
                 LineDirection.Incoming, station, "some message", lastUpdate);
@@ -260,7 +260,7 @@ class PlatformMessageRepositoryTest  extends EasyMockSupport {
         LocalDate date = LocalDate.now();
         TramTime time = TramTime.of(14, 34);
 
-        EasyMock.expect(config.liveDataEnabled()).andStubReturn(false);
+        EasyMock.expect(config.liveTfgmTramDataEnabled()).andStubReturn(false);
 
         replayAll();
         List<PlatformMessage> messageForStation = repository.messagesFor(station, date, time);

@@ -11,8 +11,8 @@ import com.tramchester.domain.time.TramTime;
 import com.tramchester.geo.MarginInMeters;
 import com.tramchester.geo.StationLocationsRepository;
 import com.tramchester.livedata.domain.liveUpdates.UpcomingDeparture;
+import com.tramchester.livedata.openLdb.TrainDeparturesRepository;
 import com.tramchester.livedata.tfgm.TramDepartureRepository;
-import com.tramchester.repository.StationGroupsRepository;
 import org.apache.commons.collections4.SetUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,14 +33,15 @@ public class DeparturesRepository {
 
     private final StationLocationsRepository stationLocationsRepository;
     private final TramDepartureRepository tramDepartureRepository;
+    private final TrainDeparturesRepository trainDeparturesRepository;
     private final TramchesterConfig config;
 
     @Inject
     public DeparturesRepository(StationLocationsRepository stationLocationsRepository,
-                                TramDepartureRepository tramDepartureRepository, TramchesterConfig config,
-                                StationGroupsRepository stationGroupsRepository) {
+                                TramDepartureRepository tramDepartureRepository, TrainDeparturesRepository trainDeparturesRepository, TramchesterConfig config) {
         this.stationLocationsRepository = stationLocationsRepository;
         this.tramDepartureRepository = tramDepartureRepository;
+        this.trainDeparturesRepository = trainDeparturesRepository;
         this.config = config;
     }
 
@@ -74,7 +75,6 @@ public class DeparturesRepository {
                 filter(UpcomingDeparture::hasPlatform).
                 filter(departure -> departure.getPlatform().equals(platform)).
                 collect(Collectors.toList());
-//        return tramDepartureRepository.dueTramsForPlatform(platform.getId());
     }
 
     private List<UpcomingDeparture> getDeparturesNearTo(Location<?> location, Set<TransportMode> modes) {
@@ -110,13 +110,17 @@ public class DeparturesRepository {
     }
 
     private Stream<UpcomingDeparture> getDeparturesFor(TransportMode mode, Station station) {
-        return switch (mode) {
-            case Tram -> tramDepartureRepository.forStation(station).stream();
+        switch (mode) {
+            case Tram -> {
+                return tramDepartureRepository.forStation(station).stream();
+            }
+            case Train -> {
+                return trainDeparturesRepository.forStation(station).stream();
+            }
             default -> {
                 final String msg = "TODO - live data for " + mode + " is not implemented yet";
-                logger.info(msg);
-                throw new RuntimeException(msg); }
-
-        };
+                logger.error(msg);
+                return Stream.empty(); }
+        }
     }
 }

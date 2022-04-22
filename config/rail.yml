@@ -40,6 +40,8 @@ remoteSources:
     dataCheckURL: ""
     dataPath: data/nptg
     filename: nptgcsv.zip
+openLdb:
+  accessToken: ${OPENLDB_APIKEY:- ""}
 cacheFolder: data/cache/rail
 calcTimeoutMillis: 3500
 bounds:

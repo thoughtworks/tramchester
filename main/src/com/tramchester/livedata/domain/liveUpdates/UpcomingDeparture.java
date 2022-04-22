@@ -13,7 +13,6 @@ import java.time.LocalTime;
 public class UpcomingDeparture {
 
     private final LocalDate date;
-    private final Duration wait;
     private final String carriages; // double/single
     private final String status; // due, arrived, etc
     private final Station displayLocation;
@@ -23,6 +22,7 @@ public class UpcomingDeparture {
     private final TransportMode mode;
     private Platform platform;
 
+    @Deprecated
     public UpcomingDeparture(LocalDate date, Station displayLocation, Station destination, String status, Duration wait,
                              String carriages, LocalTime updateTime,
                              Agency agency, TransportMode mode) {
@@ -30,11 +30,23 @@ public class UpcomingDeparture {
         this.displayLocation = displayLocation;
         this.destination = destination;
         this.status = status;
-        this.wait = wait;
         this.carriages = carriages;
         this.agency = agency;
         this.mode = mode;
         this.when  = TramTime.ofHourMins(updateTime).plus(wait);
+        platform = null;
+    }
+
+    public UpcomingDeparture(LocalDate date, Station displayLocation, Station destination, String status, TramTime when,
+                             String carriages, Agency agency, TransportMode mode) {
+        this.date = date;
+        this.displayLocation = displayLocation;
+        this.destination = destination;
+        this.status = status;
+        this.carriages = carriages;
+        this.agency = agency;
+        this.mode = mode;
+        this.when  = when;
         platform = null;
     }
 
@@ -46,9 +58,9 @@ public class UpcomingDeparture {
         return status;
     }
 
-    public Duration getWait() {
-        return wait;
-    }
+//    public Duration getWait() {
+//        return wait;
+//    }
 
     public String getCarriages() {
         return carriages;
@@ -94,7 +106,6 @@ public class UpcomingDeparture {
         UpcomingDeparture that = (UpcomingDeparture) o;
 
         if (!date.equals(that.date)) return false;
-        if (!wait.equals(that.wait)) return false;
         if (!carriages.equals(that.carriages)) return false;
         if (!status.equals(that.status)) return false;
         if (!displayLocation.equals(that.displayLocation)) return false;
@@ -107,7 +118,6 @@ public class UpcomingDeparture {
     @Override
     public int hashCode() {
         int result = date.hashCode();
-        result = 31 * result + wait.hashCode();
         result = 31 * result + carriages.hashCode();
         result = 31 * result + status.hashCode();
         result = 31 * result + displayLocation.hashCode();
@@ -122,7 +132,6 @@ public class UpcomingDeparture {
     public String toString() {
         return "UpcomingDeparture{" +
                 "date=" + date +
-                ", wait=" + wait +
                 ", carriages='" + carriages + '\'' +
                 ", status='" + status + '\'' +
                 ", displayLocation=" + displayLocation.getId() +

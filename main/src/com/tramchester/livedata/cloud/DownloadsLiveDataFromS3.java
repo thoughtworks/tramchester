@@ -5,6 +5,7 @@ import com.tramchester.cloud.data.LiveDataClientForS3;
 import com.tramchester.cloud.data.S3Keys;
 import com.tramchester.cloud.data.StationDepartureMapper;
 import com.tramchester.livedata.domain.DTO.StationDepartureInfoDTO;
+import com.tramchester.livedata.domain.DTO.archived.ArchivedStationDepartureInfoDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,7 +35,7 @@ public class DownloadsLiveDataFromS3 {
         this.s3Keys = s3Keys;
     }
 
-    public Stream<StationDepartureInfoDTO> downloadFor(LocalDateTime start, Duration duration) {
+    public Stream<ArchivedStationDepartureInfoDTO> downloadFor(LocalDateTime start, Duration duration) {
         logger.info("Download departure info from s3 for " + start + " and duration " + duration.getSeconds() + " seconds");
         LocalDate end = start.plus(duration).toLocalDate();
         LocalDate current = start.toLocalDate();
@@ -83,7 +84,7 @@ public class DownloadsLiveDataFromS3 {
         return (query.isAfter(start) && query.isBefore(end));
     }
 
-    private Stream<StationDepartureInfoDTO> downloadFor(Set<String> keys) {
+    private Stream<ArchivedStationDepartureInfoDTO> downloadFor(Set<String> keys) {
 
         return s3Client.downloadAndMap(keys, bytes -> {
             String text = new String(bytes, StandardCharsets.US_ASCII);

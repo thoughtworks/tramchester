@@ -173,7 +173,7 @@ public class App extends Application<AppConfiguration>  {
 //                HttpCookie.SameSite.STRICT);
 
         // only enable live data present in config
-        if (configuration.liveDataEnabled()) {
+        if (configuration.liveTfgmTramDataEnabled()) {
             initLiveDataMetricAndHealthcheck(configuration.getLiveDataConfig(), environment, executor, metricRegistry);
         }
 

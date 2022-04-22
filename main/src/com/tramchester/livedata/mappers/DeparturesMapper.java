@@ -5,6 +5,7 @@ import com.tramchester.livedata.domain.DTO.DepartureDTO;
 import com.tramchester.livedata.domain.liveUpdates.UpcomingDeparture;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -16,9 +17,9 @@ public class DeparturesMapper {
     public DeparturesMapper() {
     }
 
-    public Set<DepartureDTO> mapToDTO(Collection<UpcomingDeparture> dueTrams, LocalDate queryDate) {
+    public Set<DepartureDTO> mapToDTO(Collection<UpcomingDeparture> dueTrams, LocalDateTime lastUpdate) {
         return dueTrams.stream().
-                    map(dueTram -> new DepartureDTO(dueTram.getDisplayLocation(), dueTram, queryDate))
+                    map(dueTram -> new DepartureDTO(dueTram.getDisplayLocation(), dueTram, lastUpdate))
                     .collect(Collectors.toSet());
     }
 }

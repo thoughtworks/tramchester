@@ -4,6 +4,8 @@ import com.tramchester.cloud.data.LiveDataClientForS3;
 import com.tramchester.livedata.cloud.DownloadsLiveDataFromS3;
 import com.tramchester.cloud.data.S3Keys;
 import com.tramchester.cloud.data.StationDepartureMapper;
+import com.tramchester.livedata.domain.DTO.archived.ArchivedDepartureDTO;
+import com.tramchester.livedata.domain.DTO.archived.ArchivedStationDepartureInfoDTO;
 import com.tramchester.livedata.tfgm.TramStationDepartureInfo;
 import com.tramchester.livedata.domain.DTO.StationDepartureInfoDTO;
 import com.tramchester.testSupport.reference.TramStations;
@@ -29,9 +31,9 @@ class DownloadsLiveDataFromS3Test extends EasyMockSupport {
     private LiveDataClientForS3 clientForS3;
     private DownloadsLiveDataFromS3 downloader;
     private S3Keys s3Keys;
-    private StationDepartureInfoDTO departsDTO;
+    private ArchivedStationDepartureInfoDTO departsDTO;
 
-    private Capture<LiveDataClientForS3.ResponseMapper<StationDepartureInfoDTO>> responseMapperCapture;
+    private Capture<LiveDataClientForS3.ResponseMapper<ArchivedStationDepartureInfoDTO>> responseMapperCapture;
 
     @BeforeEach
     void beforeEachTestRuns() {
@@ -41,10 +43,10 @@ class DownloadsLiveDataFromS3Test extends EasyMockSupport {
 
         downloader = new DownloadsLiveDataFromS3(clientForS3, stationDepartureMapper, s3Keys);
 
-        TramStationDepartureInfo stationDepartureInfo = LiveDataUpdaterTest.createDepartureInfoWithDueTram(
-                LocalDateTime.parse("2018-11-15T15:06:32"), "displayId",
-                "platforId", "messageTxt", TramStations.NavigationRoad.fake());
-        departsDTO = new StationDepartureInfoDTO(stationDepartureInfo);
+        List<ArchivedDepartureDTO> dueTrams = new ArrayList<>();
+        departsDTO = new ArchivedStationDepartureInfoDTO("lineName",
+                "platforId", "messageTxt", dueTrams, LocalDateTime.parse("2018-11-15T15:06:32"),
+                "displayId", TramStations.NavigationRoad.getName());
 
         responseMapperCapture = Capture.newInstance();
     }
@@ -65,7 +67,7 @@ class DownloadsLiveDataFromS3Test extends EasyMockSupport {
                 EasyMock.capture(responseMapperCapture))).andReturn(Stream.of(departsDTO));
 
         replayAll();
-        List<StationDepartureInfoDTO>  results = downloader.downloadFor(start, duration).collect(Collectors.toList());
+        List<ArchivedStationDepartureInfoDTO>  results = downloader.downloadFor(start, duration).collect(Collectors.toList());
         verifyAll();
 
         assertEquals(1, results.size());
@@ -75,9 +77,9 @@ class DownloadsLiveDataFromS3Test extends EasyMockSupport {
     @Test
     void shouldDownloadDataForGivenRangeMultipleKeys() throws S3Keys.S3KeyException {
 
-        TramStationDepartureInfo other = LiveDataUpdaterTest.createDepartureInfoWithDueTram(LocalDateTime.parse("2018-11-15T15:06:54"), "displayIdB",
-                "platforIdB", "messageTxt", TramStations.Bury.fake());
-        StationDepartureInfoDTO otherDTO = new StationDepartureInfoDTO(other);
+        List<ArchivedDepartureDTO> dueTrams = new ArrayList<>();
+        ArchivedStationDepartureInfoDTO otherDTO = new ArchivedStationDepartureInfoDTO("lineNameB",
+                "platforIdB", "messageTxt", dueTrams, LocalDateTime.parse("2018-11-15T15:06:54"), "displayIdB", TramStations.Bury.getName());
 
         LocalDateTime start = LocalDateTime.of(2020,11,29, 15,1);
         Duration duration = Duration.of(1, HOURS);
@@ -105,20 +107,20 @@ class DownloadsLiveDataFromS3Test extends EasyMockSupport {
                 andReturn(Stream.of(departsDTO, otherDTO));
 
         replayAll();
-        List<StationDepartureInfoDTO>  results = downloader.downloadFor(start, duration).collect(Collectors.toList());
+        List<ArchivedStationDepartureInfoDTO>  results = downloader.downloadFor(start, duration).collect(Collectors.toList());
         verifyAll();
 
         assertEquals(2, results.size());
-        assertEquals(departsDTO, results.get(0));
-        assertEquals(otherDTO, results.get(1));
+        assertEquals("displayId", results.get(0).getDisplayId());
+        assertEquals("displayIdB", results.get(1).getDisplayId());
     }
 
     @Test
     void shouldDownloadDataForGivenMutipleDays() throws S3Keys.S3KeyException {
 
-        TramStationDepartureInfo other = LiveDataUpdaterTest.createDepartureInfoWithDueTram(LocalDateTime.parse("2018-11-15T15:06:54"),
-                "displayIdB", "platforIdB", "messageTxt", TramStations.Bury.fake());
-        StationDepartureInfoDTO otherDTO = new StationDepartureInfoDTO(other);
+        List<ArchivedDepartureDTO> dueTrams = new ArrayList<>();
+        ArchivedStationDepartureInfoDTO otherDTO = new ArchivedStationDepartureInfoDTO("lineNameB",
+                "platforIdB", "messageTxt", dueTrams, LocalDateTime.parse("2018-11-15T15:06:54"), "displayIdB", TramStations.Bury.getName());
 
         LocalDateTime start = LocalDateTime.of(2020,11,29, 15,1);
         Duration duration = Duration.of(2, DAYS);
@@ -148,12 +150,12 @@ class DownloadsLiveDataFromS3Test extends EasyMockSupport {
                 andReturn(Stream.of(departsDTO, otherDTO));
 
         replayAll();
-        List<StationDepartureInfoDTO>  results = downloader.downloadFor(start, duration).collect(Collectors.toList());
+        List<ArchivedStationDepartureInfoDTO>  results = downloader.downloadFor(start, duration).collect(Collectors.toList());
         verifyAll();
 
         assertEquals(2, results.size());
-        assertEquals(departsDTO, results.get(0));
-        assertEquals(otherDTO, results.get(1));
+        assertEquals(departsDTO.getDisplayId(), results.get(0).getDisplayId());
+        assertEquals(otherDTO.getDisplayId(), results.get(1).getDisplayId());
     }
 
     @Test
@@ -169,7 +171,7 @@ class DownloadsLiveDataFromS3Test extends EasyMockSupport {
         EasyMock.expect(clientForS3.getKeysFor("expectedPrefix")).andReturn(Collections.singleton(expectedKey));
 
         replayAll();
-        List<StationDepartureInfoDTO>  results = downloader.downloadFor(start, duration).collect(Collectors.toList());
+        List<ArchivedStationDepartureInfoDTO>  results = downloader.downloadFor(start, duration).collect(Collectors.toList());
         verifyAll();
 
         assertTrue(results.isEmpty());

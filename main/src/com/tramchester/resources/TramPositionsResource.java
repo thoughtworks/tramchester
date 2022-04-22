@@ -20,6 +20,7 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -57,14 +58,14 @@ public class TramPositionsResource implements APIResource, GraphDatabaseDependen
 
         boolean unfilteredFlag = unfilteredRaw.equals("true");
 
-        LocalDate localDate = providesNow.getDate();
-        List<TramPosition> results = positionInference.inferWholeNetwork(TramServiceDate.of(localDate), providesNow.getNowHourMins());
+        LocalDateTime localDateTime = providesNow.getDateTime();
+        List<TramPosition> results = positionInference.inferWholeNetwork(localDateTime);
         List<TramPositionDTO> dtoList = results.stream().
                 filter(pos -> unfilteredFlag || (!pos.getTrams().isEmpty())).
                 map(pos -> new TramPositionDTO(
                         DTOFactory.createLocationRefWithPosition(pos.getFirst()),
                         DTOFactory.createLocationRefWithPosition(pos.getSecond()),
-                        depatureMapper.mapToDTO(pos.getTrams(), localDate),
+                        depatureMapper.mapToDTO(pos.getTrams(), localDateTime),
                         pos.getCost())).
                 collect(Collectors.toList());
 

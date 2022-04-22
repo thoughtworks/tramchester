@@ -1,5 +1,6 @@
 package com.tramchester.livedata.domain.DTO;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
@@ -11,14 +12,15 @@ import com.tramchester.mappers.serialisation.LocalDateTimeJsonDeserializer;
 import com.tramchester.mappers.serialisation.LocalDateTimeJsonSerializer;
 import com.tramchester.mappers.serialisation.LocalTimeJsonSerializer;
 
+import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.temporal.ChronoUnit;
 import java.util.Objects;
 
 @SuppressWarnings("unused")
 @JsonPropertyOrder(alphabetic = true)
-@JsonIgnoreProperties(value = "when", allowGetters = true)
 public class DepartureDTO implements Comparable<DepartureDTO> {
 
     // TODO Make from and destintaion StationRefDTO?
@@ -27,20 +29,23 @@ public class DepartureDTO implements Comparable<DepartureDTO> {
     private String carriages;
     private String status;
     private LocalDateTime dueTime;
-    private int wait;
 
-    public DepartureDTO(Location<?> from, UpcomingDeparture upcomingDeparture, LocalDate queryDate) {
+    @JsonIgnore
+    private LocalDateTime lastUpdated;
+
+    public DepartureDTO(Location<?> from, UpcomingDeparture upcomingDeparture, LocalDateTime updateTime) {
         this(from.getName(), upcomingDeparture.getDestination().getName(), upcomingDeparture.getCarriages(), upcomingDeparture.getStatus(),
-                upcomingDeparture.getWhen().toDate(queryDate), (int) upcomingDeparture.getWait().toMinutes());
+                upcomingDeparture.getWhen().toDate(updateTime.toLocalDate()), updateTime);
     }
 
-    private DepartureDTO(String from, String destination, String carriages, String status, LocalDateTime dueTime, int wait) {
+    private DepartureDTO(String from, String destination, String carriages, String status, LocalDateTime dueTime,
+                         LocalDateTime lastUpdated) {
         this.from = from;
         this.destination = destination;
         this.carriages = carriages;
         this.status = status;
         this.dueTime = dueTime;
-        this.wait = wait;
+        this.lastUpdated = lastUpdated;
     }
 
     public DepartureDTO() {
@@ -90,10 +95,11 @@ public class DepartureDTO implements Comparable<DepartureDTO> {
     public String toString() {
         return "DepartureDTO{" +
                 "from='" + from + '\'' +
+                ", destination='" + destination + '\'' +
                 ", carriages='" + carriages + '\'' +
                 ", status='" + status + '\'' +
-                ", destination='" + destination + '\'' +
-                ", when=" + dueTime +
+                ", dueTime=" + dueTime +
+                ", lastUpdated=" + lastUpdated +
                 '}';
     }
 
@@ -114,8 +120,16 @@ public class DepartureDTO implements Comparable<DepartureDTO> {
         return Objects.hash(from, carriages, status, destination, dueTime);
     }
 
+    @JsonProperty(value = "wait", access = JsonProperty.Access.READ_ONLY)
     public int getWait() {
-        return wait;
+        Duration duration = Duration.between(lastUpdated.truncatedTo(ChronoUnit.MINUTES), dueTime);
+        long minutes = duration.toMinutes();
+
+        if (minutes<0) {
+            return 0;
+        }
+
+        return (int) minutes;
     }
 
 }

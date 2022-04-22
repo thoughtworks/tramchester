@@ -74,7 +74,7 @@ public class PlatformMessageRepository implements PlatformMessageSource, Reports
 
     @Override
     public boolean isEnabled() {
-        return config.liveDataEnabled();
+        return config.liveTfgmTramDataEnabled();
     }
 
     /***

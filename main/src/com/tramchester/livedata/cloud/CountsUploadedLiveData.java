@@ -3,6 +3,7 @@ package com.tramchester.livedata.cloud;
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.livedata.domain.DTO.StationDepartureInfoDTO;
+import com.tramchester.livedata.domain.DTO.archived.ArchivedStationDepartureInfoDTO;
 import com.tramchester.metrics.HasMetrics;
 import com.tramchester.metrics.RegistersMetrics;
 
@@ -25,7 +26,7 @@ public class CountsUploadedLiveData implements HasMetrics {
     }
 
     public long count(LocalDateTime checkTime, Duration checkDuration) {
-        Stream<StationDepartureInfoDTO> results = downloadsLiveData.downloadFor(checkTime, checkDuration);
+        Stream<ArchivedStationDepartureInfoDTO> results = downloadsLiveData.downloadFor(checkTime, checkDuration);
         long count = results.count();
         results.close();
         return count;

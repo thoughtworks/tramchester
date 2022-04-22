@@ -13,6 +13,7 @@ import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
+import com.tramchester.domain.time.TramTime;
 import com.tramchester.livedata.domain.liveUpdates.LineDirection;
 import com.tramchester.livedata.domain.liveUpdates.UpcomingDeparture;
 import com.tramchester.livedata.repository.StationByName;
@@ -244,9 +245,10 @@ public class LiveDataParser {
                             LocalDate date = departureInfo.getLastUpdate().toLocalDate();
                             Station displayLocation = departureInfo.getStation();
 
+                            TramTime when = TramTime.ofHourMins(lastUpdate.plusMinutes(waitInMinutes));
+
                             UpcomingDeparture dueTram = new UpcomingDeparture(date, displayLocation, station, status,
-                                    Duration.ofMinutes(waitInMinutes), carriages, lastUpdate, agency,
-                                    TransportMode.Tram);
+                                    when, carriages, agency, TransportMode.Tram);
                             if (departureInfo.hasStationPlatform()) {
                                 dueTram.setPlatform(departureInfo.getStationPlatform());
                             }

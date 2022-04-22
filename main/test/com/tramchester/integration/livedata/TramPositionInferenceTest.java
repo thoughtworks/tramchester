@@ -6,7 +6,6 @@ import com.tramchester.domain.StationPair;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.time.ProvidesLocalNow;
 import com.tramchester.domain.time.ProvidesNow;
-import com.tramchester.domain.time.TramServiceDate;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.RouteReachable;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
@@ -23,6 +22,7 @@ import com.tramchester.testSupport.testTags.LiveDataTestCategory;
 import org.junit.jupiter.api.*;
 
 import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -35,8 +35,7 @@ class TramPositionInferenceTest {
 
     private TramPositionInference positionInference;
     private StationRepository stationRepository;
-    private TramServiceDate date;
-    private TramTime time;
+    private LocalDateTime dateTime;
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
@@ -57,8 +56,8 @@ class TramPositionInferenceTest {
 
         positionInference = new TramPositionInference(departureRepository, adjacenyMatrix, routeReachable);
         stationRepository = componentContainer.get(StationRepository.class);
-        date = TramServiceDate.of(providesLocalNow.getDate());
-        time = providesLocalNow.getNowHourMins();
+
+        dateTime = providesLocalNow.getDateTime();
     }
 
     @AfterAll
@@ -86,25 +85,28 @@ class TramPositionInferenceTest {
         Station second = stationRepository.getStationById(TramStations.Cornbrook.getId());
 
         StationPair pair = StationPair.of(first, second);
-        TramPosition between = positionInference.findBetween(pair, date, time);
+        TramPosition between = positionInference.findBetween(pair, dateTime);
         assertEquals(first, between.getFirst());
         assertEquals(second, between.getSecond());
         assertTrue(between.getTrams().size()>=1, "trams between");
         assertEquals(cost, between.getCost());
-        between.getTrams().
-                forEach(dueTram -> assertFalse((dueTram.getWait().compareTo(cost)) > 0, dueTram.getWait().toString()));
 
-        TramPosition otherDirection = positionInference.findBetween(pair, date, time);
+        TramTime now = TramTime.ofHourMins(TestEnv.LocalNow().toLocalTime());
+
+        between.getTrams().
+                forEach(dueTram -> assertFalse(dueTram.getWhen().isAfter(now), dueTram.getWhen().toString()));
+
+        TramPosition otherDirection = positionInference.findBetween(pair, dateTime);
         assertTrue(otherDirection.getTrams().size()>=1, "no trams in other direction");
         assertEquals(cost, between.getCost());
         otherDirection.getTrams().
-                forEach(dueTram -> assertFalse((dueTram.getWait().compareTo(cost)) > 0, dueTram.getWait().toString()));
+                forEach(dueTram -> assertFalse(dueTram.getWhen().isAfter(now), dueTram.getWhen().toString()));
     }
 
     @Test
     @LiveDataTestCategory
     void shouldHaveSomeTramsPresentInNetwork() {
-        List<TramPosition> results = positionInference.inferWholeNetwork(date, time).stream().
+        List<TramPosition> results = positionInference.inferWholeNetwork(dateTime).stream().
                 filter(result -> !result.getTrams().isEmpty()).collect(Collectors.toList());
 
         assertFalse(results.isEmpty());

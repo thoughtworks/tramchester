@@ -129,8 +129,12 @@ public abstract class TramchesterConfig extends Configuration implements HasRemo
 
     public abstract boolean getSendCloudWatchMetrics();
 
-    public boolean liveDataEnabled() {
+    public boolean liveTfgmTramDataEnabled() {
         return getLiveDataConfig()!=null;
+    }
+
+    public boolean liveTrainDataEnabled() {
+        return getOpenldbwsConfig()!=null;
     }
 
     public final boolean getDepthFirst() {

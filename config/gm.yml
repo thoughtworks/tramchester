@@ -64,6 +64,8 @@ tfgmTramliveData:
   refreshPeriodSeconds: 20
   maxNumberStationsWithoutMessages: 10
   maxNumberStationsWithoutData: 5
+openLdb:
+  accessToken: ${OPENLDB_APIKEY:- ""}
 cacheFolder: data/cache/gm
 calcTimeoutMillis: 3500
 bounds:
@@ -115,9 +117,9 @@ logging:
       port: 514
       threshold: WARN
     - type: file
-      currentLogFilename: logs/tramchester_rail.log
+      currentLogFilename: logs/tramchester_gm.log
       threshold: INFO
       archive: true
-      archivedLogFilenamePattern: logs/tramchester_rail-%d.log
+      archivedLogFilenamePattern: logs/tramchester_gm-%d.log
       archivedFileCount: 5
       timeZone: UTC

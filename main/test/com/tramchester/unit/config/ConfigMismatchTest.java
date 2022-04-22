@@ -118,6 +118,13 @@ class ConfigMismatchTest {
         assertEquals(rail.getStations(), testRail.getStations());
         assertEquals(rail.getTimetable(), testRail.getTimetable());
         assertEquals(rail.getModes(), testRail.getModes());
+
+        assertRailLiveData(appConfig.getOpenldbwsConfig(), testConfig.getOpenldbwsConfig());
+    }
+
+    private void assertRailLiveData(OpenLdbConfig fromFile, OpenLdbConfig testConfig) {
+        assertNotNull(fromFile);
+        assertNotNull(testConfig);
     }
 
     @Test
@@ -144,6 +151,8 @@ class ConfigMismatchTest {
         assertEquals(rail.getStations(), testRail.getStations());
         assertEquals(rail.getTimetable(), testRail.getTimetable());
         assertEquals(rail.getModes(), testRail.getModes());
+
+        assertRailLiveData(appConfig.getOpenldbwsConfig(), testConfig.getOpenldbwsConfig());
 
     }
 

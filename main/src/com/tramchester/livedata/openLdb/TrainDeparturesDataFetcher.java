@@ -1,6 +1,7 @@
 package com.tramchester.livedata.openLdb;
 
 import com.netflix.governator.guice.lazy.LazySingleton;
+import com.sun.xml.ws.client.ClientTransportException;
 import com.thalesgroup.rtti._2013_11_28.token.types.AccessToken;
 import com.thalesgroup.rtti._2017_10_01.ldb.GetBoardRequestParams;
 import com.thalesgroup.rtti._2017_10_01.ldb.LDBServiceSoap;
@@ -18,39 +19,54 @@ import org.slf4j.LoggerFactory;
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 
+import java.util.Optional;
+
 import static java.lang.String.format;
 
 @LazySingleton
 public class TrainDeparturesDataFetcher {
     private static final Logger logger = LoggerFactory.getLogger(TrainDeparturesDataFetcher.class);
 
-    private final AccessToken accessToken;
     private final CRSRepository crsRepository;
+    private final TramchesterConfig config;
+
     private LDBServiceSoap soapService;
+    private final boolean enabled;
+    private AccessToken accessToken;
+
 
     @Inject
     public TrainDeparturesDataFetcher(TramchesterConfig config, CRSRepository crsRepository) {
         this.crsRepository = crsRepository;
-        final OpenLdbConfig openLdbConfig = config.getOpenldbwsConfig();
-
-        accessToken = new AccessToken();
-        accessToken.setTokenValue(openLdbConfig.getAccessToken());
+        this.config = config;
+        enabled = config.liveTrainDataEnabled();
     }
 
     @PostConstruct
     public void start() {
-        Ldb soap = new Ldb();
-        soapService = soap.getLDBServiceSoap12();
+        if (enabled) {
+            logger.info("starting");
+            OpenLdbConfig openLdbConfig = config.getOpenldbwsConfig();
+
+            Ldb soap = new Ldb();
+            soapService = soap.getLDBServiceSoap12();
+
+            accessToken = new AccessToken();
+            accessToken.setTokenValue(openLdbConfig.getAccessToken());
+            logger.info("started");
+        } else {
+            logger.info("Disabled");
+        }
     }
 
-    public StationBoard getFor(Station station) {
+    public Optional<StationBoard> getFor(Station station) {
         if (!station.getTransportModes().contains(TransportMode.Train)) {
             logger.warn("Station is not a train station");
-            return null;
+            return Optional.empty();
         }
         if (!crsRepository.hasStation(station)) {
             logger.error("Not CRS Code found for " + station.getId());
-            return null;
+            return Optional.empty();
         }
         String crs = crsRepository.getCRSFor(station);
         logger.info("Get train departures for " + station.getId() + " with CRS " + crs);
@@ -58,12 +74,18 @@ public class TrainDeparturesDataFetcher {
         GetBoardRequestParams params = new GetBoardRequestParams();
         params.setCrs(crs);
 
-        StationBoardResponseType departureBoard = soapService.getDepartureBoard(params, accessToken);
+        try {
+            StationBoardResponseType departureBoard = soapService.getDepartureBoard(params, accessToken);
 
-        final StationBoard stationBoardResult = departureBoard.getGetStationBoardResult();
-        logger.info(format("Got departure board %s at %s for %s", stationBoardResult.getLocationName(),
-                stationBoardResult.getGeneratedAt(), crs));
+            final StationBoard stationBoardResult = departureBoard.getGetStationBoardResult();
+            logger.info(format("Got departure board %s at %s for %s", stationBoardResult.getLocationName(),
+                    stationBoardResult.getGeneratedAt(), crs));
 
-        return stationBoardResult;
+            return Optional.of(stationBoardResult);
+        }
+        catch (ClientTransportException clientTransportException) {
+            logger.error("Unable to fetch StationBoard for " + station, clientTransportException);
+            return Optional.empty();
+        }
     }
 }

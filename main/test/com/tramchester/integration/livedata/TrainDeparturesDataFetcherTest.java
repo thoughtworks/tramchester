@@ -17,9 +17,9 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.DisabledIfEnvironmentVariable;
 
 import java.util.List;
+import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.*;
 
 @TrainTest
 @DisabledIfEnvironmentVariable(named = "CI", matches = "true")
@@ -49,7 +49,12 @@ class TrainDeparturesDataFetcherTest {
 
     @Test
     void testShouldGetDeparturesForStation() {
-        StationBoard board = dataFetcher.getFor(RailStationIds.ManchesterPiccadilly.from(stationRepository));
+        Optional<StationBoard> maybeBoard = dataFetcher.getFor(RailStationIds.ManchesterPiccadilly.from(stationRepository));
+
+        assertTrue(maybeBoard.isPresent(), "no station board returned");
+
+        StationBoard board = maybeBoard.get();
+
         assertEquals("MAN", board.getCrs());
 
         List<ServiceItem> services = board.getTrainServices().getService();

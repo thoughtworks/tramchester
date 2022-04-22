@@ -28,7 +28,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static com.tramchester.testSupport.TestEnv.assertMinutesEquals;
 import static com.tramchester.testSupport.reference.TramStations.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -133,7 +132,8 @@ class TramDepartureRepositoryTest extends EasyMockSupport {
         assertEquals(1, results.size());
         UpcomingDeparture result = results.get(0);
         assertEquals("Due", result.getStatus());
-        assertMinutesEquals(42, result.getWait());
+        //assertMinutesEquals(42, result.getWait());
+        assertEquals(lastUpdate.plusMinutes(42).toLocalTime(), result.getWhen().asLocalTime());
         assertEquals("Single", result.getCarriages());
         assertEquals(destination, result.getDestination());
 
