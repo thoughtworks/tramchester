@@ -110,7 +110,7 @@ sourceSets {
 cxfCodegen {
     wsdl2java {
         openLDBWS {
-            wsdl = file('wsdl/OpenLDBWS.wsdl')
+            wsdl = file('config/OpenLDBWS.wsdl')
             markGenerated = true
             extendedSoapHeaders = true
         }

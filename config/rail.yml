@@ -42,6 +42,7 @@ remoteSources:
     filename: nptgcsv.zip
 openLdb:
   accessToken: ${OPENLDB_APIKEY:- ""}
+  wsdlLocation: config/OpenLDBWS.wsdl
 cacheFolder: data/cache/rail
 calcTimeoutMillis: 3500
 bounds:

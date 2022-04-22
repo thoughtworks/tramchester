@@ -18,7 +18,10 @@ import org.slf4j.LoggerFactory;
 
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
+import javax.xml.ws.WebServiceException;
+import javax.xml.ws.WebServiceFeature;
 
+import java.net.URL;
 import java.util.Optional;
 
 import static java.lang.String.format;
@@ -31,7 +34,7 @@ public class TrainDeparturesDataFetcher {
     private final TramchesterConfig config;
 
     private LDBServiceSoap soapService;
-    private final boolean enabled;
+    private boolean enabled;
     private AccessToken accessToken;
 
 
@@ -48,8 +51,7 @@ public class TrainDeparturesDataFetcher {
             logger.info("starting");
             OpenLdbConfig openLdbConfig = config.getOpenldbwsConfig();
 
-            Ldb soap = new Ldb();
-            soapService = soap.getLDBServiceSoap12();
+            createSOAPService(openLdbConfig.getWSDLLocation());
 
             accessToken = new AccessToken();
             accessToken.setTokenValue(openLdbConfig.getAccessToken());
@@ -59,7 +61,23 @@ public class TrainDeparturesDataFetcher {
         }
     }
 
+    private void createSOAPService(URL wsdlLocation) {
+        logger.info("Start SOAP service for " + wsdlLocation);
+        try {
+            Ldb soap = new Ldb(wsdlLocation);
+            soapService = soap.getLDBServiceSoap12();
+        }
+        catch (WebServiceException exception) {
+            logger.error("Failed to start", exception);
+            enabled = false;
+        }
+    }
+
     public Optional<StationBoard> getFor(Station station) {
+        if (!enabled) {
+            logger.error("Attempt to invoke, but not enabled, did start up fail? Station:" + station.getId());
+            return Optional.empty();
+        }
         if (!station.getTransportModes().contains(TransportMode.Train)) {
             logger.warn("Station is not a train station");
             return Optional.empty();

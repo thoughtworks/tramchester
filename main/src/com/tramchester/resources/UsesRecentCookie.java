@@ -44,13 +44,13 @@ public class UsesRecentCookie extends TransportResource {
             RecentJourneys recent = RecentJourneys.decodeCookie(mapper,cookieString);
             return recent==null ? RecentJourneys.empty() : recent;
         } catch (IOException e) {
-            logger.warn("Unable to decode cookie for recent journeys: "+cookieString,e);
+            logger.warn("Unable to decode cookie for recent journeys: "+cookieString, e);
             return RecentJourneys.empty();
         }
     }
 
     protected NewCookie createRecentCookie(Cookie cookie, Location<?> start,  Location<?> dest, boolean secure, URI baseURI) throws JsonProcessingException {
-        logger.info(format("Updating recent stations cookie with %s and %s ",start, dest));
+        logger.info(format("Updating recent stations cookie with %s and %s ",start.getId(), dest.getId()));
         RecentJourneys recentJourneys = recentFromCookie(cookie);
 
         if (start.getLocationType() == LocationType.Station) {
