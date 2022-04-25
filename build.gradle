@@ -45,7 +45,7 @@ repositories {
 
 // useful reminder ./gradlew -q dependencyInsight --dependency X.Y:Z
 dependencies {
-    implementation('javax.measure:unit-api:1.0')
+    implementation('javax.measure:unit-api:2.1.3')
     implementation('tec.units:unit-ri:1.0.3')
     implementation('io.dropwizard:dropwizard-core:' + dropwizardVersion)
     // slf4j in governator was causing race condition with dropwizard start up code on initial get of logger
@@ -81,7 +81,7 @@ dependencies {
 
     testImplementation 'org.junit.jupiter:junit-jupiter:5.8.2',
             'org.junit.platform:junit-platform-launcher:1.8.2',
-            'org.assertj:assertj-core:3.21.0',
+            'org.assertj:assertj-core:3.22.0',
             'io.dropwizard:dropwizard-testing:' + dropwizardVersion,
             'org.easymock:easymock:4.3',
             'org.seleniumhq.selenium:selenium-java:3.141.59',
