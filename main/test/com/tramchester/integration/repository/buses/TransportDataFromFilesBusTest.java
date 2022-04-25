@@ -40,8 +40,8 @@ import static org.junit.jupiter.api.Assertions.*;
 public
 class TransportDataFromFilesBusTest {
 
-    public static final int TGFM_BUS_AGENCIES = 41;
-    public static final int TGFM_BUS_ROUTES = 2231;
+    public static final int TGFM_BUS_AGENCIES = 40;
+    public static final int TGFM_BUS_ROUTES = 1275;
     public static final int NUM_TFGM_BUS_STATIONS = 15759;
     private static ComponentContainer componentContainer;
     private static TramchesterConfig config;
@@ -109,7 +109,7 @@ class TransportDataFromFilesBusTest {
     void shouldGetSpecificBusRoutes() {
         Collection<Route> results = transportData.getRoutes();
         long gmsRoutes = results.stream().filter(route -> route.getAgency().equals(StagecoachManchester)).count();
-        assertWithinNPercent(635, gmsRoutes, 0.1F);
+        assertWithinNPercent(327, gmsRoutes, 0.1F);
     }
 
     @Test

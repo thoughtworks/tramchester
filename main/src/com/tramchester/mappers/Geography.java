@@ -14,8 +14,8 @@ import org.geotools.referencing.crs.DefaultGeographicCRS;
 import org.locationtech.jts.geom.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import tec.units.ri.quantity.Quantities;
-import tec.units.ri.unit.Units;
+import tech.units.indriya.quantity.Quantities;
+import tech.units.indriya.unit.Units;
 
 import javax.inject.Inject;
 import javax.measure.Quantity;
@@ -29,8 +29,9 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static java.time.temporal.ChronoUnit.SECONDS;
-import static tec.units.ri.unit.Units.METRE_PER_SECOND;
-import static tec.units.ri.unit.Units.SECOND;
+import static tech.units.indriya.unit.Units.METRE_PER_SECOND;
+import static tech.units.indriya.unit.Units.SECOND;
+
 
 @LazySingleton
 public class Geography {

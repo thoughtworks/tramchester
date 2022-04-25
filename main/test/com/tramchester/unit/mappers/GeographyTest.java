@@ -11,8 +11,7 @@ import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.TramStations;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import tec.units.ri.quantity.Quantities;
-import tec.units.ri.unit.Units;
+import tech.units.indriya.quantity.Quantities;
 
 import javax.measure.Quantity;
 import javax.measure.quantity.Length;
@@ -23,8 +22,10 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static com.tramchester.testSupport.reference.KnownLocations.nearAltrincham;
-import static org.junit.jupiter.api.Assertions.*;
-import static tec.units.ri.unit.Units.METRE;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static tech.units.indriya.unit.Units.METRE;
+import static tech.units.indriya.unit.Units.MINUTE;
 
 public class GeographyTest {
     private Geography geography;
@@ -38,7 +39,6 @@ public class GeographyTest {
 
     public static Quantity<Length> BetweenStPeterSqAndPiccGardens = Quantities.getQuantity(463.7D, METRE);
 
-
     @Test
     void shouldGetWalkingTime() {
 
@@ -49,7 +49,7 @@ public class GeographyTest {
 
         Quantity<Time> result = geography.getWalkingTime(BetweenStPeterSqAndPiccGardens);
 
-        assertEquals(expected, Math.ceil(result.to(Units.MINUTE).getValue().doubleValue()));
+        assertEquals(expected, Math.ceil(result.to(MINUTE).getValue().doubleValue()));
     }
 
     @Test
