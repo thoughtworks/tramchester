@@ -57,16 +57,16 @@ dependencies {
             'org.apache.commons:commons-collections4:4.4',
             'com.github.ben-manes.caffeine:caffeine:3.0.6'
     implementation 'com.fasterxml.jackson.core:jackson-core:2.13.2',
-            'com.fasterxml.jackson.core:jackson-databind:2.13.0',
+            'com.fasterxml.jackson.core:jackson-databind:2.13.2',
             'com.fasterxml.jackson.module:jackson-module-afterburner:2.13.0',
             'com.fasterxml.jackson.dataformat:jackson-dataformat-csv:2.13.0',
             'com.fasterxml.jackson.dataformat:jackson-dataformat-xml:2.13.0'
     implementation('com.smoketurner:dropwizard-swagger:2.0.12-1')
 
     // aws sdk
-    implementation('software.amazon.awssdk:s3:2.17.99')
-    implementation('software.amazon.awssdk:cloudwatch:2.17.99')
-    implementation('software.amazon.awssdk:cloudformation:2.17.99')
+    implementation('software.amazon.awssdk:s3:2.17.176')
+    implementation('software.amazon.awssdk:cloudwatch:2.17.176')
+    implementation('software.amazon.awssdk:cloudformation:2.17.176')
     // aws cdk
     implementation 'software.amazon.awscdk:core:1.148.0',
             'software.amazon.awscdk:s3:1.148.0',
@@ -75,7 +75,7 @@ dependencies {
             'software.amazon.awscdk:autoscaling:1.148.0',
             'software.amazon.awscdk:cdk-cx-api:2.21.1'
 
-    implementation('org.geotools:gt-main:26.1')
+    implementation('org.geotools:gt-main:26.4')
     implementation('org.geotools:gt-epsg-hsql:26.4')
 
     testImplementation 'org.junit.jupiter:junit-jupiter:5.8.2',
