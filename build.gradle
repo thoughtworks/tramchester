@@ -81,7 +81,7 @@ dependencies {
 
     testImplementation 'org.junit.jupiter:junit-jupiter:5.8.2',
             'org.junit.platform:junit-platform-launcher:1.8.2',
-            'org.assertj:assertj-core:3.21.0',
+            'org.assertj:assertj-core:3.22.0',
             'io.dropwizard:dropwizard-testing:' + dropwizardVersion,
             'org.easymock:easymock:4.3',
             'org.seleniumhq.selenium:selenium-java:3.141.59',
