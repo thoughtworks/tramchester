@@ -76,7 +76,7 @@ dependencies {
             'software.amazon.awscdk:cdk-cx-api:2.21.1'
 
     implementation('org.geotools:gt-main:26.1')
-    implementation('org.geotools:gt-epsg-hsql:26.1')
+    implementation('org.geotools:gt-epsg-hsql:26.4')
 
     testImplementation 'org.junit.jupiter:junit-jupiter:5.8.2',
             'org.junit.platform:junit-platform-launcher:1.8.2',
