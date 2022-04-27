@@ -10,6 +10,7 @@ export default {
             currentPage: 1,
             itemsPerPage: 5,
             departureFields: [
+                {key:'transportMode', label:'type', tdClass:'transportMode', sortable: true},
                 {key:'from', label:'From', tdClass:'departureDueFrom', sortable:true},
                 {key:'dueTimeAsDate', label:'Time', tdClass:'departureDueTime', formatter: dueTimeFormatter, sortable:true},
                 {key:'carriages', label:'', tdClass:'departureCarriages'},

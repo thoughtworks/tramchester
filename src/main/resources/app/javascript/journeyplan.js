@@ -57,7 +57,7 @@ function queryLiveData(app, includeNotes) {
     var locationType;
     if (app.startStop==null) {
         locationType = 'MyLocation';
-        modes = app.modes;
+        modes = app.selectedModes;
     } else {
         locationType = app.startStop.locationType;
         modes = app.startStop.transportModes;
@@ -81,11 +81,11 @@ function queryLiveData(app, includeNotes) {
     }
 
     axios.post( '/api/departures/location', query, { timeout: 11000 }).
-    then(function (response) {
-        app.liveDepartureResponse = addParsedDatesToLive(response.data);
-        app.networkError = false;
-        app.liveInProgress = false;
-    }).
+        then(function (response) {
+            app.liveDepartureResponse = addParsedDatesToLive(response.data);
+            app.networkError = false;
+            app.liveInProgress = false;
+        }).
     catch(function (error) {
         app.liveInProgress = false;
         reportError(error);

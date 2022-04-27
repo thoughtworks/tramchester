@@ -1,19 +1,18 @@
 package com.tramchester.livedata.domain.DTO;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.tramchester.domain.places.Location;
+import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.livedata.domain.liveUpdates.UpcomingDeparture;
 import com.tramchester.mappers.serialisation.LocalDateTimeJsonDeserializer;
 import com.tramchester.mappers.serialisation.LocalDateTimeJsonSerializer;
 import com.tramchester.mappers.serialisation.LocalTimeJsonSerializer;
 
 import java.time.Duration;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.temporal.ChronoUnit;
@@ -24,6 +23,7 @@ import java.util.Objects;
 public class DepartureDTO implements Comparable<DepartureDTO> {
 
     // TODO Make from and destintaion StationRefDTO?
+    private TransportMode transportMode;
     private String from;
     private String destination;
     private String carriages;
@@ -34,12 +34,14 @@ public class DepartureDTO implements Comparable<DepartureDTO> {
     private LocalDateTime lastUpdated;
 
     public DepartureDTO(Location<?> from, UpcomingDeparture upcomingDeparture, LocalDateTime updateTime) {
-        this(from.getName(), upcomingDeparture.getDestination().getName(), upcomingDeparture.getCarriages(), upcomingDeparture.getStatus(),
+        this(upcomingDeparture.getMode(), from.getName(), upcomingDeparture.getDestination().getName(),
+                upcomingDeparture.getCarriages(), upcomingDeparture.getStatus(),
                 upcomingDeparture.getWhen().toDate(updateTime.toLocalDate()), updateTime);
     }
 
-    private DepartureDTO(String from, String destination, String carriages, String status, LocalDateTime dueTime,
+    private DepartureDTO(TransportMode mode, String from, String destination, String carriages, String status, LocalDateTime dueTime,
                          LocalDateTime lastUpdated) {
+        this.transportMode = mode;
         this.from = from;
         this.destination = destination;
         this.carriages = carriages;
@@ -81,6 +83,10 @@ public class DepartureDTO implements Comparable<DepartureDTO> {
         return destination;
     }
 
+    public TransportMode getTransportMode() {
+        return transportMode;
+    }
+
     @Override
     public int compareTo(DepartureDTO other) {
         if (dueTime.equals(other.dueTime)) {
@@ -94,7 +100,8 @@ public class DepartureDTO implements Comparable<DepartureDTO> {
     @Override
     public String toString() {
         return "DepartureDTO{" +
-                "from='" + from + '\'' +
+                "transportMode=" + transportMode +
+                ", from='" + from + '\'' +
                 ", destination='" + destination + '\'' +
                 ", carriages='" + carriages + '\'' +
                 ", status='" + status + '\'' +
@@ -108,16 +115,14 @@ public class DepartureDTO implements Comparable<DepartureDTO> {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         DepartureDTO that = (DepartureDTO) o;
-        return from.equals(that.from) &&
-                carriages.equals(that.carriages) &&
-                status.equals(that.status) &&
-                destination.equals(that.destination) &&
-                dueTime.equals(that.dueTime);
+        return transportMode == that.transportMode && from.equals(that.from) && destination.equals(that.destination)
+                && carriages.equals(that.carriages) && status.equals(that.status)
+                && dueTime.equals(that.dueTime) && lastUpdated.equals(that.lastUpdated);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(from, carriages, status, destination, dueTime);
+        return Objects.hash(transportMode, from, destination, carriages, status, dueTime, lastUpdated);
     }
 
     @JsonProperty(value = "wait", access = JsonProperty.Access.READ_ONLY)

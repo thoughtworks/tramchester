@@ -27,10 +27,7 @@ import static com.tramchester.testSupport.reference.TramStations.NavigationRoad;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class StationDepartureMapperTest {
-    private static final String json = "[{\"lineName\":\"lineName\",\"stationPlatform\":\"platforId\",\"message\":\"messageTxt\"," +
-            "\"dueTrams\":[{\"carriages\":\"Single\",\"destination\":\"Bury\",\"dueTime\":\"2018-11-15T15:48:00\"," +
-            "\"from\":\"Navigation Road\",\"status\":\"Due\",\"wait\":42,\"when\":\"15:48\"}]," +
-            "\"lastUpdate\":\"2018-11-15T15:06:32\",\"displayId\":\"displayId\",\"location\":\"Navigation Road\"}]";
+
 
     private StationDepartureMapper mapper;
     private List<StationDepartureInfoDTO> departures;
@@ -59,12 +56,22 @@ class StationDepartureMapperTest {
 
     @Test
     void shoudCreateJson() throws JsonProcessingException {
+        String json = "[{\"lineName\":\"lineName\",\"stationPlatform\":\"platforId\",\"message\":\"messageTxt\"," +
+                "\"dueTrams\":[{\"carriages\":\"Single\",\"destination\":\"Bury\",\"dueTime\":\"2018-11-15T15:48:00\"," +
+                "\"from\":\"Navigation Road\",\"status\":\"Due\",\"transportMode\":\"Tram\",\"wait\":42,\"when\":\"15:48\"}]," +
+                "\"lastUpdate\":\"2018-11-15T15:06:32\",\"displayId\":\"displayId\",\"location\":\"Navigation Road\"}]";
+
         String result = mapper.map(departures);
         assertEquals(json, result, result.toString());
     }
 
     @Test
-    void shouldParseJson() {
+    void shouldParseArchivedJson() {
+        final String json = "[{\"lineName\":\"lineName\",\"stationPlatform\":\"platforId\",\"message\":\"messageTxt\"," +
+                "\"dueTrams\":[{\"carriages\":\"Single\",\"destination\":\"Bury\",\"dueTime\":\"2018-11-15T15:48:00\"," +
+                "\"from\":\"Navigation Road\",\"status\":\"Due\",\"wait\":42,\"when\":\"15:48\"}]," +
+                "\"lastUpdate\":\"2018-11-15T15:06:32\",\"displayId\":\"displayId\",\"location\":\"Navigation Road\"}]";
+
         List<ArchivedStationDepartureInfoDTO> results = mapper.parse(json);
         assertEquals(1, results.size());
 
