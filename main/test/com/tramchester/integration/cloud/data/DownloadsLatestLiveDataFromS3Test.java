@@ -55,7 +55,7 @@ class DownloadsLatestLiveDataFromS3Test {
         assertFalse(results.isEmpty());
         assertTrue(results.size() >= NUM_OF_DISPLAYS, "Len was " + results.size());
     }
-    
+
     private static class RealBucketConfig extends IntegrationTramTestConfig {
         private final TfgmTramLiveDataConfig liveDataConfig;
 
