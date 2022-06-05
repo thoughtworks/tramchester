@@ -30,6 +30,7 @@ import com.tramchester.graph.filters.GraphFilterActive;
 import com.tramchester.repository.TransportDataContainer;
 import com.tramchester.repository.WriteableTransportData;
 import com.tramchester.repository.naptan.NaptanRespository;
+import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -38,7 +39,6 @@ import javax.inject.Inject;
 import java.nio.file.Path;
 import java.time.Duration;
 import java.time.LocalDateTime;
-import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -50,21 +50,21 @@ public class RailTransportDataFromFiles implements DirectDataSourceFactory.Popul
     private final LoadRailStationRecords loadRailStationRecords;
     private final LoadRailTimetableRecords loadRailTimetableRecords;
     private final RailConfig railConfig;
-    private final BoundingBox bounds;
     private final NaptanRespository naptanRespository;
     private final GraphFilterActive graphFilterActive;
     private final RemoteDataRefreshed remoteDataRefreshed;
     private final RailStationCRSRepository crsRepository;
 
     private final boolean enabled;
+    private final BoundingBox bounds;
 
     @Inject
     public RailTransportDataFromFiles(RailDataRecordFactory factory, TramchesterConfig config,
                                       NaptanRespository naptanRespository,
                                       GraphFilterActive graphFilterActive, RemoteDataRefreshed remoteDataRefreshed,
                                       UnzipFetchedData.Ready ready, RailStationCRSRepository crsRepository) {
-        bounds = config.getBounds();
         railConfig = config.getRailConfig();
+        bounds = config.getBounds();
         this.naptanRespository = naptanRespository;
         this.graphFilterActive = graphFilterActive;
         this.remoteDataRefreshed = remoteDataRefreshed;
@@ -103,11 +103,10 @@ public class RailTransportDataFromFiles implements DirectDataSourceFactory.Popul
 
         logger.info("Load timetable");
         Stream<RailTimetableRecord> timetableRecords = loadRailTimetableRecords.load();
-        processTimetableRecords(stationsTemporary, dataContainer, timetableRecords);
+        processTimetableRecords(stationsTemporary, dataContainer, timetableRecords, bounds);
 
         stationsTemporary.getShouldInclude().forEach(dataContainer::addStation);
 
-        crsRepository.keepOnly(dataContainer.getStations());
         logger.info("Retained " + stationsTemporary.countNeeded() + " stations of " + stationsTemporary.count());
 
         stationsTemporary.clear();
@@ -135,47 +134,38 @@ public class RailTransportDataFromFiles implements DirectDataSourceFactory.Popul
     }
 
     private void processTimetableRecords(StationsTemporary stationsTemporary, WriteableTransportData dataContainer,
-                                         Stream<RailTimetableRecord> recordStream) {
+                                         Stream<RailTimetableRecord> recordStream, BoundingBox bounds) {
         logger.info("Process timetable stream");
-        RailTimetableMapper mapper = new RailTimetableMapper(stationsTemporary, dataContainer, railConfig, graphFilterActive);
+        RailTimetableMapper mapper = new RailTimetableMapper(stationsTemporary, dataContainer, railConfig, graphFilterActive, bounds);
         recordStream.forEach(mapper::seen);
         mapper.reportDiagnostics();
     }
 
     private StationsTemporary loadStations(Stream<PhysicalStationRecord> physicalRecords) {
 
-        Stream<PhysicalStationRecord> validRecords = physicalRecords.filter(this::validRecord);
+        Stream<Pair<MutableStation, String>> railStations = physicalRecords.
+                filter(this::validRecord).
+                map(record -> Pair.of(createStationFor(record), record.getCRS()));
 
-        Set<String> outOfBounds = new HashSet<>();
+        StationsTemporary stationsTemporary = new StationsTemporary();
 
-        // bit of a hack to avoid processing the stream twice
-        Stream<PhysicalStationRecord> withinBounds = validRecords.
-                filter(physicalStationRecord -> {
-                    if (locationWithinBounds(physicalStationRecord)) {
-                        return true;
-                    } else {
-                        outOfBounds.add(physicalStationRecord.getTiplocCode());
-                        return false;
-                    }
-                });
-
-        StationsTemporary stationsTemporary = new StationsTemporary(outOfBounds);
-
-        withinBounds.
-                map(this::createStationAndRecordCRS).
-                forEach(stationsTemporary::addStation);
+        railStations.forEach(railStation -> {
+            final MutableStation mutableStation = railStation.getKey();
+            stationsTemporary.addStation(mutableStation);
+            crsRepository.putCRS(mutableStation, railStation.getValue());
+        });
 
         return stationsTemporary;
     }
 
-    private boolean locationWithinBounds(PhysicalStationRecord record) {
-        GridPosition gridPosition = convertToOsGrid(record.getEasting(), record.getNorthing());
-        if (gridPosition.isValid()) {
-            return bounds.contained(gridPosition);
-        }
-        logger.debug("station out of bounds " + record.getName() + " " + record.getTiplocCode());
-        return false;
-    }
+//    private boolean locationWithinBounds(PhysicalStationRecord record) {
+//        GridPosition gridPosition = convertToOsGrid(record.getEasting(), record.getNorthing());
+//        if (gridPosition.isValid()) {
+//            return bounds.contained(gridPosition);
+//        }
+//        logger.debug("station out of bounds " + record.getName() + " " + record.getTiplocCode());
+//        return false;
+//    }
 
     private boolean validRecord(PhysicalStationRecord physicalStationRecord) {
         if (physicalStationRecord.getName().isEmpty()) {
@@ -193,7 +183,7 @@ public class RailTransportDataFromFiles implements DirectDataSourceFactory.Popul
         return true;
     }
 
-    private MutableStation createStationAndRecordCRS(PhysicalStationRecord record) {
+    private MutableStation createStationFor(PhysicalStationRecord record) {
         IdFor<Station> id = StringIdFor.createId(record.getTiplocCode());
 
         String name = record.getName();
@@ -223,10 +213,7 @@ public class RailTransportDataFromFiles implements DirectDataSourceFactory.Popul
 
         Duration minChangeTime = Duration.ofMinutes(record.getMinChangeTime());
 
-        final MutableStation mutableStation = new MutableStation(id, areaId, name, latLong, grid, DataSourceID.rail, isInterchange, minChangeTime);
-
-        crsRepository.putCRS(mutableStation, record.getCRS());
-        return mutableStation;
+        return new MutableStation(id, areaId, name, latLong, grid, DataSourceID.rail, isInterchange, minChangeTime);
     }
 
     private GridPosition convertToOsGrid(int easting, int northing) {
@@ -240,10 +227,10 @@ public class RailTransportDataFromFiles implements DirectDataSourceFactory.Popul
     public static class StationsTemporary {
         private final CompositeIdMap<Station, MutableStation> stations;
         private final IdSet<Station> include;
-        private final Set<String> outOfBounds;
+        //private final Set<String> outOfBounds;
 
-        private StationsTemporary(Set<String> outOfBounds) {
-            this.outOfBounds = outOfBounds;
+        private StationsTemporary() {
+            //this.outOfBounds = outOfBounds;
             stations = new CompositeIdMap<>();
             include = new IdSet<>();
         }
@@ -273,7 +260,7 @@ public class RailTransportDataFromFiles implements DirectDataSourceFactory.Popul
         public void clear() {
             stations.clear();
             include.clear();
-            outOfBounds.clear();
+            //outOfBounds.clear();
         }
 
         public int count() {
@@ -284,9 +271,9 @@ public class RailTransportDataFromFiles implements DirectDataSourceFactory.Popul
             return include.size();
         }
 
-        public boolean wasOutOfBounds(String tiplocCode) {
-            return outOfBounds.contains(tiplocCode);
-        }
+//        public boolean wasOutOfBounds(String tiplocCode) {
+//            return outOfBounds.contains(tiplocCode);
+//        }
     }
 
 }

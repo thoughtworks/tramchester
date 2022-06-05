@@ -18,8 +18,7 @@ import org.junit.jupiter.api.condition.DisabledIfEnvironmentVariable;
 
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.*;
 
 @TrainTest
 @DisabledIfEnvironmentVariable(named = "CI", matches = "true")
@@ -50,6 +49,11 @@ public class TrainDeparturesRepositoryTest {
 
     @Test
     void shouldGetDeparturesForManchester() {
+
+        // If only load stations within geo bounds then destinations for departures can be missing since they
+        // can be outside of that area. This is a test for that, can all destinations be found.
+        // TODO add test for known outside of area station as well?
+
         Station station = RailStationIds.ManchesterPiccadilly.from(stationRepository);
 
         List<UpcomingDeparture> departures = trainDeparturesRepository.forStation(station);
@@ -58,6 +62,9 @@ public class TrainDeparturesRepositoryTest {
 
         departures.forEach(departure -> {
             assertEquals(station, departure.getDisplayLocation());
+            Station dest = departure.getDestination();
+            assertNotNull(dest);
+            assertTrue(station.getId().isValid(), "did not find destination " + dest);
         });
     }
 }

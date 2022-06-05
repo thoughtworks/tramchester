@@ -19,6 +19,7 @@ import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.GTFSPickupDropoffType;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramTime;
+import com.tramchester.geo.BoundingBox;
 import com.tramchester.graph.filters.GraphFilterActive;
 import com.tramchester.repository.WriteableTransportData;
 import org.apache.commons.lang3.tuple.Pair;
@@ -65,14 +66,15 @@ public class RailTimetableMapper {
     private final Set<RawService> skipped;
 
     public RailTimetableMapper(RailTransportDataFromFiles.StationsTemporary stations, WriteableTransportData container,
-                               RailConfig config, GraphFilterActive filter) {
+                               RailConfig config, GraphFilterActive filter, BoundingBox bounds) {
+
         currentState = State.Between;
         overlay = false;
         tiplocInsertRecords = new HashMap<>();
         missingStations = new MissingStations();
         travelCombinations = new HashSet<>();
         skipped = new HashSet<>();
-        processor = new CreatesTransportDataForRail(stations, container, missingStations, travelCombinations, config, filter);
+        processor = new CreatesTransportDataForRail(stations, container, missingStations, travelCombinations, config, filter, bounds);
     }
 
     public void seen(RailTimetableRecord record) {
@@ -207,10 +209,11 @@ public class RailTimetableMapper {
         private final RailConfig config;
         private final RailRouteIDBuilder railRouteIDBuilder;
         private final GraphFilterActive filter;
+        private final BoundingBox bounds;
 
         private CreatesTransportDataForRail(RailTransportDataFromFiles.StationsTemporary stations, WriteableTransportData container,
                                             MissingStations missingStations, Set<Pair<TrainStatus, TrainCategory>> travelCombinations,
-                                            RailConfig config, GraphFilterActive filter) {
+                                            RailConfig config, GraphFilterActive filter, BoundingBox bounds) {
             this.stations = stations;
             this.container = container;
             this.missingStations = missingStations;
@@ -219,6 +222,7 @@ public class RailTimetableMapper {
             this.travelCombinations = travelCombinations;
             this.config = config;
             this.filter = filter;
+            this.bounds = bounds;
             this.railRouteIDBuilder = new RailRouteIDBuilder();
         }
 
@@ -319,14 +323,27 @@ public class RailTimetableMapper {
             return config.getModes().contains(mode);
         }
 
+//        private boolean locationWithinBounds(String tiploc) {
+//            final IdFor<Station> stationId = Station.createId(tiploc);
+//            if (!stations.hasStationId(stationId)) {
+//                //logger.info("Could not find station corresponding to tiploc " + tiploc);
+//                return false;
+//            }
+//            Station station = stations.getMutableStation(stationId);
+//            if (station.getGridPosition().isValid()) {
+//                return bounds.contained(station.getGridPosition());
+//            }
+//            return false;
+//        }
+
         private boolean populateForLocation(RailLocationRecord railLocation, MutableRoute route, MutableTrip trip, int stopSequence,
                                             boolean lastStop, IdFor<Agency> agencyId, BasicSchedule schedule, TramTime originTime) {
 
-            if (!isStation(railLocation)) {
-                if (!stations.wasOutOfBounds(railLocation.getTiplocCode())) {
-                    // only log an issue if tiploc was not filtered out for being outside area of interest
-                    missingStationDiagnosticsFor(railLocation, agencyId, schedule);
-                }
+            if (!isLoadedStationAndInbounds(railLocation)) {
+//                if (locationWithinBounds(railLocation.getTiplocCode())) {
+//                    // only log an issue if tiploc was not filtered out for being outside area of interest
+//                    missingStationDiagnosticsFor(railLocation, agencyId, schedule);
+//                }
                 return false;
             }
 
@@ -407,10 +424,14 @@ public class RailTimetableMapper {
             missingStations.record(tiplocCode, railLocation, agencyId, schedule);
         }
 
-        private boolean isStation(RailLocationRecord record) {
+        private boolean isLoadedStationAndInbounds(RailLocationRecord record) {
             final String tiplocCode = record.getTiplocCode();
             IdFor<Station> stationId = StringIdFor.createId(tiplocCode);
-            return stations.hasStationId(stationId);
+            if (!stations.hasStationId(stationId)) {
+                return false;
+            }
+            Station station = stations.getMutableStation(stationId);
+            return bounds.contained(station);
         }
 
         private MutableStation findStationFor(RailLocationRecord record) {
@@ -530,16 +551,16 @@ public class RailTimetableMapper {
 
         private List<Station> getRouteStationCallingPoints(RawService rawService) {
             List<Station> result = new ArrayList<>();
-            if (isStation(rawService.originLocation)) {
+            if (isLoadedStationAndInbounds(rawService.originLocation)) {
                 result.add(findStationFor(rawService.originLocation));
             }
             List<Station> inters = rawService.intermediateLocations.stream().
                     filter(intermediateLocation -> !intermediateLocation.isPassingRecord()).
-                    filter(this::isStation).
+                    filter(this::isLoadedStationAndInbounds).
                     map(this::findStationFor).
                     collect(Collectors.toList());
             result.addAll(inters);
-            if (isStation(rawService.terminatingLocation)) {
+            if (isLoadedStationAndInbounds(rawService.terminatingLocation)) {
                 result.add(findStationFor(rawService.terminatingLocation));
             }
 
