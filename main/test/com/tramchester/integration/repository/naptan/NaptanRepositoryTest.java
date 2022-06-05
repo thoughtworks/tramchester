@@ -2,7 +2,6 @@ package com.tramchester.integration.repository.naptan;
 
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.GuiceContainerDependencies;
-import com.tramchester.domain.Platform;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.id.StringIdFor;
@@ -142,9 +141,9 @@ class NaptanRepositoryTest {
 
         assertEquals(NaptanStopType.tramMetroUndergroundAccess, stationRecord.getStopType());
 
-        IdSet<NaptanArea> stationAreaCodes = stationRecord.getAreaCodes();
-
-        IdFor<Platform> platformId = StringIdFor.createId("9400ZZMASTP1");
+//        IdSet<NaptanArea> stationAreaCodes = stationRecord.getAreaCodes();
+//
+//        IdFor<Platform> platformId = StringIdFor.createId("9400ZZMASTP1");
 
 //        assertTrue(respository.containsActo(platformId));
 //        NaptanRecord platform1Record = respository.getForActo(platformId);

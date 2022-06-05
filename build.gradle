@@ -230,6 +230,16 @@ task gm(type:JavaExec, dependsOn: 'webpack') {
     args 'server', 'config/gm.yml'
 }
 
+// -agentpath:/home/ianc/dev/tools/visualvm_213/visualvm/lib/deployed/jdk16/linux-amd64/libprofilerinterface.so=/home/ianc/dev/tools/visualvm_213/visualvm/lib,5140
+
+task gmProfile(type:JavaExec, dependsOn: 'webpack') {
+    mainClass = mainClassName
+    classpath = sourceSets.main.runtimeClasspath
+    maxHeapSize = "1g"
+    jvmArgs '-agentpath:/home/ianc/dev/tools/visualvm_213/visualvm/lib/deployed/jdk16/linux-amd64/libprofilerinterface.so=/home/ianc/dev/tools/visualvm_213/visualvm/lib,5140'
+    args 'server', 'config/gm.yml'
+}
+
 task all(type:JavaExec, dependsOn: 'webpack') {
     mainClass = mainClassName
     classpath = sourceSets.main.runtimeClasspath

@@ -1,15 +1,20 @@
 package com.tramchester.dataimport.NaPTAN.xml.stopPoint;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.geo.GridPosition;
 
+@JsonIgnoreProperties(ignoreUnknown = true)
 @JsonTypeName("Location")
 public class NaptanXMLLocation {
 
-    @JsonProperty("Translation")
-    private NaptanXMLLocationTranslation translation;
+    final private NaptanXMLLocationTranslation translation;
+
+    public NaptanXMLLocation(@JsonProperty("Translation") NaptanXMLLocationTranslation translation) {
+        this.translation = translation;
+    }
 
     public GridPosition getGridPosition() {
         if (translation==null) {

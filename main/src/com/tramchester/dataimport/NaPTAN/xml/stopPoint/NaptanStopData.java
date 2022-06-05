@@ -1,5 +1,6 @@
 package com.tramchester.dataimport.NaPTAN.xml.stopPoint;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonRootName;
 import com.fasterxml.jackson.annotation.JsonTypeName;
@@ -17,33 +18,32 @@ import java.util.Collections;
 import java.util.List;
 
 
+@JsonIgnoreProperties(ignoreUnknown = true)
 @JsonRootName("StopPoints")
 @JsonTypeName("StopPoint")
 public class NaptanStopData implements NaptanXMLData {
 
-    // aliaises are for the xml version of the data
-
     // Matches ID for TFGM gtfs data
-    @JsonProperty(value = "AtcoCode")
-    private String atcoCode;
+    final private String atcoCode;
 
-    @JsonProperty("NaptanCode")
-    private String naptanCode;
+    final private String naptanCode;
+    final private NaptanXMLPlace place;
+    final private NaptanXMLDescriptor descriptor;
+    final private NaptanXMLStopClassification stopClassification;
+    final private List<NaptanXMLStopAreaRef> stopAreas;
 
-    @JsonProperty("Place")
-    private NaptanXMLPlace place;
-
-    @JsonProperty("Descriptor")
-    private NaptanXMLDescriptor descriptor;
-
-    @JsonProperty("StopClassification")
-    private NaptanXMLStopClassification stopClassification;
-
-    @JacksonXmlProperty(localName = "StopAreas")
-    private List<NaptanXMLStopAreaRef> stopAreas;
-
-    public NaptanStopData() {
-        // deserialisation
+    public NaptanStopData(@JsonProperty("AtcoCode") String atcoCode,
+                          @JsonProperty("NaptanCode") String naptanCode,
+                          @JsonProperty("Place") NaptanXMLPlace place,
+                          @JsonProperty("Descriptor") NaptanXMLDescriptor descriptor,
+                          @JsonProperty("StopClassification") NaptanXMLStopClassification stopClassification,
+                          @JacksonXmlProperty(localName = "StopAreas") List<NaptanXMLStopAreaRef> stopAreas) {
+        this.atcoCode = atcoCode;
+        this.naptanCode = naptanCode;
+        this.place = place;
+        this.descriptor = descriptor;
+        this.stopClassification = stopClassification;
+        this.stopAreas = stopAreas;
     }
 
     public IdFor<NaptanRecord> getAtcoCode() {

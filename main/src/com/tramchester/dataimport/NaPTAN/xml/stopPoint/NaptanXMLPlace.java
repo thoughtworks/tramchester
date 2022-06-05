@@ -1,22 +1,28 @@
 package com.tramchester.dataimport.NaPTAN.xml.stopPoint;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 
+@JsonIgnoreProperties(ignoreUnknown = true)
 @JsonTypeName("Place")
 public class NaptanXMLPlace {
 
-    @JsonProperty("Location")
-    private NaptanXMLLocation location;
+    private final NaptanXMLLocation location;
+    private final String suburb;
+    private final String town;
+    private final String nptgLocalityRef;
 
-    @JsonProperty("Suburb")
-    private String suburb;
+    public NaptanXMLPlace(@JsonProperty("Location") NaptanXMLLocation location,
+                          @JsonProperty("Suburb") String suburb,
+                          @JsonProperty("Town") String town,
+                          @JsonProperty("NptgLocalityRef") String nptgLocalityRef) {
+        this.location = location;
+        this.suburb = suburb;
+        this.town = town;
+        this.nptgLocalityRef = nptgLocalityRef;
 
-    @JsonProperty("Town")
-    private String town;
-
-    @JsonProperty("NptgLocalityRef")
-    private String nptgLocalityRef;
+    }
 
     public NaptanXMLLocation getLocation() {
         return location;

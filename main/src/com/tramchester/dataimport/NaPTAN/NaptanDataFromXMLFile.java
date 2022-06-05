@@ -94,7 +94,7 @@ public class NaptanDataFromXMLFile<T extends NaptanXMLData> implements Transport
             JsonRootName container = theType.getAnnotation(JsonRootName.class);
 
             if (elementType==null || container==null) {
-                throw new RuntimeException(theType.getSimpleName() + " needs have annotations for both JsonRootName and JsonTypeName");
+                throw new RuntimeException(theType.getSimpleName() + " needs annotations for both JsonRootName and JsonTypeName");
             }
 
             containingElement = container.value();
@@ -125,7 +125,7 @@ public class NaptanDataFromXMLFile<T extends NaptanXMLData> implements Transport
                 return findElement(elementName);
             }
             catch(XMLStreamException e) {
-                logger.error("Exception during interation", e);
+                logger.error("Exception during iteration", e);
                 return false;
             }
         }

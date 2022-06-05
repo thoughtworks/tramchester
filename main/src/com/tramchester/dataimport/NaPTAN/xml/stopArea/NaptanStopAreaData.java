@@ -1,33 +1,35 @@
 package com.tramchester.dataimport.NaPTAN.xml.stopArea;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonRootName;
-import com.fasterxml.jackson.annotation.JsonTypeName;
+import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 import com.tramchester.dataimport.NaPTAN.NaptanXMLData;
 import com.tramchester.dataimport.NaPTAN.xml.stopPoint.NaptanXMLLocation;
 import com.tramchester.geo.GridPosition;
 import com.tramchester.repository.naptan.NaptanStopAreaType;
 
+@JsonIgnoreProperties(ignoreUnknown = true)
 @JsonRootName("StopAreas")
 @JsonTypeName("StopArea")
 public class NaptanStopAreaData implements NaptanXMLData {
 
-    @JsonProperty("Name")
-    private String name;
+    private final String name;
+    private final String stopAreaCode;
+    private final NaptanXMLLocation location;
+    private final String stopAreaType;
+    private final String status;
 
-    @JsonProperty("StopAreaCode")
-    private String stopAreaCode;
+    public NaptanStopAreaData(@JsonProperty("Name") String name,
+                              @JsonProperty("StopAreaCode") String stopAreaCode,
+                              @JsonProperty("Location") NaptanXMLLocation location,
+                              @JsonProperty("StopAreaType") String stopAreaType,
+                              @JacksonXmlProperty(isAttribute = true, localName = "Status") String status) {
+        this.name = name;
+        this.stopAreaCode = stopAreaCode;
 
-    @JsonProperty("Location")
-    private NaptanXMLLocation location;
-
-    @JsonProperty("StopAreaType")
-    private String stopAreaType;
-
-    @JacksonXmlProperty(isAttribute = true, localName = "Status")
-    private String status;
+        this.location = location;
+        this.stopAreaType = stopAreaType;
+        this.status = status;
+    }
 
     public String getName() {
         return name;
