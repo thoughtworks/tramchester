@@ -8,8 +8,11 @@ import com.fasterxml.jackson.annotation.JsonTypeName;
 @JsonTypeName("AnnotatedRailRef")
 public class NaptanXMLAnnotatedRailRef {
 
-    @JsonProperty("TiplocRef")
-    private String tiplocRef;
+    private final String tiplocRef;
+
+    public NaptanXMLAnnotatedRailRef(@JsonProperty("TiplocRef") String tiplocRef) {
+        this.tiplocRef = tiplocRef;
+    }
 
     public String getTiplocRef() {
         return tiplocRef;

@@ -50,6 +50,13 @@ public class NaptanStopData implements NaptanXMLData {
         return StringIdFor.createId(atcoCode);
     }
 
+    public boolean hasValidAtcoCode() {
+        if (atcoCode==null) {
+            return false;
+        }
+        return !atcoCode.isBlank();
+    }
+
     public String getNaptanCode() {
         return naptanCode;
     }

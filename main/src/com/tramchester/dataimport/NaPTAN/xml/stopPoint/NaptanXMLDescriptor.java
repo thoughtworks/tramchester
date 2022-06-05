@@ -8,11 +8,14 @@ import com.fasterxml.jackson.annotation.JsonTypeName;
 @JsonTypeName("Descriptor")
 public class NaptanXMLDescriptor {
 
-    @JsonProperty("Indicator")
-    private String indicator;
+    private final String indicator;
+    private final String commonName;
 
-    @JsonProperty("CommonName")
-    private String commonName;
+    public NaptanXMLDescriptor(@JsonProperty("Indicator") String indicator,
+                               @JsonProperty("CommonName") String commonName) {
+        this.indicator = indicator;
+        this.commonName = commonName;
+    }
 
     public String getIndicator() {
         return indicator;

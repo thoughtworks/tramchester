@@ -116,7 +116,7 @@ public class NaptanRespository {
         logger.info("Load naptan stop reference data");
 
         Stream<NaptanStopData> stopsData = naptanDataImporter.getStopsData().
-                filter(stopData -> stopData.getAtcoCode().isValid());
+                filter(NaptanStopData::hasValidAtcoCode);
 
         stops = filterBy(bounds, margin, stopsData).
                 map(this::createRecord).
@@ -134,7 +134,7 @@ public class NaptanRespository {
 
         Stream<NaptanStopData> railStops = naptanDataImporter.getStopsData().
                 filter(NaptanStopData::hasRailInfo).
-                filter(stopData -> stopData.getAtcoCode().isValid());
+                filter(NaptanStopData::hasValidAtcoCode);
 
         tiplocToAtco = filterBy(bounds, margin, railStops)
                 .collect(Collectors.toMap(data ->

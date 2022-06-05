@@ -12,7 +12,7 @@ import java.util.List;
 public class NaptanXMLStopAreaRef {
 
     @JsonIgnore
-    private static List<String> activeModificationStatus = Arrays.asList("new", "revise");
+    private static final List<String> activeModificationStatus = Arrays.asList("new", "revise");
 
     @JacksonXmlProperty(isAttribute = true, localName = "Modification")
     private String modification;

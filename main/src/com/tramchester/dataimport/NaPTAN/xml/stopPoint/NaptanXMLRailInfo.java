@@ -8,7 +8,7 @@ import com.fasterxml.jackson.annotation.JsonTypeName;
 @JsonTypeName("Rail")
 public class NaptanXMLRailInfo {
 
-    final NaptanXMLAnnotatedRailRef annotatedRailRef;
+    private final NaptanXMLAnnotatedRailRef annotatedRailRef;
 
     public NaptanXMLRailInfo(@JsonProperty("AnnotatedRailRef")
                                      NaptanXMLAnnotatedRailRef annotatedRailRef) {
