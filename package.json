@@ -28,7 +28,7 @@
     "oboe": "^2.1.5",
     "portal-vue": "^2.1.7",
     "serialize-javascript": "^6.0.0",
-    "vue": "^2.6.14",
+    "vue": "^3.2.37",
     "vue-cookies": "^1.8.0",
     "vue-multiselect": "^2.1.6",
     "vue-slider-component": "^3.2.15",
