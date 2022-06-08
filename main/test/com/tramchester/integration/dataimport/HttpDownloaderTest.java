@@ -40,7 +40,7 @@ class HttpDownloaderTest {
     }
 
     @Test
-    void shouldDownloadSomething() throws IOException {
+    void shouldDownloadSomething() throws IOException, InterruptedException {
         String url = "https://github.com/fluidicon.png";
 
         URLStatus status = urlDownloader.getStatusFor(url);
@@ -56,7 +56,7 @@ class HttpDownloaderTest {
     }
 
     @Test
-    void shouldHaveValidModTimeForTimetableData() throws IOException {
+    void shouldHaveValidModTimeForTimetableData() throws IOException, InterruptedException {
 
         String url = TestEnv.TFGM_TIMETABLE_URL;
         URLStatus result = urlDownloader.getStatusFor(url);
@@ -65,7 +65,7 @@ class HttpDownloaderTest {
     }
 
     @Test
-    void shouldHave404StatusForMissingUrl() throws IOException {
+    void shouldHave404StatusForMissingUrl() throws IOException, InterruptedException {
         String url = "http://www.google.com/nothere";
 
         URLStatus result = urlDownloader.getStatusFor(url);
@@ -77,7 +77,7 @@ class HttpDownloaderTest {
     }
 
     @Test
-    void shouldHaveRedirectStatusAndURL() throws IOException {
+    void shouldHaveRedirectStatusAndURL() throws IOException, InterruptedException {
         String url = "http://news.bbc.co.uk";
 
         URLStatus result = urlDownloader.getStatusFor(url);

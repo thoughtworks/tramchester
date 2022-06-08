@@ -57,10 +57,10 @@ public class NewDataAvailableHealthCheck extends TramchesterHealthCheck {
                 logger.info(msg);
                 return Result.healthy(msg);
             }
-        } catch (IOException ioException) {
+        } catch (IOException | InterruptedException exception) {
             String msg = "Unable to check for newer data at " + dataCheckUrl;
-            logger.error(msg, ioException);
-            return Result.unhealthy(msg + ioException.getMessage());
+            logger.error(msg, exception);
+            return Result.unhealthy(msg + exception.getMessage());
         }
     }
 

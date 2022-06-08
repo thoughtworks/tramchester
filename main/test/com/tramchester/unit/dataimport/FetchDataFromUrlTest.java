@@ -68,7 +68,7 @@ class FetchDataFromUrlTest extends EasyMockSupport {
     }
 
     @Test
-    void shouldFetchIfModTimeIsNewer() throws IOException {
+    void shouldFetchIfModTimeIsNewer() throws IOException, InterruptedException {
         Files.newFile(zipFilename.toAbsolutePath().toString());
         LocalDateTime time = TestEnv.LocalNow();
 
@@ -87,7 +87,7 @@ class FetchDataFromUrlTest extends EasyMockSupport {
     }
 
     @Test
-    void shouldFetchIfLocalFileNotPresent() throws IOException {
+    void shouldFetchIfLocalFileNotPresent() throws IOException, InterruptedException {
 
         LocalDateTime time = TestEnv.LocalNow();
         URLStatus status = new URLStatus(expectedDownloadURL, 200, time);
@@ -104,7 +104,7 @@ class FetchDataFromUrlTest extends EasyMockSupport {
     }
 
     @Test
-    void shouldNotFetchIfModTimeIsNotNewer() throws IOException {
+    void shouldNotFetchIfModTimeIsNotNewer() throws IOException, InterruptedException {
         Files.newFile(zipFilename.toAbsolutePath().toString());
         LocalDateTime time = TestEnv.LocalNow();
         EasyMock.expect(providesLocalNow.getDateTime()).andReturn(LocalDateTime.now());
@@ -120,7 +120,7 @@ class FetchDataFromUrlTest extends EasyMockSupport {
     }
 
     @Test
-    void shouldCopeWithRedirects() throws IOException {
+    void shouldCopeWithRedirects() throws IOException, InterruptedException {
         Files.newFile(zipFilename.toAbsolutePath().toString());
 
         EasyMock.expect(providesLocalNow.getDateTime()).andReturn(LocalDateTime.now());
@@ -150,7 +150,7 @@ class FetchDataFromUrlTest extends EasyMockSupport {
     }
 
     @Test
-    void shouldHandleNoModTimeIsAvailableByDownloadingIfExpiryTimePast() throws IOException {
+    void shouldHandleNoModTimeIsAvailableByDownloadingIfExpiryTimePast() throws IOException, InterruptedException {
         Files.newFile(zipFilename.toAbsolutePath().toString());
         EasyMock.expect(providesLocalNow.getDateTime()).andReturn(LocalDateTime.now().
                 plusMinutes(FetchDataFromUrl.DEFAULT_EXPIRY_MINS).plusDays(1));
@@ -169,7 +169,7 @@ class FetchDataFromUrlTest extends EasyMockSupport {
     }
 
     @Test
-    void shouldHandleNoModTimeIsAvailableByNotDownloadingIfExpiryOK() throws IOException {
+    void shouldHandleNoModTimeIsAvailableByNotDownloadingIfExpiryOK() throws IOException, InterruptedException {
         Files.newFile(zipFilename.toAbsolutePath().toString());
         EasyMock.expect(providesLocalNow.getDateTime()).andReturn(LocalDateTime.now());
 
@@ -186,7 +186,7 @@ class FetchDataFromUrlTest extends EasyMockSupport {
     }
 
     @Test
-    void shouldHandlerFileIsMissing() throws IOException {
+    void shouldHandlerFileIsMissing() throws IOException, InterruptedException {
         Files.newFile(zipFilename.toAbsolutePath().toString());
 
         EasyMock.expect(providesLocalNow.getDateTime()).andReturn(LocalDateTime.now());

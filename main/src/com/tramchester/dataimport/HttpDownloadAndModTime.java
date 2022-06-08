@@ -2,23 +2,30 @@ package com.tramchester.dataimport;
 
 import com.tramchester.config.TramchesterConfig;
 import org.apache.http.HttpStatus;
-import org.glassfish.jersey.media.multipart.ContentDisposition;
+import org.apache.http.client.utils.DateUtils;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.ws.rs.HttpMethod;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
+import java.net.URI;
 import java.net.URL;
+import java.net.http.HttpClient;
+import java.net.http.HttpHeaders;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.file.Path;
-import java.text.ParseException;
 import java.time.Instant;
 import java.time.LocalDateTime;
+import java.util.Date;
+import java.util.Optional;
 import java.util.zip.GZIPInputStream;
 
 import static java.lang.String.format;
@@ -27,44 +34,92 @@ public class HttpDownloadAndModTime implements DownloadAndModTime {
     private static final Logger logger = LoggerFactory.getLogger(HttpDownloadAndModTime.class);
 
     @Override
-    public URLStatus getStatusFor(String originalUrl) throws IOException {
+    public URLStatus getStatusFor(String originalUrl) throws IOException, InterruptedException {
 
-        HttpURLConnection connection = createConnection(originalUrl);
-        connection.connect();
-        long serverModMillis = connection.getLastModified();
-        int httpStatusCode = connection.getResponseCode();
+//        HttpURLConnection connection = createConnection(originalUrl);
+//        connection.connect();
+
+        HttpResponse<Void> response = getHeadersFor(URI.create(originalUrl));
+        HttpHeaders headers = response.headers();
+
+        Optional<String> lastModifiedHeader = headers.firstValue(org.apache.http.HttpHeaders.LAST_MODIFIED);
+
+        long serverModMillis = 0;
+        if (lastModifiedHeader.isPresent()) {
+            final String lastMod = lastModifiedHeader.get();
+            logger.info("Mod time for " + originalUrl + " was " + lastMod);
+            Date modTime = DateUtils.parseDate(lastMod);
+            serverModMillis = modTime.getTime();
+        } else {
+            logger.warn("No mod time header for " + originalUrl);
+        }
+
+        int httpStatusCode = response.statusCode();
 
         String finalUrl = originalUrl;
         final boolean redirect = httpStatusCode == HttpStatus.SC_MOVED_PERMANENTLY
                 || httpStatusCode == HttpStatus.SC_MOVED_TEMPORARILY;
 
         if (redirect) {
-            String locationField = connection.getHeaderField("Location");
-            if (!locationField.isBlank()) {
+            Optional<String> locationField = headers.firstValue(org.apache.http.HttpHeaders.LOCATION); // connection.getHeaderField("Location");
+            if (locationField.isPresent()) {
                 logger.warn(format("URL: '%s' Redirect status %s and Location header '%s'",
                         originalUrl, httpStatusCode, locationField));
-                finalUrl = locationField;
+                finalUrl = locationField.get();
             } else {
                 logger.error(format("Location header missing for redirect %s, change status code to a 404 for %s",
                         httpStatusCode, originalUrl));
                 httpStatusCode = HttpStatus.SC_NOT_FOUND;
             }
+        } else {
+            if (httpStatusCode!=HttpStatus.SC_OK) {
+                logger.warn("Got error status code "+httpStatusCode+ " headers follow");
+                headers.map().forEach((header, values) -> logger.info("Header: " + header + " Value: " +values));
+            }
         }
 
-        String filename = "";
-        final String contentDispos = connection.getHeaderField("content-disposition");
-        if (contentDispos!=null) {
-            filename = getFilenameFromHeader(contentDispos);
-            logger.info(format("Got filename '%s' from content-disposition header: '%s'", filename, contentDispos));
-        }
+//        String filename = "";
+//        Optional<String> contentDisposHeader = headers.firstValue("Content-Disposition"); //connection.getHeaderField("content-disposition");
+//        if (contentDisposHeader.isEmpty()) {
+//            contentDisposHeader = headers.firstValue("content-disposition");
+//        }
+//        if (contentDisposHeader.isPresent()) {
+//            String contentDispos = contentDisposHeader.get();
+//            filename = getFilenameFromHeader(contentDispos);
+//            logger.info(format("Got filename '%s' from Content-Disposition header: '%s'", filename, contentDispos));
+//        }
 
-        connection.disconnect();
+        //connection.disconnect();
 
-        return createURLStatus(finalUrl, serverModMillis, httpStatusCode, redirect, filename);
+        return createURLStatus(finalUrl, serverModMillis, httpStatusCode, redirect);
+    }
+
+    private HttpResponse<Void> getHeadersFor(URI uri) throws IOException, InterruptedException {
+        HttpClient client = HttpClient.newBuilder().build();
+
+        HttpResponse<Void> response = getHttpResponse(uri, client, HttpMethod.HEAD);
+
+
+//        if (response.statusCode()==HttpStatus.SC_METHOD_NOT_ALLOWED) {
+//            logger.warn("Method not allowed for HEAD at " + uri + " so fall back to GET");
+//            response = getHttpResponse(uri, client, HttpMethod.GET);
+//            logger.info("Finished GET");
+//        }
+
+        return response;
+    }
+
+    private HttpResponse<Void> getHttpResponse(URI uri, HttpClient client, String method) throws IOException, InterruptedException {
+        HttpRequest httpRequest = HttpRequest.newBuilder().
+                uri(uri).
+                method(method, HttpRequest.BodyPublishers.noBody()).
+                build();
+
+        return client.send(httpRequest, HttpResponse.BodyHandlers.discarding());
     }
 
     @NotNull
-    private URLStatus createURLStatus(String url, long serverModMillis, int httpStatusCode, boolean redirected, String filename) {
+    private URLStatus createURLStatus(String url, long serverModMillis, int httpStatusCode, boolean redirected) {
         URLStatus result;
         if (serverModMillis == 0) {
             if (!redirected) {
@@ -78,9 +133,9 @@ public class HttpDownloadAndModTime implements DownloadAndModTime {
             result = new URLStatus(url, httpStatusCode, modTime);
         }
 
-        if (!filename.isBlank()) {
-            result.setFilename(filename);
-        }
+//        if (!filename.isBlank()) {
+//            result.setFilename(filename);
+//        }
 
         if (!result.isOk() && !result.isRedirect()) {
             logger.warn("Response code " + httpStatusCode + " for " + url);
@@ -108,6 +163,11 @@ public class HttpDownloadAndModTime implements DownloadAndModTime {
             String contentType = connection.getContentType();
             String encoding = connection.getContentEncoding();
 
+            String actualRemoteName = getContentDispos(connection);
+            if (!actualRemoteName.isEmpty()) {
+                logger.warn("Remote filename was " + actualRemoteName);
+            }
+
             final String suffix = " for " + url;
             logger.info("Response content type " + contentType + suffix);
             logger.info("Response encoding " + encoding + suffix);
@@ -127,6 +187,9 @@ public class HttpDownloadAndModTime implements DownloadAndModTime {
                 if (serverModMillis>0) {
                     if (!targetFile.setLastModified(serverModMillis)) {
                         logger.warn("Unable to set mod time on " + targetFile);
+                    } else {
+                        logger.info("Set mod time on " + targetFile + " to " + serverModMillis + " (" +
+                                getLocalDateTime(serverModMillis) + ")");
                     }
                 } else {
                     logger.warn("Server mod time is zero, not updating local file mod time " + suffix);
@@ -139,6 +202,18 @@ public class HttpDownloadAndModTime implements DownloadAndModTime {
             logger.error(format("Unable to download data from %s to %s exception %s", url, path, exception));
             throw exception;
         }
+    }
+
+    private String getContentDispos(HttpURLConnection connection) {
+        String disposition = connection.getHeaderField("content-disposition");
+        if (disposition !=null) {
+            return disposition;
+        }
+        disposition = connection.getHeaderField("Content-Disposition");
+        if (disposition !=null) {
+            return disposition;
+        }
+        return "";
     }
 
     private void download(File targetFile, boolean gziped, HttpURLConnection connection) throws IOException {
@@ -186,15 +261,15 @@ public class HttpDownloadAndModTime implements DownloadAndModTime {
         }
     }
 
-    private String getFilenameFromHeader(String header) {
-        try {
-            ContentDisposition contentDisposition = new ContentDisposition(header);
-            return contentDisposition.getFileName();
-        } catch (ParseException e) {
-            logger.warn(format("Unable to parse content-disposition '%s'", header));
-            return "";
-        }
-
-    }
+//    private String getFilenameFromHeader(String header) {
+//        try {
+//            ContentDisposition contentDisposition = new ContentDisposition(header);
+//            return contentDisposition.getFileName();
+//        } catch (ParseException e) {
+//            logger.warn(format("Unable to parse content-disposition '%s'", header));
+//            return "";
+//        }
+//
+//    }
 
 }

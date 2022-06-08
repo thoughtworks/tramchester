@@ -9,7 +9,7 @@ public class URLStatus {
     private final String url;
     private final int responseCode;
     private final LocalDateTime modTime;
-    private String filename;
+//    private String filename;
 
     public URLStatus(String url, int responseCode) {
         this(url, responseCode, LocalDateTime.MIN);
@@ -19,7 +19,7 @@ public class URLStatus {
         this.url = url;
         this.responseCode = responseCode;
         this.modTime = modTime;
-        filename = "";
+//        filename = "";
     }
 
     public LocalDateTime getModTime() {
@@ -44,7 +44,7 @@ public class URLStatus {
                 "url='" + url + '\'' +
                 ", responseCode=" + responseCode +
                 ", modTime=" + modTime +
-                ", filename='" + filename + '\'' +
+//                ", filename='" + filename + '\'' +
                 '}';
     }
 
@@ -72,11 +72,11 @@ public class URLStatus {
         return responseCode == HttpStatus.SC_MOVED_PERMANENTLY || responseCode == HttpStatus.SC_MOVED_TEMPORARILY;
     }
 
-    public void setFilename(String filename) {
-        this.filename = filename;
-    }
-
-    public String getFilename() {
-        return filename;
-    }
+//    public void setFilename(String filename) {
+//        this.filename = filename;
+//    }
+//
+//    public String getFilename() {
+//        return filename;
+//    }
 }

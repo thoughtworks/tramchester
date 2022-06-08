@@ -57,7 +57,7 @@ class NewDataAvailableHealthCheckTest extends EasyMockSupport {
     }
 
     @Test
-    void shouldReportHealthyWhenNONewDataAvailable() throws IOException {
+    void shouldReportHealthyWhenNONewDataAvailable() throws IOException, InterruptedException {
 
         URLStatus status = new URLStatus(expectedURL, 200, time.minusDays(1));
 
@@ -71,7 +71,7 @@ class NewDataAvailableHealthCheckTest extends EasyMockSupport {
     }
 
     @Test
-    void shouldReportUnHealthyWhenNewDataAvailable() throws IOException {
+    void shouldReportUnHealthyWhenNewDataAvailable() throws IOException, InterruptedException {
 
         URLStatus status = new URLStatus(expectedURL, 200, time.plusDays(1));
 
@@ -85,7 +85,7 @@ class NewDataAvailableHealthCheckTest extends EasyMockSupport {
     }
 
     @Test
-    void shouldReportUnHealthyWhenDataMissing() throws IOException {
+    void shouldReportUnHealthyWhenDataMissing() throws IOException, InterruptedException {
 
         URLStatus status = new URLStatus(expectedURL, 200);
 

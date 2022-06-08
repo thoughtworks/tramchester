@@ -7,6 +7,7 @@ import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.DataSourceID;
 import com.tramchester.domain.time.ProvidesNow;
 import org.apache.commons.io.FileUtils;
+import org.apache.http.HttpStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -68,35 +69,23 @@ public class FetchDataFromUrl {
                 if (refreshDataIfNewerAvailable(config)) {
                     downloadedDataRepository.markRefreshed(config.getDataSourceId());
                 }
-            } catch (IOException e) {
-                logger.info("Unable to refresh data for config " + config);
+            } catch (IOException | InterruptedException exception) {
+                logger.warn("Unable to refresh data for config: " + config, exception);
             }
         });
     }
 
-    private boolean refreshDataIfNewerAvailable(RemoteDataSourceConfig config) throws IOException {
+    private boolean refreshDataIfNewerAvailable(RemoteDataSourceConfig config) throws IOException, InterruptedException {
         boolean isS3 = config.getIsS3();
         Path downloadDirectory = config.getDataPath();
         final DataSourceID dataSourceId = config.getDataSourceId();
 
         logger.info("Refresh data if newer is available for " + dataSourceId);
 
-        String targetFile;
-        URLStatus status = null;
-
-        if (config.getDownloadFilename().isEmpty()) {
-            status = getStatusFromRemoteURL(config, isS3);
-            if (!status.isOk()) {
-                return false;
-            }
-            targetFile = status.getFilename();
-        } else {
-            targetFile = config.getDownloadFilename();
-        }
+        String targetFile = config.getDownloadFilename();
 
         if (targetFile.isEmpty()) {
-            logger.error(format("Unable to calculate download target for %s from '%s' or '%s'",
-                    dataSourceId, config.getDownloadFilename(), config.getDataUrl()));
+            logger.error(format("Missing filename for %s ", dataSourceId));
             return false;
         }
 
@@ -120,11 +109,14 @@ public class FetchDataFromUrl {
             }
         }
 
-        if (status==null) {
-            // don't do this twice, is potentially expensive
-            String originalURL = config.getDataUrl();
-            status = getStatusFor(originalURL, isS3);
-            if (!status.isOk()) {
+        String originalURL = config.getDataUrl();
+        URLStatus status = getStatusFor(originalURL, isS3);
+        if (!status.isOk()) {
+            if (status.getStatusCode() == HttpStatus.SC_METHOD_NOT_ALLOWED) {
+                // workaround for naptan, does not support HEAD request, so cannot prefetch headers
+                logger.warn("Was unable to query using HEAD for " + config.getDataSourceId());
+            } else {
+                logger.error("Could not download for " + config.getDataSourceId() + " status was " + status);
                 return false;
             }
         }
@@ -163,20 +155,6 @@ public class FetchDataFromUrl {
         }
     }
 
-    private URLStatus getStatusFromRemoteURL(RemoteDataSourceConfig config, boolean isS3) throws IOException {
-        URLStatus status;
-        String originalURL = config.getDataUrl();
-
-        logger.info("target file is not provided, derive from download url: " + originalURL);
-
-        status = getStatusFor(originalURL, isS3);
-
-        if (!status.isOk()) {
-            logger.error(format("Unable to get target filename, since status %s for Requested URL %s ", status.getStatusCode(), originalURL));
-        }
-        return status;
-    }
-
     private void downloadTo(DataSourceID dataSourceID, Path destination, String url, boolean isS3) throws IOException {
         if (isS3) {
             s3Downloader.downloadTo(destination, url);
@@ -186,14 +164,14 @@ public class FetchDataFromUrl {
         downloadedDataRepository.addFileFor(dataSourceID, destination);
     }
 
-    private URLStatus getStatusFor(String url, boolean isS3) throws IOException {
+    private URLStatus getStatusFor(String url, boolean isS3) throws IOException, InterruptedException {
         if (isS3) {
             return s3Downloader.getStatusFor(url);
         }
         return getStatusFollowRedirects(url);
     }
 
-    private URLStatus getStatusFollowRedirects(String url) throws IOException {
+    private URLStatus getStatusFollowRedirects(String url) throws IOException, InterruptedException {
         URLStatus status = httpDownloader.getStatusFor(url);
 
         while (status.isRedirect()) {

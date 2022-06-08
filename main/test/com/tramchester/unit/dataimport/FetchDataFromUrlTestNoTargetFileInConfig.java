@@ -37,14 +37,15 @@ class FetchDataFromUrlTestNoTargetFileInConfig extends EasyMockSupport {
     @BeforeEach
     void beforeEachTestRuns() throws IOException {
 
-        TramchesterConfig config = new LocalTestConfig(java.nio.file.Files.createTempDirectory("FetchDataFromUrlTest"));
+        final String targetZipFilename = "TfGMgtfsnew.zip";
+
+        TramchesterConfig config = new LocalTestConfig(java.nio.file.Files.createTempDirectory("FetchDataFromUrlTest"), targetZipFilename);
 
         providesLocalNow = createMock(ProvidesNow.class);
         httpDownloader = createMock(HttpDownloadAndModTime.class);
         S3DownloadAndModTime s3Downloader = createMock(S3DownloadAndModTime.class);
         remoteDataSourceConfig = config.getDataRemoteSourceConfig(DataSourceID.tfgm);
 
-        final String targetZipFilename = "TfGMgtfsnew.zip";
 
         Path path = remoteDataSourceConfig.getDataPath();
         zipFilename = path.resolve(targetZipFilename);
@@ -73,14 +74,14 @@ class FetchDataFromUrlTestNoTargetFileInConfig extends EasyMockSupport {
     }
 
     @Test
-    void shouldFetchIfModTimeIsNewer() throws IOException {
+    void shouldFetchIfModTimeIsNewer() throws IOException, InterruptedException {
         Files.newFile(zipFilename.toAbsolutePath().toString());
         LocalDateTime time = TestEnv.LocalNow();
 
         EasyMock.expect(providesLocalNow.getDateTime()).andReturn(LocalDateTime.now());
 
         URLStatus status = new URLStatus(expectedDownloadURL, 200, time.plusMinutes(30));
-        status.setFilename("TfGMgtfsnew.zip");
+        //status.setFilename("TfGMgtfsnew.zip");
         EasyMock.expect(httpDownloader.getStatusFor(expectedDownloadURL)).andReturn(status);
 
         httpDownloader.downloadTo(zipFilename, expectedDownloadURL);
@@ -94,11 +95,11 @@ class FetchDataFromUrlTestNoTargetFileInConfig extends EasyMockSupport {
     }
 
     @Test
-    void shouldFetchIfLocalFileNotPresent() throws IOException {
+    void shouldFetchIfLocalFileNotPresent() throws IOException, InterruptedException {
 
         LocalDateTime time = TestEnv.LocalNow();
         URLStatus status = new URLStatus(expectedDownloadURL, 200, time);
-        status.setFilename("TfGMgtfsnew.zip");
+        //status.setFilename("TfGMgtfsnew.zip");
         EasyMock.expect(httpDownloader.getStatusFor(expectedDownloadURL)).andReturn(status);
 
         httpDownloader.downloadTo(zipFilename, expectedDownloadURL);
@@ -112,13 +113,13 @@ class FetchDataFromUrlTestNoTargetFileInConfig extends EasyMockSupport {
     }
 
     @Test
-    void shouldNotFetchIfModTimeIsNotNewer() throws IOException {
+    void shouldNotFetchIfModTimeIsNotNewer() throws IOException, InterruptedException {
         Files.newFile(zipFilename.toAbsolutePath().toString());
         LocalDateTime time = TestEnv.LocalNow();
         EasyMock.expect(providesLocalNow.getDateTime()).andReturn(LocalDateTime.now());
 
         URLStatus status = new URLStatus(expectedDownloadURL, 200, time.minusDays(1));
-        status.setFilename("TfGMgtfsnew.zip");
+        //status.setFilename("TfGMgtfsnew.zip");
         EasyMock.expect(httpDownloader.getStatusFor(expectedDownloadURL)).andReturn(status);
 
         replayAll();
@@ -130,22 +131,22 @@ class FetchDataFromUrlTestNoTargetFileInConfig extends EasyMockSupport {
     }
 
     @Test
-    void shouldCopeWithRedirects() throws IOException {
+    void shouldCopeWithRedirects() throws IOException, InterruptedException {
         Files.newFile(zipFilename.toAbsolutePath().toString());
 
-        //EasyMock.expect(providesLocalNow.getDateTime()).andReturn(LocalDateTime.now());
+        EasyMock.expect(providesLocalNow.getDateTime()).andReturn(LocalDateTime.now());
 
         String redirectUrl1 = "https://resource.is.always.now.com/resource";
         String redirectUrl2 = "https://resource.is.temp.now.com/resource/actualFilename.txt";
 
-        Path filename = remoteDataSourceConfig.getDataPath().resolve("actualFilename.txt");
+        Path filename = remoteDataSourceConfig.getDataPath().resolve(zipFilename);
 
         LocalDateTime time = TestEnv.LocalNow().plusMinutes(1);
 
         URLStatus status1 = new URLStatus(redirectUrl1, 301);
         URLStatus status2 = new URLStatus(redirectUrl2, 302);
         URLStatus status3 = new URLStatus(redirectUrl2, 200, time);
-        status3.setFilename("actualFilename.txt");
+        //status3.setFilename("actualFilename.txt");
 
         EasyMock.expect(httpDownloader.getStatusFor(expectedDownloadURL)).andReturn(status1);
         EasyMock.expect(httpDownloader.getStatusFor(redirectUrl1)).andReturn(status2);
@@ -163,13 +164,13 @@ class FetchDataFromUrlTestNoTargetFileInConfig extends EasyMockSupport {
     }
 
     @Test
-    void shouldHandleNoModTimeIsAvailableByDownloadingIfExpiryTimePast() throws IOException {
+    void shouldHandleNoModTimeIsAvailableByDownloadingIfExpiryTimePast() throws IOException, InterruptedException {
         Files.newFile(zipFilename.toAbsolutePath().toString());
         EasyMock.expect(providesLocalNow.getDateTime()).andReturn(LocalDateTime.now().
                 plusMinutes(FetchDataFromUrl.DEFAULT_EXPIRY_MINS).plusDays(1));
 
         URLStatus status = new URLStatus(expectedDownloadURL, 200);
-        status.setFilename("TfGMgtfsnew.zip");
+        //status.setFilename("TfGMgtfsnew.zip");
         EasyMock.expect(httpDownloader.getStatusFor(expectedDownloadURL)).andReturn(status);
         httpDownloader.downloadTo(zipFilename, expectedDownloadURL);
         EasyMock.expectLastCall();
@@ -182,13 +183,13 @@ class FetchDataFromUrlTestNoTargetFileInConfig extends EasyMockSupport {
     }
 
     @Test
-    void shouldHandleNoModTimeIsAvailableByNotDownloadingIfExpiryOK() throws IOException {
+    void shouldHandleNoModTimeIsAvailableByNotDownloadingIfExpiryOK() throws IOException, InterruptedException {
         Files.newFile(zipFilename.toAbsolutePath().toString());
         EasyMock.expect(providesLocalNow.getDateTime()).andReturn(LocalDateTime.now());
 
         //LocalDateTime fileIsMissingTime = LocalDateTime.MIN;
         URLStatus status = new URLStatus(expectedDownloadURL, 200);
-        status.setFilename("TfGMgtfsnew.zip");
+        //status.setFilename("TfGMgtfsnew.zip");
 
         EasyMock.expect(httpDownloader.getStatusFor(expectedDownloadURL)).andReturn(status);
 
@@ -200,8 +201,8 @@ class FetchDataFromUrlTestNoTargetFileInConfig extends EasyMockSupport {
     }
 
     @Test
-    void shouldHandlerFileIsMissing() throws IOException {
-        Files.newFile(zipFilename.toAbsolutePath().toString());
+    void shouldHandlerFileIsMissing() throws IOException, InterruptedException {
+        //Files.newFile(zipFilename.toAbsolutePath().toString());
 
         //EasyMock.expect(providesLocalNow.getDateTime()).andReturn(LocalDateTime.now());
         URLStatus status = new URLStatus(expectedDownloadURL, 404);
@@ -217,9 +218,11 @@ class FetchDataFromUrlTestNoTargetFileInConfig extends EasyMockSupport {
 
     private static class LocalTestConfig extends TestConfig {
         private final Path dataPath;
+        private final String targetFilename;
 
-        private LocalTestConfig(Path dataPath) {
+        private LocalTestConfig(Path dataPath, String targetFilename) {
             this.dataPath = dataPath;
+            this.targetFilename = targetFilename;
         }
 
         @Override
@@ -229,14 +232,16 @@ class FetchDataFromUrlTestNoTargetFileInConfig extends EasyMockSupport {
 
         @Override
         public List<RemoteDataSourceConfig> getRemoteDataSourceConfig() {
-            return Collections.singletonList(new RemoteDataSourceConfigNoTargetFile(dataPath));
+            return Collections.singletonList(new RemoteDataSourceConfigNoTargetFile(dataPath, targetFilename));
         }
 
         private static class RemoteDataSourceConfigNoTargetFile implements RemoteDataSourceConfig {
             private final Path dataPath;
+            private final String targetFilename;
 
-            public RemoteDataSourceConfigNoTargetFile(Path dataPath) {
+            public RemoteDataSourceConfigNoTargetFile(Path dataPath, String targetFilename) {
                 this.dataPath = dataPath;
+                this.targetFilename = targetFilename;
             }
 
             @Override
@@ -256,7 +261,7 @@ class FetchDataFromUrlTestNoTargetFileInConfig extends EasyMockSupport {
 
             @Override
             public String getDownloadFilename() {
-                return "";
+                return targetFilename;
             }
 
             @Override
