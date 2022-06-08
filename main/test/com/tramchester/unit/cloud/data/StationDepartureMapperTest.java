@@ -84,4 +84,31 @@ class StationDepartureMapperTest {
         List<ArchivedDepartureDTO> trams = departureInfoDTO.getDueTrams();
         assertEquals(1, trams.size());
     }
+
+    @Test
+    void shouldReproIssueWithTransportMode() {
+        final String json = "[{\n" +
+                "    \"lineName\": \"TraffordPark\",\n" +
+                "    \"stationPlatform\": \"9400ZZMAPAR1\",\n" +
+                "    \"message\": \"On Thursday 9th and Friday 10th June Ed Sheeran will perform at the Etihad Stadium and services are expected to be busier than usual. Passengers are advised to allow extra time for travel.\",\n" +
+                "    \"dueTrams\": [\n" +
+                "        {\n" +
+                "            \"carriages\": \"Single\",\n" +
+                "            \"destination\": \"Cornbrook\",\n" +
+                "            \"dueTime\": \"2022-06-06T09:59:00\",\n" +
+                "            \"from\": \"Parkway\",\n" +
+                "            \"status\": \"Due\",\n" +
+                "            \"transportMode\": \"Tram\",\n" +
+                "            \"wait\": 9,\n" +
+                "            \"when\": \"09:59\"\n" +
+                "        }\n" +
+                "    ],\n" +
+                "    \"lastUpdate\": \"2022-06-06T09:50:28\",\n" +
+                "    \"displayId\": \"924\",\n" +
+                "    \"location\": \"Parkway\"\n" +
+                "}]";
+
+        List<ArchivedStationDepartureInfoDTO> results = mapper.parse(json);
+        assertEquals(1, results.size());
+    }
 }

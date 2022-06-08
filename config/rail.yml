@@ -34,7 +34,7 @@ remoteSources:
     dataURL: https://naptan.api.dft.gov.uk/v1/access-nodes?dataFormat=xml
     dataCheckURL: ""
     dataPath: data/naptan
-    filename: "NaPTAN.xml"
+    filename: NaPTAN.xml.zip
   - name: nptg
     dataURL: http://www.dft.gov.uk/nptg/snapshot/nptgcsv.zip
     dataCheckURL: ""

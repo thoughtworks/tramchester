@@ -1,6 +1,5 @@
 package com.tramchester.livedata.domain.DTO.archived;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.tramchester.mappers.serialisation.LocalTimeJsonDeserializer;
@@ -9,7 +8,7 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 
 @SuppressWarnings("unused")
-@JsonIgnoreProperties("dueTime")
+@JsonIgnoreProperties({"dueTime","transportMode"})
 public class ArchivedDepartureDTO  {
 
     @JsonDeserialize(using = LocalTimeJsonDeserializer.class)

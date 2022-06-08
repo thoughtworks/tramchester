@@ -93,13 +93,14 @@ public class FetchDataFromUrl {
 
         logger.info(format("Download target for %s is %s", dataSourceId, destination));
 
+        LocalDateTime localModTime = LocalDateTime.MIN;
         boolean expired = false;
         final boolean filePresent = Files.exists(destination);
         if (filePresent) {
-            LocalDateTime localMod = getFileModLocalTime(destination);
+            localModTime = getFileModLocalTime(destination);
             LocalDateTime localNow = providesLocalNow.getDateTime();
-            expired = localMod.plusMinutes(DEFAULT_EXPIRY_MINS).isBefore(localNow);
-            logger.info(format("%s Local mod time: %s Current Local Time: %s ", destination, localMod, localNow));
+            expired = localModTime.plusMinutes(DEFAULT_EXPIRY_MINS).isBefore(localNow);
+            logger.info(format("%s Local mod time: %s Current Local Time: %s ", destination, localModTime, localNow));
 
             // do this here as getting the status for URL is potentially slow
             if (config.getDataCheckUrl().isBlank() && !expired) {
@@ -110,7 +111,7 @@ public class FetchDataFromUrl {
         }
 
         String originalURL = config.getDataUrl();
-        URLStatus status = getStatusFor(originalURL, isS3);
+        URLStatus status = getStatusFor(originalURL, isS3, localModTime);
         if (!status.isOk()) {
             if (status.getStatusCode() == HttpStatus.SC_METHOD_NOT_ALLOWED) {
                 // workaround for naptan, does not support HEAD request, so cannot prefetch headers
@@ -128,7 +129,7 @@ public class FetchDataFromUrl {
 
             LocalDateTime serverMod = status.getModTime();
             if (serverMod.isEqual(LocalDateTime.MIN)) {
-                return loadIfCachePeriodExpired(expired, actualURL, destination, isS3, dataSourceId);
+                return loadIfCachePeriodExpired(expired, actualURL, destination, isS3, dataSourceId, localMod);
             }
 
             logger.info(format("%s: Server mod time: %s File mod time: %s ", dataSourceId, serverMod, localMod));
@@ -136,7 +137,7 @@ public class FetchDataFromUrl {
             try {
                 if (serverMod.isAfter(localMod)) {
                     logger.warn(dataSourceId + ": server time is after local, downloading new data");
-                    downloadTo(dataSourceId, destination, actualURL, isS3);
+                    downloadTo(dataSourceId, destination, actualURL, isS3, localModTime);
                     return true;
                 }
                 logger.info(dataSourceId + ": no newer data");
@@ -150,34 +151,35 @@ public class FetchDataFromUrl {
         } else {
             logger.info(dataSourceId + ": no local file " + destination + " so down loading new data from " + actualURL);
             FileUtils.forceMkdir(downloadDirectory.toAbsolutePath().toFile());
-            downloadTo(dataSourceId, destination, actualURL, isS3);
+            downloadTo(dataSourceId, destination, actualURL, isS3, localModTime);
             return true;
         }
     }
 
-    private void downloadTo(DataSourceID dataSourceID, Path destination, String url, boolean isS3) throws IOException {
+    private void downloadTo(DataSourceID dataSourceID, Path destination, String url, boolean isS3,
+                            LocalDateTime localModTime) throws IOException, InterruptedException {
         if (isS3) {
-            s3Downloader.downloadTo(destination, url);
+            s3Downloader.downloadTo(destination, url, localModTime);
         } else {
-            httpDownloader.downloadTo(destination, url);
+            httpDownloader.downloadTo(destination, url, localModTime);
         }
         downloadedDataRepository.addFileFor(dataSourceID, destination);
     }
 
-    private URLStatus getStatusFor(String url, boolean isS3) throws IOException, InterruptedException {
+    private URLStatus getStatusFor(String url, boolean isS3, LocalDateTime localModTime) throws IOException, InterruptedException {
         if (isS3) {
-            return s3Downloader.getStatusFor(url);
+            return s3Downloader.getStatusFor(url, localModTime);
         }
-        return getStatusFollowRedirects(url);
+        return getStatusFollowRedirects(url, localModTime);
     }
 
-    private URLStatus getStatusFollowRedirects(String url) throws IOException, InterruptedException {
-        URLStatus status = httpDownloader.getStatusFor(url);
+    private URLStatus getStatusFollowRedirects(String url, LocalDateTime localModTime) throws IOException, InterruptedException {
+        URLStatus status = httpDownloader.getStatusFor(url, localModTime);
 
         while (status.isRedirect()) {
             String redirectUrl = status.getActualURL();
             logger.warn(String.format("Status code %s Following redirect to %s", status.getStatusCode(), redirectUrl));
-            status = httpDownloader.getStatusFor(redirectUrl);
+            status = httpDownloader.getStatusFor(redirectUrl, localModTime);
         }
 
         String message = String.format("Status: %s final url: '%s'",
@@ -192,17 +194,18 @@ public class FetchDataFromUrl {
         return status;
     }
 
-    private boolean loadIfCachePeriodExpired(boolean expired, String url, Path destination, boolean isS3, DataSourceID dataSourceId)  {
+    private boolean loadIfCachePeriodExpired(boolean expired, String url, Path destination, boolean isS3,
+                                             DataSourceID dataSourceId, LocalDateTime currentModTime)  {
 
         boolean downloaded = false;
 
         if (expired) {
             try {
                 logger.info(destination + " expired downloading from " + url);
-                downloadTo(dataSourceId, destination, url, isS3);
+                downloadTo(dataSourceId, destination, url, isS3, currentModTime);
                 downloaded = true;
             }
-            catch (IOException e) {
+            catch (IOException | InterruptedException e) {
                 logger.error("Cannot download from " + url);
             }
         } else {

@@ -53,17 +53,18 @@ public class S3DownloaderTest {
     }
 
     @Test
-    void shouldDownloadSomething() throws IOException {
+    void shouldDownloadSomething() throws IOException, InterruptedException {
         String url = "s3://tramchester2dist/testing/ForTestSupport.txt";
 
-        URLStatus result = downloadAndModTime.getStatusFor(url);
+        LocalDateTime localModTime = LocalDateTime.MIN;
+        URLStatus result = downloadAndModTime.getStatusFor(url, localModTime);
         assertTrue(result.isOk());
 
         LocalDateTime modTime = result.getModTime();
         assertTrue(modTime.isBefore(TestEnv.LocalNow()));
         assertTrue(modTime.isAfter(LocalDateTime.of(2000,1,1,12,59,22)));
 
-        downloadAndModTime.downloadTo(temporaryFile, url);
+        downloadAndModTime.downloadTo(temporaryFile, url, localModTime);
 
         assertTrue(temporaryFile.toFile().exists());
         assertTrue(temporaryFile.toFile().length()>0);

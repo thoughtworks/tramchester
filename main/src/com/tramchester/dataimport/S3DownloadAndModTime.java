@@ -7,6 +7,7 @@ import org.apache.http.HttpStatus;
 import javax.inject.Inject;
 import java.io.IOException;
 import java.nio.file.Path;
+import java.time.LocalDateTime;
 
 @LazySingleton
 public class S3DownloadAndModTime implements DownloadAndModTime {
@@ -19,14 +20,16 @@ public class S3DownloadAndModTime implements DownloadAndModTime {
     }
 
     @Override
-    public URLStatus getStatusFor(String url) {
+    public URLStatus getStatusFor(String url, LocalDateTime localModTime) {
         //String filename = FilenameUtils.getName(url);
         //urlStatus.setFilename(filename);
         return new URLStatus(url, HttpStatus.SC_OK, s3Client.getModTimeFor(url));
     }
 
     @Override
-    public void downloadTo(Path path, String url) throws IOException {
+    public void downloadTo(Path path, String url, LocalDateTime localModTime) throws IOException, InterruptedException {
+        // there is no equivalent to if-modified-since so don't use localModTime here
         s3Client.downloadTo(path, url);
     }
+
 }

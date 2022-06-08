@@ -320,7 +320,7 @@ public class ClientForS3 {
     }
 
     public LocalDateTime getModTimeFor(String url) {
-        logger.info("Mod time for for url " + url);
+        logger.info("Fetch Mod time for url " + url);
 
         S3Object s3Object = getS3ObjectFor(url);
 
@@ -337,9 +337,16 @@ public class ClientForS3 {
         ListObjectsV2Response response = s3Client.listObjectsV2(request);
 
         if (response.keyCount()!=1) {
-            logger.warn("Unexpected number of objects, needed 1 got " + response.keyCount());
+            logger.warn(format("Unexpected number of objects, needed 1 got %s for %s", response.keyCount(), bucketKey));
         }
-        return response.contents().get(0);
+
+        if (response.contents().size()>=1) {
+            return response.contents().get(0);
+        } else {
+            final String message = format("Unable to fetch object from %s", bucketKey);
+            logger.error(message);
+            throw new RuntimeException(message);
+        }
     }
 
     private GetObjectRequest createRequestFor(BucketKey bucketKey) {

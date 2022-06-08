@@ -35,7 +35,7 @@ public class NaptanRemoteDataSourceConfig implements RemoteDataSourceConfig {
 
     @Override
     public String getDownloadFilename() {
-        return "NaPTAN.xml";
+        return "NaPTAN.xml.zip";
     }
 
     @Override

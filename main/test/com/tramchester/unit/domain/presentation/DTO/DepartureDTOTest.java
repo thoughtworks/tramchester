@@ -3,8 +3,8 @@ package com.tramchester.unit.domain.presentation.DTO;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramTime;
-import com.tramchester.livedata.domain.liveUpdates.UpcomingDeparture;
 import com.tramchester.livedata.domain.DTO.DepartureDTO;
+import com.tramchester.livedata.domain.liveUpdates.UpcomingDeparture;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.TramStations;
 import org.jetbrains.annotations.NotNull;
@@ -12,7 +12,6 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -31,6 +30,8 @@ class DepartureDTOTest {
 
     @BeforeEach
     void beforeEachTestRuns() {
+        now = LocalDateTime.of(2022, 5, 30, 11, 45);
+
         now = TestEnv.LocalNow();
         updateTime = now.toLocalTime();
         updateDate = now.toLocalDate();
@@ -38,10 +39,6 @@ class DepartureDTOTest {
 
     @Test
     void shouldCreateFromDueTramAndLocation() {
-        LocalTime updateTime = TestEnv.LocalNow().toLocalTime();
-        if (updateTime.getHour()==23) {
-            updateTime = updateTime.minusHours(1);
-        }
 
         UpcomingDeparture dueTram = getDueTram(updateTime, TramStations.Bury, 42);
         DepartureDTO departureDTO = new DepartureDTO(StPetersSquare.fake(), dueTram, now);

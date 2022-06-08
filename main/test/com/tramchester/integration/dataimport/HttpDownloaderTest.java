@@ -19,9 +19,11 @@ class HttpDownloaderTest {
 
     private Path temporaryFile;
     private HttpDownloadAndModTime urlDownloader;
+    private LocalDateTime localModTime;
 
     @BeforeEach
     void beforeEachTestRuns() {
+        localModTime = LocalDateTime.MIN;
         urlDownloader = new HttpDownloadAndModTime();
 
         temporaryFile = Paths.get(FileUtils.getTempDirectoryPath(), "downloadAFile");
@@ -43,13 +45,13 @@ class HttpDownloaderTest {
     void shouldDownloadSomething() throws IOException, InterruptedException {
         String url = "https://github.com/fluidicon.png";
 
-        URLStatus status = urlDownloader.getStatusFor(url);
+        URLStatus status = urlDownloader.getStatusFor(url, localModTime);
         assertTrue(status.isOk());
         LocalDateTime modTime = status.getModTime();
         assertTrue(modTime.isBefore(TestEnv.LocalNow()));
         assertTrue(modTime.isAfter(LocalDateTime.of(2000,1,1,12,59,22)));
 
-        urlDownloader.downloadTo(temporaryFile, url);
+        urlDownloader.downloadTo(temporaryFile, url, modTime);
 
         assertTrue(temporaryFile.toFile().exists());
         assertTrue(temporaryFile.toFile().length()>0);
@@ -59,7 +61,7 @@ class HttpDownloaderTest {
     void shouldHaveValidModTimeForTimetableData() throws IOException, InterruptedException {
 
         String url = TestEnv.TFGM_TIMETABLE_URL;
-        URLStatus result = urlDownloader.getStatusFor(url);
+        URLStatus result = urlDownloader.getStatusFor(url, localModTime);
 
         assertTrue(result.getModTime().getYear()>1970);
     }
@@ -68,7 +70,7 @@ class HttpDownloaderTest {
     void shouldHave404StatusForMissingUrl() throws IOException, InterruptedException {
         String url = "http://www.google.com/nothere";
 
-        URLStatus result = urlDownloader.getStatusFor(url);
+        URLStatus result = urlDownloader.getStatusFor(url, localModTime);
 
         assertFalse(result.isOk());
         assertFalse(result.isRedirect());
@@ -80,7 +82,7 @@ class HttpDownloaderTest {
     void shouldHaveRedirectStatusAndURL() throws IOException, InterruptedException {
         String url = "http://news.bbc.co.uk";
 
-        URLStatus result = urlDownloader.getStatusFor(url);
+        URLStatus result = urlDownloader.getStatusFor(url, localModTime);
 
         assertFalse(result.isOk());
         assertTrue(result.isRedirect());

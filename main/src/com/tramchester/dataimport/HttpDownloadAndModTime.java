@@ -3,6 +3,7 @@ package com.tramchester.dataimport;
 import com.tramchester.config.TramchesterConfig;
 import org.apache.http.HttpStatus;
 import org.apache.http.client.utils.DateUtils;
+import org.eclipse.jetty.http.HttpHeader;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,8 +25,12 @@ import java.nio.channels.ReadableByteChannel;
 import java.nio.file.Path;
 import java.time.Instant;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Date;
 import java.util.Optional;
+import java.util.OptionalLong;
 import java.util.zip.GZIPInputStream;
 
 import static java.lang.String.format;
@@ -34,25 +39,12 @@ public class HttpDownloadAndModTime implements DownloadAndModTime {
     private static final Logger logger = LoggerFactory.getLogger(HttpDownloadAndModTime.class);
 
     @Override
-    public URLStatus getStatusFor(String originalUrl) throws IOException, InterruptedException {
+    public URLStatus getStatusFor(String originalUrl, LocalDateTime localModTime) throws IOException, InterruptedException {
 
-//        HttpURLConnection connection = createConnection(originalUrl);
-//        connection.connect();
-
-        HttpResponse<Void> response = getHeadersFor(URI.create(originalUrl));
+        HttpResponse<Void> response = getHeadersFor(URI.create(originalUrl), localModTime, HttpMethod.HEAD, HttpResponse.BodyHandlers.discarding());
         HttpHeaders headers = response.headers();
 
-        Optional<String> lastModifiedHeader = headers.firstValue(org.apache.http.HttpHeaders.LAST_MODIFIED);
-
-        long serverModMillis = 0;
-        if (lastModifiedHeader.isPresent()) {
-            final String lastMod = lastModifiedHeader.get();
-            logger.info("Mod time for " + originalUrl + " was " + lastMod);
-            Date modTime = DateUtils.parseDate(lastMod);
-            serverModMillis = modTime.getTime();
-        } else {
-            logger.warn("No mod time header for " + originalUrl);
-        }
+        long serverModMillis = getServerModMillis(response);
 
         int httpStatusCode = response.statusCode();
 
@@ -76,46 +68,54 @@ public class HttpDownloadAndModTime implements DownloadAndModTime {
                 logger.warn("Got error status code "+httpStatusCode+ " headers follow");
                 headers.map().forEach((header, values) -> logger.info("Header: " + header + " Value: " +values));
             }
+            //
         }
-
-//        String filename = "";
-//        Optional<String> contentDisposHeader = headers.firstValue("Content-Disposition"); //connection.getHeaderField("content-disposition");
-//        if (contentDisposHeader.isEmpty()) {
-//            contentDisposHeader = headers.firstValue("content-disposition");
-//        }
-//        if (contentDisposHeader.isPresent()) {
-//            String contentDispos = contentDisposHeader.get();
-//            filename = getFilenameFromHeader(contentDispos);
-//            logger.info(format("Got filename '%s' from Content-Disposition header: '%s'", filename, contentDispos));
-//        }
-
-        //connection.disconnect();
 
         return createURLStatus(finalUrl, serverModMillis, httpStatusCode, redirect);
     }
 
-    private HttpResponse<Void> getHeadersFor(URI uri) throws IOException, InterruptedException {
-        HttpClient client = HttpClient.newBuilder().build();
+    private long getServerModMillis(HttpResponse<?> response) {
+        HttpHeaders headers = response.headers();
+        Optional<String> lastModifiedHeader = headers.firstValue(org.apache.http.HttpHeaders.LAST_MODIFIED);
 
-        HttpResponse<Void> response = getHttpResponse(uri, client, HttpMethod.HEAD);
-
-
-//        if (response.statusCode()==HttpStatus.SC_METHOD_NOT_ALLOWED) {
-//            logger.warn("Method not allowed for HEAD at " + uri + " so fall back to GET");
-//            response = getHttpResponse(uri, client, HttpMethod.GET);
-//            logger.info("Finished GET");
-//        }
-
-        return response;
+        long serverModMillis = 0;
+        if (lastModifiedHeader.isPresent()) {
+            final String lastMod = lastModifiedHeader.get();
+            logger.info("Mod time for " + response.uri() + " was " + lastMod);
+            Date modTime = DateUtils.parseDate(lastMod);
+            serverModMillis = modTime.getTime();
+        } else {
+            logger.warn("No mod time header for " + response.uri());
+            logger.info("Headers were: ");
+            headers.map().forEach((head, contents) -> logger.info(head + ": " + contents));
+        }
+        return serverModMillis;
     }
 
-    private HttpResponse<Void> getHttpResponse(URI uri, HttpClient client, String method) throws IOException, InterruptedException {
-        HttpRequest httpRequest = HttpRequest.newBuilder().
-                uri(uri).
-                method(method, HttpRequest.BodyPublishers.noBody()).
-                build();
+    private <T> HttpResponse<T> getHeadersFor(URI uri, LocalDateTime localLastMod, String method,
+                                              HttpResponse.BodyHandler<T> bodyHandler) throws IOException, InterruptedException {
 
-        return client.send(httpRequest, HttpResponse.BodyHandlers.discarding());
+        HttpClient client = HttpClient.newBuilder().build();
+        HttpRequest.Builder httpRequestBuilder = HttpRequest.newBuilder().
+                uri(uri).
+                method(method, HttpRequest.BodyPublishers.noBody());
+
+        if (localLastMod!=LocalDateTime.MIN) {
+            ZonedDateTime httpLocalModTime = localLastMod.atZone(ZoneId.of("Etc/UTC"));
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern(DateUtils.PATTERN_RFC1036);
+            final String headerIfModSince = formatter.format(httpLocalModTime);
+            logger.info(format("Checking uri with %s : %s", HttpHeader.IF_MODIFIED_SINCE.name(), headerIfModSince));
+            httpRequestBuilder.header(HttpHeader.IF_MODIFIED_SINCE.name(), headerIfModSince);
+        }
+
+        // setRequestProperty("Accept-Encoding", "gzip");
+        if (HttpMethod.GET.equals(method)) {
+            httpRequestBuilder.header(HttpHeader.ACCEPT_ENCODING.name(), "gzip");
+        }
+
+        HttpRequest httpRequest = httpRequestBuilder.build();
+
+        return client.send(httpRequest, bodyHandler);
     }
 
     @NotNull
@@ -133,10 +133,6 @@ public class HttpDownloadAndModTime implements DownloadAndModTime {
             result = new URLStatus(url, httpStatusCode, modTime);
         }
 
-//        if (!filename.isBlank()) {
-//            result.setFilename(filename);
-//        }
-
         if (!result.isOk() && !result.isRedirect()) {
             logger.warn("Response code " + httpStatusCode + " for " + url);
         }
@@ -150,7 +146,80 @@ public class HttpDownloadAndModTime implements DownloadAndModTime {
     }
 
     @Override
-    public void downloadTo(Path path, String url) throws IOException {
+    public void downloadTo(Path path, String url, LocalDateTime localModTime) throws IOException, InterruptedException {
+        try {
+            logger.info(format("Download from %s to %s", url, path.toAbsolutePath()));
+            File targetFile = path.toFile();
+
+            HttpResponse<InputStream> response = getHeadersFor(URI.create(url), localModTime, HttpMethod.GET,
+                    HttpResponse.BodyHandlers.ofInputStream());
+
+            long serverModMillis = getServerModMillis(response); //connection.getLastModified();
+            String contentType = getContentType(response); //connection.getContentType();
+            String encoding = getContentEncoding(response); //connection.getContentEncoding();
+            long len = getLen(response);
+
+            String contentDispos = getContentDispos(response);
+            if (!contentDispos.isEmpty()) {
+                logger.warn("Content disposition was " + contentDispos);
+            }
+
+            final String logSuffix = " for " + url;
+            final LocalDateTime serverModDateTime = getLocalDateTime(serverModMillis);
+            logger.info("Response last mod time is " + serverModMillis + " (" + serverModDateTime + ")");
+            logger.info("Response content type '" + contentType + "'" + logSuffix);
+            logger.info("Response encoding '" + encoding + "'" + logSuffix);
+            logger.info("Content length is " + len + logSuffix);
+
+            boolean gziped = "gzip".equals(encoding);
+
+            InputStream stream = getStreamFor(response.body(), gziped);
+            if (len>0) {
+                downloadByLength(stream, targetFile, len);
+            } else {
+                download(stream, targetFile);
+            }
+
+            if (!targetFile.exists()) {
+                logger.error(format("Failed to download from %s to %s", url, targetFile.getAbsoluteFile()));
+            } else {
+                if (serverModMillis>0) {
+                    if (!targetFile.setLastModified(serverModMillis)) {
+                        logger.warn("Unable to set mod time on " + targetFile);
+                    } else {
+                        logger.info("Set mod time on " + targetFile + " to " + serverModDateTime);
+                    }
+                } else {
+                    logger.warn("Server mod time is zero, not updating local file mod time " + logSuffix);
+                }
+            }
+
+            //connection.disconnect();
+
+        } catch (IOException | InterruptedException exception) {
+            logger.error(format("Unable to download data from %s to %s exception %s", url, path, exception));
+            throw exception;
+        }
+    }
+
+    private long getLen(HttpResponse<InputStream> response) {
+        OptionalLong header = response.headers().firstValueAsLong(HttpHeader.CONTENT_LENGTH.name());
+        return header.orElse(0);
+    }
+
+
+    private String getContentEncoding(HttpResponse<?> response) {
+        Optional<String> contentEncoding = response.headers().firstValue(HttpHeader.CONTENT_TYPE.name());
+        return contentEncoding.orElse("");
+    }
+
+    private String getContentType(HttpResponse<?> response) {
+        Optional<String> contentTypeHeader = response.headers().firstValue(HttpHeader.CONTENT_TYPE.name());
+        return contentTypeHeader.orElse("");
+    }
+
+    //@Override
+    public void downloadToOLD(Path path, String url) throws IOException {
         try {
             logger.info(format("Download from %s to %s", url, path.toAbsolutePath()));
             File targetFile = path.toFile();
@@ -169,16 +238,21 @@ public class HttpDownloadAndModTime implements DownloadAndModTime {
             }
 
             final String suffix = " for " + url;
+            final LocalDateTime serverModDateTime = getLocalDateTime(serverModMillis);
+            logger.info("Response last mod time is " + serverModMillis + " (" + serverModDateTime + ")");
             logger.info("Response content type " + contentType + suffix);
             logger.info("Response encoding " + encoding + suffix);
             logger.info("Content length is " + len + suffix);
 
             boolean gziped = "gzip".equals(encoding);
 
+            final InputStream rawStream = connection.getInputStream();
+            final InputStream inputStream = getStreamFor(rawStream, gziped);
+
             if (len>0) {
-                downloadByLength(targetFile, connection, gziped, len);
+                downloadByLength(inputStream, targetFile, len);
             } else {
-                download(targetFile, gziped, connection);
+                download(inputStream, targetFile);
             }
 
             if (!targetFile.exists()) {
@@ -188,8 +262,7 @@ public class HttpDownloadAndModTime implements DownloadAndModTime {
                     if (!targetFile.setLastModified(serverModMillis)) {
                         logger.warn("Unable to set mod time on " + targetFile);
                     } else {
-                        logger.info("Set mod time on " + targetFile + " to " + serverModMillis + " (" +
-                                getLocalDateTime(serverModMillis) + ")");
+                        logger.info("Set mod time on " + targetFile + " to " + serverModDateTime);
                     }
                 } else {
                     logger.warn("Server mod time is zero, not updating local file mod time " + suffix);
@@ -216,10 +289,19 @@ public class HttpDownloadAndModTime implements DownloadAndModTime {
         return "";
     }
 
-    private void download(File targetFile, boolean gziped, HttpURLConnection connection) throws IOException {
+    private String getContentDispos(HttpResponse<?> response) {
+        Optional<String> header = response.headers().firstValue("content-disposition");
+        if (header.isPresent()) {
+            return header.get();
+        }
+        header = response.headers().firstValue("Content-Disposition");
+        return header.orElse("");
+    }
+
+
+    private void download(InputStream inputStream, File targetFile) throws IOException {
         int maxSize = 1000 * 1024 * 1024;
 
-        final InputStream inputStream = getStreamFor(connection, gziped);
         ReadableByteChannel rbc = Channels.newChannel(inputStream);
         FileOutputStream fos = new FileOutputStream(targetFile);
         long received = 1;
@@ -234,8 +316,8 @@ public class HttpDownloadAndModTime implements DownloadAndModTime {
         logger.info(format("Finished download, file %s size is %s", targetFile.getPath(), downloadedLength));
     }
 
-    private void downloadByLength(File targetFile, HttpURLConnection connection, boolean gziped, long len) throws IOException {
-        final InputStream inputStream = getStreamFor(connection, gziped);
+    private void downloadByLength(InputStream inputStream, File targetFile, long len) throws IOException {
+        //final InputStream inputStream = getStreamFor(connection, gziped);
 
         ReadableByteChannel rbc = Channels.newChannel(inputStream);
         FileOutputStream fos = new FileOutputStream(targetFile);
@@ -252,12 +334,12 @@ public class HttpDownloadAndModTime implements DownloadAndModTime {
         return (HttpURLConnection) new URL(url).openConnection();
     }
 
-    private InputStream getStreamFor(HttpURLConnection connection, boolean gziped) throws IOException {
+    private InputStream getStreamFor(InputStream inputStream, boolean gziped) throws IOException {
         if (gziped) {
             logger.info("Response was gzip encoded, will decompress");
-            return new GZIPInputStream(connection.getInputStream());
+            return new GZIPInputStream(inputStream);
         } else {
-            return connection.getInputStream();
+            return inputStream;
         }
     }
 
