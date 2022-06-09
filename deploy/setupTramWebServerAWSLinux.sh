@@ -37,8 +37,9 @@ fi
 logger Set up Web server Bucket: "$BUCKET" Build: "$BUILD" Url: "$ARTIFACTSURL" Env: "$PLACE"
 
 # set up overrides for server config so data is pulled from S3 at start up
+export NAPTAN_FILE=NaPTAN.xml.zip
 export TRAM_DATAURL=s3://$BUCKET/dist/$BUILD/tfgm_data.zip
-export NAPTAN_DATAURL=s3://$BUCKET/dist/$BUILD/NaPTAN.xml.zip
+export NAPTAN_DATAURL=s3://$BUCKET/dist/$BUILD/$NAPTAN_FILE
 export RAIL_DATAURL=s3://$BUCKET/dist/$BUILD/rail_data.zip
 export NPTG_DATAURL=s3://$BUCKET/dist/$BUILD/nptgcsv.zip
 
