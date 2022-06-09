@@ -14,7 +14,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.net.MalformedURLException;
-import java.net.URISyntaxException;
+import java.net.URI;
+import java.net.URL;
 
 class RedirectHttpFilterTest extends EasyMockSupport {
 
@@ -23,18 +24,18 @@ class RedirectHttpFilterTest extends EasyMockSupport {
     private final String expected = "https://green.tramchester.com/somethingelse";
 
     @Test
-    void shouldFormNewURLLower() throws MalformedURLException, URISyntaxException {
-        String result = filter.mapUrl(path);
-        Assertions.assertEquals(expected, result);
+    void shouldFormNewURLLower() throws MalformedURLException {
+        URL result = filter.mapUrl(URI.create(path).toURL());
+        Assertions.assertEquals(expected, result.toExternalForm());
     }
 
     @Test
-    void shouldFormNewURLUpper() throws MalformedURLException, URISyntaxException {
+    void shouldFormNewURLUpper() throws MalformedURLException {
         String original = path.replace("http","HTTP");
 
-        String result = filter.mapUrl(original);
+        URL result = filter.mapUrl(URI.create(original).toURL());
 
-        Assertions.assertEquals(expected, result);
+        Assertions.assertEquals(expected, result.toExternalForm());
     }
 
     @Test
@@ -67,6 +68,60 @@ class RedirectHttpFilterTest extends EasyMockSupport {
         Assertions.assertAll(() -> checkUrl("http://green.tramchester.com/somethingelse"));
     }
 
+    @Test
+    void shouldFilterIfCorrectHeaderIsSetTramChesterComWithQuery() throws IOException, ServletException {
+        String original = "http://green.tramchester.com/somethingelse?query=xyz";
+
+        HttpServletRequest request = createMock(HttpServletRequest.class);
+        HttpServletResponse response = createMock(HttpServletResponse.class);
+        FilterChain chain = createMock(FilterChain.class);
+
+        EasyMock.expect(request.getHeader("X-Forwarded-Proto")).andReturn("http");
+        EasyMock.expect(request.getRequestURL()).andReturn(new StringBuffer(original));
+        response.sendRedirect("https://green.tramchester.com/somethingelse?query=xyz");
+        EasyMock.expectLastCall();
+
+        replayAll();
+        filter.doFilter(request, response, chain);
+        verifyAll();
+    }
+
+    @Test
+    void shouldBadGatewayIfBadUrl() throws IOException, ServletException {
+        String original = "xzy://somethingOdd_here";
+
+        HttpServletRequest request = createMock(HttpServletRequest.class);
+        HttpServletResponse response = createMock(HttpServletResponse.class);
+        FilterChain chain = createMock(FilterChain.class);
+
+        EasyMock.expect(request.getHeader("X-Forwarded-Proto")).andReturn("http");
+        EasyMock.expect(request.getRequestURL()).andReturn(new StringBuffer(original));
+        response.sendError(HttpServletResponse.SC_BAD_REQUEST);
+        EasyMock.expectLastCall();
+
+        replayAll();
+        filter.doFilter(request, response, chain);
+        verifyAll();
+    }
+
+    @Test
+    void shouldBadGatewayIfUnrecognisedHost() throws IOException, ServletException {
+        String original = "http://www.someInvalidSite.com/";
+
+        HttpServletRequest request = createMock(HttpServletRequest.class);
+        HttpServletResponse response = createMock(HttpServletResponse.class);
+        FilterChain chain = createMock(FilterChain.class);
+
+        EasyMock.expect(request.getHeader("X-Forwarded-Proto")).andReturn("http");
+        EasyMock.expect(request.getRequestURL()).andReturn(new StringBuffer(original));
+        response.sendError(HttpServletResponse.SC_BAD_GATEWAY);
+        EasyMock.expectLastCall();
+
+        replayAll();
+        filter.doFilter(request, response, chain);
+        verifyAll();
+    }
+
     private void checkUrl(String original) throws IOException, ServletException {
         HttpServletRequest request = createMock(HttpServletRequest.class);
         HttpServletResponse response = createMock(HttpServletResponse.class);
@@ -89,6 +144,7 @@ class RedirectHttpFilterTest extends EasyMockSupport {
         FilterChain chain = createMock(FilterChain.class);
 
         EasyMock.expect(request.getHeader("X-Forwarded-Proto")).andReturn(null);
+        EasyMock.expect(request.getRequestURL()).andReturn(new StringBuffer("http://localhost:8080"));
         chain.doFilter(request,response);
         EasyMock.expectLastCall();
 
