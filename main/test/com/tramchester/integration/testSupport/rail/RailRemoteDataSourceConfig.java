@@ -5,7 +5,7 @@ import com.tramchester.domain.DataSourceID;
 
 import java.nio.file.Path;
 
-public class RailRemoteDataSourceConfig implements RemoteDataSourceConfig {
+public class RailRemoteDataSourceConfig extends RemoteDataSourceConfig {
 
     // http://data.atoc.org/how-to
 

@@ -6,13 +6,13 @@ import java.nio.file.Path;
 
 /****
  *   - name: nptg
- *     dataURL: http://www.dft.gov.uk/nptg/snapshot/nptgcsv.zip
- *     dataCheckURL: http://www.dft.gov.uk/nptg/snapshot/nptgcsv.zip
+ *     dataURL: https://naptan.app.dft.gov.uk/datarequest/nptg.ashx?format=csv
+ *     dataCheckURL:
  *     dataPath: data/nptg
  *     filename: nptg_data.zip
  */
 
-public class NPTGDataSourceTestConfig implements RemoteDataSourceConfig {
+public class NPTGDataSourceTestConfig extends RemoteDataSourceConfig {
     @Override
     public Path getDataPath() {
         return Path.of("data", "nptg");
@@ -25,7 +25,8 @@ public class NPTGDataSourceTestConfig implements RemoteDataSourceConfig {
 
     @Override
     public String getDataUrl() {
-        return "http://www.dft.gov.uk/nptg/snapshot/nptgcsv.zip";
+        return "https://naptan.app.dft.gov.uk/datarequest/nptg.ashx?format=csv";
+        //return "http://www.dft.gov.uk/nptg/snapshot/nptgcsv.zip";
     }
 
     @Override

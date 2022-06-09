@@ -8,6 +8,7 @@ import com.tramchester.domain.DataSourceID;
 import com.tramchester.domain.time.ProvidesNow;
 import org.apache.commons.io.FileUtils;
 import org.apache.http.HttpStatus;
+import org.neo4j.server.http.cypher.format.api.ConnectionException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -71,7 +72,10 @@ public class FetchDataFromUrl {
                 }
             } catch (IOException | InterruptedException exception) {
                 logger.warn("Unable to refresh data for config: " + config, exception);
+            } catch (ConnectionException connectionException) {
+                logger.error("Unable to refresh data for config: " + config, connectionException);
             }
+
         });
     }
 

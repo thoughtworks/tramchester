@@ -150,7 +150,7 @@ class UploadRemoteSourceDataToS3Test {
         }
     }
 
-    public static class DataSource implements RemoteDataSourceConfig {
+    public static class DataSource extends RemoteDataSourceConfig {
 
         @Override
         public Path getDataPath() {

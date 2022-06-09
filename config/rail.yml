@@ -36,7 +36,7 @@ remoteSources:
     dataPath: data/naptan
     filename: NaPTAN.xml.zip
   - name: nptg
-    dataURL: http://www.dft.gov.uk/nptg/snapshot/nptgcsv.zip
+    dataURL: https://naptan.app.dft.gov.uk/datarequest/nptg.ashx?format=csv
     dataCheckURL: ""
     dataPath: data/nptg
     filename: nptgcsv.zip

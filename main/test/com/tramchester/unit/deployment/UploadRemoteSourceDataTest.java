@@ -113,7 +113,7 @@ class UploadRemoteSourceDataTest extends EasyMockSupport {
         }
     }
 
-    private static class DataSourceConfig implements RemoteDataSourceConfig {
+    private static class DataSourceConfig extends RemoteDataSourceConfig {
         private final Path path;
         private final String filename;
         private final DataSourceID dataSourceID;

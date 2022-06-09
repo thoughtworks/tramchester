@@ -3,15 +3,16 @@ package com.tramchester.config;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.tramchester.domain.DataSourceID;
+import io.dropwizard.Configuration;
 
 @JsonDeserialize(as=RemoteDataSourceAppConfig.class)
-public interface RemoteDataSourceConfig extends HasDataPath {
+public abstract class RemoteDataSourceConfig extends Configuration implements HasDataPath {
 
     // url to check mod time against to see if newer data available
-    String getDataCheckUrl();
+    public abstract String getDataCheckUrl();
 
     // url where data is located
-    String getDataUrl();
+    public abstract String getDataUrl();
 
     /***
      * Don't use this to get the actual downloaded filename, since this config can be blank to allow the remote
@@ -19,17 +20,30 @@ public interface RemoteDataSourceConfig extends HasDataPath {
      * @link com.tramchester.dataimport.RemoteDataRefreshed
      * @return the value from config, which can be blank
      */
-    String getDownloadFilename();
+    public abstract String getDownloadFilename();
 
     // TODO Should be RemoteDataSourceId
     // useful name for data set
-    String getName();
+    public abstract String getName();
 
     @JsonIgnore
-    default DataSourceID getDataSourceId() {
+    public DataSourceID getDataSourceId() {
         return DataSourceID.findOrUnknown(getName());
     }
 
     @JsonIgnore
-    boolean getIsS3();
+    public abstract boolean getIsS3();
+
+    @Override
+    public String toString() {
+        return "RemoteDataSourceConfig {"+
+                "dataCheckURL: '"+getDataCheckUrl()+"' " +
+                "dataURL: '"+getDataUrl()+"' " +
+                "downloadFilename: '"+getDownloadFilename()+"' " +
+                "name: '"+getName()+"' " +
+                "dataSourceId: '"+getDataSourceId()+"' " +
+                "isS3: '"+getIsS3()+"' " +
+                "dataPath: '"+getDataPath()+"' " +
+                "}";
+    }
 }

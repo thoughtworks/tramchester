@@ -13,9 +13,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.HttpURLConnection;
 import java.net.URI;
-import java.net.URL;
 import java.net.http.HttpClient;
 import java.net.http.HttpHeaders;
 import java.net.http.HttpRequest;
@@ -68,7 +66,6 @@ public class HttpDownloadAndModTime implements DownloadAndModTime {
                 logger.warn("Got error status code "+httpStatusCode+ " headers follow");
                 headers.map().forEach((header, values) -> logger.info("Header: " + header + " Value: " +values));
             }
-            //
         }
 
         return createURLStatus(finalUrl, serverModMillis, httpStatusCode, redirect);
@@ -100,7 +97,7 @@ public class HttpDownloadAndModTime implements DownloadAndModTime {
                 uri(uri).
                 method(method, HttpRequest.BodyPublishers.noBody());
 
-        if (localLastMod!=LocalDateTime.MIN) {
+        if (localLastMod != LocalDateTime.MIN) {
             ZonedDateTime httpLocalModTime = localLastMod.atZone(ZoneId.of("Etc/UTC"));
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern(DateUtils.PATTERN_RFC1036);
             final String headerIfModSince = formatter.format(httpLocalModTime);
@@ -154,9 +151,9 @@ public class HttpDownloadAndModTime implements DownloadAndModTime {
             HttpResponse<InputStream> response = getHeadersFor(URI.create(url), localModTime, HttpMethod.GET,
                     HttpResponse.BodyHandlers.ofInputStream());
 
-            long serverModMillis = getServerModMillis(response); //connection.getLastModified();
-            String contentType = getContentType(response); //connection.getContentType();
-            String encoding = getContentEncoding(response); //connection.getContentEncoding();
+            long serverModMillis = getServerModMillis(response);
+            String contentType = getContentType(response);
+            String encoding = getContentEncoding(response);
             long len = getLen(response);
 
             String contentDispos = getContentDispos(response);
@@ -218,77 +215,6 @@ public class HttpDownloadAndModTime implements DownloadAndModTime {
         return contentTypeHeader.orElse("");
     }
 
-    //@Override
-    public void downloadToOLD(Path path, String url) throws IOException {
-        try {
-            logger.info(format("Download from %s to %s", url, path.toAbsolutePath()));
-            File targetFile = path.toFile();
-            HttpURLConnection connection = createConnection(url);
-            connection.setRequestProperty("Accept-Encoding", "gzip");
-            connection.connect();
-            long len = connection.getContentLengthLong();
-
-            long serverModMillis = connection.getLastModified();
-            String contentType = connection.getContentType();
-            String encoding = connection.getContentEncoding();
-
-            String actualRemoteName = getContentDispos(connection);
-            if (!actualRemoteName.isEmpty()) {
-                logger.warn("Remote filename was " + actualRemoteName);
-            }
-
-            final String suffix = " for " + url;
-            final LocalDateTime serverModDateTime = getLocalDateTime(serverModMillis);
-            logger.info("Response last mod time is " + serverModMillis + " (" + serverModDateTime + ")");
-            logger.info("Response content type " + contentType + suffix);
-            logger.info("Response encoding " + encoding + suffix);
-            logger.info("Content length is " + len + suffix);
-
-            boolean gziped = "gzip".equals(encoding);
-
-            final InputStream rawStream = connection.getInputStream();
-            final InputStream inputStream = getStreamFor(rawStream, gziped);
-
-            if (len>0) {
-                downloadByLength(inputStream, targetFile, len);
-            } else {
-                download(inputStream, targetFile);
-            }
-
-            if (!targetFile.exists()) {
-                logger.error(format("Failed to download from %s to %s", url, targetFile.getAbsoluteFile()));
-            } else {
-                if (serverModMillis>0) {
-                    if (!targetFile.setLastModified(serverModMillis)) {
-                        logger.warn("Unable to set mod time on " + targetFile);
-                    } else {
-                        logger.info("Set mod time on " + targetFile + " to " + serverModDateTime);
-                    }
-                } else {
-                    logger.warn("Server mod time is zero, not updating local file mod time " + suffix);
-                }
-            }
-
-            connection.disconnect();
-
-        } catch (IOException exception) {
-            logger.error(format("Unable to download data from %s to %s exception %s", url, path, exception));
-            throw exception;
-        }
-    }
-
-    private String getContentDispos(HttpURLConnection connection) {
-        String disposition = connection.getHeaderField("content-disposition");
-        if (disposition !=null) {
-            return disposition;
-        }
-        disposition = connection.getHeaderField("Content-Disposition");
-        if (disposition !=null) {
-            return disposition;
-        }
-        return "";
-    }
-
     private String getContentDispos(HttpResponse<?> response) {
         Optional<String> header = response.headers().firstValue("content-disposition");
         if (header.isPresent()) {
@@ -330,10 +256,6 @@ public class HttpDownloadAndModTime implements DownloadAndModTime {
                 received, targetFile.getPath(), downloadedLength));
     }
 
-    private HttpURLConnection createConnection(String url) throws IOException {
-        return (HttpURLConnection) new URL(url).openConnection();
-    }
-
     private InputStream getStreamFor(InputStream inputStream, boolean gziped) throws IOException {
         if (gziped) {
             logger.info("Response was gzip encoded, will decompress");
@@ -342,16 +264,4 @@ public class HttpDownloadAndModTime implements DownloadAndModTime {
             return inputStream;
         }
     }
-
-//    private String getFilenameFromHeader(String header) {
-//        try {
-//            ContentDisposition contentDisposition = new ContentDisposition(header);
-//            return contentDisposition.getFileName();
-//        } catch (ParseException e) {
-//            logger.warn(format("Unable to parse content-disposition '%s'", header));
-//            return "";
-//        }
-//
-//    }
-
 }

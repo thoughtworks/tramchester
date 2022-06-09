@@ -6,7 +6,7 @@ import com.tramchester.testSupport.TestEnv;
 
 import java.nio.file.Path;
 
-public class TFGMRemoteDataSourceConfig implements RemoteDataSourceConfig {
+public class TFGMRemoteDataSourceConfig extends RemoteDataSourceConfig {
     private final Path dataPath;
 
     public TFGMRemoteDataSourceConfig(String dataPath) {

@@ -4,7 +4,7 @@ import com.tramchester.config.RemoteDataSourceConfig;
 
 import java.nio.file.Path;
 
-public class PostCodeDatasourceConfig implements RemoteDataSourceConfig {
+public class PostCodeDatasourceConfig extends RemoteDataSourceConfig {
     @Override
     public Path getDataPath() {
         return Path.of("data", "postcodes");

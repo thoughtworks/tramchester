@@ -8,7 +8,7 @@ import java.nio.file.Path;
 
 // https://naptan.api.dft.gov.uk/v1/access-nodes?dataFormat=csv
 
-public class NaptanRemoteDataSourceConfig implements RemoteDataSourceConfig {
+public class NaptanRemoteDataSourceConfig extends RemoteDataSourceConfig {
     private final Path dataPath;
     private final String format;
 

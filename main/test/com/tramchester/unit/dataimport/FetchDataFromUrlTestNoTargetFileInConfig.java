@@ -234,7 +234,7 @@ class FetchDataFromUrlTestNoTargetFileInConfig extends EasyMockSupport {
             return Collections.singletonList(new RemoteDataSourceConfigNoTargetFile(dataPath, targetFilename));
         }
 
-        private static class RemoteDataSourceConfigNoTargetFile implements RemoteDataSourceConfig {
+        private static class RemoteDataSourceConfigNoTargetFile extends RemoteDataSourceConfig {
             private final Path dataPath;
             private final String targetFilename;
 

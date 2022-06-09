@@ -2,7 +2,6 @@ package com.tramchester.config;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import io.dropwizard.Configuration;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
@@ -11,7 +10,7 @@ import java.nio.file.Path;
 @SuppressWarnings("unused")
 @Valid
 @JsonIgnoreProperties(ignoreUnknown = false)
-public class RemoteDataSourceAppConfig extends Configuration implements RemoteDataSourceConfig {
+public class RemoteDataSourceAppConfig extends RemoteDataSourceConfig {
 
     @NotNull
     @JsonProperty(value = "dataCheckURL")

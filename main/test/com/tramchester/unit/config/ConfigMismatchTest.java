@@ -162,7 +162,8 @@ class ConfigMismatchTest {
         assertEquals(remoteSource.getName(), testRemoteSource.getName());
         assertEquals(remoteSource.getDataCheckUrl(), testRemoteSource.getDataCheckUrl());
         //assertEquals(remoteSource.getDataUrl(), testRemoteSource.getDataUrl());
-        assertTrue(remoteSource.getDataUrl().contains(testRemoteSource.getDataUrl()));
+        assertTrue(remoteSource.getDataUrl().contains(testRemoteSource.getDataUrl()),
+                remoteSource.getDataUrl() + " not matching " + testRemoteSource.getDataUrl());
         assertEquals(remoteSource.getDownloadFilename(), testRemoteSource.getDownloadFilename());
     }
 
