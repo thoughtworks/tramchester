@@ -2,8 +2,10 @@ package com.tramchester.healthchecks;
 
 import com.codahale.metrics.health.HealthCheckRegistry;
 import com.netflix.governator.guice.lazy.LazySingleton;
+import com.tramchester.domain.time.ProvidesNow;
 
 import javax.inject.Inject;
+import java.time.Duration;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
@@ -13,6 +15,9 @@ public class RegistersHealthchecks {
 
     private final Set<TramchesterHealthCheck> healthChecks;
 
+    private final Duration cacheDuration = Duration.ofSeconds(10);
+    private final ProvidesNow providesNow;
+
     @Inject
     public RegistersHealthchecks(DataExpiryHealthCheckFactory dataExpiryHealthCheckFactory,
                                  NewDataAvailableHealthCheckFactory newDataAvailableHealthCheckFactory,
@@ -21,7 +26,8 @@ public class RegistersHealthchecks {
                                  LiveDataMessagesHealthCheck liveDataMessagesHealthCheck,
                                  LiveDataS3UploadHealthCheck liveDataS3UploadHealthCheck,
                                  ClientForS3Healthcheck clientForS3Healthcheck,
-                                 SendMetricsToCloudWatchHealthcheck sendMetricsToCloudWatchHealthcheck) {
+                                 SendMetricsToCloudWatchHealthcheck sendMetricsToCloudWatchHealthcheck, ProvidesNow providesNow) {
+        this.providesNow = providesNow;
         this.healthChecks = new HashSet<>();
 
         addIfEnabled(dataExpiryHealthCheckFactory.getHealthChecks());
@@ -43,7 +49,8 @@ public class RegistersHealthchecks {
 
     private void addIfEnabled(TramchesterHealthCheck healthCheck) {
         if (healthCheck.isEnabled()) {
-            healthChecks.add(healthCheck);
+            CachingHealthCheck cachingHealthCheck = new CachingHealthCheck(healthCheck, cacheDuration, providesNow);
+            healthChecks.add(cachingHealthCheck);
         }
     }
 

@@ -142,7 +142,7 @@ public class App extends Application<AppConfiguration>  {
         }
         catch (Exception exception) {
             logger.error("Uncaught exception during init ", exception);
-            throw new RuntimeException("uncaught excpetion during init", exception);
+            throw new RuntimeException("uncaught exception during init", exception);
             //System.exit(-1);
         }
 

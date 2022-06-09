@@ -9,7 +9,6 @@ public class URLStatus {
     private final String url;
     private final int responseCode;
     private final LocalDateTime modTime;
-//    private String filename;
 
     public URLStatus(String url, int responseCode) {
         this(url, responseCode, LocalDateTime.MIN);
@@ -19,7 +18,6 @@ public class URLStatus {
         this.url = url;
         this.responseCode = responseCode;
         this.modTime = modTime;
-//        filename = "";
     }
 
     public LocalDateTime getModTime() {

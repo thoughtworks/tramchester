@@ -43,8 +43,7 @@ public class ClientForS3 {
     private static final Logger logger = LoggerFactory.getLogger(ClientForS3.class);
 
     protected S3Client s3Client;
-    MessageDigest messageDigest;
-
+    private MessageDigest messageDigest;
 
     @Inject
     public ClientForS3() {
@@ -71,11 +70,17 @@ public class ClientForS3 {
             logger.info("Stopping");
             s3Client.close();
             s3Client = null;
+        } else {
+            logger.warn("Was not started");
         }
     }
 
     public boolean upload(String bucket, String key, Path fileToUpload) {
         logger.info(format("Uploading to bucket '%s' key '%s' file '%s'", bucket, key, fileToUpload.toAbsolutePath()));
+        if (!isStarted()) {
+            logger.error("Not started");
+            return false;
+        }
 
         try {
             byte[] buffer = Files.readAllBytes(fileToUpload);
@@ -90,6 +95,11 @@ public class ClientForS3 {
 
     public boolean uploadZipped(String bucket, String key, Path uploadFile) {
         logger.info(format("Upload %s zipped to bucket:%s key:%s", uploadFile, bucket, key));
+        if (!isStarted()) {
+            logger.error("Not started");
+            return false;
+        }
+
         long originalSize = uploadFile.toFile().length();
 
         String entryName = uploadFile.getFileName().toString();
@@ -162,6 +172,11 @@ public class ClientForS3 {
     }
 
     private boolean uploadToS3(String bucket, String key, String localMd5, RequestBody requestBody) {
+        if (!isStarted()) {
+            logger.error("No started, uploadToS3");
+            return false;
+        }
+
         try {
             logger.debug("Uploading with MD5: " + localMd5);
             PutObjectRequest putObjectRequest = PutObjectRequest.builder().
@@ -237,7 +252,7 @@ public class ClientForS3 {
     @SuppressWarnings("BooleanMethodIsAlwaysInverted")
     private boolean bucketExists(String bucket) {
         if (!isStarted()) {
-            logger.error("not started");
+            logger.error("not started, bucket exists");
             return false;
         }
 
@@ -257,7 +272,7 @@ public class ClientForS3 {
 
     public boolean keyExists(String bucket, String prefix, String itemName) {
         if (!isStarted()) {
-            logger.error("not started");
+            logger.error("not started, keyExists");
             return false;
         }
 
@@ -279,7 +294,7 @@ public class ClientForS3 {
 
     public Set<String> getKeysFor(String bucket, String prefix) {
         if (!isStarted()) {
-            logger.error("not started");
+            logger.error("not started, getKeysFor");
             return Collections.emptySet();
         }
 
@@ -288,6 +303,11 @@ public class ClientForS3 {
     }
 
     private List<S3Object> getSummaryForPrefix(String bucket, String prefix) {
+        if (!isStarted()) {
+            logger.error("Not started, getSummaryForPrefix");
+            return Collections.emptyList();
+        }
+
         if (!bucketExists(bucket)) {
             logger.error(format("Bucket %s does not exist so cannot get summary", bucket));
             return Collections.emptyList();
@@ -321,6 +341,11 @@ public class ClientForS3 {
 
     public LocalDateTime getModTimeFor(String url) {
         logger.info("Fetch Mod time for url " + url);
+
+        if (!isStarted()) {
+            logger.error("Not started");
+            return LocalDateTime.MIN;
+        }
 
         S3Object s3Object = getS3ObjectFor(url);
 
@@ -358,6 +383,12 @@ public class ClientForS3 {
 
     public void downloadTo(Path path, String url) throws IOException {
         logger.info("Download for for url " + url);
+
+        if (!isStarted()) {
+            logger.error("Not started, downloadTo");
+            return;
+        }
+
         BucketKey bucketKey = BucketKey.convertFromURI(url);
 
         GetObjectRequest getObjectRequest = createRequestFor(bucketKey);
@@ -380,7 +411,6 @@ public class ClientForS3 {
             logger.info(format("Downloaded to %s from %s MD5 match md5: '%s'", path.toAbsolutePath(), bucketKey, localMd5));
         }
     }
-
 
 
     private static class BucketKey {

@@ -73,7 +73,7 @@ public class UploadsLiveData implements LiveDataObserver {
             return flag;
 
         } catch (JsonProcessingException e) {
-            logger.warn("Unable to upload live data to S3",e);
+            logger.warn("Unable to upload live data to S3", e);
         } catch (DateTimeException dateException) {
             logger.warn(format("Unable to upload live data to S3, timestamp '%s'", timeStamp),dateException);
         }

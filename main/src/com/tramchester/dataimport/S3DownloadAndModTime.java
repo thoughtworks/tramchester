@@ -21,8 +21,6 @@ public class S3DownloadAndModTime implements DownloadAndModTime {
 
     @Override
     public URLStatus getStatusFor(String url, LocalDateTime localModTime) {
-        //String filename = FilenameUtils.getName(url);
-        //urlStatus.setFilename(filename);
         return new URLStatus(url, HttpStatus.SC_OK, s3Client.getModTimeFor(url));
     }
 

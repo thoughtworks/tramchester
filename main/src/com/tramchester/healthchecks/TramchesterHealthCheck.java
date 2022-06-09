@@ -20,4 +20,8 @@ public abstract class TramchesterHealthCheck extends HealthCheck {
     }
 
     public abstract boolean isEnabled();
+
+    public ServiceTimeLimits getServiceTimeLimits() {
+        return serviceTimeLimits;
+    }
 }
