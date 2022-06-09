@@ -118,7 +118,6 @@ public class FetchDataFromUrl {
         URLStatus status = getStatusFor(originalURL, isS3, localModTime);
         if (!status.isOk()) {
             if (status.getStatusCode() == HttpStatus.SC_METHOD_NOT_ALLOWED) {
-                // workaround for naptan, does not support HEAD request, so cannot prefetch headers
                 logger.warn("Was unable to query using HEAD for " + config.getDataSourceId());
             } else {
                 logger.error("Could not download for " + config.getDataSourceId() + " status was " + status);

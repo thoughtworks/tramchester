@@ -50,7 +50,7 @@ public class NaptanAndNPTGDatadownloadTest {
 
         RemoteDataSourceConfig config = testConfig.getDataRemoteSourceConfig(sourceID);
 
-        Path expected = config.getDataPath().resolve("NaPTAN.xml.zip");
+        Path expected = config.getDataPath().resolve("NaPTAN.xml");
         assertEquals(expected, result);
 
     }

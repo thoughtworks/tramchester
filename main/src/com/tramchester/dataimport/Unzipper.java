@@ -28,15 +28,20 @@ public class Unzipper {
         File zipFile = filename.toFile();
         try {
             if (zipMatcher.matches(filename)) {
+                int entries = 0;
                 logger.info(format("Unziping data from %s to %s ", filename, targetDirectory));
                 ZipInputStream zipInputStream = new ZipInputStream(new FileInputStream(zipFile));
                 ZipEntry zipEntry = zipInputStream.getNextEntry();
                 while (zipEntry != null) {
+                    entries++;
                     extractEntryTo(targetDirectory, zipEntry, zipInputStream);
                     zipInputStream.closeEntry();
                     zipEntry = zipInputStream.getNextEntry();
                 }
                 zipInputStream.close();
+                if (entries==0) {
+                    logger.warn("Unzipped zero entries, was this a zip file? " + filename);
+                }
             } else {
                 logger.info(format("Skipping unzip, %s not a zip file", zipFile.getAbsoluteFile()));
             }

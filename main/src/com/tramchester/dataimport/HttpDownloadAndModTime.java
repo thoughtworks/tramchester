@@ -199,32 +199,6 @@ public class HttpDownloadAndModTime implements DownloadAndModTime {
         }
     }
 
-    private long getLen(HttpResponse<InputStream> response) {
-        OptionalLong header = response.headers().firstValueAsLong(HttpHeader.CONTENT_LENGTH.name());
-        return header.orElse(0);
-    }
-
-
-    private String getContentEncoding(HttpResponse<?> response) {
-        Optional<String> contentEncoding = response.headers().firstValue(HttpHeader.CONTENT_TYPE.name());
-        return contentEncoding.orElse("");
-    }
-
-    private String getContentType(HttpResponse<?> response) {
-        Optional<String> contentTypeHeader = response.headers().firstValue(HttpHeader.CONTENT_TYPE.name());
-        return contentTypeHeader.orElse("");
-    }
-
-    private String getContentDispos(HttpResponse<?> response) {
-        Optional<String> header = response.headers().firstValue("content-disposition");
-        if (header.isPresent()) {
-            return header.get();
-        }
-        header = response.headers().firstValue("Content-Disposition");
-        return header.orElse("");
-    }
-
-
     private void download(InputStream inputStream, File targetFile) throws IOException {
         int maxSize = 1000 * 1024 * 1024;
 
@@ -263,5 +237,29 @@ public class HttpDownloadAndModTime implements DownloadAndModTime {
         } else {
             return inputStream;
         }
+    }
+
+    private long getLen(HttpResponse<InputStream> response) {
+        OptionalLong header = response.headers().firstValueAsLong(HttpHeader.CONTENT_LENGTH.name());
+        return header.orElse(0);
+    }
+
+    private String getContentEncoding(HttpResponse<?> response) {
+        Optional<String> contentEncoding = response.headers().firstValue(HttpHeader.CONTENT_TYPE.name());
+        return contentEncoding.orElse("");
+    }
+
+    private String getContentType(HttpResponse<?> response) {
+        Optional<String> contentTypeHeader = response.headers().firstValue(HttpHeader.CONTENT_TYPE.name());
+        return contentTypeHeader.orElse("");
+    }
+
+    private String getContentDispos(HttpResponse<?> response) {
+        Optional<String> header = response.headers().firstValue("content-disposition");
+        if (header.isPresent()) {
+            return header.get();
+        }
+        header = response.headers().firstValue("Content-Disposition");
+        return header.orElse("");
     }
 }
