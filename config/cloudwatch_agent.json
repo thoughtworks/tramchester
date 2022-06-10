@@ -58,6 +58,6 @@
       }
     },
     "log_stream_name": "PREFIX",
-    "force_flush_interval" : 15
+    "force_flush_interval": 15
   }
 }
