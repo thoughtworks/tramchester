@@ -90,6 +90,7 @@ logging:
       currentLogFilename: logs/tramchester_local.log
       threshold: INFO
       archive: true
-      archivedLogFilenamePattern: logs/tramchester_local-%d.log
+      archivedLogFilenamePattern: logs/tramchester_local_%i.log
       archivedFileCount: 5
       timeZone: UTC
+      maxFileSize: 50MB

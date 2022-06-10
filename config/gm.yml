@@ -121,6 +121,7 @@ logging:
       currentLogFilename: logs/tramchester_gm.log
       threshold: INFO
       archive: true
-      archivedLogFilenamePattern: logs/tramchester_gm-%d.log
+      archivedLogFilenamePattern: logs/tramchester_gm_%i.log
       archivedFileCount: 5
       timeZone: UTC
+      maxFileSize: 50MB

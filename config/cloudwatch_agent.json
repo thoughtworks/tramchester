@@ -1,6 +1,6 @@
 {
   "agent": {
-    "metrics_collection_interval": 10,
+    "metrics_collection_interval": 60,
     "logfile": "/opt/aws/amazon-cloudwatch-agent/logs/amazon-cloudwatch-agent.log"
   },
   "metrics": {
@@ -11,12 +11,12 @@
           "*"
         ],
         "measurement": [
-          {"name": "cpu_usage_idle", "rename": "CPU_USAGE_IDLE", "unit": "Percent"},
-          {"name": "cpu_usage_nice", "unit": "Percent"},
-          "cpu_usage_guest"
+          "usage_active",
+          "usage_guest",
+          "usage_system",
+          "usage_user"
         ],
-        "totalcpu": false,
-        "metrics_collection_interval": 10
+        "metrics_collection_interval": 60
       },
       "mem": {
         "measurement": [
@@ -25,7 +25,16 @@
           "total",
           "used"
         ],
-        "metrics_collection_interval": 10
+        "metrics_collection_interval": 60
+      },
+      "disk": {
+        "measurement": [
+          "used_percent",
+          "used",
+          "total",
+          "free"
+        ],
+        "metrics_collection_interval": 60
       }
     }
   },
