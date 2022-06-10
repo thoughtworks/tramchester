@@ -47,7 +47,7 @@ class DownloadsLatestLiveDataFromS3Test {
     @LiveDataTestCategory
     @Test
     void shouldDownloadNewestData() {
-        LocalDateTime start = TestEnv.LocalNow().minusHours(2);
+        LocalDateTime start = TestEnv.LocalNow().minusHours(1);
         Duration duration = Duration.ofMinutes(1);
 
         List<ArchivedStationDepartureInfoDTO> results = downloader.downloadFor(start, duration).collect(Collectors.toList());
