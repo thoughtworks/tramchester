@@ -13,6 +13,7 @@ import com.tramchester.integration.testSupport.rail.RailStationIds;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfigWithNaptan;
 import com.tramchester.repository.naptan.NaptanRepository;
+import com.tramchester.repository.naptan.NaptanRepositoryContainer;
 import com.tramchester.repository.naptan.NaptanStopType;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.BusStations;
@@ -43,7 +44,7 @@ class NaptanRepositoryTest {
 
     @BeforeEach
     void beforeEachTestRuns() {
-        respository = componentContainer.get(NaptanRepository.class);
+        respository = componentContainer.get(NaptanRepositoryContainer.class);
     }
 
     @Test
