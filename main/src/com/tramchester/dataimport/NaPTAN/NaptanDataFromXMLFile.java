@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonRootName;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
+import com.fasterxml.jackson.module.afterburner.AfterburnerModule;
 import com.tramchester.dataimport.loader.files.TransportDataFromFile;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,11 +30,19 @@ public class NaptanDataFromXMLFile<T extends NaptanXMLData> implements Transport
     private final Path filePath;
     private final Class<T> concreteType;
     private final Charset charset;
+    private final XmlMapper mapper;
+    private final XMLInputFactory factory;
 
     public NaptanDataFromXMLFile(Path filePath, Charset charset, Class<T> concreteType) {
         this.filePath = filePath.toAbsolutePath();
         this.charset = charset;
         this.concreteType = concreteType;
+
+        mapper = XmlMapper.builder().
+                addModule(new AfterburnerModule()).
+                disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES).build();
+        factory = XMLInputFactory.newFactory();
+
     }
 
     @Override
@@ -51,14 +60,13 @@ public class NaptanDataFromXMLFile<T extends NaptanXMLData> implements Transport
     @Override
     public Stream<T> load(Reader in) throws XMLStreamException, IOException {
 
-        XMLInputFactory factory = XMLInputFactory.newFactory();
         XMLStreamReader streamReader = factory.createXMLStreamReader(in);
 
         streamReader.next();
         checkStartElement(streamReader);
         logger.info("Document root is " + streamReader.getLocalName());
 
-        final ItemIterator itemIterator = new ItemIterator(streamReader, concreteType);
+        final ItemIterator itemIterator = new ItemIterator(streamReader, mapper, concreteType);
 
         Iterable<T> iterable = () -> itemIterator;
 
@@ -85,9 +93,9 @@ public class NaptanDataFromXMLFile<T extends NaptanXMLData> implements Transport
         private final String containingElement;
         private final String elementName;
 
-        public ItemIterator(XMLStreamReader xmlStreamReader, Class<T> theType) {
+        public ItemIterator(XMLStreamReader xmlStreamReader, XmlMapper mapper, Class<T> theType) {
+            this.mapper = mapper;
             this.theType = theType;
-            mapper = XmlMapper.builder().disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES).build();
             this.xmlStreamReader = xmlStreamReader;
             closed = false;
             JsonTypeName elementType = theType.getAnnotation(JsonTypeName.class);

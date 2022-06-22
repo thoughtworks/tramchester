@@ -26,20 +26,4 @@ public class MappersAndConfigurationModule extends AbstractModule {
         bind(NodeContentsRepository.class).to(CachedNodeOperations.class);
     }
 
-//    // TODO Remove
-//    @SuppressWarnings("unused")
-//    @LazySingleton
-//    @Provides
-//    CsvMapper providesCsvMapper() {
-//        return  CsvMapper.builder().addModule(new AfterburnerModule()).build();
-//    }
-
-//    // TODO Remove
-//    @SuppressWarnings("unused")
-//    @LazySingleton
-//    @Provides
-//    ObjectMapper providesObjectMapper() {
-//        return new ObjectMapper();
-//    }
-
 }
