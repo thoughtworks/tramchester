@@ -12,7 +12,7 @@ import com.tramchester.graph.TransportRelationshipTypes;
 import com.tramchester.graph.graphbuild.GraphLabel;
 import com.tramchester.graph.graphbuild.GraphProps;
 import com.tramchester.repository.StationRepository;
-import com.tramchester.repository.naptan.NaptanRespository;
+import com.tramchester.repository.naptan.NaptanRepository;
 import org.jetbrains.annotations.NotNull;
 import org.neo4j.graphdb.Direction;
 import org.neo4j.graphdb.Node;
@@ -42,13 +42,13 @@ public class DiagramCreator {
     private final TransportRelationshipTypes[] toplevelRelationships =
             new TransportRelationshipTypes[]{LINKED, ON_ROUTE, ROUTE_TO_STATION, STATION_TO_ROUTE, };
     private final StationRepository stationRepository;
-    private final NaptanRespository naptanRespository;
+    private final NaptanRepository naptanRespository;
 
     private static Path diagramsFolder = Path.of("diagrams");
 
     @Inject
     public DiagramCreator(GraphDatabase graphDatabase, GraphQuery graphQuery, StationRepository stationRepository,
-                          NaptanRespository naptanRespository) {
+                          NaptanRepository naptanRespository) {
         // ready is token to express dependency on having a built graph DB
         this.graphDatabase = graphDatabase;
         this.graphQuery = graphQuery;

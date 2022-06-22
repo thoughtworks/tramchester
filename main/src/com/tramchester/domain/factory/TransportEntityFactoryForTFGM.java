@@ -13,7 +13,7 @@ import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.reference.GTFSTransportationType;
 import com.tramchester.geo.CoordinateTransforms;
 import com.tramchester.geo.GridPosition;
-import com.tramchester.repository.naptan.NaptanRespository;
+import com.tramchester.repository.naptan.NaptanRepository;
 import com.tramchester.repository.naptan.NaptanStopType;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
@@ -29,11 +29,11 @@ public class TransportEntityFactoryForTFGM extends TransportEntityFactory {
 
     private static final Logger logger = LoggerFactory.getLogger(TransportEntityFactoryForTFGM.class);
 
-    private final NaptanRespository naptanRespository;
+    private final NaptanRepository naptanRespository;
 
     private final Duration minChangeDuration = Duration.ofMinutes(MutableStation.DEFAULT_MIN_CHANGE_TIME);
 
-    public TransportEntityFactoryForTFGM(NaptanRespository naptanRespository) {
+    public TransportEntityFactoryForTFGM(NaptanRepository naptanRespository) {
         super();
         this.naptanRespository = naptanRespository;
     }

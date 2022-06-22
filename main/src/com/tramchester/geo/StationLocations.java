@@ -12,7 +12,7 @@ import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.mappers.Geography;
 import com.tramchester.repository.PlatformRepository;
 import com.tramchester.repository.StationRepository;
-import com.tramchester.repository.naptan.NaptanRespository;
+import com.tramchester.repository.naptan.NaptanRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,7 +33,7 @@ public class StationLocations implements StationLocationsRepository {
 
     private final StationRepository stationRepository;
     private final PlatformRepository platformRepository;
-    private final NaptanRespository naptanRespository;
+    private final NaptanRepository naptanRespository;
     private final Geography geography;
     private final Set<BoundingBox> quadrants;
 
@@ -44,7 +44,7 @@ public class StationLocations implements StationLocationsRepository {
 
     @Inject
     public StationLocations(StationRepository stationRepository, PlatformRepository platformRepository,
-                            NaptanRespository naptanRespository, Geography geography) {
+                            NaptanRepository naptanRespository, Geography geography) {
         this.stationRepository = stationRepository;
         this.platformRepository = platformRepository;
         this.naptanRespository = naptanRespository;

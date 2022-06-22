@@ -10,7 +10,7 @@ import com.tramchester.graph.graphbuild.GraphLabel;
 import com.tramchester.graph.graphbuild.GraphProps;
 import com.tramchester.graph.search.stateMachine.HowIGotHere;
 import com.tramchester.repository.StationRepository;
-import com.tramchester.repository.naptan.NaptanRespository;
+import com.tramchester.repository.naptan.NaptanRepository;
 import org.apache.commons.lang3.tuple.Pair;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
@@ -28,14 +28,14 @@ import static java.lang.String.format;
 @LazySingleton
 public class ReasonsToGraphViz {
 
-    private final NaptanRespository naptanRespository;
+    private final NaptanRepository naptanRespository;
     private final StationRepository stationRepository;
     private final NodeContentsRepository nodeContentsRepository;
 
     private static final boolean includeAll = true;
 
     @Inject
-    public ReasonsToGraphViz(NaptanRespository naptanRespository, StationRepository stationRepository,
+    public ReasonsToGraphViz(NaptanRepository naptanRespository, StationRepository stationRepository,
                              NodeContentsRepository nodeContentsRepository) {
         this.naptanRespository = naptanRespository;
         this.stationRepository = stationRepository;

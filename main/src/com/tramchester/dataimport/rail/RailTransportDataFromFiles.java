@@ -29,7 +29,7 @@ import com.tramchester.geo.GridPosition;
 import com.tramchester.graph.filters.GraphFilterActive;
 import com.tramchester.repository.TransportDataContainer;
 import com.tramchester.repository.WriteableTransportData;
-import com.tramchester.repository.naptan.NaptanRespository;
+import com.tramchester.repository.naptan.NaptanRepository;
 import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -50,7 +50,7 @@ public class RailTransportDataFromFiles implements DirectDataSourceFactory.Popul
     private final LoadRailStationRecords loadRailStationRecords;
     private final LoadRailTimetableRecords loadRailTimetableRecords;
     private final RailConfig railConfig;
-    private final NaptanRespository naptanRespository;
+    private final NaptanRepository naptanRespository;
     private final GraphFilterActive graphFilterActive;
     private final RemoteDataRefreshed remoteDataRefreshed;
     private final RailStationCRSRepository crsRepository;
@@ -60,7 +60,7 @@ public class RailTransportDataFromFiles implements DirectDataSourceFactory.Popul
 
     @Inject
     public RailTransportDataFromFiles(RailDataRecordFactory factory, TramchesterConfig config,
-                                      NaptanRespository naptanRespository,
+                                      NaptanRepository naptanRespository,
                                       GraphFilterActive graphFilterActive, RemoteDataRefreshed remoteDataRefreshed,
                                       UnzipFetchedData.Ready ready, RailStationCRSRepository crsRepository) {
         railConfig = config.getRailConfig();

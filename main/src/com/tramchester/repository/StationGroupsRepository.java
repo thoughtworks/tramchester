@@ -13,7 +13,7 @@ import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.graph.filters.GraphFilter;
 import com.tramchester.mappers.Geography;
-import com.tramchester.repository.naptan.NaptanRespository;
+import com.tramchester.repository.naptan.NaptanRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,7 +35,7 @@ public class StationGroupsRepository {
     private static final Logger logger = LoggerFactory.getLogger(StationGroupsRepository.class);
 
     private final TramchesterConfig config;
-    private final NaptanRespository naptanRespository;
+    private final NaptanRepository naptanRespository;
     private final StationRepository stationRepository;
     private final Geography geography;
     private final GraphFilter graphFilter;
@@ -47,7 +47,7 @@ public class StationGroupsRepository {
 
     @Inject
     public StationGroupsRepository(StationRepository stationRepository, TramchesterConfig config,
-                                   Geography geography, NaptanRespository naptanRespository, GraphFilter graphFilter) {
+                                   Geography geography, NaptanRepository naptanRespository, GraphFilter graphFilter) {
         this.config = config;
         this.geography = geography;
         this.enabled = naptanRespository.isEnabled();

@@ -8,7 +8,7 @@ import com.tramchester.geo.*;
 import com.tramchester.mappers.Geography;
 import com.tramchester.repository.PlatformRepository;
 import com.tramchester.repository.StationRepository;
-import com.tramchester.repository.naptan.NaptanRespository;
+import com.tramchester.repository.naptan.NaptanRepository;
 import com.tramchester.testSupport.reference.KnownLocations;
 import com.tramchester.testSupport.reference.StationHelper;
 import org.easymock.EasyMock;
@@ -28,14 +28,14 @@ class StationLocationsTest extends EasyMockSupport {
 
     private StationLocations stationLocations;
     private StationRepository stationRepository;
-    private NaptanRespository naptanRespository;
+    private NaptanRepository naptanRespository;
     private Geography geography;
     private Set<TransportMode> modes;
 
     @BeforeEach
     void onceBeforeEachTest() {
         stationRepository = createMock(StationRepository.class);
-        naptanRespository = createMock(NaptanRespository.class);
+        naptanRespository = createMock(NaptanRepository.class);
         PlatformRepository platformRepository = createMock(PlatformRepository.class);
         geography = createMock(Geography.class);
 

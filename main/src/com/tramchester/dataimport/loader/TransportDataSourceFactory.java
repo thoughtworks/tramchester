@@ -8,7 +8,7 @@ import com.tramchester.domain.DataSourceID;
 import com.tramchester.domain.FeedInfo;
 import com.tramchester.domain.factory.TransportEntityFactory;
 import com.tramchester.domain.factory.TransportEntityFactoryForTFGM;
-import com.tramchester.repository.naptan.NaptanRespository;
+import com.tramchester.repository.naptan.NaptanRepository;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,13 +26,13 @@ public class TransportDataSourceFactory implements Iterable<TransportDataSource>
 
     private final List<TransportDataSource> theList;
     private final TransportDataReaderFactory readerFactory;
-    private final NaptanRespository naptanRespository;
+    private final NaptanRepository naptanRespository;
 
     @Inject
-    public TransportDataSourceFactory(TransportDataReaderFactory readerFactory, NaptanRespository naptanRespository,
+    public TransportDataSourceFactory(TransportDataReaderFactory readerFactory, NaptanRepository naptanRepository,
                                       UnzipFetchedData.Ready dataIsDownloadedAndUnzipped) {
         this.readerFactory = readerFactory;
-        this.naptanRespository = naptanRespository;
+        this.naptanRespository = naptanRepository;
         theList = new ArrayList<>();
     }
 

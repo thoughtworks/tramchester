@@ -12,7 +12,7 @@ import com.tramchester.geo.GridPosition;
 import com.tramchester.integration.testSupport.rail.RailStationIds;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfigWithNaptan;
-import com.tramchester.repository.naptan.NaptanRespository;
+import com.tramchester.repository.naptan.NaptanRepository;
 import com.tramchester.repository.naptan.NaptanStopType;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.BusStations;
@@ -27,7 +27,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class NaptanRepositoryTest {
     private static GuiceContainerDependencies componentContainer;
-    private NaptanRespository respository;
+    private NaptanRepository respository;
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
@@ -43,7 +43,7 @@ class NaptanRepositoryTest {
 
     @BeforeEach
     void beforeEachTestRuns() {
-        respository = componentContainer.get(NaptanRespository.class);
+        respository = componentContainer.get(NaptanRepository.class);
     }
 
     @Test

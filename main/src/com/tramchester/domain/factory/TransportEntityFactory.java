@@ -13,7 +13,7 @@ import com.tramchester.domain.reference.GTFSTransportationType;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.geo.CoordinateTransforms;
 import com.tramchester.geo.GridPosition;
-import com.tramchester.repository.naptan.NaptanRespository;
+import com.tramchester.repository.naptan.NaptanRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -96,7 +96,7 @@ public abstract class TransportEntityFactory {
         return Optional.empty();
     }
 
-    public static IdFor<NaptanArea> chooseArea(NaptanRespository naptanRespository, IdSet<NaptanArea> areaCodes) {
+    public static IdFor<NaptanArea> chooseArea(NaptanRepository naptanRespository, IdSet<NaptanArea> areaCodes) {
         if (areaCodes.isEmpty()) {
             return IdFor.invalid();
         }

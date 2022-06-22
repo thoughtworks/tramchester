@@ -35,7 +35,6 @@ public class NaptanDataFromXMLFile<T extends NaptanXMLData> implements Transport
     private final Charset charset;
     private final XmlMapper mapper;
     private final XMLInputFactory factory;
-    private FromXmlParser parser;
 
     public NaptanDataFromXMLFile(Path filePath, Charset charset, Class<T> concreteType, XmlMapper mapper) {
         this.filePath = filePath.toAbsolutePath();
@@ -68,8 +67,6 @@ public class NaptanDataFromXMLFile<T extends NaptanXMLData> implements Transport
         checkStartElement(streamReader);
         logger.info("Document root is " + streamReader.getLocalName());
 
-        parser = mapper.getFactory().createParser(streamReader);
-
         final ItemIterator itemIterator = new ItemIterator(streamReader, mapper, concreteType);
 
         Iterable<T> iterable = () -> itemIterator;
@@ -92,12 +89,13 @@ public class NaptanDataFromXMLFile<T extends NaptanXMLData> implements Transport
         private final XMLStreamReader xmlStreamReader;
         private final XmlMapper mapper;
         private final JavaType deserializeType;
+        private final ObjectReader reader;
         private boolean closed;
         private boolean insideContainingElement;
         private final String containingElement;
         private final String elementName;
 
-        public ItemIterator(XMLStreamReader xmlStreamReader, XmlMapper mapper, Class<T> theType) {
+        public ItemIterator(XMLStreamReader xmlStreamReader, XmlMapper mapper, Class<T> theType) throws IOException {
             this.mapper = mapper;
             this.xmlStreamReader = xmlStreamReader;
             closed = false;
@@ -117,6 +115,8 @@ public class NaptanDataFromXMLFile<T extends NaptanXMLData> implements Transport
             elementName = elementType.value();
             insideContainingElement = false;
 
+            reader = mapper.readerFor(deserializeType);
+
             logger.info(format("Created ItemIterator for element %s container %s to populate type %s",
                     elementName, containingElement, theType.getSimpleName()));
         }
@@ -129,17 +129,17 @@ public class NaptanDataFromXMLFile<T extends NaptanXMLData> implements Transport
 
             try {
 
-                if (!insideContainingElement) {
-                    if (!findElement(containingElement)) {
-                        logger.warn("Failed to find containing element " + containingElement);
-                        return false;
-                    }
+                if (insideContainingElement) {
+                    return findElement(elementName);
+                } else if (findElement(containingElement)) {
+                    insideContainingElement = true;
                     logger.info("Found containing element " + containingElement);
+                    return findElement(elementName);
+                } else {
+                    logger.warn("Failed to find containing element " + containingElement);
+                    return false;
                 }
 
-                insideContainingElement = true;
-
-                return findElement(elementName);
             }
             catch(XMLStreamException e) {
                 logger.error("Exception during iteration", e);
@@ -148,28 +148,29 @@ public class NaptanDataFromXMLFile<T extends NaptanXMLData> implements Transport
         }
 
         private boolean findElement(String name) throws XMLStreamException {
-            // loop until find containing element, or no more tokens
-            while (xmlStreamReader.hasNext() && (!foundStartOfElement(name))) {
-                xmlStreamReader.next();
+            // skip until next start element
+            while (xmlStreamReader.hasNext()) {
+                if (xmlStreamReader.isStartElement() && name.equals(xmlStreamReader.getLocalName())) {
+                    return true;
+                } else {
+                    xmlStreamReader.next();
+                }
+
+                while (xmlStreamReader.hasNext() && !xmlStreamReader.isStartElement()) {
+                    xmlStreamReader.next();
+                }
             }
 
-            return xmlStreamReader.hasNext();
-        }
+            return false;
 
-        private boolean foundStartOfElement(String name) {
-            if (xmlStreamReader.getEventType()!=XMLStreamConstants.START_ELEMENT) {
-                return false;
-            }
-            return name.equals(xmlStreamReader.getLocalName());
         }
 
         @Override
         public T next() {
             try {
-                //return mapper.readValue(parser, deserializeType);
-//                ObjectReader reader = mapper.readerFor(deserializeType);
-//                reader.readValue(parser, deserializeType);
-                return mapper.readValue(xmlStreamReader, deserializeType);
+                // done this way to allow reuse of the reader
+                FromXmlParser parser = mapper.getFactory().createParser(xmlStreamReader);
+                return reader.readValue(parser, deserializeType);
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }

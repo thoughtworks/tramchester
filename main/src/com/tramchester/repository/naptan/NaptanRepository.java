@@ -34,8 +34,8 @@ import static java.lang.String.format;
 // http://naptan.dft.gov.uk/naptan/schema/2.5/doc/NaPTANSchemaGuide-2.5-v0.67.pdf
 
 @LazySingleton
-public class NaptanRespository {
-    private static final Logger logger = LoggerFactory.getLogger(NaptanRespository.class);
+public class NaptanRepository {
+    private static final Logger logger = LoggerFactory.getLogger(NaptanRepository.class);
 
     private final NaptanDataImporter naptanDataImporter;
     private final NPTGRepository nptgRepository;
@@ -45,7 +45,7 @@ public class NaptanRespository {
     private Map<IdFor<Station>, IdFor<NaptanRecord>> tiplocToAtco;
 
     @Inject
-    public NaptanRespository(NaptanDataImporter naptanDataImporter, NPTGRepository nptgRepository, TramchesterConfig config) {
+    public NaptanRepository(NaptanDataImporter naptanDataImporter, NPTGRepository nptgRepository, TramchesterConfig config) {
         this.naptanDataImporter = naptanDataImporter;
         this.nptgRepository = nptgRepository;
         this.config = config;
