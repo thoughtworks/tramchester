@@ -19,16 +19,17 @@ public class DataSaver<T> {
 
     private final Class<T> dataClass;
     private final Path filePath;
+    private final CsvMapper mapper;
 
-    public DataSaver(Class<T> dataClass, Path filePath) {
+    public DataSaver(Class<T> dataClass, Path filePath, CsvMapper mapper) {
         this.dataClass = dataClass;
         this.filePath = filePath;
+        this.mapper = mapper;
     }
 
     public void save(List<T> dataToSave) {
         logger.info("Recording data for file in " + filePath.toAbsolutePath());
 
-        CsvMapper mapper = new CsvMapper();
         CsvSchema schema = mapper.schemaFor(dataClass).withHeader();
         ObjectWriter myObjectWriter = mapper.writer(schema);
 

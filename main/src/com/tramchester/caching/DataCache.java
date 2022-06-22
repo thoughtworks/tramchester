@@ -1,6 +1,8 @@
 package com.tramchester.caching;
 
+import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.dataformat.csv.CsvMapper;
+import com.fasterxml.jackson.module.afterburner.AfterburnerModule;
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.config.RemoteDataSourceConfig;
 import com.tramchester.config.TramchesterConfig;
@@ -37,11 +39,11 @@ public class DataCache {
     private boolean ready;
 
     @Inject
-    public DataCache(TramchesterConfig config, RemoteDataRefreshed remoteDataRefreshed, CsvMapper mapper) {
+    public DataCache(TramchesterConfig config, RemoteDataRefreshed remoteDataRefreshed) {
         this.config = config;
         this.cacheFolder = config.getCacheFolder().toAbsolutePath();
         this.remoteDataRefreshed = remoteDataRefreshed;
-        this.mapper = mapper;
+        this.mapper = CsvMapper.builder().addModule(new AfterburnerModule()).build();
     }
 
     @PostConstruct
@@ -101,7 +103,7 @@ public class DataCache {
 
         if (ready) {
             logger.info("Saving " + theClass.getSimpleName() + " to " + path);
-            DataSaver<T> saver = new DataSaver<>(theClass, path);
+            DataSaver<T> saver = new DataSaver<>(theClass, path, mapper);
             data.cacheTo(saver);
         } else {
             logger.error("Not ready, no data saved to " + path);

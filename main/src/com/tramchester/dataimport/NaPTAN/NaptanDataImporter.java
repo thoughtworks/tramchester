@@ -1,6 +1,5 @@
 package com.tramchester.dataimport.NaPTAN;
 
-import com.fasterxml.jackson.dataformat.csv.CsvMapper;
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.dataimport.NaPTAN.xml.NaptanDataXMLImporter;
@@ -31,7 +30,7 @@ public class NaptanDataImporter {
     private final NaptanDataXMLImporter theImporter;
 
     @Inject
-    protected NaptanDataImporter(TramchesterConfig config, CsvMapper csvMapper, RemoteDataRefreshed dataRefreshed,
+    protected NaptanDataImporter(TramchesterConfig config, RemoteDataRefreshed dataRefreshed,
                                  UnzipFetchedData.Ready ready) {
        if (config.hasRemoteDataSourceConfig(DataSourceID.naptanxml)) {
             theImporter = new NaptanDataXMLImporter(dataRefreshed);

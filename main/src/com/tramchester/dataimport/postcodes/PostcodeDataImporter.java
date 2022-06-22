@@ -1,6 +1,7 @@
 package com.tramchester.dataimport.postcodes;
 
 import com.fasterxml.jackson.dataformat.csv.CsvMapper;
+import com.fasterxml.jackson.module.afterburner.AfterburnerModule;
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.config.RemoteDataSourceConfig;
 import com.tramchester.config.TramchesterConfig;
@@ -49,9 +50,9 @@ public class PostcodeDataImporter {
     @Inject
     public PostcodeDataImporter(TramchesterConfig config, StationLocations stationLocations,
                                 PostcodeBoundingBoxs postcodeBounds, FetchFileModTime fetchFileModTime,
-                                CsvMapper mapper,  UnzipFetchedData.Ready dataIsReady) {
+                                UnzipFetchedData.Ready dataIsReady) {
         this.fetchFileModTime = fetchFileModTime;
-        this.mapper = mapper;
+        this.mapper = CsvMapper.builder().addModule(new AfterburnerModule()).build();
         this.config = config;
 
         this.stationLocations = stationLocations;

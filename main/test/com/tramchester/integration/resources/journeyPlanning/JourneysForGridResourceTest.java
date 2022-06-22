@@ -1,6 +1,8 @@
 package com.tramchester.integration.resources.journeyPlanning;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.json.JsonMapper;
+import com.fasterxml.jackson.module.afterburner.AfterburnerModule;
 import com.tramchester.App;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.places.Station;
@@ -34,7 +36,7 @@ class JourneysForGridResourceTest {
     private static final IntegrationAppExtension appExtension =
             new IntegrationAppExtension(App.class, new ResourceTramTestConfig<>(JourneysForGridResource.class));
 
-    private final ObjectMapper mapper = new ObjectMapper();
+    private final ObjectMapper mapper = JsonMapper.builder().addModule(new AfterburnerModule()).build();
     private ParseStream<BoxWithCostDTO> parseStream;
     private String time;
     private String date;

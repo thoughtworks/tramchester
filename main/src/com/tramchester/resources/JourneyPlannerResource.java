@@ -2,7 +2,6 @@ package com.tramchester.resources;
 
 import com.codahale.metrics.annotation.Timed;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tramchester.RedirectToHttpsUsingELBProtoHeader;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.JourneyRequest;
@@ -32,7 +31,6 @@ import java.net.URI;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalTime;
-import java.util.Collections;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -55,10 +53,10 @@ public class JourneyPlannerResource extends UsesRecentCookie implements APIResou
 
     @Inject
     public JourneyPlannerResource(UpdateRecentJourneys updateRecentJourneys,
-                                  ObjectMapper objectMapper, GraphDatabase graphDatabaseService,
+                                  GraphDatabase graphDatabaseService,
                                   ProvidesNow providesNow, LocationJourneyPlanner locToLocPlanner, JourneyToDTOMapper journeyToDTOMapper, TramchesterConfig config,
                                   JourneyDTODuplicateFilter duplicateFilter, LocationRepository locationRepository) {
-        super(updateRecentJourneys, providesNow, objectMapper);
+        super(updateRecentJourneys, providesNow);
         this.locToLocPlanner = locToLocPlanner;
         this.journeyToDTOMapper = journeyToDTOMapper;
         this.duplicateFilter = duplicateFilter;

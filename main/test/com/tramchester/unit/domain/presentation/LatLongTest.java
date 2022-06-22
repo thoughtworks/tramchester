@@ -2,6 +2,8 @@ package com.tramchester.unit.domain.presentation;
 
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.json.JsonMapper;
+import com.fasterxml.jackson.module.afterburner.AfterburnerModule;
 import com.tramchester.domain.presentation.LatLong;
 import org.geotools.geometry.GeneralDirectPosition;
 import org.geotools.referencing.ReferencingFactoryFinder;
@@ -25,6 +27,7 @@ class LatLongTest {
     private static final double DELTA = 0.05D;
     private static CoordinateReferenceSystem nationalGridRefSys;
     private static CoordinateReferenceSystem latLongRef;
+    private static final ObjectMapper mapper = JsonMapper.builder().addModule(new AfterburnerModule()).build();
 
     @BeforeAll
     static void onceBeforeAllTests() throws FactoryException {
@@ -37,7 +40,6 @@ class LatLongTest {
 
     @Test
     void shouldBeAbleToSerialiseAndDeSerialise() throws IOException {
-        ObjectMapper mapper = new ObjectMapper();
         LatLong latLong = new LatLong(-1,2);
 
         String output = mapper.writeValueAsString(latLong);
@@ -52,7 +54,6 @@ class LatLongTest {
 
     @Test
     void shouldBeAbleToSerialiseAndDeSerialiseInvalid() throws IOException {
-        ObjectMapper mapper = new ObjectMapper();
         LatLong latLong = LatLong.Invalid;
 
         String output = mapper.writeValueAsString(latLong);

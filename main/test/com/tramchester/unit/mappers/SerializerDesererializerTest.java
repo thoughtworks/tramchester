@@ -4,6 +4,8 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.databind.json.JsonMapper;
+import com.fasterxml.jackson.module.afterburner.AfterburnerModule;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.mappers.serialisation.*;
 import org.easymock.EasyMockSupport;
@@ -36,7 +38,7 @@ class SerializerDesererializerTest extends EasyMockSupport {
 
     @BeforeEach
     void beforeEachTestRuns() {
-        mapper = new ObjectMapper();
+        mapper = JsonMapper.builder().addModule(new AfterburnerModule()).build();
     }
 
     @Test

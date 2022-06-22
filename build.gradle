@@ -56,11 +56,11 @@ dependencies {
             'org.apache.httpcomponents:httpclient:4.5.13',
             'org.apache.commons:commons-collections4:4.4',
             'com.github.ben-manes.caffeine:caffeine:3.0.6'
-    implementation 'com.fasterxml.jackson.core:jackson-core:2.13.2',
-            'com.fasterxml.jackson.core:jackson-databind:2.13.2',
-            'com.fasterxml.jackson.module:jackson-module-afterburner:2.13.0',
-            'com.fasterxml.jackson.dataformat:jackson-dataformat-csv:2.13.0',
-            'com.fasterxml.jackson.dataformat:jackson-dataformat-xml:2.13.0'
+    implementation 'com.fasterxml.jackson.core:jackson-core:2.13.3',
+            'com.fasterxml.jackson.core:jackson-databind:2.13.3',
+            'com.fasterxml.jackson.module:jackson-module-afterburner:2.13.3',
+            'com.fasterxml.jackson.dataformat:jackson-dataformat-csv:2.13.3',
+            'com.fasterxml.jackson.dataformat:jackson-dataformat-xml:2.13.3'
     implementation('com.smoketurner:dropwizard-swagger:2.0.12-1')
 
     // aws sdk
@@ -276,6 +276,7 @@ task liveMessages(type: Test, dependsOn: compileJava) {
     }
 }
 
+
 task integration(type: Test, dependsOn: compileJava) {
     minHeapSize = "1000m"
     maxHeapSize = "1750m"
@@ -295,6 +296,23 @@ task integration(type: Test, dependsOn: compileJava) {
         events "passed", "skipped", "failed", "started", "standardError" //, "standardOut"
     }
 }
+
+task integrationProfile(type: Test, dependsOn: compileJava) {
+    minHeapSize = "1000m"
+    maxHeapSize = "1750m"
+    //jvmArgs '-agentpath:/home/ianc/dev/tools/visualvm_213/visualvm/lib/deployed/jdk16/linux-amd64/libprofilerinterface.so=/home/ianc/dev/tools/visualvm_213/visualvm/lib,5140'
+    jvmArgs '-agentpath:/Users/icartwri/dev/tools/visualvm_213/visualvm/lib/deployed/jdk16/mac/libprofilerinterface.jnilib=/Users/icartwri/dev/tools/visualvm_213/visualvm/lib,5140'
+    useJUnitPlatform {
+        excludeTags "postcode" // not needed for tram, but used by buses
+        excludeTags "BusTest"
+        excludeTags "TrainTest"
+    }
+    filter {
+        includeTestsMatching "com.tramchester.integration.*"
+    }
+}
+
+
 
 task dataUpdated(type: Test, dependsOn: compileJava) {
     minHeapSize = "1000m"

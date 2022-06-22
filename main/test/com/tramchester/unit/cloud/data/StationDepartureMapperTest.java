@@ -35,8 +35,7 @@ class StationDepartureMapperTest {
 
     @BeforeEach
     void beforeEachTestRuns() {
-        ObjectMapper objectMapper = new ObjectMapper();
-        mapper = new StationDepartureMapper(objectMapper);
+        mapper = new StationDepartureMapper();
         departures = new ArrayList<>();
         lastUpdate = LocalDateTime.of(2018,11,15,15,6,32);
 

@@ -2,6 +2,8 @@ package com.tramchester.resources;
 
 import com.codahale.metrics.annotation.Timed;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.json.JsonMapper;
+import com.fasterxml.jackson.module.afterburner.AfterburnerModule;
 import com.tramchester.domain.BoundingBoxWithCost;
 import com.tramchester.domain.JourneyRequest;
 import com.tramchester.domain.id.CaseInsensitiveId;
@@ -53,13 +55,13 @@ public class JourneysForGridResource implements APIResource, GraphDatabaseDepend
 
     @Inject
     public JourneysForGridResource(StationRepository repository, FastestRoutesForBoxes search, JourneyToDTOMapper dtoMapper,
-                                   PostcodeRepository postcodeRepository, ObjectMapper objectMapper) {
+                                   PostcodeRepository postcodeRepository) {
         logger.info("created");
         this.repository = repository;
         this.search = search;
         this.dtoMapper = dtoMapper;
         this.postcodeRepository = postcodeRepository;
-        this.objectMapper = objectMapper;
+        this.objectMapper = JsonMapper.builder().addModule(new AfterburnerModule()).build();
     }
 
     // TODO Cache lifetime could potentially be quite long here, but makes testing harder.....

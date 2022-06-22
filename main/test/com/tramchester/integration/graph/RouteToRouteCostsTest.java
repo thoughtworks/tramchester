@@ -1,6 +1,7 @@
 package com.tramchester.integration.graph;
 
 import com.fasterxml.jackson.dataformat.csv.CsvMapper;
+import com.fasterxml.jackson.module.afterburner.AfterburnerModule;
 import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.config.TramchesterConfig;
@@ -242,7 +243,7 @@ public class RouteToRouteCostsTest {
 
     @Test
     void shouldSaveIndexAsExpected() {
-        CsvMapper mapper = new CsvMapper();
+        CsvMapper mapper = CsvMapper.builder().addModule(new AfterburnerModule()).build();
 
         assertTrue(indexFile.toFile().exists(), "Missing " + indexFile.toAbsolutePath());
 

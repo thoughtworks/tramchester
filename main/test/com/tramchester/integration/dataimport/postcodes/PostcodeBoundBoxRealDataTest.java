@@ -1,6 +1,7 @@
 package com.tramchester.integration.dataimport.postcodes;
 
 import com.fasterxml.jackson.dataformat.csv.CsvMapper;
+import com.fasterxml.jackson.module.afterburner.AfterburnerModule;
 import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.config.RemoteDataSourceConfig;
@@ -36,6 +37,7 @@ public class PostcodeBoundBoxRealDataTest {
     private static TramWithPostcodesEnabled config;
     private PostcodeBoundingBoxs boundingBoxs;
     private Path centralManchesterPostcodes;
+    private static CsvMapper mapper = CsvMapper.builder().addModule(new AfterburnerModule()).build();
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
@@ -159,7 +161,6 @@ public class PostcodeBoundBoxRealDataTest {
     }
 
     private Set<PostcodeData> getPostcodeData(Path file) {
-        CsvMapper mapper = CsvMapper.builder().build();
         TransportDataFromCSVFile<PostcodeData, PostcodeData> loader = new TransportDataFromCSVFile<>(file, PostcodeData.class, PostcodeData.CVS_HEADER, mapper);
         return loader.load().collect(Collectors.toSet());
     }

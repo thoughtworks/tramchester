@@ -4,6 +4,8 @@ import com.fasterxml.jackson.core.JsonLocation;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectReader;
+import com.fasterxml.jackson.databind.json.JsonMapper;
+import com.fasterxml.jackson.module.afterburner.AfterburnerModule;
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.livedata.domain.DTO.StationDepartureInfoDTO;
 import com.tramchester.livedata.domain.DTO.archived.ArchivedStationDepartureInfoDTO;
@@ -23,8 +25,8 @@ public class StationDepartureMapper {
     private final ObjectMapper mapper;
 
     @Inject
-    public StationDepartureMapper(ObjectMapper mapper) {
-        this.mapper = mapper;
+    public StationDepartureMapper() {
+        this.mapper = JsonMapper.builder().addModule(new AfterburnerModule()).build();
     }
 
     public String map(List<StationDepartureInfoDTO> departures) throws JsonProcessingException {

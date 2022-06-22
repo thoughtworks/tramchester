@@ -3,6 +3,8 @@ package com.tramchester.resources;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.json.JsonMapper;
+import com.fasterxml.jackson.module.afterburner.AfterburnerModule;
 import com.tramchester.domain.UpdateRecentJourneys;
 import com.tramchester.domain.places.Location;
 import com.tramchester.domain.places.LocationType;
@@ -28,11 +30,11 @@ public class UsesRecentCookie extends TransportResource {
     private final UpdateRecentJourneys updateRecentJourneys;
     protected final ObjectMapper mapper;
 
-    public UsesRecentCookie(UpdateRecentJourneys updateRecentJourneys, ProvidesNow providesNow, ObjectMapper mapper) {
+    public UsesRecentCookie(UpdateRecentJourneys updateRecentJourneys, ProvidesNow providesNow) {
         super(providesNow);
         logger.info("created");
         this.updateRecentJourneys = updateRecentJourneys;
-        this.mapper = mapper;
+        this.mapper = JsonMapper.builder().addModule(new AfterburnerModule()).build();
     }
 
     protected RecentJourneys recentFromCookie(Cookie cookie) {

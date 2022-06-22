@@ -1,6 +1,8 @@
 package com.tramchester.integration.resources;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.json.JsonMapper;
+import com.fasterxml.jackson.module.afterburner.AfterburnerModule;
 import com.tramchester.App;
 import com.tramchester.domain.presentation.DTO.BoxWithFrequencyDTO;
 import com.tramchester.domain.presentation.DTO.LocationRefDTO;
@@ -33,7 +35,7 @@ import static org.junit.jupiter.api.Assertions.*;
 @ExtendWith(DropwizardExtensionsSupport.class)
 public class FrequencyResourceTest {
 
-    private final ObjectMapper mapper = new ObjectMapper();
+    private final ObjectMapper mapper = JsonMapper.builder().addModule(new AfterburnerModule()).build();
     private ParseStream<BoxWithFrequencyDTO> parseStream;
 
     private static final IntegrationAppExtension appExtension = new IntegrationAppExtension(App.class,

@@ -48,16 +48,6 @@ public class RecentJourneys  {
         return timestamps;
     }
 
-//    @JsonIgnore
-//    public boolean containsStationId(StringIdFor<Station> id) {
-//        for (Timestamped timestamp : timestamps) {
-//            if (timestamp.getId().equals(id.forDTO())) {
-//                return true;
-//            }
-//        }
-//        return false;
-//    }
-
     public static RecentJourneys empty() {
         return new RecentJourneys().setTimestamps(new HashSet<>());
     }

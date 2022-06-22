@@ -33,10 +33,7 @@ public class InterchangeResource implements APIResource, GraphDatabaseDependency
     private final InterchangeRepository interchangeRepository;
 
     @Inject
-    public InterchangeResource(StationRepository stationRepository,
-                               ObjectMapper mapper,
-                               ProvidesNow providesNow,
-                               TramchesterConfig config, InterchangeRepository interchangeRepository) {
+    public InterchangeResource(InterchangeRepository interchangeRepository) {
         this.interchangeRepository = interchangeRepository;
     }
 

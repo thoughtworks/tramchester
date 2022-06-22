@@ -59,12 +59,12 @@ public class StationResource extends UsesRecentCookie implements APIResource {
 
     @Inject
     public StationResource(StationRepository stationRepository,
-                           UpdateRecentJourneys updateRecentJourneys, ObjectMapper mapper,
+                           UpdateRecentJourneys updateRecentJourneys,
                            ProvidesNow providesNow,
                            DataSourceRepository dataSourceRepository, StationLocations stationLocations,
                            ClosedStationsRepository closedStationsRepository, DTOFactory DTOFactory,
                            LocationDTOFactory locationDTOFactory, TramchesterConfig config) {
-        super(updateRecentJourneys, providesNow, mapper);
+        super(updateRecentJourneys, providesNow);
         this.DTOFactory = DTOFactory;
         this.locationDTOFactory = locationDTOFactory;
         logger.info("created");

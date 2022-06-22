@@ -2,6 +2,8 @@ package com.tramchester.resources;
 
 import com.codahale.metrics.annotation.Timed;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.json.JsonMapper;
+import com.fasterxml.jackson.module.afterburner.AfterburnerModule;
 import com.tramchester.domain.BoxWithServiceFrequency;
 import com.tramchester.domain.presentation.DTO.BoxWithFrequencyDTO;
 import com.tramchester.domain.presentation.DTO.LocationRefDTO;
@@ -40,12 +42,12 @@ public class FrequencyResource extends TransportResource implements APIResource 
     private final StopCallsForGrid stopCallsForGrid;
 
     @Inject
-    public FrequencyResource(ObjectMapper objectMapper, StopCallsForGrid stopCallsForGrid, ProvidesNow providesNow,
+    public FrequencyResource(StopCallsForGrid stopCallsForGrid, ProvidesNow providesNow,
                              DTOFactory DTOFactory) {
         super(providesNow);
         this.DTOFactory = DTOFactory;
         logger.info("created");
-        this.objectMapper = objectMapper;
+        this.objectMapper = JsonMapper.builder().addModule(new AfterburnerModule()).build();
         this.stopCallsForGrid = stopCallsForGrid;
     }
 
