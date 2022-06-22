@@ -1,9 +1,6 @@
 package com.tramchester.dataimport.NaPTAN.xml.stopPoint;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonRootName;
-import com.fasterxml.jackson.annotation.JsonTypeName;
+import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 import com.tramchester.dataimport.NaPTAN.NaptanRailStationData;
 import com.tramchester.dataimport.NaPTAN.NaptanXMLData;
@@ -32,6 +29,7 @@ public class NaptanStopData implements NaptanXMLData {
     final private NaptanXMLStopClassification stopClassification;
     final private List<NaptanXMLStopAreaRef> stopAreas;
 
+    @JsonCreator
     public NaptanStopData(@JsonProperty("AtcoCode") String atcoCode,
                           @JsonProperty("NaptanCode") String naptanCode,
                           @JsonProperty("Place") NaptanXMLPlace place,

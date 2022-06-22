@@ -1,5 +1,8 @@
 package com.tramchester.dataimport.NaPTAN;
 
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.dataformat.xml.XmlMapper;
+import com.fasterxml.jackson.module.blackbird.BlackbirdModule;
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.dataimport.NaPTAN.xml.NaptanDataXMLImporter;
@@ -28,12 +31,17 @@ public class NaptanDataImporter {
     private static final Logger logger = LoggerFactory.getLogger(NaptanDataImporter.class);
 
     private final NaptanDataXMLImporter theImporter;
+    private final XmlMapper mapper;
 
     @Inject
     protected NaptanDataImporter(TramchesterConfig config, RemoteDataRefreshed dataRefreshed,
                                  UnzipFetchedData.Ready ready) {
+        mapper = XmlMapper.builder().
+                addModule(new BlackbirdModule()).
+                disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES).build();
+
        if (config.hasRemoteDataSourceConfig(DataSourceID.naptanxml)) {
-            theImporter = new NaptanDataXMLImporter(dataRefreshed);
+           theImporter = new NaptanDataXMLImporter(dataRefreshed);
         } else {
             theImporter = null;
             logger.warn(format("Naptan for %s is disabled, no config section found", DataSourceID.naptanxml));
@@ -59,7 +67,7 @@ public class NaptanDataImporter {
             logger.warn("Disabled, but getStopsData() called");
             return Stream.empty();
         }
-        return theImporter.loadData(NaptanStopData.class);
+        return theImporter.loadData(NaptanStopData.class, mapper);
     }
 
     public Stream<NaptanStopAreaData> getAreasData() {
@@ -67,7 +75,7 @@ public class NaptanDataImporter {
             logger.warn("Disabled, but getAreasData() called");
             return Stream.empty();
         }
-        return theImporter.loadData(NaptanStopAreaData.class);
+        return theImporter.loadData(NaptanStopAreaData.class, mapper);
     }
 
     public boolean isEnabled() {

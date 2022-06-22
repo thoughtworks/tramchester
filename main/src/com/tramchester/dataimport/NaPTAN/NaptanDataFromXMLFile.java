@@ -1,10 +1,13 @@
 package com.tramchester.dataimport.NaPTAN;
 
+import com.ctc.wstx.stax.WstxInputFactory;
 import com.fasterxml.jackson.annotation.JsonRootName;
 import com.fasterxml.jackson.annotation.JsonTypeName;
-import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.JavaType;
+import com.fasterxml.jackson.databind.ObjectReader;
+import com.fasterxml.jackson.databind.type.TypeFactory;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
-import com.fasterxml.jackson.module.afterburner.AfterburnerModule;
+import com.fasterxml.jackson.dataformat.xml.deser.FromXmlParser;
 import com.tramchester.dataimport.loader.files.TransportDataFromFile;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,16 +35,15 @@ public class NaptanDataFromXMLFile<T extends NaptanXMLData> implements Transport
     private final Charset charset;
     private final XmlMapper mapper;
     private final XMLInputFactory factory;
+    private FromXmlParser parser;
 
-    public NaptanDataFromXMLFile(Path filePath, Charset charset, Class<T> concreteType) {
+    public NaptanDataFromXMLFile(Path filePath, Charset charset, Class<T> concreteType, XmlMapper mapper) {
         this.filePath = filePath.toAbsolutePath();
         this.charset = charset;
         this.concreteType = concreteType;
+        this.mapper = mapper;
 
-        mapper = XmlMapper.builder().
-                addModule(new AfterburnerModule()).
-                disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES).build();
-        factory = XMLInputFactory.newFactory();
+        factory = new WstxInputFactory();
 
     }
 
@@ -66,6 +68,8 @@ public class NaptanDataFromXMLFile<T extends NaptanXMLData> implements Transport
         checkStartElement(streamReader);
         logger.info("Document root is " + streamReader.getLocalName());
 
+        parser = mapper.getFactory().createParser(streamReader);
+
         final ItemIterator itemIterator = new ItemIterator(streamReader, mapper, concreteType);
 
         Iterable<T> iterable = () -> itemIterator;
@@ -87,7 +91,7 @@ public class NaptanDataFromXMLFile<T extends NaptanXMLData> implements Transport
     private class ItemIterator implements Iterator<T> {
         private final XMLStreamReader xmlStreamReader;
         private final XmlMapper mapper;
-        private final Class<T> theType;
+        private final JavaType deserializeType;
         private boolean closed;
         private boolean insideContainingElement;
         private final String containingElement;
@@ -95,11 +99,15 @@ public class NaptanDataFromXMLFile<T extends NaptanXMLData> implements Transport
 
         public ItemIterator(XMLStreamReader xmlStreamReader, XmlMapper mapper, Class<T> theType) {
             this.mapper = mapper;
-            this.theType = theType;
             this.xmlStreamReader = xmlStreamReader;
             closed = false;
-            JsonTypeName elementType = theType.getAnnotation(JsonTypeName.class);
+
             JsonRootName container = theType.getAnnotation(JsonRootName.class);
+            JsonTypeName elementType = theType.getAnnotation(JsonTypeName.class);
+
+            TypeFactory typeFactory =  mapper.getTypeFactory();
+
+            deserializeType = typeFactory.constructType(theType);
 
             if (elementType==null || container==null) {
                 throw new RuntimeException(theType.getSimpleName() + " needs annotations for both JsonRootName and JsonTypeName");
@@ -108,6 +116,7 @@ public class NaptanDataFromXMLFile<T extends NaptanXMLData> implements Transport
             containingElement = container.value();
             elementName = elementType.value();
             insideContainingElement = false;
+
             logger.info(format("Created ItemIterator for element %s container %s to populate type %s",
                     elementName, containingElement, theType.getSimpleName()));
         }
@@ -157,7 +166,10 @@ public class NaptanDataFromXMLFile<T extends NaptanXMLData> implements Transport
         @Override
         public T next() {
             try {
-                return mapper.readValue(xmlStreamReader, theType);
+                //return mapper.readValue(parser, deserializeType);
+//                ObjectReader reader = mapper.readerFor(deserializeType);
+//                reader.readValue(parser, deserializeType);
+                return mapper.readValue(xmlStreamReader, deserializeType);
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }

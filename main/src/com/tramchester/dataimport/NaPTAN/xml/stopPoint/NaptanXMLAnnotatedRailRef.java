@@ -1,5 +1,6 @@
 package com.tramchester.dataimport.NaPTAN.xml.stopPoint;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeName;
@@ -10,6 +11,7 @@ public class NaptanXMLAnnotatedRailRef {
 
     private final String tiplocRef;
 
+    @JsonCreator
     public NaptanXMLAnnotatedRailRef(@JsonProperty("TiplocRef") String tiplocRef) {
         this.tiplocRef = tiplocRef;
     }

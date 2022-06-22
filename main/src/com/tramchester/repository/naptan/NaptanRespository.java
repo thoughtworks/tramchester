@@ -101,6 +101,8 @@ public class NaptanRespository {
                 map(this::createArea).
                 collect(IdMap.collector());
 
+        areaDataStream.close();
+
         logger.info("Loaded " + areas.size() + " areas");
     }
 
@@ -139,6 +141,9 @@ public class NaptanRespository {
         tiplocToAtco = filterBy(bounds, margin, railStops)
                 .collect(Collectors.toMap(data ->
                         StringIdFor.createId(data.getRailInfo().getTiploc()), NaptanStopData::getAtcoCode));
+
+        railStops.close();
+
         logger.info("Loaded " + tiplocToAtco.size() + " stations");
     }
 

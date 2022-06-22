@@ -2,6 +2,7 @@ package com.tramchester.dataimport.nptg;
 
 import com.fasterxml.jackson.dataformat.csv.CsvMapper;
 import com.fasterxml.jackson.module.afterburner.AfterburnerModule;
+import com.fasterxml.jackson.module.blackbird.BlackbirdModule;
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.config.RemoteDataSourceConfig;
 import com.tramchester.config.TramchesterConfig;
@@ -28,7 +29,7 @@ public class NPTGDataLoader {
     @Inject
     public NPTGDataLoader(TramchesterConfig config, UnzipFetchedData.Ready dataIsReady) {
         this.config = config;
-        mapper = CsvMapper.builder().addModule(new AfterburnerModule()).build();
+        mapper = CsvMapper.builder().addModule(new BlackbirdModule()).build();
     }
 
     @PostConstruct

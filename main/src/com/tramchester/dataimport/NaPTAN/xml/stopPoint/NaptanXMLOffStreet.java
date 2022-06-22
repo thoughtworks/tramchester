@@ -1,5 +1,6 @@
 package com.tramchester.dataimport.NaPTAN.xml.stopPoint;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeName;
@@ -10,6 +11,7 @@ public class NaptanXMLOffStreet {
 
     private final NaptanXMLRailInfo railInfo;
 
+    @JsonCreator
     public NaptanXMLOffStreet(@JsonProperty("Rail") NaptanXMLRailInfo railInfo) {
         this.railInfo = railInfo;
     }

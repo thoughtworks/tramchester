@@ -1,5 +1,6 @@
 package com.tramchester.dataimport.NaPTAN.xml.stopPoint;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeName;
@@ -13,6 +14,7 @@ public class NaptanXMLStopClassification {
     final private String stopType;
     final private NaptanXMLOffStreet offStreet;
 
+    @JsonCreator
     public NaptanXMLStopClassification(@JsonProperty("StopType") String stopType,
                                         @JsonProperty("OffStreet") NaptanXMLOffStreet offStreet) {
         this.stopType = stopType;

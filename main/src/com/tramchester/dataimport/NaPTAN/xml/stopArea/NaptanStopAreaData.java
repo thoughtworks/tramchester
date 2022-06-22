@@ -18,6 +18,7 @@ public class NaptanStopAreaData implements NaptanXMLData {
     private final String stopAreaType;
     private final String status;
 
+    @JsonCreator
     public NaptanStopAreaData(@JsonProperty("Name") String name,
                               @JsonProperty("StopAreaCode") String stopAreaCode,
                               @JsonProperty("Location") NaptanXMLLocation location,

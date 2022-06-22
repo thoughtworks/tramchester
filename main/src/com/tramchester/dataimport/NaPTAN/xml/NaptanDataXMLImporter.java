@@ -1,5 +1,6 @@
 package com.tramchester.dataimport.NaPTAN.xml;
 
+import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import com.tramchester.dataimport.NaPTAN.NaptanDataFromXMLFile;
 import com.tramchester.dataimport.NaPTAN.NaptanXMLData;
 import com.tramchester.dataimport.RemoteDataRefreshed;
@@ -24,7 +25,7 @@ public class NaptanDataXMLImporter {
         this.remoteDataRefreshed = remoteDataRefreshed;
     }
 
-    public <T extends NaptanXMLData> Stream<T> loadData(Class<T> theClass) {
+    public <T extends NaptanXMLData> Stream<T> loadData(Class<T> theClass, XmlMapper mapper) {
         if (!remoteDataRefreshed.hasFileFor(DataSourceID.naptanxml)) {
             final String message = "Missing source file for " + DataSourceID.naptanxml;
             logger.error(message);
@@ -42,7 +43,7 @@ public class NaptanDataXMLImporter {
         }
 
         logger.info("Loading data from " + filePath.toAbsolutePath());
-        TransportDataFromFile<T> dataLoader = new NaptanDataFromXMLFile<>(filePath, StandardCharsets.UTF_8, theClass);
+        TransportDataFromFile<T> dataLoader = new NaptanDataFromXMLFile<>(filePath, StandardCharsets.UTF_8, theClass, mapper);
 
         return dataLoader.load();
     }
