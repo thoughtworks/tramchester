@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import com.fasterxml.jackson.module.blackbird.BlackbirdModule;
 import com.tramchester.config.TramchesterConfig;
+import com.tramchester.dataimport.FetchDataFromUrl;
 import com.tramchester.dataimport.RemoteDataRefreshed;
 import com.tramchester.domain.DataSourceID;
 import org.apache.commons.io.FilenameUtils;
@@ -24,7 +25,8 @@ public class NaptanDataCallbackImporter {
     private final XmlMapper mapper;
 
     @Inject
-    public NaptanDataCallbackImporter(RemoteDataRefreshed remoteDataRefreshed, TramchesterConfig config) {
+    public NaptanDataCallbackImporter(RemoteDataRefreshed remoteDataRefreshed, TramchesterConfig config,
+                                      FetchDataFromUrl.Ready dataIsReady) {
         this.remoteDataRefreshed = remoteDataRefreshed;
         enabled = config.hasRemoteDataSourceConfig(DataSourceID.naptanxml);
 

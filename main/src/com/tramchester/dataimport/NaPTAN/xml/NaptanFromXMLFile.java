@@ -59,7 +59,7 @@ public class NaptanFromXMLFile {
         }
     }
 
-    private void load(Reader in) throws XMLStreamException, IOException {
+    public void load(Reader in) throws XMLStreamException, IOException {
 
         logger.info("Begin load");
         XMLStreamReader streamReader = factory.createXMLStreamReader(in);

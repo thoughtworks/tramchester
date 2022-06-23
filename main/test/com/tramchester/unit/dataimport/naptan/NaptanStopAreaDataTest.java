@@ -1,5 +1,6 @@
 package com.tramchester.unit.dataimport.naptan;
 
+import com.tramchester.dataimport.NaPTAN.NaptanXMLData;
 import com.tramchester.dataimport.NaPTAN.xml.stopArea.NaptanStopAreaData;
 import com.tramchester.geo.GridPosition;
 import com.tramchester.repository.naptan.NaptanStopAreaType;
@@ -19,7 +20,7 @@ public class NaptanStopAreaDataTest extends ParserTestXMLHelper<NaptanStopAreaDa
 
     @BeforeEach
     void beforeEach() {
-        super.before(NaptanStopAreaData.class, StandardCharsets.UTF_8);
+        super.before(StandardCharsets.UTF_8);
     }
 
     @Test
@@ -34,7 +35,7 @@ public class NaptanStopAreaDataTest extends ParserTestXMLHelper<NaptanStopAreaDa
                 "<Longitude>-2.34688878555</Longitude><Latitude>53.38771656569</Latitude></Translation></Location>" +
                 "</StopArea></StopAreas></Naptan>";
 
-        NaptanStopAreaData result = super.parseFirstOnly(text);
+        NaptanStopAreaData result = (NaptanStopAreaData) super.parseFirstOnly(text);
 
         assertEquals("Altrincham Rail Station", result.getName());
         assertEquals("910GALTRNHM", result.getStopAreaCode());
@@ -64,12 +65,12 @@ public class NaptanStopAreaDataTest extends ParserTestXMLHelper<NaptanStopAreaDa
 
         String text = "<Naptan><StopPoints/><StopAreas>" + first + second + "</StopAreas></Naptan>";
 
-        List<NaptanStopAreaData> results = super.parseAll(text);
+        List<NaptanXMLData> results = super.parseAll(text);
 
         assertEquals(2, results.size());
 
-        final NaptanStopAreaData firstArea = results.get(0);
-        final NaptanStopAreaData secondArea = results.get(1);
+        final NaptanStopAreaData firstArea = (NaptanStopAreaData) results.get(0);
+        final NaptanStopAreaData secondArea = (NaptanStopAreaData) results.get(1);
 
         assertEquals("940GZZMAALT", firstArea.getStopAreaCode());
         assertEquals(NaptanStopAreaType.TramMetroUndergroundStation, firstArea.getAreaType());

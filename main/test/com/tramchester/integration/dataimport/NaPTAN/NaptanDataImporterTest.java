@@ -2,7 +2,8 @@ package com.tramchester.integration.dataimport.NaPTAN;
 
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.GuiceContainerDependencies;
-import com.tramchester.dataimport.NaPTAN.NaptanDataImporter;
+import com.tramchester.dataimport.NaPTAN.xml.NaptanDataCallbackImporter;
+import com.tramchester.dataimport.NaPTAN.xml.NaptanFromXMLFile;
 import com.tramchester.dataimport.NaPTAN.xml.stopArea.NaptanStopAreaData;
 import com.tramchester.dataimport.NaPTAN.xml.stopPoint.NaptanStopData;
 import com.tramchester.domain.id.IdFor;
@@ -17,9 +18,9 @@ import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import static com.tramchester.testSupport.reference.BusStations.BuryInterchange;
 import static org.junit.jupiter.api.Assertions.*;
@@ -36,9 +37,21 @@ class NaptanDataImporterTest {
         componentContainer = new ComponentsBuilder().create(testConfig, TestEnv.NoopRegisterMetrics());
         componentContainer.initialise();
 
-        NaptanDataImporter dataImporter = componentContainer.get(NaptanDataImporter.class);
-        loadedStops = dataImporter.getStopsData().collect(Collectors.toList());
-        loadedAreas = dataImporter.getAreasData().collect(Collectors.toList());
+        NaptanDataCallbackImporter dataImporter = componentContainer.get(NaptanDataCallbackImporter.class);
+
+        loadedStops = new ArrayList<>();
+        loadedAreas = new ArrayList<>();
+        dataImporter.loadData(new NaptanFromXMLFile.NaptanXmlConsumer() {
+            @Override
+            public void process(NaptanStopAreaData element) {
+                loadedAreas.add(element);
+            }
+
+            @Override
+            public void process(NaptanStopData element) {
+                loadedStops.add(element);
+            }
+        });
     }
 
     @AfterAll

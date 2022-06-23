@@ -1,5 +1,6 @@
 package com.tramchester.unit.dataimport.naptan;
 
+import com.tramchester.dataimport.NaPTAN.NaptanXMLData;
 import com.tramchester.dataimport.NaPTAN.xml.stopPoint.NaptanStopData;
 import com.tramchester.dataimport.NaPTAN.xml.stopPoint.NaptanXMLStopAreaRef;
 import com.tramchester.domain.id.StringIdFor;
@@ -30,12 +31,12 @@ class NaptanStopDataTest extends ParserTestXMLHelper<NaptanStopData> {
 
     @BeforeEach
     void beforeEach() {
-        super.before(NaptanStopData.class, StandardCharsets.UTF_8);
+        super.before(StandardCharsets.UTF_8);
     }
 
     @Test
     void shouldParseDataForMetrolinkTram() throws XMLStreamException, IOException {
-        NaptanStopData data = super.parseFirstOnly("<NaPTAN><StopPoints><StopPoint CreationDateTime=\"2013-12-17T14:30:00\" ModificationDateTime=\"202" +
+        String text = "<NaPTAN><StopPoints><StopPoint CreationDateTime=\"2013-12-17T14:30:00\" ModificationDateTime=\"202" +
                 "1-04-16T09:27:13\" Modification=\"revise\" RevisionNumber=\"2\" Status=\"active\"><AtcoCode>9400ZZMAWWD2</AtcoCode><NaptanCode>" +
                 "mantwgdp</NaptanCode><Descriptor><CommonName>Westwood (Manchester Metrolink)</CommonName><ShortCommonName>Westwood</Shor" +
                 "tCommonName><Landmark>Richmond Academy</Landmark><Street>Middleton Road</Street><Crossing>Winterbottom Street</Crossing>" +
@@ -46,7 +47,11 @@ class NaptanStopDataTest extends ParserTestXMLHelper<NaptanStopData> {
                 "ationDateTime=\"2013-12-17T14:31:00\" ModificationDateTime=\"2013-12-17T14:31:00\" Modification=\"new\" RevisionNumber=\"0\" Sta" +
                 "tus=\"active\">940GZZMAWWD</StopAreaRef></StopAreas><AdministrativeAreaRef>147</AdministrativeAreaRef><PlusbusZones><Plusb" +
                 "usZoneRef CreationDateTime=\"2013-12-17T14:30:00\" ModificationDateTime=\"2013-12-17T14:31:00\" Modification=\"revise\" Revisi" +
-                "onNumber=\"1\" Status=\"active\">MNCRPIC</PlusbusZoneRef></PlusbusZones></StopPoint></StopPoints></NaPTAN>");
+                "onNumber=\"1\" Status=\"active\">MNCRPIC</PlusbusZoneRef></PlusbusZones></StopPoint></StopPoints></NaPTAN>";
+
+        NaptanStopData data = (NaptanStopData) super.parseFirstOnly(text);
+
+        assertNotNull(data);
 
         assertIdEquals("9400ZZMAWWD2", data.getAtcoCode(), data.toString());
         assertEquals("mantwgdp", data.getNaptanCode());
@@ -84,14 +89,17 @@ class NaptanStopDataTest extends ParserTestXMLHelper<NaptanStopData> {
                         +">"
                         + text + "</NaPTAN>";
 
-        NaptanStopData data = super.parseFirstOnly(fullBody);
+        NaptanStopData data = (NaptanStopData) super.parseFirstOnly(fullBody);
+
+        assertNotNull(data);
+
         assertIdEquals("9400ZZMAWWD2", data.getAtcoCode(), data.toString());
         assertFalse(data.hasRailInfo());
     }
 
     @Test
     void shouldParseForBusStationMultiple() throws XMLStreamException, IOException {
-        List<NaptanStopData> data = super.parseAll("<NaPTAN><StopPoints>" +
+        String text = "<NaPTAN><StopPoints>" +
                 "<StopPoint CreationDateTime=\"1969-12-31T00:00:00\" ModificationDateTime=\"1969-12-31" +
                 "T23:00:00\" Modification=\"new\" RevisionNumber=\"0\" Status=\"active\"><AtcoCode>acto1111</AtcoCode><NaptanCode>mergjtpm</N" +
                 "aptanCode><Descriptor><CommonName xml:lang=\"en\">St Helens Bus Station</CommonName><ShortCommonName xml:lang=\"en\">St Hele" +
@@ -112,17 +120,24 @@ class NaptanStopDataTest extends ParserTestXMLHelper<NaptanStopData> {
                 "pe>BCS</StopType><OffStreet><BusAndCoach><Bay /></BusAndCoach></OffStreet></StopClassification><StopAreas><StopAreaRef M" +
                 "odification=\"new\" Status=\"active\" CreationDateTime=\"2021-12-06T13:55:45.1995824Z\" ModificationDateTime=\"2021-12-06T13:55" +
                 ":45.1995824Z\">280G00000001</StopAreaRef></StopAreas><AdministrativeAreaRef>280</AdministrativeAreaRef></StopPoint>" +
-                "</StopPoints></NaPTAN>");
+                "</StopPoints></NaPTAN>";
 
-        assertEquals(data.size(), 2);
+        List<NaptanXMLData> items = super.parseAll(text);
 
-        assertIdEquals("acto1111", data.get(0).getAtcoCode());
-        assertIdEquals("acto2222", data.get(1).getAtcoCode());
+        assertEquals(items.size(), 2);
+
+        NaptanStopData dataA = (NaptanStopData) items.get(0);
+        assertNotNull(dataA);
+        assertIdEquals("acto1111", dataA.getAtcoCode());
+
+        NaptanStopData dataB = (NaptanStopData) items.get(1);
+        assertNotNull(dataB);
+        assertIdEquals("acto2222", dataB.getAtcoCode());
     }
 
     @Test
     void shouldParseForBusStationWithIndicator() throws XMLStreamException, IOException {
-        NaptanStopData data = super.parseFirstOnly("<NaPTAN><StopPoints><StopPoint CreationDateTime=\"1969-12-31T00:00:00\" ModificationDateTime=\"1969-12-31" +
+        String text = "<NaPTAN><StopPoints><StopPoint CreationDateTime=\"1969-12-31T00:00:00\" ModificationDateTime=\"1969-12-31" +
                 "T23:00:00\" Modification=\"new\" RevisionNumber=\"0\" Status=\"active\"><AtcoCode>2800S16001B</AtcoCode><NaptanCode>mergjtpm</N" +
                 "aptanCode><Descriptor><CommonName xml:lang=\"en\">St Helens Bus Station</CommonName><ShortCommonName xml:lang=\"en\">St Hele" +
                 "ns Bus St 2</ShortCommonName><Landmark xml:lang=\"en\">Bus Station</Landmark><Street xml:lang=\"en\">St Helens Bus Station</" +
@@ -132,7 +147,11 @@ class NaptanStopDataTest extends ParserTestXMLHelper<NaptanStopData> {
                 "pe>BCS</StopType><OffStreet><BusAndCoach><Bay /></BusAndCoach></OffStreet></StopClassification><StopAreas><StopAreaRef M" +
                 "odification=\"new\" Status=\"active\" CreationDateTime=\"2021-12-06T13:55:45.1995824Z\" ModificationDateTime=\"2021-12-06T13:55" +
                 ":45.1995824Z\">280G00000001</StopAreaRef></StopAreas><AdministrativeAreaRef>280</AdministrativeAreaRef>" +
-                "</StopPoint></StopPoints></NaPTAN>");
+                "</StopPoint></StopPoints></NaPTAN>";
+
+        NaptanStopData data = (NaptanStopData) super.parseFirstOnly(text);
+
+        assertNotNull(data);
 
         assertIdEquals("2800S16001B", data.getAtcoCode());
         assertEquals("mergjtpm", data.getNaptanCode());
@@ -164,7 +183,9 @@ class NaptanStopDataTest extends ParserTestXMLHelper<NaptanStopData> {
                 "30:00\" ModificationDateTime=\"2007-09-26T13:00:00\" Modification=\"revise\" RevisionNumber=\"1\" Status=\"active\">ABDARE</Plusb" +
                 "usZoneRef></PlusbusZones></StopPoint></StopPoints></NaPTAN>";
 
-        NaptanStopData data = super.parseFirstOnly(text);
+        NaptanStopData data = (NaptanStopData) super.parseFirstOnly(text);
+
+        assertNotNull(data);
 
         assertTrue(data.hasRailInfo());
 
@@ -191,7 +212,7 @@ class NaptanStopDataTest extends ParserTestXMLHelper<NaptanStopData> {
                 "Modification=\"revise\" RevisionNumber=\"5\" Status=\"active\">MNCRPIC</PlusbusZoneRef>" +
                 "</PlusbusZones></StopPoint></StopPoints></NaPTAN>";
 
-        NaptanStopData data = super.parseFirstOnly(text);
+        NaptanStopData data = (NaptanStopData) super.parseFirstOnly(text);
 
         assertIdEquals("9400ZZMAALT", data.getAtcoCode());
         assertEquals(StringIdFor.convert(TramStations.Altrincham.getId()), data.getAtcoCode());
@@ -220,7 +241,7 @@ class NaptanStopDataTest extends ParserTestXMLHelper<NaptanStopData> {
                 "<AdministrativeAreaRef>083</AdministrativeAreaRef><Public>false</Public>" +
                 "</StopPoint></StopPoints></NaPTAN>";
 
-        NaptanStopData data = super.parseFirstOnly(text);
+        NaptanStopData data = (NaptanStopData) super.parseFirstOnly(text);
 
         assertEquals(2, data.stopAreasRefs().size());
 
