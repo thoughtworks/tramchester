@@ -19,6 +19,7 @@ import com.tramchester.graph.search.stateMachine.states.TraversalStateFactory;
 import com.tramchester.repository.TripRepository;
 import org.neo4j.graphdb.*;
 import org.neo4j.graphdb.traversal.*;
+import org.neo4j.kernel.impl.traversal.MonoDirectionalTraversalDescription;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -99,7 +100,8 @@ public class TramNetworkTraverser implements PathExpander<JourneyState> {
 
         final BranchOrderingPolicies selector = depthFirst ? PREORDER_DEPTH_FIRST : PREORDER_BREADTH_FIRST;
         TraversalDescription traversalDesc =
-                graphDatabaseService.traversalDescription(txn).
+                //graphDatabaseService.traversalDescription(txn).
+                new MonoDirectionalTraversalDescription().
                 relationships(TRAM_GOES_TO, Direction.OUTGOING).
                 relationships(BUS_GOES_TO, Direction.OUTGOING).
                 relationships(TRAIN_GOES_TO, Direction.OUTGOING).

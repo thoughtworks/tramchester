@@ -104,8 +104,8 @@ public class GraphDatabaseServiceFactory implements DatabaseEventListener {
 
     public void shutdownDatabase() {
         logger.info("Shutdown");
-        // cannot shutdown using name in community editiom
-        //managementService.shutdownDatabase(dbName);
+        // NOTE: cannot shutdown using name in community editiom
+        // managementService.shutdownDatabase(dbName);
         // ALSO: have to recreate managementService after shutdown otherwise DB does not start
         if (managementServiceImpl==null) {
             logger.error("Attempt to shutdown when DatabaseManagementService already stopped");

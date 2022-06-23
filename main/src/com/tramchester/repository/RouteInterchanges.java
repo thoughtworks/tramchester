@@ -1,5 +1,6 @@
 package com.tramchester.repository;
 
+import com.google.common.collect.Streams;
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.domain.places.InterchangeStation;
 import com.tramchester.domain.Route;
@@ -12,7 +13,6 @@ import com.tramchester.graph.graphbuild.StagedTransportGraphBuilder;
 import com.tramchester.metrics.TimedTransaction;
 import com.tramchester.metrics.Timing;
 import org.apache.commons.lang3.tuple.Pair;
-import org.assertj.core.util.Streams;
 import org.neo4j.graphdb.Path;
 import org.neo4j.graphdb.Result;
 import org.neo4j.graphdb.Transaction;
