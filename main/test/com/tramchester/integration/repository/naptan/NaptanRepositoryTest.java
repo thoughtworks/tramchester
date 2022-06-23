@@ -171,7 +171,7 @@ class NaptanRepositoryTest {
         assertEquals("Altrincham", record.getSuburb());
 
         final List<IdFor<NaptanArea>> areaCodes = record.getAreaCodes().toList();
-        assertEquals(1, areaCodes.size());
+        assertEquals(1, areaCodes.size(), "Missing area code");
         assertIdEquals("940GZZMAALT", areaCodes.get(0));
     }
 

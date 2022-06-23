@@ -17,11 +17,12 @@ public class NaptanRecord implements HasId<NaptanRecord>, CoreDomain {
     private final String suburb;
     private final String town;
     private final NaptanStopType stopType;
-    private final List<String> stopAreaCodes;
     private final LatLong latlong;
 
+    private List<String> stopAreaCodes;
+
     public NaptanRecord(IdFor<NaptanRecord> id, String name, GridPosition gridPosition, LatLong latlong, String suburb, String town,
-                        NaptanStopType stopType, List<String> stopAreaCodes) {
+                        NaptanStopType stopType) {
         this.id = id;
         this.name = name;
         this.gridPosition = gridPosition;
@@ -29,7 +30,6 @@ public class NaptanRecord implements HasId<NaptanRecord>, CoreDomain {
         this.suburb = suburb;
         this.town = town;
         this.stopType = stopType;
-        this.stopAreaCodes = stopAreaCodes;
     }
 
     @Override
@@ -77,4 +77,7 @@ public class NaptanRecord implements HasId<NaptanRecord>, CoreDomain {
                 '}';
     }
 
+    public void setAreaCodes(List<String> stopAreaCodes) {
+        this.stopAreaCodes = stopAreaCodes;
+    }
 }

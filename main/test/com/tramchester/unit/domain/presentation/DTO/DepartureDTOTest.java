@@ -32,7 +32,6 @@ class DepartureDTOTest {
     void beforeEachTestRuns() {
         now = LocalDateTime.of(2022, 5, 30, 11, 45);
 
-        now = TestEnv.LocalNow();
         updateTime = now.toLocalTime();
         updateDate = now.toLocalDate();
     }
