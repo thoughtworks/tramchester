@@ -5,10 +5,14 @@ import com.tramchester.dataimport.data.*;
 import com.tramchester.domain.DataSourceInfo;
 import com.tramchester.domain.FeedInfo;
 import com.tramchester.domain.factory.TransportEntityFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.stream.Stream;
 
 public class TransportDataSource {
+    private static final Logger logger = LoggerFactory.getLogger(TransportDataSource.class);
+
     private final Stream<StopData> stops;
     private final Stream<RouteData> routes;
     private final Stream<TripData> trips;
@@ -41,6 +45,7 @@ public class TransportDataSource {
     }
 
     public void closeAll() {
+        logger.info("Close all");
         stops.close();
         routes.close();
         trips.close();
@@ -49,6 +54,7 @@ public class TransportDataSource {
         feedInfo.close();
         calendarsDates.close();
         agencies.close();
+        logger.info("Closed");
     }
 
     public Stream<FeedInfo> getFeedInfoStream() {

@@ -25,7 +25,7 @@ class StopTimeDataParseTest extends ParserTestCSVHelper<StopTimeData> {
 
         StopTimeData stopTimeData = parse(stop);
 
-        assertThat(stopTimeData.getTripId()).isEqualTo(StringIdFor.createId("Trip000001"));
+        assertThat(stopTimeData.getTripId()).isEqualTo("Trip000001");
         assertThat(stopTimeData.getArrivalTime()).isEqualTo(TramTime.of(6, 41));
         assertThat(stopTimeData.getDepartureTime()).isEqualTo(TramTime.of(6, 42));
         assertThat(stopTimeData.getStopId()).isEqualTo("9400ZZMAABM1");
@@ -40,7 +40,7 @@ class StopTimeDataParseTest extends ParserTestCSVHelper<StopTimeData> {
 
         StopTimeData stopTimeData = parse(stop);
 
-        assertThat(stopTimeData.getTripId()).isEqualTo(StringIdFor.createId("Trip000001"));
+        assertThat(stopTimeData.getTripId()).isEqualTo("Trip000001");
         assertThat(stopTimeData.getArrivalTime()).isEqualTo(TramTime.of(6, 41));
         assertThat(stopTimeData.getDepartureTime()).isEqualTo(TramTime.of(6, 42));
         assertThat(stopTimeData.getStopId()).isEqualTo("9400ZZMAABM1");

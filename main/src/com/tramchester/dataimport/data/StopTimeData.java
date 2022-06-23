@@ -1,10 +1,10 @@
 package com.tramchester.dataimport.data;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.tramchester.domain.Platform;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.StringIdFor;
-import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.reference.GTFSPickupDropoffType;
 import com.tramchester.domain.time.TramTime;
 
@@ -12,48 +12,36 @@ public class StopTimeData {
 
     // trip_id,arrival_time,departure_time,stop_id,stop_sequence,pickup_type,drop_off_type
 
-    @JsonProperty("trip_id")
-    private String tripId;
-    @JsonProperty("arrival_time")
-    private String arrivalTime ;
-    @JsonProperty("departure_time")
-    private String departureTime;
-    @JsonProperty("stop_id")
-    private String stopId;
-    @JsonProperty("stop_sequence")
-    private int stopSequence;
-    @JsonProperty("pickup_type")
-    private String pickupType;
-    @JsonProperty("drop_off_type")
-    private String dropOffType;
+    private final String tripId;
+    private final String arrivalTime ;
+    private final String departureTime;
+    private final String stopId;
+    private final int stopSequence;
+    private final String pickupType;
+    private final String dropOffType;
 
     // when dealing with millions of rows parsing of times became a bottleneck, so cache results
     private TramTime parsedArrivalTime = null;
     private TramTime parsedDepartureTime = null;
 
-    private StopTimeData(String tripId, TramTime arrivalTime, TramTime departureTime, String stopId,
-                        int stopSequence, GTFSPickupDropoffType pickupType, GTFSPickupDropoffType dropOffType) {
+    @JsonCreator
+    private StopTimeData(@JsonProperty("trip_id") String tripId,
+                         @JsonProperty("arrival_time") String arrivalTime,
+                         @JsonProperty("departure_time") String departureTime,
+                         @JsonProperty("stop_id") String stopId,
+                         @JsonProperty("stop_sequence") int stopSequence,
+                         @JsonProperty("pickup_type") String pickupType,
+                         @JsonProperty("drop_off_type") String dropOffType) {
+
         this.tripId = tripId;
         this.stopId = stopId;
 
-        this.arrivalTime = "FAKE";
-        this.parsedArrivalTime = arrivalTime;
-        this.departureTime = "FAKE";
-        this.parsedDepartureTime = departureTime;
+        this.arrivalTime = arrivalTime;
+        this.departureTime = departureTime;
         this.stopSequence = stopSequence;
-        this.pickupType = pickupType.getText();
-        this.dropOffType = dropOffType.getText();
-    }
+        this.pickupType = pickupType;
+        this.dropOffType = dropOffType;
 
-    public static StopTimeData forTestOnly(String tripId, TramTime arrivalTime, TramTime departureTime, String stopId,
-                                           int stopSequence, GTFSPickupDropoffType pickupType,
-                                           GTFSPickupDropoffType dropOffType) {
-        return new StopTimeData(tripId, arrivalTime, departureTime, stopId, stopSequence, pickupType, dropOffType);
-    }
-
-    // for CSV parse via jackson
-    public StopTimeData() {
-        // deserialisation
     }
 
     @Override
@@ -71,8 +59,9 @@ public class StopTimeData {
                 '}';
     }
 
-    public IdFor<Trip> getTripId() {
-        return StringIdFor.createId(tripId);
+    // Significant during initial load, avoid doing this more than needed
+    public String getTripId() {
+        return tripId;
     }
 
     public TramTime getArrivalTime() {

@@ -2,10 +2,16 @@ package com.tramchester.dataimport.loader.files;
 
 import com.fasterxml.jackson.dataformat.csv.CsvMapper;
 import com.tramchester.dataimport.loader.TransportDataReader;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.nio.file.Path;
 
+import static java.lang.String.format;
+
 public class TransportDataFromFileFactory {
+    private static final Logger logger = LoggerFactory.getLogger(TransportDataFromFileFactory.class);
+
     private final static String extension = ".txt";
 
     private final Path path;
@@ -17,7 +23,10 @@ public class TransportDataFromFileFactory {
     }
 
     public <T> TransportDataFromCSVFile<T,T> getLoaderFor(TransportDataReader.InputFiles inputfileType, Class<T> targetType) {
-        return new TransportDataFromCSVFile<>(formPath(inputfileType), targetType, mapper);
+        Path filePath = formPath(inputfileType);
+
+        logger.info(format("Create TransportDataFromCSVFile for %s from file %s", targetType.getSimpleName(), filePath));
+        return new TransportDataFromCSVFile<>(filePath, targetType, mapper);
     }
 
     private Path formPath(TransportDataReader.InputFiles theType) {

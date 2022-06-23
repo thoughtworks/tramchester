@@ -11,9 +11,13 @@ import com.tramchester.domain.input.MutableTrip;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.reference.TransportMode;
 
-class TripAndServices {
+import java.util.HashSet;
+import java.util.Set;
+
+public class TripAndServices {
     private final CompositeIdMap<Service, MutableService> services;
     private final CompositeIdMap<Trip, MutableTrip> trips;
+    private final Set<String> loadedTrips;
 
     private final TransportEntityFactory factory;
 
@@ -21,11 +25,13 @@ class TripAndServices {
         this.factory = factory;
         services = new CompositeIdMap<>();
         trips = new CompositeIdMap<>();
+        loadedTrips = new HashSet<>();
     }
 
     public void clear() {
         services.clear();
         trips.clear();
+        loadedTrips.clear();
     }
 
     public boolean hasId(IdFor<Trip> id) {
@@ -46,5 +52,10 @@ class TripAndServices {
 
     public void createTripIfMissing(IdFor<Trip> tripId, TripData tripData, MutableService service, Route route, TransportMode transportMode) {
         trips.getOrAdd(tripId, () -> factory.createTrip(tripData, service, route, transportMode));
+        loadedTrips.add(tripId.getGraphId());
+    }
+
+    public boolean hasId(String tripId) {
+        return loadedTrips.contains(tripId);
     }
 }

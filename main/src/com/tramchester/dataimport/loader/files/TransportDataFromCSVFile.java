@@ -2,6 +2,7 @@ package com.tramchester.dataimport.loader.files;
 
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.MappingIterator;
+import com.fasterxml.jackson.databind.ObjectReader;
 import com.fasterxml.jackson.dataformat.csv.CsvMapper;
 import com.fasterxml.jackson.dataformat.csv.CsvSchema;
 import org.slf4j.Logger;
@@ -20,9 +21,7 @@ public class TransportDataFromCSVFile<T,R extends T> implements TransportDataFro
     private static final Logger logger = LoggerFactory.getLogger(TransportDataFromCSVFile.class);
 
     private final Path filePath;
-    private final Class<R> readerType;
-    private final List<String> columns;
-    private final CsvMapper mapper;
+    private final ObjectReader reader;
 
     public TransportDataFromCSVFile(Path filePath, Class<R> readerType, CsvMapper mapper) {
         this(filePath, readerType, Collections.emptyList(), mapper);
@@ -34,9 +33,20 @@ public class TransportDataFromCSVFile<T,R extends T> implements TransportDataFro
 
     private TransportDataFromCSVFile(Path filePath, Class<R> readerType, List<String> columns, CsvMapper mapper) {
         this.filePath = filePath.toAbsolutePath();
-        this.readerType = readerType;
-        this.columns = columns;
-        this.mapper = mapper;
+
+        CsvSchema schema;
+        if (columns.isEmpty()) {
+            schema = CsvSchema.emptySchema().withHeader();
+        } else {
+            CsvSchema.Builder builder = CsvSchema.builder();
+            columns.forEach(builder::addColumn);
+            schema = builder.build();
+        }
+
+        // set-up a reader ahead of time, helps with performance
+        reader = mapper.readerFor(readerType).
+                with(schema).
+                without(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
     }
 
     @Override
@@ -55,24 +65,13 @@ public class TransportDataFromCSVFile<T,R extends T> implements TransportDataFro
     @Override
     public Stream<T> load(Reader in) {
 
-        CsvSchema schema;
-        if (columns.isEmpty()) {
-            schema = CsvSchema.emptySchema().withHeader();
-        } else {
-            CsvSchema.Builder builder = CsvSchema.builder();
-            columns.forEach(builder::addColumn);
-            schema = builder.build();
-        }
-
         try {
             // TODO buffered reader or not? Performance test....
             BufferedReader bufferedReader = new BufferedReader(in);
-            MappingIterator<T> reader = mapper.readerFor(readerType).
-                    with(schema).
-                    without(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES).
-                    readValues(bufferedReader);
 
-            Iterable<T> iterable = () -> reader;
+            MappingIterator<T> readerIter = reader.readValues(bufferedReader);
+
+            Iterable<T> iterable = () -> readerIter;
             return StreamSupport.stream(iterable.spliterator(), false);
 
         } catch (FileNotFoundException e) {

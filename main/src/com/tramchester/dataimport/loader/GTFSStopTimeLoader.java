@@ -4,10 +4,7 @@ import com.tramchester.config.GTFSSourceConfig;
 import com.tramchester.dataimport.data.StopTimeData;
 import com.tramchester.domain.*;
 import com.tramchester.domain.factory.TransportEntityFactory;
-import com.tramchester.domain.id.HasId;
-import com.tramchester.domain.id.IdFor;
-import com.tramchester.domain.id.IdMap;
-import com.tramchester.domain.id.IdSet;
+import com.tramchester.domain.id.*;
 import com.tramchester.domain.input.MutableTrip;
 import com.tramchester.domain.input.StopCall;
 import com.tramchester.domain.input.Trip;
@@ -48,9 +45,9 @@ public class GTFSStopTimeLoader {
 
         logger.info("Loading stop times for " + sourceName);
         stopTimes.
-                filter(stopTimeData -> tripAndServices.hasId(stopTimeData.getTripId())).
                 filter(this::isValid).
-                forEach(stopTimeDataLoader::load);
+                filter(stopTimeData -> tripAndServices.hasId(stopTimeData.getTripId())).
+                forEach(stopTimeDataLoader::loadStopTimeData);
 
         stopTimeDataLoader.close();
         return stopTimeDataLoader.getAddedServices();
@@ -92,10 +89,10 @@ public class GTFSStopTimeLoader {
             stopTimesLoaded = new AtomicInteger();
         }
 
-        public void load(StopTimeData stopTimeData) {
+        public void loadStopTimeData(StopTimeData stopTimeData) {
             final String stopId = stopTimeData.getStopId();
             final IdFor<Station> stationId = factory.formStationId(stopId);
-            final IdFor<Trip> stopTripId = stopTimeData.getTripId();
+            final IdFor<Trip> stopTripId = StringIdFor.createId(stopTimeData.getTripId());
 
             if (preloadStations.hasId(stationId)) {
                 final MutableTrip trip = tripAndServices.getTrip(stopTripId);

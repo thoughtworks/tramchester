@@ -11,7 +11,7 @@ import com.tramchester.domain.places.Station;
 
 import java.util.Optional;
 
-class PreloadedStationsAndPlatforms {
+public class PreloadedStationsAndPlatforms {
     private final CompositeIdMap<Station, MutableStation> stations;
     private final CompositeIdMap<Platform, MutablePlatform> platforms;
     private final TransportEntityFactory factory;

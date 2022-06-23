@@ -1,7 +1,7 @@
 package com.tramchester.dataimport.loader;
 
 import com.fasterxml.jackson.dataformat.csv.CsvMapper;
-import com.fasterxml.jackson.module.afterburner.AfterburnerModule;
+import com.fasterxml.jackson.module.blackbird.BlackbirdModule;
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.config.GTFSSourceConfig;
 import com.tramchester.config.TramchesterConfig;
@@ -15,6 +15,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
 import javax.inject.Inject;
 import java.nio.file.Path;
 import java.time.LocalDateTime;
@@ -34,7 +35,9 @@ public class TransportDataReaderFactory {
     @Inject
     public TransportDataReaderFactory(TramchesterConfig tramchesterConfig, FetchFileModTime fetchFileModTime) {
         this.fetchFileModTime = fetchFileModTime;
-        this.mapper = CsvMapper.builder().addModule(new AfterburnerModule()).build();
+        this.mapper = CsvMapper.builder().
+                addModule(new BlackbirdModule()).
+                build();
         dataReaders = new ArrayList<>();
         this.tramchesterConfig = tramchesterConfig;
     }
@@ -64,6 +67,13 @@ public class TransportDataReaderFactory {
             dataReaders.add(transportLoader);
         });
         logger.info("started");
+    }
+
+    @PreDestroy
+    public void stop() {
+        logger.info("Stopping");
+        dataReaders.clear();
+        logger.info("Stopped");
     }
 
     public List<TransportDataReader> getReaders() {
