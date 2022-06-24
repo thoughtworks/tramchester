@@ -1,6 +1,8 @@
-package com.tramchester.acceptance;
+package com.tramchester.acceptance.geolocation;
 
 import com.tramchester.App;
+import com.tramchester.acceptance.AppUserJourneyTest;
+import com.tramchester.acceptance.UserJourneyTest;
 import com.tramchester.acceptance.infra.AcceptanceAppExtenstion;
 import com.tramchester.acceptance.infra.ProvidesDriver;
 import com.tramchester.acceptance.pages.App.AppPage;

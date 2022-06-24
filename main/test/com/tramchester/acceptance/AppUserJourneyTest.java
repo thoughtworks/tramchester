@@ -36,6 +36,7 @@ import static org.hamcrest.Matchers.contains;
 import static org.junit.jupiter.api.Assertions.*;
 
 @ExtendWith(DropwizardExtensionsSupport.class)
+public
 class AppUserJourneyTest extends UserJourneyTest {
     // NOTE: Needs correct locale settings, see .circleci/config.yml setupLocale target
 

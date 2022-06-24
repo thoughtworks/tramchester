@@ -457,6 +457,18 @@ task localAcceptance(type: Test, dependsOn: ['webpack', 'compileJava']) {
     }
 }
 
+task localAcceptanceGeo(type: Test, dependsOn: ['webpack', 'compileJava']) {
+    minHeapSize = "1000m"
+    maxHeapSize = "2500m"
+    useJUnitPlatform()
+    filter {
+        includeTestsMatching "com.tramchester.acceptance.geolocation.*"
+    }
+    testLogging {
+        events "passed", "skipped", "failed", "started", "standardError" , "standardOut"
+    }
+}
+
 task diagrams(dependsOn: cfnassist) {
     doLast {
         ant.cfnassist() {

@@ -44,6 +44,7 @@ public class ProvidesChromeDriver extends ProvidesDesktopDriver {
             chromeOptions.setHeadless(false);
             // exception on set location otherwise
             chromeOptions.setExperimentalOption("w3c",false);
+            //chromeOptions.setExperimentalOption("geolocation", true);
         } else {
             chromeOptions.setHeadless(true);
         }
@@ -51,10 +52,14 @@ public class ProvidesChromeDriver extends ProvidesDesktopDriver {
         providesDateInput = new ProvidesChromeDateInput();
     }
 
-    private void setGeoLocation(boolean flag, ChromeOptions chromeOptions) {
-        int option = flag ? 1 : 2;
+    private void setGeoLocation(boolean enableGeo, ChromeOptions chromeOptions) {
+        int option = enableGeo ? 1 : 2;
         Map<String, Object> prefs = new HashMap<>();
-        prefs.put("geolocation", option);
+        prefs.put("geolocation", option);  // older version of chrome
+
+        // newer versions (>103 at least) need this
+        prefs.put("googlegeolocationaccess.enabled", true);
+
         chromeOptions.setExperimentalOption("prefs", prefs);
     }
 
@@ -63,7 +68,8 @@ public class ProvidesChromeDriver extends ProvidesDesktopDriver {
 
         if (driver == null) {
 
-            chromeOptions.merge(capabilities);
+            //chromeOptions.merge(capabilities);
+            capabilities.setCapability(ChromeOptions.CAPABILITY, chromeOptions);
 
             ChromeDriver chromeDriver = new ChromeDriver(chromeOptions);
             chromeDriver.setLogLevel(Level.SEVERE);
