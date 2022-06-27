@@ -25,11 +25,13 @@ public class RailServiceGroups {
     private final WriteableTransportData container;
     private final ServiceGroups serviceGroups;
     private final Set<String> skippedSchedules; // services skipped due to train category etc.
+    private final Set<String> unmatchedCancellations;
 
     public RailServiceGroups(WriteableTransportData container) {
         this.container = container;
         skippedSchedules = new HashSet<>();
         serviceGroups = new ServiceGroups();
+        unmatchedCancellations = new HashSet<>();
     }
 
     public void applyCancellation(BasicSchedule basicSchedule) {
@@ -37,7 +39,8 @@ public class RailServiceGroups {
         List<MutableService> existingServices = serviceGroups.servicesFor(uniqueTrainId);
         if (existingServices.isEmpty()) {
             if (!skippedSchedules.contains(uniqueTrainId)) {
-                logger.warn("Cancel: No existing records for " + uniqueTrainId);
+                unmatchedCancellations.add(uniqueTrainId);
+                //logger.warn("Cancel: No existing records for " + uniqueTrainId);
             }
             return;
         }
@@ -130,6 +133,16 @@ public class RailServiceGroups {
             text = text + "OVERLAY";
         }
         return StringIdFor.createId(text);
+    }
+
+    public void reportUnmatchedCancellations() {
+        if (unmatchedCancellations.isEmpty()) {
+            return;
+        }
+        StringBuilder ids = new StringBuilder();
+        unmatchedCancellations.forEach(item -> ids.append(" ").append(item));
+        logger.warn("The following " + unmatchedCancellations.size() +
+                " cancellations records were unmatched (unique train ids) " + ids);
     }
 
     private static class ServiceGroups {

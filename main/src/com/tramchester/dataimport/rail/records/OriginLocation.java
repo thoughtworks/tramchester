@@ -13,19 +13,21 @@ package com.tramchester.dataimport.rail.records;
 // 11 Spare 37 44-80
 
 import com.tramchester.dataimport.rail.RailRecordType;
+import com.tramchester.dataimport.rail.records.reference.LocationActivityCode;
 import com.tramchester.domain.time.TramTime;
 
 public class OriginLocation extends OriginOrTerminatingLocation  implements RailLocationRecord {
     private final String line;
 
-    public OriginLocation(String tiplocCode, TramTime publicDeptTime, String platform, String line) {
-        super(tiplocCode, publicDeptTime, platform);
+    public OriginLocation(String tiplocCode, TramTime publicDeptTime, String platform, String line, LocationActivityCode activity) {
+        super(tiplocCode, publicDeptTime, platform, activity);
         this.line = line;
     }
 
     public static OriginLocation parse(String text) {
         String line = RecordHelper.extract(text, 23,25+1);
-        return OriginOrTerminatingLocation.parse(text, new Creator(line));
+        LocationActivityCode activity = LocationActivityCode.parse(RecordHelper.extract(text, 30, 41));
+        return OriginOrTerminatingLocation.parse(text, new Creator(line, activity));
     }
 
     @Override
@@ -41,6 +43,16 @@ public class OriginLocation extends OriginOrTerminatingLocation  implements Rail
     @Override
     public TramTime getDeparture() {
         return super.getPublicTime();
+    }
+
+    @Override
+    public boolean isOrigin() {
+        return true;
+    }
+
+    @Override
+    public boolean isTerminating() {
+        return false;
     }
 
     @Override
@@ -79,14 +91,16 @@ public class OriginLocation extends OriginOrTerminatingLocation  implements Rail
 
     private static class Creator implements Constructor<OriginLocation> {
         private final String line;
+        private final LocationActivityCode activity;
 
-        private Creator(String line) {
+        private Creator(String line, LocationActivityCode activity) {
             this.line = line;
+            this.activity = activity;
         }
 
         @Override
         public OriginLocation create(String tiplocCode, TramTime tramTime, String platform) {
-            return new OriginLocation(tiplocCode, tramTime, platform, line);
+            return new OriginLocation(tiplocCode, tramTime, platform, line, activity);
         }
     }
 }

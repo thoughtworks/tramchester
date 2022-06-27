@@ -2,8 +2,10 @@ package com.tramchester.unit.rail;
 
 import com.tramchester.dataimport.rail.records.IntermediateLocation;
 import com.tramchester.domain.time.TramTime;
+import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Test;
 
+import static com.tramchester.dataimport.rail.records.reference.LocationActivityCode.StopsToTakeUpAndSetDownPassengers;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class IntermediateLocationTest {
@@ -12,7 +14,7 @@ public class IntermediateLocationTest {
     void shouldParseRecord() {
         String text = "LINEWSGAT 1852H1853      18531854123      T";
 
-        IntermediateLocation intermediateLocation = IntermediateLocation.parse(text);
+        IntermediateLocation intermediateLocation = parseWithPadding(text);
 
         assertEquals("NEWSGAT", intermediateLocation.getTiplocCode());
 
@@ -26,6 +28,7 @@ public class IntermediateLocationTest {
         assertEquals(TramTime.of(18,54), intermediateLocation.getDeparture());
         assertEquals("123", intermediateLocation.getPlatform());
         assertFalse(intermediateLocation.isPassingRecord());
+        assertEquals(StopsToTakeUpAndSetDownPassengers, intermediateLocation.getActivity());
     }
 
     @Test
@@ -35,7 +38,7 @@ public class IntermediateLocationTest {
         //             LIBATRSPJ           0112H00000000
         String text = "LIBATRSPJ           2125H00000000                          H";
 
-        IntermediateLocation intermediateLocation = IntermediateLocation.parse(text);
+        IntermediateLocation intermediateLocation = parseWithPadding(text);
 
         assertEquals("BATRSPJ", intermediateLocation.getTiplocCode());
         assertTrue(intermediateLocation.isPassingRecord());
@@ -48,6 +51,14 @@ public class IntermediateLocationTest {
     }
 
 
+    @Test
+    void shouldParsePassingWithoutPassTime() {
+        //             01234567890123456789012345678901234567890123456
+        //             0         1         2         3         4
+        String text = "LIDOVYDPL 0550H0552H     00000000         A N     ";
+
+        IntermediateLocation intermediateLocation = parseWithPadding(text);
+    }
 
     @Test
     void shouldParseCorrectlyWhenNoPublicArrivalOrDepart() {
@@ -65,7 +76,7 @@ public class IntermediateLocationTest {
         //             LIMOTHRWL 2349H2359H     000023571        U
         String text = "LIFARE825 1242H1246H     00000000         OPA";
 
-        IntermediateLocation intermediateLocation = IntermediateLocation.parse(text);
+        IntermediateLocation intermediateLocation = parseWithPadding(text);
 
         assertEquals(7, intermediateLocation.getTiplocCode().length());
         assertEquals("FARE825", intermediateLocation.getTiplocCode());
@@ -86,7 +97,7 @@ public class IntermediateLocationTest {
     void shouldParseTiplocCorrectlyWhenNoSpaceAfter() {
         String text = "LIKEWGRDN22047 2047H     204720471        T";
 
-        IntermediateLocation intermediateLocation = IntermediateLocation.parse(text);
+        IntermediateLocation intermediateLocation = parseWithPadding(text);
 
         assertEquals(7, intermediateLocation.getTiplocCode().length());
         assertEquals("KEWGRDN", intermediateLocation.getTiplocCode());
@@ -101,9 +112,9 @@ public class IntermediateLocationTest {
 
     @Test
     void shouldParseLondonUnderground() {
-        String text = "LIKEWGRDN           2010 000000001                            ";
+        String text = "LIKEWGRDN           2010 000000001";
 
-        IntermediateLocation intermediateLocation = IntermediateLocation.parse(text);
+        IntermediateLocation intermediateLocation = parseWithPadding(text);
 
         assertEquals(7, intermediateLocation.getTiplocCode().length());
         assertEquals("KEWGRDN", intermediateLocation.getTiplocCode());
@@ -116,6 +127,16 @@ public class IntermediateLocationTest {
 
         assertEquals("1", intermediateLocation.getPlatform());
 
+    }
 
+    @NotNull
+    private IntermediateLocation parseWithPadding(String text) {
+        String toParse = text;
+        int currentLen = text.length();
+        if (currentLen<80) {
+            int padding = 80 - currentLen;
+            toParse = toParse.concat(" ".repeat(padding));
+        }
+        return IntermediateLocation.parse(toParse);
     }
 }

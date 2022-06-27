@@ -2,10 +2,12 @@ package com.tramchester.dataimport.rail;
 
 import com.tramchester.config.RailConfig;
 import com.tramchester.dataimport.rail.records.*;
+import com.tramchester.dataimport.rail.records.reference.LocationActivityCode;
 import com.tramchester.dataimport.rail.records.reference.TrainCategory;
 import com.tramchester.dataimport.rail.records.reference.TrainStatus;
 import com.tramchester.dataimport.rail.reference.TrainOperatingCompanies;
 import com.tramchester.domain.*;
+import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.input.MutableTrip;
@@ -48,6 +50,7 @@ public class RailTimetableMapper {
                 .appendValue(MONTH_OF_YEAR, 2)
                 .appendValue(DAY_OF_MONTH, 2).toFormatter();
     private static DataSourceID dataSourceID;
+    private final RailServiceGroups railServiceGroups;
 
     private enum State {
         SeenSchedule,
@@ -74,7 +77,10 @@ public class RailTimetableMapper {
         missingStations = new MissingStations();
         travelCombinations = new HashSet<>();
         skipped = new HashSet<>();
-        processor = new CreatesTransportDataForRail(stations, container, missingStations, travelCombinations, config, filter, bounds);
+
+        railServiceGroups = new RailServiceGroups(container);
+        processor = new CreatesTransportDataForRail(stations, container, missingStations, travelCombinations,
+                config, filter, bounds, railServiceGroups);
     }
 
     public void seen(RailTimetableRecord record) {
@@ -145,8 +151,9 @@ public class RailTimetableMapper {
                 filter(tiplocInsertRecords::containsKey).
                 map(tiplocInsertRecords::get).
                 forEach(record -> logger.info("Had record for missing tiploc: "+record));
-        travelCombinations.forEach(pair -> logger.info(String.format("Rail mode Status: %s Category: %s",
+        travelCombinations.forEach(pair -> logger.info(String.format("Rail loaded: Status: %s Category: %s",
                 pair.getLeft(), pair.getRight())));
+        railServiceGroups.reportUnmatchedCancellations();
         reportSkipped(skipped);
     }
 
@@ -213,16 +220,16 @@ public class RailTimetableMapper {
 
         private CreatesTransportDataForRail(RailTransportDataFromFiles.StationsTemporary stations, WriteableTransportData container,
                                             MissingStations missingStations, Set<Pair<TrainStatus, TrainCategory>> travelCombinations,
-                                            RailConfig config, GraphFilterActive filter, BoundingBox bounds) {
+                                            RailConfig config, GraphFilterActive filter, BoundingBox bounds, RailServiceGroups railServiceGroups) {
             this.stations = stations;
             this.container = container;
             this.missingStations = missingStations;
 
-            this.railServiceGroups = new RailServiceGroups(container);
             this.travelCombinations = travelCombinations;
             this.config = config;
             this.filter = filter;
             this.bounds = bounds;
+            this.railServiceGroups = railServiceGroups;
             this.railRouteIDBuilder = new RailRouteIDBuilder();
         }
 
@@ -282,20 +289,30 @@ public class RailTimetableMapper {
             final IdFor<Agency> agencyId = mutableAgency.getId();
 
             // Calling points
-            List<Station> calledAtStations = getRouteStationCallingPoints(rawService);
+            List<Station> allCalledAtStations = getRouteStationCallingPoints(rawService);
 
-            if (calledAtStations.isEmpty() || calledAtStations.size()==1) {
+            if (allCalledAtStations.isEmpty() || allCalledAtStations.size()==1) {
+                logger.warn(format("Skip, Not enough calling points (%s) for (%s) without bounds checking",
+                        allCalledAtStations, rawService));
+                return false;
+            }
+
+            List<Station> inBoundsCalledAtStations = allCalledAtStations.stream().
+                    filter(bounds::contained).
+                    collect(Collectors.toList());
+
+            if (inBoundsCalledAtStations.isEmpty() || inBoundsCalledAtStations.size()==1) {
                 // likely due to all stations being filtered out as beyond geo bounds
-                logger.debug(format("Skip, Not enough calling points (%s) for (%s)", calledAtStations.stream(), rawService));
+                //logger.debug(format("Skip, Not enough calling points (%s) for (%s)", inBoundsCalledAtStations.stream(), rawService));
                 return false;
             }
 
             // Service
             MutableService service = railServiceGroups.getOrCreateService(basicSchedule, isOverlay);
 
-            IdFor<Route> routeId = railRouteIDBuilder.getIdFor(agencyId, calledAtStations);
+            IdFor<Route> routeId = railRouteIDBuilder.getIdFor(agencyId, inBoundsCalledAtStations);
 
-            MutableRoute route = getOrCreateRoute(routeId, rawService, mutableAgency, mode, calledAtStations);
+            MutableRoute route = getOrCreateRoute(routeId, rawService, mutableAgency, mode, inBoundsCalledAtStations);
             route.addService(service);
             mutableAgency.addRoute(route);
 
@@ -306,15 +323,15 @@ public class RailTimetableMapper {
             // Stations, Platforms, StopCalls
             int stopSequence = 1;
             TramTime originTime = originLocation.getDeparture();
-            populateForLocation(originLocation, route, trip, stopSequence, false, agencyId, basicSchedule, originTime);
+            populateForLocation(originLocation, route, trip, stopSequence, false, originTime);
             stopSequence = stopSequence + 1;
             for (IntermediateLocation intermediateLocation : intermediateLocations) {
-                if (populateForLocation(intermediateLocation, route, trip, stopSequence, false, agencyId,
-                        basicSchedule, originTime)) {
+                if (populateForLocation(intermediateLocation, route, trip, stopSequence, false,
+                        originTime)) {
                     stopSequence = stopSequence + 1;
                 }
             }
-            populateForLocation(terminatingLocation, route, trip, stopSequence, true, agencyId, basicSchedule, originTime);
+            populateForLocation(terminatingLocation, route, trip, stopSequence, true, originTime);
 
             return true;
         }
@@ -323,72 +340,43 @@ public class RailTimetableMapper {
             return config.getModes().contains(mode);
         }
 
-//        private boolean locationWithinBounds(String tiploc) {
-//            final IdFor<Station> stationId = Station.createId(tiploc);
-//            if (!stations.hasStationId(stationId)) {
-//                //logger.info("Could not find station corresponding to tiploc " + tiploc);
-//                return false;
-//            }
-//            Station station = stations.getMutableStation(stationId);
-//            if (station.getGridPosition().isValid()) {
-//                return bounds.contained(station.getGridPosition());
-//            }
-//            return false;
-//        }
-
         private boolean populateForLocation(RailLocationRecord railLocation, MutableRoute route, MutableTrip trip, int stopSequence,
-                                            boolean lastStop, IdFor<Agency> agencyId, BasicSchedule schedule, TramTime originTime) {
+                                            boolean lastStop, TramTime originTime) {
 
-            if (!isLoadedStationAndInbounds(railLocation)) {
-//                if (locationWithinBounds(railLocation.getTiplocCode())) {
-//                    // only log an issue if tiploc was not filtered out for being outside area of interest
-//                    missingStationDiagnosticsFor(railLocation, agencyId, schedule);
-//                }
+            if (!isLoadedStation(railLocation)) {
                 return false;
             }
 
             MutableStation station = findStationFor(railLocation);
 
-            GTFSPickupDropoffType pickup;
-            GTFSPickupDropoffType dropoff;
-
-            final boolean passingRecord = railLocation.isPassingRecord();
-
-            if (passingRecord) {
-                pickup = None;
-                dropoff = None;
-                station.addPassingRoute(route);
-                //return false;
-            } else {
-                pickup = lastStop ? None : Regular;
-                dropoff = stopSequence==1 ? None : Regular;
+            if (!bounds.contained(station)) {
+                return false;
             }
+
+            final LocationActivityCode activity = railLocation.getActivity();
 
             // Platform
             IdFor<NaptanArea> areaId = station.getAreaId(); // naptan seems only to have rail stations, not platforms
             MutablePlatform platform = getOrCreatePlatform(station, railLocation, areaId);
             station.addPlatform(platform);
 
-            if (pickup.isPickup()) {
+            if (activity.isPickup()) {
                 station.addRoutePickUp(route);
                 platform.addRoutePickUp(route);
             }
-            if (dropoff.isDropOff()) {
+            if (activity.isDropOff()) {
                 station.addRouteDropOff(route);
                 platform.addRouteDropOff(route);
             }
+
+            //boolean noneCalling = railLocation.
 
             // Route Station
             RouteStation routeStation = new RouteStation(station, route);
             container.addRouteStation(routeStation);
 
             StopCall stopCall;
-            if (passingRecord) {
-                TramTime passingTime = railLocation.getPassingTime();
-                stopCall = createStopCall(trip, station, platform, stopSequence,
-                        passingTime, passingTime, None, None);
-            } else {
-                // Stop Call
+            if (railLocation.doesStop()) {
                 // TODO this doesn't cope with journeys that cross 2 days....
                 TramTime arrivalTime = railLocation.getArrival();
                 if (arrivalTime.isBefore(originTime)) {
@@ -400,12 +388,17 @@ public class RailTimetableMapper {
                     departureTime = TramTime.nextDay(departureTime);
                 }
 
+                // TODO Request stops?
+                GTFSPickupDropoffType pickup = activity.isPickup() ? Regular : None;
+                GTFSPickupDropoffType dropoff = activity.isDropOff() ? Regular : None;
                 stopCall = createStopCall(trip, station, platform, stopSequence,
                         arrivalTime, departureTime, pickup, dropoff);
                 if (TramTime.difference(arrivalTime, departureTime).compareTo(Duration.ofMinutes(60))>0) {
                     // this definitely happens, so an info not a warning
                     logger.info("Delay of more than one hour for " + stopCall);
                 }
+            } else {
+                stopCall = createStopcallForNoneStopping(railLocation, trip, stopSequence, station, platform);
             }
 
             trip.addStop(stopCall);
@@ -413,26 +406,44 @@ public class RailTimetableMapper {
             return true;
         }
 
-        private void missingStationDiagnosticsFor(RailLocationRecord railLocation, IdFor<Agency> agencyId, BasicSchedule schedule) {
-            final RailRecordType recordType = railLocation.getRecordType();
-            boolean intermediate = (recordType==RailRecordType.IntermediateLocation);
-            if (intermediate) {
-                return;
+        @NotNull
+        private StopCall createStopcallForNoneStopping(RailLocationRecord railLocation, MutableTrip trip, int stopSequence, MutableStation station, MutablePlatform platform) {
+            StopCall stopCall;
+            TramTime passingTime;
+            if (railLocation.isOrigin()) {
+                passingTime = railLocation.getDeparture();
+            } else if (railLocation.isTerminating()) {
+                passingTime = railLocation.getArrival();
+            } else {
+                passingTime = railLocation.getPassingTime();
             }
-
-            String tiplocCode = railLocation.getTiplocCode();
-            missingStations.record(tiplocCode, railLocation, agencyId, schedule);
+            stopCall = createStopCall(trip, station, platform, stopSequence,
+                    passingTime, passingTime, None, None);
+            return stopCall;
         }
 
-        private boolean isLoadedStationAndInbounds(RailLocationRecord record) {
+//        private void missingStationDiagnosticsFor(RailLocationRecord railLocation, IdFor<Agency> agencyId, BasicSchedule schedule) {
+//            final RailRecordType recordType = railLocation.getRecordType();
+//            boolean intermediate = (recordType==RailRecordType.IntermediateLocation);
+//            if (intermediate) {
+//                return;
+//            }
+//
+//            String tiplocCode = railLocation.getTiplocCode();
+//            missingStations.record(tiplocCode, railLocation, agencyId, schedule);
+//        }
+
+        private boolean isLoadedStation(RailLocationRecord record) {
             final String tiplocCode = record.getTiplocCode();
             IdFor<Station> stationId = StringIdFor.createId(tiplocCode);
-            if (!stations.hasStationId(stationId)) {
-                return false;
-            }
-            Station station = stations.getMutableStation(stationId);
-            return bounds.contained(station);
+            return stations.hasStationId(stationId);
         }
+
+//        private boolean isLoadedStationAndInbounds(RailLocationRecord record) {
+//
+//            Station station = stations.getMutableStation(stationId);
+//            return bounds.contained(station);
+//        }
 
         private MutableStation findStationFor(RailLocationRecord record) {
             final String tiplocCode = record.getTiplocCode();
@@ -465,7 +476,7 @@ public class RailTimetableMapper {
 
                 dataSourceID = DataSourceID.rail;
                 String agencyName = TrainOperatingCompanies.nameFor(agencyId);
-                if (agencyName==TrainOperatingCompanies.UNKNOWN.getName()) {
+                if (agencyName.equals(TrainOperatingCompanies.UNKNOWN.getName())) {
                     logger.warn("Unable to find name for agency " + atocCode);
                 }
                 mutableAgency = new MutableAgency(dataSourceID, agencyId, agencyName);
@@ -551,26 +562,36 @@ public class RailTimetableMapper {
 
         private List<Station> getRouteStationCallingPoints(RawService rawService) {
             List<Station> result = new ArrayList<>();
-            if (isLoadedStationAndInbounds(rawService.originLocation)) {
-                result.add(findStationFor(rawService.originLocation));
+            if (isLoadedStation(rawService.originLocation)) {
+                final MutableStation station = findStationFor(rawService.originLocation);
+                result.add(station);
             }
-            List<Station> inters = rawService.intermediateLocations.stream().
-                    filter(intermediateLocation -> !intermediateLocation.isPassingRecord()).
-                    filter(this::isLoadedStationAndInbounds).
+
+            // TODO for now don't record passed stations (not stopping) but might want to do so in future
+            // to assist with live data processing
+            final List<IntermediateLocation> callingRecords = rawService.intermediateLocations.stream().
+                    filter(IntermediateLocation::doesStop).
+                    collect(Collectors.toList());
+
+            final List<Station> intermediates = callingRecords.stream().
+                    filter(this::isLoadedStation).
                     map(this::findStationFor).
                     collect(Collectors.toList());
-            result.addAll(inters);
-            if (isLoadedStationAndInbounds(rawService.terminatingLocation)) {
+
+            result.addAll(intermediates);
+
+            if (isLoadedStation(rawService.terminatingLocation)) {
                 result.add(findStationFor(rawService.terminatingLocation));
             }
 
-            if (result.isEmpty()) {
-                // likely filtered out by geo bounds
-                logger.debug("Did not get any calling points for " + rawService.basicScheduleRecord);
-            } else if (result.size()==1 && !filter.isFiltered()) {
-                // less likely to see this
-                logger.warn("Only one calling points for " + rawService.basicScheduleRecord);
+            if (!filter.isActive()) {
+                if (callingRecords.size() != intermediates.size()) {
+                    logger.warn(format("Did not match all calling points (got %s of %s) for %s loaded: %s",
+                            intermediates.size(), callingRecords.size(), rawService.basicScheduleRecord,
+                            HasId.asIds(intermediates)));
+                }
             }
+
             return result;
         }
 

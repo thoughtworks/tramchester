@@ -10,20 +10,22 @@ package com.tramchester.dataimport.rail.records;
 // 8 Spare 43 38-80
 
 import com.tramchester.dataimport.rail.RailRecordType;
+import com.tramchester.dataimport.rail.records.reference.LocationActivityCode;
 import com.tramchester.domain.time.TramTime;
 
 public class TerminatingLocation extends OriginOrTerminatingLocation implements RailLocationRecord {
 
     private final String path;
 
-    protected TerminatingLocation(String tiplocCode, TramTime publicDeptTime, String platform, String path) {
-        super(tiplocCode, publicDeptTime, platform);
+    protected TerminatingLocation(String tiplocCode, TramTime publicDeptTime, String platform, String path, LocationActivityCode activity) {
+        super(tiplocCode, publicDeptTime, platform, activity);
         this.path = path;
     }
 
     public static TerminatingLocation parse(String text) {
         String path = RecordHelper.extract(text,23, 25+1);
-        return OriginOrTerminatingLocation.parse(text, new Creator(path));
+        LocationActivityCode activity = LocationActivityCode.parse(RecordHelper.extract(text, 26, 37));
+        return OriginOrTerminatingLocation.parse(text, new Creator(path, activity));
     }
 
     @Override
@@ -41,6 +43,16 @@ public class TerminatingLocation extends OriginOrTerminatingLocation implements 
     @Override
     public TramTime getDeparture() {
         return super.getPublicTime();
+    }
+
+    @Override
+    public boolean isOrigin() {
+        return false;
+    }
+
+    @Override
+    public boolean isTerminating() {
+        return true;
     }
 
     @Override
@@ -78,14 +90,16 @@ public class TerminatingLocation extends OriginOrTerminatingLocation implements 
     private static class Creator implements Constructor<TerminatingLocation> {
 
         private final String path;
+        private final LocationActivityCode activity;
 
-        public Creator(String path) {
+        public Creator(String path, LocationActivityCode activity) {
             this.path = path;
+            this.activity = activity;
         }
 
         @Override
         public TerminatingLocation create(String tiplocCode, TramTime tramTime, String platform) {
-            return new TerminatingLocation(tiplocCode, tramTime, platform, path);
+            return new TerminatingLocation(tiplocCode, tramTime, platform, path, activity);
         }
     }
 

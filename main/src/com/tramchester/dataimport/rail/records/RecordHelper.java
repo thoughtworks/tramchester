@@ -2,14 +2,18 @@ package com.tramchester.dataimport.rail.records;
 
 import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.domain.time.TramTime;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeFormatterBuilder;
 
+import static java.lang.String.format;
 import static java.time.temporal.ChronoField.*;
 
 public class RecordHelper {
+    private static final Logger logger = LoggerFactory.getLogger(RecordHelper.class);
 
     private static final DateTimeFormatter dateFormat = new DateTimeFormatterBuilder()
             .parseCaseInsensitive()
@@ -29,6 +33,18 @@ public class RecordHelper {
      * @return the extracted record
      */
     public static String extract(String text, int begin, int end) {
+        final int length = text.length();
+        if (begin> length) {
+            logger.warn(format("Record length too short was %s but looking for substring(%s,%s) in '%s'",
+                    length, begin, end, text));
+            return "";
+        }
+        if (end> length) {
+            logger.warn(format("Record length too short was %s but looking for substring(%s,%s) in '%s'",
+                    length, begin, end, text));
+            return text.substring(begin-1, length -1).trim();
+        }
+
         return text.substring(begin-1, end-1).trim();
     }
 

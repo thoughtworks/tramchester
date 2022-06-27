@@ -15,7 +15,7 @@ public class GraphFilterActive {
         return isActive;
     }
 
-    // todo rename
+    @Deprecated
     public boolean isFiltered() {
         return isActive;
     }

@@ -66,6 +66,9 @@ public class UnzipFetchedData  {
         private Ready() {
 
         }
+        public static Ready fakeForTestingOnly() {
+            return new Ready();
+        }
     }
 
 }

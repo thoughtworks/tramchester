@@ -1,5 +1,6 @@
 package com.tramchester.dataimport.rail.records;
 
+import com.tramchester.dataimport.rail.records.reference.LocationActivityCode;
 import com.tramchester.domain.time.TramTime;
 import org.apache.commons.lang3.NotImplementedException;
 
@@ -8,11 +9,13 @@ public abstract class OriginOrTerminatingLocation {
     private final String tiplocCode;
     private final TramTime publicTime;
     private final String platform;
+    private final LocationActivityCode activity;
 
-    protected OriginOrTerminatingLocation(String tiplocCode, TramTime publicTime, String platform) {
+    protected OriginOrTerminatingLocation(String tiplocCode, TramTime publicTime, String platform, LocationActivityCode activity) {
         this.tiplocCode = tiplocCode;
         this.publicTime = publicTime;
         this.platform = platform;
+        this.activity = activity;
     }
 
     protected static <T extends OriginOrTerminatingLocation> T parse(String text, Constructor<T> builder) {
@@ -70,6 +73,16 @@ public abstract class OriginOrTerminatingLocation {
     }
 
     public TramTime getPassingTime() {
-        throw new NotImplementedException();
+        throw new NotImplementedException("Not implemented, record was " + this);
     }
+
+    public LocationActivityCode getActivity() {
+        return activity;
+    }
+
+    public boolean doesStop() {
+        return activity.isPickup() || activity.isDropOff();
+    }
+
+
 }

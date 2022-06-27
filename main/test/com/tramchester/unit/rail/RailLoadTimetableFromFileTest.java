@@ -1,15 +1,17 @@
 package com.tramchester.unit.rail;
 
-import com.tramchester.dataimport.rail.RailDataRecordFactory;
+import com.tramchester.config.TramchesterConfig;
+import com.tramchester.dataimport.UnzipFetchedData;
 import com.tramchester.dataimport.rail.LoadRailTimetableRecords;
+import com.tramchester.dataimport.rail.RailDataRecordFactory;
 import com.tramchester.dataimport.rail.records.*;
+import com.tramchester.testSupport.TestEnv;
 import org.easymock.EasyMock;
 import org.easymock.EasyMockSupport;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.io.StringReader;
-import java.nio.file.Path;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -21,11 +23,13 @@ public class RailLoadTimetableFromFileTest extends EasyMockSupport {
 
     private LoadRailTimetableRecords loadRailTimetableRecords;
     private RailDataRecordFactory factory;
+    private final TramchesterConfig config = TestEnv.GET();
 
     @BeforeEach
     void beforeEachTestRuns() {
         factory = createMock(RailDataRecordFactory.class);
-        loadRailTimetableRecords = new LoadRailTimetableRecords(Path.of("somePath"), factory);
+        UnzipFetchedData.Ready ready = UnzipFetchedData.Ready.fakeForTestingOnly();
+        loadRailTimetableRecords = new LoadRailTimetableRecords(config, factory, ready);
     }
 
     @Test
@@ -58,4 +62,5 @@ public class RailLoadTimetableFromFileTest extends EasyMockSupport {
         assertTrue(TerminatingLocation.class.isAssignableFrom(results.get(4).getClass()));
 
     }
+
 }

@@ -19,6 +19,7 @@ package com.tramchester.dataimport.rail.records;
 // https://wiki.openraildata.com/index.php?title=CIF_Schedule_Records
 
 import com.tramchester.dataimport.rail.RailRecordType;
+import com.tramchester.dataimport.rail.records.reference.LocationActivityCode;
 import com.tramchester.domain.time.TramTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,6 +32,7 @@ public class IntermediateLocation implements RailLocationRecord {
     private final TramTime publicArrival;
     private final TramTime publicDeparture;
     private final TramTime passingTime;
+    private final LocationActivityCode activity;
     private final String platform;
     private final TramTime scheduledArrival;
     private final TramTime scheduledDepart;
@@ -38,7 +40,7 @@ public class IntermediateLocation implements RailLocationRecord {
 
     public IntermediateLocation(String tiplocCode, TramTime scheduledArrival, TramTime scheduledDepart, TramTime publicArrival,
                                 TramTime publicDeparture, String platform,
-                                TramTime passingTime) {
+                                TramTime passingTime, LocationActivityCode activity) {
         this.tiplocCode = tiplocCode;
         this.scheduledArrival = scheduledArrival;
         this.scheduledDepart = scheduledDepart;
@@ -46,6 +48,7 @@ public class IntermediateLocation implements RailLocationRecord {
         this.publicDeparture = publicDeparture;
         this.platform = platform;
         this.passingTime = passingTime;
+        this.activity = activity;
     }
 
     public static IntermediateLocation parse(String text) {
@@ -58,6 +61,8 @@ public class IntermediateLocation implements RailLocationRecord {
         TramTime publicDeparture = getPublicTime(text, isPassing, 29, 32+1);
         String platform = RecordHelper.extract(text, 34, 36+1);
 
+        LocationActivityCode activity = LocationActivityCode.parse(RecordHelper.extract(text,43,54));
+
         if (!isPassing) {
             if (!scheduledArrival.isValid() && !publicArrival.isValid()) {
                 throw new RuntimeException("No valid arrival time in " + text);
@@ -67,7 +72,8 @@ public class IntermediateLocation implements RailLocationRecord {
             }
         }
 
-        return new IntermediateLocation(tiplocCode, scheduledArrival, scheduledDepart, publicArrival, publicDeparture, platform, passingTime);
+        return new IntermediateLocation(tiplocCode, scheduledArrival, scheduledDepart, publicArrival, publicDeparture,
+                platform, passingTime, activity);
     }
 
     private static TramTime getPublicTime(String text, boolean isPassing, int begin, int end) {
@@ -162,6 +168,7 @@ public class IntermediateLocation implements RailLocationRecord {
         return result;
     }
 
+    @Deprecated
     @Override
     public boolean isPassingRecord() {
         return passingTime.isValid();
@@ -177,5 +184,23 @@ public class IntermediateLocation implements RailLocationRecord {
 
     public TramTime getScheduledDeparture() {
         return scheduledDepart;
+    }
+
+    public LocationActivityCode getActivity() {
+        return activity;
+    }
+
+    @Override
+    public boolean isOrigin() {
+        return false;
+    }
+
+    @Override
+    public boolean isTerminating() {
+        return false;
+    }
+
+    public boolean doesStop() {
+        return activity.isDropOff() || activity.isPickup();
     }
 }

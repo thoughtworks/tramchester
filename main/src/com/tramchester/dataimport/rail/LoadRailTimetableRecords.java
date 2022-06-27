@@ -1,11 +1,16 @@
 package com.tramchester.dataimport.rail;
 
+import com.netflix.governator.guice.lazy.LazySingleton;
+import com.tramchester.config.RailConfig;
+import com.tramchester.config.TramchesterConfig;
+import com.tramchester.dataimport.UnzipFetchedData;
 import com.tramchester.dataimport.rail.records.RailTimetableRecord;
 import com.tramchester.dataimport.rail.records.SkippedRecord;
 import com.tramchester.dataimport.rail.records.UnknownRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.inject.Inject;
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
@@ -14,18 +19,33 @@ import java.nio.file.Path;
 import java.util.stream.Stream;
 
 
-public class LoadRailTimetableRecords {
+@LazySingleton
+public class LoadRailTimetableRecords implements ProvidesRailTimetableRecords {
     private static final Logger logger = LoggerFactory.getLogger(LoadRailTimetableRecords.class);
 
     private final Path filePath;
     private final RailDataRecordFactory factory;
+    private final boolean enabled;
 
-    public LoadRailTimetableRecords(Path filePath, RailDataRecordFactory factory) {
-        this.filePath = filePath.toAbsolutePath();
+    @Inject
+    public LoadRailTimetableRecords(TramchesterConfig config, RailDataRecordFactory factory, UnzipFetchedData.Ready ready) {
+        RailConfig railConfig = config.getRailConfig();
+        enabled = (railConfig != null);
         this.factory = factory;
+        if (enabled) {
+            final Path dataPath = railConfig.getDataPath();
+            filePath = dataPath.resolve(railConfig.getTimetable());
+        } else {
+            filePath = null;
+        }
     }
 
+    @Override
     public Stream<RailTimetableRecord> load() {
+        if (!enabled) {
+            throw new RuntimeException("Not enabled");
+        }
+
         logger.info("Load from " + filePath.toAbsolutePath());
         try {
             Reader reader = new FileReader(filePath.toString());
