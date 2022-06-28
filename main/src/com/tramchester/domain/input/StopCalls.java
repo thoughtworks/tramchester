@@ -82,6 +82,7 @@ public class StopCalls {
     /**
      * Create StopLeg for each pair of stopcall (a,b,c,d,e) -> (a,b), (b,c), (c,d), (d,e)
      * Respects the dropoff and pickup types so skips stopcalls that just pass a station
+     * BUT does include legs that might only pickup or dropoff passengers
      * @param graphIsFiltered is filtering enabled, controls diagnostic messages
      */
     public List<StopLeg> getLegs(boolean graphIsFiltered) {
@@ -97,8 +98,8 @@ public class StopCalls {
         Iterator<StopCall> stopsIter = orderedStopCalls.values().iterator();
         StopCall next = null;
         while (stopsIter.hasNext()) {
-            StopCall first = findNextPickup(stopsIter, next);
-            StopCall second = findNextDropoff(stopsIter);
+            StopCall first = findNextStationStop(stopsIter, next);
+            StopCall second = findNextStationStop(stopsIter);
             if (first!=null && second!=null) {
                 StopLeg stopLeg = new StopLeg(first, second);
                 legs.add(stopLeg);
@@ -111,25 +112,19 @@ public class StopCalls {
         return legs;
     }
 
-    private StopCall findNextPickup(Iterator<StopCall> iter, StopCall next) {
+    private StopCall findNextStationStop(Iterator<StopCall> iter, StopCall next) {
         if (next!=null) {
-            if (next.getPickupType().isPickup()) {
+            if (next.callsAtStation()) {
                 return next;
             }
         }
-        while (iter.hasNext()) {
-            StopCall current = iter.next();
-            if (current.getPickupType().isPickup()) {
-                return current;
-            }
-        }
-        return null;
+        return findNextStationStop(iter);
     }
 
-    private StopCall findNextDropoff(Iterator<StopCall> iter) {
+    private StopCall findNextStationStop(Iterator<StopCall> iter) {
         while (iter.hasNext()) {
             StopCall current = iter.next();
-            if (current.getDropoffType()!=None) {
+            if (current.callsAtStation()) {
                 return current;
             }
         }

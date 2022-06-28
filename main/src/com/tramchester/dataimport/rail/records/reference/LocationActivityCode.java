@@ -6,6 +6,13 @@ import java.util.Arrays;
 import java.util.List;
 
 public enum LocationActivityCode implements EnumMap.HasCodes<LocationActivityCode> {
+    StopsToTakeUpAndSetDownPassengers("T"),
+    TrainBegins("TB"),
+    TrainFinishes("TF"),
+    StopsToTakeUpPassengers("U"),
+    StopsToSetDownPassengers("D"),
+    StopsWhenRequired("R"),
+
     StopsToDetachVehicles("-D"),
     StopsToAttachAndDetachVehicles("-T"),
     StopsToAttachVehicles("-U"),
@@ -14,33 +21,27 @@ public enum LocationActivityCode implements EnumMap.HasCodes<LocationActivityCod
     ShowsAsXOnArrival("AX"),
     StopsForBankingLocomotive("BL"),
     StopsToChangeTrainCrew("C"),
-    StopsToSetDownPassengers("D"),
     StopsForExamination("E"),
     GBPRTTDataToAdd("G"),
     NotionalActivityToPreventWTTColumnsMerge("H"),
     ToPreventWTTColumnMergeWhere3rdColumn("HH"),
     PassengerCountPoint("K"),
-    Ticketcollectionandexaminationpoint("KC"),
-    Ticketexaminationpoint("KE"),
-    TicketexaminationpointFirstclassonly("KF"),
+    TicketCollectionAndExaminationPoint("KC"),
+    TicketExaminationPoint("KE"),
+    TicketExaminationPointFirstClassOnly("KF"),
     SelectiveTicketExaminationPoint("KS"),
-    Stopstochangelocomotive("L"),
-    Stopnotadvertised("N"),
-    Stopsforotheroperatingreasons("OP"),
-    TrainLocomotiveonrear("OR"),
-    Propellingbetweenpointsshown("PR"),
-    StopsWhenRequired("R"),
-    Stopsforreversingmoveordriverchangesends("RM"),
-    Stopsforlocomotivetorunroundtrain("RR"),
+    StopsToChangeLocomotive("L"),
+    StopNotAdvertised("N"),
+    StopsForOtherOperatingReasons("OP"),
+    TrainLocomotiveOnRear("OR"),
+    PropellingBetweenPointsShown("PR"),
+    StopsForReversingMoveOrDriverChangesEnds("RM"),
+    StopsForLocomotiveToRunRoundTrain("RR"),
     StopsForRailwayPersonnelOnly("S"),
-    StopsToTakeUpAndSetDownPassengers("T"),
-    TrainBegins("TB"),
-    TrainFinishes("TF"),
-    ActivityrequestedforTOPSreportingpurposes("TS"),
+    ActivityRequestedForTOPSReportingPurposes("TS"),
     StopsOrPassesForTabletStaffOrToken("TW"),
-    StopsToTakeupPassengers("U"),
-    Stopsforwateringofcoaches("W"),
-    Passesanothertrainatcrossingpointonasingleline("X"),
+    StopsForWateringOfCoaches("W"),
+    PassesAnotherTrainAtCrossingPointOnASingleLine("X"),
 
     // additional codes added
     TrainBeginsTakeUp("TBT"),
@@ -52,7 +53,7 @@ public enum LocationActivityCode implements EnumMap.HasCodes<LocationActivityCod
     private static final List<LocationActivityCode> dropOffs = Arrays.asList(TrainFinishesSetDown, TrainFinishes,
             StopsToSetDownPassengers, StopsToTakeUpAndSetDownPassengers);
     private static final List<LocationActivityCode> pickUps = Arrays.asList(TrainBeginsTakeUp, TrainBegins,
-            StopsToTakeupPassengers, StopsToTakeUpAndSetDownPassengers);
+            StopsToTakeUpPassengers, StopsToTakeUpAndSetDownPassengers);
     private final String code;
 
     LocationActivityCode(String code) {

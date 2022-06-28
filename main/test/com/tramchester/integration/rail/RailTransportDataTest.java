@@ -9,12 +9,16 @@ import com.tramchester.dataimport.rail.*;
 import com.tramchester.dataimport.rail.records.RailTimetableRecord;
 import com.tramchester.dataimport.rail.repository.RailStationCRSRepository;
 import com.tramchester.domain.Service;
+import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.input.StopCalls;
 import com.tramchester.domain.input.Trip;
+import com.tramchester.domain.time.DateRange;
 import com.tramchester.domain.time.ProvidesNow;
+import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.filters.GraphFilterActive;
 import com.tramchester.integration.testSupport.rail.IntegrationRailTestConfig;
+import com.tramchester.integration.testSupport.rail.RailStationIds;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.repository.TransportData;
 import com.tramchester.repository.TransportDataContainer;
@@ -26,10 +30,17 @@ import org.junit.jupiter.api.*;
 
 import java.io.Reader;
 import java.io.StringReader;
+import java.time.LocalDate;
+import java.util.EnumSet;
+import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static com.tramchester.integration.testSupport.rail.RailStationIds.Inverness;
+import static com.tramchester.integration.testSupport.rail.RailStationIds.LondonEuston;
+import static java.time.DayOfWeek.SUNDAY;
+import static org.junit.jupiter.api.Assertions.*;
 
 @TrainTest
 public class RailTransportDataTest {
@@ -185,6 +196,212 @@ public class RailTransportDataTest {
         // NOTE: HOLME isn't actually a station, so it actually fine that it is missing in this case
         // it should not be marked as 'T' for activity (dropoff and pickup)
         assertEquals(11-1, calls.numberOfCallingPoints(), calls.toString());
+    }
+
+    @Test
+    void shouldCrossMidnightAndSetNextDayCorrect() {
+        String text = """
+                BSNN518662207302207300000010 5BR0B00    122974000                              N
+                BX         NTYNT071000
+                LOBNSLY   2320 2320          TB
+                LTHDRSFLD 0010 0010      TF
+                BSNN518672207302207300000010 5BR0B00    122974000                              N
+                BX         NTYNT071100
+                LOHDRSFLD 2255 2255          TB
+                LIBNSLY   2345 2345      23450000   BUS   D
+                LIMEADWHL 0010 0010      00100000         D
+                LTSHEFFLD 0030 0030      TFD""";
+
+        final TransportData dataContainer = loadForTimetableData(text);
+
+        Set<Service> services = dataContainer.getServices();
+        assertEquals(2, services.size());
+
+        Service service = dataContainer.getServiceById(StringIdFor.createId("N51867:20220730:20220730"));
+
+        TramTime startTime = service.getStartTime();
+        TramTime finishTime = service.getFinishTime();
+
+        assertFalse(startTime.isNextDay(), startTime.toString());
+        assertTrue(finishTime.isNextDay(), finishTime.toString());
+
+        assertTrue(finishTime.isAfter(startTime));
+        assertFalse(finishTime.isBefore(startTime));
+
+        // NOTE: below mirrors test that fails when all rail services are loaded.....
+        // ref: RailTransportDataFromFilesTest
+        Set<Service> allServices = dataContainer.getServices();
+
+        Set<Service> badTimings = allServices.stream().
+                filter(svc -> svc.getFinishTime().isBefore(svc.getStartTime())).
+                collect(Collectors.toSet());
+
+        String diagnostics = badTimings.stream().
+                map(svc -> svc.getId() + " begin: " + svc.getStartTime() + " end: " + svc.getFinishTime() + " ").
+                collect(Collectors.joining());
+
+        assertTrue(badTimings.isEmpty(), diagnostics);
+
+    }
+
+    @Test
+    void shouldHandleVeryLongAndComplex() {
+        String text = """
+                BSNC436112207032207030000001 PXZ1M1630021235580031D  385 125      SBA R        O
+                BX         CSYCS300201                                                         \s
+                LOIVRNESS 2026 20262         TB                                                \s
+                LIMILBRNJ           2027H00000000   UH                                         \s
+                LICRAHALL           2029 00000000                                              \s
+                LICULDNMR           2036 00000000         X                                    \s
+                LIMOYY              2047H00000000                                              \s
+                LITOMATIN           2051H00000000                                              \s
+                LISLOCHD  2058 2105      00000000         X A                                  \s
+                LICARRBDG           2111 000000001                    1                        \s
+                LIAVIEMRE 2118 2121      000021191        U                                    \s
+                LIKNCRAIG           2128 00000000                                              \s
+                LIKGUSSIE 2133 2135      000021332        U                                    \s
+                LINWTM    2139H2141H     000021411        U                                    \s
+                LIDALWHIN 2154 2156      000021541        U                                    \s
+                LIDLNSPDL           2204 00000000                                              \s
+                LIDLNCRDH           2209H00000000                     1                        \s
+                LIBLARATH 2220H2222H     000022221        U                                    \s
+                LIPTLCHRY 2232 2234      000022321        U                                    \s
+                LIDUNKELD 2246H2248H     000022481        U                                    \s
+                LISTNY              2258 00000000                     1                        \s
+                LIPERTH   2306H2308H     000023064        U                                    \s
+                LIHILTONJ           2313 00000000                                              \s
+                LINBRG              2322H00000000                       2H                     \s
+                LILADYBNK           2334 000000002                    1                        \s
+                LITHRNTNJ           2343 00000000                                              \s
+                LITHRNUPL 2345 0003      00000000         A                                    \s
+                LITHRNTSJ           0004 00000000                                              \s
+                LIKCLD              0008 000000001                                             \s
+                LIBISLND            0014H000000001                                             \s
+                LIIVRKTHG           0022 000000001                       H                     \s
+                LIDLMYJN            0028 00000000                     1                        \s
+                LIHAYMRWJ           0034H00000000   UN                                         \s
+                LIHAYMRKT           0036 000000001  UN                                         \s
+                LIPRNCSTG           0037H00000000   Z                                          \s
+                CREDINBUR XZ1M1630021235580031E  92  080      SBA R                CS300207    \s
+                LIEDINBUR 0039H0122      000000002  Z  Z  L -U                                 \s
+                LIPRNCSTG2          0123H00000000   DS                                         \s
+                LIHAYMRKT2          0125 000000004                                             \s
+                LISLATEFD           0127 00000000                                              \s
+                LIMDCLDRJ           0134H00000000                                              \s
+                LICOBB712           0140H00000000                                              \s
+                LIACHNGRY           0143 00000000                                              \s
+                LICRSTRSE           0147H00000000                     1                        \s
+                LICRSTRSS           0150H00000000                                              \s
+                LIABINGTN           0205 00000000UM                       1                    \s
+                LIBEATCKS           0212 00000000UM                                            \s
+                LIBEATCK            0219H00000000UM                                            \s
+                LILCKRBIE           0230 000000002                    20                       \s
+                LIKRKP862           0300 00000000                                              \s
+                LIGRETNAJ           0303 00000000                                              \s
+                LICARLILE           0310H000000004                                             \s
+                LIPNTH              0325H000000001                                             \s
+                LIEDENVGL           0328H00000000                                              \s
+                LISHAPSMT           0336 00000000                                              \s
+                LITEBAY             0340 00000000                                              \s
+                LIGRIGG             0346H00000000                                              \s
+                LIOXENHLM           0352 000000001                    1                        \s
+                LICRNFNJN           0402H00000000                                              \s
+                LIMORCMSJ           0406 00000000                                              \s
+                LILANCSTR           0407H00000000UFL                                           \s
+                LIGSTANG            0416H00000000                     2                        \s
+                LIPRSTNFJ           0427H00000000   UFL                                        \s
+                LIPRST    0429 0435      042900004  UFLUFLD                                    \s
+                LIPRSTRJN           0436H00000000   FL                                         \s
+                LIEUXTONJ           0440H00000000                                              \s
+                LIBALSHWL           0442 00000000                                              \s
+                LIWIGANNW           0447H000000004                                             \s
+                LIWIGASJN           0448 00000000                                              \s
+                LISPRBJN            0448H00000000   SL                                         \s
+                LIGOLBRNJ           0453H00000000   FL                                         \s
+                LIWINWCKJ           0457 00000000                                              \s
+                LIDALAMBR           0459H00000000                                              \s
+                LIWRGTNBQ           0500 000000002                       H                     \s
+                LIACGJN             0502 00000000                     1                        \s
+                LIWEAVERJ           0507 00000000                       1H                     \s
+                LIACBG              0510H00000000                       2H                     \s
+                LIHARTFDJ           0514 00000000                         1                    \s
+                LIWNSFD             0519 00000000   SL                1                        \s
+                LICREWECY           0525H00000000                                              \s
+                LICREWE   0527 0529      052700006  FL    D                                    \s
+                LICREWBHJ           0531H00000000                                              \s
+                LIMADELEY           0536H00000000   FL FL             1                        \s
+                LINTNB              0545H00000000   FL FL                                      \s
+                LISTAFFRD           0549H00000000UFLFL FL                                      \s
+                LICOLWICH           0555 00000000   SL FL                                      \s
+                LIRUGLYNJ           0557H00000000   SL SL                  H                   \s
+                LILCHTNJ            0604 00000000   SL SL                                      \s
+                LIAMNGTNJ           0610 00000000   SL SL                                      \s
+                LINNTN              0620 000000005  SL SL             1                        \s
+                LIRUGBTVJ           0632H00000000   SL SL                                      \s
+                LIRUGBY   0634 0640H     000000005  FL SL A                                    \s
+                LIHMTNJ             0642H00000000                                              \s
+                LIWEEDON            0651 00000000   FL FL                                      \s
+                LIHANSLPJ           0701 00000000   FL FL                                      \s
+                LIMKNSCEN           0706 000000004  FL FL                                      \s
+                LIBLTCHLY           0708 000000002  FL FL                                      \s
+                LILEDBRNJ           0715 00000000   FL FL             1                        \s
+                LITRING             0720H000000002  FL FL                                      \s
+                LIBONENDJ           0725 00000000   FL FL                                      \s
+                LIWATFDJ            0731 000000007  FL FL                                      \s
+                LIHROW              0735H000000004  FL FL                                      \s
+                LIWMBY              0738 000000004                    1                        \s
+                LIWLSDWLJ           0741 00000000   FL FL                                      \s
+                LICMDNJN            0744 00000000   D                                          \s
+                LICMDNSTH           0744H00000000                                              \s
+                LTEUSTON  0747 074915    TF                                                    \s""";
+
+        final TransportData dataContainer = loadForTimetableData(text);
+
+        Set<Service> services = dataContainer.getServices();
+        assertEquals(1, services.size());
+
+        String underylingID = "C43611:20220703:20220703OVERLAY";
+        IdFor<Service> serviceId = StringIdFor.createId(underylingID);
+
+        Service service = dataContainer.getServiceById(serviceId);
+
+        assertNotNull(service);
+        assertEquals(serviceId, service.getId());
+
+        TramTime startTime = service.getStartTime();
+        TramTime finishTime = service.getFinishTime();
+
+        assertEquals(TramTime.of(20,26), startTime);
+        assertEquals(TramTime.nextDay(7,49), finishTime);
+
+        // dates
+        DateRange range = service.getCalendar().getDateRange();
+        LocalDate operatingDate = LocalDate.of(2022, 7, 3);
+        assertEquals(operatingDate, range.getStartDate());
+        assertEquals(EnumSet.of(SUNDAY), service.getCalendar().getOperatingDays());
+
+        // trip and stops
+        Set<Trip> trips = dataContainer.getTrips();
+        assertEquals(1, trips.size());
+        Trip trip = trips.iterator().next();
+        assertEquals(service, trip.getService());
+
+        StopCalls stopCalls = trip.getStopCalls();
+        assertEquals(12, stopCalls.numberOfCallingPoints());
+
+        assertEquals(Inverness.getId(), stopCalls.getFirstStop().getStationId());
+        assertEquals(RailStationIds.LondonEuston.getId(), stopCalls.getLastStop().getStationId());
+
+        List<StopCalls.StopLeg> legs = stopCalls.getLegs(false);
+        assertEquals(11, legs.size());
+
+        StopCalls.StopLeg firstLeg = legs.get(0);
+        assertEquals(startTime, firstLeg.getDepartureTime());
+        assertEquals(Inverness.getId(), firstLeg.getFirstStation().getId());
+
+        StopCalls.StopLeg lastLeg = legs.get(10);
+        assertEquals(LondonEuston.getId(), lastLeg.getSecondStation().getId());
+        assertEquals(TramTime.nextDay(5,29), lastLeg.getDepartureTime());
     }
 
     @NotNull

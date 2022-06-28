@@ -41,6 +41,7 @@ public enum TrainOperatingCompanies {
     GC("Grand Central"),
     SR("ScotRail"),
     CC("c2c"),
+    ZZ("Freight Or Other"),
     UNKNOWN("Train");
 
     private final String companyName;

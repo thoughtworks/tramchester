@@ -30,7 +30,9 @@ import org.junit.jupiter.api.condition.DisabledIfEnvironmentVariable;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.util.*;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static com.tramchester.domain.reference.TransportMode.*;
 import static com.tramchester.integration.testSupport.Assertions.assertIdEquals;
@@ -161,12 +163,12 @@ public class RailTransportDataFromFilesTest {
 
         assertEquals(30, results.size());
 
-        List<IdFor<Agency>> wrongNames = results.stream().
+        List<IdFor<Agency>> missingTrainOperatingCompanyName = results.stream().
                 map(Agency::getId).
                 filter(id -> TrainOperatingCompanies.nameFor(id).equals(TrainOperatingCompanies.UNKNOWN.getName())).
                 collect(Collectors.toList());
 
-        assertTrue(wrongNames.isEmpty(), wrongNames.toString());
+        assertTrue(missingTrainOperatingCompanyName.isEmpty(), missingTrainOperatingCompanyName.toString());
 
     }
 
@@ -176,21 +178,6 @@ public class RailTransportDataFromFilesTest {
                 agency.getRoutes().forEach(route -> assertEquals(agency, route.getAgency(),
                 "Agency wrong for " +route.getId() + " got " + route.getAgency().getId() + " but needed " + agency.getId())));
     }
-
-//    @Test
-//    void shouldHaveNonZeroCostsForStopCallLegs() {
-//
-//        // was helping to diagnose legit issue, but that has tests elsewhere (RailRouteCostsTest) and is resolved
-//        // todo likely to break on every data update, remove??
-//
-//        Set<Trip> allTrips = transportData.getTrips();
-//        Set<StopCalls> tripWithZeroCostLegs = allTrips.stream().map(Trip::getStopCalls).
-//                filter(stopCalls -> stopCalls.getLegs(false).stream().anyMatch(stopLeg -> stopLeg.getCost().isZero())).
-//                collect(Collectors.toSet());
-//
-//        assertEquals(69, tripWithZeroCostLegs.size(), tripWithZeroCostLegs.toString());
-//
-//    }
 
     @Disabled("now filtering out stations in Ireland etc")
     @Test
@@ -388,13 +375,34 @@ public class RailTransportDataFromFilesTest {
         assertTrue(noDays.isEmpty());
     }
 
+    // Likely this will break with new data
+    @Test
+    void reproIssueWithCrossingMidnightThatOnlyOccursWhenWholeFileLoaded() {
+        Service service = transportData.getServiceById(StringIdFor.createId("N51867:20220730:20220730"));
+
+        TramTime startTime = service.getStartTime();
+        TramTime finishTime = service.getFinishTime();
+
+        assertFalse(startTime.isNextDay(), startTime.toString());
+        assertTrue(finishTime.isNextDay(), finishTime.toString());
+
+        assertTrue(finishTime.isAfter(startTime));
+        assertFalse(finishTime.isBefore(startTime));
+    }
+
     @Test
     void shouldHaveSaneServiceStartAndFinishTimes() {
         Set<Service> allServices = transportData.getServices();
+
         Set<Service> badTimings = allServices.stream().
-                filter(svc -> svc.getStartTime().isAfter(svc.getFinishTime())).
+                filter(svc -> svc.getFinishTime().isBefore(svc.getStartTime())).
                 collect(Collectors.toSet());
-        assertTrue(badTimings.isEmpty(), badTimings.toString());
+
+        String diagnostics = badTimings.stream().
+                map(service -> service.getId() + " begin: " + service.getStartTime() + " end: " + service.getFinishTime() + " ").
+                collect(Collectors.joining());
+
+        assertTrue(badTimings.isEmpty(), diagnostics);
     }
 
     @Test
@@ -417,15 +425,24 @@ public class RailTransportDataFromFilesTest {
         Set<Route> notShips = transportData.getRoutes().stream().
                 filter(route -> route.getTransportMode()!=Ship).collect(Collectors.toSet());
 
+
+        // paddington -> newton abbot
+        final Duration maxDuration = Duration.ofHours(5).plusMinutes(10);
+
         for (Route route : notShips) {
             List<StopCalls.StopLeg> over = route.getTrips().stream().
                     flatMap(trip -> trip.getStopCalls().getLegs(false).stream()).
-                    filter(stopLeg -> stopLeg.getCost().compareTo(Duration.ofMinutes(12*24)) > 0).
+                    filter(stopLeg -> stopLeg.getCost().compareTo(maxDuration) > 0).
                     collect(Collectors.toList());
-            assertTrue(over.isEmpty(), route + " " + over);
-        }
 
+            ///
+            // TODO Legs = stops  - 1 assertion
+
+            assertTrue(over.isEmpty(), "route " + route.getId() + " has legs over "
+                    + maxDuration + " Legs: " + over);
+        }
     }
+
 
     private boolean matches(IdFor<Station> firstId, IdFor<Station> secondId, Trip trip) {
         StopCall firstCall = trip.getStopCalls().getFirstStop();

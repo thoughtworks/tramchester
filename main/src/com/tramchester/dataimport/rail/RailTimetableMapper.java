@@ -296,11 +296,11 @@ public class RailTimetableMapper {
                 return false;
             }
 
-            List<Station> inBoundsCalledAtStations = allCalledAtStations.stream().
+            List<Station> withinBoundsCallingStations = allCalledAtStations.stream().
                     filter(bounds::contained).
                     collect(Collectors.toList());
 
-            if (inBoundsCalledAtStations.isEmpty() || inBoundsCalledAtStations.size()==1) {
+            if (withinBoundsCallingStations.isEmpty() || withinBoundsCallingStations.size()==1) {
                 // likely due to all stations being filtered out as beyond geo bounds
                 //logger.debug(format("Skip, Not enough calling points (%s) for (%s)", inBoundsCalledAtStations.stream(), rawService));
                 return false;
@@ -309,9 +309,9 @@ public class RailTimetableMapper {
             // Service
             MutableService service = railServiceGroups.getOrCreateService(basicSchedule, isOverlay);
 
-            IdFor<Route> routeId = railRouteIDBuilder.getIdFor(agencyId, inBoundsCalledAtStations);
+            final IdFor<Route> routeId = railRouteIDBuilder.getIdFor(agencyId, withinBoundsCallingStations);
 
-            MutableRoute route = getOrCreateRoute(routeId, rawService, mutableAgency, mode, inBoundsCalledAtStations);
+            MutableRoute route = getOrCreateRoute(routeId, rawService, mutableAgency, mode, withinBoundsCallingStations);
             route.addService(service);
             mutableAgency.addRoute(route);
 
@@ -319,18 +319,18 @@ public class RailTimetableMapper {
             MutableTrip trip = getOrCreateTrip(basicSchedule, service, route, mode);
             route.addTrip(trip);
 
+            final TramTime originTime = originLocation.getDeparture();
+
             // Stations, Platforms, StopCalls
             int stopSequence = 1;
-            TramTime originTime = originLocation.getDeparture();
-            populateForLocation(originLocation, route, trip, stopSequence, false, originTime);
+            populateForLocationIfWithinBounds(originLocation, route, trip, stopSequence, originTime);
             stopSequence = stopSequence + 1;
             for (IntermediateLocation intermediateLocation : intermediateLocations) {
-                if (populateForLocation(intermediateLocation, route, trip, stopSequence, false,
-                        originTime)) {
+                if (populateForLocationIfWithinBounds(intermediateLocation, route, trip, stopSequence, originTime)) {
                     stopSequence = stopSequence + 1;
                 }
             }
-            populateForLocation(terminatingLocation, route, trip, stopSequence, true, originTime);
+            populateForLocationIfWithinBounds(terminatingLocation, route, trip, stopSequence, originTime);
 
             return true;
         }
@@ -339,8 +339,8 @@ public class RailTimetableMapper {
             return config.getModes().contains(mode);
         }
 
-        private boolean populateForLocation(RailLocationRecord railLocation, MutableRoute route, MutableTrip trip, int stopSequence,
-                                            boolean lastStop, TramTime originTime) {
+        private boolean populateForLocationIfWithinBounds(RailLocationRecord railLocation, MutableRoute route, MutableTrip trip,
+                                                          int stopSequence, TramTime originTime) {
 
             if (!isLoadedStation(railLocation)) {
                 return false;
@@ -368,8 +368,6 @@ public class RailTimetableMapper {
                 platform.addRouteDropOff(route);
             }
 
-            //boolean noneCalling = railLocation.
-
             // Route Station
             RouteStation routeStation = new RouteStation(station, route);
             container.addRouteStation(routeStation);
@@ -390,14 +388,14 @@ public class RailTimetableMapper {
                 // TODO Request stops?
                 GTFSPickupDropoffType pickup = activity.isPickup() ? Regular : None;
                 GTFSPickupDropoffType dropoff = activity.isDropOff() ? Regular : None;
-                stopCall = createStopCall(trip, station, platform, stopSequence,
-                        arrivalTime, departureTime, pickup, dropoff);
+                stopCall = createStopCall(trip, station, platform, stopSequence, arrivalTime, departureTime, pickup, dropoff);
+
                 if (TramTime.difference(arrivalTime, departureTime).compareTo(Duration.ofMinutes(60))>0) {
                     // this definitely happens, so an info not a warning
-                    logger.info("Delay of more than one hour for " + stopCall);
+                    logger.info("Delay of more than one hour for " + stopCall + " on trip " + trip.getId());
                 }
             } else {
-                stopCall = createStopcallForNoneStopping(railLocation, trip, stopSequence, station, platform);
+                stopCall = createStopcallForNoneStopping(railLocation, trip, stopSequence, station, platform, originTime);
             }
 
             trip.addStop(stopCall);
@@ -406,7 +404,8 @@ public class RailTimetableMapper {
         }
 
         @NotNull
-        private StopCall createStopcallForNoneStopping(RailLocationRecord railLocation, MutableTrip trip, int stopSequence, MutableStation station, MutablePlatform platform) {
+        private StopCall createStopcallForNoneStopping(RailLocationRecord railLocation, MutableTrip trip, int stopSequence,
+                                                       MutableStation station, MutablePlatform platform, TramTime originTime) {
             StopCall stopCall;
             TramTime passingTime;
             if (railLocation.isOrigin()) {
@@ -416,8 +415,12 @@ public class RailTimetableMapper {
             } else {
                 passingTime = railLocation.getPassingTime();
             }
-            stopCall = createStopCall(trip, station, platform, stopSequence,
-                    passingTime, passingTime, None, None);
+
+            if (passingTime.isBefore(originTime)) {
+                passingTime = TramTime.nextDay(passingTime);
+            }
+
+            stopCall = createStopCall(trip, station, platform, stopSequence, passingTime, passingTime, None, None);
             return stopCall;
         }
 

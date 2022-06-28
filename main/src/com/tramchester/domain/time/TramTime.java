@@ -160,7 +160,7 @@ public class TramTime implements Comparable<TramTime> {
             return "TramTime{INVALID}";
         }
 
-        String daysString = offsetDays>0 ?"d=" + offsetDays + " " : "";
+        String daysString = offsetDays>0 ? "d=" + offsetDays + " " : "";
         return "TramTime{" +
                 daysString +
                 "h=" + hour +
