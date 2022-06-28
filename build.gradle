@@ -275,7 +275,6 @@ task liveMessages(type: Test, dependsOn: compileJava) {
     }
 }
 
-
 task integration(type: Test, dependsOn: compileJava) {
     minHeapSize = "1000m"
     maxHeapSize = "1750m"
@@ -358,6 +357,22 @@ task integrationRail(type: Test, dependsOn: compileJava) {
     useJUnitPlatform {
         includeTags "TrainTest"
     }
+    filter {
+        includeTestsMatching "com.tramchester.integration.*"
+    }
+    testLogging {
+        exceptionFormat "full" // default is "short"
+        events "passed", "skipped", "failed", "started", "standardError" //, "standardOut"
+    }
+}
+
+task integrationRailProfile(type: Test, dependsOn: compileJava) {
+    minHeapSize = "1000m"
+    maxHeapSize = "3000m"
+    useJUnitPlatform {
+        includeTags "TrainTest"
+    }
+    jvmArgs '-agentpath:/home/ianc/dev/tools/visualvm_213/visualvm/lib/deployed/jdk16/linux-amd64/libprofilerinterface.so=/home/ianc/dev/tools/visualvm_213/visualvm/lib,5140'
     filter {
         includeTestsMatching "com.tramchester.integration.*"
     }
@@ -569,9 +584,11 @@ task uploadApp(type: S3Upload, dependsOn:copyIntoUploadDir) {
     sourceDir = 'build/distributions/uploadDir'
 }
 
+// https://data.atoc.org/member-area
+
 task uploadRailToS3(type: S3Upload) {
-    key = 'railData/ttis313.zip'
-    file = 'data/rail/ttis313.zip'
+    key = 'railData/ttis411.zip'
+    file = 'data/rail/ttis411.zip'
     overwrite = false
 }
 

@@ -28,7 +28,7 @@ gtfsSourceConfig:
     addWalksForClosed: false
 remoteSources:
   - name: rail
-    dataURL: s3://tramchester2dist/railData/ttis285.zip
+    dataURL: s3://tramchester2dist/railData/ttis411.zip
     dataCheckURL: ""
     dataPath: data/rail
     filename: rail_data.zip

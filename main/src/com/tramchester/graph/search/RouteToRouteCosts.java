@@ -89,6 +89,7 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
    public void stop() {
         logger.info("stopping");
         index.clear();
+        costs.clear();
         logger.info("stopped");
    }
 
@@ -475,6 +476,12 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
             }
             return count;
         }
+
+        public void clear() {
+            for (int i = 0; i < numberOfRoutes; i++) {
+                rows[i].clear();
+            }
+        }
     }
 
     private static class Costs {
@@ -517,6 +524,12 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
 
         public CostsForDegree costsFor(int currentDegree) {
             return costsForDegree[currentDegree];
+        }
+
+        public void clear() {
+            for (int degree = 1; degree < maxDepth; degree++) {
+                costsForDegree[degree].clear();
+            }
         }
     }
 

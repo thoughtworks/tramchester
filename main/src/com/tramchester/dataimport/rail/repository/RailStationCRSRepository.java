@@ -6,6 +6,7 @@ import com.tramchester.domain.places.Station;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.annotation.PreDestroy;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -19,6 +20,14 @@ public class RailStationCRSRepository implements CRSRepository {
     public RailStationCRSRepository() {
         toStation = new HashMap<>();
         toCrs = new HashMap<>();
+    }
+
+    @PreDestroy
+    public void stop() {
+        logger.info("Stopping");
+        toCrs.clear();
+        toStation.clear();
+        logger.info("Stopped");
     }
 
     public void putCRS(Station station, String crs) {

@@ -26,7 +26,7 @@ rail:
   modes: [ Train, RailReplacementBus ]
 remoteSources:
   - name: rail
-    dataURL: ${RAIL_DATAURL:-s3://tramchester2dist/railData/ttis285.zip}
+    dataURL: ${RAIL_DATAURL:-s3://tramchester2dist/railData/ttis411.zip}
     dataCheckURL: ""
     dataPath: data/rail
     filename: rail_data.zip

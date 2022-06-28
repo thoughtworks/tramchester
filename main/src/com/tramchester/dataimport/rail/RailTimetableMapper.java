@@ -7,7 +7,6 @@ import com.tramchester.dataimport.rail.records.reference.TrainCategory;
 import com.tramchester.dataimport.rail.records.reference.TrainStatus;
 import com.tramchester.dataimport.rail.reference.TrainOperatingCompanies;
 import com.tramchester.domain.*;
-import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.input.MutableTrip;
@@ -586,9 +585,13 @@ public class RailTimetableMapper {
 
             if (!filter.isActive()) {
                 if (callingRecords.size() != intermediates.size()) {
-                    logger.warn(format("Did not match all calling points (got %s of %s) for %s loaded: %s",
+                    Set<String> missing = callingRecords.stream().
+                            filter(record -> !isLoadedStation(record)).
+                            map(IntermediateLocation::getTiplocCode).
+                            collect(Collectors.toSet());
+                    logger.warn(format("Did not match all calling points (got %s of %s) for %s Missing: %s",
                             intermediates.size(), callingRecords.size(), rawService.basicScheduleRecord,
-                            HasId.asIds(intermediates)));
+                            missing));
                 }
             }
 

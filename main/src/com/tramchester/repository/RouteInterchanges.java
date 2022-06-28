@@ -20,6 +20,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
 import javax.inject.Inject;
 import java.time.Duration;
 import java.time.Instant;
@@ -59,27 +60,23 @@ public class RouteInterchanges {
         logger.info("started");
     }
 
+    @PreDestroy
+    public void stop() {
+        logger.info("Stopping");
+        interchangesForRoute.clear();
+        routeStationToInterchangeCost.clear();
+        logger.info("Stopped");
+    }
+
     private void populateRouteStationToFirstInterchangeByRouteStation() {
         final Set<RouteStation> routeStations = stationRepository.getRouteStations();
         logger.info("Populate for first interchange " + routeStations.size() + " route stations");
-//        try(TimedTransaction timedTransaction = new TimedTransaction(graphDatabase, logger, "routeStationToInterchange")) {
-//            routeStationToInterchangeCost = routeStations.stream().
-//                    collect(Collectors.toMap(routeStation -> routeStation,
-//                            routeStation -> lowestCostBetween(timedTransaction.transaction(), routeStation)));
-//        }
+
         routeStationToInterchangeCost = new HashMap<>();
         try(TimedTransaction timedTransaction = new TimedTransaction(graphDatabase, logger, "populateForRoutes")) {
             routeRepository.getRoutes().forEach(route -> populateForRoute(timedTransaction.transaction(), route));
         }
     }
-
-//    private int lowestCostBetween(Transaction txn, RouteStation routeStation) {
-//        int cost = lowestCostInterchangeSameRoute(txn, routeStation);
-//        if (cost<0) {
-//            return Integer.MAX_VALUE;
-//        }
-//        return cost;
-//    }
 
     private void populateRouteToInterchangeMap() {
         try (Timing ignored = new Timing(logger,"Populate interchanges for routes")) {
@@ -104,14 +101,6 @@ public class RouteInterchanges {
         }
         return Duration.ofSeconds(-999);
     }
-
-
-//    public int lowestCostInterchangeSameRoute(Transaction txn, RouteStation routeStation) {
-//        if (interchangeRepository.isInterchange(routeStation.getStation())) {
-//            return 0;
-//        }
-//        return  findCostToInterchangeB(txn, routeStation);
-//    }
 
     private void populateForRoute(Transaction txn, Route route) {
 
@@ -175,9 +164,6 @@ public class RouteInterchanges {
     }
 
     private Duration totalDuration(Path path) {
-//        return Streams.stream(path.relationships()).
-//                filter(relationship -> relationship.hasProperty("cost")).
-//                mapToInt(GraphProps::getCost).sum();
 
         return Streams.stream(path.relationships()).
                 filter(relationship -> relationship.hasProperty("cost")).

@@ -191,7 +191,7 @@ public class RailRouteCalculatorTest {
 
         // TODO takes a *long* time to eliminate the first journey option. > 11 seconds
 
-        TramTime travelTime = TramTime.of(11,4);
+        TramTime travelTime = TramTime.of(11,40);
 
         JourneyRequest journeyRequest = new JourneyRequest(new TramServiceDate(when), travelTime, false, 3,
                 Duration.ofMinutes(3*60), 2, getRequestedModes());

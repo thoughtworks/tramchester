@@ -37,6 +37,7 @@ public class StopCallRepository implements ReportsCacheStats {
     private final StationRepository stationRepository;
     private final ServiceRepository serviceRepository;
     private final GraphFilterActive graphFilter;
+
     private final Map<Station, Set<StopCall>> stopCalls;
     private final Cache<CacheKey, Costs> cachedCosts;
 
@@ -89,8 +90,10 @@ public class StopCallRepository implements ReportsCacheStats {
 
     @PreDestroy
     public void stop() {
+        logger.info("Stopping");
         stopCalls.clear();
         cachedCosts.cleanUp();
+        logger.info("Stopped");
     }
 
     // visualisation of frequency support

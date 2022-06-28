@@ -34,15 +34,15 @@ public class RecordHelper {
      */
     public static String extract(String text, int begin, int end) {
         final int length = text.length();
-        if (begin> length) {
-            logger.warn(format("Record length too short was %s but looking for substring(%s,%s) in '%s'",
+        if ((begin-1) > length) {
+            logger.warn(format("Record length too short (begin) was %s but looking for substring(%s,%s) in '%s'",
                     length, begin, end, text));
             return "";
         }
-        if (end> length) {
-            logger.warn(format("Record length too short was %s but looking for substring(%s,%s) in '%s'",
+        if ((end-1) > length) {
+            logger.warn(format("Record length too short (end) was %s but looking for substring(%s,%s) in '%s'",
                     length, begin, end, text));
-            return text.substring(begin-1, length -1).trim();
+            return text.substring(begin-1, length-1).trim();
         }
 
         return text.substring(begin-1, end-1).trim();

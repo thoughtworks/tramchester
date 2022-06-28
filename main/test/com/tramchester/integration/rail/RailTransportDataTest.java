@@ -22,10 +22,7 @@ import com.tramchester.repository.naptan.NaptanRepository;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.testTags.TrainTest;
 import org.jetbrains.annotations.NotNull;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 
 import java.io.Reader;
 import java.io.StringReader;
@@ -42,11 +39,11 @@ public class RailTransportDataTest {
     private RailStationCRSRepository crsRepository;
     private NaptanRepository naptanRepository;
     private GraphFilterActive filter;
-    private ProvidesNow providesNow;
     private LoadRailStationRecords loadRailStationRecords;
     private RailDataRecordFactory railDataRecordFactory;
     private UnzipFetchedData.Ready ready;
     private StationRepository stationRepository;
+    private TransportDataContainer dataContainer;
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
@@ -65,11 +62,18 @@ public class RailTransportDataTest {
         crsRepository = componentContainer.get(RailStationCRSRepository.class);
         naptanRepository = componentContainer.get(NaptanRepository.class);
         filter = componentContainer.get(GraphFilterActive.class);
-        providesNow = componentContainer.get(ProvidesNow.class);
+        ProvidesNow providesNow = componentContainer.get(ProvidesNow.class);
         loadRailStationRecords = componentContainer.get(LoadRailStationRecords.class);
         railDataRecordFactory = componentContainer.get(RailDataRecordFactory.class);
         ready = componentContainer.get(UnzipFetchedData.Ready.class);
         stationRepository = componentContainer.get(StationRepository.class);
+
+        dataContainer = new TransportDataContainer(providesNow, "testingOnly");
+    }
+
+    @AfterEach
+    void afterEachTestRuns() {
+        dataContainer.dispose();
     }
 
     @Test
@@ -96,7 +100,6 @@ public class RailTransportDataTest {
                 LISUNBURY 1633H1634      16341634         T                                    \s
                 LIUHALIFD 1635H1636      16361636         T                                    \s
                 LTSHEPRTN 1639 1641      TF                                                    \s""";
-
 
         final TransportData dataContainer = loadForTimetableData(text);
 
@@ -178,7 +181,10 @@ public class RailTransportDataTest {
         Trip trip = trips.iterator().next();
 
         StopCalls calls = trip.getStopCalls();
-        assertEquals(11, calls.numberOfCallingPoints(), calls.toString());
+
+        // NOTE: HOLME isn't actually a station, so it actually fine that it is missing in this case
+        // it should not be marked as 'T' for activity (dropoff and pickup)
+        assertEquals(11-1, calls.numberOfCallingPoints(), calls.toString());
     }
 
     @NotNull
@@ -190,7 +196,6 @@ public class RailTransportDataTest {
         RailTransportDataFromFiles.Loader loader = new RailTransportDataFromFiles.Loader(loadRailStationRecords, loadTimeTableRecords,
                 crsRepository, naptanRepository, railConfig, filter);
 
-        final TransportDataContainer dataContainer = new TransportDataContainer(providesNow, "testingOnly");
         loader.loadInto(dataContainer, config.getBounds());
         return dataContainer;
     }

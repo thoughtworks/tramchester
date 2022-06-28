@@ -159,7 +159,7 @@ public class RailTransportDataFromFilesTest {
     void shouldHaveExpectedAgencies() {
         Set<Agency> results = transportData.getAgencies();
 
-        assertEquals(29, results.size());
+        assertEquals(30, results.size());
 
         List<IdFor<Agency>> wrongNames = results.stream().
                 map(Agency::getId).
@@ -177,20 +177,20 @@ public class RailTransportDataFromFilesTest {
                 "Agency wrong for " +route.getId() + " got " + route.getAgency().getId() + " but needed " + agency.getId())));
     }
 
-    @Test
-    void shouldHaveNonZeroCostsForStopCallLegs() {
-
-        // was helping to diagnose legit issue, but that has tests elsewhere (RailRouteCostsTest) and is resolved
-        // todo likely to break on every data update, remove??
-
-        Set<Trip> allTrips = transportData.getTrips();
-        Set<StopCalls> tripWithZeroCostLegs = allTrips.stream().map(Trip::getStopCalls).
-                filter(stopCalls -> stopCalls.getLegs(false).stream().anyMatch(stopLeg -> stopLeg.getCost().isZero())).
-                collect(Collectors.toSet());
-
-        assertEquals(69, tripWithZeroCostLegs.size(), tripWithZeroCostLegs.toString());
-
-    }
+//    @Test
+//    void shouldHaveNonZeroCostsForStopCallLegs() {
+//
+//        // was helping to diagnose legit issue, but that has tests elsewhere (RailRouteCostsTest) and is resolved
+//        // todo likely to break on every data update, remove??
+//
+//        Set<Trip> allTrips = transportData.getTrips();
+//        Set<StopCalls> tripWithZeroCostLegs = allTrips.stream().map(Trip::getStopCalls).
+//                filter(stopCalls -> stopCalls.getLegs(false).stream().anyMatch(stopLeg -> stopLeg.getCost().isZero())).
+//                collect(Collectors.toSet());
+//
+//        assertEquals(69, tripWithZeroCostLegs.size(), tripWithZeroCostLegs.toString());
+//
+//    }
 
     @Disabled("now filtering out stations in Ireland etc")
     @Test
@@ -235,8 +235,8 @@ public class RailTransportDataFromFilesTest {
         assertEquals(GTFSPickupDropoffType.None, firstStopCall.getDropoffType());
         assertEquals(GTFSPickupDropoffType.Regular, firstStopCall.getPickupType());
 
-        final int expectedCalls = 6;
-        final int expectedPassedStops = 21;
+        final int expectedCalls = 8;
+        final int expectedPassedStops = 19;
 
         assertEquals(expectedCalls, stops.numberOfCallingPoints(),
                 "wrong number of stops " + HasId.asIds(stops.getStationSequence(false)));
@@ -377,7 +377,7 @@ public class RailTransportDataFromFilesTest {
 
         assertEquals(routes.size(), uniqueCallingPoints.size());
 
-        assertEquals(47, routes.size(), routes.toString());
+        assertEquals(31, routes.size(), routes.toString());
     }
 
     @Test
@@ -391,9 +391,10 @@ public class RailTransportDataFromFilesTest {
     @Test
     void shouldHaveSaneServiceStartAndFinishTimes() {
         Set<Service> allServices = transportData.getServices();
-        Set<Service> badTimings = allServices.stream().filter(svc -> svc.getStartTime().isAfter(svc.getFinishTime())).
+        Set<Service> badTimings = allServices.stream().
+                filter(svc -> svc.getStartTime().isAfter(svc.getFinishTime())).
                 collect(Collectors.toSet());
-        assertTrue(badTimings.isEmpty());
+        assertTrue(badTimings.isEmpty(), badTimings.toString());
     }
 
     @Test
@@ -417,7 +418,8 @@ public class RailTransportDataFromFilesTest {
                 filter(route -> route.getTransportMode()!=Ship).collect(Collectors.toSet());
 
         for (Route route : notShips) {
-            List<StopCalls.StopLeg> over = route.getTrips().stream().flatMap(trip -> trip.getStopCalls().getLegs(false).stream()).
+            List<StopCalls.StopLeg> over = route.getTrips().stream().
+                    flatMap(trip -> trip.getStopCalls().getLegs(false).stream()).
                     filter(stopLeg -> stopLeg.getCost().compareTo(Duration.ofMinutes(12*24)) > 0).
                     collect(Collectors.toList());
             assertTrue(over.isEmpty(), route + " " + over);

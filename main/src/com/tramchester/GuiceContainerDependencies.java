@@ -21,7 +21,8 @@ public class GuiceContainerDependencies implements ComponentContainer {
     private static final Logger logger = LoggerFactory.getLogger(GuiceContainerDependencies.class);
 
     private final Reflections reflections;
-    private final Injector injector;
+
+    private Injector injector;
 
     public GuiceContainerDependencies(List<AbstractModule> moduleList) {
         reflections = new Reflections(App.class.getPackageName());
@@ -86,6 +87,11 @@ public class GuiceContainerDependencies implements ComponentContainer {
     public void close() {
         logger.info("Dependencies close");
 
+        if (injector==null) {
+            logger.info("Already closed");
+            return;
+        }
+
         logger.info("Begin cache stats");
         CacheMetrics cacheMetrics = get(CacheMetrics.class);
         cacheMetrics.report();
@@ -106,6 +112,10 @@ public class GuiceContainerDependencies implements ComponentContainer {
             logger.info("Services Manager close");
             manager.close();
         }
+
+        // NOTE: Setting to null required since the test framework continues to hold a reference to this class and in
+        // turn the injector holds a ref to all singletons, with no way to clear those
+        injector = null;
     }
 
     public <C> C get(Class<C> klass) {

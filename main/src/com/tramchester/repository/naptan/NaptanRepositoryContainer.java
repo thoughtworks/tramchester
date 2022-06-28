@@ -41,10 +41,10 @@ public class NaptanRepositoryContainer implements NaptanRepository {
     private final NaptanDataCallbackImporter naptanDataImporter;
     private final NPTGRepository nptgRepository;
     private final TramchesterConfig config;
+
     private final IdMap<NaptanRecord> stops;
     private final IdMap<NaptanArea> areas;
     private final Map<IdFor<Station>, IdFor<NaptanRecord>> tiplocToAtco;
-    private final Map<IdFor<NaptanRecord>, List<NaptanXMLStopAreaRef>> pendingAreaIds;
 
     @Inject
     public NaptanRepositoryContainer(NaptanDataCallbackImporter naptanDataImporter, NPTGRepository nptgRepository, TramchesterConfig config) {
@@ -54,7 +54,6 @@ public class NaptanRepositoryContainer implements NaptanRepository {
         stops = new IdMap<>();
         areas = new IdMap<>();
         tiplocToAtco = new HashMap<>();
-        pendingAreaIds = new HashMap<>();
     }
 
     @PostConstruct
@@ -73,16 +72,19 @@ public class NaptanRepositoryContainer implements NaptanRepository {
         logger.info("started");
     }
 
-
     @PreDestroy
     private void stop() {
         logger.info("stopping");
         stops.clear();
         tiplocToAtco.clear();
+        areas.clear();
         logger.info("stopped");
     }
 
     private void loadStopDataForConfiguredArea() {
+
+        Map<IdFor<NaptanRecord>, List<NaptanXMLStopAreaRef>> pendingAreaIds = new HashMap<>();
+
         BoundingBox bounds = config.getBounds();
         logger.info("Loading data for " + bounds);
         Double range = config.getNearestStopForWalkingRangeKM();
@@ -97,7 +99,7 @@ public class NaptanRepositoryContainer implements NaptanRepository {
 
             @Override
             public void process(NaptanStopData element) {
-                consumeStop(element, bounds, margin);
+                consumeStop(element, bounds, margin, pendingAreaIds);
             }
         });
 
@@ -113,6 +115,7 @@ public class NaptanRepositoryContainer implements NaptanRepository {
                     collect(Collectors.toList());
             stops.get(recordId).setAreaCodes(active);
         });
+
         pendingAreaIds.clear();
         logger.info("Finished updating area codes");
 
@@ -128,13 +131,14 @@ public class NaptanRepositoryContainer implements NaptanRepository {
         }
     }
 
-    private void consumeStop(NaptanStopData stopData, BoundingBox bounds, MarginInMeters margin) {
+    private void consumeStop(NaptanStopData stopData, BoundingBox bounds, MarginInMeters margin,
+                             Map<IdFor<NaptanRecord>, List<NaptanXMLStopAreaRef>> pendingAreaIds) {
         if (!stopData.hasValidAtcoCode()) {
             return;
         }
 
         if (filterBy(bounds, margin, stopData)) {
-            NaptanRecord record = createRecord(stopData);
+            NaptanRecord record = createRecord(stopData, pendingAreaIds);
             stops.add(record);
 
             if (stopData.hasRailInfo()) {
@@ -152,7 +156,7 @@ public class NaptanRepositoryContainer implements NaptanRepository {
         return new NaptanArea(id, areaData.getName(), areaData.getGridPosition(), areaData.isActive(), areaData.getAreaType());
     }
 
-    private NaptanRecord createRecord(NaptanStopData original) {
+    private NaptanRecord createRecord(NaptanStopData original, Map<IdFor<NaptanRecord>, List<NaptanXMLStopAreaRef>> pendingAreaIds) {
         IdFor<NaptanRecord> id = original.getAtcoCode();
 
         String suburb = original.getSuburb();
@@ -176,12 +180,12 @@ public class NaptanRepositoryContainer implements NaptanRepository {
         // record pending areas, need to have loaded entire file before can properly check if active or not
         // see load method above
         List<NaptanXMLStopAreaRef> areaIds = stopAreaRefs.stream().
-                filter(NaptanXMLStopAreaRef::isActive). // filter out if marked in-active for *this* stop
+                filter(NaptanXMLStopAreaRef::isActive). // filter out if marked inactive for *this* stop
                 collect(Collectors.toList());
         pendingAreaIds.put(id, areaIds);
 
         if (areaIds.size()>1) {
-            logger.warn("Multiple stop area refs active for " + id);
+            logger.warn("Multiple stop area refs active for acto code: " + id);
         }
 
         return new NaptanRecord(id, original.getCommonName(), original.getGridPosition(), original.getLatLong(),
