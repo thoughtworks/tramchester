@@ -22,7 +22,7 @@ instanceDataUrl: http://169.254.169.254
 gtfsSourceConfig: []
 rail:
   dataPath: data/rail
-  version: 285
+  version: 411
   modes: [ Train, RailReplacementBus ]
 remoteSources:
   - name: rail

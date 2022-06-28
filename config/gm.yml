@@ -33,7 +33,7 @@ gtfsSourceConfig:
     stationClosures: []
 rail:
   dataPath: data/rail
-  version: 285
+  version: 411
   modes: [ Train, RailReplacementBus ]
 remoteSources:
   - name: rail

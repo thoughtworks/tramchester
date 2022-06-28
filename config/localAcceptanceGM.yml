@@ -47,6 +47,10 @@ remoteSources:
     dataCheckURL: ""
     dataPath: data/nptg
     filename: nptgcsv.zip
+rail:
+  dataPath: data/rail
+  version: 411
+  modes: [ Train, RailReplacementBus ]
 cacheFolder: data/cache
 calcTimeoutMillis: 3500
 bounds:

@@ -120,6 +120,9 @@ class ConfigMismatchTest {
         assertEquals(rail.getModes(), testRail.getModes());
 
         assertRailLiveData(appConfig.getOpenldbwsConfig(), testConfig.getOpenldbwsConfig());
+
+        checkRailDataVersionFor(appConfig);
+        checkRailDataVersionFor(testConfig);
     }
 
     private void assertRailLiveData(OpenLdbConfig fromFile, OpenLdbConfig testConfig) {
@@ -190,6 +193,18 @@ class ConfigMismatchTest {
 
         assertEquals(appConfig.getQueryInterval(), accTestConfig.getQueryInterval(), "getQueryInterval");
         assertEquals(appConfig.getNumberQueries(), accTestConfig.getNumberQueries(), "getNumberQueries");
+
+        checkRailDataVersionFor(appConfig);
+        checkRailDataVersionFor(accTestConfig);
+
+    }
+
+    private void checkRailDataVersionFor(AppConfiguration appConfig) {
+        String version = appConfig.getRailConfig().getVersion();
+        RemoteDataSourceConfig dataSourceConfig = appConfig.getDataRemoteSourceConfig(DataSourceID.rail);
+        String zip = String.format("ttis%s.zip", version);
+        assertTrue(dataSourceConfig.getDataUrl().contains(zip),
+                "Rail config and data source config mismatch? version:"+version+" Url: "+dataSourceConfig.getDataUrl());
     }
 
     private void validateCoreParameters(Collection<Category> excluded, AppConfiguration expected, AppConfiguration testConfig) {
