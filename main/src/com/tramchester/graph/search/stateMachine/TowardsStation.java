@@ -10,8 +10,8 @@ import org.neo4j.graphdb.Node;
 import java.time.Duration;
 
 public interface TowardsStation<T extends StationState> extends Towards<T> {
-    T fromNeighbour(StationState stationState, Node next, Duration cost, JourneyStateUpdate journeyState);
-    T fromStart(NotStartedState notStartedState, Node firstNode, Duration cost, JourneyStateUpdate journeyState);
+    T fromNeighbour(StationState stationState, Node next, Duration cost, JourneyStateUpdate journeyState, boolean onDiversion);
+    T fromStart(NotStartedState notStartedState, Node firstNode, Duration cost, JourneyStateUpdate journeyState, boolean alreadyOnDiversion, boolean onDiversion);
     T fromWalking(WalkingState walkingState, Node node, Duration cost, JourneyStateUpdate journeyState);
     T fromGrouped(GroupedStationState groupedStationState, Node next, Duration cost, JourneyStateUpdate journeyState);
 }

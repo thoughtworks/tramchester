@@ -38,25 +38,25 @@ public class PlatformStationState extends StationState {
         }
 
         public PlatformStationState fromPlatform(PlatformState platformState, Node stationNode, Duration cost,
-                                                 JourneyStateUpdate journeyState) {
+                                                 JourneyStateUpdate journeyState, boolean onDiversion) {
             final Iterable<Relationship> initial = stationNode.getRelationships(OUTGOING, WALKS_FROM_STATION, ENTER_PLATFORM,
                     NEIGHBOUR, GROUPED_TO_PARENT);
-            Stream<Relationship> relationships = addValidDiversions(stationNode, initial, platformState);
+            Stream<Relationship> relationships = addValidDiversions(stationNode, initial, platformState, onDiversion);
             return new PlatformStationState(platformState, filterExcludingEndNode(relationships, platformState), cost,
                     stationNode, journeyState);
         }
 
-        public PlatformStationState fromStart(NotStartedState notStartedState, Node stationNode, Duration cost, JourneyStateUpdate journeyState) {
+        public PlatformStationState fromStart(NotStartedState notStartedState, Node stationNode, Duration cost, JourneyStateUpdate journeyState, boolean alreadyOnDiversion, boolean onDiversion) {
             final Iterable<Relationship> initial = stationNode.getRelationships(OUTGOING, WALKS_FROM_STATION, ENTER_PLATFORM,
                     NEIGHBOUR, GROUPED_TO_PARENT);
-            Stream<Relationship> relationships = addValidDiversions(stationNode, initial, notStartedState);
+            Stream<Relationship> relationships = addValidDiversions(stationNode, initial, notStartedState, onDiversion);
             return new PlatformStationState(notStartedState, relationships, cost, stationNode, journeyState);
         }
 
         @Override
-        public PlatformStationState fromNeighbour(StationState stationState, Node stationNode, Duration cost, JourneyStateUpdate journeyState) {
+        public PlatformStationState fromNeighbour(StationState stationState, Node stationNode, Duration cost, JourneyStateUpdate journeyState, boolean onDiversion) {
             final Iterable<Relationship> initial = stationNode.getRelationships(OUTGOING, ENTER_PLATFORM, GROUPED_TO_PARENT);
-            Stream<Relationship> relationships = addValidDiversions(stationNode, initial, stationState);
+            Stream<Relationship> relationships = addValidDiversions(stationNode, initial, stationState, onDiversion);
             return new PlatformStationState(stationState, relationships, cost, stationNode, journeyState);
         }
 
@@ -98,15 +98,15 @@ public class PlatformStationState extends StationState {
     }
 
     @Override
-    protected TraversalState toNoPlatformStation(NoPlatformStationState.Builder toStation, Node node, Duration cost, JourneyStateUpdate journeyState) {
+    protected TraversalState toNoPlatformStation(NoPlatformStationState.Builder toStation, Node node, Duration cost, JourneyStateUpdate journeyState, boolean onDiversion) {
         journeyState.toNeighbour(stationNode, node, cost);
-        return toStation.fromNeighbour(this, node, cost, journeyState);
+        return toStation.fromNeighbour(this, node, cost, journeyState, onDiversion);
     }
 
     @Override
-    protected PlatformStationState toTramStation(Builder towardsStation, Node node, Duration cost, JourneyStateUpdate journeyState) {
+    protected PlatformStationState toTramStation(Builder towardsStation, Node node, Duration cost, JourneyStateUpdate journeyState, boolean onDiversion) {
         journeyState.toNeighbour(stationNode, node, cost);
-        return towardsStation.fromNeighbour(this, node, cost, journeyState);
+        return towardsStation.fromNeighbour(this, node, cost, journeyState, onDiversion);
     }
 
     @Override

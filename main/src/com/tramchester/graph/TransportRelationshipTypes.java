@@ -38,7 +38,7 @@ public enum TransportRelationshipTypes implements RelationshipType {
 
     DIVERSION, // temporary link of some kind, usually a walk, only specific dates
     NEIGHBOUR, // stations within N meters, different transport modes
-    LINKED; // station to station by transport mode, supports network visualisation and analysis
+    LINKED; // station to station by transport mode, supports diversions, network visualisation and analysis
 
     private static final TransportRelationshipTypes[] forPlanning;
 

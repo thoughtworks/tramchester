@@ -88,9 +88,9 @@ public class RouteStationStateEndTrip extends RouteStationState {
     }
 
     @Override
-    protected TraversalState toNoPlatformStation(NoPlatformStationState.Builder towardsStation, Node node, Duration cost, JourneyStateUpdate journeyState) {
+    protected TraversalState toNoPlatformStation(NoPlatformStationState.Builder towardsStation, Node node, Duration cost, JourneyStateUpdate journeyState, boolean onDiversion) {
         leaveVehicle(journeyState);
-        return towardsStation.fromRouteStation(this, node, cost, journeyState);
+        return towardsStation.fromRouteStation(this, node, cost, journeyState, onDiversion);
     }
 
     @Override

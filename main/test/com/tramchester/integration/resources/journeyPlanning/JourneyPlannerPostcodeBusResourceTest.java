@@ -28,7 +28,6 @@ import java.util.stream.Collectors;
 import static org.junit.jupiter.api.Assertions.*;
 
 @BusTest
-@DisabledIfEnvironmentVariable(named = "CI", matches = "true")
 @ExtendWith(DropwizardExtensionsSupport.class)
 class JourneyPlannerPostcodeBusResourceTest {
 

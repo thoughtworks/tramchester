@@ -35,7 +35,6 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 @TrainTest
-@DisabledIfEnvironmentVariable(named = "CI", matches = "true")
 class SubGraphAroundKnutsfordRailTest {
     private static ComponentContainer componentContainer;
     private static GraphDatabase database;

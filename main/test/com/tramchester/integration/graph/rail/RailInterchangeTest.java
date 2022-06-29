@@ -25,7 +25,6 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @TrainTest
-@DisabledIfEnvironmentVariable(named = "CI", matches = "true")
 public class RailInterchangeTest {
     private static GuiceContainerDependencies componentContainer;
     private InterchangeRepository interchangeRepository;

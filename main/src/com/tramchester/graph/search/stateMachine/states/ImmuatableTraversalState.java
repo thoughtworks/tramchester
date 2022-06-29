@@ -11,12 +11,8 @@ public interface ImmuatableTraversalState {
     @Deprecated
     Duration getTotalCost();
 
-//    @Deprecated
-//    TraversalState nextState(Set<GraphLabel> nodeLabels, Node node,
-//                             JourneyStateUpdate journeyState, int cost);
-
     Duration getTotalDuration();
 
     TraversalState nextState(Set<GraphLabel> nodeLabels, Node node,
-                             JourneyStateUpdate journeyState, Duration duration);
+                             JourneyStateUpdate journeyState, Duration duration, boolean alreadyOnDiversion);
 }

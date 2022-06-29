@@ -28,7 +28,6 @@ import static com.tramchester.testSupport.reference.BusStations.Composites.Stock
 import static org.junit.jupiter.api.Assertions.*;
 
 @BusTest
-@DisabledIfEnvironmentVariable(named = "CI", matches = "true")
 class BusRouteCostCalculatorTest {
     private static ComponentContainer componentContainer;
 

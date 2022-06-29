@@ -25,7 +25,6 @@ import static com.tramchester.testSupport.reference.BusStations.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 @BusTest
-@DisabledIfEnvironmentVariable(named = "CI", matches = "true")
 class InterchangesBusTest {
     private static ComponentContainer componentContainer;
     private InterchangeRepository interchangeRepository;

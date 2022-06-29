@@ -22,7 +22,6 @@ import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.*;
 
 @TrainTest
-@DisabledIfEnvironmentVariable(named = "CI", matches = "true")
 class TrainDeparturesDataFetcherTest {
     private static GuiceContainerDependencies componentContainer;
     private TrainDeparturesDataFetcher dataFetcher;

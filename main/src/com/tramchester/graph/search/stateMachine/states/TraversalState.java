@@ -54,7 +54,7 @@ public abstract class TraversalState implements ImmuatableTraversalState {
     }
 
     public TraversalState nextState(Set<GraphLabel> nodeLabels, Node node,
-                                    JourneyStateUpdate journeyState, Duration cost) {
+                                    JourneyStateUpdate journeyState, Duration cost, boolean alreadyOnDiversion) {
 
         boolean isInterchange = nodeLabels.contains(GraphLabel.INTERCHANGE);
         boolean hasPlatforms = nodeLabels.contains(GraphLabel.HAS_PLATFORMS);
@@ -78,7 +78,7 @@ public abstract class TraversalState implements ImmuatableTraversalState {
             case MINUTE -> { return toMinute(builders.getTowardsMinute(from), node, cost, journeyState); }
             case HOUR -> { return toHour(builders.getTowardsHour(from), node, cost); }
             case GROUPED -> { return toGrouped(node, cost, journeyState); }
-            case STATION -> { return toStation(node, journeyState, cost, hasPlatforms); }
+            case STATION -> { return toStation(node, journeyState, cost, hasPlatforms, alreadyOnDiversion); }
             case SERVICE -> { return toService(builders.getTowardsService(from), node, cost); }
             case PLATFORM -> { return toPlatform(builders.getTowardsPlatform(from), node, cost, journeyState); }
             case QUERY_NODE -> { return toWalk(builders.getTowardsWalk(from), node, cost, journeyState);}
@@ -107,7 +107,7 @@ public abstract class TraversalState implements ImmuatableTraversalState {
         throw new RuntimeException("No such transition at " + this.getClass());
     }
 
-    protected TraversalState toNoPlatformStation(NoPlatformStationState.Builder towardsNoPlatformStation, Node node, Duration cost, JourneyStateUpdate journeyState) {
+    protected TraversalState toNoPlatformStation(NoPlatformStationState.Builder towardsNoPlatformStation, Node node, Duration cost, JourneyStateUpdate journeyState, boolean onDiversion) {
         throw new RuntimeException("No such transition at " + this.getClass());
     }
 
@@ -119,7 +119,7 @@ public abstract class TraversalState implements ImmuatableTraversalState {
         throw new RuntimeException("No such transition at " + this.getClass());
     }
 
-    protected PlatformStationState toTramStation(PlatformStationState.Builder towardsStation, Node node, Duration cost, JourneyStateUpdate journeyState) {
+    protected PlatformStationState toTramStation(PlatformStationState.Builder towardsStation, Node node, Duration cost, JourneyStateUpdate journeyState, boolean onDiversion) {
         throw new RuntimeException("No such transition at " + this.getClass());
     }
 
@@ -141,15 +141,15 @@ public abstract class TraversalState implements ImmuatableTraversalState {
         throw new RuntimeException("No such transition at " + this.getClass());
     }
 
-    private TraversalState toPlatformedStation(Node node, JourneyStateUpdate journeyState, Duration cost) {
-        return toTramStation(builders.getTowardsStation(this.getClass()), node, cost, journeyState);
+    private TraversalState toPlatformedStation(Node node, JourneyStateUpdate journeyState, Duration cost, boolean onDiversion) {
+        return toTramStation(builders.getTowardsStation(this.getClass()), node, cost, journeyState, onDiversion);
     }
 
-    private TraversalState toStation(Node node, JourneyStateUpdate journeyState, Duration cost, boolean hasPlatforms) {
+    private TraversalState toStation(Node node, JourneyStateUpdate journeyState, Duration cost, boolean hasPlatforms, boolean onDiversion) {
         if (hasPlatforms) {
-            return toPlatformedStation(node, journeyState, cost);
+            return toPlatformedStation(node, journeyState, cost, onDiversion);
         } else {
-            return toNoPlatformStation(builders.getTowardsNoPlatformStation(this.getClass()), node, cost, journeyState);
+            return toNoPlatformStation(builders.getTowardsNoPlatformStation(this.getClass()), node, cost, journeyState, onDiversion);
         }
     }
 
@@ -199,7 +199,7 @@ public abstract class TraversalState implements ImmuatableTraversalState {
     }
 
     /***
-     * Use duration
+     * Use getTotalDuration()
      */
     @Deprecated
     public Duration getTotalCost() {
@@ -207,7 +207,7 @@ public abstract class TraversalState implements ImmuatableTraversalState {
     }
 
     /***
-     * Use duration
+     * Use getCurrentDuration()
      */
     @Deprecated
     private Duration getCurrentCost() {

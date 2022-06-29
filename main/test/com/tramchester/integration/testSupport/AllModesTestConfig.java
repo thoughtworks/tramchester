@@ -11,6 +11,7 @@ import com.tramchester.integration.testSupport.tfgm.TFGMGTFSSourceTestConfig;
 import com.tramchester.integration.testSupport.tfgm.TFGMRemoteDataSourceConfig;
 import com.tramchester.testSupport.AdditionalTramInterchanges;
 import com.tramchester.testSupport.TestEnv;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.condition.DisabledIfEnvironmentVariable;
 
 import java.nio.file.Path;
@@ -18,7 +19,7 @@ import java.util.*;
 
 import static com.tramchester.domain.reference.TransportMode.*;
 
-@DisabledIfEnvironmentVariable(named = "CI", matches = "true")
+@Disabled("All mode planning is WIP")
 public class AllModesTestConfig extends IntegrationTestConfig {
 
     private TFGMRemoteDataSourceConfig remoteTfgmSourceConfig;

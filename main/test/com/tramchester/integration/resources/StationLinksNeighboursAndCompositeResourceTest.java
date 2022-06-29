@@ -34,7 +34,6 @@ import static com.tramchester.testSupport.reference.TramStations.Shudehill;
 import static org.junit.jupiter.api.Assertions.*;
 
 @BusTest
-@DisabledIfEnvironmentVariable(named = "CI", matches = "true")
 @ExtendWith(DropwizardExtensionsSupport.class)
 class StationLinksNeighboursAndCompositeResourceTest {
 

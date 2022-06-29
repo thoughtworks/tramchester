@@ -31,7 +31,6 @@ import static java.lang.String.format;
 import static org.junit.jupiter.api.Assertions.*;
 
 @TrainTest
-@DisabledIfEnvironmentVariable(named = "CI", matches = "true")
 public class RouteInterchangesRailTest {
     private static ComponentContainer componentContainer;
     private RouteInterchanges routeInterchanges;

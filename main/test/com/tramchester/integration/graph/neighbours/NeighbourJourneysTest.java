@@ -41,7 +41,6 @@ import static com.tramchester.testSupport.reference.TramStations.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 @BusTest
-@DisabledIfEnvironmentVariable(named = "CI", matches = "true")
 public class NeighbourJourneysTest {
     private StationRepository stationRepository;
     private static RouteCalculatorTestFacade routeCalculator;

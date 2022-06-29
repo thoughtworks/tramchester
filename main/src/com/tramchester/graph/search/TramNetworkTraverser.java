@@ -153,21 +153,24 @@ public class TramNetworkTraverser implements PathExpander<JourneyState> {
         final JourneyState journeyStateForChildren = JourneyState.fromPrevious(currentState);
 
         Duration cost = Duration.ZERO;
-        if (path.lastRelationship()!=null) {
-            cost = nodeContentsRepository.getCost(path.lastRelationship());
-            //if (cost.compareTo(Duration.ZERO) > 0) {
+        Relationship lastRelationship = path.lastRelationship();
+        boolean alreadyOnDiversion = false;
+        if (lastRelationship !=null) {
+            cost = nodeContentsRepository.getCost(lastRelationship);
             if (Durations.greaterThan(cost, Duration.ZERO)) {
                 final Duration totalCost = currentState.getTotalDurationSoFar();
                 Duration total = totalCost.plus(cost);
                 journeyStateForChildren.updateTotalCost(total);
-                //journeyStateForChildren.updateTotalCost(total);
+            }
+            if (lastRelationship.isType(DIVERSION)) {
+                alreadyOnDiversion = true;
             }
         }
 
         final EnumSet<GraphLabel> labels = nodeContentsRepository.getLabels(endNode);
 
         final TraversalState traversalStateForChildren = traversalState.nextState(labels, endNode,
-                journeyStateForChildren, cost);
+                journeyStateForChildren, cost, alreadyOnDiversion);
 
         journeyStateForChildren.updateTraversalState(traversalStateForChildren);
         graphState.setState(journeyStateForChildren);

@@ -21,7 +21,6 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
 
 @TrainTest
-@DisabledIfEnvironmentVariable(named = "CI", matches = "true")
 public class TrainDeparturesRepositoryTest {
 
     private static GuiceContainerDependencies componentContainer;

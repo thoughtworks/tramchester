@@ -11,10 +11,7 @@ import com.tramchester.repository.TransportData;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.BusStations;
 import com.tramchester.testSupport.reference.TramStations;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.condition.DisabledIfEnvironmentVariable;
 
 import static com.tramchester.domain.reference.TransportMode.*;
@@ -23,10 +20,9 @@ import static com.tramchester.integration.repository.buses.TransportDataFromFile
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-@DisabledIfEnvironmentVariable(named = "CI", matches = "true")
+@Disabled("All modes is WIP currently")
 public class TransportDataFromFilesAllModesTest {
 
-    public static final int TGFM_BUS_AGENCIES = 41;
     private static ComponentContainer componentContainer;
 
     private TransportData transportData;

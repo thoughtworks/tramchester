@@ -19,7 +19,6 @@ import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.TramStations;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.*;
-import org.junit.jupiter.api.condition.DisabledIfEnvironmentVariable;
 import org.neo4j.graphdb.Transaction;
 
 import java.time.Duration;
@@ -33,7 +32,6 @@ import java.util.stream.Collectors;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-@DisabledIfEnvironmentVariable(named = "CI", matches = "true")
 class RouteCalculatorCloseStationsTest {
     // Note this needs to be > time for whole test fixture, see note below in @After
     private static final int TXN_TIMEOUT = 5*60;
@@ -50,7 +48,7 @@ class RouteCalculatorCloseStationsTest {
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
-        TramchesterConfig config = new IntegrationTramClosedStationsTestConfig("closed_shudehill_int_test_tram.db", closedStations);
+        TramchesterConfig config = new IntegrationTramClosedStationsTestConfig("closed_shudehill_int_test_tram.db", closedStations, true);
         componentContainer = new ComponentsBuilder().create(config, TestEnv.NoopRegisterMetrics());
         componentContainer.initialise();
         database = componentContainer.get(GraphDatabase.class);

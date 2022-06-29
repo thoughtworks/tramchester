@@ -32,7 +32,6 @@ import static org.neo4j.graphdb.Direction.INCOMING;
 import static org.neo4j.graphdb.Direction.OUTGOING;
 
 @BusTest
-@DisabledIfEnvironmentVariable(named = "CI", matches = "true")
 class AddNeighboursGraphBuilderTest {
 
     private static GraphDatabase graphDatabase;

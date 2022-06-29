@@ -25,7 +25,6 @@ import java.util.concurrent.TimeUnit;
 import static com.tramchester.domain.reference.TransportMode.Train;
 
 @TrainTest
-@DisabledIfEnvironmentVariable(named = "CI", matches = "true")
 @Disabled("currently take too long")
 class RailRouteCalculatorCombinationTests {
 

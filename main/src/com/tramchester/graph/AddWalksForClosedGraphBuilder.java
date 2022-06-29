@@ -1,5 +1,6 @@
 package com.tramchester.graph;
 
+import com.google.common.collect.Streams;
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.config.GTFSSourceConfig;
 import com.tramchester.config.TramchesterConfig;
@@ -16,10 +17,8 @@ import com.tramchester.graph.graphbuild.StationsAndLinksGraphBuilder;
 import com.tramchester.mappers.Geography;
 import com.tramchester.metrics.TimedTransaction;
 import com.tramchester.repository.StationRepository;
-import org.neo4j.graphdb.Node;
-import org.neo4j.graphdb.Relationship;
-import org.neo4j.graphdb.ResourceIterator;
-import org.neo4j.graphdb.Transaction;
+import org.apache.commons.lang3.tuple.Pair;
+import org.neo4j.graphdb.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,6 +32,7 @@ import java.util.stream.Collectors;
 import static com.tramchester.domain.id.HasId.asIds;
 import static com.tramchester.graph.GraphPropertyKey.SOURCE_NAME_PROP;
 import static com.tramchester.graph.TransportRelationshipTypes.DIVERSION;
+import static java.lang.String.format;
 
 @LazySingleton
 public class AddWalksForClosedGraphBuilder extends CreateNodesAndRelationships {
@@ -121,20 +121,46 @@ public class AddWalksForClosedGraphBuilder extends CreateNodesAndRelationships {
                 forEach(closedStationId -> {
                     Station closedStation = stationRepository.getStationById(closedStationId);
                     if (closedStation.getGridPosition().isValid()) {
-                        Set<Station> nearbyOpenStations = stationLocations.nearestStationsUnsorted(closedStation, range).
+                        Set<Station> linkedStations = getStationsLinkedTo(closedStation);
+
+                        Set<Station> withinRange = stationLocations.nearestStationsUnsorted(closedStation, range).collect(Collectors.toSet());
+
+                        Set<Station> nearbyOpenStations =
+                                linkedStations.stream().
                                 filter(filter::shouldInclude).
                                 filter(nearby -> !closedStationIds.contains(nearby.getId())).
+                                filter(withinRange::contains).
                                 collect(Collectors.toSet());
-                        createWalksInDB(closedStation, nearbyOpenStations, closure);
+
+                        createWalksInDB(closedStation, nearbyOpenStations, closure, range);
                     }
                 });
         });
     }
 
-    private void createWalksInDB(Station closedStation, Set<Station> nearby, StationClosure closure) {
-        try(TimedTransaction timedTransaction = new TimedTransaction(database, logger, "create walks for " +closedStation.getId())) {
+    private Set<Station> getStationsLinkedTo(Station closedStation) {
+        try(TimedTransaction timedTransaction = new TimedTransaction(database, logger, "find linked for " +closedStation.getId())) {
             Transaction txn = timedTransaction.transaction();
-            addWalkRelationships(txn, filter, closedStation, nearby, closure);
+            Node stationNode = graphQuery.getStationNode(txn, closedStation);
+
+            Iterable<Relationship> linkedRelations = stationNode.getRelationships(Direction.OUTGOING, TransportRelationshipTypes.LINKED);
+            return Streams.stream(linkedRelations).
+                    filter(relationship -> GraphProps.getLabelsFor(relationship.getEndNode()).contains(GraphLabel.STATION)).
+                    map(relationship -> GraphProps.getStationId(relationship.getEndNode())).
+                    map(stationRepository::getStationById).
+                    collect(Collectors.toSet());
+
+        }
+    }
+
+    private void createWalksInDB(Station closedStation, Set<Station> linkedNearby, StationClosure closure, MarginInMeters range) {
+        try(TimedTransaction timedTransaction = new TimedTransaction(database, logger, "create diversions for " +closedStation.getId())) {
+            Transaction txn = timedTransaction.transaction();
+            addDiversionRelationshipsToAndFromClosed(txn, closedStation, linkedNearby, closure);
+            int added = addDiversionRelationshipsToAndFromLinked(txn, linkedNearby, closure, range);
+            if (added==0) {
+                logger.warn("Did not create any diversions around closure of " + closedStation.getId());
+            }
             timedTransaction.commit();
         }
     }
@@ -173,8 +199,8 @@ public class AddWalksForClosedGraphBuilder extends CreateNodesAndRelationships {
         }
     }
 
-    private void addWalkRelationships(Transaction txn, GraphFilter filter, Station closedStation, Set<Station> others,
-                                      StationClosure closure) {
+    private void addDiversionRelationshipsToAndFromClosed(Transaction txn, Station closedStation, Set<Station> others,
+                                                          StationClosure closure) {
         Node closedNode = graphQuery.getStationNode(txn, closedStation);
         if (closedNode==null) {
             String msg = "Could not find database node for from: " + closedStation.getId();
@@ -182,13 +208,13 @@ public class AddWalksForClosedGraphBuilder extends CreateNodesAndRelationships {
             throw new RuntimeException(msg);
         }
 
-//        double mph = config.getWalkingMPH();
-        logger.info("Adding walk relations from closed " + closedStation.getId() + " to " + asIds(others));
+        logger.info("Adding Diversion relations to/from closed " + closedStation.getId() + " to/from " + asIds(others));
 
         others.stream().filter(filter::shouldInclude).forEach(otherStation -> {
 
-            //int cost = CoordinateTransforms.calcCostInMinutes(closedStation, otherStation, mph);
             Duration cost = geography.getWalkingDuration(closedStation, otherStation);
+
+            logger.info(format("Create diversion to/from %s and %s cost %s", closedStation.getId(), otherStation.getId(), cost));
 
             Node otherNode = graphQuery.getStationNode(txn, otherStation);
             if (otherNode==null) {
@@ -207,6 +233,38 @@ public class AddWalksForClosedGraphBuilder extends CreateNodesAndRelationships {
             GraphProps.setProperty(fromOther, closedStation);
 
         });
+    }
+
+    private int addDiversionRelationshipsToAndFromLinked(Transaction txn, Set<Station> nearbyStations, StationClosure closure, MarginInMeters range) {
+        Set<Pair<Station, Station>> toLinkViaDiversion = nearbyStations.stream().
+                flatMap(nearbyA -> nearbyStations.stream().map(nearbyB -> Pair.of(nearbyA, nearbyB))).
+                filter(pair -> !pair.getLeft().equals(pair.getRight())).
+                filter(pair -> range.within(geography.getDistanceBetweenInMeters(pair.getLeft(), pair.getRight()))).
+                collect(Collectors.toSet());
+
+        if (toLinkViaDiversion.isEmpty()) {
+            return 0;
+        }
+
+        logger.info("Create " + toLinkViaDiversion.size() + " diversions to/from stations");
+
+        toLinkViaDiversion.forEach(pair -> {
+            Station first = pair.getLeft();
+            Station second = pair.getRight();
+
+            Duration cost = geography.getWalkingDuration(first, second);
+
+            logger.info(format("Create diversion between %s and %s cost %s", first.getId(), second.getId(), cost));
+
+            Node firstNode = graphQuery.getStationNode(txn, first);
+            Node secondNode = graphQuery.getStationNode(txn, second);
+
+            Relationship relationship = createRelationship(firstNode, secondNode, DIVERSION);
+            setCommonProperties(relationship, cost, closure);
+            GraphProps.setProperty(relationship, second);
+        });
+
+        return toLinkViaDiversion.size();
     }
 
     private void setCommonProperties(Relationship relationship, Duration cost, StationClosure closure) {

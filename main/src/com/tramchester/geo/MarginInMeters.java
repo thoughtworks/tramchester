@@ -1,5 +1,10 @@
 package com.tramchester.geo;
 
+import tech.units.indriya.unit.Units;
+
+import javax.measure.Quantity;
+import javax.measure.quantity.Length;
+
 public class MarginInMeters {
     private final long meters;
 
@@ -20,6 +25,11 @@ public class MarginInMeters {
         return new MarginInMeters(Long.MIN_VALUE);
     }
 
+    /***
+     * Change this to use Quantity
+     * @return margin in meters
+     */
+    @Deprecated
     public long get() {
         return meters;
     }
@@ -29,5 +39,12 @@ public class MarginInMeters {
         return "MarginInMeters{" +
                 "meters=" + meters +
                 '}';
+    }
+
+    public boolean within(Quantity<Length> amount) {
+        Quantity<Length> amountInMeters = amount.to(Units.METRE);
+        Number value = amountInMeters.getValue();
+
+        return value.longValue() <= meters;
     }
 }

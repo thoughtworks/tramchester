@@ -31,7 +31,6 @@ import static com.tramchester.testSupport.TestEnv.assertMinutesEquals;
 import static org.junit.jupiter.api.Assertions.*;
 
 @TrainTest
-@DisabledIfEnvironmentVariable(named = "CI", matches = "true")
 public class StopCallRepositoryRailTest {
     private static ComponentContainer componentContainer;
 

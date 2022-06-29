@@ -21,7 +21,6 @@ import java.util.stream.Collectors;
 import static org.junit.jupiter.api.Assertions.*;
 
 @TrainTest
-@DisabledIfEnvironmentVariable(named = "CI", matches = "true")
 class InterchangesRailTest {
     private static ComponentContainer componentContainer;
     private static IntegrationRailTestConfig config;

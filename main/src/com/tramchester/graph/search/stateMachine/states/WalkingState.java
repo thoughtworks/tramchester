@@ -40,6 +40,7 @@ public class WalkingState extends TraversalState {
             if (towardsDest.isEmpty()) {
                 return new WalkingState(notStartedState, relationships, cost);
             } else {
+                // direct
                 return new WalkingState(notStartedState, towardsDest.stream(), cost);
             }
         }
@@ -66,14 +67,14 @@ public class WalkingState extends TraversalState {
 
     @Override
     protected PlatformStationState toTramStation(PlatformStationState.Builder towardsStation, Node node, Duration cost,
-                                                 JourneyStateUpdate journeyState) {
+                                                 JourneyStateUpdate journeyState, boolean onDiversion) {
         journeyState.endWalk(node);
         return towardsStation.fromWalking(this, node, cost, journeyState);
     }
 
     @Override
     protected TraversalState toNoPlatformStation(NoPlatformStationState.Builder towardsStation, Node node, Duration cost,
-                                                 JourneyStateUpdate journeyState) {
+                                                 JourneyStateUpdate journeyState, boolean onDiversion) {
         journeyState.endWalk(node);
         return towardsStation.fromWalking(this, node, cost, journeyState);
     }

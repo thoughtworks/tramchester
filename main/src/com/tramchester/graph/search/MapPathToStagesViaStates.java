@@ -106,7 +106,8 @@ public class MapPathToStagesViaStates implements PathToStages {
             } else {
                 Node node = (Node) entity;
                 Set<GraphLabel> labels = nodeContentsRepository.getLabels(node);
-                TraversalState next = previous.nextState(labels, node, mapStatesToStages, lastRelationshipCost);
+                boolean alreadyOnDiversion = false;
+                TraversalState next = previous.nextState(labels, node, mapStatesToStages, lastRelationshipCost, alreadyOnDiversion);
 
                 logger.debug("At state " + previous.getClass().getSimpleName() + " next is " + next.getClass().getSimpleName());
 

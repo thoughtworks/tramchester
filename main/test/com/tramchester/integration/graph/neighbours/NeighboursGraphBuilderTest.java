@@ -28,7 +28,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 @BusTest
-@DisabledIfEnvironmentVariable(named = "CI", matches = "true")
 class NeighboursGraphBuilderTest {
 
     private static GraphDatabase graphDatabase;

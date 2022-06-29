@@ -24,7 +24,6 @@ import static com.tramchester.domain.reference.TransportMode.Bus;
 @SuppressWarnings("JUnitTestMethodWithNoAssertions")
 @BusTest
 @Disabled("takes too long for this many of stations")
-@DisabledIfEnvironmentVariable(named = "CI", matches = "true")
 class RouteCalculatorKeyRoutesBusTest {
 
     private static ComponentContainer componentContainer;

@@ -100,8 +100,8 @@ public class PlatformState extends TraversalState implements NodeId {
     }
 
     @Override
-    protected PlatformStationState toTramStation(PlatformStationState.Builder towardsStation, Node node, Duration cost, JourneyStateUpdate journeyState) {
-        return towardsStation.fromPlatform(this, node, cost, journeyState);
+    protected PlatformStationState toTramStation(PlatformStationState.Builder towardsStation, Node node, Duration cost, JourneyStateUpdate journeyState, boolean onDiversion) {
+        return towardsStation.fromPlatform(this, node, cost, journeyState, onDiversion);
     }
 
     @Override

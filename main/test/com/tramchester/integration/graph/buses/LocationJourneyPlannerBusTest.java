@@ -33,7 +33,6 @@ import static com.tramchester.testSupport.reference.KnownLocations.nearKnutsford
 import static org.junit.jupiter.api.Assertions.assertFalse;
 
 @BusTest
-@DisabledIfEnvironmentVariable(named = "CI", matches = "true")
 class LocationJourneyPlannerBusTest {
     private static final int TXN_TIMEOUT = 5*60;
 

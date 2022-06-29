@@ -20,7 +20,6 @@ import org.junit.jupiter.api.condition.DisabledIfEnvironmentVariable;
 import static org.junit.jupiter.api.Assertions.*;
 
 @TrainTest
-@DisabledIfEnvironmentVariable(named = "CI", matches = "true")
 class FindStationsByNumberLinksTrainTest {
     private static ComponentContainer componentContainer;
     private FindStationsByNumberLinks discoverer;

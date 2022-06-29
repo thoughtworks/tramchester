@@ -7,12 +7,16 @@ import java.util.List;
 public class IntegrationTramClosedStationsTestConfig extends IntegrationTramTestConfig {
 
 
-    public IntegrationTramClosedStationsTestConfig(String dbName, List<StationClosure> closure) {
+    private final boolean planningEnabled;
+
+    public IntegrationTramClosedStationsTestConfig(String dbName, List<StationClosure> closure, boolean planningEnabled) {
         super(dbName,  closure);
+        this.planningEnabled = planningEnabled;
     }
 
-//    @Override
-//    public int getMaxNeighbourConnections() {
-//        return 3;
-//    }
+    @Override
+    public boolean getPlanningEnabled() {
+        return planningEnabled;
+    }
+
 }

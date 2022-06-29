@@ -29,7 +29,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 
 @BusTest
-@DisabledIfEnvironmentVariable(named = "CI", matches = "true")
 public class BusRouteToRouteCostsTest {
 
     private static ComponentContainer componentContainer;

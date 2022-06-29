@@ -34,7 +34,6 @@ import static org.junit.jupiter.api.Assertions.*;
 
 @TrainTest
 @ExtendWith(DropwizardExtensionsSupport.class)
-@DisabledIfEnvironmentVariable(named = "CI", matches = "true")
 class StationResourceRailTest {
 
     private static final IntegrationAppExtension appExtension =

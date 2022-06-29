@@ -105,7 +105,7 @@ public class RouteStationStateOnTrip extends RouteStationState implements NodeId
 
     @Override
     protected TraversalState toNoPlatformStation(NoPlatformStationState.Builder towardsNoPlatformStation, Node node, Duration cost,
-                                                 JourneyStateUpdate journeyState) {
+                                                 JourneyStateUpdate journeyState, boolean onDiversion) {
         leaveVehicle(journeyState, transportMode, "Unable to depart tram");
         return towardsNoPlatformStation.fromRouteStation(this, node, cost, journeyState);
     }

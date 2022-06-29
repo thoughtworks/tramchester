@@ -23,7 +23,6 @@ import static com.tramchester.testSupport.TestEnv.assertMinutesEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @TrainTest
-@DisabledIfEnvironmentVariable(named = "CI", matches = "true")
 public class RailRouteCostsTest {
     private static ComponentContainer componentContainer;
 

@@ -15,7 +15,7 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @TrainTest
-class ValidateTestRailStationIds {
+class ValidateTestRailStationIdsTest {
     private static ComponentContainer componentContainer;
     private StationRepository stationRepository;
 

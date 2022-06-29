@@ -39,7 +39,7 @@ import static com.tramchester.testSupport.reference.TramStations.Victoria;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 
-@DisabledIfEnvironmentVariable(named = "CI", matches = "true")
+@Disabled("All mode planning is WIP")
 public class AllModesJourneysTest {
     private static RouteCalculatorTestFacade routeCalculator;
     private static TramchesterConfig config;

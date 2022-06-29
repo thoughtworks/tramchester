@@ -24,7 +24,6 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-@DisabledIfEnvironmentVariable(named = "CI", matches = "true")
 @ExtendWith(DropwizardExtensionsSupport.class)
 public class StationResourceClosedStationTest {
     private final static TramServiceDate when = new TramServiceDate(TestEnv.testDay());
@@ -34,8 +33,9 @@ public class StationResourceClosedStationTest {
     private final static List<StationClosure> closedStations = Collections.singletonList(
             new StationClosureForTest(closedStation, when.getDate(), when.getDate().plusWeeks(1)));
 
+    // NOTE: planning disabled here
     private static final AppConfiguration config = new IntegrationTramClosedStationsTestConfig(
-            "closed_stpeters_int_test_tram.db", closedStations);
+            "closed_stpeters_int_test_tram.db", closedStations, false);
 
     private static final IntegrationAppExtension appExtension = new IntegrationAppExtension(App.class, config);
 

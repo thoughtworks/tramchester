@@ -22,7 +22,6 @@ import static com.tramchester.integration.testSupport.rail.RailStationIds.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @TrainTest
-@DisabledIfEnvironmentVariable(named = "CI", matches = "true")
 public class RouteToRouteCostsRailTest {
     private static ComponentContainer componentContainer;
 

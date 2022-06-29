@@ -23,7 +23,6 @@ import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
 
-@DisabledIfEnvironmentVariable(named = "CI", matches = "true")
 @ExtendWith(DropwizardExtensionsSupport.class)
 class JourneyPlannerPostcodeTramResourceTest {
 

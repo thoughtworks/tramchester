@@ -12,7 +12,6 @@ import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.condition.DisabledIfEnvironmentVariable;
 
 import java.util.Set;
 
@@ -20,8 +19,7 @@ import static com.tramchester.domain.reference.TransportMode.Bus;
 import static org.junit.jupiter.api.Assertions.*;
 
 @BusTest
-@DisabledIfEnvironmentVariable(named = "CI", matches = "true")
-class FindStationLinksTestBus {
+class FindStationLinksBusTest {
 
     private static ComponentContainer componentContainer;
     private FindStationLinks findStationLinks;

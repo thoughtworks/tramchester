@@ -13,20 +13,25 @@ import static com.tramchester.graph.TransportRelationshipTypes.DIVERSION;
 
 public abstract class StationStateBuilder {
 
-    protected Stream<Relationship> addValidDiversions(Node node, Iterable<Relationship> relationships, TraversalState traversalState) {
-        return addValidDiversions(node, Streams.stream(relationships), traversalState);
+    protected Stream<Relationship> addValidDiversions(Node node, Iterable<Relationship> relationships,
+                                                      TraversalState traversalState, boolean alreadyOnDiversion) {
+        return addValidDiversions(node, Streams.stream(relationships), traversalState, alreadyOnDiversion);
     }
 
 
-    public Stream<Relationship> addValidDiversions(Node node, Stream<Relationship> relationships, TraversalState traversalState) {
-        if (!node.hasRelationship(Direction.OUTGOING, DIVERSION)) {
-            return relationships;
+    public Stream<Relationship> addValidDiversions(Node node, Stream<Relationship> relationships,
+                                                   TraversalState traversalState, boolean alreadyOnDiversion) {
+
+        if ((!alreadyOnDiversion) && node.hasRelationship(Direction.OUTGOING, DIVERSION)) {
+            LocalDate queryDate = traversalState.traversalOps.getQueryDate();
+            Stream<Relationship> diversions = Streams.stream(node.getRelationships(Direction.OUTGOING, DIVERSION));
+            Stream<Relationship> validOnDate = diversions.
+                    filter(relationship -> !GraphProps.getStartDate(relationship).until(queryDate).isNegative()).
+                    filter(relationship -> !queryDate.until(GraphProps.getEndDate(relationship)).isNegative());
+            return Stream.concat(validOnDate, relationships);
         }
-        LocalDate queryDate = traversalState.traversalOps.getQueryDate();
-        Stream<Relationship> diversions = Streams.stream(node.getRelationships(Direction.OUTGOING, DIVERSION));
-        Stream<Relationship> validOnDate = diversions.
-                filter(relationship -> !GraphProps.getStartDate(relationship).until(queryDate).isNegative()).
-                filter(relationship -> !queryDate.until(GraphProps.getEndDate(relationship)).isNegative());
-        return Stream.concat(validOnDate, relationships);
+
+        return relationships;
+
     }
 }

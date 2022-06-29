@@ -18,7 +18,6 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @BusTest
-@DisabledIfEnvironmentVariable(named = "CI", matches = "true")
 class PostcodeRepositoryBusTest {
 
     private static ComponentContainer componentContainer;

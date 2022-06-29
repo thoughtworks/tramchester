@@ -40,7 +40,6 @@ import static com.tramchester.integration.testSupport.rail.RailStationIds.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 @TrainTest
-@DisabledIfEnvironmentVariable(named = "CI", matches = "true")
 public class RailTransportDataFromFilesTest {
     private static ComponentContainer componentContainer;
     private static IntegrationRailTestConfig config;

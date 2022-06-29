@@ -31,7 +31,6 @@ import java.util.concurrent.TimeUnit;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 
-@DisabledIfEnvironmentVariable(named = "CI", matches = "true")
 class RouteCalculatorCloseStationsDiversionsTest {
     // Note this needs to be > time for whole test fixture, see note below in @After
     private static final int TXN_TIMEOUT = 5*60;
@@ -49,7 +48,7 @@ class RouteCalculatorCloseStationsDiversionsTest {
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
-        config = new IntegrationTramClosedStationsTestConfig("closed_stpeters_int_test_tram.db", closedStations);
+        config = new IntegrationTramClosedStationsTestConfig("closed_stpeters_int_test_tram.db", closedStations, true);
         componentContainer = new ComponentsBuilder().create(config, TestEnv.NoopRegisterMetrics());
         componentContainer.initialise();
         database = componentContainer.get(GraphDatabase.class);
@@ -92,7 +91,9 @@ class RouteCalculatorCloseStationsDiversionsTest {
                 2, Duration.ofHours(2), 1, getRequestedModes());
         Set<Journey> results = calculator.calculateRouteAsSet(TramStations.StPetersSquare, TramStations.Altrincham,
                 journeyRequest);
+
         assertFalse(results.isEmpty());
+
         results.forEach(result -> {
             final List<TransportStage<?, ?>> stages = result.getStages();
             assertEquals(2, stages.size(), "num stages " + result);
@@ -101,13 +102,16 @@ class RouteCalculatorCloseStationsDiversionsTest {
         });
     }
 
+    // TODO Need more sophisticated way of adding diversions to nearby stations, currenly just add to/from
+    // stations nearby to close, but the correct/best would be diversions for a closed stations neighbours?
     @Test
     void shouldFindRouteAroundCloseBackOnToTram() {
         JourneyRequest journeyRequest = new JourneyRequest(when, TramTime.of(8,0), false,
-                2, Duration.ofHours(2), 1, getRequestedModes());
-        Set<Journey> results = calculator.calculateRouteAsSet(TramStations.Bury, TramStations.Altrincham,
-                journeyRequest);
+                4, Duration.ofHours(2), 1, getRequestedModes());
+        Set<Journey> results = calculator.calculateRouteAsSet(TramStations.Bury, TramStations.Altrincham, journeyRequest);
+
         assertFalse(results.isEmpty());
+
         results.forEach(result -> {
             final List<TransportStage<?, ?>> stages = result.getStages();
             assertEquals(4, stages.size(), "num stages " + result);
@@ -123,7 +127,9 @@ class RouteCalculatorCloseStationsDiversionsTest {
         JourneyRequest journeyRequest = new JourneyRequest(when, TramTime.of(8, 0),
                 false, 3, Duration.ofHours(2), 1, getRequestedModes());
         Set<Journey> results = calculator.calculateRouteAsSet(TramStations.Bury, TramStations.StPetersSquare, journeyRequest);
+
         assertFalse(results.isEmpty());
+
         results.forEach(result -> {
             final List<TransportStage<?, ?>> stages = result.getStages();
             assertEquals(2, stages.size(), "num stages " + result);

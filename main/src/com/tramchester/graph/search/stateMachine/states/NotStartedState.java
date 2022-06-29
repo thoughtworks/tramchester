@@ -34,12 +34,14 @@ public class NotStartedState extends TraversalState {
     }
 
     @Override
-    protected PlatformStationState toTramStation(PlatformStationState.Builder towardsStation, Node node, Duration cost, JourneyStateUpdate journeyState) {
-        return towardsStation.fromStart(this, node, cost, journeyState);
+    protected PlatformStationState toTramStation(PlatformStationState.Builder towardsStation, Node node, Duration cost,
+                                                 JourneyStateUpdate journeyState, boolean onDiversion) {
+        return towardsStation.fromStart(this, node, cost, journeyState, onDiversion, onDiversion);
     }
 
     @Override
-    protected TraversalState toNoPlatformStation(NoPlatformStationState.Builder towardsStation, Node node, Duration cost, JourneyStateUpdate journeyState) {
-        return towardsStation.fromStart(this, node, cost, journeyState);
+    protected TraversalState toNoPlatformStation(NoPlatformStationState.Builder towardsStation, Node node, Duration cost,
+                                                 JourneyStateUpdate journeyState, boolean onDiversion) {
+        return towardsStation.fromStart(this, node, cost, journeyState, onDiversion, onDiversion);
     }
 }

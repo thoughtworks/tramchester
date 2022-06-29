@@ -38,7 +38,6 @@ import static com.tramchester.integration.testSupport.rail.RailStationIds.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 @TrainTest
-@DisabledIfEnvironmentVariable(named = "CI", matches = "true")
 public class RailAndTramRouteCalculatorTest {
     private static final int TXN_TIMEOUT = 5*60;
     private static StationRepository stationRepository;

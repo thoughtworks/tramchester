@@ -19,7 +19,6 @@ import org.junit.jupiter.api.condition.DisabledIfEnvironmentVariable;
 import static org.junit.jupiter.api.Assertions.*;
 
 @BusTest
-@DisabledIfEnvironmentVariable(named = "CI", matches = "true")
 class RouteEndRepositoryBusTest {
     private static ComponentContainer componentContainer;
     private RouteEndRepository routeEndRepository;
