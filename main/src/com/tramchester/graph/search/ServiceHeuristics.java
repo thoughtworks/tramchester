@@ -7,6 +7,7 @@ import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
+import com.tramchester.domain.time.Durations;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.caches.LowestCostSeen;
 import com.tramchester.graph.caches.NodeContentsRepository;
@@ -218,7 +219,8 @@ public class ServiceHeuristics {
         if (bestSoFar.everArrived()) {
             Duration lowestCost = bestSoFar.getLowestDuration();
             Duration costToNextInterchange = totalCostSoFar.plus(costToFirstInterchange);
-            if (costToNextInterchange.compareTo(lowestCost) > 0) {
+            //if (costToNextInterchange.compareTo(lowestCost) > 0) {
+            if (Durations.greaterThan(costToNextInterchange, lowestCost)) {
                 // cost of getting to interchange, plus current total cost, is greater than existing best effort
                 return reasons.recordReason(ServiceReason.LongerViaInterchange(howIGotHere));
             }
@@ -230,7 +232,8 @@ public class ServiceHeuristics {
     public ServiceReason journeyDurationUnderLimit(final Duration totalDuration, final HowIGotHere howIGotHere, ServiceReasons reasons) {
         reasons.incrementTotalChecked();
 
-        if (totalDuration.compareTo(journeyConstraints.getMaxJourneyDuration()) > 0) {
+        //if (totalDuration.compareTo(journeyConstraints.getMaxJourneyDuration()) > 0) {
+        if (Durations.greaterThan(totalDuration, journeyConstraints.getMaxJourneyDuration())) {
             return reasons.recordReason(ServiceReason.TookTooLong(actualQueryTime.plus(totalDuration), howIGotHere));
         }
         return valid(ServiceReason.ReasonCode.DurationOk, howIGotHere, reasons);

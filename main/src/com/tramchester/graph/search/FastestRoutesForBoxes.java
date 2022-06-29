@@ -13,6 +13,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
+import java.time.Duration;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -71,16 +72,16 @@ public class FastestRoutesForBoxes {
     private BoundingBoxWithCost cheapest(JourneysForBox results, GridPosition destination) {
 
         if (results.contains(destination)) {
-            return new BoundingBoxWithCost(results.getBox(), 0, null);
+            return new BoundingBoxWithCost(results.getBox(), Duration.ZERO, null);
         }
 
         if (results.isEmpty()) {
-            return new BoundingBoxWithCost(results.getBox(), -1, null);
+            return new BoundingBoxWithCost(results.getBox(), Duration.ofMinutes(-1), null);
         }
 
         Journey result = results.getLowestCost();
 
-        int cost = TramTime.diffenceAsMinutes(result.getDepartTime(), result.getArrivalTime());
+        Duration cost = TramTime.difference(result.getDepartTime(), result.getArrivalTime());
         return new BoundingBoxWithCost(results.getBox(), cost, result);
     }
 }

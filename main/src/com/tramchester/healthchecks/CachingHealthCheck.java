@@ -1,5 +1,6 @@
 package com.tramchester.healthchecks;
 
+import com.tramchester.domain.time.Durations;
 import com.tramchester.domain.time.ProvidesNow;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -46,7 +47,8 @@ public class CachingHealthCheck extends TramchesterHealthCheck {
 
         if  (lastCheck!=null) {
             Duration since = Duration.between(lastCheck, currentTime);
-            if (since.compareTo(cacheDuration)<0) {
+            //if (since.compareTo(cacheDuration)<0) {
+            if (Durations.lessThan(since, cacheDuration)) {
                 logger.info("Using cached result for " + containedCheck.getName());
                return result;
             }

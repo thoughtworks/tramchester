@@ -207,11 +207,11 @@ public class MixedTransportTestDataFactory implements TransportDataFactory {
                                                         Station interchangeStation, Station station, LocalTime startTime, String tripId) {
         MutableTrip trip = new MutableTrip(StringIdFor.createId(tripId), "headSignTripB2", service, route, route.getTransportMode());
         service.addTrip(trip);
-        NoPlatformStopCall stop1 = createStop(trip, interchangeStation, TramTime.of(startTime),
-                TramTime.of(startTime.plusMinutes(5)), 1);
+        NoPlatformStopCall stop1 = createStop(trip, interchangeStation, TramTime.ofHourMins(startTime),
+                TramTime.ofHourMins(startTime.plusMinutes(5)), 1);
         trip.addStop(stop1);
-        NoPlatformStopCall stop2 = createStop(trip, station, TramTime.of(startTime.plusMinutes(5)),
-                TramTime.of(startTime.plusMinutes(8)), 2);
+        NoPlatformStopCall stop2 = createStop(trip, station, TramTime.ofHourMins(startTime.plusMinutes(5)),
+                TramTime.ofHourMins(startTime.plusMinutes(8)), 2);
         trip.addStop(stop2);
         route.addTrip(trip);
         container.addTrip(trip);

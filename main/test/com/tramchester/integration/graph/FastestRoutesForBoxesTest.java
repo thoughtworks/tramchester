@@ -9,6 +9,7 @@ import com.tramchester.domain.places.MutableStation;
 import com.tramchester.domain.places.NaptanArea;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.LatLong;
+import com.tramchester.domain.time.Durations;
 import com.tramchester.domain.time.TramServiceDate;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.geo.BoundingBoxWithStations;
@@ -116,9 +117,11 @@ class FastestRoutesForBoxesTest {
 
         Stream<BoundingBoxWithCost> results = calculator.findForGrid(destination, 2000, journeyRequest);
 
-        List<BoundingBoxWithCost> found = results.filter(result -> result.getMinutes() <= 0).collect(Collectors.toList());
+        List<BoundingBoxWithCost> destinationBox = results.
+                filter(boundingBoxWithCost -> boundingBoxWithCost.getDuration().isZero()).
+                collect(Collectors.toList());
 
-        assertEquals(1, found.size());
-        assertTrue( found.get(0).contained(destination.getGridPosition()));
+        assertEquals(1, destinationBox.size());
+        assertTrue(destinationBox.get(0).contained(destination.getGridPosition()));
     }
 }

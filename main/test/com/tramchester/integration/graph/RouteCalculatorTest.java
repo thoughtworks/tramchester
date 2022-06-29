@@ -9,6 +9,7 @@ import com.tramchester.domain.places.Location;
 import com.tramchester.domain.places.LocationType;
 import com.tramchester.domain.presentation.TransportStage;
 import com.tramchester.domain.reference.TransportMode;
+import com.tramchester.domain.time.Durations;
 import com.tramchester.domain.time.TramServiceDate;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.domain.transportStages.VehicleStage;
@@ -32,6 +33,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static com.tramchester.domain.time.Durations.greaterOrEquals;
 import static com.tramchester.testSupport.TestEnv.DAYS_AHEAD;
 import static com.tramchester.testSupport.TestEnv.avoidChristmasDate;
 import static com.tramchester.testSupport.reference.TramStations.*;
@@ -161,8 +163,8 @@ public class RouteCalculatorTest {
         assertTrue(earliest.isPresent());
 
         final TramTime firstDeparttime = earliest.get().getDepartTime();
-        int elapsed = TramTime.diffenceAsMinutes(queryTime, firstDeparttime);
-        assertTrue(elapsed<=16, "first result too far in future " + firstDeparttime);
+        Duration elapsed = TramTime.difference(queryTime, firstDeparttime);
+        assertFalse(greaterOrEquals(elapsed, Duration.ofMinutes(16)), "first result too far in future " + firstDeparttime);
     }
 
     @Test
@@ -355,12 +357,12 @@ public class RouteCalculatorTest {
         assertGetAndCheckJourneys(journeyRequest, ExchangeSquare, MediaCityUK);
     }
 
-    public static int costOfJourney(Journey journey) {
+    public static Duration costOfJourney(Journey journey) {
         List<TransportStage<?,?>> stages = journey.getStages();
         TramTime departs = stages.get(0).getFirstDepartureTime();
         TramTime arrive = stages.get(stages.size() - 1).getExpectedArrivalTime();
 
-        return TramTime.diffenceAsMinutes(departs, arrive);
+        return TramTime.difference(departs, arrive);
     }
 
     @Test

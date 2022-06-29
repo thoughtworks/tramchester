@@ -31,6 +31,7 @@ import java.util.Map;
 
 import static com.tramchester.domain.reference.TransportMode.Tram;
 import static com.tramchester.domain.time.TramTime.of;
+import static com.tramchester.domain.time.TramTime.ofHourMins;
 import static com.tramchester.testSupport.reference.KnownLocations.*;
 import static com.tramchester.testSupport.reference.KnownTramRoute.*;
 import static com.tramchester.testSupport.reference.TramTransportDataForTestFactory.TramTransportDataForTest.INTERCHANGE;
@@ -252,11 +253,11 @@ public class TramTransportDataForTestFactory implements TransportDataFactory {
     private static void createInterchangeToStation4Trip(TransportDataContainer container, MutableRoute route, MutableService service,
                                                         MutableStation interchangeStation, MutableStation station, LocalTime startTime, String tripId) {
         MutableTrip trip = new MutableTrip(StringIdFor.createId(tripId), "headSignTripB2", service, route, Tram);
-        PlatformStopCall stop1 = createStop(container,trip, interchangeStation, of(startTime),
-                of(startTime.plusMinutes(5)), 1);
+        PlatformStopCall stop1 = createStop(container,trip, interchangeStation, ofHourMins(startTime),
+                ofHourMins(startTime.plusMinutes(5)), 1);
         trip.addStop(stop1);
-        PlatformStopCall stop2 = createStop(container,trip, station, of(startTime.plusMinutes(5)),
-                of(startTime.plusMinutes(8)), 2);
+        PlatformStopCall stop2 = createStop(container,trip, station, ofHourMins(startTime.plusMinutes(5)),
+                ofHourMins(startTime.plusMinutes(8)), 2);
         trip.addStop(stop2);
         route.addTrip(trip);
         service.addTrip(trip);

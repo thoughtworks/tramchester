@@ -9,6 +9,8 @@ import com.tramchester.domain.time.TramServiceDate;
 import com.tramchester.geo.CoordinateTransforms;
 import com.tramchester.mappers.JourneyToDTOMapper;
 
+import java.time.Duration;
+
 @SuppressWarnings("unused")
 @JsonTypeName("BoxWithCost")
 @JsonTypeInfo(include=JsonTypeInfo.As.WRAPPER_OBJECT, use=JsonTypeInfo.Id.NAME)
@@ -16,10 +18,10 @@ public class BoxWithCostDTO {
 
     private LatLong bottomLeft;
     private LatLong topRight;
-    private int minutes;
+    private long minutes;
     private JourneyDTO journey;
 
-    private BoxWithCostDTO(LatLong bottomLeft, LatLong topRight, int minutes, JourneyDTO journey) {
+    private BoxWithCostDTO(LatLong bottomLeft, LatLong topRight, long minutes, JourneyDTO journey) {
         this.bottomLeft = bottomLeft;
         this.topRight = topRight;
         this.minutes = minutes;
@@ -37,14 +39,16 @@ public class BoxWithCostDTO {
         LatLong bottomLeft = CoordinateTransforms.getLatLong(box.getBottomLeft());
         LatLong topRight = CoordinateTransforms.getLatLong(box.getTopRight());
 
+        long mins = box.getDuration().toMinutes();
+
         if (box.getJourney()!=null) {
-            return new BoxWithCostDTO(bottomLeft, topRight, box.getMinutes(), mapper.createJourneyDTO(box.getJourney(), serviceDate));
+            return new BoxWithCostDTO(bottomLeft, topRight, mins, mapper.createJourneyDTO(box.getJourney(), serviceDate));
         } else {
-            return new BoxWithCostDTO(bottomLeft, topRight, box.getMinutes(), null);
+            return new BoxWithCostDTO(bottomLeft, topRight, mins, null);
         }
     }
 
-    public int getMinutes() {
+    public long getMinutes() {
         return minutes;
     }
 

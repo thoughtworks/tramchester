@@ -12,8 +12,7 @@ import java.time.LocalTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static com.tramchester.domain.time.TramTime.nextDay;
-import static com.tramchester.domain.time.TramTime.of;
+import static com.tramchester.domain.time.TramTime.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 class TramTimeTest {
@@ -173,13 +172,13 @@ class TramTimeTest {
 
     @Test
     void shouldCheckIfDepartsAfter() {
-        TramTime timeA = of(LocalTime.of(12,15));
-        TramTime timeB =  of(LocalTime.of(9,10));
+        TramTime timeA = of(12,15);
+        TramTime timeB =  of(9,10);
 
         assertTrue(timeA.departsAfter(timeB));
 
-        timeA = of(LocalTime.of(6,12));
-        timeB = of(LocalTime.of(6,11));
+        timeA = ofHourMins(LocalTime.of(6,12));
+        timeB = of(6,11);
 
         assertTrue(timeA.departsAfter(timeB));
         Assertions.assertFalse(timeB.departsAfter(timeA));
@@ -188,12 +187,12 @@ class TramTimeTest {
     @Test
     void shouldCheckIfDepartsAfterDiffDays() {
         TramTime timeA = nextDay(0,10);
-        TramTime timeB =  of(LocalTime.of(23,10));
+        TramTime timeB =  of(23,10);
 
         assertTrue(timeA.departsAfter(timeB));
 
-        timeA = of(LocalTime.of(6,12));
-        timeB = of(LocalTime.of(6,11));
+        timeA = of(6,12);
+        timeB = of(6,11);
 
         assertTrue(timeA.departsAfter(timeB));
         Assertions.assertFalse(timeB.departsAfter(timeA));
@@ -247,47 +246,47 @@ class TramTimeTest {
         Assertions.assertFalse(earlyMorning.between(of(23,0), nextDay(0,15)));
     }
 
-    @Test
-    void shouldHaveCorrectDifferenceIncludingTimesAcrossMidnightDEPRECATEDMETHOD() {
-        TramTime first = of(9,30);
-        TramTime second = of(10,45);
-
-        int result = TramTime.diffenceAsMinutes(first, second);
-        assertEquals(75, result);
-
-        result = TramTime.diffenceAsMinutes(second, first);
-        assertEquals(75, result);
-
-        ////
-        first = nextDay(0,5);
-        second = of(23,15);
-
-        result = TramTime.diffenceAsMinutes(first, second);
-        assertEquals(50, result);
-
-        result = TramTime.diffenceAsMinutes(second, first);
-        assertEquals(50, result);
-
-        ////
-        first = nextDay(0,5);
-        second = of(22,59);
-
-        result = TramTime.diffenceAsMinutes(first, second);
-        assertEquals(66, result);
-
-        result = TramTime.diffenceAsMinutes(second, first);
-        assertEquals(66, result);
-
-        ////
-        first = of(23,59);
-        second = nextDay(1,10);
-
-        result = TramTime.diffenceAsMinutes(first, second);
-        assertEquals(71, result);
-
-        result = TramTime.diffenceAsMinutes(second, first);
-        assertEquals(71, result);
-    }
+//    @Test
+//    void shouldHaveCorrectDifferenceIncludingTimesAcrossMidnightDEPRECATEDMETHOD() {
+//        TramTime first = of(9,30);
+//        TramTime second = of(10,45);
+//
+//        int result = TramTime.diffenceAsMinutes(first, second);
+//        assertEquals(75, result);
+//
+//        result = TramTime.diffenceAsMinutes(second, first);
+//        assertEquals(75, result);
+//
+//        ////
+//        first = nextDay(0,5);
+//        second = of(23,15);
+//
+//        result = TramTime.diffenceAsMinutes(first, second);
+//        assertEquals(50, result);
+//
+//        result = TramTime.diffenceAsMinutes(second, first);
+//        assertEquals(50, result);
+//
+//        ////
+//        first = nextDay(0,5);
+//        second = of(22,59);
+//
+//        result = TramTime.diffenceAsMinutes(first, second);
+//        assertEquals(66, result);
+//
+//        result = TramTime.diffenceAsMinutes(second, first);
+//        assertEquals(66, result);
+//
+//        ////
+//        first = of(23,59);
+//        second = nextDay(1,10);
+//
+//        result = TramTime.diffenceAsMinutes(first, second);
+//        assertEquals(71, result);
+//
+//        result = TramTime.diffenceAsMinutes(second, first);
+//        assertEquals(71, result);
+//    }
 
     @Test
     void shouldHaveCorrectDifferenceIncludingTimesAcrossMidnight() {
@@ -479,7 +478,7 @@ class TramTimeTest {
     @Test
     void shouldSubstractMinsViaLocalTime() {
         LocalTime reference = LocalTime.of(12, 4);
-        TramTime result = of(reference.minusMinutes(30));
+        TramTime result = ofHourMins(reference.minusMinutes(30));
 
         assertEquals(11, result.getHourOfDay());
         assertEquals(34, result.getMinuteOfHour());

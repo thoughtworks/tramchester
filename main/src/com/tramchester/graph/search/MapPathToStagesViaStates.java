@@ -8,6 +8,7 @@ import com.tramchester.domain.places.StationGroup;
 import com.tramchester.domain.places.NaptanArea;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.presentation.TransportStage;
+import com.tramchester.domain.time.Durations;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.domain.transportStages.ConnectingStage;
 import com.tramchester.geo.SortsPositions;
@@ -94,7 +95,8 @@ public class MapPathToStagesViaStates implements PathToStages {
 
                 logger.debug("Seen " + relationship.getType().name() + " with cost " + lastRelationshipCost);
 
-                if (lastRelationshipCost.compareTo(Duration.ZERO) > 0) {
+                //if (lastRelationshipCost.compareTo(Duration.ZERO) > 0) {
+                if (Durations.greaterThan(lastRelationshipCost, Duration.ZERO)) {
                     Duration total = previous.getTotalDuration().plus(lastRelationshipCost);
                     mapStatesToStages.updateTotalCost(total);
                 }

@@ -3,6 +3,7 @@ package com.tramchester.integration.resources.journeyPlanning;
 import com.tramchester.App;
 import com.tramchester.domain.presentation.DTO.*;
 import com.tramchester.domain.presentation.Note;
+import com.tramchester.domain.time.Durations;
 import com.tramchester.livedata.tfgm.ProvidesTramNotes;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramServiceDate;
@@ -303,8 +304,8 @@ public class JourneyPlannerResourceTest {
         assertTrue(earliest.isPresent());
 
         final TramTime firstDepartTime = earliest.get();
-        int elapsed = TramTime.diffenceAsMinutes(queryTime, firstDepartTime);
-        assertTrue(elapsed<15, "first result too far in future " + firstDepartTime);
+        Duration elapsed = TramTime.difference(queryTime, firstDepartTime);
+        assertTrue(Durations.lessThan(elapsed,Duration.ofMinutes(15)), "first result too far in future " + firstDepartTime);
     }
 
     private void checkDepartsAfterPreviousArrival(String message, Set<JourneyDTO> journeys) {

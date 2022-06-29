@@ -7,6 +7,7 @@ import com.tramchester.domain.Route;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
+import com.tramchester.domain.time.Durations;
 import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.graphbuild.GraphProps;
 import com.tramchester.graph.graphbuild.StagedTransportGraphBuilder;
@@ -138,8 +139,8 @@ public class RouteInterchanges {
             final IdFor<Station> key = pair.getKey();
             final Duration cost = pair.getValue();
             if (stationToInterPair.containsKey(key)) {
-                //if (cost < stationToInterPair.get(key)) {
-                if (cost.compareTo(stationToInterPair.get(key)) < 0) {
+                //if (cost.compareTo(stationToInterPair.get(key)) < 0) {
+                if (Durations.lessThan(cost, stationToInterPair.get(key))) {
                     stationToInterPair.put(key, cost);
                 }
             } else {

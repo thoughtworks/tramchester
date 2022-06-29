@@ -6,6 +6,7 @@ import com.tramchester.acceptance.infra.ProvidesDriver;
 import com.tramchester.acceptance.pages.App.AppPage;
 import com.tramchester.acceptance.pages.App.Stage;
 import com.tramchester.acceptance.pages.App.TestResultSummaryRow;
+import com.tramchester.domain.time.Durations;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.integration.resources.DataVersionResourceTest;
 import com.tramchester.testSupport.TestEnv;
@@ -323,7 +324,7 @@ class AppUserJourneyTest extends UserJourneyTest {
         assertTrue(updatedDepartTime.isValid());
         assertTrue(updatedDepartTime.isBefore(firstDepartureTime), "should be before current first departure time");
         Duration difference = TramTime.difference(firstDepartureTime, updatedDepartTime);
-        assertTrue(difference.compareTo(Duration.ofMinutes(60)) < 0,
+        assertTrue(Durations.lessThan(difference, Duration.ofMinutes(60)), // difference.compareTo(Duration.ofMinutes(60)) < 0,
                 "Too much gap between " + firstDepartureTime + " and update: " + updatedDepartTime);
     }
 

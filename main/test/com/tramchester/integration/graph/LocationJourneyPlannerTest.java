@@ -253,7 +253,7 @@ class LocationJourneyPlannerTest {
         // find the lowest cost journey, should be tram to shudehill and then a walk
         Journey lowestCostJourney = journeyList.get(0);
 
-        assertEquals(32, RouteCalculatorTest.costOfJourney(lowestCostJourney), journeySet.toString());
+        assertEquals(Duration.ofMinutes(32), RouteCalculatorTest.costOfJourney(lowestCostJourney), journeySet.toString());
 
         List<TransportStage<?,?>> stages = lowestCostJourney.getStages();
         assertTrue(stages.size() >= 2);
@@ -323,7 +323,8 @@ class LocationJourneyPlannerTest {
     @NotNull
     private List<Journey> sortByCost(Set<Journey> journeySet) {
         List<Journey> journeyList = new LinkedList<>(journeySet);
-        journeyList.sort(Comparator.comparingInt(RouteCalculatorTest::costOfJourney));
+        //Comparator.comparingInt(RouteCalculatorTest::costOfJourney)
+        journeyList.sort(Comparator.comparing(RouteCalculatorTest::costOfJourney));
         return journeyList;
     }
 }

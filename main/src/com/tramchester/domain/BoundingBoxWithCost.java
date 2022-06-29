@@ -2,20 +2,22 @@ package com.tramchester.domain;
 
 import com.tramchester.geo.BoundingBox;
 
+import java.time.Duration;
+
 
 public class BoundingBoxWithCost extends BoundingBox {
 
-    private final int minutes;
+    private final Duration duration;
     private final Journey journey;
 
-    public BoundingBoxWithCost(BoundingBox box, int minutes, Journey journey) {
+    public BoundingBoxWithCost(BoundingBox box, Duration duration, Journey journey) {
         super(box);
-        this.minutes = minutes;
+        this.duration = duration;
         this.journey = journey;
     }
 
-    public int getMinutes() {
-        return minutes;
+    public Duration getDuration() {
+        return duration;
     }
 
     public Journey getJourney() {

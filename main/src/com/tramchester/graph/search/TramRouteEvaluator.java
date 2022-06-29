@@ -2,6 +2,7 @@ package com.tramchester.graph.search;
 
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.reference.TransportMode;
+import com.tramchester.domain.time.Durations;
 import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.caches.LowestCostSeen;
@@ -135,7 +136,8 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
             return processArrivalAtDest(journeyState, howIGotHere, numberChanges);
         } else if (bestResultSoFar.everArrived()) { // Not arrived, but we have seen at least one successful route
             final Duration lowestCostSeen = bestResultSoFar.getLowestDuration();
-            if (totalCostSoFar.compareTo(lowestCostSeen) > 0 ) {
+            //if (totalCostSoFar.compareTo(lowestCostSeen) > 0 ) {
+            if (Durations.greaterThan(totalCostSoFar, lowestCostSeen)) {
                 // already longer that current shortest, no need to continue
                 reasons.recordReason(ServiceReason.HigherCost(howIGotHere));
                 return ServiceReason.ReasonCode.HigherCost;

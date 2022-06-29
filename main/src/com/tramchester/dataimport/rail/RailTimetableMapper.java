@@ -19,6 +19,7 @@ import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.GTFSPickupDropoffType;
 import com.tramchester.domain.reference.TransportMode;
+import com.tramchester.domain.time.Durations;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.geo.BoundingBox;
 import com.tramchester.graph.filters.GraphFilterActive;
@@ -393,7 +394,7 @@ public class RailTimetableMapper {
                 GTFSPickupDropoffType dropoff = doesDropOff ? Regular : None;
                 stopCall = createStopCall(trip, station, platform, stopSequence, arrivalTime, departureTime, pickup, dropoff);
 
-                if (TramTime.difference(arrivalTime, departureTime).compareTo(Duration.ofMinutes(60))>0) {
+                if (Durations.greaterThan(TramTime.difference(arrivalTime, departureTime), Duration.ofMinutes(60))) {
                     // this definitely happens, so an info not a warning
                     logger.info("Delay of more than one hour for " + stopCall + " on trip " + trip.getId());
                 }

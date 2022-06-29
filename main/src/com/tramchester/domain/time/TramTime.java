@@ -44,17 +44,6 @@ public class TramTime implements Comparable<TramTime> {
 
     /***
      * A new tram time using only the hours and minutes from the local time
-     * @see com.tramchester.domain.time.TramTime::ofHourMins
-     * @param time local time
-     * @return Tram time
-     */
-    @Deprecated
-    public static TramTime of(LocalTime time) {
-        return factory.of(time.getHour(), time.getMinute(), 0);
-    }
-
-    /***
-     * A new tram time using only the hours and minutes from the local time
      * @param time local time
      * @return Tram time
      */
@@ -103,10 +92,9 @@ public class TramTime implements Comparable<TramTime> {
     }
 
     /***
-     * TODO Make private
+     * TODO Use seconds, or change to use Duration
      */
-    @Deprecated
-    public static int diffenceAsMinutes(TramTime first, TramTime second) {
+    private static int diffenceAsMinutes(TramTime first, TramTime second) {
         if (first.isAfterBasic(second)) {
             return diffenceAsMinutesOverMidnight(second, first);
         } else {

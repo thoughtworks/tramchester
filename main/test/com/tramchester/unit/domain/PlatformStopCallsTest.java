@@ -13,6 +13,7 @@ import com.tramchester.testSupport.reference.TramStations;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.time.Duration;
 import java.util.List;
 
 import static com.tramchester.domain.id.StringIdFor.createId;
@@ -163,10 +164,10 @@ class PlatformStopCallsTest {
         assertEquals(stopA, secondLeg.getSecond());
         assertMinutesEquals(6, secondLeg.getCost());
 
-        int expected = TramTime.diffenceAsMinutes(stopA.getDepartureTime(), stopE.getArrivalTime());
+        Duration expected = TramTime.difference(stopA.getDepartureTime(), stopE.getArrivalTime());
         StopCalls.StopLeg thirdLeg = legs.get(2);
         assertEquals(stopA, thirdLeg.getFirst());
         assertEquals(stopE, thirdLeg.getSecond()); // not D, no pick-up or drop-off
-        assertMinutesEquals(expected, thirdLeg.getCost());
+        assertEquals(expected, thirdLeg.getCost());
     }
 }

@@ -499,7 +499,7 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
         // properties on relationship
         setProperty(goesToRelationship, trip);
 
-        Duration cost = Duration.ofMinutes(TramTime.diffenceAsMinutes(endStop.getArrivalTime(), departureTime));
+        Duration cost = TramTime.difference(endStop.getArrivalTime(), departureTime);
         setCostProp(goesToRelationship, cost);
         setProperty(goesToRelationship, trip.getService()); // TODO Still useful?
         setProperty(goesToRelationship, route);

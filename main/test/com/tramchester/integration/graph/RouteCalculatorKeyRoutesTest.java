@@ -6,6 +6,7 @@ import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.Journey;
 import com.tramchester.domain.JourneyRequest;
 import com.tramchester.domain.StationIdPair;
+import com.tramchester.domain.time.Durations;
 import com.tramchester.domain.time.TramServiceDate;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.GraphDatabase;
@@ -116,11 +117,11 @@ class RouteCalculatorKeyRoutesTest {
                 combinations.validateAllHaveAtLeastOneJourney(combinations.EndOfRoutesToEndOfRoutes(Tram), longestJourneyRequest);
         results.forEach((route, journey) -> journey.ifPresent(allResults::add));
 
-        final Optional<Integer> max = allResults.stream().map(RouteCalculatorTest::costOfJourney).max(Integer::compare);
+        // allResults.stream().map(RouteCalculatorTest::costOfJourney).max(Integer::compare);
+        final Optional<Duration> max = allResults.stream().map(RouteCalculatorTest::costOfJourney).max(Duration::compareTo);
         assertTrue(max.isPresent());
-        double longest = max.get();
-        assertTrue(testConfig.getMaxJourneyDuration() >= longest, "longest was " + longest);
-
+        Duration longest = max.get();
+        assertTrue(Durations.greaterOrEquals(Duration.ofMinutes(testConfig.getMaxJourneyDuration()),longest), "longest was " + longest);
     }
 
     @Disabled("used for diagnosing specific issue")

@@ -9,10 +9,7 @@ import com.tramchester.domain.places.Location;
 import com.tramchester.domain.places.StationWalk;
 import com.tramchester.domain.presentation.TransportStage;
 import com.tramchester.domain.reference.TransportMode;
-import com.tramchester.domain.time.InvalidDurationException;
-import com.tramchester.domain.time.ProvidesNow;
-import com.tramchester.domain.time.TramServiceDate;
-import com.tramchester.domain.time.TramTime;
+import com.tramchester.domain.time.*;
 import com.tramchester.geo.SortsPositions;
 import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.GraphQuery;
@@ -223,7 +220,8 @@ public class RouteCalculatorSupport {
         //int longest = maxLeastCostForRoute * 2; // 100% margin
         Duration longest = maxLeastCostForRoute.multipliedBy(2);
 
-        if (longest.compareTo(maxDuration)>0) {
+        //if (longest.compareTo(maxDuration)>0) {
+        if (Durations.greaterThan(longest, maxDuration)) {
             logger.warn(format("Computed longest %s is more than journeyRequest %s", longest, maxDuration));
         } else {
             logger.info(format("Computed longest to be %s", longest));

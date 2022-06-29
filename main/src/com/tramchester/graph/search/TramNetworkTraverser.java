@@ -3,6 +3,7 @@ package com.tramchester.graph.search;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.LocationSet;
 import com.tramchester.domain.presentation.LatLong;
+import com.tramchester.domain.time.Durations;
 import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.geo.SortsPositions;
@@ -154,7 +155,8 @@ public class TramNetworkTraverser implements PathExpander<JourneyState> {
         Duration cost = Duration.ZERO;
         if (path.lastRelationship()!=null) {
             cost = nodeContentsRepository.getCost(path.lastRelationship());
-            if (cost.compareTo(Duration.ZERO) > 0) {
+            //if (cost.compareTo(Duration.ZERO) > 0) {
+            if (Durations.greaterThan(cost, Duration.ZERO)) {
                 final Duration totalCost = currentState.getTotalDurationSoFar();
                 Duration total = totalCost.plus(cost);
                 journeyStateForChildren.updateTotalCost(total);

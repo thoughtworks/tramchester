@@ -5,6 +5,7 @@ import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
+import com.tramchester.domain.time.Durations;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.search.stateMachine.states.TraversalState;
 import org.neo4j.graphdb.Node;
@@ -118,7 +119,8 @@ public class JourneyState implements ImmutableJourneyState, JourneyStateUpdate {
     }
 
     private void leave(Duration currentTotalCost) {
-        if (currentTotalCost.compareTo(journeyOffset) < 0) {
+        //if (currentTotalCost.compareTo(journeyOffset) < 0) {
+        if (Durations.lessThan(currentTotalCost, journeyOffset)) {
             throw new RuntimeException("Invalid total cost "+currentTotalCost+" less that current total offset " +journeyOffset);
         }
 

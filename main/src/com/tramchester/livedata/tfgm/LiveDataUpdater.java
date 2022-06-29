@@ -1,6 +1,7 @@
 package com.tramchester.livedata.tfgm;
 
 import com.netflix.governator.guice.lazy.LazySingleton;
+import com.tramchester.domain.time.Durations;
 import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.livedata.repository.TramLiveDataCache;
@@ -11,6 +12,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.annotation.PreDestroy;
 import javax.inject.Inject;
+import java.time.Duration;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -23,7 +25,7 @@ import static java.lang.String.format;
 public class LiveDataUpdater {
     private static final Logger logger = LoggerFactory.getLogger(LiveDataUpdater.class);
 
-    private static final int TIME_LIMIT = 20; // only enrich if data is within this many minutes
+    private static final Duration TIME_LIMIT = Duration.ofMinutes(20); // only enrich if data is within this many minutes
 
     private final List<LiveDataObserver> observers;
     private final PlatformMessageRepository platformMessageRepository;
@@ -110,7 +112,8 @@ public class LiveDataUpdater {
             return false;
         }
         TramTime updateTime = TramTime.ofHourMins(newDepartureInfo.getLastUpdate().toLocalTime());
-        if (TramTime.diffenceAsMinutes(now, updateTime) > TIME_LIMIT) {
+        //if (TramTime.difference(now, updateTime).compareTo(TIME_LIMIT) > 0) {
+        if (Durations.greaterThan(TramTime.difference(now, updateTime), TIME_LIMIT)) {
             logger.info(format("Received out of date update. Local Now: %s Update: %s ", providesNow.getNowHourMins(), updateTime));
             return false;
         }
