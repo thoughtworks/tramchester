@@ -2,7 +2,6 @@ package com.tramchester.domain.input;
 
 import com.tramchester.domain.StationIdPair;
 import com.tramchester.domain.id.HasId;
-import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.time.TramTime;
 import org.slf4j.Logger;
@@ -13,18 +12,17 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static com.tramchester.domain.reference.GTFSPickupDropoffType.None;
 import static java.lang.String.format;
 
 public class StopCalls {
     private static final Logger logger = LoggerFactory.getLogger(StopCalls.class);
 
     private final SortedMap<Integer, StopCall> orderedStopCalls;
-    private final IdFor<Trip> parent;
+    private final Trip parentTrip;
     private boolean intoNextDay;
 
-    public StopCalls(IdFor<Trip> parent) {
-        this.parent = parent;
+    public StopCalls(Trip parent) {
+        this.parentTrip = parent;
         orderedStopCalls = new TreeMap<>();
         intoNextDay = false;
     }
@@ -36,7 +34,7 @@ public class StopCalls {
     public void add(StopCall stopCall) {
         Station station = stopCall.getStation();
         if (station==null) {
-            logger.error("Stop is missing station " + parent);
+            logger.error("Stop is missing station " + parentTrip.getId());
             return;
         }
 
@@ -45,7 +43,7 @@ public class StopCalls {
             // this can happen as duplicated stop calls occur in tfgm data occasionally
             if (!stopCall.same(orderedStopCalls.get(sequenceNumber))) {
                 logger.error(format("Different stop already present for trip %s, already had %s inserting %s ",
-                        parent, orderedStopCalls.get(sequenceNumber), stopCall));
+                        parentTrip.getId(), orderedStopCalls.get(sequenceNumber), stopCall));
             } else {
                 logger.debug("Duplicated stopcall " + stopCall);
             }
@@ -75,7 +73,9 @@ public class StopCalls {
     @Override
     public String toString() {
         return "StopCalls{" +
-                "stops=" + orderedStopCalls +
+                "orderedStopCalls=" + orderedStopCalls +
+                ", parentTripId=" + parentTrip.getId() +
+                ", intoNextDay=" + intoNextDay +
                 '}';
     }
 
@@ -87,7 +87,7 @@ public class StopCalls {
      */
     public List<StopLeg> getLegs(boolean graphIsFiltered) {
         if (orderedStopCalls.isEmpty()) {
-            String msg = "Missing stops, parent trip " + parent;
+            String msg = "Missing stops, parent trip " + parentTrip;
             logger.error(msg);
             throw new RuntimeException(msg);
         }
@@ -157,6 +157,10 @@ public class StopCalls {
 
     public boolean isEmpty() {
         return orderedStopCalls.isEmpty();
+    }
+
+    public Trip getTrip() {
+        return parentTrip;
     }
 
     public static class StopLeg {

@@ -2,8 +2,9 @@ package com.tramchester.dataimport.rail.records.reference;
 
 // https://wiki.openraildata.com/index.php?title=Activity_codes
 
-import java.util.Arrays;
-import java.util.List;
+import com.google.common.collect.Sets;
+
+import java.util.*;
 
 public enum LocationActivityCode implements EnumMap.HasCodes<LocationActivityCode> {
     StopsToTakeUpAndSetDownPassengers("T"),
@@ -44,33 +45,59 @@ public enum LocationActivityCode implements EnumMap.HasCodes<LocationActivityCod
     PassesAnotherTrainAtCrossingPointOnASingleLine("X"),
 
     // additional codes added
-    TrainBeginsTakeUp("TBT"),
-    TrainFinishesSetDown("TFT"),
-    Unknown("UNKNOWN"),
-    NONE("NONE");
+    None("");
 
-    private static final EnumMap<LocationActivityCode> map = new EnumMap<>(LocationActivityCode.values());
-    private static final List<LocationActivityCode> dropOffs = Arrays.asList(TrainFinishesSetDown, TrainFinishes,
-            StopsToSetDownPassengers, StopsToTakeUpAndSetDownPassengers);
-    private static final List<LocationActivityCode> pickUps = Arrays.asList(TrainBeginsTakeUp, TrainBegins,
-            StopsToTakeUpPassengers, StopsToTakeUpAndSetDownPassengers);
+    private static final EnumSet<LocationActivityCode> dropOffs = EnumSet.of(TrainFinishes, StopsToSetDownPassengers, StopsToTakeUpAndSetDownPassengers);
+    private static final EnumSet<LocationActivityCode> pickUps = EnumSet.of(TrainBegins, StopsToTakeUpPassengers, StopsToTakeUpAndSetDownPassengers);
+
+    private static final EnumSet<LocationActivityCode> stops = EnumSet.of(TrainBegins, TrainFinishes,
+            StopsToSetDownPassengers, StopsToTakeUpPassengers,
+            StopsToTakeUpAndSetDownPassengers);
+
     private final String code;
 
     LocationActivityCode(String code) {
         this.code = code;
     }
 
-    public static LocationActivityCode parse(String code) {
+    public static EnumSet<LocationActivityCode> parse(String code) {
+        EnumSet<LocationActivityCode> result = EnumSet.noneOf(LocationActivityCode.class);
         String lookup = code.trim();
         if (lookup.isEmpty()) {
-            return NONE;
+            return EnumSet.noneOf(LocationActivityCode.class);
         }
 
-        LocationActivityCode result = map.get(lookup);
-        if (result==null) {
-            return Unknown;
+        // most cases once
+        while (!lookup.isEmpty()) {
+            LocationActivityCode found = getLongestMatch(lookup);
+            if (found==None) {
+                lookup = lookup.substring(1);
+            } else {
+                lookup = lookup.replaceFirst(found.code, "");
+                result.add(found);
+            }
         }
+
         return result;
+    }
+
+    private static LocationActivityCode getLongestMatch(String text) {
+        Optional<LocationActivityCode> found = Arrays.stream(LocationActivityCode.values()).
+                filter(item -> text.startsWith(item.code)).
+                max(Comparator.comparingInt(a -> a.code.length()));
+        return found.orElse(None);
+    }
+
+    public static boolean doesStop(EnumSet<LocationActivityCode> activity) {
+        return !Sets.intersection(activity, stops).isEmpty();
+    }
+
+    public static boolean doesPickup(EnumSet<LocationActivityCode> activity) {
+        return !Sets.intersection(activity, pickUps).isEmpty();
+    }
+
+    public static boolean doesDropOff(EnumSet<LocationActivityCode> activity) {
+        return !Sets.intersection(activity, dropOffs).isEmpty();
     }
 
     @Override
@@ -78,13 +105,4 @@ public enum LocationActivityCode implements EnumMap.HasCodes<LocationActivityCod
         return code;
     }
 
-    // TODO Request Stops?
-
-    public boolean isDropOff() {
-        return dropOffs.contains(this);
-    }
-
-    public boolean isPickup() {
-        return pickUps.contains(this);
-    }
 }

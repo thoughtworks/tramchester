@@ -6,7 +6,7 @@ import com.tramchester.domain.time.TramTime;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class OriginLocationTest {
 
@@ -23,7 +23,9 @@ public class OriginLocationTest {
         assertEquals(TramTime.of(12, 38), originLocation.getDeparture());
         assertEquals("4A", originLocation.getPlatform());
         assertEquals("", originLocation.getLine());
-        assertEquals(LocationActivityCode.TrainBegins, originLocation.getActivity());
+        assertFalse(originLocation.getActivity().isEmpty());
+        assertTrue(originLocation.getActivity().contains(LocationActivityCode.TrainBegins));
+
     }
 
     @Test
@@ -39,7 +41,9 @@ public class OriginLocationTest {
         assertEquals(TramTime.of(17, 49), originLocation.getDeparture());
         assertEquals("4B", originLocation.getPlatform());
         assertEquals("DTS", originLocation.getLine());
-        assertEquals(LocationActivityCode.TrainBeginsTakeUp, originLocation.getActivity());
+        assertFalse(originLocation.getActivity().isEmpty());
+        assertTrue(originLocation.getActivity().contains(LocationActivityCode.TrainBegins));
+        assertTrue(originLocation.getActivity().contains(LocationActivityCode.StopsToTakeUpAndSetDownPassengers));
     }
 
     @Test
@@ -56,7 +60,8 @@ public class OriginLocationTest {
         assertEquals(TramTime.of(18, 45), originLocation.getDeparture());
         assertEquals("", originLocation.getPlatform());
         assertEquals("BUS", originLocation.getLine());
-        assertEquals(LocationActivityCode.TrainBegins, originLocation.getActivity());
+        assertFalse(originLocation.getActivity().isEmpty());
+        assertTrue(originLocation.getActivity().contains(LocationActivityCode.TrainBegins));
     }
 
     @NotNull

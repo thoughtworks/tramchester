@@ -1,6 +1,7 @@
 package com.tramchester.unit.rail;
 
 import com.tramchester.dataimport.rail.records.IntermediateLocation;
+import com.tramchester.dataimport.rail.records.reference.LocationActivityCode;
 import com.tramchester.domain.time.TramTime;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Test;
@@ -27,8 +28,9 @@ public class IntermediateLocationTest {
         assertEquals(TramTime.of(18,53), intermediateLocation.getArrival());
         assertEquals(TramTime.of(18,54), intermediateLocation.getDeparture());
         assertEquals("123", intermediateLocation.getPlatform());
-        assertFalse(intermediateLocation.isPassingRecord());
-        assertEquals(StopsToTakeUpAndSetDownPassengers, intermediateLocation.getActivity());
+        assertTrue(intermediateLocation.getActivity().contains(LocationActivityCode.StopsToTakeUpAndSetDownPassengers));
+        assertTrue(intermediateLocation.doesStop());
+
     }
 
     @Test
@@ -41,12 +43,7 @@ public class IntermediateLocationTest {
         IntermediateLocation intermediateLocation = parseWithPadding(text);
 
         assertEquals("BATRSPJ", intermediateLocation.getTiplocCode());
-        assertTrue(intermediateLocation.isPassingRecord());
         assertEquals(TramTime.of(21,25), intermediateLocation.getPassingTime());
-
-//        assertFalse(intermediateLocation.getArrival().isValid());
-//        assertFalse(intermediateLocation.getDeparture().isValid());
-
         assertTrue(intermediateLocation.getPlatform().isBlank());
     }
 
@@ -57,7 +54,7 @@ public class IntermediateLocationTest {
         //             0         1         2         3         4
         String text = "LIDOVYDPL 0550H0552H     00000000         A N     ";
 
-        IntermediateLocation intermediateLocation = parseWithPadding(text);
+        parseWithPadding(text);
     }
 
     @Test
@@ -80,7 +77,7 @@ public class IntermediateLocationTest {
 
         assertEquals(7, intermediateLocation.getTiplocCode().length());
         assertEquals("FARE825", intermediateLocation.getTiplocCode());
-        assertFalse(intermediateLocation.isPassingRecord());
+        //assertFalse(intermediateLocation.isPassingRecord());
 
         assertEquals(TramTime.of(0,0),intermediateLocation.getPublicArrival());
         assertEquals(TramTime.of(0,0),intermediateLocation.getPublicDeparture());
@@ -90,6 +87,8 @@ public class IntermediateLocationTest {
 
         assertEquals(TramTime.of(12,42),intermediateLocation.getArrival());
         assertEquals(TramTime.of(12,46),intermediateLocation.getDeparture());
+
+        assertFalse(intermediateLocation.doesStop());
 
     }
 
@@ -101,12 +100,13 @@ public class IntermediateLocationTest {
 
         assertEquals(7, intermediateLocation.getTiplocCode().length());
         assertEquals("KEWGRDN", intermediateLocation.getTiplocCode());
-        assertFalse(intermediateLocation.isPassingRecord());
+        //assertFalse(intermediateLocation.isPassingRecord());
 
         assertEquals(TramTime.of(20,47), intermediateLocation.getPublicArrival());
         assertEquals(TramTime.of(20,47), intermediateLocation.getPublicDeparture());
 
         assertEquals("1", intermediateLocation.getPlatform());
+        assertTrue(intermediateLocation.doesStop());
 
     }
 
@@ -122,7 +122,7 @@ public class IntermediateLocationTest {
         assertFalse(intermediateLocation.getPublicArrival().isValid());
         assertFalse(intermediateLocation.getPublicDeparture().isValid());
 
-        assertTrue(intermediateLocation.isPassingRecord());
+        //assertTrue(intermediateLocation.isPassingRecord());
         assertEquals(TramTime.of(20,10), intermediateLocation.getPassingTime());
 
         assertEquals("1", intermediateLocation.getPlatform());

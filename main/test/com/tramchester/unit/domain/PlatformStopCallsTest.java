@@ -53,7 +53,7 @@ class PlatformStopCallsTest {
         stopB = TestEnv.createTramStopCall(trip, "statB1", stationB, 2, of(10, 3), of(10, 4));
         stopC = TestEnv.createTramStopCall(trip, "statC1", stationC, 1, of(10, 0), of(10, 1));
 
-        stops = new StopCalls(createId("parentTripId"));
+        stops = new StopCalls(trip);
 
         stops.add(stopA);
         stops.add(stopB);

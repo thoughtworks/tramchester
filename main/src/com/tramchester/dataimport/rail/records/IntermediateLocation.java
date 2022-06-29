@@ -24,6 +24,8 @@ import com.tramchester.domain.time.TramTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.EnumSet;
+
 public class IntermediateLocation implements RailLocationRecord {
     private static final Logger logger = LoggerFactory.getLogger(IntermediateLocation.class);
     public static final TramTime missingPublicTime = TramTime.of(0, 0);
@@ -32,7 +34,7 @@ public class IntermediateLocation implements RailLocationRecord {
     private final TramTime publicArrival;
     private final TramTime publicDeparture;
     private final TramTime passingTime;
-    private final LocationActivityCode activity;
+    private final EnumSet<LocationActivityCode> activity;
     private final String platform;
     private final TramTime scheduledArrival;
     private final TramTime scheduledDepart;
@@ -40,7 +42,7 @@ public class IntermediateLocation implements RailLocationRecord {
 
     public IntermediateLocation(String tiplocCode, TramTime scheduledArrival, TramTime scheduledDepart, TramTime publicArrival,
                                 TramTime publicDeparture, String platform,
-                                TramTime passingTime, LocationActivityCode activity) {
+                                TramTime passingTime, EnumSet<LocationActivityCode> activity) {
         this.tiplocCode = tiplocCode;
         this.scheduledArrival = scheduledArrival;
         this.scheduledDepart = scheduledDepart;
@@ -61,7 +63,7 @@ public class IntermediateLocation implements RailLocationRecord {
         TramTime publicDeparture = getPublicTime(text, isPassing, 29, 32+1);
         String platform = RecordHelper.extract(text, 34, 36+1);
 
-        LocationActivityCode activity = LocationActivityCode.parse(RecordHelper.extract(text,43,54));
+        EnumSet<LocationActivityCode> activity = LocationActivityCode.parse(RecordHelper.extract(text,43,54));
 
         if (!isPassing) {
             if (!scheduledArrival.isValid() && !publicArrival.isValid()) {
@@ -95,7 +97,7 @@ public class IntermediateLocation implements RailLocationRecord {
     public TramTime getArrival() {
         // todo subtype passing records?
         if (this.isPassingRecord()) {
-            throw new RuntimeException("getArrival called on a passing record");
+            throw new RuntimeException("getArrival called on a passing record: " + this);
         }
         return pickPublicOrSchedule(publicArrival, scheduledArrival);
     }
@@ -104,7 +106,7 @@ public class IntermediateLocation implements RailLocationRecord {
     public TramTime getDeparture() {
         // todo subtype passing records?
         if (this.isPassingRecord()) {
-            throw new RuntimeException("getDeparture called on a passing record");
+            throw new RuntimeException("getDeparture called on a passing record: " + this);
         }
         return pickPublicOrSchedule(publicDeparture, scheduledDepart);
     }
@@ -142,7 +144,11 @@ public class IntermediateLocation implements RailLocationRecord {
                 "tiplocCode='" + tiplocCode + '\'' +
                 ", publicArrival=" + publicArrival +
                 ", publicDeparture=" + publicDeparture +
+                ", passingTime=" + passingTime +
+                ", activity=" + activity +
                 ", platform='" + platform + '\'' +
+                ", scheduledArrival=" + scheduledArrival +
+                ", scheduledDepart=" + scheduledDepart +
                 '}';
     }
 
@@ -186,7 +192,7 @@ public class IntermediateLocation implements RailLocationRecord {
         return scheduledDepart;
     }
 
-    public LocationActivityCode getActivity() {
+    public EnumSet<LocationActivityCode> getActivity() {
         return activity;
     }
 
@@ -201,6 +207,6 @@ public class IntermediateLocation implements RailLocationRecord {
     }
 
     public boolean doesStop() {
-        return activity.isDropOff() || activity.isPickup();
+        return LocationActivityCode.doesStop(activity);
     }
 }

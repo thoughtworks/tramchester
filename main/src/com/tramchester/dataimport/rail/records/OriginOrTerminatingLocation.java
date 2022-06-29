@@ -4,14 +4,16 @@ import com.tramchester.dataimport.rail.records.reference.LocationActivityCode;
 import com.tramchester.domain.time.TramTime;
 import org.apache.commons.lang3.NotImplementedException;
 
+import java.util.EnumSet;
+
 public abstract class OriginOrTerminatingLocation {
 
     private final String tiplocCode;
     private final TramTime publicTime;
     private final String platform;
-    private final LocationActivityCode activity;
+    private final EnumSet<LocationActivityCode> activity;
 
-    protected OriginOrTerminatingLocation(String tiplocCode, TramTime publicTime, String platform, LocationActivityCode activity) {
+    protected OriginOrTerminatingLocation(String tiplocCode, TramTime publicTime, String platform, EnumSet<LocationActivityCode> activity) {
         this.tiplocCode = tiplocCode;
         this.publicTime = publicTime;
         this.platform = platform;
@@ -76,12 +78,12 @@ public abstract class OriginOrTerminatingLocation {
         throw new NotImplementedException("Not implemented, record was " + this);
     }
 
-    public LocationActivityCode getActivity() {
+    public EnumSet<LocationActivityCode> getActivity() {
         return activity;
     }
 
     public boolean doesStop() {
-        return activity.isPickup() || activity.isDropOff();
+        return LocationActivityCode.doesStop(activity);
     }
 
 

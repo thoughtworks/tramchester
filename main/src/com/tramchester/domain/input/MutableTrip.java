@@ -28,7 +28,7 @@ public class MutableTrip implements Trip {
         this.headSign = headSign.intern();
         this.service = service;
         this.route = route;
-        stopCalls = new StopCalls(tripId);
+        stopCalls = new StopCalls(this);
         this.actualMode = actualMode;
         filtered = false;
 

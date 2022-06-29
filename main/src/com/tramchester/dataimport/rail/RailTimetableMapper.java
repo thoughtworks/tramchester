@@ -352,18 +352,21 @@ public class RailTimetableMapper {
                 return false;
             }
 
-            final LocationActivityCode activity = railLocation.getActivity();
+            final EnumSet<LocationActivityCode> activity = railLocation.getActivity();
 
             // Platform
             IdFor<NaptanArea> areaId = station.getAreaId(); // naptan seems only to have rail stations, not platforms
             MutablePlatform platform = getOrCreatePlatform(station, railLocation, areaId);
             station.addPlatform(platform);
 
-            if (activity.isPickup()) {
+            boolean doesPickup = LocationActivityCode.doesPickup(activity);
+            boolean doesDropOff = LocationActivityCode.doesDropOff(activity);
+
+            if (doesPickup) {
                 station.addRoutePickUp(route);
                 platform.addRoutePickUp(route);
             }
-            if (activity.isDropOff()) {
+            if (doesDropOff) {
                 station.addRouteDropOff(route);
                 platform.addRouteDropOff(route);
             }
@@ -386,8 +389,8 @@ public class RailTimetableMapper {
                 }
 
                 // TODO Request stops?
-                GTFSPickupDropoffType pickup = activity.isPickup() ? Regular : None;
-                GTFSPickupDropoffType dropoff = activity.isDropOff() ? Regular : None;
+                GTFSPickupDropoffType pickup = doesPickup ? Regular : None;
+                GTFSPickupDropoffType dropoff = doesDropOff ? Regular : None;
                 stopCall = createStopCall(trip, station, platform, stopSequence, arrivalTime, departureTime, pickup, dropoff);
 
                 if (TramTime.difference(arrivalTime, departureTime).compareTo(Duration.ofMinutes(60))>0) {

@@ -6,7 +6,7 @@ import com.tramchester.domain.time.TramTime;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class TerminatingLocationTest {
 
@@ -25,7 +25,8 @@ public class TerminatingLocationTest {
         assertEquals(TramTime.of(19,18), terminatingLocation.getArrival());
         assertEquals("4", terminatingLocation.getPlatform());
         assertEquals("", terminatingLocation.getPath());
-        assertEquals(LocationActivityCode.TrainFinishes, terminatingLocation.getActivity());
+        assertFalse(terminatingLocation.getActivity().isEmpty());
+        assertTrue(terminatingLocation.getActivity().contains(LocationActivityCode.TrainFinishes));
     }
 
     @Test
@@ -38,8 +39,8 @@ public class TerminatingLocationTest {
         assertEquals(TramTime.of(10,23), terminatingLocation.getArrival());
         assertEquals("", terminatingLocation.getPlatform());
         assertEquals("", terminatingLocation.getPath());
-        assertEquals(LocationActivityCode.TrainFinishes, terminatingLocation.getActivity());
-
+        assertFalse(terminatingLocation.getActivity().isEmpty());
+        assertTrue(terminatingLocation.getActivity().contains(LocationActivityCode.TrainFinishes));
     }
 
     @Test
@@ -52,8 +53,8 @@ public class TerminatingLocationTest {
         assertEquals(TramTime.of(8,25), terminatingLocation.getArrival());
         assertEquals("", terminatingLocation.getPlatform());
         assertEquals("BUS", terminatingLocation.getPath());
-        assertEquals(LocationActivityCode.TrainFinishes, terminatingLocation.getActivity());
-
+        assertFalse(terminatingLocation.getActivity().isEmpty());
+        assertTrue(terminatingLocation.getActivity().contains(LocationActivityCode.TrainFinishes));
     }
 
     @Test
@@ -66,8 +67,19 @@ public class TerminatingLocationTest {
         assertEquals(TramTime.of(20,30), terminatingLocation.getArrival());
         assertEquals(TramTime.of(20,30), terminatingLocation.getDeparture());
         assertEquals("", terminatingLocation.getPlatform());
-        assertEquals(LocationActivityCode.TrainFinishes, terminatingLocation.getActivity());
+        assertFalse(terminatingLocation.getActivity().isEmpty());
+        assertTrue(terminatingLocation.getActivity().contains(LocationActivityCode.TrainFinishes));
 
+    }
+
+    @Test
+    void shouldParseTerminatingStageNotBeingFlaggedAsDropoff() {
+        String text = "LTSTIRLNG 2355 23559     TFRM                                                  ";
+
+        TerminatingLocation terminatingLocation = parseWithPadding(text);
+        assertFalse(terminatingLocation.getActivity().isEmpty());
+        assertTrue(terminatingLocation.getActivity().contains(LocationActivityCode.TrainFinishes));
+        assertTrue(terminatingLocation.getActivity().contains(LocationActivityCode.StopsForReversingMoveOrDriverChangesEnds));
     }
 
     @NotNull

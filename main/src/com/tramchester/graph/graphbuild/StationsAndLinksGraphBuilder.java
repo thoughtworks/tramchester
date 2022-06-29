@@ -263,12 +263,17 @@ public class StationsAndLinksGraphBuilder extends GraphBuilder {
         return routeStationNode;
     }
 
-    private void setTransportMode(HasTransportModes hasTransportModes, Node node) {
-        Set<TransportMode> modes = hasTransportModes.getTransportModes();
+    private void setTransportMode(Station station, Node node) {
+        Set<TransportMode> modes = station.getTransportModes();
+        if (modes.isEmpty()) {
+            logger.error("No transport modes set for " + station.getId());
+            return;
+        }
         if (modes.size()==1) {
             setProperty(node, modes.iterator().next());
         } else {
-            logger.error("Unable to set transportmode property, more than one mode for " + hasTransportModes);
+            logger.error(format("Unable to set transportmode property, more than one mode (%s) for %s",
+                    modes, station.getId()));
         }
     }
 

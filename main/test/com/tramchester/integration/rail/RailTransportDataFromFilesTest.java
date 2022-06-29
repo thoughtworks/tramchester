@@ -421,26 +421,33 @@ public class RailTransportDataFromFilesTest {
 
     @Test
     void shouldHaveSensibleTimingsForStoplegs() {
-        // was to catch issues with crossing midnight causing wrong timings
-        Set<Route> notShips = transportData.getRoutes().stream().
-                filter(route -> route.getTransportMode()!=Ship).collect(Collectors.toSet());
+        // Inverness to Euston, between Perth and Preston
+        final Duration maxDuration = Duration.ofHours(6).plusMinutes(10);
 
+        List<Trip> tripsWithLongStopLegs = transportData.getTrips().stream().
+                filter(trip -> trip.getTransportMode().equals(Train)).
+                filter(trip -> hasLongDurationStopLeg(trip, maxDuration)).
+                collect(Collectors.toList());
 
-        // paddington -> newton abbot
-        final Duration maxDuration = Duration.ofHours(5).plusMinutes(10);
-
-        for (Route route : notShips) {
-            List<StopCalls.StopLeg> over = route.getTrips().stream().
-                    flatMap(trip -> trip.getStopCalls().getLegs(false).stream()).
-                    filter(stopLeg -> stopLeg.getCost().compareTo(maxDuration) > 0).
-                    collect(Collectors.toList());
-
-            ///
-            // TODO Legs = stops  - 1 assertion
-
-            assertTrue(over.isEmpty(), "route " + route.getId() + " has legs over "
-                    + maxDuration + " Legs: " + over);
+            assertTrue(tripsWithLongStopLegs.isEmpty(), tripsWithLongStopLegs.toString());
         }
+
+    private boolean hasLongDurationStopLeg(Trip trip, Duration maxDuration) {
+        return trip.getStopCalls().getLegs(false).stream().
+                anyMatch(stopLeg -> stopLeg.getCost().compareTo(maxDuration) > 0);
+    }
+
+    @Test
+    void reproIssueWithStopLegsOnSpecificTrip() {
+        IdFor<Trip> tripIdFor = StringIdFor.createId("trip:C43611:20220703:20220703OVERLAY");
+
+        Trip trip = transportData.getTripById(tripIdFor);
+
+        StopCalls stopCalls = trip.getStopCalls();
+
+        assertEquals(12, stopCalls.numberOfCallingPoints());
+        assertEquals(11, stopCalls.getLegs(false).size());
+
     }
 
 

@@ -3,19 +3,27 @@ package com.tramchester.integration.repository.rail;
 import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.domain.Route;
+import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.StringIdFor;
+import com.tramchester.domain.input.StopCall;
+import com.tramchester.domain.input.StopCalls;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.Station;
+import com.tramchester.domain.time.TramTime;
 import com.tramchester.integration.testSupport.rail.IntegrationRailTestConfig;
+import com.tramchester.integration.testSupport.rail.RailStationIds;
 import com.tramchester.repository.RouteRepository;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.repository.StopCallRepository;
+import com.tramchester.repository.TripRepository;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.testTags.TrainTest;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.condition.DisabledIfEnvironmentVariable;
 
 import java.time.Duration;
+import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -30,6 +38,7 @@ public class StopCallRepositoryRailTest {
     private StopCallRepository stopCallRepository;
     private StationRepository stationRepository;
     private RouteRepository routeRepository;
+    private TripRepository tripRepository;
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
@@ -47,22 +56,44 @@ public class StopCallRepositoryRailTest {
         stopCallRepository = componentContainer.get(StopCallRepository.class);
         stationRepository = componentContainer.get(StationRepository.class);
         routeRepository = componentContainer.get(RouteRepository.class);
+        tripRepository = componentContainer.get(TripRepository.class);
     }
 
     @Test
     void shouldReproIssueWithCrossingMidnight() {
-        Route route = routeRepository.getRouteById(StringIdFor.createId("SR:PERTH=>EDINBUR:5"));
 
-        Station inverkeithing = stationRepository.getStationById(StringIdFor.createId("IVRKTHG"));
-        Station haymarket = stationRepository.getStationById(StringIdFor.createId("HAYMRKT"));
+        List<Trip> crossMidnightTrips = routeRepository.getRoutes().stream().
+                filter(Route::intoNextDay).
+                flatMap(route -> route.getTrips().stream()).
+                filter(Trip::intoNextDay).
+                collect(Collectors.toList());
 
-        StopCallRepository.Costs costs = stopCallRepository.getCostsBetween(route, inverkeithing, haymarket);
+        assertFalse(crossMidnightTrips.isEmpty());
 
-        assertFalse(costs.isEmpty());
+        List<Trip> trips = crossMidnightTrips.stream().
+                filter(trip -> trip.getStopCalls().getLegs(false).stream().anyMatch(leg -> !leg.getFirst().intoNextDay() && leg.getSecond().intoNextDay())).
+                collect(Collectors.toList());
 
-        // was getting costs > 23 hours due to crossing midnight
-        assertEquals(Duration.ofMinutes(14).plusSeconds(36), costs.average(), costs.toString());
-        assertMinutesEquals(16, costs.max(), costs.toString());
+        assertFalse(trips.isEmpty());
+        Trip trip = trips.get(0);
+
+        List<StopCalls.StopLeg> legsIntoNextDay = trip.getStopCalls().getLegs(false).stream().
+                filter(stopLeg -> !stopLeg.getFirst().intoNextDay()).
+                filter(stopLeg -> stopLeg.getSecond().intoNextDay()).
+                collect(Collectors.toList());
+
+        assertFalse(legsIntoNextDay.isEmpty());
+
+        StopCalls.StopLeg leg = legsIntoNextDay.get(0);
+
+        Station firstStation = leg.getFirstStation();
+        Station secondStation = leg.getSecondStation();
+
+        StopCallRepository.Costs costs = stopCallRepository.getCostsBetween(trip.getRoute(), firstStation, secondStation);
+
+        // crossing midnight costs where incorrectly >22 hours previously
+        assertTrue(costs.max().compareTo(Duration.ofHours(22))<0);
+
     }
 
     @Disabled("Data does contain a zero cost trip X13514:20220124:20220127")

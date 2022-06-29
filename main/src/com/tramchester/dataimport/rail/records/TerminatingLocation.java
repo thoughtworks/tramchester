@@ -12,19 +12,27 @@ package com.tramchester.dataimport.rail.records;
 import com.tramchester.dataimport.rail.RailRecordType;
 import com.tramchester.dataimport.rail.records.reference.LocationActivityCode;
 import com.tramchester.domain.time.TramTime;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.EnumSet;
 
 public class TerminatingLocation extends OriginOrTerminatingLocation implements RailLocationRecord {
+    private static final Logger logger = LoggerFactory.getLogger(TerminatingLocation.class);
 
     private final String path;
 
-    protected TerminatingLocation(String tiplocCode, TramTime publicDeptTime, String platform, String path, LocationActivityCode activity) {
+    protected TerminatingLocation(String tiplocCode, TramTime publicDeptTime, String platform, String path, EnumSet<LocationActivityCode> activity) {
         super(tiplocCode, publicDeptTime, platform, activity);
         this.path = path;
     }
 
     public static TerminatingLocation parse(String text) {
         String path = RecordHelper.extract(text,23, 25+1);
-        LocationActivityCode activity = LocationActivityCode.parse(RecordHelper.extract(text, 26, 37));
+        EnumSet<LocationActivityCode> activity = LocationActivityCode.parse(RecordHelper.extract(text, 26, 37));
+        if (activity.isEmpty()) {
+            logger.warn("Unknown activity for " + text);
+        }
         return OriginOrTerminatingLocation.parse(text, new Creator(path, activity));
     }
 
@@ -90,9 +98,9 @@ public class TerminatingLocation extends OriginOrTerminatingLocation implements 
     private static class Creator implements Constructor<TerminatingLocation> {
 
         private final String path;
-        private final LocationActivityCode activity;
+        private final EnumSet<LocationActivityCode> activity;
 
-        public Creator(String path, LocationActivityCode activity) {
+        public Creator(String path, EnumSet<LocationActivityCode> activity) {
             this.path = path;
             this.activity = activity;
         }

@@ -184,9 +184,10 @@ public class NaptanRepositoryContainer implements NaptanRepository {
                 collect(Collectors.toList());
         pendingAreaIds.put(id, areaIds);
 
-        if (areaIds.size()>1) {
-            logger.warn("Multiple stop area refs active for acto code: " + id);
-        }
+        // Seems very common in the data, not sure what we can about it anyway?
+//        if (areaIds.size()>1) {
+//            logger.warn("Multiple stop area refs active for acto code: " + id);
+//        }
 
         return new NaptanRecord(id, original.getCommonName(), original.getGridPosition(), original.getLatLong(),
                 suburb, town, original.getStopType());

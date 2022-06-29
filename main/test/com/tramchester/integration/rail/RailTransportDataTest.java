@@ -53,7 +53,6 @@ public class RailTransportDataTest {
     private LoadRailStationRecords loadRailStationRecords;
     private RailDataRecordFactory railDataRecordFactory;
     private UnzipFetchedData.Ready ready;
-    private StationRepository stationRepository;
     private TransportDataContainer dataContainer;
 
     @BeforeAll
@@ -77,7 +76,9 @@ public class RailTransportDataTest {
         loadRailStationRecords = componentContainer.get(LoadRailStationRecords.class);
         railDataRecordFactory = componentContainer.get(RailDataRecordFactory.class);
         ready = componentContainer.get(UnzipFetchedData.Ready.class);
-        stationRepository = componentContainer.get(StationRepository.class);
+
+        // getting station repository triggers full load of timetable data, slowing down these tests a LOT
+        // stationRepository = componentContainer.get(StationRepository.class);
 
         dataContainer = new TransportDataContainer(providesNow, "testingOnly");
     }
@@ -126,8 +127,8 @@ public class RailTransportDataTest {
         // 19 - 2 passing records
         assertEquals(17, calls.numberOfCallingPoints(), calls.toString());
 
-        assertEquals(stationRepository.getStationById(StringIdFor.createId("WATRLMN")), calls.getFirstStop().getStation());
-        assertEquals(stationRepository.getStationById(StringIdFor.createId("SHEPRTN")), calls.getLastStop().getStation());
+        assertEquals(StringIdFor.createId("WATRLMN"), calls.getFirstStop().getStation().getId());
+        assertEquals(StringIdFor.createId("SHEPRTN"), calls.getLastStop().getStation().getId());
 
     }
 
@@ -242,6 +243,30 @@ public class RailTransportDataTest {
 
         assertTrue(badTimings.isEmpty(), diagnostics);
 
+    }
+
+    @Test
+    void shouldHandleDirectStartToFinishNoStops() {
+        String text = """
+                BSNY598672205162212101111110 POO2N70    113575825 EMU385 100      S            P
+                BX         SRYSR847400                                                         \s
+                LOALLOA   2347 23471         TB                                                \s
+                LICMUSLP            2349H00000000                                              \s
+                LISTIRCHJ           2353H00000000                        H                     \s
+                LTSTIRLNG 2355 23559     TFRM                                                  \s""";
+
+        final TransportData dataContainer = loadForTimetableData(text);
+
+        Set<Service> services = dataContainer.getServices();
+        assertEquals(1, services.size());
+
+        Set<Trip> trips = dataContainer.getTrips();
+        assertEquals(1, trips.size());
+
+        Trip trip = trips.iterator().next();
+
+        StopCalls stopCalls = trip.getStopCalls();
+        assertEquals(2, stopCalls.numberOfCallingPoints(), stopCalls.toString());
     }
 
     @Test
@@ -360,8 +385,7 @@ public class RailTransportDataTest {
         Set<Service> services = dataContainer.getServices();
         assertEquals(1, services.size());
 
-        String underylingID = "C43611:20220703:20220703OVERLAY";
-        IdFor<Service> serviceId = StringIdFor.createId(underylingID);
+        IdFor<Service> serviceId = StringIdFor.createId("C43611:20220703:20220703OVERLAY");
 
         Service service = dataContainer.getServiceById(serviceId);
 

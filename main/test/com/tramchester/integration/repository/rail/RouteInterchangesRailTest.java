@@ -130,7 +130,7 @@ public class RouteInterchangesRailTest {
 
         RouteStation delamereRouteStation = stationRepository.getRouteStationById(RouteStation.createId(delamere.getId(),
                 manchesterToChester));
-        assertMinutesEquals(16, routeInterchanges.costToInterchange(delamereRouteStation));
+        assertMinutesEquals(19, routeInterchanges.costToInterchange(delamereRouteStation));
 
     }
 }

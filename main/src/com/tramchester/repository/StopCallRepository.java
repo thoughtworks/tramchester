@@ -50,6 +50,8 @@ public class StopCallRepository implements ReportsCacheStats {
         this.serviceRepository = serviceRepository;
         this.graphFilter = graphFilter;
         stopCalls = new HashMap<>();
+
+        // cost calcs potentially expensive
         cachedCosts = Caffeine.newBuilder().maximumSize(20000).expireAfterAccess(10, TimeUnit.MINUTES).
                 recordStats().build();
         cacheMetrics.register(this);
@@ -116,13 +118,13 @@ public class StopCallRepository implements ReportsCacheStats {
     @NotNull
     private Costs calculateCosts(Route route, Station first, Station second) {
         List<Duration> allCosts = route.getTrips().stream().
-                flatMap(trip -> trip.getStopCalls().getLegs(graphFilter.isFiltered()).stream()).
+                flatMap(trip -> trip.getStopCalls().getLegs(graphFilter.isActive()).stream()).
                 filter(leg -> leg.getFirstStation().equals(first) && leg.getSecondStation().equals(second)).
                 map(StopCalls.StopLeg::getCost).collect(Collectors.toList());
 
         if (allCosts.isEmpty()) {
-            String msg = String.format("Found no costs (stop legs) for stations %s and %s on route %s",
-                    first, second, route);
+            String msg = String.format("Found no costs (stop legs) for stations %s and %s on route %s. Are they adjacent stations?",
+                    first.getId(), second.getId(), route.getId());
             logger.error(msg);
             throw new RuntimeException(msg);
         }
