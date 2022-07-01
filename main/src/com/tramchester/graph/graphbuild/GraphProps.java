@@ -11,6 +11,7 @@ import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.reference.TransportMode;
+import com.tramchester.domain.time.DateRange;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.GraphPropertyKey;
 import org.neo4j.graphdb.Entity;
@@ -38,16 +39,16 @@ public class GraphProps {
         entity.setProperty(item.getProp().getText(), item.getId().getGraphId());
     }
 
-    public static void setEndDate(Relationship relationship, LocalDate date) {
-        relationship.setProperty(END_DATE.getText(), date);
+    public static void setEndDate(Entity entity, LocalDate date) {
+        entity.setProperty(END_DATE.getText(), date);
     }
 
     public static LocalDate getEndDate(Relationship relationship) {
         return (LocalDate) relationship.getProperty(END_DATE.getText());
     }
 
-    public static void setStartDate(Relationship relationship, LocalDate date) {
-        relationship.setProperty(START_DATE.getText(), date);
+    public static void setStartDate(Entity entity, LocalDate date) {
+        entity.setProperty(START_DATE.getText(), date);
     }
 
     public static LocalDate getStartDate(Relationship relationship) {
@@ -233,5 +234,22 @@ public class GraphProps {
 
     public static void setProperty(Entity entity, IdFor<NaptanArea> areaId) {
         entity.setProperty(AREA_ID.getText(), areaId.getGraphId());
+    }
+
+    public static boolean validOn(LocalDate date, Relationship relationship) {
+        LocalDate startDate = getStartDate(relationship);
+        if (date.isBefore(startDate)) {
+            return false;
+        }
+        LocalDate endDate = getEndDate(relationship);
+        if (date.isAfter(endDate)) {
+            return false;
+        }
+        return true;
+    }
+
+    public static void setDateRange(Entity entity, DateRange range) {
+        setStartDate(entity, range.getStartDate());
+        setEndDate(entity, range.getEndDate());
     }
 }

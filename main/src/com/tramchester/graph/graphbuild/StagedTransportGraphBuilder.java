@@ -11,6 +11,7 @@ import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.GTFSPickupDropoffType;
 import com.tramchester.domain.reference.TransportMode;
+import com.tramchester.domain.time.DateRange;
 import com.tramchester.domain.time.StationTime;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.AddNeighboursGraphBuilder;
@@ -21,9 +22,7 @@ import com.tramchester.graph.databaseManagement.GraphDatabaseMetaInfo;
 import com.tramchester.graph.filters.GraphFilter;
 import com.tramchester.metrics.TimedTransaction;
 import com.tramchester.metrics.Timing;
-import com.tramchester.repository.InterchangeRepository;
-import com.tramchester.repository.StopCallRepository;
-import com.tramchester.repository.TransportData;
+import com.tramchester.repository.*;
 import org.jetbrains.annotations.NotNull;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
@@ -65,6 +64,7 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
     private final InterchangeRepository interchangeRepository;
     private final GraphDatabaseMetaInfo databaseMetaInfo;
     private final StopCallRepository stopCallRepository;
+    private final StationsWithDiversionRepository stationsWithDiversionRepository;
 
     // force contsruction via guice to generate ready token, needed where no direct code dependency on this class
     public Ready getReady() {
@@ -78,12 +78,14 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
                                        StationsAndLinksGraphBuilder.Ready stationAndLinksBuilt,
                                        AddNeighboursGraphBuilder.Ready neighboursReady,
                                        AddWalksForClosedGraphBuilder.Ready walksForClosedReady,
-                                       GraphDatabaseMetaInfo databaseMetaInfo, StopCallRepository stopCallRepository) {
+                                       GraphDatabaseMetaInfo databaseMetaInfo, StopCallRepository stopCallRepository,
+                                       StationsWithDiversionRepository stationsWithDiversionRepository) {
         super(graphDatabase, graphFilter, config, builderCache);
         this.transportData = transportData;
         this.interchangeRepository = interchangeRepository;
         this.databaseMetaInfo = databaseMetaInfo;
         this.stopCallRepository = stopCallRepository;
+        this.stationsWithDiversionRepository = stationsWithDiversionRepository;
     }
 
     @PostConstruct
@@ -412,16 +414,28 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
 
     private void createDeparts(GraphBuilderCache routeBuilderCache, Station station, boolean isInterchange,
                                Node boardingNode, IdFor<RouteStation> routeStationId, Node routeStationNode) {
-        TransportRelationshipTypes departType = isInterchange ? INTERCHANGE_DEPART : DEPART;
+
+        TransportRelationshipTypes departType;
+        if (isInterchange) {
+            departType = INTERCHANGE_DEPART;
+        } else if (stationsWithDiversionRepository.hasDiversions(station)) {
+            departType = DIVERSION_DEPART;
+        } else {
+            departType = DEPART;
+        }
 
         Duration departCost = Duration.ZERO;
-        //int departCost = isInterchange ? INTERCHANGE_DEPART_COST : DEPARTS_COST;
 
         Relationship departRelationship = createRelationship(routeStationNode, boardingNode, departType);
         setCostProp(departRelationship, departCost);
         setRouteStationProp(departRelationship, routeStationId);
         setProperty(departRelationship, station);
         routeBuilderCache.putDepart(boardingNode.getId(), routeStationNode.getId());
+
+        if (departType.equals(DIVERSION_DEPART)) {
+            Set<DateRange> ranges = stationsWithDiversionRepository.getDateRangesFor(station);
+            ranges.forEach(range -> GraphProps.setDateRange(departRelationship, range));
+        }
     }
 
     private void createBoarding(GraphBuilderCache routeBuilderCache, StopCall stop, Route route, Station station,

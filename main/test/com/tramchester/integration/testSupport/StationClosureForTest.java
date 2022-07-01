@@ -3,6 +3,7 @@ package com.tramchester.integration.testSupport;
 import com.tramchester.domain.StationClosure;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.places.Station;
+import com.tramchester.domain.time.DateRange;
 import com.tramchester.testSupport.reference.TramStations;
 
 import java.time.LocalDate;
@@ -32,5 +33,10 @@ public class StationClosureForTest implements StationClosure {
     @Override
     public LocalDate getEnd() {
         return end;
+    }
+
+    @Override
+    public DateRange getDateRange() {
+        return new DateRange(begin, end);
     }
 }

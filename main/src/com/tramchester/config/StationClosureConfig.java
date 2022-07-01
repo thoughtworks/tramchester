@@ -1,10 +1,12 @@
 package com.tramchester.config;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.tramchester.domain.StationClosure;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.places.Station;
+import com.tramchester.domain.time.DateRange;
 import io.dropwizard.Configuration;
 
 import javax.validation.Valid;
@@ -45,6 +47,12 @@ public class StationClosureConfig extends Configuration implements StationClosur
     @Override
     public LocalDate getEnd() {
         return end;
+    }
+
+    @JsonIgnore
+    @Override
+    public DateRange getDateRange() {
+        return new DateRange(begin, end);
     }
 
     @Override

@@ -19,7 +19,8 @@ public class JustBoardedState extends RouteStationState {
 
         private final boolean depthFirst;
 
-        public Builder(boolean depthFirst) {
+        public Builder(boolean depthFirst, boolean interchangesOnly) {
+            super(interchangesOnly);
             this.depthFirst = depthFirst;
         }
 
@@ -51,7 +52,7 @@ public class JustBoardedState extends RouteStationState {
         }
 
         public JustBoardedState fromNoPlatformStation(NoPlatformStationState noPlatformStation, Node node, Duration cost) {
-            Stream<Relationship> filteredDeparts = filterExcludingEndNode(node.getRelationships(OUTGOING, DEPART, INTERCHANGE_DEPART),
+            Stream<Relationship> filteredDeparts = filterExcludingEndNode(node.getRelationships(OUTGOING, DEPART, INTERCHANGE_DEPART, DIVERSION_DEPART),
                     noPlatformStation);
             Stream<Relationship> services = orderServicesByRouteMetric(node, noPlatformStation.traversalOps);
             return new JustBoardedState(noPlatformStation, Stream.concat(filteredDeparts, services), cost);

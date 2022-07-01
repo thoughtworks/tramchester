@@ -60,15 +60,11 @@ public class TraversalOps {
         this.queryDate = queryDate.getDate();
     }
 
-    private IdFor<Station> getStationIdFor(Location<?> location) {
-        return StringIdFor.convert(location.getId());
-    }
-
     public List<Relationship> getTowardsDestination(Iterable<Relationship> outgoing) {
         return getTowardsDestination(Streams.stream(outgoing));
     }
 
-    private List<Relationship> getTowardsDestination(Stream<Relationship> outgoing) {
+    public List<Relationship> getTowardsDestination(Stream<Relationship> outgoing) {
         return outgoing.
                 filter(depart -> destinationStationIds.contains(GraphProps.getStationIdFrom(depart))).
                 collect(Collectors.toList());

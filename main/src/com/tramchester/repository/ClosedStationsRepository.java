@@ -62,4 +62,8 @@ public class ClosedStationsRepository {
                 filter(closure -> date.isBefore(closure.getEnd()) || date.equals(closure.getEnd())).
                 collect(Collectors.toSet());
     }
+
+    public boolean hasClosuresFor(Station station) {
+        return closed.stream().anyMatch(closure -> closure.getStations().contains(station.getId()));
+    }
 }

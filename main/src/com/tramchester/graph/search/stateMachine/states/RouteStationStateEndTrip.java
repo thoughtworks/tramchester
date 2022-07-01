@@ -6,16 +6,13 @@ import com.tramchester.graph.graphbuild.GraphProps;
 import com.tramchester.graph.search.JourneyStateUpdate;
 import com.tramchester.graph.search.stateMachine.RegistersFromState;
 import com.tramchester.graph.search.stateMachine.TowardsRouteStation;
-import org.geotools.data.store.EmptyIterator;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
 
 import java.time.Duration;
+import java.time.LocalDate;
 import java.util.List;
-
-import static com.tramchester.graph.TransportRelationshipTypes.DEPART;
-import static com.tramchester.graph.TransportRelationshipTypes.INTERCHANGE_DEPART;
-import static org.neo4j.graphdb.Direction.OUTGOING;
+import java.util.stream.Stream;
 
 public class RouteStationStateEndTrip extends RouteStationState {
 
@@ -28,10 +25,8 @@ public class RouteStationStateEndTrip extends RouteStationState {
 
     public static class Builder extends TowardsRouteStation<RouteStationStateEndTrip> {
 
-        private final boolean interchangesOnly;
-
         public Builder(boolean interchangesOnly) {
-            this.interchangesOnly = interchangesOnly;
+            super(interchangesOnly);
         }
 
         @Override
@@ -47,25 +42,16 @@ public class RouteStationStateEndTrip extends RouteStationState {
         public RouteStationStateEndTrip fromMinuteState(MinuteState minuteState, Node node, Duration cost, boolean isInterchange) {
             TransportMode transportMode = GraphProps.getTransportMode(node);
 
-            Iterable<Relationship> allDeparts = node.getRelationships(OUTGOING, DEPART, INTERCHANGE_DEPART);
+            // TODO Crossing midnight?
+            LocalDate date = minuteState.traversalOps.getQueryDate();
 
-            List<Relationship> towardsDestination = minuteState.traversalOps.getTowardsDestination(allDeparts);
+            List<Relationship> towardsDestination = getTowardsDestination(minuteState.traversalOps, node, date);
             if (!towardsDestination.isEmpty()) {
                 // we've nearly arrived
-                return new RouteStationStateEndTrip(minuteState, towardsDestination, cost, transportMode, node);
+                return new RouteStationStateEndTrip(minuteState, towardsDestination.stream(), cost, transportMode, node);
             }
 
-            Iterable<Relationship> outboundsToFollow;
-            if (interchangesOnly) {
-                if (isInterchange) {
-                    outboundsToFollow = node.getRelationships(OUTGOING, INTERCHANGE_DEPART);
-                } else {
-                    // trip ended here but not an interchange, can go no further
-                    outboundsToFollow = EmptyIterator::new;
-                }
-            } else {
-                outboundsToFollow = allDeparts;
-            }
+            Stream<Relationship> outboundsToFollow = getOutboundsToFollow(node, isInterchange, date);
 
             return new RouteStationStateEndTrip(minuteState, outboundsToFollow, cost, transportMode, node);
         }
@@ -75,7 +61,7 @@ public class RouteStationStateEndTrip extends RouteStationState {
     private final TransportMode mode;
     private final Node routeStationNode;
 
-    private RouteStationStateEndTrip(MinuteState minuteState, Iterable<Relationship> routeStationOutbound, Duration cost,
+    private RouteStationStateEndTrip(MinuteState minuteState, Stream<Relationship> routeStationOutbound, Duration cost,
                                      TransportMode mode, Node routeStationNode) {
         super(minuteState, routeStationOutbound, cost);
         this.mode = mode;

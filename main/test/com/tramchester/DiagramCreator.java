@@ -288,6 +288,7 @@ public class DiagramCreator {
             case ON_ROUTE -> "R";
             case INTERCHANGE_BOARD -> "IB";
             case INTERCHANGE_DEPART -> "ID";
+            case DIVERSION_DEPART -> "DD";
             case TRAM_GOES_TO -> "Tram";
             case DEPART -> "D";
             case BUS_GOES_TO -> "Bus";

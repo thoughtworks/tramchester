@@ -25,13 +25,12 @@ public abstract class StationStateBuilder {
         if ((!alreadyOnDiversion) && node.hasRelationship(Direction.OUTGOING, DIVERSION)) {
             LocalDate queryDate = traversalState.traversalOps.getQueryDate();
             Stream<Relationship> diversions = Streams.stream(node.getRelationships(Direction.OUTGOING, DIVERSION));
-            Stream<Relationship> validOnDate = diversions.
-                    filter(relationship -> !GraphProps.getStartDate(relationship).until(queryDate).isNegative()).
-                    filter(relationship -> !queryDate.until(GraphProps.getEndDate(relationship)).isNegative());
+            Stream<Relationship> validOnDate = diversions.filter(relationship -> GraphProps.validOn(queryDate, relationship));
             return Stream.concat(validOnDate, relationships);
         }
 
         return relationships;
-
     }
+
+
 }

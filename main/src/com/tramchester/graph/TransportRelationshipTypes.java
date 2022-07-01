@@ -19,6 +19,7 @@ public enum TransportRelationshipTypes implements RelationshipType {
     DEPART,
     INTERCHANGE_BOARD,
     INTERCHANGE_DEPART,
+    DIVERSION_DEPART, // might depart here as diversion from this station is in place
     WALKS_TO_STATION,       // WALKS_TO and _FROM added (and then removed) to support journeys involving a walk
     WALKS_FROM_STATION,
     ENTER_PLATFORM,

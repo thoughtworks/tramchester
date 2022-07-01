@@ -16,6 +16,7 @@ import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
 
 import java.time.Duration;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Stream;
 
@@ -30,11 +31,10 @@ public class RouteStationStateOnTrip extends RouteStationState implements NodeId
 
     public static class Builder extends TowardsRouteStation<RouteStationStateOnTrip> {
 
-        private final boolean interchangesOnly;
         private final NodeContentsRepository nodeContents;
 
         public Builder(boolean interchangesOnly, NodeContentsRepository nodeContents) {
-            this.interchangesOnly = interchangesOnly;
+            super(interchangesOnly);
             this.nodeContents = nodeContents;
         }
 
@@ -48,39 +48,31 @@ public class RouteStationStateOnTrip extends RouteStationState implements NodeId
             return RouteStationStateOnTrip.class;
         }
 
-        public RouteStationStateOnTrip fromMinuteState(MinuteState minuteState, Node node, Duration cost, boolean isInterchange,
-                                                       Trip trip) {
+        public RouteStationStateOnTrip fromMinuteState(MinuteState minuteState, Node node, Duration cost,
+                                                       boolean isInterchange, Trip trip) {
             TransportMode transportMode = GraphProps.getTransportMode(node);
 
-            Iterable<Relationship> allDeparts = node.getRelationships(OUTGOING, DEPART, INTERCHANGE_DEPART);
+            // TODO Crossing midnight?
+            LocalDate date = minuteState.traversalOps.getQueryDate();
 
-            List<Relationship> towardsDestination = minuteState.traversalOps.getTowardsDestination(allDeparts);
+            List<Relationship> towardsDestination = getTowardsDestination(minuteState.traversalOps, node, date);
             if (!towardsDestination.isEmpty()) {
                 // we've nearly arrived
                 return new RouteStationStateOnTrip(minuteState, towardsDestination.stream(), cost, node, trip.getId(), transportMode);
             }
 
             // outbound service relationships that continue the current trip
-            Stream<Relationship> towardsServiceForTrip = filterByTripId(node.getRelationships(OUTGOING, TO_SERVICE),
-                    trip);
+            Stream<Relationship> towardsServiceForTrip = filterByTripId(node.getRelationships(OUTGOING, TO_SERVICE), trip);
 
             // now add outgoing to platforms/stations
-            Stream<Relationship> departs;
-            if (interchangesOnly) {
-                if (isInterchange) {
-                    departs = Streams.stream(node.getRelationships(OUTGOING, INTERCHANGE_DEPART));
-                } else {
-                    departs = Stream.empty();
-                }
-            } else {
-                departs = Streams.stream(allDeparts);
-            }
+            Stream<Relationship> outboundsToFollow = getOutboundsToFollow(node, isInterchange, date);
 
             // NOTE: order of the concatenation matters here for depth first, need to do departs first to
             // explore routes including changes over continuing on possibly much longer trip
-            final Stream<Relationship> relationships = Stream.concat(departs, towardsServiceForTrip);
+            final Stream<Relationship> relationships = Stream.concat(outboundsToFollow, towardsServiceForTrip);
             return new RouteStationStateOnTrip(minuteState, relationships, cost, node, trip.getId(), transportMode);
         }
+
 
         private Stream<Relationship> filterByTripId(Iterable<Relationship> svcRelationships, Trip trip) {
             IdFor<Service> currentSvcId = trip.getService().getId();
