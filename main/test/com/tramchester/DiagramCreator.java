@@ -40,11 +40,11 @@ public class DiagramCreator {
     private final GraphDatabase graphDatabase;
     private final GraphQuery graphQuery;
     private final TransportRelationshipTypes[] toplevelRelationships =
-            new TransportRelationshipTypes[]{LINKED, ON_ROUTE, ROUTE_TO_STATION, STATION_TO_ROUTE, };
+            new TransportRelationshipTypes[]{LINKED, ON_ROUTE, ROUTE_TO_STATION, STATION_TO_ROUTE, DIVERSION };
     private final StationRepository stationRepository;
     private final NaptanRepository naptanRespository;
 
-    private static Path diagramsFolder = Path.of("diagrams");
+    private static final Path diagramsFolder = Path.of("diagrams");
 
     @Inject
     public DiagramCreator(GraphDatabase graphDatabase, GraphQuery graphQuery, StationRepository stationRepository,

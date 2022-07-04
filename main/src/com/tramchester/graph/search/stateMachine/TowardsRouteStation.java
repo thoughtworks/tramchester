@@ -8,6 +8,7 @@ import org.neo4j.graphdb.Relationship;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -46,7 +47,10 @@ public abstract class TowardsRouteStation<T extends RouteStationState> implement
     }
 
     private List<Relationship> getActiveDiversions(Node node, LocalDate date) {
-        List<Relationship> collect = Streams.stream(node.getRelationships(OUTGOING, DIVERSION_DEPART)).
+        Set<Relationship> diversions = Streams.
+                stream(node.getRelationships(OUTGOING, DIVERSION_DEPART)).
+                collect(Collectors.toSet());
+        List<Relationship> collect = diversions.stream().
                 filter(relationship -> GraphProps.validOn(date, relationship)).
                 collect(Collectors.toList());
         return collect;

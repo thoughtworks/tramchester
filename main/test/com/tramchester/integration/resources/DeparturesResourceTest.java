@@ -77,7 +77,7 @@ class DeparturesResourceTest {
     @Test
     @LiveDataTestCategory
     void shouldHaveAStationWithAMessage() {
-        assertNotNull(stationWithNotes);
+        assertNotNull(stationWithNotes, "No station with notes");
     }
 
     @Test
@@ -90,6 +90,7 @@ class DeparturesResourceTest {
     @LiveDataTestCategory
     void shouldGetDueTramsForStation() {
         // split out messages to own test as need to be able to disable those separately
+        assertNotNull(stationWithNotes, "No station with notes");
         Response response = getResponseForStation(stationWithNotes, false);
         assertEquals(200, response.getStatus());
         DepartureListDTO departureList = response.readEntity(DepartureListDTO.class);
@@ -102,6 +103,7 @@ class DeparturesResourceTest {
     @Test
     @LiveDataMessagesCategory
     void shouldHaveMessagesForStation() {
+        assertNotNull(stationWithNotes, "No station with notes");
         Response response = getResponseForStation(stationWithNotes, true);
         assertEquals(200, response.getStatus());
         DepartureListDTO departureList = response.readEntity(DepartureListDTO.class);
@@ -203,6 +205,7 @@ class DeparturesResourceTest {
     void shouldGetDueTramsForStationNotesRequestedOrNot() {
         Station station = stationWithNotes;
 
+        assertNotNull(stationWithNotes, "No station with notes");
         // Notes disabled
         Response response = getResponseForStation(station, false);
         assertEquals(200, response.getStatus());
