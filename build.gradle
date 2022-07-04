@@ -279,8 +279,8 @@ task integration(type: Test, dependsOn: compileJava) {
     minHeapSize = "1000m"
     maxHeapSize = "1750m"
     useJUnitPlatform {
-        excludeTags "liveDataMessages" // these go away periodically...
-        excludeTags "liveData" // also goes away on occasion
+        //excludeTags "liveDataMessages" // these go away periodically...
+        //excludeTags "liveData" // also goes away on occasion
         //excludeTags "dataExpiry" // can be useful to exclude when big changes to timetable are upcoming
         excludeTags "postcode" // not needed for tram, but used by buses
         excludeTags "BusTest"
