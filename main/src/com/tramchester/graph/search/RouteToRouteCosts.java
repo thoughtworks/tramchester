@@ -69,7 +69,7 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
    @PostConstruct
     public void start() {
         logger.info("starting");
-        if (graphFilter.isFiltered()) {
+        if (graphFilter.isActive()) {
            logger.warn("Filtering is enabled, skipping all caching");
            index.populateFrom(routeRepository);
         } else {

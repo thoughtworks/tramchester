@@ -46,7 +46,8 @@ public class PlatformStationState extends StationState {
                     stationNode, journeyState);
         }
 
-        public PlatformStationState fromStart(NotStartedState notStartedState, Node stationNode, Duration cost, JourneyStateUpdate journeyState, boolean alreadyOnDiversion, boolean onDiversion) {
+        public PlatformStationState fromStart(NotStartedState notStartedState, Node stationNode, Duration cost,
+                                              JourneyStateUpdate journeyState, boolean alreadyOnDiversion, boolean onDiversion) {
             final Iterable<Relationship> initial = stationNode.getRelationships(OUTGOING, WALKS_FROM_STATION, ENTER_PLATFORM,
                     NEIGHBOUR, GROUPED_TO_PARENT);
             Stream<Relationship> relationships = addValidDiversions(stationNode, initial, notStartedState, onDiversion);

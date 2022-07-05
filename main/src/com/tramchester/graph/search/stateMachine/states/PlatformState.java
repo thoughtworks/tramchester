@@ -7,6 +7,7 @@ import com.tramchester.graph.search.JourneyStateUpdate;
 import com.tramchester.graph.search.stateMachine.NodeId;
 import com.tramchester.graph.search.stateMachine.RegistersFromState;
 import com.tramchester.graph.search.stateMachine.Towards;
+import com.tramchester.graph.search.stateMachine.TraversalOps;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
 
@@ -42,8 +43,7 @@ public class PlatformState extends TraversalState implements NodeId {
         public TraversalState fromRouteStationOnTrip(RouteStationStateOnTrip routeStationStateOnTrip, Node node, Duration cost) {
 
             // towards final destination, just follow this one
-            List<Relationship> towardsDest = routeStationStateOnTrip.traversalOps.
-                    getTowardsDestination(node.getRelationships(OUTGOING, LEAVE_PLATFORM));
+            List<Relationship> towardsDest = getTowardsDestination(routeStationStateOnTrip.traversalOps, node);
             if (!towardsDest.isEmpty()) {
                 return new PlatformState(routeStationStateOnTrip, towardsDest, node, cost);
             }
@@ -59,7 +59,7 @@ public class PlatformState extends TraversalState implements NodeId {
 
         public TraversalState fromRouteStatiomEndTrip(RouteStationStateEndTrip routeStationState, Node node, Duration cost) {
             // towards final destination, just follow this one
-            List<Relationship> towardsDest = routeStationState.traversalOps.getTowardsDestination(node.getRelationships(OUTGOING, LEAVE_PLATFORM));
+            List<Relationship> towardsDest = getTowardsDestination(routeStationState.traversalOps, node);
             if (!towardsDest.isEmpty()) {
                 return new PlatformState(routeStationState, towardsDest, node, cost);
             }
@@ -68,6 +68,10 @@ public class PlatformState extends TraversalState implements NodeId {
                     BOARD, INTERCHANGE_BOARD, LEAVE_PLATFORM);
             // end of a trip, may need to go back to this route station to catch new service
             return new PlatformState(routeStationState, platformRelationships, node, cost);
+        }
+
+        private List<Relationship> getTowardsDestination(TraversalOps traversalOps, Node node) {
+            return traversalOps.getTowardsDestination(node.getRelationships(OUTGOING, LEAVE_PLATFORM));
         }
 
     }
@@ -101,7 +105,8 @@ public class PlatformState extends TraversalState implements NodeId {
     }
 
     @Override
-    protected PlatformStationState toTramStation(PlatformStationState.Builder towardsStation, Node node, Duration cost, JourneyStateUpdate journeyState, boolean onDiversion) {
+    protected PlatformStationState toTramStation(PlatformStationState.Builder towardsStation, Node node, Duration cost,
+                                                 JourneyStateUpdate journeyState, boolean onDiversion) {
         return towardsStation.fromPlatform(this, node, cost, journeyState, onDiversion);
     }
 

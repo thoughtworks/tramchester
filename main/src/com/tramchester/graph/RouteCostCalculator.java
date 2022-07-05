@@ -114,7 +114,6 @@ public class RouteCostCalculator {
         }
         double weight  = Math.floor(path.weight());
 
-        // todo pass in Chronounits here?
         int value = (int) weight;
         return Duration.ofMinutes(value);
     }

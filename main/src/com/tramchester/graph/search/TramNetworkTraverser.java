@@ -12,6 +12,7 @@ import com.tramchester.graph.caches.LowestCostSeen;
 import com.tramchester.graph.caches.NodeContentsRepository;
 import com.tramchester.graph.caches.PreviousVisits;
 import com.tramchester.graph.graphbuild.GraphLabel;
+import com.tramchester.graph.graphbuild.GraphProps;
 import com.tramchester.graph.search.stateMachine.TraversalOps;
 import com.tramchester.graph.search.stateMachine.states.ImmuatableTraversalState;
 import com.tramchester.graph.search.stateMachine.states.NotStartedState;
@@ -40,7 +41,6 @@ import static org.neo4j.graphdb.traversal.Uniqueness.NONE;
 public class TramNetworkTraverser implements PathExpander<JourneyState> {
     private static final Logger logger = LoggerFactory.getLogger(TramNetworkTraverser.class);
 
-    private final GraphDatabase graphDatabaseService;
     private final NodeContentsRepository nodeContentsRepository;
     private final TripRepository tripRespository;
     private final TramTime actualQueryTime;
@@ -54,12 +54,11 @@ public class TramNetworkTraverser implements PathExpander<JourneyState> {
     private final ReasonsToGraphViz reasonToGraphViz;
     private final ProvidesNow providesNow;
 
-    public TramNetworkTraverser(GraphDatabase graphDatabaseService, RouteCalculatorSupport.PathRequest pathRequest,
+    public TramNetworkTraverser(RouteCalculatorSupport.PathRequest pathRequest,
                                 SortsPositions sortsPosition, NodeContentsRepository nodeContentsRepository, TripRepository tripRespository,
                                 TraversalStateFactory traversalStateFactory, LocationSet destinations, TramchesterConfig config,
                                 Set<Long> destinationNodeIds, ServiceReasons reasons,
                                 ReasonsToGraphViz reasonToGraphViz, ProvidesNow providesNow) {
-        this.graphDatabaseService = graphDatabaseService;
         this.sortsPosition = sortsPosition;
         this.nodeContentsRepository = nodeContentsRepository;
         this.tripRespository = tripRespository;
@@ -164,6 +163,7 @@ public class TramNetworkTraverser implements PathExpander<JourneyState> {
                 journeyStateForChildren.updateTotalCost(total);
             }
             if (lastRelationship.isType(DIVERSION)) {
+                logger.info("On diversion from " + GraphProps.getStationId(lastRelationship.getStartNode()));
                 alreadyOnDiversion = true;
             }
         }

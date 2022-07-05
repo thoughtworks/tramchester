@@ -75,7 +75,7 @@ class DeparturesResourceTest {
     }
 
     @Test
-    @LiveDataTestCategory
+    @LiveDataMessagesCategory
     void shouldHaveAStationWithAMessage() {
         assertNotNull(stationWithNotes, "No station with notes");
     }
@@ -90,14 +90,14 @@ class DeparturesResourceTest {
     @LiveDataTestCategory
     void shouldGetDueTramsForStation() {
         // split out messages to own test as need to be able to disable those separately
-        assertNotNull(stationWithNotes, "No station with notes");
-        Response response = getResponseForStation(stationWithNotes, false);
+        assertNotNull(stationWithDepartures, "No station with notes");
+        Response response = getResponseForStation(stationWithDepartures, false);
         assertEquals(200, response.getStatus());
         DepartureListDTO departureList = response.readEntity(DepartureListDTO.class);
 
         SortedSet<DepartureDTO> departures = departureList.getDepartures();
-        assertFalse(departures.isEmpty(), "no departures found for " + stationWithNotes.getName());
-        departures.forEach(depart -> assertEquals(stationWithNotes.getName(), depart.getFrom()));
+        assertFalse(departures.isEmpty(), "no departures found for " + stationWithDepartures.getName());
+        departures.forEach(depart -> assertEquals(stationWithDepartures.getName(), depart.getFrom()));
     }
     
     @Test

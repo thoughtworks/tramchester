@@ -41,8 +41,7 @@ import static com.tramchester.graph.graphbuild.GraphLabel.ROUTE_STATION;
 import static com.tramchester.testSupport.reference.TramStations.*;
 import static org.junit.jupiter.api.Assertions.*;
 
-@Disabled("WIP")
-class SubgraphClosedStationsDiversionsTest {
+class SubgraphSmallClosedStationsDiversionsTest {
     // Note this needs to be > time for whole test fixture, see note below in @After
     private static final int TXN_TIMEOUT = 5*60;
 
@@ -56,10 +55,6 @@ class SubgraphClosedStationsDiversionsTest {
             StPetersSquare,
             ExchangeSquare,
             Victoria,
-            MarketStreet,
-            Shudehill,
-            PiccadillyGardens,
-            Piccadilly,
             Monsall);
     private RouteCalculatorTestFacade calculator;
     private StationRepository stationRepository;
@@ -76,7 +71,7 @@ class SubgraphClosedStationsDiversionsTest {
         config = new IntegrationTramClosedStationsTestConfig("closed_stpeters_subgraph_tram.db",
                 closedStations, true);
         componentContainer = new ComponentsBuilder().
-                configureGraphFilter(SubgraphClosedStationsDiversionsTest::configureFilter).
+                configureGraphFilter(SubgraphSmallClosedStationsDiversionsTest::configureFilter).
                 create(config, TestEnv.NoopRegisterMetrics());
         componentContainer.initialise();
         database = componentContainer.get(GraphDatabase.class);
@@ -115,11 +110,6 @@ class SubgraphClosedStationsDiversionsTest {
         StationsWithDiversionRepository repository = componentContainer.get(StationsWithDiversionRepository.class);
         assertTrue(repository.hasDiversions(Deansgate.from(stationRepository)));
         assertTrue(repository.hasDiversions(ExchangeSquare.from(stationRepository)));
-        assertTrue(repository.hasDiversions(PiccadillyGardens.from(stationRepository)));
-        assertTrue(repository.hasDiversions(MarketStreet.from(stationRepository)));
-
-        assertFalse(repository.hasDiversions(Shudehill.from(stationRepository)));
-        assertFalse(repository.hasDiversions(Monsall.from(stationRepository)));
     }
 
     @Test
@@ -145,27 +135,6 @@ class SubgraphClosedStationsDiversionsTest {
         validateStages(results);
     }
 
-    @Test
-    void shouldFindRouteAroundCloseBackOnToTramPiccToCornbrook() {
-        JourneyRequest journeyRequest = new JourneyRequest(when, TramTime.of(8,0), false,
-                maxChanges, maxJourneyDuration, 1, getRequestedModes());
-        Set<Journey> results = calculator.calculateRouteAsSet(Piccadilly, Cornbrook, journeyRequest);
-
-        assertFalse(results.isEmpty(), "no journeys");
-
-        validateStages(results);
-    }
-
-    @Test
-    void shouldFindRouteAroundCloseBackOnToTramCornbrookToPicc() {
-        JourneyRequest journeyRequest = new JourneyRequest(when, TramTime.of(8,0), false,
-                maxChanges, maxJourneyDuration, 1, getRequestedModes());
-        Set<Journey> results = calculator.calculateRouteAsSet(Cornbrook, Piccadilly, journeyRequest);
-
-        assertFalse(results.isEmpty(), "no journeys");
-
-        validateStages(results);
-    }
 
     @Test
     void shouldFindMonsallToDeansgate() {
