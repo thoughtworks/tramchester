@@ -34,6 +34,8 @@ public class ProvidesTramNotes implements ProvidesNotes {
     public static final String christmas = "There are changes to Metrolink services during Christmas and New Year." + website;
     public static final String christmas2021 = "There are changes to services between 24th Dec and 3rd January. " +
             "Please check <a = href=\"https://tfgm.com/christmas-services\">TFGM</a> for details.";
+    public static final String summer2022 = "From Saturday 16 July until Friday 21 October, engineering work will take " +
+            "place on the Eccles line, a <a = href=\"https://tfgm.com/eccles-line\">replacement bus service</a> will be in operation. ";
     private static final int MESSAGE_LIFETIME = 5;
 
     private final PlatformMessageSource platformMessageSource;
@@ -111,7 +113,20 @@ public class ProvidesTramNotes implements ProvidesNotes {
                 notes.add(new Note(christmas, Christmas));
             }
         }
+        if (summer2022Closure(queryDate.getDate())) {
+            notes.add(new Note(summer2022, ClosedStation));
+        }
         return notes;
+    }
+
+    private boolean summer2022Closure(LocalDate date) {
+        if (date.isBefore(LocalDate.of(2022,7,13))) {
+            return false;
+        }
+        if (date.isAfter(LocalDate.of(2022,10,21))) {
+            return false;
+        }
+        return true;
     }
 
     private List<Note> liveNotesForJourney(Journey journey, LocalDate queryDate) {

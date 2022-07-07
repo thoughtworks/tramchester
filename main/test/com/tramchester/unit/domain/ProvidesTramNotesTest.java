@@ -20,6 +20,7 @@ import com.tramchester.livedata.tfgm.ProvidesTramNotes;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.KnownLocations;
 import com.tramchester.testSupport.reference.TramStations;
+import com.tramchester.testSupport.testTags.Summer2022;
 import org.easymock.EasyMock;
 import org.easymock.EasyMockSupport;
 import org.junit.jupiter.api.Assertions;
@@ -67,11 +68,36 @@ class ProvidesTramNotesTest extends EasyMockSupport {
         return new LocationRefDTO(createStationFor(station));
     }
 
+    @Summer2022
+    @Test
+    void shouldProvideWarningOfEcclesLineClosure() {
+
+        Journey journey = createMock(Journey.class);
+
+        EasyMock.expect(journey.getTransportModes()).andStubReturn(Collections.singleton(Tram));
+        EasyMock.expect(journey.getCallingPlatformIds()).andStubReturn(IdSet.emptySet());
+        EasyMock.expect(platformMessageSource.isEnabled()).andStubReturn(true);
+
+        replayAll();
+
+        LocalDate date = LocalDate.of(2022, 7, 13);
+
+        while (date.isBefore(LocalDate.of(2022, 10,22))) {
+            TramServiceDate queryDate = new TramServiceDate(date);
+            List<Note> result = providesNotes.createNotesForJourney(journey, queryDate);
+            assertTrue(result.contains((new Note(ProvidesTramNotes.summer2022, Note.NoteType.ClosedStation))),
+                    "note missing for " + queryDate);
+            date = date.plusDays(1);
+        }
+        verifyAll();
+
+    }
+
     @Test
     void shouldAddNotesForSaturdayJourney() {
         EasyMock.expect(platformMessageSource.isEnabled()).andReturn(true);
 
-        TramServiceDate queryDate = new TramServiceDate(LocalDate.of(2016,10,29));
+        TramServiceDate queryDate = new TramServiceDate(LocalDate.of(2022,7,9));
 
         Journey journey = createMock(Journey.class);
         EasyMock.expect(journey.getTransportModes()).andReturn(Collections.singleton(Tram));
