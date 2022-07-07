@@ -7,7 +7,6 @@ import com.tramchester.domain.time.Durations;
 import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.geo.SortsPositions;
-import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.caches.LowestCostSeen;
 import com.tramchester.graph.caches.NodeContentsRepository;
 import com.tramchester.graph.caches.PreviousVisits;
@@ -154,7 +153,6 @@ public class TramNetworkTraverser implements PathExpander<JourneyState> {
 
         Duration cost = Duration.ZERO;
         Relationship lastRelationship = path.lastRelationship();
-        boolean alreadyOnDiversion = false;
         if (lastRelationship !=null) {
             cost = nodeContentsRepository.getCost(lastRelationship);
             if (Durations.greaterThan(cost, Duration.ZERO)) {
@@ -163,15 +161,15 @@ public class TramNetworkTraverser implements PathExpander<JourneyState> {
                 journeyStateForChildren.updateTotalCost(total);
             }
             if (lastRelationship.isType(DIVERSION)) {
-                logger.info("On diversion from " + GraphProps.getStationId(lastRelationship.getStartNode()));
-                alreadyOnDiversion = true;
+                Node startOfDiversionNode = lastRelationship.getStartNode();
+                journeyStateForChildren.beginDiversion(startOfDiversionNode);
             }
         }
 
         final EnumSet<GraphLabel> labels = nodeContentsRepository.getLabels(endNode);
 
         final TraversalState traversalStateForChildren = traversalState.nextState(labels, endNode,
-                journeyStateForChildren, cost, alreadyOnDiversion);
+                journeyStateForChildren, cost, journeyStateForChildren.isOnDiversion());
 
         journeyStateForChildren.updateTraversalState(traversalStateForChildren);
         graphState.setState(journeyStateForChildren);

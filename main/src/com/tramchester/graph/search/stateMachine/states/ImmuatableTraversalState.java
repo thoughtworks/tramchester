@@ -8,6 +8,9 @@ import java.time.Duration;
 import java.util.Set;
 
 public interface ImmuatableTraversalState {
+    /***
+     * Use getTotalDuration()
+     */
     @Deprecated
     Duration getTotalCost();
 

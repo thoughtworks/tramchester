@@ -13,6 +13,7 @@ import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
 import com.tramchester.repository.Interchanges;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.TramStations;
+import com.tramchester.testSupport.testTags.Summer2022;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -67,10 +68,11 @@ class FindStationsByNumberLinksTramTest {
 
     // TODO this is problematic for some datasets because they duplicate routes for different date ranges
     // so need to post filter the discovered routes to somehow spot they are not the same??
+    @Summer2022
     @Test
     void shouldFindInterchangeRoutes() {
         IdSet<Station> found = finder.atLeastNLinkedRoutes(TransportMode.Tram, 9);
-        assertEquals(5, found.size(), found.toString());
+        assertEquals(9, found.size(), found.toString()); // 5->9 TODO new replacement routes during summer 2022
         assertTrue(found.contains(TramStations.TraffordBar.getId()));
         assertTrue(found.contains(TramStations.Cornbrook.getId()));
         assertTrue(found.contains(TramStations.Deansgate.getId()));

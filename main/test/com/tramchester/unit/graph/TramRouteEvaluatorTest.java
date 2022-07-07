@@ -684,7 +684,8 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
         EasyMock.expect(serviceHeuristics.getMaxPathLength()).andStubReturn(400);
 
         TramTime time = TramTime.of(8, 15);
-        EasyMock.expect(serviceHeuristics.checkNumberChanges(0, howIGotHere, reasons)).andStubReturn(ServiceReason.TooManyChanges(howIGotHere));
+        EasyMock.expect(serviceHeuristics.checkNumberChanges(0, howIGotHere, reasons)).
+                andStubReturn(ServiceReason.TooManyChanges(howIGotHere, 5));
 
         NotStartedState traversalState = getNotStartedState();
         final JourneyState journeyState = new JourneyState(time, traversalState);

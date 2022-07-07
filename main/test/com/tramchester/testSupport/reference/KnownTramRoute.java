@@ -34,7 +34,11 @@ public enum KnownTramRoute {
     VictoriaWythenshaweManchesterAirport("Navy Line", Outbound, "Victoria - Wythenshawe - Manchester Airport"),
 
     TheTraffordCentreCornbrook("Red Line", Inbound, "The Trafford Centre - Cornbrook"),
-    CornbrookTheTraffordCentre("Red Line", Outbound, "Cornbrook - The Trafford Centre");
+    CornbrookTheTraffordCentre("Red Line", Outbound, "Cornbrook - The Trafford Centre"),
+
+    // TODO July 2022 - eccles replacement services
+    ReplacementRouteToEccles("Blue Line Bus Replacement", Inbound, "Media City Metrolink Replacement - Eccles"),
+    ReplacementRouteFromEccles("Blue Line Bus Replacement", Outbound, "Eccles - Media City Metrolink Replacement");
 
     private final IdFor<Route> fakeId;
     private final RouteDirection direction;

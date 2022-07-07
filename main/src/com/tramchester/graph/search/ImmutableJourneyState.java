@@ -18,4 +18,5 @@ public interface ImmutableJourneyState extends HasTransportMode {
     int getNumberNeighbourConnections();
     boolean hasVisited(IdFor<Station> stationId);
     Duration getTotalDurationSoFar();
+    boolean isOnDiversion();
 }

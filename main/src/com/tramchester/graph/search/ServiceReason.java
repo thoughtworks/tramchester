@@ -242,8 +242,11 @@ public abstract class ServiceReason {
 
     private static class TooManyChanges extends ServiceReason {
 
-        protected TooManyChanges(HowIGotHere path) {
+        private final int number;
+
+        protected TooManyChanges(HowIGotHere path, int number) {
             super(ReasonCode.TooManyChanges, path);
+            this.number = number;
         }
 
         @Override
@@ -254,7 +257,7 @@ public abstract class ServiceReason {
 
         @Override
         public String textForGraph() {
-            return ReasonCode.TooManyChanges.name();
+            return ReasonCode.TooManyChanges.name() + " " + number;
         }
     }
 
@@ -425,8 +428,8 @@ public abstract class ServiceReason {
         return new DoesNotOperateOnTime(ReasonCode.DoesNotOperateOnTime, currentElapsed, path);
     }
 
-    public static ServiceReason TooManyChanges(HowIGotHere path) {
-        return new TooManyChanges(path);
+    public static ServiceReason TooManyChanges(HowIGotHere path, int number) {
+        return new TooManyChanges(path, number);
     }
 
     public static ServiceReason TooManyWalkingConnections(HowIGotHere path) {

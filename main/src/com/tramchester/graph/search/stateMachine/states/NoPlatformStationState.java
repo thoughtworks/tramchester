@@ -86,7 +86,6 @@ public class NoPlatformStationState extends StationState {
 
     }
 
-
     private NoPlatformStationState(TraversalState parent, Stream<Relationship> relationships, Duration cost, Node stationNode, JourneyStateUpdate journeyState) {
         super(parent, relationships, cost, stationNode, journeyState);
     }
@@ -96,13 +95,15 @@ public class NoPlatformStationState extends StationState {
     }
 
     @Override
-    protected PlatformStationState toTramStation(PlatformStationState.Builder towardsStation, Node next, Duration cost, JourneyStateUpdate journeyState, boolean onDiversion) {
+    protected PlatformStationState toTramStation(PlatformStationState.Builder towardsStation, Node next, Duration cost,
+                                                 JourneyStateUpdate journeyState, boolean onDiversion) {
         journeyState.toNeighbour(stationNode, next, cost);
         return towardsStation.fromNeighbour(this, next, cost, journeyState, onDiversion);
     }
 
     @Override
-    protected TraversalState toNoPlatformStation(Builder towardsStation, Node next, Duration cost, JourneyStateUpdate journeyState, boolean onDiversion) {
+    protected TraversalState toNoPlatformStation(Builder towardsStation, Node next, Duration cost,
+                                                 JourneyStateUpdate journeyState, boolean onDiversion) {
         journeyState.toNeighbour(stationNode, next, cost);
         return towardsStation.fromNeighbour(this, next, cost, journeyState, onDiversion);
     }

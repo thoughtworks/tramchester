@@ -6,6 +6,7 @@ import com.tramchester.domain.id.IdSet;
 import com.tramchester.repository.RouteRepository;
 import com.tramchester.testSupport.reference.KnownTramRoute;
 
+import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -39,9 +40,20 @@ public class TramRouteHelper {
         }
     }
 
+    /***
+     * Note: Use version that takes a date to get more consistent results
+     * @param knownRoute the route to find
+     * @param routeRepository the repository
+     * @return set of matching routes
+     */
     public Set<Route> get(KnownTramRoute knownRoute, RouteRepository routeRepository) {
         guard(knownRoute, routeRepository);
         return map.get(knownRoute);
+    }
+
+    public Set<Route> get(KnownTramRoute knownRoute, RouteRepository routeRepository, LocalDate date) {
+        guard(knownRoute, routeRepository);
+        return map.get(knownRoute).stream().filter(route -> route.isAvailableOn(date)).collect(Collectors.toSet());
     }
 
     public IdSet<Route> getId(KnownTramRoute knownRoute, RouteRepository routeRepository) {

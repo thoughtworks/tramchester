@@ -7,16 +7,20 @@ import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.Durations;
 import com.tramchester.domain.time.TramTime;
+import com.tramchester.graph.graphbuild.GraphProps;
 import com.tramchester.graph.search.stateMachine.states.TraversalState;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Path;
 import org.neo4j.graphdb.traversal.InitialBranchState;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.time.Duration;
 import java.util.LinkedList;
 import java.util.List;
 
 public class JourneyState implements ImmutableJourneyState, JourneyStateUpdate {
+    private static final Logger logger = LoggerFactory.getLogger(JourneyState.class);
 
     private final CoreState coreState;
 
@@ -104,6 +108,10 @@ public class JourneyState implements ImmutableJourneyState, JourneyStateUpdate {
         coreState.incrementNeighbourConnections();
     }
 
+    public void beginDiversion(Node node) {
+        coreState.beginDiversion(node);
+    }
+
     @Override
     public void seenStation(IdFor<Station> stationId) {
         coreState.seenStation(stationId);
@@ -119,7 +127,6 @@ public class JourneyState implements ImmutableJourneyState, JourneyStateUpdate {
     }
 
     private void leave(Duration currentTotalCost) {
-        //if (currentTotalCost.compareTo(journeyOffset) < 0) {
         if (Durations.lessThan(currentTotalCost, journeyOffset)) {
             throw new RuntimeException("Invalid total cost "+currentTotalCost+" less that current total offset " +journeyOffset);
         }
@@ -155,6 +162,7 @@ public class JourneyState implements ImmutableJourneyState, JourneyStateUpdate {
     @Override
     public void board(TransportMode mode, Node node, boolean hasPlatform) throws TramchesterException {
         guardAlreadyOnboard();
+        coreState.endDiversion(node);
         coreState.board(mode);
     }
 
@@ -176,6 +184,11 @@ public class JourneyState implements ImmutableJourneyState, JourneyStateUpdate {
     @Override
     public Duration getTotalDurationSoFar() {
         return traversalState.getTotalDuration();
+    }
+
+    @Override
+    public boolean isOnDiversion() {
+        return coreState.isOnDiversion();
     }
 
     @Override
@@ -218,28 +231,36 @@ public class JourneyState implements ImmutableJourneyState, JourneyStateUpdate {
                 '}';
     }
 
+
+
     private static class CoreState {
+        private final List<IdFor<Station>> visitedStations;
+
         private boolean hasBegun;
         private TramTime journeyClock;
         private TransportMode currentMode;
         private int numberOfBoardings;
         private int numberOfWalkingConnections;
         private int numberNeighbourConnections;
-        private final List<IdFor<Station>> visitedStations;
+        private int numberOfDiversionsTaken;
+        private boolean currentlyOnDiversion;
 
         public CoreState(TramTime queryTime) {
             this(queryTime, false, 0,
-                    TransportMode.NotSet, 0, 0, new LinkedList<>());
+                    TransportMode.NotSet, 0, 0, new LinkedList<>(),
+                    false, 0);
         }
 
         // Copy cons
         public CoreState(CoreState previous) {
             this(previous.journeyClock, previous.hasBegun, previous.numberOfBoardings, previous.currentMode, previous.numberOfWalkingConnections,
-                    previous.numberNeighbourConnections, previous.visitedStations);
+                    previous.numberNeighbourConnections, previous.visitedStations,
+                    previous.currentlyOnDiversion, previous.numberOfDiversionsTaken);
         }
 
         private CoreState(TramTime journeyClock, boolean hasBegun, int numberOfBoardings, TransportMode currentMode,
-                          int numberOfWalkingConnections, int numberNeighbourConnections, List<IdFor<Station>> visitedStations) {
+                          int numberOfWalkingConnections, int numberNeighbourConnections, List<IdFor<Station>> visitedStations,
+                          boolean currentlyOnDiversion, int numberOfDiversionsTaken) {
             this.hasBegun = hasBegun;
             this.journeyClock = journeyClock;
             this.currentMode = currentMode;
@@ -247,6 +268,7 @@ public class JourneyState implements ImmutableJourneyState, JourneyStateUpdate {
             this.numberOfWalkingConnections = numberOfWalkingConnections;
             this.numberNeighbourConnections = numberNeighbourConnections;
             this.visitedStations = visitedStations;
+            this.currentlyOnDiversion = currentlyOnDiversion;
         }
 
         public void incrementWalkingConnections() {
@@ -283,7 +305,12 @@ public class JourneyState implements ImmutableJourneyState, JourneyStateUpdate {
             if (numberOfBoardings==0) {
                 return 0;
             }
-            return numberOfBoardings-1; // initial boarding
+            int withoutDiversions =  numberOfBoardings-1; // initial boarding
+            if (withoutDiversions==0) {
+                return 0;
+            }
+            return Math.max(0, withoutDiversions-numberOfDiversionsTaken);
+
         }
 
         @Override
@@ -315,12 +342,15 @@ public class JourneyState implements ImmutableJourneyState, JourneyStateUpdate {
         @Override
         public String toString() {
             return "CoreState{" +
-                    "hasBegun=" + hasBegun +
+                    "visitedStations=" + visitedStations +
+                    ", hasBegun=" + hasBegun +
                     ", journeyClock=" + journeyClock +
                     ", currentMode=" + currentMode +
                     ", numberOfBoardings=" + numberOfBoardings +
                     ", numberOfWalkingConnections=" + numberOfWalkingConnections +
                     ", numberNeighbourConnections=" + numberNeighbourConnections +
+                    ", numberOfDiversionsTaken=" + numberOfDiversionsTaken +
+                    ", currentlyOnDiversion=" + currentlyOnDiversion +
                     '}';
         }
 
@@ -330,6 +360,31 @@ public class JourneyState implements ImmutableJourneyState, JourneyStateUpdate {
 
         public void seenStation(IdFor<Station> stationId) {
             visitedStations.add(stationId);
+        }
+
+        public void endDiversion(Node node) {
+            if (currentlyOnDiversion) {
+                logger.info("End diversion at " + GraphProps.getStationId(node));
+                this.currentlyOnDiversion = false;
+            }
+        }
+
+        public void beginDiversion(Node diversionNode) {
+            IdFor<Station> stationId = GraphProps.getStationId(diversionNode);
+            if (currentlyOnDiversion) {
+                String msg = "Already on diversion, at " + stationId;
+                logger.error(msg);
+                // WIP TODO
+                throw new RuntimeException(msg);
+            } else {
+                logger.info("Begin diversion at " + stationId);
+                currentlyOnDiversion = true;
+                numberOfDiversionsTaken = numberOfDiversionsTaken + 1;
+            }
+        }
+
+        public boolean isOnDiversion() {
+            return currentlyOnDiversion;
         }
     }
 

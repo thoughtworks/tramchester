@@ -6,6 +6,7 @@ import com.tramchester.DiagramCreator;
 import com.tramchester.domain.Journey;
 import com.tramchester.domain.JourneyRequest;
 import com.tramchester.domain.StationClosure;
+import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.TransportStage;
 import com.tramchester.domain.reference.TransportMode;
@@ -15,6 +16,7 @@ import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.GraphQuery;
 import com.tramchester.graph.TransportRelationshipTypes;
 import com.tramchester.graph.filters.ConfigurableGraphFilter;
+import com.tramchester.graph.graphbuild.GraphProps;
 import com.tramchester.graph.search.RouteCalculator;
 import com.tramchester.integration.testSupport.RouteCalculatorTestFacade;
 import com.tramchester.integration.testSupport.StationClosureForTest;
@@ -35,13 +37,13 @@ import java.nio.file.Path;
 import java.time.Duration;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 
-import static com.tramchester.graph.graphbuild.GraphLabel.PLATFORM;
-import static com.tramchester.graph.graphbuild.GraphLabel.ROUTE_STATION;
+import static com.tramchester.graph.graphbuild.GraphLabel.*;
 import static com.tramchester.testSupport.reference.TramStations.*;
 import static org.junit.jupiter.api.Assertions.*;
 
-@Disabled("WIP")
+@Disabled("WIP - needs change to number of stops computation")
 class SubgraphClosedStationsDiversionsTest {
     // Note this needs to be > time for whole test fixture, see note below in @After
     private static final int TXN_TIMEOUT = 5*60;
@@ -190,9 +192,11 @@ class SubgraphClosedStationsDiversionsTest {
     @Test
     void shouldFindRouteAroundCloseBackOnToTramMonsallToCornbrook() {
         JourneyRequest journeyRequest = new JourneyRequest(when, TramTime.of(8,0), false,
-                maxChanges, maxJourneyDuration, 1, getRequestedModes());
+                4, maxJourneyDuration, 1, getRequestedModes());
 
-//        journeyRequest.setDiag(true);
+        // TODO Correct number of changes limit?
+
+        journeyRequest.setDiag(true);
 
         Set<Journey> results = calculator.calculateRouteAsSet(Monsall, Cornbrook, journeyRequest);
 
@@ -274,6 +278,42 @@ class SubgraphClosedStationsDiversionsTest {
             Node to = relationship.getEndNode();
             assertTrue(to.hasLabel(PLATFORM));
         }
+
+    }
+
+    @Test
+    void shouldCheckIfDiversionFromExchangeToDeansgate()  {
+        List<Long> foundRelationshipIds = new ArrayList<>();
+
+        Station exchange = ExchangeSquare.from(stationRepository);
+        GraphDatabase graphDatabase = componentContainer.get(GraphDatabase.class);
+        GraphQuery graphQuery = componentContainer.get(GraphQuery.class);
+        try (Transaction txn = graphDatabase.beginTx()) {
+            exchange.getPlatforms().forEach(platform -> {
+                Node node = graphQuery.getPlatformNode(txn, platform);
+                Iterable<Relationship> iterable = node.getRelationships(Direction.OUTGOING, TransportRelationshipTypes.DIVERSION);
+
+                iterable.forEach(relationship -> foundRelationshipIds.add(relationship.getId()));
+            });
+        }
+
+        assertFalse(foundRelationshipIds.isEmpty());
+
+        AtomicInteger count = new AtomicInteger(0);
+
+        try (Transaction txn = graphDatabase.beginTx()) {
+            foundRelationshipIds.forEach(foundId -> {
+                Relationship relationship = txn.getRelationshipById(foundId);
+                Node to = relationship.getEndNode();
+                assertTrue(to.hasLabel(STATION));
+                IdFor<Station> stationId = GraphProps.getStationId(to);
+                if (Deansgate.getId().equals(stationId)) {
+                    count.getAndIncrement();
+                }
+            });
+        }
+
+        assertEquals(1, count.get());
 
     }
 

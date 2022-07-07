@@ -2,6 +2,7 @@ package com.tramchester.resources;
 
 import com.codahale.metrics.annotation.Timed;
 import com.tramchester.domain.presentation.DTO.RouteDTO;
+import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.mappers.RoutesMapper;
 import io.dropwizard.jersey.caching.CacheControl;
 import io.swagger.annotations.Api;
@@ -25,9 +26,11 @@ public class RouteResource implements APIResource {
     private static final Logger logger = LoggerFactory.getLogger(RouteResource.class);
 
     private final RoutesMapper routesMapper;
+    private final ProvidesNow providesNow;
 
     @Inject
-    public RouteResource(RoutesMapper routesMapper) {
+    public RouteResource(RoutesMapper routesMapper, ProvidesNow providesNow) {
+        this.providesNow = providesNow;
         logger.info("created");
         this.routesMapper = routesMapper;
     }
@@ -39,7 +42,7 @@ public class RouteResource implements APIResource {
     public Response getAll() {
         logger.info("getAll routes");
         try {
-            List<RouteDTO> routes = routesMapper.getRouteDTOs();
+            List<RouteDTO> routes = routesMapper.getRouteDTOs(providesNow.getDate());
 
             return Response.ok(routes).build();
         }

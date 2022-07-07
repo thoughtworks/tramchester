@@ -82,6 +82,12 @@ public class RouteCalculator extends RouteCalculatorSupport implements TramRoute
         final List<TramTime> queryTimes = createQueryTimes.generate(journeyRequest.getOriginalTime());
 
         NumberOfChanges numberOfChanges =  routeToRouteCosts.getNumberOfChanges(start, destination, journeyRequest.getRequestedModes());
+
+        if (journeyRequest.getMaxChanges()>numberOfChanges.getMax()) {
+            logger.error(format("Computed max changes (%s) is less than requested number of changes (%s)",
+                    numberOfChanges.getMax(), journeyRequest.getMaxChanges()));
+        }
+
         return getJourneyStream(txn, startNode, endNode, journeyRequest, destinations, queryTimes, numberOfChanges).
                 limit(journeyRequest.getMaxNumberOfJourneys());
     }

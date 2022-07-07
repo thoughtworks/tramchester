@@ -75,7 +75,7 @@ public class ServiceHeuristics {
        reasons.incrementTotalChecked();
 
        if (currentNumChanges > currentChangesLimit) {
-         return reasons.recordReason(ServiceReason.TooManyChanges(howIGotHere));
+         return reasons.recordReason(ServiceReason.TooManyChanges(howIGotHere, currentNumChanges));
        }
        return valid(ServiceReason.ReasonCode.NumChangesOK, howIGotHere, reasons);
     }

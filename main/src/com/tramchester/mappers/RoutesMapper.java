@@ -2,12 +2,15 @@ package com.tramchester.mappers;
 
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.domain.Route;
+import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.input.StopCalls;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.DTO.RouteDTO;
 import com.tramchester.domain.presentation.DTO.LocationRefWithPosition;
+import com.tramchester.domain.presentation.DTO.RouteRefDTO;
 import com.tramchester.domain.presentation.DTO.factory.DTOFactory;
+import com.tramchester.repository.RouteRepository;
 import com.tramchester.repository.TransportData;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
@@ -16,52 +19,65 @@ import org.slf4j.LoggerFactory;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.inject.Inject;
+import java.time.LocalDate;
 import java.util.*;
 import java.util.stream.Collectors;
+
+import static java.lang.String.format;
 
 @LazySingleton
 public class RoutesMapper {
     private static final Logger logger = LoggerFactory.getLogger(RoutesMapper.class);
 
-    private final Map<String, RouteDTO> routeDTOs;
-
-    private final TransportData transportData;
+    private final RouteRepository routeRepository;
     private final DTOFactory DTOFactory;
 
     @Inject
-    public RoutesMapper(TransportData transportData, DTOFactory DTOFactory) {
+    public RoutesMapper(RouteRepository routeRepository, DTOFactory DTOFactory) {
         this.DTOFactory = DTOFactory;
-        routeDTOs = new HashMap<>();
-        this.transportData = transportData;
+        this.routeRepository = routeRepository;
     }
 
     @PostConstruct
     private void start() {
         logger.info("Starting");
-        Collection<Route> routes = transportData.getRoutes();
-        routes.forEach(route -> {
-            // TODO Need way to flag non calling stations
-            List<LocationRefWithPosition> callingStations = getLocationsAlong(route, true);
-            String name = route.getName();
-            if (routeDTOs.containsKey(name)) {
-                if (!routeDTOs.get(name).getStations().equals(callingStations)) {
-                    logger.warn("Mismatch on route calling stations for route " + name);
-                }
-            } else {
-                RouteDTO routeDTO = new RouteDTO(route, callingStations);
-                routeDTOs.put(name, routeDTO);
-            }
-        });
+//        Collection<Route> routes = routeRepository.getRoutes();
+//        routes.forEach(route -> {
+//            // TODO Need way to flag non calling stations
+//            List<LocationRefWithPosition> callingStations = getLocationsAlong(route, true);
+//            String name = route.getName();
+//            boolean alreadyPresent = routeDTOs.containsKey(name);
+//            if (alreadyPresent) {
+//                RouteDTO routeDTO = routeDTOs.get(name);
+//                if (!sameStations(callingStations, routeDTO.getStations())) {
+//                    logger.warn(format("Mismatch on route calling stations for routes %s and %s with stations %s and %s",
+//                            route.getId(), routeDTO.getRouteName(), display(routeDTO.getStations()), display(callingStations)));
+//                }
+//            } else {
+//                RouteDTO routeDTO = new RouteDTO(route, callingStations);
+//                routeDTOs.put(name, routeDTO);
+//            }
+//        });
         logger.info("started");
     }
 
+
     @PreDestroy
     private void stop() {
-        routeDTOs.clear();
+
     }
 
-    public List<RouteDTO> getRouteDTOs() {
-        return new ArrayList<>(routeDTOs.values());
+    public List<RouteDTO> getRouteDTOs(LocalDate effectiveOnDate) {
+        Set<Route> routesOnDate = routeRepository.getRoutesRunningOn(effectiveOnDate);
+        List<RouteDTO> dtos = routesOnDate.stream().
+                map(route -> new RouteDTO(route, getLocationsAlong(route, true))).
+                collect(Collectors.toList());
+        Set<String> uniqueNames = dtos.stream().map(RouteRefDTO::getRouteName).collect(Collectors.toSet());
+        if (uniqueNames.size() != dtos.size()) {
+            logger.warn(format("Got duplicate route names for routes %s on date %s",
+                    HasId.asIds(routesOnDate), effectiveOnDate));
+        }
+        return dtos;
     }
 
     @NotNull

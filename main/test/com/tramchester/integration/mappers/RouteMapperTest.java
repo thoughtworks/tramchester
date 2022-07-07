@@ -17,6 +17,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.time.LocalDate;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
@@ -51,17 +52,20 @@ class RouteMapperTest {
         RouteRepository routeRepsoitory = componentContainer.get(RouteRepository.class);
         RoutesMapper mapper = componentContainer.get(RoutesMapper.class);
 
-        List<RouteDTO> dtos = mapper.getRouteDTOs();
-        Set<Route> routes = tramRouteHelper.get(ManchesterAirportWythenshaweVictoria, routeRepsoitory);
+        List<RouteDTO> dtos = mapper.getRouteDTOs(TestEnv.testDay());
 
-        routes.forEach(route -> {
-            RouteDTO query = new RouteDTO(route, new LinkedList<>());
+        LocalDate date = TestEnv.testDay();
+
+        Set<Route> airportToWythenshawe = tramRouteHelper.get(ManchesterAirportWythenshaweVictoria, routeRepsoitory, date);
+
+        airportToWythenshawe.forEach(fromAirportRoute -> {
+            RouteDTO query = new RouteDTO(fromAirportRoute, new LinkedList<>());
 
             int index = dtos.indexOf(query);
 
             List<LocationRefWithPosition> stations = dtos.get(index).getStations();
             LocationRefWithPosition stationRefWithPosition = stations.get(0);
-            assertEquals(TramStations.ManAirport.getRawId(), stationRefWithPosition.getId());
+            assertEquals(TramStations.ManAirport.getRawId(), stationRefWithPosition.getId(), "for route " + fromAirportRoute);
             TestEnv.assertLatLongEquals(TramStations.ManAirport.getLatLong(), stationRefWithPosition.getLatLong(),
                     0.00001, "position");
             assertTrue(stationRefWithPosition.getTransportModes().contains(TransportMode.Tram));

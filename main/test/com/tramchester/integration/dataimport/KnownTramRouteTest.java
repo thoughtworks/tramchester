@@ -47,7 +47,7 @@ class KnownTramRouteTest {
 
         for (Route loaded: loadedRoutes) {
             final String loadedName = loaded.getName();
-            assertTrue(knownRouteNames.contains(loadedName), "missing from known '" + loadedName+"'");
+            assertTrue(knownRouteNames.contains(loadedName), "missing from known '" + loaded+"'");
 
             KnownTramRoute matched = knownRoutes.stream().
                     filter(knownTramRoute -> knownTramRoute.longName().equals(loadedName)).findFirst().orElseThrow();
