@@ -26,10 +26,10 @@ import com.tramchester.testSupport.LocationJourneyPlannerTestFacade;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.testTags.BusTest;
 import org.junit.jupiter.api.*;
-import org.junit.jupiter.api.condition.DisabledIfEnvironmentVariable;
 import org.neo4j.graphdb.Transaction;
 
 import java.time.Duration;
+import java.time.LocalDate;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -53,6 +53,7 @@ public class NeighbourJourneysTest {
     private LocationJourneyPlanner planner;
     private RouteToRouteCosts routeToRouteCosts;
     private Duration maxJourneyDuration;
+    private LocalDate date;
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
@@ -89,6 +90,8 @@ public class NeighbourJourneysTest {
 
         routeToRouteCosts = componentContainer.get(RouteToRouteCosts.class);
 
+        date = TestEnv.testDay();
+
     }
 
     @AfterEach
@@ -105,11 +108,11 @@ public class NeighbourJourneysTest {
     @Test
     void shouldHaveCorrectRouteToRouteHopsWhenNeighbours() {
 
-        NumberOfChanges busToTramHops = routeToRouteCosts.getNumberOfChanges(shudehillBusStop, shudehillTram, Collections.emptySet());
+        NumberOfChanges busToTramHops = routeToRouteCosts.getNumberOfChanges(shudehillBusStop, shudehillTram, Collections.emptySet(), date);
         assertEquals(1, busToTramHops.getMin());
         assertEquals(1, busToTramHops.getMax());
 
-        NumberOfChanges tramToBusHops = routeToRouteCosts.getNumberOfChanges(shudehillTram, shudehillBusStop, Collections.emptySet());
+        NumberOfChanges tramToBusHops = routeToRouteCosts.getNumberOfChanges(shudehillTram, shudehillBusStop, Collections.emptySet(), date);
         assertEquals(1, tramToBusHops.getMin());
         assertEquals(1, tramToBusHops.getMax());
     }
@@ -121,11 +124,11 @@ public class NeighbourJourneysTest {
 
         LocationSet buses = new LocationSet(Arrays.asList(KnutsfordStationStand3.from(stationRepository), StockportNewbridgeLane.from(stationRepository)));
 
-        NumberOfChanges busToTramHops = routeToRouteCosts.getNumberOfChanges(buses, trams);
+        NumberOfChanges busToTramHops = routeToRouteCosts.getNumberOfChanges(buses, trams, date);
         assertEquals(1, busToTramHops.getMin());
         assertEquals(2, busToTramHops.getMax());
 
-        NumberOfChanges tramToBusHops = routeToRouteCosts.getNumberOfChanges(trams, buses);
+        NumberOfChanges tramToBusHops = routeToRouteCosts.getNumberOfChanges(trams, buses, date);
         assertEquals(2, tramToBusHops.getMin());
         assertEquals(2, tramToBusHops.getMax());
 
@@ -133,18 +136,18 @@ public class NeighbourJourneysTest {
         trams.add(shudehillTram);
         buses.add(shudehillBusStop);
 
-        busToTramHops = routeToRouteCosts.getNumberOfChanges(buses, trams);
+        busToTramHops = routeToRouteCosts.getNumberOfChanges(buses, trams, date);
         assertEquals(0, busToTramHops.getMin());
         assertEquals(2, busToTramHops.getMax());
 
-        tramToBusHops = routeToRouteCosts.getNumberOfChanges(trams, buses);
+        tramToBusHops = routeToRouteCosts.getNumberOfChanges(trams, buses, date);
         assertEquals(0, tramToBusHops.getMin());
         assertEquals(2, tramToBusHops.getMax());
     }
 
     @Test
     void shouldFindMaxRouteHopsBetweenModes() {
-        NumberOfChanges hops = routeToRouteCosts.getNumberOfChanges(shudehillTram, shudehillBusStop, Collections.emptySet());
+        NumberOfChanges hops = routeToRouteCosts.getNumberOfChanges(shudehillTram, shudehillBusStop, Collections.emptySet(), date);
         assertEquals(1, hops.getMax());
     }
 

@@ -26,6 +26,7 @@ import org.slf4j.LoggerFactory;
 import javax.inject.Inject;
 import java.time.Duration;
 import java.time.Instant;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -73,8 +74,9 @@ public class RouteCalculatorForBoxes extends RouteCalculatorSupport {
 
         final Set<TransportMode> requestedModes = journeyRequest.getRequestedModes();
 
-        final LowestCostsForDestRoutes lowestCostForDestinations = routeToRouteCosts.getLowestCostCalcutatorFor(destinations);
-        final RunningRoutesAndServices.FilterForDate routeAndServicesFilter = runningRoutesAndService.getFor(queryDate.getDate());
+        LocalDate date = queryDate.getDate();
+        final LowestCostsForDestRoutes lowestCostForDestinations = routeToRouteCosts.getLowestCostCalcutatorFor(destinations, date);
+        final RunningRoutesAndServices.FilterForDate routeAndServicesFilter = runningRoutesAndService.getFor(date);
 
         final Duration maxJourneyDuration = journeyRequest.getMaxJourneyDuration();
         final JourneyConstraints journeyConstraints = new JourneyConstraints(config, routeAndServicesFilter, journeyRequest, closedStationsRepository,
@@ -88,7 +90,7 @@ public class RouteCalculatorForBoxes extends RouteCalculatorSupport {
             final LocationSet startingStations = LocationSet.of(box.getStations());
             final LowestCostSeen lowestCostSeenForBox = new LowestCostSeen();
 
-            final NumberOfChanges numberOfChanges = computeNumberOfChanges(startingStations, destinations);
+            final NumberOfChanges numberOfChanges = computeNumberOfChanges(startingStations, destinations, date);
 
             final Instant begin = providesNow.getInstant();
 
@@ -116,7 +118,7 @@ public class RouteCalculatorForBoxes extends RouteCalculatorSupport {
 
     }
 
-    private NumberOfChanges computeNumberOfChanges(LocationSet starts, LocationSet destinations) {
-        return routeToRouteCosts.getNumberOfChanges(starts, destinations);
+    private NumberOfChanges computeNumberOfChanges(LocationSet starts, LocationSet destinations, LocalDate date) {
+        return routeToRouteCosts.getNumberOfChanges(starts, destinations, date);
     }
 }

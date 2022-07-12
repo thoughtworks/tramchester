@@ -59,8 +59,7 @@ class ClosedStationsDiversionsTest {
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
-        config = new IntegrationTramClosedStationsTestConfig("closed_stpeters_int_test_tram.db",
-                closedStations, true);
+        config = new IntegrationTramClosedStationsTestConfig(closedStations, true);
         componentContainer = new ComponentsBuilder().create(config, TestEnv.NoopRegisterMetrics());
         componentContainer.initialise();
         database = componentContainer.get(GraphDatabase.class);
@@ -69,7 +68,7 @@ class ClosedStationsDiversionsTest {
     @AfterAll
     static void OnceAfterAllTestsAreFinished() throws IOException {
         componentContainer.close();
-        TestEnv.deleteDBIfPresent(config);
+        //TestEnv.deleteDBIfPresent(config);
     }
 
     @BeforeEach

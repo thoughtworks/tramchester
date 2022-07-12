@@ -138,7 +138,9 @@ public class GTFSStopTimeLoader {
 
         private Service addStopTimeData(StopTimeData stopTimeData, MutableTrip trip, MutableStation station, Route route) {
 
-            addStationAndRouteStation(route, station, stopTimeData.getPickupType(), stopTimeData.getDropOffType());
+            final MutableService service = tripAndServices.getService(trip.getService().getId());
+
+            addStationAndRouteStation(route, service, station, stopTimeData.getPickupType(), stopTimeData.getDropOffType());
             addPlatformsForStation(station);
 
             StopCall stopCall = createStopCall(stopTimeData, route, trip, station);
@@ -149,8 +151,6 @@ public class GTFSStopTimeLoader {
                 buildable.addTrip(trip); // seen at least one stop for this trip
             }
 
-            final MutableService service = tripAndServices.getService(trip.getService().getId());
-
             final MutableRoute mutableRoute = buildable.getMutableRoute(route.getId());
             mutableRoute.addTrip(trip);
             mutableRoute.addService(service);
@@ -160,13 +160,13 @@ public class GTFSStopTimeLoader {
             return service;
         }
 
-        private void addStationAndRouteStation(Route route, MutableStation station, GTFSPickupDropoffType pickupType,
+        private void addStationAndRouteStation(Route route, Service service, MutableStation station, GTFSPickupDropoffType pickupType,
                                                GTFSPickupDropoffType dropOffType) {
             if (pickupType.isPickup()) {
-                station.addRoutePickUp(route);
+                station.addRoutePickUp(route, service);
             }
             if (dropOffType.isDropOff()) {
-                station.addRouteDropOff(route);
+                station.addRouteDropOff(route, service);
             }
 
             IdFor<Station> stationId = station.getId();

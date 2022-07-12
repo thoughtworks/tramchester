@@ -31,8 +31,10 @@ class StationGroupTest {
         MutableStation stationA = StationHelper.forTestMutable("id", "area", "stopName",
                 latLong, dataSourceID);
 
+        Service service = MutableService.build(StringIdFor.createId("serviceId"));
+
         Route route = TestEnv.getTramTestRoute();
-        stationA.addRoutePickUp(route);
+        stationA.addRoutePickUp(route, service);
 
         Platform platform = MutablePlatform.buildForTFGMTram("platformId", stationA, latLong, DataSourceID.unknown, IdFor.invalid());
         stationA.addPlatform(platform);
@@ -68,11 +70,13 @@ class StationGroupTest {
 
     @Test
     void shouldHaveCorrectValuesForTwoStation() {
+        Service service = MutableService.build(StringIdFor.createId("serviceId"));
+
         MutableStation stationA = StationHelper.forTestMutable("idA", "areaA", "stopNameA",
                 new LatLong(2, 4), dataSourceID);
         Route routeA = TestEnv.getTramTestRoute(StringIdFor.createId("routeA"), "routeName");
 
-        stationA.addRouteDropOff(routeA);
+        stationA.addRouteDropOff(routeA, service);
         Platform platformA = MutablePlatform.buildForTFGMTram("platformIdA", stationA,
                 new LatLong(2, 4), DataSourceID.unknown, IdFor.invalid());
         stationA.addPlatform(platformA);
@@ -80,8 +84,8 @@ class StationGroupTest {
         MutableStation stationB = StationHelper.forTestMutable("idB", "areaB", "stopNameB",
                 new LatLong(4, 8), dataSourceID);
         Route routeB = MutableRoute.getRoute(StringIdFor.createId("routeB"), "routeCodeB", "routeNameB", TestEnv.StagecoachManchester, Bus);
-        stationB.addRouteDropOff(routeB);
-        stationB.addRoutePickUp(routeA);
+        stationB.addRouteDropOff(routeB, service);
+        stationB.addRoutePickUp(routeA, service);
         Platform platformB = MutablePlatform.buildForTFGMTram("platformIdB", stationB,
                 new LatLong(4, 8), DataSourceID.unknown, IdFor.invalid());
         stationB.addPlatform(platformB);
@@ -121,6 +125,9 @@ class StationGroupTest {
 
     @Test
     void shouldHaveCorrectPickupAndDropoff() {
+
+        Service service = MutableService.build(StringIdFor.createId("serviceId"));
+
         MutableStation stationA = StationHelper.forTestMutable("idA", "areaA", "stopNameA",
                 new LatLong(2, 4), dataSourceID);
         Route routeA = TestEnv.getTramTestRoute(StringIdFor.createId("routeA"), "routeName");
@@ -137,10 +144,10 @@ class StationGroupTest {
         assertFalse(stationGroup.hasPickup());
         assertFalse(stationGroup.hasDropoff());
 
-        stationA.addRouteDropOff(routeA);
+        stationA.addRouteDropOff(routeA, service);
         assertTrue(stationGroup.hasDropoff());
 
-        stationB.addRoutePickUp(routeB);
+        stationB.addRoutePickUp(routeB, service);
         assertTrue(stationGroup.hasPickup());
 
     }

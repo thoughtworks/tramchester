@@ -48,7 +48,7 @@ class RouteCalculatorCloseStationsTest {
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
-        TramchesterConfig config = new IntegrationTramClosedStationsTestConfig("closed_shudehill_int_test_tram.db", closedStations, true);
+        TramchesterConfig config = new IntegrationTramClosedStationsTestConfig(closedStations, true);
         componentContainer = new ComponentsBuilder().create(config, TestEnv.NoopRegisterMetrics());
         componentContainer.initialise();
         database = componentContainer.get(GraphDatabase.class);

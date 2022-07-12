@@ -14,6 +14,7 @@ import com.tramchester.graph.GraphPropertyKey;
 import com.tramchester.graph.graphbuild.GraphLabel;
 import org.apache.commons.collections4.SetUtils;
 
+import java.time.LocalDate;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
@@ -181,6 +182,16 @@ public class MutablePlatform implements Platform {
     @Override
     public Set<Route> getPickupRoutes() {
         return servesRoutesPickup;
+    }
+
+    @Override
+    public Set<Route> getDropoffRoutes(LocalDate date) {
+        return servesRoutesDropoff.stream().filter(route -> route.isAvailableOn(date)).collect(Collectors.toSet());
+    }
+
+    @Override
+    public Set<Route> getPickupRoutes(LocalDate date) {
+        return servesRoutesPickup.stream().filter(route -> route.isAvailableOn(date)).collect(Collectors.toSet());
     }
 
     @Override

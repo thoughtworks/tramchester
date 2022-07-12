@@ -27,6 +27,7 @@ import javax.annotation.PreDestroy;
 import javax.inject.Inject;
 import java.time.Duration;
 import java.time.Instant;
+import java.time.LocalDate;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -170,7 +171,7 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
             BitSet forDropOffRoute = forDegreeOne.getConnectionsFor(dropOffIndex);
             // todo, could use bitset Or and And with DateOverlapMask here
             for (final Route pickup : pickupAtInterchange) {
-                if (!dropOff.equals(pickup)) {
+                if ((!dropOff.equals(pickup)) && pickup.isDateOverlap(dropOff)) {
                     final int pickupIndex = index.indexFor(pickup.getId());
                     forDropOffRoute.set(pickupIndex);
                 }
@@ -185,6 +186,7 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
             return 0;
         }
         if (!routeA.isDateOverlap(routeB)) {
+            logger.debug(format("No date overlap between %s and %s", routeA.getId(), routeB.getId()));
             return Integer.MAX_VALUE;
         }
         final IdFor<Route> idA = routeA.getId();
@@ -207,35 +209,35 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
     }
 
     @Override
-    public NumberOfChanges getNumberOfChanges(StationGroup start, StationGroup end) {
-        return getNumberOfChanges(LocationSet.of(start.getContained()), LocationSet.of(end.getContained()));
+    public NumberOfChanges getNumberOfChanges(StationGroup start, StationGroup end, LocalDate date) {
+        return getNumberOfChanges(LocationSet.of(start.getContained()), LocationSet.of(end.getContained()), date);
     }
 
     @Override
-    public NumberOfChanges getNumberOfChanges(LocationSet starts, LocationSet destinations) {
-        if (starts.stream().allMatch(station -> station.getPickupRoutes().isEmpty())) {
+    public NumberOfChanges getNumberOfChanges(LocationSet starts, LocationSet destinations, LocalDate date) {
+        if (starts.stream().allMatch(station -> station.getPickupRoutes(date).isEmpty())) {
             logger.warn(format("start stations %s have no pick-up routes", HasId.asIds(starts)));
             return NumberOfChanges.None();
         }
-        if (destinations.stream().allMatch(station -> station.getDropoffRoutes().isEmpty())) {
+        if (destinations.stream().allMatch(station -> station.getDropoffRoutes(date).isEmpty())) {
             logger.warn(format("destination stations %s have no drop-off routes",  HasId.asIds(destinations)));
             return NumberOfChanges.None();
         }
         if (neighboursRepository.areNeighbours(starts, destinations)) {
-            return new NumberOfChanges(0, maxHops(pickupRoutesFor(starts), dropoffRoutesFor(destinations)));
+            return new NumberOfChanges(0, maxHops(pickupRoutesFor(starts, date), dropoffRoutesFor(destinations, date)));
         }
-        return getNumberOfHops(pickupRoutesFor(starts), dropoffRoutesFor(destinations));
+        return getNumberOfHops(pickupRoutesFor(starts, date), dropoffRoutesFor(destinations, date));
     }
 
     @Override
     public NumberOfChanges getNumberOfChanges(Location<?> startStation, Location<?> destination,
-                                              Set<TransportMode> preferredModes) {
+                                              Set<TransportMode> preferredModes, LocalDate date) {
         if (neighboursRepository.areNeighbours(startStation, destination)) {
             return new NumberOfChanges(1, 1);
         }
 
-        final Set<Route> pickupRoutes = startStation.getPickupRoutes();
-        final Set<Route> dropoffRoutes = destination.getDropoffRoutes();
+        final Set<Route> pickupRoutes = startStation.getPickupRoutes(date);
+        final Set<Route> dropoffRoutes = destination.getDropoffRoutes(date);
 
         if (pickupRoutes.isEmpty()) {
             logger.warn(format("start station %s has no pick-up routes", startStation));
@@ -270,9 +272,11 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
     }
 
     @Override
-    public LowestCostsForDestRoutes getLowestCostCalcutatorFor(LocationSet destinations) {
+    public LowestCostsForDestRoutes getLowestCostCalcutatorFor(LocationSet destinations, LocalDate date) {
         Set<Route> destinationRoutes = destinations.stream().
-                map(Location::getDropoffRoutes).flatMap(Collection::stream).collect(Collectors.toUnmodifiableSet());
+                map(dest -> dest.getDropoffRoutes(date)).
+                flatMap(Collection::stream).
+                collect(Collectors.toUnmodifiableSet());
         return new LowestCostForDestinations(this, destinationRoutes);
     }
 
@@ -307,12 +311,12 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
         return query.orElse(Integer.MAX_VALUE);
     }
 
-    private Set<Route> dropoffRoutesFor(LocationSet locations) {
-        return locations.stream().flatMap(station -> station.getDropoffRoutes().stream()).collect(Collectors.toSet());
+    private Set<Route> dropoffRoutesFor(LocationSet locations, LocalDate date) {
+        return locations.stream().flatMap(station -> station.getDropoffRoutes(date).stream()).collect(Collectors.toSet());
     }
 
-    private Set<Route> pickupRoutesFor(LocationSet locations) {
-        return locations.stream().flatMap(station -> station.getPickupRoutes().stream()).collect(Collectors.toSet());
+    private Set<Route> pickupRoutesFor(LocationSet locations, LocalDate date) {
+        return locations.stream().flatMap(station -> station.getPickupRoutes(date).stream()).collect(Collectors.toSet());
     }
 
     private static class LowestCostForDestinations implements LowestCostsForDestRoutes {

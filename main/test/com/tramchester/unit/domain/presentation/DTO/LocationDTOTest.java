@@ -2,6 +2,8 @@ package com.tramchester.unit.domain.presentation.DTO;
 
 import com.tramchester.domain.DataSourceID;
 import com.tramchester.domain.MutablePlatform;
+import com.tramchester.domain.MutableService;
+import com.tramchester.domain.Service;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.places.MutableStation;
@@ -41,8 +43,10 @@ class LocationDTOTest {
         MutableStation testStation = StationHelper.forTestMutable("9400ZZMAALT", "Altrincham area", "Altrincham",
                 nearAltrincham, DataSourceID.tfgm);
 
-        testStation.addRouteDropOff(TestEnv.getTramTestRoute(StringIdFor.createId("routeIdA"), "routeNameA"));
-        testStation.addRoutePickUp(TestEnv.getTramTestRoute(StringIdFor.createId("routeIdB"), "routeNameB"));
+        Service service = MutableService.build(StringIdFor.createId("serviceId"));
+
+        testStation.addRouteDropOff(TestEnv.getTramTestRoute(StringIdFor.createId("routeIdA"), "routeNameA"), service);
+        testStation.addRoutePickUp(TestEnv.getTramTestRoute(StringIdFor.createId("routeIdB"), "routeNameB"), service);
 
         testStation.addPlatform(MutablePlatform.buildForTFGMTram("9400ZZMAALT1", testStation, new LatLong(1.2, 1), DataSourceID.unknown, IdFor.invalid()));
         testStation.addPlatform(MutablePlatform.buildForTFGMTram("9400ZZMAALT2", testStation, new LatLong(1.1, 1), DataSourceID.unknown, IdFor.invalid()));

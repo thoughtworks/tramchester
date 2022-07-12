@@ -34,6 +34,7 @@ import org.slf4j.LoggerFactory;
 import javax.inject.Inject;
 import java.time.Duration;
 import java.time.Instant;
+import java.time.LocalDate;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
@@ -81,11 +82,20 @@ public class RouteCalculator extends RouteCalculatorSupport implements TramRoute
 
         final List<TramTime> queryTimes = createQueryTimes.generate(journeyRequest.getOriginalTime());
 
-        NumberOfChanges numberOfChanges =  routeToRouteCosts.getNumberOfChanges(start, destination, journeyRequest.getRequestedModes());
+        LocalDate date = journeyRequest.getDate().getDate();
+
+        NumberOfChanges numberOfChanges =  routeToRouteCosts.getNumberOfChanges(start, destination,
+                journeyRequest.getRequestedModes(), date);
 
         if (journeyRequest.getMaxChanges()>numberOfChanges.getMax()) {
-            logger.error(format("Computed max changes (%s) is less than requested number of changes (%s)",
-                    numberOfChanges.getMax(), journeyRequest.getMaxChanges()));
+            if (closedStationsRepository.hasClosuresOn(date)) {
+                logger.warn(format("Closures on in effect today %s so over ride max changes", journeyRequest.getDate()));
+                numberOfChanges.overrideMax(journeyRequest.getMaxChanges());
+            }
+            else {
+                logger.error(format("Computed max changes (%s) is less than requested number of changes (%s)",
+                        numberOfChanges.getMax(), journeyRequest.getMaxChanges()));
+            }
         }
 
         return getJourneyStream(txn, startNode, endNode, journeyRequest, destinations, queryTimes, numberOfChanges).
@@ -149,7 +159,7 @@ public class RouteCalculator extends RouteCalculatorSupport implements TramRoute
         final Set<Long> destinationNodeIds = Collections.singleton(endNode.getId());
 
         // can only be shared as same date and same set of destinations, will eliminate previously seen paths/results
-        LowestCostsForDestRoutes lowestCostsForRoutes = routeToRouteCosts.getLowestCostCalcutatorFor(destinations);
+        LowestCostsForDestRoutes lowestCostsForRoutes = routeToRouteCosts.getLowestCostCalcutatorFor(destinations, queryDate.getDate());
         Duration maxJourneyDuration = getMaxDurationFor(txn, startNode, destinations, journeyRequest);
 
         final JourneyConstraints journeyConstraints = new JourneyConstraints(config, runningRoutesAndServices.getFor(queryDate.getDate()),

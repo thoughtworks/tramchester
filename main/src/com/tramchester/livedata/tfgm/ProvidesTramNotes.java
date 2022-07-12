@@ -119,7 +119,7 @@ public class ProvidesTramNotes implements ProvidesNotes {
         return notes;
     }
 
-    private boolean summer2022Closure(LocalDate date) {
+    public static boolean summer2022Closure(LocalDate date) {
         if (date.isBefore(LocalDate.of(2022,7,13))) {
             return false;
         }

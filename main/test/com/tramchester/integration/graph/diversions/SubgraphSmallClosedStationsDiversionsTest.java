@@ -68,8 +68,7 @@ class SubgraphSmallClosedStationsDiversionsTest {
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
-        config = new IntegrationTramClosedStationsTestConfig("closed_stpeters_subgraph_tram.db",
-                closedStations, true);
+        config = new IntegrationTramClosedStationsTestConfig(closedStations, true);
         componentContainer = new ComponentsBuilder().
                 configureGraphFilter(SubgraphSmallClosedStationsDiversionsTest::configureFilter).
                 create(config, TestEnv.NoopRegisterMetrics());

@@ -46,6 +46,7 @@ public class TramRouteHelper {
      * @param routeRepository the repository
      * @return set of matching routes
      */
+    @Deprecated
     public Set<Route> get(KnownTramRoute knownRoute, RouteRepository routeRepository) {
         guard(knownRoute, routeRepository);
         return map.get(knownRoute);

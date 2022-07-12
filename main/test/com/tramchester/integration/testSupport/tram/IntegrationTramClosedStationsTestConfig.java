@@ -2,16 +2,34 @@ package com.tramchester.integration.testSupport.tram;
 
 import com.tramchester.domain.StationClosure;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 public class IntegrationTramClosedStationsTestConfig extends IntegrationTramTestConfig {
 
 
+    private static DateTimeFormatter formatter = DateTimeFormatter.ISO_LOCAL_DATE;
     private final boolean planningEnabled;
 
-    public IntegrationTramClosedStationsTestConfig(String dbName, List<StationClosure> closure, boolean planningEnabled) {
-        super(dbName,  closure);
+    public IntegrationTramClosedStationsTestConfig(List<StationClosure> closures, boolean planningEnabled) {
+        super(createDBName(closures),  closures);
         this.planningEnabled = planningEnabled;
+    }
+
+    private static String createDBName(List<StationClosure> closures) {
+        StringBuilder builder = new StringBuilder();
+        builder.append("closed_");
+        closures.forEach(closed -> {
+            LocalDate begin = closed.getBegin();
+            LocalDate end = closed.getEnd();
+
+            builder.append(begin.format(formatter)).append("_").append(end.format(formatter)).append("_");
+
+            closed.getStations().forEach(stationId -> builder.append(stationId.getGraphId()).append("_"));
+        });
+        builder.append("_tram.db");
+        return builder.toString();
     }
 
     @Override

@@ -22,7 +22,6 @@ import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.TramStations;
 import com.tramchester.testSupport.testTags.TrainTest;
 import org.junit.jupiter.api.*;
-import org.junit.jupiter.api.condition.DisabledIfEnvironmentVariable;
 import org.neo4j.graphdb.Transaction;
 
 import java.time.Duration;
@@ -51,6 +50,7 @@ public class RailAndTramRouteCalculatorTest {
     private RouteCalculatorTestFacade testFacade;
 
     private TramTime travelTime;
+    private LocalDate date;
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
@@ -78,6 +78,8 @@ public class RailAndTramRouteCalculatorTest {
         testFacade = new RouteCalculatorTestFacade(componentContainer.get(RouteCalculator.class), stationRepository, txn);
 
         travelTime = TramTime.of(8, 0);
+
+        date = TestEnv.testDay();
     }
 
     @Test
@@ -90,7 +92,7 @@ public class RailAndTramRouteCalculatorTest {
     @Test
     void shouldValidHopsBetweenTramAndRail() {
         RouteToRouteCosts routeToRouteCosts = componentContainer.get(RouteToRouteCosts.class);
-        NumberOfChanges result = routeToRouteCosts.getNumberOfChanges(tram(TramStations.Bury), rail(Stockport), Collections.emptySet());
+        NumberOfChanges result = routeToRouteCosts.getNumberOfChanges(tram(TramStations.Bury), rail(Stockport), Collections.emptySet(), date);
 
         assertTrue(result.getMin()!=Integer.MAX_VALUE);
         assertTrue(result.getMax()!=Integer.MAX_VALUE);
@@ -100,7 +102,7 @@ public class RailAndTramRouteCalculatorTest {
     void shouldNotHaveHopsBetweenTramAndRailWhenTramOnly() {
         RouteToRouteCosts routeToRouteCosts = componentContainer.get(RouteToRouteCosts.class);
         NumberOfChanges result = routeToRouteCosts.getNumberOfChanges(tram(TramStations.Bury), rail(Stockport),
-                Collections.singleton(Tram));
+                Collections.singleton(Tram), date);
 
         assertEquals(Integer.MAX_VALUE, result.getMin());
         assertEquals(Integer.MAX_VALUE, result.getMax());

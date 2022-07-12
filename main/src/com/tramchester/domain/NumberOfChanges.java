@@ -2,7 +2,7 @@ package com.tramchester.domain;
 
 public class NumberOfChanges {
     private final int min;
-    private final int max;
+    private int max;
 
     public NumberOfChanges(int min, int max) {
         this.min = min;
@@ -27,5 +27,9 @@ public class NumberOfChanges {
                 "min=" + min +
                 ", max=" + max +
                 '}';
+    }
+
+    public void overrideMax(int maxChanges) {
+        max = maxChanges;
     }
 }

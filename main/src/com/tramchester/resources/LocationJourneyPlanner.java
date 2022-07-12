@@ -35,6 +35,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
 import java.time.Duration;
+import java.time.LocalDate;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -123,7 +124,7 @@ public class LocationJourneyPlanner {
         nodesAndRelationships.createWalksToStart(startOfWalkNode, walksToStart);
 
         Stream<Journey> journeys;
-        NumberOfChanges numberOfChanges = findNumberChanges(walksToStart, destination);
+        NumberOfChanges numberOfChanges = findNumberChanges(walksToStart, destination, journeyRequest.getDate().getDate());
         if (journeyRequest.getArriveBy()) {
             journeys = routeCalculatorArriveBy.calculateRouteWalkAtStart(txn, walksToStart, startOfWalkNode, destination, journeyRequest, numberOfChanges);
         } else {
@@ -167,7 +168,7 @@ public class LocationJourneyPlanner {
         LocationSet destinationStations = walksToDest.stream().
                 map(StationWalk::getStation).collect(LocationSet.stationCollector());
 
-        NumberOfChanges numberOfChanges = findNumberChanges(start, walksToDest);
+        NumberOfChanges numberOfChanges = findNumberChanges(start, walksToDest, journeyRequest.getDate().getDate());
 
         Stream<Journey> journeys;
         if (journeyRequest.getArriveBy()) {
@@ -202,7 +203,7 @@ public class LocationJourneyPlanner {
         LocationSet destinationStations = walksToDest.stream().
                 map(StationWalk::getStation).collect(LocationSet.stationCollector());
 
-        NumberOfChanges numberOfChanges = findNumberChanges(walksAtStart, walksToDest);
+        NumberOfChanges numberOfChanges = findNumberChanges(walksAtStart, walksToDest, journeyRequest.getDate().getDate());
 
         /// CALC
         Stream<Journey> journeys;
@@ -237,20 +238,20 @@ public class LocationJourneyPlanner {
         return stationWalks;
     }
 
-    private NumberOfChanges findNumberChanges(Location<?> start, Set<StationWalk> walksToDest) {
+    private NumberOfChanges findNumberChanges(Location<?> start, Set<StationWalk> walksToDest, LocalDate date) {
         LocationSet destinations = walksToDest.stream().map(StationWalk::getStation).collect(LocationSet.stationCollector());
-        return routeToRouteCosts.getNumberOfChanges(LocationSet.singleton(start), destinations);
+        return routeToRouteCosts.getNumberOfChanges(LocationSet.singleton(start), destinations, date);
     }
 
-    private NumberOfChanges findNumberChanges(Set<StationWalk> walksToStart, Location<?> destination) {
+    private NumberOfChanges findNumberChanges(Set<StationWalk> walksToStart, Location<?> destination, LocalDate date) {
         LocationSet starts = walksToStart.stream().map(StationWalk::getStation).collect(LocationSet.stationCollector());
-        return routeToRouteCosts.getNumberOfChanges(starts, LocationSet.singleton(destination));
+        return routeToRouteCosts.getNumberOfChanges(starts, LocationSet.singleton(destination), date);
     }
 
-    private NumberOfChanges findNumberChanges(Set<StationWalk> walksAtStart, Set<StationWalk> walksToDest) {
+    private NumberOfChanges findNumberChanges(Set<StationWalk> walksAtStart, Set<StationWalk> walksToDest, LocalDate date) {
         LocationSet destinations = walksToDest.stream().map(StationWalk::getStation).collect(LocationSet.stationCollector());
         LocationSet starts = walksAtStart.stream().map(StationWalk::getStation).collect(LocationSet.stationCollector());
-        return routeToRouteCosts.getNumberOfChanges(starts, destinations);
+        return routeToRouteCosts.getNumberOfChanges(starts, destinations, date);
     }
 
     private Set<StationWalk> createWalks(Location<?> location, List<Station> startStations) {

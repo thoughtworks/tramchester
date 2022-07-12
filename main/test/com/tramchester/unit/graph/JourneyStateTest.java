@@ -3,7 +3,10 @@ package com.tramchester.unit.graph;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.DataSourceID;
 import com.tramchester.domain.LocationSet;
+import com.tramchester.domain.MutableService;
+import com.tramchester.domain.Service;
 import com.tramchester.domain.exceptions.TramchesterException;
+import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.places.MutableStation;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.reference.TransportMode;
@@ -49,7 +52,10 @@ class JourneyStateTest extends EasyMockSupport {
 
         MutableStation station = StationHelper.forTestMutable("destinationStationId", "area", "name", new LatLong(1,1),
                 DataSourceID.tfgm);
-        station.addRoutePickUp(TestEnv.getTramTestRoute());
+
+        Service service = MutableService.build(StringIdFor.createId("serviceId"));
+
+        station.addRoutePickUp(TestEnv.getTramTestRoute(), service);
 
         LocationSet destinations = LocationSet.singleton(station);
         ProvidesNow providesNow = new ProvidesLocalNow();

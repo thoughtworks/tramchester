@@ -14,6 +14,7 @@ import com.tramchester.geo.GridPosition;
 import com.tramchester.graph.GraphPropertyKey;
 import com.tramchester.graph.graphbuild.GraphLabel;
 
+import java.time.LocalDate;
 import java.util.Collections;
 import java.util.Objects;
 import java.util.Set;
@@ -120,6 +121,16 @@ public class PostcodeLocation implements Location<PostcodeLocation>, HasCaseInse
 
     @Override
     public Set<Route> getPickupRoutes() {
+        return Collections.emptySet();
+    }
+
+    @Override
+    public Set<Route> getDropoffRoutes(LocalDate date) {
+        return Collections.emptySet();
+    }
+
+    @Override
+    public Set<Route> getPickupRoutes(LocalDate date) {
         return Collections.emptySet();
     }
 

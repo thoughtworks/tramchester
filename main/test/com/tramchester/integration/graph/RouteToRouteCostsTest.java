@@ -27,6 +27,7 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.junit.jupiter.api.*;
 
 import java.nio.file.Path;
+import java.time.LocalDate;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -46,6 +47,7 @@ public class RouteToRouteCostsTest {
     private static Path indexFile;
     private StationRepository stationRepository;
     private final Set<TransportMode> modes = Collections.singleton(Tram);
+    private LocalDate date;
 
     @BeforeAll
     static void onceBeforeAnyTestRuns() {
@@ -71,6 +73,8 @@ public class RouteToRouteCostsTest {
         routesCostRepository = componentContainer.get(BetweenRoutesCostRepository.class);
         routeRepository = componentContainer.get(RouteRepository.class);
         routeHelper = new TramRouteHelper();
+
+        date = TestEnv.testDay();
     }
 
     @Test
@@ -164,7 +168,7 @@ public class RouteToRouteCostsTest {
     void shouldFindLowestHopCountForTwoStations() {
         Station start = TramStations.Altrincham.from(stationRepository);
         Station end = TramStations.ManAirport.from(stationRepository);
-        NumberOfChanges result = routesCostRepository.getNumberOfChanges(start, end, modes);
+        NumberOfChanges result = routesCostRepository.getNumberOfChanges(start, end, modes, date);
 
         assertEquals(1, result.getMin());
     }
@@ -173,7 +177,7 @@ public class RouteToRouteCostsTest {
     void shouldFindHighestHopCountForTwoStations() {
         Station start = TramStations.Ashton.from(stationRepository);
         Station end = TramStations.ManAirport.from(stationRepository);
-        NumberOfChanges result = routesCostRepository.getNumberOfChanges(start, end, modes);
+        NumberOfChanges result = routesCostRepository.getNumberOfChanges(start, end, modes, date);
 
         assertEquals(1, result.getMax());
     }
@@ -182,7 +186,7 @@ public class RouteToRouteCostsTest {
     void shouldFindLowestHopCountForTwoStationsSameRoute() {
         Station start = TramStations.Victoria.from(stationRepository);
         Station end = TramStations.ManAirport.from(stationRepository);
-        NumberOfChanges result = routesCostRepository.getNumberOfChanges(start, end, modes);
+        NumberOfChanges result = routesCostRepository.getNumberOfChanges(start, end, modes, date);
 
         assertEquals(0, result.getMin());
     }
@@ -192,7 +196,7 @@ public class RouteToRouteCostsTest {
         Station start = TramStations.Victoria.from(stationRepository);
         Station end = TramStations.ManAirport.from(stationRepository);
 
-        NumberOfChanges result = routesCostRepository.getNumberOfChanges(start, end, Collections.singleton(Train));
+        NumberOfChanges result = routesCostRepository.getNumberOfChanges(start, end, Collections.singleton(Train), date);
 
         assertEquals(Integer.MAX_VALUE, result.getMin());
         assertEquals(Integer.MAX_VALUE, result.getMax());
@@ -203,7 +207,7 @@ public class RouteToRouteCostsTest {
     void shouldFindMediaCityHops() {
         Station start = TramStations.MediaCityUK.from(stationRepository);
         Station end = TramStations.Ashton.from(stationRepository);
-        NumberOfChanges result = routesCostRepository.getNumberOfChanges(start, end, modes);
+        NumberOfChanges result = routesCostRepository.getNumberOfChanges(start, end, modes, date);
 
         assertEquals(0, result.getMin());
     }
@@ -212,7 +216,7 @@ public class RouteToRouteCostsTest {
     void shouldFindHighestHopCountForTwoStationsSameRoute() {
         Station start = TramStations.Victoria.from(stationRepository);
         Station end = TramStations.ManAirport.from(stationRepository);
-        NumberOfChanges result = routesCostRepository.getNumberOfChanges(start, end, modes);
+        NumberOfChanges result = routesCostRepository.getNumberOfChanges(start, end, modes, date);
 
         assertEquals(1, result.getMax());
     }
@@ -220,20 +224,20 @@ public class RouteToRouteCostsTest {
     @Test
     void shouldSortAsExpected() {
 
-        Set<Route> routesA = routeHelper.get(CornbrookTheTraffordCentre, routeRepository);
-        Set<Route> routesB = routeHelper.get(VictoriaWythenshaweManchesterAirport, routeRepository);
-        Set<Route> routesC = routeHelper.get(BuryPiccadilly, routeRepository);
+        Set<Route> routesA = routeHelper.get(CornbrookTheTraffordCentre, routeRepository, date);
+        Set<Route> routesB = routeHelper.get(VictoriaWythenshaweManchesterAirport, routeRepository, date);
+        Set<Route> routesC = routeHelper.get(BuryPiccadilly, routeRepository, date);
 
         Station destination = TramStations.TraffordCentre.from(stationRepository);
-        LowestCostsForDestRoutes sorts = routesCostRepository.getLowestCostCalcutatorFor(LocationSet.singleton(destination));
+        LowestCostsForDestRoutes sorts = routesCostRepository.getLowestCostCalcutatorFor(LocationSet.singleton(destination), date);
 
         routesA.forEach(routeA -> routesB.forEach(routeB -> routesC.forEach(routeC -> {
 
             Stream<Route> toSort = Stream.of(routeC, routeB, routeA);
 
             Stream<Route> results = sorts.sortByDestinations(toSort);
-
             List<HasId<Route>> list = results.collect(Collectors.toList());
+
             assertEquals(3, list.size());
             assertEquals(routeA.getId(), list.get(0).getId());
             assertEquals(routeB.getId(), list.get(1).getId());

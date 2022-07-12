@@ -5,6 +5,7 @@ import com.tramchester.ComponentsBuilder;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.Service;
+import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.time.DateRange;
 import com.tramchester.domain.time.TramServiceDate;
@@ -77,55 +78,67 @@ public class RunningRoutesAndServicesTest {
             testDay = testDay.plusWeeks(1);
         }
 
-        final LocalDate nextMonday = testDay;
+        final LocalDate nextMonday = testDay.plusWeeks(1);
 
+        // date range contains next monday and service does weekday operating
         List<Service> weekdayServices = transportData.getServices().stream().
                 filter(service -> service.getCalendar().getDateRange().contains(nextMonday)).
                 filter(service -> service.getCalendar().getOperatingDays().equals(weekdays)).
                 collect(Collectors.toList());
         assertFalse(weekdayServices.isEmpty());
 
+        // start of the range
         LocalDate weekdayServicesBegin = weekdayServices.stream().
                 map(service -> service.getCalendar().getDateRange().getStartDate()).
                 min(LocalDate::compareTo).get();
 
+        // end of the range
         LocalDate weekdayServicesEnd = weekdayServices.stream().
                 map(service -> service.getCalendar().getDateRange().getEndDate()).
                 max(LocalDate::compareTo).get();
 
         DateRange weekdayDateRange = new DateRange(weekdayServicesBegin, weekdayServicesEnd);
+
+        // double check contains next monday
         assertTrue(weekdayDateRange.contains(nextMonday));
 
+        LocalDate friday = getFridayAfter(nextMonday);
+        assertTrue(weekdayDateRange.contains(friday));
+
+        RunningRoutesAndServices.FilterForDate filterForNextFriday = runningRoutesAndServices.getFor(friday);
+
+        Set<Service> weekdayFiltered = weekdayServices.stream().
+                filter(svc -> filterForNextFriday.isServiceRunningByDate(svc.getId(), false))
+                .collect(Collectors.toSet());
+
+        assertFalse(weekdayFiltered.isEmpty(), "Filter " + filterForNextFriday + " matched none of "
+                + HasId.asIds(weekdayServices) + " testday: " + testDay);
+
+        // services operating on a Saturday within this range
         List<Service> saturdayServices = transportData.getServices().stream().
                 filter(service -> service.getCalendar().getOperatingDays().equals(saturdays)).
                 filter(service -> service.getCalendar().overlapsDatesAndDaysWith(weekdayDateRange, saturdays)).
                 collect(Collectors.toList());
         assertFalse(saturdayServices.isEmpty(), weekdayDateRange.toString());
 
-//        int offsetToFriday = 1;
-//        while (nextMonday.plusDays(offsetToFriday).getDayOfWeek()!=FRIDAY) {
-//            offsetToFriday++;
-//        }
+        Set<Service> matchingForSaturday = saturdayServices.stream().
+                //filter(service -> filterForNextFriday.isServiceRunningByDate(service.getId(), false)).
+                filter(service -> filterForNextFriday.isServiceRunningByDate(service.getId(), true)).
+                collect(Collectors.toSet());
 
-        LocalDate friday = TestEnv.nextSaturday().minusDays(1); // weekdayServicesBegin.plusDays(offsetToFriday);
-        assertTrue(weekdayDateRange.contains(friday));
-
-        RunningRoutesAndServices.FilterForDate filter = runningRoutesAndServices.getFor(friday);
-
-        Set<Service> weekdayFiltered = weekdayServices.stream().
-                filter(svc -> filter.isServiceRunningByDate(svc.getId(), false))
-                .collect(Collectors.toSet());
-
-        assertFalse(weekdayFiltered.isEmpty(), "Filter " + filter + " matched none of "
-                + weekdayServices + " testday: " + testDay);
-
-        final Service saturdayService = saturdayServices.get(0);
-
-        // not including next day
-        assertFalse(filter.isServiceRunningByDate(saturdayService.getId(), false));
-
-        // including next day
-        assertTrue(filter.isServiceRunningByDate(saturdayService.getId(), true));
+        // Most likely reason for fail here is a route switch over on this exact date; this tests selects
+        // services that are running on the test day, which would definitely not be running the next day if there
+        // is a cut-over that same day
+        assertFalse(matchingForSaturday.isEmpty(), "Filter:" + filterForNextFriday + " not matching any of " +HasId.asIds(saturdayServices));
 
     }
+
+    private LocalDate getFridayAfter(final LocalDate weekdayServicesBegin) {
+        LocalDate result = weekdayServicesBegin;
+        while (result.getDayOfWeek()!=FRIDAY) {
+            result = result.plusDays(1);
+        }
+        return result;
+    }
+
 }

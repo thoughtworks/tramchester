@@ -15,6 +15,7 @@ import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.condition.DisabledIfEnvironmentVariable;
 import org.neo4j.graphdb.Transaction;
 
+import java.time.LocalDate;
 import java.util.Collections;
 
 import static com.tramchester.domain.reference.TransportMode.Train;
@@ -24,6 +25,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 @TrainTest
 public class RouteToRouteCostsRailTest {
     private static ComponentContainer componentContainer;
+    private static LocalDate date;
 
     private RouteToRouteCosts routeToRouteCosts;
     private StationRepository stationRepository;
@@ -38,6 +40,8 @@ public class RouteToRouteCostsRailTest {
         componentContainer = new ComponentsBuilder().create(config, TestEnv.NoopRegisterMetrics());
         componentContainer.initialise();
         TestEnv.clearDataCache(componentContainer);
+
+        date = TestEnv.testDay();
     }
 
     @AfterAll
@@ -69,22 +73,22 @@ public class RouteToRouteCostsRailTest {
 
     @Test
     void shouldGetNumberOfRouteHopsBetweenStockportAndManPicc() {
-        assertEquals(0, routeToRouteCosts.getNumberOfChanges(stockport, manPicc, Collections.singleton(Train)).getMin());
+        assertEquals(0, routeToRouteCosts.getNumberOfChanges(stockport, manPicc, Collections.singleton(Train), date).getMin());
     }
 
     @Test
     void shouldHaveExpectedNumberHopsChangesManToStockport() {
-        assertEquals(0, routeToRouteCosts.getNumberOfChanges(manPicc, stockport, Collections.singleton(Train)).getMin());
+        assertEquals(0, routeToRouteCosts.getNumberOfChanges(manPicc, stockport, Collections.singleton(Train), date).getMin());
     }
 
     @Test
     void shouldGetNumberOfRouteHopsBetweenManPiccAndLondonEustom() {
-        assertEquals(0, routeToRouteCosts.getNumberOfChanges(manPicc, londonEuston, Collections.singleton(Train)).getMin());
+        assertEquals(0, routeToRouteCosts.getNumberOfChanges(manPicc, londonEuston, Collections.singleton(Train), date).getMin());
     }
 
     @Test
     void shouldGetNumberOfRouteHopsBetweenAltrinchamAndManPicc() {
         Station altrincham = stationRepository.getStationById(Altrincham.getId());
-        assertEquals(1, routeToRouteCosts.getNumberOfChanges(altrincham, londonEuston, Collections.singleton(Train)).getMin());
+        assertEquals(1, routeToRouteCosts.getNumberOfChanges(altrincham, londonEuston, Collections.singleton(Train), date).getMin());
     }
 }

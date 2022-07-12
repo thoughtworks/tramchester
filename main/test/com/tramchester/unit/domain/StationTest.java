@@ -1,10 +1,7 @@
 package com.tramchester.unit.domain;
 
 
-import com.tramchester.domain.Agency;
-import com.tramchester.domain.DataSourceID;
-import com.tramchester.domain.MutableRoute;
-import com.tramchester.domain.Route;
+import com.tramchester.domain.*;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.places.MutableStation;
@@ -54,6 +51,9 @@ class StationTest {
 
     @Test
     void shouldHaveCorrectTransportModes() {
+
+        Service service = MutableService.build(StringIdFor.createId("serviceId"));
+
         IdFor<NaptanArea> areaId = IdFor.invalid();
         MutableStation station = new MutableStation(StringIdFor.createId("stationId"), areaId, "name", nearPiccGardens.latLong(),
                 nearPiccGardens.grid(), DataSourceID.tfgm);
@@ -62,11 +62,11 @@ class StationTest {
 
         final Route route = MutableRoute.getRoute(StringIdFor.createId("routeIdA"), "shortName", "name",
                 TestEnv.MetAgency(), Tram);
-        station.addRouteDropOff(route);
+        station.addRouteDropOff(route, service);
         assertTrue(station.servesMode(Tram));
 
         station.addRouteDropOff(MutableRoute.getRoute(StringIdFor.createId("routeIdB"), "trainShort", "train",
-                Walking, Train));
+                Walking, Train), service);
         assertTrue(station.servesMode(Train));
 
         assertEquals(2, station.getTransportModes().size());
@@ -83,13 +83,15 @@ class StationTest {
         final Route routeB = MutableRoute.getRoute(StringIdFor.createId("routeIdB"), "shortNameB", "nameB",
                 TestEnv.StagecoachManchester, Bus);
 
+        Service service = MutableService.build(StringIdFor.createId("serviceId"));
+
         assertFalse(station.hasPickup());
         assertFalse(station.hasDropoff());
 
-        station.addRoutePickUp(routeA);
+        station.addRoutePickUp(routeA, service);
         assertTrue(station.hasPickup());
 
-        station.addRouteDropOff(routeB);
+        station.addRouteDropOff(routeB, service);
         assertTrue(station.hasDropoff());
 
         assertTrue(station.servesMode(Tram));
@@ -116,6 +118,12 @@ class StationTest {
 
         // TODO Routes for platforms?
     }
+
+    @Test
+    void shouldHavePickupAndDropoffRoutesForSpecificDates() {
+        fail("todo");
+    }
+
 
 
 }

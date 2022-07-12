@@ -22,6 +22,8 @@ import com.tramchester.testSupport.reference.TramStations;
 import org.junit.jupiter.api.*;
 import org.neo4j.graphdb.Transaction;
 
+import java.time.LocalDate;
+
 import static com.tramchester.testSupport.reference.KnownLocations.nearPiccGardens;
 import static com.tramchester.testSupport.reference.TramStations.ManAirport;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -66,14 +68,15 @@ public class TraversalOpsTest {
 
     @Test
     void shouldHaveCorrectOrderingCompare() {
-        TramServiceDate queryDate = new TramServiceDate(TestEnv.testDay());
+        LocalDate date = TestEnv.testDay();
+        TramServiceDate queryDate = new TramServiceDate(date);
 
         LocationSet destinationStations = new LocationSet();
         final Station manchesterAirport = stationRepository.getStationById(ManAirport.getId());
         destinationStations.add(manchesterAirport);
         LatLong destinationLatLon = nearPiccGardens.latLong();
 
-        LowestCostsForDestRoutes lowestCostForRoutes = routeToRouteCosts.getLowestCostCalcutatorFor(destinationStations);
+        LowestCostsForDestRoutes lowestCostForRoutes = routeToRouteCosts.getLowestCostCalcutatorFor(destinationStations, date);
 
         TraversalOps traversalOpsForDest = new TraversalOps(nodeOperations, tripRepository,
                 sortsPositions, destinationStations, destinationLatLon, lowestCostForRoutes, queryDate);

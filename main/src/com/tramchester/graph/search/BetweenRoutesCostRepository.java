@@ -8,16 +8,17 @@ import com.tramchester.domain.places.Location;
 import com.tramchester.domain.places.StationGroup;
 import com.tramchester.domain.reference.TransportMode;
 
+import java.time.LocalDate;
 import java.util.Set;
 
 @ImplementedBy(RouteToRouteCosts.class)
 public interface BetweenRoutesCostRepository {
     int getFor(Route routeA, Route routeB);
 
-    NumberOfChanges getNumberOfChanges(LocationSet starts, LocationSet destinations);
-    NumberOfChanges getNumberOfChanges(Location<?> start, Location<?> destination, Set<TransportMode> modes);
-    NumberOfChanges getNumberOfChanges(StationGroup start, StationGroup end);
+    NumberOfChanges getNumberOfChanges(LocationSet starts, LocationSet destinations, LocalDate date);
+    NumberOfChanges getNumberOfChanges(Location<?> start, Location<?> destination, Set<TransportMode> modes, LocalDate date);
+    NumberOfChanges getNumberOfChanges(StationGroup start, StationGroup end, LocalDate date);
 
-    LowestCostsForDestRoutes getLowestCostCalcutatorFor(LocationSet desintationRoutes);
+    LowestCostsForDestRoutes getLowestCostCalcutatorFor(LocationSet desintationRoutes, LocalDate date);
 
 }

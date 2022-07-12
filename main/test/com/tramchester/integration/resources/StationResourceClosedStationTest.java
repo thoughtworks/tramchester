@@ -34,8 +34,7 @@ public class StationResourceClosedStationTest {
             new StationClosureForTest(closedStation, when.getDate(), when.getDate().plusWeeks(1)));
 
     // NOTE: planning disabled here
-    private static final AppConfiguration config = new IntegrationTramClosedStationsTestConfig(
-            "closed_stpeters_int_test_tram.db", closedStations, false);
+    private static final AppConfiguration config = new IntegrationTramClosedStationsTestConfig(closedStations, false);
 
     private static final IntegrationAppExtension appExtension = new IntegrationAppExtension(App.class, config);
 

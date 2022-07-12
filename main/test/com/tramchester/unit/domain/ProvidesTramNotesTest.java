@@ -43,6 +43,7 @@ import static java.time.DayOfWeek.SUNDAY;
 import static org.hamcrest.CoreMatchers.hasItem;
 import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class ProvidesTramNotesTest extends EasyMockSupport {
@@ -285,7 +286,7 @@ class ProvidesTramNotesTest extends EasyMockSupport {
         if (serviceDate.isChristmasPeriod()) {
             expected++;
         }
-        Assertions.assertEquals(expected, notes.size());
+        assertEquals(expected, notes.size());
     }
 
     @Test
@@ -315,9 +316,10 @@ class ProvidesTramNotesTest extends EasyMockSupport {
         if (serviceDate.isChristmasPeriod()) {
             expected++;
         }
-        Assertions.assertEquals(expected, notes.size());
+        assertEquals(expected, notes.size());
     }
 
+    @Summer2022
     @Test
     void shouldNotAddMessageIfNotMessageIfNotTimelyDate() {
         EasyMock.expect(platformMessageSource.isEnabled()).andReturn(true);
@@ -347,7 +349,10 @@ class ProvidesTramNotesTest extends EasyMockSupport {
         if (queryDate.isChristmasPeriod()) {
             expected++;
         }
-        Assertions.assertEquals(expected, notes.size());
+        if (ProvidesTramNotes.summer2022Closure(queryDate.getDate())) {
+            expected++;
+        }
+        assertEquals(expected, notes.size(), notes.toString());
     }
 
     @Test
@@ -410,7 +415,7 @@ class ProvidesTramNotesTest extends EasyMockSupport {
             expected++;
         }
 
-        Assertions.assertEquals(expected, notes.size());
+        assertEquals(expected, notes.size());
         assertTrue(notes.contains(noteOne), notes.toString());
         assertTrue(notes.contains(noteTwo), notes.toString());
         assertTrue(notes.contains(noteThree), notes.toString());
@@ -450,7 +455,7 @@ class ProvidesTramNotesTest extends EasyMockSupport {
         List<Note> notes = providesNotes.createNotesForStations(stations, queryDate, queryTime);
         verifyAll();
 
-        Assertions.assertEquals(3, notes.size());
+        assertEquals(3, notes.size());
         assertThat(notes.toString(), notes.contains(firstNote));
         assertThat(notes.toString(), notes.contains(secondNote));
         assertThat(notes.toString(), notes.contains(thirdNote));

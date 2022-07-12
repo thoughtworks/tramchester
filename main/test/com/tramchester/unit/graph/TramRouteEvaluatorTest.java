@@ -2,9 +2,7 @@ package com.tramchester.unit.graph;
 
 import com.tramchester.config.GTFSSourceConfig;
 import com.tramchester.config.TramchesterConfig;
-import com.tramchester.domain.DataSourceID;
-import com.tramchester.domain.JourneyRequest;
-import com.tramchester.domain.LocationSet;
+import com.tramchester.domain.*;
 import com.tramchester.domain.exceptions.TramchesterException;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.id.StringIdFor;
@@ -80,9 +78,11 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
                 NaptanArea.createId("area"), "name",
                 new LatLong(1, 1), new GridPosition(1000,1000), DataSourceID.tfgm);
 
+        Service service = MutableService.build(StringIdFor.createId("serviceId"));
+
         destinationStations = LocationSet.singleton(forTest);
-        forTest.addRouteDropOff(TestEnv.getTramTestRoute());
-        forTest.addRoutePickUp(TestEnv.getTramTestRoute());
+        forTest.addRouteDropOff(TestEnv.getTramTestRoute(), service);
+        forTest.addRoutePickUp(TestEnv.getTramTestRoute(), service);
 
         lowestCostSeen = createMock(LowestCostSeen.class);
         previousSuccessfulVisit = createMock(PreviousVisits.class);

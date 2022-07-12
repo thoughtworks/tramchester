@@ -363,12 +363,14 @@ public class RailTimetableMapper {
             boolean doesPickup = LocationActivityCode.doesPickup(activity);
             boolean doesDropOff = LocationActivityCode.doesDropOff(activity);
 
+            Service service = trip.getService();
+
             if (doesPickup) {
-                station.addRoutePickUp(route);
+                station.addRoutePickUp(route, service);
                 platform.addRoutePickUp(route);
             }
             if (doesDropOff) {
-                station.addRouteDropOff(route);
+                station.addRouteDropOff(route, service);
                 platform.addRouteDropOff(route);
             }
 

@@ -100,7 +100,7 @@ class RouteCalculatorKeyRoutesTest {
         final Set<StationIdPair> pairs = combinations.EndOfRoutesToEndOfRoutes(Tram);
         // helps with diagnosis when trams not running on a specific day vs. actual missing data
         LocalDate testDate = avoidChristmasDate(when.plusDays(TestEnv.DAYS_AHEAD));
-        JourneyRequest request = new JourneyRequest(testDate, TramTime.of(8,5), false, 2,
+        JourneyRequest request = new JourneyRequest(testDate, TramTime.of(8,5), false, 3,
                 maxJourneyDuration, 1, Collections.emptySet());
         combinations.validateAllHaveAtLeastOneJourney(pairs, request);
 

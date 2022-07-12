@@ -124,7 +124,7 @@ public class TramTransportDataForTestFactory implements TransportDataFactory {
         MutableStation first = createStation(TramTransportDataForTest.FIRST_STATION, StringIdFor.createId("area1"), "startStation",
                 nearAltrincham, dataSourceID);
         addAStation(container, first);
-        addRouteStation(container, first, routeA);
+        addRouteStation(container, first, routeA, serviceA);
         PlatformStopCall stopA = createStop(container, tripA, first, of(7, 55), of(8, 0), 1);
         tripA.addStop(stopA);
 
@@ -134,7 +134,7 @@ public class TramTransportDataForTestFactory implements TransportDataFactory {
         MutableStation firstDupName = createStation(TramTransportDataForTest.FIRST_STATION_DUP_NAME,
                 StringIdFor.createId("area1"), "startStation", nearAltrincham, dataSourceID);
         addAStation(container, firstDupName);
-        addRouteStation(container, firstDupName, routeD);
+        addRouteStation(container, firstDupName, routeD, serviceD);
         PlatformStopCall stopZ = createStop(container, tripZ, firstDupName, of(12, 0), of(12, 0), 1);
         tripZ.addStop(stopZ);
 
@@ -142,7 +142,7 @@ public class TramTransportDataForTestFactory implements TransportDataFactory {
         MutableStation firstDup2Name = createStation(TramTransportDataForTest.FIRST_STATION_DUP2_NAME,
                 StringIdFor.createId("area1"), "startStation", nearAltrincham, dataSourceID);
         addAStation(container, firstDup2Name);
-        addRouteStation(container, firstDup2Name, routeD);
+        addRouteStation(container, firstDup2Name, routeD, serviceD);
         PlatformStopCall stopZZ = createStop(container, tripZ, firstDup2Name, of(12, 0), of(12, 0), 2);
         tripZ.addStop(stopZZ);
 
@@ -151,14 +151,14 @@ public class TramTransportDataForTestFactory implements TransportDataFactory {
         MutableStation second = createStation(TramTransportDataForTest.SECOND_STATION, StringIdFor.createId("area1"), "secondStation",
                 atRoundthornTram, dataSourceID);
         addAStation(container, second);
-        addRouteStation(container, second, routeA);
+        addRouteStation(container, second, routeA, serviceA);
         PlatformStopCall stopB = createStop(container, tripA, second, of(8, 11), of(8, 11), 2);
         tripA.addStop(stopB);
 
         MutableStation interchangeStation = createStation(INTERCHANGE, StringIdFor.createId("area3"), "cornbrookStation",
                 nearShudehill, dataSourceID);
         addAStation(container, interchangeStation);
-        addRouteStation(container, interchangeStation, routeA);
+        addRouteStation(container, interchangeStation, routeA, serviceA);
         PlatformStopCall stopC = createStop(container, tripA, interchangeStation, of(8, 20),
                 of(8, 20), 3);
         tripA.addStop(stopC);
@@ -166,7 +166,7 @@ public class TramTransportDataForTestFactory implements TransportDataFactory {
         MutableStation last = createStation(TramTransportDataForTest.LAST_STATION, StringIdFor.createId("area4"),
                 "endStation", nearPiccGardens, dataSourceID);
         addAStation(container, last);
-        addRouteStation(container, last, routeA);
+        addRouteStation(container, last, routeA, serviceA);
         PlatformStopCall stopD = createStop(container, tripA, last, of(8, 40), of(8, 40), 4);
         tripA.addStop(stopD);
 
@@ -182,7 +182,7 @@ public class TramTransportDataForTestFactory implements TransportDataFactory {
         MutableStation fourDupName = createStation(TramTransportDataForTest.STATION_FOUR_DUP_NAME,
                 StringIdFor.createId("area4"), "Station4", nearKnutsfordBusStation, dataSourceID);
         addAStation(container, fourDupName);
-        addRouteStation(container, fourDupName, routeD);
+        addRouteStation(container, fourDupName, routeD, serviceA);
         PlatformStopCall fourDupStop = createStop(container, tripZZ, fourDupName,
                 of(13, 0), of(13, 0), 1);
         tripZZ.addStop(fourDupStop);
@@ -198,17 +198,17 @@ public class TramTransportDataForTestFactory implements TransportDataFactory {
         serviceC.addTrip(tripC);
         PlatformStopCall stopG = createStop(container, tripC, interchangeStation, of(8, 26),
                 of(8, 27), 1);
-        addRouteStation(container, interchangeStation, routeC);
+        addRouteStation(container, interchangeStation, routeC, serviceC);
         PlatformStopCall stopH = createStop(container, tripC, stationFive, of(8, 31),
                 of(8, 33), 2);
-        addRouteStation(container, stationFive, routeC);
+        addRouteStation(container, stationFive, routeC, serviceC);
         tripC.addStop(stopG);
         tripC.addStop(stopH);
         routeC.addTrip(tripC);
 
         // INTERCHANGE -> STATION_FOUR
-        addRouteStation(container, stationFour, routeB);
-        addRouteStation(container, interchangeStation, routeB);
+        addRouteStation(container, stationFour, routeB, serviceB);
+        addRouteStation(container, interchangeStation, routeB, serviceB);
 
         createInterchangeToStation4Trip(container,routeB, serviceB, interchangeStation, stationFour, LocalTime.of(8, 26), "tripBId");
         createInterchangeToStation4Trip(container,routeB, serviceB, interchangeStation, stationFour, LocalTime.of(9, 10), "tripB2Id");
@@ -243,11 +243,11 @@ public class TramTransportDataForTestFactory implements TransportDataFactory {
         container.addStation(station);
     }
 
-    private static void addRouteStation(TransportDataContainer container, MutableStation station, Route route) {
+    private static void addRouteStation(TransportDataContainer container, MutableStation station, Route route, Service service) {
         RouteStation routeStation = new RouteStation(station, route);
         container.addRouteStation(routeStation);
-        station.addRoutePickUp(route);
-        station.addRouteDropOff(route);
+        station.addRoutePickUp(route, service);
+        station.addRouteDropOff(route, service);
     }
 
     private static void createInterchangeToStation4Trip(TransportDataContainer container, MutableRoute route, MutableService service,

@@ -14,6 +14,7 @@ import com.tramchester.graph.GraphPropertyKey;
 import com.tramchester.graph.graphbuild.GraphLabel;
 
 import java.time.Duration;
+import java.time.LocalDate;
 import java.util.Collection;
 import java.util.Set;
 import java.util.function.Function;
@@ -89,6 +90,16 @@ public class StationGroup implements Location<StationGroup> {
     @Override
     public Set<Route> getPickupRoutes() {
         return flatten(Station::getPickupRoutes);
+    }
+
+    @Override
+    public Set<Route> getDropoffRoutes(LocalDate date) {
+        return getDropoffRoutes().stream().filter(route -> route.isAvailableOn(date)).collect(Collectors.toSet());
+    }
+
+    @Override
+    public Set<Route> getPickupRoutes(LocalDate date) {
+        return getPickupRoutes().stream().filter(route -> route.isAvailableOn(date)).collect(Collectors.toSet());
     }
 
     @Override

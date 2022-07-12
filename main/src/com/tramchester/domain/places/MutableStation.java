@@ -11,6 +11,7 @@ import com.tramchester.graph.GraphPropertyKey;
 import com.tramchester.graph.graphbuild.GraphLabel;
 
 import java.time.Duration;
+import java.time.LocalDate;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
@@ -153,6 +154,16 @@ public class MutableStation implements Station {
     }
 
     @Override
+    public Set<Route> getDropoffRoutes(LocalDate date) {
+        return servesRoutesDropoff.stream().filter(route -> route.isAvailableOn(date)).collect(Collectors.toSet());
+    }
+
+    @Override
+    public Set<Route> getPickupRoutes(LocalDate date) {
+        return servesRoutesPickup.stream().filter(route -> route.isAvailableOn(date)).collect(Collectors.toSet());
+    }
+
+    @Override
     public Set<Agency> getAgencies() {
         return Collections.unmodifiableSet(servesAgencies);
     }
@@ -240,13 +251,13 @@ public class MutableStation implements Station {
         return this;
     }
 
-    public void addRouteDropOff(Route dropoffFromRoute) {
+    public void addRouteDropOff(Route dropoffFromRoute, Service service) {
         modes.add(dropoffFromRoute.getTransportMode());
         servesAgencies.add(dropoffFromRoute.getAgency());
         servesRoutesDropoff.add(dropoffFromRoute);
     }
 
-    public void addRoutePickUp(Route pickupFromRoute) {
+    public void addRoutePickUp(Route pickupFromRoute, Service service) {
         modes.add(pickupFromRoute.getTransportMode());
         servesAgencies.add(pickupFromRoute.getAgency());
         servesRoutesPickup.add(pickupFromRoute);

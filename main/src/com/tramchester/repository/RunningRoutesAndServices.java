@@ -95,8 +95,8 @@ public class RunningRoutesAndServices {
         public String toString() {
             return "FilterForDate{" +
                     "runningServices=" + HasId.asIds(runningServices) +
-                    ", runningRoutes=" + HasId.asIds(runningRoutes) +
                     ", runningServicesNextDay=" + HasId.asIds(runningServicesNextDay) +
+                    ", runningRoutes=" + HasId.asIds(runningRoutes) +
                     ", runningRoutesNextDay=" + HasId.asIds(runningRoutesNextDay) +
                     '}';
         }
