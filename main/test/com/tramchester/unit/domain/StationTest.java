@@ -8,15 +8,21 @@ import com.tramchester.domain.places.MutableStation;
 import com.tramchester.domain.places.NaptanArea;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.LatLong;
+import com.tramchester.domain.time.DateRange;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.StationHelper;
+import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Test;
 
+import java.time.DayOfWeek;
+import java.time.LocalDate;
+import java.util.EnumSet;
 import java.util.Set;
 
 import static com.tramchester.domain.MutableAgency.Walking;
 import static com.tramchester.domain.reference.TransportMode.*;
 import static com.tramchester.testSupport.reference.KnownLocations.nearPiccGardens;
+import static java.time.DayOfWeek.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 class StationTest {
@@ -54,7 +60,7 @@ class StationTest {
 
         Service service = MutableService.build(StringIdFor.createId("serviceId"));
 
-        IdFor<NaptanArea> areaId = IdFor.invalid();
+        //IdFor<NaptanArea> areaId = IdFor.invalid();
         MutableStation station = new MutableStation(StringIdFor.createId("stationId"), areaId, "name", nearPiccGardens.latLong(),
                 nearPiccGardens.grid(), DataSourceID.tfgm);
 
@@ -74,7 +80,7 @@ class StationTest {
 
     @Test
     void shouldHavePickupAndDropoffRoutes() {
-        IdFor<NaptanArea> areaId = IdFor.invalid();
+        //IdFor<NaptanArea> areaId = IdFor.invalid();
         MutableStation station = new MutableStation(StringIdFor.createId("stationId"), areaId, "name", nearPiccGardens.latLong(),
                 nearPiccGardens.grid(), DataSourceID.tfgm);
 
@@ -121,8 +127,70 @@ class StationTest {
 
     @Test
     void shouldHavePickupAndDropoffRoutesForSpecificDates() {
-        fail("todo");
+        EnumSet<DayOfWeek> days = EnumSet.of(MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY, SATURDAY, SUNDAY);
+
+        MutableStation station = new MutableStation(StringIdFor.createId("stationId"), areaId, "name", nearPiccGardens.latLong(),
+                nearPiccGardens.grid(), DataSourceID.tfgm);
+
+        final MutableRoute routeA = new MutableRoute(StringIdFor.createId("routeIdA"), "shortNameA", "nameA", TestEnv.MetAgency(), Tram);
+
+        DateRange dateRangeA = new DateRange(LocalDate.of(2022, 7, 15), LocalDate.of(2022, 8, 24));
+
+        MutableService serviceA = createService(days, dateRangeA, "serviceAId");
+
+        DateRange dateRangeB = new DateRange(LocalDate.of(2022, 7, 16), LocalDate.of(2022,7,17));
+
+        MutableService serviceB = createService(days, dateRangeB, "serviceBId");
+
+        routeA.addService(serviceA);
+        routeA.addService(serviceB);
+
+        // only add routeA for serviceB , so should respect serviceB dates over the routes range
+        station.addRoutePickUp(routeA, serviceB);
+
+        assertTrue(station.hasPickup());
+
+        assertTrue(station.servesRoutePickup(routeA));
+
+        assertFalse(station.getPickupRoutes(LocalDate.of(2022,7,16)).isEmpty());
+        assertFalse(station.getPickupRoutes(LocalDate.of(2022,7,17)).isEmpty());
+
+        assertTrue(station.getPickupRoutes(LocalDate.of(2022,7,15)).isEmpty());
+        assertTrue(station.getPickupRoutes(LocalDate.of(2022,7,18)).isEmpty());
+
     }
+
+    @Test
+    void shouldHaveDayOfWeekCorrect() {
+
+        MutableStation station = new MutableStation(StringIdFor.createId("stationId"), areaId, "name", nearPiccGardens.latLong(),
+                nearPiccGardens.grid(), DataSourceID.tfgm);
+
+        final MutableRoute route = new MutableRoute(StringIdFor.createId("routeIdA"), "shortNameA", "nameA", TestEnv.MetAgency(), Tram);
+
+        EnumSet<DayOfWeek> notMonday = EnumSet.of(TUESDAY, WEDNESDAY, THURSDAY, FRIDAY, SATURDAY, SUNDAY);
+        LocalDate monday = TestEnv.nextMonday();
+        LocalDate tuesday = monday.plusDays(1);
+
+        DateRange dateRange = new DateRange(monday, tuesday);
+
+        MutableService serviceAId = createService(notMonday, dateRange, "serviceAId");
+
+        route.addService(serviceAId);
+        station.addRoutePickUp(route, serviceAId);
+
+        assertTrue(station.getPickupRoutes(monday).isEmpty());
+        assertFalse(station.getPickupRoutes(tuesday).isEmpty());
+    }
+
+    @NotNull
+    private MutableService createService(EnumSet<DayOfWeek> days, DateRange dateRange, String serviceId) {
+        MutableService service = new MutableService(StringIdFor.createId(serviceId));
+        MutableServiceCalendar serviceCalendar = new MutableServiceCalendar(dateRange, days);
+        service.setCalendar(serviceCalendar);
+        return service;
+    }
+
 
 
 

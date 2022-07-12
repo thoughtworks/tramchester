@@ -1,7 +1,11 @@
 package com.tramchester.domain.time;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
+import java.util.function.Supplier;
+import java.util.stream.Stream;
 
 public class DateRange {
     private final LocalDate startDate;
@@ -71,4 +75,15 @@ public class DateRange {
     public LocalDate getStartDate() {
         return startDate;
     }
+
+    public Stream<LocalDate> stream() {
+        List<LocalDate> dates = new ArrayList<>();
+        LocalDate current = startDate;
+        while (!current.isAfter(endDate)) {
+            dates.add(current);
+            current = current.plusDays(1);
+        }
+        return dates.stream();
+    }
+
 }

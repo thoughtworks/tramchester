@@ -14,6 +14,7 @@ import java.time.Duration;
 import java.time.LocalDate;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -29,8 +30,8 @@ public class MutableStation implements Station {
     private final LatLong latLong;
     private final GridPosition gridPosition;
     private final Set<Platform> platforms;
-    private final Set<Route> servesRoutesPickup;
-    private final Set<Route> servesRoutesDropoff;
+    private final Set<RouteAndService> servesRoutesPickup;
+    private final Set<RouteAndService> servesRoutesDropoff;
     private final Set<Route> passedByRoute; // i.e. a station being passed by a train, but the train does not stop
     private final Set<Agency> servesAgencies;
     private final DataSourceID dataSourceID;
@@ -145,22 +146,35 @@ public class MutableStation implements Station {
 
     @Override
     public Set<Route> getDropoffRoutes() {
-        return Collections.unmodifiableSet(servesRoutesDropoff);
+        return routesFrom(servesRoutesDropoff);
     }
 
     @Override
     public Set<Route> getPickupRoutes() {
-        return Collections.unmodifiableSet(servesRoutesPickup);
+        return routesFrom(servesRoutesPickup);
+    }
+
+    private Set<Route> routesFrom(Set<RouteAndService> routeAndServices) {
+        return routeAndServices.stream().
+                map(RouteAndService::getRoute).
+                collect(Collectors.toUnmodifiableSet());
     }
 
     @Override
     public Set<Route> getDropoffRoutes(LocalDate date) {
-        return servesRoutesDropoff.stream().filter(route -> route.isAvailableOn(date)).collect(Collectors.toSet());
+        return getRoutesFor(servesRoutesDropoff, date);
     }
 
     @Override
     public Set<Route> getPickupRoutes(LocalDate date) {
-        return servesRoutesPickup.stream().filter(route -> route.isAvailableOn(date)).collect(Collectors.toSet());
+        return getRoutesFor(servesRoutesPickup, date);
+    }
+
+    private Set<Route> getRoutesFor(Set<RouteAndService> routeAndServices, LocalDate date) {
+        return routeAndServices.stream().
+                filter(routeAndService -> routeAndService.isAvailableOn(date)).
+                map(RouteAndService::getRoute).
+                collect(Collectors.toSet());
     }
 
     @Override
@@ -175,12 +189,12 @@ public class MutableStation implements Station {
 
     @Override
     public boolean servesRoutePickup(Route route) {
-        return servesRoutesPickup.contains(route);
+        return RouteAndService.contains(servesRoutesPickup, route);
     }
 
     @Override
     public boolean servesRouteDropoff(Route route) {
-        return servesRoutesDropoff.contains(route);
+        return RouteAndService.contains(servesRoutesDropoff, route);
     }
 
     @Override
@@ -239,8 +253,8 @@ public class MutableStation implements Station {
                 ", latLong=" + latLong +
                 ", mode=" + getTransportModes() +
                 ", platforms=" + HasId.asIds(platforms) +
-                ", servesRoutesPickup=" + HasId.asIds(servesRoutesPickup) +
-                ", servesRoutesDropoff=" + HasId.asIds(servesRoutesDropoff) +
+                ", servesRoutesPickup=" + servesRoutesPickup +
+                ", servesRoutesDropoff=" + servesRoutesDropoff +
                 ", passedByRoute=" + HasId.asIds(passedByRoute) +
                 ", isMarkedInterchange=" + isMarkedInterchange +
                 '}';
@@ -254,13 +268,13 @@ public class MutableStation implements Station {
     public void addRouteDropOff(Route dropoffFromRoute, Service service) {
         modes.add(dropoffFromRoute.getTransportMode());
         servesAgencies.add(dropoffFromRoute.getAgency());
-        servesRoutesDropoff.add(dropoffFromRoute);
+        servesRoutesDropoff.add(new RouteAndService(dropoffFromRoute, service));
     }
 
     public void addRoutePickUp(Route pickupFromRoute, Service service) {
         modes.add(pickupFromRoute.getTransportMode());
         servesAgencies.add(pickupFromRoute.getAgency());
-        servesRoutesPickup.add(pickupFromRoute);
+        servesRoutesPickup.add(new RouteAndService(pickupFromRoute, service));
     }
 
     /***
@@ -270,5 +284,58 @@ public class MutableStation implements Station {
     public void addPassingRoute(MutableRoute route) {
         modes.add(route.getTransportMode());
         passedByRoute.add(route);
+    }
+
+    private static class RouteAndService {
+
+        private final Route route;
+        private final Service service;
+
+        public RouteAndService(Route route, Service service) {
+
+            this.route = route;
+            this.service = service;
+        }
+
+        public static boolean contains(Set<RouteAndService> routeAndServices, Route route) {
+            return routeAndServices.stream().
+                    anyMatch(routeAndService -> routeAndService.getRoute().equals(route));
+        }
+
+        public TransportMode getTransportMode() {
+            return route.getTransportMode();
+        }
+
+        public boolean isAvailableOn(LocalDate date) {
+            if (!route.isAvailableOn(date)) {
+                return false;
+            }
+            return service.getCalendar().operatesOn(date);
+        }
+
+        public Route getRoute() {
+            return route;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            RouteAndService that = (RouteAndService) o;
+            return route.equals(that.route) && service.equals(that.service);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(route, service);
+        }
+
+        @Override
+        public String toString() {
+            return "RouteAndService{" +
+                    "route=" + route.getId() +
+                    ", service=" + service.getId() +
+                    '}';
+        }
     }
 }
