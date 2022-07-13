@@ -23,6 +23,7 @@ import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TramRouteHelper;
 import com.tramchester.testSupport.reference.TramStations;
+import com.tramchester.testSupport.testTags.Summer2022;
 import org.apache.commons.lang3.tuple.Pair;
 import org.junit.jupiter.api.*;
 
@@ -35,13 +36,14 @@ import java.util.stream.Stream;
 import static com.tramchester.domain.reference.TransportMode.Train;
 import static com.tramchester.domain.reference.TransportMode.Tram;
 import static com.tramchester.testSupport.reference.KnownTramRoute.*;
+import static com.tramchester.testSupport.reference.TramStations.Cornbrook;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class RouteToRouteCostsTest {
 
     private static ComponentContainer componentContainer;
 
-    private BetweenRoutesCostRepository routesCostRepository;
+    private RouteToRouteCosts routesCostRepository;
     private TramRouteHelper routeHelper;
     private RouteRepository routeRepository;
     private static Path indexFile;
@@ -70,7 +72,7 @@ public class RouteToRouteCostsTest {
     @BeforeEach
     void beforeEachTestRuns() {
         stationRepository = componentContainer.get(StationRepository.class);
-        routesCostRepository = componentContainer.get(BetweenRoutesCostRepository.class);
+        routesCostRepository = componentContainer.get(RouteToRouteCosts.class);
         routeRepository = componentContainer.get(RouteRepository.class);
         routeHelper = new TramRouteHelper();
 
@@ -138,7 +140,7 @@ public class RouteToRouteCostsTest {
     }
 
     @Test
-    void shouldComputeCostsDifferentRoutesOneChange() {
+    void shouldComputeCostsDifferentRoutesTwoChange() {
         Set<Route> routesA = routeHelper.get(CornbrookTheTraffordCentre, routeRepository);
         Set<Route> routesB = routeHelper.get(BuryPiccadilly, routeRepository);
 
@@ -148,11 +150,31 @@ public class RouteToRouteCostsTest {
                 assertEquals(2, routesCostRepository.getFor(routeB, routeA), "wrong for " + routeB.getId() + " " + routeA.getId());
             }
         }));
+    }
+
+    @Test
+    void shouldBacktrackToChangesSingleChange() {
+        Route routeA = routeHelper.getOneRoute(TheTraffordCentreCornbrook, routeRepository, date);
+        Route routeB = routeHelper.getOneRoute(AltrinchamPiccadilly, routeRepository, date);
+
+        List<Set<Station>> results = routesCostRepository.getChangesFor(routeA, routeB);
+        assertEquals(1, results.size());
+        Set<Station> firstResult = results.get(0);
+        assertTrue(firstResult.contains(Cornbrook.from(stationRepository)), results.toString());
+    }
+
+    @Test
+    void shouldBacktrackToChangesMultipleChanges() {
+        Route routeA = routeHelper.getOneRoute(BuryPiccadilly, routeRepository, date);
+        Route routeB = routeHelper.getOneRoute(CornbrookTheTraffordCentre, routeRepository, date);
+
+        List<Set<Station>> results = routesCostRepository.getChangesFor(routeA, routeB);
+        assertEquals(2, results.size(), results.toString());
 
     }
 
     @Test
-    void shouldComputeCostsDifferentRoutesTwoChanges() {
+    void shouldComputeCostsDifferentRoutesOneChanges() {
         Set<Route> routesA = routeHelper.get(AltrinchamPiccadilly, routeRepository);
         Set<Route> routesB = routeHelper.get(VictoriaWythenshaweManchesterAirport, routeRepository);
 
@@ -212,37 +234,39 @@ public class RouteToRouteCostsTest {
         assertEquals(0, result.getMin());
     }
 
+    @Summer2022
     @Test
     void shouldFindHighestHopCountForTwoStationsSameRoute() {
         Station start = TramStations.Victoria.from(stationRepository);
         Station end = TramStations.ManAirport.from(stationRepository);
         NumberOfChanges result = routesCostRepository.getNumberOfChanges(start, end, modes, date);
 
-        assertEquals(1, result.getMax());
+        assertEquals(0, result.getMin());
+
+        // summer 2022
+        assertEquals(3, result.getMax());
     }
 
     @Test
     void shouldSortAsExpected() {
 
-        Set<Route> routesA = routeHelper.get(CornbrookTheTraffordCentre, routeRepository, date);
-        Set<Route> routesB = routeHelper.get(VictoriaWythenshaweManchesterAirport, routeRepository, date);
-        Set<Route> routesC = routeHelper.get(BuryPiccadilly, routeRepository, date);
+        Route routeA = routeHelper.getOneRoute(CornbrookTheTraffordCentre, routeRepository, date);
+        Route routeB = routeHelper.getOneRoute(VictoriaWythenshaweManchesterAirport, routeRepository, date);
+        Route routeC = routeHelper.getOneRoute(BuryPiccadilly, routeRepository, date);
 
         Station destination = TramStations.TraffordCentre.from(stationRepository);
         LowestCostsForDestRoutes sorts = routesCostRepository.getLowestCostCalcutatorFor(LocationSet.singleton(destination), date);
 
-        routesA.forEach(routeA -> routesB.forEach(routeB -> routesC.forEach(routeC -> {
+        Stream<Route> toSort = Stream.of(routeC, routeB, routeA);
 
-            Stream<Route> toSort = Stream.of(routeC, routeB, routeA);
+        Stream<Route> results = sorts.sortByDestinations(toSort);
+        List<HasId<Route>> list = results.collect(Collectors.toList());
 
-            Stream<Route> results = sorts.sortByDestinations(toSort);
-            List<HasId<Route>> list = results.collect(Collectors.toList());
+        assertEquals(3, list.size());
+        assertEquals(routeA.getId(), list.get(0).getId());
+        assertEquals(routeB.getId(), list.get(1).getId());
+        assertEquals(routeC.getId(), list.get(2).getId());
 
-            assertEquals(3, list.size());
-            assertEquals(routeA.getId(), list.get(0).getId());
-            assertEquals(routeB.getId(), list.get(1).getId());
-            assertEquals(routeC.getId(), list.get(2).getId());
-        })));
     }
 
     @Test

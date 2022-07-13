@@ -5,6 +5,7 @@ import com.tramchester.ComponentsBuilder;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.*;
 import com.tramchester.domain.id.IdFor;
+import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.Station;
@@ -21,6 +22,8 @@ import com.tramchester.repository.RouteRepository;
 import com.tramchester.repository.ServiceRepository;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.TestEnv;
+import com.tramchester.testSupport.TramRouteHelper;
+import com.tramchester.testSupport.reference.KnownTramRoute;
 import com.tramchester.testSupport.reference.TramStations;
 import com.tramchester.testSupport.testTags.Summer2022;
 import org.junit.jupiter.api.*;
@@ -40,6 +43,8 @@ import static org.junit.jupiter.api.Assertions.*;
 class RouteCalculatorSummer2022Test {
 
     private static final int TXN_TIMEOUT = 5*60;
+    public static final String ONE_DAY_SERVICE = "SID00215";
+    public static final LocalDate START_OF_WORKS = LocalDate.of(2022, 7, 16);
 
     private static ComponentContainer componentContainer;
     private static TramchesterConfig testConfig;
@@ -51,6 +56,8 @@ class RouteCalculatorSummer2022Test {
     private RouteCalculatorTestFacade calculator;
     private Transaction txn;
     private StationRepository stationRepository;
+    private RouteRepository routeRepository;
+    private RouteToRouteCosts routeToRouteCosts;
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
@@ -77,13 +84,15 @@ class RouteCalculatorSummer2022Test {
 
         calculator = new RouteCalculatorTestFacade(componentContainer.get(RouteCalculator.class), stationRepository, txn);
 
+        routeRepository = componentContainer.get(RouteRepository.class);
+        routeToRouteCosts = componentContainer.get(RouteToRouteCosts.class);
+
     }
 
     @AfterEach
     void afterEachTestRuns() {
         txn.close();
     }
-
 
     @Test
     void shouldReproIssueDuringSummer2022ClosureEccToVictoria() {
@@ -93,6 +102,36 @@ class RouteCalculatorSummer2022Test {
 
         Set<Journey> journeys = calculator.calculateRouteAsSet(Eccles, Victoria, journeyRequest);
         assertFalse(journeys.isEmpty());
+    }
+
+    @Test
+    void shouldReproIssueDuringSummer2022ClosureEccToVictoriaOnClosureDate() {
+
+        JourneyRequest journeyRequest = new JourneyRequest(START_OF_WORKS, TramTime.of(8,5), false,
+                3, maxJourneyDuration, 5, Collections.emptySet());
+
+        Set<Journey> journeys = calculator.calculateRouteAsSet(Eccles, Victoria, journeyRequest);
+        assertFalse(journeys.isEmpty());
+    }
+
+    @Test
+    void shouldReproIssueDuringSummer2022ClosureEccToVictoriaAfterClosureDate() {
+        List<LocalDate> failureDates = new ArrayList<>();
+
+        for (int days = 1; days < 14; days++) {
+
+            LocalDate date = START_OF_WORKS.plusDays(days);
+            JourneyRequest journeyRequest = new JourneyRequest(date, TramTime.of(8,5), false,
+                    3, maxJourneyDuration, 5, Collections.emptySet());
+
+            Set<Journey> journeys = calculator.calculateRouteAsSet(Eccles, Victoria, journeyRequest);
+            if (journeys.isEmpty()) {
+                failureDates.add(date);
+            }
+        }
+
+        assertTrue(failureDates.isEmpty(), failureDates.toString());
+
     }
 
     @Test
@@ -106,7 +145,6 @@ class RouteCalculatorSummer2022Test {
 
     @Test
     void shouldGetRouteCostsOnDate() {
-        RouteToRouteCosts routeToRouteCosts = componentContainer.get(RouteToRouteCosts.class);
 
         Set<TransportMode> modes = Collections.singleton(TransportMode.Tram);
         NumberOfChanges costs = routeToRouteCosts.getNumberOfChanges(Eccles.from(stationRepository),
@@ -132,27 +170,55 @@ class RouteCalculatorSummer2022Test {
     void shouldHaveServiceThatOperatesOnly1Days() {
         ServiceRepository serviceRepository = componentContainer.get(ServiceRepository.class);
 
-        IdFor<Service> serviceId = StringIdFor.createId("SID00215");
+        IdFor<Service> serviceId = StringIdFor.createId(ONE_DAY_SERVICE);
         Service service = serviceRepository.getServiceById(serviceId);
 
-        assertFalse(service.getCalendar().operatesOn(LocalDate.of(2022,7,15)));
-        assertTrue(service.getCalendar().operatesOn(LocalDate.of(2022,7,16)));
-        assertFalse(service.getCalendar().operatesOn(LocalDate.of(2022,7,17)));
+        assertFalse(service.getCalendar().operatesOn(START_OF_WORKS.minusDays(1)));
+        assertTrue(service.getCalendar().operatesOn(START_OF_WORKS));
+        assertFalse(service.getCalendar().operatesOn(START_OF_WORKS.plusDays(1)));
 
+    }
+
+    @Test
+    void shouldHaveExpectedRouteToRouteCosts() {
+        IdFor<Route> routeId = StringIdFor.createId("METLBLUE:O:2022-07-16");
+        Route originalRoute = routeRepository.getRouteById(routeId);
+
+        IdFor<Route> routeIdForReplacement = StringIdFor.createId("METLML1:O:2022-07-16");
+
+        Route replacementRoute = routeRepository.getRouteById(routeIdForReplacement);
+
+        int count = routeToRouteCosts.getFor(originalRoute, replacementRoute);
+
+        assertEquals(3, count);
     }
 
     @Test
     void shouldHaveCorrectDatesForRouteOverClosure() {
 
-        IdFor<Route> routeId = StringIdFor.createId("METLBLUE:I:2022-07-16");
-
-        RouteRepository routeRepository = componentContainer.get(RouteRepository.class);
-
+        IdFor<Route> routeId = StringIdFor.createId("METLBLUE:O:2022-07-16");
         Route route = routeRepository.getRouteById(routeId);
 
-        assertFalse(route.isAvailableOn(LocalDate.of(2022,7,15)));
-        assertTrue(route.isAvailableOn(LocalDate.of(2022,7,16)));
-        assertFalse(route.isAvailableOn(LocalDate.of(2022,7,17)), route.toString());
+        Station eccles = Eccles.from(stationRepository);
+
+        assertTrue(eccles.servesRoutePickup(route));
+
+        Set<Route> pickupRoutesOnStartOfWorks = eccles.getPickupRoutes(START_OF_WORKS);
+        assertTrue(pickupRoutesOnStartOfWorks.contains(route));
+        assertEquals(2, pickupRoutesOnStartOfWorks.size());
+
+        assertFalse(eccles.getPickupRoutes(START_OF_WORKS.minusDays(1)).contains(route));
+        assertFalse(eccles.getPickupRoutes(START_OF_WORKS.plusDays(1)).contains(route));
+
+        Set<Route> pickupRoutesDuringWorks = eccles.getPickupRoutes(START_OF_WORKS.plusDays(1));
+        assertEquals(1, pickupRoutesDuringWorks.size(), pickupRoutesDuringWorks.toString());
+
+        TramRouteHelper helper = new TramRouteHelper();
+        IdSet<Route> replacementRoutes = helper.getId(KnownTramRoute.ReplacementRouteFromEccles, routeRepository);
+        assertEquals(1, replacementRoutes.size());
+
+        IdSet<Route> pickupIds = pickupRoutesDuringWorks.stream().collect(IdSet.collector());
+        assertTrue(pickupIds.containsAll(replacementRoutes));
 
     }
 

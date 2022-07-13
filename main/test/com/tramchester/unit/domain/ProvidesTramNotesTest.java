@@ -258,6 +258,7 @@ class ProvidesTramNotesTest extends EasyMockSupport {
     }
 
 
+    @Summer2022
     @Test
     void shouldNotAddMessageIfNotMessageForJourney() {
         EasyMock.expect(platformMessageSource.isEnabled()).andReturn(true);
@@ -286,9 +287,13 @@ class ProvidesTramNotesTest extends EasyMockSupport {
         if (serviceDate.isChristmasPeriod()) {
             expected++;
         }
+        if (ProvidesTramNotes.summer2022Closure(serviceDate.getDate())) {
+            expected++;
+        }
         assertEquals(expected, notes.size());
     }
 
+    @Summer2022
     @Test
     void shouldNotAddMessageIfNotMessageIfNotTimelTime() {
         EasyMock.expect(platformMessageSource.isEnabled()).andReturn(true);
@@ -314,6 +319,9 @@ class ProvidesTramNotesTest extends EasyMockSupport {
             expected++;
         }
         if (serviceDate.isChristmasPeriod()) {
+            expected++;
+        }
+        if (ProvidesTramNotes.summer2022Closure(serviceDate.getDate())) {
             expected++;
         }
         assertEquals(expected, notes.size());
@@ -355,6 +363,7 @@ class ProvidesTramNotesTest extends EasyMockSupport {
         assertEquals(expected, notes.size(), notes.toString());
     }
 
+    @Summer2022
     @Test
     void shouldAddNotesForJourneysBasedOnLiveDataIfPresent() {
         EasyMock.expect(platformMessageSource.isEnabled()).andReturn(true);
@@ -412,6 +421,10 @@ class ProvidesTramNotesTest extends EasyMockSupport {
         }
 
         if (serviceDate.isChristmasPeriod()) {
+            expected++;
+        }
+
+        if (ProvidesTramNotes.summer2022Closure(serviceDate.getDate())) {
             expected++;
         }
 

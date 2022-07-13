@@ -8,9 +8,12 @@ import com.tramchester.testSupport.reference.KnownTramRoute;
 
 import java.time.LocalDate;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
+
+import static java.lang.String.format;
 
 /***
  * Test helper only
@@ -52,9 +55,13 @@ public class TramRouteHelper {
         return map.get(knownRoute);
     }
 
-    public Set<Route> get(KnownTramRoute knownRoute, RouteRepository routeRepository, LocalDate date) {
+    public Route getOneRoute(KnownTramRoute knownRoute, RouteRepository routeRepository, LocalDate date) {
         guard(knownRoute, routeRepository);
-        return map.get(knownRoute).stream().filter(route -> route.isAvailableOn(date)).collect(Collectors.toSet());
+        List<Route> result = map.get(knownRoute).stream().filter(route -> route.isAvailableOn(date)).collect(Collectors.toList());
+        if (result.size()>1) {
+            throw new RuntimeException(format("Found two many routes matching date %s and known route %s", date, knownRoute));
+        }
+        return result.get(0);
     }
 
     public IdSet<Route> getId(KnownTramRoute knownRoute, RouteRepository routeRepository) {

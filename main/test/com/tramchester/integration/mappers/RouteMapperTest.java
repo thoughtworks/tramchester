@@ -56,9 +56,9 @@ class RouteMapperTest {
 
         LocalDate date = TestEnv.testDay();
 
-        Set<Route> airportToWythenshawe = tramRouteHelper.get(ManchesterAirportWythenshaweVictoria, routeRepsoitory, date);
+        Route fromAirportRoute = tramRouteHelper.getOneRoute(ManchesterAirportWythenshaweVictoria, routeRepsoitory, date);
 
-        airportToWythenshawe.forEach(fromAirportRoute -> {
+        //airportToWythenshawe.forEach(fromAirportRoute -> {
             RouteDTO query = new RouteDTO(fromAirportRoute, new LinkedList<>());
 
             int index = dtos.indexOf(query);
@@ -70,7 +70,7 @@ class RouteMapperTest {
                     0.00001, "position");
             assertTrue(stationRefWithPosition.getTransportModes().contains(TransportMode.Tram));
             assertEquals(TramStations.Victoria.getRawId(), stations.get(stations.size()-1).getId());
-        });
+        //});
 
 
     }
