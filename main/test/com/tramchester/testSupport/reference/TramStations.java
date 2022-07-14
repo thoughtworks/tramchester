@@ -11,11 +11,13 @@ import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.geo.CoordinateTransforms;
 import com.tramchester.geo.GridPosition;
+import com.tramchester.repository.StationRepository;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 public enum TramStations implements FakeStation {
 
@@ -92,6 +94,12 @@ public enum TramStations implements FakeStation {
         return new LatLong(lat, lon);
     }
 
+    public static Set<Station> allFrom(StationRepository stationRepository, TramStations... tramStations) {
+        return Arrays.stream(tramStations).
+                map(tramStation -> stationRepository.getStationById(tramStation.getId()))
+                .collect(Collectors.toSet());
+    }
+
     @Override
     public String getRawId() {
         return id;
@@ -115,10 +123,6 @@ public enum TramStations implements FakeStation {
     public Station fake() {
         return createMutable();
     }
-
-//    public Station fakeWith(Platform platform) {
-//        return createMutable().addPlatform(platform);
-//    }
 
     @NotNull
     private MutableStation createMutable() {

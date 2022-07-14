@@ -170,6 +170,16 @@ public class MutableStation implements Station {
         return getRoutesFor(servesRoutesPickup, date);
     }
 
+    @Override
+    public boolean servesRouteDropoff(Route route, LocalDate date) {
+        return getRoutesFor(servesRoutesDropoff, date).contains(route);
+    }
+
+    @Override
+    public boolean servesRoutePickup(Route route, LocalDate date) {
+        return getRoutesFor(servesRoutesPickup, date).contains(route);
+    }
+
     private Set<Route> getRoutesFor(Set<RouteAndService> routeAndServices, LocalDate date) {
         return routeAndServices.stream().
                 filter(routeAndService -> routeAndService.isAvailableOn(date)).
@@ -226,6 +236,8 @@ public class MutableStation implements Station {
     public Duration getMinChangeDuration() {
         return changeTimeNeeded;
     }
+
+
 
     @Override
     public boolean equals(Object o) {

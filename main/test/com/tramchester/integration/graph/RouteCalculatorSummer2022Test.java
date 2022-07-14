@@ -4,6 +4,7 @@ import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.*;
+import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.id.StringIdFor;
@@ -144,6 +145,14 @@ class RouteCalculatorSummer2022Test {
     }
 
     @Test
+    void shouldGetExpectedChangesBetweenEcclesAndTraffordBar() {
+        NumberOfChanges results = routeToRouteCosts.getNumberOfChanges(Eccles.from(stationRepository),TraffordBar.from(stationRepository),
+                Collections.emptySet(), when);
+
+        assertEquals(3, results.getMax(), results.toString());
+    }
+
+    @Test
     void shouldGetRouteCostsOnDate() {
 
         Set<TransportMode> modes = Collections.singleton(TransportMode.Tram);
@@ -163,6 +172,28 @@ class RouteCalculatorSummer2022Test {
                 filter(trip -> !trip.getStopCalls().callsAt(eccles)).collect(Collectors.toSet());
 
         assertTrue(notCallingAtEccles.isEmpty(), notCallingAtEccles.toString());
+    }
+
+    @Test
+    void shouldExpectedRoutesAtHarbourCity() {
+        Station harbourCity = HarbourCity.from(stationRepository);
+
+        Route replacement = routeRepository.getRouteById(StringIdFor.createId("METLML1:O:2022-07-16"));
+
+        Set<Route> pickUps = harbourCity.getPickupRoutes(when);
+        assertFalse(pickUps.contains(replacement), harbourCity.toString());
+    }
+
+    @Test
+    void shouldHaveExpectedRoutesAtTraffordBar() {
+        Station traffordBar = TraffordBar.from(stationRepository);
+
+        Route ashToEccles = routeRepository.getRouteById(StringIdFor.createId("METLBLUE:I:2022-07-16"));
+
+        Set<Route> dropOffs = traffordBar.getDropoffRoutes(when);
+
+        assertFalse(dropOffs.contains(ashToEccles), traffordBar.toString());
+
 
     }
 
@@ -188,9 +219,9 @@ class RouteCalculatorSummer2022Test {
 
         Route replacementRoute = routeRepository.getRouteById(routeIdForReplacement);
 
-        int count = routeToRouteCosts.getFor(originalRoute, replacementRoute);
+        int count = routeToRouteCosts.getFor(originalRoute, replacementRoute, when.plusDays(1));
 
-        assertEquals(3, count);
+        assertEquals(1, count);
     }
 
     @Test

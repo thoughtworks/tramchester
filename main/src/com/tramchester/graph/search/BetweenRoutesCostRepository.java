@@ -13,7 +13,7 @@ import java.util.Set;
 
 @ImplementedBy(RouteToRouteCosts.class)
 public interface BetweenRoutesCostRepository {
-    int getFor(Route routeA, Route routeB);
+    //int getFor(Route routeA, Route routeB);
 
     NumberOfChanges getNumberOfChanges(LocationSet starts, LocationSet destinations, LocalDate date);
     NumberOfChanges getNumberOfChanges(Location<?> start, Location<?> destination, Set<TransportMode> modes, LocalDate date);

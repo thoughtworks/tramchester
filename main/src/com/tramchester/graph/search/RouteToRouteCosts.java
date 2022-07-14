@@ -4,9 +4,7 @@ import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.caching.DataCache;
 import com.tramchester.dataexport.DataSaver;
 import com.tramchester.dataimport.data.RouteIndexData;
-import com.tramchester.domain.LocationSet;
-import com.tramchester.domain.NumberOfChanges;
-import com.tramchester.domain.Route;
+import com.tramchester.domain.*;
 import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.places.InterchangeStation;
@@ -49,7 +47,7 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
     private final NeighboursRepository neighboursRepository;
 
     private final Costs costs;
-    private final Index index;
+    private final RouteIndex index;
     private final int numberOfRoutes;
     private final GraphFilterActive graphFilter;
     private final DataCache dataCache;
@@ -64,16 +62,16 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
         numberOfRoutes = routeRepository.numberOfRoutes();
         this.graphFilter = graphFilter;
         this.dataCache = dataCache;
-        index = new Index(routeRepository);
-        costs = new Costs(numberOfRoutes, MAX_DEPTH+1);
+        index = new RouteIndex(routeRepository);
+        costs = new Costs(index, numberOfRoutes, MAX_DEPTH + 1);
     }
 
-   @PostConstruct
+    @PostConstruct
     public void start() {
         logger.info("starting");
         if (graphFilter.isActive()) {
-           logger.warn("Filtering is enabled, skipping all caching");
-           index.populateFrom(routeRepository);
+            logger.warn("Filtering is enabled, skipping all caching");
+            index.populateFrom(routeRepository);
         } else {
             if (dataCache.has(index)) {
                 dataCache.loadInto(index, RouteIndexData.class);
@@ -82,18 +80,18 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
                 dataCache.save(index, RouteIndexData.class);
             }
         }
-       buildRouteConnectionMatrix();
+        buildRouteConnectionMatrix();
 
-       logger.info("started");
-   }
+        logger.info("started");
+    }
 
     @PreDestroy
-   public void stop() {
+    public void stop() {
         logger.info("stopping");
         index.clear();
         costs.clear();
         logger.info("stopped");
-   }
+    }
 
     private void buildRouteConnectionMatrix() {
         RouteDateAndDayOverlap routeDateAndDayOverlap = new RouteDateAndDayOverlap(index, numberOfRoutes);
@@ -112,7 +110,7 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
             addConnectionsFor(routeDateAndDayOverlap, currentDegree);
             final int currentTotal = costs.size();
             logger.info("Total number of connections " + currentTotal);
-            if (currentTotal>=fullyConnected) {
+            if (currentTotal >= fullyConnected) {
                 break;
             }
         }
@@ -120,32 +118,32 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
         final int finalSize = costs.size();
         logger.info("Added cost for " + finalSize + " route combinations");
         if (finalSize < fullyConnected) {
-            double percentage = ((double)finalSize/(double)fullyConnected);
+            double percentage = ((double) finalSize / (double) fullyConnected);
             logger.warn(format("Not fully connected, only %s (%s) of %s ", finalSize, percentage, fullyConnected));
         }
     }
 
     private void addConnectionsFor(RouteDateAndDayOverlap routeDateAndDayOverlap, byte currentDegree) {
         final Instant startTime = Instant.now();
-        final int nextDegree = currentDegree+1;
+        final int nextDegree = currentDegree + 1;
 
         final CostsForDegree currentMatrix = costs.costsFor(currentDegree);
         final CostsForDegree newMatrix = costs.costsFor(nextDegree);
 
         for (int routeIndex = 0; routeIndex < numberOfRoutes; routeIndex++) {
 
-            BitSet currentConnectionsForRoute = currentMatrix.getConnectionsFor(routeIndex);
+            ImmutableBitSet currentConnectionsForRoute = currentMatrix.getConnectionsFor(routeIndex);
             BitSet result = new BitSet(numberOfRoutes);
             for (int connectionIndex = 0; connectionIndex < numberOfRoutes; connectionIndex++) {
                 if (currentConnectionsForRoute.get(connectionIndex)) {
                     // if current routeIndex is connected to a route, then for next degree include that other routes connections
-                    BitSet otherRoutesConnections = currentMatrix.getConnectionsFor(connectionIndex);
-                    result.or(otherRoutesConnections);
+                    ImmutableBitSet otherRoutesConnections = currentMatrix.getConnectionsFor(connectionIndex);
+                    otherRoutesConnections.applyOr(result);
                 }
             }
             final BitSet dateOverlapMask = routeDateAndDayOverlap.overlapsFor(routeIndex);  // only those routes whose dates overlap
             result.and(dateOverlapMask);
-            result.andNot(currentConnectionsForRoute); // don't include any current connections for this route
+            currentConnectionsForRoute.applyAndNot(result);  // don't include any current connections for this route
             newMatrix.insert(routeIndex, result);
         }
 
@@ -170,17 +168,19 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
 
         for (final Route dropOff : dropOffAtInterchange) {
             final int dropOffIndex = index.indexFor(dropOff.getId());
-            BitSet forDropOffRoute = forDegreeOne.getConnectionsFor(dropOffIndex);
+            //ImmutableBitSet forDropOffRoute = forDegreeOne.getConnectionsFor(dropOffIndex);
             // todo, could use bitset Or and And with DateOverlapMask here
             for (final Route pickup : pickupAtInterchange) {
                 if ((!dropOff.equals(pickup)) && pickup.isDateOverlap(dropOff)) {
                     final int pickupIndex = index.indexFor(pickup.getId());
-                    forDropOffRoute.set(pickupIndex);
+                    //forDropOffRoute.set(pickupIndex);
+                    forDegreeOne.set(dropOffIndex, pickupIndex);
                     costs.addInterchangeBetween(dropOffIndex, pickupIndex, interchange);
                 }
             }
             // apply dates and days
-            forDropOffRoute.and(routeDateAndDayOverlap.overlapsFor(dropOffIndex));
+            forDegreeOne.applyAndTo(dropOffIndex, routeDateAndDayOverlap.overlapsFor(dropOffIndex));
+            //forDropOffRoute.and(routeDateAndDayOverlap.overlapsFor(dropOffIndex));
         }
     }
 
@@ -188,9 +188,9 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
      * Use methods from BetweenRoutesCostRepository instead of this
      * @param routeA first route
      * @param routeB second route
-     * @return number of changes IGNORING the actual situation at stations on a particular date, use with care
+     * @return number of changes
      */
-    public int getFor(Route routeA, Route routeB) {
+    public int getFor(Route routeA, Route routeB, LocalDate date) {
         if (routeA.equals(routeB)) {
             return 0;
         }
@@ -198,33 +198,32 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
             logger.debug(format("No date overlap between %s and %s", routeA.getId(), routeB.getId()));
             return Integer.MAX_VALUE;
         }
-        final IdFor<Route> idA = routeA.getId();
-        final IdFor<Route> idB = routeB.getId();
-        final byte result = costs.getDepth(RoutePair.getFor(index, routeA, routeB)); // index.indexFor(idA), index.indexFor(idB));
-        if (result==Costs.MAX_VALUE) {
-            if (routeA.getTransportMode()==routeB.getTransportMode() ) {
+
+        RouteIndexPair routePair = RouteIndexPair.getFor(index, routeA, routeB);
+        final int result = costs.getDepth(routePair, date);
+
+        if (result == Costs.MAX_VALUE) {
+            if (routeA.getTransportMode() == routeB.getTransportMode()) {
                 // TODO Why so many hits here?
                 // for mixed transport mode having no value is quite normal
-                final String msg = "Missing (routeId:" + idA + ", routeId:" + idB + ")";
-                logger.debug(msg);
+                logger.debug("Missing " + routePair);
             }
             return Integer.MAX_VALUE;
         }
         return result;
     }
 
-    public List<Set<Station>> getChangesFor(Route routeA, Route routeB) {
-        final IdFor<Route> idA = routeA.getId();
-        final IdFor<Route> idB = routeB.getId();
+    public List<List<RouteInterchanges>> getChangesFor(Route routeA, Route routeB) {
+        RoutePair routePair = new RoutePair(routeA, routeB);
 
-        logger.info(format("Get change stations betweem %s and %s", idA, idB));
+        logger.info("Get change stations betweem " + routePair);
 
-        RoutePair routePair = RoutePair.getFor(index, routeA, routeB);
+        RouteIndexPair indexPair = RouteIndexPair.getFor(index, routeA, routeB);
 
-        List<Set<Station>> result = costs.getChangesFor(routePair);
+        List<List<RouteInterchanges>> result = costs.getChangesFor(indexPair);
 
         if (result.isEmpty()) {
-            logger.warn(format("Unable to find changes between %s and %s", idA, idB));
+            logger.warn(format("Unable to find changes between %s", routePair));
         }
         return result;
 
@@ -246,18 +245,21 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
             return NumberOfChanges.None();
         }
         if (destinations.stream().allMatch(station -> station.getDropoffRoutes(date).isEmpty())) {
-            logger.warn(format("destination stations %s have no drop-off routes",  HasId.asIds(destinations)));
+            logger.warn(format("destination stations %s have no drop-off routes", HasId.asIds(destinations)));
             return NumberOfChanges.None();
         }
         if (neighboursRepository.areNeighbours(starts, destinations)) {
-            return new NumberOfChanges(0, maxHops(pickupRoutesFor(starts, date), dropoffRoutesFor(destinations, date)));
+            return new NumberOfChanges(0, maxHops(pickupRoutesFor(starts, date), dropoffRoutesFor(destinations, date), date));
         }
-        return getNumberOfHops(pickupRoutesFor(starts, date), dropoffRoutesFor(destinations, date));
+        return getNumberOfHops(pickupRoutesFor(starts, date), dropoffRoutesFor(destinations, date), date);
     }
 
     @Override
     public NumberOfChanges getNumberOfChanges(Location<?> startStation, Location<?> destination,
                                               Set<TransportMode> preferredModes, LocalDate date) {
+        logger.info(format("Compute number of changes between %s and %s using %s on %s",
+                startStation.getId(), destination.getId(), preferredModes, date));
+
         if (neighboursRepository.areNeighbours(startStation, destination)) {
             return new NumberOfChanges(1, 1);
         }
@@ -275,7 +277,7 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
         }
 
         if (preferredModes.isEmpty()) {
-            return getNumberOfHops(pickupRoutes, dropoffRoutes);
+            return getNumberOfHops(pickupRoutes, dropoffRoutes, date);
         } else {
             final Set<Route> filteredPickupRoutes = filterForModes(preferredModes, pickupRoutes);
             final Set<Route> filteredDropoffRoutes = filterForModes(preferredModes, dropoffRoutes);
@@ -287,7 +289,7 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
                 return NumberOfChanges.None();
             }
 
-            return getNumberOfHops(filteredPickupRoutes, filteredDropoffRoutes);
+            return getNumberOfHops(filteredPickupRoutes, filteredDropoffRoutes, date);
         }
 
     }
@@ -303,22 +305,30 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
                 map(dest -> dest.getDropoffRoutes(date)).
                 flatMap(Collection::stream).
                 collect(Collectors.toUnmodifiableSet());
-        return new LowestCostForDestinations(this, destinationRoutes);
+        return new LowestCostForDestinations(this, destinationRoutes, date);
     }
 
     @NotNull
-    private NumberOfChanges getNumberOfHops(Set<Route> startRoutes, Set<Route> destinationRoutes) {
-        int minHops = minHops(startRoutes, destinationRoutes);
-        if (minHops==Integer.MAX_VALUE) {
+    private NumberOfChanges getNumberOfHops(Set<Route> startRoutes, Set<Route> destinationRoutes, LocalDate date) {
+        int minHops = minHops(startRoutes, destinationRoutes, date);
+        if (minHops == Integer.MAX_VALUE) {
             logger.warn(format("No results founds between %s and %s", HasId.asIds(startRoutes), HasId.asIds(destinationRoutes)));
         }
-        int maxHops = maxHops(startRoutes, destinationRoutes);
-        return new NumberOfChanges(minHops, maxHops);
+
+        int maxHops = maxHops(startRoutes, destinationRoutes, date);
+        if (maxHops > MAX_DEPTH) {
+            logger.error(format("Unexpected result for max hops %s greater than max depth %s, for %s to %s",
+                    maxHops, MAX_DEPTH, HasId.asIds(startRoutes), HasId.asIds(destinationRoutes)));
+        }
+        NumberOfChanges numberOfChanges = new NumberOfChanges(minHops, maxHops);
+        logger.info(format("Computed number of changes from %s to %s on %s as %s",
+                HasId.asIds(startRoutes), HasId.asIds(destinationRoutes), date, numberOfChanges));
+        return numberOfChanges;
     }
 
-    private int minHops(Set<Route> startRoutes, Set<Route> endRoutes) {
+    private int minHops(Set<Route> startRoutes, Set<Route> endRoutes, LocalDate date) {
         final Optional<Integer> query = startRoutes.stream().
-                flatMap(startRoute -> endRoutes.stream().map(endRoute -> getFor(startRoute, endRoute))).
+                flatMap(startRoute -> endRoutes.stream().map(endRoute -> getFor(startRoute, endRoute, date))).
                 min(Integer::compare);
         if (query.isEmpty()) {
             logger.warn(format("No minHops found for %s to %s", HasId.asIds(startRoutes), HasId.asIds(endRoutes)));
@@ -326,11 +336,12 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
         return query.orElse(Integer.MAX_VALUE);
     }
 
-    private Integer maxHops(Set<Route> startRoutes, Set<Route> endRoutes) {
+    private Integer maxHops(Set<Route> startRoutes, Set<Route> endRoutes, LocalDate date) {
         final Optional<Integer> query = startRoutes.stream().
-                flatMap(startRoute -> endRoutes.stream().map(endRoute -> getFor(startRoute, endRoute))).
+                flatMap(startRoute -> endRoutes.stream().map(endRoute -> getFor(startRoute, endRoute, date))).
                 filter(result -> result != Integer.MAX_VALUE).
                 max(Integer::compare);
+
         if (query.isEmpty()) {
             logger.warn(format("No maxHops found for %s to %s", HasId.asIds(startRoutes), HasId.asIds(endRoutes)));
         }
@@ -346,16 +357,17 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
     }
 
 
-
     private static class LowestCostForDestinations implements LowestCostsForDestRoutes {
         private final RouteToRouteCosts routeToRouteCosts;
         private final Set<Integer> destinationIndexs;
+        private final LocalDate date;
 
-        public LowestCostForDestinations(BetweenRoutesCostRepository routeToRouteCosts, Set<Route> destinations) {
+        public LowestCostForDestinations(BetweenRoutesCostRepository routeToRouteCosts, Set<Route> destinations, LocalDate date) {
             this.routeToRouteCosts = (RouteToRouteCosts) routeToRouteCosts;
             destinationIndexs = destinations.stream().
                     map(destination -> this.routeToRouteCosts.index.indexFor(destination.getId())).
                     collect(Collectors.toUnmodifiableSet());
+            this.date = date;
         }
 
         /***
@@ -371,8 +383,8 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
             }
             // note: IntStream uses int in implementation so avoids any boxing overhead
             return destinationIndexs.stream().mapToInt(item -> item).
-                    map(indexOfDest -> routeToRouteCosts.costs.getDepth(RoutePair.of(indexOfDest, indexOfDest))).
-                    filter(result -> result!=Costs.MAX_VALUE).
+                    map(indexOfDest -> routeToRouteCosts.costs.getDepth(RouteIndexPair.of(indexOfStart, indexOfDest), date)).
+                    filter(result -> result != Costs.MAX_VALUE).
                     min().
                     orElse(Integer.MAX_VALUE);
         }
@@ -393,7 +405,7 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
             }
             // note: IntStream uses int in implementation so avoids any boxing overhead
             int result = destinationIndexs.stream().mapToInt(item -> item).
-                    map(dest -> routeToRouteCosts.costs.getDepth(RoutePair.of(indexOfStart, dest))).
+                    map(dest -> routeToRouteCosts.costs.getDepth(RouteIndexPair.of(indexOfStart, dest), date)).
                     min().
                     orElse(Integer.MAX_VALUE);
             return Pair.of(result, start);
@@ -401,13 +413,13 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
 
     }
 
-    private static class Index implements DataCache.Cacheable<RouteIndexData> {
+    private static class RouteIndex implements DataCache.Cacheable<RouteIndexData> {
         private final RouteRepository routeRepository;
         private final Map<IdFor<Route>, Integer> mapRouteIdToIndex;
-        private final Map<Integer, IdFor<Route>>  mapIndexToRouteId;
+        private final Map<Integer, IdFor<Route>> mapIndexToRouteId;
         private final int numberOfRoutes;
 
-        private Index(RouteRepository routeRepository) {
+        private RouteIndex(RouteRepository routeRepository) {
             this.routeRepository = routeRepository;
             this.numberOfRoutes = routeRepository.numberOfRoutes();
             mapRouteIdToIndex = new HashMap<>(numberOfRoutes);
@@ -418,7 +430,7 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
             logger.info("Creating index");
             List<IdFor<Route>> routesList = routeRepository.getRoutes().stream().map(Route::getId).collect(Collectors.toList());
             createIndex(routesList);
-            logger.info("Added " + mapRouteIdToIndex.size() +" index entries");
+            logger.info("Added " + mapRouteIdToIndex.size() + " index entries");
         }
 
         private void createIndex(List<IdFor<Route>> routesList) {
@@ -453,15 +465,11 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
                 mapRouteIdToIndex.put(item.getRouteId(), item.getIndex());
                 mapIndexToRouteId.put(item.getIndex(), item.getRouteId());
             });
-            if (mapRouteIdToIndex.size()!=numberOfRoutes) {
+            if (mapRouteIdToIndex.size() != numberOfRoutes) {
                 throw new DataCache.CacheLoadException("Mismatch on number of routes, got " + mapRouteIdToIndex.size() +
                         " expected " + numberOfRoutes);
             }
         }
-
-//        public IdFor<Route> getIdFor(int routeIndex) {
-//            return mapIndexToRouteId.get(routeIndex);
-//        }
 
         public void clear() {
             mapRouteIdToIndex.clear();
@@ -470,6 +478,16 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
 
         public Route getRouteFor(int index) {
             return routeRepository.getRouteById(mapIndexToRouteId.get(index));
+        }
+
+        public RoutePair getPairFor(RouteIndexPair indexPair) {
+            IdFor<Route> firstId = mapIndexToRouteId.get(indexPair.first);
+            IdFor<Route> secondId = mapIndexToRouteId.get(indexPair.second);
+
+            Route first = routeRepository.getRouteById(firstId);
+            Route second = routeRepository.getRouteById(secondId);
+
+            return new RoutePair(first, second);
         }
     }
 
@@ -493,8 +511,8 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
             return rows[indexA].get(indexB);
         }
 
-        public BitSet getConnectionsFor(int routesIndex) {
-            return rows[routesIndex];
+        private ImmutableBitSet getConnectionsFor(int routesIndex) {
+            return new ImmutableBitSet(rows[routesIndex]);
         }
 
         public void insert(int routeIndex, BitSet connectionsForRoute) {
@@ -515,19 +533,26 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
             }
         }
 
-        public boolean isSet(RoutePair routePair) {
+        public boolean isSet(RouteIndexPair routePair) {
             return isSet(routePair.first, routePair.second);
+        }
+
+        public void applyAndTo(int index, BitSet bitSet) {
+            BitSet mutable = rows[index];
+            mutable.and(bitSet);
         }
     }
 
     private static class Costs {
         public static final byte MAX_VALUE = Byte.MAX_VALUE;
 
-        private final Map<RoutePair, Set<Station>> interchanges;
+        private final Map<RouteIndexPair, Set<Station>> interchanges;
         private final CostsForDegree[] costsForDegree;
+        private final RouteIndex index;
         private final int maxDepth;
 
-        private Costs(int numRoutes, int maxDepth) {
+        private Costs(RouteIndex index, int numRoutes, int maxDepth) {
+            this.index = index;
             this.maxDepth = maxDepth;
             costsForDegree = new CostsForDegree[maxDepth];
             interchanges = new HashMap<>();
@@ -548,7 +573,29 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
             return costsForDegree[degree].isSet(routeIndexA, routeIndexB);
         }
 
-        public byte getDepth(RoutePair routePair) {
+        private int getDepth(RouteIndexPair routePair, LocalDate date) {
+            List<List<RouteInterchanges>> changes = getChangesFor(routePair);
+
+            Optional<Integer> result = changes.stream().
+                    filter(routeInterchanges -> isOperating(routeInterchanges, date)).
+                    map(List::size).
+                    min(Integer::compare);
+
+            return result.orElse(Integer.MAX_VALUE);
+
+        }
+
+        /***
+         *
+         * @param changeSet list of route interchanges to get between 2 routes
+         * @param date the date to filter for
+         * @return true iff any of the list of interchange have at least one path that is valid on the date
+         */
+        private boolean isOperating(List<RouteInterchanges> changeSet, LocalDate date) {
+            return changeSet.stream().allMatch(routeInterchanges -> routeInterchanges.availableOn(date));
+        }
+
+        private byte getDegree(RouteIndexPair routePair) {
             if (routePair.isSame()) {
                 return 0;
             }
@@ -571,71 +618,97 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
         }
 
         /***
-         * @param routePair indexs for first and seccnd routes
-         * @return each set returned contains specific interchanges bewteen 2 specific routes
+         * @param routePair indexes for first and second routes
+         * @return each set returned contains specific interchanges between 2 specific routes
          */
-        public List<Set<Station>> getChangesFor(final RoutePair routePair) {
+        public List<List<RouteInterchanges>> getChangesFor(final RouteIndexPair routePair) {
 
-            int initialDepth = getDepth(routePair);
+            final byte initialDepth = getDegree(routePair);
 
-            if (initialDepth==0) {
-                logger.warn(format("getChangesFor: No changes needed indexes %s", routePair));
+            if (initialDepth == 0) {
+                //logger.warn(format("getChangesFor: No changes needed indexes %s", routePair));
                 return Collections.emptyList();
             }
-            if (initialDepth==Integer.MAX_VALUE) {
+            if (initialDepth == Byte.MAX_VALUE) {
                 logger.warn(format("getChangesFor: no changes possible indexes %s", routePair));
                 return Collections.emptyList();
             }
 
-            logger.info(format("Expand for %s initial depth %s", routePair, initialDepth));
-            List<RoutePair> pairs = expand(routePair, initialDepth).collect(Collectors.toList());
+            logger.debug(format("Expand for %s initial depth %s", routePair, initialDepth));
 
-            logger.info(format("Got %s pairs for %s: %s", pairs.size(), routePair, pairs));
+            final Set<List<RouteIndexPair>> routeInterchanges = expand(Collections.singletonList(routePair), initialDepth);
 
-            return pairs.stream().map(this::getInterchangeFor).collect(Collectors.toList());
+            logger.debug(format("Got %s set of changes for %s: %s", routeInterchanges.size(), routePair, routeInterchanges));
+
+            List<List<RouteInterchanges>> results = routeInterchanges.stream().
+                    map(list -> list.stream().map(this::getInterchangeFor).filter(Objects::nonNull)).
+                    map(onePossibleSetOfChange -> onePossibleSetOfChange.collect(Collectors.toList()))
+                    .collect(Collectors.toList());
+
+            if (logger.isDebugEnabled()) {
+                // toString here is expensive
+                logger.debug(format("Map %s => %s", routeInterchanges, results));
+            }
+
+            return results;
         }
 
-        public Stream<RoutePair> expand(RoutePair pair, int degree) {
-            if (degree==1) {
-                return Stream.of(pair);
+        public Set<List<RouteIndexPair>> expand(List<RouteIndexPair> pairs, int degree) {
+            if (degree == 1) {
+                logger.debug("degree 1, expand pair to: " + pairs);
+                return Collections.singleton(pairs);
             }
 
             final int nextDegree = degree - 1;
             final CostsForDegree costsForDegree = this.costsForDegree[nextDegree];
-            List<Integer> overlaps = getIndexOverlapsFor(costsForDegree, pair);
 
-            if (overlaps.size()>1) {
-                // TODO
-                logger.warn("More than one overlap for " + pair + " got " + overlaps);
-            }
-            int singleOverlap = overlaps.get(0);
+            Set<List<RouteIndexPair>> resultsOfExpanion = new HashSet<>();
 
-            RoutePair first = RoutePair.of(pair.first, singleOverlap);
-            RoutePair second = RoutePair.of(singleOverlap, pair.second);
+            pairs.forEach(pair -> {
+                List<Integer> overlapsForPair = getIndexOverlapsFor(costsForDegree, pair);
+                overlapsForPair.forEach(overlapForPair -> {
+                    List<RouteIndexPair> toExpand = formNewRoutePairs(pair, overlapForPair);
+                    Set<List<RouteIndexPair>> expansionForPair = expand(toExpand, nextDegree);
+                    List<RouteIndexPair> resultsForPair = expansionForPair.stream().flatMap(Collection::stream).collect(Collectors.toList());
+                    resultsOfExpanion.add(resultsForPair);
+                });
+            });
 
-            return Stream.concat(expand(first, nextDegree), expand(second,nextDegree));
+            logger.debug(format("Result of expanding %s => %s", pairs, resultsOfExpanion));
+
+            return resultsOfExpanion;
 
         }
 
-        private Set<Station> getInterchangeFor(RoutePair pair) {
-            if (interchanges.containsKey(pair)) {
-                Set<Station> changes = interchanges.get(pair);
-                logger.info(format("Found changes %s for %s", HasId.asIds(changes), pair));
-                return changes;
+        @NotNull
+        private List<RouteIndexPair> formNewRoutePairs(RouteIndexPair pair, Integer overlapForPair) {
+            RouteIndexPair newFirstPair = RouteIndexPair.of(pair.first, overlapForPair);
+            RouteIndexPair newSecondPair = RouteIndexPair.of(overlapForPair, pair.second);
+            return Arrays.asList(newFirstPair, newSecondPair);
+        }
+
+        private RouteInterchanges getInterchangeFor(RouteIndexPair indexPair) {
+            RoutePair routePair = index.getPairFor(indexPair);
+
+            if (interchanges.containsKey(indexPair)) {
+                Set<Station> changes = interchanges.get(indexPair);
+                RouteInterchanges routeInterchanges = new RouteInterchanges(routePair, changes);
+                logger.debug(format("Found changes %s for %s", HasId.asIds(changes), indexPair));
+                return routeInterchanges;
             }
-            logger.error("Did not find any interchanges for " + pair);
+            logger.error("Did not find any interchanges for " + routePair);
             return null;
         }
 
-        private List<Integer> getIndexOverlapsFor(CostsForDegree costsForDegree, RoutePair pair) {
-            BitSet overlap = costsForDegree.getConnectionsFor(pair.first);
-            BitSet linksForB = costsForDegree.getConnectionsFor(pair.second);
-            overlap.and(linksForB);
+        private List<Integer> getIndexOverlapsFor(CostsForDegree costsForDegree, RouteIndexPair pair) {
+            ImmutableBitSet linksForA = costsForDegree.getConnectionsFor(pair.first);
+            ImmutableBitSet linksForB = costsForDegree.getConnectionsFor(pair.second);
+            ImmutableBitSet overlap = linksForA.and(linksForB);
             return overlap.stream().boxed().collect(Collectors.toList());
         }
 
         public void addInterchangeBetween(int dropOffIndex, int pickupIndex, InterchangeStation interchange) {
-            RoutePair key = RoutePair.of(dropOffIndex, pickupIndex);
+            RouteIndexPair key = RouteIndexPair.of(dropOffIndex, pickupIndex);
             if (!interchanges.containsKey(key)) {
                 interchanges.put(key, new HashSet<>());
             }
@@ -650,9 +723,9 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
 
         private final BitSet[] overlapMasks;
         private final int numberOfRoutes;
-        private final Index index;
+        private final RouteIndex index;
 
-        private RouteDateAndDayOverlap(Index index, int numberOfRoutes) {
+        private RouteDateAndDayOverlap(RouteIndex index, int numberOfRoutes) {
             this.index = index;
             overlapMasks = new BitSet[numberOfRoutes];
             this.numberOfRoutes = numberOfRoutes;
@@ -681,20 +754,19 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
         }
     }
 
-    private static class RoutePair {
+    private static class RouteIndexPair {
         private final int first;
         private final int second;
 
-        private RoutePair(int first, int second) {
+        private RouteIndexPair(int first, int second) {
             this.first = first;
             this.second = second;
         }
 
-        public static RoutePair getFor(Index index, Route routeA, Route routeB) {
+        public static RouteIndexPair getFor(RouteIndex index, Route routeA, Route routeB) {
             int a = index.indexFor(routeA.getId());
             int b = index.indexFor(routeB.getId());
-            RoutePair result = of(a, b);
-            return result;
+            return of(a, b);
         }
 
 
@@ -710,7 +782,7 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
         public boolean equals(Object o) {
             if (this == o) return true;
             if (o == null || getClass() != o.getClass()) return false;
-            RoutePair routePair = (RoutePair) o;
+            RouteIndexPair routePair = (RouteIndexPair) o;
             return first == routePair.first && second == routePair.second;
         }
 
@@ -719,20 +791,20 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
             return Objects.hash(first, second);
         }
 
-        public static RoutePair of(int first, int second) {
-            return new RoutePair(first, second);
+        public static RouteIndexPair of(int first, int second) {
+            return new RouteIndexPair(first, second);
         }
 
         public int first() {
             return first;
         }
 
-        public int secord() {
+        public int second() {
             return second;
         }
 
         public boolean isSame() {
-            return first==second;
+            return first == second;
         }
     }
 

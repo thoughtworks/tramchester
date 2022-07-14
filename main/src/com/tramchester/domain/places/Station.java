@@ -11,6 +11,7 @@ import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.geo.GridPosition;
 
 import java.time.Duration;
+import java.time.LocalDate;
 import java.util.Set;
 
 public interface Station extends Location<Station> {
@@ -42,8 +43,20 @@ public interface Station extends Location<Station> {
     @Override
     Set<Platform> getPlatforms();
 
+    /***
+     * Use version that takes a date
+     * @param route
+     * @return true if station serves given route
+     */
+    @Deprecated
     boolean servesRoutePickup(Route route);
 
+    /***
+     * Use version that takes a date
+     * @param route
+     * @return true if station serves given route
+     */
+    @Deprecated
     boolean servesRouteDropoff(Route route);
 
     GridPosition getGridPosition();
@@ -55,4 +68,8 @@ public interface Station extends Location<Station> {
     static IdFor<Station> createId(String text) {
         return StringIdFor.createId(text);
     }
+
+    boolean servesRouteDropoff(Route route, LocalDate date);
+
+    boolean servesRoutePickup(Route route, LocalDate date);
 }
