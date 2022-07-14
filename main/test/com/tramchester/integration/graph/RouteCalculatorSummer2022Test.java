@@ -194,7 +194,6 @@ class RouteCalculatorSummer2022Test {
 
         assertFalse(dropOffs.contains(ashToEccles), traffordBar.toString());
 
-
     }
 
     @Test

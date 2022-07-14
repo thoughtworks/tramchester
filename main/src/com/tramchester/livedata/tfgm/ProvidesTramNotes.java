@@ -8,6 +8,7 @@ import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.DTO.factory.DTOFactory;
 import com.tramchester.domain.presentation.Note;
 import com.tramchester.domain.reference.TransportMode;
+import com.tramchester.domain.time.TimeRange;
 import com.tramchester.domain.time.TramServiceDate;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.livedata.domain.liveUpdates.PlatformMessage;
@@ -18,6 +19,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
+import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
@@ -155,10 +157,12 @@ public class ProvidesTramNotes implements ProvidesNotes {
             return;
         }
         TramTime updateTime = TramTime.ofHourMins(lastUpdate.toLocalTime());
+
         // 1 minutes here as time sync on live api has been out by 1 min
-        if (!queryTime.between(updateTime.minusMinutes(1), updateTime.plusMinutes(MESSAGE_LIFETIME))) {
-            logger.info("No data available for " + queryTime + " as not between " + updateTime.minusMinutes(1) +
-                    " and " + updateTime.plusMinutes(MESSAGE_LIFETIME));
+        TimeRange range = TimeRange.of(updateTime, Duration.ofMinutes(1), Duration.ofMinutes(MESSAGE_LIFETIME));
+        //if (!queryTime.between(updateTime.minusMinutes(1), updateTime.plusMinutes(MESSAGE_LIFETIME))) {
+        if (!range.contains(queryTime)) {
+            logger.info("No data available for " + queryTime + " as not within " + range);
             return;
         }
         addRelevantNote(notes, info);

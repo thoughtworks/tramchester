@@ -7,6 +7,7 @@ import com.tramchester.domain.places.Location;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.places.StationGroup;
 import com.tramchester.domain.reference.TransportMode;
+import com.tramchester.domain.time.TimeRange;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.geo.MarginInMeters;
 import com.tramchester.geo.StationLocationsRepository;
@@ -61,9 +62,11 @@ public class DeparturesRepository {
     }
 
     private boolean isTimely(TramTime time, UpcomingDeparture departure) {
-        TramTime beginRange = time.minus(Duration.ofMinutes(20));
-        TramTime endRange = time.plus(Duration.ofMinutes(20));
-        return departure.getWhen().between(beginRange, endRange);
+        TimeRange timeRange = TimeRange.of(time, Duration.ofMinutes(20), Duration.ofMinutes(20));
+        return timeRange.contains(departure.getWhen());
+//        TramTime beginRange = time.minus(Duration.ofMinutes(20));
+//        TramTime endRange = time.plus(Duration.ofMinutes(20));
+//        return departure.getWhen().between(beginRange, endRange);
     }
 
     private List<UpcomingDeparture> getPlatformDepartrues(Platform platform, Set<TransportMode> modes) {
