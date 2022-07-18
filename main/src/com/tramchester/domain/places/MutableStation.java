@@ -6,19 +6,16 @@ import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.reference.TransportMode;
+import com.tramchester.domain.time.TimeRange;
+import com.tramchester.domain.time.TramTime;
 import com.tramchester.geo.GridPosition;
 import com.tramchester.graph.GraphPropertyKey;
 import com.tramchester.graph.graphbuild.GraphLabel;
-import org.apache.commons.lang3.NotImplementedException;
 
 import java.time.Duration;
 import java.time.LocalDate;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 public class MutableStation implements Station {
 
@@ -156,23 +153,23 @@ public class MutableStation implements Station {
     }
 
     @Override
-    public Set<Route> getDropoffRoutes(LocalDate date) {
-        return servesRoutesDropoff.getRoutes(date);
+    public Set<Route> getDropoffRoutes(LocalDate date, TimeRange timeRange) {
+        return servesRoutesDropoff.getRoutes(date, timeRange);
     }
 
     @Override
-    public Set<Route> getPickupRoutes(LocalDate date) {
-        return servesRoutesPickup.getRoutes(date);
+    public Set<Route> getPickupRoutes(LocalDate date, TimeRange timeRange) {
+        return servesRoutesPickup.getRoutes(date, timeRange);
     }
 
     @Override
-    public boolean servesRouteDropoff(Route route, LocalDate date) {
-        return servesRoutesDropoff.routeAvailableOnDate(route, date);
+    public boolean servesRouteDropOff(Route route, LocalDate date, TimeRange time) {
+        return servesRoutesDropoff.routeAvailableOnDate(route, date, time);
     }
 
     @Override
-    public boolean servesRoutePickup(Route route, LocalDate date) {
-        return servesRoutesPickup.routeAvailableOnDate(route, date);
+    public boolean servesRoutePickup(Route route, LocalDate date, TimeRange time) {
+        return servesRoutesPickup.routeAvailableOnDate(route, date, time);
     }
 
     @Override
@@ -191,7 +188,7 @@ public class MutableStation implements Station {
     }
 
     @Override
-    public boolean servesRouteDropoff(Route route) {
+    public boolean servesRouteDropOff(Route route) {
         return servesRoutesDropoff.contains(route);
     }
 
@@ -263,16 +260,16 @@ public class MutableStation implements Station {
         return this;
     }
 
-    public void addRouteDropOff(Route dropoffFromRoute, Service service) {
+    public void addRouteDropOff(Route dropoffFromRoute, Service service, TramTime dropOffTime) {
         modes.add(dropoffFromRoute.getTransportMode());
         servesAgencies.add(dropoffFromRoute.getAgency());
-        servesRoutesDropoff.add(dropoffFromRoute, service);
+        servesRoutesDropoff.add(dropoffFromRoute, service, dropOffTime);
     }
 
-    public void addRoutePickUp(Route pickupFromRoute, Service service) {
+    public void addRoutePickUp(Route pickupFromRoute, Service service, TramTime pickupTime) {
         modes.add(pickupFromRoute.getTransportMode());
         servesAgencies.add(pickupFromRoute.getAgency());
-        servesRoutesPickup.add(pickupFromRoute, service);
+        servesRoutesPickup.add(pickupFromRoute, service, pickupTime);
     }
 
     /***
@@ -284,109 +281,4 @@ public class MutableStation implements Station {
         passedByRoute.add(route);
     }
 
-    private static class RouteAndService {
-
-        private final Route route;
-        private final Service service;
-
-        public RouteAndService(Route route, Service service) {
-
-            this.route = route;
-            this.service = service;
-        }
-
-        public static boolean contains(Set<RouteAndService> routeAndServices, Route route) {
-            return routeAndServices.stream().
-                    anyMatch(routeAndService -> routeAndService.getRoute().equals(route));
-        }
-
-        public TransportMode getTransportMode() {
-            return route.getTransportMode();
-        }
-
-        public boolean isAvailableOn(LocalDate date) {
-            if (!route.isAvailableOn(date)) {
-                return false;
-            }
-            return service.getCalendar().operatesOn(date);
-        }
-
-        public Route getRoute() {
-            return route;
-        }
-
-        @Override
-        public boolean equals(Object o) {
-            if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
-            RouteAndService that = (RouteAndService) o;
-            return route.equals(that.route) && service.equals(that.service);
-        }
-
-        @Override
-        public int hashCode() {
-            return Objects.hash(route, service);
-        }
-
-        @Override
-        public String toString() {
-            return "RouteAndService{" +
-                    "route=" + route.getId() +
-                    ", service=" + service.getId() +
-                    '}';
-        }
-    }
-
-    private static class ServedRoute {
-
-        private final Set<RouteAndService> routeAndServices;
-
-        private ServedRoute() {
-            routeAndServices = new HashSet<>();
-        }
-
-        public boolean serves(TransportMode mode) {
-            return routeAndServices.stream().map(RouteAndService::getRoute).
-                    anyMatch(route -> route.getTransportMode().equals(mode));
-        }
-
-        public boolean isEmpty() {
-            return routeAndServices.isEmpty();
-        }
-
-        /***
-         * Use the version that takes a date
-         * @return all the routes
-         */
-        @Deprecated
-        public Set<Route> getRoutes() {
-            return routeAndServices.stream().map(RouteAndService::getRoute).collect(Collectors.toSet());
-        }
-
-        public Set<Route> getRoutes(LocalDate date) {
-            return routeAndServices.stream().
-                    filter(routeAndService -> routeAndService.isAvailableOn(date)).
-                    map(RouteAndService::getRoute).
-                    collect(Collectors.toSet());
-        }
-
-        public boolean routeAvailableOnDate(Route route, LocalDate date) {
-            return routeAndServices.stream().
-                    anyMatch(routeAndService -> routeAndService.isAvailableOn(date) && routeAndService.getRoute().equals(route));
-        }
-
-        /***
-         * Use the form that takes a date
-         * @param route
-         * @return true if route present
-         */
-        @Deprecated
-        public boolean contains(Route route) {
-            return routeAndServices.stream().map(RouteAndService::getRoute).anyMatch(item -> item.equals(route));
-        }
-
-        public void add(Route route, Service service) {
-            routeAndServices.add(new RouteAndService(route, service));
-        }
-    }
 }

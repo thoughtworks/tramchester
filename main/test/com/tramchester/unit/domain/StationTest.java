@@ -9,12 +9,16 @@ import com.tramchester.domain.places.NaptanArea;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.time.DateRange;
+import com.tramchester.domain.time.TimeRange;
+import com.tramchester.domain.time.TramTime;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.StationHelper;
+import com.tramchester.testSupport.testTags.DataUpdateTest;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Test;
 
 import java.time.DayOfWeek;
+import java.time.Duration;
 import java.time.LocalDate;
 import java.util.EnumSet;
 import java.util.Set;
@@ -68,11 +72,11 @@ class StationTest {
 
         final Route route = MutableRoute.getRoute(StringIdFor.createId("routeIdA"), "shortName", "name",
                 TestEnv.MetAgency(), Tram);
-        station.addRouteDropOff(route, service);
+        station.addRouteDropOff(route, service, TramTime.of(8,42));
         assertTrue(station.servesMode(Tram));
 
         station.addRouteDropOff(MutableRoute.getRoute(StringIdFor.createId("routeIdB"), "trainShort", "train",
-                Walking, Train), service);
+                Walking, Train), service, TramTime.of(9,56));
         assertTrue(station.servesMode(Train));
 
         assertEquals(2, station.getTransportModes().size());
@@ -94,10 +98,10 @@ class StationTest {
         assertFalse(station.hasPickup());
         assertFalse(station.hasDropoff());
 
-        station.addRoutePickUp(routeA, service);
+        station.addRoutePickUp(routeA, service, TramTime.of(8,42));
         assertTrue(station.hasPickup());
 
-        station.addRouteDropOff(routeB, service);
+        station.addRouteDropOff(routeB, service, TramTime.of(8,42));
         assertTrue(station.hasDropoff());
 
         assertTrue(station.servesMode(Tram));
@@ -119,8 +123,8 @@ class StationTest {
         assertTrue(station.servesRoutePickup(routeA));
         assertFalse(station.servesRoutePickup(routeB));
 
-        assertTrue(station.servesRouteDropoff(routeB));
-        assertFalse(station.servesRouteDropoff(routeA));
+        assertTrue(station.servesRouteDropOff(routeB));
+        assertFalse(station.servesRouteDropOff(routeA));
 
         // TODO Routes for platforms?
     }
@@ -146,17 +150,25 @@ class StationTest {
         routeA.addService(serviceB);
 
         // only add routeA for serviceB , so should respect serviceB dates over the routes range
-        station.addRoutePickUp(routeA, serviceB);
+        TramTime pickupTime = TramTime.of(8, 42);
+        station.addRoutePickUp(routeA, serviceB, pickupTime);
+
+        TimeRange timeRange = TimeRange.of(pickupTime);
 
         assertTrue(station.hasPickup());
 
         assertTrue(station.servesRoutePickup(routeA));
 
-        assertFalse(station.getPickupRoutes(LocalDate.of(2022,7,16)).isEmpty());
-        assertFalse(station.getPickupRoutes(LocalDate.of(2022,7,17)).isEmpty());
+        assertFalse(station.getPickupRoutes(LocalDate.of(2022,7,16), timeRange).isEmpty());
+        assertFalse(station.getPickupRoutes(LocalDate.of(2022,7,17), timeRange).isEmpty());
 
-        assertTrue(station.getPickupRoutes(LocalDate.of(2022,7,15)).isEmpty());
-        assertTrue(station.getPickupRoutes(LocalDate.of(2022,7,18)).isEmpty());
+        assertTrue(station.getPickupRoutes(LocalDate.of(2022,7,15), timeRange).isEmpty());
+        assertTrue(station.getPickupRoutes(LocalDate.of(2022,7,18), timeRange).isEmpty());
+
+        TimeRange outOfRange = TimeRange.of(TramTime.of(22,14), TramTime.of(22,46));
+
+        assertTrue(station.getPickupRoutes(LocalDate.of(2022,7,15), outOfRange).isEmpty());
+        assertTrue(station.getPickupRoutes(LocalDate.of(2022,7,15), outOfRange).isEmpty());
 
     }
 
@@ -177,10 +189,13 @@ class StationTest {
         MutableService serviceAId = createService(notMonday, dateRange, "serviceAId");
 
         route.addService(serviceAId);
-        station.addRoutePickUp(route, serviceAId);
+        TramTime pickupTime = TramTime.of(8, 42);
+        station.addRoutePickUp(route, serviceAId, pickupTime);
 
-        assertTrue(station.getPickupRoutes(monday).isEmpty());
-        assertFalse(station.getPickupRoutes(tuesday).isEmpty());
+        TimeRange timeRange = TimeRange.of(pickupTime);
+
+        assertTrue(station.getPickupRoutes(monday, timeRange).isEmpty());
+        assertFalse(station.getPickupRoutes(tuesday, timeRange).isEmpty());
     }
 
     @NotNull

@@ -15,6 +15,7 @@ import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.AdditionalTramInterchanges;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.TramStations;
+import com.tramchester.testSupport.testTags.Summer2022;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -62,11 +63,13 @@ public class InterchangesTramTest {
         }
     }
 
+    @Summer2022
     @Test
     void shouldHaveExpectedInterchanges() {
         // todo shaw and crompton?
 
-        List<TramStations> tramStations = Arrays.asList(StWerburghsRoad, TraffordBar, Cornbrook, HarbourCity, Broadway, Pomona,
+        // summer 2022 - removed Broadway
+        List<TramStations> tramStations = Arrays.asList(StWerburghsRoad, TraffordBar, Cornbrook, HarbourCity, Pomona,
                 Cornbrook, Deansgate, StPetersSquare, PiccadillyGardens, Piccadilly, Victoria, MarketStreet);
 
         Set<Station> expected = tramStations.stream().map(item -> item.from(stationRepository)).collect(Collectors.toSet());
@@ -92,10 +95,13 @@ public class InterchangesTramTest {
         assertFalse(interchangeRepository.isInterchange(stationRepository.getStationById(TramStations.OldTrafford.getId())));
     }
 
+    @Summer2022
     @Test
     void shouldHaveInterchangesForMediaCity() {
         assertTrue(interchangeRepository.isInterchange(stationRepository.getStationById(TramStations.HarbourCity.getId())));
-        assertTrue(interchangeRepository.isInterchange(stationRepository.getStationById(TramStations.Broadway.getId())));
+
+        // not during summer 2020
+        //assertTrue(interchangeRepository.isInterchange(stationRepository.getStationById(TramStations.Broadway.getId())));
     }
 
     @Test

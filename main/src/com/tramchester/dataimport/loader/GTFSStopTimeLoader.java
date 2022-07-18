@@ -140,7 +140,7 @@ public class GTFSStopTimeLoader {
 
             final MutableService service = tripAndServices.getService(trip.getService().getId());
 
-            addStationAndRouteStation(route, service, station, stopTimeData.getPickupType(), stopTimeData.getDropOffType());
+            addStationAndRouteStation(route, service, station, stopTimeData);
             addPlatformsForStation(station);
 
             StopCall stopCall = createStopCall(stopTimeData, route, trip, station);
@@ -160,13 +160,16 @@ public class GTFSStopTimeLoader {
             return service;
         }
 
-        private void addStationAndRouteStation(Route route, Service service, MutableStation station, GTFSPickupDropoffType pickupType,
-                                               GTFSPickupDropoffType dropOffType) {
-            if (pickupType.isPickup()) {
-                station.addRoutePickUp(route, service);
-            }
+        private void addStationAndRouteStation(Route route, Service service, MutableStation station, StopTimeData stopTimeData) {
+
+            GTFSPickupDropoffType dropOffType = stopTimeData.getDropOffType();
             if (dropOffType.isDropOff()) {
-                station.addRouteDropOff(route, service);
+                station.addRouteDropOff(route, service, stopTimeData.getArrivalTime());
+            }
+
+            GTFSPickupDropoffType pickupType = stopTimeData.getPickupType();
+            if (pickupType.isPickup()) {
+                station.addRoutePickUp(route, service, stopTimeData.getDepartureTime());
             }
 
             IdFor<Station> stationId = station.getId();
@@ -199,11 +202,13 @@ public class GTFSStopTimeLoader {
                 if (buildable.hasPlatformId(platformId)) {
                     MutablePlatform platform = buildable.getMutablePlatform(platformId);
 
+                    Service service = trip.getService();
+
                     if (stopTimeData.getPickupType().isPickup()) {
-                        platform.addRoutePickUp(route);
+                        platform.addRoutePickUp(route, service, stopTimeData.getDepartureTime());
                     }
                     if (stopTimeData.getDropOffType().isDropOff()) {
-                        platform.addRouteDropOff(route);
+                        platform.addRouteDropOff(route, service, stopTimeData.getArrivalTime());
                     }
 
                     //platform.addRoute(route);

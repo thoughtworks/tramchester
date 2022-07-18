@@ -8,6 +8,8 @@ import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.reference.TransportMode;
+import com.tramchester.domain.time.TimeRange;
+import com.tramchester.domain.time.TramTime;
 import com.tramchester.geo.GridPosition;
 
 import java.time.Duration;
@@ -57,7 +59,7 @@ public interface Station extends Location<Station> {
      * @return true if station serves given route
      */
     @Deprecated
-    boolean servesRouteDropoff(Route route);
+    boolean servesRouteDropOff(Route route);
 
     GridPosition getGridPosition();
 
@@ -69,7 +71,7 @@ public interface Station extends Location<Station> {
         return StringIdFor.createId(text);
     }
 
-    boolean servesRouteDropoff(Route route, LocalDate date);
+    boolean servesRouteDropOff(Route route, LocalDate date, TimeRange time);
 
-    boolean servesRoutePickup(Route route, LocalDate date);
+    boolean servesRoutePickup(Route route, LocalDate date, TimeRange time);
 }

@@ -1,12 +1,11 @@
 package com.tramchester.unit.domain;
 
-import com.tramchester.domain.DataSourceID;
-import com.tramchester.domain.Route;
+import com.tramchester.domain.*;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.StringIdFor;
-import com.tramchester.domain.MutablePlatform;
 import com.tramchester.domain.places.NaptanArea;
 import com.tramchester.domain.reference.TransportMode;
+import com.tramchester.domain.time.TramTime;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.TramStations;
 import org.junit.jupiter.api.Test;
@@ -36,9 +35,13 @@ class PlatformTest {
         assertEquals(areaId, platform.getAreaId());
         assertTrue(isMarkedInterchange);
 
+        Service service = MutableService.build(StringIdFor.createId("serviceId"));
+        TramTime dropOffTime = TramTime.of(8,15);
+        TramTime pickupTime = TramTime.of(8, 20);
+
         assertTrue(platform.getDropoffRoutes().isEmpty());
         final Route tramTestRoute = TestEnv.getTramTestRoute();
-        platform.addRouteDropOff(tramTestRoute);
+        platform.addRouteDropOff(tramTestRoute, service, dropOffTime);
         assertEquals(1, platform.getDropoffRoutes().size());
         assertTrue(platform.getDropoffRoutes().contains(tramTestRoute));
 
@@ -46,7 +49,7 @@ class PlatformTest {
 
         Route anotherRoute = TestEnv.getTramTestRoute(Route.createId("anotherRoute"), "routeNameB");
 
-        platform.addRoutePickUp(anotherRoute);
+        platform.addRoutePickUp(anotherRoute, service, pickupTime);
         assertEquals(1, platform.getDropoffRoutes().size());
         assertTrue(platform.getPickupRoutes().contains(anotherRoute));
 

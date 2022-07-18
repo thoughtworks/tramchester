@@ -11,6 +11,7 @@ import com.tramchester.domain.places.Station;
 import com.tramchester.domain.places.StationWalk;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.reference.TransportMode;
+import com.tramchester.domain.time.TimeRange;
 import com.tramchester.geo.GridPosition;
 import com.tramchester.geo.MarginInMeters;
 import com.tramchester.geo.StationLocations;
@@ -124,7 +125,7 @@ public class LocationJourneyPlanner {
         nodesAndRelationships.createWalksToStart(startOfWalkNode, walksToStart);
 
         Stream<Journey> journeys;
-        NumberOfChanges numberOfChanges = findNumberChanges(walksToStart, destination, journeyRequest.getDate().getDate());
+        NumberOfChanges numberOfChanges = findNumberChanges(walksToStart, destination, journeyRequest.getDate().getDate(), journeyRequest.getTimeRange());
         if (journeyRequest.getArriveBy()) {
             journeys = routeCalculatorArriveBy.calculateRouteWalkAtStart(txn, walksToStart, startOfWalkNode, destination, journeyRequest, numberOfChanges);
         } else {
@@ -168,7 +169,7 @@ public class LocationJourneyPlanner {
         LocationSet destinationStations = walksToDest.stream().
                 map(StationWalk::getStation).collect(LocationSet.stationCollector());
 
-        NumberOfChanges numberOfChanges = findNumberChanges(start, walksToDest, journeyRequest.getDate().getDate());
+        NumberOfChanges numberOfChanges = findNumberChanges(start, walksToDest, journeyRequest.getDate().getDate(), journeyRequest.getTimeRange());
 
         Stream<Journey> journeys;
         if (journeyRequest.getArriveBy()) {
@@ -203,7 +204,7 @@ public class LocationJourneyPlanner {
         LocationSet destinationStations = walksToDest.stream().
                 map(StationWalk::getStation).collect(LocationSet.stationCollector());
 
-        NumberOfChanges numberOfChanges = findNumberChanges(walksAtStart, walksToDest, journeyRequest.getDate().getDate());
+        NumberOfChanges numberOfChanges = findNumberChanges(walksAtStart, walksToDest, journeyRequest.getDate().getDate(), journeyRequest.getTimeRange());
 
         /// CALC
         Stream<Journey> journeys;
@@ -238,20 +239,20 @@ public class LocationJourneyPlanner {
         return stationWalks;
     }
 
-    private NumberOfChanges findNumberChanges(Location<?> start, Set<StationWalk> walksToDest, LocalDate date) {
+    private NumberOfChanges findNumberChanges(Location<?> start, Set<StationWalk> walksToDest, LocalDate date, TimeRange timeRange) {
         LocationSet destinations = walksToDest.stream().map(StationWalk::getStation).collect(LocationSet.stationCollector());
-        return routeToRouteCosts.getNumberOfChanges(LocationSet.singleton(start), destinations, date);
+        return routeToRouteCosts.getNumberOfChanges(LocationSet.singleton(start), destinations, date, timeRange);
     }
 
-    private NumberOfChanges findNumberChanges(Set<StationWalk> walksToStart, Location<?> destination, LocalDate date) {
+    private NumberOfChanges findNumberChanges(Set<StationWalk> walksToStart, Location<?> destination, LocalDate date, TimeRange timeRange) {
         LocationSet starts = walksToStart.stream().map(StationWalk::getStation).collect(LocationSet.stationCollector());
-        return routeToRouteCosts.getNumberOfChanges(starts, LocationSet.singleton(destination), date);
+        return routeToRouteCosts.getNumberOfChanges(starts, LocationSet.singleton(destination), date, timeRange);
     }
 
-    private NumberOfChanges findNumberChanges(Set<StationWalk> walksAtStart, Set<StationWalk> walksToDest, LocalDate date) {
+    private NumberOfChanges findNumberChanges(Set<StationWalk> walksAtStart, Set<StationWalk> walksToDest, LocalDate date, TimeRange timeRange) {
         LocationSet destinations = walksToDest.stream().map(StationWalk::getStation).collect(LocationSet.stationCollector());
         LocationSet starts = walksAtStart.stream().map(StationWalk::getStation).collect(LocationSet.stationCollector());
-        return routeToRouteCosts.getNumberOfChanges(starts, destinations, date);
+        return routeToRouteCosts.getNumberOfChanges(starts, destinations, date, timeRange);
     }
 
     private Set<StationWalk> createWalks(Location<?> location, List<Station> startStations) {

@@ -365,13 +365,15 @@ public class RailTimetableMapper {
 
             Service service = trip.getService();
 
-            if (doesPickup) {
-                station.addRoutePickUp(route, service);
-                platform.addRoutePickUp(route);
-            }
             if (doesDropOff) {
-                station.addRouteDropOff(route, service);
-                platform.addRouteDropOff(route);
+                TramTime arrivalTime = getDayAdjusted(railLocation.getArrival(), originTime);
+                station.addRouteDropOff(route, service, arrivalTime);
+                platform.addRouteDropOff(route, service, arrivalTime);
+            }
+            if (doesPickup) {
+                TramTime departureTime = getDayAdjusted(railLocation.getDeparture(), originTime);
+                station.addRoutePickUp(route, service, departureTime);
+                platform.addRoutePickUp(route, service, departureTime);
             }
 
             // Route Station
@@ -381,15 +383,8 @@ public class RailTimetableMapper {
             StopCall stopCall;
             if (railLocation.doesStop()) {
                 // TODO this doesn't cope with journeys that cross 2 days....
-                TramTime arrivalTime = railLocation.getArrival();
-                if (arrivalTime.isBefore(originTime)) {
-                    arrivalTime = TramTime.nextDay(arrivalTime);
-                }
-
-                TramTime departureTime = railLocation.getDeparture();
-                if (departureTime.isBefore(originTime)) {
-                    departureTime = TramTime.nextDay(departureTime);
-                }
+                TramTime arrivalTime = getDayAdjusted(railLocation.getArrival(), originTime);
+                TramTime departureTime = getDayAdjusted(railLocation.getDeparture(), originTime);
 
                 // TODO Request stops?
                 GTFSPickupDropoffType pickup = doesPickup ? Regular : None;
@@ -409,6 +404,13 @@ public class RailTimetableMapper {
             return true;
         }
 
+        private TramTime getDayAdjusted(TramTime arrivalTime, TramTime originTime) {
+            if (arrivalTime.isBefore(originTime)) {
+                arrivalTime = TramTime.nextDay(arrivalTime);
+            }
+            return arrivalTime;
+        }
+
         @NotNull
         private StopCall createStopcallForNoneStopping(RailLocationRecord railLocation, MutableTrip trip, int stopSequence,
                                                        MutableStation station, MutablePlatform platform, TramTime originTime) {
@@ -422,9 +424,7 @@ public class RailTimetableMapper {
                 passingTime = railLocation.getPassingTime();
             }
 
-            if (passingTime.isBefore(originTime)) {
-                passingTime = TramTime.nextDay(passingTime);
-            }
+            passingTime = getDayAdjusted(passingTime, originTime);
 
             stopCall = createStopCall(trip, station, platform, stopSequence, passingTime, passingTime, None, None);
             return stopCall;

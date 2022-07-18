@@ -9,6 +9,7 @@ import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.reference.TransportMode;
+import com.tramchester.domain.time.TimeRange;
 import com.tramchester.geo.CoordinateTransforms;
 import com.tramchester.geo.GridPosition;
 import com.tramchester.graph.GraphPropertyKey;
@@ -125,12 +126,12 @@ public class PostcodeLocation implements Location<PostcodeLocation>, HasCaseInse
     }
 
     @Override
-    public Set<Route> getDropoffRoutes(LocalDate date) {
+    public Set<Route> getDropoffRoutes(LocalDate date, TimeRange timeRange) {
         return Collections.emptySet();
     }
 
     @Override
-    public Set<Route> getPickupRoutes(LocalDate date) {
+    public Set<Route> getPickupRoutes(LocalDate date, TimeRange timeRange) {
         return Collections.emptySet();
     }
 

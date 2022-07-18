@@ -1,11 +1,13 @@
 package com.tramchester.repository;
 
 import com.netflix.governator.guice.lazy.LazySingleton;
+import com.tramchester.domain.CoreDomain;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.Service;
 import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdMap;
+import com.tramchester.domain.time.CrossesDay;
 import com.tramchester.domain.time.TramTime;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
@@ -36,7 +38,26 @@ public class RunningRoutesAndServices {
         IdMap<Service> runningServicesNextDay = getServicesFor(nextDay);
         IdMap<Route> runningRoutesNextDay = getRoutesFor(nextDay);
 
-        return new FilterForDate(serviceIds, routeIds, runningServicesNextDay, runningRoutesNextDay);
+        LocalDate previousDay = date.minusDays(1);
+        IdMap<Service> previousDaySvcs = servicesIntoNextDay(previousDay);
+        IdMap<Route> previousDayRoutes = routesIntoNextDayFor(previousDay);
+
+        return new FilterForDate(serviceIds, routeIds, runningServicesNextDay, runningRoutesNextDay,
+                previousDaySvcs, previousDayRoutes);
+    }
+
+    private IdMap<Route> routesIntoNextDayFor(LocalDate date) {
+        return intoNextDay(routeRepository.getRoutesRunningOn(date));
+    }
+
+    private IdMap<Service> servicesIntoNextDay(LocalDate date) {
+        return intoNextDay(serviceRepository.getServicesOnDate(date));
+    }
+
+    private <T extends HasId<T> & CoreDomain & CrossesDay> IdMap<T> intoNextDay(Set<T> items) {
+        return items.stream().
+                filter(CrossesDay::intoNextDay).
+                collect(IdMap.collector());
     }
 
     @NotNull
@@ -64,60 +85,88 @@ public class RunningRoutesAndServices {
     }
 
     public static class FilterForDate {
-        private final IdMap<Service> runningServices;
-        private final IdMap<Route> runningRoutes;
-        private final IdMap<Service> runningServicesNextDay;
-        private final IdMap<Route> runningRoutesNextDay;
+        private final IdMap<Service> servicesPreviousDay;
+        private final IdMap<Route> routesPreviousDay;
+        private final IdMap<Service> servicesToday;
+        private final IdMap<Route> routesToday;
+        private final IdMap<Service> servicesNextDay;
+        private final IdMap<Route> routesNextDay;
 
-        private FilterForDate(IdMap<Service> runningServices, IdMap<Route> runningRoutes,
-                              IdMap<Service> runningServicesNextDay, IdMap<Route> runningRoutesNextDay) {
-            this.runningServices = runningServices;
-            this.runningRoutes = runningRoutes;
-            this.runningServicesNextDay = runningServicesNextDay;
-            this.runningRoutesNextDay = runningRoutesNextDay;
+        private FilterForDate(IdMap<Service> servicesToday, IdMap<Route> routesToday,
+                              IdMap<Service> servicesNextDay, IdMap<Route> routesNextDay,
+                              IdMap<Service> servicesPreviousDay, IdMap<Route> routesPreviousDay) {
+            this.servicesToday = servicesToday;
+            this.routesToday = routesToday;
+            this.servicesNextDay = servicesNextDay;
+            this.routesNextDay = routesNextDay;
+            this.servicesPreviousDay = servicesPreviousDay;
+            this.routesPreviousDay = routesPreviousDay;
         }
 
         public boolean isServiceRunningByDate(IdFor<Service> serviceId, boolean nextDay) {
-            if (nextDay && runningServicesNextDay.hasId(serviceId)) {
+            if (servicesToday.hasId(serviceId)) {
                 return true;
             }
-            return runningServices.hasId(serviceId);
+
+            if (nextDay) {
+                return servicesNextDay.hasId(serviceId);
+            } else {
+                return servicesPreviousDay.hasId(serviceId);
+            }
         }
 
         public boolean isRouteRunning(IdFor<Route> routeId, boolean nextDay) {
-            if (nextDay && runningRoutesNextDay.hasId(routeId)) {
+            if (routesToday.hasId(routeId)) {
                 return true;
             }
-            return runningRoutes.hasId(routeId);
+
+            if (nextDay) {
+                return routesNextDay.hasId(routeId);
+            } else {
+                return routesPreviousDay.hasId(routeId);
+            }
         }
 
         @Override
         public String toString() {
             return "FilterForDate{" +
-                    "runningServices=" + HasId.asIds(runningServices) +
-                    ", runningServicesNextDay=" + HasId.asIds(runningServicesNextDay) +
-                    ", runningRoutes=" + HasId.asIds(runningRoutes) +
-                    ", runningRoutesNextDay=" + HasId.asIds(runningRoutesNextDay) +
+                    "servicesPreviousDay=" + HasId.asIds(servicesPreviousDay) +
+                    ", routesPreviousDay=" + HasId.asIds(routesPreviousDay) +
+                    ", servicesToday=" + HasId.asIds(servicesToday) +
+                    ", routesToday=" + HasId.asIds(routesToday) +
+                    ", servicesNextDay=" + HasId.asIds(servicesNextDay) +
+                    ", routesNextDay=" + HasId.asIds(routesNextDay) +
                     '}';
         }
 
         public boolean isServiceRunningByTime(IdFor<Service> serviceId, TramTime time, int maxWait) {
-            if (runningServices.hasId(serviceId)) {
-                Service todaySvc = runningServices.get(serviceId);
+
+            if (servicesToday.hasId(serviceId)) {
+                Service todaySvc = servicesToday.get(serviceId);
                 if (serviceOperatingWithin(todaySvc, time, maxWait)) {
                     return true;
                 }
             }
-            if (!time.isNextDay()) {
-                return false;
+
+            int hourOfDay = time.getHourOfDay();
+            int minuteOfHour = time.getMinuteOfHour();
+
+            if (time.isNextDay()) {
+                if (servicesNextDay.hasId(serviceId)) {
+                    // remove next day offset to get time for the following day
+                    TramTime timeForNextDay = TramTime.of(hourOfDay, minuteOfHour);
+                    Service nextDaySvc = servicesNextDay.get(serviceId);
+                    return serviceOperatingWithin(nextDaySvc, timeForNextDay, maxWait);
+                }
+            } else {
+                if (servicesPreviousDay.hasId(serviceId)) {
+                    // use next day time, do any of previous days services run into today
+                    TramTime timeForPreviousDay = TramTime.nextDay(hourOfDay, minuteOfHour);
+                    Service previousDayService = servicesPreviousDay.get(serviceId);
+                    return serviceOperatingWithin(previousDayService, timeForPreviousDay, maxWait);
+                }
             }
 
-            // remove next day offset to get time for the following day
-            TramTime timeForNextDay = TramTime.of(time.getHourOfDay(), time.getMinuteOfHour());
-            if (runningServicesNextDay.hasId(serviceId)) {
-                Service nextDaySvc = runningServicesNextDay.get(serviceId);
-                return serviceOperatingWithin(nextDaySvc, timeForNextDay, maxWait);
-            }
             return false;
         }
 

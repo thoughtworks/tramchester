@@ -322,18 +322,39 @@ public class RouteCalculatorTest {
     }
 
     @Test
+    void shouldHandleCrossingMidnightWithChangeCentral() {
+        JourneyRequest journeyRequest = standardJourneyRequest(when, TramTime.of(22,15), maxNumResults);
+        assertGetAndCheckJourneys(journeyRequest, Monsall, Piccadilly);
+    }
+
+    @Test
     void shouldHandleCrossingMidnightDirect() {
         JourneyRequest journeyRequestA = standardJourneyRequest(when, TramTime.of(23,55), maxNumResults);
         assertGetAndCheckJourneys(journeyRequestA, Cornbrook, StPetersSquare);
 
         JourneyRequest journeyRequestB = standardJourneyRequest(when, TramTime.of(0,0), maxNumResults);
-        assertGetAndCheckJourneys(journeyRequestB, Altrincham, OldTrafford); // depot run
+        assertGetAndCheckJourneys(journeyRequestB, Altrincham, OldTrafford);
     }
 
     @Test
     void shouldHandleAfterMidnightDirect() {
         JourneyRequest journeyRequest = standardJourneyRequest(when, TramTime.of(0,0), maxNumResults);
-        assertGetAndCheckJourneys(journeyRequest, Altrincham, NavigationRoad); // depot run
+        assertGetAndCheckJourneys(journeyRequest, Altrincham, NavigationRoad);
+    }
+
+    @Test
+    void shouldHandleAfterMidnightDirectCentral() {
+        JourneyRequest journeyRequestA = standardJourneyRequest(when, TramTime.of(23,59), maxNumResults);
+        assertGetAndCheckJourneys(journeyRequestA, StPetersSquare, MarketStreet);
+
+        JourneyRequest journeyRequestB = standardJourneyRequest(when, TramTime.nextDay(0,0), maxNumResults);
+        assertGetAndCheckJourneys(journeyRequestB, StPetersSquare, MarketStreet);
+
+        JourneyRequest journeyRequestC = standardJourneyRequest(when, TramTime.nextDay(0,1), maxNumResults);
+        assertGetAndCheckJourneys(journeyRequestC, StPetersSquare, MarketStreet);
+
+        JourneyRequest journeyRequestD = standardJourneyRequest(when, TramTime.of(0,0), maxNumResults);
+        assertGetAndCheckJourneys(journeyRequestD, StPetersSquare, MarketStreet);
     }
 
     @Test

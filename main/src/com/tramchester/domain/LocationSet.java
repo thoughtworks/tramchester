@@ -1,6 +1,7 @@
 package com.tramchester.domain;
 
 import com.google.common.collect.Sets;
+import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.places.Location;
 import com.tramchester.domain.places.LocationType;
 import com.tramchester.domain.places.Station;
@@ -49,6 +50,13 @@ public class LocationSet {
         locations.forEach(item -> ids.append(" '").append(item.getId()).append("'"));
         ids.append("]");
         return ids.toString();
+    }
+
+    @Override
+    public String toString() {
+        return "LocationSet{" +
+                "locations=" + this.asIds() +
+                '}';
     }
 
     public Stream<Station> stationsOnlyStream() {

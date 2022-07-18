@@ -199,8 +199,15 @@ public class MixedTransportTestDataFactory implements TransportDataFactory {
     private static void addRouteStation(TransportDataContainer container, MutableStation station, Route route, Service service) {
         RouteStation routeStation = new RouteStation(station, route);
         container.addRouteStation(routeStation);
-        station.addRouteDropOff(route, service);
-        station.addRoutePickUp(route, service);
+
+        TramTime serviceStart = TramTime.of(1,23);
+        TramTime serviceEnd = TramTime.of(23,55);
+
+        station.addRouteDropOff(route, service, serviceStart);
+        station.addRouteDropOff(route, service, serviceEnd);
+
+        station.addRoutePickUp(route, service, serviceStart);
+        station.addRoutePickUp(route, service, serviceEnd);
     }
 
     private static void createInterchangeToStation4Trip(TransportDataContainer container, MutableRoute route, MutableService service,

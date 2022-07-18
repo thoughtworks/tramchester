@@ -12,6 +12,7 @@ import com.tramchester.domain.presentation.DTO.PlatformDTO;
 import com.tramchester.domain.presentation.DTO.RouteRefDTO;
 import com.tramchester.domain.presentation.DTO.factory.LocationDTOFactory;
 import com.tramchester.domain.presentation.LatLong;
+import com.tramchester.domain.time.TramTime;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.StationHelper;
 import com.tramchester.testSupport.reference.TramStations;
@@ -45,8 +46,10 @@ class LocationDTOTest {
 
         Service service = MutableService.build(StringIdFor.createId("serviceId"));
 
-        testStation.addRouteDropOff(TestEnv.getTramTestRoute(StringIdFor.createId("routeIdA"), "routeNameA"), service);
-        testStation.addRoutePickUp(TestEnv.getTramTestRoute(StringIdFor.createId("routeIdB"), "routeNameB"), service);
+        TramTime dropOffTime = TramTime.of(9,11);
+        TramTime pickupTime = TramTime.of(10,42);
+        testStation.addRouteDropOff(TestEnv.getTramTestRoute(StringIdFor.createId("routeIdA"), "routeNameA"), service, dropOffTime);
+        testStation.addRoutePickUp(TestEnv.getTramTestRoute(StringIdFor.createId("routeIdB"), "routeNameB"), service, pickupTime);
 
         testStation.addPlatform(MutablePlatform.buildForTFGMTram("9400ZZMAALT1", testStation, new LatLong(1.2, 1), DataSourceID.unknown, IdFor.invalid()));
         testStation.addPlatform(MutablePlatform.buildForTFGMTram("9400ZZMAALT2", testStation, new LatLong(1.1, 1), DataSourceID.unknown, IdFor.invalid()));

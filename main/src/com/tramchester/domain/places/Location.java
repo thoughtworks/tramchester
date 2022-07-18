@@ -4,6 +4,7 @@ import com.tramchester.domain.*;
 import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.presentation.LatLong;
+import com.tramchester.domain.time.TimeRange;
 import com.tramchester.geo.GridPosition;
 import com.tramchester.geo.HasGridPosition;
 
@@ -37,22 +38,22 @@ public interface Location<TYPE extends Location<?>> extends HasId<TYPE>, IdForDT
     boolean isActive();
 
     /***
-     * Use version that takes a date?
+     * Use version that takes a date and time?
      * @return all drop off routes for a station, regardless of date
      */
     @Deprecated
     Set<Route> getDropoffRoutes();
 
     /***
-     * Use version that takes a date?
+     * Use version that takes a date and time?
      * @return all pick up routes for a station, regardless of date
      */
     @Deprecated
     Set<Route> getPickupRoutes();
 
-    Set<Route> getDropoffRoutes(LocalDate date);
+    Set<Route> getDropoffRoutes(LocalDate date, TimeRange timeRange);
 
-    Set<Route> getPickupRoutes(LocalDate date);
+    Set<Route> getPickupRoutes(LocalDate date, TimeRange timeRange);
 
     // marked as an interchange in the source data
     boolean isMarkedInterchange();

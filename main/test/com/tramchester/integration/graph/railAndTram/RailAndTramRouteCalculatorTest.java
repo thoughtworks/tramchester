@@ -8,6 +8,7 @@ import com.tramchester.domain.JourneyRequest;
 import com.tramchester.domain.NumberOfChanges;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
+import com.tramchester.domain.time.TimeRange;
 import com.tramchester.domain.time.TramServiceDate;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.GraphDatabase;
@@ -91,8 +92,10 @@ public class RailAndTramRouteCalculatorTest {
 
     @Test
     void shouldValidHopsBetweenTramAndRail() {
+        TimeRange timeRange = TimeRange.of(TramTime.of(8, 15), TramTime.of(22, 35));
+
         RouteToRouteCosts routeToRouteCosts = componentContainer.get(RouteToRouteCosts.class);
-        NumberOfChanges result = routeToRouteCosts.getNumberOfChanges(tram(TramStations.Bury), rail(Stockport), Collections.emptySet(), date);
+        NumberOfChanges result = routeToRouteCosts.getNumberOfChanges(tram(TramStations.Bury), rail(Stockport), Collections.emptySet(), date, timeRange);
 
         assertTrue(result.getMin()!=Integer.MAX_VALUE);
         assertTrue(result.getMax()!=Integer.MAX_VALUE);
@@ -100,9 +103,11 @@ public class RailAndTramRouteCalculatorTest {
 
     @Test
     void shouldNotHaveHopsBetweenTramAndRailWhenTramOnly() {
+        TimeRange timeRange = TimeRange.of(TramTime.of(8, 15), TramTime.of(22, 35));
+
         RouteToRouteCosts routeToRouteCosts = componentContainer.get(RouteToRouteCosts.class);
         NumberOfChanges result = routeToRouteCosts.getNumberOfChanges(tram(TramStations.Bury), rail(Stockport),
-                Collections.singleton(Tram), date);
+                Collections.singleton(Tram), date, timeRange);
 
         assertEquals(Integer.MAX_VALUE, result.getMin());
         assertEquals(Integer.MAX_VALUE, result.getMax());

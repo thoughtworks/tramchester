@@ -145,4 +145,8 @@ public class MutableService implements Service {
         return finishTime;
     }
 
+    @Override
+    public boolean intoNextDay() {
+        return getFinishTime().isNextDay();
+    }
 }

@@ -17,6 +17,7 @@ import com.tramchester.integration.testSupport.naptan.ResourceTramTestConfigWith
 import com.tramchester.repository.StationRepository;
 import com.tramchester.resources.StationGeographyResource;
 import com.tramchester.testSupport.reference.TramStations;
+import com.tramchester.testSupport.testTags.Summer2022;
 import io.dropwizard.testing.junit5.DropwizardExtensionsSupport;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -53,6 +54,7 @@ class StationGeographyResourceTest {
         DTOFactory = dependencies.get(DTOFactory.class);
     }
 
+    @Summer2022
     @Test
     void shouldGetStationLinks() {
         String endPoint = "geo/links";
@@ -61,7 +63,7 @@ class StationGeographyResourceTest {
         assertEquals(200, response.getStatus(), "status");
 
         List<StationLinkDTO> results = response.readEntity(new GenericType<>() {});
-        assertEquals(202, results.size(), "count");
+        assertEquals(200, results.size(), "count"); // TODO 202->200
 
         assertTrue(results.contains(createLink(StPetersSquare, PiccadillyGardens)));
         assertTrue(results.contains(createLink(StPetersSquare, MarketStreet)));

@@ -66,13 +66,10 @@ class FindStationsByNumberLinksTramTest {
                 " stations with links were " + stationWithLinks);
     }
 
-    // TODO this is problematic for some datasets because they duplicate routes for different date ranges
-    // so need to post filter the discovered routes to somehow spot they are not the same??
-    @Summer2022
     @Test
     void shouldFindInterchangeRoutes() {
         IdSet<Station> found = finder.atLeastNLinkedRoutes(TransportMode.Tram, 9);
-        assertEquals(9, found.size(), found.toString()); // 5->9 TODO new replacement routes during summer 2022
+        assertEquals(5, found.size(), found.toString());
         assertTrue(found.contains(TramStations.TraffordBar.getId()));
         assertTrue(found.contains(TramStations.Cornbrook.getId()));
         assertTrue(found.contains(TramStations.Deansgate.getId()));
@@ -80,11 +77,12 @@ class FindStationsByNumberLinksTramTest {
         assertTrue(found.contains(TramStations.Victoria.getId()));
     }
 
+    @Summer2022
     @Test
     void shouldIdInterchangePointsLinked() {
 
         IdSet<Station> found = finder.atLeastNLinkedStations(TransportMode.Tram, threshhold);
-        assertEquals(10, found.size(), found.toString());
+        assertEquals(9, found.size(), found.toString()); // TODO 10->9
         assertTrue(found.contains(TramStations.StPetersSquare.getId()));
         assertTrue(found.contains(TramStations.PiccadillyGardens.getId()));
         assertTrue(found.contains(TramStations.MarketStreet.getId()));
@@ -94,7 +92,9 @@ class FindStationsByNumberLinksTramTest {
         assertTrue(found.contains(TramStations.StWerburghsRoad.getId()));
         assertTrue(found.contains(TramStations.Pomona.getId()));
 
-        assertTrue(found.contains(TramStations.Broadway.getId()));
+        // not during eccles line works
+        //assertTrue(found.contains(TramStations.Broadway.getId()));
+
         assertTrue(found.contains(TramStations.HarbourCity.getId()));
 
     }

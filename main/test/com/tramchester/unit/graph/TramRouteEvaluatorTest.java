@@ -81,8 +81,12 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
         Service service = MutableService.build(StringIdFor.createId("serviceId"));
 
         destinationStations = LocationSet.singleton(forTest);
-        forTest.addRouteDropOff(TestEnv.getTramTestRoute(), service);
-        forTest.addRoutePickUp(TestEnv.getTramTestRoute(), service);
+        TramTime serviceStart = TramTime.of(6, 30);
+        TramTime serviceEnd = TramTime.of(23,0);
+        forTest.addRouteDropOff(TestEnv.getTramTestRoute(), service, serviceStart);
+        forTest.addRouteDropOff(TestEnv.getTramTestRoute(), service, serviceEnd);
+        forTest.addRoutePickUp(TestEnv.getTramTestRoute(), service, serviceStart);
+        forTest.addRoutePickUp(TestEnv.getTramTestRoute(), service, serviceEnd);
 
         lowestCostSeen = createMock(LowestCostSeen.class);
         previousSuccessfulVisit = createMock(PreviousVisits.class);

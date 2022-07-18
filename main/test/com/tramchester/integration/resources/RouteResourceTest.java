@@ -22,8 +22,7 @@ import javax.ws.rs.core.Response;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static com.tramchester.testSupport.reference.KnownTramRoute.AshtonUnderLyneManchesterEccles;
-import static com.tramchester.testSupport.reference.KnownTramRoute.ManchesterAirportWythenshaweVictoria;
+import static com.tramchester.testSupport.reference.KnownTramRoute.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 @ExtendWith(DropwizardExtensionsSupport.class)
@@ -37,7 +36,7 @@ class RouteResourceTest {
     void shouldGetAllRoutes() {
         List<RouteDTO> routes = getRouteResponse();
 
-        assertEquals(14, routes.size(), "Wrong size");
+        assertEquals(16, routes.size(), "Wrong size");
 
         routes.forEach(route -> assertFalse(route.getStations().isEmpty(), "Route no stations "+route.getRouteName()));
 
@@ -52,21 +51,25 @@ class RouteResourceTest {
         List<String> ids = ashtonRouteStations.stream().map(LocationRefDTO::getId).collect(Collectors.toList());
         assertTrue(ids.contains(TramStations.Ashton.getRawId()));
 
-        assertTrue(ids.contains(TramStations.Eccles.getRawId()));
+        // Summer 2022 - eccles is on the replacement bus route
+        //assertTrue(ids.contains(TramStations.Eccles.getRawId()));
     }
 
+    @Summer2022
     @Test
     void shouldListStationsInOrder() {
         List<RouteDTO> routes = getRouteResponse();
 
+        // TODO could be a mistake in the data, but the station order is flipped Summer2020, was Airport->Victoria route
         List<RouteDTO> airRoutes = routes.stream().
-                filter(routeDTO -> routeDTO.getRouteName().equals(ManchesterAirportWythenshaweVictoria.longName())).
+                filter(routeDTO -> routeDTO.getRouteName().equals(VictoriaWythenshaweManchesterAirport.longName())).
                 collect(Collectors.toList());
 
         assertEquals(1, airRoutes.size());
 
         RouteDTO airRoute = airRoutes.get(0);
         List<LocationRefWithPosition> stations = airRoute.getStations();
+
         LocationRefWithPosition first = stations.get(0);
         assertEquals(TramStations.ManAirport.getRawId(), first.getId());
         TestEnv.assertLatLongEquals(TramStations.ManAirport.getLatLong(), first.getLatLong(), 0.00001, "lat long");

@@ -12,6 +12,8 @@ import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
+import com.tramchester.domain.time.TimeRange;
+import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.search.LowestCostsForDestRoutes;
 import com.tramchester.graph.search.RouteToRouteCosts;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
@@ -25,6 +27,7 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.junit.jupiter.api.*;
 
 import java.nio.file.Path;
+import java.time.Duration;
 import java.time.LocalDate;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -39,6 +42,7 @@ import static org.junit.jupiter.api.Assertions.*;
 public class RouteToRouteCostsTest {
 
     private static ComponentContainer componentContainer;
+    private static TramchesterConfig config;
 
     private RouteToRouteCosts routesCostRepository;
     private TramRouteHelper routeHelper;
@@ -47,10 +51,11 @@ public class RouteToRouteCostsTest {
     private StationRepository stationRepository;
     private final Set<TransportMode> modes = Collections.singleton(Tram);
     private LocalDate date;
+    private TimeRange timeRange;
 
     @BeforeAll
     static void onceBeforeAnyTestRuns() {
-        TramchesterConfig config = new IntegrationTramTestConfig();
+        config = new IntegrationTramTestConfig();
         final Path cacheFolder = config.getCacheFolder();
 
         indexFile = cacheFolder.resolve(RouteToRouteCosts.INDEX_FILE);
@@ -74,17 +79,20 @@ public class RouteToRouteCostsTest {
         routeHelper = new TramRouteHelper();
 
         date = TestEnv.testDay();
+        timeRange = TimeRange.of(TramTime.of(7,45), TramTime.of(22,45));
     }
 
     @Test
     void shouldHaveFullyConnectedForTramsWhereDatesOverlaps() {
         Set<Route> routes = routeRepository.getRoutes().stream().filter(route -> route.isAvailableOn(date)).collect(Collectors.toSet());
 
+        TimeRange timeRangeForOverlaps = TimeRange.of(TramTime.of(8, 45), TramTime.of(10, 45));
+
         List<RoutePair> failed = new ArrayList<>();
         for (Route start : routes) {
             for (Route end : routes) {
                 if (!start.equals(end) && start.isDateOverlap(end)) {
-                    if (Integer.MAX_VALUE==routesCostRepository.getFor(start, end, date)) {
+                    if (Integer.MAX_VALUE==routesCostRepository.getFor(start, end, date, timeRangeForOverlaps)) {
                         failed.add(new RoutePair(start, end));
                     }
                 }
@@ -117,14 +125,14 @@ public class RouteToRouteCostsTest {
         Route from = firstNonOverlap.getLeft();
         Route to = firstNonOverlap.getRight();
 
-        assertEquals(Integer.MAX_VALUE, routesCostRepository.getFor(from, to, date));
+        assertEquals(Integer.MAX_VALUE, routesCostRepository.getFor(from, to, date, timeRange));
     }
 
     @Test
     void shouldComputeCostsSameRoute() {
         Set<Route> routesA = routeHelper.get(AltrinchamPiccadilly, routeRepository);
 
-        routesA.forEach(routeA -> assertEquals(0, routesCostRepository.getFor(routeA, routeA, date)));
+        routesA.forEach(routeA -> assertEquals(0, routesCostRepository.getFor(routeA, routeA, date, timeRange)));
     }
 
     @Test
@@ -132,8 +140,8 @@ public class RouteToRouteCostsTest {
         Route routeA = routeHelper.getOneRoute(AltrinchamPiccadilly, routeRepository, date);
         Route routeB = routeHelper.getOneRoute(PiccadillyAltrincham, routeRepository, date);
 
-        assertEquals(1, routesCostRepository.getFor(routeA, routeB, date), "wrong for " + routeA.getId() + " " + routeB.getId());
-        assertEquals(1, routesCostRepository.getFor(routeB, routeA, date), "wrong for " + routeB.getId() + " " + routeA.getId());
+        assertEquals(1, routesCostRepository.getFor(routeA, routeB, date, timeRange), "wrong for " + routeA.getId() + " " + routeB.getId());
+        assertEquals(1, routesCostRepository.getFor(routeB, routeA, date, timeRange), "wrong for " + routeB.getId() + " " + routeA.getId());
 
     }
 
@@ -142,9 +150,19 @@ public class RouteToRouteCostsTest {
         Route routeA = routeHelper.getOneRoute(CornbrookTheTraffordCentre, routeRepository, date);
         Route routeB = routeHelper.getOneRoute(BuryPiccadilly, routeRepository, date);
 
-        assertEquals(2, routesCostRepository.getFor(routeA, routeB, date), "wrong for " + routeA.getId() + " " + routeB.getId());
-        assertEquals(2, routesCostRepository.getFor(routeB, routeA, date), "wrong for " + routeB.getId() + " " + routeA.getId());
+        assertEquals(2, routesCostRepository.getFor(routeA, routeB, date, timeRange), "wrong for " + routeA.getId() + " " + routeB.getId());
+        assertEquals(2, routesCostRepository.getFor(routeB, routeA, date, timeRange), "wrong for " + routeB.getId() + " " + routeA.getId());
+    }
 
+    @Test
+    void shouldFailIfOurOfTimeRangeDifferentRoutesTwoChange() {
+        Route routeA = routeHelper.getOneRoute(CornbrookTheTraffordCentre, routeRepository, date);
+        Route routeB = routeHelper.getOneRoute(BuryPiccadilly, routeRepository, date);
+
+        assertEquals(2, routesCostRepository.getFor(routeA, routeB, date, timeRange), "wrong for " + routeA.getId() + " " + routeB.getId());
+
+        TimeRange outOfRange = TimeRange.of(TramTime.of(3,35), TramTime.of(3,45));
+        assertEquals(Integer.MAX_VALUE, routesCostRepository.getFor(routeB, routeA, date, outOfRange), "wrong for " + routeB.getId() + " " + routeA.getId());
     }
 
     @Test
@@ -187,7 +205,7 @@ public class RouteToRouteCostsTest {
         Route routeA = routeHelper.getOneRoute(BuryPiccadilly, routeRepository, date);
         Route routeB = routeHelper.getOneRoute(CornbrookTheTraffordCentre, routeRepository, date);
 
-        int results = routesCostRepository.getFor(routeA, routeB, date);
+        int results = routesCostRepository.getFor(routeA, routeB, date, timeRange);
 
         assertEquals(2, results);
     }
@@ -207,8 +225,8 @@ public class RouteToRouteCostsTest {
         Route routeA = routeHelper.getOneRoute(AltrinchamPiccadilly, routeRepository, date);
         Route routeB = routeHelper.getOneRoute(VictoriaWythenshaweManchesterAirport, routeRepository, date);
 
-        assertEquals(1, routesCostRepository.getFor(routeA, routeB, date), "wrong for " + routeA.getId() + " " + routeB.getId());
-        assertEquals(1, routesCostRepository.getFor(routeB, routeA, date), "wrong for " + routeB.getId() + " " + routeA.getId());
+        assertEquals(1, routesCostRepository.getFor(routeA, routeB, date, timeRange), "wrong for " + routeA.getId() + " " + routeB.getId());
+        assertEquals(1, routesCostRepository.getFor(routeB, routeA, date, timeRange), "wrong for " + routeB.getId() + " " + routeA.getId());
 
     }
 
@@ -216,7 +234,7 @@ public class RouteToRouteCostsTest {
     void shouldFindLowestHopCountForTwoStations() {
         Station start = TramStations.Altrincham.from(stationRepository);
         Station end = TramStations.ManAirport.from(stationRepository);
-        NumberOfChanges result = routesCostRepository.getNumberOfChanges(start, end, modes, date);
+        NumberOfChanges result = routesCostRepository.getNumberOfChanges(start, end, modes, date, timeRange);
 
         assertEquals(1, result.getMin());
     }
@@ -225,7 +243,7 @@ public class RouteToRouteCostsTest {
     void shouldFindHighestHopCountForTwoStations() {
         Station start = TramStations.Ashton.from(stationRepository);
         Station end = TramStations.ManAirport.from(stationRepository);
-        NumberOfChanges result = routesCostRepository.getNumberOfChanges(start, end, modes, date);
+        NumberOfChanges result = routesCostRepository.getNumberOfChanges(start, end, modes, date, timeRange);
 
         assertEquals(1, result.getMax());
     }
@@ -234,7 +252,7 @@ public class RouteToRouteCostsTest {
     void shouldFindLowestHopCountForTwoStationsSameRoute() {
         Station start = TramStations.Victoria.from(stationRepository);
         Station end = TramStations.ManAirport.from(stationRepository);
-        NumberOfChanges result = routesCostRepository.getNumberOfChanges(start, end, modes, date);
+        NumberOfChanges result = routesCostRepository.getNumberOfChanges(start, end, modes, date, timeRange);
 
         assertEquals(0, result.getMin());
     }
@@ -244,7 +262,7 @@ public class RouteToRouteCostsTest {
         Station start = TramStations.Victoria.from(stationRepository);
         Station end = TramStations.ManAirport.from(stationRepository);
 
-        NumberOfChanges result = routesCostRepository.getNumberOfChanges(start, end, Collections.singleton(Train), date);
+        NumberOfChanges result = routesCostRepository.getNumberOfChanges(start, end, Collections.singleton(Train), date, timeRange);
 
         assertEquals(Integer.MAX_VALUE, result.getMin());
         assertEquals(Integer.MAX_VALUE, result.getMax());
@@ -255,7 +273,7 @@ public class RouteToRouteCostsTest {
     void shouldFindMediaCityHops() {
         Station start = TramStations.MediaCityUK.from(stationRepository);
         Station end = TramStations.Ashton.from(stationRepository);
-        NumberOfChanges result = routesCostRepository.getNumberOfChanges(start, end, modes, date);
+        NumberOfChanges result = routesCostRepository.getNumberOfChanges(start, end, modes, date, timeRange);
 
         assertEquals(0, result.getMin());
     }
@@ -265,7 +283,7 @@ public class RouteToRouteCostsTest {
     void shouldFindHighestHopCountForTwoStationsSameRoute() {
         Station start = TramStations.Victoria.from(stationRepository);
         Station end = TramStations.ManAirport.from(stationRepository);
-        NumberOfChanges result = routesCostRepository.getNumberOfChanges(start, end, modes, date);
+        NumberOfChanges result = routesCostRepository.getNumberOfChanges(start, end, modes, date, timeRange);
 
         assertEquals(0, result.getMin());
 
@@ -281,7 +299,7 @@ public class RouteToRouteCostsTest {
         Route routeC = routeHelper.getOneRoute(BuryPiccadilly, routeRepository, date);
 
         Station destination = TramStations.TraffordCentre.from(stationRepository);
-        LowestCostsForDestRoutes sorts = routesCostRepository.getLowestCostCalcutatorFor(LocationSet.singleton(destination), date);
+        LowestCostsForDestRoutes sorts = routesCostRepository.getLowestCostCalcutatorFor(LocationSet.singleton(destination), date, timeRange);
 
         Stream<Route> toSort = Stream.of(routeC, routeB, routeA);
 
@@ -311,5 +329,61 @@ public class RouteToRouteCostsTest {
         IdSet<Route> idsFromIndex = resultsForIndex.stream().map(RouteIndexData::getRouteId).collect(IdSet.idCollector());
         assertEquals(expected, idsFromIndex);
     }
+
+    @Test
+    void shouldHandleServicesOverMidnight() {
+        Station altrincham = Altrincham.from(stationRepository);
+
+        long maxDuration = config.getMaxJourneyDuration();
+        TimeRange timeRange = TimeRange.of(TramTime.of(23,59), Duration.ZERO, Duration.ofMinutes(maxDuration));
+
+        Station navigationRoad = NavigationRoad.from(stationRepository);
+
+        NumberOfChanges changes = routesCostRepository.getNumberOfChanges(altrincham, navigationRoad, modes, date, timeRange);
+
+        assertEquals(0, changes.getMin(), changes.toString());
+    }
+
+    @Test
+    void shouldHandleServicesAtMidnight() {
+        Station altrincham = Altrincham.from(stationRepository);
+
+        long maxDuration = config.getMaxJourneyDuration();
+        TimeRange timeRange = TimeRange.of(TramTime.of(0,0), Duration.ZERO, Duration.ofMinutes(maxDuration));
+
+        Station navigationRoad = NavigationRoad.from(stationRepository);
+
+        NumberOfChanges changes = routesCostRepository.getNumberOfChanges(altrincham, navigationRoad, modes, date, timeRange);
+
+        assertEquals(0, changes.getMin(), changes.toString());
+    }
+
+    @Test
+    void shouldHandleServicesJustAfterMidnight() {
+        Station altrincham = Altrincham.from(stationRepository);
+
+        long maxDuration = config.getMaxJourneyDuration();
+        TimeRange timeRange = TimeRange.of(TramTime.of(0,1), Duration.ZERO, Duration.ofMinutes(maxDuration));
+
+        Station navigationRoad = NavigationRoad.from(stationRepository);
+
+        NumberOfChanges changes = routesCostRepository.getNumberOfChanges(altrincham, navigationRoad, modes, date, timeRange);
+
+        assertEquals(0, changes.getMin(), changes.toString());
+    }
+
+    @Test
+    void shouldReproIssueBetweenMonsalAndPiccadily() {
+        // Compute number of changes between Id{'9400ZZMAMON'} and Id{'9400ZZMAPIC'} using modes '[]' on 2022-07-21 within
+        // TimeRange{begin=TramTime{h=22, m=15}, end=TramTime{d=1 h=0, m=19}}
+
+        TimeRange range = TimeRange.of(TramTime.of(22,15), TramTime.nextDay(0,19));
+        NumberOfChanges results = routesCostRepository.getNumberOfChanges(Monsall.from(stationRepository), Piccadilly.from(stationRepository),
+                modes, date, range);
+
+        assertEquals(1, results.getMin());
+
+    }
+
 
 }

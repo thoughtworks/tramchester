@@ -64,9 +64,6 @@ public class DeparturesRepository {
     private boolean isTimely(TramTime time, UpcomingDeparture departure) {
         TimeRange timeRange = TimeRange.of(time, Duration.ofMinutes(20), Duration.ofMinutes(20));
         return timeRange.contains(departure.getWhen());
-//        TramTime beginRange = time.minus(Duration.ofMinutes(20));
-//        TramTime endRange = time.plus(Duration.ofMinutes(20));
-//        return departure.getWhen().between(beginRange, endRange);
     }
 
     private List<UpcomingDeparture> getPlatformDepartrues(Platform platform, Set<TransportMode> modes) {

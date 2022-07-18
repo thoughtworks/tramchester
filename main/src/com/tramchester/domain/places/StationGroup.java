@@ -8,6 +8,7 @@ import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.reference.TransportMode;
+import com.tramchester.domain.time.TimeRange;
 import com.tramchester.geo.CoordinateTransforms;
 import com.tramchester.geo.GridPosition;
 import com.tramchester.graph.GraphPropertyKey;
@@ -93,13 +94,15 @@ public class StationGroup implements Location<StationGroup> {
     }
 
     @Override
-    public Set<Route> getDropoffRoutes(LocalDate date) {
-        return getDropoffRoutes().stream().filter(route -> route.isAvailableOn(date)).collect(Collectors.toSet());
+    public Set<Route> getDropoffRoutes(LocalDate date, TimeRange timeRange) {
+        return flatten(station -> station.getDropoffRoutes(date, timeRange));
+        //return getDropoffRoutes().stream().filter(route -> route.isAvailableOn(date)).collect(Collectors.toSet());
     }
 
     @Override
-    public Set<Route> getPickupRoutes(LocalDate date) {
-        return getPickupRoutes().stream().filter(route -> route.isAvailableOn(date)).collect(Collectors.toSet());
+    public Set<Route> getPickupRoutes(LocalDate date, TimeRange timeRange) {
+        return flatten(station -> station.getPickupRoutes(date, timeRange));
+//        return getPickupRoutes().stream().filter(route -> route.isAvailableOn(date)).collect(Collectors.toSet());
     }
 
     @Override

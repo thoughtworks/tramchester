@@ -85,7 +85,7 @@ public class RouteCalculator extends RouteCalculatorSupport implements TramRoute
         LocalDate date = journeyRequest.getDate().getDate();
 
         NumberOfChanges numberOfChanges =  routeToRouteCosts.getNumberOfChanges(start, destination,
-                journeyRequest.getRequestedModes(), date);
+                journeyRequest.getRequestedModes(), date, journeyRequest.getTimeRange());
 
         if (journeyRequest.getMaxChanges()>numberOfChanges.getMax()) {
             if (closedStationsRepository.hasClosuresOn(date)) {
@@ -159,7 +159,8 @@ public class RouteCalculator extends RouteCalculatorSupport implements TramRoute
         final Set<Long> destinationNodeIds = Collections.singleton(endNode.getId());
 
         // can only be shared as same date and same set of destinations, will eliminate previously seen paths/results
-        LowestCostsForDestRoutes lowestCostsForRoutes = routeToRouteCosts.getLowestCostCalcutatorFor(destinations, queryDate.getDate());
+        LowestCostsForDestRoutes lowestCostsForRoutes = routeToRouteCosts.getLowestCostCalcutatorFor(destinations, queryDate.getDate(),
+                journeyRequest.getTimeRange());
         Duration maxJourneyDuration = getMaxDurationFor(txn, startNode, destinations, journeyRequest);
 
         final JourneyConstraints journeyConstraints = new JourneyConstraints(config, runningRoutesAndServices.getFor(queryDate.getDate()),

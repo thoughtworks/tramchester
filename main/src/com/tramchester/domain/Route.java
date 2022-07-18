@@ -6,6 +6,7 @@ import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
+import com.tramchester.domain.time.CrossesDay;
 import com.tramchester.domain.time.DateRange;
 import com.tramchester.graph.GraphPropertyKey;
 
@@ -15,7 +16,7 @@ import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
 
-public interface Route extends HasId<Route>, HasTransportMode, GraphProperty, CoreDomain {
+public interface Route extends HasId<Route>, HasTransportMode, GraphProperty, CoreDomain, CrossesDay {
 
     IdFor<Route> getId();
 
@@ -41,8 +42,6 @@ public interface Route extends HasId<Route>, HasTransportMode, GraphProperty, Co
     DateRange getDateRange();
 
     boolean isAvailableOn(LocalDate date);
-
-    boolean intoNextDay();
 
     static IdFor<Route> createId(String text) {
         return StringIdFor.createId(text);

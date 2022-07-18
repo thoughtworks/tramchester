@@ -386,7 +386,7 @@ public abstract class ServiceReason {
 
         @Override
         public String toString() {
-            return "time:"+elapsedTime.toString()+super.toString();
+            return super.toString() + " time:"+elapsedTime.toString();
         }
 
         @Override

@@ -4,19 +4,17 @@ import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.*;
-import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.Station;
-import com.tramchester.domain.presentation.TransportStage;
 import com.tramchester.domain.reference.TransportMode;
+import com.tramchester.domain.time.TimeRange;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.search.RouteCalculator;
 import com.tramchester.graph.search.RouteToRouteCosts;
-import com.tramchester.integration.testSupport.RouteCalculationCombinations;
 import com.tramchester.integration.testSupport.RouteCalculatorTestFacade;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
 import com.tramchester.repository.RouteRepository;
@@ -25,8 +23,9 @@ import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TramRouteHelper;
 import com.tramchester.testSupport.reference.KnownTramRoute;
-import com.tramchester.testSupport.reference.TramStations;
 import com.tramchester.testSupport.testTags.Summer2022;
+import io.dropwizard.validation.DataSizeRange;
+import org.checkerframework.checker.units.qual.K;
 import org.junit.jupiter.api.*;
 import org.neo4j.graphdb.Transaction;
 
@@ -35,7 +34,6 @@ import java.time.LocalDate;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static com.tramchester.testSupport.reference.TramStations.*;
 import static org.junit.jupiter.api.Assertions.*;
@@ -51,7 +49,7 @@ class RouteCalculatorSummer2022Test {
     private static TramchesterConfig testConfig;
     private static GraphDatabase database;
 
-    private final LocalDate when = TestEnv.testDay().plusDays(7);
+    private LocalDate when; // = START_OF_WORKS;
 
     private Duration maxJourneyDuration;
     private RouteCalculatorTestFacade calculator;
@@ -59,6 +57,7 @@ class RouteCalculatorSummer2022Test {
     private StationRepository stationRepository;
     private RouteRepository routeRepository;
     private RouteToRouteCosts routeToRouteCosts;
+    private TramRouteHelper tramRouteHelper;
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
@@ -87,6 +86,10 @@ class RouteCalculatorSummer2022Test {
 
         routeRepository = componentContainer.get(RouteRepository.class);
         routeToRouteCosts = componentContainer.get(RouteToRouteCosts.class);
+
+        tramRouteHelper = new TramRouteHelper();
+
+        when = TestEnv.testDay();
 
     }
 
@@ -146,56 +149,100 @@ class RouteCalculatorSummer2022Test {
 
     @Test
     void shouldGetExpectedChangesBetweenEcclesAndTraffordBar() {
-        NumberOfChanges results = routeToRouteCosts.getNumberOfChanges(Eccles.from(stationRepository),TraffordBar.from(stationRepository),
-                Collections.emptySet(), when);
+        TimeRange timeRange = TimeRange.of(TramTime.of(8,5), TramTime.of(10,35));
 
-        assertEquals(3, results.getMax(), results.toString());
+        NumberOfChanges results = routeToRouteCosts.getNumberOfChanges(Eccles.from(stationRepository), TraffordBar.from(stationRepository),
+                Collections.emptySet(), when, timeRange);
+
+        assertEquals(2, results.getMax(), results.toString());
     }
 
     @Test
     void shouldGetRouteCostsOnDate() {
 
+        TimeRange timeRange = TimeRange.of(TramTime.of(8,5), TramTime.of(10,35));
+
         Set<TransportMode> modes = Collections.singleton(TransportMode.Tram);
         NumberOfChanges costs = routeToRouteCosts.getNumberOfChanges(Eccles.from(stationRepository),
-                TraffordBar.from(stationRepository), modes, when);
+                TraffordBar.from(stationRepository), modes, when, timeRange);
 
-        assertEquals(3, costs.getMin(), costs.toString());
-        assertEquals(3, costs.getMax(), costs.toString());
+        assertEquals(2, costs.getMin(), costs.toString());
+        assertEquals(2, costs.getMax(), costs.toString());
     }
 
     @Test
     void shouldHaveExpectedStopsForRoutes() {
+        TimeRange timeRange = TimeRange.of(TramTime.of(8,5), TramTime.of(10,35));
+
         Station eccles = Eccles.from(stationRepository);
 
-        Set<Trip> notCallingAtEccles = eccles.getPickupRoutes(when).stream().
+        Set<Trip> notCallingAtEccles = eccles.getPickupRoutes(when, timeRange).stream().
                 flatMap(route -> route.getTrips().stream()).
                 filter(trip -> !trip.getStopCalls().callsAt(eccles)).collect(Collectors.toSet());
 
         assertTrue(notCallingAtEccles.isEmpty(), notCallingAtEccles.toString());
     }
 
+    @Disabled("Time table says replacement bus calls here, web says it doesn't......")
     @Test
     void shouldExpectedRoutesAtHarbourCity() {
+        TimeRange timeRange = TimeRange.of(TramTime.of(8,5), TramTime.of(10,35));
+
         Station harbourCity = HarbourCity.from(stationRepository);
 
-        Route replacement = routeRepository.getRouteById(StringIdFor.createId("METLML1:O:2022-07-16"));
+        Route replacement = tramRouteHelper.getOneRoute(KnownTramRoute.ReplacementRouteFromEccles, routeRepository, when.plusDays(1));
+                //routeRepository.getRouteById(StringIdFor.createId("METLML1:O:2022-07-16"));
 
-        Set<Route> pickUps = harbourCity.getPickupRoutes(when);
+        Set<Route> pickUps = harbourCity.getPickupRoutes(when, timeRange);
         assertFalse(pickUps.contains(replacement), harbourCity.toString());
     }
 
     @Test
     void shouldHaveExpectedRoutesAtTraffordBar() {
+        TimeRange timeRange = TimeRange.of(TramTime.of(8,5), TramTime.of(10,35));
+
         Station traffordBar = TraffordBar.from(stationRepository);
 
         Route ashToEccles = routeRepository.getRouteById(StringIdFor.createId("METLBLUE:I:2022-07-16"));
 
-        Set<Route> dropOffs = traffordBar.getDropoffRoutes(when);
+        Set<Route> dropOffs = traffordBar.getDropoffRoutes(when, timeRange);
 
         assertFalse(dropOffs.contains(ashToEccles), traffordBar.toString());
 
     }
 
+    @Test
+    void shouldHaveExpectedRoutesAtEcclesStartOfWorks() {
+        TimeRange timeRange = TimeRange.of(TramTime.of(8,5), TramTime.of(10,35));
+
+        Station eccles = Eccles.from(stationRepository);
+
+        //Route ashToEccles = routeRepository.getRouteById(StringIdFor.createId("METLBLUE:O:2022-07-16"));
+        Route ecclesToAsh = tramRouteHelper.getOneRoute(KnownTramRoute.EcclesManchesterAshtonUnderLyne, routeRepository, when);
+
+        Set<Route> pickups = eccles.getPickupRoutes(when,timeRange);
+
+        // should not be present during closure?
+        assertFalse(pickups.contains(ecclesToAsh), eccles.toString());
+    }
+
+
+    @Test
+    void shouldHaveExpectedRoutesAtEcclesAfterStartOfWorks() {
+        TimeRange timeRange = TimeRange.of(TramTime.of(8,5), TramTime.of(10,35));
+
+        Station eccles = Eccles.from(stationRepository);
+
+        //Route ashToEccles = routeRepository.getRouteById(StringIdFor.createId("METLBLUE:O:2022-07-16"));
+        Route ecclesToAsh = tramRouteHelper.getOneRoute(KnownTramRoute.EcclesManchesterAshtonUnderLyne, routeRepository, when);
+
+        Set<Route> pickups = eccles.getPickupRoutes(when.plusDays(2), timeRange);
+
+        // should not be present during closure?
+        assertFalse(pickups.contains(ecclesToAsh), eccles.toString());
+    }
+
+    @Disabled("in the past")
     @Test
     void shouldHaveServiceThatOperatesOnly1Days() {
         ServiceRepository serviceRepository = componentContainer.get(ServiceRepository.class);
@@ -210,45 +257,52 @@ class RouteCalculatorSummer2022Test {
     }
 
     @Test
-    void shouldHaveExpectedRouteToRouteCosts() {
-        IdFor<Route> routeId = StringIdFor.createId("METLBLUE:O:2022-07-16");
-        Route originalRoute = routeRepository.getRouteById(routeId);
+    void shouldHaveExpectedRouteToRouteCostsTramToBus() {
 
-        IdFor<Route> routeIdForReplacement = StringIdFor.createId("METLML1:O:2022-07-16");
+        Route originalRoute = tramRouteHelper.getOneRoute(KnownTramRoute.AshtonUnderLyneManchesterEccles, routeRepository, when);
 
-        Route replacementRoute = routeRepository.getRouteById(routeIdForReplacement);
+        Route replacementRoute = tramRouteHelper.getOneRoute(KnownTramRoute.ReplacementRouteToEccles, routeRepository, when);
 
-        int count = routeToRouteCosts.getFor(originalRoute, replacementRoute, when.plusDays(1));
+        TimeRange timeRange = TimeRange.of(TramTime.of(8,15), TramTime.of(22,35));
+
+        int count = routeToRouteCosts.getFor(originalRoute, replacementRoute, when.plusDays(1), timeRange);
+
+        assertEquals(1, count);
+    }
+
+    @Test
+    void shouldHaveExpectedRouteToRouteCostsBusToTram() {
+
+        Route originalRoute = tramRouteHelper.getOneRoute(KnownTramRoute.EcclesManchesterAshtonUnderLyne, routeRepository, when);
+
+        Route replacementRoute = tramRouteHelper.getOneRoute(KnownTramRoute.ReplacementRouteFromEccles, routeRepository, when);
+
+        TimeRange timeRange = TimeRange.of(TramTime.of(8,15), TramTime.of(22,35));
+
+        int count = routeToRouteCosts.getFor(originalRoute, replacementRoute, when.plusDays(1), timeRange);
 
         assertEquals(1, count);
     }
 
     @Test
     void shouldHaveCorrectDatesForRouteOverClosure() {
+        TimeRange timeRange = TimeRange.of(TramTime.of(8,5), TramTime.of(10,35));
 
-        IdFor<Route> routeId = StringIdFor.createId("METLBLUE:O:2022-07-16");
-        Route route = routeRepository.getRouteById(routeId);
+        Route replacementRoute = tramRouteHelper.getOneRoute(KnownTramRoute.ReplacementRouteFromEccles, routeRepository, when);
 
         Station eccles = Eccles.from(stationRepository);
 
-        assertTrue(eccles.servesRoutePickup(route));
+        assertTrue(eccles.servesRoutePickup(replacementRoute, when, timeRange));
 
-        Set<Route> pickupRoutesOnStartOfWorks = eccles.getPickupRoutes(START_OF_WORKS);
-        assertTrue(pickupRoutesOnStartOfWorks.contains(route));
-        assertEquals(2, pickupRoutesOnStartOfWorks.size());
+        Set<Route> pickupRoutesOnStartOfWorks = eccles.getPickupRoutes(START_OF_WORKS, timeRange);
+        assertEquals(1, pickupRoutesOnStartOfWorks.size());
+        assertTrue(pickupRoutesOnStartOfWorks.contains(replacementRoute));
 
-        assertFalse(eccles.getPickupRoutes(START_OF_WORKS.minusDays(1)).contains(route));
-        assertFalse(eccles.getPickupRoutes(START_OF_WORKS.plusDays(1)).contains(route));
+        assertFalse(eccles.getPickupRoutes(START_OF_WORKS.minusDays(1), timeRange).contains(replacementRoute));
 
-        Set<Route> pickupRoutesDuringWorks = eccles.getPickupRoutes(START_OF_WORKS.plusDays(1));
+        Set<Route> pickupRoutesDuringWorks = eccles.getPickupRoutes(START_OF_WORKS.plusDays(1), timeRange);
         assertEquals(1, pickupRoutesDuringWorks.size(), pickupRoutesDuringWorks.toString());
-
-        TramRouteHelper helper = new TramRouteHelper();
-        IdSet<Route> replacementRoutes = helper.getId(KnownTramRoute.ReplacementRouteFromEccles, routeRepository);
-        assertEquals(1, replacementRoutes.size());
-
-        IdSet<Route> pickupIds = pickupRoutesDuringWorks.stream().collect(IdSet.collector());
-        assertTrue(pickupIds.containsAll(replacementRoutes));
+        assertTrue(pickupRoutesDuringWorks.contains(replacementRoute));
 
     }
 

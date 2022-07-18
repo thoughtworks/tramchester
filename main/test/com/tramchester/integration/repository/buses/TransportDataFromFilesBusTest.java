@@ -152,13 +152,13 @@ class TransportDataFromFilesBusTest {
 
         Station firstStation = transportData.getStationById(StringIdFor.createId("2500ACC0009"));
         assertEquals("Bus Station", firstStation.getName());
-        outbounds.forEach(outbound -> assertFalse(firstStation.servesRouteDropoff(outbound)));
+        outbounds.forEach(outbound -> assertFalse(firstStation.servesRouteDropOff(outbound)));
         outbounds.forEach(outbound -> assertTrue(firstStation.servesRoutePickup(outbound)));
 
         Station secondStation = transportData.getStationById(StringIdFor.createId("2500LAA15791"));
         assertEquals("Infant Street", secondStation.getName());
         outbounds.forEach(outbound -> assertTrue(secondStation.servesRoutePickup(outbound)));
-        outbounds.forEach(outbound -> assertTrue(secondStation.servesRouteDropoff(outbound)));
+        outbounds.forEach(outbound -> assertTrue(secondStation.servesRouteDropOff(outbound)));
     }
 
     @Test

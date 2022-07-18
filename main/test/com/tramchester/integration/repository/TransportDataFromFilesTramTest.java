@@ -21,6 +21,7 @@ import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.DateRange;
+import com.tramchester.domain.time.TimeRange;
 import com.tramchester.domain.time.TramServiceDate;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
@@ -50,6 +51,8 @@ import static com.tramchester.testSupport.TransportDataFilter.getTripsFor;
 import static com.tramchester.testSupport.reference.KnownTramRoute.*;
 import static com.tramchester.testSupport.reference.TramStations.*;
 import static org.junit.jupiter.api.Assertions.*;
+
+// TODO Split out by i/f roles, this has gotten too big
 
 @DataUpdateTest
 public class TransportDataFromFilesTramTest {
@@ -222,17 +225,17 @@ public class TransportDataFromFilesTramTest {
 
         Station endOfLine = transportData.getStationById(Altrincham.getId());
 
-        assertFalse(endOfLine.servesRouteDropoff(fromAltrincamToPicc));
+        assertFalse(endOfLine.servesRouteDropOff(fromAltrincamToPicc));
         assertTrue(endOfLine.servesRoutePickup(fromAltrincamToPicc));
 
-        assertTrue(endOfLine.servesRouteDropoff(fromPiccToAltrincham));
+        assertTrue(endOfLine.servesRouteDropOff(fromPiccToAltrincham));
         assertFalse(endOfLine.servesRoutePickup(fromPiccToAltrincham));
 
         Station notEndOfLine = transportData.getStationById(NavigationRoad.getId());
 
-        assertTrue(notEndOfLine.servesRouteDropoff(fromAltrincamToPicc));
+        assertTrue(notEndOfLine.servesRouteDropOff(fromAltrincamToPicc));
         assertTrue(notEndOfLine.servesRoutePickup(fromAltrincamToPicc));
-        assertTrue(notEndOfLine.servesRouteDropoff(fromPiccToAltrincham));
+        assertTrue(notEndOfLine.servesRouteDropOff(fromPiccToAltrincham));
         assertTrue(notEndOfLine.servesRoutePickup(fromPiccToAltrincham));
     }
 
@@ -571,6 +574,45 @@ public class TransportDataFromFilesTramTest {
 
         assertTrue(onTimeTrips>0);
 
+    }
+
+    @DataExpiryCategory
+    @Test
+    void shouldHaveExpectedRoutesAvailableForDatesAndTimeRanges() {
+        LocalDate when = TestEnv.testDay();
+
+        // earier to diagnose using end of line station
+        Station altrincham = Altrincham.from(transportData);
+
+        long maxDuration = config.getMaxJourneyDuration();
+
+        TimeRange timeRange = TimeRange.of(TramTime.of(12, 50), Duration.ofHours(4), Duration.ofHours(4));
+        Set<Route> results = altrincham.getPickupRoutes(when, timeRange);
+        assertEquals(2, results.size(), "for " + timeRange + " missing routes from " + altrincham);
+
+    }
+
+    @DataExpiryCategory
+    @Test
+    void shouldHaveExpectedRoutesAvailableForDatesAndTimeRangesOverMidnight() {
+        LocalDate when = TestEnv.testDay();
+
+        // earier to diagnose using end of line station
+        Station altrincham = Altrincham.from(transportData);
+
+        long maxDuration = config.getMaxJourneyDuration();
+
+        TimeRange timeRange = TimeRange.of(TramTime.of(22, 50), Duration.ZERO, Duration.ofMinutes(maxDuration));
+        Set<Route> results = altrincham.getPickupRoutes(when, timeRange);
+        assertFalse(results.isEmpty(), "for " + timeRange + " missing routes from " + altrincham);
+
+        TimeRange timeRangeCrossMidnight = TimeRange.of(TramTime.of(23, 59), Duration.ZERO, Duration.ofMinutes(maxDuration));
+        Set<Route> overMidnightResults = altrincham.getPickupRoutes(when, timeRangeCrossMidnight);
+        assertFalse(overMidnightResults.isEmpty(), "for " + timeRangeCrossMidnight + " missing routes over mid-night from " + altrincham);
+
+        TimeRange timeRangeATMidnight = TimeRange.of(TramTime.of(0, 0), Duration.ZERO, Duration.ofMinutes(maxDuration));
+        Set<Route> atMidnightResults = altrincham.getPickupRoutes(when, timeRangeATMidnight);
+        assertFalse(atMidnightResults.isEmpty(), "for " + timeRangeATMidnight + " missing routes over mid-night from " + altrincham);
     }
 
     @DataExpiryCategory

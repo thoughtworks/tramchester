@@ -5,6 +5,7 @@ import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.*;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.ProvidesNow;
+import com.tramchester.domain.time.TimeRange;
 import com.tramchester.domain.time.TramServiceDate;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.geo.BoundingBoxWithStations;
@@ -75,7 +76,8 @@ public class RouteCalculatorForBoxes extends RouteCalculatorSupport {
         final Set<TransportMode> requestedModes = journeyRequest.getRequestedModes();
 
         LocalDate date = queryDate.getDate();
-        final LowestCostsForDestRoutes lowestCostForDestinations = routeToRouteCosts.getLowestCostCalcutatorFor(destinations, date);
+        final LowestCostsForDestRoutes lowestCostForDestinations = routeToRouteCosts.getLowestCostCalcutatorFor(destinations, date,
+                journeyRequest.getTimeRange());
         final RunningRoutesAndServices.FilterForDate routeAndServicesFilter = runningRoutesAndService.getFor(date);
 
         final Duration maxJourneyDuration = journeyRequest.getMaxJourneyDuration();
@@ -90,7 +92,7 @@ public class RouteCalculatorForBoxes extends RouteCalculatorSupport {
             final LocationSet startingStations = LocationSet.of(box.getStations());
             final LowestCostSeen lowestCostSeenForBox = new LowestCostSeen();
 
-            final NumberOfChanges numberOfChanges = computeNumberOfChanges(startingStations, destinations, date);
+            final NumberOfChanges numberOfChanges = computeNumberOfChanges(startingStations, destinations, date, journeyRequest.getTimeRange());
 
             final Instant begin = providesNow.getInstant();
 
@@ -118,7 +120,7 @@ public class RouteCalculatorForBoxes extends RouteCalculatorSupport {
 
     }
 
-    private NumberOfChanges computeNumberOfChanges(LocationSet starts, LocationSet destinations, LocalDate date) {
-        return routeToRouteCosts.getNumberOfChanges(starts, destinations, date);
+    private NumberOfChanges computeNumberOfChanges(LocationSet starts, LocationSet destinations, LocalDate date, TimeRange timeRange) {
+        return routeToRouteCosts.getNumberOfChanges(starts, destinations, date, timeRange);
     }
 }

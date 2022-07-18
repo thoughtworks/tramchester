@@ -8,6 +8,7 @@ import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.Durations;
+import com.tramchester.domain.time.TimeRange;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.caches.LowestCostSeen;
 import com.tramchester.graph.caches.NodeContentsRepository;
@@ -106,12 +107,42 @@ public class ServiceHeuristics {
             return reasons.recordReason(ServiceReason.AlreadyDeparted(currentTime, howIGotHere));
         }
 
-        if (currentTime.withinInterval(maxWait, nodeTime)) {
+        // Wait to get the service?
+        TimeRange window = TimeRange.of(nodeTime, Duration.ofMinutes(maxWait), Duration.ZERO);
+
+        if (window.contains(currentTime)) {
             return valid(ServiceReason.ReasonCode.TimeOk, howIGotHere, reasons);
         }
 
+//        if (currentTime.withinInterval(maxWait, nodeTime)) {
+//            return valid(ServiceReason.ReasonCode.TimeOk, howIGotHere, reasons);
+//        }
+
         return reasons.recordReason(ServiceReason.DoesNotOperateOnTime(currentTime, howIGotHere));
     }
+
+//    public ServiceReason interestedInHourOLD(HowIGotHere howIGotHere, TramTime journeyClockTime,
+//                                          ServiceReasons reasons, int maxWait, EnumSet<GraphLabel> labels) {
+//        reasons.incrementTotalChecked();
+//
+//        int queryTimeHour = journeyClockTime.getHourOfDay();
+//
+//        //noinspection SuspiciousMethodCalls
+//        if (labels.contains(GraphLabel.getHourLabel(queryTimeHour))) {
+//            // quick win
+//            return valid(ServiceReason.ReasonCode.HourOk, howIGotHere, reasons);
+//        }
+//
+//        int hour = GraphLabel.getHourFrom(labels);
+//
+//        TramTime currentHour = hour==0 ? TramTime.midnight() : TramTime.of(hour, 0);
+//
+//        if (journeyClockTime.withinInterval(maxWait, currentHour)) {
+//            return valid(ServiceReason.ReasonCode.HourOk, howIGotHere, reasons);
+//        }
+//
+//        return reasons.recordReason(ServiceReason.DoesNotOperateAtHour(journeyClockTime, howIGotHere));
+//    }
 
     public ServiceReason interestedInHour(HowIGotHere howIGotHere, TramTime journeyClockTime,
                                           ServiceReasons reasons, int maxWait, EnumSet<GraphLabel> labels) {
@@ -125,13 +156,30 @@ public class ServiceHeuristics {
             return valid(ServiceReason.ReasonCode.HourOk, howIGotHere, reasons);
         }
 
-        int hour = GraphLabel.getHourFrom(labels);
+        int hourAtNode = GraphLabel.getHourFrom(labels);
 
-        TramTime currentHour = hour==0 ? TramTime.midnight() : TramTime.of(hour, 0);
-        if (journeyClockTime.withinInterval(maxWait, currentHour)) {
+        TramTime beginWindow = hourAtNode==0 ? TramTime.nextDay(0,0) : TramTime.of(hourAtNode, 0);
+
+        TimeRange windowForWait = TimeRange.of(beginWindow, Duration.ofMinutes(maxWait), Duration.ZERO);
+
+        if (windowForWait.contains(journeyClockTime)) {
             return valid(ServiceReason.ReasonCode.HourOk, howIGotHere, reasons);
         }
 
+//        TramTime endofWait = journeyClockTime.plus(Duration.ofMinutes(maxWait));
+//
+//        if (windowForHour.contains(endofWait)) {
+//            return valid(ServiceReason.ReasonCode.HourOk, howIGotHere, reasons);
+//        }
+
+//        int hour = GraphLabel.getHourFrom(labels);
+//
+//        TramTime currentHour = hour==0 ? TramTime.midnight() : TramTime.of(hour, 0);
+//
+//        if (journeyClockTime.withinInterval(maxWait, currentHour)) {
+//            return valid(ServiceReason.ReasonCode.HourOk, howIGotHere, reasons);
+//        }
+//
         return reasons.recordReason(ServiceReason.DoesNotOperateAtHour(journeyClockTime, howIGotHere));
     }
 

@@ -22,7 +22,10 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
+import static com.tramchester.testSupport.reference.KnownTramRoute.AltrinchamPiccadilly;
 import static com.tramchester.testSupport.reference.KnownTramRoute.ManchesterAirportWythenshaweVictoria;
+import static com.tramchester.testSupport.reference.TramStations.Altrincham;
+import static com.tramchester.testSupport.reference.TramStations.Piccadilly;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -56,21 +59,20 @@ class RouteMapperTest {
 
         LocalDate date = TestEnv.testDay();
 
-        Route fromAirportRoute = tramRouteHelper.getOneRoute(ManchesterAirportWythenshaweVictoria, routeRepsoitory, date);
+        Route fromAirportRoute = tramRouteHelper.getOneRoute(AltrinchamPiccadilly, routeRepsoitory, date);
 
-        //airportToWythenshawe.forEach(fromAirportRoute -> {
             RouteDTO query = new RouteDTO(fromAirportRoute, new LinkedList<>());
 
             int index = dtos.indexOf(query);
 
-            List<LocationRefWithPosition> stations = dtos.get(index).getStations();
-            LocationRefWithPosition stationRefWithPosition = stations.get(0);
-            assertEquals(TramStations.ManAirport.getRawId(), stationRefWithPosition.getId(), "for route " + fromAirportRoute);
-            TestEnv.assertLatLongEquals(TramStations.ManAirport.getLatLong(), stationRefWithPosition.getLatLong(),
-                    0.00001, "position");
-            assertTrue(stationRefWithPosition.getTransportModes().contains(TransportMode.Tram));
-            assertEquals(TramStations.Victoria.getRawId(), stations.get(stations.size()-1).getId());
-        //});
+        List<LocationRefWithPosition> stations = dtos.get(index).getStations();
+        LocationRefWithPosition stationRefWithPosition = stations.get(0);
+        assertEquals(Altrincham.getRawId(), stationRefWithPosition.getId(), "for route " + fromAirportRoute);
+        TestEnv.assertLatLongEquals(Altrincham.getLatLong(), stationRefWithPosition.getLatLong(),
+                0.00001, "position");
+        assertTrue(stationRefWithPosition.getTransportModes().contains(TransportMode.Tram));
+
+        assertEquals(Piccadilly.getRawId(), stations.get(stations.size()-1).getId());
 
 
     }

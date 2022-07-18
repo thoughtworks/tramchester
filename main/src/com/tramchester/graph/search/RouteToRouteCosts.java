@@ -12,6 +12,7 @@ import com.tramchester.domain.places.Location;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.places.StationGroup;
 import com.tramchester.domain.reference.TransportMode;
+import com.tramchester.domain.time.TimeRange;
 import com.tramchester.graph.filters.GraphFilterActive;
 import com.tramchester.repository.InterchangeRepository;
 import com.tramchester.repository.NeighboursRepository;
@@ -168,19 +169,16 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
 
         for (final Route dropOff : dropOffAtInterchange) {
             final int dropOffIndex = index.indexFor(dropOff.getId());
-            //ImmutableBitSet forDropOffRoute = forDegreeOne.getConnectionsFor(dropOffIndex);
             // todo, could use bitset Or and And with DateOverlapMask here
             for (final Route pickup : pickupAtInterchange) {
                 if ((!dropOff.equals(pickup)) && pickup.isDateOverlap(dropOff)) {
                     final int pickupIndex = index.indexFor(pickup.getId());
-                    //forDropOffRoute.set(pickupIndex);
                     forDegreeOne.set(dropOffIndex, pickupIndex);
                     costs.addInterchangeBetween(dropOffIndex, pickupIndex, interchange);
                 }
             }
             // apply dates and days
             forDegreeOne.applyAndTo(dropOffIndex, routeDateAndDayOverlap.overlapsFor(dropOffIndex));
-            //forDropOffRoute.and(routeDateAndDayOverlap.overlapsFor(dropOffIndex));
         }
     }
 
@@ -188,9 +186,10 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
      * Use methods from BetweenRoutesCostRepository instead of this
      * @param routeA first route
      * @param routeB second route
+     * @param timeRange the range within with the route needs ot be available
      * @return number of changes
      */
-    public int getFor(Route routeA, Route routeB, LocalDate date) {
+    public int getFor(Route routeA, Route routeB, LocalDate date, TimeRange timeRange) {
         if (routeA.equals(routeB)) {
             return 0;
         }
@@ -200,7 +199,7 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
         }
 
         RouteIndexPair routePair = RouteIndexPair.getFor(index, routeA, routeB);
-        final int result = costs.getDepth(routePair, date);
+        final int result = costs.getDepth(routePair, date, timeRange);
 
         if (result == Costs.MAX_VALUE) {
             if (routeA.getTransportMode() == routeB.getTransportMode()) {
@@ -234,50 +233,52 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
     }
 
     @Override
-    public NumberOfChanges getNumberOfChanges(StationGroup start, StationGroup end, LocalDate date) {
-        return getNumberOfChanges(LocationSet.of(start.getContained()), LocationSet.of(end.getContained()), date);
+    public NumberOfChanges getNumberOfChanges(StationGroup start, StationGroup end, LocalDate date, TimeRange time) {
+        return getNumberOfChanges(LocationSet.of(start.getContained()), LocationSet.of(end.getContained()), date, time);
     }
 
     @Override
-    public NumberOfChanges getNumberOfChanges(LocationSet starts, LocationSet destinations, LocalDate date) {
-        if (starts.stream().allMatch(station -> station.getPickupRoutes(date).isEmpty())) {
+    public NumberOfChanges getNumberOfChanges(LocationSet starts, LocationSet destinations, LocalDate date, TimeRange timeRange) {
+        if (starts.stream().allMatch(station -> station.getPickupRoutes(date, timeRange).isEmpty())) {
             logger.warn(format("start stations %s have no pick-up routes", HasId.asIds(starts)));
             return NumberOfChanges.None();
         }
-        if (destinations.stream().allMatch(station -> station.getDropoffRoutes(date).isEmpty())) {
+        if (destinations.stream().allMatch(station -> station.getDropoffRoutes(date, timeRange).isEmpty())) {
             logger.warn(format("destination stations %s have no drop-off routes", HasId.asIds(destinations)));
             return NumberOfChanges.None();
         }
         if (neighboursRepository.areNeighbours(starts, destinations)) {
-            return new NumberOfChanges(0, maxHops(pickupRoutesFor(starts, date), dropoffRoutesFor(destinations, date), date));
+            return new NumberOfChanges(0, maxHops(pickupRoutesFor(starts, date, timeRange), dropoffRoutesFor(destinations, date, timeRange), date, timeRange));
         }
-        return getNumberOfHops(pickupRoutesFor(starts, date), dropoffRoutesFor(destinations, date), date);
+        return getNumberOfHops(pickupRoutesFor(starts, date, timeRange), dropoffRoutesFor(destinations, date, timeRange), date, timeRange);
     }
 
     @Override
     public NumberOfChanges getNumberOfChanges(Location<?> startStation, Location<?> destination,
-                                              Set<TransportMode> preferredModes, LocalDate date) {
-        logger.info(format("Compute number of changes between %s and %s using %s on %s",
-                startStation.getId(), destination.getId(), preferredModes, date));
+                                              Set<TransportMode> preferredModes, LocalDate date, TimeRange timeRange) {
+        logger.info(format("Compute number of changes between %s and %s using modes '%s' on %s within %s",
+                startStation.getId(), destination.getId(), preferredModes, date, timeRange));
 
         if (neighboursRepository.areNeighbours(startStation, destination)) {
             return new NumberOfChanges(1, 1);
         }
 
-        final Set<Route> pickupRoutes = startStation.getPickupRoutes(date);
-        final Set<Route> dropoffRoutes = destination.getDropoffRoutes(date);
+        // Need to respect timing here, otherwise can find a route that is valid at an interchange but isn't
+        // actually running from the start or destination
+        final Set<Route> pickupRoutes = startStation.getPickupRoutes(date, timeRange);
+        final Set<Route> dropoffRoutes = destination.getDropoffRoutes(date, timeRange);
 
         if (pickupRoutes.isEmpty()) {
-            logger.warn(format("start station %s has no pick-up routes", startStation));
+            logger.warn(format("start station %s has no matching pick-up routes", startStation.getId()));
             return NumberOfChanges.None();
         }
         if (dropoffRoutes.isEmpty()) {
-            logger.warn(format("destination station %s has no drop-off routes", destination));
+            logger.warn(format("destination station %s has no matching drop-off routes", destination.getId()));
             return NumberOfChanges.None();
         }
 
         if (preferredModes.isEmpty()) {
-            return getNumberOfHops(pickupRoutes, dropoffRoutes, date);
+            return getNumberOfHops(pickupRoutes, dropoffRoutes, date, timeRange);
         } else {
             final Set<Route> filteredPickupRoutes = filterForModes(preferredModes, pickupRoutes);
             final Set<Route> filteredDropoffRoutes = filterForModes(preferredModes, dropoffRoutes);
@@ -289,7 +290,7 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
                 return NumberOfChanges.None();
             }
 
-            return getNumberOfHops(filteredPickupRoutes, filteredDropoffRoutes, date);
+            return getNumberOfHops(filteredPickupRoutes, filteredDropoffRoutes, date, timeRange);
         }
 
     }
@@ -300,35 +301,38 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
     }
 
     @Override
-    public LowestCostsForDestRoutes getLowestCostCalcutatorFor(LocationSet destinations, LocalDate date) {
+    public LowestCostsForDestRoutes getLowestCostCalcutatorFor(LocationSet destinations, LocalDate date, TimeRange timeRange) {
         Set<Route> destinationRoutes = destinations.stream().
-                map(dest -> dest.getDropoffRoutes(date)).
+                map(dest -> dest.getDropoffRoutes(date, timeRange)).
                 flatMap(Collection::stream).
                 collect(Collectors.toUnmodifiableSet());
-        return new LowestCostForDestinations(this, destinationRoutes, date);
+        return new LowestCostForDestinations(this, destinationRoutes, date, timeRange);
     }
 
     @NotNull
-    private NumberOfChanges getNumberOfHops(Set<Route> startRoutes, Set<Route> destinationRoutes, LocalDate date) {
-        int minHops = minHops(startRoutes, destinationRoutes, date);
-        if (minHops == Integer.MAX_VALUE) {
-            logger.warn(format("No results founds between %s and %s", HasId.asIds(startRoutes), HasId.asIds(destinationRoutes)));
+    private NumberOfChanges getNumberOfHops(Set<Route> startRoutes, Set<Route> destinationRoutes, LocalDate date, TimeRange timeRange) {
+
+        int minHops = minHops(startRoutes, destinationRoutes, date, timeRange);
+        if (minHops > MAX_DEPTH) {
+            logger.error(format("Unexpected result for min hops %s greater than max depth %s, for %s to %s",
+                    minHops, MAX_DEPTH, HasId.asIds(startRoutes), HasId.asIds(destinationRoutes)));
         }
 
-        int maxHops = maxHops(startRoutes, destinationRoutes, date);
+        int maxHops = maxHops(startRoutes, destinationRoutes, date, timeRange);
         if (maxHops > MAX_DEPTH) {
             logger.error(format("Unexpected result for max hops %s greater than max depth %s, for %s to %s",
                     maxHops, MAX_DEPTH, HasId.asIds(startRoutes), HasId.asIds(destinationRoutes)));
         }
+
         NumberOfChanges numberOfChanges = new NumberOfChanges(minHops, maxHops);
         logger.info(format("Computed number of changes from %s to %s on %s as %s",
                 HasId.asIds(startRoutes), HasId.asIds(destinationRoutes), date, numberOfChanges));
         return numberOfChanges;
     }
 
-    private int minHops(Set<Route> startRoutes, Set<Route> endRoutes, LocalDate date) {
+    private int minHops(Set<Route> startRoutes, Set<Route> endRoutes, LocalDate date, TimeRange time) {
         final Optional<Integer> query = startRoutes.stream().
-                flatMap(startRoute -> endRoutes.stream().map(endRoute -> getFor(startRoute, endRoute, date))).
+                flatMap(startRoute -> endRoutes.stream().map(endRoute -> getFor(startRoute, endRoute, date, time))).
                 min(Integer::compare);
         if (query.isEmpty()) {
             logger.warn(format("No minHops found for %s to %s", HasId.asIds(startRoutes), HasId.asIds(endRoutes)));
@@ -336,9 +340,9 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
         return query.orElse(Integer.MAX_VALUE);
     }
 
-    private Integer maxHops(Set<Route> startRoutes, Set<Route> endRoutes, LocalDate date) {
+    private Integer maxHops(Set<Route> startRoutes, Set<Route> endRoutes, LocalDate date, TimeRange time) {
         final Optional<Integer> query = startRoutes.stream().
-                flatMap(startRoute -> endRoutes.stream().map(endRoute -> getFor(startRoute, endRoute, date))).
+                flatMap(startRoute -> endRoutes.stream().map(endRoute -> getFor(startRoute, endRoute, date, time))).
                 filter(result -> result != Integer.MAX_VALUE).
                 max(Integer::compare);
 
@@ -348,26 +352,32 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
         return query.orElse(Integer.MAX_VALUE);
     }
 
-    private Set<Route> dropoffRoutesFor(LocationSet locations, LocalDate date) {
-        return locations.stream().flatMap(station -> station.getDropoffRoutes(date).stream()).collect(Collectors.toSet());
+    private Set<Route> dropoffRoutesFor(LocationSet locations, LocalDate date, TimeRange timeRange) {
+        return locations.stream().flatMap(station -> station.getDropoffRoutes(date, timeRange).stream()).collect(Collectors.toSet());
     }
 
-    private Set<Route> pickupRoutesFor(LocationSet locations, LocalDate date) {
-        return locations.stream().flatMap(station -> station.getPickupRoutes(date).stream()).collect(Collectors.toSet());
+    private Set<Route> pickupRoutesFor(LocationSet locations, LocalDate date, TimeRange timeRange) {
+        return locations.stream().flatMap(station -> station.getPickupRoutes(date, timeRange).stream()).collect(Collectors.toSet());
     }
 
 
+    /***
+     * Encapsulates lowest cost and hops for one specific set of destinations, required for performance reasons
+     * as looking up destinations during the graph traversal was too costly
+     */
     private static class LowestCostForDestinations implements LowestCostsForDestRoutes {
         private final RouteToRouteCosts routeToRouteCosts;
         private final Set<Integer> destinationIndexs;
         private final LocalDate date;
+        private final TimeRange time;
 
-        public LowestCostForDestinations(BetweenRoutesCostRepository routeToRouteCosts, Set<Route> destinations, LocalDate date) {
+        public LowestCostForDestinations(BetweenRoutesCostRepository routeToRouteCosts, Set<Route> destinations, LocalDate date, TimeRange time) {
             this.routeToRouteCosts = (RouteToRouteCosts) routeToRouteCosts;
             destinationIndexs = destinations.stream().
                     map(destination -> this.routeToRouteCosts.index.indexFor(destination.getId())).
                     collect(Collectors.toUnmodifiableSet());
             this.date = date;
+            this.time = time;
         }
 
         /***
@@ -383,7 +393,7 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
             }
             // note: IntStream uses int in implementation so avoids any boxing overhead
             return destinationIndexs.stream().mapToInt(item -> item).
-                    map(indexOfDest -> routeToRouteCosts.costs.getDepth(RouteIndexPair.of(indexOfStart, indexOfDest), date)).
+                    map(indexOfDest -> routeToRouteCosts.costs.getDepth(RouteIndexPair.of(indexOfStart, indexOfDest), date, time)).
                     filter(result -> result != Costs.MAX_VALUE).
                     min().
                     orElse(Integer.MAX_VALUE);
@@ -405,7 +415,7 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
             }
             // note: IntStream uses int in implementation so avoids any boxing overhead
             int result = destinationIndexs.stream().mapToInt(item -> item).
-                    map(dest -> routeToRouteCosts.costs.getDepth(RouteIndexPair.of(indexOfStart, dest), date)).
+                    map(dest -> routeToRouteCosts.costs.getDepth(RouteIndexPair.of(indexOfStart, dest), date, time)).
                     min().
                     orElse(Integer.MAX_VALUE);
             return Pair.of(result, start);
@@ -573,11 +583,21 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
             return costsForDegree[degree].isSet(routeIndexA, routeIndexB);
         }
 
-        private int getDepth(RouteIndexPair routePair, LocalDate date) {
+        private int getDepth(RouteIndexPair routePair, LocalDate date, TimeRange time) {
             List<List<RouteInterchanges>> changes = getChangesFor(routePair);
 
-            Optional<Integer> result = changes.stream().
-                    filter(routeInterchanges -> isOperating(routeInterchanges, date)).
+            logger.debug(format("Found changes at %s %s %s", date, time, changes));
+
+            List<List<RouteInterchanges>> filteredByAvailability = changes.stream().
+                    filter(routeInterchanges -> isOperating(routeInterchanges, date, time)).collect(Collectors.toList());
+
+            if (changes.size()!=filteredByAvailability.size()) {
+                logger.debug(format("Filtered from %s to %s", changes.size(), filteredByAvailability.size()));
+            } else {
+                logger.debug("Retained " + filteredByAvailability.size());
+            }
+
+            Optional<Integer> result = filteredByAvailability.stream().
                     map(List::size).
                     min(Integer::compare);
 
@@ -591,8 +611,8 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
          * @param date the date to filter for
          * @return true iff any of the list of interchange have at least one path that is valid on the date
          */
-        private boolean isOperating(List<RouteInterchanges> changeSet, LocalDate date) {
-            return changeSet.stream().allMatch(routeInterchanges -> routeInterchanges.availableOn(date));
+        private boolean isOperating(List<RouteInterchanges> changeSet, LocalDate date, TimeRange time) {
+            return changeSet.stream().allMatch(routeInterchanges -> routeInterchanges.availableAt(date, time));
         }
 
         private byte getDegree(RouteIndexPair routePair) {
@@ -630,7 +650,7 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
                 return Collections.emptyList();
             }
             if (initialDepth == Byte.MAX_VALUE) {
-                logger.warn(format("getChangesFor: no changes possible indexes %s", routePair));
+                logger.debug(format("getChangesFor: no changes possible indexes %s", routePair));
                 return Collections.emptyList();
             }
 
@@ -696,7 +716,7 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
                 logger.debug(format("Found changes %s for %s", HasId.asIds(changes), indexPair));
                 return routeInterchanges;
             }
-            logger.error("Did not find any interchanges for " + routePair);
+            logger.debug("Did not find any interchanges for " + routePair);
             return null;
         }
 

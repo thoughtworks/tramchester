@@ -246,8 +246,16 @@ public class TramTransportDataForTestFactory implements TransportDataFactory {
     private static void addRouteStation(TransportDataContainer container, MutableStation station, Route route, Service service) {
         RouteStation routeStation = new RouteStation(station, route);
         container.addRouteStation(routeStation);
-        station.addRoutePickUp(route, service);
-        station.addRouteDropOff(route, service);
+
+        TramTime startOfService = TramTime.of(4,15);
+        TramTime endOfService = TramTime.of(22,45);
+
+        // set large span of times for these
+        station.addRoutePickUp(route, service, startOfService);
+        station.addRoutePickUp(route, service, endOfService);
+
+        station.addRouteDropOff(route, service, startOfService);
+        station.addRouteDropOff(route, service, endOfService);
     }
 
     private static void createInterchangeToStation4Trip(TransportDataContainer container, MutableRoute route, MutableService service,

@@ -2,6 +2,7 @@ package com.tramchester.domain;
 
 import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.places.Station;
+import com.tramchester.domain.time.TimeRange;
 
 import java.time.LocalDate;
 import java.util.Objects;
@@ -41,12 +42,12 @@ public class RouteInterchanges {
         return Objects.hash(routePair, interchangeStations);
     }
 
-    public boolean availableOn(LocalDate date) {
-        return interchangeStations.stream().anyMatch(station -> validForDate(date, station));
+    public boolean availableAt(LocalDate date, TimeRange time) {
+        return interchangeStations.stream().anyMatch(station -> validForDate(station, date, time));
     }
 
-    private boolean validForDate(LocalDate date, Station station) {
-        return station.servesRouteDropoff(routePair.getFirst(), date) &&
-                station.servesRoutePickup(routePair.getSecond(), date);
+    private boolean validForDate(Station station, LocalDate date, TimeRange time) {
+        return station.servesRouteDropOff(routePair.getFirst(), date, time) &&
+                station.servesRoutePickup(routePair.getSecond(), date, time);
     }
 }

@@ -11,6 +11,7 @@ import com.tramchester.mappers.Geography;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.TramStations;
+import com.tramchester.testSupport.testTags.Summer2022;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -27,7 +28,6 @@ class FindStationLinksTest {
 
     private static ComponentContainer componentContainer;
     private FindStationLinks findStationLinks;
-    private StationLocationsRepository stationLocations;
     private StationRepository stationRepository;
     private Geography geography;
 
@@ -45,16 +45,16 @@ class FindStationLinksTest {
 
     @BeforeEach
     void beforeEachOfTheTestsRun() {
-        stationLocations = componentContainer.get(StationLocationsRepository.class);
         stationRepository = componentContainer.get(StationRepository.class);
         findStationLinks = componentContainer.get(FindStationLinks.class);
         geography = componentContainer.get(Geography.class);
     }
 
+    @Summer2022
     @Test
     void shouldFindExpectedLinksBetweenStations() {
         Set<StationLink> results = findStationLinks.findLinkedFor(Tram);
-        assertEquals(202, results.size());
+        assertEquals(200, results.size()); // 202 -> 200
 
         assertTrue(results.contains(createLink(StPetersSquare, PiccadillyGardens)));
         assertTrue(results.contains(createLink(StPetersSquare, MarketStreet)));
@@ -68,9 +68,10 @@ class FindStationLinksTest {
         assertFalse(results.contains(createLink(Shudehill, StPetersSquare)));
 
         assertTrue(results.contains(createLink(MediaCityUK, HarbourCity)));
-        assertTrue(results.contains(createLink(MediaCityUK, Broadway)));
 
-        assertTrue(results.contains(createLink(HarbourCity, Broadway)));
+        // Not during eccles closure
+        //assertTrue(results.contains(createLink(MediaCityUK, Broadway)));
+
     }
 
     @Test

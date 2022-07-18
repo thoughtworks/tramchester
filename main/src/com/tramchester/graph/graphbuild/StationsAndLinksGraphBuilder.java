@@ -139,7 +139,7 @@ public class StationsAndLinksGraphBuilder extends GraphBuilder {
                 IdFor<Route> asId = route.getId();
                 logger.debug("Adding route " + asId);
                 filteredStations.stream().
-                        filter(station -> station.servesRouteDropoff(route) || station.servesRoutePickup(route)).
+                        filter(station -> station.servesRouteDropOff(route) || station.servesRoutePickup(route)).
                         map(station -> transportData.getRouteStation(station, route)).
                         forEach(routeStation -> {
                             Node routeStationNode = createRouteStationNode(tx, routeStation, builderCache);

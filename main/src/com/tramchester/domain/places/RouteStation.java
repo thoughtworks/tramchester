@@ -84,6 +84,6 @@ public class RouteStation implements HasId<RouteStation>, GraphProperty, HasTran
     }
 
     public boolean isActive() {
-        return station.servesRouteDropoff(route) || station.servesRoutePickup(route);
+        return station.servesRouteDropOff(route) || station.servesRoutePickup(route);
     }
 }

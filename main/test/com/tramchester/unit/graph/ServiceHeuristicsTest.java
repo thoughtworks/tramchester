@@ -38,6 +38,7 @@ import java.util.Set;
 import static com.tramchester.graph.graphbuild.GraphLabel.*;
 import static com.tramchester.testSupport.reference.TramStations.Bury;
 import static com.tramchester.testSupport.reference.TramStations.Shudehill;
+import static java.lang.String.format;
 import static org.junit.jupiter.api.Assertions.*;
 
 class ServiceHeuristicsTest extends EasyMockSupport {
@@ -245,9 +246,12 @@ class ServiceHeuristicsTest extends EasyMockSupport {
                 journeyConstraints, queryTime, MAX_NUM_CHANGES);
 
         assertFalse(serviceHeuristics.interestedInHour(howIGotHere, elapsed, reasons, MAX_WAIT, EnumSet.of(HOUR_22)).isValid());
+
         assertTrue(serviceHeuristics.interestedInHour(howIGotHere, elapsed, reasons, MAX_WAIT, EnumSet.of(HOUR_23)).isValid());
+
         assertFalse(serviceHeuristics.interestedInHour(howIGotHere, elapsed, reasons, MAX_WAIT, EnumSet.of(HOUR_0)).isValid());
         assertFalse(serviceHeuristics.interestedInHour(howIGotHere, elapsed, reasons, MAX_WAIT, EnumSet.of(HOUR_1)).isValid());
+
         verifyAll();
     }
 
@@ -317,33 +321,33 @@ class ServiceHeuristicsTest extends EasyMockSupport {
 
     @Test
     void shouldCheckTimeAtNodeCorrectly() {
-        TramTime queryTime = TramTime.of(7,0);
-        JourneyRequest journeyRequest = getJourneyRequest(queryTime);
-        ServiceReasons reasons = new ServiceReasons(journeyRequest, queryTime, providesLocalNow);
+        TramTime baseQueryTime = TramTime.of(7,0);
+        JourneyRequest journeyRequest = getJourneyRequest(baseQueryTime);
+        ServiceReasons reasons = new ServiceReasons(journeyRequest, baseQueryTime, providesLocalNow);
 
         EasyMock.expect(journeyConstraints.getFewestChangesCalculator()).andReturn(fewestHopsForRoutes);
 
         ServiceHeuristics serviceHeuristics = new ServiceHeuristics(stationRepository, routeInterchanges, nodeContentsCache,
-                journeyConstraints, queryTime, MAX_NUM_CHANGES);
+                journeyConstraints, baseQueryTime, MAX_NUM_CHANGES);
 
         LocalTime nodeTime = LocalTime.of(8, 0);
 
         // 7.10 too early, too long to wait
-        checkForNodeTime(serviceHeuristics, queryTime.plusMinutes(10), nodeTime, false, reasons, false);
+        checkForNodeTime(serviceHeuristics, baseQueryTime.plusMinutes(10), nodeTime, false, reasons, false);
         // 7.29 too early, too long to wait
-        checkForNodeTime(serviceHeuristics, queryTime.plusMinutes(29), nodeTime, false, reasons, false);
+        checkForNodeTime(serviceHeuristics, baseQueryTime.plusMinutes(29), nodeTime, false, reasons, false);
 
         // 8
-        checkForNodeTime(serviceHeuristics, queryTime.plusMinutes(60), nodeTime, true, reasons, false);
+        checkForNodeTime(serviceHeuristics, baseQueryTime.plusMinutes(60), nodeTime, true, reasons, false);
         // 7.30
-        checkForNodeTime(serviceHeuristics, queryTime.plusMinutes(30), nodeTime, true, reasons, false);
+        checkForNodeTime(serviceHeuristics, baseQueryTime.plusMinutes(30), nodeTime, true, reasons, false);
         // 7.45
-        checkForNodeTime(serviceHeuristics, queryTime.plusMinutes(45), nodeTime, true, reasons, false);
-        checkForNodeTime(serviceHeuristics, queryTime.plusMinutes(59), nodeTime, true, reasons, false);
+        checkForNodeTime(serviceHeuristics, baseQueryTime.plusMinutes(45), nodeTime, true, reasons, false);
+        checkForNodeTime(serviceHeuristics, baseQueryTime.plusMinutes(59), nodeTime, true, reasons, false);
 
         // 8.01 - you missed it
-        checkForNodeTime(serviceHeuristics, queryTime.plusMinutes(61), nodeTime, false, reasons, false);
-        checkForNodeTime(serviceHeuristics, queryTime.plusMinutes(120), nodeTime, false, reasons, false);
+        checkForNodeTime(serviceHeuristics, baseQueryTime.plusMinutes(61), nodeTime, false, reasons, false);
+        checkForNodeTime(serviceHeuristics, baseQueryTime.plusMinutes(120), nodeTime, false, reasons, false);
 
     }
 
@@ -385,7 +389,9 @@ class ServiceHeuristicsTest extends EasyMockSupport {
         EasyMock.expect(nodeContentsCache.getTime(node)).andReturn(tramTime);
 
         replayAll();
-        assertEquals(expect, serviceHeuristics.checkTime(howIGotHere, node, currentElapsed, reasons, MAX_WAIT).isValid());
+        ServiceReason serviceReason = serviceHeuristics.checkTime(howIGotHere, node, currentElapsed, reasons, MAX_WAIT);
+        assertEquals(expect, serviceReason.isValid(), format("currentElapsed: %s nodeTime: %s wait: %s reason: %s",
+                currentElapsed, tramTime, MAX_WAIT, serviceReason));
         verifyAll();
     }
 

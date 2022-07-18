@@ -1,6 +1,7 @@
 package com.tramchester.domain;
 
 import com.tramchester.domain.reference.TransportMode;
+import com.tramchester.domain.time.TimeRange;
 import com.tramchester.domain.time.TramServiceDate;
 import com.tramchester.domain.time.TramTime;
 
@@ -135,12 +136,11 @@ public class JourneyRequest {
                 '}';
     }
 
-//    @Deprecated
-//    public void setRequestedModes(Set<TransportMode> allowedModes) {
-//        this.requestedModes = allowedModes;
-//    }
-
     public Set<TransportMode> getRequestedModes() {
         return requestedModes;
+    }
+
+    public TimeRange getTimeRange() {
+        return TimeRange.of(originalQueryTime, Duration.ZERO, maxJourneyDuration);
     }
 }

@@ -9,10 +9,13 @@ import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.time.DateRange;
 import com.tramchester.domain.time.TramServiceDate;
+import com.tramchester.domain.time.TramTime;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
 import com.tramchester.repository.RunningRoutesAndServices;
 import com.tramchester.repository.TransportData;
 import com.tramchester.testSupport.TestEnv;
+import com.tramchester.testSupport.TramRouteHelper;
+import com.tramchester.testSupport.reference.KnownTramRoute;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -24,6 +27,7 @@ import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static java.time.DayOfWeek.*;
 import static org.junit.jupiter.api.Assertions.*;
@@ -33,6 +37,7 @@ public class RunningRoutesAndServicesTest {
     private static ComponentContainer componentContainer;
     private TransportData transportData;
     private RunningRoutesAndServices runningRoutesAndServices;
+    private TramRouteHelper helper;
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
@@ -50,6 +55,7 @@ public class RunningRoutesAndServicesTest {
     void beforeEachTestRuns() {
         transportData = componentContainer.get(TransportData.class);
         runningRoutesAndServices = componentContainer.get(RunningRoutesAndServices.class);
+        helper = new TramRouteHelper();
     }
 
     @Test
@@ -64,6 +70,47 @@ public class RunningRoutesAndServicesTest {
 
         Set<Route> routesIntoNextDay = transportData.getRoutes().stream().filter(Route::intoNextDay).collect(Collectors.toSet());
         assertEquals(routesFromTrips, routesIntoNextDay);
+    }
+
+    @Test
+    void shouldConsiderServicesFromDayBeforeIfTheyAreStillRunningTheFollowingDay() {
+        LocalDate when = TestEnv.testDay();
+
+        RunningRoutesAndServices.FilterForDate filter = runningRoutesAndServices.getFor(when);
+
+        Route altyToBuryRoute = helper.getOneRoute(KnownTramRoute.AltrinchamManchesterBury, transportData, when);
+
+        assertTrue(filter.isRouteRunning(altyToBuryRoute.getId(), false));
+        assertTrue(filter.isRouteRunning(altyToBuryRoute.getId(), true));
+
+        Set<Service> services = altyToBuryRoute.getServices();
+
+        LocalDate previousDay = when.minusDays(1);
+
+        Set<Service> allPreviousDay = services.stream().
+                filter(service -> service.getCalendar().operatesOn(previousDay)).collect(Collectors.toSet());
+        assertFalse(allPreviousDay.isEmpty());
+
+        Set<Service> fromPreviousDay = allPreviousDay.stream().
+                filter(service -> filter.isServiceRunningByTime(service.getId(), TramTime.of(0, 0), 25)).
+                collect(Collectors.toSet());
+        assertFalse(fromPreviousDay.isEmpty());
+
+    }
+
+    @Test
+    void shouldConsiderRoutesFromDayBeforeIfTheyAreStillRunningTheFollowingDay() {
+        LocalDate when = TestEnv.testDay();
+
+        RunningRoutesAndServices.FilterForDate filter = runningRoutesAndServices.getFor(when);
+
+        LocalDate previousDay = when.minusDays(1);
+
+        Route altyToBuryRoute = helper.getOneRoute(KnownTramRoute.AltrinchamManchesterBury, transportData, previousDay);
+
+        assertTrue(filter.isRouteRunning(altyToBuryRoute.getId(), false));
+        assertTrue(filter.isRouteRunning(altyToBuryRoute.getId(), true));
+
     }
 
     @Test

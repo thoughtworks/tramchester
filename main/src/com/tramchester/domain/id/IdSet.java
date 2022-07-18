@@ -1,7 +1,9 @@
 package com.tramchester.domain.id;
 
 
+import com.google.common.collect.Sets;
 import com.tramchester.domain.CoreDomain;
+import com.tramchester.domain.Service;
 import com.tramchester.domain.places.NaptanArea;
 import org.apache.commons.collections4.SetUtils;
 import org.jetbrains.annotations.NotNull;
@@ -62,6 +64,14 @@ public class IdSet<T extends CoreDomain> implements Iterable<IdFor<T>> {
 
     public static IdSet<NaptanArea> copy(IdSet<NaptanArea> other) {
         return new IdSet<>(other.theSet);
+    }
+
+    @SafeVarargs
+    public static <T extends HasId<T> & CoreDomain> IdSet<T> union(IdSet<T>... ids) {
+        Set<IdFor<T>> newSet = Arrays.stream(ids).
+                flatMap(IdSet::stream).
+                collect(Collectors.toSet());
+        return new IdSet<>(newSet, false);
     }
 
     public IdSet<T> addAll(IdSet<T> other) {
