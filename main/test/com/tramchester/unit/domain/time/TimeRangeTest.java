@@ -46,27 +46,7 @@ public class TimeRangeTest {
         assertTrue(range.contains(timeA.minusMinutes(30)));
 
     }
-
-    @Test
-    void shouldHaveContainedRanged() {
-        TramTime time = TramTime.of(12, 0);
-
-        TimeRange rangeA = TimeRange.of(time, Duration.ofHours(2), Duration.ofHours(3));
-
-        TimeRange rangeB = TimeRange.of(time, Duration.ofMinutes(30), Duration.ofMinutes(30));
-
-        assertTrue(rangeA.fullyContains(rangeA));
-        assertTrue(rangeA.fullyContains(rangeB));
-
-        assertFalse(rangeB.fullyContains(rangeA));
-
-        TimeRange rangeC = TimeRange.of(time, Duration.ofMinutes(30), Duration.ofHours(4));
-        assertFalse(rangeA.fullyContains(rangeC));
-
-        TimeRange rangeD = TimeRange.of(time, Duration.ofHours(3), Duration.ofHours(1));
-        assertFalse(rangeA.fullyContains(rangeD));
-    }
-
+    
     @Test
     void shouldBehaveOverMidnightBasic() {
         TramTime time = TramTime.of(23,55);
@@ -83,9 +63,6 @@ public class TimeRangeTest {
 
         TimeRange timeRangeA = TimeRange.of(time, Duration.ofHours(2), Duration.ofHours(2));
         TimeRange timeRangeB = TimeRange.of(time, Duration.ofHours(1), Duration.ofHours(1));
-
-        assertTrue(timeRangeA.fullyContains(timeRangeB));
-        assertFalse(timeRangeB.fullyContains(timeRangeA));
 
         assertTrue(timeRangeA.anyOverlap(timeRangeB));
         assertTrue(timeRangeB.anyOverlap(timeRangeA));
@@ -104,17 +81,10 @@ public class TimeRangeTest {
 
         TimeRange timeRange = TimeRange.of(begin, end);
 
-        assertTrue(timeRange.fullyContains(
-                TimeRange.of(TramTime.of(23, 56), Duration.ZERO, Duration.ofMinutes(20))));
-
         TimeRange beginOverlapsRange = TimeRange.of(TramTime.of(23, 56), Duration.ZERO, Duration.ofHours(2));
-
-        assertFalse(timeRange.fullyContains(beginOverlapsRange));
         assertTrue(timeRange.anyOverlap(beginOverlapsRange));
 
         TimeRange endOverlaps = TimeRange.of(begin, Duration.ofMinutes(30), Duration.ofMinutes(5));
-
-        assertFalse(timeRange.fullyContains(endOverlaps));
         assertTrue(timeRange.anyOverlap(endOverlaps));
 
     }

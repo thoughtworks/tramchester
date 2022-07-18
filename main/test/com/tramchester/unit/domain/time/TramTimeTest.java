@@ -491,32 +491,6 @@ class TramTimeTest {
     }
 
     @Test
-    void shouldFindTimesWithinInterval() {
-        TramTime reference = of(15, 24);
-        assertTrue(of(15, 15).withinInterval(10, reference));
-        assertTrue(of(15, 15).withinInterval(9, reference));
-        assertFalse(of(15, 15).withinInterval(8, reference));
-
-        assertTrue(of(14, 25).withinInterval(60, reference));
-    }
-
-    @Test
-    void shouldFindTimesWithinIntervalOrMidight() {
-        TramTime reference = of(0, 45);
-        assertTrue(of(0, 15).withinInterval(30, reference));
-        assertTrue(of(0, 15).withinInterval(90, reference));
-        assertFalse(of(0, 5).withinInterval(30, reference));
-    }
-
-    @Test
-    void shouldFindTimesWithinIntervalCrossingDayBoundary() {
-        TramTime reference = nextDay(1,30);
-        assertTrue(nextDay(1, 15).withinInterval(30, reference));
-        assertTrue(of(23, 45).withinInterval(120, reference));
-        assertFalse(of(22, 45).withinInterval(120, reference));
-    }
-
-    @Test
     void shouldSubtractWithResultInPreviousDay() {
         TramTime reference = nextDay(0, 4);
 

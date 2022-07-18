@@ -8,12 +8,14 @@ import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdMap;
 import com.tramchester.domain.time.CrossesDay;
+import com.tramchester.domain.time.TimeRange;
 import com.tramchester.domain.time.TramTime;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
+import java.time.Duration;
 import java.time.LocalDate;
 import java.util.Set;
 
@@ -172,16 +174,16 @@ public class RunningRoutesAndServices {
 
         private boolean serviceOperatingWithin(Service service, TramTime time, int maxWait) {
             final TramTime finishTime = service.getFinishTime();
-            if (time.isAfter(finishTime)) {
-                return false;
-            }
-
             final TramTime startTime = service.getStartTime();
-            if (time.between(startTime, finishTime)) {
+
+            TimeRange withinService = TimeRange.of(startTime, finishTime);
+            if (withinService.contains(time)) {
                 return true;
             }
 
-            return time.withinInterval(maxWait, startTime);
+            // check if within wait time
+            TimeRange range = TimeRange.of(startTime, Duration.ofMinutes(maxWait), Duration.ZERO);
+            return range.contains(time);
         }
     }
 }

@@ -69,10 +69,6 @@ public class TramTime implements Comparable<TramTime> {
         return factory.of(hours, minutes, 0);
     }
 
-//    public static TramTime midnight() {
-//        return factory.midnight();
-//    }
-
     public static TramTime parse(String text) {
         return factory.parse(text);
     }
@@ -164,12 +160,6 @@ public class TramTime implements Comparable<TramTime> {
 
     // is after with compensation for late nights
     private boolean isAfterBasic(TramTime other) {
-//        if (hour==0 && minute==0) {
-//            return true;
-//        }
-//        if (other.hour==0 && other.minute==0) {
-//            return false;
-//        }
         if (hour>other.hour) {
             return true;
         }
@@ -329,11 +319,6 @@ public class TramTime implements Comparable<TramTime> {
             newHours = newHours - (daysToAdd * HOURS_IN_DAY);
         }
 
-        // adjust for midnight being day before
-//        if (newHours==0 && newMins==0 && daysToAdd>0) {
-//            daysToAdd = daysToAdd -1;
-//        }
-
         final int newOffsetDays = offsetDays + daysToAdd;
 
         return TramTime.of(newHours, newMins, newOffsetDays);
@@ -362,26 +347,6 @@ public class TramTime implements Comparable<TramTime> {
         return base.plusDays(offsetDays);
     }
 
-    /***
-     * Is the Time within the proceeding minutes, or equal to, time.
-     * OR between Midnight and time iff proceedingMinutes > minutes in day
-     * USE TimeRange instead
-     * @param proceedingMinutes interval to consider prior to time
-     * @param other end of period
-     * @return true if current time between (time - minutesBeforeTime) and time, inclusive
-     */
-    @Deprecated
-    public boolean withinInterval(int proceedingMinutes, TramTime other) {
-        TramTime startOfInterval;
-        if (other.isNextDay()) {
-            startOfInterval = other.minusMinutes(proceedingMinutes);
-        } else {
-            startOfInterval = (other.minutesOfDay() > proceedingMinutes) ? other.minusMinutes(proceedingMinutes)
-                    : TramTime.of(0,1);
-        }
-        return between(startOfInterval, other);
-    }
-
     @FunctionalInterface
     public interface ToTramTimeFunction<T> {
         TramTime applyAsTramTime(T value);
@@ -401,10 +366,6 @@ public class TramTime implements Comparable<TramTime> {
                 }
             }
         }
-
-//        private TramTime midnight() {
-//            return tramTimes[0][0][0];
-//        }
 
         private TramTime of(int hours, int minutes, int offsetDays) {
             if (offsetDays>=NUM_DAYS) {
