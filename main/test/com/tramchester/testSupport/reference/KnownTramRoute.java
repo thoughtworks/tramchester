@@ -30,8 +30,8 @@ public enum KnownTramRoute {
     EastDidisburyManchesterShawandCromptonRochdale("Pink Line", Inbound, "East Didisbury - Manchester - Shaw and Crompton - Rochdale"),
     RochdaleShawandCromptonManchesterEastDidisbury("Pink Line", Outbound, "Rochdale - Shaw and Crompton - Manchester - East Didisbury"),
 
-    ManchesterAirportWythenshaweVictoria("Navy Line", Outbound, "Manchester Airport - Wythenshawe - Victoria"),
-    VictoriaWythenshaweManchesterAirport("Navy Line", Inbound, "Victoria - Wythenshawe - Manchester Airport"),
+    ManchesterAirportWythenshaweVictoria("Navy Line", Inbound, "Manchester Airport - Wythenshawe - Victoria"),
+    VictoriaWythenshaweManchesterAirport("Navy Line", Outbound, "Victoria - Wythenshawe - Manchester Airport"),
 
     TheTraffordCentreCornbrook("Red Line", Inbound, "The Trafford Centre - Cornbrook"),
     CornbrookTheTraffordCentre("Red Line", Outbound, "Cornbrook - The Trafford Centre"),
@@ -51,9 +51,14 @@ public enum KnownTramRoute {
         this.shortName = shortName;
 
         // new format for IDs METLRED:I:xxxxxx
-        int endIndex = Math.min(shortName.length(), 4);
-        String idSuffix = shortName.toUpperCase().substring(0, endIndex);
-        this.fakeId = createId(format("METL%s%s", idSuffix, direction.getSuffix()));
+        String idSuffix;
+        if (shortName.equals("Blue Line Bus Replacement")) {
+            idSuffix = "ML1";
+        } else {
+            int endIndex = Math.min(shortName.length(), 4);
+            idSuffix = shortName.toUpperCase().substring(0, endIndex).trim();
+        }
+        this.fakeId = createId(format("METL%s%sCURRENT", idSuffix, direction.getSuffix()));
     }
 
     private IdFor<Route> createId(String stationId) {

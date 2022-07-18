@@ -162,7 +162,7 @@ class RouteCalculatorSubGraphTest {
         Set<Journey> results = calculator.calculateRouteAsSet(Cornbrook, Pomona, journeyRequest);
         Assertions.assertTrue(results.size()>0);
     }
-    
+
     @Test
     void shouldHaveSimpleOneStopJourneyAtWeekend() {
         Set<Journey> results = getJourneys(Cornbrook, Pomona, TestEnv.nextSaturday(), 1);

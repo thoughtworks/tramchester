@@ -41,23 +41,7 @@ public class RoutesMapper {
     @PostConstruct
     private void start() {
         logger.info("Starting");
-//        Collection<Route> routes = routeRepository.getRoutes();
-//        routes.forEach(route -> {
-//            // TODO Need way to flag non calling stations
-//            List<LocationRefWithPosition> callingStations = getLocationsAlong(route, true);
-//            String name = route.getName();
-//            boolean alreadyPresent = routeDTOs.containsKey(name);
-//            if (alreadyPresent) {
-//                RouteDTO routeDTO = routeDTOs.get(name);
-//                if (!sameStations(callingStations, routeDTO.getStations())) {
-//                    logger.warn(format("Mismatch on route calling stations for routes %s and %s with stations %s and %s",
-//                            route.getId(), routeDTO.getRouteName(), display(routeDTO.getStations()), display(callingStations)));
-//                }
-//            } else {
-//                RouteDTO routeDTO = new RouteDTO(route, callingStations);
-//                routeDTOs.put(name, routeDTO);
-//            }
-//        });
+
         logger.info("started");
     }
 
@@ -89,7 +73,7 @@ public class RoutesMapper {
 
     // use for visualisation in the front-end routes map, this is approx. since some gtfs routes actually
     // branch TODO Use query of the graph DB to get the "real" representation
-    private List<Station> getStationsOn(Route route, boolean includeNotStopping) {
+    public List<Station> getStationsOn(Route route, boolean includeNotStopping) {
         Set<Trip> tripsForRoute = route.getTrips();
         Optional<Trip> maybeLongest = tripsForRoute.stream().
                 max(Comparator.comparingLong(a -> a.getStopCalls().totalNumber()));

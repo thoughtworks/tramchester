@@ -20,7 +20,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.time.Duration;
-import java.util.Optional;
+import java.util.*;
+
+import static java.lang.String.format;
 
 public class TransportEntityFactoryForTFGM extends TransportEntityFactory {
 
@@ -46,7 +48,8 @@ public class TransportEntityFactoryForTFGM extends TransportEntityFactory {
     @Override
     public MutableRoute createRoute(GTFSTransportationType routeType, RouteData routeData, MutableAgency agency) {
 
-        IdFor<Route> routeId = createRouteId(routeData.getId());
+        IdFor<Route> routeId = RouteIdSwapWorkaround.getCorrectIdFor(routeData);
+
         String routeName = routeData.getLongName();
         return new MutableRoute(routeId, routeData.getShortName().trim(), routeName, agency,
                 GTFSTransportationType.toTransportMode(routeType));
@@ -169,6 +172,53 @@ public class TransportEntityFactoryForTFGM extends TransportEntityFactory {
 
         return routeType;
 
+    }
+
+    private static class RouteIdSwapWorkaround {
+        private final String idPrefixFromData;
+        private final String replacementPrefix;
+        private final String mustMatchLongName;
+
+        private static final Map<String, RouteIdSwapWorkaround> mapping;
+
+        static {
+            List<RouteIdSwapWorkaround> table = Arrays.asList(
+                    of("METLRED:I:", "METLRED:O:", "Cornbrook - The Trafford Centre"),
+                    of("METLRED:O:", "METLRED:I:", "The Trafford Centre - Cornbrook"),
+                    of("METLNAVY:I:", "METLNAVY:O:", "Victoria - Wythenshawe - Manchester Airport"),
+                    of("METLNAVY:O:", "METLNAVY:I:", "Manchester Airport - Wythenshawe - Victoria"));
+            mapping = new HashMap<>();
+            table.forEach(item -> mapping.put(item.mustMatchLongName, item));
+        }
+
+        private static RouteIdSwapWorkaround of(String idPrefixFromData, String replacementPrefix, String mustMatchLongName) {
+            return new RouteIdSwapWorkaround(idPrefixFromData, replacementPrefix, mustMatchLongName);
+        }
+
+        private RouteIdSwapWorkaround(String idPrefixFromData, String replacementPrefix, String mustMatchLongName) {
+            this.idPrefixFromData = idPrefixFromData;
+            this.replacementPrefix = replacementPrefix;
+            this.mustMatchLongName = mustMatchLongName;
+        }
+
+        public static IdFor<Route> getCorrectIdFor(RouteData routeData) {
+            String longName = routeData.getLongName();
+            if (!mapping.containsKey(longName)) {
+                return routeData.getId();
+            }
+
+            String idAsString = routeData.getId().forDTO();
+            RouteIdSwapWorkaround workaround = mapping.get(longName);
+            if (idAsString.startsWith(workaround.idPrefixFromData)) {
+                String replacementIdAsString = idAsString.replace(workaround.idPrefixFromData, workaround.replacementPrefix);
+                logger.warn(format("Workaround for route ID issue, replaced %s with %s", idAsString, replacementIdAsString));
+                return StringIdFor.createId(replacementIdAsString);
+            } else {
+                logger.warn("Workaround for " + routeData + " no longer needed?");
+                return routeData.getId();
+            }
+
+        }
     }
 
 }

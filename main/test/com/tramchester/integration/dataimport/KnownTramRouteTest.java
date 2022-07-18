@@ -3,13 +3,16 @@ package com.tramchester.integration.dataimport;
 import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.domain.Route;
+import com.tramchester.domain.id.IdFor;
 import com.tramchester.testSupport.reference.KnownTramRoute;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
 import com.tramchester.repository.RouteRepository;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.testTags.DataUpdateTest;
+import org.apache.commons.lang3.tuple.Pair;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
@@ -23,6 +26,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 @DataUpdateTest
 class KnownTramRouteTest {
     private static ComponentContainer componentContainer;
+    private RouteRepository routeRepository;
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
@@ -35,9 +39,13 @@ class KnownTramRouteTest {
         componentContainer.close();
     }
 
+    @BeforeEach
+    void setUp() {
+        routeRepository = componentContainer.get(RouteRepository.class);
+    }
+
     @Test
     void shouldHaveMatchWithLoadedRoutes() {
-        RouteRepository routeRepository = componentContainer.get(RouteRepository.class);
         List<KnownTramRoute> knownRoutes = Arrays.asList(KnownTramRoute.values());
         Set<String> knownRouteNames = knownRoutes.stream().map(KnownTramRoute::longName).collect(Collectors.toSet());
 
@@ -63,4 +71,25 @@ class KnownTramRouteTest {
         }
 
     }
+
+    @Test
+    void shouldHaveNameAndDirectionCorrect() {
+        List<KnownTramRoute> knownRoutes = Arrays.asList(KnownTramRoute.values());
+
+        Set<KnownTramRoute> missing = knownRoutes.stream().
+                filter(knownTramRoute -> routeRepository.getRouteById(knownTramRoute.getFakeId()) == null).
+                collect(Collectors.toSet());
+
+        assertTrue(missing.isEmpty(), missing.toString());
+
+        Set<Pair<String, IdFor<Route>>> mismatch = knownRoutes.stream().
+                map(knownTramRoute -> Pair.of(knownTramRoute, routeRepository.getRouteById(knownTramRoute.getFakeId()))).
+                filter(pair -> !pair.getLeft().longName().equals(pair.getRight().getName())).
+                map(pair -> Pair.of(pair.getLeft().name(), pair.getRight().getId())).
+                collect(Collectors.toSet());
+
+        assertTrue(mismatch.isEmpty(), mismatch.toString());
+
+    }
+
 }

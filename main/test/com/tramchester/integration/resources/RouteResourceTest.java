@@ -62,7 +62,7 @@ class RouteResourceTest {
 
         // TODO could be a mistake in the data, but the station order is flipped Summer2020, was Airport->Victoria route
         List<RouteDTO> airRoutes = routes.stream().
-                filter(routeDTO -> routeDTO.getRouteName().equals(VictoriaWythenshaweManchesterAirport.longName())).
+                filter(routeDTO -> routeDTO.getRouteName().equals(ManchesterAirportWythenshaweVictoria.longName())).
                 collect(Collectors.toList());
 
         assertEquals(1, airRoutes.size());
