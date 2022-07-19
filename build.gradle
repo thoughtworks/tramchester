@@ -2,7 +2,7 @@
 
 plugins {
     id 'com.mgd.core.gradle.s3' version '1.1.4'
-    id 'io.mateo.cxf-codegen' version '1.0.0-rc.3'
+    id 'io.mateo.cxf-codegen' version '1.0.1'
 }
 
 apply plugin: 'java'
@@ -65,23 +65,23 @@ dependencies {
     implementation('com.smoketurner:dropwizard-swagger:2.0.12-1')
 
     // aws sdk
-    implementation('software.amazon.awssdk:s3:2.17.176')
-    implementation('software.amazon.awssdk:cloudwatch:2.17.176')
-    implementation('software.amazon.awssdk:cloudformation:2.17.176')
+    implementation('software.amazon.awssdk:s3:2.17.209')
+    implementation('software.amazon.awssdk:cloudwatch:2.17.209')
+    implementation('software.amazon.awssdk:cloudformation:2.17.234')
     // aws cdk
     implementation 'software.amazon.awscdk:core:1.164.0',
             'software.amazon.awscdk:s3:1.164.0',
             'software.amazon.awscdk:ec2:1.164.0',
             'software.amazon.awscdk:elasticloadbalancingv2:1.164.0',
             'software.amazon.awscdk:autoscaling:1.164.0',
-            'software.amazon.awscdk:cdk-cx-api:2.21.1'
+            'software.amazon.awscdk:cdk-cx-api:2.27.0'
 
     implementation('org.geotools:gt-main:26.4')
     implementation('org.geotools:gt-epsg-hsql:26.4')
 
     testImplementation 'org.junit.jupiter:junit-jupiter:5.8.2',
             'org.junit.platform:junit-platform-launcher:1.8.2',
-            'org.assertj:assertj-core:3.22.0',
+            'org.assertj:assertj-core:3.23.1',
             'io.dropwizard:dropwizard-testing:' + dropwizardVersion,
             'org.easymock:easymock:4.3',
             'org.seleniumhq.selenium:selenium-java:3.141.59',
@@ -89,7 +89,7 @@ dependencies {
 
     cxfCodegen 'jakarta.xml.ws:jakarta.xml.ws-api:2.3.3'
     cxfCodegen 'jakarta.annotation:jakarta.annotation-api:1.3.5'
-    cxfCodegen 'ch.qos.logback:logback-classic:1.2.7'
+    cxfCodegen 'ch.qos.logback:logback-classic:1.2.11'
     implementation 'com.sun.xml.ws:jaxws-rt:2.3.3'
 }
 
