@@ -50,7 +50,7 @@ dependencies {
     // slf4j in governator was causing race condition with dropwizard start up code on initial get of logger
     implementation('com.netflix.governator:governator:1.17.12') { exclude group:'org.slf4j', module:'slf4j-api'}
     implementation 'com.google.inject:guice:5.1.0'
-    implementation('org.neo4j:neo4j:4.4.8') { exclude group:'org.slf4j', module:'slf4j-nop' }
+    implementation('org.neo4j:neo4j:4.4.9') { exclude group:'org.slf4j', module:'slf4j-nop' }
     implementation 'com.github.cliftonlabs:json-simple:4.0.1',
             'commons-io:commons-io:2.11.0',
             'org.apache.httpcomponents:httpclient:4.5.13',
@@ -65,9 +65,9 @@ dependencies {
     implementation('com.smoketurner:dropwizard-swagger:2.0.12-1')
 
     // aws sdk
-    implementation('software.amazon.awssdk:s3:2.17.209')
-    implementation('software.amazon.awssdk:cloudwatch:2.17.209')
-    implementation('software.amazon.awssdk:cloudformation:2.17.209')
+    implementation('software.amazon.awssdk:s3:2.17.234')
+    implementation('software.amazon.awssdk:cloudwatch:2.17.234')
+    implementation('software.amazon.awssdk:cloudformation:2.17.234')
     // aws cdk
     implementation 'software.amazon.awscdk:core:1.164.0',
             'software.amazon.awscdk:s3:1.164.0',
