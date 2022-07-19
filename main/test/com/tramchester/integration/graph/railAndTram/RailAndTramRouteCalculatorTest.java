@@ -5,15 +5,12 @@ import com.tramchester.ComponentsBuilder;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.Journey;
 import com.tramchester.domain.JourneyRequest;
-import com.tramchester.domain.NumberOfChanges;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
-import com.tramchester.domain.time.TimeRange;
 import com.tramchester.domain.time.TramServiceDate;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.search.RouteCalculator;
-import com.tramchester.graph.search.RouteToRouteCosts;
 import com.tramchester.integration.testSupport.RouteCalculatorTestFacade;
 import com.tramchester.integration.testSupport.TramAndTrainGreaterManchesterConfig;
 import com.tramchester.integration.testSupport.rail.RailStationIds;
@@ -91,29 +88,6 @@ public class RailAndTramRouteCalculatorTest {
     }
 
     @Test
-    void shouldValidHopsBetweenTramAndRail() {
-        TimeRange timeRange = TimeRange.of(TramTime.of(8, 15), TramTime.of(22, 35));
-
-        RouteToRouteCosts routeToRouteCosts = componentContainer.get(RouteToRouteCosts.class);
-        NumberOfChanges result = routeToRouteCosts.getNumberOfChanges(tram(TramStations.Bury), rail(Stockport), Collections.emptySet(), date, timeRange);
-
-        assertTrue(result.getMin()!=Integer.MAX_VALUE);
-        assertTrue(result.getMax()!=Integer.MAX_VALUE);
-    }
-
-    @Test
-    void shouldNotHaveHopsBetweenTramAndRailWhenTramOnly() {
-        TimeRange timeRange = TimeRange.of(TramTime.of(8, 15), TramTime.of(22, 35));
-
-        RouteToRouteCosts routeToRouteCosts = componentContainer.get(RouteToRouteCosts.class);
-        NumberOfChanges result = routeToRouteCosts.getNumberOfChanges(tram(TramStations.Bury), rail(Stockport),
-                Collections.singleton(Tram), date, timeRange);
-
-        assertEquals(Integer.MAX_VALUE, result.getMin());
-        assertEquals(Integer.MAX_VALUE, result.getMax());
-    }
-
-    @Test
     void shouldReproIssueWithInvalidTimes() {
         TramTime time = TramTime.of(10,49);
         JourneyRequest request = new JourneyRequest(new TramServiceDate(when), time, false, 3,
@@ -124,7 +98,7 @@ public class RailAndTramRouteCalculatorTest {
         Station dest = tram(TramStations.Ashton);
 
         Set<Journey> journeys = testFacade.calculateRouteAsSet(start, dest, request);
-        assertFalse(journeys.isEmpty());
+        assertFalse(journeys.isEmpty(), "no journeys");
 
     }
 
@@ -215,7 +189,7 @@ public class RailAndTramRouteCalculatorTest {
                 Duration.ofMinutes(110), 1, getRequestedModes());
 
         Set<Journey> journeys = testFacade.calculateRouteAsSet(tram(TramStations.Bury), rail(Stockport), request);
-        assertFalse(journeys.isEmpty());
+        assertFalse(journeys.isEmpty(),"no journeys");
     }
 
     @Test

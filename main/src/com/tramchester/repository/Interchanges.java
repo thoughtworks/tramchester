@@ -257,4 +257,13 @@ public class Interchanges implements InterchangeRepository {
         return interchanges.size();
     }
 
+    @Override
+    public InterchangeStation getInterchange(Location<?> location) {
+        if (location.getLocationType() == LocationType.Station) {
+            IdFor<Station> stationId = StringIdFor.convert(location.getId());
+            return interchanges.get(stationId);
+        }
+        throw new RuntimeException(location + " is not a station");
+    }
+
 }

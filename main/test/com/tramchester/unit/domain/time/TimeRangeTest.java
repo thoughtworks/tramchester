@@ -46,7 +46,7 @@ public class TimeRangeTest {
         assertTrue(range.contains(timeA.minusMinutes(30)));
 
     }
-    
+
     @Test
     void shouldBehaveOverMidnightBasic() {
         TramTime time = TramTime.of(23,55);
