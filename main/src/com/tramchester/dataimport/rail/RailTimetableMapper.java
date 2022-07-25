@@ -6,8 +6,10 @@ import com.tramchester.dataimport.rail.records.reference.LocationActivityCode;
 import com.tramchester.dataimport.rail.records.reference.TrainCategory;
 import com.tramchester.dataimport.rail.records.reference.TrainStatus;
 import com.tramchester.dataimport.rail.reference.TrainOperatingCompanies;
+import com.tramchester.dataimport.rail.repository.RailRouteIdRepository;
 import com.tramchester.domain.*;
 import com.tramchester.domain.id.IdFor;
+import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.input.MutableTrip;
 import com.tramchester.domain.input.RailPlatformStopCall;
@@ -69,7 +71,7 @@ public class RailTimetableMapper {
     private final Set<RawService> skipped;
 
     public RailTimetableMapper(RailTransportDataFromFiles.StationsTemporary stations, WriteableTransportData container,
-                               RailConfig config, GraphFilterActive filter, BoundingBox bounds) {
+                               RailConfig config, GraphFilterActive filter, BoundingBox bounds, RailRouteIdRepository railRouteRepository) {
 
         currentState = State.Between;
         overlay = false;
@@ -79,8 +81,8 @@ public class RailTimetableMapper {
         skipped = new HashSet<>();
 
         railServiceGroups = new RailServiceGroups(container);
-        processor = new CreatesTransportDataForRail(stations, container, missingStations, travelCombinations,
-                config, filter, bounds, railServiceGroups);
+        processor = new CreatesTransportDataForRail(stations, container, travelCombinations,
+                config, filter, bounds, railServiceGroups, railRouteRepository);
     }
 
     public void seen(RailTimetableRecord record) {
@@ -175,7 +177,7 @@ public class RailTimetableMapper {
         }
     }
 
-    private static class RawService {
+    static class RawService {
 
         private final BasicSchedule basicScheduleRecord;
         private BasicScheduleExtraDetails extraDetails;
@@ -203,6 +205,18 @@ public class RailTimetableMapper {
         public void addScheduleExtra(RailTimetableRecord record) {
             this.extraDetails = (BasicScheduleExtraDetails) record;
         }
+
+        public RailLocationRecord getOriginLocation() {
+            return originLocation;
+        }
+
+        public List<IntermediateLocation> getIntermediateLocations() {
+            return intermediateLocations;
+        }
+
+        public RailLocationRecord getTerminatingLocation() {
+            return terminatingLocation;
+        }
     }
 
     private static class CreatesTransportDataForRail {
@@ -210,27 +224,29 @@ public class RailTimetableMapper {
 
         private final RailTransportDataFromFiles.StationsTemporary stations;
         private final WriteableTransportData container;
-        private final MissingStations missingStations; // stations missing unexpectedly
+//        private final MissingStations missingStations; // stations missing unexpectedly
         private final RailServiceGroups railServiceGroups;
+        private final RailRouteIdRepository railRouteIdRepository;
         private final Set<Pair<TrainStatus, TrainCategory>> travelCombinations;
         private final RailConfig config;
-        private final RailRouteIDBuilder railRouteIDBuilder;
+//        private final RailRouteIDBuilder railRouteIDBuilder;
         private final GraphFilterActive filter;
         private final BoundingBox bounds;
 
         private CreatesTransportDataForRail(RailTransportDataFromFiles.StationsTemporary stations, WriteableTransportData container,
-                                            MissingStations missingStations, Set<Pair<TrainStatus, TrainCategory>> travelCombinations,
-                                            RailConfig config, GraphFilterActive filter, BoundingBox bounds, RailServiceGroups railServiceGroups) {
+                                            Set<Pair<TrainStatus, TrainCategory>> travelCombinations,
+                                            RailConfig config, GraphFilterActive filter, BoundingBox bounds, RailServiceGroups railServiceGroups,
+                                            RailRouteIdRepository railRouteIdRepository) {
             this.stations = stations;
             this.container = container;
-            this.missingStations = missingStations;
+//            this.missingStations = missingStations;
 
             this.travelCombinations = travelCombinations;
             this.config = config;
             this.filter = filter;
             this.bounds = bounds;
             this.railServiceGroups = railServiceGroups;
-            this.railRouteIDBuilder = new RailRouteIDBuilder();
+            this.railRouteIdRepository = railRouteIdRepository;
         }
 
         public void consume(RawService rawService, boolean isOverlay, Set<RawService> skipped) {
@@ -310,9 +326,10 @@ public class RailTimetableMapper {
             // Service
             MutableService service = railServiceGroups.getOrCreateService(basicSchedule, isOverlay);
 
-            final IdFor<Route> routeId = railRouteIDBuilder.getIdFor(agencyId, withinBoundsCallingStations);
-
+            final IdFor<Route> routeId = railRouteIdRepository.getRouteFor(agencyId, withinBoundsCallingStations);
+//            final IdFor<Route> routeId = railRouteIDBuilder.getIdFor(agencyId, withinBoundsCallingStations);
             MutableRoute route = getOrCreateRoute(routeId, rawService, mutableAgency, mode, withinBoundsCallingStations);
+
             route.addService(service);
             mutableAgency.addRoute(route);
 
@@ -343,7 +360,7 @@ public class RailTimetableMapper {
         private boolean populateForLocationIfWithinBounds(RailLocationRecord railLocation, MutableRoute route, MutableTrip trip,
                                                           int stopSequence, TramTime originTime) {
 
-            if (!isLoadedStation(railLocation)) {
+            if (!stations.isLoadedFor(railLocation)) {
                 return false;
             }
 
@@ -430,37 +447,12 @@ public class RailTimetableMapper {
             return stopCall;
         }
 
-//        private void missingStationDiagnosticsFor(RailLocationRecord railLocation, IdFor<Agency> agencyId, BasicSchedule schedule) {
-//            final RailRecordType recordType = railLocation.getRecordType();
-//            boolean intermediate = (recordType==RailRecordType.IntermediateLocation);
-//            if (intermediate) {
-//                return;
-//            }
-//
-//            String tiplocCode = railLocation.getTiplocCode();
-//            missingStations.record(tiplocCode, railLocation, agencyId, schedule);
-//        }
-
-        private boolean isLoadedStation(RailLocationRecord record) {
-            final String tiplocCode = record.getTiplocCode();
-            IdFor<Station> stationId = StringIdFor.createId(tiplocCode);
-            return stations.hasStationId(stationId);
-        }
-
-//        private boolean isLoadedStationAndInbounds(RailLocationRecord record) {
-//
-//            Station station = stations.getMutableStation(stationId);
-//            return bounds.contained(station);
-//        }
-
         private MutableStation findStationFor(RailLocationRecord record) {
-            final String tiplocCode = record.getTiplocCode();
-            IdFor<Station> stationId = StringIdFor.createId(tiplocCode);
             MutableStation station;
-            if (!stations.hasStationId(stationId)) {
-                throw new RuntimeException(format("Missing stationid %s encountered for %s", stationId, record));
+            if (!stations.isLoadedFor(record)) {
+                throw new RuntimeException(format("Missing stationid %s encountered for %s", record.getTiplocCode(), record));
             } else {
-                station = stations.getMutableStation(stationId);
+                station = stations.getMutableStationFor(record);
             }
             stations.markAsNeeded(station);
             return station;
@@ -569,12 +561,16 @@ public class RailTimetableMapper {
         }
 
         private List<Station> getRouteStationCallingPoints(RawService rawService) {
+
             List<Station> result = new ArrayList<>();
-            if (isLoadedStation(rawService.originLocation)) {
+
+            // add the starting point
+            if (stations.isLoadedFor(rawService.originLocation)) {
                 final MutableStation station = findStationFor(rawService.originLocation);
                 result.add(station);
             }
 
+            // add the intermediates
             // TODO for now don't record passed stations (not stopping) but might want to do so in future
             // to assist with live data processing
             final List<IntermediateLocation> callingRecords = rawService.intermediateLocations.stream().
@@ -582,20 +578,21 @@ public class RailTimetableMapper {
                     collect(Collectors.toList());
 
             final List<Station> intermediates = callingRecords.stream().
-                    filter(this::isLoadedStation).
+                    filter(stations::isLoadedFor).
                     map(this::findStationFor).
                     collect(Collectors.toList());
 
             result.addAll(intermediates);
 
-            if (isLoadedStation(rawService.terminatingLocation)) {
+            // add the final station
+            if (stations.isLoadedFor(rawService.terminatingLocation)) {
                 result.add(findStationFor(rawService.terminatingLocation));
             }
 
             if (!filter.isActive()) {
                 if (callingRecords.size() != intermediates.size()) {
                     Set<String> missing = callingRecords.stream().
-                            filter(record -> !isLoadedStation(record)).
+                            filter(record -> !stations.isLoadedFor(record)).
                             map(IntermediateLocation::getTiplocCode).
                             collect(Collectors.toSet());
                     logger.warn(format("Did not match all calling points (got %s of %s) for %s Missing: %s",

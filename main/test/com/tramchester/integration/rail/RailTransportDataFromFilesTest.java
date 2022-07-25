@@ -363,7 +363,7 @@ public class RailTransportDataFromFilesTest {
 
         assertEquals(routes.size(), uniqueCallingPoints.size());
 
-        assertEquals(31, routes.size(), routes.toString());
+        assertEquals(10, routes.size(), routes.toString());
     }
 
     @Test

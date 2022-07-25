@@ -7,8 +7,10 @@ import com.tramchester.dataimport.FetchFileModTime;
 import com.tramchester.dataimport.RemoteDataRefreshed;
 import com.tramchester.dataimport.loader.DirectDataSourceFactory;
 import com.tramchester.dataimport.rail.records.PhysicalStationRecord;
+import com.tramchester.dataimport.rail.records.RailLocationRecord;
 import com.tramchester.dataimport.rail.records.RailTimetableRecord;
 import com.tramchester.dataimport.rail.records.reference.RailInterchangeType;
+import com.tramchester.dataimport.rail.repository.RailRouteIdRepository;
 import com.tramchester.dataimport.rail.repository.RailStationCRSRepository;
 import com.tramchester.domain.DataSourceID;
 import com.tramchester.domain.DataSourceInfo;
@@ -38,6 +40,8 @@ import javax.inject.Inject;
 import java.nio.file.Path;
 import java.time.Duration;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -54,19 +58,20 @@ public class RailTransportDataFromFiles implements DirectDataSourceFactory.Popul
     private final Loader loader;
 
     @Inject
-    public RailTransportDataFromFiles(LoadRailStationRecords loadRailStationRecords,
+    public RailTransportDataFromFiles(ProvidesRailStationRecords providesRailStationRecords,
                                       LoadRailTimetableRecords loadRailTimetableRecords,
-                                      TramchesterConfig config,
-                                      NaptanRepository naptanRepository,
+                                      TramchesterConfig config, NaptanRepository naptanRepository,
                                       GraphFilterActive graphFilterActive, RemoteDataRefreshed remoteDataRefreshed,
-                                      RailStationCRSRepository crsRepository) {
-        railConfig = config.getRailConfig();
-        bounds = config.getBounds();
+                                      RailStationCRSRepository crsRepository, RailRouteIdRepository railRouteRepository) {
+
         this.remoteDataRefreshed = remoteDataRefreshed;
 
-        enabled = (railConfig!=null);
+        enabled = config.hasRailConfig();
 
-        loader = new Loader(loadRailStationRecords, loadRailTimetableRecords, crsRepository,
+        railConfig = config.getRailConfig();
+        bounds = config.getBounds();
+
+        loader = new Loader(providesRailStationRecords, loadRailTimetableRecords, railRouteRepository, crsRepository,
                 naptanRepository, railConfig, graphFilterActive);
     }
 
@@ -118,18 +123,21 @@ public class RailTransportDataFromFiles implements DirectDataSourceFactory.Popul
 
     public static class Loader {
 
-        private final LoadRailStationRecords loadRailStationRecords;
+        private final ProvidesRailStationRecords providesRailStationRecords;
         private final ProvidesRailTimetableRecords providesRailTimetableRecords;
+        private final RailRouteIdRepository railRouteRepository;
         private final RailStationCRSRepository crsRepository;
         private final NaptanRepository naptanRepository;
         private final RailConfig railConfig;
         private final GraphFilterActive graphFilterActive;
 
-        public Loader(LoadRailStationRecords loadRailStationRecords, ProvidesRailTimetableRecords providesRailTimetableRecords,
-                      RailStationCRSRepository crsRepository, NaptanRepository naptanRepository, RailConfig railConfig,
+        public Loader(ProvidesRailStationRecords providesRailStationRecords, ProvidesRailTimetableRecords providesRailTimetableRecords,
+                      RailRouteIdRepository railRouteRepository, RailStationCRSRepository crsRepository,
+                      NaptanRepository naptanRepository, RailConfig railConfig,
                       GraphFilterActive graphFilterActive) {
-            this.loadRailStationRecords = loadRailStationRecords;
+            this.providesRailStationRecords = providesRailStationRecords;
             this.providesRailTimetableRecords = providesRailTimetableRecords;
+            this.railRouteRepository = railRouteRepository;
             this.crsRepository = crsRepository;
             this.naptanRepository = naptanRepository;
             this.railConfig = railConfig;
@@ -139,14 +147,15 @@ public class RailTransportDataFromFiles implements DirectDataSourceFactory.Popul
         public void loadInto(TransportDataContainer dataContainer, BoundingBox bounds) {
 
             logger.info("Load stations");
-            Stream<PhysicalStationRecord> physicalRecords = loadRailStationRecords.load();
+            Stream<PhysicalStationRecord> physicalRecords = providesRailStationRecords.load();
 
             StationsTemporary stationsTemporary =  loadStations(physicalRecords);
             logger.info("Initially loaded " + stationsTemporary.count() + " stations" );
 
             logger.info("Load timetable");
+
             Stream<RailTimetableRecord> timetableRecords = providesRailTimetableRecords.load();
-            processTimetableRecords(stationsTemporary, dataContainer, timetableRecords, bounds);
+            processTimetableRecords(stationsTemporary, dataContainer, timetableRecords, bounds, railRouteRepository);
 
             stationsTemporary.getShouldInclude().forEach(dataContainer::addStation);
 
@@ -189,10 +198,10 @@ public class RailTransportDataFromFiles implements DirectDataSourceFactory.Popul
         }
 
         private void processTimetableRecords(StationsTemporary stationsTemporary, WriteableTransportData dataContainer,
-                                             Stream<RailTimetableRecord> recordStream, BoundingBox bounds) {
+                                             Stream<RailTimetableRecord> recordStream, BoundingBox bounds, RailRouteIdRepository railRouteRepository) {
             logger.info("Process timetable stream");
             RailTimetableMapper mapper = new RailTimetableMapper(stationsTemporary, dataContainer,
-                    railConfig, graphFilterActive, bounds);
+                    railConfig, graphFilterActive, bounds, railRouteRepository);
             recordStream.forEach(mapper::seen);
             mapper.reportDiagnostics();
         }
@@ -235,6 +244,9 @@ public class RailTransportDataFromFiles implements DirectDataSourceFactory.Popul
         }
     }
 
+    /***
+     * Temp holding for stations, so the final transport container only has the stations actually required
+     */
     public static class StationsTemporary {
         private final CompositeIdMap<Station, MutableStation> stations;
         private final IdSet<Station> include;
@@ -277,6 +289,44 @@ public class RailTransportDataFromFiles implements DirectDataSourceFactory.Popul
 
         public int countNeeded() {
             return include.size();
+        }
+
+        public boolean isLoadedFor(RailLocationRecord record) {
+            final String tiplocCode = record.getTiplocCode();
+            IdFor<Station> stationId = StringIdFor.createId(tiplocCode);
+            return hasStationId(stationId);
+        }
+
+        public MutableStation getMutableStationFor(RailLocationRecord record) {
+            final String tiplocCode = record.getTiplocCode();
+            IdFor<Station> stationId = StringIdFor.createId(tiplocCode);
+            return getMutableStation(stationId);
+        }
+
+        public List<Station> getLoadedFor(RailTimetableMapper.RawService rawService) {
+            List<Station> results = new ArrayList<>();
+
+            // add the starting point
+            if (isLoadedFor(rawService.getOriginLocation())) {
+                final MutableStation station = getMutableStationFor(rawService.getOriginLocation());
+                results.add(station);
+            }
+
+            final List<Station> intermediates = rawService.getIntermediateLocations().stream().
+                    filter(this::isLoadedFor).
+                    map(this::getMutableStationFor).
+                    collect(Collectors.toList());
+
+            results.addAll(intermediates);
+
+            // add the final station
+            if (isLoadedFor(rawService.getTerminatingLocation())) {
+                results.add(getMutableStationFor(rawService.getTerminatingLocation()));
+            }
+
+            results.forEach(this::markAsNeeded);
+
+            return results;
         }
 
     }

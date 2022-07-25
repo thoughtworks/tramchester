@@ -174,4 +174,8 @@ public abstract class TramchesterConfig extends Configuration implements HasRemo
     public abstract boolean hasNeighbourConfig();
 
     public abstract String getDistributionBucket();
+
+    public boolean hasRailConfig() {
+        return getRailConfig()!=null;
+    }
 }

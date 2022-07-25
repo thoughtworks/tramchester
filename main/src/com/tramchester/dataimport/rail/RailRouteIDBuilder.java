@@ -1,11 +1,13 @@
 package com.tramchester.dataimport.rail;
 
+import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.domain.Agency;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.places.Station;
 
+import javax.inject.Inject;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -13,16 +15,18 @@ import java.util.stream.Collectors;
 
 import static java.lang.String.format;
 
+@LazySingleton
 public class RailRouteIDBuilder {
     private final Map<IdFor<Route>, Integer> baseIdToIndex;
     private final Map<AgencyCallingPoints, IdFor<Route>> callingPointsToId;
 
+    @Inject
     public RailRouteIDBuilder() {
         baseIdToIndex = new HashMap<>();
         callingPointsToId = new HashMap<>();
     }
 
-    public IdFor<Route> getIdFor(IdFor<Agency> agencyId, List<Station> callingPoints) {
+    public IdFor<Route> getIdFor(IdFor<Agency> agencyId, List<IdFor<Station>> callingPoints) {
         // form unique route id based on the atoc code and list of calling points
         // have to include agency id since different agencies might serve same calling points
 
@@ -50,9 +54,9 @@ public class RailRouteIDBuilder {
 
     }
 
-    private String createBaseIdForRoute(String atocCode, List<Station> callingPoints) {
-        String firstName = callingPoints.get(0).getId().forDTO();
-        String lastName = callingPoints.get(callingPoints.size()-1).getId().forDTO();
+    private String createBaseIdForRoute(String atocCode, List<IdFor<Station>> callingPoints) {
+        String firstName = callingPoints.get(0).forDTO();
+        String lastName = callingPoints.get(callingPoints.size()-1).forDTO();
         return format("%s:%s=>%s", atocCode, firstName, lastName);
     }
 
@@ -60,8 +64,9 @@ public class RailRouteIDBuilder {
         private final IdFor<Agency> agencyId;
         private final List<IdFor<Station>> callingPoints;
 
-        private AgencyCallingPoints(IdFor<Agency> agencyId, List<Station> stationCallingPoints) {
-            this.callingPoints = stationCallingPoints.stream().map(Station::getId).collect(Collectors.toList());
+        private AgencyCallingPoints(IdFor<Agency> agencyId, List<IdFor<Station>> stationCallingPoints) {
+            //this.callingPoints = stationCallingPoints.stream().map(Station::getId).collect(Collectors.toList());
+            this.callingPoints = stationCallingPoints;
             this.agencyId = agencyId;
         }
 

@@ -20,8 +20,8 @@ import java.util.Map;
 import java.util.stream.Stream;
 
 @LazySingleton
-public class LoadRailStationRecords {
-    private static final Logger logger = LoggerFactory.getLogger(LoadRailStationRecords.class);
+public class ProvidesRailStationRecords {
+    private static final Logger logger = LoggerFactory.getLogger(ProvidesRailStationRecords.class);
 
     private final Path filePath;
     private final Map<String, RecordType> recordTypes;
@@ -35,7 +35,7 @@ public class LoadRailStationRecords {
     }
 
     @Inject
-    public LoadRailStationRecords(TramchesterConfig config, UnzipFetchedData.Ready ready) {
+    public ProvidesRailStationRecords(TramchesterConfig config, UnzipFetchedData.Ready ready) {
         RailConfig railConfig = config.getRailConfig();
         enabled = (railConfig!=null);
         if (enabled) {

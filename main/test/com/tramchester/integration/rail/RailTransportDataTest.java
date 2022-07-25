@@ -7,6 +7,7 @@ import com.tramchester.config.TramchesterConfig;
 import com.tramchester.dataimport.UnzipFetchedData;
 import com.tramchester.dataimport.rail.*;
 import com.tramchester.dataimport.rail.records.RailTimetableRecord;
+import com.tramchester.dataimport.rail.repository.RailRouteIdRepository;
 import com.tramchester.dataimport.rail.repository.RailStationCRSRepository;
 import com.tramchester.domain.Service;
 import com.tramchester.domain.id.IdFor;
@@ -19,7 +20,6 @@ import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.filters.GraphFilterActive;
 import com.tramchester.integration.testSupport.rail.IntegrationRailTestConfig;
 import com.tramchester.integration.testSupport.rail.RailStationIds;
-import com.tramchester.repository.StationRepository;
 import com.tramchester.repository.TransportData;
 import com.tramchester.repository.TransportDataContainer;
 import com.tramchester.repository.naptan.NaptanRepository;
@@ -50,10 +50,11 @@ public class RailTransportDataTest {
     private RailStationCRSRepository crsRepository;
     private NaptanRepository naptanRepository;
     private GraphFilterActive filter;
-    private LoadRailStationRecords loadRailStationRecords;
+    private ProvidesRailStationRecords providesRailStationRecords;
     private RailDataRecordFactory railDataRecordFactory;
     private UnzipFetchedData.Ready ready;
     private TransportDataContainer dataContainer;
+    private RailRouteIdRepository railRouteIdRepository;
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
@@ -73,8 +74,9 @@ public class RailTransportDataTest {
         naptanRepository = componentContainer.get(NaptanRepository.class);
         filter = componentContainer.get(GraphFilterActive.class);
         ProvidesNow providesNow = componentContainer.get(ProvidesNow.class);
-        loadRailStationRecords = componentContainer.get(LoadRailStationRecords.class);
+        providesRailStationRecords = componentContainer.get(ProvidesRailStationRecords.class);
         railDataRecordFactory = componentContainer.get(RailDataRecordFactory.class);
+        railRouteIdRepository = componentContainer.get(RailRouteIdRepository.class);
         ready = componentContainer.get(UnzipFetchedData.Ready.class);
 
         // getting station repository triggers full load of timetable data, slowing down these tests a LOT
@@ -434,8 +436,8 @@ public class RailTransportDataTest {
 
         RailConfig railConfig = config.getRailConfig();
 
-        RailTransportDataFromFiles.Loader loader = new RailTransportDataFromFiles.Loader(loadRailStationRecords, loadTimeTableRecords,
-                crsRepository, naptanRepository, railConfig, filter);
+        RailTransportDataFromFiles.Loader loader = new RailTransportDataFromFiles.Loader(providesRailStationRecords, loadTimeTableRecords,
+                railRouteIdRepository, crsRepository, naptanRepository, railConfig, filter);
 
         loader.loadInto(dataContainer, config.getBounds());
         return dataContainer;

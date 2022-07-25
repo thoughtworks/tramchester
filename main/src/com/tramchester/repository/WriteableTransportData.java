@@ -50,7 +50,6 @@ public interface WriteableTransportData {
 
     ////
 
-    MutableStation getMutableStation(IdFor<Station> stationId);
     MutablePlatform getMutablePlatform(IdFor<Platform> id);
     MutableService getMutableService(IdFor<Service> serviceId);
     MutableRoute getMutableRoute(IdFor<Route> id);

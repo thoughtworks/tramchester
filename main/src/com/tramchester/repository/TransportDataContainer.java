@@ -284,11 +284,6 @@ public class TransportDataContainer implements TransportData, WriteableTransport
     }
 
     @Override
-    public MutableStation getMutableStation(IdFor<Station> stationId) {
-        return stationsById.get(stationId);
-    }
-
-    @Override
     public Set<DataSourceInfo> getDataSourceInfo() {
         return Collections.unmodifiableSet(dataSourceInfos);
     }
