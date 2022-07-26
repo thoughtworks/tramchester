@@ -13,7 +13,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 public class ServedRoute {
-    
+
     private final Set<RouteAndService> routeAndServices;
     private final Map<RouteAndService, TimeRange> timeWindows;
 
