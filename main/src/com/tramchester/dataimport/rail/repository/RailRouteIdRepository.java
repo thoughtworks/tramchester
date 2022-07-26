@@ -1,5 +1,8 @@
 package com.tramchester.dataimport.rail.repository;
 
+import com.github.benmanes.caffeine.cache.Cache;
+import com.github.benmanes.caffeine.cache.Caffeine;
+import com.github.benmanes.caffeine.cache.stats.CacheStats;
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.dataimport.rail.ProvidesRailTimetableRecords;
@@ -12,6 +15,9 @@ import com.tramchester.domain.Route;
 import com.tramchester.domain.StationIdPair;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.places.Station;
+import com.tramchester.metrics.CacheMetrics;
+import com.tramchester.repository.ReportsCacheStats;
+import org.apache.commons.lang3.tuple.Pair;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,6 +26,7 @@ import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.inject.Inject;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -27,21 +34,32 @@ import java.util.stream.Stream;
  * Used to create initial view of rail routes as part of rail data import, not expected to be used apart from this
  */
 @LazySingleton
-public class RailRouteIdRepository {
+public class RailRouteIdRepository implements ReportsCacheStats {
     private static final Logger logger = LoggerFactory.getLogger(RailRouteIdRepository.class);
+    public static final int CACHED_ROUTES_SIZE = 6000 * 2; // approx 6000 rail routes
 
     private final ProvidesRailTimetableRecords providesRailTimetableRecords;
     private final RailRouteIDBuilder railRouteIDBuilder;
     private final Map<IdFor<Agency>, List<AgencyCallingPointsWithRouteId>> idMap;
     private final boolean enabled;
 
+    // many repeated calls during rail data load, caching helps significantly with performance
+    private final Cache<AgencyCallingPoints, IdFor<Route>> cachedIds;
+
     @Inject
     public RailRouteIdRepository(ProvidesRailTimetableRecords providesRailTimetableRecords,
-                                 RailRouteIDBuilder railRouteIDBuilder, TramchesterConfig config) {
+                                 RailRouteIDBuilder railRouteIDBuilder, TramchesterConfig config,
+                                 CacheMetrics cacheMetrics) {
         this.providesRailTimetableRecords = providesRailTimetableRecords;
         this.railRouteIDBuilder = railRouteIDBuilder;
         enabled = config.hasRailConfig();
         idMap = new HashMap<>();
+
+        // only used during load, hence very short duration
+        cachedIds = Caffeine.newBuilder().maximumSize(CACHED_ROUTES_SIZE).expireAfterAccess(2, TimeUnit.MINUTES).
+                recordStats().build();
+
+        cacheMetrics.register(this);
 
     }
 
@@ -58,8 +76,9 @@ public class RailRouteIdRepository {
     }
 
     @PreDestroy
-    public void stop() {
+    public void dispose() {
         idMap.clear();
+        cachedIds.invalidateAll();
     }
 
     private void createRailRoutesFor(ProvidesRailTimetableRecords providesRailTimetableRecords) {
@@ -174,6 +193,15 @@ public class RailRouteIdRepository {
     }
 
     public IdFor<Route> getRouteIdForCallingPointsAndAgency(IdFor<Agency> agencyId, List<IdFor<Station>> callingStationsIds) {
+
+        AgencyCallingPoints agencyCallingPoints = new AgencyCallingPoints(agencyId, callingStationsIds);
+
+        return cachedIds.get(agencyCallingPoints, unused -> getOrCreateRoute(agencyId, callingStationsIds));
+
+    }
+
+    private IdFor<Route> getOrCreateRoute(IdFor<Agency> agencyId, List<IdFor<Station>> callingStationsIds) {
+
         List<AgencyCallingPointsWithRouteId> forAgency = idMap.get(agencyId);
 
         // the calling points for agencies are sorted by shortest first at creation time, so here can just take the
@@ -195,13 +223,20 @@ public class RailRouteIdRepository {
             return id;
         }
 
-        AgencyCallingPointsWithRouteId lowestSizeMatch = forAgency.get(index); // results.get();
+        AgencyCallingPointsWithRouteId lowestSizeMatch = forAgency.get(index);
+
 //        if (lowestSizeMatch.numberCallingPoints() != callingStationsIds.size()) {
 //            logger.debug("Mismatch on number of calling points for " + callingStationsIds + " and results " + lowestSizeMatch);
 //        }
 
         return lowestSizeMatch.getRouteId();
+    }
 
+    @Override
+    public List<Pair<String, CacheStats>> stats() {
+        List<Pair<String,CacheStats>> result = new ArrayList<>();
+        result.add(Pair.of("routeIdCache", cachedIds.stats()));
+        return result;
     }
 
     private static class RouteExtractor {
