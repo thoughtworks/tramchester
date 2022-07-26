@@ -64,11 +64,6 @@ public class TerminatingLocation extends OriginOrTerminatingLocation implements 
     }
 
     @Override
-    public boolean isPassingRecord() {
-        return false;
-    }
-
-    @Override
     public RailRecordType getRecordType() {
         return RailRecordType.TerminatingLocation;
     }

@@ -281,12 +281,14 @@ public class RailTimetableMapper {
             // assists with diagnosing data issues
             travelCombinations.add(Pair.of(basicSchedule.getTrainStatus(), basicSchedule.getTrainCategory()));
 
-            TransportMode mode = RailTransportModeMapper.getModeFor(rawService.basicScheduleRecord);
+            final TransportMode mode = RailTransportModeMapper.getModeFor(rawService.basicScheduleRecord);
 
             final String uniqueTrainId = basicSchedule.getUniqueTrainId();
             if (!shouldInclude(mode)) {
-                logger.debug(format("Skipping %s of category %s and status %s", uniqueTrainId, basicSchedule.getTrainCategory(),
-                        basicSchedule.getTrainStatus()));
+                if (logger.isDebugEnabled()) {
+                    logger.debug(format("Skipping %s of category %s and status %s", uniqueTrainId, basicSchedule.getTrainCategory(),
+                            basicSchedule.getTrainStatus()));
+                }
                 railServiceGroups.recordSkip(basicSchedule);
                 return false;
             }
@@ -295,11 +297,11 @@ public class RailTimetableMapper {
             final List<IntermediateLocation> intermediateLocations = rawService.intermediateLocations;
             final TerminatingLocation terminatingLocation = rawService.terminatingLocation;
 
-            logger.debug("Create schedule for " + uniqueTrainId);
+            //logger.debug("Create schedule for " + uniqueTrainId);
             final String atocCode = rawService.extraDetails.getAtocCode();
 
             // Agency
-            MutableAgency mutableAgency = getOrCreateAgency(atocCode);
+            final MutableAgency mutableAgency = getOrCreateAgency(atocCode);
 
             final IdFor<Agency> agencyId = mutableAgency.getId();
 
@@ -323,16 +325,16 @@ public class RailTimetableMapper {
             }
 
             // Service
-            MutableService service = railServiceGroups.getOrCreateService(basicSchedule, isOverlay);
+            final MutableService service = railServiceGroups.getOrCreateService(basicSchedule, isOverlay);
 
             final IdFor<Route> routeId = railRouteIdRepository.getRouteFor(agencyId, withinBoundsCallingStations);
-            MutableRoute route = getOrCreateRoute(routeId, rawService, mutableAgency, mode, withinBoundsCallingStations);
+            final MutableRoute route = getOrCreateRoute(routeId, rawService, mutableAgency, mode, withinBoundsCallingStations);
 
             route.addService(service);
             mutableAgency.addRoute(route);
 
             // Trip
-            MutableTrip trip = getOrCreateTrip(basicSchedule, service, route, mode);
+            final MutableTrip trip = getOrCreateTrip(basicSchedule, service, route, mode);
             route.addTrip(trip);
 
             final TramTime originTime = originLocation.getDeparture();
@@ -355,14 +357,15 @@ public class RailTimetableMapper {
             return config.getModes().contains(mode);
         }
 
-        private boolean populateForLocationIfWithinBounds(RailLocationRecord railLocation, MutableRoute route, MutableTrip trip,
-                                                          int stopSequence, TramTime originTime) {
+        private boolean populateForLocationIfWithinBounds(final RailLocationRecord railLocation,
+                                                          final MutableRoute route, final MutableTrip trip,
+                                                          final int stopSequence, final TramTime originTime) {
 
             if (!stations.isLoadedFor(railLocation)) {
                 return false;
             }
 
-            MutableStation station = findStationFor(railLocation);
+            final MutableStation station = findStationFor(railLocation);
 
             if (!bounds.contained(station)) {
                 return false;
@@ -375,35 +378,35 @@ public class RailTimetableMapper {
             MutablePlatform platform = getOrCreatePlatform(station, railLocation, areaId);
             station.addPlatform(platform);
 
-            boolean doesPickup = LocationActivityCode.doesPickup(activity);
-            boolean doesDropOff = LocationActivityCode.doesDropOff(activity);
+            final boolean doesPickup = LocationActivityCode.doesPickup(activity);
+            final boolean doesDropOff = LocationActivityCode.doesDropOff(activity);
 
-            Service service = trip.getService();
+            final Service service = trip.getService();
 
             if (doesDropOff) {
-                TramTime arrivalTime = getDayAdjusted(railLocation.getArrival(), originTime);
+                final TramTime arrivalTime = getDayAdjusted(railLocation.getArrival(), originTime);
                 station.addRouteDropOff(route, service, arrivalTime);
                 platform.addRouteDropOff(route, service, arrivalTime);
             }
             if (doesPickup) {
-                TramTime departureTime = getDayAdjusted(railLocation.getDeparture(), originTime);
+                final TramTime departureTime = getDayAdjusted(railLocation.getDeparture(), originTime);
                 station.addRoutePickUp(route, service, departureTime);
                 platform.addRoutePickUp(route, service, departureTime);
             }
 
             // Route Station
-            RouteStation routeStation = new RouteStation(station, route);
+            final RouteStation routeStation = new RouteStation(station, route);
             container.addRouteStation(routeStation);
 
-            StopCall stopCall;
+            final StopCall stopCall;
             if (railLocation.doesStop()) {
                 // TODO this doesn't cope with journeys that cross 2 days....
-                TramTime arrivalTime = getDayAdjusted(railLocation.getArrival(), originTime);
-                TramTime departureTime = getDayAdjusted(railLocation.getDeparture(), originTime);
+                final TramTime arrivalTime = getDayAdjusted(railLocation.getArrival(), originTime);
+                final TramTime departureTime = getDayAdjusted(railLocation.getDeparture(), originTime);
 
                 // TODO Request stops?
-                GTFSPickupDropoffType pickup = doesPickup ? Regular : None;
-                GTFSPickupDropoffType dropoff = doesDropOff ? Regular : None;
+                final GTFSPickupDropoffType pickup = doesPickup ? Regular : None;
+                final GTFSPickupDropoffType dropoff = doesDropOff ? Regular : None;
                 stopCall = createStopCall(trip, station, platform, stopSequence, arrivalTime, departureTime, pickup, dropoff);
 
                 if (Durations.greaterThan(TramTime.difference(arrivalTime, departureTime), Duration.ofMinutes(60))) {
@@ -483,14 +486,14 @@ public class RailTimetableMapper {
             return mutableAgency;
         }
 
-        private MutablePlatform getOrCreatePlatform(MutableStation originStation, RailLocationRecord originLocation, IdFor<NaptanArea> areaId) {
+        private MutablePlatform getOrCreatePlatform(Station originStation, RailLocationRecord originLocation, IdFor<NaptanArea> areaId) {
             String platformNumber = originLocation.getPlatform();
             if (platformNumber.isBlank()) {
                 platformNumber = "UNK";
             }
 
             final IdFor<Platform> platformId = StringIdFor.createId(originLocation.getTiplocCode() + ":" + platformNumber);
-            MutablePlatform platform;
+            final MutablePlatform platform;
             if (container.hasPlatformId(platformId)) {
                 platform = container.getMutablePlatform(platformId);
             } else {

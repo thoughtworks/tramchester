@@ -267,7 +267,7 @@ public class RailTransportDataFromFiles implements DirectDataSourceFactory.Popul
                     collect(Collectors.toSet());
         }
 
-        public boolean hasStationId(IdFor<Station> stationId) {
+        private boolean hasStationId(IdFor<Station> stationId) {
             return stations.hasId(stationId);
         }
 
@@ -304,31 +304,31 @@ public class RailTransportDataFromFiles implements DirectDataSourceFactory.Popul
             return getMutableStation(stationId);
         }
 
-        public List<Station> getLoadedFor(RailTimetableMapper.RawService rawService) {
-            List<Station> results = new ArrayList<>();
-
-            // add the starting point
-            if (isLoadedFor(rawService.getOriginLocation())) {
-                final MutableStation station = getMutableStationFor(rawService.getOriginLocation());
-                results.add(station);
-            }
-
-            final List<Station> intermediates = rawService.getIntermediateLocations().stream().
-                    filter(this::isLoadedFor).
-                    map(this::getMutableStationFor).
-                    collect(Collectors.toList());
-
-            results.addAll(intermediates);
-
-            // add the final station
-            if (isLoadedFor(rawService.getTerminatingLocation())) {
-                results.add(getMutableStationFor(rawService.getTerminatingLocation()));
-            }
-
-            results.forEach(this::markAsNeeded);
-
-            return results;
-        }
+//        public List<Station> getLoadedFor(RailTimetableMapper.RawService rawService) {
+//            List<Station> results = new ArrayList<>();
+//
+//            // add the starting point
+//            if (isLoadedFor(rawService.getOriginLocation())) {
+//                final MutableStation station = getMutableStationFor(rawService.getOriginLocation());
+//                results.add(station);
+//            }
+//
+//            final List<Station> intermediates = rawService.getIntermediateLocations().stream().
+//                    filter(this::isLoadedFor).
+//                    map(this::getMutableStationFor).
+//                    collect(Collectors.toList());
+//
+//            results.addAll(intermediates);
+//
+//            // add the final station
+//            if (isLoadedFor(rawService.getTerminatingLocation())) {
+//                results.add(getMutableStationFor(rawService.getTerminatingLocation()));
+//            }
+//
+//            results.forEach(this::markAsNeeded);
+//
+//            return results;
+//        }
 
     }
 

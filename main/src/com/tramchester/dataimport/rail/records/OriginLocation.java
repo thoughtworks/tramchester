@@ -58,11 +58,6 @@ public class OriginLocation extends OriginOrTerminatingLocation  implements Rail
     }
 
     @Override
-    public boolean isPassingRecord() {
-        return false;
-    }
-
-    @Override
     public String toString() {
         return "OriginLocation{" +
                 "line='" + line + '\'' +

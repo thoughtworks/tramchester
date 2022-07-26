@@ -158,8 +158,8 @@ public class IntermediateLocationTest {
         assertEquals(7, intermediateLocation.getTiplocCode().length());
         assertEquals("KEWGRDN", intermediateLocation.getTiplocCode());
 
-        assertFalse(intermediateLocation.getPublicArrival().isValid());
-        assertFalse(intermediateLocation.getPublicDeparture().isValid());
+        //assertFalse(intermediateLocation.getPublicArrival().isValid());
+        //assertFalse(intermediateLocation.getPublicDeparture().isValid());
 
         //assertTrue(intermediateLocation.isPassingRecord());
         assertEquals(TramTime.of(20,10), intermediateLocation.getPassingTime());

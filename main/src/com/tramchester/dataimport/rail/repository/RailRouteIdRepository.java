@@ -77,8 +77,10 @@ public class RailRouteIdRepository implements ReportsCacheStats {
 
     @PreDestroy
     public void dispose() {
+        logger.info("Stopping");
         idMap.clear();
         cachedIds.invalidateAll();
+        logger.info("stopped");
     }
 
     private void createRailRoutesFor(ProvidesRailTimetableRecords providesRailTimetableRecords) {

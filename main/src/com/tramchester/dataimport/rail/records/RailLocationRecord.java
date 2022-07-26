@@ -17,8 +17,5 @@ public interface RailLocationRecord extends RailTimetableRecord {
     boolean isTerminating();
     boolean doesStop();
 
-    @Deprecated
-    boolean isPassingRecord();
-
     TramTime getPassingTime();
 }

@@ -21,14 +21,10 @@ package com.tramchester.dataimport.rail.records;
 import com.tramchester.dataimport.rail.RailRecordType;
 import com.tramchester.dataimport.rail.records.reference.LocationActivityCode;
 import com.tramchester.domain.time.TramTime;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.EnumSet;
 
 public class IntermediateLocation implements RailLocationRecord {
-    private static final Logger logger = LoggerFactory.getLogger(IntermediateLocation.class);
-    public static final TramTime missingPublicTime = TramTime.of(0, 0);
 
     private final String tiplocCode;
     private final TramTime publicArrival;
@@ -58,35 +54,18 @@ public class IntermediateLocation implements RailLocationRecord {
         final TramTime scheduledArrival = RecordHelper.extractTime(text, 10,14);
         final TramTime scheduledDepart = RecordHelper.extractTime(text, 15, 19);
         final TramTime passingTime = RecordHelper.extractTime(text, 20, 23+1);
-        final boolean isPassing = passingTime.isValid();
-        final TramTime publicArrival = getPublicTime(text, isPassing, 25, 28 + 1);
-        final TramTime publicDeparture = getPublicTime(text, isPassing, 29, 32+1);
+        final TramTime publicArrival = getPublicTime(text, 25, 28 + 1);
+        final TramTime publicDeparture = getPublicTime(text, 29, 32+1);
         final String platform = RecordHelper.extract(text, 34, 36+1);
 
         final EnumSet<LocationActivityCode> activity = LocationActivityCode.parse(RecordHelper.extract(text,43,54));
-
-        if (!isPassing) {
-            if (!scheduledArrival.isValid() && !publicArrival.isValid()) {
-                throw new RuntimeException("No valid arrival time in " + text);
-            }
-            if (!scheduledDepart.isValid() && !publicDeparture.isValid()) {
-                throw new RuntimeException("No valid depart time in " + text);
-            }
-        }
 
         return new IntermediateLocation(tiplocCode, scheduledArrival, scheduledDepart, publicArrival, publicDeparture,
                 platform, passingTime, activity);
     }
 
-    private static TramTime getPublicTime(String text, boolean isPassing, int begin, int end) {
-        TramTime result = RecordHelper.extractTime(text, begin, end);
-        if (isPassing) {
-            if (!result.equals(missingPublicTime)) {
-                logger.warn("Passing is set but valid public time of " + result);
-            }
-            return TramTime.invalid();
-        }
-        return result;
+    private static TramTime getPublicTime(String text, int begin, int end) {
+        return RecordHelper.extractTime(text, begin, end);
     }
 
     public String getTiplocCode() {
@@ -95,19 +74,11 @@ public class IntermediateLocation implements RailLocationRecord {
 
     @Override
     public TramTime getArrival() {
-        // todo subtype passing records?
-        if (this.isPassingRecord()) {
-            throw new RuntimeException("getArrival called on a passing record: " + this);
-        }
         return pickPublicOrSchedule(publicArrival, scheduledArrival);
     }
 
     @Override
     public TramTime getDeparture() {
-        // todo subtype passing records?
-        if (this.isPassingRecord()) {
-            throw new RuntimeException("getDeparture called on a passing record: " + this);
-        }
         return pickPublicOrSchedule(publicDeparture, scheduledDepart);
     }
 
@@ -172,12 +143,6 @@ public class IntermediateLocation implements RailLocationRecord {
         result = 31 * result + publicDeparture.hashCode();
         result = 31 * result + platform.hashCode();
         return result;
-    }
-
-    @Deprecated
-    @Override
-    public boolean isPassingRecord() {
-        return passingTime.isValid();
     }
 
     public TramTime getPassingTime() {
