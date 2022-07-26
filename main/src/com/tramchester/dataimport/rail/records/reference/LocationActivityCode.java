@@ -47,12 +47,14 @@ public enum LocationActivityCode implements EnumMap.HasCodes<LocationActivityCod
     // additional codes added
     None("");
 
-    private static final EnumSet<LocationActivityCode> dropOffs = EnumSet.of(TrainFinishes, StopsToSetDownPassengers, StopsToTakeUpAndSetDownPassengers);
-    private static final EnumSet<LocationActivityCode> pickUps = EnumSet.of(TrainBegins, StopsToTakeUpPassengers, StopsToTakeUpAndSetDownPassengers);
+    private static final EnumSet<LocationActivityCode> dropOffs = EnumSet.of(TrainFinishes, StopsToSetDownPassengers,
+            StopsToTakeUpAndSetDownPassengers, StopsWhenRequired);
+    private static final EnumSet<LocationActivityCode> pickUps = EnumSet.of(TrainBegins, StopsToTakeUpPassengers,
+            StopsToTakeUpAndSetDownPassengers, StopsWhenRequired);
 
     private static final EnumSet<LocationActivityCode> stops = EnumSet.of(TrainBegins, TrainFinishes,
             StopsToSetDownPassengers, StopsToTakeUpPassengers,
-            StopsToTakeUpAndSetDownPassengers);
+            StopsToTakeUpAndSetDownPassengers, StopsWhenRequired);
 
     private final String code;
 

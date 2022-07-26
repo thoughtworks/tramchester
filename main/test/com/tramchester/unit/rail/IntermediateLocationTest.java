@@ -6,6 +6,8 @@ import com.tramchester.domain.time.TramTime;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Test;
 
+import java.util.EnumSet;
+
 import static com.tramchester.dataimport.rail.records.reference.LocationActivityCode.StopsToTakeUpAndSetDownPassengers;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -108,6 +110,18 @@ public class IntermediateLocationTest {
         assertEquals("1", intermediateLocation.getPlatform());
         assertTrue(intermediateLocation.doesStop());
 
+    }
+
+    @Test
+    void shouldParseRequestStop() {
+        String text = "LIHOPTONH 2158 2158H     21582158         R";
+
+        IntermediateLocation intermediateLocation = parseWithPadding(text);
+
+        assertEquals("HOPTONH", intermediateLocation.getTiplocCode());
+
+        assertEquals(EnumSet.of(LocationActivityCode.StopsWhenRequired), intermediateLocation.getActivity());
+        assertTrue(intermediateLocation.doesStop(), intermediateLocation.toString());
     }
 
     @Test

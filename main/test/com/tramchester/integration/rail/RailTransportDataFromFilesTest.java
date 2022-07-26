@@ -446,7 +446,17 @@ public class RailTransportDataFromFilesTest {
 
         assertEquals(12, stopCalls.numberOfCallingPoints());
         assertEquals(11, stopCalls.getLegs(false).size());
+    }
 
+    @Test
+    void shouldHaveTransportModeSetForARequestStop() {
+
+        // this station is only listed as a request stop in the timetable
+        Station station = transportData.getStationById(StringIdFor.createId("HOPTONH"));
+
+        Set<TransportMode> modes = station.getTransportModes();
+        assertFalse(modes.isEmpty(), station.toString());
+        assertTrue(modes.contains(Train), station.toString());
     }
 
 
