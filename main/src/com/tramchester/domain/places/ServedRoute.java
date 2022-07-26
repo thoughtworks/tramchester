@@ -2,31 +2,49 @@ package com.tramchester.domain.places;
 
 import com.tramchester.domain.Route;
 import com.tramchester.domain.Service;
+import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TimeRange;
 import com.tramchester.domain.time.TramTime;
 import org.jetbrains.annotations.NotNull;
 
 import java.time.LocalDate;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class ServedRoute {
-
+    
     private final Set<RouteAndService> routeAndServices;
     private final Map<RouteAndService, TimeRange> timeWindows;
+
+    private final IdSet<Route> routeIds; // for performance, significant
+    private final EnumSet<TransportMode> modes; // for performance, significant
 
     public ServedRoute() {
         routeAndServices = new HashSet<>();
         timeWindows = new HashMap<>();
+        routeIds = new IdSet<>();
+        modes = EnumSet.noneOf(TransportMode.class);
+    }
+
+    public void add(Route route, Service service, TramTime callingTime) {
+        RouteAndService routeAndService = new RouteAndService(route, service);
+        routeAndServices.add(routeAndService);
+
+        if (callingTime.isValid()) {
+            if (timeWindows.containsKey(routeAndService)) {
+                timeWindows.get(routeAndService).updateToInclude(callingTime);
+            } else {
+                timeWindows.put(routeAndService, new TimeRange(callingTime));
+            }
+        }
+
+        routeIds.add(route.getId());
+        modes.add(route.getTransportMode());
     }
 
     public boolean serves(TransportMode mode) {
-        return routeAndServices.stream().map(RouteAndService::getRoute).
-                anyMatch(route -> route.getTransportMode().equals(mode));
+        return modes.contains(mode);
     }
 
     public boolean isEmpty() {
@@ -34,7 +52,7 @@ public class ServedRoute {
     }
 
     /***
-     * Use the version that takes a date
+     * Use the version that takes a date?
      * @return all the routes
      */
     @Deprecated
@@ -79,20 +97,7 @@ public class ServedRoute {
      */
     @Deprecated
     public boolean contains(Route route) {
-        return routeAndServices.stream().map(RouteAndService::getRoute).anyMatch(item -> item.equals(route));
-    }
-
-    public void add(Route route, Service service, TramTime callingTime) {
-        RouteAndService routeAndService = new RouteAndService(route, service);
-        routeAndServices.add(routeAndService);
-
-        if (callingTime.isValid()) {
-            if (timeWindows.containsKey(routeAndService)) {
-                timeWindows.get(routeAndService).updateToInclude(callingTime);
-            } else {
-                timeWindows.put(routeAndService, new TimeRange(callingTime));
-            }
-        }
+        return routeIds.contains(route.getId());
     }
 
     @Override
@@ -104,6 +109,6 @@ public class ServedRoute {
     }
 
     public Set<TransportMode> getTransportModes() {
-        return routeAndServices.stream().map(RouteAndService::getTransportMode).collect(Collectors.toSet());
+        return Collections.unmodifiableSet(modes);
     }
 }
