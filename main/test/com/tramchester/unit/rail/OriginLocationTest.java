@@ -23,7 +23,8 @@ public class OriginLocationTest {
         assertEquals(TramTime.of(12, 38), originLocation.getDeparture());
         assertEquals("4A", originLocation.getPlatform());
         assertEquals("", originLocation.getLine());
-        assertFalse(originLocation.getActivity().isEmpty());
+
+        assertEquals(1,originLocation.getActivity().size());
         assertTrue(originLocation.getActivity().contains(LocationActivityCode.TrainBegins));
 
     }
@@ -41,7 +42,8 @@ public class OriginLocationTest {
         assertEquals(TramTime.of(17, 49), originLocation.getDeparture());
         assertEquals("4B", originLocation.getPlatform());
         assertEquals("DTS", originLocation.getLine());
-        assertFalse(originLocation.getActivity().isEmpty());
+
+        assertEquals(2,originLocation.getActivity().size());
         assertTrue(originLocation.getActivity().contains(LocationActivityCode.TrainBegins));
         assertTrue(originLocation.getActivity().contains(LocationActivityCode.StopsToTakeUpAndSetDownPassengers));
     }
@@ -60,7 +62,8 @@ public class OriginLocationTest {
         assertEquals(TramTime.of(18, 45), originLocation.getDeparture());
         assertEquals("", originLocation.getPlatform());
         assertEquals("BUS", originLocation.getLine());
-        assertFalse(originLocation.getActivity().isEmpty());
+
+        assertEquals(1,originLocation.getActivity().size());
         assertTrue(originLocation.getActivity().contains(LocationActivityCode.TrainBegins));
     }
 

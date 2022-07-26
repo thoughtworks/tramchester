@@ -40,8 +40,6 @@ import javax.inject.Inject;
 import java.nio.file.Path;
 import java.time.Duration;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -303,32 +301,6 @@ public class RailTransportDataFromFiles implements DirectDataSourceFactory.Popul
             IdFor<Station> stationId = StringIdFor.createId(tiplocCode);
             return getMutableStation(stationId);
         }
-
-//        public List<Station> getLoadedFor(RailTimetableMapper.RawService rawService) {
-//            List<Station> results = new ArrayList<>();
-//
-//            // add the starting point
-//            if (isLoadedFor(rawService.getOriginLocation())) {
-//                final MutableStation station = getMutableStationFor(rawService.getOriginLocation());
-//                results.add(station);
-//            }
-//
-//            final List<Station> intermediates = rawService.getIntermediateLocations().stream().
-//                    filter(this::isLoadedFor).
-//                    map(this::getMutableStationFor).
-//                    collect(Collectors.toList());
-//
-//            results.addAll(intermediates);
-//
-//            // add the final station
-//            if (isLoadedFor(rawService.getTerminatingLocation())) {
-//                results.add(getMutableStationFor(rawService.getTerminatingLocation()));
-//            }
-//
-//            results.forEach(this::markAsNeeded);
-//
-//            return results;
-//        }
 
     }
 

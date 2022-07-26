@@ -4,6 +4,7 @@ package com.tramchester.dataimport.rail.records.reference;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
+import org.checkerframework.checker.units.qual.N;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -49,18 +50,10 @@ public enum LocationActivityCode implements EnumMap.HasCodes {
     // additional codes added
     None("");
 
-    private static final List<Integer> codeLengths;
-    private static final EnumMap<LocationActivityCode> codes;
+    private static final EnumMap<LocationActivityCode> codes  = new EnumMap<>(values());
 
-    static {
-        codes = new EnumMap<>(values());
-
-        Set<Integer> uniqueLengths = Arrays.stream(values()).map(item -> item.code.length()).
-                filter(size -> size>0).
-                collect(Collectors.toSet());
-        // need the longest match first
-        codeLengths = Lists.reverse(uniqueLengths.stream().sorted(Integer::compare).collect(Collectors.toList()));
-    }
+    // TrainBegins and TrainFinishes seem to be used inconsistently,
+    // i.e. TF is not always paired with T even when train does actually drop off passengers
 
     private static final EnumSet<LocationActivityCode> dropOffs = EnumSet.of(TrainFinishes, StopsToSetDownPassengers,
             StopsToTakeUpAndSetDownPassengers, StopsWhenRequired);
@@ -91,26 +84,42 @@ public enum LocationActivityCode implements EnumMap.HasCodes {
     private static EnumSet<LocationActivityCode> getCodesFor(final String text) {
         EnumSet<LocationActivityCode> result = EnumSet.noneOf(LocationActivityCode.class);
 
-        String toProcess = text;
-
-        int index = 0;
-        while(index<codeLengths.size()) {
-            final int codeLength = codeLengths.get(index);
-            if (codeLength > toProcess.length()) {
-                index++;
-            } else {
-                final String candidate = toProcess.substring(0, codeLength);
-                if (codes.containsCode(candidate)) {
-                    toProcess = toProcess.substring(codeLength).trim();
-                    result.add(codes.get(candidate));
-                } else {
-                    index++;
-                }
-            }
+        String[] tokens = text.split(" ");
+        for (String token : tokens) {
+            result.addAll(parseToken(token));
         }
-
         return result;
 
+    }
+
+    private static EnumSet<LocationActivityCode> parseToken(String token) {
+        EnumSet<LocationActivityCode> result = EnumSet.noneOf(LocationActivityCode.class);
+
+        String toProcess = token;
+
+        while (!toProcess.isEmpty()) {
+            int len = Math.min(toProcess.length(), 2);
+            LocationActivityCode attempt = parseSingle(toProcess.substring(0,len));
+            if (attempt == None) {
+                len = Math.min(toProcess.length(), 1);
+                attempt = parseSingle(toProcess.substring(0, len));
+            }
+            if (attempt == None) {
+                toProcess = toProcess.substring(2);
+            } else {
+                result.add(attempt);
+                toProcess = toProcess.substring(attempt.code.length());
+            }
+        }
+        return result;
+
+    }
+
+    private static LocationActivityCode parseSingle(String text) {
+        if (codes.containsCode(text)) {
+            return codes.get(text);
+        }
+        return None;
     }
 
     public static boolean doesStop(EnumSet<LocationActivityCode> activity) {

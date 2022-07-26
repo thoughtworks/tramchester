@@ -6,6 +6,7 @@ import com.tramchester.domain.time.TramTime;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Test;
 
+import static com.tramchester.dataimport.rail.records.reference.LocationActivityCode.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class TerminatingLocationTest {
@@ -26,7 +27,7 @@ public class TerminatingLocationTest {
         assertEquals("4", terminatingLocation.getPlatform());
         assertEquals("", terminatingLocation.getPath());
         assertFalse(terminatingLocation.getActivity().isEmpty());
-        assertTrue(terminatingLocation.getActivity().contains(LocationActivityCode.TrainFinishes));
+        assertTrue(terminatingLocation.getActivity().contains(TrainFinishes));
     }
 
     @Test
@@ -40,7 +41,7 @@ public class TerminatingLocationTest {
         assertEquals("", terminatingLocation.getPlatform());
         assertEquals("", terminatingLocation.getPath());
         assertFalse(terminatingLocation.getActivity().isEmpty());
-        assertTrue(terminatingLocation.getActivity().contains(LocationActivityCode.TrainFinishes));
+        assertTrue(terminatingLocation.getActivity().contains(TrainFinishes));
     }
 
     @Test
@@ -54,7 +55,7 @@ public class TerminatingLocationTest {
         assertEquals("", terminatingLocation.getPlatform());
         assertEquals("BUS", terminatingLocation.getPath());
         assertFalse(terminatingLocation.getActivity().isEmpty());
-        assertTrue(terminatingLocation.getActivity().contains(LocationActivityCode.TrainFinishes));
+        assertTrue(terminatingLocation.getActivity().contains(TrainFinishes));
     }
 
     @Test
@@ -68,7 +69,18 @@ public class TerminatingLocationTest {
         assertEquals(TramTime.of(20,30), terminatingLocation.getDeparture());
         assertEquals("", terminatingLocation.getPlatform());
         assertFalse(terminatingLocation.getActivity().isEmpty());
-        assertTrue(terminatingLocation.getActivity().contains(LocationActivityCode.TrainFinishes));
+        assertTrue(terminatingLocation.getActivity().contains(TrainFinishes));
+    }
+
+    @Test
+    void shouldParseStopsAndLetsPassengersOff() {
+        String text = "LTBRHOUSE 2152 2152      TFT";
+
+        TerminatingLocation terminatingLocation = parseWithPadding(text);
+
+        assertEquals(2, terminatingLocation.getActivity().size());
+        assertTrue(terminatingLocation.getActivity().contains(TrainFinishes));
+        assertTrue(terminatingLocation.getActivity().contains(StopsToTakeUpAndSetDownPassengers));
 
     }
 
@@ -77,9 +89,9 @@ public class TerminatingLocationTest {
         String text = "LTSTIRLNG 2355 23559     TFRM                                                  ";
 
         TerminatingLocation terminatingLocation = parseWithPadding(text);
-        assertFalse(terminatingLocation.getActivity().isEmpty());
-        assertTrue(terminatingLocation.getActivity().contains(LocationActivityCode.TrainFinishes));
-        assertTrue(terminatingLocation.getActivity().contains(LocationActivityCode.StopsForReversingMoveOrDriverChangesEnds));
+        assertEquals(2, terminatingLocation.getActivity().size());
+        assertTrue(terminatingLocation.getActivity().contains(TrainFinishes));
+        assertTrue(terminatingLocation.getActivity().contains(StopsForReversingMoveOrDriverChangesEnds));
     }
 
     @NotNull

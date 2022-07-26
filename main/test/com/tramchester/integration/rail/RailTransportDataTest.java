@@ -20,6 +20,7 @@ import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.filters.GraphFilterActive;
 import com.tramchester.integration.testSupport.rail.IntegrationRailTestConfig;
 import com.tramchester.integration.testSupport.rail.RailStationIds;
+import com.tramchester.metrics.CacheMetrics;
 import com.tramchester.repository.TransportData;
 import com.tramchester.repository.TransportDataContainer;
 import com.tramchester.repository.naptan.NaptanRepository;
@@ -54,7 +55,6 @@ public class RailTransportDataTest {
     private RailDataRecordFactory railDataRecordFactory;
     private UnzipFetchedData.Ready ready;
     private TransportDataContainer dataContainer;
-    private RailRouteIdRepository railRouteIdRepository;
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
@@ -76,7 +76,6 @@ public class RailTransportDataTest {
         ProvidesNow providesNow = componentContainer.get(ProvidesNow.class);
         providesRailStationRecords = componentContainer.get(ProvidesRailStationRecords.class);
         railDataRecordFactory = componentContainer.get(RailDataRecordFactory.class);
-        railRouteIdRepository = componentContainer.get(RailRouteIdRepository.class);
         ready = componentContainer.get(UnzipFetchedData.Ready.class);
 
         // getting station repository triggers full load of timetable data, slowing down these tests a LOT
@@ -435,6 +434,13 @@ public class RailTransportDataTest {
         ProvidesRailTimetableRecords loadTimeTableRecords = new LocalRailRecords(config, railDataRecordFactory, ready, text);
 
         RailConfig railConfig = config.getRailConfig();
+
+
+        RailRouteIDBuilder railRouteIdBuilder = componentContainer.get(RailRouteIDBuilder.class);
+        CacheMetrics cacheMetric = componentContainer.get(CacheMetrics.class);
+        RailRouteIdRepository railRouteIdRepository = new RailRouteIdRepository(loadTimeTableRecords, railRouteIdBuilder, config,
+                cacheMetric);
+        railRouteIdRepository.start();
 
         RailTransportDataFromFiles.Loader loader = new RailTransportDataFromFiles.Loader(providesRailStationRecords, loadTimeTableRecords,
                 railRouteIdRepository, crsRepository, naptanRepository, railConfig, filter);

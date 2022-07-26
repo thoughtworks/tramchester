@@ -86,7 +86,7 @@ public class RouteInterchangesRailTest {
 
         Set<InterchangeStation> interchanges = routeInterchanges.getFor(londonToManchester);
 
-        assertEquals(5, interchanges.size(), interchanges.toString());
+        //assertEquals(5, interchanges.size(), interchanges.toString());
 
         IdSet<Station> stationIds = interchanges.stream().map(InterchangeStation::getStationId).collect(IdSet.idCollector());
 

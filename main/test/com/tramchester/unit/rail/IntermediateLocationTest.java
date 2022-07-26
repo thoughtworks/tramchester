@@ -31,7 +31,7 @@ public class IntermediateLocationTest {
         assertEquals(TramTime.of(18,53), intermediateLocation.getArrival());
         assertEquals(TramTime.of(18,54), intermediateLocation.getDeparture());
         assertEquals("123", intermediateLocation.getPlatform());
-        assertTrue(intermediateLocation.getActivity().contains(LocationActivityCode.StopsToTakeUpAndSetDownPassengers));
+        assertTrue(intermediateLocation.getActivity().contains(StopsToTakeUpAndSetDownPassengers));
         assertTrue(intermediateLocation.doesStop());
 
     }
@@ -65,19 +65,7 @@ public class IntermediateLocationTest {
     void shouldParseWithSingleActivityCodes() {
         //             01234567890123456789012345678901234567890123456
         //             0         1         2         3         4
-        String text = "LIDOVYDPL 0550H0552H     00000000         EW     ";
-
-        IntermediateLocation result = parseWithPadding(text);
-        assertTrue(result.getActivity().contains(StopsForExamination));
-        assertTrue(result.getActivity().contains(StopsForWateringOfCoaches));
-    }
-
-    @Disabled("Functionality not currently needed")
-    @Test
-    void shouldParseWithSkippingUnknownActivityCodes() {
-        //             01234567890123456789012345678901234567890123456
-        //             0         1         2         3         4
-        String text = "LIDOVYDPL 0550H0552H     00000000         ZZEW     ";
+        String text = "LIDOVYDPL 0550H0552H     00000000         E W";
 
         IntermediateLocation result = parseWithPadding(text);
         assertTrue(result.getActivity().contains(StopsForExamination));
@@ -158,14 +146,21 @@ public class IntermediateLocationTest {
         assertEquals(7, intermediateLocation.getTiplocCode().length());
         assertEquals("KEWGRDN", intermediateLocation.getTiplocCode());
 
-        //assertFalse(intermediateLocation.getPublicArrival().isValid());
-        //assertFalse(intermediateLocation.getPublicDeparture().isValid());
-
-        //assertTrue(intermediateLocation.isPassingRecord());
         assertEquals(TramTime.of(20,10), intermediateLocation.getPassingTime());
 
         assertEquals("1", intermediateLocation.getPlatform());
 
+    }
+
+    @Test
+    void shouldParseCorrectlyWhenShortThenLongActivityCode() {
+        String text = "LITALRDIG 1122H1124      00000000         X TW";
+
+        IntermediateLocation result = parseWithPadding(text);
+
+        EnumSet<LocationActivityCode> activityCodes = result.getActivity();
+        assertTrue(activityCodes.contains(PassesAnotherTrainAtCrossingPointOnASingleLine), activityCodes.toString());
+        assertTrue(activityCodes.contains(StopsOrPassesForTabletStaffOrToken), activityCodes.toString());
     }
 
     @NotNull
