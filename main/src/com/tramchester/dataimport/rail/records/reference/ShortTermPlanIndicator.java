@@ -1,6 +1,6 @@
 package com.tramchester.dataimport.rail.records.reference;
 
-public enum ShortTermPlanIndicator implements EnumMap.HasCodes<ShortTermPlanIndicator> {
+public enum ShortTermPlanIndicator implements EnumMap.HasCodes {
         Cancellation('C'),
         New('N'),
         Overlay('O'),

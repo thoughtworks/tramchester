@@ -4,7 +4,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
-public class EnumMap<T extends EnumMap.HasCodes<T>> {
+public class EnumMap<T extends EnumMap.HasCodes> {
     private final Map<String, T> codes;
 
     public EnumMap(T[] values) {
@@ -24,7 +24,11 @@ public class EnumMap<T extends EnumMap.HasCodes<T>> {
         return codes.get(code);
     }
 
-    public interface HasCodes<T> {
+    public boolean containsCode(String code) {
+        return codes.containsKey(code);
+    }
+
+    public interface HasCodes {
         String getCode();
     }
 }

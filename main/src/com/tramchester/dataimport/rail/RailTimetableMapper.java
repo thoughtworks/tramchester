@@ -488,7 +488,8 @@ public class RailTimetableMapper {
             if (platformNumber.isBlank()) {
                 platformNumber = "UNK";
             }
-            IdFor<Platform> platformId = StringIdFor.createId(originLocation.getTiplocCode() + ":" + platformNumber);
+
+            final IdFor<Platform> platformId = StringIdFor.createId(originLocation.getTiplocCode() + ":" + platformNumber);
             MutablePlatform platform;
             if (container.hasPlatformId(platformId)) {
                 platform = container.getMutablePlatform(platformId);

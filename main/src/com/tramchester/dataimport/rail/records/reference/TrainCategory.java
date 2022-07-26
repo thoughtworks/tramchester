@@ -1,7 +1,7 @@
 package com.tramchester.dataimport.rail.records.reference;
 
 
-public enum TrainCategory implements EnumMap.HasCodes<TrainCategory> {
+public enum TrainCategory implements EnumMap.HasCodes {
     LondonUndergroundOrMetroService("OL"),
     UnadvertisedOrdinaryPassenger("OU"),
     OrdinaryPassenger("OO"),

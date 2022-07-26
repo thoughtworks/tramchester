@@ -4,11 +4,12 @@ import com.tramchester.dataimport.rail.records.IntermediateLocation;
 import com.tramchester.dataimport.rail.records.reference.LocationActivityCode;
 import com.tramchester.domain.time.TramTime;
 import org.jetbrains.annotations.NotNull;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import java.util.EnumSet;
 
-import static com.tramchester.dataimport.rail.records.reference.LocationActivityCode.StopsToTakeUpAndSetDownPassengers;
+import static com.tramchester.dataimport.rail.records.reference.LocationActivityCode.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class IntermediateLocationTest {
@@ -49,14 +50,38 @@ public class IntermediateLocationTest {
         assertTrue(intermediateLocation.getPlatform().isBlank());
     }
 
-
     @Test
     void shouldParsePassingWithoutPassTime() {
         //             01234567890123456789012345678901234567890123456
         //             0         1         2         3         4
         String text = "LIDOVYDPL 0550H0552H     00000000         A N     ";
 
-        parseWithPadding(text);
+        IntermediateLocation result = parseWithPadding(text);
+        assertTrue(result.getActivity().contains(StopNotAdvertised));
+        assertTrue(result.getActivity().contains(StopsOrShuntsForOtherTrainsToPass));
+    }
+
+    @Test
+    void shouldParseWithSingleActivityCodes() {
+        //             01234567890123456789012345678901234567890123456
+        //             0         1         2         3         4
+        String text = "LIDOVYDPL 0550H0552H     00000000         EW     ";
+
+        IntermediateLocation result = parseWithPadding(text);
+        assertTrue(result.getActivity().contains(StopsForExamination));
+        assertTrue(result.getActivity().contains(StopsForWateringOfCoaches));
+    }
+
+    @Disabled("Functionality not currently needed")
+    @Test
+    void shouldParseWithSkippingUnknownActivityCodes() {
+        //             01234567890123456789012345678901234567890123456
+        //             0         1         2         3         4
+        String text = "LIDOVYDPL 0550H0552H     00000000         ZZEW     ";
+
+        IntermediateLocation result = parseWithPadding(text);
+        assertTrue(result.getActivity().contains(StopsForExamination));
+        assertTrue(result.getActivity().contains(StopsForWateringOfCoaches));
     }
 
     @Test

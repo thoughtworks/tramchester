@@ -2,7 +2,7 @@ package com.tramchester.dataimport.rail.records.reference;
 
 // https://wiki.openraildata.com/index.php/CIF_Codes
 
-public enum TrainStatus implements EnumMap.HasCodes<TrainStatus> {
+public enum TrainStatus implements EnumMap.HasCodes {
     Bus('B'),
     Freight('F'),
     PassengerAndParcels('P'),

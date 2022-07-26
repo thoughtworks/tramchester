@@ -2,11 +2,13 @@ package com.tramchester.dataimport.rail.records.reference;
 
 // https://wiki.openraildata.com/index.php?title=Activity_codes
 
+import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
-public enum LocationActivityCode implements EnumMap.HasCodes<LocationActivityCode> {
+public enum LocationActivityCode implements EnumMap.HasCodes {
     StopsToTakeUpAndSetDownPassengers("T"),
     TrainBegins("TB"),
     TrainFinishes("TF"),
@@ -47,8 +49,22 @@ public enum LocationActivityCode implements EnumMap.HasCodes<LocationActivityCod
     // additional codes added
     None("");
 
+    private static final List<Integer> codeLengths;
+    private static final EnumMap<LocationActivityCode> codes;
+
+    static {
+        codes = new EnumMap<>(values());
+
+        Set<Integer> uniqueLengths = Arrays.stream(values()).map(item -> item.code.length()).
+                filter(size -> size>0).
+                collect(Collectors.toSet());
+        // need the longest match first
+        codeLengths = Lists.reverse(uniqueLengths.stream().sorted(Integer::compare).collect(Collectors.toList()));
+    }
+
     private static final EnumSet<LocationActivityCode> dropOffs = EnumSet.of(TrainFinishes, StopsToSetDownPassengers,
             StopsToTakeUpAndSetDownPassengers, StopsWhenRequired);
+
     private static final EnumSet<LocationActivityCode> pickUps = EnumSet.of(TrainBegins, StopsToTakeUpPassengers,
             StopsToTakeUpAndSetDownPassengers, StopsWhenRequired);
 
@@ -68,28 +84,33 @@ public enum LocationActivityCode implements EnumMap.HasCodes<LocationActivityCod
             return EnumSet.noneOf(LocationActivityCode.class);
         }
 
+        return getCodesFor(lookup);
+
+    }
+
+    private static EnumSet<LocationActivityCode> getCodesFor(final String text) {
         EnumSet<LocationActivityCode> result = EnumSet.noneOf(LocationActivityCode.class);
 
-        // most cases once
-        while (!lookup.isEmpty()) {
-            LocationActivityCode found = getLongestMatch(lookup);
-            if (found==None) {
-                lookup = lookup.substring(1);
+        String toProcess = text;
+
+        int index = 0;
+        while(index<codeLengths.size()) {
+            final int codeLength = codeLengths.get(index);
+            if (codeLength > toProcess.length()) {
+                index++;
             } else {
-                lookup = lookup.replaceFirst(found.code, "");
-                result.add(found);
+                final String candidate = toProcess.substring(0, codeLength);
+                if (codes.containsCode(candidate)) {
+                    toProcess = toProcess.substring(codeLength).trim();
+                    result.add(codes.get(candidate));
+                } else {
+                    index++;
+                }
             }
         }
 
         return result;
-    }
 
-    private static LocationActivityCode getLongestMatch(String text) {
-        // TODO Performance
-        Optional<LocationActivityCode> found = Arrays.stream(LocationActivityCode.values()).
-                filter(item -> text.startsWith(item.code)).
-                max(Comparator.comparingInt(activityCode -> activityCode.code.length()));
-        return found.orElse(None);
     }
 
     public static boolean doesStop(EnumSet<LocationActivityCode> activity) {
@@ -104,7 +125,7 @@ public enum LocationActivityCode implements EnumMap.HasCodes<LocationActivityCod
         return !Sets.intersection(activity, dropOffs).isEmpty();
     }
 
-    @Override
+    //@Override
     public String getCode() {
         return code;
     }

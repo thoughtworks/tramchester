@@ -8,7 +8,7 @@ package com.tramchester.dataimport.rail.records.reference;
 // 9 This is a subsidiary TIPLOC at a station which has more than one TIPLOC. Stations which have more than one
 //      TIPLOC always have the same principal 3-Alpha Code.
 
-public enum RailInterchangeType implements EnumMap.HasCodes<RailInterchangeType> {
+public enum RailInterchangeType implements EnumMap.HasCodes {
     None('0'),
     Small('1'),
     Medium('2'),
