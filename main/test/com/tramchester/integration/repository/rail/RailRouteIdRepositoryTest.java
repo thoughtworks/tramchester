@@ -21,8 +21,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import static com.tramchester.integration.testSupport.rail.RailStationIds.*;
-import static org.junit.jupiter.api.Assertions.assertNotEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
 
 @TrainTest
 public class RailRouteIdRepositoryTest {
@@ -64,6 +63,22 @@ public class RailRouteIdRepositoryTest {
         IdFor<Route> viaMacc = idRepository.getRouteIdForCallingPointsAndAgency(agencyId, fromManchesterViaMacc);
 
         assertNotEquals(viaWilmslow, viaMacc);
+    }
+
+    @Test
+    void shouldHaveLondonToManchesterWhereOneRouteIsSubsetOfOther() {
+
+        List<IdFor<Station>> fromManchester = Arrays.asList(ManchesterPiccadilly.getId(), Stockport.getId(),
+                Wilmslow.getId(), Crewe.getId(), LondonEuston.getId());
+
+        IdFor<Route> routeIdA = idRepository.getRouteIdForCallingPointsAndAgency(agencyId, fromManchester);
+
+        List<IdFor<Station>> fromManchesterWithoutCrewe = Arrays.asList(ManchesterPiccadilly.getId(), Stockport.getId(),
+                Wilmslow.getId(), LondonEuston.getId());
+
+        IdFor<Route> routeIdB = idRepository.getRouteIdForCallingPointsAndAgency(agencyId, fromManchesterWithoutCrewe);
+
+        assertEquals(routeIdA, routeIdB);
     }
 
 }

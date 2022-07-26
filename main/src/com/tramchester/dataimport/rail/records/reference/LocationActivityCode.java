@@ -63,11 +63,12 @@ public enum LocationActivityCode implements EnumMap.HasCodes<LocationActivityCod
     }
 
     public static EnumSet<LocationActivityCode> parse(String code) {
-        EnumSet<LocationActivityCode> result = EnumSet.noneOf(LocationActivityCode.class);
         String lookup = code.trim();
         if (lookup.isEmpty()) {
             return EnumSet.noneOf(LocationActivityCode.class);
         }
+
+        EnumSet<LocationActivityCode> result = EnumSet.noneOf(LocationActivityCode.class);
 
         // most cases once
         while (!lookup.isEmpty()) {
@@ -84,9 +85,10 @@ public enum LocationActivityCode implements EnumMap.HasCodes<LocationActivityCod
     }
 
     private static LocationActivityCode getLongestMatch(String text) {
+        // TODO Performance
         Optional<LocationActivityCode> found = Arrays.stream(LocationActivityCode.values()).
                 filter(item -> text.startsWith(item.code)).
-                max(Comparator.comparingInt(a -> a.code.length()));
+                max(Comparator.comparingInt(activityCode -> activityCode.code.length()));
         return found.orElse(None);
     }
 

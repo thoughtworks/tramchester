@@ -67,13 +67,13 @@ public class RailRouteIdRepository {
         Stream<RailTimetableRecord> records = providesRailTimetableRecords.load();
         records.forEach(routeExtractor::processRecord);
 
-        createRoutesFor(routeExtractor.getPossibleRoutes());
+        createSortedRoutesFor(routeExtractor.getPossibleRoutes());
 
         routeExtractor.clear();
 
     }
 
-    private void createRoutesFor(Set<AgencyCallingPoints> possibleRoutes) {
+    private void createSortedRoutesFor(Set<AgencyCallingPoints> possibleRoutes) {
         Map<IdFor<Agency>, Set<AgencyCallingPoints>> routesByAgency = new HashMap<>();
 
         // group by agency id
@@ -86,14 +86,14 @@ public class RailRouteIdRepository {
         });
 
         routesByAgency.forEach((key, value) -> {
-            List<AgencyCallingPointsWithRouteId> results = createRoutesFor(key, value);
+            List<AgencyCallingPointsWithRouteId> results = createSortedRoutesFor(key, value);
             idMap.put(key, results);
         });
 
         routesByAgency.clear();
     }
 
-    private List<AgencyCallingPointsWithRouteId> createRoutesFor(IdFor<Agency> agencyId, Set<AgencyCallingPoints> possibleRailRoutes) {
+    private List<AgencyCallingPointsWithRouteId> createSortedRoutesFor(IdFor<Agency> agencyId, Set<AgencyCallingPoints> possibleRailRoutes) {
         logger.debug("Create route Ids for " + agencyId);
 
         Map<StationIdPair, Set<AgencyCallingPoints>> routesByBeginEnd = new HashMap<>();
@@ -108,7 +108,8 @@ public class RailRouteIdRepository {
         });
 
         List<AgencyCallingPointsWithRouteId> results = routesByBeginEnd.entrySet().stream().
-                flatMap(entry -> createRoutesFor(agencyId, entry.getKey(), entry.getValue()).stream()).
+                flatMap(entry -> createSortedRoutesFor(agencyId, entry.getKey(), entry.getValue()).stream()).
+                sorted(Comparator.comparingInt(AgencyCallingPoints::numberCallingPoints)).
                 collect(Collectors.toList());
 
         logger.info("Added " + results.size() + " entries for " + agencyId);
@@ -116,8 +117,8 @@ public class RailRouteIdRepository {
         return results;
     }
 
-    private List<AgencyCallingPointsWithRouteId> createRoutesFor(IdFor<Agency> agencyId, StationIdPair beginEnd,
-                                                                   Set<AgencyCallingPoints> possibleRoutes) {
+    private List<AgencyCallingPointsWithRouteId> createSortedRoutesFor(IdFor<Agency> agencyId, StationIdPair beginEnd,
+                                                                       Set<AgencyCallingPoints> possibleRoutes) {
         logger.debug("Create route ids for " + agencyId + " and " + beginEnd);
 
         List<AgencyCallingPointsWithRouteId> results = new ArrayList<>();
@@ -175,24 +176,29 @@ public class RailRouteIdRepository {
     public IdFor<Route> getRouteIdForCallingPointsAndAgency(IdFor<Agency> agencyId, List<IdFor<Station>> callingStationsIds) {
         List<AgencyCallingPointsWithRouteId> forAgency = idMap.get(agencyId);
 
-        List<AgencyCallingPointsWithRouteId> results = forAgency.stream().
-                filter(withId -> withId.contains(callingStationsIds)).
-                sorted(Comparator.comparingInt(AgencyCallingPoints::numberCallingPoints)).
-                collect(Collectors.toList());
+        // the calling points for agencies are sorted by shortest first at creation time, so here can just take the
+        // first matching element
+        final int size = forAgency.size();
+        int index = 0;
+        while (index<size) {
+            if (forAgency.get(index).contains(callingStationsIds)) {
+                break;
+            }
+            index++;
+        }
 
-        if (results.isEmpty()) {
+        if (index==size) {
             // can happen where replacement services for one agency are under another agencies ID i.e. LT
             IdFor<Route> id = railRouteIDBuilder.getIdFor(agencyId, callingStationsIds);
             String msg = "No results for " + agencyId + " and " + callingStationsIds + " so create id " + id;
             logger.error(msg);
             return id;
-            //throw new RuntimeException(msg);
         }
 
-        AgencyCallingPointsWithRouteId lowestSizeMatch = results.get(0);
-        if (lowestSizeMatch.numberCallingPoints() != callingStationsIds.size()) {
-            logger.warn("Mismatch on number of calling points for " + callingStationsIds + " and results " + lowestSizeMatch);
-        }
+        AgencyCallingPointsWithRouteId lowestSizeMatch = forAgency.get(index); // results.get();
+//        if (lowestSizeMatch.numberCallingPoints() != callingStationsIds.size()) {
+//            logger.debug("Mismatch on number of calling points for " + callingStationsIds + " and results " + lowestSizeMatch);
+//        }
 
         return lowestSizeMatch.getRouteId();
 
@@ -321,17 +327,39 @@ public class RailRouteIdRepository {
         }
 
         public boolean contains(List<IdFor<Station>> callingStationsIds) {
-            if (!callingPoints.containsAll(callingStationsIds)) {
+            StationIdPair otherBeingEnd = getStationIdPair(callingStationsIds);
+
+            if (!otherBeingEnd.equals(getBeginEnd())) {
                 return false;
             }
+            final int searchSize = callingStationsIds.size();
+            final int size = callingPoints.size();
 
-            StationIdPair otherPair = getStationIdPair(callingStationsIds);
-
-            if (!otherPair.equals(getBeginEnd())) {
-                return false;
+            // both lists are ordered by calling order
+            int knownIndex = 0;
+            int searchIndex = 0;
+            while (knownIndex < size && searchIndex < searchSize) {
+                final IdFor<Station> knownStationId = callingPoints.get(knownIndex);
+                if (knownStationId.equals(callingStationsIds.get(searchIndex))) {
+                    knownIndex++;
+                    searchIndex++;
+                } else {
+                    if (searchIndex<searchSize-1) {
+                        if (knownStationId.equals(callingStationsIds.get(searchIndex+1))) {
+                            // we've seen the next, as this is in order means we won't see the expected station ID
+                            return false;
+                        }
+                    }
+                    knownIndex++;
+                }
             }
 
-            return true;
+            return searchIndex == searchSize;
+
+
+//            if (!callingPoints.containsAll(callingStationsIds)) {
+//                return false;
+//            }
         }
     }
 
