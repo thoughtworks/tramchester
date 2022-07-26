@@ -60,7 +60,7 @@ public class RecordHelper {
             return TramTime.invalid();
         }
         int hour = Integer.parseUnsignedInt(rawTime,0, 2 ,10);
-        int minite = Integer.parseUnsignedInt(rawTime,2, 4 ,10);
-        return TramTime.of(hour, minite);
+        int minute = Integer.parseUnsignedInt(rawTime,2, 4 ,10);
+        return TramTime.of(hour, minute);
     }
 }

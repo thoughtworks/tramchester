@@ -128,7 +128,9 @@ public class RailServiceGroups {
         final DateRange dateRange = schedule.getDateRange();
         final String startDate = dateRange.getStartDate().format(RailTimetableMapper.dateFormatter);
         final String endDate = dateRange.getEndDate().format(RailTimetableMapper.dateFormatter);
-        String text = format("%s:%s:%s", schedule.getUniqueTrainId(), startDate, endDate);
+        
+//        String text = format("%s:%s:%s", schedule.getUniqueTrainId(), startDate, endDate);
+        String text = schedule.getUniqueTrainId() +":"+ startDate +":"+ endDate;
         if (isOverlay) {
             text = text + "OVERLAY";
         }
