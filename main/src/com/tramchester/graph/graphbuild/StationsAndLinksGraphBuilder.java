@@ -92,9 +92,13 @@ public class StationsAndLinksGraphBuilder extends GraphBuilder {
                 Transaction tx = timedTransaction.transaction();
                 for(Station station : transportData.getStations()) {
                     if (graphFilter.shouldInclude(station)) {
-                        Node stationNode = createStationNode(tx, station);
-                        createPlatformsForStation(tx, station, builderCache);
-                        builderCache.putStation(station.getId(), stationNode);
+                        if (station.getTransportModes().isEmpty()) {
+                            logger.info("Skipping " + station.getId() + " as no transport modes are set, non stopping station");
+                        } else {
+                            Node stationNode = createStationNode(tx, station);
+                            createPlatformsForStation(tx, station, builderCache);
+                            builderCache.putStation(station.getId(), stationNode);
+                        }
                     }
                 }
                 timedTransaction.commit();

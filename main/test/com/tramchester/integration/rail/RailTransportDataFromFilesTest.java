@@ -457,6 +457,21 @@ public class RailTransportDataFromFilesTest {
         Set<TransportMode> modes = station.getTransportModes();
         assertFalse(modes.isEmpty(), station.toString());
         assertTrue(modes.contains(Train), station.toString());
+
+        assertTrue(station.hasPickup());
+        assertTrue(station.hasDropoff());
+    }
+
+    @Test
+    void shouldHaveStationsWithNoStops() {
+        Station station = transportData.getStationById(StringIdFor.createId("LCHTNJ"));
+
+        Set<TransportMode> modes = station.getTransportModes();
+        assertTrue(modes.isEmpty(), station.toString());
+
+        assertFalse(station.hasDropoff());
+        assertFalse(station.hasPickup());
+
     }
 
 
