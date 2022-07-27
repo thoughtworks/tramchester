@@ -43,11 +43,17 @@ public class RouteInterchanges {
     }
 
     public boolean availableAt(LocalDate date, TimeRange time) {
-        return interchangeStations.stream().anyMatch(station -> validForDate(station, date, time));
+        if (routePair.isAvailableOn(date)) {
+            return interchangeStations.stream().anyMatch(station -> validForDate(station, date, time));
+        }
+        return false;
     }
 
     private boolean validForDate(Station station, LocalDate date, TimeRange time) {
-        return station.servesRouteDropOff(routePair.getFirst(), date, time) &&
-                station.servesRoutePickup(routePair.getSecond(), date, time);
+        if (routePair.isAvailableOn(date)) {
+            return station.servesRouteDropOff(routePair.getFirst(), date, time) &&
+                    station.servesRoutePickup(routePair.getSecond(), date, time);
+        }
+        return false;
     }
 }

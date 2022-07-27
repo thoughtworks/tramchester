@@ -31,8 +31,8 @@ import java.util.stream.Collectors;
 import static java.lang.String.format;
 
 @LazySingleton
-public class RouteInterchanges {
-    private static final Logger logger = LoggerFactory.getLogger(RouteInterchanges.class);
+public class RouteInterchangeRepository {
+    private static final Logger logger = LoggerFactory.getLogger(RouteInterchangeRepository.class);
 
     private final RouteRepository routeRepository;
     private final StationRepository stationRepository;
@@ -43,8 +43,8 @@ public class RouteInterchanges {
     private Map<RouteStation, Duration> routeStationToInterchangeCost;
 
     @Inject
-    public RouteInterchanges(RouteRepository routeRepository, StationRepository stationRepository, InterchangeRepository interchangeRepository,
-                             GraphDatabase graphDatabase, StagedTransportGraphBuilder.Ready ready) {
+    public RouteInterchangeRepository(RouteRepository routeRepository, StationRepository stationRepository, InterchangeRepository interchangeRepository,
+                                      GraphDatabase graphDatabase, StagedTransportGraphBuilder.Ready ready) {
         this.routeRepository = routeRepository;
         this.stationRepository = stationRepository;
         this.interchangeRepository = interchangeRepository;

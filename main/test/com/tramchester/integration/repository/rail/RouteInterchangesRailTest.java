@@ -10,7 +10,7 @@ import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
 import com.tramchester.integration.testSupport.rail.IntegrationRailTestConfig;
-import com.tramchester.repository.RouteInterchanges;
+import com.tramchester.repository.RouteInterchangeRepository;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.testTags.TrainTest;
@@ -18,7 +18,6 @@ import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.condition.DisabledIfEnvironmentVariable;
 
 import java.time.Duration;
 import java.util.List;
@@ -33,7 +32,7 @@ import static org.junit.jupiter.api.Assertions.*;
 @TrainTest
 public class RouteInterchangesRailTest {
     private static ComponentContainer componentContainer;
-    private RouteInterchanges routeInterchanges;
+    private RouteInterchangeRepository routeInterchanges;
     private StationRepository stationRepository;
 
     @BeforeAll
@@ -50,7 +49,7 @@ public class RouteInterchangesRailTest {
     @BeforeEach
     void onceBeforeEachTestRuns() {
         stationRepository = componentContainer.get(StationRepository.class);
-        routeInterchanges = componentContainer.get(RouteInterchanges.class);
+        routeInterchanges = componentContainer.get(RouteInterchangeRepository.class);
     }
 
     @Test

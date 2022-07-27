@@ -5,7 +5,7 @@ import com.tramchester.ComponentsBuilder;
 import com.tramchester.domain.places.RouteStation;
 import com.tramchester.integration.testSupport.bus.IntegrationBusTestConfig;
 import com.tramchester.repository.InterchangeRepository;
-import com.tramchester.repository.RouteInterchanges;
+import com.tramchester.repository.RouteInterchangeRepository;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.testTags.BusTest;
@@ -23,7 +23,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 public class RouteInterchangesBusTest {
 
     private static ComponentContainer componentContainer;
-    private RouteInterchanges routeInterchanges;
+    private RouteInterchangeRepository routeInterchanges;
     private StationRepository stationRepository;
     private InterchangeRepository interchangeRepository;
 
@@ -43,7 +43,7 @@ public class RouteInterchangesBusTest {
         stationRepository = componentContainer.get(StationRepository.class);
         interchangeRepository = componentContainer.get(InterchangeRepository.class);
 
-        routeInterchanges = componentContainer.get(RouteInterchanges.class);
+        routeInterchanges = componentContainer.get(RouteInterchangeRepository.class);
     }
 
     @Test

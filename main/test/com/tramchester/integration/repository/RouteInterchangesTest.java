@@ -7,7 +7,7 @@ import com.tramchester.domain.Route;
 import com.tramchester.domain.places.RouteStation;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
 import com.tramchester.repository.InterchangeRepository;
-import com.tramchester.repository.RouteInterchanges;
+import com.tramchester.repository.RouteInterchangeRepository;
 import com.tramchester.repository.RouteRepository;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.TestEnv;
@@ -30,7 +30,7 @@ import static org.junit.jupiter.api.Assertions.*;
 public class RouteInterchangesTest {
 
     private static ComponentContainer componentContainer;
-    private RouteInterchanges routeInterchanges;
+    private RouteInterchangeRepository routeInterchanges;
     private StationRepository stationRepository;
     private TramRouteHelper tramRouteHelper;
     private InterchangeRepository interchangeRepository;
@@ -51,7 +51,7 @@ public class RouteInterchangesTest {
     void onceBeforeEachTestRuns() {
         stationRepository = componentContainer.get(StationRepository.class);
         routeRepository = componentContainer.get(RouteRepository.class);
-        routeInterchanges = componentContainer.get(RouteInterchanges.class);
+        routeInterchanges = componentContainer.get(RouteInterchangeRepository.class);
         tramRouteHelper = new TramRouteHelper();
         interchangeRepository = componentContainer.get(InterchangeRepository.class);
     }

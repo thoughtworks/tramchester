@@ -18,7 +18,7 @@ import com.tramchester.graph.caches.NodeContentsRepository;
 import com.tramchester.graph.search.*;
 import com.tramchester.graph.search.stateMachine.HowIGotHere;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
-import com.tramchester.repository.RouteInterchanges;
+import com.tramchester.repository.RouteInterchangeRepository;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.TramStations;
@@ -58,7 +58,7 @@ class ServiceHeuristicsTest extends EasyMockSupport {
     private Duration maxJourneyDuration;
     private long maxNumberOfJourneys;
     private LowestCostsForDestRoutes fewestHopsForRoutes;
-    private RouteInterchanges routeInterchanges;
+    private RouteInterchangeRepository routeInterchanges;
 
     @BeforeEach
     void beforeEachTestRuns() {
@@ -72,7 +72,7 @@ class ServiceHeuristicsTest extends EasyMockSupport {
         howIGotHere = createMock(HowIGotHere.class);
         stationRepository = createMock(StationRepository.class);
         fewestHopsForRoutes = createMock(LowestCostsForDestRoutes.class);
-        routeInterchanges = createMock(RouteInterchanges.class);
+        routeInterchanges = createMock(RouteInterchangeRepository.class);
 
         int maxPathLength = 400;
         journeyConstraints = createMock(JourneyConstraints.class);

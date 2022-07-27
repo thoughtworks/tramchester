@@ -1,5 +1,8 @@
 package com.tramchester.domain;
 
+import com.tramchester.domain.time.TimeRange;
+
+import java.time.LocalDate;
 import java.util.Objects;
 
 public class RoutePair {
@@ -38,5 +41,9 @@ public class RoutePair {
     @Override
     public int hashCode() {
         return Objects.hash(first, second);
+    }
+
+    public boolean isAvailableOn(LocalDate date) {
+        return first.isAvailableOn(date) && second.isAvailableOn(date);
     }
 }

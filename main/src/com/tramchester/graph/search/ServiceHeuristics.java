@@ -15,7 +15,7 @@ import com.tramchester.graph.caches.NodeContentsRepository;
 import com.tramchester.graph.graphbuild.GraphLabel;
 import com.tramchester.graph.graphbuild.GraphProps;
 import com.tramchester.graph.search.stateMachine.HowIGotHere;
-import com.tramchester.repository.RouteInterchanges;
+import com.tramchester.repository.RouteInterchangeRepository;
 import com.tramchester.repository.StationRepository;
 import org.neo4j.graphdb.Node;
 import org.slf4j.Logger;
@@ -39,9 +39,9 @@ public class ServiceHeuristics {
     private final NodeContentsRepository nodeOperations;
     private final int currentChangesLimit;
     private final LowestCostsForDestRoutes lowestCostsForDestRoutes;
-    private final RouteInterchanges routeInterchanges;
+    private final RouteInterchangeRepository routeInterchanges;
 
-    public ServiceHeuristics(StationRepository stationRepository, RouteInterchanges routeInterchanges, NodeContentsRepository nodeOperations,
+    public ServiceHeuristics(StationRepository stationRepository, RouteInterchangeRepository routeInterchanges, NodeContentsRepository nodeOperations,
                              JourneyConstraints journeyConstraints, TramTime actualQueryTime,
                              int currentChangesLimit) {
         this.stationRepository = stationRepository;
