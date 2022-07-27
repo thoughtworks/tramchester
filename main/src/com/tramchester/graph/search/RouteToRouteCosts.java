@@ -612,7 +612,7 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
          * @return true iff any of the list of interchange have at least one path that is valid on the date
          */
         private boolean isOperating(List<RouteInterchanges> changeSet, LocalDate date, TimeRange time) {
-            return changeSet.stream().allMatch(routeInterchanges -> routeInterchanges.availableAt(date, time));
+            return changeSet.stream().anyMatch(routeInterchanges -> routeInterchanges.availableAt(date, time));
         }
 
         private byte getDegree(RouteIndexPair routePair) {
