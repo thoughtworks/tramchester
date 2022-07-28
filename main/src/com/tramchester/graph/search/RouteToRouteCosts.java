@@ -543,62 +543,97 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
     }
 
     private static class RouteOverlapMatrix {
-        private final BitSet[] rows;
+        //private final BitSet[] rows;
         private final int numberOfRoutes;
+        private final BitSet bitSet;
+        private final int totalSize;
 
         private RouteOverlapMatrix(int numberOfRoutes) {
-            rows = new BitSet[numberOfRoutes];
             this.numberOfRoutes = numberOfRoutes;
-            for (int i = 0; i < numberOfRoutes; i++) {
-                rows[i] = new BitSet(numberOfRoutes);
-            }
+            totalSize = numberOfRoutes * numberOfRoutes;
+            bitSet = new BitSet(totalSize);
+
+//            rows = new BitSet[numberOfRoutes];
+//            this.numberOfRoutes = numberOfRoutes;
+//            for (int i = 0; i < numberOfRoutes; i++) {
+//                rows[i] = new BitSet(numberOfRoutes);
+//            }
         }
 
         public static RouteOverlapMatrix getIdentity(int size) {
             RouteOverlapMatrix result = new RouteOverlapMatrix(size);
-            for (int i = 0; i < size; i++) {
-                result.rows[i].set(0, size);
-            }
+            result.bitSet.set(0, result.totalSize);
+//            for (int i = 0; i < size; i++) {
+//                result.rows[i].set(0, size);
+//            }
             return result;
         }
 
         public void set(int indexA, int indexB) {
-            rows[indexA].set(indexB);
-        }
-
-        public boolean isSet(int indexA, int indexB) {
-            return rows[indexA].get(indexB);
-        }
-
-        private ImmutableBitSet getConnectionsFor(int routesIndex) {
-            return new ImmutableBitSet(rows[routesIndex]);
-        }
-
-        public void insert(int routeIndex, BitSet connectionsForRoute) {
-            rows[routeIndex] = connectionsForRoute;
-        }
-
-        public int numberOfConnections() {
-            int count = 0;
-            for (int row = 0; row < numberOfRoutes; row++) {
-                count = count + rows[row].cardinality();
-            }
-            return count;
-        }
-
-        public void clear() {
-            for (int i = 0; i < numberOfRoutes; i++) {
-                rows[i].clear();
-            }
+            int position = getPositionFor(indexA, indexB);
+            bitSet.set(position);
+            //rows[indexA].set(indexB);
         }
 
         public boolean isSet(RouteIndexPair routePair) {
             return isSet(routePair.first, routePair.second);
         }
 
-        public void applyAndTo(int index, BitSet bitSet) {
-            BitSet mutable = rows[index];
-            mutable.and(bitSet);
+        public boolean isSet(int indexA, int indexB) {
+            int position = getPositionFor(indexA, indexB);
+            return bitSet.get(position);
+            //return rows[indexA].get(indexB);
+        }
+
+        private ImmutableBitSet getConnectionsFor(int routesIndex) {
+            int startPosition = getPositionFor(routesIndex, 0);
+            int endPosition = startPosition + numberOfRoutes;
+            BitSet result = bitSet.get(startPosition, endPosition);
+
+            return new ImmutableBitSet(result);
+            //return new ImmutableBitSet(rows[routesIndex]);
+        }
+
+        public void insert(int routeIndex, BitSet connectionsForRoute) {
+            int startPosition = getPositionFor(routeIndex, 0);
+            for (int i = 0; i < numberOfRoutes; i++) {
+                bitSet.set(startPosition+i, connectionsForRoute.get(i));
+            }
+            //rows[routeIndex] = connectionsForRoute;
+        }
+
+        public int numberOfConnections() {
+            return bitSet.cardinality();
+//            int count = 0;
+//            for (int row = 0; row < numberOfRoutes; row++) {
+//                count = count + rows[row].cardinality();
+//            }
+//            return count;
+        }
+
+        public void clear() {
+            bitSet.clear();
+//            for (int i = 0; i < numberOfRoutes; i++) {
+//                rows[i].clear();
+//            }
+        }
+
+        public void applyAndTo(int index, BitSet row) {
+            int startPosition = getPositionFor(index, 0);
+
+            // TODO more efficient ways to do this via a mask?
+            for (int i = 0; i < numberOfRoutes; i++) {
+                int bitIndex = startPosition + i;
+                boolean andValue = bitSet.get(bitIndex) && row.get(i);
+                bitSet.set(bitIndex, andValue);
+            }
+
+//            BitSet mutable = rows[index];
+//            mutable.and(row);
+        }
+
+        private int getPositionFor(int indexA, int indexB) {
+            return (indexA*numberOfRoutes) + indexB;
         }
 
         public RouteOverlapMatrix and(RouteOverlapMatrix other) {
@@ -606,13 +641,18 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
                 throw new RuntimeException(format("Mismatch on matrix size this %s other %s", numberOfRoutes, other.numberOfRoutes));
             }
             RouteOverlapMatrix result = new RouteOverlapMatrix(numberOfRoutes);
-            for (int i = 0; i < numberOfRoutes; i++) {
-                BitSet newRow = new BitSet(numberOfRoutes);
-                newRow.or(rows[i]); // set current
-                newRow.and(other.rows[i]);
-                result.insert(i, newRow);
-            }
+            result.bitSet.or(this.bitSet);
+            result.bitSet.and(other.bitSet);
             return result;
+
+//            RouteOverlapMatrix result = new RouteOverlapMatrix(numberOfRoutes);
+//            for (int i = 0; i < numberOfRoutes; i++) {
+//                BitSet newRow = new BitSet(numberOfRoutes);
+//                newRow.or(rows[i]); // set current
+//                newRow.and(other.rows[i]);
+//                result.insert(i, newRow);
+//            }
+//            return result;
         }
     }
 
