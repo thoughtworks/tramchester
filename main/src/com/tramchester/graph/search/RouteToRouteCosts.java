@@ -189,7 +189,13 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
      * @param timeRange the range within with the route needs ot be available
      * @return number of changes
      */
-    public int getFor(Route routeA, Route routeB, LocalDate date, TimeRange timeRange) {
+    public int getNumberChangesFor(Route routeA, Route routeB, LocalDate date, TimeRange timeRange) {
+        InterchangeOperating interchangeOperating = new InterchangeOperating(date, timeRange);
+
+        return getNumberChangesFor(routeA, routeB, date, timeRange, interchangeOperating);
+    }
+
+    public int getNumberChangesFor(Route routeA, Route routeB, LocalDate date, TimeRange timeRange, InterchangeOperating interchangeOperating) {
         if (routeA.equals(routeB)) {
             return 0;
         }
@@ -198,8 +204,8 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
             return Integer.MAX_VALUE;
         }
 
-        RouteIndexPair routePair = RouteIndexPair.getFor(index, routeA, routeB);
-        final int result = costs.getDepth(routePair, date, timeRange);
+        RouteIndexPair routePair = RouteIndexPair.getIndexPairFor(index, routeA, routeB);
+        final int result = costs.getDepth(routePair, date, timeRange, interchangeOperating);
 
         if (result == Costs.MAX_VALUE) {
             if (routeA.getTransportMode() == routeB.getTransportMode()) {
@@ -212,14 +218,14 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
         return result;
     }
 
-    public List<List<RouteInterchanges>> getChangesFor(Route routeA, Route routeB) {
+    public List<List<RouteAndInterchanges>> getChangesFor(Route routeA, Route routeB) {
         RoutePair routePair = new RoutePair(routeA, routeB);
 
         logger.info("Get change stations betweem " + routePair);
 
-        RouteIndexPair indexPair = RouteIndexPair.getFor(index, routeA, routeB);
+        RouteIndexPair indexPair = RouteIndexPair.getIndexPairFor(index, routeA, routeB);
 
-        List<List<RouteInterchanges>> result = costs.getChangesFor(indexPair);
+        List<List<RouteAndInterchanges>> result = costs.getChangesFor(indexPair);
 
         if (result.isEmpty()) {
             logger.warn(format("Unable to find changes between %s", routePair));
@@ -239,18 +245,26 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
 
     @Override
     public NumberOfChanges getNumberOfChanges(LocationSet starts, LocationSet destinations, LocalDate date, TimeRange timeRange) {
+        // TODO optimise this
         if (starts.stream().allMatch(station -> station.getPickupRoutes(date, timeRange).isEmpty())) {
             logger.warn(format("start stations %s have no pick-up routes", HasId.asIds(starts)));
             return NumberOfChanges.None();
         }
+        // TODO optimise this
         if (destinations.stream().allMatch(station -> station.getDropoffRoutes(date, timeRange).isEmpty())) {
             logger.warn(format("destination stations %s have no drop-off routes", HasId.asIds(destinations)));
             return NumberOfChanges.None();
         }
+
+        Set<Route> startRoutes = pickupRoutesFor(starts, date, timeRange);
+        Set<Route> endRoutes = dropoffRoutesFor(destinations, date, timeRange);
+        InterchangeOperating interchangesOperating = new InterchangeOperating(date, timeRange);
+
         if (neighboursRepository.areNeighbours(starts, destinations)) {
-            return new NumberOfChanges(0, maxHops(pickupRoutesFor(starts, date, timeRange), dropoffRoutesFor(destinations, date, timeRange), date, timeRange));
+            int maxHops = maxHops(startRoutes, endRoutes, date, timeRange, interchangesOperating);
+            return new NumberOfChanges(0, maxHops);
         }
-        return getNumberOfHops(pickupRoutesFor(starts, date, timeRange), dropoffRoutesFor(destinations, date, timeRange), date, timeRange);
+        return getNumberOfHops(startRoutes, endRoutes, date, timeRange, interchangesOperating);
     }
 
     @Override
@@ -268,6 +282,8 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
         final Set<Route> pickupRoutes = startStation.getPickupRoutes(date, timeRange);
         final Set<Route> dropoffRoutes = destination.getDropoffRoutes(date, timeRange);
 
+        InterchangeOperating interchangesOperating = new InterchangeOperating(date, timeRange);
+
         if (pickupRoutes.isEmpty()) {
             logger.warn(format("start station %s has no matching pick-up routes", startStation.getId()));
             return NumberOfChanges.None();
@@ -278,7 +294,7 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
         }
 
         if (preferredModes.isEmpty()) {
-            return getNumberOfHops(pickupRoutes, dropoffRoutes, date, timeRange);
+            return getNumberOfHops(pickupRoutes, dropoffRoutes, date, timeRange, interchangesOperating);
         } else {
             final Set<Route> filteredPickupRoutes = filterForModes(preferredModes, pickupRoutes);
             final Set<Route> filteredDropoffRoutes = filterForModes(preferredModes, dropoffRoutes);
@@ -290,7 +306,7 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
                 return NumberOfChanges.None();
             }
 
-            return getNumberOfHops(filteredPickupRoutes, filteredDropoffRoutes, date, timeRange);
+            return getNumberOfHops(filteredPickupRoutes, filteredDropoffRoutes, date, timeRange, interchangesOperating);
         }
 
     }
@@ -310,15 +326,17 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
     }
 
     @NotNull
-    private NumberOfChanges getNumberOfHops(Set<Route> startRoutes, Set<Route> destinationRoutes, LocalDate date, TimeRange timeRange) {
+    private NumberOfChanges getNumberOfHops(Set<Route> startRoutes, Set<Route> destinationRoutes, LocalDate date,
+                                            TimeRange timeRange, InterchangeOperating interchangesOperating) {
 
-        int minHops = minHops(startRoutes, destinationRoutes, date, timeRange);
+
+        int minHops = minHops(startRoutes, destinationRoutes, date, timeRange, interchangesOperating);
         if (minHops > MAX_DEPTH) {
             logger.error(format("Unexpected result for min hops %s greater than max depth %s, for %s to %s",
                     minHops, MAX_DEPTH, HasId.asIds(startRoutes), HasId.asIds(destinationRoutes)));
         }
 
-        int maxHops = maxHops(startRoutes, destinationRoutes, date, timeRange);
+        int maxHops = maxHops(startRoutes, destinationRoutes, date, timeRange, interchangesOperating);
         if (maxHops > MAX_DEPTH) {
             logger.error(format("Unexpected result for max hops %s greater than max depth %s, for %s to %s",
                     maxHops, MAX_DEPTH, HasId.asIds(startRoutes), HasId.asIds(destinationRoutes)));
@@ -330,19 +348,21 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
         return numberOfChanges;
     }
 
-    private int minHops(Set<Route> startRoutes, Set<Route> endRoutes, LocalDate date, TimeRange time) {
+    private int minHops(Set<Route> startRoutes, Set<Route> endRoutes, LocalDate date, TimeRange time, InterchangeOperating interchangeOperating) {
         final Optional<Integer> query = startRoutes.stream().
-                flatMap(startRoute -> endRoutes.stream().map(endRoute -> getFor(startRoute, endRoute, date, time))).
+                flatMap(startRoute ->
+                        endRoutes.stream().map(endRoute -> getNumberChangesFor(startRoute, endRoute, date, time, interchangeOperating))).
                 min(Integer::compare);
+
         if (query.isEmpty()) {
             logger.warn(format("No minHops found for %s to %s", HasId.asIds(startRoutes), HasId.asIds(endRoutes)));
         }
         return query.orElse(Integer.MAX_VALUE);
     }
 
-    private Integer maxHops(Set<Route> startRoutes, Set<Route> endRoutes, LocalDate date, TimeRange time) {
+    private Integer maxHops(Set<Route> startRoutes, Set<Route> endRoutes, LocalDate date, TimeRange time, InterchangeOperating interchangesOperating) {
         final Optional<Integer> query = startRoutes.stream().
-                flatMap(startRoute -> endRoutes.stream().map(endRoute -> getFor(startRoute, endRoute, date, time))).
+                flatMap(startRoute -> endRoutes.stream().map(endRoute -> getNumberChangesFor(startRoute, endRoute, date, time, interchangesOperating))).
                 filter(result -> result != Integer.MAX_VALUE).
                 max(Integer::compare);
 
@@ -370,6 +390,7 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
         private final Set<Integer> destinationIndexs;
         private final LocalDate date;
         private final TimeRange time;
+        private final InterchangeOperating interchangeOperating;
 
         public LowestCostForDestinations(BetweenRoutesCostRepository routeToRouteCosts, Set<Route> destinations, LocalDate date, TimeRange time) {
             this.routeToRouteCosts = (RouteToRouteCosts) routeToRouteCosts;
@@ -378,6 +399,8 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
                     collect(Collectors.toUnmodifiableSet());
             this.date = date;
             this.time = time;
+            interchangeOperating = new InterchangeOperating(date, time);
+
         }
 
         /***
@@ -391,9 +414,12 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
             if (destinationIndexs.contains(indexOfStart)) {
                 return 0;
             }
+
+            InterchangeOperating interchangeOperating = new InterchangeOperating(date, time);
+
             // note: IntStream uses int in implementation so avoids any boxing overhead
             return destinationIndexs.stream().mapToInt(item -> item).
-                    map(indexOfDest -> routeToRouteCosts.costs.getDepth(RouteIndexPair.of(indexOfStart, indexOfDest), date, time)).
+                    map(indexOfDest -> routeToRouteCosts.costs.getDepth(RouteIndexPair.of(indexOfStart, indexOfDest), date, time, interchangeOperating)).
                     filter(result -> result != Costs.MAX_VALUE).
                     min().
                     orElse(Integer.MAX_VALUE);
@@ -413,9 +439,10 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
             if (destinationIndexs.contains(indexOfStart)) {
                 return Pair.of(0, start); // start on route that is present at destination
             }
+
             // note: IntStream uses int in implementation so avoids any boxing overhead
             int result = destinationIndexs.stream().mapToInt(item -> item).
-                    map(dest -> routeToRouteCosts.costs.getDepth(RouteIndexPair.of(indexOfStart, dest), date, time)).
+                    map(dest -> routeToRouteCosts.costs.getDepth(RouteIndexPair.of(indexOfStart, dest), date, time, interchangeOperating)).
                     min().
                     orElse(Integer.MAX_VALUE);
             return Pair.of(result, start);
@@ -583,13 +610,15 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
             return costsForDegree[degree].isSet(routeIndexA, routeIndexB);
         }
 
-        private int getDepth(RouteIndexPair routePair, LocalDate date, TimeRange time) {
-            List<List<RouteInterchanges>> changes = getChangesFor(routePair);
+        private int getDepth(RouteIndexPair routePair, LocalDate date, TimeRange time, InterchangeOperating interchangeOperating) {
+            List<List<RouteAndInterchanges>> changes = getChangesFor(routePair);
 
-            logger.debug(format("Found changes at %s %s %s", date, time, changes));
+            logger.info(format("Found %s changes combinations for %s %s %s", changes.size(), date, time, routePair));
 
-            List<List<RouteInterchanges>> filteredByAvailability = changes.stream().
-                    filter(routeInterchanges -> isOperating(routeInterchanges, date, time)).collect(Collectors.toList());
+            List<List<RouteAndInterchanges>> filteredByAvailability = changes.stream().
+                    filter(interchangeOperating::isOperating).
+                    collect(Collectors.toList());
+                    //filter(routeInterchanges -> isOperating(routeInterchanges, date, time)).collect(Collectors.toList());
 
             if (changes.size()!=filteredByAvailability.size()) {
                 logger.debug(format("Filtered from %s to %s", changes.size(), filteredByAvailability.size()));
@@ -611,8 +640,8 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
          * @param date the date to filter for
          * @return true iff any of the list of interchange have at least one path that is valid on the date
          */
-        private boolean isOperating(List<RouteInterchanges> changeSet, LocalDate date, TimeRange time) {
-            return changeSet.stream().anyMatch(routeInterchanges -> routeInterchanges.availableAt(date, time));
+        private boolean isOperating(List<RouteAndInterchanges> changeSet, LocalDate date, TimeRange time) {
+            return changeSet.stream().anyMatch(routeAndInterchanges -> routeAndInterchanges.availableAt(date, time));
         }
 
         private byte getDegree(RouteIndexPair routePair) {
@@ -641,7 +670,7 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
          * @param routePair indexes for first and second routes
          * @return each set returned contains specific interchanges between 2 specific routes
          */
-        public List<List<RouteInterchanges>> getChangesFor(final RouteIndexPair routePair) {
+        public List<List<RouteAndInterchanges>> getChangesFor(final RouteIndexPair routePair) {
 
             final byte initialDepth = getDegree(routePair);
 
@@ -660,7 +689,7 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
 
             logger.debug(format("Got %s set of changes for %s: %s", routeInterchanges.size(), routePair, routeInterchanges));
 
-            List<List<RouteInterchanges>> results = routeInterchanges.stream().
+            List<List<RouteAndInterchanges>> results = routeInterchanges.stream().
                     map(list -> list.stream().map(this::getInterchangeFor).filter(Objects::nonNull)).
                     map(onePossibleSetOfChange -> onePossibleSetOfChange.collect(Collectors.toList()))
                     .collect(Collectors.toList());
@@ -707,14 +736,14 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
             return Arrays.asList(newFirstPair, newSecondPair);
         }
 
-        private RouteInterchanges getInterchangeFor(RouteIndexPair indexPair) {
+        private RouteAndInterchanges getInterchangeFor(RouteIndexPair indexPair) {
             RoutePair routePair = index.getPairFor(indexPair);
 
             if (interchanges.containsKey(indexPair)) {
                 Set<Station> changes = interchanges.get(indexPair);
-                RouteInterchanges routeInterchanges = new RouteInterchanges(routePair, changes);
+                RouteAndInterchanges routeAndInterchanges = new RouteAndInterchanges(routePair, changes);
                 logger.debug(format("Found changes %s for %s", HasId.asIds(changes), indexPair));
-                return routeInterchanges;
+                return routeAndInterchanges;
             }
             logger.debug("Did not find any interchanges for " + routePair);
             return null;
@@ -783,7 +812,7 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
             this.second = second;
         }
 
-        public static RouteIndexPair getFor(RouteIndex index, Route routeA, Route routeB) {
+        public static RouteIndexPair getIndexPairFor(RouteIndex index, Route routeA, Route routeB) {
             int a = index.indexFor(routeA.getId());
             int b = index.indexFor(routeB.getId());
             return of(a, b);
@@ -828,4 +857,32 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
         }
     }
 
+    private static class InterchangeOperating {
+        private final LocalDate date;
+        private final TimeRange time;
+
+        final private Set<RouteAndInterchanges> active;
+
+        public InterchangeOperating(LocalDate date, TimeRange time) {
+
+            this.date = date;
+            this.time = time;
+            active = new HashSet<>();
+        }
+
+        public boolean isOperating(List<RouteAndInterchanges> changeSet) {
+            return changeSet.stream().anyMatch(this::isOperating);
+        }
+
+        private boolean isOperating(RouteAndInterchanges routeAndInterchanges) {
+            if (active.contains(routeAndInterchanges)) {
+                return true;
+            }
+            boolean available = routeAndInterchanges.availableAt(date, time);
+            if (available) {
+                active.add(routeAndInterchanges);
+            }
+            return available;
+        }
+    }
 }

@@ -5,7 +5,6 @@ import com.tramchester.ComponentsBuilder;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.*;
 import com.tramchester.domain.id.IdFor;
-import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.Station;
@@ -24,8 +23,6 @@ import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TramRouteHelper;
 import com.tramchester.testSupport.reference.KnownTramRoute;
 import com.tramchester.testSupport.testTags.Summer2022;
-import io.dropwizard.validation.DataSizeRange;
-import org.checkerframework.checker.units.qual.K;
 import org.junit.jupiter.api.*;
 import org.neo4j.graphdb.Transaction;
 
@@ -265,7 +262,7 @@ class RouteCalculatorSummer2022Test {
 
         TimeRange timeRange = TimeRange.of(TramTime.of(8,15), TramTime.of(22,35));
 
-        int count = routeToRouteCosts.getFor(originalRoute, replacementRoute, when.plusDays(1), timeRange);
+        int count = routeToRouteCosts.getNumberChangesFor(originalRoute, replacementRoute, when.plusDays(1), timeRange);
 
         assertEquals(1, count);
     }
@@ -279,7 +276,7 @@ class RouteCalculatorSummer2022Test {
 
         TimeRange timeRange = TimeRange.of(TramTime.of(8,15), TramTime.of(22,35));
 
-        int count = routeToRouteCosts.getFor(originalRoute, replacementRoute, when.plusDays(1), timeRange);
+        int count = routeToRouteCosts.getNumberChangesFor(originalRoute, replacementRoute, when.plusDays(1), timeRange);
 
         assertEquals(1, count);
     }

@@ -113,7 +113,7 @@ public class BusRouteToRouteCostsTest {
                 "Macclesfield - Altrincham");
         assertEquals(2, knutsfordToAlty.size());
 
-        assertEquals(1, routeToRouteCosts.getFor(altyToKnutsford.iterator().next(), knutsfordToAlty.iterator().next(), date, timeRange));
+        assertEquals(1, routeToRouteCosts.getNumberChangesFor(altyToKnutsford.iterator().next(), knutsfordToAlty.iterator().next(), date, timeRange));
 
     }
 

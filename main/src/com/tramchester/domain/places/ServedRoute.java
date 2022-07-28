@@ -83,12 +83,15 @@ public class ServedRoute {
                 collect(Collectors.toSet());
     }
 
-    public boolean routeAvailableOnDate(Route route, LocalDate date, TimeRange range) {
+    public boolean routeAvailableOnDate(final Route route, final LocalDate date, final TimeRange range) {
         return routeAndServices.stream().
                 filter(routeAndService -> routeAndService.getRoute().equals(route)).
                 filter(routeAndService -> routeAndService.isAvailableOn(date)).
-                map(timeWindows::get).
-                anyMatch(timeWindow -> timeWindow.anyOverlap(range));
+                anyMatch(routeAndService -> matchesTimewindow(routeAndService, range));
+    }
+
+    private boolean matchesTimewindow(final RouteAndService routeAndService, final TimeRange range) {
+        return timeWindows.get(routeAndService).anyOverlap(range);
     }
 
     /***

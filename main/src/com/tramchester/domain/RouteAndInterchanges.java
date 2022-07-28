@@ -8,11 +8,11 @@ import java.time.LocalDate;
 import java.util.Objects;
 import java.util.Set;
 
-public class RouteInterchanges {
+public class RouteAndInterchanges {
     private final RoutePair routePair;
     private final Set<Station> interchangeStations;
 
-    public RouteInterchanges(RoutePair routePair, Set<Station> interchangeStations) {
+    public RouteAndInterchanges(RoutePair routePair, Set<Station> interchangeStations) {
         this.routePair = routePair;
         this.interchangeStations = interchangeStations;
     }
@@ -33,7 +33,7 @@ public class RouteInterchanges {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        RouteInterchanges that = (RouteInterchanges) o;
+        RouteAndInterchanges that = (RouteAndInterchanges) o;
         return routePair.equals(that.routePair) && interchangeStations.equals(that.interchangeStations);
     }
 
@@ -50,10 +50,8 @@ public class RouteInterchanges {
     }
 
     private boolean validForDate(Station station, LocalDate date, TimeRange time) {
-        if (routePair.isAvailableOn(date)) {
-            return station.servesRouteDropOff(routePair.getFirst(), date, time) &&
-                    station.servesRoutePickup(routePair.getSecond(), date, time);
-        }
-        return false;
+        return station.servesRouteDropOff(routePair.getFirst(), date, time) &&
+                station.servesRoutePickup(routePair.getSecond(), date, time);
+
     }
 }

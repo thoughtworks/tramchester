@@ -1,7 +1,5 @@
 package com.tramchester.domain;
 
-import com.tramchester.domain.time.TimeRange;
-
 import java.time.LocalDate;
 import java.util.Objects;
 
@@ -25,8 +23,8 @@ public class RoutePair {
     @Override
     public String toString() {
         return "RoutePair{" +
-                "first=" + first.getId() + " (" + first.getName() + ")" +
-                ", second=" + second.getId() +" (" + second.getName() + ")" +
+                "first=" + first.getId() + " (" + first.getShortName() + ")" +
+                ", second=" + second.getId() +" (" + second.getShortName() + ")" +
                 '}';
     }
 
