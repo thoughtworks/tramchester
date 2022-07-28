@@ -128,8 +128,8 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
         final Instant startTime = Instant.now();
         final int nextDegree = currentDegree + 1;
 
-        final CostsForDegree currentMatrix = costs.costsFor(currentDegree);
-        final CostsForDegree newMatrix = costs.costsFor(nextDegree);
+        final RouteOverlapMatrix currentMatrix = costs.costsFor(currentDegree);
+        final RouteOverlapMatrix newMatrix = costs.costsFor(nextDegree);
 
         for (int routeIndex = 0; routeIndex < numberOfRoutes; routeIndex++) {
 
@@ -155,12 +155,12 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
     private void addInitialConnectionsFromInterchanges(RouteDateAndDayOverlap routeDateAndDayOverlap) {
         final Set<InterchangeStation> interchanges = interchangeRepository.getAllInterchanges();
         logger.info("Pre-populate route to route costs from " + interchanges.size() + " interchanges");
-        final CostsForDegree forDegreeOne = costs.costsForDegree[1];
+        final RouteOverlapMatrix forDegreeOne = costs.costsForDegree[1];
         interchanges.forEach(interchange -> addOverlapsForInterchange(forDegreeOne, interchange, routeDateAndDayOverlap));
         logger.info("Add " + costs.size() + " connections for interchanges");
     }
 
-    private void addOverlapsForInterchange(CostsForDegree forDegreeOne, InterchangeStation interchange,
+    private void addOverlapsForInterchange(RouteOverlapMatrix forDegreeOne, InterchangeStation interchange,
                                            RouteDateAndDayOverlap routeDateAndDayOverlap) {
 
         // record interchanges, where we can go from being dropped off (routes) to being picked up (routes)
@@ -190,12 +190,15 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
      * @return number of changes
      */
     public int getNumberChangesFor(Route routeA, Route routeB, LocalDate date, TimeRange timeRange) {
+        RouteOverlapMatrix dateOverlaps = costs.createOverlapMatrixFor(date);
+
         InterchangeOperating interchangeOperating = new InterchangeOperating(date, timeRange);
 
-        return getNumberChangesFor(routeA, routeB, date, timeRange, interchangeOperating);
+        return getNumberChangesFor(routeA, routeB, date, timeRange, interchangeOperating, dateOverlaps);
     }
 
-    public int getNumberChangesFor(Route routeA, Route routeB, LocalDate date, TimeRange timeRange, InterchangeOperating interchangeOperating) {
+    public int getNumberChangesFor(Route routeA, Route routeB, LocalDate date, TimeRange timeRange,
+                                   InterchangeOperating interchangeOperating, RouteOverlapMatrix overlapsForDate) {
         if (routeA.equals(routeB)) {
             return 0;
         }
@@ -205,7 +208,7 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
         }
 
         RouteIndexPair routePair = RouteIndexPair.getIndexPairFor(index, routeA, routeB);
-        final int result = costs.getDepth(routePair, date, timeRange, interchangeOperating);
+        final int result = costs.getDepth(routePair, date, timeRange, interchangeOperating, overlapsForDate);
 
         if (result == Costs.MAX_VALUE) {
             if (routeA.getTransportMode() == routeB.getTransportMode()) {
@@ -225,7 +228,8 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
 
         RouteIndexPair indexPair = RouteIndexPair.getIndexPairFor(index, routeA, routeB);
 
-        List<List<RouteAndInterchanges>> result = costs.getChangesFor(indexPair);
+        RouteOverlapMatrix dateOverlaps = RouteOverlapMatrix.getIdentity(numberOfRoutes);
+        List<List<RouteAndInterchanges>> result = costs.getChangesFor(indexPair, dateOverlaps);
 
         if (result.isEmpty()) {
             logger.warn(format("Unable to find changes between %s", routePair));
@@ -261,7 +265,8 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
         InterchangeOperating interchangesOperating = new InterchangeOperating(date, timeRange);
 
         if (neighboursRepository.areNeighbours(starts, destinations)) {
-            int maxHops = maxHops(startRoutes, endRoutes, date, timeRange, interchangesOperating);
+            RouteOverlapMatrix dateOverlaps = costs.createOverlapMatrixFor(date);
+            int maxHops = maxHops(startRoutes, endRoutes, date, timeRange, interchangesOperating, dateOverlaps);
             return new NumberOfChanges(0, maxHops);
         }
         return getNumberOfHops(startRoutes, endRoutes, date, timeRange, interchangesOperating);
@@ -329,14 +334,15 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
     private NumberOfChanges getNumberOfHops(Set<Route> startRoutes, Set<Route> destinationRoutes, LocalDate date,
                                             TimeRange timeRange, InterchangeOperating interchangesOperating) {
 
+        RouteOverlapMatrix dateOverlaps = costs.createOverlapMatrixFor(date);
 
-        int minHops = minHops(startRoutes, destinationRoutes, date, timeRange, interchangesOperating);
+        int minHops = minHops(startRoutes, destinationRoutes, date, timeRange, interchangesOperating, dateOverlaps);
         if (minHops > MAX_DEPTH) {
             logger.error(format("Unexpected result for min hops %s greater than max depth %s, for %s to %s",
                     minHops, MAX_DEPTH, HasId.asIds(startRoutes), HasId.asIds(destinationRoutes)));
         }
 
-        int maxHops = maxHops(startRoutes, destinationRoutes, date, timeRange, interchangesOperating);
+        int maxHops = maxHops(startRoutes, destinationRoutes, date, timeRange, interchangesOperating, dateOverlaps);
         if (maxHops > MAX_DEPTH) {
             logger.error(format("Unexpected result for max hops %s greater than max depth %s, for %s to %s",
                     maxHops, MAX_DEPTH, HasId.asIds(startRoutes), HasId.asIds(destinationRoutes)));
@@ -348,10 +354,13 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
         return numberOfChanges;
     }
 
-    private int minHops(Set<Route> startRoutes, Set<Route> endRoutes, LocalDate date, TimeRange time, InterchangeOperating interchangeOperating) {
+    private int minHops(Set<Route> startRoutes, Set<Route> endRoutes, LocalDate date, TimeRange time,
+                        InterchangeOperating interchangeOperating, RouteOverlapMatrix dateOverlaps) {
+
         final Optional<Integer> query = startRoutes.stream().
                 flatMap(startRoute ->
-                        endRoutes.stream().map(endRoute -> getNumberChangesFor(startRoute, endRoute, date, time, interchangeOperating))).
+                        endRoutes.stream().map(endRoute ->
+                                getNumberChangesFor(startRoute, endRoute, date, time, interchangeOperating, dateOverlaps))).
                 min(Integer::compare);
 
         if (query.isEmpty()) {
@@ -360,9 +369,10 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
         return query.orElse(Integer.MAX_VALUE);
     }
 
-    private Integer maxHops(Set<Route> startRoutes, Set<Route> endRoutes, LocalDate date, TimeRange time, InterchangeOperating interchangesOperating) {
+    private Integer maxHops(Set<Route> startRoutes, Set<Route> endRoutes, LocalDate date, TimeRange time, InterchangeOperating interchangesOperating, RouteOverlapMatrix dateOverlaps) {
         final Optional<Integer> query = startRoutes.stream().
-                flatMap(startRoute -> endRoutes.stream().map(endRoute -> getNumberChangesFor(startRoute, endRoute, date, time, interchangesOperating))).
+                flatMap(startRoute ->
+                        endRoutes.stream().map(endRoute -> getNumberChangesFor(startRoute, endRoute, date, time, interchangesOperating, dateOverlaps))).
                 filter(result -> result != Integer.MAX_VALUE).
                 max(Integer::compare);
 
@@ -391,6 +401,7 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
         private final LocalDate date;
         private final TimeRange time;
         private final InterchangeOperating interchangeOperating;
+        private final RouteOverlapMatrix dateOverlaps;
 
         public LowestCostForDestinations(BetweenRoutesCostRepository routeToRouteCosts, Set<Route> destinations, LocalDate date, TimeRange time) {
             this.routeToRouteCosts = (RouteToRouteCosts) routeToRouteCosts;
@@ -400,6 +411,7 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
             this.date = date;
             this.time = time;
             interchangeOperating = new InterchangeOperating(date, time);
+            dateOverlaps = ((RouteToRouteCosts) routeToRouteCosts).costs.createOverlapMatrixFor(date);
 
         }
 
@@ -419,7 +431,8 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
 
             // note: IntStream uses int in implementation so avoids any boxing overhead
             return destinationIndexs.stream().mapToInt(item -> item).
-                    map(indexOfDest -> routeToRouteCosts.costs.getDepth(RouteIndexPair.of(indexOfStart, indexOfDest), date, time, interchangeOperating)).
+                    map(indexOfDest -> routeToRouteCosts.costs.getDepth(RouteIndexPair.of(indexOfStart, indexOfDest), date, time, interchangeOperating,
+                            dateOverlaps)).
                     filter(result -> result != Costs.MAX_VALUE).
                     min().
                     orElse(Integer.MAX_VALUE);
@@ -442,7 +455,8 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
 
             // note: IntStream uses int in implementation so avoids any boxing overhead
             int result = destinationIndexs.stream().mapToInt(item -> item).
-                    map(dest -> routeToRouteCosts.costs.getDepth(RouteIndexPair.of(indexOfStart, dest), date, time, interchangeOperating)).
+                    map(dest -> routeToRouteCosts.costs.getDepth(RouteIndexPair.of(indexOfStart, dest), date, time, interchangeOperating,
+                            dateOverlaps)).
                     min().
                     orElse(Integer.MAX_VALUE);
             return Pair.of(result, start);
@@ -528,16 +542,24 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
         }
     }
 
-    private static class CostsForDegree {
+    private static class RouteOverlapMatrix {
         private final BitSet[] rows;
         private final int numberOfRoutes;
 
-        private CostsForDegree(int numberOfRoutes) {
+        private RouteOverlapMatrix(int numberOfRoutes) {
             rows = new BitSet[numberOfRoutes];
             this.numberOfRoutes = numberOfRoutes;
             for (int i = 0; i < numberOfRoutes; i++) {
                 rows[i] = new BitSet(numberOfRoutes);
             }
+        }
+
+        public static RouteOverlapMatrix getIdentity(int size) {
+            RouteOverlapMatrix result = new RouteOverlapMatrix(size);
+            for (int i = 0; i < size; i++) {
+                result.rows[i].set(0, size);
+            }
+            return result;
         }
 
         public void set(int indexA, int indexB) {
@@ -578,24 +600,58 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
             BitSet mutable = rows[index];
             mutable.and(bitSet);
         }
+
+        public RouteOverlapMatrix and(RouteOverlapMatrix other) {
+            if (numberOfRoutes!=other.numberOfRoutes) {
+                throw new RuntimeException(format("Mismatch on matrix size this %s other %s", numberOfRoutes, other.numberOfRoutes));
+            }
+            RouteOverlapMatrix result = new RouteOverlapMatrix(numberOfRoutes);
+            for (int i = 0; i < numberOfRoutes; i++) {
+                BitSet newRow = new BitSet(numberOfRoutes);
+                newRow.or(rows[i]); // set current
+                newRow.and(other.rows[i]);
+                result.insert(i, newRow);
+            }
+            return result;
+        }
     }
 
     private static class Costs {
         public static final byte MAX_VALUE = Byte.MAX_VALUE;
 
         private final Map<RouteIndexPair, Set<Station>> interchanges;
-        private final CostsForDegree[] costsForDegree;
+        private final RouteOverlapMatrix[] costsForDegree;
         private final RouteIndex index;
         private final int maxDepth;
+        private final int numRoutes;
 
         private Costs(RouteIndex index, int numRoutes, int maxDepth) {
             this.index = index;
             this.maxDepth = maxDepth;
-            costsForDegree = new CostsForDegree[maxDepth];
+            costsForDegree = new RouteOverlapMatrix[maxDepth];
             interchanges = new HashMap<>();
             for (int degree = 1; degree < maxDepth; degree++) {
-                costsForDegree[degree] = new CostsForDegree(numRoutes);
+                costsForDegree[degree] = new RouteOverlapMatrix(numRoutes);
             }
+            this.numRoutes = numRoutes;
+        }
+
+        private RouteOverlapMatrix createOverlapMatrixFor(LocalDate date) {
+            RouteOverlapMatrix matrix = new RouteOverlapMatrix(numRoutes);
+            for (int firstRouteIndex = 0; firstRouteIndex < numRoutes; firstRouteIndex++) {
+                Route startRoute = index.getRouteFor(firstRouteIndex);
+                BitSet result = new BitSet(numRoutes);
+                if (startRoute.isAvailableOn(date)) {
+                    for(int secondRouteIndex = 0; secondRouteIndex < numRoutes; secondRouteIndex++) {
+                        Route endRoute = index.getRouteFor(secondRouteIndex);
+                        if (endRoute.isAvailableOn(date)) {
+                            result.set(secondRouteIndex);
+                        }
+                    }
+                }
+                matrix.insert(firstRouteIndex, result);
+            }
+            return matrix;
         }
 
         public int size() {
@@ -610,8 +666,10 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
             return costsForDegree[degree].isSet(routeIndexA, routeIndexB);
         }
 
-        private int getDepth(RouteIndexPair routePair, LocalDate date, TimeRange time, InterchangeOperating interchangeOperating) {
-            List<List<RouteAndInterchanges>> changes = getChangesFor(routePair);
+        private int getDepth(RouteIndexPair routePair, LocalDate date, TimeRange time,
+                             InterchangeOperating interchangeOperating, RouteOverlapMatrix dateOverlaps) {
+
+            List<List<RouteAndInterchanges>> changes = getChangesFor(routePair, dateOverlaps);
 
             logger.info(format("Found %s changes combinations for %s %s %s", changes.size(), date, time, routePair));
 
@@ -634,16 +692,6 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
 
         }
 
-        /***
-         *
-         * @param changeSet list of route interchanges to get between 2 routes
-         * @param date the date to filter for
-         * @return true iff any of the list of interchange have at least one path that is valid on the date
-         */
-        private boolean isOperating(List<RouteAndInterchanges> changeSet, LocalDate date, TimeRange time) {
-            return changeSet.stream().anyMatch(routeAndInterchanges -> routeAndInterchanges.availableAt(date, time));
-        }
-
         private byte getDegree(RouteIndexPair routePair) {
             if (routePair.isSame()) {
                 return 0;
@@ -656,7 +704,7 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
             return MAX_VALUE;
         }
 
-        public CostsForDegree costsFor(int currentDegree) {
+        public RouteOverlapMatrix costsFor(int currentDegree) {
             return costsForDegree[currentDegree];
         }
 
@@ -668,9 +716,10 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
 
         /***
          * @param routePair indexes for first and second routes
+         * @param dateOverlaps
          * @return each set returned contains specific interchanges between 2 specific routes
          */
-        public List<List<RouteAndInterchanges>> getChangesFor(final RouteIndexPair routePair) {
+        private List<List<RouteAndInterchanges>> getChangesFor(final RouteIndexPair routePair, RouteOverlapMatrix dateOverlaps) {
 
             final byte initialDepth = getDegree(routePair);
 
@@ -685,7 +734,7 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
 
             logger.debug(format("Expand for %s initial depth %s", routePair, initialDepth));
 
-            final Set<List<RouteIndexPair>> routeInterchanges = expand(Collections.singletonList(routePair), initialDepth);
+            final Set<List<RouteIndexPair>> routeInterchanges = expand(Collections.singletonList(routePair), initialDepth, dateOverlaps);
 
             logger.debug(format("Got %s set of changes for %s: %s", routeInterchanges.size(), routePair, routeInterchanges));
 
@@ -702,22 +751,22 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
             return results;
         }
 
-        public Set<List<RouteIndexPair>> expand(List<RouteIndexPair> pairs, int degree) {
+        private Set<List<RouteIndexPair>> expand(List<RouteIndexPair> pairs, int degree, RouteOverlapMatrix dateOverlaps) {
             if (degree == 1) {
                 logger.debug("degree 1, expand pair to: " + pairs);
                 return Collections.singleton(pairs);
             }
 
             final int nextDegree = degree - 1;
-            final CostsForDegree costsForDegree = this.costsForDegree[nextDegree];
+            final RouteOverlapMatrix overlapsAtDegree = this.costsForDegree[nextDegree].and(dateOverlaps);
 
             Set<List<RouteIndexPair>> resultsOfExpanion = new HashSet<>();
 
             pairs.forEach(pair -> {
-                List<Integer> overlapsForPair = getIndexOverlapsFor(costsForDegree, pair);
+                List<Integer> overlapsForPair = getIndexOverlapsFor(overlapsAtDegree, pair);
                 overlapsForPair.forEach(overlapForPair -> {
                     List<RouteIndexPair> toExpand = formNewRoutePairs(pair, overlapForPair);
-                    Set<List<RouteIndexPair>> expansionForPair = expand(toExpand, nextDegree);
+                    Set<List<RouteIndexPair>> expansionForPair = expand(toExpand, nextDegree, dateOverlaps);
                     List<RouteIndexPair> resultsForPair = expansionForPair.stream().flatMap(Collection::stream).collect(Collectors.toList());
                     resultsOfExpanion.add(resultsForPair);
                 });
@@ -742,14 +791,22 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
             if (interchanges.containsKey(indexPair)) {
                 Set<Station> changes = interchanges.get(indexPair);
                 RouteAndInterchanges routeAndInterchanges = new RouteAndInterchanges(routePair, changes);
-                logger.debug(format("Found changes %s for %s", HasId.asIds(changes), indexPair));
+                if (logger.isDebugEnabled()) {
+                    logger.debug(format("Found changes %s for %s", HasId.asIds(changes), indexPair));
+                }
                 return routeAndInterchanges;
             }
             logger.debug("Did not find any interchanges for " + routePair);
             return null;
         }
 
-        private List<Integer> getIndexOverlapsFor(CostsForDegree costsForDegree, RouteIndexPair pair) {
+        /***
+         * computes index (bits set) for the overlap between 2 routes and at given degree
+         * @param costsForDegree bitmap for current degree/cost
+         * @param pair the 2 routes to compute the overlap for
+         * @return
+         */
+        private List<Integer> getIndexOverlapsFor(RouteOverlapMatrix costsForDegree, RouteIndexPair pair) {
             ImmutableBitSet linksForA = costsForDegree.getConnectionsFor(pair.first);
             ImmutableBitSet linksForB = costsForDegree.getConnectionsFor(pair.second);
             ImmutableBitSet overlap = linksForA.and(linksForB);
