@@ -18,6 +18,7 @@ import com.tramchester.integration.testSupport.RouteCalculatorTestFacade;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
 import com.tramchester.repository.RouteRepository;
 import com.tramchester.repository.ServiceRepository;
+import com.tramchester.repository.StationAvailabilityRepository;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TramRouteHelper;
@@ -55,6 +56,7 @@ class RouteCalculatorSummer2022Test {
     private RouteRepository routeRepository;
     private RouteToRouteCosts routeToRouteCosts;
     private TramRouteHelper tramRouteHelper;
+    private StationAvailabilityRepository availabilityRepository;
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
@@ -83,6 +85,7 @@ class RouteCalculatorSummer2022Test {
 
         routeRepository = componentContainer.get(RouteRepository.class);
         routeToRouteCosts = componentContainer.get(RouteToRouteCosts.class);
+        availabilityRepository = componentContainer.get(StationAvailabilityRepository.class);
 
         tramRouteHelper = new TramRouteHelper();
 
@@ -289,7 +292,8 @@ class RouteCalculatorSummer2022Test {
 
         Station eccles = Eccles.from(stationRepository);
 
-        assertTrue(eccles.servesRoutePickup(replacementRoute, when, timeRange));
+        //assertTrue(eccles.servesRoutePickup(replacementRoute, when, timeRange));
+        assertTrue(availabilityRepository.isAvailable(eccles, when, timeRange));
 
         Set<Route> pickupRoutesOnStartOfWorks = eccles.getPickupRoutes(START_OF_WORKS, timeRange);
         assertEquals(1, pickupRoutesOnStartOfWorks.size());

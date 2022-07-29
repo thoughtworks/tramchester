@@ -71,7 +71,4 @@ public interface Station extends Location<Station> {
         return StringIdFor.createId(text);
     }
 
-    boolean servesRouteDropOff(Route route, LocalDate date, TimeRange time);
-
-    boolean servesRoutePickup(Route route, LocalDate date, TimeRange time);
 }

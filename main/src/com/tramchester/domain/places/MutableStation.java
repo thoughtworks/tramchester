@@ -163,16 +163,6 @@ public class MutableStation implements Station {
     }
 
     @Override
-    public boolean servesRouteDropOff(Route route, LocalDate date, TimeRange time) {
-        return servesRoutesDropoff.routeAvailableOnDate(route, date, time);
-    }
-
-    @Override
-    public boolean servesRoutePickup(Route route, LocalDate date, TimeRange time) {
-        return servesRoutesPickup.routeAvailableOnDate(route, date, time);
-    }
-
-    @Override
     public Set<Agency> getAgencies() {
         return Collections.unmodifiableSet(servesAgencies);
     }
