@@ -250,12 +250,14 @@ public class MutableStation implements Station {
         return this;
     }
 
+    @Deprecated
     public void addRouteDropOff(Route dropoffFromRoute, Service service, TramTime dropOffTime) {
         modes.add(dropoffFromRoute.getTransportMode());
         servesAgencies.add(dropoffFromRoute.getAgency());
         servesRoutesDropoff.add(dropoffFromRoute, service, dropOffTime);
     }
 
+    @Deprecated
     public void addRoutePickUp(Route pickupFromRoute, Service service, TramTime pickupTime) {
         modes.add(pickupFromRoute.getTransportMode());
         servesAgencies.add(pickupFromRoute.getAgency());

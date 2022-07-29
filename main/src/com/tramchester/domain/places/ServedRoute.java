@@ -61,7 +61,6 @@ public class ServedRoute {
     }
 
 
-    // TODO Have to handle crossing midnight next day logic
     // TODO Should consider all routes that might run during the time window - and then handle this in the MIN/MAX for
     // the number of hops....
     public Set<Route> getRoutes(LocalDate date, TimeRange range) {
@@ -81,17 +80,6 @@ public class ServedRoute {
                 filter(routeAndService -> timeWindows.get(routeAndService).anyOverlap(range)).
                 map(RouteAndService::getRoute).
                 collect(Collectors.toSet());
-    }
-
-    public boolean routeAvailableOnDate(final Route route, final LocalDate date, final TimeRange range) {
-        return routeAndServices.stream().
-                filter(routeAndService -> routeAndService.getRoute().equals(route)).
-                filter(routeAndService -> routeAndService.isAvailableOn(date)).
-                anyMatch(routeAndService -> matchesTimewindow(routeAndService, range));
-    }
-
-    private boolean matchesTimewindow(final RouteAndService routeAndService, final TimeRange range) {
-        return timeWindows.get(routeAndService).anyOverlap(range);
     }
 
     /***

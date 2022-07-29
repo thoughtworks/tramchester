@@ -13,6 +13,7 @@ import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.GTFSPickupDropoffType;
 import com.tramchester.domain.reference.TransportMode;
+import com.tramchester.repository.StationAvailabilityRepository;
 import com.tramchester.repository.WriteableTransportData;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;

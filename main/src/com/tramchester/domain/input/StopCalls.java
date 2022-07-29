@@ -2,6 +2,7 @@ package com.tramchester.domain.input;
 
 import com.tramchester.domain.StationIdPair;
 import com.tramchester.domain.id.HasId;
+import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.time.TramTime;
 import org.slf4j.Logger;
@@ -62,8 +63,14 @@ public class StopCalls {
     }
 
     public boolean callsAt(HasId<Station> stationId) {
-        return orderedStopCalls.values().stream().anyMatch(stopCall ->
-                stopCall.getStationId().equals(stationId.getId()));
+        return orderedStopCalls.values().stream().
+                anyMatch(stopCall -> stopCall.getStationId().equals(stationId.getId()));
+    }
+
+    public StopCall getStopFor(HasId<Station> stationId) {
+        Optional<StopCall> search = orderedStopCalls.values().stream().
+                filter(stopCall -> stopCall.getStationId().equals(stationId.getId())).findFirst();
+        return search.orElse(null);
     }
 
     public Stream<StopCall> stream() {

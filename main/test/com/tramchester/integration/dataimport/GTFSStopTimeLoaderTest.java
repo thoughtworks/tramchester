@@ -11,6 +11,7 @@ import com.tramchester.domain.factory.TransportEntityFactory;
 import com.tramchester.domain.id.CompositeIdMap;
 import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
+import com.tramchester.repository.StationAvailabilityRepository;
 import com.tramchester.repository.TransportDataContainer;
 import com.tramchester.repository.WriteableTransportData;
 import com.tramchester.testSupport.TestEnv;
@@ -45,11 +46,11 @@ public class GTFSStopTimeLoaderTest {
 
         TransportDataSourceFactory dataSourceFactory = componentContainer.get(TransportDataSourceFactory.class);
         TransportDataReaderFactory transportDataReaderFactory = componentContainer.get(TransportDataReaderFactory.class);
-
+        StationAvailabilityRepository availabilityRepository = componentContainer.get(StationAvailabilityRepository.class);
 
         for (int i = 0; i < 100; i++) {
             TransportDataSource dataSource = dataSourceFactory.iterator().next();
-            load(dataSource, container);
+            load(dataSource, container, availabilityRepository);
             dataSourceFactory.stop();
             transportDataReaderFactory.stop();
             transportDataReaderFactory.start();
@@ -59,7 +60,7 @@ public class GTFSStopTimeLoaderTest {
         dataSourceFactory.stop();
     }
 
-    private void load(TransportDataSource dataSource, WriteableTransportData writeableTransportData) {
+    private void load(TransportDataSource dataSource, WriteableTransportData writeableTransportData, StationAvailabilityRepository availabilityRepository) {
 
         DataSourceInfo dataSourceInfo = dataSource.getDataSourceInfo();
         GTFSSourceConfig sourceConfig = dataSource.getConfig();

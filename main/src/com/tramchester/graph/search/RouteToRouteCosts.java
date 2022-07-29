@@ -57,7 +57,8 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
 
     @Inject
     public RouteToRouteCosts(RouteRepository routeRepository, InterchangeRepository interchangeRepository,
-                             NeighboursRepository neighboursRepository, StationAvailabilityRepository availabilityRepository, DataCache dataCache, GraphFilterActive graphFilter) {
+                             NeighboursRepository neighboursRepository, StationAvailabilityRepository availabilityRepository,
+                             DataCache dataCache, GraphFilterActive graphFilter) {
         this.routeRepository = routeRepository;
         this.interchangeRepository = interchangeRepository;
         this.neighboursRepository = neighboursRepository;
@@ -290,8 +291,8 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
 
         // Need to respect timing here, otherwise can find a route that is valid at an interchange but isn't
         // actually running from the start or destination
-        final Set<Route> pickupRoutes = startStation.getPickupRoutes(date, timeRange);
-        final Set<Route> dropoffRoutes = destination.getDropoffRoutes(date, timeRange);
+        final Set<Route> pickupRoutes = availabilityRepository.getPickupRoutesFor(startStation,date, timeRange); //startStation.getPickupRoutes(date, timeRange);
+        final Set<Route> dropoffRoutes = availabilityRepository.getDropoffRoutesFor(destination, date, timeRange); //destination.getDropoffRoutes(date, timeRange);
 
         InterchangeOperating interchangesOperating = new InterchangeOperating(date, timeRange);
 
@@ -330,7 +331,7 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
     @Override
     public LowestCostsForDestRoutes getLowestCostCalcutatorFor(LocationSet destinations, LocalDate date, TimeRange timeRange) {
         Set<Route> destinationRoutes = destinations.stream().
-                map(dest -> dest.getDropoffRoutes(date, timeRange)).
+                map(dest -> availabilityRepository.getDropoffRoutesFor(dest, date, timeRange)).
                 flatMap(Collection::stream).
                 collect(Collectors.toUnmodifiableSet());
         return new LowestCostForDestinations(this, destinationRoutes, date, timeRange);
@@ -389,11 +390,13 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
     }
 
     private Set<Route> dropoffRoutesFor(LocationSet locations, LocalDate date, TimeRange timeRange) {
-        return locations.stream().flatMap(station -> station.getDropoffRoutes(date, timeRange).stream()).collect(Collectors.toSet());
+        return availabilityRepository.getDropoffRoutesFor(locations, date, timeRange);
+        //return locations.stream().flatMap(station -> station.getDropoffRoutes(date, timeRange).stream()).collect(Collectors.toSet());
     }
 
     private Set<Route> pickupRoutesFor(LocationSet locations, LocalDate date, TimeRange timeRange) {
-        return locations.stream().flatMap(station -> station.getPickupRoutes(date, timeRange).stream()).collect(Collectors.toSet());
+        return availabilityRepository.getPickupRoutesFor(locations, date, timeRange);
+        //return locations.stream().flatMap(station -> station.getPickupRoutes(date, timeRange).stream()).collect(Collectors.toSet());
     }
 
 

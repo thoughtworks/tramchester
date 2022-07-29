@@ -41,14 +41,12 @@ public interface Location<TYPE extends Location<?>> extends HasId<TYPE>, IdForDT
      * Use version that takes a date and time?
      * @return all drop off routes for a station, regardless of date
      */
-    @Deprecated
     Set<Route> getDropoffRoutes();
 
     /***
      * Use version that takes a date and time?
      * @return all pick up routes for a station, regardless of date
      */
-    @Deprecated
     Set<Route> getPickupRoutes();
 
     Set<Route> getDropoffRoutes(LocalDate date, TimeRange timeRange);

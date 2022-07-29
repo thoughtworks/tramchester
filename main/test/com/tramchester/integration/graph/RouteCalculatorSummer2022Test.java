@@ -205,7 +205,7 @@ class RouteCalculatorSummer2022Test {
 
         Route ashToEccles = routeRepository.getRouteById(StringIdFor.createId("METLBLUE:I:2022-07-16"));
 
-        Set<Route> dropOffs = traffordBar.getDropoffRoutes(when, timeRange);
+        Set<Route> dropOffs = availabilityRepository.getDropoffRoutesFor(traffordBar, when, timeRange); //traffordBar.getDropoffRoutes(when, timeRange);
 
         assertFalse(dropOffs.contains(ashToEccles), traffordBar.toString());
 
