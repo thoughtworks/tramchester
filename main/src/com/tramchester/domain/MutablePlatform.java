@@ -1,25 +1,23 @@
 package com.tramchester.domain;
 
-import com.google.common.collect.Sets;
+import com.google.common.collect.Streams;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.places.LocationType;
 import com.tramchester.domain.places.NaptanArea;
-import com.tramchester.domain.places.ServedRoute;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.reference.TransportMode;
-import com.tramchester.domain.time.TimeRange;
-import com.tramchester.domain.time.TramTime;
 import com.tramchester.geo.CoordinateTransforms;
 import com.tramchester.geo.GridPosition;
 import com.tramchester.graph.GraphPropertyKey;
 import com.tramchester.graph.graphbuild.GraphLabel;
 import org.apache.commons.collections4.SetUtils;
 
-import java.time.LocalDate;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static java.lang.String.format;
 
@@ -29,8 +27,8 @@ public class MutablePlatform implements Platform {
     private final String name;
     private final String platformNumber;
     private final LatLong latLong;
-    private final ServedRoute servesRoutesPickup;
-    private final ServedRoute servesRoutesDropoff;
+    private final Set<Route> servesRoutesPickup;
+    private final Set<Route> servesRoutesDropoff;
     private final DataSourceID dataSourceId;
     private final IdFor<NaptanArea> areaId;
     private final boolean isMarkedInterchange;
@@ -48,8 +46,8 @@ public class MutablePlatform implements Platform {
         this.isMarkedInterchange = isMarkedInterchange;
         this.name = format("%s platform %s", platformName, platformNumber);
         this.latLong = latLong;
-        servesRoutesPickup = new ServedRoute();
-        servesRoutesDropoff = new ServedRoute();
+        servesRoutesPickup = new HashSet<>();
+        servesRoutesDropoff = new HashSet<>();
 
     }
 
@@ -177,24 +175,12 @@ public class MutablePlatform implements Platform {
 
     @Override
     public Set<Route> getDropoffRoutes() {
-        return servesRoutesDropoff.getRoutes();
+        return servesRoutesDropoff;
     }
 
     @Override
     public Set<Route> getPickupRoutes() {
-        return servesRoutesPickup.getRoutes();
-    }
-
-    @Override
-    public Set<Route> getDropoffRoutes(LocalDate date, TimeRange timeRange) {
-        return servesRoutesDropoff.getRoutes(date, timeRange);
-        //return servesRoutesDropoff.stream().filter(route -> route.isAvailableOn(date)).collect(Collectors.toSet());
-    }
-
-    @Override
-    public Set<Route> getPickupRoutes(LocalDate date, TimeRange timeRange) {
-        return servesRoutesPickup.getRoutes(date, timeRange);
-        //return servesRoutesPickup.stream().filter(route -> route.isAvailableOn(date)).collect(Collectors.toSet());
+        return servesRoutesPickup;
     }
 
     @Override
@@ -202,12 +188,12 @@ public class MutablePlatform implements Platform {
         return isMarkedInterchange;
     }
 
-    public void addRouteDropOff(Route route, Service service, TramTime dropOffTime) {
-        servesRoutesDropoff.add(route, service, dropOffTime);
+    public void addRouteDropOff(Route route) {
+        servesRoutesDropoff.add(route);
     }
 
-    public void addRoutePickUp(Route route, Service service, TramTime pickupTime) {
-        servesRoutesPickup.add(route, service, pickupTime);
+    public void addRoutePickUp(Route route) {
+        servesRoutesPickup.add(route);
     }
 
     @Override
@@ -217,9 +203,9 @@ public class MutablePlatform implements Platform {
 
     @Override
     public Set<TransportMode> getTransportModes() {
-        return Sets.union(servesRoutesDropoff.getTransportModes(), servesRoutesPickup.getTransportModes());
-//        return Streams.concat(servesRoutesDropoff.stream(), servesRoutesPickup.stream()).
-//                map(Route::getTransportMode).collect(Collectors.toSet());
+//        return Sets.union(servesRoutesDropoff.getTransportModes(), servesRoutesPickup.getTransportModes());
+        return Streams.concat(servesRoutesDropoff.stream(), servesRoutesPickup.stream()).
+                map(Route::getTransportMode).collect(Collectors.toSet());
     }
 
     @Override

@@ -94,18 +94,6 @@ public class StationGroup implements Location<StationGroup> {
     }
 
     @Override
-    public Set<Route> getDropoffRoutes(LocalDate date, TimeRange timeRange) {
-        return flatten(station -> station.getDropoffRoutes(date, timeRange));
-        //return getDropoffRoutes().stream().filter(route -> route.isAvailableOn(date)).collect(Collectors.toSet());
-    }
-
-    @Override
-    public Set<Route> getPickupRoutes(LocalDate date, TimeRange timeRange) {
-        return flatten(station -> station.getPickupRoutes(date, timeRange));
-//        return getPickupRoutes().stream().filter(route -> route.isAvailableOn(date)).collect(Collectors.toSet());
-    }
-
-    @Override
     public boolean isMarkedInterchange() {
         return anyMatch(Station::isMarkedInterchange);
     }

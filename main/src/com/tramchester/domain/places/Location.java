@@ -49,10 +49,6 @@ public interface Location<TYPE extends Location<?>> extends HasId<TYPE>, IdForDT
      */
     Set<Route> getPickupRoutes();
 
-    Set<Route> getDropoffRoutes(LocalDate date, TimeRange timeRange);
-
-    Set<Route> getPickupRoutes(LocalDate date, TimeRange timeRange);
-
     // marked as an interchange in the source data
     boolean isMarkedInterchange();
 

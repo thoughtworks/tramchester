@@ -229,11 +229,6 @@ public class TramTransportDataForTestFactory implements TransportDataFactory {
         return new MutableStation(Station.createId(station), areaId, stationName, knownLocation.latLong(), knownLocation.grid(), dataSourceID);
     }
 
-//    private MutableStation createStation(String station, IdFor<NaptanArea> areaId, String stationName, LatLong latLong, GridPosition gridPosition,
-//                                         DataSourceID dataSourceID) {
-//        return new MutableStation(Station.createId(station), areaId, stationName, latLong, gridPosition, dataSourceID);
-//    }
-
     private MutableRoute createTramRoute(KnownTramRoute knownRoute) {
         return new MutableRoute(knownRoute.getFakeId(), knownRoute.shortName(), knownRoute.name(), TestEnv.MetAgency(),
                 knownRoute.mode());
@@ -247,15 +242,12 @@ public class TramTransportDataForTestFactory implements TransportDataFactory {
         RouteStation routeStation = new RouteStation(station, route);
         container.addRouteStation(routeStation);
 
-        TramTime startOfService = TramTime.of(4,15);
-        TramTime endOfService = TramTime.of(22,45);
-
         // set large span of times for these
-        station.addRoutePickUp(route, service, startOfService);
-        station.addRoutePickUp(route, service, endOfService);
+        station.addRoutePickUp(route);
+        station.addRoutePickUp(route);
 
-        station.addRouteDropOff(route, service, startOfService);
-        station.addRouteDropOff(route, service, endOfService);
+        station.addRouteDropOff(route);
+        station.addRouteDropOff(route);
     }
 
     private static void createInterchangeToStation4Trip(TransportDataContainer container, MutableRoute route, MutableService service,

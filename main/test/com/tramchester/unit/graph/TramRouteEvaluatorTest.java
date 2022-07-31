@@ -78,15 +78,12 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
                 NaptanArea.createId("area"), "name",
                 new LatLong(1, 1), new GridPosition(1000,1000), DataSourceID.tfgm);
 
-        Service service = MutableService.build(StringIdFor.createId("serviceId"));
-
         destinationStations = LocationSet.singleton(forTest);
-        TramTime serviceStart = TramTime.of(6, 30);
-        TramTime serviceEnd = TramTime.of(23,0);
-        forTest.addRouteDropOff(TestEnv.getTramTestRoute(), service, serviceStart);
-        forTest.addRouteDropOff(TestEnv.getTramTestRoute(), service, serviceEnd);
-        forTest.addRoutePickUp(TestEnv.getTramTestRoute(), service, serviceStart);
-        forTest.addRoutePickUp(TestEnv.getTramTestRoute(), service, serviceEnd);
+
+        forTest.addRouteDropOff(TestEnv.getTramTestRoute());
+        forTest.addRouteDropOff(TestEnv.getTramTestRoute());
+        forTest.addRoutePickUp(TestEnv.getTramTestRoute());
+        forTest.addRoutePickUp(TestEnv.getTramTestRoute());
 
         lowestCostSeen = createMock(LowestCostSeen.class);
         previousSuccessfulVisit = createMock(PreviousVisits.class);

@@ -126,16 +126,6 @@ public class PostcodeLocation implements Location<PostcodeLocation>, HasCaseInse
     }
 
     @Override
-    public Set<Route> getDropoffRoutes(LocalDate date, TimeRange timeRange) {
-        return Collections.emptySet();
-    }
-
-    @Override
-    public Set<Route> getPickupRoutes(LocalDate date, TimeRange timeRange) {
-        return Collections.emptySet();
-    }
-
-    @Override
     public boolean isMarkedInterchange() {
         return false;
     }

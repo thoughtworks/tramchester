@@ -6,15 +6,14 @@ import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.reference.TransportMode;
-import com.tramchester.domain.time.TimeRange;
-import com.tramchester.domain.time.TramTime;
 import com.tramchester.geo.GridPosition;
 import com.tramchester.graph.GraphPropertyKey;
 import com.tramchester.graph.graphbuild.GraphLabel;
 
 import java.time.Duration;
-import java.time.LocalDate;
-import java.util.*;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 public class MutableStation implements Station {
@@ -28,8 +27,8 @@ public class MutableStation implements Station {
     private final LatLong latLong;
     private final GridPosition gridPosition;
     private final Set<Platform> platforms;
-    private final ServedRoute servesRoutesPickup;
-    private final ServedRoute servesRoutesDropoff;
+    private final Set<Route> servesRoutesPickup;
+    private final Set<Route> servesRoutesDropoff;
     private final Set<Route> passedByRoute; // i.e. a station being passed by a train, but the train does not stop
     private final Set<Agency> servesAgencies;
     private final DataSourceID dataSourceID;
@@ -53,8 +52,8 @@ public class MutableStation implements Station {
         this.isMarkedInterchange = isMarkedInterchange;
         this.changeTimeNeeded = changeTimeNeeded;
         platforms = new HashSet<>();
-        servesRoutesPickup = new ServedRoute();
-        servesRoutesDropoff = new ServedRoute();
+        servesRoutesPickup = new HashSet<>();
+        servesRoutesDropoff = new HashSet<>();
         servesAgencies = new HashSet<>();
         passedByRoute = new HashSet<>();
 
@@ -101,8 +100,12 @@ public class MutableStation implements Station {
 
     @Override
     public boolean servesMode(TransportMode mode) {
-        return servesRoutesPickup.serves(mode) || servesRoutesDropoff.serves(mode);
+        return hasMode(mode, servesRoutesPickup) || hasMode(mode, servesRoutesDropoff);
+//        return servesRoutesPickup.serves(mode) || servesRoutesDropoff.serves(mode);
+    }
 
+    private boolean hasMode(TransportMode mode, Set<Route> routes) {
+        return routes.stream().anyMatch(route -> route.getTransportMode().equals(mode));
     }
 
     @Override
@@ -144,22 +147,12 @@ public class MutableStation implements Station {
 
     @Override
     public Set<Route> getDropoffRoutes() {
-        return servesRoutesDropoff.getRoutes();
+        return servesRoutesDropoff;
     }
 
     @Override
     public Set<Route> getPickupRoutes() {
-        return servesRoutesPickup.getRoutes();
-    }
-
-    @Override
-    public Set<Route> getDropoffRoutes(LocalDate date, TimeRange timeRange) {
-        return servesRoutesDropoff.getRoutes(date, timeRange);
-    }
-
-    @Override
-    public Set<Route> getPickupRoutes(LocalDate date, TimeRange timeRange) {
-        return servesRoutesPickup.getRoutes(date, timeRange);
+        return servesRoutesPickup;
     }
 
     @Override
@@ -250,18 +243,16 @@ public class MutableStation implements Station {
         return this;
     }
 
-    @Deprecated
-    public void addRouteDropOff(Route dropoffFromRoute, Service service, TramTime dropOffTime) {
+    public void addRouteDropOff(Route dropoffFromRoute) {
         modes.add(dropoffFromRoute.getTransportMode());
         servesAgencies.add(dropoffFromRoute.getAgency());
-        servesRoutesDropoff.add(dropoffFromRoute, service, dropOffTime);
+        servesRoutesDropoff.add(dropoffFromRoute);
     }
 
-    @Deprecated
-    public void addRoutePickUp(Route pickupFromRoute, Service service, TramTime pickupTime) {
+    public void addRoutePickUp(Route pickupFromRoute) {
         modes.add(pickupFromRoute.getTransportMode());
         servesAgencies.add(pickupFromRoute.getAgency());
-        servesRoutesPickup.add(pickupFromRoute, service, pickupTime);
+        servesRoutesPickup.add(pickupFromRoute);
     }
 
     /***

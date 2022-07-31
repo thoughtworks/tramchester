@@ -41,7 +41,7 @@ class PlatformTest {
 
         assertTrue(platform.getDropoffRoutes().isEmpty());
         final Route tramTestRoute = TestEnv.getTramTestRoute();
-        platform.addRouteDropOff(tramTestRoute, service, dropOffTime);
+        platform.addRouteDropOff(tramTestRoute);
         assertEquals(1, platform.getDropoffRoutes().size());
         assertTrue(platform.getDropoffRoutes().contains(tramTestRoute));
 
@@ -49,7 +49,7 @@ class PlatformTest {
 
         Route anotherRoute = TestEnv.getTramTestRoute(Route.createId("anotherRoute"), "routeNameB");
 
-        platform.addRoutePickUp(anotherRoute, service, pickupTime);
+        platform.addRoutePickUp(anotherRoute);
         assertEquals(1, platform.getDropoffRoutes().size());
         assertTrue(platform.getPickupRoutes().contains(anotherRoute));
 

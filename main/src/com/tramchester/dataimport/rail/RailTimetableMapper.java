@@ -381,17 +381,13 @@ public class RailTimetableMapper {
             final boolean doesPickup = LocationActivityCode.doesPickup(activity);
             final boolean doesDropOff = LocationActivityCode.doesDropOff(activity);
 
-            final Service service = trip.getService();
-
             if (doesDropOff) {
-                final TramTime arrivalTime = getDayAdjusted(railLocation.getArrival(), originTime);
-                station.addRouteDropOff(route, service, arrivalTime);
-                platform.addRouteDropOff(route, service, arrivalTime);
+                station.addRouteDropOff(route);
+                platform.addRouteDropOff(route);
             }
             if (doesPickup) {
-                final TramTime departureTime = getDayAdjusted(railLocation.getDeparture(), originTime);
-                station.addRoutePickUp(route, service, departureTime);
-                platform.addRoutePickUp(route, service, departureTime);
+                station.addRoutePickUp(route);
+                platform.addRoutePickUp(route);
             }
 
             // Route Station

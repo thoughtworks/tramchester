@@ -176,7 +176,7 @@ class RouteCalculatorSummer2022Test {
 
         Station eccles = Eccles.from(stationRepository);
 
-        Set<Trip> notCallingAtEccles = eccles.getPickupRoutes(when, timeRange).stream().
+        Set<Trip> notCallingAtEccles = availabilityRepository.getPickupRoutesFor(eccles, when, timeRange).stream().
                 flatMap(route -> route.getTrips().stream()).
                 filter(trip -> !trip.getStopCalls().callsAt(eccles)).collect(Collectors.toSet());
 
@@ -193,7 +193,7 @@ class RouteCalculatorSummer2022Test {
         Route replacement = tramRouteHelper.getOneRoute(KnownTramRoute.ReplacementRouteFromEccles, routeRepository, when.plusDays(1));
                 //routeRepository.getRouteById(StringIdFor.createId("METLML1:O:2022-07-16"));
 
-        Set<Route> pickUps = harbourCity.getPickupRoutes(when, timeRange);
+        Set<Route> pickUps = availabilityRepository.getPickupRoutesFor(harbourCity, when, timeRange);
         assertFalse(pickUps.contains(replacement), harbourCity.toString());
     }
 
@@ -205,8 +205,7 @@ class RouteCalculatorSummer2022Test {
 
         Route ashToEccles = routeRepository.getRouteById(StringIdFor.createId("METLBLUE:I:2022-07-16"));
 
-        Set<Route> dropOffs = availabilityRepository.getDropoffRoutesFor(traffordBar, when, timeRange); //traffordBar.getDropoffRoutes(when, timeRange);
-
+        Set<Route> dropOffs = availabilityRepository.getDropoffRoutesFor(traffordBar, when, timeRange);
         assertFalse(dropOffs.contains(ashToEccles), traffordBar.toString());
 
     }
@@ -217,10 +216,9 @@ class RouteCalculatorSummer2022Test {
 
         Station eccles = Eccles.from(stationRepository);
 
-        //Route ashToEccles = routeRepository.getRouteById(StringIdFor.createId("METLBLUE:O:2022-07-16"));
         Route ecclesToAsh = tramRouteHelper.getOneRoute(KnownTramRoute.EcclesManchesterAshtonUnderLyne, routeRepository, when);
 
-        Set<Route> pickups = eccles.getPickupRoutes(when,timeRange);
+        Set<Route> pickups = availabilityRepository.getPickupRoutesFor(eccles, when,timeRange);
 
         // should not be present during closure?
         assertFalse(pickups.contains(ecclesToAsh), eccles.toString());
@@ -236,7 +234,7 @@ class RouteCalculatorSummer2022Test {
         //Route ashToEccles = routeRepository.getRouteById(StringIdFor.createId("METLBLUE:O:2022-07-16"));
         Route ecclesToAsh = tramRouteHelper.getOneRoute(KnownTramRoute.EcclesManchesterAshtonUnderLyne, routeRepository, when);
 
-        Set<Route> pickups = eccles.getPickupRoutes(when.plusDays(2), timeRange);
+        Set<Route> pickups = availabilityRepository.getPickupRoutesFor(eccles, when.plusDays(2), timeRange);
 
         // should not be present during closure?
         assertFalse(pickups.contains(ecclesToAsh), eccles.toString());
@@ -295,13 +293,13 @@ class RouteCalculatorSummer2022Test {
         //assertTrue(eccles.servesRoutePickup(replacementRoute, when, timeRange));
         assertTrue(availabilityRepository.isAvailable(eccles, when, timeRange));
 
-        Set<Route> pickupRoutesOnStartOfWorks = eccles.getPickupRoutes(START_OF_WORKS, timeRange);
+        Set<Route> pickupRoutesOnStartOfWorks = availabilityRepository.getPickupRoutesFor(eccles, START_OF_WORKS, timeRange);
         assertEquals(1, pickupRoutesOnStartOfWorks.size());
         assertTrue(pickupRoutesOnStartOfWorks.contains(replacementRoute));
 
-        assertFalse(eccles.getPickupRoutes(START_OF_WORKS.minusDays(1), timeRange).contains(replacementRoute));
+        assertFalse(availabilityRepository.getPickupRoutesFor(eccles, START_OF_WORKS.minusDays(1), timeRange).contains(replacementRoute));
 
-        Set<Route> pickupRoutesDuringWorks = eccles.getPickupRoutes(START_OF_WORKS.plusDays(1), timeRange);
+        Set<Route> pickupRoutesDuringWorks = availabilityRepository.getPickupRoutesFor(eccles, START_OF_WORKS.plusDays(1), timeRange);
         assertEquals(1, pickupRoutesDuringWorks.size(), pickupRoutesDuringWorks.toString());
         assertTrue(pickupRoutesDuringWorks.contains(replacementRoute));
 

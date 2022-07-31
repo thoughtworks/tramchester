@@ -35,7 +35,7 @@ class StationGroupTest {
         Service service = MutableService.build(StringIdFor.createId("serviceId"));
 
         Route route = TestEnv.getTramTestRoute();
-        stationA.addRoutePickUp(route, service, TramTime.of(9,56));
+        stationA.addRoutePickUp(route);
 
         Platform platform = MutablePlatform.buildForTFGMTram("platformId", stationA, latLong, DataSourceID.unknown, IdFor.invalid());
         stationA.addPlatform(platform);
@@ -71,13 +71,13 @@ class StationGroupTest {
 
     @Test
     void shouldHaveCorrectValuesForTwoStation() {
-        Service service = MutableService.build(StringIdFor.createId("serviceId"));
+//        Service service = MutableService.build(StringIdFor.createId("serviceId"));
 
         MutableStation stationA = StationHelper.forTestMutable("idA", "areaA", "stopNameA",
                 new LatLong(2, 4), dataSourceID);
         Route routeA = TestEnv.getTramTestRoute(StringIdFor.createId("routeA"), "routeName");
 
-        stationA.addRouteDropOff(routeA, service, TramTime.of(9,56));
+        stationA.addRouteDropOff(routeA);
         Platform platformA = MutablePlatform.buildForTFGMTram("platformIdA", stationA,
                 new LatLong(2, 4), DataSourceID.unknown, IdFor.invalid());
         stationA.addPlatform(platformA);
@@ -85,8 +85,8 @@ class StationGroupTest {
         MutableStation stationB = StationHelper.forTestMutable("idB", "areaB", "stopNameB",
                 new LatLong(4, 8), dataSourceID);
         Route routeB = MutableRoute.getRoute(StringIdFor.createId("routeB"), "routeCodeB", "routeNameB", TestEnv.StagecoachManchester, Bus);
-        stationB.addRouteDropOff(routeB, service, TramTime.of(10,56));
-        stationB.addRoutePickUp(routeA, service, TramTime.of(11,56));
+        stationB.addRouteDropOff(routeB);
+        stationB.addRoutePickUp(routeA);
         Platform platformB = MutablePlatform.buildForTFGMTram("platformIdB", stationB,
                 new LatLong(4, 8), DataSourceID.unknown, IdFor.invalid());
         stationB.addPlatform(platformB);
@@ -145,10 +145,10 @@ class StationGroupTest {
         assertFalse(stationGroup.hasPickup());
         assertFalse(stationGroup.hasDropoff());
 
-        stationA.addRouteDropOff(routeA, service, TramTime.of(9,56));
+        stationA.addRouteDropOff(routeA);
         assertTrue(stationGroup.hasDropoff());
 
-        stationB.addRoutePickUp(routeB, service, TramTime.of(15,20));
+        stationB.addRoutePickUp(routeB);
         assertTrue(stationGroup.hasPickup());
 
     }

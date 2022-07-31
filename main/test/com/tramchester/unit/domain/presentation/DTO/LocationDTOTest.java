@@ -44,12 +44,8 @@ class LocationDTOTest {
         MutableStation testStation = StationHelper.forTestMutable("9400ZZMAALT", "Altrincham area", "Altrincham",
                 nearAltrincham, DataSourceID.tfgm);
 
-        Service service = MutableService.build(StringIdFor.createId("serviceId"));
-
-        TramTime dropOffTime = TramTime.of(9,11);
-        TramTime pickupTime = TramTime.of(10,42);
-        testStation.addRouteDropOff(TestEnv.getTramTestRoute(StringIdFor.createId("routeIdA"), "routeNameA"), service, dropOffTime);
-        testStation.addRoutePickUp(TestEnv.getTramTestRoute(StringIdFor.createId("routeIdB"), "routeNameB"), service, pickupTime);
+        testStation.addRouteDropOff(TestEnv.getTramTestRoute(StringIdFor.createId("routeIdA"), "routeNameA"));
+        testStation.addRoutePickUp(TestEnv.getTramTestRoute(StringIdFor.createId("routeIdB"), "routeNameB"));
 
         testStation.addPlatform(MutablePlatform.buildForTFGMTram("9400ZZMAALT1", testStation, new LatLong(1.2, 1), DataSourceID.unknown, IdFor.invalid()));
         testStation.addPlatform(MutablePlatform.buildForTFGMTram("9400ZZMAALT2", testStation, new LatLong(1.1, 1), DataSourceID.unknown, IdFor.invalid()));

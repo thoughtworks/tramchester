@@ -130,16 +130,6 @@ public class MyLocation implements Location<MyLocation> {
     }
 
     @Override
-    public Set<Route> getDropoffRoutes(LocalDate date, TimeRange timeRange) {
-        return Collections.emptySet();
-    }
-
-    @Override
-    public Set<Route> getPickupRoutes(LocalDate date, TimeRange timeRange) {
-        return Collections.emptySet();
-    }
-
-    @Override
     public boolean isMarkedInterchange() {
         return false;
     }

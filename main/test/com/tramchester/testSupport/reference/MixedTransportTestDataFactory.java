@@ -119,7 +119,7 @@ public class MixedTransportTestDataFactory implements TransportDataFactory {
         MutableStation first = StationHelper.forTestMutable(MixedTransportTestData.FIRST_STATION, "area1", "startStation",
                 nearAltrincham, dataSourceID);
         addAStation(container, first);
-        addRouteStation(container, first, routeA, serviceA);
+        addRouteStation(container, first, routeA);
         NoPlatformStopCall stopA = createStop(tripA, first, TramTime.of(8, 0),
                 TramTime.of(8, 0), 1);
         tripA.addStop(stopA);
@@ -127,7 +127,7 @@ public class MixedTransportTestDataFactory implements TransportDataFactory {
         MutableStation second = StationHelper.forTestMutable(MixedTransportTestData.SECOND_STATION, "area2",
                 "secondStation", nearPiccGardens, dataSourceID);
         addAStation(container, second);
-        addRouteStation(container, second, routeA, serviceA);
+        addRouteStation(container, second, routeA);
         NoPlatformStopCall stopB = createStop(tripA, second, TramTime.of(8, 11),
                 TramTime.of(8, 11), 2);
         tripA.addStop(stopB);
@@ -135,7 +135,7 @@ public class MixedTransportTestDataFactory implements TransportDataFactory {
         MutableStation interchangeStation = StationHelper.forTestMutable(MixedTransportTestData.INTERCHANGE, "area3"
                 , "cornbrookStation", nearShudehill, dataSourceID);
         addAStation(container, interchangeStation);
-        addRouteStation(container, interchangeStation, routeA, serviceA);
+        addRouteStation(container, interchangeStation, routeA);
         NoPlatformStopCall stopC = createStop(tripA, interchangeStation, TramTime.of(8, 20),
                 TramTime.of(8, 20), 3);
         tripA.addStop(stopC);
@@ -143,7 +143,7 @@ public class MixedTransportTestDataFactory implements TransportDataFactory {
         MutableStation last =  StationHelper.forTestMutable(MixedTransportTestData.LAST_STATION, "area4",
                 "endStation", nearPiccGardens, dataSourceID);
         addAStation(container, last);
-        addRouteStation(container, last, routeA, serviceA);
+        addRouteStation(container, last, routeA);
         NoPlatformStopCall stopD = createStop(tripA, last, TramTime.of(8, 40),
                 TramTime.of(8, 40), 4);
         tripA.addStop(stopD);
@@ -165,17 +165,17 @@ public class MixedTransportTestDataFactory implements TransportDataFactory {
         serviceC.addTrip(tripC);
         NoPlatformStopCall stopG = createStop(tripC, interchangeStation, TramTime.of(8, 26),
                 TramTime.of(8, 27), 1);
-        addRouteStation(container, interchangeStation, routeC, serviceC);
+        addRouteStation(container, interchangeStation, routeC);
         NoPlatformStopCall stopH = createStop(tripC, stationFive, TramTime.of(8, 31),
                 TramTime.of(8, 33), 2);
-        addRouteStation(container, stationFive, routeC, serviceC);
+        addRouteStation(container, stationFive, routeC);
         tripC.addStop(stopG);
         tripC.addStop(stopH);
         routeC.addTrip(tripC);
 
         // INTERCHANGE -> STATION_FOUR
-        addRouteStation(container, stationFour, ferryRoute, serviceB);
-        addRouteStation(container, interchangeStation, ferryRoute, serviceB);
+        addRouteStation(container, stationFour, ferryRoute);
+        addRouteStation(container, interchangeStation, ferryRoute);
 
         createInterchangeToStation4Trip(container,ferryRoute, serviceB, interchangeStation, stationFour,
                 LocalTime.of(8, 26), "tripBId");
@@ -196,18 +196,15 @@ public class MixedTransportTestDataFactory implements TransportDataFactory {
         container.addStation(station);
     }
 
-    private static void addRouteStation(TransportDataContainer container, MutableStation station, Route route, Service service) {
+    private static void addRouteStation(TransportDataContainer container, MutableStation station, Route route) {
         RouteStation routeStation = new RouteStation(station, route);
         container.addRouteStation(routeStation);
 
-        TramTime serviceStart = TramTime.of(1,23);
-        TramTime serviceEnd = TramTime.of(23,55);
+        station.addRouteDropOff(route);
+        station.addRouteDropOff(route);
 
-        station.addRouteDropOff(route, service, serviceStart);
-        station.addRouteDropOff(route, service, serviceEnd);
-
-        station.addRoutePickUp(route, service, serviceStart);
-        station.addRoutePickUp(route, service, serviceEnd);
+        station.addRoutePickUp(route);
+        station.addRoutePickUp(route);
     }
 
     private static void createInterchangeToStation4Trip(TransportDataContainer container, MutableRoute route, MutableService service,

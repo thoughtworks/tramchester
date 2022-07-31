@@ -26,6 +26,7 @@ import com.tramchester.domain.time.TramServiceDate;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
 import com.tramchester.repository.InterchangeRepository;
+import com.tramchester.repository.StationAvailabilityRepository;
 import com.tramchester.repository.TransportData;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TramRouteHelper;
@@ -64,6 +65,7 @@ public class TransportDataFromFilesTramTest {
     private static IntegrationTramTestConfig config;
 
     private TransportData transportData;
+    private StationAvailabilityRepository availabilityRepository;
     private Collection<Service> allServices;
     private TramRouteHelper routeHelper;
 
@@ -82,6 +84,7 @@ public class TransportDataFromFilesTramTest {
     @BeforeEach
     void beforeEachTestRuns() {
         transportData = componentContainer.get(TransportData.class);
+        availabilityRepository = componentContainer.get(StationAvailabilityRepository.class);
         allServices = transportData.getServices();
         routeHelper = new TramRouteHelper();
     }
@@ -587,9 +590,8 @@ public class TransportDataFromFilesTramTest {
         long maxDuration = config.getMaxJourneyDuration();
 
         TimeRange timeRange = TimeRange.of(TramTime.of(12, 50), Duration.ofHours(4), Duration.ofHours(4));
-        Set<Route> results = altrincham.getPickupRoutes(when, timeRange);
+        Set<Route> results = availabilityRepository.getPickupRoutesFor(altrincham, when, timeRange);
         assertEquals(2, results.size(), "for " + timeRange + " missing routes from " + altrincham);
-
     }
 
     @DataExpiryCategory
@@ -603,15 +605,15 @@ public class TransportDataFromFilesTramTest {
         long maxDuration = config.getMaxJourneyDuration();
 
         TimeRange timeRange = TimeRange.of(TramTime.of(22, 50), Duration.ZERO, Duration.ofMinutes(maxDuration));
-        Set<Route> results = altrincham.getPickupRoutes(when, timeRange);
+        Set<Route> results = availabilityRepository.getPickupRoutesFor(altrincham, when, timeRange);
         assertFalse(results.isEmpty(), "for " + timeRange + " missing routes from " + altrincham);
 
         TimeRange timeRangeCrossMidnight = TimeRange.of(TramTime.of(23, 59), Duration.ZERO, Duration.ofMinutes(maxDuration));
-        Set<Route> overMidnightResults = altrincham.getPickupRoutes(when, timeRangeCrossMidnight);
+        Set<Route> overMidnightResults = availabilityRepository.getPickupRoutesFor(altrincham, when, timeRangeCrossMidnight);
         assertFalse(overMidnightResults.isEmpty(), "for " + timeRangeCrossMidnight + " missing routes over mid-night from " + altrincham);
 
         TimeRange timeRangeATMidnight = TimeRange.of(TramTime.of(0, 0), Duration.ZERO, Duration.ofMinutes(maxDuration));
-        Set<Route> atMidnightResults = altrincham.getPickupRoutes(when, timeRangeATMidnight);
+        Set<Route> atMidnightResults = availabilityRepository.getPickupRoutesFor(altrincham, when, timeRangeATMidnight);
         assertFalse(atMidnightResults.isEmpty(), "for " + timeRangeATMidnight + " missing routes over mid-night from " + altrincham);
     }
 

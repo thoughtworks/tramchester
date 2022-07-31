@@ -141,7 +141,7 @@ public class GTFSStopTimeLoader {
 
             final MutableService service = tripAndServices.getService(trip.getService().getId());
 
-            addStationAndRouteStation(route, service, station, stopTimeData);
+            addStationAndRouteStation(route, station, stopTimeData);
             addPlatformsForStation(station);
 
             StopCall stopCall = createStopCall(stopTimeData, route, trip, station);
@@ -161,16 +161,16 @@ public class GTFSStopTimeLoader {
             return service;
         }
 
-        private void addStationAndRouteStation(Route route, Service service, MutableStation station, StopTimeData stopTimeData) {
+        private void addStationAndRouteStation(Route route, MutableStation station, StopTimeData stopTimeData) {
 
             GTFSPickupDropoffType dropOffType = stopTimeData.getDropOffType();
             if (dropOffType.isDropOff()) {
-                station.addRouteDropOff(route, service, stopTimeData.getArrivalTime());
+                station.addRouteDropOff(route);
             }
 
             GTFSPickupDropoffType pickupType = stopTimeData.getPickupType();
             if (pickupType.isPickup()) {
-                station.addRoutePickUp(route, service, stopTimeData.getDepartureTime());
+                station.addRoutePickUp(route);
             }
 
             IdFor<Station> stationId = station.getId();
@@ -206,10 +206,10 @@ public class GTFSStopTimeLoader {
                     Service service = trip.getService();
 
                     if (stopTimeData.getPickupType().isPickup()) {
-                        platform.addRoutePickUp(route, service, stopTimeData.getDepartureTime());
+                        platform.addRoutePickUp(route);
                     }
                     if (stopTimeData.getDropOffType().isDropOff()) {
-                        platform.addRouteDropOff(route, service, stopTimeData.getArrivalTime());
+                        platform.addRouteDropOff(route);
                     }
 
                     //platform.addRoute(route);
