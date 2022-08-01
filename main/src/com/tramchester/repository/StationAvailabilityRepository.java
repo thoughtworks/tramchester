@@ -93,13 +93,11 @@ public class StationAvailabilityRepository {
         dropoffsForLocation.clear();
         logger.info("Stopped");
     }
-
+    
     public boolean isAvailable(Location<?> location, LocalDate when, TimeRange timeRange) {
 
-        Set<Route> pickUps = pickupsForLocation.get(location).getRoutes(when, timeRange);
-        Set<Route> dropOffs = dropoffsForLocation.get(location).getRoutes(when, timeRange);
-
-        return ! ((pickUps.isEmpty() && dropOffs.isEmpty()));
+        return pickupsForLocation.get(location).anyAvailable(when, timeRange) &&
+                dropoffsForLocation.get(location).anyAvailable(when, timeRange);
     }
 
     public boolean isAvailable(RouteAndInterchanges routeAndInterchanges, LocalDate date, TimeRange time) {

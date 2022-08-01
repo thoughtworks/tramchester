@@ -57,7 +57,6 @@ public class ServedRoute {
     }
 
 
-    // TODO Should consider all routes that might run during the time window - and then handle this in the MIN/MAX for
     // the number of hops....
     public Set<Route> getRoutes(LocalDate date, TimeRange range) {
         Set<Route> results = getRouteForDateAndTimeRange(date, range);
@@ -76,6 +75,13 @@ public class ServedRoute {
                 filter(routeAndService -> timeWindows.get(routeAndService).anyOverlap(range)).
                 map(RouteAndService::getRoute).
                 collect(Collectors.toSet());
+    }
+
+
+    public boolean anyAvailable(LocalDate when, TimeRange timeRange) {
+        return routeAndServices.stream().
+                filter(routeAndService -> routeAndService.isAvailableOn(when)).
+                anyMatch(routeAndService -> timeWindows.get(routeAndService).anyOverlap(timeRange));
     }
 
     /***
@@ -99,4 +105,5 @@ public class ServedRoute {
     public Set<TransportMode> getTransportModes() {
         return Collections.unmodifiableSet(modes);
     }
+
 }
