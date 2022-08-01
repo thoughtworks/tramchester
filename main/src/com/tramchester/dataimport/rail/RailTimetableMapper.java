@@ -360,6 +360,12 @@ public class RailTimetableMapper {
         private boolean populateForLocationIfWithinBounds(final RailLocationRecord railLocation,
                                                           final MutableRoute route, final MutableTrip trip,
                                                           final int stopSequence, final TramTime originTime) {
+            if (!railLocation.getArrival().isValid()) {
+                logger.warn("Invalid arrival time for " + railLocation);
+            }
+            if (!railLocation.getDeparture().isValid()) {
+                logger.warn("Invalid departure time for " + railLocation);
+            }
 
             if (!stations.isLoadedFor(railLocation)) {
                 return false;
@@ -438,6 +444,10 @@ public class RailTimetableMapper {
                 passingTime = railLocation.getPassingTime();
             }
 
+            if (!passingTime.isValid()) {
+                throw new RuntimeException("Invalid passing time for " + railLocation);
+            }
+
             passingTime = getDayAdjusted(passingTime, originTime);
 
             stopCall = createStopCall(trip, station, platform, stopSequence, passingTime, passingTime, None, None);
@@ -459,6 +469,15 @@ public class RailTimetableMapper {
         private RailPlatformStopCall createStopCall(MutableTrip trip, MutableStation station,
                                                 MutablePlatform platform, int stopSequence, TramTime arrivalTime,
                                                 TramTime departureTime, GTFSPickupDropoffType pickup, GTFSPickupDropoffType dropoff) {
+            if (!arrivalTime.isValid()) {
+                throw new RuntimeException(format("Invalid arrival time %s for %s on trip %s ",
+                        arrivalTime, station.getId(), trip));
+            }
+            if (!departureTime.isValid()) {
+                throw new RuntimeException(format("Invalid departure time %s for %s on trip %s ",
+                        departureTime, station.getId(), trip));
+            }
+
             return new RailPlatformStopCall(station, arrivalTime, departureTime, stopSequence, pickup, dropoff, trip, platform);
         }
 

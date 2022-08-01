@@ -43,10 +43,6 @@ public class ServedRoute {
         modes.add(route.getTransportMode());
     }
 
-    public boolean serves(TransportMode mode) {
-        return modes.contains(mode);
-    }
-
     public boolean isEmpty() {
         return routeAndServices.isEmpty();
     }

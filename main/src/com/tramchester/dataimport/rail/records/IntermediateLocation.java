@@ -146,7 +146,10 @@ public class IntermediateLocation implements RailLocationRecord {
     }
 
     public TramTime getPassingTime() {
-        return passingTime;
+        if (passingTime.isValid()) {
+            return passingTime;
+        }
+        return publicArrival;
     }
 
     public TramTime getScheduledArrival() {

@@ -56,7 +56,7 @@ public class StationAvailabilityRepository {
         addFor(pickupsForLocation, station, station.getPickupRoutes(), StopCall::getDepartureTime);
     }
 
-    private void addFor(Map<Location<?>, ServedRoute> forLocation, Station station, Set<Route> routes, Function<StopCall, TramTime> getArrivalTime) {
+    private void addFor(Map<Location<?>, ServedRoute> forLocation, Station station, Set<Route> routes, Function<StopCall, TramTime> getTime) {
         // TODO more efficient to extract time range directly here, rather than populate it inside of ServedRoute
         Set<Trip> trips = routes.stream().flatMap(route -> route.getTrips().stream()).collect(Collectors.toSet());
 
@@ -64,22 +64,26 @@ public class StationAvailabilityRepository {
                 map(Trip::getStopCalls).
                 filter(stopCalls -> stopCalls.callsAt(station)).
                 map(stopCalls -> stopCalls.getStopFor(station)).
+                filter(StopCall::callsAtStation).
                 collect(Collectors.toSet());
 
-        stationStopCalls.forEach(stopCall -> addFor(forLocation, station, stopCall, getArrivalTime));
+        stationStopCalls.forEach(stopCall -> addFor(forLocation, station, stopCall, getTime));
     }
 
     private void addFor(Map<Location<?>, ServedRoute> forLocation, Station station, StopCall stopCall, Function<StopCall, TramTime> getTime) {
         TramTime time = getTime.apply(stopCall);
+        if (!time.isValid()) {
+            logger.warn(format("Invalid time %s for %s %s", time, station.getId(), stopCall));
+        }
         addFor(forLocation, station, stopCall.getTrip().getRoute(), stopCall.getService(), time);
     }
 
 
-    private void addFor(Map<Location<?>, ServedRoute> place, Station station, Route route, Service service, TramTime arrivalTime) {
+    private void addFor(Map<Location<?>, ServedRoute> place, Station station, Route route, Service service, TramTime time) {
         if (!place.containsKey(station)) {
             place.put(station, new ServedRoute());
         }
-        place.get(station).add(route, service, arrivalTime);
+        place.get(station).add(route, service, time);
     }
 
     @PreDestroy
@@ -94,9 +98,6 @@ public class StationAvailabilityRepository {
 
         Set<Route> pickUps = pickupsForLocation.get(location).getRoutes(when, timeRange);
         Set<Route> dropOffs = dropoffsForLocation.get(location).getRoutes(when, timeRange);
-
-//        Set<Route> pickUps = location.getPickupRoutes(when, timeRange);
-//        Set<Route> dropOffs = location.getDropoffRoutes(when, timeRange);
 
         return ! ((pickUps.isEmpty() && dropOffs.isEmpty()));
     }
