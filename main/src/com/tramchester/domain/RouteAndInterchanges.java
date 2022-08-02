@@ -42,13 +42,6 @@ public class RouteAndInterchanges {
         return Objects.hash(routePair, interchangeStations);
     }
 
-
-//    private boolean validForDate(Station station, LocalDate date, TimeRange time) {
-//        return station.servesRouteDropOff(routePair.getFirst(), date, time) &&
-//                station.servesRoutePickup(routePair.getSecond(), date, time);
-//
-//    }
-
     public RoutePair getRoutePair() {
         return routePair;
     }

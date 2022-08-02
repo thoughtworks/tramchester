@@ -562,7 +562,6 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
         // map from route->route pair to interchanges that could make that change
         private final Map<RouteIndexPair, Set<Station>> routePairToInterchange;
         private final StationAvailabilityRepository availabilityRepository;
-        private final HashSet<InterchangeStation> interchanges;
         private final IndexedBitSet[] costsForDegree;
         private final RouteIndex index;
         private final int maxDepth;
@@ -574,7 +573,6 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
             this.maxDepth = maxDepth;
             costsForDegree = new IndexedBitSet[maxDepth];
             routePairToInterchange = new HashMap<>();
-            interchanges = new HashSet<>();
             for (int degree = 1; degree < maxDepth; degree++) {
                 costsForDegree[degree] = new IndexedBitSet(numRoutes);
             }
@@ -588,25 +586,30 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
                 routePairToInterchange.put(key, new HashSet<>());
             }
             routePairToInterchange.get(key).add(interchange.getStation());
-            interchanges.add(interchange);
         }
 
         // create a bitmask for route->route changes that are possible on a given date
         private IndexedBitSet createOverlapMatrixFor(LocalDate date) {
+            final Set<Integer> availableOnDate = new HashSet<>();
+            for (int routeIndex = 0; routeIndex < numRoutes; routeIndex++) {
+                final Route route = index.getRouteFor(routeIndex);
+                if (route.isAvailableOn(date)) {
+                    availableOnDate.add(routeIndex);
+                }
+            }
             IndexedBitSet matrix = new IndexedBitSet(numRoutes);
             for (int firstRouteIndex = 0; firstRouteIndex < numRoutes; firstRouteIndex++) {
-                Route startRoute = index.getRouteFor(firstRouteIndex);
                 BitSet result = new BitSet(numRoutes);
-                if (startRoute.isAvailableOn(date)) {
+                if (availableOnDate.contains(firstRouteIndex)) {
                     for(int secondRouteIndex = 0; secondRouteIndex < numRoutes; secondRouteIndex++) {
-                        Route endRoute = index.getRouteFor(secondRouteIndex);
-                        if (endRoute.isAvailableOn(date)) {
+                        if (availableOnDate.contains(secondRouteIndex)) {
                             result.set(secondRouteIndex);
                         }
                     }
                 }
                 matrix.insert(firstRouteIndex, result);
             }
+            availableOnDate.clear();
             return matrix;
         }
 
@@ -683,11 +686,15 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
                 return Collections.emptyList();
             }
 
-            logger.debug(format("Expand for %s initial depth %s", routePair, initialDepth));
+            if (logger.isDebugEnabled()) {
+                logger.debug(format("Expand for %s initial depth %s", routePair, initialDepth));
+            }
 
             final Set<List<RouteIndexPair>> routeInterchanges = expand(Collections.singletonList(routePair), initialDepth, dateOverlaps);
 
-            logger.debug(format("Got %s set of changes for %s: %s", routeInterchanges.size(), routePair, routeInterchanges));
+            if (logger.isDebugEnabled()) {
+                logger.debug(format("Got %s set of changes for %s: %s", routeInterchanges.size(), routePair, routeInterchanges));
+            }
 
             List<List<RouteAndInterchanges>> results = routeInterchanges.stream().
                     map(list -> list.stream().map(this::getInterchangeFor).filter(Objects::nonNull)).
@@ -712,9 +719,9 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
             final int nextDegree = degree - 1;
             final IndexedBitSet overlapsAtDegree = this.costsForDegree[nextDegree]; //.and(dateOverlaps);
 
-            Set<List<RouteIndexPair>> resultsOfExpanion = new HashSet<>();
+            Set<List<RouteIndexPair>> resultsOfExpansion = new HashSet<>();
 
-            // for >1 result is the set o paris where each of the supplied pairs overlaps
+            // for >1 result is the set of paris where each of the supplied pairs overlaps
             pairs.forEach(pair -> {
                 List<Integer> overlapsForPair = getIndexOverlapsFor(overlapsAtDegree, pair);
                 overlapsForPair.forEach(overlapForPair -> {
@@ -722,14 +729,16 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
                         List<RouteIndexPair> toExpand = formNewRoutePairs(pair, overlapForPair);
                         Set<List<RouteIndexPair>> expansionForPair = expand(toExpand, nextDegree, dateOverlaps);
                         List<RouteIndexPair> resultsForPair = expansionForPair.stream().flatMap(Collection::stream).collect(Collectors.toList());
-                        resultsOfExpanion.add(resultsForPair);
+                        resultsOfExpansion.add(resultsForPair);
                     }
                 });
             });
 
-            logger.debug(format("Result of expanding %s => %s", pairs, resultsOfExpanion));
+            if (logger.isDebugEnabled()) {
+                logger.debug(format("Result of expanding %s => %s", pairs, resultsOfExpansion));
+            }
 
-            return resultsOfExpanion;
+            return resultsOfExpansion;
 
         }
 
@@ -741,17 +750,18 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
         }
 
         private RouteAndInterchanges getInterchangeFor(RouteIndexPair indexPair) {
-            RoutePair routePair = index.getPairFor(indexPair);
 
             if (routePairToInterchange.containsKey(indexPair)) {
-                Set<Station> changes = routePairToInterchange.get(indexPair);
-                RouteAndInterchanges routeAndInterchanges = new RouteAndInterchanges(routePair, changes);
+                final RoutePair routePair = index.getPairFor(indexPair);
+
+                final Set<Station> changes = routePairToInterchange.get(indexPair);
+                final RouteAndInterchanges routeAndInterchanges = new RouteAndInterchanges(routePair, changes);
                 if (logger.isDebugEnabled()) {
                     logger.debug(format("Found changes %s for %s", HasId.asIds(changes), indexPair));
                 }
                 return routeAndInterchanges;
             }
-            logger.debug("Did not find any interchanges for " + routePair);
+            logger.debug("Did not find any interchanges for " + indexPair);
             return null;
         }
 

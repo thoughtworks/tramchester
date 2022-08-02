@@ -102,7 +102,8 @@ public class StationAvailabilityRepository {
 
     public boolean isAvailable(RouteAndInterchanges routeAndInterchanges, LocalDate date, TimeRange time) {
         if (routeAndInterchanges.getRoutePair().isAvailableOn(date)) {
-            return routeAndInterchanges.getInterchangeStations().stream().anyMatch(station -> isAvailable(station, date, time));
+            return routeAndInterchanges.getInterchangeStations().stream().
+                    anyMatch(station -> isAvailable(station, date, time));
         }
         return false;
     }
