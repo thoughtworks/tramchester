@@ -124,8 +124,4 @@ public class StationAvailabilityRepository {
         return locations.stream().flatMap(location -> getDropoffRoutesFor(location, date, timeRange).stream()).collect(Collectors.toSet());
     }
 
-    public boolean isAvailable(LocationSet locationSet, LocalDate date, TimeRange timeRange) {
-        return locationSet.stream().anyMatch(location -> isAvailable(location, date, timeRange));
-    }
-
 }
