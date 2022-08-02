@@ -254,21 +254,19 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
 
     @Override
     public NumberOfChanges getNumberOfChanges(LocationSet starts, LocationSet destinations, LocalDate date, TimeRange timeRange) {
-        // TODO optimise this
-        if (!availabilityRepository.isAvailable(starts, date, timeRange)) {
-        //if (starts.stream().allMatch(station -> station.getPickupRoutes(date, timeRange).isEmpty())) {
+
+        Set<Route> startRoutes = pickupRoutesFor(starts, date, timeRange);
+        Set<Route> endRoutes = dropoffRoutesFor(destinations, date, timeRange);
+
+        if (startRoutes.isEmpty()) {
             logger.warn(format("start stations %s not available at %s and %s ", HasId.asIds(starts), date, timeRange));
             return NumberOfChanges.None();
         }
-        // TODO optimise this
-        if (!availabilityRepository.isAvailable(destinations, date, timeRange)) {
-        //if (destinations.stream().allMatch(station -> station.getDropoffRoutes(date, timeRange).isEmpty())) {
+        if (endRoutes.isEmpty()) {
             logger.warn(format("destination stations %s not available at %s and %s ", HasId.asIds(starts), date, timeRange));
             return NumberOfChanges.None();
         }
 
-        Set<Route> startRoutes = pickupRoutesFor(starts, date, timeRange);
-        Set<Route> endRoutes = dropoffRoutesFor(destinations, date, timeRange);
         InterchangeOperating interchangesOperating = new InterchangeOperating(date, timeRange);
 
         if (neighboursRepository.areNeighbours(starts, destinations)) {

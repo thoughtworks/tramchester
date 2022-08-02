@@ -441,7 +441,8 @@ class TramRouteTest {
         JourneyRequest journeyRequest = createJourneyRequest(queryTime, 1);
 
         // nearStockportBus == station 5
-        Set<Journey> journeys = locationJourneyPlanner.quickestRouteForLocation(transportData.getFirst(), nearStockportBus, journeyRequest,3);
+        Set<Journey> journeys = locationJourneyPlanner.quickestRouteForLocation(transportData.getFirst(),
+                nearStockportBus, journeyRequest,3);
 
         assertTrue(journeys.size()>=1);
         journeys.forEach(journey-> {
