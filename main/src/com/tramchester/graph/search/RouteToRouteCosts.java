@@ -198,24 +198,25 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
 
         InterchangeOperating interchangeOperating = new InterchangeOperating(date, timeRange);
 
-        return getNumberChangesFor(routeA, routeB, date, timeRange, interchangeOperating, dateOverlaps);
+        RoutePair pair = RoutePair.of(routeA, routeB);
+        return getNumberChangesFor(pair, date, timeRange, interchangeOperating, dateOverlaps);
     }
 
-    public int getNumberChangesFor(Route routeA, Route routeB, LocalDate date, TimeRange timeRange,
+    public int getNumberChangesFor(RoutePair routePair, LocalDate date, TimeRange timeRange,
                                    InterchangeOperating interchangeOperating, IndexedBitSet overlapsForDate) {
-        if (routeA.equals(routeB)) {
+        if (routePair.areSame()) {
             return 0;
         }
-        if (!routeA.isDateOverlap(routeB)) {
-            logger.debug(format("No date overlap between %s and %s", routeA.getId(), routeB.getId()));
+        if (!routePair.isAvailableOn(date)) {
+            logger.debug(format("Routes %s not available on date %s", date, routePair));
             return Integer.MAX_VALUE;
         }
 
-        RouteIndexPair routePair = RouteIndexPair.getIndexPairFor(index, routeA, routeB);
-        final int result = costs.getDepth(routePair, date, timeRange, interchangeOperating, overlapsForDate);
+        RouteIndexPair routeIndexPair = RouteIndexPair.getIndexPairFor(index, routePair);
+        final int result = costs.getDepth(routeIndexPair, date, timeRange, interchangeOperating, overlapsForDate);
 
         if (result == Costs.MAX_VALUE) {
-            if (routeA.getTransportMode() == routeB.getTransportMode()) {
+            if (routePair.sameMode()) {
                 // TODO Why so many hits here?
                 // for mixed transport mode having no value is quite normal
                 logger.debug("Missing " + routePair);
@@ -270,9 +271,10 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
         InterchangeOperating interchangesOperating = new InterchangeOperating(date, timeRange);
 
         if (neighboursRepository.areNeighbours(starts, destinations)) {
-            IndexedBitSet dateOverlaps = costs.createOverlapMatrixFor(date);
-            int maxHops = maxHops(startRoutes, endRoutes, date, timeRange, interchangesOperating, dateOverlaps);
-            return new NumberOfChanges(0, maxHops);
+            return new NumberOfChanges(1, 1);
+//            IndexedBitSet dateOverlaps = costs.createOverlapMatrixFor(date);
+//            int maxHops = maxHops(routePairs, date, timeRange, interchangesOperating, dateOverlaps);
+//            return new NumberOfChanges(0, maxHops);
         }
         return getNumberOfHops(startRoutes, endRoutes, date, timeRange, interchangesOperating);
     }
@@ -289,8 +291,8 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
 
         // Need to respect timing here, otherwise can find a route that is valid at an interchange but isn't
         // actually running from the start or destination
-        final Set<Route> pickupRoutes = availabilityRepository.getPickupRoutesFor(startStation,date, timeRange); //startStation.getPickupRoutes(date, timeRange);
-        final Set<Route> dropoffRoutes = availabilityRepository.getDropoffRoutesFor(destination, date, timeRange); //destination.getDropoffRoutes(date, timeRange);
+        final Set<Route> pickupRoutes = availabilityRepository.getPickupRoutesFor(startStation,date, timeRange);
+        final Set<Route> dropoffRoutes = availabilityRepository.getDropoffRoutesFor(destination, date, timeRange);
 
         InterchangeOperating interchangesOperating = new InterchangeOperating(date, timeRange);
 
@@ -341,13 +343,19 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
 
         IndexedBitSet dateOverlaps = costs.createOverlapMatrixFor(date);
 
-        int minHops = minHops(startRoutes, destinationRoutes, date, timeRange, interchangesOperating, dateOverlaps);
+        Set<RoutePair> routePairs = getRoutePairs(startRoutes, destinationRoutes);
+
+        Set<Integer> numberOfChangesForRoutes = routePairs.stream().
+                map(pair -> getNumberChangesFor(pair, date, timeRange, interchangesOperating, dateOverlaps)).
+                collect(Collectors.toSet());
+
+        int minHops = minHops(numberOfChangesForRoutes);
         if (minHops > MAX_DEPTH) {
             logger.error(format("Unexpected result for min hops %s greater than max depth %s, for %s to %s",
                     minHops, MAX_DEPTH, HasId.asIds(startRoutes), HasId.asIds(destinationRoutes)));
         }
 
-        int maxHops = maxHops(startRoutes, destinationRoutes, date, timeRange, interchangesOperating, dateOverlaps);
+        int maxHops = maxHops(numberOfChangesForRoutes);
         if (maxHops > MAX_DEPTH) {
             logger.error(format("Unexpected result for max hops %s greater than max depth %s, for %s to %s",
                     maxHops, MAX_DEPTH, HasId.asIds(startRoutes), HasId.asIds(destinationRoutes)));
@@ -359,42 +367,41 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
         return numberOfChanges;
     }
 
-    private int minHops(Set<Route> startRoutes, Set<Route> endRoutes, LocalDate date, TimeRange time,
-                        InterchangeOperating interchangeOperating, IndexedBitSet dateOverlaps) {
-
-        final Optional<Integer> query = startRoutes.stream().
-                flatMap(startRoute ->
-                        endRoutes.stream().map(endRoute ->
-                                getNumberChangesFor(startRoute, endRoute, date, time, interchangeOperating, dateOverlaps))).
-                min(Integer::compare);
-
-        if (query.isEmpty()) {
-            logger.warn(format("No minHops found for %s to %s", HasId.asIds(startRoutes), HasId.asIds(endRoutes)));
-        }
-        return query.orElse(Integer.MAX_VALUE);
-    }
-
-    private Integer maxHops(Set<Route> startRoutes, Set<Route> endRoutes, LocalDate date, TimeRange time, InterchangeOperating interchangesOperating, IndexedBitSet dateOverlaps) {
-        final Optional<Integer> query = startRoutes.stream().
-                flatMap(startRoute ->
-                        endRoutes.stream().map(endRoute -> getNumberChangesFor(startRoute, endRoute, date, time, interchangesOperating, dateOverlaps))).
+    private int maxHops(Set<Integer> numberOfChangesForRoutes) {
+        final Optional<Integer> query = numberOfChangesForRoutes.stream().
                 filter(result -> result != Integer.MAX_VALUE).
                 max(Integer::compare);
 
         if (query.isEmpty()) {
-            logger.warn(format("No maxHops found for %s to %s", HasId.asIds(startRoutes), HasId.asIds(endRoutes)));
+            logger.warn("No maxHops found for " + numberOfChangesForRoutes);
         }
         return query.orElse(Integer.MAX_VALUE);
     }
 
+    private int minHops(Set<Integer> numberOfChangesForRoutes) {
+        final Optional<Integer> query = numberOfChangesForRoutes.stream().
+                min(Integer::compare);
+
+        if (query.isEmpty()) {
+            logger.warn("No minHops found for " + numberOfChangesForRoutes);
+        }
+        return query.orElse(Integer.MAX_VALUE);
+    }
+
+    @NotNull
+    private Set<RoutePair> getRoutePairs(Set<Route> startRoutes, Set<Route> endRoutes) {
+        // note: allow routeA -> routeA here, needed to correctly select minimum later on
+        return startRoutes.stream().
+                flatMap(startRoute -> endRoutes.stream().map(endRoute -> RoutePair.of(startRoute, endRoute))).
+                collect(Collectors.toSet());
+    }
+
     private Set<Route> dropoffRoutesFor(LocationSet locations, LocalDate date, TimeRange timeRange) {
         return availabilityRepository.getDropoffRoutesFor(locations, date, timeRange);
-        //return locations.stream().flatMap(station -> station.getDropoffRoutes(date, timeRange).stream()).collect(Collectors.toSet());
     }
 
     private Set<Route> pickupRoutesFor(LocationSet locations, LocalDate date, TimeRange timeRange) {
         return availabilityRepository.getPickupRoutesFor(locations, date, timeRange);
-        //return locations.stream().flatMap(station -> station.getPickupRoutes(date, timeRange).stream()).collect(Collectors.toSet());
     }
 
 
@@ -555,7 +562,7 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
         // map from route->route pair to interchanges that could make that change
         private final Map<RouteIndexPair, Set<Station>> routePairToInterchange;
         private final StationAvailabilityRepository availabilityRepository;
-        private HashSet<InterchangeStation> interchanges;
+        private final HashSet<InterchangeStation> interchanges;
         private final IndexedBitSet[] costsForDegree;
         private final RouteIndex index;
         private final int maxDepth;
@@ -809,6 +816,12 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
         private RouteIndexPair(int first, int second) {
             this.first = first;
             this.second = second;
+        }
+
+        public static RouteIndexPair getIndexPairFor(RouteIndex index, RoutePair pair) {
+            int a = index.indexFor(pair.getFirst().getId());
+            int b = index.indexFor(pair.getSecond().getId());
+            return of(a, b);
         }
 
         public static RouteIndexPair getIndexPairFor(RouteIndex index, Route routeA, Route routeB) {

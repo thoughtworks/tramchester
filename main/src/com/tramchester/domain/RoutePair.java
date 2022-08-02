@@ -12,6 +12,10 @@ public class RoutePair {
         this.second = second;
     }
 
+    public static RoutePair of(Route routeA, Route routeB) {
+        return new RoutePair(routeA, routeB);
+    }
+
     public Route getFirst() {
         return first;
     }
@@ -43,5 +47,13 @@ public class RoutePair {
 
     public boolean isAvailableOn(LocalDate date) {
         return first.isAvailableOn(date) && second.isAvailableOn(date);
+    }
+
+    public boolean areSame() {
+        return first.equals(second);
+    }
+
+    public boolean sameMode() {
+        return first.getTransportMode().equals(second.getTransportMode());
     }
 }
