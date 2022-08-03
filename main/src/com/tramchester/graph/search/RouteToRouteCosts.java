@@ -743,7 +743,7 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
         }
 
         @NotNull
-        private List<RouteIndexPair> formNewRoutePairs(RouteIndexPair pair, Integer overlapForPair) {
+        private List<RouteIndexPair> formNewRoutePairs(RouteIndexPair pair, int overlapForPair) {
             RouteIndexPair newFirstPair = RouteIndexPair.of(pair.first, overlapForPair);
             RouteIndexPair newSecondPair = RouteIndexPair.of(overlapForPair, pair.second);
             return Arrays.asList(newFirstPair, newSecondPair);
