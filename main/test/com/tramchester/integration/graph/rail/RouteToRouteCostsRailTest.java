@@ -3,6 +3,9 @@ package com.tramchester.integration.graph.rail;
 import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.config.TramchesterConfig;
+import com.tramchester.domain.Route;
+import com.tramchester.domain.RoutePair;
+import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.time.TimeRange;
 import com.tramchester.domain.time.TramTime;
@@ -10,6 +13,8 @@ import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.graphbuild.StagedTransportGraphBuilder;
 import com.tramchester.graph.search.RouteToRouteCosts;
 import com.tramchester.integration.testSupport.rail.IntegrationRailTestConfig;
+import com.tramchester.repository.InterchangeRepository;
+import com.tramchester.repository.RouteRepository;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.testTags.TrainTest;
@@ -17,11 +22,12 @@ import org.junit.jupiter.api.*;
 import org.neo4j.graphdb.Transaction;
 
 import java.time.LocalDate;
-import java.util.Collections;
+import java.util.*;
+import java.util.stream.Collectors;
 
 import static com.tramchester.domain.reference.TransportMode.Train;
 import static com.tramchester.integration.testSupport.rail.RailStationIds.*;
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 
 @TrainTest
 public class RouteToRouteCostsRailTest {
@@ -95,5 +101,40 @@ public class RouteToRouteCostsRailTest {
     void shouldGetNumberOfRouteHopsBetweenAltrinchamAndManPicc() {
         Station altrincham = stationRepository.getStationById(Altrincham.getId());
         assertEquals(1, routeToRouteCosts.getNumberOfChanges(altrincham, londonEuston, Collections.singleton(Train), date, timeRange).getMin());
+    }
+
+    @Disabled("spike only")
+    @Test
+    void shouldSpikeEquivalentRoutesWhereSetOfInterchangesAreSame() {
+        Map<IdSet<Station>, Set<Route>> results = new HashMap<>(); // unique set of interchanges -> routes with those interchanges
+
+        RouteRepository routeRepository = componentContainer.get(RouteRepository.class);
+
+        InterchangeRepository interchangeRepository = componentContainer.get(InterchangeRepository.class);
+
+        Map<Route, IdSet<Station>> interchangesForRoute = new HashMap<>();
+
+        interchangeRepository.getAllInterchanges().forEach(interchangeStation -> {
+            Set<Route> dropoffs = interchangeStation.getDropoffRoutes();
+
+            dropoffs.forEach(dropoff -> {
+                if (!interchangesForRoute.containsKey(dropoff)) {
+                    interchangesForRoute.put(dropoff, new IdSet<>());
+                }
+                interchangesForRoute.get(dropoff).add(interchangeStation.getStationId());
+            });
+        });
+
+        interchangesForRoute.forEach((route, interchanges) -> {
+            if (!results.containsKey(interchanges)) {
+                results.put(interchanges, new HashSet<>());
+            }
+            results.get(interchanges).add(route);
+        });
+
+        assertFalse(results.isEmpty());
+        // always fails, here to show size reduction
+        // seem to get only 16% reduction in number of routes when comparing by sets of interchanges
+        assertEquals(routeRepository.numberOfRoutes(), results.size());
     }
 }

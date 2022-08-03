@@ -199,11 +199,11 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
         InterchangeOperating interchangeOperating = new InterchangeOperating(date, timeRange);
 
         RoutePair pair = RoutePair.of(routeA, routeB);
-        return getNumberChangesFor(pair, date, timeRange, interchangeOperating, dateOverlaps);
+        return getNumberChangesFor(pair, date, interchangeOperating, dateOverlaps);
     }
 
-    public int getNumberChangesFor(RoutePair routePair, LocalDate date, TimeRange timeRange,
-                                   InterchangeOperating interchangeOperating, IndexedBitSet overlapsForDate) {
+    public int getNumberChangesFor(RoutePair routePair, LocalDate date, InterchangeOperating interchangeOperating,
+                                   IndexedBitSet overlapsForDate) {
         if (routePair.areSame()) {
             return 0;
         }
@@ -213,7 +213,7 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
         }
 
         RouteIndexPair routeIndexPair = RouteIndexPair.getIndexPairFor(index, routePair);
-        final int result = costs.getDepth(routeIndexPair, date, timeRange, interchangeOperating, overlapsForDate);
+        final int result = costs.getDepth(routeIndexPair, interchangeOperating, overlapsForDate);
 
         if (result == Costs.MAX_VALUE) {
             if (routePair.sameMode()) {
@@ -235,12 +235,17 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
 
         IndexedBitSet dateOverlaps = IndexedBitSet.getIdentity(numberOfRoutes); // no specific date or time
 
-        List<List<RouteAndInterchanges>> result = costs.getChangesFor(indexPair, dateOverlaps);
+        Set<List<RouteIndexPair>> routeChanges = costs.getChangesFor(indexPair, dateOverlaps);
 
-        if (result.isEmpty()) {
+        List<List<RouteAndInterchanges>> interchanges = routeChanges.stream().
+                map(list -> list.stream().map(costs::getInterchangeFor).filter(Objects::nonNull)).
+                map(onePossibleSetOfChange -> onePossibleSetOfChange.collect(Collectors.toList()))
+                .collect(Collectors.toList());
+
+        if (routeChanges.isEmpty()) {
             logger.warn(format("Unable to find changes between %s", routePair));
         }
-        return result;
+        return interchanges;
 
     }
 
@@ -272,11 +277,8 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
 
         if (neighboursRepository.areNeighbours(starts, destinations)) {
             return new NumberOfChanges(1, 1);
-//            IndexedBitSet dateOverlaps = costs.createOverlapMatrixFor(date);
-//            int maxHops = maxHops(routePairs, date, timeRange, interchangesOperating, dateOverlaps);
-//            return new NumberOfChanges(0, maxHops);
         }
-        return getNumberOfHops(startRoutes, endRoutes, date, timeRange, interchangesOperating);
+        return getNumberOfHops(startRoutes, endRoutes, date, interchangesOperating);
     }
 
     @Override
@@ -306,7 +308,7 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
         }
 
         if (preferredModes.isEmpty()) {
-            return getNumberOfHops(pickupRoutes, dropoffRoutes, date, timeRange, interchangesOperating);
+            return getNumberOfHops(pickupRoutes, dropoffRoutes, date, interchangesOperating);
         } else {
             final Set<Route> filteredPickupRoutes = filterForModes(preferredModes, pickupRoutes);
             final Set<Route> filteredDropoffRoutes = filterForModes(preferredModes, dropoffRoutes);
@@ -318,7 +320,7 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
                 return NumberOfChanges.None();
             }
 
-            return getNumberOfHops(filteredPickupRoutes, filteredDropoffRoutes, date, timeRange, interchangesOperating);
+            return getNumberOfHops(filteredPickupRoutes, filteredDropoffRoutes, date, interchangesOperating);
         }
 
     }
@@ -339,14 +341,14 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
 
     @NotNull
     private NumberOfChanges getNumberOfHops(Set<Route> startRoutes, Set<Route> destinationRoutes, LocalDate date,
-                                            TimeRange timeRange, InterchangeOperating interchangesOperating) {
+                                            InterchangeOperating interchangesOperating) {
 
         IndexedBitSet dateOverlaps = costs.createOverlapMatrixFor(date);
 
         Set<RoutePair> routePairs = getRoutePairs(startRoutes, destinationRoutes);
 
         Set<Integer> numberOfChangesForRoutes = routePairs.stream().
-                map(pair -> getNumberChangesFor(pair, date, timeRange, interchangesOperating, dateOverlaps)).
+                map(pair -> getNumberChangesFor(pair, date, interchangesOperating, dateOverlaps)).
                 collect(Collectors.toSet());
 
         int minHops = minHops(numberOfChangesForRoutes);
@@ -445,8 +447,8 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
 
             // note: IntStream uses int in implementation so avoids any boxing overhead
             return destinationIndexs.stream().mapToInt(item -> item).
-                    map(indexOfDest -> routeToRouteCosts.costs.getDepth(RouteIndexPair.of(indexOfStart, indexOfDest), date, time, interchangeOperating,
-                            dateOverlaps)).
+                    map(indexOfDest -> routeToRouteCosts.costs.getDepth(RouteIndexPair.of(indexOfStart, indexOfDest),
+                            interchangeOperating, dateOverlaps)).
                     filter(result -> result != Costs.MAX_VALUE).
                     min().
                     orElse(Integer.MAX_VALUE);
@@ -469,7 +471,7 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
 
             // note: IntStream uses int in implementation so avoids any boxing overhead
             int result = destinationIndexs.stream().mapToInt(item -> item).
-                    map(dest -> routeToRouteCosts.costs.getDepth(RouteIndexPair.of(indexOfStart, dest), date, time, interchangeOperating,
+                    map(dest -> routeToRouteCosts.costs.getDepth(RouteIndexPair.of(indexOfStart, dest), interchangeOperating,
                             dateOverlaps)).
                     min().
                     orElse(Integer.MAX_VALUE);
@@ -621,19 +623,27 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
             return result;
         }
 
-        private int getDepth(RouteIndexPair routePair, LocalDate date, TimeRange time,
-                             InterchangeOperating interchangeOperating, IndexedBitSet dateOverlaps) {
+        private int getDepth(RouteIndexPair routePair, InterchangeOperating interchangeOperating, IndexedBitSet dateOverlaps) {
 
-            List<List<RouteAndInterchanges>> changes = getChangesFor(routePair, dateOverlaps);
+            Set<List<RouteIndexPair>> possibleChanges = getChangesFor(routePair, dateOverlaps);
 
-            logger.info(format("Found %s changes combinations for %s %s %s", changes.size(), date, time, routePair));
+            List<List<RouteAndInterchanges>> filteredByAvailability = new ArrayList<>();
 
-            List<List<RouteAndInterchanges>> filteredByAvailability = changes.stream().
-                    filter(items -> interchangeOperating.isOperating(availabilityRepository, items)).
-                    collect(Collectors.toList());
+            int smallestSeen = Integer.MAX_VALUE;
+            for (List<RouteIndexPair> listOfChanges : possibleChanges) {
+                final int numberOfChanges = listOfChanges.size();
+                if (numberOfChanges < smallestSeen) {
+                    List<RouteAndInterchanges> listOfInterchanges = getRouteAndInterchange(listOfChanges);
+                    final boolean available = interchangeOperating.isOperating(availabilityRepository, listOfInterchanges);
+                    if (available) {
+                        filteredByAvailability.add(listOfInterchanges);
+                        smallestSeen = numberOfChanges;
+                    }
+                }
+            }
 
-            if (changes.size()!=filteredByAvailability.size()) {
-                logger.debug(format("Filtered from %s to %s", changes.size(), filteredByAvailability.size()));
+            if (possibleChanges.size()!=filteredByAvailability.size()) {
+                logger.debug(format("Filtered from %s to %s", possibleChanges.size(), filteredByAvailability.size()));
             } else {
                 logger.debug("Retained " + filteredByAvailability.size());
             }
@@ -644,6 +654,13 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
 
             return result.orElse(Integer.MAX_VALUE);
 
+        }
+
+        private List<RouteAndInterchanges> getRouteAndInterchange(List<RouteIndexPair> listOfChanges) {
+            return listOfChanges.stream().
+                    map(this::getInterchangeFor).
+                    filter(Objects::nonNull).
+                    collect(Collectors.toList());
         }
 
         private byte getDegree(RouteIndexPair routePair) {
@@ -673,40 +690,30 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
          * @param dateOverlaps bit mask indicating that routeA->routeB is available at date
          * @return each set returned contains specific interchanges between 2 specific routes
          */
-        private List<List<RouteAndInterchanges>> getChangesFor(final RouteIndexPair routePair, IndexedBitSet dateOverlaps) {
+        private Set<List<RouteIndexPair>> getChangesFor(final RouteIndexPair routePair, IndexedBitSet dateOverlaps) {
 
             final byte initialDepth = getDegree(routePair);
 
             if (initialDepth == 0) {
                 //logger.warn(format("getChangesFor: No changes needed indexes %s", routePair));
-                return Collections.emptyList();
+                return Collections.emptySet();
             }
             if (initialDepth == Byte.MAX_VALUE) {
                 logger.debug(format("getChangesFor: no changes possible indexes %s", routePair));
-                return Collections.emptyList();
+                return Collections.emptySet();
             }
 
             if (logger.isDebugEnabled()) {
                 logger.debug(format("Expand for %s initial depth %s", routePair, initialDepth));
             }
 
-            final Set<List<RouteIndexPair>> routeInterchanges = expand(Collections.singletonList(routePair), initialDepth, dateOverlaps);
+            final Set<List<RouteIndexPair>> possibleInterchangePairs = expand(Collections.singletonList(routePair), initialDepth, dateOverlaps);
 
             if (logger.isDebugEnabled()) {
-                logger.debug(format("Got %s set of changes for %s: %s", routeInterchanges.size(), routePair, routeInterchanges));
+                logger.debug(format("Got %s set of changes for %s: %s", possibleInterchangePairs.size(), routePair, possibleInterchangePairs));
             }
 
-            List<List<RouteAndInterchanges>> results = routeInterchanges.stream().
-                    map(list -> list.stream().map(this::getInterchangeFor).filter(Objects::nonNull)).
-                    map(onePossibleSetOfChange -> onePossibleSetOfChange.collect(Collectors.toList()))
-                    .collect(Collectors.toList());
-
-            if (logger.isDebugEnabled()) {
-                // toString here is expensive
-                logger.debug(format("Map %s => %s", routeInterchanges, results));
-            }
-
-            return results;
+            return possibleInterchangePairs;
         }
 
         private Set<List<RouteIndexPair>> expand(List<RouteIndexPair> pairs, int degree, IndexedBitSet dateOverlaps) {
@@ -719,7 +726,7 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
             final int nextDegree = degree - 1;
             final IndexedBitSet overlapsAtDegree = this.costsForDegree[nextDegree]; //.and(dateOverlaps);
 
-            Set<List<RouteIndexPair>> resultsOfExpansion = new HashSet<>();
+            final Set<List<RouteIndexPair>> resultsOfExpansion = new HashSet<>();
 
             // for >1 result is the set of paris where each of the supplied pairs overlaps
             pairs.forEach(pair -> {

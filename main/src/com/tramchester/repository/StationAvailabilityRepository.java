@@ -118,11 +118,15 @@ public class StationAvailabilityRepository {
     }
 
     public Set<Route> getPickupRoutesFor(LocationSet locations, LocalDate date, TimeRange timeRange) {
-        return locations.stream().flatMap(location -> getPickupRoutesFor(location, date, timeRange).stream()).collect(Collectors.toSet());
+        return locations.stream().
+                flatMap(location -> getPickupRoutesFor(location, date, timeRange).stream()).
+                collect(Collectors.toSet());
     }
 
     public Set<Route> getDropoffRoutesFor(LocationSet locations, LocalDate date, TimeRange timeRange) {
-        return locations.stream().flatMap(location -> getDropoffRoutesFor(location, date, timeRange).stream()).collect(Collectors.toSet());
+        return locations.stream().
+                flatMap(location -> getDropoffRoutesFor(location, date, timeRange).stream()).
+                collect(Collectors.toSet());
     }
 
 }
