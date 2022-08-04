@@ -4,7 +4,6 @@ import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.Route;
-import com.tramchester.domain.RoutePair;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.time.TimeRange;
@@ -23,7 +22,6 @@ import org.neo4j.graphdb.Transaction;
 
 import java.time.LocalDate;
 import java.util.*;
-import java.util.stream.Collectors;
 
 import static com.tramchester.domain.reference.TransportMode.Train;
 import static com.tramchester.integration.testSupport.rail.RailStationIds.*;
@@ -98,9 +96,16 @@ public class RouteToRouteCostsRailTest {
     }
 
     @Test
-    void shouldGetNumberOfRouteHopsBetweenAltrinchamAndManPicc() {
+    void shouldGetNumberOfRouteHopsBetweenAltrinchamAndLondonEuston() {
         Station altrincham = stationRepository.getStationById(Altrincham.getId());
         assertEquals(1, routeToRouteCosts.getNumberOfChanges(altrincham, londonEuston, Collections.singleton(Train), date, timeRange).getMin());
+    }
+
+    @Test
+    void shouldGetNumberOfChangesKnutsfordToDover() {
+        Station knutsford = stationRepository.getStationById(Knutsford.getId());
+        Station other = stationRepository.getStationById(Dover.getId());
+        assertEquals(4, routeToRouteCosts.getNumberOfChanges(knutsford, other, Collections.singleton(Train), date, timeRange).getMin());
     }
 
     @Disabled("spike only")

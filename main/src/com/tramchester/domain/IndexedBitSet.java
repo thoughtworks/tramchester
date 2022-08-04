@@ -1,5 +1,7 @@
 package com.tramchester.domain;
 
+import com.tramchester.graph.search.RouteToRouteCosts;
+
 import java.util.BitSet;
 
 import static java.lang.String.format;
@@ -82,5 +84,9 @@ public class IndexedBitSet {
         BitSet cloned = (BitSet) this.bitSet.clone();
         cloned.and(other.bitSet);
         return new IndexedBitSet(numberOfRoutes, bitSet);
+    }
+
+    public boolean isSet(RouteToRouteCosts.RouteIndexPair pair) {
+        return isSet(pair.first(), pair.second());
     }
 }

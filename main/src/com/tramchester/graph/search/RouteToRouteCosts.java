@@ -19,6 +19,7 @@ import com.tramchester.repository.NeighboursRepository;
 import com.tramchester.repository.RouteRepository;
 import com.tramchester.repository.StationAvailabilityRepository;
 import org.apache.commons.lang3.tuple.Pair;
+import org.checkerframework.checker.units.qual.A;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -558,6 +559,95 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
         }
     }
 
+    public static class RouteIndexPair {
+        private final int first;
+        private final int second;
+
+        private RouteIndexPair(int first, int second) {
+            this.first = first;
+            this.second = second;
+        }
+
+        public static RouteIndexPair getIndexPairFor(RouteIndex index, RoutePair pair) {
+            int a = index.indexFor(pair.getFirst().getId());
+            int b = index.indexFor(pair.getSecond().getId());
+            return of(a, b);
+        }
+
+        public static RouteIndexPair getIndexPairFor(RouteIndex index, Route routeA, Route routeB) {
+            int a = index.indexFor(routeA.getId());
+            int b = index.indexFor(routeB.getId());
+            return of(a, b);
+        }
+
+
+        @Override
+        public String toString() {
+            return "RouteIndexPair{" +
+                    "first=" + first +
+                    ", second=" + second +
+                    '}';
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            RouteIndexPair routePair = (RouteIndexPair) o;
+            return first == routePair.first && second == routePair.second;
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(first, second);
+        }
+
+        public static RouteIndexPair of(int first, int second) {
+            return new RouteIndexPair(first, second);
+        }
+
+        public int first() {
+            return first;
+        }
+
+        public int second() {
+            return second;
+        }
+
+        public boolean isSame() {
+            return first == second;
+        }
+    }
+
+    private static class InterchangeOperating {
+        private final LocalDate date;
+        private final TimeRange time;
+
+        final private Set<RouteAndInterchanges> active;
+
+        public InterchangeOperating(LocalDate date, TimeRange time) {
+
+            this.date = date;
+            this.time = time;
+            active = new HashSet<>();
+        }
+
+        public boolean isOperating(StationAvailabilityRepository availabilityRepository, List<RouteAndInterchanges> changeSet) {
+            return changeSet.stream().anyMatch(item -> isOperating(availabilityRepository, item));
+        }
+
+        private boolean isOperating(StationAvailabilityRepository availabilityRepository, RouteAndInterchanges routeAndInterchanges) {
+            if (active.contains(routeAndInterchanges)) {
+                return true;
+            }
+            boolean available = availabilityRepository.isAvailable(routeAndInterchanges, date, time);
+            if (available) {
+                active.add(routeAndInterchanges);
+            }
+            return available;
+        }
+    }
+
     private static class Costs {
         public static final byte MAX_VALUE = Byte.MAX_VALUE;
 
@@ -707,13 +797,15 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
                 logger.debug(format("Expand for %s initial depth %s", routePair, initialDepth));
             }
 
-            final Set<List<RouteIndexPair>> possibleInterchangePairs = expand(Collections.singletonList(routePair), initialDepth, dateOverlaps);
+            Set<List<RouteIndexPair>> alternative = expandOnePair(routePair, initialDepth, dateOverlaps);
+
+            //final Set<List<RouteIndexPair>> possibleInterchangePairs = expand(Collections.singletonList(routePair), initialDepth, dateOverlaps);
 
             if (logger.isDebugEnabled()) {
-                logger.debug(format("Got %s set of changes for %s: %s", possibleInterchangePairs.size(), routePair, possibleInterchangePairs));
+                logger.debug(format("Got %s set of changes for %s: %s", alternative.size(), routePair, alternative));
             }
 
-            return possibleInterchangePairs;
+            return alternative;
         }
 
         private Set<List<RouteIndexPair>> expand(List<RouteIndexPair> pairs, int degree, IndexedBitSet dateOverlaps) {
@@ -733,7 +825,8 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
                 List<Integer> overlapsForPair = getIndexOverlapsFor(overlapsAtDegree, pair);
                 overlapsForPair.forEach(overlapForPair -> {
                     if (dateOverlaps.isSet(pair.first, pair.second)) {
-                        List<RouteIndexPair> toExpand = formNewRoutePairs(pair, overlapForPair);
+                        Pair<RouteIndexPair, RouteIndexPair> newPairs = formNewRoutePairs(pair, overlapForPair);
+                        List<RouteIndexPair> toExpand = Arrays.asList(newPairs.getLeft(), newPairs.getRight());
                         Set<List<RouteIndexPair>> expansionForPair = expand(toExpand, nextDegree, dateOverlaps);
                         List<RouteIndexPair> resultsForPair = expansionForPair.stream().flatMap(Collection::stream).collect(Collectors.toList());
                         resultsOfExpansion.add(resultsForPair);
@@ -745,15 +838,69 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
                 logger.debug(format("Result of expanding %s => %s", pairs, resultsOfExpansion));
             }
 
+            Set<List<RouteIndexPair>> over2spike =
+                    resultsOfExpansion.stream().filter(list -> list.size() > 2).collect(Collectors.toSet());
+            if (!over2spike.isEmpty()) {
+                logger.info("over 2 were " + over2spike);
+            }
+
             return resultsOfExpansion;
 
         }
 
+        private Set<List<RouteIndexPair>> expandOnePair(final RouteIndexPair original, final int degree, final IndexedBitSet dateOverlaps) {
+            if (degree == 1) {
+                // at degree one we are at direct connections between routes via an interchange so the result is those pairs
+                logger.debug("degree 1, expand pair to: " + original);
+                return Collections.singleton(Collections.singletonList(original));
+            }
+
+            final int nextDegree = degree - 1;
+            final IndexedBitSet overlapsAtDegree = this.costsForDegree[nextDegree]; //.and(dateOverlaps);
+
+            final Set<List<RouteIndexPair>> resultsForPair = new HashSet<>();
+
+            // for >1 result is the set of paris where each of the supplied pairs overlaps
+            final List<Integer> overlappingIndexes = getIndexOverlapsFor(overlapsAtDegree, original);
+            overlappingIndexes.forEach(overlapForPair -> {
+
+                Pair<RouteIndexPair, RouteIndexPair> toExpand = formNewRoutePairs(original, overlapForPair);
+
+                if (dateOverlaps.isSet(toExpand.getLeft()) && dateOverlaps.isSet(toExpand.getRight())) {
+                    Set<List<RouteIndexPair>> leftExpansions = expandOnePair(toExpand.getLeft(), nextDegree, dateOverlaps);
+                    Set<List<RouteIndexPair>> rightExpansions = expandOnePair(toExpand.getRight(), nextDegree, dateOverlaps);
+
+                    Set<List<RouteIndexPair>> resultsForOneOverlap = new HashSet<>();
+
+                    leftExpansions.forEach(leftExpansion -> {
+                        rightExpansions.forEach(rightExpansion -> {
+                            List<RouteIndexPair> combined = new ArrayList<>();
+                            combined.addAll(leftExpansion);
+                            combined.addAll(rightExpansion);
+                            resultsForOneOverlap.add(combined);
+                        });
+                    });
+
+                    resultsForPair.addAll(resultsForOneOverlap);
+
+                }
+
+
+            });
+
+            if (logger.isDebugEnabled()) {
+                logger.debug(format("Result of expanding %s => %s", original, resultsForPair));
+            }
+
+            return resultsForPair;
+
+        }
+
         @NotNull
-        private List<RouteIndexPair> formNewRoutePairs(RouteIndexPair pair, int overlapForPair) {
+        private Pair<RouteIndexPair, RouteIndexPair> formNewRoutePairs(RouteIndexPair pair, int overlapForPair) {
             RouteIndexPair newFirstPair = RouteIndexPair.of(pair.first, overlapForPair);
             RouteIndexPair newSecondPair = RouteIndexPair.of(overlapForPair, pair.second);
-            return Arrays.asList(newFirstPair, newSecondPair);
+            return Pair.of(newFirstPair, newSecondPair);
         }
 
         private RouteAndInterchanges getInterchangeFor(RouteIndexPair indexPair) {
@@ -826,92 +973,30 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
         }
     }
 
-    private static class RouteIndexPair {
-        private final int first;
-        private final int second;
-
-        private RouteIndexPair(int first, int second) {
-            this.first = first;
-            this.second = second;
-        }
-
-        public static RouteIndexPair getIndexPairFor(RouteIndex index, RoutePair pair) {
-            int a = index.indexFor(pair.getFirst().getId());
-            int b = index.indexFor(pair.getSecond().getId());
-            return of(a, b);
-        }
-
-        public static RouteIndexPair getIndexPairFor(RouteIndex index, Route routeA, Route routeB) {
-            int a = index.indexFor(routeA.getId());
-            int b = index.indexFor(routeB.getId());
-            return of(a, b);
-        }
 
 
-        @Override
-        public String toString() {
-            return "IntPair{" +
-                    "first=" + first +
-                    ", second=" + second +
-                    '}';
-        }
+    private interface RouteIndexPairExpansion {
 
-        @Override
-        public boolean equals(Object o) {
-            if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
-            RouteIndexPair routePair = (RouteIndexPair) o;
-            return first == routePair.first && second == routePair.second;
-        }
+    }
 
-        @Override
-        public int hashCode() {
-            return Objects.hash(first, second);
-        }
+    private static class RouteIndexPairLeaf implements RouteIndexPairExpansion {
+        final RouteIndexPair pair;
 
-        public static RouteIndexPair of(int first, int second) {
-            return new RouteIndexPair(first, second);
-        }
-
-        public int first() {
-            return first;
-        }
-
-        public int second() {
-            return second;
-        }
-
-        public boolean isSame() {
-            return first == second;
+        private RouteIndexPairLeaf(RouteIndexPair pair) {
+            this.pair = pair;
         }
     }
 
-    private static class InterchangeOperating {
-        private final LocalDate date;
-        private final TimeRange time;
 
-        final private Set<RouteAndInterchanges> active;
+    private static class RouteIndexPairExpansionNode implements RouteIndexPairExpansion{
+        private final RouteIndexPairExpansion node;
+        private final RouteIndexPairExpansion expandLeft;
+        private final RouteIndexPairExpansion expandRight;
 
-        public InterchangeOperating(LocalDate date, TimeRange time) {
-
-            this.date = date;
-            this.time = time;
-            active = new HashSet<>();
-        }
-
-        public boolean isOperating(StationAvailabilityRepository availabilityRepository, List<RouteAndInterchanges> changeSet) {
-            return changeSet.stream().anyMatch(item -> isOperating(availabilityRepository, item));
-        }
-
-        private boolean isOperating(StationAvailabilityRepository availabilityRepository, RouteAndInterchanges routeAndInterchanges) {
-            if (active.contains(routeAndInterchanges)) {
-                return true;
-            }
-            boolean available = availabilityRepository.isAvailable(routeAndInterchanges, date, time);
-            if (available) {
-                active.add(routeAndInterchanges);
-            }
-            return available;
+        private RouteIndexPairExpansionNode(RouteIndexPairExpansion node, RouteIndexPairExpansion expandLeft, RouteIndexPairExpansion expandRight) {
+            this.node = node;
+            this.expandLeft = expandLeft;
+            this.expandRight = expandRight;
         }
     }
 }
