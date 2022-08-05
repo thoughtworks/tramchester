@@ -1,12 +1,16 @@
 package com.tramchester.graph.search.routes;
 
 import com.netflix.governator.guice.lazy.LazySingleton;
+import com.tramchester.caching.DataCache;
+import com.tramchester.dataexport.DataSaver;
+import com.tramchester.dataimport.data.CostsPerDegreeData;
 import com.tramchester.domain.ImmutableBitSet;
 import com.tramchester.domain.IndexedBitSet;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.collections.SimpleList;
 import com.tramchester.domain.collections.SimpleListSingleton;
 import com.tramchester.domain.places.InterchangeStation;
+import com.tramchester.graph.filters.GraphFilterActive;
 import com.tramchester.repository.InterchangeRepository;
 import com.tramchester.repository.RouteRepository;
 import org.apache.commons.lang3.tuple.Pair;
@@ -23,6 +27,7 @@ import java.time.LocalDate;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 import static java.lang.String.format;
 
@@ -36,6 +41,8 @@ public class RouteCostMatrix {
 
     private final RouteRepository routeRepository;
     private final InterchangeRepository interchangeRepository;
+    private final DataCache dataCache;
+    private final GraphFilterActive graphFilter;
 
     private final CostsPerDegree costsForDegree;
     private final RouteIndex index;
@@ -43,9 +50,12 @@ public class RouteCostMatrix {
     private final int numRoutes;
 
     @Inject
-    RouteCostMatrix(RouteRepository routeRepository, InterchangeRepository interchangeRepository, RouteIndex index) {
+    RouteCostMatrix(RouteRepository routeRepository, InterchangeRepository interchangeRepository, DataCache dataCache,
+                    GraphFilterActive graphFilter, RouteIndex index) {
         this.routeRepository = routeRepository;
         this.interchangeRepository = interchangeRepository;
+        this.dataCache = dataCache;
+        this.graphFilter = graphFilter;
 
         this.index = index;
         this.maxDepth = MAX_DEPTH;
@@ -56,6 +66,23 @@ public class RouteCostMatrix {
 
     @PostConstruct
     private void start() {
+
+        if (graphFilter.isActive()) {
+            logger.warn("Filtering is enabled, skipping all caching");
+            createCostMatrix();
+        } else {
+            if (dataCache.has(costsForDegree)) {
+                logger.info("Loading from cache");
+                dataCache.loadInto(costsForDegree, CostsPerDegreeData.class);
+            } else {
+                logger.info("Not in cache, creating");
+                createCostMatrix();
+                dataCache.save(costsForDegree, CostsPerDegreeData.class);
+            }
+        }
+    }
+
+    private void createCostMatrix() {
         RouteDateAndDayOverlap routeDateAndDayOverlap = new RouteDateAndDayOverlap(index, numRoutes);
         routeDateAndDayOverlap.populateFor();
 
@@ -321,7 +348,7 @@ public class RouteCostMatrix {
         }
     }
 
-    private class CostsPerDegree {
+    private class CostsPerDegree implements DataCache.Cacheable<CostsPerDegreeData> {
         private final IndexedBitSet[] bitSets;
         private final int size;
 
@@ -355,6 +382,40 @@ public class RouteCostMatrix {
                 result = result + bitSets[index].numberOfConnections();
             }
             return result;
+        }
+
+        @Override
+        public void cacheTo(DataSaver<CostsPerDegreeData> saver) {
+            List<CostsPerDegreeData> dataItems = new ArrayList<>();
+            for (int index = 0; index < size; index++) {
+                IndexedBitSet bitSet = bitSets[index];
+                for (int routeIndex = 0; routeIndex < numRoutes; routeIndex++) {
+                    BitSet bitSetForRow = bitSet.getBitSetForRow(routeIndex).getContained();
+                    if (bitSetForRow.cardinality()>0) {
+                        List<Integer> bitsSetForRow = bitSetForRow.stream().boxed().collect(Collectors.toList());
+                        dataItems.add(new CostsPerDegreeData(index, routeIndex, bitsSetForRow));
+                    }
+                }
+            }
+            // todo maybe this list gets too big?
+            saver.save(dataItems);
+            dataItems.clear();
+        }
+
+        @Override
+        public String getFilename() {
+            return "costs_per_degree.csv";
+        }
+
+        @Override
+        public void loadFrom(Stream<CostsPerDegreeData> stream) throws DataCache.CacheLoadException {
+            stream.forEach(item -> {
+                int index = item.getIndex();
+                int routeIndex = item.getRouteIndex();
+                List<Integer> setBits = item.getSetBits();
+                IndexedBitSet bitset = bitSets[index];
+                setBits.forEach(bit -> bitset.set(routeIndex, bit));
+            });
         }
     }
 }

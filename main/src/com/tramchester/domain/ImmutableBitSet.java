@@ -32,4 +32,8 @@ public class ImmutableBitSet {
     public IntStream stream() {
         return contained.stream();
     }
+
+    public BitSet getContained() {
+        return contained;
+    }
 }
