@@ -52,21 +52,21 @@ class RouteIndex implements DataCache.Cacheable<RouteIndexData> {
         logger.info("starting");
         if (graphFilter.isActive()) {
             logger.warn("Filtering is enabled, skipping all caching");
-            populateFrom(routeRepository);
+            createIndex();
         } else {
             if (dataCache.has(this)) {
                 logger.info("Loading from cache");
                 dataCache.loadInto(this, RouteIndexData.class);
             } else {
                 logger.info("Not in cache, creating");
-                populateFrom(routeRepository);
+                createIndex();
                 dataCache.save(this, RouteIndexData.class);
             }
         }
         logger.info("started");
     }
 
-    private void populateFrom(RouteRepository routeRepository) {
+    private void createIndex() {
         logger.info("Creating index");
         List<IdFor<Route>> routesList = routeRepository.getRoutes().stream().map(Route::getId).collect(Collectors.toList());
         createIndex(routesList);
