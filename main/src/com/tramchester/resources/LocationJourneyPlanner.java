@@ -26,7 +26,7 @@ import com.tramchester.graph.graphbuild.GraphProps;
 import com.tramchester.graph.search.BetweenRoutesCostRepository;
 import com.tramchester.graph.search.RouteCalculator;
 import com.tramchester.graph.search.RouteCalculatorArriveBy;
-import com.tramchester.graph.search.RouteToRouteCosts;
+import com.tramchester.graph.search.routes.RouteToRouteCosts;
 import com.tramchester.mappers.Geography;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;

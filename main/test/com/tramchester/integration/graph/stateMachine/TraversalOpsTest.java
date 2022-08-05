@@ -14,7 +14,7 @@ import com.tramchester.geo.SortsPositions;
 import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.caches.NodeContentsRepository;
 import com.tramchester.graph.search.LowestCostsForDestRoutes;
-import com.tramchester.graph.search.RouteToRouteCosts;
+import com.tramchester.graph.search.routes.RouteToRouteCosts;
 import com.tramchester.graph.search.stateMachine.TraversalOps;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
 import com.tramchester.repository.StationRepository;

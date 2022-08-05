@@ -1,8 +1,6 @@
-package com.tramchester.graph.search;
+package com.tramchester.graph.search.routes;
 
 import com.netflix.governator.guice.lazy.LazySingleton;
-import com.tramchester.caching.DataCache;
-import com.tramchester.dataimport.data.RouteIndexData;
 import com.tramchester.domain.*;
 import com.tramchester.domain.collections.SimpleList;
 import com.tramchester.domain.collections.SimpleListSingleton;
@@ -13,7 +11,8 @@ import com.tramchester.domain.places.Station;
 import com.tramchester.domain.places.StationGroup;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TimeRange;
-import com.tramchester.graph.filters.GraphFilterActive;
+import com.tramchester.graph.search.BetweenRoutesCostRepository;
+import com.tramchester.graph.search.LowestCostsForDestRoutes;
 import com.tramchester.repository.InterchangeRepository;
 import com.tramchester.repository.NeighboursRepository;
 import com.tramchester.repository.RouteRepository;
@@ -44,27 +43,25 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
 
     public static final int MAX_DEPTH = 4;
 
-    private final RouteRepository routeRepository;
     private final InterchangeRepository interchangeRepository;
     private final NeighboursRepository neighboursRepository;
     private final StationAvailabilityRepository availabilityRepository;
     private final RouteIndex index;
 
-    private final Costs costs;
+    private final RouteCostMatrix costs;
     private final int numberOfRoutes;
 
     @Inject
     public RouteToRouteCosts(RouteRepository routeRepository, InterchangeRepository interchangeRepository,
                              NeighboursRepository neighboursRepository, StationAvailabilityRepository availabilityRepository,
                              RouteIndex index) {
-        this.routeRepository = routeRepository;
         this.interchangeRepository = interchangeRepository;
         this.neighboursRepository = neighboursRepository;
 
         numberOfRoutes = routeRepository.numberOfRoutes();
         this.availabilityRepository = availabilityRepository;
         this.index = index;
-        costs = new Costs(availabilityRepository, this.index, numberOfRoutes, MAX_DEPTH + 1);
+        costs = new RouteCostMatrix(availabilityRepository, routeRepository, this.index, numberOfRoutes, MAX_DEPTH + 1);
     }
 
     @PostConstruct
@@ -85,59 +82,10 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
     private void buildRouteConnectionMatrix() {
         RouteDateAndDayOverlap routeDateAndDayOverlap = new RouteDateAndDayOverlap(index, numberOfRoutes);
         routeDateAndDayOverlap.populateFor();
-        populateCosts(routeDateAndDayOverlap);
-    }
-
-    private void populateCosts(RouteDateAndDayOverlap routeDateAndDayOverlap) {
-        final int size = routeRepository.numberOfRoutes();
-        logger.info("Find costs between " + size + " routes");
-        final int fullyConnected = size * size;
 
         addInitialConnectionsFromInterchanges(routeDateAndDayOverlap);
 
-        for (byte currentDegree = 1; currentDegree < MAX_DEPTH; currentDegree++) {
-            addConnectionsFor(routeDateAndDayOverlap, currentDegree);
-            final int currentTotal = costs.size();
-            logger.info("Total number of connections " + currentTotal);
-            if (currentTotal >= fullyConnected) {
-                break;
-            }
-        }
-
-        final int finalSize = costs.size();
-        logger.info("Added cost for " + finalSize + " route combinations");
-        if (finalSize < fullyConnected) {
-            double percentage = ((double) finalSize / (double) fullyConnected);
-            logger.warn(format("Not fully connected, only %s (%s) of %s ", finalSize, percentage, fullyConnected));
-        }
-    }
-
-    private void addConnectionsFor(RouteDateAndDayOverlap routeDateAndDayOverlap, byte currentDegree) {
-        final Instant startTime = Instant.now();
-        final int nextDegree = currentDegree + 1;
-
-        final IndexedBitSet currentMatrix = costs.costsFor(currentDegree);
-        final IndexedBitSet newMatrix = costs.costsFor(nextDegree);
-
-        for (int routeIndex = 0; routeIndex < numberOfRoutes; routeIndex++) {
-
-            final ImmutableBitSet currentConnectionsForRoute = currentMatrix.getBitSetForRow(routeIndex);
-            final BitSet resultForForRoute = new BitSet(numberOfRoutes);
-            for (int connectionIndex = 0; connectionIndex < numberOfRoutes; connectionIndex++) {
-                if (currentConnectionsForRoute.get(connectionIndex)) {
-                    // if current routeIndex is connected to a route, then for next degree include that other routes connections
-                    final ImmutableBitSet otherRoutesConnections = currentMatrix.getBitSetForRow(connectionIndex);
-                    otherRoutesConnections.applyOr(resultForForRoute);
-                }
-            }
-            final BitSet dateOverlapMask = routeDateAndDayOverlap.overlapsFor(routeIndex);  // only those routes whose dates overlap
-            resultForForRoute.and(dateOverlapMask);
-            currentConnectionsForRoute.applyAndNot(resultForForRoute);  // don't include any current connections for this route
-            newMatrix.insert(routeIndex, resultForForRoute);
-        }
-
-        final long took = Duration.between(startTime, Instant.now()).toMillis();
-        logger.info("Added connections " + newMatrix.numberOfConnections() + "  Degree " + nextDegree + " in " + took + " ms");
+        costs.start(routeDateAndDayOverlap);
     }
 
     private void addInitialConnectionsFromInterchanges(RouteDateAndDayOverlap routeDateAndDayOverlap) {
@@ -199,7 +147,7 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
         RouteIndexPair routeIndexPair = RouteIndexPair.getIndexPairFor(index, routePair);
         final int result = costs.getDepth(routeIndexPair, interchangeOperating, overlapsForDate);
 
-        if (result == Costs.MAX_VALUE) {
+        if (result == RouteCostMatrix.MAX_VALUE) {
             if (routePair.sameMode()) {
                 // TODO Why so many hits here?
                 // for mixed transport mode having no value is quite normal
@@ -433,7 +381,7 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
             return destinationIndexs.stream().mapToInt(item -> item).
                     map(indexOfDest -> routeToRouteCosts.costs.getDepth(RouteIndexPair.of(indexOfStart, indexOfDest),
                             interchangeOperating, dateOverlaps)).
-                    filter(result -> result != Costs.MAX_VALUE).
+                    filter(result -> result != RouteCostMatrix.MAX_VALUE).
                     min().
                     orElse(Integer.MAX_VALUE);
         }
@@ -558,20 +506,23 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
         }
     }
 
-    private static class Costs {
+    private static class RouteCostMatrix {
         public static final byte MAX_VALUE = Byte.MAX_VALUE;
 
         // map from route->route pair to interchanges that could make that change
         private final Map<RouteIndexPair, Set<Station>> routePairToInterchange;
         private final StationAvailabilityRepository availabilityRepository;
+        private final RouteRepository routeRepository;
 
         private final IndexedBitSet[] costsForDegree;
         private final RouteIndex index;
         private final int maxDepth;
         private final int numRoutes;
 
-        private Costs(StationAvailabilityRepository availabilityRepository, RouteIndex index, int numRoutes, int maxDepth) {
+        private RouteCostMatrix(StationAvailabilityRepository availabilityRepository, RouteRepository routeRepository,
+                                RouteIndex index, int numRoutes, int maxDepth) {
             this.availabilityRepository = availabilityRepository;
+            this.routeRepository = routeRepository;
             this.index = index;
             this.maxDepth = maxDepth;
             costsForDegree = new IndexedBitSet[maxDepth];
@@ -676,7 +627,7 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
             return MAX_VALUE;
         }
 
-        public IndexedBitSet costsFor(int currentDegree) {
+        private IndexedBitSet costsFor(int currentDegree) {
             return costsForDegree[currentDegree];
         }
 
@@ -795,6 +746,61 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
         }
 
 
+        public void start(RouteDateAndDayOverlap routeDateAndDayOverlap) {
+            populateCosts(routeDateAndDayOverlap);
+        }
+
+        private void populateCosts(RouteDateAndDayOverlap routeDateAndDayOverlap) {
+            final int size = routeRepository.numberOfRoutes();
+            logger.info("Find costs between " + size + " routes");
+            final int fullyConnected = size * size;
+
+
+            for (byte currentDegree = 1; currentDegree < MAX_DEPTH; currentDegree++) {
+                addConnectionsFor(routeDateAndDayOverlap, currentDegree);
+                final int currentTotal = size();
+                logger.info("Total number of connections " + currentTotal);
+                if (currentTotal >= fullyConnected) {
+                    break;
+                }
+            }
+
+            final int finalSize = size();
+            logger.info("Added cost for " + finalSize + " route combinations");
+            if (finalSize < fullyConnected) {
+                double percentage = ((double) finalSize / (double) fullyConnected);
+                logger.warn(format("Not fully connected, only %s (%s) of %s ", finalSize, percentage, fullyConnected));
+            }
+        }
+
+
+        private void addConnectionsFor(RouteDateAndDayOverlap routeDateAndDayOverlap, byte currentDegree) {
+            final Instant startTime = Instant.now();
+            final int nextDegree = currentDegree + 1;
+
+            final IndexedBitSet currentMatrix = costsFor(currentDegree);
+            final IndexedBitSet newMatrix = costsFor(nextDegree);
+
+            for (int routeIndex = 0; routeIndex < numRoutes; routeIndex++) {
+
+                final ImmutableBitSet currentConnectionsForRoute = currentMatrix.getBitSetForRow(routeIndex);
+                final BitSet resultForForRoute = new BitSet(numRoutes);
+                for (int connectionIndex = 0; connectionIndex < numRoutes; connectionIndex++) {
+                    if (currentConnectionsForRoute.get(connectionIndex)) {
+                        // if current routeIndex is connected to a route, then for next degree include that other routes connections
+                        final ImmutableBitSet otherRoutesConnections = currentMatrix.getBitSetForRow(connectionIndex);
+                        otherRoutesConnections.applyOr(resultForForRoute);
+                    }
+                }
+                final BitSet dateOverlapMask = routeDateAndDayOverlap.overlapsFor(routeIndex);  // only those routes whose dates overlap
+                resultForForRoute.and(dateOverlapMask);
+                currentConnectionsForRoute.applyAndNot(resultForForRoute);  // don't include any current connections for this route
+                newMatrix.insert(routeIndex, resultForForRoute);
+            }
+
+            final long took = Duration.between(startTime, Instant.now()).toMillis();
+            logger.info("Added connections " + newMatrix.numberOfConnections() + "  Degree " + nextDegree + " in " + took + " ms");
+        }
     }
 
     private static class RouteDateAndDayOverlap {

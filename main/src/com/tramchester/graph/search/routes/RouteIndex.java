@@ -1,4 +1,4 @@
-package com.tramchester.graph.search;
+package com.tramchester.graph.search.routes;
 
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.caching.DataCache;
@@ -22,7 +22,7 @@ import java.util.stream.Stream;
 
 /***
  * Provides a map to/from an integer index for each route, which facilitates the computation of route interchanges
- * via bitmaps
+ * via bitmaps. Expensive to create for buses and trains, so cacheable.
  */
 @LazySingleton
 class RouteIndex implements DataCache.Cacheable<RouteIndexData> {
@@ -128,4 +128,6 @@ class RouteIndex implements DataCache.Cacheable<RouteIndexData> {
 
         return new RoutePair(first, second);
     }
+
+
 }

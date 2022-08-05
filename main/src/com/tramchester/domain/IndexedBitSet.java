@@ -1,6 +1,6 @@
 package com.tramchester.domain;
 
-import com.tramchester.graph.search.RouteToRouteCosts;
+import com.tramchester.graph.search.routes.RouteToRouteCosts;
 
 import java.util.BitSet;
 

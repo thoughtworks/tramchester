@@ -7,6 +7,7 @@ import com.tramchester.domain.places.Location;
 import com.tramchester.domain.places.StationGroup;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TimeRange;
+import com.tramchester.graph.search.routes.RouteToRouteCosts;
 
 import java.time.LocalDate;
 import java.util.Set;
