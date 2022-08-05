@@ -62,11 +62,15 @@ public class RouteToRouteCostsTest {
 
         componentContainer = new ComponentsBuilder().create(config, TestEnv.NoopRegisterMetrics());
         componentContainer.initialise();
+
+        // Clear Cache - test creation here
         TestEnv.clearDataCache(componentContainer);
     }
 
     @AfterAll
     static void OnceAfterAllTestsAreFinished() {
+
+        // Clear Cache
         TestEnv.clearDataCache(componentContainer); // => this removes the index cache
         componentContainer.close();
     }

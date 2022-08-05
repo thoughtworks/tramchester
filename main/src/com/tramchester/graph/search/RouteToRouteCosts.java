@@ -2,13 +2,11 @@ package com.tramchester.graph.search;
 
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.caching.DataCache;
-import com.tramchester.dataexport.DataSaver;
 import com.tramchester.dataimport.data.RouteIndexData;
 import com.tramchester.domain.*;
 import com.tramchester.domain.collections.SimpleList;
 import com.tramchester.domain.collections.SimpleListSingleton;
 import com.tramchester.domain.id.HasId;
-import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.places.InterchangeStation;
 import com.tramchester.domain.places.Location;
 import com.tramchester.domain.places.Station;
@@ -50,45 +48,29 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
     private final InterchangeRepository interchangeRepository;
     private final NeighboursRepository neighboursRepository;
     private final StationAvailabilityRepository availabilityRepository;
+    private final RouteIndex index;
 
     private final Costs costs;
-    private final RouteIndex index;
     private final int numberOfRoutes;
-    private final GraphFilterActive graphFilter;
-    private final DataCache dataCache;
 
     @Inject
     public RouteToRouteCosts(RouteRepository routeRepository, InterchangeRepository interchangeRepository,
                              NeighboursRepository neighboursRepository, StationAvailabilityRepository availabilityRepository,
-                             DataCache dataCache, GraphFilterActive graphFilter) {
+                             RouteIndex index) {
         this.routeRepository = routeRepository;
         this.interchangeRepository = interchangeRepository;
         this.neighboursRepository = neighboursRepository;
 
         numberOfRoutes = routeRepository.numberOfRoutes();
         this.availabilityRepository = availabilityRepository;
-        this.graphFilter = graphFilter;
-        this.dataCache = dataCache;
-        index = new RouteIndex(routeRepository);
-        costs = new Costs(availabilityRepository, index, numberOfRoutes, MAX_DEPTH + 1);
+        this.index = index;
+        costs = new Costs(availabilityRepository, this.index, numberOfRoutes, MAX_DEPTH + 1);
     }
 
     @PostConstruct
     public void start() {
         logger.info("starting");
-        if (graphFilter.isActive()) {
-            logger.warn("Filtering is enabled, skipping all caching");
-            index.populateFrom(routeRepository);
-        } else {
-            if (dataCache.has(index)) {
-                dataCache.loadInto(index, RouteIndexData.class);
-            } else {
-                index.populateFrom(routeRepository);
-                dataCache.save(index, RouteIndexData.class);
-            }
-        }
         buildRouteConnectionMatrix();
-
         logger.info("started");
     }
 
@@ -139,19 +121,19 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
 
         for (int routeIndex = 0; routeIndex < numberOfRoutes; routeIndex++) {
 
-            ImmutableBitSet currentConnectionsForRoute = currentMatrix.getBitSetForRow(routeIndex);
-            BitSet result = new BitSet(numberOfRoutes);
+            final ImmutableBitSet currentConnectionsForRoute = currentMatrix.getBitSetForRow(routeIndex);
+            final BitSet resultForForRoute = new BitSet(numberOfRoutes);
             for (int connectionIndex = 0; connectionIndex < numberOfRoutes; connectionIndex++) {
                 if (currentConnectionsForRoute.get(connectionIndex)) {
                     // if current routeIndex is connected to a route, then for next degree include that other routes connections
-                    ImmutableBitSet otherRoutesConnections = currentMatrix.getBitSetForRow(connectionIndex);
-                    otherRoutesConnections.applyOr(result);
+                    final ImmutableBitSet otherRoutesConnections = currentMatrix.getBitSetForRow(connectionIndex);
+                    otherRoutesConnections.applyOr(resultForForRoute);
                 }
             }
             final BitSet dateOverlapMask = routeDateAndDayOverlap.overlapsFor(routeIndex);  // only those routes whose dates overlap
-            result.and(dateOverlapMask);
-            currentConnectionsForRoute.applyAndNot(result);  // don't include any current connections for this route
-            newMatrix.insert(routeIndex, result);
+            resultForForRoute.and(dateOverlapMask);
+            currentConnectionsForRoute.applyAndNot(resultForForRoute);  // don't include any current connections for this route
+            newMatrix.insert(routeIndex, resultForForRoute);
         }
 
         final long took = Duration.between(startTime, Instant.now()).toMillis();
@@ -482,84 +464,6 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
 
     }
 
-    private static class RouteIndex implements DataCache.Cacheable<RouteIndexData> {
-        private final RouteRepository routeRepository;
-        private final Map<IdFor<Route>, Integer> mapRouteIdToIndex;
-        private final Map<Integer, IdFor<Route>> mapIndexToRouteId;
-        private final int numberOfRoutes;
-
-        private RouteIndex(RouteRepository routeRepository) {
-            this.routeRepository = routeRepository;
-            this.numberOfRoutes = routeRepository.numberOfRoutes();
-            mapRouteIdToIndex = new HashMap<>(numberOfRoutes);
-            mapIndexToRouteId = new HashMap<>(numberOfRoutes);
-        }
-
-        public void populateFrom(RouteRepository routeRepository) {
-            logger.info("Creating index");
-            List<IdFor<Route>> routesList = routeRepository.getRoutes().stream().map(Route::getId).collect(Collectors.toList());
-            createIndex(routesList);
-            logger.info("Added " + mapRouteIdToIndex.size() + " index entries");
-        }
-
-        private void createIndex(List<IdFor<Route>> routesList) {
-            for (int i = 0; i < routesList.size(); i++) {
-                mapRouteIdToIndex.put(routesList.get(i), i);
-                mapIndexToRouteId.put(i, routesList.get(i));
-            }
-        }
-
-        public int indexFor(IdFor<Route> from) {
-            return mapRouteIdToIndex.get(from);
-        }
-
-        @Override
-        public void cacheTo(DataSaver<RouteIndexData> saver) {
-            List<RouteIndexData> indexData = mapRouteIdToIndex.entrySet().stream().
-                    map(entry -> new RouteIndexData(entry.getValue(), entry.getKey())).
-                    collect(Collectors.toList());
-            saver.save(indexData);
-            indexData.clear();
-        }
-
-        @Override
-        public String getFilename() {
-            return INDEX_FILE;
-        }
-
-        @Override
-        public void loadFrom(Stream<RouteIndexData> stream) throws DataCache.CacheLoadException {
-            logger.info("Loading from cache");
-            stream.forEach(item -> {
-                mapRouteIdToIndex.put(item.getRouteId(), item.getIndex());
-                mapIndexToRouteId.put(item.getIndex(), item.getRouteId());
-            });
-            if (mapRouteIdToIndex.size() != numberOfRoutes) {
-                throw new DataCache.CacheLoadException("Mismatch on number of routes, got " + mapRouteIdToIndex.size() +
-                        " expected " + numberOfRoutes);
-            }
-        }
-
-        public void clear() {
-            mapRouteIdToIndex.clear();
-            mapIndexToRouteId.clear();
-        }
-
-        public Route getRouteFor(int index) {
-            return routeRepository.getRouteById(mapIndexToRouteId.get(index));
-        }
-
-        public RoutePair getPairFor(RouteIndexPair indexPair) {
-            IdFor<Route> firstId = mapIndexToRouteId.get(indexPair.first);
-            IdFor<Route> secondId = mapIndexToRouteId.get(indexPair.second);
-
-            Route first = routeRepository.getRouteById(firstId);
-            Route second = routeRepository.getRouteById(secondId);
-
-            return new RoutePair(first, second);
-        }
-    }
-
     public static class RouteIndexPair {
         private final int first;
         private final int second;
@@ -622,6 +526,9 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
         }
     }
 
+    /***
+     * Caches whether an interchange is available at a specific date and time range
+     */
     private static class InterchangeOperating {
         private final LocalDate date;
         private final TimeRange time;
@@ -657,6 +564,7 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
         // map from route->route pair to interchanges that could make that change
         private final Map<RouteIndexPair, Set<Station>> routePairToInterchange;
         private final StationAvailabilityRepository availabilityRepository;
+
         private final IndexedBitSet[] costsForDegree;
         private final RouteIndex index;
         private final int maxDepth;

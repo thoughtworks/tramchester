@@ -45,14 +45,16 @@ public class RouteToRouteCostsRailTest {
         TramchesterConfig config = new IntegrationRailTestConfig();
         componentContainer = new ComponentsBuilder().create(config, TestEnv.NoopRegisterMetrics());
         componentContainer.initialise();
-        TestEnv.clearDataCache(componentContainer);
+
+        // clear cache
+        //TestEnv.clearDataCache(componentContainer);
 
         date = TestEnv.testDay();
     }
 
     @AfterAll
     static void OnceAfterAllTestsAreFinished() {
-        TestEnv.clearDataCache(componentContainer);
+        //TestEnv.clearDataCache(componentContainer);
         componentContainer.close();
     }
 

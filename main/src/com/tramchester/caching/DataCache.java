@@ -122,7 +122,7 @@ public class DataCache {
 
     public void clearFiles() {
         if (!Files.exists(cacheFolder)) {
-            logger.warn("Not clearing cache, folder not present: " + cacheFolder);
+            logger.error("Not clearing cache, folder not present: " + cacheFolder);
             return;
         }
 
@@ -130,7 +130,9 @@ public class DataCache {
         try {
             List<Path> files = filesInCache();
             for (Path file : files) {
-                Files.deleteIfExists(file);
+                if (Files.deleteIfExists(file)) {
+                    logger.info("Removed " + file.toAbsolutePath());
+                }
             }
         } catch (IOException exception) {
             final String msg = "Unable to clear cache";
