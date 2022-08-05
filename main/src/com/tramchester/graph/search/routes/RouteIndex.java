@@ -42,6 +42,7 @@ class RouteIndex implements DataCache.Cacheable<RouteIndexData> {
         this.numberOfRoutes = routeRepository.numberOfRoutes();
         this.graphFilter = graphFilter;
         this.dataCache = dataCache;
+
         mapRouteIdToIndex = new HashMap<>(numberOfRoutes);
         mapIndexToRouteId = new HashMap<>(numberOfRoutes);
     }
@@ -119,7 +120,7 @@ class RouteIndex implements DataCache.Cacheable<RouteIndexData> {
         return routeRepository.getRouteById(mapIndexToRouteId.get(index));
     }
 
-    public RoutePair getPairFor(RouteToRouteCosts.RouteIndexPair indexPair) {
+    public RoutePair getPairFor(RouteIndexPair indexPair) {
         IdFor<Route> firstId = mapIndexToRouteId.get(indexPair.first());
         IdFor<Route> secondId = mapIndexToRouteId.get(indexPair.second());
 
@@ -127,6 +128,12 @@ class RouteIndex implements DataCache.Cacheable<RouteIndexData> {
         Route second = routeRepository.getRouteById(secondId);
 
         return new RoutePair(first, second);
+    }
+
+    public RouteIndexPair getPairFor(RoutePair routePair) {
+        int a = indexFor(routePair.getFirst().getId());
+        int b = indexFor(routePair.getSecond().getId());
+        return RouteIndexPair.of(a, b);
     }
 
 
