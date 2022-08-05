@@ -2,10 +2,10 @@ package com.tramchester.domain.collections;
 
 import java.util.stream.Stream;
 
-public class LazyListSingleton<T> implements LazyList<T> {
+public class SimpleListSingleton<T> implements SimpleList<T> {
     private final T item;
 
-    public LazyListSingleton(T item) {
+    public SimpleListSingleton(T item) {
         this.item = item;
     }
 

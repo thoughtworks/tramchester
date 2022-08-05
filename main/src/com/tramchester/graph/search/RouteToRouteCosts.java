@@ -5,8 +5,8 @@ import com.tramchester.caching.DataCache;
 import com.tramchester.dataexport.DataSaver;
 import com.tramchester.dataimport.data.RouteIndexData;
 import com.tramchester.domain.*;
-import com.tramchester.domain.collections.LazyList;
-import com.tramchester.domain.collections.LazyListSingleton;
+import com.tramchester.domain.collections.SimpleList;
+import com.tramchester.domain.collections.SimpleListSingleton;
 import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.places.InterchangeStation;
@@ -237,7 +237,7 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
 
         IndexedBitSet dateOverlaps = IndexedBitSet.getIdentity(numberOfRoutes); // no specific date or time
 
-        Collection<LazyList<RouteIndexPair>> routeChanges = costs.getChangesFor(indexPair, dateOverlaps);
+        Collection<SimpleList<RouteIndexPair>> routeChanges = costs.getChangesFor(indexPair, dateOverlaps);
 
         List<List<RouteAndInterchanges>> interchanges = routeChanges.stream().
                 map(list -> list.stream().map(costs::getInterchangeFor).filter(Objects::nonNull)).
@@ -718,12 +718,12 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
 
         private int getDepth(RouteIndexPair routePair, InterchangeOperating interchangeOperating, IndexedBitSet dateOverlaps) {
 
-            Collection<LazyList<RouteIndexPair>> possibleChanges = getChangesFor(routePair, dateOverlaps);
+            Collection<SimpleList<RouteIndexPair>> possibleChanges = getChangesFor(routePair, dateOverlaps);
 
             List<List<RouteAndInterchanges>> filteredByAvailability = new ArrayList<>();
 
             int smallestSeen = Integer.MAX_VALUE;
-            for (LazyList<RouteIndexPair> listOfChanges : possibleChanges) {
+            for (SimpleList<RouteIndexPair> listOfChanges : possibleChanges) {
                 final int numberOfChanges = listOfChanges.size();
                 if (numberOfChanges < smallestSeen) {
                     List<RouteAndInterchanges> listOfInterchanges = getRouteAndInterchange(listOfChanges);
@@ -749,7 +749,7 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
 
         }
 
-        private List<RouteAndInterchanges> getRouteAndInterchange(LazyList<RouteIndexPair> listOfChanges) {
+        private List<RouteAndInterchanges> getRouteAndInterchange(SimpleList<RouteIndexPair> listOfChanges) {
             return listOfChanges.stream().
                     map(this::getInterchangeFor).
                     filter(Objects::nonNull).
@@ -783,7 +783,7 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
          * @param dateOverlaps bit mask indicating that routeA->routeB is available at date
          * @return each set returned contains specific interchanges between 2 specific routes
          */
-        private Collection<LazyList<RouteIndexPair>> getChangesFor(final RouteIndexPair routePair, IndexedBitSet dateOverlaps) {
+        private Collection<SimpleList<RouteIndexPair>> getChangesFor(final RouteIndexPair routePair, IndexedBitSet dateOverlaps) {
 
             final byte initialDepth = getDegree(routePair);
 
@@ -800,7 +800,7 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
                 logger.debug(format("Expand for %s initial depth %s", routePair, initialDepth));
             }
 
-            Collection<LazyList<RouteIndexPair>> possibleInterchangePairs = expandOnePair(routePair, initialDepth, dateOverlaps);
+            Collection<SimpleList<RouteIndexPair>> possibleInterchangePairs = expandOnePair(routePair, initialDepth, dateOverlaps);
 
             if (logger.isDebugEnabled()) {
                 logger.debug(format("Got %s set of changes for %s: %s", possibleInterchangePairs.size(), routePair, possibleInterchangePairs));
@@ -809,17 +809,17 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
             return possibleInterchangePairs;
         }
 
-        private Collection<LazyList<RouteIndexPair>> expandOnePair(final RouteIndexPair original, final int degree, final IndexedBitSet dateOverlaps) {
+        private Collection<SimpleList<RouteIndexPair>> expandOnePair(final RouteIndexPair original, final int degree, final IndexedBitSet dateOverlaps) {
             if (degree == 1) {
                 // at degree one we are at direct connections between routes via an interchange so the result is those pairs
-                logger.debug("degree 1, expand pair to: " + original);
-                return Collections.singleton(new LazyListSingleton<>(original));
+                //logger.debug("degree 1, expand pair to: " + original);
+                return Collections.singleton(new SimpleListSingleton<>(original));
             }
 
             final int nextDegree = degree - 1;
             final IndexedBitSet overlapsAtDegree = this.costsForDegree[nextDegree]; //.and(dateOverlaps);
 
-            final List<LazyList<RouteIndexPair>> resultsForPair = new ArrayList<>();
+            final List<SimpleList<RouteIndexPair>> resultsForPair = new ArrayList<>();
 
             // for >1 result is the set of paris where each of the supplied pairs overlaps
             final List<Integer> overlappingIndexes = getIndexOverlapsFor(overlapsAtDegree, original);
@@ -828,13 +828,13 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
                 Pair<RouteIndexPair, RouteIndexPair> toExpand = formNewRoutePairs(original, overlapForPair);
 
                 if (dateOverlaps.isSet(toExpand.getLeft()) && dateOverlaps.isSet(toExpand.getRight())) {
-                    final Collection<LazyList<RouteIndexPair>> leftExpansions = expandOnePair(toExpand.getLeft(), nextDegree, dateOverlaps);
-                    final Collection<LazyList<RouteIndexPair>> rightExpansions = expandOnePair(toExpand.getRight(), nextDegree, dateOverlaps);
+                    final Collection<SimpleList<RouteIndexPair>> leftExpansions = expandOnePair(toExpand.getLeft(), nextDegree, dateOverlaps);
+                    final Collection<SimpleList<RouteIndexPair>> rightExpansions = expandOnePair(toExpand.getRight(), nextDegree, dateOverlaps);
 
-                    final Collection<LazyList<RouteIndexPair>> resultsForOneOverlap = new ArrayList<>(leftExpansions.size()*rightExpansions.size());
+                    final Collection<SimpleList<RouteIndexPair>> resultsForOneOverlap = new ArrayList<>(leftExpansions.size()*rightExpansions.size());
 
                     leftExpansions.forEach(leftExpansion -> rightExpansions.forEach(rightExpansion -> {
-                        final LazyList<RouteIndexPair> combined = LazyList.concat(leftExpansion, rightExpansion);
+                        final SimpleList<RouteIndexPair> combined = SimpleList.concat(RouteIndexPair.class, leftExpansion, rightExpansion);
                         resultsForOneOverlap.add(combined);
                     }));
                     resultsForPair.addAll(resultsForOneOverlap);
@@ -848,14 +848,6 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
 
             return resultsForPair;
 
-        }
-
-        @NotNull
-        private List<RouteIndexPair> concat(List<RouteIndexPair> leftExpansion, List<RouteIndexPair> rightExpansion) {
-            final List<RouteIndexPair> combined = new ArrayList<>(leftExpansion.size()+ rightExpansion.size());
-            combined.addAll(leftExpansion);
-            combined.addAll(rightExpansion);
-            return combined;
         }
 
         @NotNull
