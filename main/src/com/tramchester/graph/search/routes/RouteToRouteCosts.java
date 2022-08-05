@@ -10,7 +10,6 @@ import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TimeRange;
 import com.tramchester.graph.search.BetweenRoutesCostRepository;
 import com.tramchester.graph.search.LowestCostsForDestRoutes;
-import com.tramchester.repository.InterchangeRepository;
 import com.tramchester.repository.NeighboursRepository;
 import com.tramchester.repository.RouteRepository;
 import com.tramchester.repository.StationAvailabilityRepository;
@@ -35,44 +34,35 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
 
     public final static String INDEX_FILE = "route_index.csv";
 
-
     private final NeighboursRepository neighboursRepository;
     private final StationAvailabilityRepository availabilityRepository;
     private final RouteIndex index;
-
     private final RouteCostMatrix costs;
+
     private final int numberOfRoutes;
 
     @Inject
-    public RouteToRouteCosts(RouteRepository routeRepository, InterchangeRepository interchangeRepository,
-                             NeighboursRepository neighboursRepository, StationAvailabilityRepository availabilityRepository,
-                             RouteIndex index) {
+    public RouteToRouteCosts(RouteRepository routeRepository, NeighboursRepository neighboursRepository,
+                             StationAvailabilityRepository availabilityRepository,
+                             RouteIndex index, RouteCostMatrix costs) {
         this.neighboursRepository = neighboursRepository;
         this.availabilityRepository = availabilityRepository;
         this.index = index;
+        this.costs = costs;
 
         numberOfRoutes = routeRepository.numberOfRoutes();
-
-        costs = new RouteCostMatrix(availabilityRepository, routeRepository, interchangeRepository, index);
     }
 
     @PostConstruct
     public void start() {
         logger.info("starting");
-        buildRouteConnectionMatrix();
         logger.info("started");
     }
 
     @PreDestroy
     public void stop() {
         logger.info("stopping");
-        index.clear();
-        costs.clear();
         logger.info("stopped");
-    }
-
-    private void buildRouteConnectionMatrix() {
-        costs.start();
     }
 
     /***
@@ -402,7 +392,5 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
             return available;
         }
     }
-
-
 
 }

@@ -1,5 +1,6 @@
 package com.tramchester.graph.search.routes;
 
+import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.domain.*;
 import com.tramchester.domain.collections.SimpleList;
 import com.tramchester.domain.collections.SimpleListSingleton;
@@ -14,6 +15,9 @@ import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
+import javax.inject.Inject;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDate;
@@ -23,7 +27,8 @@ import java.util.stream.IntStream;
 
 import static java.lang.String.format;
 
-class RouteCostMatrix {
+@LazySingleton
+public class RouteCostMatrix {
     private static final Logger logger = LoggerFactory.getLogger(RouteCostMatrix.class);
 
     public static final byte MAX_VALUE = Byte.MAX_VALUE;
@@ -31,7 +36,7 @@ class RouteCostMatrix {
     public static final int MAX_DEPTH = 4;
 
     // map from route->route pair to interchanges that could make that change
-    private final Map<RouteIndexPair, Set<Station>> routePairToInterchange;
+    private final RouteIndexToInterchangeRepository routePairToInterchange;
     private final StationAvailabilityRepository availabilityRepository;
     private final RouteRepository routeRepository;
     private final InterchangeRepository interchangeRepository;
@@ -41,8 +46,10 @@ class RouteCostMatrix {
     private final int maxDepth;
     private final int numRoutes;
 
-    RouteCostMatrix(StationAvailabilityRepository availabilityRepository, RouteRepository routeRepository,
-                    InterchangeRepository interchangeRepository, RouteIndex index) {
+    @Inject
+    RouteCostMatrix(RouteIndexToInterchangeRepository routePairToInterchange, StationAvailabilityRepository availabilityRepository,
+                    RouteRepository routeRepository, InterchangeRepository interchangeRepository, RouteIndex index) {
+        this.routePairToInterchange = routePairToInterchange;
         this.availabilityRepository = availabilityRepository;
         this.routeRepository = routeRepository;
         this.interchangeRepository = interchangeRepository;
@@ -52,8 +59,20 @@ class RouteCostMatrix {
         this.numRoutes = routeRepository.numberOfRoutes();
 
         costsForDegree = new CostsPerDegree(maxDepth);
-        routePairToInterchange = new HashMap<>();
+    }
 
+    @PostConstruct
+    private void start() {
+        RouteDateAndDayOverlap routeDateAndDayOverlap = new RouteDateAndDayOverlap(index, numRoutes);
+        routeDateAndDayOverlap.populateFor();
+
+        addInitialConnectionsFromInterchanges(routeDateAndDayOverlap);
+        populateCosts(routeDateAndDayOverlap);
+    }
+
+    @PreDestroy
+    private void clear() {
+        costsForDegree.clear();
     }
 
     private void addInitialConnectionsFromInterchanges(RouteDateAndDayOverlap routeDateAndDayOverlap) {
@@ -78,7 +97,7 @@ class RouteCostMatrix {
                 if ((!dropOff.equals(pickup)) && pickup.isDateOverlap(dropOff)) {
                     final int pickupIndex = index.indexFor(pickup.getId());
                     forDegreeOne.set(dropOffIndex, pickupIndex);
-                    addInterchangeBetween(dropOffIndex, pickupIndex, interchange);
+                    //addInterchangeBetween(dropOffIndex, pickupIndex, interchange);
                 }
             }
             // apply dates and days
@@ -86,14 +105,7 @@ class RouteCostMatrix {
         }
     }
 
-    // TODO pass in the map? Or construct in this class
-    private void addInterchangeBetween(int dropOffIndex, int pickupIndex, InterchangeStation interchange) {
-        RouteIndexPair key = RouteIndexPair.of(dropOffIndex, pickupIndex);
-        if (!routePairToInterchange.containsKey(key)) {
-            routePairToInterchange.put(key, new HashSet<>());
-        }
-        routePairToInterchange.get(key).add(interchange.getStation());
-    }
+
 
     // create a bitmask for route->route changes that are possible on a given date
     public IndexedBitSet createOverlapMatrixFor(LocalDate date) {
@@ -169,19 +181,11 @@ class RouteCostMatrix {
             return 0;
         }
         for (int depth = 1; depth <= maxDepth; depth++) {
-            if (costsForDegree.isSet(depth, routePair)) { //[depth].isSet(routePair)) {
+            if (costsForDegree.isSet(depth, routePair)) {
                 return (byte) depth;
             }
         }
         return MAX_VALUE;
-    }
-
-//    private IndexedBitSet costsFor(int currentDegree) {
-//        return costsForDegree[currentDegree];
-//    }
-
-    public void clear() {
-        costsForDegree.clear();
     }
 
     /***
@@ -265,10 +269,10 @@ class RouteCostMatrix {
 
     RouteAndInterchanges getInterchangeFor(RouteIndexPair indexPair) {
 
-        if (routePairToInterchange.containsKey(indexPair)) {
+        if (routePairToInterchange.hasInterchangesFor(indexPair)) {
             final RoutePair routePair = index.getPairFor(indexPair);
 
-            final Set<Station> changes = routePairToInterchange.get(indexPair);
+            final Set<Station> changes = routePairToInterchange.getInterchanges(indexPair);
             final RouteAndInterchanges routeAndInterchanges = new RouteAndInterchanges(routePair, changes);
             if (logger.isDebugEnabled()) {
                 logger.debug(format("Found changes %s for %s", HasId.asIds(changes), indexPair));
@@ -290,14 +294,6 @@ class RouteCostMatrix {
         ImmutableBitSet linksForB = costsForDegree.getBitSetForRow(pair.second());
         ImmutableBitSet overlap = linksForA.and(linksForB);
         return overlap.stream().boxed().collect(Collectors.toList());
-    }
-
-    public void start() {
-        RouteDateAndDayOverlap routeDateAndDayOverlap = new RouteDateAndDayOverlap(index, numRoutes);
-        routeDateAndDayOverlap.populateFor();
-
-        addInitialConnectionsFromInterchanges(routeDateAndDayOverlap);
-        populateCosts(routeDateAndDayOverlap);
     }
 
     private void populateCosts(RouteDateAndDayOverlap routeDateAndDayOverlap) {

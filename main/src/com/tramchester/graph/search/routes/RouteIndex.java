@@ -13,6 +13,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
 import javax.inject.Inject;
 import java.util.HashMap;
 import java.util.List;
@@ -66,6 +67,14 @@ class RouteIndex implements DataCache.Cacheable<RouteIndexData> {
         logger.info("started");
     }
 
+    @PreDestroy
+    public void clear() {
+        logger.info("Stopping");
+        mapRouteIdToIndex.clear();
+        mapIndexToRouteId.clear();
+        logger.info("Stopped");
+    }
+
     private void createIndex() {
         logger.info("Creating index");
         List<IdFor<Route>> routesList = routeRepository.getRoutes().stream().map(Route::getId).collect(Collectors.toList());
@@ -109,11 +118,6 @@ class RouteIndex implements DataCache.Cacheable<RouteIndexData> {
             throw new DataCache.CacheLoadException("Mismatch on number of routes, got " + mapRouteIdToIndex.size() +
                     " expected " + numberOfRoutes);
         }
-    }
-
-    public void clear() {
-        mapRouteIdToIndex.clear();
-        mapIndexToRouteId.clear();
     }
 
     public Route getRouteFor(int index) {
