@@ -1,15 +1,14 @@
 package com.tramchester.graph.search.routes;
 
 import com.netflix.governator.guice.lazy.LazySingleton;
-import com.tramchester.domain.*;
+import com.tramchester.domain.ImmutableBitSet;
+import com.tramchester.domain.IndexedBitSet;
+import com.tramchester.domain.Route;
 import com.tramchester.domain.collections.SimpleList;
 import com.tramchester.domain.collections.SimpleListSingleton;
-import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.places.InterchangeStation;
-import com.tramchester.domain.places.Station;
 import com.tramchester.repository.InterchangeRepository;
 import com.tramchester.repository.RouteRepository;
-import com.tramchester.repository.StationAvailabilityRepository;
 import org.apache.commons.lang3.tuple.Pair;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
@@ -35,9 +34,6 @@ public class RouteCostMatrix {
 
     public static final int MAX_DEPTH = 4;
 
-    // map from route->route pair to interchanges that could make that change
-    private final RouteIndexToInterchangeRepository routePairToInterchange;
-    private final StationAvailabilityRepository availabilityRepository;
     private final RouteRepository routeRepository;
     private final InterchangeRepository interchangeRepository;
 
@@ -47,10 +43,7 @@ public class RouteCostMatrix {
     private final int numRoutes;
 
     @Inject
-    RouteCostMatrix(RouteIndexToInterchangeRepository routePairToInterchange, StationAvailabilityRepository availabilityRepository,
-                    RouteRepository routeRepository, InterchangeRepository interchangeRepository, RouteIndex index) {
-        this.routePairToInterchange = routePairToInterchange;
-        this.availabilityRepository = availabilityRepository;
+    RouteCostMatrix(RouteRepository routeRepository, InterchangeRepository interchangeRepository, RouteIndex index) {
         this.routeRepository = routeRepository;
         this.interchangeRepository = interchangeRepository;
 
@@ -105,8 +98,6 @@ public class RouteCostMatrix {
         }
     }
 
-
-
     // create a bitmask for route->route changes that are possible on a given date
     public IndexedBitSet createOverlapMatrixFor(LocalDate date) {
         final Set<Integer> availableOnDate = new HashSet<>();
@@ -134,46 +125,6 @@ public class RouteCostMatrix {
 
     public int size() {
         return costsForDegree.size();
-    }
-
-    public int getDepth(RouteIndexPair routePair, RouteToRouteCosts.InterchangeOperating interchangeOperating, IndexedBitSet dateOverlaps) {
-
-        Collection<SimpleList<RouteIndexPair>> possibleChanges = getChangesFor(routePair, dateOverlaps);
-
-        List<List<RouteAndInterchanges>> filteredByAvailability = new ArrayList<>();
-
-        int smallestSeen = Integer.MAX_VALUE;
-        for (SimpleList<RouteIndexPair> listOfChanges : possibleChanges) {
-            final int numberOfChanges = listOfChanges.size();
-            if (numberOfChanges < smallestSeen) {
-                List<RouteAndInterchanges> listOfInterchanges = getRouteAndInterchange(listOfChanges);
-                final boolean available = interchangeOperating.isOperating(availabilityRepository, listOfInterchanges);
-                if (available) {
-                    filteredByAvailability.add(listOfInterchanges);
-                    smallestSeen = numberOfChanges;
-                }
-            }
-        }
-
-        if (possibleChanges.size() != filteredByAvailability.size()) {
-            logger.debug(format("Filtered from %s to %s", possibleChanges.size(), filteredByAvailability.size()));
-        } else {
-            logger.debug("Retained " + filteredByAvailability.size());
-        }
-
-        Optional<Integer> result = filteredByAvailability.stream().
-                map(List::size).
-                min(Integer::compare);
-
-        return result.orElse(Integer.MAX_VALUE);
-
-    }
-
-    private List<RouteAndInterchanges> getRouteAndInterchange(SimpleList<RouteIndexPair> listOfChanges) {
-        return listOfChanges.stream().
-                map(this::getInterchangeFor).
-                filter(Objects::nonNull).
-                collect(Collectors.toList());
     }
 
     private byte getDegree(RouteIndexPair routePair) {
@@ -265,22 +216,6 @@ public class RouteCostMatrix {
         RouteIndexPair newFirstPair = RouteIndexPair.of(pair.first(), overlapForPair);
         RouteIndexPair newSecondPair = RouteIndexPair.of(overlapForPair, pair.second());
         return Pair.of(newFirstPair, newSecondPair);
-    }
-
-    RouteAndInterchanges getInterchangeFor(RouteIndexPair indexPair) {
-
-        if (routePairToInterchange.hasInterchangesFor(indexPair)) {
-            final RoutePair routePair = index.getPairFor(indexPair);
-
-            final Set<Station> changes = routePairToInterchange.getInterchanges(indexPair);
-            final RouteAndInterchanges routeAndInterchanges = new RouteAndInterchanges(routePair, changes);
-            if (logger.isDebugEnabled()) {
-                logger.debug(format("Found changes %s for %s", HasId.asIds(changes), indexPair));
-            }
-            return routeAndInterchanges;
-        }
-        logger.debug("Did not find any interchanges for " + indexPair);
-        return null;
     }
 
     /***

@@ -5,6 +5,7 @@ import com.tramchester.domain.*;
 import com.tramchester.domain.collections.SimpleList;
 import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.places.Location;
+import com.tramchester.domain.places.Station;
 import com.tramchester.domain.places.StationGroup;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TimeRange;
@@ -36,6 +37,7 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
 
     private final NeighboursRepository neighboursRepository;
     private final StationAvailabilityRepository availabilityRepository;
+    private final RouteIndexToInterchangeRepository routePairToInterchange;
     private final RouteIndex index;
     private final RouteCostMatrix costs;
 
@@ -44,9 +46,10 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
     @Inject
     public RouteToRouteCosts(RouteRepository routeRepository, NeighboursRepository neighboursRepository,
                              StationAvailabilityRepository availabilityRepository,
-                             RouteIndex index, RouteCostMatrix costs) {
+                             RouteIndexToInterchangeRepository routePairToInterchange, RouteIndex index, RouteCostMatrix costs) {
         this.neighboursRepository = neighboursRepository;
         this.availabilityRepository = availabilityRepository;
+        this.routePairToInterchange = routePairToInterchange;
         this.index = index;
         this.costs = costs;
 
@@ -92,7 +95,7 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
         }
 
         RouteIndexPair routeIndexPair = index.getPairFor(routePair);
-        final int result = costs.getDepth(routeIndexPair, interchangeOperating, overlapsForDate);
+        final int result = getDepth(routeIndexPair, interchangeOperating, overlapsForDate);
 
         if (result == RouteCostMatrix.MAX_VALUE) {
             if (routePair.sameMode()) {
@@ -117,7 +120,7 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
         Collection<SimpleList<RouteIndexPair>> routeChanges = costs.getChangesFor(indexPair, dateOverlaps);
 
         List<List<RouteAndInterchanges>> interchanges = routeChanges.stream().
-                map(list -> list.stream().map(costs::getInterchangeFor).filter(Objects::nonNull)).
+                map(list -> list.stream().map(this::getInterchangeFor).filter(Objects::nonNull)).
                 map(onePossibleSetOfChange -> onePossibleSetOfChange.collect(Collectors.toList()))
                 .collect(Collectors.toList());
 
@@ -125,7 +128,62 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
             logger.warn(format("Unable to find changes between %s", routePair));
         }
         return interchanges;
+    }
 
+    private int getDepth(RouteIndexPair routePair, InterchangeOperating interchangeOperating, IndexedBitSet dateOverlaps) {
+
+        Collection<SimpleList<RouteIndexPair>> possibleChanges = costs.getChangesFor(routePair, dateOverlaps);
+
+        List<List<RouteAndInterchanges>> filteredByAvailability = new ArrayList<>();
+
+        int smallestSeen = Integer.MAX_VALUE;
+        for (SimpleList<RouteIndexPair> listOfChanges : possibleChanges) {
+            final int numberOfChanges = listOfChanges.size();
+            if (numberOfChanges < smallestSeen) {
+                List<RouteAndInterchanges> listOfInterchanges = getRouteAndInterchange(listOfChanges);
+                final boolean available = interchangeOperating.isOperating(availabilityRepository, listOfInterchanges);
+                if (available) {
+                    filteredByAvailability.add(listOfInterchanges);
+                    smallestSeen = numberOfChanges;
+                }
+            }
+        }
+
+        if (possibleChanges.size() != filteredByAvailability.size()) {
+            logger.debug(format("Filtered from %s to %s", possibleChanges.size(), filteredByAvailability.size()));
+        } else {
+            logger.debug("Retained " + filteredByAvailability.size());
+        }
+
+        Optional<Integer> result = filteredByAvailability.stream().
+                map(List::size).
+                min(Integer::compare);
+
+        return result.orElse(Integer.MAX_VALUE);
+
+    }
+
+    private List<RouteAndInterchanges> getRouteAndInterchange(SimpleList<RouteIndexPair> listOfChanges) {
+        return listOfChanges.stream().
+                map(this::getInterchangeFor).
+                filter(Objects::nonNull).
+                collect(Collectors.toList());
+    }
+
+    RouteAndInterchanges getInterchangeFor(RouteIndexPair indexPair) {
+
+        if (routePairToInterchange.hasInterchangesFor(indexPair)) {
+            final RoutePair routePair = index.getPairFor(indexPair);
+
+            final Set<Station> changes = routePairToInterchange.getInterchanges(indexPair);
+            final RouteAndInterchanges routeAndInterchanges = new RouteAndInterchanges(routePair, changes);
+            if (logger.isDebugEnabled()) {
+                logger.debug(format("Found changes %s for %s", HasId.asIds(changes), indexPair));
+            }
+            return routeAndInterchanges;
+        }
+        logger.debug("Did not find any interchanges for " + indexPair);
+        return null;
     }
 
     public int size() {
@@ -328,7 +386,7 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
 
             // note: IntStream uses int in implementation so avoids any boxing overhead
             return destinationIndexs.stream().mapToInt(item -> item).
-                    map(indexOfDest -> routeToRouteCosts.costs.getDepth(RouteIndexPair.of(indexOfStart, indexOfDest),
+                    map(indexOfDest -> routeToRouteCosts.getDepth(RouteIndexPair.of(indexOfStart, indexOfDest),
                             interchangeOperating, dateOverlaps)).
                     filter(result -> result != RouteCostMatrix.MAX_VALUE).
                     min().
@@ -352,8 +410,7 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
 
             // note: IntStream uses int in implementation so avoids any boxing overhead
             int result = destinationIndexs.stream().mapToInt(item -> item).
-                    map(dest -> routeToRouteCosts.costs.getDepth(RouteIndexPair.of(indexOfStart, dest), interchangeOperating,
-                            dateOverlaps)).
+                    map(dest -> routeToRouteCosts.getDepth(RouteIndexPair.of(indexOfStart, dest), interchangeOperating, dateOverlaps)).
                     min().
                     orElse(Integer.MAX_VALUE);
             return Pair.of(result, start);
