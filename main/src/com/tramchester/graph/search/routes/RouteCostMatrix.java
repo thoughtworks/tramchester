@@ -201,7 +201,7 @@ public class RouteCostMatrix {
         if (degree == 1) {
             // at degree one we are at direct connections between routes via an interchange so the result is those pairs
             //logger.debug("degree 1, expand pair to: " + original);
-            return Collections.singleton(new SimpleListSingleton<>(RouteIndexPair.class, original));
+            return Collections.singleton(new SimpleListSingleton<>(original));
         }
 
         final int nextDegree = degree - 1;
@@ -220,12 +220,7 @@ public class RouteCostMatrix {
                 final Collection<SimpleList<RouteIndexPair>> leftExpansions = expandOnePair(toExpand.getLeft(), nextDegree, dateOverlaps);
                 final Collection<SimpleList<RouteIndexPair>> rightExpansions = expandOnePair(toExpand.getRight(), nextDegree, dateOverlaps);
 
-                final Collection<SimpleList<RouteIndexPair>> resultsForOneOverlap = new ArrayList<>(leftExpansions.size() * rightExpansions.size());
-
-                leftExpansions.forEach(leftExpansion -> rightExpansions.forEach(rightExpansion -> {
-                    final SimpleList<RouteIndexPair> combined = SimpleList.concat(RouteIndexPair.class, leftExpansion, rightExpansion);
-                    resultsForOneOverlap.add(combined);
-                }));
+                final Collection<SimpleList<RouteIndexPair>> resultsForOneOverlap = getResultsForOneOverlaps(leftExpansions, rightExpansions);
                 resultsForPair.addAll(resultsForOneOverlap);
             }
 
@@ -237,6 +232,13 @@ public class RouteCostMatrix {
 
         return resultsForPair;
 
+    }
+
+    @NotNull
+    private Collection<SimpleList<RouteIndexPair>> getResultsForOneOverlaps(final Collection<SimpleList<RouteIndexPair>> leftExpansions,
+                                                                            final Collection<SimpleList<RouteIndexPair>> rightExpansions) {
+
+        return leftExpansions.stream().flatMap(left -> rightExpansions.stream().map(right -> SimpleList.concat(left, right))).collect(Collectors.toList());
     }
 
     @NotNull

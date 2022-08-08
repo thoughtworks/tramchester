@@ -97,6 +97,14 @@ public class RouteToRouteCostsRailTest {
         assertEquals(0, routeToRouteCosts.getNumberOfChanges(manPicc, londonEuston, Collections.singleton(Train), date, timeRange).getMin());
     }
 
+    @Disabled("Performance testing")
+    @Test
+    void shouldGetNumberOfRouteHopsBetweenManPiccAndLondonEustomPerformanceTesting() {
+        for (int i = 0; i < 50; i++) {
+            routeToRouteCosts.getNumberOfChanges(manPicc, londonEuston, Collections.singleton(Train), date, timeRange);
+        }
+    }
+
     @Test
     void shouldGetNumberOfRouteHopsBetweenAltrinchamAndLondonEuston() {
         Station altrincham = stationRepository.getStationById(Altrincham.getId());

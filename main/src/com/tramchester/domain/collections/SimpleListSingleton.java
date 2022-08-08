@@ -1,13 +1,12 @@
 package com.tramchester.domain.collections;
 
+import java.util.Objects;
 import java.util.stream.Stream;
 
 public class SimpleListSingleton<T> implements SimpleList<T> {
     private final T item;
-    private final Class<T> theClass;
 
-    public SimpleListSingleton(Class<T> theClass, T item) {
-        this.theClass = theClass;
+    public SimpleListSingleton(T item) {
         this.item = item;
     }
 
@@ -30,25 +29,34 @@ public class SimpleListSingleton<T> implements SimpleList<T> {
     public SimpleList<T> concat(SimpleList<T> other) {
         if  (other.isSingleton()) {
             SimpleListSingleton<T> otherSingleton = (SimpleListSingleton<T>) other;
-            return new SimpleListItems<T>(theClass, this.item, otherSingleton.item);
+            return new SimpleListItems<>(this, otherSingleton);
         } else {
-            return other.concat(this.item);
+            // TODO Wrong ordering? Add tests for this......
+            return other.concat(this);
         }
-    }
-
-    @Override
-    public SimpleList<T> concat(T otherItem) {
-        return new SimpleListItems<T>(theClass, this.item, otherItem);
-    }
-
-    @Override
-    public Class<T> getKlass() {
-        return theClass;
     }
 
     public T item() {
         return item;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        SimpleListSingleton<?> that = (SimpleListSingleton<?>) o;
+        return item.equals(that.item);
+    }
 
+    @Override
+    public int hashCode() {
+        return Objects.hash(item);
+    }
+
+    @Override
+    public String toString() {
+        return "{" +
+                "item=" + item +
+                '}';
+    }
 }

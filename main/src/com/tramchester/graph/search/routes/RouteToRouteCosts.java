@@ -132,12 +132,12 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
 
     private int getDepth(RouteIndexPair routePair, InterchangeOperating interchangeOperating, IndexedBitSet dateOverlaps) {
 
-        Collection<SimpleList<RouteIndexPair>> possibleChanges = costs.getChangesFor(routePair, dateOverlaps);
+        final Collection<SimpleList<RouteIndexPair>> possibleChanges = costs.getChangesFor(routePair, dateOverlaps);
 
-        List<List<RouteAndInterchanges>> smallestFilteredByAvailability = new ArrayList<>();
+        final List<List<RouteAndInterchanges>> smallestFilteredByAvailability = new ArrayList<>();
 
         int smallestSeen = Integer.MAX_VALUE;
-        for (SimpleList<RouteIndexPair> listOfChanges : possibleChanges) {
+        for (final SimpleList<RouteIndexPair> listOfChanges : possibleChanges) {
             final int numberOfChanges = listOfChanges.size();
             if (numberOfChanges < smallestSeen) {
                 List<RouteAndInterchanges> listOfInterchanges = getRouteAndInterchange(listOfChanges);
