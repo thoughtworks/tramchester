@@ -14,4 +14,10 @@ public interface SimpleList<T> {
     Stream<T> stream();
 
     boolean isSingleton();
+
+    SimpleList<T> concat(SimpleList<T> other);
+
+    SimpleList<T> concat(T item);
+
+    Class<T> getKlass();
 }

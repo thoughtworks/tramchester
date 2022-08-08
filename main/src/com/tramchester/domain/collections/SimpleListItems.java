@@ -7,11 +7,13 @@ import java.util.stream.Stream;
 public class SimpleListItems<T> implements SimpleList<T> {
 
     private final T[] theArray;
+    private final Class<T> theClass;
 
     private SimpleListItems(Class<T> theClass, SimpleListSingleton<T> singletonA, SimpleListSingleton<T> singletonB) {
         theArray = createArray( theClass, 2);
         theArray[0] = singletonA.item();
         theArray[1] = singletonB.item();
+        this.theClass = theClass;
     }
 
     public SimpleListItems(Class<T> theClass, SimpleListSingleton<T> singleton, SimpleListItems<T> list) {
@@ -19,13 +21,24 @@ public class SimpleListItems<T> implements SimpleList<T> {
         theArray = createArray( theClass, listSize +1);
         theArray[0] = singleton.item();
         System.arraycopy(list.theArray, 0, theArray, 1, listSize);
+        this.theClass = theClass;
     }
 
     public SimpleListItems(Class<T> theClass, SimpleListItems<T> list, SimpleListSingleton<T> singleton) {
+        this(theClass, list, singleton.item());
+//        final int listSize = list.size();
+//        theArray = createArray( theClass, listSize +1);
+//        System.arraycopy(list.theArray, 0, theArray, 0, listSize);
+//        theArray[listSize] = singleton.item();
+//        this.theClass = theClass;
+    }
+
+    public SimpleListItems(Class<T> theClass, SimpleListItems<T> list, T item) {
         final int listSize = list.size();
         theArray = createArray( theClass, listSize +1);
         System.arraycopy(list.theArray, 0, theArray, 0, listSize);
-        theArray[listSize] = singleton.item();
+        theArray[listSize] = item;
+        this.theClass = theClass;
     }
 
     public SimpleListItems(Class<T> theClass, SimpleListItems<T> listA, SimpleListItems<T> listB) {
@@ -34,6 +47,25 @@ public class SimpleListItems<T> implements SimpleList<T> {
         theArray = createArray( theClass, listASize + listBSize);
         System.arraycopy(listA.theArray, 0, theArray, 0, listASize);
         System.arraycopy(listB.theArray, 0, theArray, listASize, listBSize);
+        this.theClass = theClass;
+    }
+
+    SimpleListItems(Class<T> theClass, T itemA, T itemB) {
+        this.theClass = theClass;
+        theArray = createArray( theClass, 2);
+        theArray[0] = itemA;
+        theArray[1] = itemB;
+    }
+
+
+    @Override
+    public SimpleList<T> concat(SimpleList<T> other) {
+        if (other.isSingleton()) {
+            final SimpleListSingleton<T> singleton = (SimpleListSingleton<T>) other;
+            return concat(singleton.item());
+        } else {
+            return new SimpleListItems<>(other.getKlass(), this, (SimpleListItems<T>) other);
+        }
     }
 
     private T[] createArray(Class<T> theClass, int size) {
@@ -67,6 +99,16 @@ public class SimpleListItems<T> implements SimpleList<T> {
     @Override
     public boolean isSingleton() {
         return false;
+    }
+
+    @Override
+    public SimpleList<T> concat(T item) {
+        return new SimpleListItems<T>(theClass, this, item);
+    }
+
+    @Override
+    public Class<T> getKlass() {
+        return theClass;
     }
 
     @Override

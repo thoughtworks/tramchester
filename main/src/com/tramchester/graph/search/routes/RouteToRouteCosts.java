@@ -134,7 +134,7 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
 
         Collection<SimpleList<RouteIndexPair>> possibleChanges = costs.getChangesFor(routePair, dateOverlaps);
 
-        List<List<RouteAndInterchanges>> filteredByAvailability = new ArrayList<>();
+        List<List<RouteAndInterchanges>> smallestFilteredByAvailability = new ArrayList<>();
 
         int smallestSeen = Integer.MAX_VALUE;
         for (SimpleList<RouteIndexPair> listOfChanges : possibleChanges) {
@@ -143,19 +143,19 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
                 List<RouteAndInterchanges> listOfInterchanges = getRouteAndInterchange(listOfChanges);
                 final boolean available = interchangeOperating.isOperating(availabilityRepository, listOfInterchanges);
                 if (available) {
-                    filteredByAvailability.add(listOfInterchanges);
+                    smallestFilteredByAvailability.add(listOfInterchanges);
                     smallestSeen = numberOfChanges;
                 }
             }
         }
 
-        if (possibleChanges.size() != filteredByAvailability.size()) {
-            logger.debug(format("Filtered from %s to %s", possibleChanges.size(), filteredByAvailability.size()));
+        if (possibleChanges.size() != smallestFilteredByAvailability.size()) {
+            logger.debug(format("Filtered from %s to %s", possibleChanges.size(), smallestFilteredByAvailability.size()));
         } else {
-            logger.debug("Retained " + filteredByAvailability.size());
+            logger.debug("Retained " + smallestFilteredByAvailability.size());
         }
 
-        Optional<Integer> result = filteredByAvailability.stream().
+        Optional<Integer> result = smallestFilteredByAvailability.stream().
                 map(List::size).
                 min(Integer::compare);
 

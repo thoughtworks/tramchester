@@ -201,7 +201,7 @@ public class RouteCostMatrix {
         if (degree == 1) {
             // at degree one we are at direct connections between routes via an interchange so the result is those pairs
             //logger.debug("degree 1, expand pair to: " + original);
-            return Collections.singleton(new SimpleListSingleton<>(original));
+            return Collections.singleton(new SimpleListSingleton<>(RouteIndexPair.class, original));
         }
 
         final int nextDegree = degree - 1;
@@ -216,6 +216,7 @@ public class RouteCostMatrix {
             Pair<RouteIndexPair, RouteIndexPair> toExpand = formNewRoutePairs(original, overlapForPair);
 
             if (dateOverlaps.isSet(toExpand.getLeft()) && dateOverlaps.isSet(toExpand.getRight())) {
+
                 final Collection<SimpleList<RouteIndexPair>> leftExpansions = expandOnePair(toExpand.getLeft(), nextDegree, dateOverlaps);
                 final Collection<SimpleList<RouteIndexPair>> rightExpansions = expandOnePair(toExpand.getRight(), nextDegree, dateOverlaps);
 
