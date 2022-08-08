@@ -31,7 +31,6 @@ public class SimpleListSingleton<T> implements SimpleList<T> {
             SimpleListSingleton<T> otherSingleton = (SimpleListSingleton<T>) other;
             return new SimpleListItems<>(this, otherSingleton);
         } else {
-            // TODO Wrong ordering? Add tests for this......
             return other.concat(this);
         }
     }

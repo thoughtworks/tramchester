@@ -37,7 +37,6 @@ public class SimpleListItems<T> implements SimpleList<T> {
         } else {
             return new SimpleListItems<>(this,  other);
         }
-
     }
 
     @Override

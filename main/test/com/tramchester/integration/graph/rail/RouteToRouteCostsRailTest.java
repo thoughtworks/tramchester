@@ -100,7 +100,7 @@ public class RouteToRouteCostsRailTest {
     @Disabled("Performance testing")
     @Test
     void shouldGetNumberOfRouteHopsBetweenManPiccAndLondonEustomPerformanceTesting() {
-        for (int i = 0; i < 4; i++) {
+        for (int i = 0; i < 20; i++) {
             routeToRouteCosts.getNumberOfChanges(manPicc, londonEuston, Collections.singleton(Train), date, timeRange);
         }
     }

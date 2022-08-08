@@ -13,6 +13,7 @@ import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.util.EnumSet;
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 
 public class MutableRoute implements Route {
@@ -89,15 +90,13 @@ public class MutableRoute implements Route {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-
-        MutableRoute route = (MutableRoute) o;
-
-        return !(id != null ? !id.equals(route.id) : route.id != null);
+        MutableRoute that = (MutableRoute) o;
+        return id.equals(that.id);
     }
 
     @Override
     public int hashCode() {
-        return id != null ? id.hashCode() : 0;
+        return Objects.hash(id);
     }
 
     @Override
@@ -140,7 +139,12 @@ public class MutableRoute implements Route {
         if (services.isEmpty()) {
             throw new RuntimeException("Route has no services");
         }
-        if (Sets.intersection(getOperatingDays(), otherRoute.getOperatingDays()).isEmpty()) {
+        // EnumSet bulk ops are very performant
+        EnumSet<DayOfWeek> operatingDays = getOperatingDays();
+        EnumSet<DayOfWeek> result = EnumSet.copyOf(operatingDays);
+        boolean changed = result.removeAll(otherRoute.getOperatingDays());
+        if (!changed) {
+            // no change means no intersection
             return false;
         }
         return getDateRange().overlapsWith(otherRoute.getDateRange());
@@ -201,7 +205,9 @@ public class MutableRoute implements Route {
             if (other.getOperatingDays().isEmpty()) {
                 return operatingDays;
             }
-            return EnumSet.copyOf(Sets.union(operatingDays, other.getOperatingDays()));
+            EnumSet<DayOfWeek> result = EnumSet.copyOf(this.operatingDays);
+            result.addAll(other.getOperatingDays());
+            return result;
         }
 
         public EnumSet<DayOfWeek> getOperatingDays(Set<Service> services) {
