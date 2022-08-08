@@ -197,11 +197,11 @@ public class RouteCostMatrix {
         return possibleInterchangePairs;
     }
 
-    private Collection<SimpleList<RouteIndexPair>> expandOnePair(final RouteIndexPair original, final int degree, final IndexedBitSet dateOverlaps) {
+    private List<SimpleList<RouteIndexPair>> expandOnePair(final RouteIndexPair original, final int degree, final IndexedBitSet dateOverlaps) {
         if (degree == 1) {
             // at degree one we are at direct connections between routes via an interchange so the result is those pairs
             //logger.debug("degree 1, expand pair to: " + original);
-            return Collections.singleton(new SimpleListSingleton<>(original));
+            return Collections.singletonList(new SimpleListSingleton<>(original));
         }
 
         final int nextDegree = degree - 1;
@@ -217,8 +217,8 @@ public class RouteCostMatrix {
 
             if (dateOverlaps.isSet(toExpand.getLeft()) && dateOverlaps.isSet(toExpand.getRight())) {
 
-                final Collection<SimpleList<RouteIndexPair>> leftExpansions = expandOnePair(toExpand.getLeft(), nextDegree, dateOverlaps);
-                final Collection<SimpleList<RouteIndexPair>> rightExpansions = expandOnePair(toExpand.getRight(), nextDegree, dateOverlaps);
+                final List<SimpleList<RouteIndexPair>> leftExpansions = expandOnePair(toExpand.getLeft(), nextDegree, dateOverlaps);
+                final List<SimpleList<RouteIndexPair>> rightExpansions = expandOnePair(toExpand.getRight(), nextDegree, dateOverlaps);
 
                 final Collection<SimpleList<RouteIndexPair>> resultsForOneOverlap = getResultsForOneOverlaps(leftExpansions, rightExpansions);
                 resultsForPair.addAll(resultsForOneOverlap);
@@ -235,8 +235,12 @@ public class RouteCostMatrix {
     }
 
     @NotNull
-    private Collection<SimpleList<RouteIndexPair>> getResultsForOneOverlaps(final Collection<SimpleList<RouteIndexPair>> leftExpansions,
-                                                                            final Collection<SimpleList<RouteIndexPair>> rightExpansions) {
+    private List<SimpleList<RouteIndexPair>> getResultsForOneOverlaps(final List<SimpleList<RouteIndexPair>> leftExpansions,
+                                                                            final List<SimpleList<RouteIndexPair>> rightExpansions) {
+
+        if (leftExpansions.size()==1 && rightExpansions.size()==1) {
+            return Collections.singletonList(leftExpansions.get(0).concat(rightExpansions.get(0)));
+        }
 
         return leftExpansions.stream().flatMap(left -> rightExpansions.stream().map(right -> SimpleList.concat(left, right))).collect(Collectors.toList());
     }
