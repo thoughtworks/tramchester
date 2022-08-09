@@ -24,6 +24,7 @@ import javax.annotation.PreDestroy;
 import javax.inject.Inject;
 import java.time.LocalDate;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -117,43 +118,47 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
 
         IndexedBitSet dateOverlaps = IndexedBitSet.getIdentity(numberOfRoutes); // no specific date or time
 
-        Collection<SimpleList<RouteIndexPair>> routeChanges = costs.getChangesFor(indexPair, dateOverlaps);
+        Stream<SimpleList<RouteIndexPair>> routeChanges = costs.getChangesFor(indexPair, dateOverlaps);
 
-        List<List<RouteAndInterchanges>> interchanges = routeChanges.stream().
+        List<List<RouteAndInterchanges>> interchanges = routeChanges.
                 map(list -> list.stream().map(this::getInterchangeFor).filter(Objects::nonNull)).
                 map(onePossibleSetOfChange -> onePossibleSetOfChange.collect(Collectors.toList()))
                 .collect(Collectors.toList());
 
-        if (routeChanges.isEmpty()) {
-            logger.warn(format("Unable to find changes between %s", routePair));
+        if (interchanges.isEmpty()) {
+            logger.warn(format("Unable to find interchanges between %s", routePair));
         }
         return interchanges;
     }
 
     private int getDepth(RouteIndexPair routePair, InterchangeOperating interchangeOperating, IndexedBitSet dateOverlaps) {
 
-        final Collection<SimpleList<RouteIndexPair>> possibleChanges = costs.getChangesFor(routePair, dateOverlaps);
+        final Stream<SimpleList<RouteIndexPair>> possibleChanges = costs.getChangesFor(routePair, dateOverlaps);
 
         final List<List<RouteAndInterchanges>> smallestFilteredByAvailability = new ArrayList<>();
 
-        int smallestSeen = Integer.MAX_VALUE;
-        for (final SimpleList<RouteIndexPair> listOfChanges : possibleChanges) {
-            final int numberOfChanges = listOfChanges.size();
-            if (numberOfChanges < smallestSeen) {
-                List<RouteAndInterchanges> listOfInterchanges = getRouteAndInterchange(listOfChanges);
-                final boolean available = interchangeOperating.isOperating(availabilityRepository, listOfInterchanges);
-                if (available) {
-                    smallestFilteredByAvailability.add(listOfInterchanges);
-                    smallestSeen = numberOfChanges;
-                }
-            }
-        }
+        final AtomicInteger smallestSeen = new AtomicInteger(Integer.MAX_VALUE);
 
-        if (possibleChanges.size() != smallestFilteredByAvailability.size()) {
-            logger.debug(format("Filtered from %s to %s", possibleChanges.size(), smallestFilteredByAvailability.size()));
-        } else {
-            logger.debug("Retained " + smallestFilteredByAvailability.size());
-        }
+//        possibleChanges.forEach(listOfChanges -> {
+//            final int numberOfChanges = listOfChanges.size();
+//            if (numberOfChanges < smallestSeen.get()) {
+//                List<RouteAndInterchanges> listOfInterchanges = getRouteAndInterchange(listOfChanges);
+//                final boolean available = interchangeOperating.isOperating(availabilityRepository, listOfInterchanges);
+//                if (available) {
+//                    smallestFilteredByAvailability.add(listOfInterchanges);
+//                    smallestSeen.set(numberOfChanges);
+//                }
+//            }
+//        });
+
+        possibleChanges.filter(listOfChanges -> listOfChanges.size() < smallestSeen.get()).
+                map(listOfChange -> getRouteAndInterchange(listOfChange)).
+                filter(listOfInterchanges -> interchangeOperating.isOperating(availabilityRepository, listOfInterchanges)).
+                forEach(listOfInterchanges -> {
+                    smallestFilteredByAvailability.add(listOfInterchanges);
+                    smallestSeen.set(listOfInterchanges.size());
+                });
+
 
         Optional<Integer> result = smallestFilteredByAvailability.stream().
                 map(List::size).
@@ -182,7 +187,9 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
             }
             return routeAndInterchanges;
         }
-        logger.debug("Did not find any interchanges for " + indexPair);
+
+        // TODO TODO TODO
+        logger.error("Did not find any interchanges for " + indexPair);
         return null;
     }
 

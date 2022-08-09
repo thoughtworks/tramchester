@@ -2,6 +2,8 @@ package com.tramchester.integration.repository;
 
 import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
+import com.tramchester.domain.id.IdSet;
+import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.places.InterchangeStation;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.id.HasId;
@@ -16,16 +18,12 @@ import com.tramchester.testSupport.AdditionalTramInterchanges;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.TramStations;
 import com.tramchester.testSupport.testTags.Summer2022;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.time.LocalDate;
+import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static com.tramchester.domain.reference.CentralZoneStation.StWerbergsRoad;
 import static com.tramchester.testSupport.reference.TramStations.*;
@@ -69,10 +67,14 @@ public class InterchangesTramTest {
         // todo shaw and crompton?
 
         // summer 2022 - removed Broadway
-        List<TramStations> tramStations = Arrays.asList(StWerburghsRoad, TraffordBar, Cornbrook, HarbourCity, Pomona,
-                Cornbrook, Deansgate, StPetersSquare, PiccadillyGardens, Piccadilly, Victoria, MarketStreet);
+        Set<TramStations> tramStations = new HashSet<>(Arrays.asList(StWerburghsRoad, TraffordBar, Cornbrook, HarbourCity, Pomona,
+                Cornbrook, Deansgate, StPetersSquare, PiccadillyGardens, Piccadilly, Victoria, MarketStreet));
 
         Set<Station> expected = tramStations.stream().map(item -> item.from(stationRepository)).collect(Collectors.toSet());
+
+        Set<Station> additional = AdditionalTramInterchanges.stations().stream().map(id -> stationRepository.getStationById(id)).collect(Collectors.toSet());
+
+        expected.addAll(additional);
 
         Set<Station> missing = expected.stream().
                 filter(station -> !interchangeRepository.isInterchange(station)).
@@ -89,9 +91,11 @@ public class InterchangesTramTest {
     }
 
 
+    @Summer2022
     @Test
     void shouldHaveSomeNotInterchanges() {
-        assertFalse(interchangeRepository.isInterchange(stationRepository.getStationById(TramStations.Altrincham.getId())));
+        // TODO Alty needs to be interchange during summer 2022
+        //assertFalse(interchangeRepository.isInterchange(stationRepository.getStationById(TramStations.Altrincham.getId())));
         assertFalse(interchangeRepository.isInterchange(stationRepository.getStationById(TramStations.OldTrafford.getId())));
     }
 
@@ -125,26 +129,78 @@ public class InterchangesTramTest {
         interchanges.forEach(interchangeStation -> assertFalse(interchangeStation.isMultiMode(), interchangeStation.toString()));
     }
 
+    @Summer2022
+    @Test
+    void shouldNotHaveAdditionalInterchangesAfter19August2020() {
+        LocalDate currentDay = LocalDate.now();
+
+        LocalDate cutoffDate = LocalDate.of(2022, 8, 19);
+
+        if (currentDay.isAfter(cutoffDate)) {
+            Set<InterchangeStation> interchanges = interchangeRepository.getAllInterchanges();
+            IdSet<Station> stationIds = interchanges.stream().map(InterchangeStation::getStation).collect(IdSet.collector());
+
+            assertFalse(stationIds.contains(Whitefield.getId()));
+            assertFalse(stationIds.contains(Altrincham.getId()));
+
+            // should be   [9400ZZMAGMX, 9400ZZMAPIC] in config
+        }
+
+    }
+
+    @Summer2022
+    @Test
+    void shouldReproIssueWithMissingInterchangeForTraffordCentreToCornbrook() {
+        Station cornbrook = Cornbrook.from(stationRepository);
+
+        Set<InterchangeStation> interchanges = interchangeRepository.getAllInterchanges();
+        List<Station> stations = interchanges.stream().map(InterchangeStation::getStation).collect(Collectors.toList());
+
+        assertTrue(stations.contains(cornbrook));
+
+        IdSet<Route> dropOffs = cornbrook.getDropoffRoutes().stream().collect(IdSet.collector());
+
+        assertTrue(dropOffs.contains(StringIdFor.createId("METLRED:I:2022-08-20")), dropOffs.toString());
+    }
+
+    @Summer2022
+    @Test
+    void shouldHaveAdditionalInterchangesDuringReplacementPeriod() {
+        Set<InterchangeStation> interchanges = interchangeRepository.getAllInterchanges();
+        IdSet<Station> stations = interchanges.stream().map(InterchangeStation::getStation).collect(IdSet.collector());
+
+        // METLML4
+        assertTrue(stations.contains(Altrincham.getId()));
+        assertTrue(stations.contains(StringIdFor.createId("9400ZZMATIM"))); // timperley
+
+        // METLML2 & METLM3
+        assertTrue(stations.contains(TramStations.Whitefield.getId())); // Whitefield
+        assertTrue(stations.contains(StringIdFor.createId("9400ZZMACRU"))); // Crumpsall
+
+    }
+
     @Test
     void shouldHaveReachableInterchangeForEveryRoute() {
         Set<InterchangeStation> interchanges = interchangeRepository.getAllInterchanges();
         Set<Route> dropOffRoutes = interchanges.stream().flatMap(interchangeStation -> interchangeStation.getDropoffRoutes().stream()).collect(Collectors.toSet());
         Set<Route> pickupRoutes = interchanges.stream().flatMap(interchangeStation -> interchangeStation.getPickupRoutes().stream()).collect(Collectors.toSet());
 
-        Set<Route> routesWithInterchanges = routeRepository.getRoutes().stream().
-                filter(dropOffRoutes::contains).
-                filter(pickupRoutes::contains).
-                collect(Collectors.toSet());;
+        IdSet<Route> routesWithoutInterchanges = routeRepository.getRoutes().stream().
+                filter(route -> !dropOffRoutes.contains(route)).
+                filter(route -> !pickupRoutes.contains(route)).
+                collect(IdSet.collector());;
 
-        Set<Route> all = routeRepository.getRoutes();
+        //IdSet<Route> all = routeRepository.getRoutes().stream().collect(IdSet.collector());
 
-        assertEquals(all, routesWithInterchanges);
+        assertTrue(routesWithoutInterchanges.isEmpty(), routesWithoutInterchanges.toString());
     }
 
     /***
      * Here to validate altrincham neighbours testing and interchanges
      * @see NeighboursAsInterchangesTest#altrinchamBecomesInterchangeWhenNeighboursCreated()
      */
+    @Summer2022
+    @Disabled("is an interchange for a period")
     @Test
     public void altrinchamNotAnInterchange() {
         Station station = stationRepository.getStationById(TramStations.Altrincham.getId());

@@ -22,6 +22,7 @@ import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.TramStations;
 import com.tramchester.testSupport.testTags.DataExpiryCategory;
 import com.tramchester.testSupport.testTags.DataUpdateTest;
+import com.tramchester.testSupport.testTags.Summer2022;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.*;
 import org.neo4j.graphdb.Transaction;
@@ -119,10 +120,12 @@ public class RouteCalculatorTest {
         checkRouteNextNDays(Altrincham, Cornbrook, when, TramTime.of(9,0), DAYS_AHEAD);
     }
 
+    @Summer2022
     @DataExpiryCategory
     @Test
     void shouldHaveSimpleManyStopJourneyViaInterchangeNDaysAhead() {
-        checkRouteNextNDays(Altrincham, Bury, when, TramTime.of(9,0), DAYS_AHEAD);
+        // TODO remove plus 2 weeks
+        checkRouteNextNDays(Altrincham, Bury, when.plusWeeks(2), TramTime.of(12,0), DAYS_AHEAD);
     }
 
     @Test

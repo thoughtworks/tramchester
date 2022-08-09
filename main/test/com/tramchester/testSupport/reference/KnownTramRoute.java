@@ -5,6 +5,7 @@ import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.reference.RouteDirection;
 import com.tramchester.domain.reference.TransportMode;
+import io.swagger.models.auth.In;
 
 import static com.tramchester.domain.reference.RouteDirection.Inbound;
 import static com.tramchester.domain.reference.RouteDirection.Outbound;
@@ -38,12 +39,30 @@ public enum KnownTramRoute {
 
     // TODO July 2022 - eccles replacement services
     ReplacementRouteToEccles("Blue Line Bus Replacement", Inbound, "Media City Metrolink Replacement - Eccles"),
-    ReplacementRouteFromEccles("Blue Line Bus Replacement", Outbound, "Eccles - Media City Metrolink Replacement");
+    ReplacementRouteFromEccles("Blue Line Bus Replacement", Outbound, "Eccles - Media City Metrolink Replacement"),
+
+    // TODO August 13 to 16 2022
+    ReplacementRouteFromBuryToWhitefield("Yellow Line Replacement Bus", Inbound, "Bury Metrolink Replacement - Whitefield"),
+    ReplacementRouteFromWhitefieldToBury("Yellow Line Replacement Bus", Outbound, "Whitefield - Bury Metrolink Replacement"),
+
+    ReplacementRouteFromCrumpsallToBury("Green Line Replacement Bus", Inbound, "Crumpsall Metrolink Replacement - Bury"),
+    ReplacementRouteFromBuryToCrumpsall("Green Line Replacement Bus", Outbound, "Bury - Crumpsall Metrolink Replacement"),
+
+    // TODO August 17 to 19 2022, note typo is in the source data
+    ReplacementRouteAltrinchamToTimperley("Purple Line Bus Replaement",Inbound, "Altrincham Metrolink Replacement - Timperley"),
+    ReplacementRouteTimperleyToAltrincham("Purple Line Bus Replaement",Outbound, "Timperley - Altrincham Metrolink Replacement"),
+
+    ReplacementRouteBuryToVictoriaYellow("Yellow Line Replacement Bus",Inbound, "Bury Metrolink Replacement - Victoria"),
+    ReplacementRouteVictoriaToBuryYellow("Yellow Line Replacement Bus", Outbound, "Victoria - Bury Metrolink Replacement"),
+
+    ReplacementRouteVictoriaToBuryGreen("Green Line Replacement Bus", Outbound,"Victoria Metrolink Replacement - Manchester - Bury"),
+    ReplacementRouteBuryToVictoriaGreen("Green Line Replacement Bus", Inbound, "Bury - Manchester - Victoria Metrolink Replacement");
 
     private final IdFor<Route> fakeId;
     private final RouteDirection direction;
     private final String shortName;
     private final String longName;
+    private final boolean isReplacement;
 
     KnownTramRoute(String shortName, RouteDirection direction, String longName) {
         this.longName = longName;
@@ -52,13 +71,26 @@ public enum KnownTramRoute {
 
         // new format for IDs METLRED:I:xxxxxx
         String idSuffix;
-        if (shortName.equals("Blue Line Bus Replacement")) {
-            idSuffix = "ML1";
+        if (shortName.contains("Replacement") || shortName.contains("Replaement")) { // yep, typo in the source data
+            idSuffix = getSuffixFor(shortName);
+            this.isReplacement = true;
         } else {
+            this.isReplacement = false;
             int endIndex = Math.min(shortName.length(), 4);
             idSuffix = shortName.toUpperCase().substring(0, endIndex).trim();
         }
         this.fakeId = createId(format("METL%s%sCURRENT", idSuffix, direction.getSuffix()));
+
+    }
+
+    private String getSuffixFor(String shortName) {
+        return switch (shortName) {
+            case "Blue Line Bus Replacement" -> "ML1";
+            case "Yellow Line Replacement Bus" -> "ML2";
+            case "Green Line Replacement Bus" -> "ML3";
+            case "Purple Line Bus Replaement", "Purple Line Replacement Bus" -> "ML4";
+            default -> throw new RuntimeException("Unexpected replacement service short name" + shortName);
+        };
     }
 
     private IdFor<Route> createId(String stationId) {
@@ -96,4 +128,7 @@ public enum KnownTramRoute {
         return longName;
     }
 
+    public boolean isReplacement() {
+        return isReplacement;
+    }
 }

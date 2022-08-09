@@ -171,27 +171,27 @@ public class RouteCostMatrix {
      * @param dateOverlaps bit mask indicating that routeA->routeB is available at date
      * @return each set returned contains specific interchanges between 2 specific routes
      */
-    Collection<SimpleList<RouteIndexPair>> getChangesFor(final RouteIndexPair routePair, IndexedBitSet dateOverlaps) {
+    Stream<SimpleList<RouteIndexPair>> getChangesFor(final RouteIndexPair routePair, IndexedBitSet dateOverlaps) {
 
         final byte initialDepth = getDegree(routePair);
 
         if (initialDepth == 0) {
             //logger.warn(format("getChangesFor: No changes needed indexes %s", routePair));
-            return Collections.emptySet();
+            return Stream.empty();
         }
         if (initialDepth == Byte.MAX_VALUE) {
             logger.debug(format("getChangesFor: no changes possible indexes %s", routePair));
-            return Collections.emptySet();
+            return Stream.empty();
         }
 
         if (logger.isDebugEnabled()) {
             logger.debug(format("Expand for %s initial depth %s", routePair, initialDepth));
         }
 
-        Collection<SimpleList<RouteIndexPair>> possibleInterchangePairs = expandOnePair(routePair, initialDepth, dateOverlaps);
+        Stream<SimpleList<RouteIndexPair>> possibleInterchangePairs = expandOnePairStream(routePair, initialDepth, dateOverlaps);
 
         if (logger.isDebugEnabled()) {
-            logger.debug(format("Got %s set of changes for %s: %s", possibleInterchangePairs.size(), routePair, possibleInterchangePairs));
+            logger.debug(format("Got set of changes for %s: %s",  routePair, possibleInterchangePairs));
         }
 
         return possibleInterchangePairs;
@@ -204,45 +204,40 @@ public class RouteCostMatrix {
             return Collections.singletonList(new SimpleListSingleton<>(original));
         }
 
+        final Stream<SimpleList<RouteIndexPair>> resultsStream = expandOnePairStream(original, degree, dateOverlaps);
+
+        return resultsStream.collect(Collectors.toList());
+
+    }
+
+    private Stream<SimpleList<RouteIndexPair>> expandOnePairStream(final RouteIndexPair original, final int degree, final IndexedBitSet dateOverlaps) {
+        if (degree == 1) {
+            // at degree one we are at direct connections between routes via an interchange so the result is those pairs
+            //logger.debug("degree 1, expand pair to: " + original);
+            return Stream.of(new SimpleListSingleton<>(original));
+        }
+
         final int nextDegree = degree - 1;
         final IndexedBitSet overlapsAtDegree = costsForDegree.getDegree(nextDegree); //.and(dateOverlaps);
 
-        final List<SimpleList<RouteIndexPair>> resultsForPair = new ArrayList<>();
-
         // for >1 result is the set of paris where each of the supplied pairs overlaps
         final List<Integer> overlappingIndexes = getIndexOverlapsFor(overlapsAtDegree, original);
-        overlappingIndexes.forEach(overlapForPair -> {
 
-            Pair<RouteIndexPair, RouteIndexPair> toExpand = formNewRoutePairs(original, overlapForPair);
-
-            if (dateOverlaps.isSet(toExpand.getLeft()) && dateOverlaps.isSet(toExpand.getRight())) {
-
-                final List<SimpleList<RouteIndexPair>> leftExpansions = expandOnePair(toExpand.getLeft(), nextDegree, dateOverlaps);
-                final List<SimpleList<RouteIndexPair>> rightExpansions = expandOnePair(toExpand.getRight(), nextDegree, dateOverlaps);
-
-                final Collection<SimpleList<RouteIndexPair>> resultsForOneOverlap = getResultsForOneOverlaps(leftExpansions, rightExpansions);
-                resultsForPair.addAll(resultsForOneOverlap);
-            }
-
-        });
-
-        if (logger.isDebugEnabled()) {
-            logger.debug(format("Result of expanding %s => %s", original, resultsForPair));
-        }
-
-        return resultsForPair;
+        return overlappingIndexes.stream().
+                map(index1 -> formNewRoutePairs(original, index1)).
+                filter(pair -> dateOverlaps.isSet(pair.getLeft()) && dateOverlaps.isSet(pair.getRight())).
+                flatMap(pair -> getResultsForOneOverlaps(expandOnePairStream(pair.getLeft(), nextDegree, dateOverlaps),
+                        expandOnePairStream(pair.getRight(), nextDegree, dateOverlaps)));
 
     }
 
     @NotNull
-    private List<SimpleList<RouteIndexPair>> getResultsForOneOverlaps(final List<SimpleList<RouteIndexPair>> leftExpansions,
-                                                                            final List<SimpleList<RouteIndexPair>> rightExpansions) {
+    private Stream<SimpleList<RouteIndexPair>> getResultsForOneOverlaps(final Stream<SimpleList<RouteIndexPair>> leftExpansions,
+                                                                            final Stream<SimpleList<RouteIndexPair>> rightExpansions) {
 
-        if (leftExpansions.size()==1 && rightExpansions.size()==1) {
-            return Collections.singletonList(leftExpansions.get(0).concat(rightExpansions.get(0)));
-        }
+        List<SimpleList<RouteIndexPair>> rightReusable = rightExpansions.collect(Collectors.toList());
 
-        return leftExpansions.stream().flatMap(left -> rightExpansions.stream().map(right -> SimpleList.concat(left, right))).collect(Collectors.toList());
+        return leftExpansions.flatMap(left -> rightReusable.stream().map(right -> SimpleList.concat(left, right)));
     }
 
     @NotNull

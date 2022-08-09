@@ -55,7 +55,7 @@ class KnownTramRouteTest {
 
         for (Route loaded: loadedRoutes) {
             final String loadedName = loaded.getName();
-            assertTrue(knownRouteNames.contains(loadedName), "missing from known '" + loaded+"'");
+            assertTrue(knownRouteNames.contains(loadedName), "missing from known '" + loaded.getName()+"' " + loaded.getId());
 
             KnownTramRoute matched = knownRoutes.stream().
                     filter(knownTramRoute -> knownTramRoute.longName().equals(loadedName)).findFirst().orElseThrow();
@@ -77,12 +77,14 @@ class KnownTramRouteTest {
         List<KnownTramRoute> knownRoutes = Arrays.asList(KnownTramRoute.values());
 
         Set<KnownTramRoute> missing = knownRoutes.stream().
+                filter(knownTramRoute -> !knownTramRoute.isReplacement()).
                 filter(knownTramRoute -> routeRepository.getRouteById(knownTramRoute.getFakeId()) == null).
                 collect(Collectors.toSet());
 
         assertTrue(missing.isEmpty(), missing.toString());
 
         Set<Pair<String, IdFor<Route>>> mismatch = knownRoutes.stream().
+                filter(knownTramRoute -> !knownTramRoute.isReplacement()).
                 map(knownTramRoute -> Pair.of(knownTramRoute, routeRepository.getRouteById(knownTramRoute.getFakeId()))).
                 filter(pair -> !pair.getLeft().longName().equals(pair.getRight().getName())).
                 map(pair -> Pair.of(pair.getLeft().name(), pair.getRight().getId())).

@@ -53,7 +53,8 @@ class RouteEndRepositoryTramTest {
         IdSet<Station> eolIds = EndOfTheLine.stream().map(TramStations::getId).collect(IdSet.idCollector());
         assertTrue(results.containsAll(eolIds));
 
-        assertEquals(eolIds.size() + 5, results.size(), results.toString()); // +4 -> +5 TODO Summer 2022
+        // TODO +5 again for additional replacement routes
+        assertEquals(eolIds.size() + 5 + 5, results.size(), results.toString()); // +4 -> +5 TODO Summer 2022
     }
 
     @Test
