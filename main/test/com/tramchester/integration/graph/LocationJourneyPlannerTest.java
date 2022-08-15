@@ -20,6 +20,7 @@ import com.tramchester.resources.LocationJourneyPlanner;
 import com.tramchester.testSupport.LocationJourneyPlannerTestFacade;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.TramStations;
+import com.tramchester.testSupport.testTags.Summer2022;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.*;
 import org.neo4j.graphdb.Transaction;
@@ -264,6 +265,7 @@ class LocationJourneyPlannerTest {
         assertTrue(nearStationIds.contains(stages.get(lastStageIndex).getFirstStation().getId()));
     }
 
+    @Summer2022
     @Test
     void shouldFindJourneyWithWalkingEndOfDay() {
         final JourneyRequest request = new JourneyRequest(new TramServiceDate(when), TramTime.of(23, 0),
@@ -271,7 +273,9 @@ class LocationJourneyPlannerTest {
 
         Set<Journey> results = planner.quickestRouteForLocation(nearAltrincham, Deansgate, request, 3);
         assertFalse(results.isEmpty());
-        results.forEach(journey -> assertEquals(2, journey.getStages().size()));
+
+        // summer 2022 +1
+        results.forEach(journey -> assertEquals(2+1, journey.getStages().size()));
     }
 
     @Test

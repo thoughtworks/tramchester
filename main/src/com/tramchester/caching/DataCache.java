@@ -115,7 +115,7 @@ public class DataCache {
     }
 
     @NotNull
-    private <T> Path getPathFor(Cacheable<T> data) {
+    public <T> Path getPathFor(Cacheable<T> data) {
         String filename = data.getFilename();
         return cacheFolder.resolve(filename).toAbsolutePath();
     }

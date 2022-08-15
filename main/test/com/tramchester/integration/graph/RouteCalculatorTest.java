@@ -345,18 +345,21 @@ public class RouteCalculatorTest {
         assertGetAndCheckJourneys(journeyRequest, Altrincham, NavigationRoad);
     }
 
+    @Summer2022
     @Test
     void shouldHandleAfterMidnightDirectCentral() {
-        JourneyRequest journeyRequestA = standardJourneyRequest(when, TramTime.of(23,59), maxNumResults);
+        LocalDate testDate = when.plusWeeks(1);
+
+        JourneyRequest journeyRequestA = standardJourneyRequest(testDate, TramTime.of(23,59), maxNumResults);
         assertGetAndCheckJourneys(journeyRequestA, StPetersSquare, MarketStreet);
 
-        JourneyRequest journeyRequestB = standardJourneyRequest(when, TramTime.nextDay(0,0), maxNumResults);
+        JourneyRequest journeyRequestB = standardJourneyRequest(testDate, TramTime.nextDay(0,0), maxNumResults);
         assertGetAndCheckJourneys(journeyRequestB, StPetersSquare, MarketStreet);
 
-        JourneyRequest journeyRequestC = standardJourneyRequest(when, TramTime.nextDay(0,1), maxNumResults);
+        JourneyRequest journeyRequestC = standardJourneyRequest(testDate, TramTime.nextDay(0,1), maxNumResults);
         assertGetAndCheckJourneys(journeyRequestC, StPetersSquare, MarketStreet);
 
-        JourneyRequest journeyRequestD = standardJourneyRequest(when, TramTime.of(0,0), maxNumResults);
+        JourneyRequest journeyRequestD = standardJourneyRequest(testDate, TramTime.of(0,0), maxNumResults);
         assertGetAndCheckJourneys(journeyRequestD, StPetersSquare, MarketStreet);
     }
 
@@ -440,9 +443,12 @@ public class RouteCalculatorTest {
         assertGetAndCheckJourneys(journeyRequest9am, Cornbrook, Eccles);
     }
 
+    @Summer2022
     @Test
     void shouldReproIssueWithJourneysToEccles() {
-        JourneyRequest journeyRequest = standardJourneyRequest(when, TramTime.of(9,0), maxNumResults);
+        LocalDate testDate = this.when.plusWeeks(1);
+
+        JourneyRequest journeyRequest = standardJourneyRequest(testDate, TramTime.of(9,0), maxNumResults);
 
         assertGetAndCheckJourneys(journeyRequest, Bury, Broadway);
         assertGetAndCheckJourneys(journeyRequest, Bury, Eccles);

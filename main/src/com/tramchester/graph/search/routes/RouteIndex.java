@@ -90,6 +90,9 @@ class RouteIndex implements DataCache.Cacheable<RouteIndexData> {
     }
 
     public int indexFor(IdFor<Route> from) {
+        if (!(mapRouteIdToIndex.containsKey(from))) {
+            throw new RuntimeException("No index for route, is cache file outdated? " + dataCache.getPathFor(this));
+        }
         return mapRouteIdToIndex.get(from);
     }
 

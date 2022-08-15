@@ -36,7 +36,7 @@ class RouteCalculatorKeyRoutesTest {
     private static ComponentContainer componentContainer;
     private static TramchesterConfig testConfig;
 
-    private final LocalDate when = TestEnv.testDay();
+    private LocalDate when;
     private RouteCalculationCombinations combinations;
     private JourneyRequest journeyRequest;
     private Duration maxJourneyDuration;
@@ -54,8 +54,11 @@ class RouteCalculatorKeyRoutesTest {
         componentContainer.close();
     }
 
+    @Summer2022
     @BeforeEach
     void beforeEachTestRuns() {
+        // +1 weeks here
+         when = TestEnv.testDay().plusWeeks(1);
         maxJourneyDuration = Duration.ofMinutes(testConfig.getMaxJourneyDuration());
         journeyRequest = new JourneyRequest(when, TramTime.of(8, 5), false, 2,
                 maxJourneyDuration, 1, Collections.emptySet());

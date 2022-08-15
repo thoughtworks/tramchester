@@ -10,6 +10,7 @@ import com.tramchester.integration.testSupport.RouteCalculationCombinations;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
 import com.tramchester.repository.TransportData;
 import com.tramchester.testSupport.TestEnv;
+import com.tramchester.testSupport.testTags.Summer2022;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -29,7 +30,7 @@ class RouteCalculatorTestAllJourneys {
     private static ComponentContainer componentContainer;
     private static IntegrationTramTestConfig testConfig;
 
-    private final LocalDate when = TestEnv.testDay();
+    private LocalDate when;
     private RouteCalculationCombinations combinations;
 
     @BeforeAll
@@ -44,8 +45,11 @@ class RouteCalculatorTestAllJourneys {
         componentContainer.close();
     }
 
+    @Summer2022
     @BeforeEach
     void beforeEachTestRuns() {
+        // plus 1 weeks
+        when = TestEnv.testDay().plusWeeks(1);
         combinations = new RouteCalculationCombinations(componentContainer);
     }
 

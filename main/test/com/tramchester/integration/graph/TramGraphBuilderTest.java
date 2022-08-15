@@ -261,7 +261,8 @@ class TramGraphBuilderTest {
         checkInboundConsistency(HarbourCity, EcclesManchesterAshtonUnderLyne);
         checkInboundConsistency(HarbourCity, AshtonUnderLyneManchesterEccles);
 
-        checkInboundConsistency(Broadway, EcclesManchesterAshtonUnderLyne);
+        //checkInboundConsistency(Broadway, EcclesManchesterAshtonUnderLyne);
+        checkInboundConsistency(Broadway, ReplacementRouteFromEccles);
         //checkInboundConsistency(Broadway, AshtonUnderLyneManchesterEccles);
         checkInboundConsistency(Broadway, ReplacementRouteToEccles);
     }

@@ -93,10 +93,11 @@ class MutableServiceCalendarTest {
     @Test
     void shouldCheckIfServiceHasExceptionDatesAdded() {
 
-        LocalDate startDate = TestEnv.LocalNow().toLocalDate();
+        LocalDate testDay = TestEnv.testDay();
+
+        LocalDate startDate = testDay.minusWeeks(1);
         LocalDate endDate = startDate.plusWeeks(4);
 
-        LocalDate testDay = TestEnv.testDay();
 
         DayOfWeek dayOfWeek = testDay.getDayOfWeek();
         MutableServiceCalendar serviceCalendar = new MutableServiceCalendar(startDate, endDate, dayOfWeek);

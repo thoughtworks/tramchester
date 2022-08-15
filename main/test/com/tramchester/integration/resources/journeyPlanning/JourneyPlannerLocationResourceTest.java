@@ -118,6 +118,7 @@ class JourneyPlannerLocationResourceTest {
         }
     }
 
+    @Summer2022
     @Test
     void planRouteAllowingForWalkingTimeArriveBy() {
         TramTime queryTime = TramTime.of(20, 9);
@@ -136,9 +137,11 @@ class JourneyPlannerLocationResourceTest {
         assertTrue(firstDepartureTime.isBefore(query));
 
         List<StageDTO> stages = earliest.getStages();
-        assertEquals(2, stages.size());
+        //+1
+        assertEquals(2+1, stages.size());
     }
 
+    @Summer2022
     @Test
     void shouldPlanRouteEndingInAWalk() {
         final TramTime queryTime = TramTime.of(20, 9);
@@ -148,31 +151,37 @@ class JourneyPlannerLocationResourceTest {
             assertTrue(journeyDTO.getFirstDepartureTime().isAfter(queryTime.toDate(when)));
 
             List<StageDTO> stages = journeyDTO.getStages();
-            assertEquals(2, stages.size(), stages.toString());
+            // +1
+            assertEquals(2+1, stages.size(), stages.toString());
             assertEquals(TransportMode.Tram, stages.get(0).getMode());
-            assertEquals(TransportMode.Walk, stages.get(1).getMode());
 
-            StageDTO walkingStage = stages.get(1);
+            int lastIndex = stages.size()-1;
+            assertEquals(TransportMode.Walk, stages.get(lastIndex).getMode());
+            StageDTO walkingStage = stages.get(lastIndex);
             assertEquals(nearAltrincham.latLong(), walkingStage.getLastStation().getLatLong());
         });
     }
 
+    @Summer2022
     @Test
     void shouldPlanRouteEndingInAWalkArriveBy() {
         TramTime queryTime = TramTime.of(19, 9);
         Set<JourneyDTO> results = validateJourneyToLocation(Deansgate, nearAltrincham, queryTime, true);
 
+        // +1
+        int numberOfStages = 2+1;
+
         List<JourneyDTO> journeys = results.stream().
-                filter(journeyDTO -> journeyDTO.getStages().size() == 2).collect(Collectors.toList());
+                filter(journeyDTO -> journeyDTO.getStages().size() == numberOfStages).collect(Collectors.toList());
         assertFalse(journeys.isEmpty());
 
         JourneyDTO firstJourney = journeys.get(0);
         assertTrue(firstJourney.getFirstDepartureTime().isBefore(queryTime.toDate(when)));
 
         List<StageDTO> stages = firstJourney.getStages();
-        assertEquals(2, stages.size());
         assertEquals(TransportMode.Tram, stages.get(0).getMode());
-        assertEquals(TransportMode.Walk, stages.get(1).getMode());
+        int lastStageIndex = numberOfStages - 1;
+        assertEquals(TransportMode.Walk, stages.get(lastStageIndex).getMode());
    }
 
     @Test
@@ -229,12 +238,14 @@ class JourneyPlannerLocationResourceTest {
         assertEquals(LocalDateTime.of(when,LocalTime.of(9,3)), stage.getExpectedArrivalTime());
     }
 
+    @Summer2022
     @Test
     void reproduceIssueNearAltyToAshton()  {
         Set<JourneyDTO> journeys = validateJourneyFromLocation(nearAltrincham, TramStations.Ashton,
                 TramTime.of(19,47), false, when);
 
-        journeys.forEach(journey -> assertEquals(3, journey.getStages().size()));
+        // +1
+        journeys.forEach(journey -> assertEquals(3+1, journey.getStages().size()));
     }
 
     @Test

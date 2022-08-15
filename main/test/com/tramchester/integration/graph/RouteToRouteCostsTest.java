@@ -86,9 +86,11 @@ public class RouteToRouteCostsTest {
         timeRange = TimeRange.of(TramTime.of(7,45), TramTime.of(22,45));
     }
 
+    @Summer2022
     @Test
     void shouldHaveFullyConnectedForTramsWhereDatesOverlaps() {
-        Set<Route> routes = routeRepository.getRoutes().stream().filter(route -> route.isAvailableOn(date)).collect(Collectors.toSet());
+        LocalDate testDate = this.date.plusWeeks(1);
+        Set<Route> routes = routeRepository.getRoutes().stream().filter(route -> route.isAvailableOn(testDate)).collect(Collectors.toSet());
 
         TimeRange timeRangeForOverlaps = TimeRange.of(TramTime.of(8, 45), TramTime.of(10, 45));
 
@@ -96,7 +98,7 @@ public class RouteToRouteCostsTest {
         for (Route start : routes) {
             for (Route end : routes) {
                 if (!start.equals(end) && start.isDateOverlap(end)) {
-                    if (Integer.MAX_VALUE==routesCostRepository.getNumberChangesFor(start, end, date, timeRangeForOverlaps)) {
+                    if (Integer.MAX_VALUE==routesCostRepository.getNumberChangesFor(start, end, testDate, timeRangeForOverlaps)) {
                         failed.add(new RoutePair(start, end));
                     }
                 }
@@ -291,8 +293,8 @@ public class RouteToRouteCostsTest {
 
         assertEquals(0, result.getMin());
 
-        // summer 2022?
-        assertEquals(1, result.getMax());
+        // summer 2022  +1
+        assertEquals(1+1, result.getMax());
     }
 
     @Test
