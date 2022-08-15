@@ -12,6 +12,7 @@ import com.tramchester.domain.time.TramTime;
 import com.tramchester.integration.repository.TransportDataFromFilesTramTest;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.TramStations;
+import com.tramchester.testSupport.testTags.Summer2022;
 import io.dropwizard.testing.junit5.DropwizardExtensionsSupport;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -56,10 +57,12 @@ public class AppUserJourneyLocationsTest extends UserJourneyTest {
         return getProviderCommon();
     }
 
+    @Summer2022
     @BeforeEach
     void beforeEachTestRuns() {
         url = testRule.getUrl()+"/app/index.html";
-        when = TestEnv.testDay();
+        // +1
+        when = TestEnv.testDay().plusWeeks(1);
     }
 
     @AfterEach
@@ -135,7 +138,7 @@ public class AppUserJourneyLocationsTest extends UserJourneyTest {
         appPage.planAJourney();
 
         List<TestResultSummaryRow> results = appPage.getResults();
-        // TODO lockdown timetable: 3 -> 2
+        // lockdown timetable: 3 -> 2
         assertTrue(results.size()>=2, "at least some results");
 
         for (TestResultSummaryRow result : results) {
