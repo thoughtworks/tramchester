@@ -141,6 +141,7 @@ public class AppUserJourneyLocationsTest extends UserJourneyTest {
         // lockdown timetable: 3 -> 2
         assertTrue(results.size()>=2, "at least some results");
 
+        // check timings are sane
         for (TestResultSummaryRow result : results) {
             TramTime departTime = result.getDepartTime();
             assertTrue(departTime.isValid());
@@ -160,23 +161,22 @@ public class AppUserJourneyLocationsTest extends UserJourneyTest {
 
         List<Stage> stages = firstResult.getStages();
         assertEquals(2, stages.size());
-        Stage firstStage = stages.get(0);
 
+        Stage firstStage = stages.get(0);
+        Stage secondStage = stages.get(1);
+
+        // walking stage
         final TramTime firstStageDepartTime = firstStage.getDepartTime();
         assertTrue(firstStageDepartTime.isValid());
-        assertEquals(TramTime.of(10,20), firstStageDepartTime, "departtime");
-        assertEquals("Walk to", firstStage.getAction(), "action");
-        assertEquals(TramStations.Altrincham.getName(), firstStage.getActionStation(), "actionStation");
-        assertEquals(-1, firstStage.getPlatform(), "platform");
-
-        // hidden for walking stages
-        //assertEquals("", firstStage.getLine("RouteClassWalk"), "lineName");
+        assertEquals("Walk to", firstStage.getAction(), "action wrong for " + stages);
+        assertEquals(-1, firstStage.getPlatform(), "platform wrong for " + stages);
         assertEquals("", firstStage.getLine(), "lineName");
+        String station = firstStage.getActionStation();
 
-        Stage secondStage = stages.get(1);
-        TramTime departTime = TramTime.of(10,25);
-        validateAStage(secondStage, departTime, "Board Tram", TramStations.Altrincham.getName(), 1,
-                AppUserJourneyTest.altyToPicLineName, "Piccadilly", 9);
+        final TramTime secondStageDepartTime = secondStage.getDepartTime();
+        assertTrue(secondStageDepartTime.isAfter(firstStageDepartTime));
+        assertEquals("Board Tram", secondStage.getAction(), "action wrong for " + stages);
+        assertEquals(station, secondStage.getActionStation(), "action stations wrong");
     }
 
     private AppPage prepare(ProvidesDriver providesDriver) throws IOException {

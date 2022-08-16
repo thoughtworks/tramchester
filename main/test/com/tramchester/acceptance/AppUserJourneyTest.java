@@ -43,7 +43,7 @@ class AppUserJourneyTest extends UserJourneyTest {
     // NOTE: Needs correct locale settings, see .circleci/config.yml setupLocale target
 
 
-    // NOTE: This controls localAppium only, for CI acceptance tests run against the deployed dev instance
+    // NOTE: This controls localAcceptance only, for CI acceptance tests run against the deployed dev instance
     public static final String configPath = "config/localAcceptance.yml";
 
     private static final AcceptanceAppExtenstion appExtenstion = new AcceptanceAppExtenstion(App.class, configPath);
@@ -54,7 +54,7 @@ class AppUserJourneyTest extends UserJourneyTest {
 
     // useful consts, keep around as can swap when timetable changes
     @SuppressWarnings("unused")
-    private static final String altyToBuryLineName = "Altrincham - Manchester - Bury";
+    public static final String altyToBuryLineName = "Altrincham - Manchester - Bury";
     public static final String altyToPicLineName = "Altrincham - Piccadilly";
 
     private LocalDate when;

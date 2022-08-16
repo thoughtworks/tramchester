@@ -24,14 +24,6 @@ public class AcceptanceAppExtenstion extends DropwizardAppExtension<AppConfigura
     }
 
     private String createLocalURL() {
-        Optional<String> android = Optional.ofNullable(System.getProperty("android"));
-
-        if (android.isPresent()) {
-            if (android.get().equals("true")) {
-                // ip of emulator
-                return "10.0.2.2";
-            }
-        }
         return "localhost";
     }
 
