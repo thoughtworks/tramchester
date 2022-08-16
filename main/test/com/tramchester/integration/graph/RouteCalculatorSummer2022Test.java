@@ -109,6 +109,7 @@ class RouteCalculatorSummer2022Test {
         assertFalse(journeys.isEmpty());
     }
 
+    @Disabled
     @Test
     void shouldReproIssueDuringSummer2022ClosureEccToVictoriaOnClosureDate() {
 
@@ -159,6 +160,7 @@ class RouteCalculatorSummer2022Test {
         assertFalse(journeys.isEmpty());
     }
 
+    @Disabled
     @Test
     void shouldReproIssueDuringSummer2022ClosureEccToVictoriaAfterClosureDate() {
         List<LocalDate> failureDates = new ArrayList<>();
