@@ -13,12 +13,18 @@ import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.TramStations;
 import com.tramchester.testSupport.testTags.Summer2022;
 import io.dropwizard.testing.junit5.DropwizardExtensionsSupport;
+import org.apache.http.client.HttpClient;
+import org.apache.http.impl.client.DefaultHttpClient;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.openqa.selenium.Cookie;
 
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLConnection;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
@@ -86,6 +92,23 @@ class AppUserJourneyTest extends UserJourneyTest {
     @AfterAll
     static void afterAllTestsRun() {
         closeFactory();
+    }
+
+    @Test
+    void shouldHaveAPIAvailable() throws MalformedURLException {
+        final URL apiUrl = new URL(appExtenstion.getUrl()+"/api/datainfo");
+
+        // helps diagnosis of when the other tests are failing
+        try {
+            final URLConnection connection = apiUrl.openConnection();
+            connection.setConnectTimeout(20*1000); // ms
+            connection.connect();
+            String contentType = connection.getContentType();
+            assertEquals("application/json", contentType, "Wrong content type for " + apiUrl);
+        } catch (IOException e) {
+            fail("did not connect to " + apiUrl + " Exception " +e);
+        }
+
     }
 
     @ParameterizedTest(name = "{displayName} {arguments}")

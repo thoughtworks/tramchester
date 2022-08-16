@@ -1,12 +1,17 @@
 server:
-  type: simple
   applicationContextPath: /
   rootPath: /api/*
+  applicationConnectors:
+    - type: http
+      port: 8080
   adminContextPath: /admin
-  connector:
-    type: http
-    port: 8080
-
+  adminConnectors:
+    - type: http
+      port: 8081
+  gzip:
+    enabled: true
+    bufferSize: 8KiB
+    minimumEntitySize: 160B
 secureHost: tramchester.com
 staticAssetCacheTimeSeconds: 300
 graphDBConfig:
