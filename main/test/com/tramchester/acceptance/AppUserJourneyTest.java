@@ -423,9 +423,15 @@ class AppUserJourneyTest extends UserJourneyTest {
         Stage firstStage = stages.get(0);
         Stage secondStage = stages.get(1);
 
+        // bury line tram first
+//        validateAStage(firstStage, firstResult.getDepartTime(), "Board Tram", altrincham, 1,
+//                altyToBuryLineName,
+//                Bury.getName(), 7);
+
+        // Piccadilly line tram first
         validateAStage(firstStage, firstResult.getDepartTime(), "Board Tram", altrincham, 1,
-                altyToBuryLineName,
-                Bury.getName(), 7);
+                altyToPicLineName,
+                Piccadilly.getName(), 7);
 
         // Too timetable dependent?
         validateAStage(secondStage, TramTime.of(10,29), "Change Tram", TraffordBar.getName(),
