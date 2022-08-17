@@ -19,12 +19,14 @@ public class StopCalls {
     private static final Logger logger = LoggerFactory.getLogger(StopCalls.class);
 
     private final SortedMap<Integer, StopCall> orderedStopCalls;
+    private final Map<IdFor<Station>, Integer> stationIndex;
     private final Trip parentTrip;
     private boolean intoNextDay;
 
     public StopCalls(Trip parent) {
         this.parentTrip = parent;
         orderedStopCalls = new TreeMap<>();
+        stationIndex = new HashMap<>();
         intoNextDay = false;
     }
 
@@ -50,6 +52,7 @@ public class StopCalls {
             }
         }
         orderedStopCalls.put(sequenceNumber, stopCall);
+        stationIndex.put(station.getId(), sequenceNumber);
         intoNextDay = intoNextDay || stopCall.intoNextDay();
 
     }
@@ -62,15 +65,18 @@ public class StopCalls {
         return orderedStopCalls.get(callingNumber);
     }
 
-    public boolean callsAt(HasId<Station> stationId) {
-        return orderedStopCalls.values().stream().
-                anyMatch(stopCall -> stopCall.getStationId().equals(stationId.getId()));
+    public boolean callsAt(HasId<Station> hasId) {
+        return stationIndex.containsKey(hasId.getId());
     }
 
-    public StopCall getStopFor(HasId<Station> stationId) {
-        Optional<StopCall> search = orderedStopCalls.values().stream().
-                filter(stopCall -> stopCall.getStationId().equals(stationId.getId())).findFirst();
-        return search.orElse(null);
+    public StopCall getStopFor(HasId<Station> hasId) {
+        IdFor<Station> id = hasId.getId();
+        if (!stationIndex.containsKey(id)) {
+            return null;
+        }
+        int index = stationIndex.get(id);
+        return orderedStopCalls.get(index);
+        
     }
 
     public Stream<StopCall> stream() {

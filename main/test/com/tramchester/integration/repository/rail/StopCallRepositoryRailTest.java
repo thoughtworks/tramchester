@@ -37,7 +37,6 @@ public class StopCallRepositoryRailTest {
     private StopCallRepository stopCallRepository;
     private StationRepository stationRepository;
     private RouteRepository routeRepository;
-    private TripRepository tripRepository;
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
@@ -55,7 +54,6 @@ public class StopCallRepositoryRailTest {
         stopCallRepository = componentContainer.get(StopCallRepository.class);
         stationRepository = componentContainer.get(StationRepository.class);
         routeRepository = componentContainer.get(RouteRepository.class);
-        tripRepository = componentContainer.get(TripRepository.class);
     }
 
     @Test

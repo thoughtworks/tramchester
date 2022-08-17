@@ -40,6 +40,8 @@ import javax.inject.Inject;
 import java.nio.file.Path;
 import java.time.Duration;
 import java.time.LocalDateTime;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -164,16 +166,17 @@ public class RailTransportDataFromFiles implements DirectDataSourceFactory.Popul
 
         private StationsTemporary loadStations(Stream<PhysicalStationRecord> physicalRecords) {
 
-            Stream<Pair<MutableStation, String>> railStations = physicalRecords.
+            Stream<Pair<MutableStation, PhysicalStationRecord>> railStations = physicalRecords.
                     filter(this::validRecord).
-                    map(record -> Pair.of(createStationFor(record), record.getCRS()));
+                    map(record -> Pair.of(createStationFor(record), record));
 
             StationsTemporary stationsTemporary = new StationsTemporary();
 
-            railStations.forEach(railStation -> {
-                final MutableStation mutableStation = railStation.getKey();
-                stationsTemporary.addStation(mutableStation);
-                crsRepository.putCRS(mutableStation, railStation.getValue());
+            railStations.forEach(railStationPair -> {
+                final MutableStation mutableStation = railStationPair.getLeft();
+                PhysicalStationRecord physicalStationRecord = railStationPair.getValue();
+                stationsTemporary.addStation(mutableStation, physicalStationRecord.getTiplocCode());
+                crsRepository.putCRS(mutableStation, physicalStationRecord.getCRS());
             });
 
             return stationsTemporary;
@@ -247,30 +250,22 @@ public class RailTransportDataFromFiles implements DirectDataSourceFactory.Popul
      * Temp holding for stations, so the final transport container only has the stations actually required
      */
     public static class StationsTemporary {
-        private final CompositeIdMap<Station, MutableStation> stations;
         private final IdSet<Station> include;
+        private final Map<String, MutableStation> tiplocMap;
 
         private StationsTemporary() {
-            stations = new CompositeIdMap<>();
             include = new IdSet<>();
+            tiplocMap = new HashMap<>();
         }
 
-        public void addStation(MutableStation mutableStation) {
-            stations.add(mutableStation);
+        public void addStation(MutableStation mutableStation, String tipLoc) {
+            tiplocMap.put(tipLoc, mutableStation);
         }
 
         public Set<MutableStation> getShouldInclude() {
-            return stations.getValues().stream().
+            return tiplocMap.values().stream().
                     filter(station -> include.contains(station.getId())).
                     collect(Collectors.toSet());
-        }
-
-        private boolean hasStationId(IdFor<Station> stationId) {
-            return stations.hasId(stationId);
-        }
-
-        public MutableStation getMutableStation(IdFor<Station> stationId) {
-            return stations.get(stationId);
         }
 
         public void markAsNeeded(Station station) {
@@ -278,12 +273,12 @@ public class RailTransportDataFromFiles implements DirectDataSourceFactory.Popul
         }
 
         public void clear() {
-            stations.clear();
             include.clear();
+            tiplocMap.clear();
         }
 
         public int count() {
-            return stations.size();
+            return tiplocMap.size();
         }
 
         public int countNeeded() {
@@ -292,14 +287,12 @@ public class RailTransportDataFromFiles implements DirectDataSourceFactory.Popul
 
         public boolean isLoadedFor(RailLocationRecord record) {
             final String tiplocCode = record.getTiplocCode();
-            IdFor<Station> stationId = StringIdFor.createId(tiplocCode);
-            return hasStationId(stationId);
+            return tiplocMap.containsKey(tiplocCode);
         }
 
         public MutableStation getMutableStationFor(RailLocationRecord record) {
             final String tiplocCode = record.getTiplocCode();
-            IdFor<Station> stationId = StringIdFor.createId(tiplocCode);
-            return getMutableStation(stationId);
+            return tiplocMap.get(tiplocCode);
         }
 
     }

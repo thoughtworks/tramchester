@@ -8,7 +8,7 @@ import java.util.stream.Collectors;
 
 public class AggregateServiceCalendar implements ServiceCalendar {
 
-    private final Set<ServiceCalendar> calendars;
+    private final Collection<ServiceCalendar> calendars;
 
     private final EnumSet<DayOfWeek> days;
     private final Set<LocalDate> additional;
@@ -16,7 +16,7 @@ public class AggregateServiceCalendar implements ServiceCalendar {
     private final boolean cancelled;
     private final DateRange dateRange;
 
-    public AggregateServiceCalendar(Set<ServiceCalendar> calendars) {
+    public AggregateServiceCalendar(Collection<ServiceCalendar> calendars) {
         this.calendars = calendars;
 
         dateRange = calculateDateRange(calendars);
@@ -36,7 +36,7 @@ public class AggregateServiceCalendar implements ServiceCalendar {
 
     }
 
-    private static DateRange calculateDateRange(Set<ServiceCalendar> calendars) {
+    private static DateRange calculateDateRange(Collection<ServiceCalendar> calendars) {
         Optional<LocalDate> begin = calendars.stream().map(calendar -> calendar.getDateRange().getStartDate()).reduce(AggregateServiceCalendar::earliest);
         Optional<LocalDate> end = calendars.stream().map(calendar -> calendar.getDateRange().getEndDate()).reduce(AggregateServiceCalendar::latest);
 
@@ -63,7 +63,7 @@ public class AggregateServiceCalendar implements ServiceCalendar {
         }
     }
 
-    private static boolean operatesForAny(Set<ServiceCalendar> calendars, LocalDate date) {
+    private static boolean operatesForAny(Collection<ServiceCalendar> calendars, LocalDate date) {
         return calendars.stream().anyMatch(calendar -> calendar.operatesOn(date));
     }
 
