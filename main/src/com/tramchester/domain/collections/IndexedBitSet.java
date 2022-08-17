@@ -1,4 +1,4 @@
-package com.tramchester.domain;
+package com.tramchester.domain.collections;
 
 import com.tramchester.graph.search.routes.RouteIndexPair;
 

@@ -1,4 +1,4 @@
-package com.tramchester.domain;
+package com.tramchester.domain.collections;
 
 import java.util.BitSet;
 import java.util.stream.IntStream;
