@@ -3,6 +3,7 @@ package com.tramchester.testSupport.reference;
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.dataimport.loader.TransportDataFactory;
 import com.tramchester.domain.*;
+import com.tramchester.domain.dates.MutableServiceCalendar;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.input.MutableTrip;

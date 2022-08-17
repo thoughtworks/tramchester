@@ -1,6 +1,8 @@
 package com.tramchester.domain;
 
 
+import com.tramchester.domain.dates.MutableServiceCalendar;
+import com.tramchester.domain.dates.ServiceCalendar;
 import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.input.Trip;

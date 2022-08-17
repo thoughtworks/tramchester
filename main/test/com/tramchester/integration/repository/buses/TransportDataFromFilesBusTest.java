@@ -11,7 +11,7 @@ import com.tramchester.dataimport.loader.TransportDataReaderFactory;
 import com.tramchester.domain.Agency;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.Service;
-import com.tramchester.domain.ServiceCalendar;
+import com.tramchester.domain.dates.ServiceCalendar;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.id.StringIdFor;

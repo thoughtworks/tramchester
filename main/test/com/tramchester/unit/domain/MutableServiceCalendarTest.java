@@ -1,7 +1,7 @@
 package com.tramchester.unit.domain;
 
-import com.tramchester.domain.MutableServiceCalendar;
-import com.tramchester.domain.ServiceCalendar;
+import com.tramchester.domain.dates.MutableServiceCalendar;
+import com.tramchester.domain.dates.ServiceCalendar;
 import com.tramchester.domain.time.DateRange;
 import com.tramchester.domain.time.TramServiceDate;
 import com.tramchester.testSupport.TestEnv;

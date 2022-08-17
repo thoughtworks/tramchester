@@ -3,7 +3,7 @@ package com.tramchester.dataimport.loader;
 import com.tramchester.dataimport.data.CalendarData;
 import com.tramchester.domain.MutableService;
 import com.tramchester.domain.Service;
-import com.tramchester.domain.MutableServiceCalendar;
+import com.tramchester.domain.dates.MutableServiceCalendar;
 import com.tramchester.domain.factory.TransportEntityFactory;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdMap;

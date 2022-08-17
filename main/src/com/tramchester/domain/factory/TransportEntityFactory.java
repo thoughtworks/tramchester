@@ -2,6 +2,7 @@ package com.tramchester.domain.factory;
 
 import com.tramchester.dataimport.data.*;
 import com.tramchester.domain.*;
+import com.tramchester.domain.dates.MutableServiceCalendar;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.input.*;

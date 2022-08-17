@@ -2,7 +2,7 @@ package com.tramchester.dataimport.rail;
 
 import com.tramchester.dataimport.rail.records.BasicSchedule;
 import com.tramchester.domain.MutableService;
-import com.tramchester.domain.MutableServiceCalendar;
+import com.tramchester.domain.dates.MutableServiceCalendar;
 import com.tramchester.domain.Service;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.StringIdFor;

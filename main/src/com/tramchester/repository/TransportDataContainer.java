@@ -1,6 +1,7 @@
 package com.tramchester.repository;
 
 import com.tramchester.domain.*;
+import com.tramchester.domain.dates.ServiceCalendar;
 import com.tramchester.domain.id.CompositeIdMap;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdMap;
