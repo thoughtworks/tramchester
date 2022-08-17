@@ -1,11 +1,8 @@
 package com.tramchester.domain.dates;
 
-import com.tramchester.domain.time.DateRange;
-
 import java.io.PrintStream;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
-import java.util.Collection;
 import java.util.EnumSet;
 import java.util.Set;
 

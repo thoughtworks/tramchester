@@ -7,7 +7,7 @@ import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.input.MutableTrip;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.reference.TransportMode;
-import com.tramchester.domain.time.DateRange;
+import com.tramchester.domain.dates.DateRange;
 import com.tramchester.testSupport.TestEnv;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Assertions;

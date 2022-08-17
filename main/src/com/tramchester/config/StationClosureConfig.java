@@ -6,7 +6,7 @@ import com.tramchester.domain.StationClosure;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.places.Station;
-import com.tramchester.domain.time.DateRange;
+import com.tramchester.domain.dates.DateRange;
 import io.dropwizard.Configuration;
 
 import javax.validation.Valid;

@@ -17,7 +17,7 @@ import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.reference.GTFSPickupDropoffType;
 import com.tramchester.domain.reference.GTFSTransportationType;
 import com.tramchester.domain.reference.TransportMode;
-import com.tramchester.domain.time.TramServiceDate;
+import com.tramchester.domain.dates.TramServiceDate;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.geo.BoundingBox;
 import com.tramchester.metrics.CacheMetrics;

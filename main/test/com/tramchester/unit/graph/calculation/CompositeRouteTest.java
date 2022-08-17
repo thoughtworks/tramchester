@@ -10,7 +10,7 @@ import com.tramchester.domain.places.StationGroup;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.TransportStage;
 import com.tramchester.domain.time.InvalidDurationException;
-import com.tramchester.domain.time.TramServiceDate;
+import com.tramchester.domain.dates.TramServiceDate;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.RouteCostCalculator;

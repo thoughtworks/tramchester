@@ -7,7 +7,7 @@ import com.tramchester.domain.Journey;
 import com.tramchester.domain.JourneyRequest;
 import com.tramchester.domain.StationIdPair;
 import com.tramchester.domain.time.Durations;
-import com.tramchester.domain.time.TramServiceDate;
+import com.tramchester.domain.dates.TramServiceDate;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.GraphDatabase;
 import com.tramchester.integration.testSupport.RouteCalculationCombinations;

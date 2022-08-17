@@ -1,4 +1,4 @@
-package com.tramchester.domain.time;
+package com.tramchester.domain.dates;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;

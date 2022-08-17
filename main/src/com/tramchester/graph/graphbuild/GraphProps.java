@@ -11,7 +11,7 @@ import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.reference.TransportMode;
-import com.tramchester.domain.time.DateRange;
+import com.tramchester.domain.dates.DateRange;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.GraphPropertyKey;
 import org.neo4j.graphdb.Entity;

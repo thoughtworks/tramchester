@@ -33,7 +33,7 @@ import com.tramchester.dataimport.rail.RailRecordType;
 import com.tramchester.dataimport.rail.records.reference.ShortTermPlanIndicator;
 import com.tramchester.dataimport.rail.records.reference.TrainCategory;
 import com.tramchester.dataimport.rail.records.reference.TrainStatus;
-import com.tramchester.domain.time.DateRange;
+import com.tramchester.domain.dates.DateRange;
 import com.tramchester.domain.time.ProvidesNow;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

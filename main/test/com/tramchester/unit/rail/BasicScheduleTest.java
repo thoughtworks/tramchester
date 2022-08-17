@@ -5,7 +5,7 @@ import com.tramchester.dataimport.rail.records.RailRecordTransactionType;
 import com.tramchester.dataimport.rail.records.reference.ShortTermPlanIndicator;
 import com.tramchester.dataimport.rail.records.reference.TrainCategory;
 import com.tramchester.dataimport.rail.records.reference.TrainStatus;
-import com.tramchester.domain.time.DateRange;
+import com.tramchester.domain.dates.DateRange;
 import com.tramchester.domain.time.ProvidesLocalNow;
 import com.tramchester.domain.time.ProvidesNow;
 import org.junit.jupiter.api.BeforeEach;

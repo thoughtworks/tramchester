@@ -8,7 +8,7 @@ import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.places.StationGroup;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
-import com.tramchester.domain.time.TramServiceDate;
+import com.tramchester.domain.dates.TramServiceDate;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.search.RouteCalculator;
@@ -20,7 +20,6 @@ import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.testTags.BusTest;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.*;
-import org.junit.jupiter.api.condition.DisabledIfEnvironmentVariable;
 import org.neo4j.graphdb.Transaction;
 
 import java.time.Duration;

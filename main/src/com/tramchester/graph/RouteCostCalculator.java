@@ -5,7 +5,7 @@ import com.tramchester.domain.Route;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.places.Location;
 import com.tramchester.domain.time.InvalidDurationException;
-import com.tramchester.domain.time.TramServiceDate;
+import com.tramchester.domain.dates.TramServiceDate;
 import com.tramchester.graph.graphbuild.GraphProps;
 import com.tramchester.graph.graphbuild.StagedTransportGraphBuilder;
 import com.tramchester.repository.RouteRepository;

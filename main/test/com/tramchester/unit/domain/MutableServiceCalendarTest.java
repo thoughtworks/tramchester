@@ -2,8 +2,8 @@ package com.tramchester.unit.domain;
 
 import com.tramchester.domain.dates.MutableServiceCalendar;
 import com.tramchester.domain.dates.ServiceCalendar;
-import com.tramchester.domain.time.DateRange;
-import com.tramchester.domain.time.TramServiceDate;
+import com.tramchester.domain.dates.DateRange;
+import com.tramchester.domain.dates.TramServiceDate;
 import com.tramchester.testSupport.TestEnv;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;

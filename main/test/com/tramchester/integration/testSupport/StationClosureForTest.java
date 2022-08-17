@@ -3,7 +3,7 @@ package com.tramchester.integration.testSupport;
 import com.tramchester.domain.StationClosure;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.places.Station;
-import com.tramchester.domain.time.DateRange;
+import com.tramchester.domain.dates.DateRange;
 import com.tramchester.testSupport.reference.TramStations;
 
 import java.time.LocalDate;

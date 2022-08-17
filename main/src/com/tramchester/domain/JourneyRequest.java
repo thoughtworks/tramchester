@@ -2,7 +2,7 @@ package com.tramchester.domain;
 
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TimeRange;
-import com.tramchester.domain.time.TramServiceDate;
+import com.tramchester.domain.dates.TramServiceDate;
 import com.tramchester.domain.time.TramTime;
 
 import java.time.Duration;

@@ -5,11 +5,9 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.tramchester.domain.BoundingBoxWithCost;
 import com.tramchester.domain.presentation.LatLong;
-import com.tramchester.domain.time.TramServiceDate;
+import com.tramchester.domain.dates.TramServiceDate;
 import com.tramchester.geo.CoordinateTransforms;
 import com.tramchester.mappers.JourneyToDTOMapper;
-
-import java.time.Duration;
 
 @SuppressWarnings("unused")
 @JsonTypeName("BoxWithCost")

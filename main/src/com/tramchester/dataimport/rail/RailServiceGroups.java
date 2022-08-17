@@ -6,7 +6,7 @@ import com.tramchester.domain.dates.MutableServiceCalendar;
 import com.tramchester.domain.Service;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.StringIdFor;
-import com.tramchester.domain.time.DateRange;
+import com.tramchester.domain.dates.DateRange;
 import com.tramchester.repository.WriteableTransportData;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;

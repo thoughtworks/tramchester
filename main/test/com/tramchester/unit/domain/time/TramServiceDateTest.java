@@ -1,6 +1,6 @@
 package com.tramchester.unit.domain.time;
 
-import com.tramchester.domain.time.TramServiceDate;
+import com.tramchester.domain.dates.TramServiceDate;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 

@@ -4,7 +4,7 @@ import com.google.inject.ImplementedBy;
 import com.tramchester.domain.Journey;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.Note;
-import com.tramchester.domain.time.TramServiceDate;
+import com.tramchester.domain.dates.TramServiceDate;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.livedata.tfgm.ProvidesTramNotes;
 

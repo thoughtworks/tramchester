@@ -7,7 +7,7 @@ import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.StationClosure;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.places.Station;
-import com.tramchester.domain.time.DateRange;
+import com.tramchester.domain.dates.DateRange;
 import com.tramchester.geo.MarginInMeters;
 import com.tramchester.geo.StationLocationsRepository;
 import com.tramchester.graph.filters.GraphFilter;

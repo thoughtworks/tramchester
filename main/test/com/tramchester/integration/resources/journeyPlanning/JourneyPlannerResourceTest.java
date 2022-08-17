@@ -6,7 +6,7 @@ import com.tramchester.domain.presentation.Note;
 import com.tramchester.domain.time.Durations;
 import com.tramchester.livedata.tfgm.ProvidesTramNotes;
 import com.tramchester.domain.reference.TransportMode;
-import com.tramchester.domain.time.TramServiceDate;
+import com.tramchester.domain.dates.TramServiceDate;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.integration.testSupport.IntegrationAppExtension;
 import com.tramchester.integration.testSupport.JourneyResourceTestFacade;

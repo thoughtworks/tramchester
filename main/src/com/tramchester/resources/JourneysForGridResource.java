@@ -16,7 +16,7 @@ import com.tramchester.domain.presentation.DTO.BoxWithCostDTO;
 import com.tramchester.domain.presentation.DTO.PostcodeDTO;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.reference.TransportMode;
-import com.tramchester.domain.time.TramServiceDate;
+import com.tramchester.domain.dates.TramServiceDate;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.geo.CoordinateTransforms;
 import com.tramchester.geo.GridPosition;

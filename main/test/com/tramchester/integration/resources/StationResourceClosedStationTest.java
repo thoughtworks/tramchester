@@ -5,7 +5,7 @@ import com.tramchester.config.AppConfiguration;
 import com.tramchester.domain.StationClosure;
 import com.tramchester.domain.presentation.DTO.StationClosureDTO;
 import com.tramchester.domain.presentation.DTO.LocationRefDTO;
-import com.tramchester.domain.time.TramServiceDate;
+import com.tramchester.domain.dates.TramServiceDate;
 import com.tramchester.integration.testSupport.APIClient;
 import com.tramchester.integration.testSupport.IntegrationAppExtension;
 import com.tramchester.integration.testSupport.StationClosureForTest;
@@ -14,7 +14,6 @@ import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.TramStations;
 import io.dropwizard.testing.junit5.DropwizardExtensionsSupport;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.condition.DisabledIfEnvironmentVariable;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 import javax.ws.rs.core.GenericType;

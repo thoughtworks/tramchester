@@ -1,6 +1,6 @@
 package com.tramchester.unit.domain.time;
 
-import com.tramchester.domain.time.DateRange;
+import com.tramchester.domain.dates.DateRange;
 import org.junit.jupiter.api.Test;
 
 import java.time.LocalDate;

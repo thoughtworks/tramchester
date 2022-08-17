@@ -1,7 +1,7 @@
 package com.tramchester.unit.dataimport.data;
 
 import com.tramchester.dataimport.data.CalendarData;
-import com.tramchester.domain.time.DateRange;
+import com.tramchester.domain.dates.DateRange;
 import com.tramchester.unit.dataimport.ParserTestCSVHelper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

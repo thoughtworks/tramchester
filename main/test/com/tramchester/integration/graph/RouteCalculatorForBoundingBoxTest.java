@@ -6,7 +6,7 @@ import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.JourneyRequest;
 import com.tramchester.domain.JourneysForBox;
 import com.tramchester.domain.LocationSet;
-import com.tramchester.domain.time.TramServiceDate;
+import com.tramchester.domain.dates.TramServiceDate;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.geo.BoundingBox;
 import com.tramchester.geo.BoundingBoxWithStations;

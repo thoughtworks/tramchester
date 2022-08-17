@@ -16,7 +16,7 @@ import com.tramchester.domain.presentation.DTO.factory.DTOFactory;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.ProvidesLocalNow;
 import com.tramchester.domain.time.ProvidesNow;
-import com.tramchester.domain.time.TramServiceDate;
+import com.tramchester.domain.dates.TramServiceDate;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.domain.transportStages.ConnectingStage;
 import com.tramchester.domain.transportStages.VehicleStage;

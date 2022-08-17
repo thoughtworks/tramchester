@@ -14,7 +14,7 @@ import com.tramchester.livedata.tfgm.ProvidesTramNotes;
 import com.tramchester.domain.presentation.TransportStage;
 import com.tramchester.domain.presentation.TravelAction;
 import com.tramchester.domain.reference.TransportMode;
-import com.tramchester.domain.time.TramServiceDate;
+import com.tramchester.domain.dates.TramServiceDate;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.domain.transportStages.WalkingStage;
 import org.slf4j.Logger;

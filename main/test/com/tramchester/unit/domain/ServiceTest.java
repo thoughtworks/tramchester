@@ -7,7 +7,7 @@ import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.input.MutableTrip;
 import com.tramchester.domain.input.PlatformStopCall;
 import com.tramchester.domain.places.NaptanArea;
-import com.tramchester.domain.time.DateRange;
+import com.tramchester.domain.dates.DateRange;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.testSupport.TestEnv;
 import org.junit.jupiter.api.Test;
