@@ -5,6 +5,11 @@ import org.apache.commons.lang3.tuple.Pair;
 import java.util.Objects;
 import java.util.stream.Stream;
 
+/***
+ * Simple Balanced Tree implementation with list semantics
+ * Used to support route exploration in RouteToRouteCosts where a normal list implementation is orders of mag slower
+ * @param <T>
+ */
 public class SimpleListItems<T> implements SimpleList<T> {
 
     private final Pair<SimpleList<T>, SimpleList<T>> tree;

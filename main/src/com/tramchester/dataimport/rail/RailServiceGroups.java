@@ -63,8 +63,11 @@ public class RailServiceGroups {
     @NotNull
     private Set<MutableService> filterByScheduleDates(BasicSchedule basicSchedule, List<MutableService> existingServices) {
 
+        DateRange dateRange = basicSchedule.getDateRange();
+
         return existingServices.stream().
-                filter(service -> service.getCalendar().overlapsDatesWith(basicSchedule.getDateRange())).
+                filter(service -> dateRange.overlapsWith(service.getCalendar().getDateRange())).
+                //filter(service -> service.getCalendar().overlapsDatesWith(basicSchedule.getDateRange())).
                 collect(Collectors.toSet());
     }
 

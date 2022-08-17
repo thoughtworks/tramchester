@@ -1,16 +1,12 @@
 package com.tramchester.domain;
 
-import com.google.common.collect.Sets;
 import com.tramchester.dataimport.data.CalendarData;
 import com.tramchester.domain.time.DateRange;
 
 import java.io.PrintStream;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
-import java.util.Arrays;
-import java.util.EnumSet;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 public class MutableServiceCalendar implements ServiceCalendar {
     private final DateRange dateRange;
@@ -143,22 +139,23 @@ public class MutableServiceCalendar implements ServiceCalendar {
     }
 
     @Override
-    public boolean overlapsDatesWith(DateRange otherRange) {
-        return dateRange.overlapsWith(otherRange);
-    }
-
-    @Override
-    public boolean overlapsDatesAndDaysWith(DateRange dateRange, EnumSet<DayOfWeek> daysOfWeek) {
-        Sets.SetView<DayOfWeek> intersection = Sets.intersection(days, daysOfWeek);
-        if (intersection.isEmpty()) {
-            return false;
-        }
-        return overlapsDatesWith(dateRange);
-    }
-
-    @Override
     public EnumSet<DayOfWeek> getOperatingDays() {
         return days;
+    }
+
+    @Override
+    public Set<LocalDate> getAdditions() {
+        return additional;
+    }
+
+    @Override
+    public Set<LocalDate> getRemoved() {
+        return removed;
+    }
+
+    @Override
+    public boolean isCancelled() {
+        return cancelled;
     }
 
     @Override

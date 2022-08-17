@@ -9,7 +9,6 @@ import com.tramchester.domain.places.Location;
 import com.tramchester.domain.places.LocationType;
 import com.tramchester.domain.presentation.TransportStage;
 import com.tramchester.domain.reference.TransportMode;
-import com.tramchester.domain.time.Durations;
 import com.tramchester.domain.time.TramServiceDate;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.domain.transportStages.VehicleStage;
@@ -124,8 +123,8 @@ public class RouteCalculatorTest {
     @DataExpiryCategory
     @Test
     void shouldHaveSimpleManyStopJourneyViaInterchangeNDaysAhead() {
-        // TODO remove plus 2 weeks
-        checkRouteNextNDays(Altrincham, Bury, when.plusWeeks(2), TramTime.of(12,0), DAYS_AHEAD);
+        // TODO remove plus 1 weeks
+        checkRouteNextNDays(PiccadillyGardens, ManAirport, when.plusWeeks(1), TramTime.of(12,0), DAYS_AHEAD);
     }
 
     @Test

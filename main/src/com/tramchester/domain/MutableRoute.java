@@ -1,5 +1,7 @@
 package com.tramchester.domain;
 
+import com.github.benmanes.caffeine.cache.Cache;
+import com.github.benmanes.caffeine.cache.Caffeine;
 import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.StringIdFor;
@@ -14,6 +16,8 @@ import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 public class MutableRoute implements Route {
 
@@ -25,7 +29,7 @@ public class MutableRoute implements Route {
     private final Set<Service> services;
     private final Set<Trip> trips;
 
-    private final ServiceDateCache serviceDateCache;
+    private final RouteCalendar routeCalendar;
     private Boolean intoNextDay;
 
     public static final Route Walking;
@@ -44,7 +48,7 @@ public class MutableRoute implements Route {
         services = new HashSet<>();
         trips  = new HashSet<>();
 
-        serviceDateCache = new ServiceDateCache();
+        routeCalendar = new RouteCalendar(this);
         intoNextDay = null;
     }
 
@@ -118,7 +122,7 @@ public class MutableRoute implements Route {
                 ", transportMode=" + transportMode +
                 ", services=" + HasId.asIds(services) +
                 ", trips=" +  HasId.asIds(trips) +
-                ", serviceDateCache=" + serviceDateCache +
+                ", serviceDateCache=" + routeCalendar +
                 ", intoNextDay=" + intoNextDay() +
                 '}';
     }
@@ -138,34 +142,27 @@ public class MutableRoute implements Route {
         if (services.isEmpty()) {
             throw new RuntimeException("Route has no services");
         }
-        // EnumSet bulk ops are very performant
-        EnumSet<DayOfWeek> operatingDays = getOperatingDays();
-        EnumSet<DayOfWeek> result = EnumSet.copyOf(operatingDays);
-        boolean changed = result.removeAll(otherRoute.getOperatingDays());
-        if (!changed) {
-            // no change means no intersection
-            return false;
-        }
-        return getDateRange().overlapsWith(otherRoute.getDateRange());
+        MutableRoute otherMutableRoute = (MutableRoute) otherRoute;
+        return routeCalendar.anyOverlapInRunning(otherMutableRoute.routeCalendar);
     }
 
+    /***
+     * Use with Caution: remember does no include Additional or Excluded days, use isAvailableOn() to validate a specific date
+     * @return Days of week this route Normally operates (not including exclusions, or additional days)
+     */
     @Override
     public EnumSet<DayOfWeek> getOperatingDays() {
-        return serviceDateCache.getOperatingDays(services);
+        return routeCalendar.getOperatingDays();
     }
 
     @Override
     public DateRange getDateRange() {
-        return serviceDateCache.getDateRange(services);
+        return routeCalendar.getDateRange();
     }
 
     @Override
     public boolean isAvailableOn(LocalDate date) {
-        DayOfWeek day = date.getDayOfWeek();
-        if  (getOperatingDays().contains(day)) {
-            return getDateRange().contains(date);
-        }
-        return false;
+        return routeCalendar.isAvailableOn(date);
     }
 
     @Override
@@ -176,59 +173,109 @@ public class MutableRoute implements Route {
         return intoNextDay;
     }
 
-    private static class ServiceDateCache {
-        private boolean loaded;
-        private EnumSet<DayOfWeek> operatingDays;
-        private DateRange dateRange;
+    private static class RouteCalendar {
+        private final Cache<IdFor<Route>, Boolean> overlaps; // for thread safety
+        private final IdFor<Route> parentId;
+        private final Route parent;
+        private AggregateServiceCalendar serviceCalendar;
 
-        ServiceDateCache() {
+        private boolean loaded;
+
+        RouteCalendar(Route parent) {
+            this.parent = parent;
+            this.parentId = parent.getId();
             loaded = false;
-            operatingDays = EnumSet.noneOf(DayOfWeek.class);
-            dateRange = new DateRange(LocalDate.MAX, LocalDate.MIN);
+            overlaps = Caffeine.newBuilder().maximumSize(5000).
+                    expireAfterAccess(10, TimeUnit.MINUTES).
+                    initialCapacity(400).
+                    recordStats().build();
         }
 
-        private void loadFrom(Set<Service> services) {
-            services.stream().map(Service::getCalendar).
-                    forEach(calendar -> {
-                        operatingDays = getUnionOf(calendar);
-                        DateRange otherRange = calendar.getDateRange();
-                        dateRange = DateRange.broadest(dateRange, otherRange);
-                    });
+        public boolean isAvailableOn(LocalDate date) {
+            loadFromParent();
+
+            return serviceCalendar.operatesOn(date);
+        }
+
+        private void loadFromParent() {
+            if (loaded) {
+                return;
+            }
+            Set<ServiceCalendar> calendars = parent.getServices().stream().map(Service::getCalendar).collect(Collectors.toSet());
+            serviceCalendar = new AggregateServiceCalendar(calendars);
             loaded = true;
         }
 
-        private EnumSet<DayOfWeek> getUnionOf(ServiceCalendar other) {
-            if (operatingDays.isEmpty()) {
-                return other.getOperatingDays();
-            }
-            if (other.getOperatingDays().isEmpty()) {
-                return operatingDays;
-            }
-            EnumSet<DayOfWeek> result = EnumSet.copyOf(this.operatingDays);
-            result.addAll(other.getOperatingDays());
-            return result;
+        public EnumSet<DayOfWeek> getOperatingDays() {
+            loadFromParent();
+            return serviceCalendar.getOperatingDays();
         }
 
-        public EnumSet<DayOfWeek> getOperatingDays(Set<Service> services) {
-            if (!loaded) {
-                loadFrom(services);
-            }
-            return operatingDays;
+        public DateRange getDateRange() {
+            loadFromParent();
+            return serviceCalendar.getDateRange();
         }
 
-        public DateRange getDateRange(Set<Service> services) {
-            if (!loaded) {
-                loadFrom(services);
-            }
-            return dateRange;
+        public boolean anyOverlapInRunning(RouteCalendar otherCalendar) {
+            loadFromParent();
+            otherCalendar.loadFromParent();
+
+            return overlaps.get(otherCalendar.parentId, item -> anyDateOverlaps(otherCalendar.serviceCalendar));
+
         }
 
-        @Override
-        public String toString() {
-            return "ServiceDateCache{" +
-                    "operatingDays=" + operatingDays +
-                    ", dateRange=" + dateRange +
-                    '}';
+        private boolean anyDateOverlaps(ServiceCalendar otherCalendar) {
+            if (otherCalendar.isCancelled() || serviceCalendar.isCancelled()) {
+                return false;
+            }
+
+            if (otherCalendar.operatesNoDays() || serviceCalendar.operatesNoDays()) {
+                return false;
+            }
+
+            // working assumption, any additional dates are withing the overall specified range for a service
+            if (!otherCalendar.getDateRange().overlapsWith(getDateRange())) {
+                return false;
+            }
+
+            // additions
+
+            if (operatesOnAny(serviceCalendar.getAdditions(), otherCalendar)) {
+                return true;
+            }
+
+            if (operatesOnAny(otherCalendar.getAdditions(), serviceCalendar)) {
+                return true;
+            }
+
+            // removed
+
+            if (operatesNoneOf(serviceCalendar.getRemoved(), otherCalendar)) {
+                return false;
+            }
+
+            if (operatesNoneOf(otherCalendar.getRemoved(), serviceCalendar)) {
+                return false;
+            }
+
+            // operating days, any overlap?
+
+            EnumSet<DayOfWeek> otherDays = EnumSet.copyOf(otherCalendar.getOperatingDays());
+            return otherDays.removeAll(getOperatingDays()); // will be true only if any overlap
+        }
+
+        private boolean operatesNoneOf(Set<LocalDate> dates, ServiceCalendar calendar) {
+            if (dates.isEmpty()) {
+                return false;
+            }
+            return dates.stream().noneMatch(calendar::operatesOn);
+        }
+
+        private boolean operatesOnAny(Set<LocalDate> dates, ServiceCalendar calendar) {
+            if (dates.isEmpty()) {
+                return false;
+            }
+            return dates.stream().anyMatch(calendar::operatesOn);
         }
     }
 }

@@ -5,20 +5,39 @@ import com.tramchester.domain.time.DateRange;
 import java.io.PrintStream;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
+import java.util.Collection;
 import java.util.EnumSet;
+import java.util.Set;
 
 public interface ServiceCalendar {
+
     boolean operatesOn(LocalDate queryDate);
 
     void summariseDates(PrintStream printStream);
 
+    /***
+     * Range of dates (from data source) given for the this service. NOTE: service might not actually operate on
+     * any of these dates depending on removed, additional and operatingdays
+     * @return
+     */
     DateRange getDateRange();
 
+    /***
+     * True iff does not operate on any days whatsoever, takes account of additional days
+     * @return true if service NEVER operates
+     */
     boolean operatesNoDays();
 
-    boolean overlapsDatesWith(DateRange dateRange);
-
-    boolean overlapsDatesAndDaysWith(DateRange dateRange, EnumSet<DayOfWeek> daysOfWeek);
-
+    /***
+     * Returns days this service operates, use with care since does not include exclusions/additional dates,
+     * use operatesOn() for that
+     * @return Set of days service operates ignoring additional and removed days
+     */
     EnumSet<DayOfWeek> getOperatingDays();
+
+    Set<LocalDate> getAdditions();
+
+    Set<LocalDate> getRemoved();
+
+    boolean isCancelled();
 }

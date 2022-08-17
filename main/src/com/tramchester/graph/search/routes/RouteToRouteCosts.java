@@ -152,7 +152,7 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
 //        });
 
         possibleChanges.filter(listOfChanges -> listOfChanges.size() < smallestSeen.get()).
-                map(listOfChange -> getRouteAndInterchange(listOfChange)).
+                map(this::getRouteAndInterchange).
                 filter(listOfInterchanges -> interchangeOperating.isOperating(availabilityRepository, listOfInterchanges)).
                 forEach(listOfInterchanges -> {
                     smallestFilteredByAvailability.add(listOfInterchanges);
@@ -169,16 +169,21 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
     }
 
     private List<RouteAndInterchanges> getRouteAndInterchange(SimpleList<RouteIndexPair> listOfChanges) {
-        return listOfChanges.stream().
+        List<RouteAndInterchanges> result = listOfChanges.stream().
                 map(this::getInterchangeFor).
                 filter(Objects::nonNull).
                 collect(Collectors.toList());
+        if (result.isEmpty()) {
+            logger.warn("No interchanges found for any of " + listOfChanges);
+        }
+        return result;
     }
 
     RouteAndInterchanges getInterchangeFor(RouteIndexPair indexPair) {
 
+        final RoutePair routePair = index.getPairFor(indexPair);
+
         if (routePairToInterchange.hasInterchangesFor(indexPair)) {
-            final RoutePair routePair = index.getPairFor(indexPair);
 
             final Set<Station> changes = routePairToInterchange.getInterchanges(indexPair);
             final RouteAndInterchanges routeAndInterchanges = new RouteAndInterchanges(routePair, changes);
@@ -189,7 +194,7 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
         }
 
         // TODO TODO TODO
-        logger.error("Did not find any interchanges for " + indexPair);
+        logger.error("Did not find any interchanges for " + routePair);
         return null;
     }
 
@@ -228,10 +233,9 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
     @Override
     public NumberOfChanges getNumberOfChanges(Location<?> startStation, Location<?> destination,
                                               Set<TransportMode> preferredModes, LocalDate date, TimeRange timeRange) {
-        logger.info(format("Compute number of changes between %s and %s using modes '%s' on %s within %s",
-                startStation.getId(), destination.getId(), preferredModes, date, timeRange));
 
         if (neighboursRepository.areNeighbours(startStation, destination)) {
+            logger.info(format("Number of changes set to 1 since %s and %s are neighbours", startStation, destination));
             return new NumberOfChanges(1, 1);
         }
 
@@ -239,6 +243,10 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
         // actually running from the start or destination
         final Set<Route> pickupRoutes = availabilityRepository.getPickupRoutesFor(startStation,date, timeRange);
         final Set<Route> dropoffRoutes = availabilityRepository.getDropoffRoutesFor(destination, date, timeRange);
+
+        logger.info(format("Compute number of changes between %s (%s) and %s (%s) using modes '%s' on %s within %s",
+                startStation.getId(), HasId.asIds(pickupRoutes), destination.getId(), HasId.asIds(dropoffRoutes),
+                preferredModes, date, timeRange));
 
         InterchangeOperating interchangesOperating = new InterchangeOperating(date, timeRange);
 
@@ -286,6 +294,8 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
     @NotNull
     private NumberOfChanges getNumberOfHops(Set<Route> startRoutes, Set<Route> destinationRoutes, LocalDate date,
                                             InterchangeOperating interchangesOperating) {
+        logger.info(format("Compute number of changes between %s and %s on %s",
+                HasId.asIds(startRoutes), HasId.asIds(destinationRoutes), date));
 
         IndexedBitSet dateOverlaps = costs.createOverlapMatrixFor(date);
 

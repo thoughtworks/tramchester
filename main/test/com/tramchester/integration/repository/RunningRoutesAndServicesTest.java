@@ -27,7 +27,6 @@ import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static java.time.DayOfWeek.*;
 import static org.junit.jupiter.api.Assertions.*;
@@ -164,12 +163,13 @@ public class RunningRoutesAndServicesTest {
         // services operating on a Saturday within this range
         List<Service> saturdayServices = transportData.getServices().stream().
                 filter(service -> service.getCalendar().getOperatingDays().equals(saturdays)).
-                filter(service -> service.getCalendar().overlapsDatesAndDaysWith(weekdayDateRange, saturdays)).
+                filter(service -> weekdayDateRange.overlapsWith(service.getCalendar().getDateRange())).
+                //filter(service -> service.getCalendar().overlapsDatesWith(weekdayDateRange)).
+                //filter(service -> service.getCalendar().overlapsDatesAndDaysWith(weekdayDateRange, saturdays)).
                 collect(Collectors.toList());
         assertFalse(saturdayServices.isEmpty(), weekdayDateRange.toString());
 
         Set<Service> matchingForSaturday = saturdayServices.stream().
-                //filter(service -> filterForNextFriday.isServiceRunningByDate(service.getId(), false)).
                 filter(service -> filterForNextFriday.isServiceRunningByDate(service.getId(), true)).
                 collect(Collectors.toSet());
 
@@ -187,5 +187,6 @@ public class RunningRoutesAndServicesTest {
         }
         return result;
     }
+
 
 }
