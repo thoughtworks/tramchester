@@ -103,22 +103,22 @@ public class RailRouteCostsTest {
 
     @Test
     void shouldGetApproxCostMiltonKeynesLondon() throws InvalidDurationException {
-        assertMinutesEquals(37, routeCostCalculator.getAverageCostBetween(txn, miltonKeynes, londonEuston, date));
-        assertMinutesEquals(37, routeCostCalculator.getMaxCostBetween(txn, miltonKeynes, londonEuston, date));
+        assertMinutesEquals(39, routeCostCalculator.getAverageCostBetween(txn, miltonKeynes, londonEuston, date));
+        assertMinutesEquals(40, routeCostCalculator.getMaxCostBetween(txn, miltonKeynes, londonEuston, date));
     }
 
     @Test
     void shouldGetApproxCostBetweenManPicadillyAndLondonEuston() throws InvalidDurationException {
-        assertEquals(Duration.ofHours(2).plusMinutes(14), routeCostCalculator.getAverageCostBetween(txn, manPicc, londonEuston, date));
-        assertEquals(Duration.ofHours(2).plusMinutes(15), routeCostCalculator.getMaxCostBetween(txn, manPicc, londonEuston, date));
+        assertEquals(Duration.ofHours(2).plusMinutes(16), routeCostCalculator.getAverageCostBetween(txn, manPicc, londonEuston, date));
+        assertEquals(Duration.ofHours(2).plusMinutes(21), routeCostCalculator.getMaxCostBetween(txn, manPicc, londonEuston, date));
     }
 
     @Test
     void shouldGetApproxCostBetweenAltrinchamAndLondonEuston() throws InvalidDurationException {
         Station altrincham = Altrincham.from(stationRepository);
 
-        assertEquals(Duration.ofHours(2).plusMinutes(23), routeCostCalculator.getAverageCostBetween(txn, altrincham, londonEuston, date));
-        assertEquals(Duration.ofHours(2).plusMinutes(24), routeCostCalculator.getMaxCostBetween(txn, altrincham, londonEuston, date));
+        assertEquals(Duration.ofHours(2).plusMinutes(28), routeCostCalculator.getAverageCostBetween(txn, altrincham, londonEuston, date));
+        assertEquals(Duration.ofHours(2).plusMinutes(42), routeCostCalculator.getMaxCostBetween(txn, altrincham, londonEuston, date));
 
     }
 
