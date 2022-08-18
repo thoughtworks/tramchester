@@ -54,13 +54,19 @@ public class RecordHelper {
         return LocalDate.parse(rawDateWithCentury, dateFormat);
     }
 
-    public static TramTime extractTime(String text, int begin, int end) {
-        String rawTime = text.substring(begin, end);
-        if (rawTime.length()!=4 || rawTime.isBlank()) {
+    /***
+     * Parse time in format HHMM embedded within larger string
+     * @param text the text to extract time from
+     * @param begin begin index of time
+     * @param end end index of time
+     * @return TramTime or TramTime.Invalid
+     */
+    public static TramTime extractTime(final String text, final int begin, final int end) {
+        //final String rawTime = text.substring(begin, end); //performance of substring is terrible
+        if (text.isBlank()) {
             return TramTime.invalid();
         }
-        int hour = Integer.parseUnsignedInt(rawTime,0, 2 ,10);
-        int minute = Integer.parseUnsignedInt(rawTime,2, 4 ,10);
-        return TramTime.of(hour, minute);
+        return TramTime.parseBasicFormat(text, begin);
+
     }
 }

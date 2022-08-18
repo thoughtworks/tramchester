@@ -36,6 +36,7 @@ class StopTimeDataParseTest extends ParserTestCSVHelper<StopTimeData> {
 
     @Test
     void shouldParseStopSingleDigitHour() {
+        // this occurs often in tgfm data
         String stop = "Trip000001,6:41:00,6:42:00,9400ZZMAABM1,0001,0,1";
 
         StopTimeData stopTimeData = parse(stop);

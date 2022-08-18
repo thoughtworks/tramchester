@@ -36,12 +36,23 @@ public class StopTimeData {
         this.tripId = tripId;
         this.stopId = stopId;
 
-        this.arrivalTime = arrivalTime;
-        this.departureTime = departureTime;
+        this.arrivalTime = padIfNeeded(arrivalTime);
+        this.departureTime = padIfNeeded(departureTime);
         this.stopSequence = stopSequence;
         this.pickupType = pickupType;
         this.dropOffType = dropOffType;
 
+    }
+
+    private String padIfNeeded(String arrivalTime) {
+        int indexOfFirstDivider = arrivalTime.indexOf(':');
+        if (indexOfFirstDivider==2) {
+            return arrivalTime;
+        }
+        if (indexOfFirstDivider==1) {
+            return "0"+arrivalTime;
+        }
+        throw new RuntimeException("Bad time format encountered in stoptimedata  '" + arrivalTime + "'");
     }
 
     @Override

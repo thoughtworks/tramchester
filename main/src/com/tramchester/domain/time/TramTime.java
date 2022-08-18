@@ -69,8 +69,31 @@ public class TramTime implements Comparable<TramTime> {
         return factory.of(hours, minutes, 0);
     }
 
-    public static TramTime parse(String text) {
+    /***
+     * Parse string with format HH:MM[+24] i.e. 11:45 03:26+24 23:55
+     * @param text string to parse
+     * @return TramTram version or TramTime.Invalid if unable to parse
+     */
+    public static TramTime parse(final String text) {
         return factory.parse(text);
+    }
+
+    /***
+     * Parse string with format HHMM i.e. 1145 0326 2355
+     * @param text the string to parse
+     * @param offset to HHMM part of the string
+     * @return TramTime or TramTime.Invalid
+     */
+    public static TramTime parseBasicFormat(String text, int offset) {
+        final int hour = Factory.parseHour(text, offset);
+        if (hour<0) {
+            return invalid();
+        }
+        final int minute = Factory.parseMinute(text, offset);
+        if (minute<0) {
+            return invalid();
+        }
+        return TramTime.of(hour, minute);
     }
 
     public static TramTime nextDay(int hour, int minute) {
@@ -375,19 +398,20 @@ public class TramTime implements Comparable<TramTime> {
             return tramTimes[offsetDays][hours][minutes];
         }
 
-        private TramTime parse(String text) {
+        private TramTime parse(final String text) {
             int offsetDays = 0;
 
             if (text.endsWith(nextDaySuffix)) {
                 offsetDays = 1;
-                text = text.replace(nextDaySuffix,"");
             }
 
             // Note: indexed parse faster than using String.split
 
-            int firstDivider = text.indexOf(':');
+            int hour = parseHour(text,0);
+            if (hour<0) {
+                return invalidTime;
+            }
 
-            int hour = Integer.parseUnsignedInt(text,0, firstDivider ,10);
             // gtfs standard represents service next day by time > 24:00:00
             if (hour>= HOURS_IN_DAY) {
                 hour = hour - HOURS_IN_DAY;
@@ -398,11 +422,59 @@ public class TramTime implements Comparable<TramTime> {
                 return invalidTime;
             }
 
-            int minutes = Integer.parseUnsignedInt(text, firstDivider+1, firstDivider+3, 10);
-            if (minutes > 59) {
+            final int minutes = parseMinute(text, 1); // offset 1, account for ':'
+            if (minutes > 59 || minutes < 0) {
                 return invalidTime;
             }
             return TramTime.of(hour, minutes, offsetDays);
+        }
+        
+        /***
+         * Parse hours part of a 4 character string
+         * @param text HHMM i.e. 1145 1656
+         * @param offset to start of HHMM part of the string
+         * @return hours part i.e. 11 16
+         */
+        private static int parseHour(final String text, int offset) {
+            if (text.length() < offset+4) {
+                throw new NumberFormatException(String.format("String too short for given offset (%s), got %s", offset, text));
+            }
+            final char firstDigit = text.charAt(offset);
+            final char secondDigit = text.charAt(1+offset);
+
+            if (firstDigit > '2') {
+                return -1;
+            }
+
+            final int hourTenDigit = Character.digit(firstDigit, 10);
+            final int hourUnitsDigit = Character.digit(secondDigit, 10);
+
+            return (hourTenDigit*10) + hourUnitsDigit;
+
+        }
+
+        /***
+         * Parse minutes part of a 4 character string
+         * @param text HHMM i.e. 1145 1656
+         * @param offset to start of HHMM part of the string
+         * @return minutes part i.e. 45 56
+         */
+        private static int parseMinute(final String text, final int offset) {
+            if (text.length() < offset+4) {
+                throw new NumberFormatException(String.format("String too short for given offset (%s), got %s", offset, text));
+            }
+            final char firstDigit = text.charAt(2+offset);
+            final char secondDigit = text.charAt(3+offset);
+
+            if (firstDigit > '5') {
+                return -1;
+            }
+
+            final int minsTenDigit = Character.digit(firstDigit, 10);
+            final int minsUnitsDigit = Character.digit(secondDigit, 10);
+
+            return (minsTenDigit*10) + minsUnitsDigit;
+
         }
 
         public static TramTime Invalid() {
