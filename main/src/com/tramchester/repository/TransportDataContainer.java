@@ -203,7 +203,7 @@ public class TransportDataContainer implements TransportData, WriteableTransport
     }
 
     @Override
-    public void addRouteStation(RouteStation routeStation) {
+    public void addRouteStation(final RouteStation routeStation) {
        routeStations.add(routeStation);
     }
 

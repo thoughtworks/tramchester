@@ -16,7 +16,7 @@ public class AggregateServiceCalendar implements ServiceCalendar {
     private final Set<LocalDate> removed;
     private final boolean cancelled;
     private final DateRange dateRange;
-    private boolean operatesNoDays;
+    private final boolean operatesNoDays;
 
     public AggregateServiceCalendar(Collection<ServiceCalendar> calendars) {
         this.calendars = calendars;
@@ -54,7 +54,7 @@ public class AggregateServiceCalendar implements ServiceCalendar {
         }
     }
 
-    private static LocalDate earliest(LocalDate a, LocalDate b) {
+    private static LocalDate earliest(final LocalDate a, final LocalDate b) {
         if (a.isBefore(b)) {
             return a;
         } else {
@@ -62,7 +62,7 @@ public class AggregateServiceCalendar implements ServiceCalendar {
         }
     }
 
-    private static LocalDate latest(LocalDate a, LocalDate b) {
+    private static LocalDate latest(final LocalDate a, final LocalDate b) {
         if (a.isAfter(b)) {
             return a;
         } else {
@@ -70,12 +70,12 @@ public class AggregateServiceCalendar implements ServiceCalendar {
         }
     }
 
-    private static boolean operatesForAny(Collection<ServiceCalendar> calendars, LocalDate date) {
+    private static boolean operatesForAny(final Collection<ServiceCalendar> calendars, final LocalDate date) {
         return calendars.stream().anyMatch(calendar -> calendar.operatesOn(date));
     }
 
     @Override
-    public boolean operatesOn(LocalDate date) {
+    public boolean operatesOn(final LocalDate date) {
         if (cancelled || operatesNoDays) {
             return false;
         }
@@ -88,11 +88,13 @@ public class AggregateServiceCalendar implements ServiceCalendar {
         if (additional.contains(date)) {
             return true;
         }
+        if (!days.contains(date.getDayOfWeek())) {
+            return false;
+        }
 
-        // contained calendars will have own sets of days operate which will not be valid for whole duration here,
-        // so need to check each contained calendar for this
+        // contained calendars will have own sets of days operating (dayss of week) which will not be valid for
+        // whole duration here, so need to check each contained calendar for final answer
 
-        DayOfWeek dayOfWeek = date.getDayOfWeek();
         return calendars.stream().anyMatch(calendar -> calendar.operatesOn(date));
     }
 

@@ -163,11 +163,6 @@ public class RailTimetableMapper {
             return;
         }
         logger.warn("Skipped " + skipped.size() + " records");
-//        StringBuilder builder = new StringBuilder();
-//        skipped.forEach(skip -> {
-//            builder.append(" ").append(skip.basicScheduleRecord.getUniqueTrainId());
-//        });
-//        logger.warn("Skipped following services with unique train ids " + builder);
     }
 
     private void guardState(State expectedState, RailTimetableRecord record) {
@@ -221,24 +216,23 @@ public class RailTimetableMapper {
     private static class CreatesTransportDataForRail {
         private static final Logger logger = LoggerFactory.getLogger(CreatesTransportDataForRail.class);
 
-        private final RailTransportDataFromFiles.StationsTemporary stations;
+        private final RailTransportDataFromFiles.StationsTemporary stationsTemporary;
         private final WriteableTransportData container;
-//        private final MissingStations missingStations; // stations missing unexpectedly
         private final RailServiceGroups railServiceGroups;
         private final RailRouteIdRepository railRouteIdRepository;
         private final Set<Pair<TrainStatus, TrainCategory>> travelCombinations;
         private final RailConfig config;
-//        private final RailRouteIDBuilder railRouteIDBuilder;
         private final GraphFilterActive filter;
         private final BoundingBox bounds;
 
-        private CreatesTransportDataForRail(RailTransportDataFromFiles.StationsTemporary stations, WriteableTransportData container,
+        private final Map<String, MutablePlatform> platformLookup;
+
+        private CreatesTransportDataForRail(RailTransportDataFromFiles.StationsTemporary stationsTemporary, WriteableTransportData container,
                                             Set<Pair<TrainStatus, TrainCategory>> travelCombinations,
                                             RailConfig config, GraphFilterActive filter, BoundingBox bounds, RailServiceGroups railServiceGroups,
                                             RailRouteIdRepository railRouteIdRepository) {
-            this.stations = stations;
+            this.stationsTemporary = stationsTemporary;
             this.container = container;
-//            this.missingStations = missingStations;
 
             this.travelCombinations = travelCombinations;
             this.config = config;
@@ -246,6 +240,8 @@ public class RailTimetableMapper {
             this.bounds = bounds;
             this.railServiceGroups = railServiceGroups;
             this.railRouteIdRepository = railRouteIdRepository;
+
+            platformLookup = new HashMap<>();
         }
 
         public void consume(RawService rawService, boolean isOverlay, Set<RawService> skipped) {
@@ -275,7 +271,7 @@ public class RailTimetableMapper {
             railServiceGroups.applyCancellation(basicSchedule);
         }
 
-        private boolean createNew(RawService rawService, boolean isOverlay) {
+        private boolean createNew(final RawService rawService, final boolean isOverlay) {
             final BasicSchedule basicSchedule = rawService.basicScheduleRecord;
 
             // assists with diagnosing data issues
@@ -306,7 +302,7 @@ public class RailTimetableMapper {
             final IdFor<Agency> agencyId = mutableAgency.getId();
 
             // Calling points
-            List<Station> allCalledAtStations = getRouteStationCallingPoints(rawService);
+            final List<Station> allCalledAtStations = getRouteStationCallingPoints(rawService);
 
             if (allCalledAtStations.isEmpty() || allCalledAtStations.size()==1) {
                 logger.warn(format("Skip, Not enough calling points (%s) for (%s) without bounds checking",
@@ -314,7 +310,7 @@ public class RailTimetableMapper {
                 return false;
             }
 
-            List<Station> withinBoundsCallingStations = allCalledAtStations.stream().
+            final List<Station> withinBoundsCallingStations = allCalledAtStations.stream().
                     filter(bounds::contained).
                     collect(Collectors.toList());
 
@@ -353,7 +349,7 @@ public class RailTimetableMapper {
             return true;
         }
 
-        private boolean shouldInclude(TransportMode mode) {
+        private boolean shouldInclude(final TransportMode mode) {
             return config.getModes().contains(mode);
         }
 
@@ -367,7 +363,7 @@ public class RailTimetableMapper {
                 logger.warn("Invalid departure time for " + railLocation);
             }
 
-            if (!stations.isLoadedFor(railLocation)) {
+            if (!stationsTemporary.isLoadedFor(railLocation)) {
                 return false;
             }
 
@@ -380,8 +376,9 @@ public class RailTimetableMapper {
             final EnumSet<LocationActivityCode> activity = railLocation.getActivity();
 
             // Platform
-            IdFor<NaptanArea> areaId = station.getAreaId(); // naptan seems only to have rail stations, not platforms
-            MutablePlatform platform = getOrCreatePlatform(station, railLocation, areaId);
+            final IdFor<NaptanArea> areaId = station.getAreaId(); // naptan seems only to have rail stations, not platforms
+            final MutablePlatform platform = getOrCreatePlatform(station, railLocation, areaId);
+
             station.addPlatform(platform);
 
             final boolean doesPickup = LocationActivityCode.doesPickup(activity);
@@ -456,12 +453,12 @@ public class RailTimetableMapper {
 
         private MutableStation findStationFor(RailLocationRecord record) {
             MutableStation station;
-            if (!stations.isLoadedFor(record)) {
+            if (!stationsTemporary.isLoadedFor(record)) {
                 throw new RuntimeException(format("Missing stationid %s encountered for %s", record.getTiplocCode(), record));
             } else {
-                station = stations.getMutableStationFor(record);
+                station = stationsTemporary.getMutableStationFor(record);
             }
-            stations.markAsNeeded(station);
+            stationsTemporary.markAsNeeded(station);
             return station;
         }
 
@@ -507,14 +504,18 @@ public class RailTimetableMapper {
                 platformNumber = "UNK";
             }
 
-            final IdFor<Platform> platformId = StringIdFor.createId(originLocation.getTiplocCode() + ":" + platformNumber);
+            String platformIdString = originLocation.getTiplocCode() + ":" + platformNumber;
+
             final MutablePlatform platform;
-            if (container.hasPlatformId(platformId)) {
-                platform = container.getMutablePlatform(platformId);
+            if (platformLookup.containsKey(platformIdString)) {
+                //platform = container.getMutablePlatform(platformId);
+                platform = platformLookup.get(platformIdString);
             } else {
+                final IdFor<Platform> platformId = StringIdFor.createId(platformIdString);
                 platform = new MutablePlatform(platformId, originStation, originStation.getName(), dataSourceID, platformNumber,
                         areaId, originStation.getLatLong(), originStation.getGridPosition(), originStation.isMarkedInterchange());
                 container.addPlatform(platform);
+                platformLookup.put(platformIdString, platform);
             }
 
             return platform;
@@ -582,7 +583,7 @@ public class RailTimetableMapper {
             List<Station> result = new ArrayList<>();
 
             // add the starting point
-            if (stations.isLoadedFor(rawService.originLocation)) {
+            if (stationsTemporary.isLoadedFor(rawService.originLocation)) {
                 final MutableStation station = findStationFor(rawService.originLocation);
                 result.add(station);
             }
@@ -595,21 +596,21 @@ public class RailTimetableMapper {
                     collect(Collectors.toList());
 
             final List<Station> intermediates = callingRecords.stream().
-                    filter(stations::isLoadedFor).
+                    filter(stationsTemporary::isLoadedFor).
                     map(this::findStationFor).
                     collect(Collectors.toList());
 
             result.addAll(intermediates);
 
             // add the final station
-            if (stations.isLoadedFor(rawService.terminatingLocation)) {
+            if (stationsTemporary.isLoadedFor(rawService.terminatingLocation)) {
                 result.add(findStationFor(rawService.terminatingLocation));
             }
 
             if (!filter.isActive()) {
                 if (callingRecords.size() != intermediates.size()) {
                     Set<String> missing = callingRecords.stream().
-                            filter(record -> !stations.isLoadedFor(record)).
+                            filter(record -> !stationsTemporary.isLoadedFor(record)).
                             map(IntermediateLocation::getTiplocCode).
                             collect(Collectors.toSet());
                     logger.warn(format("Did not match all calling points (got %s of %s) for %s Missing: %s",

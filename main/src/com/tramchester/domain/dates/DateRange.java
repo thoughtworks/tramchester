@@ -19,7 +19,7 @@ public class DateRange {
         return new DateRange(startDate, endDate);
     }
 
-    public boolean contains(LocalDate queryDate) {
+    public boolean contains(final LocalDate queryDate) {
         if (queryDate.equals(startDate) || queryDate.equals(endDate)) {
             return true;
         }

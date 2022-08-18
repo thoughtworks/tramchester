@@ -49,7 +49,7 @@ public class MutableServiceCalendar implements ServiceCalendar {
     }
 
     @Override
-    public boolean operatesOn(LocalDate queryDate) {
+    public boolean operatesOn(final LocalDate queryDate) {
         if (cancelled || isExcluded(queryDate)) {
             return false;
         }
@@ -61,11 +61,11 @@ public class MutableServiceCalendar implements ServiceCalendar {
         return operatesOnIgnoringExcpetionDates(queryDate);
     }
 
-    private boolean isExcluded(LocalDate queryDate) {
+    private boolean isExcluded(final LocalDate queryDate) {
         return removed.contains(queryDate);
     }
 
-    private boolean operatesOnIgnoringExcpetionDates(LocalDate queryDate) {
+    private boolean operatesOnIgnoringExcpetionDates(final LocalDate queryDate) {
         if (dateRange.contains(queryDate)) {
             return days.contains(queryDate.getDayOfWeek());
         }

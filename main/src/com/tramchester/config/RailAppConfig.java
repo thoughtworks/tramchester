@@ -6,6 +6,7 @@ import com.tramchester.domain.reference.TransportMode;
 import io.dropwizard.Configuration;
 
 import java.nio.file.Path;
+import java.util.EnumSet;
 import java.util.Set;
 
 // https://www.raildeliverygroup.com/our-services/rail-data/timetable-data.html
@@ -17,13 +18,13 @@ public class RailAppConfig extends Configuration implements RailConfig {
     private final Path stations;
     private final Path timetable;
     private final String version;
-    private final Set<TransportMode> modes;
+    private final EnumSet<TransportMode> modes;
 
     public RailAppConfig(@JsonProperty(value ="dataPath", required = true) Path dataPath,
                          @JsonProperty(value ="version", required = true)String version,
                          @JsonProperty(value="modes", required = true)Set<TransportMode> modes) {
         this.dataPath = dataPath;
-        this.modes = modes;
+        this.modes = EnumSet.copyOf(modes);
 
         this.version = version;
         final String filename = "ttisf" + version;

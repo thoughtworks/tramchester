@@ -204,7 +204,7 @@ public class RailRouteIdRepository implements ReportsCacheStats {
 
     private IdFor<Route> getOrCreateRoute(IdFor<Agency> agencyId, List<IdFor<Station>> callingStationsIds) {
 
-        List<AgencyCallingPointsWithRouteId> forAgency = idMap.get(agencyId);
+        final List<AgencyCallingPointsWithRouteId> forAgency = idMap.get(agencyId);
 
         // the calling points for agencies are sorted by shortest first at creation time, so here can just take the
         // first matching element
@@ -219,8 +219,8 @@ public class RailRouteIdRepository implements ReportsCacheStats {
 
         if (index==size) {
             // can happen where replacement services for one agency are under another agencies ID i.e. LT
-            IdFor<Route> id = railRouteIDBuilder.getIdFor(agencyId, callingStationsIds);
-            String msg = "No results for " + agencyId + " and " + callingStationsIds + " so create id " + id;
+            final IdFor<Route> id = railRouteIDBuilder.getIdFor(agencyId, callingStationsIds);
+            final String msg = "No results for " + agencyId + " and " + callingStationsIds + " so create id " + id;
             logger.error(msg);
             return id;
         }
@@ -363,8 +363,8 @@ public class RailRouteIdRepository implements ReportsCacheStats {
                     '}';
         }
 
-        public boolean contains(List<IdFor<Station>> callingStationsIds) {
-            StationIdPair otherBeingEnd = getStationIdPair(callingStationsIds);
+        public boolean contains(final List<IdFor<Station>> callingStationsIds) {
+            final StationIdPair otherBeingEnd = getStationIdPair(callingStationsIds);
 
             if (!otherBeingEnd.equals(getBeginEnd())) {
                 return false;
@@ -392,11 +392,6 @@ public class RailRouteIdRepository implements ReportsCacheStats {
             }
 
             return searchIndex == searchSize;
-
-
-//            if (!callingPoints.containsAll(callingStationsIds)) {
-//                return false;
-//            }
         }
     }
 

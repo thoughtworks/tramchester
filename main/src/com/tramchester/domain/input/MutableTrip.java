@@ -66,7 +66,7 @@ public class MutableTrip implements Trip {
         return stopCalls;
     }
 
-    public void addStop(StopCall stop) {
+    public void addStop(final StopCall stop) {
         stopCalls.add(stop);
     }
 

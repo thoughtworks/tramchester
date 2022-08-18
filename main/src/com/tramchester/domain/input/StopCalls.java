@@ -34,8 +34,8 @@ public class StopCalls {
         orderedStopCalls.clear();
     }
 
-    public void add(StopCall stopCall) {
-        Station station = stopCall.getStation();
+    public void add(final StopCall stopCall) {
+        final Station station = stopCall.getStation();
         if (station==null) {
             logger.error("Stop is missing station " + parentTrip.getId());
             return;
@@ -54,7 +54,6 @@ public class StopCalls {
         orderedStopCalls.put(sequenceNumber, stopCall);
         stationIndex.put(station.getId(), sequenceNumber);
         intoNextDay = intoNextDay || stopCall.intoNextDay();
-
     }
 
     public long numberOfCallingPoints() {

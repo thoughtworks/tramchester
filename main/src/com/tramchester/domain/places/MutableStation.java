@@ -243,13 +243,13 @@ public class MutableStation implements Station {
         return this;
     }
 
-    public void addRouteDropOff(Route dropoffFromRoute) {
+    public void addRouteDropOff(final Route dropoffFromRoute) {
         modes.add(dropoffFromRoute.getTransportMode());
         servesAgencies.add(dropoffFromRoute.getAgency());
         servesRoutesDropoff.add(dropoffFromRoute);
     }
 
-    public void addRoutePickUp(Route pickupFromRoute) {
+    public void addRoutePickUp(final Route pickupFromRoute) {
         modes.add(pickupFromRoute.getTransportMode());
         servesAgencies.add(pickupFromRoute.getAgency());
         servesRoutesPickup.add(pickupFromRoute);
