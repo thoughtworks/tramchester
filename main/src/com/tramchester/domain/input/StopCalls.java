@@ -76,7 +76,7 @@ public class StopCalls {
         }
         int index = stationIndex.get(id);
         return orderedStopCalls.get(index);
-        
+
     }
 
     public Stream<StopCall> stream() {

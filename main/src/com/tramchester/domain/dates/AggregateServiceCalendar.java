@@ -4,6 +4,7 @@ import java.io.PrintStream;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 public class AggregateServiceCalendar implements ServiceCalendar {
@@ -15,6 +16,7 @@ public class AggregateServiceCalendar implements ServiceCalendar {
     private final Set<LocalDate> removed;
     private final boolean cancelled;
     private final DateRange dateRange;
+    private boolean operatesNoDays;
 
     public AggregateServiceCalendar(Collection<ServiceCalendar> calendars) {
         this.calendars = calendars;
@@ -25,15 +27,20 @@ public class AggregateServiceCalendar implements ServiceCalendar {
         additional = new HashSet<>();
         days = EnumSet.noneOf(DayOfWeek.class);
         HashSet<LocalDate> allExcluded = new HashSet<>();
+        AtomicInteger noDaysCount = new AtomicInteger(0);
         calendars.forEach(calendar -> {
             days.addAll(calendar.getOperatingDays());
             additional.addAll(calendar.getAdditions());
             allExcluded.addAll(calendar.getRemoved());
+            if (calendar.operatesNoDays()) {
+                noDaysCount.incrementAndGet();
+            }
         });
 
         // only keep an excluded date if it's not available via any of the other contained calendars
         removed = allExcluded.stream().filter(date -> !operatesForAny(calendars, date)).collect(Collectors.toSet());
 
+        operatesNoDays = noDaysCount.get() == calendars.size();
     }
 
     private static DateRange calculateDateRange(Collection<ServiceCalendar> calendars) {
@@ -68,8 +75,25 @@ public class AggregateServiceCalendar implements ServiceCalendar {
     }
 
     @Override
-    public boolean operatesOn(LocalDate queryDate) {
-        return calendars.stream().anyMatch(calendar -> calendar.operatesOn(queryDate));
+    public boolean operatesOn(LocalDate date) {
+        if (cancelled || operatesNoDays) {
+            return false;
+        }
+        if (!dateRange.contains(date)) {
+            return false;
+        }
+        if (removed.contains(date)) {
+            return false;
+        }
+        if (additional.contains(date)) {
+            return true;
+        }
+
+        // contained calendars will have own sets of days operate which will not be valid for whole duration here,
+        // so need to check each contained calendar for this
+
+        DayOfWeek dayOfWeek = date.getDayOfWeek();
+        return calendars.stream().anyMatch(calendar -> calendar.operatesOn(date));
     }
 
     @Override
@@ -79,7 +103,7 @@ public class AggregateServiceCalendar implements ServiceCalendar {
 
     @Override
     public boolean operatesNoDays() {
-       return calendars.stream().allMatch(ServiceCalendar::operatesNoDays);
+       return operatesNoDays;
     }
 
     @Override

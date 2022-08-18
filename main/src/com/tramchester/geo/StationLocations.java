@@ -101,9 +101,16 @@ public class StationLocations implements StationLocationsRepository {
             return;
         }
 
+        Set<GridPosition> insideBox = stationRepository.getActiveStationStream().
+                map(Station::getGridPosition).
+                filter(GridPosition::isValid).
+                filter(box::contained).
+                collect(Collectors.toSet());
+
         Set<BoundingBox> newQuadrants = box.quadrants();
         newQuadrants.forEach(quadrant -> {
-            if (containsAnyStations(box, quadrant)) {
+            if (insideBox.stream().anyMatch(quadrant::contained)) {
+                // TODO if need could inject list of station into recursive step, save recomputing
                 populateQuadrants(quadrant, currentLimit);
             }
         });

@@ -12,7 +12,9 @@ import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.EnumSet;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static java.time.DayOfWeek.THURSDAY;
+import static java.time.DayOfWeek.TUESDAY;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class AggregateServiceCalendarTest {
 
@@ -22,6 +24,10 @@ public class AggregateServiceCalendarTest {
     void setUp() {
         allDays = TestEnv.allDays();
     }
+
+    // TODO Move more route tests into here
+
+    // TODO Scenarios where individual services are cancelled meaning cannot just check daterange at end of operatesOn()
 
     @Test
     void shouldHaveCorrectDateRange() {
@@ -55,6 +61,47 @@ public class AggregateServiceCalendarTest {
 
         AggregateServiceCalendar aggregate4 = new AggregateServiceCalendar(Arrays.asList(calendarA, calendarE));
         assertEquals(DateRange.of(startDate, endDate.plusDays(1)), aggregate4.getDateRange());
+
+    }
+
+    @Test
+    void shouldRespectDateRangesOnServicesWithDaysOfWeek() {
+        final LocalDate startDateA = LocalDate.of(2020, 11, 5);
+        final LocalDate endDateA = LocalDate.of(2020, 11, 25);
+
+        final LocalDate startDateB = endDateA.plusDays(1);
+        final LocalDate endDateB = LocalDate.of(2020, 12, 25);
+
+        MutableServiceCalendar calendarA = new MutableServiceCalendar(DateRange.of(startDateA, endDateA), EnumSet.of(TUESDAY));
+
+        MutableServiceCalendar calendarB = new MutableServiceCalendar(DateRange.of(startDateB, endDateB), EnumSet.of(THURSDAY));
+
+        AggregateServiceCalendar serviceCalendar = new AggregateServiceCalendar(Arrays.asList(calendarA, calendarB));
+
+        assertFalse(serviceCalendar.operatesOn(startDateA.minusDays(1)));
+        assertFalse(serviceCalendar.operatesOn(endDateB.plusDays(1)));
+
+        LocalDate date = startDateA;
+        while (date.isBefore(endDateA)) {
+            DayOfWeek dayOfWeek = date.getDayOfWeek();
+            if (dayOfWeek == TUESDAY) {
+                assertTrue(serviceCalendar.operatesOn(date), "should be available on " + date + " " + dayOfWeek);
+            } else {
+                assertFalse(serviceCalendar.operatesOn(date), "should NOT be available on " + date+ " " + dayOfWeek);
+            }
+            date = date.plusDays(1);
+        }
+
+        date = startDateB;
+        while (date.isBefore(endDateB)) {
+            DayOfWeek dayOfWeek = date.getDayOfWeek();
+            if (date.getDayOfWeek()==THURSDAY) {
+                assertTrue(serviceCalendar.operatesOn(date), "should be available on " + date+ " " + dayOfWeek);
+            } else {
+                assertFalse(serviceCalendar.operatesOn(date), "should NOT be available on " + date+ " " + dayOfWeek);
+            }
+            date = date.plusDays(1);
+        }
 
     }
 }

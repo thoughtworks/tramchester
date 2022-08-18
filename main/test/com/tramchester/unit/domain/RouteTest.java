@@ -191,59 +191,12 @@ class RouteTest {
 
     }
 
-    @Test
-    void shouldRespectDateRangesOnServicesWithDaysOfWeek() {
-        final LocalDate startDateA = LocalDate.of(2020, 11, 5);
-        final LocalDate endDateA = LocalDate.of(2020, 11, 25);
-
-        final LocalDate startDateB = endDateA.plusDays(1);
-        final LocalDate endDateB = LocalDate.of(2020, 12, 25);
-
-        MutableRoute route = createRoute(routeId, "code", "name");
-
-        MutableService serviceA = new MutableService(serviceIdA);
-        MutableServiceCalendar calendarA = new MutableServiceCalendar(DateRange.of(startDateA, endDateA), EnumSet.of(TUESDAY));
-        serviceA.setCalendar(calendarA);
-
-        MutableService serviceB = new MutableService(serviceIdB);
-        MutableServiceCalendar calendarB = new MutableServiceCalendar(DateRange.of(startDateB, endDateB), EnumSet.of(THURSDAY));
-        serviceB.setCalendar(calendarB);
-
-        route.addService(serviceA);
-        route.addService(serviceB);
-
-        assertFalse(route.isAvailableOn(startDateA.minusDays(1)));
-        assertFalse(route.isAvailableOn(endDateB.plusDays(1)));
-
-        LocalDate date = startDateA;
-        while (date.isBefore(endDateA)) {
-            DayOfWeek dayOfWeek = date.getDayOfWeek();
-            if (dayOfWeek == TUESDAY) {
-                assertTrue(route.isAvailableOn(date), "should be available on " + date + " " + dayOfWeek);
-            } else {
-                assertFalse(route.isAvailableOn(date), "should NOT be available on " + date+ " " + dayOfWeek);
-            }
-            date = date.plusDays(1);
-        }
-
-        date = startDateB;
-        while (date.isBefore(endDateB)) {
-            DayOfWeek dayOfWeek = date.getDayOfWeek();
-            if (date.getDayOfWeek()==THURSDAY) {
-                assertTrue(route.isAvailableOn(date), "should be available on " + date+ " " + dayOfWeek);
-            } else {
-                assertFalse(route.isAvailableOn(date), "should NOT be available on " + date+ " " + dayOfWeek);
-            }
-            date = date.plusDays(1);
-        }
-
-    }
+    // See also AggregateServiceCalendarTest
 
     @Test
     void shouldRespectDateRangesOnServicesWithNoAdditionalDayOverlap() {
         final LocalDate startDate = LocalDate.of(2020, 11, 5);
         final LocalDate endDate = LocalDate.of(2020, 11, 25);
-
 
         MutableRoute routeA = createRoute(routeIdA, "code", "nameA");
         MutableRoute routeB = createRoute(routeIdB, "code", "nameB");
