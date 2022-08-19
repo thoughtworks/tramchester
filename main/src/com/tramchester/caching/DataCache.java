@@ -70,6 +70,9 @@ public class DataCache {
     }
 
     private void clearCacheIfDataRefreshed() {
+
+        // TODO Currently clear clache if any data source has refreshed, in future maybe link to Ready dependency chain??
+
         Set<DataSourceID> refreshedSources = config.getRemoteDataSourceConfig().stream().
                 map(RemoteDataSourceConfig::getName).
                 map(DataSourceID::findOrUnknown).

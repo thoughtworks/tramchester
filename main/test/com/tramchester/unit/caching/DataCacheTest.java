@@ -6,10 +6,12 @@ import com.tramchester.config.RemoteDataSourceConfig;
 import com.tramchester.dataexport.DataSaver;
 import com.tramchester.dataimport.RemoteDataRefreshed;
 import com.tramchester.dataimport.data.RouteIndexData;
+import com.tramchester.domain.DataSourceID;
 import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.integration.testSupport.tfgm.TFGMGTFSSourceTestConfig;
 import com.tramchester.testSupport.TestConfig;
 import com.tramchester.testSupport.tfgm.TFGMRemoteDataSourceConfig;
+import org.easymock.EasyMock;
 import org.easymock.EasyMockSupport;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -32,10 +34,11 @@ public class DataCacheTest extends EasyMockSupport  {
 
     private DataCache dataCache;
     private List<RouteIndexData> testItems;
+    private RemoteDataRefreshed remoteDataRefreshed;
 
     @BeforeEach
     void onceBeforeEachTestRuns() {
-        RemoteDataRefreshed remoteDataRefreshed = createMock(RemoteDataRefreshed.class);
+        remoteDataRefreshed = createMock(RemoteDataRefreshed.class);
         dataCache = new DataCache(new LocalTestConfig(cacheFolder), remoteDataRefreshed);
 
         dataCache.clearFiles();
@@ -55,24 +58,51 @@ public class DataCacheTest extends EasyMockSupport  {
     @Test
     void shouldCacheClassToDisk() {
 
-        dataCache.start();
-
         CacheableTestClass cacheableToSave = new CacheableTestClass(testItems);
+        CacheableTestClass cacheableToLoad = new CacheableTestClass();
+
+        EasyMock.expect(remoteDataRefreshed.refreshed(DataSourceID.tfgm)).andStubReturn(false);
 
         replayAll();
 
+        dataCache.start();
         assertFalse(dataCache.has(cacheableToSave));
 
         dataCache.save(cacheableToSave, RouteIndexData.class);
-
         assertTrue(cacheFolder.resolve(cacheableToSave.getFilename()).toFile().exists());
-
         assertTrue(dataCache.has(cacheableToSave));
-
 
         // now load
 
+        dataCache.loadInto(cacheableToLoad, RouteIndexData.class);
+        List<RouteIndexData> results = cacheableToLoad.getItems();
+
+        assertEquals(testItems, results);
+        verifyAll();
+    }
+
+    @Test
+    void shouldCacheClassToDiskStopAndReload() {
+
+        CacheableTestClass cacheableToSave = new CacheableTestClass(testItems);
         CacheableTestClass cacheableToLoad = new CacheableTestClass();
+
+        EasyMock.expect(remoteDataRefreshed.refreshed(DataSourceID.tfgm)).andStubReturn(false);
+
+        replayAll();
+
+        dataCache.start();
+        assertFalse(dataCache.has(cacheableToSave));
+
+        dataCache.save(cacheableToSave, RouteIndexData.class);
+        dataCache.stop();
+
+        ////////////////
+
+        dataCache.start();
+
+        assertTrue(dataCache.has(cacheableToSave));
+
         dataCache.loadInto(cacheableToLoad, RouteIndexData.class);
 
         List<RouteIndexData> results = cacheableToLoad.getItems();
@@ -83,32 +113,26 @@ public class DataCacheTest extends EasyMockSupport  {
     }
 
     @Test
-    void shouldCacheClassToDiskStopAndReload() {
-
-        dataCache.start();
+    void shouldCacheRespectDataUpdated() {
 
         CacheableTestClass cacheableToSave = new CacheableTestClass(testItems);
 
+        EasyMock.expect(remoteDataRefreshed.refreshed(DataSourceID.tfgm)).andReturn(false);
+        EasyMock.expect(remoteDataRefreshed.refreshed(DataSourceID.tfgm)).andReturn(true);
+
         replayAll();
 
+        dataCache.start();
         assertFalse(dataCache.has(cacheableToSave));
 
         dataCache.save(cacheableToSave, RouteIndexData.class);
-
         dataCache.stop();
 
         ////////////////
 
         dataCache.start();
 
-        assertTrue(dataCache.has(cacheableToSave));
-
-        CacheableTestClass cacheableToLoad = new CacheableTestClass();
-        dataCache.loadInto(cacheableToLoad, RouteIndexData.class);
-
-        List<RouteIndexData> results = cacheableToLoad.getItems();
-
-        assertEquals(testItems, results);
+        assertFalse(dataCache.has(cacheableToSave));
 
         verifyAll();
     }
@@ -164,8 +188,7 @@ public class DataCacheTest extends EasyMockSupport  {
 
         @Override
         public List<RemoteDataSourceConfig> getRemoteDataSourceConfig() {
-            return Collections.emptyList();
-//            return Collections.singletonList(new TFGMRemoteDataSourceConfig(Path.of("fake")));
+            return Collections.singletonList(new TFGMRemoteDataSourceConfig(Path.of("fake")));
         }
 
         @Override
