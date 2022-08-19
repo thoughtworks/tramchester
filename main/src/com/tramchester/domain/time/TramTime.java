@@ -14,7 +14,7 @@ import static java.lang.String.format;
 
 
 public class TramTime implements Comparable<TramTime> {
-    private static final String nextDaySuffix = "+24";
+    private static final CharSequence nextDaySuffix = "+24";
     public static final int MINS_IN_HOUR = 60;
     public static final int HOURS_IN_DAY = 24;
 
@@ -74,7 +74,7 @@ public class TramTime implements Comparable<TramTime> {
      * @param text string to parse
      * @return TramTram version or TramTime.Invalid if unable to parse
      */
-    public static TramTime parse(final String text) {
+    public static TramTime parse(final CharSequence text) {
         return factory.parse(text);
     }
 
@@ -84,7 +84,7 @@ public class TramTime implements Comparable<TramTime> {
      * @param offset to HHMM part of the string
      * @return TramTime or TramTime.Invalid
      */
-    public static TramTime parseBasicFormat(String text, int offset) {
+    public static TramTime parseBasicFormat(final CharSequence text, final int offset) {
         final int hour = Factory.parseHour(text, offset);
         if (hour<0) {
             return invalid();
@@ -398,12 +398,29 @@ public class TramTime implements Comparable<TramTime> {
             return tramTimes[offsetDays][hours][minutes];
         }
 
-        private TramTime parse(final String text) {
+        /***
+         * Parse text in format HH:MM[+24]
+         * @param text
+         * @return
+         */
+        private TramTime parse(final CharSequence text) {
             int offsetDays = 0;
 
-            if (text.endsWith(nextDaySuffix)) {
-                offsetDays = 1;
+            final int length = text.length();
+            if (length < 5) {
+                throw new RuntimeException("Provided text is too short '" + text + "'");
             }
+
+//            if (text.endsWith(nextDaySuffix)) {
+//                offsetDays = 1;
+//            }
+            if (length > 5) {
+                CharSequence suffix = text.subSequence(length - 3, length);
+                if (suffix.equals(nextDaySuffix)) {
+                    offsetDays = 1;
+                }
+            }
+
 
             // Note: indexed parse faster than using String.split
 
@@ -428,14 +445,14 @@ public class TramTime implements Comparable<TramTime> {
             }
             return TramTime.of(hour, minutes, offsetDays);
         }
-        
+
         /***
          * Parse hours part of a 4 character string
          * @param text HHMM i.e. 1145 1656
          * @param offset to start of HHMM part of the string
          * @return hours part i.e. 11 16
          */
-        private static int parseHour(final String text, int offset) {
+        private static int parseHour(final CharSequence text, int offset) {
             if (text.length() < offset+4) {
                 throw new NumberFormatException(String.format("String too short for given offset (%s), got %s", offset, text));
             }
@@ -459,7 +476,7 @@ public class TramTime implements Comparable<TramTime> {
          * @param offset to start of HHMM part of the string
          * @return minutes part i.e. 45 56
          */
-        private static int parseMinute(final String text, final int offset) {
+        private static int parseMinute(final CharSequence text, final int offset) {
             if (text.length() < offset+4) {
                 throw new NumberFormatException(String.format("String too short for given offset (%s), got %s", offset, text));
             }

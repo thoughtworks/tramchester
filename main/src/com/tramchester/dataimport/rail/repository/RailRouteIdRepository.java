@@ -325,12 +325,12 @@ public class RailRouteIdRepository implements ReportsCacheStats {
         }
 
         @NotNull
-        private static StationIdPair getStationIdPair(List<IdFor<Station>> callingPoints) {
+        private static StationIdPair getStationIdPair(final List<IdFor<Station>> callingPoints) {
             if (callingPoints.size()<2) {
                 throw new RuntimeException("Not enough calling points for " + callingPoints);
             }
-            IdFor<Station> first = callingPoints.get(0);
-            IdFor<Station> second = callingPoints.get(callingPoints.size() - 1);
+            final IdFor<Station> first = callingPoints.get(0);
+            final IdFor<Station> second = callingPoints.get(callingPoints.size() - 1);
             return StationIdPair.of(first, second);
         }
 

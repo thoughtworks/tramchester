@@ -7,14 +7,14 @@ import com.tramchester.dataimport.UnzipFetchedData;
 import com.tramchester.dataimport.rail.records.RailTimetableRecord;
 import com.tramchester.dataimport.rail.records.SkippedRecord;
 import com.tramchester.dataimport.rail.records.UnknownRecord;
+import org.apache.commons.lang3.CharSet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
-import java.io.BufferedReader;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.Reader;
+import java.io.*;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.util.stream.Stream;
 
@@ -48,9 +48,9 @@ public class LoadRailTimetableRecords implements ProvidesRailTimetableRecords {
 
         logger.info("Load from " + filePath.toAbsolutePath());
         try {
-            Reader reader = new FileReader(filePath.toString());
+            Reader reader = new FileReader(filePath.toString(), StandardCharsets.US_ASCII);
             return load(reader);
-        } catch (FileNotFoundException e) {
+        } catch (IOException e) {
             String msg = "Unable to load from file " + filePath.toAbsolutePath();
             logger.error(msg, e);
             throw new RuntimeException(msg, e);
@@ -89,8 +89,8 @@ public class LoadRailTimetableRecords implements ProvidesRailTimetableRecords {
         return new UnknownRecord(line);
     }
 
-    private RailRecordType getRecordTypeFor(String line) {
-        return RailRecordType.parse(line.substring(0, 2));
+    private RailRecordType getRecordTypeFor(CharSequence line) {
+        return RailRecordType.parse(line.subSequence(0,2));
     }
 
 }

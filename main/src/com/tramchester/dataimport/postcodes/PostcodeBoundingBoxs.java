@@ -160,11 +160,13 @@ public class PostcodeBoundingBoxs {
 
         @Override
         public void cacheTo(DataSaver<PostcodeHintData> saver) {
-            List<PostcodeHintData> hints = theMap.entrySet().stream().
-                    map((entry) -> new PostcodeHintData(entry.getKey(), entry.getValue())).
-                    collect(Collectors.toList());
+            saver.open();
 
-            saver.save(hints);
+            theMap.entrySet().stream().
+                    map((entry) -> new PostcodeHintData(entry.getKey(), entry.getValue())).
+                    forEach(saver::write);
+
+            saver.close();
         }
 
         @Override

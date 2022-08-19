@@ -2,12 +2,7 @@ package com.tramchester.dataimport.rail.records.reference;
 
 // https://wiki.openraildata.com/index.php?title=Activity_codes
 
-import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
-import org.checkerframework.checker.units.qual.N;
-
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.EnumSet;
 
 public enum LocationActivityCode implements EnumMap.HasCodes {
     StopsToTakeUpAndSetDownPassengers("T"),
@@ -123,15 +118,18 @@ public enum LocationActivityCode implements EnumMap.HasCodes {
     }
 
     public static boolean doesStop(EnumSet<LocationActivityCode> activity) {
-        return !Sets.intersection(activity, stops).isEmpty();
+        EnumSet<LocationActivityCode> copyOfStops = EnumSet.copyOf(stops);
+        return copyOfStops.removeAll(activity);
     }
 
     public static boolean doesPickup(EnumSet<LocationActivityCode> activity) {
-        return !Sets.intersection(activity, pickUps).isEmpty();
+        EnumSet<LocationActivityCode> copyOfPickups = EnumSet.copyOf(pickUps);
+        return copyOfPickups.removeAll(activity);
     }
 
     public static boolean doesDropOff(EnumSet<LocationActivityCode> activity) {
-        return !Sets.intersection(activity, dropOffs).isEmpty();
+        EnumSet<LocationActivityCode> copyOfDropoffs = EnumSet.copyOf(dropOffs);
+        return copyOfDropoffs.removeAll(activity);
     }
 
     //@Override

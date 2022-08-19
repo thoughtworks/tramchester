@@ -380,9 +380,11 @@ public class TransportDataFromFilesTramTest {
     @Test
     void shouldHaveServicesRunningAtReasonableTimesNDaysAhead() {
 
-        // temporary 23 -> 22, 6->7
-        int latestHour = 22;
+        int latestHour = 23;
         int earlistHour = 7;
+
+        // TODO ought to be cable to compute this gap from all of the service calendars??
+        LocalDate summer2022BankHoliday = LocalDate.of(2022,8,29);
 
         int maxwait = 25;
 
@@ -390,7 +392,7 @@ public class TransportDataFromFilesTramTest {
             LocalDate date = TestEnv.testDay().plusDays(day);
 
             TramServiceDate tramServiceDate = new TramServiceDate(date);
-            if (!tramServiceDate.isChristmasPeriod()) {
+            if (!tramServiceDate.isChristmasPeriod() && !summer2022BankHoliday.equals(date)) {
 
                 Set<Service> servicesOnDate = transportData.getServicesOnDate(date);
 

@@ -77,30 +77,31 @@ public class BasicSchedule implements RailTimetableRecord {
     }
 
     public static BasicSchedule parse(String text, ProvidesNow providesNow) {
-        String transactionTypeRaw = RecordHelper.extract(text, 3, 4);
+        char transactionTypeRaw = text.charAt(2); //RecordHelper.extract(text, 3, 4);
         RailRecordTransactionType transactionType = RailRecordTransactionType.parse(transactionTypeRaw);
         String uniqueTrainId = RecordHelper.extract(text, 4, 9+1);
         String headcode = RecordHelper.extract(text, 33, 36+1);
         LocalDate startDate = RecordHelper.extractDate(text, 10, 15+1, providesNow);
         LocalDate endDate = RecordHelper.extractDate(text, 16, 21+1, providesNow);
-        EnumSet<DayOfWeek> daysOfWeek = extractDays(text, 22, 28+1);
+        EnumSet<DayOfWeek> daysOfWeek = extractDays(text, 21);
         char stpIndicatorRaw = text.charAt(80-1);
         char trainStatusRaw = text.charAt(29);
         String trainCategoryRaw = RecordHelper.extract(text, 31, 32+1);
+        TrainCategory trainCategory = TrainCategory.getFor(trainCategoryRaw);
         return new BasicSchedule(transactionType, uniqueTrainId, startDate, endDate, daysOfWeek,
                 ShortTermPlanIndicator.getFor(stpIndicatorRaw), headcode,
-                TrainStatus.getFor(trainStatusRaw), TrainCategory.getFor(trainCategoryRaw));
+                TrainStatus.getFor(trainStatusRaw), trainCategory);
     }
 
-    private static EnumSet<DayOfWeek> extractDays(String line, int begin, int end) {
-        String days = RecordHelper.extract(line, begin, end);
-        if (days.length()!=7) {
-            logger.error("Not enough days of the week");
-        }
+    private static EnumSet<DayOfWeek> extractDays(CharSequence line, int begin) {
+//        String days = RecordHelper.extract(line, begin, end);
+//        if (days.length()!=7) {
+//            logger.error("Not enough days of the week");
+//        }
 
         Set<DayOfWeek> result = new HashSet<>();
         for (int day = 0; day < 7; day++) {
-            if (days.charAt(day) == '1') {
+            if (line.charAt(day+begin) == '1') {
                 result.add(DayOfWeek.of(day+1));
             }
         }

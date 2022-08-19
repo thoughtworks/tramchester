@@ -388,20 +388,24 @@ public class RouteCostMatrix {
 
         @Override
         public void cacheTo(DataSaver<CostsPerDegreeData> saver) {
-            List<CostsPerDegreeData> dataItems = new ArrayList<>();
+
+            saver.open();
+
+            //List<CostsPerDegreeData> dataItems = new ArrayList<>();
             for (int index = 0; index < size; index++) {
                 IndexedBitSet bitSet = bitSets[index];
                 for (int routeIndex = 0; routeIndex < numRoutes; routeIndex++) {
                     BitSet bitSetForRow = bitSet.getBitSetForRow(routeIndex).getContained();
                     if (bitSetForRow.cardinality()>0) {
                         List<Integer> bitsSetForRow = bitSetForRow.stream().boxed().collect(Collectors.toList());
-                        dataItems.add(new CostsPerDegreeData(index, routeIndex, bitsSetForRow));
+                        CostsPerDegreeData item = new CostsPerDegreeData(index, routeIndex, bitsSetForRow);
+                        saver.write(item);
+                        //ataItems.add(item);
                     }
                 }
             }
-            // todo maybe this list gets too big?
-            saver.save(dataItems);
-            dataItems.clear();
+
+            saver.close();
         }
 
         @Override
@@ -410,7 +414,7 @@ public class RouteCostMatrix {
         }
 
         @Override
-        public void loadFrom(Stream<CostsPerDegreeData> stream) throws DataCache.CacheLoadException {
+        public void loadFrom(Stream<CostsPerDegreeData> stream) {
             stream.forEach(item -> {
                 int index = item.getIndex();
                 int routeIndex = item.getRouteIndex();

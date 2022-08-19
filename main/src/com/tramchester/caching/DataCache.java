@@ -1,14 +1,13 @@
 package com.tramchester.caching;
 
-import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.dataformat.csv.CsvMapper;
 import com.fasterxml.jackson.module.afterburner.AfterburnerModule;
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.config.RemoteDataSourceConfig;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.dataexport.DataSaver;
-import com.tramchester.dataimport.loader.files.TransportDataFromCSVFile;
 import com.tramchester.dataimport.RemoteDataRefreshed;
+import com.tramchester.dataimport.loader.files.TransportDataFromCSVFile;
 import com.tramchester.domain.DataSourceID;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
@@ -26,6 +25,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static com.fasterxml.jackson.databind.SerializationFeature.CLOSE_CLOSEABLE;
 import static java.lang.String.format;
 
 @LazySingleton
@@ -43,6 +43,7 @@ public class DataCache {
         this.config = config;
         this.cacheFolder = config.getCacheFolder().toAbsolutePath();
         this.remoteDataRefreshed = remoteDataRefreshed;
+
         this.mapper = CsvMapper.builder().addModule(new AfterburnerModule()).build();
     }
 
@@ -126,7 +127,7 @@ public class DataCache {
             return;
         }
 
-        logger.warn("Clearing cache");
+        logger.warn("Clearing cache " + cacheFolder.toAbsolutePath());
         try {
             List<Path> files = filesInCache();
             for (Path file : files) {

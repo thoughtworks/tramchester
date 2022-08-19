@@ -10,10 +10,8 @@ import org.slf4j.LoggerFactory;
 
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
-import java.io.BufferedReader;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.Reader;
+import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
@@ -71,9 +69,9 @@ public class ProvidesRailStationRecords {
 
         logger.info("Load from " + filePath.toAbsolutePath());
         try {
-            Reader reader = new FileReader(filePath.toString());
+            Reader reader = new FileReader(filePath.toString(),  StandardCharsets.US_ASCII);
             return load(reader);
-        } catch (FileNotFoundException e) {
+        } catch (IOException e) {
             String msg = "Unable to load from file " + filePath.toAbsolutePath();
             logger.error(msg, e);
             throw new RuntimeException(msg, e);

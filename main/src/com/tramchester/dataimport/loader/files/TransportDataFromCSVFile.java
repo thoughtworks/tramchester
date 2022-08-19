@@ -32,6 +32,9 @@ public class TransportDataFromCSVFile<T,R extends T> implements TransportDataFro
     }
 
     private TransportDataFromCSVFile(Path filePath, Class<R> readerType, List<String> columns, CsvMapper mapper) {
+
+        // TODO Set file encoding explicitly here?
+
         this.filePath = filePath.toAbsolutePath();
 
         CsvSchema schema;

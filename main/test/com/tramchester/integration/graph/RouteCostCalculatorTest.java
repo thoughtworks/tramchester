@@ -72,10 +72,9 @@ class RouteCostCalculatorTest {
     @Test
     void shouldComputeCostsForMediaCityAshton() throws InvalidDurationException {
         assertMinutesEquals(55, routeCostCalculator.getAverageCostBetween(txn, mediaCity, Ashton.from(stationRepository), date));
-        assertMinutesEquals(52, routeCostCalculator.getAverageCostBetween(txn,  Ashton.from(stationRepository), mediaCity, date));
+        assertMinutesEquals(53, routeCostCalculator.getAverageCostBetween(txn,  Ashton.from(stationRepository), mediaCity, date));
     }
 
-    @Summer2022
     @Test
     void shouldComputeSimpleCostBetweenStationsAltyBury() throws InvalidDurationException {
         // changes regularly with timetable updates
@@ -84,9 +83,8 @@ class RouteCostCalculatorTest {
         final Duration buryToAlty = routeCostCalculator.getAverageCostBetween(txn, bury, altrincham, date);
         final Duration altyToBury = routeCostCalculator.getAverageCostBetween(txn, altrincham, bury, date);
 
-        // summer 2022 +14 and +19
-        assertMinutesEquals(63+14, buryToAlty);
-        assertMinutesEquals(63+19, altyToBury);
+        assertMinutesEquals(63, buryToAlty);
+        assertMinutesEquals(63, altyToBury);
     }
 
     @Test

@@ -499,16 +499,14 @@ public class RailTimetableMapper {
         }
 
         private MutablePlatform getOrCreatePlatform(Station originStation, RailLocationRecord originLocation, IdFor<NaptanArea> areaId) {
-            String platformNumber = originLocation.getPlatform();
-            if (platformNumber.isBlank()) {
-                platformNumber = "UNK";
-            }
 
-            String platformIdString = originLocation.getTiplocCode() + ":" + platformNumber;
+            final String originLocationPlatform = originLocation.getPlatform();
+            final String platformNumber = originLocationPlatform.isEmpty() ? "UNK" : originLocationPlatform;
+
+            String platformIdString = String.join(":", originLocation.getTiplocCode(), platformNumber);
 
             final MutablePlatform platform;
             if (platformLookup.containsKey(platformIdString)) {
-                //platform = container.getMutablePlatform(platformId);
                 platform = platformLookup.get(platformIdString);
             } else {
                 final IdFor<Platform> platformId = StringIdFor.createId(platformIdString);

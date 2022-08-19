@@ -98,11 +98,11 @@ class RouteIndex implements DataCache.Cacheable<RouteIndexData> {
 
     @Override
     public void cacheTo(DataSaver<RouteIndexData> saver) {
-        List<RouteIndexData> indexData = mapRouteIdToIndex.entrySet().stream().
+        saver.open();
+        mapRouteIdToIndex.entrySet().stream().
                 map(entry -> new RouteIndexData(entry.getValue(), entry.getKey())).
-                collect(Collectors.toList());
-        saver.save(indexData);
-        indexData.clear();
+                forEach(saver::write);
+        saver.close();
     }
 
     @Override

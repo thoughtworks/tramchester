@@ -5,6 +5,7 @@ import com.tramchester.domain.time.TramTime;
 import org.apache.commons.lang3.NotImplementedException;
 
 import java.util.EnumSet;
+import java.util.Locale;
 
 public abstract class OriginOrTerminatingLocation {
 
@@ -24,8 +25,8 @@ public abstract class OriginOrTerminatingLocation {
         // NOTE: for terminating and originating locations a suffix is added and docs give total length as 8
         // but this causes stations not to be found, so use length of 7 here
         String tiplocCode = RecordHelper.extract(text, 3, 10);
-        TramTime tramTime = RecordHelper.extractTime(text, 15, 18+1);
-        String platform = RecordHelper.extract(text, 20, 22+1);
+        TramTime tramTime = RecordHelper.extractTime(text, 15);
+        String platform = RecordHelper.extract(text, 20, 22+1).trim();
         return builder.create(tiplocCode, tramTime, platform);
     }
 

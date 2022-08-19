@@ -51,21 +51,17 @@ public class IntermediateLocation implements RailLocationRecord {
 
     public static IntermediateLocation parse(final String text) {
         final String tiplocCode = RecordHelper.extract(text, 3, 10); // tiploc is 7 long
-        final TramTime scheduledArrival = RecordHelper.extractTime(text, 10,14);
-        final TramTime scheduledDepart = RecordHelper.extractTime(text, 15, 19);
-        final TramTime passingTime = RecordHelper.extractTime(text, 20, 23+1);
-        final TramTime publicArrival = getPublicTime(text, 25, 28 + 1);
-        final TramTime publicDeparture = getPublicTime(text, 29, 32+1);
-        final String platform = RecordHelper.extract(text, 34, 36+1);
+        final TramTime scheduledArrival = RecordHelper.extractTime(text, 10);
+        final TramTime scheduledDepart = RecordHelper.extractTime(text, 15);
+        final TramTime passingTime = RecordHelper.extractTime(text, 20);
+        final TramTime publicArrival = RecordHelper.extractTime(text, 25);
+        final TramTime publicDeparture = RecordHelper.extractTime(text, 29);
+        final String platform = RecordHelper.extract(text, 34, 36+1).trim();
 
         final EnumSet<LocationActivityCode> activity = LocationActivityCode.parse(RecordHelper.extract(text,43,54));
 
         return new IntermediateLocation(tiplocCode, scheduledArrival, scheduledDepart, publicArrival, publicDeparture,
                 platform, passingTime, activity);
-    }
-
-    private static TramTime getPublicTime(String text, int begin, int end) {
-        return RecordHelper.extractTime(text, begin, end);
     }
 
     public String getTiplocCode() {

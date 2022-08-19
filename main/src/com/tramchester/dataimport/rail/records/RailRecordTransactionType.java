@@ -3,12 +3,12 @@ package com.tramchester.dataimport.rail.records;
 import java.util.HashMap;
 
 public enum RailRecordTransactionType {
-    New("N"),
-    Delete("D"),
-    Revise("R"),
-    Unknown("unknown");
+    New('N'),
+    Delete('D'),
+    Revise('R'),
+    Unknown('Z');
 
-    private static final HashMap<String, RailRecordTransactionType> map = new HashMap<>();
+    private static final HashMap<Character, RailRecordTransactionType> map = new HashMap<>();
 
     static {
         for(RailRecordTransactionType transactionType : RailRecordTransactionType.values()) {
@@ -16,15 +16,15 @@ public enum RailRecordTransactionType {
         }
     }
 
-    private final String code;
+    private final char code;
 
-    RailRecordTransactionType(String code) {
+    RailRecordTransactionType(char code) {
         this.code = code;
     }
 
-    public static RailRecordTransactionType parse(String text) {
-        if (map.containsKey(text)) {
-            return map.get(text);
+    public static RailRecordTransactionType parse(char theChar) {
+        if (map.containsKey(theChar)) {
+            return map.get(theChar);
         }
         return Unknown;
     }

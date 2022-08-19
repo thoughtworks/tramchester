@@ -58,10 +58,9 @@ public class RecordHelper {
      * Parse time in format HHMM embedded within larger string
      * @param text the text to extract time from
      * @param begin begin index of time
-     * @param end end index of time
      * @return TramTime or TramTime.Invalid
      */
-    public static TramTime extractTime(final String text, final int begin, final int end) {
+    public static TramTime extractTime(final String text, final int begin) {
         //final String rawTime = text.substring(begin, end); //performance of substring is terrible
         if (text.isBlank()) {
             return TramTime.invalid();

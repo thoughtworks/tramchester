@@ -16,7 +16,7 @@ public class RecordHelperTest {
     @Test
     void shouldParseTime() {
         String text = "xxxx1145yyyy";
-        TramTime result = RecordHelper.extractTime(text, 4, 8);
+        TramTime result = RecordHelper.extractTime(text, 4);
 
         assertEquals(TramTime.of(11,45), result);
     }

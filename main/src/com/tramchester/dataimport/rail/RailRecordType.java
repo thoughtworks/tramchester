@@ -16,9 +16,9 @@ public enum RailRecordType {
     Trailer("ZZ"),
     Unknown("UnknownCode");
 
-    private final String code;
+    private final CharSequence code;
 
-    private static final HashMap<String, RailRecordType> map = new HashMap<>();
+    private static final HashMap<CharSequence, RailRecordType> map = new HashMap<>();
 
     static {
         for(RailRecordType recordType : RailRecordType.values()) {
@@ -26,15 +26,11 @@ public enum RailRecordType {
         }
     }
 
-    RailRecordType(String code) {
+    RailRecordType(CharSequence code) {
         this.code = code;
     }
 
-    public String code() {
-        return code;
-    }
-
-    public static RailRecordType parse(String code) {
+    public static RailRecordType parse(CharSequence code) {
         if (map.containsKey(code)) {
             return map.get(code);
         }
