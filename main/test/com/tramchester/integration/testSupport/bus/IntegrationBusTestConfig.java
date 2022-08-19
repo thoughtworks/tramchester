@@ -9,7 +9,7 @@ import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.integration.testSupport.GraphDBTestConfig;
 import com.tramchester.integration.testSupport.IntegrationTestConfig;
 import com.tramchester.integration.testSupport.tfgm.TFGMGTFSSourceTestConfig;
-import com.tramchester.integration.testSupport.tfgm.TFGMRemoteDataSourceConfig;
+import com.tramchester.testSupport.tfgm.TFGMRemoteDataSourceConfig;
 import com.tramchester.testSupport.TestEnv;
 
 import java.nio.file.Path;

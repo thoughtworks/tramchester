@@ -75,6 +75,7 @@ public class DataCache {
                 map(DataSourceID::findOrUnknown).
                 filter(remoteDataRefreshed::refreshed).collect(Collectors.toSet());
         if (refreshedSources.isEmpty()) {
+            logger.info("Found no updated data sources");
             return;
         }
         logger.warn("Some data sources (" + refreshedSources+ ") have refreshed, clearing cache " + cacheFolder);

@@ -4,12 +4,12 @@ import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.domain.Journey;
 import com.tramchester.domain.JourneyRequest;
+import com.tramchester.domain.dates.TramServiceDate;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.places.Location;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.TransportStage;
 import com.tramchester.domain.reference.TransportMode;
-import com.tramchester.domain.dates.TramServiceDate;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.domain.transportStages.WalkingFromStationStage;
 import com.tramchester.domain.transportStages.WalkingToStationStage;
@@ -20,7 +20,6 @@ import com.tramchester.resources.LocationJourneyPlanner;
 import com.tramchester.testSupport.LocationJourneyPlannerTestFacade;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.TramStations;
-import com.tramchester.testSupport.testTags.Summer2022;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.*;
 import org.neo4j.graphdb.Transaction;
@@ -265,7 +264,6 @@ class LocationJourneyPlannerTest {
         assertTrue(nearStationIds.contains(stages.get(lastStageIndex).getFirstStation().getId()));
     }
 
-    @Summer2022
     @Test
     void shouldFindJourneyWithWalkingEndOfDay() {
         final JourneyRequest request = new JourneyRequest(new TramServiceDate(when), TramTime.of(23, 0),
@@ -274,8 +272,7 @@ class LocationJourneyPlannerTest {
         Set<Journey> results = planner.quickestRouteForLocation(nearAltrincham, Deansgate, request, 3);
         assertFalse(results.isEmpty());
 
-        // summer 2022 +1
-        results.forEach(journey -> assertEquals(2+1, journey.getStages().size()));
+        results.forEach(journey -> assertEquals(2, journey.getStages().size()));
     }
 
     @Test

@@ -2,11 +2,14 @@ package com.tramchester.unit.caching;
 
 import com.tramchester.caching.DataCache;
 import com.tramchester.config.GTFSSourceConfig;
+import com.tramchester.config.RemoteDataSourceConfig;
 import com.tramchester.dataexport.DataSaver;
 import com.tramchester.dataimport.RemoteDataRefreshed;
 import com.tramchester.dataimport.data.RouteIndexData;
 import com.tramchester.domain.id.StringIdFor;
+import com.tramchester.integration.testSupport.tfgm.TFGMGTFSSourceTestConfig;
 import com.tramchester.testSupport.TestConfig;
+import com.tramchester.testSupport.tfgm.TFGMRemoteDataSourceConfig;
 import org.easymock.EasyMockSupport;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -14,6 +17,7 @@ import org.junit.jupiter.api.Test;
 
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
@@ -156,6 +160,12 @@ public class DataCacheTest extends EasyMockSupport  {
         @Override
         public Path getCacheFolder() {
             return cacheFolder;
+        }
+
+        @Override
+        public List<RemoteDataSourceConfig> getRemoteDataSourceConfig() {
+            return Collections.emptyList();
+//            return Collections.singletonList(new TFGMRemoteDataSourceConfig(Path.of("fake")));
         }
 
         @Override

@@ -284,7 +284,6 @@ public class RouteToRouteCostsTest {
         assertEquals(0, result.getMin());
     }
 
-    @Summer2022
     @Test
     void shouldFindHighestHopCountForTwoStationsSameRoute() {
         Station start = TramStations.Victoria.from(stationRepository);
@@ -293,8 +292,7 @@ public class RouteToRouteCostsTest {
 
         assertEquals(0, result.getMin());
 
-        // summer 2022  +1
-        assertEquals(1+1, result.getMax());
+        assertEquals(1, result.getMax());
     }
 
     @Test

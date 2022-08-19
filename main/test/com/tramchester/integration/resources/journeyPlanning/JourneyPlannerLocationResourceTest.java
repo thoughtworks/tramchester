@@ -118,7 +118,6 @@ class JourneyPlannerLocationResourceTest {
         }
     }
 
-    @Summer2022
     @Test
     void planRouteAllowingForWalkingTimeArriveBy() {
         TramTime queryTime = TramTime.of(20, 9);
@@ -137,11 +136,10 @@ class JourneyPlannerLocationResourceTest {
         assertTrue(firstDepartureTime.isBefore(query));
 
         List<StageDTO> stages = earliest.getStages();
-        //+1
-        assertEquals(2+1, stages.size());
+
+        assertEquals(2, stages.size());
     }
 
-    @Summer2022
     @Test
     void shouldPlanRouteEndingInAWalk() {
         final TramTime queryTime = TramTime.of(20, 9);
@@ -151,8 +149,8 @@ class JourneyPlannerLocationResourceTest {
             assertTrue(journeyDTO.getFirstDepartureTime().isAfter(queryTime.toDate(when)));
 
             List<StageDTO> stages = journeyDTO.getStages();
-            // +1
-            assertEquals(2+1, stages.size(), stages.toString());
+
+            assertEquals(2, stages.size(), stages.toString());
             assertEquals(TransportMode.Tram, stages.get(0).getMode());
 
             int lastIndex = stages.size()-1;
@@ -162,14 +160,12 @@ class JourneyPlannerLocationResourceTest {
         });
     }
 
-    @Summer2022
     @Test
     void shouldPlanRouteEndingInAWalkArriveBy() {
         TramTime queryTime = TramTime.of(19, 9);
         Set<JourneyDTO> results = validateJourneyToLocation(Deansgate, nearAltrincham, queryTime, true);
 
-        // +1
-        int numberOfStages = 2+1;
+        int numberOfStages = 2;
 
         List<JourneyDTO> journeys = results.stream().
                 filter(journeyDTO -> journeyDTO.getStages().size() == numberOfStages).collect(Collectors.toList());
@@ -238,14 +234,12 @@ class JourneyPlannerLocationResourceTest {
         assertEquals(LocalDateTime.of(when,LocalTime.of(9,3)), stage.getExpectedArrivalTime());
     }
 
-    @Summer2022
     @Test
     void reproduceIssueNearAltyToAshton()  {
         Set<JourneyDTO> journeys = validateJourneyFromLocation(nearAltrincham, TramStations.Ashton,
                 TramTime.of(19,47), false, when);
 
-        // +1
-        journeys.forEach(journey -> assertEquals(3+1, journey.getStages().size()));
+        journeys.forEach(journey -> assertEquals(3, journey.getStages().size()));
     }
 
     @Test

@@ -1,4 +1,4 @@
-package com.tramchester.integration.testSupport.tfgm;
+package com.tramchester.testSupport.tfgm;
 
 import com.tramchester.config.RemoteDataSourceConfig;
 import com.tramchester.domain.DataSourceID;

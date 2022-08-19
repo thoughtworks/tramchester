@@ -8,11 +8,10 @@ import com.tramchester.geo.BoundingBox;
 import com.tramchester.integration.testSupport.rail.RailRemoteDataSourceConfig;
 import com.tramchester.integration.testSupport.rail.TestRailConfig;
 import com.tramchester.integration.testSupport.tfgm.TFGMGTFSSourceTestConfig;
-import com.tramchester.integration.testSupport.tfgm.TFGMRemoteDataSourceConfig;
+import com.tramchester.testSupport.tfgm.TFGMRemoteDataSourceConfig;
 import com.tramchester.testSupport.AdditionalTramInterchanges;
 import com.tramchester.testSupport.TestEnv;
 import org.junit.jupiter.api.Disabled;
-import org.junit.jupiter.api.condition.DisabledIfEnvironmentVariable;
 
 import java.nio.file.Path;
 import java.util.*;
