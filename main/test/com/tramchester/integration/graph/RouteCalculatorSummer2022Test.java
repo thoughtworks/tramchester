@@ -4,6 +4,8 @@ import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.*;
+import com.tramchester.domain.dates.TramDate;
+import com.tramchester.domain.dates.TramDateSet;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.input.Trip;
@@ -42,7 +44,7 @@ class RouteCalculatorSummer2022Test {
 
     private static final int TXN_TIMEOUT = 5*60;
     public static final String ONE_DAY_SERVICE = "SID00215";
-    public static final LocalDate START_OF_WORKS = LocalDate.of(2022, 7, 16);
+    public static final TramDate START_OF_WORKS = TramDate.of(2022, 7, 16);
 
     private static ComponentContainer componentContainer;
     private static TramchesterConfig testConfig;
@@ -163,11 +165,11 @@ class RouteCalculatorSummer2022Test {
     @Disabled
     @Test
     void shouldReproIssueDuringSummer2022ClosureEccToVictoriaAfterClosureDate() {
-        List<LocalDate> failureDates = new ArrayList<>();
+        TramDateSet failureDates = new TramDateSet();
 
         for (int days = 1; days < 14; days++) {
 
-            LocalDate date = START_OF_WORKS.plusDays(days);
+            TramDate date = START_OF_WORKS.plusDays(days);
             JourneyRequest journeyRequest = new JourneyRequest(date, TramTime.of(8,5), false,
                     3, maxJourneyDuration, 5, Collections.emptySet());
 
@@ -336,13 +338,15 @@ class RouteCalculatorSummer2022Test {
         //assertTrue(eccles.servesRoutePickup(replacementRoute, when, timeRange));
         assertTrue(availabilityRepository.isAvailable(eccles, when, timeRange));
 
-        Set<Route> pickupRoutesOnStartOfWorks = availabilityRepository.getPickupRoutesFor(eccles, START_OF_WORKS, timeRange);
+        LocalDate startOfWorks = START_OF_WORKS.toLocalDate();
+
+        Set<Route> pickupRoutesOnStartOfWorks = availabilityRepository.getPickupRoutesFor(eccles, startOfWorks, timeRange);
         assertEquals(1, pickupRoutesOnStartOfWorks.size());
         assertTrue(pickupRoutesOnStartOfWorks.contains(replacementRoute));
 
-        assertFalse(availabilityRepository.getPickupRoutesFor(eccles, START_OF_WORKS.minusDays(1), timeRange).contains(replacementRoute));
+        assertFalse(availabilityRepository.getPickupRoutesFor(eccles, startOfWorks.minusDays(1), timeRange).contains(replacementRoute));
 
-        Set<Route> pickupRoutesDuringWorks = availabilityRepository.getPickupRoutesFor(eccles, START_OF_WORKS.plusDays(1), timeRange);
+        Set<Route> pickupRoutesDuringWorks = availabilityRepository.getPickupRoutesFor(eccles, startOfWorks.plusDays(1), timeRange);
         assertEquals(1, pickupRoutesDuringWorks.size(), pickupRoutesDuringWorks.toString());
         assertTrue(pickupRoutesDuringWorks.contains(replacementRoute));
 

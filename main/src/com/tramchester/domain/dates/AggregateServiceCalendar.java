@@ -2,18 +2,18 @@ package com.tramchester.domain.dates;
 
 import java.io.PrintStream;
 import java.time.DayOfWeek;
-import java.time.LocalDate;
-import java.util.*;
+import java.util.Collection;
+import java.util.EnumSet;
+import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.stream.Collectors;
 
 public class AggregateServiceCalendar implements ServiceCalendar {
 
     private final Collection<ServiceCalendar> calendars;
 
     private final EnumSet<DayOfWeek> days;
-    private final Set<LocalDate> additional;
-    private final Set<LocalDate> removed;
+    private final TramDateSet additional;
+    private final TramDateSet removed;
     private final boolean cancelled;
     private final DateRange dateRange;
     private final boolean operatesNoDays;
@@ -24,9 +24,9 @@ public class AggregateServiceCalendar implements ServiceCalendar {
         dateRange = calculateDateRange(calendars);
         cancelled = calendars.stream().allMatch(ServiceCalendar::isCancelled);
 
-        additional = new HashSet<>();
+        additional = new TramDateSet();
         days = EnumSet.noneOf(DayOfWeek.class);
-        HashSet<LocalDate> allExcluded = new HashSet<>();
+        TramDateSet allExcluded = new TramDateSet();
         final AtomicInteger noDaysCount = new AtomicInteger(0);
         calendars.forEach(calendar -> {
             days.addAll(calendar.getOperatingDays());
@@ -38,16 +38,16 @@ public class AggregateServiceCalendar implements ServiceCalendar {
         });
 
         // only keep an excluded date if it's not available via any of the other contained calendars
-        removed = allExcluded.stream().filter(date -> !operatesForAny(calendars, date)).collect(Collectors.toSet());
+        removed = allExcluded.stream().filter(date -> !operatesForAny(calendars, date)).collect(TramDateSet.collector());
 
         operatesNoDays = noDaysCount.get() == calendars.size();
     }
 
     private static DateRange calculateDateRange(Collection<ServiceCalendar> calendars) {
-        final Optional<LocalDate> begin = calendars.stream().map(calendar -> calendar.getDateRange().getStartDate()).
+        final Optional<TramDate> begin = calendars.stream().map(calendar -> calendar.getDateRange().getStartDate()).
                 reduce(AggregateServiceCalendar::earliest);
 
-        final Optional<LocalDate> end = calendars.stream().map(calendar -> calendar.getDateRange().getEndDate()).
+        final Optional<TramDate> end = calendars.stream().map(calendar -> calendar.getDateRange().getEndDate()).
                 reduce(AggregateServiceCalendar::latest);
 
         if (begin.isPresent() && end.isPresent()) {
@@ -57,7 +57,7 @@ public class AggregateServiceCalendar implements ServiceCalendar {
         }
     }
 
-    private static LocalDate earliest(final LocalDate a, final LocalDate b) {
+    private static TramDate earliest(final TramDate a, final TramDate b) {
         if (a.isBefore(b)) {
             return a;
         } else {
@@ -65,7 +65,7 @@ public class AggregateServiceCalendar implements ServiceCalendar {
         }
     }
 
-    private static LocalDate latest(final LocalDate a, final LocalDate b) {
+    private static TramDate latest(final TramDate a, final TramDate b) {
         if (a.isAfter(b)) {
             return a;
         } else {
@@ -73,7 +73,7 @@ public class AggregateServiceCalendar implements ServiceCalendar {
         }
     }
 
-    private static boolean operatesForAny(final Collection<ServiceCalendar> calendars, final LocalDate date) {
+    private static boolean operatesForAny(final Collection<ServiceCalendar> calendars, final TramDate date) {
         return calendars.stream().anyMatch(calendar -> calendar.operatesOn(date));
     }
 
@@ -83,7 +83,7 @@ public class AggregateServiceCalendar implements ServiceCalendar {
     }
 
     @Override
-    public boolean operatesOnAny(Set<LocalDate> dates) {
+    public boolean operatesOnAny(TramDateSet dates) {
         if (dates.isEmpty()) {
             return false;
         }
@@ -91,7 +91,7 @@ public class AggregateServiceCalendar implements ServiceCalendar {
     }
 
     @Override
-    public boolean operatesNoneOf(Set<LocalDate> dates) {
+    public boolean operatesNoneOf(TramDateSet dates) {
         if (dates.isEmpty()) {
             return false;
         }
@@ -99,7 +99,7 @@ public class AggregateServiceCalendar implements ServiceCalendar {
     }
 
     @Override
-    public boolean operatesOn(final LocalDate date) {
+    public boolean operatesOn(final TramDate date) {
         if (cancelled || operatesNoDays) {
             return false;
         }
@@ -111,7 +111,7 @@ public class AggregateServiceCalendar implements ServiceCalendar {
             return true;
         }
 
-        if (!dateRange.contains(TramDate.of(date))) {
+        if (!dateRange.contains(date)) {
             return false;
         }
         if (!days.contains(date.getDayOfWeek())) {
@@ -140,12 +140,12 @@ public class AggregateServiceCalendar implements ServiceCalendar {
     }
 
     @Override
-    public Set<LocalDate> getAdditions() {
+    public TramDateSet getAdditions() {
         return additional;
     }
 
     @Override
-    public Set<LocalDate> getRemoved() {
+    public TramDateSet getRemoved() {
         return removed;
     }
 

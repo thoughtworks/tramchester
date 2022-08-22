@@ -6,6 +6,7 @@ import com.tramchester.dataimport.rail.records.reference.ShortTermPlanIndicator;
 import com.tramchester.dataimport.rail.records.reference.TrainCategory;
 import com.tramchester.dataimport.rail.records.reference.TrainStatus;
 import com.tramchester.domain.dates.DateRange;
+import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.time.ProvidesLocalNow;
 import com.tramchester.domain.time.ProvidesNow;
 import org.junit.jupiter.api.BeforeEach;
@@ -42,8 +43,8 @@ public class BasicScheduleTest {
         assertEquals(RailRecordTransactionType.New, basicSchedule.getTransactionType());
         assertEquals("C53290", basicSchedule.getUniqueTrainId());
         DateRange dateRange = basicSchedule.getDateRange();
-        assertEquals(LocalDate.of(2017, 5, 24), dateRange.getStartDate());
-        assertEquals(LocalDate.of(2017, 9, 20), dateRange.getEndDate());
+        assertEquals(TramDate.of(2017, 5, 24), dateRange.getStartDate());
+        assertEquals(TramDate.of(2017, 9, 20), dateRange.getEndDate());
 
         Set<DayOfWeek> daysOfWeek = basicSchedule.getDaysOfWeek();
         assertEquals(1, daysOfWeek.size());
@@ -63,8 +64,8 @@ public class BasicScheduleTest {
         assertEquals(RailRecordTransactionType.New, basicSchedule.getTransactionType());
         assertEquals("G54660", basicSchedule.getUniqueTrainId());
         DateRange dateRange = basicSchedule.getDateRange();
-        assertEquals(LocalDate.of(2021, 12, 12), dateRange.getStartDate());
-        assertEquals(LocalDate.of(2021, 12, 19), dateRange.getEndDate());
+        assertEquals(TramDate.of(2021, 12, 12), dateRange.getStartDate());
+        assertEquals(TramDate.of(2021, 12, 19), dateRange.getEndDate());
 
         Set<DayOfWeek> daysOfWeek = basicSchedule.getDaysOfWeek();
         assertEquals(1, daysOfWeek.size());
@@ -84,8 +85,8 @@ public class BasicScheduleTest {
         assertEquals(RailRecordTransactionType.New, basicSchedule.getTransactionType());
         assertEquals("P20861", basicSchedule.getUniqueTrainId());
         DateRange dateRange = basicSchedule.getDateRange();
-        assertEquals(LocalDate.of(2021, 12, 14), dateRange.getStartDate());
-        assertEquals(LocalDate.of(2022, 5, 14), dateRange.getEndDate());
+        assertEquals(TramDate.of(2021, 12, 14), dateRange.getStartDate());
+        assertEquals(TramDate.of(2022, 5, 14), dateRange.getEndDate());
 
         assertEquals(TrainStatus.Ship, basicSchedule.getTrainStatus());
         assertEquals(TrainCategory.Unknown, basicSchedule.getTrainCategory());
@@ -101,8 +102,8 @@ public class BasicScheduleTest {
         assertEquals(RailRecordTransactionType.New, basicSchedule.getTransactionType());
         assertEquals("C61191", basicSchedule.getUniqueTrainId());
         DateRange dateRange = basicSchedule.getDateRange();
-        assertEquals(LocalDate.of(2021, 5, 16), dateRange.getStartDate());
-        assertEquals(LocalDate.of(2021, 12, 5), dateRange.getEndDate());
+        assertEquals(TramDate.of(2021, 5, 16), dateRange.getStartDate());
+        assertEquals(TramDate.of(2021, 12, 5), dateRange.getEndDate());
 
         assertEquals(TrainStatus.PassengerAndParcels, basicSchedule.getTrainStatus());
         assertEquals(TrainCategory.LondonUndergroundOrMetroService, basicSchedule.getTrainCategory());

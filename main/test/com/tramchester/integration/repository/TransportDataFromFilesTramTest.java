@@ -9,7 +9,7 @@ import com.tramchester.dataimport.loader.PopulateTransportDataFromSources;
 import com.tramchester.dataimport.loader.TransportDataReader;
 import com.tramchester.dataimport.loader.TransportDataReaderFactory;
 import com.tramchester.domain.*;
-import com.tramchester.domain.dates.ServiceCalendar;
+import com.tramchester.domain.dates.*;
 import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdSet;
@@ -21,9 +21,7 @@ import com.tramchester.domain.places.LocationType;
 import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
-import com.tramchester.domain.dates.DateRange;
 import com.tramchester.domain.time.TimeRange;
-import com.tramchester.domain.dates.TramServiceDate;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
 import com.tramchester.repository.InterchangeRepository;
@@ -281,7 +279,7 @@ public class TransportDataFromFilesTramTest {
 
         assertFalse(results.isEmpty(), "no services next saturday");
         long onCorrectDate = results.stream().
-                filter(svc -> svc.getCalendar().operatesOn(nextSaturday)).count();
+                filter(svc -> svc.getCalendar().operatesOn(TramDate.of(nextSaturday))).count();
 
         assertEquals(results.size(), onCorrectDate, "should all be on the specified date");
 
@@ -526,13 +524,13 @@ public class TransportDataFromFilesTramTest {
 
         assertEquals(1,  config.getGTFSDataSource().size(), "expected only one data source");
         GTFSSourceConfig sourceConfig = config.getGTFSDataSource().get(0);
-        Set<LocalDate> excludedByConfig = sourceConfig.getNoServices();
+        TramDateSet excludedByConfig = TramDateSet.of(sourceConfig.getNoServices());
 
         applyToCurrentServices.forEach(exception -> {
             Service service = transportData.getServiceById(exception.getServiceId());
             ServiceCalendar calendar = service.getCalendar();
 
-            LocalDate exceptionDate = exception.getDate();
+            TramDate exceptionDate = exception.getDate();
             int exceptionType = exception.getExceptionType();
             if (exceptionType == CalendarDateData.ADDED) {
                 if (excludedByConfig.contains(exceptionDate)) {
@@ -563,7 +561,7 @@ public class TransportDataFromFilesTramTest {
         Set<Service> services = toMediaCity.stream().
                 map(Trip::getService).collect(Collectors.toSet());
 
-        LocalDate nextTuesday = TestEnv.testDay();
+        TramDate nextTuesday = TestEnv.testTramDay();
 
         Set<Service> onDay = services.stream().
                 filter(service -> service.getCalendar().operatesOn(nextTuesday)).
@@ -629,7 +627,7 @@ public class TransportDataFromFilesTramTest {
         assertEquals(DayOfWeek.MONDAY, aMonday.getDayOfWeek());
 
         IdSet<Service> mondayServices = allServices.stream()
-                .filter(svc -> svc.getCalendar().operatesOn(aMonday))
+                .filter(svc -> svc.getCalendar().operatesOn(TramDate.of(aMonday)))
                 .collect(IdSet.collector());
 
         // reduce the trips to the ones for the right route on the monday by filtering by service ID

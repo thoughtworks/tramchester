@@ -2,7 +2,9 @@ package com.tramchester.domain.dates;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.Objects;
+import java.util.stream.Stream;
 
 public class TramDate {
     private final long epochDays;
@@ -70,5 +72,40 @@ public class TramDate {
 
     public long toEpochDay() {
         return epochDays;
+    }
+
+    public String format(DateTimeFormatter dateFormatter) {
+        return LocalDate.ofEpochDay(epochDays).format(dateFormatter);
+    }
+
+    public static TramDate parse(String text, DateTimeFormatter formatter) {
+        LocalDate date = LocalDate.parse(text, formatter);
+        return new TramDate(date.toEpochDay());
+    }
+
+    @Override
+    public String toString() {
+        LocalDate date = LocalDate.ofEpochDay(epochDays);
+        return "TramDate{" +
+                "epochDays=" + epochDays +
+                ", dayOfWeek=" + dayOfWeek +
+                ", date=" + date +
+                '}';
+    }
+
+    public int compareTo(TramDate other) {
+        return Long.compare(this.epochDays, other.epochDays);
+    }
+
+    public TramDate minusWeeks(int weeks) {
+        return of(toLocalDate().minusWeeks(weeks));
+    }
+
+    public TramDate plusWeeks(int weeks) {
+        return of (toLocalDate().plusWeeks(weeks));
+    }
+
+    public Stream<TramDate> datesUntil(TramDate endDate) {
+        return toLocalDate().datesUntil(endDate.toLocalDate()).map(date -> new TramDate(date.toEpochDay()));
     }
 }

@@ -2,6 +2,7 @@ package com.tramchester.unit.dataimport.data;
 
 import com.tramchester.dataimport.data.CalendarData;
 import com.tramchester.domain.dates.DateRange;
+import com.tramchester.domain.dates.TramDate;
 import com.tramchester.unit.dataimport.ParserTestCSVHelper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -34,8 +35,8 @@ class CalendarDataParserTest extends ParserTestCSVHelper<CalendarData> {
         assertThat(calendarData.isSaturday()).isEqualTo(false);
         assertThat(calendarData.isSunday()).isEqualTo(false);
         DateRange dateRange = calendarData.getDateRange();
-        assertThat(dateRange.getStartDate()).isEqualTo(LocalDate.of(2014, 10, 20));
-        assertThat(dateRange.getEndDate()).isEqualTo(LocalDate.of(2014, 12, 19));
+        assertThat(dateRange.getStartDate()).isEqualTo(TramDate.of(2014, 10, 20));
+        assertThat(dateRange.getEndDate()).isEqualTo(TramDate.of(2014, 12, 19));
     }
 
 

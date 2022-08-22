@@ -1,9 +1,6 @@
 package com.tramchester.unit.domain;
 
-import com.tramchester.domain.dates.DateRange;
-import com.tramchester.domain.dates.MutableServiceCalendar;
-import com.tramchester.domain.dates.ServiceCalendar;
-import com.tramchester.domain.dates.TramServiceDate;
+import com.tramchester.domain.dates.*;
 import com.tramchester.testSupport.TestEnv;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Assertions;
@@ -23,16 +20,16 @@ class MutableServiceCalendarTest {
     @Test
     void shouldSetStartDateAndEndDate() {
 
-        LocalDate startDate = LocalDate.of(2014, 10, 5);
-        LocalDate endDate = LocalDate.of(2014, 12, 25);
+        TramDate startDate = TramDate.of(2014, 10, 5);
+        TramDate endDate = TramDate.of(2014, 12, 25);
 
         ServiceCalendar serviceCalendar = new MutableServiceCalendar(new DateRange(startDate, endDate), TestEnv.allDays());
 
         assertTrue(serviceCalendar.operatesOn(startDate));
         assertTrue(serviceCalendar.operatesOn(endDate));
-        assertTrue(serviceCalendar.operatesOn(LocalDate.of(2014, 11, 30)));
+        assertTrue(serviceCalendar.operatesOn(TramDate.of(2014, 11, 30)));
 
-        assertFalse(serviceCalendar.operatesOn(LocalDate.of(2016, 11, 30)));
+        assertFalse(serviceCalendar.operatesOn(TramDate.of(2016, 11, 30)));
         assertFalse(serviceCalendar.operatesOn(startDate.minusDays(1)));
         assertFalse(serviceCalendar.operatesOn(endDate.plusDays(1)));
     }
@@ -40,12 +37,12 @@ class MutableServiceCalendarTest {
     @Test
     void shouldCancel() {
 
-        LocalDate startDate = LocalDate.of(2014, 10, 5);
-        LocalDate endDate = LocalDate.of(2014, 12, 25);
+        TramDate startDate = TramDate.of(2014, 10, 5);
+        TramDate endDate = TramDate.of(2014, 12, 25);
 
         MutableServiceCalendar serviceCalendar = new MutableServiceCalendar(new DateRange(startDate, endDate), TestEnv.allDays());
 
-        assertTrue(serviceCalendar.operatesOn(LocalDate.of(2014, 11, 30)));
+        assertTrue(serviceCalendar.operatesOn(TramDate.of(2014, 11, 30)));
 
         serviceCalendar.cancel();
 
@@ -56,12 +53,12 @@ class MutableServiceCalendarTest {
 
     @Test
     void shouldCheckIfServiceHasExceptionDatesRemoved() {
-        LocalDate startDate = LocalDate.of(2020, 10, 5);
-        LocalDate endDate = LocalDate.of(2020, 12, 10);
+        TramDate startDate = TramDate.of(2020, 10, 5);
+        TramDate endDate = TramDate.of(2020, 12, 10);
 
         MutableServiceCalendar serviceCalendar = new MutableServiceCalendar(new DateRange(startDate, endDate), TestEnv.allDays());
 
-        LocalDate queryDate = LocalDate.of(2020, 12, 1);
+        TramDate queryDate = TramDate.of(2020, 12, 1);
         assertTrue(serviceCalendar.operatesOn(queryDate));
         serviceCalendar.excludeDate(queryDate);
         assertFalse(serviceCalendar.operatesOn(queryDate));
@@ -70,10 +67,10 @@ class MutableServiceCalendarTest {
     @Test
     void shouldCheckIfServiceHasExceptionDatesAdded() {
 
-        LocalDate testDay = TestEnv.testDay();
+        TramDate testDay = TestEnv.testTramDay();
 
-        LocalDate startDate = testDay.minusWeeks(1);
-        LocalDate endDate = startDate.plusWeeks(4);
+        TramDate startDate = testDay.minusWeeks(1);
+        TramDate endDate = startDate.plusWeeks(4);
 
 
         DayOfWeek dayOfWeek = testDay.getDayOfWeek();
@@ -81,7 +78,7 @@ class MutableServiceCalendarTest {
 
         assertTrue(serviceCalendar.operatesOn(testDay));
 
-        LocalDate outsidePeriod = testDay.plusWeeks(5);
+        TramDate outsidePeriod = testDay.plusWeeks(5);
         assertFalse(serviceCalendar.operatesOn(outsidePeriod));
 
         // same day
@@ -89,7 +86,7 @@ class MutableServiceCalendarTest {
         assertTrue(serviceCalendar.operatesOn(outsidePeriod));
 
         // different day - TODO GTFS spec really not so clean on this, but assume we should allow as specifically included
-        LocalDate outsidePeriodDiffDayOfWeek = outsidePeriod.plusDays(1);
+        TramDate outsidePeriodDiffDayOfWeek = outsidePeriod.plusDays(1);
         assertNotEquals(dayOfWeek, outsidePeriodDiffDayOfWeek.getDayOfWeek());
 
         serviceCalendar.includeExtraDate(outsidePeriodDiffDayOfWeek);
@@ -99,21 +96,23 @@ class MutableServiceCalendarTest {
     @Test
     void shouldSetWeekendDaysOnService() {
 
-        final LocalDate startDate = TestEnv.LocalNow().toLocalDate();
-        final LocalDate endDate = TestEnv.testDay().plusWeeks(4);
+        TramDate testDay = TestEnv.testTramDay();
+
+        final TramDate startDate = TramDate.of(TestEnv.LocalNow().toLocalDate());
+        final TramDate endDate = testDay.plusWeeks(4);
 
         ServiceCalendar serviceCalendar = new MutableServiceCalendar(startDate, endDate,
                 DayOfWeek.SATURDAY, DayOfWeek.SUNDAY);
 
-        LocalDate localDate = startDate;
+        TramDate localDate = startDate;
         int offset = 0;
         while (new TramServiceDate(localDate).isChristmasPeriod()) {
             localDate = startDate.plusWeeks(offset);
         }
 
-        Assertions.assertFalse(serviceCalendar.operatesOn(TestEnv.testDay().plusWeeks(offset)));
-        assertTrue(serviceCalendar.operatesOn(TestEnv.nextSaturday().plusWeeks(offset)));
-        assertTrue(serviceCalendar.operatesOn(TestEnv.nextSunday().plusWeeks(offset)));
+        Assertions.assertFalse(serviceCalendar.operatesOn(testDay.plusWeeks(offset)));
+        assertTrue(serviceCalendar.operatesOn(TramDate.of(TestEnv.nextSaturday().plusWeeks(offset))));
+        assertTrue(serviceCalendar.operatesOn(TramDate.of(TestEnv.nextSunday().plusWeeks(offset))));
     }
 
     @Test

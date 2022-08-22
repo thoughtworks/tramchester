@@ -3,6 +3,7 @@ package com.tramchester.unit.domain.dates;
 import com.tramchester.domain.dates.AggregateServiceCalendar;
 import com.tramchester.domain.dates.DateRange;
 import com.tramchester.domain.dates.MutableServiceCalendar;
+import com.tramchester.domain.dates.TramDate;
 import com.tramchester.testSupport.TestEnv;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -66,11 +67,11 @@ public class AggregateServiceCalendarTest {
 
     @Test
     void shouldRespectDateRangesOnServicesWithDaysOfWeek() {
-        final LocalDate startDateA = LocalDate.of(2020, 11, 5);
-        final LocalDate endDateA = LocalDate.of(2020, 11, 25);
+        final TramDate startDateA = TramDate.of(2020, 11, 5);
+        final TramDate endDateA = TramDate.of(2020, 11, 25);
 
-        final LocalDate startDateB = endDateA.plusDays(1);
-        final LocalDate endDateB = LocalDate.of(2020, 12, 25);
+        final TramDate startDateB = endDateA.plusDays(1);
+        final TramDate endDateB = TramDate.of(2020, 12, 25);
 
         MutableServiceCalendar calendarA = new MutableServiceCalendar(DateRange.of(startDateA, endDateA), EnumSet.of(TUESDAY));
 
@@ -81,7 +82,7 @@ public class AggregateServiceCalendarTest {
         assertFalse(serviceCalendar.operatesOn(startDateA.minusDays(1)));
         assertFalse(serviceCalendar.operatesOn(endDateB.plusDays(1)));
 
-        LocalDate date = startDateA;
+        TramDate date = startDateA;
         while (date.isBefore(endDateA)) {
             DayOfWeek dayOfWeek = date.getDayOfWeek();
             if (dayOfWeek == TUESDAY) {

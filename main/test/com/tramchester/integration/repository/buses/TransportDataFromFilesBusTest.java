@@ -12,6 +12,8 @@ import com.tramchester.domain.Agency;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.Service;
 import com.tramchester.domain.dates.ServiceCalendar;
+import com.tramchester.domain.dates.TramDate;
+import com.tramchester.domain.dates.TramDateSet;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.id.StringIdFor;
@@ -168,7 +170,7 @@ class TransportDataFromFilesBusTest {
 
         assertFalse(results.isEmpty());
         long onCorrectDate = results.stream().
-                filter(svc -> svc.getCalendar().operatesOn(nextSaturday)).count();
+                filter(svc -> svc.getCalendar().operatesOn(TramDate.of(nextSaturday))).count();
         assertEquals(results.size(), onCorrectDate, "should all be on the specified date");
 
         LocalDate noBusesDate = TestEnv.LocalNow().plusMonths(36).toLocalDate();
@@ -232,13 +234,13 @@ class TransportDataFromFilesBusTest {
 
         assertEquals(1,  config.getGTFSDataSource().size(), "expected only one data source");
         GTFSSourceConfig sourceConfig = config.getGTFSDataSource().get(0);
-        Set<LocalDate> excludedByConfig = sourceConfig.getNoServices();
+        TramDateSet excludedByConfig = TramDateSet.of(sourceConfig.getNoServices());
 
         applyToCurrentServices.forEach(exception -> {
             Service service = transportData.getServiceById(exception.getServiceId());
             ServiceCalendar calendar = service.getCalendar();
 
-            LocalDate exceptionDate = exception.getDate();
+            TramDate exceptionDate = exception.getDate();
             int exceptionType = exception.getExceptionType();
             if (exceptionType == CalendarDateData.ADDED) {
                 if (excludedByConfig.contains(exceptionDate)) {

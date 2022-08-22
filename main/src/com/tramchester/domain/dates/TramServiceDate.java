@@ -16,6 +16,10 @@ public class TramServiceDate {
         this.date = date;
     }
 
+    public TramServiceDate(TramDate date) {
+        this.date = date.toLocalDate();
+    }
+
     public LocalDate getDate() {
         return date;
     }

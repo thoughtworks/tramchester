@@ -7,7 +7,6 @@ import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.RepeatedTest;
 import org.junit.jupiter.api.Test;
 
-import java.time.LocalDate;
 import java.util.concurrent.ThreadLocalRandom;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -16,8 +15,8 @@ public class DateRangeTest {
 
     @Test
     void shouldCreateCorrectly() {
-        LocalDate startDate = LocalDate.of(2014, 10, 5);
-        LocalDate endDate = LocalDate.of(2014, 12, 25);
+        TramDate startDate = TramDate.of(2014, 10, 5);
+        TramDate endDate = TramDate.of(2014, 12, 25);
 
         DateRange range = DateRange.of(startDate, endDate);
         assertEquals(startDate, range.getStartDate());
@@ -47,8 +46,8 @@ public class DateRangeTest {
 
     @Test
     void shouldHaveOverlapAllDays() {
-        LocalDate startDate = LocalDate.of(2014, 10, 5);
-        LocalDate endDate = LocalDate.of(2014, 12, 25);
+        TramDate startDate = TramDate.of(2014, 10, 5);
+        TramDate endDate = TramDate.of(2014, 12, 25);
 
         DateRange dateRange = DateRange.of(startDate, endDate);
         assertTrue(dateRange.overlapsWith(DateRange.of(startDate, endDate)));

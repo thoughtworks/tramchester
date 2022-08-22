@@ -2,6 +2,8 @@ package com.tramchester.domain.places;
 
 import com.tramchester.domain.Route;
 import com.tramchester.domain.Service;
+import com.tramchester.domain.dates.TramDate;
+import com.tramchester.domain.dates.TramDateSet;
 import com.tramchester.domain.reference.TransportMode;
 
 import java.time.LocalDate;
@@ -32,7 +34,7 @@ class RouteAndService {
         if (!route.isAvailableOn(date)) {
             return false;
         }
-        return service.getCalendar().operatesOn(date);
+        return service.getCalendar().operatesOn(TramDate.of(date));
     }
 
     public Route getRoute() {

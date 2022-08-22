@@ -8,7 +8,7 @@ import java.util.Set;
 
 public interface ServiceCalendar {
 
-    boolean operatesOn(LocalDate queryDate);
+    boolean operatesOn(TramDate queryDate);
 
     void summariseDates(PrintStream printStream);
 
@@ -32,15 +32,15 @@ public interface ServiceCalendar {
      */
     EnumSet<DayOfWeek> getOperatingDays();
 
-    Set<LocalDate> getAdditions();
+    TramDateSet getAdditions();
 
-    Set<LocalDate> getRemoved();
+    TramDateSet getRemoved();
 
     boolean isCancelled();
 
     boolean anyDateOverlaps(ServiceCalendar other);
 
-    boolean operatesOnAny(Set<LocalDate> dates);
+    boolean operatesOnAny(TramDateSet dates);
 
-    boolean operatesNoneOf(Set<LocalDate> dates);
+    boolean operatesNoneOf(TramDateSet dates);
 }

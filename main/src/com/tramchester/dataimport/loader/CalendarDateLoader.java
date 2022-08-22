@@ -5,6 +5,8 @@ import com.tramchester.dataimport.data.CalendarDateData;
 import com.tramchester.domain.MutableService;
 import com.tramchester.domain.Service;
 import com.tramchester.domain.dates.MutableServiceCalendar;
+import com.tramchester.domain.dates.TramDate;
+import com.tramchester.domain.dates.TramDateSet;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdMap;
 import com.tramchester.domain.id.IdSet;
@@ -13,8 +15,6 @@ import com.tramchester.repository.WriteableTransportData;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.time.LocalDate;
-import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Stream;
 
@@ -34,7 +34,7 @@ public class CalendarDateLoader {
     }
 
     public void load(Stream<CalendarDateData> calendarsDates, IdMap<Service> services) {
-        Set<LocalDate> noServices = gtfsSourceConfig.getNoServices();
+        TramDateSet noServices = TramDateSet.of(gtfsSourceConfig.getNoServices());
         logger.info("Loading calendar dates "+ services.size() +" services with no services on " + noServices);
         IdSet<Service> missingCalendarDates = services.getIds();
         AtomicInteger countCalendarDates = new AtomicInteger(0);
@@ -64,7 +64,7 @@ public class CalendarDateLoader {
         logger.info("Loaded " + countCalendarDates.get() + " calendar date entries");
     }
 
-    private void addNoServicesDatesToAllCalendars(IdMap<Service> services, Set<LocalDate> noServices, IdSet<Service> missingCalendarDates) {
+    private void addNoServicesDatesToAllCalendars(IdMap<Service> services, TramDateSet noServices, IdSet<Service> missingCalendarDates) {
         if (noServices.isEmpty()) {
             return;
         }
@@ -81,9 +81,9 @@ public class CalendarDateLoader {
 
     }
 
-    private void addException(CalendarDateData date, MutableServiceCalendar calendar, IdFor<Service> serviceId, Set<LocalDate> noServices) {
+    private void addException(CalendarDateData date, MutableServiceCalendar calendar, IdFor<Service> serviceId, TramDateSet noServices) {
         int exceptionType = date.getExceptionType();
-        LocalDate exceptionDate = date.getDate();
+        TramDate exceptionDate = date.getDate();
         if (exceptionType == CalendarDateData.ADDED) {
             if (!noServices.contains(exceptionDate)) {
                 calendar.includeExtraDate(exceptionDate);
@@ -97,8 +97,8 @@ public class CalendarDateLoader {
         }
     }
 
-    private void logDateIssue(LocalDate exceptionDate, Set<LocalDate> noServices) {
-        LocalDate currentDate = providesNow.getDate();
+    private void logDateIssue(TramDate exceptionDate, TramDateSet noServices) {
+        TramDate currentDate = providesNow.getTramDate();
         String msg = format("Ignoring extra date %s as configured as no service date from %s", exceptionDate, noServices);
         if (currentDate.isAfter(exceptionDate)) {
             logger.debug(msg);

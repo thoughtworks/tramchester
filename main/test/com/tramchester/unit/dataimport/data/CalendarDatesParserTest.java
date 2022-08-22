@@ -1,6 +1,7 @@
 package com.tramchester.unit.dataimport.data;
 
 import com.tramchester.dataimport.data.CalendarDateData;
+import com.tramchester.domain.dates.TramDate;
 import com.tramchester.unit.dataimport.ParserTestCSVHelper;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -24,7 +25,7 @@ class CalendarDatesParserTest extends ParserTestCSVHelper<CalendarDateData> {
         CalendarDateData result = parse(example);
 
         assertIdEquals("Serv000001", result.getServiceId());
-        Assertions.assertEquals(LocalDate.of(2020, 8, 31), result.getDate());
+        Assertions.assertEquals(TramDate.of(2020, 8, 31), result.getDate());
         Assertions.assertEquals(2, result.getExceptionType());
     }
 

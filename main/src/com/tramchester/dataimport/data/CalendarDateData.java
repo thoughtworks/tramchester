@@ -2,6 +2,7 @@ package com.tramchester.dataimport.data;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.tramchester.domain.Service;
+import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.StringIdFor;
 
@@ -18,7 +19,7 @@ public class CalendarDateData extends ParsesDate {
 
     @JsonProperty("service_id")
     private String serviceId;
-    private LocalDate date;
+    private TramDate date;
 
     @JsonProperty("exception_type")
     private int exceptionType;
@@ -29,14 +30,14 @@ public class CalendarDateData extends ParsesDate {
 
     @JsonProperty("date")
     private void setDate(String text) {
-        date = parseDate(text);
+        date = parseTramDate(text);
     }
 
     public IdFor<Service> getServiceId() {
         return StringIdFor.createId(serviceId);
     }
 
-    public LocalDate getDate() {
+    public TramDate getDate() {
         return date;
     }
 

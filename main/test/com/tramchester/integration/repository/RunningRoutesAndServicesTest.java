@@ -74,9 +74,9 @@ public class RunningRoutesAndServicesTest {
 
     @Test
     void shouldConsiderServicesFromDayBeforeIfTheyAreStillRunningTheFollowingDay() {
-        LocalDate when = TestEnv.testDay();
+        TramDate when = TestEnv.testTramDay();
 
-        RunningRoutesAndServices.FilterForDate filter = runningRoutesAndServices.getFor(when);
+        RunningRoutesAndServices.FilterForDate filter = runningRoutesAndServices.getFor(when.toLocalDate());
 
         Route altyToBuryRoute = helper.getOneRoute(KnownTramRoute.AltrinchamManchesterBury, transportData, when);
 
@@ -85,7 +85,7 @@ public class RunningRoutesAndServicesTest {
 
         Set<Service> services = altyToBuryRoute.getServices();
 
-        LocalDate previousDay = when.minusDays(1);
+        TramDate previousDay = when.minusDays(1);
 
         Set<Service> allPreviousDay = services.stream().
                 filter(service -> service.getCalendar().operatesOn(previousDay)).collect(Collectors.toSet());
@@ -135,14 +135,14 @@ public class RunningRoutesAndServicesTest {
         assertFalse(weekdayServices.isEmpty());
 
         // start of the range
-        LocalDate weekdayServicesBegin = weekdayServices.stream().
+        TramDate weekdayServicesBegin = weekdayServices.stream().
                 map(service -> service.getCalendar().getDateRange().getStartDate()).
-                min(LocalDate::compareTo).get();
+                min(TramDate::compareTo).get();
 
         // end of the range
-        LocalDate weekdayServicesEnd = weekdayServices.stream().
+        TramDate weekdayServicesEnd = weekdayServices.stream().
                 map(service -> service.getCalendar().getDateRange().getEndDate()).
-                max(LocalDate::compareTo).get();
+                max(TramDate::compareTo).get();
 
         DateRange weekdayDateRange = new DateRange(weekdayServicesBegin, weekdayServicesEnd);
 

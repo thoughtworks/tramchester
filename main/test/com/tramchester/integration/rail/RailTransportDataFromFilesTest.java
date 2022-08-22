@@ -4,6 +4,7 @@ import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.dataimport.rail.reference.TrainOperatingCompanies;
 import com.tramchester.domain.*;
+import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdSet;
@@ -317,7 +318,7 @@ public class RailTransportDataFromFilesTest {
 
         assertFalse(matchingServices.isEmpty(), "no services for " + matchingRoutes);
 
-        LocalDate when = TestEnv.testDay();
+        TramDate when = TestEnv.testTramDay();
 
         Set<Service> runningServices = matchingServices.stream().
                 filter(service -> service.getCalendar().operatesOn(when)).collect(Collectors.toSet());

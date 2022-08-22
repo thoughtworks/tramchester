@@ -6,11 +6,9 @@ import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfigWithNaptan;
 import com.tramchester.repository.naptan.NaptanRepositoryContainer;
 import com.tramchester.testSupport.TestEnv;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 
+@Disabled("Performance testing only")
 public class NaptanRepositoryPerformanceTest {
 
     private static GuiceContainerDependencies componentContainer;
@@ -32,7 +30,6 @@ public class NaptanRepositoryPerformanceTest {
     void beforeEachTestRuns() {
         respository = componentContainer.get(NaptanRepositoryContainer.class);
     }
-
 
     @Test
     void shouldTestSomething() {

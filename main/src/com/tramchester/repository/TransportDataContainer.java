@@ -2,6 +2,7 @@ package com.tramchester.repository;
 
 import com.tramchester.domain.*;
 import com.tramchester.domain.dates.ServiceCalendar;
+import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.CompositeIdMap;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdMap;
@@ -371,7 +372,7 @@ public class TransportDataContainer implements TransportData, WriteableTransport
 
     @Override
     public Set<Service> getServicesOnDate(LocalDate date) {
-        return services.filterStream(item -> item.getCalendar().operatesOn(date)).
+        return services.filterStream(item -> item.getCalendar().operatesOn(TramDate.of(date))).
                 collect(Collectors.toSet());
     }
 

@@ -10,8 +10,8 @@ import java.util.*;
 public class MutableServiceCalendar implements ServiceCalendar {
     private final DateRange dateRange;
     private final EnumSet<DayOfWeek> days;
-    private final Set<LocalDate> additional;
-    private final Set<LocalDate> removed;
+    private final TramDateSet additional;
+    private final TramDateSet removed;
     private boolean cancelled;
 
     public MutableServiceCalendar(CalendarData calendarData) {
@@ -29,11 +29,15 @@ public class MutableServiceCalendar implements ServiceCalendar {
         this(new DateRange(startDate, endDate), enumFrom(operatingDays));
     }
 
+    public MutableServiceCalendar(TramDate startDate, TramDate endDate, DayOfWeek... operatingDays) {
+        this(new DateRange(startDate, endDate), enumFrom(operatingDays));
+    }
+
     public MutableServiceCalendar(DateRange dateRange, EnumSet<DayOfWeek> operatingDays) {
         this.dateRange = dateRange;
         days = operatingDays;
-        additional = new HashSet<>();
-        removed = new HashSet<>();
+        additional = new TramDateSet();
+        removed = new TramDateSet();
         cancelled = false;
     }
 
@@ -41,16 +45,16 @@ public class MutableServiceCalendar implements ServiceCalendar {
         return EnumSet.copyOf(Arrays.asList(operatingDays));
     }
 
-    public void includeExtraDate(LocalDate date) {
+    public void includeExtraDate(TramDate date) {
         additional.add(date);
     }
 
-    public void excludeDate(LocalDate date) {
+    public void excludeDate(TramDate date) {
         removed.add(date);
     }
 
     @Override
-    public boolean operatesOn(final LocalDate queryDate) {
+    public boolean operatesOn(final TramDate queryDate) {
         if (cancelled || isExcluded(queryDate)) {
             return false;
         }
@@ -59,10 +63,10 @@ public class MutableServiceCalendar implements ServiceCalendar {
             return true;
         }
 
-        return operatesOnIgnoringExceptionDates(TramDate.of(queryDate));
+        return operatesOnIgnoringExceptionDates(queryDate);
     }
 
-    private boolean isExcluded(final LocalDate queryDate) {
+    private boolean isExcluded(final TramDate queryDate) {
         return removed.contains(queryDate);
     }
 
@@ -144,12 +148,12 @@ public class MutableServiceCalendar implements ServiceCalendar {
     }
 
     @Override
-    public Set<LocalDate> getAdditions() {
+    public TramDateSet getAdditions() {
         return additional;
     }
 
     @Override
-    public Set<LocalDate> getRemoved() {
+    public TramDateSet getRemoved() {
         return removed;
     }
 
@@ -193,7 +197,7 @@ public class MutableServiceCalendar implements ServiceCalendar {
     }
 
     @Override
-    public boolean operatesNoneOf(final Set<LocalDate> dates) {
+    public boolean operatesNoneOf(final TramDateSet dates) {
         if (dates.isEmpty()) {
             return false;
         }
@@ -201,12 +205,12 @@ public class MutableServiceCalendar implements ServiceCalendar {
     }
 
     @Override
-    public boolean operatesOnAny(final Set<LocalDate> queryDates) {
+    public boolean operatesOnAny(final TramDateSet queryDates) {
         if (operatesNoDays() || queryDates.isEmpty()) {
             return false;
         }
 
-        Set<LocalDate> dates = new HashSet<>(queryDates);
+        TramDateSet dates = new TramDateSet(queryDates);
         dates.removeAll(removed);
         if (dates.isEmpty()) {
             return false;
@@ -218,7 +222,6 @@ public class MutableServiceCalendar implements ServiceCalendar {
         }
 
         return dates.stream().
-                map(TramDate::of).
                 filter(date -> days.contains(date.getDayOfWeek())).
                 anyMatch(dateRange::contains);
 

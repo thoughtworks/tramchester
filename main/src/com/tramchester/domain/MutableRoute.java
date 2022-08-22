@@ -203,7 +203,7 @@ public class MutableRoute implements Route {
         public boolean isAvailableOn(LocalDate date) {
             loadFromParent();
 
-            return serviceCalendar.operatesOn(date);
+            return serviceCalendar.operatesOn(TramDate.of(date));
         }
 
 

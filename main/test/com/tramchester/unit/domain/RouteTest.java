@@ -98,8 +98,8 @@ class RouteTest {
 
     @Test
     void shouldRespectDateRangesOnService() {
-        final LocalDate startDate = LocalDate.of(2020, 11, 5);
-        final LocalDate endDate = LocalDate.of(2020, 11, 25);
+        final TramDate startDate = TramDate.of(2020, 11, 5);
+        final TramDate endDate = TramDate.of(2020, 11, 25);
 
         MutableRoute route = createRoute(routeId, "code", "name");
 
@@ -112,7 +112,7 @@ class RouteTest {
         assertFalse(route.isAvailableOn(startDate.minusDays(1)));
         assertFalse(route.isAvailableOn(endDate.plusDays(1)));
 
-        LocalDate date = startDate;
+        TramDate date = startDate;
         while (date.isBefore(endDate)) {
             assertTrue(service.getCalendar().operatesOn(date));
             assertTrue(route.isAvailableOn(date), "should be available on " + date);
@@ -222,8 +222,8 @@ class RouteTest {
 
     @Test
     void shouldRespectDateRangesOnServicesWithAdditionalDayOverlap() {
-        final LocalDate startDate = LocalDate.of(2020, 11, 5);
-        final LocalDate endDate = LocalDate.of(2020, 11, 25);
+        final TramDate startDate = TramDate.of(2020, 11, 5);
+        final TramDate endDate = TramDate.of(2020, 11, 25);
 
 
         MutableRoute routeA = createRoute(routeIdA, "code", "nameA");
@@ -248,10 +248,10 @@ class RouteTest {
 
     @Test
     void shouldRespectDateRangesOnServicesWithAdditionalAndExcludeNegatingAnyOverlap() {
-        final LocalDate startDate = LocalDate.of(2020, 11, 5);
-        final LocalDate endDate = LocalDate.of(2020, 11, 25);
+        final TramDate startDate = TramDate.of(2020, 11, 5);
+        final TramDate endDate = TramDate.of(2020, 11, 25);
 
-        LocalDate specialDay = LocalDate.of(2020,11,15);
+        TramDate specialDay = TramDate.of(2020,11,15);
 
         DateRange dateRange = DateRange.of(startDate, endDate);
 
@@ -284,8 +284,8 @@ class RouteTest {
 
     @Test
     void shouldRespectDateRangesOnServicesNoOverlapExcludedDays() {
-        final LocalDate startDateA = LocalDate.of(2020, 11, 5);
-        final LocalDate endDateA = LocalDate.of(2020, 11, 25);
+        final TramDate startDateA = TramDate.of(2020, 11, 5);
+        final TramDate endDateA = TramDate.of(2020, 11, 25);
 
         final LocalDate startDateB = LocalDate.of(2020, 12, 5);
         final LocalDate endDateB = LocalDate.of(2020, 12, 25);
@@ -294,13 +294,13 @@ class RouteTest {
 
         MutableService serviceA = new MutableService(serviceIdA);
         MutableServiceCalendar calendarA = new MutableServiceCalendar(DateRange.of(startDateA, endDateA), ALL_DAYS);
-        LocalDate exclusionOne = LocalDate.of(2020, 11, 10);
+        TramDate exclusionOne = TramDate.of(2020, 11, 10);
         calendarA.excludeDate(exclusionOne);
         serviceA.setCalendar(calendarA);
 
         MutableService serviceB = new MutableService(serviceIdB);
         MutableServiceCalendar calendarB = new MutableServiceCalendar(DateRange.of(startDateB, endDateB), ALL_DAYS);
-        LocalDate exclusionTwo = LocalDate.of(2020, 12, 10);
+        TramDate exclusionTwo = TramDate.of(2020, 12, 10);
         calendarB.excludeDate(exclusionTwo);
         serviceB.setCalendar(calendarB);
 
@@ -324,13 +324,13 @@ class RouteTest {
         MutableService serviceA = new MutableService(serviceIdA);
 
         MutableServiceCalendar calendarA = new MutableServiceCalendar(dateRange, noDays);
-        LocalDate additionOne = LocalDate.of(2020, 11, 10);
+        TramDate additionOne = TramDate.of(2020, 11, 10);
         calendarA.includeExtraDate(additionOne);
         serviceA.setCalendar(calendarA);
 
         MutableService serviceB = new MutableService(serviceIdB);
         MutableServiceCalendar calendarB = new MutableServiceCalendar(dateRange, noDays);
-        LocalDate additionTwo = LocalDate.of(2020, 11, 12);
+        TramDate additionTwo = TramDate.of(2020, 11, 12);
         calendarB.includeExtraDate(additionTwo);
         serviceB.setCalendar(calendarB);
 
@@ -340,15 +340,15 @@ class RouteTest {
         assertTrue(route.isAvailableOn(additionOne));
         assertTrue(route.isAvailableOn(additionTwo));
 
-        dateRange.stream().filter(date -> !(date.equals(TramDate.of(additionOne)) || date.equals(TramDate.of(additionTwo)))).
+        dateRange.stream().filter(date -> !(date.equals(additionOne) || date.equals(additionTwo))).
                 forEach(date -> assertFalse(route.isAvailableOn(date), "should not be availble on " + date));
 
     }
 
     @Test
     void shouldRespectDateRangesOverlapDifferentAdditionalDays() {
-        final LocalDate startDate = LocalDate.of(2020, 11, 5);
-        final LocalDate endDate = LocalDate.of(2020, 11, 25);
+        final TramDate startDate = TramDate.of(2020, 11, 5);
+        final TramDate endDate = TramDate.of(2020, 11, 25);
 
         DateRange dateRange = DateRange.of(startDate, endDate);
         EnumSet<DayOfWeek> noDays = NO_DAYS;
@@ -359,13 +359,13 @@ class RouteTest {
         MutableService serviceA = new MutableService(serviceIdA);
 
         MutableServiceCalendar calendarA = new MutableServiceCalendar(dateRange, noDays);
-        LocalDate additionOne = LocalDate.of(2020, 11, 10);
+        TramDate additionOne = TramDate.of(2020, 11, 10);
         calendarA.includeExtraDate(additionOne);
         serviceA.setCalendar(calendarA);
 
         MutableService serviceB = new MutableService(serviceIdB);
         MutableServiceCalendar calendarB = new MutableServiceCalendar(dateRange, noDays);
-        LocalDate additionTwo = LocalDate.of(2020, 11, 12);
+        TramDate additionTwo = TramDate.of(2020, 11, 12);
         calendarB.includeExtraDate(additionTwo);
         serviceB.setCalendar(calendarB);
 
@@ -379,8 +379,8 @@ class RouteTest {
 
     @Test
     void shouldRespectDateRangesOverlapSameAdditionalDays() {
-        final LocalDate startDate = LocalDate.of(2020, 11, 5);
-        final LocalDate endDate = LocalDate.of(2020, 11, 25);
+        final TramDate startDate = TramDate.of(2020, 11, 5);
+        final TramDate endDate = TramDate.of(2020, 11, 25);
 
         DateRange dateRange = DateRange.of(startDate, endDate);
         EnumSet<DayOfWeek> noDays = NO_DAYS;
@@ -391,7 +391,7 @@ class RouteTest {
         MutableService serviceA = new MutableService(serviceIdA);
 
         MutableServiceCalendar calendarA = new MutableServiceCalendar(dateRange, noDays);
-        LocalDate addition = LocalDate.of(2020, 11, 10);
+        TramDate addition = TramDate.of(2020, 11, 10);
         calendarA.includeExtraDate(addition);
         serviceA.setCalendar(calendarA);
 
@@ -409,8 +409,8 @@ class RouteTest {
 
     @Test
     void shouldRespectDateRangesOverlapNotSameWeekdaysWithAddition() {
-        final LocalDate startDateA = LocalDate.of(2020, 11, 5);
-        final LocalDate endDateA = LocalDate.of(2020, 11, 25);
+        final TramDate startDateA = TramDate.of(2020, 11, 5);
+        final TramDate endDateA = TramDate.of(2020, 11, 25);
 
         DateRange dateRange = DateRange.of(startDateA, endDateA);
 
@@ -420,7 +420,7 @@ class RouteTest {
         MutableService serviceA = new MutableService(serviceIdA);
 
         MutableServiceCalendar calendarA = new MutableServiceCalendar(dateRange, EnumSet.of(MONDAY, TUESDAY));
-        LocalDate addition = LocalDate.of(2020, 11, 10);
+        TramDate addition = TramDate.of(2020, 11, 10);
         calendarA.includeExtraDate(addition);
         serviceA.setCalendar(calendarA);
 
@@ -464,12 +464,12 @@ class RouteTest {
 
     @Test
     void shouldRespectDateRangesOnServicesInclusionOverridesExclusion() {
-        final LocalDate startDateA = LocalDate.of(2020, 11, 5);
-        final LocalDate endDateA = LocalDate.of(2020, 11, 25);
+        final TramDate startDateA = TramDate.of(2020, 11, 5);
+        final TramDate endDateA = TramDate.of(2020, 11, 25);
 
         MutableRoute route = createRoute(routeId, "code", "name");
 
-        LocalDate specialDay = LocalDate.of(2020, 11, 10);
+        TramDate specialDay = TramDate.of(2020, 11, 10);
 
         // does not run on special day
         MutableService serviceA = new MutableService(serviceIdA);
@@ -492,14 +492,14 @@ class RouteTest {
 
     @Test
     void shouldRespectAdditionalDaysOnService() {
-        LocalDate startDate = LocalDate.of(2020, 11, 5);
-        LocalDate endDate = LocalDate.of(2020, 11, 25);
+        TramDate startDate = TramDate.of(2020, 11, 5);
+        TramDate endDate = TramDate.of(2020, 11, 25);
 
         MutableRoute route = createRoute(routeId, "code", "name");
 
         MutableService service = new MutableService(serviceId);
         MutableServiceCalendar calendar = new MutableServiceCalendar(DateRange.of(startDate, endDate), NO_DAYS);
-        LocalDate extraRunningDate = LocalDate.of(2020, 11, 10);
+        TramDate extraRunningDate = TramDate.of(2020, 11, 10);
         calendar.includeExtraDate(extraRunningDate);
         service.setCalendar(calendar);
 
@@ -511,12 +511,12 @@ class RouteTest {
 
     @Test
     void shouldRespectNotRunningDaysOnService() {
-        LocalDate startDate = LocalDate.of(2020, 11, 5);
-        LocalDate endDate = LocalDate.of(2020, 11, 25);
+        TramDate startDate = TramDate.of(2020, 11, 5);
+        TramDate endDate = TramDate.of(2020, 11, 25);
 
         MutableRoute route = createRoute(routeId, "code", "name");
 
-        LocalDate notRunningDate = LocalDate.of(2020, 11, 10);
+        TramDate notRunningDate = TramDate.of(2020, 11, 10);
 
         MutableService service = new MutableService(serviceId);
         MutableServiceCalendar calendar = new MutableServiceCalendar(DateRange.of(startDate, endDate), ALL_DAYS);

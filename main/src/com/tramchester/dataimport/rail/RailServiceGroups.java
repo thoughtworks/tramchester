@@ -4,6 +4,7 @@ import com.tramchester.dataimport.rail.records.BasicSchedule;
 import com.tramchester.domain.MutableService;
 import com.tramchester.domain.dates.MutableServiceCalendar;
 import com.tramchester.domain.Service;
+import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.dates.DateRange;
@@ -114,8 +115,8 @@ public class RailServiceGroups {
     }
 
     private void addServiceExceptions(MutableServiceCalendar calendar, DateRange dateRange, Set<DayOfWeek> excludedDays) {
-        LocalDate endDate = dateRange.getEndDate();
-        LocalDate current = dateRange.getStartDate();
+        TramDate endDate = dateRange.getEndDate();
+        TramDate current = dateRange.getStartDate();
         while (!current.isAfter(endDate)) {
             if (excludedDays.contains(current.getDayOfWeek())) {
                 calendar.excludeDate(current);

@@ -2,6 +2,7 @@ package com.tramchester.testSupport;
 
 import com.tramchester.domain.MutableAgency;
 import com.tramchester.domain.Route;
+import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.repository.RouteRepository;
 import com.tramchester.testSupport.reference.KnownTramRoute;
@@ -53,6 +54,10 @@ public class TramRouteHelper {
     public Set<Route> get(KnownTramRoute knownRoute, RouteRepository routeRepository) {
         guard(knownRoute, routeRepository);
         return map.get(knownRoute);
+    }
+
+    public Route getOneRoute(KnownTramRoute knownRoute, RouteRepository routeRepository, TramDate date) {
+        return getOneRoute(knownRoute, routeRepository, date.toLocalDate());
     }
 
     public Route getOneRoute(KnownTramRoute knownRoute, RouteRepository routeRepository, LocalDate date) {

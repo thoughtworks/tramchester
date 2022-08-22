@@ -249,7 +249,7 @@ public class GraphProps {
     }
 
     public static void setDateRange(Entity entity, DateRange range) {
-        setStartDate(entity, range.getStartDate());
-        setEndDate(entity, range.getEndDate());
+        setStartDate(entity, range.getStartDate().toLocalDate());
+        setEndDate(entity, range.getEndDate().toLocalDate());
     }
 }

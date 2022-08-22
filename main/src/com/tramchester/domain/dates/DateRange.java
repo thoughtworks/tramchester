@@ -71,12 +71,12 @@ public class DateRange {
         return (date.isAfter(dateRange.startDate)  && date.isBefore(dateRange.endDate));
     }
 
-    public LocalDate getEndDate() {
-        return endDate.toLocalDate();
+    public TramDate getEndDate() {
+        return endDate;
     }
 
-    public LocalDate getStartDate() {
-        return startDate.toLocalDate();
+    public TramDate getStartDate() {
+        return startDate;
     }
 
     public Stream<TramDate> stream() {
