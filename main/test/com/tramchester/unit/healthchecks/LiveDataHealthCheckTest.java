@@ -6,6 +6,7 @@ import com.tramchester.domain.DataSourceID;
 import com.tramchester.domain.ServiceTimeLimits;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.ProvidesNow;
+import com.tramchester.domain.time.TramTime;
 import com.tramchester.healthchecks.LiveDataHealthCheck;
 import com.tramchester.livedata.tfgm.TramDepartureRepository;
 import com.tramchester.repository.StationRepository;
@@ -106,7 +107,7 @@ class LiveDataHealthCheckTest extends EasyMockSupport {
 
     @Test
     void shouldNOTReportUnhealthyIfGoodEntriesButNoEnoughStationsLateNight() {
-        LocalDateTime now = LocalDateTime.of(TestEnv.testDay(), LocalTime.of(4,0));
+        LocalDateTime now = TramTime.of(4,0).toDate(TestEnv.testDay());
         EasyMock.expect(providesNow.getDateTime()).andReturn(now);
 
         EasyMock.expect(repository.upToDateEntries()).andReturn(40);

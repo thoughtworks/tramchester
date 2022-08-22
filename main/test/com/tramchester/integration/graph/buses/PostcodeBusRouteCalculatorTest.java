@@ -5,6 +5,7 @@ import com.tramchester.ComponentsBuilder;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.Journey;
 import com.tramchester.domain.JourneyRequest;
+import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.places.PostcodeLocation;
 import com.tramchester.domain.presentation.TransportStage;
 import com.tramchester.domain.reference.TransportMode;
@@ -42,7 +43,7 @@ class PostcodeBusRouteCalculatorTest {
     private static GraphDatabase database;
     private static TramchesterConfig testConfig;
 
-    private final LocalDate day = TestEnv.testDay();
+    private final TramDate day = TestEnv.testDay();
     private Transaction txn;
     private final TramTime time = TramTime.of(9,11);
     private LocationJourneyPlannerTestFacade planner;

@@ -4,6 +4,7 @@ import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.domain.Journey;
 import com.tramchester.domain.JourneyRequest;
+import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.dates.TramServiceDate;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.places.Location;
@@ -42,7 +43,7 @@ class LocationJourneyPlannerTest {
     private static GraphDatabase database;
     private static IntegrationTramTestConfig testConfig;
 
-    private final LocalDate when = TestEnv.testDay();
+    private final TramDate when = TestEnv.testDay();
     private Transaction txn;
     private LocationJourneyPlannerTestFacade planner;
     private TramServiceDate date;

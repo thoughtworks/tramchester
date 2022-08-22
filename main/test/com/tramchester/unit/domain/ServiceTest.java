@@ -2,6 +2,7 @@ package com.tramchester.unit.domain;
 
 import com.tramchester.domain.*;
 import com.tramchester.domain.dates.MutableServiceCalendar;
+import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.input.MutableTrip;
@@ -32,8 +33,8 @@ class ServiceTest {
         MutableService service = new MutableService(StringIdFor.createId("svcXXX"));
         assertFalse(service.hasCalendar());
 
-        LocalDate startDate = LocalDate.of(2014, 10, 5);
-        LocalDate endDate = LocalDate.of(2014, 12, 25);
+        TramDate startDate = TramDate.of(2014, 10, 5);
+        TramDate endDate = TramDate.of(2014, 12, 25);
 
         MutableServiceCalendar serviceCalendar = new MutableServiceCalendar(new DateRange(startDate, endDate), TestEnv.allDays());
 

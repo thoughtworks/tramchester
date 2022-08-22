@@ -11,7 +11,6 @@ import com.tramchester.domain.time.TramTime;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.ParseStream;
 import com.tramchester.testSupport.reference.FakeStation;
-import com.tramchester.testSupport.reference.TramStations;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Assertions;
 
@@ -19,7 +18,6 @@ import javax.ws.rs.core.Cookie;
 import javax.ws.rs.core.Response;
 import java.io.IOException;
 import java.io.InputStream;
-import java.time.LocalDate;
 import java.util.Collections;
 import java.util.List;
 
@@ -40,29 +38,22 @@ public class JourneyResourceTestFacade {
     }
 
     @NotNull
-    public JourneyQueryDTO getQueryDTO(LocalDate date, TramTime time, Location<?> start, FakeStation dest, boolean arriveBy, int maxChanges) {
+    public JourneyQueryDTO getQueryDTO(TramDate date, TramTime time, Location<?> start, FakeStation dest, boolean arriveBy, int maxChanges) {
         return JourneyQueryDTO.create(date, time, start, dest.from(stationRepository), arriveBy, maxChanges);
     }
 
-
     @NotNull
-    public JourneyQueryDTO getQueryDTO(LocalDate date, TramTime time, FakeStation start, Location<?> dest, boolean arriveBy, int maxChanges) {
+    public JourneyQueryDTO getQueryDTO(TramDate date, TramTime time, FakeStation start, Location<?> dest, boolean arriveBy, int maxChanges) {
         return JourneyQueryDTO.create(date, time, start.from(stationRepository), dest, arriveBy, maxChanges);
     }
 
     @NotNull
     public JourneyQueryDTO getQueryDTO(TramDate date, TramTime queryTime, FakeStation start, FakeStation dest, boolean arriveBy, int maxChanges) {
-        return JourneyQueryDTO.create(date.toLocalDate(), queryTime, start.from(stationRepository), dest.from(stationRepository),
-                arriveBy, maxChanges);
-    }
-
-    @NotNull
-    public JourneyQueryDTO getQueryDTO(LocalDate date, TramTime queryTime, FakeStation start, FakeStation dest, boolean arriveBy, int maxChanges) {
         return JourneyQueryDTO.create(date, queryTime, start.from(stationRepository), dest.from(stationRepository),
                 arriveBy, maxChanges);
     }
 
-    public List<JourneyDTO> getJourneyPlanStreamed(LocalDate queryDate, TramTime time, FakeStation start,
+    public List<JourneyDTO> getJourneyPlanStreamed(TramDate queryDate, TramTime time, FakeStation start,
                                                    FakeStation dest, boolean arriveBy, int maxChanges) throws IOException {
 
         JourneyQueryDTO query = JourneyQueryDTO.create(queryDate, time, start.from(stationRepository), dest.from(stationRepository), arriveBy, maxChanges);

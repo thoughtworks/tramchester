@@ -1,6 +1,7 @@
 package com.tramchester.unit.domain;
 
 import com.tramchester.domain.*;
+import com.tramchester.domain.dates.DateRange;
 import com.tramchester.domain.dates.MutableServiceCalendar;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.IdFor;
@@ -8,7 +9,6 @@ import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.input.MutableTrip;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.reference.TransportMode;
-import com.tramchester.domain.dates.DateRange;
 import com.tramchester.testSupport.TestEnv;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Assertions;
@@ -16,7 +16,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.time.DayOfWeek;
-import java.time.LocalDate;
 import java.util.EnumSet;
 import java.util.Set;
 
@@ -65,8 +64,8 @@ class RouteTest {
 
     @Test
     void shouldAddService() {
-        LocalDate startDate = LocalDate.of(2020, 11, 5);
-        LocalDate endDate = LocalDate.of(2020, 11, 25);
+        TramDate startDate = TramDate.of(2020, 11, 5);
+        TramDate endDate = TramDate.of(2020, 11, 25);
 
         MutableRoute route = createRoute(routeId, "code", "name");
 
@@ -81,8 +80,8 @@ class RouteTest {
 
     @Test
     void shouldAddTrip() {
-        LocalDate startDate = LocalDate.of(2020, 11, 5);
-        LocalDate endDate = LocalDate.of(2020, 11, 25);
+        TramDate startDate = TramDate.of(2020, 11, 5);
+        TramDate endDate = TramDate.of(2020, 11, 25);
 
         MutableRoute route = createRoute(routeId, "code", "name");
 
@@ -123,11 +122,11 @@ class RouteTest {
 
     @Test
     void shouldRespectDateRangesOnServicesNoOverlap() {
-        final LocalDate startDateA = LocalDate.of(2020, 11, 5);
-        final LocalDate endDateA = LocalDate.of(2020, 11, 25);
+        final TramDate startDateA = TramDate.of(2020, 11, 5);
+        final TramDate endDateA = TramDate.of(2020, 11, 25);
 
-        final LocalDate startDateB = LocalDate.of(2020, 12, 5);
-        final LocalDate endDateB = LocalDate.of(2020, 12, 25);
+        final TramDate startDateB = TramDate.of(2020, 12, 5);
+        final TramDate endDateB = TramDate.of(2020, 12, 25);
 
         MutableRoute route = createRoute(routeId, "code", "name");
 
@@ -148,7 +147,7 @@ class RouteTest {
         assertFalse(route.isAvailableOn(startDateB.minusDays(1)));
         assertFalse(route.isAvailableOn(endDateB.plusDays(1)));
 
-        LocalDate date = startDateA;
+        TramDate date = startDateA;
         while (date.isBefore(endDateA)) {
             assertTrue(route.isAvailableOn(date), "should be available on " + date);
             date = date.plusDays(1);
@@ -164,11 +163,11 @@ class RouteTest {
 
     @Test
     void shouldRespectDateRangesOnServicesWithOverlap() {
-        final LocalDate startDateA = LocalDate.of(2020, 11, 5);
-        final LocalDate endDateA = LocalDate.of(2020, 11, 25);
+        final TramDate startDateA = TramDate.of(2020, 11, 5);
+        final TramDate endDateA = TramDate.of(2020, 11, 25);
 
-        final LocalDate startDateB = endDateA.minusDays(1);
-        final LocalDate endDateB = LocalDate.of(2020, 12, 25);
+        final TramDate startDateB = endDateA.minusDays(1);
+        final TramDate endDateB = TramDate.of(2020, 12, 25);
 
         MutableRoute route = createRoute(routeId, "code", "name");
 
@@ -186,7 +185,7 @@ class RouteTest {
         assertFalse(route.isAvailableOn(startDateA.minusDays(1)));
         assertFalse(route.isAvailableOn(endDateB.plusDays(1)));
 
-        LocalDate date = startDateA;
+        TramDate date = startDateA;
         while (date.isBefore(endDateB)) {
             assertTrue(route.isAvailableOn(date), "should be available on " + date);
             date = date.plusDays(1);
@@ -198,8 +197,8 @@ class RouteTest {
 
     @Test
     void shouldRespectDateRangesOnServicesWithNoAdditionalDayOverlap() {
-        final LocalDate startDate = LocalDate.of(2020, 11, 5);
-        final LocalDate endDate = LocalDate.of(2020, 11, 25);
+        final TramDate startDate = TramDate.of(2020, 11, 5);
+        final TramDate endDate = TramDate.of(2020, 11, 25);
 
         MutableRoute routeA = createRoute(routeIdA, "code", "nameA");
         MutableRoute routeB = createRoute(routeIdB, "code", "nameB");
@@ -287,8 +286,8 @@ class RouteTest {
         final TramDate startDateA = TramDate.of(2020, 11, 5);
         final TramDate endDateA = TramDate.of(2020, 11, 25);
 
-        final LocalDate startDateB = LocalDate.of(2020, 12, 5);
-        final LocalDate endDateB = LocalDate.of(2020, 12, 25);
+        final TramDate startDateB = TramDate.of(2020, 12, 5);
+        final TramDate endDateB = TramDate.of(2020, 12, 25);
 
         MutableRoute route = createRoute(routeId, "code", "name");
 
@@ -313,8 +312,8 @@ class RouteTest {
 
     @Test
     void shouldRespectDateRangesOnServicesIncludedDays() {
-        final LocalDate startDate = LocalDate.of(2020, 11, 5);
-        final LocalDate endDate = LocalDate.of(2020, 11, 25);
+        final TramDate startDate = TramDate.of(2020, 11, 5);
+        final TramDate endDate = TramDate.of(2020, 11, 25);
 
         DateRange dateRange = DateRange.of(startDate, endDate);
         EnumSet<DayOfWeek> noDays = NO_DAYS;
@@ -438,8 +437,8 @@ class RouteTest {
 
     @Test
     void shouldRespectDateRangesOverlapNotSameWeekdaysWithOutAddition() {
-        final LocalDate startDateA = LocalDate.of(2020, 11, 5);
-        final LocalDate endDateA = LocalDate.of(2020, 11, 25);
+        final TramDate startDateA = TramDate.of(2020, 11, 5);
+        final TramDate endDateA = TramDate.of(2020, 11, 25);
 
         DateRange dateRange = DateRange.of(startDateA, endDateA);
 
@@ -531,8 +530,8 @@ class RouteTest {
     @Test
     void shouldHaveDateOverlap() {
 
-        LocalDate startDate = LocalDate.of(2020, 11, 5);
-        LocalDate endDate = LocalDate.of(2020, 11, 25);
+        TramDate startDate = TramDate.of(2020, 11, 5);
+        TramDate endDate = TramDate.of(2020, 11, 25);
 
         EnumSet<DayOfWeek> monday = EnumSet.of(MONDAY);
 
@@ -565,7 +564,7 @@ class RouteTest {
         assertTrue(routeA.isDateOverlap(routeD));
     }
 
-    private MutableService createService(LocalDate startDate, LocalDate endDate, String serviceId, EnumSet<DayOfWeek> daysOfWeek) {
+    private MutableService createService(TramDate startDate, TramDate endDate, String serviceId, EnumSet<DayOfWeek> daysOfWeek) {
         MutableService service = new MutableService(StringIdFor.createId(serviceId));
         MutableServiceCalendar calendar = new MutableServiceCalendar(DateRange.of(startDate, endDate), daysOfWeek);
         service.setCalendar(calendar);

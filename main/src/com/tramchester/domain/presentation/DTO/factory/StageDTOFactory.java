@@ -2,16 +2,16 @@ package com.tramchester.domain.presentation.DTO.factory;
 
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.domain.Route;
+import com.tramchester.domain.dates.TramDate;
+import com.tramchester.domain.presentation.DTO.LocationRefWithPosition;
 import com.tramchester.domain.presentation.DTO.PlatformDTO;
 import com.tramchester.domain.presentation.DTO.RouteRefDTO;
 import com.tramchester.domain.presentation.DTO.StageDTO;
-import com.tramchester.domain.presentation.DTO.LocationRefWithPosition;
 import com.tramchester.domain.presentation.TransportStage;
 import com.tramchester.domain.presentation.TravelAction;
 
 import javax.inject.Inject;
 import java.time.Duration;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 // TODO Use superclass and JSON annotations (see Note class) to handle presence or not of platform
@@ -27,7 +27,7 @@ public class StageDTOFactory {
         this.stationDTOFactory = stationDTOFactory;
     }
 
-    public StageDTO build(TransportStage<?,?> source, TravelAction travelAction, LocalDate queryDate) {
+    public StageDTO build(TransportStage<?,?> source, TravelAction travelAction, TramDate queryDate) {
 
         LocationRefWithPosition firstStation = stationDTOFactory.createLocationRefWithPosition(source.getFirstStation());
         LocationRefWithPosition lastStation = stationDTOFactory.createLocationRefWithPosition(source.getLastStation());

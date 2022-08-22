@@ -25,6 +25,7 @@ public class JourneyRequest {
     private boolean diagnostics;
     private boolean warnIfNoResults;
 
+    @Deprecated
     public JourneyRequest(LocalDate date, TramTime originalQueryTime, boolean arriveBy, int maxChanges, Duration maxJourneyDuration,
                           long maxNumberOfJourneys, Set<TransportMode> requestedModes) {
         this(new TramServiceDate(date), originalQueryTime, arriveBy, maxChanges, maxJourneyDuration, maxNumberOfJourneys, requestedModes);

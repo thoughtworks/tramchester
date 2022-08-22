@@ -5,6 +5,7 @@ import com.tramchester.ComponentsBuilder;
 import com.tramchester.DiagramCreator;
 import com.tramchester.domain.JourneyRequest;
 import com.tramchester.domain.Route;
+import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.GraphDatabase;
@@ -40,7 +41,7 @@ class RouteCalculatorSubGraphEcclesAshtonLine {
     private static TramRouteHelper tramRouteHelper;
 
     private RouteCalculatorTestFacade calculator;
-    private final LocalDate when = TestEnv.testDay();
+    private final TramDate when = TestEnv.testDay();
 
     private Transaction txn;
     private Duration maxJourneyDuration;

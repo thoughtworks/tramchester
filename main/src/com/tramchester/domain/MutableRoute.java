@@ -3,6 +3,7 @@ package com.tramchester.domain;
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import com.tramchester.domain.dates.AggregateServiceCalendar;
+import com.tramchester.domain.dates.DateRange;
 import com.tramchester.domain.dates.ServiceCalendar;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.HasId;
@@ -10,11 +11,9 @@ import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.reference.TransportMode;
-import com.tramchester.domain.dates.DateRange;
 import com.tramchester.graph.GraphPropertyKey;
 
 import java.time.DayOfWeek;
-import java.time.LocalDate;
 import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.Objects;
@@ -163,11 +162,6 @@ public class MutableRoute implements Route {
         return routeCalendar.getDateRange();
     }
 
-    @Deprecated
-    public boolean isAvailableOn(LocalDate date) {
-        return routeCalendar.isAvailableOn(date);
-    }
-
     @Override
     public boolean isAvailableOn(TramDate date) {
         return routeCalendar.isAvailableOn(date);
@@ -200,16 +194,10 @@ public class MutableRoute implements Route {
                     recordStats().build();
         }
 
-        @Deprecated
-        public boolean isAvailableOn(LocalDate date) {
+        public boolean isAvailableOn(TramDate date) {
             loadFromParent();
 
-            return serviceCalendar.operatesOn(TramDate.of(date));
-        }
-
-
-        public boolean isAvailableOn(TramDate date) {
-            return isAvailableOn(date.toLocalDate());
+            return serviceCalendar.operatesOn(date);
         }
 
         private void loadFromParent() {

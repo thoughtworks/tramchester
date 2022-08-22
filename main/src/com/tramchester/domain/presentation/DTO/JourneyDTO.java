@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.presentation.Note;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.mappers.serialisation.*;
@@ -29,6 +30,14 @@ public class JourneyDTO {
 
     public JourneyDTO() {
         // Deserialization
+    }
+
+    public JourneyDTO(LocationRefWithPosition begin, List<StageDTO> stages,
+                      LocalDateTime expectedArrivalTime, LocalDateTime firstDepartureTime,
+                      List<LocationRefWithPosition> changeStations, TramTime queryTime, List<Note> notes,
+                      List<LocationRefWithPosition> path, TramDate queryDate) {
+        this(begin, stages, expectedArrivalTime, firstDepartureTime, changeStations, queryTime, notes,
+                path, queryDate.toLocalDate());
     }
 
     public JourneyDTO(LocationRefWithPosition begin, List<StageDTO> stages,

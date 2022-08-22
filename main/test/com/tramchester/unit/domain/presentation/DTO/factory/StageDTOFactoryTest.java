@@ -1,6 +1,7 @@
 package com.tramchester.unit.domain.presentation.DTO.factory;
 
 import com.tramchester.domain.*;
+import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.input.MutableTrip;
 import com.tramchester.domain.input.Trip;
@@ -36,7 +37,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 class StageDTOFactoryTest extends EasyMockSupport {
 
     private StageDTOFactory factory;
-    private LocalDate when;
+    private TramDate when;
     private DTOFactory stationDTOFactory;
 
     @BeforeEach
@@ -115,6 +116,6 @@ class StageDTOFactoryTest extends EasyMockSupport {
         assertEquals(stage.getPassedStopsCount(), dto.getPassedStops());
         assertEquals(action.toString(), dto.getAction());
         assertEquals(hasPlatform, dto.getHasPlatform());
-        assertEquals(when, dto.getQueryDate());
+        assertEquals(when.toLocalDate(), dto.getQueryDate());
     }
 }

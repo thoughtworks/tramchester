@@ -2,6 +2,7 @@ package com.tramchester.integration.repository;
 
 import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
+import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.places.InterchangeStation;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.places.RouteStation;
@@ -38,7 +39,7 @@ public class RouteInterchangesTest {
     private TramRouteHelper tramRouteHelper;
     private InterchangeRepository interchangeRepository;
     private RouteRepository routeRepository;
-    private LocalDate when;
+    private TramDate when;
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {

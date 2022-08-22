@@ -1,6 +1,7 @@
 package com.tramchester.integration.resources.journeyPlanning;
 
 import com.tramchester.App;
+import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.presentation.DTO.JourneyDTO;
 import com.tramchester.domain.presentation.DTO.JourneyPlanRepresentation;
 import com.tramchester.domain.presentation.DTO.JourneyQueryDTO;
@@ -31,7 +32,7 @@ class JourneyPlannerPostcodeTramResourceTest {
     private static final IntegrationAppExtension appExtension =
             new IntegrationAppExtension(App.class, new TramWithPostcodesEnabled());
 
-    private LocalDate day;
+    private TramDate day;
     private TramTime time;
     private JourneyResourceTestFacade journeyPlanner;
 

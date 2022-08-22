@@ -3,6 +3,7 @@ package com.tramchester.integration.mappers;
 import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.domain.Route;
+import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.DTO.LocationRefWithPosition;
 import com.tramchester.domain.presentation.DTO.RouteDTO;
@@ -30,7 +31,7 @@ class RouteMapperTest {
     private static ComponentContainer componentContainer;
     private TramRouteHelper tramRouteHelper;
     private RouteRepository routeRepsoitory;
-    private LocalDate date;
+    private TramDate date;
     private RoutesMapper mapper;
 
     @BeforeAll

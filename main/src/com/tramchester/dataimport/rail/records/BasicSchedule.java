@@ -34,21 +34,18 @@ import com.tramchester.dataimport.rail.records.reference.ShortTermPlanIndicator;
 import com.tramchester.dataimport.rail.records.reference.TrainCategory;
 import com.tramchester.dataimport.rail.records.reference.TrainStatus;
 import com.tramchester.domain.dates.DateRange;
+import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.time.ProvidesNow;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.time.DayOfWeek;
-import java.time.LocalDate;
 import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.Set;
 
 public class BasicSchedule implements RailTimetableRecord {
-    private static final Logger logger = LoggerFactory.getLogger(BasicSchedule.class);
 
-    private final LocalDate startDate;
-    private final LocalDate endDate;
+    private final TramDate startDate;
+    private final TramDate endDate;
     private final RailRecordTransactionType transactionType;
     private final String uniqueTrainId;
     private final EnumSet<DayOfWeek> daysOfWeek;
@@ -62,7 +59,7 @@ public class BasicSchedule implements RailTimetableRecord {
         return RailRecordType.BasicSchedule;
     }
 
-    public BasicSchedule(RailRecordTransactionType transactionType, String uniqueTrainId, LocalDate startDate, LocalDate endDate,
+    public BasicSchedule(RailRecordTransactionType transactionType, String uniqueTrainId, TramDate startDate, TramDate endDate,
                          EnumSet<DayOfWeek> daysOfWeek, ShortTermPlanIndicator stpIndicator, String headcode,
                          TrainStatus trainStatus, TrainCategory trainCategory) {
         this.transactionType = transactionType;
@@ -81,8 +78,8 @@ public class BasicSchedule implements RailTimetableRecord {
         RailRecordTransactionType transactionType = RailRecordTransactionType.parse(transactionTypeRaw);
         String uniqueTrainId = RecordHelper.extract(text, 4, 9+1);
         String headcode = RecordHelper.extract(text, 33, 36+1);
-        LocalDate startDate = RecordHelper.extractDate(text, 10, 15+1, providesNow);
-        LocalDate endDate = RecordHelper.extractDate(text, 16, 21+1, providesNow);
+        TramDate startDate = RecordHelper.extractTramDate(text, 10, 15+1, providesNow);
+        TramDate endDate = RecordHelper.extractTramDate(text, 16, 21+1, providesNow);
         EnumSet<DayOfWeek> daysOfWeek = extractDays(text, 21);
         char stpIndicatorRaw = text.charAt(80-1);
         char trainStatusRaw = text.charAt(29);
@@ -94,10 +91,6 @@ public class BasicSchedule implements RailTimetableRecord {
     }
 
     private static EnumSet<DayOfWeek> extractDays(CharSequence line, int begin) {
-//        String days = RecordHelper.extract(line, begin, end);
-//        if (days.length()!=7) {
-//            logger.error("Not enough days of the week");
-//        }
 
         Set<DayOfWeek> result = new HashSet<>();
         for (int day = 0; day < 7; day++) {

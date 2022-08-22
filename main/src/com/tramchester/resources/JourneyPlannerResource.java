@@ -6,6 +6,7 @@ import com.tramchester.RedirectToHttpsUsingELBProtoHeader;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.JourneyRequest;
 import com.tramchester.domain.UpdateRecentJourneys;
+import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.places.Location;
 import com.tramchester.domain.presentation.DTO.JourneyDTO;
 import com.tramchester.domain.presentation.DTO.JourneyPlanRepresentation;
@@ -29,7 +30,6 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.*;
 import java.net.URI;
 import java.time.Duration;
-import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
@@ -94,8 +94,8 @@ public class JourneyPlannerResource extends UsesRecentCookie implements APIResou
 
         try(Transaction tx = graphDatabaseService.beginTx() ) {
 
-            Stream<JourneyDTO> dtoStream = getJourneyDTOStream(tx, query.getDate(), query.getTime(), start, dest, query.isArriveBy(),
-                    query.getMaxChanges(), query.getModes());
+            Stream<JourneyDTO> dtoStream = getJourneyDTOStream(tx, query.getTramDate(), query.getTime(),
+                    start, dest, query.isArriveBy(), query.getMaxChanges(), query.getModes());
 
             // duplicates where same path and timings, just different change points
             Set<JourneyDTO> journeyDTOS = dtoStream.collect(Collectors.toSet());
@@ -150,7 +150,7 @@ public class JourneyPlannerResource extends UsesRecentCookie implements APIResou
         Transaction tx = graphDatabaseService.beginTx();
 
         try {
-            Stream<JourneyDTO> dtoStream = getJourneyDTOStream(tx, query.getDate(), query.getTime(), start, dest, query.isArriveBy(),
+            Stream<JourneyDTO> dtoStream = getJourneyDTOStream(tx, query.getTramDate(), query.getTime(), start, dest, query.isArriveBy(),
                     query.getMaxChanges(), query.getModes());
 
             JsonStreamingOutput<JourneyDTO> jsonStreamingOutput = new JsonStreamingOutput<>(tx, dtoStream, super.mapper);
@@ -171,7 +171,7 @@ public class JourneyPlannerResource extends UsesRecentCookie implements APIResou
         return responseBuilder.build();
     }
 
-    private Stream<JourneyDTO> getJourneyDTOStream(Transaction tx, LocalDate date, LocalTime time, Location<?> start,
+    private Stream<JourneyDTO> getJourneyDTOStream(Transaction tx, TramDate date, LocalTime time, Location<?> start,
                                                    Location<?> dest, boolean arriveBy, int maxChanges, Set<TransportMode> modes) {
 
         TramTime queryTime = TramTime.ofHourMins(time);
@@ -179,7 +179,6 @@ public class JourneyPlannerResource extends UsesRecentCookie implements APIResou
 
         JourneyRequest journeyRequest = new JourneyRequest(date, queryTime, arriveBy, maxChanges,
                 maxJourneyDuration,  config.getMaxNumResults(), modes);
-//        journeyRequest.setRequestedModes(modes);
 
         logger.info(format("Plan journey from %s to %s on %s", start, dest, journeyRequest));
 

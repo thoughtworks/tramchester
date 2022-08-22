@@ -7,11 +7,12 @@ import com.tramchester.config.GTFSSourceConfig;
 import com.tramchester.domain.Journey;
 import com.tramchester.domain.JourneyRequest;
 import com.tramchester.domain.StationClosure;
+import com.tramchester.domain.dates.TramDate;
+import com.tramchester.domain.dates.TramServiceDate;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.GTFSTransportationType;
 import com.tramchester.domain.reference.TransportMode;
-import com.tramchester.domain.dates.TramServiceDate;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.filters.ConfigurableGraphFilter;
@@ -32,7 +33,6 @@ import org.neo4j.graphdb.Transaction;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.time.Duration;
-import java.time.LocalDate;
 import java.util.*;
 
 import static com.tramchester.testSupport.TestEnv.DAYS_AHEAD;
@@ -46,7 +46,7 @@ class RouteCalculatorSubGraphMediaCityTest {
     private static SubgraphConfig config;
 
     private RouteCalculatorTestFacade calculator;
-    private final LocalDate when = TestEnv.testDay();
+    private final TramDate when = TestEnv.testDay();
 
     private static final List<TramStations> stations = Arrays.asList(
             ExchangeSquare,
@@ -123,7 +123,7 @@ class RouteCalculatorSubGraphMediaCityTest {
             for (TramStations destination: stations) {
                 if (!start.equals(destination)) {
                     for (int i = 0; i < DAYS_AHEAD; i++) {
-                        LocalDate day = when.plusDays(i);
+                        TramDate day = when.plusDays(i);
                         TramServiceDate serviceDate = new TramServiceDate(day);
                         if (!serviceDate.isChristmasPeriod()) {
                             JourneyRequest journeyRequest =
@@ -190,7 +190,7 @@ class RouteCalculatorSubGraphMediaCityTest {
         }
     }
 
-    private void validateAtLeastOneJourney(TramStations start, TramStations dest, TramTime time, LocalDate date) {
+    private void validateAtLeastOneJourney(TramStations start, TramStations dest, TramTime time, TramDate date) {
         JourneyRequest journeyRequest = new JourneyRequest(date, time, false, 5,
                 maxJourneyDuration, 1, Collections.emptySet());
         Set<Journey> results = calculator.calculateRouteAsSet(start, dest, journeyRequest);

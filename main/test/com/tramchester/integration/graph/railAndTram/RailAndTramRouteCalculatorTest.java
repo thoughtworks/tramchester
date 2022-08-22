@@ -5,9 +5,10 @@ import com.tramchester.ComponentsBuilder;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.Journey;
 import com.tramchester.domain.JourneyRequest;
+import com.tramchester.domain.dates.TramDate;
+import com.tramchester.domain.dates.TramServiceDate;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
-import com.tramchester.domain.dates.TramServiceDate;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.search.RouteCalculator;
@@ -23,7 +24,6 @@ import org.junit.jupiter.api.*;
 import org.neo4j.graphdb.Transaction;
 
 import java.time.Duration;
-import java.time.LocalDate;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
@@ -39,7 +39,7 @@ public class RailAndTramRouteCalculatorTest {
     private static final int TXN_TIMEOUT = 5*60;
     private static StationRepository stationRepository;
 
-    private final LocalDate when = TestEnv.testDay();
+    private final TramDate when = TestEnv.testDay();
 
     private static ComponentContainer componentContainer;
     private static GraphDatabase database;
@@ -48,7 +48,6 @@ public class RailAndTramRouteCalculatorTest {
     private RouteCalculatorTestFacade testFacade;
 
     private TramTime travelTime;
-    private LocalDate date;
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
@@ -77,7 +76,6 @@ public class RailAndTramRouteCalculatorTest {
 
         travelTime = TramTime.of(8, 0);
 
-        date = TestEnv.testDay();
     }
 
     @Test

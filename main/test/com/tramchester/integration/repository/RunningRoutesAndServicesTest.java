@@ -119,17 +119,17 @@ public class RunningRoutesAndServicesTest {
         EnumSet<DayOfWeek> weekdays = EnumSet.of(MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY);
         final EnumSet<DayOfWeek> saturdays = EnumSet.of(SATURDAY);
 
-        LocalDate testDay = TestEnv.nextMonday();
+        TramDate testDay = TestEnv.nextMonday();
 
         while (new TramServiceDate(testDay).isChristmasPeriod()) {
             testDay = testDay.plusWeeks(1);
         }
 
-        final LocalDate nextMonday = testDay.plusWeeks(1);
+        final TramDate nextMonday = testDay.plusWeeks(1);
 
         // date range contains next monday and service does weekday operating
         List<Service> weekdayServices = transportData.getServices().stream().
-                filter(service -> service.getCalendar().getDateRange().contains(TramDate.of(nextMonday))).
+                filter(service -> service.getCalendar().getDateRange().contains(nextMonday)).
                 filter(service -> service.getCalendar().getOperatingDays().equals(weekdays)).
                 collect(Collectors.toList());
         assertFalse(weekdayServices.isEmpty());
@@ -147,9 +147,9 @@ public class RunningRoutesAndServicesTest {
         DateRange weekdayDateRange = new DateRange(weekdayServicesBegin, weekdayServicesEnd);
 
         // double check contains next monday
-        assertTrue(weekdayDateRange.contains(TramDate.of(nextMonday)));
+        assertTrue(weekdayDateRange.contains(nextMonday));
 
-        TramDate friday = TramDate.of(getFridayAfter(nextMonday));
+        TramDate friday = getFridayAfter(nextMonday);
         assertTrue(weekdayDateRange.contains(friday));
 
         RunningRoutesAndServices.FilterForDate filterForNextFriday = runningRoutesAndServices.getFor(friday);
@@ -181,8 +181,8 @@ public class RunningRoutesAndServicesTest {
 
     }
 
-    private LocalDate getFridayAfter(final LocalDate weekdayServicesBegin) {
-        LocalDate result = weekdayServicesBegin;
+    private TramDate getFridayAfter(final TramDate weekdayServicesBegin) {
+        TramDate result = weekdayServicesBegin;
         while (result.getDayOfWeek()!=FRIDAY) {
             result = result.plusDays(1);
         }

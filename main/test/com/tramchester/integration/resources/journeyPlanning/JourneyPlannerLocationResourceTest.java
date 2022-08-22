@@ -2,6 +2,7 @@ package com.tramchester.integration.resources.journeyPlanning;
 
 import com.tramchester.App;
 import com.tramchester.config.AppConfiguration;
+import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.presentation.DTO.JourneyDTO;
 import com.tramchester.domain.presentation.DTO.JourneyPlanRepresentation;
 import com.tramchester.domain.presentation.DTO.JourneyQueryDTO;
@@ -24,7 +25,6 @@ import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.Arrays;
@@ -45,7 +45,7 @@ class JourneyPlannerLocationResourceTest {
     private static final AppConfiguration config = new ResourceTramTestConfig<>(JourneyPlannerResource.class);
     private static final IntegrationAppExtension appExtension = new IntegrationAppExtension(App.class, config);
 
-    private LocalDate when;
+    private TramDate when;
     private JourneyResourceTestFacade journeyPlanner;
 
     @BeforeEach
@@ -68,7 +68,7 @@ class JourneyPlannerLocationResourceTest {
         // TODO Sort out the issues with this test to make it reliable
 
         // TODO remove plus 2 weeks
-        LocalDate whichDay = this.when.plusWeeks(3);
+        TramDate whichDay = this.when.plusWeeks(3);
         Set<JourneyDTO> journeys = validateJourneyFromLocation(nearAltrincham, Deansgate,
                 TramTime.of(19,1), false, whichDay);
         assertTrue(journeys.size()>0);
@@ -82,15 +82,15 @@ class JourneyPlannerLocationResourceTest {
 
         // todo new lockdown timetable
         List<LocalDateTime> possibleTimes = Arrays.asList(
-                LocalDateTime.of(whichDay, LocalTime.of(19, 19)),
-                LocalDateTime.of(whichDay, LocalTime.of(19, 8)),
-                LocalDateTime.of(whichDay, LocalTime.of(19, 25)));
+                getDateTimeFor(whichDay, 19, 19),
+                getDateTimeFor(whichDay, 19, 8),
+                getDateTimeFor(whichDay, 19, 25));
 
         assertTrue(possibleTimes.contains(departureTime), departureTime + " not one of "+possibleTimes);
 
         // todo new lockdown timetable
         // 19:36 -> 20:00
-        assertEquals(LocalDateTime.of(whichDay, LocalTime.of(20,0)), firstJourney.getExpectedArrivalTime(), firstJourney.toString());
+        assertEquals(getDateTimeFor(whichDay, 20, 0), firstJourney.getExpectedArrivalTime(), firstJourney.toString());
     }
 
     private JourneyDTO getEarliestArrivingJourney(Set<JourneyDTO> journeys) {
@@ -190,7 +190,7 @@ class JourneyPlannerLocationResourceTest {
         List<StageDTO> stages = first.getStages();
         assertEquals(1, stages.size());
         StageDTO walkingStage = stages.get(0);
-        assertEquals(LocalDateTime.of(when,LocalTime.of(22,9)), walkingStage.getFirstDepartureTime());
+        assertEquals(getDateTimeFor(when, 22, 9), walkingStage.getFirstDepartureTime());
     }
 
     @Test
@@ -203,7 +203,7 @@ class JourneyPlannerLocationResourceTest {
         List<StageDTO> stages = first.getStages();
         assertEquals(1, stages.size());
         StageDTO walkingStage = stages.get(0);
-        assertEquals(LocalDateTime.of(when,LocalTime.of(22,9)), walkingStage.getFirstDepartureTime());
+        assertEquals(getDateTimeFor(when, 22, 9), walkingStage.getFirstDepartureTime());
     }
 
     @Test
@@ -225,13 +225,18 @@ class JourneyPlannerLocationResourceTest {
         assertTrue(journeys.size()>0);
         JourneyDTO first = getEarliestArrivingJourney(journeys);
         List<StageDTO> stages = first.getStages();
-        assertEquals(LocalDateTime.of(when, LocalTime.of(9,0)), first.getFirstDepartureTime(), journeys.toString());
-        assertEquals(LocalDateTime.of(when, LocalTime.of(9,3)), first.getExpectedArrivalTime(), journeys.toString());
+        assertEquals(getDateTimeFor(when, 9, 0), first.getFirstDepartureTime(), journeys.toString());
+        assertEquals(getDateTimeFor(when, 9, 3), first.getExpectedArrivalTime(), journeys.toString());
 
         assertEquals(1, stages.size());
         StageDTO stage = stages.get(0);
-        assertEquals(LocalDateTime.of(when,LocalTime.of(9,0)), stage.getFirstDepartureTime());
-        assertEquals(LocalDateTime.of(when,LocalTime.of(9,3)), stage.getExpectedArrivalTime());
+        assertEquals(getDateTimeFor(when, 9, 0), stage.getFirstDepartureTime());
+        assertEquals(getDateTimeFor(when, 9, 3), stage.getExpectedArrivalTime());
+    }
+
+    @NotNull
+    private LocalDateTime getDateTimeFor(TramDate when, int hour, int minute) {
+        return LocalDateTime.of(when.toLocalDate(), LocalTime.of(hour, minute));
     }
 
     @Test
@@ -259,7 +264,8 @@ class JourneyPlannerLocationResourceTest {
         validateJourneyFromLocation(nearAltrincham, destination, queryTime, true, when);
     }
 
-    private Set<JourneyDTO> validateJourneyFromLocation(KnownLocations start, FakeStation destination, TramTime queryTime, boolean arriveBy, LocalDate when) {
+    private Set<JourneyDTO> validateJourneyFromLocation(KnownLocations start, FakeStation destination, TramTime queryTime,
+                                                        boolean arriveBy, TramDate when) {
 
         JourneyQueryDTO query = journeyPlanner.getQueryDTO(when, queryTime, start.location(), destination, arriveBy, 3);
 

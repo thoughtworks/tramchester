@@ -6,6 +6,7 @@ import com.tramchester.domain.DataSourceID;
 import com.tramchester.domain.ServiceTimeLimits;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.ProvidesNow;
+import com.tramchester.domain.time.TramTime;
 import com.tramchester.healthchecks.LiveDataMessagesHealthCheck;
 import com.tramchester.livedata.tfgm.PlatformMessageRepository;
 import com.tramchester.repository.StationRepository;
@@ -17,7 +18,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.time.LocalDateTime;
-import java.time.LocalTime;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -40,7 +40,7 @@ class LiveDataMessagesHealthCheckTest extends EasyMockSupport {
 
     @Test
     void shouldReportHealthy() {
-        LocalDateTime daytime = LocalDateTime.of(TestEnv.testDay(), LocalTime.of(11,0));
+        LocalDateTime daytime = TramTime.of(11,0).toDate(TestEnv.testDay());
 
         EasyMock.expect(providesNow.getDateTime()).andReturn(daytime);
         EasyMock.expect(repository.numberOfEntries()).andReturn(42);
@@ -57,7 +57,7 @@ class LiveDataMessagesHealthCheckTest extends EasyMockSupport {
 
     @Test
     void shouldReportHealthyIfEnoughStationsWithinThreshhold() {
-        LocalDateTime daytime = LocalDateTime.of(TestEnv.testDay(), LocalTime.of(11,0));
+        LocalDateTime daytime = TramTime.of(11,0).toDate(TestEnv.testDay());
 
         EasyMock.expect(providesNow.getDateTime()).andReturn(daytime);
         EasyMock.expect(repository.numberOfEntries()).andReturn(42);
@@ -87,7 +87,7 @@ class LiveDataMessagesHealthCheckTest extends EasyMockSupport {
 
     @Test
     void shouldReportUnhealthyIfMissingStations() {
-        LocalDateTime daytime = LocalDateTime.of(TestEnv.testDay(), LocalTime.of(11,0));
+        LocalDateTime daytime = TramTime.of(11,0).toDate(TestEnv.testDay());
 
         EasyMock.expect(providesNow.getDateTime()).andReturn(daytime);
         EasyMock.expect(repository.numberOfEntries()).andReturn(42);
@@ -105,7 +105,7 @@ class LiveDataMessagesHealthCheckTest extends EasyMockSupport {
 
     @Test
     void shouldNOTReportUnhealthyIfNoDataLateAtNight() {
-        LocalDateTime lateNight = LocalDateTime.of(TestEnv.testDay(), LocalTime.of(4,0));
+        LocalDateTime lateNight = TramTime.of(4,0).toDate(TestEnv.testDay());
 
         EasyMock.expect(providesNow.getDateTime()).andReturn(lateNight);
         EasyMock.expect(repository.numberOfEntries()).andReturn(42);

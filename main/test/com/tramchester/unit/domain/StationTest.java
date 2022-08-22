@@ -3,6 +3,7 @@ package com.tramchester.unit.domain;
 
 import com.tramchester.domain.*;
 import com.tramchester.domain.dates.MutableServiceCalendar;
+import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.places.MutableStation;
@@ -129,11 +130,11 @@ class StationTest {
 
         final MutableRoute routeA = new MutableRoute(StringIdFor.createId("routeIdA"), "shortNameA", "nameA", TestEnv.MetAgency(), Tram);
 
-        DateRange dateRangeA = new DateRange(LocalDate.of(2022, 7, 15), LocalDate.of(2022, 8, 24));
+        DateRange dateRangeA = new DateRange(TramDate.of(2022, 7, 15), TramDate.of(2022, 8, 24));
 
         MutableService serviceA = createService(days, dateRangeA, "serviceAId");
 
-        DateRange dateRangeB = new DateRange(LocalDate.of(2022, 7, 16), LocalDate.of(2022,7,17));
+        DateRange dateRangeB = new DateRange(TramDate.of(2022, 7, 16), TramDate.of(2022,7,17));
 
         MutableService serviceB = createService(days, dateRangeB, "serviceBId");
 

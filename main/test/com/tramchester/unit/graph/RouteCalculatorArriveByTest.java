@@ -2,13 +2,14 @@ package com.tramchester.unit.graph;
 
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.Journey;
+import com.tramchester.domain.JourneyRequest;
+import com.tramchester.domain.dates.TramDate;
+import com.tramchester.domain.dates.TramServiceDate;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.InvalidDurationException;
-import com.tramchester.domain.dates.TramServiceDate;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.RouteCostCalculator;
-import com.tramchester.domain.JourneyRequest;
 import com.tramchester.graph.search.RouteCalculator;
 import com.tramchester.graph.search.RouteCalculatorArriveBy;
 import com.tramchester.testSupport.TestEnv;
@@ -20,12 +21,11 @@ import org.junit.jupiter.api.Test;
 import org.neo4j.graphdb.Transaction;
 
 import java.time.Duration;
-import java.time.LocalDate;
 import java.util.Collections;
 import java.util.Set;
 import java.util.stream.Stream;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertSame;
 
 class RouteCalculatorArriveByTest extends EasyMockSupport {
 
@@ -50,11 +50,11 @@ class RouteCalculatorArriveByTest extends EasyMockSupport {
     void shouldArriveByTramNoWalk() throws InvalidDurationException {
         long maxNumberOfJourneys = 3;
         TramTime arriveByTime = TramTime.of(14,35);
-        LocalDate localDate = TestEnv.testDay();
+        TramDate localDate = TestEnv.testDay();
 
         Station start = TramStations.Bury.fake();
         Station destinationId = TramStations.Cornbrook.fake();
-        TramServiceDate serviceDate = TramServiceDate.of(localDate);
+        TramServiceDate serviceDate = new TramServiceDate(localDate);
 
         Stream<Journey> journeyStream = Stream.empty();
 

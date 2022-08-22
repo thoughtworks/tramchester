@@ -5,6 +5,7 @@ import com.tramchester.ComponentsBuilder;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.Journey;
 import com.tramchester.domain.JourneyRequest;
+import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.places.StationGroup;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.dates.TramServiceDate;
@@ -40,7 +41,7 @@ class LocationJourneyPlannerBusTest {
     private static TramchesterConfig testConfig;
     private Duration maxDuration;
 
-    private final LocalDate nextMonday = TestEnv.nextMonday();
+    private final TramDate nextMonday = TestEnv.nextMonday();
     private Transaction txn;
     private LocationJourneyPlannerTestFacade planner;
     private StationGroupsRepository stationGroupsRepository;

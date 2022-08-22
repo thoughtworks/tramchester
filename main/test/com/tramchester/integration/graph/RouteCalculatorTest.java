@@ -4,12 +4,13 @@ import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.domain.Journey;
 import com.tramchester.domain.JourneyRequest;
+import com.tramchester.domain.dates.TramDate;
+import com.tramchester.domain.dates.TramServiceDate;
 import com.tramchester.domain.input.StopCall;
 import com.tramchester.domain.places.Location;
 import com.tramchester.domain.places.LocationType;
 import com.tramchester.domain.presentation.TransportStage;
 import com.tramchester.domain.reference.TransportMode;
-import com.tramchester.domain.dates.TramServiceDate;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.domain.transportStages.VehicleStage;
 import com.tramchester.graph.GraphDatabase;
@@ -27,7 +28,6 @@ import org.junit.jupiter.api.*;
 import org.neo4j.graphdb.Transaction;
 
 import java.time.Duration;
-import java.time.LocalDate;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -52,7 +52,7 @@ public class RouteCalculatorTest {
     private final int maxChanges = 2;
 
     private RouteCalculatorTestFacade calculator;
-    private final LocalDate when = TestEnv.testDay();
+    private final TramDate when = TestEnv.testDay();
     private Transaction txn;
     private Duration maxJourneyDuration;
     private int maxNumResults;
@@ -277,7 +277,7 @@ public class RouteCalculatorTest {
 
     @Test
     void shouldNotReturnBackToStartOnJourney() {
-        TramServiceDate today = TramServiceDate.of(TestEnv.testDay());
+        TramServiceDate today = new TramServiceDate(TestEnv.testDay());
 
         JourneyRequest request = new JourneyRequest(today, TramTime.of(20, 9), false, 2,
                 maxJourneyDuration, 6, getRequestedModes());
@@ -347,7 +347,7 @@ public class RouteCalculatorTest {
     @Summer2022
     @Test
     void shouldHandleAfterMidnightDirectCentral() {
-        LocalDate testDate = when.plusWeeks(1);
+        TramDate testDate = when.plusWeeks(1);
 
         JourneyRequest journeyRequestA = standardJourneyRequest(testDate, TramTime.of(23,59), maxNumResults);
         assertGetAndCheckJourneys(journeyRequestA, StPetersSquare, MarketStreet);
@@ -445,7 +445,7 @@ public class RouteCalculatorTest {
     @Summer2022
     @Test
     void shouldReproIssueWithJourneysToEccles() {
-        LocalDate testDate = this.when.plusWeeks(1);
+        TramDate testDate = this.when.plusWeeks(1);
 
         JourneyRequest journeyRequest = standardJourneyRequest(testDate, TramTime.of(9,0), maxNumResults);
 
@@ -524,14 +524,14 @@ public class RouteCalculatorTest {
     }
 
     @NotNull
-    private JourneyRequest standardJourneyRequest(LocalDate date, TramTime time, long maxNumberJourneys) {
+    private JourneyRequest standardJourneyRequest(TramDate date, TramTime time, long maxNumberJourneys) {
         return new JourneyRequest(date, time, false, maxChanges, maxJourneyDuration, maxNumberJourneys, Collections.emptySet());
     }
 
-    private void checkRouteNextNDays(TramStations start, TramStations dest, LocalDate date, TramTime time, int numDays) {
+    private void checkRouteNextNDays(TramStations start, TramStations dest, TramDate date, TramTime time, int numDays) {
         if (!dest.equals(start)) {
             for(int day = 0; day< numDays; day++) {
-                LocalDate testDate = avoidChristmasDate(date.plusDays(day));
+                TramDate testDate = avoidChristmasDate(date.plusDays(day));
                 JourneyRequest journeyRequest = standardJourneyRequest(testDate, time, maxNumResults);
                 assertGetAndCheckJourneys(journeyRequest, start, dest);
             }

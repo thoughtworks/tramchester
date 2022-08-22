@@ -4,11 +4,12 @@ import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.DiagramCreator;
 import com.tramchester.domain.Journey;
+import com.tramchester.domain.JourneyRequest;
+import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.filters.ConfigurableGraphFilter;
-import com.tramchester.domain.JourneyRequest;
 import com.tramchester.graph.search.RouteCalculator;
 import com.tramchester.integration.testSupport.RouteCalculatorTestFacade;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
@@ -25,7 +26,6 @@ import org.neo4j.graphdb.Transaction;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.time.Duration;
-import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -42,7 +42,7 @@ class RouteCalculatorSubGraphTest {
     private static SubgraphConfig config;
 
     private RouteCalculatorTestFacade calculator;
-    private final LocalDate when = TestEnv.testDay();
+    private final TramDate when = TestEnv.testDay();
     private static final List<TramStations> stations = Arrays.asList(
             Cornbrook,
             TramStations.StPetersSquare,
@@ -195,7 +195,7 @@ class RouteCalculatorSubGraphTest {
     }
 
     @NotNull
-    private Set<Journey> getJourneys(TramStations start, TramStations destination, LocalDate when, long maxNumberJourneys) {
+    private Set<Journey> getJourneys(TramStations start, TramStations destination, TramDate when, long maxNumberJourneys) {
         JourneyRequest journeyRequest = new JourneyRequest(when, tramTime, false, 3,
                 maxJourneyDuration, maxNumberJourneys, Collections.emptySet());
         return calculator.calculateRouteAsSet(start,destination, journeyRequest);

@@ -4,6 +4,7 @@ import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.dataimport.loader.TransportDataFactory;
 import com.tramchester.domain.*;
 import com.tramchester.domain.dates.MutableServiceCalendar;
+import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.input.MutableTrip;
@@ -92,8 +93,8 @@ public class MixedTransportTestDataFactory implements TransportDataFactory {
         MutableService serviceB = new MutableService(MixedTransportTestData.serviceBId);
         MutableService serviceC = new MutableService(MixedTransportTestData.serviceCId);
 
-        LocalDate startDate = LocalDate.of(2014, 2, 10);
-        LocalDate endDate = LocalDate.of(2020, 8, 15);
+        TramDate startDate = TramDate.of(2014, 2, 10);
+        TramDate endDate = TramDate.of(2020, 8, 15);
 
         MutableServiceCalendar serviceCalendarA = new MutableServiceCalendar(startDate, endDate, DayOfWeek.MONDAY);
         serviceA.setCalendar(serviceCalendarA);

@@ -32,8 +32,8 @@ public class AggregateServiceCalendarTest {
 
     @Test
     void shouldHaveCorrectDateRange() {
-        LocalDate startDate = LocalDate.of(2014, 10, 5);
-        LocalDate endDate = LocalDate.of(2014, 10, 25);
+        TramDate startDate = TramDate.of(2014, 10, 5);
+        TramDate endDate = TramDate.of(2014, 10, 25);
 
         DateRange rangeA = DateRange.of(startDate, endDate);
         DateRange rangeB = DateRange.of(startDate.plusDays(1), endDate.minusDays(1));

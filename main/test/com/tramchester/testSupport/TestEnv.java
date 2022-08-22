@@ -9,6 +9,7 @@ import com.tramchester.config.TfgmTramLiveDataConfig;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.*;
 import com.tramchester.domain.dates.TramDate;
+import com.tramchester.domain.dates.TramServiceDate;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.input.PlatformStopCall;
 import com.tramchester.domain.input.Trip;
@@ -18,7 +19,6 @@ import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.reference.GTFSPickupDropoffType;
 import com.tramchester.domain.reference.GTFSTransportationType;
 import com.tramchester.domain.reference.TransportMode;
-import com.tramchester.domain.dates.TramServiceDate;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.geo.BoundingBox;
 import com.tramchester.metrics.CacheMetrics;
@@ -34,7 +34,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.DayOfWeek;
 import java.time.Duration;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
@@ -50,10 +49,10 @@ public class TestEnv {
 
     public static final int DAYS_AHEAD = 7;
 
-    private static final LocalDate testDay;
-    private static final LocalDate saturday;
-    private static final LocalDate sunday;
-    private static final LocalDate monday;
+    private static final TramDate testDay;
+    private static final TramDate saturday;
+    private static final TramDate sunday;
+    private static final TramDate monday;
 
     public static final DateTimeFormatter dateFormatDashes = DateTimeFormatter.ofPattern("yyyy-MM-dd");
     public static final DateTimeFormatter dateFormatSimple = DateTimeFormatter.ofPattern("ddMMyyyy");
@@ -106,41 +105,41 @@ public class TestEnv {
     }
 
     static {
-        LocalDate today = LocalNow().toLocalDate();
+        TramDate today = TramDate.of(LocalNow().toLocalDate());
         testDay = getNextDate(DayOfWeek.THURSDAY, today);
         saturday = getNextDate(DayOfWeek.SATURDAY, today);
         sunday = getNextDate(DayOfWeek.SUNDAY, today);
         monday = getNextDate(DayOfWeek.MONDAY, today);
     }
 
-    public static LocalDate nextSaturday() {
+    public static TramDate nextSaturday() {
         return saturday;
     }
 
-    public static LocalDate nextSunday() {
+    public static TramDate nextSunday() {
         return sunday;
     }
 
-    public static LocalDate testDay() {
+    public static TramDate testDay() {
         return testDay;
     }
 
     public static TramDate testTramDay() {
-        return TramDate.of(testDay);
+        return testDay;
     }
 
-    public static LocalDate nextMonday() {
+    public static TramDate nextMonday() {
         return monday;
     }
 
-    private static LocalDate getNextDate(DayOfWeek dayOfWeek, LocalDate date) {
+    private static TramDate getNextDate(DayOfWeek dayOfWeek, TramDate date) {
         while (date.getDayOfWeek() != dayOfWeek) {
             date = date.plusDays(1);
         }
         return avoidChristmasDate(date);
     }
 
-    public static LocalDate avoidChristmasDate(LocalDate date) {
+    public static TramDate avoidChristmasDate(TramDate date) {
         while (new TramServiceDate(date).isChristmasPeriod()) {
             date = date.plusWeeks(1);
         }
@@ -302,9 +301,5 @@ public class TestEnv {
             throw new RuntimeException("Wrong number of platforms " + platforms.size());
         }
         return platforms.get(0);
-    }
-
-    public static TramDate nextSaturdayDate() {
-        return TramDate.of(nextSaturday());
     }
 }

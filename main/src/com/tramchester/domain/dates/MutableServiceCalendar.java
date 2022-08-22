@@ -4,8 +4,9 @@ import com.tramchester.dataimport.data.CalendarData;
 
 import java.io.PrintStream;
 import java.time.DayOfWeek;
-import java.time.LocalDate;
-import java.util.*;
+import java.util.Arrays;
+import java.util.EnumSet;
+import java.util.HashSet;
 
 public class MutableServiceCalendar implements ServiceCalendar {
     private final DateRange dateRange;
@@ -23,10 +24,6 @@ public class MutableServiceCalendar implements ServiceCalendar {
                 calendarData.isFriday(),
                 calendarData.isSaturday(),
                 calendarData.isSunday()));
-    }
-
-    public MutableServiceCalendar(LocalDate startDate, LocalDate endDate, DayOfWeek... operatingDays) {
-        this(new DateRange(startDate, endDate), enumFrom(operatingDays));
     }
 
     public MutableServiceCalendar(TramDate startDate, TramDate endDate, DayOfWeek... operatingDays) {

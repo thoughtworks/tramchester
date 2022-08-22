@@ -3,6 +3,7 @@ package com.tramchester.domain.presentation.DTO;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.presentation.TravelAction;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.mappers.serialisation.LocalDateJsonDeserializer;
@@ -39,7 +40,7 @@ public class StageDTO {
     public StageDTO(LocationRefWithPosition firstStation, LocationRefWithPosition lastStation, LocationRefWithPosition actionStation,
                     LocalDateTime firstDepartureTime, LocalDateTime expectedArrivalTime, Duration duration,
                     String headSign, TransportMode mode, int passedStops,
-                    RouteRefDTO route, TravelAction action, LocalDate queryDate, String tripId) {
+                    RouteRefDTO route, TravelAction action, TramDate queryDate, String tripId) {
         this.firstStation = firstStation;
         this.lastStation = lastStation;
         this.actionStation = actionStation;
@@ -52,7 +53,7 @@ public class StageDTO {
         this.passedStops = passedStops;
         this.route = route;
         this.action = action.toString();
-        this.queryDate = queryDate;
+        this.queryDate = queryDate.toLocalDate();
         this.tripId = tripId;
 
         // todo seconds?
@@ -64,7 +65,7 @@ public class StageDTO {
                     PlatformDTO boardingPlatform, LocalDateTime firstDepartureTime, LocalDateTime expectedArrivalTime,
                     Duration duration,
                     String headSign, TransportMode mode, int passedStops,
-                    RouteRefDTO route, TravelAction action, LocalDate queryDate, String tripId) {
+                    RouteRefDTO route, TravelAction action, TramDate queryDate, String tripId) {
         this(firstStation, lastStation, actionStation, firstDepartureTime, expectedArrivalTime, duration, headSign, mode,
             passedStops, route, action, queryDate, tripId);
 

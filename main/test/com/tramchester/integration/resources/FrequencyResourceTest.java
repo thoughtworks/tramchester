@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.module.afterburner.AfterburnerModule;
 import com.tramchester.App;
+import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.presentation.DTO.BoxWithFrequencyDTO;
 import com.tramchester.domain.presentation.DTO.LocationRefDTO;
 import com.tramchester.geo.BoundingBox;
@@ -24,7 +25,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import javax.ws.rs.core.Response;
 import java.io.IOException;
 import java.io.InputStream;
-import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -50,7 +50,7 @@ public class FrequencyResourceTest {
     void shouldHaveTramFrequencies() throws IOException {
 
         int gridSizeMeters = 1000;
-        LocalDate date = TestEnv.testDay();
+        TramDate date = TestEnv.testDay();
 
         LocalTime start= LocalTime.of(7,59);
         LocalTime end = LocalTime.of(9,15);

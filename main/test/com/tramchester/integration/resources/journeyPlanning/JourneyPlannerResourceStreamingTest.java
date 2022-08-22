@@ -1,6 +1,7 @@
 package com.tramchester.integration.resources.journeyPlanning;
 
 import com.tramchester.App;
+import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.presentation.DTO.JourneyDTO;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.integration.testSupport.IntegrationAppExtension;
@@ -25,7 +26,7 @@ public class JourneyPlannerResourceStreamingTest {
     private static final IntegrationAppExtension appExtension =
             new IntegrationAppExtension(App.class, new ResourceTramTestConfig<>(JourneyPlannerResource.class));
 
-    private LocalDate when;
+    private TramDate when;
     private JourneyResourceTestFacade journeyPlanner;
 
     @BeforeEach

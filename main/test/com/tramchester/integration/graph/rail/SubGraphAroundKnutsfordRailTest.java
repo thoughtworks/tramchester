@@ -5,6 +5,7 @@ import com.tramchester.ComponentsBuilder;
 import com.tramchester.DiagramCreator;
 import com.tramchester.domain.Journey;
 import com.tramchester.domain.JourneyRequest;
+import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.GraphDatabase;
@@ -41,7 +42,7 @@ class SubGraphAroundKnutsfordRailTest {
     private static SubgraphConfig config;
 
     private RouteCalculatorTestFacade testFacade;
-    private final LocalDate when = TestEnv.testDay();
+    private final TramDate when = TestEnv.testDay();
 
     private static final List<RailStationIds> stations = Arrays.asList(RailStationIds.Hale,
             RailStationIds.Ashley, RailStationIds.Mobberley, RailStationIds.Knutsford);

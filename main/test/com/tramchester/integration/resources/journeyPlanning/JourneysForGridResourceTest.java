@@ -4,13 +4,14 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.module.afterburner.AfterburnerModule;
 import com.tramchester.App;
+import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.DTO.BoxWithCostDTO;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.time.TramTime;
-import com.tramchester.integration.testSupport.IntegrationAppExtension;
 import com.tramchester.integration.testSupport.APIClient;
+import com.tramchester.integration.testSupport.IntegrationAppExtension;
 import com.tramchester.integration.testSupport.tram.ResourceTramTestConfig;
 import com.tramchester.resources.JourneysForGridResource;
 import com.tramchester.testSupport.ParseStream;
@@ -24,7 +25,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import javax.ws.rs.core.Response;
 import java.io.IOException;
 import java.io.InputStream;
-import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -46,7 +46,7 @@ class JourneysForGridResourceTest {
 
     @BeforeEach
     void beforeEachTestRuns() {
-        LocalDate when = TestEnv.testDay();
+        TramDate when = TestEnv.testDay();
         parseStream = new ParseStream<>(mapper);
 
         time = TramTime.of(9,15).toPattern();

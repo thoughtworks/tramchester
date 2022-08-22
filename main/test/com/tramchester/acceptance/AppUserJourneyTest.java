@@ -79,7 +79,7 @@ class AppUserJourneyTest extends UserJourneyTest {
     void beforeEachTestRuns() {
         url = appExtenstion.getUrl()+"/app/index.html";
         // +1
-        when = TestEnv.testDay().plusWeeks(1);
+        when = TestEnv.testDay().toLocalDate().plusWeeks(1);
     }
 
     @AfterEach
@@ -447,7 +447,7 @@ class AppUserJourneyTest extends UserJourneyTest {
         TramTime time = TramTime.of(10,15);
 
         AppPage appPage = prepare(providesDriver, url);
-        LocalDate aSaturday = TestEnv.nextSaturday();
+        LocalDate aSaturday = TestEnv.nextSaturday().toLocalDate();
 
         desiredJourney(appPage, altrincham, deansgate, aSaturday, time, false);
         appPage.planAJourney();

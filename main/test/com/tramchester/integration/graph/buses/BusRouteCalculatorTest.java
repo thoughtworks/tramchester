@@ -4,6 +4,7 @@ import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.domain.Journey;
 import com.tramchester.domain.JourneyRequest;
+import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.places.StationGroup;
 import com.tramchester.domain.places.Station;
@@ -47,7 +48,7 @@ class BusRouteCalculatorTest {
     private StationGroupsRepository compositeStationRepository;
     private StationRepository stationRepository;
 
-    private final LocalDate when = TestEnv.testDay();
+    private final TramDate when = TestEnv.testDay();
     private Transaction txn;
     private Duration maxJourneyDuration;
     private StationGroup stockportBusStation;
@@ -102,7 +103,7 @@ class BusRouteCalculatorTest {
     void shouldHaveStockToAltyJourneyAndBackAgainOneChanges() {
 
         TramTime travelTime = TramTime.of(9,0);
-        LocalDate nextMonday = TestEnv.nextMonday();
+        TramDate nextMonday = TestEnv.nextMonday();
 
         JourneyRequest requestA = new JourneyRequest(new TramServiceDate(nextMonday), travelTime, false, 1,
                 maxJourneyDuration, 1, getRequestedModes());
@@ -123,7 +124,7 @@ class BusRouteCalculatorTest {
     void shouldHaveStockToAltyJourney() {
 
         TramTime travelTime = TramTime.of(9, 0);
-        LocalDate nextMonday = TestEnv.nextMonday();
+        TramDate nextMonday = TestEnv.nextMonday();
 
         JourneyRequest requestA = new JourneyRequest(new TramServiceDate(nextMonday), travelTime, false, 1,
                 maxJourneyDuration, 3, getRequestedModes());
@@ -158,7 +159,7 @@ class BusRouteCalculatorTest {
 
         assertNotNull(start);
 
-        final LocalDate futureDate = TestEnv.testDay().plusDays(14);
+        final TramDate futureDate = TestEnv.testDay().plusDays(14);
         JourneyRequest journeyRequest = new JourneyRequest(futureDate,
                 TramTime.of(8,19), false, 3, maxJourneyDuration, 1, Collections.emptySet());
 

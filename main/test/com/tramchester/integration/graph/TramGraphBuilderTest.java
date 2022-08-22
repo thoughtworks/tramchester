@@ -6,6 +6,7 @@ import com.tramchester.ComponentsBuilder;
 import com.tramchester.domain.Platform;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.Service;
+import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.input.Trip;
@@ -32,7 +33,6 @@ import org.neo4j.graphdb.Relationship;
 import org.neo4j.graphdb.Transaction;
 
 import java.time.Duration;
-import java.time.LocalDate;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -53,7 +53,7 @@ class TramGraphBuilderTest {
     private Route tramRouteEcclesAshton;
     private Route tramRouteAltPicc;
     private TramRouteHelper tramRouteHelper;
-    private LocalDate when;
+    private TramDate when;
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {

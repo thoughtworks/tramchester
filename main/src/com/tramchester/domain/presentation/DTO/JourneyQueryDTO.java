@@ -1,6 +1,7 @@
 package com.tramchester.domain.presentation.DTO;
 
 import com.fasterxml.jackson.annotation.*;
+import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.places.Location;
 import com.tramchester.domain.places.LocationType;
 import com.tramchester.domain.reference.TransportMode;
@@ -71,6 +72,11 @@ public class JourneyQueryDTO  {
 
     }
 
+    public static JourneyQueryDTO create(TramDate date, TramTime time, Location<?> start, Location<?> dest,
+                                         boolean arriveBy, int maxChanges) {
+        return create(date.toLocalDate(), time, start, dest, arriveBy, maxChanges);
+    }
+
     @Override
     public String toString() {
         return "JourneyQueryDTO{" +
@@ -84,6 +90,11 @@ public class JourneyQueryDTO  {
                 ", maxChanges=" + maxChanges +
                 ", modes=" + modes +
                 '}';
+    }
+
+    @JsonIgnore
+    public TramDate getTramDate() {
+        return TramDate.of(date);
     }
 
     public LocalDate getDate() {

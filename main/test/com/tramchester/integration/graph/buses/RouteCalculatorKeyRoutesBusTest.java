@@ -3,6 +3,7 @@ package com.tramchester.integration.graph.buses;
 import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.config.TramchesterConfig;
+import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.filters.ConfigurableGraphFilter;
 import com.tramchester.domain.JourneyRequest;
@@ -29,7 +30,7 @@ class RouteCalculatorKeyRoutesBusTest {
     private static ComponentContainer componentContainer;
     private static TramchesterConfig testConfig;
 
-    private final LocalDate when = TestEnv.testDay();
+    private final TramDate when = TestEnv.testDay();
     private RouteCalculationCombinations combinations;
     private JourneyRequest journeyRequest;
 

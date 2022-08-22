@@ -1,5 +1,6 @@
 package com.tramchester.unit.mappers;
 
+import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.presentation.DTO.JourneyDTO;
 import com.tramchester.domain.presentation.DTO.StageDTO;
 import com.tramchester.domain.presentation.DTO.LocationRefWithPosition;
@@ -21,7 +22,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class JourneyDTODuplicateFilterTest {
 
-    private LocalDate queryDate;
+    private TramDate queryDate;
     private TramTime queryTime;
     private JourneyDTODuplicateFilter filter;
 
@@ -39,8 +40,8 @@ class JourneyDTODuplicateFilterTest {
         List<LocationRefWithPosition> path = Arrays.asList(getStationRef(Ashton), getStationRef(Deansgate),
                 getStationRef(NavigationRoad));
 
-        JourneyDTO journeyA = createJourneyFor(LocalTime.of(9,14), 10, changeStations, path);
-        JourneyDTO journeyB = createJourneyFor(LocalTime.of(9,14), 10, changeStations, path);
+        JourneyDTO journeyA = createJourneyFor(TramTime.of(9,14), 10, changeStations, path);
+        JourneyDTO journeyB = createJourneyFor(TramTime.of(9,14), 10, changeStations, path);
 
         Set<JourneyDTO> journeys = new HashSet<>(Arrays.asList(journeyA, journeyB));
 
@@ -57,8 +58,8 @@ class JourneyDTODuplicateFilterTest {
         List<LocationRefWithPosition> path = Arrays.asList(getStationRef(Ashton), getStationRef(Deansgate),
                 getStationRef(NavigationRoad));
 
-        JourneyDTO journeyA = createJourneyFor(LocalTime.of(9,14), 10, changeStationsA, path);
-        JourneyDTO journeyB = createJourneyFor(LocalTime.of(9,14), 10, changeStationsB, path);
+        JourneyDTO journeyA = createJourneyFor(TramTime.of(9,14), 10, changeStationsA, path);
+        JourneyDTO journeyB = createJourneyFor(TramTime.of(9,14), 10, changeStationsB, path);
 
         Set<JourneyDTO> journeys = new HashSet<>(Arrays.asList(journeyA, journeyB));
 
@@ -74,8 +75,8 @@ class JourneyDTODuplicateFilterTest {
         List<LocationRefWithPosition> path = Arrays.asList(getStationRef(Ashton), getStationRef(Deansgate),
                 getStationRef(NavigationRoad));
 
-        JourneyDTO journeyA = createJourneyFor(LocalTime.of(9,14), 10, changeStations, path);
-        JourneyDTO journeyB = createJourneyFor(LocalTime.of(9,17), 10, changeStations, path);
+        JourneyDTO journeyA = createJourneyFor(TramTime.of(9,14), 10, changeStations, path);
+        JourneyDTO journeyB = createJourneyFor(TramTime.of(9,17), 10, changeStations, path);
 
         Set<JourneyDTO> journeys = new HashSet<>(Arrays.asList(journeyA, journeyB, journeyA));
 
@@ -91,8 +92,8 @@ class JourneyDTODuplicateFilterTest {
         List<LocationRefWithPosition> path = Arrays.asList(getStationRef(Ashton), getStationRef(Deansgate),
                 getStationRef(NavigationRoad));
 
-        JourneyDTO journeyA = createJourneyFor(LocalTime.of(9,14), 15, changeStations, path);
-        JourneyDTO journeyB = createJourneyFor(LocalTime.of(9,14), 10, changeStations, path);
+        JourneyDTO journeyA = createJourneyFor(TramTime.of(9,14), 15, changeStations, path);
+        JourneyDTO journeyB = createJourneyFor(TramTime.of(9,14), 10, changeStations, path);
 
         Set<JourneyDTO> journeys = new HashSet<>(Arrays.asList(journeyA, journeyB, journeyA));
 
@@ -110,8 +111,8 @@ class JourneyDTODuplicateFilterTest {
         List<LocationRefWithPosition> pathB = Arrays.asList(getStationRef(Ashton), getStationRef(Deansgate),
                 getStationRef(Altrincham));
 
-        JourneyDTO journeyA = createJourneyFor(LocalTime.of(9,14), 10, changeStations, pathA);
-        JourneyDTO journeyB = createJourneyFor(LocalTime.of(9,14), 10, changeStations, pathB);
+        JourneyDTO journeyA = createJourneyFor(TramTime.of(9,14), 10, changeStations, pathA);
+        JourneyDTO journeyB = createJourneyFor(TramTime.of(9,14), 10, changeStations, pathB);
 
         Set<JourneyDTO> journeys = new HashSet<>(Arrays.asList(journeyA, journeyB, journeyB));
 
@@ -119,15 +120,16 @@ class JourneyDTODuplicateFilterTest {
         assertEquals(2, results.size());
     }
 
-    private JourneyDTO createJourneyFor(LocalTime departTime, int duration, List<LocationRefWithPosition> changeStations, List<LocationRefWithPosition> path) {
+    private JourneyDTO createJourneyFor(TramTime departTime, int duration, List<LocationRefWithPosition> changeStations,
+                                        List<LocationRefWithPosition> path) {
         List<Note> notes = Collections.emptyList();
         LocationRefWithPosition begin = getStationRef(Ashton);
         StageDTO stageA = new StageDTO();
         StageDTO stageB = new StageDTO();
         List<StageDTO> stages = Arrays.asList(stageA, stageB);
 
-        LocalDateTime firstDepartureTime = LocalDateTime.of(queryDate, departTime);
-        LocalDateTime expectedArrivalTime = LocalDateTime.of(queryDate, departTime.plusMinutes(duration));
+        LocalDateTime firstDepartureTime = departTime.toDate(queryDate);
+        LocalDateTime expectedArrivalTime = departTime.plusMinutes(duration).toDate(queryDate);
 
         return new JourneyDTO(begin, stages,
                 expectedArrivalTime, firstDepartureTime,

@@ -25,7 +25,6 @@ import java.util.List;
 import java.util.stream.Stream;
 
 import static com.tramchester.acceptance.AppUserJourneyTest.desiredJourney;
-import static com.tramchester.acceptance.AppUserJourneyTest.validateAStage;
 import static com.tramchester.testSupport.reference.KnownLocations.nearAltrincham;
 import static org.hamcrest.CoreMatchers.hasItems;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -62,7 +61,7 @@ public class AppUserJourneyLocationsTest extends UserJourneyTest {
     void beforeEachTestRuns() {
         url = testRule.getUrl()+"/app/index.html";
         // +1
-        when = TestEnv.testDay().plusWeeks(1);
+        when = TestEnv.testDay().plusWeeks(1).toLocalDate();
     }
 
     @AfterEach

@@ -1,6 +1,7 @@
 package com.tramchester.integration.resources.journeyPlanning;
 
 import com.tramchester.App;
+import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.presentation.DTO.JourneyDTO;
 import com.tramchester.domain.presentation.DTO.JourneyPlanRepresentation;
 import com.tramchester.domain.presentation.DTO.JourneyQueryDTO;
@@ -34,7 +35,7 @@ class JourneyPlannerPostcodeBusResourceTest {
     private static final IntegrationAppExtension appExtension = new IntegrationAppExtension(App.class,
             new IntegrationBusTestConfig());
 
-    private LocalDate day;
+    private TramDate day;
     private TramTime time;
     private JourneyResourceTestFacade journeyPlanner;
 
@@ -48,7 +49,8 @@ class JourneyPlannerPostcodeBusResourceTest {
     @Test
     void shouldPlanJourneyFromPostcodeToPostcodeViaBus() {
 
-        JourneyQueryDTO query = JourneyQueryDTO.create(day, time, TestPostcodes.CentralBury, TestPostcodes.NearPiccadillyGardens, false, 0);
+        JourneyQueryDTO query = JourneyQueryDTO.create(day, time, TestPostcodes.CentralBury, TestPostcodes.NearPiccadillyGardens,
+                false, 0);
 
         JourneyPlanRepresentation results = journeyPlanner.getJourneyPlan(query);
 
@@ -66,7 +68,8 @@ class JourneyPlannerPostcodeBusResourceTest {
     @Test
     void shouldWalkFromPostcodeToNearbyStation() {
 
-        JourneyQueryDTO query = journeyPlanner.getQueryDTO(day, time, TestPostcodes.CentralBury, BusStations.BuryInterchange, false, 1);
+        JourneyQueryDTO query = journeyPlanner.getQueryDTO(day, time, TestPostcodes.CentralBury, BusStations.BuryInterchange,
+                false, 1);
 
         JourneyPlanRepresentation results = journeyPlanner.getJourneyPlan(query);
 
@@ -82,7 +85,8 @@ class JourneyPlannerPostcodeBusResourceTest {
     @Test
     void shouldWalkFromStationToNearbyPostcode() {
 
-        JourneyQueryDTO query = journeyPlanner.getQueryDTO(day, time, BusStations.BuryInterchange, TestPostcodes.CentralBury, false, 1);
+        JourneyQueryDTO query = journeyPlanner.getQueryDTO(day, time, BusStations.BuryInterchange, TestPostcodes.CentralBury,
+                false, 1);
 
         JourneyPlanRepresentation results = journeyPlanner.getJourneyPlan(query);
 
@@ -102,7 +106,8 @@ class JourneyPlannerPostcodeBusResourceTest {
     @Test
     void shouldPlanJourneyFromPostcodeToBusStation() {
 
-        JourneyQueryDTO query = journeyPlanner.getQueryDTO(day, time, TestPostcodes.CentralBury, BusStations.StopAtShudehillInterchange, false, 1);
+        JourneyQueryDTO query = journeyPlanner.getQueryDTO(day, time, TestPostcodes.CentralBury, BusStations.StopAtShudehillInterchange,
+                false, 1);
 
         JourneyPlanRepresentation results = journeyPlanner.getJourneyPlan(query);
 
@@ -120,7 +125,8 @@ class JourneyPlannerPostcodeBusResourceTest {
     @Test
     void shouldPlanJourneyFromBusStationToPostcode() {
 
-        JourneyQueryDTO query = journeyPlanner.getQueryDTO(day, time, BusStations.StopAtShudehillInterchange, TestPostcodes.CentralBury, false, 1);
+        JourneyQueryDTO query = journeyPlanner.getQueryDTO(day, time, BusStations.StopAtShudehillInterchange, TestPostcodes.CentralBury,
+                false, 1);
 
         JourneyPlanRepresentation results = journeyPlanner.getJourneyPlan(query);
 

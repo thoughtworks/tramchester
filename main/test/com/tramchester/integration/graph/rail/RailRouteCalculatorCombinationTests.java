@@ -4,6 +4,7 @@ import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.JourneyRequest;
+import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.dates.TramServiceDate;
 import com.tramchester.domain.time.TramTime;
@@ -34,7 +35,7 @@ class RailRouteCalculatorCombinationTests {
     private static GraphDatabase database;
     private RouteCalculationCombinations combinations;
 
-    private final LocalDate when = TestEnv.testDay();
+    private final TramDate when = TestEnv.testDay();
     private Transaction txn;
 
     @BeforeAll

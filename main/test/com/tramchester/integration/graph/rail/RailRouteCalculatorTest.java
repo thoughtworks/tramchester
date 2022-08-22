@@ -5,6 +5,7 @@ import com.tramchester.ComponentsBuilder;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.Journey;
 import com.tramchester.domain.JourneyRequest;
+import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.input.StopCall;
 import com.tramchester.domain.places.Station;
@@ -39,8 +40,8 @@ public class RailRouteCalculatorTest {
     private static final int TXN_TIMEOUT = 5*60;
     private static StationRepository stationRepository;
 
-    private final LocalDate when = TestEnv.testDay();
-    private final LocalDate afterEngineering = when.plusWeeks(2);
+    private final TramDate when = TestEnv.testDay();
+    private final TramDate afterEngineering = when.plusWeeks(2);
 
     private static ComponentContainer componentContainer;
     private static GraphDatabase database;

@@ -6,6 +6,7 @@ import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.Journey;
 import com.tramchester.domain.JourneyRequest;
 import com.tramchester.domain.StationIdPair;
+import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.time.Durations;
 import com.tramchester.domain.dates.TramServiceDate;
 import com.tramchester.domain.time.TramTime;
@@ -36,7 +37,7 @@ class RouteCalculatorKeyRoutesTest {
     private static ComponentContainer componentContainer;
     private static TramchesterConfig testConfig;
 
-    private LocalDate when;
+    private TramDate when;
     private RouteCalculationCombinations combinations;
     private JourneyRequest journeyRequest;
     private Duration maxJourneyDuration;
@@ -58,7 +59,7 @@ class RouteCalculatorKeyRoutesTest {
     @BeforeEach
     void beforeEachTestRuns() {
         // +1 weeks here
-         when = TestEnv.testDay().plusWeeks(1);
+        when = TestEnv.testTramDay().plusWeeks(1);
         maxJourneyDuration = Duration.ofMinutes(testConfig.getMaxJourneyDuration());
         journeyRequest = new JourneyRequest(when, TramTime.of(8, 5), false, 2,
                 maxJourneyDuration, 1, Collections.emptySet());
@@ -93,7 +94,7 @@ class RouteCalculatorKeyRoutesTest {
 
         for(int day = 0; day< TestEnv.DAYS_AHEAD; day++) {
             // TODO remove plus 3 week here
-            LocalDate testDate = avoidChristmasDate(when.plusDays(day).plusWeeks(3));
+            TramDate testDate = avoidChristmasDate(when.plusDays(day).plusWeeks(3));
             JourneyRequest request = new JourneyRequest(testDate, TramTime.of(8,5), false, 2,
                     maxJourneyDuration, 1, Collections.emptySet());
             combinations.validateAllHaveAtLeastOneJourney(pairs, request);
@@ -108,7 +109,7 @@ class RouteCalculatorKeyRoutesTest {
         // helps with diagnosis when trams not running on a specific day vs. actual missing data
 
         // TODO remove plus 2 week here
-        LocalDate testDate = avoidChristmasDate(when.plusDays(TestEnv.DAYS_AHEAD).plusWeeks(2));
+        TramDate testDate = avoidChristmasDate(when.plusDays(TestEnv.DAYS_AHEAD).plusWeeks(2));
         JourneyRequest request = new JourneyRequest(testDate, TramTime.of(8,5), false, 3,
                 maxJourneyDuration, 1, Collections.emptySet());
         combinations.validateAllHaveAtLeastOneJourney(pairs, request);
@@ -143,7 +144,7 @@ class RouteCalculatorKeyRoutesTest {
             stationIdPairs.add(new StationIdPair(ShawAndCrompton, Ashton));
         }
 
-        LocalDate queryDate = when;
+        TramDate queryDate = when;
         TramTime queryTime = TramTime.of(8,0);
 
         Optional<Pair<StationIdPair, RouteCalculationCombinations.JourneyOrNot>> failed = stationIdPairs.parallelStream().

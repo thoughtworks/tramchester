@@ -6,6 +6,7 @@ import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.JourneyRequest;
 import com.tramchester.domain.JourneysForBox;
 import com.tramchester.domain.LocationSet;
+import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.dates.TramServiceDate;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.geo.BoundingBox;
@@ -40,7 +41,7 @@ class RouteCalculatorForBoundingBoxTest {
     private static TramchesterConfig testConfig;
 
     private RouteCalculatorForBoxes calculator;
-    private final LocalDate when = TestEnv.testDay();
+    private final TramDate when = TestEnv.testDay();
     private Transaction txn;
     private StationLocations stationLocations;
     private StationRepository stationRepository;

@@ -1,5 +1,6 @@
 package com.tramchester.domain.time;
 
+import com.tramchester.domain.dates.TramDate;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.Serializable;
@@ -367,6 +368,11 @@ public class TramTime implements Comparable<TramTime> {
     // to date, respecting day offset
     public LocalDateTime toDate(LocalDate startDate) {
         LocalDateTime base = LocalDateTime.of(startDate, asLocalTime());
+        return base.plusDays(offsetDays);
+    }
+
+    public LocalDateTime toDate(TramDate startDate) {
+        LocalDateTime base = LocalDateTime.of(startDate.toLocalDate(), asLocalTime());
         return base.plusDays(offsetDays);
     }
 

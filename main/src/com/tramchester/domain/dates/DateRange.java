@@ -20,11 +20,6 @@ public class DateRange {
         this.endDate = TramDate.of(endDate);
     }
 
-    @Deprecated
-    public static DateRange of(LocalDate startDate, LocalDate endDate) {
-        return new DateRange(TramDate.of(startDate), TramDate.of(endDate));
-    }
-
     public static DateRange of(TramDate startDate, TramDate endDate) {
         return new DateRange(startDate, endDate);
     }

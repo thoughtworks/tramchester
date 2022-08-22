@@ -1,16 +1,17 @@
 package com.tramchester.integration.resources.journeyPlanning;
 
 import com.tramchester.App;
+import com.tramchester.domain.dates.TramDate;
+import com.tramchester.domain.dates.TramServiceDate;
 import com.tramchester.domain.presentation.DTO.*;
 import com.tramchester.domain.presentation.Note;
-import com.tramchester.domain.time.Durations;
-import com.tramchester.livedata.tfgm.ProvidesTramNotes;
 import com.tramchester.domain.reference.TransportMode;
-import com.tramchester.domain.dates.TramServiceDate;
+import com.tramchester.domain.time.Durations;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.integration.testSupport.IntegrationAppExtension;
 import com.tramchester.integration.testSupport.JourneyResourceTestFacade;
 import com.tramchester.integration.testSupport.tram.ResourceTramTestConfig;
+import com.tramchester.livedata.tfgm.ProvidesTramNotes;
 import com.tramchester.resources.JourneyPlannerResource;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.TramStations;
@@ -22,7 +23,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 import java.time.Duration;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -39,7 +39,7 @@ public class JourneyPlannerResourceTest {
     private static final IntegrationAppExtension appExtension =
             new IntegrationAppExtension(App.class, new ResourceTramTestConfig<>(JourneyPlannerResource.class));
 
-    private LocalDate when;
+    private TramDate when;
     private TramServiceDate tramServiceDate;
     private JourneyResourceTestFacade journeyPlanner;
 
@@ -78,13 +78,13 @@ public class JourneyPlannerResourceTest {
             } else {
                 assertTrue(journey.getFirstDepartureTime().isAfter(queryTime.toDate(when)));
             }
-            assertEquals(when, journey.getQueryDate());
+            assertEquals(when.toLocalDate(), journey.getQueryDate());
 
             assertEquals("1", platform.getPlatformNumber());
             assertEquals("Altrincham platform 1", platform.getName());
             assertEquals(Altrincham.getRawId() + "1", platform.getId());
 
-            journey.getStages().forEach(stage -> assertEquals(when, stage.getQueryDate()));
+            journey.getStages().forEach(stage -> assertEquals(when.toLocalDate(), stage.getQueryDate()));
         });
     }
 
@@ -134,7 +134,7 @@ public class JourneyPlannerResourceTest {
             if (duration.getSeconds()<=(12*60)) {
                 found.add(journeyDTO);
             }
-            assertEquals(when, journeyDTO.getQueryDate());
+            assertEquals(when.toLocalDate(), journeyDTO.getQueryDate());
         });
         Assertions.assertFalse(found.isEmpty(), "no journeys found");
     }
@@ -204,9 +204,10 @@ public class JourneyPlannerResourceTest {
 
     @Test
     void testAltyToManAirportHasRealisticTranferAtCornbrook() {
-        LocalDate nextSunday = TestEnv.nextSunday();
+        TramDate nextSunday = TestEnv.nextSunday();
 
-        JourneyQueryDTO query = journeyPlanner.getQueryDTO(nextSunday, TramTime.of(11, 0), Altrincham, ManAirport, false, 3);
+        JourneyQueryDTO query = journeyPlanner.getQueryDTO(nextSunday, TramTime.of(11, 0),
+                Altrincham, ManAirport, false, 3);
 
         JourneyPlanRepresentation results = journeyPlanner.getJourneyPlan(query);
 
@@ -326,7 +327,7 @@ public class JourneyPlannerResourceTest {
     }
 
     private JourneyPlanRepresentation validateAtLeastOneJourney(TramStations start, TramStations end,
-                                                                LocalDate date, TramTime queryTime)  {
+                                                                TramDate date, TramTime queryTime)  {
 
         JourneyQueryDTO query = journeyPlanner.getQueryDTO(date, queryTime, start, end, false, 3);
 

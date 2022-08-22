@@ -1,15 +1,18 @@
 package com.tramchester.unit.domain.time;
 
+import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.testSupport.TestEnv;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.time.Duration;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.util.*;
+import java.util.Arrays;
+import java.util.List;
+import java.util.SortedSet;
+import java.util.TreeSet;
 import java.util.stream.Collectors;
 
 import static com.tramchester.domain.time.TramTime.*;
@@ -519,24 +522,24 @@ class TramTimeTest {
 
     @Test
     void shouldGetCorrectDaySameDay() {
-        LocalDate beginDate = TestEnv.testDay();
+        TramDate beginDate = TestEnv.testDay();
 
         TramTime sameDay = of(11,42);
 
         LocalDateTime result = sameDay.toDate(beginDate);
         assertEquals(sameDay.asLocalTime(), result.toLocalTime());
-        assertEquals(beginDate, result.toLocalDate());
+        assertEquals(beginDate.toLocalDate(), result.toLocalDate());
     }
 
     @Test
     void shouldGetCorrectDayNextDay() {
-        LocalDate beginDate = TestEnv.testDay();
+        TramDate beginDate = TestEnv.testDay();
 
         TramTime sameDay = nextDay(11,42);
 
         LocalDateTime result = sameDay.toDate(beginDate);
         assertEquals(sameDay.asLocalTime(), result.toLocalTime());
-        assertEquals(beginDate.plusDays(1), result.toLocalDate());
+        assertEquals(beginDate.plusDays(1).toLocalDate(), result.toLocalDate());
     }
 
     private void checkCorrectTimePresent(TramTime tramTime, int hours, int minutes, boolean nextDay) {

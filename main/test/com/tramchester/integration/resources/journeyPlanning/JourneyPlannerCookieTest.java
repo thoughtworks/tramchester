@@ -120,10 +120,10 @@ public class JourneyPlannerCookieTest {
         Map<String, NewCookie> cookies = response.getCookies();
         NewCookie recent = cookies.get("tramchesterRecent");
         assertNotNull(recent);
-        Assertions.assertEquals("/api",recent.getPath());
+        Assertions.assertEquals("/api", recent.getPath());
         Assertions.assertEquals("localhost", recent.getDomain());
         String value = recent.toCookie().getValue();
-        return RecentJourneys.decodeCookie(mapper,value);
+        return RecentJourneys.decodeCookie(mapper, value);
     }
 
     private Response getResponseForJourney(Location<?> start, Location<?> end, TramTime time, LocalDate date, List<Cookie> cookies) {

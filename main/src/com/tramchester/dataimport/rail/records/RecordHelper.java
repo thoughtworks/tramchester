@@ -1,5 +1,6 @@
 package com.tramchester.dataimport.rail.records;
 
+import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.domain.time.TramTime;
 import org.slf4j.Logger;
@@ -52,6 +53,12 @@ public class RecordHelper {
         String fullYear = providesNow.getDate().format(century);
         String rawDateWithCentury = fullYear.substring(0, 2) + extract(text, begin, end);
         return LocalDate.parse(rawDateWithCentury, dateFormat);
+    }
+
+    public static TramDate extractTramDate(String text, int begin, int end, ProvidesNow providesNow) {
+        String fullYear = providesNow.getDate().format(century);
+        String rawDateWithCentury = fullYear.substring(0, 2) + extract(text, begin, end);
+        return TramDate.parse(rawDateWithCentury, dateFormat);
     }
 
     /***

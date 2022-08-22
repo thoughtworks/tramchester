@@ -274,12 +274,12 @@ public class TransportDataFromFilesTramTest {
 
     @Test
     void shouldGetServicesByDate() {
-        LocalDate nextSaturday = TestEnv.nextSaturday();
-        Set<Service> results = transportData.getServicesOnDate(TramDate.of(nextSaturday));
+        TramDate nextSaturday = TestEnv.nextSaturday();
+        Set<Service> results = transportData.getServicesOnDate(nextSaturday);
 
         assertFalse(results.isEmpty(), "no services next saturday");
         long onCorrectDate = results.stream().
-                filter(svc -> svc.getCalendar().operatesOn(TramDate.of(nextSaturday))).count();
+                filter(svc -> svc.getCalendar().operatesOn(nextSaturday)).count();
 
         assertEquals(results.size(), onCorrectDate, "should all be on the specified date");
 
@@ -297,7 +297,7 @@ public class TransportDataFromFilesTramTest {
 
     @Test
     void shouldHaveSundayServicesFromCornbrook() {
-        TramDate nextSunday = TramDate.of(TestEnv.nextSunday());
+        TramDate nextSunday = TestEnv.nextSunday();
 
         Set<Service> sundayServices = transportData.getServicesOnDate(nextSunday);
 
@@ -314,8 +314,8 @@ public class TransportDataFromFilesTramTest {
     @Test
     void shouldHaveServiceEndDatesBeyondNextNDays() {
 
-        LocalDate startDate = LocalDate.now();
-        LocalDate endDate = startDate.plusDays(DAYS_AHEAD);
+        TramDate startDate = TramDate.of(LocalDate.now());
+        TramDate endDate = startDate.plusDays(DAYS_AHEAD);
 
         DateRange dateRange = DateRange.of(startDate, endDate);
 
@@ -623,11 +623,11 @@ public class TransportDataFromFilesTramTest {
     void shouldHaveCorrectDataForTramsCallingAtVeloparkMonday8AM() {
         Set<Trip> origTrips = getTripsFor(transportData.getTrips(), TramStations.VeloPark);
 
-        LocalDate aMonday = TestEnv.nextMonday();
+        TramDate aMonday = TestEnv.nextMonday();
         assertEquals(DayOfWeek.MONDAY, aMonday.getDayOfWeek());
 
         IdSet<Service> mondayServices = allServices.stream()
-                .filter(svc -> svc.getCalendar().operatesOn(TramDate.of(aMonday)))
+                .filter(svc -> svc.getCalendar().operatesOn(aMonday))
                 .collect(IdSet.collector());
 
         // reduce the trips to the ones for the right route on the monday by filtering by service ID

@@ -165,7 +165,7 @@ class TransportDataFromFilesBusTest {
 
     @Test
     void shouldGetServicesByDate() {
-        TramDate nextSaturday = TestEnv.nextSaturdayDate();
+        TramDate nextSaturday = TestEnv.nextSaturday();
         Set<Service> results = transportData.getServicesOnDate(nextSaturday);
 
         assertFalse(results.isEmpty());

@@ -2,6 +2,7 @@ package com.tramchester.unit.mappers;
 
 
 import com.tramchester.domain.*;
+import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.input.Trip;
@@ -47,7 +48,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class JourneyToDTOMapperTest extends EasyMockSupport {
     private static TramTransportDataForTestFactory.TramTransportDataForTest transportData;
-    private final LocalDate when = TestEnv.testDay();
+    private final TramDate when = TestEnv.testDay();
 
     private JourneyToDTOMapper mapper;
     private List<TransportStage<?,?>> stages;
@@ -118,7 +119,7 @@ class JourneyToDTOMapperTest extends EasyMockSupport {
         assertEquals(journey.getBeginning().forDTO(), result.getBegin().getId());
         assertEquals(notes, result.getNotes());
         assertEquals(stageDTOA, result.getStages().get(0));
-        assertEquals(when, result.getQueryDate());
+        assertEquals(when.toLocalDate(), result.getQueryDate());
         validateStationList(path, result.getPath());
         validateStationList(Collections.emptyList(), result.getChangeStations());
     }
@@ -150,7 +151,7 @@ class JourneyToDTOMapperTest extends EasyMockSupport {
         assertEquals(journey.getBeginning().forDTO(), result.getBegin().getId());
         assertEquals(notes, result.getNotes());
         assertEquals(stageDTOA, result.getStages().get(0));
-        assertEquals(when, result.getQueryDate());
+        assertEquals(when.toLocalDate(), result.getQueryDate());
         validateStationList(Collections.singletonList(Deansgate.fake()), result.getPath());
         validateStationList(Collections.emptyList(), result.getChangeStations());
     }
@@ -198,7 +199,7 @@ class JourneyToDTOMapperTest extends EasyMockSupport {
         assertEquals(journey.getStages().size(), result.getStages().size());
         assertEquals(stageDTOA, result.getStages().get(0));
         assertEquals(stageDTOB, result.getStages().get(1));
-        assertEquals(when, result.getQueryDate());
+        assertEquals(when.toLocalDate(), result.getQueryDate());
         validateStationList(path, result.getPath());
         validateStationList(Collections.singletonList(startStation), result.getChangeStations());
     }
@@ -262,7 +263,7 @@ class JourneyToDTOMapperTest extends EasyMockSupport {
         assertEquals(stageDTOA, result.getStages().get(0));
         assertEquals(stageDTOB, result.getStages().get(1));
         assertEquals(stageDTOC, result.getStages().get(2));
-        assertEquals(when, result.getQueryDate());
+        assertEquals(when.toLocalDate(), result.getQueryDate());
         validateStationList(path, result.getPath());
         validateStationList(Arrays.asList( middleA, middleB ), result.getChangeStations());
     }
@@ -308,7 +309,7 @@ class JourneyToDTOMapperTest extends EasyMockSupport {
         assertEquals(journey.getStages().size(), result.getStages().size());
         assertEquals(stageDTOA, result.getStages().get(0));
         assertEquals(stageDTOB, result.getStages().get(1));
-        assertEquals(when, result.getQueryDate());
+        assertEquals(when.toLocalDate(), result.getQueryDate());
         validateStationList(path, result.getPath());
         validateStationList(Collections.singletonList(middle), result.getChangeStations());
     }

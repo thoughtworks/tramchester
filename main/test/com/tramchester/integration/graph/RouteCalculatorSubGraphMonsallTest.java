@@ -3,6 +3,7 @@ package com.tramchester.integration.graph;
 import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.domain.Journey;
+import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.dates.TramServiceDate;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.GraphDatabase;
@@ -35,7 +36,7 @@ class RouteCalculatorSubGraphMonsallTest {
     private static TramRouteHelper tramRouteHelper;
 
     private RouteCalculatorTestFacade calculator;
-    private final LocalDate when = TestEnv.testDay();
+    private final TramDate when = TestEnv.testDay();
     private Transaction txn;
 
     @BeforeAll
@@ -112,7 +113,7 @@ class RouteCalculatorSubGraphMonsallTest {
 
     }
 
-    private void validateNumberOfStages(TramStations start, TramStations destination, TramTime time, LocalDate date, int numStages) {
+    private void validateNumberOfStages(TramStations start, TramStations destination, TramTime time, TramDate date, int numStages) {
         long maxNumberOfJourneys = 1;
         JourneyRequest journeyRequest = new JourneyRequest(new TramServiceDate(date), time,
                 false, 3, Duration.ofMinutes(config.getMaxJourneyDuration()), maxNumberOfJourneys, Collections.emptySet());

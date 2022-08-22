@@ -2,10 +2,11 @@ package com.tramchester.integration.graph;
 
 import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
+import com.tramchester.domain.JourneyRequest;
 import com.tramchester.domain.StationIdPair;
+import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.time.TramTime;
-import com.tramchester.domain.JourneyRequest;
 import com.tramchester.integration.testSupport.RouteCalculationCombinations;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
 import com.tramchester.repository.TransportData;
@@ -17,7 +18,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.time.Duration;
-import java.time.LocalDate;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
@@ -30,7 +30,7 @@ class RouteCalculatorTestAllJourneys {
     private static ComponentContainer componentContainer;
     private static IntegrationTramTestConfig testConfig;
 
-    private LocalDate when;
+    private TramDate when;
     private RouteCalculationCombinations combinations;
 
     @BeforeAll

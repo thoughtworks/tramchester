@@ -7,7 +7,6 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.time.DayOfWeek;
-import java.time.LocalDate;
 import java.util.EnumSet;
 
 import static java.time.DayOfWeek.*;
@@ -111,14 +110,14 @@ class MutableServiceCalendarTest {
         }
 
         Assertions.assertFalse(serviceCalendar.operatesOn(testDay.plusWeeks(offset)));
-        assertTrue(serviceCalendar.operatesOn(TramDate.of(TestEnv.nextSaturday().plusWeeks(offset))));
-        assertTrue(serviceCalendar.operatesOn(TramDate.of(TestEnv.nextSunday().plusWeeks(offset))));
+        assertTrue(serviceCalendar.operatesOn(TestEnv.nextSaturday().plusWeeks(offset)));
+        assertTrue(serviceCalendar.operatesOn(TestEnv.nextSunday().plusWeeks(offset)));
     }
 
     @Test
     void shouldRespectDateRangesOverlapSameWeekdays() {
-        final LocalDate startDateA = LocalDate.of(2020, 11, 5);
-        final LocalDate endDateA = LocalDate.of(2020, 11, 25);
+        final TramDate startDateA = TramDate.of(2020, 11, 5);
+        final TramDate endDateA = TramDate.of(2020, 11, 25);
 
         DateRange dateRange = DateRange.of(startDateA, endDateA);
 
@@ -133,8 +132,8 @@ class MutableServiceCalendarTest {
     @Test
     void shouldHaveSimpleDateOverlap() {
 
-        LocalDate startDate = LocalDate.of(2020, 11, 5);
-        LocalDate endDate = LocalDate.of(2020, 11, 25);
+        TramDate startDate = TramDate.of(2020, 11, 5);
+        TramDate endDate = TramDate.of(2020, 11, 25);
 
         EnumSet<DayOfWeek> monday = EnumSet.of(MONDAY);
 
@@ -151,8 +150,8 @@ class MutableServiceCalendarTest {
     @Test
     void shouldHaveDateOverlap() {
 
-        LocalDate startDate = LocalDate.of(2020, 11, 5);
-        LocalDate endDate = LocalDate.of(2020, 11, 25);
+        TramDate startDate = TramDate.of(2020, 11, 5);
+        TramDate endDate = TramDate.of(2020, 11, 25);
 
         EnumSet<DayOfWeek> monday = EnumSet.of(MONDAY);
 
@@ -174,7 +173,7 @@ class MutableServiceCalendarTest {
     }
 
     @NotNull
-    private MutableServiceCalendar createCalendar(LocalDate startDate, LocalDate endDate, EnumSet<DayOfWeek> daysOfWeek) {
+    private MutableServiceCalendar createCalendar(TramDate startDate, TramDate endDate, EnumSet<DayOfWeek> daysOfWeek) {
         return new MutableServiceCalendar(DateRange.of(startDate, endDate), daysOfWeek);
     }
 

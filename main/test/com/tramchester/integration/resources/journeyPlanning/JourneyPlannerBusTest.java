@@ -2,6 +2,7 @@ package com.tramchester.integration.resources.journeyPlanning;
 
 
 import com.tramchester.App;
+import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.places.StationGroup;
 import com.tramchester.domain.presentation.DTO.*;
 import com.tramchester.domain.reference.TransportMode;
@@ -18,13 +19,11 @@ import io.dropwizard.testing.junit5.DropwizardExtensionsSupport;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.condition.DisabledIfEnvironmentVariable;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.Response;
 import java.time.Duration;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -40,7 +39,7 @@ class JourneyPlannerBusTest {
     private static final IntegrationBusTestConfig configuration = new IntegrationBusTestConfig();
     private static final IntegrationAppExtension appExt = new IntegrationAppExtension(App.class, configuration);
 
-    private LocalDate when;
+    private TramDate when;
     private JourneyResourceTestFacade journeyResourceTestFacade;
     private StationGroup stockportBusStation;
     private StationRepository stationRepository;

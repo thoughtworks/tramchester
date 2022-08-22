@@ -9,7 +9,7 @@ import java.util.List;
 public class IntegrationTramClosedStationsTestConfig extends IntegrationTramTestConfig {
 
 
-    private static DateTimeFormatter formatter = DateTimeFormatter.ISO_LOCAL_DATE;
+    private static final DateTimeFormatter formatter = DateTimeFormatter.ISO_LOCAL_DATE;
     private final boolean planningEnabled;
 
     public IntegrationTramClosedStationsTestConfig(List<StationClosure> closures, boolean planningEnabled) {
