@@ -8,6 +8,7 @@ import com.tramchester.config.GTFSSourceConfig;
 import com.tramchester.config.TfgmTramLiveDataConfig;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.*;
+import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.input.PlatformStopCall;
 import com.tramchester.domain.input.Trip;
@@ -122,6 +123,10 @@ public class TestEnv {
 
     public static LocalDate testDay() {
         return testDay;
+    }
+
+    public static TramDate testTramDay() {
+        return TramDate.of(testDay);
     }
 
     public static LocalDate nextMonday() {

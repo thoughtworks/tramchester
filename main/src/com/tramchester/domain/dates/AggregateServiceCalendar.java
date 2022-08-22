@@ -111,7 +111,7 @@ public class AggregateServiceCalendar implements ServiceCalendar {
             return true;
         }
 
-        if (!dateRange.contains(date)) {
+        if (!dateRange.contains(TramDate.of(date))) {
             return false;
         }
         if (!days.contains(date.getDayOfWeek())) {

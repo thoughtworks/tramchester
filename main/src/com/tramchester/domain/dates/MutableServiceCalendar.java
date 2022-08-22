@@ -59,14 +59,14 @@ public class MutableServiceCalendar implements ServiceCalendar {
             return true;
         }
 
-        return operatesOnIgnoringExceptionDates(queryDate);
+        return operatesOnIgnoringExceptionDates(TramDate.of(queryDate));
     }
 
     private boolean isExcluded(final LocalDate queryDate) {
         return removed.contains(queryDate);
     }
 
-    private boolean operatesOnIgnoringExceptionDates(final LocalDate queryDate) {
+    private boolean operatesOnIgnoringExceptionDates(final TramDate queryDate) {
         if (days.contains(queryDate.getDayOfWeek())) {
             return dateRange.contains(queryDate);
         }
@@ -217,7 +217,9 @@ public class MutableServiceCalendar implements ServiceCalendar {
             return true;
         }
 
-        return dates.stream().filter(date -> days.contains(date.getDayOfWeek())).
+        return dates.stream().
+                map(TramDate::of).
+                filter(date -> days.contains(date.getDayOfWeek())).
                 anyMatch(dateRange::contains);
 
 //        return dates.stream().filter(dateRange::contains)

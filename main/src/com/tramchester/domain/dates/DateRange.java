@@ -7,19 +7,29 @@ import java.util.Objects;
 import java.util.stream.Stream;
 
 public class DateRange {
-    private final LocalDate startDate;
-    private final LocalDate endDate;
+    private final TramDate startDate;
+    private final TramDate endDate;
 
-    public DateRange(LocalDate startDate, LocalDate endDate) {
+    public DateRange(TramDate startDate, TramDate endDate) {
         this.startDate = startDate;
         this.endDate = endDate;
     }
 
+    public DateRange(LocalDate startDate, LocalDate endDate) {
+        this.startDate = TramDate.of(startDate);
+        this.endDate = TramDate.of(endDate);
+    }
+
+    @Deprecated
     public static DateRange of(LocalDate startDate, LocalDate endDate) {
+        return new DateRange(TramDate.of(startDate), TramDate.of(endDate));
+    }
+
+    public static DateRange of(TramDate startDate, TramDate endDate) {
         return new DateRange(startDate, endDate);
     }
 
-    public boolean contains(final LocalDate queryDate) {
+    public boolean contains(final TramDate queryDate) {
         if (queryDate.equals(startDate) || queryDate.equals(endDate)) {
             return true;
         }
@@ -54,7 +64,7 @@ public class DateRange {
                 between(this, dateRange.endDate);
     }
 
-    private static boolean between(DateRange dateRange, LocalDate date) {
+    private static boolean between(DateRange dateRange, TramDate date) {
         if (date.equals(dateRange.startDate) || date.equals(dateRange.endDate)) {
             return true;
         }
@@ -62,16 +72,16 @@ public class DateRange {
     }
 
     public LocalDate getEndDate() {
-        return endDate;
+        return endDate.toLocalDate();
     }
 
     public LocalDate getStartDate() {
-        return startDate;
+        return startDate.toLocalDate();
     }
 
-    public Stream<LocalDate> stream() {
-        List<LocalDate> dates = new ArrayList<>();
-        LocalDate current = startDate;
+    public Stream<TramDate> stream() {
+        List<TramDate> dates = new ArrayList<>();
+        TramDate current = startDate;
         while (!current.isAfter(endDate)) {
             dates.add(current);
             current = current.plusDays(1);

@@ -5,6 +5,7 @@ import com.tramchester.ComponentsBuilder;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.Service;
+import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.dates.DateRange;
@@ -128,7 +129,7 @@ public class RunningRoutesAndServicesTest {
 
         // date range contains next monday and service does weekday operating
         List<Service> weekdayServices = transportData.getServices().stream().
-                filter(service -> service.getCalendar().getDateRange().contains(nextMonday)).
+                filter(service -> service.getCalendar().getDateRange().contains(TramDate.of(nextMonday))).
                 filter(service -> service.getCalendar().getOperatingDays().equals(weekdays)).
                 collect(Collectors.toList());
         assertFalse(weekdayServices.isEmpty());
@@ -146,10 +147,10 @@ public class RunningRoutesAndServicesTest {
         DateRange weekdayDateRange = new DateRange(weekdayServicesBegin, weekdayServicesEnd);
 
         // double check contains next monday
-        assertTrue(weekdayDateRange.contains(nextMonday));
+        assertTrue(weekdayDateRange.contains(TramDate.of(nextMonday)));
 
         LocalDate friday = getFridayAfter(nextMonday);
-        assertTrue(weekdayDateRange.contains(friday));
+        assertTrue(weekdayDateRange.contains(TramDate.of(friday)));
 
         RunningRoutesAndServices.FilterForDate filterForNextFriday = runningRoutesAndServices.getFor(friday);
 

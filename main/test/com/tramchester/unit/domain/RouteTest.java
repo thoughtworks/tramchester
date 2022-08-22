@@ -2,6 +2,7 @@ package com.tramchester.unit.domain;
 
 import com.tramchester.domain.*;
 import com.tramchester.domain.dates.MutableServiceCalendar;
+import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.input.MutableTrip;
@@ -339,7 +340,7 @@ class RouteTest {
         assertTrue(route.isAvailableOn(additionOne));
         assertTrue(route.isAvailableOn(additionTwo));
 
-        dateRange.stream().filter(date -> !(date.equals(additionOne) || date.equals(additionTwo))).
+        dateRange.stream().filter(date -> !(date.equals(TramDate.of(additionOne)) || date.equals(TramDate.of(additionTwo)))).
                 forEach(date -> assertFalse(route.isAvailableOn(date), "should not be availble on " + date));
 
     }
