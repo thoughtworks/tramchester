@@ -2,12 +2,12 @@ package com.tramchester.integration.repository;
 
 import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
-import com.tramchester.domain.id.IdSet;
-import com.tramchester.domain.id.StringIdFor;
-import com.tramchester.domain.places.InterchangeStation;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.id.IdFor;
+import com.tramchester.domain.id.IdSet;
+import com.tramchester.domain.id.StringIdFor;
+import com.tramchester.domain.places.InterchangeStation;
 import com.tramchester.domain.places.Station;
 import com.tramchester.integration.graph.neighbours.NeighboursAsInterchangesTest;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
@@ -23,7 +23,6 @@ import org.junit.jupiter.api.*;
 import java.time.LocalDate;
 import java.util.*;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static com.tramchester.domain.reference.CentralZoneStation.StWerbergsRoad;
 import static com.tramchester.testSupport.reference.TramStations.*;
@@ -134,7 +133,8 @@ public class InterchangesTramTest {
     void shouldNotHaveAdditionalInterchangesAfter19August2020() {
         LocalDate currentDay = LocalDate.now();
 
-        LocalDate cutoffDate = LocalDate.of(2022, 8, 19);
+        // changes to 30th, still in the data....
+        LocalDate cutoffDate = LocalDate.of(2022, 8, 30);
 
         if (currentDay.isAfter(cutoffDate)) {
             Set<InterchangeStation> interchanges = interchangeRepository.getAllInterchanges();
@@ -160,7 +160,7 @@ public class InterchangesTramTest {
 
         IdSet<Route> dropOffs = cornbrook.getDropoffRoutes().stream().collect(IdSet.collector());
 
-        assertTrue(dropOffs.contains(StringIdFor.createId("METLRED:I:2022-08-20")), dropOffs.toString());
+        assertTrue(dropOffs.contains(StringIdFor.createId("METLRED:I:2022-08-13")), dropOffs.toString());
     }
 
     @Summer2022

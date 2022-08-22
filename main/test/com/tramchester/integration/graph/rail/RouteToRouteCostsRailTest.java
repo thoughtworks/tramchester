@@ -149,7 +149,7 @@ public class RouteToRouteCostsRailTest {
 
         assertFalse(results.isEmpty());
         // always fails, here to show size reduction
-        // seem to get only 16% reduction in number of routes when comparing by sets of interchanges
+        // seem to get only 16% reduction in number of routes when comparing by sets of interchanges for uk rail
         assertEquals(routeRepository.numberOfRoutes(), results.size());
     }
 }

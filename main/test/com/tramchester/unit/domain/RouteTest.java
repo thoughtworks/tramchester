@@ -27,6 +27,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class RouteTest {
 
+    // TODO A lot of the date range tests here could go against the aggregate calendar
+
     private EnumSet<DayOfWeek> NO_DAYS;
     private EnumSet<DayOfWeek> ALL_DAYS;
     private IdFor<Route> routeIdA;
@@ -460,32 +462,6 @@ class RouteTest {
     }
 
     @Test
-    void shouldRespectDateRangesOverlapSameWeekdays() {
-        final LocalDate startDateA = LocalDate.of(2020, 11, 5);
-        final LocalDate endDateA = LocalDate.of(2020, 11, 25);
-
-        DateRange dateRange = DateRange.of(startDateA, endDateA);
-
-        MutableRoute routeA = createRoute(routeIdA, "code", "nameA");
-        MutableRoute routeB = createRoute(routeIdB, "code", "nameA");
-
-        MutableService serviceA = new MutableService(serviceIdA);
-
-        MutableServiceCalendar calendarA = new MutableServiceCalendar(dateRange, EnumSet.of(MONDAY, TUESDAY, WEDNESDAY));
-        serviceA.setCalendar(calendarA);
-
-        MutableService serviceB = new MutableService(serviceIdB);
-        MutableServiceCalendar calendarB = new MutableServiceCalendar(dateRange, EnumSet.of(WEDNESDAY, THURSDAY));
-        serviceB.setCalendar(calendarB);
-
-        routeA.addService(serviceA);
-        routeB.addService(serviceB);
-
-        assertTrue(routeA.isDateOverlap(routeB));
-        assertTrue(routeB.isDateOverlap(routeA));
-    }
-
-    @Test
     void shouldRespectDateRangesOnServicesInclusionOverridesExclusion() {
         final LocalDate startDateA = LocalDate.of(2020, 11, 5);
         final LocalDate endDateA = LocalDate.of(2020, 11, 25);
@@ -549,37 +525,6 @@ class RouteTest {
         route.addService(service);
 
         assertFalse(route.isAvailableOn(notRunningDate));
-    }
-
-    @Test
-    void shouldHaveSimpleDateOverlap() {
-
-        LocalDate startDate = LocalDate.of(2020, 11, 5);
-        LocalDate endDate = LocalDate.of(2020, 11, 25);
-
-        EnumSet<DayOfWeek> monday = EnumSet.of(MONDAY);
-
-        Service serviceA = createService(startDate, endDate, "serviceA", monday);
-
-        Service serviceC = createService(startDate, endDate, "serviceD", monday);
-
-        MutableRoute routeA = createRoute(routeIdA, "codeA", "nameA");
-        routeA.addService(serviceA);
-
-        MutableRoute routeB = createRoute(routeIdB, "codeD", "nameD");
-        routeB.addService(serviceA);
-
-        // should match
-        assertTrue(routeA.isDateOverlap(routeB));
-        assertTrue(routeB.isDateOverlap(routeA));
-
-        MutableRoute routeC = createRoute(routeIdB, "codeD", "nameD");
-        routeC.addService(serviceC);
-
-        // should match
-        assertTrue(routeA.isDateOverlap(routeC));
-        assertTrue(routeC.isDateOverlap(routeA));
-
     }
 
     @Test

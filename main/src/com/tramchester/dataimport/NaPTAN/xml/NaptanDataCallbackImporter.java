@@ -32,7 +32,10 @@ public class NaptanDataCallbackImporter {
 
         mapper = XmlMapper.builder().
                 addModule(new BlackbirdModule()).
-                disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES).build();
+                disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES).
+                disable(DeserializationFeature.FAIL_ON_TRAILING_TOKENS).
+                enable(DeserializationFeature.EAGER_DESERIALIZER_FETCH).
+                build();
     }
 
     public void loadData(NaptanFromXMLFile.NaptanXmlConsumer consumer) {
@@ -58,6 +61,7 @@ public class NaptanDataCallbackImporter {
         }
 
         logger.info("Loading data from " + filePath.toAbsolutePath());
+        // naptan xml is UTF-8
         NaptanFromXMLFile dataLoader = new NaptanFromXMLFile(filePath, StandardCharsets.UTF_8, mapper, consumer);
 
         dataLoader.load();

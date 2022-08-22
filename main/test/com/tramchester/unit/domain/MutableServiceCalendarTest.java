@@ -1,16 +1,19 @@
 package com.tramchester.unit.domain;
 
+import com.tramchester.domain.dates.DateRange;
 import com.tramchester.domain.dates.MutableServiceCalendar;
 import com.tramchester.domain.dates.ServiceCalendar;
-import com.tramchester.domain.dates.DateRange;
 import com.tramchester.domain.dates.TramServiceDate;
 import com.tramchester.testSupport.TestEnv;
+import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
+import java.util.EnumSet;
 
+import static java.time.DayOfWeek.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 class MutableServiceCalendarTest {
@@ -113,6 +116,68 @@ class MutableServiceCalendarTest {
         assertTrue(serviceCalendar.operatesOn(TestEnv.nextSunday().plusWeeks(offset)));
     }
 
+    @Test
+    void shouldRespectDateRangesOverlapSameWeekdays() {
+        final LocalDate startDateA = LocalDate.of(2020, 11, 5);
+        final LocalDate endDateA = LocalDate.of(2020, 11, 25);
+
+        DateRange dateRange = DateRange.of(startDateA, endDateA);
+
+        MutableServiceCalendar calendarA = new MutableServiceCalendar(dateRange, EnumSet.of(MONDAY, TUESDAY, WEDNESDAY));
+
+        MutableServiceCalendar calendarB = new MutableServiceCalendar(dateRange, EnumSet.of(WEDNESDAY, THURSDAY));
+
+        assertTrue(calendarA.anyDateOverlaps(calendarB));
+        assertTrue(calendarB.anyDateOverlaps(calendarA));
+    }
+
+    @Test
+    void shouldHaveSimpleDateOverlap() {
+
+        LocalDate startDate = LocalDate.of(2020, 11, 5);
+        LocalDate endDate = LocalDate.of(2020, 11, 25);
+
+        EnumSet<DayOfWeek> monday = EnumSet.of(MONDAY);
+
+        ServiceCalendar calendarA = createCalendar(startDate, endDate, monday);
+
+        ServiceCalendar calendarC = createCalendar(startDate, endDate, monday);
+
+        // should match
+        assertTrue(calendarA.anyDateOverlaps(calendarC));
+        assertTrue(calendarC.anyDateOverlaps(calendarC));
+
+    }
+
+    @Test
+    void shouldHaveDateOverlap() {
+
+        LocalDate startDate = LocalDate.of(2020, 11, 5);
+        LocalDate endDate = LocalDate.of(2020, 11, 25);
+
+        EnumSet<DayOfWeek> monday = EnumSet.of(MONDAY);
+
+        ServiceCalendar calA = createCalendar(startDate, endDate, monday);
+        ServiceCalendar calB = createCalendar(startDate, endDate, EnumSet.of(DayOfWeek.SUNDAY));
+        ServiceCalendar calC = createCalendar(startDate.minusDays(10), startDate.minusDays(5),  monday);
+        ServiceCalendar calD = createCalendar(startDate, endDate, monday);
+
+        assertTrue(calA.anyDateOverlaps(calA));
+
+        // wrong operating days
+        assertFalse(calA.anyDateOverlaps(calB));
+
+        // before dates
+        assertFalse(calA.anyDateOverlaps(calC));
+
+        // should match
+        assertTrue(calA.anyDateOverlaps(calD));
+    }
+
+    @NotNull
+    private MutableServiceCalendar createCalendar(LocalDate startDate, LocalDate endDate, EnumSet<DayOfWeek> daysOfWeek) {
+        return new MutableServiceCalendar(DateRange.of(startDate, endDate), daysOfWeek);
+    }
 
 
 }

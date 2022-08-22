@@ -37,7 +37,7 @@ class RouteResourceTest {
         List<RouteDTO> routes = getRouteResponse();
 
         // +4 more replacement routes
-        assertEquals(16 +6, routes.size(), "Wrong size");
+        assertEquals(16, routes.size(), "Wrong size");
 
         routes.forEach(route -> assertFalse(route.getStations().isEmpty(), "Route no stations "+route.getRouteName()));
 

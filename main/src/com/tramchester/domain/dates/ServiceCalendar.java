@@ -37,4 +37,10 @@ public interface ServiceCalendar {
     Set<LocalDate> getRemoved();
 
     boolean isCancelled();
+
+    boolean anyDateOverlaps(ServiceCalendar other);
+
+    boolean operatesOnAny(Set<LocalDate> dates);
+
+    boolean operatesNoneOf(Set<LocalDate> dates);
 }

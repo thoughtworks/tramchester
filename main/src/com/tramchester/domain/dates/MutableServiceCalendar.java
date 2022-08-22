@@ -15,7 +15,8 @@ public class MutableServiceCalendar implements ServiceCalendar {
     private boolean cancelled;
 
     public MutableServiceCalendar(CalendarData calendarData) {
-        this(calendarData.getDateRange(), daysOfWeekFrom(calendarData.isMonday(),
+        this(calendarData.getDateRange(),
+                daysOfWeekFrom(calendarData.isMonday(),
                 calendarData.isTuesday(),
                 calendarData.isWednesday(),
                 calendarData.isThursday(),
@@ -58,16 +59,16 @@ public class MutableServiceCalendar implements ServiceCalendar {
             return true;
         }
 
-        return operatesOnIgnoringExcpetionDates(queryDate);
+        return operatesOnIgnoringExceptionDates(queryDate);
     }
 
     private boolean isExcluded(final LocalDate queryDate) {
         return removed.contains(queryDate);
     }
 
-    private boolean operatesOnIgnoringExcpetionDates(final LocalDate queryDate) {
-        if (dateRange.contains(queryDate)) {
-            return days.contains(queryDate.getDayOfWeek());
+    private boolean operatesOnIgnoringExceptionDates(final LocalDate queryDate) {
+        if (days.contains(queryDate.getDayOfWeek())) {
+            return dateRange.contains(queryDate);
         }
         return false;
     }
@@ -156,6 +157,75 @@ public class MutableServiceCalendar implements ServiceCalendar {
     public boolean isCancelled() {
         return cancelled;
     }
+
+    @Override
+    public boolean anyDateOverlaps(ServiceCalendar otherCalendar) {
+        // no overlaps if either doesn't operate at all
+        if (otherCalendar.operatesNoDays() || operatesNoDays()) {
+            return false;
+        }
+
+        // working assumption, any additional dates are within the overall specified range for a service
+        if (!otherCalendar.getDateRange().overlapsWith(getDateRange())) {
+            return false;
+        }
+
+        // additions
+        if (otherCalendar.operatesOnAny(getAdditions())) {
+            return true;
+        }
+        if (this.operatesOnAny(otherCalendar.getAdditions())) {
+            return true;
+        }
+
+        // removed
+        if (otherCalendar.operatesNoneOf(this.getRemoved())) {
+            return false;
+        }
+        if (this.operatesNoneOf(otherCalendar.getRemoved())) {
+            return false;
+        }
+
+        // operating days, any overlap?
+        final EnumSet<DayOfWeek> otherDays = EnumSet.copyOf(otherCalendar.getOperatingDays());
+        return otherDays.removeAll(getOperatingDays());
+
+    }
+
+    @Override
+    public boolean operatesNoneOf(final Set<LocalDate> dates) {
+        if (dates.isEmpty()) {
+            return false;
+        }
+        return dates.stream().noneMatch(this::operatesOn);
+    }
+
+    @Override
+    public boolean operatesOnAny(final Set<LocalDate> queryDates) {
+        if (operatesNoDays() || queryDates.isEmpty()) {
+            return false;
+        }
+
+        Set<LocalDate> dates = new HashSet<>(queryDates);
+        dates.removeAll(removed);
+        if (dates.isEmpty()) {
+            return false;
+        }
+
+        boolean matchAdditional = dates.removeAll(additional);
+        if (matchAdditional) {
+            return true;
+        }
+
+        return dates.stream().filter(date -> days.contains(date.getDayOfWeek())).
+                anyMatch(dateRange::contains);
+
+//        return dates.stream().filter(dateRange::contains)
+//                .filter(date -> !removed.contains(date))
+//                .anyMatch(date -> additional.contains(date) || days.contains(date.getDayOfWeek()));
+    }
+
+
 
     @Override
     public String toString() {

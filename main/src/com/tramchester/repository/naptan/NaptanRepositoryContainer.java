@@ -57,7 +57,7 @@ public class NaptanRepositoryContainer implements NaptanRepository {
     }
 
     @PostConstruct
-    private void start() {
+    public void start() {
         logger.info("starting");
 
         boolean enabled = naptanDataImporter.isEnabled();
@@ -73,7 +73,7 @@ public class NaptanRepositoryContainer implements NaptanRepository {
     }
 
     @PreDestroy
-    private void stop() {
+    public void stop() {
         logger.info("stopping");
         stops.clear();
         tiplocToAtco.clear();
@@ -121,50 +121,50 @@ public class NaptanRepositoryContainer implements NaptanRepository {
 
     }
 
-    private void consumeStopArea(NaptanStopAreaData areaData, BoundingBox bounds, MarginInMeters margin) {
+    private void consumeStopArea(final NaptanStopAreaData areaData, final BoundingBox bounds, final MarginInMeters margin) {
         if (areaData.getStopAreaCode().isBlank()) {
             return;
         }
         if (filterBy(bounds, margin, areaData)) {
-            NaptanArea record = createArea(areaData);
+            final NaptanArea record = createArea(areaData);
             areas.add(record);
         }
     }
 
-    private void consumeStop(NaptanStopData stopData, BoundingBox bounds, MarginInMeters margin,
-                             Map<IdFor<NaptanRecord>, List<NaptanXMLStopAreaRef>> pendingAreaIds) {
+    private void consumeStop(final NaptanStopData stopData, final BoundingBox bounds, final MarginInMeters margin,
+                             final Map<IdFor<NaptanRecord>, List<NaptanXMLStopAreaRef>> pendingAreaIds) {
         if (!stopData.hasValidAtcoCode()) {
             return;
         }
 
         if (filterBy(bounds, margin, stopData)) {
-            NaptanRecord record = createRecord(stopData, pendingAreaIds);
+            final NaptanRecord record = createRecord(stopData, pendingAreaIds);
             stops.add(record);
 
             if (stopData.hasRailInfo()) {
-                IdFor<Station> id = StringIdFor.createId(stopData.getRailInfo().getTiploc());
+                final IdFor<Station> id = StringIdFor.createId(stopData.getRailInfo().getTiploc());
                 tiplocToAtco.put(id, stopData.getAtcoCode());
             }
         }
     }
 
-    private NaptanArea createArea(NaptanStopAreaData areaData) {
-        IdFor<NaptanArea> id = StringIdFor.createId(areaData.getStopAreaCode());
+    private NaptanArea createArea(final NaptanStopAreaData areaData) {
         if (areaData.getStatus().isEmpty()) {
             logger.warn("No status set for " + areaData.getStopAreaCode());
         }
+        final IdFor<NaptanArea> id = StringIdFor.createId(areaData.getStopAreaCode());
         return new NaptanArea(id, areaData.getName(), areaData.getGridPosition(), areaData.isActive(), areaData.getAreaType());
     }
 
-    private NaptanRecord createRecord(NaptanStopData original, Map<IdFor<NaptanRecord>, List<NaptanXMLStopAreaRef>> pendingAreaIds) {
-        IdFor<NaptanRecord> id = original.getAtcoCode();
+    private NaptanRecord createRecord(final NaptanStopData original, final Map<IdFor<NaptanRecord>, List<NaptanXMLStopAreaRef>> pendingAreaIds) {
+        final IdFor<NaptanRecord> id = original.getAtcoCode();
 
         String suburb = original.getSuburb();
         String town = original.getTown();
 
         final String nptgLocality = original.getNptgLocality();
         if (nptgRepository.hasNptgCode(nptgLocality)) {
-            NPTGData extra = nptgRepository.getByNptgCode(nptgLocality);
+            final NPTGData extra = nptgRepository.getByNptgCode(nptgLocality);
             if (suburb.isBlank()) {
                 suburb = extra.getLocalityName();
             }
@@ -194,7 +194,7 @@ public class NaptanRepositoryContainer implements NaptanRepository {
     }
 
     private boolean checkIfActive(NaptanXMLStopAreaRef area) {
-        IdFor<NaptanArea> areaId = StringIdFor.createId(area.getId());
+        final IdFor<NaptanArea> areaId = StringIdFor.createId(area.getId());
         if (areas.hasId(areaId)) {
             return areas.get(areaId).isActive();
         } else {
@@ -204,8 +204,8 @@ public class NaptanRepositoryContainer implements NaptanRepository {
         }
     }
 
-    private boolean filterBy(BoundingBox bounds, MarginInMeters margin, NaptanXMLData item) {
-        GridPosition gridPosition = item.getGridPosition();
+    private boolean filterBy(final BoundingBox bounds, final MarginInMeters margin, final NaptanXMLData item) {
+        final GridPosition gridPosition = item.getGridPosition();
         if (!gridPosition.isValid()) {
             return false;
         }
@@ -214,19 +214,19 @@ public class NaptanRepositoryContainer implements NaptanRepository {
 
     // TODO Check or diag on NaptanStopType
     @Override
-    public <T extends Location<?>>  boolean containsActo(IdFor<T> locationId) {
-        IdFor<NaptanRecord> id = convertId(locationId);
+    public <T extends Location<?>>  boolean containsActo(final IdFor<T> locationId) {
+        final IdFor<NaptanRecord> id = convertId(locationId);
         return stops.hasId(id);
     }
 
     // TODO Check or diag on NaptanStopType
     @Override
-    public <T extends Location<?>> NaptanRecord getForActo(IdFor<T> actoCode) {
-        IdFor<NaptanRecord> id = convertId(actoCode);
+    public <T extends Location<?>> NaptanRecord getForActo(final IdFor<T> actoCode) {
+        final IdFor<NaptanRecord> id = convertId(actoCode);
         return stops.get(id);
     }
 
-    private <T extends Location<?>> IdFor<NaptanRecord> convertId(IdFor<T> actoCode) {
+    private <T extends Location<?>> IdFor<NaptanRecord> convertId(final IdFor<T> actoCode) {
         return StringIdFor.convert(actoCode);
     }
 
@@ -244,7 +244,7 @@ public class NaptanRepositoryContainer implements NaptanRepository {
         if (!tiplocToAtco.containsKey(railStationTiploc)) {
             return null;
         }
-        IdFor<NaptanRecord> acto = tiplocToAtco.get(railStationTiploc);
+        final IdFor<NaptanRecord> acto = tiplocToAtco.get(railStationTiploc);
         if (stops.hasId(acto)) {
             return stops.get(acto);
         }

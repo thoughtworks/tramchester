@@ -140,11 +140,11 @@ public class MutableRoute implements Route {
     }
 
     @Override
-    public boolean isDateOverlap(Route otherRoute) {
+    public boolean isDateOverlap(final Route otherRoute) {
         if (services.isEmpty()) {
             throw new RuntimeException("Route has no services");
         }
-        MutableRoute otherMutableRoute = (MutableRoute) otherRoute;
+        final MutableRoute otherMutableRoute = (MutableRoute) otherRoute;
         return routeCalendar.anyOverlapInRunning(otherMutableRoute.routeCalendar);
     }
 
@@ -176,7 +176,7 @@ public class MutableRoute implements Route {
     }
 
     private static class RouteCalendar {
-        private final Cache<IdFor<Route>, Boolean> overlaps; // for thread safety
+        private final Cache<IdFor<Route>, Boolean> overlapMap; // for thread safety
         private final IdFor<Route> parentId;
         private final Route parent;
         private AggregateServiceCalendar serviceCalendar;
@@ -187,7 +187,7 @@ public class MutableRoute implements Route {
             this.parent = parent;
             this.parentId = parent.getId();
             loaded = false;
-            overlaps = Caffeine.newBuilder().maximumSize(5000).
+            overlapMap = Caffeine.newBuilder().maximumSize(5000).
                     expireAfterAccess(10, TimeUnit.MINUTES).
                     initialCapacity(400).
                     recordStats().build();
@@ -203,7 +203,9 @@ public class MutableRoute implements Route {
             if (loaded) {
                 return;
             }
-            Set<ServiceCalendar> calendars = parent.getServices().stream().map(Service::getCalendar).collect(Collectors.toSet());
+            final Set<ServiceCalendar> calendars = parent.getServices().stream().
+                    map(Service::getCalendar).
+                    collect(Collectors.toSet());
             serviceCalendar = new AggregateServiceCalendar(calendars);
             loaded = true;
         }
@@ -218,66 +220,13 @@ public class MutableRoute implements Route {
             return serviceCalendar.getDateRange();
         }
 
-        public boolean anyOverlapInRunning(RouteCalendar otherCalendar) {
+        public boolean anyOverlapInRunning(final RouteCalendar otherCalendar) {
             loadFromParent();
             otherCalendar.loadFromParent();
 
-            return overlaps.get(otherCalendar.parentId, item -> anyDateOverlaps(otherCalendar.serviceCalendar));
-
+            return overlapMap.get(otherCalendar.parentId,
+                    item -> serviceCalendar.anyDateOverlaps(otherCalendar.serviceCalendar));
         }
 
-        private boolean anyDateOverlaps(ServiceCalendar otherCalendar) {
-            if (otherCalendar.isCancelled() || serviceCalendar.isCancelled()) {
-                return false;
-            }
-
-            if (otherCalendar.operatesNoDays() || serviceCalendar.operatesNoDays()) {
-                return false;
-            }
-
-            // working assumption, any additional dates are withing the overall specified range for a service
-            if (!otherCalendar.getDateRange().overlapsWith(getDateRange())) {
-                return false;
-            }
-
-            // additions
-
-            if (operatesOnAny(serviceCalendar.getAdditions(), otherCalendar)) {
-                return true;
-            }
-
-            if (operatesOnAny(otherCalendar.getAdditions(), serviceCalendar)) {
-                return true;
-            }
-
-            // removed
-
-            if (operatesNoneOf(serviceCalendar.getRemoved(), otherCalendar)) {
-                return false;
-            }
-
-            if (operatesNoneOf(otherCalendar.getRemoved(), serviceCalendar)) {
-                return false;
-            }
-
-            // operating days, any overlap?
-
-            EnumSet<DayOfWeek> otherDays = EnumSet.copyOf(otherCalendar.getOperatingDays());
-            return otherDays.removeAll(getOperatingDays()); // will be true only if any overlap
-        }
-
-        private boolean operatesNoneOf(Set<LocalDate> dates, ServiceCalendar calendar) {
-            if (dates.isEmpty()) {
-                return false;
-            }
-            return dates.stream().noneMatch(calendar::operatesOn);
-        }
-
-        private boolean operatesOnAny(Set<LocalDate> dates, ServiceCalendar calendar) {
-            if (dates.isEmpty()) {
-                return false;
-            }
-            return dates.stream().anyMatch(calendar::operatesOn);
-        }
     }
 }

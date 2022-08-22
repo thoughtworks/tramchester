@@ -23,9 +23,10 @@ public class RailServiceGroups {
     private static final Logger logger = LoggerFactory.getLogger(RailServiceGroups.class);
 
     private final WriteableTransportData container;
+
     private final ServiceGroups serviceGroups;
     private final Set<String> skippedSchedules; // services skipped due to train category etc.
-    private final Set<String> unmatchedCancellations;
+    private final Set<String> unmatchedCancellations; // attempted to cancel but could not find
 
     public RailServiceGroups(WriteableTransportData container) {
         this.container = container;
@@ -36,7 +37,7 @@ public class RailServiceGroups {
 
     public void applyCancellation(BasicSchedule basicSchedule) {
         final String uniqueTrainId = basicSchedule.getUniqueTrainId();
-        List<MutableService> existingServices = serviceGroups.servicesFor(uniqueTrainId);
+        final List<MutableService> existingServices = serviceGroups.servicesFor(uniqueTrainId);
         if (existingServices.isEmpty()) {
             if (!skippedSchedules.contains(uniqueTrainId)) {
                 unmatchedCancellations.add(uniqueTrainId);
@@ -61,9 +62,9 @@ public class RailServiceGroups {
     }
 
     @NotNull
-    private Set<MutableService> filterByScheduleDates(BasicSchedule basicSchedule, List<MutableService> existingServices) {
+    private Set<MutableService> filterByScheduleDates(final BasicSchedule basicSchedule, final List<MutableService> existingServices) {
 
-        DateRange dateRange = basicSchedule.getDateRange();
+        final DateRange dateRange = basicSchedule.getDateRange();
 
         return existingServices.stream().
                 filter(service -> dateRange.overlapsWith(service.getCalendar().getDateRange())).
@@ -71,21 +72,21 @@ public class RailServiceGroups {
                 collect(Collectors.toSet());
     }
 
-    MutableService getOrCreateService(BasicSchedule schedule, boolean isOverlay) {
-        String uniqueTrainId = schedule.getUniqueTrainId();
+    MutableService getOrCreateService(final BasicSchedule schedule, final boolean isOverlay) {
+        final String uniqueTrainId = schedule.getUniqueTrainId();
 
         final IdFor<Service> serviceId = getServiceIdFor(schedule, isOverlay);
 
-        MutableService service = new MutableService(serviceId);
-        MutableServiceCalendar calendar = new MutableServiceCalendar(schedule.getDateRange(), schedule.getDaysOfWeek());
+        final MutableService service = new MutableService(serviceId);
+        final MutableServiceCalendar calendar = new MutableServiceCalendar(schedule.getDateRange(), schedule.getDaysOfWeek());
         service.setCalendar(calendar);
 
         if (isOverlay) {
-            List<MutableService> existingServices = serviceGroups.servicesFor(uniqueTrainId);
+            final List<MutableService> existingServices = serviceGroups.servicesFor(uniqueTrainId);
             if (existingServices.isEmpty()) {
                 logger.info("Overlap: No existing services found for " + uniqueTrainId);
             }
-            Set<MutableService> impactedServices = filterByScheduleDates(schedule, existingServices);
+            final Set<MutableService> impactedServices = filterByScheduleDates(schedule, existingServices);
             if (impactedServices.isEmpty() && !existingServices.isEmpty()) {
                 logger.info(format("Overlap: No existing services overlapped on date range (%s) for %s ",
                         schedule.getDateRange(), uniqueTrainId));
@@ -100,7 +101,7 @@ public class RailServiceGroups {
                     // mark overlay dates as no longer applying
                     logger.debug(format("Overlap: Marking existing service %s as cancelled for %s %s",
                             impactedServiceId, schedule.getDateRange(), schedule.getDaysOfWeek()));
-                    MutableServiceCalendar impactedCalendar = impactedService.getMutableCalendar();
+                    final MutableServiceCalendar impactedCalendar = impactedService.getMutableCalendar();
                     addServiceExceptions(impactedCalendar, schedule.getDateRange(), schedule.getDaysOfWeek());
                 }
             });
