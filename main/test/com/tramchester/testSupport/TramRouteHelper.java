@@ -57,16 +57,17 @@ public class TramRouteHelper {
     }
 
     public Route getOneRoute(KnownTramRoute knownRoute, RouteRepository routeRepository, TramDate date) {
-        return getOneRoute(knownRoute, routeRepository, date.toLocalDate());
-    }
-
-    public Route getOneRoute(KnownTramRoute knownRoute, RouteRepository routeRepository, LocalDate date) {
         guard(knownRoute, routeRepository);
         List<Route> result = map.get(knownRoute).stream().filter(route -> route.isAvailableOn(date)).collect(Collectors.toList());
         if (result.size()>1) {
             throw new RuntimeException(format("Found two many routes matching date %s and known route %s", date, knownRoute));
         }
         return result.get(0);
+    }
+
+    @Deprecated
+    public Route getOneRoute(KnownTramRoute knownRoute, RouteRepository routeRepository, LocalDate date) {
+        return getOneRoute(knownRoute, routeRepository, TramDate.of(date));
     }
 
     public IdSet<Route> getId(KnownTramRoute knownRoute, RouteRepository routeRepository) {

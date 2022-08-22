@@ -163,12 +163,12 @@ public class MutableRoute implements Route {
         return routeCalendar.getDateRange();
     }
 
-    @Override
+    @Deprecated
     public boolean isAvailableOn(LocalDate date) {
         return routeCalendar.isAvailableOn(date);
     }
 
-
+    @Override
     public boolean isAvailableOn(TramDate date) {
         return routeCalendar.isAvailableOn(date);
     }
@@ -200,6 +200,7 @@ public class MutableRoute implements Route {
                     recordStats().build();
         }
 
+        @Deprecated
         public boolean isAvailableOn(LocalDate date) {
             loadFromParent();
 

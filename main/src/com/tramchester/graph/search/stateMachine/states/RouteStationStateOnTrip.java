@@ -2,6 +2,7 @@ package com.tramchester.graph.search.stateMachine.states;
 
 import com.google.common.collect.Streams;
 import com.tramchester.domain.Service;
+import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.exceptions.TramchesterException;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.input.Trip;
@@ -16,11 +17,10 @@ import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
 
 import java.time.Duration;
-import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Stream;
 
-import static com.tramchester.graph.TransportRelationshipTypes.*;
+import static com.tramchester.graph.TransportRelationshipTypes.TO_SERVICE;
 import static org.neo4j.graphdb.Direction.OUTGOING;
 
 public class RouteStationStateOnTrip extends RouteStationState implements NodeId {
@@ -53,7 +53,7 @@ public class RouteStationStateOnTrip extends RouteStationState implements NodeId
             TransportMode transportMode = GraphProps.getTransportMode(node);
 
             // TODO Crossing midnight?
-            LocalDate date = minuteState.traversalOps.getQueryDate();
+            TramDate date = minuteState.traversalOps.getQueryDate();
 
             List<Relationship> towardsDestination = getTowardsDestination(minuteState.traversalOps, node, date);
             if (!towardsDestination.isEmpty()) {

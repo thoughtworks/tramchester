@@ -275,7 +275,7 @@ public class TransportDataFromFilesTramTest {
     @Test
     void shouldGetServicesByDate() {
         LocalDate nextSaturday = TestEnv.nextSaturday();
-        Set<Service> results = transportData.getServicesOnDate(nextSaturday);
+        Set<Service> results = transportData.getServicesOnDate(TramDate.of(nextSaturday));
 
         assertFalse(results.isEmpty(), "no services next saturday");
         long onCorrectDate = results.stream().
@@ -284,7 +284,7 @@ public class TransportDataFromFilesTramTest {
         assertEquals(results.size(), onCorrectDate, "should all be on the specified date");
 
         LocalDate noTramsDate = TestEnv.LocalNow().plusMonths(36).toLocalDate(); //transportData.getFeedInfo().validUntil().plusMonths(12);
-        results = transportData.getServicesOnDate(noTramsDate);
+        results = transportData.getServicesOnDate(TramDate.of(noTramsDate));
         assertTrue(results.isEmpty());
     }
 
@@ -297,7 +297,7 @@ public class TransportDataFromFilesTramTest {
 
     @Test
     void shouldHaveSundayServicesFromCornbrook() {
-        LocalDate nextSunday = TestEnv.nextSunday();
+        TramDate nextSunday = TramDate.of(TestEnv.nextSunday());
 
         Set<Service> sundayServices = transportData.getServicesOnDate(nextSunday);
 
@@ -363,7 +363,7 @@ public class TransportDataFromFilesTramTest {
         Set<Service> tramServices = transportData.getServices();
 
         for (int day = 0; day < DAYS_AHEAD; day++) {
-            LocalDate date = TestEnv.testDay().plusDays(day);
+            TramDate date = TestEnv.testTramDay().plusDays(day);
 
             TramServiceDate tramServiceDate = new TramServiceDate(date);
             if (!tramServiceDate.isChristmasPeriod()) {
@@ -382,12 +382,12 @@ public class TransportDataFromFilesTramTest {
         int earlistHour = 7;
 
         // TODO ought to be cable to compute this gap from all of the service calendars??
-        LocalDate summer2022BankHoliday = LocalDate.of(2022,8,29);
+        TramDate summer2022BankHoliday = TramDate.of(2022,8,29);
 
         int maxwait = 25;
 
         for (int day = 0; day < DAYS_AHEAD; day++) {
-            LocalDate date = TestEnv.testDay().plusDays(day);
+            TramDate date = TestEnv.testTramDay().plusDays(day);
 
             TramServiceDate tramServiceDate = new TramServiceDate(date);
             if (!tramServiceDate.isChristmasPeriod() && !summer2022BankHoliday.equals(date)) {
@@ -583,7 +583,7 @@ public class TransportDataFromFilesTramTest {
     @DataExpiryCategory
     @Test
     void shouldHaveExpectedRoutesAvailableForDatesAndTimeRanges() {
-        LocalDate when = TestEnv.testDay();
+        TramDate when = TestEnv.testTramDay();
 
         // earier to diagnose using end of line station
         Station altrincham = Altrincham.from(transportData);
@@ -598,7 +598,7 @@ public class TransportDataFromFilesTramTest {
     @DataExpiryCategory
     @Test
     void shouldHaveExpectedRoutesAvailableForDatesAndTimeRangesOverMidnight() {
-        LocalDate when = TestEnv.testDay();
+        TramDate when = TestEnv.testTramDay();
 
         // earier to diagnose using end of line station
         Station altrincham = Altrincham.from(transportData);

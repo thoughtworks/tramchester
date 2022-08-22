@@ -3,6 +3,7 @@ package com.tramchester.config;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.tramchester.domain.StationClosure;
+import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.places.Station;
@@ -40,13 +41,13 @@ public class StationClosureConfig extends Configuration implements StationClosur
     }
 
     @Override
-    public LocalDate getBegin() {
-        return begin;
+    public TramDate getBegin() {
+        return TramDate.of(begin);
     }
 
     @Override
-    public LocalDate getEnd() {
-        return end;
+    public TramDate getEnd() {
+        return TramDate.of(end);
     }
 
     @JsonIgnore

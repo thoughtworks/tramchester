@@ -303,4 +303,8 @@ public class TestEnv {
         }
         return platforms.get(0);
     }
+
+    public static TramDate nextSaturdayDate() {
+        return TramDate.of(nextSaturday());
+    }
 }

@@ -2,6 +2,7 @@ package com.tramchester.geo;
 
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.domain.BoxWithServiceFrequency;
+import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.input.StopCall;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
@@ -12,8 +13,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
-import java.time.LocalDate;
-import java.util.*;
+import java.util.EnumSet;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -32,7 +35,7 @@ public class StopCallsForGrid {
         this.stopCallRepository = stopCallRepository;
     }
 
-    public Stream<BoxWithServiceFrequency> getServiceFreqencies(long gridSize, LocalDate date, TramTime begin, TramTime end) {
+    public Stream<BoxWithServiceFrequency> getServiceFreqencies(long gridSize, TramDate date, TramTime begin, TramTime end) {
         logger.info(format("Get stopcalls for grid size %s on %s between %s and %s", gridSize, date, begin, end));
 
         return stationLocations.getStationsInGrids(gridSize).
@@ -41,7 +44,7 @@ public class StopCallsForGrid {
     }
 
     @NotNull
-    private BoxWithServiceFrequency createFrequencyBox(LocalDate date, TramTime begin, TramTime end, BoundingBoxWithStations box) {
+    private BoxWithServiceFrequency createFrequencyBox(TramDate date, TramTime begin, TramTime end, BoundingBoxWithStations box) {
         Map<Station, Integer> stationToNumberStopCalls = new HashMap<>();
         EnumSet<TransportMode> modes = EnumSet.noneOf(TransportMode.class);
         box.getStations().forEach(station -> {

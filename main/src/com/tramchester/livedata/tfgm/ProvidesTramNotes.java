@@ -3,13 +3,14 @@ package com.tramchester.livedata.tfgm;
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.domain.Journey;
 import com.tramchester.domain.Platform;
+import com.tramchester.domain.dates.TramDate;
+import com.tramchester.domain.dates.TramServiceDate;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.DTO.factory.DTOFactory;
 import com.tramchester.domain.presentation.Note;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TimeRange;
-import com.tramchester.domain.dates.TramServiceDate;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.livedata.domain.liveUpdates.PlatformMessage;
 import com.tramchester.livedata.repository.PlatformMessageSource;
@@ -20,7 +21,6 @@ import org.slf4j.LoggerFactory;
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import java.time.Duration;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
 
@@ -93,7 +93,7 @@ public class ProvidesTramNotes implements ProvidesNotes {
         return notes;
     }
 
-    private List<Note> createLiveNotesForStations(List<Station> stations, LocalDate date, TramTime time) {
+    private List<Note> createLiveNotesForStations(List<Station> stations, TramDate date, TramTime time) {
         List<Note> notes = new ArrayList<>();
 
         stations.forEach(station -> platformMessageSource.messagesFor(station, date, time).forEach(info ->
@@ -121,17 +121,17 @@ public class ProvidesTramNotes implements ProvidesNotes {
         return notes;
     }
 
-    public static boolean summer2022Closure(LocalDate date) {
-        if (date.isBefore(LocalDate.of(2022,7,13))) {
+    public static boolean summer2022Closure(TramDate date) {
+        if (date.isBefore(TramDate.of(2022,7,13))) {
             return false;
         }
-        if (date.isAfter(LocalDate.of(2022,10,21))) {
+        if (date.isAfter(TramDate.of(2022,10,21))) {
             return false;
         }
         return true;
     }
 
-    private List<Note> liveNotesForJourney(Journey journey, LocalDate queryDate) {
+    private List<Note> liveNotesForJourney(Journey journey, TramDate queryDate) {
         // Map: Note -> Location
         List<Note> notes = new ArrayList<>();
 
@@ -143,7 +143,7 @@ public class ProvidesTramNotes implements ProvidesNotes {
         return notes;
     }
 
-    private void addLiveNotesForPlatform(List<Note> notes, IdFor<Platform> platformId, LocalDate queryDate, TramTime queryTime) {
+    private void addLiveNotesForPlatform(List<Note> notes, IdFor<Platform> platformId, TramDate queryDate, TramTime queryTime) {
         Optional<PlatformMessage> maybe = platformMessageSource.messagesFor(platformId, queryDate, queryTime);
         if (maybe.isEmpty()) {
             logger.warn("No messages found for " + platformId + " at " + queryDate +  " " + queryTime);
@@ -151,7 +151,8 @@ public class ProvidesTramNotes implements ProvidesNotes {
         }
         PlatformMessage info = maybe.get();
         LocalDateTime lastUpdate = info.getLastUpdate();
-        if (!lastUpdate.toLocalDate().isEqual(queryDate)) {
+        TramDate lastUpdateDate = TramDate.of(lastUpdate.toLocalDate());
+        if (!lastUpdateDate.isEqual(queryDate)) {
             // message is not for journey time, perhaps journey is a future date or live data is stale
             logger.info("No messages available for " + queryDate + " last up date was " + lastUpdate);
             return;

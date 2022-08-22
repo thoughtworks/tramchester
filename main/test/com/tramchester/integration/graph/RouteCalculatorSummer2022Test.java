@@ -50,7 +50,7 @@ class RouteCalculatorSummer2022Test {
     private static TramchesterConfig testConfig;
     private static GraphDatabase database;
 
-    private LocalDate when; // = START_OF_WORKS;
+    private TramDate when; // = START_OF_WORKS;
 
     private Duration maxJourneyDuration;
     private RouteCalculatorTestFacade calculator;
@@ -92,7 +92,7 @@ class RouteCalculatorSummer2022Test {
 
         tramRouteHelper = new TramRouteHelper();
 
-        when = TestEnv.testDay();
+        when = TestEnv.testTramDay();
 
     }
 
@@ -338,7 +338,7 @@ class RouteCalculatorSummer2022Test {
         //assertTrue(eccles.servesRoutePickup(replacementRoute, when, timeRange));
         assertTrue(availabilityRepository.isAvailable(eccles, when, timeRange));
 
-        LocalDate startOfWorks = START_OF_WORKS.toLocalDate();
+        TramDate startOfWorks = START_OF_WORKS;
 
         Set<Route> pickupRoutesOnStartOfWorks = availabilityRepository.getPickupRoutesFor(eccles, startOfWorks, timeRange);
         assertEquals(1, pickupRoutesOnStartOfWorks.size());

@@ -6,21 +6,22 @@ import java.time.Month;
 import java.time.format.DateTimeFormatter;
 
 public class TramServiceDate {
-    private final LocalDate date;
+    private final TramDate date;
 
     public static TramServiceDate of(LocalDate date) {
         return new TramServiceDate(date);
     }
 
+    @Deprecated
     public TramServiceDate(LocalDate date) {
-        this.date = date;
+        this.date = TramDate.of(date);
     }
 
     public TramServiceDate(TramDate date) {
-        this.date = date.toLocalDate();
+        this.date = date;
     }
 
-    public LocalDate getDate() {
+    public TramDate getDate() {
         return date;
     }
 
@@ -54,7 +55,7 @@ public class TramServiceDate {
         return false;
     }
 
-    public boolean within(LocalDate from, LocalDate until) {
+    public boolean within(TramDate from, TramDate until) {
         if (date.isAfter(until)) {
             return false;
         }

@@ -2,6 +2,7 @@ package com.tramchester.domain;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.tramchester.config.StationClosureConfig;
+import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.dates.DateRange;
@@ -13,8 +14,8 @@ public interface StationClosure {
 
     IdSet<Station> getStations();
 
-    LocalDate getBegin();
-    LocalDate getEnd();
+    TramDate getBegin();
+    TramDate getEnd();
 
     DateRange getDateRange();
 }

@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.module.afterburner.AfterburnerModule;
 import com.tramchester.domain.BoxWithServiceFrequency;
+import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.presentation.DTO.BoxWithFrequencyDTO;
 import com.tramchester.domain.presentation.DTO.LocationRefDTO;
 import com.tramchester.domain.presentation.DTO.factory.DTOFactory;
@@ -23,7 +24,6 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -62,7 +62,7 @@ public class FrequencyResource extends TransportResource implements APIResource 
         logger.info(format("Query for %s gridsize meters, date: '%s' start: '%s' end: '%s", gridSize,
                 dateRaw, startTimeRaw, endTimeRaw));
 
-        LocalDate date = LocalDate.parse(dateRaw);
+        TramDate date = TramDate.parse(dateRaw);
         TramTime startTime = parseTime(startTimeRaw);
         TramTime endTime = parseTime(endTimeRaw);
 

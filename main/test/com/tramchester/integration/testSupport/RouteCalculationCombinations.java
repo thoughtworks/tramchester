@@ -1,6 +1,7 @@
 package com.tramchester.integration.testSupport;
 
 import com.tramchester.ComponentContainer;
+import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.places.InterchangeStation;
 import com.tramchester.domain.Journey;
 import com.tramchester.domain.StationIdPair;
@@ -68,7 +69,7 @@ public class RouteCalculationCombinations {
 
     @NotNull
     private Map<StationIdPair, JourneyOrNot> computeJourneys(Set<StationIdPair> combinations, JourneyRequest request) {
-        LocalDate queryDate = request.getDate().getDate();
+        TramDate queryDate = request.getDate().getDate();
         TramTime queryTime = request.getOriginalTime();
         return combinations.parallelStream().
                 map(pair -> {
@@ -145,6 +146,11 @@ public class RouteCalculationCombinations {
         private final TramTime queryTime;
         private final Journey journey;
 
+        public JourneyOrNot(StationIdPair requested, TramDate queryDate, TramTime queryTime,
+                            Optional<Journey> optionalJourney) {
+            this(requested, queryDate.toLocalDate(), queryTime, optionalJourney);
+        }
+
         public JourneyOrNot(StationIdPair requested, LocalDate queryDate, TramTime queryTime,
                             Optional<Journey> optionalJourney) {
             this.requested = requested;
@@ -173,8 +179,5 @@ public class RouteCalculationCombinations {
                     '}';
         }
 
-//        public Journey get() {
-//            return journey;
-//        }
     }
 }

@@ -76,7 +76,7 @@ public class RunningRoutesAndServicesTest {
     void shouldConsiderServicesFromDayBeforeIfTheyAreStillRunningTheFollowingDay() {
         TramDate when = TestEnv.testTramDay();
 
-        RunningRoutesAndServices.FilterForDate filter = runningRoutesAndServices.getFor(when.toLocalDate());
+        RunningRoutesAndServices.FilterForDate filter = runningRoutesAndServices.getFor(when);
 
         Route altyToBuryRoute = helper.getOneRoute(KnownTramRoute.AltrinchamManchesterBury, transportData, when);
 
@@ -100,11 +100,11 @@ public class RunningRoutesAndServicesTest {
 
     @Test
     void shouldConsiderRoutesFromDayBeforeIfTheyAreStillRunningTheFollowingDay() {
-        LocalDate when = TestEnv.testDay();
+        TramDate when = TestEnv.testTramDay();
 
         RunningRoutesAndServices.FilterForDate filter = runningRoutesAndServices.getFor(when);
 
-        LocalDate previousDay = when.minusDays(1);
+        TramDate previousDay = when.minusDays(1);
 
         Route altyToBuryRoute = helper.getOneRoute(KnownTramRoute.AltrinchamManchesterBury, transportData, previousDay);
 
@@ -149,8 +149,8 @@ public class RunningRoutesAndServicesTest {
         // double check contains next monday
         assertTrue(weekdayDateRange.contains(TramDate.of(nextMonday)));
 
-        LocalDate friday = getFridayAfter(nextMonday);
-        assertTrue(weekdayDateRange.contains(TramDate.of(friday)));
+        TramDate friday = TramDate.of(getFridayAfter(nextMonday));
+        assertTrue(weekdayDateRange.contains(friday));
 
         RunningRoutesAndServices.FilterForDate filterForNextFriday = runningRoutesAndServices.getFor(friday);
 

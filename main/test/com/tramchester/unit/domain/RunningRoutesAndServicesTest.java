@@ -2,6 +2,7 @@ package com.tramchester.unit.domain;
 
 import com.tramchester.domain.Route;
 import com.tramchester.domain.Service;
+import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.time.TramTime;
@@ -26,7 +27,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class RunningRoutesAndServicesTest extends EasyMockSupport {
 
-    private LocalDate date;
+    private TramDate date;
     private ServiceRepository serviceRepository;
     private RouteRepository routeRepository;
     private RunningRoutesAndServices runningRoutesAndServices;
@@ -37,7 +38,7 @@ public class RunningRoutesAndServicesTest extends EasyMockSupport {
 
     @BeforeEach
     void beforeEachTestRuns() {
-        date = LocalDate.of(2021, 12, 5);
+        date = TramDate.of(2021, 12, 5);
         serviceRepository = createMock(ServiceRepository.class);
         routeRepository = createMock(RouteRepository.class);
 
@@ -58,11 +59,11 @@ public class RunningRoutesAndServicesTest extends EasyMockSupport {
         EasyMock.expect(routeRepository.getRoutesRunningOn(date)).andReturn(singleton(routeA));
         EasyMock.expect(serviceRepository.getServicesOnDate(date)).andReturn(singleton(serviceA));
 
-        LocalDate tomorrow = date.plusDays(1);
+        TramDate tomorrow = date.plusDays(1);
         EasyMock.expect(routeRepository.getRoutesRunningOn(tomorrow)).andReturn(singleton(routeB));
         EasyMock.expect(serviceRepository.getServicesOnDate(tomorrow)).andReturn(singleton(serviceB));
 
-        LocalDate yesterday = date.minusDays(1);
+        TramDate yesterday = date.minusDays(1);
         EasyMock.expect(routeRepository.getRoutesRunningOn(yesterday)).andReturn(Collections.emptySet());
         EasyMock.expect(serviceRepository.getServicesOnDate(yesterday)).andReturn(Collections.emptySet());
 
@@ -89,7 +90,7 @@ public class RunningRoutesAndServicesTest extends EasyMockSupport {
         EasyMock.expect(serviceRepository.getServicesOnDate(date)).andReturn(new HashSet<>(Arrays.asList(serviceA, serviceB)));
         EasyMock.expect(serviceRepository.getServicesOnDate(date.plusDays(1))).andReturn(Collections.emptySet());
 
-        LocalDate yesterday = date.minusDays(1);
+        TramDate yesterday = date.minusDays(1);
         EasyMock.expect(routeRepository.getRoutesRunningOn(yesterday)).andReturn(Collections.emptySet());
         EasyMock.expect(serviceRepository.getServicesOnDate(yesterday)).andReturn(Collections.emptySet());
 
@@ -129,7 +130,7 @@ public class RunningRoutesAndServicesTest extends EasyMockSupport {
         EasyMock.expect(serviceRepository.getServicesOnDate(date)).andReturn(singleton(serviceA));
         EasyMock.expect(serviceRepository.getServicesOnDate(date.plusDays(1))).andReturn(singleton(serviceB));
 
-        LocalDate yesterday = date.minusDays(1);
+        TramDate yesterday = date.minusDays(1);
         EasyMock.expect(routeRepository.getRoutesRunningOn(yesterday)).andReturn(Collections.emptySet());
         EasyMock.expect(serviceRepository.getServicesOnDate(yesterday)).andReturn(Collections.emptySet());
 
@@ -169,11 +170,11 @@ public class RunningRoutesAndServicesTest extends EasyMockSupport {
         EasyMock.expect(routeRepository.getRoutesRunningOn(date)).andReturn(Collections.emptySet());
         EasyMock.expect(serviceRepository.getServicesOnDate(date)).andReturn(Collections.emptySet());
 
-        LocalDate tomorrow = this.date.plusDays(1);
+        TramDate tomorrow = this.date.plusDays(1);
         EasyMock.expect(routeRepository.getRoutesRunningOn(tomorrow)).andReturn(Collections.emptySet());
         EasyMock.expect(serviceRepository.getServicesOnDate(tomorrow)).andReturn(Collections.emptySet());
 
-        LocalDate yesterday = date.minusDays(1);
+        TramDate yesterday = date.minusDays(1);
         EasyMock.expect(routeRepository.getRoutesRunningOn(yesterday)).andReturn(singleton(routeA));
         EasyMock.expect(serviceRepository.getServicesOnDate(yesterday)).andReturn(singleton(serviceA));
 
@@ -198,11 +199,11 @@ public class RunningRoutesAndServicesTest extends EasyMockSupport {
         EasyMock.expect(routeRepository.getRoutesRunningOn(date)).andReturn(singleton(routeA));
         EasyMock.expect(serviceRepository.getServicesOnDate(date)).andReturn(singleton(serviceA));
 
-        LocalDate tomorrow = date.plusDays(1);
+        TramDate tomorrow = date.plusDays(1);
         EasyMock.expect(routeRepository.getRoutesRunningOn(tomorrow)).andReturn(singleton(routeB));
         EasyMock.expect(serviceRepository.getServicesOnDate(tomorrow)).andReturn(singleton(serviceB));
 
-        LocalDate yesterday = date.minusDays(1);
+        TramDate yesterday = date.minusDays(1);
         EasyMock.expect(routeRepository.getRoutesRunningOn(yesterday)).andReturn(Collections.emptySet());
         EasyMock.expect(serviceRepository.getServicesOnDate(yesterday)).andReturn(Collections.emptySet());
 

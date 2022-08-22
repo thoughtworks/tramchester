@@ -4,6 +4,7 @@ import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.domain.CoreDomain;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.Service;
+import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdMap;
@@ -16,7 +17,6 @@ import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
 import java.time.Duration;
-import java.time.LocalDate;
 import java.util.Set;
 
 @LazySingleton
@@ -32,15 +32,15 @@ public class RunningRoutesAndServices {
         this.routeRepository = routeRepository;
     }
 
-    public FilterForDate getFor(LocalDate date) {
+    public FilterForDate getFor(TramDate date) {
         IdMap<Service> serviceIds = getServicesFor(date);
         IdMap<Route> routeIds = getRoutesFor(date);
 
-        LocalDate nextDay = date.plusDays(1);
+        TramDate nextDay = date.plusDays(1);
         IdMap<Service> runningServicesNextDay = getServicesFor(nextDay);
         IdMap<Route> runningRoutesNextDay = getRoutesFor(nextDay);
 
-        LocalDate previousDay = date.minusDays(1);
+        TramDate previousDay = date.minusDays(1);
         IdMap<Service> previousDaySvcs = servicesIntoNextDay(previousDay);
         IdMap<Route> previousDayRoutes = routesIntoNextDayFor(previousDay);
 
@@ -48,11 +48,11 @@ public class RunningRoutesAndServices {
                 previousDaySvcs, previousDayRoutes);
     }
 
-    private IdMap<Route> routesIntoNextDayFor(LocalDate date) {
+    private IdMap<Route> routesIntoNextDayFor(TramDate date) {
         return intoNextDay(routeRepository.getRoutesRunningOn(date));
     }
 
-    private IdMap<Service> servicesIntoNextDay(LocalDate date) {
+    private IdMap<Service> servicesIntoNextDay(TramDate date) {
         return intoNextDay(serviceRepository.getServicesOnDate(date));
     }
 
@@ -63,7 +63,7 @@ public class RunningRoutesAndServices {
     }
 
     @NotNull
-    private IdMap<Route> getRoutesFor(LocalDate date) {
+    private IdMap<Route> getRoutesFor(TramDate date) {
         Set<Route> routes = routeRepository.getRoutesRunningOn(date);
         if (routes.size()>0) {
             logger.info("Found " + routes.size() + " running routes for " + date);
@@ -75,7 +75,7 @@ public class RunningRoutesAndServices {
     }
 
     @NotNull
-    private IdMap<Service> getServicesFor(LocalDate date) {
+    private IdMap<Service> getServicesFor(TramDate date) {
         Set<Service> services = serviceRepository.getServicesOnDate(date);
         if (services.size()>0) {
             logger.info("Found " + services.size() + " running services for " + date);

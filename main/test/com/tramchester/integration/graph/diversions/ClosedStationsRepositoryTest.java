@@ -5,6 +5,7 @@ import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.StationClosure;
+import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.places.Station;
 import com.tramchester.integration.testSupport.StationClosureForTest;
@@ -18,7 +19,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
-import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
@@ -32,18 +32,18 @@ public class ClosedStationsRepositoryTest {
 
     private static ComponentContainer componentContainer;
     private static IntegrationTramClosedStationsTestConfig config;
-    private static LocalDate when;
-    private static LocalDate overlap;
+    private static TramDate when;
+    private static TramDate overlap;
 
     private StationRepository stationRepository;
 
     private ClosedStationsRepository closedStationsRepository;
 
-    private LocalDate afterClosures;
+    private TramDate afterClosures;
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
-        when = TestEnv.testDay();
+        when = TestEnv.testTramDay();
         overlap = when.plusDays(3);
 
         StationClosureForTest closureA = new StationClosureForTest(StPetersSquare, when, when.plusWeeks(1));

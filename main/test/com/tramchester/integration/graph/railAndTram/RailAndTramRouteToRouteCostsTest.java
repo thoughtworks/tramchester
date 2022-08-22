@@ -4,6 +4,7 @@ import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.NumberOfChanges;
+import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.time.TimeRange;
 import com.tramchester.domain.time.TramTime;
@@ -31,7 +32,7 @@ public class RailAndTramRouteToRouteCostsTest {
 
     private static ComponentContainer componentContainer;
 
-    private LocalDate date;
+    private TramDate date;
     private RouteToRouteCosts routeToRouteCosts;
 
     @BeforeAll
@@ -55,7 +56,7 @@ public class RailAndTramRouteToRouteCostsTest {
 
     @BeforeEach
     void beforeEachTestRuns() {
-        date = TestEnv.testDay();
+        date = TestEnv.testTramDay();
         routeToRouteCosts = componentContainer.get(RouteToRouteCosts.class);
     }
 

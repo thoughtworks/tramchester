@@ -30,11 +30,11 @@ class RouteAndService {
         return route.getTransportMode();
     }
 
-    public boolean isAvailableOn(LocalDate date) {
+    public boolean isAvailableOn(TramDate date) {
         if (!route.isAvailableOn(date)) {
             return false;
         }
-        return service.getCalendar().operatesOn(TramDate.of(date));
+        return service.getCalendar().operatesOn(date);
     }
 
     public Route getRoute() {

@@ -1,5 +1,6 @@
 package com.tramchester.unit.domain.dates;
 
+import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.dates.TramServiceDate;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -12,7 +13,7 @@ class TramServiceDateTest {
 
     @Test
     void shouldInitiateWithDate() {
-        LocalDate date = LocalDate.of(2014, 10, 25);
+        TramDate date = TramDate.of(2014, 10, 25);
         TramServiceDate tramServiceDate = new TramServiceDate(date);
 
         assertThat(tramServiceDate.getDate()).isEqualTo(date);
@@ -21,7 +22,7 @@ class TramServiceDateTest {
 
     @Test
     void shouldCheckBetween() {
-        LocalDate aDate = LocalDate.of(2016, 6, 13);
+        TramDate aDate = TramDate.of(2016, 6, 13);
         TramServiceDate tramServiceDate = new TramServiceDate(aDate);
 
         Assertions.assertTrue(tramServiceDate.within(aDate, aDate.plusDays(1)));

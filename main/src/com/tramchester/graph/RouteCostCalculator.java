@@ -2,6 +2,7 @@ package com.tramchester.graph;
 
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.domain.Route;
+import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.places.Location;
 import com.tramchester.domain.time.InvalidDurationException;
@@ -75,7 +76,7 @@ public class RouteCostCalculator {
         return calculateLeastCost(txn, start, endNode, MAX_COST, date.getDate());
     }
 
-    private Duration getCostBetween(Transaction txn, Location<?> startLocation, Location<?> endLocation, GraphPropertyKey key, LocalDate date) throws InvalidDurationException {
+    private Duration getCostBetween(Transaction txn, Location<?> startLocation, Location<?> endLocation, GraphPropertyKey key, TramDate date) throws InvalidDurationException {
         Node startNode = graphQuery.getLocationNode(txn, startLocation);
         if (startNode==null) {
             throw new RuntimeException("Could not find start node for graph id " + startLocation.getId().getGraphId());
@@ -91,7 +92,7 @@ public class RouteCostCalculator {
 
     // startNode and endNode must have been found within supplied txn
 
-    private Duration calculateLeastCost(Transaction txn, Node startNode, Node endNode, GraphPropertyKey key, LocalDate date) throws InvalidDurationException {
+    private Duration calculateLeastCost(Transaction txn, Node startNode, Node endNode, GraphPropertyKey key, TramDate date) throws InvalidDurationException {
         IdSet<Route> running = IdSet.from(routeRepository.getRoutesRunningOn(date));
         // TODO fetch all the relationshipIds first
 

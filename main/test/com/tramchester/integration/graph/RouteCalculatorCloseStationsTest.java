@@ -6,6 +6,7 @@ import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.Journey;
 import com.tramchester.domain.JourneyRequest;
 import com.tramchester.domain.StationClosure;
+import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.dates.TramServiceDate;
 import com.tramchester.domain.time.TramTime;
@@ -40,7 +41,7 @@ class RouteCalculatorCloseStationsTest {
     private static GraphDatabase database;
 
     private RouteCalculatorTestFacade calculator;
-    private final static LocalDate when = TestEnv.testDay();
+    private final static TramDate when = TestEnv.testTramDay();
     private Transaction txn;
 
     private final static List<StationClosure> closedStations = Collections.singletonList(
@@ -105,7 +106,7 @@ class RouteCalculatorCloseStationsTest {
     }
 
     @NotNull
-    private Set<Journey> getSingleStageBuryToEccles(LocalDate travelDate) {
+    private Set<Journey> getSingleStageBuryToEccles(TramDate travelDate) {
         JourneyRequest journeyRequest = new JourneyRequest(new TramServiceDate(travelDate), TramTime.of(8, 0),
                 false, 0, Duration.ofMinutes(120), 1, getRequestedModes());
         Set<Journey> journeys = calculator.calculateRouteAsSet(TramStations.Bury, TramStations.Shudehill, journeyRequest);

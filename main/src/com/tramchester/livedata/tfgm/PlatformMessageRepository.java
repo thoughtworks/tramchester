@@ -6,6 +6,7 @@ import com.github.benmanes.caffeine.cache.stats.CacheStats;
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.Platform;
+import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdSet;
@@ -27,7 +28,6 @@ import org.slf4j.LoggerFactory;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.inject.Inject;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.*;
@@ -46,7 +46,7 @@ public class PlatformMessageRepository implements PlatformMessageSource, Reports
     private final ProvidesNow providesNow;
     private final CacheMetrics cacheMetrics;
     private final TramchesterConfig config;
-    private LocalDate lastRefresh;
+    private TramDate lastRefresh;
 
     @Inject
     public PlatformMessageRepository(ProvidesNow providesNow, CacheMetrics cacheMetrics, TramchesterConfig config) {
@@ -88,7 +88,7 @@ public class PlatformMessageRepository implements PlatformMessageSource, Reports
         logger.info("Updating cache");
         consumeDepartInfo(departureInfos);
         messageCache.cleanUp();
-        lastRefresh = providesNow.getDate();
+        lastRefresh = providesNow.getTramDate();
         int entries = numberOfEntries();
         logger.info("Cache now has " + entries + " entries");
         return entries;
@@ -151,7 +151,7 @@ public class PlatformMessageRepository implements PlatformMessageSource, Reports
     }
 
     @Override
-    public List<PlatformMessage> messagesFor(Station station, LocalDate when, TramTime queryTime) {
+    public List<PlatformMessage> messagesFor(Station station, TramDate when, TramTime queryTime) {
         if (!isEnabled()) {
             return Collections.emptyList();
         }
@@ -168,7 +168,7 @@ public class PlatformMessageRepository implements PlatformMessageSource, Reports
     }
 
     @Override
-    public Optional<PlatformMessage> messagesFor(IdFor<Platform> platformId, LocalDate queryDate, TramTime queryTime) {
+    public Optional<PlatformMessage> messagesFor(IdFor<Platform> platformId, TramDate queryDate, TramTime queryTime) {
         if (!isEnabled()) {
             return Optional.empty();
         }
@@ -228,7 +228,7 @@ public class PlatformMessageRepository implements PlatformMessageSource, Reports
             return 0;
         }
 
-        if (!queryDateTime.toLocalDate().equals(lastRefresh)) {
+        if (!lastRefresh.toLocalDate().equals(queryDateTime.toLocalDate())) {
             return 0;
         }
 

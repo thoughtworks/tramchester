@@ -25,7 +25,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @ExtendWith(DropwizardExtensionsSupport.class)
 public class StationResourceClosedStationTest {
-    private final static TramServiceDate when = new TramServiceDate(TestEnv.testDay());
+    private final static TramServiceDate when = new TramServiceDate(TestEnv.testTramDay());
 
     private static final TramStations closedStation = TramStations.StPetersSquare;
 
@@ -49,8 +49,8 @@ public class StationResourceClosedStationTest {
         List<LocationRefDTO> stations = stationClosure.getStations();
         assertEquals(1, stations.size());
         assertEquals(closedStation.getRawId(), stations.get(0).getId());
-        assertEquals(when.getDate(), stationClosure.getBegin());
-        assertEquals(when.getDate().plusWeeks(1), stationClosure.getEnd());
+        assertEquals(when.getDate().toLocalDate(), stationClosure.getBegin());
+        assertEquals(when.getDate().plusWeeks(1).toLocalDate(), stationClosure.getEnd());
     }
 
 }

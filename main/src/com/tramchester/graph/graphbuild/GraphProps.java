@@ -2,6 +2,7 @@ package com.tramchester.graph.graphbuild;
 
 import com.google.common.collect.Streams;
 import com.tramchester.domain.*;
+import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.RouteStationId;
@@ -39,12 +40,20 @@ public class GraphProps {
         entity.setProperty(item.getProp().getText(), item.getId().getGraphId());
     }
 
+    public static void setEndDate(Entity entity, TramDate date) {
+        setEndDate(entity, date.toLocalDate());
+    }
+
     public static void setEndDate(Entity entity, LocalDate date) {
         entity.setProperty(END_DATE.getText(), date);
     }
 
     public static LocalDate getEndDate(Relationship relationship) {
         return (LocalDate) relationship.getProperty(END_DATE.getText());
+    }
+
+    public static void setStartDate(Entity entity, TramDate date) {
+        setStartDate(entity, date.toLocalDate());
     }
 
     public static void setStartDate(Entity entity, LocalDate date) {
@@ -234,6 +243,10 @@ public class GraphProps {
 
     public static void setProperty(Entity entity, IdFor<NaptanArea> areaId) {
         entity.setProperty(AREA_ID.getText(), areaId.getGraphId());
+    }
+
+    public static boolean validOn(TramDate date, Relationship relationship) {
+        return validOn(date.toLocalDate(), relationship);
     }
 
     public static boolean validOn(LocalDate date, Relationship relationship) {

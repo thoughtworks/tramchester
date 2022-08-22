@@ -3,6 +3,7 @@ package com.tramchester.unit.repository;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.DataSourceID;
 import com.tramchester.domain.Platform;
+import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.places.Station;
@@ -74,7 +75,7 @@ class PlatformMessageRepositoryTest  extends EasyMockSupport {
         infos.add(departureInfoB);
 
         TramTime updateTime = TramTime.ofHourMins(lastUpdate.toLocalTime());
-        EasyMock.expect(providesNow.getDate()).andStubReturn(lastUpdate.toLocalDate());
+        EasyMock.expect(providesNow.getTramDate()).andReturn(TramDate.from(lastUpdate));
 
         replayAll();
         repository.updateCache(infos);
@@ -82,18 +83,19 @@ class PlatformMessageRepositoryTest  extends EasyMockSupport {
 
         assertEquals(2, repository.numberOfEntries());
 
-        Optional<PlatformMessage> platformMessage = repository.messagesFor(platform.getId(), lastUpdate.toLocalDate(), updateTime);
+        TramDate date = TramDate.from(lastUpdate);
+        Optional<PlatformMessage> platformMessage = repository.messagesFor(platform.getId(), date, updateTime);
         assertTrue(platformMessage.isPresent());
         assertEquals("some message", platformMessage.get().getMessage());
 
-        Optional<PlatformMessage> noMessage = repository.messagesFor(StringIdFor.createId("XXXX"), lastUpdate.toLocalDate(), updateTime);
+        Optional<PlatformMessage> noMessage = repository.messagesFor(StringIdFor.createId("XXXX"), date, updateTime);
         assertTrue(noMessage.isEmpty());
 
-        Optional<PlatformMessage> otherMessage = repository.messagesFor(StringIdFor.createId("someOther"), lastUpdate.toLocalDate(), updateTime);
+        Optional<PlatformMessage> otherMessage = repository.messagesFor(StringIdFor.createId("someOther"), date, updateTime);
         assertTrue(otherMessage.isPresent());
         assertEquals("some different message", otherMessage.get().getMessage());
 
-        List<PlatformMessage> stationMessages = repository.messagesFor(station, lastUpdate.toLocalDate(), updateTime);
+        List<PlatformMessage> stationMessages = repository.messagesFor(station, date, updateTime);
         assertEquals(1, stationMessages.size());
         assertEquals("some message", stationMessages.get(0).getMessage());
 
@@ -101,7 +103,7 @@ class PlatformMessageRepositoryTest  extends EasyMockSupport {
         Station otherStation = TramStations.Ashton.fakeWithPlatform("XXXX", Ashton.getLatLong(),
                 DataSourceID.unknown, IdFor.invalid());
 
-        List<PlatformMessage> noStationMsg = repository.messagesFor(otherStation, lastUpdate.toLocalDate(), updateTime);
+        List<PlatformMessage> noStationMsg = repository.messagesFor(otherStation, date, updateTime);
         assertTrue(noStationMsg.isEmpty());
     }
 
@@ -116,7 +118,9 @@ class PlatformMessageRepositoryTest  extends EasyMockSupport {
         departureInfo.setStationPlatform(platform);
         infos.add(departureInfo);
 
-        EasyMock.expect(providesNow.getDate()).andStubReturn(lastUpdate.toLocalDate());
+//        EasyMock.expect(providesNow.getDate()).andStubReturn(lastUpdate.toLocalDate());
+        EasyMock.expect(providesNow.getTramDate()).andReturn(TramDate.from(lastUpdate));
+
 
         replayAll();
         repository.updateCache(infos);
@@ -135,7 +139,9 @@ class PlatformMessageRepositoryTest  extends EasyMockSupport {
         departureInfo.setStationPlatform(platform);
         infos.add(departureInfo);
 
-        EasyMock.expect(providesNow.getDate()).andStubReturn(lastUpdate.toLocalDate());
+        //EasyMock.expect(providesNow.getDate()).andStubReturn(lastUpdate.toLocalDate());
+        EasyMock.expect(providesNow.getTramDate()).andReturn(TramDate.from(lastUpdate));
+
 
         replayAll();
         repository.updateCache(infos);
@@ -147,7 +153,7 @@ class PlatformMessageRepositoryTest  extends EasyMockSupport {
     @Test
     void shouldGiveNoMessagesIfNoRefresh() {
         // no refresh
-        Optional<PlatformMessage> result = repository.messagesFor(platform.getId(), lastUpdate.toLocalDate(),
+        Optional<PlatformMessage> result = repository.messagesFor(platform.getId(), TramDate.from(lastUpdate),
                 TramTime.ofHourMins(lastUpdate.toLocalTime()));
         assertTrue(result.isEmpty());
     }
@@ -163,14 +169,15 @@ class PlatformMessageRepositoryTest  extends EasyMockSupport {
         departureInfo.setStationPlatform(platform);
         infos.add(departureInfo);
 
-        EasyMock.expect(providesNow.getDate()).andStubReturn(lastUpdate.toLocalDate().minusDays(1));
+//        EasyMock.expect(providesNow.getDate()).andStubReturn(lastUpdate.toLocalDate().minusDays(1));
+        EasyMock.expect(providesNow.getTramDate()).andReturn(TramDate.from(lastUpdate).minusDays(1));
 
         replayAll();
         repository.updateCache(infos);
         verifyAll();
 
         // no refresh
-        Optional<PlatformMessage> result = repository.messagesFor(platform.getId(), lastUpdate.toLocalDate(),
+        Optional<PlatformMessage> result = repository.messagesFor(platform.getId(), TramDate.from(lastUpdate),
                 TramTime.ofHourMins(lastUpdate.toLocalTime()));
         assertTrue(result.isEmpty());
     }
@@ -185,14 +192,16 @@ class PlatformMessageRepositoryTest  extends EasyMockSupport {
         departureInfo.setStationPlatform(platform);
         infos.add(departureInfo);
 
-        EasyMock.expect(providesNow.getDate()).andStubReturn(lastUpdate.toLocalDate());
+//        EasyMock.expect(providesNow.getDate()).andStubReturn(lastUpdate.toLocalDate());
+        EasyMock.expect(providesNow.getTramDate()).andReturn(TramDate.from(lastUpdate));
+
 
         replayAll();
         repository.updateCache(infos);
         verifyAll();
 
         // no refresh
-        Optional<PlatformMessage> result = repository.messagesFor(platform.getId(), lastUpdate.toLocalDate(),
+        Optional<PlatformMessage> result = repository.messagesFor(platform.getId(), TramDate.from(lastUpdate),
                 TramTime.ofHourMins(lastUpdate.toLocalTime()));
         assertTrue(result.isEmpty());
     }
@@ -214,7 +223,8 @@ class PlatformMessageRepositoryTest  extends EasyMockSupport {
         infos.add(departureInfoB);
 
         TramTime updateTime = TramTime.ofHourMins(lastUpdate.toLocalTime());
-        EasyMock.expect(providesNow.getDate()).andStubReturn(lastUpdate.toLocalDate());
+        //EasyMock.expect(providesNow.getDate()).andStubReturn(lastUpdate.toLocalDate());
+        EasyMock.expect(providesNow.getTramDate()).andReturn(TramDate.from(lastUpdate));
 
         replayAll();
         repository.updateCache(infos);
@@ -222,7 +232,7 @@ class PlatformMessageRepositoryTest  extends EasyMockSupport {
 
         assertEquals(1, repository.numberOfEntries());
 
-        Optional<PlatformMessage> platformMessage = repository.messagesFor(platform.getId(), lastUpdate.toLocalDate(), updateTime);
+        Optional<PlatformMessage> platformMessage = repository.messagesFor(platform.getId(), TramDate.from(lastUpdate), updateTime);
         assertTrue(platformMessage.isPresent());
         assertEquals("some message", platformMessage.get().getMessage());
     }
@@ -242,7 +252,9 @@ class PlatformMessageRepositoryTest  extends EasyMockSupport {
         infos.add(departureInfoB);
 
         TramTime updateTime = TramTime.ofHourMins(lastUpdate.toLocalTime());
-        EasyMock.expect(providesNow.getDate()).andStubReturn(lastUpdate.toLocalDate());
+//        EasyMock.expect(providesNow.getDate()).andStubReturn(lastUpdate.toLocalDate());
+        EasyMock.expect(providesNow.getTramDate()).andReturn(TramDate.from(lastUpdate));
+
 
         replayAll();
         repository.updateCache(infos);
@@ -250,19 +262,23 @@ class PlatformMessageRepositoryTest  extends EasyMockSupport {
 
         assertEquals(1, repository.numberOfEntries());
 
-        Optional<PlatformMessage> platformMessage = repository.messagesFor(platform.getId(), lastUpdate.toLocalDate(), updateTime);
+        Optional<PlatformMessage> platformMessage = repository.messagesFor(platform.getId(), TramDate.from(lastUpdate), updateTime);
         assertTrue(platformMessage.isPresent());
         assertEquals("some message", platformMessage.get().getMessage());
     }
 
     @Test
     void noNothingIfLiveDataIsDisabled() {
-        LocalDate date = LocalDate.now();
+
         TramTime time = TramTime.of(14, 34);
 
         EasyMock.expect(config.liveTfgmTramDataEnabled()).andStubReturn(false);
+        EasyMock.expect(providesNow.getTramDate()).andReturn(TramDate.from(lastUpdate));
+
 
         replayAll();
+        TramDate date = providesNow.getTramDate();
+
         List<PlatformMessage> messageForStation = repository.messagesFor(station, date, time);
         Optional<PlatformMessage> messageForPlatform = repository.messagesFor(StringIdFor.createId("platformId"), date, time);
         Set<Station> stationsWithMessages = repository.getStationsWithMessages(LocalTime.now());

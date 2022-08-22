@@ -6,6 +6,7 @@ import com.tramchester.domain.Journey;
 import com.tramchester.domain.JourneyRequest;
 import com.tramchester.domain.LocationSet;
 import com.tramchester.domain.NumberOfChanges;
+import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.places.Location;
 import com.tramchester.domain.places.StationWalk;
 import com.tramchester.domain.reference.TransportMode;
@@ -82,7 +83,7 @@ public class RouteCalculator extends RouteCalculatorSupport implements TramRoute
 
         final List<TramTime> queryTimes = createQueryTimes.generate(journeyRequest.getOriginalTime());
 
-        LocalDate date = journeyRequest.getDate().getDate();
+        TramDate date = journeyRequest.getDate().getDate();
 
         NumberOfChanges numberOfChanges =  routeToRouteCosts.getNumberOfChanges(start, destination,
                 journeyRequest.getRequestedModes(), date, journeyRequest.getTimeRange());

@@ -2,6 +2,7 @@ package com.tramchester.integration.repository;
 
 import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
+import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.time.TimeRange;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
@@ -13,8 +14,6 @@ import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-
-import java.time.LocalDate;
 
 import static com.tramchester.domain.time.TramTime.of;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -48,7 +47,7 @@ public class StationAvailabilityRepositoryTest {
 
         Station stPeters = TramStations.StPetersSquare.from(stationRepository);
 
-        LocalDate when = TestEnv.testDay();
+        TramDate when = TestEnv.testTramDay();
 
         boolean duringTheDay = repository.isAvailable(stPeters, when, TimeRange.of(of(8,45), of(10,45)));
 

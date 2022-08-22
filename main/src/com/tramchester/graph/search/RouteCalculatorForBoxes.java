@@ -3,10 +3,11 @@ package com.tramchester.graph.search;
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.*;
+import com.tramchester.domain.dates.TramDate;
+import com.tramchester.domain.dates.TramServiceDate;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.domain.time.TimeRange;
-import com.tramchester.domain.dates.TramServiceDate;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.geo.BoundingBoxWithStations;
 import com.tramchester.geo.SortsPositions;
@@ -27,7 +28,6 @@ import org.slf4j.LoggerFactory;
 import javax.inject.Inject;
 import java.time.Duration;
 import java.time.Instant;
-import java.time.LocalDate;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -75,7 +75,7 @@ public class RouteCalculatorForBoxes extends RouteCalculatorSupport {
 
         final Set<TransportMode> requestedModes = journeyRequest.getRequestedModes();
 
-        LocalDate date = queryDate.getDate();
+        TramDate date = queryDate.getDate();
         final LowestCostsForDestRoutes lowestCostForDestinations = routeToRouteCosts.getLowestCostCalcutatorFor(destinations, date,
                 journeyRequest.getTimeRange());
         final RunningRoutesAndServices.FilterForDate routeAndServicesFilter = runningRoutesAndService.getFor(date);
@@ -120,7 +120,7 @@ public class RouteCalculatorForBoxes extends RouteCalculatorSupport {
 
     }
 
-    private NumberOfChanges computeNumberOfChanges(LocationSet starts, LocationSet destinations, LocalDate date, TimeRange timeRange) {
+    private NumberOfChanges computeNumberOfChanges(LocationSet starts, LocationSet destinations, TramDate date, TimeRange timeRange) {
         return routeToRouteCosts.getNumberOfChanges(starts, destinations, date, timeRange);
     }
 }

@@ -1,5 +1,6 @@
 package com.tramchester.domain;
 
+import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.StringIdFor;
@@ -39,7 +40,7 @@ public interface Route extends HasId<Route>, HasTransportMode, GraphProperty, Co
 
     DateRange getDateRange();
 
-    boolean isAvailableOn(LocalDate date);
+    boolean isAvailableOn(TramDate date);
 
     static IdFor<Route> createId(String text) {
         return StringIdFor.createId(text);

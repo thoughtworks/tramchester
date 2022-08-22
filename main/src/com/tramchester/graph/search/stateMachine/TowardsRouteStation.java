@@ -1,6 +1,7 @@
 package com.tramchester.graph.search.stateMachine;
 
 import com.google.common.collect.Streams;
+import com.tramchester.domain.dates.TramDate;
 import com.tramchester.graph.graphbuild.GraphProps;
 import com.tramchester.graph.search.stateMachine.states.RouteStationState;
 import org.neo4j.graphdb.Node;
@@ -23,12 +24,12 @@ public abstract class TowardsRouteStation<T extends RouteStationState> implement
         this.interchangesOnly = interchangesOnly;
     }
 
-    protected List<Relationship> getTowardsDestination(TraversalOps traversalOps, Node node, LocalDate date) {
+    protected List<Relationship> getTowardsDestination(TraversalOps traversalOps, Node node, TramDate date) {
         Stream<Relationship> relationships = Streams.stream(node.getRelationships(OUTGOING, DEPART, INTERCHANGE_DEPART));
         return traversalOps.getTowardsDestination(Stream.concat(relationships, getActiveDiversions(node,date).stream()));
     }
 
-    protected Stream<Relationship> getOutboundsToFollow(Node node, boolean isInterchange, LocalDate date) {
+    protected Stream<Relationship> getOutboundsToFollow(Node node, boolean isInterchange, TramDate date) {
         Stream<Relationship> outboundsToFollow = Stream.empty();
         if (interchangesOnly) {
             if (isInterchange) {
@@ -46,7 +47,7 @@ public abstract class TowardsRouteStation<T extends RouteStationState> implement
         }
     }
 
-    private List<Relationship> getActiveDiversions(Node node, LocalDate date) {
+    private List<Relationship> getActiveDiversions(Node node, TramDate date) {
         Set<Relationship> diversions = Streams.
                 stream(node.getRelationships(OUTGOING, DIVERSION_DEPART)).
                 collect(Collectors.toSet());

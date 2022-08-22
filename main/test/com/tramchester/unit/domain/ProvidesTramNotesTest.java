@@ -1,16 +1,21 @@
 package com.tramchester.unit.domain;
 
 import com.tramchester.domain.*;
+import com.tramchester.domain.dates.TramDate;
+import com.tramchester.domain.dates.TramServiceDate;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.input.MutableTrip;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.Station;
-import com.tramchester.domain.presentation.*;
 import com.tramchester.domain.presentation.DTO.LocationRefDTO;
 import com.tramchester.domain.presentation.DTO.factory.DTOFactory;
+import com.tramchester.domain.presentation.LatLong;
+import com.tramchester.domain.presentation.Note;
+import com.tramchester.domain.presentation.StationNote;
+import com.tramchester.domain.presentation.TransportStage;
 import com.tramchester.domain.reference.TransportMode;
-import com.tramchester.domain.dates.TramServiceDate;
+import com.tramchester.domain.time.ProvidesLocalNow;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.domain.transportStages.VehicleStage;
 import com.tramchester.domain.transportStages.WalkingToStationStage;
@@ -27,7 +32,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.time.Duration;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
 
@@ -51,13 +55,15 @@ class ProvidesTramNotesTest extends EasyMockSupport {
     private LocalDateTime lastUpdate;
     private final int requestedNumberChanges = 2;
     private DTOFactory stationDTOFactory;
+    private ProvidesLocalNow providesLocalNow;
 
     @BeforeEach
     void beforeEachTestRuns() {
         platformMessageSource = createStrictMock(PlatformMessageSource.class);
         stationDTOFactory = createMock(DTOFactory.class);
         providesNotes = new ProvidesTramNotes(platformMessageSource, stationDTOFactory);
-        lastUpdate = TestEnv.LocalNow();
+        providesLocalNow = new ProvidesLocalNow();
+        lastUpdate = providesLocalNow.getDateTime();
     }
 
     private Station createStationFor(TramStations tramStation) {
@@ -80,9 +86,9 @@ class ProvidesTramNotesTest extends EasyMockSupport {
 
         replayAll();
 
-        LocalDate date = LocalDate.of(2022, 7, 13);
+        TramDate date = TramDate.of(2022, 7, 13);
 
-        while (date.isBefore(LocalDate.of(2022, 10,22))) {
+        while (date.isBefore(TramDate.of(2022, 10,22))) {
             TramServiceDate queryDate = new TramServiceDate(date);
             List<Note> result = providesNotes.createNotesForJourney(journey, queryDate);
             assertTrue(result.contains((new Note(ProvidesTramNotes.summer2022, Note.NoteType.ClosedStation))),
@@ -97,7 +103,7 @@ class ProvidesTramNotesTest extends EasyMockSupport {
     void shouldAddNotesForSaturdayJourney() {
         EasyMock.expect(platformMessageSource.isEnabled()).andReturn(true);
 
-        TramServiceDate queryDate = new TramServiceDate(LocalDate.of(2022,7,9));
+        TramServiceDate queryDate = new TramServiceDate(TramDate.of(2022,7,9));
 
         Journey journey = createMock(Journey.class);
         EasyMock.expect(journey.getTransportModes()).andReturn(Collections.singleton(Tram));
@@ -114,7 +120,7 @@ class ProvidesTramNotesTest extends EasyMockSupport {
     void shouldStillAddNotesForSaturdayJourneySourceDisabled() {
         EasyMock.expect(platformMessageSource.isEnabled()).andReturn(false);
 
-        TramServiceDate queryDate = new TramServiceDate(LocalDate.of(2016,10,29));
+        TramServiceDate queryDate = new TramServiceDate(TramDate.of(2016,10,29));
 
         Journey journey = createMock(Journey.class);
         EasyMock.expect(journey.getTransportModes()).andReturn(Collections.singleton(Tram));
@@ -129,7 +135,7 @@ class ProvidesTramNotesTest extends EasyMockSupport {
     @Test
     void shouldNotAddNotesForWeekendWhenNoTramInvolved() {
 
-        TramServiceDate queryDate = new TramServiceDate(LocalDate.of(2016,10,29));
+        TramServiceDate queryDate = new TramServiceDate(TramDate.of(2016,10,29));
 
         Journey journey = createMock(Journey.class);
         Set<TransportMode> modes = new HashSet<>(Arrays.asList(Train, Bus, Walk));
@@ -145,7 +151,7 @@ class ProvidesTramNotesTest extends EasyMockSupport {
     @Test
     void shouldAddNotesForSundayJourney() {
         EasyMock.expect(platformMessageSource.isEnabled()).andReturn(true);
-        TramServiceDate queryDate = new TramServiceDate(LocalDate.of(2016,10,30));
+        TramServiceDate queryDate = new TramServiceDate(TramDate.of(2016,10,30));
 
         Journey journey = createMock(Journey.class);
         EasyMock.expect(journey.getTransportModes()).andReturn(Collections.singleton(Tram));
@@ -162,7 +168,7 @@ class ProvidesTramNotesTest extends EasyMockSupport {
     void shouldNotShowNotesOnOtherDay() {
         EasyMock.expect(platformMessageSource.isEnabled()).andReturn(true);
 
-        TramServiceDate queryDate = new TramServiceDate(LocalDate.of(2016,10,31));
+        TramServiceDate queryDate = new TramServiceDate(TramDate.of(2016,10,31));
 
         Journey journey = createMock(Journey.class);
         EasyMock.expect(journey.getTransportModes()).andReturn(Collections.singleton(Tram));
@@ -179,7 +185,7 @@ class ProvidesTramNotesTest extends EasyMockSupport {
     void shouldHandleDisabled() {
         EasyMock.expect(platformMessageSource.isEnabled()).andReturn(false);
 
-        TramServiceDate queryDate = new TramServiceDate(LocalDate.of(2016,10,31));
+        TramServiceDate queryDate = new TramServiceDate(TramDate.of(2016,10,31));
 
         Journey journey = createMock(Journey.class);
         EasyMock.expect(journey.getTransportModes()).andReturn(Collections.singleton(Tram));
@@ -196,7 +202,7 @@ class ProvidesTramNotesTest extends EasyMockSupport {
         EasyMock.expect(platformMessageSource.isEnabled()).andStubReturn(true);
 
         int year = 2021;
-        LocalDate date = LocalDate.of(year, 12, 23);
+        TramDate date = TramDate.of(year, 12, 23);
         Note christmasNote = new Note(ProvidesTramNotes.christmas2021, Note.NoteType.Christmas);
 
         Journey journey = createMock(Journey.class);
@@ -214,7 +220,7 @@ class ProvidesTramNotesTest extends EasyMockSupport {
             assertThat(queryDate.toString(), result, hasItem(christmasNote));
         }
 
-        date = LocalDate.of(year+1, 1, 3);
+        date = TramDate.of(year+1, 1, 3);
 
         result = providesNotes.createNotesForJourney(journey, new TramServiceDate(date));
 
@@ -228,7 +234,7 @@ class ProvidesTramNotesTest extends EasyMockSupport {
         EasyMock.expect(platformMessageSource.isEnabled()).andStubReturn(true);
 
         int year = 2020;
-        LocalDate date = LocalDate.of(year, 12, 23);
+        TramDate date = TramDate.of(year, 12, 23);
         Note christmasNote = new Note(ProvidesTramNotes.christmas, Note.NoteType.Christmas);
 
         Journey journey = createMock(Journey.class);
@@ -247,7 +253,7 @@ class ProvidesTramNotesTest extends EasyMockSupport {
             assertTrue(result.isEmpty());
         }
 
-        date = LocalDate.of(year+1, 1, 3);
+        date = TramDate.of(year+1, 1, 3);
 
         result = providesNotes.createNotesForJourney(journey, new TramServiceDate(date));
 
@@ -265,7 +271,7 @@ class ProvidesTramNotesTest extends EasyMockSupport {
         VehicleStage stageA = createStageWithBoardingPlatform("platformId", nearPiccGardens);
 
         TramTime queryTime = TramTime.of(8,11);
-        LocalDate date = TestEnv.LocalNow().toLocalDate();
+        TramDate date = providesLocalNow.getTramDate();
         if ((date.getDayOfWeek()==SATURDAY) || (date.getDayOfWeek()==SUNDAY)) {
             date = date.plusDays(3);
         }
@@ -300,13 +306,15 @@ class ProvidesTramNotesTest extends EasyMockSupport {
         VehicleStage stageA = createStageWithBoardingPlatform("platformId", nearPiccGardens);
 
         TramTime queryTime = TramTime.ofHourMins(lastUpdate.toLocalTime().minusHours(4));
-        TramServiceDate serviceDate = new TramServiceDate(lastUpdate.toLocalDate());
+        TramServiceDate serviceDate = new TramServiceDate(TramDate.from(lastUpdate));
 
         PlatformMessage info = createPlatformMessage(lastUpdate, Pomona, "a message");
-        EasyMock.expect(platformMessageSource.messagesFor(stageA.getBoardingPlatform().getId(), lastUpdate.toLocalDate(), queryTime)).
+        TramDate date = TramDate.from(lastUpdate);
+        EasyMock.expect(platformMessageSource.messagesFor(stageA.getBoardingPlatform().getId(), date, queryTime)).
                 andReturn(Optional.of(info));
 
-        Journey journey = new Journey(queryTime.plusMinutes(5), queryTime, queryTime.plusMinutes(10), Collections.singletonList(stageA), Collections.emptyList(),
+        Journey journey = new Journey(queryTime.plusMinutes(5), queryTime, queryTime.plusMinutes(10),
+                Collections.singletonList(stageA), Collections.emptyList(),
                 requestedNumberChanges);
 
         replayAll();
@@ -333,7 +341,7 @@ class ProvidesTramNotesTest extends EasyMockSupport {
 
         VehicleStage stageA = createStageWithBoardingPlatform("platformId", nearPiccGardens);
 
-        LocalDate localDate = lastUpdate.toLocalDate().plusDays(2);
+        TramDate localDate = TramDate.from(lastUpdate).plusDays(2);
         TramServiceDate queryDate = new TramServiceDate(localDate);
         TramTime queryTime = TramTime.ofHourMins(lastUpdate.toLocalTime());
 
@@ -374,7 +382,8 @@ class ProvidesTramNotesTest extends EasyMockSupport {
                 Duration.ofMinutes(7), TramTime.of(8,11));
         VehicleStage stageE = createStageWithBoardingPlatform("platformId5", Altrincham);
 
-        TramServiceDate serviceDate = new TramServiceDate(lastUpdate.toLocalDate());
+        TramDate date = TramDate.from(lastUpdate);
+        TramServiceDate serviceDate = new TramServiceDate(date);
         TramTime queryTime = TramTime.ofHourMins(lastUpdate.toLocalTime());
 
         final String messageOne = "Some long message";
@@ -385,13 +394,13 @@ class ProvidesTramNotesTest extends EasyMockSupport {
         PlatformMessage infoC = createPlatformMessage(lastUpdate, Cornbrook, messageOne);
         PlatformMessage infoE = createPlatformMessage(lastUpdate, MediaCityUK, messageOne);
 
-        EasyMock.expect(platformMessageSource.messagesFor(stageE.getBoardingPlatform().getId(), lastUpdate.toLocalDate(), queryTime)).
+        EasyMock.expect(platformMessageSource.messagesFor(stageE.getBoardingPlatform().getId(), date, queryTime)).
                 andReturn(Optional.of(infoE));
-        EasyMock.expect(platformMessageSource.messagesFor(stageB.getBoardingPlatform().getId(), lastUpdate.toLocalDate(), queryTime)).
+        EasyMock.expect(platformMessageSource.messagesFor(stageB.getBoardingPlatform().getId(), date, queryTime)).
                 andReturn(Optional.of(infoB));
-        EasyMock.expect(platformMessageSource.messagesFor(stageC.getBoardingPlatform().getId(), lastUpdate.toLocalDate(), queryTime)).
+        EasyMock.expect(platformMessageSource.messagesFor(stageC.getBoardingPlatform().getId(), date, queryTime)).
                 andReturn(Optional.of(infoC));
-        EasyMock.expect(platformMessageSource.messagesFor(stageA.getBoardingPlatform().getId(), lastUpdate.toLocalDate(), queryTime)).
+        EasyMock.expect(platformMessageSource.messagesFor(stageA.getBoardingPlatform().getId(), date, queryTime)).
                 andReturn(Optional.of(infoA));
 
         final StationNote noteOne = new StationNote(Live, messageOne, createStationRefFor(Pomona));
@@ -448,7 +457,7 @@ class ProvidesTramNotesTest extends EasyMockSupport {
         final StationNote secondNote = new StationNote(Live, "second message", createStationRefFor(Cornbrook));
         final StationNote thirdNote = new StationNote(Live, "second message", createStationRefFor(Pomona));
 
-        LocalDate localDate = LocalDate.of(2016, 10, 25);
+        TramDate localDate = TramDate.of(2016, 10, 25);
         TramServiceDate queryDate = new TramServiceDate(localDate);
 
         TramTime queryTime = TramTime.ofHourMins(lastUpdate.toLocalTime());

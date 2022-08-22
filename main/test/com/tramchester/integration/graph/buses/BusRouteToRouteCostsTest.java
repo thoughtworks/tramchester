@@ -7,6 +7,7 @@ import com.tramchester.domain.Agency;
 import com.tramchester.domain.LocationSet;
 import com.tramchester.domain.NumberOfChanges;
 import com.tramchester.domain.Route;
+import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.places.StationGroup;
@@ -39,7 +40,7 @@ public class BusRouteToRouteCostsTest {
     private RouteRepository routeRepository;
     private StationGroupsRepository stationGroupsRepository;
     private StationRepository stationRepository;
-    private LocalDate date;
+    private TramDate date;
     private TimeRange timeRange;
 
     @BeforeAll
@@ -62,7 +63,7 @@ public class BusRouteToRouteCostsTest {
         stationGroupsRepository = componentContainer.get(StationGroupsRepository.class);
         stationRepository = componentContainer.get(StationRepository.class);
 
-        date = TestEnv.testDay();
+        date = TestEnv.testTramDay();
         timeRange = TimeRange.of(TramTime.of(04,45), TramTime.of(23,55));
 ;    }
 

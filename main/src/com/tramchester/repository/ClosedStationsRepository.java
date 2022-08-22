@@ -5,6 +5,7 @@ import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.StationClosure;
+import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdSet;
@@ -56,12 +57,12 @@ public class ClosedStationsRepository {
         logger.info("Stopped");
     }
 
-    public IdSet<Station> getClosedStationsFor(LocalDate date) {
+    public IdSet<Station> getClosedStationsFor(TramDate date) {
         return getClosedStationStream(date).collect(IdSet.idCollector());
     }
 
     @NotNull
-    private Stream<IdFor<Station>> getClosedStationStream(LocalDate date) {
+    private Stream<IdFor<Station>> getClosedStationStream(TramDate date) {
         return closed.stream().
                 filter(closure -> date.isAfter(closure.getBegin()) || date.isEqual(closure.getBegin())).
                 filter(closure -> date.isBefore(closure.getEnd()) || date.isEqual(closure.getEnd())).
@@ -69,13 +70,13 @@ public class ClosedStationsRepository {
     }
 
     public Set<StationClosure> getUpcomingClosuresFor(ProvidesNow providesNow) {
-        LocalDate date = providesNow.getDate();
+        TramDate date = providesNow.getTramDate();
         return closed.stream().
                 filter(closure -> date.isBefore(closure.getEnd()) || date.equals(closure.getEnd())).
                 collect(Collectors.toSet());
     }
 
-    public Set<Route> getImpactedRoutes(LocalDate date) {
+    public Set<Route> getImpactedRoutes(TramDate date) {
 
         Set<Route> impacted = getClosedStationStream(date).
                 map(stationRepository::getStationById).
@@ -89,7 +90,7 @@ public class ClosedStationsRepository {
         return impacted;
     }
 
-    public boolean hasClosuresOn(LocalDate date) {
+    public boolean hasClosuresOn(TramDate date) {
         return getClosedStationStream(date).findAny().isPresent();
     }
 }

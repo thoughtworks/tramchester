@@ -1,5 +1,7 @@
 package com.tramchester.domain;
 
+import com.tramchester.domain.dates.TramDate;
+
 import java.time.LocalDate;
 import java.util.Objects;
 
@@ -45,7 +47,7 @@ public class RoutePair {
         return Objects.hash(first, second);
     }
 
-    public boolean isAvailableOn(LocalDate date) {
+    public boolean isAvailableOn(TramDate date) {
         return first.isAvailableOn(date) && second.isAvailableOn(date);
     }
 

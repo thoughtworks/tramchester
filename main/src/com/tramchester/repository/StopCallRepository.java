@@ -6,6 +6,7 @@ import com.github.benmanes.caffeine.cache.stats.CacheStats;
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.Service;
+import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.input.StopCall;
 import com.tramchester.domain.input.StopCalls;
@@ -24,7 +25,6 @@ import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.inject.Inject;
 import java.time.Duration;
-import java.time.LocalDate;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -99,7 +99,7 @@ public class StopCallRepository implements ReportsCacheStats {
     }
 
     // visualisation of frequency support
-    public Set<StopCall> getStopCallsFor(Station station, LocalDate date, TramTime begin, TramTime end) {
+    public Set<StopCall> getStopCallsFor(Station station, TramDate date, TramTime begin, TramTime end) {
         Set<Service> runningOnDate = serviceRepository.getServicesOnDate(date);
         Set<StopCall> callsForStation = stopCalls.get(station);
 

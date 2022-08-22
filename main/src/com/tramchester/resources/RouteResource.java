@@ -42,7 +42,7 @@ public class RouteResource implements APIResource {
     public Response getAll() {
         logger.info("getAll routes");
         try {
-            List<RouteDTO> routes = routesMapper.getRouteDTOs(providesNow.getDate());
+            List<RouteDTO> routes = routesMapper.getRouteDTOs(providesNow.getTramDate());
 
             return Response.ok(routes).build();
         }

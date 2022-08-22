@@ -4,6 +4,7 @@ import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.domain.*;
 import com.tramchester.domain.collections.IndexedBitSet;
 import com.tramchester.domain.collections.SimpleList;
+import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.places.Location;
 import com.tramchester.domain.places.Station;
@@ -23,7 +24,6 @@ import org.slf4j.LoggerFactory;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.inject.Inject;
-import java.time.LocalDate;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
@@ -77,7 +77,7 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
      * @param timeRange the range within with the route needs ot be available
      * @return number of changes
      */
-    public int getNumberChangesFor(Route routeA, Route routeB, LocalDate date, TimeRange timeRange) {
+    public int getNumberChangesFor(Route routeA, Route routeB, TramDate date, TimeRange timeRange) {
         IndexedBitSet dateOverlaps = costs.createOverlapMatrixFor(date);
 
         InterchangeOperating interchangeOperating = new InterchangeOperating(date, timeRange);
@@ -86,7 +86,7 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
         return getNumberChangesFor(pair, date, interchangeOperating, dateOverlaps);
     }
 
-    public int getNumberChangesFor(RoutePair routePair, LocalDate date, InterchangeOperating interchangeOperating,
+    public int getNumberChangesFor(RoutePair routePair, TramDate date, InterchangeOperating interchangeOperating,
                                    IndexedBitSet overlapsForDate) {
         if (routePair.areSame()) {
             return 0;
@@ -204,12 +204,12 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
     }
 
     @Override
-    public NumberOfChanges getNumberOfChanges(StationGroup start, StationGroup end, LocalDate date, TimeRange time) {
+    public NumberOfChanges getNumberOfChanges(StationGroup start, StationGroup end, TramDate date, TimeRange time) {
         return getNumberOfChanges(LocationSet.of(start.getContained()), LocationSet.of(end.getContained()), date, time);
     }
 
     @Override
-    public NumberOfChanges getNumberOfChanges(LocationSet starts, LocationSet destinations, LocalDate date, TimeRange timeRange) {
+    public NumberOfChanges getNumberOfChanges(LocationSet starts, LocationSet destinations, TramDate date, TimeRange timeRange) {
 
         Set<Route> startRoutes = pickupRoutesFor(starts, date, timeRange);
         Set<Route> endRoutes = dropoffRoutesFor(destinations, date, timeRange);
@@ -233,7 +233,7 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
 
     @Override
     public NumberOfChanges getNumberOfChanges(Location<?> startStation, Location<?> destination,
-                                              Set<TransportMode> preferredModes, LocalDate date, TimeRange timeRange) {
+                                              Set<TransportMode> preferredModes, TramDate date, TimeRange timeRange) {
 
         if (neighboursRepository.areNeighbours(startStation, destination)) {
             logger.info(format("Number of changes set to 1 since %s and %s are neighbours", startStation, destination));
@@ -284,7 +284,7 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
     }
 
     @Override
-    public LowestCostsForDestRoutes getLowestCostCalcutatorFor(LocationSet destinations, LocalDate date, TimeRange timeRange) {
+    public LowestCostsForDestRoutes getLowestCostCalcutatorFor(LocationSet destinations, TramDate date, TimeRange timeRange) {
         Set<Route> destinationRoutes = destinations.stream().
                 map(dest -> availabilityRepository.getDropoffRoutesFor(dest, date, timeRange)).
                 flatMap(Collection::stream).
@@ -293,7 +293,7 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
     }
 
     @NotNull
-    private NumberOfChanges getNumberOfHops(Set<Route> startRoutes, Set<Route> destinationRoutes, LocalDate date,
+    private NumberOfChanges getNumberOfHops(Set<Route> startRoutes, Set<Route> destinationRoutes, TramDate date,
                                             InterchangeOperating interchangesOperating) {
         logger.info(format("Compute number of changes between %s and %s on %s",
                 HasId.asIds(startRoutes), HasId.asIds(destinationRoutes), date));
@@ -355,11 +355,11 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
                 collect(Collectors.toSet());
     }
 
-    private Set<Route> dropoffRoutesFor(LocationSet locations, LocalDate date, TimeRange timeRange) {
+    private Set<Route> dropoffRoutesFor(LocationSet locations, TramDate date, TimeRange timeRange) {
         return availabilityRepository.getDropoffRoutesFor(locations, date, timeRange);
     }
 
-    private Set<Route> pickupRoutesFor(LocationSet locations, LocalDate date, TimeRange timeRange) {
+    private Set<Route> pickupRoutesFor(LocationSet locations, TramDate date, TimeRange timeRange) {
         return availabilityRepository.getPickupRoutesFor(locations, date, timeRange);
     }
 
@@ -371,12 +371,12 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
     private static class LowestCostForDestinations implements LowestCostsForDestRoutes {
         private final RouteToRouteCosts routeToRouteCosts;
         private final Set<Integer> destinationIndexs;
-        private final LocalDate date;
+        private final TramDate date;
         private final TimeRange time;
         private final InterchangeOperating interchangeOperating;
         private final IndexedBitSet dateOverlaps;
 
-        public LowestCostForDestinations(BetweenRoutesCostRepository routeToRouteCosts, Set<Route> destinations, LocalDate date, TimeRange time) {
+        public LowestCostForDestinations(BetweenRoutesCostRepository routeToRouteCosts, Set<Route> destinations, TramDate date, TimeRange time) {
             this.routeToRouteCosts = (RouteToRouteCosts) routeToRouteCosts;
             destinationIndexs = destinations.stream().
                     map(destination -> this.routeToRouteCosts.index.indexFor(destination.getId())).
@@ -440,12 +440,12 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
      * Caches whether an interchange is available at a specific date and time range
      */
     static class InterchangeOperating {
-        private final LocalDate date;
+        private final TramDate date;
         private final TimeRange time;
 
         final private Set<RouteAndInterchanges> active;
 
-        public InterchangeOperating(LocalDate date, TimeRange time) {
+        public InterchangeOperating(TramDate date, TimeRange time) {
 
             this.date = date;
             this.time = time;

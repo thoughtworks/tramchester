@@ -1,6 +1,7 @@
 package com.tramchester.graph.search.stateMachine.states;
 
 import com.google.common.collect.Streams;
+import com.tramchester.domain.dates.TramDate;
 import com.tramchester.graph.graphbuild.GraphProps;
 import org.neo4j.graphdb.Direction;
 import org.neo4j.graphdb.Node;
@@ -8,7 +9,6 @@ import org.neo4j.graphdb.Relationship;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.time.LocalDate;
 import java.util.stream.Stream;
 
 import static com.tramchester.graph.TransportRelationshipTypes.DIVERSION;
@@ -31,7 +31,7 @@ public abstract class StationStateBuilder {
         }
 
         if (node.hasRelationship(Direction.OUTGOING, DIVERSION)) {
-            LocalDate queryDate = traversalState.traversalOps.getQueryDate();
+            TramDate queryDate = traversalState.traversalOps.getQueryDate();
             Stream<Relationship> diversions = Streams.stream(node.getRelationships(Direction.OUTGOING, DIVERSION));
             Stream<Relationship> validOnDate = diversions.filter(relationship -> GraphProps.validOn(queryDate, relationship));
             return Stream.concat(validOnDate, relationships);

@@ -2,6 +2,8 @@ package com.tramchester.domain.dates;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.Month;
 import java.time.format.DateTimeFormatter;
 import java.util.Objects;
 import java.util.stream.Stream;
@@ -29,6 +31,10 @@ public class TramDate {
     public static TramDate of(int year, int month, int day) {
         LocalDate date = LocalDate.of(year, month, day);
         return new TramDate(date.toEpochDay());
+    }
+
+    public static TramDate from(LocalDateTime localDateTime) {
+        return of(localDateTime.toLocalDate());
     }
 
     @Override
@@ -83,6 +89,11 @@ public class TramDate {
         return new TramDate(date.toEpochDay());
     }
 
+    public static TramDate parse(String text) {
+        LocalDate date = LocalDate.parse(text);
+        return new TramDate(date.toEpochDay());
+    }
+
     @Override
     public String toString() {
         LocalDate date = LocalDate.ofEpochDay(epochDays);
@@ -107,5 +118,21 @@ public class TramDate {
 
     public Stream<TramDate> datesUntil(TramDate endDate) {
         return toLocalDate().datesUntil(endDate.toLocalDate()).map(date -> new TramDate(date.toEpochDay()));
+    }
+
+    public Month getMonth() {
+        return toLocalDate().getMonth();
+    }
+
+    public int getDayOfMonth() {
+        return toLocalDate().getDayOfMonth();
+    }
+
+    public boolean isEqual(TramDate other) {
+        return this.epochDays == other.epochDays;
+    }
+
+    public int getYear() {
+        return toLocalDate().getYear();
     }
 }

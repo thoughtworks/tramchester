@@ -2,6 +2,7 @@ package com.tramchester.integration.resources;
 
 import com.tramchester.App;
 import com.tramchester.GuiceContainerDependencies;
+import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.places.LocationType;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.DTO.DeparturesQueryDTO;
@@ -31,7 +32,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 import javax.ws.rs.core.Response;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.*;
@@ -57,7 +57,7 @@ class DeparturesResourceTest {
         StationRepository stationRepository = dependencies.get(StationRepository.class);
         ProvidesLocalNow providesLocalNow = dependencies.get(ProvidesLocalNow.class);
 
-        LocalDate queryDate = providesLocalNow.getDate();
+        TramDate queryDate = providesLocalNow.getTramDate();
         TramTime time = providesLocalNow.getNowHourMins();
 
         Optional<PlatformMessage> searchForMessage = stationRepository.getAllStationStream().

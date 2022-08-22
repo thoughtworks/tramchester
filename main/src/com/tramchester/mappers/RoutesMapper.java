@@ -2,16 +2,16 @@ package com.tramchester.mappers;
 
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.domain.Route;
+import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.input.StopCalls;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.Station;
-import com.tramchester.domain.presentation.DTO.RouteDTO;
 import com.tramchester.domain.presentation.DTO.LocationRefWithPosition;
+import com.tramchester.domain.presentation.DTO.RouteDTO;
 import com.tramchester.domain.presentation.DTO.RouteRefDTO;
 import com.tramchester.domain.presentation.DTO.factory.DTOFactory;
 import com.tramchester.repository.RouteRepository;
-import com.tramchester.repository.TransportData;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,7 +19,6 @@ import org.slf4j.LoggerFactory;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.inject.Inject;
-import java.time.LocalDate;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -51,7 +50,7 @@ public class RoutesMapper {
 
     }
 
-    public List<RouteDTO> getRouteDTOs(LocalDate effectiveOnDate) {
+    public List<RouteDTO> getRouteDTOs(TramDate effectiveOnDate) {
         Set<Route> routesOnDate = routeRepository.getRoutesRunningOn(effectiveOnDate);
         List<RouteDTO> dtos = routesOnDate.stream().
                 map(route -> new RouteDTO(route, getLocationsAlong(route, true))).

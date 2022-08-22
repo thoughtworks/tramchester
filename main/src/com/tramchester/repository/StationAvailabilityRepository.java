@@ -5,6 +5,7 @@ import com.tramchester.domain.LocationSet;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.RouteAndInterchanges;
 import com.tramchester.domain.Service;
+import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.input.StopCall;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.Location;
@@ -18,7 +19,6 @@ import org.slf4j.LoggerFactory;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.inject.Inject;
-import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -94,13 +94,13 @@ public class StationAvailabilityRepository {
         logger.info("Stopped");
     }
     
-    public boolean isAvailable(Location<?> location, LocalDate when, TimeRange timeRange) {
+    public boolean isAvailable(Location<?> location, TramDate when, TimeRange timeRange) {
 
         return pickupsForLocation.get(location).anyAvailable(when, timeRange) &&
                 dropoffsForLocation.get(location).anyAvailable(when, timeRange);
     }
 
-    public boolean isAvailable(RouteAndInterchanges routeAndInterchanges, LocalDate date, TimeRange time) {
+    public boolean isAvailable(RouteAndInterchanges routeAndInterchanges, TramDate date, TimeRange time) {
         if (routeAndInterchanges.getRoutePair().isAvailableOn(date)) {
             return routeAndInterchanges.getInterchangeStations().stream().
                     anyMatch(station -> isAvailable(station, date, time));
@@ -109,21 +109,21 @@ public class StationAvailabilityRepository {
     }
 
 
-    public Set<Route> getPickupRoutesFor(Location<?> location, LocalDate date, TimeRange timeRange) {
+    public Set<Route> getPickupRoutesFor(Location<?> location, TramDate date, TimeRange timeRange) {
         return pickupsForLocation.get(location).getRoutes(date, timeRange);
     }
 
-    public Set<Route> getDropoffRoutesFor(Location<?> location, LocalDate date, TimeRange timeRange) {
+    public Set<Route> getDropoffRoutesFor(Location<?> location, TramDate date, TimeRange timeRange) {
         return dropoffsForLocation.get(location).getRoutes(date, timeRange);
     }
 
-    public Set<Route> getPickupRoutesFor(LocationSet locations, LocalDate date, TimeRange timeRange) {
+    public Set<Route> getPickupRoutesFor(LocationSet locations, TramDate date, TimeRange timeRange) {
         return locations.stream().
                 flatMap(location -> getPickupRoutesFor(location, date, timeRange).stream()).
                 collect(Collectors.toSet());
     }
 
-    public Set<Route> getDropoffRoutesFor(LocationSet locations, LocalDate date, TimeRange timeRange) {
+    public Set<Route> getDropoffRoutesFor(LocationSet locations, TramDate date, TimeRange timeRange) {
         return locations.stream().
                 flatMap(location -> getDropoffRoutesFor(location, date, timeRange).stream()).
                 collect(Collectors.toSet());

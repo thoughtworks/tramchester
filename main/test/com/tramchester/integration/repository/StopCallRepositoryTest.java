@@ -4,6 +4,7 @@ import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.Service;
+import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.input.StopCall;
@@ -21,7 +22,6 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.time.LocalDate;
 import java.util.Set;
 
 import static com.tramchester.testSupport.TestEnv.assertMinutesEquals;
@@ -56,7 +56,7 @@ public class StopCallRepositoryTest {
 
     @Test
     void shouldGetStopCallsForAStation() {
-        final LocalDate date = TestEnv.testDay();
+        final TramDate date = TestEnv.testTramDay();
         Set<Service> servicesForDate = serviceRepository.getServicesOnDate(date);
 
         final IdFor<Station> stationId = TramStations.ManAirport.getId();

@@ -2,6 +2,7 @@ package com.tramchester.domain.presentation.DTO;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.tramchester.domain.dates.TramDate;
 import com.tramchester.mappers.serialisation.LocalDateJsonDeserializer;
 import com.tramchester.mappers.serialisation.LocalDateJsonSerializer;
 
@@ -13,10 +14,10 @@ public class StationClosureDTO {
     private LocalDate begin;
     private LocalDate end;
 
-    public StationClosureDTO(LocalDate begin, LocalDate end, List<LocationRefDTO> stations) {
+    public StationClosureDTO(TramDate begin, TramDate end, List<LocationRefDTO> stations) {
         this.stations = stations;
-        this.begin = begin;
-        this.end = end;
+        this.begin = begin.toLocalDate();
+        this.end = end.toLocalDate();
     }
 
     @SuppressWarnings("unused")

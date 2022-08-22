@@ -7,6 +7,7 @@ import com.tramchester.domain.Journey;
 import com.tramchester.domain.JourneyRequest;
 import com.tramchester.domain.LocationSet;
 import com.tramchester.domain.NumberOfChanges;
+import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.places.StationGroup;
 import com.tramchester.domain.presentation.TransportStage;
@@ -54,7 +55,7 @@ public class NeighbourJourneysTest {
     private LocationJourneyPlanner planner;
     private RouteToRouteCosts routeToRouteCosts;
     private Duration maxJourneyDuration;
-    private LocalDate date;
+    private TramDate date;
     private TimeRange timeRange;
 
     @BeforeAll
@@ -92,7 +93,7 @@ public class NeighbourJourneysTest {
 
         routeToRouteCosts = componentContainer.get(RouteToRouteCosts.class);
 
-        date = TestEnv.testDay();
+        date = TestEnv.testTramDay();
 
         timeRange = TimeRange.of(TramTime.of(8,15), TramTime.of(22,35));
 

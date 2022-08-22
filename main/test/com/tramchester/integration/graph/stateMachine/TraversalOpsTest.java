@@ -4,6 +4,7 @@ import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.domain.LocationSet;
 import com.tramchester.domain.Route;
+import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.LatLong;
@@ -70,7 +71,7 @@ public class TraversalOpsTest {
 
     @Test
     void shouldHaveCorrectOrderingCompare() {
-        LocalDate date = TestEnv.testDay();
+        TramDate date = TestEnv.testTramDay();
         TramServiceDate queryDate = new TramServiceDate(date);
 
         LocationSet destinationStations = new LocationSet();

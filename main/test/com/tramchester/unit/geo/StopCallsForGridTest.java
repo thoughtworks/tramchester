@@ -3,6 +3,7 @@ package com.tramchester.unit.geo;
 import com.tramchester.domain.BoxWithServiceFrequency;
 import com.tramchester.domain.MutableService;
 import com.tramchester.domain.Service;
+import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.input.MutableTrip;
 import com.tramchester.domain.input.NoPlatformStopCall;
 import com.tramchester.domain.input.StopCall;
@@ -22,7 +23,6 @@ import org.easymock.EasyMockSupport;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -52,7 +52,7 @@ public class StopCallsForGridTest extends EasyMockSupport {
 
     @Test
     void testGetStopcallsForGrid() {
-        LocalDate date = TestEnv.testDay();
+        TramDate date = TestEnv.testTramDay();
         TramTime begin = TramTime.of(11,30);
         TramTime end = TramTime.of(13,45);
 

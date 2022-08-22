@@ -1,8 +1,8 @@
 package com.tramchester.integration.testSupport.tram;
 
 import com.tramchester.domain.StationClosure;
+import com.tramchester.domain.dates.TramDate;
 
-import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
@@ -21,8 +21,8 @@ public class IntegrationTramClosedStationsTestConfig extends IntegrationTramTest
         StringBuilder builder = new StringBuilder();
         builder.append("closed_");
         closures.forEach(closed -> {
-            LocalDate begin = closed.getBegin();
-            LocalDate end = closed.getEnd();
+            TramDate begin = closed.getBegin();
+            TramDate end = closed.getEnd();
 
             builder.append(begin.format(formatter)).append("_").append(end.format(formatter)).append("_");
 

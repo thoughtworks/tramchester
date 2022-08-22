@@ -6,6 +6,7 @@ import com.tramchester.domain.Journey;
 import com.tramchester.domain.JourneyRequest;
 import com.tramchester.domain.LocationSet;
 import com.tramchester.domain.NumberOfChanges;
+import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.places.Location;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.places.StationWalk;
@@ -239,17 +240,17 @@ public class LocationJourneyPlanner {
         return stationWalks;
     }
 
-    private NumberOfChanges findNumberChanges(Location<?> start, Set<StationWalk> walksToDest, LocalDate date, TimeRange timeRange) {
+    private NumberOfChanges findNumberChanges(Location<?> start, Set<StationWalk> walksToDest, TramDate date, TimeRange timeRange) {
         LocationSet destinations = walksToDest.stream().map(StationWalk::getStation).collect(LocationSet.stationCollector());
         return routeToRouteCosts.getNumberOfChanges(LocationSet.singleton(start), destinations, date, timeRange);
     }
 
-    private NumberOfChanges findNumberChanges(Set<StationWalk> walksToStart, Location<?> destination, LocalDate date, TimeRange timeRange) {
+    private NumberOfChanges findNumberChanges(Set<StationWalk> walksToStart, Location<?> destination, TramDate date, TimeRange timeRange) {
         LocationSet starts = walksToStart.stream().map(StationWalk::getStation).collect(LocationSet.stationCollector());
         return routeToRouteCosts.getNumberOfChanges(starts, LocationSet.singleton(destination), date, timeRange);
     }
 
-    private NumberOfChanges findNumberChanges(Set<StationWalk> walksAtStart, Set<StationWalk> walksToDest, LocalDate date, TimeRange timeRange) {
+    private NumberOfChanges findNumberChanges(Set<StationWalk> walksAtStart, Set<StationWalk> walksToDest, TramDate date, TimeRange timeRange) {
         LocationSet destinations = walksToDest.stream().map(StationWalk::getStation).collect(LocationSet.stationCollector());
         LocationSet starts = walksAtStart.stream().map(StationWalk::getStation).collect(LocationSet.stationCollector());
         return routeToRouteCosts.getNumberOfChanges(starts, destinations, date, timeRange);

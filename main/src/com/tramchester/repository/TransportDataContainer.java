@@ -371,13 +371,13 @@ public class TransportDataContainer implements TransportData, WriteableTransport
     }
 
     @Override
-    public Set<Service> getServicesOnDate(LocalDate date) {
-        return services.filterStream(item -> item.getCalendar().operatesOn(TramDate.of(date))).
+    public Set<Service> getServicesOnDate(TramDate date) {
+        return services.filterStream(item -> item.getCalendar().operatesOn(date)).
                 collect(Collectors.toSet());
     }
 
     @Override
-    public Set<Route> getRoutesRunningOn(LocalDate date) {
+    public Set<Route> getRoutesRunningOn(TramDate date) {
         return routes.filterStream(route -> route.isAvailableOn(date)).collect(Collectors.toSet());
     }
 

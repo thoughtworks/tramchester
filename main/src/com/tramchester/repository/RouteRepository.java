@@ -3,6 +3,7 @@ package com.tramchester.repository;
 import com.google.inject.ImplementedBy;
 import com.tramchester.domain.Agency;
 import com.tramchester.domain.Route;
+import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.IdFor;
 
 import java.time.LocalDate;
@@ -17,5 +18,5 @@ public interface RouteRepository {
     Set<Route> findRoutesByShortName(IdFor<Agency> agencyId, String shortName);
     Set<Route> findRoutesByName(IdFor<Agency> agencyId, String longName);
 
-    Set<Route> getRoutesRunningOn(LocalDate date);
+    Set<Route> getRoutesRunningOn(TramDate date);
 }

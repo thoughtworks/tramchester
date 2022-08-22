@@ -2,6 +2,7 @@ package com.tramchester.integration.testSupport;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tramchester.App;
+import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.places.Location;
 import com.tramchester.domain.presentation.DTO.JourneyDTO;
 import com.tramchester.domain.presentation.DTO.JourneyPlanRepresentation;
@@ -10,6 +11,7 @@ import com.tramchester.domain.time.TramTime;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.ParseStream;
 import com.tramchester.testSupport.reference.FakeStation;
+import com.tramchester.testSupport.reference.TramStations;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Assertions;
 
@@ -42,9 +44,16 @@ public class JourneyResourceTestFacade {
         return JourneyQueryDTO.create(date, time, start, dest.from(stationRepository), arriveBy, maxChanges);
     }
 
+
     @NotNull
     public JourneyQueryDTO getQueryDTO(LocalDate date, TramTime time, FakeStation start, Location<?> dest, boolean arriveBy, int maxChanges) {
         return JourneyQueryDTO.create(date, time, start.from(stationRepository), dest, arriveBy, maxChanges);
+    }
+
+    @NotNull
+    public JourneyQueryDTO getQueryDTO(TramDate date, TramTime queryTime, FakeStation start, FakeStation dest, boolean arriveBy, int maxChanges) {
+        return JourneyQueryDTO.create(date.toLocalDate(), queryTime, start.from(stationRepository), dest.from(stationRepository),
+                arriveBy, maxChanges);
     }
 
     @NotNull
@@ -78,5 +87,6 @@ public class JourneyResourceTestFacade {
         String prefix = streamed ? "journey/streamed" : "journey";
         return APIClient.postAPIRequest(appExtension, prefix, query, cookies);
     }
+
 
 }

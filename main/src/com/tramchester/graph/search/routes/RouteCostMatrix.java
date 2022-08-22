@@ -9,6 +9,7 @@ import com.tramchester.domain.collections.IndexedBitSet;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.collections.SimpleList;
 import com.tramchester.domain.collections.SimpleListSingleton;
+import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.places.InterchangeStation;
 import com.tramchester.graph.filters.GraphFilterActive;
 import com.tramchester.repository.InterchangeRepository;
@@ -126,7 +127,7 @@ public class RouteCostMatrix {
     }
 
     // create a bitmask for route->route changes that are possible on a given date
-    public IndexedBitSet createOverlapMatrixFor(LocalDate date) {
+    public IndexedBitSet createOverlapMatrixFor(TramDate date) {
         final Set<Integer> availableOnDate = new HashSet<>();
         for (int routeIndex = 0; routeIndex < numRoutes; routeIndex++) {
             final Route route = index.getRouteFor(routeIndex);

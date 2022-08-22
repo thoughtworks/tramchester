@@ -55,7 +55,7 @@ public class JourneyToDTOMapper {
         for(TransportStage<?,?> rawStage : rawJourneyStages) {
             logger.info("Adding stage " + rawStage);
             TravelAction action = decideTravelAction(stages, rawStage);
-            StageDTO stageDTO = stageFactory.build(rawStage, action, queryDate.getDate());
+            StageDTO stageDTO = stageFactory.build(rawStage, action, queryDate.getDate().toLocalDate());
             stages.add(stageDTO);
         }
 
@@ -67,7 +67,7 @@ public class JourneyToDTOMapper {
 
         List<LocationRefWithPosition> path = asListOf(journey.getPath());
 
-        LocalDate date = queryDate.getDate();
+        LocalDate date = queryDate.getDate().toLocalDate();
         return new JourneyDTO(begin, stages,
                 journey.getArrivalTime().toDate(date), journey.getDepartTime().toDate(date),
                 changeStations, queryTime, notes,

@@ -56,8 +56,7 @@ class RouteMapperTest {
     @Test
     void shouldGetRouteStationsInCorrectOrder() {
 
-        List<RouteDTO> dtos = mapper.getRouteDTOs(TestEnv.testDay());
-
+        List<RouteDTO> dtos = mapper.getRouteDTOs(TestEnv.testTramDay());
 
         Route fromAirportRoute = tramRouteHelper.getOneRoute(AltrinchamPiccadilly, routeRepsoitory, date);
 

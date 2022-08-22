@@ -4,6 +4,7 @@ import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.Route;
+import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.time.TimeRange;
@@ -30,7 +31,7 @@ import static org.junit.jupiter.api.Assertions.*;
 @TrainTest
 public class RouteToRouteCostsRailTest {
     private static ComponentContainer componentContainer;
-    private static LocalDate date;
+    private static TramDate date;
 
     private RouteToRouteCosts routeToRouteCosts;
     private StationRepository stationRepository;
@@ -49,7 +50,7 @@ public class RouteToRouteCostsRailTest {
         // clear cache
         //TestEnv.clearDataCache(componentContainer);
 
-        date = TestEnv.testDay();
+        date = TestEnv.testTramDay();
     }
 
     @AfterAll

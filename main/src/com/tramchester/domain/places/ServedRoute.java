@@ -2,13 +2,13 @@ package com.tramchester.domain.places;
 
 import com.tramchester.domain.Route;
 import com.tramchester.domain.Service;
+import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TimeRange;
 import com.tramchester.domain.time.TramTime;
 import org.jetbrains.annotations.NotNull;
 
-import java.time.LocalDate;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -58,18 +58,18 @@ public class ServedRoute {
 
 
     // the number of hops....
-    public Set<Route> getRoutes(LocalDate date, TimeRange range) {
+    public Set<Route> getRoutes(TramDate date, TimeRange range) {
         Set<Route> results = getRouteForDateAndTimeRange(date, range);
         if (range.intoNextDay()) {
             TimeRange nextDayRange = range.forFollowingDay();
-            LocalDate followingDay = date.plusDays(1);
+            TramDate followingDay = date.plusDays(1);
             results.addAll(getRouteForDateAndTimeRange(followingDay, nextDayRange));
         }
         return results;
     }
 
     @NotNull
-    private Set<Route> getRouteForDateAndTimeRange(LocalDate date, TimeRange range) {
+    private Set<Route> getRouteForDateAndTimeRange(TramDate date, TimeRange range) {
         return routeAndServices.stream().
                 filter(routeAndService -> routeAndService.isAvailableOn(date)).
                 filter(routeAndService -> timeWindows.get(routeAndService).anyOverlap(range)).
@@ -78,7 +78,7 @@ public class ServedRoute {
     }
 
 
-    public boolean anyAvailable(LocalDate when, TimeRange timeRange) {
+    public boolean anyAvailable(TramDate when, TimeRange timeRange) {
         return routeAndServices.stream().
                 filter(routeAndService -> routeAndService.isAvailableOn(when)).
                 anyMatch(routeAndService -> timeWindows.get(routeAndService).anyOverlap(timeRange));

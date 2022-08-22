@@ -8,6 +8,7 @@ import com.tramchester.config.TramchesterConfig;
 import com.tramchester.dataimport.data.RouteIndexData;
 import com.tramchester.dataimport.loader.files.TransportDataFromCSVFile;
 import com.tramchester.domain.*;
+import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.places.Station;
@@ -50,7 +51,7 @@ public class RouteToRouteCostsTest {
     private static Path indexFile;
     private StationRepository stationRepository;
     private final Set<TransportMode> modes = Collections.singleton(Tram);
-    private LocalDate date;
+    private TramDate date;
     private TimeRange timeRange;
 
     @BeforeAll
@@ -82,14 +83,14 @@ public class RouteToRouteCostsTest {
         routeRepository = componentContainer.get(RouteRepository.class);
         routeHelper = new TramRouteHelper();
 
-        date = TestEnv.testDay();
+        date = TestEnv.testTramDay();
         timeRange = TimeRange.of(TramTime.of(7,45), TramTime.of(22,45));
     }
 
     @Summer2022
     @Test
     void shouldHaveFullyConnectedForTramsWhereDatesOverlaps() {
-        LocalDate testDate = this.date.plusWeeks(1);
+        TramDate testDate = this.date.plusWeeks(1);
         Set<Route> routes = routeRepository.getRoutes().stream().filter(route -> route.isAvailableOn(testDate)).collect(Collectors.toSet());
 
         TimeRange timeRangeForOverlaps = TimeRange.of(TramTime.of(8, 45), TramTime.of(10, 45));
