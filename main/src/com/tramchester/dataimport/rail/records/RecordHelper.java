@@ -16,13 +16,6 @@ import static java.time.temporal.ChronoField.*;
 public class RecordHelper {
     private static final Logger logger = LoggerFactory.getLogger(RecordHelper.class);
 
-    private static final DateTimeFormatter dateFormat = new DateTimeFormatterBuilder()
-            .parseCaseInsensitive()
-            .appendValue(YEAR, 4)
-            .appendValue(MONTH_OF_YEAR, 2)
-            .appendValue(DAY_OF_MONTH, 2)
-            .toFormatter();
-
     private static final DateTimeFormatter century = new DateTimeFormatterBuilder().
             parseCaseInsensitive().appendValue(YEAR, 4).toFormatter();
 
@@ -49,16 +42,8 @@ public class RecordHelper {
         return text.substring(begin-1, end-1).trim();
     }
 
-    public static LocalDate extractDate(String text, int begin, int end, ProvidesNow providesNow) {
-        String fullYear = providesNow.getDate().format(century);
-        String rawDateWithCentury = fullYear.substring(0, 2) + extract(text, begin, end);
-        return LocalDate.parse(rawDateWithCentury, dateFormat);
-    }
-
-    public static TramDate extractTramDate(String text, int begin, int end, ProvidesNow providesNow) {
-        String fullYear = providesNow.getDate().format(century);
-        String rawDateWithCentury = fullYear.substring(0, 2) + extract(text, begin, end);
-        return TramDate.parse(rawDateWithCentury, dateFormat);
+    public static TramDate extractTramDate(String text, int begin, int century) {
+        return TramDate.parseSimple(text, century, begin);
     }
 
     /***
@@ -68,7 +53,6 @@ public class RecordHelper {
      * @return TramTime or TramTime.Invalid
      */
     public static TramTime extractTime(final String text, final int begin) {
-        //final String rawTime = text.substring(begin, end); //performance of substring is terrible
         if (text.isBlank()) {
             return TramTime.invalid();
         }

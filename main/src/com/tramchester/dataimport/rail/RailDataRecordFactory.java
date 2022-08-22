@@ -5,15 +5,16 @@ import com.tramchester.dataimport.rail.records.*;
 import com.tramchester.domain.time.ProvidesNow;
 
 import javax.inject.Inject;
+import java.time.temporal.TemporalField;
 
 @LazySingleton
 public class RailDataRecordFactory {
 
-    private final ProvidesNow providesNow;
+    private final int century;
 
     @Inject
     public RailDataRecordFactory(ProvidesNow providesNow) {
-        this.providesNow = providesNow;
+        century = Math.floorDiv(providesNow.getDate().getYear(), 100);
     }
 
     public RailTimetableRecord createTIPLOC(String line) {
@@ -21,7 +22,7 @@ public class RailDataRecordFactory {
     }
 
     public RailTimetableRecord createBasicSchedule(String line) {
-        return BasicSchedule.parse(line, providesNow);
+        return BasicSchedule.parse(line, century);
     }
 
     public RailTimetableRecord createOrigin(String line) {

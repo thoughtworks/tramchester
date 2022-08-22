@@ -35,7 +35,6 @@ import com.tramchester.dataimport.rail.records.reference.TrainCategory;
 import com.tramchester.dataimport.rail.records.reference.TrainStatus;
 import com.tramchester.domain.dates.DateRange;
 import com.tramchester.domain.dates.TramDate;
-import com.tramchester.domain.time.ProvidesNow;
 
 import java.time.DayOfWeek;
 import java.util.EnumSet;
@@ -73,13 +72,13 @@ public class BasicSchedule implements RailTimetableRecord {
         this.trainCategory = trainCategory;
     }
 
-    public static BasicSchedule parse(String text, ProvidesNow providesNow) {
+    public static BasicSchedule parse(String text, int century) {
         char transactionTypeRaw = text.charAt(2); //RecordHelper.extract(text, 3, 4);
         RailRecordTransactionType transactionType = RailRecordTransactionType.parse(transactionTypeRaw);
         String uniqueTrainId = RecordHelper.extract(text, 4, 9+1);
         String headcode = RecordHelper.extract(text, 33, 36+1);
-        TramDate startDate = RecordHelper.extractTramDate(text, 10, 15+1, providesNow);
-        TramDate endDate = RecordHelper.extractTramDate(text, 16, 21+1, providesNow);
+        TramDate startDate = RecordHelper.extractTramDate(text, 10-1, century);
+        TramDate endDate = RecordHelper.extractTramDate(text, 16-1, century);
         EnumSet<DayOfWeek> daysOfWeek = extractDays(text, 21);
         char stpIndicatorRaw = text.charAt(80-1);
         char trainStatusRaw = text.charAt(29);

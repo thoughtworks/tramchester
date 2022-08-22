@@ -1,12 +1,9 @@
 package com.tramchester.unit.dataimport.rail;
 
 import com.tramchester.dataimport.rail.records.RecordHelper;
-import com.tramchester.domain.time.ProvidesLocalNow;
-import com.tramchester.domain.time.ProvidesNow;
+import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.time.TramTime;
 import org.junit.jupiter.api.Test;
-
-import java.time.LocalDate;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -25,11 +22,11 @@ public class RecordHelperTest {
     void shouldParseDate() {
         String text = "xxxx220513yyyyy";
 
-        ProvidesNow providesNow = new ProvidesLocalNow();
+        int century = 20;
 
-        LocalDate result = RecordHelper.extractDate(text, 5, 11, providesNow);
+        TramDate result = RecordHelper.extractTramDate(text, 4, century);
 
-        assertEquals(LocalDate.of(2022, 5, 13), result);
+        assertEquals(TramDate.of(2022, 5, 13), result);
     }
 
     @Test

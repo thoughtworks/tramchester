@@ -13,7 +13,7 @@ public class ParsesDate {
     }
 
     protected TramDate parseTramDate(String text) {
-        return TramDate.parse(text, formatter);
+        return TramDate.parseSimple(text, 0);
     }
 
 }

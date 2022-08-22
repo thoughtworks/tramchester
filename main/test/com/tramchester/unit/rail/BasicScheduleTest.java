@@ -20,14 +20,15 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class BasicScheduleTest {
+    private int century;
 
     /// see https://wiki.openraildata.com/index.php/CIF_Codes
 
-    private ProvidesNow providesNow;
 
     @BeforeEach
     void beforeEachTestRuns() {
-        providesNow = new ProvidesLocalNow();
+
+        century = 20;
     }
 
     @Test
@@ -38,7 +39,7 @@ public class BasicScheduleTest {
 
         String text = "BSNC532901705241709200000001 POO2T07    124207004 EMU319 100D     B            P";
 
-        BasicSchedule basicSchedule = BasicSchedule.parse(text, providesNow);
+        BasicSchedule basicSchedule = BasicSchedule.parse(text, century);
 
         assertEquals(RailRecordTransactionType.New, basicSchedule.getTransactionType());
         assertEquals("C53290", basicSchedule.getUniqueTrainId());
@@ -59,7 +60,7 @@ public class BasicScheduleTest {
     void shouldParseBusServiceRecord() {
         String text = "BSNG546602112122112190000001 BBS0B0028  125527005                              P";
 
-        BasicSchedule basicSchedule = BasicSchedule.parse(text, providesNow);
+        BasicSchedule basicSchedule = BasicSchedule.parse(text, century);
 
         assertEquals(RailRecordTransactionType.New, basicSchedule.getTransactionType());
         assertEquals("G54660", basicSchedule.getUniqueTrainId());
@@ -80,7 +81,7 @@ public class BasicScheduleTest {
     void shouldParseShipRecord() {
         String text = "BSNP208612112142205140111110 S  0S000074122340000                 S A          P";
 
-        BasicSchedule basicSchedule = BasicSchedule.parse(text, providesNow);
+        BasicSchedule basicSchedule = BasicSchedule.parse(text, century);
 
         assertEquals(RailRecordTransactionType.New, basicSchedule.getTransactionType());
         assertEquals("P20861", basicSchedule.getUniqueTrainId());
@@ -97,7 +98,7 @@ public class BasicScheduleTest {
     void shouldParseLondonUndergroundRecord() {
         String text = "BSNC611912105162112050000001 POL2I01    124682004 EMU    045                   P";
 
-        BasicSchedule basicSchedule = BasicSchedule.parse(text, providesNow);
+        BasicSchedule basicSchedule = BasicSchedule.parse(text, century);
 
         assertEquals(RailRecordTransactionType.New, basicSchedule.getTransactionType());
         assertEquals("C61191", basicSchedule.getUniqueTrainId());

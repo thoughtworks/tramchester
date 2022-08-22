@@ -5,12 +5,22 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.Month;
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeFormatterBuilder;
 import java.util.Objects;
 import java.util.stream.Stream;
+
+import static java.time.temporal.ChronoField.*;
 
 public class TramDate {
     private final long epochDays;
     private final DayOfWeek dayOfWeek;
+
+    private static final DateTimeFormatter railDateFormat = new DateTimeFormatterBuilder()
+            .parseCaseInsensitive()
+            .appendValue(YEAR, 4)
+            .appendValue(MONTH_OF_YEAR, 2)
+            .appendValue(DAY_OF_MONTH, 2)
+            .toFormatter();
 
     private TramDate(long epochDays) {
         this.epochDays = epochDays;
@@ -84,11 +94,67 @@ public class TramDate {
         return LocalDate.ofEpochDay(epochDays).format(dateFormatter);
     }
 
-    public static TramDate parse(String text, DateTimeFormatter formatter) {
-        LocalDate date = LocalDate.parse(text, formatter);
-        return new TramDate(date.toEpochDay());
+    /***
+     * format YYYYMMDD
+     * @param text date text
+     * @param offset offset to start of text
+     * @return TramDate
+     */
+    public static TramDate parseSimple(String text, int offset) {
+        int year = parseFullYear(text, offset);
+        int month = parseTens(text, offset+4);
+        int day = parseTens(text, offset+6);
+        return TramDate.of(year, month, day);
+        //return parse(text, railDateFormat);
     }
 
+
+    /***
+     *
+     * @param text text to parse in form YYMMDD
+     * @param century century to add to the year
+     * @param offset offset to start of text to parse
+     * @return the TramDate
+     */
+    public static TramDate parseSimple(String text, int century, int offset) {
+        int year = parseTens(text, offset);
+        int month = parseTens(text, offset+2);
+        int day = parseTens(text, offset+4);
+        return TramDate.of((century*100) + year, month, day);
+        //return parse(text, railDateFormat);
+    }
+
+    private static int parseTens(String text, int offset) {
+        char digit1 = text.charAt(offset);
+        char digit2 = text.charAt(offset+1);
+
+        int tens = Character.digit(digit1, 10);
+        int unit = Character.digit(digit2, 10);
+
+        return (tens*10) + unit;
+    }
+
+    private static int parseFullYear(String text, int offset) {
+        char digit1 = text.charAt(offset);
+        char digit2 = text.charAt(offset+1);
+        char digit3 = text.charAt(offset+2);
+        char digit4 = text.charAt(offset+3);
+
+        int millenium = Character.digit(digit1, 10);
+        int century = Character.digit(digit2, 10);
+        int decade = Character.digit(digit3, 10);
+        int year = Character.digit(digit4, 10);
+
+        return (millenium*1000) + (century*100) + (decade*10) + year;
+
+    }
+
+//    public static TramDate parse(String text, DateTimeFormatter formatter) {
+//        LocalDate date = LocalDate.parse(text, formatter);
+//        return new TramDate(date.toEpochDay());
+//    }
+
+    // support deserialisation
     public static TramDate parse(String text) {
         LocalDate date = LocalDate.parse(text);
         return new TramDate(date.toEpochDay());
