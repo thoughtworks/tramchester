@@ -29,7 +29,7 @@ public class TramDateSet implements Iterable<TramDate> {
         return this;
     }
 
-    public boolean contains(TramDate date) {
+    public boolean contains(final TramDate date) {
         return dates.contains(date);
     }
 

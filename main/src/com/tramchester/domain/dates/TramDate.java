@@ -121,7 +121,6 @@ public class TramDate {
         int month = parseTens(text, offset+2);
         int day = parseTens(text, offset+4);
         return TramDate.of((century*100) + year, month, day);
-        //return parse(text, railDateFormat);
     }
 
     private static int parseTens(String text, int offset) {
@@ -148,11 +147,6 @@ public class TramDate {
         return (millenium*1000) + (century*100) + (decade*10) + year;
 
     }
-
-//    public static TramDate parse(String text, DateTimeFormatter formatter) {
-//        LocalDate date = LocalDate.parse(text, formatter);
-//        return new TramDate(date.toEpochDay());
-//    }
 
     // support deserialisation
     public static TramDate parse(String text) {
