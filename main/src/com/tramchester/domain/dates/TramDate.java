@@ -5,22 +5,12 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.Month;
 import java.time.format.DateTimeFormatter;
-import java.time.format.DateTimeFormatterBuilder;
 import java.util.Objects;
 import java.util.stream.Stream;
 
-import static java.time.temporal.ChronoField.*;
-
-public class TramDate {
+public class TramDate implements Comparable<TramDate> {
     private final long epochDays;
     private final DayOfWeek dayOfWeek;
-
-    private static final DateTimeFormatter railDateFormat = new DateTimeFormatterBuilder()
-            .parseCaseInsensitive()
-            .appendValue(YEAR, 4)
-            .appendValue(MONTH_OF_YEAR, 2)
-            .appendValue(DAY_OF_MONTH, 2)
-            .toFormatter();
 
     private TramDate(long epochDays) {
         this.epochDays = epochDays;
@@ -53,6 +43,10 @@ public class TramDate {
         if (o == null || getClass() != o.getClass()) return false;
         TramDate tramDate = (TramDate) o;
         return epochDays == tramDate.epochDays;
+    }
+
+    public boolean isEquals(TramDate other) {
+        return other.epochDays == epochDays;
     }
 
     @Override
@@ -105,9 +99,7 @@ public class TramDate {
         int month = parseTens(text, offset+4);
         int day = parseTens(text, offset+6);
         return TramDate.of(year, month, day);
-        //return parse(text, railDateFormat);
     }
-
 
     /***
      *
@@ -145,10 +137,9 @@ public class TramDate {
         int year = Character.digit(digit4, 10);
 
         return (millenium*1000) + (century*100) + (decade*10) + year;
-
     }
 
-    // support deserialisation
+    // supports deserialization
     public static TramDate parse(String text) {
         LocalDate date = LocalDate.parse(text);
         return new TramDate(date.toEpochDay());

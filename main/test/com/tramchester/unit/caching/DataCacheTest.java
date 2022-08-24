@@ -10,6 +10,7 @@ import com.tramchester.domain.DataSourceID;
 import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.integration.testSupport.tfgm.TFGMGTFSSourceTestConfig;
 import com.tramchester.testSupport.TestConfig;
+import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.tfgm.TFGMRemoteDataSourceConfig;
 import org.easymock.EasyMock;
 import org.easymock.EasyMockSupport;
@@ -30,7 +31,7 @@ import static org.junit.jupiter.api.Assertions.*;
 public class DataCacheTest extends EasyMockSupport  {
 
     static final int SIZE = 10000;
-    static final Path cacheFolder = Path.of("testData");
+    static final Path cacheFolder = TestEnv.CACHE_DIR.resolve("DataCacheTest");
 
     private DataCache dataCache;
     private List<RouteIndexData> testItems;

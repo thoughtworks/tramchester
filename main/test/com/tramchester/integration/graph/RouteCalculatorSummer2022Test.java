@@ -121,37 +121,7 @@ class RouteCalculatorSummer2022Test {
         Set<Journey> journeys = calculator.calculateRouteAsSet(Eccles, Victoria, journeyRequest);
         assertFalse(journeys.isEmpty());
     }
-
-    @Test
-    void shouldHaveTraffordCenterToWhitefieldOn17August() {
-        LocalDate date = LocalDate.of(2022, 8,17);
-        JourneyRequest journeyRequest = new JourneyRequest(date, TramTime.of(8,5), false,
-                3, maxJourneyDuration, 5, Collections.emptySet());
-
-        Set<Journey> journeys = calculator.calculateRouteAsSet(TraffordCentre, TramStations.Whitefield, journeyRequest);
-        assertFalse(journeys.isEmpty());
-    }
-
-    @Test
-    void shouldHaveTraffordCenterToWhitefieldOn18August() {
-        LocalDate date = LocalDate.of(2022, 8,18);
-        JourneyRequest journeyRequest = new JourneyRequest(date, TramTime.of(8,5), false,
-                3, maxJourneyDuration, 5, Collections.emptySet());
-
-        Set<Journey> journeys = calculator.calculateRouteAsSet(TraffordCentre, TramStations.Whitefield, journeyRequest);
-        assertFalse(journeys.isEmpty());
-    }
-
-    @Test
-    void shouldHaveTraffordCenterToWhitefieldOn19August() {
-        LocalDate date = LocalDate.of(2022, 8,19);
-        JourneyRequest journeyRequest = new JourneyRequest(date, TramTime.of(8,5), false,
-                3, maxJourneyDuration, 5, Collections.emptySet());
-
-        Set<Journey> journeys = calculator.calculateRouteAsSet(TraffordCentre, TramStations.Whitefield, journeyRequest);
-        assertFalse(journeys.isEmpty());
-    }
-
+    
     @Test
     void shouldHaveTraffordCenterToWhitefieldOn20August() {
         LocalDate date = LocalDate.of(2022, 8,20);

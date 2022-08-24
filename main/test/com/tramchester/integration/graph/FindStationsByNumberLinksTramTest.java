@@ -67,13 +67,11 @@ class FindStationsByNumberLinksTramTest {
                 " stations with links were " + stationWithLinks);
     }
 
-    @Summer2022
     @Test
     void shouldFindInterchangeRoutes() {
         IdSet<Station> found = finder.atLeastNLinkedRoutes(TransportMode.Tram, 9);
 
-        // far higher number due to the interconnects to replacement routes 5->31
-        assertEquals(31, found.size(), found.toString());
+        assertEquals(5, found.size(), found.toString());
         assertTrue(found.contains(TramStations.TraffordBar.getId()));
         assertTrue(found.contains(TramStations.Cornbrook.getId()));
         assertTrue(found.contains(TramStations.Deansgate.getId()));

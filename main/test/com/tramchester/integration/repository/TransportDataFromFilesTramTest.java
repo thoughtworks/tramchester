@@ -57,8 +57,8 @@ import static org.junit.jupiter.api.Assertions.*;
 @DataUpdateTest
 public class TransportDataFromFilesTramTest {
 
-    // TODO July 2022 +2 for eccles replacement service +10 for august replacement buses
-    public static final int NUM_TFGM_TRAM_ROUTES = 14+2+10; // N * since overlaps in data updates
+    // TODO July 2022 +2 for eccles replacement service
+    public static final int NUM_TFGM_TRAM_ROUTES = 14+2; // N * since overlaps in data updates
     public static final int NUM_TFGM_TRAM_STATIONS = 99; // summer closures of eccles line
     private static ComponentContainer componentContainer;
     private static IntegrationTramTestConfig config;

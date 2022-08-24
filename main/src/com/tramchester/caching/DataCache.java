@@ -25,7 +25,6 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static com.fasterxml.jackson.databind.SerializationFeature.CLOSE_CLOSEABLE;
 import static java.lang.String.format;
 
 @LazySingleton

@@ -53,7 +53,7 @@ public class StationClosureConfig extends Configuration implements StationClosur
     @JsonIgnore
     @Override
     public DateRange getDateRange() {
-        return new DateRange(begin, end);
+        return new DateRange(getBegin(), getEnd());
     }
 
     @Override

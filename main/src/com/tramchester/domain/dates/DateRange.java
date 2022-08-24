@@ -1,6 +1,5 @@
 package com.tramchester.domain.dates;
 
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -15,17 +14,12 @@ public class DateRange {
         this.endDate = endDate;
     }
 
-    public DateRange(LocalDate startDate, LocalDate endDate) {
-        this.startDate = TramDate.of(startDate);
-        this.endDate = TramDate.of(endDate);
-    }
-
     public static DateRange of(TramDate startDate, TramDate endDate) {
         return new DateRange(startDate, endDate);
     }
 
     public boolean contains(final TramDate queryDate) {
-        if (queryDate.equals(startDate) || queryDate.equals(endDate)) {
+        if (queryDate.isEquals(startDate) || queryDate.isEquals(endDate)) {
             return true;
         }
         return (queryDate.isAfter(startDate) && queryDate.isBefore(endDate));
@@ -52,11 +46,11 @@ public class DateRange {
                 '}';
     }
 
-    public boolean overlapsWith(DateRange dateRange) {
-        return between(dateRange, startDate) ||
-                between(dateRange, endDate) ||
-                between(this, dateRange.startDate) ||
-                between(this, dateRange.endDate);
+    public boolean overlapsWith(DateRange other) {
+        return between(other, startDate) ||
+                between(other, endDate) ||
+                between(this, other.startDate) ||
+                between(this, other.endDate);
     }
 
     private static boolean between(DateRange dateRange, TramDate date) {
@@ -74,6 +68,10 @@ public class DateRange {
         return startDate;
     }
 
+    /***
+     * In order stream from start to end date, inclusive
+     * @return stream of dates
+     */
     public Stream<TramDate> stream() {
         List<TramDate> dates = new ArrayList<>();
         TramDate current = startDate;

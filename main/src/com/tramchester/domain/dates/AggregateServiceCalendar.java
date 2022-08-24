@@ -11,25 +11,25 @@ public class AggregateServiceCalendar implements ServiceCalendar {
 
     private final Collection<ServiceCalendar> calendars;
 
-    private final EnumSet<DayOfWeek> days;
+    private final EnumSet<DayOfWeek> aggregatedDays;
     private final TramDateSet additional;
     private final TramDateSet removed;
     private final boolean cancelled;
-    private final DateRange dateRange;
+    private final DateRange aggregatedRange;
     private final boolean operatesNoDays;
 
     public AggregateServiceCalendar(Collection<ServiceCalendar> calendars) {
         this.calendars = calendars;
 
-        dateRange = calculateDateRange(calendars);
+        aggregatedRange = calculateDateRange(calendars);
         cancelled = calendars.stream().allMatch(ServiceCalendar::isCancelled);
 
         additional = new TramDateSet();
-        days = EnumSet.noneOf(DayOfWeek.class);
+        aggregatedDays = EnumSet.noneOf(DayOfWeek.class);
         TramDateSet allExcluded = new TramDateSet();
         final AtomicInteger noDaysCount = new AtomicInteger(0);
         calendars.forEach(calendar -> {
-            days.addAll(calendar.getOperatingDays());
+            aggregatedDays.addAll(calendar.getOperatingDays());
             additional.addAll(calendar.getAdditions());
             allExcluded.addAll(calendar.getRemoved());
             if (calendar.operatesNoDays()) {
@@ -87,7 +87,18 @@ public class AggregateServiceCalendar implements ServiceCalendar {
         if (dates.isEmpty()) {
             return false;
         }
-        return dates.stream().anyMatch(this::operatesOn);
+        if (additional.containsAny(dates)) {
+            return true;
+        }
+        if (removed.containsAll(dates)) {
+            return false;
+        }
+        for(TramDate date : dates) {
+            if (dayAndRange(date)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     @Override
@@ -95,7 +106,38 @@ public class AggregateServiceCalendar implements ServiceCalendar {
         if (dates.isEmpty()) {
             return false;
         }
-        return dates.stream().noneMatch(this::operatesOn);
+        if (additional.containsAny(dates)) {
+            return false;
+        }
+        if (removed.containsAll(dates)) {
+            return true;
+        }
+        for(TramDate date : dates) {
+            if (dayAndRange(date) && !removed.contains(date)) {
+                return false;
+            }
+        }
+        return true;
+        //return dates.stream().noneMatch(this::dayAndRange);
+    }
+
+    private boolean dayAndRange(final TramDate date) {
+        if (!aggregatedRange.contains(date)) {
+            return false;
+        }
+
+        final DayOfWeek dayOfWeek = date.getDayOfWeek();
+        if (!aggregatedDays.contains(dayOfWeek)) {
+            return false;
+        }
+
+        // see if specific calendar match on days && range for
+        for(ServiceCalendar calendar : calendars) {
+            if (calendar.getOperatingDays().contains(dayOfWeek) && calendar.getDateRange().contains(date)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     @Override
@@ -111,10 +153,10 @@ public class AggregateServiceCalendar implements ServiceCalendar {
             return true;
         }
 
-        if (!dateRange.contains(date)) {
+        if (!aggregatedRange.contains(date)) {
             return false;
         }
-        if (!days.contains(date.getDayOfWeek())) {
+        if (!aggregatedDays.contains(date.getDayOfWeek())) {
             return false;
         }
 
@@ -126,7 +168,7 @@ public class AggregateServiceCalendar implements ServiceCalendar {
 
     @Override
     public DateRange getDateRange() {
-        return dateRange;
+        return aggregatedRange;
     }
 
     @Override
@@ -136,7 +178,7 @@ public class AggregateServiceCalendar implements ServiceCalendar {
 
     @Override
     public EnumSet<DayOfWeek> getOperatingDays() {
-        return days;
+        return aggregatedDays;
     }
 
     @Override
@@ -169,7 +211,7 @@ public class AggregateServiceCalendar implements ServiceCalendar {
     }
 
     private String reportDays() {
-        if (days.isEmpty()) {
+        if (aggregatedDays.isEmpty()) {
             return "SPECIAL/NONE";
         }
 
@@ -178,7 +220,7 @@ public class AggregateServiceCalendar implements ServiceCalendar {
         }
 
         StringBuilder found = new StringBuilder();
-        days.forEach(dayOfWeek -> {
+        aggregatedDays.forEach(dayOfWeek -> {
             if (found.length() > 0) {
                 found.append(",");
             }

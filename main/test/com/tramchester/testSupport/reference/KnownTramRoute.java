@@ -39,24 +39,24 @@ public enum KnownTramRoute {
 
     // TODO July 2022 - eccles replacement services
     ReplacementRouteToEccles("Blue Line Bus Replacement", Inbound, "Media City Metrolink Replacement - Eccles"),
-    ReplacementRouteFromEccles("Blue Line Bus Replacement", Outbound, "Eccles - Media City Metrolink Replacement"),
+    ReplacementRouteFromEccles("Blue Line Bus Replacement", Outbound, "Eccles - Media City Metrolink Replacement");
 
     // TODO August 13 to 16 2022
-    ReplacementRouteFromBuryToWhitefield("Yellow Line Replacement Bus", Inbound, "Bury Metrolink Replacement - Whitefield"),
-    ReplacementRouteFromWhitefieldToBury("Yellow Line Replacement Bus", Outbound, "Whitefield - Bury Metrolink Replacement"),
+    //ReplacementRouteFromBuryToWhitefield("Yellow Line Replacement Bus", Inbound, "Bury Metrolink Replacement - Whitefield"),
+    //ReplacementRouteFromWhitefieldToBury("Yellow Line Replacement Bus", Outbound, "Whitefield - Bury Metrolink Replacement"),
 
-    ReplacementRouteFromCrumpsallToBury("Green Line Replacement Bus", Inbound, "Crumpsall Metrolink Replacement - Bury"),
-    ReplacementRouteFromBuryToCrumpsall("Green Line Replacement Bus", Outbound, "Bury - Crumpsall Metrolink Replacement"),
+    //ReplacementRouteFromCrumpsallToBury("Green Line Replacement Bus", Inbound, "Crumpsall Metrolink Replacement - Bury"),
+    //ReplacementRouteFromBuryToCrumpsall("Green Line Replacement Bus", Outbound, "Bury - Crumpsall Metrolink Replacement"),
 
     // TODO August 17 to 19 2022, note typo is in the source data
-    ReplacementRouteAltrinchamToTimperley("Purple Line Bus Replaement",Inbound, "Altrincham Metrolink Replacement - Timperley"),
-    ReplacementRouteTimperleyToAltrincham("Purple Line Bus Replaement",Outbound, "Timperley - Altrincham Metrolink Replacement"),
+    //ReplacementRouteAltrinchamToTimperley("Purple Line Bus Replaement",Inbound, "Altrincham Metrolink Replacement - Timperley"),
+    //ReplacementRouteTimperleyToAltrincham("Purple Line Bus Replaement",Outbound, "Timperley - Altrincham Metrolink Replacement"),
 
-    ReplacementRouteBuryToVictoriaYellow("Yellow Line Replacement Bus",Inbound, "Bury Metrolink Replacement - Victoria"),
-    ReplacementRouteVictoriaToBuryYellow("Yellow Line Replacement Bus", Outbound, "Victoria - Bury Metrolink Replacement"),
+    //ReplacementRouteBuryToVictoriaYellow("Yellow Line Replacement Bus",Inbound, "Bury Metrolink Replacement - Victoria"),
+    //ReplacementRouteVictoriaToBuryYellow("Yellow Line Replacement Bus", Outbound, "Victoria - Bury Metrolink Replacement"),
 
-    ReplacementRouteVictoriaToBuryGreen("Green Line Replacement Bus", Outbound,"Victoria Metrolink Replacement - Manchester - Bury"),
-    ReplacementRouteBuryToVictoriaGreen("Green Line Replacement Bus", Inbound, "Bury - Manchester - Victoria Metrolink Replacement");
+    //ReplacementRouteVictoriaToBuryGreen("Green Line Replacement Bus", Outbound,"Victoria Metrolink Replacement - Manchester - Bury"),
+    //ReplacementRouteBuryToVictoriaGreen("Green Line Replacement Bus", Inbound, "Bury - Manchester - Victoria Metrolink Replacement");
 
     private final IdFor<Route> fakeId;
     private final RouteDirection direction;

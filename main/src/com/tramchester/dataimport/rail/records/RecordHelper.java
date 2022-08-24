@@ -16,9 +16,6 @@ import static java.time.temporal.ChronoField.*;
 public class RecordHelper {
     private static final Logger logger = LoggerFactory.getLogger(RecordHelper.class);
 
-    private static final DateTimeFormatter century = new DateTimeFormatterBuilder().
-            parseCaseInsensitive().appendValue(YEAR, 4).toFormatter();
-
     /***
      *
      * @param text string to extract record from

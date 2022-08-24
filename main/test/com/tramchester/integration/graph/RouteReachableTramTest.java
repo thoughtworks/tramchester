@@ -51,7 +51,6 @@ class RouteReachableTramTest {
         reachable = componentContainer.get(RouteReachable.class);
     }
 
-    @Summer2022
     @Test
     void shouldTestGetRoutesFromStartToNeighbour() {
         Station start = stationRepository.getStationById(Altrincham.getId());
@@ -60,8 +59,8 @@ class RouteReachableTramTest {
 
         Set<String> names = results.stream().
                 map(Route::getName).collect(Collectors.toSet());
-        // todo 2->3 due to replacement route
-        assertEquals(2+1, names.size(), names.toString());
+
+        assertEquals(2, names.size(), names.toString());
 
         assertTrue(names.contains(AltrinchamPiccadilly.longName()));
         assertTrue(names.contains(AltrinchamManchesterBury.longName()));

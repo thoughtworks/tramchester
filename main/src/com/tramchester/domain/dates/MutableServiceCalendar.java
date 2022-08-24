@@ -63,6 +63,51 @@ public class MutableServiceCalendar implements ServiceCalendar {
         return operatesOnIgnoringExceptionDates(queryDate);
     }
 
+    @Override
+    public boolean operatesOnAny(final TramDateSet queryDates) {
+        if (operatesNoDays() || queryDates.isEmpty()) {
+            return false;
+        }
+
+        if (removed.containsAll(queryDates)) {
+            return false;
+        }
+
+        if (additional.containsAny(queryDates)) {
+            return true;
+        }
+
+        return queryDates.stream().
+                filter(date -> days.contains(date.getDayOfWeek())).
+                anyMatch(dateRange::contains);
+    }
+
+    @Override
+    public boolean operatesNoneOf(final TramDateSet dates) {
+        if (dates.isEmpty()) {
+            return false;
+        }
+        if (additional.containsAny(dates)) {
+            return false;
+        }
+        if (removed.containsAll(dates)) {
+            return true;
+        }
+        for(TramDate date : dates) {
+            if (dayAndRange(date) && !removed.contains(date)) {
+                return false;
+            }
+        }
+        return true;
+//        return dates.stream().filter(date -> !days.contains(date.getDayOfWeek())).
+//                noneMatch(dateRange::contains);
+        //return dates.stream().noneMatch(this::operatesOn);
+    }
+
+    private boolean dayAndRange(final TramDate date) {
+        return dateRange.contains(date) && days.contains(date.getDayOfWeek());
+    }
+
     private boolean isExcluded(final TramDate queryDate) {
         return removed.contains(queryDate);
     }
@@ -192,42 +237,6 @@ public class MutableServiceCalendar implements ServiceCalendar {
         return otherDays.removeAll(getOperatingDays());
 
     }
-
-    @Override
-    public boolean operatesNoneOf(final TramDateSet dates) {
-        if (dates.isEmpty()) {
-            return false;
-        }
-        return dates.stream().noneMatch(this::operatesOn);
-    }
-
-    @Override
-    public boolean operatesOnAny(final TramDateSet queryDates) {
-        if (operatesNoDays() || queryDates.isEmpty()) {
-            return false;
-        }
-
-        TramDateSet dates = new TramDateSet(queryDates);
-        dates.removeAll(removed);
-        if (dates.isEmpty()) {
-            return false;
-        }
-
-        boolean matchAdditional = dates.removeAll(additional);
-        if (matchAdditional) {
-            return true;
-        }
-
-        return dates.stream().
-                filter(date -> days.contains(date.getDayOfWeek())).
-                anyMatch(dateRange::contains);
-
-//        return dates.stream().filter(dateRange::contains)
-//                .filter(date -> !removed.contains(date))
-//                .anyMatch(date -> additional.contains(date) || days.contains(date.getDayOfWeek()));
-    }
-
-
 
     @Override
     public String toString() {
