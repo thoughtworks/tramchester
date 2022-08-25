@@ -140,18 +140,6 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
 
         final AtomicInteger smallestSeen = new AtomicInteger(Integer.MAX_VALUE);
 
-//        possibleChanges.forEach(listOfChanges -> {
-//            final int numberOfChanges = listOfChanges.size();
-//            if (numberOfChanges < smallestSeen.get()) {
-//                List<RouteAndInterchanges> listOfInterchanges = getRouteAndInterchange(listOfChanges);
-//                final boolean available = interchangeOperating.isOperating(availabilityRepository, listOfInterchanges);
-//                if (available) {
-//                    smallestFilteredByAvailability.add(listOfInterchanges);
-//                    smallestSeen.set(numberOfChanges);
-//                }
-//            }
-//        });
-
         possibleChanges.filter(listOfChanges -> listOfChanges.size() < smallestSeen.get()).
                 map(this::getRouteAndInterchange).
                 filter(listOfInterchanges -> interchangeOperating.isOperating(availabilityRepository, listOfInterchanges)).
@@ -159,7 +147,6 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
                     smallestFilteredByAvailability.add(listOfInterchanges);
                     smallestSeen.set(listOfInterchanges.size());
                 });
-
 
         Optional<Integer> result = smallestFilteredByAvailability.stream().
                 map(List::size).

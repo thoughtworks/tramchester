@@ -2,9 +2,7 @@ package com.tramchester.domain.dates;
 
 import java.io.PrintStream;
 import java.time.DayOfWeek;
-import java.time.LocalDate;
 import java.util.EnumSet;
-import java.util.Set;
 
 public interface ServiceCalendar {
 
@@ -43,4 +41,6 @@ public interface ServiceCalendar {
     boolean operatesOnAny(TramDateSet dates);
 
     boolean operatesNoneOf(TramDateSet dates);
+
+    long numberDaysOperating();
 }

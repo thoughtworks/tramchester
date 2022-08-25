@@ -1,10 +1,8 @@
 package com.tramchester.unit.domain.dates;
 
-import com.tramchester.domain.MutableRoute;
-import com.tramchester.domain.Service;
 import com.tramchester.domain.dates.*;
-import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.testSupport.TestEnv;
+import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -415,10 +413,10 @@ public class AggregateServiceCalendarTest {
 
         EnumSet<DayOfWeek> monday = EnumSet.of(MONDAY);
 
-        ServiceCalendar serviceA = createService(startDate, endDate, "serviceA", monday);
-        ServiceCalendar serviceB = createService(startDate, endDate, "serviceB", EnumSet.of(DayOfWeek.SUNDAY));
-        ServiceCalendar serviceC = createService(startDate.minusDays(10), startDate.minusDays(5), "serviceC", monday);
-        ServiceCalendar serviceD = createService(startDate, endDate, "serviceD", monday);
+        ServiceCalendar serviceA = createServiceCal(startDate, endDate, monday);
+        ServiceCalendar serviceB = createServiceCal(startDate, endDate, EnumSet.of(DayOfWeek.SUNDAY));
+        ServiceCalendar serviceC = createServiceCal(startDate.minusDays(10), startDate.minusDays(5), monday);
+        ServiceCalendar serviceD = createServiceCal(startDate, endDate, monday);
 
         assertTrue(serviceA.anyDateOverlaps(serviceA));
 
@@ -432,8 +430,81 @@ public class AggregateServiceCalendarTest {
         assertTrue(serviceA.anyDateOverlaps(serviceD));
     }
 
-    private ServiceCalendar createService(TramDate startDate, TramDate endDate, String service, EnumSet<DayOfWeek> dayOfWeeks) {
+    @Test
+    void shouldHaveNumberOfDaysOperating() {
+        TramDate startDate = TramDate.of(2022, 8, 1); // a monday
+        TramDate endDate = TramDate.of(2022, 8, 14);
+
+        ServiceCalendar calendarA = new MutableServiceCalendar(DateRange.of(startDate, endDate), EnumSet.of(MONDAY));
+        assertEquals(2, calendarA.numberDaysOperating());
+
+        ServiceCalendar calendarB = new MutableServiceCalendar(DateRange.of(startDate, endDate), EnumSet.of(FRIDAY));
+        assertEquals(2, calendarB.numberDaysOperating());
+
+        AggregateServiceCalendar aggregateServiceCalendar = new AggregateServiceCalendar(Arrays.asList(calendarA, calendarB));
+
+        assertEquals(4, aggregateServiceCalendar.numberDaysOperating());
+
+    }
+
+    @Test
+    void shouldHaveNumberOfDaysOperatingAddditions() {
+        TramDate startDate = TramDate.of(2022, 8, 1); // a monday
+        TramDate endDate = TramDate.of(2022, 8, 14);
+
+        MutableServiceCalendar calendarA = new MutableServiceCalendar(DateRange.of(startDate, endDate), EnumSet.of(MONDAY));
+        assertEquals(2, calendarA.numberDaysOperating());
+
+        MutableServiceCalendar calendarB = new MutableServiceCalendar(DateRange.of(startDate, endDate), EnumSet.of(FRIDAY));
+        assertEquals(2, calendarB.numberDaysOperating());
+
+        assertEquals(4, createAggregrate(calendarA, calendarB).numberDaysOperating());
+
+        calendarA.includeExtraDate(startDate.plusDays(1));
+        assertEquals(5, createAggregrate(calendarA, calendarB).numberDaysOperating());
+
+        calendarB.includeExtraDate(startDate.plusDays(1));
+        assertEquals(5, createAggregrate(calendarA, calendarB).numberDaysOperating());
+
+        calendarB.includeExtraDate(startDate.plusDays(2));
+        assertEquals(6, createAggregrate(calendarA, calendarB).numberDaysOperating());
+
+    }
+
+    @Test
+    void shouldHaveNumberOfDaysOperatingRemovables() {
+        TramDate startDate = TramDate.of(2022, 8, 1); // a monday
+        TramDate endDate = TramDate.of(2022, 8, 14);
+
+        MutableServiceCalendar calendarA = new MutableServiceCalendar(DateRange.of(startDate, endDate), EnumSet.of(MONDAY));
+        assertEquals(2, calendarA.numberDaysOperating());
+
+        MutableServiceCalendar calendarB = new MutableServiceCalendar(DateRange.of(startDate, endDate), EnumSet.of(MONDAY));
+        assertEquals(2, calendarB.numberDaysOperating());
+
+        assertEquals(2, createAggregrate(calendarA, calendarB).numberDaysOperating());
+
+        calendarA.excludeDate(startDate); // only one
+        assertEquals(2, createAggregrate(calendarA, calendarB).numberDaysOperating());
+
+        calendarB.excludeDate(startDate); // now both
+        assertEquals(1, createAggregrate(calendarA, calendarB).numberDaysOperating());
+
+    }
+
+    @NotNull
+    private AggregateServiceCalendar createAggregrate(MutableServiceCalendar calendarA, ServiceCalendar calendarB) {
+        return new AggregateServiceCalendar(Arrays.asList(calendarA, calendarB));
+    }
+
+    private AggregateServiceCalendar createCalendar(TramDate startDate, TramDate endDate, EnumSet<DayOfWeek> days) {
+        ServiceCalendar calendar = new MutableServiceCalendar(DateRange.of(startDate, endDate), days);
+        return new AggregateServiceCalendar(Collections.singleton(calendar));
+    }
+
+    private MutableServiceCalendar createServiceCal(TramDate startDate, TramDate endDate, EnumSet<DayOfWeek> dayOfWeeks) {
         return new MutableServiceCalendar(DateRange.of(startDate, endDate), dayOfWeeks);
     }
+
 
 }

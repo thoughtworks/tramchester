@@ -8,12 +8,15 @@ import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.HashSet;
 
+import static java.lang.String.format;
+
 public class MutableServiceCalendar implements ServiceCalendar {
     private final DateRange dateRange;
     private final EnumSet<DayOfWeek> days;
     private final TramDateSet additional;
     private final TramDateSet removed;
     private boolean cancelled;
+    private long numberOfDays;
 
     public MutableServiceCalendar(CalendarData calendarData) {
         this(calendarData.getDateRange(),
@@ -36,18 +39,42 @@ public class MutableServiceCalendar implements ServiceCalendar {
         additional = new TramDateSet();
         removed = new TramDateSet();
         cancelled = false;
+        calculateNumberOfDays();
+    }
+
+    private void calculateNumberOfDays() {
+        numberOfDays = dateRange.stream().
+                filter(date -> !removed.contains(date)).
+                filter(date -> days.contains(date.getDayOfWeek()) || additional.contains(date)).
+                count();
     }
 
     private static EnumSet<DayOfWeek> enumFrom(DayOfWeek[] operatingDays) {
         return EnumSet.copyOf(Arrays.asList(operatingDays));
     }
 
+    @Override
+    public long numberDaysOperating() {
+        if (cancelled) {
+            return 0;
+        }
+        return numberOfDays;
+    }
+
     public void includeExtraDate(TramDate date) {
+        if (!dateRange.contains(date)) {
+            throw new RuntimeException(format("Additional date %s is outside of the range for %s", date, dateRange));
+        }
         additional.add(date);
+        calculateNumberOfDays();
     }
 
     public void excludeDate(TramDate date) {
+        if (!dateRange.contains(date)) {
+            throw new RuntimeException(format("Excluded date %s is outside of the range for %s", date, dateRange));
+        }
         removed.add(date);
+        calculateNumberOfDays();
     }
 
     @Override
@@ -99,9 +126,6 @@ public class MutableServiceCalendar implements ServiceCalendar {
             }
         }
         return true;
-//        return dates.stream().filter(date -> !days.contains(date.getDayOfWeek())).
-//                noneMatch(dateRange::contains);
-        //return dates.stream().noneMatch(this::operatesOn);
     }
 
     private boolean dayAndRange(final TramDate date) {

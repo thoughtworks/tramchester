@@ -71,21 +71,21 @@ class MutableServiceCalendarTest {
         TramDate startDate = testDay.minusWeeks(1);
         TramDate endDate = startDate.plusWeeks(4);
 
-
         DayOfWeek dayOfWeek = testDay.getDayOfWeek();
+
         MutableServiceCalendar serviceCalendar = new MutableServiceCalendar(startDate, endDate, dayOfWeek);
 
         assertTrue(serviceCalendar.operatesOn(testDay));
 
-        TramDate outsidePeriod = testDay.plusWeeks(5);
-        assertFalse(serviceCalendar.operatesOn(outsidePeriod));
+        TramDate additional = startDate.plusDays(1);
+        assertFalse(serviceCalendar.operatesOn(additional));
 
         // same day
-        serviceCalendar.includeExtraDate(outsidePeriod);
-        assertTrue(serviceCalendar.operatesOn(outsidePeriod));
+        serviceCalendar.includeExtraDate(additional);
+        assertTrue(serviceCalendar.operatesOn(additional));
 
         // different day - TODO GTFS spec really not so clean on this, but assume we should allow as specifically included
-        TramDate outsidePeriodDiffDayOfWeek = outsidePeriod.plusDays(1);
+        TramDate outsidePeriodDiffDayOfWeek = additional.plusDays(1);
         assertNotEquals(dayOfWeek, outsidePeriodDiffDayOfWeek.getDayOfWeek());
 
         serviceCalendar.includeExtraDate(outsidePeriodDiffDayOfWeek);
@@ -170,6 +170,83 @@ class MutableServiceCalendarTest {
 
         // should match
         assertTrue(calA.anyDateOverlaps(calD));
+    }
+
+    @Test
+    void shouldHaveNumberOfDaysOperating() {
+        TramDate startDate = TramDate.of(2022, 8, 1); // a monday
+        TramDate endDate = TramDate.of(2022, 8, 14);
+
+        EnumSet<DayOfWeek> days = EnumSet.noneOf(DayOfWeek.class);
+
+        ServiceCalendar rangeForNone = createCalendar(startDate, endDate, days);
+        assertEquals(0, rangeForNone.numberDaysOperating());
+
+        days.add(MONDAY);
+
+        ServiceCalendar rangeForMondays = createCalendar(startDate, endDate, days);
+        assertEquals(2, rangeForMondays.numberDaysOperating());
+
+        days.add(FRIDAY);
+
+        ServiceCalendar rangeForTwoDays = createCalendar(startDate, endDate, days);
+        assertEquals(4, rangeForTwoDays.numberDaysOperating());
+
+        ServiceCalendar rangeForAllDays = createCalendar(startDate, endDate, EnumSet.allOf(DayOfWeek.class));
+        assertEquals(14, rangeForAllDays.numberDaysOperating());
+    }
+
+    @Test
+    void shouldHaveNumberOfDaysOperatingAdditional() {
+        TramDate startDate = TramDate.of(2022, 8, 1); // a monday
+        TramDate endDate = TramDate.of(2022, 8, 14);
+
+        EnumSet<DayOfWeek> days = EnumSet.noneOf(DayOfWeek.class);
+
+        MutableServiceCalendar rangeForNone = createCalendar(startDate, endDate, days);
+        assertEquals(0, rangeForNone.numberDaysOperating());
+
+        rangeForNone.includeExtraDate(startDate.plusDays(1));
+        assertEquals(1, rangeForNone.numberDaysOperating());
+    }
+
+    @Test
+    void shouldHaveNumberOfDaysExcludeAndAdditional() {
+        TramDate startDate = TramDate.of(2022, 8, 1); // a monday
+        TramDate endDate = TramDate.of(2022, 8, 14);
+
+        EnumSet<DayOfWeek> days = EnumSet.noneOf(DayOfWeek.class);
+
+        days.add(MONDAY);
+
+        MutableServiceCalendar rangeForMondays = createCalendar(startDate, endDate, days);
+
+        rangeForMondays.excludeDate(startDate);
+        assertEquals(1, rangeForMondays.numberDaysOperating()); // 2 mondays, minus first one
+
+        rangeForMondays.includeExtraDate(startDate.plusDays(1));
+        assertEquals(2, rangeForMondays.numberDaysOperating());
+
+        days.add(FRIDAY);
+
+        MutableServiceCalendar rangeForTwoDays = createCalendar(startDate, endDate, days);
+
+        rangeForTwoDays.excludeDate(startDate);
+        TramDate friday = startDate.plusDays(4);
+        rangeForTwoDays.excludeDate(friday);
+        assertEquals(FRIDAY, friday.getDayOfWeek());
+
+        assertEquals(2, rangeForTwoDays.numberDaysOperating());
+
+        rangeForTwoDays.includeExtraDate(startDate.plusDays(1));
+        assertEquals(3, rangeForTwoDays.numberDaysOperating());
+
+        MutableServiceCalendar rangeForAllDays = createCalendar(startDate, endDate, EnumSet.allOf(DayOfWeek.class));
+
+        rangeForAllDays.excludeDate(startDate);
+        rangeForAllDays.excludeDate(endDate);
+
+        assertEquals(12, rangeForAllDays.numberDaysOperating());
     }
 
     @NotNull

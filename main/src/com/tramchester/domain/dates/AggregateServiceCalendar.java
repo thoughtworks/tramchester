@@ -17,6 +17,7 @@ public class AggregateServiceCalendar implements ServiceCalendar {
     private final boolean cancelled;
     private final DateRange aggregatedRange;
     private final boolean operatesNoDays;
+    private final long numberOfDaysOperating;
 
     public AggregateServiceCalendar(Collection<ServiceCalendar> calendars) {
         this.calendars = calendars;
@@ -41,6 +42,15 @@ public class AggregateServiceCalendar implements ServiceCalendar {
         removed = allExcluded.stream().filter(date -> !operatesForAny(calendars, date)).collect(TramDateSet.collector());
 
         operatesNoDays = noDaysCount.get() == calendars.size();
+
+        numberOfDaysOperating = calcNumberOfDaysOperating();
+    }
+
+    private long calcNumberOfDaysOperating() {
+        if (cancelled || operatesNoDays) {
+            return 0;
+        }
+        return aggregatedRange.stream().filter(this::operatesOn).count();
     }
 
     private static DateRange calculateDateRange(Collection<ServiceCalendar> calendars) {
@@ -118,7 +128,11 @@ public class AggregateServiceCalendar implements ServiceCalendar {
             }
         }
         return true;
-        //return dates.stream().noneMatch(this::dayAndRange);
+    }
+
+    @Override
+    public long numberDaysOperating() {
+        return numberOfDaysOperating;
     }
 
     private boolean dayAndRange(final TramDate date) {
