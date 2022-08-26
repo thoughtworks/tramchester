@@ -15,7 +15,6 @@ import com.tramchester.dataimport.rail.repository.RailStationCRSRepository;
 import com.tramchester.domain.DataSourceID;
 import com.tramchester.domain.DataSourceInfo;
 import com.tramchester.domain.factory.TransportEntityFactory;
-import com.tramchester.domain.id.CompositeIdMap;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.id.StringIdFor;
@@ -59,7 +58,7 @@ public class RailTransportDataFromFiles implements DirectDataSourceFactory.Popul
 
     @Inject
     public RailTransportDataFromFiles(ProvidesRailStationRecords providesRailStationRecords,
-                                      LoadRailTimetableRecords loadRailTimetableRecords,
+                                      ProvidesRailTimetableRecords loadRailTimetableRecords,
                                       TramchesterConfig config, NaptanRepository naptanRepository,
                                       GraphFilterActive graphFilterActive, RemoteDataRefreshed remoteDataRefreshed,
                                       RailStationCRSRepository crsRepository, RailRouteIdRepository railRouteRepository) {
