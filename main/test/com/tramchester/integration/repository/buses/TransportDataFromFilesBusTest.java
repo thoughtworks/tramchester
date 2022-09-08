@@ -28,7 +28,6 @@ import com.tramchester.testSupport.testTags.BusTest;
 import com.tramchester.testSupport.testTags.DataUpdateTest;
 import org.junit.jupiter.api.*;
 
-import java.time.LocalDate;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -42,8 +41,8 @@ import static org.junit.jupiter.api.Assertions.*;
 public
 class TransportDataFromFilesBusTest {
 
-    public static final int TGFM_BUS_AGENCIES = 36;
-    public static final int TGFM_BUS_ROUTES = 1573;
+    public static final int TGFM_BUS_AGENCIES = 38;
+    public static final int TGFM_BUS_ROUTES = 1232;
     public static final int NUM_TFGM_BUS_STATIONS = 15697;
     private static ComponentContainer componentContainer;
     private static TramchesterConfig config;
@@ -111,7 +110,7 @@ class TransportDataFromFilesBusTest {
     void shouldGetSpecificBusRoutes() {
         Collection<Route> results = transportData.getRoutes();
         long gmsRoutes = results.stream().filter(route -> route.getAgency().equals(StagecoachManchester)).count();
-        assertWithinNPercent(400, gmsRoutes, 0.1F);
+        assertWithinNPercent(340, gmsRoutes, 0.1F);
     }
 
     @Test
