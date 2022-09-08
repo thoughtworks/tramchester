@@ -66,7 +66,7 @@ public class NaptanAndNPTGDatadownloadTest {
 
         assertTrue(Files.exists(result));
 
-        Path expected = configDataPath.resolve("nptgcsv.zip");
+        Path expected = configDataPath.resolve("Localities.csv");
         assertEquals(expected, result);
 
         FileFilter filter = pathname -> pathname.getName().toLowerCase().endsWith(".csv");
@@ -75,7 +75,7 @@ public class NaptanAndNPTGDatadownloadTest {
 
         Set<String> names = Arrays.stream(fileArray).map(File::getName).collect(Collectors.toSet());
 
-        assertEquals(9, names.size(), "Unexpected number of files " + names);
+        assertEquals(1, names.size(), "Unexpected number of files " + names);
         assertTrue(names.contains(NPTGDataLoader.LOCALITIES_CSV), NPTGDataLoader.LOCALITIES_CSV + " is missing");
 
     }

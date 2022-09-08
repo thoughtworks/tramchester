@@ -1,6 +1,7 @@
 package com.tramchester.integration.testSupport.nptg;
 
 import com.tramchester.config.RemoteDataSourceConfig;
+import com.tramchester.dataimport.nptg.NPTGDataLoader;
 
 import java.nio.file.Path;
 
@@ -25,13 +26,15 @@ public class NPTGDataSourceTestConfig extends RemoteDataSourceConfig {
 
     @Override
     public String getDataUrl() {
-        return "https://naptan.app.dft.gov.uk/datarequest/nptg.ashx?format=csv";
+        return "https://beta-naptan.dft.gov.uk/Download/File/Localities.csv";
+        //return "https://naptan.app.dft.gov.uk/datarequest/nptg.ashx?format=csv";
         //return "http://www.dft.gov.uk/nptg/snapshot/nptgcsv.zip";
     }
 
     @Override
     public String getDownloadFilename() {
-        return "nptgcsv.zip";
+        return NPTGDataLoader.LOCALITIES_CSV;
+        //return "nptgcsv.zip";
     }
 
     @Override

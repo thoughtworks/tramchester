@@ -41,7 +41,7 @@ export NAPTAN_FILE=NaPTAN.xml.zip
 export TRAM_DATAURL=s3://$BUCKET/dist/$BUILD/tfgm_data.zip
 export NAPTAN_DATAURL=s3://$BUCKET/dist/$BUILD/$NAPTAN_FILE
 export RAIL_DATAURL=s3://$BUCKET/dist/$BUILD/rail_data.zip
-export NPTG_DATAURL=s3://$BUCKET/dist/$BUILD/nptgcsv.zip
+export NPTG_DATAURL=s3://$BUCKET/dist/$BUILD/Localities.csv
 
 logger TRAM_DATAURL is "$TRAM_DATAURL"
 logger NAPTAN_DATAURL is "$NAPTAN_DATAURL"
