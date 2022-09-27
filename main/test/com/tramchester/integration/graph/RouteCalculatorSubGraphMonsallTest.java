@@ -12,6 +12,7 @@ import com.tramchester.domain.JourneyRequest;
 import com.tramchester.graph.search.RouteCalculator;
 import com.tramchester.integration.testSupport.RouteCalculatorTestFacade;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
+import com.tramchester.repository.RouteRepository;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.repository.TransportData;
 import com.tramchester.testSupport.TestEnv;
@@ -23,7 +24,6 @@ import org.neo4j.graphdb.Transaction;
 
 import java.io.IOException;
 import java.time.Duration;
-import java.time.LocalDate;
 import java.util.Collections;
 import java.util.Set;
 
@@ -49,13 +49,15 @@ class RouteCalculatorSubGraphMonsallTest {
                 create(config, TestEnv.NoopRegisterMetrics());
         componentContainer.initialise();
 
-        tramRouteHelper = new TramRouteHelper();
-
         database = componentContainer.get(GraphDatabase.class);
+
+        RouteRepository routeRepository = componentContainer.get(RouteRepository.class);
+        tramRouteHelper = new TramRouteHelper(routeRepository);
+
     }
 
     private static void configureFilter(ConfigurableGraphFilter graphFilter, TransportData transportData) {
-        graphFilter.addRoutes(tramRouteHelper.getId(KnownTramRoute.EastDidisburyManchesterShawandCromptonRochdale, transportData));
+        graphFilter.addRoutes(tramRouteHelper.getId(KnownTramRoute.EastDidisburyManchesterShawandCromptonRochdale));
     }
 
     @AfterAll

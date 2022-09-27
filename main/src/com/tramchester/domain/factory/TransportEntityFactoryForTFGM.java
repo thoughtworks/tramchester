@@ -208,9 +208,9 @@ public class TransportEntityFactoryForTFGM extends TransportEntityFactory {
             }
 
             String idAsString = routeData.getId().forDTO();
-            RouteIdSwapWorkaround workaround = mapping.get(longName);
-            if (idAsString.startsWith(workaround.idPrefixFromData)) {
-                String replacementIdAsString = idAsString.replace(workaround.idPrefixFromData, workaround.replacementPrefix);
+            RouteIdSwapWorkaround workaroundForLongname = mapping.get(longName);
+            if (idAsString.startsWith(workaroundForLongname.idPrefixFromData)) {
+                String replacementIdAsString = idAsString.replace(workaroundForLongname.idPrefixFromData, workaroundForLongname.replacementPrefix);
                 logger.warn(format("Workaround for route ID issue, replaced %s with %s", idAsString, replacementIdAsString));
                 return StringIdFor.createId(replacementIdAsString);
             } else {

@@ -75,7 +75,10 @@ public class NaptanAndNPTGDatadownloadTest {
 
         Set<String> names = Arrays.stream(fileArray).map(File::getName).collect(Collectors.toSet());
 
+        // todo this keeps changing from 1 to 9, might have to disable this assertion
         assertEquals(1, names.size(), "Unexpected number of files " + names);
+
+        // this is the important one, is the file we need present or not?
         assertTrue(names.contains(NPTGDataLoader.LOCALITIES_CSV), NPTGDataLoader.LOCALITIES_CSV + " is missing");
 
     }

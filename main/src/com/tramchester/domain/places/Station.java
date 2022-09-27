@@ -46,19 +46,15 @@ public interface Station extends Location<Station> {
     Set<Platform> getPlatforms();
 
     /***
-     * Use version that takes a date
-     * @param route
-     * @return true if station serves given route
+     * @param route route to check
+     * @return true if station serves given route, use with care ignores the date
      */
-    @Deprecated
     boolean servesRoutePickup(Route route);
 
     /***
-     * Use version that takes a date
-     * @param route
-     * @return true if station serves given route
+     * @param route route to check
+     * @return true if station serves given route, use with care ignores the date
      */
-    @Deprecated
     boolean servesRouteDropOff(Route route);
 
     GridPosition getGridPosition();

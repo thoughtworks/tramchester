@@ -22,12 +22,14 @@ import static java.lang.String.format;
 public class TramRouteHelper {
 
     private Map<KnownTramRoute, Set<Route>> map;
+    private final RouteRepository routeRepository;
 
-    public TramRouteHelper() {
+    public TramRouteHelper(RouteRepository routeRepository) {
+        this.routeRepository = routeRepository;
         map = null;
     }
 
-    private void createMap(RouteRepository routeRepository) {
+    private void createMap() {
         map = new HashMap<>();
         KnownTramRoute[] knownTramRoutes = KnownTramRoute.values();
         for (KnownTramRoute knownRoute : knownTramRoutes) {
@@ -47,17 +49,16 @@ public class TramRouteHelper {
     /***
      * Note: Use version that takes a date to get more consistent results
      * @param knownRoute the route to find
-     * @param routeRepository the repository
      * @return set of matching routes
      */
     @Deprecated
-    public Set<Route> get(KnownTramRoute knownRoute, RouteRepository routeRepository) {
-        guard(knownRoute, routeRepository);
+    public Set<Route> get(KnownTramRoute knownRoute) {
+        guard(knownRoute);
         return map.get(knownRoute);
     }
 
-    public Route getOneRoute(KnownTramRoute knownRoute, RouteRepository routeRepository, TramDate date) {
-        guard(knownRoute, routeRepository);
+    public Route getOneRoute(KnownTramRoute knownRoute, TramDate date) {
+        guard(knownRoute);
         List<Route> result = map.get(knownRoute).stream().filter(route -> route.isAvailableOn(date)).collect(Collectors.toList());
         if (result.size()>1) {
             throw new RuntimeException(format("Found two many routes matching date %s and known route %s", date, knownRoute));
@@ -67,18 +68,18 @@ public class TramRouteHelper {
 
     @Deprecated
     public Route getOneRoute(KnownTramRoute knownRoute, RouteRepository routeRepository, LocalDate date) {
-        return getOneRoute(knownRoute, routeRepository, TramDate.of(date));
+        return getOneRoute(knownRoute, TramDate.of(date));
     }
 
-    public IdSet<Route> getId(KnownTramRoute knownRoute, RouteRepository routeRepository) {
-        guard(knownRoute, routeRepository);
+    public IdSet<Route> getId(KnownTramRoute knownRoute) {
+        guard(knownRoute);
         return map.get(knownRoute).stream().collect(IdSet.collector());
     }
 
 
-    private void guard(KnownTramRoute knownRoute, RouteRepository routeRepsoitory) {
+    private void guard(KnownTramRoute knownRoute) {
         if (map==null) {
-            createMap(routeRepsoitory);
+            createMap();
         }
         if (!map.containsKey(knownRoute)) {
             throw new RuntimeException("Missing " + knownRoute);

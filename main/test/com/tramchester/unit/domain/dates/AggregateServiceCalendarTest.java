@@ -329,7 +329,6 @@ public class AggregateServiceCalendarTest {
 
         DateRange dateRange = DateRange.of(startDateA, endDateA);
 
-
         MutableServiceCalendar calendarA = new MutableServiceCalendar(dateRange, EnumSet.of(MONDAY, TUESDAY));
         TramDate addition = TramDate.of(2020, 11, 10);
         calendarA.includeExtraDate(addition);
@@ -403,6 +402,67 @@ public class AggregateServiceCalendarTest {
         AggregateServiceCalendar aggregateServiceCalendar = new AggregateServiceCalendar(Collections.singleton(calendar));
 
         assertTrue(aggregateServiceCalendar.operatesOn(extraRunningDate));
+    }
+
+    @Test
+    void shouldHaveSimpleDateOverlapSameRemoved() {
+
+        TramDate startDate = TramDate.of(2020, 11, 5);
+        TramDate endDate = TramDate.of(2021, 11, 4);
+
+        TramDate removed = TramDate.of(2020, 12, 25);
+
+        EnumSet<DayOfWeek> monday = EnumSet.of(MONDAY);
+
+        MutableServiceCalendar serviceA = createServiceCal(startDate, endDate, monday);
+        serviceA.excludeDate(removed);
+        MutableServiceCalendar serviceB = createServiceCal(startDate, endDate, monday);
+        serviceB.excludeDate(removed);
+
+        // should match
+        assertTrue(serviceA.anyDateOverlaps(serviceB));
+        assertTrue(serviceB.anyDateOverlaps(serviceA));
+
+    }
+
+    @Test
+    void shouldHaveSimpleDateOverlapRemovedFirstOnly() {
+
+        TramDate startDate = TramDate.of(2020, 11, 5);
+        TramDate endDate = TramDate.of(2021, 11, 4);
+
+        TramDate removed = TramDate.of(2020, 12, 25);
+
+        EnumSet<DayOfWeek> monday = EnumSet.of(MONDAY);
+
+        MutableServiceCalendar serviceA = createServiceCal(startDate, endDate, monday);
+        serviceA.excludeDate(removed);
+        MutableServiceCalendar serviceB = createServiceCal(startDate, endDate, monday);
+
+        // should match
+        assertTrue(serviceA.anyDateOverlaps(serviceB));
+        assertTrue(serviceB.anyDateOverlaps(serviceA));
+
+    }
+
+    @Test
+    void shouldHaveSimpleDateOverlapRemovedSecondOnly() {
+
+        TramDate startDate = TramDate.of(2020, 11, 5);
+        TramDate endDate = TramDate.of(2021, 11, 4);
+
+        TramDate removed = TramDate.of(2020, 12, 25);
+
+        EnumSet<DayOfWeek> monday = EnumSet.of(MONDAY);
+
+        MutableServiceCalendar serviceA = createServiceCal(startDate, endDate, monday);
+        MutableServiceCalendar serviceB = createServiceCal(startDate, endDate, monday);
+        serviceB.excludeDate(removed);
+
+        // should match
+        assertTrue(serviceA.anyDateOverlaps(serviceB));
+        assertTrue(serviceB.anyDateOverlaps(serviceA));
+
     }
 
     @Test
@@ -495,11 +555,6 @@ public class AggregateServiceCalendarTest {
     @NotNull
     private AggregateServiceCalendar createAggregrate(MutableServiceCalendar calendarA, ServiceCalendar calendarB) {
         return new AggregateServiceCalendar(Arrays.asList(calendarA, calendarB));
-    }
-
-    private AggregateServiceCalendar createCalendar(TramDate startDate, TramDate endDate, EnumSet<DayOfWeek> days) {
-        ServiceCalendar calendar = new MutableServiceCalendar(DateRange.of(startDate, endDate), days);
-        return new AggregateServiceCalendar(Collections.singleton(calendar));
     }
 
     private MutableServiceCalendar createServiceCal(TramDate startDate, TramDate endDate, EnumSet<DayOfWeek> dayOfWeeks) {

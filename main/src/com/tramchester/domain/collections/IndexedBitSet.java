@@ -23,9 +23,10 @@ public class IndexedBitSet {
         this.bitSet = bitSet;
     }
 
-    public static IndexedBitSet getIdentity(int size) {
-        IndexedBitSet result = new IndexedBitSet(size);
-        result.bitSet.set(0, result.totalSize);
+    public static IndexedBitSet getIdentity(int numberOfRoutes) {
+        IndexedBitSet result = new IndexedBitSet(numberOfRoutes);
+
+        result.bitSet.set(0, result.totalSize); // set bits to 1 from 0 to size
         return result;
     }
 
@@ -88,5 +89,14 @@ public class IndexedBitSet {
 
     public boolean isSet(RouteIndexPair pair) {
         return isSet(pair.first(), pair.second());
+    }
+
+    @Override
+    public String toString() {
+        return "IndexedBitSet{" +
+                "numberOfRoutes=" + numberOfRoutes +
+                ", bitSet=" + bitSet.toString() +
+                ", totalSize=" + totalSize +
+                '}';
     }
 }

@@ -3,6 +3,7 @@ package com.tramchester.integration.dataimport;
 import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.domain.Route;
+import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.testSupport.reference.KnownTramRoute;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
@@ -20,13 +21,14 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 @DataUpdateTest
 class KnownTramRouteTest {
     private static ComponentContainer componentContainer;
     private RouteRepository routeRepository;
+    private List<KnownTramRoute> knownRoutes;
+
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
@@ -41,12 +43,12 @@ class KnownTramRouteTest {
 
     @BeforeEach
     void setUp() {
+        knownRoutes = Arrays.asList(KnownTramRoute.values());
         routeRepository = componentContainer.get(RouteRepository.class);
     }
 
     @Test
     void shouldHaveMatchWithLoadedRoutes() {
-        List<KnownTramRoute> knownRoutes = Arrays.asList(KnownTramRoute.values());
         Set<String> knownRouteNames = knownRoutes.stream().map(KnownTramRoute::longName).collect(Collectors.toSet());
 
         Set<Route> loadedRoutes = routeRepository.getRoutes();
@@ -74,7 +76,6 @@ class KnownTramRouteTest {
 
     @Test
     void shouldHaveNameAndDirectionCorrect() {
-        List<KnownTramRoute> knownRoutes = Arrays.asList(KnownTramRoute.values());
 
         Set<KnownTramRoute> missing = knownRoutes.stream().
                 filter(knownTramRoute -> !knownTramRoute.isReplacement()).
@@ -91,6 +92,18 @@ class KnownTramRouteTest {
                 collect(Collectors.toSet());
 
         assertTrue(mismatch.isEmpty(), mismatch.toString());
+
+    }
+
+    @Test
+    void shouldHaveDateOverlapsForAllKnownRoutes() {
+        TramDate when = TestEnv.testDay();
+
+        long available = routeRepository.getRoutes().stream().filter(route -> route.isAvailableOn(when)).count();
+
+        assertNotEquals(0, available);
+
+        assertEquals(knownRoutes.size(), available);
 
     }
 

@@ -191,8 +191,6 @@ public class InterchangesTramTest {
                 filter(route -> !pickupRoutes.contains(route)).
                 collect(IdSet.collector());;
 
-        //IdSet<Route> all = routeRepository.getRoutes().stream().collect(IdSet.collector());
-
         assertTrue(routesWithoutInterchanges.isEmpty(), routesWithoutInterchanges.toString());
     }
 

@@ -2,7 +2,6 @@ package com.tramchester.domain;
 
 import com.tramchester.domain.dates.TramDate;
 
-import java.time.LocalDate;
 import java.util.Objects;
 
 public class RoutePair {

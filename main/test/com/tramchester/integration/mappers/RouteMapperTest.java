@@ -18,7 +18,6 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.time.LocalDate;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -30,7 +29,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 class RouteMapperTest {
     private static ComponentContainer componentContainer;
     private TramRouteHelper tramRouteHelper;
-    private RouteRepository routeRepsoitory;
     private TramDate date;
     private RoutesMapper mapper;
 
@@ -43,10 +41,11 @@ class RouteMapperTest {
 
     @BeforeEach
     void beforeEachTestRuns() {
-        tramRouteHelper = new TramRouteHelper();
-        routeRepsoitory = componentContainer.get(RouteRepository.class);
+        RouteRepository routeRepository = componentContainer.get(RouteRepository.class);
         date = TestEnv.testDay();
         mapper = componentContainer.get(RoutesMapper.class);
+        tramRouteHelper = new TramRouteHelper(routeRepository);
+
     }
 
     @AfterAll
@@ -59,7 +58,7 @@ class RouteMapperTest {
 
         List<RouteDTO> dtos = mapper.getRouteDTOs(TestEnv.testTramDay());
 
-        Route fromAirportRoute = tramRouteHelper.getOneRoute(AltrinchamPiccadilly, routeRepsoitory, date);
+        Route fromAirportRoute = tramRouteHelper.getOneRoute(AltrinchamPiccadilly, date);
 
         RouteDTO query = new RouteDTO(fromAirportRoute, new LinkedList<>());
 
@@ -78,7 +77,7 @@ class RouteMapperTest {
 
     @Test
     void shouldHaveWorkaroundForAirportRouteIdsTransposedInData() {
-        Route fromAirportRoute = tramRouteHelper.getOneRoute(ManchesterAirportWythenshaweVictoria, routeRepsoitory, date);
+        Route fromAirportRoute = tramRouteHelper.getOneRoute(ManchesterAirportWythenshaweVictoria, date);
 
         List<Station> results = mapper.getStationsOn(fromAirportRoute, false);
 
@@ -89,7 +88,7 @@ class RouteMapperTest {
 
     @Test
     void shouldHaveWorkaroundForTraffordCentreRouteIdsTransposedInData() {
-        Route fromTraffordCenter = tramRouteHelper.getOneRoute(TheTraffordCentreCornbrook, routeRepsoitory, date);
+        Route fromTraffordCenter = tramRouteHelper.getOneRoute(TheTraffordCentreCornbrook, date);
 
         List<Station> results = mapper.getStationsOn(fromTraffordCenter, false);
 

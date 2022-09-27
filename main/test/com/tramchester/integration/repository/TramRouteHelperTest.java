@@ -35,16 +35,16 @@ class TramRouteHelperTest {
 
     @BeforeEach
     void beforeEachTestRuns() {
-        helper = new TramRouteHelper();
+        RouteRepository routeRepository = componentContainer.get(RouteRepository.class);
+        helper = new TramRouteHelper(routeRepository);
     }
 
     @Test
     void shouldFindAllKnownRoutes() {
-        RouteRepository routeRepsoitory = componentContainer.get(RouteRepository.class);
 
         KnownTramRoute[] knownRoutes = KnownTramRoute.values();
         for(KnownTramRoute knownRoute : knownRoutes) {
-            Set<Route> found = helper.get(knownRoute, routeRepsoitory);
+            Set<Route> found = helper.get(knownRoute);
             assertFalse(found.isEmpty(),"missing " + knownRoute.toString());
             found.forEach(route -> {
                 assertEquals(TestEnv.MetAgency(), route.getAgency(), "agency wrong" + route.getAgency());

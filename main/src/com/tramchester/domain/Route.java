@@ -11,7 +11,6 @@ import com.tramchester.domain.dates.DateRange;
 import com.tramchester.graph.GraphPropertyKey;
 
 import java.time.DayOfWeek;
-import java.time.LocalDate;
 import java.util.EnumSet;
 import java.util.Set;
 

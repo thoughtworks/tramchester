@@ -29,6 +29,7 @@ import com.tramchester.repository.StationAvailabilityRepository;
 import com.tramchester.repository.TransportData;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TramRouteHelper;
+import com.tramchester.testSupport.reference.KnownTramRoute;
 import com.tramchester.testSupport.reference.TramStations;
 import com.tramchester.testSupport.testTags.DataExpiryCategory;
 import com.tramchester.testSupport.testTags.DataUpdateTest;
@@ -53,6 +54,7 @@ import static com.tramchester.testSupport.reference.TramStations.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 // TODO Split out by i/f roles, this has gotten too big
+// Begun, started to create tests by repository instead
 
 @DataUpdateTest
 public class TransportDataFromFilesTramTest {
@@ -85,7 +87,7 @@ public class TransportDataFromFilesTramTest {
         transportData = componentContainer.get(TransportData.class);
         availabilityRepository = componentContainer.get(StationAvailabilityRepository.class);
         allServices = transportData.getServices();
-        routeHelper = new TramRouteHelper();
+        routeHelper = new TramRouteHelper(transportData);
     }
 
     @Test
@@ -114,16 +116,7 @@ public class TransportDataFromFilesTramTest {
         assertEquals("Metrolink", agencies.get(0).getName());
     }
 
-    @Test
-    void shouldGetRouteWithHeadsigns() {
-        Set<Route> results = TestEnv.findTramRoute(transportData, AshtonUnderLyneManchesterEccles);
-        results.forEach(result -> {
-            assertEquals("Ashton Under Lyne - Manchester - Eccles", result.getName());
-            assertEquals(TestEnv.MetAgency(),result.getAgency());
-            assertTrue(result.getId().forDTO().startsWith("METLBLUE:I:"));
-            assertTrue(TransportMode.isTram(result));
-        });
-    }
+
 
     @Test
     void shouldHaveRouteStationsThatOccurDueToDepot() {
@@ -139,20 +132,20 @@ public class TransportDataFromFilesTramTest {
         //assertEquals(10, traffordBarRoutes.size());
 
         // contains -> containsAll
-        assertTrue(traffordBarRoutes.containsAll(routeHelper.getId(AltrinchamPiccadilly, transportData)));
-        assertTrue(traffordBarRoutes.containsAll(routeHelper.getId(PiccadillyAltrincham, transportData)));
+        assertTrue(traffordBarRoutes.containsAll(routeHelper.getId(AltrinchamPiccadilly)));
+        assertTrue(traffordBarRoutes.containsAll(routeHelper.getId(PiccadillyAltrincham)));
 
-        assertTrue(traffordBarRoutes.containsAll(routeHelper.getId(EastDidisburyManchesterShawandCromptonRochdale, transportData)));
-        assertTrue(traffordBarRoutes.containsAll(routeHelper.getId(RochdaleShawandCromptonManchesterEastDidisbury, transportData)));
+        assertTrue(traffordBarRoutes.containsAll(routeHelper.getId(EastDidisburyManchesterShawandCromptonRochdale)));
+        assertTrue(traffordBarRoutes.containsAll(routeHelper.getId(RochdaleShawandCromptonManchesterEastDidisbury)));
 
-        assertTrue(traffordBarRoutes.containsAll(routeHelper.getId(VictoriaWythenshaweManchesterAirport, transportData)));
-        assertTrue(traffordBarRoutes.containsAll(routeHelper.getId(ManchesterAirportWythenshaweVictoria, transportData)));
+        assertTrue(traffordBarRoutes.containsAll(routeHelper.getId(VictoriaWythenshaweManchesterAirport)));
+        assertTrue(traffordBarRoutes.containsAll(routeHelper.getId(ManchesterAirportWythenshaweVictoria)));
 
-        assertTrue(traffordBarRoutes.containsAll(routeHelper.getId(EcclesManchesterAshtonUnderLyne, transportData)));
-        assertTrue(traffordBarRoutes.containsAll(routeHelper.getId(AshtonUnderLyneManchesterEccles, transportData)));
+        assertTrue(traffordBarRoutes.containsAll(routeHelper.getId(EcclesManchesterAshtonUnderLyne)));
+        assertTrue(traffordBarRoutes.containsAll(routeHelper.getId(AshtonUnderLyneManchesterEccles)));
 
-        assertTrue(traffordBarRoutes.containsAll(routeHelper.getId(AltrinchamManchesterBury, transportData)));
-        assertTrue(traffordBarRoutes.containsAll(routeHelper.getId(BuryManchesterAltrincham, transportData)));
+        assertTrue(traffordBarRoutes.containsAll(routeHelper.getId(AltrinchamManchesterBury)));
+        assertTrue(traffordBarRoutes.containsAll(routeHelper.getId(BuryManchesterAltrincham)));
 
     }
 
@@ -193,52 +186,72 @@ public class TransportDataFromFilesTramTest {
     }
 
     @Test
-    void extraRouteAtShudehillTowardsEcclesFromVictoria() {
-        Route towardsEcclesRoute = transportData.getRouteById(StringIdFor.createId("METLBLUE:I:CURRENT"));
-        List<Trip> ecclesTripsViaShudehill = towardsEcclesRoute.getTrips().stream().
-                filter(trip -> trip.getStopCalls().callsAt(Shudehill)).collect(Collectors.toList());
+    void shouldHaveRoutesWithStationsAndCallingPoints() {
+        Set<Route> allRoutes = transportData.getRoutes();
 
-        List<StopCall> fromVictoria = ecclesTripsViaShudehill.stream().
-                map(trip -> trip.getStopCalls().getFirstStop()).
-                filter(stopCall -> stopCall.getStationId().equals(Victoria.getId())).
-                collect(Collectors.toList());
+        Set<Station> allStations = transportData.getStations();
 
-        assertEquals(fromVictoria.size(), ecclesTripsViaShudehill.size(), ecclesTripsViaShudehill.toString());
+        Set<Route> noPickups = allRoutes.stream().
+                filter(route -> allStations.stream().noneMatch(station -> station.servesRoutePickup(route))).
+                collect(Collectors.toSet());
+
+        assertTrue(noPickups.isEmpty(), noPickups.toString());
+
+        Set<Route> noDropOffs = allRoutes.stream().
+                filter(route -> allStations.stream().noneMatch(station -> station.servesRouteDropOff(route))).
+                collect(Collectors.toSet());
+
+        assertTrue(noDropOffs.isEmpty(), noDropOffs.toString());
     }
 
     @Test
-    void extraRouteAtShudehillFromEcclesToVictoria() {
-        Route towardsEcclesRoute = transportData.getRouteById(StringIdFor.createId("METLBLUE:O:CURRENT"));
-        List<Trip> ecclesTripsViaShudehill = towardsEcclesRoute.getTrips().stream().
-                filter(trip -> trip.getStopCalls().callsAt(Shudehill)).collect(Collectors.toList());
+    void shouldHaveExpectedStationsForGreenFromAlty() {
+        TramDate when = TestEnv.testDay();
+        Route green = routeHelper.getOneRoute(AltrinchamManchesterBury, when);
 
-        List<StopCall> toVictoria = ecclesTripsViaShudehill.stream().
-                map(trip -> trip.getStopCalls().getLastStop()).
-                filter(stopCall -> stopCall.getStationId().equals(Victoria.getId())).
-                collect(Collectors.toList());
+        Set<Station> allStations = transportData.getStations();
 
-        assertEquals(toVictoria.size(), ecclesTripsViaShudehill.size(), ecclesTripsViaShudehill.toString());
+        IdSet<Station> dropOffs = allStations.stream().filter(station -> station.servesRouteDropOff(green)).collect(IdSet.collector());
+
+        assertEquals(24, dropOffs.size(), dropOffs.toString());
+        assertFalse(dropOffs.contains(Altrincham.getId()));
+        assertTrue(dropOffs.contains(Bury.getId()));
+        assertTrue(dropOffs.contains(Cornbrook.getId()));
+        assertTrue(dropOffs.contains(Shudehill.getId()));
+
+        IdSet<Station> pickUps = allStations.stream().filter(station -> station.servesRoutePickup(green)).collect(IdSet.collector());
+
+        assertEquals(24, pickUps.size(), pickUps.toString());
+        assertTrue(pickUps.contains(Altrincham.getId()));
+        assertFalse(pickUps.contains(Bury.getId()));
+        assertTrue(pickUps.contains(Cornbrook.getId()));
+        assertTrue(pickUps.contains(Shudehill.getId()));
+
     }
 
     @Test
-    void shouldHaveEndOfLinesExpectedPickupAndDropoffRoutes() {
-        Route fromAltrincamToPicc = transportData.getRouteById(StringIdFor.createId("METLPURP:I:CURRENT"));
-        Route fromPiccToAltrincham = transportData.getRouteById(StringIdFor.createId("METLPURP:O:CURRENT"));
+    void shouldHaveExpectedStationsForGreenFromBury() {
+        TramDate when = TestEnv.testDay();
+        Route green = routeHelper.getOneRoute(BuryManchesterAltrincham, when);
 
-        Station endOfLine = transportData.getStationById(Altrincham.getId());
+        Set<Station> allStations = transportData.getStations();
 
-        assertFalse(endOfLine.servesRouteDropOff(fromAltrincamToPicc));
-        assertTrue(endOfLine.servesRoutePickup(fromAltrincamToPicc));
+        IdSet<Station> dropOffs = allStations.stream().filter(station -> station.servesRouteDropOff(green)).collect(IdSet.collector());
 
-        assertTrue(endOfLine.servesRouteDropOff(fromPiccToAltrincham));
-        assertFalse(endOfLine.servesRoutePickup(fromPiccToAltrincham));
+        assertEquals(24, dropOffs.size(), dropOffs.toString());
+        assertFalse(dropOffs.contains(Bury.getId()));
+        assertTrue(dropOffs.contains(Altrincham.getId()));
+        assertTrue(dropOffs.contains(Cornbrook.getId()));
+        assertTrue(dropOffs.contains(Shudehill.getId()));
 
-        Station notEndOfLine = transportData.getStationById(NavigationRoad.getId());
+        IdSet<Station> pickUps = allStations.stream().filter(station -> station.servesRoutePickup(green)).collect(IdSet.collector());
 
-        assertTrue(notEndOfLine.servesRouteDropOff(fromAltrincamToPicc));
-        assertTrue(notEndOfLine.servesRoutePickup(fromAltrincamToPicc));
-        assertTrue(notEndOfLine.servesRouteDropOff(fromPiccToAltrincham));
-        assertTrue(notEndOfLine.servesRoutePickup(fromPiccToAltrincham));
+        assertEquals(24, pickUps.size(), pickUps.toString());
+        assertTrue(pickUps.contains(Bury.getId()));
+        assertFalse(pickUps.contains(Altrincham.getId()));
+        assertTrue(pickUps.contains(Cornbrook.getId()));
+        assertTrue(pickUps.contains(Shudehill.getId()));
+
     }
 
     @Test

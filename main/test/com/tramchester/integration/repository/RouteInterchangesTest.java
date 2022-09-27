@@ -2,10 +2,13 @@ package com.tramchester.integration.repository;
 
 import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
-import com.tramchester.domain.dates.TramDate;
-import com.tramchester.domain.places.InterchangeStation;
 import com.tramchester.domain.Route;
+import com.tramchester.domain.dates.TramDate;
+import com.tramchester.domain.id.HasId;
+import com.tramchester.domain.id.IdSet;
+import com.tramchester.domain.places.InterchangeStation;
 import com.tramchester.domain.places.RouteStation;
+import com.tramchester.domain.places.Station;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
 import com.tramchester.repository.InterchangeRepository;
 import com.tramchester.repository.RouteInterchangeRepository;
@@ -14,7 +17,6 @@ import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TramRouteHelper;
 import com.tramchester.testSupport.reference.KnownTramRoute;
-import com.tramchester.testSupport.reference.TramStations;
 import com.tramchester.testSupport.testTags.Summer2022;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
@@ -22,12 +24,13 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.time.Duration;
-import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 import static com.tramchester.testSupport.TestEnv.assertMinutesEquals;
+import static com.tramchester.testSupport.reference.KnownTramRoute.*;
 import static com.tramchester.testSupport.reference.TramStations.*;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -38,7 +41,6 @@ public class RouteInterchangesTest {
     private StationRepository stationRepository;
     private TramRouteHelper tramRouteHelper;
     private InterchangeRepository interchangeRepository;
-    private RouteRepository routeRepository;
     private TramDate when;
 
     @BeforeAll
@@ -55,9 +57,9 @@ public class RouteInterchangesTest {
     @BeforeEach
     void onceBeforeEachTestRuns() {
         stationRepository = componentContainer.get(StationRepository.class);
-        routeRepository = componentContainer.get(RouteRepository.class);
+        RouteRepository routeRepository = componentContainer.get(RouteRepository.class);
         routeInterchanges = componentContainer.get(RouteInterchangeRepository.class);
-        tramRouteHelper = new TramRouteHelper();
+        tramRouteHelper = new TramRouteHelper(routeRepository);
         interchangeRepository = componentContainer.get(InterchangeRepository.class);
 
         when = TestEnv.testDay();
@@ -67,18 +69,86 @@ public class RouteInterchangesTest {
     @Test
     void shouldGetInterchangesForARoute() {
 
-        Route route = tramRouteHelper.getOneRoute(KnownTramRoute.BuryManchesterAltrincham, routeRepository, when);
+        Route buryToAlty = tramRouteHelper.getOneRoute(BuryManchesterAltrincham, when);
 
-        Set<InterchangeStation> interchangesForRoute = routeInterchanges.getFor(route);
+        Set<InterchangeStation> interchangesForRoute = routeInterchanges.getFor(buryToAlty);
 
-        assertFalse(interchangesForRoute.isEmpty());
+        IdSet<Station> stations = interchangesForRoute.stream().
+                map(InterchangeStation::getStationId).
+                collect(IdSet.idCollector());
+
+        assertFalse(stations.isEmpty());
+
+        assertTrue(stations.contains(Cornbrook.getId()));
+        assertTrue(stations.contains(TraffordBar.getId()));
+        assertTrue(stations.contains(StPetersSquare.getId()));
+        assertTrue(stations.contains(Victoria.getId()));
+        assertTrue(stations.contains(Deansgate.getId()));
+
+    }
+
+    @Test
+    void shouldHaveExpectedRoutesAtCornbrook() {
+        Route buryToAlty = tramRouteHelper.getOneRoute(BuryManchesterAltrincham, when);
+
+        Set<InterchangeStation> interchangesForRoute = routeInterchanges.getFor(buryToAlty);
+        Optional<InterchangeStation> maybeCornbook = interchangesForRoute.stream().
+                filter(interchangeStation -> interchangeStation.getStationId().equals(Cornbrook.getId())).
+                findFirst();
+
+        assertTrue(maybeCornbook.isPresent());
+
+        InterchangeStation cornbrook = maybeCornbook.get();
+
+        Set<Route> cornbrookPickups = cornbrook.getPickupRoutes();
+        Set<Route> cornbrookDropofss = cornbrook.getDropoffRoutes();
+
+        int throughRoutes = 5; // might not match the map, which includes psedo-routes that are made of trams running part of an existing route
+        assertEquals(throughRoutes*2 + 1, cornbrookPickups.size(), HasId.asIds(cornbrookPickups));
+        assertEquals(throughRoutes*2 + 1, cornbrookDropofss.size(), HasId.asIds(cornbrookDropofss));
+
+        assertTrue(cornbrookPickups.contains(buryToAlty));
+        assertTrue(cornbrookDropofss.contains(buryToAlty));
+
+        Route altyToBury = tramRouteHelper.getOneRoute(AltrinchamManchesterBury, when);
+
+        assertTrue(cornbrookPickups.contains(altyToBury));
+        assertTrue(cornbrookDropofss.contains(altyToBury));
+
+        Route toEccles = tramRouteHelper.getOneRoute(EcclesManchesterAshtonUnderLyne, when);
+        Route fromEccles = tramRouteHelper.getOneRoute(AshtonUnderLyneManchesterEccles, when);
+
+        assertTrue(cornbrookPickups.contains(toEccles));
+        assertTrue(cornbrookPickups.contains(fromEccles));
+
+        assertTrue(cornbrookDropofss.contains(toEccles));
+        assertTrue(cornbrookDropofss.contains(fromEccles));
+
+        Route toTraffordCenter = tramRouteHelper.getOneRoute(CornbrookTheTraffordCentre, when);
+        Route fromTraffordCenter = tramRouteHelper.getOneRoute(TheTraffordCentreCornbrook, when);
+
+        assertTrue(cornbrookPickups.contains(toTraffordCenter));
+        assertTrue(cornbrookDropofss.contains(fromTraffordCenter));
+        // end of the route
+        assertFalse(cornbrookPickups.contains(fromTraffordCenter));
+        assertFalse(cornbrookDropofss.contains(toTraffordCenter));
+
+        Route victoriaToAirport = tramRouteHelper.getOneRoute(VictoriaWythenshaweManchesterAirport, when);
+        Route airportToVictoria = tramRouteHelper.getOneRoute(ManchesterAirportWythenshaweVictoria, when);
+
+        assertTrue(cornbrookPickups.contains(victoriaToAirport));
+        assertTrue(cornbrookPickups.contains(airportToVictoria));
+
+        assertTrue(cornbrookDropofss.contains(victoriaToAirport));
+        assertTrue(cornbrookDropofss.contains(airportToVictoria));
+
     }
 
     @Summer2022
     @Test
     void shouldGetCostToInterchangeForRouteStation() {
 
-       Route route = tramRouteHelper.getOneRoute(KnownTramRoute.AltrinchamPiccadilly, routeRepository, when);
+       Route route = tramRouteHelper.getOneRoute(AltrinchamPiccadilly, when);
 
         List<RouteStation> navigationRoadRouteStations = stationRepository.getRouteStationsFor(NavigationRoad.getId()).stream().
                 filter(routeStation -> route.equals(routeStation.getRoute())).collect(Collectors.toList());
@@ -98,7 +168,7 @@ public class RouteInterchangesTest {
     @Test
     void shouldGetCostToInterchangeForRouteStationAdjacent() {
 
-        Route route = tramRouteHelper.getOneRoute(KnownTramRoute.AltrinchamPiccadilly, routeRepository, when);
+        Route route = tramRouteHelper.getOneRoute(AltrinchamPiccadilly, when);
 
         List<RouteStation> oldTraffordRouteStations = stationRepository.getRouteStationsFor(OldTrafford.getId()).stream().
                 filter(routeStation -> route.equals(routeStation.getRoute())).collect(Collectors.toList());
@@ -117,7 +187,7 @@ public class RouteInterchangesTest {
     @Test
     void shouldGetZeroCostToInterchangeForRouteStationThatIsInterchange() {
 
-        Route route = tramRouteHelper.getOneRoute(KnownTramRoute.AltrinchamPiccadilly, routeRepository, when);
+        Route route = tramRouteHelper.getOneRoute(AltrinchamPiccadilly, when);
 
         List<RouteStation> cornbrookRouteStations = stationRepository.getRouteStationsFor(Cornbrook.getId()).
                 stream().
@@ -136,7 +206,7 @@ public class RouteInterchangesTest {
     @Test
     void shouldGetMaxCostIfNoInterchangeBetweenStationAndEndOfTheRoute() {
 
-        Route towardsEndOfEnd = tramRouteHelper.getOneRoute(KnownTramRoute.VictoriaWythenshaweManchesterAirport, routeRepository, when);
+        Route towardsEndOfEnd = tramRouteHelper.getOneRoute(KnownTramRoute.VictoriaWythenshaweManchesterAirport, when);
 
         List<RouteStation> peelHallRouteStations = stationRepository.getRouteStationsFor(PeelHall.getId()).stream().
                 filter(routeStation -> routeStation.getRoute().equals(towardsEndOfEnd)).collect(Collectors.toList());

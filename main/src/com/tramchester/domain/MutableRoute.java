@@ -175,7 +175,6 @@ public class MutableRoute implements Route {
         return intoNextDay;
     }
 
-
     private static class RouteCalendar {
         private final Cache<IdFor<Route>, Boolean> overlapMap; // for thread safety
         private final IdFor<Route> parentId;

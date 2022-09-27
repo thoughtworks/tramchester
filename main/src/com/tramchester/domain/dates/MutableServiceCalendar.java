@@ -249,11 +249,18 @@ public class MutableServiceCalendar implements ServiceCalendar {
         }
 
         // removed
-        if (otherCalendar.operatesNoneOf(this.getRemoved())) {
-            return false;
-        }
-        if (this.operatesNoneOf(otherCalendar.getRemoved())) {
-            return false;
+        // logic here: if the other calendar also operates none of the removed dates
+        TramDateSet removed = this.getRemoved();
+        TramDateSet otherRemoved = otherCalendar.getRemoved();
+
+        if ((!removed.isEmpty() && !otherRemoved.isEmpty()) && !removed.equals(otherRemoved)) {
+
+            if (otherCalendar.operatesNoneOf(removed)) {
+                return false;
+            }
+            if (this.operatesNoneOf(otherRemoved)) {
+                return false;
+            }
         }
 
         // operating days, any overlap?

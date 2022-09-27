@@ -5,6 +5,7 @@ import com.tramchester.caching.DataCache;
 import com.tramchester.dataexport.DataSaver;
 import com.tramchester.dataimport.data.CostsPerDegreeData;
 import com.tramchester.domain.Route;
+import com.tramchester.domain.RoutePair;
 import com.tramchester.domain.collections.ImmutableBitSet;
 import com.tramchester.domain.collections.IndexedBitSet;
 import com.tramchester.domain.collections.SimpleList;
@@ -171,7 +172,7 @@ public class RouteCostMatrix {
      * @param dateOverlaps bit mask indicating that routeA->routeB is available at date
      * @return each set returned contains specific interchanges between 2 specific routes
      */
-    Stream<SimpleList<RouteIndexPair>> getChangesFor(final RouteIndexPair routePair, IndexedBitSet dateOverlaps) {
+    public Stream<SimpleList<RouteIndexPair>> getChangesFor(final RouteIndexPair routePair, IndexedBitSet dateOverlaps) {
 
         final byte initialDepth = getDegree(routePair);
 
@@ -180,7 +181,7 @@ public class RouteCostMatrix {
             return Stream.empty();
         }
         if (initialDepth == Byte.MAX_VALUE) {
-            logger.debug(format("getChangesFor: no changes possible indexes %s", routePair));
+            logger.warn(format("getChangesFor: no changes possible indexes %s", routePair));
             return Stream.empty();
         }
 
@@ -197,18 +198,18 @@ public class RouteCostMatrix {
         return possibleInterchangePairs;
     }
 
-    private List<SimpleList<RouteIndexPair>> expandOnePair(final RouteIndexPair original, final int degree, final IndexedBitSet dateOverlaps) {
-        if (degree == 1) {
-            // at degree one we are at direct connections between routes via an interchange so the result is those pairs
-            //logger.debug("degree 1, expand pair to: " + original);
-            return Collections.singletonList(new SimpleListSingleton<>(original));
-        }
-
-        final Stream<SimpleList<RouteIndexPair>> resultsStream = expandOnePairStream(original, degree, dateOverlaps);
-
-        return resultsStream.collect(Collectors.toList());
-
-    }
+//    private List<SimpleList<RouteIndexPair>> expandOnePair(final RouteIndexPair original, final int degree, final IndexedBitSet dateOverlaps) {
+//        if (degree == 1) {
+//            // at degree one we are at direct connections between routes via an interchange so the result is those pairs
+//            //logger.debug("degree 1, expand pair to: " + original);
+//            return Collections.singletonList(new SimpleListSingleton<>(original));
+//        }
+//
+//        final Stream<SimpleList<RouteIndexPair>> resultsStream = expandOnePairStream(original, degree, dateOverlaps);
+//
+//        return resultsStream.collect(Collectors.toList());
+//
+//    }
 
     private Stream<SimpleList<RouteIndexPair>> expandOnePairStream(final RouteIndexPair original, final int degree, final IndexedBitSet dateOverlaps) {
         if (degree == 1) {
@@ -280,6 +281,8 @@ public class RouteCostMatrix {
         if (finalSize < fullyConnected) {
             double percentage = ((double) finalSize / (double) fullyConnected);
             logger.warn(format("Not fully connected, only %s (%s) of %s ", finalSize, percentage, fullyConnected));
+        } else {
+            logger.info(format("Fully connected, with %s of %s ", finalSize, fullyConnected));
         }
     }
 
@@ -310,6 +313,11 @@ public class RouteCostMatrix {
 
         final long took = Duration.between(startTime, Instant.now()).toMillis();
         logger.info("Added connections " + newMatrix.numberOfConnections() + "  Degree " + nextDegree + " in " + took + " ms");
+    }
+
+    public int getConnectionDepthFor(Route routeA, Route routeB) {
+        RouteIndexPair routePair = index.getPairFor(RoutePair.of(routeA, routeB));
+        return getDegree(routePair);
     }
 
     private static class RouteDateAndDayOverlap {

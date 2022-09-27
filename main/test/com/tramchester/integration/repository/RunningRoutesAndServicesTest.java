@@ -23,7 +23,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.time.DayOfWeek;
-import java.time.LocalDate;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
@@ -55,7 +54,7 @@ public class RunningRoutesAndServicesTest {
     void beforeEachTestRuns() {
         transportData = componentContainer.get(TransportData.class);
         runningRoutesAndServices = componentContainer.get(RunningRoutesAndServices.class);
-        helper = new TramRouteHelper();
+        helper = new TramRouteHelper(transportData);
     }
 
     @Test
@@ -78,7 +77,7 @@ public class RunningRoutesAndServicesTest {
 
         RunningRoutesAndServices.FilterForDate filter = runningRoutesAndServices.getFor(when);
 
-        Route altyToBuryRoute = helper.getOneRoute(KnownTramRoute.AltrinchamManchesterBury, transportData, when);
+        Route altyToBuryRoute = helper.getOneRoute(KnownTramRoute.AltrinchamManchesterBury, when);
 
         assertTrue(filter.isRouteRunning(altyToBuryRoute.getId(), false));
         assertTrue(filter.isRouteRunning(altyToBuryRoute.getId(), true));
@@ -106,7 +105,7 @@ public class RunningRoutesAndServicesTest {
 
         TramDate previousDay = when.minusDays(1);
 
-        Route altyToBuryRoute = helper.getOneRoute(KnownTramRoute.AltrinchamManchesterBury, transportData, previousDay);
+        Route altyToBuryRoute = helper.getOneRoute(KnownTramRoute.AltrinchamManchesterBury, previousDay);
 
         assertTrue(filter.isRouteRunning(altyToBuryRoute.getId(), false));
         assertTrue(filter.isRouteRunning(altyToBuryRoute.getId(), true));

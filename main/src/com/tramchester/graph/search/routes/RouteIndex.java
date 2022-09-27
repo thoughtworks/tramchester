@@ -26,7 +26,7 @@ import java.util.stream.Stream;
  * via bitmaps. Expensive to create for buses and trains, so cacheable.
  */
 @LazySingleton
-class RouteIndex implements DataCache.Cacheable<RouteIndexData> {
+public class RouteIndex implements DataCache.Cacheable<RouteIndexData> {
     private static final Logger logger = LoggerFactory.getLogger(RouteIndex.class);
 
     private final RouteRepository routeRepository;

@@ -20,6 +20,7 @@ import com.tramchester.graph.search.RouteCalculator;
 import com.tramchester.integration.testSupport.RouteCalculatorTestFacade;
 import com.tramchester.integration.testSupport.tfgm.TFGMGTFSSourceTestConfig;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
+import com.tramchester.repository.RouteRepository;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.repository.TransportData;
 import com.tramchester.testSupport.AdditionalTramInterchanges;
@@ -78,14 +79,14 @@ class RouteCalculatorSubGraphMediaCityTest {
         database = componentContainer.get(GraphDatabase.class);
     }
 
-    private static void configureFilter(ConfigurableGraphFilter toConfigure, TransportData transportData) {
-        TramRouteHelper tramRouteHelper = new TramRouteHelper();
+    private static void configureFilter(ConfigurableGraphFilter toConfigure, RouteRepository routeRepository) {
+        TramRouteHelper tramRouteHelper = new TramRouteHelper(routeRepository);
 
         stations.forEach(station -> toConfigure.addStation(station.getId()));
-        toConfigure.addRoutes(tramRouteHelper.getId(AshtonUnderLyneManchesterEccles, transportData));
-        toConfigure.addRoutes(tramRouteHelper.getId(RochdaleShawandCromptonManchesterEastDidisbury, transportData));
-        toConfigure.addRoutes(tramRouteHelper.getId(EcclesManchesterAshtonUnderLyne, transportData));
-        toConfigure.addRoutes(tramRouteHelper.getId(EastDidisburyManchesterShawandCromptonRochdale, transportData));
+        toConfigure.addRoutes(tramRouteHelper.getId(AshtonUnderLyneManchesterEccles));
+        toConfigure.addRoutes(tramRouteHelper.getId(RochdaleShawandCromptonManchesterEastDidisbury));
+        toConfigure.addRoutes(tramRouteHelper.getId(EcclesManchesterAshtonUnderLyne));
+        toConfigure.addRoutes(tramRouteHelper.getId(EastDidisburyManchesterShawandCromptonRochdale));
     }
 
     @AfterAll
