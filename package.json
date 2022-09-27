@@ -19,19 +19,19 @@
   "homepage": "https://github.com/ThoughtWorksInc/tramchester#readme",
   "dependencies": {
     "ajv": "^8.11.0",
-    "aws-cdk": "^2.32.1",
+    "aws-cdk": "^2.43.1",
     "axios": "^0.24.0",
-    "bootstrap": "^4.6.1",
+    "bootstrap": "^4.6.2",
     "bootstrap-vue": "^2.22.0",
-    "leaflet": "^1.8.0",
+    "leaflet": "^1.9.1",
     "leaflet-arrowheads": "^1.4.0",
     "oboe": "^2.1.5",
     "portal-vue": "^2.1.7",
     "serialize-javascript": "^6.0.0",
-    "vue": "^2.7.7",
+    "vue": "^2.7.10",
     "vue-cookies": "^1.8.1",
     "vue-multiselect": "^2.1.6",
-    "vue-slider-component": "^3.2.18",
+    "vue-slider-component": "^3.2.20",
     "vue-typeahead-bootstrap": "^2.12.0"
   },
   "devDependencies": {
@@ -39,8 +39,8 @@
     "file-loader": "^6.2.0",
     "style-loader": "^3.3.1",
     "vue-loader": "^15.10.0",
-    "vue-template-compiler": "^2.7.7",
-    "webpack": "^5.73.0",
+    "vue-template-compiler": "^2.7.10",
+    "webpack": "^5.74.0",
     "webpack-cli": "^4.10.0"
   }
 }

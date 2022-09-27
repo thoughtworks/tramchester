@@ -56,12 +56,12 @@ dependencies {
             'org.apache.httpcomponents:httpclient:4.5.13',
             'org.apache.commons:commons-collections4:4.4',
             'com.github.ben-manes.caffeine:caffeine:3.1.1'
-    implementation 'com.fasterxml.jackson.core:jackson-core:2.13.3',
-            'com.fasterxml.jackson.core:jackson-databind:2.13.3',
-            'com.fasterxml.jackson.module:jackson-module-afterburner:2.13.3',
-            'com.fasterxml.jackson.module:jackson-module-blackbird:2.13.3',
-            'com.fasterxml.jackson.dataformat:jackson-dataformat-csv:2.13.3',
-            'com.fasterxml.jackson.dataformat:jackson-dataformat-xml:2.13.3'
+    implementation 'com.fasterxml.jackson.core:jackson-core:2.13.4',
+            'com.fasterxml.jackson.core:jackson-databind:2.13.4',
+            'com.fasterxml.jackson.module:jackson-module-afterburner:2.13.4',
+            'com.fasterxml.jackson.module:jackson-module-blackbird:2.13.4',
+            'com.fasterxml.jackson.dataformat:jackson-dataformat-csv:2.13.4',
+            'com.fasterxml.jackson.dataformat:jackson-dataformat-xml:2.13.4'
     implementation('com.smoketurner:dropwizard-swagger:2.0.12-1')
 
     // aws sdk
@@ -79,14 +79,16 @@ dependencies {
     implementation('org.geotools:gt-main:27.1')
     implementation('org.geotools:gt-epsg-hsql:26.4')
 
-    testImplementation 'org.junit.jupiter:junit-jupiter:5.8.2',
-            'org.junit.platform:junit-platform-launcher:1.8.2',
+    testImplementation 'org.junit.jupiter:junit-jupiter:5.9.0',
+            'org.junit.platform:junit-platform-launcher:1.9.0',
             'org.assertj:assertj-core:3.23.1',
             'io.dropwizard:dropwizard-testing:' + dropwizardVersion,
             'org.easymock:easymock:4.3',
             'org.seleniumhq.selenium:selenium-java:3.141.59',
             'org.hamcrest:hamcrest:2.2'
 
+    // supports the codegen from the rail live data api, updating these versions is fraught as dependencies are
+    // not being maintained by some of the downstream libraries
     cxfCodegen 'jakarta.xml.ws:jakarta.xml.ws-api:2.3.3'
     cxfCodegen 'jakarta.annotation:jakarta.annotation-api:1.3.5'
     cxfCodegen 'ch.qos.logback:logback-classic:1.2.11'
