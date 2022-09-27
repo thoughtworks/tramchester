@@ -59,17 +59,19 @@ export default {
     },
     template: `
     <div id="notesComponent" v-if="notes.length>0">
-        <b-card bg-variant="light"
-                border-variant="dark" title="Notes" align="center" 
-                class="mb-2" >
-            <b-card-text>
-                <ul id="NotesList" class="JourneyNotes list-group list-group-flush">
-                    <li v-for="note in liveMessages" id="NoteItem">
-                        <span :id="note.noteType" v-html="note.text"></span>
-                    </li>
-                </ul>
-            </b-card-text>
-        </b-card>
+        <div class="card mb-2 border-dark bg-light" align="center">
+            <div class="card-body">
+                <h4 class="card-title">Notes</h4>
+                <div class="card-text">
+                    <ul id="NotesList" class="JourneyNotes list-group list-group-flush">
+                        <li v-for="note in liveMessages" id="NoteItem">
+                            <span :id="note.noteType" v-html="note.text"></span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            </div>
+        </div>
     </div>
     `
 }

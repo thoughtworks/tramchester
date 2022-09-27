@@ -42,16 +42,19 @@ export default {
     },
     template: `
     <div id="closuresComponent" v-if="closures.length>0">
-        <b-card bg-variant="warning" class="tramchesterApp mb-2 w-75" >
-            <b-card-text>
-                <ul id="ClosureList" class="Closures list-group list-group-flush">
-                    <li v-for="closed in closures" id="ClosedItem">
-                        {{displayStations(closed.stations)}} closed {{displayDates(closed.begin, closed.end)}}
-                    </li>
-                </ul>
-                Visit <a href="https://www.tfgm.com/">www.tfgm.com</a> for full details
-            </b-card-text>
-        </b-card>
+        <div class="card bg-warning tramchesterApp w-75" align="center">
+            <div class="card-body">
+                <h5 class="card-title">Station Closures</h5>
+                <div class="card-text" align="centre">
+                    <ul id="ClosureList" class="Closures list-group list-group-flush">
+                        <li v-for="closed in closures" id="ClosedItem">
+                            {{displayStations(closed.stations)}} closed {{displayDates(closed.begin, closed.end)}}
+                        </li>
+                    </ul>
+                    Visit <a href="https://www.tfgm.com/">www.tfgm.com</a> for full details
+                </div>
+            </div>
+        </div>
     </div>
     `
 }

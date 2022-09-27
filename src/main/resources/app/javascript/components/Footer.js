@@ -18,46 +18,44 @@ export default {
         });
     },
     template: `
-    <div id="footer" class="tramchesterFooter mb-1 ml-1 mr-1">
-        <b-card bg-variant="light">
-            <b-container>
-            <b-row>
-                <div>
-                    Built by <a href="http://www.thoughtworks.com" target="_blank">ThoughtWorks</a> in Manchester
-                    <a href="https://twitter.com/intent/user?screen_name=Tramchester" target="_blank">Follow
-                        @Tramchester</a>
+    <div id="footer" class="tramchesterFooter">
+        <div class="card mt-1">
+            <div class="container mt-3">
+                <div class="row">
+                    <div>
+                        Built by <a href="http://www.thoughtworks.com" target="_blank">ThoughtWorks</a> in Manchester
+                    </div>
                 </div>
-            </b-row>
-            <b-row>
-                <div id="disclaimer">&copy; 2016-2020 ThoughtWorks Ltd.
-                    <b-button id="disclaimerButton"
-                              class="align-baseline text-decoration-none tramchesterFooter" variant="link"
-                              v-b-modal.modal-disclaimer>Disclaimer
-                    </b-button>
+                <div class="row">
+                    <div id="disclaimer">&copy; 2016-2020 ThoughtWorks Ltd.
+                        <button id="disclaimerButton"
+                                  class="btn btn-link align-baseline text-decoration-none tramchesterFooter"
+                                  v-b-modal.modal-disclaimer>Disclaimer
+                        </button>
+                    </div>
                 </div>
-            </b-row>
-           <b-row>
-               <div id="license">
-                   Contains Transport for Greater Manchester data.
-                   Contains public sector information licensed under the Open Government Licence v2.0 by
-                   <a href="http://www.datagm.org.uk/" target="_blank">Data GM.</a>
-                   Contains public sector information licensed under the Open Government Licence v3.0.
-                   Timetable/Fares/London Terminals data under licence from <a href="http://www.raildeliverygroup.com/">RSP</a>.
+               <div class="row">
+                   <div id="license">
+                       Contains Transport for Greater Manchester data.
+                       Contains public sector information licensed under the Open Government Licence v2.0 by
+                       <a href="http://www.datagm.org.uk/" target="_blank">Data GM.</a>
+                       Contains public sector information licensed under the Open Government Licence v3.0.
+                       Timetable/Fares/London Terminals data under licence from <a href="http://www.raildeliverygroup.com/">RSP</a>.
+                   </div>
                </div>
-           </b-row>
-            <b-row align-h="start">
-                <b-col cols="3">Build
-                    <div id="buildNumber">{{buildnumber}}</div>
-                </b-col>
-                <b-col cols="3">Data Version:
-                    <div id="dataVersion">{{feedinfo.version}}</div>
-                </b-col>
-                <b-col cols="3">Geo:
-                    <div id="havepos">{{havepos}}</div>
-                </b-col>
-            </b-row>
-            </b-container>
-        </b-card>
+                <div class="row mt-1">
+                    <div class="col">Build
+                        <div id="buildNumber">{{buildnumber}}</div>
+                    </div>
+                    <div class="col">Data Version:
+                        <div id="dataVersion">{{feedinfo.version}}</div>
+                    </div>
+                    <div class="col">Geo:
+                        <div id="havepos">{{havepos}}</div>
+                    </div>
+                </div>
+            </div>
+        <div>
     </div>
     `
 }
