@@ -164,22 +164,6 @@ public class InterchangesTramTest {
         assertTrue(dropOffs.contains(StringIdFor.createId("METLRED:I:CURRENT")), dropOffs.toString());
     }
 
-    @Summer2022
-    @Test
-    void shouldHaveAdditionalInterchangesDuringReplacementPeriod() {
-        Set<InterchangeStation> interchanges = interchangeRepository.getAllInterchanges();
-        IdSet<Station> stations = interchanges.stream().map(InterchangeStation::getStation).collect(IdSet.collector());
-
-        // METLML4
-        assertTrue(stations.contains(Altrincham.getId()));
-        assertTrue(stations.contains(StringIdFor.createId("9400ZZMATIM"))); // timperley
-
-        // METLML2 & METLM3
-        assertTrue(stations.contains(TramStations.Whitefield.getId())); // Whitefield
-        assertTrue(stations.contains(StringIdFor.createId("9400ZZMACRU"))); // Crumpsall
-
-    }
-
     @Test
     void shouldHaveReachableInterchangeForEveryRoute() {
         Set<InterchangeStation> interchanges = interchangeRepository.getAllInterchanges();

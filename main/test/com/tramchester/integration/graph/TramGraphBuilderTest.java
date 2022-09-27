@@ -10,14 +10,17 @@ import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.input.Trip;
+import com.tramchester.domain.places.InterchangeStation;
 import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
 import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.GraphQuery;
 import com.tramchester.graph.TransportRelationshipTypes;
+import com.tramchester.graph.graphbuild.GraphLabel;
 import com.tramchester.graph.graphbuild.GraphProps;
 import com.tramchester.graph.graphbuild.StagedTransportGraphBuilder;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
+import com.tramchester.repository.InterchangeRepository;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.repository.TransportData;
 import com.tramchester.testSupport.TestEnv;
@@ -27,10 +30,7 @@ import com.tramchester.testSupport.reference.TramStations;
 import com.tramchester.testSupport.testTags.Summer2022;
 import org.assertj.core.util.Streams;
 import org.junit.jupiter.api.*;
-import org.neo4j.graphdb.Direction;
-import org.neo4j.graphdb.Node;
-import org.neo4j.graphdb.Relationship;
-import org.neo4j.graphdb.Transaction;
+import org.neo4j.graphdb.*;
 
 import java.time.Duration;
 import java.util.*;
@@ -77,12 +77,12 @@ class TramGraphBuilderTest {
 
         graphQuery = componentContainer.get(GraphQuery.class);
         stationRepository = componentContainer.get(StationRepository.class);
-        GraphDatabase service = componentContainer.get(GraphDatabase.class);
+        GraphDatabase graphDatabase = componentContainer.get(GraphDatabase.class);
 
 
         StagedTransportGraphBuilder builder = componentContainer.get(StagedTransportGraphBuilder.class);
         builder.getReady();
-        txn = service.beginTx();
+        txn = graphDatabase.beginTx();
     }
 
     @AfterEach
@@ -187,6 +187,20 @@ class TramGraphBuilderTest {
             Node found = graphQuery.getRouteStationNode(txn, routeStation);
             assertNotNull(found, routeStation.getId().forDTO());
         });
+    }
+
+    @Test
+    void shouldHaveExpectedInterchangesInTheGraph() {
+        InterchangeRepository interchangeRepository = componentContainer.get(InterchangeRepository.class);
+
+        IdSet<Station> fromConfigAndDiscovered = interchangeRepository.getAllInterchanges().stream().
+                map(InterchangeStation::getStationId).collect(IdSet.idCollector());
+
+        ResourceIterator<Node> interchangeNodes = txn.findNodes(GraphLabel.INTERCHANGE);
+
+        IdSet<Station> fromDB = interchangeNodes.stream().map(GraphProps::getStationId).collect(IdSet.idCollector());
+
+        assertEquals(fromConfigAndDiscovered, fromDB, "Graph clean and rebuild needed?");
     }
 
     @Test

@@ -144,7 +144,6 @@ public class RouteInterchangesTest {
 
     }
 
-    @Summer2022
     @Test
     void shouldGetCostToInterchangeForRouteStation() {
 
@@ -160,9 +159,7 @@ public class RouteInterchangesTest {
         Duration cost = routeInterchanges.costToInterchange(navigationRoad);
 
         // cost to trafford bar
-        //assertMinutesEquals(14, cost);
-        assertMinutesEquals(2, cost);
-
+        assertMinutesEquals(14, cost);
     }
 
     @Test
