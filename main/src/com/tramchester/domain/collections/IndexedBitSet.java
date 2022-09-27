@@ -1,61 +1,83 @@
 package com.tramchester.domain.collections;
 
-import com.tramchester.graph.search.routes.RouteIndexPair;
-
 import java.util.BitSet;
 
 import static java.lang.String.format;
 
+/***
+ * Indexable square bit map - set of N*N rows of bits [....][....][....]
+ */
 public class IndexedBitSet {
-    private final int numberOfRoutes;
+    private final int numberOfRows;
     private final BitSet bitSet;
     private final int totalSize;
 
-    public IndexedBitSet(int numberOfRoutes) {
-        this.numberOfRoutes = numberOfRoutes;
-        totalSize = numberOfRoutes * numberOfRoutes;
+    public IndexedBitSet(int numberOfRows) {
+        this.numberOfRows = numberOfRows;
+        totalSize = numberOfRows * numberOfRows;
         bitSet = new BitSet(totalSize);
     }
 
-    private IndexedBitSet(int numberOfRoutes, BitSet bitSet) {
-        this.numberOfRoutes = numberOfRoutes;
-        totalSize = numberOfRoutes * numberOfRoutes;
+    private IndexedBitSet(int numberOfRows, BitSet bitSet) {
+        this.numberOfRows = numberOfRows;
+        totalSize = numberOfRows * numberOfRows;
         this.bitSet = bitSet;
     }
 
-    public static IndexedBitSet getIdentity(int numberOfRoutes) {
-        IndexedBitSet result = new IndexedBitSet(numberOfRoutes);
+    public static IndexedBitSet getIdentity(int numberOfRows) {
+        IndexedBitSet result = new IndexedBitSet(numberOfRows);
 
         result.bitSet.set(0, result.totalSize); // set bits to 1 from 0 to size
         return result;
     }
 
-    public void set(int indexA, int indexB) {
-        int position = getPositionFor(indexA, indexB);
+    /***
+     * Set the bit at given row and column i.e. y'th column bit in row x
+     * @param row the row to update
+     * @param column the bit within the row to update
+     */
+    public void set(int row, int column) {
+        int position = getPositionFor(row, column);
         bitSet.set(position);
     }
 
-    public boolean isSet(int indexA, int indexB) {
-        int position = getPositionFor(indexA, indexB);
+    /***
+     * Check if bit set
+     * @param row row to query
+     * @param column bit within row to check
+     * @return true if column'th bit in row is set
+     */
+    public boolean isSet(int row, int column) {
+        int position = getPositionFor(row, column);
         return bitSet.get(position);
     }
 
-    public ImmutableBitSet getBitSetForRow(int routesIndex) {
-        int startPosition = getPositionFor(routesIndex, 0);
-        int endPosition = startPosition + numberOfRoutes;
+    /***
+     * get the bits for one row
+     * @param row rwo to return
+     * @return bitset for that row
+     */
+    public ImmutableBitSet getBitSetForRow(int row) {
+        int startPosition = getPositionFor(row, 0);
+        int endPosition = startPosition + numberOfRows;
         BitSet result = bitSet.get(startPosition, endPosition);
 
         return new ImmutableBitSet(result);
     }
 
-    public void insert(int routeIndex, BitSet connectionsForRoute) {
-        int startPosition = getPositionFor(routeIndex, 0);
-        for (int i = 0; i < numberOfRoutes; i++) {
+    /***
+     * Directly insert a set of bits as a row
+     * @param row the place to the bits
+     * @param connectionsForRoute the bits for the row
+     */
+    public void insert(int row, BitSet connectionsForRoute) {
+        int startPosition = getPositionFor(row, 0);
+        for (int i = 0; i < numberOfRows; i++) {
             bitSet.set(startPosition + i, connectionsForRoute.get(i));
         }
     }
 
-    public int numberOfConnections() {
+    public int numberOfBitsSet() {
         return bitSet.cardinality();
     }
 
@@ -63,38 +85,50 @@ public class IndexedBitSet {
         bitSet.clear();
     }
 
-    public void applyAndTo(int index, BitSet row) {
-        int startPosition = getPositionFor(index, 0);
+    /***
+     * Apply a bitmask to one sepcific row via 'and'
+     * @param row the row to apply the bitmask to
+     * @param bitMask bitmask to use
+     */
+    public void applyAndTo(int row, BitSet bitMask) {
+        int startPosition = getPositionFor(row, 0);
 
         // TODO more efficient ways to do this via a mask?
-        for (int i = 0; i < numberOfRoutes; i++) {
+        for (int i = 0; i < numberOfRows; i++) {
             int bitIndex = startPosition + i;
-            boolean andValue = bitSet.get(bitIndex) && row.get(i);
-            bitSet.set(bitIndex, andValue);
+            boolean andValue = this.bitSet.get(bitIndex) && bitMask.get(i);
+            this.bitSet.set(bitIndex, andValue);
         }
     }
 
-    private int getPositionFor(int indexA, int indexB) {
-        return (indexA * numberOfRoutes) + indexB;
+    /***
+     * poisition within the bitmap for row and column
+     * @param row the row
+     * @param column the bit within the row
+     * @return absolute index into the bitset
+     */
+    private int getPositionFor(int row, int column) {
+        return (row * numberOfRows) + column;
     }
 
+    /***
+     * And this bitset with the supplied one and return result as a new bitmap
+     * @param other bitmap to 'and' this one with
+     * @return a new bitmap
+     */
     public IndexedBitSet and(IndexedBitSet other) {
-        if (numberOfRoutes != other.numberOfRoutes) {
-            throw new RuntimeException(format("Mismatch on matrix size this %s other %s", numberOfRoutes, other.numberOfRoutes));
+        if (numberOfRows != other.numberOfRows) {
+            throw new RuntimeException(format("Mismatch on matrix size this %s other %s", numberOfRows, other.numberOfRows));
         }
         BitSet cloned = (BitSet) this.bitSet.clone();
         cloned.and(other.bitSet);
-        return new IndexedBitSet(numberOfRoutes, bitSet);
+        return new IndexedBitSet(numberOfRows, bitSet);
     }
-
-    public boolean isSet(RouteIndexPair pair) {
-        return isSet(pair.first(), pair.second());
-    }
-
+    
     @Override
     public String toString() {
         return "IndexedBitSet{" +
-                "numberOfRoutes=" + numberOfRoutes +
+                "numberOfRoutes=" + numberOfRows +
                 ", bitSet=" + bitSet.toString() +
                 ", totalSize=" + totalSize +
                 '}';

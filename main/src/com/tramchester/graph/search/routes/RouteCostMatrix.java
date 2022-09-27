@@ -226,10 +226,14 @@ public class RouteCostMatrix {
 
         return overlappingIndexes.stream().
                 map(index1 -> formNewRoutePairs(original, index1)).
-                filter(pair -> dateOverlaps.isSet(pair.getLeft()) && dateOverlaps.isSet(pair.getRight())).
+                filter(pair -> isOverlap(dateOverlaps, pair.getLeft()) && isOverlap(dateOverlaps,pair.getRight())).
                 flatMap(pair -> getResultsForOneOverlaps(expandOnePairStream(pair.getLeft(), nextDegree, dateOverlaps),
                         expandOnePairStream(pair.getRight(), nextDegree, dateOverlaps)));
 
+    }
+
+    private boolean isOverlap(IndexedBitSet bitSet, RouteIndexPair pair) {
+        return bitSet.isSet(pair.first(), pair.second());
     }
 
     @NotNull
@@ -312,7 +316,7 @@ public class RouteCostMatrix {
         }
 
         final long took = Duration.between(startTime, Instant.now()).toMillis();
-        logger.info("Added connections " + newMatrix.numberOfConnections() + "  Degree " + nextDegree + " in " + took + " ms");
+        logger.info("Added connections " + newMatrix.numberOfBitsSet() + "  Degree " + nextDegree + " in " + took + " ms");
     }
 
     public int getConnectionDepthFor(Route routeA, Route routeB) {
@@ -383,13 +387,13 @@ public class RouteCostMatrix {
         }
 
         public boolean isSet(int degree, RouteIndexPair routePair) {
-            return getDegree(degree).isSet(routePair);
+            return isOverlap(getDegree(degree),routePair);
         }
 
         public int size() {
             int result = 0;
             for (int index = 0; index < size; index++) {
-                result = result + bitSets[index].numberOfConnections();
+                result = result + bitSets[index].numberOfBitsSet();
             }
             return result;
         }
