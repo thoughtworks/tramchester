@@ -62,6 +62,29 @@ public class DateRangeTest {
         assertFalse(dateRange.overlapsWith(DateRange.of(startDate.minusDays(3), startDate.minusDays(2))));
     }
 
+    @Test
+    void shouldHaveNumberOfDaysInclusive() {
+        TramDate startDate = TramDate.of(2022, 9, 1);
+        TramDate endDate = TramDate.of(2022, 9, 30);
+
+        DateRange dateRange = DateRange.of(startDate, endDate);
+
+        assertEquals(30, dateRange.numberOfDays());
+    }
+
+    @Test
+    void shouldHaveNumberOfDaysInclusiveOneDay() {
+        TramDate startDate = TramDate.of(2022, 11, 29);
+        TramDate endDate = TramDate.of(2022, 11, 29);
+
+        DateRange dateRange = DateRange.of(startDate, endDate);
+
+        assertTrue(dateRange.contains(startDate));
+        assertTrue(dateRange.contains(endDate));
+
+        assertEquals(1, dateRange.numberOfDays());
+    }
+
     @Disabled("Performance testing only")
     @RepeatedTest(100)
     void performanceOfIncludes() {

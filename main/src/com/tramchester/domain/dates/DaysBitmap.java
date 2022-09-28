@@ -3,6 +3,7 @@ package com.tramchester.domain.dates;
 import java.time.DayOfWeek;
 import java.util.BitSet;
 import java.util.EnumSet;
+import java.util.Objects;
 
 import static java.lang.String.format;
 
@@ -18,7 +19,7 @@ public class DaysBitmap {
     }
 
     public void setDaysOfWeek(EnumSet<DayOfWeek> operatingDays) {
-        for (int i = 0; i <= size; i++) {
+        for (int i = 0; i < size; i++) {
             TramDate date = TramDate.of(beginningDay + i);
             if (operatingDays.contains(date.getDayOfWeek())) {
                 days.set(i);
@@ -45,6 +46,9 @@ public class DaysBitmap {
 
     public void set(TramDate date) {
         int offset = offsetFor(date);
+        if (offset>=size) {
+            throw new RuntimeException(format("Attempt to set date out of range %s for %s", date, this));
+        }
         days.set(offset);
     }
 
@@ -63,42 +67,43 @@ public class DaysBitmap {
     }
 
     public boolean anyOverlap(DaysBitmap other) {
-        long endDay = beginningDay + size;
-        long otherEndDay = other.beginningDay + other.size;
 
-        if ((other.beginningDay <beginningDay || other.beginningDay >endDay) &&
-                (otherEndDay<beginningDay || otherEndDay>endDay)) {
+        if ( ! (this.contains(other) || other.contains(this)) ) {
             return false;
         }
 
-        BitSet firstOverlap = getoverlapBitset(other.beginningDay, other.size);
-        BitSet secondOverlap = other.getoverlapBitset(this.beginningDay, this.size);
+        BitSet firstOverlap = other.getOverlapWith(this);
+        BitSet secondOverlap = this.getOverlapWith(other);
 
         return firstOverlap.intersects(secondOverlap);
     }
 
-    private BitSet getoverlapBitset(long otherStartDay, int otherSize) {
-        long beginIndex = 0;
-
-        if (otherStartDay>beginningDay) {
-            beginIndex = Math.subtractExact(otherStartDay, beginningDay);
+    private boolean contains(DaysBitmap other) {
+        if (dayWithin(other.beginningDay)) {
+            return true;
         }
 
-        long otherEndDay = otherStartDay + otherSize;
-        long thisEndDay = this.beginningDay + this.size;
+        long otherEndDay = other.beginningDay + other.size;
+        return dayWithin(otherEndDay);
+    }
 
-        long endIndex = this.size-1;
-        if (otherEndDay < thisEndDay) {
-            long diff = Math.subtractExact(thisEndDay, otherEndDay);
-            endIndex = this.size - diff;
-        }
+    private boolean dayWithin(long epochDay) {
+        long endDay = beginningDay + size;
+        return epochDay>=beginningDay && epochDay<=endDay;
+    }
 
-        int fromIndex = Math.toIntExact(beginIndex);
-        int toIndex = Math.toIntExact(endIndex);
-        if (fromIndex>toIndex) {
-            throw new RuntimeException(format("fromIndex %s > toIndex: %s", fromIndex, toIndex));
-        }
-        return days.get(fromIndex, toIndex);
+    private BitSet getOverlapWith(DaysBitmap other) {
+        long startOfOverlap = other.beginningDay < this.beginningDay ? 0 : other.beginningDay-this.beginningDay;
+
+        long endOfThis = this.beginningDay + size;
+        long endOfOther = other.beginningDay + other.size;
+
+        long size = endOfOther > endOfThis ? this.size : this.size - Math.subtractExact(endOfThis, endOfOther);
+
+        int start = Math.toIntExact(startOfOverlap);
+        int end = Math.toIntExact(startOfOverlap+size);
+
+        return days.get(start, end);
     }
 
     public long getBeginningEpochDay() {
@@ -107,6 +112,30 @@ public class DaysBitmap {
 
     public void insert(DaysBitmap other) {
         int offset = Math.toIntExact(Math.subtractExact(other.getBeginningEpochDay(), beginningDay));
+
+        // todo not safe if runs past end, bit will silently extent the length
         other.days.stream().map(setBit -> setBit+offset).forEach(days::set);
+    }
+
+    @Override
+    public String toString() {
+        return "DaysBitmap{" +
+                "beginningDay=" + beginningDay +
+                ", size=" + size +
+                ", days=" + days +
+                '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        DaysBitmap that = (DaysBitmap) o;
+        return beginningDay == that.beginningDay && size == that.size && days.equals(that.days);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(beginningDay, days, size);
     }
 }

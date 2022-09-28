@@ -178,10 +178,11 @@ public class MutableServiceCalendar implements ServiceCalendar, HasDaysBitmap {
     public String toString() {
         return "MutableServiceCalendar{" +
                 "dateRange=" + dateRange +
-                ", days=" + operatingDays +
+                ", operatingDays=" + operatingDays +
                 ", additional=" + additional +
                 ", removed=" + removed +
                 ", cancelled=" + cancelled +
+                ", days=" + days +
                 '}';
     }
 

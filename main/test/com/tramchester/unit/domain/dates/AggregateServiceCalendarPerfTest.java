@@ -81,7 +81,7 @@ public class AggregateServiceCalendarPerfTest {
         }
     }
 
-    @RepeatedTest(150)
+    @RepeatedTest(1500)
     void shouldExerciseAnyOverlapAggregateToAggregate() {
         AggregateServiceCalendar other = new AggregateServiceCalendar(calendarList);
 
@@ -90,7 +90,7 @@ public class AggregateServiceCalendarPerfTest {
         }
     }
 
-    @RepeatedTest(50)
+    @RepeatedTest(150)
     void shouldExerciseOperatesON() {
 
         int testSize = 10000000;

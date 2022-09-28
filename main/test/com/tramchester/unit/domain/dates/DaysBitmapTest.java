@@ -72,10 +72,10 @@ public class DaysBitmapTest {
     void shouldSetAllDaysAsExpected() {
 
         TramDate startDate = when;
-        int days = 5;
-        TramDate endDate = when.plusDays(days);
+        int size = 5;
+        TramDate endDate = when.plusDays(size-1);
 
-        DaysBitmap daysBitmap = new DaysBitmap(epochDay, 5);
+        DaysBitmap daysBitmap = new DaysBitmap(epochDay, size);
 
         daysBitmap.setDaysOfWeek(TestEnv.allDays());
 
@@ -150,7 +150,7 @@ public class DaysBitmapTest {
 
         TramDate date = when.plusDays(1);
         second.set(date);
-        second.set(when.plusDays(28-5)); // set one bit that does not overlap
+        second.set(when.plusDays(28-5-1)); // set one bit that does not overlap
 
         first.insert(second);
         assertTrue(first.isSet(date));
@@ -181,7 +181,7 @@ public class DaysBitmapTest {
     }
 
     @Test
-    void shouldHaveExpectedOverlaps() {
+    void shouldHaveExpectedOverlapMiddle() {
         DaysBitmap first = new DaysBitmap(16485,269);
         DaysBitmap second = new DaysBitmap(16612, 54);
 
@@ -189,6 +189,25 @@ public class DaysBitmapTest {
         second.setDaysOfWeek(TestEnv.allDays());
 
         assertTrue(first.anyOverlap(second));
+        assertTrue(second.anyOverlap(first));
+    }
+
+    // java.lang.RuntimeException: fromIndex 108 > toIndex: 107 this: DaysBitmap{beginningDay=16541, days={1, 5, 6, 8, 9, 12, 13, 15, 16, 19, 20, 22, 23, 26, 27, 29, 30, 33, 34, 36, 37, 40, 41, 43, 44, 47, 48, 50, 51, 54, 55, 57, 58, 61, 62, 64, 65, 68, 69, 71, 72, 75, 76, 78, 79, 82, 83, 85, 86, 89, 90, 92, 93, 96, 97, 99, 100, 103, 104, 106, 107}, size=108}
+    // otherStartDay: 16649 other size: 64
+
+    @Test
+    void shouldHaveExpectedOverlapsLastDay() {
+        // fromIndex 153 > toIndex: 152 this: DaysBitmap{beginningDay=16527, days={}, size=153} otherStartDay: 16680 other size: 317
+
+        DaysBitmap first = new DaysBitmap(epochDay, 3);
+        DaysBitmap second = new DaysBitmap(epochDay+2, 15);
+
+
+        first.set(when.plusDays(2));
+        second.set(when.plusDays(2));
+
+        assertTrue(first.anyOverlap(second), "no overlap " + first + " and " + second);
+        assertTrue(second.anyOverlap(first), "no overlap " + first + " and " + second);
     }
 
     @Test
@@ -197,7 +216,7 @@ public class DaysBitmapTest {
         DaysBitmap second = new DaysBitmap(epochDay, 14);
 
         second.set(when);
-        TramDate lastDay = when.plusDays(14);
+        TramDate lastDay = when.plusDays(13);
         second.set(lastDay);
 
         first.insert(second);

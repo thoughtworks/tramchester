@@ -25,7 +25,7 @@ class MutableServiceCalendarTest {
         ServiceCalendar serviceCalendar = new MutableServiceCalendar(new DateRange(startDate, endDate), TestEnv.allDays());
 
         assertTrue(serviceCalendar.operatesOn(startDate));
-        assertTrue(serviceCalendar.operatesOn(endDate));
+        assertTrue(serviceCalendar.operatesOn(endDate), "not operating " + serviceCalendar);
         assertTrue(serviceCalendar.operatesOn(TramDate.of(2014, 11, 30)));
 
         assertFalse(serviceCalendar.operatesOn(TramDate.of(2016, 11, 30)));
