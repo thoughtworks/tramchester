@@ -17,10 +17,8 @@ public class TramDate implements Comparable<TramDate> {
         this.dayOfWeek = calcDayOfWeek(epochDays);
     }
 
-    // replicate LocalDate approach
-    public DayOfWeek calcDayOfWeek(long epochDays) {
-        int enumAsInt = Math.floorMod(epochDays + 3, 7);
-        return DayOfWeek.of(enumAsInt + 1);
+    public static TramDate of(long epochDay) {
+        return new TramDate(epochDay);
     }
 
     @Deprecated
@@ -35,6 +33,12 @@ public class TramDate implements Comparable<TramDate> {
 
     public static TramDate from(LocalDateTime localDateTime) {
         return of(localDateTime.toLocalDate());
+    }
+
+    // replicate LocalDate approach
+    public DayOfWeek calcDayOfWeek(long epochDays) {
+        int enumAsInt = Math.floorMod(epochDays + 3, 7);
+        return DayOfWeek.of(enumAsInt + 1);
     }
 
     @Override

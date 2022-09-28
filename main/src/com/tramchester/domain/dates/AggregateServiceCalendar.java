@@ -5,52 +5,51 @@ import java.time.DayOfWeek;
 import java.util.Collection;
 import java.util.EnumSet;
 import java.util.Optional;
-import java.util.concurrent.atomic.AtomicInteger;
 
-public class AggregateServiceCalendar implements ServiceCalendar {
-
-    private final Collection<ServiceCalendar> calendars;
+public class AggregateServiceCalendar implements ServiceCalendar, HasDaysBitmap {
 
     private final EnumSet<DayOfWeek> aggregatedDays;
     private final TramDateSet additional;
     private final TramDateSet removed;
     private final boolean cancelled;
     private final DateRange aggregatedRange;
-    private final boolean operatesNoDays;
-    private final long numberOfDaysOperating;
+
+    private final DaysBitmap days;
 
     public AggregateServiceCalendar(Collection<ServiceCalendar> calendars) {
-        this.calendars = calendars;
 
         aggregatedRange = calculateDateRange(calendars);
         cancelled = calendars.stream().allMatch(ServiceCalendar::isCancelled);
 
         additional = new TramDateSet();
         aggregatedDays = EnumSet.noneOf(DayOfWeek.class);
+
+        days = createDaysBitset(aggregatedRange);
+
         TramDateSet allExcluded = new TramDateSet();
-        final AtomicInteger noDaysCount = new AtomicInteger(0);
         calendars.forEach(calendar -> {
+            setDaysFor(calendar);
             aggregatedDays.addAll(calendar.getOperatingDays());
             additional.addAll(calendar.getAdditions());
             allExcluded.addAll(calendar.getRemoved());
-            if (calendar.operatesNoDays()) {
-                noDaysCount.incrementAndGet();
-            }
         });
 
         // only keep an excluded date if it's not available via any of the other contained calendars
-        removed = allExcluded.stream().filter(date -> !operatesForAny(calendars, date)).collect(TramDateSet.collector());
-
-        operatesNoDays = noDaysCount.get() == calendars.size();
-
-        numberOfDaysOperating = calcNumberOfDaysOperating();
+        removed = allExcluded.stream().filter(date -> !days.isSet(date)).collect(TramDateSet.collector());
     }
 
-    private long calcNumberOfDaysOperating() {
-        if (cancelled || operatesNoDays) {
-            return 0;
-        }
-        return aggregatedRange.stream().filter(this::operatesOn).count();
+    private DaysBitmap createDaysBitset(DateRange dateRange) {
+        long earliest = dateRange.getStartDate().toEpochDay();
+        long latest = dateRange.getEndDate().toEpochDay();
+
+        int size = Math.toIntExact(Math.subtractExact(latest, earliest));
+
+        return new DaysBitmap(earliest, size);
+    }
+
+    private void setDaysFor(ServiceCalendar calendar) {
+        HasDaysBitmap other = (HasDaysBitmap) calendar;
+        days.insert(other.getDays());
     }
 
     private static DateRange calculateDateRange(Collection<ServiceCalendar> calendars) {
@@ -83,101 +82,39 @@ public class AggregateServiceCalendar implements ServiceCalendar {
         }
     }
 
-    private static boolean operatesForAny(final Collection<ServiceCalendar> calendars, final TramDate date) {
-        return calendars.stream().anyMatch(calendar -> calendar.operatesOn(date));
-    }
-
     @Override
     public boolean anyDateOverlaps(ServiceCalendar other) {
-        return calendars.stream().anyMatch(calendar -> calendar.anyDateOverlaps(other));
+        HasDaysBitmap otherDays = (HasDaysBitmap) other;
+        return this.days.anyOverlap(otherDays.getDays());
     }
 
     @Override
     public boolean operatesOnAny(TramDateSet dates) {
-        if (dates.isEmpty()) {
-            return false;
-        }
-        if (additional.containsAny(dates)) {
-            return true;
-        }
-        if (removed.containsAll(dates)) {
-            return false;
-        }
-        for(TramDate date : dates) {
-            if (dayAndRange(date)) {
-                return true;
-            }
-        }
-        return false;
+        return dates.stream().
+                filter(aggregatedRange::contains).
+                anyMatch(days::isSet);
     }
 
     @Override
     public boolean operatesNoneOf(TramDateSet dates) {
-        if (dates.isEmpty()) {
-            return false;
-        }
-        if (additional.containsAny(dates)) {
-            return false;
-        }
-        if (removed.containsAll(dates)) {
-            return true;
-        }
-        for(TramDate date : dates) {
-            if (dayAndRange(date) && !removed.contains(date)) {
-                return false;
-            }
-        }
-        return true;
+
+        // todo could also do by building bitmask and then AND
+        return dates.stream().
+                filter(aggregatedRange::contains).
+                noneMatch(days::isSet);
     }
 
     @Override
     public long numberDaysOperating() {
-        return numberOfDaysOperating;
-    }
-
-    private boolean dayAndRange(final TramDate date) {
-        if (!aggregatedRange.contains(date)) {
-            return false;
-        }
-
-        final DayOfWeek dayOfWeek = date.getDayOfWeek();
-        if (!aggregatedDays.contains(dayOfWeek)) {
-            return false;
-        }
-
-        // see if specific calendar match on days && range for
-        for(ServiceCalendar calendar : calendars) {
-            if (calendar.getOperatingDays().contains(dayOfWeek) && calendar.getDateRange().contains(date)) {
-                return true;
-            }
-        }
-        return false;
+        return days.numberSet();
     }
 
     @Override
     public boolean operatesOn(final TramDate date) {
-        if (cancelled || operatesNoDays) {
-            return false;
+        if (aggregatedRange.contains(date)) {
+            return days.isSet(date);
         }
-
-        if (removed.contains(date)) {
-            return false;
-        }
-        if (additional.contains(date)) {
-            return true;
-        }
-
-        if (!aggregatedRange.contains(date)) {
-            return false;
-        }
-        if (!aggregatedDays.contains(date.getDayOfWeek())) {
-            return false;
-        }
-
-        // contained calendars will have own sets of days operating (days of week) which will not be valid for
-        // whole duration here, so need to check each contained calendar for final answer
-
-        return calendars.stream().anyMatch(calendar -> calendar.operatesOn(date));
+        return false;
     }
 
     @Override
@@ -187,7 +124,7 @@ public class AggregateServiceCalendar implements ServiceCalendar {
 
     @Override
     public boolean operatesNoDays() {
-       return operatesNoDays;
+       return days.numberSet()==0;
     }
 
     @Override
@@ -243,4 +180,8 @@ public class AggregateServiceCalendar implements ServiceCalendar {
         return found.toString();
     }
 
+    @Override
+    public DaysBitmap getDays() {
+        return days;
+    }
 }

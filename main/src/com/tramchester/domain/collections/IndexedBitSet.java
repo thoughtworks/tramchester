@@ -124,7 +124,7 @@ public class IndexedBitSet {
         cloned.and(other.bitSet);
         return new IndexedBitSet(numberOfRows, bitSet);
     }
-    
+
     @Override
     public String toString() {
         return "IndexedBitSet{" +

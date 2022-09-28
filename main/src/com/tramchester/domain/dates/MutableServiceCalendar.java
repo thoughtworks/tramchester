@@ -4,19 +4,16 @@ import com.tramchester.dataimport.data.CalendarData;
 
 import java.io.PrintStream;
 import java.time.DayOfWeek;
-import java.util.Arrays;
-import java.util.EnumSet;
-import java.util.HashSet;
+import java.util.*;
 
-import static java.lang.String.format;
-
-public class MutableServiceCalendar implements ServiceCalendar {
+public class MutableServiceCalendar implements ServiceCalendar, HasDaysBitmap {
     private final DateRange dateRange;
-    private final EnumSet<DayOfWeek> days;
+    private final EnumSet<DayOfWeek> operatingDays;
     private final TramDateSet additional;
     private final TramDateSet removed;
     private boolean cancelled;
-    private long numberOfDays;
+
+    private final DaysBitmap days;
 
     public MutableServiceCalendar(CalendarData calendarData) {
         this(calendarData.getDateRange(),
@@ -35,112 +32,64 @@ public class MutableServiceCalendar implements ServiceCalendar {
 
     public MutableServiceCalendar(DateRange dateRange, EnumSet<DayOfWeek> operatingDays) {
         this.dateRange = dateRange;
-        days = operatingDays;
+        this.operatingDays = operatingDays;
         additional = new TramDateSet();
         removed = new TramDateSet();
         cancelled = false;
-        calculateNumberOfDays();
-    }
 
-    private void calculateNumberOfDays() {
-        numberOfDays = dateRange.stream().
-                filter(date -> !removed.contains(date)).
-                filter(date -> days.contains(date.getDayOfWeek()) || additional.contains(date)).
-                count();
+        long firstEpochDay = dateRange.getStartDate().toEpochDay();
+
+        int size = Math.toIntExact(dateRange.numberOfDays()); // will throw if overflow
+        days = new DaysBitmap(firstEpochDay,size);
+        days.setDaysOfWeek(operatingDays);
+
     }
 
     private static EnumSet<DayOfWeek> enumFrom(DayOfWeek[] operatingDays) {
         return EnumSet.copyOf(Arrays.asList(operatingDays));
     }
 
+    public void cancel() {
+        cancelled = true;
+        days.clearAll();
+    }
+
     @Override
     public long numberDaysOperating() {
-        if (cancelled) {
-            return 0;
-        }
-        return numberOfDays;
+        return days.numberSet();
     }
 
     public void includeExtraDate(TramDate date) {
-        if (!dateRange.contains(date)) {
-            throw new RuntimeException(format("Additional date %s is outside of the range for %s", date, dateRange));
-        }
-        additional.add(date);
-        calculateNumberOfDays();
+        days.set(date);
+
     }
 
     public void excludeDate(TramDate date) {
+        days.clear(date);
+    }
+
+    @Override
+    public boolean operatesOn(final TramDate date) {
         if (!dateRange.contains(date)) {
-            throw new RuntimeException(format("Excluded date %s is outside of the range for %s", date, dateRange));
+            return false;
         }
-        removed.add(date);
-        calculateNumberOfDays();
+        return days.isSet(date);
     }
 
     @Override
-    public boolean operatesOn(final TramDate queryDate) {
-        if (cancelled || isExcluded(queryDate)) {
-            return false;
-        }
-
-        if (additional.contains(queryDate)) {
-            return true;
-        }
-
-        return operatesOnIgnoringExceptionDates(queryDate);
-    }
-
-    @Override
-    public boolean operatesOnAny(final TramDateSet queryDates) {
-        if (operatesNoDays() || queryDates.isEmpty()) {
-            return false;
-        }
-
-        if (removed.containsAll(queryDates)) {
-            return false;
-        }
-
-        if (additional.containsAny(queryDates)) {
-            return true;
-        }
-
-        return queryDates.stream().
-                filter(date -> days.contains(date.getDayOfWeek())).
-                anyMatch(dateRange::contains);
+    public boolean operatesOnAny(final TramDateSet dates) {
+        return dates.stream().
+                filter(dateRange::contains).
+                anyMatch(days::isSet);
     }
 
     @Override
     public boolean operatesNoneOf(final TramDateSet dates) {
-        if (dates.isEmpty()) {
-            return false;
-        }
-        if (additional.containsAny(dates)) {
-            return false;
-        }
-        if (removed.containsAll(dates)) {
-            return true;
-        }
-        for(TramDate date : dates) {
-            if (dayAndRange(date) && !removed.contains(date)) {
-                return false;
-            }
-        }
-        return true;
-    }
 
-    private boolean dayAndRange(final TramDate date) {
-        return dateRange.contains(date) && days.contains(date.getDayOfWeek());
-    }
-
-    private boolean isExcluded(final TramDate queryDate) {
-        return removed.contains(queryDate);
-    }
-
-    private boolean operatesOnIgnoringExceptionDates(final TramDate queryDate) {
-        if (days.contains(queryDate.getDayOfWeek())) {
-            return dateRange.contains(queryDate);
-        }
-        return false;
+        // todo could also do by building bitmask and then AND
+        return dates.stream().
+                filter(dateRange::contains).
+                noneMatch(days::isSet);
     }
 
     @Override
@@ -163,7 +112,7 @@ public class MutableServiceCalendar implements ServiceCalendar {
     }
 
     private String reportDays() {
-        if (days.isEmpty()) {
+        if (operatingDays.isEmpty()) {
             return "SPECIAL/NONE";
         }
         if (cancelled) {
@@ -171,7 +120,7 @@ public class MutableServiceCalendar implements ServiceCalendar {
         }
 
         StringBuilder found = new StringBuilder();
-        days.forEach(dayOfWeek -> {
+        operatingDays.forEach(dayOfWeek -> {
             if (found.length() > 0) {
                 found.append(",");
             }
@@ -180,8 +129,64 @@ public class MutableServiceCalendar implements ServiceCalendar {
         return found.toString();
     }
 
+
+    @Override
+    public boolean operatesNoDays() {
+        return cancelled || days.noneSet();
+    }
+
+    @Override
+    public EnumSet<DayOfWeek> getOperatingDays() {
+        return operatingDays;
+    }
+
+    @Override
+    public TramDateSet getAdditions() {
+        return additional;
+    }
+
+    @Override
+    public TramDateSet getRemoved() {
+        return removed;
+    }
+
+    @Override
+    public boolean isCancelled() {
+        return cancelled;
+    }
+
+    @Override
+    public DaysBitmap getDays() {
+        return days;
+    }
+
+    @Override
+    public boolean anyDateOverlaps(ServiceCalendar otherCalendar) {
+        if (otherCalendar==null) {
+            throw new RuntimeException("otherCalendar was null");
+        }
+        HasDaysBitmap other = (HasDaysBitmap) otherCalendar;
+        //noinspection ConstantConditions
+        if (other==null) {
+            throw new RuntimeException("Cannot compute overlap as Not DaysAsBitmap " + otherCalendar.toString());
+        }
+
+        return this.days.anyOverlap(other.getDays());
+    }
+
+    @Override
+    public String toString() {
+        return "MutableServiceCalendar{" +
+                "dateRange=" + dateRange +
+                ", days=" + operatingDays +
+                ", additional=" + additional +
+                ", removed=" + removed +
+                ", cancelled=" + cancelled +
+                '}';
+    }
+
     private static EnumSet<DayOfWeek> daysOfWeekFrom(boolean monday, boolean tuesday,
-                                                 boolean wednesday, boolean thursday, boolean friday, boolean saturday, boolean sunday)
+                                                     boolean wednesday, boolean thursday, boolean friday, boolean saturday, boolean sunday)
     {
         HashSet<DayOfWeek> result = new HashSet<>();
         addIf(monday, DayOfWeek.MONDAY, result);
@@ -203,84 +208,5 @@ public class MutableServiceCalendar implements ServiceCalendar {
         }
     }
 
-    @Override
-    public boolean operatesNoDays() {
-        return cancelled || (days.isEmpty() && additional.isEmpty());
-    }
 
-    @Override
-    public EnumSet<DayOfWeek> getOperatingDays() {
-        return days;
-    }
-
-    @Override
-    public TramDateSet getAdditions() {
-        return additional;
-    }
-
-    @Override
-    public TramDateSet getRemoved() {
-        return removed;
-    }
-
-    @Override
-    public boolean isCancelled() {
-        return cancelled;
-    }
-
-    @Override
-    public boolean anyDateOverlaps(ServiceCalendar otherCalendar) {
-        // no overlaps if either doesn't operate at all
-        if (otherCalendar.operatesNoDays() || operatesNoDays()) {
-            return false;
-        }
-
-        // working assumption, any additional dates are within the overall specified range for a service
-        if (!otherCalendar.getDateRange().overlapsWith(getDateRange())) {
-            return false;
-        }
-
-        // additions
-        if (otherCalendar.operatesOnAny(getAdditions())) {
-            return true;
-        }
-        if (this.operatesOnAny(otherCalendar.getAdditions())) {
-            return true;
-        }
-
-        // removed
-        // logic here: if the other calendar also operates none of the removed dates
-        TramDateSet removed = this.getRemoved();
-        TramDateSet otherRemoved = otherCalendar.getRemoved();
-
-        if ((!removed.isEmpty() && !otherRemoved.isEmpty()) && !removed.equals(otherRemoved)) {
-
-            if (otherCalendar.operatesNoneOf(removed)) {
-                return false;
-            }
-            if (this.operatesNoneOf(otherRemoved)) {
-                return false;
-            }
-        }
-
-        // operating days, any overlap?
-        final EnumSet<DayOfWeek> otherDays = EnumSet.copyOf(otherCalendar.getOperatingDays());
-        return otherDays.removeAll(getOperatingDays());
-
-    }
-
-    @Override
-    public String toString() {
-        return "MutableServiceCalendar{" +
-                "dateRange=" + dateRange +
-                ", days=" + days +
-                ", additional=" + additional +
-                ", removed=" + removed +
-                ", cancelled=" + cancelled +
-                '}';
-    }
-
-    public void cancel() {
-        cancelled = true;
-    }
 }

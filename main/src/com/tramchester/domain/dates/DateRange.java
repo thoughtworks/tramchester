@@ -82,4 +82,8 @@ public class DateRange {
         return dates.stream();
     }
 
+    public long numberOfDays() {
+        long diff = Math.subtractExact(endDate.toEpochDay(), startDate.toEpochDay());
+        return Math.abs(diff);
+    }
 }
