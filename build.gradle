@@ -84,7 +84,7 @@ dependencies {
             'org.assertj:assertj-core:3.23.1',
             'io.dropwizard:dropwizard-testing:' + dropwizardVersion,
             'org.easymock:easymock:4.3',
-            'org.seleniumhq.selenium:selenium-java:3.141.59',
+            'org.seleniumhq.selenium:selenium-java:4.5.0',
             'org.hamcrest:hamcrest:2.2'
 
     // supports the codegen from the rail live data api, updating these versions is fraught as dependencies are
