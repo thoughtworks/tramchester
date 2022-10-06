@@ -105,12 +105,14 @@ public class RailServiceGroups {
                             impactedServiceId, scheduleDateRange, schedule.getDaysOfWeek()));
                     final MutableServiceCalendar impactedCalendar = impactedService.getMutableCalendar();
                     DateRange impactedCalendarDateRange = impactedCalendar.getDateRange();
-                    if (impactedCalendarDateRange.contains(scheduleDateRange.getStartDate()) &&
-                        impactedCalendarDateRange.contains(scheduleDateRange.getEndDate())) {
+//                    if (impactedCalendarDateRange.contains(scheduleDateRange.getStartDate()) &&
+//                        impactedCalendarDateRange.contains(scheduleDateRange.getEndDate())) {
+                    if (impactedCalendarDateRange.overlapsWith(scheduleDateRange)) {
                         recordOverlapAsSuperseding(impactedCalendar, scheduleDateRange, schedule.getDaysOfWeek());
                     } else {
-                        String message = "Overlay schedule does not overlap with date range schedule: " + schedule +
-                                " impacted service id " + serviceId + " impacted calendar " + impactedCalendar;
+                        String message = format("Overlay schedule dates %s do not overlap with date range %s for " +
+                                        "schedule: %s impacted service id %s impacted calendar %s",
+                                scheduleDateRange, impactedCalendarDateRange, schedule, serviceId, impactedCalendar);
                         logger.error(message);
                         throw new RuntimeException(message);
                     }
@@ -124,12 +126,20 @@ public class RailServiceGroups {
         return service;
     }
 
-    private void recordOverlapAsSuperseding(MutableServiceCalendar calendar, DateRange dateRange, Set<DayOfWeek> excludedDays) {
-        TramDate endDate = dateRange.getEndDate();
-        TramDate current = dateRange.getStartDate();
+    private void recordOverlapAsSuperseding(MutableServiceCalendar calendarToUpdate, DateRange rangeForUpdates, Set<DayOfWeek> excludedDays) {
+        // TODO Need proper testing on this
+        TramDate toUpdateState = calendarToUpdate.getDateRange().getStartDate();
+        TramDate toUpdateEnd = calendarToUpdate.getDateRange().getEndDate();
+
+        TramDate updateStart = rangeForUpdates.getStartDate();
+        TramDate updateEnd = rangeForUpdates.getEndDate();
+
+        TramDate current = updateStart.isBefore(toUpdateState) ? toUpdateState : updateStart;
+        TramDate endDate = updateEnd.isAfter(toUpdateEnd) ? toUpdateEnd : updateEnd;
+
         while (!current.isAfter(endDate)) {
             if (excludedDays.contains(current.getDayOfWeek())) {
-                calendar.excludeDate(current);
+                calendarToUpdate.excludeDate(current);
             }
             current = current.plusDays(1);
         }

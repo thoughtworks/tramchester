@@ -6,6 +6,7 @@ import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.NumberOfChanges;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.places.Station;
+import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TimeRange;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.search.routes.RouteToRouteCosts;
@@ -17,9 +18,12 @@ import com.tramchester.testSupport.reference.TramStations;
 import com.tramchester.testSupport.testTags.TrainTest;
 import org.junit.jupiter.api.*;
 
-import java.time.LocalDate;
 import java.util.Collections;
+import java.util.EnumSet;
+import java.util.Set;
 
+import static com.tramchester.domain.reference.TransportMode.Train;
+import static com.tramchester.domain.reference.TransportMode.Tram;
 import static com.tramchester.integration.testSupport.rail.RailStationIds.ManchesterPiccadilly;
 import static com.tramchester.integration.testSupport.rail.RailStationIds.Stockport;
 import static com.tramchester.testSupport.reference.TramStations.*;
@@ -64,10 +68,11 @@ public class RailAndTramRouteToRouteCostsTest {
     void shouldValidHopsBetweenTramAndRailLongRange() {
         TimeRange timeRange = TimeRange.of(TramTime.of(8, 15), TramTime.of(22, 35));
 
+        Set<TransportMode> all = Collections.emptySet();
         NumberOfChanges result = routeToRouteCosts.getNumberOfChanges(tram(TramStations.Bury), rail(Stockport),
-                Collections.emptySet(), date, timeRange);
+                all, date, timeRange);
 
-        assertEquals(0, result.getMin());
+        assertEquals(1, result.getMin());
         assertEquals(2, result.getMax());
     }
 
@@ -90,15 +95,17 @@ public class RailAndTramRouteToRouteCostsTest {
                 Collections.emptySet(), date, timeRange);
 
         assertEquals(1, result.getMin());
-        assertEquals(1, result.getMax());
+        assertEquals(4, result.getMax());
     }
 
     @Test
     void shouldNotHaveHopsBetweenTramAndRailWhenTramOnly() {
         TimeRange timeRange = TimeRange.of(TramTime.of(8, 15), TramTime.of(22, 35));
 
+        Set<TransportMode> preferredModes = EnumSet.of(Tram);
+
         NumberOfChanges result = routeToRouteCosts.getNumberOfChanges(tram(TramStations.Bury), rail(Stockport),
-                Collections.emptySet(), date, timeRange);
+                preferredModes, date, timeRange);
 
         assertEquals(Integer.MAX_VALUE, result.getMin());
         assertEquals(Integer.MAX_VALUE, result.getMax());
@@ -108,11 +115,12 @@ public class RailAndTramRouteToRouteCostsTest {
     void shouldHaveCorrectHopsBetweenRailStationsOnly() {
         TimeRange timeRange = TimeRange.of(TramTime.of(8, 15), TramTime.of(22, 35));
 
+        Set<TransportMode> preferredModes = EnumSet.of(Train);
         NumberOfChanges result = routeToRouteCosts.getNumberOfChanges(rail(ManchesterPiccadilly), rail(Stockport),
-                Collections.emptySet(), date, timeRange);
+                preferredModes, date, timeRange);
 
-        assertEquals(0, result.getMin());
-        assertEquals(2, result.getMax());
+        assertEquals(0, result.getMin()); // non stop
+        assertEquals(3, result.getMax()); // round the houses....
     }
 
     @Test

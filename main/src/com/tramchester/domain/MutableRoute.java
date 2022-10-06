@@ -176,8 +176,8 @@ public class MutableRoute implements Route {
     }
 
     private static class RouteCalendar {
-        private final Cache<IdFor<Route>, Boolean> overlapMap; // for thread safety
-        private final IdFor<Route> parentId;
+//        private final Cache<IdFor<Route>, Boolean> overlapMap; // for thread safety
+//        private final IdFor<Route> parentId;
         private final Route parent;
         private AggregateServiceCalendar serviceCalendar;
 
@@ -185,12 +185,12 @@ public class MutableRoute implements Route {
 
         RouteCalendar(Route parent) {
             this.parent = parent;
-            this.parentId = parent.getId();
+//            this.parentId = parent.getId();
             loaded = false;
-            overlapMap = Caffeine.newBuilder().maximumSize(5000).
-                    expireAfterAccess(10, TimeUnit.MINUTES).
-                    initialCapacity(400).
-                    recordStats().build();
+//            overlapMap = Caffeine.newBuilder().maximumSize(5000).
+//                    expireAfterAccess(10, TimeUnit.MINUTES).
+//                    initialCapacity(400).
+//                    recordStats().build();
         }
 
         public boolean isAvailableOn(TramDate date) {
@@ -224,8 +224,9 @@ public class MutableRoute implements Route {
             loadFromParent();
             otherCalendar.loadFromParent();
 
-            return overlapMap.get(otherCalendar.parentId,
-                    item -> serviceCalendar.anyDateOverlaps(otherCalendar.serviceCalendar));
+            return serviceCalendar.anyDateOverlaps(otherCalendar.serviceCalendar);
+//            return overlapMap.get(otherCalendar.parentId,
+//                    item -> serviceCalendar.anyDateOverlaps(otherCalendar.serviceCalendar));
         }
 
     }

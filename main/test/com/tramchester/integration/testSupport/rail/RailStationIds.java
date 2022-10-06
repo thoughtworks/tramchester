@@ -14,6 +14,7 @@ public enum RailStationIds {
     ManchesterOxfordRoad(createId("MNCROXR")),
     SalfordCentral(createId("SLFDORD")),
     Altrincham(createId("ALTRNHM")),
+    NavigationRaod(createId("NAVGTNR")),
     Crewe(createId("CREWE")),
     LondonEuston(createId("EUSTON")),
     Derby(createId("DRBY")),

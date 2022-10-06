@@ -355,7 +355,7 @@ task integrationBus(type: Test, dependsOn: compileJava) {
 
 task integrationRail(type: Test, dependsOn: compileJava) {
     minHeapSize = "1000m"
-    maxHeapSize = "3000m"
+    maxHeapSize = "8000m"
     useJUnitPlatform {
         includeTags "TrainTest"
     }

@@ -10,6 +10,7 @@ import com.tramchester.dataimport.rail.records.RailTimetableRecord;
 import com.tramchester.dataimport.rail.repository.RailRouteIdRepository;
 import com.tramchester.dataimport.rail.repository.RailStationCRSRepository;
 import com.tramchester.domain.Service;
+import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.input.StopCalls;
@@ -401,7 +402,7 @@ public class RailTransportDataTest {
 
         // dates
         DateRange range = service.getCalendar().getDateRange();
-        LocalDate operatingDate = LocalDate.of(2022, 7, 3);
+        TramDate operatingDate = TramDate.of(2022, 7, 3);
         assertEquals(operatingDate, range.getStartDate());
         assertEquals(EnumSet.of(SUNDAY), service.getCalendar().getOperatingDays());
 

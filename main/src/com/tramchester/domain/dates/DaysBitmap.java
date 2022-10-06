@@ -72,10 +72,15 @@ public class DaysBitmap {
             return false;
         }
 
-        BitSet firstOverlap = other.getOverlapWith(this);
-        BitSet secondOverlap = this.getOverlapWith(other);
+        BitSet firstOverlap = other.createOverlapWith(this);
+        BitSet secondOverlap = this.createOverlapWith(other);
 
-        return firstOverlap.intersects(secondOverlap);
+        boolean result = firstOverlap.intersects(secondOverlap);
+
+        firstOverlap.clear();
+        secondOverlap.clear();
+
+        return result;
     }
 
     private boolean contains(DaysBitmap other) {
@@ -92,7 +97,7 @@ public class DaysBitmap {
         return epochDay>=beginningDay && epochDay<=endDay;
     }
 
-    private BitSet getOverlapWith(DaysBitmap other) {
+    private BitSet createOverlapWith(DaysBitmap other) {
         long startOfOverlap = other.beginningDay < this.beginningDay ? 0 : other.beginningDay-this.beginningDay;
 
         long endOfThis = this.beginningDay + size;
