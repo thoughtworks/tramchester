@@ -8,6 +8,7 @@ import com.tramchester.domain.JourneyRequest;
 import com.tramchester.domain.NumberOfChanges;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.places.Station;
+import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TimeRange;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.GraphDatabase;
@@ -21,7 +22,6 @@ import com.tramchester.repository.StationRepository;
 import com.tramchester.repository.TransportData;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.testTags.TrainTest;
-import org.checkerframework.checker.units.qual.C;
 import org.junit.jupiter.api.*;
 import org.neo4j.graphdb.Transaction;
 
@@ -110,25 +110,48 @@ class SubGraphAroundKnutsfordRailTest {
     void shouldHaveKnutsfordToAndFromHale() {
         Station hale = Hale.from(stationRepository);
         Station knutsford = Knutsford.from(stationRepository);
+
         TimeRange timeRange = TimeRange.of(tramTime, tramTime.plusMinutes(INITIAL_WAIT));
 
-        NumberOfChanges haleKnutsford = routeToRouteCosts.getNumberOfChanges(hale, knutsford, Collections.singleton(Train), when, timeRange);
-        assertEquals(0, haleKnutsford.getMin());
+        Set<TransportMode> transportModes = Collections.singleton(Train);
 
-        NumberOfChanges knutsfordToHale = routeToRouteCosts.getNumberOfChanges(knutsford, hale, Collections.singleton(Train), when, timeRange);
-        assertEquals(0, knutsfordToHale.getMin());
+        NumberOfChanges haleKnutsford = routeToRouteCosts.getNumberOfChanges(hale, knutsford, transportModes, when, timeRange);
+        assertEquals(0, haleKnutsford.getMin(), "expected no changes");
 
-        validateAtLeastOneJourney(Hale, Knutsford);
-        validateAtLeastOneJourney(Knutsford, Hale);
+        NumberOfChanges knutsfordToHale = routeToRouteCosts.getNumberOfChanges(knutsford, hale, transportModes, when, timeRange);
+        assertEquals(0, knutsfordToHale.getMin(), "expected no changes");
+
+        Duration maxJourneyDuration = Duration.ofMinutes(60);
+        validateAtLeastOneJourney(Hale, Knutsford, maxJourneyDuration);
+        validateAtLeastOneJourney(Knutsford, Hale, maxJourneyDuration);
     }
 
     @SuppressWarnings("JUnitTestMethodWithNoAssertions")
     @Test
     void shouldHaveJourneysBetweenAllStations() {
+        Duration maxJourneyDuration = Duration.ofMinutes(60);
+
         for (RailStationIds start: stations) {
             for (RailStationIds destination: stations) {
                 if (!start.equals(destination)) {
-                    validateAtLeastOneJourney(start, destination);
+                    validateAtLeastOneJourney(start, destination, maxJourneyDuration);
+                }
+            }
+        }
+    }
+
+    @Test
+    void shouldHaveNoChangesBetweenAllStations() {
+        TimeRange timeRange = TimeRange.of(tramTime, tramTime.plusMinutes(INITIAL_WAIT));
+        Set<TransportMode> transportModes = Collections.singleton(Train);
+
+        for (RailStationIds startId: stations) {
+            for (RailStationIds destinationId: stations) {
+                if (!startId.equals(destinationId)) {
+                    NumberOfChanges numberOfChanges = routeToRouteCosts.getNumberOfChanges(startId.from(stationRepository),
+                            destinationId.from(stationRepository),
+                            transportModes, when, timeRange);
+                    assertEquals(0, numberOfChanges.getMin());
                 }
             }
         }
@@ -150,12 +173,13 @@ class SubGraphAroundKnutsfordRailTest {
         creator.create(Path.of(format("%s_trains.dot", "around_hale")), station, 100, false);
     }
 
-    private void validateAtLeastOneJourney(RailStationIds start, RailStationIds dest) {
+    private void validateAtLeastOneJourney(RailStationIds start, RailStationIds dest, Duration maxJourneyDuration) {
+        Set<TransportMode> allModes = Collections.emptySet();
         JourneyRequest journeyRequest = new JourneyRequest(when, tramTime, false, 0,
-                Duration.ofMinutes(30), 1, Collections.emptySet());
+                maxJourneyDuration, 1, allModes);
 
         Set<Journey> results = testFacade.calculateRouteAsSet(start.getId(), dest.getId(), journeyRequest);
-        assertFalse(results.isEmpty(), "No results from " + start + " to " + dest);
+        assertFalse(results.isEmpty(), "No results from " + start + " to " + dest + " for " + journeyRequest);
     }
 
     private static class SubgraphConfig extends IntegrationRailTestConfig {
