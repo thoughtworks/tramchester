@@ -150,7 +150,8 @@ public class RailRouteCalculatorTest {
     @Test
     void shouldHaveAltrinchamToStockport() {
 
-        JourneyRequest request = new JourneyRequest(new TramServiceDate(when), travelTime, false, 1,
+        TramTime time = TramTime.of(8,45);
+        JourneyRequest request = new JourneyRequest(new TramServiceDate(when), time, false, 1,
                 Duration.ofMinutes(45), 1, getRequestedModes());
 
         atLeastOneDirect(request, altrincham, stockport);
