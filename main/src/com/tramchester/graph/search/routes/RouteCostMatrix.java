@@ -198,19 +198,6 @@ public class RouteCostMatrix {
         return possibleInterchangePairs;
     }
 
-//    private List<SimpleList<RouteIndexPair>> expandOnePair(final RouteIndexPair original, final int degree, final IndexedBitSet dateOverlaps) {
-//        if (degree == 1) {
-//            // at degree one we are at direct connections between routes via an interchange so the result is those pairs
-//            //logger.debug("degree 1, expand pair to: " + original);
-//            return Collections.singletonList(new SimpleListSingleton<>(original));
-//        }
-//
-//        final Stream<SimpleList<RouteIndexPair>> resultsStream = expandOnePairStream(original, degree, dateOverlaps);
-//
-//        return resultsStream.collect(Collectors.toList());
-//
-//    }
-
     private Stream<SimpleList<RouteIndexPair>> expandOnePairStream(final RouteIndexPair original, final int degree, final IndexedBitSet dateOverlaps) {
         if (degree == 1) {
             // at degree one we are at direct connections between routes via an interchange so the result is those pairs
@@ -225,7 +212,7 @@ public class RouteCostMatrix {
         final List<Integer> overlappingIndexes = getIndexOverlapsFor(overlapsAtDegree, original);
 
         return overlappingIndexes.stream().
-                map(index1 -> formNewRoutePairs(original, index1)).
+                map(index -> formNewRoutePairs(original, index)).
                 filter(pair -> isOverlap(dateOverlaps, pair.getLeft()) && isOverlap(dateOverlaps,pair.getRight())).
                 flatMap(pair -> getResultsForOneOverlaps(expandOnePairStream(pair.getLeft(), nextDegree, dateOverlaps),
                         expandOnePairStream(pair.getRight(), nextDegree, dateOverlaps)));
@@ -403,7 +390,6 @@ public class RouteCostMatrix {
 
             saver.open();
 
-            //List<CostsPerDegreeData> dataItems = new ArrayList<>();
             for (int index = 0; index < size; index++) {
                 IndexedBitSet bitSet = bitSets[index];
                 for (int routeIndex = 0; routeIndex < numRoutes; routeIndex++) {
@@ -412,7 +398,6 @@ public class RouteCostMatrix {
                         List<Integer> bitsSetForRow = bitSetForRow.stream().boxed().collect(Collectors.toList());
                         CostsPerDegreeData item = new CostsPerDegreeData(index, routeIndex, bitsSetForRow);
                         saver.write(item);
-                        //ataItems.add(item);
                     }
                 }
             }
