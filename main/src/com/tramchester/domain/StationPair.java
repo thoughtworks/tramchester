@@ -24,8 +24,8 @@ public class StationPair {
     @Override
     public String toString() {
         return "StationPair{" +
-                "begin=" + begin +
-                ", end=" + end +
+                "begin=" + begin.getId() +
+                ", end=" + end.getId() +
                 '}';
     }
 

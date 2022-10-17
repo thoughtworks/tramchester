@@ -32,8 +32,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 @TrainTest
 public class RailAndTramRouteToRouteCostsTest {
     private static StationRepository stationRepository;
-
-
     private static ComponentContainer componentContainer;
 
     private TramDate date;
@@ -88,6 +86,29 @@ public class RailAndTramRouteToRouteCostsTest {
     }
 
     @Test
+    void shouldValidHopsBetweenTramAndRailNeighbourThenTrain() {
+        TimeRange timeRange = TimeRange.of(TramTime.of(8, 15), TramTime.of(22, 35));
+
+        NumberOfChanges result = routeToRouteCosts.getNumberOfChanges(tram(Altrincham), rail(Stockport),
+                Collections.emptySet(), date, timeRange);
+
+        assertEquals(1, result.getMin());
+        assertEquals(2, result.getMax());
+    }
+
+    @Disabled("Is this realistic? Trains only but start at a tram station")
+    @Test
+    void shouldValidHopsBetweenTramAndRailNeighbourThenTrainWhenOnlyTrainModeEnabled() {
+        TimeRange timeRange = TimeRange.of(TramTime.of(8, 15), TramTime.of(22, 35));
+
+        NumberOfChanges result = routeToRouteCosts.getNumberOfChanges(tram(Altrincham), rail(Stockport),
+                EnumSet.of(Train), date, timeRange);
+
+        assertEquals(1, result.getMin());
+        assertEquals(2, result.getMax());
+    }
+
+    @Test
     void shouldValidHopsBetweenTramAndRailShortRange() {
         TimeRange timeRange = TimeRange.of(TramTime.of(8, 15), TramTime.of(22, 35));
 
@@ -95,7 +116,7 @@ public class RailAndTramRouteToRouteCostsTest {
                 Collections.emptySet(), date, timeRange);
 
         assertEquals(1, result.getMin());
-        assertEquals(4, result.getMax());
+        assertEquals(2, result.getMax());
     }
 
     @Test

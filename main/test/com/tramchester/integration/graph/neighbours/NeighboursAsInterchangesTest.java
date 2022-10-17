@@ -54,7 +54,7 @@ public class NeighboursAsInterchangesTest {
     @Test
     public void altrinchamBecomesInterchangeWhenNeighboursCreated() {
         assertTrue(interchangeRepository.isInterchange(altrinchamTram));
-        fail("todo  - need to pick a different staiton, shudehill is an interchange");
+        fail("todo  - need to pick a different station, shudehill is an interchange");
     }
 
     @Test

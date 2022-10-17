@@ -98,7 +98,8 @@ public class BusRouteToRouteCostsTest {
         Station start = stationRepository.getStationById(BusStations.KnutsfordStationStand3.getId());
         StationGroup end = stationGroupsRepository.findByName("Shudehill Interchange");
 
-        NumberOfChanges numberOfChanges = routeToRouteCosts.getNumberOfChanges(LocationSet.singleton(start), LocationSet.of(end.getContained()), date, timeRange);
+        NumberOfChanges numberOfChanges = routeToRouteCosts.getNumberOfChanges(LocationSet.singleton(start),
+                LocationSet.of(end.getContained()), date, timeRange);
 
         assertEquals(2, numberOfChanges.getMin());
         assertEquals(3, numberOfChanges.getMax());
@@ -114,7 +115,9 @@ public class BusRouteToRouteCostsTest {
                 "Macclesfield - Altrincham");
         assertEquals(2, knutsfordToAlty.size());
 
-        assertEquals(1, routeToRouteCosts.getNumberChangesFor(altyToKnutsford.iterator().next(), knutsfordToAlty.iterator().next(), date, timeRange));
+        NumberOfChanges numberOfChanges = routeToRouteCosts.getNumberOfChanges(altyToKnutsford.iterator().next(),
+                knutsfordToAlty.iterator().next(), date, timeRange);
+        assertEquals(1, numberOfChanges.getMin());
 
     }
 

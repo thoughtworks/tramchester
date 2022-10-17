@@ -3,7 +3,7 @@ package com.tramchester.repository;
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.domain.LocationSet;
 import com.tramchester.domain.Route;
-import com.tramchester.domain.RouteAndInterchanges;
+import com.tramchester.domain.RouteAndChanges;
 import com.tramchester.domain.Service;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.input.StopCall;
@@ -100,9 +100,9 @@ public class StationAvailabilityRepository {
                 dropoffsForLocation.get(location).anyAvailable(when, timeRange);
     }
 
-    public boolean isAvailable(RouteAndInterchanges routeAndInterchanges, TramDate date, TimeRange time) {
-        if (routeAndInterchanges.getRoutePair().isAvailableOn(date)) {
-            return routeAndInterchanges.getInterchangeStations().stream().
+    public boolean isAvailable(RouteAndChanges routeAndChanges, TramDate date, TimeRange time) {
+        if (routeAndChanges.getRoutePair().isAvailableOn(date)) {
+            return routeAndChanges.getStations().stream().
                     anyMatch(station -> isAvailable(station, date, time));
         }
         return false;

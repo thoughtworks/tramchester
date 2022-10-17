@@ -20,6 +20,7 @@ import com.tramchester.graph.graphbuild.GraphLabel;
 import com.tramchester.graph.graphbuild.GraphProps;
 import com.tramchester.graph.graphbuild.StagedTransportGraphBuilder;
 import com.tramchester.integration.testSupport.TramAndTrainGreaterManchesterConfig;
+import com.tramchester.integration.testSupport.rail.RailStationIds;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
 import com.tramchester.repository.InterchangeRepository;
 import com.tramchester.repository.StationRepository;
@@ -39,7 +40,6 @@ import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static com.tramchester.graph.TransportRelationshipTypes.*;
 import static com.tramchester.testSupport.reference.TramStations.*;
@@ -75,7 +75,6 @@ class RailAndTramGraphBuilderTest {
         graphQuery = componentContainer.get(GraphQuery.class);
         stationRepository = componentContainer.get(StationRepository.class);
         GraphDatabase graphDatabase = componentContainer.get(GraphDatabase.class);
-
 
         StagedTransportGraphBuilder builder = componentContainer.get(StagedTransportGraphBuilder.class);
         builder.getReady();
@@ -129,9 +128,32 @@ class RailAndTramGraphBuilderTest {
     }
 
     @Test
-    void todo() {
-        fail("todo");
-        // todo check on tram/rail station links, costs and directions
+    void shouldHaveExpectedRelationshipsBetweenTramAndTrainStations() {
+        Station altyTram = Altrincham.from(stationRepository);
+        Station altyTrain = RailStationIds.Altrincham.from(stationRepository);
+
+        Duration expectedCost = Duration.ofMinutes(1);
+
+        Node altyTramNode = graphQuery.getStationNode(txn, altyTram);
+        Node altyTrainNode = graphQuery.getStationNode(txn, altyTrain);
+
+        assertNotNull(altyTramNode);
+        assertNotNull(altyTrainNode);
+
+        List<Relationship> fromTram = Streams.stream(altyTramNode.getRelationships(Direction.OUTGOING, NEIGHBOUR)).collect(Collectors.toList());
+        assertEquals(1, fromTram.size(), "Wrong number of neighbours " + fromTram);
+
+        Relationship tramNeighbour = fromTram.get(0);
+        assertEquals(altyTrainNode.getId(), tramNeighbour.getEndNode().getId());
+        assertEquals(expectedCost, GraphProps.getCost(tramNeighbour));
+
+        List<Relationship> fromTrain = Streams.stream(altyTrainNode.getRelationships(Direction.OUTGOING, NEIGHBOUR)).collect(Collectors.toList());
+        assertEquals(1, fromTrain.size(), "Wrong number of neighbours " + fromTram);
+
+        Relationship trainNeighbour = fromTrain.get(0);
+        assertEquals(altyTramNode.getId(), trainNeighbour.getEndNode().getId());
+        assertEquals(expectedCost, GraphProps.getCost(trainNeighbour));
+
     }
 
     @Test

@@ -32,4 +32,8 @@ public class NumberOfChanges {
     public void overrideMax(int maxChanges) {
         max = maxChanges;
     }
+
+    public boolean isNone() {
+        return min==Integer.MAX_VALUE;
+    }
 }

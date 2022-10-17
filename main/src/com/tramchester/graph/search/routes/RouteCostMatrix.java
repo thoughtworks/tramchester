@@ -6,6 +6,7 @@ import com.tramchester.dataexport.DataSaver;
 import com.tramchester.dataimport.data.CostsPerDegreeData;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.RoutePair;
+import com.tramchester.domain.StationLink;
 import com.tramchester.domain.collections.ImmutableBitSet;
 import com.tramchester.domain.collections.IndexedBitSet;
 import com.tramchester.domain.collections.SimpleList;
@@ -14,6 +15,7 @@ import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.places.InterchangeStation;
 import com.tramchester.graph.filters.GraphFilterActive;
 import com.tramchester.repository.InterchangeRepository;
+import com.tramchester.repository.NeighboursRepository;
 import com.tramchester.repository.RouteRepository;
 import org.apache.commons.lang3.tuple.Pair;
 import org.jetbrains.annotations.NotNull;
@@ -47,18 +49,20 @@ public class RouteCostMatrix {
 
     private final CostsPerDegree costsForDegree;
     private final RouteIndex index;
+    private final NeighboursRepository neighboursRepository;
     private final int maxDepth;
     private final int numRoutes;
 
     @Inject
     RouteCostMatrix(RouteRepository routeRepository, InterchangeRepository interchangeRepository, DataCache dataCache,
-                    GraphFilterActive graphFilter, RouteIndex index) {
+                    GraphFilterActive graphFilter, RouteIndex index, NeighboursRepository neighboursRepository) {
         this.routeRepository = routeRepository;
         this.interchangeRepository = interchangeRepository;
         this.dataCache = dataCache;
         this.graphFilter = graphFilter;
 
         this.index = index;
+        this.neighboursRepository = neighboursRepository;
         this.maxDepth = MAX_DEPTH;
         this.numRoutes = routeRepository.numberOfRoutes();
 
@@ -87,7 +91,9 @@ public class RouteCostMatrix {
         RouteDateAndDayOverlap routeDateAndDayOverlap = new RouteDateAndDayOverlap(index, numRoutes);
         routeDateAndDayOverlap.populateFor();
 
-        addInitialConnectionsFromInterchanges(routeDateAndDayOverlap);
+        IndexedBitSet forDegreeOne = costsForDegree.getDegree(1);
+        addInitialConnectionsFromInterchanges(routeDateAndDayOverlap, forDegreeOne);
+        
         populateCosts(routeDateAndDayOverlap);
     }
 
@@ -96,21 +102,22 @@ public class RouteCostMatrix {
         costsForDegree.clear();
     }
 
-    private void addInitialConnectionsFromInterchanges(RouteDateAndDayOverlap routeDateAndDayOverlap) {
+    private void addInitialConnectionsFromInterchanges(RouteDateAndDayOverlap routeDateAndDayOverlap, IndexedBitSet forDegreeOne) {
         final Set<InterchangeStation> interchanges = interchangeRepository.getAllInterchanges();
         logger.info("Pre-populate route to route costs from " + interchanges.size() + " interchanges");
-        final IndexedBitSet forDegreeOne = costsForDegree.getDegree(1);
-        interchanges.forEach(interchange -> addOverlapsForInterchange(forDegreeOne, interchange, routeDateAndDayOverlap));
+        interchanges.forEach(interchange -> {
+            // TODO This does not work for multi-mode station interchanges?
+            // record interchanges, where we can go from being dropped off (routes) to being picked up (routes)
+            final Set<Route> dropOffAtInterchange = interchange.getDropoffRoutes();
+            final Set<Route> pickupAtInterchange = interchange.getPickupRoutes();
+
+            addOverlapsForRoutes(forDegreeOne, routeDateAndDayOverlap, dropOffAtInterchange, pickupAtInterchange);
+        });
         logger.info("Add " + size() + " connections for interchanges");
     }
 
-    private void addOverlapsForInterchange(IndexedBitSet forDegreeOne, InterchangeStation interchange,
-                                           RouteDateAndDayOverlap routeDateAndDayOverlap) {
-
-        // record interchanges, where we can go from being dropped off (routes) to being picked up (routes)
-        final Set<Route> dropOffAtInterchange = interchange.getDropoffRoutes();
-        final Set<Route> pickupAtInterchange = interchange.getPickupRoutes();
-
+    private void addOverlapsForRoutes(IndexedBitSet forDegreeOne, RouteDateAndDayOverlap routeDateAndDayOverlap,
+                                      Set<Route> dropOffAtInterchange, Set<Route> pickupAtInterchange) {
         for (final Route dropOff : dropOffAtInterchange) {
             final int dropOffIndex = index.indexFor(dropOff.getId());
             // todo, could use bitset Or and And with DateOverlapMask here

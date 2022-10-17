@@ -8,8 +8,6 @@ import com.tramchester.domain.Journey;
 import com.tramchester.domain.JourneyRequest;
 import com.tramchester.domain.NumberOfChanges;
 import com.tramchester.domain.Route;
-import com.tramchester.domain.collections.IndexedBitSet;
-import com.tramchester.domain.collections.SimpleList;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.StringIdFor;
@@ -21,9 +19,6 @@ import com.tramchester.domain.time.TimeRange;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.search.RouteCalculator;
-import com.tramchester.graph.search.routes.RouteCostMatrix;
-import com.tramchester.graph.search.routes.RouteIndex;
-import com.tramchester.graph.search.routes.RouteIndexPair;
 import com.tramchester.graph.search.routes.RouteToRouteCosts;
 import com.tramchester.integration.testSupport.RouteCalculatorTestFacade;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
@@ -34,18 +29,15 @@ import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TramRouteHelper;
 import com.tramchester.testSupport.reference.KnownTramRoute;
-import com.tramchester.testSupport.reference.TramStations;
 import com.tramchester.testSupport.testTags.Summer2022;
 import org.junit.jupiter.api.*;
 import org.neo4j.graphdb.Transaction;
 
 import java.time.Duration;
 import java.util.Collections;
-import java.util.List;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static com.tramchester.testSupport.reference.KnownTramRoute.*;
 import static com.tramchester.testSupport.reference.TramStations.*;
@@ -257,9 +249,9 @@ class RouteCalculatorSummer2022Test {
 
         TimeRange timeRange = TimeRange.of(TramTime.of(8,15), TramTime.of(22,35));
 
-        int count = routeToRouteCosts.getNumberChangesFor(originalRoute, replacementRoute, when.plusDays(1), timeRange);
+        NumberOfChanges numberOfChanges = routeToRouteCosts.getNumberOfChanges(originalRoute, replacementRoute, when.plusDays(1), timeRange);
 
-        assertEquals(1, count);
+        assertEquals(1, numberOfChanges.getMin());
     }
 
     @Test
@@ -271,9 +263,9 @@ class RouteCalculatorSummer2022Test {
 
         TimeRange timeRange = TimeRange.of(TramTime.of(8,15), TramTime.of(22,35));
 
-        int count = routeToRouteCosts.getNumberChangesFor(originalRoute, replacementRoute, when.plusDays(1), timeRange);
+        NumberOfChanges count = routeToRouteCosts.getNumberOfChanges(originalRoute, replacementRoute, when.plusDays(1), timeRange);
 
-        assertEquals(1, count);
+        assertEquals(1, count.getMin());
     }
 
     @Test

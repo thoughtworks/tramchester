@@ -103,7 +103,7 @@ public class RailAndTramRouteCalculatorTest {
     @Test
     void shouldReproIssueWithDuplicatedJourneyWhenMaxJoruneysIs5() {
 
-        // TODO revist this - although it does not a cause an actual issue as duplciates filter out during mapping to DTOs
+        // TODO revisit this - although it does not a cause an actual issue since duplicates filtered out during mapping to DTOs
 
         TramTime time = TramTime.of(14,25);
 
@@ -120,7 +120,40 @@ public class RailAndTramRouteCalculatorTest {
 
         assertEquals(1, journeys.size(), "unexpected number of journeys " + journeys);
 
+    }
 
+    @Test
+    void shouldHaveWalkBetweenAdjacentTramAndTrainStation() {
+        TramTime time = TramTime.of(14,25);
+
+        TramDate date = TestEnv.testDay();
+
+        JourneyRequest request = new JourneyRequest(new TramServiceDate(date), time, false, 0,
+                Duration.ofMinutes(3), 1, EnumSet.of(Tram, Train));
+
+        List<Journey> journeysFromTram = new ArrayList<>(testFacade.calculateRouteAsSet(tram(TramStations.Altrincham),
+                rail(Altrincham), request));
+        List<Journey> journeysFromTrain = new ArrayList<>(testFacade.calculateRouteAsSet(rail(Altrincham),
+                tram(TramStations.Altrincham), request));
+
+        assertEquals(1, journeysFromTram.size());
+        assertEquals(1, journeysFromTrain.size());
+
+        Journey fromTramJoruney = journeysFromTram.get(0);
+        List<TransportStage<?, ?>> fromTramStages = fromTramJoruney.getStages();
+        assertEquals(1, fromTramStages.size());
+
+        Journey fromTrainJoruney = journeysFromTram.get(0);
+        List<TransportStage<?, ?>> fromTrainStages = fromTrainJoruney.getStages();
+        assertEquals(1, fromTrainStages.size());
+
+        TransportStage<?, ?> fromTram = fromTramStages.get(0);
+        assertEquals(Connect, fromTram.getMode());
+        assertEquals(Duration.ofMinutes(1), fromTram.getDuration());
+
+        TransportStage<?, ?> fromTrain = fromTrainStages.get(0);
+        assertEquals(Connect, fromTrain.getMode());
+        assertEquals(Duration.ofMinutes(1), fromTrain.getDuration());
     }
 
     @Test
@@ -145,25 +178,51 @@ public class RailAndTramRouteCalculatorTest {
 
     }
 
+    @Disabled("Not a realistic scenario? start from a tram station but select train only?")
+    @Test
+    void shouldTakeDirectTrainViaWalkWhenOnlyTrainModeSelected() {
+        TramTime time = TramTime.of(14,25);
+
+        EnumSet<TransportMode> trainOnly = EnumSet.of(Train);
+
+        TramDate date = TramDate.of(2022, 10,14);
+        JourneyRequest request = new JourneyRequest(new TramServiceDate(date), time, false, 1,
+                Duration.ofMinutes(240), 1, trainOnly);
+
+        Station start = tram(TramStations.Altrincham);
+        Station dest = rail(Stockport);
+
+        List<Journey> journeys = new ArrayList<>(testFacade.calculateRouteAsSet(start, dest, request));
+        assertFalse(journeys.isEmpty(), "no journeys");
+
+        Journey journey = journeys.get(0);
+
+        List<TransportStage<?, ?>> stages = journey.getStages();
+        assertEquals(2, stages.size(),  "too many stages " + journey);
+        assertEquals(stages.get(0).getMode(), Connect, "wrong first stage for " + stages);
+        assertEquals(stages.get(1).getMode(), Train, "wrong second stage for " + stages);
+
+    }
+
     @Test
     void shouldTakeDirectTrainWhenStarAtTramStationNextToStation() {
         TramTime time = TramTime.of(14,25);
 
-        JourneyRequest request = new JourneyRequest(new TramServiceDate(when), time, false, 2,
-                Duration.ofMinutes(60), 1, getRequestedModes());
+        JourneyRequest request = new JourneyRequest(new TramServiceDate(when), time, false, 1,
+                Duration.ofMinutes(240), 1, getRequestedModes());
 
         Station start = tram(TramStations.Altrincham); // TRAM
         Station dest = rail(Stockport);
 
-        Set<Journey> journeys = testFacade.calculateRouteAsSet(start, dest, request);
+        List<Journey> journeys = new ArrayList<>(testFacade.calculateRouteAsSet(start, dest, request));
         assertFalse(journeys.isEmpty(), "no journeys");
 
-        journeys.forEach(journey -> {
-            List<TransportStage<?, ?>> stages = journey.getStages();
-            assertEquals(2, stages.size(),  "too many stages " + journey);
-            assertEquals(stages.get(0).getMode(), Walk, "wrong first stage for " + stages);
-            assertEquals(stages.get(1).getMode(), Train, "wrong second stage for " + stages);
-        });
+        Journey journey = journeys.get(0);
+
+        List<TransportStage<?, ?>> stages = journey.getStages();
+        assertEquals(2, stages.size(),  "too many stages " + journey);
+        assertEquals(stages.get(0).getMode(), Connect, "wrong first stage for " + stages);
+        assertEquals(stages.get(1).getMode(), Train, "wrong second stage for " + stages);
 
     }
 

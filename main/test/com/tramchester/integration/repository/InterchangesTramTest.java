@@ -173,7 +173,7 @@ public class InterchangesTramTest {
         IdSet<Route> routesWithoutInterchanges = routeRepository.getRoutes().stream().
                 filter(route -> !dropOffRoutes.contains(route)).
                 filter(route -> !pickupRoutes.contains(route)).
-                collect(IdSet.collector());;
+                collect(IdSet.collector());
 
         assertTrue(routesWithoutInterchanges.isEmpty(), routesWithoutInterchanges.toString());
     }
@@ -182,8 +182,6 @@ public class InterchangesTramTest {
      * Here to validate altrincham neighbours testing and interchanges
      * @see NeighboursAsInterchangesTest#altrinchamBecomesInterchangeWhenNeighboursCreated()
      */
-    @Summer2022
-    @Disabled("is an interchange for a period")
     @Test
     public void altrinchamNotAnInterchange() {
         Station station = stationRepository.getStationById(TramStations.Altrincham.getId());
