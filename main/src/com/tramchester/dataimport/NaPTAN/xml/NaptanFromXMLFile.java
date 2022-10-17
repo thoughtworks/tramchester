@@ -4,7 +4,6 @@ import com.ctc.wstx.stax.WstxInputFactory;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
-import com.fasterxml.jackson.dataformat.xml.deser.FromXmlParser;
 import com.tramchester.dataimport.NaPTAN.xml.stopArea.NaptanStopAreaData;
 import com.tramchester.dataimport.NaPTAN.xml.stopPoint.NaptanStopData;
 import org.slf4j.Logger;
@@ -72,9 +71,6 @@ public class NaptanFromXMLFile {
 
         logger.info("Begin load");
         final XMLStreamReader streamReader = factory.createXMLStreamReader(in);
-
-        FromXmlParser parser = mapper.getFactory().createParser(streamReader);
-
 
         while (streamReader.hasNext()) {
             if (streamReader.isStartElement()) {

@@ -8,6 +8,7 @@ import com.tramchester.domain.JourneyRequest;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.dates.TramServiceDate;
 import com.tramchester.domain.places.Station;
+import com.tramchester.domain.presentation.TransportStage;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.GraphDatabase;
@@ -24,9 +25,7 @@ import org.junit.jupiter.api.*;
 import org.neo4j.graphdb.Transaction;
 
 import java.time.Duration;
-import java.util.Collections;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
@@ -97,6 +96,74 @@ public class RailAndTramRouteCalculatorTest {
 
         Set<Journey> journeys = testFacade.calculateRouteAsSet(start, dest, request);
         assertFalse(journeys.isEmpty(), "no journeys");
+
+    }
+
+    @Disabled("No way to detect duplicate at this level?")
+    @Test
+    void shouldReproIssueWithDuplicatedJourneyWhenMaxJoruneysIs5() {
+
+        // TODO revist this - although it does not a cause an actual issue as duplciates filter out during mapping to DTOs
+
+        TramTime time = TramTime.of(14,25);
+
+        TramDate date = TramDate.of(2022, 10,14);
+
+        // get a duplicate journey when set to 5 here...
+        JourneyRequest request = new JourneyRequest(new TramServiceDate(date), time, false, 1,
+                Duration.ofMinutes(240), 5, EnumSet.of(Tram, Train));
+
+        Station start = rail(Altrincham);
+        Station dest = rail(Stockport);
+
+        Set<Journey> journeys = testFacade.calculateRouteAsSet(start, dest, request);
+
+        assertEquals(1, journeys.size(), "unexpected number of journeys " + journeys);
+
+
+    }
+
+    @Test
+    void shouldTakeDirectTrainWhenAvailable() {
+        TramTime time = TramTime.of(14,25);
+
+        TramDate date = TramDate.of(2022, 10,14);
+        JourneyRequest request = new JourneyRequest(new TramServiceDate(date), time, false, 1,
+                Duration.ofMinutes(240), 1, EnumSet.of(Tram, Train));
+
+        Station start = rail(Altrincham);
+        Station dest = rail(Stockport);
+
+        Set<Journey> journeys = testFacade.calculateRouteAsSet(start, dest, request);
+        assertEquals(1, journeys.size(), "unexpected number of journeys " + journeys);
+
+        journeys.forEach(journey -> {
+            List<TransportStage<?, ?>> stages = journey.getStages();
+            assertEquals(1, stages.size(), "too many stages " + journey);
+            assertEquals(stages.get(0).getMode(), Train, "wrong second stage for " + stages);
+        });
+
+    }
+
+    @Test
+    void shouldTakeDirectTrainWhenStarAtTramStationNextToStation() {
+        TramTime time = TramTime.of(14,25);
+
+        JourneyRequest request = new JourneyRequest(new TramServiceDate(when), time, false, 2,
+                Duration.ofMinutes(60), 1, getRequestedModes());
+
+        Station start = tram(TramStations.Altrincham); // TRAM
+        Station dest = rail(Stockport);
+
+        Set<Journey> journeys = testFacade.calculateRouteAsSet(start, dest, request);
+        assertFalse(journeys.isEmpty(), "no journeys");
+
+        journeys.forEach(journey -> {
+            List<TransportStage<?, ?>> stages = journey.getStages();
+            assertEquals(2, stages.size(),  "too many stages " + journey);
+            assertEquals(stages.get(0).getMode(), Walk, "wrong first stage for " + stages);
+            assertEquals(stages.get(1).getMode(), Train, "wrong second stage for " + stages);
+        });
 
     }
 
@@ -174,10 +241,8 @@ public class RailAndTramRouteCalculatorTest {
         List<Journey> direct = journeys.stream().filter(journey -> journey.getStages().size() == 1).collect(Collectors.toList());
         assertFalse(direct.isEmpty(), "No direct from " + start + " to " + dest);
 
-        direct.forEach(journey -> {
-            journey.getStages().forEach(stage -> assertEquals(Connect, stage.getMode(),
-                    "Mode wrong for journey " + journey + " for request " + request));
-        });
+        direct.forEach(journey -> journey.getStages().forEach(stage -> assertEquals(Connect, stage.getMode(),
+                "Mode wrong for journey " + journey + " for request " + request)));
 
     }
 
@@ -219,10 +284,8 @@ public class RailAndTramRouteCalculatorTest {
         List<Journey> direct = journeys.stream().filter(journey -> journey.getStages().size() == 1).collect(Collectors.toList());
         assertFalse(direct.isEmpty(), "No direct from " + start + " to " + dest);
 
-        direct.forEach(journey -> {
-            journey.getStages().forEach(stage -> assertEquals(mode, stage.getMode(),
-                    "Mode wrong for journey " + journey + " for request " + request));
-        });
+        direct.forEach(journey -> journey.getStages().forEach(stage -> assertEquals(mode, stage.getMode(),
+                "Mode wrong for journey " + journey + " for request " + request)));
 
     }
 

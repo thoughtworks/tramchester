@@ -137,23 +137,26 @@ class ConfigMismatchTest {
 
         validateCoreParameters(Collections.emptyList(), appConfig, testConfig);
 
-        List<RemoteDataSourceConfig> remoteSources = appConfig.getRemoteDataSourceConfig();
+        List<RemoteDataSourceConfig> configRemoteSources = appConfig.getRemoteDataSourceConfig();
         List<RemoteDataSourceConfig> testRemoteSources = testConfig.getRemoteDataSourceConfig();
 
-        assertEquals(remoteSources.size(), testRemoteSources.size());
+        assertEquals(appConfig.getNumberQueries(), testConfig.getNumberQueries(), "number of queries mismatch");
+        assertEquals(appConfig.getQueryInterval(), testConfig.getQueryInterval(), "query interval mismatch");
+
+        assertEquals(configRemoteSources.size(), testRemoteSources.size());
         assertEquals(4, testRemoteSources.size());
 
-        assertRemoteSources(remoteSources, testRemoteSources, 0);
-        assertRemoteSources(remoteSources, testRemoteSources, 1);
-        assertRemoteSources(remoteSources, testRemoteSources, 2);
-        assertRemoteSources(remoteSources, testRemoteSources, 3);
+        assertRemoteSources(configRemoteSources, testRemoteSources, 0);
+        assertRemoteSources(configRemoteSources, testRemoteSources, 1);
+        assertRemoteSources(configRemoteSources, testRemoteSources, 2);
+        assertRemoteSources(configRemoteSources, testRemoteSources, 3);
 
-        RailConfig rail = appConfig.getRailConfig();
+        RailConfig configRail = appConfig.getRailConfig();
         RailConfig testRail = appConfig.getRailConfig();
 
-        assertEquals(rail.getStations(), testRail.getStations());
-        assertEquals(rail.getTimetable(), testRail.getTimetable());
-        assertEquals(rail.getModes(), testRail.getModes());
+        assertEquals(configRail.getStations(), testRail.getStations());
+        assertEquals(configRail.getTimetable(), testRail.getTimetable());
+        assertEquals(configRail.getModes(), testRail.getModes());
 
         assertRailLiveData(appConfig.getOpenldbwsConfig(), testConfig.getOpenldbwsConfig());
 
@@ -190,6 +193,9 @@ class ConfigMismatchTest {
         AppConfiguration accTestConfig = loadConfigFromFile("localAcceptanceGM.yml");
 
         validateCoreParameters(Collections.singleton(Category.Modes), appConfig, accTestConfig);
+
+        assertEquals(appConfig.getNumberQueries(), accTestConfig.getNumberQueries(), "number of queries mismatch");
+        assertEquals(appConfig.getQueryInterval(), accTestConfig.getQueryInterval(), "query interval mismatch");
 
         assertEquals(appConfig.getQueryInterval(), accTestConfig.getQueryInterval(), "getQueryInterval");
         assertEquals(appConfig.getNumberQueries(), accTestConfig.getNumberQueries(), "getNumberQueries");

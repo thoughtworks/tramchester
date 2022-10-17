@@ -52,7 +52,7 @@ public class UploadRemoteSourceData {
 
         final Path path = remoteDataRefreshed.fileFor(dataSourceId);
 
-        logger.info(format("Upload data source %s for %s and key %s'", dataSourceId, path, prefixForS3Key));
+        logger.info(format("Upload data source %s for %s and key '%s'", dataSourceId, path, prefixForS3Key));
 
         String filename = path.getFileName().toString();
 

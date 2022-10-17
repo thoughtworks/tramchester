@@ -45,6 +45,16 @@ public class TramAndTrainGreaterManchesterConfig extends IntegrationTramTestConf
         return TestEnv.getGreaterManchester();
     }
 
+    @Override
+    public int getNumberQueries() {
+        return 3;
+    }
+
+    @Override
+    public int getQueryInterval() {
+        return 10;
+    }
+
     private static class TramAndTrainDBTestConfig extends GraphDBTestConfig {
         public TramAndTrainDBTestConfig() {
             super("integrationTramTrainGMTest", DB_NAME);

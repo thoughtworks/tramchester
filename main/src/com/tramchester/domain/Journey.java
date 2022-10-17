@@ -131,8 +131,9 @@ public class Journey implements Iterable<TransportStage<?,?>>, CallsAtPlatforms 
 
         Journey that = (Journey) o;
 
-        if (requestedNumberChanges != that.requestedNumberChanges) return false;
         if (!queryTime.equals(that.queryTime)) return false;
+
+        if (requestedNumberChanges != that.requestedNumberChanges) return false;
         if (!arrivalTime.equals(that.arrivalTime)) return false;
         if (!departTime.equals(that.departTime)) return false;
         return stages.equals(that.stages);
