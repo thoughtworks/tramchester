@@ -3,6 +3,7 @@ package com.tramchester.integration.repository;
 import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.domain.Route;
+import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdSet;
@@ -16,6 +17,8 @@ import com.tramchester.repository.RouteRepository;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.AdditionalTramInterchanges;
 import com.tramchester.testSupport.TestEnv;
+import com.tramchester.testSupport.TramRouteHelper;
+import com.tramchester.testSupport.reference.KnownTramRoute;
 import com.tramchester.testSupport.reference.TramStations;
 import com.tramchester.testSupport.testTags.Summer2022;
 import org.junit.jupiter.api.*;
@@ -33,6 +36,7 @@ public class InterchangesTramTest {
     private InterchangeRepository interchangeRepository;
     private StationRepository stationRepository;
     private RouteRepository routeRepository;
+    private TramRouteHelper tramRouteHelper;
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
@@ -50,6 +54,8 @@ public class InterchangesTramTest {
         stationRepository = componentContainer.get(StationRepository.class);
         routeRepository = componentContainer.get(RouteRepository.class);
         interchangeRepository = componentContainer.get(InterchangeRepository.class);
+
+        tramRouteHelper = new TramRouteHelper(routeRepository);
     }
 
     @Test
@@ -89,12 +95,25 @@ public class InterchangesTramTest {
         assertTrue(unexpected.isEmpty(), HasId.asIds(unexpected));
     }
 
+    @Test
+    void shouldHaveExpectedDropoffAndPickupRoutesForInterchange() {
+        TramDate date = TestEnv.testDay();
+        Route toAirport = tramRouteHelper.getOneRoute(KnownTramRoute.VictoriaWythenshaweManchesterAirport, date);
+        Route toEastDids = tramRouteHelper.getOneRoute(KnownTramRoute.AshtonUnderLyneManchesterEccles, date);
 
-    @Summer2022
+        Station stWerb = StWerburghsRoad.from(stationRepository);
+
+        InterchangeStation interchange = interchangeRepository.getInterchange(stWerb);
+        assertEquals(InterchangeStation.InterchangeType.NumberOfLinks, interchange.getType());
+
+        assertTrue(interchange.getPickupRoutes().contains(toAirport));
+        assertTrue(interchange.getDropoffRoutes().contains(toEastDids));
+    }
+
+
     @Test
     void shouldHaveSomeNotInterchanges() {
-        // TODO Alty needs to be interchange during summer 2022
-        //assertFalse(interchangeRepository.isInterchange(stationRepository.getStationById(TramStations.Altrincham.getId())));
+        assertFalse(interchangeRepository.isInterchange(stationRepository.getStationById(TramStations.Altrincham.getId())));
         assertFalse(interchangeRepository.isInterchange(stationRepository.getStationById(TramStations.OldTrafford.getId())));
     }
 

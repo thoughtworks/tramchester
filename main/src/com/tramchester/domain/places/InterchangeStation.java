@@ -3,9 +3,7 @@ package com.tramchester.domain.places;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.reference.TransportMode;
-import com.tramchester.domain.time.TimeRange;
 
-import java.time.LocalDate;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
@@ -15,7 +13,6 @@ import static com.tramchester.domain.id.HasId.asId;
 import static com.tramchester.domain.id.HasId.asIds;
 
 public class InterchangeStation {
-
 
     public enum InterchangeType {
         FromSourceData,
@@ -84,6 +81,10 @@ public class InterchangeStation {
 
     public void addPickupRoutes(Set<Route> additionalPickupRoutes) {
         pickupFromInterchange.addAll(additionalPickupRoutes);
+    }
+
+    public InterchangeType getType() {
+        return interchangeType;
     }
 
     public Station getStation() {

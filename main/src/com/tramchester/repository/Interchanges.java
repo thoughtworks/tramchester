@@ -69,7 +69,6 @@ public class Interchanges implements InterchangeRepository {
         enabledModes.stream().filter(this::discoveryEnabled).forEach(mode -> {
             int linkThreshhold = getLinkThreshhold(mode);
             populateInterchangesFor(mode, linkThreshhold);
-            //addCompositeStations(mode, 3);
         });
 
         addAdditionalInterchanges(config.getGTFSDataSource());
@@ -91,8 +90,7 @@ public class Interchanges implements InterchangeRepository {
         }
         Set<StationLink> neighbours = neighboursRepository.getAll();
         int before = interchanges.size();
-        neighbours.stream().
-                //filter(stationLink -> isInterchange(stationLink.getBegin()) || isInterchange(stationLink.getEnd())).
+        neighbours.
                 forEach(stationLink -> {
                     final IdFor<Station> beginId = stationLink.getBegin().getId();
 
@@ -104,8 +102,9 @@ public class Interchanges implements InterchangeRepository {
                         existing.addPickupRoutes(dropoffRoutesAtEnd);
                     } else {
                         // not an interchange yet, so only add the routes from the linked station
-                        interchanges.put(beginId, new InterchangeStation(stationLink.getBegin(), dropoffRoutesAtEnd,
-                                InterchangeStation.InterchangeType.NeighbourLinks));
+                        InterchangeStation interchangeStation = new InterchangeStation(stationLink.getBegin(), dropoffRoutesAtEnd,
+                                InterchangeStation.InterchangeType.NeighbourLinks);
+                        interchanges.put(beginId, interchangeStation);
                     }
             });
         final int count = interchanges.size() - before;

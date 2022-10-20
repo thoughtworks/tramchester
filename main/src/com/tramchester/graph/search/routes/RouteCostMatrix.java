@@ -93,7 +93,7 @@ public class RouteCostMatrix {
 
         IndexedBitSet forDegreeOne = costsForDegree.getDegree(1);
         addInitialConnectionsFromInterchanges(routeDateAndDayOverlap, forDegreeOne);
-        
+
         populateCosts(routeDateAndDayOverlap);
     }
 
