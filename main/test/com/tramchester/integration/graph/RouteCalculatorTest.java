@@ -22,6 +22,7 @@ import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.TramStations;
 import com.tramchester.testSupport.testTags.DataExpiryCategory;
 import com.tramchester.testSupport.testTags.DataUpdateTest;
+import com.tramchester.testSupport.testTags.PiccGardens2022;
 import com.tramchester.testSupport.testTags.Summer2022;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.*;
@@ -49,6 +50,8 @@ public class RouteCalculatorTest {
     private static ComponentContainer componentContainer;
     private static GraphDatabase database;
     private static IntegrationTramTestConfig config;
+
+
     private final int maxChanges = 2;
 
     private RouteCalculatorTestFacade calculator;
@@ -90,12 +93,14 @@ public class RouteCalculatorTest {
         assertGetAndCheckJourneys(journeyRequest, VeloPark, TraffordBar);
     }
 
+    @PiccGardens2022
     @Test
     void shouldPlanSimpleJourneyFromAltyToAshtonCheckInterchanges() {
         JourneyRequest journeyRequest = new JourneyRequest(when, TramTime.of(17,45), false,
                 3, maxJourneyDuration, 5, Collections.emptySet());
 
-        Set<String> expected = Stream.of(Cornbrook, StPetersSquare, Deansgate, Piccadilly).
+        // add market street
+        Set<String> expected = Stream.of(Cornbrook, StPetersSquare, Deansgate, Piccadilly, MarketStreet).
                 map(TramStations::getName).collect(Collectors.toSet());
 
         Set<Journey> journeys = calculator.calculateRouteAsSet(Altrincham, Ashton, journeyRequest);
@@ -123,8 +128,7 @@ public class RouteCalculatorTest {
     @DataExpiryCategory
     @Test
     void shouldHaveSimpleManyStopJourneyViaInterchangeNDaysAhead() {
-        // TODO remove plus 1 weeks
-        checkRouteNextNDays(PiccadillyGardens, ManAirport, when.plusWeeks(1), TramTime.of(12,0), DAYS_AHEAD);
+        checkRouteNextNDays(StPetersSquare, ManAirport, when, TramTime.of(12,0), DAYS_AHEAD);
     }
 
     @Test
@@ -177,8 +181,8 @@ public class RouteCalculatorTest {
         JourneyRequest journeyRequestA = standardJourneyRequest(when, queryTimeA, maxNumResults);
         JourneyRequest journeyRequestB = standardJourneyRequest(when, queryTimeB, maxNumResults);
 
-        Set<Journey> journeysA = calculator.calculateRouteAsSet(Altrincham, Ashton, journeyRequestA);
-        Set<Journey> journeysB = calculator.calculateRouteAsSet(Altrincham, Ashton, journeyRequestB);
+        Set<Journey> journeysA = calculator.calculateRouteAsSet(ManAirport, EastDidsbury, journeyRequestA);
+        Set<Journey> journeysB = calculator.calculateRouteAsSet(ManAirport, EastDidsbury, journeyRequestB);
 
         Optional<Journey> earliestA = journeysA.stream().min(TramTime.comparing(Journey::getDepartTime));
         assertTrue(earliestA.isPresent());
@@ -453,11 +457,12 @@ public class RouteCalculatorTest {
         assertGetAndCheckJourneys(journeyRequest, Bury, Eccles);
     }
 
+    @PiccGardens2022
     @Test
     void reproduceIssueEdgePerTrip() {
         // see also RouteCalculatorSubGraphTest
-        JourneyRequest journeyRequestA = standardJourneyRequest(when, TramTime.of(19,48), maxNumResults);
-        assertGetAndCheckJourneys(journeyRequestA, PiccadillyGardens, Pomona);
+//        JourneyRequest journeyRequestA = standardJourneyRequest(when, TramTime.of(19,48), maxNumResults);
+//        assertGetAndCheckJourneys(journeyRequestA, PiccadillyGardens, Pomona);
 
         JourneyRequest journeyRequestB = standardJourneyRequest(when, TramTime.of(19,51), maxNumResults);
         assertGetAndCheckJourneys(journeyRequestB, StPetersSquare, Pomona);

@@ -28,6 +28,7 @@ import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TramRouteHelper;
 import com.tramchester.testSupport.reference.TramStations;
+import com.tramchester.testSupport.testTags.PiccGardens2022;
 import com.tramchester.testSupport.testTags.Summer2022;
 import org.apache.commons.lang3.tuple.Pair;
 import org.junit.jupiter.api.*;
@@ -149,15 +150,15 @@ public class RouteToRouteCostsTest {
 
     @Test
     void shouldComputeCostsSameRoute() {
-        Route routeA = routeHelper.getOneRoute(AltrinchamPiccadilly, date);
+        Route routeA = routeHelper.getOneRoute(ManchesterAirportWythenshaweVictoria, date);
 
         assertEquals(0, getMinCost(routesCostRepository.getNumberOfChanges(routeA, routeA, date, timeRange)));
     }
 
     @Test
     void shouldComputeCostsRouteOtherDirection() {
-        Route routeA = routeHelper.getOneRoute(AltrinchamPiccadilly, date);
-        Route routeB = routeHelper.getOneRoute(PiccadillyAltrincham, date);
+        Route routeA = routeHelper.getOneRoute(ManchesterAirportWythenshaweVictoria, date);
+        Route routeB = routeHelper.getOneRoute(VictoriaWythenshaweManchesterAirport, date);
 
         assertEquals(1, getMinCost(routesCostRepository.getNumberOfChanges(routeA, routeB, date, timeRange)), "wrong for " + routeA.getId() + " " + routeB.getId());
         assertEquals(1, getMinCost(routesCostRepository.getNumberOfChanges(routeB, routeA, date, timeRange)), "wrong for " + routeB.getId() + " " + routeA.getId());
@@ -192,7 +193,7 @@ public class RouteToRouteCostsTest {
     @Test
     void shouldBacktrackToChangesSingleChange() {
         Route routeA = routeHelper.getOneRoute(TheTraffordCentreCornbrook, date);
-        Route routeB = routeHelper.getOneRoute(AltrinchamPiccadilly, date);
+        Route routeB = routeHelper.getOneRoute(AltrinchamManchesterBury, date);
 
         List<List<RouteAndChanges>> results = routesCostRepository.getChangesFor(routeA, routeB);
         assertEquals(1, results.size());
@@ -205,6 +206,8 @@ public class RouteToRouteCostsTest {
         assertTrue(actualChange.getStations().contains(Cornbrook.from(stationRepository)), results.toString());
     }
 
+    @Disabled("routing not possible during pic gardens work")
+    @PiccGardens2022
     @Test
     void shouldBacktrackToChangesMultipleChanges() {
         Route routeA = routeHelper.getOneRoute(BuryPiccadilly, date);
@@ -246,7 +249,7 @@ public class RouteToRouteCostsTest {
 
     @Test
     void shouldComputeCostsDifferentRoutesOneChanges() {
-        Route routeA = routeHelper.getOneRoute(AltrinchamPiccadilly, date);
+        Route routeA = routeHelper.getOneRoute(AltrinchamManchesterBury, date);
         Route routeB = routeHelper.getOneRoute(VictoriaWythenshaweManchesterAirport, date);
 
         assertEquals(1, getMinCost(routesCostRepository.getNumberOfChanges(routeA, routeB, date, timeRange)), "wrong for " + routeA.getId() + " " + routeB.getId());
@@ -293,13 +296,15 @@ public class RouteToRouteCostsTest {
 
     }
 
+    @PiccGardens2022
     @Test
     void shouldFindMediaCityHops() {
         Station start = TramStations.MediaCityUK.from(stationRepository);
         Station end = TramStations.Ashton.from(stationRepository);
         NumberOfChanges result = routesCostRepository.getNumberOfChanges(start, end, modes, date, timeRange);
 
-        assertEquals(0, getMinCost(result));
+        // 0 -> 1
+        assertEquals(1, getMinCost(result));
     }
 
     @Test

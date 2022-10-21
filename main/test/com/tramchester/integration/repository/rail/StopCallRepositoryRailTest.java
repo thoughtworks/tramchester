@@ -3,31 +3,23 @@ package com.tramchester.integration.repository.rail;
 import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.domain.Route;
-import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.StringIdFor;
-import com.tramchester.domain.input.StopCall;
 import com.tramchester.domain.input.StopCalls;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.Station;
-import com.tramchester.domain.time.TramTime;
 import com.tramchester.integration.testSupport.rail.IntegrationRailTestConfig;
-import com.tramchester.integration.testSupport.rail.RailStationIds;
 import com.tramchester.repository.RouteRepository;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.repository.StopCallRepository;
-import com.tramchester.repository.TripRepository;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.testTags.TrainTest;
 import org.junit.jupiter.api.*;
-import org.junit.jupiter.api.condition.DisabledIfEnvironmentVariable;
 
 import java.time.Duration;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static com.tramchester.testSupport.TestEnv.assertMinutesEquals;
 import static org.junit.jupiter.api.Assertions.*;
 
 @TrainTest
@@ -101,7 +93,7 @@ public class StopCallRepositoryRailTest {
 
         Set<Route> calling = routeRepository.getRoutes().stream().
                 flatMap(route -> route.getTrips().stream()).
-                filter(trip -> trip.getStopCalls().callsAt(mulsecoomb) && trip.getStopCalls().callsAt(londonRoadBrighton)).
+                filter(trip -> trip.callsAt(mulsecoomb) && trip.callsAt(londonRoadBrighton)).
                 filter(trip -> isBefore(trip, mulsecoomb, londonRoadBrighton)).
                 map(Trip::getRoute).
                 collect(Collectors.toSet());

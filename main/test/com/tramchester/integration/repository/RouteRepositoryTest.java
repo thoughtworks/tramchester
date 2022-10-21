@@ -30,7 +30,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import static com.tramchester.domain.Route.createId;
-import static com.tramchester.testSupport.reference.KnownTramRoute.AshtonUnderLyneManchesterEccles;
+import static com.tramchester.testSupport.reference.KnownTramRoute.*;
 import static com.tramchester.testSupport.reference.TramStations.*;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -79,7 +79,7 @@ public class RouteRepositoryTest {
     void extraRouteAtShudehillTowardsEcclesFromVictoria() {
         Route towardsEcclesRoute = routeRepository.getRouteById(StringIdFor.createId("METLBLUE:I:CURRENT"));
         List<Trip> ecclesTripsViaShudehill = towardsEcclesRoute.getTrips().stream().
-                filter(trip -> trip.getStopCalls().callsAt(Shudehill)).collect(Collectors.toList());
+                filter(trip -> trip.callsAt(Shudehill)).collect(Collectors.toList());
 
         List<StopCall> fromVictoria = ecclesTripsViaShudehill.stream().
                 map(trip -> trip.getStopCalls().getFirstStop()).
@@ -127,13 +127,13 @@ public class RouteRepositoryTest {
     @Test
     void shouldHaveExpectedNumberOfRoutesRunning() {
         Set<Route> running = routeRepository.getRoutesRunningOn(when);
-        assertEquals(KnownTramRoute.values().length, running.size());
+        assertEquals(KnownTramRoute.getFor(when).size(), running.size());
     }
 
     @Test
     void shouldOverlapAsExpected() {
 
-        KnownTramRoute[] known = KnownTramRoute.values();
+        List<KnownTramRoute> known = KnownTramRoute.getFor(when);
         Set<RoutePair> noOverlap = new HashSet<>();
 
         for (KnownTramRoute knownRouteA : known) {
@@ -153,8 +153,8 @@ public class RouteRepositoryTest {
     @Test
     void shouldReproIssueWithUnsymmetricDateOverlap() {
 
-        Route routeA = routeRepository.getRouteById(createId("METLYELL:I:CURRENT"));
-        Route routeB = routeRepository.getRouteById(createId("METLGREE:I:CURRENT"));
+        Route routeA = routeHelper.getOneRoute(BuryPiccadilly, when); // routeRepository.getRouteById(createId("METLYELL:I:CURRENT"));
+        Route routeB = routeHelper.getOneRoute(AltrinchamManchesterBury, when); // routeRepository.getRouteById(createId("METLGREE:I:CURRENT"));
 
         assertTrue(routeA.isAvailableOn(when));
         assertTrue(routeB.isAvailableOn(when));

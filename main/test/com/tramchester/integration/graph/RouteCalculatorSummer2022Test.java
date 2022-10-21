@@ -167,7 +167,7 @@ class RouteCalculatorSummer2022Test {
 
         Set<Trip> notCallingAtEccles = availabilityRepository.getPickupRoutesFor(eccles, when, timeRange).stream().
                 flatMap(route -> route.getTrips().stream()).
-                filter(trip -> !trip.getStopCalls().callsAt(eccles)).collect(Collectors.toSet());
+                filter(trip -> !trip.callsAt(eccles)).collect(Collectors.toSet());
 
         assertTrue(notCallingAtEccles.isEmpty(), notCallingAtEccles.toString());
     }

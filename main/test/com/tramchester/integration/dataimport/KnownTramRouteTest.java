@@ -5,18 +5,19 @@ import com.tramchester.ComponentsBuilder;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.IdFor;
+import com.tramchester.domain.id.IdSet;
 import com.tramchester.testSupport.reference.KnownTramRoute;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
 import com.tramchester.repository.RouteRepository;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.testTags.DataUpdateTest;
+import com.tramchester.testSupport.testTags.Summer2022;
 import org.apache.commons.lang3.tuple.Pair;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -28,6 +29,7 @@ class KnownTramRouteTest {
     private static ComponentContainer componentContainer;
     private RouteRepository routeRepository;
     private List<KnownTramRoute> knownRoutes;
+    private TramDate when;
 
 
     @BeforeAll
@@ -43,7 +45,9 @@ class KnownTramRouteTest {
 
     @BeforeEach
     void setUp() {
-        knownRoutes = Arrays.asList(KnownTramRoute.values());
+        when = TestEnv.testDay();
+
+        knownRoutes = KnownTramRoute.getFor(when);
         routeRepository = componentContainer.get(RouteRepository.class);
     }
 
@@ -51,7 +55,7 @@ class KnownTramRouteTest {
     void shouldHaveMatchWithLoadedRoutes() {
         Set<String> knownRouteNames = knownRoutes.stream().map(KnownTramRoute::longName).collect(Collectors.toSet());
 
-        Set<Route> loadedRoutes = routeRepository.getRoutes();
+        Set<Route> loadedRoutes = routeRepository.getRoutes().stream().filter(route -> route.isAvailableOn(when)).collect(Collectors.toSet());
 
         // NOTE: not checking numbers here as loaded data can contain the 'same' route but with different id
 
@@ -95,15 +99,15 @@ class KnownTramRouteTest {
 
     }
 
+    @Summer2022
     @Test
     void shouldHaveDateOverlapsForAllKnownRoutes() {
-        TramDate when = TestEnv.testDay();
 
-        long available = routeRepository.getRoutes().stream().filter(route -> route.isAvailableOn(when)).count();
+        IdSet<Route> availableRoutes = routeRepository.getRoutes().stream().filter(route -> route.isAvailableOn(when)).collect(IdSet.collector());
 
-        assertNotEquals(0, available);
+        assertNotEquals(0, availableRoutes.size());
 
-        assertEquals(knownRoutes.size(), available);
+        assertEquals(knownRoutes.size() , availableRoutes.size(), availableRoutes.toString());
 
     }
 

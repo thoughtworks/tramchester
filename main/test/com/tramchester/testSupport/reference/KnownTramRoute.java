@@ -1,11 +1,15 @@
 package com.tramchester.testSupport.reference;
 
 import com.tramchester.domain.Route;
+import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.reference.RouteDirection;
 import com.tramchester.domain.reference.TransportMode;
-import io.swagger.models.auth.In;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 import static com.tramchester.domain.reference.RouteDirection.Inbound;
 import static com.tramchester.domain.reference.RouteDirection.Outbound;
@@ -16,8 +20,11 @@ import static java.lang.String.format;
  * Note: these are validated against tfgm data as part of Integration tests
  */
 public enum KnownTramRoute {
-    AltrinchamPiccadilly("Purple Line", Inbound, "Altrincham - Piccadilly"),
-    PiccadillyAltrincham("Purple Line", Outbound, "Piccadilly - Altrincham"),
+
+    // TODO SUSPENDED, Picc gardens emergency track work
+    // https://tfgm.com/piccadilly-gardens-service-change
+    //AltrinchamPiccadilly("Purple Line", Inbound, "Altrincham - Piccadilly"),
+    //PiccadillyAltrincham("Purple Line", Outbound, "Piccadilly - Altrincham"),
 
     AltrinchamManchesterBury("Green Line", Inbound, "Altrincham - Manchester - Bury"),
     BuryManchesterAltrincham("Green Line", Outbound, "Bury - Manchester - Altrincham"),
@@ -37,7 +44,7 @@ public enum KnownTramRoute {
     TheTraffordCentreCornbrook("Red Line", Inbound, "The Trafford Centre - Cornbrook"),
     CornbrookTheTraffordCentre("Red Line", Outbound, "Cornbrook - The Trafford Centre"),
 
-    // TODO July 2022 - eccles replacement services
+    // TODO July 2022 - eccles replacement services - UNTIL October 22nd
     ReplacementRouteToEccles("Blue Line Bus Replacement", Inbound, "Media City Metrolink Replacement - Eccles"),
     ReplacementRouteFromEccles("Blue Line Bus Replacement", Outbound, "Eccles - Media City Metrolink Replacement");
 
@@ -64,6 +71,15 @@ public enum KnownTramRoute {
         }
         this.fakeId = createId(format("METL%s%sCURRENT", idSuffix, direction.getSuffix()));
 
+    }
+
+    public static List<KnownTramRoute> getFor(TramDate when) {
+        List<KnownTramRoute> routes = new ArrayList<>(Arrays.asList(KnownTramRoute.values())); // need mutable
+        if (when.isAfter(TramDate.of(2022, 10, 22))) {
+            routes.remove(ReplacementRouteToEccles);
+            routes.remove(ReplacementRouteFromEccles);
+        }
+        return routes;
     }
 
     private String getSuffixFor(String shortName) {

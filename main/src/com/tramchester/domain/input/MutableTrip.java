@@ -2,8 +2,10 @@ package com.tramchester.domain.input;
 
 import com.tramchester.domain.Route;
 import com.tramchester.domain.Service;
+import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.id.IdFor;
+import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.GraphPropertyKey;
@@ -155,6 +157,16 @@ public class MutableTrip implements Trip {
             }
         }
         return !noStops;
+    }
+
+    @Override
+    public boolean callsAt(HasId<Station> station) {
+        return stopCalls.callsAt(station);
+    }
+
+    @Override
+    public boolean operatesOn(TramDate date) {
+        return service.getCalendar().operatesOn(date);
     }
 
 }

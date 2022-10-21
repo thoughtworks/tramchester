@@ -17,6 +17,7 @@ import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TramRouteHelper;
 import com.tramchester.testSupport.reference.KnownTramRoute;
+import com.tramchester.testSupport.testTags.PiccGardens2022;
 import com.tramchester.testSupport.testTags.Summer2022;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
@@ -30,6 +31,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import static com.tramchester.testSupport.TestEnv.assertMinutesEquals;
+import static com.tramchester.testSupport.TestEnv.dateFormatDashes;
 import static com.tramchester.testSupport.reference.KnownTramRoute.*;
 import static com.tramchester.testSupport.reference.TramStations.*;
 import static org.junit.jupiter.api.Assertions.*;
@@ -87,6 +89,7 @@ public class RouteInterchangesTest {
 
     }
 
+    @PiccGardens2022
     @Test
     void shouldHaveExpectedRoutesAtCornbrook() {
         Route buryToAlty = tramRouteHelper.getOneRoute(BuryManchesterAltrincham, when);
@@ -100,10 +103,13 @@ public class RouteInterchangesTest {
 
         InterchangeStation cornbrook = maybeCornbook.get();
 
-        Set<Route> cornbrookPickups = cornbrook.getPickupRoutes();
-        Set<Route> cornbrookDropofss = cornbrook.getDropoffRoutes();
+        TramDate date = TestEnv.testDay();
 
-        int throughRoutes = 5; // might not match the map, which includes psedo-routes that are made of trams running part of an existing route
+        Set<Route> cornbrookPickups = cornbrook.getPickupRoutes().stream().filter(route -> route.isAvailableOn(date)).collect(Collectors.toSet());
+        Set<Route> cornbrookDropofss = cornbrook.getDropoffRoutes().stream().filter(route -> route.isAvailableOn(date)).collect(Collectors.toSet());
+
+        // 5->4
+        int throughRoutes = 4; // might not match the map, which includes psedo-routes that are made of trams running part of an existing route
         assertEquals(throughRoutes*2 + 1, cornbrookPickups.size(), HasId.asIds(cornbrookPickups));
         assertEquals(throughRoutes*2 + 1, cornbrookDropofss.size(), HasId.asIds(cornbrookDropofss));
 
@@ -147,7 +153,7 @@ public class RouteInterchangesTest {
     @Test
     void shouldGetCostToInterchangeForRouteStation() {
 
-       Route route = tramRouteHelper.getOneRoute(AltrinchamPiccadilly, when);
+       Route route = tramRouteHelper.getOneRoute(AltrinchamManchesterBury, when);
 
         List<RouteStation> navigationRoadRouteStations = stationRepository.getRouteStationsFor(NavigationRoad.getId()).stream().
                 filter(routeStation -> route.equals(routeStation.getRoute())).collect(Collectors.toList());
@@ -165,7 +171,7 @@ public class RouteInterchangesTest {
     @Test
     void shouldGetCostToInterchangeForRouteStationAdjacent() {
 
-        Route route = tramRouteHelper.getOneRoute(AltrinchamPiccadilly, when);
+        Route route = tramRouteHelper.getOneRoute(AltrinchamManchesterBury, when);
 
         List<RouteStation> oldTraffordRouteStations = stationRepository.getRouteStationsFor(OldTrafford.getId()).stream().
                 filter(routeStation -> route.equals(routeStation.getRoute())).collect(Collectors.toList());
@@ -184,7 +190,7 @@ public class RouteInterchangesTest {
     @Test
     void shouldGetZeroCostToInterchangeForRouteStationThatIsInterchange() {
 
-        Route route = tramRouteHelper.getOneRoute(AltrinchamPiccadilly, when);
+        Route route = tramRouteHelper.getOneRoute(AltrinchamManchesterBury, when);
 
         List<RouteStation> cornbrookRouteStations = stationRepository.getRouteStationsFor(Cornbrook.getId()).
                 stream().

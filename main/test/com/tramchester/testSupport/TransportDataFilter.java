@@ -5,18 +5,12 @@ import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.Station;
 
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 public class TransportDataFilter {
 
     public static Set<Trip> getTripsFor(Collection<Trip> trips, HasId<Station> station) {
-        Set<Trip> callingTrips = new HashSet<>();
-        trips.forEach(trip -> {
-            if (trip.getStopCalls().callsAt(station)) {
-                callingTrips.add(trip);
-            }
-        });
-        return callingTrips;
+        return trips.stream().filter(trip -> trip.callsAt(station)).collect(Collectors.toSet());
     }
 }

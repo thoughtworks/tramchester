@@ -1,8 +1,10 @@
 package com.tramchester.domain.input;
 
 import com.tramchester.domain.*;
+import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.id.IdFor;
+import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.GraphPropertyKey;
@@ -32,4 +34,8 @@ public interface Trip extends HasId<Trip>, HasTransportMode, GraphProperty, Core
     TramTime arrivalTime();
 
     boolean hasStops();
+
+    boolean callsAt(HasId<Station> station);
+
+    boolean operatesOn(TramDate date);
 }

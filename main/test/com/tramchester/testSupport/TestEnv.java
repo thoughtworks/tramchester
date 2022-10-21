@@ -302,4 +302,8 @@ public class TestEnv {
         }
         return platforms.get(0);
     }
+
+    public static TramDate EndSummerWorks() {
+        return TramDate.of(2022, 10, 22);
+    }
 }

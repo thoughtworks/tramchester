@@ -27,6 +27,7 @@ import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TramRouteHelper;
 import com.tramchester.testSupport.reference.KnownTramRoute;
 import com.tramchester.testSupport.reference.TramStations;
+import com.tramchester.testSupport.testTags.PiccGardens2022;
 import com.tramchester.testSupport.testTags.Summer2022;
 import org.assertj.core.util.Streams;
 import org.junit.jupiter.api.*;
@@ -51,7 +52,6 @@ class TramGraphBuilderTest {
     private StationRepository stationRepository;
     private Route tramRouteAshtonEccles;
     private Route tramRouteEcclesAshton;
-    private Route tramRouteAltPicc;
     private TramRouteHelper tramRouteHelper;
     private TramDate when;
 
@@ -62,6 +62,7 @@ class TramGraphBuilderTest {
         componentContainer.initialise();
     }
 
+    @PiccGardens2022
     @BeforeEach
     void beforeEachTestRuns() {
 
@@ -73,7 +74,6 @@ class TramGraphBuilderTest {
 
         tramRouteAshtonEccles = tramRouteHelper.getOneRoute(AshtonUnderLyneManchesterEccles, when);
         tramRouteEcclesAshton = tramRouteHelper.getOneRoute(EcclesManchesterAshtonUnderLyne, when);
-        tramRouteAltPicc = tramRouteHelper.getOneRoute(AltrinchamPiccadilly, when);
 
         graphQuery = componentContainer.get(GraphQuery.class);
         stationRepository = componentContainer.get(StationRepository.class);
@@ -249,11 +249,12 @@ class TramGraphBuilderTest {
 
         final Station cornbrook = Cornbrook.from(stationRepository);
 
-        RouteStation routeStationCornbrookAltyPiccRoute = stationRepository.getRouteStation(cornbrook, tramRouteAltPicc);
+        Route tramRouteAltBury = tramRouteHelper.getOneRoute(AltrinchamManchesterBury, when);
+
+        RouteStation routeStationCornbrookAltyPiccRoute = stationRepository.getRouteStation(cornbrook, tramRouteAltBury);
         List<Relationship> outboundsA = graphQuery.getRouteStationRelationships(txn, routeStationCornbrookAltyPiccRoute, Direction.OUTGOING);
 
         assertTrue(outboundsA.size()>1, "have at least one outbound");
-
 
         RouteStation routeStationCornbrookAshtonEcclesRoute = stationRepository.getRouteStation(cornbrook, tramRouteAshtonEccles);
         List<Relationship> outboundsB = graphQuery.getRouteStationRelationships(txn, routeStationCornbrookAshtonEcclesRoute, Direction.OUTGOING);
@@ -268,17 +269,24 @@ class TramGraphBuilderTest {
 
         checkInboundConsistency(MediaCityUK, EcclesManchesterAshtonUnderLyne);
 
-        //checkInboundConsistency(MediaCityUK, AshtonUnderLyneManchesterEccles);
-        checkInboundConsistency(MediaCityUK, ReplacementRouteToEccles);
-
+        if (when.isAfter(TestEnv.EndSummerWorks())) {
+            checkInboundConsistency(MediaCityUK, AshtonUnderLyneManchesterEccles);
+        } else {
+            checkInboundConsistency(MediaCityUK, ReplacementRouteToEccles);
+        }
 
         checkInboundConsistency(HarbourCity, EcclesManchesterAshtonUnderLyne);
         checkInboundConsistency(HarbourCity, AshtonUnderLyneManchesterEccles);
 
-        //checkInboundConsistency(Broadway, EcclesManchesterAshtonUnderLyne);
-        checkInboundConsistency(Broadway, ReplacementRouteFromEccles);
-        //checkInboundConsistency(Broadway, AshtonUnderLyneManchesterEccles);
-        checkInboundConsistency(Broadway, ReplacementRouteToEccles);
+        if (when.isAfter(TestEnv.EndSummerWorks())) {
+            checkInboundConsistency(Broadway, EcclesManchesterAshtonUnderLyne);
+            checkInboundConsistency(Broadway, AshtonUnderLyneManchesterEccles);
+        } else {
+            checkInboundConsistency(Broadway, ReplacementRouteFromEccles);
+            checkInboundConsistency(Broadway, ReplacementRouteToEccles);
+
+        }
+
     }
 
     @Summer2022
@@ -294,14 +302,21 @@ class TramGraphBuilderTest {
         checkOutboundConsistency(StPetersSquare, AshtonUnderLyneManchesterEccles);
         checkOutboundConsistency(StPetersSquare, EcclesManchesterAshtonUnderLyne);
 
-        //checkOutboundConsistency(MediaCityUK, AshtonUnderLyneManchesterEccles);
-        checkOutboundConsistency(MediaCityUK, ReplacementRouteToEccles);
+        if (when.isAfter(TestEnv.EndSummerWorks())) {
+            checkOutboundConsistency(MediaCityUK, AshtonUnderLyneManchesterEccles);
+        } else {
+            checkOutboundConsistency(MediaCityUK, ReplacementRouteToEccles);
+        }
         checkOutboundConsistency(MediaCityUK, EcclesManchesterAshtonUnderLyne);
 
         // consistent heading away from Media City ONLY, see below
         checkOutboundConsistency(HarbourCity, EcclesManchesterAshtonUnderLyne);
-        //checkOutboundConsistency(Broadway, AshtonUnderLyneManchesterEccles);
-        checkOutboundConsistency(Broadway, ReplacementRouteToEccles);
+
+        if (when.isAfter(TestEnv.EndSummerWorks())) {
+            checkOutboundConsistency(Broadway, AshtonUnderLyneManchesterEccles);
+        } else {
+            checkOutboundConsistency(Broadway, ReplacementRouteToEccles);
+        }
 
         // these two are not consistent because same svc can go different ways while still having same route code
         // i.e. service from harbour city can go to media city or to Broadway with same svc and route id
@@ -378,7 +393,7 @@ class TramGraphBuilderTest {
 
         Set<Trip> callingTrips =
                 transportData.getRouteById(route.getId()).getTrips().stream().
-                filter(trip -> trip.getStopCalls().callsAt(station)). // calls at , but not starts at because no inbound for these
+                filter(trip -> trip.callsAt(station)). // calls at , but not starts at because no inbound for these
                 //filter(trip -> !trip.getStopCalls().getStopBySequenceNumber(trip.getSeqNumOfFirstStop()).getStation().equals(station)).
                 filter(trip -> !trip.getStopCalls().getFirstStop().getStation().equals(station)).
                 collect(Collectors.toSet());

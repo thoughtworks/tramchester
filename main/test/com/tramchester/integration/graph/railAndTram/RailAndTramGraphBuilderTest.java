@@ -219,7 +219,7 @@ class RailAndTramGraphBuilderTest {
         Set<Trip> fileCallingTrips =
                 transportData.getRouteById(route.getId()).getTrips().stream().
 
-                filter(trip -> trip.getStopCalls().callsAt(station)).
+                filter(trip -> trip.callsAt(station)).
                 collect(Collectors.toSet());
 
         IdSet<Service> fileSvcIdFromTrips = fileCallingTrips.stream().
@@ -264,7 +264,7 @@ class RailAndTramGraphBuilderTest {
 
         Set<Trip> callingTrips =
                 transportData.getRouteById(route.getId()).getTrips().stream().
-                filter(trip -> trip.getStopCalls().callsAt(station)). // calls at , but not starts at because no inbound for these
+                filter(trip -> trip.callsAt(station)). // calls at , but not starts at because no inbound for these
                 //filter(trip -> !trip.getStopCalls().getStopBySequenceNumber(trip.getSeqNumOfFirstStop()).getStation().equals(station)).
                 filter(trip -> !trip.getStopCalls().getFirstStop().getStation().equals(station)).
                 collect(Collectors.toSet());

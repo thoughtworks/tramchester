@@ -58,7 +58,7 @@ class RouteMapperTest {
 
         List<RouteDTO> dtos = mapper.getRouteDTOs(TestEnv.testTramDay());
 
-        Route fromAirportRoute = tramRouteHelper.getOneRoute(AltrinchamPiccadilly, date);
+        Route fromAirportRoute = tramRouteHelper.getOneRoute(ManchesterAirportWythenshaweVictoria, date);
 
         RouteDTO query = new RouteDTO(fromAirportRoute, new LinkedList<>());
 
@@ -66,12 +66,12 @@ class RouteMapperTest {
 
         List<LocationRefWithPosition> stations = dtos.get(index).getStations();
         LocationRefWithPosition stationRefWithPosition = stations.get(0);
-        assertEquals(Altrincham.getRawId(), stationRefWithPosition.getId(), "for route " + fromAirportRoute);
-        TestEnv.assertLatLongEquals(Altrincham.getLatLong(), stationRefWithPosition.getLatLong(),
+        assertEquals(ManAirport.getRawId(), stationRefWithPosition.getId(), "for route " + fromAirportRoute);
+        TestEnv.assertLatLongEquals(ManAirport.getLatLong(), stationRefWithPosition.getLatLong(),
                 0.00001, "position");
         assertTrue(stationRefWithPosition.getTransportModes().contains(TransportMode.Tram));
 
-        assertEquals(Piccadilly.getRawId(), stations.get(stations.size()-1).getId());
+        assertEquals(Victoria.getRawId(), stations.get(stations.size()-1).getId());
 
     }
 

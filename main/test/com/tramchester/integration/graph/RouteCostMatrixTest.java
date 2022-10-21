@@ -25,6 +25,7 @@ public class RouteCostMatrixTest {
     private TramRouteHelper routeHelper;
     private TramDate date;
     private RouteCostMatrix routeMatrix;
+    private TramDate beforeEndWorks;
 
     @BeforeAll
     static void onceBeforeAnyTestRuns() {
@@ -49,11 +50,12 @@ public class RouteCostMatrixTest {
         routeMatrix = componentContainer.get(RouteCostMatrix.class);
 
         date = TestEnv.testDay();
+        beforeEndWorks = TestEnv.EndSummerWorks().minusDays(1);
     }
 
     @Test
     void shouldHaveExpectedIndexWhereDirectInterchangePossible() {
-        Route routeA = routeHelper.getOneRoute(PiccadillyAltrincham, date);
+        Route routeA = routeHelper.getOneRoute(BuryManchesterAltrincham, date);
         Route routeB = routeHelper.getOneRoute(VictoriaWythenshaweManchesterAirport, date);
 
         int depth = routeMatrix.getConnectionDepthFor(routeA, routeB);
@@ -90,8 +92,8 @@ public class RouteCostMatrixTest {
     @Summer2022
     @Test
     void shouldHaveExpectedIndexForReplacementBusServiceFromEccles() {
-        Route routeA = routeHelper.getOneRoute(ReplacementRouteFromEccles, date);
-        Route routeB = routeHelper.getOneRoute(EcclesManchesterAshtonUnderLyne, date);
+        Route routeA = routeHelper.getOneRoute(ReplacementRouteFromEccles, beforeEndWorks);
+        Route routeB = routeHelper.getOneRoute(EcclesManchesterAshtonUnderLyne, beforeEndWorks);
 
         int depth = routeMatrix.getConnectionDepthFor(routeA, routeB);
         assertEquals(1, depth);
@@ -100,8 +102,8 @@ public class RouteCostMatrixTest {
     @Summer2022
     @Test
     void shouldHaveExpectedIndexForReplacementBusServiceToEccles() {
-        Route routeA = routeHelper.getOneRoute(AshtonUnderLyneManchesterEccles, date);
-        Route routeB = routeHelper.getOneRoute(ReplacementRouteToEccles, date);
+        Route routeA = routeHelper.getOneRoute(AshtonUnderLyneManchesterEccles, beforeEndWorks);
+        Route routeB = routeHelper.getOneRoute(ReplacementRouteToEccles, beforeEndWorks);
 
         int depth = routeMatrix.getConnectionDepthFor(routeA, routeB);
         assertEquals(1, depth);
