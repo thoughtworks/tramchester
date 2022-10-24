@@ -49,28 +49,6 @@ public class FindStationsByNumberLinks {
         return doQuery(mode, params, query);
     }
 
-    // TODO this is problematic for some datasets because they duplicate routes for different date ranges
-    // so need to post filter the discovered routes to somehow spot they are not the same??
-    public IdSet<Station> atLeastNLinkedRoutes(TransportMode mode, int threshhold) {
-        logger.info(format("Find at least N outbound for %s N=%s", mode, threshhold));
-        Map<String, Object> params = new HashMap<>();
-
-        String stationLabel = GraphLabel.forMode(mode).name();
-
-        params.put("threshhold", threshhold);
-        params.put("mode", mode.getNumber());
-
-        // number of routes a station is linked too
-        String query = format("MATCH (a:%s)-[r:STATION_TO_ROUTE]->(b:ROUTE_STATION) " +
-                        "WHERE $mode in r.transport_mode " +
-                        "WITH a, count(r) as num " +
-                        "WHERE num>=$threshhold " +
-                        "RETURN a",
-                stationLabel);
-
-        return doQuery(mode, params, query);
-    }
-
     @NotNull
     private IdSet<Station> doQuery(TransportMode mode, Map<String, Object> params, String query) {
         logger.info("Query: '" + query + '"');

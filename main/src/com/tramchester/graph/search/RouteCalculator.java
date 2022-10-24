@@ -2,12 +2,11 @@ package com.tramchester.graph.search;
 
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.config.TramchesterConfig;
-import com.tramchester.domain.Journey;
-import com.tramchester.domain.JourneyRequest;
-import com.tramchester.domain.LocationSet;
-import com.tramchester.domain.NumberOfChanges;
+import com.tramchester.domain.*;
 import com.tramchester.domain.dates.TramDate;
+import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.places.Location;
+import com.tramchester.domain.places.Station;
 import com.tramchester.domain.places.StationWalk;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.CreateQueryTimes;
@@ -156,16 +155,20 @@ public class RouteCalculator extends RouteCalculatorSupport implements TramRoute
 //            logger.info("Expanded (composite) destinations from " + unexpanded.size() + " to " + destinations.size());
 //        }
 
-        final TramServiceDate queryDate = journeyRequest.getDate();
+        final TramServiceDate queryServiceDate = journeyRequest.getDate();
         final Set<Long> destinationNodeIds = Collections.singleton(endNode.getId());
+        final TramDate tramDate = queryServiceDate.getDate();
 
         // can only be shared as same date and same set of destinations, will eliminate previously seen paths/results
-        LowestCostsForDestRoutes lowestCostsForRoutes = routeToRouteCosts.getLowestCostCalcutatorFor(destinations, queryDate.getDate(),
+        final LowestCostsForDestRoutes lowestCostsForRoutes = routeToRouteCosts.getLowestCostCalcutatorFor(destinations, tramDate,
                 journeyRequest.getTimeRange());
-        Duration maxJourneyDuration = getMaxDurationFor(txn, startNode, destinations, journeyRequest);
+        final Duration maxJourneyDuration = getMaxDurationFor(txn, startNode, destinations, journeyRequest);
 
-        final JourneyConstraints journeyConstraints = new JourneyConstraints(config, runningRoutesAndServices.getFor(queryDate.getDate()),
-                journeyRequest, closedStationsRepository, destinations, lowestCostsForRoutes, maxJourneyDuration);
+        final IdSet<Station> closedStations = closedStationsRepository.getFullyClosedStationsFor(tramDate).stream().
+                map(ClosedStation::getStationId).collect(IdSet.idCollector());
+
+        final JourneyConstraints journeyConstraints = new JourneyConstraints(config, runningRoutesAndServices.getFor(tramDate),
+                closedStations, destinations, lowestCostsForRoutes, maxJourneyDuration);
 
         logger.info("Journey Constraints: " + journeyConstraints);
         logger.info("Query times: " + queryTimes);
@@ -176,7 +179,7 @@ public class RouteCalculator extends RouteCalculatorSupport implements TramRoute
 
         final Stream<Journey> results = numChangesRange(journeyRequest, numberOfChanges).
                 flatMap(numChanges -> queryTimes.stream().
-                        map(queryTime -> createPathRequest(startNode, queryDate, queryTime, requestedModes, numChanges, journeyConstraints))).
+                        map(queryTime -> createPathRequest(startNode, queryServiceDate, queryTime, requestedModes, numChanges, journeyConstraints))).
                 flatMap(pathRequest -> findShortestPath(txn, destinationNodeIds, destinations,
                         createServiceReasons(journeyRequest, pathRequest), pathRequest, lowestCostsForRoutes, createPreviousVisits(),
                         lowestCostSeen, begin)).

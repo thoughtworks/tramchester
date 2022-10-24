@@ -45,11 +45,9 @@ class RouteCalculatorTestAllJourneys {
         componentContainer.close();
     }
 
-    @Summer2022
     @BeforeEach
     void beforeEachTestRuns() {
-        // plus 1 weeks
-        when = TestEnv.testDay().plusWeeks(1);
+        when = TestEnv.testDay();
         combinations = new RouteCalculationCombinations(componentContainer);
     }
 
@@ -68,7 +66,8 @@ class RouteCalculatorTestAllJourneys {
                 filter(dest -> !combinations.betweenInterchanges(start, dest)).
                 map(dest -> StationIdPair.of(start, dest))).
                 filter(pair -> !pair.same()).
-                filter(pair -> !combinations.betweenEndsOfRoute(pair)).
+                // was here to avoid duplication....
+                //filter(pair -> !combinations.betweenEndsOfRoute(pair)).
                 collect(Collectors.toSet());
 
         combinations.validateAllHaveAtLeastOneJourney(stationIdPairs, journeyRequest);

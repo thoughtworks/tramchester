@@ -136,10 +136,6 @@ public class RouteCalculationCombinations {
         return interchangeRepository.isInterchange(start) && interchangeRepository.isInterchange(dest);
     }
 
-    public boolean betweenEndsOfRoute(StationIdPair pair) {
-        return routeEndRepository.isEndRoute(pair.getBeginId()) && routeEndRepository.isEndRoute(pair.getEndId());
-    }
-
     public static class JourneyOrNot {
         private final StationIdPair requested;
         private final LocalDate queryDate;

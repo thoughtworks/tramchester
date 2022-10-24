@@ -50,11 +50,10 @@ class FindStationLinksTest {
         geography = componentContainer.get(Geography.class);
     }
 
-    @Summer2022
     @Test
     void shouldFindExpectedLinksBetweenStations() {
         Set<StationLink> results = findStationLinks.findLinkedFor(Tram);
-        assertEquals(200, results.size()); // 202 -> 200
+        assertEquals(204, results.size());
 
         assertTrue(results.contains(createLink(StPetersSquare, PiccadillyGardens)));
         assertTrue(results.contains(createLink(StPetersSquare, MarketStreet)));
@@ -68,9 +67,7 @@ class FindStationLinksTest {
         assertFalse(results.contains(createLink(Shudehill, StPetersSquare)));
 
         assertTrue(results.contains(createLink(MediaCityUK, HarbourCity)));
-
-        // Not during eccles closure
-        //assertTrue(results.contains(createLink(MediaCityUK, Broadway)));
+        assertTrue(results.contains(createLink(MediaCityUK, Broadway)));
 
     }
 

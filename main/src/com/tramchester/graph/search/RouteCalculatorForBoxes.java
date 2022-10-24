@@ -5,6 +5,8 @@ import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.*;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.dates.TramServiceDate;
+import com.tramchester.domain.id.IdSet;
+import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.domain.time.TimeRange;
@@ -80,8 +82,11 @@ public class RouteCalculatorForBoxes extends RouteCalculatorSupport {
                 journeyRequest.getTimeRange());
         final RunningRoutesAndServices.FilterForDate routeAndServicesFilter = runningRoutesAndService.getFor(date);
 
+        final IdSet<Station> closedStations = closedStationsRepository.getFullyClosedStationsFor(date).stream().
+                map(ClosedStation::getStationId).collect(IdSet.idCollector());
+
         final Duration maxJourneyDuration = journeyRequest.getMaxJourneyDuration();
-        final JourneyConstraints journeyConstraints = new JourneyConstraints(config, routeAndServicesFilter, journeyRequest, closedStationsRepository,
+        final JourneyConstraints journeyConstraints = new JourneyConstraints(config, routeAndServicesFilter, closedStations,
                 destinations, lowestCostForDestinations, maxJourneyDuration);
 
         final Set<Long> destinationNodeIds = getDestinationNodeIds(destinations);

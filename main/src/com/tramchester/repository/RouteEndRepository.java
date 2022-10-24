@@ -18,6 +18,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
+// TODO NOW ONLY USED FOR TEST SUPPORT, MOVE
+
 @LazySingleton
 public class RouteEndRepository {
     private static final Logger logger = LoggerFactory.getLogger(RouteEndRepository.class);
@@ -72,12 +74,12 @@ public class RouteEndRepository {
         return beginOrEndOfRoutes.get(mode);
     }
 
-    public boolean isEndRoute(IdFor<Station> stationId) {
-        for (TransportMode enabledMode : enabledModes) {
-            if (beginOrEndOfRoutes.get(enabledMode).contains(stationId)) {
-                return true;
-            }
-        }
-        return false;
-    }
+//    public boolean isEndRoute(IdFor<Station> stationId) {
+//        for (TransportMode enabledMode : enabledModes) {
+//            if (beginOrEndOfRoutes.get(enabledMode).contains(stationId)) {
+//                return true;
+//            }
+//        }
+//        return false;
+//    }
 }

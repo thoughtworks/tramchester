@@ -1,6 +1,7 @@
 package com.tramchester.integration.resources;
 
 import com.tramchester.App;
+import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.presentation.DTO.RouteDTO;
 import com.tramchester.domain.presentation.DTO.LocationRefDTO;
 import com.tramchester.domain.presentation.DTO.LocationRefWithPosition;
@@ -31,32 +32,29 @@ class RouteResourceTest {
     private static final IntegrationAppExtension appExtension = new IntegrationAppExtension(App.class,
             new ResourceTramTestConfig<>(RouteResource.class));
 
-    @Summer2022
     @Test
     void shouldGetAllRoutes() {
         List<RouteDTO> routes = getRouteResponse();
 
-        // +4 more replacement routes
-        assertEquals(16, routes.size(), "Wrong size");
+        TramDate when = TramDate.from(TestEnv.LocalNow());
+
+        assertEquals(KnownTramRoute.getFor(when).size(), routes.size(), "Wrong size");
 
         routes.forEach(route -> assertFalse(route.getStations().isEmpty(), "Route no stations "+route.getRouteName()));
 
-        RouteDTO ashtonRoute = routes.stream().
-                filter(routeDTO -> routeDTO.getShortName().equals(AshtonUnderLyneManchesterEccles.shortName())).
+        RouteDTO airportRoute = routes.stream().
+                filter(routeDTO -> routeDTO.getShortName().equals(ManchesterAirportWythenshaweVictoria.shortName())).
                 findFirst().orElseThrow();
 
-        assertTrue(ashtonRoute.isTram());
-        List<LocationRefWithPosition> ashtonRouteStations = ashtonRoute.getStations();
+        assertTrue(airportRoute.isTram());
+        List<LocationRefWithPosition> airportRouteStations = airportRoute.getStations();
 
-        assertEquals("Blue Line", ashtonRoute.getShortName().trim());
-        List<String> ids = ashtonRouteStations.stream().map(LocationRefDTO::getId).collect(Collectors.toList());
-        assertTrue(ids.contains(TramStations.Ashton.getRawId()));
+        assertEquals("Navy Line", airportRoute.getShortName().trim());
+        List<String> ids = airportRouteStations.stream().map(LocationRefDTO::getId).collect(Collectors.toList());
+        assertTrue(ids.contains(TramStations.ManAirport.getRawId()));
 
-        // Summer 2022 - eccles is on the replacement bus route
-        //assertTrue(ids.contains(TramStations.Eccles.getRawId()));
     }
 
-    @Summer2022
     @Test
     void shouldListStationsInOrder() {
         List<RouteDTO> routes = getRouteResponse();

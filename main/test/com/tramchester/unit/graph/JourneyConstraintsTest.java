@@ -42,6 +42,7 @@ public class JourneyConstraintsTest extends EasyMockSupport {
         config = new TestConfigWithTramMode();
 
         IdSet<Station> closedStations = IdSet.singleton(TramStations.Cornbrook.getId());
+
         lowestCostForDest = createMock(LowestCostsForDestRoutes.class);
         filterForDate = createMock(RunningRoutesAndServices.FilterForDate.class);
 

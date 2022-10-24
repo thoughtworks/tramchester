@@ -2,23 +2,31 @@ package com.tramchester.integration.graph.diversions;
 
 import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
+import com.tramchester.domain.ClosedStation;
+import com.tramchester.domain.DataSourceID;
 import com.tramchester.domain.StationClosures;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.places.Station;
+import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.integration.testSupport.StationClosuresForTest;
 import com.tramchester.integration.testSupport.tram.IntegrationTramClosedStationsTestConfig;
 import com.tramchester.repository.ClosedStationsRepository;
 import com.tramchester.testSupport.TestEnv;
+import com.tramchester.testSupport.reference.TramStations;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
+import static com.tramchester.domain.reference.CentralZoneStation.*;
 import static com.tramchester.testSupport.reference.TramStations.StPetersSquare;
 import static com.tramchester.testSupport.reference.TramStations.TraffordCentre;
 import static org.junit.jupiter.api.Assertions.*;
@@ -71,62 +79,64 @@ public class ClosedStationsRepositoryTest {
 
     @Test
     void shouldHaveExpectedClosedStationsForFirstPeriod() {
-        IdSet<Station> closed = closedStationsRepository.getFullyClosedStationsFor(when);
+        Set<ClosedStation> closed = closedStationsRepository.getFullyClosedStationsFor(when);
         assertEquals(1, closed.size());
-        assertTrue(closed.contains(StPetersSquare.getId()));
+        IdSet<Station> ids = closed.stream().map(ClosedStation::getStation).collect(IdSet.collector());
+        assertTrue(ids.contains(StPetersSquare.getId()));
 
-        IdSet<Station> closedLater = closedStationsRepository.getFullyClosedStationsFor(afterClosures);
+        Set<ClosedStation> closedLater = closedStationsRepository.getFullyClosedStationsFor(afterClosures);
         assertTrue(closedLater.isEmpty());
     }
 
     @Test
     void shouldHaveExpectedClosedStationsForSecondPeriod() {
-        IdSet<Station> fullyClosed = closedStationsRepository.getFullyClosedStationsFor(when.plusWeeks(2));
+        Set<ClosedStation> fullyClosed = closedStationsRepository.getFullyClosedStationsFor(when.plusWeeks(2));
         assertTrue(fullyClosed.isEmpty());
     }
 
     @Test
     void shouldHaveExpectedClosedStationsForOverlap() {
-        IdSet<Station> fullyClosed = closedStationsRepository.getFullyClosedStationsFor(overlap);
+        Set<ClosedStation> fullyClosed = closedStationsRepository.getFullyClosedStationsFor(overlap);
         assertEquals(1, fullyClosed.size());
-        assertTrue(fullyClosed.contains(StPetersSquare.getId()));
+        IdSet<Station> ids = fullyClosed.stream().map(ClosedStation::getStation).collect(IdSet.collector());
+        assertTrue(ids.contains(StPetersSquare.getId()));
     }
 
-//    @Test void shouldFindRoutesImpactedByFullClosure() {
-//        Station station = StPetersSquare.from(stationRepository);
-//
-//        Set<Route> stationRoutes = Sets.union(station.getDropoffRoutes(), station.getPickupRoutes());
-//
-//        Set<Route> impactedRoutes = closedStationsRepository.getImpactedRoutes(when);
-//        assertEquals(stationRoutes.size(), impactedRoutes.size());
-//        assertTrue(impactedRoutes.containsAll(stationRoutes));
-//
-//        Set<Route> impactedLater = closedStationsRepository.getImpactedRoutes(afterClosures);
-//        assertTrue(impactedLater.isEmpty());
-//    }
-//
-//    @Test void shouldNotFindRoutesImpactedByPartialClosure() {
-//        Set<Route> impactedRoutes = closedStationsRepository.getImpactedRoutes(when.plusWeeks(2));
-//        assertTrue(impactedRoutes.isEmpty(), impactedRoutes.toString());
-//    }
-//
-//    @Test void shouldFindRoutesImpactedByClosureDuringOverlap() {
-//        Station stPeters = StPetersSquare.from(stationRepository);
-//        Station traffordCenter = TraffordCentre.from(stationRepository);
-//
-//        Set<Route> stPetersRoutes = Sets.union(stPeters.getDropoffRoutes(), stPeters.getPickupRoutes());
-//        Set<Route> traffordCenterRoutes = Sets.union(traffordCenter.getDropoffRoutes(), traffordCenter.getPickupRoutes());
-//        Set<Route> bothStationRoutes = Sets.union(stPetersRoutes, traffordCenterRoutes);
-//
-//        // assert that we don't have the same set of routes as need to check overlap happens as expected
-//        assertNotEquals(stPetersRoutes.size(), bothStationRoutes.size());
-//        assertNotEquals(traffordCenterRoutes.size(), bothStationRoutes.size());
-//
-//        Set<Route> impactedRoutes = closedStationsRepository.getImpactedRoutes(overlap);
-//        assertEquals(bothStationRoutes.size(), impactedRoutes.size());
-//        assertTrue(impactedRoutes.containsAll(stPetersRoutes));
-//        assertTrue(impactedRoutes.containsAll(traffordCenterRoutes));
-//
-//    }
+    @Test
+    void shouldHaveUpcomingClosures() {
+        TramDate beforeClosures = when.minusWeeks(1);
+        Set<ClosedStation> upcoming = closedStationsRepository.getUpcomingClosuresFor(beforeClosures);
+
+        assertEquals(2, upcoming.size());
+
+        TramDate afterClosures = when.plusWeeks(10);
+        upcoming = closedStationsRepository.getUpcomingClosuresFor(afterClosures);
+        assertTrue(upcoming.isEmpty());
+    }
+
+    @Test
+    void shouldHaveClosedByDataSourceId() {
+        Set<ClosedStation> closedStations = closedStationsRepository.getClosedStationsFor(DataSourceID.tfgm);
+        assertEquals(2, closedStations.size());
+
+    }
+
+    @Test
+    void shouldHaveNearbyStationsForClosed() {
+        List<ClosedStation> closedStations = new ArrayList<>(closedStationsRepository.getFullyClosedStationsFor(when.plusDays(1)));
+        assertEquals(1, closedStations.size());
+
+        ClosedStation closedStation = closedStations.get(0);
+        assertEquals(StPetersSquare.getId(), closedStation.getStation().getId());
+
+        IdSet<Station> availableStations = closedStation.getNearbyOpenStations().stream().collect(IdSet.collector());
+        assertFalse(availableStations.isEmpty());
+
+        assertTrue(availableStations.contains(Deansgate.getId()));
+        assertTrue(availableStations.contains(PiccadillyGardens.getId()));
+        assertTrue(availableStations.contains(MarketStreet.getId()));
+
+
+    }
 
 }

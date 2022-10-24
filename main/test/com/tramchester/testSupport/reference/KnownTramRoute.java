@@ -21,10 +21,10 @@ import static java.lang.String.format;
  */
 public enum KnownTramRoute {
 
-    // TODO SUSPENDED, Picc gardens emergency track work
+    // TODO SUSPENDED???, Picc gardens emergency track work
     // https://tfgm.com/piccadilly-gardens-service-change
-    //AltrinchamPiccadilly("Purple Line", Inbound, "Altrincham - Piccadilly"),
-    //PiccadillyAltrincham("Purple Line", Outbound, "Piccadilly - Altrincham"),
+    AltrinchamPiccadilly("Purple Line", Inbound, "Altrincham - Piccadilly"),
+    PiccadillyAltrincham("Purple Line", Outbound, "Piccadilly - Altrincham"),
 
     AltrinchamManchesterBury("Green Line", Inbound, "Altrincham - Manchester - Bury"),
     BuryManchesterAltrincham("Green Line", Outbound, "Bury - Manchester - Altrincham"),
@@ -78,6 +78,11 @@ public enum KnownTramRoute {
         if (when.isAfter(TramDate.of(2022, 10, 22))) {
             routes.remove(ReplacementRouteToEccles);
             routes.remove(ReplacementRouteFromEccles);
+        }
+        if (when.isAfter(TramDate.of(2022, 10,22)) && when.isBefore(TramDate.of(2022, 11, 30))) {
+            // piccadilly gardens work
+            routes.remove(AltrinchamPiccadilly);
+            routes.remove(PiccadillyAltrincham);
         }
         return routes;
     }

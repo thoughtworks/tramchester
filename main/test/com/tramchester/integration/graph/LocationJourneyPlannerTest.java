@@ -80,7 +80,7 @@ class LocationJourneyPlannerTest {
     }
 
     @Test
-    void shouldHaveDirectWalkNearPiccadily() {
+    void shouldHaveDirectWalkNearPiccadillyGardens() {
         TramServiceDate queryDate = new TramServiceDate(when);
 
         JourneyRequest journeyRequest = new JourneyRequest(queryDate, TramTime.of(9, 0), false,

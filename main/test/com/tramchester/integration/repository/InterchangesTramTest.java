@@ -20,6 +20,7 @@ import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TramRouteHelper;
 import com.tramchester.testSupport.reference.KnownTramRoute;
 import com.tramchester.testSupport.reference.TramStations;
+import com.tramchester.testSupport.testTags.PiccGardens2022;
 import com.tramchester.testSupport.testTags.Summer2022;
 import org.junit.jupiter.api.*;
 
@@ -66,14 +67,12 @@ public class InterchangesTramTest {
         }
     }
 
-    @Summer2022
     @Test
     void shouldHaveExpectedInterchanges() {
         // todo shaw and crompton?
 
-        // summer 2022 - removed Broadway
         Set<TramStations> tramStations = new HashSet<>(Arrays.asList(StWerburghsRoad, TraffordBar, Cornbrook, HarbourCity, Pomona,
-                Cornbrook, Deansgate, StPetersSquare, PiccadillyGardens, Piccadilly, Victoria, MarketStreet));
+                Cornbrook, Deansgate, StPetersSquare, PiccadillyGardens, Piccadilly, Victoria, MarketStreet, Broadway));
 
         Set<Station> expected = tramStations.stream().map(item -> item.from(stationRepository)).collect(Collectors.toSet());
 
@@ -95,11 +94,11 @@ public class InterchangesTramTest {
         assertTrue(unexpected.isEmpty(), HasId.asIds(unexpected));
     }
 
+    @PiccGardens2022
     @Test
     void shouldHaveExpectedDropoffAndPickupRoutesForInterchange() {
         TramDate date = TestEnv.testDay();
         Route toAirport = tramRouteHelper.getOneRoute(KnownTramRoute.VictoriaWythenshaweManchesterAirport, date);
-        Route toEastDids = tramRouteHelper.getOneRoute(KnownTramRoute.AshtonUnderLyneManchesterEccles, date);
 
         Station stWerb = StWerburghsRoad.from(stationRepository);
 
@@ -107,7 +106,10 @@ public class InterchangesTramTest {
         assertEquals(InterchangeStation.InterchangeType.NumberOfLinks, interchange.getType());
 
         assertTrue(interchange.getPickupRoutes().contains(toAirport));
-        assertTrue(interchange.getDropoffRoutes().contains(toEastDids));
+
+        // TODO Not during the works
+//        Route toEastDids = tramRouteHelper.getOneRoute(KnownTramRoute.AshtonUnderLyneManchesterEccles, date);
+//        assertTrue(interchange.getDropoffRoutes().contains(toEastDids));
     }
 
 
@@ -185,16 +187,26 @@ public class InterchangesTramTest {
 
     @Test
     void shouldHaveReachableInterchangeForEveryRoute() {
+        TramDate date = TestEnv.testDay();
+
         Set<InterchangeStation> interchanges = interchangeRepository.getAllInterchanges();
-        Set<Route> dropOffRoutes = interchanges.stream().flatMap(interchangeStation -> interchangeStation.getDropoffRoutes().stream()).collect(Collectors.toSet());
-        Set<Route> pickupRoutes = interchanges.stream().flatMap(interchangeStation -> interchangeStation.getPickupRoutes().stream()).collect(Collectors.toSet());
+        Set<Route> dropOffRoutes = interchanges.stream().
+                flatMap(interchangeStation -> interchangeStation.getDropoffRoutes().stream()).
+                filter(route -> route.isAvailableOn(date)).
+                collect(Collectors.toSet());
+        Set<Route> pickupRoutes = interchanges.stream().
+                flatMap(interchangeStation -> interchangeStation.getPickupRoutes().stream()).
+                filter(route -> route.isAvailableOn(date)).
+                collect(Collectors.toSet());
 
         IdSet<Route> routesWithoutInterchanges = routeRepository.getRoutes().stream().
+                filter(route -> route.isAvailableOn(date)).
                 filter(route -> !dropOffRoutes.contains(route)).
                 filter(route -> !pickupRoutes.contains(route)).
                 collect(IdSet.collector());
 
         assertTrue(routesWithoutInterchanges.isEmpty(), routesWithoutInterchanges.toString());
+
     }
 
     /***

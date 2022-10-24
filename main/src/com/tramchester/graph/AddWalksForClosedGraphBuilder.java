@@ -105,7 +105,6 @@ public class AddWalksForClosedGraphBuilder extends CreateNodesAndRelationships i
             addDBFlag(source);
             reportStats();
         });
-
         logger.info("started");
     }
 
@@ -121,7 +120,7 @@ public class AddWalksForClosedGraphBuilder extends CreateNodesAndRelationships i
     private void createWalksForClosed(GTFSSourceConfig source) {
         logger.info("Add walks for closed stations for " + source.getName());
         final Set<ClosedStation> closures = closedStationsRepository.getClosedStationsFor(source.getDataSourceId());
-        final IdSet<Station> closedStationIds = closures.stream().map(ClosedStation::getStation).collect(IdSet.collector());
+        final IdSet<Station> closedStationIds = closures.stream().map(ClosedStation::getStationId).collect(IdSet.idCollector());
 
         if (closures.isEmpty()) {
             logger.warn("No station closures are given for " + source.getName());
@@ -132,22 +131,20 @@ public class AddWalksForClosedGraphBuilder extends CreateNodesAndRelationships i
 
         closures.stream().
                 filter(closedStation -> filter.shouldInclude(closedStation.getStation())).
+                filter(closedStation -> closedStation.getStation().getGridPosition().isValid()).
             forEach(closedStation -> {
-                Station station = closedStation.getStation();
-                if (station.getGridPosition().isValid()) {
-                    Set<Station> linkedStations = getStationsLinkedTo(station);
 
-                    Set<Station> withinRange = stationLocations.nearestStationsUnsorted(station, range).collect(Collectors.toSet());
+                Set<Station> linkedTo = getStationsLinkedTo(closedStation.getStation());
 
-                    Set<Station> nearbyOpenStations =
-                            linkedStations.stream().
-                            filter(filter::shouldInclude).
-                            filter(nearby -> !closedStationIds.contains(nearby.getId())).
-                            filter(withinRange::contains).
-                            collect(Collectors.toSet());
+                // TODO This excludes all stations with closures, more sofisicated would be to ID how/if closure
+                // dates overlaps and only exclude if really necessary
+                Set<Station> nearbyOpenStations = closedStation.getNearbyOpenStations().stream().
+                        filter(nearby -> !closedStationIds.contains(nearby.getId())).
+                        filter(linkedTo::contains).
+                        collect(Collectors.toSet());
 
-                    createWalks(nearbyOpenStations, closedStation, range);
-                }
+                createWalks(nearbyOpenStations, closedStation, range);
+
             });
     }
 
@@ -167,13 +164,12 @@ public class AddWalksForClosedGraphBuilder extends CreateNodesAndRelationships i
     }
 
     private void createWalks(Set<Station> linkedNearby, ClosedStation closedStation, MarginInMeters range) {
-        Station station = closedStation.getStation();
-        try(TimedTransaction timedTransaction = new TimedTransaction(database, logger, "create diversions for " +station.getId())) {
+        try(TimedTransaction timedTransaction = new TimedTransaction(database, logger, "create diversions for " +closedStation.getStationId())) {
             Transaction txn = timedTransaction.transaction();
             addDiversionsToAndFromClosed(txn, linkedNearby, closedStation);
             int added = addDiversionsAroundClosed(txn, linkedNearby, closedStation, range);
             if (added==0) {
-                logger.warn("Did not create any diversions around closure of " + station.getId());
+                logger.warn("Did not create any diversions around closure of " + closedStation.getStationId());
             }
             timedTransaction.commit();
         }

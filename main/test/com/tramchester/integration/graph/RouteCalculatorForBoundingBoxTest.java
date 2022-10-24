@@ -18,6 +18,7 @@ import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.TramStations;
+import com.tramchester.testSupport.testTags.PiccGardens2022;
 import org.junit.jupiter.api.*;
 import org.neo4j.graphdb.Transaction;
 
@@ -29,8 +30,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 class RouteCalculatorForBoundingBoxTest {
     // Note this needs to be > time for whole test fixture, see note below in @After
@@ -73,6 +73,7 @@ class RouteCalculatorForBoundingBoxTest {
         txn.close();
     }
 
+    @PiccGardens2022
     @Test
     void shouldFindJourneysForBoundedBoxStations() {
         BoundingBox bounds = stationLocations.getBounds();
@@ -90,8 +91,12 @@ class RouteCalculatorForBoundingBoxTest {
         Stream<JourneysForBox> stream = calculator.calculateRoutes(destinations, journeyRequest, grouped);
         List<JourneysForBox> groupedJourneys = stream.collect(Collectors.toList());
 
+        assertFalse(groupedJourneys.isEmpty());
+
         List<JourneysForBox> missed = groupedJourneys.stream().filter(group -> group.getJourneys().isEmpty()).collect(Collectors.toList());
-        assertEquals(1, missed.size(), missed.toString()); // when start and dest match
+
+        // TODO 1->2
+        assertEquals(2, missed.size(), missed.toString()); // when start and dest match
 
         groupedJourneys.forEach(group -> group.getJourneys().forEach(journey -> {
             assertTrue(journey.getStages().size()>0); // catch case where starting point is dest

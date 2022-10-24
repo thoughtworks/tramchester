@@ -196,7 +196,7 @@ public class StationResource extends UsesRecentCookie implements APIResource {
     @ApiOperation(value = "Get closed stations", response = StationClosureDTO.class, responseContainer = "List")
     @CacheControl(maxAge = 5, maxAgeUnit = TimeUnit.MINUTES)
     public Response getClosures() {
-        Set<ClosedStation> closed = closedStationsRepository.getUpcomingClosuresFor(providesNow);
+        Set<ClosedStation> closed = closedStationsRepository.getUpcomingClosuresFor(providesNow.getTramDate());
 
         logger.info("Get closed stations " + closed);
 

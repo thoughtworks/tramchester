@@ -68,23 +68,10 @@ class FindStationsByNumberLinksTramTest {
     }
 
     @Test
-    void shouldFindInterchangeRoutes() {
-        IdSet<Station> found = finder.atLeastNLinkedRoutes(TransportMode.Tram, 9);
-
-        assertEquals(5, found.size(), found.toString());
-        assertTrue(found.contains(TramStations.TraffordBar.getId()));
-        assertTrue(found.contains(TramStations.Cornbrook.getId()));
-        assertTrue(found.contains(TramStations.Deansgate.getId()));
-        assertTrue(found.contains(TramStations.StPetersSquare.getId()));
-        assertTrue(found.contains(TramStations.Victoria.getId()));
-    }
-
-    @Summer2022
-    @Test
     void shouldIdInterchangePointsLinked() {
 
         IdSet<Station> found = finder.atLeastNLinkedStations(TransportMode.Tram, threshhold);
-        assertEquals(9, found.size(), found.toString()); // TODO 10->9
+        assertEquals(11, found.size(), found.toString());
         assertTrue(found.contains(TramStations.StPetersSquare.getId()));
         assertTrue(found.contains(TramStations.PiccadillyGardens.getId()));
         assertTrue(found.contains(TramStations.MarketStreet.getId()));
@@ -95,7 +82,7 @@ class FindStationsByNumberLinksTramTest {
         assertTrue(found.contains(TramStations.Pomona.getId()));
 
         // not during eccles line works
-        //assertTrue(found.contains(TramStations.Broadway.getId()));
+        assertTrue(found.contains(TramStations.Broadway.getId()));
 
         assertTrue(found.contains(TramStations.HarbourCity.getId()));
 

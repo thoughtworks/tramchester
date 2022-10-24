@@ -1,11 +1,13 @@
 package com.tramchester.integration.repository;
 
+import com.google.common.collect.Sets;
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.GuiceContainerDependencies;
 import com.tramchester.domain.MutableRoute;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.RoutePair;
 import com.tramchester.domain.dates.TramDate;
+import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.input.StopCall;
 import com.tramchester.domain.input.Trip;
@@ -18,10 +20,8 @@ import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TramRouteHelper;
 import com.tramchester.testSupport.reference.KnownTramRoute;
 import com.tramchester.testSupport.testTags.DataUpdateTest;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import com.tramchester.testSupport.testTags.PiccGardens2022;
+import org.junit.jupiter.api.*;
 
 import java.util.Arrays;
 import java.util.HashSet;
@@ -105,29 +105,38 @@ public class RouteRepositoryTest {
 
     @Test
     void shouldHaveEndOfLinesExpectedPickupAndDropoffRoutes() {
-        Route fromAltrincamToPicc = routeRepository.getRouteById(createId("METLPURP:I:CURRENT"));
-        Route fromPiccToAltrincham = routeRepository.getRouteById(createId("METLPURP:O:CURRENT"));
+        Route fromAltrincamToBury = routeHelper.getOneRoute(AltrinchamManchesterBury, when);
+        Route fromBuryToAltrincham = routeHelper.getOneRoute(BuryManchesterAltrincham, when);
 
         Station endOfLine = stationRepository.getStationById(Altrincham.getId());
 
-        assertFalse(endOfLine.servesRouteDropOff(fromAltrincamToPicc));
-        assertTrue(endOfLine.servesRoutePickup(fromAltrincamToPicc));
+        assertFalse(endOfLine.servesRouteDropOff(fromAltrincamToBury));
+        assertTrue(endOfLine.servesRoutePickup(fromAltrincamToBury));
 
-        assertTrue(endOfLine.servesRouteDropOff(fromPiccToAltrincham));
-        assertFalse(endOfLine.servesRoutePickup(fromPiccToAltrincham));
+        assertTrue(endOfLine.servesRouteDropOff(fromBuryToAltrincham));
+        assertFalse(endOfLine.servesRoutePickup(fromBuryToAltrincham));
 
+        // should serve both routes fully
         Station notEndOfLine = stationRepository.getStationById(NavigationRoad.getId());
 
-        assertTrue(notEndOfLine.servesRouteDropOff(fromAltrincamToPicc));
-        assertTrue(notEndOfLine.servesRoutePickup(fromAltrincamToPicc));
-        assertTrue(notEndOfLine.servesRouteDropOff(fromPiccToAltrincham));
-        assertTrue(notEndOfLine.servesRoutePickup(fromPiccToAltrincham));
+        assertTrue(notEndOfLine.servesRouteDropOff(fromAltrincamToBury));
+        assertTrue(notEndOfLine.servesRoutePickup(fromAltrincamToBury));
+        assertTrue(notEndOfLine.servesRouteDropOff(fromBuryToAltrincham));
+        assertTrue(notEndOfLine.servesRoutePickup(fromBuryToAltrincham));
     }
 
     @Test
     void shouldHaveExpectedNumberOfRoutesRunning() {
-        Set<Route> running = routeRepository.getRoutesRunningOn(when);
-        assertEquals(KnownTramRoute.getFor(when).size(), running.size());
+        Set<String> running = routeRepository.getRoutesRunningOn(when).stream().map(Route::getName).collect(Collectors.toSet());
+        Set<String> knownTramRoutes = getFor(when).stream().map(KnownTramRoute::longName).collect(Collectors.toSet());
+
+        Sets.SetView<String> diffA = Sets.difference(running, knownTramRoutes);
+        assertTrue(diffA.isEmpty(), diffA.toString());
+
+        Sets.SetView<String> diffB = Sets.difference(knownTramRoutes, running);
+        assertTrue(diffB.isEmpty(), diffB.toString());
+
+        assertEquals(knownTramRoutes.size(), running.size());
     }
 
     @Test

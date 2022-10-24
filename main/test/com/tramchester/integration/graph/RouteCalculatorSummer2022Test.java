@@ -43,6 +43,7 @@ import static com.tramchester.testSupport.reference.KnownTramRoute.*;
 import static com.tramchester.testSupport.reference.TramStations.*;
 import static org.junit.jupiter.api.Assertions.*;
 
+@Disabled("Works now finished")
 @Summer2022
 class RouteCalculatorSummer2022Test {
 
