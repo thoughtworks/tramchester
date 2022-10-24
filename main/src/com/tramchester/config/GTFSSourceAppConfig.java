@@ -2,7 +2,7 @@ package com.tramchester.config;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.tramchester.domain.StationClosure;
+import com.tramchester.domain.StationClosures;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.places.Station;
@@ -59,7 +59,7 @@ public class GTFSSourceAppConfig extends Configuration implements GTFSSourceConf
 
     @NotNull
     @JsonProperty("stationClosures")
-    private List<StationClosure> closures;
+    private List<StationClosures> closures;
 
     @NotNull
     @JsonProperty("addWalksForClosed")
@@ -110,7 +110,7 @@ public class GTFSSourceAppConfig extends Configuration implements GTFSSourceConf
     }
 
     @Override
-    public List<StationClosure> getStationClosures() {
+    public List<StationClosures> getStationClosures() {
         return closures;
     }
 

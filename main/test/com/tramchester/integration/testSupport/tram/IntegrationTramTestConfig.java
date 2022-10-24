@@ -3,7 +3,7 @@ package com.tramchester.integration.testSupport.tram;
 import com.tramchester.config.GTFSSourceConfig;
 import com.tramchester.config.RemoteDataSourceConfig;
 import com.tramchester.config.TfgmTramLiveDataConfig;
-import com.tramchester.domain.StationClosure;
+import com.tramchester.domain.StationClosures;
 import com.tramchester.domain.reference.GTFSTransportationType;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.integration.testSupport.GraphDBTestConfig;
@@ -34,7 +34,7 @@ public class IntegrationTramTestConfig extends IntegrationTestConfig {
         this(DB_NAME, liveDataEnabled, Collections.emptyList());
     }
 
-    public IntegrationTramTestConfig(String dbName, List<StationClosure> closedStations) {
+    public IntegrationTramTestConfig(String dbName, List<StationClosures> closedStations) {
         this(dbName, false, closedStations);
     }
 
@@ -42,11 +42,11 @@ public class IntegrationTramTestConfig extends IntegrationTestConfig {
         this(dbName, false, Collections.emptyList());
     }
 
-    private IntegrationTramTestConfig(String dbName, boolean liveDataEnabled, List<StationClosure> closedStations) {
+    private IntegrationTramTestConfig(String dbName, boolean liveDataEnabled, List<StationClosures> closedStations) {
         this(new GraphDBIntegrationTramTestConfig("integrationTramTest", dbName), liveDataEnabled, closedStations);
     }
 
-    protected IntegrationTramTestConfig(GraphDBTestConfig dbTestConfig, boolean liveDataEnabled, List<StationClosure> closedStations) {
+    protected IntegrationTramTestConfig(GraphDBTestConfig dbTestConfig, boolean liveDataEnabled, List<StationClosures> closedStations) {
         super(dbTestConfig);
         this.liveDataEnabled = liveDataEnabled;
         gtfsSourceConfig = new TFGMGTFSSourceTestConfig("data/tram", GTFSTransportationType.tram,

@@ -13,6 +13,7 @@ import com.tramchester.domain.collections.SimpleList;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.id.IdSet;
+import com.tramchester.domain.places.Location;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TimeRange;
@@ -35,10 +36,7 @@ import org.junit.jupiter.api.*;
 
 import java.nio.file.Path;
 import java.time.Duration;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -206,7 +204,6 @@ public class RouteToRouteCostsTest {
         assertTrue(actualChange.getStations().contains(Cornbrook.from(stationRepository)), results.toString());
     }
 
-    @Disabled("routing not possible during pic gardens work")
     @PiccGardens2022
     @Test
     void shouldBacktrackToChangesMultipleChanges() {
@@ -226,6 +223,23 @@ public class RouteToRouteCostsTest {
 
         validateRoutingForBuryToTraffordCenterRoute(secondChangeSet);
     }
+
+    @PiccGardens2022
+    @Test
+    void shouldHaveExpectedRouteToRouteCostsForClosedStations() {
+        RouteToRouteCosts routeToRouteCosts = componentContainer.get(RouteToRouteCosts.class);
+
+        Location<?> stPetersSquare = StPetersSquare.from(stationRepository);
+        Location<?> piccGardens = PiccadillyGardens.from(stationRepository);
+
+        TimeRange timeRange = TimeRange.of(TramTime.of(6,0), TramTime.of(23,55));
+        Set<TransportMode> mode = EnumSet.of(TransportMode.Tram);
+
+        NumberOfChanges costs = routeToRouteCosts.getNumberOfChanges(stPetersSquare, piccGardens, mode, date, timeRange);
+
+        assertEquals(1, costs.getMin());
+    }
+
 
     @Test
     void shouldGetCorrectNumberHopsForMultipleChanges() {

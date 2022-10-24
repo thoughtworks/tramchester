@@ -5,7 +5,7 @@ import com.tramchester.ComponentsBuilder;
 import com.tramchester.DiagramCreator;
 import com.tramchester.domain.Journey;
 import com.tramchester.domain.JourneyRequest;
-import com.tramchester.domain.StationClosure;
+import com.tramchester.domain.StationClosures;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.TransportStage;
@@ -19,7 +19,7 @@ import com.tramchester.graph.filters.ConfigurableGraphFilter;
 import com.tramchester.graph.graphbuild.GraphProps;
 import com.tramchester.graph.search.RouteCalculator;
 import com.tramchester.integration.testSupport.RouteCalculatorTestFacade;
-import com.tramchester.integration.testSupport.StationClosureForTest;
+import com.tramchester.integration.testSupport.StationClosuresForTest;
 import com.tramchester.integration.testSupport.tram.IntegrationTramClosedStationsTestConfig;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.repository.StationsWithDiversionRepository;
@@ -68,14 +68,16 @@ class SubgraphClosedStationsDiversionsTest {
     private final static TramServiceDate when = new TramServiceDate(TestEnv.testDay());
     private Transaction txn;
 
-    private final static List<StationClosure> closedStations = Collections.singletonList(
-            new StationClosureForTest(TramStations.StPetersSquare, when.getDate(), when.getDate().plusWeeks(1)));
+    private final static List<StationClosures> closedStations = Collections.singletonList(
+            new StationClosuresForTest(TramStations.StPetersSquare, when.getDate(), when.getDate().plusWeeks(1), true));
     private Duration maxJourneyDuration;
     private int maxChanges;
 
     @BeforeAll
-    static void onceBeforeAnyTestsRun() {
+    static void onceBeforeAnyTestsRun() throws IOException {
         config = new IntegrationTramClosedStationsTestConfig(closedStations, true);
+        TestEnv.deleteDBIfPresent(config);
+
         componentContainer = new ComponentsBuilder().
                 configureGraphFilter(SubgraphClosedStationsDiversionsTest::configureFilter).
                 create(config, TestEnv.NoopRegisterMetrics());
@@ -112,6 +114,11 @@ class SubgraphClosedStationsDiversionsTest {
     }
 
     @Test
+    void shouldHandlePartialClosures() {
+        fail("todo");
+    }
+
+    @Test
     void shouldHaveTheDiversionsInTheRepository() {
         StationsWithDiversionRepository repository = componentContainer.get(StationsWithDiversionRepository.class);
         assertTrue(repository.hasDiversions(Deansgate.from(stationRepository)));
@@ -122,6 +129,7 @@ class SubgraphClosedStationsDiversionsTest {
         assertFalse(repository.hasDiversions(Shudehill.from(stationRepository)));
         assertFalse(repository.hasDiversions(Monsall.from(stationRepository)));
     }
+
 
     @Test
     void shouldFindRouteAroundCloseBackOnToTramCornbrookToVictoria() {

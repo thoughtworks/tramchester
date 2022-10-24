@@ -219,6 +219,11 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
         final Set<Route> pickupRoutes = availabilityRepository.getPickupRoutesFor(startStation, date, timeRange);
         final Set<Route> dropoffRoutes = availabilityRepository.getDropoffRoutesFor(destination, date, timeRange);
 
+        // TODO If the station is a partial closure or full closure AND walking diversions exist, then need
+        // to calculate routes from those neighbours?
+        // OR create fake routes?
+
+
         logger.info(format("Compute number of changes between %s (%s) and %s (%s) using modes '%s' on %s within %s",
                 startStation.getId(), HasId.asIds(pickupRoutes), destination.getId(), HasId.asIds(dropoffRoutes),
                 preferredModes, date, timeRange));

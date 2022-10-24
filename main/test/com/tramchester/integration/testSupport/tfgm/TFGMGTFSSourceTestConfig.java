@@ -1,7 +1,7 @@
 package com.tramchester.integration.testSupport.tfgm;
 
 import com.tramchester.config.GTFSSourceConfig;
-import com.tramchester.domain.StationClosure;
+import com.tramchester.domain.StationClosures;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.GTFSTransportationType;
@@ -25,11 +25,11 @@ public class TFGMGTFSSourceTestConfig implements GTFSSourceConfig {
     private final Set<TransportMode> modesWithPlatforms;
     private final IdSet<Station> additionalInterchanges;
     private final Set<TransportMode> compositeStationModes;
-    private final List<StationClosure> closedStations;
+    private final List<StationClosures> closedStations;
 
     public TFGMGTFSSourceTestConfig(String dataFolder, Set<GTFSTransportationType> sourceModes,
                                     Set<TransportMode> modesWithPlatforms, IdSet<Station> additionalInterchanges,
-                                    Set<TransportMode> compositeStationModes, List<StationClosure> closedStations) {
+                                    Set<TransportMode> compositeStationModes, List<StationClosures> closedStations) {
         this.dataFolder = dataFolder;
         this.sourceModes = sourceModes;
         this.modesWithPlatforms = modesWithPlatforms;
@@ -40,7 +40,7 @@ public class TFGMGTFSSourceTestConfig implements GTFSSourceConfig {
 
     public TFGMGTFSSourceTestConfig(String dataFolder, GTFSTransportationType mode, TransportMode modeWithPlatform,
                                     IdSet<Station> additionalInterchanges, Set<TransportMode> groupStationModes,
-                                    List<StationClosure> closedStations) {
+                                    List<StationClosures> closedStations) {
         this(dataFolder, Collections.singleton(mode), Collections.singleton(modeWithPlatform),
                 additionalInterchanges, groupStationModes, closedStations);
     }
@@ -86,7 +86,7 @@ public class TFGMGTFSSourceTestConfig implements GTFSSourceConfig {
     }
 
     @Override
-    public List<StationClosure> getStationClosures() {
+    public List<StationClosures> getStationClosures() {
         return closedStations;
     }
 

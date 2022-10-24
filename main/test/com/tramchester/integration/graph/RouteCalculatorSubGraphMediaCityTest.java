@@ -6,7 +6,7 @@ import com.tramchester.DiagramCreator;
 import com.tramchester.config.GTFSSourceConfig;
 import com.tramchester.domain.Journey;
 import com.tramchester.domain.JourneyRequest;
-import com.tramchester.domain.StationClosure;
+import com.tramchester.domain.StationClosures;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.dates.TramServiceDate;
 import com.tramchester.domain.id.IdSet;
@@ -22,7 +22,6 @@ import com.tramchester.integration.testSupport.tfgm.TFGMGTFSSourceTestConfig;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
 import com.tramchester.repository.RouteRepository;
 import com.tramchester.repository.StationRepository;
-import com.tramchester.repository.TransportData;
 import com.tramchester.testSupport.AdditionalTramInterchanges;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TramRouteHelper;
@@ -177,7 +176,7 @@ class RouteCalculatorSubGraphMediaCityTest {
 
         @Override
         protected List<GTFSSourceConfig> getDataSourceFORTESTING() {
-            List<StationClosure> closed = Collections.emptyList();
+            List<StationClosures> closed = Collections.emptyList();
 
             IdSet<Station> additionalInterchanges = AdditionalTramInterchanges.stations();
             additionalInterchanges.add(Cornbrook.getId());

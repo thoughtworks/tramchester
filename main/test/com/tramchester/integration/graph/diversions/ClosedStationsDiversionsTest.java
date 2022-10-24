@@ -4,7 +4,7 @@ import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.domain.Journey;
 import com.tramchester.domain.JourneyRequest;
-import com.tramchester.domain.StationClosure;
+import com.tramchester.domain.StationClosures;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.TransportStage;
 import com.tramchester.domain.reference.TransportMode;
@@ -15,7 +15,7 @@ import com.tramchester.graph.GraphQuery;
 import com.tramchester.graph.TransportRelationshipTypes;
 import com.tramchester.graph.search.RouteCalculator;
 import com.tramchester.integration.testSupport.RouteCalculatorTestFacade;
-import com.tramchester.integration.testSupport.StationClosureForTest;
+import com.tramchester.integration.testSupport.StationClosuresForTest;
 import com.tramchester.integration.testSupport.tram.IntegrationTramClosedStationsTestConfig;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.repository.StationsWithDiversionRepository;
@@ -54,8 +54,8 @@ class ClosedStationsDiversionsTest {
     private final static TramServiceDate when = new TramServiceDate(TestEnv.testDay());
     private Transaction txn;
 
-    private final static List<StationClosure> closedStations = Collections.singletonList(
-            new StationClosureForTest(TramStations.StPetersSquare, when.getDate(), when.getDate().plusWeeks(1)));
+    private final static List<StationClosures> closedStations = Collections.singletonList(
+            new StationClosuresForTest(TramStations.StPetersSquare, when.getDate(), when.getDate().plusWeeks(1), true));
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {

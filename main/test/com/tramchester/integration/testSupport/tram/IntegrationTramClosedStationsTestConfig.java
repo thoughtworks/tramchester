@@ -1,6 +1,6 @@
 package com.tramchester.integration.testSupport.tram;
 
-import com.tramchester.domain.StationClosure;
+import com.tramchester.domain.StationClosures;
 import com.tramchester.domain.dates.TramDate;
 
 import java.time.format.DateTimeFormatter;
@@ -12,12 +12,12 @@ public class IntegrationTramClosedStationsTestConfig extends IntegrationTramTest
     private static final DateTimeFormatter formatter = DateTimeFormatter.ISO_LOCAL_DATE;
     private final boolean planningEnabled;
 
-    public IntegrationTramClosedStationsTestConfig(List<StationClosure> closures, boolean planningEnabled) {
+    public IntegrationTramClosedStationsTestConfig(List<StationClosures> closures, boolean planningEnabled) {
         super(createDBName(closures),  closures);
         this.planningEnabled = planningEnabled;
     }
 
-    private static String createDBName(List<StationClosure> closures) {
+    private static String createDBName(List<StationClosures> closures) {
         StringBuilder builder = new StringBuilder();
         builder.append("closed_");
         closures.forEach(closed -> {

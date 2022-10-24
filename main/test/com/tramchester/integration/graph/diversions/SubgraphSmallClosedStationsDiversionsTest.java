@@ -5,19 +5,23 @@ import com.tramchester.ComponentsBuilder;
 import com.tramchester.DiagramCreator;
 import com.tramchester.domain.Journey;
 import com.tramchester.domain.JourneyRequest;
-import com.tramchester.domain.StationClosure;
+import com.tramchester.domain.NumberOfChanges;
+import com.tramchester.domain.StationClosures;
+import com.tramchester.domain.dates.TramServiceDate;
+import com.tramchester.domain.places.Location;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.TransportStage;
 import com.tramchester.domain.reference.TransportMode;
-import com.tramchester.domain.dates.TramServiceDate;
+import com.tramchester.domain.time.TimeRange;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.GraphQuery;
 import com.tramchester.graph.TransportRelationshipTypes;
 import com.tramchester.graph.filters.ConfigurableGraphFilter;
 import com.tramchester.graph.search.RouteCalculator;
+import com.tramchester.graph.search.routes.RouteToRouteCosts;
 import com.tramchester.integration.testSupport.RouteCalculatorTestFacade;
-import com.tramchester.integration.testSupport.StationClosureForTest;
+import com.tramchester.integration.testSupport.StationClosuresForTest;
 import com.tramchester.integration.testSupport.tram.IntegrationTramClosedStationsTestConfig;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.repository.StationsWithDiversionRepository;
@@ -55,20 +59,24 @@ class SubgraphSmallClosedStationsDiversionsTest {
             StPetersSquare,
             ExchangeSquare,
             Victoria,
-            Monsall);
+            Monsall,
+            PiccadillyGardens);
     private RouteCalculatorTestFacade calculator;
     private StationRepository stationRepository;
     private final static TramServiceDate when = new TramServiceDate(TestEnv.testDay());
     private Transaction txn;
 
-    private final static List<StationClosure> closedStations = Collections.singletonList(
-            new StationClosureForTest(TramStations.StPetersSquare, when.getDate(), when.getDate().plusWeeks(1)));
+    private final static List<StationClosures> closedStations = Arrays.asList(
+            new StationClosuresForTest(StPetersSquare, when.getDate(), when.getDate().plusWeeks(1), true),
+            new StationClosuresForTest(PiccadillyGardens, when.getDate(), when.getDate().plusWeeks(1), false));
     private Duration maxJourneyDuration;
     private int maxChanges;
 
     @BeforeAll
-    static void onceBeforeAnyTestsRun() {
+    static void onceBeforeAnyTestsRun() throws IOException {
         config = new IntegrationTramClosedStationsTestConfig(closedStations, true);
+        TestEnv.deleteDBIfPresent(config);
+
         componentContainer = new ComponentsBuilder().
                 configureGraphFilter(SubgraphSmallClosedStationsDiversionsTest::configureFilter).
                 create(config, TestEnv.NoopRegisterMetrics());
@@ -109,6 +117,31 @@ class SubgraphSmallClosedStationsDiversionsTest {
         StationsWithDiversionRepository repository = componentContainer.get(StationsWithDiversionRepository.class);
         assertTrue(repository.hasDiversions(Deansgate.from(stationRepository)));
         assertTrue(repository.hasDiversions(ExchangeSquare.from(stationRepository)));
+    }
+
+    @Test
+    void shouldHaveExpectedRouteToRouteCostsForClosedStations() {
+        RouteToRouteCosts routeToRouteCosts = componentContainer.get(RouteToRouteCosts.class);
+
+        Location<?> stPetersSquare = StPetersSquare.from(stationRepository);
+        Location<?> deansgate = Deansgate.from(stationRepository);
+
+        TimeRange timeRange = TimeRange.of(TramTime.of(6,0), TramTime.of(23,55));
+        Set<TransportMode> mode = EnumSet.of(TransportMode.Tram);
+
+        NumberOfChanges costs = routeToRouteCosts.getNumberOfChanges(stPetersSquare, deansgate, mode, when.getDate().plusDays(1), timeRange);
+
+        assertEquals(1, costs.getMin());
+    }
+
+    @Test
+    void shouldHaveJourneyFromPiccGardensToPiccadilly() {
+        JourneyRequest journeyRequest = new JourneyRequest(when, TramTime.of(8,0), false,
+                maxChanges, maxJourneyDuration, 1, getRequestedModes());
+
+        Set<Journey> results = calculator.calculateRouteAsSet(PiccadillyGardens, Victoria, journeyRequest);
+
+        assertFalse(results.isEmpty(), "no journeys");
     }
 
     @Test

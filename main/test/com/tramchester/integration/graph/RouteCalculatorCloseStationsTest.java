@@ -5,7 +5,7 @@ import com.tramchester.ComponentsBuilder;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.Journey;
 import com.tramchester.domain.JourneyRequest;
-import com.tramchester.domain.StationClosure;
+import com.tramchester.domain.StationClosures;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.dates.TramServiceDate;
@@ -13,7 +13,7 @@ import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.search.RouteCalculator;
 import com.tramchester.integration.testSupport.RouteCalculatorTestFacade;
-import com.tramchester.integration.testSupport.StationClosureForTest;
+import com.tramchester.integration.testSupport.StationClosuresForTest;
 import com.tramchester.integration.testSupport.tram.IntegrationTramClosedStationsTestConfig;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.TestEnv;
@@ -22,16 +22,17 @@ import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.*;
 import org.neo4j.graphdb.Transaction;
 
+import java.io.IOException;
 import java.time.Duration;
-import java.time.LocalDate;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static com.tramchester.testSupport.reference.TramStations.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 class RouteCalculatorCloseStationsTest {
     // Note this needs to be > time for whole test fixture, see note below in @After
@@ -44,12 +45,18 @@ class RouteCalculatorCloseStationsTest {
     private final static TramDate when = TestEnv.testTramDay();
     private Transaction txn;
 
-    private final static List<StationClosure> closedStations = Collections.singletonList(
-            new StationClosureForTest(TramStations.Shudehill, when, when.plusWeeks(1)));
+    // see note below on DB deletion
+    private final static List<StationClosures> closedStations = Arrays.asList(
+            new StationClosuresForTest(Shudehill, when, when.plusWeeks(1), true),
+            new StationClosuresForTest(PiccadillyGardens, when, when.plusWeeks(1), false));
 
     @BeforeAll
-    static void onceBeforeAnyTestsRun() {
+    static void onceBeforeAnyTestsRun() throws IOException {
         TramchesterConfig config = new IntegrationTramClosedStationsTestConfig(closedStations, true);
+
+        // if above closedStation list is changed need to enable this once
+        //TestEnv.deleteDBIfPresent(config);
+
         componentContainer = new ComponentsBuilder().create(config, TestEnv.NoopRegisterMetrics());
         componentContainer.initialise();
         database = componentContainer.get(GraphDatabase.class);
@@ -76,7 +83,15 @@ class RouteCalculatorCloseStationsTest {
     void shouldFindUnaffectedRouteNormally() {
         JourneyRequest journeyRequest = new JourneyRequest(new TramServiceDate(when),TramTime.of(8,0), false,
                 2, Duration.ofMinutes(120), 1, getRequestedModes());
-        Set<Journey> result = calculator.calculateRouteAsSet(TramStations.Altrincham, TramStations.TraffordBar, journeyRequest);
+        Set<Journey> result = calculator.calculateRouteAsSet(TramStations.Altrincham, TraffordBar, journeyRequest);
+        assertFalse(result.isEmpty());
+    }
+
+    @Test
+    void shouldHandlePartialClosure() {
+        JourneyRequest journeyRequest = new JourneyRequest(new TramServiceDate(when),TramTime.of(8,0), false,
+                3, Duration.ofMinutes(120), 1, getRequestedModes());
+        Set<Journey> result = calculator.calculateRouteAsSet(Piccadilly, StPetersSquare, journeyRequest);
         assertFalse(result.isEmpty());
     }
 
@@ -87,9 +102,8 @@ class RouteCalculatorCloseStationsTest {
     @Test
     void shouldFindRouteAroundClosedStation() {
         JourneyRequest journeyRequest = new JourneyRequest(new TramServiceDate(when),TramTime.of(8,0), false,
-                2, Duration.ofMinutes(120), 1, getRequestedModes());
-        Set<Journey> result = calculator.calculateRouteAsSet(TramStations.PiccadillyGardens, TramStations.Victoria,
-                journeyRequest);
+                3, Duration.ofMinutes(120), 1, getRequestedModes());
+        Set<Journey> result = calculator.calculateRouteAsSet(MarketStreet, Victoria, journeyRequest);
         assertFalse(result.isEmpty());
     }
 
@@ -109,7 +123,7 @@ class RouteCalculatorCloseStationsTest {
     private Set<Journey> getSingleStageBuryToEccles(TramDate travelDate) {
         JourneyRequest journeyRequest = new JourneyRequest(new TramServiceDate(travelDate), TramTime.of(8, 0),
                 false, 0, Duration.ofMinutes(120), 1, getRequestedModes());
-        Set<Journey> journeys = calculator.calculateRouteAsSet(TramStations.Bury, TramStations.Shudehill, journeyRequest);
+        Set<Journey> journeys = calculator.calculateRouteAsSet(TramStations.Bury, Shudehill, journeyRequest);
         return journeys.stream().filter(results -> results.getStages().size() == 1).collect(Collectors.toSet());
     }
 

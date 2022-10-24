@@ -1,24 +1,24 @@
 package com.tramchester.integration.testSupport;
 
-import com.tramchester.domain.StationClosure;
+import com.tramchester.domain.StationClosures;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.dates.DateRange;
 import com.tramchester.testSupport.reference.TramStations;
 
-import java.time.LocalDate;
-
-public class StationClosureForTest implements StationClosure {
+public class StationClosuresForTest implements StationClosures {
 
     private final TramStations station;
     private final TramDate begin;
     private final TramDate end;
+    private final boolean fullyClosed;
 
-    public StationClosureForTest(TramStations station, TramDate begin, TramDate end) {
+    public StationClosuresForTest(TramStations station, TramDate begin, TramDate end, boolean fullyClosed) {
         this.station = station;
         this.begin = begin;
         this.end = end;
+        this.fullyClosed = fullyClosed;
     }
 
     @Override
@@ -34,6 +34,11 @@ public class StationClosureForTest implements StationClosure {
     @Override
     public TramDate getEnd() {
         return end;
+    }
+
+    @Override
+    public boolean isFullyClosed() {
+        return fullyClosed;
     }
 
     @Override

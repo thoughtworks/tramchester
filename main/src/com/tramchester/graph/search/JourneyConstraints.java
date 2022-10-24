@@ -42,7 +42,7 @@ public class JourneyConstraints {
                               JourneyRequest journeyRequest,
                               ClosedStationsRepository closedStationsRepository, LocationSet endStations,
                               LowestCostsForDestRoutes lowestCostForDestinations, Duration maxJourneyDuration) {
-        this(config, routesAndServicesFilter, closedStationsRepository.getClosedStationsFor(journeyRequest.getDate().getDate()),
+        this(config, routesAndServicesFilter, closedStationsRepository.getFullyClosedStationsFor(journeyRequest.getDate().getDate()),
                 endStations, lowestCostForDestinations, maxJourneyDuration);
     }
 

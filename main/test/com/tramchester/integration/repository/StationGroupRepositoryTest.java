@@ -4,7 +4,7 @@ import com.tramchester.ComponentsBuilder;
 import com.tramchester.GuiceContainerDependencies;
 import com.tramchester.config.GTFSSourceConfig;
 import com.tramchester.config.TramchesterConfig;
-import com.tramchester.domain.StationClosure;
+import com.tramchester.domain.StationClosures;
 import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.places.StationGroup;
 import com.tramchester.domain.reference.GTFSTransportationType;
@@ -76,7 +76,7 @@ class StationGroupRepositoryTest {
         private final TFGMGTFSSourceTestConfig gtfsSourceConfig;
 
         private TestConfigWithGroupsEnabledWithTram() {
-            List<StationClosure> closedStations = Collections.emptyList();
+            List<StationClosures> closedStations = Collections.emptyList();
             final Set<TransportMode> groupStationModes = Collections.singleton(TransportMode.Tram);
 
             gtfsSourceConfig = new TFGMGTFSSourceTestConfig("data/tram", GTFSTransportationType.tram,

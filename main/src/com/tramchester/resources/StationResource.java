@@ -1,11 +1,11 @@
 package com.tramchester.resources;
 
 import com.codahale.metrics.annotation.Timed;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tramchester.config.TramchesterConfig;
-import com.tramchester.domain.StationClosure;
+import com.tramchester.domain.ClosedStation;
 import com.tramchester.domain.Timestamped;
 import com.tramchester.domain.UpdateRecentJourneys;
+import com.tramchester.domain.dates.DateRange;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.places.MyLocation;
@@ -196,12 +196,21 @@ public class StationResource extends UsesRecentCookie implements APIResource {
     @ApiOperation(value = "Get closed stations", response = StationClosureDTO.class, responseContainer = "List")
     @CacheControl(maxAge = 5, maxAgeUnit = TimeUnit.MINUTES)
     public Response getClosures() {
-        List<StationClosure> closures = new ArrayList<>(closedStationsRepository.getUpcomingClosuresFor(providesNow));
+        Set<ClosedStation> closed = closedStationsRepository.getUpcomingClosuresFor(providesNow);
 
-        logger.info("Get closed stations " + closures);
+        logger.info("Get closed stations " + closed);
 
-        List<StationClosureDTO> dtos = closures.stream().
-                map(closure -> new StationClosureDTO(closure.getBegin(), closure.getEnd(), toRefs(closure))).
+        Map<DateRange, Set<ClosedStation>> groupedByRange = new HashMap<>();
+
+        for (ClosedStation station: closed) {
+            if (!groupedByRange.containsKey(station.getDateRange())) {
+                groupedByRange.put(station.getDateRange(), new HashSet<>());
+            }
+            groupedByRange.get(station.getDateRange()).add(station);
+        }
+
+        List<StationClosureDTO> dtos = groupedByRange.entrySet().stream().
+                map(keyValue -> new StationClosureDTO(keyValue.getKey(), toRefs(keyValue.getValue()), allFullyClosed(keyValue.getValue()))).
                 sorted(Comparator.comparing(StationClosureDTO::getBegin)).
                 collect(Collectors.toList());
 
@@ -209,9 +218,13 @@ public class StationResource extends UsesRecentCookie implements APIResource {
 
     }
 
-    private List<LocationRefDTO> toRefs(StationClosure closure) {
-        return closure.getStations().stream().
-                map(stationRepository::getStationById).
+    private boolean allFullyClosed(Set<ClosedStation> closedStations) {
+        return closedStations.stream().allMatch(ClosedStation::isFullyClosed);
+    }
+
+    private List<LocationRefDTO> toRefs(Set<ClosedStation> closedStations) {
+        return closedStations.stream().
+                map(ClosedStation::getStation).
                 map(DTOFactory::createLocationRefDTO).
                 collect(Collectors.toList());
     }
