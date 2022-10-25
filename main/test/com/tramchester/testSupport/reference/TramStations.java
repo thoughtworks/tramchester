@@ -62,6 +62,7 @@ public enum TramStations implements FakeStation {
     TraffordCentre("9400ZZMATRC", "The Trafford Centre", pos(53.46782, -2.34751)),
     ImperialWarMuseum("9400ZZMAIWM", "Imperial War Museum", pos(53.46862272157,-2.29682786715)),
     Eccles("9400ZZMAECC", "Eccles", pos(53.48307, -2.33454)),
+    NewIslington("9400ZZMANIS", "New Islington", pos(53.48108550908, -2.21985483562)),
     Whitefield("9400ZZMAWFD", "Whitefield", pos(53.55113165424,-2.2951414371));
 
     public static final Set<TramStations> EndOfTheLine = new HashSet<>(Arrays.asList(Altrincham,

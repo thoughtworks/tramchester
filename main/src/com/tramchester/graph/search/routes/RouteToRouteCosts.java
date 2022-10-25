@@ -13,6 +13,7 @@ import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TimeRange;
 import com.tramchester.graph.search.BetweenRoutesCostRepository;
 import com.tramchester.graph.search.LowestCostsForDestRoutes;
+import com.tramchester.repository.ClosedStationsRepository;
 import com.tramchester.repository.NeighboursRepository;
 import com.tramchester.repository.RouteRepository;
 import com.tramchester.repository.StationAvailabilityRepository;
@@ -40,6 +41,7 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
     private final NeighboursRepository neighboursRepository;
     private final StationAvailabilityRepository availabilityRepository;
     private final RouteIndexToInterchangeRepository routePairToInterchange;
+    private final ClosedStationsRepository closedStationsRepository;
     private final RouteIndex index;
     private final RouteCostMatrix costs;
 
@@ -48,10 +50,12 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
     @Inject
     public RouteToRouteCosts(RouteRepository routeRepository, NeighboursRepository neighboursRepository,
                              StationAvailabilityRepository availabilityRepository,
-                             RouteIndexToInterchangeRepository routePairToInterchange, RouteIndex index, RouteCostMatrix costs) {
+                             RouteIndexToInterchangeRepository routePairToInterchange, ClosedStationsRepository closedStationsRepository,
+                             RouteIndex index, RouteCostMatrix costs) {
         this.neighboursRepository = neighboursRepository;
         this.availabilityRepository = availabilityRepository;
         this.routePairToInterchange = routePairToInterchange;
+        this.closedStationsRepository = closedStationsRepository;
         this.index = index;
         this.costs = costs;
 
@@ -200,7 +204,8 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
         if (neighboursRepository.areNeighbours(starts, destinations)) {
             return new NumberOfChanges(1, 1);
         }
-        return getNumberOfHops(startRoutes, endRoutes, date, interchangesOperating);
+        // todo account for closures, or covered by fact a set of locations is available here?
+        return getNumberOfHops(startRoutes, endRoutes, date, interchangesOperating, 0);
     }
 
     @Override
@@ -214,15 +219,19 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
             return new NumberOfChanges(1, 1);
         }
 
+        boolean startClosed = closedStationsRepository.isClosed(startStation, date);
+        boolean destClosed = closedStationsRepository.isClosed(destination, date);
+
+        int closureOffset = (startClosed?1:0) + (destClosed?1:0);
+
         // Need to respect timing here, otherwise can find a route that is valid at an interchange but isn't
         // actually running from the start or destination
-        final Set<Route> pickupRoutes = availabilityRepository.getPickupRoutesFor(startStation, date, timeRange);
-        final Set<Route> dropoffRoutes = availabilityRepository.getDropoffRoutesFor(destination, date, timeRange);
+        final Set<Route> pickupRoutes = getPickupRoutesFor(startStation, date, timeRange);
+        final Set<Route> dropoffRoutes = getDropoffRoutesFor(destination, date, timeRange);
 
         // TODO If the station is a partial closure or full closure AND walking diversions exist, then need
         // to calculate routes from those neighbours?
         // OR create fake routes?
-
 
         logger.info(format("Compute number of changes between %s (%s) and %s (%s) using modes '%s' on %s within %s",
                 startStation.getId(), HasId.asIds(pickupRoutes), destination.getId(), HasId.asIds(dropoffRoutes),
@@ -242,7 +251,7 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
         }
 
         if (preferredModes.isEmpty()) {
-            return getNumberOfHops(pickupRoutes, dropoffRoutes, date, changeStationOperating);
+            return getNumberOfHops(pickupRoutes, dropoffRoutes, date, changeStationOperating, closureOffset);
         } else {
             final Set<Route> filteredPickupRoutes = filterForModes(preferredModes, pickupRoutes);
             final Set<Route> filteredDropoffRoutes = filterForModes(preferredModes, dropoffRoutes);
@@ -254,15 +263,34 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
                 return NumberOfChanges.None();
             }
 
-            return getNumberOfHops(filteredPickupRoutes, filteredDropoffRoutes, date, changeStationOperating);
+            return getNumberOfHops(filteredPickupRoutes, filteredDropoffRoutes, date, changeStationOperating, closureOffset);
         }
 
+    }
+
+    private Set<Route> getDropoffRoutesFor(Location<?> station, TramDate date, TimeRange timeRange) {
+        if (closedStationsRepository.isClosed(station, date)) {
+            logger.warn(station.getId() + " is closed, using linked for dropoffs");
+            ClosedStation closedStation = closedStationsRepository.getClosedStation(station, date);
+            return availabilityRepository.getDropoffRoutesFor(closedStation, date, timeRange);
+        }
+        return availabilityRepository.getDropoffRoutesFor(station, date, timeRange);
+    }
+
+    private Set<Route> getPickupRoutesFor(Location<?> station, TramDate date, TimeRange timeRange) {
+        if (closedStationsRepository.isClosed(station, date)) {
+            logger.warn(station.getId() + " is closed, using linked for pickups");
+            ClosedStation closedStation = closedStationsRepository.getClosedStation(station, date);
+            return availabilityRepository.getPickupRoutesFor(closedStation, date, timeRange);
+        }
+        return availabilityRepository.getPickupRoutesFor(station, date, timeRange);
     }
 
     @Override
     public NumberOfChanges getNumberOfChanges(Route routeA, Route routeB, TramDate date, TimeRange timeRange) {
         ChangeStationOperating interchangesOperating = new ChangeStationOperating(date, timeRange);
-        return getNumberOfHops(Collections.singleton(routeA), Collections.singleton(routeB), date, interchangesOperating);
+        return getNumberOfHops(Collections.singleton(routeA), Collections.singleton(routeB), date,
+                interchangesOperating, 0);
     }
 
     @NotNull
@@ -281,7 +309,7 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
 
     @NotNull
     private NumberOfChanges getNumberOfHops(Set<Route> startRoutes, Set<Route> destinationRoutes, TramDate date,
-                                            ChangeStationOperating interchangesOperating) {
+                                            ChangeStationOperating interchangesOperating, int closureOffset) {
         logger.info(format("Compute number of changes between %s and %s on %s",
                 HasId.asIds(startRoutes), HasId.asIds(destinationRoutes), date));
 
@@ -299,12 +327,16 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
         if (minHops > maxDepth) {
             logger.error(format("Unexpected result for min hops %s greater than max depth %s, for %s to %s",
                     minHops, maxDepth, HasId.asIds(startRoutes), HasId.asIds(destinationRoutes)));
+        } else {
+            minHops = minHops + closureOffset;
         }
 
         int maxHops = maxHops(numberOfChangesForRoutes);
         if (maxHops > maxDepth) {
             logger.error(format("Unexpected result for max hops %s greater than max depth %s, for %s to %s",
                     maxHops, maxDepth, HasId.asIds(startRoutes), HasId.asIds(destinationRoutes)));
+        } else {
+            maxHops = minHops + closureOffset;
         }
 
         NumberOfChanges numberOfChanges = new NumberOfChanges(minHops, maxHops);

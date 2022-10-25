@@ -1,10 +1,7 @@
 package com.tramchester.repository;
 
 import com.netflix.governator.guice.lazy.LazySingleton;
-import com.tramchester.domain.LocationSet;
-import com.tramchester.domain.Route;
-import com.tramchester.domain.RouteAndChanges;
-import com.tramchester.domain.Service;
+import com.tramchester.domain.*;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.input.StopCall;
 import com.tramchester.domain.input.Trip;
@@ -117,9 +114,21 @@ public class StationAvailabilityRepository {
         return dropoffsForLocation.get(location).getRoutes(date, timeRange);
     }
 
+    public Set<Route> getDropoffRoutesFor(ClosedStation closedStation, TramDate date, TimeRange timeRange) {
+        return closedStation.getNearbyLinkedStation().stream().
+                flatMap(linked -> dropoffsForLocation.get(linked).getRoutes(date, timeRange).stream()).
+                collect(Collectors.toSet());
+    }
+
     public Set<Route> getPickupRoutesFor(LocationSet locations, TramDate date, TimeRange timeRange) {
         return locations.stream().
                 flatMap(location -> getPickupRoutesFor(location, date, timeRange).stream()).
+                collect(Collectors.toSet());
+    }
+
+    public Set<Route> getPickupRoutesFor(ClosedStation closedStation, TramDate date, TimeRange timeRange) {
+        return closedStation.getNearbyLinkedStation().stream().
+                flatMap(linked -> pickupsForLocation.get(linked).getRoutes(date, timeRange).stream()).
                 collect(Collectors.toSet());
     }
 

@@ -1,6 +1,5 @@
 package com.tramchester.graph;
 
-import com.google.common.collect.Streams;
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.config.GTFSSourceConfig;
 import com.tramchester.config.TramchesterConfig;
@@ -9,7 +8,6 @@ import com.tramchester.domain.dates.DateRange;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.places.Station;
 import com.tramchester.geo.MarginInMeters;
-import com.tramchester.geo.StationLocationsRepository;
 import com.tramchester.graph.filters.GraphFilter;
 import com.tramchester.graph.graphbuild.CreateNodesAndRelationships;
 import com.tramchester.graph.graphbuild.GraphLabel;
@@ -45,7 +43,6 @@ public class AddWalksForClosedGraphBuilder extends CreateNodesAndRelationships i
     private final StationRepository stationRepository;
     private final ClosedStationsRepository closedStationsRepository;
     private final GraphQuery graphQuery;
-    private final StationLocationsRepository stationLocations;
     private final TramchesterConfig config;
     private final GraphFilter filter;
     private final Geography geography;
@@ -55,7 +52,7 @@ public class AddWalksForClosedGraphBuilder extends CreateNodesAndRelationships i
     public AddWalksForClosedGraphBuilder(GraphDatabase database, GraphFilter filter, GraphQuery graphQuery,
                                          StationRepository repository, ClosedStationsRepository closedStationsRepository,
                                          TramchesterConfig config, StationsAndLinksGraphBuilder.Ready ready,
-                                         StationLocationsRepository stationLocations, Geography geography) {
+                                         Geography geography) {
         super(database);
         this.database = database;
         this.filter = filter;
@@ -64,7 +61,6 @@ public class AddWalksForClosedGraphBuilder extends CreateNodesAndRelationships i
         this.closedStationsRepository = closedStationsRepository;
         this.config = config;
 
-        this.stationLocations = stationLocations;
         this.geography = geography;
 
         stationsWithDiversions = new StationsWithDiversions();
@@ -134,33 +130,19 @@ public class AddWalksForClosedGraphBuilder extends CreateNodesAndRelationships i
                 filter(closedStation -> closedStation.getStation().getGridPosition().isValid()).
             forEach(closedStation -> {
 
-                Set<Station> linkedTo = getStationsLinkedTo(closedStation.getStation());
-
-                // TODO This excludes all stations with closures, more sofisicated would be to ID how/if closure
+                // TODO This excludes all stations with closures, more sophisticated would be to ID how/if closure
                 // dates overlaps and only exclude if really necessary
-                Set<Station> nearbyOpenStations = closedStation.getNearbyOpenStations().stream().
+                Set<Station> nearbyOpenStations = closedStation.getNearbyLinkedStation().stream().
                         filter(nearby -> !closedStationIds.contains(nearby.getId())).
-                        filter(linkedTo::contains).
                         collect(Collectors.toSet());
 
-                createWalks(nearbyOpenStations, closedStation, range);
+                if (nearbyOpenStations.isEmpty()) {
+                    logger.error("Unable to find any walks to add for " + closedStation);
+                } else {
+                    createWalks(nearbyOpenStations, closedStation, range);
+                }
 
             });
-    }
-
-    private Set<Station> getStationsLinkedTo(Station closedStation) {
-        try(TimedTransaction timedTransaction = new TimedTransaction(database, logger, "find linked for " +closedStation.getId())) {
-            Transaction txn = timedTransaction.transaction();
-            Node stationNode = graphQuery.getStationNode(txn, closedStation);
-
-            Iterable<Relationship> linkedRelations = stationNode.getRelationships(Direction.OUTGOING, TransportRelationshipTypes.LINKED);
-            return Streams.stream(linkedRelations).
-                    filter(relationship -> GraphProps.getLabelsFor(relationship.getEndNode()).contains(GraphLabel.STATION)).
-                    map(relationship -> GraphProps.getStationId(relationship.getEndNode())).
-                    map(stationRepository::getStationById).
-                    collect(Collectors.toSet());
-
-        }
     }
 
     private void createWalks(Set<Station> linkedNearby, ClosedStation closedStation, MarginInMeters range) {
