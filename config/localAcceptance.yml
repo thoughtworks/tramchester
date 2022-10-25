@@ -29,8 +29,12 @@ gtfsSourceConfig:
     markedInterchangesOnly: false
     additionalInterchanges: [9400ZZMAGMX]
     compositeStationModes: []
-    stationClosures: []
-    addWalksForClosed: false
+    stationClosures:
+      - stations: [ "9400ZZMAPGD" ]
+        begin: 2022-10-23
+        end: 2022-11-30
+        fullyClosed: false
+    addWalksForClosed: true
 remoteSources:
   -
     name: tfgm
@@ -63,7 +67,7 @@ numberQueries: 3
 queryInterval: 10
 maxWalkingConnections: 3
 nearestStopRangeKM: 1.6
-nearestStopForWalkingRangeKM: 1.6
+nearestStopForWalkingRangeKM: 0.8
 numOfNearestStopsToOffer:  5
 numOfNearestStopsForWalking:  3
 walkingMPH: 3

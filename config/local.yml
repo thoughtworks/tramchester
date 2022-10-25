@@ -30,8 +30,12 @@ gtfsSourceConfig:
     markedInterchangesOnly: false
     additionalInterchanges: [9400ZZMAGMX]
     compositeStationModes: []
-    addWalksForClosed: false
-    stationClosures: []
+    addWalksForClosed: true
+    stationClosures:
+      - stations: [ "9400ZZMAPGD" ]
+        begin: 2022-10-23
+        end: 2022-11-30
+        fullyClosed: false
 remoteSources:
   - name: tfgm
     dataURL: ${TRAM_DATAURL:- http://odata.tfgm.com/opendata/downloads/TfGMgtfsnew.zip}
@@ -62,7 +66,7 @@ maxNumberResults: 5
 maxWalkingConnections: 3
 maxJourneyDuration: 124
 nearestStopRangeKM: 1.6
-nearestStopForWalkingRangeKM: 1.6
+nearestStopForWalkingRangeKM: 0.8
 numOfNearestStopsToOffer: 5
 numOfNearestStopsForWalking: 3
 walkingMPH: 3.0

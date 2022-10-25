@@ -248,7 +248,7 @@ class AppUserJourneyTest extends UserJourneyTest {
         Stage stage = stages.get(0);
 
         validateAStage(stage, firstResult.getDepartTime(), "Board Tram", altrincham, 1,
-                altyToPicLineName, Piccadilly.getName(), 9);
+                altyToBuryLineName, Bury.getName(), 9);
     }
 
     @ParameterizedTest(name = "{displayName} {arguments}")
@@ -422,17 +422,17 @@ class AppUserJourneyTest extends UserJourneyTest {
         Stage secondStage = stages.get(1);
 
         // bury line tram first
-//        validateAStage(firstStage, firstResult.getDepartTime(), "Board Tram", altrincham, 1,
-//                altyToBuryLineName,
-//                Bury.getName(), 7);
+        validateAStage(firstStage, firstResult.getDepartTime(), "Board Tram", altrincham, 1,
+                altyToBuryLineName,
+                Bury.getName(), 7);
 
         // Piccadilly line tram first
-        validateAStage(firstStage, firstResult.getDepartTime(), "Board Tram", altrincham, 1,
-                altyToPicLineName,
-                Piccadilly.getName(), 7);
+//        validateAStage(firstStage, firstResult.getDepartTime(), "Board Tram", altrincham, 1,
+//                altyToPicLineName,
+//                Piccadilly.getName(), 7);
 
         // Too timetable dependent?
-        validateAStage(secondStage, TramTime.of(10,29), "Change Tram", TraffordBar.getName(),
+        validateAStage(secondStage, TramTime.of(10,25), "Change Tram", TraffordBar.getName(),
                 2, "Victoria - Wythenshawe - Manchester Airport",
                 TramStations.ManAirport.getName(), 17);
 
