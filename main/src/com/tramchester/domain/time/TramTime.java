@@ -406,8 +406,8 @@ public class TramTime implements Comparable<TramTime> {
 
         /***
          * Parse text in format HH:MM[+24]
-         * @param text
-         * @return
+         * @param text to parse
+         * @return the TramTime
          */
         private TramTime parse(final CharSequence text) {
             int offsetDays = 0;
@@ -417,16 +417,12 @@ public class TramTime implements Comparable<TramTime> {
                 throw new RuntimeException("Provided text is too short '" + text + "'");
             }
 
-//            if (text.endsWith(nextDaySuffix)) {
-//                offsetDays = 1;
-//            }
             if (length > 5) {
                 CharSequence suffix = text.subSequence(length - 3, length);
                 if (suffix.equals(nextDaySuffix)) {
                     offsetDays = 1;
                 }
             }
-
 
             // Note: indexed parse faster than using String.split
 
@@ -448,6 +444,11 @@ public class TramTime implements Comparable<TramTime> {
             final int minutes = parseMinute(text, 1); // offset 1, account for ':'
             if (minutes > 59 || minutes < 0) {
                 return invalidTime;
+            }
+
+            if (offsetDays>=NUM_DAYS) {
+                throw new RuntimeException(format("Resulting offset days (%s) is too large, hour: %s minute: %s text '%s",
+                        offsetDays, hour, minutes, text));
             }
             return TramTime.of(hour, minutes, offsetDays);
         }

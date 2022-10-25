@@ -265,7 +265,7 @@ class AppUserJourneyTest extends UserJourneyTest {
 
         for (TestResultSummaryRow result : results) {
             TramTime arrivalTime = result.getArriveTime();
-            assertTrue(arrivalTime.isValid());
+            assertTrue(arrivalTime.isValid(), "Invalid arrival time " + arrivalTime + " from " + result);
             assertTrue(arrivalTime.isAfter(TramTime.of(0,0)));
             assertTrue(arrivalTime.isBefore(TramTime.nextDay(1,0)));
         }

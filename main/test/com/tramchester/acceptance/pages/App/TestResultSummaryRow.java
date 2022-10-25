@@ -35,9 +35,19 @@ public class TestResultSummaryRow {
         changes = row.findElement(By.className("changes")).getText();
     }
 
-    private TramTime parse(String timeString) {
-        timeString = timeString.replace(" +1d","+24").trim();
-        return TramTime.parse(timeString);
+    private TramTime parse(final String original) {
+        String timeString = original.
+                replace(" +1d","+24").
+                trim();
+        if (timeString.startsWith("24:")) {
+            timeString = timeString.replace("24:", "00:"); // chrome time display issue
+        }
+        TramTime result = TramTime.parse(timeString);
+        if (!result.isValid()) {
+            throw new RuntimeException(String.format("Could not parse '%s' to a valid time, intermediate was '%s'",
+                    original, timeString));
+        }
+        return result;
     }
 
     public TramTime getDepartTime() {
