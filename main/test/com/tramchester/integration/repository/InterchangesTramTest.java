@@ -21,7 +21,6 @@ import com.tramchester.testSupport.TramRouteHelper;
 import com.tramchester.testSupport.reference.KnownTramRoute;
 import com.tramchester.testSupport.reference.TramStations;
 import com.tramchester.testSupport.testTags.PiccGardens2022;
-import com.tramchester.testSupport.testTags.Summer2022;
 import org.junit.jupiter.api.*;
 
 import java.time.LocalDate;
@@ -119,13 +118,11 @@ public class InterchangesTramTest {
         assertFalse(interchangeRepository.isInterchange(stationRepository.getStationById(TramStations.OldTrafford.getId())));
     }
 
-    @Summer2022
     @Test
     void shouldHaveInterchangesForMediaCity() {
         assertTrue(interchangeRepository.isInterchange(stationRepository.getStationById(TramStations.HarbourCity.getId())));
 
-        // not during summer 2020
-        //assertTrue(interchangeRepository.isInterchange(stationRepository.getStationById(TramStations.Broadway.getId())));
+        assertTrue(interchangeRepository.isInterchange(stationRepository.getStationById(TramStations.Broadway.getId())));
     }
 
     @Test
@@ -150,7 +147,6 @@ public class InterchangesTramTest {
     }
 
     @Disabled("WIP, allow naptan change check in")
-    @Summer2022
     @Test
     void shouldNotHaveAdditionalInterchangesAfter19August2020() {
         LocalDate currentDay = LocalDate.now();
@@ -170,7 +166,6 @@ public class InterchangesTramTest {
 
     }
 
-    @Summer2022
     @Test
     void shouldReproIssueWithMissingInterchangeForTraffordCentreToCornbrook() {
         Station cornbrook = Cornbrook.from(stationRepository);

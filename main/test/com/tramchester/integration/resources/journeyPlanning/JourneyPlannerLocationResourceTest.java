@@ -17,7 +17,6 @@ import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.FakeStation;
 import com.tramchester.testSupport.reference.KnownLocations;
 import com.tramchester.testSupport.reference.TramStations;
-import com.tramchester.testSupport.testTags.Summer2022;
 import io.dropwizard.testing.junit5.DropwizardExtensionsSupport;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.BeforeEach;
@@ -61,14 +60,13 @@ class JourneyPlannerLocationResourceTest {
     }
 
     @Disabled("Unreliable")
-    @Summer2022
     @Test
     void planRouteAllowingForWalkingTime() {
 
         // TODO Sort out the issues with this test to make it reliable
 
         // TODO remove plus 2 weeks
-        TramDate whichDay = this.when.plusWeeks(3);
+        TramDate whichDay = this.when;
         Set<JourneyDTO> journeys = validateJourneyFromLocation(nearAltrincham, Deansgate,
                 TramTime.of(19,1), false, whichDay);
         assertTrue(journeys.size()>0);

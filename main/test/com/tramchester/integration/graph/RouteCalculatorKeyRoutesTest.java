@@ -7,21 +7,19 @@ import com.tramchester.domain.Journey;
 import com.tramchester.domain.JourneyRequest;
 import com.tramchester.domain.StationIdPair;
 import com.tramchester.domain.dates.TramDate;
-import com.tramchester.domain.time.Durations;
 import com.tramchester.domain.dates.TramServiceDate;
+import com.tramchester.domain.time.Durations;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.GraphDatabase;
 import com.tramchester.integration.testSupport.RouteCalculationCombinations;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.testTags.DataExpiryCategory;
-import com.tramchester.testSupport.testTags.Summer2022;
 import org.apache.commons.lang3.tuple.Pair;
 import org.junit.jupiter.api.*;
 import org.neo4j.graphdb.Transaction;
 
 import java.time.Duration;
-import java.time.LocalDate;
 import java.util.*;
 
 import static com.tramchester.domain.reference.TransportMode.Tram;
@@ -55,7 +53,6 @@ class RouteCalculatorKeyRoutesTest {
         componentContainer.close();
     }
 
-    @Summer2022
     @BeforeEach
     void beforeEachTestRuns() {
         // +1 weeks here
@@ -86,30 +83,26 @@ class RouteCalculatorKeyRoutesTest {
         combinations.validateAllHaveAtLeastOneJourney(combinations.InterchangeToInterchange(Tram), journeyRequest);
     }
 
-    @Summer2022
     @DataExpiryCategory
     @Test
     void shouldFindEndOfLinesToEndOfLinesNextNDays() {
         final Set<StationIdPair> pairs = combinations.EndOfRoutesToEndOfRoutes(Tram);
 
         for(int day = 0; day< TestEnv.DAYS_AHEAD; day++) {
-            // TODO remove plus 3 week here
-            TramDate testDate = avoidChristmasDate(when.plusDays(day).plusWeeks(3));
+            TramDate testDate = avoidChristmasDate(when.plusDays(day));
             JourneyRequest request = new JourneyRequest(testDate, TramTime.of(8,5), false, 2,
                     maxJourneyDuration, 1, Collections.emptySet());
             combinations.validateAllHaveAtLeastOneJourney(pairs, request);
         }
     }
 
-    @Summer2022
     @DataExpiryCategory
     @Test
     void shouldFindEndOfLinesToEndOfLinesInNDays() {
         final Set<StationIdPair> pairs = combinations.EndOfRoutesToEndOfRoutes(Tram);
         // helps with diagnosis when trams not running on a specific day vs. actual missing data
 
-        // TODO remove plus 2 week here
-        TramDate testDate = avoidChristmasDate(when.plusDays(TestEnv.DAYS_AHEAD).plusWeeks(2));
+        TramDate testDate = avoidChristmasDate(when.plusDays(TestEnv.DAYS_AHEAD));
         JourneyRequest request = new JourneyRequest(testDate, TramTime.of(8,5), false, 3,
                 maxJourneyDuration, 1, Collections.emptySet());
         combinations.validateAllHaveAtLeastOneJourney(pairs, request);

@@ -10,7 +10,6 @@ import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
 import com.tramchester.repository.RouteRepository;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TramRouteHelper;
-import com.tramchester.testSupport.testTags.Summer2022;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -25,7 +24,6 @@ public class RouteCostMatrixTest {
     private TramRouteHelper routeHelper;
     private TramDate date;
     private RouteCostMatrix routeMatrix;
-    private TramDate beforeEndWorks;
 
     @BeforeAll
     static void onceBeforeAnyTestRuns() {
@@ -50,7 +48,6 @@ public class RouteCostMatrixTest {
         routeMatrix = componentContainer.get(RouteCostMatrix.class);
 
         date = TestEnv.testDay();
-        beforeEndWorks = TestEnv.EndSummerWorks().minusDays(1);
     }
 
     @Test
@@ -89,23 +86,4 @@ public class RouteCostMatrixTest {
         assertEquals(1, depth);
     }
 
-    @Summer2022
-    @Test
-    void shouldHaveExpectedIndexForReplacementBusServiceFromEccles() {
-        Route routeA = routeHelper.getOneRoute(ReplacementRouteFromEccles, beforeEndWorks);
-        Route routeB = routeHelper.getOneRoute(EcclesManchesterAshtonUnderLyne, beforeEndWorks);
-
-        int depth = routeMatrix.getConnectionDepthFor(routeA, routeB);
-        assertEquals(1, depth);
-    }
-
-    @Summer2022
-    @Test
-    void shouldHaveExpectedIndexForReplacementBusServiceToEccles() {
-        Route routeA = routeHelper.getOneRoute(AshtonUnderLyneManchesterEccles, beforeEndWorks);
-        Route routeB = routeHelper.getOneRoute(ReplacementRouteToEccles, beforeEndWorks);
-
-        int depth = routeMatrix.getConnectionDepthFor(routeA, routeB);
-        assertEquals(1, depth);
-    }
 }

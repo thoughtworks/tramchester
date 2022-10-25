@@ -315,7 +315,6 @@ class RouteCalculatorSummer2022Test {
 
     }
 
-    @Summer2022
     @Test
     void shouldHaveHarbourCityInterchangesForReplacementRoutes() {
         InterchangeRepository interchangeRepository = componentContainer.get(InterchangeRepository.class);

@@ -30,9 +30,10 @@ import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TramRouteHelper;
 import com.tramchester.testSupport.reference.TramStations;
 import com.tramchester.testSupport.testTags.PiccGardens2022;
-import com.tramchester.testSupport.testTags.Summer2022;
-import org.apache.commons.lang3.tuple.Pair;
-import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.nio.file.Path;
 import java.time.Duration;
@@ -93,7 +94,6 @@ public class RouteToRouteCostsTest {
         timeRange = TimeRange.of(TramTime.of(7,45), TramTime.of(22,45));
     }
 
-    @Summer2022
     @Test
     void shouldHaveFullyConnectedForTramsWhereDatesOverlaps() {
         TramDate testDate = this.date;

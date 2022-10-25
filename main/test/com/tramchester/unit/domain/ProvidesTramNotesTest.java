@@ -25,7 +25,6 @@ import com.tramchester.livedata.tfgm.ProvidesTramNotes;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.KnownLocations;
 import com.tramchester.testSupport.reference.TramStations;
-import com.tramchester.testSupport.testTags.Summer2022;
 import org.easymock.EasyMock;
 import org.easymock.EasyMockSupport;
 import org.junit.jupiter.api.BeforeEach;
@@ -72,31 +71,6 @@ class ProvidesTramNotesTest extends EasyMockSupport {
 
     private LocationRefDTO createStationRefFor(TramStations station) {
         return new LocationRefDTO(createStationFor(station));
-    }
-
-    @Summer2022
-    @Test
-    void shouldProvideWarningOfEcclesLineClosure() {
-
-        Journey journey = createMock(Journey.class);
-
-        EasyMock.expect(journey.getTransportModes()).andStubReturn(Collections.singleton(Tram));
-        EasyMock.expect(journey.getCallingPlatformIds()).andStubReturn(IdSet.emptySet());
-        EasyMock.expect(platformMessageSource.isEnabled()).andStubReturn(true);
-
-        replayAll();
-
-        TramDate date = TramDate.of(2022, 7, 13);
-
-        while (date.isBefore(TramDate.of(2022, 10,22))) {
-            TramServiceDate queryDate = new TramServiceDate(date);
-            List<Note> result = providesNotes.createNotesForJourney(journey, queryDate);
-            assertTrue(result.contains((new Note(ProvidesTramNotes.summer2022, Note.NoteType.ClosedStation))),
-                    "note missing for " + queryDate);
-            date = date.plusDays(1);
-        }
-        verifyAll();
-
     }
 
     @Test
@@ -262,8 +236,6 @@ class ProvidesTramNotesTest extends EasyMockSupport {
         assertThat(result, not(hasItem(christmasNote)));
     }
 
-
-    @Summer2022
     @Test
     void shouldNotAddMessageIfNotMessageForJourney() {
         EasyMock.expect(platformMessageSource.isEnabled()).andReturn(true);
@@ -292,13 +264,12 @@ class ProvidesTramNotesTest extends EasyMockSupport {
         if (serviceDate.isChristmasPeriod()) {
             expected++;
         }
-        if (ProvidesTramNotes.summer2022Closure(serviceDate.getDate())) {
-            expected++;
-        }
+//        if (ProvidesTramNotes.summer2022Closure(serviceDate.getDate())) {
+//            expected++;
+//        }
         assertEquals(expected, notes.size());
     }
 
-    @Summer2022
     @Test
     void shouldNotAddMessageIfNotMessageIfNotTimelTime() {
         EasyMock.expect(platformMessageSource.isEnabled()).andReturn(true);
@@ -328,13 +299,12 @@ class ProvidesTramNotesTest extends EasyMockSupport {
         if (serviceDate.isChristmasPeriod()) {
             expected++;
         }
-        if (ProvidesTramNotes.summer2022Closure(serviceDate.getDate())) {
-            expected++;
-        }
+//        if (ProvidesTramNotes.summer2022Closure(serviceDate.getDate())) {
+//            expected++;
+//        }
         assertEquals(expected, notes.size());
     }
 
-    @Summer2022
     @Test
     void shouldNotAddMessageIfNotMessageIfNotTimelyDate() {
         EasyMock.expect(platformMessageSource.isEnabled()).andReturn(true);
@@ -364,13 +334,12 @@ class ProvidesTramNotesTest extends EasyMockSupport {
         if (queryDate.isChristmasPeriod()) {
             expected++;
         }
-        if (ProvidesTramNotes.summer2022Closure(queryDate.getDate())) {
-            expected++;
-        }
+//        if (ProvidesTramNotes.summer2022Closure(queryDate.getDate())) {
+//            expected++;
+//        }
         assertEquals(expected, notes.size(), notes.toString());
     }
 
-    @Summer2022
     @Test
     void shouldAddNotesForJourneysBasedOnLiveDataIfPresent() {
         EasyMock.expect(platformMessageSource.isEnabled()).andReturn(true);
@@ -432,9 +401,9 @@ class ProvidesTramNotesTest extends EasyMockSupport {
             expected++;
         }
 
-        if (ProvidesTramNotes.summer2022Closure(serviceDate.getDate())) {
-            expected++;
-        }
+//        if (ProvidesTramNotes.summer2022Closure(serviceDate.getDate())) {
+//            expected++;
+//        }
 
         assertEquals(expected, notes.size());
         assertTrue(notes.contains(noteOne), notes.toString());

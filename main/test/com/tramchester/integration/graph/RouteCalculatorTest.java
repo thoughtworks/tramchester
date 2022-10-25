@@ -23,7 +23,6 @@ import com.tramchester.testSupport.reference.TramStations;
 import com.tramchester.testSupport.testTags.DataExpiryCategory;
 import com.tramchester.testSupport.testTags.DataUpdateTest;
 import com.tramchester.testSupport.testTags.PiccGardens2022;
-import com.tramchester.testSupport.testTags.Summer2022;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.*;
 import org.neo4j.graphdb.Transaction;
@@ -124,7 +123,6 @@ public class RouteCalculatorTest {
         checkRouteNextNDays(Altrincham, Cornbrook, when, TramTime.of(9,0), DAYS_AHEAD);
     }
 
-    @Summer2022
     @DataExpiryCategory
     @Test
     void shouldHaveSimpleManyStopJourneyViaInterchangeNDaysAhead() {
@@ -348,7 +346,6 @@ public class RouteCalculatorTest {
         assertGetAndCheckJourneys(journeyRequest, Altrincham, NavigationRoad);
     }
 
-    @Summer2022
     @Test
     void shouldHandleAfterMidnightDirectCentral() {
         TramDate testDate = when.plusWeeks(1);
@@ -446,7 +443,6 @@ public class RouteCalculatorTest {
         assertGetAndCheckJourneys(journeyRequest9am, Cornbrook, Eccles);
     }
 
-    @Summer2022
     @Test
     void shouldReproIssueWithJourneysToEccles() {
         TramDate testDate = this.when.plusWeeks(1);

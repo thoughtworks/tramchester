@@ -28,7 +28,6 @@ import com.tramchester.testSupport.TramRouteHelper;
 import com.tramchester.testSupport.reference.KnownTramRoute;
 import com.tramchester.testSupport.reference.TramStations;
 import com.tramchester.testSupport.testTags.PiccGardens2022;
-import com.tramchester.testSupport.testTags.Summer2022;
 import org.assertj.core.util.Streams;
 import org.junit.jupiter.api.*;
 import org.neo4j.graphdb.*;
@@ -263,7 +262,6 @@ class TramGraphBuilderTest {
 
     }
 
-    @Summer2022
     @Test
     void shouldHaveCorrectInboundsAtMediaCity() {
 
@@ -278,18 +276,11 @@ class TramGraphBuilderTest {
         checkInboundConsistency(HarbourCity, EcclesManchesterAshtonUnderLyne);
         checkInboundConsistency(HarbourCity, AshtonUnderLyneManchesterEccles);
 
-        if (when.isAfter(TestEnv.EndSummerWorks())) {
-            checkInboundConsistency(Broadway, EcclesManchesterAshtonUnderLyne);
-            checkInboundConsistency(Broadway, AshtonUnderLyneManchesterEccles);
-        } else {
-            checkInboundConsistency(Broadway, ReplacementRouteFromEccles);
-            checkInboundConsistency(Broadway, ReplacementRouteToEccles);
-
-        }
+        checkInboundConsistency(Broadway, EcclesManchesterAshtonUnderLyne);
+        checkInboundConsistency(Broadway, AshtonUnderLyneManchesterEccles);
 
     }
 
-    @Summer2022
     @Test
     void shouldCheckOutboundSvcRelationships() {
 
@@ -302,21 +293,11 @@ class TramGraphBuilderTest {
         checkOutboundConsistency(StPetersSquare, AshtonUnderLyneManchesterEccles);
         checkOutboundConsistency(StPetersSquare, EcclesManchesterAshtonUnderLyne);
 
-        if (when.isAfter(TestEnv.EndSummerWorks())) {
-            checkOutboundConsistency(MediaCityUK, AshtonUnderLyneManchesterEccles);
-        } else {
-            checkOutboundConsistency(MediaCityUK, ReplacementRouteToEccles);
-        }
+        checkOutboundConsistency(MediaCityUK, AshtonUnderLyneManchesterEccles);
         checkOutboundConsistency(MediaCityUK, EcclesManchesterAshtonUnderLyne);
 
-        // consistent heading away from Media City ONLY, see below
         checkOutboundConsistency(HarbourCity, EcclesManchesterAshtonUnderLyne);
-
-        if (when.isAfter(TestEnv.EndSummerWorks())) {
-            checkOutboundConsistency(Broadway, AshtonUnderLyneManchesterEccles);
-        } else {
-            checkOutboundConsistency(Broadway, ReplacementRouteToEccles);
-        }
+        checkOutboundConsistency(Broadway, AshtonUnderLyneManchesterEccles);
 
         // these two are not consistent because same svc can go different ways while still having same route code
         // i.e. service from harbour city can go to media city or to Broadway with same svc and route id
