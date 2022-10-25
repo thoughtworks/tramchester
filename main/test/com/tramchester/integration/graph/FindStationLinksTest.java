@@ -10,6 +10,7 @@ import com.tramchester.mappers.Geography;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.TramStations;
+import com.tramchester.testSupport.testTags.PiccGardens2022;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -48,12 +49,15 @@ class FindStationLinksTest {
         geography = componentContainer.get(Geography.class);
     }
 
+    @PiccGardens2022
     @Test
     void shouldFindExpectedLinksBetweenStations() {
         Set<StationLink> results = findStationLinks.findLinkedFor(Tram);
-        assertEquals(204, results.size());
+        assertEquals(201, results.size());
 
-        assertTrue(results.contains(createLink(StPetersSquare, PiccadillyGardens)));
+        // todo closed
+        //assertTrue(results.contains(createLink(StPetersSquare, PiccadillyGardens)));
+
         assertTrue(results.contains(createLink(StPetersSquare, MarketStreet)));
         assertTrue(results.contains(createLink(StPetersSquare, Deansgate)));
 

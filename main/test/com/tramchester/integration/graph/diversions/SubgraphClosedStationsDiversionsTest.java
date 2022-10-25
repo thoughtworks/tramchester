@@ -44,6 +44,7 @@ import static com.tramchester.graph.graphbuild.GraphLabel.*;
 import static com.tramchester.testSupport.reference.TramStations.*;
 import static org.junit.jupiter.api.Assertions.*;
 
+@Disabled("Duplicates")
 class SubgraphClosedStationsDiversionsTest {
     // Note this needs to be > time for whole test fixture, see note below in @After
     private static final int TXN_TIMEOUT = 5*60;
@@ -125,7 +126,7 @@ class SubgraphClosedStationsDiversionsTest {
         assertTrue(repository.hasDiversions(StPetersSquare.from(stationRepository)));
         assertTrue(repository.hasDiversions(MarketStreet.from(stationRepository)));
 
-        assertFalse(repository.hasDiversions(Shudehill.from(stationRepository)));
+        assertTrue(repository.hasDiversions(Shudehill.from(stationRepository)));
         assertFalse(repository.hasDiversions(Monsall.from(stationRepository)));
     }
 

@@ -11,6 +11,7 @@ import com.tramchester.integration.testSupport.RouteCalculationCombinations;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
 import com.tramchester.repository.TransportData;
 import com.tramchester.testSupport.TestEnv;
+import com.tramchester.testSupport.testTags.PiccGardens2022;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -50,6 +51,7 @@ class RouteCalculatorTestAllJourneys {
         combinations = new RouteCalculationCombinations(componentContainer);
     }
 
+    @PiccGardens2022
     @Test
     void shouldFindRouteEachStationToEveryOtherStream() {
         TransportData data = componentContainer.get(TransportData.class);
@@ -57,7 +59,9 @@ class RouteCalculatorTestAllJourneys {
         final TramTime time = TramTime.of(8, 5);
         Set<Station> haveServices = new HashSet<>(data.getStationsServing(Tram));
 
-        JourneyRequest journeyRequest = new JourneyRequest(when, time, false, 2,
+        // 2 -> 4
+        int maxChanges = 4;
+        JourneyRequest journeyRequest = new JourneyRequest(when, time, false, maxChanges,
                 Duration.ofMinutes(testConfig.getMaxJourneyDuration()), 1, Collections.emptySet());
 
         // pairs of stations to check

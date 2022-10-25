@@ -17,6 +17,7 @@ import com.tramchester.integration.testSupport.naptan.ResourceTramTestConfigWith
 import com.tramchester.repository.StationRepository;
 import com.tramchester.resources.StationGeographyResource;
 import com.tramchester.testSupport.reference.TramStations;
+import com.tramchester.testSupport.testTags.PiccGardens2022;
 import io.dropwizard.testing.junit5.DropwizardExtensionsSupport;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -53,6 +54,7 @@ class StationGeographyResourceTest {
         DTOFactory = dependencies.get(DTOFactory.class);
     }
 
+    @PiccGardens2022
     @Test
     void shouldGetStationLinks() {
         String endPoint = "geo/links";
@@ -61,13 +63,13 @@ class StationGeographyResourceTest {
         assertEquals(200, response.getStatus(), "status");
 
         List<StationLinkDTO> results = response.readEntity(new GenericType<>() {});
-        assertEquals(204, results.size(), "count");
+        assertEquals(201, results.size(), "count");
 
-        assertTrue(results.contains(createLink(StPetersSquare, PiccadillyGardens)));
+        //assertTrue(results.contains(createLink(StPetersSquare, PiccadillyGardens)));
         assertTrue(results.contains(createLink(StPetersSquare, MarketStreet)));
         assertTrue(results.contains(createLink(StPetersSquare, Deansgate)));
 
-        assertTrue(results.contains(createLink(PiccadillyGardens, StPetersSquare)));
+        //assertTrue(results.contains(createLink(PiccadillyGardens, StPetersSquare)));
         assertTrue(results.contains(createLink(MarketStreet, StPetersSquare)));
         assertTrue(results.contains(createLink(Deansgate, StPetersSquare)));
     }

@@ -269,20 +269,20 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
     }
 
     private Set<Route> getDropoffRoutesFor(Location<?> station, TramDate date, TimeRange timeRange) {
-        if (closedStationsRepository.isClosed(station, date)) {
-            logger.warn(station.getId() + " is closed, using linked for dropoffs");
-            ClosedStation closedStation = closedStationsRepository.getClosedStation(station, date);
-            return availabilityRepository.getDropoffRoutesFor(closedStation, date, timeRange);
-        }
+//        if (closedStationsRepository.isClosed(station, date)) {
+//            logger.warn(station.getId() + " is closed, using linked stations for dropoffs");
+//            ClosedStation closedStation = closedStationsRepository.getClosedStation(station, date);
+//            return availabilityRepository.getDropoffRoutesFor(closedStation, date, timeRange);
+//        }
         return availabilityRepository.getDropoffRoutesFor(station, date, timeRange);
     }
 
     private Set<Route> getPickupRoutesFor(Location<?> station, TramDate date, TimeRange timeRange) {
-        if (closedStationsRepository.isClosed(station, date)) {
-            logger.warn(station.getId() + " is closed, using linked for pickups");
-            ClosedStation closedStation = closedStationsRepository.getClosedStation(station, date);
-            return availabilityRepository.getPickupRoutesFor(closedStation, date, timeRange);
-        }
+//        if (closedStationsRepository.isClosed(station, date)) {
+//            logger.warn(station.getId() + " is closed, using linked for pickups");
+//            ClosedStation closedStation = closedStationsRepository.getClosedStation(station, date);
+//            return availabilityRepository.getPickupRoutesFor(closedStation, date, timeRange);
+//        }
         return availabilityRepository.getPickupRoutesFor(station, date, timeRange);
     }
 

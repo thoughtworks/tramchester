@@ -13,6 +13,7 @@ import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
 import com.tramchester.repository.Interchanges;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.TramStations;
+import com.tramchester.testSupport.testTags.PiccGardens2022;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -66,13 +67,16 @@ class FindStationsByNumberLinksTramTest {
                 " stations with links were " + stationWithLinks);
     }
 
+    @PiccGardens2022
     @Test
     void shouldIdInterchangePointsLinked() {
 
         IdSet<Station> found = finder.atLeastNLinkedStations(TransportMode.Tram, threshhold);
-        assertEquals(11, found.size(), found.toString());
+        // -1
+        assertEquals(11-1, found.size(), found.toString());
         assertTrue(found.contains(TramStations.StPetersSquare.getId()));
-        assertTrue(found.contains(TramStations.PiccadillyGardens.getId()));
+
+//        assertTrue(found.contains(TramStations.PiccadillyGardens.getId()));
         assertTrue(found.contains(TramStations.MarketStreet.getId()));
         assertTrue(found.contains(TramStations.TraffordBar.getId()));
         assertTrue(found.contains(TramStations.Cornbrook.getId()));

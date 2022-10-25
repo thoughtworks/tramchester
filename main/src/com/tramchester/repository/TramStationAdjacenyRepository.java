@@ -18,6 +18,9 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
+/**
+ * Supports tram position inference
+ */
 @LazySingleton
 public class TramStationAdjacenyRepository  {
 

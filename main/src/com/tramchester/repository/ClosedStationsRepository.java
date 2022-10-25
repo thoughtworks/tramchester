@@ -1,6 +1,5 @@
 package com.tramchester.repository;
 
-import com.google.common.collect.Streams;
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.ClosedStation;
@@ -14,18 +13,7 @@ import com.tramchester.domain.places.Location;
 import com.tramchester.domain.places.Station;
 import com.tramchester.geo.MarginInMeters;
 import com.tramchester.geo.StationLocations;
-import com.tramchester.graph.GraphDatabase;
-import com.tramchester.graph.GraphQuery;
-import com.tramchester.graph.TransportRelationshipTypes;
 import com.tramchester.graph.filters.GraphFilter;
-import com.tramchester.graph.graphbuild.GraphLabel;
-import com.tramchester.graph.graphbuild.GraphProps;
-import com.tramchester.graph.graphbuild.StationsAndLinksGraphBuilder;
-import com.tramchester.metrics.TimedTransaction;
-import org.neo4j.graphdb.Direction;
-import org.neo4j.graphdb.Node;
-import org.neo4j.graphdb.Relationship;
-import org.neo4j.graphdb.Transaction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -48,20 +36,15 @@ public class ClosedStationsRepository {
     private final StationRepository stationRepository;
     private final StationLocations stationLocations;
     private final GraphFilter filter;
-    private final GraphDatabase database;
-    private final GraphQuery graphQuery;
 
     @Inject
     public ClosedStationsRepository(TramchesterConfig config, StationRepository stationRepository, StationLocations stationLocations,
-                                    GraphFilter filter, GraphDatabase database, StationsAndLinksGraphBuilder.Ready ready,
-                                    GraphQuery graphQuery) {
+                                    GraphFilter filter) {
         this.config = config;
         this.stationRepository = stationRepository;
         this.stationLocations = stationLocations;
 
         this.filter = filter;
-        this.database = database;
-        this.graphQuery = graphQuery;
         closed = new HashSet<>();
         hasAClosure = new IdSet<>();
     }
@@ -98,34 +81,16 @@ public class ClosedStationsRepository {
         hasAClosure.add(stationId);
 
         Station station = stationRepository.getStationById(stationId);
-        Set<Station> nearbyOpenStations = getNearbyLinkedStations(station, range);
+        Set<Station> nearbyOpenStations = getNearbyStations(station, range);
         return new ClosedStation(station, dateRange, fullyClosed, nearbyOpenStations);
     }
 
-    private Set<Station> getStationsLinkedTo(Station closedStation) {
-        try(TimedTransaction timedTransaction = new TimedTransaction(database, logger, "find linked for " +closedStation.getId())) {
-            Transaction txn = timedTransaction.transaction();
-            Node stationNode = graphQuery.getStationNode(txn, closedStation);
-
-            Iterable<Relationship> linkedRelations = stationNode.getRelationships(Direction.OUTGOING, TransportRelationshipTypes.LINKED);
-            return Streams.stream(linkedRelations).
-                    filter(relationship -> GraphProps.getLabelsFor(relationship.getEndNode()).contains(GraphLabel.STATION)).
-                    map(relationship -> GraphProps.getStationId(relationship.getEndNode())).
-                    map(stationRepository::getStationById).
-                    collect(Collectors.toSet());
-
-        }
-    }
-
-    private Set<Station> getNearbyLinkedStations(Station station, MarginInMeters range) {
-
-        Set<Station> linked = getStationsLinkedTo(station);
-
+    private Set<Station> getNearbyStations(Station station, MarginInMeters range) {
         Stream<Station> withinRange = stationLocations.nearestStationsUnsorted(station, range);
 
         Set<Station> found = withinRange.
                 filter(filter::shouldInclude).
-                filter(linked::contains).
+                filter(nearby -> !nearby.equals(station)).
                 collect(Collectors.toSet());
 
         logger.info("Found " + found.size() + " stations linked and within range of " + station.getId());

@@ -110,7 +110,7 @@ class RouteCalculatorSubGraphMonsallTest {
     private static class SubgraphConfig extends IntegrationTramTestConfig {
 
         public SubgraphConfig() {
-            super("sub_monsall_tramchester.db");
+            super("sub_monsall_tramchester.db", Collections.emptyList());
         }
 
     }

@@ -131,7 +131,7 @@ class LocationJourneyPlannerTest {
         final JourneyRequest request = new JourneyRequest(date, TramTime.of(8, 0), false,
                 3, maxJourneyDuration, 1, getRequestedModes());
         //request.setDiag(true);
-        final TramStations walkChangeStation = NavigationRoad;
+        final TramStations walkChangeStation = Altrincham;
         final TramStations start = TraffordBar;
 
         Set<Journey> journeySet = planner.quickestRouteForLocation(start, nearAltrincham, request, 2);
@@ -213,9 +213,9 @@ class LocationJourneyPlannerTest {
         journeyList.forEach(journey -> {
             List<Location<?>> callingPoints = journey.getPath();
             assertEquals(Deansgate.getId(), callingPoints.get(0).getId());
-            final int numCallingPoints = 11;
+            final int numCallingPoints = 12;
             assertEquals(numCallingPoints, callingPoints.size());
-            assertEquals(NavigationRoad.getId(), callingPoints.get(numCallingPoints-2).getId());
+            assertEquals(Altrincham.getId(), callingPoints.get(numCallingPoints-2).getId());
             assertEquals(nearAltrincham.latLong(), callingPoints.get(numCallingPoints-1).getLatLong());
         });
     }
@@ -254,7 +254,7 @@ class LocationJourneyPlannerTest {
         // find the lowest cost journey, should be tram to shudehill and then a walk
         Journey lowestCostJourney = journeyList.get(0);
 
-        assertEquals(Duration.ofMinutes(32), RouteCalculatorTest.costOfJourney(lowestCostJourney), journeySet.toString());
+        assertEquals(Duration.ofMinutes(33), RouteCalculatorTest.costOfJourney(lowestCostJourney), journeySet.toString());
 
         List<TransportStage<?,?>> stages = lowestCostJourney.getStages();
         assertTrue(stages.size() >= 2);

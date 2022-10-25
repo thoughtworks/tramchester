@@ -15,10 +15,12 @@ import com.tramchester.livedata.tfgm.ProvidesTramNotes;
 import com.tramchester.resources.JourneyPlannerResource;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.TramStations;
+import com.tramchester.testSupport.testTags.PiccGardens2022;
 import io.dropwizard.testing.junit5.DropwizardExtensionsSupport;
 import org.apache.commons.lang3.tuple.Triple;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
@@ -161,6 +163,8 @@ public class JourneyPlannerResourceTest {
                 assertTrue(journeyDTO.getExpectedArrivalTime().isAfter(journeyDTO.getFirstDepartureTime())));
     }
 
+    @Disabled("routing is different with the closure")
+    @PiccGardens2022
     @Test
     void shouldPlanSimpleJourneyFromAltyToAshton() {
 
@@ -175,25 +179,25 @@ public class JourneyPlannerResourceTest {
 
         journeys.forEach(journey -> {
             StageDTO firstStage = journey.getStages().get(0);
-            PlatformDTO platform1 = firstStage.getPlatform();
+            PlatformDTO stategOnePlatform = firstStage.getPlatform();
 
-            assertEquals("1", platform1.getPlatformNumber());
-            assertEquals( "Altrincham platform 1", platform1.getName());
-            assertEquals( TramStations.Altrincham.getRawId()+"1", platform1.getId());
+            assertEquals("1", stategOnePlatform.getPlatformNumber());
+            assertEquals( "Altrincham platform 1", stategOnePlatform.getName());
+            assertEquals( TramStations.Altrincham.getRawId()+"1", stategOnePlatform.getId());
 
             StageDTO secondStage = journey.getStages().get(1);
-            PlatformDTO platform2 = secondStage.getPlatform();
+            PlatformDTO secondStagePlatform = secondStage.getPlatform();
 
             // seems can be either 1 or 2
-            String platformNumber = platform2.getPlatformNumber();
+            String platformNumber = secondStagePlatform.getPlatformNumber();
             assertTrue("12".contains(platformNumber));
             // multiple possible places to change depending on timetable etc
-            assertThat(platform2.getName(), is(oneOf(
+            assertThat(secondStagePlatform.getName(), is(oneOf(
                     "Cornbrook platform 1",
                     "Deansgate-Castlefield platform 1",
                     "Piccadilly platform 1", // summer 2021 only?
                     "St Peter's Square platform 2")));
-            assertThat( platform2.getId(), is(oneOf(Cornbrook.getRawId()+platformNumber,
+            assertThat( secondStagePlatform.getId(), is(oneOf(Cornbrook.getRawId()+platformNumber,
                     Deansgate.getRawId()+platformNumber,
                     StPetersSquare.getRawId()+platformNumber,
                     Piccadilly.getRawId()+platformNumber // <- summer 2021 only?

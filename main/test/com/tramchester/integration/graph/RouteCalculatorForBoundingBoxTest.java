@@ -73,7 +73,6 @@ class RouteCalculatorForBoundingBoxTest {
         txn.close();
     }
 
-    @PiccGardens2022
     @Test
     void shouldFindJourneysForBoundedBoxStations() {
         BoundingBox bounds = stationLocations.getBounds();
@@ -95,8 +94,7 @@ class RouteCalculatorForBoundingBoxTest {
 
         List<JourneysForBox> missed = groupedJourneys.stream().filter(group -> group.getJourneys().isEmpty()).collect(Collectors.toList());
 
-        // TODO 1->2
-        assertEquals(2, missed.size(), missed.toString()); // when start and dest match
+        assertEquals(1, missed.size(), missed.toString()); // when start and dest match
 
         groupedJourneys.forEach(group -> group.getJourneys().forEach(journey -> {
             assertTrue(journey.getStages().size()>0); // catch case where starting point is dest

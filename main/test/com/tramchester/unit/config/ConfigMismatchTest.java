@@ -82,7 +82,7 @@ class ConfigMismatchTest {
         AppConfiguration appConfig = loadConfigFromFile("local.yml");
         IntegrationTramTestConfig testConfig = new IntegrationTramTestConfig(true);
 
-        validateCoreParameters(Collections.singleton(Category.Closures), appConfig, testConfig);
+        validateCoreParameters(Collections.emptySet(), appConfig, testConfig);
     }
 
     @Test

@@ -17,6 +17,7 @@ import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.FakeStation;
 import com.tramchester.testSupport.reference.KnownLocations;
 import com.tramchester.testSupport.reference.TramStations;
+import com.tramchester.testSupport.testTags.PiccGardens2022;
 import io.dropwizard.testing.junit5.DropwizardExtensionsSupport;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.BeforeEach;
@@ -26,10 +27,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 
 import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.tramchester.testSupport.reference.KnownLocations.nearAltrincham;
@@ -242,7 +240,9 @@ class JourneyPlannerLocationResourceTest {
         Set<JourneyDTO> journeys = validateJourneyFromLocation(nearAltrincham, TramStations.Ashton,
                 TramTime.of(19,47), false, when);
 
-        journeys.forEach(journey -> assertEquals(3, journey.getStages().size()));
+        Optional<JourneyDTO> find3Stage = journeys.stream().filter(journeyDTO -> journeyDTO.getStages().size() == 3).findFirst();
+
+        assertTrue(find3Stage.isPresent());
     }
 
     @Test

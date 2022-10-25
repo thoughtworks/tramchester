@@ -67,7 +67,7 @@ public class TimeRangeTest {
         assertTrue(timeRangeA.anyOverlap(timeRangeB));
         assertTrue(timeRangeB.anyOverlap(timeRangeA));
 
-        TimeRange timeRangeC = TimeRange.of(TramTime.of(22,00), Duration.ofHours(1), Duration.ofHours(1));
+        TimeRange timeRangeC = TimeRange.of(TramTime.of(22,0), Duration.ofHours(1), Duration.ofHours(1));
 
         assertFalse(timeRangeA.anyOverlap(timeRangeC));
         assertFalse(timeRangeC.anyOverlap(timeRangeA));

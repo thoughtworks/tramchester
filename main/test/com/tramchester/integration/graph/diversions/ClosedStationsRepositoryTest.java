@@ -99,23 +99,10 @@ public class ClosedStationsRepositoryTest {
         assertTrue(ids.contains(StPetersSquare.getId()));
     }
 
-//    @Test
-//    void shouldHaveUpcomingClosures() {
-//        TramDate beforeClosures = when.minusWeeks(1);
-//        Set<ClosedStation> upcoming = closedStationsRepository.getUpcomingClosuresFor(beforeClosures);
-//
-//        assertEquals(2, upcoming.size());
-//
-//        TramDate afterClosures = when.plusWeeks(10);
-//        upcoming = closedStationsRepository.getUpcomingClosuresFor(afterClosures);
-//        assertTrue(upcoming.isEmpty());
-//    }
-
     @Test
     void shouldHaveClosedByDataSourceId() {
         Set<ClosedStation> closedStations = closedStationsRepository.getClosedStationsFor(DataSourceID.tfgm);
         assertEquals(2, closedStations.size());
-
     }
 
     @Test

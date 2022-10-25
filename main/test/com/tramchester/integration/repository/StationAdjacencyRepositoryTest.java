@@ -48,7 +48,7 @@ class StationAdjacencyRepositoryTest {
     void shouldGiveCorrectCostForAdjaceny() {
         assertMinutesEquals(3, getAdjacent(Altrincham, NavigationRoad));
         assertMinutesEquals(3, getAdjacent(Altrincham, NavigationRoad));
-        assertMinutesEquals(3, getAdjacent(Cornbrook, Deansgate));
+        assertMinutesEquals(4, getAdjacent(Cornbrook, Deansgate));
         assertMinutesEquals(3, getAdjacent(Deansgate, Cornbrook));
 
         assertTrue(getAdjacent(NavigationRoad, Cornbrook).isNegative());

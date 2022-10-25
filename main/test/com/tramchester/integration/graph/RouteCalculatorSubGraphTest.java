@@ -156,7 +156,8 @@ class RouteCalculatorSubGraphTest {
 
     @Test
     void shouldHaveSimpleOneStopJourneyLateNight() {
-        TramTime time = TramTime.of(23,55);
+        // last tram now earlier
+        TramTime time = TramTime.of(23,53);
         JourneyRequest journeyRequest = new JourneyRequest(when, time, false, 3,
                 maxJourneyDuration, 1, Collections.emptySet());
         Set<Journey> results = calculator.calculateRouteAsSet(Cornbrook, Pomona, journeyRequest);
@@ -190,7 +191,7 @@ class RouteCalculatorSubGraphTest {
 
     private static class SubgraphConfig extends IntegrationTramTestConfig {
         public SubgraphConfig() {
-            super("subgraph_tramchester.db");
+            super("subgraph_tramchester.db", Collections.emptyList());
         }
     }
 

@@ -55,10 +55,10 @@ class RouteCalculatorKeyRoutesTest {
 
     @BeforeEach
     void beforeEachTestRuns() {
-        // +1 weeks here
-        when = TestEnv.testTramDay().plusWeeks(1);
+        when = TestEnv.testTramDay();
         maxJourneyDuration = Duration.ofMinutes(testConfig.getMaxJourneyDuration());
-        journeyRequest = new JourneyRequest(when, TramTime.of(8, 5), false, 2,
+        int maxChanges = 4;
+        journeyRequest = new JourneyRequest(when, TramTime.of(8, 5), false, maxChanges,
                 maxJourneyDuration, 1, Collections.emptySet());
         combinations = new RouteCalculationCombinations(componentContainer);
     }
@@ -90,7 +90,7 @@ class RouteCalculatorKeyRoutesTest {
 
         for(int day = 0; day< TestEnv.DAYS_AHEAD; day++) {
             TramDate testDate = avoidChristmasDate(when.plusDays(day));
-            JourneyRequest request = new JourneyRequest(testDate, TramTime.of(8,5), false, 2,
+            JourneyRequest request = new JourneyRequest(testDate, TramTime.of(8,5), false, 4,
                     maxJourneyDuration, 1, Collections.emptySet());
             combinations.validateAllHaveAtLeastOneJourney(pairs, request);
         }
@@ -103,7 +103,7 @@ class RouteCalculatorKeyRoutesTest {
         // helps with diagnosis when trams not running on a specific day vs. actual missing data
 
         TramDate testDate = avoidChristmasDate(when.plusDays(TestEnv.DAYS_AHEAD));
-        JourneyRequest request = new JourneyRequest(testDate, TramTime.of(8,5), false, 3,
+        JourneyRequest request = new JourneyRequest(testDate, TramTime.of(8,5), false, 4,
                 maxJourneyDuration, 1, Collections.emptySet());
         combinations.validateAllHaveAtLeastOneJourney(pairs, request);
 
@@ -113,7 +113,7 @@ class RouteCalculatorKeyRoutesTest {
     void shouldFindEndOfLinesToEndOfLinesFindLongestDuration() {
         List<Journey> allResults = new ArrayList<>();
 
-        JourneyRequest longestJourneyRequest = new JourneyRequest(when, TramTime.of(9, 0), false, 2,
+        JourneyRequest longestJourneyRequest = new JourneyRequest(when, TramTime.of(9, 0), false, 4,
                 maxJourneyDuration.multipliedBy(2), 1, Collections.emptySet());
 
         Map<StationIdPair, RouteCalculationCombinations.JourneyOrNot> results =

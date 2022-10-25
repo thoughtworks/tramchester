@@ -42,11 +42,11 @@ public enum KnownTramRoute {
     VictoriaWythenshaweManchesterAirport("Navy Line", Outbound, "Victoria - Wythenshawe - Manchester Airport"),
 
     TheTraffordCentreCornbrook("Red Line", Inbound, "The Trafford Centre - Cornbrook"),
-    CornbrookTheTraffordCentre("Red Line", Outbound, "Cornbrook - The Trafford Centre"),
+    CornbrookTheTraffordCentre("Red Line", Outbound, "Cornbrook - The Trafford Centre");
 
     // TODO July 2022 - eccles replacement services - UNTIL October 22nd
-    ReplacementRouteToEccles("Blue Line Bus Replacement", Inbound, "Media City Metrolink Replacement - Eccles"),
-    ReplacementRouteFromEccles("Blue Line Bus Replacement", Outbound, "Eccles - Media City Metrolink Replacement");
+//    ReplacementRouteToEccles("Blue Line Bus Replacement", Inbound, "Media City Metrolink Replacement - Eccles"),
+//    ReplacementRouteFromEccles("Blue Line Bus Replacement", Outbound, "Eccles - Media City Metrolink Replacement");
 
     private final IdFor<Route> fakeId;
     private final RouteDirection direction;
@@ -75,10 +75,10 @@ public enum KnownTramRoute {
 
     public static List<KnownTramRoute> getFor(TramDate when) {
         List<KnownTramRoute> routes = new ArrayList<>(Arrays.asList(KnownTramRoute.values())); // need mutable
-        if (when.isAfter(TramDate.of(2022, 10, 22))) {
-            routes.remove(ReplacementRouteToEccles);
-            routes.remove(ReplacementRouteFromEccles);
-        }
+//        if (when.isAfter(TramDate.of(2022, 10, 22))) {
+//            routes.remove(ReplacementRouteToEccles);
+//            routes.remove(ReplacementRouteFromEccles);
+//        }
         if (when.isAfter(TramDate.of(2022, 10,22)) && when.isBefore(TramDate.of(2022, 11, 30))) {
             // piccadilly gardens work
             routes.remove(AltrinchamPiccadilly);

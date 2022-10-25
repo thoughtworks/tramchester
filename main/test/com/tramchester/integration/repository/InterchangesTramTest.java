@@ -66,12 +66,15 @@ public class InterchangesTramTest {
         }
     }
 
+    @PiccGardens2022
     @Test
     void shouldHaveExpectedInterchanges() {
         // todo shaw and crompton?
 
         Set<TramStations> tramStations = new HashSet<>(Arrays.asList(StWerburghsRoad, TraffordBar, Cornbrook, HarbourCity, Pomona,
-                Cornbrook, Deansgate, StPetersSquare, PiccadillyGardens, Piccadilly, Victoria, MarketStreet, Broadway));
+                Cornbrook, Deansgate, StPetersSquare,
+                //PiccadillyGardens,
+                Piccadilly, Victoria, MarketStreet, Broadway));
 
         Set<Station> expected = tramStations.stream().map(item -> item.from(stationRepository)).collect(Collectors.toSet());
 

@@ -31,10 +31,12 @@ public class StationAvailabilityRepository {
     private final Map<Location<?>, ServedRoute> pickupsForLocation;
     private final Map<Location<?>, ServedRoute> dropoffsForLocation;
     private final StationRepository stationRepository;
+    private final ClosedStationsRepository closedStationsRepository;
 
     @Inject
-    public StationAvailabilityRepository(StationRepository stationRepository) {
+    public StationAvailabilityRepository(StationRepository stationRepository, ClosedStationsRepository closedStationsRepository) {
         this.stationRepository = stationRepository;
+        this.closedStationsRepository = closedStationsRepository;
         pickupsForLocation = new HashMap<>();
         dropoffsForLocation = new HashMap<>();
     }
@@ -107,14 +109,23 @@ public class StationAvailabilityRepository {
 
 
     public Set<Route> getPickupRoutesFor(Location<?> location, TramDate date, TimeRange timeRange) {
+        if (closedStationsRepository.isClosed(location, date)) {
+            ClosedStation closedStation = closedStationsRepository.getClosedStation(location, date);
+            return getPickupRoutesFor(closedStation, date, timeRange);
+        }
         return pickupsForLocation.get(location).getRoutes(date, timeRange);
     }
 
     public Set<Route> getDropoffRoutesFor(Location<?> location, TramDate date, TimeRange timeRange) {
+        if (closedStationsRepository.isClosed(location, date)) {
+            ClosedStation closedStation = closedStationsRepository.getClosedStation(location, date);
+            return getDropoffRoutesFor(closedStation, date,timeRange);
+        }
         return dropoffsForLocation.get(location).getRoutes(date, timeRange);
     }
 
-    public Set<Route> getDropoffRoutesFor(ClosedStation closedStation, TramDate date, TimeRange timeRange) {
+    private Set<Route> getDropoffRoutesFor(ClosedStation closedStation, TramDate date, TimeRange timeRange) {
+        logger.warn(closedStation.getStationId() + " is closed, using linked stations for dropoffs");
         return closedStation.getNearbyLinkedStation().stream().
                 flatMap(linked -> dropoffsForLocation.get(linked).getRoutes(date, timeRange).stream()).
                 collect(Collectors.toSet());
@@ -126,7 +137,8 @@ public class StationAvailabilityRepository {
                 collect(Collectors.toSet());
     }
 
-    public Set<Route> getPickupRoutesFor(ClosedStation closedStation, TramDate date, TimeRange timeRange) {
+    private Set<Route> getPickupRoutesFor(ClosedStation closedStation, TramDate date, TimeRange timeRange) {
+        logger.warn(closedStation.getStationId() + " is closed, using linked stations for pickups");
         return closedStation.getNearbyLinkedStation().stream().
                 flatMap(linked -> pickupsForLocation.get(linked).getRoutes(date, timeRange).stream()).
                 collect(Collectors.toSet());

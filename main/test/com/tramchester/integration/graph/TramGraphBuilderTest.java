@@ -266,12 +266,7 @@ class TramGraphBuilderTest {
     void shouldHaveCorrectInboundsAtMediaCity() {
 
         checkInboundConsistency(MediaCityUK, EcclesManchesterAshtonUnderLyne);
-
-        if (when.isAfter(TestEnv.EndSummerWorks())) {
-            checkInboundConsistency(MediaCityUK, AshtonUnderLyneManchesterEccles);
-        } else {
-            checkInboundConsistency(MediaCityUK, ReplacementRouteToEccles);
-        }
+        checkInboundConsistency(MediaCityUK, AshtonUnderLyneManchesterEccles);
 
         checkInboundConsistency(HarbourCity, EcclesManchesterAshtonUnderLyne);
         checkInboundConsistency(HarbourCity, AshtonUnderLyneManchesterEccles);

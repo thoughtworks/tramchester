@@ -171,7 +171,7 @@ class RouteCalculatorSubGraphMediaCityTest {
 
     private static class SubgraphConfig extends IntegrationTramTestConfig {
         public SubgraphConfig() {
-            super("sub_mediacity_tramchester.db");
+            super("sub_mediacity_tramchester.db", Collections.emptyList());
         }
 
         @Override

@@ -50,7 +50,6 @@ public class RouteCalculatorTest {
     private static GraphDatabase database;
     private static IntegrationTramTestConfig config;
 
-
     private final int maxChanges = 2;
 
     private RouteCalculatorTestFacade calculator;
@@ -98,8 +97,8 @@ public class RouteCalculatorTest {
         JourneyRequest journeyRequest = new JourneyRequest(when, TramTime.of(17,45), false,
                 3, maxJourneyDuration, 5, Collections.emptySet());
 
-        // add market street
-        Set<String> expected = Stream.of(Cornbrook, StPetersSquare, Deansgate, Piccadilly, MarketStreet).
+        // todo added market street and shudehill
+        Set<String> expected = Stream.of(Cornbrook, StPetersSquare, Deansgate, Piccadilly, MarketStreet, Shudehill).
                 map(TramStations::getName).collect(Collectors.toSet());
 
         Set<Journey> journeys = calculator.calculateRouteAsSet(Altrincham, Ashton, journeyRequest);
@@ -346,9 +345,10 @@ public class RouteCalculatorTest {
         assertGetAndCheckJourneys(journeyRequest, Altrincham, NavigationRoad);
     }
 
+    @PiccGardens2022
     @Test
     void shouldHandleAfterMidnightDirectCentral() {
-        TramDate testDate = when.plusWeeks(1);
+        TramDate testDate = when;
 
         JourneyRequest journeyRequestA = standardJourneyRequest(testDate, TramTime.of(23,59), maxNumResults);
         assertGetAndCheckJourneys(journeyRequestA, StPetersSquare, MarketStreet);
@@ -359,8 +359,9 @@ public class RouteCalculatorTest {
         JourneyRequest journeyRequestC = standardJourneyRequest(testDate, TramTime.nextDay(0,1), maxNumResults);
         assertGetAndCheckJourneys(journeyRequestC, StPetersSquare, MarketStreet);
 
-        JourneyRequest journeyRequestD = standardJourneyRequest(testDate, TramTime.of(0,0), maxNumResults);
-        assertGetAndCheckJourneys(journeyRequestD, StPetersSquare, MarketStreet);
+        // last tram is now earlier
+//        JourneyRequest journeyRequestD = standardJourneyRequest(testDate, TramTime.of(0,0), maxNumResults);
+//        assertGetAndCheckJourneys(journeyRequestD, StPetersSquare, MarketStreet);
     }
 
     @Test
@@ -421,10 +422,12 @@ public class RouteCalculatorTest {
         });
     }
 
+    @PiccGardens2022
     @Test
     void ShouldReproIssueWithSomeMediaCityJourneys() {
+        // max changes 1 -> 2
         JourneyRequest request = new JourneyRequest(when, TramTime.of(8, 5), false,
-                1, maxJourneyDuration, 2, Collections.emptySet());
+                2, maxJourneyDuration, 2, Collections.emptySet());
 
         assertFalse(calculator.calculateRouteAsSet(MediaCityUK, Etihad, request).isEmpty());
         assertFalse(calculator.calculateRouteAsSet(MediaCityUK, VeloPark, request).isEmpty());
@@ -488,9 +491,12 @@ public class RouteCalculatorTest {
         assertGetAndCheckJourneys(journeyRequest, StPetersSquare, Deansgate);
     }
 
+    @PiccGardens2022
     @Test
     void reproduceIssueWithTramsSundayAshtonToEccles() {
-        JourneyRequest journeyRequest = standardJourneyRequest(TestEnv.nextSunday(), TramTime.of(9,0), maxNumResults);
+        // todo set max changes to 3
+        JourneyRequest journeyRequest = new JourneyRequest(TestEnv.nextSunday(), TramTime.of(9, 0), false,
+                4, maxJourneyDuration, maxNumResults, Collections.emptySet());
         assertGetAndCheckJourneys(journeyRequest, Ashton, Eccles);
     }
 

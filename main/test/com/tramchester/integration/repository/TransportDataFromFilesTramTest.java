@@ -21,6 +21,7 @@ import com.tramchester.domain.places.Station;
 import com.tramchester.domain.time.TimeRange;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
+import com.tramchester.repository.ClosedStationsRepository;
 import com.tramchester.repository.InterchangeRepository;
 import com.tramchester.repository.StationAvailabilityRepository;
 import com.tramchester.repository.TransportData;
@@ -58,8 +59,7 @@ import static org.junit.jupiter.api.Assertions.*;
 @DataUpdateTest
 public class TransportDataFromFilesTramTest {
 
-    // TODO July 2022 +2 for eccles replacement service
-    public static final int NUM_TFGM_TRAM_ROUTES = 14+2; // N * since overlaps in data updates
+    public static final int NUM_TFGM_TRAM_ROUTES = 14; // N * since overlaps in data updates
     public static final int NUM_TFGM_TRAM_STATIONS = 99; // summer closures of eccles line
     private static ComponentContainer componentContainer;
     private static IntegrationTramTestConfig config;
@@ -68,6 +68,7 @@ public class TransportDataFromFilesTramTest {
     private StationAvailabilityRepository availabilityRepository;
     private Collection<Service> allServices;
     private TramRouteHelper routeHelper;
+    private ClosedStationsRepository closedStationRepository;
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
@@ -87,6 +88,7 @@ public class TransportDataFromFilesTramTest {
         availabilityRepository = componentContainer.get(StationAvailabilityRepository.class);
         allServices = transportData.getServices();
         routeHelper = new TramRouteHelper(transportData);
+        closedStationRepository = componentContainer.get(ClosedStationsRepository.class);
     }
 
     @Test
@@ -97,7 +99,7 @@ public class TransportDataFromFilesTramTest {
         Set<String> uniqueNames = allRoutes.stream().map(Route::getName).collect(Collectors.toSet());
         assertEquals(NUM_TFGM_TRAM_ROUTES, uniqueNames.size(), uniqueNames.toString());
 
-        int expected = 199;
+        int expected = 198;
         assertEquals(expected, transportData.getPlatforms().size());
     }
 
@@ -161,8 +163,7 @@ public class TransportDataFromFilesTramTest {
 
         Set<String> uniqueRouteNames = callingRoutes.stream().map(Route::getName).collect(Collectors.toSet());
 
-        // 6 -> 4 summer 2021
-        assertEquals(4, uniqueRouteNames.size());
+        assertEquals(3, uniqueRouteNames.size());
     }
 
     @Test
@@ -262,7 +263,7 @@ public class TransportDataFromFilesTramTest {
                 map(routeStation -> Pair.of(routeStation.getStationId(), routeStation.getRoute().getName())).
                 collect(Collectors.toSet());
 
-        assertEquals(8, routeStationPairs.size(), routeStations.toString());
+        assertEquals(7, routeStationPairs.size(), routeStations.toString());
 
         Set<String> routeNames =
                 routeStations.stream().
@@ -280,7 +281,7 @@ public class TransportDataFromFilesTramTest {
 
         // these not on the route map, but some early morning eccles trips seem to start at victoria
         // see extraRouteAtShudehillTowardsEccles above
-        assertTrue(routeNames.contains(AshtonUnderLyneManchesterEccles.longName()));
+        //assertTrue(routeNames.contains(AshtonUnderLyneManchesterEccles.longName()));
         assertTrue(routeNames.contains(EcclesManchesterAshtonUnderLyne.longName()));
 
     }
@@ -399,8 +400,10 @@ public class TransportDataFromFilesTramTest {
     @Test
     void shouldHaveTripsOnDateForEachStation() {
 
-        Set<Pair<TramDate, IdFor<Station>>> missing = getUpcomingDates().filter(this::isValidDateToCheck).
+        Set<Pair<TramDate, IdFor<Station>>> missing = getUpcomingDates().
+                filter(this::isValidDateToCheck).
                 flatMap(date -> transportData.getStations().stream().map(station -> Pair.of(date, station))).
+                filter(pair -> !closedStationRepository.isClosed(pair.getRight(), pair.getLeft())).
                 filter(pair -> transportData.getTripsFor(pair.getRight(), pair.getLeft()).isEmpty()).
                 map(pair -> Pair.of(pair.getLeft(), pair.getRight().getId())).
                 collect(Collectors.toSet());
@@ -420,24 +423,26 @@ public class TransportDataFromFilesTramTest {
 
         getUpcomingDates().filter(this::isValidDateToCheck).forEach(date -> {
 
-            transportData.getStations().forEach(station -> {
-                Set<Trip> callingTripsOnDate = transportData.getTripsFor(station, date);
-                assertFalse(callingTripsOnDate.isEmpty(), String.format("no trips calling on %s at %s", date, station.getId()));
+            transportData.getStations().stream().
+                    filter(station -> !closedStationRepository.isClosed(station, date)).
+                forEach(station -> {
+                    Set<Trip> callingTripsOnDate = transportData.getTripsFor(station, date);
+                    assertFalse(callingTripsOnDate.isEmpty(), String.format("no trips calling on %s at %s", date, station.getId()));
 
-                for (int hour = earlistHour; hour < latestHour; hour++) {
-                    TramTime tramTime = TramTime.of(hour, 0);
+                    for (int hour = earlistHour; hour < latestHour; hour++) {
+                        TramTime tramTime = TramTime.of(hour, 0);
 
-                    Set<StopCall> calling = new HashSet<>();
-                    callingTripsOnDate.forEach(trip -> {
-                        Set<StopCall> onTime = trip.getStopCalls().stream().
-                                //filter(stop -> stop.getStation().equals(station)).
-                                filter(stop -> tramTime.plusMinutes(maxwait).
-                                        between(stop.getArrivalTime(), stop.getArrivalTime().plusMinutes(maxwait))).
-                                collect(Collectors.toSet());
-                        calling.addAll(onTime);
-                    });
-                    assertFalse(calling.isEmpty(), String.format("Stops %s %s %s %s", date.getDayOfWeek(), date, tramTime, station.getName()));
-                }
+                        Set<StopCall> calling = new HashSet<>();
+                        callingTripsOnDate.forEach(trip -> {
+                            Set<StopCall> onTime = trip.getStopCalls().stream().
+                                    //filter(stop -> stop.getStation().equals(station)).
+                                    filter(stop -> tramTime.plusMinutes(maxwait).
+                                            between(stop.getArrivalTime(), stop.getArrivalTime().plusMinutes(maxwait))).
+                                    collect(Collectors.toSet());
+                            calling.addAll(onTime);
+                        });
+                        assertFalse(calling.isEmpty(), String.format("Stops %s %s %s %s", date.getDayOfWeek(), date, tramTime, station.getName()));
+                    }
             });
         });
 
@@ -449,7 +454,8 @@ public class TransportDataFromFilesTramTest {
 
                 Set<Service> servicesOnDate = transportData.getServicesOnDate(date);
 
-                transportData.getStations().forEach(station -> {
+                transportData.getStations().stream().filter(station -> !closedStationRepository.isClosed(station, date)).
+                        forEach(station -> {
                     Set<Trip> callingTripsOnDate = transportData.getTrips().stream().
                             filter(trip -> trip.callsAt(station)).
                             filter(trip -> servicesOnDate.contains(trip.getService())).
