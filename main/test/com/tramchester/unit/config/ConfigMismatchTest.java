@@ -125,6 +125,18 @@ class ConfigMismatchTest {
         checkRailDataVersionFor(testConfig);
     }
 
+    @Test
+    void shouldHaveSameTFGMSourceConfigForNormalAndTrainEnabled() throws ConfigurationException, IOException {
+        AppConfiguration normalConfig = loadConfigFromFile("local.yml");
+        AppConfiguration gmConfig = loadConfigFromFile("gm.yml");
+
+        // TODO Which other parameters should be the same?
+
+        Collection<Category> excluded = new HashSet<>();
+        checkGTFSSourceConfig(normalConfig, gmConfig, Category.Closures.not(excluded));
+
+    }
+
     private void assertRailLiveData(OpenLdbConfig fromFile, OpenLdbConfig testConfig) {
         assertNotNull(fromFile);
         assertNotNull(testConfig);

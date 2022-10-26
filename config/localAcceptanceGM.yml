@@ -24,8 +24,12 @@ gtfsSourceConfig:
     markedInterchangesOnly: false
     additionalInterchanges: [9400ZZMAGMX]
     compositeStationModes: []
-    stationClosures: []
-    addWalksForClosed: false
+    stationClosures:
+      - stations: [ "9400ZZMAPGD" ]
+        begin: 2022-10-23
+        end: 2022-11-30
+        fullyClosed: false
+    addWalksForClosed: true
 remoteSources:
   - name: rail
     dataURL: s3://tramchester2dist/railData/ttis411.zip
