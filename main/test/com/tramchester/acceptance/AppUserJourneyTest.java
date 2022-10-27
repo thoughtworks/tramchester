@@ -11,7 +11,6 @@ import com.tramchester.domain.time.TramTime;
 import com.tramchester.integration.resources.DataVersionResourceTest;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.TramStations;
-import com.tramchester.testSupport.testTags.Summer2022;
 import io.dropwizard.testing.junit5.DropwizardExtensionsSupport;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -74,7 +73,6 @@ class AppUserJourneyTest extends UserJourneyTest {
         return getProviderCommon();
     }
 
-    @Summer2022
     @BeforeEach
     void beforeEachTestRuns() {
         url = appExtenstion.getUrl()+"/app/index.html";
