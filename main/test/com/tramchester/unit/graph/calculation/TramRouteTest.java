@@ -308,7 +308,7 @@ class TramRouteTest {
                 destination,
                 journeyRequest, 3);
 
-        assertEquals(1, journeys.size());
+        assertEquals(2, journeys.size());
         journeys.forEach(journey ->{
             List<TransportStage<?,?>> stages = journey.getStages();
             assertEquals(2, stages.size());
@@ -340,7 +340,7 @@ class TramRouteTest {
         Set<Journey> journeys = calculator.calculateRoute(txn, transportData.getSecond(),
                 transportData.getInterchange(), journeyRequest).collect(Collectors.toSet());
 
-        assertEquals(1, journeys.size(), journeys.toString());
+        assertEquals(2, journeys.size(), journeys.toString());
     }
 
     @Test

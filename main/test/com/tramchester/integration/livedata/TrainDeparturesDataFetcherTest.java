@@ -9,6 +9,7 @@ import com.tramchester.integration.testSupport.rail.RailStationIds;
 import com.tramchester.livedata.openLdb.TrainDeparturesDataFetcher;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.TestEnv;
+import com.tramchester.testSupport.testTags.GMTest;
 import com.tramchester.testSupport.testTags.TrainTest;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
@@ -21,6 +22,7 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+@GMTest
 @TrainTest
 class TrainDeparturesDataFetcherTest {
     private static GuiceContainerDependencies componentContainer;

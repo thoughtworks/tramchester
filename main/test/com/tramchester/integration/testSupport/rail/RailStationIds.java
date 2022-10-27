@@ -12,6 +12,7 @@ public enum RailStationIds {
     ManchesterVictoria(createId("MNCRVIC")),
     ManchesterDeansgate(createId("MNCRDGT")),
     ManchesterOxfordRoad(createId("MNCROXR")),
+    ManchesterAirport(createId("MNCRIAP")),
     SalfordCentral(createId("SLFDORD")),
     Altrincham(createId("ALTRNHM")),
     NavigationRaod(createId("NAVGTNR")),

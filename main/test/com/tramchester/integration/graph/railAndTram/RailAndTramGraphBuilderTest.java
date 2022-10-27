@@ -29,6 +29,7 @@ import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TramRouteHelper;
 import com.tramchester.testSupport.reference.KnownTramRoute;
 import com.tramchester.testSupport.reference.TramStations;
+import com.tramchester.testSupport.testTags.GMTest;
 import com.tramchester.testSupport.testTags.TrainTest;
 import org.assertj.core.util.Streams;
 import org.junit.jupiter.api.*;
@@ -45,7 +46,7 @@ import static com.tramchester.graph.TransportRelationshipTypes.*;
 import static com.tramchester.testSupport.reference.TramStations.*;
 import static org.junit.jupiter.api.Assertions.*;
 
-@TrainTest
+@GMTest
 class RailAndTramGraphBuilderTest {
     private static ComponentContainer componentContainer;
 

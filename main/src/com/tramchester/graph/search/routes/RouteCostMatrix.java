@@ -49,20 +49,18 @@ public class RouteCostMatrix {
 
     private final CostsPerDegree costsForDegree;
     private final RouteIndex index;
-    private final NeighboursRepository neighboursRepository;
     private final int maxDepth;
     private final int numRoutes;
 
     @Inject
     RouteCostMatrix(RouteRepository routeRepository, InterchangeRepository interchangeRepository, DataCache dataCache,
-                    GraphFilterActive graphFilter, RouteIndex index, NeighboursRepository neighboursRepository) {
+                    GraphFilterActive graphFilter, RouteIndex index) {
         this.routeRepository = routeRepository;
         this.interchangeRepository = interchangeRepository;
         this.dataCache = dataCache;
         this.graphFilter = graphFilter;
 
         this.index = index;
-        this.neighboursRepository = neighboursRepository;
         this.maxDepth = MAX_DEPTH;
         this.numRoutes = routeRepository.numberOfRoutes();
 

@@ -336,7 +336,7 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
             logger.error(format("Unexpected result for max hops %s greater than max depth %s, for %s to %s",
                     maxHops, maxDepth, HasId.asIds(startRoutes), HasId.asIds(destinationRoutes)));
         } else {
-            maxHops = minHops + closureOffset;
+            maxHops = maxHops + closureOffset;
         }
 
         NumberOfChanges numberOfChanges = new NumberOfChanges(minHops, maxHops);

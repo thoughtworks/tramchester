@@ -3,6 +3,8 @@ package com.tramchester.integration.repository.railAndTram;
 import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.config.TramchesterConfig;
+import com.tramchester.domain.Route;
+import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.places.InterchangeStation;
@@ -16,6 +18,7 @@ import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.AdditionalTramInterchanges;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.TramStations;
+import com.tramchester.testSupport.testTags.GMTest;
 import com.tramchester.testSupport.testTags.TrainTest;
 import org.junit.jupiter.api.*;
 
@@ -26,7 +29,7 @@ import java.util.stream.Collectors;
 import static com.tramchester.domain.reference.TransportMode.Tram;
 import static org.junit.jupiter.api.Assertions.*;
 
-@TrainTest
+@GMTest
 class InterchangesRailAndTramTest {
     private static ComponentContainer componentContainer;
     private static TramchesterConfig config;
@@ -90,9 +93,18 @@ class InterchangesRailAndTramTest {
         assertTrue(tramInterchange.isMultiMode());
         assertEquals(InterchangeStation.InterchangeType.NeighbourLinks, tramInterchange.getType());
 
-        assertEquals(tram.getPickupRoutes(), tramInterchange.getPickupRoutes());
-        assertEquals(train.getDropoffRoutes(), tramInterchange.getDropoffRoutes());
+        IdSet<Route> tramPickups = getIds(tram.getPickupRoutes());
+        IdSet<Route> trainPickups = getIds(train.getPickupRoutes());
+        IdSet<Route> interchangePickups = getIds(tramInterchange.getPickupRoutes());
 
+        assertEquals(tramPickups, interchangePickups);
+
+
+        assertEquals(train.getDropoffRoutes(), tramInterchange.getDropoffRoutes());
+    }
+
+    private IdSet<Route> getIds(Set<Route> pickupRoutes) {
+        return pickupRoutes.stream().collect(IdSet.collector());
     }
 
     @Test
