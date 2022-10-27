@@ -287,6 +287,23 @@ task integration(type: Test, dependsOn: compileJava) {
         excludeTags "postcode" // not needed for tram, but used by buses
         excludeTags "BusTest"
         excludeTags "TrainTest"
+        excludeTags "GMTest"
+    }
+    filter {
+        includeTestsMatching "com.tramchester.integration.*"
+    }
+    testLogging {
+        exceptionFormat "full" // default is "short"
+        events "passed", "skipped", "failed", "started", "standardError" //, "standardOut"
+    }
+}
+
+task integrationGM(type: Test, dependsOn: compileJava) {
+    minHeapSize = "1000m"
+    maxHeapSize = "1750m"
+    useJUnitPlatform {
+        includeTags "GMTest"
+        includeTags "dataExpiry"
     }
     filter {
         includeTestsMatching "com.tramchester.integration.*"
@@ -306,6 +323,7 @@ task integrationProfile(type: Test, dependsOn: compileJava) {
         excludeTags "postcode" // not needed for tram, but used by buses
         excludeTags "BusTest"
         excludeTags "TrainTest"
+        excludeTags "GMTest"
     }
     filter {
         includeTestsMatching "com.tramchester.integration.*"
