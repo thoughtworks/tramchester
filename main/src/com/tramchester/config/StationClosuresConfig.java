@@ -72,7 +72,7 @@ public class StationClosuresConfig extends Configuration implements StationClosu
                 ", begin=" + begin +
                 ", end=" + end +
                 ", fullyClosed=" + fullyClosed +
-                "} " + super.toString();
+                "} ";
     }
 
     @Override

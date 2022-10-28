@@ -34,6 +34,10 @@ gtfsSourceConfig:
         begin: 2022-10-23
         end: 2022-11-30
         fullyClosed: false
+      - stations: [ "9400ZZMAMKT", "9400ZZMAVIC", "9400ZZMASHU" ]
+        begin: 2022-11-06
+        end: 2022-11-06
+        fullyClosed: true
     addWalksForClosed: true
 remoteSources:
   -
