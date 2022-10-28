@@ -48,13 +48,12 @@ export default {
                 <div class="card-text" align="centre">
                     <ul id="ClosureList" class="Closures list-group list-group-flush">
                         <li v-for="closed in closures" id="ClosedItem">
-                            <div v-if="closed.fullyCLosed">
-                                {{displayStations(closed.stations)}} fully closed {{displayDates(closed.begin, closed.end)}}
+                            <div v-if="closed.fullyClosed == true">
+                                {{displayStations(closed.stations)}} closed {{displayDates(closed.begin, closed.end)}}
                             </div>
-                            <div v-if="!closed.fullyCLosed">
+                            <div v-else>
                                 {{displayStations(closed.stations)}} partially closed {{displayDates(closed.begin, closed.end)}}
                             </div>
-                        </div>
                         </li>
                     </ul>
                     Visit <a href="https://www.tfgm.com/">www.tfgm.com</a> for full details
