@@ -27,6 +27,7 @@ import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TramRouteHelper;
 import com.tramchester.testSupport.reference.TramStations;
 import com.tramchester.testSupport.testTags.DataExpiryCategory;
+import com.tramchester.testSupport.testTags.VictoriaNov2022;
 import org.junit.jupiter.api.*;
 import org.neo4j.graphdb.Transaction;
 
@@ -35,10 +36,12 @@ import java.nio.file.Path;
 import java.time.Duration;
 import java.util.*;
 
+import static com.tramchester.integration.testSupport.IntegrationTestConfig.VictoriaClosureDate;
 import static com.tramchester.testSupport.TestEnv.DAYS_AHEAD;
 import static com.tramchester.testSupport.reference.KnownTramRoute.*;
 import static com.tramchester.testSupport.reference.TramStations.*;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class RouteCalculatorSubGraphMediaCityTest {
     private static ComponentContainer componentContainer;
@@ -114,6 +117,7 @@ class RouteCalculatorSubGraphMediaCityTest {
         validateAtLeastOneJourney(MediaCityUK, ExchangeSquare, TramTime.of(9,0), TestEnv.nextSunday());
     }
 
+    @VictoriaNov2022
     @DataExpiryCategory
     @Test
     void shouldHaveJourneyFromEveryStationToEveryOtherNDaysAhead() {
@@ -125,7 +129,7 @@ class RouteCalculatorSubGraphMediaCityTest {
                     for (int i = 0; i < DAYS_AHEAD; i++) {
                         TramDate day = when.plusDays(i);
                         TramServiceDate serviceDate = new TramServiceDate(day);
-                        if (!serviceDate.isChristmasPeriod()) {
+                        if (!serviceDate.isChristmasPeriod() && !VictoriaClosureDate.equals(day)) {
                             JourneyRequest journeyRequest =
                                     new JourneyRequest(new TramServiceDate(day), TramTime.of(9, 0), false,
                                             3, maxJourneyDuration, 1, getRequestedModes());
@@ -138,7 +142,7 @@ class RouteCalculatorSubGraphMediaCityTest {
                 }
             }
         }
-        Assertions.assertTrue(failures.isEmpty());
+        assertTrue(failures.isEmpty(), failures.toString());
     }
 
     private Set<TransportMode> getRequestedModes() {
@@ -160,7 +164,7 @@ class RouteCalculatorSubGraphMediaCityTest {
         JourneyRequest journeyRequest = new JourneyRequest(new TramServiceDate(when), TramTime.of(12, 0), false, 3,
                 maxJourneyDuration, 1, getRequestedModes());
         Set<Journey> results = calculator.calculateRouteAsSet(TramStations.Pomona, MediaCityUK, journeyRequest);
-        Assertions.assertTrue(results.size()>0);
+        assertTrue(results.size()>0);
     }
 
     @Test

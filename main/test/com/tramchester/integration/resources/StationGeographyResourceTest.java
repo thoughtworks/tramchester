@@ -63,7 +63,7 @@ class StationGeographyResourceTest {
         assertEquals(200, response.getStatus(), "status");
 
         List<StationLinkDTO> results = response.readEntity(new GenericType<>() {});
-        assertEquals(201, results.size(), "count");
+        assertEquals(203, results.size(), "count");
 
         //assertTrue(results.contains(createLink(StPetersSquare, PiccadillyGardens)));
         assertTrue(results.contains(createLink(StPetersSquare, MarketStreet)));

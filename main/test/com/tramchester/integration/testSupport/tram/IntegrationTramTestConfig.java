@@ -2,23 +2,19 @@ package com.tramchester.integration.testSupport.tram;
 
 import com.tramchester.config.GTFSSourceConfig;
 import com.tramchester.config.RemoteDataSourceConfig;
-import com.tramchester.config.StationClosuresConfig;
 import com.tramchester.config.TfgmTramLiveDataConfig;
 import com.tramchester.domain.StationClosures;
-import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.reference.GTFSTransportationType;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.integration.testSupport.GraphDBTestConfig;
 import com.tramchester.integration.testSupport.IntegrationTestConfig;
 import com.tramchester.integration.testSupport.tfgm.TFGMGTFSSourceTestConfig;
-import com.tramchester.testSupport.reference.TramStations;
-import com.tramchester.testSupport.tfgm.TFGMRemoteDataSourceConfig;
 import com.tramchester.testSupport.AdditionalTramInterchanges;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TestTramLiveDataConfig;
+import com.tramchester.testSupport.tfgm.TFGMRemoteDataSourceConfig;
 
 import java.nio.file.Path;
-import java.time.LocalDate;
 import java.util.Collections;
 import java.util.List;
 
@@ -31,13 +27,11 @@ public class IntegrationTramTestConfig extends IntegrationTestConfig {
     private final boolean liveDataEnabled;
 
     public IntegrationTramTestConfig() {
-       //this(DB_NAME, false, Collections.emptyList());
-       this(DB_NAME, false, Collections.singletonList(piccGardensClosed));
+       this(DB_NAME, false, IntegrationTestConfig.CurrentClosures);
     }
 
     public IntegrationTramTestConfig(boolean liveDataEnabled) {
-        //this(DB_NAME, liveDataEnabled, Collections.emptyList());
-        this(DB_NAME, liveDataEnabled, Collections.singletonList(piccGardensClosed));
+        this(DB_NAME, liveDataEnabled, IntegrationTestConfig.CurrentClosures);
     }
 
     public IntegrationTramTestConfig(String dbName, List<StationClosures> closedStations) {

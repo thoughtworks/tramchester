@@ -11,10 +11,13 @@ import com.tramchester.domain.dates.TramServiceDate;
 import com.tramchester.domain.time.Durations;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.GraphDatabase;
+import com.tramchester.integration.testSupport.IntegrationTestConfig;
 import com.tramchester.integration.testSupport.RouteCalculationCombinations;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.testTags.DataExpiryCategory;
+import com.tramchester.testSupport.testTags.PiccGardens2022;
+import com.tramchester.testSupport.testTags.VictoriaNov2022;
 import org.apache.commons.lang3.tuple.Pair;
 import org.junit.jupiter.api.*;
 import org.neo4j.graphdb.Transaction;
@@ -23,6 +26,7 @@ import java.time.Duration;
 import java.util.*;
 
 import static com.tramchester.domain.reference.TransportMode.Tram;
+import static com.tramchester.integration.testSupport.IntegrationTestConfig.VictoriaClosureDate;
 import static com.tramchester.testSupport.TestEnv.avoidChristmasDate;
 import static com.tramchester.testSupport.reference.TramStations.Ashton;
 import static com.tramchester.testSupport.reference.TramStations.ShawAndCrompton;
@@ -83,16 +87,21 @@ class RouteCalculatorKeyRoutesTest {
         combinations.validateAllHaveAtLeastOneJourney(combinations.InterchangeToInterchange(Tram), journeyRequest);
     }
 
+    @VictoriaNov2022
     @DataExpiryCategory
     @Test
     void shouldFindEndOfLinesToEndOfLinesNextNDays() {
+
+
         final Set<StationIdPair> pairs = combinations.EndOfRoutesToEndOfRoutes(Tram);
 
         for(int day = 0; day< TestEnv.DAYS_AHEAD; day++) {
             TramDate testDate = avoidChristmasDate(when.plusDays(day));
-            JourneyRequest request = new JourneyRequest(testDate, TramTime.of(8,5), false, 4,
-                    maxJourneyDuration, 1, Collections.emptySet());
-            combinations.validateAllHaveAtLeastOneJourney(pairs, request);
+            if (!VictoriaClosureDate.equals(testDate)) {
+                JourneyRequest request = new JourneyRequest(testDate, TramTime.of(8, 5), false, 4,
+                        maxJourneyDuration, 1, Collections.emptySet());
+                combinations.validateAllHaveAtLeastOneJourney(pairs, request);
+            }
         }
     }
 

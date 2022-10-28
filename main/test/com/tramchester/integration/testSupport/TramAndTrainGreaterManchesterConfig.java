@@ -22,7 +22,7 @@ public class TramAndTrainGreaterManchesterConfig extends IntegrationTramTestConf
     private static final String DB_NAME = "int_test_gm_tram_train.db";
 
     public TramAndTrainGreaterManchesterConfig() {
-        super(new TramAndTrainDBTestConfig(), true, Collections.singletonList(IntegrationTestConfig.piccGardensClosed));
+        super(new TramAndTrainDBTestConfig(), true, IntegrationTestConfig.CurrentClosures);
     }
 
     @Override

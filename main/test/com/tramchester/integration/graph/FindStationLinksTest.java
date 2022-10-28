@@ -53,7 +53,7 @@ class FindStationLinksTest {
     @Test
     void shouldFindExpectedLinksBetweenStations() {
         Set<StationLink> results = findStationLinks.findLinkedFor(Tram);
-        assertEquals(201, results.size());
+        assertEquals(203, results.size());
 
         // todo closed
         //assertTrue(results.contains(createLink(StPetersSquare, PiccadillyGardens)));

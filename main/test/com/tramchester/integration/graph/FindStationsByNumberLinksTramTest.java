@@ -21,8 +21,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 class FindStationsByNumberLinksTramTest {
     private static ComponentContainer componentContainer;
@@ -67,16 +66,14 @@ class FindStationsByNumberLinksTramTest {
                 " stations with links were " + stationWithLinks);
     }
 
-    @PiccGardens2022
     @Test
     void shouldIdInterchangePointsLinked() {
 
         IdSet<Station> found = finder.atLeastNLinkedStations(TransportMode.Tram, threshhold);
-        // -1
-        assertEquals(11-1, found.size(), found.toString());
+        assertEquals(11, found.size(), found.toString());
         assertTrue(found.contains(TramStations.StPetersSquare.getId()));
 
-//        assertTrue(found.contains(TramStations.PiccadillyGardens.getId()));
+        assertTrue(found.contains(TramStations.PiccadillyGardens.getId()));
         assertTrue(found.contains(TramStations.MarketStreet.getId()));
         assertTrue(found.contains(TramStations.TraffordBar.getId()));
         assertTrue(found.contains(TramStations.Cornbrook.getId()));

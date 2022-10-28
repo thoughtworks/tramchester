@@ -11,6 +11,7 @@ import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.testTags.PiccGardens2022;
+import com.tramchester.testSupport.testTags.VictoriaNov2022;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -50,6 +51,7 @@ class RouteReachableTramTest {
         reachable = componentContainer.get(RouteReachable.class);
     }
 
+    @VictoriaNov2022
     @PiccGardens2022
     @Test
     void shouldTestGetRoutesFromStartToNeighbour() {
@@ -60,8 +62,8 @@ class RouteReachableTramTest {
         Set<String> names = results.stream().
                 map(Route::getName).collect(Collectors.toSet());
 
-        // 2 -> 1
-        assertEquals(2, names.size(), names.toString());
+        // 2 -> 1, 1 -> 3
+        assertEquals(3, names.size(), names.toString());
 
         //assertTrue(names.contains(AltrinchamPiccadilly.longName()));
         assertTrue(names.contains(AltrinchamManchesterBury.longName()));
