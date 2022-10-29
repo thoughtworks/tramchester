@@ -28,6 +28,7 @@ import com.tramchester.repository.StationAvailabilityRepository;
 import com.tramchester.repository.TransportData;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TramRouteHelper;
+import com.tramchester.testSupport.reference.KnownTramRoute;
 import com.tramchester.testSupport.reference.TramStations;
 import com.tramchester.testSupport.testTags.DataExpiryCategory;
 import com.tramchester.testSupport.testTags.DataUpdateTest;
@@ -60,7 +61,6 @@ import static org.junit.jupiter.api.Assertions.*;
 @DataUpdateTest
 public class TransportDataFromFilesTramTest {
 
-    public static final int NUM_TFGM_TRAM_ROUTES = 12; // N * since overlaps in data updates
     public static final int NUM_TFGM_TRAM_STATIONS = 99; // summer closures of eccles line
     private static ComponentContainer componentContainer;
     private static IntegrationTramTestConfig config;
@@ -70,6 +70,7 @@ public class TransportDataFromFilesTramTest {
     private Collection<Service> allServices;
     private TramRouteHelper routeHelper;
     private ClosedStationsRepository closedStationRepository;
+    private TramDate when;
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
@@ -90,6 +91,9 @@ public class TransportDataFromFilesTramTest {
         allServices = transportData.getServices();
         routeHelper = new TramRouteHelper(transportData);
         closedStationRepository = componentContainer.get(ClosedStationsRepository.class);
+
+        when = TestEnv.testDay(); // filter by date, otherwise get variations due to upcoming routes etc
+
     }
 
     @Test
@@ -98,12 +102,11 @@ public class TransportDataFromFilesTramTest {
         assertEquals(NUM_TFGM_TRAM_STATIONS, transportData.getStations().size());
         Set<Route> allRoutes = transportData.getRoutes();
 
-        TramDate date = TestEnv.testDay(); // filter by date, otherwise get variations due to upcoming routes etc
 
         Set<String> uniqueNames = allRoutes.stream().
-                filter(route -> route.isAvailableOn(date)).
+                filter(route -> route.isAvailableOn(when)).
                 map(Route::getName).collect(Collectors.toSet());
-        assertEquals(NUM_TFGM_TRAM_ROUTES, uniqueNames.size(), uniqueNames.toString());
+        assertEquals(KnownTramRoute.numberOn(when), uniqueNames.size(), uniqueNames.toString());
 
         int expected = 200;
         assertEquals(expected, transportData.getPlatforms().size());
@@ -163,10 +166,8 @@ public class TransportDataFromFilesTramTest {
     void shouldHaveExpectedRoutesNonDepot() {
         Set<RouteStation> all = transportData.getRouteStations();
 
-        TramDate date = TestEnv.testDay();
-
         Set<RouteStation> routeStationSet = all.stream().
-                filter(routeStation -> routeStation.getRoute().isAvailableOn(date)).
+                filter(routeStation -> routeStation.getRoute().isAvailableOn(when)).
                 filter(routeStation -> routeStation.getStationId().equals(OldTrafford.getId())).
                 collect(Collectors.toSet());
 
@@ -219,7 +220,6 @@ public class TransportDataFromFilesTramTest {
 
     @Test
     void shouldHaveExpectedStationsForGreenFromAlty() {
-        TramDate when = TestEnv.testDay();
         Route green = routeHelper.getOneRoute(AltrinchamManchesterBury, when);
 
         Set<Station> allStations = transportData.getStations();
@@ -244,7 +244,6 @@ public class TransportDataFromFilesTramTest {
 
     @Test
     void shouldHaveExpectedStationsForGreenFromBury() {
-        TramDate when = TestEnv.testDay();
         Route green = routeHelper.getOneRoute(BuryManchesterAltrincham, when);
 
         Set<Station> allStations = transportData.getStations();
@@ -271,10 +270,8 @@ public class TransportDataFromFilesTramTest {
     void shouldGetRouteStationsForStation() {
         Set<RouteStation> routeStations = transportData.getRouteStationsFor(Shudehill.getId());
 
-        TramDate date = TestEnv.testDay();
-
         Set<Pair<IdFor<Station>, String>> routeStationPairs = routeStations.stream().
-                filter(routeStation -> routeStation.getRoute().isAvailableOn(date)).
+                filter(routeStation -> routeStation.getRoute().isAvailableOn(when)).
                 map(routeStation -> Pair.of(routeStation.getStationId(), routeStation.getRoute().getName())).
                 collect(Collectors.toSet());
 
@@ -312,8 +309,8 @@ public class TransportDataFromFilesTramTest {
 
         assertEquals(results.size(), onCorrectDate, "should all be on the specified date");
 
-        LocalDate noTramsDate = TestEnv.LocalNow().plusMonths(36).toLocalDate();
-        results = transportData.getServicesOnDate(TramDate.of(noTramsDate));
+        TramDate noTrams = nextSaturday.plusWeeks(2*52);
+        results = transportData.getServicesOnDate(noTrams);
         assertTrue(results.isEmpty());
     }
 
@@ -343,7 +340,7 @@ public class TransportDataFromFilesTramTest {
     @Test
     void shouldHaveServiceEndDatesBeyondNextNDays() {
 
-        TramDate startDate = TramDate.of(LocalDate.now());
+        TramDate startDate = TramDate.from(TestEnv.LocalNow());
         TramDate endDate = startDate.plusDays(DAYS_AHEAD);
 
         DateRange dateRange = DateRange.of(startDate, endDate);
@@ -391,7 +388,7 @@ public class TransportDataFromFilesTramTest {
     void shouldHaveTramServicesAvailableNDaysAhead() {
 
         Set<TramDate> noServices = getUpcomingDates().
-                filter(date -> isValidDateToCheck(date)).
+                filter(this::isValidDateToCheck).
                 filter(date -> transportData.getServicesOnDate(date).isEmpty()).
                 collect(Collectors.toSet());
 
@@ -406,9 +403,8 @@ public class TransportDataFromFilesTramTest {
 
     @NotNull
     private Stream<TramDate> getUpcomingDates() {
-        TramDate testDate = TestEnv.testDay();
         return IntStream.range(0, DAYS_AHEAD).boxed().
-                map(testDate::plusDays).sorted();
+                map(when::plusDays).sorted();
     }
 
     @DataExpiryCategory
@@ -665,7 +661,6 @@ public class TransportDataFromFilesTramTest {
     @DataExpiryCategory
     @Test
     void shouldHaveExpectedRoutesAvailableForDatesAndTimeRanges() {
-        TramDate when = TestEnv.testTramDay();
 
         // earier to diagnose using end of line station
         Station altrincham = Altrincham.from(transportData);
@@ -682,7 +677,6 @@ public class TransportDataFromFilesTramTest {
     @DataExpiryCategory
     @Test
     void shouldHaveExpectedRoutesAvailableForDatesAndTimeRangesOverMidnight() {
-        TramDate when = TestEnv.testTramDay();
 
         // earier to diagnose using end of line station
         Station altrincham = Altrincham.from(transportData);

@@ -4,6 +4,7 @@ import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.Route;
+import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.places.StationGroup;
 import com.tramchester.domain.places.Station;
 import com.tramchester.integration.testSupport.NeighboursTestConfig;
@@ -12,13 +13,13 @@ import com.tramchester.repository.StationGroupsRepository;
 import com.tramchester.repository.RouteRepository;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.TestEnv;
+import com.tramchester.testSupport.reference.KnownTramRoute;
 import com.tramchester.testSupport.testTags.BusTest;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.condition.DisabledIfEnvironmentVariable;
 
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -26,7 +27,6 @@ import java.util.stream.Stream;
 
 import static com.tramchester.domain.reference.TransportMode.Bus;
 import static com.tramchester.domain.reference.TransportMode.Tram;
-import static com.tramchester.integration.repository.TransportDataFromFilesTramTest.NUM_TFGM_TRAM_ROUTES;
 import static com.tramchester.integration.repository.TransportDataFromFilesTramTest.NUM_TFGM_TRAM_STATIONS;
 import static com.tramchester.integration.repository.buses.TransportDataFromFilesBusTest.TGFM_BUS_AGENCIES;
 import static com.tramchester.integration.repository.buses.TransportDataFromFilesBusTest.TGFM_BUS_ROUTES;
@@ -118,9 +118,11 @@ public class TransportDataFromFilesNeighboursTest {
     @Test
     void shouldHaveExpectedNumbersForTram() {
 
+        TramDate when = TestEnv.testDay();
+
         RouteRepository routeRepository = componentContainer.get(RouteRepository.class);
         long tramRoutes = getTramRoutes(routeRepository).count();
-        assertEquals(NUM_TFGM_TRAM_ROUTES, tramRoutes);
+        assertEquals(KnownTramRoute.numberOn(when), tramRoutes);
 
         final Set<Station> stationsForMode = stationRepository.getStationsServing(Tram);
         long tram = stationsForMode.size();

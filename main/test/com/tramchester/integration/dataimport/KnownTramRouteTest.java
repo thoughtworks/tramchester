@@ -30,7 +30,6 @@ class KnownTramRouteTest {
     private List<KnownTramRoute> knownRoutes;
     private TramDate when;
 
-
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
         componentContainer = new ComponentsBuilder().create(new IntegrationTramTestConfig(), TestEnv.NoopRegisterMetrics());

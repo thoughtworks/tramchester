@@ -9,13 +9,11 @@ import com.tramchester.domain.dates.TramServiceDate;
 import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.places.Location;
 import com.tramchester.domain.places.Station;
-import com.tramchester.domain.presentation.TransportStage;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TimeRange;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.geo.MarginInMeters;
 import com.tramchester.geo.StationLocations;
-import com.tramchester.geo.StationLocationsRepository;
 import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.GraphQuery;
 import com.tramchester.graph.TransportRelationshipTypes;
@@ -31,6 +29,7 @@ import com.tramchester.repository.StationsWithDiversionRepository;
 import com.tramchester.repository.TransportData;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.TramStations;
+import com.tramchester.testSupport.testTags.PiccGardens2022;
 import org.junit.jupiter.api.*;
 import org.neo4j.graphdb.Direction;
 import org.neo4j.graphdb.Node;
@@ -57,6 +56,11 @@ class SubgraphSmallClosedStationsDiversionsTest {
     private static GraphDatabase database;
     private static IntegrationTramClosedStationsTestConfig config;
 
+    private final static TramServiceDate when = new TramServiceDate(TestEnv.testDay());
+
+    private final static List<StationClosures> closedStations = List.of(
+            new StationClosuresForTest(PiccadillyGardens, when.getDate(), when.getDate().plusWeeks(1), false));
+
     private static final List<TramStations> centralStations = Arrays.asList(
             Cornbrook,
             Deansgate,
@@ -67,14 +71,10 @@ class SubgraphSmallClosedStationsDiversionsTest {
             Piccadilly,
             MarketStreet,
             Shudehill);
+    
     private RouteCalculatorTestFacade calculator;
     private StationRepository stationRepository;
-    private final static TramServiceDate when = new TramServiceDate(TestEnv.testDay());
     private Transaction txn;
-
-    private final static List<StationClosures> closedStations = Arrays.asList(
-            //new StationClosuresForTest(StPetersSquare, when.getDate(), when.getDate().plusWeeks(1), true),
-            new StationClosuresForTest(PiccadillyGardens, when.getDate(), when.getDate().plusWeeks(1), false));
     private Duration maxJourneyDuration;
     private int maxChanges;
 
@@ -148,6 +148,7 @@ class SubgraphSmallClosedStationsDiversionsTest {
         assertTrue(repository.hasDiversions(ExchangeSquare.from(stationRepository)));
     }
 
+    @PiccGardens2022
     @Test
     void shouldHaveExpectedRouteToRouteCostsForClosedStations() {
         RouteToRouteCosts routeToRouteCosts = componentContainer.get(RouteToRouteCosts.class);
@@ -160,7 +161,8 @@ class SubgraphSmallClosedStationsDiversionsTest {
 
         NumberOfChanges costs = routeToRouteCosts.getNumberOfChanges(start, destination, mode, when.getDate().plusDays(1), timeRange);
 
-        assertEquals(1, costs.getMin());
+        // note replacement bus is now available instead of the walk 1->0
+        assertEquals(0, costs.getMin());
     }
 
     @Test

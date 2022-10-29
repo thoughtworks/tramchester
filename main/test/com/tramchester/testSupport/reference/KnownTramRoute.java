@@ -42,11 +42,13 @@ public enum KnownTramRoute {
     VictoriaWythenshaweManchesterAirport("Navy Line", Outbound, "Victoria - Wythenshawe - Manchester Airport"),
 
     TheTraffordCentreCornbrook("Red Line", Inbound, "The Trafford Centre - Cornbrook"),
-    CornbrookTheTraffordCentre("Red Line", Outbound, "Cornbrook - The Trafford Centre");
+    CornbrookTheTraffordCentre("Red Line", Outbound, "Cornbrook - The Trafford Centre"),
 
     // TODO July 2022 - eccles replacement services - UNTIL October 22nd
 //    ReplacementRouteToEccles("Blue Line Bus Replacement", Inbound, "Media City Metrolink Replacement - Eccles"),
 //    ReplacementRouteFromEccles("Blue Line Bus Replacement", Outbound, "Eccles - Media City Metrolink Replacement");
+    ReplacementRoutePiccadillyDeansgate("Blue Line Bus Replacement", Inbound,"Piccadilly Station Metrolink Replacement - Castlefield - Deansgate"),
+    ReplacementRouteDeansgatePiccadillt("Blue Line Bus Replacement", Outbound, "Deansgate - Castlefield - Piccadilly Station Metrolink Replacement");
 
     private final IdFor<Route> fakeId;
     private final RouteDirection direction;
@@ -73,18 +75,21 @@ public enum KnownTramRoute {
 
     }
 
-    public static List<KnownTramRoute> getFor(TramDate when) {
+    public static List<KnownTramRoute> getFor(TramDate date) {
         List<KnownTramRoute> routes = new ArrayList<>(Arrays.asList(KnownTramRoute.values())); // need mutable
-//        if (when.isAfter(TramDate.of(2022, 10, 22))) {
-//            routes.remove(ReplacementRouteToEccles);
-//            routes.remove(ReplacementRouteFromEccles);
-//        }
-        if (when.isAfter(TramDate.of(2022, 10,22)) && when.isBefore(TramDate.of(2022, 11, 30))) {
+        if (date.isAfter(TramDate.of(2022, 10,22)) && date.isBefore(TramDate.of(2022, 11, 30))) {
             // piccadilly gardens work
             routes.remove(AltrinchamPiccadilly);
             routes.remove(PiccadillyAltrincham);
+        } else {
+            routes.remove(ReplacementRouteDeansgatePiccadillt);
+            routes.remove(ReplacementRoutePiccadillyDeansgate);
         }
         return routes;
+    }
+
+    public static int numberOn(TramDate date) {
+        return getFor(date).size();
     }
 
     private String getSuffixFor(String shortName) {
