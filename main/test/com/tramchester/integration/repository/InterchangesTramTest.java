@@ -9,6 +9,7 @@ import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.places.InterchangeStation;
+import com.tramchester.domain.places.InterchangeType;
 import com.tramchester.domain.places.Station;
 import com.tramchester.integration.graph.neighbours.NeighboursAsInterchangesTest;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
@@ -104,7 +105,7 @@ public class InterchangesTramTest {
         Station stWerb = StWerburghsRoad.from(stationRepository);
 
         InterchangeStation interchange = interchangeRepository.getInterchange(stWerb);
-        assertEquals(InterchangeStation.InterchangeType.NumberOfLinks, interchange.getType());
+        assertEquals(InterchangeType.NumberOfLinks, interchange.getType());
 
         assertTrue(interchange.getPickupRoutes().contains(toAirport));
 

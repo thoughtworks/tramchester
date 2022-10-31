@@ -5,9 +5,7 @@ import com.tramchester.domain.*;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.input.StopCall;
 import com.tramchester.domain.input.Trip;
-import com.tramchester.domain.places.Location;
-import com.tramchester.domain.places.ServedRoute;
-import com.tramchester.domain.places.Station;
+import com.tramchester.domain.places.*;
 import com.tramchester.domain.time.TimeRange;
 import com.tramchester.domain.time.TramTime;
 import org.slf4j.Logger;
@@ -94,9 +92,15 @@ public class StationAvailabilityRepository {
     }
     
     public boolean isAvailable(Location<?> location, TramDate when, TimeRange timeRange) {
-
         return pickupsForLocation.get(location).anyAvailable(when, timeRange) &&
                 dropoffsForLocation.get(location).anyAvailable(when, timeRange);
+    }
+
+    private boolean isAvailable(InterchangeStation interchangeStation, TramDate date, TimeRange time) {
+        if (interchangeStation.getType()==InterchangeType.NeighbourLinks) {
+            throw new RuntimeException("TODO");
+        }
+        return isAvailable(interchangeStation.getStation(), date,time);
     }
 
     public boolean isAvailable(RouteAndChanges routeAndChanges, TramDate date, TimeRange time) {
@@ -106,7 +110,6 @@ public class StationAvailabilityRepository {
         }
         return false;
     }
-
 
     public Set<Route> getPickupRoutesFor(Location<?> location, TramDate date, TimeRange timeRange) {
         if (closedStationsRepository.isClosed(location, date)) {

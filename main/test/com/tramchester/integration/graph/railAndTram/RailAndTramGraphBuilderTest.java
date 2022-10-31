@@ -27,10 +27,7 @@ import com.tramchester.repository.StationRepository;
 import com.tramchester.repository.TransportData;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TramRouteHelper;
-import com.tramchester.testSupport.reference.KnownTramRoute;
-import com.tramchester.testSupport.reference.TramStations;
 import com.tramchester.testSupport.testTags.GMTest;
-import com.tramchester.testSupport.testTags.TrainTest;
 import org.assertj.core.util.Streams;
 import org.junit.jupiter.api.*;
 import org.neo4j.graphdb.*;
@@ -196,56 +193,55 @@ class RailAndTramGraphBuilderTest {
         assertEquals(fromConfigAndDiscovered, fromDB, "Graph clean and rebuild needed?");
     }
 
+//    private void checkOutboundConsistency(TramStations tramStation, KnownTramRoute knownRoute) {
+//        Station station = tramStation.from(stationRepository);
+//        Route route = tramRouteHelper.getOneRoute(knownRoute, when);
+//
+//        checkOutboundConsistency(station, route);
+//    }
 
-    private void checkOutboundConsistency(TramStations tramStation, KnownTramRoute knownRoute) {
-        Station station = tramStation.from(stationRepository);
-        Route route = tramRouteHelper.getOneRoute(knownRoute, when);
+//    private void checkOutboundConsistency(Station station, Route route) {
+//        RouteStation routeStation = stationRepository.getRouteStation(station, route);
+//
+//        List<Relationship> routeStationOutbounds = graphQuery.getRouteStationRelationships(txn, routeStation, Direction.OUTGOING);
+//
+//        assertTrue(routeStationOutbounds.size()>0);
+//
+//        // since can have 'multiple' route stations due to dup routes use set here
+//       IdSet<Service> serviceRelatIds = routeStationOutbounds.stream().
+//                filter(relationship -> relationship.isType(TransportRelationshipTypes.TO_SERVICE)).
+//                map(GraphProps::getServiceId).
+//                collect(IdSet.idCollector());
+//
+//        Set<Trip> fileCallingTrips =
+//                transportData.getRouteById(route.getId()).getTrips().stream().
+//
+//                filter(trip -> trip.callsAt(station)).
+//                collect(Collectors.toSet());
+//
+//        IdSet<Service> fileSvcIdFromTrips = fileCallingTrips.stream().
+//                map(trip -> trip.getService().getId()).
+//                collect(IdSet.idCollector());
+//
+//        // NOTE: Check clean target that and graph has been rebuilt if see failure here
+//        assertEquals(fileSvcIdFromTrips.size(), serviceRelatIds.size(),
+//                "Did not match " + fileSvcIdFromTrips + " and " + serviceRelatIds);
+//        assertTrue(fileSvcIdFromTrips.containsAll(serviceRelatIds));
+//
+//        long connectedToRouteStation = routeStationOutbounds.stream().filter(relationship -> relationship.isType(ROUTE_TO_STATION)).count();
+//        assertNotEquals(0, connectedToRouteStation);
+//
+//        List<Relationship> incomingToRouteStation = graphQuery.getRouteStationRelationships(txn, routeStation, Direction.INCOMING);
+//        long fromStation = Streams.stream(incomingToRouteStation).filter(relationship -> relationship.isType(STATION_TO_ROUTE)).count();
+//        assertNotEquals(0, fromStation);
+//    }
 
-        checkOutboundConsistency(station, route);
-    }
-
-    private void checkOutboundConsistency(Station station, Route route) {
-        RouteStation routeStation = stationRepository.getRouteStation(station, route);
-
-        List<Relationship> routeStationOutbounds = graphQuery.getRouteStationRelationships(txn, routeStation, Direction.OUTGOING);
-
-        assertTrue(routeStationOutbounds.size()>0);
-
-        // since can have 'multiple' route stations due to dup routes use set here
-       IdSet<Service> serviceRelatIds = routeStationOutbounds.stream().
-                filter(relationship -> relationship.isType(TransportRelationshipTypes.TO_SERVICE)).
-                map(GraphProps::getServiceId).
-                collect(IdSet.idCollector());
-
-        Set<Trip> fileCallingTrips =
-                transportData.getRouteById(route.getId()).getTrips().stream().
-
-                filter(trip -> trip.callsAt(station)).
-                collect(Collectors.toSet());
-
-        IdSet<Service> fileSvcIdFromTrips = fileCallingTrips.stream().
-                map(trip -> trip.getService().getId()).
-                collect(IdSet.idCollector());
-
-        // NOTE: Check clean target that and graph has been rebuilt if see failure here
-        assertEquals(fileSvcIdFromTrips.size(), serviceRelatIds.size(),
-                "Did not match " + fileSvcIdFromTrips + " and " + serviceRelatIds);
-        assertTrue(fileSvcIdFromTrips.containsAll(serviceRelatIds));
-
-        long connectedToRouteStation = routeStationOutbounds.stream().filter(relationship -> relationship.isType(ROUTE_TO_STATION)).count();
-        assertNotEquals(0, connectedToRouteStation);
-
-        List<Relationship> incomingToRouteStation = graphQuery.getRouteStationRelationships(txn, routeStation, Direction.INCOMING);
-        long fromStation = Streams.stream(incomingToRouteStation).filter(relationship -> relationship.isType(STATION_TO_ROUTE)).count();
-        assertNotEquals(0, fromStation);
-    }
-
-    private void checkInboundConsistency(TramStations tramStation, KnownTramRoute knownRoute) {
-        Route route = tramRouteHelper.getOneRoute(knownRoute, when);
-        Station station = tramStation.from(stationRepository);
-
-        checkInboundConsistency(station, route);
-    }
+//    private void checkInboundConsistency(TramStations tramStation, KnownTramRoute knownRoute) {
+//        Route route = tramRouteHelper.getOneRoute(knownRoute, when);
+//        Station station = tramStation.from(stationRepository);
+//
+//        checkInboundConsistency(station, route);
+//    }
 
     private void checkInboundConsistency(Station station, Route route) {
         RouteStation routeStation = stationRepository.getRouteStation(station, route);

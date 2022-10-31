@@ -13,6 +13,7 @@ import com.tramchester.domain.collections.SimpleList;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.id.IdSet;
+import com.tramchester.domain.places.InterchangeStation;
 import com.tramchester.domain.places.Location;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
@@ -201,7 +202,7 @@ public class RouteToRouteCostsTest {
 
         RouteAndChanges actualChange = firstSetOfChanges.get(0);
         assertEquals(1, actualChange.getStations().size());
-        assertTrue(actualChange.getStations().contains(Cornbrook.from(stationRepository)), results.toString());
+        assertTrue(getStationsFor(actualChange).contains(Cornbrook.from(stationRepository)), results.toString());
     }
 
     @PiccGardens2022
@@ -218,14 +219,14 @@ public class RouteToRouteCostsTest {
 
         // todo walking from market street
         //validateRoutingForBuryToTraffordCenterRoute(firstChangeSet);
-        assertTrue(firstChangeSet.get(0).getStations().contains(MarketStreet.from(stationRepository)));
+        assertTrue(getStationsFor(firstChangeSet.get(0)).contains(MarketStreet.from(stationRepository)));
 
         List<RouteAndChanges> secondChangeSet = results.get(0);
         assertEquals(2, secondChangeSet.size());
 
         // todo walking from market street
         //validateRoutingForBuryToTraffordCenterRoute(secondChangeSet);
-        assertTrue(secondChangeSet.get(0).getStations().contains(MarketStreet.from(stationRepository)));
+        assertTrue(getStationsFor(secondChangeSet.get(0)).contains(MarketStreet.from(stationRepository)));
     }
 
     @PiccGardens2022
@@ -255,14 +256,18 @@ public class RouteToRouteCostsTest {
         assertEquals(2, getMinCost(results));
     }
 
-    private void validateRoutingForBuryToTraffordCenterRoute(List<RouteAndChanges> firstChangeSet) {
-        Set<Station> firstChanges = firstChangeSet.get(0).getStations();
-        assertTrue(firstChanges.containsAll(TramStations.allFrom(stationRepository, MarketStreet, Piccadilly, PiccadillyGardens)),
-                HasId.asIds(firstChanges));
+//    private void validateRoutingForBuryToTraffordCenterRoute(List<RouteAndChanges> firstChangeSet) {
+//        Set<Station> firstChanges = getStationFromInterchange(firstChangeSet.get(0));
+//        assertTrue(firstChanges.containsAll(TramStations.allFrom(stationRepository, MarketStreet, Piccadilly, PiccadillyGardens)),
+//                HasId.asIds(firstChanges));
+//
+//        Set<Station> secondChanges = getStationFromInterchange(firstChangeSet.get(1));
+//        assertEquals(2, secondChanges.size());
+//        assertTrue(secondChanges.containsAll(TramStations.allFrom(stationRepository, Cornbrook, Pomona)), secondChanges.toString());
+//    }
 
-        Set<Station> secondChanges = firstChangeSet.get(1).getStations();
-        assertEquals(2, secondChanges.size());
-        assertTrue(secondChanges.containsAll(TramStations.allFrom(stationRepository, Cornbrook, Pomona)), secondChanges.toString());
+    private Set<Station> getStationsFor(RouteAndChanges routeAndChanges) {
+        return routeAndChanges.getStations().stream().map(InterchangeStation::getStation).collect(Collectors.toSet());
     }
 
     @Test
@@ -270,8 +275,10 @@ public class RouteToRouteCostsTest {
         Route routeA = routeHelper.getOneRoute(AltrinchamManchesterBury, date);
         Route routeB = routeHelper.getOneRoute(VictoriaWythenshaweManchesterAirport, date);
 
-        assertEquals(1, getMinCost(routesCostRepository.getNumberOfChanges(routeA, routeB, date, timeRange)), "wrong for " + routeA.getId() + " " + routeB.getId());
-        assertEquals(1, getMinCost(routesCostRepository.getNumberOfChanges(routeB, routeA, date, timeRange)), "wrong for " + routeB.getId() + " " + routeA.getId());
+        assertEquals(1, getMinCost(routesCostRepository.getNumberOfChanges(routeA, routeB, date, timeRange)),
+                "wrong for " + routeA.getId() + " " + routeB.getId());
+        assertEquals(1, getMinCost(routesCostRepository.getNumberOfChanges(routeB, routeA, date, timeRange)),
+                "wrong for " + routeB.getId() + " " + routeA.getId());
 
     }
 

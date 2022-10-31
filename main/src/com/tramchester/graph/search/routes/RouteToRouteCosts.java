@@ -6,8 +6,9 @@ import com.tramchester.domain.collections.IndexedBitSet;
 import com.tramchester.domain.collections.SimpleList;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.HasId;
+import com.tramchester.domain.places.InterchangeStation;
+import com.tramchester.domain.places.SimpleInterchangeStation;
 import com.tramchester.domain.places.Location;
-import com.tramchester.domain.places.Station;
 import com.tramchester.domain.places.StationGroup;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TimeRange;
@@ -162,10 +163,10 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
 
         if (routePairToInterchange.hasInterchangesFor(indexPair)) {
 
-            final Set<Station> changes = routePairToInterchange.getInterchanges(indexPair);
-            final RouteAndChanges routeAndChanges = new RouteAndChanges(routePair, changes);
+            final Set<InterchangeStation> interchangesBetween = routePairToInterchange.getInterchanges(indexPair);
+            final RouteAndChanges routeAndChanges = new RouteAndChanges(routePair, interchangesBetween);
             if (logger.isDebugEnabled()) {
-                logger.debug(format("Found changes %s for %s", HasId.asIds(changes), indexPair));
+                logger.debug(format("Found changes %s for %s", interchangesBetween, indexPair));
             }
             return routeAndChanges;
         }

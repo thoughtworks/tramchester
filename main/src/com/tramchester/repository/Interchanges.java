@@ -9,10 +9,7 @@ import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.id.StringIdFor;
-import com.tramchester.domain.places.InterchangeStation;
-import com.tramchester.domain.places.Location;
-import com.tramchester.domain.places.LocationType;
-import com.tramchester.domain.places.Station;
+import com.tramchester.domain.places.*;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.graph.FindStationsByNumberLinks;
 import com.tramchester.graph.filters.GraphFilter;
@@ -99,11 +96,22 @@ public class Interchanges implements InterchangeRepository {
                     if (interchanges.containsKey(beginId)) {
                         // already flagged as an interchange, add the additional routes from the other station
                         InterchangeStation existing = interchanges.get(beginId);
-                        existing.addPickupRoutes(dropoffRoutesAtEnd);
+                        if (existing.getType()==InterchangeType.NeighbourLinks) {
+                            MultiInterchangeStation multiInterchangeStation = (MultiInterchangeStation) existing;
+                            logger.info(format("Updating an existing multiple linke interchange %s with %s", multiInterchangeStation, stationLink));
+                            multiInterchangeStation.addLink(stationLink);
+                        } else {
+                            // replace an existing simple interchange
+                            MultiInterchangeStation multiInterchangeStation = new MultiInterchangeStation(stationLink);
+                            logger.info(format("Replacing an existing interchange %s with multilink one for %s", existing, multiInterchangeStation));
+                            interchanges.put(beginId, multiInterchangeStation);
+                            throw new RuntimeException("WIP");
+                        }
+                        //existing.addPickupRoutes(dropoffRoutesAtEnd);
                     } else {
-                        // not an interchange yet, so only add the routes from the linked station
-                        InterchangeStation interchangeStation = new InterchangeStation(stationLink.getBegin(), dropoffRoutesAtEnd,
-                                InterchangeStation.InterchangeType.NeighbourLinks);
+                        // new interchange, so only add the routes from the linked station
+                        SimpleInterchangeStation interchangeStation = new SimpleInterchangeStation(stationLink.getBegin(),
+                                InterchangeType.NeighbourLinks);
                         interchanges.put(beginId, interchangeStation);
                     }
             });
@@ -134,26 +142,26 @@ public class Interchanges implements InterchangeRepository {
                 filter(station -> !config.onlyMarkedInterchange(station)).
                 collect(Collectors.toSet());
         logger.info(format("Added %s interchanges for %s and link threshold %s", foundViaLinks.size(), mode, linkThreshhold));
-        addStations(foundViaLinks, InterchangeStation.InterchangeType.NumberOfLinks);
+        addStations(foundViaLinks, InterchangeType.NumberOfLinks);
     }
 
     private void addMarkedStations(TransportMode mode) {
         logger.info("Adding stations marked as interchanges");
         Set<Station> markedAsInterchange = stationRepository.getStationsServing(mode).
                 stream().filter(Station::isMarkedInterchange).collect(Collectors.toSet());
-        addStations(markedAsInterchange, InterchangeStation.InterchangeType.FromSourceData);
+        addStations(markedAsInterchange, InterchangeType.FromSourceData);
         logger.info(format("Added %s %s stations marked as as interchange", markedAsInterchange.size(), mode));
     }
 
-    private void addStations(Set<Station> stations, InterchangeStation.InterchangeType type) {
-        Map<IdFor<Station>, InterchangeStation> toAdd = stations.stream().
-                map(station -> new InterchangeStation(station, type)).
-                collect(Collectors.toMap(InterchangeStation::getStationId, item -> item));
+    private void addStations(Set<Station> stations, InterchangeType type) {
+        Map<IdFor<Station>, SimpleInterchangeStation> toAdd = stations.stream().
+                map(station -> new SimpleInterchangeStation(station, type)).
+                collect(Collectors.toMap(SimpleInterchangeStation::getStationId, item -> item));
         interchanges.putAll(toAdd);
     }
 
-    private void addStationToInterchanges(Station station, InterchangeStation.InterchangeType type) {
-        interchanges.put(station.getId(), new InterchangeStation(station, type));
+    private void addStationToInterchanges(Station station, InterchangeType type) {
+        interchanges.put(station.getId(), new SimpleInterchangeStation(station, type));
     }
 
     public static int getLinkThreshhold(TransportMode mode) {
@@ -205,11 +213,11 @@ public class Interchanges implements InterchangeRepository {
             logger.error("For " + name + " additional interchange station ids invalid:" + invalidIds);
         }
 
-        addInterchangesWhereModesMatch(dataSource.getTransportModes(), validStationsFromConfig, InterchangeStation.InterchangeType.FromConfig);
+        addInterchangesWhereModesMatch(dataSource.getTransportModes(), validStationsFromConfig, InterchangeType.FromConfig);
     }
 
     private void addInterchangesWhereModesMatch(Set<TransportMode> enabledModes, Set<Station> stations,
-                                                InterchangeStation.InterchangeType type) {
+                                                InterchangeType type) {
         long countBefore = interchanges.size();
         stations.forEach(station -> enabledModes.forEach(enabledMode -> {
             if (station.servesMode(enabledMode)) {
@@ -229,7 +237,7 @@ public class Interchanges implements InterchangeRepository {
                 collect(Collectors.toSet());
         logger.info("Adding " + multimodeStations.size() + " multimode stations");
         multimodeStations.forEach(station -> station.getTransportModes().forEach(mode -> addStationToInterchanges(station,
-                InterchangeStation.InterchangeType.Multimodal)));
+                InterchangeType.Multimodal)));
     }
 
     @Override

@@ -1,29 +1,28 @@
 package com.tramchester.domain;
 
-import com.tramchester.domain.id.HasId;
-import com.tramchester.domain.places.Station;
+import com.tramchester.domain.places.InterchangeStation;
 
 import java.util.Objects;
 import java.util.Set;
 
 public class RouteAndChanges {
     private final RoutePair routePair;
-    private final Set<Station> stations;
+    private final Set<InterchangeStation> interchangeStations;
 
-    public RouteAndChanges(RoutePair routePair, Set<Station> stations) {
+    public RouteAndChanges(RoutePair routePair, Set<InterchangeStation> stations) {
         this.routePair = routePair;
-        this.stations = stations;
+        this.interchangeStations = stations;
     }
 
-    public Set<Station> getStations() {
-        return stations;
+    public Set<InterchangeStation> getStations() {
+        return interchangeStations;
     }
 
     @Override
     public String toString() {
         return "RouteInterchanges{" +
                 "routePair=" + routePair +
-                ", interchangeStations=" + HasId.asIds(stations) +
+                ", interchangeStations=" + interchangeStations +
                 '}';
     }
 
@@ -32,12 +31,12 @@ public class RouteAndChanges {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         RouteAndChanges that = (RouteAndChanges) o;
-        return routePair.equals(that.routePair) && stations.equals(that.stations);
+        return routePair.equals(that.routePair) && interchangeStations.equals(that.interchangeStations);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(routePair, stations);
+        return Objects.hash(routePair, interchangeStations);
     }
 
     public RoutePair getRoutePair() {

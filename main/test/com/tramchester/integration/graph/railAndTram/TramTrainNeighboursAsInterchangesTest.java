@@ -4,6 +4,7 @@ import com.tramchester.ComponentsBuilder;
 import com.tramchester.GuiceContainerDependencies;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.places.InterchangeStation;
+import com.tramchester.domain.places.SimpleInterchangeStation;
 import com.tramchester.domain.places.Station;
 import com.tramchester.integration.repository.InterchangesTramTest;
 import com.tramchester.integration.testSupport.TramAndTrainGreaterManchesterConfig;
@@ -12,16 +13,12 @@ import com.tramchester.repository.InterchangeRepository;
 import com.tramchester.repository.NeighboursRepository;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.TestEnv;
-import com.tramchester.testSupport.reference.TramStations;
-import com.tramchester.testSupport.testTags.BusTest;
 import com.tramchester.testSupport.testTags.GMTest;
-import com.tramchester.testSupport.testTags.TrainTest;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.util.Optional;
 import java.util.Set;
 
 import static com.tramchester.testSupport.reference.TramStations.Altrincham;

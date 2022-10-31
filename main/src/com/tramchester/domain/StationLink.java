@@ -7,7 +7,11 @@ import com.tramchester.mappers.Geography;
 import javax.measure.Quantity;
 import javax.measure.quantity.Length;
 import java.time.Duration;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
+import java.util.stream.Stream;
 
 public class StationLink {
     private final StationPair pair;
@@ -83,5 +87,15 @@ public class StationLink {
 
     public Duration getWalkingTime() {
         return walkingTime;
+    }
+
+    /***
+     * The transport modes of the contained stations, not the modes linking the stations
+     * @return set of modes
+     */
+    public Set<TransportMode> getContainedModes() {
+        Set<TransportMode> modes = new HashSet<>(pair.getBegin().getTransportModes());
+        modes.addAll(pair.getEnd().getTransportModes());
+        return Collections.unmodifiableSet(modes);
     }
 }

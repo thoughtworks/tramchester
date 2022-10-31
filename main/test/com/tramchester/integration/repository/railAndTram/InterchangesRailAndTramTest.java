@@ -4,14 +4,13 @@ import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.Route;
-import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.places.InterchangeStation;
+import com.tramchester.domain.places.InterchangeType;
+import com.tramchester.domain.places.SimpleInterchangeStation;
 import com.tramchester.domain.places.Station;
-import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.integration.testSupport.TramAndTrainGreaterManchesterConfig;
-import com.tramchester.integration.testSupport.rail.IntegrationRailTestConfig;
 import com.tramchester.integration.testSupport.rail.RailStationIds;
 import com.tramchester.repository.InterchangeRepository;
 import com.tramchester.repository.StationRepository;
@@ -19,14 +18,10 @@ import com.tramchester.testSupport.AdditionalTramInterchanges;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.TramStations;
 import com.tramchester.testSupport.testTags.GMTest;
-import com.tramchester.testSupport.testTags.TrainTest;
 import org.junit.jupiter.api.*;
 
-import java.util.EnumSet;
 import java.util.Set;
-import java.util.stream.Collectors;
 
-import static com.tramchester.domain.reference.TransportMode.Tram;
 import static org.junit.jupiter.api.Assertions.*;
 
 @GMTest
@@ -91,7 +86,7 @@ class InterchangesRailAndTramTest {
         InterchangeStation tramInterchange = interchangeRepository.getInterchange(tram);
 
         assertTrue(tramInterchange.isMultiMode());
-        assertEquals(InterchangeStation.InterchangeType.NeighbourLinks, tramInterchange.getType());
+        assertEquals(InterchangeType.NeighbourLinks, tramInterchange.getType());
 
         IdSet<Route> tramPickups = getIds(tram.getPickupRoutes());
         IdSet<Route> trainPickups = getIds(train.getPickupRoutes());

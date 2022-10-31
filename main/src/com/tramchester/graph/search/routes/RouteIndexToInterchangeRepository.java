@@ -3,7 +3,6 @@ package com.tramchester.graph.search.routes;
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.places.InterchangeStation;
-import com.tramchester.domain.places.Station;
 import com.tramchester.repository.InterchangeRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,7 +22,7 @@ public class RouteIndexToInterchangeRepository {
     private final RouteIndex routeIndex;
     private final InterchangeRepository interchangeRepository;
 
-    private final Map<RouteIndexPair, Set<Station>> routePairToInterchange;
+    private final Map<RouteIndexPair, Set<InterchangeStation>> routePairToInterchange;
 
     @Inject
     public RouteIndexToInterchangeRepository(RouteIndex routeIndex, InterchangeRepository interchangeRepository) {
@@ -70,14 +69,14 @@ public class RouteIndexToInterchangeRepository {
         if (!routePairToInterchange.containsKey(pair)) {
             routePairToInterchange.put(pair, new HashSet<>());
         }
-        routePairToInterchange.get(pair).add(interchange.getStation());
+        routePairToInterchange.get(pair).add(interchange);
     }
 
     public boolean hasInterchangesFor(RouteIndexPair indexPair) {
         return routePairToInterchange.containsKey(indexPair);
     }
 
-    public Set<Station> getInterchanges(RouteIndexPair indexPair) {
+    public Set<InterchangeStation> getInterchanges(RouteIndexPair indexPair) {
         return routePairToInterchange.get(indexPair);
     }
 }
