@@ -488,8 +488,8 @@ public class RailTimetableMapper {
                 logger.info("Creating agency for atco code " + atocCode);
 
                 dataSourceID = DataSourceID.rail;
-                String agencyName = TrainOperatingCompanies.nameFor(agencyId);
-                if (agencyName.equals(TrainOperatingCompanies.UNKNOWN.getName())) {
+                String agencyName = TrainOperatingCompanies.companyNameFor(agencyId);
+                if (agencyName.equals(TrainOperatingCompanies.UNKNOWN.getCompanyName())) {
                     logger.warn("Unable to find name for agency " + atocCode);
                 }
                 mutableAgency = new MutableAgency(dataSourceID, agencyId, agencyName);

@@ -9,9 +9,7 @@ import javax.measure.quantity.Length;
 import java.time.Duration;
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
-import java.util.stream.Stream;
 
 public class StationLink {
     private final StationPair pair;
@@ -19,12 +17,12 @@ public class StationLink {
     private final Quantity<Length> distanceBetweenInMeters;
     private final Duration walkingTime;
 
-    public StationLink(Station begin, Station end, Set<TransportMode> modes, Quantity<Length> distanceBetweenInMeters,
+    public StationLink(Station begin, Station end, Set<TransportMode> linkingModes, Quantity<Length> distanceBetweenInMeters,
                        Duration walkingTime) {
         this.distanceBetweenInMeters = distanceBetweenInMeters;
         this.walkingTime = walkingTime;
         this.pair = StationPair.of(begin, end);
-        this.modes = modes;
+        this.modes = linkingModes;
     }
 
     public static StationLink create(Station begin, Station end, Set<TransportMode> modes, Geography geography) {

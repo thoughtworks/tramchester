@@ -23,7 +23,7 @@ import static com.tramchester.testSupport.reference.TramStations.Shudehill;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @BusTest
-public class NeighboursRepositoryTest {
+public class NeighboursRepositoryBusTest {
 
     private NeighboursRepository neighboursRepository;
 

@@ -7,6 +7,7 @@ import com.tramchester.config.AppConfiguration;
 import com.tramchester.config.GTFSSourceConfig;
 import com.tramchester.config.TfgmTramLiveDataConfig;
 import com.tramchester.config.TramchesterConfig;
+import com.tramchester.dataimport.rail.reference.TrainOperatingCompanies;
 import com.tramchester.domain.*;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.dates.TramServiceDate;
@@ -154,8 +155,16 @@ public class TestEnv {
         return MutableRoute.getRoute(routeId, "routeCode", routeName, TestEnv.MetAgency(), TransportMode.Tram);
     }
 
+    public static Route getTrainTestRoute(IdFor<Route> routeId, String routeName) {
+        return MutableRoute.getRoute(routeId, "routeCode", routeName, TestEnv.NorthernTrainsAgency(), TransportMode.Train);
+    }
+
     public static Agency MetAgency() {
         return MET;
+    }
+
+    public static Agency NorthernTrainsAgency() {
+        return MutableAgency.build(DataSourceID.rail, TrainOperatingCompanies.NT.getAgencyId(), TrainOperatingCompanies.NT.getCompanyName());
     }
 
     // useful for diagnosing issues in windows env with spaces in paths etc.......

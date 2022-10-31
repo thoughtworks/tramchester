@@ -48,22 +48,25 @@ public enum TrainOperatingCompanies {
     private static final Map<IdFor<Agency>, String> nameMap = new HashMap<>();
 
     static {
-        Arrays.stream(TrainOperatingCompanies.values()).forEach(value -> nameMap.put(StringIdFor.createId(value.name()),
-                value.companyName));
+        Arrays.stream(TrainOperatingCompanies.values()).forEach(value -> nameMap.put(value.getAgencyId(), value.companyName));
     }
 
     TrainOperatingCompanies(String companyName) {
         this.companyName = companyName;
     }
 
-    public static String nameFor(IdFor<Agency> id) {
+    public static String companyNameFor(IdFor<Agency> id) {
         if (!nameMap.containsKey(id)) {
             return UNKNOWN.companyName;
         }
         return nameMap.get(id);
     }
 
-    public String getName() {
+    public String getCompanyName() {
         return companyName;
+    }
+
+    public IdFor<Agency> getAgencyId() {
+        return StringIdFor.createId(name());
     }
 }

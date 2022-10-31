@@ -156,7 +156,7 @@ public class RailTransportDataFromFilesTest {
         List<IdFor<Agency>> missingTrainOperatingCompanyName = results.stream().
                 map(Agency::getId).
                 filter(id -> !Agency.IsMetrolink(id)).
-                filter(id -> TrainOperatingCompanies.nameFor(id).equals(TrainOperatingCompanies.UNKNOWN.getName())).
+                filter(id -> TrainOperatingCompanies.companyNameFor(id).equals(TrainOperatingCompanies.UNKNOWN.getCompanyName())).
                 collect(Collectors.toList());
 
         assertTrue(missingTrainOperatingCompanyName.isEmpty(), missingTrainOperatingCompanyName.toString());
@@ -339,9 +339,9 @@ public class RailTransportDataFromFilesTest {
         Set<String> agencies = routes.stream().map(route -> route.getAgency().getName()).collect(Collectors.toSet());
 
         assertEquals(3, agencies.size(), agencies.toString());
-        assertTrue(agencies.contains(TrainOperatingCompanies.TP.getName()));
-        assertTrue(agencies.contains(TrainOperatingCompanies.NT.getName()));
-        assertTrue(agencies.contains(TrainOperatingCompanies.AW.getName()));
+        assertTrue(agencies.contains(TrainOperatingCompanies.TP.getCompanyName()));
+        assertTrue(agencies.contains(TrainOperatingCompanies.NT.getCompanyName()));
+        assertTrue(agencies.contains(TrainOperatingCompanies.AW.getCompanyName()));
     }
 
     @Test

@@ -28,7 +28,6 @@ import com.tramchester.testSupport.testTags.TrainTest;
 import org.junit.jupiter.api.*;
 
 import java.time.Duration;
-import java.time.LocalDate;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -163,7 +162,7 @@ public class RailTransportDataFromFilesTest {
 
         List<IdFor<Agency>> missingTrainOperatingCompanyName = results.stream().
                 map(Agency::getId).
-                filter(id -> TrainOperatingCompanies.nameFor(id).equals(TrainOperatingCompanies.UNKNOWN.getName())).
+                filter(id -> TrainOperatingCompanies.companyNameFor(id).equals(TrainOperatingCompanies.UNKNOWN.getCompanyName())).
                 collect(Collectors.toList());
 
         assertTrue(missingTrainOperatingCompanyName.isEmpty(), missingTrainOperatingCompanyName.toString());

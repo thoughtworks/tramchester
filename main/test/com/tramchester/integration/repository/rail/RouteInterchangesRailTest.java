@@ -4,7 +4,6 @@ import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.dataimport.rail.reference.TrainOperatingCompanies;
 import com.tramchester.domain.places.InterchangeStation;
-import com.tramchester.domain.places.SimpleInterchangeStation;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdSet;
@@ -59,7 +58,7 @@ public class RouteInterchangesRailTest {
         Station piccadilly = ManchesterPiccadilly.from(stationRepository);
         Station euston = LondonEuston.from(stationRepository);
 
-        String operatorName = TrainOperatingCompanies.VT.getName();
+        String operatorName = TrainOperatingCompanies.VT.getCompanyName();
 
         String routeShortName = format("%s service from %s to %s", operatorName, piccadilly.getName(), euston.getName());
 
@@ -112,7 +111,7 @@ public class RouteInterchangesRailTest {
         Station delamere = Delamere.from(stationRepository);
 
         String routeShortName = format("%s service from %s to %s",
-                TrainOperatingCompanies.NT.getName(), piccadilly.getName(), chester.getName());
+                TrainOperatingCompanies.NT.getCompanyName(), piccadilly.getName(), chester.getName());
 
         List<Route> manchesterToChesterRoutes = piccadilly.getPickupRoutes().stream().
                 filter(route -> route.getShortName().equals(routeShortName)).

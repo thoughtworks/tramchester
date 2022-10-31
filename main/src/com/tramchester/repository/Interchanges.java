@@ -87,31 +87,25 @@ public class Interchanges implements InterchangeRepository {
         }
         Set<StationLink> neighbours = neighboursRepository.getAll();
         int before = interchanges.size();
-        neighbours.
-                forEach(stationLink -> {
+
+        neighbours.forEach(stationLink -> {
                     final IdFor<Station> beginId = stationLink.getBegin().getId();
 
-                    final Set<Route> dropoffRoutesAtEnd = stationLink.getEnd().getDropoffRoutes();
-
                     if (interchanges.containsKey(beginId)) {
-                        // already flagged as an interchange, add the additional routes from the other station
                         InterchangeStation existing = interchanges.get(beginId);
                         if (existing.getType()==InterchangeType.NeighbourLinks) {
-                            MultiInterchangeStation multiInterchangeStation = (MultiInterchangeStation) existing;
-                            logger.info(format("Updating an existing multiple linke interchange %s with %s", multiInterchangeStation, stationLink));
+                            LinkedInterchangeStation multiInterchangeStation = (LinkedInterchangeStation) existing;
+                            logger.info(format("Updating an existing multiple link interchange %s with %s", multiInterchangeStation, stationLink));
                             multiInterchangeStation.addLink(stationLink);
                         } else {
-                            // replace an existing simple interchange
-                            MultiInterchangeStation multiInterchangeStation = new MultiInterchangeStation(stationLink);
+                            // replace an existing simple interchange, as the start station of link will be same will
+                            // contain same dropoffs and pickups as one it is replacing
+                            LinkedInterchangeStation multiInterchangeStation = new LinkedInterchangeStation(stationLink);
                             logger.info(format("Replacing an existing interchange %s with multilink one for %s", existing, multiInterchangeStation));
                             interchanges.put(beginId, multiInterchangeStation);
-                            throw new RuntimeException("WIP");
                         }
-                        //existing.addPickupRoutes(dropoffRoutesAtEnd);
                     } else {
-                        // new interchange, so only add the routes from the linked station
-                        SimpleInterchangeStation interchangeStation = new SimpleInterchangeStation(stationLink.getBegin(),
-                                InterchangeType.NeighbourLinks);
+                        LinkedInterchangeStation interchangeStation = new LinkedInterchangeStation(stationLink);
                         interchanges.put(beginId, interchangeStation);
                     }
             });

@@ -1,4 +1,4 @@
-package com.tramchester.unit;
+package com.tramchester.unit.domain.places;
 
 import com.tramchester.domain.DataSourceID;
 import com.tramchester.domain.Route;

@@ -11,7 +11,6 @@ import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.places.InterchangeStation;
 import com.tramchester.domain.places.InterchangeType;
 import com.tramchester.domain.places.Station;
-import com.tramchester.integration.graph.neighbours.NeighboursAsInterchangesTest;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
 import com.tramchester.repository.InterchangeRepository;
 import com.tramchester.repository.RouteRepository;

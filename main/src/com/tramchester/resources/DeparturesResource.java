@@ -53,7 +53,7 @@ public class DeparturesResource extends TransportResource implements APIResource
     @Inject
     public DeparturesResource(LocationRepository locationRepository,
                               DeparturesMapper departuresMapper, DeparturesRepository departuresRepository,
-                              ProvidesTramNotes providesNotes, StationRepository stationRepository,
+                              ProvidesTramNotes providesNotes,
                               ProvidesNow providesNow, TramchesterConfig config) {
         super(providesNow);
         this.locationRepository = locationRepository;

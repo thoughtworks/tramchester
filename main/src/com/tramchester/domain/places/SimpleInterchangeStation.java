@@ -11,17 +11,9 @@ import static com.tramchester.domain.id.HasId.asId;
 public class SimpleInterchangeStation implements InterchangeStation {
 
     private final Station station;
-//    private final Set<Route> pickupFromInterchange;
     private final InterchangeType interchangeType;
 
-//    public SimpleInterchangeStation(Station station, Set<Route> pickupFromInterchange, InterchangeType interchangeType) {
-//        this.station = station;
-//        this.pickupFromInterchange = new HashSet<>(pickupFromInterchange);
-//        this.interchangeType = interchangeType;
-//    }
-
     public SimpleInterchangeStation(Station station, InterchangeType interchangeType) {
-//        this(station,  new HashSet<>(station.getPickupRoutes()), interchangeType);
         this.station = station;
         this.interchangeType = interchangeType;
     }
@@ -29,17 +21,6 @@ public class SimpleInterchangeStation implements InterchangeStation {
     @Override
     public boolean isMultiMode() {
         return station.getTransportModes().size() > 1;
-//        Set<TransportMode> uniqueModes = pickupFromInterchange.stream().map(Route::getTransportMode).collect(Collectors.toSet());
-//        uniqueModes.addAll(station.getTransportModes());
-//        return uniqueModes.size()>1;
-    }
-
-    @Override
-    public String toString() {
-        return "InterchangeStation{" +
-                "station=" + asId(station) +
-                ", interchangeType=" + interchangeType +
-                '}';
     }
 
     @Override
@@ -72,10 +53,6 @@ public class SimpleInterchangeStation implements InterchangeStation {
         return station.getId();
     }
 
-//    public void addPickupRoutes(Set<Route> additionalPickupRoutes) {
-//        pickupFromInterchange.addAll(additionalPickupRoutes);
-//    }
-
     @Override
     public InterchangeType getType() {
         return interchangeType;
@@ -84,6 +61,14 @@ public class SimpleInterchangeStation implements InterchangeStation {
     @Override
     public Station getStation() {
         return station;
+    }
+
+    @Override
+    public String toString() {
+        return "SimpleInterchangeStation{" +
+                "station=" + asId(station) +
+                ", interchangeType=" + interchangeType +
+                '}';
     }
 
 }
