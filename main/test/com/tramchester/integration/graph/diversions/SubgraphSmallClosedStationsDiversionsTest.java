@@ -71,7 +71,7 @@ class SubgraphSmallClosedStationsDiversionsTest {
             Piccadilly,
             MarketStreet,
             Shudehill);
-    
+
     private RouteCalculatorTestFacade calculator;
     private StationRepository stationRepository;
     private Transaction txn;
