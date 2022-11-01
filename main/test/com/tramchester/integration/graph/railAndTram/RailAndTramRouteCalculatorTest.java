@@ -179,6 +179,28 @@ public class RailAndTramRouteCalculatorTest {
 
     }
 
+    @Test
+    void shouldTakeDirectTrainWhenStarAtTramStationNextToStation() {
+        TramTime time = TramTime.of(14,25);
+
+        JourneyRequest request = new JourneyRequest(new TramServiceDate(when), time, false, 1,
+                Duration.ofMinutes(240), 3, getRequestedModes());
+
+        Station start = tram(TramStations.Altrincham); // TRAM
+        Station dest = rail(Stockport);
+
+        List<Journey> journeys = new ArrayList<>(testFacade.calculateRouteAsSet(start, dest, request));
+        assertFalse(journeys.isEmpty(), "no journeys");
+
+        Journey journey = journeys.get(0);
+
+        List<TransportStage<?, ?>> stages = journey.getStages();
+        assertEquals(2, stages.size(),  "too many stages " + journeys);
+        assertEquals(stages.get(0).getMode(), Connect, "wrong first stage for " + stages);
+        assertEquals(stages.get(1).getMode(), Train, "wrong second stage for " + stages);
+
+    }
+
     @Disabled("Not a realistic scenario? start from a tram station but select train only?")
     @Test
     void shouldTakeDirectTrainViaWalkWhenOnlyTrainModeSelected() {
@@ -205,27 +227,6 @@ public class RailAndTramRouteCalculatorTest {
 
     }
 
-    @Test
-    void shouldTakeDirectTrainWhenStarAtTramStationNextToStation() {
-        TramTime time = TramTime.of(14,25);
-
-        JourneyRequest request = new JourneyRequest(new TramServiceDate(when), time, false, 1,
-                Duration.ofMinutes(240), 1, getRequestedModes());
-
-        Station start = tram(TramStations.Altrincham); // TRAM
-        Station dest = rail(Stockport);
-
-        List<Journey> journeys = new ArrayList<>(testFacade.calculateRouteAsSet(start, dest, request));
-        assertFalse(journeys.isEmpty(), "no journeys");
-
-        Journey journey = journeys.get(0);
-
-        List<TransportStage<?, ?>> stages = journey.getStages();
-        assertEquals(2, stages.size(),  "too many stages " + journey);
-        assertEquals(stages.get(0).getMode(), Connect, "wrong first stage for " + stages);
-        assertEquals(stages.get(1).getMode(), Train, "wrong second stage for " + stages);
-
-    }
 
     @Test
     void shouldHaveStockportToManPiccViaRail() {

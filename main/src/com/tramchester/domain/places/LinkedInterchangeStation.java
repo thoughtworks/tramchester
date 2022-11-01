@@ -87,4 +87,8 @@ public class LinkedInterchangeStation implements InterchangeStation {
     public int hashCode() {
         return Objects.hash(links, origin);
     }
+
+    public Set<Station> getLinked() {
+        return links.stream().map(StationLink::getEnd).collect(Collectors.toSet());
+    }
 }

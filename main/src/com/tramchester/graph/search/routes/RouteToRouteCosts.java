@@ -171,8 +171,10 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
             return routeAndChanges;
         }
 
-        // TODO TODO TODO
-        logger.error("Did not find any interchanges for " + routePair);
+        // for trains this warning makes no sense, since routes limited to one part of country etc.
+//        if (routePair.sameMode()) {
+//            logger.warn("Did not find any interchanges for " + routePair);
+//        }
         return null;
     }
 

@@ -16,7 +16,6 @@ import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.TramStations;
 import com.tramchester.testSupport.testTags.GMTest;
-import com.tramchester.testSupport.testTags.TrainTest;
 import org.junit.jupiter.api.*;
 
 import java.util.Collections;
@@ -117,7 +116,7 @@ public class RailAndTramRouteToRouteCostsTest {
                 Collections.emptySet(), date, timeRange);
 
         assertEquals(1, result.getMin());
-        assertEquals(4, result.getMax());
+        assertEquals(3, result.getMax());
     }
 
     @Test

@@ -98,7 +98,11 @@ public class StationAvailabilityRepository {
 
     private boolean isAvailable(InterchangeStation interchangeStation, TramDate date, TimeRange time) {
         if (interchangeStation.getType()==InterchangeType.NeighbourLinks) {
-            throw new RuntimeException("TODO");
+            LinkedInterchangeStation linkedInterchangeStation = (LinkedInterchangeStation) interchangeStation;
+            if (dropoffsForLocation.get(linkedInterchangeStation.getStation()).anyAvailable(date, time)) {
+                return linkedInterchangeStation.getLinked().stream().
+                        anyMatch(pickupLocation -> pickupsForLocation.get(pickupLocation).anyAvailable(date, time));
+            }
         }
         return isAvailable(interchangeStation.getStation(), date,time);
     }
