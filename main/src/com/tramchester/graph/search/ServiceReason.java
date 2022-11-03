@@ -3,6 +3,7 @@ package com.tramchester.graph.search;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.Service;
 import com.tramchester.domain.id.IdFor;
+import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.time.TramTime;
@@ -13,6 +14,7 @@ import java.util.Objects;
 import static java.lang.String.format;
 
 public abstract class ServiceReason {
+
 
     public enum ReasonCode {
 
@@ -34,6 +36,7 @@ public abstract class ServiceReason {
         PathTooLong,
         AlreadySeenStation,
         TransportModeWrong,
+        SameTrip,
 
         ReturnedToStart,
         TooManyChanges,
@@ -176,6 +179,23 @@ public abstract class ServiceReason {
             return obj instanceof DoesNotRunOnQueryDate;
         }
     }
+
+    ///////
+
+    private static class SameTrip extends ServiceReason {
+        private final IdFor<Trip> tripId;
+
+        private SameTrip(IdFor<Trip> tripId, HowIGotHere path) {
+            super(ReasonCode.SameTrip, path);
+            this.tripId = tripId;
+        }
+
+        @Override
+        public String textForGraph() {
+            return "SameTrip:"+tripId;
+        }
+    }
+
 
     ///////
 
@@ -363,13 +383,18 @@ public abstract class ServiceReason {
             super(reasonCode, elapsedTime, path);
             this.serviceId = serviceId;
         }
+
+        @Override
+        public String textForGraph() {
+            return format("ServiceDoesNotOperateOnTime:%s%s%s", serviceId, System.lineSeparator(), elapsedTime);
+        }
     }
 
     //////////////
 
     private static class DoesNotOperateOnTime extends ServiceReason
     {
-        private final TramTime elapsedTime;
+        protected final TramTime elapsedTime;
 
         protected DoesNotOperateOnTime(ReasonCode reasonCode, TramTime elapsedTime, HowIGotHere path) {
             super(reasonCode, path);
@@ -504,6 +529,10 @@ public abstract class ServiceReason {
 
     public static ServiceReason AlreadySeenStation(IdFor<Station> stationId, HowIGotHere howIGotHere) {
         return new AlreadySeenStation(stationId, howIGotHere);
+    }
+
+    public static ServiceReason SameTrip(IdFor<Trip> tripId, HowIGotHere howIGotHere) {
+        return new SameTrip(tripId, howIGotHere);
     }
 
 }

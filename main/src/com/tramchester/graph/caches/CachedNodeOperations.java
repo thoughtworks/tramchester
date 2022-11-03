@@ -37,6 +37,7 @@ public class CachedNodeOperations implements ReportsCacheStats, NodeContentsRepo
 
     private final Cache<Long, IdFor<Trip>> tripIdRelationshipCache;
     private final Cache<Long, IdFor<Service>> serviceNodeCache;
+    private final Cache<Long, IdFor<Trip>> tripNodeCache;
     private final Cache<Long, IdFor<RouteStation>> routeStationIdCache;
 
     private final Cache<Long, Duration> relationshipCostCache;
@@ -55,6 +56,7 @@ public class CachedNodeOperations implements ReportsCacheStats, NodeContentsRepo
         routeStationIdCache = createCache("routeStationIdCache", GraphLabel.ROUTE_STATION);
         timeNodeCache = createCache("timeNodeCache", GraphLabel.MINUTE);
         serviceNodeCache = createCache("serviceNodeCache", GraphLabel.SERVICE);
+        tripNodeCache = createCache("tripNodeCache", GraphLabel.MINUTE);
 
         labelCache = Caffeine.newBuilder().maximumSize(50000).
                 expireAfterAccess(10, TimeUnit.MINUTES).
@@ -107,7 +109,7 @@ public class CachedNodeOperations implements ReportsCacheStats, NodeContentsRepo
         return result;
     }
 
-    public IdFor<Trip> getTrip(Relationship relationship) {
+    public IdFor<Trip> getTripId(Relationship relationship) {
         long relationshipId = relationship.getId();
         return tripIdRelationshipCache.get(relationshipId, id -> GraphProps.getTripId(relationship));
     }
@@ -126,6 +128,12 @@ public class CachedNodeOperations implements ReportsCacheStats, NodeContentsRepo
     public IdFor<Service> getServiceId(Node node) {
         long nodeId = node.getId();
         return serviceNodeCache.get(nodeId, id -> GraphProps.getServiceId(node));
+    }
+
+    @Override
+    public IdFor<Trip> getTripId(Node node) {
+        long nodeId = node.getId();
+        return tripNodeCache.get(nodeId, id -> GraphProps.getTripId(node));
     }
 
     public int getHour(Node node) {

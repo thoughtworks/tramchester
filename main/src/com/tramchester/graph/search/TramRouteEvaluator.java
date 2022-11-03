@@ -1,6 +1,8 @@
 package com.tramchester.graph.search;
 
 import com.tramchester.config.TramchesterConfig;
+import com.tramchester.domain.id.IdFor;
+import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.Durations;
 import com.tramchester.domain.time.ProvidesNow;
@@ -9,6 +11,7 @@ import com.tramchester.graph.caches.LowestCostSeen;
 import com.tramchester.graph.caches.NodeContentsRepository;
 import com.tramchester.graph.caches.PreviousVisits;
 import com.tramchester.graph.graphbuild.GraphLabel;
+import com.tramchester.graph.graphbuild.GraphProps;
 import com.tramchester.graph.search.stateMachine.HowIGotHere;
 import org.jetbrains.annotations.NotNull;
 import org.neo4j.graphdb.Node;
@@ -113,7 +116,7 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
                     TookTooLong, ServiceNotRunningAtTime, NotAtHour, DoesNotOperateOnTime, NotOnQueryDate, MoreChanges,
                     AlreadyDeparted, StationClosed, TooManyNeighbourConnections, TimedOut, RouteNotOnQueryDate, HigherCostViaExchange,
                     ExchangeNotReachable, TooManyRouteChangesRequired, TooManyInterchangesRequired, AlreadySeenStation,
-                    TransportModeWrong
+                    TransportModeWrong, SameTrip
                     -> Evaluation.EXCLUDE_AND_PRUNE;
             case OnTram, OnBus, OnTrain, NotOnVehicle, CachedUNKNOWN, PreviousCacheMiss, NumWalkingConnectionsOk,
                     NeighbourConnectionsOk, OnShip, OnSubway, OnWalk, CachedNotAtHour,
@@ -196,9 +199,14 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
         // --> Minute
         // check time
         if (nodeLabels.contains(GraphLabel.MINUTE)) {
-            ServiceReason serviceReason = serviceHeuristics.checkTime(howIGotHere, nextNode, visitingTime, reasons, timeToWait);
-            if (!serviceReason.isValid()) {
-                return serviceReason.getReasonCode();
+            ServiceReason serviceReasonTripCheck = serviceHeuristics.checkNotBeenOnTripBefore(howIGotHere, nextNode, journeyState, reasons);
+            if (!serviceReasonTripCheck.isValid()) {
+                return serviceReasonTripCheck.getReasonCode();
+            }
+
+            ServiceReason serviceReasonTimeCheck = serviceHeuristics.checkTime(howIGotHere, nextNode, visitingTime, reasons, timeToWait);
+            if (!serviceReasonTimeCheck.isValid()) {
+                return serviceReasonTimeCheck.getReasonCode();
             }
         }
 

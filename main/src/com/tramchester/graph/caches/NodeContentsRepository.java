@@ -18,13 +18,15 @@ public interface NodeContentsRepository  {
 
     IdFor<RouteStation> getRouteStationId(Node node);
     IdFor<Service> getServiceId(Node node);
+    IdFor<Trip> getTripId(Node node);
 
     TramTime getTime(Node node);
     int getHour(Node node);
 
-    IdFor<Trip> getTrip(Relationship relationship);
+    IdFor<Trip> getTripId(Relationship relationship);
     Duration getCost(Relationship lastRelationship);
     void deleteFromCostCache(Relationship relationship);
 
     EnumSet<GraphLabel> getLabels(Node node);
+
 }

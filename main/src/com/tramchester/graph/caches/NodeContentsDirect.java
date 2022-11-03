@@ -29,6 +29,11 @@ public class NodeContentsDirect implements NodeContentsRepository {
     }
 
     @Override
+    public IdFor<Trip> getTripId(Node node) {
+        return GraphProps.getTripId(node);
+    }
+
+    @Override
     public TramTime getTime(Node node) {
         return GraphProps.getTime(node);
     }
@@ -39,7 +44,7 @@ public class NodeContentsDirect implements NodeContentsRepository {
     }
 
     @Override
-    public IdFor<Trip> getTrip(Relationship relationship) {
+    public IdFor<Trip> getTripId(Relationship relationship) {
         return GraphProps.getTripId(relationship);
     }
 

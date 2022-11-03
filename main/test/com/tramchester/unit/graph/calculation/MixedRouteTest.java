@@ -7,6 +7,7 @@ import com.tramchester.config.GTFSSourceConfig;
 import com.tramchester.config.RemoteDataSourceConfig;
 import com.tramchester.domain.Journey;
 import com.tramchester.domain.JourneyRequest;
+import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.presentation.TransportStage;
 import com.tramchester.domain.reference.GTFSTransportationType;
@@ -73,7 +74,7 @@ class MixedRouteTest {
     void beforeEachTestRuns() {
         txn = database.beginTx();
 
-        queryDate = new TramServiceDate(LocalDate.of(2014,6,30));
+        queryDate = new TramServiceDate(TramDate.of(2014,6,30));
         queryTime = TramTime.of(7, 57);
     }
 

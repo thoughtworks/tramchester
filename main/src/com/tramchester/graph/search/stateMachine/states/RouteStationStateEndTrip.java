@@ -2,6 +2,7 @@ package com.tramchester.graph.search.stateMachine.states;
 
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.exceptions.TramchesterException;
+import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.graph.graphbuild.GraphProps;
 import com.tramchester.graph.search.JourneyStateUpdate;
@@ -39,7 +40,7 @@ public class RouteStationStateEndTrip extends RouteStationState {
             return RouteStationStateEndTrip.class;
         }
 
-        public RouteStationStateEndTrip fromMinuteState(MinuteState minuteState, Node node, Duration cost, boolean isInterchange) {
+        public RouteStationStateEndTrip fromMinuteState(MinuteState minuteState, Node node, Duration cost, boolean isInterchange, Trip trip) {
             TransportMode transportMode = GraphProps.getTransportMode(node);
 
             // TODO Crossing midnight?
@@ -48,24 +49,26 @@ public class RouteStationStateEndTrip extends RouteStationState {
             List<Relationship> towardsDestination = getTowardsDestination(minuteState.traversalOps, node, date);
             if (!towardsDestination.isEmpty()) {
                 // we've nearly arrived
-                return new RouteStationStateEndTrip(minuteState, towardsDestination.stream(), cost, transportMode, node);
+                return new RouteStationStateEndTrip(minuteState, towardsDestination.stream(), cost, transportMode, node, trip);
             }
 
             Stream<Relationship> outboundsToFollow = getOutboundsToFollow(node, isInterchange, date);
 
-            return new RouteStationStateEndTrip(minuteState, outboundsToFollow, cost, transportMode, node);
+            return new RouteStationStateEndTrip(minuteState, outboundsToFollow, cost, transportMode, node, trip);
         }
 
     }
 
     private final TransportMode mode;
     private final Node routeStationNode;
+    private final Trip trip;
 
     private RouteStationStateEndTrip(MinuteState minuteState, Stream<Relationship> routeStationOutbound, Duration cost,
-                                     TransportMode mode, Node routeStationNode) {
+                                     TransportMode mode, Node routeStationNode, Trip trip) {
         super(minuteState, routeStationOutbound, cost);
         this.mode = mode;
         this.routeStationNode = routeStationNode;
+        this.trip = trip;
     }
 
     @Override
@@ -87,7 +90,7 @@ public class RouteStationStateEndTrip extends RouteStationState {
 
     private void leaveVehicle(JourneyStateUpdate journeyState) {
         try {
-            journeyState.leave(mode, getTotalDuration(), routeStationNode);
+            journeyState.leave(trip.getId(), mode, getTotalDuration(), routeStationNode);
         } catch (TramchesterException e) {
             throw new RuntimeException("Unable to leave " + mode, e);
         }

@@ -62,7 +62,7 @@ public class MinuteState extends TraversalState {
 
         private List<Relationship> filterBySingleTripId(Iterable<Relationship> relationships, IdFor<Trip> existingTripId) {
             return Streams.stream(relationships).
-                    filter(relationship -> nodeContents.getTrip(relationship).equals(existingTripId)).
+                    filter(relationship -> nodeContents.getTripId(relationship).equals(existingTripId)).
                     collect(Collectors.toList());
 
         }
@@ -97,11 +97,11 @@ public class MinuteState extends TraversalState {
     }
 
     @Override
-    protected RouteStationStateEndTrip toRouteStationEndTrip(RouteStationStateEndTrip.Builder towardsRouteStation,
+    protected RouteStationStateEndTrip toRouteStationEndTrip(RouteStationStateEndTrip.Builder towardsEndTrip,
                                                              Node routeStationNode,
                                                              Duration cost, boolean isInterchange) {
 
-        return towardsRouteStation.fromMinuteState(this, routeStationNode, cost, isInterchange);
+        return towardsEndTrip.fromMinuteState(this, routeStationNode, cost, isInterchange, trip);
     }
 
     @Override

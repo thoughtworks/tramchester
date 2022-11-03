@@ -200,7 +200,7 @@ class RouteCalculatorLocalStationsSubGraphTest {
         JourneyRequest request = new JourneyRequest(new TramServiceDate(when), time, false, 1,
                 Duration.ofMinutes(240), 1, getRequestedModes());
 
-        //request.setDiag(true);
+        request.setDiag(true);
 
         Station start = tram(TramStations.Altrincham); // TRAM
         Station dest = rail(RailStationIds.Stockport);

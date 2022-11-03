@@ -4,6 +4,7 @@ import com.google.common.collect.Sets;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.Service;
 import com.tramchester.domain.id.IdFor;
+import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
@@ -255,6 +256,8 @@ public class ServiceHeuristics {
 
     public ServiceReason notAlreadySeen(ImmutableJourneyState journeyState, Node nextNode, final HowIGotHere howIGotHere,
                                         ServiceReasons reasons) {
+        reasons.incrementTotalChecked();
+
         IdFor<Station> stationId = GraphProps.getStationId(nextNode);
         if (journeyState.hasVisited(stationId)) {
             return reasons.recordReason(ServiceReason.AlreadySeenStation(stationId, howIGotHere));
@@ -263,4 +266,13 @@ public class ServiceHeuristics {
     }
 
 
+    public ServiceReason checkNotBeenOnTripBefore(HowIGotHere howIGotHere, Node minuteNode, ImmutableJourneyState journeyState, ServiceReasons reasons) {
+        reasons.incrementTotalChecked();
+
+        IdFor<Trip> tripId = nodeOperations.getTripId(minuteNode);
+        if (journeyState.alreadyDeparted(tripId)) {
+            return reasons.recordReason(ServiceReason.SameTrip(tripId, howIGotHere));
+        }
+        return valid(ServiceReason.ReasonCode.Continue, howIGotHere, reasons);
+    }
 }

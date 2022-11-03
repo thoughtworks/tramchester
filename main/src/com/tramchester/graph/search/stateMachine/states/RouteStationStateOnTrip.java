@@ -73,7 +73,6 @@ public class RouteStationStateOnTrip extends RouteStationState implements NodeId
             return new RouteStationStateOnTrip(minuteState, relationships, cost, node, trip.getId(), transportMode);
         }
 
-
         private Stream<Relationship> filterByTripId(Iterable<Relationship> svcRelationships, Trip trip) {
             IdFor<Service> currentSvcId = trip.getService().getId();
             return Streams.stream(svcRelationships).
@@ -103,8 +102,8 @@ public class RouteStationStateOnTrip extends RouteStationState implements NodeId
     }
 
     @Override
-    protected TraversalState toPlatform(PlatformState.Builder towardsPlatform, Node node, Duration cost, JourneyStateUpdate journeyState) {
-        //TransportMode actualMode = GraphProps.getTransportMode(node);
+    protected TraversalState toPlatform(PlatformState.Builder towardsPlatform, Node node, Duration cost,
+                                        JourneyStateUpdate journeyState) {
 
         leaveVehicle(journeyState, transportMode, "Unable to process platform");
         return towardsPlatform.fromRouteStationOnTrip(this, node, cost);
@@ -112,7 +111,7 @@ public class RouteStationStateOnTrip extends RouteStationState implements NodeId
 
     private void leaveVehicle(JourneyStateUpdate journeyState, TransportMode transportMode, String diag) {
         try {
-            journeyState.leave(transportMode, getTotalDuration(), routeStationNode);
+            journeyState.leave(tripId, transportMode, getTotalDuration(), routeStationNode);
         } catch (TramchesterException e) {
             throw new RuntimeException(diag, e);
         }

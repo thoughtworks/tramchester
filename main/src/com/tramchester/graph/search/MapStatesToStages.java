@@ -37,7 +37,7 @@ class MapStatesToStages implements JourneyStateUpdate {
     private final List<TransportStage<?, ?>> stages;
 
     private boolean onVehicle;
-    private IdFor<Trip> tripId;
+    //private IdFor<Trip> tripId;
 
     private Duration totalCost; // total cost of entire journey
     private TramTime actualTime; // updated each time pass minute node and know 'actual' time
@@ -101,7 +101,7 @@ class MapStatesToStages implements JourneyStateUpdate {
     }
 
     @Override
-    public void leave(TransportMode mode, Duration totalCost, Node routeStationNode) {
+    public void leave(IdFor<Trip> tripId, TransportMode mode, Duration totalCost, Node routeStationNode) {
         if (!onVehicle) {
             throw new RuntimeException("Not on vehicle");
         }
@@ -135,7 +135,7 @@ class MapStatesToStages implements JourneyStateUpdate {
     @Override
     public void beginTrip(IdFor<Trip> newTripId) {
         logger.debug("Begin trip:" + newTripId);
-        this.tripId = newTripId;
+        //this.tripId = newTripId;
     }
 
     @Override

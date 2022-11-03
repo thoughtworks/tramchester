@@ -5,6 +5,7 @@ import com.tramchester.domain.Service;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.id.IdFor;
+import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramTime;
@@ -39,6 +40,10 @@ public class MutableTrip implements Trip {
     // test support
     public static Trip build(IdFor<Trip> tripId, String headSign, Service service, Route route) {
         return new MutableTrip(tripId, headSign, service, route, route.getTransportMode());
+    }
+
+    public static IdFor<Trip> createId(String text) {
+        return StringIdFor.createId(text);
     }
 
     public void dispose() {

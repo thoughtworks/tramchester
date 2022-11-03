@@ -1,6 +1,5 @@
 package com.tramchester.graph.search.stateMachine.states;
 
-import com.google.common.collect.Streams;
 import com.tramchester.domain.exceptions.TramchesterException;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.caches.NodeContentsRepository;
@@ -44,10 +43,9 @@ public class HourState extends TraversalState {
             return HourState.class;
         }
 
-        Stream<Relationship> getMinuteRelationships(Node node) {
-            Stream<Relationship> relationships = Streams.stream(node.getRelationships(OUTGOING, TO_MINUTE));
+        private Stream<Relationship> getMinuteRelationships(Node node) {
+            Stream<Relationship> relationships = getRelationships(node, OUTGOING, TO_MINUTE);
             if (depthFirst) {
-                //return relationships.sorted(TramTime.comparing(GraphProps::getTime));
                 return relationships.
                         sorted(TramTime.comparing(relationship -> nodeContents.getTime(relationship.getEndNode())));
             }

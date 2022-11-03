@@ -12,7 +12,7 @@ import java.time.Duration;
 
 public interface JourneyStateUpdate {
     void board(TransportMode transportMode, Node node, boolean hasPlatform) throws TramchesterException;
-    void leave(TransportMode mode, Duration totalCost, Node node) throws TramchesterException;
+    void leave(IdFor<Trip> trip, TransportMode mode, Duration totalCost, Node node) throws TramchesterException;
 
     void beginTrip(IdFor<Trip> newTripId);
 

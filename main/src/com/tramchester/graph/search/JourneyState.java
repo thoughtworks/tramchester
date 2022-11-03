@@ -2,6 +2,7 @@ package com.tramchester.graph.search;
 
 import com.tramchester.domain.exceptions.TramchesterException;
 import com.tramchester.domain.id.IdFor;
+import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
@@ -27,12 +28,14 @@ public class JourneyState implements ImmutableJourneyState, JourneyStateUpdate {
     private Duration journeyOffset;
     private TramTime boardingTime;
     private TraversalState traversalState;
+    private final IdSet<Trip> tripsDone;
 
     public JourneyState(TramTime queryTime, TraversalState traversalState) {
         coreState = new CoreState(queryTime);
 
         this.traversalState = traversalState;
         journeyOffset = Duration.ZERO;
+        tripsDone = new IdSet<>();
     }
 
     public static JourneyState fromPrevious(ImmutableJourneyState previousState) {
@@ -40,11 +43,13 @@ public class JourneyState implements ImmutableJourneyState, JourneyStateUpdate {
     }
 
     // Copy cons
+    // NOTE: vital to copy any collections here, otherwise different search branches interfere with each other
     private JourneyState(JourneyState previousState) {
         this.coreState = new CoreState(previousState.coreState);
 
         this.journeyOffset = previousState.journeyOffset;
         this.traversalState = previousState.traversalState;
+        this.tripsDone = IdSet.copy(previousState.tripsDone);
         if (coreState.onBoard()) {
             this.boardingTime = previousState.boardingTime;
         }
@@ -118,11 +123,12 @@ public class JourneyState implements ImmutableJourneyState, JourneyStateUpdate {
     }
 
     @Override
-    public void leave(TransportMode mode, Duration totalDuration, Node node) throws TramchesterException {
+    public void leave(IdFor<Trip> tripId, TransportMode mode, Duration totalDuration, Node node) throws TramchesterException {
         if (!coreState.modeEquals(mode)) {
             throw new TramchesterException("Not currently on " +mode+ " was " + coreState.currentMode);
         }
         leave(totalDuration);
+        tripsDone.add(tripId);
         coreState.leaveVehicle();
     }
 
@@ -189,6 +195,11 @@ public class JourneyState implements ImmutableJourneyState, JourneyStateUpdate {
     @Override
     public boolean isOnDiversion() {
         return coreState.isOnDiversion();
+    }
+
+    @Override
+    public boolean alreadyDeparted(IdFor<Trip> tripId) {
+        return tripsDone.contains(tripId);
     }
 
     @Override
