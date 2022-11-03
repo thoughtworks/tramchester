@@ -21,7 +21,6 @@ import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.TramStations;
 import com.tramchester.testSupport.testTags.GMTest;
-import com.tramchester.testSupport.testTags.TrainTest;
 import org.junit.jupiter.api.*;
 import org.neo4j.graphdb.Transaction;
 

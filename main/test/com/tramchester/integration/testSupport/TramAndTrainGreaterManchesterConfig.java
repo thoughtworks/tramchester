@@ -22,7 +22,11 @@ public class TramAndTrainGreaterManchesterConfig extends IntegrationTramTestConf
     private static final String DB_NAME = "int_test_gm_tram_train.db";
 
     public TramAndTrainGreaterManchesterConfig() {
-        super(new TramAndTrainDBTestConfig(), true, IntegrationTestConfig.CurrentClosures);
+        this(DB_NAME);
+    }
+
+    public TramAndTrainGreaterManchesterConfig(String databaseName) {
+        super(new TramAndTrainDBTestConfig(databaseName), true, IntegrationTestConfig.CurrentClosures);
     }
 
     @Override
@@ -55,17 +59,6 @@ public class TramAndTrainGreaterManchesterConfig extends IntegrationTramTestConf
         return 10;
     }
 
-    private static class TramAndTrainDBTestConfig extends GraphDBTestConfig {
-        public TramAndTrainDBTestConfig() {
-            super("integrationTramTrainGMTest", DB_NAME);
-        }
-
-        @Override
-        public String getNeo4jPagecacheMemory() {
-            return "1000m";
-        }
-    }
-
     @Override
     public boolean hasNeighbourConfig() {
         return true;
@@ -88,5 +81,16 @@ public class TramAndTrainGreaterManchesterConfig extends IntegrationTramTestConf
     @Override
     public OpenLdbConfig getOpenldbwsConfig() {
         return new TestOpenLdbConfig();
+    }
+
+    private static class TramAndTrainDBTestConfig extends GraphDBTestConfig {
+        public TramAndTrainDBTestConfig(String databaseName) {
+            super("integrationTramTrainGMTest", databaseName);
+        }
+
+        @Override
+        public String getNeo4jPagecacheMemory() {
+            return "1000m";
+        }
     }
 }

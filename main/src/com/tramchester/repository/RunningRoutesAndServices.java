@@ -132,12 +132,12 @@ public class RunningRoutesAndServices {
         @Override
         public String toString() {
             return "FilterForDate{" +
-                    "servicesPreviousDay=" + HasId.asIds(servicesPreviousDay) +
-                    ", routesPreviousDay=" + HasId.asIds(routesPreviousDay) +
-                    ", servicesToday=" + HasId.asIds(servicesToday) +
-                    ", routesToday=" + HasId.asIds(routesToday) +
-                    ", servicesNextDay=" + HasId.asIds(servicesNextDay) +
-                    ", routesNextDay=" + HasId.asIds(routesNextDay) +
+                    "servicesPreviousDay=" + servicesPreviousDay.size() +
+                    ", routesPreviousDay=" + routesPreviousDay.size() +
+                    ", servicesToday=" + servicesToday.size() +
+                    ", routesToday=" + routesToday.size() +
+                    ", servicesNextDay=" + servicesNextDay.size() +
+                    ", routesNextDay=" + routesNextDay.size() +
                     '}';
         }
 

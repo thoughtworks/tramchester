@@ -94,10 +94,6 @@ public class JourneyConstraints {
         return maxWalkingConnections;
     }
 
-//    public int getMaxNumberWalkingConnections() {
-//        return maxNumberWalkingConnections;
-//    }
-
     public LowestCostsForDestRoutes getFewestChangesCalculator() {
         return lowestCostForDestinations;
     }

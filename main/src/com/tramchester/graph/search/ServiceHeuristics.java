@@ -114,35 +114,8 @@ public class ServiceHeuristics {
             return valid(ServiceReason.ReasonCode.TimeOk, howIGotHere, reasons);
         }
 
-//        if (currentTime.withinInterval(maxWait, nodeTime)) {
-//            return valid(ServiceReason.ReasonCode.TimeOk, howIGotHere, reasons);
-//        }
-
         return reasons.recordReason(ServiceReason.DoesNotOperateOnTime(currentTime, howIGotHere));
     }
-
-//    public ServiceReason interestedInHourOLD(HowIGotHere howIGotHere, TramTime journeyClockTime,
-//                                          ServiceReasons reasons, int maxWait, EnumSet<GraphLabel> labels) {
-//        reasons.incrementTotalChecked();
-//
-//        int queryTimeHour = journeyClockTime.getHourOfDay();
-//
-//        //noinspection SuspiciousMethodCalls
-//        if (labels.contains(GraphLabel.getHourLabel(queryTimeHour))) {
-//            // quick win
-//            return valid(ServiceReason.ReasonCode.HourOk, howIGotHere, reasons);
-//        }
-//
-//        int hour = GraphLabel.getHourFrom(labels);
-//
-//        TramTime currentHour = hour==0 ? TramTime.midnight() : TramTime.of(hour, 0);
-//
-//        if (journeyClockTime.withinInterval(maxWait, currentHour)) {
-//            return valid(ServiceReason.ReasonCode.HourOk, howIGotHere, reasons);
-//        }
-//
-//        return reasons.recordReason(ServiceReason.DoesNotOperateAtHour(journeyClockTime, howIGotHere));
-//    }
 
     public ServiceReason interestedInHour(HowIGotHere howIGotHere, TramTime journeyClockTime,
                                           ServiceReasons reasons, int maxWait, EnumSet<GraphLabel> labels) {
@@ -166,23 +139,8 @@ public class ServiceHeuristics {
             return valid(ServiceReason.ReasonCode.HourOk, howIGotHere, reasons);
         }
 
-//        TramTime endofWait = journeyClockTime.plus(Duration.ofMinutes(maxWait));
-//
-//        if (windowForHour.contains(endofWait)) {
-//            return valid(ServiceReason.ReasonCode.HourOk, howIGotHere, reasons);
-//        }
-
-//        int hour = GraphLabel.getHourFrom(labels);
-//
-//        TramTime currentHour = hour==0 ? TramTime.midnight() : TramTime.of(hour, 0);
-//
-//        if (journeyClockTime.withinInterval(maxWait, currentHour)) {
-//            return valid(ServiceReason.ReasonCode.HourOk, howIGotHere, reasons);
-//        }
-//
         return reasons.recordReason(ServiceReason.DoesNotOperateAtHour(journeyClockTime, howIGotHere));
     }
-
 
     public ServiceReason checkStationOpen(Node node, HowIGotHere howIGotHere, ServiceReasons reasons) {
         reasons.incrementTotalChecked();
