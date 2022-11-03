@@ -1,11 +1,13 @@
 package com.tramchester.graph.search.stateMachine.states;
 
 import com.google.common.collect.Streams;
+import com.tramchester.graph.TransportRelationshipTypes;
 import com.tramchester.graph.graphbuild.GraphLabel;
 import com.tramchester.graph.search.JourneyStateUpdate;
 import com.tramchester.graph.search.stateMachine.NodeId;
 import com.tramchester.graph.search.stateMachine.TraversalOps;
 import com.tramchester.graph.search.stateMachine.UnexpectedNodeTypeException;
+import org.neo4j.graphdb.Direction;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
 
@@ -51,6 +53,10 @@ public abstract class TraversalState implements ImmuatableTraversalState {
         this.outbounds = outbounds;
         this.costForLastEdge = costForLastEdge;
         this.parentCost = parent.getTotalDuration();
+    }
+
+    public static Stream<Relationship> getRelationships(Node node, Direction direction, TransportRelationshipTypes types) {
+        return Streams.stream(node.getRelationships(direction, types));
     }
 
     public TraversalState nextState(Set<GraphLabel> nodeLabels, Node node,

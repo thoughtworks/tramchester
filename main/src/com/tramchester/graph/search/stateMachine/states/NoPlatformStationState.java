@@ -45,9 +45,11 @@ public class NoPlatformStationState extends StationState {
 
         public NoPlatformStationState fromStart(NotStartedState notStartedState, Node node, Duration cost,
                                                 JourneyStateUpdate journeyState, boolean alreadyOnDiversion, boolean onDiversion) {
-            final Stream<Relationship> initial = boardRelationshipsPlus(node, WALKS_FROM_STATION, NEIGHBOUR, GROUPED_TO_PARENT);
+            final Stream<Relationship> neighbours = getRelationships(node, OUTGOING, NEIGHBOUR);
+            final Stream<Relationship> initial = boardRelationshipsPlus(node, WALKS_FROM_STATION, GROUPED_TO_PARENT);
             Stream<Relationship> relationships = addValidDiversions(node, initial, notStartedState, alreadyOnDiversion);
-            return new NoPlatformStationState(notStartedState, relationships, cost, node, journeyState);
+
+            return new NoPlatformStationState(notStartedState, Stream.concat(neighbours, relationships), cost, node, journeyState);
         }
 
         public TraversalState fromRouteStation(RouteStationStateEndTrip routeStationState, Node node, Duration cost,

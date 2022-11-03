@@ -197,8 +197,10 @@ class RouteCalculatorLocalStationsSubGraphTest {
     @Test
     void shouldTakeDirectTrainAltrinchamTramToStockportRail() {
 
-        JourneyRequest request = new JourneyRequest(new TramServiceDate(when), time, false, 2,
+        JourneyRequest request = new JourneyRequest(new TramServiceDate(when), time, false, 1,
                 Duration.ofMinutes(240), 1, getRequestedModes());
+
+        //request.setDiag(true);
 
         Station start = tram(TramStations.Altrincham); // TRAM
         Station dest = rail(RailStationIds.Stockport);
@@ -218,10 +220,9 @@ class RouteCalculatorLocalStationsSubGraphTest {
     @Test
     void shouldTakeDirectTrainThenTramToTimperley() {
 
-        JourneyRequest request = new JourneyRequest(new TramServiceDate(when), time, false, 3,
+        TramTime fromStockportTime = TramTime.of(14,5);
+        JourneyRequest request = new JourneyRequest(new TramServiceDate(when), fromStockportTime, false, 3,
                 Duration.ofMinutes(240), 1, getRequestedModes());
-
-        request.setDiag(true);
 
         Station start = rail(RailStationIds.Stockport); // TRAM
         Station dest = tram(TramStations.Timperley);
