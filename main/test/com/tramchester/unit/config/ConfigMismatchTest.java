@@ -121,6 +121,8 @@ class ConfigMismatchTest {
 
         assertRailLiveData(appConfig.getOpenldbwsConfig(), testConfig.getOpenldbwsConfig());
 
+        checkDataSourceConfig(appConfig.getRailConfig(), testConfig.getRailConfig());
+
         checkRailDataVersionFor(appConfig);
         checkRailDataVersionFor(testConfig);
     }
@@ -164,13 +166,15 @@ class ConfigMismatchTest {
         assertRemoteSources(configRemoteSources, testRemoteSources, 3);
 
         RailConfig configRail = appConfig.getRailConfig();
-        RailConfig testRail = appConfig.getRailConfig();
+        RailConfig testRail = testConfig.getRailConfig();
 
         assertEquals(configRail.getStations(), testRail.getStations());
         assertEquals(configRail.getTimetable(), testRail.getTimetable());
         assertEquals(configRail.getModes(), testRail.getModes());
 
         assertRailLiveData(appConfig.getOpenldbwsConfig(), testConfig.getOpenldbwsConfig());
+
+        checkDataSourceConfig(configRail, testRail);
 
     }
 
@@ -212,6 +216,8 @@ class ConfigMismatchTest {
         assertEquals(appConfig.getQueryInterval(), accTestConfig.getQueryInterval(), "getQueryInterval");
         assertEquals(appConfig.getNumberQueries(), accTestConfig.getNumberQueries(), "getNumberQueries");
 
+        checkDataSourceConfig(appConfig.getRailConfig(), accTestConfig.getRailConfig());
+
         checkRailDataVersionFor(appConfig);
         checkRailDataVersionFor(accTestConfig);
 
@@ -229,7 +235,7 @@ class ConfigMismatchTest {
         assertEquals(expected.getStaticAssetCacheTimeSeconds(), testConfig.getStaticAssetCacheTimeSeconds(), "StaticAssetCacheTimeSeconds");
         assertEquals(expected.getMaxJourneyDuration(), testConfig.getMaxJourneyDuration(), "MaxJourneyDuration");
         assertEquals(expected.getMaxWait(), testConfig.getMaxWait(), "MaxWait");
-        assertEquals(expected.getMaxInitialWait(), testConfig.getMaxInitialWait(), "MaxInitialWait");
+//        assertEquals(expected.getMaxInitialWait(), testConfig.getMaxInitialWait(), "MaxInitialWait");
         assertEquals(expected.getChangeAtInterchangeOnly(), testConfig.getChangeAtInterchangeOnly(), "ChangeAtInterchangeOnly");
         assertEquals(expected.getWalkingMPH(), testConfig.getWalkingMPH(), "WalkingMPH");
         assertEquals(expected.getNearestStopRangeKM(), testConfig.getNearestStopRangeKM(), "NearestStopRangeKM");
@@ -308,8 +314,15 @@ class ConfigMismatchTest {
                 assertEquals(expectedDataSource.getStationClosures(), dataSourceConfig.getStationClosures(), "station closures");
             }
             assertEquals(expectedDataSource.getAddWalksForClosed(), dataSourceConfig.getAddWalksForClosed(), "AddWalksForClosed");
-            assertEquals(expectedDataSource.getOnlyMarkedInterchanges(), dataSourceConfig.getOnlyMarkedInterchanges());
+
+            checkDataSourceConfig(expectedDataSource, dataSourceConfig);
         }
+    }
+
+    private void checkDataSourceConfig(TransportDataSourceConfig expected, TransportDataSourceConfig testConfig) {
+        assertEquals(expected.getMaxInitialWait(), testConfig.getMaxInitialWait());
+        assertEquals(expected.getDataSourceId(), testConfig.getDataSourceId());
+        assertEquals(expected.getOnlyMarkedInterchanges(), testConfig.getOnlyMarkedInterchanges());
     }
 
     private void checkDBConfig(AppConfiguration expected, AppConfiguration testConfig) {

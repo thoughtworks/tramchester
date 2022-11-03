@@ -43,8 +43,8 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
     private final PreviousVisits previousVisits;
     private final LowestCostSeen bestResultSoFar;
 
-    private final int maxWait;
-    private final int maxInitialWait;
+    private final int maxWaitMins;
+    private final int maxInitialWaitMins;
     private final long startNodeId;
     private final Instant begin;
     private final long timeout;
@@ -53,21 +53,21 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
     public TramRouteEvaluator(ServiceHeuristics serviceHeuristics, Set<Long> destinationNodeIds,
                               NodeContentsRepository nodeContentsRepository, ServiceReasons reasons,
                               PreviousVisits previousVisits, LowestCostSeen bestResultSoFar, TramchesterConfig config,
-                              long startNodeId, Instant begin, ProvidesNow providesNow, Set<TransportMode> requestedModes) {
+                              long startNodeId, Instant begin, ProvidesNow providesNow, Set<TransportMode> requestedModes, Duration maxInitialWait) {
         this.serviceHeuristics = serviceHeuristics;
         this.destinationNodeIds = destinationNodeIds;
         this.nodeContentsRepository = nodeContentsRepository;
         this.reasons = reasons;
         this.previousVisits = previousVisits;
         this.bestResultSoFar = bestResultSoFar;
-        maxWait = config.getMaxWait();
-        maxInitialWait = config.getMaxInitialWait();
+        maxWaitMins = config.getMaxWait();
         timeout = config.getCalcTimeoutMillis();
         this.startNodeId = startNodeId;
         this.begin = begin;
         this.providesNow = providesNow;
         this.requestedModes = requestedModes;
         allModes = requestedModes.isEmpty();
+        this.maxInitialWaitMins = Math.toIntExact(maxInitialWait.toMinutes());
     }
 
     @Override
@@ -192,7 +192,7 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
         }
 
         final TramTime visitingTime = journeyState.getJourneyClock();
-        final int timeToWait = journeyState.hasBegunJourney() ? maxWait : maxInitialWait;
+        final int timeToWait = journeyState.hasBegunJourney() ? maxWaitMins : maxInitialWaitMins;
         // --> Minute
         // check time
         if (nodeLabels.contains(GraphLabel.MINUTE)) {

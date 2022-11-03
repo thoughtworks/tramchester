@@ -11,7 +11,6 @@ import com.tramchester.graph.caches.LowestCostSeen;
 import com.tramchester.graph.caches.NodeContentsRepository;
 import com.tramchester.graph.caches.PreviousVisits;
 import com.tramchester.graph.graphbuild.GraphLabel;
-import com.tramchester.graph.graphbuild.GraphProps;
 import com.tramchester.graph.search.stateMachine.TraversalOps;
 import com.tramchester.graph.search.stateMachine.states.ImmuatableTraversalState;
 import com.tramchester.graph.search.stateMachine.states.NotStartedState;
@@ -83,9 +82,10 @@ public class TramNetworkTraverser implements PathExpander<JourneyState> {
         }
 
         Instant begin = providesNow.getInstant();
+        Duration maxInitialWait = pathRequest.getMaxInitialWait();
         final TramRouteEvaluator tramRouteEvaluator = new TramRouteEvaluator(pathRequest.getServiceHeuristics(),
                 destinationNodeIds, nodeContentsRepository, reasons, previousSuccessfulVisit, lowestCostSeen, config,
-                startNode.getId(), begin, providesNow, pathRequest.getRequestedModes());
+                startNode.getId(), begin, providesNow, pathRequest.getRequestedModes(), maxInitialWait);
 
         LatLong destinationLatLon = sortsPosition.midPointFrom(destinations);
 

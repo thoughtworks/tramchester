@@ -5,6 +5,7 @@ import com.tramchester.domain.DataSourceID;
 import com.tramchester.domain.reference.TransportMode;
 
 import java.nio.file.Path;
+import java.time.Duration;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
@@ -19,6 +20,8 @@ public class TestRailConfig implements RailConfig {
         this.remoteConfig = remoteConfig;
     }
 
+    public static final int INITIAL_WAIT_MINS = 60;
+
     @Override
         public boolean getOnlyMarkedInterchanges() {
             return true;
@@ -29,7 +32,12 @@ public class TestRailConfig implements RailConfig {
             return DataSourceID.rail;
         }
 
-        @Override
+    @Override
+    public Duration getMaxInitialWait() {
+        return Duration.ofMinutes(INITIAL_WAIT_MINS);
+    }
+
+    @Override
         public Path getDataPath() {
             return Path.of("data/rail");
         }

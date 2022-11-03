@@ -8,6 +8,7 @@ import io.dropwizard.Configuration;
 import io.federecio.dropwizard.swagger.SwaggerBundleConfiguration;
 
 import java.nio.file.Path;
+import java.time.Duration;
 import java.time.ZoneId;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -47,9 +48,6 @@ public abstract class TramchesterConfig extends Configuration implements HasRemo
 
     // max time to wait for tram/connection
     public abstract int getMaxWait();
-
-    // max initial time to wait for service
-    public abstract int getMaxInitialWait();
 
     // max number of results to return via the API
     public abstract int getMaxNumResults();
@@ -149,6 +147,14 @@ public abstract class TramchesterConfig extends Configuration implements HasRemo
 
     public abstract boolean getPlanningEnabled();
 
+    public abstract boolean hasNeighbourConfig();
+
+    public abstract String getDistributionBucket();
+
+    public boolean hasRailConfig() {
+        return getRailConfig()!=null;
+    }
+
     public boolean onlyMarkedInterchange(Station station) {
         DataSourceID sourceId = station.getDataSourceID();
         TransportDataSourceConfig sourceConfig = getGetSourceConfigFor(sourceId);
@@ -171,11 +177,8 @@ public abstract class TramchesterConfig extends Configuration implements HasRemo
         }
     }
 
-    public abstract boolean hasNeighbourConfig();
-
-    public abstract String getDistributionBucket();
-
-    public boolean hasRailConfig() {
-        return getRailConfig()!=null;
+    public Duration getInitialMaxWaitFor(DataSourceID sourceId) {
+        TransportDataSourceConfig sourceConfig = getGetSourceConfigFor(sourceId);
+        return sourceConfig.getMaxInitialWait();
     }
 }

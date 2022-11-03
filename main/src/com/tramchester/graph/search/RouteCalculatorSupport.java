@@ -1,10 +1,7 @@
 package com.tramchester.graph.search;
 
 import com.tramchester.config.TramchesterConfig;
-import com.tramchester.domain.Journey;
-import com.tramchester.domain.JourneyRequest;
-import com.tramchester.domain.LocationSet;
-import com.tramchester.domain.NumberOfChanges;
+import com.tramchester.domain.*;
 import com.tramchester.domain.dates.TramServiceDate;
 import com.tramchester.domain.places.Location;
 import com.tramchester.domain.places.StationWalk;
@@ -31,10 +28,7 @@ import org.slf4j.LoggerFactory;
 
 import java.time.Duration;
 import java.time.Instant;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -240,9 +234,9 @@ public class RouteCalculatorSupport {
     }
 
     public PathRequest createPathRequest(Node startNode, TramServiceDate queryDate, TramTime actualQueryTime, Set<TransportMode>
-            requestedModes, int numChanges, JourneyConstraints journeyConstraints) {
+            requestedModes, int numChanges, JourneyConstraints journeyConstraints, Duration maxInitialWait) {
         ServiceHeuristics serviceHeuristics = createHeuristics(actualQueryTime, journeyConstraints, numChanges);
-        return new PathRequest(startNode, queryDate, actualQueryTime, numChanges, serviceHeuristics, requestedModes);
+        return new PathRequest(startNode, queryDate, actualQueryTime, numChanges, serviceHeuristics, requestedModes, maxInitialWait);
     }
 
     public static class PathRequest {
@@ -252,14 +246,17 @@ public class RouteCalculatorSupport {
         private final ServiceHeuristics serviceHeuristics;
         private final TramServiceDate queryDate;
         private final Set<TransportMode> requestedModes;
+        private final Duration maxInitialWait;
 
-        public PathRequest(Node startNode, TramServiceDate queryDate, TramTime queryTime, int numChanges, ServiceHeuristics serviceHeuristics, Set<TransportMode> requestedModes) {
+        public PathRequest(Node startNode, TramServiceDate queryDate, TramTime queryTime, int numChanges,
+                           ServiceHeuristics serviceHeuristics, Set<TransportMode> requestedModes, Duration maxInitialWait) {
             this.startNode = startNode;
             this.queryDate = queryDate;
             this.queryTime = queryTime;
             this.numChanges = numChanges;
             this.serviceHeuristics = serviceHeuristics;
             this.requestedModes = requestedModes;
+            this.maxInitialWait = maxInitialWait;
         }
 
         public ServiceHeuristics getServiceHeuristics() {
@@ -283,6 +280,7 @@ public class RouteCalculatorSupport {
                     ", serviceHeuristics=" + serviceHeuristics +
                     ", queryDate=" + queryDate +
                     ", requestedModes=" + requestedModes +
+                    ", maxInitialWait=" + maxInitialWait +
                     '}';
         }
 
@@ -293,6 +291,26 @@ public class RouteCalculatorSupport {
         public Set<TransportMode> getRequestedModes() {
             return requestedModes;
         }
+
+        public Duration getMaxInitialWait() {
+            return maxInitialWait;
+        }
+    }
+
+    public static Duration getMaxInitialWaitFor(Location<?> location, TramchesterConfig config) {
+        DataSourceID dataSourceID = location.getDataSourceID();
+        return config.getInitialMaxWaitFor(dataSourceID);
+    }
+
+    public static Duration getMaxInitialWaitFor(Set<StationWalk> stationWalks, TramchesterConfig config) {
+        Optional<Duration> longestWait = stationWalks.stream().
+                map(StationWalk::getStation).
+                map(station -> getMaxInitialWaitFor(station, config)).
+                max(Duration::compareTo);
+        if (longestWait.isEmpty()) {
+            throw new RuntimeException("Could not compute inital max wait for " + stationWalks);
+        }
+        return longestWait.get();
     }
 
     public static class InitialWalksFinished {

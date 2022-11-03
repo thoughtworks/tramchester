@@ -45,6 +45,7 @@ class RouteCalculatorLocalStationsSubGraphTest {
     private static final List<IdFor<Station>> stationIds = Arrays.asList(
             TramStations.Altrincham.getId(),
             TramStations.NavigationRoad.getId(),
+            TramStations.Timperley.getId(),
             RailStationIds.Altrincham.getId(),
             RailStationIds.NavigationRaod.getId(),
             RailStationIds.Stockport.getId());
@@ -212,6 +213,29 @@ class RouteCalculatorLocalStationsSubGraphTest {
         assertEquals(stages.get(0).getMode(), Connect, "wrong first stage for " + stages);
         assertEquals(stages.get(1).getMode(), Train, "wrong second stage for " + stages);
 
+    }
+
+    @Test
+    void shouldTakeDirectTrainThenTramToTimperley() {
+
+        JourneyRequest request = new JourneyRequest(new TramServiceDate(when), time, false, 3,
+                Duration.ofMinutes(240), 1, getRequestedModes());
+
+        request.setDiag(true);
+
+        Station start = rail(RailStationIds.Stockport); // TRAM
+        Station dest = tram(TramStations.Timperley);
+
+        List<Journey> journeys = new ArrayList<>(testFacade.calculateRouteAsSet(start, dest, request));
+        assertFalse(journeys.isEmpty(), "no journeys");
+
+        Journey journey = journeys.get(0);
+
+        List<TransportStage<?, ?>> stages = journey.getStages();
+        assertEquals(3, stages.size(),  "too many stages " + journeys);
+        assertEquals(stages.get(0).getMode(), Train, "wrong first stage for " + journey);
+        assertEquals(stages.get(1).getMode(), Connect, "wrong second stage for " + journey);
+        assertEquals(stages.get(2).getMode(), Tram, "wrong third stage for " + journey);
     }
 
     @Test

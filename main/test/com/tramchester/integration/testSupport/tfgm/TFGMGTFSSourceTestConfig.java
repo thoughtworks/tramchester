@@ -9,6 +9,7 @@ import com.tramchester.domain.reference.TransportMode;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.Duration;
 import java.time.LocalDate;
 import java.util.Collections;
 import java.util.List;
@@ -26,23 +27,26 @@ public class TFGMGTFSSourceTestConfig implements GTFSSourceConfig {
     private final IdSet<Station> additionalInterchanges;
     private final Set<TransportMode> compositeStationModes;
     private final List<StationClosures> closedStations;
+    private final Duration maxInitialWait;
 
     public TFGMGTFSSourceTestConfig(String dataFolder, Set<GTFSTransportationType> sourceModes,
                                     Set<TransportMode> modesWithPlatforms, IdSet<Station> additionalInterchanges,
-                                    Set<TransportMode> compositeStationModes, List<StationClosures> closedStations) {
+                                    Set<TransportMode> compositeStationModes, List<StationClosures> closedStations, Duration maxInitialWait) {
         this.dataFolder = dataFolder;
         this.sourceModes = sourceModes;
         this.modesWithPlatforms = modesWithPlatforms;
         this.additionalInterchanges = additionalInterchanges;
         this.compositeStationModes = compositeStationModes;
         this.closedStations = closedStations;
+        //maxInitialWait = Duration.ofMinutes(13);
+        this.maxInitialWait = maxInitialWait;
     }
 
     public TFGMGTFSSourceTestConfig(String dataFolder, GTFSTransportationType mode, TransportMode modeWithPlatform,
                                     IdSet<Station> additionalInterchanges, Set<TransportMode> groupStationModes,
-                                    List<StationClosures> closedStations) {
+                                    List<StationClosures> closedStations, Duration maxInitialWait) {
         this(dataFolder, Collections.singleton(mode), Collections.singleton(modeWithPlatform),
-                additionalInterchanges, groupStationModes, closedStations);
+                additionalInterchanges, groupStationModes, closedStations, maxInitialWait);
     }
 
     @Override
@@ -98,5 +102,10 @@ public class TFGMGTFSSourceTestConfig implements GTFSSourceConfig {
     @Override
     public boolean getOnlyMarkedInterchanges() {
         return false;
+    }
+
+    @Override
+    public Duration getMaxInitialWait() {
+        return maxInitialWait;
     }
 }

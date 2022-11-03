@@ -60,10 +60,10 @@ public class IntegrationRailTestConfig extends IntegrationTestConfig {
         return 820;
     } // 13.5 hours Aberdeen to Penzance is ~810 minutes
 
-    @Override
-    public int getMaxInitialWait() {
-        return 25;
-    }
+//    @Override
+//    public int getMaxInitialWait() {
+//        return 25;
+//    }
 
     @Override
     public int getMaxWait() {

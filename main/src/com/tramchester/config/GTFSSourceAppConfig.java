@@ -13,6 +13,7 @@ import io.dropwizard.Configuration;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import java.nio.file.Path;
+import java.time.Duration;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Set;
@@ -69,6 +70,10 @@ public class GTFSSourceAppConfig extends Configuration implements GTFSSourceConf
     @JsonProperty("markedInterchangesOnly")
     private Boolean markedInterchangesOnly;
 
+    @NotNull
+    @JsonProperty("initialWaitMinutes")
+    private Integer initialWaitMinutes;
+
     @Override
     public String getName() {
         return name;
@@ -123,5 +128,10 @@ public class GTFSSourceAppConfig extends Configuration implements GTFSSourceConf
     @Override
     public boolean getOnlyMarkedInterchanges() {
         return markedInterchangesOnly;
+    }
+
+    @Override
+    public Duration getMaxInitialWait() {
+        return Duration.ofMinutes(initialWaitMinutes);
     }
 }

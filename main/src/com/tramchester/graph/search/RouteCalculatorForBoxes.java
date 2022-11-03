@@ -6,6 +6,7 @@ import com.tramchester.domain.*;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.dates.TramServiceDate;
 import com.tramchester.domain.id.IdSet;
+import com.tramchester.domain.places.Location;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.ProvidesNow;
@@ -23,6 +24,7 @@ import com.tramchester.repository.ClosedStationsRepository;
 import com.tramchester.repository.RouteInterchangeRepository;
 import com.tramchester.repository.RunningRoutesAndServices;
 import com.tramchester.repository.TransportData;
+import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Transaction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -105,9 +107,10 @@ public class RouteCalculatorForBoxes extends RouteCalculatorSupport {
 
                 Stream<Journey> journeys = startingStations.stream().
                         filter(start -> !destinations.contains(start)).
-                        map(start -> getLocationNodeSafe(txn, start)).
-                        flatMap(startNode -> numChangesRange(journeyRequest, numberOfChanges).
-                                map(numChanges -> createPathRequest(startNode, queryDate, originalTime, requestedModes, numChanges, journeyConstraints))).
+                        map(start -> new NodeAndStation(start, getLocationNodeSafe(txn, start))).
+                        flatMap(nodeAndStation -> numChangesRange(journeyRequest, numberOfChanges).
+                                map(numChanges -> createPathRequest(nodeAndStation.node, queryDate, originalTime, requestedModes, numChanges,
+                                        journeyConstraints, getMaxInitialWaitFor(nodeAndStation.location, config)))).
                         flatMap(pathRequest -> findShortestPath(txn, destinationNodeIds, destinations,
                                 createServiceReasons(journeyRequest, originalTime), pathRequest, journeyConstraints.getFewestChangesCalculator(),
                                 createPreviousVisits(), lowestCostSeenForBox, begin)).
@@ -123,6 +126,18 @@ public class RouteCalculatorForBoxes extends RouteCalculatorSupport {
             }
         });
 
+    }
+
+    private static class NodeAndStation {
+
+        private final Location<?> location;
+        private final Node node;
+
+        public NodeAndStation(Location<?> location, Node node) {
+
+            this.location = location;
+            this.node = node;
+        }
     }
 
     private NumberOfChanges computeNumberOfChanges(LocationSet starts, LocationSet destinations, TramDate date, TimeRange timeRange) {

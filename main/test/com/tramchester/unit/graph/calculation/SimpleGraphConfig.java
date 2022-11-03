@@ -10,6 +10,7 @@ import com.tramchester.integration.testSupport.tfgm.TFGMGTFSSourceTestConfig;
 import com.tramchester.testSupport.TestEnv;
 
 import java.nio.file.Path;
+import java.time.Duration;
 import java.util.Collections;
 import java.util.List;
 
@@ -24,7 +25,8 @@ public class SimpleGraphConfig extends IntegrationTestConfig {
     @Override
     protected List<GTFSSourceConfig> getDataSourceFORTESTING() {
         TFGMGTFSSourceTestConfig tfgmTestDataSourceConfig = new TFGMGTFSSourceTestConfig("data/tram",
-                GTFSTransportationType.tram, Tram, IdSet.emptySet(), Collections.emptySet(), Collections.emptyList());
+                GTFSTransportationType.tram, Tram, IdSet.emptySet(), Collections.emptySet(), Collections.emptyList(),
+                Duration.ofMinutes(13));
         return Collections.singletonList(tfgmTestDataSourceConfig);
     }
 

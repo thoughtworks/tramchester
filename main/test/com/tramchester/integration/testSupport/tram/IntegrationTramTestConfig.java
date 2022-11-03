@@ -15,6 +15,7 @@ import com.tramchester.testSupport.TestTramLiveDataConfig;
 import com.tramchester.testSupport.tfgm.TFGMRemoteDataSourceConfig;
 
 import java.nio.file.Path;
+import java.time.Duration;
 import java.util.Collections;
 import java.util.List;
 
@@ -46,7 +47,8 @@ public class IntegrationTramTestConfig extends IntegrationTestConfig {
         super(dbTestConfig);
         this.liveDataEnabled = liveDataEnabled;
         gtfsSourceConfig = new TFGMGTFSSourceTestConfig("data/tram", GTFSTransportationType.tram,
-                TransportMode.Tram, AdditionalTramInterchanges.stations(), Collections.emptySet(), closedStations);
+                TransportMode.Tram, AdditionalTramInterchanges.stations(), Collections.emptySet(), closedStations,
+                Duration.ofMinutes(13));
         remoteTFGMConfig = new TFGMRemoteDataSourceConfig("data/tram");
     }
 

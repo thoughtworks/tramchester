@@ -18,6 +18,7 @@ import com.tramchester.graph.search.routes.RouteToRouteCosts;
 import com.tramchester.integration.testSupport.RouteCalculatorTestFacade;
 import com.tramchester.integration.testSupport.rail.IntegrationRailTestConfig;
 import com.tramchester.integration.testSupport.rail.RailStationIds;
+import com.tramchester.integration.testSupport.rail.TestRailConfig;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.repository.TransportData;
 import com.tramchester.testSupport.TestEnv;
@@ -41,7 +42,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 @TrainTest
 class SubGraphAroundKnutsfordRailTest {
-    public static final int INITIAL_WAIT = 60;
+    //public static final int INITIAL_WAIT = 60;
     private static ComponentContainer componentContainer;
     private static GraphDatabase database;
     private static SubgraphConfig config;
@@ -111,7 +112,7 @@ class SubGraphAroundKnutsfordRailTest {
         Station hale = Hale.from(stationRepository);
         Station knutsford = Knutsford.from(stationRepository);
 
-        TimeRange timeRange = TimeRange.of(tramTime, tramTime.plusMinutes(INITIAL_WAIT));
+        TimeRange timeRange = TimeRange.of(tramTime, tramTime.plusMinutes(TestRailConfig.INITIAL_WAIT_MINS));
 
         Set<TransportMode> transportModes = Collections.singleton(Train);
 
@@ -142,7 +143,7 @@ class SubGraphAroundKnutsfordRailTest {
 
     @Test
     void shouldHaveNoChangesBetweenAllStations() {
-        TimeRange timeRange = TimeRange.of(tramTime, tramTime.plusMinutes(INITIAL_WAIT));
+        TimeRange timeRange = TimeRange.of(tramTime, tramTime.plusMinutes(TestRailConfig.INITIAL_WAIT_MINS));
         Set<TransportMode> transportModes = Collections.singleton(Train);
 
         for (RailStationIds startId: stations) {
@@ -187,9 +188,9 @@ class SubGraphAroundKnutsfordRailTest {
             super("subgraph_hale_trains_tramchester.db");
         }
 
-        @Override
-        public int getMaxInitialWait() {
-            return INITIAL_WAIT;
-        }
+//        @Override
+//        public int getMaxInitialWait() {
+//            return INITIAL_WAIT;
+//        }
     }
 }

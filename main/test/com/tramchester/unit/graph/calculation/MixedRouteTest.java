@@ -175,7 +175,7 @@ class MixedRouteTest {
 
             TFGMGTFSSourceTestConfig tfgmTestDataSourceConfig = new TFGMGTFSSourceTestConfig("unused",
                     modes, Collections.singleton(TransportMode.Tram),
-                    IdSet.emptySet(), Collections.emptySet(), Collections.emptyList());
+                    IdSet.emptySet(), Collections.emptySet(), Collections.emptyList(), Duration.ofMinutes(13));
             return Collections.singletonList(tfgmTestDataSourceConfig);
         }
 

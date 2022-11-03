@@ -81,10 +81,10 @@ public abstract class TestConfig extends AppConfiguration {
         return 25;
     }
 
-    @Override
-    public int getMaxInitialWait() {
-        return 13;
-    }
+//    @Override
+//    public int getMaxInitialWait() {
+//        return 13;
+//    }
 
     // see RouteCalculatorTest.shouldFindEndOfLinesToEndOfLines
     @Override

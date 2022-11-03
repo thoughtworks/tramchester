@@ -42,7 +42,8 @@ public class RouteCalculatorArriveBy implements TramRouteCalculator {
     public Stream<Journey> calculateRoute(Transaction txn, Location<?> startStation, Location<?> destination, JourneyRequest journeyRequest) {
         try {
             Duration costToDest = costCalculator.getAverageCostBetween(txn, startStation, destination, journeyRequest.getDate());
-            JourneyRequest departureTime = calcDepartTime(journeyRequest, costToDest);
+            Duration maxInitialWait = RouteCalculatorSupport.getMaxInitialWaitFor(startStation, config);
+            JourneyRequest departureTime = calcDepartTime(journeyRequest, costToDest, maxInitialWait);
             logger.info(format("Plan journey, arrive by %s so depart by %s", journeyRequest, departureTime));
             return routeCalculator.calculateRoute(txn, startStation, destination, departureTime);
         } catch (InvalidDurationException invalidDurationException) {
@@ -58,7 +59,8 @@ public class RouteCalculatorArriveBy implements TramRouteCalculator {
                                                    JourneyRequest journeyRequest, NumberOfChanges numberOfChanges) {
         try {
             Duration costToDest = costCalculator.getAverageCostBetween(txn, start, endOfWalk, journeyRequest.getDate());
-            JourneyRequest departureTime = calcDepartTime(journeyRequest, costToDest);
+            Duration maxInitialWait = RouteCalculatorSupport.getMaxInitialWaitFor(start, config);
+            JourneyRequest departureTime = calcDepartTime(journeyRequest, costToDest, maxInitialWait);
             logger.info(format("Plan journey, arrive by %s so depart by %s", journeyRequest, departureTime));
             return routeCalculator.calculateRouteWalkAtEnd(txn, start, endOfWalk, destStations, departureTime, numberOfChanges);
         } catch (InvalidDurationException invalidDurationException) {
@@ -66,7 +68,6 @@ public class RouteCalculatorArriveBy implements TramRouteCalculator {
                     invalidDurationException);
             return Stream.empty();
         }
-
     }
 
     @Override
@@ -74,7 +75,8 @@ public class RouteCalculatorArriveBy implements TramRouteCalculator {
                                                      JourneyRequest journeyRequest, NumberOfChanges numberOfChanges) {
         try {
             Duration costToDest = costCalculator.getAverageCostBetween(txn, origin, destination, journeyRequest.getDate());
-            JourneyRequest departureTime = calcDepartTime(journeyRequest, costToDest);
+            Duration maxInitialWait = RouteCalculatorSupport.getMaxInitialWaitFor(stationWalks, config);
+            JourneyRequest departureTime = calcDepartTime(journeyRequest, costToDest, maxInitialWait);
             logger.info(format("Plan journey, arrive by %s so depart by %s", journeyRequest, departureTime));
             return routeCalculator.calculateRouteWalkAtStart(txn, stationWalks, origin, destination, departureTime, numberOfChanges);
         } catch (InvalidDurationException invalidDurationException) {
@@ -90,7 +92,8 @@ public class RouteCalculatorArriveBy implements TramRouteCalculator {
                                                            JourneyRequest journeyRequest, NumberOfChanges numberOfChanges) {
         try {
             Duration costToDest = costCalculator.getAverageCostBetween(txn, startNode, endNode, journeyRequest.getDate());
-            JourneyRequest departureTime = calcDepartTime(journeyRequest, costToDest);
+            Duration maxInitialWait = RouteCalculatorSupport.getMaxInitialWaitFor(stationWalks, config);
+            JourneyRequest departureTime = calcDepartTime(journeyRequest, costToDest, maxInitialWait);
             logger.info(format("Plan journey, arrive by %s so depart by %s", journeyRequest, departureTime));
             return routeCalculator.calculateRouteWalkAtStartAndEnd(txn, stationWalks, startNode, endNode, destinationStations, departureTime, numberOfChanges);
         } catch (InvalidDurationException invalidDurationException) {
@@ -100,16 +103,19 @@ public class RouteCalculatorArriveBy implements TramRouteCalculator {
         }
     }
 
-    private JourneyRequest calcDepartTime(JourneyRequest originalRequest, Duration costToDest) {
+
+    private JourneyRequest calcDepartTime(JourneyRequest originalRequest, Duration costToDest, Duration maxInitialWait) {
         TramTime queryTime = originalRequest.getOriginalTime();
 
         final TramTime departTime = queryTime.minus(costToDest);
 
-        // TODO Handle buses & trains wait time here?
-        final int waitTime = config.getMaxInitialWait() / 2;
-        TramTime newQueryTime = departTime.minusMinutes(waitTime);
+        //final int waitTime = config.getMaxInitialWait() / 2;
+        final int waitTimeMinutes = Math.toIntExact(maxInitialWait.toMinutes() / 2);
+        TramTime newQueryTime = departTime.minusMinutes(waitTimeMinutes);
 
         return new JourneyRequest(originalRequest, newQueryTime);
     }
+
+
 
 }

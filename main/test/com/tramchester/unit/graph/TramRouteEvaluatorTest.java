@@ -71,6 +71,7 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
     private LowestCostSeen lowestCostSeen;
     private ProvidesNow providesNow;
     private LowestCostsForDestRoutes lowestCostsForRoutes;
+    private Duration maxInitialWait;
 
     @BeforeEach
     void onceBeforeEachTestRuns() {
@@ -98,9 +99,12 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
             protected List<GTFSSourceConfig> getDataSourceFORTESTING() {
                 return Collections.singletonList(new TFGMGTFSSourceTestConfig("data/tram",
                        GTFSTransportationType.tram, TransportMode.Tram, IdSet.emptySet(),
-                        Collections.emptySet(), Collections.emptyList()));
+                        Collections.emptySet(), Collections.emptyList(), Duration.ofMinutes(13)));
             }
         };
+
+        maxInitialWait = config.getInitialMaxWaitFor(DataSourceID.tfgm);
+
 
         latLongHint = TramStations.ManAirport.getLatLong();
         destinationNodeId = 88L;
@@ -150,8 +154,9 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
         destinationNodeIds.add(destinationNodeId);
         Instant begin = Instant.now();
         Set<TransportMode> requestedModes = Collections.emptySet(); // empty means all
+
         return new TramRouteEvaluator(serviceHeuristics, destinationNodeIds, contentsRepository,
-                reasons, previousSuccessfulVisit, lowestCostSeen, config, startNodeId, begin, providesNow, requestedModes);
+                reasons, previousSuccessfulVisit, lowestCostSeen, config, startNodeId, begin, providesNow, requestedModes, maxInitialWait);
     }
 
     @Test
@@ -735,7 +740,8 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
 
         EasyMock.expect(serviceHeuristics.journeyDurationUnderLimit(Duration.ZERO,howIGotHere, reasons)).
                 andReturn(ServiceReason.IsValid(ServiceReason.ReasonCode.DurationOk, howIGotHere));
-        EasyMock.expect(serviceHeuristics.interestedInHour(howIGotHere, time, reasons, config.getMaxInitialWait(), EnumSet.of(HOUR))).
+        int maxInitialWaitMins = (int) maxInitialWait.toMinutes();
+        EasyMock.expect(serviceHeuristics.interestedInHour(howIGotHere, time, reasons, maxInitialWaitMins, EnumSet.of(HOUR))).
                 andReturn(ServiceReason.DoesNotOperateOnTime(time, howIGotHere));
 
         EasyMock.expect(previousSuccessfulVisit.getPreviousResult(node, journeyState, labels)).andReturn(ServiceReason.ReasonCode.PreviousCacheMiss);

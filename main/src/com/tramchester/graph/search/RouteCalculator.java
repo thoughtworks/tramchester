@@ -97,7 +97,8 @@ public class RouteCalculator extends RouteCalculatorSupport implements TramRoute
             }
         }
 
-        return getJourneyStream(txn, startNode, endNode, journeyRequest, destinations, queryTimes, numberOfChanges).
+        Duration maxInitialWait = getMaxInitialWaitFor(start, config);
+        return getJourneyStream(txn, startNode, endNode, journeyRequest, destinations, queryTimes, numberOfChanges, maxInitialWait).
                 limit(journeyRequest.getMaxNumberOfJourneys());
     }
 
@@ -107,7 +108,9 @@ public class RouteCalculator extends RouteCalculatorSupport implements TramRoute
         Node startNode = getLocationNodeSafe(txn, start);
         final List<TramTime> queryTimes = createQueryTimes.generate(journeyRequest.getOriginalTime());
 
-        return getJourneyStream(txn, startNode, endOfWalk, journeyRequest, destinations, queryTimes, numberOfChanges).
+        Duration maxInitialWait = getMaxInitialWaitFor(start, config);
+
+        return getJourneyStream(txn, startNode, endOfWalk, journeyRequest, destinations, queryTimes, numberOfChanges, maxInitialWait).
                 limit(journeyRequest.getMaxNumberOfJourneys());
     }
 
@@ -120,7 +123,9 @@ public class RouteCalculator extends RouteCalculatorSupport implements TramRoute
         LocationSet destinations = LocationSet.singleton(destination);
         final List<TramTime> queryTimes = createQueryTimes.generate(journeyRequest.getOriginalTime(), stationWalks);
 
-        return getJourneyStream(txn, startOfWalkNode, endNode, journeyRequest, destinations, queryTimes, numberOfChanges).
+        Duration maxInitialWait = getMaxInitialWaitFor(stationWalks, config);
+
+        return getJourneyStream(txn, startOfWalkNode, endNode, journeyRequest, destinations, queryTimes, numberOfChanges, maxInitialWait).
                 takeWhile(finished::notDoneYet);
     }
 
@@ -131,12 +136,14 @@ public class RouteCalculator extends RouteCalculatorSupport implements TramRoute
         final InitialWalksFinished finished = new InitialWalksFinished(journeyRequest, stationWalks);
         final List<TramTime> queryTimes = createQueryTimes.generate(journeyRequest.getOriginalTime(), stationWalks);
 
-        return getJourneyStream(txn, startNode, endNode, journeyRequest, destinationStations, queryTimes, numberOfChanges).
+        Duration maxInitialWait = getMaxInitialWaitFor(stationWalks, config);
+        return getJourneyStream(txn, startNode, endNode, journeyRequest, destinationStations, queryTimes, numberOfChanges, maxInitialWait).
                 takeWhile(finished::notDoneYet);
     }
 
     private Stream<Journey> getJourneyStream(Transaction txn, Node startNode, Node endNode, JourneyRequest journeyRequest,
-                                             LocationSet destinations, List<TramTime> queryTimes, NumberOfChanges numberOfChanges) {
+                                             LocationSet destinations, List<TramTime> queryTimes, NumberOfChanges numberOfChanges,
+                                             Duration maxInitialWait) {
 
         if (numberOfChanges.getMin()==Integer.MAX_VALUE) {
             logger.error(format("Computed min number of changes is MAX_VALUE, journey %s is not possible?", journeyRequest));
@@ -178,7 +185,7 @@ public class RouteCalculator extends RouteCalculatorSupport implements TramRoute
 
         final Stream<Journey> results = numChangesRange(journeyRequest, numberOfChanges).
                 flatMap(numChanges -> queryTimes.stream().
-                        map(queryTime -> createPathRequest(startNode, queryServiceDate, queryTime, requestedModes, numChanges, journeyConstraints))).
+                        map(queryTime -> createPathRequest(startNode, queryServiceDate, queryTime, requestedModes, numChanges, journeyConstraints, maxInitialWait))).
                 flatMap(pathRequest -> findShortestPath(txn, destinationNodeIds, destinations,
                         createServiceReasons(journeyRequest, pathRequest), pathRequest, lowestCostsForRoutes, createPreviousVisits(),
                         lowestCostSeen, begin)).

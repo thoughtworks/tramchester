@@ -14,6 +14,7 @@ import com.tramchester.testSupport.TestEnv;
 import org.junit.jupiter.api.*;
 
 import java.nio.file.Path;
+import java.time.Duration;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
@@ -22,14 +23,13 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @Disabled("WIP")
 public class RailTimetableOverlaysTest {
-    private static TramchesterConfig config;
 
     private static ComponentContainer componentContainer;
     private TransportData transportData;
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
-        config = new RailOverlayTestConfig();
+        TramchesterConfig config = new RailOverlayTestConfig();
         componentContainer = new ComponentsBuilder().create(config, TestEnv.NoopRegisterMetrics());
         componentContainer.initialise();
     }
@@ -101,6 +101,11 @@ public class RailTimetableOverlaysTest {
                 @Override
                 public DataSourceID getDataSourceId() {
                     return DataSourceID.rail;
+                }
+
+                @Override
+                public Duration getMaxInitialWait() {
+                    return Duration.ofMinutes(45);
                 }
             };
         }

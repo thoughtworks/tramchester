@@ -10,6 +10,7 @@ import com.tramchester.testSupport.NeighbourTestConfig;
 import com.tramchester.testSupport.TestEnv;
 
 import java.nio.file.Path;
+import java.time.Duration;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
@@ -29,7 +30,7 @@ public class NeighboursTestConfig extends IntegrationBusTestConfig {
         final Set<TransportMode> compositeStationModes = Collections.singleton(Bus);
         return Collections.singletonList(
                 new TFGMGTFSSourceTestConfig("data/bus", TestEnv.tramAndBus,
-                        modesWithPlatforms, AdditionalTramInterchanges.stations(), compositeStationModes, Collections.emptyList()));
+                        modesWithPlatforms, AdditionalTramInterchanges.stations(), compositeStationModes, Collections.emptyList(), Duration.ofMinutes(13)));
     }
 
     @Override

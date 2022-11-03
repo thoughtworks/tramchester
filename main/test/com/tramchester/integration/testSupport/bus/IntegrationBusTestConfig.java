@@ -13,6 +13,7 @@ import com.tramchester.testSupport.tfgm.TFGMRemoteDataSourceConfig;
 import com.tramchester.testSupport.TestEnv;
 
 import java.nio.file.Path;
+import java.time.Duration;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -39,7 +40,7 @@ public class IntegrationBusTestConfig extends IntegrationTestConfig {
 
         gtfsSourceConfig = new TFGMGTFSSourceTestConfig("data/bus",
                 Collections.singleton(GTFSTransportationType.bus),
-                modesWithPlatforms, additionalInterchanges, compositeStationModes, Collections.emptyList());
+                modesWithPlatforms, additionalInterchanges, compositeStationModes, Collections.emptyList(), Duration.ofMinutes(45));
         remoteDataSourceConfig = new TFGMRemoteDataSourceConfig("data/bus");
     }
 
@@ -61,11 +62,6 @@ public class IntegrationBusTestConfig extends IntegrationTestConfig {
         return 15;
     }
 
-//    @Override
-//    public boolean getCreateNeighbours() {
-//        return false;
-//    }
-
     @Override
     public boolean hasNeighbourConfig() {
         return false;
@@ -74,11 +70,6 @@ public class IntegrationBusTestConfig extends IntegrationTestConfig {
     @Override
     public int getMaxWait() {
         return 35;
-    }
-
-    @Override
-    public int getMaxInitialWait() {
-        return 45;
     }
 
     @Override

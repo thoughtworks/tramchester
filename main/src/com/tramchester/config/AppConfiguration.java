@@ -57,9 +57,9 @@ public class AppConfiguration extends TramchesterConfig {
     @JsonProperty("maxWait")
     private Integer maxWait;
 
-    @NotNull
-    @JsonProperty("maxInitialWait")
-    private Integer maxInitialWait;
+//    @NotNull
+//    @JsonProperty("maxInitialWait")
+//    private Integer maxInitialWait;
 
     @NotNull
     @JsonProperty("queryInterval")
@@ -158,10 +158,10 @@ public class AppConfiguration extends TramchesterConfig {
         return maxWait;
     }
 
-    @Override
-    public int getMaxInitialWait() {
-        return maxInitialWait;
-    }
+//    @Override
+//    public int getMaxInitialWait() {
+//        return maxInitialWait;
+//    }
 
     @Override
     public int getMaxNumResults() {

@@ -9,6 +9,7 @@ import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.integration.testSupport.tfgm.TFGMGTFSSourceTestConfig;
 import com.tramchester.testSupport.reference.TramStations;
 
+import java.time.Duration;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
@@ -25,7 +26,8 @@ public class SimpleCompositeGraphConfig extends SimpleGraphConfig {
         final Set<TransportMode> compositeStationModes = Collections.singleton(Tram);
         final IdSet<Station> additionalInterchanges = IdSet.singleton(TramStations.Cornbrook.getId());
         TFGMGTFSSourceTestConfig tfgmTestDataSourceConfig = new TFGMGTFSSourceTestConfig("data/tram",
-                GTFSTransportationType.tram, Tram, additionalInterchanges, compositeStationModes, Collections.emptyList());
+                GTFSTransportationType.tram, Tram, additionalInterchanges, compositeStationModes,
+                Collections.emptyList(), Duration.ofMinutes(13));
         return Collections.singletonList(tfgmTestDataSourceConfig);
     }
 }
