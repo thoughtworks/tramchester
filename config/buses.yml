@@ -25,6 +25,7 @@ gtfsSourceConfig:
     dataPath: data/bus
     hasFeedInfo: true
     transportModes: [ bus ]
+    initialWaitMinutes: 45
     transportModesWithPlatforms: []
     noServices: []
     markedInterchangesOnly: false
@@ -63,7 +64,6 @@ bounds:
 instanceDataUrl: http://169.254.169.254
 planningEnabled: true
 maxWait: 35
-maxInitialWait: 45
 numberQueries: 3
 queryInterval: 20
 maxNumberResults: 5

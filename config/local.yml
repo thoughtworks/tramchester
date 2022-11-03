@@ -26,6 +26,7 @@ gtfsSourceConfig:
     hasFeedInfo: true
     transportModes: [ tram ]
     transportModesWithPlatforms: [ Tram ]
+    initialWaitMinutes: 13
     noServices: []
     markedInterchangesOnly: false
     additionalInterchanges: [9400ZZMAGMX]
@@ -63,7 +64,6 @@ tfgmTramliveData:
   maxNumberStationsWithoutData: 5
 planningEnabled: true
 maxWait: 25
-maxInitialWait: 13
 numberQueries: 3
 queryInterval: 10
 maxNumberResults: 5

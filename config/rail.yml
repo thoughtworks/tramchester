@@ -24,6 +24,7 @@ rail:
   dataPath: data/rail
   version: 411
   modes: [ Train, RailReplacementBus ]
+  initialWaitMinutes: 60
 remoteSources:
   - name: rail
     dataURL: ${RAIL_DATAURL:-s3://tramchester2dist/railData/ttis411.zip}
@@ -52,7 +53,6 @@ bounds:
   maxNorthings: 967921
 planningEnabled: true
 maxWait: 30
-maxInitialWait: 25
 numberQueries: 3
 queryInterval: 20
 maxNumberResults: 5

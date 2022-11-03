@@ -20,6 +20,7 @@ gtfsSourceConfig:
     hasFeedInfo: true
     transportModes: [ tram ]
     transportModesWithPlatforms: [ Tram ]
+    initialWaitMinutes: 13
     noServices: []
     markedInterchangesOnly: false
     additionalInterchanges: [9400ZZMAGMX]
@@ -59,6 +60,7 @@ rail:
   dataPath: data/rail
   version: 411
   modes: [ Train, RailReplacementBus ]
+  initialWaitMinutes: 60
 cacheFolder: data/cache
 calcTimeoutMillis: 3500
 bounds:
@@ -87,7 +89,6 @@ neighbourConfig:
     - first: "9400ZZMAAUL"
       second: "ASHONUL"
 maxWait: 25
-maxInitialWait: 13
 maxNumberResults: 5
 maxJourneyDuration:  124
 numberQueries: 3

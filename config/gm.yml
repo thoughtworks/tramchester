@@ -25,6 +25,7 @@ gtfsSourceConfig:
     hasFeedInfo: true
     transportModes: [ tram ]
     transportModesWithPlatforms: [ Tram ]
+    initialWaitMinutes: 13
     noServices: []
     markedInterchangesOnly: false
     additionalInterchanges: [9400ZZMAGMX]
@@ -43,6 +44,7 @@ rail:
   dataPath: data/rail
   version: 411
   modes: [ Train, RailReplacementBus ]
+  initialWaitMinutes: 60
 remoteSources:
   - name: rail
     dataURL: ${RAIL_DATAURL:-s3://tramchester2dist/railData/ttis411.zip}
@@ -94,7 +96,6 @@ neighbourConfig:
     - first: "9400ZZMAAUL"
       second: "ASHONUL"
 maxWait: 25
-maxInitialWait: 13
 numberQueries: 3
 queryInterval: 10
 maxNumberResults: 5
