@@ -11,7 +11,10 @@ import com.tramchester.repository.RouteRepository;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.KnownTramRoute;
 import com.tramchester.testSupport.testTags.DataUpdateTest;
+import com.tramchester.testSupport.testTags.PiccGardens2022;
+import com.tramchester.testSupport.testTags.VictoriaNov2022;
 import org.apache.commons.lang3.tuple.Pair;
+import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -20,6 +23,7 @@ import org.junit.jupiter.api.Test;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -53,13 +57,13 @@ class KnownTramRouteTest {
     void shouldHaveMatchWithLoadedRoutes() {
         Set<String> knownRouteNames = knownRoutes.stream().map(KnownTramRoute::longName).collect(Collectors.toSet());
 
-        Set<Route> loadedRoutes = routeRepository.getRoutes().stream().filter(route -> route.isAvailableOn(when)).collect(Collectors.toSet());
+        Set<Route> loadedRoutes = getLoadedRoutes().collect(Collectors.toSet());
 
         // NOTE: not checking numbers here as loaded data can contain the 'same' route but with different id
 
-        for (Route loaded: loadedRoutes) {
+        for (Route loaded : loadedRoutes) {
             final String loadedName = loaded.getName();
-            assertTrue(knownRouteNames.contains(loadedName), "missing from known '" + loaded.getName()+"' " + loaded.getId());
+            assertTrue(knownRouteNames.contains(loadedName), "missing from known '" + loaded.getName() + "' " + loaded.getId());
 
             KnownTramRoute matched = knownRoutes.stream().
                     filter(knownTramRoute -> knownTramRoute.longName().equals(loadedName)).findFirst().orElseThrow();
@@ -67,13 +71,22 @@ class KnownTramRouteTest {
             assertEquals(loaded.getShortName(), matched.shortName());
             assertEquals(loaded.getTransportMode(), matched.mode());
         }
+    }
 
-        Set<String> loadedRouteNames = loadedRoutes.stream().map(Route::getName).collect(Collectors.toSet());
+    @Test
+    void shouldHaveKnownRouteInLoadedData() {
+
+        Set<String> loadedRouteNames = getLoadedRoutes().map(Route::getName).collect(Collectors.toSet());
 
         for (KnownTramRoute knownTramRoute : knownRoutes) {
             assertTrue(loadedRouteNames.contains(knownTramRoute.longName()), "Missing from loaded " + knownTramRoute);
         }
 
+    }
+
+    @NotNull
+    private Stream<Route> getLoadedRoutes() {
+        return routeRepository.getRoutes().stream().filter(route -> route.isAvailableOn(when));
     }
 
     @Test

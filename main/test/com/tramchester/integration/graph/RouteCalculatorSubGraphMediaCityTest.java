@@ -7,8 +7,10 @@ import com.tramchester.config.GTFSSourceConfig;
 import com.tramchester.domain.Journey;
 import com.tramchester.domain.JourneyRequest;
 import com.tramchester.domain.StationClosures;
+import com.tramchester.domain.StationIdPair;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.dates.TramServiceDate;
+import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.GTFSTransportationType;
@@ -17,11 +19,13 @@ import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.filters.ConfigurableGraphFilter;
 import com.tramchester.graph.search.RouteCalculator;
+import com.tramchester.integration.testSupport.RouteCalculationCombinations;
 import com.tramchester.integration.testSupport.RouteCalculatorTestFacade;
 import com.tramchester.integration.testSupport.tfgm.TFGMGTFSSourceTestConfig;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
 import com.tramchester.repository.RouteRepository;
 import com.tramchester.repository.StationRepository;
+import com.tramchester.repository.TransportData;
 import com.tramchester.testSupport.AdditionalTramInterchanges;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TramRouteHelper;
@@ -33,8 +37,10 @@ import org.neo4j.graphdb.Transaction;
 
 import java.io.IOException;
 import java.nio.file.Path;
+import java.time.DayOfWeek;
 import java.time.Duration;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static com.tramchester.integration.testSupport.IntegrationTestConfig.VictoriaClosureDate;
 import static com.tramchester.testSupport.TestEnv.DAYS_AHEAD;
@@ -51,7 +57,7 @@ class RouteCalculatorSubGraphMediaCityTest {
     private RouteCalculatorTestFacade calculator;
     private final TramDate when = TestEnv.testDay();
 
-    private static final List<TramStations> stations = Arrays.asList(
+    private static final List<TramStations> tramStations = Arrays.asList(
             ExchangeSquare,
             StPetersSquare,
             Deansgate,
@@ -66,6 +72,8 @@ class RouteCalculatorSubGraphMediaCityTest {
     private Transaction txn;
 
     private Duration maxJourneyDuration;
+    private RouteCalculationCombinations combinations;
+    private StationRepository stationRepository;
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() throws IOException {
@@ -84,7 +92,7 @@ class RouteCalculatorSubGraphMediaCityTest {
     private static void configureFilter(ConfigurableGraphFilter toConfigure, RouteRepository routeRepository) {
         TramRouteHelper tramRouteHelper = new TramRouteHelper(routeRepository);
 
-        stations.forEach(station -> toConfigure.addStation(station.getId()));
+        tramStations.forEach(station -> toConfigure.addStation(station.getId()));
         toConfigure.addRoutes(tramRouteHelper.getId(AshtonUnderLyneManchesterEccles));
         toConfigure.addRoutes(tramRouteHelper.getId(RochdaleShawandCromptonManchesterEastDidisbury));
         toConfigure.addRoutes(tramRouteHelper.getId(EcclesManchesterAshtonUnderLyne));
@@ -100,8 +108,9 @@ class RouteCalculatorSubGraphMediaCityTest {
     @BeforeEach
     void beforeEachTestRuns() {
         maxJourneyDuration = Duration.ofMinutes(config.getMaxJourneyDuration());
-        StationRepository stationRepository = componentContainer.get(StationRepository.class);
+        stationRepository = componentContainer.get(StationRepository.class);
         txn = database.beginTx();
+        combinations = new RouteCalculationCombinations(componentContainer);
         calculator = new RouteCalculatorTestFacade(componentContainer.get(RouteCalculator.class), stationRepository, txn);
     }
 
@@ -121,28 +130,55 @@ class RouteCalculatorSubGraphMediaCityTest {
     @DataExpiryCategory
     @Test
     void shouldHaveJourneyFromEveryStationToEveryOtherNDaysAhead() {
-        List<String> failures = new LinkedList<>();
 
-        for (TramStations start: stations) {
-            for (TramStations destination: stations) {
-                if (!start.equals(destination)) {
-                    for (int i = 0; i < DAYS_AHEAD; i++) {
-                        TramDate day = when.plusDays(i);
-                        TramServiceDate serviceDate = new TramServiceDate(day);
-                        if (!serviceDate.isChristmasPeriod() && !VictoriaClosureDate.equals(day)) {
-                            JourneyRequest journeyRequest =
-                                    new JourneyRequest(new TramServiceDate(day), TramTime.of(9, 0), false,
-                                            3, maxJourneyDuration, 1, getRequestedModes());
-                            Set<Journey> journeys = calculator.calculateRouteAsSet(start, destination, journeyRequest);
-                            if (journeys.isEmpty()) {
-                                failures.add(day.getDayOfWeek() + ": " + start + "->" + destination);
-                            }
-                        }
-                    }
-                }
+        for (int i = 0; i < DAYS_AHEAD; i++) {
+            TramDate day = when.plusDays(i);
+            TramServiceDate serviceDate = new TramServiceDate(day);
+            if (!serviceDate.isChristmasPeriod() && !VictoriaClosureDate.equals(day)) {
+                JourneyRequest journeyRequest =
+                        new JourneyRequest(new TramServiceDate(day), TramTime.of(9, 0), false,
+                                3, maxJourneyDuration, 1, getRequestedModes());
+                checkAllStations(journeyRequest);
             }
         }
-        assertTrue(failures.isEmpty(), failures.toString());
+
+    }
+
+    @VictoriaNov2022
+    @Test
+    void shouldHaveJoruneyFromEveryStationToEveryOther() {
+
+        final TramTime time = TramTime.of(8, 5);
+
+        // 2 -> 4
+        int maxChanges = 4;
+        JourneyRequest journeyRequest = new JourneyRequest(when, time, false, maxChanges,
+                Duration.ofMinutes(config.getMaxJourneyDuration()), 1, Collections.emptySet());
+
+        // pairs of stations to check
+        checkAllStations(journeyRequest);
+    }
+
+    private void checkAllStations(JourneyRequest journeyRequest) {
+        Set<Station> stations = tramStations.stream().map(tramStations -> tramStations.from(stationRepository)).collect(Collectors.toSet());
+        Set<StationIdPair> stationIdPairs = stations.stream().flatMap(start -> stations.stream().
+                        filter(dest -> !combinations.betweenInterchanges(start, dest)).
+                        map(dest -> StationIdPair.of(start, dest))).
+                filter(pair -> !pair.same()).
+                filter(pair -> workaroundExchangeSquareDataIssue(pair, journeyRequest)).
+                collect(Collectors.toSet());
+
+        combinations.validateAllHaveAtLeastOneJourney(stationIdPairs, journeyRequest);
+    }
+
+    private boolean workaroundExchangeSquareDataIssue(StationIdPair pair, JourneyRequest journeyRequest) {
+        final TramDate date = journeyRequest.getDate().getDate();
+        final IdFor<Station> exchangeSquareId = ExchangeSquare.getId();
+
+        if (date.getDayOfWeek() == DayOfWeek.SUNDAY) {
+            return (!pair.getBeginId().equals(exchangeSquareId)) && (!pair.getEndId().equals(exchangeSquareId));
+        }
+        return true;
     }
 
     private Set<TransportMode> getRequestedModes() {

@@ -16,6 +16,7 @@ public class IntermediateLocationTest {
 
     @Test
     void shouldParseRecord() {
+        //             LIVAUXHLM 1551 1552      15511552         T
         String text = "LINEWSGAT 1852H1853      18531854123      T";
 
         IntermediateLocation intermediateLocation = parseWithPadding(text);

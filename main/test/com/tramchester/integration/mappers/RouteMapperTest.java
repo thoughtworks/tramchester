@@ -4,6 +4,7 @@ import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.dates.TramDate;
+import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.DTO.LocationRefWithPosition;
 import com.tramchester.domain.presentation.DTO.RouteDTO;
@@ -92,8 +93,9 @@ class RouteMapperTest {
 
         List<Station> results = mapper.getStationsOn(fromTraffordCenter, false);
 
-        assertEquals(TraffordCentre.getId(), results.get(0).getId());
-        assertEquals(Cornbrook.getId(), results.get(results.size()-1).getId());
+        assertEquals(TraffordCentre.getId(), results.get(0).getId(), HasId.asIds(results));
+        Station seventhStopAfterTrafford = results.get(7);
+        assertEquals(Cornbrook.getId(), seventhStopAfterTrafford.getId(), HasId.asIds(results));
 
     }
 }

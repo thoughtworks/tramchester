@@ -2,42 +2,28 @@ package com.tramchester.integration.rail;
 
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.GuiceContainerDependencies;
-import com.tramchester.config.RailConfig;
-import com.tramchester.config.TramchesterConfig;
 import com.tramchester.dataimport.UnzipFetchedData;
-import com.tramchester.dataimport.rail.*;
-import com.tramchester.dataimport.rail.records.RailTimetableRecord;
-import com.tramchester.dataimport.rail.repository.RailRouteIdRepository;
-import com.tramchester.dataimport.rail.repository.RailStationCRSRepository;
 import com.tramchester.domain.Service;
+import com.tramchester.domain.dates.DateRange;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.input.StopCalls;
 import com.tramchester.domain.input.Trip;
-import com.tramchester.domain.dates.DateRange;
 import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.domain.time.TramTime;
-import com.tramchester.graph.filters.GraphFilterActive;
 import com.tramchester.integration.testSupport.rail.IntegrationRailTestConfig;
+import com.tramchester.integration.testSupport.rail.LoadRailServicesFromText;
 import com.tramchester.integration.testSupport.rail.RailStationIds;
-import com.tramchester.metrics.CacheMetrics;
-import com.tramchester.repository.TransportData;
 import com.tramchester.repository.TransportDataContainer;
-import com.tramchester.repository.naptan.NaptanRepository;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.testTags.TrainTest;
-import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.*;
 
-import java.io.Reader;
-import java.io.StringReader;
-import java.time.LocalDate;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static com.tramchester.integration.testSupport.rail.RailStationIds.Inverness;
 import static com.tramchester.integration.testSupport.rail.RailStationIds.LondonEuston;
@@ -49,13 +35,8 @@ public class RailTransportDataTest {
 
     private static IntegrationRailTestConfig config;
     private static GuiceContainerDependencies componentContainer;
-    private RailStationCRSRepository crsRepository;
-    private NaptanRepository naptanRepository;
-    private GraphFilterActive filter;
-    private ProvidesRailStationRecords providesRailStationRecords;
-    private RailDataRecordFactory railDataRecordFactory;
-    private UnzipFetchedData.Ready ready;
     private TransportDataContainer dataContainer;
+    private LoadRailServicesFromText loadRailServicesFromText;
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
@@ -71,18 +52,15 @@ public class RailTransportDataTest {
 
     @BeforeEach
     void beforeEachTestRuns() {
-        crsRepository = componentContainer.get(RailStationCRSRepository.class);
-        naptanRepository = componentContainer.get(NaptanRepository.class);
-        filter = componentContainer.get(GraphFilterActive.class);
-        ProvidesNow providesNow = componentContainer.get(ProvidesNow.class);
-        providesRailStationRecords = componentContainer.get(ProvidesRailStationRecords.class);
-        railDataRecordFactory = componentContainer.get(RailDataRecordFactory.class);
-        ready = componentContainer.get(UnzipFetchedData.Ready.class);
-
         // getting station repository triggers full load of timetable data, slowing down these tests a LOT
         // stationRepository = componentContainer.get(StationRepository.class);
 
+        ProvidesNow providesNow = componentContainer.get(ProvidesNow.class);
+        UnzipFetchedData.Ready ready = componentContainer.get(UnzipFetchedData.Ready.class);
+
         dataContainer = new TransportDataContainer(providesNow, "testingOnly");
+
+        loadRailServicesFromText = new LoadRailServicesFromText(config, componentContainer, ready);
     }
 
     @AfterEach
@@ -115,7 +93,8 @@ public class RailTransportDataTest {
                 LIUHALIFD 1635H1636      16361636         T                                    \s
                 LTSHEPRTN 1639 1641      TF                                                    \s""";
 
-        final TransportData dataContainer = loadForTimetableData(text);
+        //final TransportData dataContainer = loadForTimetableData(text);
+        loadRailServicesFromText.loadInto(dataContainer, text);
 
         Set<Service> services = dataContainer.getServices();
         assertEquals(1, services.size());
@@ -149,7 +128,8 @@ public class RailTransportDataTest {
                 LTABRYSTH 0618 0620      TF                                                    \s""";
 
 
-        final TransportData dataContainer = loadForTimetableData(text);
+        //final TransportData dataContainer = loadForTimetableData(text);
+        loadRailServicesFromText.loadInto(dataContainer, text);
 
         Set<Trip> trips = dataContainer.getTrips();
         assertEquals(1, trips.size());
@@ -187,7 +167,8 @@ public class RailTransportDataTest {
                 LIFLETTON           1956H00000000                                              \s
                 LTPBRO    1959 19592     TF                                                    \s""";
 
-        final TransportData dataContainer = loadForTimetableData(text);
+        //final TransportData dataContainer = loadForTimetableData(text);
+        loadRailServicesFromText.loadInto(dataContainer, text);
 
         Set<Trip> trips = dataContainer.getTrips();
         assertEquals(1, trips.size());
@@ -215,7 +196,8 @@ public class RailTransportDataTest {
                 LIMEADWHL 0010 0010      00100000         D
                 LTSHEFFLD 0030 0030      TFD""";
 
-        final TransportData dataContainer = loadForTimetableData(text);
+        //final TransportData dataContainer = loadForTimetableData(text);
+        loadRailServicesFromText.loadInto(dataContainer, text);
 
         Set<Service> services = dataContainer.getServices();
         assertEquals(2, services.size());
@@ -257,7 +239,8 @@ public class RailTransportDataTest {
                 LISTIRCHJ           2353H00000000                        H                     \s
                 LTSTIRLNG 2355 23559     TFRM                                                  \s""";
 
-        final TransportData dataContainer = loadForTimetableData(text);
+        //final TransportData dataContainer = loadForTimetableData(text);
+        loadRailServicesFromText.loadInto(dataContainer, text);
 
         Set<Service> services = dataContainer.getServices();
         assertEquals(1, services.size());
@@ -382,7 +365,8 @@ public class RailTransportDataTest {
                 LICMDNSTH           0744H00000000                                              \s
                 LTEUSTON  0747 074915    TF                                                    \s""";
 
-        final TransportData dataContainer = loadForTimetableData(text);
+        //final TransportData dataContainer = loadForTimetableData(text);
+        loadRailServicesFromText.loadInto(dataContainer, text);
 
         Set<Service> services = dataContainer.getServices();
         assertEquals(1, services.size());
@@ -430,38 +414,5 @@ public class RailTransportDataTest {
         assertEquals(TramTime.nextDay(5,29), lastLeg.getDepartureTime());
     }
 
-    @NotNull
-    private TransportDataContainer loadForTimetableData(String text) {
-        ProvidesRailTimetableRecords loadTimeTableRecords = new LocalRailRecords(config, railDataRecordFactory, ready, text);
 
-        RailConfig railConfig = config.getRailConfig();
-
-
-        RailRouteIDBuilder railRouteIdBuilder = componentContainer.get(RailRouteIDBuilder.class);
-        CacheMetrics cacheMetric = componentContainer.get(CacheMetrics.class);
-        RailRouteIdRepository railRouteIdRepository = new RailRouteIdRepository(loadTimeTableRecords, railRouteIdBuilder, config,
-                cacheMetric);
-        railRouteIdRepository.start();
-
-        RailTransportDataFromFiles.Loader loader = new RailTransportDataFromFiles.Loader(providesRailStationRecords, loadTimeTableRecords,
-                railRouteIdRepository, crsRepository, naptanRepository, railConfig, filter);
-
-        loader.loadInto(dataContainer, config.getBounds());
-        return dataContainer;
-    }
-
-    private static class LocalRailRecords extends LoadRailTimetableRecords {
-        private final String text;
-
-        public LocalRailRecords(TramchesterConfig config, RailDataRecordFactory factory, UnzipFetchedData.Ready ready, String text) {
-            super(config, factory, ready);
-            this.text = text;
-        }
-
-        @Override
-        public Stream<RailTimetableRecord> load() {
-            Reader reader = new StringReader(text);
-            return super.load(reader);
-        }
-    }
 }

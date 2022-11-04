@@ -5,6 +5,7 @@ import com.tramchester.domain.dates.MutableServiceCalendar;
 import com.tramchester.domain.dates.ServiceCalendar;
 import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.id.IdFor;
+import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.GraphPropertyKey;
@@ -34,6 +35,10 @@ public class MutableService implements Service {
     // test support
     public static Service build(IdFor<Service> serviceId) {
         return new MutableService(serviceId);
+    }
+
+    public static IdFor<Service> createId(String text) {
+        return StringIdFor.createId(text);
     }
 
     @Override

@@ -31,6 +31,7 @@ import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TramRouteHelper;
 import com.tramchester.testSupport.reference.TramStations;
 import com.tramchester.testSupport.testTags.PiccGardens2022;
+import com.tramchester.testSupport.testTags.VictoriaNov2022;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -189,6 +190,7 @@ public class RouteToRouteCostsTest {
                 "wrong for " + routeB.getId() + " " + routeA.getId());
     }
 
+    @VictoriaNov2022
     @Test
     void shouldBacktrackToChangesSingleChange() {
         Route routeA = routeHelper.getOneRoute(TheTraffordCentreCornbrook, date);
@@ -201,18 +203,21 @@ public class RouteToRouteCostsTest {
         assertEquals(1, firstSetOfChanges.size());
 
         RouteAndChanges actualChange = firstSetOfChanges.get(0);
-        assertEquals(1, actualChange.getStations().size());
+        // TODO 1 -> 2
+        assertEquals(2, actualChange.getStations().size());
         assertTrue(getStationsFor(actualChange).contains(Cornbrook.from(stationRepository)), results.toString());
     }
 
+    @VictoriaNov2022
     @PiccGardens2022
     @Test
     void shouldBacktrackToChangesMultipleChanges() {
         Route routeA = routeHelper.getOneRoute(BuryPiccadilly, date);
         Route routeB = routeHelper.getOneRoute(CornbrookTheTraffordCentre, date);
 
+        // 2 -> 7
         List<List<RouteAndChanges>> results = routesCostRepository.getChangesFor(routeA, routeB);
-        assertEquals(2, results.size(), results.toString());
+        assertEquals(7, results.size(), results.toString());
 
         List<RouteAndChanges> firstChangeSet = results.get(0);
         assertEquals(2, firstChangeSet.size());

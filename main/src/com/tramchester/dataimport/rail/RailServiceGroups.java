@@ -77,12 +77,13 @@ public class RailServiceGroups {
         final IdFor<Service> serviceId = getServiceIdFor(schedule, isOverlay);
 
         final MutableService service = new MutableService(serviceId);
-        DateRange scheduleDateRange = schedule.getDateRange();
+        final DateRange scheduleDateRange = schedule.getDateRange();
         final MutableServiceCalendar calendar = new MutableServiceCalendar(scheduleDateRange, schedule.getDaysOfWeek());
         service.setCalendar(calendar);
 
+        final List<MutableService> existingServices = serviceGroups.servicesFor(uniqueTrainId);
+
         if (isOverlay) {
-            final List<MutableService> existingServices = serviceGroups.servicesFor(uniqueTrainId);
             if (existingServices.isEmpty()) {
                 logger.info("Overlap: No existing services found for " + uniqueTrainId);
             }
@@ -105,8 +106,7 @@ public class RailServiceGroups {
                             impactedServiceId, scheduleDateRange, schedule.getDaysOfWeek()));
                     final MutableServiceCalendar impactedCalendar = impactedService.getMutableCalendar();
                     DateRange impactedCalendarDateRange = impactedCalendar.getDateRange();
-//                    if (impactedCalendarDateRange.contains(scheduleDateRange.getStartDate()) &&
-//                        impactedCalendarDateRange.contains(scheduleDateRange.getEndDate())) {
+
                     if (impactedCalendarDateRange.overlapsWith(scheduleDateRange)) {
                         recordOverlapAsSuperseding(impactedCalendar, scheduleDateRange, schedule.getDaysOfWeek());
                     } else {
@@ -118,6 +118,8 @@ public class RailServiceGroups {
                     }
                 }
             });
+        } else {
+            logger.warn(format("Update to service %s with new id %s but not overlay", uniqueTrainId, serviceId));
         }
 
         container.addService(service);

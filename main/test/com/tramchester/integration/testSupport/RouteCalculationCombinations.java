@@ -1,19 +1,20 @@
 package com.tramchester.integration.testSupport;
 
 import com.tramchester.ComponentContainer;
-import com.tramchester.domain.dates.TramDate;
-import com.tramchester.domain.places.InterchangeStation;
-import com.tramchester.domain.places.SimpleInterchangeStation;
 import com.tramchester.domain.Journey;
+import com.tramchester.domain.JourneyRequest;
 import com.tramchester.domain.StationIdPair;
+import com.tramchester.domain.dates.TramDate;
+import com.tramchester.domain.dates.TramServiceDate;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdSet;
+import com.tramchester.domain.places.InterchangeStation;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.GraphDatabase;
-import com.tramchester.domain.JourneyRequest;
 import com.tramchester.graph.search.RouteCalculator;
+import com.tramchester.repository.ClosedStationsRepository;
 import com.tramchester.repository.InterchangeRepository;
 import com.tramchester.repository.RouteEndRepository;
 import com.tramchester.repository.StationRepository;
@@ -28,6 +29,7 @@ import java.util.stream.Collectors;
 
 import static java.lang.String.format;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
 public class RouteCalculationCombinations {
 
@@ -36,6 +38,7 @@ public class RouteCalculationCombinations {
     private final StationRepository stationRepository;
     private final InterchangeRepository interchangeRepository;
     private final RouteEndRepository routeEndRepository;
+    private final ClosedStationsRepository closedStationsRepository;
 
     public RouteCalculationCombinations(ComponentContainer componentContainer) {
         this.database = componentContainer.get(GraphDatabase.class);
@@ -43,6 +46,7 @@ public class RouteCalculationCombinations {
         this.stationRepository = componentContainer.get(StationRepository.class);
         this.interchangeRepository = componentContainer.get(InterchangeRepository.class);
         routeEndRepository = componentContainer.get(RouteEndRepository.class);
+        closedStationsRepository = componentContainer.get(ClosedStationsRepository.class);
     }
 
     public Optional<Journey> findJourneys(Transaction txn, IdFor<Station> start, IdFor<Station> dest, JourneyRequest journeyRequest) {
@@ -54,8 +58,11 @@ public class RouteCalculationCombinations {
     public Map<StationIdPair, JourneyOrNot> validateAllHaveAtLeastOneJourney(Set<StationIdPair> stationIdPairs,
                                                                              JourneyRequest journeyRequest) {
 
+        long openPairs = stationIdPairs.stream().filter(stationIdPair -> bothOpen(stationIdPair, journeyRequest)).count();
+        assertNotEquals(0, openPairs);
+
         Map<StationIdPair, JourneyOrNot> results = computeJourneys(stationIdPairs, journeyRequest);
-        assertEquals(stationIdPairs.size(), results.size(), "Not enough results");
+        assertEquals(openPairs, results.size(), "Not enough results");
 
         // check all results present, collect failures into a list
         List<RouteCalculationCombinations.JourneyOrNot> failed = results.values().stream().
@@ -72,7 +79,9 @@ public class RouteCalculationCombinations {
     private Map<StationIdPair, JourneyOrNot> computeJourneys(Set<StationIdPair> combinations, JourneyRequest request) {
         TramDate queryDate = request.getDate().getDate();
         TramTime queryTime = request.getOriginalTime();
-        return combinations.parallelStream().
+        return combinations.
+                parallelStream().
+                filter(stationIdPair -> bothOpen(stationIdPair, request)).
                 map(pair -> {
                     try (Transaction txn = database.beginTx()) {
                         Optional<Journey> optionalJourney = findJourneys(txn, pair.getBeginId(), pair.getEndId(), request);
@@ -81,6 +90,16 @@ public class RouteCalculationCombinations {
                     }
                 }).
                 collect(Collectors.toMap(Pair::getLeft, Pair::getRight));
+    }
+
+    private boolean bothOpen(final StationIdPair stationIdPair, final JourneyRequest request) {
+        final TramDate date = request.getDate().getDate();
+        if (closedStationsRepository.hasClosuresOn(date)) {
+            return ! (closedStationsRepository.isClosed(stationIdPair.getBeginId(), date) ||
+                    closedStationsRepository.isClosed(stationIdPair.getEndId(), date));
+        }
+        return true;
+
     }
 
     private String displayFailed(List<JourneyOrNot> pairs) {

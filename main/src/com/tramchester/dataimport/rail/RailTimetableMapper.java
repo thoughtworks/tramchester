@@ -307,6 +307,7 @@ public class RailTimetableMapper {
             if (allCalledAtStations.isEmpty() || allCalledAtStations.size()==1) {
                 logger.warn(format("Skip, Not enough calling points (%s) for (%s) without bounds checking",
                         allCalledAtStations, rawService));
+                railServiceGroups.recordSkip(basicSchedule);
                 return false;
             }
 
@@ -317,6 +318,7 @@ public class RailTimetableMapper {
             if (withinBoundsCallingStations.isEmpty() || withinBoundsCallingStations.size()==1) {
                 // likely due to all stations being filtered out as beyond geo bounds
                 //logger.debug(format("Skip, Not enough calling points (%s) for (%s)", inBoundsCalledAtStations.stream(), rawService));
+                railServiceGroups.recordSkip(basicSchedule);
                 return false;
             }
 
@@ -340,9 +342,9 @@ public class RailTimetableMapper {
             populateForLocationIfWithinBounds(originLocation, route, trip, stopSequence, originTime);
             stopSequence = stopSequence + 1;
             for (IntermediateLocation intermediateLocation : intermediateLocations) {
-                if (populateForLocationIfWithinBounds(intermediateLocation, route, trip, stopSequence, originTime)) {
-                    stopSequence = stopSequence + 1;
-                }
+                populateForLocationIfWithinBounds(intermediateLocation, route, trip, stopSequence, originTime);
+                // if ....  stopSequence = stopSequence + 1; - keep sequence same as source even if skipping
+                stopSequence = stopSequence + 1;
             }
             populateForLocationIfWithinBounds(terminatingLocation, route, trip, stopSequence, originTime);
 

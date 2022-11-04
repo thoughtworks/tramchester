@@ -33,13 +33,13 @@ import com.tramchester.testSupport.reference.TramStations;
 import com.tramchester.testSupport.testTags.DataExpiryCategory;
 import com.tramchester.testSupport.testTags.DataUpdateTest;
 import com.tramchester.testSupport.testTags.PiccGardens2022;
+import com.tramchester.testSupport.testTags.VictoriaNov2022;
 import org.apache.commons.lang3.tuple.Pair;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.*;
 
 import java.time.DayOfWeek;
 import java.time.Duration;
-import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -266,6 +266,7 @@ public class TransportDataFromFilesTramTest {
 
     }
 
+    @VictoriaNov2022
     @Test
     void shouldGetRouteStationsForStation() {
         Set<RouteStation> routeStations = transportData.getRouteStationsFor(Shudehill.getId());
@@ -275,7 +276,8 @@ public class TransportDataFromFilesTramTest {
                 map(routeStation -> Pair.of(routeStation.getStationId(), routeStation.getRoute().getName())).
                 collect(Collectors.toSet());
 
-        assertEquals(7, routeStationPairs.size(), routeStations.toString());
+        // todo 7 -> 6
+        assertEquals(6, routeStationPairs.size(), routeStations.toString());
 
         Set<String> routeNames =
                 routeStations.stream().
@@ -423,11 +425,10 @@ public class TransportDataFromFilesTramTest {
 
     }
 
+    @VictoriaNov2022
     @DataExpiryCategory
     @Test
-    void shouldHaveServicesAvailableAtExpectedTimeRangeNDaysAhead() {
-
-        TramTime latestHour = TramTime.of(23,0);
+    void shouldHaveServicesAvailableAtExpectedEarlyTimeRangeNDaysAhead() {
         TramTime earlistHour = TramTime.of(7,0);
 
         Duration maxwait = Duration.ofMinutes(config.getMaxWait());
@@ -436,11 +437,44 @@ public class TransportDataFromFilesTramTest {
 
             TimeRange earlyRange = TimeRange.of(earlistHour, maxwait, maxwait);
             Set<Station> notAvailableEarly = transportData.getStations().stream().
+                    filter(station -> workaroundDataIssueExchangeSquare(station, date)).
                     filter(station -> !closedStationRepository.isClosed(station, date)).
                     filter(station -> !availabilityRepository.isAvailable(station, date, earlyRange)).
                     collect(Collectors.toSet());
 
-            assertTrue(notAvailableEarly.isEmpty(), HasId.asIds(notAvailableEarly));
+            assertTrue(notAvailableEarly.isEmpty(), "Not available " + date + " " + earlyRange + " " + HasId.asIds(notAvailableEarly));
+        });
+    }
+
+    @VictoriaNov2022
+    @Test
+    void shouldReproIssueWithEarlyTramsExchangeSquareSunday() {
+        // Looks like route data not updated so exchange square looks closed beyond the planned date of 6/11/2022
+
+        // Leaving this test here to break when the data gets updated
+
+        TramDate date = TramDate.of(2022, 11,13);
+
+        Station exchangeSquare = ExchangeSquare.from(transportData);
+
+        List<TramTime> times = exchangeSquare.getPickupRoutes().stream().
+                flatMap(route -> route.getServices().stream()).
+                filter(route -> route.getCalendar().operatesOn(date)).
+                map(Service::getStartTime).
+                sorted(TramTime::compareTo).collect(Collectors.toList());
+
+        assertFalse(times.isEmpty());
+        assertEquals(2, times.size(), times.toString());
+    }
+
+    @DataExpiryCategory
+    @Test
+    void shouldHaveServicesAvailableAtExpectedLateTimeRangeNDaysAhead() {
+        TramTime latestHour = TramTime.of(23,0);
+
+        Duration maxwait = Duration.ofMinutes(config.getMaxWait());
+
+        getUpcomingDates().filter(this::isValidDateToCheck).forEach(date -> {
 
             TimeRange lateRange = TimeRange.of(latestHour, maxwait, maxwait);
             Set<Station> notAvailableLate = transportData.getStations().stream().
@@ -448,14 +482,17 @@ public class TransportDataFromFilesTramTest {
                     filter(station -> !availabilityRepository.isAvailable(station, date, lateRange)).
                     collect(Collectors.toSet());
 
-            assertTrue(notAvailableLate.isEmpty(), HasId.asIds(notAvailableLate));
+            assertTrue(notAvailableLate.isEmpty(), "Not available " + date + " " + lateRange + " " + HasId.asIds(notAvailableLate));
 
         });
     }
 
+    @VictoriaNov2022
     @DataExpiryCategory
     @Test
     void shouldHaveServicesRunningAtReasonableTimesNDaysAhead() {
+
+        // todo , a dup?
 
         int latestHour = 23;
         int earlistHour = 7;
@@ -471,6 +508,7 @@ public class TransportDataFromFilesTramTest {
                 Set<Service> servicesOnDate = transportData.getServicesOnDate(date);
 
                 transportData.getStations().stream().filter(station -> !closedStationRepository.isClosed(station, date)).
+                        filter(station1 -> workaroundDataIssueExchangeSquare(station1, date)).
                         forEach(station -> {
                     Set<Trip> callingTripsOnDate = transportData.getTrips().stream().
                             filter(trip -> trip.callsAt(station)).
@@ -495,6 +533,13 @@ public class TransportDataFromFilesTramTest {
                 });
             }
         }
+    }
+
+    private boolean workaroundDataIssueExchangeSquare(Station station, TramDate date) {
+        if (station.getId().equals(ExchangeSquare.getId())) {
+            return date.getDayOfWeek()!=DayOfWeek.SUNDAY;
+        }
+        return true;
     }
 
     @Test

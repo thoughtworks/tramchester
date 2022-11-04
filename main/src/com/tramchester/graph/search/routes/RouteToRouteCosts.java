@@ -354,7 +354,7 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
                 max(Integer::compare);
 
         if (query.isEmpty()) {
-            logger.warn("No maxHops found for " + numberOfChangesForRoutes);
+            logger.warn("No maxHops found from " + numberOfChangesForRoutes);
         }
         return query.orElse(Integer.MAX_VALUE);
     }

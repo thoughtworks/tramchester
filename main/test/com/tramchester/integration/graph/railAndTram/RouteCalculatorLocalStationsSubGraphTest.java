@@ -100,8 +100,6 @@ class RouteCalculatorLocalStationsSubGraphTest {
         JourneyRequest request = new JourneyRequest(new TramServiceDate(when), time, false, 0,
                 Duration.ofMinutes(3), 1, getRequestedModes());
 
-        //request.setDiag(true);
-
         List<Journey> journeysFromTram = new ArrayList<>(testFacade.calculateRouteAsSet(tram(TramStations.Altrincham),
                 rail(RailStationIds.Altrincham), request));
 
@@ -199,8 +197,6 @@ class RouteCalculatorLocalStationsSubGraphTest {
 
         JourneyRequest request = new JourneyRequest(new TramServiceDate(when), time, false, 1,
                 Duration.ofMinutes(240), 1, getRequestedModes());
-
-        request.setDiag(true);
 
         Station start = tram(TramStations.Altrincham); // TRAM
         Station dest = rail(RailStationIds.Stockport);

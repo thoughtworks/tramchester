@@ -145,6 +145,10 @@ public class IntermediateLocation implements RailLocationRecord {
         if (passingTime.isValid()) {
             return passingTime;
         }
+        if (scheduledArrival.isValid()) {
+            return scheduledArrival;
+        }
+        // this one is often given as 0000 so hard to know if correct or not
         return publicArrival;
     }
 

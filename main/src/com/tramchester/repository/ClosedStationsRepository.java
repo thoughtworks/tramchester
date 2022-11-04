@@ -134,6 +134,10 @@ public class ClosedStationsRepository {
         Station station = (Station) location;
         IdFor<Station> stationId = station.getId();
 
+        return isClosed(stationId, date);
+    }
+
+    public boolean isClosed(IdFor<Station> stationId, TramDate date) {
         if (!hasAClosure.contains(stationId)) {
             return false;
         }

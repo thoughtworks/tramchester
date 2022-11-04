@@ -23,6 +23,7 @@ import com.tramchester.testSupport.reference.TramStations;
 import com.tramchester.testSupport.testTags.DataExpiryCategory;
 import com.tramchester.testSupport.testTags.DataUpdateTest;
 import com.tramchester.testSupport.testTags.PiccGardens2022;
+import com.tramchester.testSupport.testTags.VictoriaNov2022;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.*;
 import org.neo4j.graphdb.Transaction;
@@ -111,6 +112,21 @@ public class RouteCalculatorTest {
         });
 
     }
+
+    @VictoriaNov2022
+    @Test
+    void shouldReproIssueWithExchangeSquareToTraffordCenter() {
+
+        TramDate testDate = TramDate.of(2022,11,14);
+
+        JourneyRequest request = new JourneyRequest(testDate, TramTime.of(8,5), false, 4,
+                maxJourneyDuration, 1, Collections.emptySet());
+
+        Set<Journey> journeys = calculator.calculateRouteAsSet(Etihad, TraffordCentre, request);
+        assertFalse(journeys.isEmpty());
+    }
+
+
 
     @Test
     void shouldHaveSimpleOneStopJourneyNextDays() {

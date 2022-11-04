@@ -1,11 +1,13 @@
 package com.tramchester.testSupport.reference;
 
 import com.tramchester.domain.Route;
+import com.tramchester.domain.dates.DateRange;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.reference.RouteDirection;
 import com.tramchester.domain.reference.TransportMode;
+import io.swagger.models.auth.In;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -44,17 +46,56 @@ public enum KnownTramRoute {
     TheTraffordCentreCornbrook("Red Line", Inbound, "The Trafford Centre - Cornbrook"),
     CornbrookTheTraffordCentre("Red Line", Outbound, "Cornbrook - The Trafford Centre"),
 
-    // TODO July 2022 - eccles replacement services - UNTIL October 22nd
-//    ReplacementRouteToEccles("Blue Line Bus Replacement", Inbound, "Media City Metrolink Replacement - Eccles"),
-//    ReplacementRouteFromEccles("Blue Line Bus Replacement", Outbound, "Eccles - Media City Metrolink Replacement");
+    // TODO Piccadilly gardens closure replacement bus
     ReplacementRoutePiccadillyDeansgate("Blue Line Bus Replacement", Inbound,"Piccadilly Station Metrolink Replacement - Castlefield - Deansgate"),
-    ReplacementRouteDeansgatePiccadillt("Blue Line Bus Replacement", Outbound, "Deansgate - Castlefield - Piccadilly Station Metrolink Replacement");
+    ReplacementRouteDeansgatePiccadilly("Blue Line Bus Replacement", Outbound, "Deansgate - Castlefield - Piccadilly Station Metrolink Replacement"),
+
+    // TODO Victoria works?
+    ManchesterEccles("Blue Line", Inbound,"Manchester - Eccles"),
+    EcclesManchester("Blue Line", Outbound, "Eccles - Manchester"),
+    AshtonCrumpsall("Yellow Line", Outbound, "Ashton - Crumpsall"),
+    CrumpsallAshton("Yellow Line", Inbound, "Crumpsall - Ashton");
 
     private final IdFor<Route> fakeId;
     private final RouteDirection direction;
     private final String shortName;
     private final String longName;
-    private final boolean isReplacement;
+
+    public static List<KnownTramRoute> getFor(TramDate date) {
+        List<KnownTramRoute> routes = new ArrayList<>(Arrays.asList(KnownTramRoute.values())); // need mutable
+
+        DateRange piccGardens = DateRange.of(TramDate.of(2022, 10,22), TramDate.of(2022, 11, 30));
+        if (piccGardens.contains(date)) {
+            routes.remove(AltrinchamPiccadilly);
+            routes.remove(PiccadillyAltrincham);
+        } else {
+            routes.remove(ReplacementRouteDeansgatePiccadilly);
+            routes.remove(ReplacementRoutePiccadillyDeansgate);
+        }
+
+        DateRange victoriaWork = DateRange.of(TramDate.of(2022, 11,6), TramDate.of(2022, 11, 13));
+        if (victoriaWork.contains(date)) {
+            routes.remove(AshtonUnderLyneManchesterEccles);
+            routes.remove(EcclesManchesterAshtonUnderLyne);
+            routes.remove(BuryPiccadilly);
+            routes.remove(PiccadillyBury);
+        } else {
+            routes.remove(ManchesterEccles);
+            routes.remove(EcclesManchester);
+            routes.remove(AshtonCrumpsall);
+            routes.remove(CrumpsallAshton);
+        }
+
+        return routes;
+    }
+
+    public static boolean isReplacement(KnownTramRoute knownTramRoute) {
+        return switch (knownTramRoute) {
+            case ReplacementRouteDeansgatePiccadilly, ReplacementRoutePiccadillyDeansgate, AshtonCrumpsall, CrumpsallAshton,
+                    EcclesManchester, ManchesterEccles -> true;
+            default -> false;
+        };
+    }
 
     KnownTramRoute(String shortName, RouteDirection direction, String longName) {
         this.longName = longName;
@@ -65,9 +106,7 @@ public enum KnownTramRoute {
         String idSuffix;
         if (shortName.contains("Replacement") || shortName.contains("Replaement")) { // yep, typo in the source data
             idSuffix = getSuffixFor(shortName);
-            this.isReplacement = true;
         } else {
-            this.isReplacement = false;
             int endIndex = Math.min(shortName.length(), 4);
             idSuffix = shortName.toUpperCase().substring(0, endIndex).trim();
         }
@@ -75,18 +114,6 @@ public enum KnownTramRoute {
 
     }
 
-    public static List<KnownTramRoute> getFor(TramDate date) {
-        List<KnownTramRoute> routes = new ArrayList<>(Arrays.asList(KnownTramRoute.values())); // need mutable
-        if (date.isAfter(TramDate.of(2022, 10,22)) && date.isBefore(TramDate.of(2022, 11, 30))) {
-            // piccadilly gardens work
-            routes.remove(AltrinchamPiccadilly);
-            routes.remove(PiccadillyAltrincham);
-        } else {
-            routes.remove(ReplacementRouteDeansgatePiccadillt);
-            routes.remove(ReplacementRoutePiccadillyDeansgate);
-        }
-        return routes;
-    }
 
     public static int numberOn(TramDate date) {
         return getFor(date).size();
@@ -138,6 +165,6 @@ public enum KnownTramRoute {
     }
 
     public boolean isReplacement() {
-        return isReplacement;
+        return isReplacement(this);
     }
 }
