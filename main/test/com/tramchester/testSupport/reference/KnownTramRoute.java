@@ -64,14 +64,19 @@ public enum KnownTramRoute {
     public static List<KnownTramRoute> getFor(TramDate date) {
         List<KnownTramRoute> routes = new ArrayList<>(Arrays.asList(KnownTramRoute.values())); // need mutable
 
-        DateRange piccGardens = DateRange.of(TramDate.of(2022, 10,22), TramDate.of(2022, 11, 30));
-        if (piccGardens.contains(date)) {
+        DateRange piccGardensWork = DateRange.of(TramDate.of(2022, 11,8), TramDate.of(2022, 11, 22));
+        if (piccGardensWork.contains(date)) {
             routes.remove(AltrinchamPiccadilly);
             routes.remove(PiccadillyAltrincham);
-        } else {
+        } else if (!date.equals(TramDate.of(2022,11,7))){
             routes.remove(ReplacementRouteDeansgatePiccadilly);
             routes.remove(ReplacementRoutePiccadillyDeansgate);
         }
+
+//        if (date.equals(TramDate.of(2022,11,7))) {
+//            routes.remove(ReplacementRouteDeansgatePiccadilly);
+//            routes.remove(ReplacementRoutePiccadillyDeansgate);
+//        }
 
         DateRange victoriaWork = DateRange.of(TramDate.of(2022, 11,6), TramDate.of(2022, 11, 13));
         if (victoriaWork.contains(date)) {
@@ -121,10 +126,7 @@ public enum KnownTramRoute {
 
     private String getSuffixFor(String shortName) {
         return switch (shortName) {
-            case "Blue Line Bus Replacement" -> "ML1";
-            case "Yellow Line Replacement Bus" -> "ML2";
-            case "Green Line Replacement Bus" -> "ML3";
-            case "Purple Line Bus Replaement", "Purple Line Replacement Bus" -> "ML4";
+            case "Blue Line Bus Replacement" -> "MLDP";
             default -> throw new RuntimeException("Unexpected replacement service short name" + shortName);
         };
     }

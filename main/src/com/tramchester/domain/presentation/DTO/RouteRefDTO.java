@@ -9,6 +9,7 @@ import com.tramchester.domain.reference.TransportMode;
 @JsonIgnoreProperties(value = "tram", allowGetters = true)
 public class RouteRefDTO {
 
+    private String routeID;
     private String routeName;
     private TransportMode transportMode;
     private String shortName;
@@ -30,6 +31,7 @@ public class RouteRefDTO {
 
         this.transportMode = route.getTransportMode();
         this.shortName = route.getShortName();
+        this.routeID = route.getId().forDTO();
     }
 
     public String getRouteName() {
@@ -42,6 +44,10 @@ public class RouteRefDTO {
 
     public TransportMode getTransportMode() {
         return transportMode;
+    }
+
+    public String getRouteID() {
+        return routeID;
     }
 
     // use TransportMode
@@ -69,9 +75,11 @@ public class RouteRefDTO {
     @Override
     public String toString() {
         return "RouteRefDTO{" +
+                "routeID='" + routeID + '\'' +
                 ", routeName='" + routeName + '\'' +
                 ", transportMode=" + transportMode +
                 ", shortName='" + shortName + '\'' +
                 '}';
     }
+
 }

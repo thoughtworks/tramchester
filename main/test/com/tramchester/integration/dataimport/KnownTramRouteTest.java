@@ -1,5 +1,6 @@
 package com.tramchester.integration.dataimport;
 
+import com.google.common.collect.Sets;
 import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.domain.Route;
@@ -11,8 +12,6 @@ import com.tramchester.repository.RouteRepository;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.KnownTramRoute;
 import com.tramchester.testSupport.testTags.DataUpdateTest;
-import com.tramchester.testSupport.testTags.PiccGardens2022;
-import com.tramchester.testSupport.testTags.VictoriaNov2022;
 import org.apache.commons.lang3.tuple.Pair;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.AfterAll;
@@ -20,6 +19,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -113,11 +113,57 @@ class KnownTramRouteTest {
     @Test
     void shouldHaveDateOverlapsForAllKnownRoutes() {
 
-        IdSet<Route> availableRoutes = routeRepository.getRoutes().stream().filter(route -> route.isAvailableOn(when)).collect(IdSet.collector());
+        IdSet<Route> availableRoutes = routeRepository.getRoutesRunningOn(when).stream().collect(IdSet.collector());;
 
         assertNotEquals(0, availableRoutes.size());
 
         assertEquals(knownRoutes.size() , availableRoutes.size(), availableRoutes.toString());
+
+    }
+
+    @Test
+    void shouldHaveCorrectKnownRoutesForTestDate() {
+
+        IdSet<Route> expected = routeRepository.getRoutesRunningOn(when).stream().collect(IdSet.collector());
+
+        List<KnownTramRoute> onDate = KnownTramRoute.getFor(when);
+
+        assertEquals(expected.size(), onDate.size(), "mismatch " + expected + " and " + onDate);
+    }
+
+    @Test
+    void shouldHaveCorrectKnownRoutesForToday() {
+
+        // NOTE: REPLACEMENT services ids can change, so check that if mismatch here
+
+        TramDate date = TramDate.from(TestEnv.LocalNow());
+        Set<String> fromRepos = routeRepository.getRoutesRunningOn(date).stream().map(route -> route.getId().forDTO()).collect(Collectors.toSet());
+
+        Set<String> onDate = KnownTramRoute.getFor(date).stream().map(knownTramRoute -> knownTramRoute.getFakeId().forDTO()).collect(Collectors.toSet());
+
+        Sets.SetView<String> mismatch = Sets.difference(fromRepos, onDate);
+
+        assertTrue(mismatch.isEmpty(), "mismatch " + mismatch + " between expected " + fromRepos + " and " + onDate);
+    }
+
+    @Test
+    void shouldValidateRoutesOverTimePeriod() {
+        TramDate base = TramDate.from(TestEnv.LocalNow());
+
+        List<TramDate> failedDates = new ArrayList<>();
+
+        for (int day = 0; day < 14; day++) {
+            TramDate testDate = base.plusDays(day);
+            IdSet<Route> expected = routeRepository.getRoutesRunningOn(testDate).stream().collect(IdSet.collector());
+
+            List<KnownTramRoute> onDate = KnownTramRoute.getFor(testDate);
+
+            if (expected.size()!=onDate.size()) {
+                failedDates.add(testDate);
+            }
+        }
+
+        assertTrue(failedDates.isEmpty(), failedDates.toString());
 
     }
 

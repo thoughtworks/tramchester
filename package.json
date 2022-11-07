@@ -25,6 +25,7 @@
     "bootstrap-vue": "^2.22.0",
     "leaflet": "^1.9.1",
     "leaflet-arrowheads": "^1.4.0",
+    "leaflet-polylineoffset": "^1.1.1",
     "oboe": "^2.1.5",
     "portal-vue": "^2.1.7",
     "serialize-javascript": "^6.0.0",

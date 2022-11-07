@@ -9,13 +9,18 @@ export default {
     },
 
     addStations: function(map, routes) {
+        var stationLayerGroup = L.layerGroup();
+
         routes.forEach(route => {
-            this.addStationsForRoute(map, route);
+            this.addStationsForRoute(route, stationLayerGroup);
         })
+
+        stationLayerGroup.addTo(map);
+
+        return stationLayerGroup;
     },
     
-    addStationsForRoute: function(map, route) {
-        var stationLayerGroup = L.layerGroup();
+    addStationsForRoute: function(route, stationLayerGroup) {
     
         var added = []; // stations on mutliple routes
 
@@ -23,14 +28,14 @@ export default {
             if (!added.includes(station.id)) {
                 var lat = station.latLong.lat;
                 var lon = station.latLong.lon;
-                var marker = new L.circleMarker(L.latLng(lat,lon), { title: station.name, radius: 1 })
-                marker.bindTooltip(station.name + "<br> '" +station.id+ "' (" + station.transportMode+")");
+                var marker = new L.circleMarker(L.latLng(lat,lon), { title: station.name, radius: 3 })
+                marker.bindTooltip(station.name + "<br> '" +station.id+ "' (" + station.transportModes+")");
                 added.push(station.id);
                 stationLayerGroup.addLayer(marker);
             }
         });
     
-        stationLayerGroup.addTo(map);
+
     },
 
     highlightRoute: function(event) {
@@ -41,7 +46,7 @@ export default {
         // https://github.com/Leaflet/Leaflet/issues/2662
 
         layer.setStyle({
-            weight: 10
+            weight: 5
         });
 
         layer.bringToFront();
@@ -51,7 +56,7 @@ export default {
         var layer = event.target;
 
         layer.setStyle({
-            weight: 6
+            weight: 3
         });
 
         layer.bringToBack();
@@ -59,17 +64,42 @@ export default {
     
     addRoutes: function(map, routes) {
         var routeLayerGroup = L.layerGroup();
+
+        let stationSeen = new Map();
+
+        const baseOffsetPixels = 2;
     
         routes.forEach(route => {
             var steps = [];
+            const inbound = route.routeID.includes(":I:");
+            // since we plot the routes in specific directions (inbound vs outbound) don't need this
+            // const offsetPixels = inbound ? 5 : 5;
+            var mostSeen = 0;
+
+            const direction = inbound ? "inbound" : "outbound";
+
             route.stations.forEach(station => {
                 if (station.latLong.valid) {
                     steps.push([station.latLong.lat, station.latLong.lon]);
                 }
+                const stationId = station.id + "_" + direction;
+                var newCount = 1;
+                if (stationSeen.has(stationId)) {
+                    newCount = stationSeen.get(stationId) + 1;
+                }
+                stationSeen.set(stationId, newCount);
+                if (newCount > mostSeen) {
+                    mostSeen = newCount;
+                }
             })
-            var line = L.polyline(steps); 
-            line.bindTooltip(route.routeName + "<br>"  + "'"+route.shortName + "' (" + route.transportMode+")");
-            line.setStyle({className: this.classForRoute(route), weight: 6});
+            const offsetPixels = baseOffsetPixels + mostSeen;
+
+            var line = L.polyline(steps, {className: this.classForRoute(route), weight: 3, opacity: 0.8}); 
+            line.bindTooltip(route.routeName + "<br>"  + "'" +
+                route.shortName + "' (" + 
+                route.transportMode+")" + " [" + route.routeID + "]"
+                );
+            line.setOffset(offsetPixels);
             line.on({
                 mouseover: this.highlightRoute,
                 mouseout: this.unhighlightRoute
@@ -79,6 +109,8 @@ export default {
     
         // faster to add this way for larger numbers of lines/points
         routeLayerGroup.addTo(map);
+
+        return routeLayerGroup;
     }, 
 
     findAndSetMapBounds: function(map, routes) {

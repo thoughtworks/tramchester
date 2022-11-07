@@ -56,7 +56,7 @@ public class RouteCalculationCombinations {
     }
 
     public Map<StationIdPair, JourneyOrNot> validateAllHaveAtLeastOneJourney(Set<StationIdPair> stationIdPairs,
-                                                                             JourneyRequest journeyRequest) {
+                                                                             JourneyRequest journeyRequest, boolean check) {
 
         long openPairs = stationIdPairs.stream().filter(stationIdPair -> bothOpen(stationIdPair, journeyRequest)).count();
         assertNotEquals(0, openPairs);
@@ -69,10 +69,17 @@ public class RouteCalculationCombinations {
                 filter(RouteCalculationCombinations.JourneyOrNot::missing).
                 collect(Collectors.toList());
 
-        assertEquals(0L, failed.size(), format("For %s Failed some of %s (finished %s) combinations %s",
-                journeyRequest, results.size(), stationIdPairs.size(), displayFailed(failed)));
+        if (check) {
+            assertEquals(0L, failed.size(), format("For %s Failed some of %s (finished %s) combinations %s",
+                    journeyRequest, results.size(), stationIdPairs.size(), displayFailed(failed)));
+        }
 
         return results;
+    }
+
+    public Map<StationIdPair, JourneyOrNot> validateAllHaveAtLeastOneJourney(Set<StationIdPair> stationIdPairs,
+                                                                             JourneyRequest journeyRequest) {
+        return validateAllHaveAtLeastOneJourney(stationIdPairs, journeyRequest, true);
     }
 
     @NotNull

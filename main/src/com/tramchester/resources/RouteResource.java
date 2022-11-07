@@ -1,6 +1,7 @@
 package com.tramchester.resources;
 
 import com.codahale.metrics.annotation.Timed;
+import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.presentation.DTO.RouteDTO;
 import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.mappers.RoutesMapper;
@@ -14,6 +15,7 @@ import javax.inject.Inject;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.List;
@@ -50,6 +52,26 @@ public class RouteResource implements APIResource {
             logger.error("Exception while getting all routes", exception);
             return Response.serverError().build();
         }
+    }
+
+    @GET
+    @Timed
+    @ApiOperation(value = "return routes filtered by given query parameters", response = RouteDTO.class, responseContainer =  "List")
+    @Path("/filtered")
+    public Response getFiltered(@QueryParam("date") String dateRaw) {
+        logger.info("get filtered routes for " + dateRaw);
+
+        try {
+            TramDate date = TramDate.parse(dateRaw);
+            List<RouteDTO> routes = routesMapper.getRouteDTOs(date);
+
+            return Response.ok(routes).build();
+        }
+        catch (Exception exception) {
+            logger.error("Exception while getting all routes", exception);
+            return Response.serverError().build();
+        }
+
     }
 
 }

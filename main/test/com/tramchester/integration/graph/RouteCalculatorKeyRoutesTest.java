@@ -16,6 +16,7 @@ import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.testTags.DataExpiryCategory;
 import com.tramchester.testSupport.testTags.VictoriaNov2022;
+import com.tramchester.testSupport.testTags.WorkaroundsNov2022;
 import org.apache.commons.lang3.tuple.Pair;
 import org.junit.jupiter.api.*;
 import org.neo4j.graphdb.Transaction;
@@ -23,7 +24,9 @@ import org.neo4j.graphdb.Transaction;
 import java.time.DayOfWeek;
 import java.time.Duration;
 import java.util.*;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 import static com.tramchester.domain.reference.TransportMode.Tram;
 import static com.tramchester.testSupport.TestEnv.avoidChristmasDate;
@@ -86,23 +89,35 @@ class RouteCalculatorKeyRoutesTest {
         combinations.validateAllHaveAtLeastOneJourney(combinations.InterchangeToInterchange(Tram), journeyRequest);
     }
 
+    @WorkaroundsNov2022
     @VictoriaNov2022
     @DataExpiryCategory
     @Test
+    @Disabled("issue with data, some route appear to be missing at this time")
     void shouldFindEndOfLinesToEndOfLinesNextNDays() {
 
         // TODO Issue with exchange square on Sundays in current data
 
         final Set<StationIdPair> pairs = combinations.EndOfRoutesToEndOfRoutes(Tram);
 
+        final Map<TramDate, Set<StationIdPair>> missing = new HashMap<>();
+
         for(int day = 0; day< TestEnv.DAYS_AHEAD; day++) {
             TramDate testDate = avoidChristmasDate(when.plusDays(day));
             if (testDate.getDayOfWeek() != DayOfWeek.SUNDAY) {
                 JourneyRequest request = new JourneyRequest(testDate, TramTime.of(8, 5), false, 4,
                         maxJourneyDuration, 1, Collections.emptySet());
-                combinations.validateAllHaveAtLeastOneJourney(pairs, request);
+                Map<StationIdPair, RouteCalculationCombinations.JourneyOrNot> results = combinations.validateAllHaveAtLeastOneJourney(pairs, request, false);
+                Set<StationIdPair> missingForDate = results.entrySet().stream().
+                        filter(entry -> entry.getValue().missing()).
+                        map(Map.Entry::getKey).collect(Collectors.toSet());
+                if (!missingForDate.isEmpty()) {
+                    missing.put(testDate, missingForDate);
+                }
             }
         }
+
+        assertTrue(missing.isEmpty(), missing.toString());
 
     }
 
