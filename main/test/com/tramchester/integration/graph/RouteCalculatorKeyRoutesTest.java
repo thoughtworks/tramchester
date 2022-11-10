@@ -89,7 +89,6 @@ class RouteCalculatorKeyRoutesTest {
         combinations.validateAllHaveAtLeastOneJourney(combinations.InterchangeToInterchange(Tram), journeyRequest);
     }
 
-    @WorkaroundsNov2022
     @VictoriaNov2022
     @DataExpiryCategory
     @Test

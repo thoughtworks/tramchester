@@ -36,7 +36,7 @@ public class CalendarDateLoader {
     public void load(Stream<CalendarDateData> calendarsDates, IdMap<Service> services) {
         TramDateSet noServices = TramDateSet.of(gtfsSourceConfig.getNoServices());
         logger.info("Loading calendar dates "+ services.size() +" services with no services on " + noServices);
-        IdSet<Service> missingCalendarDates = services.getIds();
+        IdSet<Service> missingCalendarDates = new IdSet<>();
         AtomicInteger countCalendarDates = new AtomicInteger(0);
 
         calendarsDates.forEach(date -> {
@@ -45,15 +45,16 @@ public class CalendarDateLoader {
             if (service != null) {
                 if (service.hasCalendar()) {
                     countCalendarDates.getAndIncrement();
-                    missingCalendarDates.remove(serviceId);
                     addException(date, service.getMutableCalendar(), serviceId, noServices);
                 } else {
                     // TODO Create a one off entry? Auto populate based on all exceptions? i.e. days of week
                     logger.error("Missing calendar for service " + service.getId() + " so could not add " + date);
+                    missingCalendarDates.add(serviceId);
                 }
             } else  {
                 // legit, we filter services based on the route transport mode
                 logger.debug("Unable to find service " + serviceId + " while populating CalendarDates");
+                missingCalendarDates.add(serviceId);
             }
         });
         if (!missingCalendarDates.isEmpty()) {

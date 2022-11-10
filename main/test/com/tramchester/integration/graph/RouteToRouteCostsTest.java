@@ -261,16 +261,6 @@ public class RouteToRouteCostsTest {
         assertEquals(2, getMinCost(results));
     }
 
-//    private void validateRoutingForBuryToTraffordCenterRoute(List<RouteAndChanges> firstChangeSet) {
-//        Set<Station> firstChanges = getStationFromInterchange(firstChangeSet.get(0));
-//        assertTrue(firstChanges.containsAll(TramStations.allFrom(stationRepository, MarketStreet, Piccadilly, PiccadillyGardens)),
-//                HasId.asIds(firstChanges));
-//
-//        Set<Station> secondChanges = getStationFromInterchange(firstChangeSet.get(1));
-//        assertEquals(2, secondChanges.size());
-//        assertTrue(secondChanges.containsAll(TramStations.allFrom(stationRepository, Cornbrook, Pomona)), secondChanges.toString());
-//    }
-
     private Set<Station> getStationsFor(RouteAndChanges routeAndChanges) {
         return routeAndChanges.getStations().stream().map(InterchangeStation::getStation).collect(Collectors.toSet());
     }
@@ -428,16 +418,16 @@ public class RouteToRouteCostsTest {
     }
 
     @Test
-    void shouldReproIssueBetweenMonsalAndPiccadily() {
-        // Compute number of changes between Id{'9400ZZMAMON'} and Id{'9400ZZMAPIC'} using modes '[]' on 2022-07-21 within
-        // TimeRange{begin=TramTime{h=22, m=15}, end=TramTime{d=1 h=0, m=19}}
+    void shouldReproduceIssueBetweenAshtonAndTraffordCenterOtherDate() {
 
-        TimeRange range = TimeRange.of(TramTime.of(22,15), TramTime.nextDay(0,19));
-        NumberOfChanges results = routesCostRepository.getNumberOfChanges(Monsall.from(stationRepository), Piccadilly.from(stationRepository),
-                modes, date, range);
+        TimeRange timeRange = TimeRange.of(TramTime.of(8,5), TramTime.of(10,9));
 
-        assertEquals(1, getMinCost(results));
+        Station ashton = Ashton.from(stationRepository);
+        Station traffordCentre = TraffordCentre.from(stationRepository);
 
+        NumberOfChanges changes = routesCostRepository.getNumberOfChanges(ashton, traffordCentre, modes, date, timeRange);
+
+        assertEquals(2, changes.getMin(), changes.toString());
     }
 
     private int getMinCost(NumberOfChanges routesCostRepository) {

@@ -3,6 +3,7 @@ package com.tramchester.domain.id;
 
 import com.tramchester.domain.CoreDomain;
 import com.tramchester.domain.places.NaptanArea;
+import com.tramchester.domain.places.Station;
 import org.apache.commons.collections4.SetUtils;
 import org.jetbrains.annotations.NotNull;
 
@@ -71,6 +72,8 @@ public class IdSet<T extends CoreDomain> implements Iterable<IdFor<T>> {
                 collect(Collectors.toSet());
         return new IdSet<>(newSet, false);
     }
+
+
 
     public IdSet<T> addAll(IdSet<T> other) {
         theSet.addAll(other.theSet);
@@ -207,8 +210,11 @@ public class IdSet<T extends CoreDomain> implements Iterable<IdFor<T>> {
         return new ArrayList<>(theSet);
     }
 
-    public IdSet<T> intersection(IdSet<T> other) {
-        return new IdSet<>(SetUtils.intersection(this.theSet, other.theSet));
-        //return new IdSet<>(Sets.intersection(this.theSet, other.theSet));
+//    public IdSet<T> intersection(IdSet<T> other) {
+//        return new IdSet<>(SetUtils.intersection(this.theSet, other.theSet));
+//    }
+
+    public static <T extends CoreDomain>  IdSet<T> difference(IdSet<T> setA, IdSet<T> setB) {
+        return new IdSet<>(SetUtils.difference(setA.theSet, setB.theSet));
     }
 }

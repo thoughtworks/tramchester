@@ -1,6 +1,5 @@
 package com.tramchester.integration.dataimport;
 
-import com.google.common.collect.Sets;
 import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.domain.Route;
@@ -12,6 +11,7 @@ import com.tramchester.repository.RouteRepository;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.KnownTramRoute;
 import com.tramchester.testSupport.testTags.DataUpdateTest;
+import org.apache.commons.collections4.SetUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.AfterAll;
@@ -122,26 +122,57 @@ class KnownTramRouteTest {
     }
 
     @Test
-    void shouldHaveCorrectKnownRoutesForTestDate() {
+    void shouldHaveCorrectIdsForKnownRoutesForTestDate() {
 
-        IdSet<Route> expected = routeRepository.getRoutesRunningOn(when).stream().collect(IdSet.collector());
+        IdSet<Route> fromRepos = routeRepository.getRoutesRunningOn(when).stream().collect(IdSet.collector());
 
-        List<KnownTramRoute> onDate = KnownTramRoute.getFor(when);
+        IdSet<Route> onDate = KnownTramRoute.getFor(when).stream().map(KnownTramRoute::getFakeId).collect(IdSet.idCollector());
 
-        assertEquals(expected.size(), onDate.size(), "mismatch " + expected + " and " + onDate);
+        IdSet<Route> mismatch = IdSet.difference(fromRepos, onDate);
+
+        assertTrue(mismatch.isEmpty(), "mismatch " + mismatch + " between expected " + fromRepos + " and " + onDate);
     }
 
     @Test
-    void shouldHaveCorrectKnownRoutesForToday() {
+    void shouldHaveCorrectIdsForKnownRoutesForToday() {
 
         // NOTE: REPLACEMENT services ids can change, so check that if mismatch here
 
         TramDate date = TramDate.from(TestEnv.LocalNow());
-        Set<String> fromRepos = routeRepository.getRoutesRunningOn(date).stream().map(route -> route.getId().forDTO()).collect(Collectors.toSet());
 
-        Set<String> onDate = KnownTramRoute.getFor(date).stream().map(knownTramRoute -> knownTramRoute.getFakeId().forDTO()).collect(Collectors.toSet());
+        IdSet<Route> fromRepos = routeRepository.getRoutesRunningOn(date).stream().collect(IdSet.collector());
 
-        Sets.SetView<String> mismatch = Sets.difference(fromRepos, onDate);
+        IdSet<Route> onDate = KnownTramRoute.getFor(date).stream().map(KnownTramRoute::getFakeId).collect(IdSet.idCollector());
+
+        IdSet<Route> mismatch = IdSet.difference(fromRepos, onDate);
+
+        assertTrue(mismatch.isEmpty(), "mismatch " + mismatch + " between expected " + fromRepos + " and " + onDate);
+    }
+
+    @Test
+    void shouldHaveCorrectNamesForKnownRoutesForTestDate() {
+
+        Set<String> fromRepos = routeRepository.getRoutesRunningOn(when).stream().map(Route::getName).collect(Collectors.toSet());
+
+        Set<String> onDate = KnownTramRoute.getFor(when).stream().map(KnownTramRoute::longName).collect(Collectors.toSet());
+
+        Set<String> mismatch = SetUtils.difference(fromRepos, onDate);
+
+        assertTrue(mismatch.isEmpty(), "mismatch " + mismatch + " between expected " + fromRepos + " and " + onDate);
+    }
+
+    @Test
+    void shouldHaveCorrectNamesForKnownRoutesForToday() {
+
+        // NOTE: REPLACEMENT services ids can change, so check that if mismatch here
+
+        TramDate date = TramDate.from(TestEnv.LocalNow());
+
+        Set<String> fromRepos = routeRepository.getRoutesRunningOn(date).stream().map(Route::getName).collect(Collectors.toSet());
+
+        Set<String> onDate = KnownTramRoute.getFor(date).stream().map(KnownTramRoute::longName).collect(Collectors.toSet());
+
+        Set<String> mismatch = SetUtils.difference(fromRepos, onDate);
 
         assertTrue(mismatch.isEmpty(), "mismatch " + mismatch + " between expected " + fromRepos + " and " + onDate);
     }

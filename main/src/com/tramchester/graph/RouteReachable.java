@@ -3,11 +3,14 @@ package com.tramchester.graph;
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.StationPair;
+import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
+import com.tramchester.domain.time.TimeRange;
 import com.tramchester.graph.graphbuild.GraphProps;
 import com.tramchester.graph.graphbuild.StagedTransportGraphBuilder;
+import com.tramchester.repository.StationAvailabilityRepository;
 import com.tramchester.repository.StationRepository;
 import org.neo4j.graphdb.Direction;
 import org.neo4j.graphdb.Node;
@@ -30,21 +33,25 @@ public class RouteReachable {
     private final GraphDatabase graphDatabaseService;
     private final StationRepository stationRepository;
     private final GraphQuery graphQuery;
+    private final StationAvailabilityRepository availabilityRepository;
 
     @Inject
     public RouteReachable(GraphDatabase graphDatabaseService, StationRepository stationRepository,
                           GraphQuery graphQuery,
-                          StagedTransportGraphBuilder.Ready ready) {
+                          StagedTransportGraphBuilder.Ready ready,
+                          StationAvailabilityRepository availabilityRepository) {
         this.graphDatabaseService = graphDatabaseService;
         this.stationRepository = stationRepository;
         this.graphQuery = graphQuery;
+        this.availabilityRepository = availabilityRepository;
     }
 
     // supports position inference on live data
-    public List<Route> getRoutesFromStartToNeighbour(StationPair pair) {
+    public List<Route> getRoutesFromStartToNeighbour(StationPair pair, TramDate date, TimeRange timeRange) {
         List<Route> results = new ArrayList<>();
         Station startStation = pair.getBegin();
-        Set<Route> firstRoutes = startStation.getPickupRoutes(); // pickups from first station
+        //Set<Route> firstRoutes = startStation.getPickupRoutes(); // pickups from first station
+        Set<Route> firstRoutes = availabilityRepository.getPickupRoutesFor(startStation, date, timeRange);
         IdFor<Station> endStationId = pair.getEnd().getId();
 
         try (Transaction txn = graphDatabaseService.beginTx()) {

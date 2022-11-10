@@ -19,21 +19,16 @@ import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.LocationType;
 import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
-import com.tramchester.domain.time.TimeRange;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
 import com.tramchester.repository.ClosedStationsRepository;
 import com.tramchester.repository.InterchangeRepository;
-import com.tramchester.repository.StationAvailabilityRepository;
 import com.tramchester.repository.TransportData;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TramRouteHelper;
 import com.tramchester.testSupport.reference.KnownTramRoute;
 import com.tramchester.testSupport.reference.TramStations;
-import com.tramchester.testSupport.testTags.DataExpiryCategory;
-import com.tramchester.testSupport.testTags.DataUpdateTest;
-import com.tramchester.testSupport.testTags.PiccGardens2022;
-import com.tramchester.testSupport.testTags.VictoriaNov2022;
+import com.tramchester.testSupport.testTags.*;
 import org.apache.commons.lang3.tuple.Pair;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.*;
@@ -66,7 +61,6 @@ public class TransportDataFromFilesTramTest {
     private static IntegrationTramTestConfig config;
 
     private TransportData transportData;
-    private StationAvailabilityRepository availabilityRepository;
     private Collection<Service> allServices;
     private TramRouteHelper routeHelper;
     private ClosedStationsRepository closedStationRepository;
@@ -87,7 +81,6 @@ public class TransportDataFromFilesTramTest {
     @BeforeEach
     void beforeEachTestRuns() {
         transportData = componentContainer.get(TransportData.class);
-        availabilityRepository = componentContainer.get(StationAvailabilityRepository.class);
         allServices = transportData.getServices();
         routeHelper = new TramRouteHelper(transportData);
         closedStationRepository = componentContainer.get(ClosedStationsRepository.class);
@@ -284,19 +277,25 @@ public class TransportDataFromFilesTramTest {
                         map(RouteStation::getRoute).
                         map(Route::getName).collect(Collectors.toSet());
 
-        assertTrue(routeNames.contains(VictoriaWythenshaweManchesterAirport.longName()));
-        assertTrue(routeNames.contains(ManchesterAirportWythenshaweVictoria.longName()));
+        assertTrue(routeNames.contains(VictoriaWythenshaweManchesterAirport.longName()), routeNames.toString());
+        assertTrue(routeNames.contains(ManchesterAirportWythenshaweVictoria.longName()), routeNames.toString());
 
-        assertTrue(routeNames.contains(BuryPiccadilly.longName()));
-        assertTrue(routeNames.contains(PiccadillyBury.longName()));
+        assertTrue(routeNames.contains(AltrinchamManchesterBury.longName()), routeNames.toString());
+        assertTrue(routeNames.contains(BuryManchesterAltrincham.longName()), routeNames.toString());
 
-        assertTrue(routeNames.contains(AltrinchamManchesterBury.longName()));
-        assertTrue(routeNames.contains(BuryManchesterAltrincham.longName()));
+//        assertTrue(routeNames.contains(BuryPiccadilly.longName()), routeNames.toString());
+//        assertTrue(routeNames.contains(PiccadillyBury.longName()), routeNames.toString());
+        assertTrue(routeNames.contains(AshtonCrumpsall.longName()), routeNames.toString());
+        assertTrue(routeNames.contains(CrumpsallAshton.longName()), routeNames.toString());
 
+        assertTrue(routeNames.contains(EastDidisburyManchesterShawandCromptonRochdale.longName()), routeNames.toString());
+        assertTrue(routeNames.contains(RochdaleShawandCromptonManchesterEastDidisbury.longName()), routeNames.toString());
+
+        // TODO
         // these not on the route map, but some early morning eccles trips seem to start at victoria
         // see extraRouteAtShudehillTowardsEccles above
         //assertTrue(routeNames.contains(AshtonUnderLyneManchesterEccles.longName()));
-        assertTrue(routeNames.contains(EcclesManchesterAshtonUnderLyne.longName()));
+        //assertTrue(routeNames.contains(EcclesManchesterAshtonUnderLyne.longName()), routeNames.toString());
 
     }
 
@@ -426,27 +425,6 @@ public class TransportDataFromFilesTramTest {
     }
 
     @VictoriaNov2022
-    @DataExpiryCategory
-    @Test
-    void shouldHaveServicesAvailableAtExpectedEarlyTimeRangeNDaysAhead() {
-        TramTime earlistHour = TramTime.of(7,0);
-
-        Duration maxwait = Duration.ofMinutes(config.getMaxWait());
-
-        getUpcomingDates().filter(this::isValidDateToCheck).forEach(date -> {
-
-            TimeRange earlyRange = TimeRange.of(earlistHour, maxwait, maxwait);
-            Set<Station> notAvailableEarly = transportData.getStations().stream().
-                    filter(station -> workaroundDataIssueExchangeSquare(station, date)).
-                    filter(station -> !closedStationRepository.isClosed(station, date)).
-                    filter(station -> !availabilityRepository.isAvailable(station, date, earlyRange)).
-                    collect(Collectors.toSet());
-
-            assertTrue(notAvailableEarly.isEmpty(), "Not available " + date + " " + earlyRange + " " + HasId.asIds(notAvailableEarly));
-        });
-    }
-
-    @VictoriaNov2022
     @Test
     void shouldReproIssueWithEarlyTramsExchangeSquareSunday() {
         // Looks like route data not updated so exchange square looks closed beyond the planned date of 6/11/2022
@@ -467,26 +445,7 @@ public class TransportDataFromFilesTramTest {
         assertEquals(2, times.size(), times.toString());
     }
 
-    @DataExpiryCategory
-    @Test
-    void shouldHaveServicesAvailableAtExpectedLateTimeRangeNDaysAhead() {
-        TramTime latestHour = TramTime.of(23,0);
-
-        Duration maxwait = Duration.ofMinutes(config.getMaxWait());
-
-        getUpcomingDates().filter(this::isValidDateToCheck).forEach(date -> {
-
-            TimeRange lateRange = TimeRange.of(latestHour, maxwait, maxwait);
-            Set<Station> notAvailableLate = transportData.getStations().stream().
-                    filter(station -> !closedStationRepository.isClosed(station, date)).
-                    filter(station -> !availabilityRepository.isAvailable(station, date, lateRange)).
-                    collect(Collectors.toSet());
-
-            assertTrue(notAvailableLate.isEmpty(), "Not available " + date + " " + lateRange + " " + HasId.asIds(notAvailableLate));
-
-        });
-    }
-
+    @WorkaroundsNov2022
     @VictoriaNov2022
     @DataExpiryCategory
     @Test
@@ -700,45 +659,6 @@ public class TransportDataFromFilesTramTest {
 
         assertTrue(onTimeTrips>0);
 
-    }
-
-    @PiccGardens2022
-    @DataExpiryCategory
-    @Test
-    void shouldHaveExpectedRoutesAvailableForDatesAndTimeRanges() {
-
-        // earier to diagnose using end of line station
-        Station altrincham = Altrincham.from(transportData);
-
-        TimeRange timeRange = TimeRange.of(TramTime.of(12, 50), Duration.ofHours(4), Duration.ofHours(4));
-
-        Set<Route> results = availabilityRepository.getPickupRoutesFor(altrincham, when, timeRange);
-
-        // 2 -> 1, no piccadilly route
-        assertEquals(1, results.size(),
-                timeRange + " missing routes from " + altrincham.getId() + " got " + results);
-    }
-
-    @DataExpiryCategory
-    @Test
-    void shouldHaveExpectedRoutesAvailableForDatesAndTimeRangesOverMidnight() {
-
-        // earier to diagnose using end of line station
-        Station altrincham = Altrincham.from(transportData);
-
-        long maxDuration = config.getMaxJourneyDuration();
-
-        TimeRange timeRange = TimeRange.of(TramTime.of(22, 50), Duration.ZERO, Duration.ofMinutes(maxDuration));
-        Set<Route> results = availabilityRepository.getPickupRoutesFor(altrincham, when, timeRange);
-        assertFalse(results.isEmpty(), "for " + timeRange + " missing routes from " + altrincham);
-
-        TimeRange timeRangeCrossMidnight = TimeRange.of(TramTime.of(23, 59), Duration.ZERO, Duration.ofMinutes(maxDuration));
-        Set<Route> overMidnightResults = availabilityRepository.getPickupRoutesFor(altrincham, when, timeRangeCrossMidnight);
-        assertFalse(overMidnightResults.isEmpty(), "for " + timeRangeCrossMidnight + " missing routes over mid-night from " + altrincham);
-
-        TimeRange timeRangeATMidnight = TimeRange.of(TramTime.of(0, 0), Duration.ZERO, Duration.ofMinutes(maxDuration));
-        Set<Route> atMidnightResults = availabilityRepository.getPickupRoutesFor(altrincham, when, timeRangeATMidnight);
-        assertFalse(atMidnightResults.isEmpty(), "for " + timeRangeATMidnight + " missing routes over mid-night from " + altrincham);
     }
 
     @DataExpiryCategory

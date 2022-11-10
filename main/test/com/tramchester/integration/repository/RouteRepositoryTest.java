@@ -18,6 +18,7 @@ import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TramRouteHelper;
 import com.tramchester.testSupport.reference.KnownTramRoute;
 import com.tramchester.testSupport.testTags.DataUpdateTest;
+import com.tramchester.testSupport.testTags.PiccGardens2022;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -62,15 +63,15 @@ public class RouteRepositoryTest {
         when = TestEnv.testDay();
     }
 
+    @PiccGardens2022
     @Test
     void shouldGetRouteWithHeadsigns() {
-        Set<Route> results = TestEnv.findTramRoute(routeRepository, AshtonUnderLyneManchesterEccles);
-        results.forEach(result -> {
-            assertEquals("Ashton Under Lyne - Manchester - Eccles", result.getName());
-            assertEquals(TestEnv.MetAgency(),result.getAgency());
-            assertTrue(result.getId().forDTO().startsWith("METLBLUE:I:"));
-            assertTrue(TransportMode.isTram(result));
-        });
+        Route result = routeHelper.getOneRoute(AshtonUnderLyneManchesterEccles, when);
+        //assertEquals("Ashton Under Lyne - Manchester - Eccles", result.getName());
+        assertEquals("Manchester - Eccles", result.getName());
+        assertEquals(TestEnv.MetAgency(),result.getAgency());
+        assertTrue(result.getId().forDTO().startsWith("METLBLUE:I:"));
+        assertTrue(TransportMode.isTram(result));
     }
 
     @Test

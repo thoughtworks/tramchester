@@ -36,4 +36,15 @@ public class ImmutableBitSet {
     public BitSet getContained() {
         return contained;
     }
+
+    public int numberSet() {
+        return contained.cardinality();
+    }
+
+    @Override
+    public String toString() {
+        return "ImmutableBitSet{" +
+                "contained=" + contained +
+                '}';
+    }
 }

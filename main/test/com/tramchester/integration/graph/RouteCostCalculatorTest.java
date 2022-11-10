@@ -3,7 +3,9 @@ package com.tramchester.integration.graph;
 import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.config.TramchesterConfig;
+import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.dates.TramServiceDate;
+import com.tramchester.domain.places.Location;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.time.InvalidDurationException;
 import com.tramchester.graph.GraphDatabase;
@@ -14,6 +16,7 @@ import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.testTags.DataUpdateTest;
 import com.tramchester.testSupport.testTags.PiccGardens2022;
 import com.tramchester.testSupport.testTags.VictoriaNov2022;
+import com.tramchester.testSupport.testTags.WorkaroundsNov2022;
 import org.junit.jupiter.api.*;
 import org.neo4j.graphdb.Transaction;
 
@@ -30,7 +33,7 @@ class RouteCostCalculatorTest {
     private RouteCostCalculator routeCostCalculator;
     private StationRepository stationRepository;
     private Transaction txn;
-    private final TramServiceDate date = new TramServiceDate(TestEnv.testDay());
+    private final TramServiceDate when = new TramServiceDate(TestEnv.testDay());
     private Station altrincham;
     private Station mediaCity;
     private Station airport;
@@ -66,16 +69,16 @@ class RouteCostCalculatorTest {
 
     @Test
     void shouldComputeSimpleCostBetweenStationsAltyNavRoad() throws InvalidDurationException {
-        assertMinutesEquals(3, routeCostCalculator.getAverageCostBetween(txn, NavigationRoad.from(stationRepository), altrincham, date));
-        assertMinutesEquals(4, routeCostCalculator.getAverageCostBetween(txn, altrincham, NavigationRoad.from(stationRepository), date));
+        assertMinutesEquals(3, routeCostCalculator.getAverageCostBetween(txn, NavigationRoad.from(stationRepository), altrincham, when));
+        assertMinutesEquals(4, routeCostCalculator.getAverageCostBetween(txn, altrincham, NavigationRoad.from(stationRepository), when));
     }
 
     @VictoriaNov2022
     @PiccGardens2022
     @Test
     void shouldComputeCostsForMediaCityAshton() throws InvalidDurationException {
-        assertMinutesEquals(60, routeCostCalculator.getAverageCostBetween(txn, mediaCity, Ashton.from(stationRepository), date));
-        assertMinutesEquals(58, routeCostCalculator.getAverageCostBetween(txn,  Ashton.from(stationRepository), mediaCity, date));
+        assertMinutesEquals(60, routeCostCalculator.getAverageCostBetween(txn, mediaCity, Ashton.from(stationRepository), when));
+        assertMinutesEquals(58, routeCostCalculator.getAverageCostBetween(txn,  Ashton.from(stationRepository), mediaCity, when));
     }
 
     @PiccGardens2022
@@ -84,8 +87,8 @@ class RouteCostCalculatorTest {
         // changes regularly with timetable updates
 
         final Station bury = Bury.from(stationRepository);
-        final Duration buryToAlty = routeCostCalculator.getAverageCostBetween(txn, bury, altrincham, date);
-        final Duration altyToBury = routeCostCalculator.getAverageCostBetween(txn, altrincham, bury, date);
+        final Duration buryToAlty = routeCostCalculator.getAverageCostBetween(txn, bury, altrincham, when);
+        final Duration altyToBury = routeCostCalculator.getAverageCostBetween(txn, altrincham, bury, when);
 
         assertMinutesEquals(63, buryToAlty);
         assertMinutesEquals(65, altyToBury);
@@ -94,15 +97,24 @@ class RouteCostCalculatorTest {
     @PiccGardens2022
     @Test
     void shouldComputeSimpleCostBetweenStationsMediaCityAirport() throws InvalidDurationException {
-        assertMinutesEquals(58, routeCostCalculator.getAverageCostBetween(txn, mediaCity, airport, date));
-        assertMinutesEquals(60, routeCostCalculator.getAverageCostBetween(txn, airport, mediaCity, date));
+        assertMinutesEquals(58, routeCostCalculator.getAverageCostBetween(txn, mediaCity, airport, when));
+        assertMinutesEquals(60, routeCostCalculator.getAverageCostBetween(txn, airport, mediaCity, when));
     }
 
     @PiccGardens2022
     @Test
     void shouldComputeSimpleMaxCostBetweenStationsMediaCityAirport() throws InvalidDurationException {
-        assertMinutesEquals(58, routeCostCalculator.getMaxCostBetween(txn, mediaCity, airport, date));
-        assertMinutesEquals(60, routeCostCalculator.getMaxCostBetween(txn, airport, mediaCity, date));
+        assertMinutesEquals(58, routeCostCalculator.getMaxCostBetween(txn, mediaCity, airport, when));
+        assertMinutesEquals(60, routeCostCalculator.getMaxCostBetween(txn, airport, mediaCity, when));
+    }
+
+    @Test
+    void shouldReproIssueBetweenAshtonAndTraffordCenter() throws InvalidDurationException {
+        Location<?> ashton = Ashton.from(stationRepository);
+        Location<?> traffordCenter = TraffordCentre.from(stationRepository);
+        TramServiceDate testDate = new TramServiceDate(TramDate.of(2022, 11, 14));
+        Duration result = routeCostCalculator.getAverageCostBetween(txn, ashton, traffordCenter, testDate);
+        assertMinutesEquals(62, result);
     }
 
 }

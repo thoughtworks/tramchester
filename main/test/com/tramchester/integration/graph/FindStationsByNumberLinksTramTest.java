@@ -5,6 +5,7 @@ import com.tramchester.ComponentsBuilder;
 import com.tramchester.config.GTFSSourceConfig;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.DataSourceID;
+import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
@@ -19,9 +20,12 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.util.Arrays;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static com.tramchester.testSupport.reference.TramStations.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class FindStationsByNumberLinksTramTest {
     private static ComponentContainer componentContainer;
@@ -66,25 +70,28 @@ class FindStationsByNumberLinksTramTest {
                 " stations with links were " + stationWithLinks);
     }
 
+    @PiccGardens2022
     @Test
     void shouldIdInterchangePointsLinked() {
 
         IdSet<Station> found = finder.atLeastNLinkedStations(TransportMode.Tram, threshhold);
-        assertEquals(11, found.size(), found.toString());
-        assertTrue(found.contains(TramStations.StPetersSquare.getId()));
 
-        assertTrue(found.contains(TramStations.PiccadillyGardens.getId()));
-        assertTrue(found.contains(TramStations.MarketStreet.getId()));
-        assertTrue(found.contains(TramStations.TraffordBar.getId()));
-        assertTrue(found.contains(TramStations.Cornbrook.getId()));
-        assertTrue(found.contains(TramStations.Victoria.getId()));
-        assertTrue(found.contains(TramStations.StWerburghsRoad.getId()));
-        assertTrue(found.contains(TramStations.Pomona.getId()));
+        List<IdFor<Station>> expectedList = Arrays.asList(StPetersSquare.getId(),
+            MarketStreet.getId(),
+            TraffordBar.getId(),
+            Cornbrook.getId(),
+            Victoria.getId(),
+            StWerburghsRoad.getId(),
+            Pomona.getId(),
+            Broadway.getId(),
+            HarbourCity.getId(),
+            //     PiccadillyGardens.getId(),
+            Piccadilly.getId());
 
-        // not during eccles line works
-        assertTrue(found.contains(TramStations.Broadway.getId()));
+        IdSet<Station> expected = new IdSet<>(expectedList);
+        IdSet<Station> diff = IdSet.difference(found, expected);
 
-        assertTrue(found.contains(TramStations.HarbourCity.getId()));
+        assertTrue(diff.isEmpty(), diff + " between expected:" + expected + " found:" + found);
 
     }
 

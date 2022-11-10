@@ -4,8 +4,10 @@ import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.domain.Platform;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.StationPair;
+import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
+import com.tramchester.domain.time.TimeRange;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.RouteReachable;
 import com.tramchester.livedata.domain.liveUpdates.UpcomingDeparture;
@@ -60,10 +62,14 @@ public class TramPositionInference {
             return new TramPosition(pair, Collections.emptySet(), costBetweenPair);
         }
 
-        TramTime cutOff = TramTime.ofHourMins(now.toLocalTime().plus(costBetweenPair));
+        TramTime currentTime = TramTime.ofHourMins(now.toLocalTime());
+        TramDate date = TramDate.of(now.toLocalDate());
 
-        Set<UpcomingDeparture> dueTrams = getDueTrams(pair, cutOff).stream().
-                filter(departure -> departure.getDate().equals(now.toLocalDate())).
+        TramTime cutOff = currentTime.plus(costBetweenPair);
+        TimeRange timeRange = TimeRange.of(currentTime, cutOff);
+
+        Set<UpcomingDeparture> dueTrams = getDueTrams(pair, date, timeRange).stream().
+                filter(departure -> departure.getDate().equals(date.toLocalDate())).
                 collect(Collectors.toSet());
 
         logger.debug(format("Found %s trams between %s", dueTrams.size(), pair));
@@ -71,7 +77,7 @@ public class TramPositionInference {
         return new TramPosition(pair, dueTrams, costBetweenPair);
     }
 
-    private Set<UpcomingDeparture> getDueTrams(StationPair pair, TramTime cutoff) {
+    private Set<UpcomingDeparture> getDueTrams(StationPair pair, TramDate date, TimeRange timeRange) {
         Station neighbour = pair.getEnd();
 
         if (!pair.bothServeMode(TransportMode.Tram)) {
@@ -86,7 +92,7 @@ public class TramPositionInference {
             return Collections.emptySet();
         }
 
-        List<Route> routesBetween = routeReachable.getRoutesFromStartToNeighbour(pair);
+        List<Route> routesBetween = routeReachable.getRoutesFromStartToNeighbour(pair, date, timeRange);
 
         if (routesBetween.isEmpty()) {
             logger.warn("No routes between " + pair);
@@ -108,14 +114,10 @@ public class TramPositionInference {
         }
 
         return departures.stream().
-                filter(departure -> isWithinWindow(departure, cutoff)).
+                filter(departure -> timeRange.contains(departure.getWhen())).
                 filter(departure -> !DEPARTING.equals(departure.getStatus())).
                 collect(Collectors.toSet());
 
     }
 
-    private boolean isWithinWindow(UpcomingDeparture departure, TramTime cutoff) {
-        TramTime departureWhen = departure.getWhen();
-        return departureWhen.equals(cutoff) || departureWhen.isBefore(cutoff);
-    }
 }

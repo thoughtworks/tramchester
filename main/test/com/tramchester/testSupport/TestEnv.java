@@ -41,8 +41,7 @@ import java.util.*;
 
 import static com.tramchester.domain.id.StringIdFor.createId;
 import static java.lang.String.format;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class TestEnv {
     public static final Path CACHE_DIR = Path.of("testData","cache");
@@ -261,7 +260,7 @@ public class TestEnv {
      */
     public static Set<Route> findTramRoute(RouteRepository routeRepository, KnownTramRoute knownTramRoute) {
         Set<Route> routes = routeRepository.findRoutesByName(MET.getId(), knownTramRoute.longName());
-        assertTrue(routes.size()>=1, "Found "+ routes + " for " + knownTramRoute);
+        assertFalse(routes.isEmpty(), "Found no routes for " + knownTramRoute);
 
         return routes;
     }

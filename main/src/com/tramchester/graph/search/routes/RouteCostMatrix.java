@@ -11,8 +11,8 @@ import com.tramchester.domain.collections.IndexedBitSet;
 import com.tramchester.domain.collections.SimpleList;
 import com.tramchester.domain.collections.SimpleListSingleton;
 import com.tramchester.domain.dates.TramDate;
+import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.places.InterchangeStation;
-import com.tramchester.domain.places.SimpleInterchangeStation;
 import com.tramchester.graph.filters.GraphFilterActive;
 import com.tramchester.repository.InterchangeRepository;
 import com.tramchester.repository.RouteRepository;
@@ -26,7 +26,10 @@ import javax.annotation.PreDestroy;
 import javax.inject.Inject;
 import java.time.Duration;
 import java.time.Instant;
-import java.util.*;
+import java.util.BitSet;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
@@ -39,7 +42,7 @@ public class RouteCostMatrix {
 
     public static final byte MAX_VALUE = Byte.MAX_VALUE;
 
-    public static final int MAX_DEPTH = 4;
+    public static final int MAX_DEPTH = 5;
 
     private final RouteRepository routeRepository;
     private final InterchangeRepository interchangeRepository;
@@ -253,7 +256,22 @@ public class RouteCostMatrix {
         ImmutableBitSet linksForA = costsForDegree.getBitSetForRow(pair.first());
         ImmutableBitSet linksForB = costsForDegree.getBitSetForRow(pair.second());
         ImmutableBitSet overlap = linksForA.and(linksForB);
+        int numberOfOverlaps = overlap.numberSet();
+        if (numberOfOverlaps == 0) {
+            RoutePair routePair = index.getPairFor(pair);
+            logger.info(format("No overlap between %s (%s, %s)", routePair, resolve(linksForA), resolve(linksForB)));
+        }
+        if (logger.isDebugEnabled()) {
+            RoutePair routePair = index.getPairFor(pair);
+            logger.debug(format("Found %s overlaps between %s (%s %s)", numberOfOverlaps, routePair,
+                resolve(linksForA), resolve(linksForB)));
+        }
         return overlap.stream().boxed().collect(Collectors.toList());
+    }
+
+    private String resolve(ImmutableBitSet links) {
+        IdSet<Route> ids = links.stream().boxed().map(index::getRouteFor).collect(IdSet.collector());
+        return ids.toString();
     }
 
     private void populateCosts(RouteDateAndDayOverlap routeDateAndDayOverlap) {
@@ -261,7 +279,7 @@ public class RouteCostMatrix {
         logger.info("Find costs between " + size + " routes");
         final int fullyConnected = size * size;
 
-
+        int previousTotal = 0;
         for (byte currentDegree = 1; currentDegree < maxDepth; currentDegree++) {
             addConnectionsFor(routeDateAndDayOverlap, currentDegree);
             final int currentTotal = size();
@@ -269,6 +287,11 @@ public class RouteCostMatrix {
             if (currentTotal >= fullyConnected) {
                 break;
             }
+            if (previousTotal==currentTotal) {
+                logger.warn(format("No improvement in connections at depth %s and number %s", currentDegree, currentTotal));
+                break;
+            }
+            previousTotal = currentTotal;
         }
 
         final int finalSize = size();
