@@ -5,7 +5,6 @@ import com.tramchester.ComponentsBuilder;
 import com.tramchester.domain.Journey;
 import com.tramchester.domain.JourneyRequest;
 import com.tramchester.domain.dates.TramDate;
-import com.tramchester.domain.dates.TramServiceDate;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.TransportStage;
@@ -30,7 +29,6 @@ import java.time.Duration;
 import java.util.*;
 
 import static com.tramchester.domain.reference.TransportMode.*;
-import static com.tramchester.domain.reference.TransportMode.Train;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 
@@ -97,7 +95,7 @@ class RouteCalculatorLocalStationsSubGraphTest {
     @Test
     void shouldHaveWalkBetweenAdjacentTramAndTrainStation() {
 
-        JourneyRequest request = new JourneyRequest(new TramServiceDate(when), time, false, 0,
+        JourneyRequest request = new JourneyRequest(when, time, false, 0,
                 Duration.ofMinutes(3), 1, getRequestedModes());
 
         List<Journey> journeysFromTram = new ArrayList<>(testFacade.calculateRouteAsSet(tram(TramStations.Altrincham),
@@ -117,7 +115,7 @@ class RouteCalculatorLocalStationsSubGraphTest {
     @Test
     void shouldHaveWalkBetweenAdjacentTrainAndTramStation() {
 
-        JourneyRequest request = new JourneyRequest(new TramServiceDate(when), time, false, 0,
+        JourneyRequest request = new JourneyRequest(when, time, false, 0,
                 Duration.ofMinutes(3), 1, getRequestedModes());
 
         List<Journey> journeysFromTrain = new ArrayList<>(testFacade.calculateRouteAsSet(rail(RailStationIds.Altrincham),
@@ -137,7 +135,7 @@ class RouteCalculatorLocalStationsSubGraphTest {
     @Test
     void shouldTakeDirectTrainAltrinchamToStockportWhenAvailable() {
 
-        JourneyRequest request = new JourneyRequest(new TramServiceDate(when), time, false, 1,
+        JourneyRequest request = new JourneyRequest(when, time, false, 1,
                 Duration.ofMinutes(240), 1, getRequestedModes());
 
         Station start = rail(RailStationIds.Altrincham);
@@ -156,7 +154,7 @@ class RouteCalculatorLocalStationsSubGraphTest {
     @Test
     void shouldTakeDirectTrainNavigationRoadToStockportWhenAvailable() {
 
-        JourneyRequest request = new JourneyRequest(new TramServiceDate(when), time, false, 1,
+        JourneyRequest request = new JourneyRequest(when, time, false, 1,
                 Duration.ofMinutes(240), 1, getRequestedModes());
 
         Station start = rail(RailStationIds.NavigationRaod);
@@ -175,7 +173,7 @@ class RouteCalculatorLocalStationsSubGraphTest {
     @Test
     void shouldTakeDirectTrainToNavigationRoadWhenAvailable() {
 
-        JourneyRequest request = new JourneyRequest(new TramServiceDate(when), time, false, 1,
+        JourneyRequest request = new JourneyRequest(when, time, false, 1,
                 Duration.ofMinutes(30), 1, getRequestedModes());
 
         Station start = rail(RailStationIds.Altrincham);
@@ -195,7 +193,7 @@ class RouteCalculatorLocalStationsSubGraphTest {
     @Test
     void shouldTakeDirectTrainAltrinchamTramToStockportRail() {
 
-        JourneyRequest request = new JourneyRequest(new TramServiceDate(when), time, false, 1,
+        JourneyRequest request = new JourneyRequest(when, time, false, 1,
                 Duration.ofMinutes(240), 1, getRequestedModes());
 
         Station start = tram(TramStations.Altrincham); // TRAM
@@ -217,7 +215,7 @@ class RouteCalculatorLocalStationsSubGraphTest {
     void shouldTakeDirectTrainThenTramToTimperley() {
 
         TramTime fromStockportTime = TramTime.of(14,5);
-        JourneyRequest request = new JourneyRequest(new TramServiceDate(when), fromStockportTime, false, 3,
+        JourneyRequest request = new JourneyRequest(when, fromStockportTime, false, 3,
                 Duration.ofMinutes(240), 1, getRequestedModes());
 
         Station start = rail(RailStationIds.Stockport); // TRAM
@@ -238,7 +236,7 @@ class RouteCalculatorLocalStationsSubGraphTest {
     @Test
     void shouldTakeDirectTrainNavigationRoadTramToStockportRail() {
 
-        JourneyRequest request = new JourneyRequest(new TramServiceDate(when), time, false, 1,
+        JourneyRequest request = new JourneyRequest(when, time, false, 1,
                 Duration.ofMinutes(240), 3, getRequestedModes());
 
         Station start = tram(TramStations.NavigationRoad); // TRAM

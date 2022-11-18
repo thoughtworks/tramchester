@@ -56,10 +56,10 @@ class SubgraphSmallClosedStationsDiversionsTest {
     private static GraphDatabase database;
     private static IntegrationTramClosedStationsTestConfig config;
 
-    private final static TramServiceDate when = new TramServiceDate(TestEnv.testDay());
+    private final static TramDate when = TestEnv.testDay();
 
     private final static List<StationClosures> closedStations = List.of(
-            new StationClosuresForTest(PiccadillyGardens, when.getDate(), when.getDate().plusWeeks(1), false));
+            new StationClosuresForTest(PiccadillyGardens, when, when.plusWeeks(1), false));
 
     private static final List<TramStations> centralStations = Arrays.asList(
             Cornbrook,
@@ -159,7 +159,7 @@ class SubgraphSmallClosedStationsDiversionsTest {
         TimeRange timeRange = TimeRange.of(TramTime.of(6,0), TramTime.of(23,55));
         Set<TransportMode> mode = EnumSet.of(TransportMode.Tram);
 
-        NumberOfChanges costs = routeToRouteCosts.getNumberOfChanges(start, destination, mode, when.getDate().plusDays(1), timeRange);
+        NumberOfChanges costs = routeToRouteCosts.getNumberOfChanges(start, destination, mode, when.plusDays(1), timeRange);
 
         // note replacement bus is now available instead of the walk 1->0
         assertEquals(0, costs.getMin());
@@ -167,7 +167,7 @@ class SubgraphSmallClosedStationsDiversionsTest {
 
     @Test
     void shouldHaveExpectedNeighboursForClosedPiccadillyGardens() {
-        TramDate date = when.getDate();
+        TramDate date = when;
         ClosedStationsRepository closedStationsRepository = componentContainer.get(ClosedStationsRepository.class);
 
         Station piccGardens = PiccadillyGardens.from(stationRepository);

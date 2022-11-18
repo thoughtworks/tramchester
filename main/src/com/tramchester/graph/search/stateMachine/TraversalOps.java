@@ -5,7 +5,6 @@ import com.tramchester.domain.LocationSet;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.Service;
 import com.tramchester.domain.dates.TramDate;
-import com.tramchester.domain.dates.TramServiceDate;
 import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdSet;
@@ -45,7 +44,7 @@ public class TraversalOps {
     public TraversalOps(NodeContentsRepository nodeOperations, TripRepository tripRepository,
                         SortsPositions sortsPositions, LocationSet destinations,
                         LatLong destinationLatLon, LowestCostsForDestRoutes lowestCostsForRoutes,
-                        TramServiceDate queryDate) {
+                        TramDate queryDate) {
         this.tripRepository = tripRepository;
         this.nodeOperations = nodeOperations;
         this.sortsPositions = sortsPositions;
@@ -55,7 +54,7 @@ public class TraversalOps {
                 collect(IdSet.collector());
         this.destinationLatLon = destinationLatLon;
         this.lowestCostsForRoutes = lowestCostsForRoutes;
-        this.queryDate = queryDate.getDate();
+        this.queryDate = queryDate;
     }
 
     public List<Relationship> getTowardsDestination(Iterable<Relationship> outgoing) {

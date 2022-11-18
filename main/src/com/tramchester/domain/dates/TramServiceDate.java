@@ -5,6 +5,7 @@ import java.time.LocalDate;
 import java.time.Month;
 import java.time.format.DateTimeFormatter;
 
+@Deprecated
 public class TramServiceDate {
     private final TramDate date;
 

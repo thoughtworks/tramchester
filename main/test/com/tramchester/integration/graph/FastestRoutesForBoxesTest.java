@@ -111,7 +111,7 @@ class FastestRoutesForBoxesTest {
 
         TramTime time = TramTime.of(9,15);
         JourneyRequest journeyRequest = new JourneyRequest(
-                new TramServiceDate(TestEnv.testDay()), time, false, 2,
+                TestEnv.testDay(), time, false, 2,
                 Duration.ofMinutes(120), 3, Collections.emptySet());
 
         Stream<BoundingBoxWithCost> results = calculator.findForGrid(destination, 2000, journeyRequest);

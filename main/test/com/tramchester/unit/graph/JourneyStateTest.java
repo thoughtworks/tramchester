@@ -3,7 +3,7 @@ package com.tramchester.unit.graph;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.DataSourceID;
 import com.tramchester.domain.LocationSet;
-import com.tramchester.domain.dates.TramServiceDate;
+import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.exceptions.TramchesterException;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.input.MutableTrip;
@@ -11,7 +11,9 @@ import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.MutableStation;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.reference.TransportMode;
-import com.tramchester.domain.time.*;
+import com.tramchester.domain.time.ProvidesLocalNow;
+import com.tramchester.domain.time.ProvidesNow;
+import com.tramchester.domain.time.TramTime;
 import com.tramchester.geo.SortsPositions;
 import com.tramchester.graph.caches.NodeContentsRepository;
 import com.tramchester.graph.search.JourneyState;
@@ -47,7 +49,7 @@ class JourneyStateTest extends EasyMockSupport {
     @BeforeEach
     void onceBeforeEachTestRuns() {
         LatLong latLongHint = TramStations.ManAirport.getLatLong();
-        TramServiceDate queryDate = new TramServiceDate(TestEnv.testDay());
+        TramDate queryDate = TestEnv.testDay();
 
         node = EasyMock.createMock(Node.class);
 

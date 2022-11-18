@@ -88,7 +88,7 @@ public class AllModesJourneysTest {
 
         TramTime travelTime = TramTime.of(9, 0);
 
-        JourneyRequest requestA = new JourneyRequest(new TramServiceDate(when), travelTime, false, 2,
+        JourneyRequest requestA = new JourneyRequest(when, travelTime, false, 2,
                 maxJourneyDuration, 3, getRequestedModes());
         Set<Journey> journeys = routeCalculator.calculateRouteAsSet(stockport, alty, requestA);
         assertFalse(journeys.isEmpty());
@@ -101,7 +101,7 @@ public class AllModesJourneysTest {
     @Test
     void shouldHaveBuryVictoriaTramJourney() {
 
-        JourneyRequest request = new JourneyRequest(new TramServiceDate(when),
+        JourneyRequest request = new JourneyRequest(when,
                 TramTime.of(11,53), false, 0, maxJourneyDuration, 1, getRequestedModes());
 
         Set<Journey> journeys = routeCalculator.calculateRouteAsSet(Bury, Victoria, request);
@@ -122,7 +122,7 @@ public class AllModesJourneysTest {
 
         TramTime travelTime = TramTime.of(9, 0);
 
-        JourneyRequest requestA = new JourneyRequest(new TramServiceDate(when), travelTime, false, 0,
+        JourneyRequest requestA = new JourneyRequest(when, travelTime, false, 0,
                 maxJourneyDuration, 3, getRequestedModes());
         Set<Journey> journeys = routeCalculator.calculateRouteAsSet(stockport, alty, requestA);
         assertFalse(journeys.isEmpty());
@@ -132,7 +132,7 @@ public class AllModesJourneysTest {
     void shouldHaveStockportToManPiccRail() {
         TramTime travelTime = TramTime.of(8, 0);
 
-        JourneyRequest request = new JourneyRequest(new TramServiceDate(when), travelTime, false, 1,
+        JourneyRequest request = new JourneyRequest(when, travelTime, false, 1,
                 Duration.ofMinutes(30), 1, getRequestedModes());
 
         Set<Journey> journeys = routeCalculator.calculateRouteAsSet(RailStationIds.Stockport.getId(), ManchesterPiccadilly.getId(), request);

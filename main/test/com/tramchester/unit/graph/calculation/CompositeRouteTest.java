@@ -4,21 +4,21 @@ import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.DiagramCreator;
 import com.tramchester.domain.Journey;
+import com.tramchester.domain.JourneyRequest;
 import com.tramchester.domain.Service;
+import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.StringIdFor;
-import com.tramchester.domain.places.StationGroup;
 import com.tramchester.domain.places.Station;
+import com.tramchester.domain.places.StationGroup;
 import com.tramchester.domain.presentation.TransportStage;
 import com.tramchester.domain.time.InvalidDurationException;
-import com.tramchester.domain.dates.TramServiceDate;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.RouteCostCalculator;
-import com.tramchester.domain.JourneyRequest;
 import com.tramchester.graph.search.RouteCalculator;
 import com.tramchester.integration.testSupport.RouteCalculatorTestFacade;
-import com.tramchester.repository.StationGroupsRepository;
 import com.tramchester.repository.RunningRoutesAndServices;
+import com.tramchester.repository.StationGroupsRepository;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.repository.TransportData;
 import com.tramchester.resources.LocationJourneyPlanner;
@@ -32,7 +32,6 @@ import org.neo4j.graphdb.Transaction;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.time.Duration;
-import java.time.LocalDate;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
@@ -50,7 +49,7 @@ class CompositeRouteTest {
 
     private TramTransportDataForTestFactory.TramTransportDataForTest transportData;
 
-    private TramServiceDate queryDate;
+    private TramDate queryDate;
     private Transaction txn;
     private StationGroup startGroup;
     private TramTime queryTime;
@@ -83,7 +82,7 @@ class CompositeRouteTest {
         StationRepository stationRepository = componentContainer.get(StationRepository.class);
         RouteCalculator routeCalculator = componentContainer.get(RouteCalculator.class);
 
-        queryDate = new TramServiceDate(LocalDate.of(2014,6,30));
+        queryDate = TramDate.of(2014,6,30);
         queryTime = TramTime.of(7, 57);
 
         StationGroupsRepository compositeStationRepository = componentContainer.get(StationGroupsRepository.class);
@@ -118,7 +117,7 @@ class CompositeRouteTest {
     void shouldCheckServiceIsRunning() {
         RunningRoutesAndServices runningRoutesAndServices = componentContainer.get(RunningRoutesAndServices.class);
         Service svcA = transportData.getServiceById(StringIdFor.createId("serviceAId"));
-        RunningRoutesAndServices.FilterForDate running = runningRoutesAndServices.getFor(queryDate.getDate());
+        RunningRoutesAndServices.FilterForDate running = runningRoutesAndServices.getFor(queryDate);
         assertTrue(running.isServiceRunningByTime(svcA.getId(), queryTime, 10), svcA.toString());
     }
 

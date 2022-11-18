@@ -2,21 +2,21 @@ package com.tramchester.mappers;
 
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.domain.Journey;
+import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.places.Location;
 import com.tramchester.domain.presentation.DTO.JourneyDTO;
-import com.tramchester.domain.presentation.DTO.StageDTO;
 import com.tramchester.domain.presentation.DTO.LocationRefWithPosition;
-import com.tramchester.domain.presentation.DTO.factory.StageDTOFactory;
+import com.tramchester.domain.presentation.DTO.StageDTO;
 import com.tramchester.domain.presentation.DTO.factory.DTOFactory;
+import com.tramchester.domain.presentation.DTO.factory.StageDTOFactory;
 import com.tramchester.domain.presentation.Note;
-import com.tramchester.livedata.repository.ProvidesNotes;
-import com.tramchester.livedata.tfgm.ProvidesTramNotes;
 import com.tramchester.domain.presentation.TransportStage;
 import com.tramchester.domain.presentation.TravelAction;
 import com.tramchester.domain.reference.TransportMode;
-import com.tramchester.domain.dates.TramServiceDate;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.domain.transportStages.WalkingStage;
+import com.tramchester.livedata.repository.ProvidesNotes;
+import com.tramchester.livedata.tfgm.ProvidesTramNotes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -40,7 +40,7 @@ public class JourneyToDTOMapper {
         this.providesNotes = providesNotes;
     }
 
-    public JourneyDTO createJourneyDTO(Journey journey, TramServiceDate queryDate) {
+    public JourneyDTO createJourneyDTO(Journey journey, TramDate queryDate) {
         List<StageDTO> stages = new ArrayList<>();
 
         List<TransportStage<?,?>> rawJourneyStages = journey.getStages();
@@ -55,7 +55,7 @@ public class JourneyToDTOMapper {
         for(TransportStage<?,?> rawStage : rawJourneyStages) {
             logger.info("Adding stage " + rawStage);
             TravelAction action = decideTravelAction(stages, rawStage);
-            StageDTO stageDTO = stageFactory.build(rawStage, action, queryDate.getDate());
+            StageDTO stageDTO = stageFactory.build(rawStage, action, queryDate);
             stages.add(stageDTO);
         }
 
@@ -67,7 +67,7 @@ public class JourneyToDTOMapper {
 
         List<LocationRefWithPosition> path = asListOf(journey.getPath());
 
-        LocalDate date = queryDate.getDate().toLocalDate();
+        LocalDate date = queryDate.toLocalDate();
         return new JourneyDTO(begin, stages,
                 journey.getArrivalTime().toDate(date), journey.getDepartTime().toDate(date),
                 changeStations, queryTime, notes,

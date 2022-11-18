@@ -8,7 +8,6 @@ import com.tramchester.domain.JourneyRequest;
 import com.tramchester.domain.StationClosures;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.reference.TransportMode;
-import com.tramchester.domain.dates.TramServiceDate;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.search.RouteCalculator;
@@ -32,7 +31,8 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import static com.tramchester.testSupport.reference.TramStations.*;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class RouteCalculatorCloseStationsTest {
     // Note this needs to be > time for whole test fixture, see note below in @After
@@ -42,7 +42,7 @@ class RouteCalculatorCloseStationsTest {
     private static GraphDatabase database;
 
     private RouteCalculatorTestFacade calculator;
-    private final static TramDate when = TestEnv.testTramDay();
+    private final static TramDate when = TestEnv.testDay();
     private Transaction txn;
 
     // see note below on DB deletion
@@ -81,7 +81,7 @@ class RouteCalculatorCloseStationsTest {
 
     @Test
     void shouldFindUnaffectedRouteNormally() {
-        JourneyRequest journeyRequest = new JourneyRequest(new TramServiceDate(when),TramTime.of(8,0), false,
+        JourneyRequest journeyRequest = new JourneyRequest(when, TramTime.of(8,0), false,
                 2, Duration.ofMinutes(120), 1, getRequestedModes());
         Set<Journey> result = calculator.calculateRouteAsSet(TramStations.Altrincham, TraffordBar, journeyRequest);
         assertFalse(result.isEmpty());
@@ -89,7 +89,7 @@ class RouteCalculatorCloseStationsTest {
 
     @Test
     void shouldHandlePartialClosure() {
-        JourneyRequest journeyRequest = new JourneyRequest(new TramServiceDate(when),TramTime.of(8,0), false,
+        JourneyRequest journeyRequest = new JourneyRequest(when, TramTime.of(8,0), false,
                 3, Duration.ofMinutes(120), 1, getRequestedModes());
         Set<Journey> result = calculator.calculateRouteAsSet(Piccadilly, StPetersSquare, journeyRequest);
         assertFalse(result.isEmpty());
@@ -101,7 +101,7 @@ class RouteCalculatorCloseStationsTest {
 
     @Test
     void shouldFindRouteAroundClosedStation() {
-        JourneyRequest journeyRequest = new JourneyRequest(new TramServiceDate(when),TramTime.of(8,0), false,
+        JourneyRequest journeyRequest = new JourneyRequest(when, TramTime.of(8,0), false,
                 3, Duration.ofMinutes(120), 1, getRequestedModes());
         Set<Journey> result = calculator.calculateRouteAsSet(MarketStreet, Victoria, journeyRequest);
         assertFalse(result.isEmpty());
@@ -121,7 +121,7 @@ class RouteCalculatorCloseStationsTest {
 
     @NotNull
     private Set<Journey> getSingleStageBuryToEccles(TramDate travelDate) {
-        JourneyRequest journeyRequest = new JourneyRequest(new TramServiceDate(travelDate), TramTime.of(8, 0),
+        JourneyRequest journeyRequest = new JourneyRequest(travelDate, TramTime.of(8, 0),
                 false, 0, Duration.ofMinutes(120), 1, getRequestedModes());
 
         Set<Journey> journeys = calculator.calculateRouteAsSet(Bury, Shudehill, journeyRequest);

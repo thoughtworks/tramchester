@@ -62,7 +62,7 @@ public class ProvidesTramNotes implements ProvidesNotes {
      * From JourneyDTO prep
      */
     @Override
-    public List<Note> createNotesForJourney(Journey journey, TramServiceDate queryDate) {
+    public List<Note> createNotesForJourney(Journey journey, TramDate queryDate) {
         if (!journey.getTransportModes().contains(TransportMode.Tram)) {
             logger.info("Not a tram journey, providing no notes");
             return Collections.emptyList();
@@ -71,7 +71,7 @@ public class ProvidesTramNotes implements ProvidesNotes {
         List<Note> notes = new LinkedList<>(createNotesForADate(queryDate));
 
         if (platformMessageSource.isEnabled()) {
-            notes.addAll(liveNotesForJourney(journey, queryDate.getDate()));
+            notes.addAll(liveNotesForJourney(journey, queryDate));
         }
 
         return notes;
@@ -81,7 +81,7 @@ public class ProvidesTramNotes implements ProvidesNotes {
      * From DeparturesResource
      */
     @Override
-    public List<Note> createNotesForStations(List<Station> stations, TramServiceDate queryDate, TramTime time) {
+    public List<Note> createNotesForStations(List<Station> stations, TramDate queryDate, TramTime time) {
         if (!platformMessageSource.isEnabled()) {
             logger.error("Attempted to get notes for departures when live data disabled");
             return Collections.emptyList();
@@ -89,7 +89,7 @@ public class ProvidesTramNotes implements ProvidesNotes {
 
         List<Note> notes = new LinkedList<>();
         notes.addAll(createNotesForADate(queryDate));
-        notes.addAll(createLiveNotesForStations(stations, queryDate.getDate(), time));
+        notes.addAll(createLiveNotesForStations(stations, queryDate, time));
         return notes;
     }
 
@@ -102,33 +102,20 @@ public class ProvidesTramNotes implements ProvidesNotes {
         return notes;
     }
 
-    private List<Note> createNotesForADate(TramServiceDate queryDate) {
+    private List<Note> createNotesForADate(TramDate queryDate) {
         ArrayList<Note> notes = new ArrayList<>();
         if (queryDate.isWeekend()) {
             notes.add(new Note(weekend, Weekend));
         }
         if (queryDate.isChristmasPeriod()) {
-            int year = queryDate.getDate().getYear();
+            int year = queryDate.getYear();
             if (year==2021 || year==2022) {
                 notes.add(new Note(christmas2021, Christmas));
             } else {
                 notes.add(new Note(christmas, Christmas));
             }
         }
-        if (summer2022Closure(queryDate.getDate())) {
-            notes.add(new Note(summer2022, ClosedStation));
-        }
         return notes;
-    }
-
-    public static boolean summer2022Closure(TramDate date) {
-        if (date.isBefore(TramDate.of(2022,7,13))) {
-            return false;
-        }
-        if (date.isAfter(TramDate.of(2022,10,21))) {
-            return false;
-        }
-        return true;
     }
 
     private List<Note> liveNotesForJourney(Journey journey, TramDate queryDate) {

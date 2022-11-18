@@ -5,7 +5,6 @@ import com.tramchester.ComponentsBuilder;
 import com.tramchester.domain.Journey;
 import com.tramchester.domain.JourneyRequest;
 import com.tramchester.domain.dates.TramDate;
-import com.tramchester.domain.dates.TramServiceDate;
 import com.tramchester.domain.input.StopCall;
 import com.tramchester.domain.places.Location;
 import com.tramchester.domain.places.LocationType;
@@ -263,7 +262,7 @@ public class RouteCalculatorTest {
 
     @Test
     void shouldLimitNumberChangesResultsInNoJourneys() {
-        TramServiceDate today = new TramServiceDate(TestEnv.LocalNow().toLocalDate());
+        TramDate today = TramDate.from(TestEnv.LocalNow());
 
         JourneyRequest request = new JourneyRequest(today, TramTime.of(11, 43), false, 0,
                 maxJourneyDuration, 1, getRequestedModes());
@@ -278,7 +277,7 @@ public class RouteCalculatorTest {
 
     @Test
     void shouldNotReturnBackToStartOnJourney() {
-        TramServiceDate today = new TramServiceDate(TestEnv.testDay());
+        TramDate today = TramDate.from(TestEnv.LocalNow());
 
         JourneyRequest request = new JourneyRequest(today, TramTime.of(20, 9), false, 2,
                 maxJourneyDuration, 6, getRequestedModes());
@@ -295,7 +294,7 @@ public class RouteCalculatorTest {
 
     @Test
     void testJourneyFromAltyToAirport() {
-        TramServiceDate today = new TramServiceDate(TestEnv.LocalNow().toLocalDate());
+        TramDate today = TramDate.from(TestEnv.LocalNow());
 
         JourneyRequest request = new JourneyRequest(today, TramTime.of(11, 43), false, maxChanges,
                 maxJourneyDuration, maxNumResults, getRequestedModes());
@@ -402,7 +401,7 @@ public class RouteCalculatorTest {
     @Test
     void shouldNotGenerateDuplicateJourneysForSameReqNumChanges() {
 
-        JourneyRequest request = new JourneyRequest(new TramServiceDate(when), TramTime.of(11, 45), false,
+        JourneyRequest request = new JourneyRequest(when, TramTime.of(11, 45), false,
                 4, maxJourneyDuration, 3, getRequestedModes());
         Set<Journey> journeys =  calculator.calculateRouteAsSet(Bury, Altrincham, request);
 
@@ -551,7 +550,7 @@ public class RouteCalculatorTest {
     }
 
     @NotNull
-    private Set<Journey> checkJourneys(TramStations start, TramStations dest, TramTime time, TramServiceDate date, Set<Journey> journeys) {
+    private Set<Journey> checkJourneys(TramStations start, TramStations dest, TramTime time, TramDate date, Set<Journey> journeys) {
         String message = "from " + start.getId() + " to " + dest.getId() + " at " + time + " on " + date;
         assertTrue(journeys.size() > 0, "Unable to find journey " + message);
         journeys.forEach(journey -> assertFalse(journey.getStages().isEmpty(), message + " missing stages for journey" + journey));
@@ -578,7 +577,7 @@ public class RouteCalculatorTest {
         for (int hour = 7; hour < latestHour; hour++) {
             for (int minutes = minsOffset; minutes < 59; minutes=minutes+ maxChanges) {
                 TramTime time = TramTime.of(hour, minutes);
-                JourneyRequest journeyRequest = new JourneyRequest(new TramServiceDate(when), time, false, maxChanges,
+                JourneyRequest journeyRequest = new JourneyRequest(when, time, false, maxChanges,
                         maxJourneyDuration, 1, getRequestedModes());
                 Set<Journey> journeys = calculator.calculateRouteAsSet(start, dest, journeyRequest);
                 if (journeys.isEmpty()) {

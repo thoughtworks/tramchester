@@ -5,7 +5,6 @@ import com.tramchester.domain.DataSourceID;
 import com.tramchester.domain.Journey;
 import com.tramchester.domain.JourneyRequest;
 import com.tramchester.domain.dates.TramDate;
-import com.tramchester.domain.dates.TramServiceDate;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.InvalidDurationException;
@@ -55,22 +54,22 @@ class RouteCalculatorArriveByTest extends EasyMockSupport {
 
         Station start = TramStations.Bury.fake();
         Station destinationId = TramStations.Cornbrook.fake();
-        TramServiceDate serviceDate = new TramServiceDate(localDate);
+        //TramServiceDate serviceDate = new TramServiceDate(localDate);
 
         Stream<Journey> journeyStream = Stream.empty();
 
         Duration duration = Duration.ofMinutes(15);
-        EasyMock.expect(costCalculator.getAverageCostBetween(txn, start, destinationId, serviceDate)).andReturn(duration);
+        EasyMock.expect(costCalculator.getAverageCostBetween(txn, start, destinationId, localDate)).andReturn(duration);
         TramTime requiredDepartTime = arriveByTime.minusMinutes(costBetweenStartDest).minusMinutes(17); // 17 = 34/2
 
         Set<TransportMode> modes = Collections.emptySet();
-        JourneyRequest updatedWithComputedDepartTime = new JourneyRequest(serviceDate, requiredDepartTime, true,
+        JourneyRequest updatedWithComputedDepartTime = new JourneyRequest(localDate, requiredDepartTime, true,
                 5, Duration.ofMinutes(120), maxNumberOfJourneys, modes);
         EasyMock.expect(routeCalculator.calculateRoute(txn, start, destinationId, updatedWithComputedDepartTime)).andReturn(journeyStream);
         EasyMock.expect(config.getInitialMaxWaitFor(DataSourceID.tfgm)).andReturn(Duration.ofMinutes(34));
 
         replayAll();
-        JourneyRequest originalRequest = new JourneyRequest(serviceDate, arriveByTime, true, 5,
+        JourneyRequest originalRequest = new JourneyRequest(localDate, arriveByTime, true, 5,
                 Duration.ofMinutes(120), maxNumberOfJourneys, modes);
         Stream<Journey> result = routeCalculatorArriveBy.calculateRoute(txn, start, destinationId, originalRequest);
         verifyAll();

@@ -8,7 +8,6 @@ import com.tramchester.domain.JourneyRequest;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.places.StationGroup;
 import com.tramchester.domain.reference.TransportMode;
-import com.tramchester.domain.dates.TramServiceDate;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.GraphDatabase;
 import com.tramchester.integration.testSupport.bus.IntegrationBusTestConfig;
@@ -23,7 +22,6 @@ import org.junit.jupiter.api.*;
 import org.neo4j.graphdb.Transaction;
 
 import java.time.Duration;
-import java.time.LocalDate;
 import java.util.Collections;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
@@ -77,7 +75,7 @@ class LocationJourneyPlannerBusTest {
     void shouldHaveSimpleWalkAndBus() {
         TramTime travelTime = TramTime.of(8, 0);
 
-        JourneyRequest journeyRequest = new JourneyRequest(new TramServiceDate(nextMonday), travelTime, false, 3,
+        JourneyRequest journeyRequest = new JourneyRequest(nextMonday, travelTime, false, 3,
                 maxDuration, 1, getRequestedModes());
 
         StationGroup end = stationGroupsRepository.findByName(Composites.StockportTempBusStation.getName());
@@ -98,7 +96,7 @@ class LocationJourneyPlannerBusTest {
 
         TramTime travelTime = TramTime.of(8, 0);
 
-        JourneyRequest journeyRequest = new JourneyRequest(new TramServiceDate(nextMonday), travelTime, false, 3,
+        JourneyRequest journeyRequest = new JourneyRequest(nextMonday, travelTime, false, 3,
                 maxDuration, 1, getRequestedModes());
 
         Set<Journey> results = planner.quickestRouteForLocation(stockportBusStation, nearAltrinchamInterchange,
@@ -114,7 +112,7 @@ class LocationJourneyPlannerBusTest {
 
         TramTime travelTime = TramTime.of(10, 30);
 
-        JourneyRequest request = new JourneyRequest(new TramServiceDate(nextMonday), travelTime, false, 3,
+        JourneyRequest request = new JourneyRequest(nextMonday, travelTime, false, 3,
                 maxDuration, 1, getRequestedModes());
         Set<Journey> journeys =  planner.quickestRouteForLocation(alty, nearKnutsfordBusStation, request, 5);
 

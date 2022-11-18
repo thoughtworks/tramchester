@@ -13,7 +13,6 @@ import com.tramchester.domain.places.StationGroup;
 import com.tramchester.domain.presentation.TransportStage;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TimeRange;
-import com.tramchester.domain.dates.TramServiceDate;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.search.RouteCalculator;
@@ -31,7 +30,6 @@ import org.junit.jupiter.api.*;
 import org.neo4j.graphdb.Transaction;
 
 import java.time.Duration;
-import java.time.LocalDate;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -176,7 +174,7 @@ public class NeighbourJourneysTest {
     @Test
     void shouldTramNormally() {
 
-        JourneyRequest request = new JourneyRequest(new TramServiceDate(TestEnv.testDay()),
+        JourneyRequest request = new JourneyRequest(TestEnv.testDay(),
                 TramTime.of(11,53), false, 0, maxJourneyDuration, 1, getRequestedModes());
 
         Set<Journey> journeys = routeCalculator.calculateRouteAsSet(Bury.from(stationRepository), Victoria.from(stationRepository), request);
@@ -198,7 +196,7 @@ public class NeighbourJourneysTest {
 
         LocationJourneyPlannerTestFacade facade = new LocationJourneyPlannerTestFacade(planner, stationRepository, txn);
 
-        JourneyRequest request = new JourneyRequest(new TramServiceDate(TestEnv.testDay()),
+        JourneyRequest request = new JourneyRequest(TestEnv.testDay(),
                 TramTime.of(11,53), false, 0, maxJourneyDuration, 1, getRequestedModes());
 
         Set<Journey> allJourneys = facade.quickestRouteForLocation(Altrincham.from(stationRepository), nearStPetersSquare, request, 4);
@@ -222,7 +220,7 @@ public class NeighbourJourneysTest {
 
     private void validateDirectWalk(Station start, Station end) {
 
-        JourneyRequest request = new JourneyRequest(new TramServiceDate(TestEnv.testDay()), TramTime.of(11,45),
+        JourneyRequest request = new JourneyRequest(TestEnv.testDay(), TramTime.of(11,45),
                         false, 0, maxJourneyDuration, 3, getRequestedModes());
 
         Set<Journey> allJourneys =  routeCalculator.calculateRouteAsSet(start, end, request);

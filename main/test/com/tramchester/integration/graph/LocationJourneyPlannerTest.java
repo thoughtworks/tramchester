@@ -26,7 +26,6 @@ import org.junit.jupiter.api.*;
 import org.neo4j.graphdb.Transaction;
 
 import java.time.Duration;
-import java.time.LocalDate;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -46,7 +45,7 @@ class LocationJourneyPlannerTest {
     private final TramDate when = TestEnv.testDay();
     private Transaction txn;
     private LocationJourneyPlannerTestFacade planner;
-    private TramServiceDate date;
+    private TramDate date;
     private Duration maxJourneyDuration;
     private long maxNumberOfJourneys;
     private StationRepository stationRepository;
@@ -67,7 +66,7 @@ class LocationJourneyPlannerTest {
     @BeforeEach
     void beforeEachTestRuns() {
         maxJourneyDuration = Duration.ofMinutes(testConfig.getMaxJourneyDuration());
-        date = new TramServiceDate(when);
+        date = when;
         txn = database.beginTx(TXN_TIMEOUT, TimeUnit.SECONDS);
         stationRepository = componentContainer.get(StationRepository.class);
         planner = new LocationJourneyPlannerTestFacade(componentContainer.get(LocationJourneyPlanner.class), stationRepository, txn);
@@ -81,9 +80,8 @@ class LocationJourneyPlannerTest {
 
     @Test
     void shouldHaveDirectWalkNearPiccadillyGardens() {
-        TramServiceDate queryDate = new TramServiceDate(when);
 
-        JourneyRequest journeyRequest = new JourneyRequest(queryDate, TramTime.of(9, 0), false,
+        JourneyRequest journeyRequest = new JourneyRequest(when, TramTime.of(9, 0), false,
                 0, maxJourneyDuration, maxNumberOfJourneys, getRequestedModes());
         Set<Journey> unsortedResults = planner.quickestRouteForLocation(nearPiccGardens, PiccadillyGardens,
                 journeyRequest, 3);
@@ -113,7 +111,7 @@ class LocationJourneyPlannerTest {
     void shouldHaveDirectWalkFromPiccadily() {
         TramServiceDate queryDate = new TramServiceDate(when);
 
-        JourneyRequest journeyRequest = new JourneyRequest(queryDate, TramTime.of(9, 0),
+        JourneyRequest journeyRequest = new JourneyRequest(when, TramTime.of(9, 0),
                 false, 1, maxJourneyDuration, maxNumberOfJourneys, getRequestedModes());
         Set<Journey> unsortedResults = planner.quickestRouteForLocation(PiccadillyGardens, nearPiccGardens, journeyRequest, 2);
 
@@ -159,7 +157,7 @@ class LocationJourneyPlannerTest {
     @Test
     void shouldFindJourneyWithWalkingEarlyMorning() {
 
-        final JourneyRequest request = new JourneyRequest(new TramServiceDate(when), TramTime.of(8, 0),
+        final JourneyRequest request = new JourneyRequest(when, TramTime.of(8, 0),
                 false, 2, maxJourneyDuration, maxNumberOfJourneys, getRequestedModes());
         Set<Journey> results = planner.quickestRouteForLocation(nearAltrincham, Deansgate, request, 3);
 
@@ -190,7 +188,7 @@ class LocationJourneyPlannerTest {
     void shouldFindJourneyWithWalkingEarlyMorningArriveBy() {
         TramTime queryTime = TramTime.of(8, 0);
 
-        final JourneyRequest request = new JourneyRequest(new TramServiceDate(when), queryTime, true, 3,
+        final JourneyRequest request = new JourneyRequest(when, queryTime, true, 3,
                 maxJourneyDuration, maxNumberOfJourneys, getRequestedModes());
         Set<Journey> results = planner.quickestRouteForLocation(nearAltrincham, Deansgate, request, 3);
 
@@ -267,7 +265,7 @@ class LocationJourneyPlannerTest {
 
     @Test
     void shouldFindJourneyWithWalkingEndOfDay() {
-        final JourneyRequest request = new JourneyRequest(new TramServiceDate(when), TramTime.of(23, 0),
+        final JourneyRequest request = new JourneyRequest(when, TramTime.of(23, 0),
                 false, 2, maxJourneyDuration, maxNumberOfJourneys, getRequestedModes());
 
         Set<Journey> results = planner.quickestRouteForLocation(nearAltrincham, Deansgate, request, 3);
@@ -289,7 +287,7 @@ class LocationJourneyPlannerTest {
         int lowestCost = Math.min(toAltrincham, toNavigation);
         TramTime earliestDepart = queryTime.plusMinutes(lowestCost);
 
-        final JourneyRequest request = new JourneyRequest(new TramServiceDate(when), queryTime,
+        final JourneyRequest request = new JourneyRequest(when, queryTime,
                 false, 1, maxJourneyDuration, maxNumberOfJourneys, getRequestedModes());
 
         Set<Journey> unsorted = planner.quickestRouteForLocation(nearAltrincham, Deansgate, request, 2);
@@ -306,7 +304,7 @@ class LocationJourneyPlannerTest {
 
     @Test
     void shouldFindWalkOnlyIfNearDestinationStationSingleStationWalk() {
-        final JourneyRequest request = new JourneyRequest(new TramServiceDate(when), TramTime.of(9, 0),
+        final JourneyRequest request = new JourneyRequest(when, TramTime.of(9, 0),
                 false, 0, maxJourneyDuration, maxNumberOfJourneys, getRequestedModes());
 
         // set max stages to 1, because there is another path via walk to market street and then tram

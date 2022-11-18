@@ -3,9 +3,9 @@ package com.tramchester.integration.graph.rail;
 import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.config.TramchesterConfig;
+import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.time.InvalidDurationException;
-import com.tramchester.domain.dates.TramServiceDate;
 import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.RouteCostCalculator;
 import com.tramchester.integration.testSupport.rail.IntegrationRailTestConfig;
@@ -35,7 +35,7 @@ public class RailRouteCostsTest {
     private Station crewe;
     private Station miltonKeynes;
 
-    private final TramServiceDate date = new TramServiceDate(TestEnv.testDay());
+    private final TramDate date = TestEnv.testDay();
 
     @BeforeAll
     static void onceBeforeAnyTestRuns() {

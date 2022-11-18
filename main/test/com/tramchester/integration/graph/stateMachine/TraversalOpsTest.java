@@ -9,7 +9,6 @@ import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.time.TimeRange;
-import com.tramchester.domain.dates.TramServiceDate;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.geo.SortsPositions;
 import com.tramchester.graph.GraphDatabase;
@@ -24,8 +23,6 @@ import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.TramStations;
 import org.junit.jupiter.api.*;
 import org.neo4j.graphdb.Transaction;
-
-import java.time.LocalDate;
 
 import static com.tramchester.testSupport.reference.KnownLocations.nearPiccGardens;
 import static com.tramchester.testSupport.reference.TramStations.ManAirport;
@@ -71,8 +68,7 @@ public class TraversalOpsTest {
 
     @Test
     void shouldHaveCorrectOrderingCompare() {
-        TramDate date = TestEnv.testTramDay();
-        TramServiceDate queryDate = new TramServiceDate(date);
+        TramDate date = TestEnv.testDay();
 
         LocationSet destinationStations = new LocationSet();
         final Station manchesterAirport = stationRepository.getStationById(ManAirport.getId());
@@ -84,7 +80,7 @@ public class TraversalOpsTest {
         LowestCostsForDestRoutes lowestCostForRoutes = routeToRouteCosts.getLowestCostCalcutatorFor(destinationStations, date, timeRange);
 
         TraversalOps traversalOpsForDest = new TraversalOps(nodeOperations, tripRepository,
-                sortsPositions, destinationStations, destinationLatLon, lowestCostForRoutes, queryDate);
+                sortsPositions, destinationStations, destinationLatLon, lowestCostForRoutes, date);
 
         Station altrincham = stationRepository.getStationById(TramStations.Altrincham.getId());
 

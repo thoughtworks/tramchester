@@ -6,10 +6,9 @@ import com.tramchester.domain.Journey;
 import com.tramchester.domain.JourneyRequest;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.StringIdFor;
-import com.tramchester.domain.places.StationGroup;
 import com.tramchester.domain.places.Station;
+import com.tramchester.domain.places.StationGroup;
 import com.tramchester.domain.reference.TransportMode;
-import com.tramchester.domain.dates.TramServiceDate;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.search.RouteCalculator;
@@ -24,7 +23,6 @@ import org.junit.jupiter.api.*;
 import org.neo4j.graphdb.Transaction;
 
 import java.time.Duration;
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -105,12 +103,12 @@ class BusRouteCalculatorTest {
         TramTime travelTime = TramTime.of(9,0);
         TramDate nextMonday = TestEnv.nextMonday();
 
-        JourneyRequest requestA = new JourneyRequest(new TramServiceDate(nextMonday), travelTime, false, 1,
+        JourneyRequest requestA = new JourneyRequest(nextMonday, travelTime, false, 1,
                 maxJourneyDuration, 1, getRequestedModes());
         Set<Journey> journeysA = calculator.calculateRouteAsSet(stockportBusStation, altrinchamInterchange, requestA);
         assertFalse(journeysA.isEmpty());
 
-        JourneyRequest requestB = new JourneyRequest(new TramServiceDate(nextMonday), travelTime, false, 1,
+        JourneyRequest requestB = new JourneyRequest(nextMonday, travelTime, false, 1,
                 maxJourneyDuration, 1, getRequestedModes());
         Set<Journey> journeysB = calculator.calculateRouteAsSet(altrinchamInterchange, stockportBusStation, requestB);
         assertFalse(journeysB.isEmpty());
@@ -126,7 +124,7 @@ class BusRouteCalculatorTest {
         TramTime travelTime = TramTime.of(9, 0);
         TramDate nextMonday = TestEnv.nextMonday();
 
-        JourneyRequest requestA = new JourneyRequest(new TramServiceDate(nextMonday), travelTime, false, 1,
+        JourneyRequest requestA = new JourneyRequest(nextMonday, travelTime, false, 1,
                 maxJourneyDuration, 3, getRequestedModes());
         Set<Journey> journeys = calculator.calculateRouteAsSet(stockportBusStation, altrinchamInterchange, requestA);
         assertFalse(journeys.isEmpty());
@@ -135,7 +133,7 @@ class BusRouteCalculatorTest {
     @Test
     void shouldHaveAltyToStockport() {
 
-        JourneyRequest journeyRequest = new JourneyRequest(new TramServiceDate(TestEnv.nextMonday()),
+        JourneyRequest journeyRequest = new JourneyRequest(TestEnv.nextMonday(),
                 TramTime.of(9, 0), false, 1, maxJourneyDuration, 3, getRequestedModes());
 
         Set<Journey> journeysMaxChanges = calculator.calculateRouteAsSet(altrinchamInterchange, stockportBusStation, journeyRequest);
@@ -216,7 +214,7 @@ class BusRouteCalculatorTest {
 
         TramTime travelTime = TramTime.of(15, 55);
 
-        JourneyRequest request = new JourneyRequest(new TramServiceDate(when), travelTime, false, 2,
+        JourneyRequest request = new JourneyRequest(when, travelTime, false, 2,
                 maxJourneyDuration, 1, getRequestedModes());
         Set<Journey> journeys = calculator.calculateRouteAsSet(altrinchamInterchange, knutsfordBusStation, request);
 
@@ -235,7 +233,7 @@ class BusRouteCalculatorTest {
     @Test
     void shouldHavePiccadilyToStockportJourney() {
         int maxChanges = 2;
-        JourneyRequest journeyRequest = new JourneyRequest(new TramServiceDate(when), TramTime.of(8, 0),
+        JourneyRequest journeyRequest = new JourneyRequest(when, TramTime.of(8, 0),
                 false, maxChanges, maxJourneyDuration, 3, getRequestedModes());
         Set<Journey> journeys = calculator.calculateRouteAsSet(PiccadilyStationStopA, stockportBusStation, journeyRequest);
         assertFalse(journeys.isEmpty());
@@ -248,7 +246,7 @@ class BusRouteCalculatorTest {
     void shouldReproIssueWithSlowPerformanceShudehillToBroadheathAsda() {
         int maxChanges = 3;
 
-        JourneyRequest journeyRequest = new JourneyRequest(new TramServiceDate(when), TramTime.of(9,40),
+        JourneyRequest journeyRequest = new JourneyRequest(when, TramTime.of(9,40),
                 false, maxChanges, maxJourneyDuration, 3, getRequestedModes());
 
         Station asdaBroadhealth = stationRepository.getStationById(StringIdFor.createId("1800SJ18511"));
@@ -262,8 +260,8 @@ class BusRouteCalculatorTest {
     void shouldHaveAltyToShudehill() {
         int maxChanges = 3;
 
-        LocalDate date = LocalDate.of(2022,1,9);
-        JourneyRequest journeyRequest = new JourneyRequest(new TramServiceDate(date), TramTime.of(9,52),
+        TramDate date = TramDate.of(2022,1,9);
+        JourneyRequest journeyRequest = new JourneyRequest(date, TramTime.of(9,52),
                 false, maxChanges, maxJourneyDuration, 3, getRequestedModes());
 
         Set<Journey> journeys = calculator.calculateRouteAsSet(altrinchamInterchange, shudehillInterchange, journeyRequest);
@@ -273,7 +271,7 @@ class BusRouteCalculatorTest {
     @Test
     void shouldReproPerfIssueStockportToShudehillInterchange() {
 
-        JourneyRequest journeyRequest = new JourneyRequest(new TramServiceDate(when), TramTime.of(8,45),
+        JourneyRequest journeyRequest = new JourneyRequest(when, TramTime.of(8,45),
                 false, 3, maxJourneyDuration, 3, getRequestedModes());
 
         Set<Journey> results = calculator.calculateRouteAsSet(stockportBusStation, shudehillInterchange, journeyRequest);
@@ -284,7 +282,7 @@ class BusRouteCalculatorTest {
     @Test
     void shouldReproPerfIssueAltyToStockport3Changes() {
 
-        JourneyRequest journeyRequest = new JourneyRequest(new TramServiceDate(when), TramTime.of(8,45),
+        JourneyRequest journeyRequest = new JourneyRequest(when, TramTime.of(8,45),
                 false, 3, maxJourneyDuration, 3, getRequestedModes());
 
         Set<Journey> results = calculator.calculateRouteAsSet(StopAtAltrinchamInterchange, stockportBusStation, journeyRequest);
@@ -296,7 +294,7 @@ class BusRouteCalculatorTest {
         StationGroup airport = compositeStationRepository.findByName("Manchester Airport The Station");
 
         //LocalDate date =  LocalDate.of(2021, 6, 30);
-        JourneyRequest journeyRequest = new JourneyRequest(new TramServiceDate(when), TramTime.of(11,11),
+        JourneyRequest journeyRequest = new JourneyRequest(when, TramTime.of(11,11),
                 false, 3, maxJourneyDuration, 3, getRequestedModes());
 
         Set<Journey> results = calculator.calculateRouteAsSet(altrinchamInterchange, airport, journeyRequest);

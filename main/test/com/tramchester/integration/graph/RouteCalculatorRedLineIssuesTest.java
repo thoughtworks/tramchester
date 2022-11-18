@@ -204,7 +204,7 @@ public class RouteCalculatorRedLineIssuesTest {
 
         return results.entrySet().stream().
                 filter(pair -> pair.getValue().missing()).
-                map(pair -> pair.getKey().getDate().getDate()).
+                map(pair -> pair.getKey().getDate()).
                 sorted().
                 collect(Collectors.toList());
     }

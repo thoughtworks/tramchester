@@ -3,10 +3,10 @@ package com.tramchester.unit.graph.calculation;
 import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.domain.Journey;
-import com.tramchester.domain.dates.TramServiceDate;
+import com.tramchester.domain.JourneyRequest;
+import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.GraphDatabase;
-import com.tramchester.domain.JourneyRequest;
 import com.tramchester.graph.search.RouteCalculator;
 import com.tramchester.repository.TransportData;
 import com.tramchester.testSupport.TestEnv;
@@ -17,7 +17,6 @@ import org.neo4j.graphdb.Transaction;
 
 import java.io.IOException;
 import java.time.Duration;
-import java.time.LocalDate;
 import java.util.Collections;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -33,7 +32,7 @@ class TramRouteTestCacheIssue {
     private TramTransportDataForTestFactory.TramTransportDataForTest transportData;
     private RouteCalculator calculator;
 
-    private TramServiceDate queryDate;
+    private TramDate queryDate;
     private Transaction txn;
 
     @BeforeEach
@@ -50,7 +49,7 @@ class TramRouteTestCacheIssue {
         GraphDatabase database = componentContainer.get(GraphDatabase.class);
         calculator = componentContainer.get(RouteCalculator.class);
 
-        queryDate = new TramServiceDate(LocalDate.of(2014,6,30));
+        queryDate = TramDate.of(2014,6,30);
 
         txn = database.beginTx();
 

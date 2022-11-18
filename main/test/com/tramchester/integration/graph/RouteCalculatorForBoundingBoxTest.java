@@ -81,7 +81,7 @@ class RouteCalculatorForBoundingBoxTest {
         List<BoundingBoxWithStations> grouped = stationLocations.getStationsInGrids(gridSize).collect(Collectors.toList());
 
         long maxNumberOfJourneys = 3;
-        JourneyRequest journeyRequest = new JourneyRequest(new TramServiceDate(when), TramTime.of(9,30),
+        JourneyRequest journeyRequest = new JourneyRequest(when, TramTime.of(9,30),
                 false, 3, Duration.ofMinutes(testConfig.getMaxJourneyDuration()), maxNumberOfJourneys,
                 Collections.emptySet());
 

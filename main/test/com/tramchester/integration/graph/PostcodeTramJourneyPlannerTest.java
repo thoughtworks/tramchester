@@ -5,7 +5,6 @@ import com.tramchester.ComponentsBuilder;
 import com.tramchester.domain.Journey;
 import com.tramchester.domain.JourneyRequest;
 import com.tramchester.domain.dates.TramDate;
-import com.tramchester.domain.dates.TramServiceDate;
 import com.tramchester.domain.places.PostcodeLocation;
 import com.tramchester.domain.presentation.TransportStage;
 import com.tramchester.domain.reference.TransportMode;
@@ -83,13 +82,13 @@ class PostcodeTramJourneyPlannerTest {
     // IS USED - see below
     private static Stream<JourneyRequest> getRequest() {
         Duration maxJourneyDuration = Duration.ofMinutes(testConfig.getMaxJourneyDuration());
-        TramServiceDate date = new TramServiceDate(when);
+        //TramServiceDate date = new TramServiceDate(when);
         int maxChanges = 2;
         long maxNumberOfJourneys = 3;
         Set<TransportMode> modes = Collections.emptySet();
         return Stream.of(
-                new JourneyRequest(date, planningTime, false, maxChanges, maxJourneyDuration, maxNumberOfJourneys, modes),
-                new JourneyRequest(date, planningTime, true, maxChanges, maxJourneyDuration, maxNumberOfJourneys, modes));
+                new JourneyRequest(when, planningTime, false, maxChanges, maxJourneyDuration, maxNumberOfJourneys, modes),
+                new JourneyRequest(when, planningTime, true, maxChanges, maxJourneyDuration, maxNumberOfJourneys, modes));
     }
 
     @PostcodeTestCategory

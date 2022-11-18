@@ -9,13 +9,13 @@ import com.tramchester.domain.Agency;
 import com.tramchester.domain.Journey;
 import com.tramchester.domain.JourneyRequest;
 import com.tramchester.domain.Route;
+import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.input.StopCalls;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.places.StationGroup;
 import com.tramchester.domain.reference.TransportMode;
-import com.tramchester.domain.dates.TramServiceDate;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.geo.MarginInMeters;
 import com.tramchester.geo.StationLocations;
@@ -58,7 +58,7 @@ class BusRouteCalculatorSubGraphAltyToMaccRoute {
     private RouteCalculatorTestFacade calculator;
 
     private Transaction txn;
-    private TramServiceDate when;
+    private TramDate when;
     private StationGroupsRepository stationGroupsRepository;
     private StationGroup altrinchamInterchange;
     private List<Station> knutfordStations;
@@ -105,7 +105,7 @@ class BusRouteCalculatorSubGraphAltyToMaccRoute {
 
         calculator = new RouteCalculatorTestFacade(componentContainer.get(RouteCalculator.class), stationRepository, txn);
 
-        when = new TramServiceDate(TestEnv.testDay());
+        when = TestEnv.testDay();
 
         altrinchamInterchange = stationGroupsRepository.findByName("Altrincham Interchange");
 

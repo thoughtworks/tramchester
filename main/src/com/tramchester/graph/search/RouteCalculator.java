@@ -81,7 +81,7 @@ public class RouteCalculator extends RouteCalculatorSupport implements TramRoute
 
         final List<TramTime> queryTimes = createQueryTimes.generate(journeyRequest.getOriginalTime());
 
-        TramDate date = journeyRequest.getDate().getDate();
+        TramDate date = journeyRequest.getDate();
 
         NumberOfChanges numberOfChanges =  routeToRouteCosts.getNumberOfChanges(start, destination,
                 journeyRequest.getRequestedModes(), date, journeyRequest.getTimeRange());
@@ -161,9 +161,9 @@ public class RouteCalculator extends RouteCalculatorSupport implements TramRoute
 //            logger.info("Expanded (composite) destinations from " + unexpanded.size() + " to " + destinations.size());
 //        }
 
-        final TramServiceDate queryServiceDate = journeyRequest.getDate();
+        //final TramServiceDate queryServiceDate = journeyRequest.getDate();
         final Set<Long> destinationNodeIds = Collections.singleton(endNode.getId());
-        final TramDate tramDate = queryServiceDate.getDate();
+        final TramDate tramDate = journeyRequest.getDate();
 
         // can only be shared as same date and same set of destinations, will eliminate previously seen paths/results
         final LowestCostsForDestRoutes lowestCostsForRoutes = routeToRouteCosts.getLowestCostCalcutatorFor(destinations, tramDate,
@@ -185,7 +185,7 @@ public class RouteCalculator extends RouteCalculatorSupport implements TramRoute
 
         final Stream<Journey> results = numChangesRange(journeyRequest, numberOfChanges).
                 flatMap(numChanges -> queryTimes.stream().
-                        map(queryTime -> createPathRequest(startNode, queryServiceDate, queryTime, requestedModes, numChanges, journeyConstraints, maxInitialWait))).
+                        map(queryTime -> createPathRequest(startNode, tramDate, queryTime, requestedModes, numChanges, journeyConstraints, maxInitialWait))).
                 flatMap(pathRequest -> findShortestPath(txn, destinationNodeIds, destinations,
                         createServiceReasons(journeyRequest, pathRequest), pathRequest, lowestCostsForRoutes, createPreviousVisits(),
                         lowestCostSeen, begin)).

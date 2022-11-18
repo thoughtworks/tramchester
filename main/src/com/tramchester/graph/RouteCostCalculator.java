@@ -48,32 +48,32 @@ public class RouteCostCalculator {
         this.routeRepository = routeRepository;
     }
 
-    public Duration getAverageCostBetween(Transaction txn, Node startNode, Node endNode, TramServiceDate date) throws InvalidDurationException {
-        return calculateLeastCost(txn, startNode, endNode, COST, date.getDate());
+    public Duration getAverageCostBetween(Transaction txn, Node startNode, Node endNode, TramDate date) throws InvalidDurationException {
+        return calculateLeastCost(txn, startNode, endNode, COST, date);
     }
 
-    public Duration getAverageCostBetween(Transaction txn, Location<?> station, Node endNode, TramServiceDate date) throws InvalidDurationException {
+    public Duration getAverageCostBetween(Transaction txn, Location<?> station, Node endNode, TramDate date) throws InvalidDurationException {
         Node startNode = graphQuery.getLocationNode(txn, station);
-        return calculateLeastCost(txn, startNode, endNode, COST, date.getDate());
+        return calculateLeastCost(txn, startNode, endNode, COST, date);
     }
 
     // startNode must have been found within supplied txn
-    public Duration getAverageCostBetween(Transaction txn, Node startNode, Location<?> endStation, TramServiceDate date) throws InvalidDurationException {
+    public Duration getAverageCostBetween(Transaction txn, Node startNode, Location<?> endStation, TramDate date) throws InvalidDurationException {
         Node endNode = graphQuery.getLocationNode(txn, endStation);
-        return calculateLeastCost(txn, startNode, endNode, COST, date.getDate());
+        return calculateLeastCost(txn, startNode, endNode, COST, date);
     }
 
-    public Duration getAverageCostBetween(Transaction txn, Location<?> startStation, Location<?> endStation, TramServiceDate date) throws InvalidDurationException {
-        return getCostBetween(txn, startStation, endStation, COST, date.getDate());
+    public Duration getAverageCostBetween(Transaction txn, Location<?> startStation, Location<?> endStation, TramDate date) throws InvalidDurationException {
+        return getCostBetween(txn, startStation, endStation, COST, date);
     }
 
-    public Duration getMaxCostBetween(Transaction txn, Location<?> start, Location<?> end, TramServiceDate date) throws InvalidDurationException {
-        return getCostBetween(txn, start, end, MAX_COST, date.getDate());
+    public Duration getMaxCostBetween(Transaction txn, Location<?> start, Location<?> end, TramDate date) throws InvalidDurationException {
+        return getCostBetween(txn, start, end, MAX_COST, date);
     }
 
-    public Duration getMaxCostBetween(Transaction txn, Node start, Location<?> endStation, TramServiceDate date) throws InvalidDurationException {
+    public Duration getMaxCostBetween(Transaction txn, Node start, Location<?> endStation, TramDate date) throws InvalidDurationException {
         Node endNode = graphQuery.getLocationNode(txn, endStation);
-        return calculateLeastCost(txn, start, endNode, MAX_COST, date.getDate());
+        return calculateLeastCost(txn, start, endNode, MAX_COST, date);
     }
 
     private Duration getCostBetween(Transaction txn, Location<?> startLocation, Location<?> endLocation, GraphPropertyKey key, TramDate date) throws InvalidDurationException {

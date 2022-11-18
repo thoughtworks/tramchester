@@ -4,7 +4,6 @@ import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.*;
 import com.tramchester.domain.dates.TramDate;
-import com.tramchester.domain.dates.TramServiceDate;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.places.Location;
 import com.tramchester.domain.places.Station;
@@ -75,11 +74,11 @@ public class RouteCalculatorForBoxes extends RouteCalculatorSupport {
         // TODO Compute over a range of times
         final TramTime originalTime = journeyRequest.getOriginalTime();
 
-        final TramServiceDate queryDate = journeyRequest.getDate();
+        //final TramServiceDate queryDate = journeyRequest.getDate();
 
         final Set<TransportMode> requestedModes = journeyRequest.getRequestedModes();
 
-        TramDate date = queryDate.getDate();
+        TramDate date = journeyRequest.getDate();
         final LowestCostsForDestRoutes lowestCostForDestinations = routeToRouteCosts.getLowestCostCalcutatorFor(destinations, date,
                 journeyRequest.getTimeRange());
         final RunningRoutesAndServices.FilterForDate routeAndServicesFilter = runningRoutesAndService.getFor(date);
@@ -109,7 +108,7 @@ public class RouteCalculatorForBoxes extends RouteCalculatorSupport {
                         filter(start -> !destinations.contains(start)).
                         map(start -> new NodeAndStation(start, getLocationNodeSafe(txn, start))).
                         flatMap(nodeAndStation -> numChangesRange(journeyRequest, numberOfChanges).
-                                map(numChanges -> createPathRequest(nodeAndStation.node, queryDate, originalTime, requestedModes, numChanges,
+                                map(numChanges -> createPathRequest(nodeAndStation.node, date, originalTime, requestedModes, numChanges,
                                         journeyConstraints, getMaxInitialWaitFor(nodeAndStation.location, config)))).
                         flatMap(pathRequest -> findShortestPath(txn, destinationNodeIds, destinations,
                                 createServiceReasons(journeyRequest, originalTime), pathRequest, journeyConstraints.getFewestChangesCalculator(),

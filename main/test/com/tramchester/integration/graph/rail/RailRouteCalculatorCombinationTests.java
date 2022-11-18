@@ -67,7 +67,7 @@ class RailRouteCalculatorCombinationTests {
     void shouldHaveInterchangesToInterchanges() {
         TramTime travelTime = TramTime.of(8, 0);
 
-        JourneyRequest request = new JourneyRequest(new TramServiceDate(when), travelTime, false,
+        JourneyRequest request = new JourneyRequest(when, travelTime, false,
                 10, Duration.ofHours(8), 1, getRequestedModes());
 
         combinations.validateAllHaveAtLeastOneJourney(combinations.InterchangeToInterchange(Train), request);
@@ -81,7 +81,7 @@ class RailRouteCalculatorCombinationTests {
     void shouldHaveEndsOfLinesToEndsOfLines() {
         TramTime travelTime = TramTime.of(8, 0);
 
-        JourneyRequest request = new JourneyRequest(new TramServiceDate(when), travelTime, false,
+        JourneyRequest request = new JourneyRequest(when, travelTime, false,
                 10, Duration.ofHours(8), 1, getRequestedModes());
 
         combinations.validateAllHaveAtLeastOneJourney(combinations.EndOfRoutesToEndOfRoutes(Train), request);

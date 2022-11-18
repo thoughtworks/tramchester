@@ -101,7 +101,7 @@ public class RouteCalculationCombinations {
 
     @NotNull
     private Map<StationIdPair, JourneyOrNot> computeJourneys(Set<StationIdPair> combinations, JourneyRequest request) {
-        TramDate queryDate = request.getDate().getDate();
+        TramDate queryDate = request.getDate();
         TramTime queryTime = request.getOriginalTime();
         return combinations.
                 parallelStream().
@@ -117,7 +117,7 @@ public class RouteCalculationCombinations {
     }
 
     private boolean bothOpen(final StationIdPair stationIdPair, final JourneyRequest request) {
-        final TramDate date = request.getDate().getDate();
+        final TramDate date = request.getDate();
         if (closedStationsRepository.hasClosuresOn(date)) {
             return ! (closedStationsRepository.isClosed(stationIdPair.getBeginId(), date) ||
                     closedStationsRepository.isClosed(stationIdPair.getEndId(), date));
@@ -196,8 +196,13 @@ public class RouteCalculationCombinations {
             this(requested, queryDate.toLocalDate(), queryTime, optionalJourney);
         }
 
+        @Deprecated
         public JourneyOrNot(IdFor<Station> start, IdFor<Station> dest, TramServiceDate date, TramTime time, Optional<Journey> optionalJourney) {
             this(StationIdPair.of(start, dest), date.getDate(), time, optionalJourney);
+        }
+
+        public JourneyOrNot(IdFor<Station> start, IdFor<Station> dest, TramDate date, TramTime time, Optional<Journey> optionalJourney) {
+            this(StationIdPair.of(start, dest), date, time, optionalJourney);
         }
 
         public JourneyOrNot(StationIdPair requested, LocalDate queryDate, TramTime queryTime, Optional<Journey> optionalJourney) {

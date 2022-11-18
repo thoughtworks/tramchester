@@ -7,6 +7,7 @@ import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.Journey;
 import com.tramchester.domain.JourneyRequest;
 import com.tramchester.domain.StationClosures;
+import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.TransportStage;
@@ -68,11 +69,11 @@ class SubgraphClosedStationsDiversionsTest {
     private static GraphQuery graphQuery;
     private RouteCalculatorTestFacade calculator;
     private StationRepository stationRepository;
-    private final static TramServiceDate when = new TramServiceDate(TestEnv.testDay());
+    private final static TramDate when = TestEnv.testDay();
     private Transaction txn;
 
     private final static List<StationClosures> closedStations = Collections.singletonList(
-            new StationClosuresForTest(PiccadillyGardens, when.getDate(), when.getDate().plusWeeks(1), true));
+            new StationClosuresForTest(PiccadillyGardens, when, when.plusWeeks(1), true));
     private Duration maxJourneyDuration;
     private int maxChanges;
 
@@ -94,7 +95,7 @@ class SubgraphClosedStationsDiversionsTest {
     }
 
     @AfterAll
-    static void OnceAfterAllTestsAreFinished() throws IOException {
+    static void OnceAfterAllTestsAreFinished() {
         componentContainer.close();
 
         /////////////

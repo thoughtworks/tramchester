@@ -37,7 +37,6 @@ import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
 import java.time.Duration;
-import java.time.LocalDate;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -126,7 +125,7 @@ public class LocationJourneyPlanner {
         nodesAndRelationships.createWalksToStart(startOfWalkNode, walksToStart);
 
         Stream<Journey> journeys;
-        NumberOfChanges numberOfChanges = findNumberChanges(walksToStart, destination, journeyRequest.getDate().getDate(), journeyRequest.getTimeRange());
+        NumberOfChanges numberOfChanges = findNumberChanges(walksToStart, destination, journeyRequest.getDate(), journeyRequest.getTimeRange());
         if (journeyRequest.getArriveBy()) {
             journeys = routeCalculatorArriveBy.calculateRouteWalkAtStart(txn, walksToStart, startOfWalkNode, destination, journeyRequest, numberOfChanges);
         } else {
@@ -170,7 +169,7 @@ public class LocationJourneyPlanner {
         LocationSet destinationStations = walksToDest.stream().
                 map(StationWalk::getStation).collect(LocationSet.stationCollector());
 
-        NumberOfChanges numberOfChanges = findNumberChanges(start, walksToDest, journeyRequest.getDate().getDate(), journeyRequest.getTimeRange());
+        NumberOfChanges numberOfChanges = findNumberChanges(start, walksToDest, journeyRequest.getDate(), journeyRequest.getTimeRange());
 
         Stream<Journey> journeys;
         if (journeyRequest.getArriveBy()) {
@@ -205,7 +204,7 @@ public class LocationJourneyPlanner {
         LocationSet destinationStations = walksToDest.stream().
                 map(StationWalk::getStation).collect(LocationSet.stationCollector());
 
-        NumberOfChanges numberOfChanges = findNumberChanges(walksAtStart, walksToDest, journeyRequest.getDate().getDate(), journeyRequest.getTimeRange());
+        NumberOfChanges numberOfChanges = findNumberChanges(walksAtStart, walksToDest, journeyRequest.getDate(), journeyRequest.getTimeRange());
 
         /// CALC
         Stream<Journey> journeys;

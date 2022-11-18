@@ -44,7 +44,7 @@ class MixedRouteTest {
     private static GraphDatabase database;
     private static SimpleMixedRouteGraphConfig config;
 
-    private TramServiceDate queryDate;
+    private TramDate queryDate;
     private TramTime queryTime;
     private Transaction txn;
 
@@ -74,7 +74,7 @@ class MixedRouteTest {
     void beforeEachTestRuns() {
         txn = database.beginTx();
 
-        queryDate = new TramServiceDate(TramDate.of(2014,6,30));
+        queryDate = TramDate.of(2014,6,30);
         queryTime = TramTime.of(7, 57);
     }
 

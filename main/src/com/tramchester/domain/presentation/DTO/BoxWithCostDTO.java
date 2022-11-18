@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.tramchester.domain.BoundingBoxWithCost;
+import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.dates.TramServiceDate;
 import com.tramchester.geo.CoordinateTransforms;
@@ -30,7 +31,7 @@ public class BoxWithCostDTO {
         // deserialisation
     }
 
-    public static BoxWithCostDTO createFrom(JourneyToDTOMapper mapper, TramServiceDate serviceDate,
+    public static BoxWithCostDTO createFrom(JourneyToDTOMapper mapper, TramDate serviceDate,
                                             BoundingBoxWithCost box) {
 
         // TODO Assuming valid positions here

@@ -6,7 +6,6 @@ import com.tramchester.DiagramCreator;
 import com.tramchester.config.GTFSSourceConfig;
 import com.tramchester.domain.*;
 import com.tramchester.domain.dates.TramDate;
-import com.tramchester.domain.dates.TramServiceDate;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.places.InterchangeStation;
 import com.tramchester.domain.places.Station;
@@ -125,9 +124,9 @@ class RouteCalculatorSubGraphMediaCityTest {
     void shouldHaveJourneyFromEveryStationToEveryOtherNDaysAhead() {
 
         List<Pair<TramDate, List<StationIdPair>>> failed = TestEnv.getUpcomingDates().
-                map(date -> new JourneyRequest(new TramServiceDate(date), TramTime.of(9, 0), false,
+                map(date -> new JourneyRequest(date, TramTime.of(9, 0), false,
                         3, maxJourneyDuration, 1, getRequestedModes())).
-                map(journeyRequest -> Pair.of(journeyRequest.getDate().getDate(), getFailedPairedFor(journeyRequest))).
+                map(journeyRequest -> Pair.of(journeyRequest.getDate(), getFailedPairedFor(journeyRequest))).
                 filter(pair -> !pair.getRight().isEmpty()).
                 collect(Collectors.toList());
 
@@ -237,7 +236,7 @@ class RouteCalculatorSubGraphMediaCityTest {
     }
 
     private List<StationIdPair> getFailedPairedFor(JourneyRequest journeyRequest) {
-        TramDate date = journeyRequest.getDate().getDate();
+        TramDate date = journeyRequest.getDate();
         Set<Station> stations = tramStations.stream().
                 map(tramStations -> tramStations.from(stationRepository)).
                 filter(station -> !closedStationRepository.isClosed(station, date)).
@@ -277,7 +276,7 @@ class RouteCalculatorSubGraphMediaCityTest {
 
     @Test
     void shouldHaveSimpleJourney() {
-        JourneyRequest journeyRequest = new JourneyRequest(new TramServiceDate(when), TramTime.of(12, 0), false, 3,
+        JourneyRequest journeyRequest = new JourneyRequest(when, TramTime.of(12, 0), false, 3,
                 maxJourneyDuration, 1, getRequestedModes());
         Set<Journey> results = calculator.calculateRouteAsSet(TramStations.Pomona, MediaCityUK, journeyRequest);
         assertTrue(results.size()>0);

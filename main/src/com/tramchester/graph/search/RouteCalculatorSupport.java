@@ -2,6 +2,7 @@ package com.tramchester.graph.search;
 
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.*;
+import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.dates.TramServiceDate;
 import com.tramchester.domain.places.Location;
 import com.tramchester.domain.places.StationWalk;
@@ -233,7 +234,7 @@ public class RouteCalculatorSupport {
         }
     }
 
-    public PathRequest createPathRequest(Node startNode, TramServiceDate queryDate, TramTime actualQueryTime, Set<TransportMode>
+    public PathRequest createPathRequest(Node startNode, TramDate queryDate, TramTime actualQueryTime, Set<TransportMode>
             requestedModes, int numChanges, JourneyConstraints journeyConstraints, Duration maxInitialWait) {
         ServiceHeuristics serviceHeuristics = createHeuristics(actualQueryTime, journeyConstraints, numChanges);
         return new PathRequest(startNode, queryDate, actualQueryTime, numChanges, serviceHeuristics, requestedModes, maxInitialWait);
@@ -244,11 +245,11 @@ public class RouteCalculatorSupport {
         private final TramTime queryTime;
         private final int numChanges;
         private final ServiceHeuristics serviceHeuristics;
-        private final TramServiceDate queryDate;
+        private final TramDate queryDate;
         private final Set<TransportMode> requestedModes;
         private final Duration maxInitialWait;
 
-        public PathRequest(Node startNode, TramServiceDate queryDate, TramTime queryTime, int numChanges,
+        public PathRequest(Node startNode, TramDate queryDate, TramTime queryTime, int numChanges,
                            ServiceHeuristics serviceHeuristics, Set<TransportMode> requestedModes, Duration maxInitialWait) {
             this.startNode = startNode;
             this.queryDate = queryDate;
@@ -284,7 +285,7 @@ public class RouteCalculatorSupport {
                     '}';
         }
 
-        public TramServiceDate getQueryDate() {
+        public TramDate getQueryDate() {
             return queryDate;
         }
 

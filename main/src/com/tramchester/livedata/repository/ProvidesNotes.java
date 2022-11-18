@@ -2,6 +2,7 @@ package com.tramchester.livedata.repository;
 
 import com.google.inject.ImplementedBy;
 import com.tramchester.domain.Journey;
+import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.Note;
 import com.tramchester.domain.dates.TramServiceDate;
@@ -12,7 +13,7 @@ import java.util.List;
 
 @ImplementedBy(ProvidesTramNotes.class)
 public interface ProvidesNotes {
-    List<Note> createNotesForJourney(Journey journey, TramServiceDate queryDate);
+    List<Note> createNotesForJourney(Journey journey, TramDate queryDate);
 
-    List<Note> createNotesForStations(List<Station> stations, TramServiceDate queryDate, TramTime time);
+    List<Note> createNotesForStations(List<Station> stations, TramDate queryDate, TramTime time);
 }

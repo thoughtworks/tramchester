@@ -117,7 +117,7 @@ class RouteCalculatorSubGraphMonsallTest {
 
     private void validateNumberOfStages(TramStations start, TramStations destination, TramTime time, TramDate date, int numStages) {
         long maxNumberOfJourneys = 1;
-        JourneyRequest journeyRequest = new JourneyRequest(new TramServiceDate(date), time,
+        JourneyRequest journeyRequest = new JourneyRequest(date, time,
                 false, 3, Duration.ofMinutes(config.getMaxJourneyDuration()), maxNumberOfJourneys, Collections.emptySet());
         Set<Journey> journeys = calculator.calculateRouteAsSet(start, destination, journeyRequest);
 

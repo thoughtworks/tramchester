@@ -31,7 +31,7 @@ class RouteCostCalculatorTest {
     private RouteCostCalculator routeCostCalculator;
     private StationRepository stationRepository;
     private Transaction txn;
-    private final TramServiceDate when = new TramServiceDate(TestEnv.testDay());
+    private final TramDate when = TestEnv.testDay();
     private Station altrincham;
     private Station mediaCity;
     private Station airport;
@@ -109,7 +109,7 @@ class RouteCostCalculatorTest {
     void shouldReproIssueBetweenAshtonAndTraffordCenter() throws InvalidDurationException {
         Location<?> ashton = Ashton.from(stationRepository);
         Location<?> traffordCenter = TraffordCentre.from(stationRepository);
-        TramServiceDate testDate = new TramServiceDate(TramDate.of(2022, 11, 14));
+        TramDate testDate = TramDate.of(2022, 11, 14);
         Duration result = routeCostCalculator.getAverageCostBetween(txn, ashton, traffordCenter, testDate);
         assertMinutesEquals(62, result);
     }

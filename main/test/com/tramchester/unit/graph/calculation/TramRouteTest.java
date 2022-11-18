@@ -6,12 +6,12 @@ import com.tramchester.DiagramCreator;
 import com.tramchester.domain.Journey;
 import com.tramchester.domain.JourneyRequest;
 import com.tramchester.domain.Route;
+import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.places.Location;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.TransportStage;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.InvalidDurationException;
-import com.tramchester.domain.dates.TramServiceDate;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.domain.transportStages.WalkingStage;
 import com.tramchester.graph.GraphDatabase;
@@ -32,7 +32,6 @@ import org.neo4j.graphdb.Transaction;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.time.Duration;
-import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -54,7 +53,7 @@ class TramRouteTest {
     private RouteCalculator calculator;
     private Geography geography;
 
-    private TramServiceDate queryDate;
+    private TramDate queryDate;
     private TramTime queryTime;
     private Transaction txn;
 
@@ -82,7 +81,7 @@ class TramRouteTest {
         GraphDatabase database = componentContainer.get(GraphDatabase.class);
         calculator = componentContainer.get(RouteCalculator.class);
 
-        queryDate = new TramServiceDate(LocalDate.of(2014,6,30));
+        queryDate = TramDate.of(2014,6,30);
         queryTime = TramTime.of(7, 57);
         StationRepository stationRepo = componentContainer.get(StationRepository.class);
 
@@ -112,7 +111,7 @@ class TramRouteTest {
     void shouldHaveRoutesSetupCorrectly() {
         RouteRepository routeRepository = componentContainer.get(RouteRepository.class);
 
-        Set<Route> running = routeRepository.getRoutesRunningOn(queryDate.getDate());
+        Set<Route> running = routeRepository.getRoutesRunningOn(queryDate);
 
         assertEquals(routeRepository.numberOfRoutes(), running.size());
     }

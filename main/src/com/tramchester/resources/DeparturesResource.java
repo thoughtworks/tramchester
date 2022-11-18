@@ -3,6 +3,7 @@ package com.tramchester.resources;
 
 import com.codahale.metrics.annotation.Timed;
 import com.tramchester.config.TramchesterConfig;
+import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.places.Location;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.DTO.DeparturesQueryDTO;
@@ -34,6 +35,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -83,8 +85,8 @@ public class DeparturesResource extends TransportResource implements APIResource
         Location<?> location = locationRepository.getLocation(departuresQuery.getLocationType(),
                 departuresQuery.getLocationId());
 
-        LocalDate localDate = providesNow.getDate();
-        TramServiceDate queryDate = new TramServiceDate(localDate);
+        LocalDateTime dateTime = providesNow.getDateTime();
+        TramDate queryDate = TramDate.from(dateTime);
 
         TramTime queryTime;
         if (departuresQuery.hasValidTime()) {
@@ -99,7 +101,7 @@ public class DeparturesResource extends TransportResource implements APIResource
             modes = config.getTransportModes();
         }
 
-        List<UpcomingDeparture> dueTrams = departuresRepository.dueTramsForLocation(location, localDate, queryTime, modes);
+        List<UpcomingDeparture> dueTrams = departuresRepository.dueTramsForLocation(location, dateTime.toLocalDate(), queryTime, modes);
         if (dueTrams.isEmpty()) {
             logger.warn("Departures list empty for " + location.getId() + " at " + queryTime);
         }

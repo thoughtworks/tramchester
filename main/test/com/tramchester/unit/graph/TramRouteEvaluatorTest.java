@@ -2,7 +2,9 @@ package com.tramchester.unit.graph;
 
 import com.tramchester.config.GTFSSourceConfig;
 import com.tramchester.config.TramchesterConfig;
-import com.tramchester.domain.*;
+import com.tramchester.domain.DataSourceID;
+import com.tramchester.domain.JourneyRequest;
+import com.tramchester.domain.LocationSet;
 import com.tramchester.domain.exceptions.TramchesterException;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdSet;
@@ -15,7 +17,6 @@ import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.reference.GTFSTransportationType;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.ProvidesNow;
-import com.tramchester.domain.dates.TramServiceDate;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.geo.GridPosition;
 import com.tramchester.geo.SortsPositions;
@@ -115,7 +116,7 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
 
         long maxNumberOfJourneys = 2;
         JourneyRequest journeyRequest = new JourneyRequest(
-                new TramServiceDate(TestEnv.nextSaturday()), TramTime.of(8,15), false,
+                TestEnv.nextSaturday(), TramTime.of(8,15), false,
                 3, Duration.ofMinutes(config.getMaxJourneyDuration()), maxNumberOfJourneys, Collections.emptySet());
         reasons = new ServiceReasons(journeyRequest, TramTime.of(8,15), providesNow);
 
@@ -145,9 +146,9 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
         RegistersStates registersStates = new RegistersStates();
         TraversalStateFactory traversalStateFactory = new TraversalStateFactory(registersStates, contentsRepository, config);
 
-        TramServiceDate queryDate = new TramServiceDate(TestEnv.testDay());
+        //TramServiceDate queryDate = new TramServiceDate(TestEnv.testDay());
         final TraversalOps traversalOps = new TraversalOps(contentsRepository, tripRepository, sortsPositions, destinationStations,
-                latLongHint, lowestCostsForRoutes, queryDate);
+                latLongHint, lowestCostsForRoutes, TestEnv.testDay());
         return new NotStartedState(traversalOps, traversalStateFactory);
     }
 

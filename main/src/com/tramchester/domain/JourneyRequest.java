@@ -12,7 +12,7 @@ import java.util.Set;
 import java.util.UUID;
 
 public class JourneyRequest {
-    private final TramServiceDate date;
+    private final TramDate date;
     private final TramTime originalQueryTime;
     private final boolean arriveBy;
     private final int maxChanges;
@@ -26,12 +26,12 @@ public class JourneyRequest {
     private boolean warnIfNoResults;
 
 
-    public JourneyRequest(TramDate date, TramTime originalQueryTime, boolean arriveBy, int maxChanges, Duration maxJourneyDuration,
-                          long maxNumberOfJourneys, Set<TransportMode> requestedModes) {
-        this(new TramServiceDate(date), originalQueryTime, arriveBy, maxChanges, maxJourneyDuration, maxNumberOfJourneys, requestedModes);
-    }
+//    public JourneyRequest(TramDate date, TramTime originalQueryTime, boolean arriveBy, int maxChanges, Duration maxJourneyDuration,
+//                          long maxNumberOfJourneys, Set<TransportMode> requestedModes) {
+//        this(new TramServiceDate(date), originalQueryTime, arriveBy, maxChanges, maxJourneyDuration, maxNumberOfJourneys, requestedModes);
+//    }
 
-    public JourneyRequest(TramServiceDate date, TramTime originalQueryTime, boolean arriveBy, int maxChanges,
+    public JourneyRequest(TramDate date, TramTime originalQueryTime, boolean arriveBy, int maxChanges,
                           Duration maxJourneyDuration, long maxNumberOfJourneys, Set<TransportMode> requestedModes) {
         this.date = date;
         this.originalQueryTime = originalQueryTime;
@@ -53,7 +53,7 @@ public class JourneyRequest {
         warnIfNoResults = originalRequest.warnIfNoResults;
     }
 
-    public TramServiceDate getDate() {
+    public TramDate getDate() {
         return date;
     }
 

@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.module.afterburner.AfterburnerModule;
 import com.tramchester.domain.BoundingBoxWithCost;
 import com.tramchester.domain.JourneyRequest;
+import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.CaseInsensitiveId;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.StringIdFor;
@@ -97,7 +98,7 @@ public class JourneysForGridResource implements APIResource, GraphDatabaseDepend
 
         Duration maxDuration = Duration.ofMinutes(maxDurationMinutes);
 
-        TramServiceDate tramServiceDate = new TramServiceDate(date);
+        TramDate tramServiceDate = TramDate.of(date);
         Set<TransportMode> allModes = Collections.emptySet();
         JourneyRequest journeyRequest = new JourneyRequest(tramServiceDate, departureTime,
                 false, maxChanges, maxDuration, maxNumberOfJourneys, allModes);
@@ -134,7 +135,7 @@ public class JourneysForGridResource implements APIResource, GraphDatabaseDepend
         return destination;
     }
 
-    private BoxWithCostDTO transformToDTO(BoundingBoxWithCost box, TramServiceDate serviceDate) {
+    private BoxWithCostDTO transformToDTO(BoundingBoxWithCost box, TramDate serviceDate) {
         return BoxWithCostDTO.createFrom(dtoMapper, serviceDate, box);
     }
 

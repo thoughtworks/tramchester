@@ -3,10 +3,10 @@ package com.tramchester.integration.graph.buses;
 import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.config.TramchesterConfig;
-import com.tramchester.domain.places.StationGroup;
+import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.places.Location;
+import com.tramchester.domain.places.StationGroup;
 import com.tramchester.domain.time.InvalidDurationException;
-import com.tramchester.domain.dates.TramServiceDate;
 import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.RouteCostCalculator;
 import com.tramchester.integration.testSupport.bus.IntegrationBusTestConfig;
@@ -24,7 +24,8 @@ import java.util.function.BiFunction;
 import static com.tramchester.testSupport.TestEnv.assertMinutesEquals;
 import static com.tramchester.testSupport.reference.BusStations.*;
 import static com.tramchester.testSupport.reference.BusStations.Composites.StockportTempBusStation;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.fail;
 
 @BusTest
 class BusRouteCostCalculatorTest {
@@ -37,7 +38,7 @@ class BusRouteCostCalculatorTest {
     private StationGroup shudehillInterchange;
     private StationRepository stationRepository;
 
-    private final TramServiceDate date = new TramServiceDate(TestEnv.testDay());
+    private final TramDate date = TestEnv.testDay();
 
     @BeforeAll
     static void onceBeforeAnyTestRuns() {
