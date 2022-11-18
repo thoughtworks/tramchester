@@ -49,21 +49,20 @@ public class RouteReachable {
     // supports position inference on live data
     public List<Route> getRoutesFromStartToNeighbour(StationPair pair, TramDate date, TimeRange timeRange) {
         List<Route> results = new ArrayList<>();
-        Station startStation = pair.getBegin();
-        //Set<Route> firstRoutes = startStation.getPickupRoutes(); // pickups from first station
-        Set<Route> firstRoutes = availabilityRepository.getPickupRoutesFor(startStation, date, timeRange);
-        IdFor<Station> endStationId = pair.getEnd().getId();
+        final Station startStation = pair.getBegin();
+        final Set<Route> firstRoutes = availabilityRepository.getPickupRoutesFor(startStation, date, timeRange);
+        final IdFor<Station> endStationId = pair.getEnd().getId();
 
         try (Transaction txn = graphDatabaseService.beginTx()) {
             firstRoutes.forEach(route -> {
-                RouteStation routeStation = stationRepository.getRouteStation(startStation, route);
-                Node routeStationNode = graphQuery.getRouteStationNode(txn, routeStation);
+                final RouteStation routeStation = stationRepository.getRouteStation(startStation, route);
+                final Node routeStationNode = graphQuery.getRouteStationNode(txn, routeStation);
                 if (routeStationNode==null) {
                     logger.warn("Missing route station, graph DB rebuild needed?");
                 } else {
                     Iterable<Relationship> edges = routeStationNode.getRelationships(Direction.OUTGOING, ON_ROUTE);
                     for (Relationship edge : edges) {
-                        IdFor<Station> endNodeStationId = GraphProps.getStationIdFrom(edge.getEndNode());
+                        final IdFor<Station> endNodeStationId = GraphProps.getStationIdFrom(edge.getEndNode());
                         if (endStationId.equals(endNodeStationId)) {
                             results.add(route);
                         }

@@ -13,6 +13,7 @@ import com.tramchester.livedata.tfgm.LiveDataUpdater;
 import com.tramchester.livedata.tfgm.TramDepartureRepository;
 import com.tramchester.livedata.tfgm.TramPosition;
 import com.tramchester.livedata.tfgm.TramPositionInference;
+import com.tramchester.repository.ClosedStationsRepository;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.repository.TramStationAdjacenyRepository;
 import com.tramchester.testSupport.TestEnv;
@@ -53,8 +54,9 @@ class TramPositionInferenceTest {
         RouteReachable routeReachable = componentContainer.get(RouteReachable.class);
         TramStationAdjacenyRepository adjacenyMatrix = componentContainer.get(TramStationAdjacenyRepository.class);
         TramDepartureRepository departureRepository = componentContainer.get(TramDepartureRepository.class);
+        ClosedStationsRepository stationClosures = componentContainer.get(ClosedStationsRepository.class);
 
-        positionInference = new TramPositionInference(departureRepository, adjacenyMatrix, routeReachable);
+        positionInference = new TramPositionInference(departureRepository, adjacenyMatrix, routeReachable, stationClosures);
         stationRepository = componentContainer.get(StationRepository.class);
 
         dateTime = providesLocalNow.getDateTime();

@@ -11,12 +11,14 @@ import com.tramchester.domain.time.TimeRange;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.RouteReachable;
 import com.tramchester.livedata.domain.liveUpdates.UpcomingDeparture;
+import com.tramchester.repository.ClosedStationsRepository;
 import com.tramchester.repository.TramStationAdjacenyRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
 import java.time.Duration;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
@@ -34,21 +36,27 @@ public class TramPositionInference {
     private final TramDepartureRepository departureRepository;
     private final TramStationAdjacenyRepository adjacenyRepository;
     private final RouteReachable routeReachable;
+    private final ClosedStationsRepository closedStationsRepository;
 
     @Inject
     public TramPositionInference(TramDepartureRepository departureRepository, TramStationAdjacenyRepository adjacenyRepository,
-                                 RouteReachable routeReachable) {
+                                 RouteReachable routeReachable, ClosedStationsRepository closedStationsRepository) {
         this.departureRepository = departureRepository;
         this.adjacenyRepository = adjacenyRepository;
         this.routeReachable = routeReachable;
+        this.closedStationsRepository = closedStationsRepository;
     }
 
     // todo refresh this based on live data refresh
-    public List<TramPosition> inferWholeNetwork(LocalDateTime now) {
+    public List<TramPosition> inferWholeNetwork(LocalDateTime localDateTime) {
+
+        TramDate date = TramDate.from(localDateTime);
         logger.info("Infer tram positions for whole network");
         Set<StationPair> pairs = adjacenyRepository.getTramStationParis();
         List<TramPosition> results = pairs.stream().
-                map(pair -> findBetween(pair, now)).
+                filter(stationPair -> !closedStationsRepository.isClosed(stationPair.getEnd(), date) &&
+                                !closedStationsRepository.isClosed(stationPair.getBegin(), date)).
+                map(pair -> findBetween(pair, localDateTime)).
                 collect(Collectors.toList());
 
         logger.info(format("Found %s station pairs with trams between them", results.size()));

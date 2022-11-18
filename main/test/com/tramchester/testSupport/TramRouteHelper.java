@@ -26,12 +26,12 @@ public class TramRouteHelper {
 
     public TramRouteHelper(RouteRepository routeRepository) {
         this.routeRepository = routeRepository;
-        map = null;
+        createMap();
     }
 
     private void createMap() {
         map = new HashMap<>();
-        KnownTramRoute[] knownTramRoutes = KnownTramRoute.values();
+        KnownTramRoute[] knownTramRoutes = KnownTramRoute.values(); // ignores date
         for (KnownTramRoute knownRoute : knownTramRoutes) {
             final Set<Route> routesByShortName =
                     routeRepository.
@@ -39,9 +39,6 @@ public class TramRouteHelper {
                             stream().
                             filter(found -> found.getId().forDTO().contains(knownRoute.direction().getSuffix())).
                             collect(Collectors.toSet());
-            if (routesByShortName.isEmpty()) {
-                throw new RuntimeException("Found nothing matching " + knownRoute);
-            }
             map.put(knownRoute, routesByShortName);
         }
     }
@@ -63,12 +60,10 @@ public class TramRouteHelper {
         if (result.size()>1) {
             throw new RuntimeException(format("Found two many routes matching date %s and known route %s", date, knownRoute));
         }
+        if (result.isEmpty()) {
+            throw new RuntimeException(format("Found no routes matching date %s and known route %s", date, knownRoute));
+        }
         return result.get(0);
-    }
-
-    @Deprecated
-    public Route getOneRoute(KnownTramRoute knownRoute, RouteRepository routeRepository, LocalDate date) {
-        return getOneRoute(knownRoute, TramDate.of(date));
     }
 
     public IdSet<Route> getId(KnownTramRoute knownRoute) {
@@ -78,9 +73,6 @@ public class TramRouteHelper {
 
 
     private void guard(KnownTramRoute knownRoute) {
-        if (map==null) {
-            createMap();
-        }
         if (!map.containsKey(knownRoute)) {
             throw new RuntimeException("Missing " + knownRoute);
         }

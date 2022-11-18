@@ -141,7 +141,7 @@ public class RouteRepositoryTest {
     @Test
     void shouldOverlapAsExpected() {
 
-        List<KnownTramRoute> known = KnownTramRoute.getFor(when);
+        Set<KnownTramRoute> known = KnownTramRoute.getFor(when);
         Set<RoutePair> noOverlap = new HashSet<>();
 
         for (KnownTramRoute knownRouteA : known) {
@@ -161,11 +161,13 @@ public class RouteRepositoryTest {
     @Test
     void shouldReproIssueWithUnsymmetricDateOverlap() {
 
-        Route routeA = routeHelper.getOneRoute(BuryPiccadilly, when); // routeRepository.getRouteById(createId("METLYELL:I:CURRENT"));
-        Route routeB = routeHelper.getOneRoute(AltrinchamManchesterBury, when); // routeRepository.getRouteById(createId("METLGREE:I:CURRENT"));
+        TramDate date = when.plusWeeks(2);
 
-        assertTrue(routeA.isAvailableOn(when));
-        assertTrue(routeB.isAvailableOn(when));
+        Route routeA = routeHelper.getOneRoute(BuryPiccadilly, date); // routeRepository.getRouteById(createId("METLYELL:I:CURRENT"));
+        Route routeB = routeHelper.getOneRoute(AltrinchamManchesterBury, date); // routeRepository.getRouteById(createId("METLGREE:I:CURRENT"));
+
+        assertTrue(routeA.isAvailableOn(date));
+        assertTrue(routeB.isAvailableOn(date));
 
         assertTrue(routeA.isDateOverlap(routeB), "no overlap for " + routeA + " and " + routeB);
         assertTrue(routeB.isDateOverlap(routeA), "no overlap for " + routeB + " and " + routeA);

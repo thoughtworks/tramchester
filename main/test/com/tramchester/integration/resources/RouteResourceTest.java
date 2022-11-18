@@ -6,6 +6,7 @@ import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.presentation.DTO.LocationRefDTO;
 import com.tramchester.domain.presentation.DTO.LocationRefWithPosition;
 import com.tramchester.domain.presentation.DTO.RouteDTO;
+import com.tramchester.domain.presentation.DTO.RouteRefDTO;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.integration.testSupport.APIClient;
 import com.tramchester.integration.testSupport.IntegrationAppExtension;
@@ -16,6 +17,7 @@ import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.KnownTramRoute;
 import com.tramchester.testSupport.reference.TramStations;
 import io.dropwizard.testing.junit5.DropwizardExtensionsSupport;
+import org.apache.commons.collections4.SetUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -45,13 +47,18 @@ class RouteResourceTest {
 
     @Test
     void shouldGetAllRoutes() {
-        List<RouteDTO> routes = getRouteResponse();
 
         TramDate today = TramDate.from(TestEnv.LocalNow());
 
-        List<KnownTramRoute> knownTramRoutes = KnownTramRoute.getFor(today);
+        List<RouteDTO> routes = getRouteResponse(); // uses current date server side
 
-        assertEquals(knownTramRoutes.size(), routes.size(), "Wrong size for " + routes);
+        Set<String> fromRepos = routes.stream().map(RouteRefDTO::getRouteName).collect(Collectors.toSet());
+
+        Set<String> onDate = KnownTramRoute.getFor(today).stream().map(KnownTramRoute::longName).collect(Collectors.toSet());
+
+        Set<String> mismatch = SetUtils.difference(fromRepos, onDate);
+
+        assertTrue(mismatch.isEmpty());
 
         routes.forEach(route -> assertFalse(route.getStations().isEmpty(), "Route no stations "+route.getRouteName()));
 

@@ -38,9 +38,5 @@ public interface ServiceCalendar {
 
     boolean anyDateOverlaps(ServiceCalendar other);
 
-    boolean operatesOnAny(TramDateSet dates);
-
-    boolean operatesNoneOf(TramDateSet dates);
-
     long numberDaysOperating();
 }

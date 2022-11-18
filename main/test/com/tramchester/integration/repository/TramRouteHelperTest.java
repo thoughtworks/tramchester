@@ -3,6 +3,7 @@ package com.tramchester.integration.repository;
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.GuiceContainerDependencies;
 import com.tramchester.domain.Route;
+import com.tramchester.domain.dates.TramDate;
 import com.tramchester.repository.RouteRepository;
 import com.tramchester.testSupport.reference.KnownTramRoute;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
@@ -13,6 +14,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.util.List;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -42,7 +44,10 @@ class TramRouteHelperTest {
     @Test
     void shouldFindAllKnownRoutes() {
 
-        KnownTramRoute[] knownRoutes = KnownTramRoute.values();
+        TramDate date = TramDate.from(TestEnv.LocalNow());
+
+        Set<KnownTramRoute> knownRoutes = KnownTramRoute.getFor(date);
+
         for(KnownTramRoute knownRoute : knownRoutes) {
             Set<Route> found = helper.get(knownRoute);
             assertFalse(found.isEmpty(),"missing " + knownRoute.toString());

@@ -19,6 +19,7 @@ import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.LocationType;
 import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
+import com.tramchester.domain.time.TimeRange;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
 import com.tramchester.repository.ClosedStationsRepository;
@@ -45,6 +46,7 @@ import static com.tramchester.domain.reference.CentralZoneStation.StPetersSquare
 import static com.tramchester.domain.reference.CentralZoneStation.TraffordBar;
 import static com.tramchester.integration.testSupport.Assertions.assertIdEquals;
 import static com.tramchester.testSupport.TestEnv.DAYS_AHEAD;
+import static com.tramchester.testSupport.TestEnv.dateFormatDashes;
 import static com.tramchester.testSupport.TransportDataFilter.getTripsFor;
 import static com.tramchester.testSupport.reference.KnownTramRoute.*;
 import static com.tramchester.testSupport.reference.TramStations.*;
@@ -93,12 +95,9 @@ public class TransportDataFromFilesTramTest {
     void shouldHaveExpectedNumbersForTram() {
         assertEquals(1, transportData.getAgencies().size());
         assertEquals(NUM_TFGM_TRAM_STATIONS, transportData.getStations().size());
-        Set<Route> allRoutes = transportData.getRoutes();
 
+        Set<String> uniqueNames = transportData.getRoutesRunningOn(when).stream().map(Route::getName).collect(Collectors.toSet());
 
-        Set<String> uniqueNames = allRoutes.stream().
-                filter(route -> route.isAvailableOn(when)).
-                map(Route::getName).collect(Collectors.toSet());
         assertEquals(KnownTramRoute.numberOn(when), uniqueNames.size(), uniqueNames.toString());
 
         int expected = 200;
@@ -211,6 +210,7 @@ public class TransportDataFromFilesTramTest {
         assertTrue(noDropOffs.isEmpty(), noDropOffs.toString());
     }
 
+    @PiccGardens2022
     @Test
     void shouldHaveExpectedStationsForGreenFromAlty() {
         Route green = routeHelper.getOneRoute(AltrinchamManchesterBury, when);
@@ -227,6 +227,7 @@ public class TransportDataFromFilesTramTest {
 
         IdSet<Station> pickUps = allStations.stream().filter(station -> station.servesRoutePickup(green)).collect(IdSet.collector());
 
+        // 24 -> 25
         assertEquals(24, pickUps.size(), pickUps.toString());
         assertTrue(pickUps.contains(Altrincham.getId()));
         assertFalse(pickUps.contains(Bury.getId()));
@@ -243,6 +244,7 @@ public class TransportDataFromFilesTramTest {
 
         IdSet<Station> dropOffs = allStations.stream().filter(station -> station.servesRouteDropOff(green)).collect(IdSet.collector());
 
+        // 24 -> 25
         assertEquals(24, dropOffs.size(), dropOffs.toString());
         assertFalse(dropOffs.contains(Bury.getId()));
         assertTrue(dropOffs.contains(Altrincham.getId()));
@@ -388,8 +390,7 @@ public class TransportDataFromFilesTramTest {
     @Test
     void shouldHaveTramServicesAvailableNDaysAhead() {
 
-        Set<TramDate> noServices = getUpcomingDates().
-                filter(this::isValidDateToCheck).
+        Set<TramDate> noServices = TestEnv.getUpcomingDates().
                 filter(date -> transportData.getServicesOnDate(date).isEmpty()).
                 collect(Collectors.toSet());
 
@@ -397,25 +398,14 @@ public class TransportDataFromFilesTramTest {
 
     }
 
-    private boolean isValidDateToCheck(TramDate date) {
-        TramServiceDate tramServiceDate = new TramServiceDate(date);
-        return !tramServiceDate.isChristmasPeriod();
-    }
-
-    @NotNull
-    private Stream<TramDate> getUpcomingDates() {
-        return IntStream.range(0, DAYS_AHEAD).boxed().
-                map(when::plusDays).sorted();
-    }
-
     @DataExpiryCategory
     @Test
     void shouldHaveTripsOnDateForEachStation() {
 
-        Set<Pair<TramDate, IdFor<Station>>> missing = getUpcomingDates().
-                filter(this::isValidDateToCheck).
+        Set<Pair<TramDate, IdFor<Station>>> missing = TestEnv.getUpcomingDates().
                 flatMap(date -> transportData.getStations().stream().map(station -> Pair.of(date, station))).
                 filter(pair -> !closedStationRepository.isClosed(pair.getRight(), pair.getLeft())).
+                filter(pair -> !TestEnv.novermber2022Issue(pair.getRight().getId(), pair.getLeft())).
                 filter(pair -> transportData.getTripsFor(pair.getRight(), pair.getLeft()).isEmpty()).
                 map(pair -> Pair.of(pair.getLeft(), pair.getRight().getId())).
                 collect(Collectors.toSet());
@@ -424,7 +414,66 @@ public class TransportDataFromFilesTramTest {
 
     }
 
-    @VictoriaNov2022
+    @Disabled("This is due to actual issues with source data, there are not calling trips on these dates")
+    @Test
+    void shouldHaveMondayServicesForVeloparkOnDate() {
+        TramDate date = TramDate.of(2022,11,21);
+
+        Set<Trip> allTrips = transportData.getTrips();
+
+        HasId<Station> velopark = VeloPark.from(transportData);
+
+        Set<Trip> calling = allTrips.stream().filter(trip -> trip.callsAt(velopark)).collect(Collectors.toSet());
+
+        Set<Service> callServicesForPeriod = calling.stream().
+                map(Trip::getService).
+                filter(service -> service.getCalendar().getDateRange().contains(date)).
+                collect(Collectors.toSet());
+
+        Set<Service> mondaysOnProblemDate = callServicesForPeriod.stream().
+                filter(service -> service.getCalendar().operatesOn(date)).collect(Collectors.toSet());
+
+        assertFalse(mondaysOnProblemDate.isEmpty(), "No monday on specific date from " + HasId.asIds(callServicesForPeriod));
+
+    }
+
+    @Test
+    void shouldHaveMondayServicesForNewIslington() {
+        TramDate date = TramDate.of(2022,11,21);
+
+        Set<Trip> allTrips = transportData.getTrips();
+
+        HasId<Station> newIslington = NewIslington.from(transportData);
+
+        Set<Trip> calling = allTrips.stream().filter(trip -> trip.callsAt(newIslington)).collect(Collectors.toSet());
+
+        Set<Service> callServicesForPeriod = calling.stream().
+                map(Trip::getService).
+                filter(service -> service.getCalendar().getDateRange().contains(date)).
+                collect(Collectors.toSet());
+
+        Set<Service> mondaysOnProblemDate = callServicesForPeriod.stream().
+                filter(service -> service.getCalendar().operatesOn(date)).collect(Collectors.toSet());
+
+        assertFalse(mondaysOnProblemDate.isEmpty(), "No monday on specific date from " + HasId.asIds(callServicesForPeriod));
+
+    }
+
+    @Test
+    void shouldHaveServicesThatIncludeDateInRange() {
+        TramDate date = TramDate.of(2022,11,21);
+
+        Set<Service> allServices = transportData.getServices();
+
+        Set<Service> includeDate = allServices.stream().filter(service -> service.getCalendar().getDateRange().contains(date)).collect(Collectors.toSet());
+
+        assertFalse(includeDate.isEmpty());
+
+        Set<Service> onActualDate = includeDate.stream().filter(service -> service.getCalendar().operatesOn(date)).collect(Collectors.toSet());
+
+        assertFalse(onActualDate.isEmpty());
+    }
+
     @Test
     void shouldReproIssueWithEarlyTramsExchangeSquareSunday() {
         // Looks like route data not updated so exchange square looks closed beyond the planned date of 6/11/2022
@@ -445,61 +494,49 @@ public class TransportDataFromFilesTramTest {
         assertEquals(2, times.size(), times.toString());
     }
 
-    @WorkaroundsNov2022
-    @VictoriaNov2022
     @DataExpiryCategory
     @Test
     void shouldHaveServicesRunningAtReasonableTimesNDaysAhead() {
 
-        // todo , a dup?
-
         int latestHour = 23;
         int earlistHour = 7;
 
+        List<TramTime> times = IntStream.range(earlistHour, latestHour).boxed().
+                map(hour -> TramTime.of(hour, 0)).
+                sorted().
+                collect(Collectors.toList());
+
         int maxwait = 25;
 
-        for (int day = 0; day < DAYS_AHEAD; day++) {
-            TramDate date = TestEnv.testTramDay().plusDays(day);
+        Map<Pair<TramDate, TramTime>, IdSet<Station>> missing = new HashMap<>();
 
-            TramServiceDate tramServiceDate = new TramServiceDate(date);
-            if (!tramServiceDate.isChristmasPeriod()) {
+        TestEnv.getUpcomingDates().forEach(date -> {
+            transportData.getStations().stream().
+                    filter(station -> !closedStationRepository.isClosed(station, date)).
+                    filter(station -> !TestEnv.novermber2022Issue(station.getId(), date)).
+                    forEach(station -> {
+                        Set<Trip> trips = transportData.getTripsFor(station, date);
+                        for (TramTime time : times) {
+                            TimeRange range = TimeRange.of(time.minusMinutes(maxwait), time.plusMinutes(maxwait));
+                            boolean calls = trips.stream().flatMap(trip -> trip.getStopCalls().stream()).
+                                    filter(stopCall -> stopCall.getStation().equals(station)).
+                                    anyMatch(stopCall -> range.contains(stopCall.getArrivalTime()));
+                            if (!calls) {
+                                Pair<TramDate, TramTime> key = Pair.of(date, time);
+                                if (!missing.containsKey(key)) {
+                                    missing.put(key, new IdSet<>());
+                                }
+                                missing.get(key).add(station.getId());
+                            }
 
-                Set<Service> servicesOnDate = transportData.getServicesOnDate(date);
+                        }
+                    });
+        });
 
-                transportData.getStations().stream().filter(station -> !closedStationRepository.isClosed(station, date)).
-                        filter(station1 -> workaroundDataIssueExchangeSquare(station1, date)).
-                        forEach(station -> {
-                    Set<Trip> callingTripsOnDate = transportData.getTrips().stream().
-                            filter(trip -> trip.callsAt(station)).
-                            filter(trip -> servicesOnDate.contains(trip.getService())).
-                            collect(Collectors.toSet());
-                    assertFalse(callingTripsOnDate.isEmpty(), String.format("no trips calling on %s at %s", date, station.getId()));
+        assertTrue(missing.isEmpty(), missing.toString());
 
-                    for (int hour = earlistHour; hour < latestHour; hour++) {
-                        TramTime tramTime = TramTime.of(hour, 0);
-
-                        Set<StopCall> calling = new HashSet<>();
-                        callingTripsOnDate.forEach(trip -> {
-                            Set<StopCall> onTime = trip.getStopCalls().stream().
-                                    filter(stop -> stop.getStation().equals(station)).
-                                    filter(stop -> tramTime.plusMinutes(maxwait).
-                                            between(stop.getArrivalTime(), stop.getArrivalTime().plusMinutes(maxwait))).
-                                    collect(Collectors.toSet());
-                            calling.addAll(onTime);
-                        });
-                        assertFalse(calling.isEmpty(), String.format("Stops %s %s %s %s", date.getDayOfWeek(), date, tramTime, station.getName()));
-                    }
-                });
-            }
-        }
     }
 
-    private boolean workaroundDataIssueExchangeSquare(Station station, TramDate date) {
-        if (station.getId().equals(ExchangeSquare.getId())) {
-            return date.getDayOfWeek()!=DayOfWeek.SUNDAY;
-        }
-        return true;
-    }
 
     @Test
     void shouldHaveAtLeastOnePlatformForEveryStation() {
@@ -593,15 +630,18 @@ public class TransportDataFromFilesTramTest {
         TransportDataReaderFactory dataReaderFactory = componentContainer.get(TransportDataReaderFactory.class);
         List<TransportDataReader> transportDataReaders = dataReaderFactory.getReaders();
         TransportDataReader transportDataReader = transportDataReaders.get(0); // yuk
-        Stream<CalendarDateData> calendarsDates = transportDataReader.getCalendarDates();
+        Set<CalendarDateData> calendarsDates = transportDataReader.getCalendarDates().collect(Collectors.toSet());
 
-        Set<CalendarDateData> applyToCurrentServices = calendarsDates.
+        Set<Service> calendarsForTrams = transportData.getServices();
+
+        Set<CalendarDateData> applyToCurrentServices = calendarsDates.stream().
                 filter(calendarDateData -> transportData.hasServiceId(calendarDateData.getServiceId())).
                 collect(Collectors.toSet());
 
-        calendarsDates.close();
-
+        // are not any in the data at the moment 15/11/2022
         assertFalse(applyToCurrentServices.isEmpty());
+
+        assertFalse(applyToCurrentServices.isEmpty(), "did not alter any of " + HasId.asIds(calendarsForTrams));
 
         assertEquals(1,  config.getGTFSDataSource().size(), "expected only one data source");
         GTFSSourceConfig sourceConfig = config.getGTFSDataSource().get(0);
@@ -661,6 +701,7 @@ public class TransportDataFromFilesTramTest {
 
     }
 
+    @Disabled("Duplicated of test that checks for every station")
     @DataExpiryCategory
     @Test
     void shouldHaveCorrectDataForTramsCallingAtVeloparkMonday8AM() {
@@ -677,7 +718,7 @@ public class TransportDataFromFilesTramTest {
         List<Trip> filteredTrips = origTrips.stream().filter(trip -> mondayServices.contains(trip.getService().getId())).
                 collect(Collectors.toList());
 
-        assertFalse(filteredTrips.isEmpty());
+        assertFalse(filteredTrips.isEmpty(), "No trips for velopark on " + aMonday);
 
         // find the stops, invariant is now that each trip ought to contain a velopark stop
         List<StopCall> stoppingAtVelopark = filteredTrips.stream()

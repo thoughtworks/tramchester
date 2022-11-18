@@ -123,7 +123,8 @@ class RouteCalculatorCloseStationsTest {
     private Set<Journey> getSingleStageBuryToEccles(TramDate travelDate) {
         JourneyRequest journeyRequest = new JourneyRequest(new TramServiceDate(travelDate), TramTime.of(8, 0),
                 false, 0, Duration.ofMinutes(120), 1, getRequestedModes());
-        Set<Journey> journeys = calculator.calculateRouteAsSet(TramStations.Bury, Shudehill, journeyRequest);
+
+        Set<Journey> journeys = calculator.calculateRouteAsSet(Bury, Shudehill, journeyRequest);
         return journeys.stream().filter(results -> results.getStages().size() == 1).collect(Collectors.toSet());
     }
 

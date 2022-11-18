@@ -4,7 +4,6 @@ import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.dates.TramDate;
-import com.tramchester.domain.dates.TramServiceDate;
 import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.time.TimeRange;
@@ -16,22 +15,16 @@ import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.testTags.DataExpiryCategory;
 import com.tramchester.testSupport.testTags.PiccGardens2022;
-import com.tramchester.testSupport.testTags.VictoriaNov2022;
-import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.time.DayOfWeek;
 import java.time.Duration;
 import java.util.Set;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
-import java.util.stream.Stream;
 
 import static com.tramchester.domain.time.TramTime.of;
-import static com.tramchester.testSupport.TestEnv.DAYS_AHEAD;
 import static com.tramchester.testSupport.reference.TramStations.*;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -62,8 +55,7 @@ public class StationAvailabilityRepositoryTest {
         availabilityRepository = componentContainer.get(StationAvailabilityRepository.class);
         closedStationRepository = componentContainer.get(ClosedStationsRepository.class);
 
-        when = TestEnv.testTramDay();
-
+        when = TestEnv.testDay();
     }
 
     @Test
@@ -139,10 +131,11 @@ public class StationAvailabilityRepositoryTest {
 
         Duration maxwait = Duration.ofMinutes(config.getMaxWait());
 
-        getUpcomingDates().filter(this::isValidDateToCheck).forEach(date -> {
+        TestEnv.getUpcomingDates().forEach(date -> {
 
             TimeRange lateRange = TimeRange.of(latestHour, maxwait, maxwait);
             Set<Station> notAvailableLate = stationRepository.getStations().stream().
+                    filter(station -> !TestEnv.novermber2022Issue(station.getId(), date)).
                     filter(station -> !closedStationRepository.isClosed(station, date)).
                     filter(station -> !availabilityRepository.isAvailable(station, date, lateRange)).
                     collect(Collectors.toSet());
@@ -152,7 +145,6 @@ public class StationAvailabilityRepositoryTest {
         });
     }
 
-    @VictoriaNov2022
     @DataExpiryCategory
     @Test
     void shouldHaveServicesAvailableAtExpectedEarlyTimeRangeNDaysAhead() {
@@ -160,35 +152,18 @@ public class StationAvailabilityRepositoryTest {
 
         Duration maxwait = Duration.ofMinutes(config.getMaxWait());
 
-        getUpcomingDates().filter(this::isValidDateToCheck).forEach(date -> {
+        TestEnv.getUpcomingDates().forEach(date -> {
 
             TimeRange earlyRange = TimeRange.of(earlistHour, maxwait, maxwait);
             Set<Station> notAvailableEarly = stationRepository.getStations().stream().
-                    filter(station -> workaroundDataIssueExchangeSquare(station, date)).
+                    //filter(station -> workaroundDataIssueExchangeSquare(station, date)).
+                    filter(station -> !TestEnv.novermber2022Issue(station.getId(), date)).
                     filter(station -> !closedStationRepository.isClosed(station, date)).
                     filter(station -> !availabilityRepository.isAvailable(station, date, earlyRange)).
                     collect(Collectors.toSet());
 
             assertTrue(notAvailableEarly.isEmpty(), "Not available " + date + " " + earlyRange + " " + HasId.asIds(notAvailableEarly));
         });
-    }
-
-    @NotNull
-    private Stream<TramDate> getUpcomingDates() {
-        return IntStream.range(0, DAYS_AHEAD).boxed().
-                map(when::plusDays).sorted();
-    }
-
-    private boolean isValidDateToCheck(TramDate date) {
-        TramServiceDate tramServiceDate = new TramServiceDate(date);
-        return !tramServiceDate.isChristmasPeriod();
-    }
-
-    private boolean workaroundDataIssueExchangeSquare(Station station, TramDate date) {
-        if (station.getId().equals(ExchangeSquare.getId())) {
-            return date.getDayOfWeek()!= DayOfWeek.SUNDAY;
-        }
-        return true;
     }
 
 }

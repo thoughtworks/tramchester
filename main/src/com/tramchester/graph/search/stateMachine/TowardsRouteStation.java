@@ -25,10 +25,11 @@ public abstract class TowardsRouteStation<T extends RouteStationState> implement
     }
 
     protected List<Relationship> getTowardsDestination(TraversalOps traversalOps, Node node, TramDate date) {
-        Stream<Relationship> relationships = Streams.stream(node.getRelationships(OUTGOING, DEPART, INTERCHANGE_DEPART));
+        Stream<Relationship> relationships = Streams.stream(node.getRelationships(OUTGOING, DEPART, INTERCHANGE_DEPART, DIVERSION_DEPART));
         return traversalOps.getTowardsDestination(Stream.concat(relationships, getActiveDiversions(node,date).stream()));
     }
 
+    // TODO When to follow diversion departs? Should these be (also) INTERCHANGE_DEPART ?
     protected Stream<Relationship> getOutboundsToFollow(Node node, boolean isInterchange, TramDate date) {
         Stream<Relationship> outboundsToFollow = Stream.empty();
         if (interchangesOnly) {

@@ -37,11 +37,21 @@ public class TramServiceDate {
                 '}';
     }
 
+    /***
+     * Use version on TramDate
+     * @return christmas?
+     */
+    @Deprecated
     public boolean isWeekend() {
         DayOfWeek dayOfWeek = date.getDayOfWeek();
         return (dayOfWeek==DayOfWeek.SATURDAY) || (dayOfWeek==DayOfWeek.SUNDAY);
     }
 
+    /***
+     * Use version on TramDate
+     * @return christmas?
+     */
+    @Deprecated
     public boolean isChristmasPeriod() {
         Month month = date.getMonth();
         int day = date.getDayOfMonth();

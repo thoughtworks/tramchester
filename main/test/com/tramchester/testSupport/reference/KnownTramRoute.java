@@ -1,5 +1,6 @@
 package com.tramchester.testSupport.reference;
 
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.dates.DateRange;
 import com.tramchester.domain.dates.TramDate;
@@ -7,11 +8,8 @@ import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.reference.RouteDirection;
 import com.tramchester.domain.reference.TransportMode;
-import io.swagger.models.auth.In;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 
 import static com.tramchester.domain.reference.RouteDirection.Inbound;
 import static com.tramchester.domain.reference.RouteDirection.Outbound;
@@ -31,8 +29,8 @@ public enum KnownTramRoute {
     AltrinchamManchesterBury("Green Line", Inbound, "Altrincham - Manchester - Bury"),
     BuryManchesterAltrincham("Green Line", Outbound, "Bury - Manchester - Altrincham"),
 
-    AshtonUnderLyneManchesterEccles("Blue Line", Inbound, "Ashton Under Lyne - Manchester - Eccles"),
-    EcclesManchesterAshtonUnderLyne("Blue Line", Outbound, "Eccles - Manchester - Ashton Under Lyne"),
+    AshtonUnderLyneManchesterEccles("Blue Line", Inbound, "Ashton Under Lyne - Manchester - Eccles"), // Ashton Under Lyne -
+    EcclesManchesterAshtonUnderLyne("Blue Line", Outbound, "Eccles - Manchester- Ashton Under Lyne"), //  - Ashton Under Lyne
 
     BuryPiccadilly("Yellow Line", Inbound,"Bury - Piccadilly"),
     PiccadillyBury("Yellow Line", Outbound, "Piccadilly - Bury"),
@@ -53,6 +51,7 @@ public enum KnownTramRoute {
     // TODO Victoria works?
     ManchesterEccles("Blue Line", Inbound,"Manchester - Eccles"),
     EcclesManchester("Blue Line", Outbound, "Eccles - Manchester"),
+
     AshtonCrumpsall("Yellow Line", Outbound, "Ashton - Crumpsall"),
     CrumpsallAshton("Yellow Line", Inbound, "Crumpsall - Ashton");
 
@@ -61,34 +60,34 @@ public enum KnownTramRoute {
     private final String shortName;
     private final String longName;
 
-    public static List<KnownTramRoute> getFor(TramDate date) {
-        List<KnownTramRoute> routes = new ArrayList<>(Arrays.asList(KnownTramRoute.values())); // need mutable
+    public static Set<KnownTramRoute> getFor(TramDate date) {
+        EnumSet<KnownTramRoute> routes = EnumSet.allOf(KnownTramRoute.class);
 
-        DateRange piccGardensWork = DateRange.of(TramDate.of(2022, 11,8), TramDate.of(2022, 11, 22));
-        if (piccGardensWork.contains(date)) {
-            routes.remove(AltrinchamPiccadilly);
-            routes.remove(PiccadillyAltrincham);
-        } else if (!date.equals(TramDate.of(2022,11,7))){
-            routes.remove(ReplacementRouteDeansgatePiccadilly);
-            routes.remove(ReplacementRoutePiccadillyDeansgate);
-        }
+        routes.remove(ReplacementRouteDeansgatePiccadilly);
+        routes.remove(ReplacementRoutePiccadillyDeansgate);
 
-//        if (date.equals(TramDate.of(2022,11,7))) {
-//            routes.remove(ReplacementRouteDeansgatePiccadilly);
-//            routes.remove(ReplacementRoutePiccadillyDeansgate);
-//        }
-
-        DateRange victoriaWork = DateRange.of(TramDate.of(2022, 11,6), TramDate.of(2022, 11, 13));
-        if (victoriaWork.contains(date)) {
-            routes.remove(AshtonUnderLyneManchesterEccles);
-            routes.remove(EcclesManchesterAshtonUnderLyne);
-            routes.remove(BuryPiccadilly);
-            routes.remove(PiccadillyBury);
-        } else {
-            routes.remove(ManchesterEccles);
-            routes.remove(EcclesManchester);
+        DateRange piccGardensWorkA = DateRange.of(TramDate.of(2022, 11,20), TramDate.of(2022, 11, 30));
+        if (piccGardensWorkA.contains(date)) {
             routes.remove(AshtonCrumpsall);
             routes.remove(CrumpsallAshton);
+            routes.remove(AltrinchamPiccadilly);
+            routes.remove(PiccadillyAltrincham);
+            routes.remove(BuryPiccadilly);
+            routes.remove(PiccadillyBury);
+            routes.remove(AshtonUnderLyneManchesterEccles);
+            routes.remove(EcclesManchesterAshtonUnderLyne);
+            routes.add(ReplacementRoutePiccadillyDeansgate);
+            routes.add(ReplacementRouteDeansgatePiccadilly);
+        }
+
+        DateRange piccGardensWorkB = DateRange.of(TramDate.of(2022, 11,18), TramDate.of(2022, 11, 19));
+        if (piccGardensWorkB.contains(date)) {
+            routes.remove(AltrinchamPiccadilly);
+            routes.remove(PiccadillyAltrincham);
+            routes.remove(BuryPiccadilly);
+            routes.remove(PiccadillyBury);
+            routes.add(ReplacementRoutePiccadillyDeansgate);
+            routes.add(ReplacementRouteDeansgatePiccadilly);
         }
 
         return routes;
@@ -118,7 +117,6 @@ public enum KnownTramRoute {
         this.fakeId = createId(format("METL%s%sCURRENT", idSuffix, direction.getSuffix()));
 
     }
-
 
     public static int numberOn(TramDate date) {
         return getFor(date).size();
@@ -153,14 +151,7 @@ public enum KnownTramRoute {
         return fakeId;
     }
 
-    @Override
-    public String toString() {
-        return "KnownTramRoute{" +
-                "id=" + fakeId +
-                ", direction=" + direction +
-                ", shortName='" + shortName + '\'' +
-                "} " + super.toString();
-    }
+
 
     public String longName() {
         return longName;

@@ -14,14 +14,9 @@ import com.tramchester.testSupport.testTags.DataUpdateTest;
 import org.apache.commons.collections4.SetUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.jetbrains.annotations.NotNull;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -31,7 +26,7 @@ import static org.junit.jupiter.api.Assertions.*;
 class KnownTramRouteTest {
     private static ComponentContainer componentContainer;
     private RouteRepository routeRepository;
-    private List<KnownTramRoute> knownRoutes;
+    private Set<KnownTramRoute> knownRoutes;
     private TramDate when;
 
     @BeforeAll
@@ -79,7 +74,8 @@ class KnownTramRouteTest {
         Set<String> loadedRouteNames = getLoadedRoutes().map(Route::getName).collect(Collectors.toSet());
 
         for (KnownTramRoute knownTramRoute : knownRoutes) {
-            assertTrue(loadedRouteNames.contains(knownTramRoute.longName()), "Missing from loaded " + knownTramRoute);
+            assertTrue(loadedRouteNames.contains(knownTramRoute.longName()),
+                    "On " + when + " Missing from loaded (long name) " + knownTramRoute + " loaded were " + loadedRouteNames);
         }
 
     }
@@ -110,17 +106,8 @@ class KnownTramRouteTest {
 
     }
 
-    @Test
-    void shouldHaveDateOverlapsForAllKnownRoutes() {
 
-        IdSet<Route> availableRoutes = routeRepository.getRoutesRunningOn(when).stream().collect(IdSet.collector());;
-
-        assertNotEquals(0, availableRoutes.size());
-
-        assertEquals(knownRoutes.size() , availableRoutes.size(), availableRoutes.toString());
-
-    }
-
+    @Disabled("Cannot used IDs to compare")
     @Test
     void shouldHaveCorrectIdsForKnownRoutesForTestDate() {
 
@@ -133,10 +120,9 @@ class KnownTramRouteTest {
         assertTrue(mismatch.isEmpty(), "mismatch " + mismatch + " between expected " + fromRepos + " and " + onDate);
     }
 
+    @Disabled("Cannot used IDs to compare")
     @Test
     void shouldHaveCorrectIdsForKnownRoutesForToday() {
-
-        // NOTE: REPLACEMENT services ids can change, so check that if mismatch here
 
         TramDate date = TramDate.from(TestEnv.LocalNow());
 
@@ -147,6 +133,20 @@ class KnownTramRouteTest {
         IdSet<Route> mismatch = IdSet.difference(fromRepos, onDate);
 
         assertTrue(mismatch.isEmpty(), "mismatch " + mismatch + " between expected " + fromRepos + " and " + onDate);
+    }
+
+    @Test
+    void shouldHaveSameNumbersOfRoutesOnDate() {
+        Set<String> uniqueNames = routeRepository.getRoutesRunningOn(when).stream().map(Route::getName).collect(Collectors.toSet());
+
+        Set<String> onDate = KnownTramRoute.getFor(when).stream().map(KnownTramRoute::longName).collect(Collectors.toSet());
+
+        Set<KnownTramRoute> known = KnownTramRoute.getFor(when);
+
+        assertEquals(known.size(), onDate.size(), onDate.toString());
+
+        assertEquals(known.size(), uniqueNames.size(), uniqueNames.toString());
+
     }
 
     @Test
@@ -174,23 +174,24 @@ class KnownTramRouteTest {
 
         Set<String> mismatch = SetUtils.difference(fromRepos, onDate);
 
-        assertTrue(mismatch.isEmpty(), "mismatch " + mismatch + " between expected " + fromRepos + " and " + onDate);
+        assertTrue(mismatch.isEmpty(), "on " + date + "mismatch " + mismatch + " between loaed " + fromRepos + " and " + onDate);
     }
 
+    @Disabled("not that useful as upcoming routes have an ID with the date included")
     @Test
     void shouldValidateRoutesOverTimePeriod() {
         TramDate base = TramDate.from(TestEnv.LocalNow());
 
-        List<TramDate> failedDates = new ArrayList<>();
+        Map<Set<KnownTramRoute>, TramDate> failedDates = new HashMap<>();
 
         for (int day = 0; day < 14; day++) {
             TramDate testDate = base.plusDays(day);
             IdSet<Route> expected = routeRepository.getRoutesRunningOn(testDate).stream().collect(IdSet.collector());
 
-            List<KnownTramRoute> onDate = KnownTramRoute.getFor(testDate);
+            Set<KnownTramRoute> onDate = KnownTramRoute.getFor(testDate);
 
             if (expected.size()!=onDate.size()) {
-                failedDates.add(testDate);
+                failedDates.put(onDate, testDate);
             }
         }
 

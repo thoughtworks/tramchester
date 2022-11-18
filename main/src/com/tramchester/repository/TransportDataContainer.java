@@ -175,7 +175,11 @@ public class TransportDataContainer implements TransportData, WriteableTransport
 
     @Override
     public RouteStation getRouteStationById(IdFor<RouteStation> routeStationId) {
-        return routeStations.get(routeStationId);
+        RouteStation routeStation = routeStations.get(routeStationId);
+        if (routeStation==null) {
+            logger.warn("Missing route station " + routeStationId);
+        }
+        return routeStation;
     }
 
     @Override

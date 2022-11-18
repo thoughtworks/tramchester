@@ -47,4 +47,8 @@ public class ImmutableBitSet {
                 "contained=" + contained +
                 '}';
     }
+
+    public boolean isEmpty() {
+        return contained.isEmpty();
+    }
 }

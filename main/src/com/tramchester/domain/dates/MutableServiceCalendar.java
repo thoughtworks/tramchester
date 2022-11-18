@@ -77,22 +77,6 @@ public class MutableServiceCalendar implements ServiceCalendar, HasDaysBitmap {
     }
 
     @Override
-    public boolean operatesOnAny(final TramDateSet dates) {
-        return dates.stream().
-                filter(dateRange::contains).
-                anyMatch(days::isSet);
-    }
-
-    @Override
-    public boolean operatesNoneOf(final TramDateSet dates) {
-
-        // todo could also do by building bitmask and then AND
-        return dates.stream().
-                filter(dateRange::contains).
-                noneMatch(days::isSet);
-    }
-
-    @Override
     public void summariseDates(PrintStream printStream) {
         if (cancelled) {
             printStream.print("CANCELLED: ");

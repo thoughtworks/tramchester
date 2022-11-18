@@ -124,11 +124,13 @@ public class RunningRoutesAndServicesTest {
             testDay = testDay.plusWeeks(1);
         }
 
-        final TramDate nextMonday = testDay.plusWeeks(1);
+        final TramDate nextTuesday = testDay.plusDays(1);
+
+        assertEquals(TUESDAY, nextTuesday.getDayOfWeek());
 
         // date range contains next monday and service does weekday operating
         List<Service> weekdayServices = transportData.getServices().stream().
-                filter(service -> service.getCalendar().getDateRange().contains(nextMonday)).
+                filter(service -> service.getCalendar().getDateRange().contains(nextTuesday)).
                 filter(service -> service.getCalendar().getOperatingDays().equals(weekdays)).
                 collect(Collectors.toList());
         assertFalse(weekdayServices.isEmpty());
@@ -146,9 +148,9 @@ public class RunningRoutesAndServicesTest {
         DateRange weekdayDateRange = new DateRange(weekdayServicesBegin, weekdayServicesEnd);
 
         // double check contains next monday
-        assertTrue(weekdayDateRange.contains(nextMonday));
+        assertTrue(weekdayDateRange.contains(nextTuesday));
 
-        TramDate friday = getFridayAfter(nextMonday);
+        TramDate friday = getFridayAfter(nextTuesday);
         assertTrue(weekdayDateRange.contains(friday));
 
         RunningRoutesAndServices.FilterForDate filterForNextFriday = runningRoutesAndServices.getFor(friday);

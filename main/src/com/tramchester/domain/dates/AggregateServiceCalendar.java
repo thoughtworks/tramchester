@@ -89,22 +89,6 @@ public class AggregateServiceCalendar implements ServiceCalendar, HasDaysBitmap 
     }
 
     @Override
-    public boolean operatesOnAny(TramDateSet dates) {
-        return dates.stream().
-                filter(aggregatedRange::contains).
-                anyMatch(days::isSet);
-    }
-
-    @Override
-    public boolean operatesNoneOf(TramDateSet dates) {
-
-        // todo could also do by building bitmask and then AND
-        return dates.stream().
-                filter(aggregatedRange::contains).
-                noneMatch(days::isSet);
-    }
-
-    @Override
     public long numberDaysOperating() {
         return days.numberSet();
     }

@@ -4,51 +4,44 @@ import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.DiagramCreator;
 import com.tramchester.config.GTFSSourceConfig;
-import com.tramchester.domain.Journey;
-import com.tramchester.domain.JourneyRequest;
-import com.tramchester.domain.StationClosures;
-import com.tramchester.domain.StationIdPair;
+import com.tramchester.domain.*;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.dates.TramServiceDate;
-import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdSet;
+import com.tramchester.domain.places.InterchangeStation;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.GTFSTransportationType;
 import com.tramchester.domain.reference.TransportMode;
+import com.tramchester.domain.time.TimeRange;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.filters.ConfigurableGraphFilter;
 import com.tramchester.graph.search.RouteCalculator;
+import com.tramchester.graph.search.routes.RouteToRouteCosts;
 import com.tramchester.integration.testSupport.RouteCalculationCombinations;
 import com.tramchester.integration.testSupport.RouteCalculatorTestFacade;
 import com.tramchester.integration.testSupport.tfgm.TFGMGTFSSourceTestConfig;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
-import com.tramchester.repository.RouteRepository;
-import com.tramchester.repository.StationRepository;
-import com.tramchester.repository.TransportData;
+import com.tramchester.repository.*;
 import com.tramchester.testSupport.AdditionalTramInterchanges;
 import com.tramchester.testSupport.TestEnv;
-import com.tramchester.testSupport.TramRouteHelper;
 import com.tramchester.testSupport.reference.TramStations;
-import com.tramchester.testSupport.testTags.DataExpiryCategory;
-import com.tramchester.testSupport.testTags.VictoriaNov2022;
+import com.tramchester.testSupport.testTags.PiccGardens2022;
 import com.tramchester.testSupport.testTags.WorkaroundsNov2022;
+import org.apache.commons.collections4.SetUtils;
+import org.apache.commons.lang3.tuple.Pair;
 import org.junit.jupiter.api.*;
 import org.neo4j.graphdb.Transaction;
 
 import java.io.IOException;
 import java.nio.file.Path;
-import java.time.DayOfWeek;
 import java.time.Duration;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static com.tramchester.integration.testSupport.IntegrationTestConfig.VictoriaClosureDate;
-import static com.tramchester.testSupport.TestEnv.DAYS_AHEAD;
-import static com.tramchester.testSupport.reference.KnownTramRoute.*;
+import static com.tramchester.domain.reference.TransportMode.Tram;
 import static com.tramchester.testSupport.reference.TramStations.*;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 class RouteCalculatorSubGraphMediaCityTest {
     private static ComponentContainer componentContainer;
@@ -75,6 +68,7 @@ class RouteCalculatorSubGraphMediaCityTest {
     private Duration maxJourneyDuration;
     private RouteCalculationCombinations combinations;
     private StationRepository stationRepository;
+    private ClosedStationsRepository closedStationRepository;
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() throws IOException {
@@ -91,13 +85,7 @@ class RouteCalculatorSubGraphMediaCityTest {
     }
 
     private static void configureFilter(ConfigurableGraphFilter toConfigure, RouteRepository routeRepository) {
-        TramRouteHelper tramRouteHelper = new TramRouteHelper(routeRepository);
-
         tramStations.forEach(station -> toConfigure.addStation(station.getId()));
-        toConfigure.addRoutes(tramRouteHelper.getId(AshtonUnderLyneManchesterEccles));
-        toConfigure.addRoutes(tramRouteHelper.getId(RochdaleShawandCromptonManchesterEastDidisbury));
-        toConfigure.addRoutes(tramRouteHelper.getId(EcclesManchesterAshtonUnderLyne));
-        toConfigure.addRoutes(tramRouteHelper.getId(EastDidisburyManchesterShawandCromptonRochdale));
     }
 
     @AfterAll
@@ -113,6 +101,7 @@ class RouteCalculatorSubGraphMediaCityTest {
         txn = database.beginTx();
         combinations = new RouteCalculationCombinations(componentContainer);
         calculator = new RouteCalculatorTestFacade(componentContainer.get(RouteCalculator.class), stationRepository, txn);
+        closedStationRepository = componentContainer.get(ClosedStationsRepository.class);
     }
 
     @AfterEach
@@ -123,32 +112,115 @@ class RouteCalculatorSubGraphMediaCityTest {
     @WorkaroundsNov2022
     @Test
     void shouldHaveMediaCityToExchangeSquare() {
-        validateAtLeastOneJourney(MediaCityUK, TramStations.Cornbrook, TramTime.of(9,0), TestEnv.nextSaturday());
+        validateAtLeastOneJourney(MediaCityUK, Cornbrook, TramTime.of(9,0), TestEnv.nextSaturday());
         validateAtLeastOneJourney(MediaCityUK, ExchangeSquare, TramTime.of(9,0), TestEnv.nextSaturday());
 
         // TODO
         //validateAtLeastOneJourney(MediaCityUK, ExchangeSquare, TramTime.of(9,0), TestEnv.nextSunday());
     }
 
-    @VictoriaNov2022
-    @DataExpiryCategory
+    @Disabled
+    @PiccGardens2022
     @Test
     void shouldHaveJourneyFromEveryStationToEveryOtherNDaysAhead() {
 
-        for (int i = 0; i < DAYS_AHEAD; i++) {
-            TramDate day = when.plusDays(i);
-            TramServiceDate serviceDate = new TramServiceDate(day);
-            if (!serviceDate.isChristmasPeriod() && !VictoriaClosureDate.equals(day)) {
-                JourneyRequest journeyRequest =
-                        new JourneyRequest(new TramServiceDate(day), TramTime.of(9, 0), false,
-                                3, maxJourneyDuration, 1, getRequestedModes());
-                checkAllStations(journeyRequest);
-            }
-        }
+        List<Pair<TramDate, List<StationIdPair>>> failed = TestEnv.getUpcomingDates().
+                map(date -> new JourneyRequest(new TramServiceDate(date), TramTime.of(9, 0), false,
+                        3, maxJourneyDuration, 1, getRequestedModes())).
+                map(journeyRequest -> Pair.of(journeyRequest.getDate().getDate(), getFailedPairedFor(journeyRequest))).
+                filter(pair -> !pair.getRight().isEmpty()).
+                collect(Collectors.toList());
+
+        assertTrue(failed.isEmpty(), failed.toString());
+    }
+
+    @Test
+    void shouldHaveExpectedInterchanges() {
+        InterchangeRepository interchangeRepository = componentContainer.get(InterchangeRepository.class);
+
+        IdSet<Station> interchangesIds = interchangeRepository.getAllInterchanges().stream().
+                map(InterchangeStation::getStationId).collect(IdSet.idCollector());
+
+        assertTrue(interchangesIds.contains(Cornbrook.getId()));
+        assertTrue(interchangesIds.contains(Pomona.getId()));
+        assertTrue(interchangesIds.contains(Deansgate.getId()));
 
     }
 
-    @VictoriaNov2022
+    @Test
+    void shouldHaveSalfordQuayToStPeters() {
+        final TramTime time = TramTime.of(8, 5);
+
+        // 2 -> 4
+        int maxChanges = 4;
+        JourneyRequest journeyRequest = new JourneyRequest(when, time, false, maxChanges,
+                Duration.ofMinutes(config.getMaxJourneyDuration()), 1, Collections.emptySet());
+
+        Set<Journey> results = calculator.calculateRouteAsSet(SalfordQuay.getId(), StPetersSquare.getId(), journeyRequest);
+
+        assertFalse(results.isEmpty());
+    }
+
+    @Test
+    void shouldHaveExpectedCostsToInterchanges() {
+        RouteInterchangeRepository routeInterchangeRepository = componentContainer.get(RouteInterchangeRepository.class);
+
+        Station salfordQuay = SalfordQuay.from(stationRepository);
+
+        Set<Route> pickups = salfordQuay.getPickupRoutes();
+
+        long routesWithInterchanges = pickups.stream().map(route -> stationRepository.getRouteStation(salfordQuay, route)).
+                map(routeInterchangeRepository::costToInterchange).
+                filter(duration -> !duration.isNegative()).count();
+
+        assertNotEquals(0, routesWithInterchanges);
+    }
+
+    @Test
+    void shouldHaveExpectedRouteOverlaps() {
+        Station salfordQuay = SalfordQuay.from(stationRepository);
+        Station stPetersSquare = StPetersSquare.from(stationRepository);
+
+        Station cornbrook = Cornbrook.from(stationRepository);
+
+        Set<Route> fromSalford = salfordQuay.getPickupRoutes();
+        Set<Route> dropOffAtCornbrook = cornbrook.getDropoffRoutes();
+
+        SetUtils.SetView<Route> salfordToCornbrook = SetUtils.union(fromSalford, dropOffAtCornbrook);
+
+        assertFalse(salfordToCornbrook.isEmpty());
+
+        Set<Route> salfordToCornbrookOnDate = salfordToCornbrook.stream().filter(route -> route.isAvailableOn(when)).collect(Collectors.toSet());
+
+        assertFalse(salfordToCornbrookOnDate.isEmpty());
+
+        Set<Route> fromCornbrook = cornbrook.getPickupRoutes();
+        Set<Route> dropOffAtStPetersSquare = stPetersSquare.getDropoffRoutes();
+
+        SetUtils.SetView<Route> cornbrookToStPetersSquare = SetUtils.union(fromCornbrook, dropOffAtStPetersSquare);
+
+        assertFalse(cornbrookToStPetersSquare.isEmpty());
+
+        Set<Route> cornbrookToStPetersSquareOnDate = cornbrookToStPetersSquare.stream().filter(route -> route.isAvailableOn(when)).collect(Collectors.toSet());
+
+        assertFalse(cornbrookToStPetersSquareOnDate.isEmpty());
+
+    }
+
+    @Test
+    void shouldHaveExpectedRouteConnections() {
+        Station salfordQuay = SalfordQuay.from(stationRepository);
+        Station stPetersSquare = StPetersSquare.from(stationRepository);
+
+        RouteToRouteCosts routeToRouteCosts = componentContainer.get(RouteToRouteCosts.class);
+
+        TimeRange timeRange = TimeRange.of(TramTime.of(8,5), TramTime.of(8,30));
+        Set<TransportMode> modes = EnumSet.noneOf(TransportMode.class);
+        NumberOfChanges results = routeToRouteCosts.getNumberOfChanges(salfordQuay, stPetersSquare, modes, when, timeRange);
+
+        assertEquals(results.getMin(), 1);
+    }
+
     @Test
     void shouldHaveJoruneyFromEveryStationToEveryOther() {
 
@@ -160,30 +232,34 @@ class RouteCalculatorSubGraphMediaCityTest {
                 Duration.ofMinutes(config.getMaxJourneyDuration()), 1, Collections.emptySet());
 
         // pairs of stations to check
-        checkAllStations(journeyRequest);
+        List<StationIdPair> results = getFailedPairedFor(journeyRequest);
+        assertTrue(results.isEmpty(), results + " failed for " + journeyRequest);
     }
 
-    private void checkAllStations(JourneyRequest journeyRequest) {
-        Set<Station> stations = tramStations.stream().map(tramStations -> tramStations.from(stationRepository)).collect(Collectors.toSet());
-        Set<StationIdPair> stationIdPairs = stations.stream().flatMap(start -> stations.stream().
-                        filter(dest -> !combinations.betweenInterchanges(start, dest)).
-                        map(dest -> StationIdPair.of(start, dest))).
-                filter(pair -> !pair.same()).
-                filter(pair -> workaroundExchangeSquareDataIssue(pair, journeyRequest)).
+    private List<StationIdPair> getFailedPairedFor(JourneyRequest journeyRequest) {
+        TramDate date = journeyRequest.getDate().getDate();
+        Set<Station> stations = tramStations.stream().
+                map(tramStations -> tramStations.from(stationRepository)).
+                filter(station -> !closedStationRepository.isClosed(station, date)).
+                filter(station -> !TestEnv.novermber2022Issue(station.getId(), date)).
                 collect(Collectors.toSet());
 
-        combinations.validateAllHaveAtLeastOneJourney(stationIdPairs, journeyRequest);
+        Set<StationIdPair> stationIdPairs = stations.stream().flatMap(start -> stations.stream().
+                filter(dest -> !dest.getId().equals(start.getId())).
+                filter(dest -> !combinations.betweenInterchanges(start, dest)).
+                map(dest -> StationIdPair.of(start, dest))).
+                filter(pair -> !pair.same()).
+                collect(Collectors.toSet());
+
+        Map<StationIdPair, RouteCalculationCombinations.JourneyOrNot> results = combinations.getJourneysFor(stationIdPairs, journeyRequest);
+
+        return results.entrySet().stream().
+                filter(entry -> entry.getValue().missing()).
+                map(Map.Entry::getKey).
+                collect(Collectors.toList());
+
     }
 
-    private boolean workaroundExchangeSquareDataIssue(StationIdPair pair, JourneyRequest journeyRequest) {
-        final TramDate date = journeyRequest.getDate().getDate();
-        final IdFor<Station> exchangeSquareId = ExchangeSquare.getId();
-
-        if (date.getDayOfWeek() == DayOfWeek.SUNDAY) {
-            return (!pair.getBeginId().equals(exchangeSquareId)) && (!pair.getEndId().equals(exchangeSquareId));
-        }
-        return true;
-    }
 
     private Set<TransportMode> getRequestedModes() {
         return Collections.emptySet();
@@ -215,20 +291,24 @@ class RouteCalculatorSubGraphMediaCityTest {
 
     private static class SubgraphConfig extends IntegrationTramTestConfig {
         public SubgraphConfig() {
-            super("sub_mediacity_tramchester.db", Collections.emptyList());
+            super("sub_mediacity_tramchester.db", IntegrationTramTestConfig.CurrentClosures);
         }
 
         @Override
         protected List<GTFSSourceConfig> getDataSourceFORTESTING() {
-            List<StationClosures> closed = Collections.emptyList();
 
             IdSet<Station> additionalInterchanges = AdditionalTramInterchanges.stations();
             additionalInterchanges.add(Cornbrook.getId());
-            additionalInterchanges.add(Broadway.getId());
+            additionalInterchanges.add(Pomona.getId());
+            additionalInterchanges.add(Deansgate.getId());
 
-            final Set<TransportMode> groupStationModes = Collections.singleton(TransportMode.Bus);
+            final Set<TransportMode> groupStationModes = Collections.emptySet(); //Collections.singleton(TransportMode.Bus);
+
+            List<StationClosures> currentClosures = IntegrationTramTestConfig.CurrentClosures;
+
             TFGMGTFSSourceTestConfig gtfsSourceConfig = new TFGMGTFSSourceTestConfig("data/tram", GTFSTransportationType.tram,
-                    TransportMode.Tram, additionalInterchanges, groupStationModes, closed, Duration.ofMinutes(45));
+                    Tram, additionalInterchanges, groupStationModes, currentClosures,
+                    Duration.ofMinutes(45));
 
             return Collections.singletonList(gtfsSourceConfig);
         }

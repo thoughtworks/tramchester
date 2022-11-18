@@ -15,18 +15,18 @@ import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
 import com.tramchester.repository.RouteRepository;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TramRouteHelper;
+import com.tramchester.testSupport.testTags.PiccGardens2022;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static com.tramchester.testSupport.reference.KnownTramRoute.*;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
 public class RouteCostMatrixTest {
     private static ComponentContainer componentContainer;
@@ -71,9 +71,10 @@ public class RouteCostMatrixTest {
         assertEquals(1, depth);
     }
 
+    @PiccGardens2022
     @Test
     void shouldHaveExpectedIndexWhereNoDirectInterchangePossible() {
-        Route routeA = routeHelper.getOneRoute(BuryPiccadilly, date);
+        Route routeA = routeHelper.getOneRoute(ReplacementRoutePiccadillyDeansgate, date); // BuryPiccadilly
         Route routeB = routeHelper.getOneRoute(CornbrookTheTraffordCentre, date);
 
         int depth = routeMatrix.getConnectionDepthFor(routeA, routeB);
@@ -126,22 +127,23 @@ public class RouteCostMatrixTest {
 
     }
 
+    @PiccGardens2022
     @Test
     void shouldReproduceIssueBetweenPiccAndTraffordLine() {
-        TramDate testDate = date; //TramDate.of(2022,11,14);
+        TramDate testDate = date;
 
-        Route routeA = routeHelper.getOneRoute(PiccadillyBury, testDate);
+        Route routeA = routeHelper.getOneRoute(ReplacementRouteDeansgatePiccadilly, testDate); // PiccadillyBury
         Route routeB = routeHelper.getOneRoute(CornbrookTheTraffordCentre, testDate);
 
         RouteIndexPair indexPair = routeIndex.getPairFor(new RoutePair(routeA, routeB));
 
         IndexedBitSet dateOverlaps = routeMatrix.createOverlapMatrixFor(testDate);
 
-        assertEquals(196, dateOverlaps.numberOfBitsSet());
+        assertEquals(144, dateOverlaps.numberOfBitsSet());
 
         List<SimpleList<RouteIndexPair>> results = routeMatrix.getChangesFor(indexPair, dateOverlaps).collect(Collectors.toList());
 
-        assertEquals(7, results.size(), results.toString());
+        assertEquals(1, results.size(), results.toString());
 
         results.forEach(result -> {
             List<RouteIndexPair> changes = result.stream().collect(Collectors.toList());

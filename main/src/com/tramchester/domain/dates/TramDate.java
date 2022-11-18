@@ -191,4 +191,22 @@ public class TramDate implements Comparable<TramDate> {
         return toLocalDate().getYear();
     }
 
+    public boolean isChristmasPeriod() {
+        LocalDate date = LocalDate.ofEpochDay(epochDays);
+        Month month = date.getMonth();
+        int day = date.getDayOfMonth();
+
+        if (month==Month.DECEMBER && day>23) {
+            return true;
+        }
+        if (month==Month.JANUARY && day<3) {
+            return true;
+        }
+        return false;
+    }
+
+    public boolean isWeekend() {
+        return (dayOfWeek==DayOfWeek.SATURDAY) || (dayOfWeek==DayOfWeek.SUNDAY);
+    }
+
 }

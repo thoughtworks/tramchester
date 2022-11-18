@@ -188,7 +188,9 @@ public class RouteCostMatrix {
             return Stream.empty();
         }
         if (initialDepth == Byte.MAX_VALUE) {
-            logger.warn(format("getChangesFor: no changes possible indexes %s", routePair));
+            if (!graphFilter.isActive()) {
+                logger.warn(format("getChangesFor: no changes possible indexes %s", routePair));
+            }
             return Stream.empty();
         }
 
@@ -254,17 +256,25 @@ public class RouteCostMatrix {
      */
     private List<Integer> getIndexOverlapsFor(IndexedBitSet costsForDegree, RouteIndexPair pair) {
         ImmutableBitSet linksForA = costsForDegree.getBitSetForRow(pair.first());
+        if (linksForA.isEmpty() && !graphFilter.isActive()) {
+            logger.warn("No links available for " + index.getRouteFor(pair.first()).getId());
+        }
         ImmutableBitSet linksForB = costsForDegree.getBitSetForRow(pair.second());
+        if (linksForB.isEmpty() && !graphFilter.isActive()) {
+            logger.warn("No links available for " + index.getRouteFor(pair.second()).getId());
+        }
+
         ImmutableBitSet overlap = linksForA.and(linksForB);
         int numberOfOverlaps = overlap.numberSet();
-        if (numberOfOverlaps == 0) {
-            RoutePair routePair = index.getPairFor(pair);
-            logger.info(format("No overlap between %s (%s, %s)", routePair, resolve(linksForA), resolve(linksForB)));
-        }
         if (logger.isDebugEnabled()) {
             RoutePair routePair = index.getPairFor(pair);
-            logger.debug(format("Found %s overlaps between %s (%s %s)", numberOfOverlaps, routePair,
-                resolve(linksForA), resolve(linksForB)));
+
+            if (numberOfOverlaps == 0) {
+                logger.debug(format("No overlap between %s (%s, %s)", routePair, resolve(linksForA), resolve(linksForB)));
+            } else {
+                logger.debug(format("Found %s overlaps between %s (%s %s)", numberOfOverlaps, routePair,
+                        resolve(linksForA), resolve(linksForB)));
+            }
         }
         return overlap.stream().boxed().collect(Collectors.toList());
     }

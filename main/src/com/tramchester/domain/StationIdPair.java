@@ -4,18 +4,18 @@ import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.places.Station;
 
+import java.util.Objects;
+
 public class StationIdPair {
-    private final IdFor<Station> begin;
-    private final IdFor<Station> end;
+
+    private final IdPair<Station> pair;
 
     public StationIdPair(HasId<Station> begin, HasId<Station> end) {
-        this.begin = begin.getId();
-        this.end = end.getId();
+        this(begin.getId(), end.getId());
     }
 
     public StationIdPair(IdFor<Station> begin, IdFor<Station> end) {
-        this.begin = begin;
-        this.end = end;
+        pair = new IdPair<>(begin, end);
     }
 
     public static StationIdPair of(HasId<Station> begin, HasId<Station> end) {
@@ -27,41 +27,35 @@ public class StationIdPair {
     }
 
     public IdFor<Station> getBeginId() {
-        return begin;
+        return pair.getFirst();
     }
 
     public IdFor<Station> getEndId() {
-        return end;
+        return pair.getSecond();
     }
 
     public boolean same() {
-        return begin.equals(end);
+        return pair.same();
     }
-
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-
         StationIdPair that = (StationIdPair) o;
-
-        if (!begin.equals(that.begin)) return false;
-        return end.equals(that.end);
+        return pair.equals(that.pair);
     }
 
     @Override
     public int hashCode() {
-        int result = begin.hashCode();
-        result = 31 * result + end.hashCode();
-        return result;
+        return Objects.hash(pair);
     }
 
     @Override
     public String toString() {
         return "StationIdPair{" +
-                "begin=" + begin +
-                ", end=" + end +
+                pair.getFirst() +
+                ", " + pair.getSecond() +
                 '}';
     }
 }

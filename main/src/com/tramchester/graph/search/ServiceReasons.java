@@ -64,7 +64,7 @@ public class ServiceReasons {
 
     public void reportReasons(Transaction transaction, RouteCalculatorSupport.PathRequest pathRequest, ReasonsToGraphViz reasonToGraphViz) {
         if (diagnosticsEnabled) {
-            createGraphFile(transaction, reasonToGraphViz);
+            createGraphFile(transaction, reasonToGraphViz, pathRequest);
         }
 
         if (!success || diagnosticsEnabled) {
@@ -169,8 +169,8 @@ public class ServiceReasons {
         };
     }
 
-    private void createGraphFile(Transaction txn, ReasonsToGraphViz reasonsToGraphViz) {
-        String fileName = createFilename();
+    private void createGraphFile(Transaction txn, ReasonsToGraphViz reasonsToGraphViz, RouteCalculatorSupport.PathRequest pathRequest) {
+        String fileName = createFilename(pathRequest);
 
         if (reasons.isEmpty()) {
             logger.warn(format("Not creating dot file %s, reasons empty", fileName));
@@ -195,13 +195,14 @@ public class ServiceReasons {
         }
     }
 
-    private String createFilename() {
-        String postfix = journeyRequest.getUid().toString();
-        String dateString = providesLocalNow.getDateTime().toLocalDate().toString();
+    private String createFilename(RouteCalculatorSupport.PathRequest pathRequest) {
         String status = success ? "found" : "notfound";
-        String fileName = format("%s_%s%s_at_%s_%s.dot", status,
+        String dateString = providesLocalNow.getDateTime().toLocalDate().toString();
+        String changes = "changes" + pathRequest.getNumChanges();
+        String postfix = journeyRequest.getUid().toString();
+        String fileName = format("%s_%s%s_at_%s_%s_%s.dot", status,
                 queryTime.getHourOfDay(), queryTime.getMinuteOfHour(),
-                dateString, postfix);
+                dateString, changes, postfix);
         fileName = fileName.replaceAll(":","");
         return fileName;
     }

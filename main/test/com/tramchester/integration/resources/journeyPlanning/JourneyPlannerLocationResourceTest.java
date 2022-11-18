@@ -17,7 +17,6 @@ import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.FakeStation;
 import com.tramchester.testSupport.reference.KnownLocations;
 import com.tramchester.testSupport.reference.TramStations;
-import com.tramchester.testSupport.testTags.PiccGardens2022;
 import io.dropwizard.testing.junit5.DropwizardExtensionsSupport;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.BeforeEach;
@@ -238,11 +237,11 @@ class JourneyPlannerLocationResourceTest {
     @Test
     void reproduceIssueNearAltyToAshton()  {
         Set<JourneyDTO> journeys = validateJourneyFromLocation(nearAltrincham, TramStations.Ashton,
-                TramTime.of(19,47), false, when);
+                TramTime.of(19,47), false, when.plusWeeks(1));
 
         Optional<JourneyDTO> find3Stage = journeys.stream().filter(journeyDTO -> journeyDTO.getStages().size() == 3).findFirst();
 
-        assertTrue(find3Stage.isPresent());
+        assertTrue(find3Stage.isPresent(), journeys.toString());
     }
 
     @Test

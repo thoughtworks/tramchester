@@ -10,8 +10,8 @@ import com.tramchester.config.TramchesterConfig;
 import com.tramchester.dataimport.rail.reference.TrainOperatingCompanies;
 import com.tramchester.domain.*;
 import com.tramchester.domain.dates.TramDate;
-import com.tramchester.domain.dates.TramServiceDate;
 import com.tramchester.domain.id.IdFor;
+import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.input.PlatformStopCall;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.Location;
@@ -38,10 +38,14 @@ import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 import static com.tramchester.domain.id.StringIdFor.createId;
 import static java.lang.String.format;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 
 public class TestEnv {
     public static final Path CACHE_DIR = Path.of("testData","cache");
@@ -124,6 +128,11 @@ public class TestEnv {
         return testDay;
     }
 
+    /***
+     * use testDay()
+     * @return
+     */
+    @Deprecated
     public static TramDate testTramDay() {
         return testDay;
     }
@@ -140,10 +149,18 @@ public class TestEnv {
     }
 
     public static TramDate avoidChristmasDate(TramDate date) {
-        while (new TramServiceDate(date).isChristmasPeriod()) {
+        while (date.isChristmasPeriod()) {
             date = date.plusWeeks(1);
         }
         return date;
+    }
+
+    public static Stream<TramDate> getUpcomingDates() {
+        TramDate baseDate = testDay();
+        return IntStream.range(0, DAYS_AHEAD).boxed().
+                map(baseDate::plusDays).
+                filter(date -> !date.isChristmasPeriod()).
+                sorted();
     }
 
     public static Route getTramTestRoute() {
@@ -294,7 +311,6 @@ public class TestEnv {
         return EARTH_RADIUS * fractionOfRadius;
     }
 
-
     public static Platform createPlatformFor(Station station, String platformId) {
         return MutablePlatform.buildForTFGMTram(platformId, station, station.getLatLong(),
                 station.getDataSourceID(), station.getAreaId());
@@ -311,7 +327,14 @@ public class TestEnv {
         return platforms.get(0);
     }
 
-    public static TramDate EndSummerWorks() {
-        return TramDate.of(2022, 10, 22);
+    private static final IdSet<Station> problemStations = Stream.of("9400ZZMAAUD", "9400ZZMAVPK", "9400ZZMADRO",
+            "9400ZZMAAMO", "9400ZZMACLN", "9400ZZMAELN", "9400ZZMAAUL", "9400ZZMACEM", "9400ZZMAAWT",
+            "9400ZZMAECS", "9400ZZMAHTN", "9400ZZMANIS").map(Station::createId).collect(IdSet.idCollector());
+
+    public static boolean novermber2022Issue(IdFor<Station> id, TramDate date) {
+        if (date.equals(TramDate.of(2022,11,21))) {
+            return problemStations.contains(id);
+        }
+        return false;
     }
 }

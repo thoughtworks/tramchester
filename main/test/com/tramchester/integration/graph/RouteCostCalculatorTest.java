@@ -73,12 +73,11 @@ class RouteCostCalculatorTest {
         assertMinutesEquals(4, routeCostCalculator.getAverageCostBetween(txn, altrincham, NavigationRoad.from(stationRepository), when));
     }
 
-    @VictoriaNov2022
     @PiccGardens2022
     @Test
     void shouldComputeCostsForMediaCityAshton() throws InvalidDurationException {
-        assertMinutesEquals(60, routeCostCalculator.getAverageCostBetween(txn, mediaCity, Ashton.from(stationRepository), when));
-        assertMinutesEquals(58, routeCostCalculator.getAverageCostBetween(txn,  Ashton.from(stationRepository), mediaCity, when));
+        assertMinutesEquals(61, routeCostCalculator.getAverageCostBetween(txn, mediaCity, Ashton.from(stationRepository), when));
+        assertMinutesEquals(60, routeCostCalculator.getAverageCostBetween(txn,  Ashton.from(stationRepository), mediaCity, when));
     }
 
     @PiccGardens2022
