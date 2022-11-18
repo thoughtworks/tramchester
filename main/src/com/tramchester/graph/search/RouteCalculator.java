@@ -4,7 +4,6 @@ import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.*;
 import com.tramchester.domain.dates.TramDate;
-import com.tramchester.domain.dates.TramServiceDate;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.places.Location;
 import com.tramchester.domain.places.Station;

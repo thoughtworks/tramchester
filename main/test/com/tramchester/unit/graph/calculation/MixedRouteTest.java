@@ -12,7 +12,6 @@ import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.presentation.TransportStage;
 import com.tramchester.domain.reference.GTFSTransportationType;
 import com.tramchester.domain.reference.TransportMode;
-import com.tramchester.domain.dates.TramServiceDate;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.search.RouteCalculator;
@@ -29,7 +28,6 @@ import org.neo4j.graphdb.Transaction;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.time.Duration;
-import java.time.LocalDate;
 import java.util.*;
 import java.util.stream.Collectors;
 

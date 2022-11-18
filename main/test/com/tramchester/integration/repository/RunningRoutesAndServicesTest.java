@@ -5,11 +5,10 @@ import com.tramchester.ComponentsBuilder;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.Service;
+import com.tramchester.domain.dates.DateRange;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.input.Trip;
-import com.tramchester.domain.dates.DateRange;
-import com.tramchester.domain.dates.TramServiceDate;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
 import com.tramchester.repository.RunningRoutesAndServices;
@@ -120,7 +119,7 @@ public class RunningRoutesAndServicesTest {
 
         TramDate testDay = TestEnv.nextMonday();
 
-        while (new TramServiceDate(testDay).isChristmasPeriod()) {
+        while (testDay.isChristmasPeriod()) {
             testDay = testDay.plusWeeks(1);
         }
 

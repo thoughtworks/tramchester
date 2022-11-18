@@ -9,7 +9,6 @@ import com.tramchester.domain.places.MutableStation;
 import com.tramchester.domain.places.NaptanArea;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.LatLong;
-import com.tramchester.domain.dates.TramServiceDate;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.geo.BoundingBoxWithStations;
 import com.tramchester.geo.CoordinateTransforms;

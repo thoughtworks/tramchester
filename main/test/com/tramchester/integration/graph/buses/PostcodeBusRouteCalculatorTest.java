@@ -9,7 +9,6 @@ import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.places.PostcodeLocation;
 import com.tramchester.domain.presentation.TransportStage;
 import com.tramchester.domain.reference.TransportMode;
-import com.tramchester.domain.dates.TramServiceDate;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.GraphDatabase;
 import com.tramchester.integration.testSupport.bus.IntegrationBusTestConfig;
@@ -24,7 +23,6 @@ import org.junit.jupiter.api.*;
 import org.neo4j.graphdb.Transaction;
 
 import java.time.Duration;
-import java.time.LocalDate;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;

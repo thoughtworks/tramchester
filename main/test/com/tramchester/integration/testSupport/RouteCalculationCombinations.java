@@ -5,7 +5,6 @@ import com.tramchester.domain.Journey;
 import com.tramchester.domain.JourneyRequest;
 import com.tramchester.domain.StationIdPair;
 import com.tramchester.domain.dates.TramDate;
-import com.tramchester.domain.dates.TramServiceDate;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.places.InterchangeStation;
@@ -194,11 +193,6 @@ public class RouteCalculationCombinations {
 
         public JourneyOrNot(StationIdPair requested, TramDate queryDate, TramTime queryTime, Optional<Journey> optionalJourney) {
             this(requested, queryDate.toLocalDate(), queryTime, optionalJourney);
-        }
-
-        @Deprecated
-        public JourneyOrNot(IdFor<Station> start, IdFor<Station> dest, TramServiceDate date, TramTime time, Optional<Journey> optionalJourney) {
-            this(StationIdPair.of(start, dest), date.getDate(), time, optionalJourney);
         }
 
         public JourneyOrNot(IdFor<Station> start, IdFor<Station> dest, TramDate date, TramTime time, Optional<Journey> optionalJourney) {

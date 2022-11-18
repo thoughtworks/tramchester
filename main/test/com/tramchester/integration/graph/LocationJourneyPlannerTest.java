@@ -5,7 +5,6 @@ import com.tramchester.ComponentsBuilder;
 import com.tramchester.domain.Journey;
 import com.tramchester.domain.JourneyRequest;
 import com.tramchester.domain.dates.TramDate;
-import com.tramchester.domain.dates.TramServiceDate;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.places.Location;
 import com.tramchester.domain.places.Station;
@@ -109,7 +108,6 @@ class LocationJourneyPlannerTest {
 
     @Test
     void shouldHaveDirectWalkFromPiccadily() {
-        TramServiceDate queryDate = new TramServiceDate(when);
 
         JourneyRequest journeyRequest = new JourneyRequest(when, TramTime.of(9, 0),
                 false, 1, maxJourneyDuration, maxNumberOfJourneys, getRequestedModes());

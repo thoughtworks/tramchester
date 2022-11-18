@@ -11,7 +11,6 @@ import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.ProvidesLocalNow;
-import com.tramchester.domain.dates.TramServiceDate;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.caches.CachedNodeOperations;
 import com.tramchester.graph.caches.NodeContentsRepository;

@@ -2,7 +2,6 @@ package com.tramchester.integration.resources.journeyPlanning;
 
 import com.tramchester.App;
 import com.tramchester.domain.dates.TramDate;
-import com.tramchester.domain.dates.TramServiceDate;
 import com.tramchester.domain.presentation.DTO.*;
 import com.tramchester.domain.presentation.Note;
 import com.tramchester.domain.reference.TransportMode;
@@ -42,13 +41,11 @@ public class JourneyPlannerResourceTest {
             new IntegrationAppExtension(App.class, new ResourceTramTestConfig<>(JourneyPlannerResource.class));
 
     private TramDate when;
-    private TramServiceDate tramServiceDate;
     private JourneyResourceTestFacade journeyPlanner;
 
     @BeforeEach
     void beforeEachTestRuns() {
         when = TestEnv.testDay();
-        tramServiceDate = new TramServiceDate(when);
         journeyPlanner = new JourneyResourceTestFacade(appExtension);
     }
 
@@ -65,7 +62,7 @@ public class JourneyPlannerResourceTest {
 
     private void checkAltyToCornbrook(TramTime queryTime, boolean arriveBy) {
 
-        JourneyQueryDTO query = journeyPlanner.getQueryDTO(tramServiceDate.getDate(), queryTime, Altrincham, Cornbrook, arriveBy, 0);
+        JourneyQueryDTO query = journeyPlanner.getQueryDTO(when, queryTime, Altrincham, Cornbrook, arriveBy, 0);
 
         JourneyPlanRepresentation plan = journeyPlanner.getJourneyPlan(query);
 
@@ -95,7 +92,7 @@ public class JourneyPlannerResourceTest {
 
         TramTime queryTime = TramTime.of(8,15);
 
-        JourneyQueryDTO query = journeyPlanner.getQueryDTO(tramServiceDate.getDate(), queryTime, TramStations.Altrincham,
+        JourneyQueryDTO query = journeyPlanner.getQueryDTO(when, queryTime, TramStations.Altrincham,
                 TramStations.Cornbrook, false, 0);
         query.setModes(Collections.singleton(TransportMode.Train));
 
@@ -110,7 +107,7 @@ public class JourneyPlannerResourceTest {
 
         TramTime queryTime = TramTime.of(8,15);
 
-        JourneyQueryDTO query = journeyPlanner.getQueryDTO(tramServiceDate.getDate(), queryTime, TramStations.Altrincham,
+        JourneyQueryDTO query = journeyPlanner.getQueryDTO(when, queryTime, TramStations.Altrincham,
                 TramStations.Cornbrook, true, 0);
         query.setModes(Collections.singleton(TransportMode.Train));
 
@@ -124,7 +121,7 @@ public class JourneyPlannerResourceTest {
     void shouldPlanSimpleJourneyArriveByHasAtLeastOneDepartByRequiredTime() {
         TramTime queryTime = TramTime.of(11,45);
 
-        JourneyQueryDTO query = journeyPlanner.getQueryDTO(tramServiceDate.getDate(), queryTime, TramStations.Altrincham, TramStations.Cornbrook, true, 0);
+        JourneyQueryDTO query = journeyPlanner.getQueryDTO(when, queryTime, TramStations.Altrincham, TramStations.Cornbrook, true, 0);
 
         JourneyPlanRepresentation plan = journeyPlanner.getJourneyPlan(query);
 
@@ -144,7 +141,7 @@ public class JourneyPlannerResourceTest {
     @Test
     void shouldGetNoResultsToAirportWhenLimitOnChanges() {
 
-        JourneyQueryDTO query = journeyPlanner.getQueryDTO(tramServiceDate.getDate(), TramTime.of(11,45), Altrincham, ManAirport, true, 0);
+        JourneyQueryDTO query = journeyPlanner.getQueryDTO(when, TramTime.of(11,45), Altrincham, ManAirport, true, 0);
 
         JourneyPlanRepresentation plan = journeyPlanner.getJourneyPlan(query);
         assertTrue(plan.getJourneys().isEmpty());
@@ -153,7 +150,7 @@ public class JourneyPlannerResourceTest {
     @Test
     void shouldReproLateNightIssueShudehillToAltrincham() {
 
-        JourneyQueryDTO query = journeyPlanner.getQueryDTO(tramServiceDate.getDate(), TramTime.of(23,11), Shudehill, Altrincham, false, 3);
+        JourneyQueryDTO query = journeyPlanner.getQueryDTO(when, TramTime.of(23,11), Shudehill, Altrincham, false, 3);
 
         JourneyPlanRepresentation plan = journeyPlanner.getJourneyPlan(query);
 
@@ -170,7 +167,7 @@ public class JourneyPlannerResourceTest {
 
         // note: Cornbrook, StPetersSquare, Deansgate all valid but have same cost
 
-        JourneyQueryDTO query = journeyPlanner.getQueryDTO(tramServiceDate.getDate(), TramTime.of(17, 45), Altrincham, Ashton, false, 1);
+        JourneyQueryDTO query = journeyPlanner.getQueryDTO(when, TramTime.of(17, 45), Altrincham, Ashton, false, 1);
 
         JourneyPlanRepresentation plan = journeyPlanner.getJourneyPlan(query);
 

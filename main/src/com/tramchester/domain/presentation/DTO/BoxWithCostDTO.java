@@ -6,7 +6,6 @@ import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.tramchester.domain.BoundingBoxWithCost;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.presentation.LatLong;
-import com.tramchester.domain.dates.TramServiceDate;
 import com.tramchester.geo.CoordinateTransforms;
 import com.tramchester.mappers.JourneyToDTOMapper;
 

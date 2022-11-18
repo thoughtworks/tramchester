@@ -5,7 +5,6 @@ import com.tramchester.ComponentsBuilder;
 import com.tramchester.DiagramCreator;
 import com.tramchester.domain.*;
 import com.tramchester.domain.dates.TramDate;
-import com.tramchester.domain.dates.TramServiceDate;
 import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.places.Location;
 import com.tramchester.domain.places.Station;

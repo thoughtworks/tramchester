@@ -66,7 +66,7 @@ class MutableServiceCalendarTest {
     @Test
     void shouldCheckIfServiceHasExceptionDatesAdded() {
 
-        TramDate testDay = TestEnv.testTramDay();
+        TramDate testDay = TestEnv.testDay();
 
         TramDate startDate = testDay.minusWeeks(1);
         TramDate endDate = startDate.plusWeeks(4);
@@ -95,9 +95,9 @@ class MutableServiceCalendarTest {
     @Test
     void shouldSetWeekendDaysOnService() {
 
-        TramDate testDay = TestEnv.testTramDay();
+        TramDate testDay = TestEnv.testDay();
 
-        final TramDate startDate = TramDate.of(TestEnv.LocalNow().toLocalDate());
+        final TramDate startDate = TramDate.from(TestEnv.LocalNow());
         final TramDate endDate = testDay.plusWeeks(4);
 
         ServiceCalendar serviceCalendar = new MutableServiceCalendar(startDate, endDate,
@@ -105,7 +105,7 @@ class MutableServiceCalendarTest {
 
         TramDate localDate = startDate;
         int offset = 0;
-        while (new TramServiceDate(localDate).isChristmasPeriod()) {
+        while (localDate.isChristmasPeriod()) {
             localDate = startDate.plusWeeks(offset);
         }
 

@@ -6,7 +6,6 @@ import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.JourneyRequest;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.reference.TransportMode;
-import com.tramchester.domain.dates.TramServiceDate;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.GraphDatabase;
 import com.tramchester.integration.testSupport.RouteCalculationCombinations;
@@ -17,7 +16,6 @@ import org.junit.jupiter.api.*;
 import org.neo4j.graphdb.Transaction;
 
 import java.time.Duration;
-import java.time.LocalDate;
 import java.util.Collections;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;

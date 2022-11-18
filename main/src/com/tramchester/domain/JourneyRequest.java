@@ -3,11 +3,9 @@ package com.tramchester.domain;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TimeRange;
-import com.tramchester.domain.dates.TramServiceDate;
 import com.tramchester.domain.time.TramTime;
 
 import java.time.Duration;
-import java.time.LocalDate;
 import java.util.Set;
 import java.util.UUID;
 

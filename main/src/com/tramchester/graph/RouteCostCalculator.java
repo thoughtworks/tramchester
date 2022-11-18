@@ -6,7 +6,6 @@ import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.places.Location;
 import com.tramchester.domain.time.InvalidDurationException;
-import com.tramchester.domain.dates.TramServiceDate;
 import com.tramchester.graph.graphbuild.GraphProps;
 import com.tramchester.graph.graphbuild.StagedTransportGraphBuilder;
 import com.tramchester.repository.RouteRepository;
@@ -21,7 +20,6 @@ import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
 import java.time.Duration;
-import java.time.LocalDate;
 import java.util.function.Predicate;
 
 import static com.tramchester.graph.GraphPropertyKey.COST;
