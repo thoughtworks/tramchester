@@ -15,8 +15,6 @@ import com.tramchester.integration.testSupport.RouteCalculationCombinations;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.testTags.DataExpiryCategory;
-import com.tramchester.testSupport.testTags.VictoriaNov2022;
-import com.tramchester.testSupport.testTags.WorkaroundsNov2022;
 import org.apache.commons.lang3.tuple.Pair;
 import org.junit.jupiter.api.*;
 import org.neo4j.graphdb.Transaction;
@@ -24,9 +22,6 @@ import org.neo4j.graphdb.Transaction;
 import java.time.DayOfWeek;
 import java.time.Duration;
 import java.util.*;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
-import java.util.stream.Stream;
 
 import static com.tramchester.domain.reference.TransportMode.Tram;
 import static com.tramchester.testSupport.TestEnv.avoidChristmasDate;
@@ -98,7 +93,6 @@ class RouteCalculatorKeyRoutesTest {
         validateFor(results);
     }
 
-    @VictoriaNov2022
     @DataExpiryCategory
     @Test
     @Disabled("issue with data, some route appear to be missing at this time")

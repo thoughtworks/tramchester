@@ -31,7 +31,6 @@ import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TramRouteHelper;
 import com.tramchester.testSupport.reference.TramStations;
 import com.tramchester.testSupport.testTags.PiccGardens2022;
-import com.tramchester.testSupport.testTags.VictoriaNov2022;
 import org.junit.jupiter.api.*;
 
 import java.nio.file.Path;

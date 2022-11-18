@@ -13,8 +13,6 @@ import com.tramchester.graph.RouteReachable;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.TestEnv;
-import com.tramchester.testSupport.testTags.PiccGardens2022;
-import com.tramchester.testSupport.testTags.VictoriaNov2022;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -26,7 +24,6 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import static com.tramchester.testSupport.reference.KnownTramRoute.AltrinchamManchesterBury;
-import static com.tramchester.testSupport.reference.KnownTramRoute.AltrinchamPiccadilly;
 import static com.tramchester.testSupport.reference.TramStations.Altrincham;
 import static com.tramchester.testSupport.reference.TramStations.NavigationRoad;
 import static org.junit.jupiter.api.Assertions.assertEquals;

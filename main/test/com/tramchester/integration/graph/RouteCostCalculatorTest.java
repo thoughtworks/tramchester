@@ -15,8 +15,6 @@ import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.testTags.DataUpdateTest;
 import com.tramchester.testSupport.testTags.PiccGardens2022;
-import com.tramchester.testSupport.testTags.VictoriaNov2022;
-import com.tramchester.testSupport.testTags.WorkaroundsNov2022;
 import org.junit.jupiter.api.*;
 import org.neo4j.graphdb.Transaction;
 

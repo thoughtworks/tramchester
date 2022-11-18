@@ -11,7 +11,6 @@ import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.InterchangeStation;
-import com.tramchester.domain.places.SimpleInterchangeStation;
 import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
 import com.tramchester.graph.GraphDatabase;
@@ -29,7 +28,6 @@ import com.tramchester.testSupport.TramRouteHelper;
 import com.tramchester.testSupport.reference.KnownTramRoute;
 import com.tramchester.testSupport.reference.TramStations;
 import com.tramchester.testSupport.testTags.PiccGardens2022;
-import com.tramchester.testSupport.testTags.VictoriaNov2022;
 import org.assertj.core.util.Streams;
 import org.junit.jupiter.api.*;
 import org.neo4j.graphdb.*;
@@ -278,7 +276,6 @@ class TramGraphBuilderTest {
 
     }
 
-    @VictoriaNov2022
     @Test
     void shouldCheckOutboundSvcRelationships() {
 

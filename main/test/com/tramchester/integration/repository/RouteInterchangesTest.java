@@ -7,7 +7,6 @@ import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.places.InterchangeStation;
-import com.tramchester.domain.places.SimpleInterchangeStation;
 import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
@@ -19,7 +18,6 @@ import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TramRouteHelper;
 import com.tramchester.testSupport.reference.KnownTramRoute;
 import com.tramchester.testSupport.testTags.PiccGardens2022;
-import com.tramchester.testSupport.testTags.VictoriaNov2022;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -89,7 +87,6 @@ public class RouteInterchangesTest {
 
     }
 
-    @VictoriaNov2022
     @PiccGardens2022
     @Test
     void shouldHaveExpectedRoutesAtCornbrook() {
