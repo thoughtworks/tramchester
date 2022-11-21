@@ -15,7 +15,10 @@ import java.util.stream.Stream;
 public interface StationRepository extends StationRepositoryPublic {
 
     long getNumberOfStations(DataSourceID dataSourceID, TransportMode mode);
+
     Set<Station> getStations();
+
+    Set<Station> getStations(Set<TransportMode> modes);
 
     /***
      * Use with care, return includes route stations present due to rare circumstances, such as return to depot

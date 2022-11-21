@@ -18,7 +18,6 @@ import com.tramchester.domain.time.ProvidesNow;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -121,6 +120,13 @@ public class TransportDataContainer implements TransportData, WriteableTransport
     }
 
     @Override
+    public Set<Station> getStations(Set<TransportMode> modes) {
+        return stationsById.getValuesStream().
+                filter(station -> TransportMode.intersects(station.getTransportModes(), modes)).
+                collect(Collectors.toSet());
+    }
+
+    @Override
     public Stream<Station> getActiveStationStream() {
         return stationsById.getValuesStream().filter(Location::isActive);
     }
@@ -193,6 +199,12 @@ public class TransportDataContainer implements TransportData, WriteableTransport
     }
 
     @Override
+    public Set<Service> getServices(Set<TransportMode> modes) {
+        return services.getValuesStream().
+                filter(service -> TransportMode.intersects(service.getTransportModes(), modes)).collect(Collectors.toSet());
+    }
+
+    @Override
     public Service getServiceById(IdFor<Service> serviceId) {
         return services.get(serviceId);
     }
@@ -222,8 +234,10 @@ public class TransportDataContainer implements TransportData, WriteableTransport
     }
 
     @Override
-    public Set<Platform> getPlatforms() {
-        return Collections.unmodifiableSet(platforms.getValues());
+    public Set<Platform> getPlatforms(Set<TransportMode> modes) {
+        return platforms.getValuesStream().
+                filter(platform -> TransportMode.intersects(modes, platform.getTransportModes())).collect(Collectors.toSet());
+        //return Collections.unmodifiableSet(platforms.getValues());
     }
 
     @Override
@@ -362,6 +376,11 @@ public class TransportDataContainer implements TransportData, WriteableTransport
     @Override
     public Set<Route> getRoutes() {
         return routes.getSuperValues();
+    }
+
+    @Override
+    public Set<Route> getRoutes(Set<TransportMode> modes) {
+        return routes.getValuesStream().filter(route -> modes.contains(route.getTransportMode())).collect(Collectors.toSet());
     }
 
     @Override

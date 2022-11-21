@@ -3,11 +3,9 @@ package com.tramchester.domain;
 import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.StringIdFor;
+import com.tramchester.domain.reference.TransportMode;
 
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 
 import static java.lang.String.format;
 
@@ -16,6 +14,7 @@ public class MutableAgency implements Agency {
     private final IdFor<Agency> agencyId;
     private final String agencyName;
     private final DataSourceID dataSourceID;
+    private final EnumSet<TransportMode> transportModes;
 
     public static final Agency Walking;
     public static final IdFor<Agency> METL;
@@ -30,6 +29,7 @@ public class MutableAgency implements Agency {
         this.agencyId =  agencyId;
         this.agencyName = agencyName;
         routes = new HashSet<>();
+        transportModes = EnumSet.noneOf(TransportMode.class);
     }
 
     // test support
@@ -44,6 +44,7 @@ public class MutableAgency implements Agency {
                     route.getId(), routeAgencyId, agencyId));
         }
         routes.add(route);
+        transportModes.add(route.getTransportMode());
     }
 
     @Override
@@ -58,6 +59,7 @@ public class MutableAgency implements Agency {
                 ", agencyName='" + agencyName + '\'' +
                 ", dataSourceID=" + dataSourceID +
                 ", routes=" + HasId.asIds(routes) +
+                ", transportModes=" + transportModes +
                 '}';
     }
 
@@ -82,6 +84,11 @@ public class MutableAgency implements Agency {
     @Override
     public String getName() {
         return agencyName;
+    }
+
+    @Override
+    public Set<TransportMode> getTransportModes() {
+        return transportModes;
     }
 
 }

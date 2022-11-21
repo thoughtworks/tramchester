@@ -4,6 +4,7 @@ package com.tramchester.integration.repository;
 import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.config.GTFSSourceConfig;
+import com.tramchester.config.TramchesterConfig;
 import com.tramchester.dataimport.data.CalendarDateData;
 import com.tramchester.dataimport.loader.PopulateTransportDataFromSources;
 import com.tramchester.dataimport.loader.TransportDataReader;
@@ -21,6 +22,7 @@ import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.time.TimeRange;
 import com.tramchester.domain.time.TramTime;
+import com.tramchester.integration.testSupport.ConfigParameterResolver;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
 import com.tramchester.repository.ClosedStationsRepository;
 import com.tramchester.repository.InterchangeRepository;
@@ -33,6 +35,7 @@ import com.tramchester.testSupport.testTags.*;
 import org.apache.commons.lang3.tuple.Pair;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import java.time.DayOfWeek;
 import java.time.Duration;
@@ -44,6 +47,7 @@ import java.util.stream.Stream;
 
 import static com.tramchester.domain.reference.CentralZoneStation.StPetersSquare;
 import static com.tramchester.domain.reference.CentralZoneStation.TraffordBar;
+import static com.tramchester.domain.reference.TransportMode.Tram;
 import static com.tramchester.integration.testSupport.Assertions.assertIdEquals;
 import static com.tramchester.testSupport.TestEnv.DAYS_AHEAD;
 import static com.tramchester.testSupport.TestEnv.dateFormatDashes;
@@ -55,12 +59,14 @@ import static org.junit.jupiter.api.Assertions.*;
 // TODO Split out by i/f roles, this has gotten too big
 // Begun, started to create tests by repository instead
 
+@ExtendWith(ConfigParameterResolver.class)
+@DualTest
 @DataUpdateTest
 public class TransportDataFromFilesTramTest {
 
     public static final int NUM_TFGM_TRAM_STATIONS = 99; // summer closures of eccles line
     private static ComponentContainer componentContainer;
-    private static IntegrationTramTestConfig config;
+    private static TramchesterConfig config;
 
     private TransportData transportData;
     private Collection<Service> allServices;
@@ -69,8 +75,8 @@ public class TransportDataFromFilesTramTest {
     private TramDate when;
 
     @BeforeAll
-    static void onceBeforeAnyTestsRun() {
-        config = new IntegrationTramTestConfig();
+    static void onceBeforeAnyTestsRun(TramchesterConfig tramchesterConfig) {
+        config = tramchesterConfig; //= new IntegrationTramTestConfig();
         componentContainer = new ComponentsBuilder().create(config, TestEnv.NoopRegisterMetrics());
         componentContainer.initialise();
     }
@@ -83,7 +89,7 @@ public class TransportDataFromFilesTramTest {
     @BeforeEach
     void beforeEachTestRuns() {
         transportData = componentContainer.get(TransportData.class);
-        allServices = transportData.getServices();
+        allServices = transportData.getServices(EnumSet.of(Tram));
         routeHelper = new TramRouteHelper(transportData);
         closedStationRepository = componentContainer.get(ClosedStationsRepository.class);
 
@@ -93,15 +99,17 @@ public class TransportDataFromFilesTramTest {
 
     @Test
     void shouldHaveExpectedNumbersForTram() {
-        assertEquals(1, transportData.getAgencies().size());
-        assertEquals(NUM_TFGM_TRAM_STATIONS, transportData.getStations().size());
+        assertEquals(1, transportData.getAgencies().stream().filter(agency -> agency.getTransportModes().contains(Tram)).count());
+        assertEquals(NUM_TFGM_TRAM_STATIONS, transportData.getStations(EnumSet.of(Tram)).size());
 
-        Set<String> uniqueNames = transportData.getRoutesRunningOn(when).stream().map(Route::getName).collect(Collectors.toSet());
+        Set<String> uniqueNames = transportData.getRoutesRunningOn(when).stream().
+                filter(route -> route.getTransportMode()==Tram).
+                map(Route::getName).collect(Collectors.toSet());
 
         assertEquals(KnownTramRoute.numberOn(when), uniqueNames.size(), uniqueNames.toString());
 
         int expected = 200;
-        assertEquals(expected, transportData.getPlatforms().size());
+        assertEquals(expected, transportData.getPlatforms(EnumSet.of(Tram)).size());
     }
 
     @Test
@@ -112,7 +120,11 @@ public class TransportDataFromFilesTramTest {
 
     @Test
     void shouldGetAgenciesWithNames() {
-        List<Agency> agencies = new ArrayList<>(transportData.getAgencies());
+        List<Agency> agencies = transportData.getAgencies().stream().
+                filter(agency -> agency.getTransportModes().contains(Tram)).
+                collect(Collectors.toList());
+
+        //List<Agency> agencies = new ArrayList<>(agencySet);
         assertEquals(1, agencies.size()); // just MET for trams
         assertIdEquals("METL", agencies.get(0).getId());
         assertEquals("Metrolink", agencies.get(0).getName());
@@ -193,17 +205,17 @@ public class TransportDataFromFilesTramTest {
 
     @Test
     void shouldHaveRoutesWithStationsAndCallingPoints() {
-        Set<Route> allRoutes = transportData.getRoutes();
+        Set<Route> allTramRoutes = transportData.getRoutes(EnumSet.of(Tram));
 
-        Set<Station> allStations = transportData.getStations();
+        Set<Station> allStations = transportData.getStations(EnumSet.of(Tram));
 
-        Set<Route> noPickups = allRoutes.stream().
+        Set<Route> noPickups = allTramRoutes.stream().
                 filter(route -> allStations.stream().noneMatch(station -> station.servesRoutePickup(route))).
                 collect(Collectors.toSet());
 
         assertTrue(noPickups.isEmpty(), noPickups.toString());
 
-        Set<Route> noDropOffs = allRoutes.stream().
+        Set<Route> noDropOffs = allTramRoutes.stream().
                 filter(route -> allStations.stream().noneMatch(station -> station.servesRouteDropOff(route))).
                 collect(Collectors.toSet());
 
@@ -215,7 +227,7 @@ public class TransportDataFromFilesTramTest {
     void shouldHaveExpectedStationsForGreenFromAlty() {
         Route green = routeHelper.getOneRoute(AltrinchamManchesterBury, when);
 
-        Set<Station> allStations = transportData.getStations();
+        Set<Station> allStations = transportData.getStations(EnumSet.of(Tram));
 
         IdSet<Station> dropOffs = allStations.stream().filter(station -> station.servesRouteDropOff(green)).collect(IdSet.collector());
 
@@ -240,7 +252,7 @@ public class TransportDataFromFilesTramTest {
     void shouldHaveExpectedStationsForGreenFromBury() {
         Route green = routeHelper.getOneRoute(BuryManchesterAltrincham, when);
 
-        Set<Station> allStations = transportData.getStations();
+        Set<Station> allStations = transportData.getStations(EnumSet.of(Tram));
 
         IdSet<Station> dropOffs = allStations.stream().filter(station -> station.servesRouteDropOff(green)).collect(IdSet.collector());
 
@@ -375,7 +387,7 @@ public class TransportDataFromFilesTramTest {
 
     @Test
     void shouldHandleStopCallsThatCrossMidnight() {
-        Set<Route> routes = transportData.getRoutes();
+        Set<Route> routes = transportData.getRoutes(EnumSet.of(Tram));
 
         for (Route route : routes) {
             List<StopCalls.StopLeg> over = route.getTrips().stream().flatMap(trip -> trip.getStopCalls().getLegs(false).stream()).
@@ -403,7 +415,7 @@ public class TransportDataFromFilesTramTest {
     void shouldHaveTripsOnDateForEachStation() {
 
         Set<Pair<TramDate, IdFor<Station>>> missing = TestEnv.getUpcomingDates().
-                flatMap(date -> transportData.getStations().stream().map(station -> Pair.of(date, station))).
+                flatMap(date -> transportData.getStations(EnumSet.of(Tram)).stream().map(station -> Pair.of(date, station))).
                 filter(pair -> !closedStationRepository.isClosed(pair.getRight(), pair.getLeft())).
                 filter(pair -> !TestEnv.novermber2022Issue(pair.getRight().getId(), pair.getLeft())).
                 filter(pair -> transportData.getTripsFor(pair.getRight(), pair.getLeft()).isEmpty()).
@@ -511,7 +523,7 @@ public class TransportDataFromFilesTramTest {
         Map<Pair<TramDate, TramTime>, IdSet<Station>> missing = new HashMap<>();
 
         TestEnv.getUpcomingDates().forEach(date -> {
-            transportData.getStations().stream().
+            transportData.getStations(EnumSet.of(Tram)).stream().
                     filter(station -> !closedStationRepository.isClosed(station, date)).
                     filter(station -> !TestEnv.novermber2022Issue(station.getId(), date)).
                     forEach(station -> {
@@ -540,7 +552,7 @@ public class TransportDataFromFilesTramTest {
 
     @Test
     void shouldHaveAtLeastOnePlatformForEveryStation() {
-        Set<Station> stations = transportData.getStations();
+        Set<Station> stations = transportData.getStations(EnumSet.of(Tram));
         Set<Station> noPlatforms = stations.stream().filter(station -> station.getPlatforms().isEmpty()).collect(Collectors.toSet());
         assertEquals(Collections.emptySet(),noPlatforms);
     }
@@ -595,7 +607,7 @@ public class TransportDataFromFilesTramTest {
     void shouldHaveAllEndOfLineTramStations() {
 
         // Makes sure none are missing from the data
-        List<Station> filteredStations = transportData.getStations().stream()
+        List<Station> filteredStations = transportData.getStations(EnumSet.of(Tram)).stream()
                 .filter(TramStations::isEndOfLine).collect(Collectors.toList());
 
         assertEquals(TramStations.EndOfTheLine.size(), filteredStations.size());
@@ -603,21 +615,21 @@ public class TransportDataFromFilesTramTest {
 
     @Test
     void shouldHaveConsistencyOfRouteAndTripAndServiceIds() {
-        Collection<Route> allRoutes = transportData.getRoutes();
+        Set<Route> allTramRoutes = transportData.getRoutes(EnumSet.of(Tram));
 
-        Set<Service> uniqueSvcs = allRoutes.stream().map(Route::getServices).flatMap(Collection::stream).collect(Collectors.toSet());
+        Set<Service> uniqueSvcs = allTramRoutes.stream().map(Route::getServices).flatMap(Collection::stream).collect(Collectors.toSet());
 
         assertEquals(uniqueSvcs.size(), allServices.size());
 
-        Set<Station> allsStations = transportData.getStations();
+        Set<Station> allsStations = transportData.getStations(EnumSet.of(Tram));
 
         Set<Trip> allTrips = new HashSet<>();
         allsStations.forEach(station -> allTrips.addAll(getTripsFor(transportData.getTrips(), station)));
 
-        int tripsSize = transportData.getTrips().size();
+        long tripsSize = transportData.getTrips().stream().filter(trip -> trip.getTransportMode()==Tram).count();
         assertEquals(tripsSize, allTrips.size());
 
-        IdSet<Trip> tripIdsFromSvcs = transportData.getRoutes().stream().map(Route::getTrips).
+        IdSet<Trip> tripIdsFromSvcs = allTramRoutes.stream().map(Route::getTrips).
                 flatMap(Collection::stream).
                 map(Trip::getId).collect(IdSet.idCollector());
         assertEquals(tripsSize, tripIdsFromSvcs.size());

@@ -30,7 +30,6 @@ import com.tramchester.repository.*;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TramRouteHelper;
 import com.tramchester.testSupport.reference.KnownTramRoute;
-import com.tramchester.testSupport.testTags.WorkaroundsNov2022;
 import org.apache.commons.collections4.SetUtils;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.*;
@@ -105,7 +104,6 @@ public class RouteCalculatorRedLineIssuesTest {
         txn.close();
     }
 
-    @WorkaroundsNov2022
     @Test
     void shouldReproIssueWithExchangeSquareToTraffordCenter() {
 
@@ -118,7 +116,6 @@ public class RouteCalculatorRedLineIssuesTest {
         assertFalse(journeys.isEmpty());
     }
 
-    @WorkaroundsNov2022
     @Test
     void shouldReproIssueWithAshtonToTraffordCenter() {
 
@@ -129,7 +126,6 @@ public class RouteCalculatorRedLineIssuesTest {
         assertFalse(journeys.isEmpty());
     }
 
-    @WorkaroundsNov2022
     @Test
     void shouldReproIssueWithAshtonToPiccadilly() {
 

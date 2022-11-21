@@ -308,6 +308,23 @@ task integrationGM(type: Test, dependsOn: compileJava) {
     filter {
         includeTestsMatching "com.tramchester.integration.*"
     }
+    systemProperty("com.tramchester.config","TramAndTrainGreaterManchesterConfig")
+    testLogging {
+        exceptionFormat "full" // default is "short"
+        events "passed", "skipped", "failed", "started", "standardError" //, "standardOut"
+    }
+}
+
+task dualTestIntegration(type: Test, dependsOn: compileJava) {
+    minHeapSize = "1000m"
+    maxHeapSize = "1750m"
+    useJUnitPlatform {
+        includeTags "DualTest"
+    }
+    filter {
+        includeTestsMatching "com.tramchester.integration.*"
+    }
+    systemProperty("com.tramchester.config","TramAndTrainGreaterManchesterConfig")
     testLogging {
         exceptionFormat "full" // default is "short"
         events "passed", "skipped", "failed", "started", "standardError" //, "standardOut"

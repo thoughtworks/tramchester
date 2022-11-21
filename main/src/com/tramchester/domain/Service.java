@@ -8,7 +8,7 @@ import com.tramchester.domain.time.TramTime;
 
 import java.io.PrintStream;
 
-public interface Service extends HasId<Service>, GraphProperty, CoreDomain, CrossesDay {
+public interface Service extends HasId<Service>, GraphProperty, CoreDomain, CrossesDay, HasTransportModes {
     IdFor<Service> getId();
 
     void summariseDates(PrintStream printStream);

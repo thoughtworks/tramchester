@@ -3,6 +3,7 @@ package com.tramchester.integration.repository;
 import com.google.common.collect.Sets;
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.GuiceContainerDependencies;
+import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.RoutePair;
 import com.tramchester.domain.dates.TramDate;
@@ -11,6 +12,7 @@ import com.tramchester.domain.input.StopCall;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
+import com.tramchester.integration.testSupport.ConfigParameterResolver;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
 import com.tramchester.repository.RouteRepository;
 import com.tramchester.repository.StationRepository;
@@ -18,21 +20,26 @@ import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TramRouteHelper;
 import com.tramchester.testSupport.reference.KnownTramRoute;
 import com.tramchester.testSupport.testTags.DataUpdateTest;
+import com.tramchester.testSupport.testTags.DualTest;
 import com.tramchester.testSupport.testTags.PiccGardens2022;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static com.tramchester.domain.reference.TransportMode.Tram;
 import static com.tramchester.testSupport.reference.KnownTramRoute.*;
 import static com.tramchester.testSupport.reference.TramStations.*;
 import static org.junit.jupiter.api.Assertions.*;
 
+@ExtendWith(ConfigParameterResolver.class)
+@DualTest
 @DataUpdateTest
 public class RouteRepositoryTest {
 
@@ -43,9 +50,9 @@ public class RouteRepositoryTest {
     private TramDate when;
 
     @BeforeAll
-    static void onceBeforeAnyTestsRun() {
-        IntegrationTramTestConfig config = new IntegrationTramTestConfig();
-        componentContainer = new ComponentsBuilder().create(config, TestEnv.NoopRegisterMetrics());
+    static void onceBeforeAnyTestsRun(TramchesterConfig tramchesterConfig) {
+        //TramchesterConfig config = new IntegrationTramTestConfig();
+        componentContainer = new ComponentsBuilder().create(tramchesterConfig, TestEnv.NoopRegisterMetrics());
         componentContainer.initialise();
     }
 
@@ -125,8 +132,11 @@ public class RouteRepositoryTest {
     }
 
     @Test
-    void shouldHaveExpectedNumberOfRoutesRunning() {
-        Set<String> running = routeRepository.getRoutesRunningOn(when).stream().map(Route::getName).collect(Collectors.toSet());
+    void shouldHaveExpectedNumberOfTramRoutesRunning() {
+        Set<String> running = routeRepository.getRoutesRunningOn(when).stream().
+                filter(route -> route.getTransportMode()==Tram).
+                map(Route::getName).collect(Collectors.toSet());
+
         Set<String> knownTramRoutes = getFor(when).stream().map(KnownTramRoute::longName).collect(Collectors.toSet());
 
         Sets.SetView<String> diffA = Sets.difference(running, knownTramRoutes);

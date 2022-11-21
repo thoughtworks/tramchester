@@ -5,6 +5,7 @@ import com.tramchester.domain.Agency;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.IdFor;
+import com.tramchester.domain.reference.TransportMode;
 
 import java.time.LocalDate;
 import java.util.Set;
@@ -12,6 +13,8 @@ import java.util.Set;
 @ImplementedBy(TransportData.class)
 public interface RouteRepository {
     Set<Route> getRoutes();
+    Set<Route> getRoutes(Set<TransportMode> mode);
+
     Route getRouteById(IdFor<Route> routeId);
     int numberOfRoutes();
 

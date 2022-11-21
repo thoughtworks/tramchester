@@ -3,8 +3,10 @@ package com.tramchester.domain;
 import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.StringIdFor;
+import com.tramchester.domain.reference.TransportMode;
 
 import java.util.Collection;
+import java.util.Set;
 
 public interface Agency extends HasId<Agency>, CoreDomain {
     static boolean IsMetrolink(IdFor<Agency> agencyId) {
@@ -20,5 +22,7 @@ public interface Agency extends HasId<Agency>, CoreDomain {
     IdFor<Agency> getId();
 
     String getName();
+
+    Set<TransportMode> getTransportModes();
     
 }

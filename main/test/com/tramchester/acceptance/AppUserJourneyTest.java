@@ -39,10 +39,8 @@ import static org.hamcrest.Matchers.contains;
 import static org.junit.jupiter.api.Assertions.*;
 
 @ExtendWith(DropwizardExtensionsSupport.class)
-public
-class AppUserJourneyTest extends UserJourneyTest {
+public class AppUserJourneyTest extends UserJourneyTest {
     // NOTE: Needs correct locale settings, see .circleci/config.yml setupLocale target
-
 
     // NOTE: This controls localAcceptance only, for CI acceptance tests run against the deployed dev instance
     public static final String configPath = "config/localAcceptance.yml";

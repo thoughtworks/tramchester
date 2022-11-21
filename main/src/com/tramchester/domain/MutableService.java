@@ -7,19 +7,18 @@ import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.input.Trip;
+import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.GraphPropertyKey;
 
 import java.io.PrintStream;
-import java.util.HashSet;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 
 public class MutableService implements Service {
 
     private final IdFor<Service> serviceId;
     private final Set<Trip> trips;
+    private final Set<TransportMode> modes;
     private MutableServiceCalendar calendar;
     private TramTime startTime;
     private TramTime finishTime;
@@ -30,6 +29,7 @@ public class MutableService implements Service {
         startTime = null;
         finishTime = null;
         trips = new HashSet<>();
+        modes = EnumSet.noneOf(TransportMode.class);
     }
 
     // test support
@@ -106,6 +106,7 @@ public class MutableService implements Service {
     }
 
     public void addTrip(Trip trip) {
+        modes.add(trip.getTransportMode());
         trips.add(trip);
     }
 
@@ -155,5 +156,10 @@ public class MutableService implements Service {
     @Override
     public boolean intoNextDay() {
         return getFinishTime().isNextDay();
+    }
+
+    @Override
+    public Set<TransportMode> getTransportModes() {
+        return modes;
     }
 }

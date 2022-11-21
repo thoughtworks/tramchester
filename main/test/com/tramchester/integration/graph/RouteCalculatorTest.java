@@ -2,6 +2,7 @@ package com.tramchester.integration.graph;
 
 import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
+import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.Journey;
 import com.tramchester.domain.JourneyRequest;
 import com.tramchester.domain.dates.TramDate;
@@ -14,16 +15,15 @@ import com.tramchester.domain.time.TramTime;
 import com.tramchester.domain.transportStages.VehicleStage;
 import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.search.RouteCalculator;
+import com.tramchester.integration.testSupport.ConfigParameterResolver;
 import com.tramchester.integration.testSupport.RouteCalculatorTestFacade;
-import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.TramStations;
-import com.tramchester.testSupport.testTags.DataExpiryCategory;
-import com.tramchester.testSupport.testTags.DataUpdateTest;
-import com.tramchester.testSupport.testTags.PiccGardens2022;
+import com.tramchester.testSupport.testTags.*;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.neo4j.graphdb.Transaction;
 
 import java.time.Duration;
@@ -32,6 +32,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static com.tramchester.domain.reference.TransportMode.Tram;
 import static com.tramchester.domain.time.Durations.greaterOrEquals;
 import static com.tramchester.testSupport.TestEnv.DAYS_AHEAD;
 import static com.tramchester.testSupport.TestEnv.avoidChristmasDate;
@@ -39,7 +40,9 @@ import static com.tramchester.testSupport.reference.TramStations.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 @SuppressWarnings("JUnitTestMethodWithNoAssertions")
+@ExtendWith(ConfigParameterResolver.class)
 @DataUpdateTest
+//@DualTest
 public class RouteCalculatorTest {
 
     // Note this needs to be > time for whole test fixture, see note below in @After
@@ -47,9 +50,11 @@ public class RouteCalculatorTest {
 
     private static ComponentContainer componentContainer;
     private static GraphDatabase database;
-    private static IntegrationTramTestConfig config;
+    private static TramchesterConfig config;
 
     private final int maxChanges = 4;
+
+    private static Set<TransportMode> requestedModes;
 
     private RouteCalculatorTestFacade calculator;
     private final TramDate when = TestEnv.testDay();
@@ -58,8 +63,9 @@ public class RouteCalculatorTest {
     private int maxNumResults;
 
     @BeforeAll
-    static void onceBeforeAnyTestsRun() {
-        config = new IntegrationTramTestConfig();
+    static void onceBeforeAnyTestsRun(TramchesterConfig tramchesterConfig) {
+        config = tramchesterConfig;
+        requestedModes = Collections.singleton(Tram);
         componentContainer = new ComponentsBuilder().create(config, TestEnv.NoopRegisterMetrics());
         componentContainer.initialise();
         database = componentContainer.get(GraphDatabase.class);
@@ -94,7 +100,7 @@ public class RouteCalculatorTest {
     @Test
     void shouldPlanSimpleJourneyFromAltyToAshtonCheckInterchanges() {
         JourneyRequest journeyRequest = new JourneyRequest(when, TramTime.of(17,45), false,
-                3, maxJourneyDuration, 5, Collections.emptySet());
+                3, maxJourneyDuration, 5, requestedModes);
 
         // todo added market street and shudehill
         Set<String> expected = Stream.of(Cornbrook, StPetersSquare, Deansgate, Piccadilly, MarketStreet, Shudehill).
@@ -131,7 +137,7 @@ public class RouteCalculatorTest {
     void shouldHaveSimpleJourney() {
         final TramTime originalQueryTime = TramTime.of(10, 15);
         JourneyRequest journeyRequest = new JourneyRequest(when, originalQueryTime, false, maxChanges,
-                maxJourneyDuration, maxNumResults, Collections.emptySet());
+                maxJourneyDuration, maxNumResults, requestedModes);
         Set<Journey> journeys = calculator.calculateRouteAsSet(Altrincham, Deansgate, journeyRequest);
         Set<Journey> results = checkJourneys(Altrincham, Deansgate, originalQueryTime, journeyRequest.getDate(), journeys);
 
@@ -265,14 +271,10 @@ public class RouteCalculatorTest {
         TramDate today = TramDate.from(TestEnv.LocalNow());
 
         JourneyRequest request = new JourneyRequest(today, TramTime.of(11, 43), false, 0,
-                maxJourneyDuration, 1, getRequestedModes());
+                maxJourneyDuration, 1, requestedModes);
         Set<Journey> results = calculator.calculateRouteAsSet(Altrincham, ManAirport, request);
 
         assertEquals(0, results.size());
-    }
-
-    private Set<TransportMode> getRequestedModes() {
-        return Collections.emptySet();
     }
 
     @Test
@@ -280,7 +282,7 @@ public class RouteCalculatorTest {
         TramDate today = TramDate.from(TestEnv.LocalNow());
 
         JourneyRequest request = new JourneyRequest(today, TramTime.of(20, 9), false, 2,
-                maxJourneyDuration, 6, getRequestedModes());
+                maxJourneyDuration, 6, requestedModes);
 
         Set<Journey> results = calculator.calculateRouteAsSet(Deansgate, ManAirport, request);
 
@@ -297,7 +299,7 @@ public class RouteCalculatorTest {
         TramDate today = TramDate.from(TestEnv.LocalNow());
 
         JourneyRequest request = new JourneyRequest(today, TramTime.of(11, 43), false, maxChanges,
-                maxJourneyDuration, maxNumResults, getRequestedModes());
+                maxJourneyDuration, maxNumResults, requestedModes);
         Set<Journey> results =  calculator.calculateRouteAsSet(Altrincham, ManAirport, request);
 
         assertTrue(results.size()>0, "no results");    // results is iterator
@@ -307,13 +309,13 @@ public class RouteCalculatorTest {
             VehicleStage firstStage = (VehicleStage) stages.get(0);
             assertEquals(Altrincham.getId(), firstStage.getFirstStation().getId());
             assertEquals(TraffordBar.getId(), firstStage.getLastStation().getId(), stages.toString());
-            assertEquals(TransportMode.Tram, firstStage.getMode());
+            assertEquals(Tram, firstStage.getMode());
             assertEquals(7, firstStage.getPassedStopsCount());
 
             VehicleStage finalStage = (VehicleStage) stages.get(stages.size()-1);
             //assertEquals(Stations.TraffordBar, secondStage.getFirstStation()); // THIS CAN CHANGE
             assertEquals(ManAirport.getId(), finalStage.getLastStation().getId());
-            assertEquals(TransportMode.Tram, finalStage.getMode());
+            assertEquals(Tram, finalStage.getMode());
         }
     }
 
@@ -402,7 +404,7 @@ public class RouteCalculatorTest {
     void shouldNotGenerateDuplicateJourneysForSameReqNumChanges() {
 
         JourneyRequest request = new JourneyRequest(when, TramTime.of(11, 45), false,
-                4, maxJourneyDuration, 3, getRequestedModes());
+                4, maxJourneyDuration, 3, requestedModes);
         Set<Journey> journeys =  calculator.calculateRouteAsSet(Bury, Altrincham, request);
 
         assertTrue(journeys.size()>0);
@@ -426,7 +428,7 @@ public class RouteCalculatorTest {
     void ShouldReproIssueWithSomeMediaCityJourneys() {
         // max changes 1 -> 2
         JourneyRequest request = new JourneyRequest(when, TramTime.of(8, 5), false,
-                2, maxJourneyDuration, 2, Collections.emptySet());
+                2, maxJourneyDuration, 2, requestedModes);
 
         assertFalse(calculator.calculateRouteAsSet(MediaCityUK, Etihad, request).isEmpty());
         assertFalse(calculator.calculateRouteAsSet(MediaCityUK, VeloPark, request).isEmpty());
@@ -495,7 +497,7 @@ public class RouteCalculatorTest {
     void reproduceIssueWithTramsSundayAshtonToEccles() {
         // todo set max changes to 3
         JourneyRequest journeyRequest = new JourneyRequest(TestEnv.nextSunday(), TramTime.of(9, 0), false,
-                4, maxJourneyDuration, maxNumResults, Collections.emptySet());
+                4, maxJourneyDuration, maxNumResults, requestedModes);
         assertGetAndCheckJourneys(journeyRequest, Ashton, Eccles);
     }
 
@@ -531,7 +533,7 @@ public class RouteCalculatorTest {
 
     @NotNull
     private JourneyRequest standardJourneyRequest(TramDate date, TramTime time, long maxNumberJourneys) {
-        return new JourneyRequest(date, time, false, maxChanges, maxJourneyDuration, maxNumberJourneys, Collections.emptySet());
+        return new JourneyRequest(date, time, false, maxChanges, maxJourneyDuration, maxNumberJourneys, requestedModes);
     }
 
     private void checkRouteNextNDays(TramStations start, TramStations dest, TramDate date, TramTime time, int numDays) {
@@ -578,7 +580,7 @@ public class RouteCalculatorTest {
             for (int minutes = minsOffset; minutes < 59; minutes=minutes+ maxChanges) {
                 TramTime time = TramTime.of(hour, minutes);
                 JourneyRequest journeyRequest = new JourneyRequest(when, time, false, maxChanges,
-                        maxJourneyDuration, 1, getRequestedModes());
+                        maxJourneyDuration, 1, requestedModes);
                 Set<Journey> journeys = calculator.calculateRouteAsSet(start, dest, journeyRequest);
                 if (journeys.isEmpty()) {
                     missing.add(time);

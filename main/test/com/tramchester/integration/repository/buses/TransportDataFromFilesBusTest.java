@@ -9,6 +9,7 @@ import com.tramchester.dataimport.data.CalendarDateData;
 import com.tramchester.dataimport.loader.TransportDataReader;
 import com.tramchester.dataimport.loader.TransportDataReaderFactory;
 import com.tramchester.domain.Agency;
+import com.tramchester.domain.Platform;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.Service;
 import com.tramchester.domain.dates.ServiceCalendar;
@@ -32,6 +33,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static com.tramchester.domain.reference.TransportMode.Bus;
 import static com.tramchester.testSupport.TestEnv.StagecoachManchester;
 import static com.tramchester.testSupport.TransportDataFilter.getTripsFor;
 import static org.junit.jupiter.api.Assertions.*;
@@ -86,7 +88,8 @@ class TransportDataFromFilesBusTest {
         assertWithinNPercent(NUM_TFGM_BUS_STATIONS, numStations, 0.1F);
 
         // no platforms represented in bus data
-        assertEquals(0, transportData.getPlatforms().size(), transportData.getPlatforms().toString());
+        Set<Platform> platforms = transportData.getPlatforms(EnumSet.of(Bus));
+        assertEquals(0, platforms.size(), platforms.toString());
     }
 
     @Test
@@ -116,7 +119,7 @@ class TransportDataFromFilesBusTest {
     @Test
     void shouldGetOnlyBusRoutes() {
         Collection<Route> results = transportData.getRoutes();
-        long notBus = results.stream().filter(route -> !route.getTransportMode().equals(TransportMode.Bus)).count();
+        long notBus = results.stream().filter(route -> !route.getTransportMode().equals(Bus)).count();
         assertEquals(0, notBus);
     }
 
