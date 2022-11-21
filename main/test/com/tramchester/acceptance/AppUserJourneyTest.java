@@ -27,9 +27,7 @@ import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalTime;
-import java.util.Comparator;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Stream;
 
 import static com.tramchester.integration.repository.TransportDataFromFilesTramTest.NUM_TFGM_TRAM_STATIONS;
@@ -419,20 +417,29 @@ class AppUserJourneyTest extends UserJourneyTest {
         Stage firstStage = stages.get(0);
         Stage secondStage = stages.get(1);
 
-        // bury line tram first
+        Set<String> lineNames = new HashSet<>(Arrays.asList(altyToPicLineName, altyToBuryLineName));
+        Set<String> headsigns = new HashSet<>(Arrays.asList(Piccadilly.getName(), Bury.getName()));
+
+//        // bury line tram first
 //        validateAStage(firstStage, firstResult.getDepartTime(), "Board Tram", altrincham, 1,
 //                altyToBuryLineName,
 //                Bury.getName(), 7);
+//
+//        // Piccadilly line tram first
+//        validateAStage(firstStage, firstResult.getDepartTime(), "Board Tram", altrincham, 1,
+//                altyToPicLineName,
+//                Piccadilly.getName(), 7);
 
-        // Piccadilly line tram first
-        validateAStage(firstStage, firstResult.getDepartTime(), "Board Tram", altrincham, 1,
-                altyToPicLineName,
-                Piccadilly.getName(), 7);
+        TramTime firstDepartTime = firstResult.getDepartTime();
+        validateAStage(firstStage, Collections.singleton(firstDepartTime), "Board Tram", altrincham, 1,
+                lineNames, headsigns, 7);
 
         // Too timetable dependent?
-        validateAStage(secondStage, TramTime.of(10,37), "Change Tram", TraffordBar.getName(),
-                2, "Victoria - Wythenshawe - Manchester Airport",
-                TramStations.ManAirport.getName(), 17);
+        Set<TramTime> validTimes = new HashSet<>(Arrays.asList(TramTime.of(10,37), TramTime.of(10,25)));
+        validateAStage(secondStage, validTimes, "Change Tram", TraffordBar.getName(),
+                2,
+                Collections.singleton("Victoria - Wythenshawe - Manchester Airport"),
+                Collections.singleton(ManAirport.getName()), 17);
 
         assertEquals(TraffordBar.getName(), secondStage.getActionStation());
         assertEquals("Change Tram", secondStage.getAction());
@@ -543,13 +550,28 @@ class AppUserJourneyTest extends UserJourneyTest {
 
     public static void validateAStage(Stage stage, TramTime departTime, String action, String actionStation, int platform,
                                       String lineName, String headsign, int passedStops) {
-        assertTrue(departTime.isValid(),"departTime not valid");
-        assertEquals(departTime, stage.getDepartTime(), "departTime");
+        validateAStage(stage, Collections.singleton(departTime), action, actionStation, platform,
+                Collections.singleton(lineName),
+                Collections.singleton(headsign), passedStops);
+    }
+
+    public static void validateAStage(Stage stage, Set<TramTime> departTimes, String action, String actionStation, int platform,
+                                      Set<String> lineNames, Set<String> headsigns, int passedStops) {
+        assertTrue(departTimes.stream().allMatch(TramTime::isValid),"departTime not valid");
+
+        TramTime stageDepartTime = stage.getDepartTime();
+        assertTrue(departTimes.contains(stageDepartTime), "Wrong departTime got '" + stageDepartTime + "' but needed " + departTimes);
+
         assertEquals(action, stage.getAction(), "action");
         assertEquals(actionStation, stage.getActionStation(), "actionStation");
         assertEquals(platform, stage.getPlatform(), "platform");
-        assertEquals(lineName, stage.getLine(), "lineName");
-        assertEquals(headsign, stage.getHeadsign(), "headsign");
+
+        String stageLine = stage.getLine();
+        assertTrue(lineNames.contains(stageLine), "Wrong linename, got '"+ stageLine +"' but needed " + lineNames);
+
+        String stageHeadsign = stage.getHeadsign();
+        assertTrue(headsigns.contains(stageHeadsign), "Wrong headsign, got '"+ stageHeadsign +"' but needed " + headsigns);
+
         assertEquals(passedStops, stage.getPassedStops(), "passedStops");
     }
 
