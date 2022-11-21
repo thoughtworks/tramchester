@@ -90,7 +90,7 @@ neighbourConfig:
       second: "ASHONUL"
 maxWait: 25
 maxNumberResults: 5
-maxJourneyDuration:  124
+maxJourneyDuration:  125
 numberQueries: 3
 queryInterval: 10
 maxWalkingConnections: 3

@@ -26,8 +26,7 @@ import static com.tramchester.domain.reference.TransportMode.Tram;
 import static com.tramchester.testSupport.TestEnv.avoidChristmasDate;
 import static com.tramchester.testSupport.reference.TramStations.Ashton;
 import static com.tramchester.testSupport.reference.TramStations.ShawAndCrompton;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 @SuppressWarnings("JUnitTestMethodWithNoAssertions")
 class RouteCalculatorKeyRoutesTest {
@@ -150,7 +149,18 @@ class RouteCalculatorKeyRoutesTest {
         final Optional<Duration> max = allResults.stream().map(RouteCalculatorTest::costOfJourney).max(Duration::compareTo);
         assertTrue(max.isPresent());
         Duration longest = max.get();
-        assertTrue(Durations.greaterOrEquals(Duration.ofMinutes(testConfig.getMaxJourneyDuration()),longest), "longest was " + longest);
+
+        int maxJourneyDuration = testConfig.getMaxJourneyDuration();
+        assertTrue(Durations.greaterOrEquals(Duration.ofMinutes(maxJourneyDuration), longest), "longest was " + longest + " and not " + maxJourneyDuration);
+    }
+
+    @Test
+    void shouldRemindToResetLongestDurationAfterNovemberWorkIsCompleted() {
+        TramDate tramDate = TramDate.from(TestEnv.LocalNow());
+
+        if (tramDate.isAfter(TramDate.of(2022,11,30))) {
+            assertEquals(testConfig.getMaxJourneyDuration(), 124);
+        }
     }
 
     @Disabled("used for diagnosing specific issue")
