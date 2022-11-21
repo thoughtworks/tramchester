@@ -80,14 +80,9 @@ public enum KnownTramRoute {
             routes.add(ReplacementRouteDeansgatePiccadilly);
         }
 
-        DateRange piccGardensWorkB = DateRange.of(TramDate.of(2022, 11,18), TramDate.of(2022, 11, 19));
+        DateRange piccGardensWorkB = DateRange.of(TramDate.of(2022, 11,21), TramDate.of(2022, 11, 21));
         if (piccGardensWorkB.contains(date)) {
-            routes.remove(AltrinchamPiccadilly);
-            routes.remove(PiccadillyAltrincham);
-            routes.remove(BuryPiccadilly);
-            routes.remove(PiccadillyBury);
-            routes.add(ReplacementRoutePiccadillyDeansgate);
-            routes.add(ReplacementRouteDeansgatePiccadilly);
+            routes.add(AshtonCrumpsall);
         }
 
         return routes;

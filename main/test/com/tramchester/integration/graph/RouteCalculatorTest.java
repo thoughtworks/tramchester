@@ -49,7 +49,7 @@ public class RouteCalculatorTest {
     private static GraphDatabase database;
     private static IntegrationTramTestConfig config;
 
-    private final int maxChanges = 2;
+    private final int maxChanges = 4;
 
     private RouteCalculatorTestFacade calculator;
     private final TramDate when = TestEnv.testDay();

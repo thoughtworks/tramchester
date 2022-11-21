@@ -174,7 +174,7 @@ class KnownTramRouteTest {
 
         Set<String> mismatch = SetUtils.difference(fromRepos, onDate);
 
-        assertTrue(mismatch.isEmpty(), "on " + date + "mismatch " + mismatch + " between loaed " + fromRepos + " and " + onDate);
+        assertTrue(mismatch.isEmpty(), "on " + date + "mismatch " + mismatch + " between LOADED " + fromRepos + " AND " + onDate);
     }
 
     @Disabled("not that useful as upcoming routes have an ID with the date included")
