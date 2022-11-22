@@ -49,10 +49,10 @@ class NumberOfNodesAndRelationshipsRepositoryTest {
 
     @Test
     void shouldHaveOnlyTram() {
-        assertEquals(0, repository.numberOf(GraphLabel.SUBWAY_STATION));
-        assertEquals(0, repository.numberOf(GraphLabel.BUS_STATION));
+        assertEquals(0, repository.numberOf(GraphLabel.SUBWAY));
+        assertEquals(0, repository.numberOf(GraphLabel.BUS));
         assertEquals(0, repository.numberOf(GraphLabel.QUERY_NODE));
-        assertEquals(0, repository.numberOf(GraphLabel.TRAIN_STATION));
+        assertEquals(0, repository.numberOf(GraphLabel.TRAIN));
         assertEquals(0, repository.numberOf(TransportRelationshipTypes.BUS_GOES_TO));
         assertEquals(0, repository.numberOf(TransportRelationshipTypes.TRAIN_GOES_TO));
         assertEquals(0, repository.numberOf(TransportRelationshipTypes.NEIGHBOUR));
@@ -63,7 +63,7 @@ class NumberOfNodesAndRelationshipsRepositoryTest {
 
     @Test
     void shouldHaveCorrectNumberOfNodesStationsAndPlatform() {
-        assertEquals(9, repository.numberOf(GraphLabel.TRAM_STATION));
+        assertEquals(9, repository.numberOf(GraphLabel.STATION));
         assertEquals(9, repository.numberOf(GraphLabel.PLATFORM));
         assertEquals(11, repository.numberOf(GraphLabel.ROUTE_STATION));
     }

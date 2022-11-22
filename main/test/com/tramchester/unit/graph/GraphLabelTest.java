@@ -17,12 +17,12 @@ public class GraphLabelTest {
 
     @Test
     void shouldTestConversion() {
-        List<Label> graphDBLabels = Arrays.asList(BUS_STATION, INTERCHANGE);
+        List<Label> graphDBLabels = Arrays.asList(STATION, INTERCHANGE);
 
         Set<GraphLabel> result = GraphLabel.from(graphDBLabels);
         assertEquals(graphDBLabels.size(), result.size());
 
-        assertTrue(result.contains(BUS_STATION));
+        assertTrue(result.contains(STATION));
         assertTrue(result.contains(INTERCHANGE));
     }
 

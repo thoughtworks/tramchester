@@ -14,11 +14,13 @@ public enum GraphLabel implements Label {
     GROUPED,  // grouped station node
     ROUTE_STATION,
     STATION, // any station node must have this label
-    TRAM_STATION,
-    BUS_STATION,
-    TRAIN_STATION,
-    FERRY_STATION, // aka a port
-    SUBWAY_STATION,
+    // transport modes
+    TRAM,
+    BUS,
+    TRAIN,
+    FERRY, // aka a port
+    SUBWAY,
+
     PLATFORM,
     QUERY_NODE,
     SERVICE,
@@ -46,11 +48,11 @@ public enum GraphLabel implements Label {
 
     public static GraphLabel forMode(TransportMode mode) {
         return switch (mode) {
-            case Tram -> TRAM_STATION;
-            case Bus -> BUS_STATION;
-            case Train, RailReplacementBus -> TRAIN_STATION;
-            case Ferry, Ship -> FERRY_STATION;
-            case Subway -> SUBWAY_STATION;
+            case Tram -> TRAM;
+            case Bus -> BUS;
+            case Train, RailReplacementBus -> TRAIN;
+            case Ferry, Ship -> FERRY;
+            case Subway -> SUBWAY;
             case Walk -> QUERY_NODE;
             default -> throw new RuntimeException("Unsupported mode " + mode);
         };

@@ -207,7 +207,7 @@ public class DiagramCreator {
         if (node.hasLabel(GraphLabel.ROUTE_STATION)) {
             return "oval";
         }
-        if (node.hasLabel(TRAM_STATION) || node.hasLabel(BUS_STATION) || node.hasLabel(TRAIN_STATION)) {
+        if (node.hasLabel(STATION)) {
             return "house";
         }
         if (node.hasLabel(GraphLabel.SERVICE)) {
@@ -238,7 +238,7 @@ public class DiagramCreator {
             NaptanArea area = naptanRespository.getAreaFor(areaId);
             return format("%s\n%s", area.getName(), areaId.getGraphId());
         }
-        if (node.hasLabel(TRAM_STATION) || node.hasLabel(BUS_STATION) || node.hasLabel(TRAIN_STATION)) {
+        if (node.hasLabel(STATION)) {
             IdFor<Station> stationId = GraphProps.getStationId(node);
             Station station = stationRepository.getStationById(stationId);
             return format("%s\n%s", station.getName(), stationId.getGraphId());

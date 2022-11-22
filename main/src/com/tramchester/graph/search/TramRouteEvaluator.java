@@ -48,7 +48,6 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
     private final long startNodeId;
     private final Instant begin;
     private final long timeout;
-    //private final boolean allModes;
 
     public TramRouteEvaluator(ServiceHeuristics serviceHeuristics, Set<Long> destinationNodeIds,
                               NodeContentsRepository nodeContentsRepository, ServiceReasons reasons,
@@ -66,7 +65,6 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
         this.begin = begin;
         this.providesNow = providesNow;
         this.requestedModes = requestedModes;
-        //allModes = requestedModes.isEmpty();
         this.maxInitialWaitMins = Math.toIntExact(maxInitialWait.toMinutes());
     }
 

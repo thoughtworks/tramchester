@@ -1,5 +1,6 @@
 package com.tramchester.integration.graph.neighbours;
 
+import com.google.common.collect.Streams;
 import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.config.TramchesterConfig;
@@ -15,7 +16,6 @@ import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.testTags.BusTest;
 import org.junit.jupiter.api.*;
-import org.junit.jupiter.api.condition.DisabledIfEnvironmentVariable;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.ResourceIterator;
 import org.neo4j.graphdb.Transaction;
@@ -23,6 +23,7 @@ import org.neo4j.graphdb.Transaction;
 import java.util.Set;
 
 import static com.tramchester.domain.reference.TransportMode.Tram;
+import static com.tramchester.graph.graphbuild.GraphLabel.STATION;
 import static com.tramchester.integration.repository.TransportDataFromFilesTramTest.NUM_TFGM_TRAM_STATIONS;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -70,7 +71,7 @@ class NeighboursGraphBuilderTest {
 
     @Test
     void shouldHaveExpectedNumberForTramStations() {
-        assertEquals(NUM_TFGM_TRAM_STATIONS, countNodes(GraphLabel.TRAM_STATION));
+        assertEquals(NUM_TFGM_TRAM_STATIONS, countStationNodes(GraphLabel.TRAM));
     }
 
     @Test
@@ -89,17 +90,18 @@ class NeighboursGraphBuilderTest {
 
         long busStations = stationRepository.getNumberOfStations(DataSourceID.tfgm, TransportMode.Bus);
 
-        assertEquals(busStations, countNodes(GraphLabel.BUS_STATION));
+        assertEquals(busStations, countStationNodes(GraphLabel.BUS));
     }
 
-    private int countNodes(GraphLabel graphLabel) {
-        ResourceIterator<Node> tramNodes = graphDatabase.findNodes(txn, graphLabel);
-        int count = 0;
-        while (tramNodes.hasNext()) {
-            tramNodes.next();
-            count++;
-        }
-        return count;
+    private long countStationNodes(GraphLabel graphLabel) {
+        ResourceIterator<Node> stationNodes = graphDatabase.findNodes(txn, STATION);
+        return Streams.stream(stationNodes).filter(node -> node.hasLabel(graphLabel)).count();
+//        int count = 0;
+//        while (tramNodes.hasNext()) {
+//            tramNodes.next();
+//            count++;
+//        }
+//        return count;
     }
 
 }

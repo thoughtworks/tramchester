@@ -177,14 +177,12 @@ public class RouteCalculator extends RouteCalculatorSupport implements TramRoute
 
         final LowestCostSeen lowestCostSeen = new LowestCostSeen();
 
-        final Instant begin = providesNow.getInstant(); // TODO REMOVE THIS?
-
         final Stream<Journey> results = numChangesRange(journeyRequest, numberOfChanges).
                 flatMap(numChanges -> queryTimes.stream().
                         map(queryTime -> createPathRequest(startNode, tramDate, queryTime, requestedModes, numChanges, journeyConstraints, maxInitialWait))).
                 flatMap(pathRequest -> findShortestPath(txn, destinationNodeIds, destinations,
                         createServiceReasons(journeyRequest, pathRequest), pathRequest, lowestCostsForRoutes, createPreviousVisits(),
-                        lowestCostSeen, begin)).
+                        lowestCostSeen)).
                 map(path -> createJourney(journeyRequest, path, destinations, lowestCostsForRoutes));
 
         //noinspection ResultOfMethodCallIgnored

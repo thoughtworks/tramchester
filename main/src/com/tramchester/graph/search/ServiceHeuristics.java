@@ -160,6 +160,7 @@ public class ServiceHeuristics {
     }
 
     public ServiceReason checkModes(Node node, final Set<TransportMode> requestedModes, HowIGotHere howIGotHere, ServiceReasons reasons) {
+
         IdFor<RouteStation> routeStationId = nodeOperations.getRouteStationId(node);
         RouteStation routeStation = stationRepository.getRouteStationById(routeStationId);
 

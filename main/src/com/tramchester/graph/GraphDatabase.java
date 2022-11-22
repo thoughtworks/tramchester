@@ -173,10 +173,6 @@ public class GraphDatabase implements DatabaseEventListener {
         return tx.findNodes(label);
     }
 
-    public TraversalDescription traversalDescription(Transaction tx) {
-        return tx.traversalDescription();
-    }
-
     public EvaluationContext createContext(Transaction txn) {
         return new BasicEvaluationContext(txn, databaseService);
     }

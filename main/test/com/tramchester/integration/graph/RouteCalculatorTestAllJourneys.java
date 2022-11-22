@@ -2,25 +2,31 @@ package com.tramchester.integration.graph;
 
 import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
+import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.JourneyRequest;
 import com.tramchester.domain.StationIdPair;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramTime;
+import com.tramchester.integration.testSupport.ConfigParameterResolver;
 import com.tramchester.integration.testSupport.RouteCalculationCombinations;
-import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
 import com.tramchester.repository.ClosedStationsRepository;
 import com.tramchester.repository.TransportData;
 import com.tramchester.testSupport.TestEnv;
+import com.tramchester.testSupport.testTags.DualTest;
+import com.tramchester.testSupport.testTags.GMTest;
 import com.tramchester.testSupport.testTags.PiccGardens2022;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import java.time.Duration;
-import java.util.*;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import static com.tramchester.domain.reference.TransportMode.Tram;
@@ -28,10 +34,13 @@ import static com.tramchester.domain.reference.TransportMode.TramsOnly;
 import static java.lang.String.format;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+@ExtendWith(ConfigParameterResolver.class)
+@DualTest
+@GMTest
 class RouteCalculatorTestAllJourneys {
 
     private static ComponentContainer componentContainer;
-    private static IntegrationTramTestConfig testConfig;
+    private static TramchesterConfig testConfig;
 
     private TramDate when;
     private RouteCalculationCombinations combinations;
@@ -39,8 +48,8 @@ class RouteCalculatorTestAllJourneys {
     private Set<TransportMode> modes;
 
     @BeforeAll
-    static void onceBeforeAnyTestsRun() {
-        testConfig = new IntegrationTramTestConfig();
+    static void onceBeforeAnyTestsRun(TramchesterConfig config) {
+        testConfig = config; //new IntegrationTramTestConfig();
         componentContainer = new ComponentsBuilder().create(testConfig, TestEnv.NoopRegisterMetrics());
         componentContainer.initialise();
     }
@@ -65,7 +74,7 @@ class RouteCalculatorTestAllJourneys {
 
         final TramTime time = TramTime.of(8, 5);
         Set<Station> haveServices = data.getStationsServing(Tram).stream().
-                filter(station -> !TestEnv.novermber2022Issue(station.getId(), when)).
+                //filter(station -> !TestEnv.novermber2022Issue(station.getId(), when)).
                 filter(station -> !closedRepository.isClosed(station, when)).
                 collect(Collectors.toSet());
 

@@ -98,8 +98,6 @@ public class RouteCalculatorForBoxes extends RouteCalculatorSupport {
 
             final NumberOfChanges numberOfChanges = computeNumberOfChanges(startingStations, destinations, date, journeyRequest.getTimeRange(), requestedModes);
 
-            final Instant begin = providesNow.getInstant();
-
             try(Transaction txn = graphDatabaseService.beginTx()) {
 
                 Stream<Journey> journeys = startingStations.stream().
@@ -110,7 +108,7 @@ public class RouteCalculatorForBoxes extends RouteCalculatorSupport {
                                         journeyConstraints, getMaxInitialWaitFor(nodeAndStation.location, config)))).
                         flatMap(pathRequest -> findShortestPath(txn, destinationNodeIds, destinations,
                                 createServiceReasons(journeyRequest, originalTime), pathRequest, journeyConstraints.getFewestChangesCalculator(),
-                                createPreviousVisits(), lowestCostSeenForBox, begin)).
+                                createPreviousVisits(), lowestCostSeenForBox)).
                         map(timedPath -> createJourney(journeyRequest, timedPath, destinations, lowestCostForDestinations));
 
                 Set<Journey> collect = journeys.

@@ -136,7 +136,7 @@ public class RouteCalculatorSupport {
                                                               ServiceReasons reasons, PathRequest pathRequest,
                                                               LowestCostsForDestRoutes lowestCostsForRoutes,
                                                               PreviousVisits previousSuccessfulVisit,
-                                                              LowestCostSeen lowestCostSeen, Instant begin) {
+                                                              LowestCostSeen lowestCostSeen) {
 
         TramNetworkTraverser tramNetworkTraverser = new TramNetworkTraverser(
                 pathRequest, sortsPosition, nodeContentsRepository,
@@ -146,7 +146,7 @@ public class RouteCalculatorSupport {
         logger.info("Traverse for " + pathRequest);
 
         return tramNetworkTraverser.
-                findPaths(txn, pathRequest.startNode, previousSuccessfulVisit, lowestCostSeen, begin, lowestCostsForRoutes).
+                findPaths(txn, pathRequest.startNode, previousSuccessfulVisit, lowestCostSeen, lowestCostsForRoutes).
                 map(path -> new RouteCalculator.TimedPath(path, pathRequest.queryTime, pathRequest.numChanges));
     }
 
