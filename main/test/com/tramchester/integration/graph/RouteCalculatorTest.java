@@ -42,8 +42,8 @@ import static org.junit.jupiter.api.Assertions.*;
 
 @SuppressWarnings("JUnitTestMethodWithNoAssertions")
 @ExtendWith(ConfigParameterResolver.class)
+@DualTest
 @DataUpdateTest
-//@DualTest
 public class RouteCalculatorTest {
 
     // Note this needs to be > time for whole test fixture, see note below in @After

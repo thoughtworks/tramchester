@@ -327,7 +327,7 @@ public class RouteToRouteCostsTest {
         Route routeC = routeHelper.getOneRoute(ReplacementRoutePiccadillyDeansgate, date); // BuryPiccadilly
 
         Station destination = TramStations.TraffordCentre.from(stationRepository);
-        LowestCostsForDestRoutes sorts = routesCostRepository.getLowestCostCalcutatorFor(LocationSet.singleton(destination), date, timeRange);
+        LowestCostsForDestRoutes sorts = routesCostRepository.getLowestCostCalcutatorFor(LocationSet.singleton(destination), date, timeRange, modes);
 
         Stream<Route> toSort = Stream.of(routeC, routeB, routeA);
 

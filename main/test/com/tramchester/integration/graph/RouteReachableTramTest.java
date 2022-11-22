@@ -7,6 +7,7 @@ import com.tramchester.domain.Route;
 import com.tramchester.domain.StationPair;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.places.Station;
+import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TimeRange;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.RouteReachable;
@@ -61,7 +62,7 @@ class RouteReachableTramTest {
         Station next = stationRepository.getStationById(NavigationRoad.getId());
 
         TimeRange timeRange = TimeRange.of(TramTime.of(8,30), Duration.ofMinutes(30), Duration.ofMinutes(30));
-        List<Route> results = reachable.getRoutesFromStartToNeighbour(StationPair.of(start, next), when, timeRange);
+        List<Route> results = reachable.getRoutesFromStartToNeighbour(StationPair.of(start, next), when, timeRange, TransportMode.TramsOnly);
 
         Set<String> names = results.stream().map(Route::getName).collect(Collectors.toSet());
 

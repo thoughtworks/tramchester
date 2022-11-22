@@ -8,6 +8,7 @@ import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.LatLong;
+import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TimeRange;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.geo.SortsPositions;
@@ -77,7 +78,8 @@ public class TraversalOpsTest {
 
         TimeRange timeRange = TimeRange.of(TramTime.of(8, 15), TramTime.of(22, 35));
 
-        LowestCostsForDestRoutes lowestCostForRoutes = routeToRouteCosts.getLowestCostCalcutatorFor(destinationStations, date, timeRange);
+        LowestCostsForDestRoutes lowestCostForRoutes = routeToRouteCosts.getLowestCostCalcutatorFor(destinationStations,
+                date, timeRange, TransportMode.TramsOnly);
 
         TraversalOps traversalOpsForDest = new TraversalOps(nodeOperations, tripRepository,
                 sortsPositions, destinationStations, destinationLatLon, lowestCostForRoutes, date);

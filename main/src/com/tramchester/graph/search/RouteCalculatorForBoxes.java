@@ -74,13 +74,11 @@ public class RouteCalculatorForBoxes extends RouteCalculatorSupport {
         // TODO Compute over a range of times
         final TramTime originalTime = journeyRequest.getOriginalTime();
 
-        //final TramServiceDate queryDate = journeyRequest.getDate();
-
         final Set<TransportMode> requestedModes = journeyRequest.getRequestedModes();
 
         TramDate date = journeyRequest.getDate();
         final LowestCostsForDestRoutes lowestCostForDestinations = routeToRouteCosts.getLowestCostCalcutatorFor(destinations, date,
-                journeyRequest.getTimeRange());
+                journeyRequest.getTimeRange(), requestedModes);
         final RunningRoutesAndServices.FilterForDate routeAndServicesFilter = runningRoutesAndService.getFor(date);
 
         final IdSet<Station> closedStations = closedStationsRepository.getFullyClosedStationsFor(date).stream().
@@ -98,7 +96,7 @@ public class RouteCalculatorForBoxes extends RouteCalculatorSupport {
             final LocationSet startingStations = LocationSet.of(box.getStations());
             final LowestCostSeen lowestCostSeenForBox = new LowestCostSeen();
 
-            final NumberOfChanges numberOfChanges = computeNumberOfChanges(startingStations, destinations, date, journeyRequest.getTimeRange());
+            final NumberOfChanges numberOfChanges = computeNumberOfChanges(startingStations, destinations, date, journeyRequest.getTimeRange(), requestedModes);
 
             final Instant begin = providesNow.getInstant();
 
@@ -139,7 +137,7 @@ public class RouteCalculatorForBoxes extends RouteCalculatorSupport {
         }
     }
 
-    private NumberOfChanges computeNumberOfChanges(LocationSet starts, LocationSet destinations, TramDate date, TimeRange timeRange) {
-        return routeToRouteCosts.getNumberOfChanges(starts, destinations, date, timeRange);
+    private NumberOfChanges computeNumberOfChanges(LocationSet starts, LocationSet destinations, TramDate date, TimeRange timeRange, Set<TransportMode> modes) {
+        return routeToRouteCosts.getNumberOfChanges(starts, destinations, date, timeRange, modes);
     }
 }

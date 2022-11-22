@@ -12,6 +12,7 @@ import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.places.StationGroup;
 import com.tramchester.domain.places.Station;
+import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TimeRange;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.search.routes.RouteToRouteCosts;
@@ -25,7 +26,6 @@ import com.tramchester.testSupport.reference.BusStations.Composites;
 import com.tramchester.testSupport.testTags.BusTest;
 import org.junit.jupiter.api.*;
 
-import java.time.LocalDate;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -42,6 +42,7 @@ public class BusRouteToRouteCostsTest {
     private StationRepository stationRepository;
     private TramDate date;
     private TimeRange timeRange;
+    private Set<TransportMode> modes;
 
     @BeforeAll
     static void onceBeforeAnyTestRuns() {
@@ -63,8 +64,9 @@ public class BusRouteToRouteCostsTest {
         stationGroupsRepository = componentContainer.get(StationGroupsRepository.class);
         stationRepository = componentContainer.get(StationRepository.class);
 
-        date = TestEnv.testTramDay();
+        date = TestEnv.testDay();
         timeRange = TimeRange.of(TramTime.of(04,45), TramTime.of(23,55));
+        modes = TransportMode.BusesOnly;
 ;    }
 
     // For testing, likely to vary a lot with timetable updates
@@ -80,7 +82,7 @@ public class BusRouteToRouteCostsTest {
         StationGroup end = stationGroupsRepository.findByName(Composites.StockportTempBusStation.getName());
 
         // one for the temp stockport bus station, was zero, seems direct alty buses terminating somewhere else
-        assertEquals(1, routeToRouteCosts.getNumberOfChanges(start, end, date, timeRange).getMin());
+        assertEquals(1, routeToRouteCosts.getNumberOfChanges(start, end, date, timeRange, modes).getMin());
     }
 
     @Test
@@ -88,7 +90,7 @@ public class BusRouteToRouteCostsTest {
         StationGroup start = stationGroupsRepository.findByName(Composites.AltrinchamInterchange.getName());
         StationGroup end = stationGroupsRepository.findByName("Shudehill Interchange");
 
-        NumberOfChanges numberOfChanges = routeToRouteCosts.getNumberOfChanges(start, end, date, timeRange);
+        NumberOfChanges numberOfChanges = routeToRouteCosts.getNumberOfChanges(start, end, date, timeRange, modes);
         assertEquals(1, numberOfChanges.getMin());
         assertEquals(3, numberOfChanges.getMax());
     }
@@ -99,7 +101,7 @@ public class BusRouteToRouteCostsTest {
         StationGroup end = stationGroupsRepository.findByName("Shudehill Interchange");
 
         NumberOfChanges numberOfChanges = routeToRouteCosts.getNumberOfChanges(LocationSet.singleton(start),
-                LocationSet.of(end.getContained()), date, timeRange);
+                LocationSet.of(end.getContained()), date, timeRange, modes);
 
         assertEquals(2, numberOfChanges.getMin());
         assertEquals(3, numberOfChanges.getMax());

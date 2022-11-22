@@ -47,33 +47,24 @@ public class ServedRoute {
         return routeAndServices.isEmpty();
     }
 
-    /***
-     * Use the version that takes a date?
-     * @return all the routes
-     */
-    @Deprecated
-    public Set<Route> getRoutes() {
-        return routeAndServices.stream().map(RouteAndService::getRoute).collect(Collectors.toSet());
-    }
-
-
     // the number of hops....
-    public Set<Route> getRoutes(TramDate date, TimeRange range) {
-        Set<Route> results = getRouteForDateAndTimeRange(date, range);
+    public Set<Route> getRoutes(TramDate date, TimeRange range, Set<TransportMode> modes) {
+        Set<Route> results = getRouteForDateAndTimeRange(date, range, modes);
         if (range.intoNextDay()) {
             TimeRange nextDayRange = range.forFollowingDay();
             TramDate followingDay = date.plusDays(1);
-            results.addAll(getRouteForDateAndTimeRange(followingDay, nextDayRange));
+            results.addAll(getRouteForDateAndTimeRange(followingDay, nextDayRange, modes));
         }
         return results;
     }
 
     @NotNull
-    private Set<Route> getRouteForDateAndTimeRange(TramDate date, TimeRange range) {
+    private Set<Route> getRouteForDateAndTimeRange(TramDate date, TimeRange range, Set<TransportMode> modes) {
         return routeAndServices.stream().
                 filter(routeAndService -> routeAndService.isAvailableOn(date)).
                 filter(routeAndService -> timeWindows.get(routeAndService).anyOverlap(range)).
                 map(RouteAndService::getRoute).
+                filter(route -> modes.contains(route.getTransportMode())).
                 collect(Collectors.toSet());
     }
 

@@ -125,7 +125,8 @@ public class LocationJourneyPlanner {
         nodesAndRelationships.createWalksToStart(startOfWalkNode, walksToStart);
 
         Stream<Journey> journeys;
-        NumberOfChanges numberOfChanges = findNumberChanges(walksToStart, destination, journeyRequest.getDate(), journeyRequest.getTimeRange());
+        NumberOfChanges numberOfChanges = findNumberChanges(walksToStart, destination, journeyRequest.getDate(),
+                journeyRequest.getTimeRange(), journeyRequest.getRequestedModes());
         if (journeyRequest.getArriveBy()) {
             journeys = routeCalculatorArriveBy.calculateRouteWalkAtStart(txn, walksToStart, startOfWalkNode, destination, journeyRequest, numberOfChanges);
         } else {
@@ -169,7 +170,8 @@ public class LocationJourneyPlanner {
         LocationSet destinationStations = walksToDest.stream().
                 map(StationWalk::getStation).collect(LocationSet.stationCollector());
 
-        NumberOfChanges numberOfChanges = findNumberChanges(start, walksToDest, journeyRequest.getDate(), journeyRequest.getTimeRange());
+        NumberOfChanges numberOfChanges = findNumberChanges(start, walksToDest, journeyRequest.getDate(),
+                journeyRequest.getTimeRange(), journeyRequest.getRequestedModes());
 
         Stream<Journey> journeys;
         if (journeyRequest.getArriveBy()) {
@@ -204,7 +206,8 @@ public class LocationJourneyPlanner {
         LocationSet destinationStations = walksToDest.stream().
                 map(StationWalk::getStation).collect(LocationSet.stationCollector());
 
-        NumberOfChanges numberOfChanges = findNumberChanges(walksAtStart, walksToDest, journeyRequest.getDate(), journeyRequest.getTimeRange());
+        NumberOfChanges numberOfChanges = findNumberChanges(walksAtStart, walksToDest, journeyRequest.getDate(),
+                journeyRequest.getTimeRange(), journeyRequest.getRequestedModes());
 
         /// CALC
         Stream<Journey> journeys;
@@ -239,20 +242,20 @@ public class LocationJourneyPlanner {
         return stationWalks;
     }
 
-    private NumberOfChanges findNumberChanges(Location<?> start, Set<StationWalk> walksToDest, TramDate date, TimeRange timeRange) {
+    private NumberOfChanges findNumberChanges(Location<?> start, Set<StationWalk> walksToDest, TramDate date, TimeRange timeRange, Set<TransportMode> modes) {
         LocationSet destinations = walksToDest.stream().map(StationWalk::getStation).collect(LocationSet.stationCollector());
-        return routeToRouteCosts.getNumberOfChanges(LocationSet.singleton(start), destinations, date, timeRange);
+        return routeToRouteCosts.getNumberOfChanges(LocationSet.singleton(start), destinations, date, timeRange, modes);
     }
 
-    private NumberOfChanges findNumberChanges(Set<StationWalk> walksToStart, Location<?> destination, TramDate date, TimeRange timeRange) {
+    private NumberOfChanges findNumberChanges(Set<StationWalk> walksToStart, Location<?> destination, TramDate date, TimeRange timeRange, Set<TransportMode> modes) {
         LocationSet starts = walksToStart.stream().map(StationWalk::getStation).collect(LocationSet.stationCollector());
-        return routeToRouteCosts.getNumberOfChanges(starts, LocationSet.singleton(destination), date, timeRange);
+        return routeToRouteCosts.getNumberOfChanges(starts, LocationSet.singleton(destination), date, timeRange, modes);
     }
 
-    private NumberOfChanges findNumberChanges(Set<StationWalk> walksAtStart, Set<StationWalk> walksToDest, TramDate date, TimeRange timeRange) {
+    private NumberOfChanges findNumberChanges(Set<StationWalk> walksAtStart, Set<StationWalk> walksToDest, TramDate date, TimeRange timeRange, Set<TransportMode> modes) {
         LocationSet destinations = walksToDest.stream().map(StationWalk::getStation).collect(LocationSet.stationCollector());
         LocationSet starts = walksAtStart.stream().map(StationWalk::getStation).collect(LocationSet.stationCollector());
-        return routeToRouteCosts.getNumberOfChanges(starts, destinations, date, timeRange);
+        return routeToRouteCosts.getNumberOfChanges(starts, destinations, date, timeRange, modes);
     }
 
     private Set<StationWalk> createWalks(Location<?> location, List<Station> startStations) {

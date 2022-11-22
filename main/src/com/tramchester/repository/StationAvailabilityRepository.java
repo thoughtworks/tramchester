@@ -6,6 +6,7 @@ import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.input.StopCall;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.*;
+import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TimeRange;
 import com.tramchester.domain.time.TramTime;
 import org.slf4j.Logger;
@@ -115,45 +116,45 @@ public class StationAvailabilityRepository {
         return false;
     }
 
-    public Set<Route> getPickupRoutesFor(Location<?> location, TramDate date, TimeRange timeRange) {
+    public Set<Route> getPickupRoutesFor(Location<?> location, TramDate date, TimeRange timeRange, Set<TransportMode> modes) {
         if (closedStationsRepository.isClosed(location, date)) {
             ClosedStation closedStation = closedStationsRepository.getClosedStation(location, date);
-            return getPickupRoutesFor(closedStation, date, timeRange);
+            return getPickupRoutesFor(closedStation, date, timeRange, modes);
         }
-        return pickupsForLocation.get(location).getRoutes(date, timeRange);
+        return pickupsForLocation.get(location).getRoutes(date, timeRange, modes);
     }
 
-    public Set<Route> getDropoffRoutesFor(Location<?> location, TramDate date, TimeRange timeRange) {
+    public Set<Route> getDropoffRoutesFor(Location<?> location, TramDate date, TimeRange timeRange, Set<TransportMode> modes) {
         if (closedStationsRepository.isClosed(location, date)) {
             ClosedStation closedStation = closedStationsRepository.getClosedStation(location, date);
-            return getDropoffRoutesFor(closedStation, date,timeRange);
+            return getDropoffRoutesFor(closedStation, date,timeRange, modes);
         }
-        return dropoffsForLocation.get(location).getRoutes(date, timeRange);
+        return dropoffsForLocation.get(location).getRoutes(date, timeRange, modes);
     }
 
-    private Set<Route> getDropoffRoutesFor(ClosedStation closedStation, TramDate date, TimeRange timeRange) {
+    private Set<Route> getDropoffRoutesFor(ClosedStation closedStation, TramDate date, TimeRange timeRange, Set<TransportMode> modes) {
         logger.warn(closedStation.getStationId() + " is closed, using linked stations for dropoffs");
         return closedStation.getNearbyLinkedStation().stream().
-                flatMap(linked -> dropoffsForLocation.get(linked).getRoutes(date, timeRange).stream()).
+                flatMap(linked -> dropoffsForLocation.get(linked).getRoutes(date, timeRange, modes).stream()).
                 collect(Collectors.toSet());
     }
 
-    public Set<Route> getPickupRoutesFor(LocationSet locations, TramDate date, TimeRange timeRange) {
+    public Set<Route> getPickupRoutesFor(LocationSet locations, TramDate date, TimeRange timeRange, Set<TransportMode> modes) {
         return locations.stream().
-                flatMap(location -> getPickupRoutesFor(location, date, timeRange).stream()).
+                flatMap(location -> getPickupRoutesFor(location, date, timeRange, modes).stream()).
                 collect(Collectors.toSet());
     }
 
-    private Set<Route> getPickupRoutesFor(ClosedStation closedStation, TramDate date, TimeRange timeRange) {
+    private Set<Route> getPickupRoutesFor(ClosedStation closedStation, TramDate date, TimeRange timeRange, Set<TransportMode> modes) {
         logger.warn(closedStation.getStationId() + " is closed, using linked stations for pickups");
         return closedStation.getNearbyLinkedStation().stream().
-                flatMap(linked -> pickupsForLocation.get(linked).getRoutes(date, timeRange).stream()).
+                flatMap(linked -> pickupsForLocation.get(linked).getRoutes(date, timeRange, modes).stream()).
                 collect(Collectors.toSet());
     }
 
-    public Set<Route> getDropoffRoutesFor(LocationSet locations, TramDate date, TimeRange timeRange) {
+    public Set<Route> getDropoffRoutesFor(LocationSet locations, TramDate date, TimeRange timeRange, Set<TransportMode> modes) {
         return locations.stream().
-                flatMap(location -> getDropoffRoutesFor(location, date, timeRange).stream()).
+                flatMap(location -> getDropoffRoutesFor(location, date, timeRange, modes).stream()).
                 collect(Collectors.toSet());
     }
 

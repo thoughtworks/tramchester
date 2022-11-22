@@ -147,7 +147,7 @@ public class RouteCalculatorRedLineIssuesTest {
 
         TimeRange timeRange = TimeRange.of(TramTime.of(7,0), TramTime.of(23,0));
 
-        Set<Route> pickups = availabilityRepository.getPickupRoutesFor(ashton, PROBLEM_DATE, timeRange);
+        Set<Route> pickups = availabilityRepository.getPickupRoutesFor(ashton, PROBLEM_DATE, timeRange, modes);
 
         assertFalse(pickups.isEmpty());
 

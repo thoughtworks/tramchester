@@ -2,7 +2,6 @@ package com.tramchester.integration.graph.railAndTram;
 
 import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
-import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.Journey;
 import com.tramchester.domain.JourneyRequest;
 import com.tramchester.domain.dates.TramDate;
@@ -30,12 +29,15 @@ import java.util.stream.Collectors;
 
 import static com.tramchester.domain.reference.TransportMode.*;
 import static com.tramchester.integration.testSupport.rail.RailStationIds.*;
+import static com.tramchester.testSupport.reference.TramStations.Eccles;
+import static com.tramchester.testSupport.reference.TramStations.Rochdale;
 import static org.junit.jupiter.api.Assertions.*;
 
 @GMTest
 public class RailAndTramRouteCalculatorTest {
     private static final int TXN_TIMEOUT = 5*60;
     private static StationRepository stationRepository;
+    private static TramAndTrainGreaterManchesterConfig config;
 
     private final TramDate when = TestEnv.testDay();
 
@@ -49,8 +51,8 @@ public class RailAndTramRouteCalculatorTest {
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
-        TramchesterConfig testConfig = new TramAndTrainGreaterManchesterConfig();
-        componentContainer = new ComponentsBuilder().create(testConfig, TestEnv.NoopRegisterMetrics());
+        config = new TramAndTrainGreaterManchesterConfig();
+        componentContainer = new ComponentsBuilder().create(config, TestEnv.NoopRegisterMetrics());
         componentContainer.initialise();
 
         stationRepository = componentContainer.get(StationRepository.class);
@@ -81,6 +83,16 @@ public class RailAndTramRouteCalculatorTest {
         assertTrue(stationRepository.hasStationId(ManchesterPiccadilly.getId()));
         assertTrue(stationRepository.hasStationId(TramStations.ExchangeSquare.getId()));
         assertTrue(stationRepository.hasStationId(TramStations.Altrincham.getId()));
+    }
+
+    @Test
+    void reproIssueRochdaleToEccles() {
+        // this works fine when only tram data loaded, but fails when tram and train is loaded
+        TramTime time = TramTime.of(9,0);
+        Duration maxJourneyDuration = Duration.ofMinutes(config.getMaxJourneyDuration());
+        JourneyRequest journeyRequest = new JourneyRequest(when, time, false, 4, maxJourneyDuration, 1, TramsOnly);
+        Set<Journey> journeys = testFacade.calculateRouteAsSet(Rochdale, Eccles, journeyRequest);
+        assertFalse(journeys.isEmpty());
     }
 
     @Test

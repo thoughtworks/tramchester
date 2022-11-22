@@ -2,23 +2,28 @@ package com.tramchester.integration.repository;
 
 import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
+import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.places.Station;
+import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TimeRange;
 import com.tramchester.domain.time.TramTime;
+import com.tramchester.integration.testSupport.ConfigParameterResolver;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
 import com.tramchester.repository.ClosedStationsRepository;
 import com.tramchester.repository.StationAvailabilityRepository;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.testTags.DataExpiryCategory;
+import com.tramchester.testSupport.testTags.DualTest;
 import com.tramchester.testSupport.testTags.PiccGardens2022;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import java.time.Duration;
 import java.util.Set;
@@ -28,18 +33,21 @@ import static com.tramchester.domain.time.TramTime.of;
 import static com.tramchester.testSupport.reference.TramStations.*;
 import static org.junit.jupiter.api.Assertions.*;
 
+@ExtendWith(ConfigParameterResolver.class)
+@DualTest
 public class StationAvailabilityRepositoryTest {
     private static ComponentContainer componentContainer;
-    private static IntegrationTramTestConfig config;
+    private static TramchesterConfig config;
 
     private StationAvailabilityRepository availabilityRepository;
     private StationRepository stationRepository;
     private TramDate when;
     private ClosedStationsRepository closedStationRepository;
+    private Set<TransportMode> modes;
 
     @BeforeAll
-    static void onceBeforeAnyTestsRun() {
-        config = new IntegrationTramTestConfig();
+    static void onceBeforeAnyTestsRun(TramchesterConfig tramchesterConfig) {
+        config = tramchesterConfig;
         componentContainer = new ComponentsBuilder().create(config, TestEnv.NoopRegisterMetrics());
         componentContainer.initialise();
     }
@@ -56,6 +64,7 @@ public class StationAvailabilityRepositoryTest {
         closedStationRepository = componentContainer.get(ClosedStationsRepository.class);
 
         when = TestEnv.testDay();
+        modes = TransportMode.TramsOnly;
     }
 
     @Test
@@ -82,15 +91,15 @@ public class StationAvailabilityRepositoryTest {
         long maxDuration = config.getMaxJourneyDuration();
 
         TimeRange timeRange = TimeRange.of(TramTime.of(22, 50), Duration.ZERO, Duration.ofMinutes(maxDuration));
-        Set<Route> results = availabilityRepository.getPickupRoutesFor(altrincham, when, timeRange);
+        Set<Route> results = availabilityRepository.getPickupRoutesFor(altrincham, when, timeRange, modes);
         assertFalse(results.isEmpty(), "for " + timeRange + " missing routes from " + altrincham);
 
         TimeRange timeRangeCrossMidnight = TimeRange.of(TramTime.of(23, 59), Duration.ZERO, Duration.ofMinutes(maxDuration));
-        Set<Route> overMidnightResults = availabilityRepository.getPickupRoutesFor(altrincham, when, timeRangeCrossMidnight);
+        Set<Route> overMidnightResults = availabilityRepository.getPickupRoutesFor(altrincham, when, timeRangeCrossMidnight, modes);
         assertFalse(overMidnightResults.isEmpty(), "for " + timeRangeCrossMidnight + " missing routes over mid-night from " + altrincham);
 
         TimeRange timeRangeATMidnight = TimeRange.of(TramTime.of(0, 0), Duration.ZERO, Duration.ofMinutes(maxDuration));
-        Set<Route> atMidnightResults = availabilityRepository.getPickupRoutesFor(altrincham, when, timeRangeATMidnight);
+        Set<Route> atMidnightResults = availabilityRepository.getPickupRoutesFor(altrincham, when, timeRangeATMidnight, modes);
         assertFalse(atMidnightResults.isEmpty(), "for " + timeRangeATMidnight + " missing routes over mid-night from " + altrincham);
     }
 
@@ -104,7 +113,7 @@ public class StationAvailabilityRepositoryTest {
 
         TimeRange timeRange = TimeRange.of(TramTime.of(12, 50), Duration.ofHours(4), Duration.ofHours(4));
 
-        Set<Route> results = availabilityRepository.getPickupRoutesFor(altrincham, when, timeRange);
+        Set<Route> results = availabilityRepository.getPickupRoutesFor(altrincham, when, timeRange, modes);
 
         // 2 -> 1, no piccadilly route
         assertEquals(1, results.size(),

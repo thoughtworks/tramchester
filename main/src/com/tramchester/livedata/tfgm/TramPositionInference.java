@@ -18,7 +18,6 @@ import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
 import java.time.Duration;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
@@ -100,7 +99,7 @@ public class TramPositionInference {
             return Collections.emptySet();
         }
 
-        List<Route> routesBetween = routeReachable.getRoutesFromStartToNeighbour(pair, date, timeRange);
+        List<Route> routesBetween = routeReachable.getRoutesFromStartToNeighbour(pair, date, timeRange, TransportMode.TramsOnly);
 
         if (routesBetween.isEmpty()) {
             logger.warn("No routes between " + pair);

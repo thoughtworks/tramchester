@@ -150,9 +150,6 @@ public class RouteCalculator extends RouteCalculatorSupport implements TramRoute
         }
 
         Set<TransportMode> requestedModes = journeyRequest.getRequestedModes();
-        if (!requestedModes.isEmpty()) {
-            logger.info("Specific modes requested " + requestedModes);
-        }
 
         // TODO groups will need their own method, or get expanded much earlier on
         //final Set<Station> destinations = GroupedStations.expandStations(unexpanded);
@@ -166,7 +163,7 @@ public class RouteCalculator extends RouteCalculatorSupport implements TramRoute
 
         // can only be shared as same date and same set of destinations, will eliminate previously seen paths/results
         final LowestCostsForDestRoutes lowestCostsForRoutes = routeToRouteCosts.getLowestCostCalcutatorFor(destinations, tramDate,
-                journeyRequest.getTimeRange());
+                journeyRequest.getTimeRange(), requestedModes);
         final Duration maxJourneyDuration = getMaxDurationFor(txn, startNode, destinations, journeyRequest);
 
         final IdSet<Station> closedStations = closedStationsRepository.getFullyClosedStationsFor(tramDate).stream().

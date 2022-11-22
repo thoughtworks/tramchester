@@ -33,6 +33,7 @@ import java.time.Duration;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static com.tramchester.domain.reference.TransportMode.Bus;
 import static com.tramchester.domain.reference.TransportMode.Tram;
 import static com.tramchester.testSupport.reference.BusStations.KnutsfordStationStand3;
 import static com.tramchester.testSupport.reference.BusStations.StockportNewbridgeLane;
@@ -55,6 +56,7 @@ public class NeighbourJourneysTest {
     private Duration maxJourneyDuration;
     private TramDate date;
     private TimeRange timeRange;
+    private EnumSet<TransportMode> modes;
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
@@ -91,9 +93,11 @@ public class NeighbourJourneysTest {
 
         routeToRouteCosts = componentContainer.get(RouteToRouteCosts.class);
 
-        date = TestEnv.testTramDay();
+        date = TestEnv.testDay();
 
         timeRange = TimeRange.of(TramTime.of(8,15), TramTime.of(22,35));
+
+        modes = EnumSet.of(Bus, Tram);
 
     }
 
@@ -111,11 +115,11 @@ public class NeighbourJourneysTest {
     @Test
     void shouldHaveCorrectRouteToRouteHopsWhenNeighbours() {
 
-        NumberOfChanges busToTramHops = routeToRouteCosts.getNumberOfChanges(shudehillBusStop, shudehillTram, Collections.emptySet(), date, timeRange);
+        NumberOfChanges busToTramHops = routeToRouteCosts.getNumberOfChanges(shudehillBusStop, shudehillTram, modes, date, timeRange);
         assertEquals(1, busToTramHops.getMin());
         assertEquals(1, busToTramHops.getMax());
 
-        NumberOfChanges tramToBusHops = routeToRouteCosts.getNumberOfChanges(shudehillTram, shudehillBusStop, Collections.emptySet(), date, timeRange);
+        NumberOfChanges tramToBusHops = routeToRouteCosts.getNumberOfChanges(shudehillTram, shudehillBusStop, modes, date, timeRange);
         assertEquals(1, tramToBusHops.getMin());
         assertEquals(1, tramToBusHops.getMax());
     }
@@ -127,11 +131,12 @@ public class NeighbourJourneysTest {
 
         LocationSet buses = new LocationSet(Arrays.asList(KnutsfordStationStand3.from(stationRepository), StockportNewbridgeLane.from(stationRepository)));
 
-        NumberOfChanges busToTramHops = routeToRouteCosts.getNumberOfChanges(buses, trams, date, timeRange);
+
+        NumberOfChanges busToTramHops = routeToRouteCosts.getNumberOfChanges(buses, trams, date, timeRange, modes);
         assertEquals(1, busToTramHops.getMin());
         assertEquals(2, busToTramHops.getMax());
 
-        NumberOfChanges tramToBusHops = routeToRouteCosts.getNumberOfChanges(trams, buses, date, timeRange);
+        NumberOfChanges tramToBusHops = routeToRouteCosts.getNumberOfChanges(trams, buses, date, timeRange, modes);
         assertEquals(2, tramToBusHops.getMin());
         assertEquals(2, tramToBusHops.getMax());
 
@@ -139,18 +144,18 @@ public class NeighbourJourneysTest {
         trams.add(shudehillTram);
         buses.add(shudehillBusStop);
 
-        busToTramHops = routeToRouteCosts.getNumberOfChanges(buses, trams, date, timeRange);
+        busToTramHops = routeToRouteCosts.getNumberOfChanges(buses, trams, date, timeRange, modes);
         assertEquals(0, busToTramHops.getMin());
         assertEquals(2, busToTramHops.getMax());
 
-        tramToBusHops = routeToRouteCosts.getNumberOfChanges(trams, buses, date, timeRange);
+        tramToBusHops = routeToRouteCosts.getNumberOfChanges(trams, buses, date, timeRange, modes);
         assertEquals(0, tramToBusHops.getMin());
         assertEquals(2, tramToBusHops.getMax());
     }
 
     @Test
     void shouldFindMaxRouteHopsBetweenModes() {
-        NumberOfChanges hops = routeToRouteCosts.getNumberOfChanges(shudehillTram, shudehillBusStop, Collections.emptySet(), date, timeRange);
+        NumberOfChanges hops = routeToRouteCosts.getNumberOfChanges(shudehillTram, shudehillBusStop, modes, date, timeRange);
         assertEquals(1, hops.getMax());
     }
 
@@ -175,7 +180,7 @@ public class NeighbourJourneysTest {
     void shouldTramNormally() {
 
         JourneyRequest request = new JourneyRequest(TestEnv.testDay(),
-                TramTime.of(11,53), false, 0, maxJourneyDuration, 1, getRequestedModes());
+                TramTime.of(11,53), false, 0, maxJourneyDuration, 1, modes);
 
         Set<Journey> journeys = routeCalculator.calculateRouteAsSet(Bury.from(stationRepository), Victoria.from(stationRepository), request);
         assertFalse(journeys.isEmpty());
@@ -187,17 +192,13 @@ public class NeighbourJourneysTest {
         });
     }
 
-    private Set<TransportMode> getRequestedModes() {
-        return Collections.emptySet();
-    }
-
     @Test
     void shouldTramThenWalk() {
 
         LocationJourneyPlannerTestFacade facade = new LocationJourneyPlannerTestFacade(planner, stationRepository, txn);
 
         JourneyRequest request = new JourneyRequest(TestEnv.testDay(),
-                TramTime.of(11,53), false, 0, maxJourneyDuration, 1, getRequestedModes());
+                TramTime.of(11,53), false, 0, maxJourneyDuration, 1, modes);
 
         Set<Journey> allJourneys = facade.quickestRouteForLocation(Altrincham.from(stationRepository), nearStPetersSquare, request, 4);
         assertFalse(allJourneys.isEmpty(), "No journeys");
@@ -221,7 +222,7 @@ public class NeighbourJourneysTest {
     private void validateDirectWalk(Station start, Station end) {
 
         JourneyRequest request = new JourneyRequest(TestEnv.testDay(), TramTime.of(11,45),
-                        false, 0, maxJourneyDuration, 3, getRequestedModes());
+                        false, 0, maxJourneyDuration, 3, modes);
 
         Set<Journey> allJourneys =  routeCalculator.calculateRouteAsSet(start, end, request);
         assertFalse(allJourneys.isEmpty(), "no journeys");

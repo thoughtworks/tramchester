@@ -3,10 +3,8 @@ package com.tramchester.domain.places;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.Service;
 import com.tramchester.domain.dates.TramDate;
-import com.tramchester.domain.dates.TramDateSet;
 import com.tramchester.domain.reference.TransportMode;
 
-import java.time.LocalDate;
 import java.util.Objects;
 import java.util.Set;
 
