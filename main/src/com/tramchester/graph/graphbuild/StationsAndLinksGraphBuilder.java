@@ -24,9 +24,7 @@ import org.slf4j.LoggerFactory;
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import java.time.Duration;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.tramchester.domain.reference.GTFSPickupDropoffType.Regular;
@@ -253,14 +251,18 @@ public class StationsAndLinksGraphBuilder extends GraphBuilder {
             throw new RuntimeException(msg);
         }
 
-        Node routeStationNode = createGraphNode(tx, GraphLabel.ROUTE_STATION);
+        TransportMode mode = routeStation.getRoute().getTransportMode();
+        GraphLabel modeLabel = GraphLabel.forMode(mode);
+
+        Set<GraphLabel> labels = new HashSet<>(Arrays.asList(GraphLabel.ROUTE_STATION, modeLabel));
+
+        Node routeStationNode = createGraphNode(tx, labels);
 
         logger.debug(format("Creating route station %s nodeId %s", routeStation.getId(), routeStationNode.getId()));
         GraphProps.setProperty(routeStationNode, routeStation);
         setProperty(routeStationNode, routeStation.getStation());
         setProperty(routeStationNode, routeStation.getRoute());
 
-        TransportMode mode = routeStation.getRoute().getTransportMode();
         setProperty(routeStationNode, mode);
 
         builderCache.putRouteStation(routeStation.getId(), routeStationNode);

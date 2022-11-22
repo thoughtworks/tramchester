@@ -36,7 +36,7 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
     private final ServiceHeuristics serviceHeuristics;
     private final NodeContentsRepository nodeContentsRepository;
     private final ProvidesNow providesNow;
-    private final Set<TransportMode> requestedModes;
+    //private final Set<TransportMode> requestedModes;
 
     private final Set<Long> destinationNodeIds;
     private final ServiceReasons reasons;
@@ -48,6 +48,7 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
     private final long startNodeId;
     private final Instant begin;
     private final long timeout;
+    private final Set<GraphLabel> requestedLabels;
 
     public TramRouteEvaluator(ServiceHeuristics serviceHeuristics, Set<Long> destinationNodeIds,
                               NodeContentsRepository nodeContentsRepository, ServiceReasons reasons,
@@ -64,7 +65,8 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
         this.startNodeId = startNodeId;
         this.begin = begin;
         this.providesNow = providesNow;
-        this.requestedModes = requestedModes;
+        //this.requestedModes = requestedModes;
+        this.requestedLabels = GraphLabel.forMode(requestedModes);
         this.maxInitialWaitMins = Math.toIntExact(maxInitialWait.toMinutes());
     }
 
@@ -236,7 +238,7 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
         // is the station open?
         if (nodeLabels.contains(GraphLabel.ROUTE_STATION)) {
 
-            ServiceReason forMode = serviceHeuristics.checkModes(nextNode, requestedModes, howIGotHere, reasons);
+            ServiceReason forMode = serviceHeuristics.checkModes(nextNode, nodeLabels, requestedLabels, howIGotHere, reasons);
             if (!forMode.isValid()) {
                 return forMode.getReasonCode();
             }

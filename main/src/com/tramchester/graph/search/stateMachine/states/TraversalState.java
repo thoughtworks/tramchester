@@ -69,7 +69,9 @@ public abstract class TraversalState implements ImmuatableTraversalState {
         final int numLabels = nodeLabels.size();
         if (numLabels==1) {
             actualNodeType = nodeLabels.iterator().next();
-        } else if (numLabels==2 && isInterchange && nodeLabels.contains(GraphLabel.ROUTE_STATION)) {
+        } else if (numLabels==3 && isInterchange && nodeLabels.contains(GraphLabel.ROUTE_STATION)) {
+            actualNodeType = GraphLabel.ROUTE_STATION;
+        } else if (numLabels==2 && nodeLabels.contains(GraphLabel.ROUTE_STATION)) {
             actualNodeType = GraphLabel.ROUTE_STATION;
         } else if (nodeLabels.contains(GraphLabel.STATION)) {
             actualNodeType = GraphLabel.STATION;

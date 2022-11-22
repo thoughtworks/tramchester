@@ -47,10 +47,10 @@ public class GraphQuery {
      * When calling from tests make sure relevant DB is fully built
      */
     public Node getStationNode(Transaction txn, Station station) {
-        Set<GraphLabel> labels = GraphLabel.forMode(station.getTransportModes());
+        //Set<GraphLabel> labels = GraphLabel.forMode(station.getTransportModes());
         // ought to be able find with any of the labels, so use the first one
-        GraphLabel label = labels.iterator().next();
-        return findNode(txn, label, station);
+        //GraphLabel label = labels.iterator().next();
+        return findNode(txn, GraphLabel.STATION, station);
     }
 
     public Node getGroupedNode(Transaction txn, StationGroup stationGroup) {

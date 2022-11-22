@@ -50,7 +50,7 @@ public class CreateNodesAndRelationships {
         return graphDatabase.createNode(tx, label);
     }
 
-    private Node createGraphNode(Transaction tx, Set<GraphLabel> labels) {
+    public Node createGraphNode(Transaction tx, Set<GraphLabel> labels) {
         numberNodes++;
         return graphDatabase.createNode(tx, labels);
     }

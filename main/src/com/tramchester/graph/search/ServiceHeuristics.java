@@ -159,13 +159,13 @@ public class ServiceHeuristics {
 
     }
 
-    public ServiceReason checkModes(Node node, final Set<TransportMode> requestedModes, HowIGotHere howIGotHere, ServiceReasons reasons) {
+    public ServiceReason checkModes(final Node node, final EnumSet<GraphLabel> labels, final Set<GraphLabel> requestedLabels, HowIGotHere howIGotHere, ServiceReasons reasons) {
 
-        IdFor<RouteStation> routeStationId = nodeOperations.getRouteStationId(node);
-        RouteStation routeStation = stationRepository.getRouteStationById(routeStationId);
+//        RouteStation routeStation = stationRepository.getRouteStationById(routeStationId);
 
-        if (Sets.intersection(requestedModes, routeStation.getTransportModes()).isEmpty()) {
-            return reasons.recordReason(ServiceReason.TransportModeWrong(howIGotHere, routeStation));
+        if (Sets.intersection(labels, requestedLabels).isEmpty()) {
+            IdFor<RouteStation> routeStationId = nodeOperations.getRouteStationId(node);
+            return reasons.recordReason(ServiceReason.TransportModeWrong(howIGotHere, routeStationId));
         }
         return valid(ServiceReason.ReasonCode.TransportModeOk, howIGotHere, reasons);
     }

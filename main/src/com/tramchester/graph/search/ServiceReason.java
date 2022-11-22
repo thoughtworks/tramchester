@@ -360,16 +360,16 @@ public abstract class ServiceReason {
     //////////////
 
     private static class TransportModeWrong extends ServiceReason {
-        private final RouteStation routeStation;
+        private final IdFor<RouteStation> routeStationId;
 
-        protected TransportModeWrong(HowIGotHere howIGotHere, RouteStation routeStation) {
+        protected TransportModeWrong(HowIGotHere howIGotHere, IdFor<RouteStation> routeStationId) {
             super(ReasonCode.TransportModeWrong, howIGotHere);
-            this.routeStation = routeStation;
+            this.routeStationId = routeStationId;
         }
 
         @Override
         public String textForGraph() {
-            return format("%s%s%s", ReasonCode.TransportModeWrong.name(), System.lineSeparator(), routeStation.getId());
+            return format("%s%s%s", ReasonCode.TransportModeWrong.name(), System.lineSeparator(), routeStationId);
         }
     }
 
@@ -515,8 +515,8 @@ public abstract class ServiceReason {
     }
 
 
-    public static ServiceReason TransportModeWrong(HowIGotHere howIGotHere, RouteStation routeStation) {
-        return new ServiceReason.TransportModeWrong(howIGotHere, routeStation);
+    public static ServiceReason TransportModeWrong(HowIGotHere howIGotHere, IdFor<RouteStation> routeStationId) {
+        return new ServiceReason.TransportModeWrong(howIGotHere, routeStationId);
     }
 
     public static ServiceReason RouteNotToday(HowIGotHere howIGotHere, IdFor<Route> id) {
