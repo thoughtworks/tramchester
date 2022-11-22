@@ -9,6 +9,7 @@ import com.tramchester.domain.places.*;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TimeRange;
 import com.tramchester.domain.time.TramTime;
+import com.tramchester.graph.filters.GraphFilterActive;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,11 +32,13 @@ public class StationAvailabilityRepository {
     private final Map<Location<?>, ServedRoute> dropoffsForLocation;
     private final StationRepository stationRepository;
     private final ClosedStationsRepository closedStationsRepository;
+    private final GraphFilterActive graphFilterActive;
 
     @Inject
-    public StationAvailabilityRepository(StationRepository stationRepository, ClosedStationsRepository closedStationsRepository) {
+    public StationAvailabilityRepository(StationRepository stationRepository, ClosedStationsRepository closedStationsRepository, GraphFilterActive graphFilterActive) {
         this.stationRepository = stationRepository;
         this.closedStationsRepository = closedStationsRepository;
+        this.graphFilterActive = graphFilterActive;
         pickupsForLocation = new HashMap<>();
         dropoffsForLocation = new HashMap<>();
     }
@@ -50,11 +53,22 @@ public class StationAvailabilityRepository {
     }
 
     private void addForStation(Station station) {
-        addFor(dropoffsForLocation, station, station.getDropoffRoutes(), StopCall::getArrivalTime);
-        addFor(pickupsForLocation, station, station.getPickupRoutes(), StopCall::getDepartureTime);
+        boolean graphFilter = graphFilterActive.isActive();
+        if (!addFor(dropoffsForLocation, station, station.getDropoffRoutes(), StopCall::getArrivalTime)) {
+            if (!graphFilter) {
+                logger.info("No dropoffs for " + station.getId());
+            }
+            dropoffsForLocation.put(station, new ServedRoute());
+        }
+        if (!addFor(pickupsForLocation, station, station.getPickupRoutes(), StopCall::getDepartureTime)) {
+            if (!graphFilter) {
+                logger.info("No pickups for " + station.getId());
+            }
+            pickupsForLocation.put(station, new ServedRoute());
+        }
     }
 
-    private void addFor(Map<Location<?>, ServedRoute> forLocation, Station station, Set<Route> routes, Function<StopCall, TramTime> getTime) {
+    private boolean addFor(Map<Location<?>, ServedRoute> forLocation, Station station, Set<Route> routes, Function<StopCall, TramTime> getTime) {
         // TODO more efficient to extract time range directly here, rather than populate it inside of ServedRoute
         Set<Trip> trips = routes.stream().flatMap(route -> route.getTrips().stream()).collect(Collectors.toSet());
 
@@ -65,15 +79,21 @@ public class StationAvailabilityRepository {
                 filter(StopCall::callsAtStation).
                 collect(Collectors.toSet());
 
-        stationStopCalls.forEach(stopCall -> addFor(forLocation, station, stopCall, getTime));
+        int added = stationStopCalls.stream().
+                mapToInt(stopCall -> addFor(forLocation, station, stopCall, getTime)).sum();
+
+        return added > 0;
+
     }
 
-    private void addFor(Map<Location<?>, ServedRoute> forLocation, Station station, StopCall stopCall, Function<StopCall, TramTime> getTime) {
+    private int addFor(Map<Location<?>, ServedRoute> forLocation, Station station, StopCall stopCall, Function<StopCall, TramTime> getTime) {
         TramTime time = getTime.apply(stopCall);
         if (!time.isValid()) {
             logger.warn(format("Invalid time %s for %s %s", time, station.getId(), stopCall));
+            return 0;
         }
         addFor(forLocation, station, stopCall.getTrip().getRoute(), stopCall.getService(), time);
+        return 1;
     }
 
 
@@ -93,6 +113,12 @@ public class StationAvailabilityRepository {
     }
     
     public boolean isAvailable(Location<?> location, TramDate when, TimeRange timeRange) {
+        if (!pickupsForLocation.containsKey(location)) {
+            throw new RuntimeException("Missing pickups for " + location.getId());
+        }
+        if (!dropoffsForLocation.containsKey(location)) {
+            throw new RuntimeException("Missing dropoffs for " + location.getId());
+        }
         return pickupsForLocation.get(location).anyAvailable(when, timeRange) &&
                 dropoffsForLocation.get(location).anyAvailable(when, timeRange);
     }

@@ -2,6 +2,7 @@ package com.tramchester.integration.repository;
 
 import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
+import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.HasId;
@@ -11,7 +12,10 @@ import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.places.InterchangeStation;
 import com.tramchester.domain.places.InterchangeType;
 import com.tramchester.domain.places.Station;
-import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
+import com.tramchester.domain.reference.TransportMode;
+import com.tramchester.integration.graph.railAndTram.TramTrainNeighboursAsInterchangesTest;
+import com.tramchester.integration.testSupport.ConfigParameterResolver;
+import com.tramchester.integration.testSupport.TramAndTrainGreaterManchesterConfig;
 import com.tramchester.repository.InterchangeRepository;
 import com.tramchester.repository.RouteRepository;
 import com.tramchester.repository.StationRepository;
@@ -20,8 +24,12 @@ import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TramRouteHelper;
 import com.tramchester.testSupport.reference.KnownTramRoute;
 import com.tramchester.testSupport.reference.TramStations;
+import com.tramchester.testSupport.testTags.DualTest;
+import com.tramchester.testSupport.testTags.GMTest;
 import com.tramchester.testSupport.testTags.PiccGardens2022;
 import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.condition.DisabledIf;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import java.time.LocalDate;
 import java.util.*;
@@ -31,16 +39,20 @@ import static com.tramchester.domain.reference.CentralZoneStation.StWerbergsRoad
 import static com.tramchester.testSupport.reference.TramStations.*;
 import static org.junit.jupiter.api.Assertions.*;
 
+@ExtendWith(ConfigParameterResolver.class)
+@DualTest
 public class InterchangesTramTest {
     private static ComponentContainer componentContainer;
+    private static TramchesterConfig config;
     private InterchangeRepository interchangeRepository;
     private StationRepository stationRepository;
     private RouteRepository routeRepository;
     private TramRouteHelper tramRouteHelper;
 
     @BeforeAll
-    static void onceBeforeAnyTestsRun() {
-        componentContainer = new ComponentsBuilder().create(new IntegrationTramTestConfig(), TestEnv.NoopRegisterMetrics());
+    static void onceBeforeAnyTestsRun(TramchesterConfig tramchesterConfig) {
+        config = tramchesterConfig;
+        componentContainer = new ComponentsBuilder().create(tramchesterConfig, TestEnv.NoopRegisterMetrics());
         componentContainer.initialise();
     }
 
@@ -68,19 +80,23 @@ public class InterchangesTramTest {
 
     @PiccGardens2022
     @Test
-    void shouldHaveExpectedInterchanges() {
+    void shouldHaveExpectedTramInterchanges() {
         // todo shaw and crompton?
 
-        Set<TramStations> tramStations = new HashSet<>(Arrays.asList(StWerburghsRoad, TraffordBar, Cornbrook, HarbourCity, Pomona,
-                Cornbrook, Deansgate, StPetersSquare,
-                PiccadillyGardens,
-                Piccadilly, Victoria, MarketStreet, Broadway));
+        List<TramStations> tramStations = Arrays.asList(StWerburghsRoad, TraffordBar, Cornbrook, HarbourCity,
+                Pomona, Cornbrook, Deansgate, StPetersSquare,
+                PiccadillyGardens, Piccadilly, Victoria, MarketStreet, Broadway);
 
         Set<Station> expected = tramStations.stream().map(item -> item.from(stationRepository)).collect(Collectors.toSet());
 
         Set<Station> additional = AdditionalTramInterchanges.stations().stream().map(id -> stationRepository.getStationById(id)).collect(Collectors.toSet());
-
         expected.addAll(additional);
+
+        if (config.hasRailConfig()) {
+            List<TramStations> adjacentToRail = Arrays.asList(RochdaleRail, NavigationRoad, Eccles, Ashton, Altrincham, ManAirport, EastDidsbury);
+            Set<Station> forRail = adjacentToRail.stream().map(item -> item.from(stationRepository)).collect(Collectors.toSet());
+            expected.addAll(forRail);
+        }
 
         Set<Station> missing = expected.stream().
                 filter(station -> !interchangeRepository.isInterchange(station)).
@@ -90,6 +106,7 @@ public class InterchangesTramTest {
 
         Set<Station> unexpected = interchangeRepository.getAllInterchanges().stream().
                 map(InterchangeStation::getStation).
+                filter(station -> station.getTransportModes().contains(TransportMode.Tram)).
                 filter(station -> !expected.contains(station)).
                 collect(Collectors.toSet());
 
@@ -114,10 +131,8 @@ public class InterchangesTramTest {
 //        assertTrue(interchange.getDropoffRoutes().contains(toEastDids));
     }
 
-
     @Test
     void shouldHaveSomeNotInterchanges() {
-        assertFalse(interchangeRepository.isInterchange(stationRepository.getStationById(TramStations.Altrincham.getId())));
         assertFalse(interchangeRepository.isInterchange(stationRepository.getStationById(TramStations.OldTrafford.getId())));
     }
 
@@ -143,6 +158,7 @@ public class InterchangesTramTest {
         assertEquals(interchangeStation.getDropoffRoutes(), station.getDropoffRoutes());
     }
 
+    @DisabledIf("isGMConfig")
     @Test
     void shouldAllBeSingleModeForTram() {
         Set<InterchangeStation> interchanges = interchangeRepository.getAllInterchanges();
@@ -209,12 +225,17 @@ public class InterchangesTramTest {
 
     /***
      * Here to validate altrincham neighbours testing and interchanges
-     * @see NeighboursAsInterchangesTest#altrinchamBecomesInterchangeWhenNeighboursCreated()
+     * @see TramTrainNeighboursAsInterchangesTest#altrinchamBecomesInterchangeWhenNeighboursCreated()
      */
+    @DisabledIf("isGMConfig")
     @Test
     public void altrinchamNotAnInterchange() {
-        Station station = stationRepository.getStationById(TramStations.Altrincham.getId());
+        Station station = stationRepository.getStationById(Altrincham.getId());
         assertFalse(interchangeRepository.isInterchange(station));
+    }
+
+    static boolean isGMConfig() {
+        return config instanceof TramAndTrainGreaterManchesterConfig;
     }
 
 }

@@ -331,6 +331,7 @@ public class TestEnv {
             "9400ZZMAAMO", "9400ZZMACLN", "9400ZZMAELN", "9400ZZMAAUL", "9400ZZMACEM", "9400ZZMAAWT",
             "9400ZZMAECS", "9400ZZMAHTN", "9400ZZMANIS").map(Station::createId).collect(IdSet.idCollector());
 
+    @Deprecated
     public static boolean novermber2022Issue(IdFor<Station> id, TramDate date) {
         if (date.equals(TramDate.of(2022,11,21))) {
             return problemStations.contains(id);

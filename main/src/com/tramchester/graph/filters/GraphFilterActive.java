@@ -2,7 +2,7 @@ package com.tramchester.graph.filters;
 
 
 /***
- * Use this went just want to check if any filtering is in place
+ * Use this when just want to check if any filtering is in place
  */
 public class GraphFilterActive {
     private final boolean isActive;

@@ -6,12 +6,12 @@ import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.HasId;
+import com.tramchester.domain.places.Location;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TimeRange;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.integration.testSupport.ConfigParameterResolver;
-import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
 import com.tramchester.repository.ClosedStationsRepository;
 import com.tramchester.repository.StationAvailabilityRepository;
 import com.tramchester.repository.StationRepository;
@@ -29,6 +29,7 @@ import java.time.Duration;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static com.tramchester.domain.reference.TransportMode.Tram;
 import static com.tramchester.domain.time.TramTime.of;
 import static com.tramchester.testSupport.reference.TramStations.*;
 import static org.junit.jupiter.api.Assertions.*;
@@ -144,7 +145,8 @@ public class StationAvailabilityRepositoryTest {
 
             TimeRange lateRange = TimeRange.of(latestHour, maxwait, maxwait);
             Set<Station> notAvailableLate = stationRepository.getStations().stream().
-                    filter(station -> !TestEnv.novermber2022Issue(station.getId(), date)).
+                    filter(Location::isActive).
+                    filter(station -> station.getTransportModes().contains(Tram)).
                     filter(station -> !closedStationRepository.isClosed(station, date)).
                     filter(station -> !availabilityRepository.isAvailable(station, date, lateRange)).
                     collect(Collectors.toSet());
@@ -165,8 +167,8 @@ public class StationAvailabilityRepositoryTest {
 
             TimeRange earlyRange = TimeRange.of(earlistHour, maxwait, maxwait);
             Set<Station> notAvailableEarly = stationRepository.getStations().stream().
-                    //filter(station -> workaroundDataIssueExchangeSquare(station, date)).
-                    filter(station -> !TestEnv.novermber2022Issue(station.getId(), date)).
+                    filter(Location::isActive).
+                    filter(station -> station.getTransportModes().contains(Tram)).
                     filter(station -> !closedStationRepository.isClosed(station, date)).
                     filter(station -> !availabilityRepository.isAvailable(station, date, earlyRange)).
                     collect(Collectors.toSet());

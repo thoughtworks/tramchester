@@ -238,12 +238,10 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
         // is the station open?
         if (nodeLabels.contains(GraphLabel.ROUTE_STATION)) {
 
-            //if (!allModes) {
-                ServiceReason forMode = serviceHeuristics.checkModes(nextNode, requestedModes, howIGotHere, reasons);
-                if (!forMode.isValid()) {
-                    return forMode.getReasonCode();
-                }
-            //}
+            ServiceReason forMode = serviceHeuristics.checkModes(nextNode, requestedModes, howIGotHere, reasons);
+            if (!forMode.isValid()) {
+                return forMode.getReasonCode();
+            }
 
             final ServiceReason reachDestination = serviceHeuristics.canReachDestination(nextNode, journeyState.getNumberChanges(),
                     howIGotHere, reasons, visitingTime);

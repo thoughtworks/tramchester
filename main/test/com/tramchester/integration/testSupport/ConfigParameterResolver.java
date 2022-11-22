@@ -2,12 +2,14 @@ package com.tramchester.integration.testSupport;
 
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
+import com.tramchester.testSupport.testTags.GMTest;
 import org.junit.jupiter.api.extension.ExtensionContext;
 import org.junit.jupiter.api.extension.ParameterContext;
 import org.junit.jupiter.api.extension.ParameterResolutionException;
 import org.junit.jupiter.api.extension.ParameterResolver;
 
 import java.util.Optional;
+import java.util.Set;
 
 public class ConfigParameterResolver implements ParameterResolver {
 
@@ -20,16 +22,21 @@ public class ConfigParameterResolver implements ParameterResolver {
 
     @Override
     public Object resolveParameter(ParameterContext parameterContext, ExtensionContext extensionContext) throws ParameterResolutionException {
+        Set<String> tags = extensionContext.getTags();
+        if (tags.contains(GMTest.class.getSimpleName())) {
+            return new TramAndTrainGreaterManchesterConfig();
+        }
+
         Optional<String> override = extensionContext.getConfigurationParameter(PARAMETER_KEY);
         if (override.isPresent()) {
             String name = override.get();
             if (name.equals(TramAndTrainGreaterManchesterConfig.class.getSimpleName())) {
                 return new TramAndTrainGreaterManchesterConfig();
-            }
-            else {
+            } else {
                 throw new RuntimeException("Unknown test config provided for " + PARAMETER_KEY + " = " + name);
             }
         }
         return new IntegrationTramTestConfig();
     }
 }
+
