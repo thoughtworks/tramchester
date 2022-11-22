@@ -24,14 +24,18 @@ import com.tramchester.graph.search.routes.RouteCostMatrix;
 import com.tramchester.graph.search.routes.RouteIndex;
 import com.tramchester.graph.search.routes.RouteIndexPair;
 import com.tramchester.graph.search.routes.RouteToRouteCosts;
+import com.tramchester.integration.testSupport.ConfigParameterResolver;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
 import com.tramchester.repository.RouteRepository;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TramRouteHelper;
 import com.tramchester.testSupport.reference.TramStations;
+import com.tramchester.testSupport.testTags.DualTest;
+import com.tramchester.testSupport.testTags.GMTest;
 import com.tramchester.testSupport.testTags.PiccGardens2022;
 import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import java.nio.file.Path;
 import java.time.Duration;
@@ -39,12 +43,13 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static com.tramchester.domain.reference.TransportMode.Train;
-import static com.tramchester.domain.reference.TransportMode.Tram;
+import static com.tramchester.domain.reference.TransportMode.*;
 import static com.tramchester.testSupport.reference.KnownTramRoute.*;
 import static com.tramchester.testSupport.reference.TramStations.*;
 import static org.junit.jupiter.api.Assertions.*;
 
+@ExtendWith(ConfigParameterResolver.class)
+@DualTest
 public class RouteToRouteCostsTest {
 
     private static ComponentContainer componentContainer;
@@ -60,8 +65,8 @@ public class RouteToRouteCostsTest {
     private TimeRange timeRange;
 
     @BeforeAll
-    static void onceBeforeAnyTestRuns() {
-        config = new IntegrationTramTestConfig();
+    static void onceBeforeAnyTestRuns(TramchesterConfig tramchesterConfig) {
+        config = tramchesterConfig; //new IntegrationTramTestConfig();
         final Path cacheFolder = config.getCacheFolder();
 
         indexFile = cacheFolder.resolve(RouteToRouteCosts.INDEX_FILE);
@@ -94,7 +99,7 @@ public class RouteToRouteCostsTest {
 
     @Test
     void shouldHaveFullyConnectedForTramsWhereDatesOverlaps() {
-        Set<Route> routes = routeRepository.getRoutes().stream().filter(route -> route.isAvailableOn(date)).collect(Collectors.toSet());
+        Set<Route> routes = routeRepository.getRoutes(TramsOnly).stream().filter(route -> route.isAvailableOn(date)).collect(Collectors.toSet());
 
         TimeRange timeRangeForOverlaps = TimeRange.of(TramTime.of(8, 45), TramTime.of(16, 45));
 
@@ -123,7 +128,7 @@ public class RouteToRouteCostsTest {
 
         int greenIndex = routeIndex.indexFor(greenInbound.getId());
 
-        Set<Route> routes = routeRepository.getRoutes().stream().filter(route -> route.isAvailableOn(date)).collect(Collectors.toSet());
+        Set<Route> routes = routeRepository.getRoutes(TramsOnly).stream().filter(route -> route.isAvailableOn(date)).collect(Collectors.toSet());
 
         IndexedBitSet dateOverlaps = IndexedBitSet.getIdentity(routeRepository.numberOfRoutes());
 

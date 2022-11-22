@@ -279,8 +279,10 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
     @NotNull
     private NumberOfChanges getNumberOfHops(Set<Route> startRoutes, Set<Route> destinationRoutes, TramDate date,
                                             ChangeStationOperatingCache interchangesOperating, int closureOffset) {
-        logger.info(format("Compute number of changes between %s and %s on %s",
-                HasId.asIds(startRoutes), HasId.asIds(destinationRoutes), date));
+        if (logger.isDebugEnabled()) {
+            logger.debug(format("Compute number of changes between %s and %s on %s",
+                    HasId.asIds(startRoutes), HasId.asIds(destinationRoutes), date));
+        }
 
         IndexedBitSet dateOverlaps = costs.createOverlapMatrixFor(date);
 
@@ -309,8 +311,10 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
         }
 
         NumberOfChanges numberOfChanges = new NumberOfChanges(minHops, maxHops);
-        logger.info(format("Computed number of changes from %s to %s on %s as %s",
-                HasId.asIds(startRoutes), HasId.asIds(destinationRoutes), date, numberOfChanges));
+        if (logger.isDebugEnabled()) {
+            logger.debug(format("Computed number of changes from %s to %s on %s as %s",
+                    HasId.asIds(startRoutes), HasId.asIds(destinationRoutes), date, numberOfChanges));
+        }
         return numberOfChanges;
     }
 
