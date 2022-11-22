@@ -27,6 +27,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static com.tramchester.domain.reference.TransportMode.TramsOnly;
 import static org.junit.jupiter.api.Assertions.*;
 
 class RouteCalculatorForBoundingBoxTest {
@@ -80,7 +81,7 @@ class RouteCalculatorForBoundingBoxTest {
         long maxNumberOfJourneys = 3;
         JourneyRequest journeyRequest = new JourneyRequest(when, TramTime.of(9,30),
                 false, 3, Duration.ofMinutes(testConfig.getMaxJourneyDuration()), maxNumberOfJourneys,
-                Collections.emptySet());
+                TramsOnly);
 
         LocationSet destinations = LocationSet.singleton(TramStations.StPetersSquare.from(stationRepository));
 

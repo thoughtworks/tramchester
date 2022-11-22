@@ -86,7 +86,7 @@ class LocationJourneyPlannerBusTest {
     }
 
     private Set<TransportMode> getRequestedModes() {
-        return Collections.emptySet();
+        return TransportMode.BusesOnly;
     }
 
     @Test

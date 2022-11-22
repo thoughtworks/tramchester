@@ -45,6 +45,7 @@ class MixedRouteTest {
     private TramDate queryDate;
     private TramTime queryTime;
     private Transaction txn;
+    private Set<TransportMode> modes;
 
     @BeforeAll
     static void onceBeforeAllTestRuns() throws IOException {
@@ -74,6 +75,8 @@ class MixedRouteTest {
 
         queryDate = TramDate.of(2014,6,30);
         queryTime = TramTime.of(7, 57);
+
+        modes = config.getTransportModes();
     }
 
     @AfterEach
@@ -85,7 +88,7 @@ class MixedRouteTest {
     @NotNull
     private JourneyRequest createJourneyRequest(TramTime queryTime, int maxChanges) {
         return new JourneyRequest(queryDate, queryTime, false, maxChanges,
-                Duration.ofMinutes(config.getMaxJourneyDuration()), 1, Collections.emptySet());
+                Duration.ofMinutes(config.getMaxJourneyDuration()), 1, modes);
     }
 
     @Test
@@ -172,8 +175,10 @@ class MixedRouteTest {
             Set<GTFSTransportationType> modes = new HashSet<>(
                     Arrays.asList(GTFSTransportationType.bus, GTFSTransportationType.tram, GTFSTransportationType.ferry));
 
+            EnumSet<TransportMode> modesWithPlatforms = EnumSet.of(TransportMode.Tram);
+
             TFGMGTFSSourceTestConfig tfgmTestDataSourceConfig = new TFGMGTFSSourceTestConfig("unused",
-                    modes, Collections.singleton(TransportMode.Tram),
+                    modes, modesWithPlatforms,
                     IdSet.emptySet(), Collections.emptySet(), Collections.emptyList(), Duration.ofMinutes(13));
             return Collections.singletonList(tfgmTestDataSourceConfig);
         }

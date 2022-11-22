@@ -203,12 +203,14 @@ public class RouteCalculatorSupport {
     protected Duration getMaxDurationFor(Transaction txn, Node startNode, LocationSet destinations, JourneyRequest journeyRequest) {
         final Duration maxDuration = journeyRequest.getMaxJourneyDuration();
 
-        if (config.getTransportModes().contains(TransportMode.Tram) && config.getTransportModes().size()==1) {
+        Set<TransportMode> modes = config.getTransportModes();
+
+        if (modes.contains(TransportMode.Tram) && modes.size()==1) {
             return maxDuration;
         }
 
         Duration maxLeastCostForRoute = destinations.stream().
-                map(dest -> getMaxCostBetween(txn, startNode, journeyRequest, dest)).
+                map(dest -> getMaxCostBetween(txn, startNode, journeyRequest, dest, modes)).
                 filter(duration -> !duration.isNegative()).
                 max(Duration::compareTo).orElse(maxDuration);
 
@@ -225,9 +227,9 @@ public class RouteCalculatorSupport {
         return longest;
     }
 
-    private Duration getMaxCostBetween(Transaction txn, Node startNode, JourneyRequest journeyRequest, Location<?> dest) {
+    private Duration getMaxCostBetween(Transaction txn, Node startNode, JourneyRequest journeyRequest, Location<?> dest, Set<TransportMode> modes) {
         try {
-            return routeCostCalculator.getMaxCostBetween(txn, startNode, dest, journeyRequest.getDate());
+            return routeCostCalculator.getMaxCostBetween(txn, startNode, dest, journeyRequest.getDate(), modes);
         } catch (InvalidDurationException invalidDurationException) {
             return Duration.ofSeconds(-1);
         }

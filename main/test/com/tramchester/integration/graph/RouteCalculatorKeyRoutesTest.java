@@ -7,6 +7,7 @@ import com.tramchester.domain.Journey;
 import com.tramchester.domain.JourneyRequest;
 import com.tramchester.domain.StationIdPair;
 import com.tramchester.domain.dates.TramDate;
+import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.Durations;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.GraphDatabase;
@@ -23,6 +24,7 @@ import java.time.Duration;
 import java.util.*;
 
 import static com.tramchester.domain.reference.TransportMode.Tram;
+import static com.tramchester.domain.reference.TransportMode.TramsOnly;
 import static com.tramchester.testSupport.TestEnv.avoidChristmasDate;
 import static com.tramchester.testSupport.reference.TramStations.Ashton;
 import static com.tramchester.testSupport.reference.TramStations.ShawAndCrompton;
@@ -38,6 +40,7 @@ class RouteCalculatorKeyRoutesTest {
     private RouteCalculationCombinations combinations;
     private JourneyRequest journeyRequest;
     private Duration maxJourneyDuration;
+    private Set<TransportMode> modes;
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
@@ -55,10 +58,11 @@ class RouteCalculatorKeyRoutesTest {
     @BeforeEach
     void beforeEachTestRuns() {
         when = TestEnv.testDay();
+        modes = TramsOnly;
         maxJourneyDuration = Duration.ofMinutes(testConfig.getMaxJourneyDuration());
         int maxChanges = 4;
         journeyRequest = new JourneyRequest(when, TramTime.of(8, 5), false, maxChanges,
-                maxJourneyDuration, 1, Collections.emptySet());
+                maxJourneyDuration, 1, modes);
         combinations = new RouteCalculationCombinations(componentContainer);
     }
 
@@ -106,7 +110,7 @@ class RouteCalculatorKeyRoutesTest {
             TramDate testDate = avoidChristmasDate(when.plusDays(day));
             if (testDate.getDayOfWeek() != DayOfWeek.SUNDAY) {
                 JourneyRequest request = new JourneyRequest(testDate, TramTime.of(8, 5), false, 4,
-                        maxJourneyDuration, 1, Collections.emptySet());
+                        maxJourneyDuration, 1, modes);
                 Map<StationIdPair, RouteCalculationCombinations.JourneyOrNot> results = combinations.getJourneysFor(pairs, request);
                 Set<StationIdPair> missingForDate = combinations.getMissing(results);
                 if (!missingForDate.isEmpty()) {
@@ -127,7 +131,7 @@ class RouteCalculatorKeyRoutesTest {
 
         TramDate testDate = avoidChristmasDate(when);
         JourneyRequest request = new JourneyRequest(testDate, TramTime.of(8,5), false, 4,
-                maxJourneyDuration, 1, Collections.emptySet());
+                maxJourneyDuration, 1, modes);
         Map<StationIdPair, RouteCalculationCombinations.JourneyOrNot> results = combinations.getJourneysFor(pairs, request);
         validateFor(results);
     }
@@ -137,7 +141,7 @@ class RouteCalculatorKeyRoutesTest {
         List<Journey> allResults = new ArrayList<>();
 
         JourneyRequest longestJourneyRequest = new JourneyRequest(when, TramTime.of(9, 0), false, 4,
-                maxJourneyDuration.multipliedBy(2), 1, Collections.emptySet());
+                maxJourneyDuration.multipliedBy(2), 1, modes);
 
         Map<StationIdPair, RouteCalculationCombinations.JourneyOrNot> results =
                 combinations.getJourneysFor(combinations.EndOfRoutesToEndOfRoutes(Tram), longestJourneyRequest);
@@ -180,7 +184,7 @@ class RouteCalculatorKeyRoutesTest {
                 map(requested -> {
                     try (Transaction txn = database.beginTx()) {
                         JourneyRequest journeyRequest = new JourneyRequest(queryDate, queryTime, false,
-                                3, maxJourneyDuration, 1, Collections.emptySet());
+                                3, maxJourneyDuration, 1, modes);
                         Optional<Journey> optionalJourney = combinations.findJourneys(txn, requested.getBeginId(), requested.getEndId(),
                                 journeyRequest);
                         RouteCalculationCombinations.JourneyOrNot journeyOrNot =

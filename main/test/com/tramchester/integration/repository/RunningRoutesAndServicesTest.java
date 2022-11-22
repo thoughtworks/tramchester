@@ -117,7 +117,7 @@ public class RunningRoutesAndServicesTest {
         EnumSet<DayOfWeek> weekdays = EnumSet.of(MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY);
         final EnumSet<DayOfWeek> saturdays = EnumSet.of(SATURDAY);
 
-        TramDate testDay = TestEnv.nextMonday();
+        TramDate testDay = TestEnv.nextMonday().plusWeeks(1);
 
         while (testDay.isChristmasPeriod()) {
             testDay = testDay.plusWeeks(1);
@@ -134,22 +134,24 @@ public class RunningRoutesAndServicesTest {
                 collect(Collectors.toList());
         assertFalse(weekdayServices.isEmpty());
 
-        // start of the range
+        // start of the range for services
         TramDate weekdayServicesBegin = weekdayServices.stream().
                 map(service -> service.getCalendar().getDateRange().getStartDate()).
                 min(TramDate::compareTo).get();
 
-        // end of the range
+        // end of the range for services
         TramDate weekdayServicesEnd = weekdayServices.stream().
                 map(service -> service.getCalendar().getDateRange().getEndDate()).
                 max(TramDate::compareTo).get();
 
+        // a range capturing all the dates for the weekday services
         DateRange weekdayDateRange = new DateRange(weekdayServicesBegin, weekdayServicesEnd);
 
-        // double check contains next monday
+        // double check contains range does conatin next tuesday
         assertTrue(weekdayDateRange.contains(nextTuesday));
 
         TramDate friday = getFridayAfter(nextTuesday);
+
         assertTrue(weekdayDateRange.contains(friday));
 
         RunningRoutesAndServices.FilterForDate filterForNextFriday = runningRoutesAndServices.getFor(friday);

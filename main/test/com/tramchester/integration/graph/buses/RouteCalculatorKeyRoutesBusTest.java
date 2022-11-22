@@ -4,6 +4,7 @@ import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.dates.TramDate;
+import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.filters.ConfigurableGraphFilter;
 import com.tramchester.domain.JourneyRequest;
@@ -60,7 +61,7 @@ class RouteCalculatorKeyRoutesBusTest {
         TramTime time = TramTime.of(8, 0);
         int numberChanges = 3;
         journeyRequest = new JourneyRequest(when, time, false, numberChanges,
-                Duration.ofMinutes(testConfig.getMaxJourneyDuration()), 1, Collections.emptySet());
+                Duration.ofMinutes(testConfig.getMaxJourneyDuration()), 1, TransportMode.BusesOnly);
     }
 
     @Test

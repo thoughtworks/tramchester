@@ -50,6 +50,7 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.*;
 
+import static com.tramchester.domain.reference.TransportMode.TramsOnly;
 import static com.tramchester.graph.TransportRelationshipTypes.WALKS_TO_STATION;
 import static com.tramchester.graph.graphbuild.GraphLabel.*;
 import static com.tramchester.testSupport.reference.TramStations.Shudehill;
@@ -117,7 +118,7 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
         long maxNumberOfJourneys = 2;
         JourneyRequest journeyRequest = new JourneyRequest(
                 TestEnv.nextSaturday(), TramTime.of(8,15), false,
-                3, Duration.ofMinutes(config.getMaxJourneyDuration()), maxNumberOfJourneys, Collections.emptySet());
+                3, Duration.ofMinutes(config.getMaxJourneyDuration()), maxNumberOfJourneys, TramsOnly);
         reasons = new ServiceReasons(journeyRequest, TramTime.of(8,15), providesNow);
 
         serviceHeuristics = createMock(ServiceHeuristics.class);
@@ -146,7 +147,6 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
         RegistersStates registersStates = new RegistersStates();
         TraversalStateFactory traversalStateFactory = new TraversalStateFactory(registersStates, contentsRepository, config);
 
-        //TramServiceDate queryDate = new TramServiceDate(TestEnv.testDay());
         final TraversalOps traversalOps = new TraversalOps(contentsRepository, tripRepository, sortsPositions, destinationStations,
                 latLongHint, lowestCostsForRoutes, TestEnv.testDay());
         return new NotStartedState(traversalOps, traversalStateFactory);

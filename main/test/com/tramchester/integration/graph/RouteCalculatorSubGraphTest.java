@@ -7,6 +7,7 @@ import com.tramchester.domain.Journey;
 import com.tramchester.domain.JourneyRequest;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.places.Station;
+import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.filters.ConfigurableGraphFilter;
@@ -31,6 +32,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
+import static com.tramchester.domain.reference.TransportMode.TramsOnly;
 import static com.tramchester.testSupport.reference.KnownLocations.nearStPetersSquare;
 import static com.tramchester.testSupport.reference.TramStations.Cornbrook;
 import static com.tramchester.testSupport.reference.TramStations.Pomona;
@@ -51,6 +53,7 @@ class RouteCalculatorSubGraphTest {
     private Transaction txn;
     private TramTime tramTime;
     private Duration maxJourneyDuration;
+    private Set<TransportMode> modes;
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() throws IOException {
@@ -83,6 +86,8 @@ class RouteCalculatorSubGraphTest {
 
         tramTime = TramTime.of(8, 0);
         maxJourneyDuration = Duration.ofMinutes(config.getMaxJourneyDuration());
+
+        modes = TramsOnly;
     }
 
     @AfterEach
@@ -94,30 +99,30 @@ class RouteCalculatorSubGraphTest {
     void reproduceIssueEdgePerTrip() {
 
         validateAtLeastOneJourney(TramStations.StPetersSquare, TramStations.Deansgate,
-                new JourneyRequest(when, tramTime, false, 5, maxJourneyDuration, 1, Collections.emptySet()));
+                new JourneyRequest(when, tramTime, false, 5, maxJourneyDuration, 1, modes));
 
         validateAtLeastOneJourney(Cornbrook, Pomona,
                 new JourneyRequest(when, TramTime.of(19,51).plusMinutes(6), false, 5,
-                        maxJourneyDuration, 1, Collections.emptySet()));
+                        maxJourneyDuration, 1, modes));
 
         validateAtLeastOneJourney(TramStations.Deansgate, Cornbrook,
                 new JourneyRequest(when, TramTime.of(19,51).plusMinutes(3), false, 5,
-                        maxJourneyDuration, 1, Collections.emptySet()));
+                        maxJourneyDuration, 1, modes));
 
         validateAtLeastOneJourney(TramStations.Deansgate, Pomona,
                 new JourneyRequest(when, TramTime.of(19,51).plusMinutes(3), false, 5,
-                        maxJourneyDuration, 1, Collections.emptySet()));
+                        maxJourneyDuration, 1, modes));
 
         validateAtLeastOneJourney(TramStations.StPetersSquare, Pomona, new JourneyRequest(when, tramTime,
-                false, 5, maxJourneyDuration, 1, Collections.emptySet()));
+                false, 5, maxJourneyDuration, 1, modes));
         validateAtLeastOneJourney(TramStations.StPetersSquare, Pomona, new JourneyRequest(when, tramTime,
-                false, 5, maxJourneyDuration, 1, Collections.emptySet()));
+                false, 5, maxJourneyDuration, 1, modes));
     }
 
     @Test
     void shouldHandleCrossingMidnightDirect() {
         validateAtLeastOneJourney(Cornbrook, TramStations.StPetersSquare, new JourneyRequest(when, tramTime, false, 5,
-                maxJourneyDuration, 1, Collections.emptySet()));
+                maxJourneyDuration, 1, modes));
     }
 
     @SuppressWarnings("JUnitTestMethodWithNoAssertions")
@@ -127,7 +132,7 @@ class RouteCalculatorSubGraphTest {
             for (TramStations destination: stations) {
                 if (!start.equals(destination)) {
                     validateAtLeastOneJourney(start, destination, new JourneyRequest(when, tramTime, false, 5,
-                            maxJourneyDuration, 1, Collections.emptySet()));
+                            maxJourneyDuration, 1, modes));
                 }
             }
         }
@@ -141,7 +146,7 @@ class RouteCalculatorSubGraphTest {
         LocationJourneyPlannerTestFacade testFacade = new LocationJourneyPlannerTestFacade(planner, stationRepository, txn);
 
         JourneyRequest journeyRequest = new JourneyRequest(when, tramTime, false, 3,
-                maxJourneyDuration,1, Collections.emptySet());
+                maxJourneyDuration,1, modes);
         //journeyRequest.setDiag(true);
         final Station station = stationRepository.getStationById(Pomona.getId());
         Set<Journey> results = testFacade.quickestRouteForLocation(station, nearStPetersSquare, journeyRequest, 4);
@@ -159,7 +164,7 @@ class RouteCalculatorSubGraphTest {
         // last tram now earlier
         TramTime time = TramTime.of(23,53);
         JourneyRequest journeyRequest = new JourneyRequest(when, time, false, 3,
-                maxJourneyDuration, 1, Collections.emptySet());
+                maxJourneyDuration, 1, modes);
         Set<Journey> results = calculator.calculateRouteAsSet(Cornbrook, Pomona, journeyRequest);
         Assertions.assertTrue(results.size()>0);
     }
@@ -198,7 +203,7 @@ class RouteCalculatorSubGraphTest {
     @NotNull
     private Set<Journey> getJourneys(TramStations start, TramStations destination, TramDate when, long maxNumberJourneys) {
         JourneyRequest journeyRequest = new JourneyRequest(when, tramTime, false, 3,
-                maxJourneyDuration, maxNumberJourneys, Collections.emptySet());
+                maxJourneyDuration, maxNumberJourneys, modes);
         return calculator.calculateRouteAsSet(start,destination, journeyRequest);
     }
 

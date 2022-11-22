@@ -5,6 +5,7 @@ import com.tramchester.domain.Route;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.places.Location;
+import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.InvalidDurationException;
 import com.tramchester.graph.graphbuild.GraphProps;
 import com.tramchester.graph.graphbuild.StagedTransportGraphBuilder;
@@ -20,7 +21,9 @@ import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
 import java.time.Duration;
+import java.util.Set;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 import static com.tramchester.graph.GraphPropertyKey.COST;
 import static com.tramchester.graph.GraphPropertyKey.MAX_COST;
@@ -46,35 +49,35 @@ public class RouteCostCalculator {
         this.routeRepository = routeRepository;
     }
 
-    public Duration getAverageCostBetween(Transaction txn, Node startNode, Node endNode, TramDate date) throws InvalidDurationException {
-        return calculateLeastCost(txn, startNode, endNode, COST, date);
+    public Duration getAverageCostBetween(Transaction txn, Node startNode, Node endNode, TramDate date, Set<TransportMode> modes) throws InvalidDurationException {
+        return calculateLeastCost(txn, startNode, endNode, COST, date, modes);
     }
 
-    public Duration getAverageCostBetween(Transaction txn, Location<?> station, Node endNode, TramDate date) throws InvalidDurationException {
+    public Duration getAverageCostBetween(Transaction txn, Location<?> station, Node endNode, TramDate date, Set<TransportMode> modes) throws InvalidDurationException {
         Node startNode = graphQuery.getLocationNode(txn, station);
-        return calculateLeastCost(txn, startNode, endNode, COST, date);
+        return calculateLeastCost(txn, startNode, endNode, COST, date, modes);
     }
 
     // startNode must have been found within supplied txn
-    public Duration getAverageCostBetween(Transaction txn, Node startNode, Location<?> endStation, TramDate date) throws InvalidDurationException {
+    public Duration getAverageCostBetween(Transaction txn, Node startNode, Location<?> endStation, TramDate date, Set<TransportMode> modes) throws InvalidDurationException {
         Node endNode = graphQuery.getLocationNode(txn, endStation);
-        return calculateLeastCost(txn, startNode, endNode, COST, date);
+        return calculateLeastCost(txn, startNode, endNode, COST, date, modes);
     }
 
-    public Duration getAverageCostBetween(Transaction txn, Location<?> startStation, Location<?> endStation, TramDate date) throws InvalidDurationException {
-        return getCostBetween(txn, startStation, endStation, COST, date);
+    public Duration getAverageCostBetween(Transaction txn, Location<?> startStation, Location<?> endStation, TramDate date, Set<TransportMode> modes) throws InvalidDurationException {
+        return getCostBetween(txn, startStation, endStation, COST, date, modes);
     }
 
-    public Duration getMaxCostBetween(Transaction txn, Location<?> start, Location<?> end, TramDate date) throws InvalidDurationException {
-        return getCostBetween(txn, start, end, MAX_COST, date);
+    public Duration getMaxCostBetween(Transaction txn, Location<?> start, Location<?> end, TramDate date, Set<TransportMode> modes) throws InvalidDurationException {
+        return getCostBetween(txn, start, end, MAX_COST, date, modes);
     }
 
-    public Duration getMaxCostBetween(Transaction txn, Node start, Location<?> endStation, TramDate date) throws InvalidDurationException {
+    public Duration getMaxCostBetween(Transaction txn, Node start, Location<?> endStation, TramDate date, Set<TransportMode> modes) throws InvalidDurationException {
         Node endNode = graphQuery.getLocationNode(txn, endStation);
-        return calculateLeastCost(txn, start, endNode, MAX_COST, date);
+        return calculateLeastCost(txn, start, endNode, MAX_COST, date, modes);
     }
 
-    private Duration getCostBetween(Transaction txn, Location<?> startLocation, Location<?> endLocation, GraphPropertyKey key, TramDate date) throws InvalidDurationException {
+    private Duration getCostBetween(Transaction txn, Location<?> startLocation, Location<?> endLocation, GraphPropertyKey key, TramDate date, Set<TransportMode> modes) throws InvalidDurationException {
         Node startNode = graphQuery.getLocationNode(txn, startLocation);
         if (startNode==null) {
             throw new RuntimeException("Could not find start node for graph id " + startLocation.getId().getGraphId());
@@ -85,19 +88,24 @@ public class RouteCostCalculator {
         }
         logger.info(format("Find approx. route cost between %s and %s", startLocation.getId(), endLocation.getId()));
 
-        return calculateLeastCost(txn, startNode, endNode, key, date);
+        return calculateLeastCost(txn, startNode, endNode, key, date, modes);
     }
 
     // startNode and endNode must have been found within supplied txn
 
-    private Duration calculateLeastCost(Transaction txn, Node startNode, Node endNode, GraphPropertyKey key, TramDate date) throws InvalidDurationException {
-        IdSet<Route> running = IdSet.from(routeRepository.getRoutesRunningOn(date));
+    private Duration calculateLeastCost(Transaction txn, Node startNode, Node endNode, GraphPropertyKey key,
+                                        TramDate date, Set<TransportMode> modes) throws InvalidDurationException {
+
+        Set<Route> routesRunningOn = routeRepository.getRoutesRunningOn(date).stream().
+                filter(route -> modes.contains(route.getTransportMode())).collect(Collectors.toSet());
+
+        IdSet<Route> available = IdSet.from(routesRunningOn);
         // TODO fetch all the relationshipIds first
 
         EvaluationContext context = graphDatabaseService.createContext(txn);
 
         Predicate<? super Relationship> routeFilter = (Predicate<Relationship>) relationship ->
-                !relationship.isType(ON_ROUTE) || running.contains(GraphProps.getRouteIdFrom(relationship));
+                !relationship.isType(ON_ROUTE) || available.contains(GraphProps.getRouteIdFrom(relationship));
 
         PathExpander<Double> forTypesAndDirections = fullExpanderForCostApproximation(routeFilter);
 

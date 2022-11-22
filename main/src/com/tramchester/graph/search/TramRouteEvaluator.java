@@ -1,8 +1,6 @@
 package com.tramchester.graph.search;
 
 import com.tramchester.config.TramchesterConfig;
-import com.tramchester.domain.id.IdFor;
-import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.Durations;
 import com.tramchester.domain.time.ProvidesNow;
@@ -11,7 +9,6 @@ import com.tramchester.graph.caches.LowestCostSeen;
 import com.tramchester.graph.caches.NodeContentsRepository;
 import com.tramchester.graph.caches.PreviousVisits;
 import com.tramchester.graph.graphbuild.GraphLabel;
-import com.tramchester.graph.graphbuild.GraphProps;
 import com.tramchester.graph.search.stateMachine.HowIGotHere;
 import org.jetbrains.annotations.NotNull;
 import org.neo4j.graphdb.Node;
@@ -51,7 +48,7 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
     private final long startNodeId;
     private final Instant begin;
     private final long timeout;
-    private final boolean allModes;
+    //private final boolean allModes;
 
     public TramRouteEvaluator(ServiceHeuristics serviceHeuristics, Set<Long> destinationNodeIds,
                               NodeContentsRepository nodeContentsRepository, ServiceReasons reasons,
@@ -69,7 +66,7 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
         this.begin = begin;
         this.providesNow = providesNow;
         this.requestedModes = requestedModes;
-        allModes = requestedModes.isEmpty();
+        //allModes = requestedModes.isEmpty();
         this.maxInitialWaitMins = Math.toIntExact(maxInitialWait.toMinutes());
     }
 
@@ -241,12 +238,12 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
         // is the station open?
         if (nodeLabels.contains(GraphLabel.ROUTE_STATION)) {
 
-            if (!allModes) {
+            //if (!allModes) {
                 ServiceReason forMode = serviceHeuristics.checkModes(nextNode, requestedModes, howIGotHere, reasons);
                 if (!forMode.isValid()) {
                     return forMode.getReasonCode();
                 }
-            }
+            //}
 
             final ServiceReason reachDestination = serviceHeuristics.canReachDestination(nextNode, journeyState.getNumberChanges(),
                     howIGotHere, reasons, visitingTime);

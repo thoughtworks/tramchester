@@ -26,6 +26,7 @@ import java.time.Duration;
 import java.util.Collections;
 import java.util.Set;
 
+import static com.tramchester.domain.reference.TransportMode.TramsOnly;
 import static java.lang.String.format;
 
 class RouteCalculatorSubGraphMonsallTest {
@@ -117,7 +118,7 @@ class RouteCalculatorSubGraphMonsallTest {
     private void validateNumberOfStages(TramStations start, TramStations destination, TramTime time, TramDate date, int numStages) {
         long maxNumberOfJourneys = 1;
         JourneyRequest journeyRequest = new JourneyRequest(date, time,
-                false, 3, Duration.ofMinutes(config.getMaxJourneyDuration()), maxNumberOfJourneys, Collections.emptySet());
+                false, 3, Duration.ofMinutes(config.getMaxJourneyDuration()), maxNumberOfJourneys, TramsOnly);
         Set<Journey> journeys = calculator.calculateRouteAsSet(start, destination, journeyRequest);
 
         Assertions.assertFalse(journeys.isEmpty(), format("No Journeys from %s to %s found at %s on %s", start, destination, time.toString(), date));

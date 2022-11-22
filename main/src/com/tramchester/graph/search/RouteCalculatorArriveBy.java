@@ -41,7 +41,7 @@ public class RouteCalculatorArriveBy implements TramRouteCalculator {
     @Override
     public Stream<Journey> calculateRoute(Transaction txn, Location<?> startStation, Location<?> destination, JourneyRequest journeyRequest) {
         try {
-            Duration costToDest = costCalculator.getAverageCostBetween(txn, startStation, destination, journeyRequest.getDate());
+            Duration costToDest = costCalculator.getAverageCostBetween(txn, startStation, destination, journeyRequest.getDate(), journeyRequest.getRequestedModes());
             Duration maxInitialWait = RouteCalculatorSupport.getMaxInitialWaitFor(startStation, config);
             JourneyRequest departureTime = calcDepartTime(journeyRequest, costToDest, maxInitialWait);
             logger.info(format("Plan journey, arrive by %s so depart by %s", journeyRequest, departureTime));
@@ -58,7 +58,7 @@ public class RouteCalculatorArriveBy implements TramRouteCalculator {
     public Stream<Journey> calculateRouteWalkAtEnd(Transaction txn, Location<?> start, Node endOfWalk, LocationSet  destStations,
                                                    JourneyRequest journeyRequest, NumberOfChanges numberOfChanges) {
         try {
-            Duration costToDest = costCalculator.getAverageCostBetween(txn, start, endOfWalk, journeyRequest.getDate());
+            Duration costToDest = costCalculator.getAverageCostBetween(txn, start, endOfWalk, journeyRequest.getDate(), journeyRequest.getRequestedModes());
             Duration maxInitialWait = RouteCalculatorSupport.getMaxInitialWaitFor(start, config);
             JourneyRequest departureTime = calcDepartTime(journeyRequest, costToDest, maxInitialWait);
             logger.info(format("Plan journey, arrive by %s so depart by %s", journeyRequest, departureTime));
@@ -74,7 +74,7 @@ public class RouteCalculatorArriveBy implements TramRouteCalculator {
     public Stream<Journey> calculateRouteWalkAtStart(Transaction txn, Set<StationWalk> stationWalks, Node origin, Location<?> destination,
                                                      JourneyRequest journeyRequest, NumberOfChanges numberOfChanges) {
         try {
-            Duration costToDest = costCalculator.getAverageCostBetween(txn, origin, destination, journeyRequest.getDate());
+            Duration costToDest = costCalculator.getAverageCostBetween(txn, origin, destination, journeyRequest.getDate(), journeyRequest.getRequestedModes());
             Duration maxInitialWait = RouteCalculatorSupport.getMaxInitialWaitFor(stationWalks, config);
             JourneyRequest departureTime = calcDepartTime(journeyRequest, costToDest, maxInitialWait);
             logger.info(format("Plan journey, arrive by %s so depart by %s", journeyRequest, departureTime));
@@ -91,7 +91,7 @@ public class RouteCalculatorArriveBy implements TramRouteCalculator {
                                                            Node endNode, LocationSet destinationStations,
                                                            JourneyRequest journeyRequest, NumberOfChanges numberOfChanges) {
         try {
-            Duration costToDest = costCalculator.getAverageCostBetween(txn, startNode, endNode, journeyRequest.getDate());
+            Duration costToDest = costCalculator.getAverageCostBetween(txn, startNode, endNode, journeyRequest.getDate(), journeyRequest.getRequestedModes());
             Duration maxInitialWait = RouteCalculatorSupport.getMaxInitialWaitFor(stationWalks, config);
             JourneyRequest departureTime = calcDepartTime(journeyRequest, costToDest, maxInitialWait);
             logger.info(format("Plan journey, arrive by %s so depart by %s", journeyRequest, departureTime));

@@ -38,6 +38,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static com.tramchester.domain.reference.TransportMode.TramsOnly;
 import static com.tramchester.testSupport.TestEnv.assertMinutesEquals;
 import static com.tramchester.testSupport.reference.KnownLocations.*;
 import static com.tramchester.testSupport.reference.TramTransportDataForTestFactory.TramTransportDataForTest.*;
@@ -56,6 +57,7 @@ class TramRouteTest {
     private TramDate queryDate;
     private TramTime queryTime;
     private Transaction txn;
+    private Set<TransportMode> modes;
 
     @BeforeAll
     static void onceBeforeAllTestRuns() throws IOException {
@@ -87,6 +89,8 @@ class TramRouteTest {
 
         geography = componentContainer.get(Geography.class);
 
+        modes = TramsOnly;
+
         txn = database.beginTx();
 
         locationJourneyPlanner = new LocationJourneyPlannerTestFacade(componentContainer.get(LocationJourneyPlanner.class),
@@ -96,7 +100,7 @@ class TramRouteTest {
     @NotNull
     private JourneyRequest createJourneyRequest(TramTime queryTime, int maxChanges) {
         return new JourneyRequest(queryDate, queryTime, false, maxChanges,
-                Duration.ofMinutes(config.getMaxJourneyDuration()), 3, Collections.emptySet());
+                Duration.ofMinutes(config.getMaxJourneyDuration()), 3, modes);
     }
 
     @AfterEach
@@ -479,7 +483,7 @@ class TramRouteTest {
     void shouldHaveRouteCostCalculationAsExpected() throws InvalidDurationException {
         RouteCostCalculator costCalculator = componentContainer.get(RouteCostCalculator.class);
         assertMinutesEquals(41, costCalculator.getAverageCostBetween(txn,
-                transportData.getFirst(), transportData.getLast(), queryDate));
+                transportData.getFirst(), transportData.getLast(), queryDate, modes));
 
 //        assertEquals(-1, costCalculator.getAverageCostBetween(txn, transportData.getLast(), transportData.getFirst(), queryDate));
     }
@@ -489,7 +493,7 @@ class TramRouteTest {
         RouteCostCalculator costCalculator = componentContainer.get(RouteCostCalculator.class);
 
         assertThrows(InvalidDurationException.class,
-                () -> costCalculator.getAverageCostBetween(txn, transportData.getLast(), transportData.getFirst(), queryDate));
+                () -> costCalculator.getAverageCostBetween(txn, transportData.getLast(), transportData.getFirst(), queryDate, modes));
     }
 
     @Test

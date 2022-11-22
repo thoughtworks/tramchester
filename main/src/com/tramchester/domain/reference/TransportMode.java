@@ -25,6 +25,9 @@ public enum TransportMode implements HasTransportMode {
 
     private static final Map<Short, TransportMode> index;
 
+    public static final Set<TransportMode> TramsOnly = EnumSet.of(Tram);
+    public static final Set<TransportMode> BusesOnly = EnumSet.of(Bus);
+
     static {
         index = new HashMap<>();
         for(TransportMode mode : EnumSet.allOf(TransportMode.class)) {

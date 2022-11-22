@@ -89,13 +89,16 @@ public class JourneyPlannerResource extends UsesRecentCookie implements APIResou
             return Response.serverError().build();
         }
 
+        // if no modes provided then default to all modes currently configured
+        Set<TransportMode> modes = query.getModes().isEmpty() ? config.getTransportModes() : query.getModes();
+
         Location<?> start = locationRepository.getLocation(query.getStartType(), query.getStartId());
         Location<?> dest = locationRepository.getLocation(query.getDestType(), query.getDestId());
 
         try(Transaction tx = graphDatabaseService.beginTx() ) {
 
             Stream<JourneyDTO> dtoStream = getJourneyDTOStream(tx, query.getTramDate(), query.getTime(),
-                    start, dest, query.isArriveBy(), query.getMaxChanges(), query.getModes());
+                    start, dest, query.isArriveBy(), query.getMaxChanges(), modes);
 
             // duplicates where same path and timings, just different change points
             Set<JourneyDTO> journeyDTOS = dtoStream.collect(Collectors.toSet());
@@ -143,6 +146,7 @@ public class JourneyPlannerResource extends UsesRecentCookie implements APIResou
             logger.error("Problem with received: " + query);
             return Response.serverError().build();
         }
+        Set<TransportMode> modes = query.getModes().isEmpty() ? config.getTransportModes() : query.getModes();
 
         Location<?> start = locationRepository.getLocation(query.getStartType(), query.getStartId());
         Location<?> dest = locationRepository.getLocation(query.getDestType(), query.getDestId());
@@ -151,7 +155,7 @@ public class JourneyPlannerResource extends UsesRecentCookie implements APIResou
 
         try {
             Stream<JourneyDTO> dtoStream = getJourneyDTOStream(tx, query.getTramDate(), query.getTime(), start, dest, query.isArriveBy(),
-                    query.getMaxChanges(), query.getModes());
+                    query.getMaxChanges(), modes);
 
             JsonStreamingOutput<JourneyDTO> jsonStreamingOutput = new JsonStreamingOutput<>(tx, dtoStream, super.mapper);
 

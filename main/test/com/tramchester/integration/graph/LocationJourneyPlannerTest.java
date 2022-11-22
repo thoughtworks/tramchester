@@ -29,6 +29,7 @@ import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
+import static com.tramchester.domain.reference.TransportMode.TramsOnly;
 import static com.tramchester.testSupport.TestEnv.assertMinutesEquals;
 import static com.tramchester.testSupport.reference.KnownLocations.*;
 import static com.tramchester.testSupport.reference.TramStations.*;
@@ -103,7 +104,7 @@ class LocationJourneyPlannerTest {
     }
 
     private Set<TransportMode> getRequestedModes() {
-        return Collections.emptySet();
+        return TramsOnly;
     }
 
     @Test

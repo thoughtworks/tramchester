@@ -6,6 +6,7 @@ import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.places.Location;
 import com.tramchester.domain.places.StationGroup;
+import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.InvalidDurationException;
 import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.RouteCostCalculator;
@@ -19,8 +20,11 @@ import org.junit.jupiter.api.*;
 import org.neo4j.graphdb.Transaction;
 
 import java.time.Duration;
+import java.util.EnumSet;
+import java.util.Set;
 import java.util.function.BiFunction;
 
+import static com.tramchester.domain.reference.TransportMode.Bus;
 import static com.tramchester.testSupport.TestEnv.assertMinutesEquals;
 import static com.tramchester.testSupport.reference.BusStations.*;
 import static com.tramchester.testSupport.reference.BusStations.Composites.StockportTempBusStation;
@@ -39,6 +43,7 @@ class BusRouteCostCalculatorTest {
     private StationRepository stationRepository;
 
     private final TramDate date = TestEnv.testDay();
+    private Set<TransportMode> modes;
 
     @BeforeAll
     static void onceBeforeAnyTestRuns() {
@@ -62,6 +67,8 @@ class BusRouteCostCalculatorTest {
         altrinchamInterchange = stationGroupsRepository.findByName(Composites.AltrinchamInterchange.getName());
         stockportBusStation = stationGroupsRepository.findByName(Composites.StockportTempBusStation.getName());
         shudehillInterchange = stationGroupsRepository.findByName("Shudehill Interchange");
+
+        modes = EnumSet.of(Bus);
 
         routeCost = componentContainer.get(RouteCostCalculator.class);
 
@@ -144,7 +151,7 @@ class BusRouteCostCalculatorTest {
 
     private Duration getAverageCostBetween(Location<?> start, Location<?> finish) {
         try {
-            return routeCost.getAverageCostBetween(txn, start, finish, date);
+            return routeCost.getAverageCostBetween(txn, start, finish, date, modes);
         } catch (InvalidDurationException e) {
             fail("Unexpected exception", e);
             return Duration.ZERO;
@@ -153,7 +160,7 @@ class BusRouteCostCalculatorTest {
 
     private Duration getMaxCostBetween(Location<?> start, Location<?> finish) {
         try {
-            return routeCost.getMaxCostBetween(txn, start, finish, date);
+            return routeCost.getMaxCostBetween(txn, start, finish, date, modes);
         } catch (InvalidDurationException e) {
             fail("Unexpected exception", e);
             return Duration.ZERO;

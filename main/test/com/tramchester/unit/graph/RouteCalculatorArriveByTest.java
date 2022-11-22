@@ -22,9 +22,12 @@ import org.neo4j.graphdb.Transaction;
 
 import java.time.Duration;
 import java.util.Collections;
+import java.util.EnumSet;
 import java.util.Set;
 import java.util.stream.Stream;
 
+import static com.tramchester.domain.reference.TransportMode.Tram;
+import static com.tramchester.domain.reference.TransportMode.TramsOnly;
 import static org.junit.jupiter.api.Assertions.assertSame;
 
 class RouteCalculatorArriveByTest extends EasyMockSupport {
@@ -54,15 +57,15 @@ class RouteCalculatorArriveByTest extends EasyMockSupport {
 
         Station start = TramStations.Bury.fake();
         Station destinationId = TramStations.Cornbrook.fake();
-        //TramServiceDate serviceDate = new TramServiceDate(localDate);
 
         Stream<Journey> journeyStream = Stream.empty();
 
+        Set<TransportMode> modes = TramsOnly;
+
         Duration duration = Duration.ofMinutes(15);
-        EasyMock.expect(costCalculator.getAverageCostBetween(txn, start, destinationId, localDate)).andReturn(duration);
+        EasyMock.expect(costCalculator.getAverageCostBetween(txn, start, destinationId, localDate, modes)).andReturn(duration);
         TramTime requiredDepartTime = arriveByTime.minusMinutes(costBetweenStartDest).minusMinutes(17); // 17 = 34/2
 
-        Set<TransportMode> modes = Collections.emptySet();
         JourneyRequest updatedWithComputedDepartTime = new JourneyRequest(localDate, requiredDepartTime, true,
                 5, Duration.ofMinutes(120), maxNumberOfJourneys, modes);
         EasyMock.expect(routeCalculator.calculateRoute(txn, start, destinationId, updatedWithComputedDepartTime)).andReturn(journeyStream);

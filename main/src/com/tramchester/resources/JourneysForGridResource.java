@@ -4,6 +4,7 @@ import com.codahale.metrics.annotation.Timed;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.module.afterburner.AfterburnerModule;
+import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.BoundingBoxWithCost;
 import com.tramchester.domain.JourneyRequest;
 import com.tramchester.domain.dates.TramDate;
@@ -35,7 +36,6 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.time.Duration;
 import java.time.LocalDate;
-import java.util.Collections;
 import java.util.Set;
 import java.util.stream.Stream;
 
@@ -51,11 +51,13 @@ public class JourneysForGridResource implements APIResource, GraphDatabaseDepend
     private final FastestRoutesForBoxes search;
     private final JourneyToDTOMapper dtoMapper;
     private final PostcodeRepository postcodeRepository;
+    private final TramchesterConfig config;
     private final ObjectMapper objectMapper;
 
     @Inject
     public JourneysForGridResource(StationRepository repository, FastestRoutesForBoxes search, JourneyToDTOMapper dtoMapper,
-                                   PostcodeRepository postcodeRepository) {
+                                   PostcodeRepository postcodeRepository, TramchesterConfig config) {
+        this.config = config;
         logger.info("created");
         this.repository = repository;
         this.search = search;
@@ -98,7 +100,7 @@ public class JourneysForGridResource implements APIResource, GraphDatabaseDepend
         Duration maxDuration = Duration.ofMinutes(maxDurationMinutes);
 
         TramDate tramServiceDate = TramDate.of(date);
-        Set<TransportMode> allModes = Collections.emptySet();
+        Set<TransportMode> allModes = config.getTransportModes();
         JourneyRequest journeyRequest = new JourneyRequest(tramServiceDate, departureTime,
                 false, maxChanges, maxDuration, maxNumberOfJourneys, allModes);
         journeyRequest.setWarnIfNoResults(false);

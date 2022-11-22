@@ -236,8 +236,7 @@ public class RailAndTramRouteCalculatorTest {
     }
 
     private Set<TransportMode> getRequestedModes() {
-        // empty means all
-        return Collections.emptySet();
+        return EnumSet.of(Tram, Train, RailReplacementBus);
     }
 
     @Test

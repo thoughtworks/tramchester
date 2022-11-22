@@ -149,7 +149,7 @@ class RouteCalculatorSubGraphMediaCityTest {
         // 2 -> 4
         int maxChanges = 4;
         JourneyRequest journeyRequest = new JourneyRequest(when, time, false, maxChanges,
-                Duration.ofMinutes(config.getMaxJourneyDuration()), 1, Collections.emptySet());
+                Duration.ofMinutes(config.getMaxJourneyDuration()), 1, getRequestedModes());
 
         Set<Journey> results = calculator.calculateRouteAsSet(SalfordQuay.getId(), StPetersSquare.getId(), journeyRequest);
 
@@ -224,7 +224,7 @@ class RouteCalculatorSubGraphMediaCityTest {
         // 2 -> 4
         int maxChanges = 4;
         JourneyRequest journeyRequest = new JourneyRequest(when, time, false, maxChanges,
-                Duration.ofMinutes(config.getMaxJourneyDuration()), 1, Collections.emptySet());
+                Duration.ofMinutes(config.getMaxJourneyDuration()), 1, getRequestedModes());
 
         // pairs of stations to check
         List<StationIdPair> results = getFailedPairedFor(journeyRequest);
@@ -257,7 +257,7 @@ class RouteCalculatorSubGraphMediaCityTest {
 
 
     private Set<TransportMode> getRequestedModes() {
-        return Collections.emptySet();
+        return TransportMode.TramsOnly;
     }
 
     @Test
@@ -311,7 +311,7 @@ class RouteCalculatorSubGraphMediaCityTest {
 
     private void validateAtLeastOneJourney(TramStations start, TramStations dest, TramTime time, TramDate date) {
         JourneyRequest journeyRequest = new JourneyRequest(date, time, false, 5,
-                maxJourneyDuration, 1, Collections.emptySet());
+                maxJourneyDuration, 1, getRequestedModes());
         Set<Journey> results = calculator.calculateRouteAsSet(start, dest, journeyRequest);
         assertFalse(results.isEmpty());
     }

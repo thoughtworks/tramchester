@@ -6,6 +6,7 @@ import com.tramchester.domain.JourneyRequest;
 import com.tramchester.domain.StationIdPair;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.places.Station;
+import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.integration.testSupport.RouteCalculationCombinations;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
@@ -23,6 +24,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.tramchester.domain.reference.TransportMode.Tram;
+import static com.tramchester.domain.reference.TransportMode.TramsOnly;
 import static java.lang.String.format;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -34,6 +36,7 @@ class RouteCalculatorTestAllJourneys {
     private TramDate when;
     private RouteCalculationCombinations combinations;
     private ClosedStationsRepository closedRepository;
+    private Set<TransportMode> modes;
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
@@ -50,6 +53,7 @@ class RouteCalculatorTestAllJourneys {
     @BeforeEach
     void beforeEachTestRuns() {
         when = TestEnv.testDay();
+        modes = TramsOnly;
         combinations = new RouteCalculationCombinations(componentContainer);
         closedRepository = componentContainer.get(ClosedStationsRepository.class);
     }
@@ -68,7 +72,7 @@ class RouteCalculatorTestAllJourneys {
         // 2 -> 4
         int maxChanges = 4;
         JourneyRequest journeyRequest = new JourneyRequest(when, time, false, maxChanges,
-                Duration.ofMinutes(testConfig.getMaxJourneyDuration()), 1, Collections.emptySet());
+                Duration.ofMinutes(testConfig.getMaxJourneyDuration()), 1, modes);
 
         // pairs of stations to check
         Set<StationIdPair> stationIdPairs = haveServices.stream().flatMap(start -> haveServices.stream().

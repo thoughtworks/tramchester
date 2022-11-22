@@ -7,6 +7,7 @@ import com.tramchester.domain.Journey;
 import com.tramchester.domain.JourneyRequest;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.places.Station;
+import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.search.RouteCalculator;
@@ -28,6 +29,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
+import static com.tramchester.domain.reference.TransportMode.TramsOnly;
 import static com.tramchester.testSupport.reference.TramStations.*;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -44,6 +46,7 @@ public class RouteCalculatorPiccadillyGardensClosureTests {
     private Duration maxJourneyDuration;
     private RouteCalculatorTestFacade calculator;
     private StationRepository stationRepository;
+    private Set<TransportMode> modes;
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
@@ -72,7 +75,9 @@ public class RouteCalculatorPiccadillyGardensClosureTests {
 
         calculator = new RouteCalculatorTestFacade(componentContainer.get(RouteCalculator.class), stationRepository, txn);
 
-        when = TestEnv.testTramDay();
+        when = TestEnv.testDay();
+
+        modes = TramsOnly;
     }
 
     @Test
@@ -87,7 +92,7 @@ public class RouteCalculatorPiccadillyGardensClosureTests {
     @Test
     void shouldHaveAltrinchamToBuryNormally() {
         JourneyRequest journeyRequest = new JourneyRequest(when, TramTime.of(8,5), false,
-                3, maxJourneyDuration, 5, Collections.emptySet());
+                3, maxJourneyDuration, 5, modes);
 
         Set<Journey> journeys = calculator.calculateRouteAsSet(Altrincham, Bury, journeyRequest);
         assertFalse(journeys.isEmpty());
@@ -96,7 +101,7 @@ public class RouteCalculatorPiccadillyGardensClosureTests {
     @Test
     void shouldHaveAshtonToCrumpsall() {
         JourneyRequest journeyRequest = new JourneyRequest(when, TramTime.of(8,5), false,
-                3, maxJourneyDuration, 5, Collections.emptySet());
+                3, maxJourneyDuration, 5, modes);
 
         Set<Journey> journeys = calculator.calculateRouteAsSet(Ashton, Bury, journeyRequest);
         assertFalse(journeys.isEmpty());
@@ -105,7 +110,7 @@ public class RouteCalculatorPiccadillyGardensClosureTests {
     @Test
     void shouldHaveAshtonToAltrincham() {
         JourneyRequest journeyRequest = new JourneyRequest(when, TramTime.of(8,5), false,
-                3, maxJourneyDuration, 5, Collections.emptySet());
+                3, maxJourneyDuration, 5, modes);
 
         Set<Journey> journeys = calculator.calculateRouteAsSet(Ashton, Altrincham, journeyRequest);
         assertFalse(journeys.isEmpty());
@@ -114,7 +119,7 @@ public class RouteCalculatorPiccadillyGardensClosureTests {
     @Test
     void shouldHaveAshtonToEccles() {
         JourneyRequest journeyRequest = new JourneyRequest(when, TramTime.of(8,5), false,
-                4, maxJourneyDuration, 5, Collections.emptySet());
+                4, maxJourneyDuration, 5, modes);
 
         Set<Journey> journeys = calculator.calculateRouteAsSet(Ashton, Eccles, journeyRequest);
         assertFalse(journeys.isEmpty());
@@ -123,7 +128,7 @@ public class RouteCalculatorPiccadillyGardensClosureTests {
     @Test
     void shouldHaveAltrinchamToAshton() {
         JourneyRequest journeyRequest = new JourneyRequest(when, TramTime.of(8,5), false,
-                3, maxJourneyDuration, 5, Collections.emptySet());
+                3, maxJourneyDuration, 5, modes);
 
         Set<Journey> journeys = calculator.calculateRouteAsSet(Ashton, Altrincham, journeyRequest);
         assertFalse(journeys.isEmpty());
@@ -132,7 +137,7 @@ public class RouteCalculatorPiccadillyGardensClosureTests {
     @Test
     void shouldHaveNewIslingtonToPiccGardens() {
         JourneyRequest journeyRequest = new JourneyRequest(when, TramTime.of(8,5), false,
-                3, maxJourneyDuration, 5, Collections.emptySet());
+                3, maxJourneyDuration, 5, modes);
 
         Set<Journey> journeys = calculator.calculateRouteAsSet(NewIslington, PiccadillyGardens, journeyRequest);
         assertFalse(journeys.isEmpty());
@@ -141,7 +146,7 @@ public class RouteCalculatorPiccadillyGardensClosureTests {
     @Test
     void shouldHaveBroadywayToPiccGardens() {
         JourneyRequest journeyRequest = new JourneyRequest(when, TramTime.of(8,5), false,
-                3, maxJourneyDuration, 5, Collections.emptySet());
+                3, maxJourneyDuration, 5, modes);
 
         Set<Journey> journeys = calculator.calculateRouteAsSet(Broadway, PiccadillyGardens, journeyRequest);
         assertFalse(journeys.isEmpty());
@@ -163,7 +168,7 @@ public class RouteCalculatorPiccadillyGardensClosureTests {
         List<TramStations> central = Arrays.asList(Deansgate, StPetersSquare, Piccadilly, MarketStreet,Shudehill, ExchangeSquare, Victoria);
 
         JourneyRequest journeyRequest = new JourneyRequest(when, TramTime.of(8,5), false,
-                3, maxJourneyDuration, 5, Collections.emptySet());
+                3, maxJourneyDuration, 5, modes);
 
         for (TramStations start : central) {
             for(TramStations dest : central) {

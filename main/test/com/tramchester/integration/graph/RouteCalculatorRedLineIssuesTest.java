@@ -41,6 +41,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+import static com.tramchester.domain.reference.TransportMode.TramsOnly;
 import static com.tramchester.testSupport.reference.KnownTramRoute.CornbrookTheTraffordCentre;
 import static com.tramchester.testSupport.reference.KnownTramRoute.PiccadillyBury;
 import static com.tramchester.testSupport.reference.TramStations.*;
@@ -67,6 +68,7 @@ public class RouteCalculatorRedLineIssuesTest {
 
     public static final TramDate PROBLEM_DATE = TramDate.of(2022, 11, 21);
     public static final TramDate NORMAL_DATE = PROBLEM_DATE.plusDays(1);
+    private Set<TransportMode> modes;
 
 
     @BeforeAll
@@ -96,7 +98,7 @@ public class RouteCalculatorRedLineIssuesTest {
 
         interchangeRepository = componentContainer.get(InterchangeRepository.class);
 
-
+        modes = TramsOnly;
     }
 
     @AfterEach
@@ -110,7 +112,7 @@ public class RouteCalculatorRedLineIssuesTest {
         TramDate testDate = PROBLEM_DATE;
 
         JourneyRequest request = new JourneyRequest(testDate, TramTime.of(8,5), false, 4,
-                maxJourneyDuration, 1, Collections.emptySet());
+                maxJourneyDuration, 1, modes);
 
         Set<Journey> journeys = calculator.calculateRouteAsSet(Etihad, TraffordCentre, request);
         assertFalse(journeys.isEmpty());
@@ -120,7 +122,7 @@ public class RouteCalculatorRedLineIssuesTest {
     void shouldReproIssueWithAshtonToTraffordCenter() {
 
         JourneyRequest request = new JourneyRequest(PROBLEM_DATE, TramTime.of(8,5), false, 4,
-                maxJourneyDuration, 1, Collections.emptySet());
+                maxJourneyDuration, 1, modes);
 
         Set<Journey> journeys = calculator.calculateRouteAsSet(Ashton, TraffordCentre, request);
         assertFalse(journeys.isEmpty());
@@ -130,7 +132,7 @@ public class RouteCalculatorRedLineIssuesTest {
     void shouldReproIssueWithAshtonToPiccadilly() {
 
         JourneyRequest request = new JourneyRequest(PROBLEM_DATE, TramTime.of(8,5), false, 4,
-                maxJourneyDuration, 1, Collections.emptySet());
+                maxJourneyDuration, 1, modes);
 
         Set<Journey> journeys = calculator.calculateRouteAsSet(Ashton, Piccadilly, request);
         assertFalse(journeys.isEmpty());
@@ -191,7 +193,7 @@ public class RouteCalculatorRedLineIssuesTest {
         List<JourneyRequest> requests = IntStream.range(0, 31).sorted().boxed().
                 map(baseDate::plusDays).
                 map(date -> new JourneyRequest(date, TramTime.of(8, 5), false, 4,
-                        maxJourneyDuration, 1, Collections.emptySet())).
+                        maxJourneyDuration, 1, modes)).
                 collect(Collectors.toList());
 
         RouteCalculationCombinations routeCalculationCombinations = new RouteCalculationCombinations(componentContainer);

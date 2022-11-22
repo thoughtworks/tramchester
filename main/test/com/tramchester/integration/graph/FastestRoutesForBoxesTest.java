@@ -31,6 +31,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static com.tramchester.domain.reference.TransportMode.TramsOnly;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -111,7 +112,7 @@ class FastestRoutesForBoxesTest {
         TramTime time = TramTime.of(9,15);
         JourneyRequest journeyRequest = new JourneyRequest(
                 TestEnv.testDay(), time, false, 2,
-                Duration.ofMinutes(120), 3, Collections.emptySet());
+                Duration.ofMinutes(120), 3, TramsOnly);
 
         Stream<BoundingBoxWithCost> results = calculator.findForGrid(destination, 2000, journeyRequest);
 

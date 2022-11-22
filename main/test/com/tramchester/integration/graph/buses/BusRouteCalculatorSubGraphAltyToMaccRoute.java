@@ -38,10 +38,12 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.time.Duration;
 import java.util.Collections;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static com.tramchester.domain.reference.TransportMode.Bus;
 import static com.tramchester.testSupport.TestEnv.NoopRegisterMetrics;
 import static com.tramchester.testSupport.TestEnv.deleteDBIfPresent;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -155,7 +157,7 @@ class BusRouteCalculatorSubGraphAltyToMaccRoute {
     }
 
     private Set<TransportMode> getRequestedModes() {
-        return Collections.emptySet();
+        return TransportMode.BusesOnly;
     }
 
     @Test

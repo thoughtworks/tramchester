@@ -24,11 +24,6 @@ public class JourneyRequest {
     private boolean warnIfNoResults;
 
 
-//    public JourneyRequest(TramDate date, TramTime originalQueryTime, boolean arriveBy, int maxChanges, Duration maxJourneyDuration,
-//                          long maxNumberOfJourneys, Set<TransportMode> requestedModes) {
-//        this(new TramServiceDate(date), originalQueryTime, arriveBy, maxChanges, maxJourneyDuration, maxNumberOfJourneys, requestedModes);
-//    }
-
     public JourneyRequest(TramDate date, TramTime originalQueryTime, boolean arriveBy, int maxChanges,
                           Duration maxJourneyDuration, long maxNumberOfJourneys, Set<TransportMode> requestedModes) {
         this.date = date;
@@ -39,6 +34,10 @@ public class JourneyRequest {
         this.maxNumberOfJourneys = maxNumberOfJourneys;
         this.uid = UUID.randomUUID();
         this.requestedModes = requestedModes;
+
+        if (requestedModes.isEmpty()) {
+            throw new RuntimeException("Must provides modes");
+        }
 
         diagnostics = false;
         warnIfNoResults = true;

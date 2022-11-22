@@ -42,6 +42,7 @@ import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
+import static com.tramchester.domain.reference.TransportMode.TramsOnly;
 import static com.tramchester.graph.graphbuild.GraphLabel.PLATFORM;
 import static com.tramchester.graph.graphbuild.GraphLabel.ROUTE_STATION;
 import static com.tramchester.testSupport.reference.TramStations.*;
@@ -114,7 +115,7 @@ class SubgraphSmallClosedStationsDiversionsTest {
     }
 
     private Set<TransportMode> getRequestedModes() {
-        return Collections.emptySet();
+        return TramsOnly;
     }
 
     @Test

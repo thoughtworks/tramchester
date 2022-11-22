@@ -2,6 +2,7 @@ package com.tramchester.integration.graph.diversions;
 
 import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
+import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.Journey;
 import com.tramchester.domain.JourneyRequest;
 import com.tramchester.domain.StationClosures;
@@ -29,25 +30,24 @@ import org.neo4j.graphdb.Transaction;
 
 import java.io.IOException;
 import java.time.Duration;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 
+import static com.tramchester.domain.reference.TransportMode.Tram;
+import static com.tramchester.domain.reference.TransportMode.Walk;
 import static com.tramchester.graph.graphbuild.GraphLabel.PLATFORM;
 import static com.tramchester.graph.graphbuild.GraphLabel.ROUTE_STATION;
 import static com.tramchester.testSupport.reference.TramStations.*;
 import static org.junit.jupiter.api.Assertions.*;
 
-@Disabled("WIP - needs change to number of stops computation")
+@Disabled("Reworked, duplication")
 class ClosedStationsDiversionsTest {
     // Note this needs to be > time for whole test fixture, see note below in @After
     private static final int TXN_TIMEOUT = 5*60;
 
     private static ComponentContainer componentContainer;
     private static GraphDatabase database;
-    private static IntegrationTramClosedStationsTestConfig config;
+    private static TramchesterConfig config;
 
     private RouteCalculatorTestFacade calculator;
     private StationRepository stationRepository;
@@ -58,8 +58,10 @@ class ClosedStationsDiversionsTest {
             new StationClosuresForTest(TramStations.StPetersSquare, when, when.plusWeeks(1), true));
 
     @BeforeAll
-    static void onceBeforeAnyTestsRun() {
+    static void onceBeforeAnyTestsRun() throws IOException {
         config = new IntegrationTramClosedStationsTestConfig(closedStations, true);
+        TestEnv.deleteDBIfPresent(config);
+
         componentContainer = new ComponentsBuilder().create(config, TestEnv.NoopRegisterMetrics());
         componentContainer.initialise();
         database = componentContainer.get(GraphDatabase.class);
@@ -68,7 +70,7 @@ class ClosedStationsDiversionsTest {
     @AfterAll
     static void OnceAfterAllTestsAreFinished() throws IOException {
         componentContainer.close();
-        //TestEnv.deleteDBIfPresent(config);
+        TestEnv.deleteDBIfPresent(config);
     }
 
     @BeforeEach
@@ -84,7 +86,7 @@ class ClosedStationsDiversionsTest {
     }
 
     private Set<TransportMode> getRequestedModes() {
-        return Collections.emptySet();
+        return EnumSet.of(Tram, Walk);
     }
 
     @Test
@@ -120,7 +122,7 @@ class ClosedStationsDiversionsTest {
             final List<TransportStage<?, ?>> stages = result.getStages();
             assertEquals(2, stages.size(), "num stages " + result);
             assertEquals(TransportMode.Connect, stages.get(0).getMode(), "1st mode " + result);
-            assertEquals(TransportMode.Tram, stages.get(1).getMode(), "2nd mode " + result);
+            assertEquals(Tram, stages.get(1).getMode(), "2nd mode " + result);
         });
     }
 
@@ -195,9 +197,9 @@ class ClosedStationsDiversionsTest {
         results.forEach(result -> {
             final List<TransportStage<?, ?>> stages = result.getStages();
             assertEquals(3, stages.size(), "num stages " + result);
-            assertEquals(TransportMode.Tram, stages.get(0).getMode(), "1st mode " + result);
+            assertEquals(Tram, stages.get(0).getMode(), "1st mode " + result);
             assertEquals(TransportMode.Connect, stages.get(1).getMode(), "2nd mode " + result);
-            assertEquals(TransportMode.Tram, stages.get(2).getMode(), "3rd mode " + result);
+            assertEquals(Tram, stages.get(2).getMode(), "3rd mode " + result);
         });
     }
 
@@ -224,7 +226,7 @@ class ClosedStationsDiversionsTest {
         results.forEach(result -> {
             final List<TransportStage<?, ?>> stages = result.getStages();
             assertEquals(2, stages.size(), "num stages " + result);
-            assertEquals(TransportMode.Tram, stages.get(0).getMode(), "1st mode " + result);
+            assertEquals(Tram, stages.get(0).getMode(), "1st mode " + result);
             assertEquals(TransportMode.Connect, stages.get(1).getMode(), "2nd mode " + result);
         });
     }

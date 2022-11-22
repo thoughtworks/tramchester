@@ -34,6 +34,7 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Stream;
 
+import static com.tramchester.domain.reference.TransportMode.TramsOnly;
 import static org.junit.jupiter.api.Assertions.*;
 
 class PostcodeTramJourneyPlannerTest {
@@ -85,7 +86,7 @@ class PostcodeTramJourneyPlannerTest {
         //TramServiceDate date = new TramServiceDate(when);
         int maxChanges = 2;
         long maxNumberOfJourneys = 3;
-        Set<TransportMode> modes = Collections.emptySet();
+        Set<TransportMode> modes = TramsOnly;
         return Stream.of(
                 new JourneyRequest(when, planningTime, false, maxChanges, maxJourneyDuration, maxNumberOfJourneys, modes),
                 new JourneyRequest(when, planningTime, true, maxChanges, maxJourneyDuration, maxNumberOfJourneys, modes));
