@@ -51,7 +51,6 @@ public class RouteRepositoryTest {
 
     @BeforeAll
     static void onceBeforeAnyTestsRun(TramchesterConfig tramchesterConfig) {
-        //TramchesterConfig config = new IntegrationTramTestConfig();
         componentContainer = new ComponentsBuilder().create(tramchesterConfig, TestEnv.NoopRegisterMetrics());
         componentContainer.initialise();
     }

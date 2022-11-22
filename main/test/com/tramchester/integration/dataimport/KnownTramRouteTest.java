@@ -2,26 +2,33 @@ package com.tramchester.integration.dataimport;
 
 import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
+import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdSet;
+import com.tramchester.integration.testSupport.ConfigParameterResolver;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
 import com.tramchester.repository.RouteRepository;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.KnownTramRoute;
 import com.tramchester.testSupport.testTags.DataUpdateTest;
+import com.tramchester.testSupport.testTags.DualTest;
 import org.apache.commons.collections4.SetUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static com.tramchester.domain.reference.TransportMode.Tram;
 import static org.junit.jupiter.api.Assertions.*;
 
+@ExtendWith(ConfigParameterResolver.class)
+@DualTest
 @DataUpdateTest
 class KnownTramRouteTest {
     private static ComponentContainer componentContainer;
@@ -30,8 +37,8 @@ class KnownTramRouteTest {
     private TramDate when;
 
     @BeforeAll
-    static void onceBeforeAnyTestsRun() {
-        componentContainer = new ComponentsBuilder().create(new IntegrationTramTestConfig(), TestEnv.NoopRegisterMetrics());
+    static void onceBeforeAnyTestsRun(TramchesterConfig tramchesterConfig) {
+        componentContainer = new ComponentsBuilder().create(tramchesterConfig, TestEnv.NoopRegisterMetrics());
         componentContainer.initialise();
     }
 
@@ -52,7 +59,7 @@ class KnownTramRouteTest {
     void shouldHaveMatchWithLoadedRoutes() {
         Set<String> knownRouteNames = knownRoutes.stream().map(KnownTramRoute::longName).collect(Collectors.toSet());
 
-        Set<Route> loadedRoutes = getLoadedRoutes().collect(Collectors.toSet());
+        Set<Route> loadedRoutes = getLoadedTramRoutes().collect(Collectors.toSet());
 
         // NOTE: not checking numbers here as loaded data can contain the 'same' route but with different id
 
@@ -71,7 +78,7 @@ class KnownTramRouteTest {
     @Test
     void shouldHaveKnownRouteInLoadedData() {
 
-        Set<String> loadedRouteNames = getLoadedRoutes().map(Route::getName).collect(Collectors.toSet());
+        Set<String> loadedRouteNames = getLoadedTramRoutes().map(Route::getName).collect(Collectors.toSet());
 
         for (KnownTramRoute knownTramRoute : knownRoutes) {
             assertTrue(loadedRouteNames.contains(knownTramRoute.longName()),
@@ -81,8 +88,8 @@ class KnownTramRouteTest {
     }
 
     @NotNull
-    private Stream<Route> getLoadedRoutes() {
-        return routeRepository.getRoutes().stream().filter(route -> route.isAvailableOn(when));
+    private Stream<Route> getLoadedTramRoutes() {
+        return routeRepository.getRoutes(EnumSet.of(Tram)).stream().filter(route -> route.isAvailableOn(when));
     }
 
     @Test
@@ -137,7 +144,9 @@ class KnownTramRouteTest {
 
     @Test
     void shouldHaveSameNumbersOfRoutesOnDate() {
-        Set<String> uniqueNames = routeRepository.getRoutesRunningOn(when).stream().map(Route::getName).collect(Collectors.toSet());
+        Set<String> uniqueNames = routeRepository.getRoutesRunningOn(when).stream().
+                filter(route -> route.getTransportMode()==Tram).
+                map(Route::getName).collect(Collectors.toSet());
 
         Set<String> onDate = KnownTramRoute.getFor(when).stream().map(KnownTramRoute::longName).collect(Collectors.toSet());
 
@@ -152,7 +161,9 @@ class KnownTramRouteTest {
     @Test
     void shouldHaveCorrectNamesForKnownRoutesForTestDate() {
 
-        Set<String> fromRepos = routeRepository.getRoutesRunningOn(when).stream().map(Route::getName).collect(Collectors.toSet());
+        Set<String> fromRepos = routeRepository.getRoutesRunningOn(when).stream().
+                filter(route -> route.getTransportMode()==Tram).
+                map(Route::getName).collect(Collectors.toSet());
 
         Set<String> onDate = KnownTramRoute.getFor(when).stream().map(KnownTramRoute::longName).collect(Collectors.toSet());
 
@@ -168,7 +179,9 @@ class KnownTramRouteTest {
 
         TramDate date = TramDate.from(TestEnv.LocalNow());
 
-        Set<String> fromRepos = routeRepository.getRoutesRunningOn(date).stream().map(Route::getName).collect(Collectors.toSet());
+        Set<String> fromRepos = routeRepository.getRoutesRunningOn(date).stream().
+                filter(route -> route.getTransportMode()==Tram).
+                map(Route::getName).collect(Collectors.toSet());
 
         Set<String> onDate = KnownTramRoute.getFor(date).stream().map(KnownTramRoute::longName).collect(Collectors.toSet());
 

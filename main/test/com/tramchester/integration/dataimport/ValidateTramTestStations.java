@@ -2,16 +2,20 @@ package com.tramchester.integration.dataimport;
 
 import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
+import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.places.Station;
+import com.tramchester.integration.testSupport.ConfigParameterResolver;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.TramStations;
 import com.tramchester.testSupport.testTags.DataUpdateTest;
+import com.tramchester.testSupport.testTags.DualTest;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import java.util.Arrays;
 import java.util.List;
@@ -19,6 +23,8 @@ import java.util.List;
 import static com.tramchester.testSupport.TestEnv.assertLatLongEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+@ExtendWith(ConfigParameterResolver.class)
+@DualTest
 @DataUpdateTest
 class ValidateTramTestStations {
 
@@ -27,8 +33,8 @@ class ValidateTramTestStations {
     private StationRepository transportData;
 
     @BeforeAll
-    static void onceBeforeAnyTestsRun() {
-        componentContainer = new ComponentsBuilder().create(new IntegrationTramTestConfig(), TestEnv.NoopRegisterMetrics());
+    static void onceBeforeAnyTestsRun(TramchesterConfig tramchesterConfig) {
+        componentContainer = new ComponentsBuilder().create(tramchesterConfig, TestEnv.NoopRegisterMetrics());
         componentContainer.initialise();
     }
 
