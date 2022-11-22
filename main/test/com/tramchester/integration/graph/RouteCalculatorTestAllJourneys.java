@@ -36,7 +36,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @ExtendWith(ConfigParameterResolver.class)
 @DualTest
-@GMTest
 class RouteCalculatorTestAllJourneys {
 
     private static ComponentContainer componentContainer;
@@ -49,7 +48,7 @@ class RouteCalculatorTestAllJourneys {
 
     @BeforeAll
     static void onceBeforeAnyTestsRun(TramchesterConfig config) {
-        testConfig = config; //new IntegrationTramTestConfig();
+        testConfig = config;
         componentContainer = new ComponentsBuilder().create(testConfig, TestEnv.NoopRegisterMetrics());
         componentContainer.initialise();
     }
