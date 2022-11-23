@@ -30,6 +30,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
+import static com.tramchester.domain.reference.TransportMode.TramsOnly;
 import static com.tramchester.testSupport.reference.TramStations.*;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 
@@ -49,7 +50,7 @@ class RouteCalculatorSubGraphEcclesAshtonLine {
     @BeforeAll
     static void onceBeforeAnyTestsRun() throws IOException {
         config = new SubgraphConfig();
-        TestEnv.deleteDBIfPresent(config);
+//        TestEnv.deleteDBIfPresent(config);
 
         componentContainer = new ComponentsBuilder().
                 configureGraphFilter(RouteCalculatorSubGraphEcclesAshtonLine::configureFilter).
@@ -70,7 +71,7 @@ class RouteCalculatorSubGraphEcclesAshtonLine {
     @AfterAll
     static void OnceAfterAllTestsAreFinished() throws IOException {
         componentContainer.close();
-        TestEnv.deleteDBIfPresent(config);
+//        TestEnv.deleteDBIfPresent(config);
     }
 
     @BeforeEach
@@ -79,7 +80,6 @@ class RouteCalculatorSubGraphEcclesAshtonLine {
         txn = database.beginTx();
         calculator = new RouteCalculatorTestFacade(componentContainer.get(RouteCalculator.class), stationRepository, txn);
 
-        //GraphQuery graphQuery = componentContainer.get(GraphQuery.class);
         maxJourneyDuration = Duration.ofMinutes(config.getMaxJourneyDuration());
     }
 
@@ -91,7 +91,7 @@ class RouteCalculatorSubGraphEcclesAshtonLine {
     @Test
     void ShouldReproIssueWithMediaCityToVelopark() {
         JourneyRequest request = new JourneyRequest(when, TramTime.of(8, 5), false,
-                1, maxJourneyDuration, 2, Collections.emptySet());
+                1, maxJourneyDuration, 2, TramsOnly);
         request.setDiag(true);
 
         assertFalse(calculator.calculateRouteAsSet(MediaCityUK, VeloPark, request).isEmpty());

@@ -71,7 +71,7 @@ class RouteCalculatorSubGraphMediaCityTest {
     @BeforeAll
     static void onceBeforeAnyTestsRun() throws IOException {
         config = new SubgraphConfig();
-        TestEnv.deleteDBIfPresent(config);
+//        TestEnv.deleteDBIfPresent(config);
 
         componentContainer = new ComponentsBuilder().
                 configureGraphFilter(RouteCalculatorSubGraphMediaCityTest::configureFilter).
@@ -89,7 +89,7 @@ class RouteCalculatorSubGraphMediaCityTest {
     @AfterAll
     static void OnceAfterAllTestsAreFinished() throws IOException {
         componentContainer.close();
-        TestEnv.deleteDBIfPresent(config);
+//        TestEnv.deleteDBIfPresent(config);
     }
 
     @BeforeEach

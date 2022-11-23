@@ -42,7 +42,7 @@ class RouteCalculatorSubGraphMonsallTest {
     @BeforeAll
     static void onceBeforeAnyTestsRun() throws IOException {
         config = new SubgraphConfig();
-        TestEnv.deleteDBIfPresent(config);
+//        TestEnv.deleteDBIfPresent(config);
 
         componentContainer = new ComponentsBuilder().
                 configureGraphFilter(RouteCalculatorSubGraphMonsallTest::configureFilter).
@@ -63,7 +63,7 @@ class RouteCalculatorSubGraphMonsallTest {
     @AfterAll
     static void OnceAfterAllTestsAreFinished() throws IOException {
         componentContainer.close();
-        TestEnv.deleteDBIfPresent(config);
+//        TestEnv.deleteDBIfPresent(config);
     }
 
     @BeforeEach
