@@ -427,7 +427,7 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
                 andStubReturn(ServiceReason.IsValid(ServiceReason.ReasonCode.DurationOk, howIGotHere));
         EasyMock.expect(serviceHeuristics.checkNumberNeighbourConnections(0, howIGotHere, reasons)).
                 andStubReturn(ServiceReason.IsValid(ServiceReason.ReasonCode.NeighbourConnectionsOk, howIGotHere));
-        EasyMock.expect(serviceHeuristics.checkModes(node, labels, EnumSet.of(TRAM), howIGotHere, reasons)).
+        EasyMock.expect(serviceHeuristics.checkModes(labels, EnumSet.of(TRAM), howIGotHere, reasons)).
                 andStubReturn(ServiceReason.IsValid(ServiceReason.ReasonCode.TransportModeOk, howIGotHere));
 
         TramTime time = TramTime.of(8, 15);
@@ -472,7 +472,7 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
                 andStubReturn(ServiceReason.IsValid(ServiceReason.ReasonCode.NeighbourConnectionsOk, howIGotHere));
         EasyMock.expect(serviceHeuristics.journeyDurationUnderLimit(Duration.ZERO, howIGotHere, reasons)).
                 andStubReturn(ServiceReason.IsValid(ServiceReason.ReasonCode.DurationOk, howIGotHere));
-        EasyMock.expect(serviceHeuristics.checkModes(node, labels, requestedLabels, howIGotHere, reasons)).
+        EasyMock.expect(serviceHeuristics.checkModes(labels, requestedLabels, howIGotHere, reasons)).
                 andStubReturn(ServiceReason.IsValid(ServiceReason.ReasonCode.TransportModeOk, howIGotHere));
 
         TramTime time = TramTime.of(8, 15);
@@ -518,7 +518,7 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
                 andStubReturn(ServiceReason.IsValid(ServiceReason.ReasonCode.DurationOk, howIGotHere));
         EasyMock.expect(serviceHeuristics.checkNumberNeighbourConnections(0, howIGotHere, reasons)).
                 andStubReturn(ServiceReason.IsValid(ServiceReason.ReasonCode.NeighbourConnectionsOk, howIGotHere));
-        EasyMock.expect(serviceHeuristics.checkModes(node, labels, EnumSet.of(TRAM), howIGotHere, reasons)).
+        EasyMock.expect(serviceHeuristics.checkModes(labels, EnumSet.of(TRAM), howIGotHere, reasons)).
                 andStubReturn(ServiceReason.IsValid(ServiceReason.ReasonCode.TransportModeOk, howIGotHere));
 
         TramTime time = TramTime.of(8, 15);

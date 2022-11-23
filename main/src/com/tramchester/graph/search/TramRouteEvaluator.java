@@ -36,7 +36,6 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
     private final ServiceHeuristics serviceHeuristics;
     private final NodeContentsRepository nodeContentsRepository;
     private final ProvidesNow providesNow;
-    //private final Set<TransportMode> requestedModes;
 
     private final Set<Long> destinationNodeIds;
     private final ServiceReasons reasons;
@@ -220,6 +219,11 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
         // -->Hour
         // check time, just hour first
         if (nodeLabels.contains(GraphLabel.HOUR)) {
+//            ServiceReason forMode = serviceHeuristics.checkModes(nodeLabels, requestedLabels, howIGotHere, reasons);
+//            if (!forMode.isValid()) {
+//                return forMode.getReasonCode();
+//            }
+
             if (!serviceHeuristics.interestedInHour(howIGotHere, visitingTime, reasons, timeToWait, nodeLabels).isValid()) {
                 return ServiceReason.ReasonCode.NotAtHour;
             }
@@ -238,7 +242,7 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
         // is the station open?
         if (nodeLabels.contains(GraphLabel.ROUTE_STATION)) {
 
-            ServiceReason forMode = serviceHeuristics.checkModes(nextNode, nodeLabels, requestedLabels, howIGotHere, reasons);
+            ServiceReason forMode = serviceHeuristics.checkModes(nodeLabels, requestedLabels, howIGotHere, reasons);
             if (!forMode.isValid()) {
                 return forMode.getReasonCode();
             }

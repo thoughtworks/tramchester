@@ -7,7 +7,6 @@ import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
-import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.Durations;
 import com.tramchester.domain.time.TimeRange;
 import com.tramchester.domain.time.TramTime;
@@ -159,13 +158,11 @@ public class ServiceHeuristics {
 
     }
 
-    public ServiceReason checkModes(final Node node, final EnumSet<GraphLabel> labels, final Set<GraphLabel> requestedLabels, HowIGotHere howIGotHere, ServiceReasons reasons) {
-
-//        RouteStation routeStation = stationRepository.getRouteStationById(routeStationId);
+    public ServiceReason checkModes(final EnumSet<GraphLabel> labels, final Set<GraphLabel> requestedLabels, HowIGotHere howIGotHere, ServiceReasons reasons) {
 
         if (Sets.intersection(labels, requestedLabels).isEmpty()) {
-            IdFor<RouteStation> routeStationId = nodeOperations.getRouteStationId(node);
-            return reasons.recordReason(ServiceReason.TransportModeWrong(howIGotHere, routeStationId));
+            //IdFor<RouteStation> routeStationId = nodeOperations.getRouteStationId(node);
+            return reasons.recordReason(ServiceReason.TransportModeWrong(howIGotHere));
         }
         return valid(ServiceReason.ReasonCode.TransportModeOk, howIGotHere, reasons);
     }
