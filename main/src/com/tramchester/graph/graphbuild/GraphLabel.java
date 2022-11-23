@@ -14,7 +14,9 @@ public enum GraphLabel implements Label {
     GROUPED,  // grouped station node
     ROUTE_STATION,
     STATION, // any station node must have this label
-    // transport modes
+    HAS_PLATFORMS, // label added to stations if have platforms
+    INTERCHANGE, // label added to stations if they are interchanges
+    // transport modes - added to route stations
     TRAM,
     BUS,
     TRAIN,
@@ -22,16 +24,16 @@ public enum GraphLabel implements Label {
     SUBWAY,
 
     PLATFORM,
-    QUERY_NODE,
+    QUERY_NODE, // created to support journeys walking from arbitary location
     SERVICE,
     HOUR,
     MINUTE,
+    // meta labels for versions and feature flags
     VERSION,
     NEIGHBOURS_ENABLED,
     WALK_FOR_CLOSED_ENABLED,
     COMPOSITES_ADDED,
-    HAS_PLATFORMS, // label added to stations if have platforms
-    INTERCHANGE, // label added to stations if they are interchanges
+
     // Order for HOUR_N matters, used in sorting
     HOUR_0, HOUR_1, HOUR_2, HOUR_3, HOUR_4, HOUR_5, HOUR_6, HOUR_7,
     HOUR_8, HOUR_9, HOUR_10, HOUR_11, HOUR_12, HOUR_13, HOUR_14, HOUR_15,

@@ -110,7 +110,6 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
 
         maxInitialWait = config.getInitialMaxWaitFor(DataSourceID.tfgm);
 
-
         latLongHint = TramStations.ManAirport.getLatLong();
         destinationNodeId = 88L;
         startNodeId = 128L;
@@ -149,7 +148,7 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
 
         final TraversalOps traversalOps = new TraversalOps(contentsRepository, tripRepository, sortsPositions, destinationStations,
                 latLongHint, lowestCostsForRoutes, TestEnv.testDay());
-        return new NotStartedState(traversalOps, traversalStateFactory);
+        return new NotStartedState(traversalOps, traversalStateFactory, TramsOnly);
     }
 
     @NotNull

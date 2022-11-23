@@ -92,7 +92,7 @@ public class TramNetworkTraverser implements PathExpander<JourneyState> {
         TraversalOps traversalOps = new TraversalOps(nodeContentsRepository, tripRespository, sortsPosition, destinations,
                 destinationLatLon, lowestCostsForRoutes, pathRequest.getQueryDate());
 
-        final NotStartedState traversalState = new NotStartedState(traversalOps, traversalStateFactory);
+        final NotStartedState traversalState = new NotStartedState(traversalOps, traversalStateFactory, pathRequest.getRequestedModes());
         final InitialBranchState<JourneyState> initialJourneyState = JourneyState.initialState(actualQueryTime, traversalState);
 
         logger.info("Create traversal for " + actualQueryTime);
@@ -128,7 +128,7 @@ public class TramNetworkTraverser implements PathExpander<JourneyState> {
         final ImmutableJourneyState currentState = graphState.getState();
         final ImmuatableTraversalState traversalState = currentState.getTraversalState();
 
-        final Node endNode = path.endNode();
+        final Node endPathNode = path.endNode();
         final JourneyState journeyStateForChildren = JourneyState.fromPrevious(currentState);
 
         Duration cost = Duration.ZERO;
@@ -146,9 +146,9 @@ public class TramNetworkTraverser implements PathExpander<JourneyState> {
             }
         }
 
-        final EnumSet<GraphLabel> labels = nodeContentsRepository.getLabels(endNode);
+        final EnumSet<GraphLabel> labels = nodeContentsRepository.getLabels(endPathNode);
 
-        final TraversalState traversalStateForChildren = traversalState.nextState(labels, endNode,
+        final TraversalState traversalStateForChildren = traversalState.nextState(labels, endPathNode,
                 journeyStateForChildren, cost, journeyStateForChildren.isOnDiversion());
 
         journeyStateForChildren.updateTraversalState(traversalStateForChildren);

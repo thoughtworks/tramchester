@@ -5,6 +5,7 @@ import com.tramchester.domain.Service;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.InvalidId;
 import com.tramchester.domain.input.Trip;
+import com.tramchester.graph.TransportRelationshipTypes;
 import com.tramchester.graph.caches.NodeContentsRepository;
 import com.tramchester.graph.graphbuild.GraphProps;
 import com.tramchester.graph.search.JourneyStateUpdate;
@@ -13,13 +14,13 @@ import com.tramchester.graph.search.stateMachine.RegistersFromState;
 import com.tramchester.graph.search.stateMachine.Towards;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
+import org.neo4j.graphdb.RelationshipType;
 
 import java.time.Duration;
 import java.util.List;
 import java.util.stream.Collectors;
 
 import static com.tramchester.graph.GraphPropertyKey.TRIP_ID;
-import static com.tramchester.graph.TransportRelationshipTypes.*;
 import static org.neo4j.graphdb.Direction.OUTGOING;
 
 public class MinuteState extends TraversalState {
@@ -44,9 +45,11 @@ public class MinuteState extends TraversalState {
             return MinuteState.class;
         }
 
-        public TraversalState fromHour(HourState hourState, Node node, Duration cost, ExistingTrip existingTrip, JourneyStateUpdate journeyState) {
-            Iterable<Relationship> relationships = node.getRelationships(OUTGOING, TRAM_GOES_TO, BUS_GOES_TO, TRAIN_GOES_TO
-                ,FERRY_GOES_TO, SUBWAY_GOES_TO);
+        public TraversalState fromHour(HourState hourState, Node node, Duration cost, ExistingTrip existingTrip,
+                                       JourneyStateUpdate journeyState, TransportRelationshipTypes[] currentModes) {
+
+            //Iterable<Relationship> relationships = node.getRelationships(OUTGOING, TRAM_GOES_TO, BUS_GOES_TO, TRAIN_GOES_TO, FERRY_GOES_TO, SUBWAY_GOES_TO);
+            Iterable<Relationship> relationships = node.getRelationships(OUTGOING, currentModes);
 
             if (existingTrip.isOnTrip()) {
                 IdFor<Trip> existingTripId = existingTrip.getTripId();

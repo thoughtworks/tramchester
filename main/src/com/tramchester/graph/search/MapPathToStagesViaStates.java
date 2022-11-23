@@ -85,7 +85,7 @@ public class MapPathToStagesViaStates implements PathToStages {
 
         MapStatesToStages mapStatesToStages = new MapStatesToStages(stationRepository, platformRepository, tripRepository, queryTime);
 
-        TraversalState previous = new NotStartedState(traversalOps, stateFactory);
+        TraversalState previous = new NotStartedState(traversalOps, stateFactory, journeyRequest.getRequestedModes());
 
         Duration lastRelationshipCost = Duration.ZERO;
         for (Entity entity : path) {

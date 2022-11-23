@@ -90,5 +90,15 @@ public enum TransportRelationshipTypes implements RelationshipType {
     public static TransportRelationshipTypes from(Relationship relationship) {
         return valueOf(relationship.getType().name());
     }
+
+    public static TransportRelationshipTypes[] forModes(Set<TransportMode> transportModes) {
+        TransportRelationshipTypes[] results = new TransportRelationshipTypes[transportModes.size()];
+        int index = 0;
+        for (TransportMode mode: transportModes) {
+            results[index] = forMode(mode);
+            index++;
+        }
+        return results;
+    }
 }
 

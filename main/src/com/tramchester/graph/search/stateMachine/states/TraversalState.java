@@ -1,6 +1,7 @@
 package com.tramchester.graph.search.stateMachine.states;
 
 import com.google.common.collect.Streams;
+import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.graph.TransportRelationshipTypes;
 import com.tramchester.graph.graphbuild.GraphLabel;
 import com.tramchester.graph.search.JourneyStateUpdate;
@@ -28,12 +29,16 @@ public abstract class TraversalState implements ImmuatableTraversalState {
     private final Duration parentCost;
     private final TraversalState parent;
 
+    // only follow GOES_TO links for requested transport modes
+    private final TransportRelationshipTypes[] requestedRelationshipTypes;
+
     private TraversalState child;
 
     // initial only
-    protected TraversalState(TraversalOps traversalOps, TraversalStateFactory traversalStateFactory) {
+    protected TraversalState(TraversalOps traversalOps, TraversalStateFactory traversalStateFactory, Set<TransportMode> requestedModes) {
         this.traversalOps = traversalOps;
         this.builders = traversalStateFactory;
+        this.requestedRelationshipTypes = TransportRelationshipTypes.forModes(requestedModes);
 
         this.costForLastEdge = Duration.ZERO;
         this.parentCost = Duration.ZERO;
@@ -53,6 +58,8 @@ public abstract class TraversalState implements ImmuatableTraversalState {
         this.outbounds = outbounds;
         this.costForLastEdge = costForLastEdge;
         this.parentCost = parent.getTotalDuration();
+
+        this.requestedRelationshipTypes = parent.requestedRelationshipTypes;
     }
 
     public static Stream<Relationship> getRelationships(Node node, Direction direction, TransportRelationshipTypes types) {
@@ -83,7 +90,7 @@ public abstract class TraversalState implements ImmuatableTraversalState {
 
         final Class<? extends TraversalState> from = this.getClass();
         switch (actualNodeType) {
-            case MINUTE -> { return toMinute(builders.getTowardsMinute(from), node, cost, journeyState); }
+            case MINUTE -> { return toMinute(builders.getTowardsMinute(from), node, cost, journeyState, requestedRelationshipTypes); }
             case HOUR -> { return toHour(builders.getTowardsHour(from), node, cost); }
             case GROUPED -> { return toGrouped(node, cost, journeyState); }
             case STATION -> { return toStation(node, journeyState, cost, hasPlatforms, alreadyOnDiversion); }
@@ -123,7 +130,7 @@ public abstract class TraversalState implements ImmuatableTraversalState {
         throw new RuntimeException("No such transition at " + this.getClass());
     }
 
-    protected TraversalState toMinute(MinuteState.Builder towardsMinute, Node node, Duration cost, JourneyStateUpdate journeyState) {
+    protected TraversalState toMinute(MinuteState.Builder towardsMinute, Node node, Duration cost, JourneyStateUpdate journeyState, TransportRelationshipTypes[] currentModes) {
         throw new RuntimeException("No such transition at " + this.getClass());
     }
 
@@ -173,7 +180,6 @@ public abstract class TraversalState implements ImmuatableTraversalState {
         }
 
         if (from.equals(MinuteState.class)) {
-
             MinuteState minuteState = (MinuteState) this;
             if (traversalOps.hasOutboundFor(node, minuteState.getServiceId())) {
                 return toRouteStationOnTrip(builders.getTowardsRouteStationOnTrip(from), node, cost, isInterchange);

@@ -1,15 +1,17 @@
 package com.tramchester.graph.search.stateMachine.states;
 
+import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.graph.search.JourneyStateUpdate;
 import com.tramchester.graph.search.stateMachine.TraversalOps;
 import org.neo4j.graphdb.Node;
 
 import java.time.Duration;
+import java.util.Set;
 
 public class NotStartedState extends TraversalState {
 
-    public NotStartedState(TraversalOps traversalOps, TraversalStateFactory traversalStateFactory) {
-        super(traversalOps, traversalStateFactory);
+    public NotStartedState(TraversalOps traversalOps, TraversalStateFactory traversalStateFactory, Set<TransportMode> requestedModes) {
+        super(traversalOps, traversalStateFactory, requestedModes);
     }
 
     @Override

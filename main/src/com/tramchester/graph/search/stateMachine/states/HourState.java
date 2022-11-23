@@ -2,6 +2,7 @@ package com.tramchester.graph.search.stateMachine.states;
 
 import com.tramchester.domain.exceptions.TramchesterException;
 import com.tramchester.domain.time.TramTime;
+import com.tramchester.graph.TransportRelationshipTypes;
 import com.tramchester.graph.caches.NodeContentsRepository;
 import com.tramchester.graph.search.JourneyStateUpdate;
 import com.tramchester.graph.search.stateMachine.ExistingTrip;
@@ -62,7 +63,8 @@ public class HourState extends TraversalState {
     }
 
     @Override
-    protected TraversalState toMinute(MinuteState.Builder towardsMinute, Node minuteNode, Duration cost, JourneyStateUpdate journeyState) {
+    protected TraversalState toMinute(MinuteState.Builder towardsMinute, Node minuteNode, Duration cost,
+                                      JourneyStateUpdate journeyState, TransportRelationshipTypes[] currentModes) {
         try {
             TramTime time = traversalOps.getTimeFrom(minuteNode);
             journeyState.recordTime(time, getTotalDuration());
@@ -70,7 +72,7 @@ public class HourState extends TraversalState {
             throw new RuntimeException("Unable to process time ordering", exception);
         }
 
-        return towardsMinute.fromHour(this, minuteNode, cost, maybeExistingTrip, journeyState);
+        return towardsMinute.fromHour(this, minuteNode, cost, maybeExistingTrip, journeyState, currentModes);
     }
 
     @Override
