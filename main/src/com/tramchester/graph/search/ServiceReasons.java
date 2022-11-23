@@ -113,10 +113,12 @@ public class ServiceReasons {
     public ServiceReason recordReason(final ServiceReason serviceReason) {
         if (diagnosticsEnabled) {
             reasons.add(serviceReason);
+            recordEndNodeVisit(serviceReason.getHowIGotHere());
+        } else {
+            if (!serviceReason.isValid()) {
+                recordEndNodeVisit(serviceReason.getHowIGotHere());
+            }
         }
-
-        // todo push into diag only if too costly here
-        recordEndNodeVisit(serviceReason.getHowIGotHere());
 
         incrementStat(serviceReason.getReasonCode());
         return serviceReason;

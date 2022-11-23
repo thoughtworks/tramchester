@@ -51,7 +51,6 @@ class RouteCalculatorSubGraphEcclesAshtonLine {
         config = new SubgraphConfig();
         TestEnv.deleteDBIfPresent(config);
 
-
         componentContainer = new ComponentsBuilder().
                 configureGraphFilter(RouteCalculatorSubGraphEcclesAshtonLine::configureFilter).
                 create(config, TestEnv.NoopRegisterMetrics());

@@ -50,6 +50,7 @@ public class RouteStationStateOnTrip extends RouteStationState implements NodeId
 
         public RouteStationStateOnTrip fromMinuteState(MinuteState minuteState, Node node, Duration cost,
                                                        boolean isInterchange, Trip trip) {
+            // todo, use label and/or cache this - perf impact currently low
             TransportMode transportMode = GraphProps.getTransportMode(node);
 
             // TODO Crossing midnight?

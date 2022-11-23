@@ -42,6 +42,7 @@ public class CachedNodeOperations implements ReportsCacheStats, NodeContentsRepo
 
     private final Cache<Long, Duration> relationshipCostCache;
     private final Cache<Long, TramTime> timeNodeCache;
+    private final Cache<Long, Integer> hourNodeCahce;
 
     private final Cache<Long, EnumSet<GraphLabel>> labelCache;
 
@@ -57,6 +58,7 @@ public class CachedNodeOperations implements ReportsCacheStats, NodeContentsRepo
         timeNodeCache = createCache("timeNodeCache", GraphLabel.MINUTE);
         serviceNodeCache = createCache("serviceNodeCache", GraphLabel.SERVICE);
         tripNodeCache = createCache("tripNodeCache", GraphLabel.MINUTE);
+        hourNodeCahce = createCache("hourNodeCache", GraphLabel.HOUR);
 
         labelCache = Caffeine.newBuilder().maximumSize(50000).
                 expireAfterAccess(10, TimeUnit.MINUTES).
@@ -82,6 +84,7 @@ public class CachedNodeOperations implements ReportsCacheStats, NodeContentsRepo
         timeNodeCache.invalidateAll();
         routeStationIdCache.invalidateAll();
         labelCache.invalidateAll();
+        hourNodeCahce.invalidateAll();
     }
 
     @NonNull
@@ -137,7 +140,9 @@ public class CachedNodeOperations implements ReportsCacheStats, NodeContentsRepo
     }
 
     public int getHour(Node node) {
-        return GraphLabel.getHourFrom(getLabels(node));
+        long nodeId = node.getId();
+        return hourNodeCahce.get(nodeId, id -> GraphLabel.getHourFrom(getLabels(node)));
+        //return GraphLabel.getHourFrom(getLabels(node));
     }
 
     @Override
