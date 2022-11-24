@@ -36,7 +36,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @ExtendWith(ConfigParameterResolver.class)
 @DualTest
-@GMTest
 class RouteCalculatorTestAllJourneys {
 
     private static ComponentContainer componentContainer;
