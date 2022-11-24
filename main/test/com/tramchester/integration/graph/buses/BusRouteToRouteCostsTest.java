@@ -118,7 +118,7 @@ public class BusRouteToRouteCostsTest {
         assertEquals(2, knutsfordToAlty.size());
 
         NumberOfChanges numberOfChanges = routeToRouteCosts.getNumberOfChanges(altyToKnutsford.iterator().next(),
-                knutsfordToAlty.iterator().next(), date, timeRange);
+                knutsfordToAlty.iterator().next(), date, timeRange, modes);
         assertEquals(1, numberOfChanges.getMin());
 
     }

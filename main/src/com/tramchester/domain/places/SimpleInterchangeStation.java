@@ -2,6 +2,7 @@ package com.tramchester.domain.places;
 
 import com.tramchester.domain.Route;
 import com.tramchester.domain.id.IdFor;
+import com.tramchester.domain.reference.TransportMode;
 
 import java.util.Collections;
 import java.util.Set;
@@ -61,6 +62,11 @@ public class SimpleInterchangeStation implements InterchangeStation {
     @Override
     public Station getStation() {
         return station;
+    }
+
+    @Override
+    public Set<TransportMode> getTransportModes() {
+        return station.getTransportModes();
     }
 
     @Override

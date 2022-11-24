@@ -15,16 +15,17 @@ import static java.lang.String.format;
 public class LinkedInterchangeStation implements InterchangeStation {
     private final Set<StationLink> links;
     private final Station origin;
+    private final Set<TransportMode> allModes;
 
     public LinkedInterchangeStation(StationLink stationLink) {
         links = new HashSet<>();
         links.add(stationLink);
         origin = stationLink.getBegin();
+        this.allModes = links.stream().flatMap(links -> links.getContainedModes().stream()).collect(Collectors.toSet());
     }
 
     @Override
     public boolean isMultiMode() {
-        Set<TransportMode> allModes = links.stream().flatMap(links -> links.getContainedModes().stream()).collect(Collectors.toSet());
         return allModes.size() > 1;
     }
 
@@ -55,6 +56,11 @@ public class LinkedInterchangeStation implements InterchangeStation {
     @Override
     public Station getStation() {
         return origin;
+    }
+
+    @Override
+    public Set<TransportMode> getTransportModes() {
+        return allModes;
     }
 
     public void addLink(StationLink stationLink) {

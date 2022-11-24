@@ -106,7 +106,7 @@ public class RouteToRouteCostsTest {
         for (Route start : routes) {
             for (Route end : routes) {
                 if (!start.equals(end) && start.isDateOverlap(end)) {
-                    if (routesCostRepository.getNumberOfChanges(start, end, date, timeRangeForOverlaps).isNone()) {
+                    if (routesCostRepository.getNumberOfChanges(start, end, date, timeRangeForOverlaps, modes).isNone()) {
                         failed.add(new RoutePair(start, end));
                     }
                 }
@@ -150,7 +150,7 @@ public class RouteToRouteCostsTest {
     void shouldComputeCostsSameRoute() {
         Route routeA = routeHelper.getOneRoute(ManchesterAirportWythenshaweVictoria, date);
 
-        assertEquals(0, getMinCost(routesCostRepository.getNumberOfChanges(routeA, routeA, date, timeRange)));
+        assertEquals(0, getMinCost(routesCostRepository.getNumberOfChanges(routeA, routeA, date, timeRange, modes)));
     }
 
     @Test
@@ -158,8 +158,8 @@ public class RouteToRouteCostsTest {
         Route routeA = routeHelper.getOneRoute(ManchesterAirportWythenshaweVictoria, date);
         Route routeB = routeHelper.getOneRoute(VictoriaWythenshaweManchesterAirport, date);
 
-        assertEquals(1, getMinCost(routesCostRepository.getNumberOfChanges(routeA, routeB, date, timeRange)), "wrong for " + routeA.getId() + " " + routeB.getId());
-        assertEquals(1, getMinCost(routesCostRepository.getNumberOfChanges(routeB, routeA, date, timeRange)), "wrong for " + routeB.getId() + " " + routeA.getId());
+        assertEquals(1, getMinCost(routesCostRepository.getNumberOfChanges(routeA, routeB, date, timeRange, modes)), "wrong for " + routeA.getId() + " " + routeB.getId());
+        assertEquals(1, getMinCost(routesCostRepository.getNumberOfChanges(routeB, routeA, date, timeRange, modes)), "wrong for " + routeB.getId() + " " + routeA.getId());
 
     }
 
@@ -168,9 +168,9 @@ public class RouteToRouteCostsTest {
         Route routeA = routeHelper.getOneRoute(CornbrookTheTraffordCentre, date);
         Route routeB = routeHelper.getOneRoute(ReplacementRouteDeansgatePiccadilly, date); // was BuryPiccadilly
 
-        assertEquals(2, getMinCost(routesCostRepository.getNumberOfChanges(routeA, routeB, date, timeRange)),
+        assertEquals(2, getMinCost(routesCostRepository.getNumberOfChanges(routeA, routeB, date, timeRange, modes)),
                 "wrong for " + routeA.getId() + " " + routeB.getId());
-        assertEquals(2, getMinCost(routesCostRepository.getNumberOfChanges(routeB, routeA, date, timeRange)),
+        assertEquals(2, getMinCost(routesCostRepository.getNumberOfChanges(routeB, routeA, date, timeRange, modes)),
                 "wrong for " + routeB.getId() + " " + routeA.getId());
     }
 
@@ -179,11 +179,11 @@ public class RouteToRouteCostsTest {
         Route routeA = routeHelper.getOneRoute(CornbrookTheTraffordCentre, date);
         Route routeB = routeHelper.getOneRoute(ReplacementRoutePiccadillyDeansgate, date); // BuryPiccadilly
 
-        assertEquals(2, getMinCost(routesCostRepository.getNumberOfChanges(routeA, routeB, date, timeRange)),
+        assertEquals(2, getMinCost(routesCostRepository.getNumberOfChanges(routeA, routeB, date, timeRange, modes)),
                 "wrong for " + routeA.getId() + " " + routeB.getId());
 
         TimeRange outOfRange = TimeRange.of(TramTime.of(3,35), TramTime.of(3,45));
-        assertEquals(Integer.MAX_VALUE, getMinCost(routesCostRepository.getNumberOfChanges(routeB, routeA, date, outOfRange)),
+        assertEquals(Integer.MAX_VALUE, getMinCost(routesCostRepository.getNumberOfChanges(routeB, routeA, date, outOfRange, modes)),
                 "wrong for " + routeB.getId() + " " + routeA.getId());
     }
 
@@ -192,7 +192,7 @@ public class RouteToRouteCostsTest {
         Route routeA = routeHelper.getOneRoute(TheTraffordCentreCornbrook, date);
         Route routeB = routeHelper.getOneRoute(AltrinchamManchesterBury, date);
 
-        List<List<RouteAndChanges>> results = routesCostRepository.getChangesFor(routeA, routeB);
+        List<List<RouteAndChanges>> results = routesCostRepository.getChangesFor(routeA, routeB, modes);
         assertEquals(1, results.size());
 
         List<RouteAndChanges> firstSetOfChanges = results.get(0);
@@ -212,7 +212,7 @@ public class RouteToRouteCostsTest {
         Route routeB = routeHelper.getOneRoute(CornbrookTheTraffordCentre, date);
 
         // 2 -> 7
-        List<List<RouteAndChanges>> results = routesCostRepository.getChangesFor(routeA, routeB);
+        List<List<RouteAndChanges>> results = routesCostRepository.getChangesFor(routeA, routeB, modes);
         assertEquals(7, results.size(), results.toString());
 
         List<RouteAndChanges> firstChangeSet = results.get(0);
@@ -255,9 +255,9 @@ public class RouteToRouteCostsTest {
         Route routeA = routeHelper.getOneRoute(AltrinchamManchesterBury, date);
         Route routeB = routeHelper.getOneRoute(VictoriaWythenshaweManchesterAirport, date);
 
-        assertEquals(1, getMinCost(routesCostRepository.getNumberOfChanges(routeA, routeB, date, timeRange)),
+        assertEquals(1, getMinCost(routesCostRepository.getNumberOfChanges(routeA, routeB, date, timeRange, modes)),
                 "wrong for " + routeA.getId() + " " + routeB.getId());
-        assertEquals(1, getMinCost(routesCostRepository.getNumberOfChanges(routeB, routeA, date, timeRange)),
+        assertEquals(1, getMinCost(routesCostRepository.getNumberOfChanges(routeB, routeA, date, timeRange, modes)),
                 "wrong for " + routeB.getId() + " " + routeA.getId());
 
     }

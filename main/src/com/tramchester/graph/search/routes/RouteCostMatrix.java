@@ -254,19 +254,22 @@ public class RouteCostMatrix {
      * @param pair the 2 routes to compute the overlap for
      * @return list of places in the bitmap where the routes overlap aka the indexes of the routes in that row
      */
-    private List<Integer> getIndexOverlapsFor(IndexedBitSet costsForDegree, RouteIndexPair pair) {
-        ImmutableBitSet linksForA = costsForDegree.getBitSetForRow(pair.first());
-        if (linksForA.isEmpty() && !graphFilter.isActive()) {
+    private List<Integer> getIndexOverlapsFor(final IndexedBitSet costsForDegree, final RouteIndexPair pair) {
+        // we can get empty rows for train stations which appear in the data but don't every have any calling services
+        final boolean debug = logger.isDebugEnabled();
+
+        final ImmutableBitSet linksForA = costsForDegree.getBitSetForRow(pair.first());
+        if (debug && linksForA.isEmpty() ) {
             logger.warn("No links available for " + index.getRouteFor(pair.first()).getId());
         }
-        ImmutableBitSet linksForB = costsForDegree.getBitSetForRow(pair.second());
-        if (linksForB.isEmpty() && !graphFilter.isActive()) {
+        final ImmutableBitSet linksForB = costsForDegree.getBitSetForRow(pair.second());
+        if (debug && linksForB.isEmpty()) {
             logger.warn("No links available for " + index.getRouteFor(pair.second()).getId());
         }
 
-        ImmutableBitSet overlap = linksForA.and(linksForB);
-        int numberOfOverlaps = overlap.numberSet();
-        if (logger.isDebugEnabled()) {
+        final ImmutableBitSet overlap = linksForA.and(linksForB);
+        final int numberOfOverlaps = overlap.numberSet();
+        if (debug) {
             RoutePair routePair = index.getPairFor(pair);
 
             if (numberOfOverlaps == 0) {

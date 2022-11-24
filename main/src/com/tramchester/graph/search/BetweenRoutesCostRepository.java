@@ -19,7 +19,7 @@ public interface BetweenRoutesCostRepository {
     NumberOfChanges getNumberOfChanges(LocationSet starts, LocationSet destinations, TramDate date, TimeRange time, Set<TransportMode> modes);
     NumberOfChanges getNumberOfChanges(Location<?> start, Location<?> destination, Set<TransportMode> modes, TramDate date, TimeRange time);
     NumberOfChanges getNumberOfChanges(StationGroup start, StationGroup end, TramDate date, TimeRange time, Set<TransportMode> modes);
-    NumberOfChanges getNumberOfChanges(Route routeA, Route routeB, TramDate date, TimeRange timeRange);
+    NumberOfChanges getNumberOfChanges(Route routeA, Route routeB, TramDate date, TimeRange timeRange, Set<TransportMode> requestedModes);
 
     LowestCostsForDestRoutes getLowestCostCalcutatorFor(LocationSet desintationRoutes, TramDate date, TimeRange time, Set<TransportMode> modes);
 
