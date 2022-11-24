@@ -417,7 +417,7 @@ public class TransportDataFromFilesTramTest {
         Set<Pair<TramDate, IdFor<Station>>> missing = TestEnv.getUpcomingDates().
                 flatMap(date -> transportData.getStations(EnumSet.of(Tram)).stream().map(station -> Pair.of(date, station))).
                 filter(pair -> !closedStationRepository.isClosed(pair.getRight(), pair.getLeft())).
-                filter(pair -> !TestEnv.novermber2022Issue(pair.getRight().getId(), pair.getLeft())).
+                //filter(pair -> !TestEnv.novermber2022Issue(pair.getRight().getId(), pair.getLeft())).
                 filter(pair -> transportData.getTripsFor(pair.getRight(), pair.getLeft()).isEmpty()).
                 map(pair -> Pair.of(pair.getLeft(), pair.getRight().getId())).
                 collect(Collectors.toSet());
@@ -525,7 +525,6 @@ public class TransportDataFromFilesTramTest {
         TestEnv.getUpcomingDates().forEach(date -> {
             transportData.getStations(EnumSet.of(Tram)).stream().
                     filter(station -> !closedStationRepository.isClosed(station, date)).
-                    filter(station -> !TestEnv.novermber2022Issue(station.getId(), date)).
                     forEach(station -> {
                         Set<Trip> trips = transportData.getTripsFor(station, date);
                         for (TramTime time : times) {

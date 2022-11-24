@@ -235,7 +235,6 @@ class RouteCalculatorSubGraphMediaCityTest {
         Set<Station> stations = tramStations.stream().
                 map(tramStations -> tramStations.from(stationRepository)).
                 filter(station -> !closedStationRepository.isClosed(station, date)).
-                filter(station -> !TestEnv.novermber2022Issue(station.getId(), date)).
                 collect(Collectors.toSet());
 
         Set<StationIdPair> stationIdPairs = stations.stream().flatMap(start -> stations.stream().
