@@ -25,7 +25,6 @@ import com.tramchester.repository.*;
 import com.tramchester.testSupport.AdditionalTramInterchanges;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.TramStations;
-import com.tramchester.testSupport.testTags.PiccGardens2022;
 import org.apache.commons.collections4.SetUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.junit.jupiter.api.*;
@@ -114,8 +113,6 @@ class RouteCalculatorSubGraphMediaCityTest {
         validateAtLeastOneJourney(MediaCityUK, ExchangeSquare, TramTime.of(9,0), TestEnv.nextSunday());
     }
 
-    @Disabled
-    @PiccGardens2022
     @Test
     void shouldHaveJourneyFromEveryStationToEveryOtherNDaysAhead() {
 

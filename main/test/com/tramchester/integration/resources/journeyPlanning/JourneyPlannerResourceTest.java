@@ -14,12 +14,10 @@ import com.tramchester.livedata.tfgm.ProvidesTramNotes;
 import com.tramchester.resources.JourneyPlannerResource;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.TramStations;
-import com.tramchester.testSupport.testTags.PiccGardens2022;
 import io.dropwizard.testing.junit5.DropwizardExtensionsSupport;
 import org.apache.commons.lang3.tuple.Triple;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
@@ -160,8 +158,6 @@ public class JourneyPlannerResourceTest {
                 assertTrue(journeyDTO.getExpectedArrivalTime().isAfter(journeyDTO.getFirstDepartureTime())));
     }
 
-    @Disabled("routing is different with the closure")
-    @PiccGardens2022
     @Test
     void shouldPlanSimpleJourneyFromAltyToAshton() {
 

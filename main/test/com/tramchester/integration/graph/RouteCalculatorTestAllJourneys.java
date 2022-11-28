@@ -15,8 +15,6 @@ import com.tramchester.repository.ClosedStationsRepository;
 import com.tramchester.repository.TransportData;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.testTags.DualTest;
-import com.tramchester.testSupport.testTags.GMTest;
-import com.tramchester.testSupport.testTags.PiccGardens2022;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -66,7 +64,6 @@ class RouteCalculatorTestAllJourneys {
         closedRepository = componentContainer.get(ClosedStationsRepository.class);
     }
 
-    @PiccGardens2022
     @Test
     void shouldFindRouteEachStationToEveryOtherStream() {
         TransportData data = componentContainer.get(TransportData.class);
@@ -76,8 +73,7 @@ class RouteCalculatorTestAllJourneys {
                 filter(station -> !closedRepository.isClosed(station, when)).
                 collect(Collectors.toSet());
 
-        // 2 -> 4
-        int maxChanges = 4;
+        int maxChanges = 2;
         JourneyRequest journeyRequest = new JourneyRequest(when, time, false, maxChanges,
                 Duration.ofMinutes(testConfig.getMaxJourneyDuration()), 1, modes);
 

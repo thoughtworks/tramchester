@@ -14,7 +14,6 @@ import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.places.InterchangeStation;
-import com.tramchester.domain.places.Location;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TimeRange;
@@ -31,7 +30,6 @@ import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TramRouteHelper;
 import com.tramchester.testSupport.reference.TramStations;
 import com.tramchester.testSupport.testTags.DualTest;
-import com.tramchester.testSupport.testTags.PiccGardens2022;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 
@@ -204,29 +202,22 @@ public class RouteToRouteCostsTest {
         assertTrue(getStationsFor(actualChange).contains(Cornbrook.from(stationRepository)), results.toString());
     }
 
-    @Disabled("Not while picc gardens is closed")
-    @PiccGardens2022
     @Test
     void shouldBacktrackToChangesMultipleChanges() {
         Route routeA = routeHelper.getOneRoute(BuryPiccadilly, date); // was BuryPiccadilly
         Route routeB = routeHelper.getOneRoute(CornbrookTheTraffordCentre, date);
 
-        // 2 -> 7
         List<List<RouteAndChanges>> results = routesCostRepository.getChangesFor(routeA, routeB, modes);
-        assertEquals(7, results.size(), results.toString());
+        assertEquals(10, results.size(), results.toString());
 
         List<RouteAndChanges> firstChangeSet = results.get(0);
         assertEquals(2, firstChangeSet.size());
 
-        // todo walking from market street
-        //validateRoutingForBuryToTraffordCenterRoute(firstChangeSet);
         assertTrue(getStationsFor(firstChangeSet.get(0)).contains(MarketStreet.from(stationRepository)));
 
         List<RouteAndChanges> secondChangeSet = results.get(0);
         assertEquals(2, secondChangeSet.size());
 
-        // todo walking from market street
-        //validateRoutingForBuryToTraffordCenterRoute(secondChangeSet);
         assertTrue(getStationsFor(secondChangeSet.get(0)).contains(MarketStreet.from(stationRepository)));
     }
 
@@ -285,7 +276,6 @@ public class RouteToRouteCostsTest {
 
     }
 
-    @PiccGardens2022
     @Test
     void shouldFindMediaCityHops() {
         Station mediaCity = MediaCityUK.from(stationRepository);

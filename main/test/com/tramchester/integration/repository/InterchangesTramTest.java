@@ -22,11 +22,8 @@ import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.AdditionalTramInterchanges;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TramRouteHelper;
-import com.tramchester.testSupport.reference.KnownTramRoute;
 import com.tramchester.testSupport.reference.TramStations;
 import com.tramchester.testSupport.testTags.DualTest;
-import com.tramchester.testSupport.testTags.GMTest;
-import com.tramchester.testSupport.testTags.PiccGardens2022;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.condition.DisabledIf;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -36,6 +33,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.tramchester.domain.reference.CentralZoneStation.StWerbergsRoad;
+import static com.tramchester.testSupport.reference.KnownTramRoute.*;
 import static com.tramchester.testSupport.reference.TramStations.*;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -78,10 +76,8 @@ public class InterchangesTramTest {
         }
     }
 
-    @PiccGardens2022
     @Test
     void shouldHaveExpectedTramInterchanges() {
-        // todo shaw and crompton?
 
         List<TramStations> tramStations = Arrays.asList(StWerburghsRoad, TraffordBar, Cornbrook, HarbourCity,
                 Pomona, Cornbrook, Deansgate, StPetersSquare,
@@ -113,22 +109,22 @@ public class InterchangesTramTest {
         assertTrue(unexpected.isEmpty(), HasId.asIds(unexpected));
     }
 
-    @PiccGardens2022
     @Test
     void shouldHaveExpectedDropoffAndPickupRoutesForInterchange() {
         TramDate date = TestEnv.testDay();
-        Route toAirport = tramRouteHelper.getOneRoute(KnownTramRoute.VictoriaWythenshaweManchesterAirport, date);
 
         Station stWerb = StWerburghsRoad.from(stationRepository);
-
         InterchangeStation interchange = interchangeRepository.getInterchange(stWerb);
         assertEquals(InterchangeType.NumberOfLinks, interchange.getType());
 
+        Route toAirport = tramRouteHelper.getOneRoute(VictoriaWythenshaweManchesterAirport, date);
         assertTrue(interchange.getPickupRoutes().contains(toAirport));
 
-        // TODO Not during the works
-//        Route toEastDids = tramRouteHelper.getOneRoute(KnownTramRoute.AshtonUnderLyneManchesterEccles, date);
-//        assertTrue(interchange.getDropoffRoutes().contains(toEastDids));
+        Route toEastDids = tramRouteHelper.getOneRoute(RochdaleShawandCromptonManchesterEastDidisbury, date);
+        Set<Route> dropoffRoutes = interchange.getDropoffRoutes().stream().
+                filter(route -> route.isAvailableOn(date)).
+                collect(Collectors.toSet());
+        assertTrue(dropoffRoutes.contains(toEastDids), HasId.asIds(dropoffRoutes));
     }
 
     @Test

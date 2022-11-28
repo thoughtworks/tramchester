@@ -27,7 +27,6 @@ import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TramRouteHelper;
 import com.tramchester.testSupport.reference.KnownTramRoute;
 import com.tramchester.testSupport.reference.TramStations;
-import com.tramchester.testSupport.testTags.PiccGardens2022;
 import org.assertj.core.util.Streams;
 import org.junit.jupiter.api.*;
 import org.neo4j.graphdb.*;
@@ -61,12 +60,9 @@ class TramGraphBuilderTest {
         componentContainer.initialise();
     }
 
-    @PiccGardens2022
     @BeforeEach
     void beforeEachTestRuns() {
-
         transportData = componentContainer.get(TransportData.class);
-
         tramRouteHelper = new TramRouteHelper(transportData);
 
         when = TestEnv.testDay();
@@ -77,7 +73,6 @@ class TramGraphBuilderTest {
         graphQuery = componentContainer.get(GraphQuery.class);
         stationRepository = componentContainer.get(StationRepository.class);
         GraphDatabase graphDatabase = componentContainer.get(GraphDatabase.class);
-
 
         StagedTransportGraphBuilder builder = componentContainer.get(StagedTransportGraphBuilder.class);
         builder.getReady();

@@ -97,7 +97,6 @@ public class RouteCalculatorTest {
         assertGetAndCheckJourneys(journeyRequest, VeloPark, TraffordBar);
     }
 
-    @PiccGardens2022
     @Test
     void shouldPlanSimpleJourneyFromAltyToAshtonCheckInterchanges() {
         JourneyRequest journeyRequest = new JourneyRequest(when, TramTime.of(17,45), false,
@@ -349,7 +348,6 @@ public class RouteCalculatorTest {
         assertGetAndCheckJourneys(journeyRequest, Altrincham, NavigationRoad);
     }
 
-    @PiccGardens2022
     @Test
     void shouldHandleAfterMidnightDirectCentral() {
         TramDate testDate = when;
@@ -426,12 +424,10 @@ public class RouteCalculatorTest {
         });
     }
 
-    @PiccGardens2022
     @Test
     void ShouldReproIssueWithSomeMediaCityJourneys() {
-        // max changes 1 -> 2
         JourneyRequest request = new JourneyRequest(when, TramTime.of(8, 5), false,
-                2, maxJourneyDuration, 2, requestedModes);
+                1, maxJourneyDuration, 2, requestedModes);
 
         assertFalse(calculator.calculateRouteAsSet(MediaCityUK, Etihad, request).isEmpty());
         assertFalse(calculator.calculateRouteAsSet(MediaCityUK, VeloPark, request).isEmpty());
@@ -460,12 +456,11 @@ public class RouteCalculatorTest {
         assertGetAndCheckJourneys(journeyRequest, Bury, Eccles);
     }
 
-    @PiccGardens2022
     @Test
     void reproduceIssueEdgePerTrip() {
         // see also RouteCalculatorSubGraphTest
-//        JourneyRequest journeyRequestA = standardJourneyRequest(when, TramTime.of(19,48), maxNumResults);
-//        assertGetAndCheckJourneys(journeyRequestA, PiccadillyGardens, Pomona);
+        JourneyRequest journeyRequestA = standardJourneyRequest(when, TramTime.of(19,48), maxNumResults);
+        assertGetAndCheckJourneys(journeyRequestA, PiccadillyGardens, Pomona);
 
         JourneyRequest journeyRequestB = standardJourneyRequest(when, TramTime.of(19,51), maxNumResults);
         assertGetAndCheckJourneys(journeyRequestB, StPetersSquare, Pomona);
@@ -495,12 +490,10 @@ public class RouteCalculatorTest {
         assertGetAndCheckJourneys(journeyRequest, StPetersSquare, Deansgate);
     }
 
-    @PiccGardens2022
     @Test
     void reproduceIssueWithTramsSundayAshtonToEccles() {
-        // todo set max changes to 3
         JourneyRequest journeyRequest = new JourneyRequest(TestEnv.nextSunday(), TramTime.of(9, 0), false,
-                4, maxJourneyDuration, maxNumResults, requestedModes);
+                3, maxJourneyDuration, maxNumResults, requestedModes);
         assertGetAndCheckJourneys(journeyRequest, Ashton, Eccles);
     }
 

@@ -17,7 +17,6 @@ import com.tramchester.resources.JourneysForGridResource;
 import com.tramchester.testSupport.ParseStream;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.TramStations;
-import com.tramchester.testSupport.testTags.PiccGardens2022;
 import io.dropwizard.testing.junit5.DropwizardExtensionsSupport;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -57,7 +56,6 @@ class JourneysForGridResourceTest {
         maxDuration = 40;
     }
 
-    @PiccGardens2022
     @Test
     void shouldHaveJourneysForWholeGrid() throws IOException {
         LatLong destPos = TestEnv.stPetersSquareLocation();
@@ -82,13 +80,11 @@ class JourneysForGridResourceTest {
 
         List<BoxWithCostDTO> notDest = results.stream().filter(result -> result.getMinutes() > 0).collect(Collectors.toList());
 
-        // 42 - 41
         assertEquals(41, notDest.size());
         assertFalse(results.isEmpty());
         notDest.forEach(boundingBoxWithCost -> assertTrue(boundingBoxWithCost.getMinutes()<=maxDuration));
 
         List<BoxWithCostDTO> noResult = results.stream().filter(result -> result.getMinutes() < 0).collect(Collectors.toList());
-        // 2 -> 3
         assertEquals(3, noResult.size());
     }
 

@@ -130,7 +130,6 @@ public class TransportDataFromFilesTramTest {
         assertEquals("Metrolink", agencies.get(0).getName());
     }
 
-    @PiccGardens2022
     @Test
     void shouldHaveRouteStationsThatOccurDueToDepot() {
         Set<RouteStation> routeStations = transportData.getRouteStations();
@@ -146,9 +145,8 @@ public class TransportDataFromFilesTramTest {
 
         // contains -> containsAll
 
-        // todo PiccGardens2022
-        //assertTrue(traffordBarRoutes.containsAll(routeHelper.getId(AltrinchamPiccadilly)));
-        //assertTrue(traffordBarRoutes.containsAll(routeHelper.getId(PiccadillyAltrincham)));
+        assertTrue(traffordBarRoutes.containsAll(routeHelper.getId(AltrinchamPiccadilly)));
+        assertTrue(traffordBarRoutes.containsAll(routeHelper.getId(PiccadillyAltrincham)));
 
         assertTrue(traffordBarRoutes.containsAll(routeHelper.getId(EastDidisburyManchesterShawandCromptonRochdale)));
         assertTrue(traffordBarRoutes.containsAll(routeHelper.getId(RochdaleShawandCromptonManchesterEastDidisbury)));
@@ -220,7 +218,6 @@ public class TransportDataFromFilesTramTest {
         assertTrue(noDropOffs.isEmpty(), noDropOffs.toString());
     }
 
-    @PiccGardens2022
     @Test
     void shouldHaveExpectedStationsForGreenFromAlty() {
         Route green = routeHelper.getOneRoute(AltrinchamManchesterBury, when);
@@ -237,7 +234,6 @@ public class TransportDataFromFilesTramTest {
 
         IdSet<Station> pickUps = allStations.stream().filter(station -> station.servesRoutePickup(green)).collect(IdSet.collector());
 
-        // 24 -> 25
         assertEquals(24, pickUps.size(), pickUps.toString());
         assertTrue(pickUps.contains(Altrincham.getId()));
         assertFalse(pickUps.contains(Bury.getId()));

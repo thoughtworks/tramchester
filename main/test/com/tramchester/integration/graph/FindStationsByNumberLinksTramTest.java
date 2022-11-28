@@ -13,7 +13,6 @@ import com.tramchester.graph.FindStationsByNumberLinks;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
 import com.tramchester.repository.Interchanges;
 import com.tramchester.testSupport.TestEnv;
-import com.tramchester.testSupport.testTags.PiccGardens2022;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -69,7 +68,6 @@ class FindStationsByNumberLinksTramTest {
                 " stations with links were " + stationWithLinks);
     }
 
-    @PiccGardens2022
     @Test
     void shouldIdInterchangePointsLinked() {
 

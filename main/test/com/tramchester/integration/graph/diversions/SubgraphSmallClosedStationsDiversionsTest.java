@@ -28,7 +28,6 @@ import com.tramchester.repository.StationsWithDiversionRepository;
 import com.tramchester.repository.TransportData;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.TramStations;
-import com.tramchester.testSupport.testTags.PiccGardens2022;
 import org.junit.jupiter.api.*;
 import org.neo4j.graphdb.Direction;
 import org.neo4j.graphdb.Node;
@@ -148,7 +147,6 @@ class SubgraphSmallClosedStationsDiversionsTest {
         assertTrue(repository.hasDiversions(ExchangeSquare.from(stationRepository)));
     }
 
-    @PiccGardens2022
     @Test
     void shouldHaveExpectedRouteToRouteCostsForClosedStations() {
         RouteToRouteCosts routeToRouteCosts = componentContainer.get(RouteToRouteCosts.class);
@@ -161,7 +159,6 @@ class SubgraphSmallClosedStationsDiversionsTest {
 
         NumberOfChanges costs = routeToRouteCosts.getNumberOfChanges(start, destination, mode, when.plusDays(1), timeRange);
 
-        // note replacement bus is now available instead of the walk 1->0
         assertEquals(0, costs.getMin());
     }
 

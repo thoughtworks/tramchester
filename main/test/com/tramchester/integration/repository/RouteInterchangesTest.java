@@ -17,7 +17,6 @@ import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TramRouteHelper;
 import com.tramchester.testSupport.reference.KnownTramRoute;
-import com.tramchester.testSupport.testTags.PiccGardens2022;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -87,7 +86,6 @@ public class RouteInterchangesTest {
 
     }
 
-    @PiccGardens2022
     @Test
     void shouldHaveExpectedRoutesAtCornbrook() {
         Route buryToAlty = tramRouteHelper.getOneRoute(BuryManchesterAltrincham, when);
