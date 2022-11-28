@@ -69,12 +69,10 @@ public class RouteRepositoryTest {
         when = TestEnv.testDay();
     }
 
-    @PiccGardens2022
     @Test
     void shouldGetRouteWithHeadsigns() {
         Route result = routeHelper.getOneRoute(AshtonUnderLyneManchesterEccles, when);
-        //assertEquals("Ashton Under Lyne - Manchester - Eccles", result.getName());
-        assertEquals("Manchester - Eccles", result.getName());
+        assertEquals("Ashton Under Lyne - Manchester - Eccles", result.getName());
         assertEquals(TestEnv.MetAgency(),result.getAgency());
         assertTrue(result.getId().forDTO().startsWith("METLBLUE:I:"));
         assertTrue(TransportMode.isTram(result));

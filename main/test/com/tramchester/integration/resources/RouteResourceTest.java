@@ -56,7 +56,7 @@ class RouteResourceTest {
 
         Set<String> onDate = KnownTramRoute.getFor(today).stream().map(KnownTramRoute::longName).collect(Collectors.toSet());
 
-        Set<String> mismatch = SetUtils.difference(fromRepos, onDate);
+        Set<String> mismatch = SetUtils.disjunction(fromRepos, onDate);
 
         assertTrue(mismatch.isEmpty());
 

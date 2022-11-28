@@ -71,10 +71,9 @@ public class RouteCostMatrixTest {
         assertEquals(1, depth);
     }
 
-    @PiccGardens2022
     @Test
     void shouldHaveExpectedIndexWhereNoDirectInterchangePossible() {
-        Route routeA = routeHelper.getOneRoute(ReplacementRoutePiccadillyDeansgate, date); // BuryPiccadilly
+        Route routeA = routeHelper.getOneRoute(BuryPiccadilly, date);
         Route routeB = routeHelper.getOneRoute(CornbrookTheTraffordCentre, date);
 
         int depth = routeMatrix.getConnectionDepthFor(routeA, routeB);
@@ -127,23 +126,22 @@ public class RouteCostMatrixTest {
 
     }
 
-    @PiccGardens2022
     @Test
     void shouldReproduceIssueBetweenPiccAndTraffordLine() {
         TramDate testDate = date;
 
-        Route routeA = routeHelper.getOneRoute(ReplacementRouteDeansgatePiccadilly, testDate); // PiccadillyBury
+        Route routeA = routeHelper.getOneRoute(PiccadillyBury, testDate);
         Route routeB = routeHelper.getOneRoute(CornbrookTheTraffordCentre, testDate);
 
         RouteIndexPair indexPair = routeIndex.getPairFor(new RoutePair(routeA, routeB));
 
         IndexedBitSet dateOverlaps = routeMatrix.createOverlapMatrixFor(testDate);
 
-        assertEquals(144, dateOverlaps.numberOfBitsSet());
+        assertEquals(196, dateOverlaps.numberOfBitsSet());
 
         List<SimpleList<RouteIndexPair>> results = routeMatrix.getChangesFor(indexPair, dateOverlaps).collect(Collectors.toList());
 
-        assertEquals(1, results.size(), results.toString());
+        assertEquals(10, results.size(), results.toString());
 
         results.forEach(result -> {
             List<RouteIndexPair> changes = result.stream().collect(Collectors.toList());

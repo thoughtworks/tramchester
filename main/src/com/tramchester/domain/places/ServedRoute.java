@@ -18,13 +18,13 @@ public class ServedRoute {
     private final Map<RouteAndService, TimeRange> timeWindows;
 
     private final IdSet<Route> routeIds; // for performance, significant
-    private final EnumSet<TransportMode> modes; // for performance, significant
+    private final EnumSet<TransportMode> allServedModes; // for performance, significant
 
     public ServedRoute() {
         routeAndServices = new HashSet<>();
         timeWindows = new HashMap<>();
         routeIds = new IdSet<>();
-        modes = EnumSet.noneOf(TransportMode.class);
+        allServedModes = EnumSet.noneOf(TransportMode.class);
     }
 
     public void add(Route route, Service service, TramTime callingTime) {
@@ -40,7 +40,7 @@ public class ServedRoute {
         }
 
         routeIds.add(route.getId());
-        modes.add(route.getTransportMode());
+        allServedModes.add(route.getTransportMode());
     }
 
     public boolean isEmpty() {
@@ -69,8 +69,9 @@ public class ServedRoute {
     }
 
 
-    public boolean anyAvailable(TramDate when, TimeRange timeRange) {
+    public boolean anyAvailable(TramDate when, TimeRange timeRange, Set<TransportMode> preferredModes) {
         return routeAndServices.stream().
+                filter(routeAndService -> preferredModes.contains(routeAndService.getTransportMode())).
                 filter(routeAndService -> routeAndService.isAvailableOn(when)).
                 anyMatch(routeAndService -> timeWindows.get(routeAndService).anyOverlap(timeRange));
     }
@@ -94,7 +95,7 @@ public class ServedRoute {
     }
 
     public Set<TransportMode> getTransportModes() {
-        return Collections.unmodifiableSet(modes);
+        return Collections.unmodifiableSet(allServedModes);
     }
 
 }

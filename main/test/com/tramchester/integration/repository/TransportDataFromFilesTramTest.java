@@ -76,7 +76,7 @@ public class TransportDataFromFilesTramTest {
 
     @BeforeAll
     static void onceBeforeAnyTestsRun(TramchesterConfig tramchesterConfig) {
-        config = tramchesterConfig; //= new IntegrationTramTestConfig();
+        config = tramchesterConfig;
         componentContainer = new ComponentsBuilder().create(config, TestEnv.NoopRegisterMetrics());
         componentContainer.initialise();
     }
@@ -108,7 +108,7 @@ public class TransportDataFromFilesTramTest {
 
         assertEquals(KnownTramRoute.numberOn(when), uniqueNames.size(), uniqueNames.toString());
 
-        int expected = 200;
+        int expected = 199;
         assertEquals(expected, transportData.getPlatforms(EnumSet.of(Tram)).size());
     }
 
@@ -165,7 +165,6 @@ public class TransportDataFromFilesTramTest {
 
     }
 
-    @PiccGardens2022
     @Test
     void shouldHaveExpectedRoutesNonDepot() {
         Set<RouteStation> all = transportData.getRouteStations();
@@ -179,8 +178,7 @@ public class TransportDataFromFilesTramTest {
 
         Set<String> uniqueRouteNames = callingRoutes.stream().map(Route::getName).collect(Collectors.toSet());
 
-        // 4 - > 2
-        assertEquals(2, uniqueRouteNames.size(), uniqueRouteNames.toString());
+        assertEquals(4, uniqueRouteNames.size(), uniqueRouteNames.toString());
     }
 
     @Test
@@ -273,7 +271,6 @@ public class TransportDataFromFilesTramTest {
 
     }
 
-    @PiccGardens2022
     @Test
     void shouldGetRouteStationsForStation() {
         Set<RouteStation> routeStations = transportData.getRouteStationsFor(Shudehill.getId());
@@ -283,8 +280,7 @@ public class TransportDataFromFilesTramTest {
                 map(routeStation -> Pair.of(routeStation.getStationId(), routeStation.getRoute().getName())).
                 collect(Collectors.toSet());
 
-        // todo 7 -> 6
-        assertEquals(6, routeStationPairs.size(), routeStations.toString());
+        assertEquals(8, routeStationPairs.size(), routeStations.toString());
 
         Set<String> routeNames =
                 routeStations.stream().
@@ -297,19 +293,14 @@ public class TransportDataFromFilesTramTest {
         assertTrue(routeNames.contains(AltrinchamManchesterBury.longName()), routeNames.toString());
         assertTrue(routeNames.contains(BuryManchesterAltrincham.longName()), routeNames.toString());
 
-//        assertTrue(routeNames.contains(BuryPiccadilly.longName()), routeNames.toString());
-//        assertTrue(routeNames.contains(PiccadillyBury.longName()), routeNames.toString());
+        assertTrue(routeNames.contains(BuryPiccadilly.longName()), routeNames.toString());
+        assertTrue(routeNames.contains(PiccadillyBury.longName()), routeNames.toString());
+
         assertTrue(routeNames.contains(AshtonCrumpsall.longName()), routeNames.toString());
         assertTrue(routeNames.contains(CrumpsallAshton.longName()), routeNames.toString());
 
-        assertTrue(routeNames.contains(EastDidisburyManchesterShawandCromptonRochdale.longName()), routeNames.toString());
-        assertTrue(routeNames.contains(RochdaleShawandCromptonManchesterEastDidisbury.longName()), routeNames.toString());
-
-        // TODO
-        // these not on the route map, but some early morning eccles trips seem to start at victoria
-        // see extraRouteAtShudehillTowardsEccles above
-        //assertTrue(routeNames.contains(AshtonUnderLyneManchesterEccles.longName()));
-        //assertTrue(routeNames.contains(EcclesManchesterAshtonUnderLyne.longName()), routeNames.toString());
+//        assertTrue(routeNames.contains(EastDidisburyManchesterShawandCromptonRochdale.longName()), routeNames.toString());
+//        assertTrue(routeNames.contains(RochdaleShawandCromptonManchesterEastDidisbury.longName()), routeNames.toString());
 
     }
 
@@ -426,51 +417,6 @@ public class TransportDataFromFilesTramTest {
 
     }
 
-    @Disabled("This is due to actual issues with source data, there are not calling trips on these dates")
-    @Test
-    void shouldHaveMondayServicesForVeloparkOnDate() {
-        TramDate date = TramDate.of(2022,11,21);
-
-        Set<Trip> allTrips = transportData.getTrips();
-
-        HasId<Station> velopark = VeloPark.from(transportData);
-
-        Set<Trip> calling = allTrips.stream().filter(trip -> trip.callsAt(velopark)).collect(Collectors.toSet());
-
-        Set<Service> callServicesForPeriod = calling.stream().
-                map(Trip::getService).
-                filter(service -> service.getCalendar().getDateRange().contains(date)).
-                collect(Collectors.toSet());
-
-        Set<Service> mondaysOnProblemDate = callServicesForPeriod.stream().
-                filter(service -> service.getCalendar().operatesOn(date)).collect(Collectors.toSet());
-
-        assertFalse(mondaysOnProblemDate.isEmpty(), "No monday on specific date from " + HasId.asIds(callServicesForPeriod));
-
-    }
-
-    @Test
-    void shouldHaveMondayServicesForNewIslington() {
-        TramDate date = TramDate.of(2022,11,21);
-
-        Set<Trip> allTrips = transportData.getTrips();
-
-        HasId<Station> newIslington = NewIslington.from(transportData);
-
-        Set<Trip> calling = allTrips.stream().filter(trip -> trip.callsAt(newIslington)).collect(Collectors.toSet());
-
-        Set<Service> callServicesForPeriod = calling.stream().
-                map(Trip::getService).
-                filter(service -> service.getCalendar().getDateRange().contains(date)).
-                collect(Collectors.toSet());
-
-        Set<Service> mondaysOnProblemDate = callServicesForPeriod.stream().
-                filter(service -> service.getCalendar().operatesOn(date)).collect(Collectors.toSet());
-
-        assertFalse(mondaysOnProblemDate.isEmpty(), "No monday on specific date from " + HasId.asIds(callServicesForPeriod));
-
-    }
-
     @Test
     void shouldHaveServicesThatIncludeDateInRange() {
         TramDate date = TramDate.of(2022,11,21);
@@ -484,26 +430,6 @@ public class TransportDataFromFilesTramTest {
         Set<Service> onActualDate = includeDate.stream().filter(service -> service.getCalendar().operatesOn(date)).collect(Collectors.toSet());
 
         assertFalse(onActualDate.isEmpty());
-    }
-
-    @Test
-    void shouldReproIssueWithEarlyTramsExchangeSquareSunday() {
-        // Looks like route data not updated so exchange square looks closed beyond the planned date of 6/11/2022
-
-        // Leaving this test here to break when the data gets updated
-
-        TramDate date = TramDate.of(2022, 11,13);
-
-        Station exchangeSquare = ExchangeSquare.from(transportData);
-
-        List<TramTime> times = exchangeSquare.getPickupRoutes().stream().
-                flatMap(route -> route.getServices().stream()).
-                filter(route -> route.getCalendar().operatesOn(date)).
-                map(Service::getStartTime).
-                sorted(TramTime::compareTo).collect(Collectors.toList());
-
-        assertFalse(times.isEmpty());
-        assertEquals(2, times.size(), times.toString());
     }
 
     @DataExpiryCategory

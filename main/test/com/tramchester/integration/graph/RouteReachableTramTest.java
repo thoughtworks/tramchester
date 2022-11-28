@@ -25,6 +25,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import static com.tramchester.testSupport.reference.KnownTramRoute.AltrinchamManchesterBury;
+import static com.tramchester.testSupport.reference.KnownTramRoute.AltrinchamPiccadilly;
 import static com.tramchester.testSupport.reference.TramStations.Altrincham;
 import static com.tramchester.testSupport.reference.TramStations.NavigationRoad;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -66,9 +67,10 @@ class RouteReachableTramTest {
 
         Set<String> names = results.stream().map(Route::getName).collect(Collectors.toSet());
 
-        assertEquals(1, names.size(), names.toString());
+        assertEquals(2, names.size(), names.toString());
 
         assertTrue(names.contains(AltrinchamManchesterBury.longName()), names.toString());
+        assertTrue(names.contains(AltrinchamPiccadilly.longName()), names.toString());
     }
 
 

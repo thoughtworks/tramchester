@@ -40,7 +40,7 @@ public class RouteData {
     }
 
     public String getLongName() {
-        return longName;
+        return longName.trim();
     }
 
     public IdFor<Agency> getAgencyId() {

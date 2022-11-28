@@ -14,7 +14,7 @@ public class RouteAndChanges {
         this.interchangeStations = stations;
     }
 
-    public Set<InterchangeStation> getStations() {
+    public Set<InterchangeStation> getInterchangeStations() {
         return interchangeStations;
     }
 

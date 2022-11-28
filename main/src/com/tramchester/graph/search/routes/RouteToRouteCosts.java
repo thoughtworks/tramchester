@@ -131,7 +131,7 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
 
         possibleChanges.filter(listOfChanges -> listOfChanges.size() < smallestSeen.get()).
                 map(change -> getRouteAndInterchange(change, requestedModes)).
-                filter(listOfInterchanges -> changeStationOperating.isOperating(availabilityRepository, listOfInterchanges)).
+                filter(listOfInterchanges -> changeStationOperating.isOperating(availabilityRepository, listOfInterchanges, requestedModes)).
                 forEach(listOfInterchanges -> {
                     smallestFilteredByAvailability.add(listOfInterchanges);
                     smallestSeen.set(listOfInterchanges.size());
@@ -449,15 +449,15 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
             active = new HashSet<>();
         }
 
-        public boolean isOperating(StationAvailabilityRepository availabilityRepository, List<RouteAndChanges> changeSet) {
-            return changeSet.stream().anyMatch(item -> isOperating(availabilityRepository, item));
+        public boolean isOperating(StationAvailabilityRepository availabilityRepository, List<RouteAndChanges> changeSet, Set<TransportMode> requestedModes) {
+            return changeSet.stream().anyMatch(item -> isOperating(availabilityRepository, item, requestedModes));
         }
 
-        private boolean isOperating(StationAvailabilityRepository availabilityRepository, RouteAndChanges routeAndChanges) {
+        private boolean isOperating(StationAvailabilityRepository availabilityRepository, RouteAndChanges routeAndChanges, Set<TransportMode> requestedModes) {
             if (active.contains(routeAndChanges)) {
                 return true;
             }
-            boolean available = availabilityRepository.isAvailable(routeAndChanges, date, time);
+            boolean available = availabilityRepository.isAvailable(routeAndChanges, date, time, requestedModes);
             if (available) {
                 active.add(routeAndChanges);
             }

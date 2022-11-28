@@ -72,7 +72,7 @@ public class RunningRoutesAndServicesTest {
 
     @Test
     void shouldConsiderServicesFromDayBeforeIfTheyAreStillRunningTheFollowingDay() {
-        TramDate when = TestEnv.testTramDay();
+        TramDate when = TestEnv.testDay().plusWeeks(1); // disruption week of 28/11/22
 
         RunningRoutesAndServices.FilterForDate filter = runningRoutesAndServices.getFor(when);
 
@@ -98,7 +98,7 @@ public class RunningRoutesAndServicesTest {
 
     @Test
     void shouldConsiderRoutesFromDayBeforeIfTheyAreStillRunningTheFollowingDay() {
-        TramDate when = TestEnv.testTramDay();
+        TramDate when = TestEnv.testDay().plusWeeks(1); // disruption week of 28/11/22
 
         RunningRoutesAndServices.FilterForDate filter = runningRoutesAndServices.getFor(when);
 

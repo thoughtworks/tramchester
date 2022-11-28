@@ -36,7 +36,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @ExtendWith(ConfigParameterResolver.class)
 @DualTest
-//@GMTest
 class RouteCalculatorTestAllJourneys {
 
     private static ComponentContainer componentContainer;
@@ -74,7 +73,6 @@ class RouteCalculatorTestAllJourneys {
 
         final TramTime time = TramTime.of(8, 5);
         Set<Station> haveServices = data.getStationsServing(Tram).stream().
-                //filter(station -> !TestEnv.novermber2022Issue(station.getId(), when)).
                 filter(station -> !closedRepository.isClosed(station, when)).
                 collect(Collectors.toSet());
 

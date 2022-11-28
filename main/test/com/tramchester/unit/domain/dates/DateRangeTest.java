@@ -7,7 +7,9 @@ import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.RepeatedTest;
 import org.junit.jupiter.api.Test;
 
+import java.util.Set;
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -83,6 +85,33 @@ public class DateRangeTest {
         assertTrue(dateRange.contains(endDate));
 
         assertEquals(1, dateRange.numberOfDays());
+    }
+
+    @Test
+    void shouldHaveStreamOfRangeOneDays() {
+        TramDate startDate = TramDate.of(2022, 1,1);
+
+        Set<TramDate> fromStream = DateRange.of(startDate, startDate).stream().collect(Collectors.toSet());
+
+        assertEquals(1, fromStream.size());
+
+        assertTrue(fromStream.contains(startDate));
+    }
+
+    @Test
+    void shouldHaveStreamOfRangeOfDays() {
+        TramDate startDate = TramDate.of(2022, 1,1);
+        TramDate endDate = TramDate.of(2022, 1, 31);
+
+        Set<TramDate> fromStream = DateRange.of(startDate, endDate).stream().collect(Collectors.toSet());
+
+        int expectedSize = 31;
+        assertEquals(expectedSize, fromStream.size());
+
+        for (int i = 0; i < expectedSize; i++) {
+            TramDate expected = startDate.plusDays(i);
+            assertTrue(fromStream.contains(expected), "missing " +  expected + " for " + i);
+        }
     }
 
     @Disabled("Performance testing only")

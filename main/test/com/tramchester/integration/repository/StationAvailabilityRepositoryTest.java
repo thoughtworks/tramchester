@@ -18,7 +18,6 @@ import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.testTags.DataExpiryCategory;
 import com.tramchester.testSupport.testTags.DualTest;
-import com.tramchester.testSupport.testTags.PiccGardens2022;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -26,12 +25,14 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 import java.time.Duration;
+import java.util.EnumSet;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 import static com.tramchester.domain.reference.TransportMode.Tram;
 import static com.tramchester.domain.time.TramTime.of;
-import static com.tramchester.testSupport.reference.TramStations.*;
+import static com.tramchester.testSupport.reference.TramStations.Altrincham;
+import static com.tramchester.testSupport.reference.TramStations.StPetersSquare;
 import static org.junit.jupiter.api.Assertions.*;
 
 @ExtendWith(ConfigParameterResolver.class)
@@ -73,13 +74,25 @@ public class StationAvailabilityRepositoryTest {
 
         Station stPeters = StPetersSquare.from(stationRepository);
 
-        boolean duringTheDay = availabilityRepository.isAvailable(stPeters, when, TimeRange.of(of(8,45), of(10,45)));
+        boolean duringTheDay = availabilityRepository.isAvailable(stPeters, when, TimeRange.of(of(8,45), of(10,45)), modes);
 
         assertTrue(duringTheDay);
 
-        boolean lateAtNight = availabilityRepository.isAvailable(stPeters, when, TimeRange.of(of(3,5), of(3,15)));
+        boolean lateAtNight = availabilityRepository.isAvailable(stPeters, when, TimeRange.of(of(3,5), of(3,15)), modes);
 
         assertFalse(lateAtNight);
+    }
+
+    @Test
+    void shouldNotBeAvailableIfModesWrong() {
+
+        Station stPeters = StPetersSquare.from(stationRepository);
+
+        Set<TransportMode> otherModes = EnumSet.of(TransportMode.Ferry);
+        boolean duringTheDay = availabilityRepository.isAvailable(stPeters, when, TimeRange.of(of(8,45), of(10,45)), otherModes);
+
+        assertFalse(duringTheDay);
+
     }
 
     @DataExpiryCategory
@@ -99,12 +112,12 @@ public class StationAvailabilityRepositoryTest {
         Set<Route> overMidnightResults = availabilityRepository.getPickupRoutesFor(altrincham, when, timeRangeCrossMidnight, modes);
         assertFalse(overMidnightResults.isEmpty(), "for " + timeRangeCrossMidnight + " missing routes over mid-night from " + altrincham);
 
+        TramDate date = when.plusWeeks(1); // disruption 28/11/22
         TimeRange timeRangeATMidnight = TimeRange.of(TramTime.of(0, 0), Duration.ZERO, Duration.ofMinutes(maxDuration));
-        Set<Route> atMidnightResults = availabilityRepository.getPickupRoutesFor(altrincham, when, timeRangeATMidnight, modes);
-        assertFalse(atMidnightResults.isEmpty(), "for " + timeRangeATMidnight + " missing routes over mid-night from " + altrincham);
+        Set<Route> atMidnightResults = availabilityRepository.getPickupRoutesFor(altrincham, date, timeRangeATMidnight, modes);
+        assertFalse(atMidnightResults.isEmpty(), "for " + timeRangeATMidnight + " missing routes over mid-night from " + altrincham.getId());
     }
 
-    @PiccGardens2022
     @DataExpiryCategory
     @Test
     void shouldHaveExpectedRoutesAvailableForDatesAndTimeRanges() {
@@ -116,22 +129,8 @@ public class StationAvailabilityRepositoryTest {
 
         Set<Route> results = availabilityRepository.getPickupRoutesFor(altrincham, when, timeRange, modes);
 
-        // 2 -> 1, no piccadilly route
-        assertEquals(1, results.size(),
-                timeRange + " missing routes from " + altrincham.getId() + " got " + results);
-    }
-
-    @Test
-    void shouldReproIssueWithAshtonAndTraffordCenterNov2022() {
-
-        Station ashton = Ashton.from(stationRepository);
-        Station traffordCentre = TraffordCentre.from(stationRepository);
-
-        TramDate testDate = TramDate.of(2022, 11, 14);
-        TimeRange timeRange = TimeRange.of(of(8, 5), of(10, 9));
-
-        assertTrue(availabilityRepository.isAvailable(ashton, testDate, timeRange));
-        assertTrue(availabilityRepository.isAvailable(traffordCentre, testDate, timeRange));
+        assertEquals(2, results.size(),
+                timeRange + " missing routes from " + altrincham.getId() + " got " + HasId.asIds(results));
     }
 
     @DataExpiryCategory
@@ -148,7 +147,7 @@ public class StationAvailabilityRepositoryTest {
                     filter(Location::isActive).
                     filter(station -> station.getTransportModes().contains(Tram)).
                     filter(station -> !closedStationRepository.isClosed(station, date)).
-                    filter(station -> !availabilityRepository.isAvailable(station, date, lateRange)).
+                    filter(station -> !availabilityRepository.isAvailable(station, date, lateRange, modes)).
                     collect(Collectors.toSet());
 
             assertTrue(notAvailableLate.isEmpty(), "Not available " + date + " " + lateRange + " " + HasId.asIds(notAvailableLate));
@@ -170,7 +169,7 @@ public class StationAvailabilityRepositoryTest {
                     filter(Location::isActive).
                     filter(station -> station.getTransportModes().contains(Tram)).
                     filter(station -> !closedStationRepository.isClosed(station, date)).
-                    filter(station -> !availabilityRepository.isAvailable(station, date, earlyRange)).
+                    filter(station -> !availabilityRepository.isAvailable(station, date, earlyRange, modes)).
                     collect(Collectors.toSet());
 
             assertTrue(notAvailableEarly.isEmpty(), "Not available " + date + " " + earlyRange + " " + HasId.asIds(notAvailableEarly));

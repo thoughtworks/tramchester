@@ -3,6 +3,8 @@ package com.tramchester.domain.dates;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.IntStream;
+import java.util.stream.LongStream;
 import java.util.stream.Stream;
 
 public class DateRange {
@@ -19,10 +21,10 @@ public class DateRange {
     }
 
     public boolean contains(final TramDate queryDate) {
-        if (queryDate.isEquals(startDate) || queryDate.isEquals(endDate)) {
-            return true;
+        if (queryDate.isAfter(endDate) || queryDate.isBefore(startDate)) {
+            return false;
         }
-        return (queryDate.isAfter(startDate) && queryDate.isBefore(endDate));
+        return true;
     }
 
     @Override
@@ -73,13 +75,13 @@ public class DateRange {
      * @return stream of dates
      */
     public Stream<TramDate> stream() {
-        List<TramDate> dates = new ArrayList<>();
-        TramDate current = startDate;
-        while (!current.isAfter(endDate)) {
-            dates.add(current);
-            current = current.plusDays(1);
-        }
-        return dates.stream();
+        long start = startDate.toEpochDay();
+        long end = endDate.toEpochDay();
+        int range = 1 + Math.toIntExact(Math.subtractExact(end, start));
+
+        return IntStream.range(0, range).boxed().
+                map(startDate::plusDays).sorted();
+
     }
 
     public long numberOfDays() {

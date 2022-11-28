@@ -21,16 +21,14 @@ import static java.lang.String.format;
  */
 public enum KnownTramRoute {
 
-    // TODO SUSPENDED???, Picc gardens emergency track work
-    // https://tfgm.com/piccadilly-gardens-service-change
     AltrinchamPiccadilly("Purple Line", Inbound, "Altrincham - Piccadilly"),
     PiccadillyAltrincham("Purple Line", Outbound, "Piccadilly - Altrincham"),
 
     AltrinchamManchesterBury("Green Line", Inbound, "Altrincham - Manchester - Bury"),
     BuryManchesterAltrincham("Green Line", Outbound, "Bury - Manchester - Altrincham"),
 
-    AshtonUnderLyneManchesterEccles("Blue Line", Inbound, "Ashton Under Lyne - Manchester - Eccles"), // Ashton Under Lyne -
-    EcclesManchesterAshtonUnderLyne("Blue Line", Outbound, "Eccles - Manchester- Ashton Under Lyne"), //  - Ashton Under Lyne
+    AshtonUnderLyneManchesterEccles("Blue Line", Inbound, "Ashton Under Lyne - Manchester - Eccles"),
+    EcclesManchesterAshtonUnderLyne("Blue Line", Outbound, "Eccles - Manchester - Ashton Under Lyne"),
 
     BuryPiccadilly("Yellow Line", Inbound,"Bury - Piccadilly"),
     PiccadillyBury("Yellow Line", Outbound, "Piccadilly - Bury"),
@@ -44,13 +42,16 @@ public enum KnownTramRoute {
     TheTraffordCentreCornbrook("Red Line", Inbound, "The Trafford Centre - Cornbrook"),
     CornbrookTheTraffordCentre("Red Line", Outbound, "Cornbrook - The Trafford Centre"),
 
-    // TODO Piccadilly gardens closure replacement bus
-    ReplacementRoutePiccadillyDeansgate("Blue Line Bus Replacement", Inbound,"Piccadilly Station Metrolink Replacement - Castlefield - Deansgate"),
-    ReplacementRouteDeansgatePiccadilly("Blue Line Bus Replacement", Outbound, "Deansgate - Castlefield - Piccadilly Station Metrolink Replacement"),
+    // Was Piccadilly gardens closure replacement bus
+//    ReplacementRoutePiccadillyDeansgate("Blue Line Bus Replacement", Inbound,"Piccadilly Station Metrolink Replacement - Castlefield - Deansgate"),
+//    ReplacementRouteDeansgatePiccadilly("Blue Line Bus Replacement", Outbound, "Deansgate - Castlefield - Piccadilly Station Metrolink Replacement"),
 
-    // TODO Victoria works?
-    ManchesterEccles("Blue Line", Inbound,"Manchester - Eccles"),
-    EcclesManchester("Blue Line", Outbound, "Eccles - Manchester"),
+    // Was Victoria works
+//    ManchesterEccles("Blue Line", Inbound,"Manchester - Eccles"),
+//    EcclesManchester("Blue Line", Outbound, "Eccles - Manchester"),
+
+    AltrinchamStPetersSquare("Purple Line", Inbound, "Altrincham - St Peter's Square"),
+    StPetersSquareAltrincham("Purple Line", Outbound, "St Peter's Square  - Altrincham"), // note: extra space after Square, in source data
 
     AshtonCrumpsall("Yellow Line", Outbound, "Ashton - Crumpsall"),
     CrumpsallAshton("Yellow Line", Inbound, "Crumpsall - Ashton");
@@ -61,39 +62,35 @@ public enum KnownTramRoute {
     private final String longName;
 
     public static Set<KnownTramRoute> getFor(TramDate date) {
-        EnumSet<KnownTramRoute> routes = EnumSet.allOf(KnownTramRoute.class);
+        EnumSet<KnownTramRoute> routes = EnumSet.noneOf(KnownTramRoute.class);
 
-        routes.remove(ReplacementRouteDeansgatePiccadilly);
-        routes.remove(ReplacementRoutePiccadillyDeansgate);
+        routes.add(ManchesterAirportWythenshaweVictoria);
+        routes.add(VictoriaWythenshaweManchesterAirport);
+        routes.add(TheTraffordCentreCornbrook);
+        routes.add(CornbrookTheTraffordCentre);
+        routes.add(EastDidisburyManchesterShawandCromptonRochdale);
+        routes.add(RochdaleShawandCromptonManchesterEastDidisbury);
+        routes.add(AshtonUnderLyneManchesterEccles);
+        routes.add(EcclesManchesterAshtonUnderLyne);
+        routes.add(BuryManchesterAltrincham);
+        routes.add(AltrinchamManchesterBury);
 
-        DateRange piccGardensWorkA = DateRange.of(TramDate.of(2022, 11,20), TramDate.of(2022, 11, 30));
-        if (piccGardensWorkA.contains(date)) {
-            routes.remove(AshtonCrumpsall);
-            routes.remove(CrumpsallAshton);
-            routes.remove(AltrinchamPiccadilly);
-            routes.remove(PiccadillyAltrincham);
-            routes.remove(BuryPiccadilly);
-            routes.remove(PiccadillyBury);
-            routes.remove(AshtonUnderLyneManchesterEccles);
-            routes.remove(EcclesManchesterAshtonUnderLyne);
-            routes.add(ReplacementRoutePiccadillyDeansgate);
-            routes.add(ReplacementRouteDeansgatePiccadilly);
-        }
+        if (date.equals(TramDate.of(2022, 11,30))) {
+            routes.add(AltrinchamStPetersSquare);
+            routes.add(StPetersSquareAltrincham);
 
-        DateRange piccGardensWorkB = DateRange.of(TramDate.of(2022, 11,21), TramDate.of(2022, 11, 21));
-        if (piccGardensWorkB.contains(date)) {
+            routes.add(CrumpsallAshton);
             routes.add(AshtonCrumpsall);
         }
 
-        return routes;
-    }
+        if (date.isAfter(TramDate.of(2022, 11,30))) {
+            routes.add(BuryPiccadilly);
+            routes.add(PiccadillyBury);
+            routes.add(AltrinchamPiccadilly);
+            routes.add(PiccadillyAltrincham);
+        }
 
-    public static boolean isReplacement(KnownTramRoute knownTramRoute) {
-        return switch (knownTramRoute) {
-            case ReplacementRouteDeansgatePiccadilly, ReplacementRoutePiccadillyDeansgate, AshtonCrumpsall, CrumpsallAshton,
-                    EcclesManchester, ManchesterEccles -> true;
-            default -> false;
-        };
+        return routes;
     }
 
     KnownTramRoute(String shortName, RouteDirection direction, String longName) {
@@ -146,13 +143,8 @@ public enum KnownTramRoute {
         return fakeId;
     }
 
-
-
     public String longName() {
         return longName;
     }
 
-    public boolean isReplacement() {
-        return isReplacement(this);
-    }
 }

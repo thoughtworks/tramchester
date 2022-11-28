@@ -166,7 +166,7 @@ public class RouteToRouteCostsTest {
     @Test
     void shouldComputeCostsDifferentRoutesTwoChange() {
         Route routeA = routeHelper.getOneRoute(CornbrookTheTraffordCentre, date);
-        Route routeB = routeHelper.getOneRoute(ReplacementRouteDeansgatePiccadilly, date); // was BuryPiccadilly
+        Route routeB = routeHelper.getOneRoute(BuryPiccadilly, date);
 
         assertEquals(2, getMinCost(routesCostRepository.getNumberOfChanges(routeA, routeB, date, timeRange, modes)),
                 "wrong for " + routeA.getId() + " " + routeB.getId());
@@ -177,7 +177,7 @@ public class RouteToRouteCostsTest {
     @Test
     void shouldFailIfOurOfTimeRangeDifferentRoutesTwoChange() {
         Route routeA = routeHelper.getOneRoute(CornbrookTheTraffordCentre, date);
-        Route routeB = routeHelper.getOneRoute(ReplacementRoutePiccadillyDeansgate, date); // BuryPiccadilly
+        Route routeB = routeHelper.getOneRoute(BuryPiccadilly, date);
 
         assertEquals(2, getMinCost(routesCostRepository.getNumberOfChanges(routeA, routeB, date, timeRange, modes)),
                 "wrong for " + routeA.getId() + " " + routeB.getId());
@@ -200,7 +200,7 @@ public class RouteToRouteCostsTest {
 
         RouteAndChanges actualChange = firstSetOfChanges.get(0);
 
-        assertEquals(1, actualChange.getStations().size());
+        assertEquals(2, actualChange.getInterchangeStations().size());
         assertTrue(getStationsFor(actualChange).contains(Cornbrook.from(stationRepository)), results.toString());
     }
 
@@ -230,24 +230,8 @@ public class RouteToRouteCostsTest {
         assertTrue(getStationsFor(secondChangeSet.get(0)).contains(MarketStreet.from(stationRepository)));
     }
 
-    @PiccGardens2022
-    @Test
-    void shouldHaveExpectedRouteToRouteCostsForClosedStations() {
-        RouteToRouteCosts routeToRouteCosts = componentContainer.get(RouteToRouteCosts.class);
-
-        Location<?> stPetersSquare = StPetersSquare.from(stationRepository);
-        Location<?> piccGardens = PiccadillyGardens.from(stationRepository);
-
-        TimeRange timeRange = TimeRange.of(TramTime.of(6,0), TramTime.of(23,55));
-        Set<TransportMode> mode = EnumSet.of(TransportMode.Tram);
-
-        NumberOfChanges costs = routeToRouteCosts.getNumberOfChanges(stPetersSquare, piccGardens, mode, date, timeRange);
-
-        assertEquals(1, costs.getMin());
-    }
-
     private Set<Station> getStationsFor(RouteAndChanges routeAndChanges) {
-        return routeAndChanges.getStations().stream().map(InterchangeStation::getStation).collect(Collectors.toSet());
+        return routeAndChanges.getInterchangeStations().stream().map(InterchangeStation::getStation).collect(Collectors.toSet());
     }
 
     @Test
@@ -321,13 +305,12 @@ public class RouteToRouteCostsTest {
         assertEquals(0, getMinCost(result));
     }
 
-    @PiccGardens2022
     @Test
     void shouldSortAsExpected() {
 
         Route routeA = routeHelper.getOneRoute(CornbrookTheTraffordCentre, date);
         Route routeB = routeHelper.getOneRoute(VictoriaWythenshaweManchesterAirport, date);
-        Route routeC = routeHelper.getOneRoute(ReplacementRoutePiccadillyDeansgate, date); // BuryPiccadilly
+        Route routeC = routeHelper.getOneRoute(BuryPiccadilly, date);
 
         Station destination = TramStations.TraffordCentre.from(stationRepository);
         LowestCostsForDestRoutes sorts = routesCostRepository.getLowestCostCalcutatorFor(LocationSet.singleton(destination), date, timeRange, modes);
@@ -384,9 +367,11 @@ public class RouteToRouteCostsTest {
 
         Station navigationRoad = NavigationRoad.from(stationRepository);
 
-        NumberOfChanges changes = routesCostRepository.getNumberOfChanges(altrincham, navigationRoad, modes, date, timeRange);
+        // disruption week of 28/11
+        TramDate nextWeek = this.date.plusWeeks(1);
+        NumberOfChanges changes = routesCostRepository.getNumberOfChanges(altrincham, navigationRoad, modes, nextWeek, timeRange);
 
-        assertEquals(0, getMinCost(changes), changes.toString());
+        assertEquals(0, getMinCost(changes), "On " + nextWeek + " " + changes);
     }
 
     @Test
@@ -398,9 +383,11 @@ public class RouteToRouteCostsTest {
 
         Station navigationRoad = NavigationRoad.from(stationRepository);
 
-        NumberOfChanges changes = routesCostRepository.getNumberOfChanges(altrincham, navigationRoad, modes, date, timeRange);
+        // disruption week of 28/11
+        TramDate nextWeek = this.date.plusWeeks(1);
+        NumberOfChanges changes = routesCostRepository.getNumberOfChanges(altrincham, navigationRoad, modes, nextWeek, timeRange);
 
-        assertEquals(0, getMinCost(changes), changes.toString());
+        assertEquals(0, getMinCost(changes), "On " + nextWeek+ " " + changes);
     }
 
     private int getMinCost(NumberOfChanges routesCostRepository) {

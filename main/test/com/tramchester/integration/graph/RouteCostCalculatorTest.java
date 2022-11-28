@@ -81,11 +81,10 @@ class RouteCostCalculatorTest {
         assertMinutesEquals(4, routeCostCalculator.getAverageCostBetween(txn, altrincham, NavigationRoad.from(stationRepository), when, modes));
     }
 
-    @PiccGardens2022
     @Test
     void shouldComputeCostsForMediaCityAshton() throws InvalidDurationException {
-        assertMinutesEquals(61, routeCostCalculator.getAverageCostBetween(txn, mediaCity, Ashton.from(stationRepository), when, modes));
-        assertMinutesEquals(60, routeCostCalculator.getAverageCostBetween(txn,  Ashton.from(stationRepository), mediaCity, when, modes));
+        assertMinutesEquals(56, routeCostCalculator.getAverageCostBetween(txn, mediaCity, Ashton.from(stationRepository), when, modes));
+        assertMinutesEquals(54, routeCostCalculator.getAverageCostBetween(txn,  Ashton.from(stationRepository), mediaCity, when, modes));
     }
 
     @PiccGardens2022
@@ -115,13 +114,5 @@ class RouteCostCalculatorTest {
         assertMinutesEquals(60, routeCostCalculator.getMaxCostBetween(txn, airport, mediaCity, when, modes));
     }
 
-    @Test
-    void shouldReproIssueBetweenAshtonAndTraffordCenter() throws InvalidDurationException {
-        Location<?> ashton = Ashton.from(stationRepository);
-        Location<?> traffordCenter = TraffordCentre.from(stationRepository);
-        TramDate testDate = TramDate.of(2022, 11, 14);
-        Duration result = routeCostCalculator.getAverageCostBetween(txn, ashton, traffordCenter, testDate, modes);
-        assertMinutesEquals(62, result);
-    }
 
 }

@@ -212,7 +212,7 @@ class RouteCalculatorSubGraphMediaCityTest {
         TimeRange timeRange = TimeRange.of(TramTime.of(8,5), TramTime.of(8,30));
         NumberOfChanges results = routeToRouteCosts.getNumberOfChanges(salfordQuay, stPetersSquare, getRequestedModes(), when, timeRange);
 
-        assertEquals(results.getMin(), 1);
+        assertEquals(results.getMin(), 0);
     }
 
     @Test
@@ -252,7 +252,6 @@ class RouteCalculatorSubGraphMediaCityTest {
                 collect(Collectors.toList());
 
     }
-
 
     private Set<TransportMode> getRequestedModes() {
         return TransportMode.TramsOnly;

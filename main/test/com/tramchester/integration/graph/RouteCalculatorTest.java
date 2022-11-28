@@ -337,13 +337,15 @@ public class RouteCalculatorTest {
         JourneyRequest journeyRequestA = standardJourneyRequest(when, TramTime.of(23,55), maxNumResults);
         assertGetAndCheckJourneys(journeyRequestA, Cornbrook, StPetersSquare);
 
-        JourneyRequest journeyRequestB = standardJourneyRequest(when, TramTime.of(0,0), maxNumResults);
+        TramDate disurptionAvoidance = when.plusWeeks(1);
+        JourneyRequest journeyRequestB = standardJourneyRequest(disurptionAvoidance, TramTime.of(0,0), maxNumResults);
         assertGetAndCheckJourneys(journeyRequestB, Altrincham, OldTrafford);
     }
 
     @Test
     void shouldHandleAfterMidnightDirect() {
-        JourneyRequest journeyRequest = standardJourneyRequest(when, TramTime.of(0,0), maxNumResults);
+        TramDate disuptionAvoidance = when.plusWeeks(1);
+        JourneyRequest journeyRequest = standardJourneyRequest(disuptionAvoidance, TramTime.of(0,0), maxNumResults);
         assertGetAndCheckJourneys(journeyRequest, Altrincham, NavigationRoad);
     }
 

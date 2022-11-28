@@ -214,7 +214,7 @@ public class IdSet<T extends CoreDomain> implements Iterable<IdFor<T>> {
 //        return new IdSet<>(SetUtils.intersection(this.theSet, other.theSet));
 //    }
 
-    public static <T extends CoreDomain>  IdSet<T> difference(IdSet<T> setA, IdSet<T> setB) {
-        return new IdSet<>(SetUtils.difference(setA.theSet, setB.theSet));
+    public static <T extends CoreDomain>  IdSet<T> disjunction(IdSet<T> setA, IdSet<T> setB) {
+        return new IdSet<>(SetUtils.disjunction(setA.theSet, setB.theSet));
     }
 }

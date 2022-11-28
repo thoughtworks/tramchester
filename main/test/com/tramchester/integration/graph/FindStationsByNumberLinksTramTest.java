@@ -88,7 +88,7 @@ class FindStationsByNumberLinksTramTest {
             Piccadilly.getId());
 
         IdSet<Station> expected = new IdSet<>(expectedList);
-        IdSet<Station> diff = IdSet.difference(found, expected);
+        IdSet<Station> diff = IdSet.disjunction(found, expected);
 
         assertTrue(diff.isEmpty(), diff + " between expected:" + expected + " found:" + found);
 

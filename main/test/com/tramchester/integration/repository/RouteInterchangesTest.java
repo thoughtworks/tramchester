@@ -106,9 +106,9 @@ public class RouteInterchangesTest {
         Set<Route> cornbrookPickups = cornbrook.getPickupRoutes().stream().filter(route -> route.isAvailableOn(date)).collect(Collectors.toSet());
         Set<Route> cornbrookDropofss = cornbrook.getDropoffRoutes().stream().filter(route -> route.isAvailableOn(date)).collect(Collectors.toSet());
 
-        int throughRoutes = 5; // might not match the map, which includes psuedo-routes that are made of trams running part of an existing route
-        assertEquals(throughRoutes*2 - 1 , cornbrookPickups.size(), HasId.asIds(cornbrookPickups));
-        assertEquals(throughRoutes*2 - 1, cornbrookDropofss.size(), HasId.asIds(cornbrookDropofss));
+        int throughRoutes = 6; // might not match the map, which includes psuedo-routes that are made of trams running part of an existing route
+        assertEquals(throughRoutes*2  , cornbrookPickups.size(), HasId.asIds(cornbrookPickups));
+        assertEquals(throughRoutes*2 , cornbrookDropofss.size(), HasId.asIds(cornbrookDropofss));
 
         assertTrue(cornbrookPickups.contains(buryToAlty));
         assertTrue(cornbrookDropofss.contains(buryToAlty));
@@ -132,11 +132,11 @@ public class RouteInterchangesTest {
 
         assertTrue(cornbrookPickups.contains(toTraffordCenter));
         assertTrue(cornbrookDropofss.contains(fromTraffordCenter));
-        // end of the route
 
-        // TODO False -> True
-        //assertTrue(cornbrookPickups.contains(fromTraffordCenter));
-        //assertTrue(cornbrookDropofss.contains(toTraffordCenter));
+        // end of the route
+        // TODO False -> True ?
+//        assertTrue(cornbrookPickups.contains(fromTraffordCenter));
+//        assertTrue(cornbrookDropofss.contains(toTraffordCenter));
 
         Route victoriaToAirport = tramRouteHelper.getOneRoute(VictoriaWythenshaweManchesterAirport, when);
         Route airportToVictoria = tramRouteHelper.getOneRoute(ManchesterAirportWythenshaweVictoria, when);

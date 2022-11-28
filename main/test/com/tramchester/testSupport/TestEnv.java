@@ -9,6 +9,7 @@ import com.tramchester.config.TfgmTramLiveDataConfig;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.dataimport.rail.reference.TrainOperatingCompanies;
 import com.tramchester.domain.*;
+import com.tramchester.domain.dates.DateRange;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdSet;
@@ -157,10 +158,7 @@ public class TestEnv {
 
     public static Stream<TramDate> getUpcomingDates() {
         TramDate baseDate = testDay();
-        return IntStream.range(0, DAYS_AHEAD).boxed().
-                map(baseDate::plusDays).
-                filter(date -> !date.isChristmasPeriod()).
-                sorted();
+        return DateRange.of(baseDate, baseDate.plusDays(DAYS_AHEAD)).stream();
     }
 
     public static Route getTramTestRoute() {
