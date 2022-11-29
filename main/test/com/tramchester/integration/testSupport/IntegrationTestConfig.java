@@ -30,14 +30,9 @@ public abstract class IntegrationTestConfig extends TestConfig {
     public static final StationClosures piccGardensClosed = new StationClosuresConfig(
             Collections.singleton(PiccadillyGardens.getId()),
             LocalDate.of(2022,10,23),
-            LocalDate.of(2022,11,30), false);
+            LocalDate.of(2022,11,29), false);
 
-    public static final StationClosures exchangeSquareClosed = new StationClosuresConfig(
-            Collections.singleton(TramStations.ExchangeSquare.getId()),
-            LocalDate.of(2022, 11,20),
-            LocalDate.of(2022,11,21), true);
-
-    public static final List<StationClosures> CurrentClosures = Arrays.asList(piccGardensClosed, exchangeSquareClosed);
+    public static final List<StationClosures> CurrentClosures = List.of(piccGardensClosed);
 
     protected IntegrationTestConfig(GraphDBTestConfig dbConfig) {
         final Path naptanLocalDataPath = Path.of("data/naptan");

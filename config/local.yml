@@ -35,12 +35,8 @@ gtfsSourceConfig:
     stationClosures:
       - stations: [ "9400ZZMAPGD" ]
         begin: 2022-10-23
-        end: 2022-11-30
+        end: 2022-11-29
         fullyClosed: false
-      - stations: [ "9400ZZMAEXS" ]
-        begin: 2022-11-20
-        end: 2022-11-21
-        fullyClosed: true
 remoteSources:
   - name: tfgm
     dataURL: ${TRAM_DATAURL:- http://odata.tfgm.com/opendata/downloads/TfGMgtfsnew.zip}
