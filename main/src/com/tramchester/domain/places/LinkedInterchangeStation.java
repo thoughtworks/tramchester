@@ -97,4 +97,9 @@ public class LinkedInterchangeStation implements InterchangeStation {
     public Set<Station> getLinked() {
         return links.stream().map(StationLink::getEnd).collect(Collectors.toSet());
     }
+
+    @Override
+    public IdFor<Station> getId() {
+        return getStationId();
+    }
 }

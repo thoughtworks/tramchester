@@ -98,8 +98,15 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
         return result;
     }
 
-    // test support
-    public List<List<RouteAndChanges>> getChangesFor(Route routeA, Route routeB, Set<TransportMode> requesteModes) {
+    /***
+     * To facilitate testing
+     * @param routeA starting route
+     * @param routeB destintation route
+     * @param requestedModes allowed transport modes
+     * @return a list of lists, each list contains the pairs of routes needed to transfer between routeA and routeB in order, as well as the
+     * interchanges that allow the transfer between those routes
+     */
+    public List<List<RouteAndChanges>> getChangesFor(Route routeA, Route routeB, Set<TransportMode> requestedModes) {
         RoutePair routePair = new RoutePair(routeA, routeB);
 
         logger.info("Get change stations betweem " + routePair);
@@ -108,10 +115,12 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
 
         IndexedBitSet dateOverlaps = IndexedBitSet.getIdentity(numberOfRoutes); // no specific date or time
 
+        // routes we need to traverse, to get from routeA to routeB
         Stream<SimpleList<RouteIndexPair>> routeChanges = costs.getChangesFor(indexPair, dateOverlaps);
 
+        // given the routes we need to cross, find the interchanges that will allow this
         List<List<RouteAndChanges>> interchanges = routeChanges.
-                map(list -> list.stream().map(pair -> getChangesFor(pair, requesteModes)).filter(Objects::nonNull)).
+                map(list -> list.stream().map(pair -> getChangesFor(pair, requestedModes)).filter(Objects::nonNull)).
                 map(onePossibleSetOfChange -> onePossibleSetOfChange.collect(Collectors.toList()))
                 .collect(Collectors.toList());
 
@@ -157,6 +166,12 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
         return result;
     }
 
+    /***
+     * Interchanged needed to transfer between pair of route - Unordered
+     * @param indexPair routes interested in
+     * @param requestedModes transport modes to use between them
+     * @return UNORDERED set of interchange stations
+     */
     private RouteAndChanges getChangesFor(RouteIndexPair indexPair, Set<TransportMode> requestedModes) {
 
         final RoutePair routePair = index.getPairFor(indexPair);
@@ -171,10 +186,6 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
             return routeAndChanges;
         }
 
-        // for trains this warning makes no sense, since routes limited to one part of country etc.
-//        if (routePair.sameMode()) {
-//            logger.warn("Did not find any interchanges for " + routePair);
-//        }
         return null;
     }
 

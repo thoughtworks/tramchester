@@ -77,4 +77,8 @@ public class SimpleInterchangeStation implements InterchangeStation {
                 '}';
     }
 
+    @Override
+    public IdFor<Station> getId() {
+        return getStationId();
+    }
 }

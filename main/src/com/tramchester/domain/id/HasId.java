@@ -12,12 +12,8 @@ public interface HasId<DOMAINTYPE extends CoreDomain> {
 
     IdFor<DOMAINTYPE> getId();
 
-    static <S extends  T, T extends HasId<T> & CoreDomain> String asIds(Collection<S> items) {
-        return listToIdStringList(items, item -> item.getId().toString());
-    }
-
-    static String asIds(List<Location<?>> items) {
-        return listToIdStringList(items, item -> item.getId().toString());
+    static <S extends HasId<?>> String asIds(Collection<S> items) {
+        return collectionToIdStringList(items, item -> item.getId().toString());
     }
 
     static String asIds(IdMap<?> idMap) {
@@ -29,7 +25,7 @@ public interface HasId<DOMAINTYPE extends CoreDomain> {
     }
 
     @NotNull
-    static <T> String listToIdStringList(Collection<T> items, GetsId<T> getsId) {
+    static <T> String collectionToIdStringList(Collection<T> items, GetsId<T> getsId) {
         StringBuilder ids = new StringBuilder();
         ids.append("[");
         items.forEach(item -> ids.append(" '").append(getsId.asString(item)).append("'"));

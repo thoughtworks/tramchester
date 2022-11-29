@@ -1,5 +1,6 @@
 package com.tramchester.domain;
 
+import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.places.InterchangeStation;
 
 import java.util.Objects;
@@ -14,6 +15,9 @@ public class RouteAndChanges {
         this.interchangeStations = stations;
     }
 
+    /***
+     * @return stations where we can change between the two routes, not ordered
+     */
     public Set<InterchangeStation> getInterchangeStations() {
         return interchangeStations;
     }
@@ -22,7 +26,7 @@ public class RouteAndChanges {
     public String toString() {
         return "RouteInterchanges{" +
                 "routePair=" + routePair +
-                ", interchangeStations=" + interchangeStations +
+                ", interchangeStations=" + HasId.asIds(interchangeStations) +
                 '}';
     }
 

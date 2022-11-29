@@ -78,9 +78,9 @@ public class RouteIndexToInterchangeRepository {
         return routePairToInterchange.containsKey(indexPair);
     }
 
-    public Set<InterchangeStation> getInterchanges(RouteIndexPair indexPair, Set<TransportMode> requesteModes) {
+    public Set<InterchangeStation> getInterchanges(RouteIndexPair indexPair, Set<TransportMode> requestedModes) {
         return routePairToInterchange.get(indexPair).stream().
-                filter(interchangeStation -> TransportMode.intersects(requesteModes, interchangeStation.getTransportModes())).
+                filter(interchangeStation -> TransportMode.intersects(requestedModes, interchangeStation.getTransportModes())).
                 collect(Collectors.toSet());
     }
 }
