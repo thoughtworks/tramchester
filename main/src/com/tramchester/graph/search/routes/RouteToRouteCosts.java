@@ -121,7 +121,8 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
         return interchanges;
     }
 
-    private int getDepth(RouteIndexPair routePair, ChangeStationOperatingCache changeStationOperating, IndexedBitSet dateOverlaps, Set<TransportMode> requestedModes) {
+    private int getDepth(RouteIndexPair routePair, ChangeStationOperatingCache changeStationOperating,
+                         IndexedBitSet dateOverlaps, Set<TransportMode> requestedModes) {
 
         final Stream<SimpleList<RouteIndexPair>> possibleChanges = costs.getChangesFor(routePair, dateOverlaps);
 
@@ -286,7 +287,7 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
                     HasId.asIds(startRoutes), HasId.asIds(destinationRoutes), date));
         }
 
-        IndexedBitSet dateOverlaps = costs.createOverlapMatrixFor(date);
+        IndexedBitSet dateOverlaps = costs.createOverlapMatrixFor(date, requestedModes);
 
         Set<RoutePair> routePairs = getRoutePairs(startRoutes, destinationRoutes);
 
@@ -381,7 +382,7 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
             this.time = time;
             this.requestedModes = requestedModes;
             changeStationOperating = new ChangeStationOperatingCache(date, time);
-            dateOverlaps = ((RouteToRouteCosts) routeToRouteCosts).costs.createOverlapMatrixFor(date);
+            dateOverlaps = ((RouteToRouteCosts) routeToRouteCosts).costs.createOverlapMatrixFor(date, requestedModes);
 
         }
 

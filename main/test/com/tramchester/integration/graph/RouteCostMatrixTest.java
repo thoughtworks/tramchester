@@ -8,25 +8,34 @@ import com.tramchester.domain.RoutePair;
 import com.tramchester.domain.collections.IndexedBitSet;
 import com.tramchester.domain.collections.SimpleList;
 import com.tramchester.domain.dates.TramDate;
+import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.graph.search.routes.RouteCostMatrix;
 import com.tramchester.graph.search.routes.RouteIndex;
 import com.tramchester.graph.search.routes.RouteIndexPair;
+import com.tramchester.integration.testSupport.ConfigParameterResolver;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
 import com.tramchester.repository.RouteRepository;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TramRouteHelper;
+import com.tramchester.testSupport.testTags.DualTest;
+import com.tramchester.testSupport.testTags.GMTest;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
+import java.util.EnumSet;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static com.tramchester.domain.reference.TransportMode.Tram;
 import static com.tramchester.testSupport.reference.KnownTramRoute.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
+@ExtendWith(ConfigParameterResolver.class)
+@DualTest
 public class RouteCostMatrixTest {
     private static ComponentContainer componentContainer;
 
@@ -34,12 +43,12 @@ public class RouteCostMatrixTest {
     private TramDate date;
     private RouteCostMatrix routeMatrix;
     private RouteIndex routeIndex;
+    private EnumSet<TransportMode> modes;
 
     @BeforeAll
-    static void onceBeforeAnyTestRuns() {
-        TramchesterConfig config = new IntegrationTramTestConfig();
+    static void onceBeforeAnyTestRuns(TramchesterConfig tramchesterConfig) {
 
-        componentContainer = new ComponentsBuilder().create(config, TestEnv.NoopRegisterMetrics());
+        componentContainer = new ComponentsBuilder().create(tramchesterConfig, TestEnv.NoopRegisterMetrics());
         componentContainer.initialise();
 
         TestEnv.clearDataCache(componentContainer);
@@ -59,6 +68,7 @@ public class RouteCostMatrixTest {
         routeIndex = componentContainer.get(RouteIndex.class);
 
         date = TestEnv.testDay();
+        modes = EnumSet.of(Tram);
     }
 
     @Test
@@ -104,7 +114,7 @@ public class RouteCostMatrixTest {
 
         RouteIndexPair indexPair = routeIndex.getPairFor(new RoutePair(routeA, routeB));
 
-        IndexedBitSet dateOverlaps = routeMatrix.createOverlapMatrixFor(date);
+        IndexedBitSet dateOverlaps = routeMatrix.createOverlapMatrixFor(date, modes);
 
         assertNotEquals(0, dateOverlaps.numberOfBitsSet());
 
@@ -134,7 +144,7 @@ public class RouteCostMatrixTest {
 
         RouteIndexPair indexPair = routeIndex.getPairFor(new RoutePair(routeA, routeB));
 
-        IndexedBitSet dateOverlaps = routeMatrix.createOverlapMatrixFor(testDate);
+        IndexedBitSet dateOverlaps = routeMatrix.createOverlapMatrixFor(testDate, modes);
 
         assertEquals(196, dateOverlaps.numberOfBitsSet());
 

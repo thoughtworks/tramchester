@@ -30,6 +30,7 @@ import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TramRouteHelper;
 import com.tramchester.testSupport.reference.TramStations;
 import com.tramchester.testSupport.testTags.DualTest;
+import com.tramchester.testSupport.testTags.GMTest;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 
@@ -56,13 +57,13 @@ public class RouteToRouteCostsTest {
     private RouteRepository routeRepository;
     private static Path indexFile;
     private StationRepository stationRepository;
-    private final Set<TransportMode> modes = Collections.singleton(Tram);
+    private final Set<TransportMode> modes = TramsOnly;
     private TramDate date;
     private TimeRange timeRange;
 
     @BeforeAll
     static void onceBeforeAnyTestRuns(TramchesterConfig tramchesterConfig) {
-        config = tramchesterConfig; //new IntegrationTramTestConfig();
+        config = tramchesterConfig;
         final Path cacheFolder = config.getCacheFolder();
 
         indexFile = cacheFolder.resolve(RouteToRouteCosts.INDEX_FILE);
@@ -95,7 +96,8 @@ public class RouteToRouteCostsTest {
 
     @Test
     void shouldHaveFullyConnectedForTramsWhereDatesOverlaps() {
-        Set<Route> routes = routeRepository.getRoutes(TramsOnly).stream().filter(route -> route.isAvailableOn(date)).collect(Collectors.toSet());
+        Set<Route> routes = routeRepository.getRoutes(modes).stream().
+                filter(route -> route.isAvailableOn(date)).collect(Collectors.toSet());
 
         TimeRange timeRangeForOverlaps = TimeRange.of(TramTime.of(8, 45), TramTime.of(16, 45));
 
@@ -112,7 +114,6 @@ public class RouteToRouteCostsTest {
         }
 
         assertTrue(failed.isEmpty(), "on date " + date + failed);
-
     }
 
     @Test
@@ -204,6 +205,8 @@ public class RouteToRouteCostsTest {
 
     @Test
     void shouldBacktrackToChangesMultipleChanges() {
+        Station marketStreet = MarketStreet.from(stationRepository);
+
         Route routeA = routeHelper.getOneRoute(BuryPiccadilly, date); // was BuryPiccadilly
         Route routeB = routeHelper.getOneRoute(CornbrookTheTraffordCentre, date);
 
@@ -213,12 +216,13 @@ public class RouteToRouteCostsTest {
         List<RouteAndChanges> firstChangeSet = results.get(0);
         assertEquals(2, firstChangeSet.size());
 
-        assertTrue(getStationsFor(firstChangeSet.get(0)).contains(MarketStreet.from(stationRepository)));
+        Set<Station> firstChangeSetStations = getStationsFor(firstChangeSet.get(0));
+        assertTrue(firstChangeSetStations.contains(marketStreet), HasId.asIds(firstChangeSetStations));
 
         List<RouteAndChanges> secondChangeSet = results.get(0);
         assertEquals(2, secondChangeSet.size());
 
-        assertTrue(getStationsFor(secondChangeSet.get(0)).contains(MarketStreet.from(stationRepository)));
+        assertTrue(getStationsFor(secondChangeSet.get(0)).contains(marketStreet));
     }
 
     private Set<Station> getStationsFor(RouteAndChanges routeAndChanges) {
