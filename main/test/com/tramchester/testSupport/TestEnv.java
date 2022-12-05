@@ -12,7 +12,6 @@ import com.tramchester.domain.*;
 import com.tramchester.domain.dates.DateRange;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.IdFor;
-import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.input.PlatformStopCall;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.Location;
@@ -24,8 +23,6 @@ import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.geo.BoundingBox;
 import com.tramchester.metrics.CacheMetrics;
-import com.tramchester.repository.RouteRepository;
-import com.tramchester.testSupport.reference.KnownTramRoute;
 import com.tramchester.testSupport.reference.TramStations;
 import org.apache.commons.io.FileUtils;
 import org.slf4j.LoggerFactory;
@@ -39,14 +36,11 @@ import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 import static com.tramchester.domain.id.StringIdFor.createId;
 import static java.lang.String.format;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
 
 public class TestEnv {
     public static final Path CACHE_DIR = Path.of("testData","cache");
@@ -75,7 +69,8 @@ public class TestEnv {
     public static final String MANCHESTER_AIRPORT_BUS_AREA = "180GMABS";
 
     public static final String BACKUP_TIMETABLE_URL = "https://tramchester2dist.s3.eu-west-1.amazonaws.com/XXXX/tfgm_data.zip";
-    public static final String TFGM_TIMETABLE_URL = "http://odata.tfgm.com/opendata/downloads/TfGMgtfsnew.zip";
+
+    public static final String TFGM_TIMETABLE_URL = "https://odata.tfgm.com/opendata/downloads/TfGMgtfsnew.zip";
 
     public static final String NAPTAN_BASE_URL = "https://naptan.api.dft.gov.uk/v1/access-nodes"; // ?dataFormat=csv
 
@@ -110,7 +105,7 @@ public class TestEnv {
     }
 
     static {
-        TramDate today = TramDate.of(LocalNow().toLocalDate());
+        TramDate today = TramDate.from(LocalNow());
         testDay = getNextDate(DayOfWeek.THURSDAY, today);
         saturday = getNextDate(DayOfWeek.SATURDAY, today);
         sunday = getNextDate(DayOfWeek.SUNDAY, today);
@@ -131,7 +126,7 @@ public class TestEnv {
 
     /***
      * use testDay()
-     * @return
+     * @return test day
      */
     @Deprecated
     public static TramDate testTramDay() {
@@ -270,16 +265,6 @@ public class TestEnv {
         assertEquals(Duration.ofMinutes(minutes), duration, message);
     }
 
-    /**
-     * Need to find more than one for a valid test
-     */
-    public static Set<Route> findTramRoute(RouteRepository routeRepository, KnownTramRoute knownTramRoute) {
-        Set<Route> routes = routeRepository.findRoutesByName(MET.getId(), knownTramRoute.longName());
-        assertFalse(routes.isEmpty(), "Found no routes for " + knownTramRoute);
-
-        return routes;
-    }
-
     public static void clearDataCache(ComponentContainer componentContainer) {
         DataCache cache = componentContainer.get(DataCache.class);
         cache.clearFiles();
@@ -324,9 +309,5 @@ public class TestEnv {
         }
         return platforms.get(0);
     }
-
-    private static final IdSet<Station> problemStations = Stream.of("9400ZZMAAUD", "9400ZZMAVPK", "9400ZZMADRO",
-            "9400ZZMAAMO", "9400ZZMACLN", "9400ZZMAELN", "9400ZZMAAUL", "9400ZZMACEM", "9400ZZMAAWT",
-            "9400ZZMAECS", "9400ZZMAHTN", "9400ZZMANIS").map(Station::createId).collect(IdSet.idCollector());
 
 }

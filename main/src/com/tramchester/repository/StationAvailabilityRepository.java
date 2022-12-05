@@ -96,7 +96,6 @@ public class StationAvailabilityRepository {
         return 1;
     }
 
-
     private void addFor(Map<Location<?>, ServedRoute> place, Station station, Route route, Service service, TramTime time) {
         if (!place.containsKey(station)) {
             place.put(station, new ServedRoute());
@@ -123,21 +122,29 @@ public class StationAvailabilityRepository {
                 dropoffsForLocation.get(location).anyAvailable(when, timeRange, requestedModes);
     }
 
-    private boolean isAvailable(InterchangeStation interchangeStation, TramDate date, TimeRange time, Set<TransportMode> requestedModes) {
+    private boolean isAvailable(InterchangeStation interchangeStation, TramDate date, TimeRange timeRange, Set<TransportMode> requestedModes) {
         if (interchangeStation.getType()==InterchangeType.NeighbourLinks) {
-            LinkedInterchangeStation linkedInterchangeStation = (LinkedInterchangeStation) interchangeStation;
-            ServedRoute servedRoute = dropoffsForLocation.get(linkedInterchangeStation.getStation());
-            if (servedRoute.anyAvailable(date, time, requestedModes)) {
-                return linkedInterchangeStation.getLinked().stream().
-                        map(pickupsForLocation::get).
-                        anyMatch(linkedServedRoute -> linkedServedRoute.anyAvailable(date, time, requestedModes));
-            }
+            return isAvailable((LinkedInterchangeStation) interchangeStation, date, timeRange, requestedModes);
         }
-        return isAvailable(interchangeStation.getStation(), date,time, requestedModes);
+        return isAvailable(interchangeStation.getStation(), date, timeRange, requestedModes);
+    }
+
+    private boolean isAvailable(LinkedInterchangeStation linkedInterchangeStation, TramDate date, TimeRange timeRange, Set<TransportMode> requestedModes) {
+        ServedRoute servedRoute = dropoffsForLocation.get(linkedInterchangeStation.getStation());
+        if (servedRoute.anyAvailable(date, timeRange, requestedModes)) {
+            // origin half of the linked station matches the requirements
+            return true;
+        }
+        // if not a match at the origin now check the "far end" linked stations
+        return linkedInterchangeStation.getLinked().stream().
+                filter(station -> TransportMode.intersects(station.getTransportModes(), requestedModes)).
+                map(pickupsForLocation::get).
+                anyMatch(linkedServedRoute -> linkedServedRoute.anyAvailable(date, timeRange, requestedModes));
+        //return false;
     }
 
     public boolean isAvailable(RouteAndChanges routeAndChanges, TramDate date, TimeRange time, Set<TransportMode> requestedModes) {
-        if (routeAndChanges.getRoutePair().isAvailableOn(date)) {
+        if (routeAndChanges.getRoutePair().bothAvailableOn(date)) {
             return routeAndChanges.getInterchangeStations().stream().
                     anyMatch(interchangeStation -> isAvailable(interchangeStation, date, time, requestedModes));
         }

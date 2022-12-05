@@ -35,8 +35,8 @@ gtfsSourceConfig:
     addWalksForClosed: false
 remoteSources:
   - name: tfgm
-    dataURL: ${TRAM_DATAURL:- http://odata.tfgm.com/opendata/downloads/TfGMgtfsnew.zip}
-    dataCheckURL: http://odata.tfgm.com/opendata/downloads/TfGMgtfsnew.zip
+    dataURL: ${TRAM_DATAURL:- https://odata.tfgm.com/opendata/downloads/TfGMgtfsnew.zip}
+    dataCheckURL: https://odata.tfgm.com/opendata/downloads/TfGMgtfsnew.zip
     dataPath: data/bus
     filename: tfgm_data.zip
   - name: naptanxml

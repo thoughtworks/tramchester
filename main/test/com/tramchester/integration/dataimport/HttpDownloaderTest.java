@@ -63,7 +63,7 @@ class HttpDownloaderTest {
         String url = TestEnv.TFGM_TIMETABLE_URL;
         URLStatus result = urlDownloader.getStatusFor(url, localModTime);
 
-        assertTrue(result.getModTime().getYear()>1970);
+        assertTrue(result.getModTime().getYear()>1970, "Unexpected date " + result.getModTime());
     }
 
     @Test

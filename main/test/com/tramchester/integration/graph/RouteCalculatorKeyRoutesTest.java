@@ -157,16 +157,7 @@ class RouteCalculatorKeyRoutesTest {
         int maxJourneyDuration = testConfig.getMaxJourneyDuration();
         assertTrue(Durations.greaterOrEquals(Duration.ofMinutes(maxJourneyDuration), longest), "longest was " + longest + " and not " + maxJourneyDuration);
     }
-
-    @Test
-    void shouldRemindToResetLongestDurationAfterNovemberWorkIsCompleted() {
-        TramDate tramDate = TramDate.from(TestEnv.LocalNow());
-
-        if (tramDate.isAfter(TramDate.of(2022,11,30))) {
-            assertEquals(testConfig.getMaxJourneyDuration(), 124);
-        }
-    }
-
+    
     @Disabled("used for diagnosing specific issue")
     @Test
     void shouldRepoServiceTimeIssueForConcurrency() {

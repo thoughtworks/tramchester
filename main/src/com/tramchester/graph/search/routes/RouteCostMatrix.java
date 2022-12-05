@@ -190,7 +190,7 @@ public class RouteCostMatrix {
         }
         if (initialDepth == Byte.MAX_VALUE) {
             if (!graphFilter.isActive()) {
-                logger.warn(format("getChangesFor: no changes possible indexes %s", routePair));
+                logger.warn(format("getChangesFor: no changes possible indexes %s", index.getPairFor(routePair)));
             }
             return Stream.empty();
         }

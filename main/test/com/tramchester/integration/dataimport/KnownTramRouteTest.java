@@ -55,7 +55,6 @@ class KnownTramRouteTest {
         routeRepository = componentContainer.get(RouteRepository.class);
     }
 
-
     /// Note: START HERE when diagnosing
     @Test
     void shouldHaveCorrectLongNamesForKnownRoutesForDates() {
@@ -112,7 +111,7 @@ class KnownTramRouteTest {
 
         SetUtils.SetView<KnownTramRoute> diff = SetUtils.disjunction(returnedForDates, all);
 
-        assertTrue(diff.isEmpty(), "Expected empty but got " + diff);
+        assertTrue(diff.isEmpty(), "Expected empty, are they still needed, got " + diff);
 
     }
 

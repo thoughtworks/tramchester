@@ -4,20 +4,23 @@ import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.Route;
+import com.tramchester.domain.RouteAndChanges;
+import com.tramchester.domain.RoutePair;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.HasId;
+import com.tramchester.domain.places.InterchangeStation;
 import com.tramchester.domain.places.Location;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TimeRange;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.integration.testSupport.ConfigParameterResolver;
-import com.tramchester.repository.ClosedStationsRepository;
-import com.tramchester.repository.StationAvailabilityRepository;
-import com.tramchester.repository.StationRepository;
+import com.tramchester.repository.*;
 import com.tramchester.testSupport.TestEnv;
+import com.tramchester.testSupport.TramRouteHelper;
 import com.tramchester.testSupport.testTags.DataExpiryCategory;
 import com.tramchester.testSupport.testTags.DualTest;
+import com.tramchester.testSupport.testTags.GMTest;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -25,18 +28,21 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 import java.time.Duration;
+import java.util.Collections;
 import java.util.EnumSet;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 import static com.tramchester.domain.reference.TransportMode.Tram;
+import static com.tramchester.domain.reference.TransportMode.TramsOnly;
 import static com.tramchester.domain.time.TramTime.of;
-import static com.tramchester.testSupport.reference.TramStations.Altrincham;
-import static com.tramchester.testSupport.reference.TramStations.StPetersSquare;
+import static com.tramchester.testSupport.reference.KnownTramRoute.*;
+import static com.tramchester.testSupport.reference.TramStations.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 @ExtendWith(ConfigParameterResolver.class)
 @DualTest
+@GMTest
 public class StationAvailabilityRepositoryTest {
     private static ComponentContainer componentContainer;
     private static TramchesterConfig config;
@@ -46,6 +52,7 @@ public class StationAvailabilityRepositoryTest {
     private TramDate when;
     private ClosedStationsRepository closedStationRepository;
     private Set<TransportMode> modes;
+    private TramRouteHelper tramRouteHelper;
 
     @BeforeAll
     static void onceBeforeAnyTestsRun(TramchesterConfig tramchesterConfig) {
@@ -64,6 +71,10 @@ public class StationAvailabilityRepositoryTest {
         stationRepository = componentContainer.get(StationRepository.class);
         availabilityRepository = componentContainer.get(StationAvailabilityRepository.class);
         closedStationRepository = componentContainer.get(ClosedStationsRepository.class);
+
+
+        RouteRepository routeRepository = componentContainer.get(RouteRepository.class);
+        tramRouteHelper = new TramRouteHelper(routeRepository);
 
         when = TestEnv.testDay();
         modes = TransportMode.TramsOnly;
@@ -175,5 +186,51 @@ public class StationAvailabilityRepositoryTest {
             assertTrue(notAvailableEarly.isEmpty(), "Not available " + date + " " + earlyRange + " " + HasId.asIds(notAvailableEarly));
         });
     }
+
+    @Test
+    void reproduceIssueForYellowAndPinkRoutesWhenGMInEffect() {
+        TramDate date = TestEnv.testDay();
+        TimeRange timeRange = TimeRange.of(TramTime.of(8, 45), TramTime.of(16, 45));
+        Set<TransportMode> requestedModes = EnumSet.of(Tram);
+
+        InterchangeRepository interchangeRepository = componentContainer.get(InterchangeRepository.class);
+
+        Route yellowInbound = tramRouteHelper.getOneRoute(BuryPiccadilly, date);
+        Route pinkOutbound = tramRouteHelper.getOneRoute(EastDidisburyManchesterShawandCromptonRochdale, date);
+
+        RoutePair routePair = RoutePair.of(yellowInbound, pinkOutbound);
+        Station victoria = Victoria.from(stationRepository);
+        Set<InterchangeStation> interchanges = Collections.singleton(interchangeRepository.getInterchange(victoria));
+
+        RouteAndChanges routeAndChanges = new RouteAndChanges(routePair, interchanges);
+        boolean result = availabilityRepository.isAvailable(routeAndChanges, date, timeRange, requestedModes);
+        assertTrue(result);
+    }
+
+    @Test
+    void shouldHaveExpectedDropOffRoutesForVictoriaTram() {
+        TramDate date = TestEnv.testDay();
+        TimeRange timeRange = TimeRange.of(TramTime.of(8, 45), TramTime.of(16, 45));
+
+        Station victoria = Victoria.from(stationRepository);
+        Set<Route> dropOffs = availabilityRepository.getDropoffRoutesFor(victoria, date, timeRange, TramsOnly);
+
+        Route yellowInbound = tramRouteHelper.getOneRoute(BuryPiccadilly, date);
+        Route blueInbound = tramRouteHelper.getOneRoute(RochdaleShawandCromptonManchesterEastDidisbury, date);
+        Route greenOutbound = tramRouteHelper.getOneRoute(BuryManchesterAltrincham, date);
+
+        assertTrue(dropOffs.contains(yellowInbound));
+        assertTrue(dropOffs.contains(blueInbound));
+        assertTrue(dropOffs.contains(greenOutbound));
+
+        Set<Route> pickups = availabilityRepository.getPickupRoutesFor(victoria, date, timeRange, TramsOnly);
+
+        assertTrue(pickups.contains(yellowInbound));
+        assertTrue(pickups.contains(blueInbound));
+        assertTrue(pickups.contains(greenOutbound));
+
+
+    }
+
 
 }

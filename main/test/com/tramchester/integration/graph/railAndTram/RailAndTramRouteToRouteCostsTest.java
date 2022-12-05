@@ -4,6 +4,7 @@ import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.NumberOfChanges;
+import com.tramchester.domain.Route;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
@@ -12,22 +13,25 @@ import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.search.routes.RouteToRouteCosts;
 import com.tramchester.integration.testSupport.TramAndTrainGreaterManchesterConfig;
 import com.tramchester.integration.testSupport.rail.RailStationIds;
+import com.tramchester.repository.RouteRepository;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.TestEnv;
+import com.tramchester.testSupport.TramRouteHelper;
 import com.tramchester.testSupport.reference.TramStations;
 import com.tramchester.testSupport.testTags.GMTest;
 import org.junit.jupiter.api.*;
 
-import java.util.Collections;
 import java.util.EnumSet;
 import java.util.Set;
 
-import static com.tramchester.domain.reference.TransportMode.Train;
-import static com.tramchester.domain.reference.TransportMode.Tram;
+import static com.tramchester.domain.reference.TransportMode.*;
 import static com.tramchester.integration.testSupport.rail.RailStationIds.ManchesterPiccadilly;
 import static com.tramchester.integration.testSupport.rail.RailStationIds.Stockport;
+import static com.tramchester.testSupport.reference.KnownTramRoute.BuryPiccadilly;
+import static com.tramchester.testSupport.reference.KnownTramRoute.EastDidisburyManchesterShawandCromptonRochdale;
 import static com.tramchester.testSupport.reference.TramStations.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 
 @GMTest
 public class RailAndTramRouteToRouteCostsTest {
@@ -36,6 +40,7 @@ public class RailAndTramRouteToRouteCostsTest {
 
     private TramDate date;
     private RouteToRouteCosts routeToRouteCosts;
+    private Set<TransportMode> allTransportModes;
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
@@ -58,15 +63,16 @@ public class RailAndTramRouteToRouteCostsTest {
 
     @BeforeEach
     void beforeEachTestRuns() {
-        date = TestEnv.testTramDay();
+        date = TestEnv.testDay();
         routeToRouteCosts = componentContainer.get(RouteToRouteCosts.class);
+        allTransportModes = EnumSet.allOf(TransportMode.class);
     }
 
     @Test
     void shouldValidHopsBetweenTramAndRailLongRange() {
         TimeRange timeRange = TimeRange.of(TramTime.of(8, 15), TramTime.of(22, 35));
 
-        Set<TransportMode> all = Collections.emptySet();
+        Set<TransportMode> all = allTransportModes;
         NumberOfChanges result = routeToRouteCosts.getNumberOfChanges(tram(TramStations.Bury), rail(Stockport),
                 all, date, timeRange);
 
@@ -79,7 +85,7 @@ public class RailAndTramRouteToRouteCostsTest {
         TimeRange timeRange = TimeRange.of(TramTime.of(8, 15), TramTime.of(22, 35));
 
         NumberOfChanges result = routeToRouteCosts.getNumberOfChanges(tram(Altrincham), rail(RailStationIds.Altrincham),
-                Collections.emptySet(), date, timeRange);
+                allTransportModes, date, timeRange);
 
         assertEquals(1, result.getMin());
         assertEquals(1, result.getMax());
@@ -90,7 +96,7 @@ public class RailAndTramRouteToRouteCostsTest {
         TimeRange timeRange = TimeRange.of(TramTime.of(8, 15), TramTime.of(22, 35));
 
         NumberOfChanges result = routeToRouteCosts.getNumberOfChanges(tram(Altrincham), rail(Stockport),
-                Collections.emptySet(), date, timeRange);
+                allTransportModes, date, timeRange);
 
         assertEquals(1, result.getMin());
         assertEquals(2, result.getMax());
@@ -113,10 +119,10 @@ public class RailAndTramRouteToRouteCostsTest {
         TimeRange timeRange = TimeRange.of(TramTime.of(8, 15), TramTime.of(22, 35));
 
         NumberOfChanges result = routeToRouteCosts.getNumberOfChanges(tram(Cornbrook), rail(RailStationIds.Altrincham),
-                Collections.emptySet(), date, timeRange);
+                allTransportModes, date, timeRange);
 
         assertEquals(1, result.getMin());
-        assertEquals(3, result.getMax());
+        assertEquals(2, result.getMax());
     }
 
     @Test
@@ -149,10 +155,39 @@ public class RailAndTramRouteToRouteCostsTest {
         TimeRange timeRange = TimeRange.of(TramTime.of(8, 15), TramTime.of(22, 35));
 
         NumberOfChanges result = routeToRouteCosts.getNumberOfChanges(tram(Cornbrook), tram(StPetersSquare),
-                Collections.emptySet(), date, timeRange);
+                allTransportModes, date, timeRange);
 
         assertEquals(0, result.getMin());
-        assertEquals(2, result.getMax());
+        assertEquals(1, result.getMax());
+    }
+
+    @Test
+    void shouldHaveOneChangeRochdaleToEccles() {
+        // Rochdale, Eccles
+        TimeRange timeRange = TimeRange.of(TramTime.of(9,0), TramTime.of(10,0));
+        Station rochdale = Rochdale.from(stationRepository);
+        Station eccles = Eccles.from(stationRepository);
+        NumberOfChanges changes = routeToRouteCosts.getNumberOfChanges(rochdale, eccles, TramsOnly, date, timeRange);
+
+        assertFalse(changes.isNone());
+    }
+
+    @Test
+    void shouldReproduceErrorWithPinkAndYellowRoutesTramOnly() {
+        // error was due to handling of linked interchange stations in StationAvailabilityRepository
+        // specifically because Victoria is linked to rail routes and is only place to change between pink/yellow route
+        TimeRange timeRange = TimeRange.of(TramTime.of(8, 45), TramTime.of(16, 45));
+
+        RouteRepository routeRepository = componentContainer.get(RouteRepository.class);
+        TramRouteHelper tramRouteHelper = new TramRouteHelper(routeRepository);
+
+        Route yellowInbound = tramRouteHelper.getOneRoute(BuryPiccadilly, date);
+        Route pinkOutbound = tramRouteHelper.getOneRoute(EastDidisburyManchesterShawandCromptonRochdale, date);
+
+        NumberOfChanges routeToRouteResult = routeToRouteCosts.getNumberOfChanges(yellowInbound, pinkOutbound, date, timeRange, TramsOnly);
+
+        assertFalse(routeToRouteResult.isNone());
+
     }
 
     private Station tram(TramStations tramStation) {

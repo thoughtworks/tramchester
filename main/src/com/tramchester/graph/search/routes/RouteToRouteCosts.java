@@ -79,7 +79,7 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
         if (routePair.areSame()) {
             return 0;
         }
-        if (!routePair.isAvailableOn(date)) {
+        if (!routePair.bothAvailableOn(date)) {
             logger.debug(format("Routes %s not available on date %s", date, routePair));
             return Integer.MAX_VALUE;
         }
@@ -109,7 +109,17 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
     public List<List<RouteAndChanges>> getChangesFor(Route routeA, Route routeB, Set<TransportMode> requestedModes) {
         RoutePair routePair = new RoutePair(routeA, routeB);
 
-        logger.info("Get change stations betweem " + routePair);
+        logger.info("Get change stations between " + routePair);
+
+        if (!requestedModes.contains(routeA.getTransportMode())) {
+            logger.info(format("First route %s does not match requested modes %s", routeA.getId(), requestedModes));
+            return Collections.emptyList();
+        }
+
+        if (!requestedModes.contains(routeB.getTransportMode())) {
+            logger.info(format("Second route %s does not match requested modes %s", routeB.getId(), requestedModes));
+            return Collections.emptyList();
+        }
 
         RouteIndexPair indexPair = index.getPairFor(routePair);
 
@@ -452,13 +462,13 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
         private final TramDate date;
         private final TimeRange time;
 
-        final private Set<RouteAndChanges> active;
+        final private Set<RouteAndChanges> activeCache;
 
         public ChangeStationOperatingCache(TramDate date, TimeRange time) {
 
             this.date = date;
             this.time = time;
-            active = new HashSet<>();
+            activeCache = new HashSet<>();
         }
 
         public boolean isOperating(StationAvailabilityRepository availabilityRepository, List<RouteAndChanges> changeSet, Set<TransportMode> requestedModes) {
@@ -466,12 +476,13 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
         }
 
         private boolean isOperating(StationAvailabilityRepository availabilityRepository, RouteAndChanges routeAndChanges, Set<TransportMode> requestedModes) {
-            if (active.contains(routeAndChanges)) {
+            if (activeCache.contains(routeAndChanges)) {
                 return true;
             }
+
             boolean available = availabilityRepository.isAvailable(routeAndChanges, date, time, requestedModes);
             if (available) {
-                active.add(routeAndChanges);
+                activeCache.add(routeAndChanges);
             }
             return available;
         }
@@ -481,7 +492,7 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
             return "ChangeStationOperating{" +
                     "date=" + date +
                     ", time=" + time +
-                    ", active=" + active +
+                    ", active=" + activeCache +
                     '}';
         }
     }

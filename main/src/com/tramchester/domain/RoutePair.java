@@ -46,7 +46,7 @@ public class RoutePair {
         return Objects.hash(first, second);
     }
 
-    public boolean isAvailableOn(TramDate date) {
+    public boolean bothAvailableOn(TramDate date) {
         return first.isAvailableOn(date) && second.isAvailableOn(date);
     }
 

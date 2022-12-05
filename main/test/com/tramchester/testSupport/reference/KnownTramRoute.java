@@ -40,21 +40,13 @@ public enum KnownTramRoute {
     VictoriaWythenshaweManchesterAirport("Navy Line", Outbound, "Victoria - Wythenshawe - Manchester Airport"),
 
     TheTraffordCentreCornbrook("Red Line", Inbound, "The Trafford Centre - Cornbrook"),
-    CornbrookTheTraffordCentre("Red Line", Outbound, "Cornbrook - The Trafford Centre"),
+    CornbrookTheTraffordCentre("Red Line", Outbound, "Cornbrook - The Trafford Centre");
 
-    // Was Piccadilly gardens closure replacement bus
-//    ReplacementRoutePiccadillyDeansgate("Blue Line Bus Replacement", Inbound,"Piccadilly Station Metrolink Replacement - Castlefield - Deansgate"),
-//    ReplacementRouteDeansgatePiccadilly("Blue Line Bus Replacement", Outbound, "Deansgate - Castlefield - Piccadilly Station Metrolink Replacement"),
+    //AltrinchamStPetersSquare("Purple Line", Inbound, "Altrincham - St Peter's Square"),
+    //StPetersSquareAltrincham("Purple Line", Outbound, "St Peter's Square  - Altrincham"), // note: extra space after Square, in source data
 
-    // Was Victoria works
-//    ManchesterEccles("Blue Line", Inbound,"Manchester - Eccles"),
-//    EcclesManchester("Blue Line", Outbound, "Eccles - Manchester"),
-
-    AltrinchamStPetersSquare("Purple Line", Inbound, "Altrincham - St Peter's Square"),
-    StPetersSquareAltrincham("Purple Line", Outbound, "St Peter's Square  - Altrincham"), // note: extra space after Square, in source data
-
-    AshtonCrumpsall("Yellow Line", Outbound, "Ashton - Crumpsall"),
-    CrumpsallAshton("Yellow Line", Inbound, "Crumpsall - Ashton");
+    //AshtonCrumpsall("Yellow Line", Outbound, "Ashton - Crumpsall"),
+    //CrumpsallAshton("Yellow Line", Inbound, "Crumpsall - Ashton");
 
     private final IdFor<Route> fakeId;
     private final RouteDirection direction;
@@ -64,6 +56,7 @@ public enum KnownTramRoute {
     public static Set<KnownTramRoute> getFor(TramDate date) {
         EnumSet<KnownTramRoute> routes = EnumSet.noneOf(KnownTramRoute.class);
 
+        // do it this way so can tune based on closures etc.
         routes.add(ManchesterAirportWythenshaweVictoria);
         routes.add(VictoriaWythenshaweManchesterAirport);
         routes.add(TheTraffordCentreCornbrook);
@@ -74,21 +67,10 @@ public enum KnownTramRoute {
         routes.add(EcclesManchesterAshtonUnderLyne);
         routes.add(BuryManchesterAltrincham);
         routes.add(AltrinchamManchesterBury);
-
-        if (date.equals(TramDate.of(2022, 11,30))) {
-            routes.add(AltrinchamStPetersSquare);
-            routes.add(StPetersSquareAltrincham);
-
-            routes.add(CrumpsallAshton);
-            routes.add(AshtonCrumpsall);
-        }
-
-        if (date.isAfter(TramDate.of(2022, 11,30))) {
-            routes.add(BuryPiccadilly);
-            routes.add(PiccadillyBury);
-            routes.add(AltrinchamPiccadilly);
-            routes.add(PiccadillyAltrincham);
-        }
+        routes.add(BuryPiccadilly);
+        routes.add(PiccadillyBury);
+        routes.add(AltrinchamPiccadilly);
+        routes.add(PiccadillyAltrincham);
 
         return routes;
     }

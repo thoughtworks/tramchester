@@ -39,8 +39,8 @@ gtfsSourceConfig:
         fullyClosed: false
 remoteSources:
   - name: tfgm
-    dataURL: ${TRAM_DATAURL:- http://odata.tfgm.com/opendata/downloads/TfGMgtfsnew.zip}
-    dataCheckURL: http://odata.tfgm.com/opendata/downloads/TfGMgtfsnew.zip
+    dataURL: ${TRAM_DATAURL:- https://odata.tfgm.com/opendata/downloads/TfGMgtfsnew.zip}
+    dataCheckURL: https://odata.tfgm.com/opendata/downloads/TfGMgtfsnew.zip
     dataPath: data/tram
     filename: tfgm_data.zip
 cacheFolder: data/cache

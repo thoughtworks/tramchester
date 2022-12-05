@@ -134,8 +134,7 @@ class ConfigMismatchTest {
 
         // TODO Which other parameters should be the same?
 
-        Collection<Category> excluded = new HashSet<>();
-        checkGTFSSourceConfig(normalConfig, gmConfig, Category.Closures.not(excluded));
+        checkGTFSSourceConfig(normalConfig, gmConfig, Category.Closures.not(EnumSet.noneOf(Category.class)));
 
     }
 

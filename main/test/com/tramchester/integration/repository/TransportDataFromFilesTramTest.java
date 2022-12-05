@@ -10,7 +10,10 @@ import com.tramchester.dataimport.loader.PopulateTransportDataFromSources;
 import com.tramchester.dataimport.loader.TransportDataReader;
 import com.tramchester.dataimport.loader.TransportDataReaderFactory;
 import com.tramchester.domain.*;
-import com.tramchester.domain.dates.*;
+import com.tramchester.domain.dates.DateRange;
+import com.tramchester.domain.dates.ServiceCalendar;
+import com.tramchester.domain.dates.TramDate;
+import com.tramchester.domain.dates.TramDateSet;
 import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdSet;
@@ -23,7 +26,6 @@ import com.tramchester.domain.places.Station;
 import com.tramchester.domain.time.TimeRange;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.integration.testSupport.ConfigParameterResolver;
-import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
 import com.tramchester.repository.ClosedStationsRepository;
 import com.tramchester.repository.InterchangeRepository;
 import com.tramchester.repository.TransportData;
@@ -31,9 +33,10 @@ import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TramRouteHelper;
 import com.tramchester.testSupport.reference.KnownTramRoute;
 import com.tramchester.testSupport.reference.TramStations;
-import com.tramchester.testSupport.testTags.*;
+import com.tramchester.testSupport.testTags.DataExpiryCategory;
+import com.tramchester.testSupport.testTags.DataUpdateTest;
+import com.tramchester.testSupport.testTags.DualTest;
 import org.apache.commons.lang3.tuple.Pair;
-import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 
@@ -43,14 +46,12 @@ import java.time.LocalTime;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
-import java.util.stream.Stream;
 
 import static com.tramchester.domain.reference.CentralZoneStation.StPetersSquare;
 import static com.tramchester.domain.reference.CentralZoneStation.TraffordBar;
 import static com.tramchester.domain.reference.TransportMode.Tram;
 import static com.tramchester.integration.testSupport.Assertions.assertIdEquals;
 import static com.tramchester.testSupport.TestEnv.DAYS_AHEAD;
-import static com.tramchester.testSupport.TestEnv.dateFormatDashes;
 import static com.tramchester.testSupport.TransportDataFilter.getTripsFor;
 import static com.tramchester.testSupport.reference.KnownTramRoute.*;
 import static com.tramchester.testSupport.reference.TramStations.*;
@@ -291,12 +292,6 @@ public class TransportDataFromFilesTramTest {
 
         assertTrue(routeNames.contains(BuryPiccadilly.longName()), routeNames.toString());
         assertTrue(routeNames.contains(PiccadillyBury.longName()), routeNames.toString());
-
-        assertTrue(routeNames.contains(AshtonCrumpsall.longName()), routeNames.toString());
-        assertTrue(routeNames.contains(CrumpsallAshton.longName()), routeNames.toString());
-
-//        assertTrue(routeNames.contains(EastDidisburyManchesterShawandCromptonRochdale.longName()), routeNames.toString());
-//        assertTrue(routeNames.contains(RochdaleShawandCromptonManchesterEastDidisbury.longName()), routeNames.toString());
 
     }
 
