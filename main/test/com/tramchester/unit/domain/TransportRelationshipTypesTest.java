@@ -60,7 +60,7 @@ class TransportRelationshipTypesTest {
     @Test
     void shouldHaveCorrectRelationshipForTransportMode() {
         assertEquals(TransportRelationshipTypes.BUS_GOES_TO, TransportRelationshipTypes.forMode(TransportMode.Bus));
-        assertEquals(TransportRelationshipTypes.BUS_GOES_TO, TransportRelationshipTypes.forMode(TransportMode.RailReplacementBus));
+        assertEquals(TransportRelationshipTypes.TRAIN_GOES_TO, TransportRelationshipTypes.forMode(TransportMode.RailReplacementBus));
 
         assertEquals(TransportRelationshipTypes.TRAM_GOES_TO, TransportRelationshipTypes.forMode(TransportMode.Tram));
         assertEquals(TransportRelationshipTypes.TRAIN_GOES_TO, TransportRelationshipTypes.forMode(TransportMode.Train));

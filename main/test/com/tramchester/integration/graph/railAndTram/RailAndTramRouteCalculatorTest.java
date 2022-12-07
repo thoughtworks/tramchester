@@ -135,6 +135,30 @@ public class RailAndTramRouteCalculatorTest {
     }
 
     @Test
+    void shouldHaveExchangeSqToEccles() {
+        // this works fine when only tram data loaded, but fails when tram and train is loaded
+        TramTime time = TramTime.of(9,0);
+        Duration maxJourneyDuration = Duration.ofMinutes(config.getMaxJourneyDuration());
+        JourneyRequest journeyRequest = new JourneyRequest(when, time, false, 1, maxJourneyDuration,
+                1, TramsOnly);
+
+        Set<Journey> journeys = testFacade.calculateRouteAsSet(ExchangeSquare, Eccles, journeyRequest);
+        assertFalse(journeys.isEmpty());
+    }
+
+    @Test
+    void shouldHaveMarketStreetToEccles() {
+        // this works fine when only tram data loaded, but fails when tram and train is loaded
+        TramTime time = TramTime.of(9,0);
+        Duration maxJourneyDuration = Duration.ofMinutes(config.getMaxJourneyDuration());
+        JourneyRequest journeyRequest = new JourneyRequest(when, time, false, 1, maxJourneyDuration,
+                1, TramsOnly);
+
+        Set<Journey> journeys = testFacade.calculateRouteAsSet(MarketStreet, Eccles, journeyRequest);
+        assertFalse(journeys.isEmpty());
+    }
+
+    @Test
     void shouldReproIssueWithInvalidTimes() {
         TramTime time = TramTime.of(10,49);
         JourneyRequest request = new JourneyRequest(when, time, false, 3,
