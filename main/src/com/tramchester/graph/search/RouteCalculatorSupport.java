@@ -34,6 +34,7 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
+import static com.tramchester.domain.reference.TransportMode.Tram;
 import static java.lang.String.format;
 
 public class RouteCalculatorSupport {
@@ -205,7 +206,7 @@ public class RouteCalculatorSupport {
 
         Set<TransportMode> modes = config.getTransportModes();
 
-        if (modes.contains(TransportMode.Tram) && modes.size()==1) {
+        if (modes.contains(Tram) && modes.size()==1) {
             return maxDuration;
         }
 

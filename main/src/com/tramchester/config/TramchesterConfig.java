@@ -13,6 +13,9 @@ import java.time.ZoneId;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static com.tramchester.domain.reference.TransportMode.RailReplacementBus;
+import static com.tramchester.domain.reference.TransportMode.Train;
+
 public abstract class TramchesterConfig extends Configuration implements HasRemoteDataSourceConfig, HasGraphDBConfig {
 
     public static final ZoneId TimeZoneId = ZoneId.of("Europe/London");
@@ -107,7 +110,8 @@ public abstract class TramchesterConfig extends Configuration implements HasRemo
 
         RailConfig railConfig = getRailConfig();
         if (railConfig!=null) {
-            modes.add(TransportMode.Train);
+            modes.add(Train);
+            modes.add(RailReplacementBus);
         }
         return modes;
     }

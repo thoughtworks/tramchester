@@ -157,7 +157,7 @@ class RouteCalculatorKeyRoutesTest {
         int maxJourneyDuration = testConfig.getMaxJourneyDuration();
         assertTrue(Durations.greaterOrEquals(Duration.ofMinutes(maxJourneyDuration), longest), "longest was " + longest + " and not " + maxJourneyDuration);
     }
-    
+
     @Disabled("used for diagnosing specific issue")
     @Test
     void shouldRepoServiceTimeIssueForConcurrency() {
