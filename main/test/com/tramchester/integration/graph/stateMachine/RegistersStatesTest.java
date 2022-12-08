@@ -57,11 +57,4 @@ class RegistersStatesTest {
         printStream.close();
     }
 
-    @Test
-    void shouldHaveRequiredStates() {
-        EnumSet<TraversalStateType> all = EnumSet.allOf(TraversalStateType.class);
-
-        fail("todo");
-    }
-
 }

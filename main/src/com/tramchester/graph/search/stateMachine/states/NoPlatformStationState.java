@@ -99,8 +99,8 @@ public class NoPlatformStationState extends StationState {
     }
 
     @Override
-    protected PlatformStationState toTramStation(PlatformStationState.Builder towardsStation, Node next, Duration cost,
-                                                 JourneyStateUpdate journeyState, boolean onDiversion) {
+    protected PlatformStationState toPlatformStation(PlatformStationState.Builder towardsStation, Node next, Duration cost,
+                                                     JourneyStateUpdate journeyState, boolean onDiversion) {
         journeyState.toNeighbour(stationNode, next, cost);
         return towardsStation.fromNeighbour(this, next, cost, journeyState, onDiversion);
     }

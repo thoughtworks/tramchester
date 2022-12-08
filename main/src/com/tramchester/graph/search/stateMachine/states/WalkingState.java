@@ -66,8 +66,8 @@ public class WalkingState extends TraversalState {
     }
 
     @Override
-    protected PlatformStationState toTramStation(PlatformStationState.Builder towardsStation, Node node, Duration cost,
-                                                 JourneyStateUpdate journeyState, boolean onDiversion) {
+    protected PlatformStationState toPlatformStation(PlatformStationState.Builder towardsStation, Node node, Duration cost,
+                                                     JourneyStateUpdate journeyState, boolean onDiversion) {
         journeyState.endWalk(node);
         return towardsStation.fromWalking(this, node, cost, journeyState);
     }

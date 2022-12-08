@@ -7,7 +7,6 @@ import com.tramchester.graph.graphbuild.GraphLabel;
 import com.tramchester.graph.search.JourneyStateUpdate;
 import com.tramchester.graph.search.stateMachine.NodeId;
 import com.tramchester.graph.search.stateMachine.TraversalOps;
-import com.tramchester.graph.search.stateMachine.UnexpectedNodeTypeException;
 import org.neo4j.graphdb.Direction;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
@@ -18,7 +17,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Stream;
 
-public abstract class TraversalState implements ImmuatableTraversalState {
+public abstract class TraversalState extends EmptyTraversalState implements ImmuatableTraversalState {
 
     protected final TraversalStateFactory builders;
     protected final TraversalOps traversalOps;
@@ -31,12 +30,12 @@ public abstract class TraversalState implements ImmuatableTraversalState {
 
     // only follow GOES_TO links for requested transport modes
     private final TransportRelationshipTypes[] requestedRelationshipTypes;
-    private final TraversalStateType stateType;
 
     private TraversalState child;
 
     // initial only
     protected TraversalState(TraversalOps traversalOps, TraversalStateFactory traversalStateFactory, Set<TransportMode> requestedModes, TraversalStateType stateType) {
+        super(stateType);
         this.traversalOps = traversalOps;
         this.builders = traversalStateFactory;
         this.requestedRelationshipTypes = TransportRelationshipTypes.forModes(requestedModes);
@@ -45,7 +44,6 @@ public abstract class TraversalState implements ImmuatableTraversalState {
         this.parentCost = Duration.ZERO;
         this.parent = null;
         this.outbounds = new ArrayList<>();
-        this.stateType = stateType;
         if (stateType!=TraversalStateType.NotStartedState) {
             throw new RuntimeException("Attempt to create for incorrect initial state " + stateType);
         }
@@ -56,6 +54,7 @@ public abstract class TraversalState implements ImmuatableTraversalState {
     }
 
     protected TraversalState(TraversalState parent, Iterable<Relationship> outbounds, Duration costForLastEdge, TraversalStateType stateType) {
+        super(stateType);
         this.traversalOps = parent.traversalOps;
         this.builders = parent.builders;
         this.parent = parent;
@@ -65,7 +64,6 @@ public abstract class TraversalState implements ImmuatableTraversalState {
         this.parentCost = parent.getTotalDuration();
 
         this.requestedRelationshipTypes = parent.requestedRelationshipTypes;
-        this.stateType = stateType;
     }
 
     @Override
@@ -99,108 +97,84 @@ public abstract class TraversalState implements ImmuatableTraversalState {
             throw new RuntimeException("Not a station, unexpected multi-label condition: " + nodeLabels);
         }
 
-        final TraversalStateType fromType = this.getStateType();
-        switch (actualNodeType) {
-            case MINUTE -> { return toMinute(builders.getTowardsMinute(fromType), node, cost, journeyState, requestedRelationshipTypes); }
-            case HOUR -> { return toHour(builders.getTowardsHour(fromType), node, cost); }
-            case GROUPED -> { return toGrouped(node, cost, journeyState); }
-            case STATION -> { return toStation(node, journeyState, cost, hasPlatforms, alreadyOnDiversion); }
-            case SERVICE -> { return toService(builders.getTowardsService(fromType), node, cost); }
-            case PLATFORM -> { return toPlatform(builders.getTowardsPlatform(fromType), node, cost, journeyState); }
-            case QUERY_NODE -> { return toWalk(builders.getTowardsWalk(fromType), node, cost, journeyState);}
-            case ROUTE_STATION -> { return toRouteStation(fromType, node, cost, journeyState, isInterchange); }
-            default -> throw new UnexpectedNodeTypeException(node, "Unexpected at " + this + " label:" + actualNodeType);
+        TraversalStateType nextType = getNextStateType(stateType, actualNodeType, hasPlatforms, node);
+
+        return getTraversalState(nextType, node, journeyState, cost, alreadyOnDiversion, isInterchange);
+
+    }
+
+    private TraversalState getTraversalState(TraversalStateType nextType, Node node, JourneyStateUpdate journeyState,
+                                             Duration cost, boolean alreadyOnDiversion, boolean isInterchange) {
+        switch (nextType) {
+            case MinuteState -> {
+                return toMinute(builders.getTowardsMinute(stateType), node, cost, journeyState, requestedRelationshipTypes);
+            }
+            case HourState -> {
+                return toHour(builders.getTowardsHour(stateType), node, cost);
+            }
+            case GroupedStationState -> {
+                return toGrouped(builders.getTowardsGroup(stateType), node, cost, journeyState);
+            }
+            case PlatformStationState -> {
+                return toPlatformStation(builders.getTowardsStation(stateType), node, cost, journeyState, alreadyOnDiversion);
+            }
+            case NoPlatformStationState -> {
+                return toNoPlatformStation(builders.getTowardsNoPlatformStation(stateType), node, cost, journeyState, alreadyOnDiversion);
+            }
+            case ServiceState -> {
+                return toService(builders.getTowardsService(stateType), node, cost);
+            }
+            case PlatformState -> {
+                return toPlatform(builders.getTowardsPlatform(stateType), node, cost, journeyState);
+            }
+            case WalkingState -> {
+                return toWalk(builders.getTowardsWalk(stateType), node, cost, journeyState);
+            }
+            case RouteStationStateOnTrip -> {
+                return toRouteStationOnTrip(builders.getTowardsRouteStationOnTrip(stateType), node, cost, isInterchange);
+            }
+            case RouteStationStateEndTrip -> {
+                return toRouteStationEndTrip(builders.getTowardsRouteStationEndTrip(stateType), node, cost, isInterchange);
+            }
+            case JustBoardedState -> {
+                return toJustBoarded(builders.getTowardsJustBoarded(stateType), node, cost, journeyState);
+            }
+            default -> throw new RuntimeException("Unexpected next state " + nextType + " at " + this);
+        }
+    }
+
+    private TraversalStateType getNextStateType(TraversalStateType currentStateType, GraphLabel graphLabel, boolean hasPlatforms, Node node) {
+        switch (graphLabel) {
+            case MINUTE -> { return TraversalStateType.MinuteState; }
+            case HOUR -> { return TraversalStateType.HourState; }
+            case GROUPED -> { return TraversalStateType.GroupedStationState; }
+            case STATION -> { return hasPlatforms ? TraversalStateType.PlatformStationState : TraversalStateType.NoPlatformStationState; }
+            case SERVICE -> { return TraversalStateType.ServiceState; }
+            case PLATFORM -> { return TraversalStateType.PlatformState; }
+            case QUERY_NODE -> { return TraversalStateType.WalkingState; }
+            case ROUTE_STATION -> { return getRouteStationStateFor(currentStateType, node); }
+            default -> throw new RuntimeException("Unexpected at " + this + " label:" + graphLabel);
+        }
+    }
+
+    private TraversalStateType getRouteStationStateFor(TraversalStateType currentStateType, Node node) {
+        if (currentStateType==TraversalStateType.PlatformState || currentStateType==TraversalStateType.NoPlatformStationState) {
+            return TraversalStateType.JustBoardedState;
+        }
+        if (currentStateType==TraversalStateType.MinuteState) {
+            MinuteState minuteState = (MinuteState) this;
+            if (traversalOps.hasOutboundFor(node, minuteState.getServiceId())) {
+                return TraversalStateType.RouteStationStateOnTrip;
+            } else {
+                return TraversalStateType.RouteStationStateEndTrip;
+            }
+        } else {
+            throw new RuntimeException("Unexpected from state " + currentStateType);
         }
     }
 
     public void toDestination(TraversalState from, Node finalNode, Duration cost, JourneyStateUpdate journeyState) {
         toDestination(builders.getTowardsDestination(from.getStateType()), finalNode, cost, journeyState);
-    }
-
-    protected JustBoardedState toJustBoarded(JustBoardedState.Builder towardsJustBoarded, Node node, Duration cost, JourneyStateUpdate journeyState) {
-        throw new RuntimeException("No such transition at " + stateType);
-    }
-
-    protected TraversalState toWalk(WalkingState.Builder towardsWalk, Node node, Duration cost, JourneyStateUpdate journeyState) {
-        throw new RuntimeException("No such transition at " + stateType);
-    }
-
-    protected TraversalState toPlatform(PlatformState.Builder towardsPlatform, Node node, Duration cost, JourneyStateUpdate journeyState) {
-        throw new RuntimeException("No such transition at " + stateType);
-    }
-
-    protected TraversalState toService(ServiceState.Builder towardsService, Node node, Duration cost) {
-        throw new RuntimeException("No such transition at " + stateType);
-    }
-
-    protected TraversalState toNoPlatformStation(NoPlatformStationState.Builder towardsNoPlatformStation, Node node, Duration cost,
-                                                 JourneyStateUpdate journeyState, boolean onDiversion) {
-        throw new RuntimeException("No such transition at " + stateType);
-    }
-
-    protected TraversalState toGrouped(GroupedStationState.Builder towardsGroup, Node node, Duration cost, JourneyStateUpdate journeyState) {
-        throw new RuntimeException("No such transition at " + stateType);
-    }
-
-    protected TraversalState toMinute(MinuteState.Builder towardsMinute, Node node, Duration cost, JourneyStateUpdate journeyState, TransportRelationshipTypes[] currentModes) {
-        throw new RuntimeException("No such transition at " + stateType);
-    }
-
-    protected PlatformStationState toTramStation(PlatformStationState.Builder towardsStation, Node node, Duration cost, JourneyStateUpdate journeyState, boolean onDiversion) {
-        throw new RuntimeException("No such transition at " + stateType);
-    }
-
-    protected void toDestination(DestinationState.Builder towardsDestination, Node node, Duration cost, JourneyStateUpdate journeyStateUpdate) {
-        throw new RuntimeException("No such transition at " + stateType);
-    }
-
-    protected HourState toHour(HourState.Builder towardsHour, Node node, Duration cost) {
-        throw new RuntimeException("No such transition at " + stateType);
-    }
-
-    protected RouteStationStateOnTrip toRouteStationOnTrip(RouteStationStateOnTrip.Builder towardsRouteStation,
-                                                           Node node, Duration cost, boolean isInterchange) {
-        throw new RuntimeException("No such transition at " + stateType);
-    }
-
-    protected RouteStationStateEndTrip toRouteStationEndTrip(RouteStationStateEndTrip.Builder towardsRouteStation,
-                                                             Node node, Duration cost, boolean isInterchange) {
-        throw new RuntimeException("No such transition at " + stateType);
-    }
-
-    private TraversalState toPlatformedStation(Node node, JourneyStateUpdate journeyState, Duration cost, boolean onDiversion) {
-        return toTramStation(builders.getTowardsStation(stateType), node, cost, journeyState, onDiversion);
-    }
-
-    private TraversalState toStation(Node node, JourneyStateUpdate journeyState, Duration cost, boolean hasPlatforms, boolean onDiversion) {
-        if (hasPlatforms) {
-            return toPlatformedStation(node, journeyState, cost, onDiversion);
-        } else {
-            return toNoPlatformStation(builders.getTowardsNoPlatformStation(stateType), node, cost, journeyState, onDiversion);
-        }
-    }
-
-    private TraversalState toGrouped(Node node, Duration cost, JourneyStateUpdate journeyState) {
-        return toGrouped(builders.getTowardsGroup(stateType), node, cost, journeyState);
-    }
-
-    private RouteStationState toRouteStation(TraversalStateType from, Node node, Duration cost, JourneyStateUpdate journeyState,
-                                             boolean isInterchange) {
-
-        if (from==TraversalStateType.PlatformState || from==TraversalStateType.NoPlatformStationState) {
-            return toJustBoarded(builders.getTowardsJustBoarded(from), node, cost, journeyState);
-        }
-
-        if (from==TraversalStateType.MinuteState) {
-            MinuteState minuteState = (MinuteState) this;
-            if (traversalOps.hasOutboundFor(node, minuteState.getServiceId())) {
-                return toRouteStationOnTrip(builders.getTowardsRouteStationOnTrip(from), node, cost, isInterchange);
-            } else {
-                return toRouteStationEndTrip(builders.getTowardsRouteStationEndTrip(from), node, cost, isInterchange);
-            }
-        } else {
-            throw new RuntimeException("Unexpected from state " + from);
-        }
     }
 
     public void dispose() {
@@ -231,7 +205,6 @@ public abstract class TraversalState implements ImmuatableTraversalState {
     public Duration getCurrentDuration() {
         return costForLastEdge;
     }
-
 
     @Override
     public String toString() {

@@ -35,6 +35,8 @@ public class TraversalStateFactory {
         final boolean depthFirst = config.getDepthFirst();
         boolean interchangesOnly = config.getChangeAtInterchangeOnly();
 
+        //    NotStartedState not currently via a builder
+
         registersStates.addBuilder(new RouteStationStateOnTrip.Builder(interchangesOnly, nodeContents));
         registersStates.addBuilder(new RouteStationStateEndTrip.Builder(interchangesOnly));
         registersStates.addBuilder(new HourState.Builder(depthFirst, nodeContents));
@@ -67,14 +69,6 @@ public class TraversalStateFactory {
         }
         return registersStates.getBuilderFor(from,to);
     }
-
-//    private <S extends TraversalState, T extends Towards<S>> T getFor(Class<? extends TraversalState> from, Class<S> to) {
-//        if (!running) {
-//            // help to diagnose / pinpoint issues with timeout causing shutdown from integration tests
-//            throw new RuntimeException("Not running");
-//        }
-//        return registersStates.getBuilderFor(from,to);
-//    }
 
     public HourState.Builder getTowardsHour(TraversalStateType from) {
         return getFor(from, TraversalStateType.HourState);

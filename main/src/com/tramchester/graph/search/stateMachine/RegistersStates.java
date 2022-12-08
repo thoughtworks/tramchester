@@ -50,7 +50,6 @@ public class RegistersStates implements RegistersFromState {
         private final TraversalStateType to;
 
         public FromTo(TraversalStateType from, TraversalStateType to) {
-
             this.from = from;
             this.to = to;
         }
