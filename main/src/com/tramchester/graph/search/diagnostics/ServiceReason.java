@@ -32,11 +32,6 @@ public abstract class ServiceReason {
         }
 
         @Override
-        public String textForGraph() {
-            return getReasonCode().name();
-        }
-
-        @Override
         public boolean isValid() {
             return true;
         }
@@ -53,13 +48,7 @@ public abstract class ServiceReason {
             return true;
         }
 
-        @Override
-        public String textForGraph() {
-            return "continue";
-        }
     }
-
-    //////////////
 
     private static class ReturnedToStart extends HeuristicsReason {
         protected ReturnedToStart(HowIGotHere path) {
@@ -67,208 +56,72 @@ public abstract class ServiceReason {
         }
 
         @Override
-        public String textForGraph() {
-            return ReasonCode.ReturnedToStart.name();
-        }
-
-        @Override
         public boolean equals(Object obj) {
             return obj instanceof DoesNotRunOnQueryDate;
         }
     }
 
-    ///////
-
-    private static class SameTrip extends HeuristicsReason {
-        private final IdFor<Trip> tripId;
-
+    private static class SameTrip extends HeuristicsReasonWithID<Trip> {
         private SameTrip(IdFor<Trip> tripId, HowIGotHere path) {
-            super(ReasonCode.SameTrip, path);
-            this.tripId = tripId;
+            super(ReasonCode.SameTrip, path, tripId);
         }
 
-        @Override
-        public String textForGraph() {
-            return "SameTrip:"+tripId;
-        }
     }
 
-
-    ///////
-
-    private static class AlreadySeenStation extends HeuristicsReason {
-
-        private final IdFor<Station> stationId;
-
+    private static class AlreadySeenStation extends HeuristicsReasonWithID<Station> {
         protected AlreadySeenStation(IdFor<Station> stationId, HowIGotHere path) {
-            super(ReasonCode.AlreadySeenStation, path);
-            this.stationId = stationId;
-        }
-
-        @Override
-        public String textForGraph() {
-            return "AlreadySeenStation:"+stationId.getGraphId();
+            super(ReasonCode.AlreadySeenStation, path, stationId);
         }
     }
 
-
-    ///////
-
-    private static class RouteNotAvailableOnQueryDate extends HeuristicsReason {
-        private final IdFor<Route> routeId;
-
+    private static class RouteNotAvailableOnQueryDate extends HeuristicsReasonWithID<Route> {
         protected RouteNotAvailableOnQueryDate(HowIGotHere path, IdFor<Route> routeId) {
-            super(ReasonCode.RouteNotOnQueryDate, path);
-            this.routeId = routeId;
-        }
-
-        @Override
-        public boolean equals(Object obj) {
-            return obj instanceof DoesNotRunOnQueryDate;
-        }
-
-        @Override
-        public String textForGraph() {
-            return format("%s%s%s", ReasonCode.RouteNotOnQueryDate.name(), System.lineSeparator(), routeId);
+            super(ReasonCode.RouteNotOnQueryDate, path, routeId);
         }
     }
 
-    //////////////
-
-    private static class DoesNotRunOnQueryDate extends HeuristicsReason
+    private static class DoesNotRunOnQueryDate extends HeuristicsReasonWithID<Service>
     {
-        private final IdFor<Service> nodeServiceId;
-
         protected DoesNotRunOnQueryDate(HowIGotHere path, IdFor<Service> nodeServiceId) {
-            super(ReasonCode.NotOnQueryDate, path);
-            this.nodeServiceId = nodeServiceId;
-        }
-
-        @Override
-        public boolean equals(Object obj) {
-            return obj instanceof DoesNotRunOnQueryDate;
-        }
-
-        @Override
-        public String textForGraph() {
-            return format("%s%s%s", ReasonCode.NotOnQueryDate.name(), System.lineSeparator(), nodeServiceId);
+            super(ReasonCode.NotOnQueryDate, path, nodeServiceId);
         }
     }
 
-    //////////////
-
-    private static class TooManyChanges extends HeuristicsReason {
-
-        private final int number;
-
+    private static class TooManyChanges extends HeuristicsReasonWithCount {
         protected TooManyChanges(HowIGotHere path, int number) {
-            super(ReasonCode.TooManyChanges, path);
-            this.number = number;
-        }
-
-        @Override
-        public boolean equals(Object obj) {
-            return obj instanceof TooManyChanges;
-        }
-
-
-        @Override
-        public String textForGraph() {
-            return ReasonCode.TooManyChanges.name() + " " + number;
+            super(ReasonCode.TooManyChanges, path, number);
         }
     }
-
-    //////////////
 
     private static class TimedOut extends HeuristicsReason {
-
         protected TimedOut(HowIGotHere path) {
             super(ReasonCode.TimedOut, path);
         }
+    }
 
-        @Override
-        public boolean equals(Object obj) {
-            return obj instanceof TooManyChanges;
-        }
-
-        @Override
-        public String textForGraph() {
-            return ReasonCode.TimedOut.name();
+    private static class TooManyWalkingConnections extends HeuristicsReasonWithCount {
+        protected TooManyWalkingConnections(HowIGotHere path, int count) {
+            super(ReasonCode.TooManyWalkingConnections, path, count);
         }
     }
 
-    //////////////
-
-    private static class TooManyWalkingConnections extends HeuristicsReason {
-
-        protected TooManyWalkingConnections(HowIGotHere path) {
-            super(ReasonCode.TooManyWalkingConnections, path);
-        }
-
-        @Override
-        public boolean equals(Object obj) {
-            return obj instanceof TooManyChanges;
-        }
-
-
-        @Override
-        public String textForGraph() {
-            return ReasonCode.TooManyWalkingConnections.name();
+    private static class TooManyNeighbourConnections extends HeuristicsReasonWithCount {
+        protected TooManyNeighbourConnections(HowIGotHere path, int count) {
+            super(ReasonCode.TooManyNeighbourConnections, path, count);
         }
     }
 
-    //////////////
-
-    private static class TooManyNeighbourConnections extends HeuristicsReason {
-
-        protected TooManyNeighbourConnections(HowIGotHere path) {
-            super(ReasonCode.TooManyNeighbourConnections, path);
-        }
-
-        @Override
-        public boolean equals(Object obj) {
-            return obj instanceof TooManyChanges;
-        }
-
-
-        @Override
-        public String textForGraph() {
-            return ReasonCode.TooManyNeighbourConnections.name();
+    private static class StationClosed extends HeuristicsReasonWithID<Station> {
+        protected StationClosed(HowIGotHere howIGotHere, IdFor<Station> closed) {
+            super(ReasonCode.StationClosed, howIGotHere, closed);
         }
     }
-
-    //////////////
-
-    private static class StationClosed extends HeuristicsReason {
-
-        private final Station closed;
-
-        protected StationClosed(HowIGotHere howIGotHere, Station closed) {
-            super(ReasonCode.StationClosed, howIGotHere);
-            this.closed = closed;
-        }
-
-        @Override
-        public String textForGraph() {
-            return format("%s%s%s", ReasonCode.StationClosed.name(), System.lineSeparator(), closed.getName());
-        }
-    }
-
-    //////////////
 
     private static class TransportModeWrong extends HeuristicsReason {
-
         protected TransportModeWrong(HowIGotHere howIGotHere) {
             super(ReasonCode.TransportModeWrong, howIGotHere);
         }
-
-        @Override
-        public String textForGraph() {
-            return format("%s%s", ReasonCode.TransportModeWrong.name(), System.lineSeparator());
-        }
     }
-
-    //////////////
 
     private static class ServiceDoesNotOperateOnTime extends DoesNotOperateOnTime {
 
@@ -284,8 +137,6 @@ public abstract class ServiceReason {
             return format("ServiceDoesNotOperateOnTime:%s%s%s", serviceId, System.lineSeparator(), elapsedTime);
         }
     }
-
-    //////////////
 
     private static class DoesNotOperateOnTime extends HeuristicsReason
     {
@@ -352,12 +203,12 @@ public abstract class ServiceReason {
         return new TooManyChanges(path, number);
     }
 
-    public static HeuristicsReason TooManyWalkingConnections(HowIGotHere path) {
-        return new TooManyWalkingConnections(path);
+    public static HeuristicsReason TooManyWalkingConnections(HowIGotHere path, int count) {
+        return new TooManyWalkingConnections(path, count);
     }
 
-    public static HeuristicsReason TooManyNeighbourConnections(HowIGotHere path) {
-        return new TooManyNeighbourConnections(path);
+    public static HeuristicsReason TooManyNeighbourConnections(HowIGotHere path, int count) {
+        return new TooManyNeighbourConnections(path, count);
     }
 
     public static HeuristicsReason TookTooLong(TramTime currentElapsed, HowIGotHere path) {
@@ -401,7 +252,7 @@ public abstract class ServiceReason {
         return new ReturnedToStart(path);
     }
 
-    public static HeuristicsReason StationClosed(HowIGotHere howIGotHere, Station closed) {
+    public static HeuristicsReason StationClosed(HowIGotHere howIGotHere, IdFor<Station> closed) {
         return new StationClosed(howIGotHere, closed);
     }
 

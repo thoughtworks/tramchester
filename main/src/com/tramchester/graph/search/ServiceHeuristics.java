@@ -85,7 +85,7 @@ public class ServiceHeuristics {
         reasons.incrementTotalChecked();
 
         if (currentNumberConnections > journeyConstraints.getMaxWalkingConnections()) {
-            return reasons.recordReason(ServiceReason.TooManyNeighbourConnections(howIGotHere));
+            return reasons.recordReason(ServiceReason.TooManyNeighbourConnections(howIGotHere, currentNumberConnections));
         }
         return valid(ReasonCode.NeighbourConnectionsOk, howIGotHere, reasons);
     }
@@ -94,7 +94,7 @@ public class ServiceHeuristics {
         reasons.incrementTotalChecked();
 
         if (currentNumConnections > journeyConstraints.getMaxWalkingConnections()) {
-            return reasons.recordReason(ServiceReason.TooManyWalkingConnections(howIGotHere));
+            return reasons.recordReason(ServiceReason.TooManyWalkingConnections(howIGotHere, currentNumConnections));
         }
         return valid(ReasonCode.NumWalkingConnectionsOk, howIGotHere, reasons);
     }
@@ -151,14 +151,14 @@ public class ServiceHeuristics {
         final Station associatedStation = routeStation.getStation();
 
         if (journeyConstraints.isClosed(associatedStation)) {
-           return reasons.recordReason(ServiceReason.StationClosed(howIGotHere, associatedStation));
+           return reasons.recordReason(ServiceReason.StationClosed(howIGotHere, associatedStation.getId()));
         }
 
         return valid(ReasonCode.StationOpen, howIGotHere, reasons);
 
     }
 
-    public HeuristicsReason checkModes(final EnumSet<GraphLabel> labels, final Set<GraphLabel> requestedLabels, HowIGotHere howIGotHere, ServiceReasons reasons) {
+    public HeuristicsReason checkModes(final Set<GraphLabel> labels, final Set<GraphLabel> requestedLabels, HowIGotHere howIGotHere, ServiceReasons reasons) {
 
         if (Sets.intersection(labels, requestedLabels).isEmpty()) {
             //IdFor<RouteStation> routeStationId = nodeOperations.getRouteStationId(node);

@@ -16,7 +16,9 @@ public abstract class HeuristicsReason {
         this.howIGotHere = path;
     }
 
-    public abstract String textForGraph();
+    public String textForGraph() {
+        return code.name();
+    }
 
     public ReasonCode getReasonCode() {
         return code;
