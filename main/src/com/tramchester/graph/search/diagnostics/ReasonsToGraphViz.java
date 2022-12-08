@@ -41,7 +41,7 @@ public class ReasonsToGraphViz {
         this.nodeContentsRepository = nodeContentsRepository;
     }
 
-    private void add(ServiceReason reason, Transaction transaction, StringBuilder builder, DiagramState diagramState) {
+    private void add(HeuristicsReason reason, Transaction transaction, StringBuilder builder, DiagramState diagramState) {
         HowIGotHere howIGotHere = reason.getHowIGotHere();
 
         long endNodeId = howIGotHere.getEndNodeId();
@@ -131,7 +131,7 @@ public class ReasonsToGraphViz {
         return ids.toString();
     }
 
-    public void appendTo(StringBuilder builder, List<ServiceReason> reasons, Transaction txn) {
+    public void appendTo(StringBuilder builder, List<HeuristicsReason> reasons, Transaction txn) {
         DiagramState diagramState = new DiagramState();
         reasons.forEach(reason -> add(reason, txn, builder, diagramState));
         diagramState.clear();

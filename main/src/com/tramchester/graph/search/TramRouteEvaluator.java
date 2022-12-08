@@ -9,10 +9,7 @@ import com.tramchester.graph.caches.LowestCostSeen;
 import com.tramchester.graph.caches.NodeContentsRepository;
 import com.tramchester.graph.caches.PreviousVisits;
 import com.tramchester.graph.graphbuild.GraphLabel;
-import com.tramchester.graph.search.diagnostics.ReasonCode;
-import com.tramchester.graph.search.diagnostics.ServiceReason;
-import com.tramchester.graph.search.diagnostics.ServiceReasons;
-import com.tramchester.graph.search.diagnostics.HowIGotHere;
+import com.tramchester.graph.search.diagnostics.*;
 import org.jetbrains.annotations.NotNull;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Path;
@@ -97,7 +94,7 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
         }
 
         final ReasonCode reasonCode = doEvaluate(path, journeyState, nextNode, labels);
-        final Evaluation result = reasonCode.getEvaluation();
+        final Evaluation result = reasonCode.getEvaluationAction();
 
         previousVisits.recordVisitIfUseful(reasonCode, nextNode, journeyState, labels);
 
@@ -179,12 +176,12 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
         // --> Minute
         // check time
         if (nodeLabels.contains(GraphLabel.MINUTE)) {
-            ServiceReason serviceReasonTripCheck = serviceHeuristics.checkNotBeenOnTripBefore(howIGotHere, nextNode, journeyState, reasons);
+            HeuristicsReason serviceReasonTripCheck = serviceHeuristics.checkNotBeenOnTripBefore(howIGotHere, nextNode, journeyState, reasons);
             if (!serviceReasonTripCheck.isValid()) {
                 return serviceReasonTripCheck.getReasonCode();
             }
 
-            ServiceReason serviceReasonTimeCheck = serviceHeuristics.checkTime(howIGotHere, nextNode, visitingTime, reasons, timeToWait);
+            HeuristicsReason serviceReasonTimeCheck = serviceHeuristics.checkTime(howIGotHere, nextNode, visitingTime, reasons, timeToWait);
             if (!serviceReasonTimeCheck.isValid()) {
                 return serviceReasonTimeCheck.getReasonCode();
             }
@@ -226,12 +223,12 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
         // is the station open?
         if (nodeLabels.contains(GraphLabel.ROUTE_STATION)) {
 
-            ServiceReason forMode = serviceHeuristics.checkModes(nodeLabels, requestedLabels, howIGotHere, reasons);
+            final HeuristicsReason forMode = serviceHeuristics.checkModes(nodeLabels, requestedLabels, howIGotHere, reasons);
             if (!forMode.isValid()) {
                 return forMode.getReasonCode();
             }
 
-            final ServiceReason reachDestination = serviceHeuristics.canReachDestination(nextNode, journeyState.getNumberChanges(),
+            final HeuristicsReason reachDestination = serviceHeuristics.canReachDestination(nextNode, journeyState.getNumberChanges(),
                     howIGotHere, reasons, visitingTime);
             if (!reachDestination.isValid()) {
                 return reachDestination.getReasonCode();
@@ -242,7 +239,7 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
                 return ReasonCode.StationClosed;
             }
 
-            final ServiceReason serviceReason = serviceHeuristics.lowerCostIncludingInterchange(nextNode,
+            final HeuristicsReason serviceReason = serviceHeuristics.lowerCostIncludingInterchange(nextNode,
                     journeyState.getTotalDurationSoFar(), bestResultSoFar, howIGotHere, reasons);
             if (!serviceReason.isValid()) {
                 return serviceReason.getReasonCode();

@@ -7,62 +7,14 @@ import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.time.TramTime;
 
-import java.util.Objects;
-
 import static java.lang.String.format;
 
 public abstract class ServiceReason {
 
-
-    private final HowIGotHere howIGotHere;
-    private final ReasonCode code;
-
-    public HowIGotHere getHowIGotHere() {
-        return howIGotHere;
-    }
-
-    protected ServiceReason(ReasonCode code, HowIGotHere path) {
-        this.code = code;
-        this.howIGotHere = path;
-    }
-
-    public abstract String textForGraph();
-
-    public ReasonCode getReasonCode() {
-        return code;
-    }
-
-    // DEFAULT
-    public boolean isValid() {
-        return false;
-    }
-
-    @Override
-    public String toString() {
-        return code.toString();
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        ServiceReason that = (ServiceReason) o;
-        return Objects.equals(howIGotHere, that.howIGotHere) &&
-                code == that.code;
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(howIGotHere, code);
-    }
-
-    private static class Unreachable extends ServiceReason {
-
-        private final ReasonCode code;
+    private static class Unreachable extends HeuristicsReason {
 
         protected Unreachable(ReasonCode code, HowIGotHere path) {
                 super(code , path);
-            this.code = code;
         }
 
         @Override
@@ -73,7 +25,7 @@ public abstract class ServiceReason {
 
     //////////////
 
-    private static class IsValid extends ServiceReason
+    private static class IsValid extends HeuristicsReason
     {
         protected IsValid(ReasonCode code, HowIGotHere path) {
             super(code, path);
@@ -90,7 +42,7 @@ public abstract class ServiceReason {
         }
     }
 
-    private static class Continue extends ServiceReason {
+    private static class Continue extends HeuristicsReason {
 
         public Continue(HowIGotHere path) {
             super(ReasonCode.Continue, path);
@@ -109,7 +61,7 @@ public abstract class ServiceReason {
 
     //////////////
 
-    private static class ReturnedToStart extends ServiceReason {
+    private static class ReturnedToStart extends HeuristicsReason {
         protected ReturnedToStart(HowIGotHere path) {
             super(ReasonCode.ReturnedToStart, path);
         }
@@ -127,7 +79,7 @@ public abstract class ServiceReason {
 
     ///////
 
-    private static class SameTrip extends ServiceReason {
+    private static class SameTrip extends HeuristicsReason {
         private final IdFor<Trip> tripId;
 
         private SameTrip(IdFor<Trip> tripId, HowIGotHere path) {
@@ -144,7 +96,7 @@ public abstract class ServiceReason {
 
     ///////
 
-    private static class AlreadySeenStation extends ServiceReason {
+    private static class AlreadySeenStation extends HeuristicsReason {
 
         private final IdFor<Station> stationId;
 
@@ -162,7 +114,7 @@ public abstract class ServiceReason {
 
     ///////
 
-    private static class RouteNotAvailableOnQueryDate extends ServiceReason {
+    private static class RouteNotAvailableOnQueryDate extends HeuristicsReason {
         private final IdFor<Route> routeId;
 
         protected RouteNotAvailableOnQueryDate(HowIGotHere path, IdFor<Route> routeId) {
@@ -183,7 +135,7 @@ public abstract class ServiceReason {
 
     //////////////
 
-    private static class DoesNotRunOnQueryDate extends ServiceReason
+    private static class DoesNotRunOnQueryDate extends HeuristicsReason
     {
         private final IdFor<Service> nodeServiceId;
 
@@ -205,7 +157,7 @@ public abstract class ServiceReason {
 
     //////////////
 
-    private static class TooManyChanges extends ServiceReason {
+    private static class TooManyChanges extends HeuristicsReason {
 
         private final int number;
 
@@ -228,7 +180,7 @@ public abstract class ServiceReason {
 
     //////////////
 
-    private static class TimedOut extends ServiceReason {
+    private static class TimedOut extends HeuristicsReason {
 
         protected TimedOut(HowIGotHere path) {
             super(ReasonCode.TimedOut, path);
@@ -247,7 +199,7 @@ public abstract class ServiceReason {
 
     //////////////
 
-    private static class TooManyWalkingConnections extends ServiceReason {
+    private static class TooManyWalkingConnections extends HeuristicsReason {
 
         protected TooManyWalkingConnections(HowIGotHere path) {
             super(ReasonCode.TooManyWalkingConnections, path);
@@ -267,7 +219,7 @@ public abstract class ServiceReason {
 
     //////////////
 
-    private static class TooManyNeighbourConnections extends ServiceReason {
+    private static class TooManyNeighbourConnections extends HeuristicsReason {
 
         protected TooManyNeighbourConnections(HowIGotHere path) {
             super(ReasonCode.TooManyNeighbourConnections, path);
@@ -287,7 +239,7 @@ public abstract class ServiceReason {
 
     //////////////
 
-    private static class StationClosed extends ServiceReason {
+    private static class StationClosed extends HeuristicsReason {
 
         private final Station closed;
 
@@ -304,12 +256,10 @@ public abstract class ServiceReason {
 
     //////////////
 
-    private static class TransportModeWrong extends ServiceReason {
-        //private final IdFor<RouteStation> routeStation;
+    private static class TransportModeWrong extends HeuristicsReason {
 
-        protected TransportModeWrong(HowIGotHere howIGotHere) { //, IdFor<RouteStation> routeStation) {
+        protected TransportModeWrong(HowIGotHere howIGotHere) {
             super(ReasonCode.TransportModeWrong, howIGotHere);
-            //this.routeStation = routeStation;
         }
 
         @Override
@@ -337,7 +287,7 @@ public abstract class ServiceReason {
 
     //////////////
 
-    private static class DoesNotOperateOnTime extends ServiceReason
+    private static class DoesNotOperateOnTime extends HeuristicsReason
     {
         protected final TramTime elapsedTime;
 
@@ -374,55 +324,55 @@ public abstract class ServiceReason {
 
     public static IsValid IsValid(ReasonCode code, HowIGotHere path) { return new IsValid( code, path);}
 
-    public static ServiceReason Continue(HowIGotHere path) {
+    public static HeuristicsReason Continue(HowIGotHere path) {
         return new Continue(path);
     }
 
-    public static ServiceReason DoesNotRunOnQueryDate(HowIGotHere path, IdFor<Service> nodeServiceId) {
+    public static HeuristicsReason DoesNotRunOnQueryDate(HowIGotHere path, IdFor<Service> nodeServiceId) {
         return new DoesNotRunOnQueryDate(path, nodeServiceId);
     }
 
-    public static ServiceReason ServiceNotRunningAtTime(HowIGotHere path, IdFor<Service> serviceId, TramTime time) {
+    public static HeuristicsReason ServiceNotRunningAtTime(HowIGotHere path, IdFor<Service> serviceId, TramTime time) {
         return new ServiceDoesNotOperateOnTime(ReasonCode.ServiceNotRunningAtTime, time, path, serviceId);
     }
 
-    public static ServiceReason StationNotReachable(HowIGotHere path, ReasonCode code) {
+    public static HeuristicsReason StationNotReachable(HowIGotHere path, ReasonCode code) {
         return new Unreachable(code, path);
     }
 
-    public static ServiceReason InterchangeNotReachable(HowIGotHere path) {
+    public static HeuristicsReason InterchangeNotReachable(HowIGotHere path) {
         return new Unreachable(ReasonCode.ExchangeNotReachable, path);
     }
 
-    public static ServiceReason DoesNotOperateOnTime(TramTime currentElapsed, HowIGotHere path) {
+    public static HeuristicsReason DoesNotOperateOnTime(TramTime currentElapsed, HowIGotHere path) {
         return new DoesNotOperateOnTime(ReasonCode.DoesNotOperateOnTime, currentElapsed, path);
     }
 
-    public static ServiceReason TooManyChanges(HowIGotHere path, int number) {
+    public static HeuristicsReason TooManyChanges(HowIGotHere path, int number) {
         return new TooManyChanges(path, number);
     }
 
-    public static ServiceReason TooManyWalkingConnections(HowIGotHere path) {
+    public static HeuristicsReason TooManyWalkingConnections(HowIGotHere path) {
         return new TooManyWalkingConnections(path);
     }
 
-    public static ServiceReason TooManyNeighbourConnections(HowIGotHere path) {
+    public static HeuristicsReason TooManyNeighbourConnections(HowIGotHere path) {
         return new TooManyNeighbourConnections(path);
     }
 
-    public static ServiceReason TookTooLong(TramTime currentElapsed, HowIGotHere path) {
+    public static HeuristicsReason TookTooLong(TramTime currentElapsed, HowIGotHere path) {
         return new DoesNotOperateOnTime(ReasonCode.TookTooLong, currentElapsed, path);
     }
 
-    public static ServiceReason DoesNotOperateAtHour(TramTime currentElapsed, HowIGotHere path) {
+    public static HeuristicsReason DoesNotOperateAtHour(TramTime currentElapsed, HowIGotHere path) {
         return new DoesNotOperateOnTime(ReasonCode.NotAtHour, currentElapsed, path);
     }
 
-    public static ServiceReason AlreadyDeparted(TramTime currentElapsed, HowIGotHere path) {
+    public static HeuristicsReason AlreadyDeparted(TramTime currentElapsed, HowIGotHere path) {
         return new DoesNotOperateOnTime(ReasonCode.AlreadyDeparted, currentElapsed, path);
     }
 
-    public static ServiceReason Cached(ReasonCode code, TramTime currentElapsed, HowIGotHere path) {
+    public static HeuristicsReason Cached(ReasonCode code, TramTime currentElapsed, HowIGotHere path) {
 
         return switch (code) {
             case NotAtHour -> new DoesNotOperateOnTime(ReasonCode.CachedNotAtHour, currentElapsed, path);
@@ -435,48 +385,48 @@ public abstract class ServiceReason {
         };
     }
 
-    public static ServiceReason HigherCost(HowIGotHere howIGotHere) {
+    public static HeuristicsReason HigherCost(HowIGotHere howIGotHere) {
         return new ServiceReason.Unreachable(ReasonCode.HigherCost, howIGotHere);
     }
 
-    public static ServiceReason LongerViaInterchange(HowIGotHere howIGotHere) {
+    public static HeuristicsReason LongerViaInterchange(HowIGotHere howIGotHere) {
         return new ServiceReason.Unreachable(ReasonCode.HigherCostViaExchange, howIGotHere);
     }
 
-    public static ServiceReason PathToLong(HowIGotHere path) {
+    public static HeuristicsReason PathToLong(HowIGotHere path) {
         return new ServiceReason.Unreachable(ReasonCode.PathTooLong, path);
     }
 
-    public static ServiceReason ReturnedToStart(HowIGotHere path) {
+    public static HeuristicsReason ReturnedToStart(HowIGotHere path) {
         return new ReturnedToStart(path);
     }
 
-    public static ServiceReason StationClosed(HowIGotHere howIGotHere, Station closed) {
+    public static HeuristicsReason StationClosed(HowIGotHere howIGotHere, Station closed) {
         return new StationClosed(howIGotHere, closed);
     }
 
-    public static ServiceReason TimedOut(HowIGotHere howIGotHere) {
+    public static HeuristicsReason TimedOut(HowIGotHere howIGotHere) {
         return new TimedOut(howIGotHere);
     }
 
 
-    public static ServiceReason TransportModeWrong(HowIGotHere howIGotHere) {
+    public static HeuristicsReason TransportModeWrong(HowIGotHere howIGotHere) {
         return new ServiceReason.TransportModeWrong(howIGotHere);
     }
 
-    public static ServiceReason RouteNotToday(HowIGotHere howIGotHere, IdFor<Route> id) {
+    public static HeuristicsReason RouteNotToday(HowIGotHere howIGotHere, IdFor<Route> id) {
         return new ServiceReason.RouteNotAvailableOnQueryDate(howIGotHere, id);
     }
 
-    public static ServiceReason CacheMiss(HowIGotHere howIGotHere) {
+    public static HeuristicsReason CacheMiss(HowIGotHere howIGotHere) {
         return new IsValid(ReasonCode.PreviousCacheMiss, howIGotHere);
     }
 
-    public static ServiceReason AlreadySeenStation(IdFor<Station> stationId, HowIGotHere howIGotHere) {
+    public static HeuristicsReason AlreadySeenStation(IdFor<Station> stationId, HowIGotHere howIGotHere) {
         return new AlreadySeenStation(stationId, howIGotHere);
     }
 
-    public static ServiceReason SameTrip(IdFor<Trip> tripId, HowIGotHere howIGotHere) {
+    public static HeuristicsReason SameTrip(IdFor<Trip> tripId, HowIGotHere howIGotHere) {
         return new SameTrip(tripId, howIGotHere);
     }
 

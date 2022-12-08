@@ -31,7 +31,7 @@ public class ServiceReasons {
     private final TramTime queryTime;
     private final ProvidesNow providesLocalNow;
     private final JourneyRequest journeyRequest;
-    private final List<ServiceReason> reasons;
+    private final List<HeuristicsReason> reasons;
     // stats
     private final Map<ReasonCode, AtomicInteger> reasonCodeStats; // reason -> count
     private final Map<String, AtomicInteger> stateStats; // State -> num visits
@@ -112,7 +112,7 @@ public class ServiceReasons {
                 forEach(entry -> logger.info(format("%s => %s: %s", prefix, entry.getKey(), entry.getValue().get())));
     }
 
-    public ServiceReason recordReason(final ServiceReason serviceReason) {
+    public HeuristicsReason recordReason(final HeuristicsReason serviceReason) {
         if (diagnosticsEnabled) {
             reasons.add(serviceReason);
             recordEndNodeVisit(serviceReason.getHowIGotHere());

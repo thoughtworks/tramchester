@@ -15,10 +15,7 @@ import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.caches.CachedNodeOperations;
 import com.tramchester.graph.caches.NodeContentsRepository;
 import com.tramchester.graph.search.*;
-import com.tramchester.graph.search.diagnostics.ReasonCode;
-import com.tramchester.graph.search.diagnostics.ServiceReason;
-import com.tramchester.graph.search.diagnostics.ServiceReasons;
-import com.tramchester.graph.search.diagnostics.HowIGotHere;
+import com.tramchester.graph.search.diagnostics.*;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
 import com.tramchester.repository.RouteInterchangeRepository;
 import com.tramchester.repository.StationRepository;
@@ -114,7 +111,7 @@ class ServiceHeuristicsTest extends EasyMockSupport {
         ServiceHeuristics serviceHeuristics = new ServiceHeuristics(stationRepository, routeInterchanges, nodeContentsCache,
                 journeyConstraints, queryTime, MAX_NUM_CHANGES);
 
-        ServiceReason result = serviceHeuristics.checkServiceDateAndTime(node, howIGotHere, reasons, visitTime, MAX_WAIT);
+        HeuristicsReason result = serviceHeuristics.checkServiceDateAndTime(node, howIGotHere, reasons, visitTime, MAX_WAIT);
         assertTrue(result.isValid());
 
         result = serviceHeuristics.checkServiceDateAndTime(node, howIGotHere, reasons, visitTime, MAX_WAIT);
@@ -143,7 +140,7 @@ class ServiceHeuristicsTest extends EasyMockSupport {
         ServiceHeuristics serviceHeuristics = new ServiceHeuristics(stationRepository, routeInterchanges, nodeContentsCache,
                 journeyConstraints, queryTime, MAX_NUM_CHANGES);
 
-        ServiceReason result = serviceHeuristics.checkServiceDateAndTime(node, howIGotHere, reasons, visitTime, MAX_WAIT);
+        HeuristicsReason result = serviceHeuristics.checkServiceDateAndTime(node, howIGotHere, reasons, visitTime, MAX_WAIT);
         assertTrue(result.isValid());
 
         result = serviceHeuristics.checkServiceDateAndTime(node, howIGotHere, reasons, visitTime, MAX_WAIT);
@@ -177,7 +174,7 @@ class ServiceHeuristicsTest extends EasyMockSupport {
         ServiceHeuristics serviceHeuristics = new ServiceHeuristics(stationRepository, routeInterchanges, nodeContentsCache,
                 journeyConstraints, queryTime, MAX_NUM_CHANGES);
 
-        ServiceReason result = serviceHeuristics.checkStationOpen(node, howIGotHere, reasons);
+        HeuristicsReason result = serviceHeuristics.checkStationOpen(node, howIGotHere, reasons);
         assertTrue(result.isValid());
 
         result = serviceHeuristics.checkStationOpen(node, howIGotHere, reasons);
@@ -391,7 +388,7 @@ class ServiceHeuristicsTest extends EasyMockSupport {
         EasyMock.expect(nodeContentsCache.getTime(node)).andReturn(tramTime);
 
         replayAll();
-        ServiceReason serviceReason = serviceHeuristics.checkTime(howIGotHere, node, currentElapsed, reasons, MAX_WAIT);
+        HeuristicsReason serviceReason = serviceHeuristics.checkTime(howIGotHere, node, currentElapsed, reasons, MAX_WAIT);
         assertEquals(expect, serviceReason.isValid(), format("currentElapsed: %s nodeTime: %s wait: %s reason: %s",
                 currentElapsed, tramTime, MAX_WAIT, serviceReason));
         verifyAll();

@@ -75,7 +75,7 @@ public enum ReasonCode {
         };
     }
 
-    public Evaluation getEvaluation() {
+    public Evaluation getEvaluationAction() {
         return decideEvaluationAction(this);
     }
 }
