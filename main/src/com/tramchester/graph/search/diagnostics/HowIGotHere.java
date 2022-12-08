@@ -1,4 +1,4 @@
-package com.tramchester.graph.search.stateMachine;
+package com.tramchester.graph.search.diagnostics;
 
 import com.tramchester.graph.search.ImmutableJourneyState;
 import org.neo4j.graphdb.Path;

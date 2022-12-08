@@ -6,7 +6,7 @@ import com.github.benmanes.caffeine.cache.stats.CacheStats;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.graphbuild.GraphLabel;
 import com.tramchester.graph.search.ImmutableJourneyState;
-import com.tramchester.graph.search.ServiceReason;
+import com.tramchester.graph.search.diagnostics.ReasonCode;
 import com.tramchester.repository.ReportsCacheStats;
 import org.apache.commons.lang3.tuple.Pair;
 import org.jetbrains.annotations.NotNull;
@@ -19,17 +19,17 @@ import java.util.EnumSet;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-import static com.tramchester.graph.search.ServiceReason.ReasonCode.*;
+import static com.tramchester.graph.search.diagnostics.ReasonCode.*;
 
 public class PreviousVisits implements ReportsCacheStats {
     private static final Logger logger = LoggerFactory.getLogger(PreviousVisits.class);
 
     private static final int CACHE_DURATION_MINS = 5;
 
-    private final Cache<Long, ServiceReason.ReasonCode> timeNodePrevious;
-    private final Cache<Key<TramTime>, ServiceReason.ReasonCode> hourNodePrevious;
-    private final Cache<Long, ServiceReason.ReasonCode> routeStationPrevious;
-    private final Cache<Long, ServiceReason.ReasonCode> servicePrevious;
+    private final Cache<Long, ReasonCode> timeNodePrevious;
+    private final Cache<Key<TramTime>, ReasonCode> hourNodePrevious;
+    private final Cache<Long, ReasonCode> routeStationPrevious;
+    private final Cache<Long, ReasonCode> servicePrevious;
     private final Cache<Long, Integer> lowestNumberOfChanges;
 
     public PreviousVisits() {
@@ -46,7 +46,7 @@ public class PreviousVisits implements ReportsCacheStats {
                 recordStats().build();
     }
 
-    public void recordVisitIfUseful(ServiceReason.ReasonCode result, Node node, ImmutableJourneyState journeyState, EnumSet<GraphLabel> labels) {
+    public void recordVisitIfUseful(ReasonCode result, Node node, ImmutableJourneyState journeyState, EnumSet<GraphLabel> labels) {
         if (labels.contains(GraphLabel.MINUTE) || labels.contains(GraphLabel.HOUR)) {
             // time and hour nodes represent the time on the actual journey, so if we have been here before
             // we will get the same result
@@ -76,7 +76,7 @@ public class PreviousVisits implements ReportsCacheStats {
         }
     }
 
-    private void recordRouteStationVisitIfUseful(final ServiceReason.ReasonCode result, final long nodeId, final ImmutableJourneyState journeyState) {
+    private void recordRouteStationVisitIfUseful(final ReasonCode result, final long nodeId, final ImmutableJourneyState journeyState) {
         if (result == TooManyRouteChangesRequired) {
             // based on a route->route changes count only, invariant on current state of a journey
             routeStationPrevious.put(nodeId, result);
@@ -105,25 +105,25 @@ public class PreviousVisits implements ReportsCacheStats {
         }
     }
 
-    public ServiceReason.ReasonCode getPreviousResult(Node node, ImmutableJourneyState journeyState, EnumSet<GraphLabel> labels) {
+    public ReasonCode getPreviousResult(Node node, ImmutableJourneyState journeyState, EnumSet<GraphLabel> labels) {
 
         if (labels.contains(GraphLabel.MINUTE)) {
             // time node has by definition a unique time
-            ServiceReason.ReasonCode timeFound = timeNodePrevious.getIfPresent(node.getId());
+            ReasonCode timeFound = timeNodePrevious.getIfPresent(node.getId());
             if (timeFound != null) {
                 return timeFound;
             }
         }
 
         if (labels.contains(GraphLabel.HOUR)) {
-            ServiceReason.ReasonCode hourFound = hourNodePrevious.getIfPresent(new Key<>(node, journeyState.getJourneyClock()));
+            ReasonCode hourFound = hourNodePrevious.getIfPresent(new Key<>(node, journeyState.getJourneyClock()));
             if (hourFound != null) {
                 return hourFound;
             }
         }
 
         if (labels.contains(GraphLabel.ROUTE_STATION)) {
-            ServiceReason.ReasonCode found = routeStationPrevious.getIfPresent(node.getId());
+            ReasonCode found = routeStationPrevious.getIfPresent(node.getId());
             if (found != null) {
                 if (found == TooManyInterchangesRequired) {
                     Integer currentLowest = lowestNumberOfChanges.getIfPresent(node.getId());
@@ -137,13 +137,13 @@ public class PreviousVisits implements ReportsCacheStats {
         }
 
         if (labels.contains(GraphLabel.SERVICE)) {
-            ServiceReason.ReasonCode found = servicePrevious.getIfPresent(node.getId());
+            ReasonCode found = servicePrevious.getIfPresent(node.getId());
             if (found != null) {
                 return found;
             }
         }
 
-        return ServiceReason.ReasonCode.PreviousCacheMiss;
+        return ReasonCode.PreviousCacheMiss;
     }
 
     @Override

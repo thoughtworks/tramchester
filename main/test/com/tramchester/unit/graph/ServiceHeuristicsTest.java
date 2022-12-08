@@ -15,7 +15,10 @@ import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.caches.CachedNodeOperations;
 import com.tramchester.graph.caches.NodeContentsRepository;
 import com.tramchester.graph.search.*;
-import com.tramchester.graph.search.stateMachine.HowIGotHere;
+import com.tramchester.graph.search.diagnostics.ReasonCode;
+import com.tramchester.graph.search.diagnostics.ServiceReason;
+import com.tramchester.graph.search.diagnostics.ServiceReasons;
+import com.tramchester.graph.search.diagnostics.HowIGotHere;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
 import com.tramchester.repository.RouteInterchangeRepository;
 import com.tramchester.repository.StationRepository;
@@ -30,7 +33,6 @@ import org.neo4j.graphdb.Node;
 
 import java.time.Duration;
 import java.time.LocalTime;
-import java.util.Collections;
 import java.util.EnumSet;
 import java.util.Set;
 
@@ -116,7 +118,7 @@ class ServiceHeuristicsTest extends EasyMockSupport {
         assertTrue(result.isValid());
 
         result = serviceHeuristics.checkServiceDateAndTime(node, howIGotHere, reasons, visitTime, MAX_WAIT);
-        assertEquals(ServiceReason.ReasonCode.NotOnQueryDate, result.getReasonCode());
+        assertEquals(ReasonCode.NotOnQueryDate, result.getReasonCode());
         verifyAll();
     }
 
@@ -145,7 +147,7 @@ class ServiceHeuristicsTest extends EasyMockSupport {
         assertTrue(result.isValid());
 
         result = serviceHeuristics.checkServiceDateAndTime(node, howIGotHere, reasons, visitTime, MAX_WAIT);
-        assertEquals(ServiceReason.ReasonCode.ServiceNotRunningAtTime, result.getReasonCode());
+        assertEquals(ReasonCode.ServiceNotRunningAtTime, result.getReasonCode());
         verifyAll();
 
     }
@@ -179,7 +181,7 @@ class ServiceHeuristicsTest extends EasyMockSupport {
         assertTrue(result.isValid());
 
         result = serviceHeuristics.checkStationOpen(node, howIGotHere, reasons);
-        assertEquals(ServiceReason.ReasonCode.StationClosed, result.getReasonCode());
+        assertEquals(ReasonCode.StationClosed, result.getReasonCode());
         verifyAll();
     }
 

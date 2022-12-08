@@ -1,4 +1,4 @@
-package com.tramchester.graph.search;
+package com.tramchester.graph.search.diagnostics;
 
 import com.tramchester.domain.Route;
 import com.tramchester.domain.Service;
@@ -6,7 +6,6 @@ import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.time.TramTime;
-import com.tramchester.graph.search.stateMachine.HowIGotHere;
 
 import java.util.Objects;
 
@@ -14,59 +13,6 @@ import static java.lang.String.format;
 
 public abstract class ServiceReason {
 
-
-    public enum ReasonCode {
-
-        ServiceDateOk, ServiceTimeOk, NumChangesOK, TimeOk, HourOk, Reachable, ReachableNoCheck, DurationOk,
-        WalkOk, StationOpen, Continue, NumConnectionsOk, NumWalkingConnectionsOk, NeighbourConnectionsOk,
-        ReachableSameRoute, TransportModeOk,
-
-        NotOnQueryDate,
-        RouteNotOnQueryDate,
-        DoesNotOperateOnTime,
-        NotReachable,
-        ExchangeNotReachable,
-        ServiceNotRunningAtTime,
-        TookTooLong,
-        NotAtHour,
-        AlreadyDeparted,
-        HigherCost,
-        HigherCostViaExchange,
-        PathTooLong,
-        AlreadySeenStation,
-        TransportModeWrong,
-        SameTrip,
-
-        ReturnedToStart,
-        TooManyChanges,
-        MoreChanges,
-        TooManyWalkingConnections,
-        TooManyNeighbourConnections,
-        StationClosed,
-        TimedOut,
-        TooManyRouteChangesRequired,
-        TooManyInterchangesRequired,
-
-        CachedUNKNOWN,
-        CachedNotAtHour,
-        CachedDoesNotOperateOnTime,
-        CachedTooManyRouteChangesRequired,
-        CachedRouteNotOnQueryDate,
-        CachedNotOnQueryDate,
-        CachedTooManyInterchangesRequired,
-        PreviousCacheMiss,
-
-        // stats for overall journey
-        OnTram,
-        OnBus,
-        OnTrain,
-        OnShip,
-        OnSubway,
-        OnWalk,
-        NotOnVehicle,
-
-        Arrived
-    }
 
     private final HowIGotHere howIGotHere;
     private final ReasonCode code;
@@ -476,7 +422,7 @@ public abstract class ServiceReason {
         return new DoesNotOperateOnTime(ReasonCode.AlreadyDeparted, currentElapsed, path);
     }
 
-    public static ServiceReason Cached(ServiceReason.ReasonCode code, TramTime currentElapsed, HowIGotHere path) {
+    public static ServiceReason Cached(ReasonCode code, TramTime currentElapsed, HowIGotHere path) {
 
         return switch (code) {
             case NotAtHour -> new DoesNotOperateOnTime(ReasonCode.CachedNotAtHour, currentElapsed, path);

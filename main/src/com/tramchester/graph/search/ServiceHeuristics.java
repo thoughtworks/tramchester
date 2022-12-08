@@ -14,7 +14,10 @@ import com.tramchester.graph.caches.LowestCostSeen;
 import com.tramchester.graph.caches.NodeContentsRepository;
 import com.tramchester.graph.graphbuild.GraphLabel;
 import com.tramchester.graph.graphbuild.GraphProps;
-import com.tramchester.graph.search.stateMachine.HowIGotHere;
+import com.tramchester.graph.search.diagnostics.ReasonCode;
+import com.tramchester.graph.search.diagnostics.ServiceReason;
+import com.tramchester.graph.search.diagnostics.ServiceReasons;
+import com.tramchester.graph.search.diagnostics.HowIGotHere;
 import com.tramchester.repository.RouteInterchangeRepository;
 import com.tramchester.repository.StationRepository;
 import org.neo4j.graphdb.Node;
@@ -58,7 +61,7 @@ public class ServiceHeuristics {
                                                  TramTime visitTime, int maxWait) {
         reasons.incrementTotalChecked();
 
-        IdFor<Service> nodeServiceId = nodeOperations.getServiceId(node);
+        final IdFor<Service> nodeServiceId = nodeOperations.getServiceId(node);
 
         if (!journeyConstraints.isRunningOnDate(nodeServiceId, visitTime)) {
             return reasons.recordReason(ServiceReason.DoesNotRunOnQueryDate(howIGotHere, nodeServiceId));
@@ -69,7 +72,7 @@ public class ServiceHeuristics {
             return reasons.recordReason(ServiceReason.ServiceNotRunningAtTime(howIGotHere, nodeServiceId, visitTime));
         }
 
-        return valid(ServiceReason.ReasonCode.ServiceDateOk, howIGotHere, reasons);
+        return valid(ReasonCode.ServiceDateOk, howIGotHere, reasons);
     }
 
     public ServiceReason checkNumberChanges(int currentNumChanges, HowIGotHere howIGotHere, ServiceReasons reasons) {
@@ -78,7 +81,7 @@ public class ServiceHeuristics {
        if (currentNumChanges > currentChangesLimit) {
          return reasons.recordReason(ServiceReason.TooManyChanges(howIGotHere, currentNumChanges));
        }
-       return valid(ServiceReason.ReasonCode.NumChangesOK, howIGotHere, reasons);
+       return valid(ReasonCode.NumChangesOK, howIGotHere, reasons);
     }
 
     public ServiceReason checkNumberNeighbourConnections(int currentNumberConnections, HowIGotHere howIGotHere, ServiceReasons reasons) {
@@ -87,7 +90,7 @@ public class ServiceHeuristics {
         if (currentNumberConnections > journeyConstraints.getMaxWalkingConnections()) {
             return reasons.recordReason(ServiceReason.TooManyNeighbourConnections(howIGotHere));
         }
-        return valid(ServiceReason.ReasonCode.NeighbourConnectionsOk, howIGotHere, reasons);
+        return valid(ReasonCode.NeighbourConnectionsOk, howIGotHere, reasons);
     }
 
     public ServiceReason checkNumberWalkingConnections(int currentNumConnections, HowIGotHere howIGotHere, ServiceReasons reasons) {
@@ -96,22 +99,22 @@ public class ServiceHeuristics {
         if (currentNumConnections > journeyConstraints.getMaxWalkingConnections()) {
             return reasons.recordReason(ServiceReason.TooManyWalkingConnections(howIGotHere));
         }
-        return valid(ServiceReason.ReasonCode.NumWalkingConnectionsOk, howIGotHere, reasons);
+        return valid(ReasonCode.NumWalkingConnectionsOk, howIGotHere, reasons);
     }
 
     public ServiceReason checkTime(HowIGotHere howIGotHere, Node node, TramTime currentTime, ServiceReasons reasons, int maxWait) {
         reasons.incrementTotalChecked();
 
-        TramTime nodeTime = nodeOperations.getTime(node);
+        final TramTime nodeTime = nodeOperations.getTime(node);
         if (currentTime.isAfter(nodeTime)) { // already departed
             return reasons.recordReason(ServiceReason.AlreadyDeparted(currentTime, howIGotHere));
         }
 
         // Wait to get the service?
-        TimeRange window = TimeRange.of(nodeTime, Duration.ofMinutes(maxWait), Duration.ZERO);
+        final TimeRange window = TimeRange.of(nodeTime, Duration.ofMinutes(maxWait), Duration.ZERO);
 
         if (window.contains(currentTime)) {
-            return valid(ServiceReason.ReasonCode.TimeOk, howIGotHere, reasons);
+            return valid(ReasonCode.TimeOk, howIGotHere, reasons);
         }
 
         return reasons.recordReason(ServiceReason.DoesNotOperateOnTime(currentTime, howIGotHere));
@@ -121,22 +124,22 @@ public class ServiceHeuristics {
                                           ServiceReasons reasons, int maxWait, EnumSet<GraphLabel> labels) {
         reasons.incrementTotalChecked();
 
-        int queryTimeHour = journeyClockTime.getHourOfDay();
+        final int queryTimeHour = journeyClockTime.getHourOfDay();
 
         //noinspection SuspiciousMethodCalls
         if (labels.contains(GraphLabel.getHourLabel(queryTimeHour))) {
             // quick win
-            return valid(ServiceReason.ReasonCode.HourOk, howIGotHere, reasons);
+            return valid(ReasonCode.HourOk, howIGotHere, reasons);
         }
 
-        int hourAtNode = GraphLabel.getHourFrom(labels);
+        final int hourAtNode = GraphLabel.getHourFrom(labels);
 
-        TramTime beginWindow = hourAtNode==0 ? TramTime.nextDay(0,0) : TramTime.of(hourAtNode, 0);
+        final TramTime beginWindow = hourAtNode==0 ? TramTime.nextDay(0,0) : TramTime.of(hourAtNode, 0);
 
-        TimeRange windowForWait = TimeRange.of(beginWindow, Duration.ofMinutes(maxWait), Duration.ZERO);
+        final TimeRange windowForWait = TimeRange.of(beginWindow, Duration.ofMinutes(maxWait), Duration.ZERO);
 
         if (windowForWait.contains(journeyClockTime)) {
-            return valid(ServiceReason.ReasonCode.HourOk, howIGotHere, reasons);
+            return valid(ReasonCode.HourOk, howIGotHere, reasons);
         }
 
         return reasons.recordReason(ServiceReason.DoesNotOperateAtHour(journeyClockTime, howIGotHere));
@@ -145,16 +148,16 @@ public class ServiceHeuristics {
     public ServiceReason checkStationOpen(Node node, HowIGotHere howIGotHere, ServiceReasons reasons) {
         reasons.incrementTotalChecked();
 
-        IdFor<RouteStation> routeStationId = nodeOperations.getRouteStationId(node);
-        RouteStation routeStation = stationRepository.getRouteStationById(routeStationId);
+        final IdFor<RouteStation> routeStationId = nodeOperations.getRouteStationId(node);
+        final RouteStation routeStation = stationRepository.getRouteStationById(routeStationId);
 
-        Station associatedStation = routeStation.getStation();
+        final Station associatedStation = routeStation.getStation();
 
         if (journeyConstraints.isClosed(associatedStation)) {
            return reasons.recordReason(ServiceReason.StationClosed(howIGotHere, associatedStation));
         }
 
-        return valid(ServiceReason.ReasonCode.StationOpen, howIGotHere, reasons);
+        return valid(ReasonCode.StationOpen, howIGotHere, reasons);
 
     }
 
@@ -164,15 +167,15 @@ public class ServiceHeuristics {
             //IdFor<RouteStation> routeStationId = nodeOperations.getRouteStationId(node);
             return reasons.recordReason(ServiceReason.TransportModeWrong(howIGotHere));
         }
-        return valid(ServiceReason.ReasonCode.TransportModeOk, howIGotHere, reasons);
+        return valid(ReasonCode.TransportModeOk, howIGotHere, reasons);
     }
 
     public ServiceReason canReachDestination(Node endNode, int currentNumberOfChanges, HowIGotHere howIGotHere,
                                              ServiceReasons reasons, TramTime currentElapsed) {
         reasons.incrementTotalChecked();
 
-        IdFor<RouteStation> routeStationId = nodeOperations.getRouteStationId(endNode);
-        RouteStation routeStation = stationRepository.getRouteStationById(routeStationId);
+        final IdFor<RouteStation> routeStationId = nodeOperations.getRouteStationId(endNode);
+        final RouteStation routeStation = stationRepository.getRouteStationById(routeStationId);
 
         if (routeStation==null) {
             String message = "Missing routestation " + routeStationId;
@@ -180,39 +183,39 @@ public class ServiceHeuristics {
             throw new RuntimeException(message);
         }
 
-        Route currentRoute = routeStation.getRoute();
+        final Route currentRoute = routeStation.getRoute();
 
         if (journeyConstraints.isUnavailable(currentRoute, currentElapsed)) {
             return reasons.recordReason(ServiceReason.RouteNotToday(howIGotHere, currentRoute.getId()));
         }
 
-        int fewestChanges = lowestCostsForDestRoutes.getFewestChanges(currentRoute);
+        final int fewestChanges = lowestCostsForDestRoutes.getFewestChanges(currentRoute);
 
         if (fewestChanges > currentChangesLimit) {
-            return reasons.recordReason(ServiceReason.StationNotReachable(howIGotHere, ServiceReason.ReasonCode.TooManyRouteChangesRequired));
+            return reasons.recordReason(ServiceReason.StationNotReachable(howIGotHere, ReasonCode.TooManyRouteChangesRequired));
         }
 
         if ((fewestChanges+currentNumberOfChanges) > currentChangesLimit) {
-            return reasons.recordReason(ServiceReason.StationNotReachable(howIGotHere, ServiceReason.ReasonCode.TooManyInterchangesRequired));
+            return reasons.recordReason(ServiceReason.StationNotReachable(howIGotHere, ReasonCode.TooManyInterchangesRequired));
         }
 
-        return valid(ServiceReason.ReasonCode.Reachable, howIGotHere, reasons);
+        return valid(ReasonCode.Reachable, howIGotHere, reasons);
     }
 
     public ServiceReason lowerCostIncludingInterchange(Node nextNode, Duration totalCostSoFar, LowestCostSeen bestSoFar,
                                                        HowIGotHere howIGotHere, ServiceReasons reasons) {
         reasons.incrementTotalChecked();
 
-        IdFor<RouteStation> routeStationId = nodeOperations.getRouteStationId(nextNode);
-        RouteStation routeStation = stationRepository.getRouteStationById(routeStationId);
+        final IdFor<RouteStation> routeStationId = nodeOperations.getRouteStationId(nextNode);
+        final RouteStation routeStation = stationRepository.getRouteStationById(routeStationId);
 
         if  (lowestCostsForDestRoutes.getFewestChanges(routeStation.getRoute())==0) {
             // on same route our destination
-            return valid(ServiceReason.ReasonCode.ReachableSameRoute, howIGotHere, reasons);
+            return valid(ReasonCode.ReachableSameRoute, howIGotHere, reasons);
         }
         // otherwise, a change to a different route is needed
 
-        Duration costToFirstInterchange = routeInterchanges.costToInterchange(routeStation);
+        final Duration costToFirstInterchange = routeInterchanges.costToInterchange(routeStation);
         //logger.info("Cost to first interchange " + costToFirstInterchange);
 
         if (costToFirstInterchange.isNegative()) {
@@ -231,7 +234,7 @@ public class ServiceHeuristics {
             }
         }
 
-        return valid(ServiceReason.ReasonCode.Reachable, howIGotHere, reasons);
+        return valid(ReasonCode.Reachable, howIGotHere, reasons);
     }
 
     public ServiceReason journeyDurationUnderLimit(final Duration totalDuration, final HowIGotHere howIGotHere, ServiceReasons reasons) {
@@ -241,10 +244,10 @@ public class ServiceHeuristics {
         if (Durations.greaterThan(totalDuration, journeyConstraints.getMaxJourneyDuration())) {
             return reasons.recordReason(ServiceReason.TookTooLong(actualQueryTime.plus(totalDuration), howIGotHere));
         }
-        return valid(ServiceReason.ReasonCode.DurationOk, howIGotHere, reasons);
+        return valid(ReasonCode.DurationOk, howIGotHere, reasons);
     }
 
-    private ServiceReason valid(ServiceReason.ReasonCode code, final HowIGotHere howIGotHere, ServiceReasons reasons) {
+    private ServiceReason valid(ReasonCode code, final HowIGotHere howIGotHere, ServiceReasons reasons) {
         return reasons.recordReason(ServiceReason.IsValid(code, howIGotHere));
     }
 
@@ -256,21 +259,21 @@ public class ServiceHeuristics {
                                         ServiceReasons reasons) {
         reasons.incrementTotalChecked();
 
-        IdFor<Station> stationId = GraphProps.getStationId(nextNode);
+        final IdFor<Station> stationId = GraphProps.getStationId(nextNode);
         if (journeyState.hasVisited(stationId)) {
             return reasons.recordReason(ServiceReason.AlreadySeenStation(stationId, howIGotHere));
         }
-        return valid(ServiceReason.ReasonCode.Continue, howIGotHere, reasons);
+        return valid(ReasonCode.Continue, howIGotHere, reasons);
     }
 
 
     public ServiceReason checkNotBeenOnTripBefore(HowIGotHere howIGotHere, Node minuteNode, ImmutableJourneyState journeyState, ServiceReasons reasons) {
         reasons.incrementTotalChecked();
 
-        IdFor<Trip> tripId = nodeOperations.getTripId(minuteNode);
+        final IdFor<Trip> tripId = nodeOperations.getTripId(minuteNode);
         if (journeyState.alreadyDeparted(tripId)) {
             return reasons.recordReason(ServiceReason.SameTrip(tripId, howIGotHere));
         }
-        return valid(ServiceReason.ReasonCode.Continue, howIGotHere, reasons);
+        return valid(ReasonCode.Continue, howIGotHere, reasons);
     }
 }

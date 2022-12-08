@@ -11,6 +11,8 @@ import com.tramchester.graph.caches.LowestCostSeen;
 import com.tramchester.graph.caches.NodeContentsRepository;
 import com.tramchester.graph.caches.PreviousVisits;
 import com.tramchester.graph.graphbuild.GraphLabel;
+import com.tramchester.graph.search.diagnostics.ReasonsToGraphViz;
+import com.tramchester.graph.search.diagnostics.ServiceReasons;
 import com.tramchester.graph.search.stateMachine.TraversalOps;
 import com.tramchester.graph.search.stateMachine.states.ImmuatableTraversalState;
 import com.tramchester.graph.search.stateMachine.states.NotStartedState;

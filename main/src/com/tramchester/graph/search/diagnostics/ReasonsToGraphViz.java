@@ -1,4 +1,4 @@
-package com.tramchester.graph.search;
+package com.tramchester.graph.search.diagnostics;
 
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.domain.id.IdFor;
@@ -8,7 +8,6 @@ import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.caches.NodeContentsRepository;
 import com.tramchester.graph.graphbuild.GraphLabel;
 import com.tramchester.graph.graphbuild.GraphProps;
-import com.tramchester.graph.search.stateMachine.HowIGotHere;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.repository.naptan.NaptanRepository;
 import org.apache.commons.lang3.tuple.Pair;

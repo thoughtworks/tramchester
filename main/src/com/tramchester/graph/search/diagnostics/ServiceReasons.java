@@ -1,10 +1,10 @@
-package com.tramchester.graph.search;
+package com.tramchester.graph.search.diagnostics;
 
 import com.tramchester.domain.JourneyRequest;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.domain.time.TramTime;
-import com.tramchester.graph.search.stateMachine.HowIGotHere;
+import com.tramchester.graph.search.*;
 import org.apache.commons.lang3.tuple.Pair;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Transaction;
@@ -21,6 +21,8 @@ import static java.lang.String.format;
 public class ServiceReasons {
 
     private static final Logger logger;
+    public static final int NUMBER_MOST_VISITED_NODES_TO_LOG = 20;
+    public static final int THRESHHOLD_FOR_NUMBER_VISITS_DIAGS = 5000;
 
     static {
         logger = LoggerFactory.getLogger(ServiceReasons.class);
@@ -31,7 +33,7 @@ public class ServiceReasons {
     private final JourneyRequest journeyRequest;
     private final List<ServiceReason> reasons;
     // stats
-    private final Map<ServiceReason.ReasonCode, AtomicInteger> reasonCodeStats; // reason -> count
+    private final Map<ReasonCode, AtomicInteger> reasonCodeStats; // reason -> count
     private final Map<String, AtomicInteger> stateStats; // State -> num visits
     private final Map<Long, AtomicInteger> nodeVisits; // count of visits to nodes
     private final AtomicInteger totalChecked = new AtomicInteger(0);
@@ -47,8 +49,8 @@ public class ServiceReasons {
         success = false;
         diagnosticsEnabled = journeyRequest.getDiagnosticsEnabled();
 
-        reasonCodeStats = new EnumMap<>(ServiceReason.ReasonCode.class);
-        Arrays.asList(ServiceReason.ReasonCode.values()).forEach(code -> reasonCodeStats.put(code, new AtomicInteger(0)));
+        reasonCodeStats = new EnumMap<>(ReasonCode.class);
+        Arrays.asList(ReasonCode.values()).forEach(code -> reasonCodeStats.put(code, new AtomicInteger(0)));
 
         stateStats = new HashMap<>();
         nodeVisits = new HashMap<>();
@@ -59,7 +61,7 @@ public class ServiceReasons {
         reasonCodeStats.clear();
         stateStats.clear();
         nodeVisits.clear();
-        Arrays.asList(ServiceReason.ReasonCode.values()).forEach(code -> reasonCodeStats.put(code, new AtomicInteger(0)));
+        Arrays.asList(ReasonCode.values()).forEach(code -> reasonCodeStats.put(code, new AtomicInteger(0)));
     }
 
     public void reportReasons(Transaction transaction, RouteCalculatorSupport.PathRequest pathRequest, ReasonsToGraphViz reasonToGraphViz) {
@@ -83,15 +85,15 @@ public class ServiceReasons {
         logger.info("Total checked: " + totalChecked.get() + " for " + journeyRequest.toString());
         logStats("reasoncodes", reasonCodeStats);
         logStats("states", stateStats);
-        logVisits(5000, txn);
+        logVisits(txn);
     }
 
-    private void logVisits(int threshhold, Transaction txn) {
+    private void logVisits(Transaction txn) {
         nodeVisits.entrySet().stream().
                 map(entry -> Pair.of(entry.getKey(), entry.getValue().get())).
-                filter(entry -> entry.getValue()>threshhold).
+                filter(entry -> entry.getValue()>THRESHHOLD_FOR_NUMBER_VISITS_DIAGS).
                 sorted(Comparator.comparing(Pair::getValue, Comparator.reverseOrder())).
-                limit(20).
+                limit(NUMBER_MOST_VISITED_NODES_TO_LOG).
                 map(entry -> Pair.of(txn.getNodeById(entry.getKey()), entry.getValue())).
                 map(pair -> Pair.of(nodeDetails(pair.getKey()), pair.getValue())).
                 forEach(entry -> logger.info("Visited " + entry.getKey() + " " + entry.getValue() + " times"));
@@ -124,8 +126,8 @@ public class ServiceReasons {
         return serviceReason;
     }
 
-    private void recordEndNodeVisit(HowIGotHere howIGotHere) {
-        long endNode = howIGotHere.getEndNodeId();
+    private void recordEndNodeVisit(final HowIGotHere howIGotHere) {
+        final long endNode = howIGotHere.getEndNodeId();
         if (nodeVisits.containsKey(endNode)) {
             nodeVisits.get(endNode).incrementAndGet();
         } else {
@@ -137,36 +139,36 @@ public class ServiceReasons {
         totalChecked.incrementAndGet();
     }
 
-    private void incrementStat(ServiceReason.ReasonCode reasonCode) {
+    private void incrementStat(ReasonCode reasonCode) {
         reasonCodeStats.get(reasonCode).incrementAndGet();
     }
 
     public void recordSuccess() {
-        incrementStat(ServiceReason.ReasonCode.Arrived);
+        incrementStat(ReasonCode.Arrived);
         success = true;
     }
 
     public void recordStat(final ImmutableJourneyState journeyState) {
-        ServiceReason.ReasonCode reason = getReasonCode(journeyState.getTransportMode());
+        final ReasonCode reason = getReasonCode(journeyState.getTransportMode());
         incrementStat(reason);
 
-        String name = journeyState.getTraversalState().getClass().getSimpleName();
-        if (stateStats.containsKey(name)) {
-            stateStats.get(name).incrementAndGet();
+        final String stateName = journeyState.getTraversalState().getClass().getSimpleName();
+        if (stateStats.containsKey(stateName)) {
+            stateStats.get(stateName).incrementAndGet();
         } else {
-            stateStats.put(name, new AtomicInteger(1));
+            stateStats.put(stateName, new AtomicInteger(1));
         }
     }
 
-    private ServiceReason.ReasonCode getReasonCode(TransportMode transportMode) {
+    private ReasonCode getReasonCode(TransportMode transportMode) {
         return switch (transportMode) {
-            case Tram -> ServiceReason.ReasonCode.OnTram;
-            case Bus, RailReplacementBus -> ServiceReason.ReasonCode.OnBus;
-            case Train -> ServiceReason.ReasonCode.OnTrain;
-            case Walk, Connect -> ServiceReason.ReasonCode.OnWalk;
-            case Ferry, Ship -> ServiceReason.ReasonCode.OnShip;
-            case Subway -> ServiceReason.ReasonCode.OnSubway;
-            case NotSet -> ServiceReason.ReasonCode.NotOnVehicle;
+            case Tram -> ReasonCode.OnTram;
+            case Bus, RailReplacementBus -> ReasonCode.OnBus;
+            case Train -> ReasonCode.OnTrain;
+            case Walk, Connect -> ReasonCode.OnWalk;
+            case Ferry, Ship -> ReasonCode.OnShip;
+            case Subway -> ReasonCode.OnSubway;
+            case NotSet -> ReasonCode.NotOnVehicle;
             case Unknown -> throw new RuntimeException("Unknown transport mode");
         };
     }
