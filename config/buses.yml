@@ -32,7 +32,7 @@ gtfsSourceConfig:
     additionalInterchanges: []
     compositeStationModes: [ Bus ]
     stationClosures: []
-    addWalksForClosed: false
+    addWalksForClosed: true
 remoteSources:
   - name: tfgm
     dataURL: ${TRAM_DATAURL:- https://odata.tfgm.com/opendata/downloads/TfGMgtfsnew.zip}

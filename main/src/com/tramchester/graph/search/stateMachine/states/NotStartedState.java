@@ -20,7 +20,7 @@ public class NotStartedState extends TraversalState {
     }
 
     @Override
-    public Duration getTotalCost() {
+    public Duration getTotalDuration() {
         return Duration.ZERO;
     }
 

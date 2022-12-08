@@ -5,7 +5,9 @@ import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
 
+import java.util.EnumSet;
 import java.util.List;
+import java.util.Set;
 
 import static java.lang.String.format;
 
@@ -14,6 +16,7 @@ public class MutableRailRoute extends MutableRoute {
     // used to find and name unique routes for rail, as routes are not part of the data set we have to
     // derive them
     private final List<Station> callingPoints;
+    private static final Set<TransportMode> railModes = EnumSet.of(TransportMode.Train, TransportMode.RailReplacementBus);
 
     public MutableRailRoute(IdFor<Route> id, List<Station> callingPoints, Agency agency, TransportMode transportMode) {
         super(id, createShortName(agency, callingPoints), createName(agency, callingPoints), agency, transportMode);
@@ -21,6 +24,9 @@ public class MutableRailRoute extends MutableRoute {
             final String message = format("Need at least 2 calling points route %s (%s) and calling points %s",
                     id, transportMode, callingPoints);
             throw new RuntimeException(message);
+        }
+        if (!railModes.contains(transportMode)) {
+            throw new RuntimeException("Invalid mode " + transportMode + " must be on of " + railModes);
         }
         this.callingPoints = callingPoints;
     }

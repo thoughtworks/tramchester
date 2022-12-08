@@ -38,7 +38,6 @@ public class TFGMGTFSSourceTestConfig implements GTFSSourceConfig {
         this.additionalInterchanges = additionalInterchanges;
         this.compositeStationModes = compositeStationModes;
         this.closedStations = closedStations;
-        //maxInitialWait = Duration.ofMinutes(13);
         this.maxInitialWait = maxInitialWait;
     }
 
@@ -96,7 +95,7 @@ public class TFGMGTFSSourceTestConfig implements GTFSSourceConfig {
 
     @Override
     public boolean getAddWalksForClosed() {
-        return !closedStations.isEmpty();
+        return true;
     }
 
     @Override

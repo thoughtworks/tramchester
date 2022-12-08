@@ -56,7 +56,7 @@ public class MinuteState extends TraversalState {
                 List<Relationship> filterBySingleTripId = filterBySingleTripId(relationships, existingTripId);
                 return new MinuteState(hourState, filterBySingleTripId, existingTripId, cost, changeAtInterchangeOnly);
             } else {
-                // starting a brand new journey, since at minute node now have specific tripid to use
+                // starting a brand-new journey, since at minute node now have specific tripid to use
                 IdFor<Trip> newTripId = getTrip(node);
                 journeyState.beginTrip(newTripId);
                 return new MinuteState(hourState, relationships, newTripId, cost, changeAtInterchangeOnly);

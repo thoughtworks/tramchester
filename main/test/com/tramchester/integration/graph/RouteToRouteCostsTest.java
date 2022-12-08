@@ -274,7 +274,7 @@ public class RouteToRouteCostsTest {
 
         Set<InterchangeStation> viaPiccToAltyInterchange = viaPiccToAltyRoute.get(0).getLeft().getInterchangeStations();
 
-        assertEquals(2, viaPiccToAltyInterchange.size());
+        assertEquals(2, viaPiccToAltyInterchange.size(), HasId.asIds(viaPiccToAltyInterchange));
 
         IdSet<Station> interchangesForPiccAltyRouting = viaPiccToAltyInterchange.stream().map(InterchangeStation::getStationId).collect(IdSet.idCollector());
 

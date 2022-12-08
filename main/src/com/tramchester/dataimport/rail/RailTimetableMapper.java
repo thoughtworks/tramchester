@@ -200,13 +200,13 @@ public class RailTimetableMapper {
             this.extraDetails = (BasicScheduleExtraDetails) record;
         }
 
-        public RailLocationRecord getOriginLocation() {
-            return originLocation;
-        }
-
-        public List<IntermediateLocation> getIntermediateLocations() {
-            return intermediateLocations;
-        }
+//        public RailLocationRecord getOriginLocation() {
+//            return originLocation;
+//        }
+//
+//        public List<IntermediateLocation> getIntermediateLocations() {
+//            return intermediateLocations;
+//        }
 
         public RailLocationRecord getTerminatingLocation() {
             return terminatingLocation;
@@ -545,6 +545,7 @@ public class RailTimetableMapper {
             MutableRoute route;
 
             if (container.hasRouteId(routeId)) {
+                // route id already present
                 route = container.getMutableRoute(routeId);
                 IdFor<Agency> routeAgencyCode = route.getAgency().getId();
                 if (!routeAgencyCode.equals(agencyId)) {
@@ -553,14 +554,14 @@ public class RailTimetableMapper {
                     logger.error(msg);
                     throw new RuntimeException(msg);
                 }
-                if (!allowedModes(route, mode)) {
+                if (!matchingTransportModes(route, mode)) {
                     String msg = String.format("Got route %s wrong TransportMode (%s) route had: %s\nSchedule: %s\nExtraDetails: %s",
                             routeId, mode, route.getTransportMode(), rawService.basicScheduleRecord, rawService.extraDetails);
                     logger.error(msg);
                     throw new RuntimeException(msg);
                 }
             } else {
-                // record rail replacement bus as a train route
+                // note:create RailReplacementBus routes as Train
                 TransportMode actualMode = (mode==RailReplacementBus) ? Train : mode;
                 route = new MutableRailRoute(routeId, callingPoints, mutableAgency, actualMode);
                 container.addRoute(route);
@@ -568,13 +569,14 @@ public class RailTimetableMapper {
             return route;
         }
 
-        private boolean allowedModes(Route route, TransportMode mode) {
+        private boolean matchingTransportModes(Route route, TransportMode mode) {
             if (route.getTransportMode()==Train) {
                 return mode==RailReplacementBus || mode==Train;
             }
-            if (route.getTransportMode()==Subway) {
-                return mode==RailReplacementBus || mode==Subway;
-            }
+//            if (route.getTransportMode()==Subway) {
+//                //return mode==RailReplacementBus || mode==Subway;
+//                return mode==Subway;
+//            }
             return route.getTransportMode()==mode;
         }
 

@@ -43,12 +43,8 @@ class RouteEndRepositoryTramTest {
     void shouldFindEndsOfLinesForTram() {
         IdSet<Station> results = endStationsRepository.getStations(TransportMode.Tram);
 
-        // not officially end of a route, but routes finish here when returned to depot
+        //assertTrue(results.contains(Cornbrook.getId()));
 
-        //TODO no longer appearing
-        //assertTrue(results.contains(TraffordBar.getId()));
-
-        assertTrue(results.contains(Cornbrook.getId()));
         assertTrue(results.contains(Victoria.getId()));
         assertTrue(results.contains(Piccadilly.getId()));
         IdSet<Station> eolIds = EndOfTheLine.stream().map(TramStations::getId).collect(IdSet.idCollector());
@@ -58,16 +54,4 @@ class RouteEndRepositoryTramTest {
         //assertEquals(eolIds.size() , results.size(), results.toString());
     }
 
-    @Test
-    void shouldFindEndsOfLinesForTramSummer2021() {
-        IdSet<Station> results = endStationsRepository.getStations(TransportMode.Tram);
-
-        assertTrue(results.contains(Cornbrook.getId()));
-        assertTrue(results.contains(Victoria.getId()));
-        assertTrue(results.contains(Piccadilly.getId()));
-        IdSet<Station> eolIds = EndOfTheLine.stream().map(TramStations::getId).collect(IdSet.idCollector());
-        assertTrue(results.containsAll(eolIds));
-
-//        assertEquals(eolIds.size()+3, results.size());
-    }
 }

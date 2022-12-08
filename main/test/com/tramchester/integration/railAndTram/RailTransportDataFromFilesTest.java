@@ -257,9 +257,10 @@ public class RailTransportDataFromFilesTest {
     void shouldHaveCorrectModes() {
         Set<TransportMode> transportModes = config.getTransportModes();
 
-        assertEquals(2, transportModes.size(), transportModes.toString());
+        assertEquals(3, transportModes.size(), transportModes.toString());
         assertTrue(transportModes.contains(Tram));
         assertTrue(transportModes.contains(Train));
+        assertTrue(transportModes.contains(RailReplacementBus));
 
     }
 
@@ -366,30 +367,6 @@ public class RailTransportDataFromFilesTest {
                 collect(Collectors.joining());
 
         assertTrue(badTimings.isEmpty(), diagnostics);
-    }
-
-    @Test
-    void shouldRepdoIssueWithSpecificServiceTimingsWrongTripsA() {
-        // TODO this will likely break with newer data
-
-        IdFor<Service> serviceId = MutableService.createId("L36549:20220627:20220630OVERLAY");
-
-        Service service = transportData.getServiceById(serviceId);
-
-        assertEquals(TramTime.of(20,11), service.getStartTime(), service.toString());
-        assertEquals(TramTime.of(22,53), service.getFinishTime(), service.toString());
-    }
-
-    @Test
-    void shouldRepdoIssueWithSpecificServiceTimingsWrongTripsB() {
-        // TODO this will likely break with newer data
-
-        IdFor<Service> serviceId = MutableService.createId("L36549:20220808:20220811OVERLAY");
-
-        Service service = transportData.getServiceById(serviceId);
-
-        assertEquals(TramTime.of(20,11), service.getStartTime(), service.toString());
-        assertEquals(TramTime.of(22,53), service.getFinishTime(), service.toString());
     }
 
     @Test

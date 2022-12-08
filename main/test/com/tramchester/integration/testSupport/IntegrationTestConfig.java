@@ -32,7 +32,7 @@ public abstract class IntegrationTestConfig extends TestConfig {
             LocalDate.of(2022,10,23),
             LocalDate.of(2022,11,29), false);
 
-    public static final List<StationClosures> CurrentClosures = List.of(piccGardensClosed);
+    public static final List<StationClosures> CurrentClosures = Collections.emptyList();
 
     protected IntegrationTestConfig(GraphDBTestConfig dbConfig) {
         final Path naptanLocalDataPath = Path.of("data/naptan");

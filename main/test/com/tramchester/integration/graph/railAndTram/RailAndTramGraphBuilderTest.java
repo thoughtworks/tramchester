@@ -51,8 +51,6 @@ class RailAndTramGraphBuilderTest {
     private Transaction txn;
     private GraphQuery graphQuery;
     private StationRepository stationRepository;
-    private TramRouteHelper tramRouteHelper;
-    private TramDate when;
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
@@ -65,10 +63,6 @@ class RailAndTramGraphBuilderTest {
     void beforeEachTestRuns() {
 
         transportData = componentContainer.get(TransportData.class);
-
-        tramRouteHelper = new TramRouteHelper(transportData);
-
-        when = TestEnv.testDay();
 
         graphQuery = componentContainer.get(GraphQuery.class);
         stationRepository = componentContainer.get(StationRepository.class);

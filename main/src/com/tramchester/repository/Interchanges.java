@@ -3,7 +3,6 @@ package com.tramchester.repository;
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.config.GTFSSourceConfig;
 import com.tramchester.config.TramchesterConfig;
-import com.tramchester.domain.Route;
 import com.tramchester.domain.StationLink;
 import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.id.IdFor;
@@ -163,7 +162,7 @@ public class Interchanges implements InterchangeRepository {
         return switch (mode) {
             case Ferry -> 2;
             case Bus -> 3;
-            case Tram, Subway, Train -> 3;
+            case Tram, Subway, Train, RailReplacementBus -> 3;
             default -> throw new RuntimeException("Todo for " + mode);
         };
     }

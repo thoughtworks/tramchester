@@ -23,13 +23,9 @@ gtfsSourceConfig:
     initialWaitMinutes: 13
     noServices: []
     markedInterchangesOnly: false
-    additionalInterchanges: [9400ZZMAGMX]
+    additionalInterchanges: [9400ZZMAGMX,9400ZZMAPIC]
     compositeStationModes: []
-    stationClosures:
-      - stations: [ "9400ZZMAPGD" ]
-        begin: 2022-10-23
-        end: 2022-11-29
-        fullyClosed: false
+    stationClosures: []
     addWalksForClosed: true
 remoteSources:
   - name: rail

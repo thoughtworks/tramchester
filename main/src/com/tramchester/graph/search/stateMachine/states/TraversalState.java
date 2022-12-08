@@ -212,24 +212,8 @@ public abstract class TraversalState implements ImmuatableTraversalState {
                 filter(relationship -> relationship.getEndNode().getId() != nodeId);
     }
 
-    /***
-     * Use getTotalDuration()
-     */
-    @Deprecated
-    public Duration getTotalCost() {
-        return getTotalDuration();
-    }
-
-    /***
-     * Use getCurrentDuration()
-     */
-    @Deprecated
-    private Duration getCurrentCost() {
-        return getCurrentDuration();
-    }
-
     public Duration getTotalDuration() {
-        return parentCost.plus(getCurrentCost());
+        return parentCost.plus(getCurrentDuration());
     }
 
     public Duration getCurrentDuration() {

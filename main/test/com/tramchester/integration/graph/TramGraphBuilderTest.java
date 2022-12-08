@@ -27,6 +27,7 @@ import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TramRouteHelper;
 import com.tramchester.testSupport.reference.KnownTramRoute;
 import com.tramchester.testSupport.reference.TramStations;
+import org.apache.commons.collections4.SetUtils;
 import org.assertj.core.util.Streams;
 import org.junit.jupiter.api.*;
 import org.neo4j.graphdb.*;
@@ -194,7 +195,10 @@ class TramGraphBuilderTest {
 
         IdSet<Station> fromDB = interchangeNodes.stream().map(GraphProps::getStationId).collect(IdSet.idCollector());
 
-        assertEquals(fromConfigAndDiscovered, fromDB, "Graph clean and rebuild needed?");
+        IdSet<Station> diffs = IdSet.disjunction(fromConfigAndDiscovered, fromDB);
+
+        assertTrue(diffs.isEmpty(), "Diff was " + diffs + " between expected "
+                + fromConfigAndDiscovered + " and DB " + fromDB);
     }
 
     @Test
