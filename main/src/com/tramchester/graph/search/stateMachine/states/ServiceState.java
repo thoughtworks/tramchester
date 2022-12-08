@@ -19,11 +19,6 @@ import static org.neo4j.graphdb.Direction.OUTGOING;
 
 public class ServiceState extends TraversalState {
 
-    @Override
-    public TraversalStateType getStateType() {
-        return TraversalStateType.ServiceState;
-    }
-
     public static class Builder implements Towards<ServiceState> {
 
         private final boolean depthFirst;
@@ -48,17 +43,17 @@ public class ServiceState extends TraversalState {
 
         public TraversalState fromRouteStation(RouteStationStateOnTrip state, IdFor<Trip> tripId, Node node, Duration cost) {
             Stream<Relationship> serviceRelationships = getHourRelationships(node);
-            return new ServiceState(state, serviceRelationships, ExistingTrip.onTrip(tripId), cost);
+            return new ServiceState(state, serviceRelationships, ExistingTrip.onTrip(tripId), cost, this);
         }
 
         public TraversalState fromRouteStation(RouteStationStateEndTrip endTrip, Node node, Duration cost) {
             Stream<Relationship> serviceRelationships = getHourRelationships(node);
-            return new ServiceState(endTrip, serviceRelationships, cost);
+            return new ServiceState(endTrip, serviceRelationships, cost, this);
         }
 
         public TraversalState fromRouteStation(JustBoardedState justBoarded, Node node, Duration cost) {
             Stream<Relationship> serviceRelationships = getHourRelationships(node);
-            return new ServiceState(justBoarded, serviceRelationships, cost);
+            return new ServiceState(justBoarded, serviceRelationships, cost, this);
         }
 
         private Stream<Relationship> getHourRelationships(Node node) {
@@ -83,13 +78,13 @@ public class ServiceState extends TraversalState {
     private final ExistingTrip maybeExistingTrip;
 
     private ServiceState(TraversalState parent, Stream<Relationship> relationships, ExistingTrip maybeExistingTrip,
-                         Duration cost) {
-        super(parent, relationships, cost);
+                         Duration cost, Towards<ServiceState> builder) {
+        super(parent, relationships, cost, builder.getDestination());
         this.maybeExistingTrip = maybeExistingTrip;
     }
 
-    private ServiceState(TraversalState parent, Stream<Relationship> relationships, Duration cost) {
-        super(parent, relationships, cost);
+    private ServiceState(TraversalState parent, Stream<Relationship> relationships, Duration cost, Towards<ServiceState> builder) {
+        super(parent, relationships, cost, builder.getDestination());
         this.maybeExistingTrip = ExistingTrip.none();
     }
 

@@ -13,10 +13,6 @@ import java.util.LinkedList;
  */
 public class DestinationState extends TraversalState
 {
-    @Override
-    public TraversalStateType getStateType() {
-        return TraversalStateType.DestinationState;
-    }
 
     public static class Builder implements Towards<DestinationState> {
 
@@ -34,25 +30,25 @@ public class DestinationState extends TraversalState
         }
 
         public DestinationState from(NoPlatformStationState noPlatformStation, Duration cost) {
-            return new DestinationState(noPlatformStation, cost);
+            return new DestinationState(noPlatformStation, cost, this);
         }
 
         public DestinationState from(WalkingState walkingState, Duration cost) {
-            return new DestinationState(walkingState, cost);
+            return new DestinationState(walkingState, cost, this);
         }
 
         public DestinationState from(PlatformStationState platformStationState, Duration cost) {
-            return new DestinationState(platformStationState, cost);
+            return new DestinationState(platformStationState, cost, this);
         }
 
         public DestinationState from(GroupedStationState groupedStationState, Duration cost) {
-            return new DestinationState(groupedStationState, cost);
+            return new DestinationState(groupedStationState, cost, this);
         }
 
     }
 
-    private DestinationState(TraversalState parent, Duration cost) {
-        super(parent, new LinkedList<>(), cost);
+    private DestinationState(TraversalState parent, Duration cost, Towards<DestinationState> builder) {
+        super(parent, new LinkedList<>(), cost, builder.getDestination());
     }
 
     @Override

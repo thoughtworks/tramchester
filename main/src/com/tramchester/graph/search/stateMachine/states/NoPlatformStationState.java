@@ -19,11 +19,6 @@ import static org.neo4j.graphdb.Direction.OUTGOING;
 
 public class NoPlatformStationState extends StationState {
 
-    @Override
-    public TraversalStateType getStateType() {
-        return TraversalStateType.NoPlatformStationState;
-    }
-
     public static class Builder extends StationStateBuilder implements TowardsStation<NoPlatformStationState> {
 
         @Override
@@ -45,7 +40,7 @@ public class NoPlatformStationState extends StationState {
         public NoPlatformStationState fromWalking(WalkingState walkingState, Node node, Duration cost, JourneyStateUpdate journeyState) {
             return new NoPlatformStationState(walkingState,
                     boardRelationshipsPlus(node, GROUPED_TO_PARENT, NEIGHBOUR),
-                    cost, node, journeyState);
+                    cost, node, journeyState, this);
         }
 
         public NoPlatformStationState fromStart(NotStartedState notStartedState, Node node, Duration cost,
@@ -54,7 +49,7 @@ public class NoPlatformStationState extends StationState {
             final Stream<Relationship> initial = boardRelationshipsPlus(node, WALKS_FROM_STATION, GROUPED_TO_PARENT);
             Stream<Relationship> relationships = addValidDiversions(node, initial, notStartedState, alreadyOnDiversion);
 
-            return new NoPlatformStationState(notStartedState, Stream.concat(neighbours, relationships), cost, node, journeyState);
+            return new NoPlatformStationState(notStartedState, Stream.concat(neighbours, relationships), cost, node, journeyState, this);
         }
 
         public TraversalState fromRouteStation(RouteStationStateEndTrip routeStationState, Node node, Duration cost,
@@ -62,26 +57,26 @@ public class NoPlatformStationState extends StationState {
             // end of a trip, may need to go back to this route station to catch new service
             final Stream<Relationship> initial = boardRelationshipsPlus(node, WALKS_FROM_STATION, NEIGHBOUR, GROUPED_TO_PARENT);
             Stream<Relationship> relationships = addValidDiversions(node, initial, routeStationState, alreadyOnDiversion);
-            return new NoPlatformStationState(routeStationState, relationships, cost, node, journeyState);
+            return new NoPlatformStationState(routeStationState, relationships, cost, node, journeyState, this);
         }
 
         public TraversalState fromRouteStation(RouteStationStateOnTrip onTrip, Node node, Duration cost, JourneyStateUpdate journeyState) {
             // filter so we don't just get straight back on tram if just boarded, or if we are on an existing trip
             final Stream<Relationship> relationships = boardRelationshipsPlus(node, WALKS_FROM_STATION, NEIGHBOUR, GROUPED_TO_PARENT);
             Stream<Relationship> stationRelationships = filterExcludingEndNode(relationships, onTrip);
-            return new NoPlatformStationState(onTrip, stationRelationships, cost, node, journeyState);
+            return new NoPlatformStationState(onTrip, stationRelationships, cost, node, journeyState, this);
         }
 
         public NoPlatformStationState fromNeighbour(StationState noPlatformStation, Node node, Duration cost, JourneyStateUpdate journeyState, boolean onDiversion) {
             return new NoPlatformStationState(noPlatformStation,
                     node.getRelationships(OUTGOING, BOARD, INTERCHANGE_BOARD, GROUPED_TO_PARENT),
-                    cost, node, journeyState);
+                    cost, node, journeyState, this);
         }
 
         public NoPlatformStationState fromGrouped(GroupedStationState groupedStationState, Node node, Duration cost, JourneyStateUpdate journeyState) {
             return new NoPlatformStationState(groupedStationState,
                     node.getRelationships(OUTGOING, BOARD, INTERCHANGE_BOARD, NEIGHBOUR),
-                    cost,  node, journeyState);
+                    cost,  node, journeyState, this);
         }
 
         Stream<Relationship> boardRelationshipsPlus(Node node, TransportRelationshipTypes... others) {
@@ -93,12 +88,14 @@ public class NoPlatformStationState extends StationState {
 
     }
 
-    private NoPlatformStationState(TraversalState parent, Stream<Relationship> relationships, Duration cost, Node stationNode, JourneyStateUpdate journeyState) {
-        super(parent, relationships, cost, stationNode, journeyState);
+    private NoPlatformStationState(TraversalState parent, Stream<Relationship> relationships, Duration cost, Node stationNode,
+                                   JourneyStateUpdate journeyState, TowardsStation<?> builder) {
+        super(parent, relationships, cost, stationNode, journeyState, builder);
     }
 
-    private NoPlatformStationState(TraversalState parent, Iterable<Relationship> relationships, Duration cost, Node stationNode, JourneyStateUpdate journeyState) {
-        super(parent, relationships, cost, stationNode, journeyState);
+    private NoPlatformStationState(TraversalState parent, Iterable<Relationship> relationships, Duration cost, Node stationNode,
+                                   JourneyStateUpdate journeyState, TowardsStation<?> builder) {
+        super(parent, relationships, cost, stationNode, journeyState, builder);
     }
 
     @Override

@@ -31,11 +31,12 @@ public abstract class TraversalState implements ImmuatableTraversalState {
 
     // only follow GOES_TO links for requested transport modes
     private final TransportRelationshipTypes[] requestedRelationshipTypes;
+    private final TraversalStateType stateType;
 
     private TraversalState child;
 
     // initial only
-    protected TraversalState(TraversalOps traversalOps, TraversalStateFactory traversalStateFactory, Set<TransportMode> requestedModes) {
+    protected TraversalState(TraversalOps traversalOps, TraversalStateFactory traversalStateFactory, Set<TransportMode> requestedModes, TraversalStateType stateType) {
         this.traversalOps = traversalOps;
         this.builders = traversalStateFactory;
         this.requestedRelationshipTypes = TransportRelationshipTypes.forModes(requestedModes);
@@ -44,13 +45,17 @@ public abstract class TraversalState implements ImmuatableTraversalState {
         this.parentCost = Duration.ZERO;
         this.parent = null;
         this.outbounds = new ArrayList<>();
+        this.stateType = stateType;
+        if (stateType!=TraversalStateType.NotStartedState) {
+            throw new RuntimeException("Attempt to create for incorrect initial state " + stateType);
+        }
     }
 
-    protected TraversalState(TraversalState parent, Stream<Relationship> outbounds, Duration costForLastEdge) {
-        this(parent, outbounds::iterator, costForLastEdge);
+    protected TraversalState(TraversalState parent, Stream<Relationship> outbounds, Duration costForLastEdge, TraversalStateType stateType) {
+        this(parent, outbounds::iterator, costForLastEdge, stateType);
     }
 
-    protected TraversalState(TraversalState parent, Iterable<Relationship> outbounds, Duration costForLastEdge) {
+    protected TraversalState(TraversalState parent, Iterable<Relationship> outbounds, Duration costForLastEdge, TraversalStateType stateType) {
         this.traversalOps = parent.traversalOps;
         this.builders = parent.builders;
         this.parent = parent;
@@ -60,6 +65,12 @@ public abstract class TraversalState implements ImmuatableTraversalState {
         this.parentCost = parent.getTotalDuration();
 
         this.requestedRelationshipTypes = parent.requestedRelationshipTypes;
+        this.stateType = stateType;
+    }
+
+    @Override
+    public TraversalStateType getStateType() {
+        return stateType;
     }
 
     public static Stream<Relationship> getRelationships(Node node, Direction direction, TransportRelationshipTypes types) {
@@ -107,70 +118,70 @@ public abstract class TraversalState implements ImmuatableTraversalState {
     }
 
     protected JustBoardedState toJustBoarded(JustBoardedState.Builder towardsJustBoarded, Node node, Duration cost, JourneyStateUpdate journeyState) {
-        throw new RuntimeException("No such transition at " + this.getClass());
+        throw new RuntimeException("No such transition at " + stateType);
     }
 
     protected TraversalState toWalk(WalkingState.Builder towardsWalk, Node node, Duration cost, JourneyStateUpdate journeyState) {
-        throw new RuntimeException("No such transition at " + this.getClass());
+        throw new RuntimeException("No such transition at " + stateType);
     }
 
     protected TraversalState toPlatform(PlatformState.Builder towardsPlatform, Node node, Duration cost, JourneyStateUpdate journeyState) {
-        throw new RuntimeException("No such transition at " + this.getClass());
+        throw new RuntimeException("No such transition at " + stateType);
     }
 
     protected TraversalState toService(ServiceState.Builder towardsService, Node node, Duration cost) {
-        throw new RuntimeException("No such transition at " + this.getClass());
+        throw new RuntimeException("No such transition at " + stateType);
     }
 
     protected TraversalState toNoPlatformStation(NoPlatformStationState.Builder towardsNoPlatformStation, Node node, Duration cost,
                                                  JourneyStateUpdate journeyState, boolean onDiversion) {
-        throw new RuntimeException("No such transition at " + this.getClass());
+        throw new RuntimeException("No such transition at " + stateType);
     }
 
     protected TraversalState toGrouped(GroupedStationState.Builder towardsGroup, Node node, Duration cost, JourneyStateUpdate journeyState) {
-        throw new RuntimeException("No such transition at " + this.getClass());
+        throw new RuntimeException("No such transition at " + stateType);
     }
 
     protected TraversalState toMinute(MinuteState.Builder towardsMinute, Node node, Duration cost, JourneyStateUpdate journeyState, TransportRelationshipTypes[] currentModes) {
-        throw new RuntimeException("No such transition at " + this.getClass());
+        throw new RuntimeException("No such transition at " + stateType);
     }
 
     protected PlatformStationState toTramStation(PlatformStationState.Builder towardsStation, Node node, Duration cost, JourneyStateUpdate journeyState, boolean onDiversion) {
-        throw new RuntimeException("No such transition at " + this.getClass());
+        throw new RuntimeException("No such transition at " + stateType);
     }
 
     protected void toDestination(DestinationState.Builder towardsDestination, Node node, Duration cost, JourneyStateUpdate journeyStateUpdate) {
-        throw new RuntimeException("No such transition at " + this.getClass());
+        throw new RuntimeException("No such transition at " + stateType);
     }
 
     protected HourState toHour(HourState.Builder towardsHour, Node node, Duration cost) {
-        throw new RuntimeException("No such transition at " + this.getClass());
+        throw new RuntimeException("No such transition at " + stateType);
     }
 
     protected RouteStationStateOnTrip toRouteStationOnTrip(RouteStationStateOnTrip.Builder towardsRouteStation,
                                                            Node node, Duration cost, boolean isInterchange) {
-        throw new RuntimeException("No such transition at " + this.getClass());
+        throw new RuntimeException("No such transition at " + stateType);
     }
 
     protected RouteStationStateEndTrip toRouteStationEndTrip(RouteStationStateEndTrip.Builder towardsRouteStation,
                                                              Node node, Duration cost, boolean isInterchange) {
-        throw new RuntimeException("No such transition at " + this.getClass());
+        throw new RuntimeException("No such transition at " + stateType);
     }
 
     private TraversalState toPlatformedStation(Node node, JourneyStateUpdate journeyState, Duration cost, boolean onDiversion) {
-        return toTramStation(builders.getTowardsStation(this.getStateType()), node, cost, journeyState, onDiversion);
+        return toTramStation(builders.getTowardsStation(stateType), node, cost, journeyState, onDiversion);
     }
 
     private TraversalState toStation(Node node, JourneyStateUpdate journeyState, Duration cost, boolean hasPlatforms, boolean onDiversion) {
         if (hasPlatforms) {
             return toPlatformedStation(node, journeyState, cost, onDiversion);
         } else {
-            return toNoPlatformStation(builders.getTowardsNoPlatformStation(this.getStateType()), node, cost, journeyState, onDiversion);
+            return toNoPlatformStation(builders.getTowardsNoPlatformStation(stateType), node, cost, journeyState, onDiversion);
         }
     }
 
     private TraversalState toGrouped(Node node, Duration cost, JourneyStateUpdate journeyState) {
-        return toGrouped(builders.getTowardsGroup(this.getStateType()), node, cost, journeyState);
+        return toGrouped(builders.getTowardsGroup(stateType), node, cost, journeyState);
     }
 
     private RouteStationState toRouteStation(TraversalStateType from, Node node, Duration cost, JourneyStateUpdate journeyState,

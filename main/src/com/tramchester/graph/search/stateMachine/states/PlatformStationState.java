@@ -14,11 +14,6 @@ import static org.neo4j.graphdb.Direction.OUTGOING;
 
 public class PlatformStationState extends StationState {
 
-    @Override
-    public TraversalStateType getStateType() {
-        return TraversalStateType.PlatformStationState;
-    }
-
     public static class Builder extends StationStateBuilder implements TowardsStation<PlatformStationState>  {
 
         @Override
@@ -39,7 +34,7 @@ public class PlatformStationState extends StationState {
         public PlatformStationState fromWalking(WalkingState walkingState, Node stationNode, Duration cost, JourneyStateUpdate journeyState) {
             final Iterable<Relationship> relationships = stationNode.getRelationships(OUTGOING, ENTER_PLATFORM, GROUPED_TO_PARENT,
                     NEIGHBOUR);
-            return new PlatformStationState(walkingState, relationships, cost, stationNode, journeyState);
+            return new PlatformStationState(walkingState, relationships, cost, stationNode, journeyState, this);
         }
 
         public PlatformStationState fromPlatform(PlatformState platformState, Node stationNode, Duration cost,
@@ -48,7 +43,7 @@ public class PlatformStationState extends StationState {
                     NEIGHBOUR, GROUPED_TO_PARENT);
             Stream<Relationship> relationships = addValidDiversions(stationNode, initial, platformState, onDiversion);
             return new PlatformStationState(platformState, filterExcludingEndNode(relationships, platformState), cost,
-                    stationNode, journeyState);
+                    stationNode, journeyState, this);
         }
 
         public PlatformStationState fromStart(NotStartedState notStartedState, Node stationNode, Duration cost,
@@ -58,32 +53,32 @@ public class PlatformStationState extends StationState {
                     GROUPED_TO_PARENT, ENTER_PLATFORM);
             Stream<Relationship> relationships = addValidDiversions(stationNode, initial, notStartedState, onDiversion);
 
-            return new PlatformStationState(notStartedState, Stream.concat(neighbours,relationships), cost, stationNode, journeyState);
+            return new PlatformStationState(notStartedState, Stream.concat(neighbours,relationships), cost, stationNode, journeyState, this);
         }
 
         @Override
         public PlatformStationState fromNeighbour(StationState stationState, Node stationNode, Duration cost, JourneyStateUpdate journeyState, boolean onDiversion) {
             final Iterable<Relationship> initial = stationNode.getRelationships(OUTGOING, ENTER_PLATFORM, GROUPED_TO_PARENT);
             Stream<Relationship> relationships = addValidDiversions(stationNode, initial, stationState, onDiversion);
-            return new PlatformStationState(stationState, relationships, cost, stationNode, journeyState);
+            return new PlatformStationState(stationState, relationships, cost, stationNode, journeyState, this);
         }
 
         public PlatformStationState fromGrouped(GroupedStationState groupedStationState, Node stationNode, Duration cost,
                                                 JourneyStateUpdate journeyState) {
             final Iterable<Relationship> relationships = stationNode.getRelationships(OUTGOING, ENTER_PLATFORM, NEIGHBOUR);
-            return new PlatformStationState(groupedStationState, relationships, cost, stationNode, journeyState);
+            return new PlatformStationState(groupedStationState, relationships, cost, stationNode, journeyState, this);
         }
 
     }
 
     private PlatformStationState(TraversalState parent, Stream<Relationship> relationships, Duration cost, Node stationNode,
-                                 JourneyStateUpdate journeyState) {
-        super(parent, relationships, cost, stationNode, journeyState);
+                                 JourneyStateUpdate journeyState, TowardsStation<?> builder) {
+        super(parent, relationships, cost, stationNode, journeyState, builder);
     }
 
     private PlatformStationState(TraversalState parent, Iterable<Relationship> relationships, Duration cost, Node stationNode,
-                                 JourneyStateUpdate journeyState) {
-        super(parent, relationships, cost, stationNode, journeyState);
+                                 JourneyStateUpdate journeyState, TowardsStation<?> builder) {
+        super(parent, relationships, cost, stationNode, journeyState, builder);
     }
 
     @Override

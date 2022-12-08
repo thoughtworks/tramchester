@@ -29,11 +29,6 @@ public class RouteStationStateOnTrip extends RouteStationState implements NodeId
     private final TransportMode transportMode;
     private final Node routeStationNode;
 
-    @Override
-    public TraversalStateType getStateType() {
-        return TraversalStateType.RouteStationStateOnTrip;
-    }
-
     public static class Builder extends TowardsRouteStation<RouteStationStateOnTrip> {
 
         private final NodeContentsRepository nodeContents;
@@ -64,7 +59,7 @@ public class RouteStationStateOnTrip extends RouteStationState implements NodeId
             List<Relationship> towardsDestination = getTowardsDestination(minuteState.traversalOps, node, date);
             if (!towardsDestination.isEmpty()) {
                 // we've nearly arrived
-                return new RouteStationStateOnTrip(minuteState, towardsDestination.stream(), cost, node, trip.getId(), transportMode);
+                return new RouteStationStateOnTrip(minuteState, towardsDestination.stream(), cost, node, trip.getId(), transportMode, this);
             }
 
             // outbound service relationships that continue the current trip
@@ -76,7 +71,7 @@ public class RouteStationStateOnTrip extends RouteStationState implements NodeId
             // NOTE: order of the concatenation matters here for depth first, need to do departs first to
             // explore routes including changes over continuing on possibly much longer trip
             final Stream<Relationship> relationships = Stream.concat(outboundsToFollow, towardsServiceForTrip);
-            return new RouteStationStateOnTrip(minuteState, relationships, cost, node, trip.getId(), transportMode);
+            return new RouteStationStateOnTrip(minuteState, relationships, cost, node, trip.getId(), transportMode, this);
         }
 
         private Stream<Relationship> filterByTripId(Iterable<Relationship> svcRelationships, Trip trip) {
@@ -88,8 +83,8 @@ public class RouteStationStateOnTrip extends RouteStationState implements NodeId
     }
 
     private RouteStationStateOnTrip(TraversalState parent, Stream<Relationship> relationships, Duration cost,
-                                    Node routeStationNode, IdFor<Trip> tripId, TransportMode transportMode) {
-        super(parent, relationships, cost);
+                                    Node routeStationNode, IdFor<Trip> tripId, TransportMode transportMode, TowardsRouteStation<RouteStationStateOnTrip> builder) {
+        super(parent, relationships, cost, builder);
         this.routeStationNode = routeStationNode;
         this.tripId = tripId;
         this.transportMode = transportMode;

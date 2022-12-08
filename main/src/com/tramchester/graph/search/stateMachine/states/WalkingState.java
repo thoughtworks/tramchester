@@ -15,11 +15,6 @@ import static org.neo4j.graphdb.Direction.OUTGOING;
 
 public class WalkingState extends TraversalState {
 
-    @Override
-    public TraversalStateType getStateType() {
-        return TraversalStateType.WalkingState;
-    }
-
     public static class Builder implements Towards<WalkingState> {
 
         @Override
@@ -43,26 +38,26 @@ public class WalkingState extends TraversalState {
 
             // prioritise a direct walk from start if one is available
             if (towardsDest.isEmpty()) {
-                return new WalkingState(notStartedState, relationships, cost);
+                return new WalkingState(notStartedState, relationships, cost, this);
             } else {
                 // direct
-                return new WalkingState(notStartedState, towardsDest.stream(), cost);
+                return new WalkingState(notStartedState, towardsDest.stream(), cost, this);
             }
         }
 
         public TraversalState fromStation(StationState station, Node node, Duration cost) {
             return new WalkingState(station,
-                    filterExcludingEndNode(node.getRelationships(OUTGOING), station), cost);
+                    filterExcludingEndNode(node.getRelationships(OUTGOING), station), cost, this);
         }
 
     }
 
-    private WalkingState(TraversalState parent, Stream<Relationship> relationships, Duration cost) {
-        super(parent, relationships, cost);
+    private WalkingState(TraversalState parent, Stream<Relationship> relationships, Duration cost, Towards<WalkingState> builder) {
+        super(parent, relationships, cost, builder.getDestination());
     }
 
-    private WalkingState(TraversalState parent, Iterable<Relationship> relationships, Duration cost) {
-        super(parent, relationships, cost);
+    private WalkingState(TraversalState parent, Iterable<Relationship> relationships, Duration cost, Towards<WalkingState> builder) {
+        super(parent, relationships, cost, builder.getDestination());
     }
 
     @Override

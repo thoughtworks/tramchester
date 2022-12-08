@@ -14,11 +14,6 @@ import static com.tramchester.graph.TransportRelationshipTypes.GROUPED_TO_CHILD;
 
 public class GroupedStationState extends TraversalState {
 
-    @Override
-    public TraversalStateType getStateType() {
-        return TraversalStateType.GroupedStationState;
-    }
-
     public static class Builder implements Towards<GroupedStationState> {
 
         // TODO map of accept states to outbound relationships
@@ -38,24 +33,24 @@ public class GroupedStationState extends TraversalState {
         public TraversalState fromChildStation(StationState stationState, Node node, Duration cost) {
             return new GroupedStationState(stationState,
                     filterExcludingEndNode(node.getRelationships(Direction.OUTGOING, GROUPED_TO_CHILD),stationState),
-                    cost, node.getId());
+                    cost, node.getId(), this);
         }
 
         public TraversalState fromStart(NotStartedState notStartedState, Node node, Duration cost) {
             return new GroupedStationState(notStartedState, node.getRelationships(Direction.OUTGOING, GROUPED_TO_CHILD),
-                    cost, node.getId());
+                    cost, node.getId(), this);
         }
     }
 
     private final long stationNodeId;
 
-    private GroupedStationState(TraversalState parent, Stream<Relationship> relationships, Duration cost, long stationNodeId) {
-        super(parent, relationships, cost);
+    private GroupedStationState(TraversalState parent, Stream<Relationship> relationships, Duration cost, long stationNodeId, Towards<GroupedStationState> builder) {
+        super(parent, relationships, cost, builder.getDestination());
         this.stationNodeId = stationNodeId;
     }
 
-    private GroupedStationState(TraversalState parent, Iterable<Relationship> relationships, Duration cost, long stationNodeId) {
-        super(parent, relationships, cost);
+    private GroupedStationState(TraversalState parent, Iterable<Relationship> relationships, Duration cost, long stationNodeId, Towards<GroupedStationState> builder) {
+        super(parent, relationships, cost, builder.getDestination());
         this.stationNodeId = stationNodeId;
     }
 

@@ -24,11 +24,6 @@ public class RouteStationStateEndTrip extends RouteStationState {
                 "} " + super.toString();
     }
 
-    @Override
-    public TraversalStateType getStateType() {
-        return TraversalStateType.RouteStationStateEndTrip;
-    }
-
     public static class Builder extends TowardsRouteStation<RouteStationStateEndTrip> {
 
         public Builder(boolean interchangesOnly) {
@@ -54,12 +49,12 @@ public class RouteStationStateEndTrip extends RouteStationState {
             List<Relationship> towardsDestination = getTowardsDestination(minuteState.traversalOps, node, date);
             if (!towardsDestination.isEmpty()) {
                 // we've nearly arrived
-                return new RouteStationStateEndTrip(minuteState, towardsDestination.stream(), cost, transportMode, node, trip);
+                return new RouteStationStateEndTrip(minuteState, towardsDestination.stream(), cost, transportMode, node, trip, this);
             }
 
             Stream<Relationship> outboundsToFollow = getOutboundsToFollow(node, isInterchange, date);
 
-            return new RouteStationStateEndTrip(minuteState, outboundsToFollow, cost, transportMode, node, trip);
+            return new RouteStationStateEndTrip(minuteState, outboundsToFollow, cost, transportMode, node, trip, this);
         }
 
     }
@@ -69,8 +64,8 @@ public class RouteStationStateEndTrip extends RouteStationState {
     private final Trip trip;
 
     private RouteStationStateEndTrip(MinuteState minuteState, Stream<Relationship> routeStationOutbound, Duration cost,
-                                     TransportMode mode, Node routeStationNode, Trip trip) {
-        super(minuteState, routeStationOutbound, cost);
+                                     TransportMode mode, Node routeStationNode, Trip trip, TowardsRouteStation<RouteStationStateEndTrip> builder) {
+        super(minuteState, routeStationOutbound, cost, builder);
         this.mode = mode;
         this.routeStationNode = routeStationNode;
         this.trip = trip;

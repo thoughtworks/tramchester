@@ -8,6 +8,7 @@ import com.tramchester.graph.search.JourneyStateUpdate;
 import com.tramchester.graph.search.stateMachine.ExistingTrip;
 import com.tramchester.graph.search.stateMachine.RegistersFromState;
 import com.tramchester.graph.search.stateMachine.Towards;
+import org.joda.time.Hours;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
 
@@ -18,11 +19,6 @@ import static com.tramchester.graph.TransportRelationshipTypes.TO_MINUTE;
 import static org.neo4j.graphdb.Direction.OUTGOING;
 
 public class HourState extends TraversalState {
-
-    @Override
-    public TraversalStateType getStateType() {
-        return TraversalStateType.HourState;
-    }
 
     public static class Builder implements Towards<HourState> {
 
@@ -36,7 +32,7 @@ public class HourState extends TraversalState {
 
         public HourState fromService(ServiceState serviceState, Node node, Duration cost, ExistingTrip maybeExistingTrip) {
             Stream<Relationship> relationships = getMinuteRelationships(node);
-            return new HourState(serviceState, relationships, maybeExistingTrip, cost);
+            return new HourState(serviceState, relationships, maybeExistingTrip, cost, this);
         }
 
         @Override
@@ -62,8 +58,8 @@ public class HourState extends TraversalState {
     private final ExistingTrip maybeExistingTrip;
 
     private HourState(TraversalState parent, Stream<Relationship> relationships,
-                      ExistingTrip maybeExistingTrip, Duration cost) {
-        super(parent, relationships, cost);
+                      ExistingTrip maybeExistingTrip, Duration cost, Towards<HourState> builder) {
+        super(parent, relationships, cost, builder.getDestination());
         this.maybeExistingTrip = maybeExistingTrip;
     }
 

@@ -11,7 +11,7 @@ import java.util.Set;
 public class NotStartedState extends TraversalState {
 
     public NotStartedState(TraversalOps traversalOps, TraversalStateFactory traversalStateFactory, Set<TransportMode> requestedModes) {
-        super(traversalOps, traversalStateFactory, requestedModes);
+        super(traversalOps, traversalStateFactory, requestedModes, TraversalStateType.NotStartedState);
     }
 
     @Override

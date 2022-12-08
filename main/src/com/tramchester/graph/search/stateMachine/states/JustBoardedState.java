@@ -15,11 +15,6 @@ import static org.neo4j.graphdb.Direction.OUTGOING;
 
 public class JustBoardedState extends RouteStationState {
 
-    @Override
-    public TraversalStateType getStateType() {
-        return TraversalStateType.JustBoardedState;
-    }
-
     public static class Builder extends TowardsRouteStation<JustBoardedState> {
 
         private final boolean depthFirst;
@@ -53,14 +48,14 @@ public class JustBoardedState extends RouteStationState {
                 services = Streams.stream(node.getRelationships(OUTGOING, TO_SERVICE));
             }
 
-            return new JustBoardedState(platformState, Stream.concat(services, otherPlatforms), cost);
+            return new JustBoardedState(platformState, Stream.concat(services, otherPlatforms), cost, this);
         }
 
         public JustBoardedState fromNoPlatformStation(NoPlatformStationState noPlatformStation, Node node, Duration cost) {
             Stream<Relationship> filteredDeparts = filterExcludingEndNode(node.getRelationships(OUTGOING, DEPART, INTERCHANGE_DEPART, DIVERSION_DEPART),
                     noPlatformStation);
             Stream<Relationship> services = orderServicesByRouteMetric(node, noPlatformStation.traversalOps);
-            return new JustBoardedState(noPlatformStation, Stream.concat(filteredDeparts, services), cost);
+            return new JustBoardedState(noPlatformStation, Stream.concat(filteredDeparts, services), cost, this);
         }
 
         /**
@@ -90,8 +85,8 @@ public class JustBoardedState extends RouteStationState {
         return "RouteStationStateJustBoarded{} " + super.toString();
     }
 
-    private JustBoardedState(TraversalState traversalState, Stream<Relationship> outbounds, Duration cost) {
-        super(traversalState, outbounds, cost);
+    private JustBoardedState(TraversalState traversalState, Stream<Relationship> outbounds, Duration cost, TowardsRouteStation<?> builder) {
+        super(traversalState, outbounds, cost, builder);
     }
 
     @Override

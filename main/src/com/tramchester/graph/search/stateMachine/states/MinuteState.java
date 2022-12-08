@@ -14,7 +14,6 @@ import com.tramchester.graph.search.stateMachine.RegistersFromState;
 import com.tramchester.graph.search.stateMachine.Towards;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
-import org.neo4j.graphdb.RelationshipType;
 
 import java.time.Duration;
 import java.util.List;
@@ -24,11 +23,6 @@ import static com.tramchester.graph.GraphPropertyKey.TRIP_ID;
 import static org.neo4j.graphdb.Direction.OUTGOING;
 
 public class MinuteState extends TraversalState {
-
-    @Override
-    public TraversalStateType getStateType() {
-        return TraversalStateType.MinuteState;
-    }
 
     public static class Builder implements Towards<MinuteState> {
 
@@ -59,12 +53,12 @@ public class MinuteState extends TraversalState {
             if (existingTrip.isOnTrip()) {
                 IdFor<Trip> existingTripId = existingTrip.getTripId();
                 List<Relationship> filterBySingleTripId = filterBySingleTripId(relationships, existingTripId);
-                return new MinuteState(hourState, filterBySingleTripId, existingTripId, cost, changeAtInterchangeOnly);
+                return new MinuteState(hourState, filterBySingleTripId, existingTripId, cost, changeAtInterchangeOnly, this);
             } else {
                 // starting a brand-new journey, since at minute node now have specific tripid to use
                 IdFor<Trip> newTripId = getTrip(node);
                 journeyState.beginTrip(newTripId);
-                return new MinuteState(hourState, relationships, newTripId, cost, changeAtInterchangeOnly);
+                return new MinuteState(hourState, relationships, newTripId, cost, changeAtInterchangeOnly, this);
             }
         }
 
@@ -80,8 +74,8 @@ public class MinuteState extends TraversalState {
     private final Trip trip;
 
     private MinuteState(TraversalState parent, Iterable<Relationship> relationships, IdFor<Trip> tripId, Duration cost,
-                        boolean interchangesOnly) {
-        super(parent, relationships, cost);
+                        boolean interchangesOnly, Towards<MinuteState> builder) {
+        super(parent, relationships, cost, builder.getDestination());
         this.trip = traversalOps.getTrip(tripId);
         this.interchangesOnly = interchangesOnly;
     }
