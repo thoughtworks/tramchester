@@ -97,33 +97,14 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
         }
 
         final ReasonCode reasonCode = doEvaluate(path, journeyState, nextNode, labels);
-        final Evaluation result = decideEvaluationAction(reasonCode);
+        final Evaluation result = reasonCode.getEvaluation();
 
         previousVisits.recordVisitIfUseful(reasonCode, nextNode, journeyState, labels);
 
         return result;
     }
 
-    public static Evaluation decideEvaluationAction(ReasonCode code) {
-        return switch (code) {
-            case ServiceDateOk, ServiceTimeOk, NumChangesOK, NumConnectionsOk, TimeOk, HourOk, Reachable, ReachableNoCheck,
-                    DurationOk, WalkOk, StationOpen, Continue, ReachableSameRoute, TransportModeOk
-                    -> Evaluation.INCLUDE_AND_CONTINUE;
-            case Arrived
-                    -> Evaluation.INCLUDE_AND_PRUNE;
-            case HigherCost, ReturnedToStart, PathTooLong, TooManyChanges, TooManyWalkingConnections, NotReachable,
-                    TookTooLong, ServiceNotRunningAtTime, NotAtHour, DoesNotOperateOnTime, NotOnQueryDate, MoreChanges,
-                    AlreadyDeparted, StationClosed, TooManyNeighbourConnections, TimedOut, RouteNotOnQueryDate, HigherCostViaExchange,
-                    ExchangeNotReachable, TooManyRouteChangesRequired, TooManyInterchangesRequired, AlreadySeenStation,
-                    TransportModeWrong, SameTrip
-                    -> Evaluation.EXCLUDE_AND_PRUNE;
-            case OnTram, OnBus, OnTrain, NotOnVehicle, CachedUNKNOWN, PreviousCacheMiss, NumWalkingConnectionsOk,
-                    NeighbourConnectionsOk, OnShip, OnSubway, OnWalk, CachedNotAtHour,
-                    CachedDoesNotOperateOnTime, CachedTooManyRouteChangesRequired, CachedRouteNotOnQueryDate,
-                    CachedNotOnQueryDate, CachedTooManyInterchangesRequired
-                    -> throw new RuntimeException("Unexpected reason-code during evaluation: " + code.name());
-        };
-    }
+
 
     private ReasonCode doEvaluate(Path thePath, ImmutableJourneyState journeyState, Node nextNode,
                                   EnumSet<GraphLabel> nodeLabels) {
