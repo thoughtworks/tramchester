@@ -13,19 +13,24 @@ import java.util.LinkedList;
  */
 public class DestinationState extends TraversalState
 {
+    @Override
+    public TraversalStateType getStateType() {
+        return TraversalStateType.DestinationState;
+    }
+
     public static class Builder implements Towards<DestinationState> {
 
         @Override
         public void register(RegistersFromState registers) {
-            registers.add(NoPlatformStationState.class, this);
-            registers.add(WalkingState.class, this);
-            registers.add(PlatformStationState.class, this);
-            registers.add(GroupedStationState.class, this);
+            registers.add(TraversalStateType.NoPlatformStationState, this);
+            registers.add(TraversalStateType.WalkingState, this);
+            registers.add(TraversalStateType.PlatformStationState, this);
+            registers.add(TraversalStateType.GroupedStationState, this);
         }
 
         @Override
-        public Class<DestinationState> getDestination() {
-            return DestinationState.class;
+        public TraversalStateType getDestination() {
+            return TraversalStateType.DestinationState;
         }
 
         public DestinationState from(NoPlatformStationState noPlatformStation, Duration cost) {

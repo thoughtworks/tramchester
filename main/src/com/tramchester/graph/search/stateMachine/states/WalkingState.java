@@ -15,21 +15,26 @@ import static org.neo4j.graphdb.Direction.OUTGOING;
 
 public class WalkingState extends TraversalState {
 
+    @Override
+    public TraversalStateType getStateType() {
+        return TraversalStateType.WalkingState;
+    }
+
     public static class Builder implements Towards<WalkingState> {
 
         @Override
         public void register(RegistersFromState registers) {
-            registers.add(NotStartedState.class, this);
-            registers.add(NoPlatformStationState.class, this);
-            registers.add(PlatformStationState.class, this);
+            registers.add(TraversalStateType.NotStartedState, this);
+            registers.add(TraversalStateType.NoPlatformStationState, this);
+            registers.add(TraversalStateType.PlatformStationState, this);
 
             // todo needed?
             //registers.add(GroupedStationState.class, this);
         }
 
         @Override
-        public Class<WalkingState> getDestination() {
-            return WalkingState.class;
+        public TraversalStateType getDestination() {
+            return TraversalStateType.WalkingState;
         }
 
         public TraversalState fromStart(NotStartedState notStartedState, Node firstNode, Duration cost) {

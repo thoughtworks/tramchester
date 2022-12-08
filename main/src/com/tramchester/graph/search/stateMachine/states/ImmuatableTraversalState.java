@@ -13,4 +13,6 @@ public interface ImmuatableTraversalState {
 
     TraversalState nextState(Set<GraphLabel> nodeLabels, Node node,
                              JourneyStateUpdate journeyState, Duration duration, boolean alreadyOnDiversion);
+
+    TraversalStateType getStateType();
 }

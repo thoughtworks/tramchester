@@ -5,6 +5,7 @@ import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.search.*;
+import com.tramchester.graph.search.stateMachine.states.TraversalStateType;
 import org.apache.commons.lang3.tuple.Pair;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Transaction;
@@ -34,7 +35,7 @@ public class ServiceReasons {
     private final List<HeuristicsReason> reasons;
     // stats
     private final Map<ReasonCode, AtomicInteger> reasonCodeStats; // reason -> count
-    private final Map<String, AtomicInteger> stateStats; // State -> num visits
+    private final Map<TraversalStateType, AtomicInteger> stateStats; // State -> num visits
     private final Map<Long, AtomicInteger> nodeVisits; // count of visits to nodes
     private final AtomicInteger totalChecked = new AtomicInteger(0);
     private final boolean diagnosticsEnabled;
@@ -152,11 +153,11 @@ public class ServiceReasons {
         final ReasonCode reason = getReasonCode(journeyState.getTransportMode());
         incrementStat(reason);
 
-        final String stateName = journeyState.getTraversalState().getClass().getSimpleName();
-        if (stateStats.containsKey(stateName)) {
-            stateStats.get(stateName).incrementAndGet();
+        final TraversalStateType stateType = journeyState.getTraversalState().getStateType();
+        if (stateStats.containsKey(stateType)) {
+            stateStats.get(stateType).incrementAndGet();
         } else {
-            stateStats.put(stateName, new AtomicInteger(1));
+            stateStats.put(stateType, new AtomicInteger(1));
         }
     }
 

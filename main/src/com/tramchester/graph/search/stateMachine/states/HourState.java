@@ -19,6 +19,11 @@ import static org.neo4j.graphdb.Direction.OUTGOING;
 
 public class HourState extends TraversalState {
 
+    @Override
+    public TraversalStateType getStateType() {
+        return TraversalStateType.HourState;
+    }
+
     public static class Builder implements Towards<HourState> {
 
         private final boolean depthFirst;
@@ -36,12 +41,12 @@ public class HourState extends TraversalState {
 
         @Override
         public void register(RegistersFromState registers) {
-            registers.add(ServiceState.class, this);
+            registers.add(TraversalStateType.ServiceState, this);
         }
 
         @Override
-        public Class<HourState> getDestination() {
-            return HourState.class;
+        public TraversalStateType getDestination() {
+            return TraversalStateType.HourState;
         }
 
         private Stream<Relationship> getMinuteRelationships(Node node) {

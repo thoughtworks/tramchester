@@ -14,20 +14,25 @@ import static com.tramchester.graph.TransportRelationshipTypes.GROUPED_TO_CHILD;
 
 public class GroupedStationState extends TraversalState {
 
+    @Override
+    public TraversalStateType getStateType() {
+        return TraversalStateType.GroupedStationState;
+    }
+
     public static class Builder implements Towards<GroupedStationState> {
 
         // TODO map of accept states to outbound relationships
 
         @Override
         public void register(RegistersFromState registers) {
-            registers.add(PlatformStationState.class, this);
-            registers.add(NoPlatformStationState.class, this);
-            registers.add(NotStartedState.class, this);
+            registers.add(TraversalStateType.PlatformStationState, this);
+            registers.add(TraversalStateType.NoPlatformStationState, this);
+            registers.add(TraversalStateType.NotStartedState, this);
         }
 
         @Override
-        public Class<GroupedStationState> getDestination() {
-            return GroupedStationState.class;
+        public TraversalStateType getDestination() {
+            return TraversalStateType.GroupedStationState;
         }
 
         public TraversalState fromChildStation(StationState stationState, Node node, Duration cost) {

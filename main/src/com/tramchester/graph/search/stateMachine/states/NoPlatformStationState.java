@@ -19,22 +19,27 @@ import static org.neo4j.graphdb.Direction.OUTGOING;
 
 public class NoPlatformStationState extends StationState {
 
+    @Override
+    public TraversalStateType getStateType() {
+        return TraversalStateType.NoPlatformStationState;
+    }
+
     public static class Builder extends StationStateBuilder implements TowardsStation<NoPlatformStationState> {
 
         @Override
         public void register(RegistersFromState registers) {
-            registers.add(WalkingState.class, this);
-            registers.add(NotStartedState.class, this);
-            registers.add(RouteStationStateOnTrip.class, this);
-            registers.add(RouteStationStateEndTrip.class, this);
-            registers.add(NoPlatformStationState.class, this);
-            registers.add(PlatformStationState.class, this);
-            registers.add(GroupedStationState.class, this);
+            registers.add(TraversalStateType.WalkingState, this);
+            registers.add(TraversalStateType.NotStartedState, this);
+            registers.add(TraversalStateType.RouteStationStateOnTrip, this);
+            registers.add(TraversalStateType.RouteStationStateEndTrip, this);
+            registers.add(TraversalStateType.NoPlatformStationState, this);
+            registers.add(TraversalStateType.PlatformStationState, this);
+            registers.add(TraversalStateType.GroupedStationState, this);
         }
 
         @Override
-        public Class<NoPlatformStationState> getDestination() {
-            return NoPlatformStationState.class;
+        public TraversalStateType getDestination() {
+            return TraversalStateType.NoPlatformStationState;
         }
 
         public NoPlatformStationState fromWalking(WalkingState walkingState, Node node, Duration cost, JourneyStateUpdate journeyState) {

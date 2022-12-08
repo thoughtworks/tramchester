@@ -60,7 +60,7 @@ public class TraversalStateFactory {
         logger.info("stopped");
     }
 
-    private <S extends TraversalState, T extends Towards<S>> T getFor(Class<? extends TraversalState> from, Class<S> to) {
+    private <S extends TraversalState, T extends Towards<S>> T  getFor(TraversalStateType from, TraversalStateType to) {
         if (!running) {
             // help to diagnose / pinpoint issues with timeout causing shutdown from integration tests
             throw new RuntimeException("Not running");
@@ -68,51 +68,59 @@ public class TraversalStateFactory {
         return registersStates.getBuilderFor(from,to);
     }
 
-    public HourState.Builder getTowardsHour(Class<? extends TraversalState> from) {
-        return getFor(from, HourState.class);
+//    private <S extends TraversalState, T extends Towards<S>> T getFor(Class<? extends TraversalState> from, Class<S> to) {
+//        if (!running) {
+//            // help to diagnose / pinpoint issues with timeout causing shutdown from integration tests
+//            throw new RuntimeException("Not running");
+//        }
+//        return registersStates.getBuilderFor(from,to);
+//    }
+
+    public HourState.Builder getTowardsHour(TraversalStateType from) {
+        return getFor(from, TraversalStateType.HourState);
     }
 
-    public PlatformStationState.Builder getTowardsStation(Class<? extends TraversalState> from) {
-        return getFor(from, PlatformStationState.class);
+    public PlatformStationState.Builder getTowardsStation(TraversalStateType from) {
+        return getFor(from, TraversalStateType.PlatformStationState);
     }
 
-    public DestinationState.Builder getTowardsDestination(Class<? extends TraversalState> from) {
-        return getFor(from, DestinationState.class);
+    public DestinationState.Builder getTowardsDestination(TraversalStateType from) {
+        return getFor(from, TraversalStateType.DestinationState);
     }
 
-    public MinuteState.Builder getTowardsMinute(Class<? extends TraversalState> from) {
-        return getFor(from, MinuteState.class);
+    public MinuteState.Builder getTowardsMinute(TraversalStateType from) {
+        return getFor(from, TraversalStateType.MinuteState);
     }
 
-    public GroupedStationState.Builder getTowardsGroup(Class<? extends TraversalState> from) {
-        return getFor(from, GroupedStationState.class);
+    public GroupedStationState.Builder getTowardsGroup(TraversalStateType from) {
+        return getFor(from, TraversalStateType.GroupedStationState);
     }
 
-    public NoPlatformStationState.Builder getTowardsNoPlatformStation(Class<? extends TraversalState> from) {
-        return getFor(from, NoPlatformStationState.class);
+    public NoPlatformStationState.Builder getTowardsNoPlatformStation(TraversalStateType from) {
+        return getFor(from, TraversalStateType.NoPlatformStationState);
     }
 
-    public ServiceState.Builder getTowardsService(Class<? extends TraversalState> from) {
-        return getFor(from, ServiceState.class);
+    public ServiceState.Builder getTowardsService(TraversalStateType from) {
+        return getFor(from, TraversalStateType.ServiceState);
     }
 
-    public PlatformState.Builder getTowardsPlatform(Class<? extends TraversalState> from) {
-        return getFor(from, PlatformState.class);
+    public PlatformState.Builder getTowardsPlatform(TraversalStateType from) {
+        return getFor(from, TraversalStateType.PlatformState);
     }
 
-    public WalkingState.Builder getTowardsWalk(Class<? extends TraversalState> from) {
-        return getFor(from, WalkingState.class);
+    public WalkingState.Builder getTowardsWalk(TraversalStateType from) {
+        return getFor(from, TraversalStateType.WalkingState);
     }
 
-    public JustBoardedState.Builder getTowardsJustBoarded(Class<? extends TraversalState> from) {
-        return getFor(from, JustBoardedState.class);
+    public JustBoardedState.Builder getTowardsJustBoarded(TraversalStateType from) {
+        return getFor(from, TraversalStateType.JustBoardedState);
     }
 
-    public RouteStationStateOnTrip.Builder getTowardsRouteStationOnTrip(Class<? extends TraversalState> from) {
-        return getFor(from, RouteStationStateOnTrip.class);
+    public RouteStationStateOnTrip.Builder getTowardsRouteStationOnTrip(TraversalStateType from) {
+        return getFor(from, TraversalStateType.RouteStationStateOnTrip);
     }
 
-    public RouteStationStateEndTrip.Builder getTowardsRouteStationEndTrip(Class<? extends TraversalState> from) {
-        return getFor(from, RouteStationStateEndTrip.class);
+    public RouteStationStateEndTrip.Builder getTowardsRouteStationEndTrip(TraversalStateType from) {
+        return getFor(from, TraversalStateType.RouteStationStateEndTrip);
     }
 }

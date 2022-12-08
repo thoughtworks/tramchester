@@ -24,6 +24,11 @@ public class RouteStationStateEndTrip extends RouteStationState {
                 "} " + super.toString();
     }
 
+    @Override
+    public TraversalStateType getStateType() {
+        return TraversalStateType.RouteStationStateEndTrip;
+    }
+
     public static class Builder extends TowardsRouteStation<RouteStationStateEndTrip> {
 
         public Builder(boolean interchangesOnly) {
@@ -32,12 +37,12 @@ public class RouteStationStateEndTrip extends RouteStationState {
 
         @Override
         public void register(RegistersFromState registers) {
-            registers.add(MinuteState.class, this);
+            registers.add(TraversalStateType.MinuteState, this);
         }
 
         @Override
-        public Class<RouteStationStateEndTrip> getDestination() {
-            return RouteStationStateEndTrip.class;
+        public TraversalStateType getDestination() {
+            return TraversalStateType.RouteStationStateEndTrip;
         }
 
         public RouteStationStateEndTrip fromMinuteState(MinuteState minuteState, Node node, Duration cost, boolean isInterchange, Trip trip) {

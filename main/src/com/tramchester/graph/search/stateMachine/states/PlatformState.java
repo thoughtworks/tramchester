@@ -20,18 +20,23 @@ import static org.neo4j.graphdb.Direction.OUTGOING;
 
 public class PlatformState extends TraversalState implements NodeId {
 
+    @Override
+    public TraversalStateType getStateType() {
+        return TraversalStateType.PlatformState;
+    }
+
     public static class Builder implements Towards<PlatformState> {
 
         @Override
         public void register(RegistersFromState registers) {
-            registers.add(PlatformStationState.class, this);
-            registers.add(RouteStationStateOnTrip.class, this);
-            registers.add(RouteStationStateEndTrip.class, this);
+            registers.add(TraversalStateType.PlatformStationState, this);
+            registers.add(TraversalStateType.RouteStationStateOnTrip, this);
+            registers.add(TraversalStateType.RouteStationStateEndTrip, this);
         }
 
         @Override
-        public Class<PlatformState> getDestination() {
-            return PlatformState.class;
+        public TraversalStateType getDestination() {
+            return TraversalStateType.PlatformState;
         }
 
         public PlatformState from(PlatformStationState platformStationState, Node node, Duration cost) {

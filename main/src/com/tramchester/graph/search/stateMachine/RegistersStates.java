@@ -2,6 +2,7 @@ package com.tramchester.graph.search.stateMachine;
 
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.graph.search.stateMachine.states.TraversalState;
+import com.tramchester.graph.search.stateMachine.states.TraversalStateType;
 
 import javax.inject.Inject;
 import java.util.HashMap;
@@ -17,7 +18,7 @@ public class RegistersStates implements RegistersFromState {
         map = new HashMap<>();
     }
 
-    public <S extends TraversalState, T extends Towards<S>> T getBuilderFor(Class<? extends TraversalState> from, Class<S> to) {
+    public <S extends TraversalState, T extends Towards<S>> T getBuilderFor(TraversalStateType from, TraversalStateType to) {
         final FromTo key = new FromTo(from, to);
 
         if (!map.containsKey(key)) {
@@ -31,7 +32,7 @@ public class RegistersStates implements RegistersFromState {
     }
 
     @Override
-    public <T extends TraversalState> void add(Class<? extends TraversalState> from, Towards<T> builder) {
+    public <T extends TraversalState> void add(TraversalStateType from, Towards<T> builder) {
         map.put(new FromTo(from, builder.getDestination()), builder);
     }
 
@@ -45,10 +46,10 @@ public class RegistersStates implements RegistersFromState {
 
     public static class FromTo {
 
-        private final Class<? extends TraversalState> from;
-        private final Class<? extends TraversalState> to;
+        private final TraversalStateType from;
+        private final TraversalStateType to;
 
-        public FromTo(Class<? extends TraversalState> from, Class<? extends TraversalState> to) {
+        public FromTo(TraversalStateType from, TraversalStateType to) {
 
             this.from = from;
             this.to = to;
@@ -75,16 +76,16 @@ public class RegistersStates implements RegistersFromState {
         @Override
         public String toString() {
             return "FromTo{" +
-                    "from=" + from.getSimpleName() +
-                    ", to=" + to.getSimpleName() +
+                    "from=" + from.name() +
+                    ", to=" + to.name() +
                     '}';
         }
 
-        public Class<? extends TraversalState> getFrom() {
+        public TraversalStateType getFrom() {
             return from;
         }
 
-        public Class<? extends TraversalState> getTo() {
+        public TraversalStateType getTo() {
             return to;
         }
     }

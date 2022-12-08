@@ -29,6 +29,11 @@ public class RouteStationStateOnTrip extends RouteStationState implements NodeId
     private final TransportMode transportMode;
     private final Node routeStationNode;
 
+    @Override
+    public TraversalStateType getStateType() {
+        return TraversalStateType.RouteStationStateOnTrip;
+    }
+
     public static class Builder extends TowardsRouteStation<RouteStationStateOnTrip> {
 
         private final NodeContentsRepository nodeContents;
@@ -40,12 +45,12 @@ public class RouteStationStateOnTrip extends RouteStationState implements NodeId
 
         @Override
         public void register(RegistersFromState registers) {
-            registers.add(MinuteState.class, this);
+            registers.add(TraversalStateType.MinuteState, this);
         }
 
         @Override
-        public Class<RouteStationStateOnTrip> getDestination() {
-            return RouteStationStateOnTrip.class;
+        public TraversalStateType getDestination() {
+            return TraversalStateType.RouteStationStateOnTrip;
         }
 
         public RouteStationStateOnTrip fromMinuteState(MinuteState minuteState, Node node, Duration cost,

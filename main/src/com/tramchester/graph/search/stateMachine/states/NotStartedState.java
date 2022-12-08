@@ -25,6 +25,11 @@ public class NotStartedState extends TraversalState {
     }
 
     @Override
+    public TraversalStateType getStateType() {
+        return TraversalStateType.NotStartedState;
+    }
+
+    @Override
     protected TraversalState toWalk(WalkingState.Builder towardsWalk, Node node, Duration cost, JourneyStateUpdate journeyState) {
         journeyState.beginWalk(node, true, cost);
         return towardsWalk.fromStart(this, node, cost);

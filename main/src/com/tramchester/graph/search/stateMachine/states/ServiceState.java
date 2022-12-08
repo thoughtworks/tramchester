@@ -19,6 +19,11 @@ import static org.neo4j.graphdb.Direction.OUTGOING;
 
 public class ServiceState extends TraversalState {
 
+    @Override
+    public TraversalStateType getStateType() {
+        return TraversalStateType.ServiceState;
+    }
+
     public static class Builder implements Towards<ServiceState> {
 
         private final boolean depthFirst;
@@ -31,14 +36,14 @@ public class ServiceState extends TraversalState {
 
         @Override
         public void register(RegistersFromState registers) {
-            registers.add(RouteStationStateOnTrip.class, this);
-            registers.add(RouteStationStateEndTrip.class, this);
-            registers.add(JustBoardedState.class, this);
+            registers.add(TraversalStateType.RouteStationStateOnTrip, this);
+            registers.add(TraversalStateType.RouteStationStateEndTrip, this);
+            registers.add(TraversalStateType.JustBoardedState, this);
         }
 
         @Override
-        public Class<ServiceState> getDestination() {
-            return ServiceState.class;
+        public TraversalStateType getDestination() {
+            return TraversalStateType.ServiceState;
         }
 
         public TraversalState fromRouteStation(RouteStationStateOnTrip state, IdFor<Trip> tripId, Node node, Duration cost) {
