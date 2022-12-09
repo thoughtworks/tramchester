@@ -47,7 +47,6 @@ public class MinuteState extends TraversalState {
         public TraversalState fromHour(HourState hourState, Node node, Duration cost, ExistingTrip existingTrip,
                                        JourneyStateUpdate journeyState, TransportRelationshipTypes[] currentModes) {
 
-            //Iterable<Relationship> relationships = node.getRelationships(OUTGOING, TRAM_GOES_TO, BUS_GOES_TO, TRAIN_GOES_TO, FERRY_GOES_TO, SUBWAY_GOES_TO);
             Iterable<Relationship> relationships = node.getRelationships(OUTGOING, currentModes);
 
             if (existingTrip.isOnTrip()) {

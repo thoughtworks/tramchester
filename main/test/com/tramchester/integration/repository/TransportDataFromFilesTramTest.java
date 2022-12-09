@@ -410,15 +410,15 @@ public class TransportDataFromFilesTramTest {
 
     @Test
     void shouldHaveServicesThatIncludeDateInRange() {
-        TramDate date = TramDate.of(2022,11,21);
+        //TramDate date = TramDate.of(2022,11,21);
 
         Set<Service> allServices = transportData.getServices();
 
-        Set<Service> includeDate = allServices.stream().filter(service -> service.getCalendar().getDateRange().contains(date)).collect(Collectors.toSet());
+        Set<Service> includeDate = allServices.stream().filter(service -> service.getCalendar().getDateRange().contains(when)).collect(Collectors.toSet());
 
         assertFalse(includeDate.isEmpty());
 
-        Set<Service> onActualDate = includeDate.stream().filter(service -> service.getCalendar().operatesOn(date)).collect(Collectors.toSet());
+        Set<Service> onActualDate = includeDate.stream().filter(service -> service.getCalendar().operatesOn(when)).collect(Collectors.toSet());
 
         assertFalse(onActualDate.isEmpty());
     }

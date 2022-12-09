@@ -117,7 +117,7 @@ public class RunningRoutesAndServicesTest {
         EnumSet<DayOfWeek> weekdays = EnumSet.of(MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY);
         final EnumSet<DayOfWeek> saturdays = EnumSet.of(SATURDAY);
 
-        TramDate testDay = TestEnv.nextMonday().plusWeeks(1);
+        TramDate testDay = TestEnv.nextMonday();
 
         while (testDay.isChristmasPeriod()) {
             testDay = testDay.plusWeeks(1);

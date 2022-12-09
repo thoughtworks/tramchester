@@ -42,12 +42,6 @@ public enum KnownTramRoute {
     TheTraffordCentreCornbrook("Red Line", Inbound, "The Trafford Centre - Cornbrook"),
     CornbrookTheTraffordCentre("Red Line", Outbound, "Cornbrook - The Trafford Centre");
 
-    //AltrinchamStPetersSquare("Purple Line", Inbound, "Altrincham - St Peter's Square"),
-    //StPetersSquareAltrincham("Purple Line", Outbound, "St Peter's Square  - Altrincham"), // note: extra space after Square, in source data
-
-    //AshtonCrumpsall("Yellow Line", Outbound, "Ashton - Crumpsall"),
-    //CrumpsallAshton("Yellow Line", Inbound, "Crumpsall - Ashton");
-
     private final IdFor<Route> fakeId;
     private final RouteDirection direction;
     private final String shortName;
@@ -65,12 +59,16 @@ public enum KnownTramRoute {
         routes.add(RochdaleShawandCromptonManchesterEastDidisbury);
         routes.add(AshtonUnderLyneManchesterEccles);
         routes.add(EcclesManchesterAshtonUnderLyne);
-        routes.add(BuryManchesterAltrincham);
-        routes.add(AltrinchamManchesterBury);
         routes.add(BuryPiccadilly);
         routes.add(PiccadillyBury);
         routes.add(AltrinchamPiccadilly);
         routes.add(PiccadillyAltrincham);
+
+        // nothing on tfgm website about this, but routes not present for some dates
+        if (!date.equals(TramDate.of(2022,12,11))) {
+            routes.add(BuryManchesterAltrincham);
+            routes.add(AltrinchamManchesterBury);
+        }
 
         return routes;
     }

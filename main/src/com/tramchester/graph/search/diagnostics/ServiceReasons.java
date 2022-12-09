@@ -53,7 +53,7 @@ public class ServiceReasons {
         reasonCodeStats = new EnumMap<>(ReasonCode.class);
         Arrays.asList(ReasonCode.values()).forEach(code -> reasonCodeStats.put(code, new AtomicInteger(0)));
 
-        stateStats = new HashMap<>();
+        stateStats = new EnumMap<>(TraversalStateType.class);
         nodeVisits = new HashMap<>();
     }
 

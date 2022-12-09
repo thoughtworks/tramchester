@@ -130,6 +130,8 @@ public class RailAndTramRouteCalculatorTest {
         JourneyRequest journeyRequest = new JourneyRequest(when, time, false, 1, maxJourneyDuration,
                 1, TramsOnly);
 
+        //journeyRequest.setDiag(true);
+
         Set<Journey> journeys = testFacade.calculateRouteAsSet(Victoria, Eccles, journeyRequest);
         assertFalse(journeys.isEmpty());
     }

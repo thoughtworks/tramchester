@@ -116,7 +116,9 @@ class RouteCalculatorCloseStationsTest {
 
     @Test
     void shouldFindRouteToClosedStationViaDirectTramWhenAfterClosurePeriod() {
-        Set<Journey> singleStage = getSingleStageBuryToEccles(when.plusDays(10));
+        TramDate travelDate = TestEnv.avoidChristmasDate(when.plusDays(10));
+
+        Set<Journey> singleStage = getSingleStageBuryToEccles(travelDate);
         assertFalse(singleStage.isEmpty());
     }
 

@@ -2,7 +2,6 @@ package com.tramchester.graph.search.stateMachine.states;
 
 import com.tramchester.graph.TransportRelationshipTypes;
 import com.tramchester.graph.search.JourneyStateUpdate;
-import com.tramchester.graph.search.stateMachine.Towards;
 import org.neo4j.graphdb.Node;
 
 import java.time.Duration;
