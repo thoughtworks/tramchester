@@ -17,15 +17,15 @@ import com.tramchester.testSupport.reference.TramStations;
 import java.nio.file.Path;
 import java.util.*;
 
-public class TramAndTrainGreaterManchesterConfig extends IntegrationTramTestConfig {
+public class RailAndTramGreaterManchesterConfig extends IntegrationTramTestConfig {
 
     private static final String DB_NAME = "int_test_gm_tram_train.db";
 
-    public TramAndTrainGreaterManchesterConfig() {
+    public RailAndTramGreaterManchesterConfig() {
         this(DB_NAME);
     }
 
-    public TramAndTrainGreaterManchesterConfig(String databaseName) {
+    public RailAndTramGreaterManchesterConfig(String databaseName) {
         super(new TramAndTrainDBTestConfig(databaseName), true, IntegrationTestConfig.CurrentClosures);
     }
 

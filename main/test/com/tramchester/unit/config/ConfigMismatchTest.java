@@ -5,7 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tramchester.config.*;
 import com.tramchester.domain.DataSourceID;
 import com.tramchester.domain.StationIdPair;
-import com.tramchester.integration.testSupport.TramAndTrainGreaterManchesterConfig;
+import com.tramchester.integration.testSupport.RailAndTramGreaterManchesterConfig;
 import com.tramchester.integration.testSupport.bus.IntegrationBusTestConfig;
 import com.tramchester.integration.testSupport.rail.IntegrationRailTestConfig;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
@@ -146,7 +146,7 @@ class ConfigMismatchTest {
     @Test
     void shouldHaveKeyParamtersSameForGMRail() throws ConfigurationException, IOException {
         AppConfiguration appConfig = loadConfigFromFile("gm.yml");
-        AppConfiguration testConfig = new TramAndTrainGreaterManchesterConfig();
+        AppConfiguration testConfig = new RailAndTramGreaterManchesterConfig();
 
         validateCoreParameters(Collections.emptyList(), appConfig, testConfig);
 

@@ -20,7 +20,7 @@ import com.tramchester.domain.reference.GTFSPickupDropoffType;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.geo.BoundingBox;
-import com.tramchester.integration.testSupport.TramAndTrainGreaterManchesterConfig;
+import com.tramchester.integration.testSupport.RailAndTramGreaterManchesterConfig;
 import com.tramchester.repository.TransportData;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.testTags.GMTest;
@@ -45,7 +45,7 @@ public class RailTransportDataFromFilesTest {
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
-        config = new TramAndTrainGreaterManchesterConfig();
+        config = new RailAndTramGreaterManchesterConfig();
         componentContainer = new ComponentsBuilder().create(config, TestEnv.NoopRegisterMetrics());
         componentContainer.initialise();
     }

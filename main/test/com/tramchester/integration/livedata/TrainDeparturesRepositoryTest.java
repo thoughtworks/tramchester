@@ -3,7 +3,7 @@ package com.tramchester.integration.livedata;
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.GuiceContainerDependencies;
 import com.tramchester.domain.places.Station;
-import com.tramchester.integration.testSupport.TramAndTrainGreaterManchesterConfig;
+import com.tramchester.integration.testSupport.RailAndTramGreaterManchesterConfig;
 import com.tramchester.integration.testSupport.rail.RailStationIds;
 import com.tramchester.livedata.domain.liveUpdates.UpcomingDeparture;
 import com.tramchester.livedata.openLdb.TrainDeparturesRepository;
@@ -15,7 +15,6 @@ import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.condition.DisabledIfEnvironmentVariable;
 
 import java.util.List;
 
@@ -31,7 +30,7 @@ public class TrainDeparturesRepositoryTest {
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
-        componentContainer = new ComponentsBuilder().create(new TramAndTrainGreaterManchesterConfig(),
+        componentContainer = new ComponentsBuilder().create(new RailAndTramGreaterManchesterConfig(),
                 TestEnv.NoopRegisterMetrics());
         componentContainer.initialise();
 

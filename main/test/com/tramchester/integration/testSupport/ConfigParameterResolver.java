@@ -24,14 +24,14 @@ public class ConfigParameterResolver implements ParameterResolver {
     public Object resolveParameter(ParameterContext parameterContext, ExtensionContext extensionContext) throws ParameterResolutionException {
         Set<String> tags = extensionContext.getTags();
         if (tags.contains(GMTest.class.getSimpleName())) {
-            return new TramAndTrainGreaterManchesterConfig();
+            return new RailAndTramGreaterManchesterConfig();
         }
 
         Optional<String> override = extensionContext.getConfigurationParameter(PARAMETER_KEY);
         if (override.isPresent()) {
             String name = override.get();
-            if (name.equals(TramAndTrainGreaterManchesterConfig.class.getSimpleName())) {
-                return new TramAndTrainGreaterManchesterConfig();
+            if (name.equals(RailAndTramGreaterManchesterConfig.class.getSimpleName())) {
+                return new RailAndTramGreaterManchesterConfig();
             } else {
                 throw new RuntimeException("Unknown test config provided for " + PARAMETER_KEY + " = " + name);
             }

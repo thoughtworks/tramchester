@@ -4,10 +4,9 @@ import com.tramchester.ComponentsBuilder;
 import com.tramchester.GuiceContainerDependencies;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.places.InterchangeStation;
-import com.tramchester.domain.places.SimpleInterchangeStation;
 import com.tramchester.domain.places.Station;
 import com.tramchester.integration.repository.InterchangesTramTest;
-import com.tramchester.integration.testSupport.TramAndTrainGreaterManchesterConfig;
+import com.tramchester.integration.testSupport.RailAndTramGreaterManchesterConfig;
 import com.tramchester.integration.testSupport.rail.RailStationIds;
 import com.tramchester.repository.InterchangeRepository;
 import com.tramchester.repository.NeighboursRepository;
@@ -35,7 +34,7 @@ public class TramTrainNeighboursAsInterchangesTest {
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
-        TramchesterConfig config = new TramAndTrainGreaterManchesterConfig();
+        TramchesterConfig config = new RailAndTramGreaterManchesterConfig();
 
         componentContainer = new ComponentsBuilder().create(config, TestEnv.NoopRegisterMetrics());
         componentContainer.initialise();

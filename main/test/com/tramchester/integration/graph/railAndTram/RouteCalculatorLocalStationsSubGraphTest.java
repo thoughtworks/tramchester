@@ -14,7 +14,7 @@ import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.filters.ConfigurableGraphFilter;
 import com.tramchester.graph.search.RouteCalculator;
 import com.tramchester.integration.testSupport.RouteCalculatorTestFacade;
-import com.tramchester.integration.testSupport.TramAndTrainGreaterManchesterConfig;
+import com.tramchester.integration.testSupport.RailAndTramGreaterManchesterConfig;
 import com.tramchester.integration.testSupport.rail.RailStationIds;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.repository.TransportData;
@@ -258,7 +258,7 @@ class RouteCalculatorLocalStationsSubGraphTest {
         return EnumSet.of(Train, Tram);
     }
 
-    private static class SubgraphConfig extends TramAndTrainGreaterManchesterConfig {
+    private static class SubgraphConfig extends RailAndTramGreaterManchesterConfig {
         public SubgraphConfig() {
             super("subgraph_trainTramLocal_tramchester.db");
         }

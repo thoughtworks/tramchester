@@ -5,29 +5,23 @@ import com.tramchester.GuiceContainerDependencies;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.dataimport.UnzipFetchedData;
 import com.tramchester.domain.Service;
-import com.tramchester.domain.dates.DateRange;
-import com.tramchester.domain.dates.TramDate;
-import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.input.StopCalls;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.domain.time.TramTime;
-import com.tramchester.integration.testSupport.TramAndTrainGreaterManchesterConfig;
+import com.tramchester.integration.testSupport.RailAndTramGreaterManchesterConfig;
 import com.tramchester.integration.testSupport.rail.LoadRailServicesFromText;
-import com.tramchester.integration.testSupport.rail.RailStationIds;
 import com.tramchester.repository.TransportDataContainer;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.testTags.GMTest;
 import org.junit.jupiter.api.*;
 
 import java.util.ArrayList;
-import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
 
 import static com.tramchester.integration.testSupport.rail.RailStationIds.*;
-import static java.time.DayOfWeek.SUNDAY;
 import static org.junit.jupiter.api.Assertions.*;
 
 @GMTest
@@ -40,7 +34,7 @@ public class GMRailTransportDataTest {
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
-        config = new TramAndTrainGreaterManchesterConfig();
+        config = new RailAndTramGreaterManchesterConfig();
         componentContainer = new ComponentsBuilder().create(config, TestEnv.NoopRegisterMetrics());
         componentContainer.initialise();
     }

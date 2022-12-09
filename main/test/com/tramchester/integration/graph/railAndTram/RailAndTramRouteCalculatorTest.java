@@ -12,7 +12,7 @@ import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.search.RouteCalculator;
 import com.tramchester.integration.testSupport.RouteCalculatorTestFacade;
-import com.tramchester.integration.testSupport.TramAndTrainGreaterManchesterConfig;
+import com.tramchester.integration.testSupport.RailAndTramGreaterManchesterConfig;
 import com.tramchester.integration.testSupport.rail.RailStationIds;
 import com.tramchester.repository.NeighboursRepository;
 import com.tramchester.repository.StationRepository;
@@ -38,7 +38,7 @@ import static org.junit.jupiter.api.Assertions.*;
 public class RailAndTramRouteCalculatorTest {
     private static final int TXN_TIMEOUT = 5*60;
     private static StationRepository stationRepository;
-    private static TramAndTrainGreaterManchesterConfig config;
+    private static RailAndTramGreaterManchesterConfig config;
 
     private final TramDate when = TestEnv.testDay();
 
@@ -52,7 +52,7 @@ public class RailAndTramRouteCalculatorTest {
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
-        config = new TramAndTrainGreaterManchesterConfig();
+        config = new RailAndTramGreaterManchesterConfig();
         componentContainer = new ComponentsBuilder().create(config, TestEnv.NoopRegisterMetrics());
         componentContainer.initialise();
 

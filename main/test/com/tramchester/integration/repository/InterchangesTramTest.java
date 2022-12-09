@@ -15,7 +15,7 @@ import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.integration.graph.railAndTram.TramTrainNeighboursAsInterchangesTest;
 import com.tramchester.integration.testSupport.ConfigParameterResolver;
-import com.tramchester.integration.testSupport.TramAndTrainGreaterManchesterConfig;
+import com.tramchester.integration.testSupport.RailAndTramGreaterManchesterConfig;
 import com.tramchester.repository.InterchangeRepository;
 import com.tramchester.repository.RouteRepository;
 import com.tramchester.repository.StationRepository;
@@ -231,7 +231,7 @@ public class InterchangesTramTest {
     }
 
     static boolean isGMConfig() {
-        return config instanceof TramAndTrainGreaterManchesterConfig;
+        return config instanceof RailAndTramGreaterManchesterConfig;
     }
 
 }
