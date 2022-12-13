@@ -16,8 +16,7 @@ import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.util.Set;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class BasicScheduleTest {
     private int century;
@@ -108,5 +107,24 @@ public class BasicScheduleTest {
 
         assertEquals(TrainStatus.PassengerAndParcels, basicSchedule.getTrainStatus());
         assertEquals(TrainCategory.LondonUndergroundOrMetroService, basicSchedule.getTrainCategory());
+    }
+
+    @Test
+    void shouldParseBasicScheduleThatCancelsUnseenService() {
+        String text = "BSNX625452301292301290000001 1OO2K26    124782000 EMU    100D                  N";
+
+        BasicSchedule basicSchedule = BasicSchedule.parse(text, century);
+
+        assertEquals("X62545", basicSchedule.getUniqueTrainId());
+        DateRange dateRange = basicSchedule.getDateRange();
+        assertEquals(TramDate.of(2023, 1, 29), dateRange.getStartDate());
+        assertEquals(TramDate.of(2023, 1, 29), dateRange.getEndDate());
+
+        assertEquals(TrainStatus.STPPassengerParcels, basicSchedule.getTrainStatus());
+        assertEquals(TrainCategory.OrdinaryPassenger, basicSchedule.getTrainCategory());
+
+        assertEquals(RailRecordTransactionType.New, basicSchedule.getTransactionType());
+
+        assertEquals(ShortTermPlanIndicator.New, basicSchedule.getSTPIndicator());
     }
 }

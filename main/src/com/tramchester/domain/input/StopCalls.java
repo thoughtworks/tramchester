@@ -178,10 +178,12 @@ public class StopCalls {
     public static class StopLeg {
         private final StopCall first;
         private final StopCall second;
+        private final Duration duration;
 
         private StopLeg(StopCall first, StopCall second) {
             this.first = first;
             this.second = second;
+            duration = TramTime.difference(first.getDepartureTime(), second.getArrivalTime());
         }
 
         public StopCall getFirst() {
@@ -197,6 +199,7 @@ public class StopCalls {
             return "StopLeg{" +
                     "first=" + first +
                     ", second=" + second +
+                    ", duration=" + duration +
                     '}';
         }
 
@@ -231,7 +234,7 @@ public class StopCalls {
         }
 
         public Duration getCost() {
-            return TramTime.difference(first.getDepartureTime(), second.getArrivalTime());
+            return duration;
         }
 
         public StationIdPair getStations() {

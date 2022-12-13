@@ -23,7 +23,7 @@ public class RecordHelper {
      * @param end counting from 1, as per docs
      * @return the extracted record
      */
-    public static String extract(String text, int begin, int end) {
+    public static String extract(final String text, final int begin, final int end) {
         final int length = text.length();
         if ((begin-1) > length) {
             logger.warn(format("Record length too short (begin) was %s but looking for substring(%s,%s) in '%s'",

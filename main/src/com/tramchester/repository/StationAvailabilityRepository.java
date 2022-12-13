@@ -21,6 +21,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static java.lang.String.format;
 
@@ -72,14 +73,13 @@ public class StationAvailabilityRepository {
         // TODO more efficient to extract time range directly here, rather than populate it inside of ServedRoute
         Set<Trip> trips = routes.stream().flatMap(route -> route.getTrips().stream()).collect(Collectors.toSet());
 
-        Set<StopCall> stationStopCalls = trips.stream().
+        Stream<StopCall> stationStopCalls = trips.stream().
                 map(Trip::getStopCalls).
                 filter(stopCalls -> stopCalls.callsAt(station)).
                 map(stopCalls -> stopCalls.getStopFor(station)).
-                filter(StopCall::callsAtStation).
-                collect(Collectors.toSet());
+                filter(StopCall::callsAtStation);
 
-        int added = stationStopCalls.stream().
+        int added = stationStopCalls.
                 mapToInt(stopCall -> addFor(forLocation, station, stopCall, getTime)).sum();
 
         return added > 0;

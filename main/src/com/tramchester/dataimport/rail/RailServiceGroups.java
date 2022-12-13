@@ -85,11 +85,11 @@ public class RailServiceGroups {
 
         if (isOverlay) {
             if (existingServices.isEmpty()) {
-                logger.info("Overlap: No existing services found for " + uniqueTrainId);
+                logger.warn("Overlap: No existing services found for " + uniqueTrainId);
             }
             final Set<MutableService> impactedServices = filterByScheduleDates(schedule, existingServices);
             if (impactedServices.isEmpty() && !existingServices.isEmpty()) {
-                logger.info(format("Overlap: No existing services overlapped on date range (%s) for %s ",
+                logger.warn(format("Overlap: No existing services overlapped on date range (%s) for %s ",
                         scheduleDateRange, uniqueTrainId));
             }
 
@@ -118,8 +118,6 @@ public class RailServiceGroups {
                     }
                 }
             });
-        } else {
-            logger.warn(format("Update to service %s with new id %s but not overlay", uniqueTrainId, serviceId));
         }
 
         container.addService(service);

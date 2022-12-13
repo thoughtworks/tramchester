@@ -624,8 +624,8 @@ task uploadApp(type: S3Upload, dependsOn:copyIntoUploadDir) {
 // https://data.atoc.org/member-area
 
 task uploadRailToS3(type: S3Upload) {
-    key = 'railData/ttis411.zip'
-    file = 'data/rail/ttis411.zip'
+    key = 'railData/ttis571.zip'
+    file = 'data/rail/ttis571.zip'
     overwrite = false
 }
 

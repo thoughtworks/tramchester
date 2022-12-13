@@ -365,7 +365,6 @@ public class RailTransportDataTest {
                 LICMDNSTH           0744H00000000                                              \s
                 LTEUSTON  0747 074915    TF                                                    \s""";
 
-        //final TransportData dataContainer = loadForTimetableData(text);
         loadRailServicesFromText.loadInto(dataContainer, text);
 
         Set<Service> services = dataContainer.getServices();
@@ -412,6 +411,40 @@ public class RailTransportDataTest {
         StopCalls.StopLeg lastLeg = legs.get(10);
         assertEquals(LondonEuston.getId(), lastLeg.getSecondStation().getId());
         assertEquals(TramTime.nextDay(5,29), lastLeg.getDepartureTime());
+    }
+
+    @Test
+    void shouldReproIssueWithIncorrectlyFlaggedAsOverlay() {
+        String text = "BSNX625452301292301290000001 1OO2K26    124782000 EMU    100D                  N\n" +
+                "BX         SNYSN485200\n" +
+                "LOSTRHILL 0815 08152        HTB\n" +
+                "LIWNORWDJ           0817H00000000\n" +
+                "LIWNORWOD 0818H0819      081908192        T\n" +
+                "LIGIPSYH  0821H0822      08220822         T\n" +
+                "LICRYSTLP 0825 0826      082508262        T\n" +
+                "LICRYSBRJ           0828 00000000\n" +
+                "LINORWDJ  0830 0831      083008316        T\n" +
+                "LISELHGRJ           0833H00000000\n" +
+                "LIWCROYDN 0836 0837      083608374        T\n" +
+                "LIWADDON  0839 0839H     08390839         T\n" +
+                "LIWALNGTN 0842H0843      084308432        T\n" +
+                "LICRSHLTB 0845 0845H     08450845         T\n" +
+                "LISUTTON  0848H0850      084908504        T\n" +
+                "LIBELM    0853 0853H     08530853         T\n" +
+                "LIBANSTED 0856H0857      08570857         T\n" +
+                "LTEPSDNS  0900 0900      TF";
+
+        loadRailServicesFromText.loadInto(dataContainer, text);
+
+        Set<Service> services = dataContainer.getServices();
+        assertEquals(1, services.size());
+
+        IdFor<Service> serviceId = StringIdFor.createId("X62545:20230129:20230129");
+
+        Service service = dataContainer.getServiceById(serviceId);
+
+        assertNotNull(service);
+        assertEquals(serviceId, service.getId());
     }
 
 

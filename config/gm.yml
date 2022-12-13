@@ -34,12 +34,12 @@ gtfsSourceConfig:
     stationClosures: []
 rail:
   dataPath: data/rail
-  version: 411
+  version: 571
   modes: [ Train, RailReplacementBus ]
   initialWaitMinutes: 60
 remoteSources:
   - name: rail
-    dataURL: ${RAIL_DATAURL:-s3://tramchester2dist/railData/ttis411.zip}
+    dataURL: ${RAIL_DATAURL:-s3://tramchester2dist/railData/ttis571.zip}
     dataCheckURL: ""
     dataPath: data/rail
     filename: rail_data.zip

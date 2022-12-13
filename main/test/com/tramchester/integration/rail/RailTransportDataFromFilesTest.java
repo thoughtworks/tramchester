@@ -158,7 +158,7 @@ public class RailTransportDataFromFilesTest {
     void shouldHaveExpectedAgencies() {
         Set<Agency> results = transportData.getAgencies();
 
-        assertEquals(30, results.size());
+        assertEquals(29, results.size());
 
         List<IdFor<Agency>> missingTrainOperatingCompanyName = results.stream().
                 map(Agency::getId).
@@ -219,7 +219,7 @@ public class RailTransportDataFromFilesTest {
         assertEquals(GTFSPickupDropoffType.None, firstStopCall.getDropoffType());
         assertEquals(GTFSPickupDropoffType.Regular, firstStopCall.getPickupType());
 
-        final int expectedCalls = 8;
+        final int expectedCalls = 7;
         final int expectedPassedStops = 19;
 
         assertEquals(expectedCalls, stops.numberOfCallingPoints(),
@@ -361,7 +361,7 @@ public class RailTransportDataFromFilesTest {
 
         assertEquals(routes.size(), uniqueCallingPoints.size());
 
-        assertEquals(10, routes.size(), routes.toString());
+        assertEquals(9, routes.size(), routes.toString());
     }
 
     @Test
@@ -373,6 +373,7 @@ public class RailTransportDataFromFilesTest {
     }
 
     // Likely this will break with new data
+    @Disabled("Service not in latest data")
     @Test
     void reproIssueWithCrossingMidnightThatOnlyOccursWhenWholeFileLoaded() {
         Service service = transportData.getServiceById(StringIdFor.createId("N51867:20220730:20220730"));
@@ -418,22 +419,24 @@ public class RailTransportDataFromFilesTest {
 
     @Test
     void shouldHaveSensibleTimingsForStoplegs() {
-        // Inverness to Euston, between Perth and Preston
-        final Duration maxDuration = Duration.ofHours(6).plusMinutes(10);
+        // Falkirk to Euston
+        final Duration maxDuration = Duration.ofHours(8).plusMinutes(47);
 
-        List<Trip> tripsWithLongStopLegs = transportData.getTrips().stream().
+        List<StopCalls.StopLeg> longLegs = transportData.getTrips().stream().
                 filter(trip -> trip.getTransportMode().equals(Train)).
-                filter(trip -> hasLongDurationStopLeg(trip, maxDuration)).
+                flatMap(trip -> getLongDurationStopLeg(trip, maxDuration).stream()).
+                sorted(Comparator.comparing(StopCalls.StopLeg::getCost)). // makes it easier to spot longest duration leg if test fails
                 collect(Collectors.toList());
 
-            assertTrue(tripsWithLongStopLegs.isEmpty(), tripsWithLongStopLegs.toString());
-        }
-
-    private boolean hasLongDurationStopLeg(Trip trip, Duration maxDuration) {
-        return trip.getStopCalls().getLegs(false).stream().
-                anyMatch(stopLeg -> stopLeg.getCost().compareTo(maxDuration) > 0);
+        assertTrue(longLegs.isEmpty(), longLegs.toString());
     }
 
+    private Set<StopCalls.StopLeg> getLongDurationStopLeg(Trip trip, Duration maxDuration) {
+        return trip.getStopCalls().getLegs(false).stream().
+                filter(stopLeg -> stopLeg.getCost().compareTo(maxDuration) > 0).collect(Collectors.toSet());
+    }
+
+    @Disabled("trip not in latest data")
     @Test
     void reproIssueWithStopLegsOnSpecificTrip() {
         IdFor<Trip> tripIdFor = StringIdFor.createId("trip:C43611:20220703:20220703OVERLAY");
