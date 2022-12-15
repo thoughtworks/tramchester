@@ -171,4 +171,24 @@ public class IndexedBitSet {
         }
         return result.toString();
     }
+
+    /***
+     * Return a new grid with bits set if they were set in the row and column provided
+     * @param row to select set bits from
+     * @param column to select set bit from
+     * @return IndexedBitSet of same dimensions
+     */
+    public IndexedBitSet getRowAndColumn(int row, int column) {
+        IndexedBitSet result = new IndexedBitSet(rows, columns);
+        BitSet columnMask = new BitSet(columns);
+        columnMask.set(column);
+        for (int rowIndex = 0; rowIndex < rows; rowIndex++) {
+            BitSet rowBits = this.getBitSetForRow(rowIndex).getContained();
+            if (rowIndex!=row) {
+                rowBits.and(columnMask);
+            }
+            result.insert(rowIndex, rowBits);
+        }
+        return result;
+    }
 }
