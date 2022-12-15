@@ -1,5 +1,7 @@
 package com.tramchester.domain.collections;
 
+import java.util.Collections;
+import java.util.List;
 import java.util.Objects;
 import java.util.stream.Stream;
 
@@ -27,12 +29,25 @@ public class SimpleListSingleton<T> implements SimpleList<T> {
 
     @Override
     public SimpleList<T> concat(SimpleList<T> other) {
-        if  (other.isSingleton()) {
+        if (other.isEmpty()) {
+            return this;
+        }
+        if (other.isSingleton()) {
             SimpleListSingleton<T> otherSingleton = (SimpleListSingleton<T>) other;
             return new SimpleListItems<>(this, otherSingleton);
         } else {
             return other.concat(this);
         }
+    }
+
+    @Override
+    public boolean isEmpty() {
+        return false;
+    }
+
+    @Override
+    public List<T> toList() {
+        return Collections.singletonList(item);
     }
 
     public T item() {
@@ -54,8 +69,6 @@ public class SimpleListSingleton<T> implements SimpleList<T> {
 
     @Override
     public String toString() {
-        return "{" +
-                "item=" + item +
-                '}';
+        return "[" + item + ']';
     }
 }

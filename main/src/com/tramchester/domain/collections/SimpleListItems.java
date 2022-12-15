@@ -2,7 +2,10 @@ package com.tramchester.domain.collections;
 
 import org.apache.commons.lang3.tuple.Pair;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Stream;
 
 /***
@@ -18,6 +21,21 @@ public class SimpleListItems<T> implements SimpleList<T> {
     SimpleListItems(SimpleList<T> left, SimpleList<T> right) {
         this.tree = Pair.of(left, right);
         size = tree.getLeft().size() + tree.getRight().size();
+    }
+
+    public SimpleListItems(List<T> list) {
+        size = list.size();
+        SimpleList<T> left = new SimpleListEmpty<>();
+
+        Optional<SimpleList<T>> maybeRight = list.stream().map(this::create).reduce((listA, listB) -> listA.concat(listB));
+
+        SimpleList<T> right = maybeRight.orElse(new SimpleListEmpty<>());
+
+        tree = Pair.of(left, right);
+    }
+
+    private SimpleList<T> create(T item) {
+        return new SimpleListSingleton<>(item);
     }
 
     @Override
@@ -45,11 +63,20 @@ public class SimpleListItems<T> implements SimpleList<T> {
     }
 
     @Override
+    public boolean isEmpty() {
+        return tree.getLeft().isEmpty() && tree.getLeft().isEmpty();
+    }
+
+    @Override
+    public List<T> toList() {
+        List<T> result = new ArrayList<T>(tree.getLeft().toList());
+        result.addAll(tree.getRight().toList());
+        return result;
+    }
+
+    @Override
     public String toString() {
-        return "SimpleListItems{" +
-                "tree=" + tree +
-                ", size=" + size +
-                '}';
+        return "[" + tree.getLeft().toString() + "," + tree.getRight().toString() + "]";
     }
 
     @Override

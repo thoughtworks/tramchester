@@ -1,7 +1,9 @@
 package com.tramchester.domain.collections;
 
 import java.util.BitSet;
+import java.util.List;
 import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 public class ImmutableBitSet {
     private final BitSet contained;
@@ -51,4 +53,13 @@ public class ImmutableBitSet {
     public boolean isEmpty() {
         return contained.isEmpty();
     }
+
+    public IntStream getBitsSet() {
+        return contained.stream();
+    }
+
+    // note: size is misleading for BitSet as it is allocated size which might not match the requested size
+//    public int size() {
+//        return contained.size();
+//    }
 }

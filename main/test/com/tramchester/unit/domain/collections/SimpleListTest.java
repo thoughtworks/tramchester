@@ -1,19 +1,21 @@
 package com.tramchester.unit.domain.collections;
 
 import com.tramchester.domain.collections.SimpleList;
+import com.tramchester.domain.collections.SimpleListEmpty;
+import com.tramchester.domain.collections.SimpleListItems;
 import com.tramchester.domain.collections.SimpleListSingleton;
 import org.junit.jupiter.api.Test;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 class SimpleListTest {
-
-    private final Class<Integer> theClass = Integer.class;
 
     @Test
     void shouldAddSomethingToASingletonList() {
@@ -100,6 +102,38 @@ class SimpleListTest {
     }
 
     @Test
+    void shouldHandleEmptyList() {
+        SimpleList<Integer> empty = new SimpleListEmpty<>();
+        assertEquals(0, empty.size());
+
+        assertTrue(empty.isEmpty());
+
+        SimpleList<Integer> singleton = new SimpleListSingleton<>(42);
+
+        SimpleList<Integer> resultA = singleton.concat(empty);
+        assertEquals(1, resultA.size());
+
+        SimpleList<Integer> resultB = empty.concat(singleton);
+        assertEquals(1, resultB.size());
+
+        SimpleList<Integer> resultC = empty.concat(empty);
+        assertEquals(0, resultC.size());
+
+        SimpleList<Integer> listA = new SimpleListSingleton<>(3);
+        SimpleList<Integer> listB = new SimpleListSingleton<>(5);
+        SimpleList<Integer> listM = SimpleList.concat(listA, listB);
+
+        SimpleList<Integer> resultD = listM.concat(empty);
+        assertEquals(2, resultD.size());
+        assertFalse(resultD.isEmpty());
+
+        SimpleList<Integer> resultE = empty.concat(listM);
+        assertEquals(2, resultE.size());
+        assertFalse(resultE.isEmpty());
+
+    }
+
+    @Test
     void shouldHaveOrderingLongerList() {
         SimpleList<Integer> listA = new SimpleListSingleton<>(3);
         SimpleList<Integer> listB = new SimpleListSingleton<>(5);
@@ -117,4 +151,40 @@ class SimpleListTest {
         assertEquals(expected, result, listO.toString());
 
     }
+
+    @Test
+    void shouldBehaveWhenCreatedFromAnEmptyList() {
+        SimpleList<Integer> simpleList = new SimpleListItems<>(Collections.emptyList());
+
+        assertTrue(simpleList.isEmpty());
+    }
+
+    @Test
+    void shouldCreateSimpleListFromAList() {
+        List<Integer> numbers = Arrays.asList(9,8,7,6,5,4,3,2,1);
+
+        SimpleList<Integer> result = new SimpleListItems<>(numbers);
+
+        assertEquals(numbers.size(), result.size());
+
+        List<Integer> resultList = result.toList();
+        assertTrue(numbers.containsAll(resultList));
+
+        assertEquals(numbers, resultList);
+
+    }
+
+    @Test
+    void shouldHaveCollectors() {
+
+        SimpleList<Integer> stream = Stream.of(2, 3, 4).sorted().collect(SimpleList.collector());
+        assertEquals(3, stream.size());
+
+        List<Integer> list = stream.stream().collect(Collectors.toList());
+        assertEquals(2, list.get(0), list.toString());
+        assertEquals(3, list.get(1), list.toString());
+        assertEquals(4, list.get(2), list.toString());
+
+    }
+
 }

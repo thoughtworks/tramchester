@@ -276,7 +276,6 @@ public class MixedTransportTestDataFactory implements TransportDataFactory {
                     LocalDate.of(2016, 6, 30), "version");
 
             Map<DataSourceID, FeedInfo> result = new HashMap<>();
-            //result.put(new DataSourceID("TransportDataForTest"), info);
             result.put(DataSourceID.unknown, info);
             return result;
         }

@@ -134,7 +134,7 @@ public class RouteCostMatrix {
         }
     }
 
-    // create a bitmask for route->route changes that are possible on a given date
+    // create a bitmask for route->route changes that are possible on a given date and transport mode
     public IndexedBitSet createOverlapMatrixFor(TramDate date, Set<TransportMode> requestedModes) {
         final Set<Integer> availableOnDate = new HashSet<>();
         for (int routeIndex = 0; routeIndex < numRoutes; routeIndex++) {
@@ -143,7 +143,7 @@ public class RouteCostMatrix {
                 availableOnDate.add(routeIndex);
             }
         }
-        IndexedBitSet matrix = new IndexedBitSet(numRoutes);
+        IndexedBitSet matrix = IndexedBitSet.Square(numRoutes);
         for (int firstRouteIndex = 0; firstRouteIndex < numRoutes; firstRouteIndex++) {
             BitSet result = new BitSet(numRoutes);
             if (availableOnDate.contains(firstRouteIndex)) {
@@ -198,6 +198,14 @@ public class RouteCostMatrix {
         if (logger.isDebugEnabled()) {
             logger.debug(format("Expand for %s initial depth %s", routePair, initialDepth));
         }
+
+        // WIP TODO improve test coverage for bitmap classses first!
+//        if (initialDepth == 1) {
+//            IndexedBitSet changesForDegree = costsForDegree.getDegree(1);
+//            Stream<Pair<Integer, Integer>> pairsForDegree = changesForDegree.getPairs();
+//            SimpleList<RouteIndexPair> routePairs = pairsForDegree.map(pair -> RouteIndexPair.of(pair.getLeft(), pair.getRight())).collect(SimpleList.collector());
+//            return Stream.of(routePairs);
+//        }
 
         Stream<SimpleList<RouteIndexPair>> possibleInterchangePairs = expandOnePairStream(routePair, initialDepth, dateOverlaps);
 
@@ -399,7 +407,7 @@ public class RouteCostMatrix {
             this.size = size;
 
             for (int index = 0; index < size; index++) {
-                bitSets[index] = new IndexedBitSet(numRoutes);
+                bitSets[index] = IndexedBitSet.Square(numRoutes);
             }
         }
 

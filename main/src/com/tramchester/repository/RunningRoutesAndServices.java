@@ -44,7 +44,7 @@ public class RunningRoutesAndServices {
         IdMap<Service> previousDaySvcs = servicesIntoNextDay(previousDay);
         IdMap<Route> previousDayRoutes = routesIntoNextDayFor(previousDay);
 
-        return new FilterForDate(serviceIds, routeIds, runningServicesNextDay, runningRoutesNextDay,
+        return new FilterForDate(date, serviceIds, routeIds, runningServicesNextDay, runningRoutesNextDay,
                 previousDaySvcs, previousDayRoutes);
     }
 
@@ -87,6 +87,7 @@ public class RunningRoutesAndServices {
     }
 
     public static class FilterForDate {
+        private final TramDate date;
         private final IdMap<Service> servicesPreviousDay;
         private final IdMap<Route> routesPreviousDay;
         private final IdMap<Service> servicesToday;
@@ -94,9 +95,10 @@ public class RunningRoutesAndServices {
         private final IdMap<Service> servicesNextDay;
         private final IdMap<Route> routesNextDay;
 
-        private FilterForDate(IdMap<Service> servicesToday, IdMap<Route> routesToday,
+        private FilterForDate(TramDate date, IdMap<Service> servicesToday, IdMap<Route> routesToday,
                               IdMap<Service> servicesNextDay, IdMap<Route> routesNextDay,
                               IdMap<Service> servicesPreviousDay, IdMap<Route> routesPreviousDay) {
+            this.date = date;
             this.servicesToday = servicesToday;
             this.routesToday = routesToday;
             this.servicesNextDay = servicesNextDay;
@@ -132,7 +134,8 @@ public class RunningRoutesAndServices {
         @Override
         public String toString() {
             return "FilterForDate{" +
-                    "servicesPreviousDay=" + servicesPreviousDay.size() +
+                    "date=" + date +
+                    ", servicesPreviousDay=" + servicesPreviousDay.size() +
                     ", routesPreviousDay=" + routesPreviousDay.size() +
                     ", servicesToday=" + servicesToday.size() +
                     ", routesToday=" + routesToday.size() +

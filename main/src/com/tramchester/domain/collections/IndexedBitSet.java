@@ -1,31 +1,39 @@
 package com.tramchester.domain.collections;
 
+import org.apache.commons.lang3.tuple.Pair;
+
 import java.util.BitSet;
+import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 import static java.lang.String.format;
 
 /***
- * Indexable square bit map - set of N*N rows of bits [....][....][....]
+ * Index-able bit map - set of N*M bits [....][....][....]
  */
 public class IndexedBitSet {
-    private final int numberOfRows;
+    private final int rows;
+    private final int columns;
     private final BitSet bitSet;
     private final int totalSize;
 
-    public IndexedBitSet(int numberOfRows) {
-        this.numberOfRows = numberOfRows;
-        totalSize = numberOfRows * numberOfRows;
-        bitSet = new BitSet(totalSize);
+    public static IndexedBitSet Square(int size) {
+        return new IndexedBitSet(size, size);
     }
 
-    private IndexedBitSet(int numberOfRows, BitSet bitSet) {
-        this.numberOfRows = numberOfRows;
-        totalSize = numberOfRows * numberOfRows;
+    private IndexedBitSet(int rows, int columns, BitSet bitSet) {
+        this.rows = rows;
+        this.columns = columns;
+        totalSize = rows * columns;
         this.bitSet = bitSet;
     }
 
-    public static IndexedBitSet getIdentity(int numberOfRows) {
-        IndexedBitSet result = new IndexedBitSet(numberOfRows);
+    public IndexedBitSet(int rows, int columns) {
+        this(rows, columns, new BitSet(rows*columns));
+    }
+
+    public static IndexedBitSet getIdentity(int rows, int columns) {
+        IndexedBitSet result = new IndexedBitSet(rows, columns);
 
         result.bitSet.set(0, result.totalSize); // set bits to 1 from 0 to size
         return result;
@@ -59,7 +67,7 @@ public class IndexedBitSet {
      */
     public ImmutableBitSet getBitSetForRow(int row) {
         int startPosition = getPositionFor(row, 0);
-        int endPosition = startPosition + numberOfRows;
+        int endPosition = startPosition + columns; // plus num cols per row
         BitSet result = bitSet.get(startPosition, endPosition);
 
         return new ImmutableBitSet(result);
@@ -72,8 +80,8 @@ public class IndexedBitSet {
      */
     public void insert(int row, BitSet connectionsForRoute) {
         int startPosition = getPositionFor(row, 0);
-        for (int i = 0; i < numberOfRows; i++) {
-            bitSet.set(startPosition + i, connectionsForRoute.get(i));
+        for (int column = 0; column < columns; column++) {
+            bitSet.set(startPosition + column, connectionsForRoute.get(column));
         }
     }
 
@@ -94,21 +102,28 @@ public class IndexedBitSet {
         int startPosition = getPositionFor(row, 0);
 
         // TODO more efficient ways to do this via a mask?
-        for (int i = 0; i < numberOfRows; i++) {
+        for (int i = 0; i < rows; i++) {
             int bitIndex = startPosition + i;
-            boolean andValue = this.bitSet.get(bitIndex) && bitMask.get(i);
-            this.bitSet.set(bitIndex, andValue);
+            boolean andValue = bitSet.get(bitIndex) && bitMask.get(i);
+            bitSet.set(bitIndex, andValue);
         }
     }
 
     /***
-     * poisition within the bitmap for row and column
+     * position within the bitmap for row and column
      * @param row the row
      * @param column the bit within the row
      * @return absolute index into the bitset
      */
     private int getPositionFor(int row, int column) {
-        return (row * numberOfRows) + column;
+        if (row>=rows) {
+            throw new RuntimeException("Row is out of bounds, more than " + rows);
+        }
+        if (column>=columns) {
+            throw new RuntimeException("Column is out of bounds, more than " + columns);
+
+        }
+        return (row * columns) + column;
     }
 
     /***
@@ -117,20 +132,43 @@ public class IndexedBitSet {
      * @return a new bitmap
      */
     public IndexedBitSet and(IndexedBitSet other) {
-        if (numberOfRows != other.numberOfRows) {
-            throw new RuntimeException(format("Mismatch on matrix size this %s other %s", numberOfRows, other.numberOfRows));
+        if (rows != other.rows) {
+            throw new RuntimeException(format("Mismatch on matrix row size this %s other %s", rows, other.rows));
+        }
+        if (columns != other.columns) {
+            throw new RuntimeException(format("Mismatch on matrix column size this %s other %s", columns, other.columns));
         }
         BitSet cloned = (BitSet) this.bitSet.clone();
         cloned.and(other.bitSet);
-        return new IndexedBitSet(numberOfRows, bitSet);
+        return new IndexedBitSet(rows, columns, cloned);
+    }
+
+    public Stream<Pair<Integer, Integer>> getPairs() {
+        // note: range is inclusive
+        return IntStream.range(0, rows ).boxed().
+                flatMap(row -> getBitSetForRow(row).getBitsSet().boxed().map(column -> Pair.of(row, column)));
     }
 
     @Override
     public String toString() {
         return "IndexedBitSet{" +
-                "numberOfRoutes=" + numberOfRows +
-                ", bitSet=" + bitSet.toString() +
+                "rows=" + rows +
+                ", columns=" + columns +
                 ", totalSize=" + totalSize +
+                ", bitSet=" + display(bitSet) +
                 '}';
+    }
+
+    private String display(BitSet bitSet) {
+        StringBuilder result = new StringBuilder();
+        result.append(System.lineSeparator());
+        for (int row = 0; row < rows; row++) {
+            for (int column = 0; column < columns; column++) {
+                char bit = bitSet.get(getPositionFor(row, column)) ? '1' : '0';
+                result.append(bit);
+            }
+            result.append(System.lineSeparator());
+        }
+        return result.toString();
     }
 }

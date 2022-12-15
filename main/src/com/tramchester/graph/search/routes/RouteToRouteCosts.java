@@ -75,7 +75,7 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
     }
 
     private int getNumberChangesFor(RoutePair routePair, TramDate date, ChangeStationOperatingCache changeStationOperating,
-                                    IndexedBitSet overlapsForDate, Set<TransportMode> requestedModes) {
+                                    IndexedBitSet dateAndModeOverlaps, Set<TransportMode> requestedModes) {
         if (routePair.areSame()) {
             return 0;
         }
@@ -85,7 +85,7 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
         }
 
         RouteIndexPair routeIndexPair = index.getPairFor(routePair);
-        final int result = getDepth(routeIndexPair, changeStationOperating, overlapsForDate, requestedModes);
+        final int result = getDepth(routeIndexPair, changeStationOperating, dateAndModeOverlaps, requestedModes);
 
         if (result == RouteCostMatrix.MAX_VALUE) {
             if (routePair.sameMode()) {
@@ -123,7 +123,7 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
 
         RouteIndexPair indexPair = index.getPairFor(routePair);
 
-        IndexedBitSet dateOverlaps = IndexedBitSet.getIdentity(numberOfRoutes); // no specific date or time
+        IndexedBitSet dateOverlaps = IndexedBitSet.getIdentity(numberOfRoutes, numberOfRoutes); // no specific date or time
 
         // routes we need to traverse, to get from routeA to routeB
         Stream<SimpleList<RouteIndexPair>> routeChanges = costs.getChangesFor(indexPair, dateOverlaps);
@@ -141,9 +141,14 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
     }
 
     private int getDepth(RouteIndexPair routePair, ChangeStationOperatingCache changeStationOperating,
-                         IndexedBitSet dateOverlaps, Set<TransportMode> requestedModes) {
+                         IndexedBitSet dateAndModeOverlaps, Set<TransportMode> requestedModes) {
 
-        final Stream<SimpleList<RouteIndexPair>> possibleChanges = costs.getChangesFor(routePair, dateOverlaps);
+        // need to account for route availability and modes when getting the depth
+        // the simple answer, or the lowest limit, comes from the matrix depth for the routePair
+        // int min = costs.getDegree(routePair);
+        // but that might not be available at the given date and mode
+
+        final Stream<SimpleList<RouteIndexPair>> possibleChanges = costs.getChangesFor(routePair, dateAndModeOverlaps);
 
         final List<List<RouteAndChanges>> smallestFilteredByAvailability = new ArrayList<>();
 
@@ -308,12 +313,12 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
                     HasId.asIds(startRoutes), HasId.asIds(destinationRoutes), date));
         }
 
-        IndexedBitSet dateOverlaps = costs.createOverlapMatrixFor(date, requestedModes);
+        IndexedBitSet dateAndModeOverlaps = costs.createOverlapMatrixFor(date, requestedModes);
 
         Set<RoutePair> routePairs = getRoutePairs(startRoutes, destinationRoutes);
 
         Set<Integer> numberOfChangesForRoutes = routePairs.stream().
-                map(pair -> getNumberChangesFor(pair, date, interchangesOperating, dateOverlaps, requestedModes)).
+                map(pair -> getNumberChangesFor(pair, date, interchangesOperating, dateAndModeOverlaps, requestedModes)).
                 collect(Collectors.toSet());
 
         int maxDepth = RouteCostMatrix.MAX_DEPTH;

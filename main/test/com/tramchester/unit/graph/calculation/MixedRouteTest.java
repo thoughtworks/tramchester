@@ -142,6 +142,11 @@ class MixedRouteTest {
                 Integer.MAX_VALUE, false));
     }
 
+    @Test
+    void createMatrixFile() {
+        
+    }
+
     private static void assertFirstAndLastForOneStage(Set<Journey> journeys, String firstStation, String secondStation,
                                                       int passedStops, TramTime queryTime) {
         Journey journey = (Journey)journeys.toArray()[0];

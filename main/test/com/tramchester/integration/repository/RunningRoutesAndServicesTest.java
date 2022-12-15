@@ -119,11 +119,12 @@ public class RunningRoutesAndServicesTest {
 
         TramDate testDay = TestEnv.nextMonday();
 
-        while (testDay.isChristmasPeriod()) {
+        while (christmasWeek(testDay)) {
             testDay = testDay.plusWeeks(1);
         }
 
         final TramDate nextTuesday = testDay.plusDays(1);
+        final TramDate friday = getFridayAfter(nextTuesday);
 
         assertEquals(TUESDAY, nextTuesday.getDayOfWeek());
 
@@ -150,7 +151,6 @@ public class RunningRoutesAndServicesTest {
         // double check contains range does conatin next tuesday
         assertTrue(weekdayDateRange.contains(nextTuesday));
 
-        TramDate friday = getFridayAfter(nextTuesday);
 
         assertTrue(weekdayDateRange.contains(friday));
 
@@ -181,6 +181,20 @@ public class RunningRoutesAndServicesTest {
         // is a cut-over that same day
         assertFalse(matchingForSaturday.isEmpty(), "Filter:" + filterForNextFriday + " not matching any of " +HasId.asIds(saturdayServices));
 
+    }
+
+    private boolean christmasWeek(TramDate testDay) {
+        if (testDay.isChristmasPeriod()) {
+            return true;
+        }
+        TramDate remainingDay = testDay.plusDays(1);
+        while (remainingDay.getDayOfWeek()!=MONDAY) {
+            if (remainingDay.isChristmasPeriod()) {
+                return true;
+            }
+            remainingDay = remainingDay.plusDays(1);
+        }
+        return false;
     }
 
     private TramDate getFridayAfter(final TramDate weekdayServicesBegin) {
