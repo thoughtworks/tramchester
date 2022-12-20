@@ -3,6 +3,7 @@ package com.tramchester.graph.search.routes;
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.domain.*;
 import com.tramchester.domain.collections.IndexedBitSet;
+import com.tramchester.domain.collections.RouteIndexPair;
 import com.tramchester.domain.collections.SimpleList;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.HasId;

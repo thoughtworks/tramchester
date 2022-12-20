@@ -117,6 +117,7 @@ class RouteCalculatorSubGraphMediaCityTest {
     void shouldHaveJourneyFromEveryStationToEveryOtherNDaysAhead() {
 
         List<Pair<TramDate, List<StationIdPair>>> failed = TestEnv.getUpcomingDates().
+                filter(date -> !date.isChristmasPeriod()).
                 map(date -> new JourneyRequest(date, TramTime.of(9, 0), false,
                         3, maxJourneyDuration, 1, getRequestedModes())).
                 map(journeyRequest -> Pair.of(journeyRequest.getDate(), getFailedPairedFor(journeyRequest))).

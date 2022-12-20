@@ -6,10 +6,7 @@ import com.tramchester.dataexport.DataSaver;
 import com.tramchester.dataimport.data.CostsPerDegreeData;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.RoutePair;
-import com.tramchester.domain.collections.ImmutableBitSet;
-import com.tramchester.domain.collections.IndexedBitSet;
-import com.tramchester.domain.collections.SimpleList;
-import com.tramchester.domain.collections.SimpleListSingleton;
+import com.tramchester.domain.collections.*;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.places.InterchangeStation;
@@ -31,6 +28,7 @@ import java.util.BitSet;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
@@ -182,7 +180,7 @@ public class RouteCostMatrix {
      */
     public Stream<SimpleList<RouteIndexPair>> getChangesFor(final RouteIndexPair routePair, IndexedBitSet dateOverlaps) {
 
-        final byte initialDepth = getDegree(routePair);
+        final byte initialDepth = getDegree(routePair); // first 'depth' or number of changes where we find the requested pair
 
         if (initialDepth == 0) {
             //logger.warn(format("getChangesFor: No changes needed indexes %s", routePair));
@@ -199,21 +197,72 @@ public class RouteCostMatrix {
             logger.debug(format("Expand for %s initial depth %s", routePair, initialDepth));
         }
 
-        // WIP TODO improve test coverage for bitmap classses first!
-//        if (initialDepth == 1) {
-//            IndexedBitSet changesForDegree = costsForDegree.getDegree(1);
-//            Stream<Pair<Integer, Integer>> pairsForDegree = changesForDegree.getPairs();
-//            SimpleList<RouteIndexPair> routePairs = pairsForDegree.map(pair -> RouteIndexPair.of(pair.getLeft(), pair.getRight())).collect(SimpleList.collector());
-//            return Stream.of(routePairs);
-//        }
-
-        Stream<SimpleList<RouteIndexPair>> possibleInterchangePairs = expandOnePairStream(routePair, initialDepth, dateOverlaps);
+        Stream<SimpleList<RouteIndexPair>> possibleInterchangePairs = expandOnePairStreamBitmaps(routePair, initialDepth, dateOverlaps);
 
         if (logger.isDebugEnabled()) {
             logger.debug(format("Got set of changes for %s: %s",  routePair, possibleInterchangePairs));
         }
 
         return possibleInterchangePairs;
+    }
+
+    // WIP
+//    private List<ExpandableRoutePairs> expandOnePair(final RouteIndexPair original, final IndexedBitSet dateOverlaps) {
+//        final byte degree = getDegree(original);
+//
+//        if (degree == 1) {
+//            // at degree one we are at direct connections between routes via an interchange so the result is those pairs
+//            //logger.debug("degree 1, expand pair to: " + original);
+//
+//            return List.of(new ExpandableRoutePairs(RouteIndexPair.Group.of(original, original)));
+//        }
+//
+//        // find matrix at one higher then where the pair meet, extract row/column corresponding i.e. next changes needed
+//        IndexedBitSet changesForDegree = costsForDegree.getDegree(degree - 1).getRowAndColumn(original.first(), original.second());
+//        // apply mask to filter out unavailable dates/modes
+//        IndexedBitSet withDateApplied = changesForDegree.and(dateOverlaps);
+//        // get the possible pairs where next change can happen
+//        Stream<Pair<Integer, Integer>> pairsForDegree = withDateApplied.getPairs();
+//        Stream<RouteIndexPair> routePairs = pairsForDegree.map(pair -> RouteIndexPair.of(pair.getLeft(), pair.getRight()));
+//        // group pairs where second/first match i.e. 8,5 5,4
+//        List<RouteIndexPair.Group> grouped = RouteIndexPair.createAllUniqueGroups(routePairs);
+//
+//        ExpandableRoutePairs expandableRoutePairs = new ExpandableRoutePairs(grouped);
+////
+////        Function<RouteIndexPair, RouteIndexPair.Group> expander = new Function<RouteIndexPair, RouteIndexPair.Group>() {
+////            @Override
+////            public RouteIndexPair.Group apply(RouteIndexPair routeIndexPair) {
+////                List<ExpandableRoutePairs> resuls = expandOnePair(routeIndexPair, dateOverlaps);
+////                return new RouteIndexPair.Group(expandOnePair(routeIndexPair, dateOverlaps));
+////            }
+////        };
+//
+//        expandableRoutePairs.expand(expander);
+//
+//
+//    }
+
+    private Stream<SimpleList<RouteIndexPair>> expandOnePairStreamBitmaps(final RouteIndexPair original, final int degree, final IndexedBitSet dateOverlaps) {
+        if (degree == 1) {
+            // at degree one we are at direct connections between routes via an interchange so the result is those pairs
+            //logger.debug("degree 1, expand pair to: " + original);
+            return Stream.of(new SimpleListSingleton<>(original));
+        }
+
+        if (degree == 2 ) {
+            // find matrix at one higher then where the pair meet, extract row/column corresponding i.e. next changes needed
+            IndexedBitSet changesForDegree = costsForDegree.getDegree(degree - 1).getRowAndColumn(original.first(), original.second());
+            // apply mask to filter out unavailable dates/modes
+            IndexedBitSet withDateApplied = changesForDegree.and(dateOverlaps);
+            // get the possible pairs where next change can happen
+            Stream<Pair<Integer, Integer>> pairsForDegree = withDateApplied.getPairs();
+            Stream<RouteIndexPair> routePairs = pairsForDegree.map(pair -> RouteIndexPair.of(pair.getLeft(), pair.getRight()));
+            // group pairs where second/first match i.e. 8,5 5,4
+            List<RouteIndexPair.Group> grouped = RouteIndexPair.createAllUniqueGroups(routePairs);
+            return grouped.stream().map(RouteIndexPair.Group::asSimpleList);
+        }
+
+        return expandOnePairStream(original, degree, dateOverlaps);
     }
 
     private Stream<SimpleList<RouteIndexPair>> expandOnePairStream(final RouteIndexPair original, final int degree, final IndexedBitSet dateOverlaps) {

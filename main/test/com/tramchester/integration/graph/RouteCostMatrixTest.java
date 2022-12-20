@@ -11,7 +11,7 @@ import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.graph.search.routes.RouteCostMatrix;
 import com.tramchester.graph.search.routes.RouteIndex;
-import com.tramchester.graph.search.routes.RouteIndexPair;
+import com.tramchester.domain.collections.RouteIndexPair;
 import com.tramchester.integration.testSupport.ConfigParameterResolver;
 import com.tramchester.repository.RouteRepository;
 import com.tramchester.testSupport.TestEnv;
@@ -42,6 +42,7 @@ public class RouteCostMatrixTest {
     private RouteCostMatrix routeMatrix;
     private RouteIndex routeIndex;
     private EnumSet<TransportMode> modes;
+    private int numberOfRoutes;
 
     @BeforeAll
     static void onceBeforeAnyTestRuns(TramchesterConfig tramchesterConfig) {
@@ -61,6 +62,7 @@ public class RouteCostMatrixTest {
     @BeforeEach
     void beforeEachTestRuns() {
         RouteRepository routeRepository = componentContainer.get(RouteRepository.class);
+        numberOfRoutes = routeRepository.numberOfRoutes();
         routeHelper = new TramRouteHelper(routeRepository);
         routeMatrix = componentContainer.get(RouteCostMatrix.class);
         routeIndex = componentContainer.get(RouteIndex.class);
@@ -135,14 +137,13 @@ public class RouteCostMatrixTest {
 
     @Test
     void shouldReproduceIssueBetweenPiccAndTraffordLine() {
-        TramDate testDate = date;
 
-        Route routeA = routeHelper.getOneRoute(PiccadillyBury, testDate);
-        Route routeB = routeHelper.getOneRoute(CornbrookTheTraffordCentre, testDate);
+        Route routeA = routeHelper.getOneRoute(PiccadillyBury, date);
+        Route routeB = routeHelper.getOneRoute(CornbrookTheTraffordCentre, date);
 
         RouteIndexPair indexPair = routeIndex.getPairFor(new RoutePair(routeA, routeB));
 
-        IndexedBitSet dateOverlaps = routeMatrix.createOverlapMatrixFor(testDate, modes);
+        IndexedBitSet dateOverlaps = routeMatrix.createOverlapMatrixFor(date, modes);
 
         assertEquals(196, dateOverlaps.numberOfBitsSet());
 
@@ -159,6 +160,33 @@ public class RouteCostMatrixTest {
             assertEquals(indexPair.first(), firstChange.first());
             assertEquals(indexPair.second(), secondChange.second());
         });
+    }
+
+    @Test
+    void shouldCheckFor2Changes() {
+
+        Route routeA = routeHelper.getOneRoute(BuryPiccadilly, date);
+        Route routeB = routeHelper.getOneRoute(CornbrookTheTraffordCentre, date);
+
+        assertEquals(2, routeMatrix.getConnectionDepthFor(routeA, routeB));
+
+        RouteIndexPair indexPair = routeIndex.getPairFor(new RoutePair(routeA, routeB));
+
+        // ignore data and mode here
+        IndexedBitSet dateOverlaps = IndexedBitSet.getIdentity(numberOfRoutes, numberOfRoutes);
+
+        List<SimpleList<RouteIndexPair>> results = routeMatrix.getChangesFor(indexPair, dateOverlaps).collect(Collectors.toList());
+
+        results.forEach(result -> {
+            List<RouteIndexPair> changes = result.stream().collect(Collectors.toList());
+            assertEquals(2, changes.size());
+            RouteIndexPair firstChange = changes.get(0);
+            RouteIndexPair secondChange = changes.get(1);
+
+            assertEquals(indexPair.first(), firstChange.first(), changes.toString());
+            assertEquals(indexPair.second(), secondChange.second());
+        });
+
     }
 
 }

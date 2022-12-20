@@ -11,7 +11,7 @@ import com.tramchester.domain.places.InterchangeStation;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.graph.search.routes.RouteIndex;
-import com.tramchester.graph.search.routes.RouteIndexPair;
+import com.tramchester.domain.collections.RouteIndexPair;
 import com.tramchester.graph.search.routes.RouteIndexToInterchangeRepository;
 import com.tramchester.integration.testSupport.ConfigParameterResolver;
 import com.tramchester.repository.RouteRepository;

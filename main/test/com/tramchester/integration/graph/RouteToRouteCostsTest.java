@@ -21,7 +21,7 @@ import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.search.LowestCostsForDestRoutes;
 import com.tramchester.graph.search.routes.RouteCostMatrix;
 import com.tramchester.graph.search.routes.RouteIndex;
-import com.tramchester.graph.search.routes.RouteIndexPair;
+import com.tramchester.domain.collections.RouteIndexPair;
 import com.tramchester.graph.search.routes.RouteToRouteCosts;
 import com.tramchester.integration.testSupport.ConfigParameterResolver;
 import com.tramchester.repository.RouteRepository;

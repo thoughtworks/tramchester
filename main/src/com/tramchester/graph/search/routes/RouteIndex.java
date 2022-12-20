@@ -6,6 +6,7 @@ import com.tramchester.dataexport.DataSaver;
 import com.tramchester.dataimport.data.RouteIndexData;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.RoutePair;
+import com.tramchester.domain.collections.RouteIndexPair;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.graph.filters.GraphFilterActive;
 import com.tramchester.repository.RouteRepository;

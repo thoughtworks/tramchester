@@ -385,6 +385,7 @@ public class TransportDataFromFilesTramTest {
     void shouldHaveTramServicesAvailableNDaysAhead() {
 
         Set<TramDate> noServices = TestEnv.getUpcomingDates().
+                filter(date -> !date.isChristmasPeriod()).
                 filter(date -> transportData.getServicesOnDate(date).isEmpty()).
                 collect(Collectors.toSet());
 
@@ -397,9 +398,9 @@ public class TransportDataFromFilesTramTest {
     void shouldHaveTripsOnDateForEachStation() {
 
         Set<Pair<TramDate, IdFor<Station>>> missing = TestEnv.getUpcomingDates().
+                filter(date -> !date.isChristmasPeriod()).
                 flatMap(date -> transportData.getStations(EnumSet.of(Tram)).stream().map(station -> Pair.of(date, station))).
                 filter(pair -> !closedStationRepository.isClosed(pair.getRight(), pair.getLeft())).
-                //filter(pair -> !TestEnv.novermber2022Issue(pair.getRight().getId(), pair.getLeft())).
                 filter(pair -> transportData.getTripsFor(pair.getRight(), pair.getLeft()).isEmpty()).
                 map(pair -> Pair.of(pair.getLeft(), pair.getRight().getId())).
                 collect(Collectors.toSet());
@@ -439,7 +440,7 @@ public class TransportDataFromFilesTramTest {
 
         Map<Pair<TramDate, TramTime>, IdSet<Station>> missing = new HashMap<>();
 
-        TestEnv.getUpcomingDates().forEach(date -> {
+        TestEnv.getUpcomingDates().filter(date -> !date.isChristmasPeriod()).forEach(date -> {
             transportData.getStations(EnumSet.of(Tram)).stream().
                     filter(station -> !closedStationRepository.isClosed(station, date)).
                     forEach(station -> {
