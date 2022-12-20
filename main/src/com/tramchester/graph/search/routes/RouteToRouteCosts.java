@@ -4,7 +4,6 @@ import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.domain.*;
 import com.tramchester.domain.collections.IndexedBitSet;
 import com.tramchester.domain.collections.RouteIndexPair;
-import com.tramchester.domain.collections.SimpleList;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.places.InterchangeStation;
@@ -127,7 +126,7 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
         IndexedBitSet dateOverlaps = IndexedBitSet.getIdentity(numberOfRoutes, numberOfRoutes); // no specific date or time
 
         // routes we need to traverse, to get from routeA to routeB
-        Stream<SimpleList<RouteIndexPair>> routeChanges = costs.getChangesFor(indexPair, dateOverlaps);
+        Stream<List<RouteIndexPair>> routeChanges = costs.getChangesFor(indexPair, dateOverlaps);
 
         // given the routes we need to cross, find the interchanges that will allow this
         List<List<RouteAndChanges>> interchanges = routeChanges.
@@ -149,7 +148,7 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
         // int min = costs.getDegree(routePair);
         // but that might not be available at the given date and mode
 
-        final Stream<SimpleList<RouteIndexPair>> possibleChanges = costs.getChangesFor(routePair, dateAndModeOverlaps);
+        final Stream<List<RouteIndexPair>> possibleChanges = costs.getChangesFor(routePair, dateAndModeOverlaps);
 
         final List<List<RouteAndChanges>> smallestFilteredByAvailability = new ArrayList<>();
 
@@ -171,7 +170,7 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
 
     }
 
-    private List<RouteAndChanges> getRouteAndInterchange(SimpleList<RouteIndexPair> listOfChanges, Set<TransportMode> requestedModes) {
+    private List<RouteAndChanges> getRouteAndInterchange(List<RouteIndexPair> listOfChanges, Set<TransportMode> requestedModes) {
         List<RouteAndChanges> result = listOfChanges.stream().
                 map(indexPair -> getChangesFor(indexPair, requestedModes)).
                 filter(Objects::nonNull).

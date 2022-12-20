@@ -175,7 +175,7 @@ public class RouteCostMatrix {
      * @param dateOverlaps bit mask indicating that routeA->routeB is available at date
      * @return each set returned contains specific interchanges between 2 specific routes
      */
-    public Stream<SimpleList<RouteIndexPair>> getChangesFor(final RouteIndexPair routePair, IndexedBitSet dateOverlaps) {
+    public Stream<List<RouteIndexPair>> getChangesFor(final RouteIndexPair routePair, IndexedBitSet dateOverlaps) {
 
         final byte initialDepth = getDegree(routePair); // first 'depth' or number of changes where we find the requested pair
 
@@ -194,7 +194,9 @@ public class RouteCostMatrix {
             logger.debug(format("Expand for %s initial depth %s", routePair, initialDepth));
         }
 
-        Stream<SimpleList<RouteIndexPair>> possibleInterchangePairs = expandOnePairStreamBitmaps(routePair, initialDepth, dateOverlaps);
+        Set<RouteIndexPair.PairTree> expanded = expandOnePairStreamBitmaps(routePair, initialDepth, dateOverlaps);
+
+        Stream<List<RouteIndexPair>> possibleInterchangePairs = expanded.stream().map(RouteIndexPair.PairTree::flatten);
 
         if (logger.isDebugEnabled()) {
             logger.debug(format("Got set of changes for %s: %s",  routePair, possibleInterchangePairs));
@@ -203,33 +205,9 @@ public class RouteCostMatrix {
         return possibleInterchangePairs;
     }
 
-    private Stream<SimpleList<RouteIndexPair>> expandOnePairStreamBitmaps(final RouteIndexPair original, final int degree, final IndexedBitSet dateOverlaps) {
+    private Set<RouteIndexPair.PairTree> expandOnePairStreamBitmaps(final RouteIndexPair original, final int degree, final IndexedBitSet dateOverlaps) {
         RouteIndexPair.PairTreeLeaf root = new RouteIndexPair.PairTreeLeaf(original);
-        Set<RouteIndexPair.PairTree> trees = expandOnePairStreamBitmaps(root, degree, dateOverlaps);
-
-        return trees.stream().map(tree -> tree.flatten()).map(list -> new SimpleListItems(list));
-
-//        if (degree == 1) {
-//            // at degree one we are at direct connections between routes via an interchange so the result is those pairs
-//            //logger.debug("degree 1, expand pair to: " + original);
-//            return Stream.of(new SimpleListSingleton<>(original));
-//        }
-//
-//        if (degree == 2) {
-//            // find matrix at one higher than where the pair meet, extract row/column corresponding i.e. next changes needed
-//            IndexedBitSet changesForDegree = costsForDegree.getDegree(degree - 1).getRowAndColumn(original.first(), original.second());
-//            // apply mask to filter out unavailable dates/modes
-//            IndexedBitSet withDateApplied = changesForDegree.and(dateOverlaps);
-//            // get the possible pairs where next change can happen
-//            Stream<Pair<Integer, Integer>> pairsForDegree = withDateApplied.getPairs();
-//
-//            Stream<RouteIndexPair> routePairs = pairsForDegree.map(pair -> RouteIndexPair.of(pair.getLeft(), pair.getRight()));
-//            // group pairs where second/first match i.e. 8,5 5,4
-//            List<RouteIndexPair.Group> grouped = RouteIndexPair.createAllUniqueGroups(routePairs);
-//            return grouped.stream().map(RouteIndexPair.Group::asSimpleList);
-//        }
-//
-//        return expandOnePairStream(original, degree, dateOverlaps);
+        return expandOnePairStreamBitmaps(root, degree, dateOverlaps);
     }
 
     private Set<RouteIndexPair.PairTree> expandOnePairStreamBitmaps(final RouteIndexPair.PairTree tree, final int degree, final IndexedBitSet dateOverlaps) {
@@ -239,111 +217,32 @@ public class RouteCostMatrix {
             return Collections.singleton(tree);
         }
 
-        RouteIndexPair.TreeVisitor visitor = new RouteIndexPair.TreeVisitor() {
-            @Override
-            public Set<RouteIndexPair.PairTree> visit(RouteIndexPair.PairTreeLeaf tree) {
-                // find matrix at one higher than where the pair meet, extract row/column corresponding i.e. next changes needed
-                RouteIndexPair leafPair = tree.get();
-                IndexedBitSet changesForDegree = costsForDegree.getDegree(degree - 1).getRowAndColumn(leafPair.first(), leafPair.second());
-                // apply mask to filter out unavailable dates/modes
-                IndexedBitSet withDateApplied = changesForDegree.and(dateOverlaps);
-                // get the possible pairs where next change can happen
-                Stream<Pair<Integer, Integer>> pairsForDegree = withDateApplied.getPairs();
-                Stream<RouteIndexPair> routePairs = pairsForDegree.map(pair -> RouteIndexPair.of(pair.getLeft(), pair.getRight()));
-                // group pairs where second/first match i.e. 8,5 5,4
-                List<RouteIndexPair.Group> grouped = RouteIndexPair.createAllUniqueGroups(routePairs);
+        RouteIndexPair.TreeVisitor visitor = tree1 -> {
+            // find matrix at one higher than where the pair meet, extract row/column corresponding i.e. next changes needed
+            RouteIndexPair leafPair = tree1.get();
+            IndexedBitSet changesForDegree = costsForDegree.getDegree(degree - 1).getRowAndColumn(leafPair.first(), leafPair.second());
+            // apply mask to filter out unavailable dates/modes
+            IndexedBitSet withDateApplied = changesForDegree.and(dateOverlaps);
+            // get the possible pairs where next change can happen
+            Stream<Pair<Integer, Integer>> pairsForDegree = withDateApplied.getPairs();
+            Stream<RouteIndexPair> routePairs = pairsForDegree.map(pair -> RouteIndexPair.of(pair.getLeft(), pair.getRight()));
+            // group pairs where second/first match i.e. 8,5 5,4
+            List<RouteIndexPair.Group> grouped = RouteIndexPair.createAllUniqueGroups(routePairs);
 
-                // set of unique trees resulting from this expansion
-                Set<RouteIndexPair.PairTree> expanded = grouped.stream().map(group -> tree.replace(leafPair, group.first(), group.second())).collect(Collectors.toSet());
+            // set of unique trees resulting from this expansion
+            Set<RouteIndexPair.PairTree> expanded = grouped.stream().map(group -> tree1.replace(leafPair, group.first(), group.second())).collect(Collectors.toSet());
 
-                // in turn expand each resulting tree
-                return expanded.stream().
-                        flatMap(expandedTree -> expandOnePairStreamBitmaps(expandedTree, degree-1, dateOverlaps).stream()).collect(Collectors.toSet());
-            }
+            // in turn expand each resulting tree
+            return expanded.stream().
+                    flatMap(expandedTree -> expandOnePairStreamBitmaps(expandedTree, degree-1, dateOverlaps).stream()).collect(Collectors.toSet());
         };
 
         return tree.visit(visitor);
 
     }
 
-    private Stream<SimpleList<RouteIndexPair>> expandOnePairStream(final RouteIndexPair original, final int degree, final IndexedBitSet dateOverlaps) {
-        if (degree == 1) {
-            // at degree one we are at direct connections between routes via an interchange so the result is those pairs
-            //logger.debug("degree 1, expand pair to: " + original);
-            return Stream.of(new SimpleListSingleton<>(original));
-        }
-
-        final int nextDegree = degree - 1;
-        final IndexedBitSet overlapsAtDegree = costsForDegree.getDegree(nextDegree); //.and(dateOverlaps);
-
-        // for >1 result is the set of paris where each of the supplied pairs overlaps
-        final List<Integer> overlappingIndexes = getIndexOverlapsFor(overlapsAtDegree, original);
-
-        return overlappingIndexes.stream().
-                map(index -> formNewRoutePairs(original, index)).
-                filter(pair -> isOverlap(dateOverlaps, pair.getLeft()) && isOverlap(dateOverlaps,pair.getRight())).
-                flatMap(pair -> getResultsForOneOverlaps(expandOnePairStream(pair.getLeft(), nextDegree, dateOverlaps),
-                        expandOnePairStream(pair.getRight(), nextDegree, dateOverlaps)));
-
-    }
-
     private boolean isOverlap(IndexedBitSet bitSet, RouteIndexPair pair) {
         return bitSet.isSet(pair.first(), pair.second());
-    }
-
-    @NotNull
-    private Stream<SimpleList<RouteIndexPair>> getResultsForOneOverlaps(final Stream<SimpleList<RouteIndexPair>> leftExpansions,
-                                                                            final Stream<SimpleList<RouteIndexPair>> rightExpansions) {
-
-        List<SimpleList<RouteIndexPair>> rightReusable = rightExpansions.collect(Collectors.toList());
-
-        return leftExpansions.flatMap(left -> rightReusable.stream().map(right -> SimpleList.concat(left, right)));
-    }
-
-    @NotNull
-    private Pair<RouteIndexPair, RouteIndexPair> formNewRoutePairs(RouteIndexPair pair, int overlapForPair) {
-        RouteIndexPair newFirstPair = RouteIndexPair.of(pair.first(), overlapForPair);
-        RouteIndexPair newSecondPair = RouteIndexPair.of(overlapForPair, pair.second());
-        return Pair.of(newFirstPair, newSecondPair);
-    }
-
-    /***
-     * computes index (bits set) for the overlap between 2 routes and at given degree
-     * @param costsForDegree bitmap for current degree/cost
-     * @param pair the 2 routes to compute the overlap for
-     * @return list of places in the bitmap where the routes overlap aka the indexes of the routes in that row
-     */
-    private List<Integer> getIndexOverlapsFor(final IndexedBitSet costsForDegree, final RouteIndexPair pair) {
-        // we can get empty rows for train stations which appear in the data but don't every have any calling services
-        final boolean debug = logger.isDebugEnabled();
-
-        final ImmutableBitSet linksForA = costsForDegree.getBitSetForRow(pair.first());
-        if (debug && linksForA.isEmpty() ) {
-            logger.warn("No links available for " + index.getRouteFor(pair.first()).getId());
-        }
-        final ImmutableBitSet linksForB = costsForDegree.getBitSetForRow(pair.second());
-        if (debug && linksForB.isEmpty()) {
-            logger.warn("No links available for " + index.getRouteFor(pair.second()).getId());
-        }
-
-        final ImmutableBitSet overlap = linksForA.and(linksForB);
-        final int numberOfOverlaps = overlap.numberSet();
-        if (debug) {
-            RoutePair routePair = index.getPairFor(pair);
-
-            if (numberOfOverlaps == 0) {
-                logger.debug(format("No overlap between %s (%s, %s)", routePair, resolve(linksForA), resolve(linksForB)));
-            } else {
-                logger.debug(format("Found %s overlaps between %s (%s %s)", numberOfOverlaps, routePair,
-                        resolve(linksForA), resolve(linksForB)));
-            }
-        }
-        return overlap.stream().boxed().collect(Collectors.toList());
-    }
-
-    private String resolve(ImmutableBitSet links) {
-        IdSet<Route> ids = links.stream().boxed().map(index::getRouteFor).collect(IdSet.collector());
-        return ids.toString();
     }
 
     private void populateCosts(RouteDateAndDayOverlap routeDateAndDayOverlap) {

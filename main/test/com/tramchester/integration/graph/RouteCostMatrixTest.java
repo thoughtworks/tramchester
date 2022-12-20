@@ -23,6 +23,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
+import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -118,11 +119,11 @@ public class RouteCostMatrixTest {
 
         assertNotEquals(0, dateOverlaps.numberOfBitsSet());
 
-        List<SimpleList<RouteIndexPair>> results = routeMatrix.getChangesFor(indexPair, dateOverlaps).collect(Collectors.toList());
+        List<List<RouteIndexPair>> results = routeMatrix.getChangesFor(indexPair, dateOverlaps).collect(Collectors.toList());
 
         assertEquals(1, results.size());
 
-        List<RouteIndexPair> changes = results.get(0).stream().collect(Collectors.toList());
+        List<RouteIndexPair> changes = results.get(0);
 
         assertEquals(1, changes.size());
 
@@ -147,15 +148,14 @@ public class RouteCostMatrixTest {
 
         assertEquals(196, dateOverlaps.numberOfBitsSet());
 
-        List<SimpleList<RouteIndexPair>> results = routeMatrix.getChangesFor(indexPair, dateOverlaps).collect(Collectors.toList());
+        List<List<RouteIndexPair>> results = routeMatrix.getChangesFor(indexPair, dateOverlaps).collect(Collectors.toList());
 
         assertEquals(10, results.size(), results.toString());
 
         results.forEach(result -> {
-            List<RouteIndexPair> changes = result.stream().collect(Collectors.toList());
-            assertEquals(2, changes.size());
-            RouteIndexPair firstChange = changes.get(0);
-            RouteIndexPair secondChange = changes.get(1);
+            assertEquals(2, result.size());
+            RouteIndexPair firstChange = result.get(0);
+            RouteIndexPair secondChange = result.get(1);
 
             assertEquals(indexPair.first(), firstChange.first());
             assertEquals(indexPair.second(), secondChange.second());
@@ -175,15 +175,14 @@ public class RouteCostMatrixTest {
         // ignore data and mode here
         IndexedBitSet dateOverlaps = IndexedBitSet.getIdentity(numberOfRoutes, numberOfRoutes);
 
-        List<SimpleList<RouteIndexPair>> results = routeMatrix.getChangesFor(indexPair, dateOverlaps).collect(Collectors.toList());
+        List<List<RouteIndexPair>> results = routeMatrix.getChangesFor(indexPair, dateOverlaps).collect(Collectors.toList());
 
         results.forEach(result -> {
-            List<RouteIndexPair> changes = result.stream().collect(Collectors.toList());
-            assertEquals(2, changes.size());
-            RouteIndexPair firstChange = changes.get(0);
-            RouteIndexPair secondChange = changes.get(1);
+            assertEquals(2, result.size());
+            RouteIndexPair firstChange = result.get(0);
+            RouteIndexPair secondChange = result.get(1);
 
-            assertEquals(indexPair.first(), firstChange.first(), changes.toString());
+            assertEquals(indexPair.first(), firstChange.first(), result.toString());
             assertEquals(indexPair.second(), secondChange.second());
         });
 

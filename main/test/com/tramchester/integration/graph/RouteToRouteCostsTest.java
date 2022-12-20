@@ -9,7 +9,7 @@ import com.tramchester.dataimport.data.RouteIndexData;
 import com.tramchester.dataimport.loader.files.TransportDataFromCSVFile;
 import com.tramchester.domain.*;
 import com.tramchester.domain.collections.IndexedBitSet;
-import com.tramchester.domain.collections.SimpleList;
+import com.tramchester.domain.collections.RouteIndexPair;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.id.IdSet;
@@ -21,7 +21,6 @@ import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.search.LowestCostsForDestRoutes;
 import com.tramchester.graph.search.routes.RouteCostMatrix;
 import com.tramchester.graph.search.routes.RouteIndex;
-import com.tramchester.domain.collections.RouteIndexPair;
 import com.tramchester.graph.search.routes.RouteToRouteCosts;
 import com.tramchester.integration.testSupport.ConfigParameterResolver;
 import com.tramchester.repository.RouteRepository;
@@ -142,9 +141,9 @@ public class RouteToRouteCostsTest {
                 int otherIndex = routeIndex.indexFor(otherRoute.getId());
 
                 RouteIndexPair routeIndexPair = RouteIndexPair.of(greenIndex, otherIndex);
-                Stream<SimpleList<RouteIndexPair>> stream = routeCostMatrix.getChangesFor(routeIndexPair, dateOverlaps);
+                Stream<List<RouteIndexPair>> stream = routeCostMatrix.getChangesFor(routeIndexPair, dateOverlaps);
 
-                Set<SimpleList<RouteIndexPair>> results = stream.collect(Collectors.toSet());
+                Set<List<RouteIndexPair>> results = stream.collect(Collectors.toSet());
 
                 assertFalse(results.isEmpty(), "no link for " + greenInbound + " and " + otherRoute);
             }
