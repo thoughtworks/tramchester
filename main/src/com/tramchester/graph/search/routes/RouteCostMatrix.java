@@ -1,21 +1,23 @@
 package com.tramchester.graph.search.routes;
 
+import com.github.benmanes.caffeine.cache.Cache;
+import com.github.benmanes.caffeine.cache.Caffeine;
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.caching.DataCache;
 import com.tramchester.dataexport.DataSaver;
 import com.tramchester.dataimport.data.CostsPerDegreeData;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.RoutePair;
-import com.tramchester.domain.collections.*;
+import com.tramchester.domain.collections.ImmutableBitSet;
+import com.tramchester.domain.collections.IndexedBitSet;
+import com.tramchester.domain.collections.RouteIndexPair;
 import com.tramchester.domain.dates.TramDate;
-import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.places.InterchangeStation;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.graph.filters.GraphFilterActive;
 import com.tramchester.repository.InterchangeRepository;
 import com.tramchester.repository.RouteRepository;
 import org.apache.commons.lang3.tuple.Pair;
-import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -25,7 +27,7 @@ import javax.inject.Inject;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.*;
-import java.util.function.Function;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
@@ -49,6 +51,7 @@ public class RouteCostMatrix {
     private final RouteIndex index;
     private final int maxDepth;
     private final int numRoutes;
+    private final List<Cache<RouteIndexPair, Set<RouteIndexPair.PairTree>>> cacheForDegree;
 
     @Inject
     RouteCostMatrix(RouteRepository routeRepository, InterchangeRepository interchangeRepository, DataCache dataCache,
@@ -61,6 +64,13 @@ public class RouteCostMatrix {
         this.index = index;
         this.maxDepth = MAX_DEPTH;
         this.numRoutes = routeRepository.numberOfRoutes();
+
+        cacheForDegree = new ArrayList<>(MAX_DEPTH);
+        for (int i = 0; i < MAX_DEPTH; i++) {
+            Cache<RouteIndexPair, Set<RouteIndexPair.PairTree>> cache = Caffeine.newBuilder().maximumSize(numRoutes).
+                    expireAfterWrite(10, TimeUnit.MINUTES).recordStats().build();
+            cacheForDegree.add(cache);
+        }
 
         costsForDegree = new CostsPerDegree(maxDepth);
     }
@@ -194,9 +204,9 @@ public class RouteCostMatrix {
             logger.debug(format("Expand for %s initial depth %s", routePair, initialDepth));
         }
 
-        Set<RouteIndexPair.PairTree> expanded = expandOnePairStreamBitmaps(routePair, initialDepth, dateOverlaps);
+        Stream<RouteIndexPair.PairTree> expanded = expandTree(new RouteIndexPair.PairTreeLeaf(routePair), initialDepth, dateOverlaps);
 
-        Stream<List<RouteIndexPair>> possibleInterchangePairs = expanded.stream().map(RouteIndexPair.PairTree::flatten);
+        Stream<List<RouteIndexPair>> possibleInterchangePairs = expanded.map(RouteIndexPair.PairTree::flatten);
 
         if (logger.isDebugEnabled()) {
             logger.debug(format("Got set of changes for %s: %s",  routePair, possibleInterchangePairs));
@@ -205,40 +215,47 @@ public class RouteCostMatrix {
         return possibleInterchangePairs;
     }
 
-    private Set<RouteIndexPair.PairTree> expandOnePairStreamBitmaps(final RouteIndexPair original, final int degree, final IndexedBitSet dateOverlaps) {
-        RouteIndexPair.PairTreeLeaf root = new RouteIndexPair.PairTreeLeaf(original);
-        return expandOnePairStreamBitmaps(root, degree, dateOverlaps);
-    }
-
-    private Set<RouteIndexPair.PairTree> expandOnePairStreamBitmaps(final RouteIndexPair.PairTree tree, final int degree, final IndexedBitSet dateOverlaps) {
+    private Stream<RouteIndexPair.PairTree> expandTree(final RouteIndexPair.PairTree tree, final int degree, final IndexedBitSet dateOverlaps) {
         if (degree == 1) {
             // at degree one we are at direct connections between routes via an interchange so the result is those pairs
-            //logger.debug("degree 1, expand pair to: " + original);
-            return Collections.singleton(tree);
+            return Stream.of(tree);
+        }
+        if (degree <= 0) {
+            throw new RuntimeException("Invalid degree " + degree + " for " + tree);
         }
 
-        RouteIndexPair.TreeVisitor visitor = tree1 -> {
-            // find matrix at one higher than where the pair meet, extract row/column corresponding i.e. next changes needed
-            RouteIndexPair leafPair = tree1.get();
-            IndexedBitSet changesForDegree = costsForDegree.getDegree(degree - 1).getRowAndColumn(leafPair.first(), leafPair.second());
-            // apply mask to filter out unavailable dates/modes
-            IndexedBitSet withDateApplied = changesForDegree.and(dateOverlaps);
-            // get the possible pairs where next change can happen
-            Stream<Pair<Integer, Integer>> pairsForDegree = withDateApplied.getPairs();
-            Stream<RouteIndexPair> routePairs = pairsForDegree.map(pair -> RouteIndexPair.of(pair.getLeft(), pair.getRight()));
-            // group pairs where second/first match i.e. 8,5 5,4
-            List<RouteIndexPair.Group> grouped = RouteIndexPair.createAllUniqueGroups(routePairs);
+        return tree.visit(treeToVisit -> expandLeaf(treeToVisit, degree, dateOverlaps)).stream();
+    }
 
-            // set of unique trees resulting from this expansion
-            Set<RouteIndexPair.PairTree> expanded = grouped.stream().map(group -> tree1.replace(leafPair, group.first(), group.second())).collect(Collectors.toSet());
+    private Set<RouteIndexPair.PairTree> expandLeaf(final RouteIndexPair.PairTreeLeaf treeToVisit, final int degree, final IndexedBitSet dateOverlaps) {
+        // find matrix at one higher than where the pair meet, extract row/column corresponding i.e. next changes needed
+        final RouteIndexPair leafPair = treeToVisit.get();
 
-            // in turn expand each resulting tree
-            return expanded.stream().
-                    flatMap(expandedTree -> expandOnePairStreamBitmaps(expandedTree, degree-1, dateOverlaps).stream()).collect(Collectors.toSet());
-        };
+        Set<RouteIndexPair.PairTree> cachedResult = cacheForDegree.get(degree).getIfPresent(leafPair);
+        if (cachedResult!=null) {
+            return cachedResult;
+        }
 
-        return tree.visit(visitor);
+        final IndexedBitSet changesForDegree = costsForDegree.getDegree(degree - 1).getRowAndColumn(leafPair.first(), leafPair.second());
+        // apply mask to filter out unavailable dates/modes
+        final IndexedBitSet withDateApplied = changesForDegree.and(dateOverlaps);
+        // get the possible pairs where next change can happen
+        Stream<Pair<Integer, Integer>> pairsForDegree = withDateApplied.getPairs();
+        Stream<RouteIndexPair> routePairs = pairsForDegree.map(pair -> RouteIndexPair.of(pair.getLeft(), pair.getRight()));
+        // group pairs where second/first match i.e. 8,5 5,4
+        final List<RouteIndexPair.Group> grouped = RouteIndexPair.createAllUniqueGroups(routePairs);
 
+        // set of unique trees resulting from this expansion
+        Stream<RouteIndexPair.PairTree> expanded = grouped.stream().map(group -> treeToVisit.replace(leafPair, group.first(), group.second()));
+
+        // in turn expand each resulting tree
+        final Set<RouteIndexPair.PairTree> fullyExpanded = expanded.
+                flatMap(expandedTree -> expandTree(expandedTree, degree - 1, dateOverlaps)).
+                collect(Collectors.toSet());
+
+        cacheForDegree.get(degree).put(leafPair, fullyExpanded);
+
+        return fullyExpanded;
     }
 
     private boolean isOverlap(IndexedBitSet bitSet, RouteIndexPair pair) {
@@ -274,7 +291,6 @@ public class RouteCostMatrix {
             logger.info(format("Fully connected, with %s of %s ", finalSize, fullyConnected));
         }
     }
-
 
     private void addConnectionsFor(RouteDateAndDayOverlap routeDateAndDayOverlap, byte currentDegree) {
         final Instant startTime = Instant.now();

@@ -23,8 +23,10 @@ import com.tramchester.testSupport.testTags.TrainTest;
 import org.junit.jupiter.api.*;
 import org.neo4j.graphdb.Transaction;
 
+import javax.print.attribute.EnumSyntax;
 import java.time.Duration;
 import java.util.Collections;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
@@ -101,7 +103,7 @@ public class RailRouteCalculatorTest {
     }
 
     private Set<TransportMode> getRequestedModes() {
-        return Collections.emptySet();
+        return EnumSet.of(TransportMode.Train);
     }
 
     @Test

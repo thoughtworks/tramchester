@@ -143,6 +143,17 @@ public class IndexedBitSet {
         return new IndexedBitSet(rows, columns, cloned);
     }
 
+    /***
+     * And this bitset with the supplied one and return result as a new bitmap
+     * @param other bitmap to 'and' this one with
+     * @return a new bitmap
+     */
+    public IndexedBitSet and(BitSet other) {
+        BitSet cloned = (BitSet) this.bitSet.clone();
+        cloned.and(other);
+        return new IndexedBitSet(rows, columns, cloned);
+    }
+
     public Stream<Pair<Integer, Integer>> getPairs() {
         // note: range is inclusive
         return IntStream.range(0, rows ).boxed().
@@ -179,16 +190,24 @@ public class IndexedBitSet {
      * @return IndexedBitSet of same dimensions
      */
     public IndexedBitSet getRowAndColumn(int row, int column) {
-        IndexedBitSet result = new IndexedBitSet(rows, columns);
-        BitSet columnMask = new BitSet(columns);
-        columnMask.set(column);
+        BitSet mask = createMaskFor(row, column);
+        BitSet clone = (BitSet) this.bitSet.clone();
+        clone.and(mask);
+        return new IndexedBitSet(rows, columns, clone);
+    }
+
+    private BitSet createMaskFor(int row, int column) {
+        BitSet result = new BitSet(rows*columns);
+
+        int rowStart = getPositionFor(row, 0);
+        result.set(rowStart, rowStart+columns, true);
+
         for (int rowIndex = 0; rowIndex < rows; rowIndex++) {
-            BitSet rowBits = this.getBitSetForRow(rowIndex).getContained();
-            if (rowIndex!=row) {
-                rowBits.and(columnMask);
-            }
-            result.insert(rowIndex, rowBits);
+            int columnPosition = getPositionFor(rowIndex, column);
+            result.set(columnPosition);
         }
+
         return result;
+
     }
 }

@@ -1,8 +1,7 @@
 package com.tramchester.domain.collections;
 
-import org.apache.commons.collections4.SetUtils;
-
 import java.util.*;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class RouteIndexPair {
@@ -85,6 +84,9 @@ public class RouteIndexPair {
             }
         });
 
+        byFirst.clear();
+        bySecond.clear();
+
         return results;
     }
 
@@ -96,10 +98,14 @@ public class RouteIndexPair {
         Set<PairTree> visit(TreeVisitor visitor);
     }
 
-    // TODO Mutated Flag passed in
+    // TODO Mutated Flag passed in??
 
     public static class PairTreeLeaf implements PairTree {
         private final RouteIndexPair leaf;
+
+        public PairTreeLeaf(RouteIndexPair leaf) {
+            this.leaf = leaf;
+        }
 
         @Override
         public boolean equals(Object o) {
@@ -112,10 +118,6 @@ public class RouteIndexPair {
         @Override
         public int hashCode() {
             return Objects.hash(leaf);
-        }
-
-        public PairTreeLeaf(RouteIndexPair leaf) {
-            this.leaf = leaf;
         }
 
         @Override
@@ -143,11 +145,23 @@ public class RouteIndexPair {
         public RouteIndexPair get() {
             return leaf;
         }
+
+        @Override
+        public String toString() {
+            return "("+leaf.first()+","+leaf.second()+")";
+        }
     }
 
     public static class PairTreeBranch implements PairTree {
         private final PairTree left;
         private final PairTree right;
+        private final int hash;
+
+        public PairTreeBranch(PairTree left, PairTree right) {
+            this.left = left;
+            this.right = right;
+            hash = Objects.hash(left, right);
+        }
 
         @Override
         public boolean equals(Object o) {
@@ -159,12 +173,7 @@ public class RouteIndexPair {
 
         @Override
         public int hashCode() {
-            return Objects.hash(left, right);
-        }
-
-        public PairTreeBranch(PairTree left, PairTree right) {
-            this.left = left;
-            this.right = right;
+            return hash;
         }
 
         @Override
@@ -187,12 +196,14 @@ public class RouteIndexPair {
             Set<PairTree> visitedLeft = left.visit(visitor);
             Set<PairTree> visitedRight = right.visit(visitor);
 
-            // TODO into stream??
-            Set<PairTree> result = new HashSet<>();
-            visitedLeft.forEach(visitLeft -> {
-                visitedRight.forEach(visitRight -> result.add(new PairTreeBranch(visitLeft, visitRight)));
-            });
-            return result;
+            return visitedLeft.stream().
+                    flatMap(visitLeft -> visitedRight.stream().map(visitRight -> new PairTreeBranch(visitLeft, visitRight))).
+                    collect(Collectors.toSet());
+        }
+
+        @Override
+        public String toString() {
+            return "[ " + left.toString() + " , " + right.toString() + " ]";
         }
     }
 
@@ -211,10 +222,6 @@ public class RouteIndexPair {
 
         public static Group of(RouteIndexPair pairA, RouteIndexPair pairB) {
             return new Group(pairA, pairB);
-        }
-
-        public SimpleList<RouteIndexPair> asSimpleList() {
-            return new SimpleListSingleton<>(first).concat(new SimpleListSingleton<>(second));
         }
 
         public RouteIndexPair first() {

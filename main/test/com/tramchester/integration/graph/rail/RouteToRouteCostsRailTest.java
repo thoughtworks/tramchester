@@ -14,7 +14,6 @@ import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.graphbuild.StagedTransportGraphBuilder;
 import com.tramchester.graph.search.routes.RouteToRouteCosts;
 import com.tramchester.integration.testSupport.rail.IntegrationRailTestConfig;
-import com.tramchester.integration.testSupport.rail.RailStationIds;
 import com.tramchester.repository.InterchangeRepository;
 import com.tramchester.repository.RouteRepository;
 import com.tramchester.repository.StationRepository;
@@ -27,7 +26,8 @@ import java.util.*;
 
 import static com.tramchester.domain.reference.TransportMode.Train;
 import static com.tramchester.integration.testSupport.rail.RailStationIds.*;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 
 @TrainTest
 public class RouteToRouteCostsRailTest {
@@ -52,7 +52,7 @@ public class RouteToRouteCostsRailTest {
         // clear cache
         //TestEnv.clearDataCache(componentContainer);
 
-        date = TestEnv.testTramDay();
+        date = TestEnv.testDay();
     }
 
     @AfterAll
