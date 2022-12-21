@@ -8,9 +8,7 @@ import com.tramchester.dataexport.DataSaver;
 import com.tramchester.dataimport.data.CostsPerDegreeData;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.RoutePair;
-import com.tramchester.domain.collections.ImmutableBitSet;
-import com.tramchester.domain.collections.IndexedBitSet;
-import com.tramchester.domain.collections.RouteIndexPair;
+import com.tramchester.domain.collections.*;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.places.InterchangeStation;
 import com.tramchester.domain.reference.TransportMode;
@@ -51,7 +49,7 @@ public class RouteCostMatrix {
     private final RouteIndex index;
     private final int maxDepth;
     private final int numRoutes;
-    private final List<Cache<RouteIndexPair, Set<RouteIndexPair.PairTree>>> cacheForDegree;
+    private final List<Cache<RouteIndexPair, Set<PairTree>>> cacheForDegree;
 
     @Inject
     RouteCostMatrix(RouteRepository routeRepository, InterchangeRepository interchangeRepository, DataCache dataCache,
@@ -67,7 +65,7 @@ public class RouteCostMatrix {
 
         cacheForDegree = new ArrayList<>(MAX_DEPTH);
         for (int i = 0; i < MAX_DEPTH; i++) {
-            Cache<RouteIndexPair, Set<RouteIndexPair.PairTree>> cache = Caffeine.newBuilder().maximumSize(numRoutes).
+            Cache<RouteIndexPair, Set<PairTree>> cache = Caffeine.newBuilder().maximumSize(numRoutes).
                     expireAfterWrite(10, TimeUnit.MINUTES).recordStats().build();
             cacheForDegree.add(cache);
         }
@@ -204,9 +202,9 @@ public class RouteCostMatrix {
             logger.debug(format("Expand for %s initial depth %s", routePair, initialDepth));
         }
 
-        Stream<RouteIndexPair.PairTree> expanded = expandTree(new RouteIndexPair.PairTreeLeaf(routePair), initialDepth, dateOverlaps);
+        Stream<PairTree> expanded = expandTree(new PairTreeLeaf(routePair), initialDepth, dateOverlaps);
 
-        Stream<List<RouteIndexPair>> possibleInterchangePairs = expanded.map(RouteIndexPair.PairTree::flatten);
+        Stream<List<RouteIndexPair>> possibleInterchangePairs = expanded.map(PairTree::flatten);
 
         if (logger.isDebugEnabled()) {
             logger.debug(format("Got set of changes for %s: %s",  routePair, possibleInterchangePairs));
@@ -215,7 +213,7 @@ public class RouteCostMatrix {
         return possibleInterchangePairs;
     }
 
-    private Stream<RouteIndexPair.PairTree> expandTree(final RouteIndexPair.PairTree tree, final int degree, final IndexedBitSet dateOverlaps) {
+    private Stream<PairTree> expandTree(final PairTree tree, final int degree, final IndexedBitSet dateOverlaps) {
         if (degree == 1) {
             // at degree one we are at direct connections between routes via an interchange so the result is those pairs
             return Stream.of(tree);
@@ -227,11 +225,11 @@ public class RouteCostMatrix {
         return tree.visit(treeToVisit -> expandLeaf(treeToVisit, degree, dateOverlaps)).stream();
     }
 
-    private Set<RouteIndexPair.PairTree> expandLeaf(final RouteIndexPair.PairTreeLeaf treeToVisit, final int degree, final IndexedBitSet dateOverlaps) {
+    private Set<PairTree> expandLeaf(final PairTreeLeaf treeToVisit, final int degree, final IndexedBitSet dateOverlaps) {
         // find matrix at one higher than where the pair meet, extract row/column corresponding i.e. next changes needed
         final RouteIndexPair leafPair = treeToVisit.get();
 
-        Set<RouteIndexPair.PairTree> cachedResult = cacheForDegree.get(degree).getIfPresent(leafPair);
+        Set<PairTree> cachedResult = cacheForDegree.get(degree).getIfPresent(leafPair);
         if (cachedResult!=null) {
             return cachedResult;
         }
@@ -246,10 +244,10 @@ public class RouteCostMatrix {
         final List<RouteIndexPair.Group> grouped = RouteIndexPair.createAllUniqueGroups(routePairs);
 
         // set of unique trees resulting from this expansion
-        Stream<RouteIndexPair.PairTree> expanded = grouped.stream().map(group -> treeToVisit.replace(leafPair, group.first(), group.second()));
+        Stream<PairTree> expanded = grouped.stream().map(group -> treeToVisit.replace(leafPair, group.first(), group.second()));
 
         // in turn expand each resulting tree
-        final Set<RouteIndexPair.PairTree> fullyExpanded = expanded.
+        final Set<PairTree> fullyExpanded = expanded.
                 flatMap(expandedTree -> expandTree(expandedTree, degree - 1, dateOverlaps)).
                 collect(Collectors.toSet());
 

@@ -1,5 +1,7 @@
 package com.tramchester.unit.domain.collections;
 
+import com.tramchester.domain.collections.PairTree;
+import com.tramchester.domain.collections.PairTreeLeaf;
 import com.tramchester.domain.collections.RouteIndexPair;
 import org.junit.jupiter.api.Test;
 
@@ -65,7 +67,7 @@ public class RouteIndexPairTest {
         RouteIndexPair pairB = RouteIndexPair.of(5, 9);
         RouteIndexPair pairC = RouteIndexPair.of(120, 99);
 
-        RouteIndexPair.PairTree tree = new RouteIndexPair.PairTreeLeaf(pairA);
+        PairTree tree = new PairTreeLeaf(pairA);
         assertEquals(Collections.singletonList(pairA), tree.flatten());
 
         tree = tree.replace(pairA, pairB, pairC);
@@ -87,19 +89,19 @@ public class RouteIndexPairTest {
     void shouldVisitSimple() {
         RouteIndexPair pairA = RouteIndexPair.of(1, 5);
 
-        RouteIndexPair.PairTree tree = new RouteIndexPair.PairTreeLeaf(pairA);
+        PairTree tree = new PairTreeLeaf(pairA);
 
-        RouteIndexPair.TreeVisitor visitor = subTree -> {
+        PairTree.TreeVisitor visitor = subTree -> {
             RouteIndexPair pair = subTree.get();
             RouteIndexPair pairAdd = RouteIndexPair.of(pair.first()+1, pair.second()+1);
-            return Collections.singleton(new RouteIndexPair.PairTreeLeaf(pairAdd));
+            return Collections.singleton(new PairTreeLeaf(pairAdd));
         };
 
-        List<RouteIndexPair.PairTree> result = new ArrayList<>(tree.visit(visitor));
+        List<PairTree> result = new ArrayList<>(tree.visit(visitor));
 
         assertEquals(1, result.size());
 
-        RouteIndexPair.PairTree resultTree = result.get(0);
+        PairTree resultTree = result.get(0);
 
         List<RouteIndexPair> leaves = resultTree.flatten();
         assertEquals(List.of(RouteIndexPair.of(2, 6)), leaves);
@@ -111,20 +113,20 @@ public class RouteIndexPairTest {
         RouteIndexPair pairB = RouteIndexPair.of(31, 35);
         RouteIndexPair pairC = RouteIndexPair.of(100, 105);
 
-        RouteIndexPair.PairTree tree = new RouteIndexPair.PairTreeLeaf(pairA);
+        PairTree tree = new PairTreeLeaf(pairA);
         tree = tree.replace(pairA, pairB, pairC);
 
-        RouteIndexPair.TreeVisitor visitor = subTree -> {
+        PairTree.TreeVisitor visitor = subTree -> {
             RouteIndexPair pair = subTree.get();
             RouteIndexPair pairAdd = RouteIndexPair.of(pair.first()+1, pair.second()+1);
-            return Collections.singleton(new RouteIndexPair.PairTreeLeaf(pairAdd));
+            return Collections.singleton(new PairTreeLeaf(pairAdd));
         };
 
-        List<RouteIndexPair.PairTree> result = new ArrayList<>(tree.visit(visitor));
+        List<PairTree> result = new ArrayList<>(tree.visit(visitor));
 
         assertEquals(1, result.size());
 
-        RouteIndexPair.PairTree resultTree = result.get(0);
+        PairTree resultTree = result.get(0);
 
         List<RouteIndexPair> leaves = resultTree.flatten();
         assertEquals(Arrays.asList(RouteIndexPair.of(32, 36), RouteIndexPair.of(101,106)), leaves);
@@ -136,19 +138,19 @@ public class RouteIndexPairTest {
         RouteIndexPair pairB = RouteIndexPair.of(31, 35);
         RouteIndexPair pairC = RouteIndexPair.of(100, 105);
 
-        RouteIndexPair.PairTree original = new RouteIndexPair.PairTreeLeaf(pairA);
+        PairTree original = new PairTreeLeaf(pairA);
         original = original.replace(pairA, pairB, pairC);
 
-        RouteIndexPair.TreeVisitor visitor = subTree -> {
+        PairTree.TreeVisitor visitor = subTree -> {
             RouteIndexPair pairAdd = RouteIndexPair.of(subTree.get().first()+1, subTree.get().second()+1);
-            return Set.of(subTree, new RouteIndexPair.PairTreeLeaf(pairAdd));
+            return Set.of(subTree, new PairTreeLeaf(pairAdd));
         };
 
-        List<RouteIndexPair.PairTree> result = new ArrayList<>(original.visit(visitor));
+        List<PairTree> result = new ArrayList<>(original.visit(visitor));
 
         assertEquals(4, result.size());
 
-        List<List<RouteIndexPair>> lists = result.stream().map(RouteIndexPair.PairTree::flatten).collect(Collectors.toList());
+        List<List<RouteIndexPair>> lists = result.stream().map(PairTree::flatten).collect(Collectors.toList());
 
         assertTrue(lists.contains(Arrays.asList(RouteIndexPair.of(31,35), RouteIndexPair.of(100,105))));
         assertTrue(lists.contains(Arrays.asList(RouteIndexPair.of(31,35), RouteIndexPair.of(101,106))));
@@ -163,21 +165,21 @@ public class RouteIndexPairTest {
         RouteIndexPair pairB = RouteIndexPair.of(31, 35);
         RouteIndexPair pairC = RouteIndexPair.of(100, 105);
 
-        RouteIndexPair.PairTree original = new RouteIndexPair.PairTreeLeaf(pairA);
+        PairTree original = new PairTreeLeaf(pairA);
         original = original.replace(pairA, pairB, pairC);
 
-        RouteIndexPair.TreeVisitor visitor = tree -> {
-            HashSet<RouteIndexPair.PairTree> result = new HashSet<>();
+        PairTree.TreeVisitor visitor = tree -> {
+            HashSet<PairTree> result = new HashSet<>();
             result.add(tree);
             result.add(tree);
             return result;
         };
 
-        List<RouteIndexPair.PairTree> result = new ArrayList<>(original.visit(visitor));
+        List<PairTree> result = new ArrayList<>(original.visit(visitor));
 
         assertEquals(1, result.size());
 
-        List<List<RouteIndexPair>> lists = result.stream().map(RouteIndexPair.PairTree::flatten).collect(Collectors.toList());
+        List<List<RouteIndexPair>> lists = result.stream().map(PairTree::flatten).collect(Collectors.toList());
 
         assertTrue(lists.contains(Arrays.asList(RouteIndexPair.of(31,35), RouteIndexPair.of(100,105))));
         assertTrue(lists.contains(Arrays.asList(RouteIndexPair.of(31,35), RouteIndexPair.of(100,105))));
