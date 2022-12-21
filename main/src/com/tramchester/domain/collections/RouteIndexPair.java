@@ -88,7 +88,7 @@ public class RouteIndexPair {
 
         return results;
     }
-    
+
     public static class Group {
         final RouteIndexPair first;
         final RouteIndexPair second;

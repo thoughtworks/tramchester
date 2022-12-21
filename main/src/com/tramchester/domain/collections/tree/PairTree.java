@@ -1,4 +1,6 @@
-package com.tramchester.domain.collections;
+package com.tramchester.domain.collections.tree;
+
+import com.tramchester.domain.collections.RouteIndexPair;
 
 import java.util.List;
 import java.util.Set;

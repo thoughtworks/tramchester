@@ -1,4 +1,6 @@
-package com.tramchester.domain.collections;
+package com.tramchester.domain.collections.tree;
+
+import com.tramchester.domain.collections.RouteIndexPair;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -8,7 +10,7 @@ import java.util.Set;
 public class PairTreeLeaf implements PairTree {
     private final RouteIndexPair leaf;
 
-    public PairTreeLeaf(RouteIndexPair leaf) {
+    PairTreeLeaf(RouteIndexPair leaf) {
         this.leaf = leaf;
     }
 

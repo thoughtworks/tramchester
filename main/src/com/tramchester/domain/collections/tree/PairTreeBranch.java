@@ -1,4 +1,6 @@
-package com.tramchester.domain.collections;
+package com.tramchester.domain.collections.tree;
+
+import com.tramchester.domain.collections.RouteIndexPair;
 
 import java.util.List;
 import java.util.Objects;
@@ -10,7 +12,7 @@ public class PairTreeBranch implements PairTree {
     private final PairTree right;
     private final int hash;
 
-    public PairTreeBranch(PairTree left, PairTree right) {
+    PairTreeBranch(PairTree left, PairTree right) {
         this.left = left;
         this.right = right;
         hash = Objects.hash(left, right);

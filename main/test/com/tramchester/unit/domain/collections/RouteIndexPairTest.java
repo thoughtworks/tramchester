@@ -1,8 +1,9 @@
 package com.tramchester.unit.domain.collections;
 
-import com.tramchester.domain.collections.PairTree;
-import com.tramchester.domain.collections.PairTreeLeaf;
 import com.tramchester.domain.collections.RouteIndexPair;
+import com.tramchester.domain.collections.tree.PairTree;
+import com.tramchester.domain.collections.tree.PairTreeFactory;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.util.*;
@@ -13,6 +14,13 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class RouteIndexPairTest {
+
+    private PairTreeFactory factory;
+
+    @BeforeEach
+    void onceBeforeEachTestRuns() {
+        factory = new PairTreeFactory();
+    }
 
     @Test
     void shouldHaveAPair() {
@@ -67,7 +75,7 @@ public class RouteIndexPairTest {
         RouteIndexPair pairB = RouteIndexPair.of(5, 9);
         RouteIndexPair pairC = RouteIndexPair.of(120, 99);
 
-        PairTree tree = new PairTreeLeaf(pairA);
+        PairTree tree = factory.createLeaf(pairA);
         assertEquals(Collections.singletonList(pairA), tree.flatten());
 
         tree = tree.replace(pairA, pairB, pairC);
@@ -89,12 +97,12 @@ public class RouteIndexPairTest {
     void shouldVisitSimple() {
         RouteIndexPair pairA = RouteIndexPair.of(1, 5);
 
-        PairTree tree = new PairTreeLeaf(pairA);
+        PairTree tree = factory.createLeaf(pairA);
 
         PairTree.TreeVisitor visitor = subTree -> {
             RouteIndexPair pair = subTree.get();
             RouteIndexPair pairAdd = RouteIndexPair.of(pair.first()+1, pair.second()+1);
-            return Collections.singleton(new PairTreeLeaf(pairAdd));
+            return Collections.singleton(factory.createLeaf(pairAdd));
         };
 
         List<PairTree> result = new ArrayList<>(tree.visit(visitor));
@@ -113,13 +121,13 @@ public class RouteIndexPairTest {
         RouteIndexPair pairB = RouteIndexPair.of(31, 35);
         RouteIndexPair pairC = RouteIndexPair.of(100, 105);
 
-        PairTree tree = new PairTreeLeaf(pairA);
+        PairTree tree = factory.createLeaf(pairA);
         tree = tree.replace(pairA, pairB, pairC);
 
         PairTree.TreeVisitor visitor = subTree -> {
             RouteIndexPair pair = subTree.get();
             RouteIndexPair pairAdd = RouteIndexPair.of(pair.first()+1, pair.second()+1);
-            return Collections.singleton(new PairTreeLeaf(pairAdd));
+            return Collections.singleton(factory.createLeaf(pairAdd));
         };
 
         List<PairTree> result = new ArrayList<>(tree.visit(visitor));
@@ -138,12 +146,12 @@ public class RouteIndexPairTest {
         RouteIndexPair pairB = RouteIndexPair.of(31, 35);
         RouteIndexPair pairC = RouteIndexPair.of(100, 105);
 
-        PairTree original = new PairTreeLeaf(pairA);
+        PairTree original = factory.createLeaf(pairA);
         original = original.replace(pairA, pairB, pairC);
 
         PairTree.TreeVisitor visitor = subTree -> {
             RouteIndexPair pairAdd = RouteIndexPair.of(subTree.get().first()+1, subTree.get().second()+1);
-            return Set.of(subTree, new PairTreeLeaf(pairAdd));
+            return Set.of(subTree, factory.createLeaf(pairAdd));
         };
 
         List<PairTree> result = new ArrayList<>(original.visit(visitor));
@@ -165,7 +173,7 @@ public class RouteIndexPairTest {
         RouteIndexPair pairB = RouteIndexPair.of(31, 35);
         RouteIndexPair pairC = RouteIndexPair.of(100, 105);
 
-        PairTree original = new PairTreeLeaf(pairA);
+        PairTree original = factory.createLeaf(pairA);
         original = original.replace(pairA, pairB, pairC);
 
         PairTree.TreeVisitor visitor = tree -> {

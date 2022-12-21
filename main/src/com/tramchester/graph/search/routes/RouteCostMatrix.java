@@ -9,6 +9,9 @@ import com.tramchester.dataimport.data.CostsPerDegreeData;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.RoutePair;
 import com.tramchester.domain.collections.*;
+import com.tramchester.domain.collections.tree.PairTree;
+import com.tramchester.domain.collections.tree.PairTreeFactory;
+import com.tramchester.domain.collections.tree.PairTreeLeaf;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.places.InterchangeStation;
 import com.tramchester.domain.reference.TransportMode;
@@ -185,6 +188,8 @@ public class RouteCostMatrix {
      */
     public Stream<List<RouteIndexPair>> getChangesFor(final RouteIndexPair routePair, IndexedBitSet dateOverlaps) {
 
+        PairTreeFactory factory = new PairTreeFactory();
+
         final byte initialDepth = getDegree(routePair); // first 'depth' or number of changes where we find the requested pair
 
         if (initialDepth == 0) {
@@ -202,7 +207,7 @@ public class RouteCostMatrix {
             logger.debug(format("Expand for %s initial depth %s", routePair, initialDepth));
         }
 
-        Stream<PairTree> expanded = expandTree(new PairTreeLeaf(routePair), initialDepth, dateOverlaps);
+        Stream<PairTree> expanded = expandTree(factory.createLeaf(routePair), initialDepth, dateOverlaps);
 
         Stream<List<RouteIndexPair>> possibleInterchangePairs = expanded.map(PairTree::flatten);
 
