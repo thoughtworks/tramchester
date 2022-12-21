@@ -1,34 +1,30 @@
 package com.tramchester.domain.collections;
 
 import java.util.BitSet;
-import java.util.List;
 import java.util.stream.IntStream;
-import java.util.stream.Stream;
 
 public class ImmutableBitSet {
     private final BitSet contained;
+    private final int size;
 
-    public ImmutableBitSet(BitSet contained) {
+    public ImmutableBitSet(BitSet contained, int size) {
         this.contained = contained;
+        this.size = size;
     }
 
-    public void applyOr(BitSet mutable) {
+    public void applyOrTo(BitSet mutable) {
         mutable.or(contained);
     }
 
-    public boolean get(int index) {
-        return contained.get(index);
-    }
-
-    public void applyAndNot(BitSet mutable) {
+    public void applyAndNotTo(BitSet mutable) {
         mutable.andNot(contained);
     }
 
-    public ImmutableBitSet and(ImmutableBitSet immutableBitSet) {
-        BitSet mutable = new BitSet(contained.size());
-        mutable.or(contained);
-        mutable.and(immutableBitSet.contained);
-        return new ImmutableBitSet(mutable);
+    public boolean isSet(int index) {
+        if (index>size) {
+            throw new RuntimeException("index " + index + " out of range for size " + size);
+        }
+        return contained.get(index);
     }
 
     public IntStream stream() {
@@ -58,8 +54,10 @@ public class ImmutableBitSet {
         return contained.stream();
     }
 
-    // note: size is misleading for BitSet as it is allocated size which might not match the requested size
-//    public int size() {
-//        return contained.size();
-//    }
+
+    public int getSize() {
+        // using bitmap size can yield unexpected result as it gives the currently allocated size
+        return size;
+    }
+
 }

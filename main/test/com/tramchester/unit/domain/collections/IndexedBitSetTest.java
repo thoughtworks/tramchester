@@ -23,13 +23,13 @@ public class IndexedBitSetTest {
         assertTrue(bits.isSet(2,3), bits.toString());
 
         ImmutableBitSet row3 = bits.getBitSetForRow(2);
-        assertTrue(row3.get(3), bits + " " + row3);
+        assertTrue(row3.isSet(3), bits + " " + row3);
 
         bits.set(1,1);
         assertTrue(bits.isSet(1,1), bits.toString());
 
         ImmutableBitSet row2 = bits.getBitSetForRow(1);
-        assertTrue(row2.get(1), bits + " " + row3);
+        assertTrue(row2.isSet(1), bits + " " + row3);
 
         bits.clear();
         assertFalse(bits.isSet(2,3));

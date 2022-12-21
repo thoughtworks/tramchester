@@ -5,6 +5,7 @@ import com.tramchester.ComponentsBuilder;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.RoutePair;
+import com.tramchester.domain.collections.ImmutableBitSet;
 import com.tramchester.domain.collections.IndexedBitSet;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.reference.TransportMode;
@@ -24,12 +25,12 @@ import org.junit.jupiter.api.extension.ExtendWith;
 
 import java.util.EnumSet;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import static com.tramchester.domain.reference.TransportMode.Tram;
 import static com.tramchester.testSupport.reference.KnownTramRoute.*;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.*;
 
 @ExtendWith(ConfigParameterResolver.class)
 @DualTest
@@ -42,6 +43,9 @@ public class RouteCostMatrixTest {
     private RouteIndex routeIndex;
     private EnumSet<TransportMode> modes;
     private int numberOfRoutes;
+    private RouteRepository routeRepository;
+
+    // NOTE: this test does not cause a full db rebuild, so might see VERSION node missing messages
 
     @BeforeAll
     static void onceBeforeAnyTestRuns(TramchesterConfig tramchesterConfig) {
@@ -60,7 +64,7 @@ public class RouteCostMatrixTest {
 
     @BeforeEach
     void beforeEachTestRuns() {
-        RouteRepository routeRepository = componentContainer.get(RouteRepository.class);
+        routeRepository = componentContainer.get(RouteRepository.class);
         numberOfRoutes = routeRepository.numberOfRoutes();
         routeHelper = new TramRouteHelper(routeRepository);
         routeMatrix = componentContainer.get(RouteCostMatrix.class);
@@ -184,6 +188,47 @@ public class RouteCostMatrixTest {
             assertEquals(indexPair.second(), secondChange.second());
         });
 
+    }
+
+    @Test
+    void shouldGetBitsSetIfAlreadySetForLowerDepth() {
+        Route routeA = routeHelper.getOneRoute(TheTraffordCentreCornbrook, date);
+        Route routeB = routeHelper.getOneRoute(CornbrookTheTraffordCentre, date);
+
+        RouteIndexPair indexPair = routeIndex.getPairFor(RoutePair.of(routeA, routeB));
+
+        int firstDepth = routeMatrix.getConnectionDepthFor(routeA, routeB);
+        assertEquals(1, firstDepth);
+
+        // set for depth 1, so ought to be set for all subsequent depths
+
+        ImmutableBitSet rowAtDepthOne = routeMatrix.getExistingBitSetsForRoute(indexPair.first(), 1);
+        assertTrue(rowAtDepthOne.isSet(indexPair.second()));
+
+        ImmutableBitSet rowAtDepthTwo = routeMatrix.getExistingBitSetsForRoute(indexPair.first(), 2);
+        assertTrue(rowAtDepthTwo.isSet(indexPair.second()));
+
+        ImmutableBitSet rowAtDepthThree = routeMatrix.getExistingBitSetsForRoute(indexPair.first(), 3);
+        assertTrue(rowAtDepthThree.isSet(indexPair.second()));
+
+    }
+
+    @Test
+    void shouldHaveUniqueDegreeForEachRoutePair() {
+        Set<Route> onDate = routeRepository.getRoutesRunningOn(date);
+
+        assertFalse(onDate.isEmpty());
+
+        onDate.forEach(first -> onDate.forEach(second -> {
+            RoutePair routePair = RoutePair.of(first, second);
+
+            if (!routePair.areSame()) {
+                RouteIndexPair indexPair = routeIndex.getPairFor(routePair);
+                List<Integer> results = routeMatrix.getAllDegrees(indexPair);
+                assertTrue(results.size()<=1, "Too many degrees " + results + " for " +
+                        indexPair + " " +routePair + " on " + date);
+            }
+        }));
     }
 
 }

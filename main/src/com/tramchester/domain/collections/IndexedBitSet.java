@@ -39,6 +39,10 @@ public class IndexedBitSet {
         return result;
     }
 
+    public ImmutableBitSet createImmutable() {
+        return new ImmutableBitSet(bitSet, getSize());
+    }
+
     /***
      * Set the bit at given row and column i.e. y'th column bit in row x
      * @param row the row to update
@@ -70,7 +74,7 @@ public class IndexedBitSet {
         int endPosition = startPosition + columns; // plus num cols per row
         BitSet result = bitSet.get(startPosition, endPosition);
 
-        return new ImmutableBitSet(result);
+        return new ImmutableBitSet(result, endPosition-startPosition);
     }
 
     /***
@@ -107,6 +111,17 @@ public class IndexedBitSet {
             boolean andValue = bitSet.get(bitIndex) && bitMask.get(i);
             bitSet.set(bitIndex, andValue);
         }
+    }
+
+    public void or(ImmutableBitSet other) {
+        if (other.getSize() > getSize()) {
+            throw new RuntimeException("Size mismatch, got " + other.getSize() + " but needed " + getSize());
+        }
+        bitSet.or(other.getContained());
+    }
+
+    private int getSize() {
+        return rows*columns;
     }
 
     /***
@@ -209,5 +224,13 @@ public class IndexedBitSet {
 
         return result;
 
+    }
+
+    public int numberRows() {
+        return rows;
+    }
+
+    public int numberColumns() {
+        return columns;
     }
 }

@@ -132,7 +132,6 @@ public class RouteCostMatrix {
                 if ((!dropOff.equals(pickup)) && pickup.isDateOverlap(dropOff)) {
                     final int pickupIndex = index.indexFor(pickup.getId());
                     forDegreeOne.set(dropOffIndex, pickupIndex);
-                    //addInterchangeBetween(dropOffIndex, pickupIndex, interchange);
                 }
             }
             // apply dates and days
@@ -179,6 +178,24 @@ public class RouteCostMatrix {
             }
         }
         return MAX_VALUE;
+    }
+
+    /***
+     * Test support, get all degrees where pair is found
+     * @param routeIndexPair pair to fetch all degrees for
+     * @return list of matches
+     */
+    public List<Integer> getAllDegrees(RouteIndexPair routeIndexPair) {
+        if (routeIndexPair.isSame()) {
+            throw new RuntimeException("Don't call with same routes");
+        }
+        List<Integer> results = new ArrayList<>();
+        for (int depth = 1; depth <= maxDepth; depth++) {
+            if (costsForDegree.isSet(depth, routeIndexPair)) {
+                results.add(depth);
+            }
+        }
+        return results;
     }
 
     /***
@@ -307,20 +324,36 @@ public class RouteCostMatrix {
             final ImmutableBitSet currentConnectionsForRoute = currentMatrix.getBitSetForRow(routeIndex);
             final BitSet resultForForRoute = new BitSet(numRoutes);
             for (int connectionIndex = 0; connectionIndex < numRoutes; connectionIndex++) {
-                if (currentConnectionsForRoute.get(connectionIndex)) {
+                if (currentConnectionsForRoute.isSet(connectionIndex)) {
                     // if current routeIndex is connected to a route, then for next degree include that other routes connections
                     final ImmutableBitSet otherRoutesConnections = currentMatrix.getBitSetForRow(connectionIndex);
-                    otherRoutesConnections.applyOr(resultForForRoute);
+                    otherRoutesConnections.applyOrTo(resultForForRoute);
                 }
             }
             final BitSet dateOverlapMask = routeDateAndDayOverlap.overlapsFor(routeIndex);  // only those routes whose dates overlap
             resultForForRoute.and(dateOverlapMask);
-            currentConnectionsForRoute.applyAndNot(resultForForRoute);  // don't include any current connections for this route
+
+            final ImmutableBitSet allExistingConnectionsForRoute = getExistingBitSetsForRoute(routeIndex, currentDegree);
+
+            allExistingConnectionsForRoute.applyAndNotTo(resultForForRoute);  // don't include any current connections for this route
+
             newMatrix.insert(routeIndex, resultForForRoute);
         }
 
         final long took = Duration.between(startTime, Instant.now()).toMillis();
         logger.info("Added connections " + newMatrix.numberOfBitsSet() + "  Degree " + nextDegree + " in " + took + " ms");
+    }
+
+    public ImmutableBitSet getExistingBitSetsForRoute(final int routeIndex, final int startingDegree) {
+        final IndexedBitSet connectionsAtAllDepths = new IndexedBitSet(1, numRoutes);
+
+        for (int degree = startingDegree; degree > 0; degree--) {
+            IndexedBitSet allConnectionsAtDegree = costsForDegree.getDegree(degree);
+            ImmutableBitSet existingConnectionsAtDepth = allConnectionsAtDegree.getBitSetForRow(routeIndex);
+            connectionsAtAllDepths.or(existingConnectionsAtDepth);
+        }
+
+        return connectionsAtAllDepths.createImmutable();
     }
 
     public int getConnectionDepthFor(Route routeA, Route routeB) {
