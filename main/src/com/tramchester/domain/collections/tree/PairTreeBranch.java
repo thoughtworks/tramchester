@@ -10,11 +10,13 @@ import java.util.stream.Collectors;
 public class PairTreeBranch implements PairTree {
     private final PairTree left;
     private final PairTree right;
+    private final PairTreeFactory factory;
     private final int hash;
 
-    PairTreeBranch(PairTree left, PairTree right) {
+    PairTreeBranch(PairTree left, PairTree right, PairTreeFactory factory) {
         this.left = left;
         this.right = right;
+        this.factory = factory;
         hash = Objects.hash(left, right);
     }
 
@@ -43,7 +45,7 @@ public class PairTreeBranch implements PairTree {
     public PairTree replace(RouteIndexPair toReplace, RouteIndexPair pairA, RouteIndexPair pairB) {
         PairTree newLeft = left.replace(toReplace, pairA, pairB);
         PairTree newRight = right.replace(toReplace, pairA, pairB);
-        return new PairTreeBranch(newLeft, newRight);
+        return factory.createBranch(newLeft, newRight);
     }
 
     @Override
@@ -52,7 +54,7 @@ public class PairTreeBranch implements PairTree {
         Set<PairTree> visitedRight = right.visit(visitor);
 
         return visitedLeft.stream().
-                flatMap(visitLeft -> visitedRight.stream().map(visitRight -> new PairTreeBranch(visitLeft, visitRight))).
+                flatMap(visitLeft -> visitedRight.stream().map(visitRight -> factory.createBranch(visitLeft, visitRight))).
                 collect(Collectors.toSet());
     }
 

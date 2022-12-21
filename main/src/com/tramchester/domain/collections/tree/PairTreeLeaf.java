@@ -9,9 +9,11 @@ import java.util.Set;
 
 public class PairTreeLeaf implements PairTree {
     private final RouteIndexPair leaf;
+    private final PairTreeFactory factory;
 
-    PairTreeLeaf(RouteIndexPair leaf) {
+    PairTreeLeaf(RouteIndexPair leaf, PairTreeFactory factory) {
         this.leaf = leaf;
+        this.factory = factory;
     }
 
     @Override
@@ -37,9 +39,9 @@ public class PairTreeLeaf implements PairTree {
     @Override
     public PairTree replace(RouteIndexPair toReplace, RouteIndexPair pairA, RouteIndexPair pairB) {
         if (toReplace.equals(leaf)) {
-            PairTree left = new PairTreeLeaf(pairA);
-            PairTree right = new PairTreeLeaf(pairB);
-            return new PairTreeBranch(left, right);
+            PairTree left = new PairTreeLeaf(pairA, factory);
+            PairTree right = new PairTreeLeaf(pairB, factory);
+            return factory.createBranch(left, right);
         }
         return this;
     }
