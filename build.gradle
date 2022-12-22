@@ -72,7 +72,7 @@ dependencies {
     implementation 'software.amazon.awscdk:core:1.164.0',
             'software.amazon.awscdk:s3:1.164.0',
             'software.amazon.awscdk:ec2:1.164.0',
-            'software.amazon.awscdk:elasticloadbalancingv2:1.164.0',
+            'software.amazon.awscdk:elasticloadbalancingv2:1.184.0',
             'software.amazon.awscdk:autoscaling:1.164.0',
             'software.amazon.awscdk:cdk-cx-api:2.27.0'
 
