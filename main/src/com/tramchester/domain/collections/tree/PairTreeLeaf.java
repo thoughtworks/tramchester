@@ -37,13 +37,11 @@ public class PairTreeLeaf implements PairTree {
     }
 
     @Override
-    public PairTree replace(RouteIndexPair toReplace, RouteIndexPair pairA, RouteIndexPair pairB) {
+    public Mutated replace(RouteIndexPair toReplace, RouteIndexPair pairA, RouteIndexPair pairB) {
         if (toReplace.equals(leaf)) {
-            PairTree left = new PairTreeLeaf(pairA, factory);
-            PairTree right = new PairTreeLeaf(pairB, factory);
-            return factory.createBranch(left, right);
+            return Mutated.updated(factory.createBranch(pairA, pairB));
         }
-        return this;
+        return Mutated.unchanged(this);
     }
 
     @Override

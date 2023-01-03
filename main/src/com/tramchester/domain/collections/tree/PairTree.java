@@ -8,14 +8,38 @@ import java.util.Set;
 public interface PairTree {
     List<RouteIndexPair> flatten();
 
-    PairTree replace(RouteIndexPair toReplace, RouteIndexPair pairA, RouteIndexPair pairB);
+    Mutated replace(RouteIndexPair toReplace, RouteIndexPair pairA, RouteIndexPair pairB);
 
     Set<PairTree> visit(TreeVisitor visitor);
 
-    // TODO Mutated Flag passed in??
-
-    public interface TreeVisitor {
+    interface TreeVisitor {
         Set<PairTree> visit(PairTreeLeaf tree);
+    }
+
+    class Mutated {
+        private final PairTree pairTree;
+        private final boolean changed;
+
+        private Mutated(PairTree pairTree, boolean changed) {
+            this.pairTree = pairTree;
+            this.changed = changed;
+        }
+
+        static Mutated unchanged(PairTree pairTree) {
+            return new Mutated(pairTree, false);
+        }
+
+        static Mutated updated(PairTree pairTree) {
+            return new Mutated(pairTree, true);
+        }
+
+        public boolean isChanged() {
+            return changed;
+        }
+
+        public PairTree get() {
+            return pairTree;
+        }
     }
 
 }

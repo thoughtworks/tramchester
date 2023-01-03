@@ -42,10 +42,14 @@ public class PairTreeBranch implements PairTree {
     }
 
     @Override
-    public PairTree replace(RouteIndexPair toReplace, RouteIndexPair pairA, RouteIndexPair pairB) {
-        PairTree newLeft = left.replace(toReplace, pairA, pairB);
-        PairTree newRight = right.replace(toReplace, pairA, pairB);
-        return factory.createBranch(newLeft, newRight);
+    public Mutated replace(RouteIndexPair toReplace, RouteIndexPair pairA, RouteIndexPair pairB) {
+        Mutated newLeft = left.replace(toReplace, pairA, pairB);
+        Mutated newRight = right.replace(toReplace, pairA, pairB);
+        if (newLeft.isChanged() || newRight.isChanged()) {
+            return Mutated.updated(factory.createBranch(newLeft.get(), newRight.get()));
+        } else {
+            return Mutated.unchanged(this);
+        }
     }
 
     @Override

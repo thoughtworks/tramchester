@@ -1,14 +1,14 @@
 package com.tramchester.graph.search.routes;
 
-import com.github.benmanes.caffeine.cache.Cache;
-import com.github.benmanes.caffeine.cache.Caffeine;
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.caching.DataCache;
 import com.tramchester.dataexport.DataSaver;
 import com.tramchester.dataimport.data.CostsPerDegreeData;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.RoutePair;
-import com.tramchester.domain.collections.*;
+import com.tramchester.domain.collections.ImmutableBitSet;
+import com.tramchester.domain.collections.IndexedBitSet;
+import com.tramchester.domain.collections.RouteIndexPair;
 import com.tramchester.domain.collections.tree.PairTree;
 import com.tramchester.domain.collections.tree.PairTreeFactory;
 import com.tramchester.domain.collections.tree.PairTreeLeaf;
@@ -28,7 +28,6 @@ import javax.inject.Inject;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.*;
-import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
@@ -52,7 +51,7 @@ public class RouteCostMatrix {
     private final RouteIndex index;
     private final int maxDepth;
     private final int numRoutes;
-    private final List<Cache<RouteIndexPair, Set<PairTree>>> cacheForDegree;
+    //private final List<Cache<RouteIndexPair, Set<PairTree>>> cacheForDegree;
 
     @Inject
     RouteCostMatrix(RouteRepository routeRepository, InterchangeRepository interchangeRepository, DataCache dataCache,
@@ -66,12 +65,12 @@ public class RouteCostMatrix {
         this.maxDepth = MAX_DEPTH;
         this.numRoutes = routeRepository.numberOfRoutes();
 
-        cacheForDegree = new ArrayList<>(MAX_DEPTH);
-        for (int i = 0; i < MAX_DEPTH; i++) {
-            Cache<RouteIndexPair, Set<PairTree>> cache = Caffeine.newBuilder().maximumSize(numRoutes).
-                    expireAfterWrite(10, TimeUnit.MINUTES).recordStats().build();
-            cacheForDegree.add(cache);
-        }
+//        cacheForDegree = new ArrayList<>(MAX_DEPTH);
+//        for (int i = 0; i < MAX_DEPTH; i++) {
+//            Cache<RouteIndexPair, Set<PairTree>> cache = Caffeine.newBuilder().maximumSize(numRoutes).
+//                    expireAfterWrite(10, TimeUnit.MINUTES).recordStats().build();
+//            cacheForDegree.add(cache);
+//        }
 
         costsForDegree = new CostsPerDegree(maxDepth);
     }
@@ -251,10 +250,10 @@ public class RouteCostMatrix {
         // find matrix at one higher than where the pair meet, extract row/column corresponding i.e. next changes needed
         final RouteIndexPair leafPair = treeToVisit.get();
 
-        Set<PairTree> cachedResult = cacheForDegree.get(degree).getIfPresent(leafPair);
-        if (cachedResult!=null) {
-            return cachedResult;
-        }
+//        Set<PairTree> cachedResult = cacheForDegree.get(degree).getIfPresent(leafPair);
+//        if (cachedResult!=null) {
+//            return cachedResult;
+//        }
 
         final IndexedBitSet changesForDegree = costsForDegree.getDegree(degree - 1).getRowAndColumn(leafPair.first(), leafPair.second());
         // apply mask to filter out unavailable dates/modes
@@ -266,14 +265,16 @@ public class RouteCostMatrix {
         final List<RouteIndexPair.Group> grouped = RouteIndexPair.createAllUniqueGroups(routePairs);
 
         // set of unique trees resulting from this expansion
-        Stream<PairTree> expanded = grouped.stream().map(group -> treeToVisit.replace(leafPair, group.first(), group.second()));
+        Stream<PairTree> expanded = grouped.stream().
+                map(group -> treeToVisit.replace(leafPair, group.first(), group.second())).
+                map(PairTree.Mutated::get);
 
         // in turn expand each resulting tree
         final Set<PairTree> fullyExpanded = expanded.
                 flatMap(expandedTree -> expandTree(expandedTree, degree - 1, dateOverlaps)).
                 collect(Collectors.toSet());
 
-        cacheForDegree.get(degree).put(leafPair, fullyExpanded);
+        //cacheForDegree.get(degree).put(leafPair, fullyExpanded);
 
         return fullyExpanded;
     }

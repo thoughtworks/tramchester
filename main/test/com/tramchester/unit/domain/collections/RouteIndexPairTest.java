@@ -10,8 +10,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class RouteIndexPairTest {
 
@@ -78,17 +77,23 @@ public class RouteIndexPairTest {
         PairTree tree = factory.createLeaf(pairA);
         assertEquals(Collections.singletonList(pairA), tree.flatten());
 
-        tree = tree.replace(pairA, pairB, pairC);
+        PairTree.Mutated mutated = tree.replace(pairA, pairB, pairC);
+        assertTrue(mutated.isChanged());
+        tree = mutated.get();
 
         assertEquals(Arrays.asList(pairB, pairC), tree.flatten());
 
         RouteIndexPair pairD = RouteIndexPair.of(13,9);
 
-        tree = tree.replace(pairC, pairD, pairD);
+        mutated = tree.replace(pairC, pairD, pairD);
+        assertTrue(mutated.isChanged());
+        tree = mutated.get();
 
         assertEquals(Arrays.asList(pairB, pairD, pairD), tree.flatten());
 
-        tree = tree.replace(RouteIndexPair.of(101,100), RouteIndexPair.of(0,0), RouteIndexPair.of(1,1));
+        mutated = tree.replace(RouteIndexPair.of(101, 100), RouteIndexPair.of(0, 0), RouteIndexPair.of(1, 1));
+        assertFalse(mutated.isChanged());
+        tree = mutated.get();
         assertEquals(Arrays.asList(pairB, pairD, pairD), tree.flatten());
 
     }
@@ -122,7 +127,7 @@ public class RouteIndexPairTest {
         RouteIndexPair pairC = RouteIndexPair.of(100, 105);
 
         PairTree tree = factory.createLeaf(pairA);
-        tree = tree.replace(pairA, pairB, pairC);
+        tree = tree.replace(pairA, pairB, pairC).get();
 
         PairTree.TreeVisitor visitor = subTree -> {
             RouteIndexPair pair = subTree.get();
@@ -147,7 +152,7 @@ public class RouteIndexPairTest {
         RouteIndexPair pairC = RouteIndexPair.of(100, 105);
 
         PairTree original = factory.createLeaf(pairA);
-        original = original.replace(pairA, pairB, pairC);
+        original = original.replace(pairA, pairB, pairC).get();
 
         PairTree.TreeVisitor visitor = subTree -> {
             RouteIndexPair pairAdd = RouteIndexPair.of(subTree.get().first()+1, subTree.get().second()+1);
@@ -174,7 +179,7 @@ public class RouteIndexPairTest {
         RouteIndexPair pairC = RouteIndexPair.of(100, 105);
 
         PairTree original = factory.createLeaf(pairA);
-        original = original.replace(pairA, pairB, pairC);
+        original = original.replace(pairA, pairB, pairC).get();
 
         PairTree.TreeVisitor visitor = tree -> {
             HashSet<PairTree> result = new HashSet<>();

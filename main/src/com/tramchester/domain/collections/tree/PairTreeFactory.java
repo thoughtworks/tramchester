@@ -12,4 +12,10 @@ public class PairTreeFactory {
     public PairTree createLeaf(RouteIndexPair pair) {
         return new PairTreeLeaf(pair, this);
     }
+
+    public PairTree createBranch(RouteIndexPair pairA, RouteIndexPair pairB) {
+        PairTree left = createLeaf(pairA);
+        PairTree right = createLeaf(pairB);
+        return createBranch(left, right);
+    }
 }
