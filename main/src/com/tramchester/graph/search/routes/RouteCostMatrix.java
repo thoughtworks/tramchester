@@ -9,6 +9,7 @@ import com.tramchester.domain.RoutePair;
 import com.tramchester.domain.collections.ImmutableBitSet;
 import com.tramchester.domain.collections.IndexedBitSet;
 import com.tramchester.domain.collections.RouteIndexPair;
+import com.tramchester.domain.collections.RouteIndexPairFactory;
 import com.tramchester.domain.collections.tree.PairTree;
 import com.tramchester.domain.collections.tree.PairTreeFactory;
 import com.tramchester.domain.collections.tree.PairTreeLeaf;
@@ -17,7 +18,7 @@ import com.tramchester.domain.places.InterchangeStation;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.graph.filters.GraphFilterActive;
 import com.tramchester.repository.InterchangeRepository;
-import com.tramchester.repository.RouteRepository;
+import com.tramchester.repository.NumberOfRoutes;
 import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,10 +43,10 @@ public class RouteCostMatrix {
 
     public static final int MAX_DEPTH = 5;
 
-    private final RouteRepository routeRepository;
     private final InterchangeRepository interchangeRepository;
     private final DataCache dataCache;
     private final GraphFilterActive graphFilter;
+    private final RouteIndexPairFactory pairFactory;
 
     private final CostsPerDegree costsForDegree;
     private final RouteIndex index;
@@ -54,16 +55,16 @@ public class RouteCostMatrix {
     //private final List<Cache<RouteIndexPair, Set<PairTree>>> cacheForDegree;
 
     @Inject
-    RouteCostMatrix(RouteRepository routeRepository, InterchangeRepository interchangeRepository, DataCache dataCache,
-                    GraphFilterActive graphFilter, RouteIndex index) {
-        this.routeRepository = routeRepository;
+    RouteCostMatrix(NumberOfRoutes numberOfRoutes, InterchangeRepository interchangeRepository, DataCache dataCache,
+                    GraphFilterActive graphFilter, RouteIndexPairFactory pairFactory, RouteIndex index) {
         this.interchangeRepository = interchangeRepository;
         this.dataCache = dataCache;
         this.graphFilter = graphFilter;
+        this.pairFactory = pairFactory;
 
         this.index = index;
         this.maxDepth = MAX_DEPTH;
-        this.numRoutes = routeRepository.numberOfRoutes();
+        this.numRoutes = numberOfRoutes.numberOfRoutes();
 
 //        cacheForDegree = new ArrayList<>(MAX_DEPTH);
 //        for (int i = 0; i < MAX_DEPTH; i++) {
@@ -260,7 +261,7 @@ public class RouteCostMatrix {
         final IndexedBitSet withDateApplied = changesForDegree.and(dateOverlaps);
         // get the possible pairs where next change can happen
         Stream<Pair<Integer, Integer>> pairsForDegree = withDateApplied.getPairs();
-        Stream<RouteIndexPair> routePairs = pairsForDegree.map(pair -> RouteIndexPair.of(pair.getLeft(), pair.getRight()));
+        Stream<RouteIndexPair> routePairs = pairsForDegree.map(pair -> pairFactory.get(pair.getLeft(), pair.getRight()));
         // group pairs where second/first match i.e. 8,5 5,4
         final List<RouteIndexPair.Group> grouped = RouteIndexPair.createAllUniqueGroups(routePairs);
 
@@ -284,7 +285,7 @@ public class RouteCostMatrix {
     }
 
     private void populateCosts(RouteDateAndDayOverlap routeDateAndDayOverlap) {
-        final int size = routeRepository.numberOfRoutes();
+        final int size = numRoutes;
         logger.info("Find costs between " + size + " routes");
         final int fullyConnected = size * size;
 

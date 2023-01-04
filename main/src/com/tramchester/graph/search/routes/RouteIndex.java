@@ -7,6 +7,7 @@ import com.tramchester.dataimport.data.RouteIndexData;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.RoutePair;
 import com.tramchester.domain.collections.RouteIndexPair;
+import com.tramchester.domain.collections.RouteIndexPairFactory;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.graph.filters.GraphFilterActive;
 import com.tramchester.repository.RouteRepository;
@@ -33,17 +34,19 @@ public class RouteIndex implements DataCache.Cacheable<RouteIndexData> {
     private final RouteRepository routeRepository;
     private final GraphFilterActive graphFilter;
     private final DataCache dataCache;
+    private final RouteIndexPairFactory pairFactory;
 
     private final Map<IdFor<Route>, Integer> mapRouteIdToIndex;
     private final Map<Integer, IdFor<Route>> mapIndexToRouteId;
     private final int numberOfRoutes;
 
     @Inject
-    public RouteIndex(RouteRepository routeRepository, GraphFilterActive graphFilter, DataCache dataCache) {
+    public RouteIndex(RouteRepository routeRepository, GraphFilterActive graphFilter, DataCache dataCache, RouteIndexPairFactory pairFactory) {
         this.routeRepository = routeRepository;
         this.numberOfRoutes = routeRepository.numberOfRoutes();
         this.graphFilter = graphFilter;
         this.dataCache = dataCache;
+        this.pairFactory = pairFactory;
 
         mapRouteIdToIndex = new HashMap<>(numberOfRoutes);
         mapIndexToRouteId = new HashMap<>(numberOfRoutes);
@@ -141,7 +144,7 @@ public class RouteIndex implements DataCache.Cacheable<RouteIndexData> {
     public RouteIndexPair getPairFor(RoutePair routePair) {
         int a = indexFor(routePair.getFirst().getId());
         int b = indexFor(routePair.getSecond().getId());
-        return RouteIndexPair.of(a, b);
+        return pairFactory.get(a, b);
     }
 
 

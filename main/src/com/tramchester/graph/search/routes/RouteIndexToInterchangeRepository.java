@@ -3,6 +3,7 @@ package com.tramchester.graph.search.routes;
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.collections.RouteIndexPair;
+import com.tramchester.domain.collections.RouteIndexPairFactory;
 import com.tramchester.domain.places.InterchangeStation;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.repository.InterchangeRepository;
@@ -24,13 +25,16 @@ public class RouteIndexToInterchangeRepository {
 
     private final RouteIndex routeIndex;
     private final InterchangeRepository interchangeRepository;
+    private final RouteIndexPairFactory pairFactory;
 
     private final Map<RouteIndexPair, Set<InterchangeStation>> routePairToInterchange;
 
     @Inject
-    public RouteIndexToInterchangeRepository(RouteIndex routeIndex, InterchangeRepository interchangeRepository) {
+    public RouteIndexToInterchangeRepository(RouteIndex routeIndex, InterchangeRepository interchangeRepository,
+                                             RouteIndexPairFactory pairFactory) {
         this.routeIndex = routeIndex;
         this.interchangeRepository = interchangeRepository;
+        this.pairFactory = pairFactory;
         routePairToInterchange = new HashMap<>();
     }
 
@@ -60,7 +64,7 @@ public class RouteIndexToInterchangeRepository {
             for (final Route pickup : pickupAtInterchange) {
                 if ((!dropOff.equals(pickup)) && pickup.isDateOverlap(dropOff)) {
                     final int pickupIndex = routeIndex.indexFor(pickup.getId());
-                    RouteIndexPair key = RouteIndexPair.of(dropOffIndex, pickupIndex);
+                    RouteIndexPair key = pairFactory.get(dropOffIndex, pickupIndex);
 
                     addInterchangeBetween(key, interchange);
                 }

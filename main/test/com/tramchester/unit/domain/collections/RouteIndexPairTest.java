@@ -1,8 +1,10 @@
 package com.tramchester.unit.domain.collections;
 
 import com.tramchester.domain.collections.RouteIndexPair;
+import com.tramchester.domain.collections.RouteIndexPairFactory;
 import com.tramchester.domain.collections.tree.PairTree;
 import com.tramchester.domain.collections.tree.PairTreeFactory;
+import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -14,31 +16,40 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class RouteIndexPairTest {
 
-    private PairTreeFactory factory;
+    public static final int NUMBER_OF_ROUTES = 1000;
+    private PairTreeFactory treeFactory;
+    private RouteIndexPairFactory indexPairFactory;
 
     @BeforeEach
     void onceBeforeEachTestRuns() {
-        factory = new PairTreeFactory();
+        indexPairFactory = new RouteIndexPairFactory(() -> NUMBER_OF_ROUTES);
+        treeFactory = new PairTreeFactory();
+    }
+
+    @NotNull
+    private RouteIndexPair getPair(int first, int second) {
+        return indexPairFactory.get(first, second);
     }
 
     @Test
     void shouldHaveAPair() {
-        RouteIndexPair pair = RouteIndexPair.of(42,95);
+        RouteIndexPair pair = getPair(42, 95);
         assertEquals(42, pair.first());
         assertEquals(95, pair.second());
     }
 
+
     @Test
     void shouldHaveSame() {
-        RouteIndexPair pair = RouteIndexPair.of(42,42);
+        RouteIndexPair pair = getPair(42, 42);
         assertTrue(pair.isSame());
     }
 
     @Test
     void  shouldGroupPairs() {
-        RouteIndexPair pairA = RouteIndexPair.of(3,5);
-        RouteIndexPair pairB = RouteIndexPair.of(1,3);
-        RouteIndexPair pairC = RouteIndexPair.of(4,7);
+        RouteIndexPair pairA = getPair(3, 5);
+        RouteIndexPair pairB = getPair(1, 3);
+        RouteIndexPair pairC = getPair(4, 7);
 
         Stream<RouteIndexPair> pairsToGroup = Stream.of(pairA, pairC, pairB);
 
@@ -53,10 +64,10 @@ public class RouteIndexPairTest {
 
     @Test
     void shouldGenerateCombinations() {
-        RouteIndexPair pairA = RouteIndexPair.of(1,2);
-        RouteIndexPair pairB = RouteIndexPair.of(2,3);
-        RouteIndexPair pairC = RouteIndexPair.of(2,4);
-        RouteIndexPair pairD = RouteIndexPair.of(2,5);
+        RouteIndexPair pairA = getPair(1, 2);
+        RouteIndexPair pairB = getPair(2, 3);
+        RouteIndexPair pairC = getPair(2, 4);
+        RouteIndexPair pairD = getPair(2, 5);
 
         Stream<RouteIndexPair> pairsToGroup = Stream.of(pairA, pairD, pairB, pairC);
 
@@ -70,11 +81,11 @@ public class RouteIndexPairTest {
 
     @Test
     void shouldReplaceAndFlatten() {
-        RouteIndexPair pairA = RouteIndexPair.of(42, 85);
-        RouteIndexPair pairB = RouteIndexPair.of(5, 9);
-        RouteIndexPair pairC = RouteIndexPair.of(120, 99);
+        RouteIndexPair pairA = getPair(42, 85);
+        RouteIndexPair pairB = getPair(5, 9);
+        RouteIndexPair pairC = getPair(120, 99);
 
-        PairTree tree = factory.createLeaf(pairA);
+        PairTree tree = treeFactory.createLeaf(pairA);
         assertEquals(Collections.singletonList(pairA), tree.flatten());
 
         PairTree.Mutated mutated = tree.replace(pairA, pairB, pairC);
@@ -83,7 +94,7 @@ public class RouteIndexPairTest {
 
         assertEquals(Arrays.asList(pairB, pairC), tree.flatten());
 
-        RouteIndexPair pairD = RouteIndexPair.of(13,9);
+        RouteIndexPair pairD = getPair(13, 9);
 
         mutated = tree.replace(pairC, pairD, pairD);
         assertTrue(mutated.isChanged());
@@ -91,7 +102,7 @@ public class RouteIndexPairTest {
 
         assertEquals(Arrays.asList(pairB, pairD, pairD), tree.flatten());
 
-        mutated = tree.replace(RouteIndexPair.of(101, 100), RouteIndexPair.of(0, 0), RouteIndexPair.of(1, 1));
+        mutated = tree.replace(getPair(101, 100), getPair(0, 0), getPair(1, 1));
         assertFalse(mutated.isChanged());
         tree = mutated.get();
         assertEquals(Arrays.asList(pairB, pairD, pairD), tree.flatten());
@@ -100,14 +111,14 @@ public class RouteIndexPairTest {
 
     @Test
     void shouldVisitSimple() {
-        RouteIndexPair pairA = RouteIndexPair.of(1, 5);
+        RouteIndexPair pairA = getPair(1, 5);
 
-        PairTree tree = factory.createLeaf(pairA);
+        PairTree tree = treeFactory.createLeaf(pairA);
 
         PairTree.TreeVisitor visitor = subTree -> {
             RouteIndexPair pair = subTree.get();
-            RouteIndexPair pairAdd = RouteIndexPair.of(pair.first()+1, pair.second()+1);
-            return Collections.singleton(factory.createLeaf(pairAdd));
+            RouteIndexPair pairAdd = getPair(pair.first() + 1, pair.second() + 1);
+            return Collections.singleton(treeFactory.createLeaf(pairAdd));
         };
 
         List<PairTree> result = new ArrayList<>(tree.visit(visitor));
@@ -117,22 +128,22 @@ public class RouteIndexPairTest {
         PairTree resultTree = result.get(0);
 
         List<RouteIndexPair> leaves = resultTree.flatten();
-        assertEquals(List.of(RouteIndexPair.of(2, 6)), leaves);
+        assertEquals(List.of(getPair(2, 6)), leaves);
     }
 
     @Test
     void shouldVisitSimpleOneLevel() {
-        RouteIndexPair pairA = RouteIndexPair.of(1, 2);
-        RouteIndexPair pairB = RouteIndexPair.of(31, 35);
-        RouteIndexPair pairC = RouteIndexPair.of(100, 105);
+        RouteIndexPair pairA = getPair(1, 2);
+        RouteIndexPair pairB = getPair(31, 35);
+        RouteIndexPair pairC = getPair(100, 105);
 
-        PairTree tree = factory.createLeaf(pairA);
+        PairTree tree = treeFactory.createLeaf(pairA);
         tree = tree.replace(pairA, pairB, pairC).get();
 
         PairTree.TreeVisitor visitor = subTree -> {
             RouteIndexPair pair = subTree.get();
-            RouteIndexPair pairAdd = RouteIndexPair.of(pair.first()+1, pair.second()+1);
-            return Collections.singleton(factory.createLeaf(pairAdd));
+            RouteIndexPair pairAdd = getPair(pair.first() + 1, pair.second() + 1);
+            return Collections.singleton(treeFactory.createLeaf(pairAdd));
         };
 
         List<PairTree> result = new ArrayList<>(tree.visit(visitor));
@@ -142,21 +153,21 @@ public class RouteIndexPairTest {
         PairTree resultTree = result.get(0);
 
         List<RouteIndexPair> leaves = resultTree.flatten();
-        assertEquals(Arrays.asList(RouteIndexPair.of(32, 36), RouteIndexPair.of(101,106)), leaves);
+        assertEquals(Arrays.asList(getPair(32, 36), getPair(101, 106)), leaves);
     }
 
     @Test
     void shouldVisitPermutations() {
-        RouteIndexPair pairA = RouteIndexPair.of(1, 2);
-        RouteIndexPair pairB = RouteIndexPair.of(31, 35);
-        RouteIndexPair pairC = RouteIndexPair.of(100, 105);
+        RouteIndexPair pairA = getPair(1, 2);
+        RouteIndexPair pairB = getPair(31, 35);
+        RouteIndexPair pairC = getPair(100, 105);
 
-        PairTree original = factory.createLeaf(pairA);
+        PairTree original = treeFactory.createLeaf(pairA);
         original = original.replace(pairA, pairB, pairC).get();
 
         PairTree.TreeVisitor visitor = subTree -> {
-            RouteIndexPair pairAdd = RouteIndexPair.of(subTree.get().first()+1, subTree.get().second()+1);
-            return Set.of(subTree, factory.createLeaf(pairAdd));
+            RouteIndexPair pairAdd = getPair(subTree.get().first() + 1, subTree.get().second() + 1);
+            return Set.of(subTree, treeFactory.createLeaf(pairAdd));
         };
 
         List<PairTree> result = new ArrayList<>(original.visit(visitor));
@@ -165,20 +176,20 @@ public class RouteIndexPairTest {
 
         List<List<RouteIndexPair>> lists = result.stream().map(PairTree::flatten).collect(Collectors.toList());
 
-        assertTrue(lists.contains(Arrays.asList(RouteIndexPair.of(31,35), RouteIndexPair.of(100,105))));
-        assertTrue(lists.contains(Arrays.asList(RouteIndexPair.of(31,35), RouteIndexPair.of(101,106))));
-        assertTrue(lists.contains(Arrays.asList(RouteIndexPair.of(32,36), RouteIndexPair.of(100,105))));
-        assertTrue(lists.contains(Arrays.asList(RouteIndexPair.of(32,36), RouteIndexPair.of(101,106))));
+        assertTrue(lists.contains(Arrays.asList(getPair(31, 35), getPair(100, 105))));
+        assertTrue(lists.contains(Arrays.asList(getPair(31, 35), getPair(101, 106))));
+        assertTrue(lists.contains(Arrays.asList(getPair(32, 36), getPair(100, 105))));
+        assertTrue(lists.contains(Arrays.asList(getPair(32, 36), getPair(101, 106))));
 
     }
 
     @Test
     void shouldVisitPermutationsWithDuplication() {
-        RouteIndexPair pairA = RouteIndexPair.of(1, 2);
-        RouteIndexPair pairB = RouteIndexPair.of(31, 35);
-        RouteIndexPair pairC = RouteIndexPair.of(100, 105);
+        RouteIndexPair pairA = getPair(1, 2);
+        RouteIndexPair pairB = getPair(31, 35);
+        RouteIndexPair pairC = getPair(100, 105);
 
-        PairTree original = factory.createLeaf(pairA);
+        PairTree original = treeFactory.createLeaf(pairA);
         original = original.replace(pairA, pairB, pairC).get();
 
         PairTree.TreeVisitor visitor = tree -> {
@@ -194,8 +205,8 @@ public class RouteIndexPairTest {
 
         List<List<RouteIndexPair>> lists = result.stream().map(PairTree::flatten).collect(Collectors.toList());
 
-        assertTrue(lists.contains(Arrays.asList(RouteIndexPair.of(31,35), RouteIndexPair.of(100,105))));
-        assertTrue(lists.contains(Arrays.asList(RouteIndexPair.of(31,35), RouteIndexPair.of(100,105))));
+        assertTrue(lists.contains(Arrays.asList(getPair(31, 35), getPair(100, 105))));
+        assertTrue(lists.contains(Arrays.asList(getPair(31, 35), getPair(100, 105))));
 
     }
 

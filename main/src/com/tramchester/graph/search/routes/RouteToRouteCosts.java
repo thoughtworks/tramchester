@@ -4,6 +4,7 @@ import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.domain.*;
 import com.tramchester.domain.collections.IndexedBitSet;
 import com.tramchester.domain.collections.RouteIndexPair;
+import com.tramchester.domain.collections.RouteIndexPairFactory;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.places.InterchangeStation;
@@ -44,6 +45,7 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
     private final ClosedStationsRepository closedStationsRepository;
     private final RouteIndex index;
     private final RouteCostMatrix costs;
+    private final RouteIndexPairFactory pairFactory;
 
     private final int numberOfRoutes;
 
@@ -51,7 +53,7 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
     public RouteToRouteCosts(RouteRepository routeRepository, NeighboursRepository neighboursRepository,
                              StationAvailabilityRepository availabilityRepository,
                              RouteIndexToInterchangeRepository routePairToInterchange, ClosedStationsRepository closedStationsRepository,
-                             RouteIndex index, RouteCostMatrix costs) {
+                             RouteIndex index, RouteCostMatrix costs, RouteIndexPairFactory pairFactory) {
         this.neighboursRepository = neighboursRepository;
         this.availabilityRepository = availabilityRepository;
         this.routePairToInterchange = routePairToInterchange;
@@ -60,6 +62,7 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
         this.costs = costs;
 
         numberOfRoutes = routeRepository.numberOfRoutes();
+        this.pairFactory = pairFactory;
     }
 
     @PostConstruct
@@ -301,7 +304,7 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
                 map(dest -> availabilityRepository.getDropoffRoutesFor(dest, date, timeRange, requestedModes)).
                 flatMap(Collection::stream).
                 collect(Collectors.toUnmodifiableSet());
-        return new LowestCostForDestinations(this, destinationRoutes, date, timeRange, requestedModes);
+        return new LowestCostForDestinations(this, pairFactory, destinationRoutes, date, timeRange, requestedModes);
     }
 
     @NotNull
@@ -391,6 +394,7 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
      */
     private static class LowestCostForDestinations implements LowestCostsForDestRoutes {
         private final RouteToRouteCosts routeToRouteCosts;
+        private final RouteIndexPairFactory pairFactory;
         private final Set<Integer> destinationIndexs;
         private final TramDate date;
         private final TimeRange time;
@@ -398,9 +402,10 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
         private final IndexedBitSet dateOverlaps;
         private final Set<TransportMode> requestedModes;
 
-        public LowestCostForDestinations(BetweenRoutesCostRepository routeToRouteCosts, Set<Route> destinations,
+        public LowestCostForDestinations(BetweenRoutesCostRepository routeToRouteCosts, RouteIndexPairFactory pairFactory, Set<Route> destinations,
                                          TramDate date, TimeRange time, Set<TransportMode> requestedModes) {
             this.routeToRouteCosts = (RouteToRouteCosts) routeToRouteCosts;
+            this.pairFactory = pairFactory;
             destinationIndexs = destinations.stream().
                     map(destination -> this.routeToRouteCosts.index.indexFor(destination.getId())).
                     collect(Collectors.toUnmodifiableSet());
@@ -428,7 +433,7 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
 
             // note: IntStream uses int in implementation so avoids any boxing overhead
             return destinationIndexs.stream().mapToInt(item -> item).
-                    map(indexOfDest -> routeToRouteCosts.getDepth(RouteIndexPair.of(indexOfStart, indexOfDest),
+                    map(indexOfDest -> routeToRouteCosts.getDepth(pairFactory.get(indexOfStart, indexOfDest),
                             changeStationOperating, dateOverlaps, requestedModes)).
                     filter(result -> result != RouteCostMatrix.MAX_VALUE).
                     min().
@@ -452,7 +457,7 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
 
             // note: IntStream uses int in implementation so avoids any boxing overhead
             int result = destinationIndexs.stream().mapToInt(item -> item).
-                    map(dest -> routeToRouteCosts.getDepth(RouteIndexPair.of(indexOfStart, dest), changeStationOperating, dateOverlaps, requestedModes)).
+                    map(dest -> routeToRouteCosts.getDepth(pairFactory.get(indexOfStart, dest), changeStationOperating, dateOverlaps, requestedModes)).
                     min().
                     orElse(Integer.MAX_VALUE);
             return Pair.of(result, start);

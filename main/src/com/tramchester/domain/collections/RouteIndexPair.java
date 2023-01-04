@@ -11,10 +11,10 @@ public class RouteIndexPair {
     private RouteIndexPair(int first, int second) {
         this.first = first;
         this.second = second;
-        hashCode = first *31 + second; //Objects.hash(first, second);
+        hashCode = first *31 + second; // Objects.hash(first, second);
     }
 
-    public static RouteIndexPair of(int first, int second) {
+    static RouteIndexPair of(int first, int second) {
         return new RouteIndexPair(first, second);
     }
 

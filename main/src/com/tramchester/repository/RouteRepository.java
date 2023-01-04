@@ -11,12 +11,11 @@ import java.time.LocalDate;
 import java.util.Set;
 
 @ImplementedBy(TransportData.class)
-public interface RouteRepository {
+public interface RouteRepository extends NumberOfRoutes {
     Set<Route> getRoutes();
     Set<Route> getRoutes(Set<TransportMode> mode);
 
     Route getRouteById(IdFor<Route> routeId);
-    int numberOfRoutes();
 
     Set<Route> findRoutesByShortName(IdFor<Agency> agencyId, String shortName);
     Set<Route> findRoutesByName(IdFor<Agency> agencyId, String longName);

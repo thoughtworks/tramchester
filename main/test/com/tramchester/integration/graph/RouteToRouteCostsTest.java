@@ -10,6 +10,7 @@ import com.tramchester.dataimport.loader.files.TransportDataFromCSVFile;
 import com.tramchester.domain.*;
 import com.tramchester.domain.collections.IndexedBitSet;
 import com.tramchester.domain.collections.RouteIndexPair;
+import com.tramchester.domain.collections.RouteIndexPairFactory;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.id.IdSet;
@@ -126,6 +127,7 @@ public class RouteToRouteCostsTest {
     void shouldReproIssueWithGreenLineRoute() {
         RouteCostMatrix routeCostMatrix = componentContainer.get(RouteCostMatrix.class);
         RouteIndex routeIndex = componentContainer.get(RouteIndex.class);
+        RouteIndexPairFactory pairFactory = componentContainer.get(RouteIndexPairFactory.class);
 
         Route greenInbound = routeHelper.getOneRoute(AltrinchamManchesterBury, date);
 
@@ -140,7 +142,7 @@ public class RouteToRouteCostsTest {
             if (!otherRoute.getId().equals(greenInbound.getId())) {
                 int otherIndex = routeIndex.indexFor(otherRoute.getId());
 
-                RouteIndexPair routeIndexPair = RouteIndexPair.of(greenIndex, otherIndex);
+                RouteIndexPair routeIndexPair = pairFactory.get(greenIndex, otherIndex);
                 Stream<List<RouteIndexPair>> stream = routeCostMatrix.getChangesFor(routeIndexPair, dateOverlaps);
 
                 Set<List<RouteIndexPair>> results = stream.collect(Collectors.toSet());
@@ -148,7 +150,6 @@ public class RouteToRouteCostsTest {
                 assertFalse(results.isEmpty(), "no link for " + greenInbound + " and " + otherRoute);
             }
         }
-
 
     }
 

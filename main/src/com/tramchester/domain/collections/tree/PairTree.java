@@ -16,6 +16,7 @@ public interface PairTree {
         Set<PairTree> visit(PairTreeLeaf tree);
     }
 
+    // TODO unclear is this is actually helping at all
     class Mutated {
         private final PairTree pairTree;
         private final boolean changed;
