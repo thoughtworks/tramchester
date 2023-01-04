@@ -49,6 +49,11 @@ public class PairTreeLeaf implements PairTree {
         return visitor.visit(this);
     }
 
+    @Override
+    public PairTreeId getId() {
+        return new PairTreeId(leaf.getUniqueId());
+    }
+
     public RouteIndexPair get() {
         return leaf;
     }

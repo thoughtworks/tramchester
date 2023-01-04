@@ -6,16 +6,18 @@ import java.util.stream.Stream;
 public class RouteIndexPair {
     private final int first;
     private final int second;
+    private final long uniqueId;
     private final int hashCode;
 
-    private RouteIndexPair(int first, int second) {
+    private RouteIndexPair(int first, int second, int numberOfRoutes) {
         this.first = first;
         this.second = second;
+        this.uniqueId = (((long) first *numberOfRoutes) + second);
         hashCode = first *31 + second; // Objects.hash(first, second);
     }
 
-    static RouteIndexPair of(int first, int second) {
-        return new RouteIndexPair(first, second);
+    static RouteIndexPair of(int first, int second, int numberOfRoutes) {
+        return new RouteIndexPair(first, second, numberOfRoutes);
     }
 
     public int first() {
@@ -87,6 +89,10 @@ public class RouteIndexPair {
         bySecond.clear();
 
         return results;
+    }
+
+    public long getUniqueId() {
+        return uniqueId;
     }
 
     public static class Group {

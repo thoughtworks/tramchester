@@ -21,7 +21,7 @@ public class RouteIndexPairFactory {
         if (b > numberOfRoutes) {
             throw new RuntimeException("Second argument " + b + " is out of range " + numberOfRoutes);
         }
-        return RouteIndexPair.of(a,b);
+        return RouteIndexPair.of(a,b, numberOfRoutes);
     }
 
 }

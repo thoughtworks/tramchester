@@ -63,6 +63,11 @@ public class PairTreeBranch implements PairTree {
     }
 
     @Override
+    public PairTreeId getId() {
+        return new PairTreeId(left.getId(), right.getId());
+    }
+
+    @Override
     public String toString() {
         return "[ " + left.toString() + " , " + right.toString() + " ]";
     }
