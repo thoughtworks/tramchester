@@ -36,7 +36,7 @@ import java.util.stream.Stream;
 import static java.lang.String.format;
 
 @LazySingleton
-public class RouteCostMatrix {
+public class RouteCostMatrix implements RouteCostCombinations {
     private static final Logger logger = LoggerFactory.getLogger(RouteCostMatrix.class);
 
     public static final byte MAX_VALUE = Byte.MAX_VALUE;
@@ -52,7 +52,6 @@ public class RouteCostMatrix {
     private final RouteIndex index;
     private final int maxDepth;
     private final int numRoutes;
-    //private final List<Cache<RouteIndexPair, Set<PairTree>>> cacheForDegree;
 
     @Inject
     RouteCostMatrix(NumberOfRoutes numberOfRoutes, InterchangeRepository interchangeRepository, DataCache dataCache,
@@ -65,13 +64,6 @@ public class RouteCostMatrix {
         this.index = index;
         this.maxDepth = MAX_DEPTH;
         this.numRoutes = numberOfRoutes.numberOfRoutes();
-
-//        cacheForDegree = new ArrayList<>(MAX_DEPTH);
-//        for (int i = 0; i < MAX_DEPTH; i++) {
-//            Cache<RouteIndexPair, Set<PairTree>> cache = Caffeine.newBuilder().maximumSize(numRoutes).
-//                    expireAfterWrite(10, TimeUnit.MINUTES).recordStats().build();
-//            cacheForDegree.add(cache);
-//        }
 
         costsForDegree = new CostsPerDegree(maxDepth);
     }
@@ -140,6 +132,7 @@ public class RouteCostMatrix {
     }
 
     // create a bitmask for route->route changes that are possible on a given date and transport mode
+    @Override
     public IndexedBitSet createOverlapMatrixFor(TramDate date, Set<TransportMode> requestedModes) {
         final Set<Integer> availableOnDate = new HashSet<>();
         for (int routeIndex = 0; routeIndex < numRoutes; routeIndex++) {
@@ -161,9 +154,11 @@ public class RouteCostMatrix {
             matrix.insert(firstRouteIndex, result);
         }
         availableOnDate.clear();
+        logger.info(format("created overlap matrix for %s and modes %s with %s entries", date, requestedModes, matrix.numberOfBitsSet()));
         return matrix;
     }
 
+    @Override
     public int size() {
         return costsForDegree.size();
     }
@@ -203,7 +198,8 @@ public class RouteCostMatrix {
      * @param dateOverlaps bit mask indicating that routeA->routeB is available at date
      * @return each set returned contains specific interchanges between 2 specific routes
      */
-    public Stream<List<RouteIndexPair>> getChangesFor(final RouteIndexPair routePair, IndexedBitSet dateOverlaps) {
+    @Override
+    public Stream<List<RoutePair>> getChangesFor(final RouteIndexPair routePair, IndexedBitSet dateOverlaps) {
 
         PairTreeFactory factory = new PairTreeFactory();
 
@@ -220,13 +216,15 @@ public class RouteCostMatrix {
             return Stream.empty();
         }
 
-        if (logger.isDebugEnabled()) {
-            logger.debug(format("Expand for %s initial depth %s", routePair, initialDepth));
-        }
+        //if (logger.isDebugEnabled()) {
+            logger.info(format("Expand for %s initial depth %s", routePair, initialDepth));
+        //}
 
-        Stream<PairTree> expanded = expandTree(factory.createLeaf(routePair), initialDepth, dateOverlaps);
+        Set<PairTree> expanded = expandTree(factory.createLeaf(routePair), initialDepth, dateOverlaps);
 
-        Stream<List<RouteIndexPair>> possibleInterchangePairs = expanded.map(PairTree::flatten);
+        Stream<List<RoutePair>> possibleInterchangePairs =
+                expanded.stream().map(PairTree::flatten).
+                        map(this::toRoutePairs);
 
         if (logger.isDebugEnabled()) {
             logger.debug(format("Got set of changes for %s: %s",  routePair, possibleInterchangePairs));
@@ -235,26 +233,25 @@ public class RouteCostMatrix {
         return possibleInterchangePairs;
     }
 
-    private Stream<PairTree> expandTree(final PairTree tree, final int degree, final IndexedBitSet dateOverlaps) {
+    private List<RoutePair> toRoutePairs(List<RouteIndexPair> changes) {
+        return changes.stream().map(index::getPairFor).collect(Collectors.toList());
+    }
+
+    private Set<PairTree> expandTree(final PairTree tree, final int degree, final IndexedBitSet dateOverlaps) {
         if (degree == 1) {
             // at degree one we are at direct connections between routes via an interchange so the result is those pairs
-            return Stream.of(tree);
+            return Set.of(tree);
         }
         if (degree <= 0) {
             throw new RuntimeException("Invalid degree " + degree + " for " + tree);
         }
 
-        return tree.visit(treeToVisit -> expandLeaf(treeToVisit, degree, dateOverlaps)).stream();
+        return tree.visit(treeToVisit -> expandLeaf(treeToVisit, degree, dateOverlaps));
     }
 
     private Set<PairTree> expandLeaf(final PairTreeLeaf treeToVisit, final int degree, final IndexedBitSet dateOverlaps) {
         // find matrix at one higher than where the pair meet, extract row/column corresponding i.e. next changes needed
         final RouteIndexPair leafPair = treeToVisit.get();
-
-//        Set<PairTree> cachedResult = cacheForDegree.get(degree).getIfPresent(leafPair);
-//        if (cachedResult!=null) {
-//            return cachedResult;
-//        }
 
         final IndexedBitSet changesForDegree = costsForDegree.getDegree(degree - 1).getRowAndColumn(leafPair.first(), leafPair.second());
         // apply mask to filter out unavailable dates/modes
@@ -272,10 +269,8 @@ public class RouteCostMatrix {
 
         // in turn expand each resulting tree
         final Set<PairTree> fullyExpanded = expanded.
-                flatMap(expandedTree -> expandTree(expandedTree, degree - 1, dateOverlaps)).
+                flatMap(expandedTree -> expandTree(expandedTree, degree - 1, dateOverlaps).stream()).
                 collect(Collectors.toSet());
-
-        //cacheForDegree.get(degree).put(leafPair, fullyExpanded);
 
         return fullyExpanded;
     }

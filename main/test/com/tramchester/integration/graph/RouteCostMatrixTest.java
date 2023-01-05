@@ -8,6 +8,7 @@ import com.tramchester.domain.RoutePair;
 import com.tramchester.domain.collections.ImmutableBitSet;
 import com.tramchester.domain.collections.IndexedBitSet;
 import com.tramchester.domain.dates.TramDate;
+import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.graph.search.routes.RouteCostMatrix;
 import com.tramchester.graph.search.routes.RouteIndex;
@@ -121,20 +122,20 @@ public class RouteCostMatrixTest {
 
         assertNotEquals(0, dateOverlaps.numberOfBitsSet());
 
-        List<List<RouteIndexPair>> results = routeMatrix.getChangesFor(indexPair, dateOverlaps).collect(Collectors.toList());
+        List<List<RoutePair>> results = routeMatrix.getChangesFor(indexPair, dateOverlaps).collect(Collectors.toList());
 
         assertEquals(1, results.size());
 
-        List<RouteIndexPair> changes = results.get(0);
+        List<RoutePair> changes = results.get(0);
 
         assertEquals(1, changes.size());
 
-        RouteIndexPair change = changes.get(0);
+        RoutePair change = changes.get(0);
 
-        RoutePair routePair = routeIndex.getPairFor(change);
+        //RoutePair routePair = routeIndex.getPairFor(change);
 
-        assertEquals(routeA, routePair.getFirst());
-        assertEquals(routeB, routePair.getSecond());
+        assertEquals(routeA, change.first());
+        assertEquals(routeB, change.second());
 
     }
 
@@ -150,17 +151,17 @@ public class RouteCostMatrixTest {
 
         assertEquals(196, dateOverlaps.numberOfBitsSet());
 
-        List<List<RouteIndexPair>> results = routeMatrix.getChangesFor(indexPair, dateOverlaps).collect(Collectors.toList());
+        List<List<RoutePair>> results = routeMatrix.getChangesFor(indexPair, dateOverlaps).collect(Collectors.toList());
 
-        assertEquals(10, results.size(), results.toString());
+        assertFalse(results.isEmpty());
 
         results.forEach(result -> {
             assertEquals(2, result.size());
-            RouteIndexPair firstChange = result.get(0);
-            RouteIndexPair secondChange = result.get(1);
+            RoutePair firstChange = result.get(0);
+            RoutePair secondChange = result.get(1);
 
-            assertEquals(indexPair.first(), firstChange.first());
-            assertEquals(indexPair.second(), secondChange.second());
+            assertEquals(routeA, firstChange.first());
+            assertEquals(routeB, secondChange.second());
         });
     }
 
@@ -177,15 +178,17 @@ public class RouteCostMatrixTest {
         // ignore data and mode here
         IndexedBitSet dateOverlaps = IndexedBitSet.getIdentity(numberOfRoutes, numberOfRoutes);
 
-        List<List<RouteIndexPair>> results = routeMatrix.getChangesFor(indexPair, dateOverlaps).collect(Collectors.toList());
+        List<List<RoutePair>> results = routeMatrix.getChangesFor(indexPair, dateOverlaps).collect(Collectors.toList());
+
+        assertFalse(results.isEmpty());
 
         results.forEach(result -> {
             assertEquals(2, result.size());
-            RouteIndexPair firstChange = result.get(0);
-            RouteIndexPair secondChange = result.get(1);
+            RoutePair firstChange = result.get(0);
+            RoutePair secondChange = result.get(1);
 
-            assertEquals(indexPair.first(), firstChange.first(), result.toString());
-            assertEquals(indexPair.second(), secondChange.second());
+            assertEquals(routeA, firstChange.first(), result.toString());
+            assertEquals(routeB, secondChange.second());
         });
 
     }

@@ -143,9 +143,9 @@ public class RouteToRouteCostsTest {
                 int otherIndex = routeIndex.indexFor(otherRoute.getId());
 
                 RouteIndexPair routeIndexPair = pairFactory.get(greenIndex, otherIndex);
-                Stream<List<RouteIndexPair>> stream = routeCostMatrix.getChangesFor(routeIndexPair, dateOverlaps);
+                Stream<List<RoutePair>> stream = routeCostMatrix.getChangesFor(routeIndexPair, dateOverlaps);
 
-                Set<List<RouteIndexPair>> results = stream.collect(Collectors.toSet());
+                Set<List<RoutePair>> results = stream.collect(Collectors.toSet());
 
                 assertFalse(results.isEmpty(), "no link for " + greenInbound + " and " + otherRoute);
             }
@@ -232,8 +232,8 @@ public class RouteToRouteCostsTest {
         RouteAndChanges change = oneChangeNeeded.get(0);
 
         RoutePair changeBetween = change.getRoutePair();
-        assertEquals(routeA, changeBetween.getFirst());
-        assertEquals(routeB, changeBetween.getSecond());
+        assertEquals(routeA, changeBetween.first());
+        assertEquals(routeB, changeBetween.second());
 
         IdSet<Station> interchanges = change.getInterchangeStations().stream().map(InterchangeStation::getStationId).collect(IdSet.idCollector());
 
@@ -265,16 +265,16 @@ public class RouteToRouteCostsTest {
             RouteAndChanges firstChanges = pair.getLeft();
             RouteAndChanges secondChanges = pair.getRight();
 
-            assertEquals(routeA, firstChanges.getRoutePair().getFirst());
-            Route intermediate = firstChanges.getRoutePair().getSecond();
-            assertEquals(intermediate, secondChanges.getRoutePair().getFirst());
-            assertEquals(routeB, secondChanges.getRoutePair().getSecond());
+            assertEquals(routeA, firstChanges.getRoutePair().first());
+            Route intermediate = firstChanges.getRoutePair().second();
+            assertEquals(intermediate, secondChanges.getRoutePair().first());
+            assertEquals(routeB, secondChanges.getRoutePair().second());
         });
 
         // check changes that involve piccadilly to altrincham route
         Route piccadillyToAlty = routeHelper.getOneRoute(PiccadillyAltrincham, date);
         List<Pair<RouteAndChanges, RouteAndChanges>> viaPiccToAltyRoute = twoChangesNeeded.stream().
-                filter(pair -> pair.getLeft().getRoutePair().getSecond().equals(piccadillyToAlty)).
+                filter(pair -> pair.getLeft().getRoutePair().second().equals(piccadillyToAlty)).
                 collect(Collectors.toList());
 
         assertEquals(1, viaPiccToAltyRoute.size(), viaPiccToAltyRoute.toString());
@@ -291,7 +291,7 @@ public class RouteToRouteCostsTest {
         // check changes that involve bury to altrincham route
         Route buryToAlty = routeHelper.getOneRoute(BuryManchesterAltrincham, date);
         List<Pair<RouteAndChanges, RouteAndChanges>> viaBuryToAlty = twoChangesNeeded.stream().
-                filter(pair -> pair.getLeft().getRoutePair().getSecond().equals(buryToAlty)).
+                filter(pair -> pair.getLeft().getRoutePair().second().equals(buryToAlty)).
                 collect(Collectors.toList());
 
         assertEquals(1, viaBuryToAlty.size(), viaBuryToAlty.toString());

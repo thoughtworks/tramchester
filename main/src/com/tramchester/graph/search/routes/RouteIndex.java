@@ -142,8 +142,8 @@ public class RouteIndex implements DataCache.Cacheable<RouteIndexData> {
     }
 
     public RouteIndexPair getPairFor(RoutePair routePair) {
-        int a = indexFor(routePair.getFirst().getId());
-        int b = indexFor(routePair.getSecond().getId());
+        int a = indexFor(routePair.first().getId());
+        int b = indexFor(routePair.second().getId());
         return pairFactory.get(a, b);
     }
 

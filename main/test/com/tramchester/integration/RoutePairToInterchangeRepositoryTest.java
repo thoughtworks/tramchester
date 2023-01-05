@@ -12,7 +12,7 @@ import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.graph.search.routes.RouteIndex;
 import com.tramchester.domain.collections.RouteIndexPair;
-import com.tramchester.graph.search.routes.RouteIndexToInterchangeRepository;
+import com.tramchester.graph.search.routes.RoutePairToInterchangeRepository;
 import com.tramchester.integration.testSupport.ConfigParameterResolver;
 import com.tramchester.repository.RouteRepository;
 import com.tramchester.testSupport.TestEnv;
@@ -34,14 +34,14 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @ExtendWith(ConfigParameterResolver.class)
 @DualTest
-public class RouteIndexToInterchangeRepositoryTest {
+public class RoutePairToInterchangeRepositoryTest {
 
     private static ComponentContainer componentContainer;
 
     private TramRouteHelper routeHelper;
     private final Set<TransportMode> modes = TramsOnly;
     private TramDate date;
-    private RouteIndexToInterchangeRepository repository;
+    private RoutePairToInterchangeRepository repository;
     private RouteIndex routeIndex;
 
     @BeforeAll
@@ -69,7 +69,7 @@ public class RouteIndexToInterchangeRepositoryTest {
 
         date = TestEnv.testDay().plusWeeks(1);
 
-        repository = componentContainer.get(RouteIndexToInterchangeRepository.class);
+        repository = componentContainer.get(RoutePairToInterchangeRepository.class);
     }
 
     @Test
@@ -77,7 +77,7 @@ public class RouteIndexToInterchangeRepositoryTest {
         Route cornbrookToTraffordCenter = routeHelper.getOneRoute(CornbrookTheTraffordCentre, date);
         Route victoriaToAirport = routeHelper.getOneRoute(VictoriaWythenshaweManchesterAirport, date);
 
-        RouteIndexPair routeIndexPair = routeIndex.getPairFor(RoutePair.of(cornbrookToTraffordCenter, victoriaToAirport));
+        RoutePair routeIndexPair = RoutePair.of(cornbrookToTraffordCenter, victoriaToAirport);
 
         assertTrue(repository.hasAnyInterchangesFor(routeIndexPair));
 
@@ -94,7 +94,7 @@ public class RouteIndexToInterchangeRepositoryTest {
         Route ashtonToEccles = routeHelper.getOneRoute(AshtonUnderLyneManchesterEccles, date);
         Route victoriaToAirport = routeHelper.getOneRoute(VictoriaWythenshaweManchesterAirport, date);
 
-        RouteIndexPair routeIndexPair = routeIndex.getPairFor(RoutePair.of(ashtonToEccles, victoriaToAirport));
+        RoutePair routeIndexPair = RoutePair.of(ashtonToEccles, victoriaToAirport);
 
         assertTrue(repository.hasAnyInterchangesFor(routeIndexPair));
 

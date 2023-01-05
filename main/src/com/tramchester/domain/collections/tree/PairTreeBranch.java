@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class PairTreeBranch implements PairTree {
     private final PairTree left;
@@ -54,12 +55,15 @@ public class PairTreeBranch implements PairTree {
 
     @Override
     public Set<PairTree> visit(PairTree.TreeVisitor visitor) {
-        Set<PairTree> visitedLeft = left.visit(visitor);
-        Set<PairTree> visitedRight = right.visit(visitor);
+        Set<PairTree> visitedLeft = left.visit(visitor); //.collect(Collectors.toSet());
+        Set<PairTree> visitedRight = right.visit(visitor); //.collect(Collectors.toSet());
 
-        return visitedLeft.stream().
-                flatMap(visitLeft -> visitedRight.stream().map(visitRight -> factory.createBranch(visitLeft, visitRight))).
+        Set<PairTree> pairs = visitedLeft.stream().
+                flatMap(visitLeft -> visitedRight.stream().
+                        map(visitRight -> factory.createBranch(visitLeft, visitRight))).
                 collect(Collectors.toSet());
+
+        return pairs;
     }
 
     @Override

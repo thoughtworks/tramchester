@@ -119,6 +119,7 @@ public class RouteIndexPairTest {
             RouteIndexPair pair = subTree.get();
             RouteIndexPair pairAdd = getPair(pair.first() + 1, pair.second() + 1);
             return Collections.singleton(treeFactory.createLeaf(pairAdd));
+            //return Stream.of(treeFactory.createLeaf(pairAdd));
         };
 
         List<PairTree> result = new ArrayList<>(tree.visit(visitor));
@@ -193,6 +194,7 @@ public class RouteIndexPairTest {
         original = original.replace(pairA, pairB, pairC).get();
 
         PairTree.TreeVisitor visitor = tree -> {
+//            return Stream.of(tree, tree);
             HashSet<PairTree> result = new HashSet<>();
             result.add(tree);
             result.add(tree);

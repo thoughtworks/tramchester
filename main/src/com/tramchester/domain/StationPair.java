@@ -1,16 +1,14 @@
 package com.tramchester.domain;
 
+import com.tramchester.domain.collections.DomainPair;
 import com.tramchester.domain.input.StopCalls;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
 
-public class StationPair {
-    private final Station begin;
-    private final Station end;
+public class StationPair extends DomainPair<Station> {
 
-    private StationPair(Station begin, Station end) {
-        this.begin = begin;
-        this.end = end;
+    private StationPair(Station first, Station second) {
+        super(first, second);
     }
 
     public static StationPair of(Station begin, Station end) {
@@ -24,38 +22,19 @@ public class StationPair {
     @Override
     public String toString() {
         return "StationPair{" +
-                "begin=" + begin.getId() +
-                ", end=" + end.getId() +
+                super.toString() +
                 '}';
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-
-        StationPair that = (StationPair) o;
-
-        if (!begin.equals(that.begin)) return false;
-        return end.equals(that.end);
-    }
-
-    @Override
-    public int hashCode() {
-        int result = begin.hashCode();
-        result = 31 * result + end.hashCode();
-        return result;
-    }
-
     public Station getBegin() {
-        return begin;
+        return first();
     }
 
     public Station getEnd() {
-        return end;
+        return second();
     }
 
     public boolean bothServeMode(TransportMode mode) {
-        return begin.servesMode(mode) && end.servesMode(mode);
+        return first().servesMode(mode) && second().servesMode(mode);
     }
 }

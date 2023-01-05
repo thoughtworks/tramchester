@@ -2,11 +2,14 @@ package com.tramchester.domain.id;
 
 import com.tramchester.domain.CoreDomain;
 import com.tramchester.domain.LocationSet;
-import com.tramchester.domain.places.Location;
+import com.tramchester.domain.RoutePair;
+import com.tramchester.domain.collections.DomainPair;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.function.BinaryOperator;
+import java.util.stream.Stream;
 
 public interface HasId<DOMAINTYPE extends CoreDomain> {
 
@@ -14,6 +17,19 @@ public interface HasId<DOMAINTYPE extends CoreDomain> {
 
     static <S extends HasId<?>> String asIds(Collection<S> items) {
         return collectionToIdStringList(items, item -> item.getId().toString());
+    }
+
+    static <P extends DomainPair<?>> String asIds(P pair) {
+        return "(" + pair.first().getId() + ", " + pair.second().getId() + ")";
+    }
+
+    static String asIdsNested(List<List<RoutePair>> listOfList) {
+        Stream<String> stream = listOfList.stream().map(HasId::pairsAsIds);
+        return stream.reduce((a,b) -> a+", "+b).orElse("");
+    }
+
+    static <P extends DomainPair<?>> String pairsAsIds(Collection<P> items) {
+        return collectionToIdStringList(items, HasId::asIds);
     }
 
     static String asIds(IdMap<?> idMap) {

@@ -41,10 +41,10 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
 
     private final NeighboursRepository neighboursRepository;
     private final StationAvailabilityRepository availabilityRepository;
-    private final RouteIndexToInterchangeRepository routePairToInterchange;
+    private final RoutePairToInterchangeRepository routePairToInterchange;
     private final ClosedStationsRepository closedStationsRepository;
     private final RouteIndex index;
-    private final RouteCostMatrix costs;
+    private final RouteCostCombinations costs;
     private final RouteIndexPairFactory pairFactory;
 
     private final int numberOfRoutes;
@@ -52,7 +52,7 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
     @Inject
     public RouteToRouteCosts(RouteRepository routeRepository, NeighboursRepository neighboursRepository,
                              StationAvailabilityRepository availabilityRepository,
-                             RouteIndexToInterchangeRepository routePairToInterchange, ClosedStationsRepository closedStationsRepository,
+                             RoutePairToInterchangeRepository routePairToInterchange, ClosedStationsRepository closedStationsRepository,
                              RouteIndex index, RouteCostMatrix costs, RouteIndexPairFactory pairFactory) {
         this.neighboursRepository = neighboursRepository;
         this.availabilityRepository = availabilityRepository;
@@ -129,11 +129,11 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
         IndexedBitSet dateOverlaps = IndexedBitSet.getIdentity(numberOfRoutes, numberOfRoutes); // no specific date or time
 
         // routes we need to traverse, to get from routeA to routeB
-        Stream<List<RouteIndexPair>> routeChanges = costs.getChangesFor(indexPair, dateOverlaps);
+        Stream<List<RoutePair>> routeChanges = costs.getChangesFor(indexPair, dateOverlaps);
 
         // given the routes we need to cross, find the interchanges that will allow this
         List<List<RouteAndChanges>> interchanges = routeChanges.
-                map(list -> list.stream().map(pair -> getChangesFor(pair, requestedModes)).filter(Objects::nonNull)).
+                map(list -> list.stream().map(pair -> getChangesFor(routePair, requestedModes)).filter(Objects::nonNull)).
                 map(onePossibleSetOfChange -> onePossibleSetOfChange.collect(Collectors.toList()))
                 .collect(Collectors.toList());
 
@@ -151,7 +151,7 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
         // int min = costs.getDegree(routePair);
         // but that might not be available at the given date and mode
 
-        final Stream<List<RouteIndexPair>> possibleChanges = costs.getChangesFor(routePair, dateAndModeOverlaps);
+        final Stream<List<RoutePair>> possibleChanges = costs.getChangesFor(routePair, dateAndModeOverlaps);
 
         final List<List<RouteAndChanges>> smallestFilteredByAvailability = new ArrayList<>();
 
@@ -173,7 +173,7 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
 
     }
 
-    private List<RouteAndChanges> getRouteAndInterchange(List<RouteIndexPair> listOfChanges, Set<TransportMode> requestedModes) {
+    private List<RouteAndChanges> getRouteAndInterchange(List<RoutePair> listOfChanges, Set<TransportMode> requestedModes) {
         List<RouteAndChanges> result = listOfChanges.stream().
                 map(indexPair -> getChangesFor(indexPair, requestedModes)).
                 filter(Objects::nonNull).
@@ -186,20 +186,20 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
 
     /***
      * Interchanged needed to transfer between pair of route - Unordered
-     * @param indexPair routes interested in
+     * @param routePair routes interested in
      * @param requestedModes transport modes to use between them
      * @return UNORDERED set of interchange stations
      */
-    private RouteAndChanges getChangesFor(RouteIndexPair indexPair, Set<TransportMode> requestedModes) {
+    private RouteAndChanges getChangesFor(RoutePair routePair, Set<TransportMode> requestedModes) {
 
-        final RoutePair routePair = index.getPairFor(indexPair);
+        //final RoutePair routePair = index.getPairFor(indexPair);
 
-        if (routePairToInterchange.hasAnyInterchangesFor(indexPair)) {
+        if (routePairToInterchange.hasAnyInterchangesFor(routePair)) {
 
-            final Set<InterchangeStation> interchangesBetween = routePairToInterchange.getInterchanges(indexPair, requestedModes);
+            final Set<InterchangeStation> interchangesBetween = routePairToInterchange.getInterchanges(routePair, requestedModes);
             final RouteAndChanges routeAndChanges = new RouteAndChanges(routePair, interchangesBetween);
             if (logger.isDebugEnabled()) {
-                logger.debug(format("Found changes %s for %s", interchangesBetween, indexPair));
+                logger.debug(format("Found changes %s for %s", interchangesBetween, routePair));
             }
             return routeAndChanges;
         }
