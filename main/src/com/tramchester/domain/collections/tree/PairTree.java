@@ -5,19 +5,19 @@ import com.tramchester.domain.collections.RouteIndexPair;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.Set;
+import java.util.stream.Stream;
 
 public interface PairTree {
     List<RouteIndexPair> flatten();
 
     Mutated replace(RouteIndexPair toReplace, RouteIndexPair pairA, RouteIndexPair pairB);
 
-    Set<PairTree> visit(TreeVisitor visitor);
+    Stream<PairTree> visit(TreeVisitor visitor);
 
     PairTreeId getId();
 
     interface TreeVisitor {
-        Set<PairTree> visit(PairTreeLeaf tree);
+        Stream<PairTree> visit(PairTreeLeaf tree);
     }
 
     // TODO unclear is this is actually helping at all

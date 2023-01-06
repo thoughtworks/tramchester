@@ -46,7 +46,7 @@ public class PairTreeLeaf implements PairTree {
     }
 
     @Override
-    public Set<PairTree> visit(PairTree.TreeVisitor visitor) {
+    public Stream<PairTree> visit(PairTree.TreeVisitor visitor) {
         return visitor.visit(this);
     }
 

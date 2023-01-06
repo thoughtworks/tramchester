@@ -8,6 +8,7 @@ import com.tramchester.dataimport.rail.records.reference.TrainStatus;
 import com.tramchester.dataimport.rail.reference.TrainOperatingCompanies;
 import com.tramchester.dataimport.rail.repository.RailRouteIdRepository;
 import com.tramchester.domain.*;
+import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.input.MutableTrip;
@@ -306,7 +307,7 @@ public class RailTimetableMapper {
 
             if (allCalledAtStations.isEmpty() || allCalledAtStations.size()==1) {
                 logger.warn(format("Skip, Not enough calling points (%s) for (%s) without bounds checking",
-                        allCalledAtStations, rawService));
+                        HasId.asIds(allCalledAtStations), rawService));
                 railServiceGroups.recordSkip(basicSchedule);
                 return false;
             }

@@ -112,7 +112,7 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
     public List<List<RouteAndChanges>> getChangesFor(Route routeA, Route routeB, Set<TransportMode> requestedModes) {
         RoutePair routePair = new RoutePair(routeA, routeB);
 
-        logger.info("Get change stations between " + routePair);
+        logger.info("Get change stations between " + HasId.asIds(routePair));
 
         if (!requestedModes.contains(routeA.getTransportMode())) {
             logger.info(format("First route %s does not match requested modes %s", routeA.getId(), requestedModes));
@@ -133,14 +133,45 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
 
         // given the routes we need to cross, find the interchanges that will allow this
         List<List<RouteAndChanges>> interchanges = routeChanges.
-                map(list -> list.stream().map(pair -> getChangesFor(routePair, requestedModes)).filter(Objects::nonNull)).
+                map(list -> list.stream().map(pair -> getChangesFor(pair, requestedModes)).filter(Objects::nonNull)).
                 map(onePossibleSetOfChange -> onePossibleSetOfChange.collect(Collectors.toList()))
                 .collect(Collectors.toList());
 
         if (interchanges.isEmpty()) {
-            logger.warn(format("Unable to find interchanges between %s", routePair));
+            logger.warn(format("Unable to find interchanges between %s", HasId.asIds(routePair)));
         }
         return interchanges;
+    }
+
+    // TODO WIP
+    private int getDepth_NEW(RouteIndexPair routePair, ChangeStationOperatingCache changeStationOperating,
+                         IndexedBitSet dateAndModeOverlaps, Set<TransportMode> requestedModes) {
+
+        // need to account for route availability and modes when getting the depth
+        // the simple answer, or the lowest limit, comes from the matrix depth for the routePair
+        // int min = costs.getDegree(routePair);
+        // but that might not be available at the given date and mode
+
+        // try from initialDepth to max depth to find any interchange that is operating at the given date/time/modes
+        int maxDepth = costs.getMaxDepth();
+        int initialDepth = costs.getDepth(routePair);
+
+        for (int depth = initialDepth; depth < maxDepth; depth++) {
+            if (costs.hasMatchAtDepth(depth, routePair)) {
+                final Stream<List<RoutePair>> possibleChanges = costs.getChangesFor(routePair, dateAndModeOverlaps);
+                boolean matched = possibleChanges.map(change -> getRouteAndInterchange(change, requestedModes)).
+                        anyMatch(listOfInterchanges -> changeStationOperating.isOperating(availabilityRepository, listOfInterchanges, requestedModes));
+                if (matched) {
+                    logger.info("found operaing interchange at depth " + depth);
+                    return depth;
+                }
+
+            }
+        }
+
+        logger.info("Found no operating station for " + HasId.asIds(index.getPairFor(routePair)));
+        return Integer.MAX_VALUE;
+
     }
 
     private int getDepth(RouteIndexPair routePair, ChangeStationOperatingCache changeStationOperating,
@@ -192,18 +223,17 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
      */
     private RouteAndChanges getChangesFor(RoutePair routePair, Set<TransportMode> requestedModes) {
 
-        //final RoutePair routePair = index.getPairFor(indexPair);
-
         if (routePairToInterchange.hasAnyInterchangesFor(routePair)) {
 
             final Set<InterchangeStation> interchangesBetween = routePairToInterchange.getInterchanges(routePair, requestedModes);
             final RouteAndChanges routeAndChanges = new RouteAndChanges(routePair, interchangesBetween);
             if (logger.isDebugEnabled()) {
-                logger.debug(format("Found changes %s for %s", interchangesBetween, routePair));
+                logger.debug(format("Found changes %s for %s", interchangesBetween, HasId.asIds(routePair)));
             }
             return routeAndChanges;
         }
 
+        logger.warn(format("No interchange found between %s and modes %s", HasId.asIds(routePair), requestedModes));
         return null;
     }
 
@@ -482,7 +512,7 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
         }
 
         public boolean isOperating(StationAvailabilityRepository availabilityRepository, List<RouteAndChanges> changeSet, Set<TransportMode> requestedModes) {
-            return changeSet.stream().anyMatch(item -> isOperating(availabilityRepository, item, requestedModes));
+            return changeSet.stream().anyMatch(change -> isOperating(availabilityRepository, change, requestedModes));
         }
 
         private boolean isOperating(StationAvailabilityRepository availabilityRepository, RouteAndChanges routeAndChanges, Set<TransportMode> requestedModes) {

@@ -58,12 +58,8 @@ public class RoutePairToInterchangeRepository {
         final Set<Route> pickupAtInterchange = interchange.getPickupRoutes();
 
         for (final Route dropOff : dropOffAtInterchange) {
-            //final int dropOffIndex = routeIndex.indexFor(dropOff.getId());
             for (final Route pickup : pickupAtInterchange) {
                 if ((!dropOff.equals(pickup)) && pickup.isDateOverlap(dropOff)) {
-                    //final int pickupIndex = routeIndex.indexFor(pickup.getId());
-                    //RouteIndexPair key = pairFactory.get(dropOffIndex, pickupIndex);
-
                     final RoutePair routePair = RoutePair.of(dropOff, pickup);
                     addInterchangeBetween(routePair, interchange);
                 }

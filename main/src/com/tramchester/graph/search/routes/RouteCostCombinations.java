@@ -21,4 +21,10 @@ public interface RouteCostCombinations {
 
     // get list of changes for given route pair and overlaps
     Stream<List<RoutePair>> getChangesFor(RouteIndexPair routePair, IndexedBitSet dateOverlaps);
+
+    int getMaxDepth();
+
+    int getDepth(RouteIndexPair routePair);
+
+    boolean hasMatchAtDepth(int depth, RouteIndexPair routePair);
 }

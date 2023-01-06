@@ -118,11 +118,11 @@ public class RouteIndexPairTest {
         PairTree.TreeVisitor visitor = subTree -> {
             RouteIndexPair pair = subTree.get();
             RouteIndexPair pairAdd = getPair(pair.first() + 1, pair.second() + 1);
-            return Collections.singleton(treeFactory.createLeaf(pairAdd));
-            //return Stream.of(treeFactory.createLeaf(pairAdd));
+            //return Collections.singleton(treeFactory.createLeaf(pairAdd));
+            return Stream.of(treeFactory.createLeaf(pairAdd));
         };
 
-        List<PairTree> result = new ArrayList<>(tree.visit(visitor));
+        List<PairTree> result = tree.visit(visitor).collect(Collectors.toList());
 
         assertEquals(1, result.size());
 
@@ -144,10 +144,10 @@ public class RouteIndexPairTest {
         PairTree.TreeVisitor visitor = subTree -> {
             RouteIndexPair pair = subTree.get();
             RouteIndexPair pairAdd = getPair(pair.first() + 1, pair.second() + 1);
-            return Collections.singleton(treeFactory.createLeaf(pairAdd));
+            return Stream.of(treeFactory.createLeaf(pairAdd));
         };
 
-        List<PairTree> result = new ArrayList<>(tree.visit(visitor));
+        List<PairTree> result = tree.visit(visitor).collect(Collectors.toList());
 
         assertEquals(1, result.size());
 
@@ -168,10 +168,10 @@ public class RouteIndexPairTest {
 
         PairTree.TreeVisitor visitor = subTree -> {
             RouteIndexPair pairAdd = getPair(subTree.get().first() + 1, subTree.get().second() + 1);
-            return Set.of(subTree, treeFactory.createLeaf(pairAdd));
+            return Stream.of(subTree, treeFactory.createLeaf(pairAdd));
         };
 
-        List<PairTree> result = new ArrayList<>(original.visit(visitor));
+        List<PairTree> result = original.visit(visitor).collect(Collectors.toList());
 
         assertEquals(4, result.size());
 
@@ -194,14 +194,14 @@ public class RouteIndexPairTest {
         original = original.replace(pairA, pairB, pairC).get();
 
         PairTree.TreeVisitor visitor = tree -> {
-//            return Stream.of(tree, tree);
-            HashSet<PairTree> result = new HashSet<>();
-            result.add(tree);
-            result.add(tree);
-            return result;
+            return Stream.of(tree, tree);
+//            HashSet<PairTree> result = new HashSet<>();
+//            result.add(tree);
+//            result.add(tree);
+//            return result;
         };
 
-        List<PairTree> result = new ArrayList<>(original.visit(visitor));
+        List<PairTree> result = original.visit(visitor).collect(Collectors.toList());
 
         assertEquals(1, result.size());
 

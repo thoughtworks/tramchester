@@ -14,10 +14,6 @@ public class IdPair<T extends CoreDomain> {
         this.second = second;
     }
 
-//    public static <T extends CoreDomain> IdPair<T> of(HasId<T> first, HasId<T> second) {
-//        return new IdPair<>(first.getId(), second.getId());
-//    }
-
     public boolean same() {
         return first.equals(second);
     }

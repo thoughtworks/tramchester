@@ -220,10 +220,10 @@ public class RouteCostMatrix implements RouteCostCombinations {
             logger.info(format("Expand for %s initial depth %s", routePair, initialDepth));
         //}
 
-        Set<PairTree> expanded = expandTree(factory.createLeaf(routePair), initialDepth, dateOverlaps);
+        Stream<PairTree> expanded = expandTree(factory.createLeaf(routePair), initialDepth, dateOverlaps);
 
         Stream<List<RoutePair>> possibleInterchangePairs =
-                expanded.stream().map(PairTree::flatten).
+                expanded.map(PairTree::flatten).
                         map(this::toRoutePairs);
 
         if (logger.isDebugEnabled()) {
@@ -233,14 +233,29 @@ public class RouteCostMatrix implements RouteCostCombinations {
         return possibleInterchangePairs;
     }
 
+    @Override
+    public int getMaxDepth() {
+        return MAX_DEPTH;
+    }
+
+    @Override
+    public int getDepth(RouteIndexPair routePair) {
+        return getDegree(routePair);
+    }
+
+    @Override
+    public boolean hasMatchAtDepth(int depth, RouteIndexPair routePair) {
+        return costsForDegree.isSet(depth, routePair);
+    }
+
     private List<RoutePair> toRoutePairs(List<RouteIndexPair> changes) {
         return changes.stream().map(index::getPairFor).collect(Collectors.toList());
     }
 
-    private Set<PairTree> expandTree(final PairTree tree, final int degree, final IndexedBitSet dateOverlaps) {
+    private Stream<PairTree> expandTree(final PairTree tree, final int degree, final IndexedBitSet dateOverlaps) {
         if (degree == 1) {
             // at degree one we are at direct connections between routes via an interchange so the result is those pairs
-            return Set.of(tree);
+            return Stream.of(tree);
         }
         if (degree <= 0) {
             throw new RuntimeException("Invalid degree " + degree + " for " + tree);
@@ -249,7 +264,7 @@ public class RouteCostMatrix implements RouteCostCombinations {
         return tree.visit(treeToVisit -> expandLeaf(treeToVisit, degree, dateOverlaps));
     }
 
-    private Set<PairTree> expandLeaf(final PairTreeLeaf treeToVisit, final int degree, final IndexedBitSet dateOverlaps) {
+    private Stream<PairTree> expandLeaf(final PairTreeLeaf treeToVisit, final int degree, final IndexedBitSet dateOverlaps) {
         // find matrix at one higher than where the pair meet, extract row/column corresponding i.e. next changes needed
         final RouteIndexPair leafPair = treeToVisit.get();
 
@@ -268,9 +283,8 @@ public class RouteCostMatrix implements RouteCostCombinations {
                 map(PairTree.Mutated::get);
 
         // in turn expand each resulting tree
-        final Set<PairTree> fullyExpanded = expanded.
-                flatMap(expandedTree -> expandTree(expandedTree, degree - 1, dateOverlaps).stream()).
-                collect(Collectors.toSet());
+        final Stream<PairTree> fullyExpanded = expanded.
+                flatMap(expandedTree -> expandTree(expandedTree, degree - 1, dateOverlaps));
 
         return fullyExpanded;
     }

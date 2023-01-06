@@ -54,14 +54,13 @@ public class PairTreeBranch implements PairTree {
     }
 
     @Override
-    public Set<PairTree> visit(PairTree.TreeVisitor visitor) {
-        Set<PairTree> visitedLeft = left.visit(visitor); //.collect(Collectors.toSet());
-        Set<PairTree> visitedRight = right.visit(visitor); //.collect(Collectors.toSet());
+    public Stream<PairTree> visit(PairTree.TreeVisitor visitor) {
+        Set<PairTree> visitedLeft = left.visit(visitor).collect(Collectors.toSet());
+        Set<PairTree> visitedRight = right.visit(visitor).collect(Collectors.toSet());
 
-        Set<PairTree> pairs = visitedLeft.stream().
+        Stream<PairTree> pairs = visitedLeft.stream().
                 flatMap(visitLeft -> visitedRight.stream().
-                        map(visitRight -> factory.createBranch(visitLeft, visitRight))).
-                collect(Collectors.toSet());
+                        map(visitRight -> factory.createBranch(visitLeft, visitRight)));
 
         return pairs;
     }
