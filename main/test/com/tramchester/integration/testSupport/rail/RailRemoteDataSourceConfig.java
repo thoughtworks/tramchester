@@ -4,6 +4,7 @@ import com.tramchester.config.RemoteDataSourceConfig;
 import com.tramchester.domain.DataSourceID;
 
 import java.nio.file.Path;
+import java.time.Duration;
 
 public class RailRemoteDataSourceConfig extends RemoteDataSourceConfig {
 
@@ -34,6 +35,11 @@ public class RailRemoteDataSourceConfig extends RemoteDataSourceConfig {
     @Override
     public String getDataUrl() {
         return RAIL_LATEST_ZIP;
+    }
+
+    @Override
+    public Duration getDefaultExpiry() {
+        return Duration.ofDays(1);
     }
 
     @Override

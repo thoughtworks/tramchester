@@ -6,6 +6,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import java.nio.file.Path;
+import java.time.Duration;
 
 @SuppressWarnings("unused")
 @Valid
@@ -32,6 +33,10 @@ public class RemoteDataSourceAppConfig extends RemoteDataSourceConfig {
     @JsonProperty(value = "name")
     private String name;
 
+    @NotNull
+    @JsonProperty(value = "defaultExpiryDays")
+    private Integer defaultExpiryDays;
+
     @Override
     public String getDataCheckUrl() {
         return dataCheckURL;
@@ -40,6 +45,11 @@ public class RemoteDataSourceAppConfig extends RemoteDataSourceConfig {
     @Override
     public String getDataUrl() {
         return dataURL;
+    }
+
+    @Override
+    public Duration getDefaultExpiry() {
+        return Duration.ofDays(defaultExpiryDays);
     }
 
     @Override
@@ -70,6 +80,7 @@ public class RemoteDataSourceAppConfig extends RemoteDataSourceConfig {
                 ", dataPath=" + dataPath +
                 ", filename='" + filename + '\'' +
                 ", name='" + name + '\'' +
+                ", defaultExpiryDays=" + defaultExpiryDays +
                 "} " + super.toString();
     }
 }

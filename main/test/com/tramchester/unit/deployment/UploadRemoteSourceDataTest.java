@@ -14,6 +14,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.nio.file.Path;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -137,6 +138,11 @@ class UploadRemoteSourceDataTest extends EasyMockSupport {
         @Override
         public String getDataUrl() {
             return "";
+        }
+
+        @Override
+        public Duration getDefaultExpiry() {
+            return Duration.ofDays(1);
         }
 
         @Override

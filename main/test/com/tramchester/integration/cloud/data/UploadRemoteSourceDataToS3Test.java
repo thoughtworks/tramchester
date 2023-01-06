@@ -20,6 +20,7 @@ import software.amazon.awssdk.services.s3.waiters.S3Waiter;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.time.Duration;
 import java.util.Collections;
 import java.util.List;
 
@@ -165,6 +166,11 @@ class UploadRemoteSourceDataToS3Test {
         @Override
         public String getDataUrl() {
             throw new RuntimeException("Should not be downloading, not expired");
+        }
+
+        @Override
+        public Duration getDefaultExpiry() {
+            return Duration.ofDays(1);
         }
 
         @Override

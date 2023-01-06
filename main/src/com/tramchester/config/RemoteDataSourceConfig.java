@@ -5,6 +5,8 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.tramchester.domain.DataSourceID;
 import io.dropwizard.Configuration;
 
+import java.time.Duration;
+
 @JsonDeserialize(as=RemoteDataSourceAppConfig.class)
 public abstract class RemoteDataSourceConfig extends Configuration implements HasDataPath {
 
@@ -13,6 +15,9 @@ public abstract class RemoteDataSourceConfig extends Configuration implements Ha
 
     // url where data is located
     public abstract String getDataUrl();
+
+    // default expiry when cannot check mod time via http(s)
+    public abstract Duration getDefaultExpiry();
 
     /***
      * Don't use this to get the actual downloaded filename, since this config can be blank to allow the remote
@@ -44,6 +49,8 @@ public abstract class RemoteDataSourceConfig extends Configuration implements Ha
                 "dataSourceId: '"+getDataSourceId()+"' " +
                 "isS3: '"+getIsS3()+"' " +
                 "dataPath: '"+getDataPath()+"' " +
+                "defaultExpiry: " + getDefaultExpiry() +
                 "}";
     }
+
 }

@@ -2,8 +2,10 @@ package com.tramchester.integration.testSupport.nptg;
 
 import com.tramchester.config.RemoteDataSourceConfig;
 import com.tramchester.dataimport.nptg.NPTGDataLoader;
+import com.tramchester.domain.dates.DateRange;
 
 import java.nio.file.Path;
+import java.time.Duration;
 
 /****
  *   - name: nptg
@@ -29,6 +31,11 @@ public class NPTGDataSourceTestConfig extends RemoteDataSourceConfig {
         return "https://beta-naptan.dft.gov.uk/Download/File/Localities.csv";
         //return "https://naptan.app.dft.gov.uk/datarequest/nptg.ashx?format=csv";
         //return "http://www.dft.gov.uk/nptg/snapshot/nptgcsv.zip";
+    }
+
+    @Override
+    public Duration getDefaultExpiry() {
+        return Duration.ofDays(14);
     }
 
     @Override

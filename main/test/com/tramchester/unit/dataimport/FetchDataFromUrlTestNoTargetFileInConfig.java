@@ -15,6 +15,7 @@ import org.junit.jupiter.api.*;
 
 import java.io.IOException;
 import java.nio.file.Path;
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
@@ -166,7 +167,7 @@ class FetchDataFromUrlTestNoTargetFileInConfig extends EasyMockSupport {
     void shouldHandleNoModTimeIsAvailableByDownloadingIfExpiryTimePast() throws IOException, InterruptedException {
         Files.newFile(zipFilename.toAbsolutePath().toString());
         EasyMock.expect(providesLocalNow.getDateTime()).andReturn(LocalDateTime.now().
-                plusMinutes(FetchDataFromUrl.DEFAULT_EXPIRY_MINS).plusDays(1));
+                plus(remoteDataSourceConfig.getDefaultExpiry()).plusDays(1));
 
         URLStatus status = new URLStatus(expectedDownloadURL, 200);
         //status.setFilename("TfGMgtfsnew.zip");
@@ -256,6 +257,11 @@ class FetchDataFromUrlTestNoTargetFileInConfig extends EasyMockSupport {
             @Override
             public String getDataUrl() {
                 return TestEnv.TFGM_TIMETABLE_URL;
+            }
+
+            @Override
+            public Duration getDefaultExpiry() {
+                return Duration.ofDays(2);
             }
 
             @Override

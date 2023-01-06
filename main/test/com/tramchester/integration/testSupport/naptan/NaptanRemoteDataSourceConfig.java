@@ -5,6 +5,7 @@ import com.tramchester.domain.DataSourceID;
 import com.tramchester.testSupport.TestEnv;
 
 import java.nio.file.Path;
+import java.time.Duration;
 
 // https://naptan.api.dft.gov.uk/v1/access-nodes?dataFormat=csv
 
@@ -31,6 +32,11 @@ public class NaptanRemoteDataSourceConfig extends RemoteDataSourceConfig {
     public String getDataUrl() {
         // ?dataFormat=csv
         return String.format("%s?dataFormat=%s", TestEnv.NAPTAN_BASE_URL, format);
+    }
+
+    @Override
+    public Duration getDefaultExpiry() {
+        return Duration.ofDays(14);
     }
 
     @Override

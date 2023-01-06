@@ -43,21 +43,25 @@ remoteSources:
     dataCheckURL: ""
     dataPath: data/rail
     filename: rail_data.zip
+    defaultExpiryDays: 1
   - name: tfgm
     dataURL: ${TRAM_DATAURL:- https://odata.tfgm.com/opendata/downloads/TfGMgtfsnew.zip}
     dataCheckURL: https://odata.tfgm.com/opendata/downloads/TfGMgtfsnew.zip
     dataPath: data/tram
     filename: tfgm_data.zip
+    defaultExpiryDays: 1
   - name: naptanxml
     dataURL: ${NAPTAN_DATAURL:- https://naptan.api.dft.gov.uk/v1/access-nodes?dataFormat=xml}
     dataCheckURL: ""
     dataPath: data/naptan
     filename: ${NAPTAN_FILE:- NaPTAN.xml}
+    defaultExpiryDays: 14
   - name: nptg
     dataURL: ${NPTG_DATAURL:- https://beta-naptan.dft.gov.uk/Download/File/Localities.csv}
     dataCheckURL: ""
     dataPath: data/nptg
     filename: Localities.csv
+    defaultExpiryDays: 14
 tfgmTramliveData:
   dataUrl: https://api.tfgm.com/odata/Metrolinks
   dataSubscriptionKey: ${TFGMAPIKEY:- ""}

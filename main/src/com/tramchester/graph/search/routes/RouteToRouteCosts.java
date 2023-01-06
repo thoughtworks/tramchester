@@ -143,8 +143,7 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
         return interchanges;
     }
 
-    // TODO WIP
-    private int getDepth_NEW(RouteIndexPair routePair, ChangeStationOperatingCache changeStationOperating,
+    private int getDepth(RouteIndexPair routePair, ChangeStationOperatingCache changeStationOperating,
                          IndexedBitSet dateAndModeOverlaps, Set<TransportMode> requestedModes) {
 
         // need to account for route availability and modes when getting the depth
@@ -174,7 +173,8 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
 
     }
 
-    private int getDepth(RouteIndexPair routePair, ChangeStationOperatingCache changeStationOperating,
+    // TODO WIP
+    private int getDepth_OLD(RouteIndexPair routePair, ChangeStationOperatingCache changeStationOperating,
                          IndexedBitSet dateAndModeOverlaps, Set<TransportMode> requestedModes) {
 
         // need to account for route availability and modes when getting the depth

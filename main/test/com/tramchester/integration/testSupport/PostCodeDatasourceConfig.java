@@ -1,8 +1,10 @@
 package com.tramchester.integration.testSupport;
 
 import com.tramchester.config.RemoteDataSourceConfig;
+import com.tramchester.domain.dates.DateRange;
 
 import java.nio.file.Path;
+import java.time.Duration;
 
 public class PostCodeDatasourceConfig extends RemoteDataSourceConfig {
     @Override
@@ -18,6 +20,11 @@ public class PostCodeDatasourceConfig extends RemoteDataSourceConfig {
     @Override
     public String getDataUrl() {
         return "https://api.os.uk/downloads/v1/products/CodePointOpen/downloads?area=GB&format=CSV&redirect";
+    }
+
+    @Override
+    public Duration getDefaultExpiry() {
+        return Duration.ofDays(31);
     }
 
     @Override

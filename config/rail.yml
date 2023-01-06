@@ -31,16 +31,19 @@ remoteSources:
     dataCheckURL: ""
     dataPath: data/rail
     filename: rail_data.zip
+    defaultExpiryDays: 1
   - name: naptanxml
     dataURL: https://naptan.api.dft.gov.uk/v1/access-nodes?dataFormat=xml
     dataCheckURL: ""
     dataPath: data/naptan
     filename: ${NAPTAN_FILE:- NaPTAN.xml}
+    defaultExpiryDays: 14
   - name: nptg
     dataURL: https://beta-naptan.dft.gov.uk/Download/File/Localities.csv
     dataCheckURL: ""
     dataPath: data/nptg
     filename: Localities.csv
+    defaultExpiryDays: 14
 openLdb:
   accessToken: ${OPENLDB_APIKEY:- ""}
   wsdlLocation: config/OpenLDBWS.wsdl

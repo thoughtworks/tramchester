@@ -5,6 +5,7 @@ import com.tramchester.domain.DataSourceID;
 import com.tramchester.testSupport.TestEnv;
 
 import java.nio.file.Path;
+import java.time.Duration;
 
 public class TFGMRemoteDataSourceConfig extends RemoteDataSourceConfig {
     private final Path dataPath;
@@ -30,6 +31,11 @@ public class TFGMRemoteDataSourceConfig extends RemoteDataSourceConfig {
     @Override
     public String getDataUrl() {
         return TestEnv.TFGM_TIMETABLE_URL;
+    }
+
+    @Override
+    public Duration getDefaultExpiry() {
+        return Duration.ofDays(1);
     }
 
     @Override

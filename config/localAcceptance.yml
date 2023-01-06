@@ -39,6 +39,7 @@ remoteSources:
     dataCheckURL: https://odata.tfgm.com/opendata/downloads/TfGMgtfsnew.zip
     dataPath: data/tram
     filename: tfgm_data.zip
+    defaultExpiryDays: 1
 cacheFolder: data/cache
 calcTimeoutMillis: 3500
 bounds:

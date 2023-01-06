@@ -83,6 +83,13 @@ class ConfigMismatchTest {
         IntegrationTramTestConfig testConfig = new IntegrationTramTestConfig(true);
 
         validateCoreParameters(Collections.emptySet(), appConfig, testConfig);
+
+        List<RemoteDataSourceConfig> dataSourceConfig = appConfig.getRemoteDataSourceConfig();
+        List<RemoteDataSourceConfig> testDataSourceConfig = testConfig.getRemoteDataSourceConfig();
+        assertEquals(dataSourceConfig.size(), testDataSourceConfig.size());
+        assertEquals(1, dataSourceConfig.size());
+
+        assertRemoteSources(dataSourceConfig, testDataSourceConfig, 0);
     }
 
     @Test
@@ -186,7 +193,9 @@ class ConfigMismatchTest {
         assertTrue(remoteSource.getDataUrl().contains(testRemoteSource.getDataUrl()),
                 remoteSource.getDataUrl() + " not matching " + testRemoteSource.getDataUrl());
 
-        assertTrue(remoteSource.getDownloadFilename().contains(testRemoteSource.getDownloadFilename()));
+        assertTrue(remoteSource.getDownloadFilename().contains(testRemoteSource.getDownloadFilename()),
+                remoteSource.getDownloadFilename() + " did not contain " + testRemoteSource.getDownloadFilename());
+        assertEquals(remoteSource.getDefaultExpiry(), testRemoteSource.getDefaultExpiry());
     }
 
     @Test
@@ -199,6 +208,13 @@ class ConfigMismatchTest {
 
         assertEquals(appConfig.getQueryInterval(), accTestConfig.getQueryInterval(), "getQueryInterval");
         assertEquals(appConfig.getNumberQueries(), accTestConfig.getNumberQueries(), "getNumberQueries");
+
+        List<RemoteDataSourceConfig> dataSourceConfig = appConfig.getRemoteDataSourceConfig();
+        List<RemoteDataSourceConfig> testDataSourceConfig = accTestConfig.getRemoteDataSourceConfig();
+        assertEquals(dataSourceConfig.size(), testDataSourceConfig.size());
+        assertEquals(1, dataSourceConfig.size());
+
+        assertRemoteSources(dataSourceConfig, testDataSourceConfig, 0);
     }
 
     @Test
@@ -219,6 +235,17 @@ class ConfigMismatchTest {
 
         checkRailDataVersionFor(appConfig);
         checkRailDataVersionFor(accTestConfig);
+
+        List<RemoteDataSourceConfig> dataSourceConfig = appConfig.getRemoteDataSourceConfig();
+        List<RemoteDataSourceConfig> testDataSourceConfig = accTestConfig.getRemoteDataSourceConfig();
+        assertEquals(dataSourceConfig.size(), testDataSourceConfig.size());
+        assertEquals(4, dataSourceConfig.size());
+
+        // rail tested above
+        //assertRemoteSources(dataSourceConfig, testDataSourceConfig, 0);
+        assertRemoteSources(dataSourceConfig, testDataSourceConfig, 1);
+        assertRemoteSources(dataSourceConfig, testDataSourceConfig, 2);
+        assertRemoteSources(dataSourceConfig, testDataSourceConfig, 3);
 
     }
 

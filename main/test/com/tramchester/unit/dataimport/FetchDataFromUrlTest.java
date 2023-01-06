@@ -159,7 +159,7 @@ class FetchDataFromUrlTest extends EasyMockSupport {
     void shouldHandleNoModTimeIsAvailableByDownloadingIfExpiryTimePast() throws IOException, InterruptedException {
         LocalDateTime modTime = createLocalFile();
         EasyMock.expect(providesLocalNow.getDateTime()).andReturn(LocalDateTime.now().
-                plusMinutes(FetchDataFromUrl.DEFAULT_EXPIRY_MINS).plusDays(1));
+                plus(remoteDataSourceConfig.getDefaultExpiry()).plusDays(1));
 
         URLStatus status = new URLStatus(expectedDownloadURL, 200);
         EasyMock.expect(httpDownloader.getStatusFor(expectedDownloadURL, modTime)).andReturn(status);

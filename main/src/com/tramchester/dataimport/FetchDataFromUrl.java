@@ -29,7 +29,7 @@ public class FetchDataFromUrl {
     private static final Logger logger = LoggerFactory.getLogger(FetchDataFromUrl.class);
 
     // TODO Config?
-    public static final long DEFAULT_EXPIRY_MINS = 12 * 60;
+    //public static final long DEFAULT_EXPIRY_MINS = 12 * 60;
 
     private final HttpDownloadAndModTime httpDownloader;
     private final S3DownloadAndModTime s3Downloader;
@@ -103,7 +103,7 @@ public class FetchDataFromUrl {
         if (filePresent) {
             localModTime = getFileModLocalTime(destination);
             LocalDateTime localNow = providesLocalNow.getDateTime();
-            expired = localModTime.plusMinutes(DEFAULT_EXPIRY_MINS).isBefore(localNow);
+            expired = localModTime.plus(config.getDefaultExpiry()).isBefore(localNow);
             logger.info(format("%s Local mod time: %s Current Local Time: %s ", destination, localModTime, localNow));
 
             // do this here as getting the status for URL is potentially slow
