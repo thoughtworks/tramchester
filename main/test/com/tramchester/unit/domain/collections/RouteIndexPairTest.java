@@ -193,13 +193,7 @@ public class RouteIndexPairTest {
         PairTree original = treeFactory.createLeaf(pairA);
         original = original.replace(pairA, pairB, pairC).get();
 
-        PairTree.TreeVisitor visitor = tree -> {
-            return Stream.of(tree, tree);
-//            HashSet<PairTree> result = new HashSet<>();
-//            result.add(tree);
-//            result.add(tree);
-//            return result;
-        };
+        PairTree.TreeVisitor visitor = tree -> Stream.of(tree, tree);
 
         List<PairTree> result = original.visit(visitor).collect(Collectors.toList());
 

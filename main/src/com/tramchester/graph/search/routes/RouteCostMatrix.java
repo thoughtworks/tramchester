@@ -19,6 +19,7 @@ import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.graph.filters.GraphFilterActive;
 import com.tramchester.repository.InterchangeRepository;
 import com.tramchester.repository.NumberOfRoutes;
+import org.apache.commons.lang3.NotImplementedException;
 import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,6 +30,7 @@ import javax.inject.Inject;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
@@ -233,6 +235,12 @@ public class RouteCostMatrix implements RouteCostCombinations {
         return possibleInterchangePairs;
     }
 
+
+    @Override
+    public boolean checkForRoutePair(int depth, RouteIndexPair indexPair, Function<RoutePair, Boolean> checker) {
+        throw new RuntimeException("WIP");
+    }
+
     @Override
     public int getMaxDepth() {
         return MAX_DEPTH;
@@ -247,6 +255,7 @@ public class RouteCostMatrix implements RouteCostCombinations {
     public boolean hasMatchAtDepth(int depth, RouteIndexPair routePair) {
         return costsForDegree.isSet(depth, routePair);
     }
+
 
     private List<RoutePair> toRoutePairs(List<RouteIndexPair> changes) {
         return changes.stream().map(index::getPairFor).collect(Collectors.toList());

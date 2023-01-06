@@ -9,6 +9,7 @@ import com.tramchester.domain.reference.TransportMode;
 
 import java.util.List;
 import java.util.Set;
+import java.util.function.Function;
 import java.util.stream.Stream;
 
 @ImplementedBy(RouteCostMatrix.class)
@@ -27,4 +28,6 @@ public interface RouteCostCombinations {
     int getDepth(RouteIndexPair routePair);
 
     boolean hasMatchAtDepth(int depth, RouteIndexPair routePair);
+
+    boolean checkForRoutePair(int depth, RouteIndexPair pair, Function<RoutePair, Boolean> checker);
 }

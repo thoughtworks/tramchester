@@ -27,7 +27,7 @@ import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.inject.Inject;
 import java.util.*;
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -173,8 +173,7 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
 
     }
 
-    // TODO WIP
-    private int getDepth_OLD(RouteIndexPair routePair, ChangeStationOperatingCache changeStationOperating,
+    private int getDepth_WIP(RouteIndexPair routePair, ChangeStationOperatingCache changeStationOperating,
                          IndexedBitSet dateAndModeOverlaps, Set<TransportMode> requestedModes) {
 
         // need to account for route availability and modes when getting the depth
@@ -182,26 +181,31 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
         // int min = costs.getDegree(routePair);
         // but that might not be available at the given date and mode
 
-        final Stream<List<RoutePair>> possibleChanges = costs.getChangesFor(routePair, dateAndModeOverlaps);
+        // try from initialDepth to max depth to find any interchange that is operating at the given date/time/modes
+        int maxDepth = costs.getMaxDepth();
+        int initialDepth = costs.getDepth(routePair);
 
-        final List<List<RouteAndChanges>> smallestFilteredByAvailability = new ArrayList<>();
+        for (int depth = initialDepth; depth < maxDepth; depth++) {
+            if (costs.hasMatchAtDepth(depth, routePair)) {
+                final boolean matched = costs.checkForRoutePair(depth, routePair, pair -> checker(pair, requestedModes, changeStationOperating));
+//                boolean matched = possibleChanges.map(change -> getRouteAndInterchange(change, requestedModes)).
+//                        anyMatch(listOfInterchanges -> changeStationOperating.isOperating(availabilityRepository, listOfInterchanges, requestedModes));
+                if (matched) {
+                    logger.info("found operaing interchange at depth " + depth);
+                    return depth;
+                }
 
-        final AtomicInteger smallestSeen = new AtomicInteger(Integer.MAX_VALUE);
+            }
+        }
 
-        possibleChanges.filter(listOfChanges -> listOfChanges.size() < smallestSeen.get()).
-                map(change -> getRouteAndInterchange(change, requestedModes)).
-                filter(listOfInterchanges -> changeStationOperating.isOperating(availabilityRepository, listOfInterchanges, requestedModes)).
-                forEach(listOfInterchanges -> {
-                    smallestFilteredByAvailability.add(listOfInterchanges);
-                    smallestSeen.set(listOfInterchanges.size());
-                });
+        logger.info("Found no operating station for " + HasId.asIds(index.getPairFor(routePair)));
+        return Integer.MAX_VALUE;
 
-        Optional<Integer> result = smallestFilteredByAvailability.stream().
-                map(List::size).
-                min(Integer::compare);
+    }
 
-        return result.orElse(Integer.MAX_VALUE);
-
+    private boolean checker(RoutePair pair, Set<TransportMode> modes, ChangeStationOperatingCache changeStationOperating) {
+        RouteAndChanges changes = getChangesFor(pair, modes);
+        return changeStationOperating.isOperating(availabilityRepository, changes, modes);
     }
 
     private List<RouteAndChanges> getRouteAndInterchange(List<RoutePair> listOfChanges, Set<TransportMode> requestedModes) {
