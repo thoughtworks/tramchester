@@ -64,8 +64,8 @@ public enum KnownTramRoute {
         routes.add(AltrinchamPiccadilly);
         routes.add(PiccadillyAltrincham);
 
-        // nothing on tfgm website about this, but routes not present for some dates
-        if (!date.equals(TramDate.of(2023,1,8))) {
+        // nothing on tfgm website about this, but routes not present for sundays.....?
+        if (!date.equals(TramDate.of(2023,1,15))) {
             routes.add(BuryManchesterAltrincham);
             routes.add(AltrinchamManchesterBury);
         }

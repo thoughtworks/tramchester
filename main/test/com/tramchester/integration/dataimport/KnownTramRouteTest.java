@@ -86,14 +86,15 @@ class KnownTramRouteTest {
         dateRange.stream().forEach(date -> {
             Set<Route> loadedRoutes = getLoadedTramRoutes(date).collect(Collectors.toSet());
             KnownTramRoute.getFor(date).forEach(knownTramRoute -> {
+                String prefix = "On " + date + " ";
                 List<Route> findLoadedFor = loadedRoutes.stream().
                         filter(loadedRoute -> loadedRoute.getName().equals(knownTramRoute.longName())).
                         collect(Collectors.toList());
-                assertEquals(1, findLoadedFor.size(), "Could not find loaded route using long name match for " + knownTramRoute);
+                assertEquals(1, findLoadedFor.size(), prefix + "could not find loaded route using long name match for " + knownTramRoute);
                 Route loadedRoute = findLoadedFor.get(0);
-                assertEquals(loadedRoute.getShortName(), knownTramRoute.shortName(), "On " + date + " short name incorrect for " + knownTramRoute);
+                assertEquals(loadedRoute.getShortName(), knownTramRoute.shortName(), prefix + "short name incorrect for " + knownTramRoute);
                 assertTrue(loadedRoute.getId().forDTO().contains(knownTramRoute.direction().getSuffix()),
-                        "On " + date + " direction incorrect for " + knownTramRoute + " " + knownTramRoute.direction() +" and ID " + loadedRoute.getId());
+                        prefix + "direction incorrect for " + knownTramRoute + " " + knownTramRoute.direction() +" and ID " + loadedRoute.getId());
             });
         });
     }
