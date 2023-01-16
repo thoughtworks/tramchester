@@ -19,7 +19,6 @@ import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.graph.filters.GraphFilterActive;
 import com.tramchester.repository.InterchangeRepository;
 import com.tramchester.repository.NumberOfRoutes;
-import org.apache.commons.lang3.NotImplementedException;
 import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -143,21 +142,22 @@ public class RouteCostMatrix implements RouteCostCombinations {
                 availableOnDate.add(routeIndex);
             }
         }
-        IndexedBitSet matrix = IndexedBitSet.Square(numRoutes);
+
+        IndexedBitSet result = IndexedBitSet.Square(numRoutes);
         for (int firstRouteIndex = 0; firstRouteIndex < numRoutes; firstRouteIndex++) {
-            BitSet result = new BitSet(numRoutes);
+            BitSet row = new BitSet(numRoutes);
             if (availableOnDate.contains(firstRouteIndex)) {
                 for (int secondRouteIndex = 0; secondRouteIndex < numRoutes; secondRouteIndex++) {
                     if (availableOnDate.contains(secondRouteIndex)) {
-                        result.set(secondRouteIndex);
+                        row.set(secondRouteIndex);
                     }
                 }
             }
-            matrix.insert(firstRouteIndex, result);
+            result.insert(firstRouteIndex, row);
         }
         availableOnDate.clear();
-        logger.info(format("created overlap matrix for %s and modes %s with %s entries", date, requestedModes, matrix.numberOfBitsSet()));
-        return matrix;
+        logger.info(format("created overlap matrix for %s and modes %s with %s entries", date, requestedModes, result.numberOfBitsSet()));
+        return result;
     }
 
     @Override
@@ -332,6 +332,10 @@ public class RouteCostMatrix implements RouteCostCombinations {
         }
     }
 
+    // based on the previous degree and connections, add further connections at current degree which are
+    // enabled by the previous degree. For example if degree 1 has: R1->R2 at IntA and R2->R3 at IntB then
+    // at degree 2 we have: R1->R3
+    // implementation uses a bitmap to do this computation quickly row by row
     private void addConnectionsFor(RouteDateAndDayOverlap routeDateAndDayOverlap, byte currentDegree) {
         final Instant startTime = Instant.now();
         final int nextDegree = currentDegree + 1;

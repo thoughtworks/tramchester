@@ -39,10 +39,16 @@ class InterchangesRailTest {
         componentContainer.close();
     }
 
+
     @BeforeEach
     void onceBeforeEachTestRuns() {
         stationRepository = componentContainer.get(StationRepository.class);
         interchangeRepository = componentContainer.get(InterchangeRepository.class);
+    }
+
+    @Test
+    void shouldHaveExpectedNumberOfInterchanges() {
+        assertEquals(996, interchangeRepository.size());
     }
 
     @Test
