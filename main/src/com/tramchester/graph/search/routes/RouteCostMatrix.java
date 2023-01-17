@@ -349,7 +349,7 @@ public class RouteCostMatrix implements RouteCostCombinations {
             final BitSet resultForForRoute = new BitSet(numRoutes);
             for (int connectionIndex = 0; connectionIndex < numRoutes; connectionIndex++) {
                 if (currentConnectionsForRoute.isSet(connectionIndex)) {
-                    // if current routeIndex is connected to a route, then for next degree include that other routes connections
+                    // if current routeIndex is connected to a route, then for next degree include that other route's connections
                     final ImmutableBitSet otherRoutesConnections = currentMatrix.getBitSetForRow(connectionIndex);
                     otherRoutesConnections.applyOrTo(resultForForRoute);
                 }
