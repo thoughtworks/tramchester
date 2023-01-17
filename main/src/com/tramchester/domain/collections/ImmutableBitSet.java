@@ -27,7 +27,7 @@ public class ImmutableBitSet {
         return contained.get(index);
     }
 
-    public IntStream stream() {
+    public IntStream getBitIndexes() {
         return contained.stream();
     }
 

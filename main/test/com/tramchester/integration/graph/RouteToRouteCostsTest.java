@@ -298,12 +298,25 @@ public class RouteToRouteCostsTest {
 
         Set<InterchangeStation> viaBuryToAltyInterchange = viaBuryToAlty.get(0).getLeft().getInterchangeStations();
 
-        assertEquals(2, viaBuryToAltyInterchange.size(), viaBuryToAlty.toString());
+        assertEquals(2, viaBuryToAltyInterchange.size(), viaBuryToAltyInterchange.toString());
 
         IdSet<Station> interchangesForBuryAltyRouting = viaBuryToAltyInterchange.stream().map(InterchangeStation::getStationId).collect(IdSet.idCollector());
 
         assertTrue(interchangesForBuryAltyRouting.contains(Victoria.getId()), interchangesForBuryAltyRouting.toString());
         assertTrue(interchangesForBuryAltyRouting.contains(MarketStreet.getId()), interchangesForBuryAltyRouting.toString());
+
+        // check changes that involve CornbrookTheTraffordCentre
+        List<Pair<RouteAndChanges, RouteAndChanges>> viaCornbrookTraffordCenter = twoChangesNeeded.stream().
+                filter(pair -> pair.getRight().getRoutePair().second().equals(routeB)).
+                collect(Collectors.toList());
+
+        assertFalse(viaCornbrookTraffordCenter.isEmpty(), viaCornbrookTraffordCenter.toString());
+
+        Set<Pair<Set<InterchangeStation>, Set<InterchangeStation>>> interchanges = viaCornbrookTraffordCenter.stream().
+                map(pair -> Pair.of(pair.getLeft().getInterchangeStations(), pair.getRight().getInterchangeStations())).
+                collect(Collectors.toSet());
+
+        assertEquals(7, interchanges.size(), interchanges.toString());
     }
 
     private Set<Station> getStationsFor(RouteAndChanges routeAndChanges) {

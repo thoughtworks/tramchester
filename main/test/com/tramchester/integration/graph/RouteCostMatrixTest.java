@@ -9,14 +9,21 @@ import com.tramchester.domain.collections.ImmutableBitSet;
 import com.tramchester.domain.collections.IndexedBitSet;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.HasId;
+import com.tramchester.domain.places.InterchangeStation;
 import com.tramchester.domain.reference.TransportMode;
+import com.tramchester.domain.time.TimeRange;
+import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.search.routes.RouteCostMatrix;
 import com.tramchester.graph.search.routes.RouteIndex;
 import com.tramchester.domain.collections.RouteIndexPair;
 import com.tramchester.integration.testSupport.ConfigParameterResolver;
+import com.tramchester.repository.InterchangeRepository;
 import com.tramchester.repository.RouteRepository;
+import com.tramchester.repository.StationAvailabilityRepository;
+import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TramRouteHelper;
+import com.tramchester.testSupport.reference.TramStations;
 import com.tramchester.testSupport.testTags.DualTest;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
@@ -27,10 +34,12 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static com.tramchester.domain.reference.TransportMode.Tram;
 import static com.tramchester.testSupport.reference.KnownTramRoute.*;
+import static com.tramchester.testSupport.reference.TramStations.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 @ExtendWith(ConfigParameterResolver.class)
@@ -43,8 +52,8 @@ public class RouteCostMatrixTest {
     private RouteCostMatrix routeMatrix;
     private RouteIndex routeIndex;
     private EnumSet<TransportMode> modes;
-    private int numberOfRoutes;
     private RouteRepository routeRepository;
+
 
     // NOTE: this test does not cause a full db rebuild, so might see VERSION node missing messages
 
@@ -66,7 +75,6 @@ public class RouteCostMatrixTest {
     @BeforeEach
     void beforeEachTestRuns() {
         routeRepository = componentContainer.get(RouteRepository.class);
-        numberOfRoutes = routeRepository.numberOfRoutes();
         routeHelper = new TramRouteHelper(routeRepository);
         routeMatrix = componentContainer.get(RouteCostMatrix.class);
         routeIndex = componentContainer.get(RouteIndex.class);
@@ -136,33 +144,73 @@ public class RouteCostMatrixTest {
 
         assertEquals(routeA, change.first());
         assertEquals(routeB, change.second());
-
     }
 
     @Test
-    void shouldReproduceIssueBetweenPiccAndTraffordLine() {
-
-        Route routeA = routeHelper.getOneRoute(PiccadillyBury, date);
-        Route routeB = routeHelper.getOneRoute(CornbrookTheTraffordCentre, date);
+    void SPIKEshouldHaveExpectedInterchangeForSimpleInterchange() {
+        Route routeA = routeHelper.getOneRoute(AltrinchamManchesterBury, date);
+        Route routeB = routeHelper.getOneRoute(VictoriaWythenshaweManchesterAirport, date);
 
         RouteIndexPair indexPair = routeIndex.getPairFor(new RoutePair(routeA, routeB));
 
         IndexedBitSet dateOverlaps = routeMatrix.createOverlapMatrixFor(date, modes);
 
+        assertNotEquals(0, dateOverlaps.numberOfBitsSet());
+
+        RouteCostMatrix.AnyOfPaths results = routeMatrix.getInterchangesFor(indexPair, dateOverlaps);
+
+        assertEquals(6, results.numberPossible(), results.toString());
+
+        assertTrue(results.isValid(interchangeStation -> interchangeStation.getStationId().equals(Victoria.getId())));
+    }
+
+    @Test
+    void SPIKEshouldHaveExpectedInterchangeForSimpleInterchangeNotOnDate() {
+
+        // use date where we can get routes
+        Route routeA = routeHelper.getOneRoute(AltrinchamManchesterBury, date);
+        Route routeB = routeHelper.getOneRoute(VictoriaWythenshaweManchesterAirport, date);
+
+        RouteIndexPair indexPair = routeIndex.getPairFor(new RoutePair(routeA, routeB));
+
+        TramDate outOfRangeDate = TestEnv.testDay().plusWeeks(3 * 52);
+        IndexedBitSet dateOverlaps = routeMatrix.createOverlapMatrixFor(outOfRangeDate, modes);
+
+        assertEquals(0, dateOverlaps.numberOfBitsSet());
+
+        RouteCostMatrix.AnyOfPaths results = routeMatrix.getInterchangesFor(indexPair, dateOverlaps);
+
+        assertEquals(0, results.numberPossible());
+
+    }
+
+    @Test
+    void SPIKEshouldCheckFor2Changes() {
+
+        Route routeA = routeHelper.getOneRoute(BuryPiccadilly, date);
+        Route routeB = routeHelper.getOneRoute(CornbrookTheTraffordCentre, date);
+
+        assertEquals(2, routeMatrix.getConnectionDepthFor(routeA, routeB));
+
+        RouteIndexPair indexPair = routeIndex.getPairFor(new RoutePair(routeA, routeB));
+
+        // ignore data and mode here
+        IndexedBitSet dateOverlaps = routeMatrix.createOverlapMatrixFor(date, modes);
         assertEquals(196, dateOverlaps.numberOfBitsSet());
 
-        List<List<RoutePair>> results = routeMatrix.getChangesFor(indexPair, dateOverlaps).collect(Collectors.toList());
+        RouteCostMatrix.AnyOfPaths results = routeMatrix.getInterchangesFor(indexPair, dateOverlaps);
 
-        assertFalse(results.isEmpty());
+        assertEquals(7, results.numberPossible(), results.toString()); // two sets of changes needed
 
-        results.forEach(result -> {
-            assertEquals(2, result.size());
-            RoutePair firstChange = result.get(0);
-            RoutePair secondChange = result.get(1);
+        assertTrue(results.isValid(interchangeStation -> interchangeStation.getStationId().equals(Cornbrook.getId()) ||
+                interchangeStation.getStationId().equals(MarketStreet.getId())));
 
-            assertEquals(routeA, firstChange.first());
-            assertEquals(routeB, secondChange.second());
-        });
+        StationAvailabilityRepository stationAvailabilityRepository = componentContainer.get(StationAvailabilityRepository.class);
+
+        TimeRange timeRange = TimeRange.of(TramTime.of(23,10), TramTime.nextDay(1,10));
+        assertTrue(results.isValid(interchangeStation ->
+                stationAvailabilityRepository.isAvailable(interchangeStation.getStation(), date, timeRange, modes)));
+
     }
 
     @Test
@@ -176,7 +224,8 @@ public class RouteCostMatrixTest {
         RouteIndexPair indexPair = routeIndex.getPairFor(new RoutePair(routeA, routeB));
 
         // ignore data and mode here
-        IndexedBitSet dateOverlaps = IndexedBitSet.getIdentity(numberOfRoutes, numberOfRoutes);
+        IndexedBitSet dateOverlaps = routeMatrix.createOverlapMatrixFor(date, modes);
+        assertEquals(196, dateOverlaps.numberOfBitsSet());
 
         List<List<RoutePair>> results = routeMatrix.getChangesFor(indexPair, dateOverlaps).collect(Collectors.toList());
 
@@ -188,7 +237,7 @@ public class RouteCostMatrixTest {
             RoutePair secondChange = result.get(1);
 
             assertEquals(routeA, firstChange.first(), result.toString());
-            assertEquals(routeB, secondChange.second());
+            assertEquals(routeB, secondChange.second(), result.toString());
         });
 
     }
