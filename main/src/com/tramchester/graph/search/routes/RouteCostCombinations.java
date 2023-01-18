@@ -1,14 +1,12 @@
 package com.tramchester.graph.search.routes;
 
 import com.google.inject.ImplementedBy;
-import com.tramchester.domain.RoutePair;
 import com.tramchester.domain.collections.IndexedBitSet;
 import com.tramchester.domain.collections.RouteIndexPair;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.reference.TransportMode;
 
 import java.util.Set;
-import java.util.function.Function;
 
 @ImplementedBy(RouteCostMatrix.class)
 public interface RouteCostCombinations {
@@ -29,7 +27,7 @@ public interface RouteCostCombinations {
 
     int getDepth(RouteIndexPair routePair);
 
-    boolean hasMatchAtDepth(int depth, RouteIndexPair routePair);
-
-    boolean checkForRoutePair(int depth, RouteIndexPair pair, Function<RoutePair, Boolean> checker);
+//    boolean hasMatchAtDepth(int depth, RouteIndexPair routePair);
+//
+//    boolean checkForRoutePair(int depth, RouteIndexPair pair, Function<RoutePair, Boolean> checker);
 }

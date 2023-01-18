@@ -1,7 +1,10 @@
 package com.tramchester.graph.search.routes;
 
 import com.netflix.governator.guice.lazy.LazySingleton;
-import com.tramchester.domain.*;
+import com.tramchester.domain.LocationSet;
+import com.tramchester.domain.NumberOfChanges;
+import com.tramchester.domain.Route;
+import com.tramchester.domain.RoutePair;
 import com.tramchester.domain.collections.IndexedBitSet;
 import com.tramchester.domain.collections.RouteIndexPair;
 import com.tramchester.domain.collections.RouteIndexPairFactory;
@@ -16,7 +19,6 @@ import com.tramchester.graph.search.BetweenRoutesCostRepository;
 import com.tramchester.graph.search.LowestCostsForDestRoutes;
 import com.tramchester.repository.ClosedStationsRepository;
 import com.tramchester.repository.NeighboursRepository;
-import com.tramchester.repository.RouteRepository;
 import com.tramchester.repository.StationAvailabilityRepository;
 import org.apache.commons.lang3.tuple.Pair;
 import org.jetbrains.annotations.NotNull;
@@ -40,20 +42,18 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
 
     private final NeighboursRepository neighboursRepository;
     private final StationAvailabilityRepository availabilityRepository;
-    //private final RoutePairToInterchangeRepository routePairToInterchange;
     private final ClosedStationsRepository closedStationsRepository;
     private final RouteIndex index;
     private final RouteCostCombinations costs;
     private final RouteIndexPairFactory pairFactory;
 
     @Inject
-    public RouteToRouteCosts(RouteRepository routeRepository, NeighboursRepository neighboursRepository,
+    public RouteToRouteCosts(NeighboursRepository neighboursRepository,
                              StationAvailabilityRepository availabilityRepository,
-                             RoutePairToInterchangeRepository routePairToInterchange, ClosedStationsRepository closedStationsRepository,
+                             ClosedStationsRepository closedStationsRepository,
                              RouteIndex index, RouteCostMatrix costs, RouteIndexPairFactory pairFactory) {
         this.neighboursRepository = neighboursRepository;
         this.availabilityRepository = availabilityRepository;
-        //this.routePairToInterchange = routePairToInterchange;
         this.closedStationsRepository = closedStationsRepository;
         this.index = index;
         this.costs = costs;
@@ -73,7 +73,7 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
         logger.info("stopped");
     }
 
-    private int getNumberChangesFor(RoutePair routePair, TramDate date, ChangeStationOperatingCache changeStationOperating,
+    private int getNumberChangesFor(RoutePair routePair, TramDate date, StationAvailabilityFacade changeStationOperating,
                                     IndexedBitSet dateAndModeOverlaps, Set<TransportMode> requestedModes) {
         if (routePair.areSame()) {
             return 0;
@@ -97,50 +97,7 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
         return result;
     }
 
-//    /***
-//     * To facilitate testing
-//     * @param routeA starting route
-//     * @param routeB destintation route
-//     * @param requestedModes allowed transport modes
-//     * @return a list of lists, each list contains the pairs of routes needed to transfer between routeA and routeB in order, as well as the
-//     * interchanges that allow the transfer between those routes
-//     */
-//    @Deprecated
-//    public List<List<RouteAndChanges>> getChangesFor(Route routeA, Route routeB, Set<TransportMode> requestedModes) {
-//        RoutePair routePair = new RoutePair(routeA, routeB);
-//
-//        logger.info("Get change stations between " + HasId.asIds(routePair));
-//
-//        if (!requestedModes.contains(routeA.getTransportMode())) {
-//            logger.info(format("First route %s does not match requested modes %s", routeA.getId(), requestedModes));
-//            return Collections.emptyList();
-//        }
-//
-//        if (!requestedModes.contains(routeB.getTransportMode())) {
-//            logger.info(format("Second route %s does not match requested modes %s", routeB.getId(), requestedModes));
-//            return Collections.emptyList();
-//        }
-//
-//        RouteIndexPair indexPair = index.getPairFor(routePair);
-//
-//        IndexedBitSet dateOverlaps = IndexedBitSet.getIdentity(numberOfRoutes, numberOfRoutes); // no specific date or time
-//
-//        // routes we need to traverse, to get from routeA to routeB
-//        Stream<List<RoutePair>> routeChanges = costs.getChangesFor(indexPair, dateOverlaps);
-//
-//        // given the routes we need to cross, find the interchanges that will allow this
-//        List<List<RouteAndChanges>> interchanges = routeChanges.
-//                map(list -> list.stream().map(pair -> getChangesFor(pair, requestedModes)).filter(Objects::nonNull)).
-//                map(onePossibleSetOfChange -> onePossibleSetOfChange.collect(Collectors.toList()))
-//                .collect(Collectors.toList());
-//
-//        if (interchanges.isEmpty()) {
-//            logger.warn(format("Unable to find interchanges between %s", HasId.asIds(routePair)));
-//        }
-//        return interchanges;
-//    }
-
-    private int getDepth(RouteIndexPair routePair, ChangeStationOperatingCache changeStationOperating,
+    private int getDepth(RouteIndexPair routePair, StationAvailabilityFacade changeStationOperating,
                          IndexedBitSet dateAndModeOverlaps, Set<TransportMode> requestedModes) {
 
         // need to account for route availability and modes when getting the depth
@@ -159,51 +116,17 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
 
         RouteCostMatrix.AnyOfPaths interchanges = costs.getInterchangesFor(routePair, dateAndModeOverlaps);
 
-        RouteCostMatrix.InterchangePath results = interchanges.filter(interchange -> changeStationOperating.isOperating(availabilityRepository, interchange, requestedModes));
+        RouteCostMatrix.InterchangePath results = interchanges.filter(interchange ->
+                changeStationOperating.isOperating(availabilityRepository, interchange, requestedModes));
 
         if (results.hasAny()) {
             return results.getDepth();
         }
 
-//        for (int depth = initialDepth; depth < maxDepth; depth++) {
-//            if (costs.hasMatchAtDepth(depth, routePair)) {
-//                final Stream<List<RoutePair>> possibleChanges = costs.getChangesFor(routePair, dateAndModeOverlaps);
-//                boolean matched = possibleChanges.map(change -> getRouteAndInterchange(change, requestedModes)).
-//                        anyMatch(listOfInterchanges -> changeStationOperating.isOperating(availabilityRepository, listOfInterchanges, requestedModes));
-//                if (matched) {
-//                    logger.info("found operaing interchange at depth " + depth);
-//                    return depth;
-//                }
-//
-//            }
-//        }
-
         logger.info("Found no operating station for " + HasId.asIds(index.getPairFor(routePair)));
         return Integer.MAX_VALUE;
 
     }
-
-//    /***
-//     * Interchanged needed to transfer between pair of route - Unordered
-//     * @param routePair routes interested in
-//     * @param requestedModes transport modes to use between them
-//     * @return UNORDERED set of interchange stations
-//     */
-//    private RouteAndChanges getChangesFor(RoutePair routePair, Set<TransportMode> requestedModes) {
-//
-//        if (routePairToInterchange.hasAnyInterchangesFor(routePair)) {
-//
-//            final Set<InterchangeStation> interchangesBetween = routePairToInterchange.getInterchanges(routePair, requestedModes);
-//            final RouteAndChanges routeAndChanges = new RouteAndChanges(routePair, interchangesBetween);
-//            if (logger.isDebugEnabled()) {
-//                logger.debug(format("Found changes %s for %s", interchangesBetween, HasId.asIds(routePair)));
-//            }
-//            return routeAndChanges;
-//        }
-//
-//        logger.warn(format("No interchange found between %s and modes %s", HasId.asIds(routePair), requestedModes));
-//        return null;
-//    }
 
     public int size() {
         return costs.size();
@@ -229,7 +152,7 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
             return NumberOfChanges.None();
         }
 
-        ChangeStationOperatingCache interchangesOperating = new ChangeStationOperatingCache(date, timeRange);
+        StationAvailabilityFacade interchangesOperating = new StationAvailabilityFacade(date, timeRange);
 
         if (neighboursRepository.areNeighbours(starts, destinations)) {
             return new NumberOfChanges(1, 1);
@@ -271,7 +194,7 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
                 startStation.getId(), HasId.asIds(pickupRoutes), destination.getId(), HasId.asIds(dropoffRoutes),
                 preferredModes, date, timeRange));
 
-        ChangeStationOperatingCache changeStationOperating = new ChangeStationOperatingCache(date, timeRange);
+        StationAvailabilityFacade changeStationOperating = new StationAvailabilityFacade(date, timeRange);
 
         if (pickupRoutes.isEmpty()) {
             logger.warn(format("start station %s has no matching pick-up routes for %s %s %s",
@@ -290,7 +213,7 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
 
     @Override
     public NumberOfChanges getNumberOfChanges(Route routeA, Route routeB, TramDate date, TimeRange timeRange, Set<TransportMode> requestedModes) {
-        ChangeStationOperatingCache interchangesOperating = new ChangeStationOperatingCache(date, timeRange);
+        StationAvailabilityFacade interchangesOperating = new StationAvailabilityFacade(date, timeRange);
         return getNumberOfHops(Collections.singleton(routeA), Collections.singleton(routeB), date,
                 interchangesOperating, 0, requestedModes);
     }
@@ -307,7 +230,7 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
 
     @NotNull
     private NumberOfChanges getNumberOfHops(Set<Route> startRoutes, Set<Route> destinationRoutes, TramDate date,
-                                            ChangeStationOperatingCache interchangesOperating,
+                                            StationAvailabilityFacade interchangesOperating,
                                             int closureOffset, Set<TransportMode> requestedModes) {
         if (logger.isDebugEnabled()) {
             logger.debug(format("Compute number of changes between %s and %s on %s",
@@ -396,7 +319,7 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
         private final Set<Integer> destinationIndexs;
         private final TramDate date;
         private final TimeRange time;
-        private final ChangeStationOperatingCache changeStationOperating;
+        private final StationAvailabilityFacade changeStationOperating;
         private final IndexedBitSet dateOverlaps;
         private final Set<TransportMode> requestedModes;
 
@@ -410,7 +333,7 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
             this.date = date;
             this.time = time;
             this.requestedModes = requestedModes;
-            changeStationOperating = new ChangeStationOperatingCache(date, time);
+            changeStationOperating = new StationAvailabilityFacade(date, time);
             dateOverlaps = ((RouteToRouteCosts) routeToRouteCosts).costs.createOverlapMatrixFor(date, requestedModes);
 
         }
@@ -427,7 +350,7 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
                 return 0;
             }
 
-            ChangeStationOperatingCache changeStationOperating = new ChangeStationOperatingCache(date, time);
+            StationAvailabilityFacade changeStationOperating = new StationAvailabilityFacade(date, time);
 
             // note: IntStream uses int in implementation so avoids any boxing overhead
             return destinationIndexs.stream().mapToInt(item -> item).
@@ -464,43 +387,23 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
     }
 
     /***
-     * Caches whether a change station is available at a specific date and time range
+     * TODO Still needed? Need to test with rail data......
      */
-    static class ChangeStationOperatingCache {
+    static class StationAvailabilityFacade {
         private final TramDate date;
         private final TimeRange time;
 
-        final private Set<RouteAndChanges> activeCache;
 
-        public ChangeStationOperatingCache(TramDate date, TimeRange time) {
-
+        public StationAvailabilityFacade(TramDate date, TimeRange time) {
             this.date = date;
             this.time = time;
-            activeCache = new HashSet<>();
-        }
-
-//        public boolean isOperating(StationAvailabilityRepository availabilityRepository, List<RouteAndChanges> changeSet, Set<TransportMode> requestedModes) {
-//            return changeSet.stream().anyMatch(change -> isOperating(availabilityRepository, change, requestedModes));
-//        }
-
-        private boolean isOperating(StationAvailabilityRepository availabilityRepository, RouteAndChanges routeAndChanges, Set<TransportMode> requestedModes) {
-            if (activeCache.contains(routeAndChanges)) {
-                return true;
-            }
-
-            boolean available = availabilityRepository.isAvailable(routeAndChanges, date, time, requestedModes);
-            if (available) {
-                activeCache.add(routeAndChanges);
-            }
-            return available;
         }
 
         @Override
         public String toString() {
-            return "ChangeStationOperating{" +
+            return "StationAvailabilityFacade{" +
                     "date=" + date +
                     ", time=" + time +
-                    ", active=" + activeCache +
                     '}';
         }
 

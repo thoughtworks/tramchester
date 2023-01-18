@@ -140,15 +140,6 @@ public class StationAvailabilityRepository {
                 filter(station -> TransportMode.intersects(station.getTransportModes(), requestedModes)).
                 map(pickupsForLocation::get).
                 anyMatch(linkedServedRoute -> linkedServedRoute.anyAvailable(date, timeRange, requestedModes));
-        //return false;
-    }
-
-    public boolean isAvailable(RouteAndChanges routeAndChanges, TramDate date, TimeRange time, Set<TransportMode> requestedModes) {
-        if (routeAndChanges.getRoutePair().bothAvailableOn(date)) {
-            return routeAndChanges.getInterchangeStations().stream().
-                    anyMatch(interchangeStation -> isAvailable(interchangeStation, date, time, requestedModes));
-        }
-        return false;
     }
 
     public Set<Route> getPickupRoutesFor(Location<?> location, TramDate date, TimeRange timeRange, Set<TransportMode> modes) {

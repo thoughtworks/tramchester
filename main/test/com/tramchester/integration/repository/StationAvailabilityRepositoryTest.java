@@ -4,18 +4,18 @@ import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.Route;
-import com.tramchester.domain.RouteAndChanges;
-import com.tramchester.domain.RoutePair;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.HasId;
-import com.tramchester.domain.places.InterchangeStation;
 import com.tramchester.domain.places.Location;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TimeRange;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.integration.testSupport.ConfigParameterResolver;
-import com.tramchester.repository.*;
+import com.tramchester.repository.ClosedStationsRepository;
+import com.tramchester.repository.RouteRepository;
+import com.tramchester.repository.StationAvailabilityRepository;
+import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TramRouteHelper;
 import com.tramchester.testSupport.testTags.DataExpiryCategory;
@@ -28,7 +28,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 import java.time.Duration;
-import java.util.Collections;
 import java.util.EnumSet;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -187,25 +186,25 @@ public class StationAvailabilityRepositoryTest {
         });
     }
 
-    @Test
-    void reproduceIssueForYellowAndPinkRoutesWhenGMInEffect() {
-        TramDate date = TestEnv.testDay();
-        TimeRange timeRange = TimeRange.of(TramTime.of(8, 45), TramTime.of(16, 45));
-        Set<TransportMode> requestedModes = EnumSet.of(Tram);
-
-        InterchangeRepository interchangeRepository = componentContainer.get(InterchangeRepository.class);
-
-        Route yellowInbound = tramRouteHelper.getOneRoute(BuryPiccadilly, date);
-        Route pinkOutbound = tramRouteHelper.getOneRoute(EastDidisburyManchesterShawandCromptonRochdale, date);
-
-        RoutePair routePair = RoutePair.of(yellowInbound, pinkOutbound);
-        Station victoria = Victoria.from(stationRepository);
-        Set<InterchangeStation> interchanges = Collections.singleton(interchangeRepository.getInterchange(victoria));
-
-        RouteAndChanges routeAndChanges = new RouteAndChanges(routePair, interchanges);
-        boolean result = availabilityRepository.isAvailable(routeAndChanges, date, timeRange, requestedModes);
-        assertTrue(result);
-    }
+//    @Test
+//    void reproduceIssueForYellowAndPinkRoutesWhenGMInEffect() {
+//        TramDate date = TestEnv.testDay();
+//        TimeRange timeRange = TimeRange.of(TramTime.of(8, 45), TramTime.of(16, 45));
+//        Set<TransportMode> requestedModes = EnumSet.of(Tram);
+//
+//        InterchangeRepository interchangeRepository = componentContainer.get(InterchangeRepository.class);
+//
+//        Route yellowInbound = tramRouteHelper.getOneRoute(BuryPiccadilly, date);
+//        Route pinkOutbound = tramRouteHelper.getOneRoute(EastDidisburyManchesterShawandCromptonRochdale, date);
+//
+//        RoutePair routePair = RoutePair.of(yellowInbound, pinkOutbound);
+//        Station victoria = Victoria.from(stationRepository);
+//        Set<InterchangeStation> interchanges = Collections.singleton(interchangeRepository.getInterchange(victoria));
+//
+//        RouteAndChanges routeAndChanges = new RouteAndChanges(routePair, interchanges);
+//        boolean result = availabilityRepository.isAvailable(routeAndChanges, date, timeRange, requestedModes);
+//        assertTrue(result);
+//    }
 
     @Test
     void shouldHaveExpectedDropOffRoutesForVictoriaTram() {
