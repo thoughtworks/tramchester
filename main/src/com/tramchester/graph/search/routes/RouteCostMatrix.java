@@ -11,7 +11,6 @@ import com.tramchester.domain.collections.IndexedBitSet;
 import com.tramchester.domain.collections.RouteIndexPair;
 import com.tramchester.domain.collections.RouteIndexPairFactory;
 import com.tramchester.domain.collections.tree.PairTree;
-import com.tramchester.domain.collections.tree.PairTreeFactory;
 import com.tramchester.domain.collections.tree.PairTreeLeaf;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.places.InterchangeStation;
@@ -224,45 +223,46 @@ public class RouteCostMatrix implements RouteCostCombinations {
         return results;
     }
 
-    /***
-     * @param routePair indexes for first and second routes
-     * @param dateOverlaps bit mask indicating that routeA->routeB is available at date
-     * @return each set returned contains specific interchanges between 2 specific routes
-     */
-    @Override
-    public Stream<List<RoutePair>> getChangesFor(final RouteIndexPair routePair, IndexedBitSet dateOverlaps) {
-
-        PairTreeFactory factory = new PairTreeFactory();
-
-        final byte initialDepth = getDegree(routePair); // first 'depth' or number of changes where we find the requested pair
-
-        if (initialDepth == 0) {
-            //logger.warn(format("getChangesFor: No changes needed indexes %s", routePair));
-            return Stream.empty();
-        }
-        if (initialDepth == Byte.MAX_VALUE) {
-            if (!graphFilter.isActive()) {
-                logger.warn(format("getChangesFor: no changes possible indexes %s", index.getPairFor(routePair)));
-            }
-            return Stream.empty();
-        }
-
-        //if (logger.isDebugEnabled()) {
-            logger.info(format("Expand for %s initial depth %s", routePair, initialDepth));
-        //}
-
-        Stream<PairTree> expanded = expandTree(factory.createLeaf(routePair), initialDepth, dateOverlaps);
-
-        Stream<List<RoutePair>> possibleInterchangePairs =
-                expanded.map(PairTree::flatten).
-                        map(this::toRoutePairs);
-
-        if (logger.isDebugEnabled()) {
-            logger.debug(format("Got set of changes for %s: %s",  routePair, possibleInterchangePairs));
-        }
-
-        return possibleInterchangePairs;
-    }
+//    /***
+//     * @param routePair indexes for first and second routes
+//     * @param dateOverlaps bit mask indicating that routeA->routeB is available at date
+//     * @return each set returned contains specific interchanges between 2 specific routes
+//     */
+//    @Deprecated
+//    @Override
+//    public Stream<List<RoutePair>> getChangesFor(final RouteIndexPair routePair, IndexedBitSet dateOverlaps) {
+//
+//        PairTreeFactory factory = new PairTreeFactory();
+//
+//        final byte initialDepth = getDegree(routePair); // first 'depth' or number of changes where we find the requested pair
+//
+//        if (initialDepth == 0) {
+//            //logger.warn(format("getChangesFor: No changes needed indexes %s", routePair));
+//            return Stream.empty();
+//        }
+//        if (initialDepth == Byte.MAX_VALUE) {
+//            if (!graphFilter.isActive()) {
+//                logger.warn(format("getChangesFor: no changes possible indexes %s", index.getPairFor(routePair)));
+//            }
+//            return Stream.empty();
+//        }
+//
+//        //if (logger.isDebugEnabled()) {
+//            logger.info(format("Expand for %s initial depth %s", routePair, initialDepth));
+//        //}
+//
+//        Stream<PairTree> expanded = expandTree(factory.createLeaf(routePair), initialDepth, dateOverlaps);
+//
+//        Stream<List<RoutePair>> possibleInterchangePairs =
+//                expanded.map(PairTree::flatten).
+//                        map(this::toRoutePairs);
+//
+//        if (logger.isDebugEnabled()) {
+//            logger.debug(format("Got set of changes for %s: %s",  routePair, possibleInterchangePairs));
+//        }
+//
+//        return possibleInterchangePairs;
+//    }
 
 
     @Override
@@ -392,10 +392,6 @@ public class RouteCostMatrix implements RouteCostCombinations {
 
                     UnderlyingPairs pairMap = underlyingPairs.get(nextDegree - 2);
                     pairMap.put(addedPair, Pair.of(existingPairA, existingPairB));
-//                    if (pairMap.containsKey(addedPair)) {
-//                        throw new RuntimeException("wip");
-//                    }
-//                    pairMap.put(addedPair, Pair.of(existingPairA, existingPairB));
 
                 });
 
@@ -538,10 +534,15 @@ public class RouteCostMatrix implements RouteCostCombinations {
     public interface InterchangePath {
         boolean isValid(Function<InterchangeStation, Boolean> validator);
         InterchangePath filter(Function<InterchangeStation, Boolean> filter);
+        boolean hasAny();
+
+        int getDepth();
     }
 
     public interface AnyOfPaths extends InterchangePath {
         int numberPossible();
+
+        Stream<InterchangePath> stream();
     }
 
     public static class AnyOfContained implements AnyOfPaths {
@@ -578,6 +579,11 @@ public class RouteCostMatrix implements RouteCostCombinations {
         }
 
         @Override
+        public Stream<InterchangePath> stream() {
+            return paths.stream();
+        }
+
+        @Override
         public String toString() {
             return "AnyOfContained{" + toString(paths) +
                     '}';
@@ -607,6 +613,17 @@ public class RouteCostMatrix implements RouteCostCombinations {
             });
             return new AnyOfContained(macthing);
         }
+
+        @Override
+        public boolean hasAny() {
+            return paths.stream().anyMatch(InterchangePath::hasAny);
+        }
+
+        @Override
+        public int getDepth() {
+            Optional<Integer> anyMatch = paths.stream().map(InterchangePath::getDepth).max(Integer::compareTo);
+            return anyMatch.orElse(Integer.MAX_VALUE);
+        }
     }
 
 
@@ -632,8 +649,23 @@ public class RouteCostMatrix implements RouteCostCombinations {
         }
 
         @Override
+        public Stream<InterchangePath> stream() {
+            return changes.stream().map(change -> new AnyOfInterchanges(Collections.singleton(change)));
+        }
+
+        @Override
         public AnyOfPaths filter(Function<InterchangeStation, Boolean> filter) {
             return new AnyOfInterchanges(changes.stream().filter(filter::apply).collect(Collectors.toSet()));
+        }
+
+        @Override
+        public boolean hasAny() {
+            return !changes.isEmpty();
+        }
+
+        @Override
+        public int getDepth() {
+            return 1;
         }
 
         @Override
@@ -683,6 +715,17 @@ public class RouteCostMatrix implements RouteCostCombinations {
         }
 
         @Override
+        public boolean hasAny() {
+            return pathsA.hasAny() && pathsB.hasAny();
+        }
+
+        @Override
+        public int getDepth() {
+            int contained = Math.max(pathsA.getDepth(), pathsB.getDepth());
+            return contained + 1;
+        }
+
+        @Override
         public boolean equals(Object o) {
             if (this == o) return true;
             if (o == null || getClass() != o.getClass()) return false;
@@ -693,6 +736,14 @@ public class RouteCostMatrix implements RouteCostCombinations {
         @Override
         public int hashCode() {
             return Objects.hash(pathsA, pathsB);
+        }
+
+        public InterchangePath getFirst() {
+            return pathsA;
+        }
+
+        public InterchangePath getSecond() {
+            return pathsB;
         }
     }
 

@@ -7,10 +7,8 @@ import com.tramchester.domain.collections.RouteIndexPair;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.reference.TransportMode;
 
-import java.util.List;
 import java.util.Set;
 import java.util.function.Function;
-import java.util.stream.Stream;
 
 @ImplementedBy(RouteCostMatrix.class)
 public interface RouteCostCombinations {
@@ -21,7 +19,11 @@ public interface RouteCostCombinations {
     int size();
 
     // get list of changes for given route pair and overlaps
-    Stream<List<RoutePair>> getChangesFor(RouteIndexPair routePair, IndexedBitSet dateOverlaps);
+//    @Deprecated
+//    Stream<List<RoutePair>> getChangesFor(RouteIndexPair routePair, IndexedBitSet dateOverlaps);
+
+    // replacement for the above, WIP
+    RouteCostMatrix.AnyOfPaths getInterchangesFor(RouteIndexPair indexPair, IndexedBitSet dateOverlaps);
 
     int getMaxDepth();
 

@@ -30,7 +30,6 @@ import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TramRouteHelper;
 import com.tramchester.testSupport.reference.TramStations;
 import com.tramchester.testSupport.testTags.DualTest;
-import org.apache.commons.lang3.tuple.Pair;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -124,36 +123,6 @@ public class RouteToRouteCostsTest {
     }
 
     @Test
-    void shouldReproIssueWithGreenLineRoute() {
-        RouteCostMatrix routeCostMatrix = componentContainer.get(RouteCostMatrix.class);
-        RouteIndex routeIndex = componentContainer.get(RouteIndex.class);
-        RouteIndexPairFactory pairFactory = componentContainer.get(RouteIndexPairFactory.class);
-
-        Route greenInbound = routeHelper.getOneRoute(AltrinchamManchesterBury, date);
-
-        int greenIndex = routeIndex.indexFor(greenInbound.getId());
-
-        Set<Route> routes = routeRepository.getRoutes(TramsOnly).stream().filter(route -> route.isAvailableOn(date)).collect(Collectors.toSet());
-
-        int numberOfRoutes = routeRepository.numberOfRoutes();
-        IndexedBitSet dateOverlaps = IndexedBitSet.getIdentity(numberOfRoutes, numberOfRoutes);
-
-        for(Route otherRoute : routes) {
-            if (!otherRoute.getId().equals(greenInbound.getId())) {
-                int otherIndex = routeIndex.indexFor(otherRoute.getId());
-
-                RouteIndexPair routeIndexPair = pairFactory.get(greenIndex, otherIndex);
-                Stream<List<RoutePair>> stream = routeCostMatrix.getChangesFor(routeIndexPair, dateOverlaps);
-
-                Set<List<RoutePair>> results = stream.collect(Collectors.toSet());
-
-                assertFalse(results.isEmpty(), "no link for " + greenInbound + " and " + otherRoute);
-            }
-        }
-
-    }
-
-    @Test
     void shouldComputeCostsSameRoute() {
         Route routeA = routeHelper.getOneRoute(ManchesterAirportWythenshaweVictoria, date);
 
@@ -194,130 +163,132 @@ public class RouteToRouteCostsTest {
                 "wrong for " + routeB.getId() + " " + routeA.getId());
     }
 
-    @Test
-    void shouldBacktrackToChangesSingleChange() {
-        Route routeA = routeHelper.getOneRoute(TheTraffordCentreCornbrook, date);
-        Route routeB = routeHelper.getOneRoute(AltrinchamManchesterBury, date);
+    // These into route cost matrix tests
 
-        List<List<RouteAndChanges>> results = routesCostRepository.getChangesFor(routeA, routeB, modes);
-        assertEquals(1, results.size());
+//    @Test
+//    void shouldBacktrackToChangesSingleChange() {
+//        Route routeA = routeHelper.getOneRoute(TheTraffordCentreCornbrook, date);
+//        Route routeB = routeHelper.getOneRoute(AltrinchamManchesterBury, date);
+//
+//        List<List<RouteAndChanges>> results = routesCostRepository.getChangesFor(routeA, routeB, modes);
+//        assertEquals(1, results.size());
+//
+//        List<RouteAndChanges> firstSetOfChanges = results.get(0);
+//        assertEquals(1, firstSetOfChanges.size());
+//
+//        RouteAndChanges actualChange = firstSetOfChanges.get(0);
+//
+//        assertEquals(2, actualChange.getInterchangeStations().size());
+//        assertTrue(getStationsFor(actualChange).contains(Cornbrook.from(stationRepository)), results.toString());
+//    }
 
-        List<RouteAndChanges> firstSetOfChanges = results.get(0);
-        assertEquals(1, firstSetOfChanges.size());
+//    @Test
+//    void shouldBacktrackToChangesOneChanges() {
+//
+//        // expect one change, at victoria
+//        Route routeA = routeHelper.getOneRoute(BuryPiccadilly, date);
+//        Route routeB = routeHelper.getOneRoute(RochdaleShawandCromptonManchesterEastDidisbury, date);
+//
+//        List<List<RouteAndChanges>> results = routesCostRepository.getChangesFor(routeA, routeB, modes);
+//        assertEquals(1, results.size(), results.toString());
+//
+//        // expected each list of changes to contain 2 elements in this case
+//        List<RouteAndChanges> oneChangeNeeded = results.stream().
+//                filter(routeAndChanges -> routeAndChanges.size()==1).
+//                map(routeAndChanges -> routeAndChanges.get(0)).
+//                collect(Collectors.toList());
+//
+//        assertEquals(1, oneChangeNeeded.size(), results.toString());
+//
+//        RouteAndChanges change = oneChangeNeeded.get(0);
+//
+//        RoutePair changeBetween = change.getRoutePair();
+//        assertEquals(routeA, changeBetween.first());
+//        assertEquals(routeB, changeBetween.second());
+//
+//        IdSet<Station> interchanges = change.getInterchangeStations().stream().map(InterchangeStation::getStationId).collect(IdSet.idCollector());
+//
+//        assertEquals(1, interchanges.size());
+//        assertTrue(interchanges.contains(Victoria.getId()));
+//    }
 
-        RouteAndChanges actualChange = firstSetOfChanges.get(0);
-
-        assertEquals(2, actualChange.getInterchangeStations().size());
-        assertTrue(getStationsFor(actualChange).contains(Cornbrook.from(stationRepository)), results.toString());
-    }
-
-    @Test
-    void shouldBacktrackToChangesOneChanges() {
-
-        // expect one change, at victoria
-        Route routeA = routeHelper.getOneRoute(BuryPiccadilly, date);
-        Route routeB = routeHelper.getOneRoute(RochdaleShawandCromptonManchesterEastDidisbury, date);
-
-        List<List<RouteAndChanges>> results = routesCostRepository.getChangesFor(routeA, routeB, modes);
-        assertEquals(1, results.size(), results.toString());
-
-        // expected each list of changes to contain 2 elements in this case
-        List<RouteAndChanges> oneChangeNeeded = results.stream().
-                filter(routeAndChanges -> routeAndChanges.size()==1).
-                map(routeAndChanges -> routeAndChanges.get(0)).
-                collect(Collectors.toList());
-
-        assertEquals(1, oneChangeNeeded.size(), results.toString());
-
-        RouteAndChanges change = oneChangeNeeded.get(0);
-
-        RoutePair changeBetween = change.getRoutePair();
-        assertEquals(routeA, changeBetween.first());
-        assertEquals(routeB, changeBetween.second());
-
-        IdSet<Station> interchanges = change.getInterchangeStations().stream().map(InterchangeStation::getStationId).collect(IdSet.idCollector());
-
-        assertEquals(1, interchanges.size());
-        assertTrue(interchanges.contains(Victoria.getId()));
-    }
-
-    @Test
-    void shouldBacktrackToChangesTwoChanges() {
-        int expectedNumberOfDifferentRoutings = 10;
-
-        // no direct changes possible, expect all to feature 2 changes
-        // also many different combinations are possible
-        Route routeA = routeHelper.getOneRoute(BuryPiccadilly, date);
-        Route routeB = routeHelper.getOneRoute(CornbrookTheTraffordCentre, date);
-
-        List<List<RouteAndChanges>> results = routesCostRepository.getChangesFor(routeA, routeB, modes);
-        assertEquals(expectedNumberOfDifferentRoutings, results.size(), results.toString());
-
-        // The pairs of changes needed
-        List<Pair<RouteAndChanges, RouteAndChanges>> twoChangesNeeded = results.stream().
-                filter(routeAndChanges -> routeAndChanges.size()==2).
-                map(routeAndChanges -> Pair.of(routeAndChanges.get(0), routeAndChanges.get(1))).
-                collect(Collectors.toList());
-
-        assertEquals(expectedNumberOfDifferentRoutings, twoChangesNeeded.size());
-
-        twoChangesNeeded.forEach(pair -> {
-            RouteAndChanges firstChanges = pair.getLeft();
-            RouteAndChanges secondChanges = pair.getRight();
-
-            assertEquals(routeA, firstChanges.getRoutePair().first());
-            Route intermediate = firstChanges.getRoutePair().second();
-            assertEquals(intermediate, secondChanges.getRoutePair().first());
-            assertEquals(routeB, secondChanges.getRoutePair().second());
-        });
-
-        // check changes that involve piccadilly to altrincham route
-        Route piccadillyToAlty = routeHelper.getOneRoute(PiccadillyAltrincham, date);
-        List<Pair<RouteAndChanges, RouteAndChanges>> viaPiccToAltyRoute = twoChangesNeeded.stream().
-                filter(pair -> pair.getLeft().getRoutePair().second().equals(piccadillyToAlty)).
-                collect(Collectors.toList());
-
-        assertEquals(1, viaPiccToAltyRoute.size(), viaPiccToAltyRoute.toString());
-
-        Set<InterchangeStation> viaPiccToAltyInterchange = viaPiccToAltyRoute.get(0).getLeft().getInterchangeStations();
-
-        assertEquals(2, viaPiccToAltyInterchange.size(), HasId.asIds(viaPiccToAltyInterchange));
-
-        IdSet<Station> interchangesForPiccAltyRouting = viaPiccToAltyInterchange.stream().map(InterchangeStation::getStationId).collect(IdSet.idCollector());
-
-        assertTrue(interchangesForPiccAltyRouting.contains(PiccadillyGardens.getId()));
-        assertTrue(interchangesForPiccAltyRouting.contains(Piccadilly.getId()));
-
-        // check changes that involve bury to altrincham route
-        Route buryToAlty = routeHelper.getOneRoute(BuryManchesterAltrincham, date);
-        List<Pair<RouteAndChanges, RouteAndChanges>> viaBuryToAlty = twoChangesNeeded.stream().
-                filter(pair -> pair.getLeft().getRoutePair().second().equals(buryToAlty)).
-                collect(Collectors.toList());
-
-        assertEquals(1, viaBuryToAlty.size(), viaBuryToAlty.toString());
-
-        Set<InterchangeStation> viaBuryToAltyInterchange = viaBuryToAlty.get(0).getLeft().getInterchangeStations();
-
-        assertEquals(2, viaBuryToAltyInterchange.size(), viaBuryToAltyInterchange.toString());
-
-        IdSet<Station> interchangesForBuryAltyRouting = viaBuryToAltyInterchange.stream().map(InterchangeStation::getStationId).collect(IdSet.idCollector());
-
-        assertTrue(interchangesForBuryAltyRouting.contains(Victoria.getId()), interchangesForBuryAltyRouting.toString());
-        assertTrue(interchangesForBuryAltyRouting.contains(MarketStreet.getId()), interchangesForBuryAltyRouting.toString());
-
-        // check changes that involve CornbrookTheTraffordCentre
-        List<Pair<RouteAndChanges, RouteAndChanges>> viaCornbrookTraffordCenter = twoChangesNeeded.stream().
-                filter(pair -> pair.getRight().getRoutePair().second().equals(routeB)).
-                collect(Collectors.toList());
-
-        assertFalse(viaCornbrookTraffordCenter.isEmpty(), viaCornbrookTraffordCenter.toString());
-
-        Set<Pair<Set<InterchangeStation>, Set<InterchangeStation>>> interchanges = viaCornbrookTraffordCenter.stream().
-                map(pair -> Pair.of(pair.getLeft().getInterchangeStations(), pair.getRight().getInterchangeStations())).
-                collect(Collectors.toSet());
-
-        assertEquals(7, interchanges.size(), interchanges.toString());
-    }
+//    @Test
+//    void shouldBacktrackToChangesTwoChanges() {
+//        int expectedNumberOfDifferentRoutings = 10;
+//
+//        // no direct changes possible, expect all to feature 2 changes
+//        // also many different combinations are possible
+//        Route routeA = routeHelper.getOneRoute(BuryPiccadilly, date);
+//        Route routeB = routeHelper.getOneRoute(CornbrookTheTraffordCentre, date);
+//
+//        List<List<RouteAndChanges>> results = routesCostRepository.getChangesFor(routeA, routeB, modes);
+//        assertEquals(expectedNumberOfDifferentRoutings, results.size(), results.toString());
+//
+//        // The pairs of changes needed
+//        List<Pair<RouteAndChanges, RouteAndChanges>> twoChangesNeeded = results.stream().
+//                filter(routeAndChanges -> routeAndChanges.size()==2).
+//                map(routeAndChanges -> Pair.of(routeAndChanges.get(0), routeAndChanges.get(1))).
+//                collect(Collectors.toList());
+//
+//        assertEquals(expectedNumberOfDifferentRoutings, twoChangesNeeded.size());
+//
+//        twoChangesNeeded.forEach(pair -> {
+//            RouteAndChanges firstChanges = pair.getLeft();
+//            RouteAndChanges secondChanges = pair.getRight();
+//
+//            assertEquals(routeA, firstChanges.getRoutePair().first());
+//            Route intermediate = firstChanges.getRoutePair().second();
+//            assertEquals(intermediate, secondChanges.getRoutePair().first());
+//            assertEquals(routeB, secondChanges.getRoutePair().second());
+//        });
+//
+//        // check changes that involve piccadilly to altrincham route
+//        Route piccadillyToAlty = routeHelper.getOneRoute(PiccadillyAltrincham, date);
+//        List<Pair<RouteAndChanges, RouteAndChanges>> viaPiccToAltyRoute = twoChangesNeeded.stream().
+//                filter(pair -> pair.getLeft().getRoutePair().second().equals(piccadillyToAlty)).
+//                collect(Collectors.toList());
+//
+//        assertEquals(1, viaPiccToAltyRoute.size(), viaPiccToAltyRoute.toString());
+//
+//        Set<InterchangeStation> viaPiccToAltyInterchange = viaPiccToAltyRoute.get(0).getLeft().getInterchangeStations();
+//
+//        assertEquals(2, viaPiccToAltyInterchange.size(), HasId.asIds(viaPiccToAltyInterchange));
+//
+//        IdSet<Station> interchangesForPiccAltyRouting = viaPiccToAltyInterchange.stream().map(InterchangeStation::getStationId).collect(IdSet.idCollector());
+//
+//        assertTrue(interchangesForPiccAltyRouting.contains(PiccadillyGardens.getId()));
+//        assertTrue(interchangesForPiccAltyRouting.contains(Piccadilly.getId()));
+//
+//        // check changes that involve bury to altrincham route
+//        Route buryToAlty = routeHelper.getOneRoute(BuryManchesterAltrincham, date);
+//        List<Pair<RouteAndChanges, RouteAndChanges>> viaBuryToAlty = twoChangesNeeded.stream().
+//                filter(pair -> pair.getLeft().getRoutePair().second().equals(buryToAlty)).
+//                collect(Collectors.toList());
+//
+//        assertEquals(1, viaBuryToAlty.size(), viaBuryToAlty.toString());
+//
+//        Set<InterchangeStation> viaBuryToAltyInterchange = viaBuryToAlty.get(0).getLeft().getInterchangeStations();
+//
+//        assertEquals(2, viaBuryToAltyInterchange.size(), viaBuryToAltyInterchange.toString());
+//
+//        IdSet<Station> interchangesForBuryAltyRouting = viaBuryToAltyInterchange.stream().map(InterchangeStation::getStationId).collect(IdSet.idCollector());
+//
+//        assertTrue(interchangesForBuryAltyRouting.contains(Victoria.getId()), interchangesForBuryAltyRouting.toString());
+//        assertTrue(interchangesForBuryAltyRouting.contains(MarketStreet.getId()), interchangesForBuryAltyRouting.toString());
+//
+//        // check changes that involve CornbrookTheTraffordCentre
+//        List<Pair<RouteAndChanges, RouteAndChanges>> viaCornbrookTraffordCenter = twoChangesNeeded.stream().
+//                filter(pair -> pair.getRight().getRoutePair().second().equals(routeB)).
+//                collect(Collectors.toList());
+//
+//        assertFalse(viaCornbrookTraffordCenter.isEmpty(), viaCornbrookTraffordCenter.toString());
+//
+//        Set<Pair<Set<InterchangeStation>, Set<InterchangeStation>>> interchanges = viaCornbrookTraffordCenter.stream().
+//                map(pair -> Pair.of(pair.getLeft().getInterchangeStations(), pair.getRight().getInterchangeStations())).
+//                collect(Collectors.toSet());
+//
+//        assertEquals(7, interchanges.size(), interchanges.toString());
+//    }
 
     private Set<Station> getStationsFor(RouteAndChanges routeAndChanges) {
         return routeAndChanges.getInterchangeStations().stream().map(InterchangeStation::getStation).collect(Collectors.toSet());

@@ -7,6 +7,7 @@ import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.RoutePair;
 import com.tramchester.domain.dates.TramDate;
+import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.input.StopCall;
 import com.tramchester.domain.input.Trip;
@@ -74,6 +75,20 @@ public class RouteRepositoryTest {
         assertEquals(TestEnv.MetAgency(),result.getAgency());
         assertTrue(result.getId().forDTO().startsWith("METLBLUE:I:"));
         assertTrue(TransportMode.isTram(result));
+    }
+
+    @Test
+    void shouldHaveExpectedRoutesAtDeansgate() {
+        // according to the map this should not be the case, but it does seem to be in the timetable
+
+        Station deansgate = Deansgate.from(stationRepository);
+
+        Set<Route> pickups = deansgate.getPickupRoutes();
+
+        Route traffordCenterRoute = routeHelper.getOneRoute(CornbrookTheTraffordCentre, when);
+
+        assertTrue(pickups.contains(traffordCenterRoute), HasId.asIds(pickups));
+
     }
 
     @Test
