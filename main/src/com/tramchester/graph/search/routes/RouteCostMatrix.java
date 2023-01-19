@@ -241,8 +241,9 @@ public class RouteCostMatrix implements RouteCostCombinations {
 
     private void populateCosts(RouteDateAndDayOverlap routeDateAndDayOverlap) {
         final int size = numRoutes;
-        logger.info("Find costs between " + size + " routes");
         final int fullyConnected = size * size;
+
+        logger.info("Find costs between " + size + " routes (" + fullyConnected + ")");
 
         int previousTotal = 0;
         for (byte currentDegree = 1; currentDegree < maxDepth; currentDegree++) {
@@ -280,6 +281,8 @@ public class RouteCostMatrix implements RouteCostCombinations {
         final IndexedBitSet currentMatrix = costsForDegree.getDegree(currentDegree);
         final IndexedBitSet newMatrix = costsForDegree.getDegree(nextDegree);
 
+        final UnderlyingPairs pairMap = underlyingPairs.get(nextDegree - 2);
+
         for (int route = 0; route < numRoutes; route++) {
             final BitSet resultForForRoute = new BitSet(numRoutes);
 
@@ -298,7 +301,6 @@ public class RouteCostMatrix implements RouteCostCombinations {
                     RouteIndexPair existingPairB = pairFactory.get(connectedRoute, otherConnect);
                     RouteIndexPair addedPair = pairFactory.get(routeIndex, otherConnect);
 
-                    UnderlyingPairs pairMap = underlyingPairs.get(nextDegree - 2);
                     pairMap.put(addedPair, Pair.of(existingPairA, existingPairB));
 
                 });
