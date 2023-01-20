@@ -204,7 +204,10 @@ public class RailTransportDataFromFiles implements DirectDataSourceFactory.Popul
                     railConfig, graphFilterActive, bounds, railRouteRepository);
             recordStream.forEach(mapper::seen);
             mapper.reportDiagnostics();
-            railRouteRepository.dispose();
+
+            // TODO
+            // Breaks testing and the overall lifecycle management approach, need another way......
+            //railRouteRepository.dispose();
         }
 
         private MutableStation createStationFor(PhysicalStationRecord record) {

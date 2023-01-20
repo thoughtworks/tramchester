@@ -19,6 +19,8 @@ public enum RailStationIds {
     Crewe(createId("CREWE")),
     LondonEuston(createId("EUSTON")),
     Derby(createId("DRBY")),
+    Belper(createId("BELPER")),
+    Duffield(createId("DUFIELD")),
     Dover(createId("DOVERP")),
     Wimbledon(createId("WDON")),
     LondonWaterloo(createId("WATRLMN")),

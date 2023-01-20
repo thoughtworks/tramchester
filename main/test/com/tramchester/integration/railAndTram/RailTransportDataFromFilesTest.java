@@ -6,10 +6,7 @@ import com.tramchester.config.TramchesterConfig;
 import com.tramchester.dataimport.rail.reference.TrainOperatingCompanies;
 import com.tramchester.domain.*;
 import com.tramchester.domain.dates.TramDate;
-import com.tramchester.domain.id.HasId;
-import com.tramchester.domain.id.IdFor;
-import com.tramchester.domain.id.IdSet;
-import com.tramchester.domain.id.StringIdFor;
+import com.tramchester.domain.id.*;
 import com.tramchester.domain.input.StopCall;
 import com.tramchester.domain.input.StopCalls;
 import com.tramchester.domain.input.Trip;
@@ -18,6 +15,7 @@ import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.GTFSPickupDropoffType;
 import com.tramchester.domain.reference.TransportMode;
+import com.tramchester.domain.time.TimeRange;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.geo.BoundingBox;
 import com.tramchester.integration.testSupport.RailAndTramGreaterManchesterConfig;
@@ -147,8 +145,8 @@ public class RailTransportDataFromFilesTest {
     void shouldHaveExpectedAgencies() {
         Set<Agency> results = transportData.getAgencies();
 
-        // 30 + 1 = train + tfgm
-        assertEquals(30+1, results.size());
+        // 29 + 1 = train + tfgm
+        assertEquals(29+1, results.size());
 
         long count = results.stream().filter(agency -> Agency.IsMetrolink(agency.getId())).count();
         assertEquals(1, count);
@@ -290,36 +288,44 @@ public class RailTransportDataFromFilesTest {
 
     @Test
     void shouldHaveRouteFromManchesterToStockport() {
+        IdFor<Station> manPicc = ManchesterPiccadilly.getId();
+        IdFor<Station> stockport = Stockport.getId();
         Set<Route> matchingRoutes = transportData.getTrips().stream().
-                filter(trip -> matches(ManchesterPiccadilly.getId(), Stockport.getId(), trip)).
+                filter(trip -> matches(manPicc, stockport, trip)).
                 map(Trip::getRoute).
                 collect(Collectors.toSet());
 
-        assertFalse(matchingRoutes.isEmpty());
-        IdSet<Route> routeIds = matchingRoutes.stream().collect(IdSet.collector());
-        assertTrue(routeIds.contains(StringIdFor.createId("NT:MNCRPIC=>STKP:1")), "did find route NT:MNCRPIC=>STKP:1" + routeIds);
-        assertTrue(routeIds.contains(StringIdFor.createId("VT:MNCRPIC=>STKP:1")), "did find route VT:MNCRPIC=>STKP:1" + routeIds);
+        assertEquals(3, matchingRoutes.size(), HasId.asIds(matchingRoutes));
 
-        Set<Service> matchingServices = matchingRoutes.stream().
+        IdSet<Route> routeIds = matchingRoutes.stream().collect(IdSet.collector());
+
+        RailRouteId northernRailRoute = new RailRouteId(manPicc, stockport, TrainOperatingCompanies.NT.getAgencyId(), 1);
+        RailRouteId transExpress = new RailRouteId(manPicc, stockport, TrainOperatingCompanies.TP.getAgencyId(), 1);
+
+        assertTrue(routeIds.contains(northernRailRoute), "did not find route " + northernRailRoute + " in " + routeIds);
+        assertTrue(routeIds.contains(transExpress), "did not find route " + transExpress + " in " + routeIds);
+
+        Set<Service> servicesForRoutes = matchingRoutes.stream().
                 flatMap(route -> route.getServices().stream()).collect(Collectors.toSet());
 
-        assertFalse(matchingServices.isEmpty(), "no services for " + matchingRoutes);
+        assertFalse(servicesForRoutes.isEmpty(), "no services for " + matchingRoutes);
 
-        TramDate when = TestEnv.testTramDay();
+        TramDate when = TestEnv.testDay();
 
-        Set<Service> runningServices = matchingServices.stream().
+        Set<Service> runningServicesForRoutes = servicesForRoutes.stream().
                 filter(service -> service.getCalendar().operatesOn(when)).collect(Collectors.toSet());
 
-        assertFalse(runningServices.isEmpty(), "none running from " + runningServices);
+        assertFalse(runningServicesForRoutes.isEmpty(), "no running on " + when);
 
         TramTime time = TramTime.of(8,16);
+        TimeRange timeRange = TimeRange.of(time, time.plusMinutes(60));
 
         Set<Trip> am8Trips = transportData.getTrips().stream().
-                filter(trip -> runningServices.contains(trip.getService())).
-                filter(trip -> trip.departTime().isBefore(time) && trip.arrivalTime().isAfter(time)).
+                filter(trip -> runningServicesForRoutes.contains(trip.getService())).
+                filter(trip -> timeRange.contains(trip.departTime())).
                 collect(Collectors.toSet());
 
-        assertFalse(am8Trips.isEmpty(), "No trip at required time " + runningServices);
+        assertFalse(am8Trips.isEmpty(), "No trip at required time " + HasId.asIds(runningServicesForRoutes));
     }
 
     @Test

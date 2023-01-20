@@ -5,10 +5,7 @@ import com.tramchester.ComponentsBuilder;
 import com.tramchester.dataimport.rail.reference.TrainOperatingCompanies;
 import com.tramchester.domain.*;
 import com.tramchester.domain.dates.TramDate;
-import com.tramchester.domain.id.HasId;
-import com.tramchester.domain.id.IdFor;
-import com.tramchester.domain.id.IdSet;
-import com.tramchester.domain.id.StringIdFor;
+import com.tramchester.domain.id.*;
 import com.tramchester.domain.input.StopCall;
 import com.tramchester.domain.input.StopCalls;
 import com.tramchester.domain.input.Trip;
@@ -303,14 +300,21 @@ public class RailTransportDataFromFilesTest {
 
     @Test
     void shouldHaveRouteFromManchesterToLondon() {
+        IdFor<Station> manchesterPicc = ManchesterPiccadilly.getId();
+        IdFor<Station> londonEuston = LondonEuston.getId();
+
         Set<Route> matchingRoutes = transportData.getTrips().stream().
-                filter(trip -> matches(ManchesterPiccadilly.getId(), LondonEuston.getId(), trip)).
+                filter(trip -> matches(manchesterPicc, londonEuston, trip)).
                 map(Trip::getRoute).
                 collect(Collectors.toSet());
 
         assertFalse(matchingRoutes.isEmpty());
         IdSet<Route> routeIds = matchingRoutes.stream().collect(IdSet.collector());
-        assertTrue(routeIds.contains(StringIdFor.createId("VT:MNCRPIC=>EUSTON:1")), "did find route " + routeIds);
+
+        IdFor<Agency> agency = TrainOperatingCompanies.VT.getAgencyId();
+
+        RailRouteId expected = new RailRouteId(manchesterPicc, londonEuston, agency, 1);
+        assertTrue(routeIds.contains(expected), "did find route " + routeIds);
 
         Set<Service> matchingServices = matchingRoutes.stream().
                 flatMap(route -> route.getServices().stream()).collect(Collectors.toSet());

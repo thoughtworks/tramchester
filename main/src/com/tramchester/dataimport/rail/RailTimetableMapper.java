@@ -326,7 +326,7 @@ public class RailTimetableMapper {
             // Service
             final MutableService service = railServiceGroups.getOrCreateService(basicSchedule, isOverlay);
 
-            final IdFor<Route> routeId = railRouteIdRepository.getRouteFor(agencyId, withinBoundsCallingStations);
+            final IdFor<Route> routeId = railRouteIdRepository.getRouteIdFor(agencyId, withinBoundsCallingStations);
             final MutableRoute route = getOrCreateRoute(routeId, rawService, mutableAgency, mode, withinBoundsCallingStations);
 
             route.addService(service);
