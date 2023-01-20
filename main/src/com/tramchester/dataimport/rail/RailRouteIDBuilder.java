@@ -1,6 +1,7 @@
 package com.tramchester.dataimport.rail;
 
 import com.netflix.governator.guice.lazy.LazySingleton;
+import com.tramchester.dataimport.rail.repository.RailRouteIdRepository;
 import com.tramchester.domain.Agency;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.RailRouteId;
@@ -10,8 +11,6 @@ import javax.inject.Inject;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import static java.lang.String.format;
 
 @LazySingleton
 public class RailRouteIDBuilder {
@@ -25,7 +24,7 @@ public class RailRouteIDBuilder {
     }
 
     public RailRouteId getIdFor(IdFor<Agency> agencyId, List<IdFor<Station>> callingPoints) {
-        // form unique route id based on the atoc code and list of calling points
+        // find unique route id based on the atoc code (aka agency) and list of calling points
         // have to include agency id since different agencies might serve same calling points
 
         AgencyCallingPoints agencyCallingPoints = new AgencyCallingPoints(agencyId, callingPoints);
@@ -33,17 +32,6 @@ public class RailRouteIDBuilder {
         if (callingPointsToId.containsKey(agencyCallingPoints)) {
             return callingPointsToId.get(agencyCallingPoints);
         }
-
-        // else new combination of calling stations
-        //String baseIdText = createBaseIdForRoute(agencyId.getGraphId(), callingPoints);
-        //IdFor<Route> baseId = StringIdFor.createId(baseIdText);
-
-        // TODO baseId = Route.createId(agencyId, callingPoints);
-
-//        int newIndex = 1;
-//        if (baseIdToIndex.containsKey(baseId)) {
-//            newIndex = baseIdToIndex.get(baseId) + 1;
-//        }
 
         int index = 1;
         RailRouteId railRouteId = RailRouteId.createId(agencyId, callingPoints, index);
@@ -53,16 +41,13 @@ public class RailRouteIDBuilder {
         }
 
         baseIdToIndex.put(railRouteId, index);
-        //RailRouteId finalId = new RailRouteId(baseId, newIndex); // StringIdFor.withSuffix(baseId, ":"+ newIndex);
         callingPointsToId.put(agencyCallingPoints, railRouteId);
         return railRouteId;
 
     }
 
-    private String createBaseIdForRoute(String agencyId, List<IdFor<Station>> callingPoints) {
-        String firstName = callingPoints.get(0).forDTO();
-        String lastName = callingPoints.get(callingPoints.size()-1).forDTO();
-        return format("%s:%s=>%s", agencyId, firstName, lastName);
+    public RailRouteId getIdFor(RailRouteIdRepository.AgencyCallingPoints agencyCallingPoints) {
+        return getIdFor(agencyCallingPoints.getAgencyId(), agencyCallingPoints.getCallingPoints());
     }
 
     private static class AgencyCallingPoints {
@@ -70,7 +55,6 @@ public class RailRouteIDBuilder {
         private final List<IdFor<Station>> callingPoints;
 
         private AgencyCallingPoints(IdFor<Agency> agencyId, List<IdFor<Station>> stationCallingPoints) {
-            //this.callingPoints = stationCallingPoints.stream().map(Station::getId).collect(Collectors.toList());
             this.callingPoints = stationCallingPoints;
             this.agencyId = agencyId;
         }
