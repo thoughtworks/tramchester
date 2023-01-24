@@ -85,27 +85,57 @@ public class RouteCostMatrix implements RouteCostCombinations {
         }
 
         // WIP either need to cache pairToInterchanges and underlying pairs as well, or none of them
-        logger.warn("Caching is disabled");
+        //logger.warn("Caching is disabled");
         boolean recordPairsDuringCreation = false;
-        createCostMatrix(recordPairsDuringCreation);
+        //createCostMatrix(recordPairsDuringCreation);
 
-//        if (graphFilter.isActive()) {
-//            logger.warn("Filtering is enabled, skipping all caching");
-//            createCostMatrix();
-//        } else {
-//            if (dataCache.has(costsForDegree)) {
-//                logger.info("Loading from cache");
-//                dataCache.loadInto(costsForDegree, CostsPerDegreeData.class);
-//            } else {
-//                logger.info("Not in cache, creating");
-//                createCostMatrix();
-//                dataCache.save(costsForDegree, CostsPerDegreeData.class);
-//            }
-//        }
+        if (graphFilter.isActive()) {
+            logger.warn("Filtering is enabled, skipping all caching");
+            createCostMatrix(recordPairsDuringCreation);
+        } else {
+            if (dataCache.has(costsForDegree)) {
+                logger.info("Loading from cache");
+                dataCache.loadInto(costsForDegree, CostsPerDegreeData.class);
+            } else {
+                logger.info("Not in cache, creating");
+                createCostMatrix(recordPairsDuringCreation);
+                dataCache.save(costsForDegree, CostsPerDegreeData.class);
+            }
+        }
 
         if (!recordPairsDuringCreation) {
             createBacktracking();
         }
+
+        recordInterchanges();
+
+    }
+
+    private void recordInterchanges() {
+
+        final Set<InterchangeStation> interchanges = interchangeRepository.getAllInterchanges();
+        logger.info("Capture route index paris to interchanges for " + interchanges.size() + " interchanges");
+
+        interchanges.forEach(interchange -> {
+
+            final Set<RouteIndexPair> pairsForInterchange = new HashSet<>();
+            final Set<Route> dropOffAtInterchange = interchange.getDropoffRoutes();
+            final Set<Route> pickupAtInterchange = interchange.getPickupRoutes();
+
+            for (final Route dropOff : dropOffAtInterchange) {
+                final int dropOffIndex = index.indexFor(dropOff.getId());
+                  for (final Route pickup : pickupAtInterchange) {
+                      if ((!dropOff.equals(pickup)) && pickup.isDateOverlap(dropOff)) {
+                          final int pickupIndex = index.indexFor(pickup.getId());
+                          pairsForInterchange.add(pairFactory.get(dropOffIndex, pickupIndex));
+                      }
+                  }
+            }
+
+            addRoutePairsForInterchange(pairToInterchanges, interchange, pairsForInterchange);
+        });
+        logger.info("Add " + size() + " paris for interchanges");
+
     }
 
     private void createBacktracking() {
@@ -176,18 +206,18 @@ public class RouteCostMatrix implements RouteCostCombinations {
 
             Set<RouteIndexPair> addedForInterchange = addOverlapsForRoutes(forDegreeOne, routeDateAndDayOverlap,
                     dropOffAtInterchange, pickupAtInterchange);
-            recordInterchanges(pairToInterchanges, interchange, addedForInterchange);
+            //recordInterchanges(pairToInterchanges, interchange, addedForInterchange);
         });
         logger.info("Add " + size() + " connections for interchanges");
     }
 
-    private void recordInterchanges(Map<RouteIndexPair, Set<InterchangeStation>> interchangesForDepth, InterchangeStation interchange,
-                                    Set<RouteIndexPair> pairs) {
+    private void addRoutePairsForInterchange(Map<RouteIndexPair, Set<InterchangeStation>> pairToInterchanges, InterchangeStation interchange,
+                                             Set<RouteIndexPair> pairs) {
         pairs.forEach(pair -> {
-            if (!interchangesForDepth.containsKey(pair)) {
-                interchangesForDepth.put(pair, new HashSet<>());
+            if (!pairToInterchanges.containsKey(pair)) {
+                pairToInterchanges.put(pair, new HashSet<>());
             }
-            interchangesForDepth.get(pair).add(interchange);
+            pairToInterchanges.get(pair).add(interchange);
         });
     }
 
