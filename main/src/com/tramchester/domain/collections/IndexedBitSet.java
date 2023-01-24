@@ -68,8 +68,8 @@ public class IndexedBitSet {
      * Check if bit set
      * @return true if column'th bit in row is set
      */
-    public boolean isSet(Pair<Integer,Integer> pair) {
-        return isSet(pair.getLeft(), pair.getRight());
+    public boolean isSet(RouteIndexPair pair) {
+        return isSet(pair.first(), pair.second());
     }
 
     /***

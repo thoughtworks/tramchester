@@ -1,19 +1,20 @@
 package com.tramchester.domain.collections;
 
-import org.apache.commons.lang3.tuple.Pair;
+
+import java.util.Objects;
 
 public class RouteIndexPair {
-    private final int first;
-    private final int second;
+    private final short first;
+    private final short second;
     private final int hashCode;
 
-    private RouteIndexPair(int first, int second) {
+    private RouteIndexPair(short first, short second) {
         this.first = first;
         this.second = second;
-        hashCode = first *31 + second; // Objects.hash(first, second);
+        hashCode = Objects.hash(first, second);
     }
 
-    static RouteIndexPair of(int first, int second) {
+    static RouteIndexPair of(short first, short second) {
         return new RouteIndexPair(first, second);
     }
 
@@ -50,7 +51,5 @@ public class RouteIndexPair {
         return hashCode;
     }
 
-    public Pair<Integer, Integer> pair() {
-        return Pair.of(first, second);
-    }
+
 }
