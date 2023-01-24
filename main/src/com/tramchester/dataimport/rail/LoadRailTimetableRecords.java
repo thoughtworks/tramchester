@@ -93,4 +93,11 @@ public class LoadRailTimetableRecords implements ProvidesRailTimetableRecords {
         return RailRecordType.parse(line.subSequence(0,2));
     }
 
+    @Override
+    public String toString() {
+        return "LoadRailTimetableRecords{" +
+                "filePath=" + filePath +
+                ", enabled=" + enabled +
+                '}';
+    }
 }

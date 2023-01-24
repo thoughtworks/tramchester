@@ -5,11 +5,9 @@ import com.github.benmanes.caffeine.cache.Caffeine;
 import com.github.benmanes.caffeine.cache.stats.CacheStats;
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.config.TramchesterConfig;
+import com.tramchester.dataimport.rail.ExtractAgencyCallingPointsFromLocationRecords;
 import com.tramchester.dataimport.rail.ProvidesRailTimetableRecords;
 import com.tramchester.dataimport.rail.RailRouteIDBuilder;
-import com.tramchester.dataimport.rail.records.BasicScheduleExtraDetails;
-import com.tramchester.dataimport.rail.records.RailLocationRecord;
-import com.tramchester.dataimport.rail.records.RailTimetableRecord;
 import com.tramchester.domain.Agency;
 import com.tramchester.domain.StationIdPair;
 import com.tramchester.domain.id.IdFor;
@@ -28,10 +26,11 @@ import javax.inject.Inject;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 /***
  * Used to create initial view of rail routes as part of rail data import, not expected to be used apart from this
+ * NOTE:
+ * is used as part of TransportData load so cannot depend on that data, hence ExtractAgencyCallingPointsFromLocationRecords
  */
 @LazySingleton
 public class RailRouteIdRepository implements ReportsCacheStats {
@@ -40,8 +39,9 @@ public class RailRouteIdRepository implements ReportsCacheStats {
 
     private final ProvidesRailTimetableRecords providesRailTimetableRecords;
     private final RailRouteIDBuilder railRouteIDBuilder;
-    private final Map<IdFor<Agency>, List<AgencyCallingPointsWithRouteId>> routeIdsForAgency;
     private final boolean enabled;
+
+    private final Map<IdFor<Agency>, List<AgencyCallingPointsWithRouteId>> routeIdsForAgency;
 
     // many repeated calls during rail data load, caching helps significantly with performance
     private final Cache<AgencyCallingPoints, RailRouteId> cachedIds;
@@ -84,14 +84,9 @@ public class RailRouteIdRepository implements ReportsCacheStats {
     }
 
     private void createRouteIdsFor(ProvidesRailTimetableRecords providesRailTimetableRecords) {
-        ExtractAgencyCallingPointsFromLocationRecords extractsAgencyCallingPoints = new ExtractAgencyCallingPointsFromLocationRecords();
-        Stream<RailTimetableRecord> records = providesRailTimetableRecords.load();
-        records.forEach(extractsAgencyCallingPoints::processRecord);
-
-        createRouteIdsFor(extractsAgencyCallingPoints.getCallingPoints());
-
-        extractsAgencyCallingPoints.clear();
-
+        Set<AgencyCallingPoints> loadedCallingPoints = ExtractAgencyCallingPointsFromLocationRecords.loadCallingPoints(providesRailTimetableRecords);
+        createRouteIdsFor(loadedCallingPoints);
+        loadedCallingPoints.clear();
     }
 
     private void createRouteIdsFor(Set<AgencyCallingPoints> agencyCallingPoints) {
@@ -106,10 +101,16 @@ public class RailRouteIdRepository implements ReportsCacheStats {
             callingPointsByAgency.get(agencyId).add(points);
         });
 
+        List<Integer> totals = new ArrayList<>();
         callingPointsByAgency.forEach((agencyId, callingPoints) -> {
             List<AgencyCallingPointsWithRouteId> results = createSortedRoutesFor(agencyId, callingPoints);
             routeIdsForAgency.put(agencyId, results);
+            totals.add(results.size());
         });
+
+        int total = totals.stream().reduce(Integer::sum).orElse(0);
+
+        logger.info("Created " + total + " ids from " + agencyCallingPoints.size() + " sets of calling points");
 
         callingPointsByAgency.clear();
     }
@@ -152,7 +153,6 @@ public class RailRouteIdRepository implements ReportsCacheStats {
         Map<AgencyCallingPoints, RailRouteId> created = new HashMap<>();
 
         sortedBySize.forEach(agencyCallingPoints -> {
-            //List<IdFor<Station>> callingPoints = agencyCallingPoints.getCallingPoints();
 
             RailRouteId railRouteId;
             Optional<RailRouteId> alreadyMatched = matchingIdFor(agencyCallingPoints, created);
@@ -188,6 +188,7 @@ public class RailRouteIdRepository implements ReportsCacheStats {
      * @return the MutableRoute to use
      */
     public RailRouteId getRouteIdFor(IdFor<Agency> agencyId, List<Station> callingStations) {
+        // to a list, order matters
         List<IdFor<Station>> callingStationsIds = callingStations.stream().map(Station::getId).collect(Collectors.toList());
         AgencyCallingPoints agencyCallingPoints = new AgencyCallingPoints(agencyId, callingStationsIds);
 
@@ -241,70 +242,6 @@ public class RailRouteIdRepository implements ReportsCacheStats {
         List<Pair<String,CacheStats>> result = new ArrayList<>();
         result.add(Pair.of("routeIdCache", cachedIds.stats()));
         return result;
-    }
-
-    private static class ExtractAgencyCallingPointsFromLocationRecords {
-
-        private String currentAtocCode;
-        private final List<RailLocationRecord> locations;
-        private final Set<AgencyCallingPoints> possibleRailRoutes;
-
-        private ExtractAgencyCallingPointsFromLocationRecords() {
-            currentAtocCode = "";
-            possibleRailRoutes = new HashSet<>();
-            locations = new ArrayList<>();
-        }
-
-        private void processRecord(RailTimetableRecord record) {
-            switch (record.getRecordType()) {
-                case BasicScheduleExtra -> seenBegin(record);
-                case TerminatingLocation -> seenEnd(record);
-                case OriginLocation, IntermediateLocation -> seenLocation(record);
-            }
-        }
-
-        private void seenEnd(RailTimetableRecord record) {
-            RailLocationRecord locationRecord = (RailLocationRecord) record;
-            locations.add(locationRecord);
-            createAgencyCallingPoints();
-            currentAtocCode = "";
-            locations.clear();
-        }
-
-        private void createAgencyCallingPoints() {
-            String atocCode = currentAtocCode;
-            List<IdFor<Station>> callingPoints = locations.stream().
-                    filter(RailLocationRecord::doesStop).
-                    map(RailLocationRecord::getTiplocCode).
-                    map(Station::createId).
-                    collect(Collectors.toList());
-
-            IdFor<Agency> agencyId = Agency.createId(atocCode);
-            possibleRailRoutes.add(new AgencyCallingPoints(agencyId, callingPoints));
-
-        }
-
-        private void seenLocation(RailTimetableRecord record) {
-            RailLocationRecord locationRecord = (RailLocationRecord) record;
-            locations.add(locationRecord);
-        }
-
-        private void seenBegin(RailTimetableRecord record) {
-            if (!currentAtocCode.isEmpty()) {
-                throw new RuntimeException("Unexpected state, was still processing for " + currentAtocCode + " at " + record);
-            }
-
-            BasicScheduleExtraDetails extraDetails = (BasicScheduleExtraDetails) record;
-            currentAtocCode = extraDetails.getAtocCode();
-        }
-
-        public Set<AgencyCallingPoints> getCallingPoints() {
-            return possibleRailRoutes;
-        }
-
-        public void clear() {
-            possibleRailRoutes.clear();
-        }
     }
 
     public static class AgencyCallingPoints {
@@ -420,10 +357,6 @@ public class RailRouteIdRepository implements ReportsCacheStats {
             super(other);
             this.routeId = routeId;
         }
-
-//        public AgencyCallingPointsWithRouteId(IdFor<Agency> agencyId, AgencyCallingPoints agencyCallingPoints, RailRouteId id) {
-//            super(agencyId, agencyCallingPoints, id);
-//        }
 
         public RailRouteId getRouteId() {
             return routeId;
