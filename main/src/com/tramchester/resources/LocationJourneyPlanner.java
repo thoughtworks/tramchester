@@ -82,7 +82,7 @@ public class LocationJourneyPlanner {
 
     public Stream<Journey> quickestRouteForLocation(Transaction txn, Location<?> start, Location<?> destination,
                                                     JourneyRequest journeyRequest) {
-        logger.info(format("Finding shortest path for %s --> %s (%s) for %s", start, destination.getId(), destination.getName(), journeyRequest));
+        logger.info(format("Finding shortest path for %s --> %s (%s) for %s", start.getId(), destination.getId(), destination.getName(), journeyRequest));
         boolean walkAtStart = start.getLocationType().isWalk();
         boolean walkAtEnd = destination.getLocationType().isWalk();
 
@@ -106,7 +106,7 @@ public class LocationJourneyPlanner {
 
     private Stream<Journey> quickRouteWalkAtStart(Transaction txn, Location<?> start, Location<?> destination,
                                                   JourneyRequest journeyRequest) {
-        logger.info(format("Finding shortest path for %s --> %s (%s) for %s", start,
+        logger.info(format("Finding shortest path for %s --> %s (%s) for %s", start.getId(),
                 destination.getId(), destination.getName(), journeyRequest));
 
         GridPosition startGrid = start.getGridPosition();

@@ -1,5 +1,7 @@
 package com.tramchester.domain.collections;
 
+import org.apache.commons.lang3.tuple.Pair;
+
 public class RouteIndexPair {
     private final int first;
     private final int second;
@@ -48,4 +50,7 @@ public class RouteIndexPair {
         return hashCode;
     }
 
+    public Pair<Integer, Integer> pair() {
+        return Pair.of(first, second);
+    }
 }

@@ -65,6 +65,14 @@ public class IndexedBitSet {
     }
 
     /***
+     * Check if bit set
+     * @return true if column'th bit in row is set
+     */
+    public boolean isSet(Pair<Integer,Integer> pair) {
+        return isSet(pair.getLeft(), pair.getRight());
+    }
+
+    /***
      * get the bits for one row
      * @param row rwo to return
      * @return bitset for that row

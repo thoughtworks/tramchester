@@ -30,7 +30,7 @@ import static org.junit.jupiter.api.Assertions.*;
 @TrainTest
 public class RailRouteIdRepositoryTest {
     private static ComponentContainer componentContainer;
-    private RailRouteIdRepository idRepository;
+    private RailRouteIdRepository railRouteIdRepository;
     private IdFor<Agency> agencyId;
     private StationRepository stationRepository;
     private AgencyRepository agencyRepository;
@@ -49,7 +49,7 @@ public class RailRouteIdRepositoryTest {
 
     @BeforeEach
     void onceBeforeEachTestRuns() {
-        idRepository = componentContainer.get(RailRouteIdRepository.class);
+        railRouteIdRepository = componentContainer.get(RailRouteIdRepository.class);
         stationRepository = componentContainer.get(StationRepository.class);
         agencyRepository = componentContainer.get(AgencyRepository.class);
         agencyId = Agency.createId(TrainOperatingCompanies.VT.name());
@@ -67,12 +67,12 @@ public class RailRouteIdRepositoryTest {
         List<Station> fromManchesterViaWilmslow = getStations(ManchesterPiccadilly, Stockport,
                 Wilmslow, Crewe, LondonEuston);
 
-        IdFor<Route> viaWilmslow = idRepository.getRouteIdFor(agencyId, fromManchesterViaWilmslow);
+        IdFor<Route> viaWilmslow = railRouteIdRepository.getRouteIdFor(agencyId, fromManchesterViaWilmslow);
 
         List<Station> fromManchesterViaMacc = getStations(ManchesterPiccadilly, Stockport,
                 Macclesfield, StokeOnTrent, LondonEuston);
 
-        IdFor<Route> viaMacc = idRepository.getRouteIdFor(agencyId, fromManchesterViaMacc);
+        IdFor<Route> viaMacc = railRouteIdRepository.getRouteIdFor(agencyId, fromManchesterViaMacc);
 
         assertNotEquals(viaWilmslow, viaMacc);
     }
@@ -86,11 +86,11 @@ public class RailRouteIdRepositoryTest {
 
         List<Station> fromManchester = getStations(ManchesterPiccadilly, Stockport, Wilmslow, Crewe, LondonEuston);
 
-        IdFor<Route> routeIdA = idRepository.getRouteIdFor(agencyId, fromManchester);
+        IdFor<Route> routeIdA = railRouteIdRepository.getRouteIdFor(agencyId, fromManchester);
 
         List<Station> fromManchesterWithoutCrewe = getStations(ManchesterPiccadilly, Stockport, Wilmslow, LondonEuston);
 
-        IdFor<Route> routeIdB = idRepository.getRouteIdFor(agencyId, fromManchesterWithoutCrewe);
+        IdFor<Route> routeIdB = railRouteIdRepository.getRouteIdFor(agencyId, fromManchesterWithoutCrewe);
 
         assertEquals(routeIdA, routeIdB);
     }
@@ -104,6 +104,8 @@ public class RailRouteIdRepositoryTest {
         // need to keep some details inside of rail route id to make calc possible
 
         assertFalse(Hale.from(stationRepository).isMarkedInterchange());
+
+
 
 //        List<Station> routeA = getStations(Belper, Duffield, Derby);
 //        List<Station> routeB = getStations(Belper, Derby);

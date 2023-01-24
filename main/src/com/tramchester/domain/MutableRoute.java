@@ -217,5 +217,13 @@ public class MutableRoute implements Route {
             return serviceCalendar.anyDateOverlaps(otherCalendar.serviceCalendar);
         }
 
+        @Override
+        public String toString() {
+            return "RouteCalendar{" +
+                    "parent=" + parent.getId() +
+                    ", serviceCalendar=" + serviceCalendar +
+                    ", loaded=" + loaded +
+                    '}';
+        }
     }
 }
