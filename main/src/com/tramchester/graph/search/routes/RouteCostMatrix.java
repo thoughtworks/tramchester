@@ -128,7 +128,7 @@ public class RouteCostMatrix implements RouteCostCombinations {
 
     private void createBacktracking() {
         for (int depth = 0; depth < MAX_DEPTH - 1; depth++) {
-            underlyingPairs.add(new RouteConnectingLinks(pairFactory));
+            underlyingPairs.add(new RouteConnectingLinks(pairFactory, numRoutes));
         }
         for (byte currentDegree = 1; currentDegree < maxDepth; currentDegree++) {
             createBacktracking(currentDegree);
@@ -150,14 +150,14 @@ public class RouteCostMatrix implements RouteCostCombinations {
 
             final Instant startTime = Instant.now();
 
-            for (int route = 0; route < numRoutes; route++) {
-                final int routeIndex = route;
+            for (short route = 0; route < numRoutes; route++) {
+                final short routeIndex = route;
 
                 final ImmutableBitSet currentConnectionsForRoute = matrixForDegree.getBitSetForRow(routeIndex);
 
                 currentConnectionsForRoute.getBitIndexes().forEach(connectedRoute -> {
                     final ImmutableBitSet connections = matrixForDegree.getBitSetForRow(connectedRoute);
-                    pairMap.put(routeIndex, connectedRoute, connections);
+                    pairMap.put(routeIndex, (short) connectedRoute, connections);
                 });
             }
 
@@ -480,28 +480,37 @@ public class RouteCostMatrix implements RouteCostCombinations {
     private static class RouteConnectingLinks {
         private final RouteIndexPairFactory pairFactory;
 
-        // TODO Could represent this as ... ?
-        // Map<RouteIndexPair, BitMap> where Bitmap is Number Of Routes bits long
-        // pair to connecting route index
-        private final Map<RouteIndexPair, Set<Integer>> theMap;
+        // (A, C) -> (A, B) (B ,C)
+        // reduces to => (A,C) -> B
 
-        private RouteConnectingLinks(RouteIndexPairFactory pairFactory) {
+        // pair to connecting route index (A,B) -> C
+        private final Map<RouteIndexPair, BitSet> theMap;
+        private final IndexedBitSet seen; // performance
+
+        private RouteConnectingLinks(RouteIndexPairFactory pairFactory, int numRoutes) {
             this.pairFactory = pairFactory;
             theMap = new HashMap<>();
+            seen = new IndexedBitSet(numRoutes, numRoutes);
         }
 
-        // (A, C) -> (A, B) (B ,C)
-        // => (A,C) -> B
-        public void put(RouteIndexPair index, int connectingRoute) {
-            if (!theMap.containsKey(index)) {
-                theMap.put(index, new HashSet<>());
+        public void put(final short routeIndexA, final short routeIndexB, final ImmutableBitSet links) {
+            links.getBitIndexes().boxed().map(link -> pairFactory.get(routeIndexA, link)).
+                    forEach(key -> put(key, routeIndexB));
+        }
+
+        private void put(RouteIndexPair index, short connectingRoute) {
+            if (!seen.isSet(index.first(), index.second())) {
+                theMap.put(index, new BitSet());
+                seen.set(index.first(), index.second());
             }
-            theMap.get(index).add(connectingRoute);
+            theMap.get(index).set(connectingRoute);
         }
 
+        // re-expand from (A,C) -> B into: (A,B) (B,C)
         public Set<Pair<RouteIndexPair, RouteIndexPair>> getLinksFor(RouteIndexPair indexPair) {
-            Set<Integer> connectingRoutes = theMap.get(indexPair);
+            BitSet connectingRoutes = theMap.get(indexPair);
             return connectingRoutes.stream().
+                    boxed().
                     map(link -> Pair.of(pairFactory.get(indexPair.first(), link), pairFactory.get(link, indexPair.second()))).
                     collect(Collectors.toSet());
         }
@@ -510,10 +519,6 @@ public class RouteCostMatrix implements RouteCostCombinations {
             return theMap.size();
         }
 
-        public void put(final int routeIndexA, final int routeIndexB, final ImmutableBitSet links) {
-            links.getBitIndexes().boxed().map(link -> pairFactory.get(routeIndexA, link)).
-                    forEach(key -> put(key, routeIndexB));
-        }
     }
 
     public interface InterchangePath {
