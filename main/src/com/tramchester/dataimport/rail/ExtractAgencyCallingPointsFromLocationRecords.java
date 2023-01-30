@@ -3,6 +3,7 @@ package com.tramchester.dataimport.rail;
 import com.tramchester.dataimport.rail.records.BasicScheduleExtraDetails;
 import com.tramchester.dataimport.rail.records.RailLocationRecord;
 import com.tramchester.dataimport.rail.records.RailTimetableRecord;
+import com.tramchester.dataimport.rail.records.reference.LocationActivityCode;
 import com.tramchester.dataimport.rail.repository.RailRouteIdRepository;
 import com.tramchester.domain.Agency;
 import com.tramchester.domain.id.IdFor;
@@ -18,7 +19,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /***
- * Supports route id creation by pre-loading calling points for each service in the timetable into a
+ * Supports route id creation by preloading calling points for each service in the timetable into a
  * set of calling point records
  */
 public class ExtractAgencyCallingPointsFromLocationRecords {
@@ -54,6 +55,22 @@ public class ExtractAgencyCallingPointsFromLocationRecords {
         }
     }
 
+    private void seenBegin(RailTimetableRecord record) {
+        if (!currentAtocCode.isEmpty()) {
+            throw new RuntimeException("Unexpected state, was still processing for " + currentAtocCode + " at " + record);
+        }
+
+        BasicScheduleExtraDetails extraDetails = (BasicScheduleExtraDetails) record;
+        currentAtocCode = extraDetails.getAtocCode();
+    }
+
+    private void seenLocation(RailTimetableRecord record) {
+        RailLocationRecord locationRecord = (RailLocationRecord) record;
+        if (LocationActivityCode.doesStop(((RailLocationRecord) record).getActivity())) {
+            locations.add(locationRecord);
+        }
+    }
+
     private void seenEnd(RailTimetableRecord record) {
         RailLocationRecord locationRecord = (RailLocationRecord) record;
         locations.add(locationRecord);
@@ -75,17 +92,5 @@ public class ExtractAgencyCallingPointsFromLocationRecords {
 
     }
 
-    private void seenLocation(RailTimetableRecord record) {
-        RailLocationRecord locationRecord = (RailLocationRecord) record;
-        locations.add(locationRecord);
-    }
 
-    private void seenBegin(RailTimetableRecord record) {
-        if (!currentAtocCode.isEmpty()) {
-            throw new RuntimeException("Unexpected state, was still processing for " + currentAtocCode + " at " + record);
-        }
-
-        BasicScheduleExtraDetails extraDetails = (BasicScheduleExtraDetails) record;
-        currentAtocCode = extraDetails.getAtocCode();
-    }
 }

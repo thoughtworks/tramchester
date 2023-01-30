@@ -70,4 +70,5 @@ public class NaptanDataCallbackImporter {
     public boolean isEnabled() {
         return enabled;
     }
+
 }

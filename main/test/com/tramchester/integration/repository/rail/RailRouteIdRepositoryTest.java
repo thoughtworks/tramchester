@@ -6,6 +6,7 @@ import com.tramchester.dataimport.rail.reference.TrainOperatingCompanies;
 import com.tramchester.dataimport.rail.repository.RailRouteIdRepository;
 import com.tramchester.domain.Agency;
 import com.tramchester.domain.Route;
+import com.tramchester.domain.StationIdPair;
 import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.places.Station;
@@ -29,6 +30,8 @@ import static org.junit.jupiter.api.Assertions.*;
 
 @TrainTest
 public class RailRouteIdRepositoryTest {
+    public static final List<String> LONGEST_VIA_STOKE = Arrays.asList("MNCRPIC", "STKP", "MACLSFD", "STOKEOT", "STAFFRD", "WVRMPTN", "SNDWDUD",
+            "BHAMNWS", "BHAMINT", "COVNTRY", "RUGBY", "MKNSCEN", "WATFDJ", "EUSTON");
     private static ComponentContainer componentContainer;
     private RailRouteIdRepository railRouteIdRepository;
     private IdFor<Agency> agencyId;
@@ -62,23 +65,19 @@ public class RailRouteIdRepositoryTest {
     }
 
     @Test
-    void shouldHaveLondonToManchesterViaStoke() {
+    void shouldHaveDiffRouteIdsForMaccAndWilmslowRoutes() {
 
         List<Station> fromManchesterViaWilmslow = getStations(ManchesterPiccadilly, Stockport,
                 Wilmslow, Crewe, LondonEuston);
 
-        IdFor<Route> viaWilmslow = railRouteIdRepository.getRouteIdFor(agencyId, fromManchesterViaWilmslow);
+        IdFor<Route> viaWilmslow = railRouteIdRepository.getRouteIdUncached(agencyId, fromManchesterViaWilmslow);
 
         List<Station> fromManchesterViaMacc = getStations(ManchesterPiccadilly, Stockport,
                 Macclesfield, StokeOnTrent, LondonEuston);
 
-        IdFor<Route> viaMacc = railRouteIdRepository.getRouteIdFor(agencyId, fromManchesterViaMacc);
+        IdFor<Route> viaMacc = railRouteIdRepository.getRouteIdUncached(agencyId, fromManchesterViaMacc);
 
         assertNotEquals(viaWilmslow, viaMacc);
-    }
-
-    private List<Station> getStations(RailStationIds... railStationsIds) {
-        return Arrays.stream(railStationsIds).map(id -> id.from(stationRepository)).collect(Collectors.toList());
     }
 
     @Test
@@ -95,25 +94,73 @@ public class RailRouteIdRepositoryTest {
         assertEquals(routeIdA, routeIdB);
     }
 
-    // WIP
     @Test
-    void shouldCheckIdForCallingPointsWhenOneNotMarkedAsInterchange() {
-        // need to find 2 "routes" one of which skips a station not marked as interchange
-        // but how often does this actually happen?
+    void shouldHaveContainsForAgencyCallingPoints() {
 
-        // need to keep some details inside of rail route id to make calc possible
+        List<IdFor<Station>> idListA = LONGEST_VIA_STOKE.stream().map(Station::createId).collect(Collectors.toList());
 
-        assertFalse(Hale.from(stationRepository).isMarkedInterchange());
+        RailRouteIdRepository.AgencyCallingPoints callingA = new RailRouteIdRepository.AgencyCallingPoints(agencyId, idListA);
 
+        assertTrue(callingA.contains(callingA));
 
+        List<IdFor<Station>> idListB = getStationIds(ManchesterPiccadilly, Stockport, Crewe, LondonEuston);
+        RailRouteIdRepository.AgencyCallingPoints callingB = new RailRouteIdRepository.AgencyCallingPoints(agencyId, idListB);
 
-//        List<Station> routeA = getStations(Belper, Duffield, Derby);
-//        List<Station> routeB = getStations(Belper, Derby);
-//
-//        IdFor<Route> routeIdA = idRepository.getRouteFor(agencyId, routeA);
-//        IdFor<Route> routeIdB = idRepository.getRouteFor(agencyId, belperToDerby);
-//
-//        assertEquals(routeIdA, routeIdB);
+        assertFalse(callingA.contains(callingB));
+        assertFalse(callingB.contains(callingA));
+
+        List<IdFor<Station>> idListC = getStationIds(ManchesterPiccadilly, Stockport, LondonEuston);
+        RailRouteIdRepository.AgencyCallingPoints callingC = new RailRouteIdRepository.AgencyCallingPoints(agencyId, idListC);
+
+        assertTrue(callingA.contains(callingC));
+        assertFalse(callingC.contains(callingA));
+        assertFalse(callingC.contains(callingB));
+
+        List<IdFor<Station>> idListD = getStationIds(ManchesterPiccadilly, Stockport, Macclesfield, StokeOnTrent, LondonEuston);
+        RailRouteIdRepository.AgencyCallingPoints callingD = new RailRouteIdRepository.AgencyCallingPoints(agencyId, idListD);
+
+        assertTrue(callingA.contains(callingD));
+        assertTrue(callingD.contains(callingC));
+        assertFalse(callingD.contains(callingB));
+
     }
+
+    @Test
+    void shouldHaveLongestRouteAndSubsetsWithSameId() {
+
+        List<Station> longest = LONGEST_VIA_STOKE.stream().
+                map(Station::createId).
+                map(id -> stationRepository.getStationById(id)).
+                collect(Collectors.toList());
+
+        IdFor<Route> routeIdForLongest = railRouteIdRepository.getRouteIdFor(agencyId, longest);
+
+        IdFor<Route> routeIdForShorter = railRouteIdRepository.getRouteIdFor(agencyId, getStations(ManchesterPiccadilly, Stockport, Macclesfield,
+                StokeOnTrent, LondonEuston));
+
+        assertEquals(routeIdForLongest, routeIdForShorter);
+
+    }
+
+    @Test
+    void shouldHaveExpectedNumberOfIdsForManchesterToLondonEuston() {
+
+        StationIdPair manchesterLondon = StationIdPair.of(ManchesterPiccadilly.getId(), LondonEuston.getId());
+        List<RailRouteIdRepository.AgencyCallingPointsWithRouteId> routes = railRouteIdRepository.getCallingPointsFor(agencyId).stream().
+                filter(callingPoints -> callingPoints.getBeginEnd().equals(manchesterLondon)).
+                collect(Collectors.toList());
+
+        // was 36 under old ID scheme
+        assertEquals(9, routes.size(), routes.toString());
+    }
+
+    private List<IdFor<Station>> getStationIds(RailStationIds... railStationIds) {
+        return Arrays.stream(railStationIds).map(RailStationIds::getId).collect(Collectors.toList());
+    }
+
+    private List<Station> getStations(RailStationIds... railStationsIds) {
+        return Arrays.stream(railStationsIds).map(id -> id.from(stationRepository)).collect(Collectors.toList());
+    }
+
 
 }

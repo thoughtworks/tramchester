@@ -60,7 +60,7 @@ public class NaptanRepositoryContainer implements NaptanRepository {
     public void start() {
         logger.info("starting");
 
-        boolean enabled = naptanDataImporter.isEnabled();
+        final boolean enabled = naptanDataImporter.isEnabled();
 
         if (!enabled) {
             logger.warn("Not enabled, imported is disable, no config for naptan?");
@@ -85,27 +85,21 @@ public class NaptanRepositoryContainer implements NaptanRepository {
 
         Map<IdFor<NaptanRecord>, List<NaptanXMLStopAreaRef>> pendingAreaIds = new HashMap<>();
 
-        BoundingBox bounds = config.getBounds();
-        logger.info("Loading data for " + bounds);
-        Double range = config.getNearestStopForWalkingRangeKM();
+        final BoundingBox bounds = config.getBounds();
+        final Double range = config.getNearestStopForWalkingRangeKM();
+        final MarginInMeters margin = MarginInMeters.of(range);
 
-        MarginInMeters margin = MarginInMeters.of(range);
+        logger.info("Loading data for " + bounds + " and range " + margin);
 
-        naptanDataImporter.loadData(new NaptanFromXMLFile.NaptanXmlConsumer() {
-            @Override
-            public void process(NaptanStopAreaData element) {
-                consumeStopArea(element, bounds, margin);
-            }
+        Consumer consumer = new Consumer(bounds, margin, pendingAreaIds);
 
-            @Override
-            public void process(NaptanStopData element) {
-                consumeStop(element, bounds, margin, pendingAreaIds);
-            }
-        });
+        naptanDataImporter.loadData(consumer);
 
         logger.info("Loaded " + areas.size() + " areas");
         logger.info("Loaded " + stops.size() + " stops");
         logger.info("Loaded " + tiplocToAtco.size() + " mappings for rail stations" );
+
+        consumer.logSkipped(logger);
 
         logger.info("Post filter stops for active areas codes");
         pendingAreaIds.forEach((recordId, areas) -> {
@@ -121,20 +115,23 @@ public class NaptanRepositoryContainer implements NaptanRepository {
 
     }
 
-    private void consumeStopArea(final NaptanStopAreaData areaData, final BoundingBox bounds, final MarginInMeters margin) {
+    private boolean consumeStopArea(final NaptanStopAreaData areaData, final BoundingBox bounds, final MarginInMeters margin) {
         if (areaData.getStopAreaCode().isBlank()) {
-            return;
+            return false;
         }
         if (filterBy(bounds, margin, areaData)) {
             final NaptanArea record = createArea(areaData);
             areas.add(record);
+            return true;
+        } else {
+            return false;
         }
     }
 
-    private void consumeStop(final NaptanStopData stopData, final BoundingBox bounds, final MarginInMeters margin,
+    private boolean consumeStop(final NaptanStopData stopData, final BoundingBox bounds, final MarginInMeters margin,
                              final Map<IdFor<NaptanRecord>, List<NaptanXMLStopAreaRef>> pendingAreaIds) {
         if (!stopData.hasValidAtcoCode()) {
-            return;
+            return false;
         }
 
         if (filterBy(bounds, margin, stopData)) {
@@ -145,6 +142,10 @@ public class NaptanRepositoryContainer implements NaptanRepository {
                 final IdFor<Station> id = StringIdFor.createId(stopData.getRailInfo().getTiploc());
                 tiplocToAtco.put(id, stopData.getAtcoCode());
             }
+
+            return true;
+        } else {
+            return false;
         }
     }
 
@@ -300,4 +301,43 @@ public class NaptanRepositoryContainer implements NaptanRepository {
         return new HashSet<>(areas.getValues());
     }
 
+    private class Consumer implements NaptanFromXMLFile.NaptanXmlConsumer {
+
+        private final BoundingBox bounds;
+        private final MarginInMeters margin;
+        private final Map<IdFor<NaptanRecord>, List<NaptanXMLStopAreaRef>> pendingAreaIds;
+        int skippedStopArea;
+        int skippedStop;
+
+        private Consumer(BoundingBox bounds, MarginInMeters margin, Map<IdFor<NaptanRecord>, List<NaptanXMLStopAreaRef>> pendingAreaIds) {
+            this.bounds = bounds;
+            this.margin = margin;
+            this.pendingAreaIds = pendingAreaIds;
+            skippedStop = 0;
+            skippedStopArea = 0;
+        }
+
+        @Override
+        public void process(NaptanStopAreaData element) {
+            if (!consumeStopArea(element, bounds, margin)) {
+                skippedStopArea++;
+            }
+        }
+
+        @Override
+        public void process(NaptanStopData element) {
+            if (!consumeStop(element, bounds, margin, pendingAreaIds)) {
+                skippedStop++;
+            }
+        }
+
+        public void logSkipped(Logger logger) {
+            if (skippedStop>0) {
+                logger.info("Skipped " + skippedStop + " stops");
+            }
+            if (skippedStopArea>0) {
+                logger.warn("Skipped " + skippedStopArea + " stop areas");
+            }
+        }
+    }
 }
