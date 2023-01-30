@@ -53,7 +53,7 @@ public class LoadRailServicesFromText  {
 
         RailConfig railConfig = config.getRailConfig();
 
-        RailRouteIdRepository railRouteIdRepository = new RailRouteIdRepository(loadTimeTableRecords, railRouteIdBuilder, config,
+        RailRouteIdRepository railRouteIdRepository = new RailRouteIdRepository(loadTimeTableRecords, railRouteIdBuilder, naptanRepository, config,
                 cacheMetric);
         railRouteIdRepository.start();
 
