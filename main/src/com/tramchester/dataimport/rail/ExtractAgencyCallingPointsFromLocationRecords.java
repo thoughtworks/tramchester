@@ -7,10 +7,7 @@ import com.tramchester.dataimport.rail.records.reference.LocationActivityCode;
 import com.tramchester.dataimport.rail.repository.RailRouteIdRepository;
 import com.tramchester.domain.Agency;
 import com.tramchester.domain.id.IdFor;
-import com.tramchester.domain.places.NaptanRecord;
 import com.tramchester.domain.places.Station;
-import com.tramchester.geo.BoundingBox;
-import com.tramchester.repository.naptan.NaptanRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -29,24 +26,19 @@ public class ExtractAgencyCallingPointsFromLocationRecords {
     private static final Logger logger = LoggerFactory.getLogger(ExtractAgencyCallingPointsFromLocationRecords.class);
 
     private String currentAtocCode;
-    private final NaptanRepository naptanRepository;
-    private final BoundingBox bounds;
     private final List<RailLocationRecord> locations;
     private final Set<RailRouteIdRepository.AgencyCallingPoints> agencyCallingPoints;
 
-    public ExtractAgencyCallingPointsFromLocationRecords(NaptanRepository naptanRepository, BoundingBox bounds) {
-        this.naptanRepository = naptanRepository;
-        this.bounds = bounds;
+    public ExtractAgencyCallingPointsFromLocationRecords() {
         currentAtocCode = "";
         agencyCallingPoints = new HashSet<>();
         locations = new ArrayList<>();
     }
 
-    public static Set<RailRouteIdRepository.AgencyCallingPoints> loadCallingPoints(ProvidesRailTimetableRecords providesRailTimetableRecords,
-                                                                                   NaptanRepository naptanRepository, BoundingBox bounds) {
+    public static Set<RailRouteIdRepository.AgencyCallingPoints> loadCallingPoints(ProvidesRailTimetableRecords providesRailTimetableRecords) {
 
         logger.info("Begin extraction of calling points from " + providesRailTimetableRecords.toString());
-        ExtractAgencyCallingPointsFromLocationRecords extractor = new ExtractAgencyCallingPointsFromLocationRecords(naptanRepository, bounds);
+        ExtractAgencyCallingPointsFromLocationRecords extractor = new ExtractAgencyCallingPointsFromLocationRecords();
 
         Stream<RailTimetableRecord> records = providesRailTimetableRecords.load();
         records.forEach(extractor::processRecord);
@@ -93,7 +85,6 @@ public class ExtractAgencyCallingPointsFromLocationRecords {
                 filter(RailLocationRecord::doesStop).
                 map(RailLocationRecord::getTiplocCode).
                 map(Station::createId).
-                filter(this::withinBounds).
                 collect(Collectors.toList());
 
         IdFor<Agency> agencyId = Agency.createId(atocCode);
@@ -105,16 +96,6 @@ public class ExtractAgencyCallingPointsFromLocationRecords {
 
     }
 
-    private boolean withinBounds(IdFor<Station> stationId) {
-        if (!naptanRepository.containsTiploc(stationId)) {
-            return false;
-        }
-        NaptanRecord record = naptanRepository.getForTiploc(stationId);
-        if (record.getGridPosition().isValid()) {
-            return bounds.contained(record.getGridPosition());
-        }
-        return false;
-    }
 
 
 }

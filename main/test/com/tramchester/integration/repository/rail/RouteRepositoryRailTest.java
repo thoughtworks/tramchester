@@ -12,6 +12,7 @@ import com.tramchester.domain.places.Station;
 import com.tramchester.integration.testSupport.rail.IntegrationRailTestConfig;
 import com.tramchester.repository.RouteRepository;
 import com.tramchester.testSupport.TestEnv;
+import com.tramchester.testSupport.testTags.TrainTest;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -19,13 +20,13 @@ import org.junit.jupiter.api.Test;
 
 import java.util.List;
 import java.util.Set;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static com.tramchester.integration.testSupport.rail.RailStationIds.LondonEuston;
 import static com.tramchester.integration.testSupport.rail.RailStationIds.ManchesterPiccadilly;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+@TrainTest
 public class RouteRepositoryRailTest {
     private static ComponentContainer componentContainer;
     private RouteRepository routeRepository;

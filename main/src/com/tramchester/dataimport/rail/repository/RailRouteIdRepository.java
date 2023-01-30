@@ -15,7 +15,6 @@ import com.tramchester.domain.id.RailRouteId;
 import com.tramchester.domain.places.Station;
 import com.tramchester.metrics.CacheMetrics;
 import com.tramchester.repository.ReportsCacheStats;
-import com.tramchester.repository.naptan.NaptanRepository;
 import org.apache.commons.lang3.tuple.Pair;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
@@ -38,10 +37,8 @@ public class RailRouteIdRepository implements ReportsCacheStats {
     private static final Logger logger = LoggerFactory.getLogger(RailRouteIdRepository.class);
     public static final int CACHED_ROUTES_SIZE = 8000; // approx 6000 rail routes currently Jan 2023
 
-    private final NaptanRepository naptanRepository;
     private final ProvidesRailTimetableRecords providesRailTimetableRecords;
     private final RailRouteIDBuilder railRouteIDBuilder;
-    private final TramchesterConfig config;
     private final boolean enabled;
 
     private final Map<IdFor<Agency>, List<AgencyCallingPointsWithRouteId>> routeIdsForAgency;
@@ -51,13 +48,11 @@ public class RailRouteIdRepository implements ReportsCacheStats {
 
     @Inject
     public RailRouteIdRepository(ProvidesRailTimetableRecords providesRailTimetableRecords,
-                                 RailRouteIDBuilder railRouteIDBuilder, NaptanRepository naptanRepository, TramchesterConfig config,
+                                 RailRouteIDBuilder railRouteIDBuilder, TramchesterConfig config,
                                  CacheMetrics cacheMetrics) {
         this.providesRailTimetableRecords = providesRailTimetableRecords;
         this.railRouteIDBuilder = railRouteIDBuilder;
-        this.naptanRepository = naptanRepository;
         enabled = config.hasRailConfig();
-        this.config = config;
         routeIdsForAgency = new HashMap<>();
 
         // only used during load, hence very short duration
@@ -89,8 +84,7 @@ public class RailRouteIdRepository implements ReportsCacheStats {
     }
 
     private void createRouteIdsFor(ProvidesRailTimetableRecords providesRailTimetableRecords) {
-        Set<AgencyCallingPoints> loadedCallingPoints = ExtractAgencyCallingPointsFromLocationRecords.loadCallingPoints(providesRailTimetableRecords,
-                naptanRepository, config.getBounds());
+        Set<AgencyCallingPoints> loadedCallingPoints = ExtractAgencyCallingPointsFromLocationRecords.loadCallingPoints(providesRailTimetableRecords);
         createRouteIdsFor(loadedCallingPoints);
         loadedCallingPoints.clear();
     }

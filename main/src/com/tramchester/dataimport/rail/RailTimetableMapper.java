@@ -312,6 +312,9 @@ public class RailTimetableMapper {
                 return false;
             }
 
+            // route ID uses "national" ids, so not calling points filtered to be within bounds
+            final IdFor<Route> routeId = railRouteIdRepository.getRouteIdFor(agencyId, allCalledAtStations);
+
             final List<Station> withinBoundsCallingStations = allCalledAtStations.stream().
                     filter(bounds::contained).
                     collect(Collectors.toList());
@@ -326,7 +329,6 @@ public class RailTimetableMapper {
             // Service
             final MutableService service = railServiceGroups.getOrCreateService(basicSchedule, isOverlay);
 
-            final IdFor<Route> routeId = railRouteIdRepository.getRouteIdFor(agencyId, withinBoundsCallingStations);
             final MutableRoute route = getOrCreateRoute(routeId, rawService, mutableAgency, mode, withinBoundsCallingStations);
 
             route.addService(service);
