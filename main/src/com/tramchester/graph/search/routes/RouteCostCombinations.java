@@ -16,18 +16,10 @@ public interface RouteCostCombinations {
 
     int size();
 
-    // get list of changes for given route pair and overlaps
-//    @Deprecated
-//    Stream<List<RoutePair>> getChangesFor(RouteIndexPair routePair, IndexedBitSet dateOverlaps);
-
-    // replacement for the above, WIP
     RouteCostMatrix.AnyOfPaths getInterchangesFor(RouteIndexPair indexPair, IndexedBitSet dateOverlaps);
 
     int getMaxDepth();
 
     int getDepth(RouteIndexPair routePair);
 
-//    boolean hasMatchAtDepth(int depth, RouteIndexPair routePair);
-//
-//    boolean checkForRoutePair(int depth, RouteIndexPair pair, Function<RoutePair, Boolean> checker);
 }

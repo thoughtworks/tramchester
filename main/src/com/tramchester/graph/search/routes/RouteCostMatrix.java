@@ -368,8 +368,6 @@ public class RouteCostMatrix implements RouteCostCombinations {
         logger.info("Added " + newMatrix.numberOfBitsSet() + " connections for  degree " + nextDegree + " in " + took + " ms");
     }
 
-
-
     public ImmutableBitSet getExistingBitSetsForRoute(final int routeIndex, final int startingDegree) {
         final IndexedBitSet connectionsAtAllDepths = new IndexedBitSet(1, numRoutes);
 

@@ -266,4 +266,9 @@ public class Interchanges implements InterchangeRepository {
         throw new RuntimeException(location + " is not a station");
     }
 
+    @Override
+    public boolean isInterchange(IdFor<Station> stationId) {
+        return interchanges.containsKey(stationId);
+    }
+
 }
