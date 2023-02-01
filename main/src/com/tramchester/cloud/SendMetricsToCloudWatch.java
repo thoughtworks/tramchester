@@ -78,10 +78,12 @@ public class SendMetricsToCloudWatch {
     private List<MetricDatum> createTimerDatums(Instant timestamp, String name, Timer timer) {
         List<MetricDatum> result = new ArrayList<>();
 
-        result.add(createMetricDatum(name, timestamp, timer.getCount(), resourcesDimension));
-        result.add(createMetricDatum(name+"_15minsRate", timestamp, timer.getFifteenMinuteRate(), resourcesDimension));
+        result.add(createMetricDatum(name+ "_count", timestamp, timer.getCount(), resourcesDimension));
         result.add(createMetricDatum(name+"_1minsRate", timestamp, timer.getOneMinuteRate(), resourcesDimension));
-        result.add(createMetricDatum(name+"_mean", timestamp, timer.getMeanRate(), resourcesDimension));
+
+        // can calculate these afterwards, plus removing reduces the costs
+        //result.add(createMetricDatum(name+"_15minsRate", timestamp, timer.getFifteenMinuteRate(), resourcesDimension));
+        //result.add(createMetricDatum(name+"_mean", timestamp, timer.getMeanRate(), resourcesDimension));
 
         return result;
     }
@@ -138,8 +140,9 @@ public class SendMetricsToCloudWatch {
         metersToSend.forEach((name, meter) -> metricDatum.addAll(createMeterDatum(timestamp, name, meter)));
 
         int batchSize = 20;
+
+        // initial batch
         List<MetricDatum> batch = formBatch(metricDatum, batchSize);
-        logger.info("Sent metrics with namespace " + nameSpace);
 
         while (!batch.isEmpty()) {
             try {
@@ -149,11 +152,13 @@ public class SendMetricsToCloudWatch {
                 client.putMetricData(request);
             }
             catch (AwsServiceException exception) {
-                logger.error(format("Unable to log metrics to cloudwatch with namespace %s and batch %s",
-                        nameSpace, batch), exception);
+                logger.error(format("Unable to log metrics to cloudwatch with namespace %s and batch %s", nameSpace, batch), exception);
             }
             batch = formBatch(metricDatum, batchSize);
         }
+
+        logger.info("Sent metrics with namespace " + nameSpace);
+
     }
 
     public boolean started() {

@@ -4,29 +4,35 @@ import com.codahale.metrics.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Objects;
 import java.util.SortedMap;
 import java.util.TreeMap;
 import java.util.concurrent.TimeUnit;
 
 public class CloudWatchReporter extends ScheduledReporter {
     private static final Logger logger = LoggerFactory.getLogger(CloudWatchReporter.class);
-    private final SendMetricsToCloudWatch client;
-    private final ConfigFromInstanceUserData providesConfig;
 
     private static final String PREFIX_LOG_NAMESPACE = "ch.qos.logback.core.Appender.";
-
     private static final String PREFIX = "com.tramchester.";
 
-    private CloudWatchReporter(MetricRegistry registry, String name, MetricFilter filter, TimeUnit rateUnit,
-                               TimeUnit durationUnit, ConfigFromInstanceUserData providesConfig, SendMetricsToCloudWatch client) {
-        super(registry, name, filter, rateUnit, durationUnit);
+    private final ConfigFromInstanceUserData providesConfig;
+    private final SendMetricsToCloudWatch client;
+
+    public static CloudWatchReporter forRegistry(MetricRegistry registry, ConfigFromInstanceUserData providesConfig,
+                                                 SendMetricsToCloudWatch client) {
+        return new CloudWatchReporter(registry, "name",
+                providesConfig, client);
+    }
+
+    public CloudWatchReporter(MetricRegistry registry, String name, ConfigFromInstanceUserData providesConfig, SendMetricsToCloudWatch client) {
+        super(registry, name,  MetricFilter.ALL, TimeUnit.MILLISECONDS, TimeUnit.MILLISECONDS);
         this.providesConfig = providesConfig;
         this.client = client;
     }
 
     @Override
-    public void report(SortedMap<String, Gauge> unTypedGauges, SortedMap<String, Counter> counters,
-                       SortedMap<String, Histogram> histograms, SortedMap<String, Meter> meters,
+    public void report(SortedMap<String, Gauge> unTypedGauges, SortedMap<String, Counter> unused_counters,
+                       SortedMap<String, Histogram> unused_histograms, SortedMap<String, Meter> meters,
                        SortedMap<String, Timer> timers) {
 
         SortedMap<String, Gauge<Number>> gauges = new TreeMap<>();
@@ -39,33 +45,38 @@ public class CloudWatchReporter extends ScheduledReporter {
         SortedMap<String, Meter> metersToSend = getMetersToSend(meters);
         SortedMap<String, Gauge<Number>> gaugesToSend = getGuagesToSend(gauges);
 
-        String msg = String.format("Send %s timers %s gauges %s meters to cloudwatch metrics",
-                timersToSend.size(), gaugesToSend.size(), metersToSend.size());
+        String namespace = formNamespace(PREFIX);
+        String msg = String.format("Send %s timers %s gauges %s meters to cloudwatch metrics with namespace %s",
+                timersToSend.size(), gaugesToSend.size(), metersToSend.size(), namespace);
         if (timersToSend.isEmpty() || meters.isEmpty() || gauges.isEmpty()) {
             logger.warn(msg);
         } else {
             logger.info(msg);
         }
-        client.putMetricData(formNamespace(PREFIX, providesConfig), timersToSend, gaugesToSend, metersToSend);
+        client.putMetricData(namespace, timersToSend, gaugesToSend, metersToSend);
     }
 
     private <T extends Number> SortedMap<String, Gauge<T>> getGuagesToSend(SortedMap<String, Gauge<T>> gauges) {
-        SortedMap<String, Gauge<T>> gaugeTreeMap = new TreeMap<>();
+        SortedMap<String, Gauge<T>> gaugesToSend = new TreeMap<>();
         gauges.forEach((name, gauge) -> {
-            if (isScoped(name)) {
-                gaugeTreeMap.put(createName(name), gauge);
+            if (gaugeInScope(name)) {
+                gaugesToSend.put(createName(name), gauge);
             }
         });
-        return gaugeTreeMap;
+        logger.info("Sending gauges " + gaugesToSend.keySet());
+        return gaugesToSend;
     }
 
     private SortedMap<String, Meter> getMetersToSend(SortedMap<String, Meter> meters) {
         SortedMap<String, Meter> metersToSend = new TreeMap<>();
         meters.forEach((name,meter) -> {
-            if (name.startsWith(PREFIX_LOG_NAMESPACE)) {
-                    metersToSend.put(createLogMetricName(name), meter);
+            if (meterInScope(name)) {
+                // near environment here
+                metersToSend.put(createLogMetricName(name), meter);
             }
         });
+        logger.info("Sending meters" + metersToSend.keySet());
+
         return metersToSend;
     }
 
@@ -73,10 +84,11 @@ public class CloudWatchReporter extends ScheduledReporter {
         SortedMap<String, Timer> timersToSend = new TreeMap<>();
         timers.forEach((name, timer) -> {
             logger.debug("Add timer " + name + " to cloud watch metric");
-            if (isScoped(name)) {
+            if (timerInScope(name)) {
                 timersToSend.put(createName(name),timer);
             }
         });
+        logger.info("Sending timers" + timersToSend.keySet());
         return timersToSend;
     }
 
@@ -88,24 +100,39 @@ public class CloudWatchReporter extends ScheduledReporter {
         return name.replace(PREFIX, "");
     }
 
-    private boolean isScoped(String name) {
-        return name.startsWith(PREFIX);
+    private boolean timerInScope(String name) {
+        if (!name.startsWith(PREFIX)) {
+            return false;
+        }
+
+        return !name.endsWith(".filtering") && !name.endsWith(".total");
     }
 
-    public static String formNamespace(String namespace, ConfigFromInstanceUserData providesConfig) {
-        String currentEnvironment = providesConfig.get("ENV");
-        if (currentEnvironment==null) {
-            currentEnvironment = "Unknown";
+    private boolean gaugeInScope(String name) {
+        if (!name.startsWith(PREFIX)) {
+            return false;
         }
-        if (namespace.endsWith(".")) {
-            namespace = namespace.substring(0,namespace.length()-1);
-        }
-        return currentEnvironment + ":" + namespace.replaceAll("\\.",":");
+
+        return !name.endsWith(".hitRate") && !name.endsWith(".missRate");
     }
 
-    public static CloudWatchReporter forRegistry(MetricRegistry registry, ConfigFromInstanceUserData providesConfig,
-                                                 SendMetricsToCloudWatch client) {
-        return new CloudWatchReporter(registry, "name", MetricFilter.ALL, TimeUnit.MILLISECONDS, TimeUnit.MILLISECONDS,
-                providesConfig, client);
+    private boolean meterInScope(String name) {
+        if (!name.startsWith(PREFIX_LOG_NAMESPACE)) {
+            return false;
+        }
+        return (name.endsWith("error") || name.endsWith("warn"));
     }
+
+    public String formNamespace(final String originalPrefix) {
+        final String currentEnvironment = providesConfig.get("ENV");
+
+        String namespace = Objects.requireNonNullElse(currentEnvironment, "Unknown");
+
+        String prefix = originalPrefix;
+        if (prefix.endsWith(".")) {
+            prefix = prefix.substring(0,prefix.length()-1);
+        }
+        return namespace + ":" + prefix.replaceAll("\\.",":");
+    }
+
 }
