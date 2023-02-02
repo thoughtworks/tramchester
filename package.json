@@ -27,7 +27,7 @@
     "leaflet-arrowheads": "^1.4.0",
     "leaflet-polylineoffset": "^1.1.1",
     "oboe": "^2.1.5",
-    "portal-vue": "^2.1.7",
+    "portal-vue": "^3.0.0",
     "serialize-javascript": "^6.0.0",
     "vue": "^2.7.10",
     "vue-cookies": "^1.8.1",
