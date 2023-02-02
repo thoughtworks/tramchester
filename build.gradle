@@ -87,7 +87,7 @@ dependencies {
     testImplementation 'org.junit.jupiter:junit-jupiter:5.9.0',
             'org.junit.platform:junit-platform-launcher:1.9.0',
             'org.assertj:assertj-core:3.23.1',
-            'org.easymock:easymock:4.3',
+            'org.easymock:easymock:5.1.0',
             'org.seleniumhq.selenium:selenium-java:3.141.59',
             'org.hamcrest:hamcrest:2.2'
 
