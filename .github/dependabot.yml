@@ -12,6 +12,6 @@ updates:
     directory: "/"
     schedule:
       interval: "daily"
-    open-pull-requests-limit: 4
+    open-pull-requests-limit: 8
     commit-message:
       prefix: "[skip ci]"
