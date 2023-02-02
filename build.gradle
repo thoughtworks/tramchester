@@ -81,7 +81,7 @@ dependencies {
             "software.amazon.awscdk:cdk-cx-api:2.27.0"
 
     implementation('org.geotools:gt-main:27.1')
-    implementation('org.geotools:gt-epsg-hsql:26.4')
+    implementation('org.geotools:gt-epsg-hsql:28.1')
 
     testImplementation("io.dropwizard:dropwizard-testing:$dropwizardVersion")
     testImplementation 'org.junit.jupiter:junit-jupiter:5.9.0',
