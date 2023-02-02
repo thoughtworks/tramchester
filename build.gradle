@@ -57,9 +57,9 @@ dependencies {
     implementation('org.neo4j:neo4j:4.4.10') { exclude group:'org.slf4j', module:'slf4j-nop' }
     implementation 'com.github.cliftonlabs:json-simple:4.0.1',
             'commons-io:commons-io:2.11.0',
-            'org.apache.httpcomponents:httpclient:4.5.13',
+            'org.apache.httpcomponents:httpclient:4.5.14',
             'org.apache.commons:commons-collections4:4.4',
-            'com.github.ben-manes.caffeine:caffeine:3.1.1'
+            'com.github.ben-manes.caffeine:caffeine:3.1.2'
     implementation "com.fasterxml.jackson.core:jackson-core:$jacksonVersion",
             "com.fasterxml.jackson.core:jackson-databind:$jacksonVersion",
             "com.fasterxml.jackson.module:jackson-module-afterburner:$jacksonVersion",
@@ -81,7 +81,7 @@ dependencies {
             "software.amazon.awscdk:cdk-cx-api:2.27.0"
 
     implementation('org.geotools:gt-main:27.1')
-    implementation('org.geotools:gt-epsg-hsql:26.4')
+    implementation('org.geotools:gt-epsg-hsql:28.1')
 
     testImplementation("io.dropwizard:dropwizard-testing:$dropwizardVersion")
     testImplementation 'org.junit.jupiter:junit-jupiter:5.9.0',
