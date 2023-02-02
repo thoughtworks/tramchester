@@ -63,7 +63,7 @@ public class CloudWatchReporter extends ScheduledReporter {
                 gaugesToSend.put(createName(name), gauge);
             }
         });
-        logger.info("Sending gauges " + gaugesToSend.keySet());
+        logger.debug("Sending gauges " + gaugesToSend.keySet());
         return gaugesToSend;
     }
 
@@ -75,7 +75,7 @@ public class CloudWatchReporter extends ScheduledReporter {
                 metersToSend.put(createLogMetricName(name), meter);
             }
         });
-        logger.info("Sending meters" + metersToSend.keySet());
+        logger.debug("Sending meters" + metersToSend.keySet());
 
         return metersToSend;
     }
@@ -88,7 +88,7 @@ public class CloudWatchReporter extends ScheduledReporter {
                 timersToSend.put(createName(name),timer);
             }
         });
-        logger.info("Sending timers" + timersToSend.keySet());
+        logger.debug("Sending timers" + timersToSend.keySet());
         return timersToSend;
     }
 
