@@ -59,7 +59,7 @@ dependencies {
             'commons-io:commons-io:2.11.0',
             'org.apache.httpcomponents:httpclient:4.5.13',
             'org.apache.commons:commons-collections4:4.4',
-            'com.github.ben-manes.caffeine:caffeine:3.1.1'
+            'com.github.ben-manes.caffeine:caffeine:3.1.2'
     implementation "com.fasterxml.jackson.core:jackson-core:$jacksonVersion",
             "com.fasterxml.jackson.core:jackson-databind:$jacksonVersion",
             "com.fasterxml.jackson.module:jackson-module-afterburner:$jacksonVersion",
