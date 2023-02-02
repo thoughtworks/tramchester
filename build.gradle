@@ -2,7 +2,7 @@
 
 plugins {
     id 'com.mgd.core.gradle.s3' version '1.1.4'
-    id 'io.mateo.cxf-codegen' version '1.0.1'
+    id 'io.mateo.cxf-codegen' version '1.0.3'
 }
 
 apply plugin: 'java'
@@ -91,8 +91,7 @@ dependencies {
             'org.seleniumhq.selenium:selenium-java:3.141.59',
             'org.hamcrest:hamcrest:2.2'
 
-    // supports the codegen from the rail live data api, updating these versions is fraught as dependencies are
-    // not being maintained by some of the downstream libraries
+    // https://ciscoo.github.io/cxf-codegen-gradle/docs/current/user-guide/#dependency-configuration
     cxfCodegen 'jakarta.xml.ws:jakarta.xml.ws-api:2.3.3'
     cxfCodegen 'jakarta.annotation:jakarta.annotation-api:1.3.5'
     cxfCodegen 'ch.qos.logback:logback-classic:1.2.11'
