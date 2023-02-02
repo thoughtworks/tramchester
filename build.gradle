@@ -32,8 +32,8 @@ version = 1.0
 ext {
     dropwizardVersion = '2.0.26'
     awsCdkVersion = '1.191.0'
-    jacksonVersion = '2.13.4'
-    awsSdkVersion = '2.17.282'
+    jacksonVersion = '2.14.2'
+    awsSdkVersion = '2.19.29'
 }
 
 repositories {
