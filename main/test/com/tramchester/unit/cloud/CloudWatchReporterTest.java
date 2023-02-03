@@ -49,7 +49,8 @@ class CloudWatchReporterTest extends EasyMockSupport {
         // gauge
         TestGauge expectedGauge = new TestGauge(42);
         unTypedGauges.put("ignored", new TestGauge(1));
-        unTypedGauges.put("com.tramchester.something.hitNumber", expectedGauge);
+        unTypedGauges.put("com.tramchester.livedata.something.hitNumber", expectedGauge);
+        unTypedGauges.put("com.tramchester.ignoreme.hitNumber", new TestGauge(88));
         unTypedGauges.put("com.tramchester.ignoreme.hitRate", new TestGauge(2));
         unTypedGauges.put("com.tramchester.ignoreme.missRate", new TestGauge(3));
 
@@ -67,7 +68,7 @@ class CloudWatchReporterTest extends EasyMockSupport {
         SortedMap<String, Meter> metersToSend = new TreeMap<>();
 
         metersToSend.put("error", expectedMeter);
-        gaugesToSend.put("something.hitNumber", expectedGauge);
+        gaugesToSend.put("livedata.something.hitNumber", expectedGauge);
         timersToSend.put("include.me", expectedTimer);
 
         sender.putMetricData("environment:com:tramchester", timersToSend, gaugesToSend, metersToSend);

@@ -71,7 +71,7 @@ walkingMPH: 3
 recentStopsToShow: 5
 dataExpiryThreadhold: 3
 changeAtInterchangeOnly: true
-sendCloudWatchMetrics: true
+sendCloudWatchMetrics: false
 cloudWatchMetricsFrequencyMinutes: 2
 
 swagger:

@@ -139,7 +139,8 @@ public class SendMetricsToCloudWatch {
         intGauges.forEach((name,gauge)-> metricDatum.add(createGaugeDatum(timestamp, name, gauge)));
         metersToSend.forEach((name, meter) -> metricDatum.addAll(createMeterDatum(timestamp, name, meter)));
 
-        int batchSize = 20;
+        // docs say 1000 is the limit
+        int batchSize = 200;
 
         // initial batch
         List<MetricDatum> batch = formBatch(metricDatum, batchSize);
@@ -148,7 +149,8 @@ public class SendMetricsToCloudWatch {
             try {
                 PutMetricDataRequest request = PutMetricDataRequest.builder()
                         .namespace(nameSpace)
-                        .metricData(batch).build();
+                        .metricData(batch).
+                        build();
                 client.putMetricData(request);
             }
             catch (AwsServiceException exception) {
@@ -165,9 +167,9 @@ public class SendMetricsToCloudWatch {
         return client != null;
     }
 
-    private List<MetricDatum> formBatch(List<MetricDatum> source, int batchSize) {
+    private List<MetricDatum> formBatch(List<MetricDatum> source, final int batchSize) {
         List<MetricDatum> result = new ArrayList<>();
-        int top = Math.min(batchSize, source.size());
+        final int top = Math.min(batchSize, source.size());
         for (int i = 0; i < top; i++) {
             result.add(source.remove(0));
         }

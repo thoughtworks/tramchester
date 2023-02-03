@@ -14,6 +14,7 @@ public class CloudWatchReporter extends ScheduledReporter {
 
     private static final String PREFIX_LOG_NAMESPACE = "ch.qos.logback.core.Appender.";
     private static final String PREFIX = "com.tramchester.";
+    private static final String GAUGE_PREFIX = PREFIX+"livedata.";
 
     private final ConfigFromInstanceUserData providesConfig;
     private final SendMetricsToCloudWatch client;
@@ -109,7 +110,7 @@ public class CloudWatchReporter extends ScheduledReporter {
     }
 
     private boolean gaugeInScope(String name) {
-        if (!name.startsWith(PREFIX)) {
+        if (!name.startsWith(GAUGE_PREFIX)) {
             return false;
         }
 
