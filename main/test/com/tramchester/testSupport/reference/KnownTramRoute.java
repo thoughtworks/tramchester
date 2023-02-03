@@ -9,6 +9,7 @@ import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.reference.RouteDirection;
 import com.tramchester.domain.reference.TransportMode;
 
+import java.time.DayOfWeek;
 import java.util.*;
 
 import static com.tramchester.domain.reference.RouteDirection.Inbound;
@@ -65,7 +66,7 @@ public enum KnownTramRoute {
         routes.add(PiccadillyAltrincham);
 
         // nothing on tfgm website about this, but routes not present for sundays.....?
-        if (!date.equals(TramDate.of(2023,1,22))) {
+        if (!date.getDayOfWeek().equals(DayOfWeek.SUNDAY)) {
             routes.add(BuryManchesterAltrincham);
             routes.add(AltrinchamManchesterBury);
         }
