@@ -7,34 +7,27 @@
     "namespace": "PREFIX",
     "metrics_collected": {
       "cpu": {
-        "resources": [
-          "*"
-        ],
         "measurement": [
           "usage_active",
-          "usage_guest",
-          "usage_system",
-          "usage_user"
+          "usage_system"
         ],
         "metrics_collection_interval": 60
       },
       "mem": {
         "measurement": [
-          "used_percent",
-          "free",
-          "total",
-          "used"
+          "used_percent"
         ],
         "metrics_collection_interval": 60
       },
       "disk": {
-        "measurement": [
-          "used_percent",
-          "used",
-          "total",
-          "free"
+        "resources": [
+          "/",
+          "/tmp"
         ],
-        "metrics_collection_interval": 60
+        "measurement": [
+          "used_percent"
+        ],
+        "metrics_collection_interval": 300
       }
     }
   },
