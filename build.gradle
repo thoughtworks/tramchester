@@ -84,7 +84,7 @@ dependencies {
     implementation('org.geotools:gt-epsg-hsql:28.1')
 
     testImplementation("io.dropwizard:dropwizard-testing:$dropwizardVersion")
-    testImplementation 'org.junit.jupiter:junit-jupiter:5.9.0',
+    testImplementation 'org.junit.jupiter:junit-jupiter:5.9.2',
             'org.junit.platform:junit-platform-launcher:1.9.0',
             'org.assertj:assertj-core:3.23.1',
             'org.easymock:easymock:5.1.0',
