@@ -30,10 +30,10 @@ s3 {
 version = 1.0
 
 ext {
-    dropwizardVersion = '2.0.26'
+    dropwizardVersion = '2.1.4'
     awsCdkVersion = '1.191.0'
     jacksonVersion = '2.14.2'
-    awsSdkVersion = '2.19.29'
+    awsSdkVersion = '2.19.30'
 }
 
 repositories {
@@ -85,7 +85,7 @@ dependencies {
 
     testImplementation("io.dropwizard:dropwizard-testing:$dropwizardVersion")
     testImplementation 'org.junit.jupiter:junit-jupiter:5.9.2',
-            'org.junit.platform:junit-platform-launcher:1.9.0',
+            'org.junit.platform:junit-platform-launcher:1.9.2',
             'org.assertj:assertj-core:3.23.1',
             'org.easymock:easymock:5.1.0',
             'org.seleniumhq.selenium:selenium-java:3.141.59',
