@@ -21,10 +21,17 @@ public class APIClient {
     private final Invocation.Builder builder;
 
     private APIClient(IntegrationAppExtension appExtension, String endPoint) {
+        final int TIMEOUT_MS = 10 * 1000;
+
         Client client = appExtension.client();
+
         WebTarget target = client.target("http://localhost:" + appExtension.getLocalPort() + "/api/" + endPoint);
+        target.property(ClientProperties.READ_TIMEOUT, TIMEOUT_MS);
+
         builder = target.request(MediaType.APPLICATION_JSON);
-        builder.property(ClientProperties.READ_TIMEOUT, 10*1000);
+
+        // https://github.com/dropwizard/dropwizard/issues/1116
+        // builder.property(ClientProperties.READ_TIMEOUT, TIMEOUT_MS);
     }
 
     private void setCookie(Cookie cookie) {

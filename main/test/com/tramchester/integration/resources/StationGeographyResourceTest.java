@@ -110,7 +110,6 @@ class StationGeographyResourceTest {
     @Test
     void shouldGetAreas() {
         StationRepository stationRepository = dependencies.get(StationRepository.class);
-        Station bury = Bury.from(stationRepository);
 
         String endPoint = "geo/areas";
 
@@ -120,6 +119,8 @@ class StationGeographyResourceTest {
         List<AreaBoundaryDTO> areas = response.readEntity(new GenericType<>() {});
 
         assertFalse(areas.isEmpty());
+
+        Station bury = Bury.from(stationRepository);
 
         boolean found = areas.stream().anyMatch(area -> area.getAreaId().equals(bury.getAreaId().forDTO()));
         assertTrue(found);

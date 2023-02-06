@@ -286,14 +286,14 @@ public class NaptanRepositoryContainer implements NaptanRepository {
     }
 
     /***
-     * Number of Naptan records for an area. For stations in an area use StationLocations.
+     * Any records for this area? For stations in an area use StationLocations.
      * @see com.tramchester.geo.StationLocations
      * @param areaId naptan area id
-     * @return matching record
+     * @return true/false
      */
     @Override
-    public long getNumRecordsFor(IdFor<NaptanArea> areaId) {
-        return stops.filterStream(stop -> stop.getAreaCodes().contains(areaId)).count();
+    public boolean hasRecordsFor(IdFor<NaptanArea> areaId) {
+        return stops.getValuesStream().anyMatch(stop -> stop.getAreaCodes().contains(areaId));
     }
 
     @Override
