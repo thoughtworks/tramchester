@@ -66,7 +66,7 @@ dependencies {
             "com.fasterxml.jackson.module:jackson-module-blackbird:$jacksonVersion",
             "com.fasterxml.jackson.dataformat:jackson-dataformat-csv:$jacksonVersion",
             "com.fasterxml.jackson.dataformat:jackson-dataformat-xml:$jacksonVersion"
-    implementation('com.smoketurner:dropwizard-swagger:2.0.12-1')
+    implementation('com.smoketurner:dropwizard-swagger:2.1.4-1')
 
     // aws sdk
     implementation("software.amazon.awssdk:s3:$awsSdkVersion")
