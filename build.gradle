@@ -648,6 +648,14 @@ task deploy(dependsOn: cfnassist) {
     }
 }
 
+task undeploy(dependsOn: cfnassist) {
+    doLast {
+        ant.cfnassist(project: 'tramchesterB', env: environment, buildNumber: buildNumber, sns: 'true') {
+            Delete(target: 'deploy/servers.json')
+        }
+    }
+}
+
 task deployCDK(type: Exec, dependsOn: [npmInstall, classes]) {
     commandLine "./node_modules/.bin/cdk", "deploy"
 }

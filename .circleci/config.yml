@@ -116,6 +116,14 @@ jobs:
             source workspace/release_num.txt
             echo release number is $RELEASE_NUMBER
             gradle deploy updateLB tidy --no-daemon
+      - run:
+          name: undeployDev
+          environment:
+            ENV: Dev
+          command: |
+            source workspace/release_num.txt
+            echo release number is $RELEASE_NUMBER
+            gradle undeploy --no-daemon
       - store_test_results:
           path: ~/repo/build/test-results
       - store_artifacts:
