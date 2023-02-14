@@ -4,11 +4,9 @@ import com.tramchester.domain.*;
 import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.presentation.LatLong;
-import com.tramchester.domain.time.TimeRange;
 import com.tramchester.geo.GridPosition;
 import com.tramchester.geo.HasGridPosition;
 
-import java.time.LocalDate;
 import java.util.Set;
 
 public interface Location<TYPE extends Location<?>> extends HasId<TYPE>, IdForDTO, HasGridPosition, HasTransportModes,
@@ -38,13 +36,13 @@ public interface Location<TYPE extends Location<?>> extends HasId<TYPE>, IdForDT
     boolean isActive();
 
     /***
-     * Use version that takes a date and time?
+     * Use StationAvailabilityRepository if care about date and time
      * @return all drop off routes for a station, regardless of date
      */
     Set<Route> getDropoffRoutes();
 
     /***
-     * Use version that takes a date and time?
+     * Use StationAvailabilityRepository if care about date and time
      * @return all pick up routes for a station, regardless of date
      */
     Set<Route> getPickupRoutes();

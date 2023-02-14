@@ -67,10 +67,6 @@ public class TimeRange {
         }
     }
 
-//    public boolean fullyContains(TimeRange other) {
-//        return (contains(other.begin) && contains(other.end));
-//    }
-
     public boolean anyOverlap(TimeRange other) {
         return contains(other.begin) || contains(other.end) || other.contains(begin) || other.contains(end);
     }

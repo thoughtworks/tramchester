@@ -69,9 +69,9 @@ public class ServedRoute {
     }
 
 
-    public boolean anyAvailable(TramDate when, TimeRange timeRange, Set<TransportMode> preferredModes) {
+    public boolean anyAvailable(TramDate when, TimeRange timeRange, Set<TransportMode> requestedModes) {
         return routeAndServices.stream().
-                filter(routeAndService -> preferredModes.contains(routeAndService.getTransportMode())).
+                filter(routeAndService -> requestedModes.contains(routeAndService.getTransportMode())).
                 filter(routeAndService -> routeAndService.isAvailableOn(when)).
                 anyMatch(routeAndService -> timeWindows.get(routeAndService).anyOverlap(timeRange));
     }

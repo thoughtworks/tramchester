@@ -737,6 +737,9 @@ public class RouteCostMatrix implements RouteCostCombinations {
         }
     }
 
+    /***
+     * encapsulate cost per degree to facilitate caching
+     */
     private class CostsPerDegree implements DataCache.Cacheable<CostsPerDegreeData> {
         private final IndexedBitSet[] bitSets;
         private final int size;
