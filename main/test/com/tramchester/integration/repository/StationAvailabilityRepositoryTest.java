@@ -80,7 +80,7 @@ public class StationAvailabilityRepositoryTest {
     }
 
     @Test
-    void shouldBeAvailableAtExpectedHours() {
+    void shouldBeAvailableAtExpectedHoursOld() {
 
         Station stPeters = StPetersSquare.from(stationRepository);
 

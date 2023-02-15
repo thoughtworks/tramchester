@@ -16,9 +16,7 @@ import org.slf4j.LoggerFactory;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.inject.Inject;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -29,36 +27,54 @@ import static java.lang.String.format;
 public class StationAvailabilityRepository {
     private static final Logger logger = LoggerFactory.getLogger(StationAvailabilityRepository.class);
 
+    // NOTE: use routes here since they tend to have specific times ranges, whereas services end up 24x7 some stations
     private final Map<Location<?>, ServedRoute> pickupsForLocation;
     private final Map<Location<?>, ServedRoute> dropoffsForLocation;
     private final StationRepository stationRepository;
     private final ClosedStationsRepository closedStationsRepository;
     private final GraphFilterActive graphFilterActive;
+    private final TripRepository tripRepository;
 
-    // TODO
-    // Location -> Set<Services>
-    // Location -> (Service -> TimeRange)
+    private final Map<Location<?>, Set<Service>> servicesForLocation;
 
     @Inject
-    public StationAvailabilityRepository(StationRepository stationRepository, ClosedStationsRepository closedStationsRepository, GraphFilterActive graphFilterActive) {
+    public StationAvailabilityRepository(StationRepository stationRepository, ClosedStationsRepository closedStationsRepository,
+                                         GraphFilterActive graphFilterActive, TripRepository tripRepository) {
         this.stationRepository = stationRepository;
         this.closedStationsRepository = closedStationsRepository;
         this.graphFilterActive = graphFilterActive;
+        this.tripRepository = tripRepository;
         pickupsForLocation = new HashMap<>();
         dropoffsForLocation = new HashMap<>();
+
+        servicesForLocation = new HashMap<>();
     }
 
     @PostConstruct
     public void start() {
         logger.info("Starting");
+        // OLD
         Set<Station> stations = stationRepository.getStations();
         stations.forEach(this::addForStation);
+        // NEW
+        addServicesForStations();
+
         logger.info(format("started, from %s stations add entries %s for pickups and %s for dropoff",
                 stations.size(), pickupsForLocation.size(), dropoffsForLocation.size()));
     }
 
+    private void addServicesForStations() {
+        stationRepository.getStations().forEach(station -> servicesForLocation.put(station, new HashSet<>()));
+        tripRepository.getTrips().forEach(trip -> trip.getStopCalls().stream().
+                filter(StopCall::callsAtStation).
+                forEach(stopCall -> {
+                    servicesForLocation.get(stopCall.getStation()).add(stopCall.getService());
+                }));
+    }
+
     private void addForStation(Station station) {
         boolean graphFilter = graphFilterActive.isActive();
+
         if (!addFor(dropoffsForLocation, station, station.getDropoffRoutes(), StopCall::getArrivalTime)) {
             if (!graphFilter) {
                 logger.info("No dropoffs for " + station.getId());
@@ -114,18 +130,32 @@ public class StationAvailabilityRepository {
         dropoffsForLocation.clear();
         logger.info("Stopped");
     }
-    
-    public boolean isAvailable(Location<?> location, TramDate when, TimeRange timeRange, Set<TransportMode> requestedModes) {
+
+    public boolean isAvailable(Location<?> location, TramDate date, TimeRange timeRange, Set<TransportMode> requestedModes) {
         if (!pickupsForLocation.containsKey(location)) {
             throw new RuntimeException("Missing pickups for " + location.getId());
         }
         if (!dropoffsForLocation.containsKey(location)) {
             throw new RuntimeException("Missing dropoffs for " + location.getId());
         }
-        // services tell date range
-        // trips tell us time
-        return pickupsForLocation.get(location).anyAvailable(when, timeRange, requestedModes) &&
-                dropoffsForLocation.get(location).anyAvailable(when, timeRange, requestedModes);
+
+        final Set<Service> services = servicesForLocation.get(location).stream().
+                filter(service -> TransportMode.intersects(requestedModes, service.getTransportModes())).
+                collect(Collectors.toSet());
+
+        if (services.isEmpty()) {
+            logger.warn("Found no services for " + location.getId() + " and " + requestedModes);
+            return false;
+        }
+
+        // TODO is this worth it?
+        boolean onDate = services.stream().anyMatch(service -> service.getCalendar().operatesOn(date));
+        if (!onDate) {
+            return false;
+        }
+
+        return pickupsForLocation.get(location).anyAvailable(date, timeRange, requestedModes) &&
+                dropoffsForLocation.get(location).anyAvailable(date, timeRange, requestedModes);
     }
 
     public Set<Route> getPickupRoutesFor(Location<?> location, TramDate date, TimeRange timeRange, Set<TransportMode> modes) {
@@ -168,6 +198,38 @@ public class StationAvailabilityRepository {
         return locations.stream().
                 flatMap(location -> getDropoffRoutesFor(location, date, timeRange, modes).stream()).
                 collect(Collectors.toSet());
+    }
+
+    private static class LocationService {
+
+        private final Location<?> location;
+        private final Service service;
+
+        public LocationService(Location<?> location, Service service) {
+            this.location = location;
+            this.service = service;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            LocationService that = (LocationService) o;
+            return location.equals(that.location) && service.equals(that.service);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(location, service);
+        }
+
+        @Override
+        public String toString() {
+            return "LocationService{" +
+                    "location=" + location.getId() +
+                    ", service=" + service.getId() +
+                    '}';
+        }
     }
 
 }

@@ -47,6 +47,7 @@ public class ServedRoute {
         return routeAndServices.isEmpty();
     }
 
+    // TODO Remove date filtering here?
     // the number of hops....
     public Set<Route> getRoutes(TramDate date, TimeRange range, Set<TransportMode> modes) {
         Set<Route> results = getRouteForDateAndTimeRange(date, range, modes);
@@ -58,6 +59,7 @@ public class ServedRoute {
         return results;
     }
 
+    // TODO Remove date filtering here?
     @NotNull
     private Set<Route> getRouteForDateAndTimeRange(TramDate date, TimeRange range, Set<TransportMode> modes) {
         return routeAndServices.stream().
