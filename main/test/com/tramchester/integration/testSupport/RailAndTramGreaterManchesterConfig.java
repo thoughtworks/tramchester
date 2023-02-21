@@ -17,6 +17,7 @@ import com.tramchester.testSupport.reference.TramStations;
 import java.nio.file.Path;
 import java.util.*;
 
+// NOTE: if rename this take care of names in build.gradle, for example on integrationGM target
 public class RailAndTramGreaterManchesterConfig extends IntegrationTramTestConfig {
 
     private static final String DB_NAME = "int_test_gm_tram_train.db";

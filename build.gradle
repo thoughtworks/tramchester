@@ -311,7 +311,7 @@ task integrationGM(type: Test, dependsOn: compileJava) {
     filter {
         includeTestsMatching "com.tramchester.integration.*"
     }
-    systemProperty("com.tramchester.config","TramAndTrainGreaterManchesterConfig")
+    systemProperty("com.tramchester.config","RailAndTramGreaterManchesterConfig")
     testLogging {
         exceptionFormat "full" // default is "short"
         events "passed", "skipped", "failed", "started", "standardError" //, "standardOut"
@@ -327,7 +327,7 @@ task dualTestIntegration(type: Test, dependsOn: compileJava) {
     filter {
         includeTestsMatching "com.tramchester.integration.*"
     }
-    systemProperty("com.tramchester.config","TramAndTrainGreaterManchesterConfig")
+    systemProperty("com.tramchester.config","RailAndTramGreaterManchesterConfig")
     testLogging {
         exceptionFormat "full" // default is "short"
         events "passed", "skipped", "failed", "started", "standardError" //, "standardOut"

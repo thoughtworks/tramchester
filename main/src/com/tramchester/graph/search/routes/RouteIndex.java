@@ -95,7 +95,10 @@ public class RouteIndex implements DataCache.Cacheable<RouteIndexData> {
 
     public int indexFor(IdFor<Route> from) {
         if (!(mapRouteIdToIndex.containsKey(from))) {
-            throw new RuntimeException("No index for route, is cache file outdated? " + dataCache.getPathFor(this));
+            String message = String.format("No index for route %s, is cache file %s outdated? ",
+                    from, dataCache.getPathFor(this));
+            logger.error(message);
+            throw new RuntimeException(message);
         }
         return mapRouteIdToIndex.get(from);
     }

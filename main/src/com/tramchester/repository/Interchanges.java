@@ -100,7 +100,8 @@ public class Interchanges implements InterchangeRepository {
                             // replace an existing simple interchange, as the start station of link will be same will
                             // contain same dropoffs and pickups as one it is replacing
                             LinkedInterchangeStation multiInterchangeStation = new LinkedInterchangeStation(stationLink);
-                            logger.info(format("Replacing an existing interchange %s with multilink one for %s", existing, multiInterchangeStation));
+                            logger.info(format("Replacing an existing interchange %s with multilink one for %s", existing.getId(),
+                                    multiInterchangeStation.getStationId()));
                             interchanges.put(beginId, multiInterchangeStation);
                         }
                     } else {

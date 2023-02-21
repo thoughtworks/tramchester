@@ -33,7 +33,7 @@ public class ConfigParameterResolver implements ParameterResolver {
             if (name.equals(RailAndTramGreaterManchesterConfig.class.getSimpleName())) {
                 return new RailAndTramGreaterManchesterConfig();
             } else {
-                throw new RuntimeException("Unknown test config provided for " + PARAMETER_KEY + " = " + name);
+                throw new RuntimeException("Unknown test config provided for " + PARAMETER_KEY + " = '" + name + "'");
             }
         }
         return new IntegrationTramTestConfig();
