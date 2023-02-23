@@ -56,7 +56,7 @@ public class TransportDataReaderFactory {
                     throw new RuntimeException("Pass mismatch for gtfs and remote source configs: " + dataSourceId);
                 }
             } else {
-                logger.warn("Not remote source config found for " + dataSourceId);
+                logger.warn("No remote source config found for " + dataSourceId);
             }
 
             DataSourceInfo dataSourceInfo = createSourceInfoFrom(sourceConfig);

@@ -3,7 +3,7 @@ package com.tramchester.integration.dataimport.postcodes;
 import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.config.TramchesterConfig;
-import com.tramchester.domain.id.CaseInsensitiveId;
+import com.tramchester.domain.places.PostcodeLocation;
 import com.tramchester.integration.testSupport.bus.IntegrationBusTestConfig;
 import com.tramchester.repository.postcodes.PostcodeRepository;
 import com.tramchester.testSupport.TestEnv;
@@ -12,7 +12,6 @@ import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.condition.DisabledIfEnvironmentVariable;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -43,14 +42,14 @@ class PostcodeRepositoryBusTest {
     @Test
     void shouldLoadLocalPostcodesFromFilesInLocation() {
 
-        assertFalse(repository.hasPostcode(CaseInsensitiveId.createIdFor("EC1A1XH"))); // in london, outside area
-        assertTrue(repository.hasPostcode(CaseInsensitiveId.createIdFor("WA141EP")));
-        assertTrue(repository.hasPostcode(CaseInsensitiveId.createIdFor("wa141ep")));
+        assertFalse(repository.hasPostcode(PostcodeLocation.createId("EC1A1XH"))); // in london, outside area
+        assertTrue(repository.hasPostcode(PostcodeLocation.createId("WA141EP")));
+        assertTrue(repository.hasPostcode(PostcodeLocation.createId("wa141ep")));
 
-        assertTrue(repository.hasPostcode(CaseInsensitiveId.createIdFor("M44BF"))); // central manchester
-        assertTrue(repository.hasPostcode(CaseInsensitiveId.createIdFor(TestEnv.postcodeForWythenshaweHosp())));
+        assertTrue(repository.hasPostcode(PostcodeLocation.createId("M44BF"))); // central manchester
+        assertTrue(repository.hasPostcode(PostcodeLocation.createId(TestEnv.postcodeForWythenshaweHosp())));
 
-        assertTrue(repository.hasPostcode(CaseInsensitiveId.createIdFor("WA160BE")));
+        assertTrue(repository.hasPostcode(PostcodeLocation.createId("WA160BE")));
 
     }
 

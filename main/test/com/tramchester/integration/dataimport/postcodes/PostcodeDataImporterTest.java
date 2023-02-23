@@ -20,6 +20,8 @@ import java.util.stream.Collectors;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+
+@PostcodeTestCategory
 class PostcodeDataImporterTest {
 
     private static ComponentContainer componentContainer;
@@ -57,7 +59,6 @@ class PostcodeDataImporterTest {
         loadedPostcodes.clear();
     }
 
-    @PostcodeTestCategory
     @Test
     void shouldLoadLocalPostcodesFromFilesInLocation() {
 
@@ -76,14 +77,13 @@ class PostcodeDataImporterTest {
         assertTrue(postcodes.contains("WA144UR"));
     }
 
-    @PostcodeTestCategory
     @Test
     void shouldMatchStationsBounds() {
 
         // Check bounding box formed by stations plus margin
         long margin = Math.round(testConfig.getNearestStopForWalkingRangeKM() * 1000D);
 
-        BoundingBox bounds = stationLocations.getBounds();
+        BoundingBox bounds = stationLocations.getActiveStationBounds();
 
         long eastingsMax = loadedPostcodes.stream().
                 map(data -> data.getGridPosition().getEastings()).max(Long::compareTo).orElse(-1L);
@@ -104,7 +104,6 @@ class PostcodeDataImporterTest {
 
     }
 
-    @PostcodeTestCategory
     @Test
     void shouldOnlyAddPostcodesWithDistanceOfStation() {
         Set<PostcodeData> postcodesOutsideRangeOfAStation = loadedPostcodes.stream().

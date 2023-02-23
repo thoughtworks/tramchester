@@ -6,13 +6,12 @@ import com.tramchester.config.StationClosuresConfig;
 import com.tramchester.domain.StationClosures;
 import com.tramchester.integration.testSupport.naptan.NaptanRemoteDataSourceConfig;
 import com.tramchester.integration.testSupport.nptg.NPTGDataSourceTestConfig;
+import com.tramchester.integration.testSupport.postcodes.PostCodeDatasourceConfig;
 import com.tramchester.integration.testSupport.rail.RailRemoteDataSourceConfig;
 import com.tramchester.testSupport.TestConfig;
-import com.tramchester.testSupport.reference.TramStations;
 
 import java.nio.file.Path;
 import java.time.LocalDate;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 

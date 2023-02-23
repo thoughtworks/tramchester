@@ -4,11 +4,10 @@ import com.tramchester.caching.DataCache;
 import com.tramchester.config.GTFSSourceConfig;
 import com.tramchester.config.RemoteDataSourceConfig;
 import com.tramchester.dataexport.DataSaver;
-import com.tramchester.dataimport.RemoteDataRefreshed;
+import com.tramchester.dataimport.RemoteDataAvailable;
 import com.tramchester.dataimport.data.RouteIndexData;
 import com.tramchester.domain.DataSourceID;
 import com.tramchester.domain.id.StringIdFor;
-import com.tramchester.integration.testSupport.tfgm.TFGMGTFSSourceTestConfig;
 import com.tramchester.testSupport.TestConfig;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.tfgm.TFGMRemoteDataSourceConfig;
@@ -35,11 +34,11 @@ public class DataCacheTest extends EasyMockSupport  {
 
     private DataCache dataCache;
     private List<RouteIndexData> testItems;
-    private RemoteDataRefreshed remoteDataRefreshed;
+    private RemoteDataAvailable remoteDataRefreshed;
 
     @BeforeEach
     void onceBeforeEachTestRuns() {
-        remoteDataRefreshed = createMock(RemoteDataRefreshed.class);
+        remoteDataRefreshed = createMock(RemoteDataAvailable.class);
         dataCache = new DataCache(new LocalTestConfig(cacheFolder), remoteDataRefreshed);
 
         dataCache.clearFiles();

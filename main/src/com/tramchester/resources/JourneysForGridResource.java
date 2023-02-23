@@ -8,8 +8,8 @@ import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.BoundingBoxWithCost;
 import com.tramchester.domain.JourneyRequest;
 import com.tramchester.domain.dates.TramDate;
-import com.tramchester.domain.id.CaseInsensitiveId;
 import com.tramchester.domain.id.IdFor;
+import com.tramchester.domain.id.PostcodeLocationId;
 import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.places.MyLocation;
 import com.tramchester.domain.places.PostcodeLocation;
@@ -125,7 +125,7 @@ public class JourneysForGridResource implements APIResource, GraphDatabaseDepend
             LatLong latLong = decodeLatLong(lat, lon);
             destination = CoordinateTransforms.getGridPosition(latLong);
         } else if (PostcodeDTO.isPostcodeId(idText)) {
-            CaseInsensitiveId<PostcodeLocation> postcodeId = PostcodeDTO.decodePostcodeId(idText);
+            PostcodeLocationId postcodeId = PostcodeDTO.decodePostcodeId(idText);
             PostcodeLocation postcode = postcodeRepository.getPostcode(postcodeId);
             destination = postcode.getGridPosition();
         } else {

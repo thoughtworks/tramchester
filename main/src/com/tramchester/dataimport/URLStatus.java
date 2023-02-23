@@ -42,7 +42,6 @@ public class URLStatus {
                 "url='" + url + '\'' +
                 ", responseCode=" + responseCode +
                 ", modTime=" + modTime +
-//                ", filename='" + filename + '\'' +
                 '}';
     }
 
@@ -70,11 +69,4 @@ public class URLStatus {
         return responseCode == HttpStatus.SC_MOVED_PERMANENTLY || responseCode == HttpStatus.SC_MOVED_TEMPORARILY;
     }
 
-//    public void setFilename(String filename) {
-//        this.filename = filename;
-//    }
-//
-//    public String getFilename() {
-//        return filename;
-//    }
 }

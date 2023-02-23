@@ -5,8 +5,8 @@ import com.tramchester.domain.presentation.DTO.PostcodeDTO;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.integration.testSupport.APIClient;
 import com.tramchester.integration.testSupport.IntegrationAppExtension;
+import com.tramchester.integration.testSupport.postcodes.PostcodesOnlyEnabledConfig;
 import com.tramchester.testSupport.TestEnv;
-import com.tramchester.integration.testSupport.tram.TramWithPostcodesEnabled;
 import com.tramchester.testSupport.testTags.PostcodeTestCategory;
 import io.dropwizard.testing.junit5.DropwizardExtensionsSupport;
 import org.junit.jupiter.api.Test;
@@ -21,14 +21,14 @@ import java.util.Optional;
 import static com.tramchester.testSupport.reference.KnownLocations.nearWythenshaweHosp;
 import static org.junit.jupiter.api.Assertions.*;
 
+@PostcodeTestCategory
 @ExtendWith(DropwizardExtensionsSupport.class)
 class PostcodeResourceTest {
 
     private static final IntegrationAppExtension appExtension = new IntegrationAppExtension(App.class,
-            new TramWithPostcodesEnabled());
+            new PostcodesOnlyEnabledConfig());
     private final String endPoint = "postcodes";
 
-    @PostcodeTestCategory
     @Test
     void shouldGetLoadedPostcodes() {
         Response response = APIClient.getApiResponse(appExtension, endPoint);

@@ -6,7 +6,7 @@ import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.config.RemoteDataSourceConfig;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.dataexport.DataSaver;
-import com.tramchester.dataimport.RemoteDataRefreshed;
+import com.tramchester.dataimport.RemoteDataAvailable;
 import com.tramchester.dataimport.loader.files.TransportDataFromCSVFile;
 import com.tramchester.domain.DataSourceID;
 import org.jetbrains.annotations.NotNull;
@@ -32,13 +32,13 @@ public class DataCache {
     private static final Logger logger = LoggerFactory.getLogger(DataCache.class);
 
     private final Path cacheFolder;
-    private final RemoteDataRefreshed remoteDataRefreshed;
+    private final RemoteDataAvailable remoteDataRefreshed;
     private final CsvMapper mapper;
     private final TramchesterConfig config;
     private boolean ready;
 
     @Inject
-    public DataCache(TramchesterConfig config, RemoteDataRefreshed remoteDataRefreshed) {
+    public DataCache(TramchesterConfig config, RemoteDataAvailable remoteDataRefreshed) {
         this.config = config;
         this.cacheFolder = config.getCacheFolder().toAbsolutePath();
         this.remoteDataRefreshed = remoteDataRefreshed;
@@ -70,12 +70,13 @@ public class DataCache {
 
     private void clearCacheIfDataRefreshed() {
 
-        // TODO Currently clear clache if any data source has refreshed, in future maybe link to Ready dependency chain??
+        // TODO Currently clear cache if any data source has refreshed, in future maybe link to Ready dependency chain??
 
         Set<DataSourceID> refreshedSources = config.getRemoteDataSourceConfig().stream().
                 map(RemoteDataSourceConfig::getName).
                 map(DataSourceID::findOrUnknown).
                 filter(remoteDataRefreshed::refreshed).collect(Collectors.toSet());
+
         if (refreshedSources.isEmpty()) {
             logger.info("Found no updated data sources");
             return;

@@ -142,7 +142,7 @@ public class StationLocations implements StationLocationsRepository {
         }
     }
 
-    public BoundingBox getBounds() {
+    public BoundingBox getActiveStationBounds() {
         return bounds;
     }
 
@@ -187,7 +187,7 @@ public class StationLocations implements StationLocationsRepository {
 
     @Override
     public boolean withinBounds(Location<?> location) {
-        return getBounds().contained(location);
+        return getActiveStationBounds().contained(location);
     }
 
     public Set<BoundingBox> getQuadrants() {

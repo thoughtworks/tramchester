@@ -152,7 +152,7 @@ class StationLocationsTest extends EasyMockSupport {
 
         replayAll();
         stationLocations.start();
-        BoundingBox bounds = stationLocations.getBounds();
+        BoundingBox bounds = stationLocations.getActiveStationBounds();
         verifyAll();
 
         // bottom left
@@ -175,7 +175,7 @@ class StationLocationsTest extends EasyMockSupport {
 
         replayAll();
         stationLocations.start();
-        BoundingBox area = stationLocations.getBounds();
+        BoundingBox area = stationLocations.getActiveStationBounds();
         Set<BoundingBox> found = stationLocations.createBoundingBoxsFor(gridSize).collect(Collectors.toSet());
         verifyAll();
 

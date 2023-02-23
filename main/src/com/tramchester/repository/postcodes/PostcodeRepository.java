@@ -6,9 +6,9 @@ import com.tramchester.dataimport.postcodes.PostcodeBoundingBoxs;
 import com.tramchester.dataimport.postcodes.PostcodeData;
 import com.tramchester.dataimport.postcodes.PostcodeDataImporter;
 import com.tramchester.domain.DataSourceID;
-import com.tramchester.domain.id.CaseInsensitiveId;
 import com.tramchester.domain.id.CompositeIdMap;
 import com.tramchester.domain.id.IdMap;
+import com.tramchester.domain.id.PostcodeLocationId;
 import com.tramchester.domain.places.PostcodeLocation;
 import com.tramchester.geo.GridPosition;
 import com.tramchester.geo.MarginInMeters;
@@ -43,7 +43,7 @@ public class PostcodeRepository {
         postcodesAreas = new HashMap<>();
     }
 
-    public PostcodeLocation getPostcode(CaseInsensitiveId<PostcodeLocation> postcodeId) {
+    public PostcodeLocation getPostcode(PostcodeLocationId postcodeId) {
         Optional<PostcodeLocation> maybeFound = postcodesAreas.values().stream().
                 filter(map -> map.hasId(postcodeId)).
                 map(matchingMap -> matchingMap.get(postcodeId)).findFirst();
@@ -86,7 +86,7 @@ public class PostcodeRepository {
 
         final IdMap<PostcodeLocation> postcodes = stream.
                 map(postcodeData -> new PostcodeLocation(postcodeData.getGridPosition(),
-                        CaseInsensitiveId.createIdFor(postcodeData.getId()))).
+                        PostcodeLocation.createId(postcodeData.getId()))).
                 collect(IdMap.collector());
         stream.close();
         postcodesAreas.put(postcodeArea, postcodes);
@@ -97,7 +97,7 @@ public class PostcodeRepository {
     }
 
 
-    public boolean hasPostcode(CaseInsensitiveId<PostcodeLocation> postcode) {
+    public boolean hasPostcode(PostcodeLocationId postcode) {
         return postcodesAreas.values().stream().
                 anyMatch(map -> map.hasId(postcode));
     }

@@ -2,12 +2,11 @@ package com.tramchester.integration.repository;
 
 import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
-import com.tramchester.domain.id.CaseInsensitiveId;
 import com.tramchester.domain.places.PostcodeLocation;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.geo.GridPosition;
 import com.tramchester.geo.MarginInMeters;
-import com.tramchester.integration.testSupport.tram.TramWithPostcodesEnabled;
+import com.tramchester.integration.testSupport.postcodes.PostcodesOnlyEnabledConfig;
 import com.tramchester.repository.postcodes.PostcodeRepository;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.testTags.PostcodeTestCategory;
@@ -21,6 +20,7 @@ import static com.tramchester.testSupport.reference.KnownLocations.nearWythensha
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
+@PostcodeTestCategory
 class PostcodeRepositoryTest {
 
     private static ComponentContainer componentContainer;
@@ -28,7 +28,7 @@ class PostcodeRepositoryTest {
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
-        componentContainer = new ComponentsBuilder().create(new TramWithPostcodesEnabled(), TestEnv.NoopRegisterMetrics());
+        componentContainer = new ComponentsBuilder().create(new PostcodesOnlyEnabledConfig(), TestEnv.NoopRegisterMetrics());
         componentContainer.initialise();
     }
 
@@ -42,19 +42,17 @@ class PostcodeRepositoryTest {
         repository = componentContainer.get(PostcodeRepository.class);
     }
 
-    @PostcodeTestCategory
     @Test
     void shouldHaveSomePostcodes() {
         assertFalse(repository.getPostcodes().isEmpty());
     }
 
-    @PostcodeTestCategory
     @Test
     void shouldLoadPostcodes() {
 
         LatLong expected = nearWythenshaweHosp.latLong();
 
-        PostcodeLocation result = repository.getPostcode(CaseInsensitiveId.createIdFor(TestEnv.postcodeForWythenshaweHosp()));
+        PostcodeLocation result = repository.getPostcode(PostcodeLocation.createId(TestEnv.postcodeForWythenshaweHosp()));
 
         assertNotNull(result);
         LatLong position = result.getLatLong();
@@ -62,7 +60,6 @@ class PostcodeRepositoryTest {
         Assertions.assertEquals(expected.getLon(), position.getLon(), 0.01);
     }
 
-    @PostcodeTestCategory
     @Test
     void shouldHavePostcodesNear() {
         GridPosition place = nearPiccGardens.grid();

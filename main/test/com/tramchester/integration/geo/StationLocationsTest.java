@@ -55,7 +55,7 @@ public class StationLocationsTest {
         StationRepository stationRepository = componentContainer.get(StationRepository.class);
 
         Set<Station> allStations = stationRepository.getStations();
-        BoundingBox stationBounds = locations.getBounds();
+        BoundingBox stationBounds = locations.getActiveStationBounds();
 
         allStations.forEach(station -> assertTrue(stationBounds.contained(station.getGridPosition()),
                 station.getId().toString()));
@@ -64,7 +64,7 @@ public class StationLocationsTest {
     @Test
     void shouldHaveLocationsInBounds() {
         MarginInMeters margin = MarginInMeters.of(config.getNearestStopForWalkingRangeKM());
-        final BoundingBox fullBoundsOfAllTramStations = locations.getBounds();
+        final BoundingBox fullBoundsOfAllTramStations = locations.getActiveStationBounds();
 
         assertTrue(fullBoundsOfAllTramStations.contained(nearShudehill.grid()));
         assertTrue(fullBoundsOfAllTramStations.contained(nearPiccGardens.grid()));
@@ -122,7 +122,7 @@ public class StationLocationsTest {
 
     @Test
     void shouldGetBoundsForTrams() {
-        BoundingBox box = locations.getBounds();
+        BoundingBox box = locations.getActiveStationBounds();
 
         assertEquals(376979, box.getMinEastings());
         assertEquals(385427, box.getMinNorthings());

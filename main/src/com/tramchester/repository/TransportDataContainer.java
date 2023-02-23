@@ -96,7 +96,7 @@ public class TransportDataContainer implements TransportData, WriteableTransport
         Optional<Long> count = trips.getValues().stream().
                 map(trip -> trip.getStopCalls().numberOfCallingPoints()).
                 reduce(Long::sum);
-        return count.orElse(Long.MIN_VALUE);
+        return count.orElse(0L);
     }
 
     @Override

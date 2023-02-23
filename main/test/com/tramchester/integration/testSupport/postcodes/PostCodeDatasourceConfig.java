@@ -1,12 +1,14 @@
-package com.tramchester.integration.testSupport;
+package com.tramchester.integration.testSupport.postcodes;
 
 import com.tramchester.config.RemoteDataSourceConfig;
-import com.tramchester.domain.dates.DateRange;
 
 import java.nio.file.Path;
 import java.time.Duration;
 
 public class PostCodeDatasourceConfig extends RemoteDataSourceConfig {
+
+    public static final String POSTCODE_URL = "https://api.os.uk/downloads/v1/products/CodePointOpen/downloads?area=GB&format=CSV&redirect";
+
     @Override
     public Path getDataPath() {
         return Path.of("data", "postcodes");
@@ -14,12 +16,12 @@ public class PostCodeDatasourceConfig extends RemoteDataSourceConfig {
 
     @Override
     public String getDataCheckUrl() {
-        return "https://api.os.uk/downloads/v1/products/CodePointOpen/downloads?area=GB&format=CSV&redirect";
+        return POSTCODE_URL;
     }
 
     @Override
     public String getDataUrl() {
-        return "https://api.os.uk/downloads/v1/products/CodePointOpen/downloads?area=GB&format=CSV&redirect";
+        return POSTCODE_URL;
     }
 
     @Override

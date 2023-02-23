@@ -78,11 +78,11 @@ public class HttpDownloadAndModTime implements DownloadAndModTime {
         long serverModMillis = 0;
         if (lastModifiedHeader.isPresent()) {
             final String lastMod = lastModifiedHeader.get();
-            logger.info("Mod time for " + response.uri() + " was " + lastMod);
+            logger.info("Mod time for " + response.uri() + " was " + lastMod + " status " + response.statusCode());
             Date modTime = DateUtils.parseDate(lastMod);
             serverModMillis = modTime.getTime();
         } else {
-            logger.warn("No mod time header for " + response.uri());
+            logger.warn("No mod time header for " + response.uri() + " status " + response.statusCode());
             logger.info("Headers were: ");
             headers.map().forEach((head, contents) -> logger.info(head + ": " + contents));
         }
@@ -120,17 +120,17 @@ public class HttpDownloadAndModTime implements DownloadAndModTime {
         URLStatus result;
         if (serverModMillis == 0) {
             if (!redirected) {
-                logger.warn("No valid mod time from server, got 0 for " + url);
+                logger.warn(format("No valid mod time from server, got 0, status code %s for %s", httpStatusCode, url));
             }
             result = new URLStatus(url, httpStatusCode);
 
         } else {
             LocalDateTime modTime = getLocalDateTime(serverModMillis);
-            logger.debug(format("Mod time for %s is %s", url, modTime));
+            logger.debug(format("Mod time %s, status %s for %s", modTime, url, httpStatusCode));
             result = new URLStatus(url, httpStatusCode, modTime);
         }
 
-        if (!result.isOk() && !result.isRedirect()) {
+        if (!result.isOk()) { // && !result.isRedirect()) {
             logger.warn("Response code " + httpStatusCode + " for " + url);
         }
 
@@ -143,12 +143,12 @@ public class HttpDownloadAndModTime implements DownloadAndModTime {
     }
 
     @Override
-    public void downloadTo(Path path, String url, LocalDateTime localModTime) throws IOException, InterruptedException {
+    public void downloadTo(Path path, String url, LocalDateTime existingLocalModTime) throws IOException, InterruptedException {
         try {
             logger.info(format("Download from %s to %s", url, path.toAbsolutePath()));
             File targetFile = path.toFile();
 
-            HttpResponse<InputStream> response = getHeadersFor(URI.create(url), localModTime, HttpMethod.GET,
+            HttpResponse<InputStream> response = getHeadersFor(URI.create(url), existingLocalModTime, HttpMethod.GET,
                     HttpResponse.BodyHandlers.ofInputStream());
 
             long serverModMillis = getServerModMillis(response);

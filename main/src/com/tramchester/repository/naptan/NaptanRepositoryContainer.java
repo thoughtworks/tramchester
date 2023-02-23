@@ -63,7 +63,7 @@ public class NaptanRepositoryContainer implements NaptanRepository {
         final boolean enabled = naptanDataImporter.isEnabled();
 
         if (!enabled) {
-            logger.warn("Not enabled, imported is disable, no config for naptan?");
+            logger.warn("Not enabled, imported is disabled, no config for naptan?");
             return;
         } else {
             loadStopDataForConfiguredArea();

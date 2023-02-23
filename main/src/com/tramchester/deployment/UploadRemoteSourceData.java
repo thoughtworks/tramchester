@@ -4,7 +4,7 @@ import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.cloud.data.UploadFileToS3;
 import com.tramchester.config.RemoteDataSourceConfig;
 import com.tramchester.config.TramchesterConfig;
-import com.tramchester.dataimport.RemoteDataRefreshed;
+import com.tramchester.dataimport.RemoteDataAvailable;
 import com.tramchester.domain.DataSourceID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,11 +22,11 @@ public class UploadRemoteSourceData {
 
     private final UploadFileToS3 uploadFileToS3;
     private final TramchesterConfig config;
-    private final RemoteDataRefreshed remoteDataRefreshed;
+    private final RemoteDataAvailable remoteDataRefreshed;
 
     @Inject
     public UploadRemoteSourceData(UploadFileToS3 uploadFileToS3, TramchesterConfig config,
-                                  RemoteDataRefreshed remoteDataRefreshed) {
+                                  RemoteDataAvailable remoteDataRefreshed) {
         this.uploadFileToS3 = uploadFileToS3;
         this.config = config;
         this.remoteDataRefreshed = remoteDataRefreshed;

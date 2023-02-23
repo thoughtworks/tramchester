@@ -110,8 +110,8 @@ public class LocationJourneyPlanner {
                 destination.getId(), destination.getName(), journeyRequest));
 
         GridPosition startGrid = start.getGridPosition();
-        if (!stationLocations.getBounds().within(margin, startGrid)) {
-            logger.warn(format("Start %s not within %s of station bounds %s", startGrid, margin, stationLocations.getBounds()));
+        if (!stationLocations.getActiveStationBounds().within(margin, startGrid)) {
+            logger.warn(format("Start %s not within %s of station bounds %s", startGrid, margin, stationLocations.getActiveStationBounds()));
         }
 
         Set<StationWalk> walksToStart = getStationWalks(start, journeyRequest.getRequestedModes());
@@ -145,10 +145,10 @@ public class LocationJourneyPlanner {
 
         GridPosition endGrid = destination.getGridPosition();
         if (!stationLocations.withinBounds(destination)) {
-            logger.warn(format("Destination %s not within %s of station bounds %s", endGrid, margin, stationLocations.getBounds()));
+            logger.warn(format("Destination %s not within %s of station bounds %s", endGrid, margin, stationLocations.getActiveStationBounds()));
         }
 
-        if (!stationLocations.getBounds().contained(destination)) {
+        if (!stationLocations.getActiveStationBounds().contained(destination)) {
             logger.warn("Destination not within station bounds " + destination);
         }
 

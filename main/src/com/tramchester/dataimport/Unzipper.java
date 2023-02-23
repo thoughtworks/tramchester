@@ -40,7 +40,7 @@ public class Unzipper {
                 }
                 zipInputStream.close();
                 if (entries==0) {
-                    logger.warn("Unzipped zero entries, was this a zip file? " + filename);
+                    logger.error("Unzipped zero entries, was this a zip file? " + filename);
                 }
             } else {
                 logger.info(format("Skipping unzip, %s not a zip file", zipFile.getAbsoluteFile()));

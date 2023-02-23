@@ -1,51 +1,51 @@
 package com.tramchester.domain.places;
 
+import com.tramchester.domain.CoreDomain;
 import com.tramchester.domain.DataSourceID;
 import com.tramchester.domain.Platform;
 import com.tramchester.domain.Route;
-import com.tramchester.domain.id.CaseInsensitiveId;
-import com.tramchester.domain.id.HasCaseInsensitiveId;
-import com.tramchester.domain.id.IdFor;
-import com.tramchester.domain.id.StringIdFor;
+import com.tramchester.domain.id.*;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.reference.TransportMode;
-import com.tramchester.domain.time.TimeRange;
 import com.tramchester.geo.CoordinateTransforms;
 import com.tramchester.geo.GridPosition;
 import com.tramchester.graph.GraphPropertyKey;
 import com.tramchester.graph.graphbuild.GraphLabel;
 
-import java.time.LocalDate;
 import java.util.Collections;
 import java.util.Objects;
 import java.util.Set;
 
-public class PostcodeLocation implements Location<PostcodeLocation>, HasCaseInsensitiveId {
+public class PostcodeLocation implements Location<PostcodeLocation>, CoreDomain, HasId<PostcodeLocation> {
 
-    private final CaseInsensitiveId<PostcodeLocation> id;
+    private final PostcodeLocationId id;
     private final String name;
 
     private LatLong latLong;
     private GridPosition gridPosition;
 
-    public PostcodeLocation(LatLong latLong, CaseInsensitiveId<PostcodeLocation> id) {
+    public PostcodeLocation(LatLong latLong, PostcodeLocationId id) {
         this(id, latLong, CoordinateTransforms.getGridPosition(latLong));
     }
 
-    public PostcodeLocation(GridPosition gridPosition, CaseInsensitiveId<PostcodeLocation> id) {
+    public PostcodeLocation(GridPosition gridPosition, PostcodeLocationId id) {
         this(id, CoordinateTransforms.getLatLong(gridPosition), gridPosition);
     }
 
-    private PostcodeLocation(CaseInsensitiveId<PostcodeLocation> id, LatLong latLong, GridPosition gridPosition) {
+    private PostcodeLocation(PostcodeLocationId id, LatLong latLong, GridPosition gridPosition) {
         this.id = id;
-        this.name = id.forDTO();
+        this.name = id.getName();
 
         this.latLong = latLong;
         this.gridPosition = gridPosition;
     }
 
+    public static PostcodeLocationId createId(String rawId) {
+        return PostcodeLocationId.create(rawId);
+    }
+
     @Override
-    public CaseInsensitiveId<PostcodeLocation> getId() {
+    public PostcodeLocationId getId() {
         return id;
     }
 

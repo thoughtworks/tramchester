@@ -4,7 +4,7 @@ import com.tramchester.ComponentsBuilder;
 import com.tramchester.GuiceContainerDependencies;
 import com.tramchester.config.RemoteDataSourceConfig;
 import com.tramchester.config.TramchesterConfig;
-import com.tramchester.dataimport.RemoteDataRefreshed;
+import com.tramchester.dataimport.RemoteDataAvailable;
 import com.tramchester.dataimport.UnzipFetchedData;
 import com.tramchester.dataimport.nptg.NPTGDataLoader;
 import com.tramchester.domain.DataSourceID;
@@ -87,7 +87,7 @@ public class NaptanAndNPTGDatadownloadTest {
         UnzipFetchedData unzipFetchedData = componentContainer.get(UnzipFetchedData.class);
         unzipFetchedData.getReady();
 
-        RemoteDataRefreshed dataRefreshed = componentContainer.get(RemoteDataRefreshed.class);
+        RemoteDataAvailable dataRefreshed = componentContainer.get(RemoteDataAvailable.class);
 
         assertTrue(dataRefreshed.hasFileFor(sourceID));
 

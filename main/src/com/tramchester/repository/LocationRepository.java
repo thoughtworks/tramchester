@@ -2,7 +2,6 @@ package com.tramchester.repository;
 
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.domain.Platform;
-import com.tramchester.domain.id.CaseInsensitiveId;
 import com.tramchester.domain.places.*;
 import com.tramchester.repository.postcodes.PostcodeRepository;
 import org.slf4j.Logger;
@@ -33,7 +32,7 @@ public class LocationRepository {
             case Station -> stationRepository.getStationById(Station.createId(rawId));
             case Platform -> platformRepository.getPlatformById(Platform.createId(rawId));
             case StationGroup -> stationGroupsRepository.getStationGroup(NaptanArea.createId(rawId));
-            case Postcode -> postcodeRepository.getPostcode(CaseInsensitiveId.createIdFor(rawId));
+            case Postcode -> postcodeRepository.getPostcode(PostcodeLocation.createId(rawId));
             case MyLocation -> MyLocation.parseFromId(rawId);
         };
     }

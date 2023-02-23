@@ -21,7 +21,6 @@ import org.junit.jupiter.api.*;
 import org.neo4j.graphdb.Transaction;
 
 import java.time.Duration;
-import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -73,7 +72,7 @@ class RouteCalculatorForBoundingBoxTest {
 
     @Test
     void shouldFindJourneysForBoundedBoxStations() {
-        BoundingBox bounds = stationLocations.getBounds();
+        BoundingBox bounds = stationLocations.getActiveStationBounds();
         long gridSize = (bounds.getMaxNorthings()-bounds.getMinNorthings()) / 100;
 
         List<BoundingBoxWithStations> grouped = stationLocations.getStationsInGrids(gridSize).collect(Collectors.toList());

@@ -77,7 +77,7 @@ public class PostcodeDataImporter {
             return Collections.emptyList();
         }
 
-        BoundingBox stationBounds = stationLocations.getBounds();
+        BoundingBox stationBounds = stationLocations.getActiveStationBounds();
         Set<Path> csvFiles;
         try {
             csvFiles = Files.list(dataFilesDirectory).

@@ -18,19 +18,19 @@ public class UnzipFetchedData  {
 
     private final Unzipper unzipper;
     private final List<RemoteDataSourceConfig> configs;
-    private final RemoteDataRefreshed remoteDataRefreshed;
+    private final RemoteDataAvailable remoteDataAvailable;
 
     @Inject
-    public UnzipFetchedData(Unzipper unzipper, TramchesterConfig config, RemoteDataRefreshed remoteDataRefreshed,
+    public UnzipFetchedData(Unzipper unzipper, TramchesterConfig config, RemoteDataAvailable remoteDataRefreshed,
                             FetchDataFromUrl.Ready ready) {
         this(unzipper, config.getRemoteDataSourceConfig(), remoteDataRefreshed, ready);
     }
 
     private UnzipFetchedData(Unzipper unzipper, List<RemoteDataSourceConfig> configs,
-                             RemoteDataRefreshed remoteDataRefreshed, FetchDataFromUrl.Ready ready) {
+                             RemoteDataAvailable remoteDataAvailable, FetchDataFromUrl.Ready ready) {
         this.unzipper = unzipper;
         this.configs = configs;
-        this.remoteDataRefreshed = remoteDataRefreshed;
+        this.remoteDataAvailable = remoteDataAvailable;
     }
 
     @PostConstruct
@@ -49,15 +49,21 @@ public class UnzipFetchedData  {
         if (configs.isEmpty()) {
             logger.info("No configs present");
         }
-        configs.forEach(config -> {
-            final DataSourceID sourceId = config.getDataSourceId();
-            if (remoteDataRefreshed.hasFileFor(sourceId)) {
-                Path filename = remoteDataRefreshed.fileFor(sourceId);
-                if (!unzipper.unpackIfZipped(filename, config.getDataPath())) {
-                    logger.error("unable to unpack zip file " + filename.toAbsolutePath());
+
+        configs.forEach(sourceConfig -> {
+            final DataSourceID sourceId = sourceConfig.getDataSourceId();
+
+            if (remoteDataAvailable.hasFileFor(sourceId)) {
+                Path filename = remoteDataAvailable.fileFor(sourceId);
+                if (!unzipper.unpackIfZipped(filename, sourceConfig.getDataPath())) {
+                    String msg = "unable to unpack zip file " + filename.toAbsolutePath();
+                    logger.error(msg);
+                    throw new RuntimeException(msg); // fail fast
                 }
             } else {
-                logger.error("Missing data source file for " + config);
+                String msg = "No file available for " + sourceId + " config was " + sourceConfig;
+                logger.error(msg);
+                throw new RuntimeException(msg); // fail fast
             }
         });
     }

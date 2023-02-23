@@ -4,7 +4,7 @@ import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.config.RailConfig;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.dataimport.FetchFileModTime;
-import com.tramchester.dataimport.RemoteDataRefreshed;
+import com.tramchester.dataimport.RemoteDataAvailable;
 import com.tramchester.dataimport.loader.DirectDataSourceFactory;
 import com.tramchester.dataimport.rail.records.PhysicalStationRecord;
 import com.tramchester.dataimport.rail.records.RailLocationRecord;
@@ -50,7 +50,7 @@ public class RailTransportDataFromFiles implements DirectDataSourceFactory.Popul
     private static final Logger logger = LoggerFactory.getLogger(RailTransportDataFromFiles.class);
 
     private final RailConfig railConfig;
-    private final RemoteDataRefreshed remoteDataRefreshed;
+    private final RemoteDataAvailable remoteDataRefreshed;
 
     private final boolean enabled;
     private final BoundingBox bounds;
@@ -60,7 +60,7 @@ public class RailTransportDataFromFiles implements DirectDataSourceFactory.Popul
     public RailTransportDataFromFiles(ProvidesRailStationRecords providesRailStationRecords,
                                       ProvidesRailTimetableRecords loadRailTimetableRecords,
                                       TramchesterConfig config, NaptanRepository naptanRepository,
-                                      GraphFilterActive graphFilterActive, RemoteDataRefreshed remoteDataRefreshed,
+                                      GraphFilterActive graphFilterActive, RemoteDataAvailable remoteDataRefreshed,
                                       RailStationCRSRepository crsRepository, RailRouteIdRepository railRouteRepository) {
 
         this.remoteDataRefreshed = remoteDataRefreshed;

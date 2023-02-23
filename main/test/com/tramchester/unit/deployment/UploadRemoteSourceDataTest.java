@@ -4,7 +4,7 @@ import com.tramchester.cloud.data.UploadFileToS3;
 import com.tramchester.config.GTFSSourceConfig;
 import com.tramchester.config.RemoteDataSourceConfig;
 import com.tramchester.config.TramchesterConfig;
-import com.tramchester.dataimport.RemoteDataRefreshed;
+import com.tramchester.dataimport.RemoteDataAvailable;
 import com.tramchester.deployment.UploadRemoteSourceData;
 import com.tramchester.domain.DataSourceID;
 import com.tramchester.testSupport.TestConfig;
@@ -26,13 +26,13 @@ class UploadRemoteSourceDataTest extends EasyMockSupport {
 
     private UploadFileToS3 s3Uploader;
     private UploadRemoteSourceData uploadRemoteData;
-    private RemoteDataRefreshed dataRefreshed;
+    private RemoteDataAvailable dataRefreshed;
 
     @BeforeEach
     void beforeEachTestRuns() {
 
         s3Uploader = createStrictMock(UploadFileToS3.class);
-        dataRefreshed = createMock(RemoteDataRefreshed.class);
+        dataRefreshed = createMock(RemoteDataAvailable.class);
 
         List<RemoteDataSourceConfig> remoteConfigs = new ArrayList<>();
 

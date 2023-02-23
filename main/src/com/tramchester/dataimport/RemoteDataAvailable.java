@@ -6,7 +6,7 @@ import com.tramchester.domain.DataSourceID;
 import java.nio.file.Path;
 
 @ImplementedBy(DownloadedRemotedDataRepository.class)
-public interface RemoteDataRefreshed {
+public interface RemoteDataAvailable {
     boolean refreshed(DataSourceID dataSourceID);
     boolean hasFileFor(DataSourceID dataSourceID);
     Path fileFor(DataSourceID dataSourceID);

@@ -33,11 +33,12 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class PostcodeBoundBoxRealDataTest {
 
+    private static final CsvMapper mapper = CsvMapper.builder().addModule(new AfterburnerModule()).build();
+
     private static ComponentContainer componentContainer;
     private static TramWithPostcodesEnabled config;
     private PostcodeBoundingBoxs boundingBoxs;
     private Path centralManchesterPostcodes;
-    private static CsvMapper mapper = CsvMapper.builder().addModule(new AfterburnerModule()).build();
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
@@ -115,7 +116,7 @@ public class PostcodeBoundBoxRealDataTest {
     @Test
     void shouldMatchStationLocationBounds() {
         StationLocations stationLocations = componentContainer.get(StationLocations.class);
-        BoundingBox containsStations = stationLocations.getBounds();
+        BoundingBox containsStations = stationLocations.getActiveStationBounds();
         final BoundingBox boundsForPostcodeFile = boundingBoxs.getBoundsFor(centralManchesterPostcodes);
 
         assertTrue(boundsForPostcodeFile.overlapsWith(containsStations),

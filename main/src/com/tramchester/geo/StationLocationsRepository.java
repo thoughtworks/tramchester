@@ -20,7 +20,7 @@ public interface StationLocationsRepository {
 
     Stream<Station> nearestStationsUnsorted(Station station, MarginInMeters rangeInMeters);
 
-    BoundingBox getBounds();
+    BoundingBox getActiveStationBounds();
 
     LocationSet getLocationsWithin(IdFor<NaptanArea> areaId);
 

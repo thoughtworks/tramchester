@@ -13,7 +13,7 @@ import java.util.List;
 import java.util.Map;
 
 @LazySingleton
-public class DownloadedRemotedDataRepository implements RemoteDataRefreshed {
+public class DownloadedRemotedDataRepository implements RemoteDataAvailable {
     private static final Logger logger = LoggerFactory.getLogger(DownloadedRemotedDataRepository.class);
 
     private final List<DataSourceID> refreshed;
@@ -49,6 +49,11 @@ public class DownloadedRemotedDataRepository implements RemoteDataRefreshed {
         if (refreshed.contains(dataSourceId)) {
             logger.warn(dataSourceId + " already marked as refreshed");
         }
+        if (!availableFiles.containsKey(dataSourceId)) {
+            String msg = "Cannot mark " + dataSourceId + " as refreshed, no file available";
+            logger.error(msg);
+            throw new RuntimeException(msg);
+        }
         refreshed.add(dataSourceId);
     }
 
@@ -58,6 +63,7 @@ public class DownloadedRemotedDataRepository implements RemoteDataRefreshed {
             logger.error(message);
             throw new RuntimeException(message);
         }
+        logger.info("Source " + dataSourceId.name() +  " added " + path.toAbsolutePath() );
         availableFiles.put(dataSourceId, path);
     }
 }

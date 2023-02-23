@@ -5,13 +5,13 @@ import com.fasterxml.jackson.module.afterburner.AfterburnerModule;
 import com.tramchester.caching.DataCache;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.dataimport.loader.files.TransportDataFromCSVFile;
-import com.tramchester.dataimport.RemoteDataRefreshed;
+import com.tramchester.dataimport.RemoteDataAvailable;
 import com.tramchester.dataimport.data.PostcodeHintData;
 import com.tramchester.dataimport.postcodes.PostcodeBoundingBoxs;
 import com.tramchester.dataimport.postcodes.PostcodeData;
 import com.tramchester.domain.DataSourceID;
 import com.tramchester.geo.BoundingBox;
-import com.tramchester.integration.testSupport.tram.TramWithPostcodesEnabled;
+import com.tramchester.integration.testSupport.postcodes.PostcodesOnlyEnabledConfig;
 import org.apache.commons.lang3.NotImplementedException;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -37,11 +37,11 @@ class PostcodeBoundingBoxsTest {
     void beforeEachTest() {
         mapper = CsvMapper.builder().addModule(new AfterburnerModule()).build();
 
-        TramchesterConfig config = new TramWithPostcodesEnabled();
+        TramchesterConfig config = new PostcodesOnlyEnabledConfig();
 
         hintsFile = config.getCacheFolder().resolve("postcode_hints.csv");
 
-        RemoteDataRefreshed dataRefresh = new RemoteDataRefreshed() {
+        RemoteDataAvailable dataRefresh = new RemoteDataAvailable() {
             @Override
             public boolean refreshed(DataSourceID dataSourceID) {
                 return false;
