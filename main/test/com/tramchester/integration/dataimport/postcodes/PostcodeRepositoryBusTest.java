@@ -7,6 +7,7 @@ import com.tramchester.domain.places.PostcodeLocation;
 import com.tramchester.integration.testSupport.bus.IntegrationBusTestConfig;
 import com.tramchester.repository.postcodes.PostcodeRepository;
 import com.tramchester.testSupport.TestEnv;
+import com.tramchester.testSupport.reference.TestPostcodes;
 import com.tramchester.testSupport.testTags.BusTest;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
@@ -47,7 +48,7 @@ class PostcodeRepositoryBusTest {
         assertTrue(repository.hasPostcode(PostcodeLocation.createId("wa141ep")));
 
         assertTrue(repository.hasPostcode(PostcodeLocation.createId("M44BF"))); // central manchester
-        assertTrue(repository.hasPostcode(PostcodeLocation.createId(TestEnv.postcodeForWythenshaweHosp())));
+        assertTrue(repository.hasPostcode(PostcodeLocation.createId(TestPostcodes.postcodeForWythenshaweHosp())));
 
         assertTrue(repository.hasPostcode(PostcodeLocation.createId("WA160BE")));
 

@@ -324,7 +324,8 @@ class FetchDataFromUrlTest extends EasyMockSupport {
         URLStatus statusWithoutValidModTime = new URLStatus(expectedDownloadURL, 200);
 
         EasyMock.expect(httpDownloader.getStatusFor(expectedDownloadURL, LocalDateTime.MIN)).andReturn(statusWithoutValidModTime);
-        EasyMock.expect(httpDownloader.downloadTo(destinationFile, expectedDownloadURL, LocalDateTime.MIN)).andThrow(new IOException("could not download"));
+        EasyMock.expect(httpDownloader.downloadTo(destinationFile, expectedDownloadURL, LocalDateTime.MIN)).
+                andReturn(new URLStatus(expectedDownloadURL, HttpStatus.SC_NOT_FOUND));
 
         replayAll();
         Assertions.assertAll(() -> fetchDataFromUrl.fetchData());

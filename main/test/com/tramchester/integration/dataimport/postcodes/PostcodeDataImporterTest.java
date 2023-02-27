@@ -10,6 +10,7 @@ import com.tramchester.geo.MarginInMeters;
 import com.tramchester.geo.StationLocations;
 import com.tramchester.integration.testSupport.tram.TramWithPostcodesEnabled;
 import com.tramchester.testSupport.TestEnv;
+import com.tramchester.testSupport.reference.TestPostcodes;
 import com.tramchester.testSupport.testTags.PostcodeTestCategory;
 import org.junit.jupiter.api.*;
 
@@ -32,7 +33,7 @@ class PostcodeDataImporterTest {
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
-        testConfig = new TramWithPostcodesEnabled(); /// <= means tram stations only
+        testConfig = new TramWithPostcodesEnabled(); /// <= means tram stations only, needed for area bounds
         componentContainer = new ComponentsBuilder().create(testConfig, TestEnv.NoopRegisterMetrics());
         componentContainer.initialise();
 
@@ -69,12 +70,12 @@ class PostcodeDataImporterTest {
         assertFalse(postcodes.contains("EC1A1XH")); // in london, outside area
         assertTrue(postcodes.contains("WA141EP"));
         assertTrue(postcodes.contains("M44BF")); // central manchester
-        assertTrue(postcodes.contains(TestEnv.postcodeForWythenshaweHosp()));
+        assertTrue(postcodes.contains(TestPostcodes.postcodeForWythenshaweHosp()));
 
         // outside stations box but within margin and within range of a station
         assertTrue(postcodes.contains("WA142RQ"));
         assertTrue(postcodes.contains("OL161JZ"));
-        assertTrue(postcodes.contains("WA144UR"));
+        assertTrue(postcodes.contains("WA158EW"));
     }
 
     @Test

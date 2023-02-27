@@ -28,6 +28,12 @@ public class BoundingBox {
     }
 
     public BoundingBox(GridPosition bottomLeft, GridPosition topRight) {
+        if (!bottomLeft.isValid()) {
+            throw new RuntimeException("bottemLeft is invalid");
+        }
+        if (!topRight.isValid()) {
+            throw new RuntimeException("topRight is invalid");
+        }
         this.bottomLeft = bottomLeft;
         this.topRight = topRight;
     }
@@ -64,10 +70,12 @@ public class BoundingBox {
         if (!position.isValid()) {
             throw new RuntimeException("Invalid grid position " + position);
         }
-                return (position.getEastings() >= getMinEastings()-marginInMeters.get()) &&
-                        (position.getEastings() <= getMaxEasting()+marginInMeters.get()) &&
-                        (position.getNorthings() >= getMinNorthings()-marginInMeters.get()) &&
-                        (position.getNorthings() <= getMaxNorthings()+marginInMeters.get());
+
+        long margin = marginInMeters.get();
+        return (position.getEastings() >= getMinEastings() - margin) &&
+                (position.getEastings() <= getMaxEasting() + margin) &&
+                (position.getNorthings() >= getMinNorthings() - margin) &&
+                (position.getNorthings() <= getMaxNorthings() + margin);
     }
 
     public boolean contained(Location<?> hasPosition) {

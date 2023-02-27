@@ -54,7 +54,7 @@ public class HttpDownloadAndModTime implements DownloadAndModTime {
         // might update depending on redirect status
         String finalUrl = originalUrl;
         if (redirect) {
-            Optional<String> locationField = headers.firstValue(org.apache.http.HttpHeaders.LOCATION); // connection.getHeaderField("Location");
+            Optional<String> locationField = headers.firstValue(org.apache.http.HttpHeaders.LOCATION);
             if (locationField.isPresent()) {
                 logger.warn(format("URL: '%s' Redirect status %s and Location header '%s'",
                         originalUrl, httpStatusCode, locationField));
@@ -146,74 +146,105 @@ public class HttpDownloadAndModTime implements DownloadAndModTime {
     }
 
     @Override
-    public URLStatus downloadTo(Path path, String url, LocalDateTime existingLocalModTime) throws IOException, InterruptedException {
-        try {
-            logger.info(format("Download from %s to %s", url, path.toAbsolutePath()));
-            File targetFile = path.toFile();
+    public URLStatus downloadTo(Path path, String originalUrl, LocalDateTime existingLocalModTime) {
 
-            HttpResponse<InputStream> response = fetchHeaders(URI.create(url), existingLocalModTime, HttpMethod.GET,
+        logger.info(format("Download from %s to %s", originalUrl, path.toAbsolutePath()));
+
+        try {
+
+            HttpResponse<InputStream> response = fetchHeaders(URI.create(originalUrl), existingLocalModTime, HttpMethod.GET,
                     HttpResponse.BodyHandlers.ofInputStream());
 
             int statusCode = response.statusCode();
-            if (statusCode != HttpStatus.SC_OK) {
-                logger.warn("Status code on download not OK, got " + statusCode);
-                return new URLStatus(url, statusCode);
-            }
 
-            long serverModMillis = getServerModMillis(response);
-            String contentType = getContentType(response);
-            String encoding = getContentEncoding(response);
-            long len = getLen(response);
+            final boolean redirect = URLStatus.isRedirectCode(statusCode);
 
-            String contentDispos = getContentDispos(response);
-            if (!contentDispos.isEmpty()) {
-                logger.warn("Content disposition was " + contentDispos);
-            }
-
-            final String logSuffix = " for " + url;
-            final LocalDateTime serverModDateTime = getLocalDateTime(serverModMillis);
-            logger.info("Response last mod time is " + serverModMillis + " (" + serverModDateTime + ")");
-            logger.info("Response content type '" + contentType + "'" + logSuffix);
-            logger.info("Response encoding '" + encoding + "'" + logSuffix);
-            logger.info("Content length is " + len + logSuffix);
-
-            boolean gziped = "gzip".equals(encoding);
-
-            InputStream stream = getStreamFor(response.body(), gziped);
-            if (len>0) {
-                downloadByLength(stream, targetFile, len);
-            } else {
-                download(stream, targetFile);
-            }
-
-            if (!targetFile.exists()) {
-                String msg = format("Failed to download from %s to %s", url, targetFile.getAbsoluteFile());
-                logger.error(msg);
-                throw new RuntimeException(msg);
-            }
-
-            URLStatus result;
-            if (serverModMillis>0) {
-                result = new URLStatus(url, statusCode, getLocalDateTime(serverModMillis));
-                if (!targetFile.setLastModified(serverModMillis)) {
-                    logger.warn("Unable to set mod time on " + targetFile);
+            // might update depending on redirect status
+            if (redirect) {
+                HttpHeaders headers = response.headers();
+                Optional<String> locationField = headers.firstValue(org.apache.http.HttpHeaders.LOCATION);
+                if (locationField.isPresent()) {
+                    logger.warn(format("URL: '%s' Redirect status %s and Location header '%s'",
+                            originalUrl, statusCode, locationField));
+                    String redirectURL = locationField.get();
+                    return new URLStatus(redirectURL, statusCode);
                 } else {
-                    logger.info("Set mod time on " + targetFile + " to " + serverModDateTime);
+                    logger.error(format("Location header missing for redirect %s, change status code to a 404 for %s",
+                            statusCode, originalUrl));
+                    return new URLStatus(originalUrl, HttpStatus.SC_NOT_FOUND);
                 }
             } else {
-                result = new URLStatus(url, statusCode);
-                logger.warn("Server mod time is zero, not updating local file mod time " + logSuffix);
-            }
+                // Not a redirect
+                if (statusCode != HttpStatus.SC_OK) {
+                    logger.warn("Status code on download not OK, got " + statusCode);
+                    return new URLStatus(originalUrl, statusCode);
+                }
 
-            return result;
+                return downloadWhenStatusIsOK(response, path, statusCode);
+            }
 
 
         } catch (IOException | InterruptedException exception) {
-            String msg = format("Unable to download data from %s to %s exception %s", url, path, exception);
+            String msg = format("Unable to download data from %s to %s exception %s", originalUrl, path, exception);
             logger.error(msg);
             throw new RuntimeException(msg,exception);
         }
 
+    }
+
+    @NotNull
+    private URLStatus downloadWhenStatusIsOK(HttpResponse<InputStream> response, Path destination, int statusCode) throws IOException {
+
+        String finalURL = response.toString();
+        logger.info(format("Download is available from %s, save to %s", finalURL, destination));
+
+        long serverModMillis = getServerModMillis(response);
+        String contentType = getContentType(response);
+        String encoding = getContentEncoding(response);
+        long len = getLen(response);
+
+        String contentDispos = getContentDispos(response);
+        if (!contentDispos.isEmpty()) {
+            logger.warn("Content disposition was " + contentDispos);
+        }
+
+        final String logSuffix = " for " + finalURL;
+        final LocalDateTime serverModDateTime = getLocalDateTime(serverModMillis);
+        logger.info("Response last mod time is " + serverModMillis + " (" + serverModDateTime + ")");
+        logger.info("Response content type '" + contentType + "'" + logSuffix);
+        logger.info("Response encoding '" + encoding + "'" + logSuffix);
+        logger.info("Content length is " + len + logSuffix);
+
+        boolean gziped = "gzip".equals(encoding);
+
+        File targetFile = destination.toFile();
+        InputStream stream = getStreamFor(response.body(), gziped);
+        if (len>0) {
+            downloadByLength(stream, targetFile, len);
+        } else {
+            download(stream, targetFile);
+        }
+
+        if (!targetFile.exists()) {
+            String msg = format("Failed to download from %s to %s, can't find output file", finalURL, targetFile.getAbsoluteFile());
+            logger.error(msg);
+            throw new RuntimeException(msg);
+        }
+
+        URLStatus result;
+        if (serverModMillis>0) {
+            result = new URLStatus(finalURL, statusCode, getLocalDateTime(serverModMillis));
+            if (!targetFile.setLastModified(serverModMillis)) {
+                logger.warn("Unable to set mod time on " + targetFile);
+            } else {
+                logger.info("Set mod time on " + targetFile + " to " + serverModDateTime);
+            }
+        } else {
+            result = new URLStatus(finalURL, statusCode);
+            logger.warn("Server mod time is zero, not updating local file mod time " + logSuffix);
+        }
+
+        return result;
     }
 
     private void download(InputStream inputStream, File targetFile) throws IOException {

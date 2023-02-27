@@ -27,6 +27,8 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static java.lang.String.format;
+
 @LazySingleton
 public class PostcodeDataImporter {
     // NOTE:
@@ -70,7 +72,7 @@ public class PostcodeDataImporter {
         RemoteDataSourceConfig dataSourceConfig = config.getDataRemoteSourceConfig(DataSourceID.postcode);
         Path dataFilesDirectory = dataSourceConfig.getDataPath().resolve(dataFolder);
 
-        logger.info("Load postcode files files from " + dataFilesDirectory.toAbsolutePath());
+        logger.info("Load postcode files from " + dataFilesDirectory.toAbsolutePath());
 
         if (!Files.isDirectory(dataFilesDirectory)) {
             logger.error("Cannot load postcode data, location is not a directory " + dataFilesDirectory);
@@ -97,7 +99,7 @@ public class PostcodeDataImporter {
 
         return csvFiles.stream().
                 map(file -> loadDataFromFile(file, stationBounds)).
-                filter(postcodeDataStream -> postcodeDataStream.wasLoaded).
+                filter(PostcodeDataStream::wasLoaded).
                 collect(Collectors.toList());
     }
 
@@ -114,13 +116,13 @@ public class PostcodeDataImporter {
         if (postcodeBounds.isLoaded() && postcodeBounds.hasBoundsFor(file)) {
             BoundingBox boundsForPostcodeFile = postcodeBounds.getBoundsFor(file);
             if (boundsForPostcodeFile.overlapsWith(loadedStationsBounds)) {
-                logger.info("Postcode in file match bounds " + file);
+                logger.info(format("Postcode(s) in file %s match bounds %s", file, loadedStationsBounds));
                 return new PostcodeDataStream(code, true,
                         stream.
                         filter(postcode -> loadedStationsBounds.within(walkingDistance, postcode.getGridPosition())).
                         filter(postcode -> stationLocations.anyStationsWithinRangeOf(postcode.getGridPosition(), walkingDistance)));
             } else {
-                logger.debug("Skipping " + file + " as contains no positions overlapping with current bounds");
+                logger.debug(format("Skipping %s as bounds for file %s not overlapping with stations bounds %s", file, boundsForPostcodeFile, loadedStationsBounds));
                 return PostcodeDataStream.empty(code);
             }
         } else {

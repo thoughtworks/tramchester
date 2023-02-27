@@ -227,10 +227,6 @@ public class TestEnv {
     }
 
 
-    public static String postcodeForWythenshaweHosp() {
-       return "M239LT";
-    }
-
     public static CacheMetrics.RegistersCacheMetrics NoopRegisterMetrics() {
         return new CacheMetrics.RegistersCacheMetrics() {
             @Override

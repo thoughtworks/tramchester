@@ -2,6 +2,8 @@ package com.tramchester.domain.id;
 
 import com.tramchester.domain.places.PostcodeLocation;
 
+import java.util.Objects;
+
 public class PostcodeLocationId implements IdFor<PostcodeLocation> {
 
     private final IdFor<PostcodeLocation> contained;
@@ -32,5 +34,25 @@ public class PostcodeLocationId implements IdFor<PostcodeLocation> {
 
     public String getName() {
         return contained.forDTO();
+    }
+
+    @Override
+    public String toString() {
+        return "PostcodeLocationId{" +
+                contained +
+                '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        PostcodeLocationId that = (PostcodeLocationId) o;
+        return contained.equals(that.contained);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(contained);
     }
 }

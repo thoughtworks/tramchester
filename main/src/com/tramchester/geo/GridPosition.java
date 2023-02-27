@@ -29,10 +29,15 @@ public class GridPosition {
 
     @Override
     public String toString() {
-        return "GridPosition{" +
-                "easting=" + eastings +
-                ", northing=" + northings +
-                '}';
+        if (isValid()) {
+            return "GridPosition{" +
+                    "easting=" + eastings +
+                    ", northing=" + northings +
+                    '}';
+        }
+        else {
+            return "GridPosition{INVALID}";
+        }
     }
 
     @Override

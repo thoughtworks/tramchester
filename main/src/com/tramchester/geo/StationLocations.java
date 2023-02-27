@@ -59,6 +59,7 @@ public class StationLocations implements StationLocationsRepository {
     public void start() {
         logger.info("starting");
         bounds = new CreateBoundingBox().createBoundingBox(stationRepository.getActiveStationStream());
+        logger.info("Created bounds for active stations: " + bounds);
         createQuadrants();
         if (naptanRespository.isEnabled()) {
             populateAreas();
@@ -291,13 +292,13 @@ public class StationLocations implements StationLocationsRepository {
         return LongStream.iterate(minNorthings, current -> current <= maxNorthings, current -> current + gridSize).boxed();
     }
 
-    private boolean containsAnyStations(BoundingBox parent, BoundingBox quadrant) {
-        return stationRepository.getActiveStationStream().
-                map(Station::getGridPosition).
-                filter(GridPosition::isValid).
-                filter(parent::contained).
-                anyMatch(quadrant::contained);
-    }
+//    private boolean containsAnyStations(BoundingBox parent, BoundingBox quadrant) {
+//        return stationRepository.getActiveStationStream().
+//                map(Station::getGridPosition).
+//                filter(GridPosition::isValid).
+//                filter(parent::contained).
+//                anyMatch(quadrant::contained);
+//    }
 
     private static class CreateBoundingBox {
         private long minEastings = Long.MAX_VALUE;
@@ -325,6 +326,14 @@ public class StationLocations implements StationLocationsRepository {
                             maxNorthings = northings;
                         }
                     });
+
+            if (minEastings==Long.MAX_VALUE || maxEasting==Long.MIN_VALUE ||
+                    minNorthings==Long.MIN_VALUE || maxNorthings==Long.MIN_VALUE) {
+                String message = "Could not form bounded box for active stations, are any stations loaded?";
+                logger.error(message);
+                throw new RuntimeException(message);
+            }
+
             return new BoundingBox(minEastings, minNorthings, maxEasting, maxNorthings);
         }
     }

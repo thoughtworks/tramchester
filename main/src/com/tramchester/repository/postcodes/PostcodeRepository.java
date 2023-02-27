@@ -13,6 +13,7 @@ import com.tramchester.domain.places.PostcodeLocation;
 import com.tramchester.geo.GridPosition;
 import com.tramchester.geo.MarginInMeters;
 import com.tramchester.mappers.Geography;
+import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,7 +33,7 @@ public class PostcodeRepository {
     private final PostcodeBoundingBoxs boundingBoxs;
     private final Geography geography;
 
-    private final Map<String, IdMap<PostcodeLocation>> postcodesAreas; // Id -> PostcodeLocation
+    private final Map<String, IdMap<PostcodeLocation>> postcodesByArea; // Area Id -> PostcodeLocations
 
     @Inject
     public PostcodeRepository(PostcodeDataImporter importer, TramchesterConfig config, PostcodeBoundingBoxs boundingBoxs, Geography geography) {
@@ -40,11 +41,11 @@ public class PostcodeRepository {
         this.config = config;
         this.boundingBoxs = boundingBoxs;
         this.geography = geography;
-        postcodesAreas = new HashMap<>();
+        postcodesByArea = new HashMap<>();
     }
 
     public PostcodeLocation getPostcode(PostcodeLocationId postcodeId) {
-        Optional<PostcodeLocation> maybeFound = postcodesAreas.values().stream().
+        Optional<PostcodeLocation> maybeFound = postcodesByArea.values().stream().
                 filter(map -> map.hasId(postcodeId)).
                 map(matchingMap -> matchingMap.get(postcodeId)).findFirst();
         return maybeFound.orElse(null);
@@ -63,7 +64,6 @@ public class PostcodeRepository {
 
         logger.info("Processing " + sources.size() + " postcode streams");
         sources.forEach(this::load);
-        logger.info("Loaded " + postcodesAreas.size() + " postcodes");
         logger.info("started");
     }
 
@@ -71,8 +71,8 @@ public class PostcodeRepository {
     @PreDestroy
     public void stop() {
         logger.info("stopping");
-        postcodesAreas.values().forEach(CompositeIdMap::clear);
-        postcodesAreas.clear();
+        postcodesByArea.values().forEach(CompositeIdMap::clear);
+        postcodesByArea.clear();
         logger.info("stopped");
     }
 
@@ -84,32 +84,33 @@ public class PostcodeRepository {
         String postcodeArea = source.getCode();
         Stream<PostcodeData> stream = source.getDataStream();
 
-        final IdMap<PostcodeLocation> postcodes = stream.
-                map(postcodeData -> new PostcodeLocation(postcodeData.getGridPosition(),
-                        PostcodeLocation.createId(postcodeData.getId()))).
+        final IdMap<PostcodeLocation> postcodesFromFile = stream.
+                map(this::createPostcodeFor).
                 collect(IdMap.collector());
         stream.close();
-        postcodesAreas.put(postcodeArea, postcodes);
+        this.postcodesByArea.put(postcodeArea, postcodesFromFile);
 
-        if (!postcodes.isEmpty()) {
-            logger.info("Added " + postcodes.size() + " postcodes for " + source.getCode());
-        }
+        logger.info("Added " + postcodesFromFile.size() + " postcodes for " + source.getCode());
     }
 
+    @NotNull
+    private PostcodeLocation createPostcodeFor(PostcodeData postcodeData) {
+        return new PostcodeLocation(postcodeData.getGridPosition(), PostcodeLocation.createId(postcodeData.getId()));
+    }
 
     public boolean hasPostcode(PostcodeLocationId postcode) {
-        return postcodesAreas.values().stream().
+        return postcodesByArea.values().stream().
                 anyMatch(map -> map.hasId(postcode));
     }
 
     public Collection<PostcodeLocation> getPostcodes() {
-        return postcodesAreas.values().stream().
+        return postcodesByArea.values().stream().
                 flatMap(CompositeIdMap::getValuesStream).collect(Collectors.toSet());
     }
 
     public Stream<PostcodeLocation> getPostcodesNear(GridPosition location, MarginInMeters meters) {
         Set<String> codes = boundingBoxs.getCodesFor(location, meters);
-        return postcodesAreas.entrySet().stream().
+        return postcodesByArea.entrySet().stream().
                 filter(entry -> codes.contains(entry.getKey())).
                 map(entry -> entry.getValue().getValuesStream()).
                 flatMap(postcodeLocations -> geography.getNearToUnsorted(() -> postcodeLocations, location, meters));
