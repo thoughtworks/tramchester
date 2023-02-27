@@ -39,17 +39,20 @@ public class HttpDownloadAndModTime implements DownloadAndModTime {
     @Override
     public URLStatus getStatusFor(String originalUrl, LocalDateTime localModTime) throws IOException, InterruptedException {
 
-        HttpResponse<Void> response = getHeadersFor(URI.create(originalUrl), localModTime, HttpMethod.HEAD, HttpResponse.BodyHandlers.discarding());
+        // TODO some servers return 200 for HEAD but a redirect status for a GET
+        // So cannot rely on using the HEAD request for getting final URL for a resource
+        HttpResponse<Void> response = fetchHeaders(URI.create(originalUrl), localModTime, HttpMethod.HEAD,
+                HttpResponse.BodyHandlers.discarding());
         HttpHeaders headers = response.headers();
 
         long serverModMillis = getServerModMillis(response);
 
         int httpStatusCode = response.statusCode();
 
-        String finalUrl = originalUrl;
-        final boolean redirect = httpStatusCode == HttpStatus.SC_MOVED_PERMANENTLY
-                || httpStatusCode == HttpStatus.SC_MOVED_TEMPORARILY;
+        final boolean redirect = URLStatus.isRedirectCode(httpStatusCode);
 
+        // might update depending on redirect status
+        String finalUrl = originalUrl;
         if (redirect) {
             Optional<String> locationField = headers.firstValue(org.apache.http.HttpHeaders.LOCATION); // connection.getHeaderField("Location");
             if (locationField.isPresent()) {
@@ -89,8 +92,8 @@ public class HttpDownloadAndModTime implements DownloadAndModTime {
         return serverModMillis;
     }
 
-    private <T> HttpResponse<T> getHeadersFor(URI uri, LocalDateTime localLastMod, String method,
-                                              HttpResponse.BodyHandler<T> bodyHandler) throws IOException, InterruptedException {
+    private <T> HttpResponse<T> fetchHeaders(URI uri, LocalDateTime localLastMod, String method,
+                                             HttpResponse.BodyHandler<T> bodyHandler) throws IOException, InterruptedException {
 
         HttpClient client = HttpClient.newBuilder().build();
         HttpRequest.Builder httpRequestBuilder = HttpRequest.newBuilder().
@@ -143,13 +146,19 @@ public class HttpDownloadAndModTime implements DownloadAndModTime {
     }
 
     @Override
-    public void downloadTo(Path path, String url, LocalDateTime existingLocalModTime) throws IOException, InterruptedException {
+    public URLStatus downloadTo(Path path, String url, LocalDateTime existingLocalModTime) throws IOException, InterruptedException {
         try {
             logger.info(format("Download from %s to %s", url, path.toAbsolutePath()));
             File targetFile = path.toFile();
 
-            HttpResponse<InputStream> response = getHeadersFor(URI.create(url), existingLocalModTime, HttpMethod.GET,
+            HttpResponse<InputStream> response = fetchHeaders(URI.create(url), existingLocalModTime, HttpMethod.GET,
                     HttpResponse.BodyHandlers.ofInputStream());
+
+            int statusCode = response.statusCode();
+            if (statusCode != HttpStatus.SC_OK) {
+                logger.warn("Status code on download not OK, got " + statusCode);
+                return new URLStatus(url, statusCode);
+            }
 
             long serverModMillis = getServerModMillis(response);
             String contentType = getContentType(response);
@@ -178,25 +187,33 @@ public class HttpDownloadAndModTime implements DownloadAndModTime {
             }
 
             if (!targetFile.exists()) {
-                logger.error(format("Failed to download from %s to %s", url, targetFile.getAbsoluteFile()));
-            } else {
-                if (serverModMillis>0) {
-                    if (!targetFile.setLastModified(serverModMillis)) {
-                        logger.warn("Unable to set mod time on " + targetFile);
-                    } else {
-                        logger.info("Set mod time on " + targetFile + " to " + serverModDateTime);
-                    }
-                } else {
-                    logger.warn("Server mod time is zero, not updating local file mod time " + logSuffix);
-                }
+                String msg = format("Failed to download from %s to %s", url, targetFile.getAbsoluteFile());
+                logger.error(msg);
+                throw new RuntimeException(msg);
             }
 
-            //connection.disconnect();
+            URLStatus result;
+            if (serverModMillis>0) {
+                result = new URLStatus(url, statusCode, getLocalDateTime(serverModMillis));
+                if (!targetFile.setLastModified(serverModMillis)) {
+                    logger.warn("Unable to set mod time on " + targetFile);
+                } else {
+                    logger.info("Set mod time on " + targetFile + " to " + serverModDateTime);
+                }
+            } else {
+                result = new URLStatus(url, statusCode);
+                logger.warn("Server mod time is zero, not updating local file mod time " + logSuffix);
+            }
+
+            return result;
+
 
         } catch (IOException | InterruptedException exception) {
-            logger.error(format("Unable to download data from %s to %s exception %s", url, path, exception));
-            throw exception;
+            String msg = format("Unable to download data from %s to %s exception %s", url, path, exception);
+            logger.error(msg);
+            throw new RuntimeException(msg,exception);
         }
+
     }
 
     private void download(InputStream inputStream, File targetFile) throws IOException {
@@ -217,7 +234,6 @@ public class HttpDownloadAndModTime implements DownloadAndModTime {
     }
 
     private void downloadByLength(InputStream inputStream, File targetFile, long len) throws IOException {
-        //final InputStream inputStream = getStreamFor(connection, gziped);
 
         ReadableByteChannel rbc = Channels.newChannel(inputStream);
         FileOutputStream fos = new FileOutputStream(targetFile);

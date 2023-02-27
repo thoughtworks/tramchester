@@ -25,9 +25,9 @@ public class S3DownloadAndModTime implements DownloadAndModTime {
     }
 
     @Override
-    public void downloadTo(Path path, String url, LocalDateTime localModTime) throws IOException, InterruptedException {
+    public URLStatus downloadTo(Path path, String url, LocalDateTime localModTime) throws IOException {
         // there is no equivalent to if-modified-since so don't use localModTime here
-        s3Client.downloadTo(path, url);
+        return s3Client.downloadTo(path, url);
     }
 
 }

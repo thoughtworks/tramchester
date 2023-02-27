@@ -16,6 +16,7 @@ import javax.inject.Inject;
 import java.io.IOException;
 import java.net.UnknownHostException;
 import java.nio.file.Path;
+import java.rmi.RemoteException;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -24,6 +25,8 @@ import static java.lang.String.format;
 @LazySingleton
 public class FetchDataFromUrl {
     private static final Logger logger = LoggerFactory.getLogger(FetchDataFromUrl.class);
+
+    private static final int MAX_REDIRECTS = 6;
 
     private enum RefreshStatus {
         Refreshed,
@@ -211,6 +214,7 @@ public class FetchDataFromUrl {
                 logger.warn("SC_METHOD_NOT_ALLOWED was unable to query using HEAD for " + dataSourceId);
             } else {
                 logger.warn("Could not download for " + dataSourceId + " status was " + status);
+                // TODO
                 return null;
             }
         } else {
@@ -224,8 +228,19 @@ public class FetchDataFromUrl {
         if (isS3) {
             s3Downloader.downloadTo(destination, url, localModTime);
         } else {
-            httpDownloader.downloadTo(destination, url, localModTime);
+            downloadFollowRedirects(destination, url, localModTime);
         }
+    }
+
+    private void downloadFollowRedirects(Path destination, String initialURL, LocalDateTime localModTime) throws IOException, InterruptedException {
+        RedirectStrategy redirectStrategy = new RedirectStrategy() {
+            @Override
+            public URLStatus action(String actualURL) throws InterruptedException, IOException {
+                return httpDownloader.downloadTo(destination, actualURL, localModTime);
+            }
+        };
+
+        redirectStrategy.followRedirects(initialURL);
     }
 
     private URLStatus getStatusFor(String url, boolean isS3, LocalDateTime localModTime) throws IOException, InterruptedException {
@@ -236,29 +251,18 @@ public class FetchDataFromUrl {
     }
 
     private URLStatus getStatusFollowRedirects(String url, LocalDateTime localModTime) throws IOException, InterruptedException {
-        URLStatus status = httpDownloader.getStatusFor(url, localModTime);
+        RedirectStrategy redirectStrategy = new RedirectStrategy() {
+            @Override
+            public URLStatus action(String actualURL) throws InterruptedException, IOException {
+                return httpDownloader.getStatusFor(actualURL, localModTime);
+            }
+        };
 
-        while (status.isRedirect()) {
-            String redirectUrl = status.getActualURL();
-            logger.warn(String.format("Status code %s Following redirect to %s", status.getStatusCode(), redirectUrl));
-            status = httpDownloader.getStatusFor(redirectUrl, localModTime);
-        }
-
-        String message = String.format("Status: %s final url: '%s'",
-                status.getStatusCode(), status.getActualURL());
-
-        if (status.isOk()) {
-            logger.info(message);
-        } else {
-            logger.error(message);
-        }
-
-        return status;
+        return redirectStrategy.followRedirects(url);
     }
 
     private boolean attemptDownload(String url, Path destination, boolean isS3,
                                     LocalDateTime currentModTime)  {
-
         try {
             logger.info(destination + " expired downloading from " + url);
             downloadTo(destination, url, isS3, currentModTime);
@@ -277,6 +281,40 @@ public class FetchDataFromUrl {
     public static class Ready {
         private Ready() {
 
+        }
+    }
+
+    private static abstract class RedirectStrategy {
+        public abstract URLStatus action(String url) throws InterruptedException, IOException;
+
+        public URLStatus followRedirects(String initialURL) throws IOException, InterruptedException {
+            int numRedirects = 0;
+
+            URLStatus status = action(initialURL);
+
+            // TODO will not handle redirect loops!
+            while (status.isRedirect()) {
+                numRedirects ++;
+                if (numRedirects > MAX_REDIRECTS) {
+                    String msg = format("Too many redirects(%S) for %s", numRedirects, initialURL);
+                    logger.error(msg);
+                    throw new RemoteException(msg);
+                }
+                String redirectUrl = status.getActualURL();
+                logger.warn(String.format("Status code %s Following redirect to %s", status.getStatusCode(), redirectUrl));
+                status = action(redirectUrl);
+            }
+
+            String message = String.format("Status: %s final url: '%s'",
+                    status.getStatusCode(), status.getActualURL());
+
+            if (status.isOk()) {
+                logger.info(message);
+            } else {
+                logger.error(message);
+            }
+
+            return status;
         }
     }
 

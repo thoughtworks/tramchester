@@ -45,13 +45,16 @@ class HttpDownloaderTest {
     void shouldDownloadSomething() throws IOException, InterruptedException {
         String url = "https://github.com/fluidicon.png";
 
-        URLStatus status = urlDownloader.getStatusFor(url, localModTime);
-        assertTrue(status.isOk());
-        LocalDateTime modTime = status.getModTime();
+        URLStatus headStatus = urlDownloader.getStatusFor(url, localModTime);
+        assertTrue(headStatus.isOk());
+        LocalDateTime modTime = headStatus.getModTime();
         assertTrue(modTime.isBefore(TestEnv.LocalNow()));
         assertTrue(modTime.isAfter(LocalDateTime.of(2000,1,1,12,59,22)));
 
-        urlDownloader.downloadTo(temporaryFile, url, modTime);
+        URLStatus getStatus = urlDownloader.downloadTo(temporaryFile, url, modTime);
+
+        assertTrue(getStatus.isOk());
+        assertEquals(headStatus.getModTime(), getStatus.getModTime());
 
         assertTrue(temporaryFile.toFile().exists());
         assertTrue(temporaryFile.toFile().length()>0);
@@ -67,15 +70,29 @@ class HttpDownloaderTest {
     }
 
     @Test
-    void shouldHave404StatusForMissingUrl() throws IOException, InterruptedException {
+    void shouldHave404StatusForMissingUrlHead() throws InterruptedException, IOException {
         String url = "http://www.google.com/nothere";
 
-        URLStatus result = urlDownloader.getStatusFor(url, localModTime);
+        URLStatus headStatus = urlDownloader.getStatusFor(url, localModTime);
 
-        assertFalse(result.isOk());
-        assertFalse(result.isRedirect());
+        assertFalse(headStatus.isOk());
+        assertFalse(headStatus.isRedirect());
 
-        assertEquals(404, result.getStatusCode());
+        assertEquals(404, headStatus.getStatusCode());
+    }
+
+    @Test
+    void shouldHave404StatusForMissingDownload() throws IOException, InterruptedException {
+        String url = "http://www.google.com/nothere";
+
+        LocalDateTime modTime = LocalDateTime.MIN;
+        URLStatus getStatus = urlDownloader.downloadTo(temporaryFile, url, modTime);
+
+        assertFalse(getStatus.isOk());
+        assertFalse(getStatus.isRedirect());
+
+        assertEquals(404, getStatus.getStatusCode());
+
     }
 
     @Test

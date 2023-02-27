@@ -3,8 +3,10 @@ package com.tramchester.cloud.data;
 import com.google.common.io.ByteStreams;
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.config.TramchesterConfig;
+import com.tramchester.dataimport.URLStatus;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.codec.digest.DigestUtils;
+import org.apache.http.HttpStatus;
 import org.eclipse.emf.common.util.URI;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
@@ -381,23 +383,27 @@ public class ClientForS3 {
                 build();
     }
 
-    public void downloadTo(Path path, String url) throws IOException {
+    public URLStatus downloadTo(Path path, String url) throws IOException {
         logger.info("Download for for url " + url);
 
         if (!isStarted()) {
-            logger.error("Not started, downloadTo");
-            return;
+            String msg = "Not started, downloadTo";
+            logger.error(msg);
+            throw new RuntimeException(msg);
         }
 
         BucketKey bucketKey = BucketKey.convertFromURI(url);
 
         GetObjectRequest getObjectRequest = createRequestFor(bucketKey);
-        ResponseInputStream<GetObjectResponse> response = s3Client.getObject(getObjectRequest);
-        String remoteMD5 = getETagClean(response.response());
+        ResponseInputStream<GetObjectResponse> responseInputStream = s3Client.getObject(getObjectRequest);
+
+        GetObjectResponse response = responseInputStream.response();
+        String remoteMD5 = getETagClean(response);
+        Instant modInstant = response.lastModified();
 
         FileOutputStream output = new FileOutputStream(path.toFile());
-        ByteStreams.copy(response, output);
-        response.close();
+        ByteStreams.copy(responseInputStream, output);
+        responseInputStream.close();
         output.close();
 
         InputStream writtenFile = new FileInputStream(path.toFile());
@@ -410,6 +416,12 @@ public class ClientForS3 {
         } else  {
             logger.info(format("Downloaded to %s from %s MD5 match md5: '%s'", path.toAbsolutePath(), bucketKey, localMd5));
         }
+
+        return new URLStatus(url, HttpStatus.SC_OK, getLocalDateTime(modInstant));
+    }
+
+    private LocalDateTime getLocalDateTime(Instant modInstant) {
+        return LocalDateTime.ofInstant(modInstant, TramchesterConfig.TimeZoneId);
     }
 
 

@@ -66,7 +66,13 @@ public class URLStatus {
     }
 
     public boolean isRedirect() {
-        return responseCode == HttpStatus.SC_MOVED_PERMANENTLY || responseCode == HttpStatus.SC_MOVED_TEMPORARILY;
+        return isRedirectCode(responseCode);
+    }
+
+    public static boolean isRedirectCode(int code) {
+        return code == HttpStatus.SC_MOVED_PERMANENTLY
+                || code == HttpStatus.SC_MOVED_TEMPORARILY
+                || code == HttpStatus.SC_TEMPORARY_REDIRECT;
     }
 
 }
