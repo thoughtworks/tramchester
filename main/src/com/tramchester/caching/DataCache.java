@@ -5,6 +5,7 @@ import com.fasterxml.jackson.module.afterburner.AfterburnerModule;
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.config.RemoteDataSourceConfig;
 import com.tramchester.config.TramchesterConfig;
+import com.tramchester.dataexport.CsvDataSaver;
 import com.tramchester.dataexport.DataSaver;
 import com.tramchester.dataimport.RemoteDataAvailable;
 import com.tramchester.dataimport.loader.files.TransportDataFromCSVFile;
@@ -108,11 +109,16 @@ public class DataCache {
 
         if (ready) {
             logger.info("Saving " + theClass.getSimpleName() + " to " + path);
-            DataSaver<T> saver = new DataSaver<>(theClass, path, mapper);
+            DataSaver<T> saver = getDataSaverFor(theClass, path);
             data.cacheTo(saver);
         } else {
             logger.error("Not ready, no data saved to " + path);
         }
+    }
+
+    @NotNull
+    private <T> DataSaver<T> getDataSaverFor(Class<T> theClass, Path path) {
+        return new CsvDataSaver<>(theClass, path, mapper);
     }
 
     public <T> boolean has(Cacheable<T> cacheable) {
