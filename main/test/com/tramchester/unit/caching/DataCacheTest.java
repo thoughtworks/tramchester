@@ -1,17 +1,22 @@
 package com.tramchester.unit.caching;
 
+import com.tramchester.caching.CachableData;
 import com.tramchester.caching.DataCache;
 import com.tramchester.caching.LoaderSaverFactory;
 import com.tramchester.config.GTFSSourceConfig;
 import com.tramchester.config.RemoteDataSourceConfig;
 import com.tramchester.dataexport.DataSaver;
 import com.tramchester.dataimport.RemoteDataAvailable;
+import com.tramchester.dataimport.data.CostsPerDegreeData;
+import com.tramchester.dataimport.data.PostcodeHintData;
 import com.tramchester.dataimport.data.RouteIndexData;
 import com.tramchester.domain.DataSourceID;
 import com.tramchester.domain.id.StringIdFor;
+import com.tramchester.geo.BoundingBox;
 import com.tramchester.testSupport.TestConfig;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.tfgm.TFGMRemoteDataSourceConfig;
+import org.checkerframework.checker.units.qual.C;
 import org.easymock.EasyMock;
 import org.easymock.EasyMockSupport;
 import org.junit.jupiter.api.AfterEach;
@@ -20,6 +25,7 @@ import org.junit.jupiter.api.Test;
 
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
@@ -32,9 +38,12 @@ public class DataCacheTest extends EasyMockSupport  {
 
     static final int SIZE = 10000;
     static final Path cacheFolder = TestEnv.CACHE_DIR.resolve("DataCacheTest");
+    public static final String DATA_INDEX_FILENAME = "cacheableTestClass.csv";
+    public static final String HINTS_FILENAME = "cacheableTestClassCSV.csv";
 
     private DataCache dataCache;
-    private List<RouteIndexData> testItems;
+    private List<RouteIndexData> routeIndexTestItems;
+    private List<PostcodeHintData> postcodeHintItems;
     private RemoteDataAvailable remoteDataRefreshed;
 
     @BeforeEach
@@ -48,10 +57,15 @@ public class DataCacheTest extends EasyMockSupport  {
 
         dataCache.clearFiles();
 
-        testItems = ThreadLocalRandom.current().ints().
+        routeIndexTestItems = ThreadLocalRandom.current().ints().
                 limit(SIZE).
                 boxed().map(number -> new RouteIndexData(number, StringIdFor.createId("route"+number))).
                 collect(Collectors.toUnmodifiableList());
+
+        postcodeHintItems = new ArrayList<>();
+        postcodeHintItems.add(new PostcodeHintData("boxA", new BoundingBox(3,4,5,6)));
+        postcodeHintItems.add(new PostcodeHintData("boxB", new BoundingBox(8,9,10,11)));
+        postcodeHintItems.add(new PostcodeHintData("boxC", new BoundingBox(12,13,14,15)));
 
     }
 
@@ -61,68 +75,60 @@ public class DataCacheTest extends EasyMockSupport  {
     }
 
     @Test
-    void shouldCacheClassToDisk() {
+    void shouldCacheRouteIndexDataToDisc() {
 
-        CacheableTestClass cacheableToSave = new CacheableTestClass(testItems);
-        CacheableTestClass cacheableToLoad = new CacheableTestClass();
+        TestData<RouteIndexData> toSave = new TestData<>(routeIndexTestItems, DATA_INDEX_FILENAME);
+        TestData<RouteIndexData> toLoad = new TestData<>(DATA_INDEX_FILENAME);
 
-        Path filePath = cacheFolder.resolve(cacheableToSave.getFilename());
-
-        EasyMock.expect(remoteDataRefreshed.refreshed(DataSourceID.tfgm)).andStubReturn(false);
-
-        replayAll();
-
-        dataCache.start();
-        assertFalse(dataCache.has(cacheableToSave));
-
-        dataCache.save(cacheableToSave, RouteIndexData.class);
-        assertTrue(filePath.toFile().exists());
-        assertTrue(dataCache.has(cacheableToSave));
-
-        // now load
-
-        dataCache.loadInto(cacheableToLoad, RouteIndexData.class);
-        List<RouteIndexData> results = cacheableToLoad.getItems();
-
-        assertEquals(testItems, results);
-        verifyAll();
+        validateCacheClassToDisk(toSave, toLoad, RouteIndexData.class, routeIndexTestItems);
     }
 
     @Test
-    void shouldCacheClassToDiskStopAndReload() {
+    void shouldCachePostcodeHintsToDisk() {
 
-        CacheableTestClass cacheableToSave = new CacheableTestClass(testItems);
-        CacheableTestClass cacheableToLoad = new CacheableTestClass();
+        TestData<PostcodeHintData> toSave = new TestData<>(postcodeHintItems, HINTS_FILENAME);
+        TestData<PostcodeHintData> toLoad = new TestData<>(HINTS_FILENAME);
 
-        EasyMock.expect(remoteDataRefreshed.refreshed(DataSourceID.tfgm)).andStubReturn(false);
+        validateCacheClassToDisk(toSave, toLoad, PostcodeHintData.class, postcodeHintItems);
+    }
 
-        replayAll();
+    @Test
+    void shouldCacheCostsPerDegreeDataToDisk() {
 
-        dataCache.start();
-        assertFalse(dataCache.has(cacheableToSave));
+        String filename = "costsPerDegreeTest.csv";
+        List<CostsPerDegreeData> items = new ArrayList<>();
+        items.add(new CostsPerDegreeData(1,2, Arrays.asList(4,5,6,7)));
+        items.add(new CostsPerDegreeData(8,9, Arrays.asList(1,2,3,4)));
+        items.add(new CostsPerDegreeData(11,12, Arrays.asList(42,43)));
 
-        dataCache.save(cacheableToSave, RouteIndexData.class);
-        dataCache.stop();
+        TestData<CostsPerDegreeData> toSave = new TestData<>(items, filename);
+        TestData<CostsPerDegreeData> toLoad = new TestData<>(filename);
 
-        ////////////////
+        validateCacheClassToDisk(toSave, toLoad, CostsPerDegreeData.class, items);
+    }
 
-        dataCache.start();
+    @Test
+    void shouldCacheCRouteIndexDataToDiskStopAndReload() {
 
-        assertTrue(dataCache.has(cacheableToSave));
+        TestData<RouteIndexData> cacheableToSave = new TestData<>(routeIndexTestItems, DATA_INDEX_FILENAME);
+        TestData<RouteIndexData> cacheableToLoad = new TestData<>(DATA_INDEX_FILENAME);
 
-        dataCache.loadInto(cacheableToLoad, RouteIndexData.class);
+        validateCacheToDiskStopAndReload(cacheableToSave, cacheableToLoad, RouteIndexData.class, routeIndexTestItems);
+    }
 
-        List<RouteIndexData> results = cacheableToLoad.getItems();
+    @Test
+    void shouldCachePostcodeHintsToDiskStopAndReloadCSV() {
 
-        assertEquals(testItems, results);
+        TestData<PostcodeHintData> cacheableToSave = new TestData<>(postcodeHintItems, HINTS_FILENAME);
+        TestData<PostcodeHintData> cacheableToLoad = new TestData<>(HINTS_FILENAME);
 
-        verifyAll();
+        validateCacheToDiskStopAndReload(cacheableToSave, cacheableToLoad, PostcodeHintData.class, postcodeHintItems);
     }
 
     @Test
     void shouldCacheRespectDataUpdated() {
 
-        CacheableTestClass cacheableToSave = new CacheableTestClass(testItems);
+        TestData<RouteIndexData> cacheableToSave = new TestData<>(routeIndexTestItems, DATA_INDEX_FILENAME);
 
         EasyMock.expect(remoteDataRefreshed.refreshed(DataSourceID.tfgm)).andReturn(false);
         EasyMock.expect(remoteDataRefreshed.refreshed(DataSourceID.tfgm)).andReturn(true);
@@ -144,20 +150,75 @@ public class DataCacheTest extends EasyMockSupport  {
         verifyAll();
     }
 
-    private static class CacheableTestClass implements DataCache.CachesData<RouteIndexData> {
+    private <T extends CachableData> void validateCacheClassToDisk(TestData<T> cacheableToSave,
+                                                                   TestData<T> cacheableToLoad,
+                                                                   Class<T> theClass,
+                                                                   List<T> items) {
+        Path filePath = cacheFolder.resolve(cacheableToSave.getFilename());
 
-        private final List<RouteIndexData> list;
+        EasyMock.expect(remoteDataRefreshed.refreshed(DataSourceID.tfgm)).andStubReturn(false);
 
-        private CacheableTestClass() {
-            this(new ArrayList<>());
+        replayAll();
+
+        dataCache.start();
+        assertFalse(dataCache.has(cacheableToSave));
+
+        dataCache.save(cacheableToSave, theClass);
+        assertTrue(filePath.toFile().exists());
+        assertTrue(dataCache.has(cacheableToSave));
+
+        // now load
+
+        dataCache.loadInto(cacheableToLoad, theClass);
+        List<T> results = cacheableToLoad.getItems();
+
+        assertEquals(items, results);
+        verifyAll();
+    }
+
+    private <T extends CachableData> void validateCacheToDiskStopAndReload(TestData<T> cacheableToSave, TestData<T> cacheableToLoad,
+                                                                           Class<T> theClass, List<T> items) {
+        EasyMock.expect(remoteDataRefreshed.refreshed(DataSourceID.tfgm)).andStubReturn(false);
+
+        replayAll();
+
+        dataCache.start();
+        assertFalse(dataCache.has(cacheableToSave));
+
+        dataCache.save(cacheableToSave, theClass);
+        dataCache.stop();
+
+        ////////////////
+
+        dataCache.start();
+
+        assertTrue(dataCache.has(cacheableToSave));
+
+        dataCache.loadInto(cacheableToLoad, theClass);
+
+        List<T> results = cacheableToLoad.getItems();
+
+        assertEquals(items, results);
+
+        verifyAll();
+    }
+
+    private static class TestData<T extends CachableData> implements DataCache.CachesData<T> {
+
+        private final List<T> list;
+        private final String filename;
+
+        private TestData(String filename) {
+            this(new ArrayList<>(), filename);
         }
 
-        public CacheableTestClass(List<RouteIndexData> items) {
+        public TestData(List<T> items, String filename) {
             this.list = items;
+            this.filename = filename;
         }
 
         @Override
-        public void cacheTo(DataSaver<RouteIndexData> saver) {
+        public void cacheTo(DataSaver<T> saver) {
             saver.open();
             list.forEach(saver::write);
             saver.close();
@@ -166,15 +227,15 @@ public class DataCacheTest extends EasyMockSupport  {
 
         @Override
         public String getFilename() {
-            return "cacheableTestClass.csv";
+            return filename;
         }
 
         @Override
-        public void loadFrom(Stream<RouteIndexData> stream) {
+        public void loadFrom(Stream<T> stream) {
             stream.forEach(list::add);
         }
 
-        public List<RouteIndexData> getItems() {
+        public List<T> getItems() {
             return list;
         }
     }

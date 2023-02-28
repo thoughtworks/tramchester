@@ -3,6 +3,8 @@ package com.tramchester.dataimport.data;
 import com.tramchester.caching.CachableData;
 import com.tramchester.geo.BoundingBox;
 
+import java.util.Objects;
+
 public class PostcodeHintData implements CachableData {
     private String code;
     private long minEasting;
@@ -41,5 +43,29 @@ public class PostcodeHintData implements CachableData {
 
     public long getMaxNorthing() {
         return maxNorthing;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        PostcodeHintData that = (PostcodeHintData) o;
+        return minEasting == that.minEasting && minNorthing == that.minNorthing && maxEasting == that.maxEasting && maxNorthing == that.maxNorthing && code.equals(that.code);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(code, minEasting, minNorthing, maxEasting, maxNorthing);
+    }
+
+    @Override
+    public String toString() {
+        return "PostcodeHintData{" +
+                "code='" + code + '\'' +
+                ", minEasting=" + minEasting +
+                ", minNorthing=" + minNorthing +
+                ", maxEasting=" + maxEasting +
+                ", maxNorthing=" + maxNorthing +
+                '}';
     }
 }

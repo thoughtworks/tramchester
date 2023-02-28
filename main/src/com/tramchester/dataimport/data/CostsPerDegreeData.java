@@ -3,6 +3,7 @@ package com.tramchester.dataimport.data;
 import com.tramchester.caching.CachableData;
 
 import java.util.List;
+import java.util.Objects;
 
 public class CostsPerDegreeData implements CachableData {
     private int index;
@@ -29,5 +30,18 @@ public class CostsPerDegreeData implements CachableData {
 
     public List<Integer> getSetBits() {
         return setBits;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        CostsPerDegreeData that = (CostsPerDegreeData) o;
+        return index == that.index && routeIndex == that.routeIndex && setBits.equals(that.setBits);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(index, routeIndex, setBits);
     }
 }
