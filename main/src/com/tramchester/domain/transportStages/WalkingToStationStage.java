@@ -40,7 +40,7 @@ public class WalkingToStationStage extends WalkingStage<MyLocation, Station> {
 
     @Override
     public StringIdFor<Trip> getTripId() {
-        return StringIdFor.invalid();
+        return StringIdFor.invalid(Trip.class);
     }
 
     @Override

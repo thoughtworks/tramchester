@@ -33,7 +33,7 @@ public class MutableRoute implements Route {
 
     public static final Route Walking;
     static {
-            Walking = new MutableRoute(StringIdFor.createId("Walk"), "Walk", "Walk", MutableAgency.Walking,
+            Walking = new MutableRoute(StringIdFor.createId("Walk", Route.class), "Walk", "Walk", MutableAgency.Walking,
                     TransportMode.Walk);
     }
 

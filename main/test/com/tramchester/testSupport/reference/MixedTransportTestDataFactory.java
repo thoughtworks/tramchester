@@ -9,6 +9,7 @@ import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.input.MutableTrip;
 import com.tramchester.domain.input.NoPlatformStopCall;
+import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.MutableStation;
 import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
@@ -65,20 +66,20 @@ public class MixedTransportTestDataFactory implements TransportDataFactory {
 
     private void populateTestData(TransportDataContainer container) {
 
-        MutableAgency ferryAgency = new MutableAgency(DataSourceID.rail, StringIdFor.createId("FER"), "ferryAgency");
-        MutableRoute ferryRoute = new MutableRoute(StringIdFor.createId("FER:42:C"), "42", "Lakes",
+        MutableAgency ferryAgency = new MutableAgency(DataSourceID.rail, Agency.createId("FER"), "ferryAgency");
+        MutableRoute ferryRoute = new MutableRoute(Route.createId("FER:42:C"), "42", "Lakes",
                 ferryAgency, TransportMode.Ferry);
 
-        final MutableAgency highPeakBuses = new MutableAgency(DataSourceID.tfgm, StringIdFor.createId("HGP"),
+        final MutableAgency highPeakBuses = new MutableAgency(DataSourceID.tfgm, Agency.createId("HGP"),
                 "High Peak Buses");
 
-        final MutableAgency warringtonsOwnBuses = new MutableAgency(DataSourceID.tfgm, StringIdFor.createId("WBTR"),
+        final MutableAgency warringtonsOwnBuses = new MutableAgency(DataSourceID.tfgm, Agency.createId("WBTR"),
                 "Warringtons Own Buses");
 
-        MutableRoute routeA = new MutableRoute(StringIdFor.createId("HGP:199:I:"), "199",
+        MutableRoute routeA = new MutableRoute(Route.createId("HGP:199:I:"), "199",
                 "Manchester Airport - Stockport - Buxton Skyline", highPeakBuses, Bus);
 
-        MutableRoute routeC = new MutableRoute(StringIdFor.createId("WBTR05A:I:"), "5A",
+        MutableRoute routeC = new MutableRoute(Route.createId("WBTR05A:I:"), "5A",
                 "Alty to Stockport", warringtonsOwnBuses, Bus);
 
         highPeakBuses.addRoute(routeA);
@@ -114,7 +115,7 @@ public class MixedTransportTestDataFactory implements TransportDataFactory {
         container.addRoute(routeC);
 
         // tripA: FIRST_STATION -> SECOND_STATION -> INTERCHANGE -> LAST_STATION
-        MutableTrip tripA = new MutableTrip(StringIdFor.createId(MixedTransportTestData.TRIP_A_ID), "headSign",
+        MutableTrip tripA = new MutableTrip(Trip.createId(MixedTransportTestData.TRIP_A_ID), "headSign",
                 serviceA, routeA, routeA.getTransportMode());
         serviceA.addTrip(tripA);
 
@@ -162,7 +163,7 @@ public class MixedTransportTestDataFactory implements TransportDataFactory {
         addAStation(container, stationFive);
 
         //
-        MutableTrip tripC = new MutableTrip(StringIdFor.createId("tripCId"), "headSignC",
+        MutableTrip tripC = new MutableTrip(Trip.createId("tripCId"), "headSignC",
                 serviceC, routeC, routeC.getTransportMode());
         serviceC.addTrip(tripC);
         NoPlatformStopCall stopG = createStop(tripC, interchangeStation, TramTime.of(8, 26),
@@ -211,7 +212,7 @@ public class MixedTransportTestDataFactory implements TransportDataFactory {
 
     private static void createInterchangeToStation4Trip(TransportDataContainer container, MutableRoute route, MutableService service,
                                                         Station interchangeStation, Station station, LocalTime startTime, String tripId) {
-        MutableTrip trip = new MutableTrip(StringIdFor.createId(tripId), "headSignTripB2", service, route, route.getTransportMode());
+        MutableTrip trip = new MutableTrip(Trip.createId(tripId), "headSignTripB2", service, route, route.getTransportMode());
         service.addTrip(trip);
         NoPlatformStopCall stop1 = createStop(trip, interchangeStation, TramTime.ofHourMins(startTime),
                 TramTime.ofHourMins(startTime.plusMinutes(5)), 1);
@@ -231,9 +232,9 @@ public class MixedTransportTestDataFactory implements TransportDataFactory {
 
     public static class MixedTransportTestData extends TransportDataContainer {
 
-        private static final IdFor<Service> serviceAId = StringIdFor.createId("serviceAId");
-        private static final IdFor<Service> serviceBId = StringIdFor.createId("serviceBId");
-        private static final IdFor<Service> serviceCId = StringIdFor.createId("serviceCId");
+        private static final IdFor<Service> serviceAId = Service.createId("serviceAId");
+        private static final IdFor<Service> serviceBId = Service.createId("serviceBId");
+        private static final IdFor<Service> serviceCId = Service.createId("serviceCId");
 
         public static final String TRIP_A_ID = "tripAId";
         public static final String PREFIX = "XXX";
@@ -254,19 +255,19 @@ public class MixedTransportTestDataFactory implements TransportDataFactory {
         }
 
         public Station getFirst() {
-            return getStationById(StringIdFor.createId(FIRST_STATION));
+            return getStationById(Station.createId(FIRST_STATION));
         }
 
         public Station getSecond() {
-            return getStationById(StringIdFor.createId(SECOND_STATION));
+            return getStationById(Station.createId(SECOND_STATION));
         }
 
         public Station getLast() {
-            return getStationById(StringIdFor.createId(LAST_STATION));
+            return getStationById(Station.createId(LAST_STATION));
         }
 
         public Station getFourthStation() {
-            return getStationById(StringIdFor.createId(STATION_FOUR));
+            return getStationById(Station.createId(STATION_FOUR));
         }
 
         @Override

@@ -4,6 +4,7 @@ import com.tramchester.domain.CoreDomain;
 import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdSet;
+import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.geo.GridPosition;
 import com.tramchester.repository.naptan.NaptanStopType;
@@ -30,6 +31,10 @@ public class NaptanRecord implements HasId<NaptanRecord>, CoreDomain {
         this.suburb = suburb;
         this.town = town;
         this.stopType = stopType;
+    }
+
+    public static IdFor<NaptanRecord> createId(String text) {
+        return StringIdFor.createId(text, NaptanRecord.class);
     }
 
     @Override

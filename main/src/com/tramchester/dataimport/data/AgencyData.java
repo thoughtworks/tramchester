@@ -23,6 +23,6 @@ public class AgencyData {
     }
 
     public IdFor<Agency> getId() {
-        return StringIdFor.createId(id);
+        return Agency.createId(id);
     }
 }

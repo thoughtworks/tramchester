@@ -8,6 +8,7 @@ import com.tramchester.domain.id.IdFor;
 
 import java.io.IOException;
 
+@Deprecated
 public class RouteIdSerializer extends StdSerializer<IdFor<Route>> {
 
     protected RouteIdSerializer() {

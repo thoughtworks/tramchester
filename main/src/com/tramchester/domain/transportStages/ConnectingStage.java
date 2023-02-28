@@ -95,7 +95,7 @@ public class ConnectingStage<FROM extends Location<?>, DEST extends Location<?>>
 
     @Override
     public StringIdFor<Trip> getTripId() {
-        return StringIdFor.invalid();
+        return StringIdFor.invalid(Trip.class);
     }
 
     @Override

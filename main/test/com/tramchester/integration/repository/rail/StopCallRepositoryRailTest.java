@@ -88,8 +88,8 @@ public class StopCallRepositoryRailTest {
     @Disabled("Data does contain a zero cost trip X13514:20220124:20220127")
     @Test
     void shouldReproIssueWithIncorrectZeroCosts() {
-        Station mulsecoomb = stationRepository.getStationById(StringIdFor.createId("MLSECMB"));
-        Station londonRoadBrighton = stationRepository.getStationById(StringIdFor.createId("BRGHLRD"));
+        Station mulsecoomb = stationRepository.getStationById(Station.createId("MLSECMB"));
+        Station londonRoadBrighton = stationRepository.getStationById(Station.createId("BRGHLRD"));
 
         Set<Route> calling = routeRepository.getRoutes().stream().
                 flatMap(route -> route.getTrips().stream()).

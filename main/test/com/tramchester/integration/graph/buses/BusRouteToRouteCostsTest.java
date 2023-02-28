@@ -109,7 +109,7 @@ public class BusRouteToRouteCostsTest {
 
     @Test
     void shouldHaveCorrectCostBetweenRoutesDiffDirections() {
-        IdFor<Agency> agencyId = StringIdFor.createId("DAGC");
+        IdFor<Agency> agencyId = Agency.createId("DAGC");
         Set<Route> altyToKnutsford = routeRepository.findRoutesByName(agencyId,
                 "Altrincham - Macclesfield");
         assertEquals(2, altyToKnutsford.size());

@@ -28,15 +28,15 @@ public class TripData {
     }
 
     public IdFor<Route> getRouteId() {
-        return StringIdFor.createId(removeSpaces(routeId));
+        return Route.createId(removeSpaces(routeId));
     }
 
     public IdFor<Service> getServiceId() {
-        return  StringIdFor.createId(serviceId);
+        return  Service.createId(serviceId);
     }
 
     public IdFor<Trip> getTripId() {
-        return StringIdFor.createId(tripId);
+        return Trip.createId(tripId);
     }
 
     public String getHeadsign() {

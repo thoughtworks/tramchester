@@ -137,7 +137,7 @@ public class RailTransportDataFromFilesTest {
 
     @Test
     void shouldNotLoadTFGMMetStations() {
-        final IdFor<Station> unwantedStation = StringIdFor.createId("ALTRMET");
+        final IdFor<Station> unwantedStation = Station.createId("ALTRMET");
 
         // TODO Split active vs inactive stations? Problem is don't know modes until after the load
         // likely need to split station load into temp collection first and post filter
@@ -178,7 +178,7 @@ public class RailTransportDataFromFilesTest {
     void shouldGetSpecificStationWithoutPosition() {
         // A    KILLARNEY   (CIE              0KILARNYKLL   KLL00000E00000 5
 
-        Station result = transportData.getStationById(StringIdFor.createId("KILARNY"));
+        Station result = transportData.getStationById(Station.createId("KILARNY"));
 
         assertEquals("KILLARNEY   (CIE", result.getName());
         assertFalse(result.getGridPosition().isValid());
@@ -279,7 +279,7 @@ public class RailTransportDataFromFilesTest {
         IdFor<Station> stationId = LondonWaterloo.getId();
         Station station = transportData.getStationById(stationId);
 
-        IdFor<Platform> platformId = StringIdFor.createId("WATRLMN:12");
+        IdFor<Platform> platformId = Platform.createId("WATRLMN:12");
 
         Optional<Platform> result = station.getPlatforms().stream().filter(platform -> platform.getId().equals(platformId)).findFirst();
 
@@ -340,7 +340,7 @@ public class RailTransportDataFromFilesTest {
 
     @Test
     void shouldHaveRoutesForAgencyStartAndEnd() {
-        IdFor<Agency> agencyId = StringIdFor.createId("VT");
+        IdFor<Agency> agencyId = Agency.createId("VT");
         Optional<Agency> foundAgency = transportData.getAgencies().stream().
                 filter(agency -> agency.getId().equals(agencyId)).findFirst();
 
@@ -380,7 +380,7 @@ public class RailTransportDataFromFilesTest {
     @Disabled("Service not in latest data")
     @Test
     void reproIssueWithCrossingMidnightThatOnlyOccursWhenWholeFileLoaded() {
-        Service service = transportData.getServiceById(StringIdFor.createId("N51867:20220730:20220730"));
+        Service service = transportData.getServiceById(Service.createId("N51867:20220730:20220730"));
 
         TramTime startTime = service.getStartTime();
         TramTime finishTime = service.getFinishTime();
@@ -443,7 +443,7 @@ public class RailTransportDataFromFilesTest {
     @Disabled("trip not in latest data")
     @Test
     void reproIssueWithStopLegsOnSpecificTrip() {
-        IdFor<Trip> tripIdFor = StringIdFor.createId("trip:C43611:20220703:20220703OVERLAY");
+        IdFor<Trip> tripIdFor = Trip.createId("trip:C43611:20220703:20220703OVERLAY");
 
         Trip trip = transportData.getTripById(tripIdFor);
 
@@ -457,7 +457,7 @@ public class RailTransportDataFromFilesTest {
     void shouldHaveTransportModeSetForARequestStop() {
 
         // this station is only listed as a request stop in the timetable
-        Station station = transportData.getStationById(StringIdFor.createId("HOPTONH"));
+        Station station = transportData.getStationById(Station.createId("HOPTONH"));
 
         Set<TransportMode> modes = station.getTransportModes();
         assertFalse(modes.isEmpty(), station.toString());
@@ -469,7 +469,7 @@ public class RailTransportDataFromFilesTest {
 
     @Test
     void shouldHaveStationsWithNoStops() {
-        Station station = transportData.getStationById(StringIdFor.createId("LCHTNJ"));
+        Station station = transportData.getStationById(Station.createId("LCHTNJ"));
 
         Set<TransportMode> modes = station.getTransportModes();
         assertTrue(modes.isEmpty(), station.toString());

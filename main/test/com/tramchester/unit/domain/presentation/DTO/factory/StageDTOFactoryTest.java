@@ -1,16 +1,20 @@
 package com.tramchester.unit.domain.presentation.DTO.factory;
 
-import com.tramchester.domain.*;
+import com.tramchester.domain.DataSourceID;
+import com.tramchester.domain.MutableService;
+import com.tramchester.domain.Route;
+import com.tramchester.domain.Service;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.input.MutableTrip;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.MyLocation;
+import com.tramchester.domain.places.NaptanArea;
 import com.tramchester.domain.places.Station;
-import com.tramchester.domain.presentation.DTO.StageDTO;
 import com.tramchester.domain.presentation.DTO.LocationRefWithPosition;
-import com.tramchester.domain.presentation.DTO.factory.StageDTOFactory;
+import com.tramchester.domain.presentation.DTO.StageDTO;
 import com.tramchester.domain.presentation.DTO.factory.DTOFactory;
+import com.tramchester.domain.presentation.DTO.factory.StageDTOFactory;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.presentation.TransportStage;
 import com.tramchester.domain.presentation.TravelAction;
@@ -25,11 +29,9 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.time.Duration;
-import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.List;
 
-import static com.tramchester.domain.id.StringIdFor.createId;
 import static com.tramchester.testSupport.reference.KnownLocations.nearAltrincham;
 import static com.tramchester.testSupport.reference.TramStations.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -71,13 +73,13 @@ class StageDTOFactoryTest extends EasyMockSupport {
     @Test
     void shouldCreateStageDTOCorrectlyForTransportStage() {
         Route testRoute = TestEnv.getTramTestRoute();
-        Service service = MutableService.build(createId("svcId"));
-        Trip trip = MutableTrip.build(createId("tripId"), "headSign", service, testRoute);
+        Service service = MutableService.build(Service.createId("svcId"));
+        Trip trip = MutableTrip.build(Trip.createId("tripId"), "headSign", service, testRoute);
 
         List<Integer> stopCallIndexes = Arrays.asList(1,2,3,4);
 
         Station firstStation = MarketStreet.fakeWithPlatform("platFormId",
-                new LatLong(1, 1), DataSourceID.unknown, IdFor.invalid());
+                new LatLong(1, 1), DataSourceID.unknown, NaptanArea.invalidId());
 
         VehicleStage vehicleStage = new VehicleStage(firstStation, testRoute,
                 TransportMode.Tram, trip, TramTime.of(0, 0), Bury.fake(),

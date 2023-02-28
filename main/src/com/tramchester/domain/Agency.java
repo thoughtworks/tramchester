@@ -14,7 +14,7 @@ public interface Agency extends HasId<Agency>, CoreDomain {
     }
 
     static IdFor<Agency> createId(String text) {
-        return StringIdFor.createId(text);
+        return StringIdFor.createId(text, Agency.class);
     }
 
     Collection<Route> getRoutes();

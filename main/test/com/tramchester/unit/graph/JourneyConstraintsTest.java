@@ -81,7 +81,7 @@ public class JourneyConstraintsTest extends EasyMockSupport {
 
     @Test
     void shouldCheckIfServiceRunningOnDate() {
-        IdFor<Service> serviceId = StringIdFor.createId("serviceA");
+        IdFor<Service> serviceId = Service.createId("serviceA");
 
         TramTime visitTime = TramTime.of(13,56);
 
@@ -96,7 +96,7 @@ public class JourneyConstraintsTest extends EasyMockSupport {
 
     @Test
     void shouldCheckIfServiceRunningOnDateNextDay() {
-        IdFor<Service> serviceId = StringIdFor.createId("serviceA");
+        IdFor<Service> serviceId = Service.createId("serviceA");
 
         TramTime visitTime = TramTime.nextDay(13,56);
 
@@ -111,7 +111,7 @@ public class JourneyConstraintsTest extends EasyMockSupport {
 
     @Test
     void shouldCheckIfServiceRunningAtTime() {
-        IdFor<Service> serviceId = StringIdFor.createId("serviceA");
+        IdFor<Service> serviceId = Service.createId("serviceA");
 
         TramTime visitTime = TramTime.of(13,56);
 

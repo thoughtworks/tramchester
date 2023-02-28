@@ -23,7 +23,7 @@ public class RouteStationId implements IdFor<RouteStation> {
     public static IdFor<RouteStation> parse(String text) {
         int indexOf = text.indexOf(DIVIDER);
         if (indexOf<0) {
-            return StringIdFor.invalid();
+            return StringIdFor.invalid(RouteStation.class);
         }
         IdFor<Route> routeId  = Route.createId(text.substring(0, indexOf));
         IdFor<Station> stationId = Station.createId(text.substring(indexOf+1));
@@ -43,6 +43,11 @@ public class RouteStationId implements IdFor<RouteStation> {
     @Override
     public boolean isValid() {
         return routeId.isValid() && stationId.isValid();
+    }
+
+    @Override
+    public Class<RouteStation> getDomainType() {
+        return RouteStation.class;
     }
 
     @Override

@@ -249,7 +249,7 @@ class BusRouteCalculatorTest {
         JourneyRequest journeyRequest = new JourneyRequest(when, TramTime.of(9,40),
                 false, maxChanges, maxJourneyDuration, 3, getRequestedModes());
 
-        Station asdaBroadhealth = stationRepository.getStationById(StringIdFor.createId("1800SJ18511"));
+        Station asdaBroadhealth = stationRepository.getStationById(Station.createId("1800SJ18511"));
         assertNotNull(asdaBroadhealth);
 
         Set<Journey> journeys = calculator.calculateRouteAsSet(shudehillInterchange, asdaBroadhealth, journeyRequest);

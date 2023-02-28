@@ -92,7 +92,7 @@ class BusRouteCalculatorSubGraphAltyToMaccRoute {
     @BeforeEach
     void beforeEachTestRuns() {
         RouteRepository routeRepository = componentContainer.get(TransportData.class);
-        IdFor<Agency> agencyId = StringIdFor.createId("DAGC");
+        IdFor<Agency> agencyId = Agency.createId("DAGC");
         altyToKnutsford = routeRepository.findRoutesByName(agencyId,
                 "Altrincham - Wilmslow - Knutsford - Macclesfield");
         knutsfordToAlty = routeRepository.findRoutesByName(agencyId,
@@ -190,7 +190,7 @@ class BusRouteCalculatorSubGraphAltyToMaccRoute {
 
                 List<IdFor<Station>> ids = stopCalls.stream().map(stopCall -> stopCall.getStation().getId()).collect(Collectors.toList());
 
-                int knutsfordIndex = ids.indexOf(StringIdFor.createId("0600MA6022")); // services beyond here are infrequent
+                int knutsfordIndex = ids.indexOf(Station.createId("0600MA6022")); // services beyond here are infrequent
                 Station firstStation = stopCalls.getFirstStop().getStation();
 
                 TramTime time = TramTime.of(9, 20);

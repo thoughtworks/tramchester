@@ -103,7 +103,7 @@ public enum KnownTramRoute {
     }
 
     private IdFor<Route> createId(String stationId) {
-        return StringIdFor.createId(stationId);
+        return Route.createId(stationId);
     }
 
     public RouteDirection direction() {

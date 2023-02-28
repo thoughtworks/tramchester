@@ -81,7 +81,7 @@ public class MinuteState extends TraversalState {
 
     private static IdFor<Trip> getTrip(Node endNode) {
         if (!GraphProps.hasProperty(TRIP_ID, endNode)) {
-            return new InvalidId<>();
+            return new InvalidId<>(Trip.class);
         }
         return GraphProps.getTripId(endNode);
     }

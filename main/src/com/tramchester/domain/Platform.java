@@ -15,7 +15,7 @@ public interface Platform extends GraphProperty, CoreDomain, Location<Platform> 
     Set<Route> getRoutes();
 
     static IdFor<Platform> createId(String text) {
-        return StringIdFor.createId(text);
+        return StringIdFor.createId(text, Platform.class);
     }
 
     Station getStation();

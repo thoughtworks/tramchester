@@ -93,7 +93,7 @@ public class RouteRepositoryTest {
 
     @Test
     void extraRouteAtShudehillTowardsEcclesFromVictoria() {
-        Route towardsEcclesRoute = routeRepository.getRouteById(StringIdFor.createId("METLBLUE:I:CURRENT"));
+        Route towardsEcclesRoute = routeRepository.getRouteById(Route.createId("METLBLUE:I:CURRENT"));
         List<Trip> ecclesTripsViaShudehill = towardsEcclesRoute.getTrips().stream().
                 filter(trip -> trip.callsAt(Shudehill)).collect(Collectors.toList());
 
@@ -107,7 +107,7 @@ public class RouteRepositoryTest {
 
     @Test
     void extraRouteAtShudehillFromEcclesToVictoria() {
-        Route towardsEcclesRoute = routeRepository.getRouteById(StringIdFor.createId("METLBLUE:O:CURRENT"));
+        Route towardsEcclesRoute = routeRepository.getRouteById(Route.createId("METLBLUE:O:CURRENT"));
         List<Trip> ecclesTripsViaShudehill = towardsEcclesRoute.getTrips().stream().
                 filter(trip -> trip.getStopCalls().callsAt(Shudehill)).collect(Collectors.toList());
 

@@ -2,10 +2,11 @@ package com.tramchester.unit.domain;
 
 import com.tramchester.domain.*;
 import com.tramchester.domain.dates.TramDate;
-import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdSet;
+import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.input.MutableTrip;
 import com.tramchester.domain.input.Trip;
+import com.tramchester.domain.places.NaptanArea;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.DTO.LocationRefDTO;
 import com.tramchester.domain.presentation.DTO.factory.DTOFactory;
@@ -33,7 +34,6 @@ import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.*;
 
-import static com.tramchester.domain.id.StringIdFor.createId;
 import static com.tramchester.domain.presentation.Note.NoteType.Live;
 import static com.tramchester.domain.reference.TransportMode.*;
 import static com.tramchester.testSupport.reference.KnownLocations.nearAltrincham;
@@ -340,15 +340,16 @@ class ProvidesTramNotesTest extends EasyMockSupport {
     void shouldAddNotesForJourneysBasedOnLiveDataIfPresent() {
         EasyMock.expect(platformMessageSource.isEnabled()).andReturn(true);
 
-        VehicleStage stageA = createStageWithBoardingPlatform("platformId1", Bury);
-        VehicleStage stageB = createStageWithBoardingPlatform("platformId2", Cornbrook);
-        VehicleStage stageC = createStageWithBoardingPlatform("platformId3", NavigationRoad);
-        WalkingToStationStage stageD = new WalkingToStationStage(nearAltrincham.location(), Ashton.fake(),
+        VehicleStage stageABury = createStageWithBoardingPlatform("platformId1", Bury);
+        VehicleStage stageBCornbrook = createStageWithBoardingPlatform("platformId2", Cornbrook);
+        VehicleStage stageCNavigationRoad = createStageWithBoardingPlatform("platformId3", NavigationRoad);
+
+        WalkingToStationStage stageDAshton = new WalkingToStationStage(nearAltrincham.location(), Ashton.fake(),
                 Duration.ofMinutes(7), TramTime.of(8,11));
-        VehicleStage stageE = createStageWithBoardingPlatform("platformId5", Altrincham);
+
+        VehicleStage stageEAlty = createStageWithBoardingPlatform("platformId5", Altrincham);
 
         TramDate date = TramDate.from(lastUpdate);
-        //TramServiceDate serviceDate = new TramServiceDate(date);
         TramTime queryTime = TramTime.ofHourMins(lastUpdate.toLocalTime());
 
         final String messageOne = "Some long message";
@@ -359,14 +360,15 @@ class ProvidesTramNotesTest extends EasyMockSupport {
         PlatformMessage infoC = createPlatformMessage(lastUpdate, Cornbrook, messageOne);
         PlatformMessage infoE = createPlatformMessage(lastUpdate, MediaCityUK, messageOne);
 
-        EasyMock.expect(platformMessageSource.messagesFor(stageE.getBoardingPlatform().getId(), date, queryTime)).
-                andReturn(Optional.of(infoE));
-        EasyMock.expect(platformMessageSource.messagesFor(stageB.getBoardingPlatform().getId(), date, queryTime)).
-                andReturn(Optional.of(infoB));
-        EasyMock.expect(platformMessageSource.messagesFor(stageC.getBoardingPlatform().getId(), date, queryTime)).
-                andReturn(Optional.of(infoC));
-        EasyMock.expect(platformMessageSource.messagesFor(stageA.getBoardingPlatform().getId(), date, queryTime)).
+        EasyMock.expect(platformMessageSource.messagesFor(stageABury.getBoardingPlatform().getId(), date, queryTime)).
                 andReturn(Optional.of(infoA));
+        EasyMock.expect(platformMessageSource.messagesFor(stageBCornbrook.getBoardingPlatform().getId(), date, queryTime)).
+                andReturn(Optional.of(infoB));
+        EasyMock.expect(platformMessageSource.messagesFor(stageCNavigationRoad.getBoardingPlatform().getId(), date, queryTime)).
+                andReturn(Optional.of(infoC));
+        EasyMock.expect(platformMessageSource.messagesFor(stageEAlty.getBoardingPlatform().getId(), date, queryTime)).
+                andReturn(Optional.of(infoE));
+
 
         final StationNote noteOne = new StationNote(Live, messageOne, createStationRefFor(Pomona));
         final StationNote noteTwo = new StationNote(Live, messageOne, createStationRefFor(Cornbrook));
@@ -378,7 +380,7 @@ class ProvidesTramNotesTest extends EasyMockSupport {
         EasyMock.expect(stationDTOFactory.createStationNote(Live, messageOne, MediaCityUK.fake())).andReturn(noteThree);
         EasyMock.expect(stationDTOFactory.createStationNote(Live, messageTwo, Altrincham.fake())).andReturn(noteFour);
 
-        List<TransportStage<?,?>> stages = Arrays.asList(stageA, stageB, stageC, stageD, stageE);
+        List<TransportStage<?,?>> stages = Arrays.asList(stageABury, stageBCornbrook, stageCNavigationRoad, stageDAshton, stageEAlty);
 
         Journey journey = new Journey(queryTime.plusMinutes(5), queryTime, queryTime.plusMinutes(10), stages, Collections.emptyList(), requestedNumberChanges);
 
@@ -450,7 +452,7 @@ class ProvidesTramNotesTest extends EasyMockSupport {
     private PlatformMessage createPlatformMessage(LocalDateTime lastUpdate, TramStations tramStation, String message) {
 
         Station station = tramStation.fakeWithPlatform(tramStation.getRawId() + "1",
-                tramStation.getLatLong(), DataSourceID.unknown, IdFor.invalid());
+                tramStation.getLatLong(), DataSourceID.unknown, NaptanArea.invalidId());
 
         Platform platform = TestEnv.onlyPlatform(station);
         return new PlatformMessage(platform, message, lastUpdate, station, "displayId");
@@ -466,14 +468,14 @@ class ProvidesTramNotesTest extends EasyMockSupport {
 
     private VehicleStage createStageWithBoardingPlatform(String platformId, LatLong latLong) {
         TramTime departTime = TramTime.of(11,22);
-        Service service = MutableService.build(createId("serviceId"));
-        Trip trip = MutableTrip.build(createId("tripId"), "headSign", service,
+        Service service = MutableService.build(Service.createId("serviceId"));
+        Trip trip = MutableTrip.build(Trip.createId("tripId"), "headSign", service,
                 TestEnv.getTramTestRoute());
 
         // TODO
         List<Integer> passedStations = new ArrayList<>();
 
-        final Station firstStation = Ashton.fakeWithPlatform(platformId,  latLong, DataSourceID.unknown, IdFor.invalid());
+        final Station firstStation = Ashton.fakeWithPlatform(platformId,  latLong, DataSourceID.unknown, NaptanArea.invalidId());
 
         VehicleStage vehicleStage = new VehicleStage(firstStation, TestEnv.getTramTestRoute(), Tram,
                 trip, departTime, createStationFor(PiccadillyGardens), passedStations);

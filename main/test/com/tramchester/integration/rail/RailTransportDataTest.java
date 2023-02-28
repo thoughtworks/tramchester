@@ -10,6 +10,7 @@ import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.input.StopCalls;
 import com.tramchester.domain.input.Trip;
+import com.tramchester.domain.places.Station;
 import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.integration.testSupport.rail.IntegrationRailTestConfig;
@@ -108,8 +109,8 @@ public class RailTransportDataTest {
         // 19 - 2 passing records
         assertEquals(17, calls.numberOfCallingPoints(), calls.toString());
 
-        assertEquals(StringIdFor.createId("WATRLMN"), calls.getFirstStop().getStation().getId());
-        assertEquals(StringIdFor.createId("SHEPRTN"), calls.getLastStop().getStation().getId());
+        assertEquals(Station.createId("WATRLMN"), calls.getFirstStop().getStation().getId());
+        assertEquals(Station.createId("SHEPRTN"), calls.getLastStop().getStation().getId());
 
     }
 
@@ -202,7 +203,7 @@ public class RailTransportDataTest {
         Set<Service> services = dataContainer.getServices();
         assertEquals(2, services.size());
 
-        Service service = dataContainer.getServiceById(StringIdFor.createId("N51867:20220730:20220730"));
+        Service service = dataContainer.getServiceById(Service.createId("N51867:20220730:20220730"));
 
         TramTime startTime = service.getStartTime();
         TramTime finishTime = service.getFinishTime();
@@ -370,7 +371,7 @@ public class RailTransportDataTest {
         Set<Service> services = dataContainer.getServices();
         assertEquals(1, services.size());
 
-        IdFor<Service> serviceId = StringIdFor.createId("C43611:20220703:20220703OVERLAY");
+        IdFor<Service> serviceId = Service.createId("C43611:20220703:20220703OVERLAY");
 
         Service service = dataContainer.getServiceById(serviceId);
 
@@ -439,7 +440,7 @@ public class RailTransportDataTest {
         Set<Service> services = dataContainer.getServices();
         assertEquals(1, services.size());
 
-        IdFor<Service> serviceId = StringIdFor.createId("X62545:20230129:20230129");
+        IdFor<Service> serviceId = Service.createId("X62545:20230129:20230129");
 
         Service service = dataContainer.getServiceById(serviceId);
 

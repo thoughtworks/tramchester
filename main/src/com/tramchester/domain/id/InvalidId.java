@@ -4,8 +4,11 @@ import com.tramchester.domain.CoreDomain;
 
 public class InvalidId<T extends CoreDomain> implements IdFor<T> {
 
-    public InvalidId() {
+    private final Class<T> domainType;
 
+    public InvalidId(Class<T> domainType) {
+
+        this.domainType = domainType;
     }
 
     @Override
@@ -21,6 +24,11 @@ public class InvalidId<T extends CoreDomain> implements IdFor<T> {
     @Override
     public boolean isValid() {
         return false;
+    }
+
+    @Override
+    public Class<T> getDomainType() {
+        return domainType;
     }
 
     @Override

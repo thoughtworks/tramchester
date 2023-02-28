@@ -158,7 +158,7 @@ public class RailServiceGroups {
         if (isOverlay) {
             text = text + "OVERLAY";
         }
-        return StringIdFor.createId(text);
+        return Service.createId(text);
     }
 
     public void reportUnmatchedCancellations() {

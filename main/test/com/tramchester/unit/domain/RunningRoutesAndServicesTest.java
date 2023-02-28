@@ -44,13 +44,13 @@ public class RunningRoutesAndServicesTest extends EasyMockSupport {
 
         serviceA = createMock(Service.class);
         serviceB = createMock(Service.class);
-        EasyMock.expect(serviceA.getId()).andStubReturn(StringIdFor.createId("serviceAId"));
-        EasyMock.expect(serviceB.getId()).andStubReturn(StringIdFor.createId("serviceBId"));
+        EasyMock.expect(serviceA.getId()).andStubReturn(Service.createId("serviceAId"));
+        EasyMock.expect(serviceB.getId()).andStubReturn(Service.createId("serviceBId"));
 
         runningRoutesAndServices = new RunningRoutesAndServices(serviceRepository, routeRepository);
 
-        routeA = TestEnv.getTramTestRoute(StringIdFor.createId("routeAId"), "route name a");
-        routeB = TestEnv.getTramTestRoute(StringIdFor.createId("routeBId"), "route name b");
+        routeA = TestEnv.getTramTestRoute(Route.createId("routeAId"), "route name a");
+        routeB = TestEnv.getTramTestRoute(Route.createId("routeBId"), "route name b");
     }
 
     @Test
@@ -72,17 +72,17 @@ public class RunningRoutesAndServicesTest extends EasyMockSupport {
         verifyAll();
 
         TramTime time = TramTime.of(10,45);
-        assertFalse(filter.isRouteRunning(createId("routeBId"), false));
-        assertTrue(filter.isRouteRunning(createId("routeAId"), false));
+        assertFalse(filter.isRouteRunning(Route.createId("routeBId"), false));
+        assertTrue(filter.isRouteRunning(Route.createId("routeAId"), false));
 
-        assertFalse(filter.isServiceRunningByDate(createId("serviceBId"), time.isNextDay()));
-        assertTrue(filter.isServiceRunningByDate(createId("serviceAId"), time.isNextDay()));
+        assertFalse(filter.isServiceRunningByDate(Service.createId("serviceBId"), time.isNextDay()));
+        assertTrue(filter.isServiceRunningByDate(Service.createId("serviceAId"), time.isNextDay()));
     }
 
     @Test
     void shouldHaveRunningForTimeSameDay() {
-        final IdFor<Service> serviceAId = createId("serviceAId");
-        final IdFor<Service> serviceBId = createId("serviceBId");
+        final IdFor<Service> serviceAId = Service.createId("serviceAId");
+        final IdFor<Service> serviceBId = Service.createId("serviceBId");
 
         EasyMock.expect(routeRepository.getRoutesRunningOn(date)).andReturn(new HashSet<>(Arrays.asList(routeA, routeB)));
         EasyMock.expect(routeRepository.getRoutesRunningOn(date.plusDays(1))).andReturn(Collections.emptySet());
@@ -121,8 +121,8 @@ public class RunningRoutesAndServicesTest extends EasyMockSupport {
 
     @Test
     void shouldHaveRunningForTomorrow() {
-        final IdFor<Service> serviceAId = createId("serviceAId");
-        final IdFor<Service> serviceBId = createId("serviceBId");
+        final IdFor<Service> serviceAId = Service.createId("serviceAId");
+        final IdFor<Service> serviceBId = Service.createId("serviceBId");
 
         EasyMock.expect(routeRepository.getRoutesRunningOn(date)).andReturn(new HashSet<>(Arrays.asList(routeA, routeB)));
         EasyMock.expect(routeRepository.getRoutesRunningOn(date.plusDays(1))).andReturn(Collections.emptySet());
@@ -165,7 +165,7 @@ public class RunningRoutesAndServicesTest extends EasyMockSupport {
 
     @Test
     void shouldHaveRunningForPreviousDay() {
-        final IdFor<Service> serviceAId = createId("serviceAId");
+        final IdFor<Service> serviceAId = Service.createId("serviceAId");
 
         EasyMock.expect(routeRepository.getRoutesRunningOn(date)).andReturn(Collections.emptySet());
         EasyMock.expect(serviceRepository.getServicesOnDate(date)).andReturn(Collections.emptySet());
@@ -211,17 +211,17 @@ public class RunningRoutesAndServicesTest extends EasyMockSupport {
         RunningRoutesAndServices.FilterForDate filter = runningRoutesAndServices.getFor(date);
         verifyAll();
 
-        assertTrue(filter.isRouteRunning(createId("routeAId"), false));
-        assertTrue(filter.isServiceRunningByDate(createId("serviceAId"), false));
+        assertTrue(filter.isRouteRunning(Route.createId("routeAId"), false));
+        assertTrue(filter.isServiceRunningByDate(Service.createId("serviceAId"), false));
 
-        assertFalse(filter.isRouteRunning(createId("routeBId"), false));
-        assertFalse(filter.isServiceRunningByDate(createId("serviceBId"), false));
+        assertFalse(filter.isRouteRunning(Route.createId("routeBId"), false));
+        assertFalse(filter.isServiceRunningByDate(Service.createId("serviceBId"), false));
 
-        assertTrue(filter.isRouteRunning(createId("routeAId"), true));
-        assertTrue(filter.isServiceRunningByDate(createId("serviceAId"), true));
+        assertTrue(filter.isRouteRunning(Route.createId("routeAId"), true));
+        assertTrue(filter.isServiceRunningByDate(Service.createId("serviceAId"), true));
 
-        assertTrue(filter.isRouteRunning(createId("routeBId"), true));
-        assertTrue(filter.isServiceRunningByDate(createId("serviceBId"), true));
+        assertTrue(filter.isRouteRunning(Route.createId("routeBId"), true));
+        assertTrue(filter.isServiceRunningByDate(Service.createId("serviceBId"), true));
     }
 
 }

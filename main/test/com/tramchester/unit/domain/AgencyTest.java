@@ -1,7 +1,6 @@
 package com.tramchester.unit.domain;
 
 import com.tramchester.domain.Agency;
-import com.tramchester.domain.id.StringIdFor;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -12,10 +11,10 @@ class AgencyTest {
     @Test
     void shouldIdMetrolinkAgency() {
         // New ID
-        assertTrue(Agency.IsMetrolink(StringIdFor.createId("METL")));
+        assertTrue(Agency.IsMetrolink(Agency.createId("METL")));
 
         // Old ID
-        assertFalse(Agency.IsMetrolink(StringIdFor.createId("MET")));
+        assertFalse(Agency.IsMetrolink(Agency.createId("MET")));
 
     }
 }

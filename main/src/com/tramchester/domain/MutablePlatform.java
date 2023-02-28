@@ -65,7 +65,7 @@ public class MutablePlatform implements Platform {
         String platformNumber = id.substring(id.length() - 1);
         GridPosition gridPosition = CoordinateTransforms.getGridPosition(latLong);
         boolean isMarkedInterchange = false;
-        return new MutablePlatform(StringIdFor.createId(id), station, station.getName(), dataSourceId, platformNumber,
+        return new MutablePlatform(Platform.createId(id), station, station.getName(), dataSourceId, platformNumber,
                 areaId, latLong, gridPosition, isMarkedInterchange);
     }
 

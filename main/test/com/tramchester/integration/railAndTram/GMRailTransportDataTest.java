@@ -8,6 +8,7 @@ import com.tramchester.domain.Service;
 import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.input.StopCalls;
 import com.tramchester.domain.input.Trip;
+import com.tramchester.domain.places.Station;
 import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.integration.testSupport.RailAndTramGreaterManchesterConfig;
@@ -190,7 +191,7 @@ public class GMRailTransportDataTest {
         StopCalls calls = trip.getStopCalls();
         assertEquals(2, calls.numberOfCallingPoints());
 
-        assertEquals(StringIdFor.createId("BOLTON"), calls.getFirstStop().getStationId());
+        assertEquals(Station.createId("BOLTON"), calls.getFirstStop().getStationId());
         assertEquals(ManchesterPiccadilly.getId(), calls.getLastStop().getStationId());
 
         Service service = services.get(0);

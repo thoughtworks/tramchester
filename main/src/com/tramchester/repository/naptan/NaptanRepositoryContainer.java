@@ -139,7 +139,7 @@ public class NaptanRepositoryContainer implements NaptanRepository {
             stops.add(record);
 
             if (stopData.hasRailInfo()) {
-                final IdFor<Station> id = StringIdFor.createId(stopData.getRailInfo().getTiploc());
+                final IdFor<Station> id = Station.createId(stopData.getRailInfo().getTiploc());
                 tiplocToAtco.put(id, stopData.getAtcoCode());
             }
 
@@ -153,7 +153,7 @@ public class NaptanRepositoryContainer implements NaptanRepository {
         if (areaData.getStatus().isEmpty()) {
             logger.warn("No status set for " + areaData.getStopAreaCode());
         }
-        final IdFor<NaptanArea> id = StringIdFor.createId(areaData.getStopAreaCode());
+        final IdFor<NaptanArea> id = NaptanArea.createId(areaData.getStopAreaCode());
         return new NaptanArea(id, areaData.getName(), areaData.getGridPosition(), areaData.isActive(), areaData.getAreaType());
     }
 
@@ -195,7 +195,7 @@ public class NaptanRepositoryContainer implements NaptanRepository {
     }
 
     private boolean checkIfActive(NaptanXMLStopAreaRef area) {
-        final IdFor<NaptanArea> areaId = StringIdFor.createId(area.getId());
+        final IdFor<NaptanArea> areaId = NaptanArea.createId(area.getId());
         if (areas.hasId(areaId)) {
             return areas.get(areaId).isActive();
         } else {
@@ -228,7 +228,7 @@ public class NaptanRepositoryContainer implements NaptanRepository {
     }
 
     private <T extends Location<?>> IdFor<NaptanRecord> convertId(final IdFor<T> actoCode) {
-        return StringIdFor.convert(actoCode);
+        return StringIdFor.convert(actoCode, NaptanRecord.class);
     }
 
     public boolean isEnabled() {

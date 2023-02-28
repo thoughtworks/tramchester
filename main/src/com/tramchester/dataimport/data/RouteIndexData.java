@@ -1,12 +1,8 @@
 package com.tramchester.dataimport.data;
 
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.tramchester.caching.CachableData;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.id.IdFor;
-import com.tramchester.mappers.serialisation.RouteIdDeserializer;
-import com.tramchester.mappers.serialisation.RouteIdSerializer;
 
 import java.util.Objects;
 
@@ -28,8 +24,8 @@ public class RouteIndexData implements CachableData {
         return index;
     }
 
-    @JsonSerialize(using = RouteIdSerializer.class)
-    @JsonDeserialize(using = RouteIdDeserializer.class)
+//    @JsonSerialize(using = RouteIdSerializer.class)
+//    @JsonDeserialize(using = RouteIdDeserializer.class)
     public IdFor<Route> getRouteId() {
         return routeId;
     }

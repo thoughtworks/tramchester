@@ -144,7 +144,7 @@ class TransportDataFromFilesBusTest {
 
     @Test
     void shouldHaveExpectedEndOfLinesAndRoutes() {
-        IdFor<Agency> agencyId = StringIdFor.createId("ROST");
+        IdFor<Agency> agencyId = Agency.createId("ROST");
 
         Set<Route> inbounds = transportData.findRoutesByName(agencyId, "Rochdale - Bacup - Rawtenstall - Accrington");
         assertFalse(inbounds.isEmpty());
@@ -154,12 +154,12 @@ class TransportDataFromFilesBusTest {
         assertFalse(outbounds.isEmpty());
         outbounds.forEach(outbound -> assertEquals("464", outbound.getShortName()));
 
-        Station firstStation = transportData.getStationById(StringIdFor.createId("2500ACC0009"));
+        Station firstStation = transportData.getStationById(Station.createId("2500ACC0009"));
         assertEquals("Bus Station", firstStation.getName());
         outbounds.forEach(outbound -> assertFalse(firstStation.servesRouteDropOff(outbound)));
         outbounds.forEach(outbound -> assertTrue(firstStation.servesRoutePickup(outbound)));
 
-        Station secondStation = transportData.getStationById(StringIdFor.createId("2500LAA15791"));
+        Station secondStation = transportData.getStationById(Station.createId("2500LAA15791"));
         assertEquals("Infant Street", secondStation.getName());
         outbounds.forEach(outbound -> assertTrue(secondStation.servesRoutePickup(outbound)));
         outbounds.forEach(outbound -> assertTrue(secondStation.servesRouteDropOff(outbound)));

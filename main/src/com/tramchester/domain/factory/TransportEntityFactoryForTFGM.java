@@ -4,7 +4,6 @@ import com.tramchester.dataimport.data.RouteData;
 import com.tramchester.dataimport.data.StopData;
 import com.tramchester.domain.*;
 import com.tramchester.domain.id.IdFor;
-import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.places.MutableStation;
 import com.tramchester.domain.places.NaptanArea;
 import com.tramchester.domain.places.NaptanRecord;
@@ -59,7 +58,7 @@ public class TransportEntityFactoryForTFGM extends TransportEntityFactory {
     public MutableStation createStation(IdFor<Station> stationId, StopData stopData) {
 
         boolean isInterchange = false;
-        IdFor<NaptanArea> areaId = IdFor.invalid();
+        IdFor<NaptanArea> areaId = IdFor.invalid(NaptanArea.class);
         LatLong latLong = stopData.getLatLong();
         GridPosition position = CoordinateTransforms.getGridPosition(latLong);
 
@@ -88,11 +87,11 @@ public class TransportEntityFactoryForTFGM extends TransportEntityFactory {
         }
 
         final String stopId = stopData.getId();
-        final IdFor<Platform> platformId = StringIdFor.createId(stopId);
+        final IdFor<Platform> platformId = Platform.createId(stopId);
 
         final String platformNumber = stopId.substring(stopId.length()-1);
 
-        IdFor<NaptanArea> areaId = IdFor.invalid();
+        IdFor<NaptanArea> areaId = IdFor.invalid(NaptanArea.class);
         LatLong latLong = stopData.getLatLong();
         GridPosition gridPosition = CoordinateTransforms.getGridPosition(latLong);
 
@@ -133,9 +132,9 @@ public class TransportEntityFactoryForTFGM extends TransportEntityFactory {
         if (text.startsWith(METROLINK_ID_PREFIX)) {
             // metrolink platform ids include platform as final digit, remove to give id of station itself
             int index = text.length()-1;
-            return StringIdFor.createId(text.substring(0,index));
+            return Station.createId(text.substring(0,index));
         }
-        return StringIdFor.createId(text);
+        return Station.createId(text);
     }
 
     private boolean isMetrolinkTram(StopData stopData) {
@@ -212,7 +211,7 @@ public class TransportEntityFactoryForTFGM extends TransportEntityFactory {
             if (idAsString.startsWith(workaroundForLongname.idPrefixFromData)) {
                 String replacementIdAsString = idAsString.replace(workaroundForLongname.idPrefixFromData, workaroundForLongname.replacementPrefix);
                 logger.warn(format("Workaround for route ID issue, replaced %s with %s", idAsString, replacementIdAsString));
-                return StringIdFor.createId(replacementIdAsString);
+                return Route.createId(replacementIdAsString);
             } else {
                 logger.warn("Workaround for " + routeData + " no longer needed?");
                 return routeData.getId();

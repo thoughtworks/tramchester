@@ -105,7 +105,7 @@ class FastestRoutesForBoxesTest {
         LatLong latLong = TestEnv.stPetersSquareLocation();
         GridPosition grid = CoordinateTransforms.getGridPosition(latLong);
 
-        IdFor<NaptanArea> areaId = IdFor.invalid();
+        IdFor<NaptanArea> areaId = NaptanArea.invalidId();
         Station destination = new MutableStation(testStationWithInvalidPosition.getId(), areaId,
                 testStationWithInvalidPosition.getName(), latLong, grid, DataSourceID.tfgm);
 

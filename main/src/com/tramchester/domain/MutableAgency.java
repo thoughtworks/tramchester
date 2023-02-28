@@ -20,8 +20,8 @@ public class MutableAgency implements Agency {
     public static final IdFor<Agency> METL;
 
     static {
-        Walking = new MutableAgency(DataSourceID.internal, StringIdFor.createId("Walking"), "Walking");
-        METL = StringIdFor.createId("METL");
+        Walking = new MutableAgency(DataSourceID.internal, StringIdFor.createId("Walking", Agency.class), "Walking");
+        METL = StringIdFor.createId("METL", Agency.class);
     }
 
     public MutableAgency(DataSourceID dataSourceID, IdFor<Agency> agencyId, String agencyName) {

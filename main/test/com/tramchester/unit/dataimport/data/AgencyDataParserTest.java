@@ -1,6 +1,7 @@
 package com.tramchester.unit.dataimport.data;
 
 import com.tramchester.dataimport.data.AgencyData;
+import com.tramchester.domain.Agency;
 import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.unit.dataimport.ParserTestCSVHelper;
 import org.junit.jupiter.api.BeforeEach;
@@ -19,7 +20,7 @@ class AgencyDataParserTest extends ParserTestCSVHelper<AgencyData> {
     void shouldParseAnAgency() {
         AgencyData agencyData = parse("GMS,Stagecoach Manchester,http://www.tfgm.com,Europe/London,en");
 
-        assertEquals(StringIdFor.createId("GMS"), agencyData.getId());
+        assertEquals(Agency.createId("GMS"), agencyData.getId());
         assertEquals("Stagecoach Manchester", agencyData.getName());
     }
 }

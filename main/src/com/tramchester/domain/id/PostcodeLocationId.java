@@ -9,7 +9,7 @@ public class PostcodeLocationId implements IdFor<PostcodeLocation> {
     private final IdFor<PostcodeLocation> contained;
 
     private PostcodeLocationId(String text) {
-        contained = StringIdFor.createId(text);
+        contained = StringIdFor.createId(text, PostcodeLocation.class);
     }
 
     public static PostcodeLocationId create(String text) {
@@ -30,6 +30,11 @@ public class PostcodeLocationId implements IdFor<PostcodeLocation> {
     @Override
     public boolean isValid() {
         return contained.isValid();
+    }
+
+    @Override
+    public Class<PostcodeLocation> getDomainType() {
+        return PostcodeLocation.class;
     }
 
     public String getName() {

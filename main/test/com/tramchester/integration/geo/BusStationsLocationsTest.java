@@ -84,7 +84,7 @@ class BusStationsLocationsTest {
 
     @Test
     void shouldGetBoundary() {
-        IdFor<NaptanArea> areaId = StringIdFor.createId(SHUDEHILL_INTERCHANGE_AREA_CODE);
+        IdFor<NaptanArea> areaId = NaptanArea.createId(SHUDEHILL_INTERCHANGE_AREA_CODE);
 
         List<LatLong> points = stationLocations.getBoundaryFor(areaId);
 

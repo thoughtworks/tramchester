@@ -1,8 +1,8 @@
 package com.tramchester.unit.domain.id;
 
+import com.tramchester.domain.Route;
 import com.tramchester.domain.id.CompositeId;
 import com.tramchester.domain.id.IdFor;
-import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.places.Station;
 import org.junit.jupiter.api.Test;
 
@@ -10,10 +10,10 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class IdTest {
 
-    private final IdFor<Station> idA = StringIdFor.createId("1234");
-    private final IdFor<Station> idAA = StringIdFor.createId("1234");
-    private final IdFor<Station> idB = StringIdFor.createId("0BCD");
-    private final IdFor<Station> idC = StringIdFor.createId("5678");
+    private final IdFor<Station> idA = Station.createId("1234");
+    private final IdFor<Station> idAA = Station.createId("1234");
+    private final IdFor<Station> idB = Station.createId("0BCD");
+    private final IdFor<Station> idC = Station.createId("5678");
 
     @Test
     void shouldHaveEquality() {
@@ -47,19 +47,26 @@ class IdTest {
         assertEquals(compositeIdA.getGraphId(), compositeIdB.getGraphId());
     }
 
+    @Test
+    void shouldNotBeEqualsIfDifferentDomains() {
+        IdFor<Station> stationId = Station.createId("test123");
+        IdFor<Route> routeId = Route.createId("test123");
+
+        assertNotEquals(stationId, routeId);
+    }
 
 
     @Test
     void shouldMapToNormalOrCompositeId() {
-        IdFor<Station> id = StringIdFor.createId("normalId");
+        IdFor<Station> id = Station.createId("normalId");
         assertFalse(CompositeId.isComposite("normalId"));
         assertEquals("normalId", id.forDTO());
 
         String text = "[Id1_Id2_Id3]";
         assertTrue(CompositeId.isComposite(text));
-        IdFor<Station> comp = StringIdFor.createId(text);
-        CompositeId<Station> exepected = new CompositeId<>(StringIdFor.createId("Id1"),
-                StringIdFor.createId("Id2"), StringIdFor.createId("Id3"));
+        IdFor<Station> comp = Station.createId(text);
+        CompositeId<Station> exepected = new CompositeId<>(Station.createId("Id1"),
+                Station.createId("Id2"), Station.createId("Id3"));
 
         assertEquals(exepected, comp);
     }
@@ -69,7 +76,7 @@ class IdTest {
         CompositeId<Station> compositeIdA = new CompositeId<>(idA, idB, idC);
 
         String forDto = compositeIdA.forDTO();
-        CompositeId<Station> result = CompositeId.parse(forDto);
+        CompositeId<Station> result = CompositeId.parse(forDto, Station.class);
 
         assertEquals(compositeIdA, result);
     }

@@ -4,23 +4,21 @@ import com.tramchester.domain.Agency;
 import com.tramchester.domain.DataSourceID;
 import com.tramchester.domain.MutablePlatform;
 import com.tramchester.domain.Platform;
-import com.tramchester.domain.id.StringIdFor;
+import com.tramchester.domain.places.NaptanArea;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.reference.TransportMode;
-import com.tramchester.livedata.domain.liveUpdates.UpcomingDeparture;
 import com.tramchester.domain.time.TramTime;
+import com.tramchester.livedata.domain.liveUpdates.UpcomingDeparture;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.TramStations;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalTime;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class UpcomingDepartureTest {
 
@@ -59,7 +57,7 @@ class UpcomingDepartureTest {
 
         LatLong nearBury = TestEnv.stPetersSquareLocation();
         Platform platform = MutablePlatform.buildForTFGMTram("id", TramStations.Bury.fake(), nearBury, DataSourceID.tfgm,
-                StringIdFor.createId("areaId1"));
+                NaptanArea.createId("areaId1"));
         departure.setPlatform(platform);
 
         assertTrue(departure.hasPlatform());

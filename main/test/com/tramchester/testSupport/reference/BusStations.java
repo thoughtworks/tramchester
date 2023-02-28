@@ -82,7 +82,7 @@ public enum BusStations implements FakeStation {
     @NotNull
     private MutableStation createMutable() {
         GridPosition grid = CoordinateTransforms.getGridPosition(latlong);
-        return new MutableStation(getId(), IdFor.invalid(), name, latlong, grid, DataSourceID.tfgm);
+        return new MutableStation(getId(), NaptanArea.invalidId(), name, latlong, grid, DataSourceID.tfgm);
     }
 
     public enum Composites {
@@ -102,5 +102,5 @@ public enum BusStations implements FakeStation {
         }
     }
 
-    public static final IdFor<NaptanArea> KnutfordStationAreaId = StringIdFor.createId("060GMA294");
+    public static final IdFor<NaptanArea> KnutfordStationAreaId = NaptanArea.createId("060GMA294");
 }

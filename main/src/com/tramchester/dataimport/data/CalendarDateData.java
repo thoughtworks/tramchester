@@ -34,7 +34,7 @@ public class CalendarDateData extends ParsesDate {
     }
 
     public IdFor<Service> getServiceId() {
-        return StringIdFor.createId(serviceId);
+        return Service.createId(serviceId);
     }
 
     public TramDate getDate() {

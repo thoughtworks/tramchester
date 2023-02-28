@@ -178,7 +178,7 @@ public class TrainDeparturesRepository implements UpcomingDeparturesSource {
 
         private Agency agencyFrom(String operatorCode) {
             logger.info("Find agency from " + operatorCode);
-            return agencyRepository.get(StringIdFor.createId(operatorCode));
+            return agencyRepository.get(Agency.createId(operatorCode));
         }
 
         private String carridgesFrom(FormationData formation) {

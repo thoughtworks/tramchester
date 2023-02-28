@@ -11,6 +11,7 @@ import com.tramchester.domain.id.StringIdFor;
 
 import java.io.IOException;
 
+@Deprecated
 public class RouteIdDeserializer extends StdDeserializer<IdFor<Route>> {
 
     protected RouteIdDeserializer() {
@@ -25,6 +26,6 @@ public class RouteIdDeserializer extends StdDeserializer<IdFor<Route>> {
     public IdFor<Route> deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException {
         ObjectCodec oc = jsonParser.getCodec();
         JsonNode node = oc.readTree(jsonParser);
-        return StringIdFor.createId(node.asText());
+        return Route.createId(node.asText());
     }
 }

@@ -237,7 +237,7 @@ public class Interchanges implements InterchangeRepository {
     @Override
     public boolean isInterchange(Location<?> location) {
         if (location.getLocationType() == LocationType.Station) {
-            IdFor<Station> stationId = StringIdFor.convert(location.getId());
+            IdFor<Station> stationId = StringIdFor.convert(location.getId(), Station.class);
             return interchanges.containsKey(stationId);
         } else {
             return false;
@@ -261,7 +261,7 @@ public class Interchanges implements InterchangeRepository {
     @Override
     public InterchangeStation getInterchange(Location<?> location) {
         if (location.getLocationType() == LocationType.Station) {
-            IdFor<Station> stationId = StringIdFor.convert(location.getId());
+            IdFor<Station> stationId = StringIdFor.convert(location.getId(), Station.class);
             return interchanges.get(stationId);
         }
         throw new RuntimeException(location + " is not a station");

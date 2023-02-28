@@ -38,7 +38,7 @@ public class MutableService implements Service {
     }
 
     public static IdFor<Service> createId(String text) {
-        return StringIdFor.createId(text);
+        return Service.createId(text);
     }
 
     @Override

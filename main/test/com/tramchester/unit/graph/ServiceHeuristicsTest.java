@@ -64,8 +64,8 @@ class ServiceHeuristicsTest extends EasyMockSupport {
         maxJourneyDuration = Duration.ofMinutes(config30MinsWait.getMaxJourneyDuration());
         maxNumberOfJourneys = 1;
         providesLocalNow = new ProvidesLocalNow();
-        serviceIdA = StringIdFor.createId("serviceIdA");
-        serviceIdB = StringIdFor.createId("serviceIdB");
+        serviceIdA = Service.createId("serviceIdA");
+        serviceIdB = Service.createId("serviceIdB");
 
         nodeContentsCache = createMock(CachedNodeOperations.class);
         howIGotHere = createMock(HowIGotHere.class);
@@ -467,7 +467,7 @@ class ServiceHeuristicsTest extends EasyMockSupport {
         ServiceReasons reasons = new ServiceReasons(journeyRequest, queryTime, providesLocalNow);
 
         IdFor<Station> stationId = TramStations.Altrincham.getId();
-        IdFor<Route> routeId = StringIdFor.createId("currentRoute");
+        IdFor<Route> routeId = Route.createId("currentRoute");
         Route route = TestEnv.getTramTestRoute(routeId, "routeName");
         final RouteStation routeStation = new RouteStation(TramStations.Altrincham.fake(), route);
 

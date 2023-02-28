@@ -70,7 +70,7 @@ class NaptanDataImporterTest {
     @Test
     void shouldLoadKnownBusStation() {
 
-        IdFor<NaptanRecord> buryId = StringIdFor.convert(BuryInterchange.getId());
+        IdFor<NaptanRecord> buryId = StringIdFor.convert(BuryInterchange.getId(), NaptanRecord.class);
 
         Optional<NaptanStopData> foundKnown = loadedStops.stream().
                 filter(stop -> stop.getAtcoCode().isValid()).
@@ -83,7 +83,7 @@ class NaptanDataImporterTest {
     @Test
     void shouldLoadKnownTramStation() {
 
-        IdFor<NaptanRecord> id = StringIdFor.convert(TramStations.StPetersSquare.getId());
+        IdFor<NaptanRecord> id = StringIdFor.convert(TramStations.StPetersSquare.getId(), NaptanRecord.class);
 
         Optional<NaptanStopData> foundKnown = loadedStops.stream().
                 filter(stop -> stop.getAtcoCode().isValid()).
@@ -97,7 +97,7 @@ class NaptanDataImporterTest {
 
     @Test
     void shouldContainOutofAreaStop() {
-        IdFor<NaptanRecord> id = StringIdFor.createId(TestEnv.BRISTOL_BUSSTOP_OCTOCODE);
+        IdFor<NaptanRecord> id = NaptanRecord.createId(TestEnv.BRISTOL_BUSSTOP_OCTOCODE);
 
         Optional<NaptanStopData> foundKnown = loadedStops.stream().
                 filter(stop -> stop.getAtcoCode().isValid()).

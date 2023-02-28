@@ -43,8 +43,8 @@ class RouteEndRepositoryBusTest {
     void shouldFindEndsOfRoutesForBuses() {
         IdSet<Station> result = routeEndRepository.getStations(TransportMode.Bus);
 
-        assertTrue(result.contains(StringIdFor.createId("2500ACC0009"))); // Accrington, Bus Station (Stand 9)
-        assertFalse(result.contains(StringIdFor.createId("2500LAA15791"))); // Accrington, opp Infant Street
+        assertTrue(result.contains(Station.createId("2500ACC0009"))); // Accrington, Bus Station (Stand 9)
+        assertFalse(result.contains(Station.createId("2500LAA15791"))); // Accrington, opp Infant Street
 
         // TODO More here useful
     }

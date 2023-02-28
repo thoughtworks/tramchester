@@ -8,7 +8,7 @@ public class ExistingTrip {
     private final IdFor<Trip> tripId;
 
     private ExistingTrip() {
-        this.tripId = new InvalidId<>();
+        this.tripId = new InvalidId<>(Trip.class);
     }
 
     private ExistingTrip(IdFor<Trip> tripId) {

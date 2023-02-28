@@ -1,11 +1,12 @@
 package com.tramchester.unit.domain;
 
-import com.tramchester.domain.*;
+import com.tramchester.domain.DataSourceID;
+import com.tramchester.domain.MutablePlatform;
+import com.tramchester.domain.Platform;
+import com.tramchester.domain.Route;
 import com.tramchester.domain.id.IdFor;
-import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.places.NaptanArea;
 import com.tramchester.domain.reference.TransportMode;
-import com.tramchester.domain.time.TramTime;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.TramStations;
 import org.junit.jupiter.api.Test;
@@ -20,14 +21,14 @@ class PlatformTest {
 
     @Test
     void shouldCreatePlatformCorrectly() {
-        IdFor<NaptanArea> areaId = StringIdFor.createId("area55");
+        IdFor<NaptanArea> areaId = NaptanArea.createId("area55");
         boolean isMarkedInterchange = true;
-        MutablePlatform platform = new MutablePlatform(StringIdFor.createId("9400ZZ_Name2"),
+        MutablePlatform platform = new MutablePlatform(Platform.createId("9400ZZ_Name2"),
                 TramStations.Altrincham.fake(), "StationName", DataSourceID.tfgm, "2",
                 areaId, nearAltrincham.latLong(), nearAltrincham.grid(), isMarkedInterchange);
 
         assertEquals("StationName platform 2", platform.getName());
-        assertEquals(StringIdFor.createId("9400ZZ_Name2"), platform.getId());
+        assertEquals(Platform.createId("9400ZZ_Name2"), platform.getId());
         assertEquals( "2", platform.getPlatformNumber());
         assertEquals(nearAltrincham.latLong(), platform.getLatLong());
         assertEquals(nearAltrincham.grid(), platform.getGridPosition());
@@ -35,9 +36,9 @@ class PlatformTest {
         assertEquals(areaId, platform.getAreaId());
         assertTrue(isMarkedInterchange);
 
-        Service service = MutableService.build(StringIdFor.createId("serviceId"));
-        TramTime dropOffTime = TramTime.of(8,15);
-        TramTime pickupTime = TramTime.of(8, 20);
+//        Service service = MutableService.build(Service.createId("serviceId"));
+//        TramTime dropOffTime = TramTime.of(8,15);
+//        TramTime pickupTime = TramTime.of(8, 20);
 
         assertTrue(platform.getDropoffRoutes().isEmpty());
         final Route tramTestRoute = TestEnv.getTramTestRoute();

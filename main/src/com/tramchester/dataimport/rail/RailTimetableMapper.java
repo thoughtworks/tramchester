@@ -514,7 +514,7 @@ public class RailTimetableMapper {
             if (platformLookup.containsKey(platformIdString)) {
                 platform = platformLookup.get(platformIdString);
             } else {
-                final IdFor<Platform> platformId = StringIdFor.createId(platformIdString);
+                final IdFor<Platform> platformId = Platform.createId(platformIdString);
                 platform = new MutablePlatform(platformId, originStation, originStation.getName(), dataSourceID, platformNumber,
                         areaId, originStation.getLatLong(), originStation.getGridPosition(), originStation.isMarkedInterchange());
                 container.addPlatform(platform);
@@ -539,7 +539,7 @@ public class RailTimetableMapper {
         }
 
         private IdFor<Trip> createTripIdFor(MutableService service) {
-            return StringIdFor.withPrefix("trip:", service.getId());
+            return StringIdFor.withPrefix("trip:", service.getId(), Trip.class);
         }
 
         private MutableRoute getOrCreateRoute(IdFor<Route> routeId, RawService rawService, MutableAgency mutableAgency, final TransportMode mode,

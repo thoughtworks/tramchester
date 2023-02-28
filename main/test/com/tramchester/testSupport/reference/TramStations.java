@@ -131,7 +131,7 @@ public enum TramStations implements FakeStation {
     @NotNull
     private MutableStation createMutable() {
         GridPosition grid = CoordinateTransforms.getGridPosition(latlong);
-        return new MutableStation(getId(), IdFor.invalid(), name, latlong, grid, DataSourceID.tfgm);
+        return new MutableStation(getId(), NaptanArea.invalidId(), name, latlong, grid, DataSourceID.tfgm);
     }
 
     public Station fakeWithPlatform(String platformId, LatLong latLong, DataSourceID dataSourceID,

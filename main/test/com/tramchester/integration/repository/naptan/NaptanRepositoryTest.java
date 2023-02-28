@@ -93,7 +93,7 @@ class NaptanRepositoryTest {
         NaptanRecord record = respository.getForTiploc(tiploc);
         assertEquals(record.getName(), "Macclesfield Rail Station");
         assertEquals(record.getSuburb(), "Macclesfield");
-        assertEquals(record.getId(), StringIdFor.createId("9100MACLSFD"));
+        assertEquals(record.getId(), NaptanRecord.createId("9100MACLSFD"));
 
         final List<IdFor<NaptanArea>> areaCodes = record.getAreaCodes().toList();
 
@@ -110,7 +110,7 @@ class NaptanRepositoryTest {
 
         assertEquals("Altrincham Rail Station", record.getName());
         assertEquals("Altrincham", record.getSuburb());
-        assertEquals(StringIdFor.createId("9100ALTRNHM"), record.getId());
+        assertEquals(NaptanRecord.createId("9100ALTRNHM"), record.getId());
 
         final List<IdFor<NaptanArea>> areaCodes = record.getAreaCodes().toList();
         assertEquals(1, areaCodes.size());
@@ -119,7 +119,7 @@ class NaptanRepositoryTest {
 
     @Test
     void shouldHaveNaptanAreaForAltrinchamStation() {
-        final IdFor<NaptanArea> altyRailStationArea = StringIdFor.createId("910GALTRNHM");
+        final IdFor<NaptanArea> altyRailStationArea = NaptanArea.createId("910GALTRNHM");
         assertTrue(respository.containsArea(altyRailStationArea));
         NaptanArea area = respository.getAreaFor(altyRailStationArea);
         assertEquals("Altrincham Rail Station", area.getName());
@@ -128,7 +128,7 @@ class NaptanRepositoryTest {
 
     @Test
     void shouldNotContainAreaOutOfBounds() {
-        assertFalse(respository.containsArea(StringIdFor.createId("910GEUSTON")));
+        assertFalse(respository.containsArea(NaptanArea.createId("910GEUSTON")));
     }
 
     @Disabled("WIP")
@@ -178,7 +178,7 @@ class NaptanRepositoryTest {
     @Test
     void shouldFindKnutsford() {
 
-        final IdFor<Station> stopId = StringIdFor.createId("0600MA6020");
+        final IdFor<Station> stopId = Station.createId("0600MA6020");
         NaptanRecord fromNaptan = respository.getForActo(stopId);
         assertNotNull(fromNaptan);
 
@@ -200,7 +200,7 @@ class NaptanRepositoryTest {
     @Test
     void shouldNotContainStopOutOfArea() {
         // stop in bristol, checked exists in full data in NaPTANDataImportTest
-        IdFor<Station> actoCode = StringIdFor.createId(TestEnv.BRISTOL_BUSSTOP_OCTOCODE);
+        IdFor<Station> actoCode = Station.createId(TestEnv.BRISTOL_BUSSTOP_OCTOCODE);
         assertFalse(respository.containsActo(actoCode));
     }
 }

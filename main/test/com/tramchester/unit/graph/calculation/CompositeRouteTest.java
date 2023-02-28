@@ -117,7 +117,7 @@ class CompositeRouteTest {
     @Test
     void shouldCheckServiceIsRunning() {
         RunningRoutesAndServices runningRoutesAndServices = componentContainer.get(RunningRoutesAndServices.class);
-        Service svcA = transportData.getServiceById(StringIdFor.createId("serviceAId"));
+        Service svcA = transportData.getServiceById(Service.createId("serviceAId"));
         RunningRoutesAndServices.FilterForDate running = runningRoutesAndServices.getFor(queryDate);
         assertTrue(running.isServiceRunningByTime(svcA.getId(), queryTime, 10), svcA.toString());
     }

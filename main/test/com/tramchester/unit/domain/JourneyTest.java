@@ -1,12 +1,12 @@
 package com.tramchester.unit.domain;
 
 import com.tramchester.domain.*;
-import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.input.MutableTrip;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.Location;
 import com.tramchester.domain.places.MyLocation;
+import com.tramchester.domain.places.NaptanArea;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.TransportStage;
 import com.tramchester.domain.reference.TransportMode;
@@ -21,7 +21,6 @@ import org.junit.jupiter.api.Test;
 import java.time.Duration;
 import java.util.*;
 
-import static com.tramchester.domain.id.StringIdFor.createId;
 import static com.tramchester.domain.reference.TransportMode.*;
 import static com.tramchester.testSupport.reference.KnownLocations.*;
 import static com.tramchester.testSupport.reference.TramStations.*;
@@ -39,8 +38,8 @@ class JourneyTest {
 
     @BeforeEach
     void beforeEachTest() {
-        Service service = MutableService.build(createId("svc123"));
-        trip = MutableTrip.build(createId("trip897"), "headsign", service, route);
+        Service service = MutableService.build(Service.createId("svc123"));
+        trip = MutableTrip.build(Trip.createId("trip897"), "headsign", service, route);
         queryTime = TramTime.of(9,16);
         path = Collections.emptyList();
         stopSequenceNumbers = Arrays.asList(10,11,12,13);
@@ -200,11 +199,11 @@ class JourneyTest {
         final TramTime departureTimeA = queryTime.plusMinutes(10);
 
         final Station alty = Altrincham.fakeWithPlatform("platformId1",  nearAltrincham.latLong(),
-                DataSourceID.unknown, IdFor.invalid());
+                DataSourceID.unknown, NaptanArea.invalidId());
         final Platform platform1 = TestEnv.onlyPlatform(alty);
 
         final Station stPeters = StPetersSquare.fakeWithPlatform("platformId2", nearStPetersSquare.latLong(),
-                DataSourceID.unknown, IdFor.invalid());
+                DataSourceID.unknown, NaptanArea.invalidId());
         final Platform platform2 = TestEnv.onlyPlatform(stPeters);
 
         final VehicleStage stageA = createVehicleStage(alty, stPeters, Bus, departureTimeA, 13);
@@ -222,8 +221,8 @@ class JourneyTest {
 
         IdSet<Platform> result = journey.getCallingPlatformIds();
         assertEquals(2, result.size());
-        assertTrue(result.contains(createId("platformId1")));
-        assertTrue(result.contains(createId("platformId2")));
+        assertTrue(result.contains(Platform.createId("platformId1")));
+        assertTrue(result.contains(Platform.createId("platformId2")));
         assertFalse(journey.isDirect());
         assertFalse(journey.firstStageIsWalk());
 

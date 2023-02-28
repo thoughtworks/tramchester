@@ -5,6 +5,7 @@ import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.DataSourceID;
 import com.tramchester.domain.JourneyRequest;
 import com.tramchester.domain.LocationSet;
+import com.tramchester.domain.Service;
 import com.tramchester.domain.exceptions.TramchesterException;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdSet;
@@ -13,6 +14,7 @@ import com.tramchester.domain.input.MutableTrip;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.MutableStation;
 import com.tramchester.domain.places.NaptanArea;
+import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.reference.GTFSTransportationType;
 import com.tramchester.domain.reference.TransportMode;
@@ -84,7 +86,7 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
 
     @BeforeEach
     void onceBeforeEachTestRuns() {
-        MutableStation forTest = new MutableStation(StringIdFor.createId("destinationStationId"),
+        MutableStation forTest = new MutableStation(Station.createId("destinationStationId"),
                 NaptanArea.createId("area"), "name",
                 new LatLong(1, 1), new GridPosition(1000,1000), DataSourceID.tfgm);
 
@@ -396,7 +398,7 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
         TramTime time = TramTime.of(8, 15);
 
         EasyMock.expect(serviceHeuristics.checkServiceDateAndTime(node, howIGotHere, reasons, time, 13)).
-                andReturn(ServiceReason.DoesNotRunOnQueryDate(howIGotHere, StringIdFor.createId("nodeServiceId")));
+                andReturn(ServiceReason.DoesNotRunOnQueryDate(howIGotHere, Service.createId("nodeServiceId")));
 
         NotStartedState traversalState = getNotStartedState();
         final JourneyState journeyState = new JourneyState(time, traversalState);

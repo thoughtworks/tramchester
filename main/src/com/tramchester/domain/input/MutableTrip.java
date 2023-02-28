@@ -43,7 +43,7 @@ public class MutableTrip implements Trip {
     }
 
     public static IdFor<Trip> createId(String text) {
-        return StringIdFor.createId(text);
+        return StringIdFor.createId(text, Trip.class);
     }
 
     public void dispose() {

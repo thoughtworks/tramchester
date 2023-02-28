@@ -202,23 +202,23 @@ public class GraphProps {
     }
 
     public static IdFor<Route> getRouteIdFrom(Entity entity) {
-        return getIdFromGraphEntity(entity, ROUTE_ID);
+        return getIdFromGraphEntity(entity, ROUTE_ID, Route.class);
     }
 
     public static IdFor<Station> getStationIdFrom(Entity entity) {
-        return getIdFromGraphEntity(entity, STATION_ID);
+        return getIdFromGraphEntity(entity, STATION_ID, Station.class);
     }
 
     public static IdFor<Station> getTowardsStationIdFrom(Entity entity) {
-        return getIdFromGraphEntity(entity, TOWARDS_STATION_ID);
+        return getIdFromGraphEntity(entity, TOWARDS_STATION_ID, Station.class);
     }
 
     public static IdFor<Service> getServiceIdFrom(Entity entity) {
-        return getIdFromGraphEntity(entity, SERVICE_ID);
+        return getIdFromGraphEntity(entity, SERVICE_ID, Service.class);
     }
 
     public static IdFor<Trip> getTripIdFrom(Entity entity) {
-        return getIdFromGraphEntity(entity, TRIP_ID);
+        return getIdFromGraphEntity(entity, TRIP_ID, Trip.class);
     }
 
     public static IdFor<RouteStation> getRouteStationIdFrom(Entity entity) {
@@ -227,7 +227,7 @@ public class GraphProps {
     }
 
     public static IdFor<Platform> getPlatformIdFrom(Entity entity) {
-        return getIdFromGraphEntity(entity, PLATFORM_ID);
+        return getIdFromGraphEntity(entity, PLATFORM_ID, Platform.class);
     }
 
     public static EnumSet<GraphLabel> getLabelsFor(Node node) {
@@ -238,7 +238,7 @@ public class GraphProps {
     }
 
     public static IdFor<NaptanArea> getAreaIdFromGrouped(Entity entity) {
-        return getIdFromGraphEntity(entity, AREA_ID);
+        return getIdFromGraphEntity(entity, AREA_ID, NaptanArea.class);
     }
 
     public static void setProperty(Entity entity, IdFor<NaptanArea> areaId) {

@@ -42,7 +42,7 @@ public interface Route extends HasId<Route>, HasTransportMode, GraphProperty, Co
     boolean isAvailableOn(TramDate date);
 
     static IdFor<Route> createId(String text) {
-        return StringIdFor.createId(text);
+        return StringIdFor.createId(text, Route.class);
     }
 
 }

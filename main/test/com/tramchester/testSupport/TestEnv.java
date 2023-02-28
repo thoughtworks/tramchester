@@ -15,6 +15,7 @@ import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.input.PlatformStopCall;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.Location;
+import com.tramchester.domain.places.NaptanArea;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.reference.GTFSPickupDropoffType;
@@ -38,7 +39,6 @@ import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Stream;
 
-import static com.tramchester.domain.id.StringIdFor.createId;
 import static java.lang.String.format;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -61,9 +61,9 @@ public class TestEnv {
 
     private static final Agency MET = MutableAgency.build(DataSourceID.tfgm, MutableAgency.METL, "Metrolink");
 
-    public static final Agency StagecoachManchester = MutableAgency.build(DataSourceID.tfgm, createId("SCMN"),
+    public static final Agency StagecoachManchester = MutableAgency.build(DataSourceID.tfgm, Agency.createId("SCMN"),
             "Stagecoach Manchester");
-    public static final Agency WarringtonsOwnBuses = MutableAgency.build(DataSourceID.tfgm, createId("WBTR"),
+    public static final Agency WarringtonsOwnBuses = MutableAgency.build(DataSourceID.tfgm, Agency.createId("WBTR"),
             "Warrington's Own Buses");
 
     public static final String MANCHESTER_AIRPORT_BUS_AREA = "180GMABS";
@@ -157,7 +157,7 @@ public class TestEnv {
     }
 
     public static Route getTramTestRoute() {
-        return getTramTestRoute(createId("RouteId"), "routeName");
+        return getTramTestRoute(Route.createId("RouteId"), "routeName");
     }
 
     public static Route getTramTestRoute(IdFor<Route> routeId, String routeName) {
@@ -206,7 +206,7 @@ public class TestEnv {
         final Station station = tramStation.fake();
 
         Platform platform = MutablePlatform.buildForTFGMTram(stopId, station, tramStation.getLatLong(),
-                DataSourceID.unknown, IdFor.invalid());
+                DataSourceID.unknown, NaptanArea.invalidId());
         GTFSPickupDropoffType pickupDropoff = GTFSPickupDropoffType.Regular;
 
         return new PlatformStopCall(platform, station, arrive, depart, seq, pickupDropoff, pickupDropoff, trip);

@@ -86,7 +86,7 @@ public class StopCallRepositoryTest {
 
     @Test
     void shouldGetCostsForAStopCall() {
-        Route route = routeRepository.getRouteById(StringIdFor.createId("METLGREE:I:CURRENT"));
+        Route route = routeRepository.getRouteById(Route.createId("METLGREE:I:CURRENT"));
 
         Station alty = stationRepository.getStationById(TramStations.Altrincham.getId());
         Station navigationRoad = stationRepository.getStationById(TramStations.NavigationRoad.getId());

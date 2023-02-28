@@ -9,6 +9,7 @@ import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.input.MutableTrip;
 import com.tramchester.domain.input.PlatformStopCall;
+import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.MutableStation;
 import com.tramchester.domain.places.NaptanArea;
 import com.tramchester.domain.places.RouteStation;
@@ -119,11 +120,11 @@ public class TramTransportDataForTestFactory implements TransportDataFactory {
         container.addRoute(routeD);
 
         // tripA: FIRST_STATION -> SECOND_STATION -> INTERCHANGE -> LAST_STATION
-        MutableTrip tripA = new MutableTrip(StringIdFor.createId(TramTransportDataForTest.TRIP_A_ID), "headSign",
+        MutableTrip tripA = new MutableTrip(Trip.createId(TramTransportDataForTest.TRIP_A_ID), "headSign",
                 serviceA, routeA, Tram);
         serviceA.addTrip(tripA);
 
-        MutableStation first = createStation(TramTransportDataForTest.FIRST_STATION, StringIdFor.createId("area1"), "startStation",
+        MutableStation first = createStation(TramTransportDataForTest.FIRST_STATION, NaptanArea.createId("area1"), "startStation",
                 nearAltrincham, dataSourceID);
         addAStation(container, first);
         addRouteStation(container, first, routeA);
@@ -131,10 +132,10 @@ public class TramTransportDataForTestFactory implements TransportDataFactory {
         tripA.addStop(stopA);
 
         // trip Z, firstNameDup - for composite station testing
-        MutableTrip tripZ = new MutableTrip(StringIdFor.createId("tripZ"), "for dup", serviceD, routeD, Tram);
+        MutableTrip tripZ = new MutableTrip(Trip.createId("tripZ"), "for dup", serviceD, routeD, Tram);
         serviceD.addTrip(tripZ);
         MutableStation firstDupName = createStation(TramTransportDataForTest.FIRST_STATION_DUP_NAME,
-                StringIdFor.createId("area1"), "startStation", nearAltrincham, dataSourceID);
+                NaptanArea.createId("area1"), "startStation", nearAltrincham, dataSourceID);
         addAStation(container, firstDupName);
         addRouteStation(container, firstDupName, routeD);
         PlatformStopCall stopZ = createStop(container, tripZ, firstDupName, of(12, 0), of(12, 0), 1);
@@ -142,7 +143,7 @@ public class TramTransportDataForTestFactory implements TransportDataFactory {
 
         // trip Z, firstNameDup2 - for composite station testing
         MutableStation firstDup2Name = createStation(TramTransportDataForTest.FIRST_STATION_DUP2_NAME,
-                StringIdFor.createId("area1"), "startStation", nearAltrincham, dataSourceID);
+                NaptanArea.createId("area1"), "startStation", nearAltrincham, dataSourceID);
         addAStation(container, firstDup2Name);
         addRouteStation(container, firstDup2Name, routeD);
         PlatformStopCall stopZZ = createStop(container, tripZ, firstDup2Name, of(12, 0), of(12, 0), 2);
@@ -150,14 +151,14 @@ public class TramTransportDataForTestFactory implements TransportDataFactory {
 
         routeD.addTrip(tripZ);
 
-        MutableStation second = createStation(TramTransportDataForTest.SECOND_STATION, StringIdFor.createId("area1"), "secondStation",
+        MutableStation second = createStation(TramTransportDataForTest.SECOND_STATION, NaptanArea.createId("area1"), "secondStation",
                 atRoundthornTram, dataSourceID);
         addAStation(container, second);
         addRouteStation(container, second, routeA);
         PlatformStopCall stopB = createStop(container, tripA, second, of(8, 11), of(8, 11), 2);
         tripA.addStop(stopB);
 
-        MutableStation interchangeStation = createStation(INTERCHANGE, StringIdFor.createId("area3"), "cornbrookStation",
+        MutableStation interchangeStation = createStation(INTERCHANGE, NaptanArea.createId("area3"), "cornbrookStation",
                 nearShudehill, dataSourceID);
         addAStation(container, interchangeStation);
         addRouteStation(container, interchangeStation, routeA);
@@ -165,7 +166,7 @@ public class TramTransportDataForTestFactory implements TransportDataFactory {
                 of(8, 20), 3);
         tripA.addStop(stopC);
 
-        MutableStation last = createStation(TramTransportDataForTest.LAST_STATION, StringIdFor.createId("area4"),
+        MutableStation last = createStation(TramTransportDataForTest.LAST_STATION, NaptanArea.createId("area4"),
                 "endStation", nearPiccGardens, dataSourceID);
         addAStation(container, last);
         addRouteStation(container, last, routeA);
@@ -174,15 +175,15 @@ public class TramTransportDataForTestFactory implements TransportDataFactory {
 
         // service A
         routeA.addTrip(tripA);
-        MutableStation stationFour = createStation(TramTransportDataForTest.STATION_FOUR, StringIdFor.createId("area4"),
+        MutableStation stationFour = createStation(TramTransportDataForTest.STATION_FOUR, NaptanArea.createId("area4"),
                 "Station4", nearKnutsfordBusStation, dataSourceID);
         addAStation(container, stationFour);
 
         // trip ZZ, fourthNameDup - for composite station testing
-        MutableTrip tripZZ = new MutableTrip(StringIdFor.createId("tripZZ"), "for dup of 4", serviceA, routeD, Tram);
+        MutableTrip tripZZ = new MutableTrip(Trip.createId("tripZZ"), "for dup of 4", serviceA, routeD, Tram);
         serviceA.addTrip(tripZZ);
         MutableStation fourDupName = createStation(TramTransportDataForTest.STATION_FOUR_DUP_NAME,
-                StringIdFor.createId("area4"), "Station4", nearKnutsfordBusStation, dataSourceID);
+                NaptanArea.createId("area4"), "Station4", nearKnutsfordBusStation, dataSourceID);
         addAStation(container, fourDupName);
         addRouteStation(container, fourDupName, routeD);
         PlatformStopCall fourDupStop = createStop(container, tripZZ, fourDupName,
@@ -191,12 +192,12 @@ public class TramTransportDataForTestFactory implements TransportDataFactory {
 
         routeD.addTrip(tripZZ);
 
-        MutableStation stationFive = createStation(TramTransportDataForTest.STATION_FIVE, StringIdFor.createId("area5"),
+        MutableStation stationFive = createStation(TramTransportDataForTest.STATION_FIVE, NaptanArea.createId("area5"),
                 "Station5", nearStockportBus, dataSourceID);
         addAStation(container, stationFive);
 
         //
-        MutableTrip tripC = new MutableTrip(StringIdFor.createId("tripCId"), "headSignC", serviceC, routeC, Tram);
+        MutableTrip tripC = new MutableTrip(Trip.createId("tripCId"), "headSignC", serviceC, routeC, Tram);
         serviceC.addTrip(tripC);
         PlatformStopCall stopG = createStop(container, tripC, interchangeStation, of(8, 26),
                 of(8, 27), 1);
@@ -254,7 +255,7 @@ public class TramTransportDataForTestFactory implements TransportDataFactory {
 
     private static void createInterchangeToStation4Trip(TransportDataContainer container, MutableRoute route, MutableService service,
                                                         MutableStation interchangeStation, MutableStation station, LocalTime startTime, String tripId) {
-        MutableTrip trip = new MutableTrip(StringIdFor.createId(tripId), "headSignTripB2", service, route, Tram);
+        MutableTrip trip = new MutableTrip(Trip.createId(tripId), "headSignTripB2", service, route, Tram);
         PlatformStopCall stop1 = createStop(container,trip, interchangeStation, ofHourMins(startTime),
                 ofHourMins(startTime.plusMinutes(5)), 1);
         trip.addStop(stop1);
@@ -271,7 +272,7 @@ public class TramTransportDataForTestFactory implements TransportDataFactory {
         String platformId = station.getId() + "1";
         final String platformName = format("%s platform 1", station.getName());
 
-        MutablePlatform platform = new MutablePlatform(StringIdFor.createId(platformId),
+        MutablePlatform platform = new MutablePlatform(Platform.createId(platformId),
                 station, platformName, station.getDataSourceID(), "1",
                 station.getAreaId(), station.getLatLong(), station.getGridPosition(), station.isMarkedInterchange());
 
@@ -284,10 +285,10 @@ public class TramTransportDataForTestFactory implements TransportDataFactory {
 
     public static class TramTransportDataForTest extends TransportDataContainer {
 
-        private static final IdFor<Service> serviceAId = StringIdFor.createId("serviceAId");
-        private static final IdFor<Service> serviceBId = StringIdFor.createId("serviceBId");
-        private static final IdFor<Service> serviceCId = StringIdFor.createId("serviceCId");
-        private static final IdFor<Service> serviceDId = StringIdFor.createId("serviceDId");
+        private static final IdFor<Service> serviceAId = Service.createId("serviceAId");
+        private static final IdFor<Service> serviceBId = Service.createId("serviceBId");
+        private static final IdFor<Service> serviceCId = Service.createId("serviceCId");
+        private static final IdFor<Service> serviceDId = Service.createId("serviceDId");
 
         private static final String METROLINK_PREFIX = "9400ZZ";
 
@@ -307,39 +308,39 @@ public class TramTransportDataForTestFactory implements TransportDataFactory {
         }
 
         public Station getFirst() {
-            return getStationById(StringIdFor.createId(FIRST_STATION));
+            return getStationById(Station.createId(FIRST_STATION));
         }
 
         public Station getFirstDupName() {
-            return getStationById(StringIdFor.createId(FIRST_STATION_DUP_NAME));
+            return getStationById(Station.createId(FIRST_STATION_DUP_NAME));
         }
 
         public Station getFirstDup2Name() {
-            return getStationById(StringIdFor.createId(FIRST_STATION_DUP2_NAME));
+            return getStationById(Station.createId(FIRST_STATION_DUP2_NAME));
         }
 
         public Station getSecond() {
-            return getStationById(StringIdFor.createId(SECOND_STATION));
+            return getStationById(Station.createId(SECOND_STATION));
         }
 
         public Station getInterchange() {
-            return getStationById(StringIdFor.createId(INTERCHANGE));
+            return getStationById(Station.createId(INTERCHANGE));
         }
 
         public Station getLast() {
-            return getStationById(StringIdFor.createId(LAST_STATION));
+            return getStationById(Station.createId(LAST_STATION));
         }
 
         public Station getFifthStation() {
-            return getStationById(StringIdFor.createId(STATION_FIVE));
+            return getStationById(Station.createId(STATION_FIVE));
         }
 
         public Station getFourthStation() {
-            return getStationById(StringIdFor.createId(STATION_FOUR));
+            return getStationById(Station.createId(STATION_FOUR));
         }
 
         public Station getFourthStationDupName() {
-            return getStationById(StringIdFor.createId(STATION_FOUR_DUP_NAME));
+            return getStationById(Station.createId(STATION_FOUR_DUP_NAME));
         }
 
         public Route getRouteA() {

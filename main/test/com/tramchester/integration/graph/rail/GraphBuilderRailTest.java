@@ -97,7 +97,7 @@ class GraphBuilderRailTest {
         Set<IdFor<Station>> destinations = list.stream().map(Relationship::getEndNode).
                 map(GraphProps::getStationId).collect(Collectors.toSet());
 
-        assertTrue(destinations.contains(StringIdFor.createId("STKP")), destinations.toString());
+        assertTrue(destinations.contains(Station.createId("STKP")), destinations.toString());
     }
 
     @Test

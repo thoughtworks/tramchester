@@ -64,7 +64,7 @@ public class MutableStation implements Station {
     }
 
     public static Station Unknown(DataSourceID dataSourceID) {
-        return new MutableStation(StringIdFor.createId("unknown"), NaptanArea.Invalid().getId(), "Unknown",
+        return new MutableStation(StringIdFor.createId("unknown", Station.class), NaptanArea.Invalid().getId(), "Unknown",
                 LatLong.Invalid, GridPosition.Invalid, dataSourceID, false, Duration.ZERO);
     }
 

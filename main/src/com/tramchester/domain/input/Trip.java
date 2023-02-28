@@ -4,12 +4,17 @@ import com.tramchester.domain.*;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.id.IdFor;
+import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.GraphPropertyKey;
 
 public interface Trip extends HasId<Trip>, HasTransportMode, GraphProperty, CoreDomain {
+
+    static IdFor<Trip> createId(String text) {
+        return StringIdFor.createId(text, Trip.class);
+    }
 
     IdFor<Trip> getId();
 

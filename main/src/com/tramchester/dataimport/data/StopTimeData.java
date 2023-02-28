@@ -106,7 +106,7 @@ public class StopTimeData {
     }
 
     public IdFor<Platform> getPlatformId() {
-        return StringIdFor.createId(stopId);
+        return Platform.createId(stopId);
     }
 
     public boolean isValid() {

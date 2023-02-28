@@ -1,6 +1,8 @@
 package com.tramchester.unit.dataimport.data;
 
 import com.tramchester.dataimport.data.RouteData;
+import com.tramchester.domain.Agency;
+import com.tramchester.domain.Route;
 import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.reference.GTFSTransportationType;
 import com.tramchester.testSupport.TestEnv;
@@ -21,10 +23,10 @@ class RouteDataParserTest extends ParserTestCSVHelper<RouteData> {
     void shouldParseTramRouteOldFormat() {
         RouteData result = parse("MET:MET4:O:,MET,MET4,Ashton-Under-Lyne - Manchester - Eccles,0");
 
-        assertThat(result.getId()).isEqualTo(StringIdFor.createId("MET:MET4:O:"));
+        assertThat(result.getId()).isEqualTo(Route.createId("MET:MET4:O:"));
         assertThat(result.getShortName()).isEqualTo("MET4");
         assertThat(result.getLongName()).isEqualTo("Ashton-Under-Lyne - Manchester - Eccles");
-        assertThat(result.getAgencyId()).isEqualTo(StringIdFor.createId("MET"));
+        assertThat(result.getAgencyId()).isEqualTo(Agency.createId("MET"));
         assertThat(result.getRouteType()).isEqualTo(GTFSTransportationType.tram);
     }
 
@@ -32,7 +34,7 @@ class RouteDataParserTest extends ParserTestCSVHelper<RouteData> {
     void shouldParseTramRouteInboundOldFormat() {
         RouteData result = parse("MET:MET4:I:,MET,MET4,Ashton-Under-Lyne - Manchester - Eccles,0");
 
-        assertThat(result.getId()).isEqualTo(StringIdFor.createId("MET:MET4:I:"));
+        assertThat(result.getId()).isEqualTo(Route.createId("MET:MET4:I:"));
         assertThat(result.getShortName()).isEqualTo("MET4");
         assertThat(result.getRouteType()).isEqualTo(GTFSTransportationType.tram);
     }
@@ -41,7 +43,7 @@ class RouteDataParserTest extends ParserTestCSVHelper<RouteData> {
     void shouldParseTramRoute() {
         RouteData result = parse("METLBLUE:O:2021-03-08,METL,Blue Line,Eccles - Manchester - Ashton Under Lyne,0");
 
-        assertThat(result.getId()).isEqualTo(StringIdFor.createId("METLBLUE:O:2021-03-08"));
+        assertThat(result.getId()).isEqualTo(Route.createId("METLBLUE:O:2021-03-08"));
         assertThat(result.getShortName()).isEqualTo("Blue Line");
         assertThat(result.getLongName()).isEqualTo("Eccles - Manchester - Ashton Under Lyne");
         assertThat(result.getAgencyId()).isEqualTo(TestEnv.MetAgency().getId());
@@ -53,7 +55,7 @@ class RouteDataParserTest extends ParserTestCSVHelper<RouteData> {
     void shouldParseTramRouteInbound() {
         RouteData result = parse("METLBLUE:I:2021-03-08,METL,Blue Line,Ashton Under Lyne - Manchester - Eccles,0");
 
-        assertThat(result.getId()).isEqualTo(StringIdFor.createId("METLBLUE:I:2021-03-08"));
+        assertThat(result.getId()).isEqualTo(Route.createId("METLBLUE:I:2021-03-08"));
         assertThat(result.getShortName()).isEqualTo("Blue Line");
         assertThat(result.getLongName()).isEqualTo("Ashton Under Lyne - Manchester - Eccles");
         assertThat(result.getAgencyId()).isEqualTo(TestEnv.MetAgency().getId());
@@ -64,10 +66,10 @@ class RouteDataParserTest extends ParserTestCSVHelper<RouteData> {
     void shouldParseBusRoute() {
         RouteData result = parse("JSC: 588:C:,JSC, 588,\"Leigh - Lowton, Scott Road\",3");
 
-        assertThat(result.getId()).isEqualTo(StringIdFor.createId("JSC:588:C:"));
+        assertThat(result.getId()).isEqualTo(Route.createId("JSC:588:C:"));
         assertThat(result.getShortName().trim()).isEqualTo("588");
         assertThat(result.getLongName()).isEqualTo("Leigh - Lowton, Scott Road");
-        assertThat(result.getAgencyId()).isEqualTo(StringIdFor.createId("JSC"));
+        assertThat(result.getAgencyId()).isEqualTo(Agency.createId("JSC"));
         assertThat(result.getRouteType()).isEqualTo(GTFSTransportationType.bus);
     }
 

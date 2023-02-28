@@ -93,7 +93,7 @@ public class GTFSStopTimeLoader {
         public void loadStopTimeData(StopTimeData stopTimeData) {
             final String stopId = stopTimeData.getStopId();
             final IdFor<Station> stationId = factory.formStationId(stopId);
-            final IdFor<Trip> stopTripId = StringIdFor.createId(stopTimeData.getTripId());
+            final IdFor<Trip> stopTripId = Trip.createId(stopTimeData.getTripId());
 
             if (preloadStations.hasId(stationId)) {
                 final MutableTrip trip = tripAndServices.getTrip(stopTripId);

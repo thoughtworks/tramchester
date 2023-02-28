@@ -40,10 +40,9 @@ public class RouteIndexDataSerialisationTest {
         assertEquals(routeId, result.getRouteId());
     }
 
-    @Ignore("wip")
     @Test
     void shouldRoundTripWithRailRouteId() throws JsonProcessingException {
-        IdFor<Agency> agencyId = StringIdFor.createId("NT");
+        IdFor<Agency> agencyId = Agency.createId("NT");
         RailRouteId railRouteId = new RailRouteId(LondonEuston.getId(), StokeOnTrent.getId(), agencyId, 1);
 
         RouteIndexData routeIndexData = new RouteIndexData(56, railRouteId);

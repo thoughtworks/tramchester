@@ -67,6 +67,6 @@ public enum TrainOperatingCompanies {
     }
 
     public IdFor<Agency> getAgencyId() {
-        return StringIdFor.createId(name());
+        return Agency.createId(name());
     }
 }

@@ -17,10 +17,7 @@ import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TramRouteHelper;
 import com.tramchester.testSupport.reference.KnownTramRoute;
 import com.tramchester.testSupport.testTags.DualTest;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 import java.io.IOException;
@@ -39,6 +36,7 @@ public class RouteIndexTest {
 
     private static Path cacheFile;
     private static GuiceContainerDependencies componentContainer;
+    private static Path otherFile;
 
     private RouteRepository routeRepository;
     private LoaderSaverFactory factory;
@@ -51,6 +49,7 @@ public class RouteIndexTest {
         final Path cacheFolder = tramchesterConfig.getCacheFolder();
 
         cacheFile = cacheFolder.resolve(RouteToRouteCosts.INDEX_FILE);
+        otherFile = cacheFile.resolveSibling(cacheFile.getFileName() + ".fortesting.json");
 
         componentContainer = new ComponentsBuilder().create(tramchesterConfig, TestEnv.NoopRegisterMetrics());
         componentContainer.initialise();
@@ -59,20 +58,24 @@ public class RouteIndexTest {
 
     @AfterAll
     static void OnceAfterAllTestsAreFinished() {
-
-        // Clear Cache
-        TestEnv.clearDataCache(componentContainer); // => this removes the index cache
         componentContainer.close();
     }
 
     @BeforeEach
-    void beforeEachTestRuns() {
+    void beforeEachTestRuns() throws IOException {
         routeRepository = componentContainer.get(RouteRepository.class);
         factory = componentContainer.get(LoaderSaverFactory.class);
         routeIndex = componentContainer.get(RouteIndex.class);
 
         routeHelper = new TramRouteHelper(routeRepository);
         date = TestEnv.testDay();
+
+        Files.deleteIfExists(otherFile);
+    }
+
+    @AfterEach
+    void onceAfterEachTestRuns() throws IOException {
+        Files.deleteIfExists(otherFile);
     }
 
     @Test
@@ -102,8 +105,6 @@ public class RouteIndexTest {
     @Test
     void shouldSaveToCacheAndReload() throws IOException {
 
-        Path otherFile = cacheFile.resolveSibling(cacheFile.getFileName() + ".fortesting.json");
-        Files.deleteIfExists(otherFile);
 
         routeIndex.cacheTo(factory.getDataSaverFor(RouteIndexData.class, otherFile));
 

@@ -64,7 +64,7 @@ public interface Station extends Location<Station> {
     Duration getMinChangeDuration();
 
     static IdFor<Station> createId(String text) {
-        return StringIdFor.createId(text);
+        return StringIdFor.createId(text, Station.class);
     }
 
 }

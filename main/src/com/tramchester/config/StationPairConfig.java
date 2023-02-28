@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.tramchester.domain.StationIdPair;
 import com.tramchester.domain.id.StringIdFor;
+import com.tramchester.domain.places.Station;
 
 import javax.validation.Valid;
 
@@ -30,7 +31,7 @@ public class StationPairConfig {
 
     @JsonIgnore
     public StationIdPair getStations() {
-        return new StationIdPair(StringIdFor.createId(first), StringIdFor.createId(second));
+        return new StationIdPair(Station.createId(first), Station.createId(second));
     }
 
     @Override

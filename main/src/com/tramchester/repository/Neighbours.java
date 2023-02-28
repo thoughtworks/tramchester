@@ -168,8 +168,8 @@ public class Neighbours implements NeighboursRepository {
     @Override
     public boolean areNeighbours(Location<?> start, Location<?> destination) {
         if (start.getLocationType() == LocationType.Station && destination.getLocationType()==LocationType.Station) {
-            IdFor<Station> stationId = StringIdFor.convert(start.getId());
-            IdFor<Station> destinationId = StringIdFor.convert(destination.getId());
+            IdFor<Station> stationId = StringIdFor.convert(start.getId(), Station.class);
+            IdFor<Station> destinationId = StringIdFor.convert(destination.getId(), Station.class);
             if (!hasNeighbours(stationId)) {
                 return false;
             }

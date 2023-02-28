@@ -192,7 +192,7 @@ public class InterchangesTramTest {
 
         IdSet<Route> dropOffs = cornbrook.getDropoffRoutes().stream().collect(IdSet.collector());
 
-        assertTrue(dropOffs.contains(StringIdFor.createId("METLRED:I:CURRENT")), dropOffs.toString());
+        assertTrue(dropOffs.contains(Route.createId("METLRED:I:CURRENT")), dropOffs.toString());
     }
 
     @Test

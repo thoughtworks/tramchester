@@ -13,7 +13,6 @@ import org.junit.jupiter.api.Test;
 import java.util.LinkedList;
 import java.util.List;
 
-import static com.tramchester.domain.id.StringIdFor.createId;
 import static com.tramchester.domain.reference.TransportMode.Tram;
 import static com.tramchester.domain.time.TramTime.nextDay;
 import static com.tramchester.domain.time.TramTime.of;
@@ -29,9 +28,9 @@ class TripTest {
 
     @BeforeEach
     void beforeEachTestRuns() {
-        Service service = MutableService.build(createId("svcId"));
+        Service service = MutableService.build(Service.createId("svcId"));
 
-        trip = new MutableTrip(createId("tripId"),"headSign", service, TestEnv.getTramTestRoute(), Tram);
+        trip = new MutableTrip(Trip.createId("tripId"),"headSign", service, TestEnv.getTramTestRoute(), Tram);
 
         stationA = TramStations.Ashton;
         stationB = TramStations.Broadway;
@@ -147,14 +146,14 @@ class TripTest {
 
     @Test
     void shouldKnowIfTramTrip() {
-        Service service = MutableService.build(createId("svcId"));
+        Service service = MutableService.build(Service.createId("svcId"));
 
-        Trip tripA = MutableTrip.build(createId("tripId"), "headSign", service, TestEnv.getTramTestRoute());
+        Trip tripA = MutableTrip.build(Trip.createId("tripId"), "headSign", service, TestEnv.getTramTestRoute());
         assertTrue(TransportMode.isTram(tripA));
-        final Agency agency = MutableAgency.build(DataSourceID.tfgm, createId("BUS"), "agencyName");
-        Route busRoute = MutableRoute.getRoute(createId("busRouteId"), "busRouteCode", "busRouteName",
+        final Agency agency = MutableAgency.build(DataSourceID.tfgm, Agency.createId("BUS"), "agencyName");
+        Route busRoute = MutableRoute.getRoute(Route.createId("busRouteId"), "busRouteCode", "busRouteName",
                 agency, TransportMode.Bus);
-        Trip tripB = MutableTrip.build(createId("tripId"), "headSign", service, busRoute);
+        Trip tripB = MutableTrip.build(Trip.createId("tripId"), "headSign", service, busRoute);
         assertFalse(TransportMode.isTram(tripB));
     }
 

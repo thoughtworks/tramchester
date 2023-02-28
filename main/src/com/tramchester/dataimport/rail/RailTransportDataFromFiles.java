@@ -211,11 +211,11 @@ public class RailTransportDataFromFiles implements DirectDataSourceFactory.Popul
         }
 
         private MutableStation createStationFor(PhysicalStationRecord record) {
-            IdFor<Station> id = StringIdFor.createId(record.getTiplocCode());
+            IdFor<Station> id = Station.createId(record.getTiplocCode());
 
             String name = record.getName();
             GridPosition grid = GridPosition.Invalid;
-            IdFor<NaptanArea> areaId = IdFor.invalid();
+            IdFor<NaptanArea> areaId = NaptanArea.invalidId();
             boolean isInterchange = (record.getRailInterchangeType()!= RailInterchangeType.None);
 
             if (naptanRepository.containsTiploc(id)) {

@@ -55,6 +55,11 @@ public class RailRouteId implements IdFor<Route> {
     }
 
     @Override
+    public Class<Route> getDomainType() {
+        return Route.class;
+    }
+
+    @Override
     public String toString() {
         return "RailRouteId{" +
                 "asString=" + asString +

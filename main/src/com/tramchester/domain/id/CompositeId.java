@@ -24,7 +24,7 @@ public class CompositeId<T extends CoreDomain> implements IdFor<T> {
     }
 
     // <T extends HasId<T> & GraphProperty>
-    public static <T extends CoreDomain> CompositeId<T> parse(String text) {
+    public static <T extends CoreDomain> CompositeId<T> parse(String text, Class<T> domainType) {
         if (!isComposite(text)) {
             throw new RuntimeException("Could not parse " + text);
         }
@@ -33,7 +33,7 @@ public class CompositeId<T extends CoreDomain> implements IdFor<T> {
         IdSet<T> ids = new IdSet<>();
         String[] parts = bare.split(DIVIDER);
         for (String part : parts) {
-            IdFor<T> id = StringIdFor.createId(part);
+            IdFor<T> id = StringIdFor.createId(part, domainType);
             ids.add(id);
         }
         return new CompositeId<>(ids);
@@ -79,6 +79,11 @@ public class CompositeId<T extends CoreDomain> implements IdFor<T> {
     @Override
     public boolean isValid() {
         return ids.stream().map(IdFor::isValid).reduce((a, b) -> a && b).orElse(false);
+    }
+
+    @Override
+    public Class<T> getDomainType() {
+        return null;
     }
 
     @Override

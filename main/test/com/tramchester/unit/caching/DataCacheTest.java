@@ -11,6 +11,7 @@ import com.tramchester.dataimport.data.CostsPerDegreeData;
 import com.tramchester.dataimport.data.PostcodeHintData;
 import com.tramchester.dataimport.data.RouteIndexData;
 import com.tramchester.domain.DataSourceID;
+import com.tramchester.domain.Route;
 import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.geo.BoundingBox;
 import com.tramchester.testSupport.TestConfig;
@@ -59,7 +60,7 @@ public class DataCacheTest extends EasyMockSupport  {
 
         routeIndexTestItems = ThreadLocalRandom.current().ints().
                 limit(NUM_ROUTE_INDEX_DATA).
-                boxed().map(number -> new RouteIndexData(number, StringIdFor.createId("route"+number))).
+                boxed().map(number -> new RouteIndexData(number, Route.createId("route"+number))).
                 collect(Collectors.toUnmodifiableList());
 
         postcodeHintItems = new ArrayList<>();

@@ -4,7 +4,6 @@ import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.places.Station;
 import com.tramchester.repository.StationRepository;
 
-import static com.tramchester.domain.id.StringIdFor.createId;
 
 public enum RailStationIds {
     Stockport(createId("STKP")),
@@ -39,6 +38,10 @@ public enum RailStationIds {
     Eccles(createId("ECCLES")),
     Inverness(createId("IVRNESS")),
     Ashton(createId(("ASHONUL")));
+
+    private static IdFor<Station> createId(String text) {
+        return Station.createId(text);
+    }
 
     private final IdFor<Station> id;
 

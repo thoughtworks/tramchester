@@ -38,18 +38,18 @@ class RouteTest {
     void setUp() {
         NO_DAYS = EnumSet.noneOf(DayOfWeek.class);
         ALL_DAYS = EnumSet.allOf(DayOfWeek.class);
-        routeId = createId("routeId");
-        serviceId = StringIdFor.createId("serviceId");
+        routeId = Route.createId("routeId");
+        serviceId = Service.createId("serviceId");
     }
 
     @Test
     void shouldHaveTramRoute() {
-        Route route = MutableRoute.getRoute(createId("idA"),"code","name", TestEnv.MetAgency(),
+        Route route = MutableRoute.getRoute(Route.createId("idA"),"code","name", TestEnv.MetAgency(),
                 Tram);
         Assertions.assertTrue(TransportMode.isTram(route));
 
-        final Agency agency = MutableAgency.build(DataSourceID.tfgm, createId("GMS"), "agencyName");
-        route = MutableRoute.getRoute(createId("idB"),"code","name",
+        final Agency agency = MutableAgency.build(DataSourceID.tfgm, Agency.createId("GMS"), "agencyName");
+        route = MutableRoute.getRoute(Route.createId("idB"),"code","name",
                 agency, TransportMode.Bus);
         assertFalse(TransportMode.isTram(route));
     }
@@ -79,8 +79,8 @@ class RouteTest {
 
         final Service serviceA = createService(startDate, endDate, "serviceId", EnumSet.of(MONDAY));
 
-        route.addTrip(new MutableTrip(StringIdFor.createId("tripA"), "headSignA", serviceA, route, Tram));
-        route.addTrip(new MutableTrip(StringIdFor.createId("tripB"), "headSignB", serviceA, route, Tram));
+        route.addTrip(new MutableTrip(Trip.createId("tripA"), "headSignA", serviceA, route, Tram));
+        route.addTrip(new MutableTrip(Trip.createId("tripB"), "headSignB", serviceA, route, Tram));
 
         Set<Trip> trips = route.getTrips();
 
@@ -157,7 +157,7 @@ class RouteTest {
 
 
     private MutableService createService(TramDate startDate, TramDate endDate, String serviceId, EnumSet<DayOfWeek> daysOfWeek) {
-        MutableService service = new MutableService(StringIdFor.createId(serviceId));
+        MutableService service = new MutableService(Service.createId(serviceId));
         MutableServiceCalendar calendar = new MutableServiceCalendar(DateRange.of(startDate, endDate), daysOfWeek);
         service.setCalendar(calendar);
         return service;

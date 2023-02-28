@@ -2,22 +2,20 @@ package com.tramchester.unit.domain;
 
 
 import com.tramchester.domain.*;
+import com.tramchester.domain.dates.DateRange;
 import com.tramchester.domain.dates.MutableServiceCalendar;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.IdFor;
-import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.places.MutableStation;
 import com.tramchester.domain.places.NaptanArea;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.LatLong;
-import com.tramchester.domain.dates.DateRange;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.StationHelper;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Test;
 
 import java.time.DayOfWeek;
-import java.time.LocalDate;
 import java.util.EnumSet;
 import java.util.Set;
 
@@ -29,7 +27,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class StationTest {
 
-    private final IdFor<NaptanArea> areaId = StringIdFor.createId("area");
+    private final IdFor<NaptanArea> areaId = NaptanArea.createId("area");
 
     @Test
     void testShouldCreateCorrecly() {
@@ -37,7 +35,7 @@ class StationTest {
                 new LatLong(-2.0, 2.3), DataSourceID.tfgm);
 
         assertEquals("stopName", tramStation.getName());
-        assertEquals(StringIdFor.createId("id"), tramStation.getId());
+        assertEquals(Station.createId("id"), tramStation.getId());
         assertEquals(-2.0, tramStation.getLatLong().getLat(),0);
         assertEquals(2.3, tramStation.getLatLong().getLon(),0);
         assertEquals(areaId, tramStation.getAreaId());
@@ -50,7 +48,7 @@ class StationTest {
                 new LatLong(-2.0, 2.3), DataSourceID.tfgm);
 
         assertEquals("stopName", busStation.getName());
-        assertEquals(StringIdFor.createId("id"), busStation.getId());
+        assertEquals(Station.createId("id"), busStation.getId());
         assertEquals(-2.0, busStation.getLatLong().getLat(),0);
         assertEquals(2.3, busStation.getLatLong().getLon(),0);
         assertEquals(areaId, busStation.getAreaId());
@@ -60,17 +58,17 @@ class StationTest {
     @Test
     void shouldHaveCorrectTransportModes() {
 
-        MutableStation station = new MutableStation(StringIdFor.createId("stationId"), areaId, "name", nearPiccGardens.latLong(),
+        MutableStation station = new MutableStation(Station.createId("stationId"), areaId, "name", nearPiccGardens.latLong(),
                 nearPiccGardens.grid(), DataSourceID.tfgm);
 
         assertTrue(station.getTransportModes().isEmpty());
 
-        final Route route = MutableRoute.getRoute(StringIdFor.createId("routeIdA"), "shortName", "name",
+        final Route route = MutableRoute.getRoute(Route.createId("routeIdA"), "shortName", "name",
                 TestEnv.MetAgency(), Tram);
         station.addRouteDropOff(route);
         assertTrue(station.servesMode(Tram));
 
-        station.addRouteDropOff(MutableRoute.getRoute(StringIdFor.createId("routeIdB"), "trainShort", "train",
+        station.addRouteDropOff(MutableRoute.getRoute(Route.createId("routeIdB"), "trainShort", "train",
                 Walking, Train));
         assertTrue(station.servesMode(Train));
 
@@ -79,12 +77,12 @@ class StationTest {
 
     @Test
     void shouldHavePickupAndDropoffRoutes() {
-        MutableStation station = new MutableStation(StringIdFor.createId("stationId"), areaId, "name", nearPiccGardens.latLong(),
+        MutableStation station = new MutableStation(Station.createId("stationId"), areaId, "name", nearPiccGardens.latLong(),
                 nearPiccGardens.grid(), DataSourceID.tfgm);
 
-        final Route routeA = MutableRoute.getRoute(StringIdFor.createId("routeIdA"), "shortNameA", "nameA",
+        final Route routeA = MutableRoute.getRoute(Route.createId("routeIdA"), "shortNameA", "nameA",
                 TestEnv.MetAgency(), Tram);
-        final Route routeB = MutableRoute.getRoute(StringIdFor.createId("routeIdB"), "shortNameB", "nameB",
+        final Route routeB = MutableRoute.getRoute(Route.createId("routeIdB"), "shortNameB", "nameB",
                 TestEnv.StagecoachManchester, Bus);
 
         assertFalse(station.hasPickup());
@@ -125,10 +123,10 @@ class StationTest {
     void shouldHavePickupAndDropoffRoutesForSpecificDates() {
         EnumSet<DayOfWeek> days = EnumSet.of(MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY, SATURDAY, SUNDAY);
 
-        MutableStation station = new MutableStation(StringIdFor.createId("stationId"), areaId, "name", nearPiccGardens.latLong(),
+        MutableStation station = new MutableStation(Station.createId("stationId"), areaId, "name", nearPiccGardens.latLong(),
                 nearPiccGardens.grid(), DataSourceID.tfgm);
 
-        final MutableRoute routeA = new MutableRoute(StringIdFor.createId("routeIdA"), "shortNameA", "nameA", TestEnv.MetAgency(), Tram);
+        final MutableRoute routeA = new MutableRoute(Route.createId("routeIdA"), "shortNameA", "nameA", TestEnv.MetAgency(), Tram);
 
         DateRange dateRangeA = new DateRange(TramDate.of(2022, 7, 15), TramDate.of(2022, 8, 24));
 
@@ -153,7 +151,7 @@ class StationTest {
 
     @NotNull
     private MutableService createService(EnumSet<DayOfWeek> days, DateRange dateRange, String serviceId) {
-        MutableService service = new MutableService(StringIdFor.createId(serviceId));
+        MutableService service = new MutableService(Service.createId(serviceId));
         MutableServiceCalendar serviceCalendar = new MutableServiceCalendar(dateRange, days);
         service.setCalendar(serviceCalendar);
         return service;

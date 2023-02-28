@@ -81,7 +81,7 @@ public class StationResource extends UsesRecentCookie implements APIResource {
     public Response get(@PathParam("id") String text) {
         logger.info("Get station by id: " + text);
         
-        IdFor<Station> id = StringIdFor.createId(text);
+        IdFor<Station> id = Station.createId(text);
         guardForStationNotExisting(stationRepository, id);
 
         final LocationDTO locationDTO = locationDTOFactory.createLocationDTO(stationRepository.getStationById(id));
@@ -170,8 +170,8 @@ public class StationResource extends UsesRecentCookie implements APIResource {
         RecentJourneys recentJourneys = recentFromCookie(cookie);
 
         Set<Station> recent = recentJourneys.stream().map(Timestamped::getId).
-                filter(id -> stationRepository.hasStationId(StringIdFor.createId(id))).
-                map(id -> stationRepository.getStationById(StringIdFor.createId(id))).
+                filter(id -> stationRepository.hasStationId(Station.createId(id))).
+                map(id -> stationRepository.getStationById(Station.createId(id))).
                 collect(Collectors.toSet());
 
         List<LocationRefDTO> results = toStationRefDTOList(recent);

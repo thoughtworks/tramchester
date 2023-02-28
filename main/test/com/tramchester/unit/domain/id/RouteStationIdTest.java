@@ -3,7 +3,6 @@ package com.tramchester.unit.domain.id;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.RouteStationId;
-import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
 import org.junit.jupiter.api.Test;
@@ -13,12 +12,12 @@ import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
 public class RouteStationIdTest {
 
-    private final IdFor<Station> stationId = StringIdFor.createId("1234");
-    private final IdFor<Route> routeA = StringIdFor.createId("routeA");
+    private final IdFor<Station> stationId = Station.createId("1234");
+    private final IdFor<Route> routeA = Route.createId("routeA");
 
     @Test
     void shouldHaveMixedCompositeEquality() {
-        IdFor<Route> routeB = StringIdFor.createId("routeB");
+        IdFor<Route> routeB = Route.createId("routeB");
 
         IdFor<RouteStation> compositeIdA = RouteStationId.createId(routeA, stationId);
         IdFor<RouteStation> compositeIdB = RouteStationId.createId(routeA, stationId);

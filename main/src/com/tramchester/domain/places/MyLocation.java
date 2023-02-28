@@ -26,7 +26,8 @@ public class MyLocation implements Location<MyLocation> {
 //    private static final IdFor<MyLocation> LocationPlaceHolder = StringIdFor.createId(MY_LOCATION_PLACEHOLDER_ID);
 //
     public static IdFor<MyLocation> createId(LatLong latLong) {
-        return StringIdFor.createId(String.format("%s,%s", latLong.getLat(), latLong.getLon()));
+        String text = String.format("%s,%s", latLong.getLat(), latLong.getLon());
+        return StringIdFor.createId(text, MyLocation.class);
     }
 
     private final LatLong latLong;
@@ -76,7 +77,7 @@ public class MyLocation implements Location<MyLocation> {
 
     @Override
     public IdFor<NaptanArea> getAreaId() {
-        return StringIdFor.invalid();
+        return StringIdFor.invalid(NaptanArea.class);
     }
 
     @Override

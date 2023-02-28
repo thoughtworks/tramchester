@@ -31,7 +31,7 @@ public class CalendarData extends ParsesDate {
     }
 
     public IdFor<Service> getServiceId() {
-        return StringIdFor.createId(serviceId);
+        return StringIdFor.createId(serviceId, Service.class);
     }
 
     @JsonProperty("start_date")

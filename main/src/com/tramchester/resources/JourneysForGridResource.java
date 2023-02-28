@@ -129,7 +129,7 @@ public class JourneysForGridResource implements APIResource, GraphDatabaseDepend
             PostcodeLocation postcode = postcodeRepository.getPostcode(postcodeId);
             destination = postcode.getGridPosition();
         } else {
-            IdFor<Station> stationId = StringIdFor.createId(idText);
+            IdFor<Station> stationId = Station.createId(idText);
             Station station = repository.getStationById(stationId);
             destination = station.getGridPosition();
         }

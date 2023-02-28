@@ -42,8 +42,8 @@ public class StopCallsForGridTest extends EasyMockSupport {
     @BeforeEach
     void beforeEachTest() {
 
-        Service service = MutableService.build(createId("serviceZZZ"));
-        trip = MutableTrip.build(createId("trip999"), "headsign", service, TestEnv.getTramTestRoute());
+        Service service = MutableService.build(Service.createId("serviceZZZ"));
+        trip = MutableTrip.build(Trip.createId("trip999"), "headsign", service, TestEnv.getTramTestRoute());
 
         stationLocations = createMock(StationLocations.class);
         stopCallRepository = createMock(StopCallRepository.class);

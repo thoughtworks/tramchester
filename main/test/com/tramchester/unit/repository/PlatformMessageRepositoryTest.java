@@ -6,6 +6,7 @@ import com.tramchester.domain.Platform;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.StringIdFor;
+import com.tramchester.domain.places.NaptanArea;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.domain.time.TramTime;
@@ -54,7 +55,7 @@ class PlatformMessageRepositoryTest  extends EasyMockSupport {
         lastUpdate = LocalDateTime.of(today, LocalTime.of(15,42));
 
         station = TramStations.Shudehill.fakeWithPlatform("someId1", Shudehill.getLatLong(),
-                DataSourceID.unknown, IdFor.invalid());
+                DataSourceID.unknown, NaptanArea.invalidId());
         platform = TestEnv.onlyPlatform(station);
     }
 
@@ -88,10 +89,10 @@ class PlatformMessageRepositoryTest  extends EasyMockSupport {
         assertTrue(platformMessage.isPresent());
         assertEquals("some message", platformMessage.get().getMessage());
 
-        Optional<PlatformMessage> noMessage = repository.messagesFor(StringIdFor.createId("XXXX"), date, updateTime);
+        Optional<PlatformMessage> noMessage = repository.messagesFor(Platform.createId("XXXX"), date, updateTime);
         assertTrue(noMessage.isEmpty());
 
-        Optional<PlatformMessage> otherMessage = repository.messagesFor(StringIdFor.createId("someOther"), date, updateTime);
+        Optional<PlatformMessage> otherMessage = repository.messagesFor(Platform.createId("someOther"), date, updateTime);
         assertTrue(otherMessage.isPresent());
         assertEquals("some different message", otherMessage.get().getMessage());
 
@@ -101,7 +102,7 @@ class PlatformMessageRepositoryTest  extends EasyMockSupport {
 
 //        final Platform platform = MutablePlatform.buildForTFGMTram("XXXX", "platform name", Ashton.getLatLong(), DataSourceID.unknown, IdFor.invalid());
         Station otherStation = TramStations.Ashton.fakeWithPlatform("XXXX", Ashton.getLatLong(),
-                DataSourceID.unknown, IdFor.invalid());
+                DataSourceID.unknown, NaptanArea.invalidId());
 
         List<PlatformMessage> noStationMsg = repository.messagesFor(otherStation, date, updateTime);
         assertTrue(noStationMsg.isEmpty());
@@ -280,7 +281,7 @@ class PlatformMessageRepositoryTest  extends EasyMockSupport {
         TramDate date = providesNow.getTramDate();
 
         List<PlatformMessage> messageForStation = repository.messagesFor(station, date, time);
-        Optional<PlatformMessage> messageForPlatform = repository.messagesFor(StringIdFor.createId("platformId"), date, time);
+        Optional<PlatformMessage> messageForPlatform = repository.messagesFor(Platform.createId("platformId"), date, time);
         Set<Station> stationsWithMessages = repository.getStationsWithMessages(LocalTime.now());
         int numberOfEntries = repository.numberOfEntries();
         int numberStationsWithEntries = repository.numberStationsWithMessages(LocalDateTime.now());

@@ -4,6 +4,7 @@ import com.tramchester.dataimport.NaPTAN.NaptanXMLData;
 import com.tramchester.dataimport.NaPTAN.xml.stopPoint.NaptanStopData;
 import com.tramchester.dataimport.NaPTAN.xml.stopPoint.NaptanXMLStopAreaRef;
 import com.tramchester.domain.id.StringIdFor;
+import com.tramchester.domain.places.NaptanRecord;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.geo.GridPosition;
 import com.tramchester.repository.naptan.NaptanStopType;
@@ -215,7 +216,7 @@ class NaptanStopDataTest extends ParserTestXMLHelper<NaptanStopData> {
         NaptanStopData data = (NaptanStopData) super.parseFirstOnly(text);
 
         assertIdEquals("9400ZZMAALT", data.getAtcoCode());
-        assertEquals(StringIdFor.convert(TramStations.Altrincham.getId()), data.getAtcoCode());
+        assertEquals(StringIdFor.convert(TramStations.Altrincham.getId(), NaptanRecord.class), data.getAtcoCode());
         assertEquals(NaptanStopType.tramMetroUndergroundAccess, data.getStopType());
         assertEquals(1, data.stopAreasRefs().size());
     }

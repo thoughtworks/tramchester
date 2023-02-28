@@ -1,80 +1,66 @@
 package com.tramchester.domain.id;
 
 import com.tramchester.domain.CoreDomain;
-import com.tramchester.domain.Route;
 import com.tramchester.graph.GraphPropertyKey;
 import org.neo4j.graphdb.Entity;
+
+import java.util.Objects;
 
 public class StringIdFor<T extends CoreDomain> implements IdFor<T> {
     private final String theId;
     private final int hashcode;
+    private final Class<T> domainType;
 
-    protected StringIdFor(String theId) {
+    protected StringIdFor(String theId, Class<T> domainType) {
         this.theId = theId.intern();
-        this.hashcode = theId.hashCode();
+        this.domainType = domainType;
+        this.hashcode = Objects.hash(theId, domainType);
     }
 
-    private StringIdFor() {
-        this("");
+    private StringIdFor(Class<T> domainType) {
+        this("", domainType);
     }
 
-    public static <C extends CoreDomain> IdFor<C> createId(String text) {
+    // todo package private?
+    public static <C extends CoreDomain> IdFor<C> createId(String text, Class<C> domainType) {
         if (text==null) {
-            return invalid();
+            return invalid(domainType);
         }
         if (text.isBlank()) {
-            return invalid();
+            return invalid(domainType);
         }
         if (CompositeId.isComposite(text)) {
-            return CompositeId.parse(text);
+            return CompositeId.parse(text, domainType);
         }
-        return new StringIdFor<>(text);
-    }
-
-    public static <CLASS extends CoreDomain> StringIdFor<CLASS> invalid() {
-        return new StringIdFor<>();
-    }
-
-    public static <FROM extends CoreDomain,TO extends CoreDomain> IdFor<TO> convert(IdFor<FROM> original) {
-        guardForType(original);
-        StringIdFor<FROM> other = (StringIdFor<FROM>) original;
-        return createId(other.theId);
-    }
-
-    public static <T extends CoreDomain, S extends CoreDomain> IdFor<T> withPrefix(String prefix, IdFor<S> original) {
-        guardForType(original);
-        StringIdFor<S> other = (StringIdFor<S>) original;
-        return createId(prefix+other.theId);
-    }
-
-    public static <T extends CoreDomain, S extends CoreDomain> IdFor<Route> withSuffix(IdFor<S> original, String suffix) {
-        guardForType(original);
-        StringIdFor<S> other = (StringIdFor<S>) original;
-        return createId(other.theId+suffix);
-    }
-
-    private static <FROM extends CoreDomain> void guardForType(IdFor<FROM> original) {
-        if (!(original instanceof StringIdFor)) {
-            throw new RuntimeException(original + " is not a StringIdFor");
-        }
+        return new StringIdFor<>(text, domainType);
     }
 
     @Override
-    public boolean equals(Object other) {
-        if (this == other) return true;
-        if (other == null || getClass() != other.getClass()) return false;
-
-        StringIdFor<?> otherId = (StringIdFor<?>) other;
-
-        return theId.equals(otherId.theId);
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        StringIdFor<?> that = (StringIdFor<?>) o;
+        return theId.equals(that.theId) && domainType.equals(that.domainType);
     }
+
+
+//    @Override
+//    public boolean equals(Object other) {
+//        if (this == other) return true;
+//        if (other == null || getClass() != other.getClass()) return false;
+//
+//        StringIdFor<?> otherId = (StringIdFor<?>) other;
+//
+//        return theId.equals(otherId.theId);
+//    }
 
     @Override
     public String toString() {
+        String domainName = domainType.getSimpleName();
         if (isValid()) {
-            return "Id{'" + theId + "'}";
+            return "Id{'" + domainName+ ":" + theId + "'}";
         } else {
-            return "Id{NOT_VALID}";
+            return "Id{"+domainName+":NOT_VALID}";
         }
     }
 
@@ -98,10 +84,36 @@ public class StringIdFor<T extends CoreDomain> implements IdFor<T> {
         return !theId.isEmpty();
     }
 
-    public static <Z extends CoreDomain> IdFor<Z> getIdFromGraphEntity(Entity entity, GraphPropertyKey propertyKey) {
-        String value =  entity.getProperty(propertyKey.getText()).toString();
-        return createId(value);
+    @Override
+    public Class<T> getDomainType() {
+        return domainType;
+    }
 
+    public static <Z extends CoreDomain> IdFor<Z> getIdFromGraphEntity(Entity entity, GraphPropertyKey propertyKey, Class<Z> domainType) {
+        String value =  entity.getProperty(propertyKey.getText()).toString();
+        return createId(value, domainType);
+    }
+
+    public static <CLASS extends CoreDomain> StringIdFor<CLASS> invalid(Class<CLASS> domainType) {
+        return new StringIdFor<>(domainType);
+    }
+
+    public static <FROM extends CoreDomain,TO extends CoreDomain> IdFor<TO> convert(IdFor<FROM> original, Class<TO> domainType) {
+        guardForType(original);
+        StringIdFor<FROM> other = (StringIdFor<FROM>) original;
+        return createId(other.theId, domainType);
+    }
+
+    public static <T extends CoreDomain, S extends CoreDomain> IdFor<T> withPrefix(String prefix, IdFor<S> original, Class<T> domainType) {
+        guardForType(original);
+        StringIdFor<S> other = (StringIdFor<S>) original;
+        return createId(prefix+other.theId, domainType);
+    }
+
+    private static <FROM extends CoreDomain> void guardForType(IdFor<FROM> original) {
+        if (!(original instanceof StringIdFor)) {
+            throw new RuntimeException(original + " is not a StringIdFor");
+        }
     }
 
 }

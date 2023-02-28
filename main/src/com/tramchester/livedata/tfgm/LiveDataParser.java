@@ -158,7 +158,7 @@ public class LiveDataParser {
         TramStationDepartureInfo departureInfo = new TramStationDepartureInfo(displayId.toString(), line, direction,
                 station, message, updateTime);
 
-        IdFor<Platform> platformId = StringIdFor.createId(atcoCode);
+        IdFor<Platform> platformId = Platform.createId(atcoCode);
         if (platformRepository.hasPlatformId(platformId)) {
             Platform platform = platformRepository.getPlatformById(platformId);
             departureInfo.setStationPlatform(platform);

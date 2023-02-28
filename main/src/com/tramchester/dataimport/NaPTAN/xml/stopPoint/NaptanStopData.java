@@ -45,7 +45,7 @@ public class NaptanStopData implements NaptanXMLData {
     }
 
     public IdFor<NaptanRecord> getAtcoCode() {
-        return StringIdFor.createId(atcoCode);
+        return NaptanRecord.createId(atcoCode);
     }
 
     public boolean hasValidAtcoCode() {

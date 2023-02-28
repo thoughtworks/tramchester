@@ -40,7 +40,7 @@ public class StationGroup implements Location<StationGroup> {
     private final DataSourceID dataSourceId;
 
     public StationGroup(Set<Station> groupedStations, IdFor<NaptanArea> areaId, String name, Duration changeTimeNeeded) {
-        this.id = StringIdFor.convert(areaId);
+        this.id = StringIdFor.convert(areaId, StationGroup.class);
         this.latLong = computeLatLong(groupedStations);
         this.dataSourceId = computeDataSourceId(groupedStations);
         this.groupedStations = groupedStations;

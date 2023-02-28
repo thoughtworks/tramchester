@@ -72,7 +72,7 @@ public class PostcodeLocation implements Location<PostcodeLocation>, CoreDomain,
 
     @Override
     public IdFor<NaptanArea> getAreaId() {
-        return StringIdFor.invalid();
+        return StringIdFor.invalid(NaptanArea.class);
     }
 
     @Override

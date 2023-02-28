@@ -6,10 +6,7 @@ import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.input.Trip;
-import com.tramchester.domain.places.IdForDTO;
-import com.tramchester.domain.places.Location;
-import com.tramchester.domain.places.MyLocation;
-import com.tramchester.domain.places.Station;
+import com.tramchester.domain.places.*;
 import com.tramchester.domain.presentation.DTO.JourneyDTO;
 import com.tramchester.domain.presentation.DTO.LocationRefDTO;
 import com.tramchester.domain.presentation.DTO.LocationRefWithPosition;
@@ -90,7 +87,7 @@ class JourneyToDTOMapperTest extends EasyMockSupport {
     }
 
     private Route createRoute(String name) {
-        return MutableRoute.getRoute(StringIdFor.createId("routeId"), "shortName", name,
+        return MutableRoute.getRoute(Route.createId("routeId"), "shortName", name,
                 TestEnv.MetAgency(), TransportMode.Tram);
     }
 
@@ -165,7 +162,7 @@ class JourneyToDTOMapperTest extends EasyMockSupport {
         TramTime time = TramTime.of(15,45);
 
         Station startStation = Altrincham.fakeWithPlatform(Altrincham.getRawId() + "1", Altrincham.getLatLong(),
-                DataSourceID.unknown, IdFor.invalid());
+                DataSourceID.unknown, NaptanArea.invalidId());
 
         ConnectingStage<Station,Station> connectingStage = new ConnectingStage<>(BusStations.of(StopAtAltrinchamInterchange),
                 startStation, Duration.ofMinutes(1), time);
@@ -213,13 +210,13 @@ class JourneyToDTOMapperTest extends EasyMockSupport {
     void shouldMapThreeStageJourneyWithWalk() {
         TramTime am10 = TramTime.of(10,0);
         Station begin = Altrincham.fakeWithPlatform(Altrincham.getRawId() + "1", Altrincham.getLatLong(),
-                DataSourceID.unknown, IdFor.invalid());
+                DataSourceID.unknown, NaptanArea.invalidId());
         Platform platformA = TestEnv.onlyPlatform(begin);
 
         MyLocation middleA = nearPiccGardensLocation;
 
         Station middleB = MarketStreet.fakeWithPlatform(MarketStreet.getRawId() + "1",
-                MarketStreet.getLatLong(), DataSourceID.unknown, IdFor.invalid());
+                MarketStreet.getLatLong(), DataSourceID.unknown, NaptanArea.invalidId());
 
         Station end = Bury.fake();
 
@@ -279,7 +276,7 @@ class JourneyToDTOMapperTest extends EasyMockSupport {
         Station middle = transportData.getSecond();
         Station finish = transportData.getInterchange();
         Platform platform = MutablePlatform.buildForTFGMTram(start.forDTO() + "1", start,
-                start.getLatLong(), DataSourceID.unknown, IdFor.invalid());
+                start.getLatLong(), DataSourceID.unknown, NaptanArea.invalidId());
 
         VehicleStage rawStageA = getRawVehicleStage(start, middle, createRoute("route text"), startTime,
                 18, platform);
@@ -322,7 +319,7 @@ class JourneyToDTOMapperTest extends EasyMockSupport {
                                             int costInMinutes, Platform platform) {
 
 
-        Trip validTrip = transportData.getTripById(StringIdFor.createId(TRIP_A_ID));
+        Trip validTrip = transportData.getTripById(Trip.createId(TRIP_A_ID));
 
         List<Integer> passedStations = new ArrayList<>();
         VehicleStage vehicleStage = new VehicleStage(start, route, TransportMode.Tram, validTrip,

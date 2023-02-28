@@ -32,7 +32,7 @@ public class RouteData {
     }
 
     public IdFor<Route> getId() {
-        return StringIdFor.createId(removeSpaces(id));
+        return Route.createId(removeSpaces(id));
     }
 
     public String getShortName() {
@@ -44,7 +44,7 @@ public class RouteData {
     }
 
     public IdFor<Agency> getAgencyId() {
-        return StringIdFor.createId(agencyid);
+        return Agency.createId(agencyid);
     }
 
     public GTFSTransportationType getRouteType() {

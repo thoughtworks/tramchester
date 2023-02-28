@@ -60,7 +60,7 @@ public abstract class TransportEntityFactory {
 
     public MutableStation createStation(IdFor<Station> stationId, StopData stopData) {
 
-        IdFor<NaptanArea> areaId = IdFor.invalid();
+        IdFor<NaptanArea> areaId = NaptanArea.invalidId();
         GridPosition position = CoordinateTransforms.getGridPosition(stopData.getLatLong());
         return new MutableStation(stationId, areaId, stopData.getName(), stopData.getLatLong(), position, getDataSourceId());
     }
@@ -99,13 +99,13 @@ public abstract class TransportEntityFactory {
 
     public static IdFor<NaptanArea> chooseArea(NaptanRepository naptanRespository, IdSet<NaptanArea> areaCodes) {
         if (areaCodes.isEmpty()) {
-            return IdFor.invalid();
+            return NaptanArea.invalidId();
         }
 
         IdSet<NaptanArea> active = naptanRespository.activeCodes(areaCodes);
         if (active.isEmpty()) {
             logger.info(format("None of the area codes %s were active ", areaCodes));
-            return IdFor.invalid();
+            return NaptanArea.invalidId();
         }
         if (active.size()==1) {
             return active.toList().get(0);

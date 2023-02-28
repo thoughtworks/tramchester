@@ -2,11 +2,11 @@ package com.tramchester.unit.domain;
 
 
 import com.tramchester.domain.*;
-import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.input.MutableTrip;
 import com.tramchester.domain.input.PlatformStopCall;
 import com.tramchester.domain.input.StopCalls;
 import com.tramchester.domain.input.Trip;
+import com.tramchester.domain.places.NaptanArea;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.TramStations;
@@ -16,7 +16,6 @@ import org.junit.jupiter.api.Test;
 import java.time.Duration;
 import java.util.List;
 
-import static com.tramchester.domain.id.StringIdFor.createId;
 import static com.tramchester.domain.reference.GTFSPickupDropoffType.None;
 import static com.tramchester.domain.reference.GTFSPickupDropoffType.Regular;
 import static com.tramchester.domain.time.TramTime.of;
@@ -44,10 +43,10 @@ class PlatformStopCallsTest {
         stationC = TramStations.Cornbrook;
         stationD = TramStations.Deansgate;
         platformD = MutablePlatform.buildForTFGMTram("statD1", stationD.fake(),
-                stationD.getLatLong(), DataSourceID.unknown, IdFor.invalid());
+                stationD.getLatLong(), DataSourceID.unknown, NaptanArea.invalidId());
 
-        Service service = MutableService.build(createId("svc1"));
-        trip = MutableTrip.build(createId("tripId"), "headSign", service,
+        Service service = MutableService.build(Service.createId("svc1"));
+        trip = MutableTrip.build(Trip.createId("tripId"), "headSign", service,
                 TestEnv.getTramTestRoute());
 
         stopA = TestEnv.createTramStopCall(trip, "statA1", stationA, 3, of(10, 10), of(10, 11));

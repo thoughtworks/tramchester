@@ -6,6 +6,7 @@ import com.tramchester.domain.MutableAgency;
 import com.tramchester.domain.Platform;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.StringIdFor;
+import com.tramchester.domain.places.NaptanArea;
 import com.tramchester.domain.places.Station;
 import com.tramchester.livedata.domain.liveUpdates.LineDirection;
 import com.tramchester.livedata.domain.liveUpdates.UpcomingDeparture;
@@ -60,11 +61,11 @@ class LiveDataParserTest extends EasyMockSupport {
         platformRepository = createMock(PlatformRepository.class);
 
         Station mediaCity = MediaCityUK.fakeWithPlatform("9400ZZMAMCU2", MediaCityUK.getLatLong(),
-                DataSourceID.unknown, IdFor.invalid());
+                DataSourceID.unknown, NaptanArea.invalidId());
         platformMC = TestEnv.onlyPlatform(mediaCity);
 
         Station airport = ManAirport.fakeWithPlatform("9400ZZMAAIR1",
-                ManAirport.getLatLong(), DataSourceID.unknown, IdFor.invalid());
+                ManAirport.getLatLong(), DataSourceID.unknown, NaptanArea.invalidId());
         final Platform platformAirport = TestEnv.onlyPlatform(airport);
 
         EasyMock.expect(stationRepository.getStationById(MediaCityUK.getId())).andStubReturn(mediaCity);
@@ -192,7 +193,7 @@ class LiveDataParserTest extends EasyMockSupport {
                  }
                 """;
 
-        EasyMock.expect(platformRepository.hasPlatformId(StringIdFor.createId("9400ZZMAMCU5"))).andReturn(false);
+        EasyMock.expect(platformRepository.hasPlatformId(Platform.createId("9400ZZMAMCU5"))).andReturn(false);
 
         replayAll();
         parser.start();
