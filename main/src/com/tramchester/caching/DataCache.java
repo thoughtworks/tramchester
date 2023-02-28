@@ -104,12 +104,12 @@ public class DataCache {
         return Files.list(cacheFolder).filter(Files::isRegularFile).collect(Collectors.toList());
     }
 
-    public <T> void save(Cacheable<T> data, Class<T> theClass) {
+    public <CACHETYPE extends CachableData, T extends CachesData<CACHETYPE>> void save(T data, Class<CACHETYPE> theClass) {
         final Path path = getPathFor(data);
 
         if (ready) {
             logger.info("Saving " + theClass.getSimpleName() + " to " + path);
-            DataSaver<T> saver = getDataSaverFor(theClass, path);
+            DataSaver<CACHETYPE> saver = getDataSaverFor(theClass, path);
             data.cacheTo(saver);
         } else {
             logger.error("Not ready, no data saved to " + path);
@@ -121,12 +121,12 @@ public class DataCache {
         return new CsvDataSaver<>(theClass, path, mapper);
     }
 
-    public <T> boolean has(Cacheable<T> cacheable) {
-        return Files.exists(getPathFor(cacheable));
+    public <CACHETYPE extends CachableData, T extends CachesData<CACHETYPE>> boolean has(T cachesData) {
+        return Files.exists(getPathFor(cachesData));
     }
 
     @NotNull
-    public <T> Path getPathFor(Cacheable<T> data) {
+    public <CACHETYPE extends CachableData, T extends CachesData<CACHETYPE>> Path getPathFor(T data) {
         String filename = data.getFilename();
         return cacheFolder.resolve(filename).toAbsolutePath();
     }
@@ -152,15 +152,15 @@ public class DataCache {
         }
     }
 
-    public <T> void loadInto(Cacheable<T> cacheable, Class<T> theClass)  {
+    public <CACHETYPE extends CachableData, T extends CachesData<CACHETYPE>> void loadInto(T cachesData, Class<CACHETYPE> theClass)  {
         if (ready) {
-            Path cacheFile = getPathFor(cacheable);
+            Path cacheFile = getPathFor(cachesData);
             logger.info("Loading " + cacheFile.toAbsolutePath()  + " to " + theClass.getSimpleName());
 
-            TransportDataFromCSVFile<T,T> loader = new TransportDataFromCSVFile<>(cacheFile, theClass, mapper);
-            Stream<T> data = loader.load();
+            TransportDataFromCSVFile<CACHETYPE,CACHETYPE> loader = new TransportDataFromCSVFile<>(cacheFile, theClass, mapper);
+            Stream<CACHETYPE> data = loader.load();
             try {
-                cacheable.loadFrom(data);
+                cachesData.loadFrom(data);
             } catch (CacheLoadException exception) {
                 final String message = format("Failed to load %s from cache file %s ", theClass.getSimpleName(), cacheFile);
                 logger.error(message);
@@ -168,7 +168,7 @@ public class DataCache {
             }
             data.close();
         } else {
-            throw new RuntimeException("Attempt to load from " + cacheable.getFilename() + " for " + theClass.getSimpleName()
+            throw new RuntimeException("Attempt to load from " + cachesData.getFilename() + " for " + theClass.getSimpleName()
                     + " when not ready");
         }
 
@@ -181,7 +181,7 @@ public class DataCache {
         }
     }
 
-    public interface Cacheable<T> {
+    public interface CachesData<T extends CachableData> {
         void cacheTo(DataSaver<T> saver);
         String getFilename();
         void loadFrom(Stream<T> stream) throws CacheLoadException;

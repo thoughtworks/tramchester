@@ -1,8 +1,10 @@
 package com.tramchester.dataimport.data;
 
+import com.tramchester.caching.CachableData;
+
 import java.util.List;
 
-public class CostsPerDegreeData {
+public class CostsPerDegreeData implements CachableData {
     private int index;
     private int routeIndex;
     private List<Integer> setBits;

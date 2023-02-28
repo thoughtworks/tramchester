@@ -2,7 +2,6 @@ package com.tramchester.graph.search.routes;
 
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.caching.DataCache;
-import com.tramchester.dataexport.CsvDataSaver;
 import com.tramchester.dataexport.DataSaver;
 import com.tramchester.dataimport.data.RouteIndexData;
 import com.tramchester.domain.Route;
@@ -29,7 +28,7 @@ import java.util.stream.Stream;
  * via bitmaps. Expensive to create for buses and trains, so cacheable.
  */
 @LazySingleton
-public class RouteIndex implements DataCache.Cacheable<RouteIndexData> {
+public class RouteIndex implements DataCache.CachesData<RouteIndexData> {
     private static final Logger logger = LoggerFactory.getLogger(RouteIndex.class);
 
     private final RouteRepository routeRepository;

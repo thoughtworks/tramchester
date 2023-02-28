@@ -3,7 +3,6 @@ package com.tramchester.unit.caching;
 import com.tramchester.caching.DataCache;
 import com.tramchester.config.GTFSSourceConfig;
 import com.tramchester.config.RemoteDataSourceConfig;
-import com.tramchester.dataexport.CsvDataSaver;
 import com.tramchester.dataexport.DataSaver;
 import com.tramchester.dataimport.RemoteDataAvailable;
 import com.tramchester.dataimport.data.RouteIndexData;
@@ -138,7 +137,7 @@ public class DataCacheTest extends EasyMockSupport  {
         verifyAll();
     }
 
-    private static class CacheableTestClass implements DataCache.Cacheable<RouteIndexData> {
+    private static class CacheableTestClass implements DataCache.CachesData<RouteIndexData> {
 
         private final List<RouteIndexData> list;
 

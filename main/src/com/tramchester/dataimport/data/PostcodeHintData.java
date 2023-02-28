@@ -1,8 +1,9 @@
 package com.tramchester.dataimport.data;
 
+import com.tramchester.caching.CachableData;
 import com.tramchester.geo.BoundingBox;
 
-public class PostcodeHintData {
+public class PostcodeHintData implements CachableData {
     private String code;
     private long minEasting;
     private long minNorthing;

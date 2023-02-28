@@ -2,7 +2,6 @@ package com.tramchester.graph.search.routes;
 
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.caching.DataCache;
-import com.tramchester.dataexport.CsvDataSaver;
 import com.tramchester.dataexport.DataSaver;
 import com.tramchester.dataimport.data.CostsPerDegreeData;
 import com.tramchester.domain.Route;
@@ -741,7 +740,7 @@ public class RouteCostMatrix implements RouteCostCombinations {
     /***
      * encapsulate cost per degree to facilitate caching
      */
-    private class CostsPerDegree implements DataCache.Cacheable<CostsPerDegreeData> {
+    private class CostsPerDegree implements DataCache.CachesData<CostsPerDegreeData> {
         private final IndexedBitSet[] bitSets;
         private final int size;
 
