@@ -1,6 +1,7 @@
 package com.tramchester.unit.caching;
 
 import com.tramchester.caching.DataCache;
+import com.tramchester.caching.LoaderSaverFactory;
 import com.tramchester.config.GTFSSourceConfig;
 import com.tramchester.config.RemoteDataSourceConfig;
 import com.tramchester.dataexport.DataSaver;
@@ -39,7 +40,11 @@ public class DataCacheTest extends EasyMockSupport  {
     @BeforeEach
     void onceBeforeEachTestRuns() {
         remoteDataRefreshed = createMock(RemoteDataAvailable.class);
-        dataCache = new DataCache(new LocalTestConfig(cacheFolder), remoteDataRefreshed);
+
+        LoaderSaverFactory loaderSaverFactory = new LoaderSaverFactory();
+        loaderSaverFactory.start();
+
+        dataCache = new DataCache(new LocalTestConfig(cacheFolder), remoteDataRefreshed, loaderSaverFactory);
 
         dataCache.clearFiles();
 
@@ -61,6 +66,8 @@ public class DataCacheTest extends EasyMockSupport  {
         CacheableTestClass cacheableToSave = new CacheableTestClass(testItems);
         CacheableTestClass cacheableToLoad = new CacheableTestClass();
 
+        Path filePath = cacheFolder.resolve(cacheableToSave.getFilename());
+
         EasyMock.expect(remoteDataRefreshed.refreshed(DataSourceID.tfgm)).andStubReturn(false);
 
         replayAll();
@@ -69,7 +76,7 @@ public class DataCacheTest extends EasyMockSupport  {
         assertFalse(dataCache.has(cacheableToSave));
 
         dataCache.save(cacheableToSave, RouteIndexData.class);
-        assertTrue(cacheFolder.resolve(cacheableToSave.getFilename()).toFile().exists());
+        assertTrue(filePath.toFile().exists());
         assertTrue(dataCache.has(cacheableToSave));
 
         // now load

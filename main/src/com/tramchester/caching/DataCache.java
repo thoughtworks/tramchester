@@ -1,14 +1,11 @@
 package com.tramchester.caching;
 
-import com.fasterxml.jackson.dataformat.csv.CsvMapper;
-import com.fasterxml.jackson.module.afterburner.AfterburnerModule;
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.config.RemoteDataSourceConfig;
 import com.tramchester.config.TramchesterConfig;
-import com.tramchester.dataexport.CsvDataSaver;
 import com.tramchester.dataexport.DataSaver;
 import com.tramchester.dataimport.RemoteDataAvailable;
-import com.tramchester.dataimport.loader.files.TransportDataFromCSVFile;
+import com.tramchester.dataimport.loader.files.TransportDataFromFile;
 import com.tramchester.domain.DataSourceID;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
@@ -34,17 +31,16 @@ public class DataCache {
 
     private final Path cacheFolder;
     private final RemoteDataAvailable remoteDataRefreshed;
-    private final CsvMapper mapper;
     private final TramchesterConfig config;
+    private final LoaderSaverFactory loaderSaverFactory;
     private boolean ready;
 
     @Inject
-    public DataCache(TramchesterConfig config, RemoteDataAvailable remoteDataRefreshed) {
+    public DataCache(TramchesterConfig config, RemoteDataAvailable remoteDataRefreshed, LoaderSaverFactory loaderSaverFactory) {
         this.config = config;
         this.cacheFolder = config.getCacheFolder().toAbsolutePath();
         this.remoteDataRefreshed = remoteDataRefreshed;
-
-        this.mapper = CsvMapper.builder().addModule(new AfterburnerModule()).build();
+        this.loaderSaverFactory = loaderSaverFactory;
     }
 
     @PostConstruct
@@ -109,16 +105,11 @@ public class DataCache {
 
         if (ready) {
             logger.info("Saving " + theClass.getSimpleName() + " to " + path);
-            DataSaver<CACHETYPE> saver = getDataSaverFor(theClass, path);
+            DataSaver<CACHETYPE> saver = loaderSaverFactory.getDataSaverFor(theClass, path);
             data.cacheTo(saver);
         } else {
             logger.error("Not ready, no data saved to " + path);
         }
-    }
-
-    @NotNull
-    private <T> DataSaver<T> getDataSaverFor(Class<T> theClass, Path path) {
-        return new CsvDataSaver<>(theClass, path, mapper);
     }
 
     public <CACHETYPE extends CachableData, T extends CachesData<CACHETYPE>> boolean has(T cachesData) {
@@ -157,7 +148,8 @@ public class DataCache {
             Path cacheFile = getPathFor(cachesData);
             logger.info("Loading " + cacheFile.toAbsolutePath()  + " to " + theClass.getSimpleName());
 
-            TransportDataFromCSVFile<CACHETYPE,CACHETYPE> loader = new TransportDataFromCSVFile<>(cacheFile, theClass, mapper);
+            TransportDataFromFile<CACHETYPE> loader = loaderSaverFactory.getDataLoaderFor(theClass, cacheFile);
+
             Stream<CACHETYPE> data = loader.load();
             try {
                 cachesData.loadFrom(data);
@@ -171,8 +163,9 @@ public class DataCache {
             throw new RuntimeException("Attempt to load from " + cachesData.getFilename() + " for " + theClass.getSimpleName()
                     + " when not ready");
         }
-
     }
+
+
 
     public static class CacheLoadException extends Exception {
 
