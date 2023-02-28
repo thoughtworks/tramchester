@@ -8,6 +8,7 @@ import com.tramchester.domain.Route;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.RailRouteId;
 import com.tramchester.domain.id.StringIdFor;
+import org.junit.Ignore;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
@@ -39,7 +40,7 @@ public class RouteIndexDataSerialisationTest {
         assertEquals(routeId, result.getRouteId());
     }
 
-    @Disabled("WIP on serilisaiton handling for IDs")
+    @Ignore("wip")
     @Test
     void shouldRoundTripWithRailRouteId() throws JsonProcessingException {
         IdFor<Agency> agencyId = StringIdFor.createId("NT");

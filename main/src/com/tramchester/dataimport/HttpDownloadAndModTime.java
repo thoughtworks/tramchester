@@ -81,9 +81,11 @@ public class HttpDownloadAndModTime implements DownloadAndModTime {
         long serverModMillis = 0;
         if (lastModifiedHeader.isPresent()) {
             final String lastMod = lastModifiedHeader.get();
-            logger.info("Mod time for " + response.uri() + " was " + lastMod + " status " + response.statusCode());
             Date modTime = DateUtils.parseDate(lastMod);
             serverModMillis = modTime.getTime();
+
+            logger.info("Mod time for " + response.uri() + " was " + modTime + " " + serverModMillis + "ms status " + response.statusCode());
+
         } else {
             logger.warn("No mod time header for " + response.uri() + " status " + response.statusCode());
             logger.info("Headers were: ");

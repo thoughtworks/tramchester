@@ -38,7 +38,7 @@ import static java.lang.String.format;
 public class RouteToRouteCosts implements BetweenRoutesCostRepository {
     private static final Logger logger = LoggerFactory.getLogger(RouteToRouteCosts.class);
 
-    public final static String INDEX_FILE = "route_index.csv";
+    public final static String INDEX_FILE = "route_index.json";
 
     private final NeighboursRepository neighboursRepository;
     private final StationAvailabilityRepository availabilityRepository;

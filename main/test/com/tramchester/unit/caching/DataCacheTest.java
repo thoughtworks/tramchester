@@ -16,7 +16,6 @@ import com.tramchester.geo.BoundingBox;
 import com.tramchester.testSupport.TestConfig;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.tfgm.TFGMRemoteDataSourceConfig;
-import org.checkerframework.checker.units.qual.C;
 import org.easymock.EasyMock;
 import org.easymock.EasyMockSupport;
 import org.junit.jupiter.api.AfterEach;
@@ -36,9 +35,10 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class DataCacheTest extends EasyMockSupport  {
 
-    static final int SIZE = 10000;
+    static final int NUM_ROUTE_INDEX_DATA = 10000;
     static final Path cacheFolder = TestEnv.CACHE_DIR.resolve("DataCacheTest");
-    public static final String DATA_INDEX_FILENAME = "cacheableTestClass.csv";
+
+    public static final String DATA_INDEX_FILENAME = "cacheableTestClass.json";
     public static final String HINTS_FILENAME = "cacheableTestClassCSV.csv";
 
     private DataCache dataCache;
@@ -58,7 +58,7 @@ public class DataCacheTest extends EasyMockSupport  {
         dataCache.clearFiles();
 
         routeIndexTestItems = ThreadLocalRandom.current().ints().
-                limit(SIZE).
+                limit(NUM_ROUTE_INDEX_DATA).
                 boxed().map(number -> new RouteIndexData(number, StringIdFor.createId("route"+number))).
                 collect(Collectors.toUnmodifiableList());
 

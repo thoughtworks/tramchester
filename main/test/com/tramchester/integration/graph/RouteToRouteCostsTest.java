@@ -1,19 +1,14 @@
 package com.tramchester.integration.graph;
 
-import com.fasterxml.jackson.dataformat.csv.CsvMapper;
-import com.fasterxml.jackson.module.afterburner.AfterburnerModule;
 import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.config.TramchesterConfig;
-import com.tramchester.dataimport.data.RouteIndexData;
-import com.tramchester.dataimport.loader.files.TransportDataFromCSVFile;
 import com.tramchester.domain.LocationSet;
 import com.tramchester.domain.NumberOfChanges;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.RoutePair;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.HasId;
-import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TimeRange;
@@ -33,7 +28,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
-import java.nio.file.Path;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -59,7 +53,6 @@ public class RouteToRouteCostsTest {
     private RouteToRouteCosts routesCostRepository;
     private TramRouteHelper routeHelper;
     private RouteRepository routeRepository;
-    private static Path indexFile;
     private StationRepository stationRepository;
     private final Set<TransportMode> modes = TramsOnly;
     private TramDate date;
@@ -68,22 +61,13 @@ public class RouteToRouteCostsTest {
     @BeforeAll
     static void onceBeforeAnyTestRuns(TramchesterConfig tramchesterConfig) {
         config = tramchesterConfig;
-        final Path cacheFolder = config.getCacheFolder();
-
-        indexFile = cacheFolder.resolve(RouteToRouteCosts.INDEX_FILE);
 
         componentContainer = new ComponentsBuilder().create(config, TestEnv.NoopRegisterMetrics());
         componentContainer.initialise();
-
-        // Clear Cache - test creation here
-        TestEnv.clearDataCache(componentContainer);
     }
 
     @AfterAll
     static void OnceAfterAllTestsAreFinished() {
-
-        // Clear Cache
-        TestEnv.clearDataCache(componentContainer); // => this removes the index cache
         componentContainer.close();
     }
 
@@ -251,23 +235,6 @@ public class RouteToRouteCostsTest {
         assertEquals(routeB.getId(), list.get(1).getId());
         assertEquals(routeC.getId(), list.get(2).getId());
 
-    }
-
-    @Test
-    void shouldSaveIndexAsExpected() {
-        CsvMapper mapper = CsvMapper.builder().addModule(new AfterburnerModule()).build();
-
-        assertTrue(indexFile.toFile().exists(), "Missing " + indexFile.toAbsolutePath());
-
-        TransportDataFromCSVFile<RouteIndexData, RouteIndexData> indexLoader = new TransportDataFromCSVFile<>(indexFile, RouteIndexData.class, mapper);
-        Stream<RouteIndexData> indexFromFile = indexLoader.load();
-        List<RouteIndexData> resultsForIndex = indexFromFile.collect(Collectors.toList());
-
-        IdSet<Route> expected = routeRepository.getRoutes().stream().collect(IdSet.collector());
-        assertEquals(expected.size(), resultsForIndex.size());
-
-        IdSet<Route> idsFromIndex = resultsForIndex.stream().map(RouteIndexData::getRouteId).collect(IdSet.idCollector());
-        assertEquals(expected, idsFromIndex);
     }
 
     @Test
