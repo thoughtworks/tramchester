@@ -28,6 +28,7 @@ public class StationClosuresConfig extends Configuration implements StationClosu
     private final LocalDate end;
     private final Boolean fullyClosed;
 
+    // TODO Might need to change to Set<String> stations cand then convert afterwards
     public StationClosuresConfig(@JsonProperty(value = "stations", required = true) Set<IdFor<Station>> stations,
                                  @JsonProperty(value = "begin", required = true) LocalDate begin,
                                  @JsonProperty(value = "end", required = true) LocalDate end,

@@ -17,6 +17,7 @@ import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TramRouteHelper;
 import com.tramchester.testSupport.reference.KnownTramRoute;
 import com.tramchester.testSupport.testTags.DualTest;
+import org.easymock.EasyMockSupport;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 
@@ -32,7 +33,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @ExtendWith(ConfigParameterResolver.class)
 @DualTest
-public class RouteIndexTest {
+public class RouteIndexTest extends EasyMockSupport {
 
     private static Path cacheFile;
     private static GuiceContainerDependencies componentContainer;
@@ -45,7 +46,7 @@ public class RouteIndexTest {
     private TramDate date;
 
     @BeforeAll
-    static void onceBeforeAnyTestRuns(TramchesterConfig tramchesterConfig) {
+    static void onceBeforeAnyTestRuns(TramchesterConfig tramchesterConfig) throws IOException {
         final Path cacheFolder = tramchesterConfig.getCacheFolder();
 
         cacheFile = cacheFolder.resolve(RouteToRouteCosts.INDEX_FILE);
@@ -53,6 +54,8 @@ public class RouteIndexTest {
 
         componentContainer = new ComponentsBuilder().create(tramchesterConfig, TestEnv.NoopRegisterMetrics());
         componentContainer.initialise();
+
+        Files.deleteIfExists(otherFile);
 
     }
 
@@ -103,8 +106,7 @@ public class RouteIndexTest {
     }
 
     @Test
-    void shouldSaveToCacheAndReload() throws IOException {
-
+    void shouldSaveToCacheAndReload() {
 
         routeIndex.cacheTo(factory.getDataSaverFor(RouteIndexData.class, otherFile));
 

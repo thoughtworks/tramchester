@@ -3,7 +3,6 @@ package com.tramchester.unit.domain;
 import com.tramchester.domain.*;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.IdSet;
-import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.input.MutableTrip;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.NaptanArea;
@@ -57,7 +56,7 @@ class ProvidesTramNotesTest extends EasyMockSupport {
 
     @BeforeEach
     void beforeEachTestRuns() {
-        platformMessageSource = createStrictMock(PlatformMessageSource.class);
+        platformMessageSource = createMock(PlatformMessageSource.class);
         stationDTOFactory = createMock(DTOFactory.class);
         providesNotes = new ProvidesTramNotes(platformMessageSource, stationDTOFactory);
         providesLocalNow = new ProvidesLocalNow();
@@ -368,7 +367,6 @@ class ProvidesTramNotesTest extends EasyMockSupport {
                 andReturn(Optional.of(infoC));
         EasyMock.expect(platformMessageSource.messagesFor(stageEAlty.getBoardingPlatform().getId(), date, queryTime)).
                 andReturn(Optional.of(infoE));
-
 
         final StationNote noteOne = new StationNote(Live, messageOne, createStationRefFor(Pomona));
         final StationNote noteTwo = new StationNote(Live, messageOne, createStationRefFor(Cornbrook));

@@ -1,11 +1,10 @@
 package com.tramchester.domain.id;
 
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.tramchester.domain.CoreDomain;
-import com.tramchester.mappers.serialisation.IdForSerializer;
 import org.jetbrains.annotations.NotNull;
 
-@JsonSerialize(using = IdForSerializer.class)
+@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "className")
 public interface IdFor<T extends CoreDomain> extends Comparable<IdFor<T>> {
 
     static <T extends CoreDomain> IdFor<T> invalid(Class<T> domainType) {

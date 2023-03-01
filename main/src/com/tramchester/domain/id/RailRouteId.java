@@ -1,5 +1,8 @@
 package com.tramchester.domain.id;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.tramchester.domain.Agency;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.places.Station;
@@ -9,14 +12,22 @@ import java.util.Objects;
 
 import static java.lang.String.format;
 
-public class RailRouteId implements IdFor<Route> {
-    final IdFor<Station> begin;
-    final IdFor<Station> end;
-    final IdFor<Agency> agencyId;
-    final int index;
-    final String asString;
 
-    public RailRouteId(IdFor<Station> begin, IdFor<Station> end, IdFor<Agency> agencyId, int index) {
+public class RailRouteId implements IdFor<Route> {
+
+    private final IdFor<Station> begin;
+    private final IdFor<Station> end;
+    private final IdFor<Agency> agencyId;
+    private final int index;
+
+    private final String asString;
+
+    @JsonCreator
+    public RailRouteId(@JsonProperty("begin") IdFor<Station> begin,
+                       @JsonProperty("end") IdFor<Station> end,
+                       @JsonProperty("agencyId") IdFor<Agency> agencyId,
+                       @JsonProperty("intdex") int index) {
+
         this.begin = begin;
         this.end = end;
         this.agencyId = agencyId;
@@ -44,19 +55,38 @@ public class RailRouteId implements IdFor<Route> {
         return asString;
     }
 
+    @JsonIgnore
     @Override
     public String getGraphId() {
         return asString;
     }
 
+    @JsonIgnore
     @Override
     public boolean isValid() {
         return true;
     }
 
+    @JsonIgnore
     @Override
     public Class<Route> getDomainType() {
         return Route.class;
+    }
+
+    public IdFor<Station> getBegin() {
+        return begin;
+    }
+
+    public IdFor<Station> getEnd() {
+        return end;
+    }
+
+    public IdFor<Agency> getAgencyId() {
+        return agencyId;
+    }
+
+    public int getIndex() {
+        return index;
     }
 
     @Override

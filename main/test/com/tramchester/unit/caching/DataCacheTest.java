@@ -12,7 +12,6 @@ import com.tramchester.dataimport.data.PostcodeHintData;
 import com.tramchester.dataimport.data.RouteIndexData;
 import com.tramchester.domain.DataSourceID;
 import com.tramchester.domain.Route;
-import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.geo.BoundingBox;
 import com.tramchester.testSupport.TestConfig;
 import com.tramchester.testSupport.TestEnv;

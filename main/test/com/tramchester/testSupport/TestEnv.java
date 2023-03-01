@@ -306,4 +306,8 @@ public class TestEnv {
         return platforms.get(0);
     }
 
+    public static Path getTempDir() {
+        String tempDir=System.getProperty("java.io.tmpdir");
+        return Path.of(tempDir);
+    }
 }

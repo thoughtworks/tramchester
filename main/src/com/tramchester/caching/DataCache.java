@@ -153,7 +153,8 @@ public class DataCache {
             Stream<CACHETYPE> data = loader.load();
             try {
                 cachesData.loadFrom(data);
-            } catch (CacheLoadException exception) {
+            }
+            catch (CacheLoadException exception) {
                 final String message = format("Failed to load %s from cache file %s ", theClass.getSimpleName(), cacheFile);
                 logger.error(message);
                 throw new RuntimeException(message, exception);

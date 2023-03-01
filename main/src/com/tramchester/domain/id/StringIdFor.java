@@ -1,11 +1,16 @@
 package com.tramchester.domain.id;
 
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.tramchester.domain.CoreDomain;
 import com.tramchester.graph.GraphPropertyKey;
 import org.neo4j.graphdb.Entity;
 
 import java.util.Objects;
+import java.util.Set;
 
+@JsonDeserialize(using = StringIdForDeserializer.class)
+@JsonSerialize(using = StringIdForSerializer.class)
 public class StringIdFor<T extends CoreDomain> implements IdFor<T> {
     private final String theId;
     private final int hashcode;
@@ -33,6 +38,14 @@ public class StringIdFor<T extends CoreDomain> implements IdFor<T> {
             return CompositeId.parse(text, domainType);
         }
         return new StringIdFor<>(text, domainType);
+    }
+
+    public static <T extends CoreDomain> IdSet<T> createIds(Set<String> items, Class<T> domainClass) {
+        return items.stream().map(item -> StringIdFor.createId(item, domainClass)).collect(IdSet.idCollector());
+    }
+
+    String getContainedId() {
+        return theId;
     }
 
     @Override

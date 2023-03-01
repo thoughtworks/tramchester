@@ -24,8 +24,6 @@ public class RouteIndexData implements CachableData {
         return index;
     }
 
-//    @JsonSerialize(using = RouteIdSerializer.class)
-//    @JsonDeserialize(using = RouteIdDeserializer.class)
     public IdFor<Route> getRouteId() {
         return routeId;
     }

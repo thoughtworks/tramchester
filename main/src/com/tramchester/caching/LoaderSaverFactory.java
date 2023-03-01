@@ -33,21 +33,20 @@ public class LoaderSaverFactory {
         objectMapper = new ObjectMapper();
     }
 
-    @NotNull
-    public <CACHETYPE extends CachableData> TransportDataFromFile<CACHETYPE> getDataLoaderFor(Class<CACHETYPE> theClass, Path cacheFile) {
-        FileType type = getFileTypeFor(cacheFile);
+    public <CACHETYPE extends CachableData> TransportDataFromFile<CACHETYPE> getDataLoaderFor(Class<CACHETYPE> theClass, Path path) {
+        FileType type = getFileTypeFor(path);
         switch (type) {
             case csv -> {
-                return new TransportDataFromCSVFile<>(cacheFile, theClass, csvMapper);
+                return new TransportDataFromCSVFile<>(path, theClass, csvMapper);
             }
             case json -> {
-                return new TransportDataFromJSONFile<>(cacheFile, theClass, objectMapper);
+                return new TransportDataFromJSONFile<>(path, theClass, objectMapper);
             }
             default -> throw new RuntimeException("unexepected file type " +type);
         }
     }
 
-    public @NotNull <CACHETYPE> DataSaver<CACHETYPE> getDataSaverFor(Class<CACHETYPE> theClass, Path path) {
+    public <CACHETYPE> DataSaver<CACHETYPE> getDataSaverFor(Class<CACHETYPE> theClass, Path path) {
         FileType type = getFileTypeFor(path);
         switch (type) {
             case csv -> {

@@ -384,6 +384,7 @@ class ConfigMismatchTest {
         Class<AppConfiguration> klass = AppConfiguration.class;
         Validator validator = null;
         ObjectMapper objectMapper = Jackson.newObjectMapper();
+
         String properyPrefix = "dw";
         return new YamlConfigurationFactory<>(klass, validator, objectMapper, properyPrefix);
     }
