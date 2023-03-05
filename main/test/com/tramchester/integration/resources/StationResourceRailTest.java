@@ -1,12 +1,13 @@
 package com.tramchester.integration.resources;
 
 import com.tramchester.App;
+import com.tramchester.domain.id.IdForDTO;
 import com.tramchester.domain.places.Location;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.DTO.LocationDTO;
+import com.tramchester.domain.presentation.DTO.LocationRefDTO;
 import com.tramchester.domain.presentation.DTO.PlatformDTO;
 import com.tramchester.domain.presentation.DTO.RouteRefDTO;
-import com.tramchester.domain.presentation.DTO.LocationRefDTO;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.integration.testSupport.APIClient;
 import com.tramchester.integration.testSupport.IntegrationAppExtension;
@@ -18,7 +19,6 @@ import com.tramchester.testSupport.testTags.TrainTest;
 import io.dropwizard.testing.junit5.DropwizardExtensionsSupport;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.condition.DisabledIfEnvironmentVariable;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 import javax.ws.rs.core.GenericType;
@@ -49,7 +49,8 @@ class StationResourceRailTest {
 
     @Test
     void shouldGetSingleStationWithPlatforms() {
-        String stationId = RailStationIds.ManchesterPiccadilly.getId().forDTO();
+        IdForDTO stationId = RailStationIds.ManchesterPiccadilly.getIdDTO();
+
         String endPoint = "stations/" + stationId;
         Response response = APIClient.getApiResponse(appExtension, endPoint);
         
@@ -91,7 +92,11 @@ class StationResourceRailTest {
 
         assertEquals(expectedIds.size(), results.size());
 
-        List<String> resultIds = results.stream().map(LocationRefDTO::getId).collect(Collectors.toList());
+        List<String> resultIds = results.stream().
+                map(LocationRefDTO::getId).
+                map(IdForDTO::getActualId).
+                collect(Collectors.toList());
+
         assertTrue(expectedIds.containsAll(resultIds));
 
         ArrayList<LocationRefDTO> sortedResults = new ArrayList<>(results);
@@ -113,12 +118,13 @@ class StationResourceRailTest {
         List<LocationRefDTO> stationList = result.readEntity(new GenericType<>() {});
 
         assertEquals(5, stationList.size(), stationList.toString());
-        Set<String> ids = stationList.stream().map(LocationRefDTO::getId).collect(Collectors.toSet());
-        assertTrue(ids.contains(RailStationIds.ManchesterPiccadilly.getId().forDTO()));
-        assertTrue(ids.contains(RailStationIds.ManchesterVictoria.getId().forDTO()));
-        assertTrue(ids.contains(RailStationIds.ManchesterDeansgate.getId().forDTO()));
-        assertTrue(ids.contains(RailStationIds.SalfordCentral.getId().forDTO()));
-        assertTrue(ids.contains(RailStationIds.ManchesterOxfordRoad.getId().forDTO()));
+        Set<IdForDTO> ids = stationList.stream().map(LocationRefDTO::getId).collect(Collectors.toSet());
+
+        assertTrue(ids.contains(RailStationIds.ManchesterPiccadilly.getIdDTO()));
+        assertTrue(ids.contains(RailStationIds.ManchesterVictoria.getIdDTO()));
+        assertTrue(ids.contains(RailStationIds.ManchesterDeansgate.getIdDTO()));
+        assertTrue(ids.contains(RailStationIds.SalfordCentral.getIdDTO()));
+        assertTrue(ids.contains(RailStationIds.ManchesterOxfordRoad.getIdDTO()));
     }
 
 

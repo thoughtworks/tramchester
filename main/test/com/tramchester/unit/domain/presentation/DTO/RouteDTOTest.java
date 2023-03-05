@@ -33,7 +33,7 @@ class RouteDTOTest {
 
         List<LocationRefWithPosition> stationsDTO = routeDTO.getStations();
         assertEquals(1, stationsDTO.size());
-        assertEquals(TraffordCentre.getId().forDTO(), stations.get(0).getId());
+        assertEquals(TraffordCentre.getIdForDTO(), stations.get(0).getId());
     }
 
     public Route getRoute() {

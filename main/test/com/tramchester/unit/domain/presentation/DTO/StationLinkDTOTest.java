@@ -1,6 +1,7 @@
 package com.tramchester.unit.domain.presentation.DTO;
 
 import com.tramchester.domain.StationLink;
+import com.tramchester.domain.id.IdForDTO;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.DTO.StationLinkDTO;
 import com.tramchester.domain.presentation.DTO.factory.DTOFactory;
@@ -46,8 +47,8 @@ class StationLinkDTOTest extends EasyMockSupport {
         StationLinkDTO dto = stationDTOFactory.createStationLinkDTO(stationLink);
         verifyAll();
 
-        assertEquals(altrincham.getId().forDTO(), dto.getBegin().getId());
-        assertEquals(stPeters.getId().forDTO(), dto.getEnd().getId());
+        assertEquals(IdForDTO.createFor(altrincham), dto.getBegin().getId());
+        assertEquals(IdForDTO.createFor(stPeters), dto.getEnd().getId());
 
         assertEquals(2, dto.getTransportModes().size());
 

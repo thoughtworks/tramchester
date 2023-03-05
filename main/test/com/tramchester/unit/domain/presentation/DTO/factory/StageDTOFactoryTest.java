@@ -5,7 +5,7 @@ import com.tramchester.domain.MutableService;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.Service;
 import com.tramchester.domain.dates.TramDate;
-import com.tramchester.domain.id.IdFor;
+import com.tramchester.domain.id.IdForDTO;
 import com.tramchester.domain.input.MutableTrip;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.MyLocation;
@@ -103,13 +103,13 @@ class StageDTOFactoryTest extends EasyMockSupport {
     }
 
     private void checkValues(TransportStage<?,?> stage, StageDTO dto, boolean hasPlatform, TravelAction action) {
-        assertEquals(stage.getActionStation().forDTO(), dto.getActionStation().getId());
+        assertEquals(IdForDTO.createFor(stage.getActionStation()), dto.getActionStation().getId());
         assertEquals(stage.getMode(), dto.getMode());
         assertEquals(stage.getFirstDepartureTime().toDate(when), dto.getFirstDepartureTime());
-        assertEquals(stage.getLastStation().forDTO(), dto.getLastStation().getId());
+        assertEquals(IdForDTO.createFor(stage.getLastStation()), dto.getLastStation().getId());
         assertEquals(stage.getExpectedArrivalTime().toDate(when), dto.getExpectedArrivalTime());
         assertEquals(stage.getDuration(), Duration.ofMinutes(dto.getDuration()));
-        assertEquals(stage.getFirstStation().forDTO(), dto.getFirstStation().getId());
+        assertEquals(IdForDTO.createFor(stage.getFirstStation()), dto.getFirstStation().getId());
         assertEquals(stage.getHeadSign(), dto.getHeadSign());
 
         assertEquals(stage.getRoute().getName(), dto.getRoute().getRouteName());

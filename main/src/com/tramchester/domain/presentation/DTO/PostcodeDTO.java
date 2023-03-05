@@ -6,6 +6,7 @@ import com.fasterxml.jackson.core.ObjectCodec;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.tramchester.domain.id.IdForDTO;
 import com.tramchester.domain.id.PostcodeLocationId;
 import com.tramchester.domain.places.PostcodeLocation;
 import com.tramchester.domain.time.TramTime;
@@ -44,7 +45,7 @@ public class PostcodeDTO extends LocationDTO {
     @JsonSerialize(using = PostcodeSerialize.class)
     @JsonDeserialize(using = PostcodeDeserialize.class)
     @Override
-    public String getId() {
+    public IdForDTO getId() {
         return super.getId();
     }
 

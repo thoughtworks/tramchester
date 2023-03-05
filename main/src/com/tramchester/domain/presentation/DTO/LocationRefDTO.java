@@ -1,5 +1,6 @@
 package com.tramchester.domain.presentation.DTO;
 
+import com.tramchester.domain.id.IdForDTO;
 import com.tramchester.domain.places.LocationType;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.places.Location;
@@ -11,12 +12,12 @@ public class LocationRefDTO {
     private LocationType locationType;
     private boolean pickUp;
     private boolean dropOff;
-    private String id;
+    private IdForDTO id;
     private String name;
     private Set<TransportMode> transportModes;
 
     public LocationRefDTO(Location<?> location) {
-        this.id = location.getId().forDTO();
+        this.id = IdForDTO.createFor(location);
         this.name = location.getName();
         this.transportModes = location.getTransportModes();
         this.locationType = location.getLocationType();
@@ -28,7 +29,7 @@ public class LocationRefDTO {
         // deserialization
     }
 
-    public String getId() {
+    public IdForDTO getId() {
         return id;
     }
 

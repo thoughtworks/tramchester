@@ -1,6 +1,7 @@
 package com.tramchester.domain.presentation.DTO;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.tramchester.domain.id.IdForDTO;
 import com.tramchester.domain.places.Location;
 import com.tramchester.domain.places.LocationType;
 import com.tramchester.domain.presentation.LatLong;
@@ -11,7 +12,7 @@ import java.util.Set;
 
 @SuppressWarnings("unused")
 public class LocationDTO {
-    private String id;
+    private IdForDTO id;
     private String name;
     private LatLong latLong;
     private Set<TransportMode> transportModes;
@@ -21,7 +22,7 @@ public class LocationDTO {
     private boolean markedInterchange;
 
     public LocationDTO(Location<?> source, List<PlatformDTO> platforms, List<RouteRefDTO> routes) {
-        this.id = source.getId().forDTO();
+        this.id = new IdForDTO(source.getId());
         this.name = source.getName();
         this.latLong = source.getLatLong();
         this.transportModes = source.getTransportModes();
@@ -35,7 +36,7 @@ public class LocationDTO {
         // deserialisation
     }
 
-    public String getId() {
+    public IdForDTO getId() {
         return id;
     }
 

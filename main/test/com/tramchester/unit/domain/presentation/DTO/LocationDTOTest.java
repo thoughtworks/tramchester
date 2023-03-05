@@ -2,6 +2,7 @@ package com.tramchester.unit.domain.presentation.DTO;
 
 import com.tramchester.domain.*;
 import com.tramchester.domain.id.IdFor;
+import com.tramchester.domain.id.IdForDTO;
 import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.places.MutableStation;
 import com.tramchester.domain.places.NaptanArea;
@@ -50,7 +51,7 @@ class LocationDTOTest {
 
         LocationDTO dto = factory.createLocationDTO(testStation); //new LocationDTO(testStation);
 
-        assertEquals(testStation.forDTO(), dto.getId());
+        assertEquals(IdForDTO.createFor(testStation), dto.getId());
         assertEquals(testStation.getTransportModes(), dto.getTransportModes());
         assertEquals(testStation.getName(), dto.getName());
         assertEquals(testStation.getLatLong(), dto.getLatLong());

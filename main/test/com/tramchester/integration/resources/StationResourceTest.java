@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tramchester.App;
 import com.tramchester.domain.Timestamped;
+import com.tramchester.domain.id.IdForDTO;
 import com.tramchester.domain.places.LocationType;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.DTO.LocationDTO;
@@ -58,7 +59,7 @@ class StationResourceTest {
         Assertions.assertEquals(200,response.getStatus());
         LocationDTO result = response.readEntity(LocationDTO.class);
 
-        Assertions.assertEquals(stationId, result.getId());
+        Assertions.assertEquals(stationId, result.getId().getActualId());
 
         List<PlatformDTO> platforms = result.getPlatforms();
         Assertions.assertEquals(4, platforms.size());
@@ -87,10 +88,15 @@ class StationResourceTest {
 
         List<LocationRefDTO> results = result.readEntity(new GenericType<>() {});
 
-        Set<String> expectedIds = stationRepository.getStations().stream().map(station -> station.getId().forDTO()).collect(Collectors.toSet());
+        Set<String> expectedIds = stationRepository.getStations().stream().
+                map(station -> station.getId().forDTO()).collect(Collectors.toSet());
+
         assertEquals(expectedIds.size(), results.size());
 
-        List<String> resultIds = results.stream().map(LocationRefDTO::getId).collect(Collectors.toList());
+        List<String> resultIds = results.stream().
+                map(LocationRefDTO::getId).
+                map(IdForDTO::getActualId).
+                collect(Collectors.toList());
         assertTrue(expectedIds.containsAll(resultIds));
 
         ArrayList<LocationRefDTO> sortedResults = new ArrayList<>(results);
@@ -122,16 +128,18 @@ class StationResourceTest {
 
         assertEquals(stationRepository.getStations().size(), results.size());
 
-        Station expected = TramStations.StPetersSquare.from(stationRepository);
+        Station stPeters = TramStations.StPetersSquare.from(stationRepository);
+        IdForDTO expected = new IdForDTO(stPeters.getId());
 
-        Optional<LocationDTO> found = results.stream().filter(item -> item.getId().equals(expected.getId().forDTO())).findFirst();
+        Optional<LocationDTO> found = results.stream().
+                filter(item -> item.getId().equals(expected)).findFirst();
 
         assertTrue(found.isPresent());
 
         LocationDTO result = found.get();
 
         assertEquals(LocationType.Station, result.getLocationType());
-        assertEquals(expected.getPlatforms().size(), result.getPlatforms().size());
+        assertEquals(stPeters.getPlatforms().size(), result.getPlatforms().size());
 
         // WIP
         //assertTrue(result.getIsInterchange());
@@ -165,7 +173,11 @@ class StationResourceTest {
         List<LocationRefDTO> stationList = result.readEntity(new GenericType<>() {});
 
         assertEquals(5,stationList.size());
-        Set<String> ids = stationList.stream().map(LocationRefDTO::getId).collect(Collectors.toSet());
+        Set<String> ids = stationList.stream().
+                map(LocationRefDTO::getId).
+                map(IdForDTO::getActualId).
+                collect(Collectors.toSet());
+
         assertTrue(ids.contains(TramStations.PiccadillyGardens.getRawId()));
         //assertTrue(ids.contains(TramStations.Piccadilly.forDTO()));
         assertTrue(ids.contains(TramStations.StPetersSquare.getRawId()));
@@ -186,7 +198,10 @@ class StationResourceTest {
 
         assertEquals(3, stationDtos.size());
 
-        Set<String> ids = stationDtos.stream().map(LocationRefDTO::getId).collect(Collectors.toSet());
+        Set<String> ids = stationDtos.stream().
+                map(LocationRefDTO::getId).
+                map(IdForDTO::getActualId).
+                collect(Collectors.toSet());
 
         assertTrue(ids.contains(TramStations.Altrincham.getRawId()));
         assertTrue(ids.contains(TramStations.Bury.getRawId()));

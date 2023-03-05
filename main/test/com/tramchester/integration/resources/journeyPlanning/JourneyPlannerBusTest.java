@@ -3,6 +3,7 @@ package com.tramchester.integration.resources.journeyPlanning;
 
 import com.tramchester.App;
 import com.tramchester.domain.dates.TramDate;
+import com.tramchester.domain.id.IdForDTO;
 import com.tramchester.domain.places.StationGroup;
 import com.tramchester.domain.presentation.DTO.*;
 import com.tramchester.domain.reference.TransportMode;
@@ -69,7 +70,10 @@ class JourneyPlannerBusTest {
 
         assertEquals(stationsIds.size(), results.size());
 
-        Set<String> resultIds = results.stream().map(LocationRefDTO::getId).collect(Collectors.toSet());
+        Set<String> resultIds = results.stream().
+                map(LocationRefDTO::getId).
+                map(IdForDTO::getActualId).
+                collect(Collectors.toSet());
 
         assertTrue(stationsIds.containsAll(resultIds));
     }
@@ -154,7 +158,7 @@ class JourneyPlannerBusTest {
         found.forEach(result -> {
             Set<String> stageIds= new HashSet<>();
             result.getStages().forEach(stage -> {
-                String id = stage.getActionStation().getId();
+                String id = stage.getActionStation().getId().getActualId();
                 Assertions.assertFalse(stageIds.contains(id), "duplicate stations id found during " +result);
                 stageIds.add(id);
             });

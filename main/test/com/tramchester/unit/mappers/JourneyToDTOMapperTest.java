@@ -3,10 +3,12 @@ package com.tramchester.unit.mappers;
 
 import com.tramchester.domain.*;
 import com.tramchester.domain.dates.TramDate;
-import com.tramchester.domain.id.IdFor;
-import com.tramchester.domain.id.StringIdFor;
+import com.tramchester.domain.id.IdForDTO;
 import com.tramchester.domain.input.Trip;
-import com.tramchester.domain.places.*;
+import com.tramchester.domain.places.Location;
+import com.tramchester.domain.places.MyLocation;
+import com.tramchester.domain.places.NaptanArea;
+import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.DTO.JourneyDTO;
 import com.tramchester.domain.presentation.DTO.LocationRefDTO;
 import com.tramchester.domain.presentation.DTO.LocationRefWithPosition;
@@ -117,7 +119,7 @@ class JourneyToDTOMapperTest extends EasyMockSupport {
 
         assertEquals(journey.getArrivalTime().asLocalTime(), result.getExpectedArrivalTime().toLocalTime());
         assertEquals(journey.getDepartTime().asLocalTime(), result.getFirstDepartureTime().toLocalTime());
-        assertEquals(journey.getBeginning().forDTO(), result.getBegin().getId());
+        assertEquals(IdForDTO.createFor(journey.getBeginning()), result.getBegin().getId());
         assertEquals(notes, result.getNotes());
         assertEquals(stageDTOA, result.getStages().get(0));
         assertEquals(when.toLocalDate(), result.getQueryDate());
@@ -149,7 +151,7 @@ class JourneyToDTOMapperTest extends EasyMockSupport {
 
         assertEquals(journey.getArrivalTime().asLocalTime(), result.getExpectedArrivalTime().toLocalTime());
         assertEquals(journey.getDepartTime().asLocalTime(), result.getFirstDepartureTime().toLocalTime());
-        assertEquals(journey.getBeginning().forDTO(), result.getBegin().getId());
+        assertEquals(IdForDTO.createFor(journey.getBeginning()), result.getBegin().getId());
         assertEquals(notes, result.getNotes());
         assertEquals(stageDTOA, result.getStages().get(0));
         assertEquals(when.toLocalDate(), result.getQueryDate());
@@ -195,7 +197,7 @@ class JourneyToDTOMapperTest extends EasyMockSupport {
 
         assertEquals(journey.getArrivalTime().asLocalTime(), result.getExpectedArrivalTime().toLocalTime());
         assertEquals(journey.getDepartTime().asLocalTime(), result.getFirstDepartureTime().toLocalTime());
-        assertEquals(journey.getBeginning().forDTO(), result.getBegin().getId());
+        assertEquals(IdForDTO.createFor(journey.getBeginning()), result.getBegin().getId());
         assertEquals(notes, result.getNotes());
         assertEquals(journey.getStages().size(), result.getStages().size());
         assertEquals(stageDTOA, result.getStages().get(0));
@@ -258,7 +260,7 @@ class JourneyToDTOMapperTest extends EasyMockSupport {
 
         assertEquals(journey.getArrivalTime().asLocalTime(), result.getExpectedArrivalTime().toLocalTime());
         assertEquals(journey.getDepartTime().asLocalTime(), result.getFirstDepartureTime().toLocalTime());
-        assertEquals(journey.getBeginning().forDTO(), result.getBegin().getId());
+        assertEquals(IdForDTO.createFor(journey.getBeginning()), result.getBegin().getId());
         assertEquals(notes, result.getNotes());
         assertEquals(journey.getStages().size(), result.getStages().size());
         assertEquals(stageDTOA, result.getStages().get(0));
@@ -305,7 +307,7 @@ class JourneyToDTOMapperTest extends EasyMockSupport {
 
         assertEquals(journey.getArrivalTime().asLocalTime(), result.getExpectedArrivalTime().toLocalTime());
         assertEquals(journey.getDepartTime().asLocalTime(), result.getFirstDepartureTime().toLocalTime());
-        assertEquals(journey.getBeginning().forDTO(), result.getBegin().getId());
+        assertEquals(IdForDTO.createFor(journey.getBeginning()), result.getBegin().getId());
         assertEquals(notes, result.getNotes());
         assertEquals(journey.getStages().size(), result.getStages().size());
         assertEquals(stageDTOA, result.getStages().get(0));
@@ -334,8 +336,11 @@ class JourneyToDTOMapperTest extends EasyMockSupport {
 
     private void validateStationList(List<Location<?>> expected, List<LocationRefWithPosition> results) {
         assertEquals(expected.size(), results.size());
-        List<String> expectedIds = expected.stream().map(IdForDTO::forDTO).collect(Collectors.toList());
-        List<String> resultIds = results.stream().map(LocationRefDTO::getId).collect(Collectors.toList());
+        List<com.tramchester.domain.id.IdForDTO> expectedIds = expected.stream().
+                map(IdForDTO::createFor).
+                collect(Collectors.toList());
+
+        List<com.tramchester.domain.id.IdForDTO> resultIds = results.stream().map(LocationRefDTO::getId).collect(Collectors.toList());
         assertEquals(expectedIds, resultIds);
     }
 

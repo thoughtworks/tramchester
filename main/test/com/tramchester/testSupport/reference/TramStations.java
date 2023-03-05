@@ -4,6 +4,7 @@ import com.tramchester.domain.DataSourceID;
 import com.tramchester.domain.MutablePlatform;
 import com.tramchester.domain.Platform;
 import com.tramchester.domain.id.IdFor;
+import com.tramchester.domain.id.IdForDTO;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.places.MutableStation;
@@ -98,11 +99,11 @@ public enum TramStations implements FakeStation {
         return new LatLong(lat, lon);
     }
 
-    public static Set<Station> allFrom(StationRepository stationRepository, TramStations... tramStations) {
-        return Arrays.stream(tramStations).
-                map(tramStation -> stationRepository.getStationById(tramStation.getId()))
-                .collect(Collectors.toSet());
-    }
+//    public static Set<Station> allFrom(StationRepository stationRepository, TramStations... tramStations) {
+//        return Arrays.stream(tramStations).
+//                map(tramStation -> stationRepository.getStationById(tramStation.getId()))
+//                .collect(Collectors.toSet());
+//    }
 
     @Override
     public String getRawId() {
@@ -126,6 +127,11 @@ public enum TramStations implements FakeStation {
     @Override
     public Station fake() {
         return createMutable();
+    }
+
+    @Override
+    public IdForDTO getIdForDTO() {
+        return new IdForDTO(id);
     }
 
     @NotNull

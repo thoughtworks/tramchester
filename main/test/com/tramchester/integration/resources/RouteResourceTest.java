@@ -3,6 +3,7 @@ package com.tramchester.integration.resources;
 import com.tramchester.App;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.dates.TramDate;
+import com.tramchester.domain.id.IdForDTO;
 import com.tramchester.domain.presentation.DTO.LocationRefDTO;
 import com.tramchester.domain.presentation.DTO.LocationRefWithPosition;
 import com.tramchester.domain.presentation.DTO.RouteDTO;
@@ -70,7 +71,10 @@ class RouteResourceTest {
         List<LocationRefWithPosition> airportRouteStations = airportRoute.getStations();
 
         assertEquals("Navy Line", airportRoute.getShortName().trim());
-        List<String> ids = airportRouteStations.stream().map(LocationRefDTO::getId).collect(Collectors.toList());
+        List<String> ids = airportRouteStations.stream().
+                map(LocationRefDTO::getId).
+                map(IdForDTO::getActualId).
+                collect(Collectors.toList());
         assertTrue(ids.contains(TramStations.ManAirport.getRawId()));
 
     }
@@ -90,11 +94,11 @@ class RouteResourceTest {
         List<LocationRefWithPosition> stations = airRoute.getStations();
 
         LocationRefWithPosition first = stations.get(0);
-        assertEquals(TramStations.ManAirport.getRawId(), first.getId());
+        assertEquals(TramStations.ManAirport.getRawId(), first.getId().getActualId());
         TestEnv.assertLatLongEquals(TramStations.ManAirport.getLatLong(), first.getLatLong(), 0.00001, "lat long");
         assertTrue(first.getTransportModes().contains(TransportMode.Tram));
 
-        assertEquals(TramStations.Victoria.getRawId(), stations.get(stations.size()-1).getId());
+        assertEquals(TramStations.Victoria.getRawId(), stations.get(stations.size()-1).getId().getActualId());
     }
 
     @Test

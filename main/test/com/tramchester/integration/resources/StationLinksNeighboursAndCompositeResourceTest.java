@@ -3,13 +3,14 @@ package com.tramchester.integration.resources;
 import com.tramchester.App;
 import com.tramchester.GuiceContainerDependencies;
 import com.tramchester.config.AppConfiguration;
-import com.tramchester.domain.places.StationGroup;
+import com.tramchester.domain.id.IdForDTO;
 import com.tramchester.domain.places.Station;
+import com.tramchester.domain.places.StationGroup;
+import com.tramchester.domain.presentation.DTO.LocationRefDTO;
 import com.tramchester.domain.presentation.DTO.StationGroupDTO;
 import com.tramchester.domain.presentation.DTO.StationLinkDTO;
-import com.tramchester.domain.presentation.DTO.LocationRefDTO;
-import com.tramchester.integration.testSupport.IntegrationAppExtension;
 import com.tramchester.integration.testSupport.APIClient;
+import com.tramchester.integration.testSupport.IntegrationAppExtension;
 import com.tramchester.integration.testSupport.NeighboursTestConfig;
 import com.tramchester.repository.StationGroupsRepository;
 import com.tramchester.repository.StationRepository;
@@ -20,7 +21,6 @@ import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.condition.DisabledIfEnvironmentVariable;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 import javax.ws.rs.core.GenericType;
@@ -66,15 +66,15 @@ class StationLinksNeighboursAndCompositeResourceTest {
 
         List<StationLinkDTO> results = getLinks();
 
-        Set<String> fromShudehillTram = results.stream().
-                filter(link -> link.getBegin().getId().equals(shudehillTram.forDTO())).
+        Set<IdForDTO> fromShudehillTram = results.stream().
+                filter(link -> link.getBegin().getId().equals(IdForDTO.createFor(shudehillTram))).
                 map(link -> link.getEnd().getId()).
                 collect(Collectors.toSet());
 
         assertFalse(fromShudehillTram.isEmpty());
 
         shudehillCompositeBus.getContained().forEach(busStop ->
-                assertTrue(fromShudehillTram.contains(busStop.forDTO()), "missing " + busStop.forDTO()));
+                assertTrue(fromShudehillTram.contains(IdForDTO.createFor(busStop)), "missing " + busStop.forDTO()));
     }
 
     @Test
@@ -82,20 +82,22 @@ class StationLinksNeighboursAndCompositeResourceTest {
 
         List<StationLinkDTO> results = getLinks();
 
-        Set<String> busStopIds = shudehillCompositeBus.getContained().
+        Set<IdForDTO> busStopIds = shudehillCompositeBus.getContained().
                 stream().
-                map(Station::forDTO).
+                map(IdForDTO::createFor).
                 collect(Collectors.toSet());
 
         final Set<StationLinkDTO> fromShudehillBusStops = results.stream().
                 filter(link -> busStopIds.contains(link.getBegin().getId())).
                 collect(Collectors.toSet());
+
         assertFalse(fromShudehillBusStops.isEmpty());
 
-        Set<String> fromShudehillBusToTram = fromShudehillBusStops.stream().
-                filter(link -> shudehillTram.forDTO().equals(link.getEnd().getId())).
+        Set<IdForDTO> fromShudehillBusToTram = fromShudehillBusStops.stream().
+                filter(link -> IdForDTO.createFor(shudehillTram).equals(link.getEnd().getId())).
                 map(link -> link.getBegin().getId()).
                 collect(Collectors.toSet());
+
         assertFalse(fromShudehillBusToTram.isEmpty());
     }
 
@@ -126,7 +128,11 @@ class StationLinksNeighboursAndCompositeResourceTest {
         StationGroupDTO group = found.get();
         assertEquals(expectedIds.size(), group.getContained().size());
 
-        Set<String> receivedIds = group.getContained().stream().map(LocationRefDTO::getId).collect(Collectors.toSet());
+        Set<String> receivedIds = group.getContained().stream().
+                map(LocationRefDTO::getId).
+                map(IdForDTO::getActualId).
+                collect(Collectors.toSet());
+
         assertTrue(expectedIds.containsAll(receivedIds));
     }
 

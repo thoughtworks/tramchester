@@ -47,7 +47,9 @@ class TramPositionsResourceTest {
         assertEquals(positions.size(), positionsWithTrams);
 
         Set<String> uniquePairs = positions.stream().
-                map(position -> position.getFirst().getId() + position.getSecond().getId()).collect(Collectors.toSet());
+                map(position -> position.getFirst().getId().getActualId() + position.getSecond().getId().getActualId()).
+                collect(Collectors.toSet());
+
         assertEquals(positions.size(), uniquePairs.size());
 
         long hasCost = positions.stream().filter(position -> position.getCost()>0).count();

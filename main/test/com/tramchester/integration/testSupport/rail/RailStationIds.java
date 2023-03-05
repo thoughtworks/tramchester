@@ -1,6 +1,7 @@
 package com.tramchester.integration.testSupport.rail;
 
 import com.tramchester.domain.id.IdFor;
+import com.tramchester.domain.id.IdForDTO;
 import com.tramchester.domain.places.Station;
 import com.tramchester.repository.StationRepository;
 
@@ -55,5 +56,9 @@ public enum RailStationIds {
 
     public Station from(StationRepository repository) {
         return repository.getStationById(getId());
+    }
+
+    public IdForDTO getIdDTO() {
+        return new IdForDTO(id);
     }
 }
