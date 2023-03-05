@@ -1,9 +1,9 @@
 package com.tramchester.unit.domain.presentation.DTO;
 
-import com.tramchester.domain.*;
-import com.tramchester.domain.id.IdFor;
+import com.tramchester.domain.DataSourceID;
+import com.tramchester.domain.MutablePlatform;
+import com.tramchester.domain.Route;
 import com.tramchester.domain.id.IdForDTO;
-import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.places.MutableStation;
 import com.tramchester.domain.places.NaptanArea;
 import com.tramchester.domain.presentation.DTO.LocationDTO;
@@ -11,7 +11,6 @@ import com.tramchester.domain.presentation.DTO.PlatformDTO;
 import com.tramchester.domain.presentation.DTO.RouteRefDTO;
 import com.tramchester.domain.presentation.DTO.factory.LocationDTOFactory;
 import com.tramchester.domain.presentation.LatLong;
-import com.tramchester.domain.time.TramTime;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.StationHelper;
 import com.tramchester.testSupport.reference.TramStations;
@@ -46,8 +45,10 @@ class LocationDTOTest {
         testStation.addRouteDropOff(TestEnv.getTramTestRoute(Route.createId("routeIdA"), "routeNameA"));
         testStation.addRoutePickUp(TestEnv.getTramTestRoute(Route.createId("routeIdB"), "routeNameB"));
 
-        testStation.addPlatform(MutablePlatform.buildForTFGMTram("9400ZZMAALT1", testStation, new LatLong(1.2, 1), DataSourceID.unknown, NaptanArea.invalidId()));
-        testStation.addPlatform(MutablePlatform.buildForTFGMTram("9400ZZMAALT2", testStation, new LatLong(1.1, 1), DataSourceID.unknown, NaptanArea.invalidId()));
+        testStation.addPlatform(MutablePlatform.buildForTFGMTram("9400ZZMAALT1", testStation, new LatLong(1.2, 1),
+                DataSourceID.unknown, NaptanArea.invalidId()));
+        testStation.addPlatform(MutablePlatform.buildForTFGMTram("9400ZZMAALT2", testStation, new LatLong(1.1, 1),
+                DataSourceID.unknown, NaptanArea.invalidId()));
 
         LocationDTO dto = factory.createLocationDTO(testStation); //new LocationDTO(testStation);
 
@@ -82,7 +83,7 @@ class LocationDTOTest {
     @NotNull
     private Optional<PlatformDTO> getPlatformById(LocationDTO dto, String platformId) {
         return dto.getPlatforms().stream().
-                filter(platformDTO -> platformDTO.getId().equals(platformId)).findFirst();
+                filter(platformDTO -> platformDTO.getId().getActualId().equals(platformId)).findFirst();
     }
 
 }

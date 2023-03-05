@@ -51,7 +51,7 @@ class StationResourceRailTest {
     void shouldGetSingleStationWithPlatforms() {
         IdForDTO stationId = RailStationIds.ManchesterPiccadilly.getIdDTO();
 
-        String endPoint = "stations/" + stationId;
+        String endPoint = "stations/" + stationId.getActualId();
         Response response = APIClient.getApiResponse(appExtension, endPoint);
         
         assertEquals(200,response.getStatus());
@@ -63,9 +63,13 @@ class StationResourceRailTest {
         List<PlatformDTO> platforms = result.getPlatforms();
         assertEquals(16, platforms.size(), platforms.toString());
 
-        List<String> platformIds = platforms.stream().map(PlatformDTO::getId).collect(Collectors.toList());
-        assertTrue(platformIds.contains(stationId+":1"), platformIds.toString());
-        assertTrue(platformIds.contains(stationId+":13B"), platformIds.toString());
+        List<String> platformIds = platforms.stream().
+                map(PlatformDTO::getId).
+                map(IdForDTO::getActualId).
+                collect(Collectors.toList());
+
+        assertTrue(platformIds.contains(stationId.getActualId()+":1"), platformIds.toString());
+        assertTrue(platformIds.contains(stationId.getActualId()+":13B"), platformIds.toString());
 
         List<RouteRefDTO> routeRefDTOS = result.getRoutes();
 

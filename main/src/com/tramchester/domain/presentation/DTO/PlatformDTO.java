@@ -3,6 +3,7 @@ package com.tramchester.domain.presentation.DTO;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.tramchester.domain.Platform;
 import com.tramchester.domain.id.IdFor;
+import com.tramchester.domain.id.IdForDTO;
 import com.tramchester.domain.presentation.LatLong;
 
 @SuppressWarnings("unused")
@@ -10,7 +11,7 @@ public class PlatformDTO {
 
     private IdFor<Platform> platformId;
 
-    private String id;
+    private IdForDTO id;
     private String name;
     private String platformNumber;
     private LatLong latLong;
@@ -30,7 +31,7 @@ public class PlatformDTO {
 
     public PlatformDTO(Platform original) {
         platformId = original.getId();
-        this.id = platformId.forDTO();
+        this.id = IdForDTO.createFor(original);
         this.name = original.getName();
         this.platformNumber = original.getPlatformNumber();
         this.latLong = original.getLatLong();
@@ -41,7 +42,7 @@ public class PlatformDTO {
         return platformId;
     }
 
-    public String getId() {
+    public IdForDTO getId() {
         return id;
     }
 

@@ -63,7 +63,11 @@ class StationResourceTest {
 
         List<PlatformDTO> platforms = result.getPlatforms();
         Assertions.assertEquals(4, platforms.size());
-        List<String> platformIds = platforms.stream().map(PlatformDTO::getId).collect(Collectors.toList());
+        List<String> platformIds = platforms.stream().
+                map(PlatformDTO::getId).
+                map(IdForDTO::getActualId).
+                collect(Collectors.toList());
+
         Assertions.assertTrue(platformIds.contains(stationId+"1"));
         Assertions.assertTrue(platformIds.contains(stationId+"2"));
         Assertions.assertTrue(platformIds.contains(stationId+"3"));

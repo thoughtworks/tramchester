@@ -2,8 +2,6 @@ package com.tramchester.domain.id;
 
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.tramchester.domain.id.serialization.IdForDTOSerialization;
-import com.tramchester.domain.places.MutableStation;
-import com.tramchester.domain.places.Station;
 
 import java.util.Objects;
 

@@ -2,6 +2,7 @@ package com.tramchester.domain.presentation.DTO;
 
 import com.fasterxml.jackson.annotation.*;
 import com.tramchester.domain.dates.TramDate;
+import com.tramchester.domain.id.IdForDTO;
 import com.tramchester.domain.places.Location;
 import com.tramchester.domain.places.LocationType;
 import com.tramchester.domain.reference.TransportMode;
@@ -24,13 +25,13 @@ public class JourneyQueryDTO  {
     private LocationType startType;
 
     @JsonProperty("startId")
-    private String startId;
+    private IdForDTO startId;
 
     @JsonProperty("destType")
     private LocationType destType;
 
     @JsonProperty("destId")
-    private String destId;
+    private IdForDTO destId;
 
     @JsonProperty("arriveBy")
     private boolean arriveBy;
@@ -47,8 +48,8 @@ public class JourneyQueryDTO  {
         // deserialisation
     }
 
-    public JourneyQueryDTO(LocalDate date, LocalTime time, LocationType startType, String startId, LocationType destType, String destId,
-                           boolean arriveBy, int maxChanges) {
+    public JourneyQueryDTO(LocalDate date, LocalTime time, LocationType startType, IdForDTO startId, LocationType destType,
+                           IdForDTO destId, boolean arriveBy, int maxChanges) {
 
         this.date = date;
         this.time = time;
@@ -63,8 +64,8 @@ public class JourneyQueryDTO  {
 
     public static JourneyQueryDTO create(LocalDate date, TramTime time, Location<?> start, Location<?> dest, boolean arriveBy, int maxChanges) {
 
-        String startId = start.getId().forDTO();
-        String destId = dest.getId().forDTO();
+        IdForDTO startId = IdForDTO.createFor(start);
+        IdForDTO destId = IdForDTO.createFor(dest);
         LocationType startType = start.getLocationType();
         LocationType destType = dest.getLocationType();
 
@@ -109,7 +110,7 @@ public class JourneyQueryDTO  {
         return startType;
     }
 
-    public String getStartId() {
+    public IdForDTO getStartId() {
         return startId;
     }
 
@@ -117,7 +118,7 @@ public class JourneyQueryDTO  {
         return destType;
     }
 
-    public String getDestId() {
+    public IdForDTO getDestId() {
         return destId;
     }
 
