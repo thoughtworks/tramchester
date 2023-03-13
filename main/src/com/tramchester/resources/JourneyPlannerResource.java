@@ -112,7 +112,8 @@ public class JourneyPlannerResource extends UsesRecentCookie implements APIResou
             dtoStream.close();
 
             if (planRepresentation.getJourneys().size()==0) {
-                logger.warn(format("No journeys found from %s to %s at %s on %s", start, dest ,query.getTime(), query.getDate()));
+                logger.warn(format("No journeys found from %s to %s at %s on %s",
+                        start.getId(), dest.getId() , query.getTime(), query.getDate()));
             }
 
             boolean secure = isHttps(forwardedHeader);

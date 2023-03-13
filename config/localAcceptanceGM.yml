@@ -91,7 +91,7 @@ numberQueries: 3
 queryInterval: 10
 maxWalkingConnections: 3
 nearestStopRangeKM: 1.6
-nearestStopForWalkingRangeKM: 0.8
+nearestStopForWalkingRangeKM: 1.2
 numOfNearestStopsToOffer:  5
 numOfNearestStopsForWalking:  3
 walkingMPH: 3
