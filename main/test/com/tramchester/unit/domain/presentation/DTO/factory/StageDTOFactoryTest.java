@@ -12,7 +12,8 @@ import com.tramchester.domain.places.MyLocation;
 import com.tramchester.domain.places.NaptanArea;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.DTO.LocationRefWithPosition;
-import com.tramchester.domain.presentation.DTO.StageDTO;
+import com.tramchester.domain.presentation.DTO.VehicleStageDTO;
+import com.tramchester.domain.presentation.DTO.SimpleStageDTO;
 import com.tramchester.domain.presentation.DTO.factory.DTOFactory;
 import com.tramchester.domain.presentation.DTO.factory.StageDTOFactory;
 import com.tramchester.domain.presentation.LatLong;
@@ -35,6 +36,7 @@ import java.util.List;
 import static com.tramchester.testSupport.reference.KnownLocations.nearAltrincham;
 import static com.tramchester.testSupport.reference.TramStations.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class StageDTOFactoryTest extends EasyMockSupport {
 
@@ -65,7 +67,7 @@ class StageDTOFactoryTest extends EasyMockSupport {
                 andReturn(new LocationRefWithPosition(location));
 
         replayAll();
-        StageDTO build = factory.build(stage, TravelAction.WalkTo, when);
+        SimpleStageDTO build = factory.build(stage, TravelAction.WalkTo, when);
         checkValues(stage, build, false, TravelAction.WalkTo);
         verifyAll();
     }
@@ -95,14 +97,19 @@ class StageDTOFactoryTest extends EasyMockSupport {
                 andReturn(new LocationRefWithPosition(Bury.fake()));
 
         replayAll();
-        StageDTO stageDTO = factory.build(vehicleStage, TravelAction.Board, when);
+        SimpleStageDTO stageDTO = factory.build(vehicleStage, TravelAction.Board, when);
         verifyAll();
 
         checkValues(vehicleStage, stageDTO, true, TravelAction.Board);
-        assertEquals(trip.getId().forDTO(), stageDTO.getTripId());
+
+        assertTrue(stageDTO instanceof VehicleStageDTO);
+
+        VehicleStageDTO vehicleStageDTO = (VehicleStageDTO) stageDTO;
+
+        assertEquals(IdForDTO.createFor(trip), vehicleStageDTO.getTripId());
     }
 
-    private void checkValues(TransportStage<?,?> stage, StageDTO dto, boolean hasPlatform, TravelAction action) {
+    private void checkValues(TransportStage<?,?> stage, SimpleStageDTO dto, boolean hasPlatform, TravelAction action) {
         assertEquals(IdForDTO.createFor(stage.getActionStation()), dto.getActionStation().getId());
         assertEquals(stage.getMode(), dto.getMode());
         assertEquals(stage.getFirstDepartureTime().toDate(when), dto.getFirstDepartureTime());

@@ -2,8 +2,9 @@ package com.tramchester.unit.mappers;
 
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.presentation.DTO.JourneyDTO;
-import com.tramchester.domain.presentation.DTO.StageDTO;
+import com.tramchester.domain.presentation.DTO.VehicleStageDTO;
 import com.tramchester.domain.presentation.DTO.LocationRefWithPosition;
+import com.tramchester.domain.presentation.DTO.SimpleStageDTO;
 import com.tramchester.domain.presentation.Note;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.mappers.JourneyDTODuplicateFilter;
@@ -12,9 +13,7 @@ import com.tramchester.testSupport.reference.TramStations;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.util.*;
 
 import static com.tramchester.testSupport.reference.TramStations.*;
@@ -124,9 +123,9 @@ class JourneyDTODuplicateFilterTest {
                                         List<LocationRefWithPosition> path) {
         List<Note> notes = Collections.emptyList();
         LocationRefWithPosition begin = getStationRef(Ashton);
-        StageDTO stageA = new StageDTO();
-        StageDTO stageB = new StageDTO();
-        List<StageDTO> stages = Arrays.asList(stageA, stageB);
+        VehicleStageDTO stageA = new VehicleStageDTO();
+        VehicleStageDTO stageB = new VehicleStageDTO();
+        List<SimpleStageDTO> stages = Arrays.asList(stageA, stageB);
 
         LocalDateTime firstDepartureTime = departTime.toDate(queryDate);
         LocalDateTime expectedArrivalTime = departTime.plusMinutes(duration).toDate(queryDate);

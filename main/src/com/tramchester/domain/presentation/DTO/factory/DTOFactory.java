@@ -2,7 +2,9 @@ package com.tramchester.domain.presentation.DTO.factory;
 
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.domain.StationLink;
+import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.places.Location;
+import com.tramchester.domain.places.NaptanArea;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.places.StationGroup;
 import com.tramchester.domain.presentation.DTO.LocationRefDTO;
@@ -35,7 +37,7 @@ public class DTOFactory {
     }
 
     public StationGroupDTO createStationGroupDTO(StationGroup stationGroup) {
-        String areaId = stationGroup.getAreaId().forDTO();
+        IdFor<NaptanArea> areaId = stationGroup.getAreaId();
         List<LocationRefWithPosition> contained = stationGroup.getContained().stream().
                 map(this::createLocationRefWithPosition).collect(Collectors.toList());
         return new StationGroupDTO(areaId, contained);

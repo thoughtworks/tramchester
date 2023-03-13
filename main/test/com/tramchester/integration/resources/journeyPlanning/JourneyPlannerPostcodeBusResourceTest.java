@@ -2,10 +2,7 @@ package com.tramchester.integration.resources.journeyPlanning;
 
 import com.tramchester.App;
 import com.tramchester.domain.dates.TramDate;
-import com.tramchester.domain.presentation.DTO.JourneyDTO;
-import com.tramchester.domain.presentation.DTO.JourneyPlanRepresentation;
-import com.tramchester.domain.presentation.DTO.JourneyQueryDTO;
-import com.tramchester.domain.presentation.DTO.StageDTO;
+import com.tramchester.domain.presentation.DTO.*;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.integration.testSupport.IntegrationAppExtension;
@@ -18,10 +15,8 @@ import com.tramchester.testSupport.testTags.BusTest;
 import io.dropwizard.testing.junit5.DropwizardExtensionsSupport;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.condition.DisabledIfEnvironmentVariable;
 import org.junit.jupiter.api.extension.ExtendWith;
 
-import java.time.LocalDate;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -97,7 +92,7 @@ class JourneyPlannerPostcodeBusResourceTest {
         assertFalse(oneStage.isEmpty(), "no one stage in " + journeys);
 
         oneStage.forEach(journeyDTO -> {
-            final List<StageDTO> stages = journeyDTO.getStages();
+            final List<SimpleStageDTO> stages = journeyDTO.getStages();
             assertEquals(TransportMode.Walk, stages.get(0).getMode(), stages.get(0).toString());
             assertEquals(BusStations.BuryInterchange.getRawId(), journeyDTO.getBegin().getId());
         });
@@ -115,7 +110,7 @@ class JourneyPlannerPostcodeBusResourceTest {
         assertFalse(journeys.isEmpty());
 
         journeys.forEach(journey -> {
-            final List<StageDTO> stages = journey.getStages();
+            final List<SimpleStageDTO> stages = journey.getStages();
             assertTrue(stages.size()>=2, journey.toString());
             assertEquals(stages.get(0).getMode(), TransportMode.Walk, journey.toString());
             assertEquals(stages.get(stages.size()-1).getMode(), TransportMode.Bus);
@@ -134,7 +129,7 @@ class JourneyPlannerPostcodeBusResourceTest {
         assertFalse(journeys.isEmpty());
 
         journeys.forEach(journeyDTO -> {
-            final List<StageDTO> stages = journeyDTO.getStages();
+            final List<SimpleStageDTO> stages = journeyDTO.getStages();
             assertEquals(stages.get(0).getMode(), TransportMode.Bus);
             assertEquals(stages.get(stages.size()-1).getMode(), TransportMode.Walk);
         });

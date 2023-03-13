@@ -12,7 +12,7 @@ import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.DTO.JourneyDTO;
 import com.tramchester.domain.presentation.DTO.LocationRefDTO;
 import com.tramchester.domain.presentation.DTO.LocationRefWithPosition;
-import com.tramchester.domain.presentation.DTO.StageDTO;
+import com.tramchester.domain.presentation.DTO.VehicleStageDTO;
 import com.tramchester.domain.presentation.DTO.factory.DTOFactory;
 import com.tramchester.domain.presentation.DTO.factory.StageDTOFactory;
 import com.tramchester.domain.presentation.Note;
@@ -101,7 +101,7 @@ class JourneyToDTOMapperTest extends EasyMockSupport {
                 Duration.ofMinutes(10), pm10);
         stages.add(walkingStage);
 
-        StageDTO stageDTOA = new StageDTO();
+        VehicleStageDTO stageDTOA = new VehicleStageDTO();
         EasyMock.expect(stageFactory.build(walkingStage, TravelAction.WalkTo, when)).andReturn(stageDTOA);
 
         final List<Location<?>> path = Collections.singletonList(Deansgate.fake());
@@ -135,7 +135,7 @@ class JourneyToDTOMapperTest extends EasyMockSupport {
                 Duration.ofMinutes(10), pm10);
         stages.add(walkingStage);
 
-        StageDTO stageDTOA = new StageDTO();
+        VehicleStageDTO stageDTOA = new VehicleStageDTO();
         EasyMock.expect(stageFactory.build(walkingStage, TravelAction.WalkFrom, when)).andReturn(stageDTOA);
 
         EasyMock.expect(DTOFactory.createLocationRefWithPosition(Deansgate.fake())).
@@ -175,8 +175,8 @@ class JourneyToDTOMapperTest extends EasyMockSupport {
         stages.add(connectingStage);
         stages.add(tramStage);
 
-        StageDTO stageDTOA = new StageDTO();
-        StageDTO stageDTOB = new StageDTO();
+        VehicleStageDTO stageDTOA = new VehicleStageDTO();
+        VehicleStageDTO stageDTOB = new VehicleStageDTO();
 
         EasyMock.expect(stageFactory.build(connectingStage, TravelAction.ConnectTo, when)).andReturn(stageDTOA);
         // TODO Should be board?
@@ -234,9 +234,9 @@ class JourneyToDTOMapperTest extends EasyMockSupport {
         stages.add(walkingStage);
         stages.add(finalStage);
 
-        StageDTO stageDTOA = new StageDTO();
-        StageDTO stageDTOB = new StageDTO();
-        StageDTO stageDTOC = new StageDTO();
+        VehicleStageDTO stageDTOA = new VehicleStageDTO();
+        VehicleStageDTO stageDTOB = new VehicleStageDTO();
+        VehicleStageDTO stageDTOC = new VehicleStageDTO();
 
         EasyMock.expect(DTOFactory.createLocationRefWithPosition(Altrincham.fake())).
                 andStubReturn(new LocationRefWithPosition(Altrincham.fake()));
@@ -288,8 +288,8 @@ class JourneyToDTOMapperTest extends EasyMockSupport {
         stages.add(rawStageA);
         stages.add(rawStageB);
 
-        StageDTO stageDTOA = new StageDTO();
-        StageDTO stageDTOB = new StageDTO();
+        VehicleStageDTO stageDTOA = new VehicleStageDTO();
+        VehicleStageDTO stageDTOB = new VehicleStageDTO();
 
         EasyMock.expect(DTOFactory.createLocationRefWithPosition(start)).andStubReturn(new LocationRefWithPosition(start));
         EasyMock.expect(DTOFactory.createLocationRefWithPosition(middle)).andReturn(new LocationRefWithPosition(middle));

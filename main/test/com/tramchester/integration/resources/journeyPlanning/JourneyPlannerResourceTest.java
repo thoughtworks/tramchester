@@ -89,7 +89,7 @@ public class JourneyPlannerResourceTest {
         assertFalse(journeys.isEmpty());
 
         journeys.forEach(journey -> {
-            StageDTO firstStage = journey.getStages().get(0);
+            VehicleStageDTO firstStage = (VehicleStageDTO) journey.getStages().get(0);
             PlatformDTO platform = firstStage.getPlatform();
             if (arriveBy) {
                 assertTrue(journey.getFirstDepartureTime().isBefore(queryTime.toDate(when)));
@@ -205,14 +205,16 @@ public class JourneyPlannerResourceTest {
         assertTrue(journeys.size()>0);
 
         journeys.forEach(journey -> {
-            StageDTO firstStage = journey.getStages().get(0);
+            VehicleStageDTO firstStage = (VehicleStageDTO) journey.getStages().get(0);
             PlatformDTO stategOnePlatform = firstStage.getPlatform();
 
             assertEquals("1", stategOnePlatform.getPlatformNumber());
             assertEquals( "Altrincham platform 1", stategOnePlatform.getName());
             assertEquals( IdForDTO.createFor(firstPlatformAtAlty), stategOnePlatform.getId());
 
-            StageDTO secondStage = journey.getStages().get(1);
+            VehicleStageDTO secondStage = (VehicleStageDTO) journey.getStages().get(1);
+            assertNotNull(secondStage);
+
             PlatformDTO secondStagePlatform = secondStage.getPlatform();
 
             // seems can be either 1 or 2
@@ -340,7 +342,7 @@ public class JourneyPlannerResourceTest {
     private void checkDepartsAfterPreviousArrival(String message, Set<JourneyDTO> journeys) {
         for(JourneyDTO journey: journeys) {
             LocalDateTime previousArrive = null;
-            for(StageDTO stage : journey.getStages()) {
+            for(SimpleStageDTO stage : journey.getStages()) {
                 if (previousArrive!=null) {
                     LocalDateTime firstDepartureTime = stage.getFirstDepartureTime();
                     String prefix  = String.format("Check first departure time %s is after arrival time %s for %s" ,

@@ -10,6 +10,10 @@ public class IdForDTO {
     private final String actualId;
 
     public IdForDTO(IdFor<?> sourceId) {
+        if (!sourceId.isValid()) {
+            throw new RuntimeException("Invalid source id " + sourceId);
+        }
+
         if (sourceId instanceof StringIdFor) {
             StringIdFor<?> stringId = (StringIdFor<?>) sourceId;
             actualId = stringId.getContainedId();

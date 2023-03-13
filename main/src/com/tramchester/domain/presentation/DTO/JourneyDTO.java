@@ -19,7 +19,7 @@ import java.util.List;
 public class JourneyDTO {
 
     private LocationRefWithPosition begin;
-    private List<StageDTO> stages;
+    private List<SimpleStageDTO> stages;
     private LocalDateTime expectedArrivalTime; // needed to handle 'next day' results
     private LocalDateTime firstDepartureTime;  // needed to handle 'next day' results
     private List<LocationRefWithPosition> changeStations;
@@ -32,7 +32,7 @@ public class JourneyDTO {
         // Deserialization
     }
 
-    public JourneyDTO(LocationRefWithPosition begin, List<StageDTO> stages,
+    public JourneyDTO(LocationRefWithPosition begin, List<SimpleStageDTO> stages,
                       LocalDateTime expectedArrivalTime, LocalDateTime firstDepartureTime,
                       List<LocationRefWithPosition> changeStations, TramTime queryTime, List<Note> notes,
                       List<LocationRefWithPosition> path, TramDate queryDate) {
@@ -40,7 +40,7 @@ public class JourneyDTO {
                 path, queryDate.toLocalDate());
     }
 
-    public JourneyDTO(LocationRefWithPosition begin, List<StageDTO> stages,
+    public JourneyDTO(LocationRefWithPosition begin, List<SimpleStageDTO> stages,
                       LocalDateTime expectedArrivalTime, LocalDateTime firstDepartureTime,
                       List<LocationRefWithPosition> changeStations, TramTime queryTime, List<Note> notes,
                       List<LocationRefWithPosition> path, LocalDate queryDate) {
@@ -55,7 +55,7 @@ public class JourneyDTO {
         this.queryDate = queryDate;
     }
 
-    public List<StageDTO> getStages() {
+    public List<SimpleStageDTO> getStages() {
         return stages;
     }
 

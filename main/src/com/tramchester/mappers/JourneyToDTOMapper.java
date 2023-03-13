@@ -6,7 +6,7 @@ import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.places.Location;
 import com.tramchester.domain.presentation.DTO.JourneyDTO;
 import com.tramchester.domain.presentation.DTO.LocationRefWithPosition;
-import com.tramchester.domain.presentation.DTO.StageDTO;
+import com.tramchester.domain.presentation.DTO.SimpleStageDTO;
 import com.tramchester.domain.presentation.DTO.factory.DTOFactory;
 import com.tramchester.domain.presentation.DTO.factory.StageDTOFactory;
 import com.tramchester.domain.presentation.Note;
@@ -41,7 +41,7 @@ public class JourneyToDTOMapper {
     }
 
     public JourneyDTO createJourneyDTO(Journey journey, TramDate queryDate) {
-        List<StageDTO> stages = new ArrayList<>();
+        List<SimpleStageDTO> stages = new ArrayList<>();
 
         List<TransportStage<?,?>> rawJourneyStages = journey.getStages();
         if (rawJourneyStages.isEmpty()) {
@@ -55,7 +55,7 @@ public class JourneyToDTOMapper {
         for(TransportStage<?,?> rawStage : rawJourneyStages) {
             logger.info("Adding stage " + rawStage);
             TravelAction action = decideTravelAction(stages, rawStage);
-            StageDTO stageDTO = stageFactory.build(rawStage, action, queryDate);
+            SimpleStageDTO stageDTO = stageFactory.build(rawStage, action, queryDate);
             stages.add(stageDTO);
         }
 
@@ -78,7 +78,7 @@ public class JourneyToDTOMapper {
         return locations.stream().map(stationDTOFactory::createLocationRefWithPosition).collect(Collectors.toList());
     }
 
-    private TravelAction decideTravelAction(List<StageDTO> stages, TransportStage<?,?> rawStage) {
+    private TravelAction decideTravelAction(List<SimpleStageDTO> stages, TransportStage<?,?> rawStage) {
         return switch (rawStage.getMode()) {
             case Tram, Bus, RailReplacementBus, Train, Ferry, Subway -> decideActionForStations(stages);
             case Walk -> decideWalkingAction(rawStage);
@@ -92,11 +92,11 @@ public class JourneyToDTOMapper {
         return walkingStage.getTowardsMyLocation() ? TravelAction.WalkFrom : TravelAction.WalkTo;
     }
 
-    private TravelAction decideActionForStations(List<StageDTO> stagesSoFar) {
+    private TravelAction decideActionForStations(List<SimpleStageDTO> stagesSoFar) {
         if (stagesSoFar.isEmpty()) {
             return TravelAction.Board;
         }
-        StageDTO previousStage = stagesSoFar.get(stagesSoFar.size() - 1);
+        SimpleStageDTO previousStage = stagesSoFar.get(stagesSoFar.size() - 1);
         TransportMode previousMode = previousStage.getMode();
         if ((previousMode ==TransportMode.Walk) || previousMode ==TransportMode.Connect) {
             return TravelAction.Board;

@@ -3,10 +3,7 @@ package com.tramchester.integration.resources.journeyPlanning;
 import com.tramchester.App;
 import com.tramchester.config.AppConfiguration;
 import com.tramchester.domain.dates.TramDate;
-import com.tramchester.domain.presentation.DTO.JourneyDTO;
-import com.tramchester.domain.presentation.DTO.JourneyPlanRepresentation;
-import com.tramchester.domain.presentation.DTO.JourneyQueryDTO;
-import com.tramchester.domain.presentation.DTO.StageDTO;
+import com.tramchester.domain.presentation.DTO.*;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.integration.testSupport.IntegrationAppExtension;
@@ -70,9 +67,9 @@ class JourneyPlannerLocationResourceTest {
 
         JourneyDTO firstJourney = getEarliestArrivingJourney(journeys);
 
-        List<StageDTO> stages = firstJourney.getStages();
+        List<SimpleStageDTO> stages = firstJourney.getStages();
         assertEquals(2, stages.size());
-        StageDTO walkingStage = stages.get(0);
+        SimpleStageDTO walkingStage = stages.get(0);
         LocalDateTime departureTime = walkingStage.getFirstDepartureTime();
 
         // todo new lockdown timetable
@@ -130,7 +127,7 @@ class JourneyPlannerLocationResourceTest {
 
         assertTrue(firstDepartureTime.isBefore(query));
 
-        List<StageDTO> stages = earliest.getStages();
+        List<SimpleStageDTO> stages = earliest.getStages();
 
         assertEquals(2, stages.size());
     }
@@ -143,14 +140,14 @@ class JourneyPlannerLocationResourceTest {
         journeys.forEach(journeyDTO -> {
             assertTrue(journeyDTO.getFirstDepartureTime().isAfter(queryTime.toDate(when)));
 
-            List<StageDTO> stages = journeyDTO.getStages();
+            List<SimpleStageDTO> stages = journeyDTO.getStages();
 
             assertEquals(2, stages.size(), stages.toString());
             assertEquals(TransportMode.Tram, stages.get(0).getMode());
 
             int lastIndex = stages.size()-1;
             assertEquals(TransportMode.Walk, stages.get(lastIndex).getMode());
-            StageDTO walkingStage = stages.get(lastIndex);
+            SimpleStageDTO walkingStage = stages.get(lastIndex);
             assertEquals(nearAltrincham.latLong(), walkingStage.getLastStation().getLatLong());
         });
     }
@@ -169,7 +166,7 @@ class JourneyPlannerLocationResourceTest {
         JourneyDTO firstJourney = journeys.get(0);
         assertTrue(firstJourney.getFirstDepartureTime().isBefore(queryTime.toDate(when)));
 
-        List<StageDTO> stages = firstJourney.getStages();
+        List<SimpleStageDTO> stages = firstJourney.getStages();
         assertEquals(TransportMode.Tram, stages.get(0).getMode());
         int lastStageIndex = numberOfStages - 1;
         assertEquals(TransportMode.Walk, stages.get(lastStageIndex).getMode());
@@ -182,9 +179,9 @@ class JourneyPlannerLocationResourceTest {
         assertTrue(journeys.size()>0);
         JourneyDTO first = getEarliestArrivingJourney(journeys);
 
-        List<StageDTO> stages = first.getStages();
+        List<SimpleStageDTO> stages = first.getStages();
         assertEquals(1, stages.size());
-        StageDTO walkingStage = stages.get(0);
+        SimpleStageDTO walkingStage = stages.get(0);
         assertEquals(getDateTimeFor(when, 22, 9), walkingStage.getFirstDepartureTime());
     }
 
@@ -195,9 +192,9 @@ class JourneyPlannerLocationResourceTest {
         assertTrue(journeys.size()>0);
         JourneyDTO first = getEarliestArrivingJourney(journeys);
 
-        List<StageDTO> stages = first.getStages();
+        List<SimpleStageDTO> stages = first.getStages();
         assertEquals(1, stages.size());
-        StageDTO walkingStage = stages.get(0);
+        SimpleStageDTO walkingStage = stages.get(0);
         assertEquals(getDateTimeFor(when, 22, 9), walkingStage.getFirstDepartureTime());
     }
 
@@ -219,12 +216,12 @@ class JourneyPlannerLocationResourceTest {
     private void checkAltyToPiccGardens(Set<JourneyDTO> journeys) {
         assertTrue(journeys.size()>0);
         JourneyDTO first = getEarliestArrivingJourney(journeys);
-        List<StageDTO> stages = first.getStages();
+        List<SimpleStageDTO> stages = first.getStages();
         assertEquals(getDateTimeFor(when, 9, 0), first.getFirstDepartureTime(), journeys.toString());
         assertEquals(getDateTimeFor(when, 9, 3), first.getExpectedArrivalTime(), journeys.toString());
 
         assertEquals(1, stages.size());
-        StageDTO stage = stages.get(0);
+        SimpleStageDTO stage = stages.get(0);
         assertEquals(getDateTimeFor(when, 9, 0), stage.getFirstDepartureTime());
         assertEquals(getDateTimeFor(when, 9, 3), stage.getExpectedArrivalTime());
     }
@@ -284,7 +281,7 @@ class JourneyPlannerLocationResourceTest {
         assertTrue(journeys.size()>=1, "no journeys");
 
         journeys.forEach(journeyDTO -> {
-            List<StageDTO> stages = journeyDTO.getStages();
+            List<SimpleStageDTO> stages = journeyDTO.getStages();
             assertTrue(stages.size()>0, "no stages");
             stages.forEach(stage -> assertTrue(stage.getDuration()>0, stage.toString()));
         });

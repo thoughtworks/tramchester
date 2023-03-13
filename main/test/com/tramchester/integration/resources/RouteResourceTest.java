@@ -54,6 +54,8 @@ class RouteResourceTest {
 
         TramDate today = TramDate.from(TestEnv.LocalNow());
 
+        Route expectedAirportRoute = tramRouteHelper.getOneRoute(ManchesterAirportWythenshaweVictoria, today);
+
         List<RouteDTO> routes = getRouteResponse(); // uses current date server side
 
         Set<String> fromRepos = routes.stream().map(RouteRefDTO::getRouteName).collect(Collectors.toSet());
@@ -67,22 +69,19 @@ class RouteResourceTest {
         routes.forEach(route -> assertFalse(route.getStations().isEmpty(), "Route no stations "+route.getRouteName()));
 
         RouteDTO airportRoute = routes.stream().
-                filter(routeDTO -> routeDTO.getShortName().equals(ManchesterAirportWythenshaweVictoria.shortName())).
+                filter(routeDTO -> routeDTO.getRouteID().equals(IdForDTO.createFor(expectedAirportRoute))).
                 findFirst().orElseThrow();
 
-        Route expectedAirportRoute = tramRouteHelper.getOneRoute(ManchesterAirportWythenshaweVictoria, today);
-
-        assertEquals(IdForDTO.createFor(expectedAirportRoute), airportRoute.getRouteID());
-
         assertTrue(airportRoute.isTram());
+        assertEquals("Navy Line", airportRoute.getShortName().trim());
+
         List<LocationRefWithPosition> airportRouteStations = airportRoute.getStations();
 
-        assertEquals("Navy Line", airportRoute.getShortName().trim());
-        List<String> ids = airportRouteStations.stream().
+        List<IdForDTO> ids = airportRouteStations.stream().
                 map(LocationRefDTO::getId).
-                map(IdForDTO::getActualId).
                 collect(Collectors.toList());
-        assertTrue(ids.contains(TramStations.ManAirport.getRawId()));
+
+        assertTrue(ids.contains(TramStations.ManAirport.getIdForDTO()));
 
     }
 
