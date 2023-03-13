@@ -1,7 +1,7 @@
 package com.tramchester.domain.places;
 
 @Deprecated
-public interface IdForDTO {
+public interface hasIdForDTO {
     @Deprecated
     String forDTO();
 }
