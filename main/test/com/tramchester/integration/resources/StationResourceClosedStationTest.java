@@ -49,7 +49,7 @@ public class StationResourceClosedStationTest {
         StationClosureDTO stationClosure = results.get(0);
         List<LocationRefDTO> stations = stationClosure.getStations();
         assertEquals(1, stations.size());
-        assertEquals(closedStation.getRawId(), stations.get(0).getId());
+        assertEquals(closedStation.getIdForDTO(), stations.get(0).getId());
         assertEquals(when.toLocalDate(), stationClosure.getBegin());
         assertEquals(when.plusWeeks(1).toLocalDate(), stationClosure.getEnd());
         assertFalse(stationClosure.getFullyClosed());

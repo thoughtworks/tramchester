@@ -1,7 +1,11 @@
 package com.tramchester.integration.resources.journeyPlanning;
 
 import com.tramchester.App;
+import com.tramchester.GuiceContainerDependencies;
+import com.tramchester.domain.Platform;
 import com.tramchester.domain.dates.TramDate;
+import com.tramchester.domain.id.IdForDTO;
+import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.DTO.*;
 import com.tramchester.domain.presentation.Note;
 import com.tramchester.domain.reference.TransportMode;
@@ -11,12 +15,14 @@ import com.tramchester.integration.testSupport.IntegrationAppExtension;
 import com.tramchester.integration.testSupport.JourneyResourceTestFacade;
 import com.tramchester.integration.testSupport.tram.ResourceTramTestConfig;
 import com.tramchester.livedata.tfgm.ProvidesTramNotes;
+import com.tramchester.repository.StationRepository;
 import com.tramchester.resources.JourneyPlannerResource;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.TramStations;
 import io.dropwizard.testing.junit5.DropwizardExtensionsSupport;
 import org.apache.commons.lang3.tuple.Triple;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -38,13 +44,28 @@ public class JourneyPlannerResourceTest {
     private static final IntegrationAppExtension appExtension =
             new IntegrationAppExtension(App.class, new ResourceTramTestConfig<>(JourneyPlannerResource.class));
 
+    private static GuiceContainerDependencies dependencies;
+
     private TramDate when;
     private JourneyResourceTestFacade journeyPlanner;
+    private Platform firstPlatformAtAlty;
+    private StationRepository stationRepository;
+
+    @BeforeAll
+    static void onceBeforeAnyTesst() {
+        App app = appExtension.getTestSupport().getApplication();
+        dependencies = app.getDependencies();
+    }
 
     @BeforeEach
     void beforeEachTestRuns() {
         when = TestEnv.testDay();
         journeyPlanner = new JourneyResourceTestFacade(appExtension);
+
+        stationRepository = dependencies.get(StationRepository.class);
+        Station altrincham = stationRepository.getStationById(Altrincham.getId());
+        List<Platform> platforms = new ArrayList<>(altrincham.getPlatforms());
+        firstPlatformAtAlty = platforms.get(0);
     }
 
     @Test
@@ -79,7 +100,7 @@ public class JourneyPlannerResourceTest {
 
             assertEquals("1", platform.getPlatformNumber());
             assertEquals("Altrincham platform 1", platform.getName());
-            assertEquals(Altrincham.getRawId() + "1", platform.getId());
+            assertEquals(IdForDTO.createFor(firstPlatformAtAlty), platform.getId());
 
             journey.getStages().forEach(stage -> assertEquals(when.toLocalDate(), stage.getQueryDate()));
         });
@@ -163,6 +184,19 @@ public class JourneyPlannerResourceTest {
 
         // note: Cornbrook, StPetersSquare, Deansgate all valid but have same cost
 
+        Station deansgate = stationRepository.getStationById(Deansgate.getId());
+        Station cornbrook = stationRepository.getStationById(Cornbrook.getId());
+        Station piccadily = stationRepository.getStationById(Piccadilly.getId());
+        Station stPetersSquare = stationRepository.getStationById(StPetersSquare.getId());
+
+        Set<Platform> platforms = new HashSet<>();
+        platforms.addAll(deansgate.getPlatforms());
+        platforms.addAll(cornbrook.getPlatforms());
+        platforms.addAll(piccadily.getPlatforms());
+        platforms.addAll(stPetersSquare.getPlatforms());
+
+        Set<IdForDTO> platformIds = platforms.stream().map(IdForDTO::createFor).collect(Collectors.toSet());
+
         JourneyQueryDTO query = journeyPlanner.getQueryDTO(when, TramTime.of(17, 45), Altrincham, Ashton, false, 1);
 
         JourneyPlanRepresentation plan = journeyPlanner.getJourneyPlan(query);
@@ -176,7 +210,7 @@ public class JourneyPlannerResourceTest {
 
             assertEquals("1", stategOnePlatform.getPlatformNumber());
             assertEquals( "Altrincham platform 1", stategOnePlatform.getName());
-            assertEquals( TramStations.Altrincham.getRawId()+"1", stategOnePlatform.getId());
+            assertEquals( IdForDTO.createFor(firstPlatformAtAlty), stategOnePlatform.getId());
 
             StageDTO secondStage = journey.getStages().get(1);
             PlatformDTO secondStagePlatform = secondStage.getPlatform();
@@ -190,11 +224,8 @@ public class JourneyPlannerResourceTest {
                     "Deansgate-Castlefield platform 1",
                     "Piccadilly platform 1", // summer 2021 only?
                     "St Peter's Square platform 2")));
-            assertThat( secondStagePlatform.getId(), is(oneOf(Cornbrook.getRawId()+platformNumber,
-                    Deansgate.getRawId()+platformNumber,
-                    StPetersSquare.getRawId()+platformNumber,
-                    Piccadilly.getRawId()+platformNumber // <- summer 2021 only?
-            )));
+
+            assertTrue(platformIds.contains(secondStagePlatform.getId()), stategOnePlatform.getId() + " not in " + platformIds);
         });
 
     }

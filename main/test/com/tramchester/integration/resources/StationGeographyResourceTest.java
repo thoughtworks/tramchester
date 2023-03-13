@@ -3,6 +3,9 @@ package com.tramchester.integration.resources;
 import com.tramchester.App;
 import com.tramchester.GuiceContainerDependencies;
 import com.tramchester.config.TramchesterConfig;
+import com.tramchester.domain.id.IdFor;
+import com.tramchester.domain.id.IdForDTO;
+import com.tramchester.domain.places.NaptanArea;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.DTO.AreaBoundaryDTO;
 import com.tramchester.domain.presentation.DTO.BoxDTO;
@@ -15,6 +18,7 @@ import com.tramchester.integration.testSupport.APIClient;
 import com.tramchester.integration.testSupport.IntegrationAppExtension;
 import com.tramchester.integration.testSupport.naptan.ResourceTramTestConfigWithNaptan;
 import com.tramchester.repository.StationRepository;
+import com.tramchester.repository.naptan.NaptanRepository;
 import com.tramchester.resources.StationGeographyResource;
 import com.tramchester.testSupport.reference.TramStations;
 import io.dropwizard.testing.junit5.DropwizardExtensionsSupport;
@@ -41,6 +45,7 @@ class StationGeographyResourceTest {
 
     private static GuiceContainerDependencies dependencies;
     private DTOFactory DTOFactory;
+    private NaptanRepository naptanRepository;
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
@@ -51,6 +56,7 @@ class StationGeographyResourceTest {
     @BeforeEach
     void beforeEachTestRuns() {
         DTOFactory = dependencies.get(DTOFactory.class);
+        naptanRepository = dependencies.get(NaptanRepository.class);
     }
 
     @Test
@@ -120,10 +126,15 @@ class StationGeographyResourceTest {
 
         assertFalse(areas.isEmpty());
 
-        Station bury = Bury.from(stationRepository);
+        Set<IdForDTO> areaIds = areas.stream().map(AreaBoundaryDTO::getAreaId).collect(Collectors.toSet());
 
-        boolean found = areas.stream().anyMatch(area -> area.getAreaId().equals(bury.getAreaId().forDTO()));
-        assertTrue(found);
+        Station bury = Bury.from(stationRepository);
+        IdFor<NaptanArea> naptanId = bury.getAreaId();
+        NaptanArea naptanArea = naptanRepository.getAreaFor(naptanId);
+
+        boolean found = areaIds.stream().anyMatch(areaId -> areaId.equals(IdForDTO.createFor(naptanArea)));
+
+        assertTrue(found, naptanId + " not found in " + areaIds);
     }
 
     private StationLinkDTO createLink(TramStations begin, TramStations end) {

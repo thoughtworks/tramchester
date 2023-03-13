@@ -76,7 +76,7 @@ public class FrequencyResourceTest {
 
         assertEquals(7, airportBox.getNumberOfStopcalls());
         List<LocationRefDTO> stops = airportBox.getStops();
-        boolean airportStopPresent = stops.stream().anyMatch(stop -> stop.getId().equals(airportStation.getId().forDTO()));
+        boolean airportStopPresent = stops.stream().anyMatch(stop -> stop.getId().equals(airportStation.getIdForDTO()));
         assertTrue(airportStopPresent);
     }
 

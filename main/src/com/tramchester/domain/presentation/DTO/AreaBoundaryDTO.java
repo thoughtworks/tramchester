@@ -34,4 +34,13 @@ public class AreaBoundaryDTO extends BoundaryDTO {
     public NaptanStopAreaType getType() {
         return type;
     }
+
+    @Override
+    public String toString() {
+        return "AreaBoundaryDTO{" +
+                "areaId=" + areaId +
+                ", areaName='" + areaName + '\'' +
+                ", type=" + type +
+                "} " + super.toString();
+    }
 }

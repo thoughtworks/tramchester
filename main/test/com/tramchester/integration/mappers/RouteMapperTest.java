@@ -57,7 +57,7 @@ class RouteMapperTest {
     @Test
     void shouldGetRouteStationsInCorrectOrder() {
 
-        List<RouteDTO> dtos = mapper.getRouteDTOs(TestEnv.testTramDay());
+        List<RouteDTO> dtos = mapper.getRouteDTOs(TestEnv.testDay());
 
         Route fromAirportRoute = tramRouteHelper.getOneRoute(ManchesterAirportWythenshaweVictoria, date);
 
@@ -67,12 +67,12 @@ class RouteMapperTest {
 
         List<LocationRefWithPosition> stations = dtos.get(index).getStations();
         LocationRefWithPosition stationRefWithPosition = stations.get(0);
-        assertEquals(ManAirport.getRawId(), stationRefWithPosition.getId(), "for route " + fromAirportRoute);
+        assertEquals(ManAirport.getIdForDTO(), stationRefWithPosition.getId(), "for route " + fromAirportRoute);
         TestEnv.assertLatLongEquals(ManAirport.getLatLong(), stationRefWithPosition.getLatLong(),
                 0.00001, "position");
         assertTrue(stationRefWithPosition.getTransportModes().contains(TransportMode.Tram));
 
-        assertEquals(Victoria.getRawId(), stations.get(stations.size()-1).getId());
+        assertEquals(Victoria.getIdForDTO(), stations.get(stations.size()-1).getId());
 
     }
 
