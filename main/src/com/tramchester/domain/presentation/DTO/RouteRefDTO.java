@@ -4,12 +4,13 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.tramchester.domain.Route;
+import com.tramchester.domain.id.IdForDTO;
 import com.tramchester.domain.reference.TransportMode;
 
 @JsonIgnoreProperties(value = "tram", allowGetters = true)
 public class RouteRefDTO {
 
-    private String routeID;
+    private IdForDTO routeID;
     private String routeName;
     private TransportMode transportMode;
     private String shortName;
@@ -31,7 +32,7 @@ public class RouteRefDTO {
 
         this.transportMode = route.getTransportMode();
         this.shortName = route.getShortName();
-        this.routeID = route.getId().forDTO();
+        this.routeID = IdForDTO.createFor(route); //route.getId().forDTO();
     }
 
     public String getRouteName() {
@@ -46,7 +47,7 @@ public class RouteRefDTO {
         return transportMode;
     }
 
-    public String getRouteID() {
+    public IdForDTO getRouteID() {
         return routeID;
     }
 

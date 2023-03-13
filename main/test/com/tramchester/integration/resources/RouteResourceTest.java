@@ -15,6 +15,7 @@ import com.tramchester.integration.testSupport.tram.ResourceTramTestConfig;
 import com.tramchester.repository.RouteRepository;
 import com.tramchester.resources.RouteResource;
 import com.tramchester.testSupport.TestEnv;
+import com.tramchester.testSupport.TramRouteHelper;
 import com.tramchester.testSupport.reference.KnownTramRoute;
 import com.tramchester.testSupport.reference.TramStations;
 import io.dropwizard.testing.junit5.DropwizardExtensionsSupport;
@@ -39,11 +40,13 @@ class RouteResourceTest {
     private static final IntegrationAppExtension appExtension = new IntegrationAppExtension(App.class,
             new ResourceTramTestConfig<>(RouteResource.class));
     private RouteRepository routeRepository;
+    private TramRouteHelper tramRouteHelper;
 
     @BeforeEach
     void onceBeforeEachTestRuns() {
         App app =  appExtension.getApplication();
         routeRepository = app.getDependencies().get(RouteRepository.class);
+        tramRouteHelper = new TramRouteHelper(routeRepository);
     }
 
     @Test
@@ -66,6 +69,10 @@ class RouteResourceTest {
         RouteDTO airportRoute = routes.stream().
                 filter(routeDTO -> routeDTO.getShortName().equals(ManchesterAirportWythenshaweVictoria.shortName())).
                 findFirst().orElseThrow();
+
+        Route expectedAirportRoute = tramRouteHelper.getOneRoute(ManchesterAirportWythenshaweVictoria, today);
+
+        assertEquals(IdForDTO.createFor(expectedAirportRoute), airportRoute.getRouteID());
 
         assertTrue(airportRoute.isTram());
         List<LocationRefWithPosition> airportRouteStations = airportRoute.getStations();
