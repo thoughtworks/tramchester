@@ -1,5 +1,6 @@
 package com.tramchester.unit.domain.places;
 
+import com.tramchester.domain.id.PostcodeLocationId;
 import com.tramchester.domain.places.PostcodeLocation;
 import com.tramchester.domain.presentation.LatLong;
 import org.junit.jupiter.api.Assertions;
@@ -10,17 +11,20 @@ class PostcodeLocationTest {
     @Test
     void shouldGetAreaAndName() {
         LatLong latLon = new LatLong(1,1);
-        PostcodeLocation locationA = new PostcodeLocation(latLon, PostcodeLocation.createId("M17AB"));
+        PostcodeLocationId idA = PostcodeLocation.createId("M17AB");
+        PostcodeLocation locationA = new PostcodeLocation(latLon, idA);
         Assertions.assertEquals("M17AB", locationA.getName());
-        Assertions.assertEquals("M17AB", locationA.forDTO());
+        Assertions.assertEquals(idA, locationA.getId());
 
-        PostcodeLocation locationB = new PostcodeLocation(latLon, PostcodeLocation.createId("wa114ab"));
+        PostcodeLocationId idB = PostcodeLocation.createId("wa114ab");
+        PostcodeLocation locationB = new PostcodeLocation(latLon, idB);
         Assertions.assertEquals("WA114AB", locationB.getName());
-        Assertions.assertEquals("WA114AB", locationB.forDTO());
+        Assertions.assertEquals(idB, locationB.getId());
 
-        PostcodeLocation locationC = new PostcodeLocation(latLon, PostcodeLocation.createId("B114AB"));
+        PostcodeLocationId idC = PostcodeLocation.createId("B114AB");
+        PostcodeLocation locationC = new PostcodeLocation(latLon, idC);
         Assertions.assertEquals("B114AB", locationC.getName());
-        Assertions.assertEquals("B114AB", locationC.forDTO());
+        Assertions.assertEquals(idC, locationC.getId());
 
     }
 }

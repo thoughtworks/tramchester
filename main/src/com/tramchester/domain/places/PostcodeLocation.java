@@ -163,7 +163,4 @@ public class PostcodeLocation implements Location<PostcodeLocation>, CoreDomain,
                 '}';
     }
 
-    public String forDTO()  {
-        return getId().forDTO();
-    }
 }

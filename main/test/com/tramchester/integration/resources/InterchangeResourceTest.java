@@ -1,6 +1,7 @@
 package com.tramchester.integration.resources;
 
 import com.tramchester.App;
+import com.tramchester.domain.id.IdForDTO;
 import com.tramchester.integration.testSupport.APIClient;
 import com.tramchester.integration.testSupport.IntegrationAppExtension;
 import com.tramchester.integration.testSupport.tram.ResourceTramTestConfig;
@@ -38,10 +39,10 @@ public class InterchangeResourceTest  {
 
         assertEquals(200, result.getStatus());
 
-        List<String> results = result.readEntity(new GenericType<>() {});
+        List<IdForDTO> results = result.readEntity(new GenericType<>() {});
 
-        List<String> expected = interchangeRepository.getAllInterchanges().stream().
-                map(interchangeStation -> interchangeStation.getStationId().forDTO()).collect(Collectors.toList());
+        List<IdForDTO> expected = interchangeRepository.getAllInterchanges().stream().
+                map(interchangeStation -> IdForDTO.createFor(interchangeStation.getStation())).collect(Collectors.toList());
 
         assertEquals(expected.size(), results.size());
 

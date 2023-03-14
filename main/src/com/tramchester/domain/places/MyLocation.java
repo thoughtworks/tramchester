@@ -145,10 +145,6 @@ public class MyLocation implements Location<MyLocation> {
         return GraphPropertyKey.WALK_ID;
     }
 
-    public String forDTO()  {
-        return getId().forDTO();
-    }
-
     @Deprecated
     public static boolean isUserLocation(String text) {
         return MY_LOCATION_PLACEHOLDER_ID.equals(text);

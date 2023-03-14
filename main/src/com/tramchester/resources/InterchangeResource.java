@@ -3,6 +3,7 @@ package com.tramchester.resources;
 import com.codahale.metrics.annotation.Timed;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tramchester.config.TramchesterConfig;
+import com.tramchester.domain.id.IdForDTO;
 import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.repository.InterchangeRepository;
 import com.tramchester.repository.StationRepository;
@@ -45,8 +46,8 @@ public class InterchangeResource implements APIResource, GraphDatabaseDependency
     public Response getByMode(@Context Request request) {
         logger.info("Get all interchange id's");
 
-        List<String> stationIds = interchangeRepository.getAllInterchanges().stream().
-                map(interchangeStation -> interchangeStation.getStationId().forDTO()).collect(Collectors.toList());
+        List<IdForDTO> stationIds = interchangeRepository.getAllInterchanges().stream().
+                map(interchangeStation -> IdForDTO.createFor(interchangeStation.getStation())).collect(Collectors.toList());
 
         return Response.ok(stationIds).build();
     }
