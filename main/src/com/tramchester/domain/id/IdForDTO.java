@@ -2,6 +2,7 @@ package com.tramchester.domain.id;
 
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.tramchester.domain.Platform;
+import com.tramchester.domain.Route;
 import com.tramchester.domain.id.serialization.IdForDTOSerialization;
 
 import java.util.Objects;
@@ -21,6 +22,10 @@ public class IdForDTO {
         } else if (sourceId instanceof PlatformId) {
             PlatformId platformId = (PlatformId) sourceId;
             StringIdFor<Platform> internalId = platformId.getContainedId();
+            actualId = internalId.getContainedId();
+        } else if (sourceId instanceof RailRouteId) {
+            RailRouteId railRouteId = (RailRouteId) sourceId;
+            StringIdFor<Route> internalId = railRouteId.getContainedId();
             actualId = internalId.getContainedId();
         } else {
             throw new RuntimeException("Not defined for " + sourceId);

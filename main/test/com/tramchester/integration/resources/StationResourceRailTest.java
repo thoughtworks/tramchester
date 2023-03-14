@@ -68,8 +68,8 @@ class StationResourceRailTest {
                 map(IdForDTO::getActualId).
                 collect(Collectors.toList());
 
-        assertTrue(platformIds.contains(stationId.getActualId()+":1"), platformIds.toString());
-        assertTrue(platformIds.contains(stationId.getActualId()+":13B"), platformIds.toString());
+        assertTrue(platformIds.contains(stationId.getActualId()+"1"), platformIds.toString());
+        assertTrue(platformIds.contains(stationId.getActualId()+"13B"), platformIds.toString());
 
         List<RouteRefDTO> routeRefDTOS = result.getRoutes();
 

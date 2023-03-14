@@ -1,8 +1,6 @@
 package com.tramchester.domain.id;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.tramchester.domain.Agency;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.places.Station;
@@ -10,35 +8,26 @@ import com.tramchester.domain.places.Station;
 import java.util.List;
 import java.util.Objects;
 
-import static java.lang.String.format;
-
 
 public class RailRouteId implements IdFor<Route> {
+    private final StringIdFor<Route> theId;
 
     private final IdFor<Station> begin;
     private final IdFor<Station> end;
     private final IdFor<Agency> agencyId;
     private final int index;
 
-    private final String asString;
-
-    @JsonCreator
-    public RailRouteId(@JsonProperty("begin") IdFor<Station> begin,
-                       @JsonProperty("end") IdFor<Station> end,
-                       @JsonProperty("agencyId") IdFor<Agency> agencyId,
-                       @JsonProperty("intdex") int index) {
+    public RailRouteId(IdFor<Station> begin,
+                       IdFor<Station> end,
+                       IdFor<Agency> agencyId,
+                       int index) {
 
         this.begin = begin;
         this.end = end;
         this.agencyId = agencyId;
         this.index = index;
-        asString = createStringId();
-    }
 
-    private String createStringId() {
-        String firstName = begin.forDTO();
-        String lastName = end.forDTO();
-        return format("%s:%s=>%s:%s", agencyId.forDTO(), firstName, lastName, index);
+        theId = createContainedId(begin, end, agencyId, index);
     }
 
     public static RailRouteId createId(IdFor<Agency> agencyId, List<IdFor<Station>> callingPoints, int index) {
@@ -50,15 +39,27 @@ public class RailRouteId implements IdFor<Route> {
         return new RailRouteId(first, last, agencyId, index);
     }
 
+    private StringIdFor<Route> createContainedId(IdFor<Station> begin, IdFor<Station> end, IdFor<Agency> agency, int index) {
+        // TODO Turn IdFor into abstract class so can have package private access to contained string ids
+        StringIdFor<Station> beginId = (StringIdFor<Station>) begin;
+        StringIdFor<Station> endId = (StringIdFor<Station>) end;
+        StringIdFor<Agency> agencyId = (StringIdFor<Agency>) agency;
+
+        String idText = String.format("%s:%s=>%s:%s", beginId.getContainedId(), endId.getContainedId(),
+                agencyId.getContainedId(), index);
+
+        return new StringIdFor<>(idText, Route.class);
+    }
+
     @Override
     public String forDTO() {
-        return asString;
+        return theId.forDTO();
     }
 
     @JsonIgnore
     @Override
     public String getGraphId() {
-        return asString;
+        return theId.getGraphId();
     }
 
     @JsonIgnore
@@ -92,7 +93,7 @@ public class RailRouteId implements IdFor<Route> {
     @Override
     public String toString() {
         return "RailRouteId{" +
-                "asString=" + asString +
+                "theId=" + theId +
                 ", begin=" + begin +
                 ", end=" + end +
                 ", agencyId=" + agencyId +
@@ -111,5 +112,9 @@ public class RailRouteId implements IdFor<Route> {
     @Override
     public int hashCode() {
         return Objects.hash(begin, end, agencyId, index);
+    }
+
+    StringIdFor<Route> getContainedId() {
+        return theId;
     }
 }
