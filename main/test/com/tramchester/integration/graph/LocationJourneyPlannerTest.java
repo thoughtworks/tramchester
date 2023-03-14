@@ -6,6 +6,7 @@ import com.tramchester.domain.Journey;
 import com.tramchester.domain.JourneyRequest;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.IdFor;
+import com.tramchester.domain.id.IdForDTO;
 import com.tramchester.domain.places.Location;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.TransportStage;
@@ -128,7 +129,7 @@ class LocationJourneyPlannerTest {
         final JourneyRequest request = new JourneyRequest(date, TramTime.of(8, 0), false,
                 3, maxJourneyDuration, 1, getRequestedModes());
         //request.setDiag(true);
-        final TramStations walkChangeStation = Altrincham;
+        final TramStations walkChangeStation = NavigationRoad;
         final TramStations start = TraffordBar;
 
         Set<Journey> journeySet = planner.quickestRouteForLocation(start, nearAltrincham, request, 2);
@@ -149,7 +150,8 @@ class LocationJourneyPlannerTest {
         assertEquals(start.getId(), tramStage.getFirstStation().getId());
         assertEquals(walkChangeStation.getId(), tramStage.getLastStation().getId());
         assertEquals(walkChangeStation.getId(), walkStage.getFirstStation().getId());
-        assertEquals("53.387483,-2.351463", walkStage.getLastStation().getId());
+        assertEquals(new IdForDTO("53.387483,-2.351463"), IdForDTO.createFor(walkStage.getLastStation()));
+        assertEquals(nearAltrincham.latLong(), walkStage.getLastStation().getLatLong());
         assertEquals(walkChangeStation.getId(), walkStage.getActionStation().getId());
     }
 
@@ -210,9 +212,9 @@ class LocationJourneyPlannerTest {
         journeyList.forEach(journey -> {
             List<Location<?>> callingPoints = journey.getPath();
             assertEquals(Deansgate.getId(), callingPoints.get(0).getId());
-            final int numCallingPoints = 12;
+            final int numCallingPoints = 11;
             assertEquals(numCallingPoints, callingPoints.size());
-            assertEquals(Altrincham.getId(), callingPoints.get(numCallingPoints-2).getId());
+            assertEquals(NavigationRoad.getId(), callingPoints.get(numCallingPoints-2).getId());
             assertEquals(nearAltrincham.latLong(), callingPoints.get(numCallingPoints-1).getLatLong());
         });
     }

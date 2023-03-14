@@ -127,7 +127,7 @@ class SubgraphSmallClosedStationsDiversionsTest {
 
         Set<Station> withinRange = stationLocations.nearestStationsUnsorted(piccGardens, range).collect(Collectors.toSet());
 
-        assertEquals(6, withinRange.size(), HasId.asIds(withinRange));
+        assertEquals(9, withinRange.size(), HasId.asIds(withinRange));
 
         // ignore self
         assertTrue(withinRange.contains(MarketStreet.from(stationRepository)));
@@ -172,7 +172,7 @@ class SubgraphSmallClosedStationsDiversionsTest {
         ClosedStation closed = closedStationsRepository.getClosedStation(piccGardens, date);
 
         Set<Station> nearby = closed.getNearbyLinkedStation();
-        assertEquals(5, nearby.size(), HasId.asIds(nearby));
+        assertEquals(7, nearby.size(), HasId.asIds(nearby));
         assertTrue(nearby.contains(Piccadilly.from(stationRepository)));
         assertTrue(nearby.contains(MarketStreet.from(stationRepository)));
         assertTrue(nearby.contains(StPetersSquare.from(stationRepository)));
