@@ -1,4 +1,4 @@
-package com.tramchester.domain;
+package com.tramchester.domain.presentation;
 
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
@@ -12,24 +12,13 @@ import com.tramchester.mappers.serialisation.LocalDateTimeJsonSerializeAsMillis;
 
 import java.time.LocalDateTime;
 
+/***
+ * Support for cookies on front-end
+ */
 @SuppressWarnings("unused")
 public class Timestamped  {
     private LocalDateTime when; // Serialised as Millis since epoch
     private String id;
-
-    @JsonSerialize(using = LocalDateTimeJsonSerializeAsMillis.class)
-    @JsonDeserialize(using = LocalDateTimeJsonDeserializerAsMillis.class)
-    public LocalDateTime getWhen() {
-        return when;
-    }
-
-    public String getId() {
-        return id;
-    }
-
-    public void setId(String id) {
-        this.id = id;
-    }
 
     public Timestamped() {
         // deserialisation
@@ -50,6 +39,20 @@ public class Timestamped  {
     public Timestamped(String id, LocalDateTime when) {
         this.id = id;
         this.when = when;
+    }
+
+    @JsonSerialize(using = LocalDateTimeJsonSerializeAsMillis.class)
+    @JsonDeserialize(using = LocalDateTimeJsonDeserializerAsMillis.class)
+    public LocalDateTime getWhen() {
+        return when;
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
     }
 
     @Override

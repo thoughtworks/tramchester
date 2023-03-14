@@ -3,7 +3,7 @@ package com.tramchester.integration.resources;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tramchester.App;
-import com.tramchester.domain.Timestamped;
+import com.tramchester.domain.presentation.Timestamped;
 import com.tramchester.domain.id.IdForDTO;
 import com.tramchester.domain.places.LocationType;
 import com.tramchester.domain.places.Station;

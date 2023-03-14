@@ -112,7 +112,7 @@ public class ReasonsToGraphViz {
             IdFor<Station> stationIdFrom = GraphProps.getStationIdFrom(node);
             Station station = stationRepository.getStationById(stationIdFrom);
             ids.append(System.lineSeparator()).append(station.getName());
-            String value = GraphProps.getRouteIdFrom(node).forDTO();
+            String value = GraphProps.getRouteIdFrom(node).toString();
             ids.append(System.lineSeparator());
             ids.append(value);
         }
@@ -123,7 +123,7 @@ public class ReasonsToGraphViz {
         if (labels.contains(GraphLabel.MINUTE)) {
             TramTime time = GraphProps.getTime(node);
             ids.append(time.toString());
-            String value = GraphProps.getTripId(node).forDTO();
+            String value = GraphProps.getTripId(node).toString();
             ids.append(System.lineSeparator());
             ids.append(value);
         }

@@ -3,7 +3,7 @@ package com.tramchester.unit.domain.presentation;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Sets;
 import com.tramchester.config.TramchesterConfig;
-import com.tramchester.domain.Timestamped;
+import com.tramchester.domain.presentation.Timestamped;
 import com.tramchester.domain.presentation.RecentJourneys;
 import com.tramchester.testSupport.TestEnv;
 import org.junit.jupiter.api.Assertions;
