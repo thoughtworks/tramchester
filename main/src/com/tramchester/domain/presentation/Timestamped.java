@@ -4,6 +4,7 @@ package com.tramchester.domain.presentation;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.tramchester.domain.id.IdFor;
+import com.tramchester.domain.id.IdForDTO;
 import com.tramchester.domain.places.Location;
 import com.tramchester.domain.places.LocationType;
 import com.tramchester.domain.places.Station;
@@ -18,25 +19,24 @@ import java.time.LocalDateTime;
 @SuppressWarnings("unused")
 public class Timestamped  {
     private LocalDateTime when; // Serialised as Millis since epoch
-    private String id;
+    private IdForDTO id;
 
     public Timestamped() {
         // deserialisation
     }
 
     public Timestamped(IdFor<Station> id, LocalDateTime when) {
-        this(id.forDTO(), when);
+        this(new IdForDTO(id), when);
     }
 
     public Timestamped(Location<?> location, LocalDateTime when) {
-        this(location.getId().forDTO(), when);
+        this(IdForDTO.createFor(location), when);
         if (location.getLocationType()!= LocationType.Station) {
             throw new RuntimeException("Only recent stations support in cookies currently");
         }
     }
 
-    @Deprecated
-    public Timestamped(String id, LocalDateTime when) {
+    public Timestamped(IdForDTO id, LocalDateTime when) {
         this.id = id;
         this.when = when;
     }
@@ -47,11 +47,11 @@ public class Timestamped  {
         return when;
     }
 
-    public String getId() {
+    public IdForDTO getId() {
         return id;
     }
 
-    public void setId(String id) {
+    public void setId(IdForDTO id) {
         this.id = id;
     }
 

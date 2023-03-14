@@ -5,6 +5,7 @@ import com.tramchester.domain.DataSourceID;
 import com.tramchester.domain.Platform;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.id.IdFor;
+import com.tramchester.domain.id.IdForDTO;
 import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.reference.TransportMode;
@@ -67,4 +68,7 @@ public interface Station extends Location<Station> {
         return StringIdFor.createId(text, Station.class);
     }
 
+    static IdFor<Station> createId(IdForDTO idForDTO) {
+        return StringIdFor.createId(idForDTO, Station.class);
+    }
 }

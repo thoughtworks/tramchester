@@ -3,6 +3,7 @@ package com.tramchester.domain.id;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.tramchester.domain.CoreDomain;
+import com.tramchester.domain.places.Station;
 import com.tramchester.graph.GraphPropertyKey;
 import org.neo4j.graphdb.Entity;
 
@@ -38,6 +39,10 @@ public class StringIdFor<T extends CoreDomain> implements IdFor<T> {
             return CompositeId.parse(text, domainType);
         }
         return new StringIdFor<>(text, domainType);
+    }
+
+    public static IdFor<Station> createId(IdForDTO idForDTO, Class<Station> klass) {
+        return createId(idForDTO.getActualId(), klass);
     }
 
     public static <T extends CoreDomain> IdSet<T> createIds(Set<String> items, Class<T> domainClass) {

@@ -169,8 +169,9 @@ public class StationResource extends UsesRecentCookie implements APIResource {
         RecentJourneys recentJourneys = recentFromCookie(cookie);
 
         Set<Station> recent = recentJourneys.stream().map(Timestamped::getId).
-                filter(id -> stationRepository.hasStationId(Station.createId(id))).
-                map(id -> stationRepository.getStationById(Station.createId(id))).
+                map(Station::createId).
+                filter(stationRepository::hasStationId).
+                map(stationRepository::getStationById).
                 collect(Collectors.toSet());
 
         List<LocationRefDTO> results = toStationRefDTOList(recent);

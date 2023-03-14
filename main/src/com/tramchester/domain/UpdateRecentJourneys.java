@@ -41,21 +41,7 @@ public class UpdateRecentJourneys {
         from.add(timestamped);
         return new RecentJourneys().setTimestamps(from);
     }
-
-    @Deprecated
-    public RecentJourneys createNewJourneys(RecentJourneys recentJourneys, ProvidesNow providesNow, String stationId) {
-        Timestamped timestamped = new Timestamped(stationId, providesNow.getDateTime());
-        Set<Timestamped> from = new HashSet<>(recentJourneys.getRecentIds());
-        if (from.contains(timestamped)) {
-            from.remove(timestamped);
-        } else if (from.size()>=limit) {
-            Timestamped last = findOldest(from);
-            from.remove(last);
-        }
-        from.add(timestamped);
-        return new RecentJourneys().setTimestamps(from);
-    }
-
+    
     private Timestamped findOldest(Set<Timestamped> from) {
         List<Timestamped> ordered = from.stream().sorted(Timestamped::compare).collect(Collectors.toList());
         return ordered.get(0);

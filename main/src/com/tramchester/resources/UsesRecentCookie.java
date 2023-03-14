@@ -70,26 +70,4 @@ public class UsesRecentCookie extends TransportResource {
                 "tramchester recent journeys", maxAgeSecs, secure);
     }
 
-    @Deprecated
-    protected NewCookie createRecentCookie(Cookie cookie, String fromId, String endId, boolean secure, URI baseURI) throws JsonProcessingException {
-        logger.info(format("Updating recent stations cookie with %s and %s ",fromId, endId));
-        RecentJourneys recentJourneys = recentFromCookie(cookie);
-        if (!isFromMyLocation(fromId)) {
-            // don't add MyLocation to recents list
-            recentJourneys = updateRecentJourneys.createNewJourneys(recentJourneys, providesNow, fromId);
-        }
-        recentJourneys = updateRecentJourneys.createNewJourneys(recentJourneys, providesNow, endId);
-
-        int maxAgeSecs = 60 * 60 * 24 * 100;
-
-        // NOTE: SameSite is set via ResponseCookieFilter as NewCookie can't set SameSite (yet, TODO)
-        return new NewCookie(TRAMCHESTER_RECENT, RecentJourneys.encodeCookie(mapper, recentJourneys)
-            , "/api", baseURI.getHost(), VERSION,
-                "tramchester recent journeys", maxAgeSecs, secure);
-    }
-
-    @Deprecated
-    private boolean isFromMyLocation(String startId) {
-        return MyLocation.MY_LOCATION_PLACEHOLDER_ID.equals(startId);
-    }
 }
