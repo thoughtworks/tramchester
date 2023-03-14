@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.tramchester.domain.Platform;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.id.serialization.IdForDTOSerialization;
+import com.tramchester.domain.presentation.LatLong;
 
 import java.util.Objects;
 
@@ -38,6 +39,17 @@ public class IdForDTO {
 
     public static IdForDTO createFor(HasId<?> hasId) {
         return new IdForDTO(hasId.getId());
+    }
+
+    /***
+     * Pseudo id for locations
+     * TODO should this be the MyLocationId?
+     * @param latLon the position
+     * @return a IdForDTO
+     */
+    public static IdForDTO createFor(LatLong latLon) {
+        String latLong = String.format("%s,%s", latLon.getLat(), latLon.getLon());
+        return new IdForDTO(latLong);
     }
 
     public String getActualId() {

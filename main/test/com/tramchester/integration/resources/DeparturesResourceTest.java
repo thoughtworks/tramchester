@@ -3,6 +3,7 @@ package com.tramchester.integration.resources;
 import com.tramchester.App;
 import com.tramchester.GuiceContainerDependencies;
 import com.tramchester.domain.dates.TramDate;
+import com.tramchester.domain.id.IdForDTO;
 import com.tramchester.domain.places.LocationType;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.DTO.DeparturesQueryDTO;
@@ -262,14 +263,14 @@ class DeparturesResourceTest {
 
     @NotNull
     private DeparturesQueryDTO getQueryDTO(Station station, boolean includeNotes) {
-        return new DeparturesQueryDTO(LocationType.Station, station.getId().forDTO(),
+        return new DeparturesQueryDTO(LocationType.Station, IdForDTO.createFor(station),
                 includeNotes);
     }
 
     @NotNull
     private DeparturesQueryDTO getQueryDTO(LatLong where) {
-        String latLong = String.format("%s,%s", where.getLat(), where.getLon());
-        return new DeparturesQueryDTO(LocationType.MyLocation, latLong, false);
+        //String latLong = String.format("%s,%s", where.getLat(), where.getLon());
+        return new DeparturesQueryDTO(LocationType.MyLocation, IdForDTO.createFor(where), false);
     }
 
 

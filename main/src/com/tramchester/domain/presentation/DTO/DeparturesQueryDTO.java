@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.annotation.Nulls;
+import com.tramchester.domain.id.IdForDTO;
 import com.tramchester.domain.places.LocationType;
 import com.tramchester.domain.reference.TransportMode;
 
@@ -21,9 +22,8 @@ public class DeparturesQueryDTO {
     @JsonProperty("locationType")
     private LocationType locationType;
 
-    // TODO need to use full IdForDTO here
     @JsonProperty("locationId")
-    private String locationId;
+    private IdForDTO locationId;
 
     @JsonSetter(nulls = Nulls.SKIP)
     @JsonProperty("modes")
@@ -33,7 +33,7 @@ public class DeparturesQueryDTO {
     @JsonProperty("notes")
     private Boolean includeNotes;
 
-    public DeparturesQueryDTO(LocationType locationType, String locationId, boolean includeNotes) {
+    public DeparturesQueryDTO(LocationType locationType, IdForDTO locationId, boolean includeNotes) {
         this.locationType = locationType;
         this.locationId = locationId;
         this.includeNotes = includeNotes;
@@ -60,7 +60,7 @@ public class DeparturesQueryDTO {
         return locationType;
     }
 
-    public String getLocationId() {
+    public IdForDTO getLocationId() {
         return locationId;
     }
 

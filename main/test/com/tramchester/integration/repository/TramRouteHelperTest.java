@@ -4,6 +4,7 @@ import com.tramchester.ComponentsBuilder;
 import com.tramchester.GuiceContainerDependencies;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.dates.TramDate;
+import com.tramchester.domain.id.IdForDTO;
 import com.tramchester.repository.RouteRepository;
 import com.tramchester.testSupport.reference.KnownTramRoute;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
@@ -55,7 +56,7 @@ class TramRouteHelperTest {
                 assertEquals(TestEnv.MetAgency(), route.getAgency(), "agency wrong" + route.getAgency());
                 assertEquals(knownRoute.shortName(), route.getShortName(), "shortname " + route.getShortName());
 
-                final String id = route.getId().forDTO();
+                final String id = IdForDTO.createFor(route).getActualId();
                 final String suffix = knownRoute.direction().getSuffix();
                 assertTrue(id.contains(suffix), id + " does not contain " + suffix);
             });

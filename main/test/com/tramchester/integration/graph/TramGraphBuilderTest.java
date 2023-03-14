@@ -180,7 +180,7 @@ class TramGraphBuilderTest {
     void shouldHaveOneNodePerRouteStation() {
         stationRepository.getRouteStations().forEach(routeStation -> {
             Node found = graphQuery.getRouteStationNode(txn, routeStation);
-            assertNotNull(found, routeStation.getId().forDTO());
+            assertNotNull(found, routeStation.getId().toString());
         });
     }
 
