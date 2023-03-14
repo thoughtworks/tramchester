@@ -1,6 +1,7 @@
 package com.tramchester.domain.id;
 
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.tramchester.domain.Platform;
 import com.tramchester.domain.id.serialization.IdForDTOSerialization;
 
 import java.util.Objects;
@@ -17,6 +18,10 @@ public class IdForDTO {
         if (sourceId instanceof StringIdFor) {
             StringIdFor<?> stringId = (StringIdFor<?>) sourceId;
             actualId = stringId.getContainedId();
+        } else if (sourceId instanceof PlatformId) {
+            PlatformId platformId = (PlatformId) sourceId;
+            StringIdFor<Platform> internalId = platformId.getContainedId();
+            actualId = internalId.getContainedId();
         } else {
             throw new RuntimeException("Not defined for " + sourceId);
         }

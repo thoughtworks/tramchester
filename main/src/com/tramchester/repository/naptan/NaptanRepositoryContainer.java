@@ -9,10 +9,7 @@ import com.tramchester.dataimport.NaPTAN.xml.stopArea.NaptanStopAreaData;
 import com.tramchester.dataimport.NaPTAN.xml.stopPoint.NaptanStopData;
 import com.tramchester.dataimport.NaPTAN.xml.stopPoint.NaptanXMLStopAreaRef;
 import com.tramchester.dataimport.nptg.NPTGData;
-import com.tramchester.domain.id.IdFor;
-import com.tramchester.domain.id.IdMap;
-import com.tramchester.domain.id.IdSet;
-import com.tramchester.domain.id.StringIdFor;
+import com.tramchester.domain.id.*;
 import com.tramchester.domain.places.Location;
 import com.tramchester.domain.places.NaptanArea;
 import com.tramchester.domain.places.NaptanRecord;
@@ -228,6 +225,9 @@ public class NaptanRepositoryContainer implements NaptanRepository {
     }
 
     private <T extends Location<?>> IdFor<NaptanRecord> convertId(final IdFor<T> actoCode) {
+        if (actoCode instanceof PlatformId) {
+            return PlatformId.convert(actoCode, NaptanRecord.class);
+        }
         return StringIdFor.convert(actoCode, NaptanRecord.class);
     }
 

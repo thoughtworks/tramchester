@@ -50,9 +50,9 @@ class StationGroupTest {
         assertEquals(2.3, groupedStations.getLatLong().getLon(),0);
 
         assertEquals(areaId, groupedStations.getAreaId());
-        assertEquals("areaId", groupedStations.forDTO());
+        assertEquals(StationGroup.createId("areaId"), groupedStations.getId());
         assertEquals("areaId", groupedStations.getId().getGraphId());
-        assertEquals("areaId", groupedStations.getId().forDTO());
+        //assertEquals("areaId", groupedStations.getId().forDTO());
 
         assertTrue(groupedStations.hasPlatforms());
         assertEquals(Collections.singleton(platform), groupedStations.getPlatforms());
@@ -98,9 +98,9 @@ class StationGroupTest {
         assertEquals("compName", stationGroup.getName());
         //IdSet<Station> expected = Stream.of("idB", "idA").map(Station::createId).collect(IdSet.idCollector());
         assertIdEquals("areaId", stationGroup.getId());
-        assertEquals("areaId", stationGroup.forDTO());
+        //assertEquals("areaId", stationGroup.forDTO());
         assertEquals("areaId", stationGroup.getId().getGraphId());
-        assertEquals("areaId", stationGroup.getId().forDTO());
+        //assertEquals("areaId", stationGroup.getId().forDTO());
 
         assertEquals(3, stationGroup.getLatLong().getLat(),0);
         assertEquals(6, stationGroup.getLatLong().getLon(),0);

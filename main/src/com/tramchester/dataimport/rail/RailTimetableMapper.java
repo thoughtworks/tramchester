@@ -10,6 +10,7 @@ import com.tramchester.dataimport.rail.repository.RailRouteIdRepository;
 import com.tramchester.domain.*;
 import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.id.IdFor;
+import com.tramchester.domain.id.PlatformId;
 import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.input.MutableTrip;
 import com.tramchester.domain.input.RailPlatformStopCall;
@@ -226,7 +227,7 @@ public class RailTimetableMapper {
         private final GraphFilterActive filter;
         private final BoundingBox bounds;
 
-        private final Map<String, MutablePlatform> platformLookup;
+        private final Map<PlatformId, MutablePlatform> platformLookup;
 
         private CreatesTransportDataForRail(RailTransportDataFromFiles.StationsTemporary stationsTemporary, WriteableTransportData container,
                                             Set<Pair<TrainStatus, TrainCategory>> travelCombinations,
@@ -508,17 +509,18 @@ public class RailTimetableMapper {
             final String originLocationPlatform = originLocation.getPlatform();
             final String platformNumber = originLocationPlatform.isEmpty() ? "UNK" : originLocationPlatform;
 
-            String platformIdString = String.join(":", originLocation.getTiplocCode(), platformNumber);
+            //String platformIdString = String.join(":", originLocation.getTiplocCode(), platformNumber);
+            PlatformId platformId = PlatformId.createId(originStation.getId(), platformNumber);
 
             final MutablePlatform platform;
-            if (platformLookup.containsKey(platformIdString)) {
-                platform = platformLookup.get(platformIdString);
+            if (platformLookup.containsKey(platformId)) {
+                platform = platformLookup.get(platformId);
             } else {
-                final IdFor<Platform> platformId = Platform.createId(platformIdString);
+                //final IdFor<Platform> platformId = Platform.createId(platformIdString);
                 platform = new MutablePlatform(platformId, originStation, originStation.getName(), dataSourceID, platformNumber,
                         areaId, originStation.getLatLong(), originStation.getGridPosition(), originStation.isMarkedInterchange());
                 container.addPlatform(platform);
-                platformLookup.put(platformIdString, platform);
+                platformLookup.put(platformId, platform);
             }
 
             return platform;

@@ -2,7 +2,7 @@ package com.tramchester.domain;
 
 import com.google.common.collect.Streams;
 import com.tramchester.domain.id.IdFor;
-import com.tramchester.domain.id.StringIdFor;
+import com.tramchester.domain.id.PlatformId;
 import com.tramchester.domain.places.LocationType;
 import com.tramchester.domain.places.NaptanArea;
 import com.tramchester.domain.places.Station;
@@ -60,13 +60,19 @@ public class MutablePlatform implements Platform {
      * @param areaId the areas
      * @return Platform for testing only
      */
-    public static Platform buildForTFGMTram(String id, Station station, LatLong latLong, DataSourceID dataSourceId,
+    public static Platform buildForTFGMTram(PlatformId id, Station station, LatLong latLong, DataSourceID dataSourceId,
                                             IdFor<NaptanArea> areaId) {
-        String platformNumber = id.substring(id.length() - 1);
+        String platformNumber = id.getNumber();
         GridPosition gridPosition = CoordinateTransforms.getGridPosition(latLong);
         boolean isMarkedInterchange = false;
-        return new MutablePlatform(Platform.createId(id), station, station.getName(), dataSourceId, platformNumber,
+        return new MutablePlatform(id, station, station.getName(), dataSourceId, platformNumber,
                 areaId, latLong, gridPosition, isMarkedInterchange);
+    }
+
+    public static Platform buildForTFGMTram(String platformIdText, Station station, LatLong latLong, DataSourceID dataSourceId,
+                                            IdFor<NaptanArea> areaId) {
+        PlatformId platformId = PlatformId.createId(station.getId(), platformIdText);
+        return buildForTFGMTram(platformId, station, latLong, dataSourceId, areaId);
     }
 
     @Override
@@ -208,8 +214,4 @@ public class MutablePlatform implements Platform {
                 map(Route::getTransportMode).collect(Collectors.toSet());
     }
 
-    @Override
-    public String forDTO() {
-        return id.forDTO();
-    }
 }

@@ -170,7 +170,7 @@ class JourneyToDTOMapperTest extends EasyMockSupport {
                 startStation, Duration.ofMinutes(1), time);
 
         VehicleStage tramStage = getRawVehicleStage(startStation, TramStations.Shudehill.fake(),
-                createRoute("route"), time.plusMinutes(1), 35, TestEnv.onlyPlatform(startStation));
+                createRoute("route"), time.plusMinutes(1), 35, TestEnv.findOnlyPlatform(startStation));
 
         stages.add(connectingStage);
         stages.add(tramStage);
@@ -213,7 +213,7 @@ class JourneyToDTOMapperTest extends EasyMockSupport {
         TramTime am10 = TramTime.of(10,0);
         Station begin = Altrincham.fakeWithPlatform(Altrincham.getRawId() + "1", Altrincham.getLatLong(),
                 DataSourceID.unknown, NaptanArea.invalidId());
-        Platform platformA = TestEnv.onlyPlatform(begin);
+        Platform platformA = TestEnv.findOnlyPlatform(begin);
 
         MyLocation middleA = nearPiccGardensLocation;
 
@@ -277,7 +277,8 @@ class JourneyToDTOMapperTest extends EasyMockSupport {
         Station start = transportData.getFirst();
         Station middle = transportData.getSecond();
         Station finish = transportData.getInterchange();
-        Platform platform = MutablePlatform.buildForTFGMTram(start.forDTO() + "1", start,
+
+        Platform platform = MutablePlatform.buildForTFGMTram(Platform.createId(start, "1"), start,
                 start.getLatLong(), DataSourceID.unknown, NaptanArea.invalidId());
 
         VehicleStage rawStageA = getRawVehicleStage(start, middle, createRoute("route text"), startTime,
@@ -328,7 +329,7 @@ class JourneyToDTOMapperTest extends EasyMockSupport {
                 startTime.plusMinutes(1), finish, passedStations);
 
         vehicleStage.setCost(Duration.ofMinutes(costInMinutes));
-        vehicleStage.setPlatform(platform);
+        vehicleStage.setBoardingPlatform(platform);
 
         return vehicleStage;
 

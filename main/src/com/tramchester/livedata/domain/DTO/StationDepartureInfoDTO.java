@@ -2,6 +2,7 @@ package com.tramchester.livedata.domain.DTO;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.tramchester.domain.id.IdForDTO;
 import com.tramchester.livedata.domain.liveUpdates.UpcomingDeparture;
 import com.tramchester.livedata.tfgm.TramStationDepartureInfo;
 import com.tramchester.mappers.serialisation.LocalDateTimeJsonDeserializer;
@@ -16,7 +17,7 @@ import java.util.stream.Collectors;
 @SuppressWarnings("unused")
 public class StationDepartureInfoDTO  {
     private String lineName;
-    private String stationPlatform;
+    private IdForDTO stationPlatform;
     private String message;
     private List<DepartureDTO> dueTrams;
     private LocalDateTime lastUpdate;
@@ -26,7 +27,7 @@ public class StationDepartureInfoDTO  {
     ///
     /// NOTE: used for archiving of received live data into json on S3
     ///
-    public StationDepartureInfoDTO(String lineName, String stationPlatform, String message, List<DepartureDTO> dueTrams,
+    public StationDepartureInfoDTO(String lineName, IdForDTO stationPlatform, String message, List<DepartureDTO> dueTrams,
                                    LocalDateTime lastUpdate, String displayId, String location) {
         this.lineName = lineName;
         this.stationPlatform = stationPlatform;
@@ -39,7 +40,7 @@ public class StationDepartureInfoDTO  {
 
     public StationDepartureInfoDTO(TramStationDepartureInfo info) {
         this(info.getLine().name(),
-                info.getStationPlatform().forDTO(),
+                IdForDTO.createFor(info.getStationPlatform()),
                 info.getMessage(),
                 mapDueTrams(info.getDueTrams(), info.getLastUpdate()),
                 info.getLastUpdate(),
@@ -60,7 +61,7 @@ public class StationDepartureInfoDTO  {
         return lineName;
     }
 
-    public String getStationPlatform() {
+    public IdForDTO getStationPlatform() {
         return stationPlatform;
     }
 

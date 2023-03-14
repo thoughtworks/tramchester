@@ -7,6 +7,7 @@ import com.tramchester.domain.Journey;
 import com.tramchester.domain.JourneyRequest;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.dates.TramDate;
+import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.places.Location;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.TransportStage;
@@ -128,7 +129,7 @@ class TramRouteTest {
                 transportData.getSecond(), journeyRequest).
                 collect(Collectors.toSet());
         assertEquals(1, journeys.size());
-        assertFirstAndLast(journeys, FIRST_STATION, SECOND_STATION, 0, queryTime);
+        assertFirstAndLast(journeys, Station.createId(FIRST_STATION), Station.createId(SECOND_STATION), 0, queryTime);
 
         Journey journey = journeys.iterator().next();
         final TransportStage<?, ?> transportStage = journey.getStages().get(0);
@@ -353,13 +354,14 @@ class TramRouteTest {
         Set<Journey> journeys = calculator.calculateRoute(txn, transportData.getFirst(),
                 transportData.getInterchange(), journeyRequest).collect(Collectors.toSet());
         assertEquals(1, journeys.size());
-        assertFirstAndLast(journeys, FIRST_STATION, INTERCHANGE, 1, queryTime);
+        assertFirstAndLast(journeys, Station.createId(FIRST_STATION), Station.createId(INTERCHANGE), 1, queryTime);
         checkForPlatforms(journeys);
         journeys.forEach(journey-> assertEquals(1, journey.getStages().size()));
     }
 
     private void checkForPlatforms(Set<Journey> journeys) {
-        journeys.forEach(journey -> journey.getStages().forEach(stage -> assertTrue(stage.hasBoardingPlatform())));
+        journeys.forEach(journey -> journey.getStages().
+                forEach(stage -> assertTrue(stage.hasBoardingPlatform(), "Missing boarding platform for " + stage)));
     }
 
     @Test
@@ -380,7 +382,7 @@ class TramRouteTest {
         Set<Journey> journeys = calculator.calculateRoute(txn, transportData.getFirst(),
                 transportData.getLast(), journeyRequest).collect(Collectors.toSet());
         assertEquals(1, journeys.size());
-        assertFirstAndLast(journeys, FIRST_STATION, LAST_STATION, 2, queryTime);
+        assertFirstAndLast(journeys, Station.createId(FIRST_STATION), Station.createId(LAST_STATION), 2, queryTime);
         journeys.forEach(journey-> assertEquals(1, journey.getStages().size()));
     }
 
@@ -503,15 +505,15 @@ class TramRouteTest {
                 transportData.getFirst(), 100, false));
     }
 
-    private static void assertFirstAndLast(Set<Journey> journeys, String firstStation, String secondStation,
-                                          int passedStops, TramTime queryTime) {
+    private static void assertFirstAndLast(Set<Journey> journeys, IdFor<Station> firstStation, IdFor<Station> secondStation,
+                                           int passedStops, TramTime queryTime) {
         Journey journey = (Journey)journeys.toArray()[0];
         List<TransportStage<?,?>> stages = journey.getStages();
         TransportStage<?,?> vehicleStage = stages.get(0);
-        assertEquals(firstStation, vehicleStage.getFirstStation().forDTO());
-        assertEquals(secondStation, vehicleStage.getLastStation().forDTO());
+        assertEquals(firstStation, vehicleStage.getFirstStation().getId());
+        assertEquals(secondStation, vehicleStage.getLastStation().getId());
         assertEquals(passedStops,  vehicleStage.getPassedStopsCount());
-        assertTrue(vehicleStage.hasBoardingPlatform());
+        assertTrue(vehicleStage.hasBoardingPlatform(), "Missing boarding platform in " + vehicleStage);
 
         TramTime departTime = vehicleStage.getFirstDepartureTime();
         assertTrue(departTime.isAfter(queryTime));

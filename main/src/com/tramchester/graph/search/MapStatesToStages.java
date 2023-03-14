@@ -2,6 +2,7 @@ package com.tramchester.graph.search;
 
 import com.tramchester.domain.Platform;
 import com.tramchester.domain.id.IdFor;
+import com.tramchester.domain.id.PlatformId;
 import com.tramchester.domain.input.StopCall;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.MyLocation;
@@ -78,7 +79,7 @@ class MapStatesToStages implements JourneyStateUpdate {
         vehicleStagePending = new VehicleStagePending(stationRepository, tripRepository, platformRepository,
                 actionStationId, totalCost);
         if (hasPlatform) {
-            IdFor<Platform> boardingPlatformId = GraphProps.getPlatformIdFrom(node);
+            PlatformId boardingPlatformId = GraphProps.getPlatformIdFrom(node);
             vehicleStagePending.addPlatform(boardingPlatformId);
         }
     }
@@ -269,7 +270,7 @@ class MapStatesToStages implements JourneyStateUpdate {
             this.boardingTime = null;
         }
 
-        public void addPlatform(IdFor<Platform> boardingPlatformId) {
+        public void addPlatform(PlatformId boardingPlatformId) {
             this.boardingPlatformId = boardingPlatformId;
         }
 
@@ -290,7 +291,7 @@ class MapStatesToStages implements JourneyStateUpdate {
             if (boardingPlatformId != null) {
                 if (platformRepository.hasPlatformId(boardingPlatformId)) {
                     Platform platform = platformRepository.getPlatformById(boardingPlatformId);
-                    vehicleStage.setPlatform(platform);
+                    vehicleStage.setBoardingPlatform(platform);
                 }
 
             }

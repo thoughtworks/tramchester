@@ -77,7 +77,7 @@ public class RailTransportDataFromFilesTest {
         // should be 2??
         assertEquals(1, platforms.size());
 
-        assertIdEquals("ALTRNHM:UNK", platforms.get(0).getId());
+        assertEquals(Platform.createId(station,"UNK"), platforms.get(0).getId());
         assertEquals("UNK", platforms.get(0).getPlatformNumber());
     }
 
@@ -279,7 +279,8 @@ public class RailTransportDataFromFilesTest {
         IdFor<Station> stationId = LondonWaterloo.getId();
         Station station = transportData.getStationById(stationId);
 
-        IdFor<Platform> platformId = Platform.createId("WATRLMN:12");
+//        IdFor<Platform> platformId = Platform.createId(station,"WATRLMN:12");
+        IdFor<Platform> platformId = Platform.createId(station,"12");
 
         Optional<Platform> result = station.getPlatforms().stream().filter(platform -> platform.getId().equals(platformId)).findFirst();
 

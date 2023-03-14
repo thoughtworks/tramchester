@@ -9,6 +9,7 @@ import com.tramchester.domain.Journey;
 import com.tramchester.domain.JourneyRequest;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.IdSet;
+import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.TransportStage;
 import com.tramchester.domain.reference.GTFSTransportationType;
 import com.tramchester.domain.reference.TransportMode;
@@ -128,10 +129,10 @@ class MixedRouteTest {
             assertEquals(2, stages.size(), journey.toString());
 
             TransportStage<?,?> first = stages.get(0);
-            assertEquals(FIRST_STATION, first.getFirstStation().forDTO(), journey.toString());
+            assertEquals(Station.createId(FIRST_STATION), first.getFirstStation().getId(), journey.toString());
 
             TransportStage<?,?> last = stages.get(1);
-            assertEquals(STATION_FOUR, last.getLastStation().forDTO(), journey.toString());
+            assertEquals(Station.createId(STATION_FOUR), last.getLastStation().getId(), journey.toString());
         });
     }
 
@@ -152,8 +153,8 @@ class MixedRouteTest {
         Journey journey = (Journey)journeys.toArray()[0];
         List<TransportStage<?,?>> stages = journey.getStages();
         TransportStage<?,?> vehicleStage = stages.get(0);
-        assertEquals(firstStation, vehicleStage.getFirstStation().forDTO());
-        assertEquals(secondStation, vehicleStage.getLastStation().forDTO());
+        assertEquals(Station.createId(firstStation), vehicleStage.getFirstStation().getId());
+        assertEquals(Station.createId(secondStation), vehicleStage.getLastStation().getId());
         assertEquals(passedStops,  vehicleStage.getPassedStopsCount());
         Assertions.assertFalse(vehicleStage.hasBoardingPlatform());
 

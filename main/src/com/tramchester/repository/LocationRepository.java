@@ -12,7 +12,7 @@ import javax.inject.Inject;
 
 @LazySingleton
 public class LocationRepository {
-    private static final Logger logger = LoggerFactory.getLogger(LocationRepository.class);
+    //private static final Logger logger = LoggerFactory.getLogger(LocationRepository.class);
 
     private final StationRepository stationRepository;
     private final StationGroupsRepository stationGroupsRepository;
@@ -32,7 +32,7 @@ public class LocationRepository {
     public Location<?> getLocation(LocationType type, String rawId) {
         return switch (type) {
             case Station -> stationRepository.getStationById(Station.createId(rawId));
-            case Platform -> platformRepository.getPlatformById(Platform.createId(rawId));
+            case Platform -> throw new RuntimeException("Not supported yet"); //platformRepository.getPlatformById(Platform.createId(rawId));
             case StationGroup -> stationGroupsRepository.getStationGroup(NaptanArea.createId(rawId));
             case Postcode -> postcodeRepository.getPostcode(PostcodeLocation.createId(rawId));
             case MyLocation -> MyLocation.parseFromId(rawId);
@@ -43,7 +43,7 @@ public class LocationRepository {
         String rawId = idForDTO.getActualId();
         return switch (type) {
             case Station -> stationRepository.getStationById(Station.createId(rawId));
-            case Platform -> platformRepository.getPlatformById(Platform.createId(rawId));
+            case Platform -> throw new RuntimeException("Not supported yet"); //platformRepository.getPlatformById(Platform.createId(rawId));
             case StationGroup -> stationGroupsRepository.getStationGroup(NaptanArea.createId(rawId));
             case Postcode -> postcodeRepository.getPostcode(PostcodeLocation.createId(rawId));
             case MyLocation -> MyLocation.parseFromId(rawId);

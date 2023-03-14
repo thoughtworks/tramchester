@@ -4,8 +4,7 @@ import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.DataSourceID;
 import com.tramchester.domain.MutableAgency;
 import com.tramchester.domain.Platform;
-import com.tramchester.domain.id.IdFor;
-import com.tramchester.domain.id.StringIdFor;
+import com.tramchester.domain.id.PlatformId;
 import com.tramchester.domain.places.NaptanArea;
 import com.tramchester.domain.places.Station;
 import com.tramchester.livedata.domain.liveUpdates.LineDirection;
@@ -30,7 +29,6 @@ import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Optional;
 
-import static com.tramchester.testSupport.TestEnv.assertMinutesEquals;
 import static com.tramchester.testSupport.reference.TramStations.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -62,11 +60,11 @@ class LiveDataParserTest extends EasyMockSupport {
 
         Station mediaCity = MediaCityUK.fakeWithPlatform("9400ZZMAMCU2", MediaCityUK.getLatLong(),
                 DataSourceID.unknown, NaptanArea.invalidId());
-        platformMC = TestEnv.onlyPlatform(mediaCity);
+        platformMC = TestEnv.findOnlyPlatform(mediaCity);
 
         Station airport = ManAirport.fakeWithPlatform("9400ZZMAAIR1",
                 ManAirport.getLatLong(), DataSourceID.unknown, NaptanArea.invalidId());
-        final Platform platformAirport = TestEnv.onlyPlatform(airport);
+        final Platform platformAirport = TestEnv.findOnlyPlatform(airport);
 
         EasyMock.expect(stationRepository.getStationById(MediaCityUK.getId())).andStubReturn(mediaCity);
         EasyMock.expect(stationRepository.getStationById(ManAirport.getId())).andStubReturn(airport);
@@ -193,7 +191,8 @@ class LiveDataParserTest extends EasyMockSupport {
                  }
                 """;
 
-        EasyMock.expect(platformRepository.hasPlatformId(Platform.createId("9400ZZMAMCU5"))).andReturn(false);
+        PlatformId platformId = PlatformId.createId(MediaCityUK.getId(), "5");
+        EasyMock.expect(platformRepository.hasPlatformId(platformId)).andReturn(false);
 
         replayAll();
         parser.start();

@@ -6,7 +6,7 @@ import com.tramchester.domain.*;
 import com.tramchester.domain.dates.MutableServiceCalendar;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.IdFor;
-import com.tramchester.domain.id.StringIdFor;
+import com.tramchester.domain.id.PlatformId;
 import com.tramchester.domain.input.MutableTrip;
 import com.tramchester.domain.input.PlatformStopCall;
 import com.tramchester.domain.input.Trip;
@@ -269,10 +269,11 @@ public class TramTransportDataForTestFactory implements TransportDataFactory {
 
     private static PlatformStopCall createStop(TransportDataContainer container, MutableTrip trip,
                                                MutableStation station, TramTime arrivalTime, TramTime departureTime, int sequenceNum) {
-        String platformId = station.getId() + "1";
+        //String platformId = station.getId() + "1";
         final String platformName = format("%s platform 1", station.getName());
 
-        MutablePlatform platform = new MutablePlatform(Platform.createId(platformId),
+        PlatformId platformId = Platform.createId(station, "1");
+        MutablePlatform platform = new MutablePlatform(platformId,
                 station, platformName, station.getDataSourceID(), "1",
                 station.getAreaId(), station.getLatLong(), station.getGridPosition(), station.isMarkedInterchange());
 

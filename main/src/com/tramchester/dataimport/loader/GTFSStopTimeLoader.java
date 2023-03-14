@@ -13,7 +13,6 @@ import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.GTFSPickupDropoffType;
 import com.tramchester.domain.reference.TransportMode;
-import com.tramchester.repository.StationAvailabilityRepository;
 import com.tramchester.repository.WriteableTransportData;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
@@ -196,14 +195,17 @@ public class GTFSStopTimeLoader {
         }
 
         private StopCall createStopCall(StopTimeData stopTimeData, Route route, Trip trip, Station station) {
-            IdFor<Platform> platformId = stopTimeData.getPlatformId();
             TransportMode transportMode = route.getTransportMode();
 
             if (dataSourceConfig.getTransportModesWithPlatforms().contains(transportMode)) {
+                String stopId = stopTimeData.getStopId();
+
+                IdFor<Platform> platformId = PlatformId.createId(station.getId(), stopId);
+
                 if (buildable.hasPlatformId(platformId)) {
                     MutablePlatform platform = buildable.getMutablePlatform(platformId);
 
-                    Service service = trip.getService();
+                    //Service service = trip.getService();
 
                     if (stopTimeData.getPickupType().isPickup()) {
                         platform.addRoutePickUp(route);

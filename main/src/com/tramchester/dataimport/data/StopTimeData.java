@@ -4,7 +4,6 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.tramchester.domain.Platform;
 import com.tramchester.domain.id.IdFor;
-import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.reference.GTFSPickupDropoffType;
 import com.tramchester.domain.time.TramTime;
 
@@ -105,9 +104,10 @@ public class StopTimeData {
         return GTFSPickupDropoffType.fromString(dropOffType);
     }
 
-    public IdFor<Platform> getPlatformId() {
-        return Platform.createId(stopId);
-    }
+    // that stopId equals platform id is specific to tfgm
+//    public IdFor<Platform> getPlatformId() {
+//        return Platform.createId(stopId);
+//    }
 
     public boolean isValid() {
         return getArrivalTime().isValid() && getDepartureTime().isValid();

@@ -89,7 +89,7 @@ class StageDTOFactoryTest extends EasyMockSupport {
         );
         vehicleStage.setCost(Duration.ofMinutes(5));
 
-        vehicleStage.setPlatform(TestEnv.onlyPlatform(firstStation));
+        vehicleStage.setBoardingPlatform(TestEnv.findOnlyPlatform(firstStation));
 
         EasyMock.expect(stationDTOFactory.createLocationRefWithPosition(firstStation)).
                 andStubReturn(new LocationRefWithPosition(firstStation));

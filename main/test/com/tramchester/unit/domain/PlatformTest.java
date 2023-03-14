@@ -5,7 +5,9 @@ import com.tramchester.domain.MutablePlatform;
 import com.tramchester.domain.Platform;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.id.IdFor;
+import com.tramchester.domain.id.PlatformId;
 import com.tramchester.domain.places.NaptanArea;
+import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.TramStations;
@@ -23,12 +25,14 @@ class PlatformTest {
     void shouldCreatePlatformCorrectly() {
         IdFor<NaptanArea> areaId = NaptanArea.createId("area55");
         boolean isMarkedInterchange = true;
-        MutablePlatform platform = new MutablePlatform(Platform.createId("9400ZZ_Name2"),
-                TramStations.Altrincham.fake(), "StationName", DataSourceID.tfgm, "2",
+        Station station = TramStations.Altrincham.fake();
+        PlatformId platformId = Platform.createId(station, "2");
+        MutablePlatform platform = new MutablePlatform(platformId,
+                station, "StationName", DataSourceID.tfgm, "2",
                 areaId, nearAltrincham.latLong(), nearAltrincham.grid(), isMarkedInterchange);
 
         assertEquals("StationName platform 2", platform.getName());
-        assertEquals(Platform.createId("9400ZZ_Name2"), platform.getId());
+        assertEquals(platformId, platform.getId());
         assertEquals( "2", platform.getPlatformNumber());
         assertEquals(nearAltrincham.latLong(), platform.getLatLong());
         assertEquals(nearAltrincham.grid(), platform.getGridPosition());

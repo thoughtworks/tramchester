@@ -9,8 +9,10 @@ import com.tramchester.domain.input.MutableTrip;
 import com.tramchester.domain.input.PlatformStopCall;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.NaptanArea;
+import com.tramchester.domain.places.Station;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.testSupport.TestEnv;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import static com.tramchester.domain.reference.GTFSPickupDropoffType.Regular;
@@ -26,6 +28,14 @@ class ServiceTest {
     private final DataSourceID dataSourceId = DataSourceID.tfgm;
     private final IdFor<NaptanArea> areaId = NaptanArea.invalidId();
     private final boolean isMarkedInterchange = false;
+    private Station manAirport;
+    private Station shudehill;
+
+    @BeforeEach
+    void setUp() {
+        manAirport = ManAirport.fake();
+        shudehill = Shudehill.fake();
+    }
 
     @Test
     void shouldNoticeNoDatesSet() {
@@ -45,9 +55,9 @@ class ServiceTest {
 
     @Test
     void shouldHaveTimeRange() {
-        Platform platformA = new MutablePlatform(Platform.createId("platA"), ManAirport.fake(), "man airport",
+        Platform platformA = new MutablePlatform(Platform.createId(manAirport,"platA"), manAirport, "man airport",
                 dataSourceId, "1", areaId, nearWythenshaweHosp.latLong(), nearWythenshaweHosp.grid(), isMarkedInterchange);
-        Platform platformB = new MutablePlatform(Platform.createId("platB"), Shudehill.fake(), "shudehill",
+        Platform platformB = new MutablePlatform(Platform.createId(shudehill,"platB"), shudehill, "shudehill",
                 dataSourceId, "2", areaId, nearShudehill.latLong(), nearShudehill.grid(), isMarkedInterchange);
 
         Route route = TestEnv.getTramTestRoute();
@@ -55,13 +65,13 @@ class ServiceTest {
 
         final MutableTrip tripA = new MutableTrip(Trip.createId("tripA"), "headSignA", service, route, Tram);
 
-        final PlatformStopCall platformStopCallA = new PlatformStopCall(platformA, ManAirport.fake(),
+        final PlatformStopCall platformStopCallA = new PlatformStopCall(platformA, manAirport,
                 TramTime.of(8,15), TramTime.of(8,16), 1, Regular, Regular, tripA);
         tripA.addStop(platformStopCallA);
 
         final MutableTrip tripB = new MutableTrip(Trip.createId("tripB"), "headSignB", service, route, Tram);
 
-        final PlatformStopCall platformStopCallB = new PlatformStopCall(platformB, Shudehill.fake(),
+        final PlatformStopCall platformStopCallB = new PlatformStopCall(platformB, shudehill,
                 TramTime.of(16,25), TramTime.of(16,26), 1, Regular, Regular, tripB);
         tripB.addStop(platformStopCallB);
 
@@ -75,9 +85,9 @@ class ServiceTest {
 
     @Test
     void shouldHaveTimeRangeCrossesMidnight() {
-        Platform platformA = new MutablePlatform(Platform.createId("platA"), ManAirport.fake(), "man airport",
+        Platform platformA = new MutablePlatform(Platform.createId(manAirport,"platA"), manAirport, "man airport",
                 dataSourceId, "1", areaId, nearWythenshaweHosp.latLong(), nearWythenshaweHosp.grid(), isMarkedInterchange);
-        Platform platformB = new MutablePlatform(Platform.createId("platB"), Shudehill.fake(), "shudehill",
+        Platform platformB = new MutablePlatform(Platform.createId(shudehill,"platB"), shudehill, "shudehill",
                 dataSourceId, "2", areaId, nearShudehill.latLong(), nearShudehill.grid(), isMarkedInterchange);
 
         Route route = TestEnv.getTramTestRoute();
@@ -85,14 +95,14 @@ class ServiceTest {
 
         final MutableTrip tripA = new MutableTrip(Trip.createId("tripA"), "headSignA", service, route, Tram);
 
-        final PlatformStopCall platformStopCallA = new PlatformStopCall(platformA, ManAirport.fake(),
+        final PlatformStopCall platformStopCallA = new PlatformStopCall(platformA, manAirport,
                 TramTime.of(8,15), TramTime.of(8,16), 1, Regular, Regular, tripA);
 
         tripA.addStop(platformStopCallA);
 
         final MutableTrip tripB = new MutableTrip(Trip.createId("tripB"), "headSignB", service, route, Tram);
 
-        final PlatformStopCall platformStopCallB = new PlatformStopCall(platformB, Shudehill.fake(),
+        final PlatformStopCall platformStopCallB = new PlatformStopCall(platformB, shudehill,
                 TramTime.nextDay(0,10), TramTime.nextDay(0,15), 1, Regular, Regular, tripB);
 
         tripB.addStop(platformStopCallB);

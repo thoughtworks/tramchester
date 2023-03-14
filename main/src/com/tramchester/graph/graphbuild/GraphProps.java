@@ -5,6 +5,7 @@ import com.tramchester.domain.*;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.id.IdFor;
+import com.tramchester.domain.id.PlatformId;
 import com.tramchester.domain.id.RouteStationId;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.NaptanArea;
@@ -226,8 +227,10 @@ public class GraphProps {
         return RouteStationId.parse(value);
     }
 
-    public static IdFor<Platform> getPlatformIdFrom(Entity entity) {
-        return getIdFromGraphEntity(entity, PLATFORM_ID, Platform.class);
+    public static PlatformId getPlatformIdFrom(Entity entity) {
+        IdFor<Station> stationId = getStationIdFrom(entity);
+        String platformIdText  =  entity.getProperty(PLATFORM_ID.getText()).toString();
+        return PlatformId.createId(stationId, platformIdText);
     }
 
     public static EnumSet<GraphLabel> getLabelsFor(Node node) {

@@ -12,6 +12,7 @@ import com.tramchester.domain.*;
 import com.tramchester.domain.dates.DateRange;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.IdFor;
+import com.tramchester.domain.id.PlatformId;
 import com.tramchester.domain.input.PlatformStopCall;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.Location;
@@ -205,7 +206,8 @@ public class TestEnv {
                                                       TramTime depart) {
         final Station station = tramStation.fake();
 
-        Platform platform = MutablePlatform.buildForTFGMTram(stopId, station, tramStation.getLatLong(),
+        PlatformId platformId = PlatformId.createId(station.getId(), stopId);
+        Platform platform = MutablePlatform.buildForTFGMTram(platformId, station, tramStation.getLatLong(),
                 DataSourceID.unknown, NaptanArea.invalidId());
         GTFSPickupDropoffType pickupDropoff = GTFSPickupDropoffType.Regular;
 
@@ -290,12 +292,13 @@ public class TestEnv {
         return EARTH_RADIUS * fractionOfRadius;
     }
 
-    public static Platform createPlatformFor(Station station, String platformId) {
+    public static Platform createPlatformFor(Station station, String platformNumber) {
+        PlatformId platformId = PlatformId.createId(station.getId(), platformNumber);
         return MutablePlatform.buildForTFGMTram(platformId, station, station.getLatLong(),
                 station.getDataSourceID(), station.getAreaId());
     }
 
-    public static Platform onlyPlatform(Station station) {
+    public static Platform findOnlyPlatform(Station station) {
         if (!station.hasPlatforms()) {
             throw new RuntimeException("No platforms");
         }

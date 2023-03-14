@@ -79,7 +79,7 @@ public class VehicleStage implements TransportStage<Station, Station> {
         return this;
     }
 
-    public void setPlatform(Platform platform) {
+    public void setBoardingPlatform(Platform platform) {
         if (!firstStation.hasPlatforms()) {
             throw new RuntimeException("Adding platforms to a zero-platform vehicle stage " + this);
         }

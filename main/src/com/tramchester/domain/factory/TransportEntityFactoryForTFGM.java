@@ -4,6 +4,7 @@ import com.tramchester.dataimport.data.RouteData;
 import com.tramchester.dataimport.data.StopData;
 import com.tramchester.domain.*;
 import com.tramchester.domain.id.IdFor;
+import com.tramchester.domain.id.PlatformId;
 import com.tramchester.domain.places.MutableStation;
 import com.tramchester.domain.places.NaptanArea;
 import com.tramchester.domain.places.NaptanRecord;
@@ -87,9 +88,9 @@ public class TransportEntityFactoryForTFGM extends TransportEntityFactory {
         }
 
         final String stopId = stopData.getId();
-        final IdFor<Platform> platformId = Platform.createId(stopId);
+        final PlatformId platformId = Platform.createId(station, stopId);
 
-        final String platformNumber = stopId.substring(stopId.length()-1);
+        final String platformNumber = platformId.getNumber(); // stopId.substring(stopId.length()-1);
 
         IdFor<NaptanArea> areaId = IdFor.invalid(NaptanArea.class);
         LatLong latLong = stopData.getLatLong();

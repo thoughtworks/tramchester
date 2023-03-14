@@ -200,18 +200,18 @@ class JourneyTest {
 
         final Station alty = Altrincham.fakeWithPlatform("platformId1",  nearAltrincham.latLong(),
                 DataSourceID.unknown, NaptanArea.invalidId());
-        final Platform platform1 = TestEnv.onlyPlatform(alty);
+        final Platform platform1 = TestEnv.findOnlyPlatform(alty);
 
         final Station stPeters = StPetersSquare.fakeWithPlatform("platformId2", nearStPetersSquare.latLong(),
                 DataSourceID.unknown, NaptanArea.invalidId());
-        final Platform platform2 = TestEnv.onlyPlatform(stPeters);
+        final Platform platform2 = TestEnv.findOnlyPlatform(stPeters);
 
         final VehicleStage stageA = createVehicleStage(alty, stPeters, Bus, departureTimeA, 13);
-        stageA.setPlatform(platform1);
+        stageA.setBoardingPlatform(platform1);
 
         final Station victoria = Victoria.fake();
         final VehicleStage stageB = createVehicleStage(stPeters, victoria, Train, departureTimeA.plusMinutes(14), 19);
-        stageB.setPlatform(platform2);
+        stageB.setBoardingPlatform(platform2);
 
         final VehicleStage stageC = createVehicleStage(victoria, ManAirport.fake(), Train, departureTimeA.plusMinutes(30), 5);
 
@@ -221,8 +221,10 @@ class JourneyTest {
 
         IdSet<Platform> result = journey.getCallingPlatformIds();
         assertEquals(2, result.size());
-        assertTrue(result.contains(Platform.createId("platformId1")));
-        assertTrue(result.contains(Platform.createId("platformId2")));
+        assertTrue(result.contains(platform1.getId()));
+        assertTrue(result.contains(platform2.getId()));
+//        assertTrue(result.contains(Platform.createId("platformId1")));
+//        assertTrue(result.contains(Platform.createId("platformId2")));
         assertFalse(journey.isDirect());
         assertFalse(journey.firstStageIsWalk());
 

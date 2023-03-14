@@ -49,6 +49,10 @@ public class StationGroup implements Location<StationGroup> {
         this.minChangeCost = changeTimeNeeded;
     }
 
+    public static IdFor<StationGroup> createId(String text) {
+        return StringIdFor.createId(text, StationGroup.class);
+    }
+
     public Set<Station> getContained() {
         return groupedStations;
     }
@@ -138,10 +142,11 @@ public class StationGroup implements Location<StationGroup> {
         return anyMatch(Location::isActive);
     }
 
-    @Override
-    public String forDTO() {
-        return id.forDTO();
-    }
+//    @Deprecated
+//    @Override
+//    public String forDTO() {
+//        return id.forDTO();
+//    }
 
     @Override
     public Set<TransportMode> getTransportModes() {

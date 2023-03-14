@@ -3,7 +3,9 @@ package com.tramchester.integration.resources;
 import com.tramchester.App;
 import com.tramchester.GuiceContainerDependencies;
 import com.tramchester.config.AppConfiguration;
+import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdForDTO;
+import com.tramchester.domain.places.NaptanArea;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.places.StationGroup;
 import com.tramchester.domain.presentation.DTO.LocationRefDTO;
@@ -74,7 +76,7 @@ class StationLinksNeighboursAndCompositeResourceTest {
         assertFalse(fromShudehillTram.isEmpty());
 
         shudehillCompositeBus.getContained().forEach(busStop ->
-                assertTrue(fromShudehillTram.contains(IdForDTO.createFor(busStop)), "missing " + busStop.forDTO()));
+                assertTrue(fromShudehillTram.contains(IdForDTO.createFor(busStop)), "missing " + busStop.getId()));
     }
 
     @Test
@@ -111,8 +113,8 @@ class StationLinksNeighboursAndCompositeResourceTest {
     void shouldGetCompositeStations() {
         final String altrinchamInterchangeName = BusStations.Composites.AltrinchamInterchange.getName();
         StationGroup actualComposite = stationGroupsRepository.findByName(altrinchamInterchangeName);
-        Set<String> expectedIds = actualComposite.getContained().stream().
-                map(Station::forDTO).
+        Set<IdForDTO> expectedIds = actualComposite.getContained().stream().
+                map(IdForDTO::createFor).
                 collect(Collectors.toSet());
 
         Response response = APIClient.getApiResponse(appExtension, "links/composites");
@@ -121,16 +123,16 @@ class StationLinksNeighboursAndCompositeResourceTest {
         List<StationGroupDTO> groups = response.readEntity(new GenericType<>() {});
         assertFalse(groups.isEmpty());
 
+        IdFor<NaptanArea> expectedAreaId = actualComposite.getAreaId();
         Optional<StationGroupDTO> found = groups.stream().
-                filter(item -> item.getAreaId().equals(actualComposite.getAreaId().forDTO())).findFirst();
+                filter(item -> item.getAreaId().equals(new IdForDTO(expectedAreaId))).findFirst();
         assertTrue(found.isPresent());
 
         StationGroupDTO group = found.get();
         assertEquals(expectedIds.size(), group.getContained().size());
 
-        Set<String> receivedIds = group.getContained().stream().
+        Set<IdForDTO> receivedIds = group.getContained().stream().
                 map(LocationRefDTO::getId).
-                map(IdForDTO::getActualId).
                 collect(Collectors.toSet());
 
         assertTrue(expectedIds.containsAll(receivedIds));

@@ -6,20 +6,18 @@ import com.tramchester.domain.Platform;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdForDTO;
 import com.tramchester.domain.id.IdSet;
-import com.tramchester.domain.id.StringIdFor;
+import com.tramchester.domain.id.PlatformId;
 import com.tramchester.domain.places.MutableStation;
 import com.tramchester.domain.places.NaptanArea;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.geo.CoordinateTransforms;
 import com.tramchester.geo.GridPosition;
-import com.tramchester.repository.StationRepository;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 public enum TramStations implements FakeStation {
 
@@ -121,7 +119,8 @@ public enum TramStations implements FakeStation {
     }
 
     public IdFor<Platform> createIdFor(String platform) {
-        return Platform.createId(getRawId()+platform);
+        return PlatformId.createId(getId(), platform);
+        //return Platform.createId(getRawId()+platform);
     }
 
     @Override
@@ -140,9 +139,10 @@ public enum TramStations implements FakeStation {
         return new MutableStation(getId(), NaptanArea.invalidId(), name, latlong, grid, DataSourceID.tfgm);
     }
 
-    public Station fakeWithPlatform(String platformId, LatLong latLong, DataSourceID dataSourceID,
+    public Station fakeWithPlatform(String platformNumber, LatLong latLong, DataSourceID dataSourceID,
                                     IdFor<NaptanArea> naptanAreaId) {
         MutableStation station = createMutable();
+        PlatformId platformId = PlatformId.createId(station.getId(), platformNumber);
         final Platform platform = MutablePlatform.buildForTFGMTram(platformId, station,
                 latLong, dataSourceID, naptanAreaId);
         station.addPlatform(platform);

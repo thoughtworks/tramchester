@@ -452,7 +452,7 @@ class ProvidesTramNotesTest extends EasyMockSupport {
         Station station = tramStation.fakeWithPlatform(tramStation.getRawId() + "1",
                 tramStation.getLatLong(), DataSourceID.unknown, NaptanArea.invalidId());
 
-        Platform platform = TestEnv.onlyPlatform(station);
+        Platform platform = TestEnv.findOnlyPlatform(station);
         return new PlatformMessage(platform, message, lastUpdate, station, "displayId");
     }
 
@@ -478,7 +478,7 @@ class ProvidesTramNotesTest extends EasyMockSupport {
         VehicleStage vehicleStage = new VehicleStage(firstStation, TestEnv.getTramTestRoute(), Tram,
                 trip, departTime, createStationFor(PiccadillyGardens), passedStations);
 
-        vehicleStage.setPlatform(TestEnv.onlyPlatform(firstStation));
+        vehicleStage.setBoardingPlatform(TestEnv.findOnlyPlatform(firstStation));
         return vehicleStage;
     }
 

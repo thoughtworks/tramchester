@@ -5,6 +5,8 @@ import com.tramchester.ComponentsBuilder;
 import com.tramchester.domain.Journey;
 import com.tramchester.domain.JourneyRequest;
 import com.tramchester.domain.dates.TramDate;
+import com.tramchester.domain.id.IdFor;
+import com.tramchester.domain.id.IdForDTO;
 import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.places.StationGroup;
@@ -221,9 +223,9 @@ class BusRouteCalculatorTest {
         assertFalse(journeys.isEmpty(), "no journeys");
 
         journeys.forEach(journey -> {
-            List<String> seenId = new ArrayList<>();
+            ArrayList<IdFor<?>> seenId = new ArrayList<>();
             journey.getStages().forEach(stage -> {
-                String actionStation = stage.getActionStation().forDTO();
+                IdFor<?> actionStation = stage.getActionStation().getId();
                 assertFalse(seenId.contains(actionStation), "Already seen " + actionStation + " for " + journey);
                 seenId.add(actionStation);
             });

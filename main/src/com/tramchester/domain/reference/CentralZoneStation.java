@@ -3,6 +3,7 @@ package com.tramchester.domain.reference;
 import com.tramchester.domain.Platform;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdSet;
+import com.tramchester.domain.id.PlatformId;
 import com.tramchester.domain.places.Station;
 
 import java.util.Arrays;
@@ -42,6 +43,6 @@ public enum CentralZoneStation {
     }
 
     public IdFor<Platform> getPlatformId(String platform) {
-        return Platform.createId(stationId+platform);
+        return PlatformId.createId(getId(), platform);
     }
 }

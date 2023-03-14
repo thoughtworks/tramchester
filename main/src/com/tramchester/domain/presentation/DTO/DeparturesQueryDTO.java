@@ -21,6 +21,7 @@ public class DeparturesQueryDTO {
     @JsonProperty("locationType")
     private LocationType locationType;
 
+    // TODO need to use full IdForDTO here
     @JsonProperty("locationId")
     private String locationId;
 

@@ -10,6 +10,7 @@ import com.tramchester.domain.MutableAgency;
 import com.tramchester.domain.Platform;
 import com.tramchester.domain.factory.TransportEntityFactoryForTFGM;
 import com.tramchester.domain.id.IdFor;
+import com.tramchester.domain.id.PlatformId;
 import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
@@ -158,7 +159,7 @@ public class LiveDataParser {
         TramStationDepartureInfo departureInfo = new TramStationDepartureInfo(displayId.toString(), line, direction,
                 station, message, updateTime);
 
-        IdFor<Platform> platformId = Platform.createId(atcoCode);
+        IdFor<Platform> platformId = PlatformId.createId(station.getId(), atcoCode);
         if (platformRepository.hasPlatformId(platformId)) {
             Platform platform = platformRepository.getPlatformById(platformId);
             departureInfo.setStationPlatform(platform);
