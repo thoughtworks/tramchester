@@ -27,8 +27,12 @@ public class TripData {
         return text.replaceAll(" ","");
     }
 
-    public IdFor<Route> getRouteId() {
-        return Route.createId(removeSpaces(routeId));
+//    public IdFor<Route> getRouteId() {
+//        return Route.createId(removeSpaces(routeId));
+//    }
+
+    public String getRouteId() {
+        return removeSpaces(routeId);
     }
 
     public IdFor<Service> getServiceId() {

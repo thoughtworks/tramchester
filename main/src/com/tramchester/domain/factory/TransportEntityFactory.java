@@ -41,7 +41,8 @@ public abstract class TransportEntityFactory {
 
     public MutableRoute createRoute(GTFSTransportationType routeType, RouteData routeData, MutableAgency agency) {
 
-        IdFor<Route> routeId = routeData.getId();
+        final String routeIdText = routeData.getId();
+        IdFor<Route> routeId = Route.createId(routeIdText);
 
         return new MutableRoute(routeId, routeData.getShortName().trim(), routeData.getLongName(), agency,
                 GTFSTransportationType.toTransportMode(routeType));
@@ -87,8 +88,8 @@ public abstract class TransportEntityFactory {
         return routeData.getRouteType();
     }
 
-    public IdFor<Route> createRouteId(IdFor<Route> routeId) {
-        return routeId;
+    public IdFor<Route> createRouteId(String routeIdText) {
+        return Route.createId(routeIdText);
     }
 
     public abstract IdFor<Station> formStationId(String stopId);

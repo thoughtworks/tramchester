@@ -201,21 +201,22 @@ public class TransportEntityFactoryForTFGM extends TransportEntityFactory {
             this.mustMatchLongName = mustMatchLongName;
         }
 
-        public static IdFor<Route> getCorrectIdFor(RouteData routeData) {
-            String longName = routeData.getLongName();
+        public static IdFor<Route> getCorrectIdFor(final RouteData routeData) {
+            final String idText = routeData.getId();
+            final String longName = routeData.getLongName();
             if (!mapping.containsKey(longName)) {
-                return routeData.getId();
+                return Route.createId(idText);
             }
 
-            String idAsString = routeData.getId().forDTO();
+            final String routeIdAsString = routeData.getId();
             RouteIdSwapWorkaround workaroundForLongname = mapping.get(longName);
-            if (idAsString.startsWith(workaroundForLongname.idPrefixFromData)) {
-                String replacementIdAsString = idAsString.replace(workaroundForLongname.idPrefixFromData, workaroundForLongname.replacementPrefix);
-                logger.warn(format("Workaround for route ID issue, replaced %s with %s", idAsString, replacementIdAsString));
+            if (routeIdAsString.startsWith(workaroundForLongname.idPrefixFromData)) {
+                String replacementIdAsString = routeIdAsString.replace(workaroundForLongname.idPrefixFromData, workaroundForLongname.replacementPrefix);
+                logger.warn(format("Workaround for route ID issue, replaced %s with %s", routeIdAsString, replacementIdAsString));
                 return Route.createId(replacementIdAsString);
             } else {
                 logger.warn("Workaround for " + routeData + " no longer needed?");
-                return routeData.getId();
+                return Route.createId(idText);
             }
 
         }

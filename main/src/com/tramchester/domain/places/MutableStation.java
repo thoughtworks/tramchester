@@ -251,13 +251,4 @@ public class MutableStation implements Station {
         servesRoutesPickup.add(pickupFromRoute);
     }
 
-//    /***
-//     * Station is passed by a route i.e. a station being passed by a train, but the train does not stop
-//     * @param route the passing route
-//     */
-//    public void addPassingRoute(MutableRoute route) {
-//        modes.add(route.getTransportMode());
-//        passedByRoute.add(route);
-//    }
-
 }

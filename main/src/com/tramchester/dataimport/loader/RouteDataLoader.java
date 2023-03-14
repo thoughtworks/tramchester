@@ -61,8 +61,8 @@ public class RouteDataLoader {
                 count.getAndIncrement();
 
             } else {
-                IdFor<Route> routeId = routeData.getId();
-                excludedRoutes.excludeRoute(factory.createRouteId(routeId));
+                String routeIdText = routeData.getId();
+                excludedRoutes.excludeRoute(factory.createRouteId(routeIdText));
             }
         });
         excludedRoutes.recordInLog(transportModes);

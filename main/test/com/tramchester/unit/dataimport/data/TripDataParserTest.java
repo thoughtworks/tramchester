@@ -23,7 +23,7 @@ class TripDataParserTest extends ParserTestCSVHelper<TripData> {
 
         TripData tripData = parse("MET:MET1:I:,Serv000001,Trip000001,Bury");
 
-        assertThat(tripData.getRouteId()).isEqualTo(Route.createId("MET:MET1:I:"));
+        assertThat(tripData.getRouteId()).isEqualTo("MET:MET1:I:");
         assertThat(tripData.getServiceId()).isEqualTo(Service.createId("Serv000001"));
         assertThat(tripData.getTripId()).isEqualTo(Trip.createId("Trip000001"));
         assertThat(tripData.getHeadsign()).isEqualTo("Bury");
@@ -33,7 +33,7 @@ class TripDataParserTest extends ParserTestCSVHelper<TripData> {
     void shouldParseOther() {
         TripData tripData = parse("CBL: 157:I:,Serv000153,Trip004334,Garswood");
 
-        assertThat(tripData.getRouteId()).isEqualTo(Route.createId("CBL:157:I:"));
+        assertThat(tripData.getRouteId()).isEqualTo("CBL:157:I:");
         assertThat(tripData.getServiceId()).isEqualTo(Service.createId("Serv000153"));
         assertThat(tripData.getTripId()).isEqualTo(Trip.createId("Trip004334"));
         assertThat(tripData.getHeadsign()).isEqualTo("Garswood");

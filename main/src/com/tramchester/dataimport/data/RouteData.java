@@ -31,8 +31,12 @@ public class RouteData {
         return text.replaceAll(" ", "");
     }
 
-    public IdFor<Route> getId() {
-        return Route.createId(removeSpaces(id));
+//    public IdFor<Route> getId() {
+//        return Route.createId(removeSpaces(id));
+//    }
+
+    public String getId() {
+        return removeSpaces(id);
     }
 
     public String getShortName() {
