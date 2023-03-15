@@ -43,12 +43,6 @@ public class PlatformId implements IdFor<Platform> {
         }
     }
 
-    @Deprecated
-    @Override
-    public String forDTO() {
-        return containedId.forDTO();
-    }
-
     @Override
     public String getGraphId() {
         return containedId.getGraphId();

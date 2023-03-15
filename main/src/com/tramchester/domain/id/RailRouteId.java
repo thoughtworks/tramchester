@@ -59,11 +59,6 @@ public class RailRouteId implements IdFor<Route> {
         return new StringIdFor<>(idText, Route.class);
     }
 
-    @Override
-    public String forDTO() {
-        return theId.forDTO();
-    }
-
     @JsonIgnore
     @Override
     public String getGraphId() {

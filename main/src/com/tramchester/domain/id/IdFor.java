@@ -11,8 +11,8 @@ public interface IdFor<T extends CoreDomain> extends Comparable<IdFor<T>> {
         return new InvalidId<>(domainType);
     }
 
-    @Deprecated
-    String forDTO();
+//    @Deprecated
+//    String forDTO();
 
     String getGraphId();
 

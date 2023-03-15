@@ -26,4 +26,10 @@ public class PostcodeLocationIdTest {
         assertNotEquals(idA, idB);
         assertNotEquals(idB, idA);
     }
+
+    @Test
+    public void shouldHaveIdAsName() {
+        PostcodeLocationId id = PostcodeLocationId.create("zz67ab34");
+        assertEquals("ZZ67AB34", id.getName());
+    }
 }

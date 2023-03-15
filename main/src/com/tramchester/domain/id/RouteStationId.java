@@ -31,11 +31,6 @@ public class RouteStationId implements IdFor<RouteStation> {
     }
 
     @Override
-    public String forDTO() {
-        return routeId.forDTO()+DIVIDER+stationId.forDTO();
-    }
-
-    @Override
     public String getGraphId() {
         return routeId.getGraphId()+DIVIDER+stationId.getGraphId();
     }

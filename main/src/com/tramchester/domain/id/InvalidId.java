@@ -12,11 +12,6 @@ public class InvalidId<T extends CoreDomain> implements IdFor<T> {
     }
 
     @Override
-    public String forDTO() {
-        throw new RuntimeException("Not implemented");
-    }
-
-    @Override
     public String getGraphId() {
         throw new RuntimeException("Not implemented");
     }

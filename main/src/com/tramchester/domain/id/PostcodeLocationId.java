@@ -6,20 +6,14 @@ import java.util.Objects;
 
 public class PostcodeLocationId implements IdFor<PostcodeLocation> {
 
-    private final IdFor<PostcodeLocation> contained;
+    private final StringIdFor<PostcodeLocation> contained;
 
     private PostcodeLocationId(String text) {
-        contained = StringIdFor.createId(text, PostcodeLocation.class);
+        contained = new StringIdFor<>(text, PostcodeLocation.class);
     }
 
     public static PostcodeLocationId create(String text) {
         return new PostcodeLocationId(text.toUpperCase());
-    }
-
-    @Deprecated
-    @Override
-    public String forDTO() {
-        return contained.forDTO();
     }
 
     @Override
@@ -38,7 +32,7 @@ public class PostcodeLocationId implements IdFor<PostcodeLocation> {
     }
 
     public String getName() {
-        return contained.forDTO();
+        return contained.getContainedId();
     }
 
     @Override

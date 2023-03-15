@@ -88,11 +88,6 @@ public class StringIdFor<T extends CoreDomain> implements IdFor<T> {
     }
 
     @Override
-    public String forDTO() {
-        return theId;
-    }
-
-    @Override
     public String getGraphId() {
         return theId;
     }
