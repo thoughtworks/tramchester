@@ -6,6 +6,7 @@ import com.fasterxml.jackson.module.afterburner.AfterburnerModule;
 import com.tramchester.App;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.IdFor;
+import com.tramchester.domain.id.IdForDTO;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.DTO.BoxWithCostDTO;
 import com.tramchester.domain.presentation.LatLong;
@@ -61,8 +62,9 @@ class JourneysForGridResourceTest {
         LatLong destPos = TestEnv.stPetersSquareLocation();
         IdFor<Station> destination = TramStations.StPetersSquare.getId();
 
+        String actualId = new IdForDTO(destination).getActualId();
         String queryString = String.format("grid?gridSize=%s&destination=%s&departureTime=%s&departureDate=%s&maxChanges=%s&maxDuration=%s",
-                gridSize, destination.forDTO(), time, date, maxChanges, maxDuration);
+                gridSize, actualId, time, date, maxChanges, maxDuration);
 
         Response response = APIClient.getApiResponse(appExtension, queryString);
         assertEquals(200, response.getStatus());

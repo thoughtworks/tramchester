@@ -1,6 +1,8 @@
 package com.tramchester.domain.id;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.tramchester.domain.Agency;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.places.Station;
@@ -9,6 +11,9 @@ import java.util.List;
 import java.util.Objects;
 
 
+/***
+ * Note: serializable for RouteIndex cache purposes
+ */
 public class RailRouteId implements IdFor<Route> {
     private final StringIdFor<Route> theId;
 
@@ -17,10 +22,12 @@ public class RailRouteId implements IdFor<Route> {
     private final IdFor<Agency> agencyId;
     private final int index;
 
-    public RailRouteId(IdFor<Station> begin,
-                       IdFor<Station> end,
-                       IdFor<Agency> agencyId,
-                       int index) {
+
+    @JsonCreator
+    public RailRouteId(@JsonProperty("begin") IdFor<Station> begin,
+                       @JsonProperty("end") IdFor<Station> end,
+                       @JsonProperty("agencyId") IdFor<Agency> agencyId,
+                       @JsonProperty("intdex") int index) {
 
         this.begin = begin;
         this.end = end;
@@ -28,6 +35,7 @@ public class RailRouteId implements IdFor<Route> {
         this.index = index;
 
         theId = createContainedId(begin, end, agencyId, index);
+
     }
 
     public static RailRouteId createId(IdFor<Agency> agencyId, List<IdFor<Station>> callingPoints, int index) {
@@ -66,6 +74,11 @@ public class RailRouteId implements IdFor<Route> {
     @Override
     public boolean isValid() {
         return true;
+    }
+
+    @JsonIgnore
+    StringIdFor<Route> getContainedId() {
+        return theId;
     }
 
     @JsonIgnore
@@ -114,7 +127,4 @@ public class RailRouteId implements IdFor<Route> {
         return Objects.hash(begin, end, agencyId, index);
     }
 
-    StringIdFor<Route> getContainedId() {
-        return theId;
-    }
 }

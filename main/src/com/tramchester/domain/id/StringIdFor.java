@@ -35,9 +35,9 @@ public class StringIdFor<T extends CoreDomain> implements IdFor<T> {
         if (text.isBlank()) {
             return invalid(domainType);
         }
-        if (CompositeId.isComposite(text)) {
-            return CompositeId.parse(text, domainType);
-        }
+//        if (CompositeId.isComposite(text)) {
+//            return CompositeId.parse(text, domainType);
+//        }
         return new StringIdFor<>(text, domainType);
     }
 

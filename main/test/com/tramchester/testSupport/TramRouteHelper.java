@@ -3,6 +3,7 @@ package com.tramchester.testSupport;
 import com.tramchester.domain.MutableAgency;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.dates.TramDate;
+import com.tramchester.domain.id.IdForDTO;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.repository.RouteRepository;
 import com.tramchester.testSupport.reference.KnownTramRoute;
@@ -33,11 +34,9 @@ public class TramRouteHelper {
         map = new HashMap<>();
         KnownTramRoute[] knownTramRoutes = KnownTramRoute.values(); // ignores date
         for (KnownTramRoute knownRoute : knownTramRoutes) {
-            final Set<Route> routesByShortName =
-                    routeRepository.
-                            findRoutesByShortName(MutableAgency.METL, knownRoute.shortName()).
+            final Set<Route> routesByShortName = routeRepository.findRoutesByShortName(MutableAgency.METL, knownRoute.shortName()).
                             stream().
-                            filter(found -> found.getId().forDTO().contains(knownRoute.direction().getSuffix())).
+                            filter(route -> IdForDTO.createFor(route).getActualId().contains(knownRoute.direction().getSuffix())).
                             collect(Collectors.toSet());
             map.put(knownRoute, routesByShortName);
         }

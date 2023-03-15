@@ -14,17 +14,17 @@ public class CompositeId<T extends CoreDomain> implements IdFor<T> {
 
     private final IdSet<T> ids;
 
-    public CompositeId(IdSet<T> ids) {
+    private CompositeId(IdSet<T> ids) {
         this.ids = ids;
     }
 
     @SafeVarargs
-    public CompositeId(IdFor<T> ...ids) {
+    private CompositeId(IdFor<T> ...ids) {
         this.ids = new IdSet<>(Arrays.asList(ids));
     }
 
     // <T extends HasId<T> & GraphProperty>
-    public static <T extends CoreDomain> CompositeId<T> parse(String text, Class<T> domainType) {
+    private static <T extends CoreDomain> CompositeId<T> parse(String text, Class<T> domainType) {
         if (!isComposite(text)) {
             throw new RuntimeException("Could not parse " + text);
         }

@@ -65,14 +65,13 @@ class JourneyPlannerBusTest {
 
         List<LocationRefDTO> results = result.readEntity(new GenericType<>() {});
 
-        Set<String> stationsIds = stationRepository.getStationsServing(TransportMode.Bus).stream().
-                map(station -> station.getId().forDTO()).collect(Collectors.toSet());
+        Set<IdForDTO> stationsIds = stationRepository.getStationsServing(TransportMode.Bus).stream().
+                map(IdForDTO::createFor).collect(Collectors.toSet());
 
         assertEquals(stationsIds.size(), results.size());
 
-        Set<String> resultIds = results.stream().
+        Set<IdForDTO> resultIds = results.stream().
                 map(LocationRefDTO::getId).
-                map(IdForDTO::getActualId).
                 collect(Collectors.toSet());
 
         assertTrue(stationsIds.containsAll(resultIds));

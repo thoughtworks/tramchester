@@ -92,14 +92,14 @@ class StationResourceTest {
 
         List<LocationRefDTO> results = result.readEntity(new GenericType<>() {});
 
-        Set<String> expectedIds = stationRepository.getStations().stream().
-                map(station -> station.getId().forDTO()).collect(Collectors.toSet());
+        Set<IdForDTO> expectedIds = stationRepository.getStations().stream().
+                map(IdForDTO::createFor).
+                collect(Collectors.toSet());
 
         assertEquals(expectedIds.size(), results.size());
 
-        List<String> resultIds = results.stream().
+        List<IdForDTO> resultIds = results.stream().
                 map(LocationRefDTO::getId).
-                map(IdForDTO::getActualId).
                 collect(Collectors.toList());
         assertTrue(expectedIds.containsAll(resultIds));
 
