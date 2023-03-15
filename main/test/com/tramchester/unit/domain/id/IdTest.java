@@ -1,13 +1,12 @@
 package com.tramchester.unit.domain.id;
 
 import com.tramchester.domain.Route;
-import com.tramchester.domain.id.CompositeId;
 import com.tramchester.domain.id.IdFor;
-import com.tramchester.domain.id.IdForDTO;
 import com.tramchester.domain.places.Station;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
 class IdTest {
 
