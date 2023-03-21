@@ -2,14 +2,10 @@ package com.tramchester.domain.id;
 
 import com.tramchester.domain.places.PostcodeLocation;
 
-import java.util.Objects;
-
-public class PostcodeLocationId implements IdFor<PostcodeLocation> {
-
-    private final StringIdFor<PostcodeLocation> contained;
+public class PostcodeLocationId extends ContainsId<PostcodeLocation> implements IdFor<PostcodeLocation> {
 
     private PostcodeLocationId(String text) {
-        contained = new StringIdFor<>(text, PostcodeLocation.class);
+        super(new StringIdFor<>(text, PostcodeLocation.class));
     }
 
     public static PostcodeLocationId create(String text) {
@@ -18,12 +14,12 @@ public class PostcodeLocationId implements IdFor<PostcodeLocation> {
 
     @Override
     public String getGraphId() {
-        return contained.getGraphId();
+        return super.getGraphId();
     }
 
     @Override
     public boolean isValid() {
-        return contained.isValid();
+        return true;
     }
 
     @Override
@@ -32,26 +28,12 @@ public class PostcodeLocationId implements IdFor<PostcodeLocation> {
     }
 
     public String getName() {
-        return contained.getContainedId();
+        return getContainedId().getContainedId();
     }
 
     @Override
     public String toString() {
-        return "PostcodeLocationId{" +
-                contained +
-                '}';
+        return "PostcodeLocationId{} " + super.toString();
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        PostcodeLocationId that = (PostcodeLocationId) o;
-        return contained.equals(that.contained);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(contained);
-    }
 }

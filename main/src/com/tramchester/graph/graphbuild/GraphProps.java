@@ -152,7 +152,7 @@ public class GraphProps {
         return TramTime.of(localTime.getHour(), localTime.getMinute());
     }
 
-    static void setTimeProp(Entity entity, TramTime time) {
+    public static void setTimeProp(Entity entity, TramTime time) {
         entity.setProperty(TIME.getText(), time.asLocalTime());
         if (time.isNextDay()) {
             entity.setProperty(DAY_OFFSET.getText(), time.isNextDay());

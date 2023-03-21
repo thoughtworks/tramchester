@@ -25,6 +25,7 @@ public class RouteStationId implements IdFor<RouteStation> {
         if (indexOf<0) {
             return StringIdFor.invalid(RouteStation.class);
         }
+        // todo rail route or normal route id?
         IdFor<Route> routeId  = Route.createId(text.substring(0, indexOf));
         IdFor<Station> stationId = Station.createId(text.substring(indexOf+1));
         return createId(routeId, stationId);

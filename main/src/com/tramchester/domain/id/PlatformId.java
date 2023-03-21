@@ -4,14 +4,11 @@ import com.tramchester.domain.CoreDomain;
 import com.tramchester.domain.Platform;
 import com.tramchester.domain.places.Station;
 
-import java.util.Objects;
-
-public class PlatformId implements IdFor<Platform> {
-    private final StringIdFor<Platform> containedId;
+public class PlatformId extends ContainsId<Platform> implements IdFor<Platform> {
     private final String platformNumber;
 
     private PlatformId(String stationText, String platformNumber) {
-        containedId = new StringIdFor<>(stationText + platformNumber, Platform.class);
+        super(new StringIdFor<>(stationText + platformNumber, Platform.class));
         this.platformNumber = platformNumber;
     }
 
@@ -34,7 +31,7 @@ public class PlatformId implements IdFor<Platform> {
     public static <FROM extends CoreDomain,TO extends CoreDomain> IdFor<TO> convert(IdFor<FROM> original, Class<TO> domainType) {
         guardForType(original);
         PlatformId originalPlatformId = (PlatformId) original;
-        return StringIdFor.convert(originalPlatformId.containedId, domainType);
+        return StringIdFor.convert(originalPlatformId.getContainedId(), domainType);
     }
 
     private static <FROM extends CoreDomain> void guardForType(IdFor<FROM> original) {
@@ -45,12 +42,12 @@ public class PlatformId implements IdFor<Platform> {
 
     @Override
     public String getGraphId() {
-        return containedId.getGraphId();
+        return super.getGraphId();
     }
 
     @Override
     public boolean isValid() {
-        return containedId.isValid();
+        return true;
     }
 
     @Override
@@ -63,27 +60,9 @@ public class PlatformId implements IdFor<Platform> {
     }
 
     @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        PlatformId that = (PlatformId) o;
-        return containedId.equals(that.containedId);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(containedId);
-    }
-
-    @Override
     public String toString() {
         return "PlatformId{" +
-                "id=" + containedId +
-                ", platformNumber='" + platformNumber + '\'' +
-                '}';
-    }
-
-    StringIdFor<Platform> getContainedId() {
-        return containedId;
+                "platformNumber='" + platformNumber + '\'' +
+                "} " + super.toString();
     }
 }

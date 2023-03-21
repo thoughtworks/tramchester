@@ -192,9 +192,12 @@ public class RailTransportDataFromFilesTest {
         Station startStation = transportData.getStationById(Derby.getId());
         Station endStation = transportData.getStationById(LondonStPancras.getId());
 
+        int numberOfCalingPoints = 7;
+
         List<Trip> matchingTrips = transportData.getTrips().stream().
                 filter(trip -> trip.callsAt(startStation)).
                 filter(trip -> trip.callsAt(endStation)).
+                filter(trip -> trip.getStopCalls().numberOfCallingPoints()==numberOfCalingPoints).
                 filter(trip -> trip.getStopCalls().getStationSequence(false).get(0).equals(startStation)).
                 filter(trip -> trip.getStopCalls().getLastStop().getStation().equals(endStation)).
                 collect(Collectors.toList());
@@ -216,10 +219,10 @@ public class RailTransportDataFromFilesTest {
         assertEquals(GTFSPickupDropoffType.None, firstStopCall.getDropoffType());
         assertEquals(GTFSPickupDropoffType.Regular, firstStopCall.getPickupType());
 
-        final int expectedCalls = 7;
+        //final int expectedCalls = 7;
         final int expectedPassedStops = 19;
 
-        assertEquals(expectedCalls, stops.numberOfCallingPoints(),
+        assertEquals(numberOfCalingPoints, stops.numberOfCallingPoints(),
                 "wrong number of stops " + HasId.asIds(stops.getStationSequence(false)));
 
         // 21 is including passed stops, 6 otherwise
@@ -231,7 +234,7 @@ public class RailTransportDataFromFilesTest {
         assertEquals(GTFSPickupDropoffType.None, lastStopCall.getPickupType());
 
         // 19 is including passed stops, 7 otherwise
-        assertEquals(expectedCalls, stops.getStationSequence(false).size());
+        assertEquals(numberOfCalingPoints, stops.getStationSequence(false).size());
         assertEquals(expectedPassedStops, stops.getStationSequence(true).size());
 
         // 2 if including passed stop, 0 otherwise

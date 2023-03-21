@@ -2,10 +2,16 @@ package com.tramchester.integration.graph.railAndTram;
 
 import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
+import com.tramchester.dataimport.rail.reference.TrainOperatingCompanies;
+import com.tramchester.domain.Agency;
 import com.tramchester.domain.Journey;
 import com.tramchester.domain.JourneyRequest;
+import com.tramchester.domain.Route;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.IdFor;
+import com.tramchester.domain.id.RailRouteId;
+import com.tramchester.domain.id.RouteStationId;
+import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.TransportStage;
 import com.tramchester.domain.reference.TransportMode;
@@ -16,6 +22,7 @@ import com.tramchester.graph.search.RouteCalculator;
 import com.tramchester.integration.testSupport.RouteCalculatorTestFacade;
 import com.tramchester.integration.testSupport.RailAndTramGreaterManchesterConfig;
 import com.tramchester.integration.testSupport.rail.RailStationIds;
+import com.tramchester.repository.RouteRepository;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.repository.TransportData;
 import com.tramchester.testSupport.TestEnv;
@@ -29,8 +36,7 @@ import java.time.Duration;
 import java.util.*;
 
 import static com.tramchester.domain.reference.TransportMode.*;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.*;
 
 @GMTest
 class RouteCalculatorLocalStationsSubGraphTest {
@@ -50,8 +56,10 @@ class RouteCalculatorLocalStationsSubGraphTest {
 
     private Transaction txn;
     private StationRepository stationRepository;
+    private RouteRepository routeRepository;
     private RouteCalculatorTestFacade testFacade;
     private TramTime time;
+    private IdFor<Agency> northern;
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() throws IOException {
@@ -79,9 +87,12 @@ class RouteCalculatorLocalStationsSubGraphTest {
     @BeforeEach
     void beforeEachTestRuns() {
         stationRepository = componentContainer.get(StationRepository.class);
+        routeRepository = componentContainer.get(RouteRepository.class);
         txn = database.beginTx();
 
         testFacade = new RouteCalculatorTestFacade(componentContainer.get(RouteCalculator.class), stationRepository, txn);
+
+        northern = TrainOperatingCompanies.NT.getAgencyId();
 
         time = TramTime.of(14,50);
         when = TestEnv.testDay();
@@ -90,6 +101,34 @@ class RouteCalculatorLocalStationsSubGraphTest {
     @AfterEach
     void onceAfterEveryTest() {
         txn.close();
+    }
+
+    @Test
+    void validateHaveExpectedRouteStationInRepositoryChesterToStockport() {
+        RailRouteId railRouteId = new RailRouteId(RailStationIds.Chester.getId(), RailStationIds.Stockport.getId(), northern, 1);
+
+        Route chesterToStockport = routeRepository.getRouteById(railRouteId);
+        assertNotNull(chesterToStockport);
+
+        RouteStation navigationRouteStation = stationRepository.getRouteStationById(RouteStationId.createId(railRouteId, RailStationIds.NavigationRaod.getId()));
+        assertNotNull(navigationRouteStation);
+
+        RouteStation altrinchamRouteStation = stationRepository.getRouteStationById(RouteStationId.createId(railRouteId, RailStationIds.Altrincham.getId()));
+        assertNotNull(altrinchamRouteStation);
+    }
+
+    @Test
+    void validateHaveExpectedRouteStationInRepositoryStockportToAltrincham() {
+        RailRouteId railRouteId = new RailRouteId(RailStationIds.Stockport.getId(), RailStationIds.Altrincham.getId(), northern, 1);
+
+        Route chesterToStockport = routeRepository.getRouteById(railRouteId);
+        assertNotNull(chesterToStockport);
+
+        RouteStation navigationRouteStation = stationRepository.getRouteStationById(RouteStationId.createId(railRouteId, RailStationIds.NavigationRaod.getId()));
+        assertNotNull(navigationRouteStation);
+
+        RouteStation altrinchamRouteStation = stationRepository.getRouteStationById(RouteStationId.createId(railRouteId, RailStationIds.Altrincham.getId()));
+        assertNotNull(altrinchamRouteStation);
     }
 
     @Test
@@ -253,6 +292,7 @@ class RouteCalculatorLocalStationsSubGraphTest {
         assertEquals(stages.get(1).getMode(), Train, "wrong second stage for " + stages);
 
     }
+
 
     private Set<TransportMode> getRequestedModes() {
         return EnumSet.of(Train, Tram);

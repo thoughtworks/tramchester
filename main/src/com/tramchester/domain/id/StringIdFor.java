@@ -56,21 +56,22 @@ public class StringIdFor<T extends CoreDomain> implements IdFor<T> {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        StringIdFor<?> that = (StringIdFor<?>) o;
-        return theId.equals(that.theId) && domainType.equals(that.domainType);
+        if (o==null) {
+            return false;
+        }
+        //if (o == null || getClass() != o.getClass()) return false;
+        if (o instanceof StringIdFor) {
+            StringIdFor<?> that = (StringIdFor<?>) o;
+            return theId.equals(that.theId) && domainType.equals(that.domainType);
+        }
+        if (o instanceof ContainsId) {
+            ContainsId<?> that = (ContainsId<?>) o;
+            StringIdFor<?> thatContainedId = that.getContainedId();
+            return theId.equals(thatContainedId.theId) && domainType.equals(thatContainedId.domainType);
+        }
+        return false;
+
     }
-
-
-//    @Override
-//    public boolean equals(Object other) {
-//        if (this == other) return true;
-//        if (other == null || getClass() != other.getClass()) return false;
-//
-//        StringIdFor<?> otherId = (StringIdFor<?>) other;
-//
-//        return theId.equals(otherId.theId);
-//    }
 
     @Override
     public String toString() {

@@ -8,33 +8,29 @@ import com.tramchester.domain.Route;
 import com.tramchester.domain.places.Station;
 
 import java.util.List;
-import java.util.Objects;
 
 
 /***
  * Note: serializable for RouteIndex cache purposes
  */
-public class RailRouteId implements IdFor<Route> {
-    private final StringIdFor<Route> theId;
+public class RailRouteId extends ContainsId<Route> implements IdFor<Route> {
 
     private final IdFor<Station> begin;
     private final IdFor<Station> end;
     private final IdFor<Agency> agencyId;
     private final int index;
 
-
     @JsonCreator
     public RailRouteId(@JsonProperty("begin") IdFor<Station> begin,
                        @JsonProperty("end") IdFor<Station> end,
                        @JsonProperty("agencyId") IdFor<Agency> agencyId,
-                       @JsonProperty("intdex") int index) {
+                       @JsonProperty("index") int index) {
 
+        super(createContainedId(begin, end, agencyId, index));
         this.begin = begin;
         this.end = end;
         this.agencyId = agencyId;
         this.index = index;
-
-        theId = createContainedId(begin, end, agencyId, index);
 
     }
 
@@ -47,8 +43,8 @@ public class RailRouteId implements IdFor<Route> {
         return new RailRouteId(first, last, agencyId, index);
     }
 
-    private StringIdFor<Route> createContainedId(IdFor<Station> begin, IdFor<Station> end, IdFor<Agency> agency, int index) {
-        // TODO Turn IdFor into abstract class so can have package private access to contained string ids
+    private static StringIdFor<Route> createContainedId(IdFor<Station> begin, IdFor<Station> end, IdFor<Agency> agency, int index) {
+        // TODO Turn IdFor into abstract class so can have package private access to contained string ids?
         StringIdFor<Station> beginId = (StringIdFor<Station>) begin;
         StringIdFor<Station> endId = (StringIdFor<Station>) end;
         StringIdFor<Agency> agencyId = (StringIdFor<Agency>) agency;
@@ -62,18 +58,13 @@ public class RailRouteId implements IdFor<Route> {
     @JsonIgnore
     @Override
     public String getGraphId() {
-        return theId.getGraphId();
+        return super.getGraphId();
     }
 
     @JsonIgnore
     @Override
     public boolean isValid() {
         return true;
-    }
-
-    @JsonIgnore
-    StringIdFor<Route> getContainedId() {
-        return theId;
     }
 
     @JsonIgnore
@@ -101,25 +92,11 @@ public class RailRouteId implements IdFor<Route> {
     @Override
     public String toString() {
         return "RailRouteId{" +
-                "theId=" + theId +
-                ", begin=" + begin +
+                "begin=" + begin +
                 ", end=" + end +
                 ", agencyId=" + agencyId +
                 ", index=" + index +
-                '}';
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        RailRouteId that = (RailRouteId) o;
-        return index == that.index && begin.equals(that.begin) && end.equals(that.end) && agencyId.equals(that.agencyId);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(begin, end, agencyId, index);
+                "} " + super.toString();
     }
 
 }
