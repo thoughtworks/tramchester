@@ -54,7 +54,7 @@ dependencies {
     // slf4j in governator was causing race condition with dropwizard start up code on initial get of logger
     implementation('com.netflix.governator:governator:1.17.12') { exclude group:'org.slf4j', module:'slf4j-api'}
     implementation 'com.google.inject:guice:5.1.0'
-    implementation('org.neo4j:neo4j:4.4.17') { exclude group:'org.slf4j', module:'slf4j-nop' }
+    implementation('org.neo4j:neo4j:5.6.0') { exclude group:'org.slf4j', module:'slf4j-nop' }
     implementation 'com.github.cliftonlabs:json-simple:4.0.1',
             'commons-io:commons-io:2.11.0',
             'org.apache.httpcomponents:httpclient:4.5.14',
