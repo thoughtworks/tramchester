@@ -30,7 +30,7 @@ import java.util.stream.Collectors;
 /***
  * Used to create initial view of rail routes as part of rail data import, not expected to be used apart from this
  * NOTE:
- * is used as part of TransportData load so cannot depend on that data, hence ExtractAgencyCallingPointsFromLocationRecords
+ * is used as part of TransportData load so cannot depend (via dep injection) on that data, hence ExtractAgencyCallingPointsFromLocationRecords
  */
 @LazySingleton
 public class RailRouteIdRepository implements ReportsCacheStats {
@@ -182,10 +182,15 @@ public class RailRouteIdRepository implements ReportsCacheStats {
         return cachedIds.get(agencyCallingPoints, unused -> getRouteId(agencyCallingPoints));
     }
 
+    /** test support **/
     public RailRouteId getRouteIdUncached(IdFor<Agency> agencyId, List<Station> callingStations) {
         List<IdFor<Station>> callingStationsIds = callingStations.stream().map(Station::getId).collect(Collectors.toList());
         AgencyCallingPoints agencyCallingPoints = new AgencyCallingPoints(agencyId, callingStationsIds);
         return getRouteId(agencyCallingPoints);
+    }
+
+    public Set<RailRouteId> getForAgency(IdFor<Agency> agencyId) {
+        return routeIdsForAgency.get(agencyId).stream().map(AgencyCallingPointsWithRouteId::getRouteId).collect(Collectors.toSet());
     }
 
     private RailRouteId getRouteId(AgencyCallingPoints agencyCallingPoints) {

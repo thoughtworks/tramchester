@@ -31,7 +31,6 @@ public class RailRouteId extends ContainsId<Route> implements IdFor<Route> {
         this.end = end;
         this.agencyId = agencyId;
         this.index = index;
-
     }
 
     public static RailRouteId createId(IdFor<Agency> agencyId, List<IdFor<Station>> callingPoints, int index) {
@@ -44,7 +43,6 @@ public class RailRouteId extends ContainsId<Route> implements IdFor<Route> {
     }
 
     private static StringIdFor<Route> createContainedId(IdFor<Station> begin, IdFor<Station> end, IdFor<Agency> agency, int index) {
-        // TODO Turn IdFor into abstract class so can have package private access to contained string ids?
         StringIdFor<Station> beginId = (StringIdFor<Station>) begin;
         StringIdFor<Station> endId = (StringIdFor<Station>) end;
         StringIdFor<Agency> agencyId = (StringIdFor<Agency>) agency;

@@ -40,13 +40,16 @@ public class RailRouteIdTest {
     }
 
     @Test
-    void shouldHaveEqualityWithValidStringRouteId() {
+    void shouldHaveEqualityAndSameHashWithValidStringRouteId() {
         IdFor<Route> idA  = new RailRouteId(LondonEuston.getId(), StokeOnTrent.getId(), Agency.createId("NT"), 1);
 
         IdFor<Route> idB = StringIdFor.createId("EUSTON:STOKEOT=>NT:1", Route.class);
 
         assertEquals(idA, idB);
         assertEquals(idB, idA);
+
+        // need same hash otherwise issue with collections with mixed sources
+        assertEquals(idA.hashCode(), idB.hashCode());
     }
 
     @Test

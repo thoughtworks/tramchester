@@ -23,7 +23,12 @@ public class RailRouteIDBuilder {
         callingPointsToId = new HashMap<>();
     }
 
-    public RailRouteId getIdFor(IdFor<Agency> agencyId, List<IdFor<Station>> callingPoints) {
+
+    public RailRouteId getIdFor(RailRouteIdRepository.AgencyCallingPoints agencyCallingPoints) {
+        return getIdFor(agencyCallingPoints.getAgencyId(), agencyCallingPoints.getCallingPoints());
+    }
+
+    private RailRouteId getIdFor(IdFor<Agency> agencyId, List<IdFor<Station>> callingPoints) {
         // find unique route id based on the atoc code (aka agency) and list of calling points
         // have to include agency id since different agencies might serve same calling points
 
@@ -46,9 +51,6 @@ public class RailRouteIDBuilder {
 
     }
 
-    public RailRouteId getIdFor(RailRouteIdRepository.AgencyCallingPoints agencyCallingPoints) {
-        return getIdFor(agencyCallingPoints.getAgencyId(), agencyCallingPoints.getCallingPoints());
-    }
 
     private static class AgencyCallingPoints {
         private final IdFor<Agency> agencyId;

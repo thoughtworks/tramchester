@@ -35,9 +35,6 @@ public class StringIdFor<T extends CoreDomain> implements IdFor<T> {
         if (text.isBlank()) {
             return invalid(domainType);
         }
-//        if (CompositeId.isComposite(text)) {
-//            return CompositeId.parse(text, domainType);
-//        }
         return new StringIdFor<>(text, domainType);
     }
 
@@ -59,7 +56,6 @@ public class StringIdFor<T extends CoreDomain> implements IdFor<T> {
         if (o==null) {
             return false;
         }
-        //if (o == null || getClass() != o.getClass()) return false;
         if (o instanceof StringIdFor) {
             StringIdFor<?> that = (StringIdFor<?>) o;
             return theId.equals(that.theId) && domainType.equals(that.domainType);

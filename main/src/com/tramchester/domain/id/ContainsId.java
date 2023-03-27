@@ -3,8 +3,6 @@ package com.tramchester.domain.id;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.tramchester.domain.CoreDomain;
 
-import java.util.Objects;
-
 abstract class ContainsId<T extends CoreDomain> {
     private final StringIdFor<T> containedId;
 
@@ -37,17 +35,20 @@ abstract class ContainsId<T extends CoreDomain> {
         if (o == null) return false;
         if (o instanceof ContainsId) {
             ContainsId<?> that = (ContainsId<?>) o;
-            return Objects.equals(containedId, that.containedId);
+            return this.containedId.equals(that.containedId);
+            //return Objects.equals(containedId, that.containedId);
         }
         if (o instanceof StringIdFor) {
             StringIdFor<?> that = (StringIdFor<?>) o;
-            return Objects.equals(containedId, that);
+            return this.containedId.equals(that);
+            //return Objects.equals(containedId, that);
         }
         return false;
     }
 
+    // NOTE need to use contained hash otherwise identity inside of "mixed" collections of id's does not work as expected
     @Override
     public int hashCode() {
-        return Objects.hash(containedId);
+        return containedId.hashCode();
     }
 }

@@ -128,7 +128,7 @@ public class RouteCostMatrix implements RouteCostCombinations {
 
     private void createBacktracking() {
         for (int depth = 0; depth < MAX_DEPTH - 1; depth++) {
-            underlyingPairs.add(new RouteConnectingLinks(pairFactory, numRoutes));
+            underlyingPairs.add(new RouteConnectingLinks(pairFactory, numRoutes, index));
         }
         for (byte currentDegree = 1; currentDegree < maxDepth; currentDegree++) {
             createBacktracking(currentDegree);
@@ -484,9 +484,11 @@ public class RouteCostMatrix implements RouteCostCombinations {
         // pair to connecting route index (A,B) -> C
         private final Map<RouteIndexPair, BitSet> theMap;
         private final IndexedBitSet seen; // performance
+        private final RouteIndex index; // diagnostics
 
-        private RouteConnectingLinks(RouteIndexPairFactory pairFactory, int numRoutes) {
+        private RouteConnectingLinks(RouteIndexPairFactory pairFactory, int numRoutes, RouteIndex index) {
             this.pairFactory = pairFactory;
+            this.index = index;
             theMap = new HashMap<>();
             seen = new IndexedBitSet(numRoutes, numRoutes);
         }
@@ -507,7 +509,8 @@ public class RouteCostMatrix implements RouteCostCombinations {
         // re-expand from (A,C) -> B into: (A,B) (B,C)
         public Set<Pair<RouteIndexPair, RouteIndexPair>> getLinksFor(RouteIndexPair indexPair) {
             if (!theMap.containsKey(indexPair)) {
-                String message = "Missing indexPair " + indexPair + " in map size " + theMap.size();
+                RoutePair missing = index.getPairFor(indexPair);
+                String message = "Missing indexPair " + indexPair + " (" + missing + ") in map size " + theMap.size();
                 logger.error(message);
                 throw new RuntimeException(message);
             }

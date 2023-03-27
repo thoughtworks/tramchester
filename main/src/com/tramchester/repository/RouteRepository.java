@@ -21,4 +21,6 @@ public interface RouteRepository extends NumberOfRoutes {
     Set<Route> findRoutesByName(IdFor<Agency> agencyId, String longName);
 
     Set<Route> getRoutesRunningOn(TramDate date);
+
+    boolean hasRouteId(IdFor<Route> routeId);
 }

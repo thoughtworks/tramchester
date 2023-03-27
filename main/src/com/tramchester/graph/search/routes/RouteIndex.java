@@ -9,6 +9,7 @@ import com.tramchester.domain.RoutePair;
 import com.tramchester.domain.collections.RouteIndexPair;
 import com.tramchester.domain.collections.RouteIndexPairFactory;
 import com.tramchester.domain.id.IdFor;
+import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.graph.filters.GraphFilterActive;
 import com.tramchester.repository.RouteRepository;
 import org.slf4j.Logger;
@@ -17,10 +18,10 @@ import org.slf4j.LoggerFactory;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.inject.Inject;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /***
@@ -36,8 +37,8 @@ public class RouteIndex implements DataCache.CachesData<RouteIndexData> {
     private final DataCache dataCache;
     private final RouteIndexPairFactory pairFactory;
 
-    private final Map<IdFor<Route>, Integer> mapRouteIdToIndex;
-    private final Map<Integer, IdFor<Route>> mapIndexToRouteId;
+    private final Map<Route, Integer> mapRouteIdToIndex;
+    private final Map<Integer, Route> mapIndexToRouteId;
     private final int numberOfRoutes;
 
     @Inject
@@ -68,6 +69,14 @@ public class RouteIndex implements DataCache.CachesData<RouteIndexData> {
                 dataCache.save(this, RouteIndexData.class);
             }
         }
+
+        // here for past serialisation issues
+        if (mapRouteIdToIndex.size()!=mapIndexToRouteId.size()) {
+            String msg = String.format("Constraints on mapping violated mapRouteIdToIndex %s != mapIndexToRouteId %s"
+                    , mapRouteIdToIndex.size(), mapIndexToRouteId.size());
+            logger.error(msg);
+            throw new RuntimeException(msg);
+        }
         logger.info("started");
     }
 
@@ -81,33 +90,38 @@ public class RouteIndex implements DataCache.CachesData<RouteIndexData> {
 
     private void createIndex() {
         logger.info("Creating index");
-        List<IdFor<Route>> routesList = routeRepository.getRoutes().stream().map(Route::getId).collect(Collectors.toList());
+        List<Route> routesList = new ArrayList<>(routeRepository.getRoutes());
         createIndex(routesList);
         logger.info("Added " + mapRouteIdToIndex.size() + " index entries");
     }
 
-    private void createIndex(List<IdFor<Route>> routesList) {
+    private void createIndex(List<Route> routesList) {
         for (int i = 0; i < routesList.size(); i++) {
             mapRouteIdToIndex.put(routesList.get(i), i);
             mapIndexToRouteId.put(i, routesList.get(i));
         }
     }
 
-    public int indexFor(IdFor<Route> from) {
-        if (!(mapRouteIdToIndex.containsKey(from))) {
+    public int indexFor(IdFor<Route> routeId) {
+        Route route = routeRepository.getRouteById(routeId);
+        return indexFor(route);
+    }
+
+    private Integer indexFor(Route route) {
+        if (!(mapRouteIdToIndex.containsKey(route))) {
             String message = String.format("No index for route %s, is cache file %s outdated? ",
-                    from, dataCache.getPathFor(this));
+                    route.getId(), dataCache.getPathFor(this));
             logger.error(message);
             throw new RuntimeException(message);
         }
-        return mapRouteIdToIndex.get(from);
+        return mapRouteIdToIndex.get(route);
     }
 
     @Override
     public void cacheTo(DataSaver<RouteIndexData> saver) {
         saver.open();
         mapRouteIdToIndex.entrySet().stream().
-                map(entry -> new RouteIndexData(entry.getValue(), entry.getKey())).
+                map(entry -> new RouteIndexData(entry.getValue(), entry.getKey().getId())).
                 forEach(saver::write);
         saver.close();
     }
@@ -121,25 +135,34 @@ public class RouteIndex implements DataCache.CachesData<RouteIndexData> {
     public void loadFrom(Stream<RouteIndexData> stream) throws DataCache.CacheLoadException {
         logger.info("Loading from cache");
         stream.forEach(item -> {
-            mapRouteIdToIndex.put(item.getRouteId(), item.getIndex());
-            mapIndexToRouteId.put(item.getIndex(), item.getRouteId());
+            final IdFor<Route> routeId = item.getRouteId();
+            if (!routeRepository.hasRouteId(routeId)) {
+                String message = "RouteId not found in repository: " + routeId;
+                logger.error(message);
+                throw new RuntimeException(message);
+            }
+            Route route = routeRepository.getRouteById(routeId);
+            mapRouteIdToIndex.put(route, item.getIndex());
+            mapIndexToRouteId.put(item.getIndex(), route);
         });
         if (mapRouteIdToIndex.size() != numberOfRoutes) {
-            throw new DataCache.CacheLoadException("Mismatch on number of routes, got " + mapRouteIdToIndex.size() +
-                    " expected " + numberOfRoutes);
+            String msg = "Mismatch on number of routes, from index got: " + mapRouteIdToIndex.size() +
+                    " but repository has: " + numberOfRoutes;
+            logger.error(msg);
+            throw new DataCache.CacheLoadException(msg);
         }
     }
 
     public Route getRouteFor(int index) {
-        return routeRepository.getRouteById(mapIndexToRouteId.get(index));
+        return mapIndexToRouteId.get(index);
     }
 
     public RoutePair getPairFor(RouteIndexPair indexPair) {
-        IdFor<Route> firstId = mapIndexToRouteId.get(indexPair.first());
-        IdFor<Route> secondId = mapIndexToRouteId.get(indexPair.second());
+        Route first = mapIndexToRouteId.get(indexPair.first());
+        Route second = mapIndexToRouteId.get(indexPair.second());
 
-        Route first = routeRepository.getRouteById(firstId);
-        Route second = routeRepository.getRouteById(secondId);
+//        Route first = routeRepository.getRouteById(firstId);
+//        Route second = routeRepository.getRouteById(secondId);
 
         return new RoutePair(first, second);
     }
@@ -150,5 +173,16 @@ public class RouteIndex implements DataCache.CachesData<RouteIndexData> {
         return pairFactory.get(a, b);
     }
 
+    public boolean hasIndexFor(IdFor<Route> routeId) {
+        Route route = routeRepository.getRouteById(routeId);
+        return mapRouteIdToIndex.containsKey(route);
+    }
 
+    public boolean hasIndexFor(Route route) {
+        return mapRouteIdToIndex.containsKey(route);
+    }
+
+    public long sizeFor(TransportMode mode) {
+        return mapRouteIdToIndex.keySet().stream().filter(route -> route.getTransportMode().equals(mode)).count();
+    }
 }
