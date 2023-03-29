@@ -4,11 +4,14 @@ import com.tramchester.domain.CoreDomain;
 import com.tramchester.domain.Platform;
 import com.tramchester.domain.places.Station;
 
-public class PlatformId extends ContainsId<Platform> implements IdFor<Platform> {
+import java.util.Objects;
+
+public class PlatformId extends ContainsId<Platform> {
     private final String platformNumber;
+    private final StringIdFor<Platform> containedId;
 
     private PlatformId(String stationText, String platformNumber) {
-        super(new StringIdFor<>(stationText + platformNumber, Platform.class));
+        containedId = new StringIdFor<>(stationText + platformNumber, Platform.class);
         this.platformNumber = platformNumber;
     }
 
@@ -42,7 +45,7 @@ public class PlatformId extends ContainsId<Platform> implements IdFor<Platform> 
 
     @Override
     public String getGraphId() {
-        return super.getGraphId();
+        return containedId.getGraphId();
     }
 
     @Override
@@ -60,9 +63,28 @@ public class PlatformId extends ContainsId<Platform> implements IdFor<Platform> 
     }
 
     @Override
+    public StringIdFor<Platform> getContainedId() {
+        return containedId;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        PlatformId that = (PlatformId) o;
+        return Objects.equals(platformNumber, that.platformNumber) && Objects.equals(containedId, that.containedId);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(platformNumber, containedId);
+    }
+
+    @Override
     public String toString() {
         return "PlatformId{" +
                 "platformNumber='" + platformNumber + '\'' +
-                "} " + super.toString();
+                ", containedId=" + containedId +
+                "} ";
     }
 }

@@ -91,12 +91,14 @@ public class PlatformMessageRepository implements PlatformMessageSource, Reports
         lastRefresh = providesNow.getTramDate();
         int entries = numberOfEntries();
         logger.info("Cache now has " + entries + " entries");
+
         return entries;
     }
 
     private void consumeDepartInfo(List<TramStationDepartureInfo> departureInfos) {
         IdSet<Platform> platformsSeen = new IdSet<>();
         int emptyMessages = 0;
+        int noTrams = 0;
 
         for (TramStationDepartureInfo departureInfo : departureInfos) {
             if (departureInfo.hasStationPlatform()) {
@@ -105,6 +107,9 @@ public class PlatformMessageRepository implements PlatformMessageSource, Reports
                 }
             } else {
                 logger.warn("No platform, skipping " + departureInfo);
+            }
+            if (!departureInfo.hasDueTrams()) {
+                noTrams = noTrams + 1;
             }
         }
 

@@ -6,23 +6,24 @@ import com.tramchester.domain.Agency;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.RailRouteId;
 import com.tramchester.domain.places.Station;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+
 
 @LazySingleton
 public class RailRouteIDBuilder {
-    private final Map<RailRouteId, Integer> baseIdToIndex;
+
+    private final Set<RailRouteId> alreadyAllocated;
     private final Map<AgencyCallingPoints, RailRouteId> callingPointsToId;
 
     @Inject
     public RailRouteIDBuilder() {
-        baseIdToIndex = new HashMap<>();
+        alreadyAllocated = new HashSet<>();
         callingPointsToId = new HashMap<>();
     }
-
 
     public RailRouteId getIdFor(RailRouteIdRepository.AgencyCallingPoints agencyCallingPoints) {
         return getIdFor(agencyCallingPoints.getAgencyId(), agencyCallingPoints.getCallingPoints());
@@ -40,12 +41,12 @@ public class RailRouteIDBuilder {
 
         int index = 1;
         RailRouteId railRouteId = RailRouteId.createId(agencyId, callingPoints, index);
-        while (baseIdToIndex.containsKey(railRouteId)) {
+        while (alreadyAllocated.contains(railRouteId)) {
             index = index + 1;
             railRouteId = RailRouteId.createId(agencyId, callingPoints, index);
         }
 
-        baseIdToIndex.put(railRouteId, index);
+        alreadyAllocated.add(railRouteId);
         callingPointsToId.put(agencyCallingPoints, railRouteId);
         return railRouteId;
 

@@ -60,6 +60,7 @@ class LiveDataHealthCheckTest extends EasyMockSupport {
         EasyMock.expect(repository.upToDateEntries()).andReturn(40);
         EasyMock.expect(stationRepository.getNumberOfStations(DataSourceID.tfgm, TransportMode.Tram)).andReturn(87L);
         EasyMock.expect(repository.getNumStationsWithData(now)).andReturn(87);
+        EasyMock.expect(repository.getNumStationsWithTrams(now)).andReturn(87);
 
         replayAll();
         healthCheck.start();
@@ -77,6 +78,7 @@ class LiveDataHealthCheckTest extends EasyMockSupport {
         EasyMock.expect(repository.upToDateEntries()).andReturn(40);
         EasyMock.expect(stationRepository.getNumberOfStations(DataSourceID.tfgm, TransportMode.Tram)).andReturn(87L);
         EasyMock.expect(repository.getNumStationsWithData(now)).andReturn(83);
+        EasyMock.expect(repository.getNumStationsWithTrams(now)).andReturn(83);
 
         replayAll();
         healthCheck.start();
@@ -95,6 +97,8 @@ class LiveDataHealthCheckTest extends EasyMockSupport {
         EasyMock.expect(repository.upToDateEntries()).andReturn(40);
         EasyMock.expect(stationRepository.getNumberOfStations(DataSourceID.tfgm, TransportMode.Tram)).andReturn(111L);
         EasyMock.expect(repository.getNumStationsWithData(now)).andReturn(3);
+        EasyMock.expect(repository.getNumStationsWithTrams(now)).andReturn(83);
+
 
         replayAll();
         healthCheck.start();
@@ -106,6 +110,26 @@ class LiveDataHealthCheckTest extends EasyMockSupport {
     }
 
     @Test
+    void shouldReportUnhealthyIfGoodEntriesButNoEnoughDueTrams() {
+        LocalDate date = TestEnv.LocalNow().toLocalDate();
+        LocalDateTime now = LocalDateTime.of(date, LocalTime.of(15,42));
+        EasyMock.expect(providesNow.getDateTime()).andReturn(now);
+
+        EasyMock.expect(repository.upToDateEntries()).andReturn(40);
+        EasyMock.expect(stationRepository.getNumberOfStations(DataSourceID.tfgm, TransportMode.Tram)).andReturn(87L);
+        EasyMock.expect(repository.getNumStationsWithData(now)).andReturn(83);
+        EasyMock.expect(repository.getNumStationsWithTrams(now)).andReturn(3);
+
+        replayAll();
+        healthCheck.start();
+        HealthCheck.Result result = healthCheck.check();
+        verifyAll();
+
+        Assertions.assertFalse(result.isHealthy());
+        Assertions.assertEquals("Only 3 of 87 stations have due trams, 40 entries present", result.getMessage());
+    }
+
+    @Test
     void shouldNOTReportUnhealthyIfGoodEntriesButNoEnoughStationsLateNight() {
         LocalDateTime now = TramTime.of(4,0).toDate(TestEnv.testDay());
         EasyMock.expect(providesNow.getDateTime()).andReturn(now);
@@ -113,6 +137,25 @@ class LiveDataHealthCheckTest extends EasyMockSupport {
         EasyMock.expect(repository.upToDateEntries()).andReturn(40);
         EasyMock.expect(stationRepository.getNumberOfStations(DataSourceID.tfgm, TransportMode.Tram)).andReturn(111L);
         EasyMock.expect(repository.getNumStationsWithData(now)).andReturn(40);
+        EasyMock.expect(repository.getNumStationsWithTrams(now)).andReturn(111);
+
+        replayAll();
+        healthCheck.start();
+        HealthCheck.Result result = healthCheck.check();
+        verifyAll();
+
+        Assertions.assertTrue(result.isHealthy());
+    }
+
+    @Test
+    void shouldNOTReportUnhealthyIfGoodEntriesButNotEnoughTramsLateNight() {
+        LocalDateTime now = TramTime.of(4,0).toDate(TestEnv.testDay());
+        EasyMock.expect(providesNow.getDateTime()).andReturn(now);
+
+        EasyMock.expect(repository.upToDateEntries()).andReturn(40);
+        EasyMock.expect(stationRepository.getNumberOfStations(DataSourceID.tfgm, TransportMode.Tram)).andReturn(111L);
+        EasyMock.expect(repository.getNumStationsWithData(now)).andReturn(111);
+        EasyMock.expect(repository.getNumStationsWithTrams(now)).andReturn(42);
 
         replayAll();
         healthCheck.start();

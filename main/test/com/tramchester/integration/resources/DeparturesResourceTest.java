@@ -24,6 +24,7 @@ import com.tramchester.repository.StationRepository;
 import com.tramchester.resources.DeparturesResource;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.TramStations;
+import com.tramchester.testSupport.testTags.LiveDataDueTramCategory;
 import com.tramchester.testSupport.testTags.LiveDataMessagesCategory;
 import com.tramchester.testSupport.testTags.LiveDataTestCategory;
 import io.dropwizard.testing.junit5.DropwizardExtensionsSupport;
@@ -103,6 +104,7 @@ class DeparturesResourceTest {
     
     @Test
     @LiveDataMessagesCategory
+    @LiveDataDueTramCategory
     void shouldHaveMessagesForStation() {
         assertNotNull(stationWithNotes, "No station with notes");
         Response response = getResponseForStation(stationWithNotes, true);
@@ -145,6 +147,7 @@ class DeparturesResourceTest {
 
     @Test
     @LiveDataTestCategory
+    @LiveDataDueTramCategory
     void shouldGetNearbyDeparturesQuerytimeNow() {
         LatLong where = nearAltrinchamInterchange.latLong();
         LocalTime queryTime = TestEnv.LocalNow().toLocalTime();
@@ -174,6 +177,7 @@ class DeparturesResourceTest {
 
     @Test
     @LiveDataTestCategory
+    @LiveDataDueTramCategory
     void shouldNotGetNearbyIfOutsideOfThreshold() {
         LatLong where = nearAltrinchamInterchange.latLong();
 
@@ -203,6 +207,7 @@ class DeparturesResourceTest {
 
     @Test
     @LiveDataMessagesCategory
+    @LiveDataDueTramCategory
     void shouldGetDueTramsForStationNotesRequestedOrNot() {
         Station station = stationWithNotes;
 

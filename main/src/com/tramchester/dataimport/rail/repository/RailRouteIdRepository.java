@@ -27,6 +27,8 @@ import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
+import static java.lang.String.format;
+
 /***
  * Used to create initial view of rail routes as part of rail data import, not expected to be used apart from this
  * NOTE:
@@ -104,6 +106,7 @@ public class RailRouteIdRepository implements ReportsCacheStats {
         });
 
         List<Integer> totals = new ArrayList<>();
+
         callingPointsByAgency.forEach((agencyId, callingPoints) -> {
             List<AgencyCallingPointsWithRouteId> results = createSortedRoutesFor(agencyId, callingPoints);
             routeIdsForAgency.put(agencyId, results);
@@ -144,10 +147,12 @@ public class RailRouteIdRepository implements ReportsCacheStats {
 
     private List<AgencyCallingPointsWithRouteId> createRouteIdsFor(IdFor<Agency> agencyId, StationIdPair beginEnd,
                                                                    Set<AgencyCallingPoints> callingPoints) {
+
         logger.debug("Create route ids for " + agencyId + " and " + beginEnd);
 
         if (callingPoints.size()==1) {
-            return callingPoints.stream().map(filtered -> new AgencyCallingPointsWithRouteId(filtered, railRouteIDBuilder.getIdFor(filtered))).
+            return callingPoints.stream().
+                    map(filtered -> new AgencyCallingPointsWithRouteId(filtered, railRouteIDBuilder.getIdFor(filtered))).
                     collect(Collectors.toList());
         }
 
@@ -163,9 +168,14 @@ public class RailRouteIdRepository implements ReportsCacheStats {
             }
         }
 
-        return reduced.stream().
-                map(filtered -> new AgencyCallingPointsWithRouteId(filtered, railRouteIDBuilder.getIdFor(filtered))).
+        List<AgencyCallingPointsWithRouteId> callingPointsWithRouteIds = reduced.stream().
+                map(agencyCallingPoints -> new AgencyCallingPointsWithRouteId(agencyCallingPoints,
+                        railRouteIDBuilder.getIdFor(agencyCallingPoints))).
                 collect(Collectors.toList());
+
+        logger.info(format("Created %s rail route ids for %s %s", callingPointsWithRouteIds.size(), agencyId, beginEnd));
+
+        return callingPointsWithRouteIds;
     }
 
     /***
@@ -227,7 +237,7 @@ public class RailRouteIdRepository implements ReportsCacheStats {
     }
 
     public List<AgencyCallingPointsWithRouteId> getCallingPointsFor(IdFor<Agency> agencyId) {
-        return this.routeIdsForAgency.get(agencyId);
+        return routeIdsForAgency.get(agencyId);
     }
 
     public static class AgencyCallingPoints {

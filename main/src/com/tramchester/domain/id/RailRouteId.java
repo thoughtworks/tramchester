@@ -8,6 +8,7 @@ import com.tramchester.domain.Route;
 import com.tramchester.domain.places.Station;
 
 import java.util.List;
+import java.util.Objects;
 
 
 /***
@@ -19,6 +20,7 @@ public class RailRouteId extends ContainsId<Route> implements IdFor<Route> {
     private final IdFor<Station> end;
     private final IdFor<Agency> agencyId;
     private final int index;
+    private final StringIdFor<Route> containedId;
 
     @JsonCreator
     public RailRouteId(@JsonProperty("begin") IdFor<Station> begin,
@@ -26,7 +28,7 @@ public class RailRouteId extends ContainsId<Route> implements IdFor<Route> {
                        @JsonProperty("agencyId") IdFor<Agency> agencyId,
                        @JsonProperty("index") int index) {
 
-        super(createContainedId(begin, end, agencyId, index));
+        containedId = createContainedId(begin, end, agencyId, index);
         this.begin = begin;
         this.end = end;
         this.agencyId = agencyId;
@@ -56,13 +58,20 @@ public class RailRouteId extends ContainsId<Route> implements IdFor<Route> {
     @JsonIgnore
     @Override
     public String getGraphId() {
-        return super.getGraphId();
+        return containedId.getGraphId();
     }
 
     @JsonIgnore
     @Override
     public boolean isValid() {
         return true;
+    }
+
+    // so this ends up in the json, for diagnostic reasons
+    @JsonProperty("diagnostics")
+    @Override
+    StringIdFor<Route> getContainedId() {
+        return containedId;
     }
 
     @JsonIgnore
@@ -88,13 +97,36 @@ public class RailRouteId extends ContainsId<Route> implements IdFor<Route> {
     }
 
     @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null) {
+            return false;
+        }
+        if (StringIdFor.class == o.getClass()) {
+            StringIdFor<?> other = (StringIdFor<?>) o;
+            if (other.getDomainType() != Route.class) {
+                return false;
+            }
+            return containedId.getContainedId().equals(other.getContainedId());
+        }
+        //if (o == null || getClass() != o.getClass()) return false;
+        RailRouteId that = (RailRouteId) o;
+        return containedId.equals(that.containedId);
+    }
+
+    @Override
+    public int hashCode() {
+        return containedId.hashCode();
+    }
+
+    @Override
     public String toString() {
         return "RailRouteId{" +
                 "begin=" + begin +
                 ", end=" + end +
                 ", agencyId=" + agencyId +
                 ", index=" + index +
-                "} " + super.toString();
+                ", containedId=" + containedId +
+                "} ";
     }
-
 }

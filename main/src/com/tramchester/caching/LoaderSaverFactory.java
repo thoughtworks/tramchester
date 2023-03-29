@@ -42,7 +42,7 @@ public class LoaderSaverFactory {
             case json -> {
                 return new TransportDataFromJSONFile<>(path, theClass, objectMapper);
             }
-            default -> throw new RuntimeException("unexepected file type " +type);
+            default -> throw new RuntimeException("unexpected file type " +type);
         }
     }
 

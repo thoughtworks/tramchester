@@ -8,9 +8,6 @@ public interface Platform extends GraphProperty, CoreDomain, Location<Platform> 
 
     String getPlatformNumber();
 
-//    @Deprecated
-//    Set<Route> getRoutes();
-
     static PlatformId createId(Station station, String platformNumber) {
         return PlatformId.createId(station.getId(), platformNumber);
     }

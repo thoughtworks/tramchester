@@ -65,7 +65,11 @@ public class StopCalls {
     }
 
     public boolean callsAt(HasId<Station> hasId) {
-        return stationIndex.containsKey(hasId.getId());
+        return callsAt(hasId.getId());
+    }
+
+    public boolean callsAt(IdFor<Station> stationId) {
+        return stationIndex.containsKey(stationId);
     }
 
     public StopCall getStopFor(HasId<Station> hasId) {

@@ -18,6 +18,7 @@ import com.tramchester.repository.StationRepository;
 import com.tramchester.repository.TramStationAdjacenyRepository;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.TramStations;
+import com.tramchester.testSupport.testTags.LiveDataDueTramCategory;
 import com.tramchester.testSupport.testTags.LiveDataMessagesCategory;
 import com.tramchester.testSupport.testTags.LiveDataTestCategory;
 import org.junit.jupiter.api.*;
@@ -107,11 +108,17 @@ class TramPositionInferenceTest {
 
     @Test
     @LiveDataTestCategory
+    @LiveDataDueTramCategory
     void shouldHaveSomeTramsPresentInNetwork() {
-        List<TramPosition> results = positionInference.inferWholeNetwork(dateTime).stream().
-                filter(result -> !result.getTrams().isEmpty()).collect(Collectors.toList());
+        List<TramPosition> tramPositions = positionInference.inferWholeNetwork(dateTime);
 
-        assertFalse(results.isEmpty());
+        assertFalse(tramPositions.isEmpty());
+
+        List<TramPosition> results = tramPositions.stream().
+                filter(result -> !result.getTrams().isEmpty()).
+                collect(Collectors.toList());
+
+        assertFalse(results.isEmpty(), tramPositions.toString());
 
     }
 }

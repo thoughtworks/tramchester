@@ -9,6 +9,7 @@ import com.tramchester.domain.Route;
 import com.tramchester.domain.StationIdPair;
 import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.id.IdFor;
+import com.tramchester.domain.id.RailRouteId;
 import com.tramchester.domain.places.Station;
 import com.tramchester.integration.testSupport.rail.IntegrationRailTestConfig;
 import com.tramchester.integration.testSupport.rail.RailStationIds;

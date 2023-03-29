@@ -121,6 +121,7 @@ class LiveDataParserTest extends EasyMockSupport {
         message.append(footer);
 
         replayAll();
+        parser.start();
         List<TramStationDepartureInfo> info = parser.parse(message.toString());
         assertEquals(11, info.size());
         for (int i = 1; i < 12; i++) {

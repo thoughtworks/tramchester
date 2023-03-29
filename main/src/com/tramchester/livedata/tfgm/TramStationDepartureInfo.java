@@ -73,6 +73,10 @@ public class TramStationDepartureInfo {
         return message;
     }
 
+    public boolean hasDueTrams() {
+        return !dueTrams.isEmpty();
+    }
+
     public List<UpcomingDeparture> getDueTrams() {
         return dueTrams;
     }
@@ -126,4 +130,5 @@ public class TramStationDepartureInfo {
                 ", direction=" + direction +
                 '}';
     }
+
 }

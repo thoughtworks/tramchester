@@ -8,7 +8,9 @@ import com.tramchester.domain.Route;
 import com.tramchester.domain.RoutePair;
 import com.tramchester.domain.collections.RouteIndexPair;
 import com.tramchester.domain.collections.RouteIndexPairFactory;
+import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.id.IdFor;
+import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.graph.filters.GraphFilterActive;
 import com.tramchester.repository.RouteRepository;
@@ -23,6 +25,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
+
+import static java.lang.String.format;
 
 /***
  * Provides a map to/from an integer index for each route, which facilitates the computation of route interchanges
@@ -72,7 +76,7 @@ public class RouteIndex implements DataCache.CachesData<RouteIndexData> {
 
         // here for past serialisation issues
         if (mapRouteIdToIndex.size()!=mapIndexToRouteId.size()) {
-            String msg = String.format("Constraints on mapping violated mapRouteIdToIndex %s != mapIndexToRouteId %s"
+            String msg = format("Constraints on mapping violated mapRouteIdToIndex %s != mapIndexToRouteId %s"
                     , mapRouteIdToIndex.size(), mapIndexToRouteId.size());
             logger.error(msg);
             throw new RuntimeException(msg);
@@ -109,7 +113,7 @@ public class RouteIndex implements DataCache.CachesData<RouteIndexData> {
 
     private Integer indexFor(Route route) {
         if (!(mapRouteIdToIndex.containsKey(route))) {
-            String message = String.format("No index for route %s, is cache file %s outdated? ",
+            String message = format("No index for route %s, is cache file %s outdated? ",
                     route.getId(), dataCache.getPathFor(this));
             logger.error(message);
             throw new RuntimeException(message);
@@ -134,17 +138,26 @@ public class RouteIndex implements DataCache.CachesData<RouteIndexData> {
     @Override
     public void loadFrom(Stream<RouteIndexData> stream) throws DataCache.CacheLoadException {
         logger.info("Loading from cache");
+        IdSet<Route> missingRouteIds = new IdSet<>();
         stream.forEach(item -> {
             final IdFor<Route> routeId = item.getRouteId();
             if (!routeRepository.hasRouteId(routeId)) {
                 String message = "RouteId not found in repository: " + routeId;
                 logger.error(message);
-                throw new RuntimeException(message);
+                missingRouteIds.add(routeId);
+                //throw new RuntimeException(message);
             }
             Route route = routeRepository.getRouteById(routeId);
             mapRouteIdToIndex.put(route, item.getIndex());
             mapIndexToRouteId.put(item.getIndex(), route);
         });
+        if (!missingRouteIds.isEmpty()) {
+            String msg = format("The following routeIds present in index file but not the route repository (size %s) %s",
+                    routeRepository.numberOfRoutes(), missingRouteIds);
+            // TODO debug?
+            logger.warn("Routes in repo: " + HasId.asIds(routeRepository.getRoutes()));
+            throw new DataCache.CacheLoadException(msg);
+        }
         if (mapRouteIdToIndex.size() != numberOfRoutes) {
             String msg = "Mismatch on number of routes, from index got: " + mapRouteIdToIndex.size() +
                     " but repository has: " + numberOfRoutes;

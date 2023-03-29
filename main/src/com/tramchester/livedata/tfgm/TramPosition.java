@@ -34,5 +34,16 @@ public class TramPosition {
         return cost;
     }
 
+    @Override
+    public String toString() {
+        return "TramPosition{" +
+                "stationPair=" + stationPair +
+                ", trams=" + trams +
+                ", cost=" + cost +
+                '}';
+    }
 
+    public boolean hasTrams() {
+        return !trams.isEmpty();
+    }
 }

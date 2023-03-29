@@ -2,6 +2,7 @@ package com.tramchester.livedata.domain.liveUpdates;
 
 import com.tramchester.domain.Agency;
 import com.tramchester.domain.Platform;
+import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramTime;
@@ -26,15 +27,7 @@ public class UpcomingDeparture {
     public UpcomingDeparture(LocalDate date, Station displayLocation, Station destination, String status, Duration wait,
                              String carriages, LocalTime updateTime,
                              Agency agency, TransportMode mode) {
-        this.date = date;
-        this.displayLocation = displayLocation;
-        this.destination = destination;
-        this.status = status;
-        this.carriages = carriages;
-        this.agency = agency;
-        this.mode = mode;
-        this.when  = TramTime.ofHourMins(updateTime).plus(wait);
-        platform = null;
+        this(date, displayLocation, destination, status, TramTime.ofHourMins(updateTime).plus(wait), carriages, agency, mode);
     }
 
     public UpcomingDeparture(LocalDate date, Station displayLocation, Station destination, String status, TramTime when,
@@ -132,15 +125,22 @@ public class UpcomingDeparture {
     public String toString() {
         return "UpcomingDeparture{" +
                 "date=" + date +
+                ", when=" + when +
                 ", carriages='" + carriages + '\'' +
                 ", status='" + status + '\'' +
                 ", displayLocation=" + displayLocation.getId() +
                 ", destination=" + destination.getId() +
-                ", when=" + when +
-                ", agency=" + agency +
+                ", agency=" + agency.getId() +
                 ", mode=" + mode +
-                ", platform=" + platform +
+                ", platform=" + getStringFor() +
                 '}';
+    }
+
+    private IdFor<Platform> getStringFor() {
+        if (platform==null) {
+            return IdFor.invalid(Platform.class);
+        }
+        return platform.getId();
     }
 
 }

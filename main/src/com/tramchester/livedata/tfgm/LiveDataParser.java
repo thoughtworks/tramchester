@@ -212,7 +212,8 @@ public class LiveDataParser {
         // WORKAROUND - feed always contains 'Z' at end of date/time even though feed actually switches to BST
         boolean dst = timeZone.inDaylightTime(Date.from(instanceOfUpdate));
         if (dst) {
-            localDateTime = localDateTime.minusSeconds(timeZone.getDSTSavings()/1000);
+            int seconds_offset = timeZone.getDSTSavings() / 1000;
+            localDateTime = localDateTime.minusSeconds(seconds_offset);
         }
 
         return localDateTime;

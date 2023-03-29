@@ -26,6 +26,7 @@ import static java.lang.String.format;
 @LazySingleton
 public class LiveDataHTTPFetcher implements LiveDataFetcher {
     private static final Logger logger = LoggerFactory.getLogger(LiveDataHTTPFetcher.class);
+    public static final int CONNECT_TIMEOUT_MS = 30 * 1000;
 
     private final TfgmTramLiveDataConfig config;
 
@@ -36,7 +37,7 @@ public class LiveDataHTTPFetcher implements LiveDataFetcher {
 
     @Override
     public String fetch()  {
-        RequestConfig requestConfig = RequestConfig.custom().setConnectTimeout(30 * 1000).build();
+        RequestConfig requestConfig = RequestConfig.custom().setConnectTimeout(CONNECT_TIMEOUT_MS).build();
         HttpClient httpclient = HttpClientBuilder.create().setDefaultRequestConfig(requestConfig).build();
 
         String configLiveDataUrl = config.getDataUrl();
@@ -59,7 +60,7 @@ public class LiveDataHTTPFetcher implements LiveDataFetcher {
                 logger.info(format("Get from %s reponse is %s", uri, statusLine));
                 if (statusLine.getStatusCode() != 200) {
                     String msg = format("Unable to getPlatformById from %s response was %s", uri, statusLine);
-                    logger.warn(msg);
+                    logger.error(msg);
                     throw new TramchesterException(msg);
                 }
                 HttpEntity entity = response.getEntity();

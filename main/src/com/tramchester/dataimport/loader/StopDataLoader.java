@@ -12,6 +12,7 @@ import com.tramchester.geo.GridPosition;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Stream;
 
 public class StopDataLoader {
@@ -31,6 +32,7 @@ public class StopDataLoader {
 
         PreloadedStationsAndPlatforms allStations = new PreloadedStationsAndPlatforms(factory);
 
+        AtomicInteger excluded = new AtomicInteger(0);
         stops.forEach((stopData) -> {
             LatLong latLong = stopData.getLatLong();
             if (latLong.isValid()) {
@@ -39,13 +41,18 @@ public class StopDataLoader {
                     preLoadStation(allStations, stopData, factory);
                 } else {
                     // Don't know which transport modes the station serves at this stage, so no way to filter further
-                    logger.info("Excluding stop outside of bounds" + stopData);
+                    logger.debug("Excluding stop outside of bounds" + stopData);
+                    excluded.incrementAndGet();
                 }
             } else {
                 preLoadStation(allStations, stopData, factory);
             }
         });
-        logger.info("Pre Loaded " + allStations.size() + " stations");
+        logger.info("Pre Loaded " + allStations.size() + " stations ");
+        int countExcluded = excluded.get();
+        if (countExcluded>0) {
+            logger.warn("Excluded " + countExcluded + " stations as out of bounds");
+        }
         return allStations;
     }
 

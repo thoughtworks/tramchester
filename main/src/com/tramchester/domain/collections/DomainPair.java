@@ -16,7 +16,7 @@ public class DomainPair<T extends CoreDomain & HasId<T>> {
 
     @Override
     public String toString() {
-        return "first=" + first + ", second=" + second;
+        return "first=" + first.getId() + ", second=" + second.getId();
     }
 
     public T first() {

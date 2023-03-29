@@ -62,14 +62,24 @@ public class LiveDataHealthCheck extends TramchesterHealthCheck {
             return Result.unhealthy(noEntriesPresent);
         }
 
-//        int numberOfStations = stationRepository.getNumberOfStations();
         LocalDateTime dateTime = providesNow.getDateTime();
-        int stationsWithData = repository.getNumStationsWithData(dateTime);
-        int offset = numberOfStations-stationsWithData;
 
-        if (offset > config.getMaxNumberStationsWithoutData()) {
-            if (!isLateNight(dateTime)) {
+        int stationsWithData = repository.getNumStationsWithData(dateTime);
+        int stationsWithDueTrams = repository.getNumStationsWithTrams(dateTime);
+
+        // during night hours trams not running.....
+        if (!isLateNight(dateTime)) {
+            int numberWithoutData = numberOfStations-stationsWithData;
+            if (numberWithoutData > config.getMaxNumberStationsWithoutData()) {
                 String msg = format("Only %s of %s stations have data, %s entries present", stationsWithData,
+                        numberOfStations, entries);
+                logger.warn(msg);
+                return Result.unhealthy(msg);
+            }
+
+            int numberWithoutTrams = numberOfStations-stationsWithDueTrams;
+            if (numberWithoutTrams > config.getMaxNumberStationsWithoutData()) {
+                String msg = format("Only %s of %s stations have due trams, %s entries present", stationsWithDueTrams,
                         numberOfStations, entries);
 
                 logger.warn(msg);
@@ -77,8 +87,8 @@ public class LiveDataHealthCheck extends TramchesterHealthCheck {
             }
         }
 
-        String msg = format("Live data healthy with %s entires and %s of %s stations", entries, stationsWithData,
-                numberOfStations);
+        String msg = format("Live data healthy with %s entires, %s have data, %s have due trams, of %s stations",
+                entries, stationsWithData, stationsWithDueTrams, numberOfStations);
         logger.info(msg);
         return Result.healthy(msg);
     }

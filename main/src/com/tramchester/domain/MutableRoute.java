@@ -120,7 +120,7 @@ public class MutableRoute implements Route {
                 ", agency=" + agency.getId() +
                 ", transportMode=" + transportMode +
                 ", services=" + HasId.asIds(services) +
-                ", trips=" +  HasId.asIds(trips) +
+                ", trips=" +  trips.size() +
                 ", serviceDateCache=" + routeCalendar +
                 ", intoNextDay=" + intoNextDay() +
                 '}';

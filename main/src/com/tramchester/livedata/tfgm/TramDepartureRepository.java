@@ -119,7 +119,7 @@ public class TramDepartureRepository implements UpcomingDeparturesSource, TramLi
                 collect(Collectors.toSet());
 
         if (allTrams.isEmpty()) {
-            logger.debug("No trams found for " + HasId.asId(station));
+            logger.debug("No trams found for " + station.getId());
             return Collections.emptyList();
         }
 
@@ -128,7 +128,7 @@ public class TramDepartureRepository implements UpcomingDeparturesSource, TramLi
                 collect(Collectors.toList());
 
         if (dueTrams.isEmpty()) {
-            logger.info("No DUE trams found for " + HasId.asId(station));
+            logger.info("No DUE trams found for " + station.getId());
         }
 
         return dueTrams;

@@ -5,6 +5,7 @@ import com.tramchester.domain.Platform;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.StationPair;
 import com.tramchester.domain.dates.TramDate;
+import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TimeRange;
@@ -56,9 +57,14 @@ public class TramPositionInference {
                 filter(stationPair -> !closedStationsRepository.isClosed(stationPair.getEnd(), date) &&
                                 !closedStationsRepository.isClosed(stationPair.getBegin(), date)).
                 map(pair -> findBetween(pair, localDateTime)).
+                filter(TramPosition::hasTrams).
                 collect(Collectors.toList());
 
-        logger.info(format("Found %s station pairs with trams between them", results.size()));
+        if (results.isEmpty()) {
+            logger.warn(format("Found no trams between stations for %s", localDateTime));
+        } else {
+            logger.info(format("Found %s station pairs with trams between them for %s", results.size(), localDateTime));
+        }
         return results;
     }
 
@@ -70,18 +76,21 @@ public class TramPositionInference {
         }
 
         TramTime currentTime = TramTime.ofHourMins(now.toLocalTime());
-        TramDate date = TramDate.of(now.toLocalDate());
+        TramDate date = TramDate.from(now);
 
         TramTime cutOff = currentTime.plus(costBetweenPair);
         TimeRange timeRange = TimeRange.of(currentTime, cutOff);
 
-        Set<UpcomingDeparture> dueTrams = getDueTrams(pair, date, timeRange).stream().
+        Set<UpcomingDeparture> dueTrams = getDueTrams(pair, date, timeRange);
+
+        // todo is this additional step still needed?
+        Set<UpcomingDeparture> dueToday = dueTrams.stream().
                 filter(departure -> departure.getDate().equals(date.toLocalDate())).
                 collect(Collectors.toSet());
 
-        logger.debug(format("Found %s trams between %s", dueTrams.size(), pair));
+        logger.debug(format("Found %s trams between %s", dueToday.size(), pair));
 
-        return new TramPosition(pair, dueTrams, costBetweenPair);
+        return new TramPosition(pair, dueToday, costBetweenPair);
     }
 
     private Set<UpcomingDeparture> getDueTrams(StationPair pair, TramDate date, TimeRange timeRange) {
@@ -95,14 +104,14 @@ public class TramPositionInference {
         List<UpcomingDeparture> neighbourDepartures = departureRepository.forStation(neighbour);
 
         if (neighbourDepartures.isEmpty()) {
-            logger.info("No departures at " + neighbour);
+            logger.debug("No departures from neighbour " + neighbour.getId());
             return Collections.emptySet();
         }
 
         List<Route> routesBetween = routeReachable.getRoutesFromStartToNeighbour(pair, date, timeRange, TransportMode.TramsOnly);
 
         if (routesBetween.isEmpty()) {
-            logger.warn("No routes between " + pair);
+            logger.warn("No active routes between " + pair);
             return Collections.emptySet();
         }
 
@@ -116,7 +125,7 @@ public class TramPositionInference {
                 collect(Collectors.toSet());
 
         if (departures.isEmpty()) {
-            logger.warn("Unable to find departure information for " + neighbour.getPlatforms() + " from " + neighbourDepartures);
+            logger.warn("Unable to find departure information for " + HasId.asIds(neighbour.getPlatforms()) + " from " + neighbourDepartures);
             return Collections.emptySet();
         }
 

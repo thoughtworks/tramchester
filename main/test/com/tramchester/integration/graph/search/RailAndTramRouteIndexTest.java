@@ -133,7 +133,6 @@ public class RailAndTramRouteIndexTest extends EasyMockSupport {
                 filter(railRouteId -> railRouteId.getAgencyId().equals(agency)).
                 filter(railRouteId -> railRouteId.getBegin().equals(first)).
                 filter(railRouteId -> railRouteId.getEnd().equals(second)).
-                //filter(railRouteId -> railRouteId.getIndex() == 1).
                 collect(Collectors.toSet());
 
         assertFalse(matching.isEmpty());
