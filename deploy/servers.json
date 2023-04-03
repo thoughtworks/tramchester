@@ -9,7 +9,7 @@
 	"webSubnetB":{ "Type":"String", "Description":"::webSubnetZoneB" }, 
 	"webSg":{ "Type":"String", "Description":"::sgWeb" }, 
 	"webServerName":{ "Type":"String", "Default":"tramchesterWeb" }, 
-	"ami":{ "Type":"String", "Default":"ami-0fe0b2cf0e1f25c8a" },
+	"ami":{ "Type":"String", "Default":"ami-00169914e6299b8e0" },
 	"baseUrl":{ "Type":"String", "Default":"https://s3-eu-west-1.amazonaws.com" }, 
 	"bucketName":{"Type":"String", "Description":"::CFN_TAG"}, 
 	"bootstrapCloudInit":{"Type":"String", "Default":"cloudInitAWSLinux.txt"},
