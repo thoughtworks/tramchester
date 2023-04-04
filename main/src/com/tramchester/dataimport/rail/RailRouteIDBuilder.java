@@ -3,16 +3,23 @@ package com.tramchester.dataimport.rail;
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.dataimport.rail.repository.RailRouteIdRepository;
 import com.tramchester.domain.Agency;
+import com.tramchester.domain.StationIdPair;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.RailRouteId;
 import com.tramchester.domain.places.Station;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
 import java.util.*;
+import java.util.stream.Collectors;
+
+import static java.lang.String.format;
 
 
 @LazySingleton
 public class RailRouteIDBuilder {
+    private static final Logger logger = LoggerFactory.getLogger(RailRouteIDBuilder.class);
 
     private final Set<RailRouteId> alreadyAllocated;
     private final Map<AgencyCallingPoints, RailRouteId> callingPointsToId;
@@ -21,6 +28,64 @@ public class RailRouteIDBuilder {
     public RailRouteIDBuilder() {
         alreadyAllocated = new HashSet<>();
         callingPointsToId = new HashMap<>();
+    }
+
+    public List<RailRouteIdRepository.AgencyCallingPointsWithRouteId> createSortedRoutesFor(IdFor<Agency> agencyId, Set<RailRouteIdRepository.AgencyCallingPoints> callingPoints) {
+
+        // (begin,end) -> CallingPoints
+        Map<StationIdPair, Set<RailRouteIdRepository.AgencyCallingPoints>> callingPointsByBeginEnd = new HashMap<>();
+
+        // group by (begin, end) of the route as a whole
+        callingPoints.forEach(points -> {
+            StationIdPair beginEnd = points.getBeginEnd();
+            if (!callingPointsByBeginEnd.containsKey(beginEnd)) {
+                callingPointsByBeginEnd.put(beginEnd, new HashSet<>());
+            }
+            callingPointsByBeginEnd.get(beginEnd).add(points);
+        });
+
+        // sorted by length
+        List<RailRouteIdRepository.AgencyCallingPointsWithRouteId> results = callingPointsByBeginEnd.entrySet().stream().
+                flatMap(entry -> createRouteIdsFor(agencyId, entry.getKey(), entry.getValue()).stream()).
+                sorted(Comparator.comparingInt(RailRouteIdRepository.AgencyCallingPoints::numberCallingPoints)).
+                collect(Collectors.toList());
+
+        logger.info("Added " + results.size() + " entries for " + agencyId);
+
+        return results;
+    }
+
+    private List<RailRouteIdRepository.AgencyCallingPointsWithRouteId> createRouteIdsFor(IdFor<Agency> agencyId, StationIdPair beginEnd,
+                                                                                         Set<RailRouteIdRepository.AgencyCallingPoints> callingPoints) {
+
+        logger.debug("Create route ids for " + agencyId + " and " + beginEnd);
+
+        if (callingPoints.size()==1) {
+            return callingPoints.stream().
+                    map(filtered -> new RailRouteIdRepository.AgencyCallingPointsWithRouteId(filtered, getIdFor(filtered))).
+                    collect(Collectors.toList());
+        }
+
+        // longest list first, so "sub-routes" are contains within larger routes
+        List<RailRouteIdRepository.AgencyCallingPoints> sortedBySize = callingPoints.stream().
+                sorted(Comparator.comparingInt(RailRouteIdRepository.AgencyCallingPoints::numberCallingPoints).reversed()).
+                collect(Collectors.toList());
+
+        List<RailRouteIdRepository.AgencyCallingPoints> reduced = new ArrayList<>();
+        for (RailRouteIdRepository.AgencyCallingPoints agencyCallingPoints : sortedBySize) {
+            if (reduced.stream().noneMatch(existing -> existing.contains(agencyCallingPoints))) {
+                reduced.add(agencyCallingPoints);
+            }
+        }
+
+        List<RailRouteIdRepository.AgencyCallingPointsWithRouteId> callingPointsWithRouteIds = reduced.stream().
+                map(agencyCallingPoints -> new RailRouteIdRepository.AgencyCallingPointsWithRouteId(agencyCallingPoints,
+                        getIdFor(agencyCallingPoints))).
+                collect(Collectors.toList());
+
+        logger.info(format("Created %s rail route ids for %s %s", callingPointsWithRouteIds.size(), agencyId, beginEnd));
+
+        return callingPointsWithRouteIds;
     }
 
     public RailRouteId getIdFor(RailRouteIdRepository.AgencyCallingPoints agencyCallingPoints) {

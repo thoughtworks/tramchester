@@ -27,8 +27,6 @@ import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
-import static java.lang.String.format;
-
 /***
  * Used to create initial view of rail routes as part of rail data import, not expected to be used apart from this
  * NOTE:
@@ -108,7 +106,7 @@ public class RailRouteIdRepository implements ReportsCacheStats {
         List<Integer> totals = new ArrayList<>();
 
         callingPointsByAgency.forEach((agencyId, callingPoints) -> {
-            List<AgencyCallingPointsWithRouteId> results = createSortedRoutesFor(agencyId, callingPoints);
+            List<AgencyCallingPointsWithRouteId> results = railRouteIDBuilder.createSortedRoutesFor(agencyId, callingPoints);
             routeIdsForAgency.put(agencyId, results);
             totals.add(results.size());
         });
@@ -118,64 +116,6 @@ public class RailRouteIdRepository implements ReportsCacheStats {
         logger.info("Created " + total + " ids from " + agencyCallingPoints.size() + " sets of calling points");
 
         callingPointsByAgency.clear();
-    }
-
-    private List<AgencyCallingPointsWithRouteId> createSortedRoutesFor(IdFor<Agency> agencyId, Set<AgencyCallingPoints> callingPoints) {
-
-        // (begin,end) -> CallingPoints
-        Map<StationIdPair, Set<AgencyCallingPoints>> callingPointsByBeginEnd = new HashMap<>();
-
-        // group by (begin, end) of the route as a whole
-        callingPoints.forEach(points -> {
-            StationIdPair beginEnd = points.getBeginEnd();
-            if (!callingPointsByBeginEnd.containsKey(beginEnd)) {
-                callingPointsByBeginEnd.put(beginEnd, new HashSet<>());
-            }
-            callingPointsByBeginEnd.get(beginEnd).add(points);
-        });
-
-        // sorted by length
-        List<AgencyCallingPointsWithRouteId> results = callingPointsByBeginEnd.entrySet().stream().
-                flatMap(entry -> createRouteIdsFor(agencyId, entry.getKey(), entry.getValue()).stream()).
-                sorted(Comparator.comparingInt(AgencyCallingPoints::numberCallingPoints)).
-                collect(Collectors.toList());
-
-        logger.info("Added " + results.size() + " entries for " + agencyId);
-
-        return results;
-    }
-
-    private List<AgencyCallingPointsWithRouteId> createRouteIdsFor(IdFor<Agency> agencyId, StationIdPair beginEnd,
-                                                                   Set<AgencyCallingPoints> callingPoints) {
-
-        logger.debug("Create route ids for " + agencyId + " and " + beginEnd);
-
-        if (callingPoints.size()==1) {
-            return callingPoints.stream().
-                    map(filtered -> new AgencyCallingPointsWithRouteId(filtered, railRouteIDBuilder.getIdFor(filtered))).
-                    collect(Collectors.toList());
-        }
-
-        // longest list first, so "sub-routes" are contains within larger routes
-        List<AgencyCallingPoints> sortedBySize = callingPoints.stream().
-                sorted(Comparator.comparingInt(AgencyCallingPoints::numberCallingPoints).reversed()).
-                collect(Collectors.toList());
-
-        List<AgencyCallingPoints> reduced = new ArrayList<>();
-        for (AgencyCallingPoints agencyCallingPoints : sortedBySize) {
-            if (reduced.stream().noneMatch(existing -> existing.contains(agencyCallingPoints))) {
-                reduced.add(agencyCallingPoints);
-            }
-        }
-
-        List<AgencyCallingPointsWithRouteId> callingPointsWithRouteIds = reduced.stream().
-                map(agencyCallingPoints -> new AgencyCallingPointsWithRouteId(agencyCallingPoints,
-                        railRouteIDBuilder.getIdFor(agencyCallingPoints))).
-                collect(Collectors.toList());
-
-        logger.info(format("Created %s rail route ids for %s %s", callingPointsWithRouteIds.size(), agencyId, beginEnd));
-
-        return callingPointsWithRouteIds;
     }
 
     /***
