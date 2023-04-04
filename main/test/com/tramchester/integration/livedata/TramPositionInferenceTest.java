@@ -115,7 +115,7 @@ class TramPositionInferenceTest {
         assertFalse(tramPositions.isEmpty());
 
         List<TramPosition> results = tramPositions.stream().
-                filter(result -> !result.getTrams().isEmpty()).
+                filter(TramPosition::hasTrams).
                 collect(Collectors.toList());
 
         assertFalse(results.isEmpty(), tramPositions.toString());

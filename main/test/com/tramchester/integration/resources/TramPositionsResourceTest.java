@@ -75,10 +75,12 @@ class TramPositionsResourceTest {
         // should have some positions
         List<TramPositionDTO> positions = unfiltered.getPositionsList();
         assertFalse(positions.isEmpty());
+
         long positionsWithTrams = positions.stream().filter(position -> !position.getTrams().isEmpty()).count();
-        assertTrue(positionsWithTrams>0, "no tram positions available");
+        assertTrue(positionsWithTrams>0, "no positions have trams available");
+
         // for unfiltered should have more positions than ones with trams
-        assertTrue(positions.size() > positionsWithTrams);
+        assertTrue(positions.size() > positionsWithTrams, positions.size() + " not greater than " + positionsWithTrams);
 
         long departingTrams = positions.stream().map(TramPositionDTO::getTrams).
                 flatMap(Collection::stream).filter(dueTram -> "Departing".equals(dueTram.getStatus())).count();

@@ -47,8 +47,14 @@ public class TramPositionInference {
         this.closedStationsRepository = closedStationsRepository;
     }
 
-    // todo refresh this based on live data refresh
+    /***
+     * All inferred positions, not filtered based on tram present
+     * @param localDateTime data and time to infer for
+     * @return LIst of possible tram positions
+     */
     public List<TramPosition> inferWholeNetwork(LocalDateTime localDateTime) {
+
+        // todo refresh this based on live data refresh
 
         TramDate date = TramDate.from(localDateTime);
         logger.info("Infer tram positions for whole network");
@@ -57,10 +63,12 @@ public class TramPositionInference {
                 filter(stationPair -> !closedStationsRepository.isClosed(stationPair.getEnd(), date) &&
                                 !closedStationsRepository.isClosed(stationPair.getBegin(), date)).
                 map(pair -> findBetween(pair, localDateTime)).
-                filter(TramPosition::hasTrams).
+                //filter(TramPosition::hasTrams).
                 collect(Collectors.toList());
 
-        if (results.isEmpty()) {
+        long hasTrams = results.stream().filter(TramPosition::hasTrams).count();
+
+        if (hasTrams==0) {
             logger.warn(format("Found no trams between stations for %s", localDateTime));
         } else {
             logger.info(format("Found %s station pairs with trams between them for %s", results.size(), localDateTime));

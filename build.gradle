@@ -286,7 +286,7 @@ task integration(type: Test, dependsOn: compileJava) {
         // excludeTags "liveDataMessages" // these go away periodically...
         //excludeTags "liveData" // also goes away on occasion
         //excludeTags "dataExpiry" // can be useful to exclude when big changes to timetable are upcoming
-        excludeTags 'liveDataDueTrams' // tfgm api has know issue
+        //excludeTags 'liveDataDueTrams' // tfgm api has know issue
         excludeTags "postcode" // not needed for tram, but used by buses
         excludeTags "BusTest"
         excludeTags "TrainTest"
