@@ -7,11 +7,10 @@ import com.tramchester.dataimport.UnzipFetchedData;
 import com.tramchester.dataimport.rail.*;
 import com.tramchester.dataimport.rail.records.RailTimetableRecord;
 import com.tramchester.dataimport.rail.repository.RailRouteIdRepository;
-import com.tramchester.dataimport.rail.repository.RailStationCRSRepository;
+import com.tramchester.dataimport.rail.repository.RailStationRecordsRepository;
 import com.tramchester.graph.filters.GraphFilterActive;
 import com.tramchester.metrics.CacheMetrics;
 import com.tramchester.repository.TransportDataContainer;
-import com.tramchester.repository.naptan.NaptanRepository;
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
 
@@ -27,10 +26,8 @@ public class LoadRailServicesFromText  {
     private final CacheMetrics cacheMetric;
     private final RailDataRecordFactory railDataRecordFactory;
     private final UnzipFetchedData.Ready ready;
-    private final ProvidesRailStationRecords providesRailStationRecords;
-    private final RailStationCRSRepository crsRepository;
-    private final NaptanRepository naptanRepository;
     private final GraphFilterActive filter;
+    private final RailStationRecordsRepository stationRecordsRepository;
 
     public LoadRailServicesFromText(TramchesterConfig config, ComponentContainer componentContainer, UnzipFetchedData.Ready ready) {
         this.config = config;
@@ -39,12 +36,9 @@ public class LoadRailServicesFromText  {
         railRouteIdBuilder = componentContainer.get(RailRouteIDBuilder.class);
         cacheMetric = componentContainer.get(CacheMetrics.class);
 
-        crsRepository = componentContainer.get(RailStationCRSRepository.class);
-        naptanRepository = componentContainer.get(NaptanRepository.class);
         filter = componentContainer.get(GraphFilterActive.class);
-        providesRailStationRecords = componentContainer.get(ProvidesRailStationRecords.class);
         railDataRecordFactory = componentContainer.get(RailDataRecordFactory.class);
-
+        stationRecordsRepository = componentContainer.get(RailStationRecordsRepository.class);
     }
 
     public void loadInto(TransportDataContainer dataContainer, String text) {
@@ -53,14 +47,14 @@ public class LoadRailServicesFromText  {
 
         RailConfig railConfig = config.getRailConfig();
 
-        RailRouteIdRepository railRouteIdRepository = new RailRouteIdRepository(loadTimeTableRecords, railRouteIdBuilder, config,
-                cacheMetric);
+
+        RailRouteIdRepository railRouteIdRepository = new RailRouteIdRepository(stationRecordsRepository, loadTimeTableRecords, railRouteIdBuilder, config, cacheMetric);
         railRouteIdRepository.start();
 
-        RailTransportDataFromFiles.Loader loader = new RailTransportDataFromFiles.Loader(providesRailStationRecords, loadTimeTableRecords,
-                railRouteIdRepository, crsRepository, naptanRepository, railConfig, filter);
+        RailTransportDataFromFiles.Loader loader = new RailTransportDataFromFiles.Loader(loadTimeTableRecords,
+                railRouteIdRepository, railConfig, filter);
 
-        loader.loadInto(dataContainer, config.getBounds());
+        loader.loadInto(dataContainer, config.getBounds(), stationRecordsRepository);
 
     }
 

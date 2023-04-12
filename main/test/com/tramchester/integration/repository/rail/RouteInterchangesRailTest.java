@@ -3,6 +3,8 @@ package com.tramchester.integration.repository.rail;
 import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.dataimport.rail.reference.TrainOperatingCompanies;
+import com.tramchester.dataimport.rail.repository.RailRouteIdRepository;
+import com.tramchester.domain.id.RailRouteId;
 import com.tramchester.domain.places.InterchangeStation;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.id.IdFor;
@@ -11,6 +13,7 @@ import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
 import com.tramchester.integration.testSupport.rail.IntegrationRailTestConfig;
 import com.tramchester.repository.RouteInterchangeRepository;
+import com.tramchester.repository.RouteRepository;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.testTags.TrainTest;
@@ -20,6 +23,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.time.Duration;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -34,6 +38,8 @@ public class RouteInterchangesRailTest {
     private static ComponentContainer componentContainer;
     private RouteInterchangeRepository routeInterchanges;
     private StationRepository stationRepository;
+    private RailRouteIdRepository railRouteIdRepository;
+    private RouteRepository routeRepository;
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
@@ -50,6 +56,8 @@ public class RouteInterchangesRailTest {
     void onceBeforeEachTestRuns() {
         stationRepository = componentContainer.get(StationRepository.class);
         routeInterchanges = componentContainer.get(RouteInterchangeRepository.class);
+        railRouteIdRepository = componentContainer.get(RailRouteIdRepository.class);
+        routeRepository = componentContainer.get(RouteRepository.class);
     }
 
     @Test
@@ -58,35 +66,18 @@ public class RouteInterchangesRailTest {
         Station piccadilly = ManchesterPiccadilly.from(stationRepository);
         Station euston = LondonEuston.from(stationRepository);
 
-        String operatorName = TrainOperatingCompanies.VT.getCompanyName();
+        List<Station> callingPoints = Arrays.asList(piccadilly,
+                Stockport.from(stationRepository),
+                Macclesfield.from(stationRepository),
+                StokeOnTrent.from(stationRepository),
+                MiltonKeynesCentral.from(stationRepository),
+                euston);
 
-        String routeShortName = format("%s service from %s to %s", operatorName, piccadilly.getName(), euston.getName());
+        RailRouteId foundId = railRouteIdRepository.getRouteIdFor(TrainOperatingCompanies.VT.getAgencyId(), callingPoints);
 
-        String longName = operatorName + " service from Manchester Piccadilly Rail Station to London Euston Rail Station via Stockport " +
-                "Rail Station, Macclesfield Rail Station, Stoke-on-Trent Rail Station, Milton Keynes Central Rail Station";
+        Route route = routeRepository.getRouteById(foundId);
 
-//        List<Station> callingPoints = Arrays.asList(piccadilly,
-//                Stockport.getFrom(stationRepository),
-//                Macclesfield.getFrom(stationRepository),
-//                StokeOnTrent.getFrom(stationRepository),
-//                MiltonKeynesCentral.getFrom(stationRepository),
-//                euston);
-
-        final List<Route> towardsLondon = piccadilly.getPickupRoutes().stream().
-                filter(route -> route.getShortName().equals(routeShortName)).collect(Collectors.toList());
-        List<Route> routes = towardsLondon.stream().
-                //filter(route -> route.getTrips().stream().allMatch(trip -> trip.getStopCalls().getStationSequence().equals(callingPoints))).
-                        filter(route -> longName.equals(route.getName())).
-                collect(Collectors.toList());
-
-        assertEquals(1, routes.size(), towardsLondon.toString());
-
-        Route londonToManchester = routes.get(0);
-
-        Set<InterchangeStation> interchanges = routeInterchanges.getFor(londonToManchester);
-
-        //assertEquals(5, interchanges.size(), interchanges.toString());
-
+        Set<InterchangeStation> interchanges = routeInterchanges.getFor(route);
         IdSet<Station> stationIds = interchanges.stream().map(InterchangeStation::getStationId).collect(IdSet.idCollector());
 
         assertTrue(stationIds.contains(Stockport.getId()));
@@ -96,7 +87,7 @@ public class RouteInterchangesRailTest {
         assertTrue(stationIds.contains(LondonEuston.getId()));
 
         RouteStation miltonKeynesRouteStation = stationRepository.getRouteStationById(RouteStation.createId(MiltonKeynesCentral.getId(),
-                londonToManchester.getId()));
+                route.getId()));
 
         Duration costToNextInterchange = routeInterchanges.costToInterchange(miltonKeynesRouteStation);
         assertEquals(Duration.ZERO, costToNextInterchange);

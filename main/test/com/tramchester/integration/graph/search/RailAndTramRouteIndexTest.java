@@ -10,7 +10,10 @@ import com.tramchester.dataimport.loader.files.TransportDataFromFile;
 import com.tramchester.dataimport.rail.repository.RailRouteIdRepository;
 import com.tramchester.domain.Agency;
 import com.tramchester.domain.Route;
-import com.tramchester.domain.id.*;
+import com.tramchester.domain.id.HasId;
+import com.tramchester.domain.id.IdFor;
+import com.tramchester.domain.id.IdSet;
+import com.tramchester.domain.id.RailRouteId;
 import com.tramchester.domain.places.Station;
 import com.tramchester.graph.search.routes.RouteIndex;
 import com.tramchester.graph.search.routes.RouteToRouteCosts;
@@ -18,7 +21,6 @@ import com.tramchester.integration.testSupport.RailAndTramGreaterManchesterConfi
 import com.tramchester.repository.RouteRepository;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.testTags.GMTest;
-import org.checkerframework.checker.units.qual.A;
 import org.easymock.EasyMockSupport;
 import org.junit.jupiter.api.*;
 
@@ -27,7 +29,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.EnumSet;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -97,51 +98,23 @@ public class RailAndTramRouteIndexTest extends EasyMockSupport {
     @Test
     void shouldGetExpectedRouteIdsBetweenLiverpoolAndScabbrough() {
         // here to double-check if missing route is due to cache or route id creation inconsistencies
-        IdFor<Agency> agency = StringIdFor.createId("TP", Agency.class);
-        IdFor<Station> first = StringIdFor.createId("LVRPLSH", Station.class);
-        IdFor<Station> second = StringIdFor.createId("SCARBRO", Station.class);
+        IdFor<Agency> agency = Agency.createId("TP");
+        IdFor<Station> first = Station.createId("LVRPLSH");
+        IdFor<Station> second = Station.createId("SCARBRO");
 
         RailRouteIdRepository idRepositoy = componentContainer.get(RailRouteIdRepository.class);
         Set<RailRouteId> forAgency = idRepositoy.getForAgency(agency);
-
 
         Set<RailRouteId> forRoute = forAgency.stream().
                 filter(railRouteId -> railRouteId.getBegin().equals(first)).
                 filter(railRouteId -> railRouteId.getEnd().equals(second)).
                 collect(Collectors.toSet());
 
-        assertEquals(3, forRoute.size());
-
-        assertTrue(forRoute.contains(new RailRouteId(first, second, agency, 1)), forRoute.toString());
-        assertTrue(forRoute.contains(new RailRouteId(first, second, agency, 2)), forRoute.toString());
-        assertTrue(forRoute.contains(new RailRouteId(first, second, agency, 3)), forRoute.toString());
-
-    }
-
-    @Test
-    void shouldReproIssueWithMissingRailRouteStationId() {
-        // RailRouteId{begin=Id{'Station:LVRPLSH'}, end=Id{'Station:SCARBRO'}, agencyId=Id{'Agency:TP'}, index=1}
-        // ContainsId{containedId=Id{'Route:LVRPLSH:SCARBRO=>TP:1'}}
-
-        IdFor<Station> first = StringIdFor.createId("LVRPLSH", Station.class);
-        IdFor<Station> second = StringIdFor.createId("SCARBRO", Station.class);
-        IdFor<Agency> agency = StringIdFor.createId("TP", Agency.class);
-
-        final Set<Route> trainRoutes = routeRepository.getRoutes(EnumSet.of(Train));
-
-        Set<RailRouteId> matching = trainRoutes.stream().map(route -> (RailRouteId) route.getId()).
-                filter(railRouteId -> railRouteId.getAgencyId().equals(agency)).
-                filter(railRouteId -> railRouteId.getBegin().equals(first)).
-                filter(railRouteId -> railRouteId.getEnd().equals(second)).
-                collect(Collectors.toSet());
-
-        assertFalse(matching.isEmpty());
+        assertEquals(1, forRoute.size());
 
         RailRouteId railRouteId = new RailRouteId(first, second, agency, 1);
+        assertTrue(forRoute.contains(railRouteId), forRoute.toString());
 
-        assertTrue(matching.contains(railRouteId), matching.toString());
-
-        assertNotNull(routeRepository.getRouteById(railRouteId));
     }
 
     @Test

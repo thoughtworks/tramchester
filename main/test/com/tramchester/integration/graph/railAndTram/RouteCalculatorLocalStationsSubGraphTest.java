@@ -36,6 +36,7 @@ import java.time.Duration;
 import java.util.*;
 
 import static com.tramchester.domain.reference.TransportMode.*;
+import static com.tramchester.integration.testSupport.rail.RailStationIds.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 @GMTest
@@ -50,9 +51,9 @@ class RouteCalculatorLocalStationsSubGraphTest {
             TramStations.Altrincham.getId(),
             TramStations.NavigationRoad.getId(),
             TramStations.Timperley.getId(),
-            RailStationIds.Altrincham.getId(),
-            RailStationIds.NavigationRaod.getId(),
-            RailStationIds.Stockport.getId());
+            Altrincham.getId(),
+            NavigationRaod.getId(),
+            Stockport.getId());
 
     private Transaction txn;
     private StationRepository stationRepository;
@@ -105,29 +106,29 @@ class RouteCalculatorLocalStationsSubGraphTest {
 
     @Test
     void validateHaveExpectedRouteStationInRepositoryChesterToStockport() {
-        RailRouteId railRouteId = new RailRouteId(RailStationIds.Chester.getId(), RailStationIds.Stockport.getId(), northern, 1);
+        RailRouteId railRouteId = new RailRouteId(RailStationIds.Chester.getId(), Stockport.getId(), northern, 1);
 
         Route chesterToStockport = routeRepository.getRouteById(railRouteId);
         assertNotNull(chesterToStockport);
 
-        RouteStation navigationRouteStation = stationRepository.getRouteStationById(RouteStationId.createId(railRouteId, RailStationIds.NavigationRaod.getId()));
+        RouteStation navigationRouteStation = stationRepository.getRouteStationById(RouteStationId.createId(railRouteId, NavigationRaod.getId()));
         assertNotNull(navigationRouteStation);
 
-        RouteStation altrinchamRouteStation = stationRepository.getRouteStationById(RouteStationId.createId(railRouteId, RailStationIds.Altrincham.getId()));
+        RouteStation altrinchamRouteStation = stationRepository.getRouteStationById(RouteStationId.createId(railRouteId, Altrincham.getId()));
         assertNotNull(altrinchamRouteStation);
     }
 
     @Test
     void validateHaveExpectedRouteStationInRepositoryStockportToAltrincham() {
-        RailRouteId railRouteId = new RailRouteId(RailStationIds.Stockport.getId(), RailStationIds.Altrincham.getId(), northern, 1);
+        RailRouteId railRouteId = new RailRouteId(Stockport.getId(), Chester.getId(), northern, 1);
 
-        Route chesterToStockport = routeRepository.getRouteById(railRouteId);
-        assertNotNull(chesterToStockport);
+        Route route = routeRepository.getRouteById(railRouteId);
+        assertNotNull(route);
 
-        RouteStation navigationRouteStation = stationRepository.getRouteStationById(RouteStationId.createId(railRouteId, RailStationIds.NavigationRaod.getId()));
+        RouteStation navigationRouteStation = stationRepository.getRouteStationById(RouteStationId.createId(railRouteId, NavigationRaod.getId()));
         assertNotNull(navigationRouteStation);
 
-        RouteStation altrinchamRouteStation = stationRepository.getRouteStationById(RouteStationId.createId(railRouteId, RailStationIds.Altrincham.getId()));
+        RouteStation altrinchamRouteStation = stationRepository.getRouteStationById(RouteStationId.createId(railRouteId, Altrincham.getId()));
         assertNotNull(altrinchamRouteStation);
     }
 
@@ -138,7 +139,7 @@ class RouteCalculatorLocalStationsSubGraphTest {
                 Duration.ofMinutes(3), 1, getRequestedModes());
 
         List<Journey> journeysFromTram = new ArrayList<>(testFacade.calculateRouteAsSet(tram(TramStations.Altrincham),
-                rail(RailStationIds.Altrincham), request));
+                rail(Altrincham), request));
 
         assertEquals(1, journeysFromTram.size());
 
@@ -157,7 +158,7 @@ class RouteCalculatorLocalStationsSubGraphTest {
         JourneyRequest request = new JourneyRequest(when, time, false, 0,
                 Duration.ofMinutes(3), 1, getRequestedModes());
 
-        List<Journey> journeysFromTrain = new ArrayList<>(testFacade.calculateRouteAsSet(rail(RailStationIds.Altrincham),
+        List<Journey> journeysFromTrain = new ArrayList<>(testFacade.calculateRouteAsSet(rail(Altrincham),
                 tram(TramStations.Altrincham), request));
 
         assertEquals(1, journeysFromTrain.size());
@@ -177,8 +178,8 @@ class RouteCalculatorLocalStationsSubGraphTest {
         JourneyRequest request = new JourneyRequest(when, time, false, 1,
                 Duration.ofMinutes(240), 1, getRequestedModes());
 
-        Station start = rail(RailStationIds.Altrincham);
-        Station dest = rail(RailStationIds.Stockport);
+        Station start = rail(Altrincham);
+        Station dest = rail(Stockport);
 
         Set<Journey> journeys = testFacade.calculateRouteAsSet(start, dest, request);
         assertEquals(1, journeys.size(), "unexpected number of journeys " + journeys);
@@ -196,8 +197,8 @@ class RouteCalculatorLocalStationsSubGraphTest {
         JourneyRequest request = new JourneyRequest(when, time, false, 1,
                 Duration.ofMinutes(240), 1, getRequestedModes());
 
-        Station start = rail(RailStationIds.NavigationRaod);
-        Station dest = rail(RailStationIds.Stockport);
+        Station start = rail(NavigationRaod);
+        Station dest = rail(Stockport);
 
         Set<Journey> journeys = testFacade.calculateRouteAsSet(start, dest, request);
         assertEquals(1, journeys.size(), "unexpected number of journeys " + journeys);
@@ -215,8 +216,8 @@ class RouteCalculatorLocalStationsSubGraphTest {
         JourneyRequest request = new JourneyRequest(when, time, false, 1,
                 Duration.ofMinutes(30), 1, getRequestedModes());
 
-        Station start = rail(RailStationIds.Altrincham);
-        Station dest = rail(RailStationIds.NavigationRaod);
+        Station start = rail(Altrincham);
+        Station dest = rail(NavigationRaod);
 
         Set<Journey> journeys = testFacade.calculateRouteAsSet(start, dest, request);
         assertEquals(1, journeys.size(), "unexpected number of journeys " + journeys);
@@ -236,7 +237,7 @@ class RouteCalculatorLocalStationsSubGraphTest {
                 Duration.ofMinutes(240), 1, getRequestedModes());
 
         Station start = tram(TramStations.Altrincham); // TRAM
-        Station dest = rail(RailStationIds.Stockport);
+        Station dest = rail(Stockport);
 
         List<Journey> journeys = new ArrayList<>(testFacade.calculateRouteAsSet(start, dest, request));
         assertFalse(journeys.isEmpty(), "no journeys");
@@ -257,7 +258,7 @@ class RouteCalculatorLocalStationsSubGraphTest {
         JourneyRequest request = new JourneyRequest(when, fromStockportTime, false, 3,
                 Duration.ofMinutes(240), 1, getRequestedModes());
 
-        Station start = rail(RailStationIds.Stockport); // TRAM
+        Station start = rail(Stockport); // TRAM
         Station dest = tram(TramStations.Timperley);
 
         List<Journey> journeys = new ArrayList<>(testFacade.calculateRouteAsSet(start, dest, request));
@@ -279,7 +280,7 @@ class RouteCalculatorLocalStationsSubGraphTest {
                 Duration.ofMinutes(240), 3, getRequestedModes());
 
         Station start = tram(TramStations.NavigationRoad); // TRAM
-        Station dest = rail(RailStationIds.Stockport);
+        Station dest = rail(Stockport);
 
         List<Journey> journeys = new ArrayList<>(testFacade.calculateRouteAsSet(start, dest, request));
         assertFalse(journeys.isEmpty(), "no journeys");

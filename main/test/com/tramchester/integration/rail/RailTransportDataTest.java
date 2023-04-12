@@ -7,7 +7,6 @@ import com.tramchester.domain.Service;
 import com.tramchester.domain.dates.DateRange;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.IdFor;
-import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.input.StopCalls;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.Station;
@@ -168,7 +167,6 @@ public class RailTransportDataTest {
                 LIFLETTON           1956H00000000                                              \s
                 LTPBRO    1959 19592     TF                                                    \s""";
 
-        //final TransportData dataContainer = loadForTimetableData(text);
         loadRailServicesFromText.loadInto(dataContainer, text);
 
         Set<Trip> trips = dataContainer.getTrips();
@@ -197,7 +195,6 @@ public class RailTransportDataTest {
                 LIMEADWHL 0010 0010      00100000         D
                 LTSHEFFLD 0030 0030      TFD""";
 
-        //final TransportData dataContainer = loadForTimetableData(text);
         loadRailServicesFromText.loadInto(dataContainer, text);
 
         Set<Service> services = dataContainer.getServices();
@@ -240,7 +237,6 @@ public class RailTransportDataTest {
                 LISTIRCHJ           2353H00000000                        H                     \s
                 LTSTIRLNG 2355 23559     TFRM                                                  \s""";
 
-        //final TransportData dataContainer = loadForTimetableData(text);
         loadRailServicesFromText.loadInto(dataContainer, text);
 
         Set<Service> services = dataContainer.getServices();

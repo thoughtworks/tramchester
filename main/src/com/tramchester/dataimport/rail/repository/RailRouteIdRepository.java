@@ -36,6 +36,7 @@ public class RailRouteIdRepository implements ReportsCacheStats {
     private static final Logger logger = LoggerFactory.getLogger(RailRouteIdRepository.class);
     public static final int CACHED_ROUTES_SIZE = 8000; // approx 6000 rail routes currently Jan 2023
 
+    private final RailStationRecordsRepository stationRecordsRepository;
     private final ProvidesRailTimetableRecords providesRailTimetableRecords;
     private final RailRouteIDBuilder railRouteIDBuilder;
     private final boolean enabled;
@@ -46,9 +47,10 @@ public class RailRouteIdRepository implements ReportsCacheStats {
     private final Cache<RailRouteCallingPoints, RailRouteId> cachedIds;
 
     @Inject
-    public RailRouteIdRepository(ProvidesRailTimetableRecords providesRailTimetableRecords,
+    public RailRouteIdRepository(RailStationRecordsRepository stationRecordsRepository, ProvidesRailTimetableRecords providesRailTimetableRecords,
                                  RailRouteIDBuilder railRouteIDBuilder, TramchesterConfig config,
                                  CacheMetrics cacheMetrics) {
+        this.stationRecordsRepository = stationRecordsRepository;
         this.providesRailTimetableRecords = providesRailTimetableRecords;
         this.railRouteIDBuilder = railRouteIDBuilder;
         enabled = config.hasRailConfig();
@@ -70,7 +72,7 @@ public class RailRouteIdRepository implements ReportsCacheStats {
         }
 
         logger.info("Starting");
-        createRouteIdsFor(providesRailTimetableRecords);
+        createRouteIdsFor(providesRailTimetableRecords, stationRecordsRepository);
         logger.info("Started");
     }
 
@@ -82,8 +84,8 @@ public class RailRouteIdRepository implements ReportsCacheStats {
         logger.info("stopped");
     }
 
-    private void createRouteIdsFor(ProvidesRailTimetableRecords providesRailTimetableRecords) {
-        Set<RailRouteCallingPoints> loadedCallingPoints = ExtractAgencyCallingPointsFromLocationRecords.loadCallingPoints(providesRailTimetableRecords);
+    private void createRouteIdsFor(ProvidesRailTimetableRecords providesRailTimetableRecords, RailStationRecordsRepository stationRecordsRepository) {
+        Set<RailRouteCallingPoints> loadedCallingPoints = ExtractAgencyCallingPointsFromLocationRecords.loadCallingPoints(providesRailTimetableRecords, stationRecordsRepository);
         createRouteIdsFor(loadedCallingPoints);
         loadedCallingPoints.clear();
     }
@@ -159,7 +161,7 @@ public class RailRouteIdRepository implements ReportsCacheStats {
         Optional<RailRouteCallingPointsWithRouteId> matching = routeIdsForAgency.get(agencyId).stream().
                 filter(callingPoints -> callingPoints.getBeginEnd().equals(beginEnd)).
                 filter(callingPoints -> callingPoints.contains(agencyCallingPoints)).
-                max(Comparator.comparingInt(RailRouteCallingPoints::numberCallingPoints));
+                max(Comparator.comparingInt(RailRouteCallingPointsWithRouteId::numberCallingPoints));
 
         if (matching.isEmpty()) {
             throw new RuntimeException("Could not find a route id for " + agencyCallingPoints);
@@ -179,13 +181,13 @@ public class RailRouteIdRepository implements ReportsCacheStats {
         return routeIdsForAgency.get(agencyId);
     }
 
-    // TODO Composition?
-    public static class RailRouteCallingPointsWithRouteId extends RailRouteCallingPoints {
+    public static class RailRouteCallingPointsWithRouteId {
 
         private final RailRouteId routeId;
+        private final RailRouteCallingPoints callingPoints;
 
-        public RailRouteCallingPointsWithRouteId(RailRouteCallingPoints other, RailRouteId routeId) {
-            super(other);
+        public RailRouteCallingPointsWithRouteId(RailRouteCallingPoints callingPoints, RailRouteId routeId) {
+            this.callingPoints = callingPoints;
             this.routeId = routeId;
         }
 
@@ -212,6 +214,22 @@ public class RailRouteIdRepository implements ReportsCacheStats {
         @Override
         public int hashCode() {
             return Objects.hash(super.hashCode(), routeId);
+        }
+
+        public StationIdPair getBeginEnd() {
+            return callingPoints.getBeginEnd();
+        }
+
+        public boolean contains(RailRouteCallingPoints points) {
+            return callingPoints.contains(points);
+        }
+
+        public int numberCallingPoints() {
+            return callingPoints.numberCallingPoints();
+        }
+
+        public List<IdFor<Station>> getCallingPoints() {
+            return callingPoints.getCallingPoints();
         }
     }
 }

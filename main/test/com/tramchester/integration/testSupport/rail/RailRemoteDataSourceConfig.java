@@ -9,8 +9,9 @@ import java.time.Duration;
 public class RailRemoteDataSourceConfig extends RemoteDataSourceConfig {
 
     // http://data.atoc.org/how-to
+    // https://data.atoc.org/member-area
 
-    public static final String VERSION = "571";
+    public static final String VERSION = "697";
 
     private static final String CURRENT_PREFIX = "ttis"+VERSION;
 
@@ -45,7 +46,6 @@ public class RailRemoteDataSourceConfig extends RemoteDataSourceConfig {
     @Override
     public String getDownloadFilename() {
         return "rail_data.zip";
-        //return CURRENT_PREFIX+".zip";
     }
 
     @Override

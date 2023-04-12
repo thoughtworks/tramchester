@@ -23,7 +23,9 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static com.tramchester.integration.testSupport.rail.RailStationIds.*;
@@ -33,6 +35,7 @@ import static org.junit.jupiter.api.Assertions.*;
 public class RailRouteIdRepositoryTest {
     public static final List<String> LONGEST_VIA_STOKE = Arrays.asList("MNCRPIC", "STKP", "MACLSFD", "STOKEOT", "STAFFRD", "WVRMPTN", "SNDWDUD",
             "BHAMNWS", "BHAMINT", "COVNTRY", "RUGBY", "MKNSCEN", "WATFDJ", "EUSTON");
+
     private static ComponentContainer componentContainer;
     private RailRouteIdRepository railRouteIdRepository;
     private IdFor<Agency> agencyId;
@@ -129,12 +132,16 @@ public class RailRouteIdRepositoryTest {
     @Test
     void shouldHaveLongestRouteAndSubsetsWithSameId() {
 
-        List<Station> longest = LONGEST_VIA_STOKE.stream().
-                map(Station::createId).
-                map(id -> stationRepository.getStationById(id)).
-                collect(Collectors.toList());
+        StationIdPair beginEnd = StationIdPair.of(ManchesterPiccadilly.getId(), LondonEuston.getId());
 
-        IdFor<Route> routeIdForLongest = railRouteIdRepository.getRouteIdFor(agencyId, longest);
+        Optional<RailRouteIdRepository.RailRouteCallingPointsWithRouteId> findLongest = railRouteIdRepository.getCallingPointsFor(TrainOperatingCompanies.VT.getAgencyId()).stream().
+                filter(railRoute -> railRoute.getBeginEnd().equals(beginEnd)).
+                max(Comparator.comparingInt(RailRouteIdRepository.RailRouteCallingPointsWithRouteId::numberCallingPoints));
+
+        assertTrue(findLongest.isPresent());
+
+        RailRouteIdRepository.RailRouteCallingPointsWithRouteId longest = findLongest.get();
+        IdFor<Route> routeIdForLongest = longest.getRouteId();
 
         IdFor<Route> routeIdForShorter = railRouteIdRepository.getRouteIdFor(agencyId, getStations(ManchesterPiccadilly, Stockport, Macclesfield,
                 StokeOnTrent, LondonEuston));
@@ -152,7 +159,7 @@ public class RailRouteIdRepositoryTest {
                 collect(Collectors.toList());
 
         // was 36 under old ID scheme
-        assertEquals(9, routes.size(), routes.toString());
+        assertEquals(6, routes.size(), routes.toString());
     }
 
     private List<IdFor<Station>> getStationIds(RailStationIds... railStationIds) {

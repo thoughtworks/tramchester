@@ -220,7 +220,7 @@ public class RailTransportDataFromFilesTest {
         assertEquals(GTFSPickupDropoffType.Regular, firstStopCall.getPickupType());
 
         //final int expectedCalls = 7;
-        final int expectedPassedStops = 19;
+        final int expectedPassedStops = 21;
 
         assertEquals(numberOfCalingPoints, stops.numberOfCallingPoints(),
                 "wrong number of stops " + HasId.asIds(stops.getStationSequence(false)));
@@ -369,7 +369,7 @@ public class RailTransportDataFromFilesTest {
 
         assertEquals(routes.size(), uniqueCallingPoints.size());
 
-        assertEquals(9, routes.size(), routes.toString());
+        assertEquals(6, routes.size(), routes.toString());
     }
 
     @Test
@@ -426,23 +426,29 @@ public class RailTransportDataFromFilesTest {
     }
 
     @Test
-    void shouldHaveSensibleTimingsForStoplegs() {
-        // Falkirk to Euston
-        final Duration maxDuration = Duration.ofHours(8).plusMinutes(47);
+    void shouldHaveLongest() {
+        // Currently Euston to Sterling
 
-        List<StopCalls.StopLeg> longLegs = transportData.getTrips().stream().
+        Optional<StopCalls.StopLeg> findLongest = transportData.getTrips().stream().
                 filter(trip -> trip.getTransportMode().equals(Train)).
-                flatMap(trip -> getLongDurationStopLeg(trip, maxDuration).stream()).
-                sorted(Comparator.comparing(StopCalls.StopLeg::getCost)). // makes it easier to spot longest duration leg if test fails
-                collect(Collectors.toList());
+                flatMap(trip -> getLongDurationStopLeg(trip).stream()).
+                max(Comparator.comparing(StopCalls.StopLeg::getCost));
 
-        assertTrue(longLegs.isEmpty(), longLegs.toString());
+        assertTrue(findLongest.isPresent());
+
+        StopCalls.StopLeg longest = findLongest.get();
+
+        assertEquals(LondonEuston.getId(), longest.getFirstStation().getId());
+        assertEquals(Station.createId("STIRLNG"), longest.getSecondStation().getId());
+        assertEquals(Duration.ofHours(9).plusMinutes(7), longest.getCost());
     }
 
-    private Set<StopCalls.StopLeg> getLongDurationStopLeg(Trip trip, Duration maxDuration) {
-        return trip.getStopCalls().getLegs(false).stream().
-                filter(stopLeg -> stopLeg.getCost().compareTo(maxDuration) > 0).collect(Collectors.toSet());
+    private Set<StopCalls.StopLeg> getLongDurationStopLeg(Trip trip) {
+        Optional<StopCalls.StopLeg> found = trip.getStopCalls().getLegs(false).stream().
+                max(Comparator.comparingLong(a -> a.getCost().toSeconds()));
+        return found.map(Collections::singleton).orElse(Collections.emptySet());
     }
+
 
     @Disabled("trip not in latest data")
     @Test

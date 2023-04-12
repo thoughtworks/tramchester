@@ -5,6 +5,7 @@ import com.tramchester.dataimport.rail.records.RailLocationRecord;
 import com.tramchester.dataimport.rail.records.RailTimetableRecord;
 import com.tramchester.dataimport.rail.records.reference.LocationActivityCode;
 import com.tramchester.dataimport.rail.repository.RailRouteCallingPoints;
+import com.tramchester.dataimport.rail.repository.RailStationRecordsRepository;
 import com.tramchester.domain.Agency;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.places.Station;
@@ -25,20 +26,22 @@ import java.util.stream.Stream;
 public class ExtractAgencyCallingPointsFromLocationRecords {
     private static final Logger logger = LoggerFactory.getLogger(ExtractAgencyCallingPointsFromLocationRecords.class);
 
+    private final RailStationRecordsRepository stationRecordsRepository;
     private String currentAtocCode;
     private final List<RailLocationRecord> locations;
     private final Set<RailRouteCallingPoints> agencyCallingPoints;
 
-    public ExtractAgencyCallingPointsFromLocationRecords() {
+    public ExtractAgencyCallingPointsFromLocationRecords(RailStationRecordsRepository stationRecordsRepository) {
+        this.stationRecordsRepository = stationRecordsRepository;
         currentAtocCode = "";
         agencyCallingPoints = new HashSet<>();
         locations = new ArrayList<>();
     }
 
-    public static Set<RailRouteCallingPoints> loadCallingPoints(ProvidesRailTimetableRecords providesRailTimetableRecords) {
+    public static Set<RailRouteCallingPoints> loadCallingPoints(ProvidesRailTimetableRecords providesRailTimetableRecords, RailStationRecordsRepository stationRecordsRepository) {
 
         logger.info("Begin extraction of calling points from " + providesRailTimetableRecords.toString());
-        ExtractAgencyCallingPointsFromLocationRecords extractor = new ExtractAgencyCallingPointsFromLocationRecords();
+        ExtractAgencyCallingPointsFromLocationRecords extractor = new ExtractAgencyCallingPointsFromLocationRecords(stationRecordsRepository);
 
         Stream<RailTimetableRecord> records = providesRailTimetableRecords.load();
         records.forEach(extractor::processRecord);
@@ -81,15 +84,16 @@ public class ExtractAgencyCallingPointsFromLocationRecords {
 
     private void createAgencyCallingPoints() {
         String atocCode = currentAtocCode;
+
+        IdFor<Agency> agencyId = Agency.createId(atocCode);
+
         List<IdFor<Station>> callingPoints = locations.stream().
                 filter(RailLocationRecord::doesStop).
+                filter(stationRecordsRepository::hasStationRecord).
                 map(RailLocationRecord::getTiplocCode).
                 map(Station::createId).
                 collect(Collectors.toList());
 
-        IdFor<Agency> agencyId = Agency.createId(atocCode);
-
-        // calling points filtered by bounds, so only add the valid ones
         if (callingPoints.size()>1) {
             agencyCallingPoints.add(new RailRouteCallingPoints(agencyId, callingPoints));
         }

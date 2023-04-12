@@ -48,7 +48,7 @@ class InterchangesRailTest {
 
     @Test
     void shouldHaveExpectedNumberOfInterchanges() {
-        assertEquals(996, interchangeRepository.size());
+        assertEquals(993, interchangeRepository.size());
     }
 
     @Test

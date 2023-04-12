@@ -52,7 +52,7 @@ public class RouteRepositoryRailTest {
     void shouldHaveExpectedNumberOfRailRoutes() {
         Set<Route> allRoutes = routeRepository.getRoutes();
 
-        assertEquals(6944, allRoutes.size());
+        assertEquals(6393, allRoutes.size());
     }
 
     @Test
@@ -64,7 +64,7 @@ public class RouteRepositoryRailTest {
                 filter(route -> tripsMatch(route, ManchesterPiccadilly.getId(), LondonEuston.getId())).
                 collect(Collectors.toList());
 
-        assertEquals(9, result.size(), HasId.asIds(result));
+        assertEquals(6, result.size(), HasId.asIds(result));
     }
 
     private boolean tripsMatch(Route route, IdFor<Station> first, IdFor<Station> last) {

@@ -2,7 +2,6 @@ package com.tramchester.integration.testSupport;
 
 import com.tramchester.config.GraphDBConfig;
 import com.tramchester.config.RemoteDataSourceConfig;
-import com.tramchester.config.StationClosuresConfig;
 import com.tramchester.domain.StationClosures;
 import com.tramchester.integration.testSupport.naptan.NaptanRemoteDataSourceConfig;
 import com.tramchester.integration.testSupport.nptg.NPTGDataSourceTestConfig;
@@ -11,11 +10,8 @@ import com.tramchester.integration.testSupport.rail.RailRemoteDataSourceConfig;
 import com.tramchester.testSupport.TestConfig;
 
 import java.nio.file.Path;
-import java.time.LocalDate;
 import java.util.Collections;
 import java.util.List;
-
-import static com.tramchester.domain.reference.CentralZoneStation.*;
 
 public abstract class IntegrationTestConfig extends TestConfig {
 
@@ -26,10 +22,10 @@ public abstract class IntegrationTestConfig extends TestConfig {
     private final GraphDBTestConfig dbConfig;
     protected final RailRemoteDataSourceConfig railRemoteDataSource;
 
-    public static final StationClosures piccGardensClosed = new StationClosuresConfig(
-            Collections.singleton(PiccadillyGardens.getId()),
-            LocalDate.of(2022,10,23),
-            LocalDate.of(2022,11,29), false);
+//    public static final StationClosures piccGardensClosed = new StationClosuresConfig(
+//            Collections.singleton(PiccadillyGardens.getId()),
+//            LocalDate.of(2022,10,23),
+//            LocalDate.of(2022,11,29), false);
 
     public static final List<StationClosures> CurrentClosures = Collections.emptyList();
 
