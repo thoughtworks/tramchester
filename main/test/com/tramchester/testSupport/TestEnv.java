@@ -78,6 +78,9 @@ public class TestEnv {
     public final static HashSet<GTFSTransportationType> tramAndBus =
             new HashSet<>(Arrays.asList(GTFSTransportationType.tram, GTFSTransportationType.bus));
 
+    // https://tfgm.com/23-april-airport-works
+    public static final TramDate AirportLineClosed =  TramDate.of(2023, 4,23);;
+
     public static AppConfiguration GET() {
         return new TestConfig() {
             @Override

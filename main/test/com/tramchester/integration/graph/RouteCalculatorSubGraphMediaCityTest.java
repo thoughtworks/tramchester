@@ -38,6 +38,7 @@ import java.util.stream.Collectors;
 
 import static com.tramchester.domain.reference.TransportMode.Tram;
 import static com.tramchester.testSupport.reference.TramStations.*;
+import static java.lang.String.format;
 import static org.junit.jupiter.api.Assertions.*;
 
 class RouteCalculatorSubGraphMediaCityTest {
@@ -66,6 +67,7 @@ class RouteCalculatorSubGraphMediaCityTest {
     private RouteCalculationCombinations combinations;
     private StationRepository stationRepository;
     private ClosedStationsRepository closedStationRepository;
+    private TramDate badDate;
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() throws IOException {
@@ -99,6 +101,9 @@ class RouteCalculatorSubGraphMediaCityTest {
         combinations = new RouteCalculationCombinations(componentContainer);
         calculator = new RouteCalculatorTestFacade(componentContainer.get(RouteCalculator.class), stationRepository, txn);
         closedStationRepository = componentContainer.get(ClosedStationsRepository.class);
+
+        // no journeys 16/4/2023 but nothing on website to explain why.....
+        badDate = TramDate.of(2023,4,16);
     }
 
     @AfterEach
@@ -110,14 +115,24 @@ class RouteCalculatorSubGraphMediaCityTest {
     void shouldHaveMediaCityToExchangeSquare() {
         validateAtLeastOneJourney(MediaCityUK, Cornbrook, TramTime.of(9,0), TestEnv.nextSaturday());
         validateAtLeastOneJourney(MediaCityUK, ExchangeSquare, TramTime.of(9,0), TestEnv.nextSaturday());
-        validateAtLeastOneJourney(MediaCityUK, ExchangeSquare, TramTime.of(9,0), TestEnv.nextSunday());
+
+        TramDate testSunday = TestEnv.nextSunday();
+
+        if (testSunday.equals(badDate)) {
+            // no journeys 16/4/2023 but nothing on website to explain why.....
+            testSunday = testSunday.plusWeeks(1);
+        }
+        validateAtLeastOneJourney(MediaCityUK, ExchangeSquare, TramTime.of(9,0), testSunday);
     }
 
     @Test
     void shouldHaveJourneyFromEveryStationToEveryOtherNDaysAhead() {
 
+
+
         List<Pair<TramDate, List<StationIdPair>>> failed = TestEnv.getUpcomingDates().
                 filter(date -> !date.isChristmasPeriod()).
+                filter(date -> !date.equals(badDate)).
                 map(date -> new JourneyRequest(date, TramTime.of(9, 0), false,
                         3, maxJourneyDuration, 1, getRequestedModes())).
                 map(journeyRequest -> Pair.of(journeyRequest.getDate(), getFailedPairedFor(journeyRequest))).
@@ -308,6 +323,6 @@ class RouteCalculatorSubGraphMediaCityTest {
         JourneyRequest journeyRequest = new JourneyRequest(date, time, false, 5,
                 maxJourneyDuration, 1, getRequestedModes());
         Set<Journey> results = calculator.calculateRouteAsSet(start, dest, journeyRequest);
-        assertFalse(results.isEmpty());
+        assertFalse(results.isEmpty(), format("no journey from %s to %s at %s %s", start, dest, date, time));
     }
 }
