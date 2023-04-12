@@ -283,11 +283,6 @@ public class RailTimetableMapper {
             //logger.debug("Create schedule for " + uniqueTrainId);
             final String atocCode = rawService.extraDetails.getAtocCode();
 
-            // Agency
-            final MutableAgency mutableAgency = getOrCreateAgency(atocCode);
-
-            final IdFor<Agency> agencyId = mutableAgency.getId();
-
             // Calling points
             final List<Station> allCalledAtStations = getRouteStationCallingPoints(rawService);
 
@@ -297,9 +292,6 @@ public class RailTimetableMapper {
                 railServiceGroups.recordSkip(basicSchedule);
                 return false;
             }
-
-            // route ID uses "national" ids, so without calling points filtered to be within bounds
-            final IdFor<Route> routeId = railRouteIdRepository.getRouteIdFor(agencyId, allCalledAtStations);
 
             final List<Station> withinBoundsCallingStations = allCalledAtStations.stream().
                     filter(bounds::contained).
@@ -311,6 +303,14 @@ public class RailTimetableMapper {
                 railServiceGroups.recordSkip(basicSchedule);
                 return false;
             }
+
+            // Agency
+            final MutableAgency mutableAgency = getOrCreateAgency(atocCode);
+            final IdFor<Agency> agencyId = mutableAgency.getId();
+
+            // route ID uses "national" ids, so without calling points filtered to be within bounds
+            // this is so routes that start and/or finish out-of-bounds are named correctly
+            final IdFor<Route> routeId = railRouteIdRepository.getRouteIdFor(agencyId, allCalledAtStations);
 
             // Service
             final MutableService service = railServiceGroups.getOrCreateService(basicSchedule, isOverlay);
@@ -363,6 +363,8 @@ public class RailTimetableMapper {
             if (!bounds.contained(station)) {
                 return false;
             }
+
+            stationRecords.markAsInUse(station);
 
             final EnumSet<LocationActivityCode> activity = railLocation.getActivity();
 
@@ -449,7 +451,8 @@ public class RailTimetableMapper {
             } else {
                 station = stationRecords.getMutableStationFor(record);
             }
-            stationRecords.markAsNeeded(station);
+            // can't do this here, not always filtered by geo bounds at this stage
+            //stationRecords.markAsInUse(station);
             return station;
         }
 
@@ -527,8 +530,8 @@ public class RailTimetableMapper {
             return StringIdFor.withPrefix("trip:", service.getId(), Trip.class);
         }
 
-        private MutableRoute getOrCreateRoute(IdFor<Route> routeId, RawService rawService, MutableAgency mutableAgency, final TransportMode mode,
-                                              List<Station> callingPoints) {
+        private MutableRoute getOrCreateRoute(IdFor<Route> routeId, RawService rawService, MutableAgency mutableAgency,
+                                              final TransportMode mode, List<Station> withinBoundsCallingPoints) {
             IdFor<Agency> agencyId = mutableAgency.getId();
             MutableRoute route;
 
@@ -551,7 +554,7 @@ public class RailTimetableMapper {
             } else {
                 // note:create RailReplacementBus routes as Train
                 TransportMode actualMode = (mode==RailReplacementBus) ? Train : mode;
-                route = new MutableRailRoute(routeId, callingPoints, mutableAgency, actualMode);
+                route = new MutableRailRoute(routeId, withinBoundsCallingPoints, mutableAgency, actualMode);
                 container.addRoute(route);
             }
             return route;

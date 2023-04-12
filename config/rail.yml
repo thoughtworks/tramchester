@@ -22,12 +22,12 @@ instanceDataUrl: http://169.254.169.254
 gtfsSourceConfig: []
 rail:
   dataPath: data/rail
-  version: 571
+  version: 697
   modes: [ Train, RailReplacementBus ]
   initialWaitMinutes: 60
 remoteSources:
   - name: rail
-    dataURL: ${RAIL_DATAURL:-s3://tramchester2dist/railData/ttis571.zip}
+    dataURL: ${RAIL_DATAURL:-s3://tramchester2dist/railData/ttis697.zip}
     dataCheckURL: ""
     dataPath: data/rail
     filename: rail_data.zip

@@ -249,6 +249,7 @@ public class RouteCostMatrix implements RouteCostCombinations {
             result.insert(firstRouteIndex, row);
         }
         availableOnDate.clear();
+
         logger.info(format("created overlap matrix for %s and modes %s with %s entries", date, requestedModes, result.numberOfBitsSet()));
         return result;
     }
@@ -418,9 +419,10 @@ public class RouteCostMatrix implements RouteCostCombinations {
                 Set<InterchangeStation> changes = pairToInterchanges.get(indexPair);
                 return new AnyOfInterchanges(changes);
             } else {
-                int previousPairsIndex = 0;
+                //int previousPairsIndex = 0;
+                int depth = degree - 1;
                 AnyOfContained result = new AnyOfContained();
-                final Set<Pair<RouteIndexPair, RouteIndexPair>> underlying = underlyingPairs.get(previousPairsIndex).getLinksFor(indexPair);
+                final Set<Pair<RouteIndexPair, RouteIndexPair>> underlying = underlyingPairs.get(depth-1).getLinksFor(indexPair);
 
                 underlying.forEach(pair -> {
                     AnyOfPaths pathA = getPathFor(pair.getLeft(), degree - 1, dateOverlaps);

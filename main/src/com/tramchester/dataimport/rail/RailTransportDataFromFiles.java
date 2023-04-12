@@ -125,7 +125,7 @@ public class RailTransportDataFromFiles implements DirectDataSourceFactory.Popul
             Stream<RailTimetableRecord> timetableRecords = providesRailTimetableRecords.load();
             processTimetableRecords(stationRecords, dataContainer, timetableRecords, bounds, railRouteRepository);
 
-            stationRecords.getShouldInclude().forEach(dataContainer::addStation);
+            stationRecords.getInUse().forEach(dataContainer::addStation);
 
             logger.info("Retained " + stationRecords.countNeeded() + " stations of " + stationRecords.count());
 

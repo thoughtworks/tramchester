@@ -34,9 +34,9 @@ public class ProvidesRailStationRecords {
 
     @Inject
     public ProvidesRailStationRecords(TramchesterConfig config, UnzipFetchedData.Ready ready) {
-        RailConfig railConfig = config.getRailConfig();
-        enabled = (railConfig!=null);
+        enabled = config.hasRailConfig();
         if (enabled) {
+            RailConfig railConfig = config.getRailConfig();
             final Path dataPath = railConfig.getDataPath();
             this.filePath = dataPath.resolve(railConfig.getStations());
         } else {

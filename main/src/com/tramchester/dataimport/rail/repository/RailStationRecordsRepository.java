@@ -1,6 +1,7 @@
 package com.tramchester.dataimport.rail.repository;
 
 import com.netflix.governator.guice.lazy.LazySingleton;
+import com.tramchester.config.TramchesterConfig;
 import com.tramchester.dataimport.rail.ProvidesRailStationRecords;
 import com.tramchester.dataimport.rail.records.PhysicalStationRecord;
 import com.tramchester.dataimport.rail.records.RailLocationRecord;
@@ -39,39 +40,45 @@ import java.util.stream.Stream;
 public class RailStationRecordsRepository {
     private static final Logger logger = LoggerFactory.getLogger(RailStationRecordsRepository.class);
 
-    private final IdSet<Station> include;
+    private final IdSet<Station> inUseStations;
     private final Map<String, MutableStation> tiplocMap;
     private final Set<String> missing;
     private final ProvidesRailStationRecords providesRailStationRecords;
     private final RailStationCRSRepository crsRepository;
     private final NaptanRepository naptanRepository;
+    private final boolean enabled;
 
     @Inject
     public RailStationRecordsRepository(ProvidesRailStationRecords providesRailStationRecords, RailStationCRSRepository crsRepository,
-                                        NaptanRepository naptanRepository) {
+                                        NaptanRepository naptanRepository, TramchesterConfig config) {
         this.providesRailStationRecords = providesRailStationRecords;
         this.crsRepository = crsRepository;
         this.naptanRepository = naptanRepository;
-        include = new IdSet<>();
+        inUseStations = new IdSet<>();
         tiplocMap = new HashMap<>();
         missing = new HashSet<>();
+        enabled = config.hasRailConfig();
     }
 
     @PostConstruct
     public void start() {
-        logger.info("start");
-        loadStations(providesRailStationRecords.load());
-        logger.info("started");
+        if (enabled) {
+            logger.info("start");
+            loadStations(providesRailStationRecords.load());
+            logger.info("started");
+        }
     }
 
     @PreDestroy
     private void close() {
-        if (!missing.isEmpty()) {
-            logger.warn("Missing station locations that were referenced in timetable " + missing);
+        if (enabled) {
+            if (!missing.isEmpty()) {
+                logger.warn("Missing station locations that were referenced in timetable " + missing);
+            }
+            missing.clear();
+            inUseStations.clear();
+            tiplocMap.clear();
         }
-        missing.clear();
-        include.clear();
-        tiplocMap.clear();
     }
 
     private void loadStations(Stream<PhysicalStationRecord> physicalRecords) {
@@ -148,14 +155,14 @@ public class RailStationRecordsRepository {
         tiplocMap.put(tipLoc, mutableStation);
     }
 
-    public Set<MutableStation> getShouldInclude() {
+    public Set<MutableStation> getInUse() {
         return tiplocMap.values().stream().
-                filter(station -> include.contains(station.getId())).
+                filter(station -> inUseStations.contains(station.getId())).
                 collect(Collectors.toSet());
     }
 
-    public void markAsNeeded(Station station) {
-        include.add(station.getId());
+    public void markAsInUse(Station station) {
+        inUseStations.add(station.getId());
     }
 
     public int count() {
@@ -163,7 +170,7 @@ public class RailStationRecordsRepository {
     }
 
     public int countNeeded() {
-        return include.size();
+        return inUseStations.size();
     }
 
     public boolean hasStationRecord(RailLocationRecord record) {
