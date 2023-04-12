@@ -3,13 +3,13 @@ package com.tramchester.integration.repository.rail;
 import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.dataimport.rail.reference.TrainOperatingCompanies;
+import com.tramchester.dataimport.rail.repository.RailRouteCallingPoints;
 import com.tramchester.dataimport.rail.repository.RailRouteIdRepository;
 import com.tramchester.domain.Agency;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.StationIdPair;
 import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.id.IdFor;
-import com.tramchester.domain.id.RailRouteId;
 import com.tramchester.domain.places.Station;
 import com.tramchester.integration.testSupport.rail.IntegrationRailTestConfig;
 import com.tramchester.integration.testSupport.rail.RailStationIds;
@@ -100,25 +100,25 @@ public class RailRouteIdRepositoryTest {
 
         List<IdFor<Station>> idListA = LONGEST_VIA_STOKE.stream().map(Station::createId).collect(Collectors.toList());
 
-        RailRouteIdRepository.AgencyCallingPoints callingA = new RailRouteIdRepository.AgencyCallingPoints(agencyId, idListA);
+        RailRouteCallingPoints callingA = new RailRouteCallingPoints(agencyId, idListA);
 
         assertTrue(callingA.contains(callingA));
 
         List<IdFor<Station>> idListB = getStationIds(ManchesterPiccadilly, Stockport, Crewe, LondonEuston);
-        RailRouteIdRepository.AgencyCallingPoints callingB = new RailRouteIdRepository.AgencyCallingPoints(agencyId, idListB);
+        RailRouteCallingPoints callingB = new RailRouteCallingPoints(agencyId, idListB);
 
         assertFalse(callingA.contains(callingB));
         assertFalse(callingB.contains(callingA));
 
         List<IdFor<Station>> idListC = getStationIds(ManchesterPiccadilly, Stockport, LondonEuston);
-        RailRouteIdRepository.AgencyCallingPoints callingC = new RailRouteIdRepository.AgencyCallingPoints(agencyId, idListC);
+        RailRouteCallingPoints callingC = new RailRouteCallingPoints(agencyId, idListC);
 
         assertTrue(callingA.contains(callingC));
         assertFalse(callingC.contains(callingA));
         assertFalse(callingC.contains(callingB));
 
         List<IdFor<Station>> idListD = getStationIds(ManchesterPiccadilly, Stockport, Macclesfield, StokeOnTrent, LondonEuston);
-        RailRouteIdRepository.AgencyCallingPoints callingD = new RailRouteIdRepository.AgencyCallingPoints(agencyId, idListD);
+        RailRouteCallingPoints callingD = new RailRouteCallingPoints(agencyId, idListD);
 
         assertTrue(callingA.contains(callingD));
         assertTrue(callingD.contains(callingC));
@@ -147,7 +147,7 @@ public class RailRouteIdRepositoryTest {
     void shouldHaveExpectedNumberOfIdsForManchesterToLondonEuston() {
 
         StationIdPair manchesterLondon = StationIdPair.of(ManchesterPiccadilly.getId(), LondonEuston.getId());
-        List<RailRouteIdRepository.AgencyCallingPointsWithRouteId> routes = railRouteIdRepository.getCallingPointsFor(agencyId).stream().
+        List<RailRouteIdRepository.RailRouteCallingPointsWithRouteId> routes = railRouteIdRepository.getCallingPointsFor(agencyId).stream().
                 filter(callingPoints -> callingPoints.getBeginEnd().equals(manchesterLondon)).
                 collect(Collectors.toList());
 

@@ -4,7 +4,6 @@ import com.tramchester.domain.Agency;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.RailRouteId;
-import com.tramchester.domain.id.StringIdFor;
 import org.junit.jupiter.api.Test;
 
 import static com.tramchester.integration.testSupport.rail.RailStationIds.*;
@@ -43,7 +42,7 @@ public class RailRouteIdTest {
     void shouldHaveEqualityAndSameHashWithValidStringRouteId() {
         IdFor<Route> idA  = new RailRouteId(LondonEuston.getId(), StokeOnTrent.getId(), Agency.createId("NT"), 1);
 
-        IdFor<Route> idB = StringIdFor.createId("EUSTON:STOKEOT=>NT:1", Route.class);
+        IdFor<Route> idB = Route.createId("EUSTON:STOKEOT=>NT:1");
 
         assertEquals(idA, idB);
         assertEquals(idB, idA);
@@ -56,7 +55,7 @@ public class RailRouteIdTest {
     void shouldHaveInEqualityWithValidStringRouteId() {
         IdFor<Route> idA  = new RailRouteId(LondonEuston.getId(), StokeOnTrent.getId(), Agency.createId("NT"), 1);
 
-        IdFor<Route> idB = StringIdFor.createId("EUSTON:STOKEOT=>NT:X", Route.class);
+        IdFor<Route> idB = Route.createId("EUSTON:STOKEOT=>NT:X");
 
         assertNotEquals(idA, idB);
         assertNotEquals(idB, idA);

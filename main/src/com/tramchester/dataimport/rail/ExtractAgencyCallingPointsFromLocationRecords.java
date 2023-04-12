@@ -4,7 +4,7 @@ import com.tramchester.dataimport.rail.records.BasicScheduleExtraDetails;
 import com.tramchester.dataimport.rail.records.RailLocationRecord;
 import com.tramchester.dataimport.rail.records.RailTimetableRecord;
 import com.tramchester.dataimport.rail.records.reference.LocationActivityCode;
-import com.tramchester.dataimport.rail.repository.RailRouteIdRepository;
+import com.tramchester.dataimport.rail.repository.RailRouteCallingPoints;
 import com.tramchester.domain.Agency;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.places.Station;
@@ -27,7 +27,7 @@ public class ExtractAgencyCallingPointsFromLocationRecords {
 
     private String currentAtocCode;
     private final List<RailLocationRecord> locations;
-    private final Set<RailRouteIdRepository.AgencyCallingPoints> agencyCallingPoints;
+    private final Set<RailRouteCallingPoints> agencyCallingPoints;
 
     public ExtractAgencyCallingPointsFromLocationRecords() {
         currentAtocCode = "";
@@ -35,7 +35,7 @@ public class ExtractAgencyCallingPointsFromLocationRecords {
         locations = new ArrayList<>();
     }
 
-    public static Set<RailRouteIdRepository.AgencyCallingPoints> loadCallingPoints(ProvidesRailTimetableRecords providesRailTimetableRecords) {
+    public static Set<RailRouteCallingPoints> loadCallingPoints(ProvidesRailTimetableRecords providesRailTimetableRecords) {
 
         logger.info("Begin extraction of calling points from " + providesRailTimetableRecords.toString());
         ExtractAgencyCallingPointsFromLocationRecords extractor = new ExtractAgencyCallingPointsFromLocationRecords();
@@ -91,7 +91,7 @@ public class ExtractAgencyCallingPointsFromLocationRecords {
 
         // calling points filtered by bounds, so only add the valid ones
         if (callingPoints.size()>1) {
-            agencyCallingPoints.add(new RailRouteIdRepository.AgencyCallingPoints(agencyId, callingPoints));
+            agencyCallingPoints.add(new RailRouteCallingPoints(agencyId, callingPoints));
         }
 
     }

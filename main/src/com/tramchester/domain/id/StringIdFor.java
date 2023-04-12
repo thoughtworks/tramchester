@@ -23,6 +23,8 @@ public class StringIdFor<T extends CoreDomain> implements IdFor<T> {
         this.hashcode = Objects.hash(theId, domainType);
     }
 
+    // for invalid ids
+    // TODO Need better way to handle this, push into i/f?
     private StringIdFor(Class<T> domainType) {
         this("", domainType);
     }
