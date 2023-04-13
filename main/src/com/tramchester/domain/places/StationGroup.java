@@ -17,6 +17,7 @@ import com.tramchester.graph.graphbuild.GraphLabel;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.util.Collection;
+import java.util.EnumSet;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -149,8 +150,9 @@ public class StationGroup implements Location<StationGroup> {
 //    }
 
     @Override
-    public Set<TransportMode> getTransportModes() {
-        return flatten(Station::getTransportModes);
+    public EnumSet<TransportMode> getTransportModes() {
+        Set<TransportMode> transportModes = flatten(Station::getTransportModes);
+        return EnumSet.copyOf(transportModes);
     }
 
     public Duration getMinimumChangeCost() {

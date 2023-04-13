@@ -25,8 +25,8 @@ public enum TransportMode implements HasTransportMode {
 
     private static final Map<Short, TransportMode> index;
 
-    public static final Set<TransportMode> TramsOnly = EnumSet.of(Tram);
-    public static final Set<TransportMode> BusesOnly = EnumSet.of(Bus);
+    public static final EnumSet<TransportMode> TramsOnly = EnumSet.of(Tram);
+    public static final EnumSet<TransportMode> BusesOnly = EnumSet.of(Bus);
 
     static {
         index = new HashMap<>();
@@ -62,8 +62,15 @@ public enum TransportMode implements HasTransportMode {
         return result;
     }
 
-    public static boolean intersects(Set<TransportMode> modesA, Set<TransportMode> modesB) {
-        return !SetUtils.intersection(modesA, modesB).isEmpty();
+    public static boolean intersects(EnumSet<TransportMode> modesA, EnumSet<TransportMode> modesB) {
+        for (TransportMode mode:modesA) {
+            if (modesB.contains(mode)) {
+                return true;
+            }
+        }
+        return false;
+        // slow
+        //return !SetUtils.intersection(modesA, modesB).isEmpty();
     }
 
     @JsonIgnore

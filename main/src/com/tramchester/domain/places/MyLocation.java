@@ -15,6 +15,7 @@ import com.tramchester.graph.graphbuild.GraphLabel;
 
 import java.time.LocalDate;
 import java.util.Collections;
+import java.util.EnumSet;
 import java.util.Set;
 
 public class MyLocation implements Location<MyLocation> {
@@ -91,8 +92,8 @@ public class MyLocation implements Location<MyLocation> {
     }
 
     @Override
-    public Set<TransportMode> getTransportModes() {
-        return Collections.singleton(TransportMode.Walk);
+    public EnumSet<TransportMode> getTransportModes() {
+        return EnumSet.of(TransportMode.Walk);
     }
 
     @Override

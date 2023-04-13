@@ -26,6 +26,7 @@ import com.tramchester.testSupport.reference.BusStations.Composites;
 import com.tramchester.testSupport.testTags.BusTest;
 import org.junit.jupiter.api.*;
 
+import java.util.EnumSet;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -42,7 +43,7 @@ public class BusRouteToRouteCostsTest {
     private StationRepository stationRepository;
     private TramDate date;
     private TimeRange timeRange;
-    private Set<TransportMode> modes;
+    private EnumSet<TransportMode> modes;
 
     @BeforeAll
     static void onceBeforeAnyTestRuns() {

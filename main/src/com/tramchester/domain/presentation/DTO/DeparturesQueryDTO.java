@@ -10,6 +10,7 @@ import com.tramchester.domain.reference.TransportMode;
 
 import java.time.LocalTime;
 import java.util.Collections;
+import java.util.EnumSet;
 import java.util.Set;
 
 @JsonTypeName("DeparturesQuery")
@@ -64,8 +65,11 @@ public class DeparturesQueryDTO {
         return locationId;
     }
 
-    public Set<TransportMode> getModes() {
-        return modes;
+    public EnumSet<TransportMode> getModes() {
+        if (modes.isEmpty()) {
+            return EnumSet.noneOf(TransportMode.class);
+        }
+        return EnumSet.copyOf(modes);
     }
 
     public void setModes(Set<TransportMode> modes) {

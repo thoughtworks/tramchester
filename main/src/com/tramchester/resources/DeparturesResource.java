@@ -92,7 +92,7 @@ public class DeparturesResource extends TransportResource implements APIResource
             queryTime = providesNow.getNowHourMins();
         }
 
-        Set<TransportMode> modes = departuresQuery.getModes();
+        EnumSet<TransportMode> modes = departuresQuery.getModes();
         if (modes.isEmpty()) {
             logger.warn("modes not supplied, fall back to all configured modes");
             modes = config.getTransportModes();

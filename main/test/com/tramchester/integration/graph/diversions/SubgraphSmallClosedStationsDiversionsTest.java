@@ -113,7 +113,7 @@ class SubgraphSmallClosedStationsDiversionsTest {
         txn.close();
     }
 
-    private Set<TransportMode> getRequestedModes() {
+    private EnumSet<TransportMode> getRequestedModes() {
         return TramsOnly;
     }
 
@@ -155,7 +155,7 @@ class SubgraphSmallClosedStationsDiversionsTest {
         Location<?> destination = Piccadilly.from(stationRepository);
 
         TimeRange timeRange = TimeRange.of(TramTime.of(6,0), TramTime.of(23,55));
-        Set<TransportMode> mode = EnumSet.of(TransportMode.Tram);
+        EnumSet<TransportMode> mode = EnumSet.of(TransportMode.Tram);
 
         NumberOfChanges costs = routeToRouteCosts.getNumberOfChanges(start, destination, mode, when.plusDays(1), timeRange);
 

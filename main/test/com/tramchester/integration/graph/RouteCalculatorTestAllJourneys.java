@@ -22,6 +22,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 import java.time.Duration;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -42,7 +43,7 @@ class RouteCalculatorTestAllJourneys {
     private TramDate when;
     private RouteCalculationCombinations combinations;
     private ClosedStationsRepository closedRepository;
-    private Set<TransportMode> modes;
+    private EnumSet<TransportMode> modes;
 
     @BeforeAll
     static void onceBeforeAnyTestsRun(TramchesterConfig config) {

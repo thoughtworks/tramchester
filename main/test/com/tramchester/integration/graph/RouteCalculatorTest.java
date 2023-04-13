@@ -55,7 +55,7 @@ public class RouteCalculatorTest {
 
     private final int maxChanges = 4;
 
-    private static Set<TransportMode> requestedModes;
+    private static EnumSet<TransportMode> requestedModes;
 
     private RouteCalculatorTestFacade calculator;
     private final TramDate when = TestEnv.testDay();

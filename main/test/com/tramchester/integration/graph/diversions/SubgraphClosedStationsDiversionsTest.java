@@ -115,8 +115,8 @@ class SubgraphClosedStationsDiversionsTest {
         txn.close();
     }
 
-    private Set<TransportMode> getRequestedModes() {
-        return Collections.emptySet();
+    private EnumSet<TransportMode> getRequestedModes() {
+        return EnumSet.noneOf(TransportMode.class);
     }
 
     @Test

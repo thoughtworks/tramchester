@@ -224,7 +224,7 @@ public class LocationJourneyPlanner {
         return journeys;
     }
 
-    public Set<StationWalk> getStationWalks(Location<?> location, Set<TransportMode> modes) {
+    public Set<StationWalk> getStationWalks(Location<?> location, EnumSet<TransportMode> modes) {
 
         int maxResults = config.getNumOfNearestStopsForWalking();
         List<Station> nearbyStationsWithComposites = stationLocations.nearestStationsSorted(location, maxResults, margin, modes);
@@ -242,17 +242,17 @@ public class LocationJourneyPlanner {
         return stationWalks;
     }
 
-    private NumberOfChanges findNumberChanges(Location<?> start, Set<StationWalk> walksToDest, TramDate date, TimeRange timeRange, Set<TransportMode> modes) {
+    private NumberOfChanges findNumberChanges(Location<?> start, Set<StationWalk> walksToDest, TramDate date, TimeRange timeRange, EnumSet<TransportMode> modes) {
         LocationSet destinations = walksToDest.stream().map(StationWalk::getStation).collect(LocationSet.stationCollector());
         return routeToRouteCosts.getNumberOfChanges(LocationSet.singleton(start), destinations, date, timeRange, modes);
     }
 
-    private NumberOfChanges findNumberChanges(Set<StationWalk> walksToStart, Location<?> destination, TramDate date, TimeRange timeRange, Set<TransportMode> modes) {
+    private NumberOfChanges findNumberChanges(Set<StationWalk> walksToStart, Location<?> destination, TramDate date, TimeRange timeRange, EnumSet<TransportMode> modes) {
         LocationSet starts = walksToStart.stream().map(StationWalk::getStation).collect(LocationSet.stationCollector());
         return routeToRouteCosts.getNumberOfChanges(starts, LocationSet.singleton(destination), date, timeRange, modes);
     }
 
-    private NumberOfChanges findNumberChanges(Set<StationWalk> walksAtStart, Set<StationWalk> walksToDest, TramDate date, TimeRange timeRange, Set<TransportMode> modes) {
+    private NumberOfChanges findNumberChanges(Set<StationWalk> walksAtStart, Set<StationWalk> walksToDest, TramDate date, TimeRange timeRange, EnumSet<TransportMode> modes) {
         LocationSet destinations = walksToDest.stream().map(StationWalk::getStation).collect(LocationSet.stationCollector());
         LocationSet starts = walksAtStart.stream().map(StationWalk::getStation).collect(LocationSet.stationCollector());
         return routeToRouteCosts.getNumberOfChanges(starts, destinations, date, timeRange, modes);

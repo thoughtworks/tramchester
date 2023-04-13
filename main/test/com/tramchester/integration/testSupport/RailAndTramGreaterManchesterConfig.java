@@ -41,8 +41,8 @@ public class RailAndTramGreaterManchesterConfig extends IntegrationTramTestConfi
     }
 
     @Override
-    public Set<TransportMode> getTransportModes() {
-        return new HashSet<>(Arrays.asList(TransportMode.Tram, TransportMode.Train, TransportMode.RailReplacementBus));
+    public EnumSet<TransportMode> getTransportModes() {
+        return EnumSet.of(TransportMode.Tram, TransportMode.Train, TransportMode.RailReplacementBus);
     }
 
     @Override

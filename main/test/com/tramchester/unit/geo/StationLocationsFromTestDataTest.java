@@ -15,8 +15,8 @@ import com.tramchester.unit.graph.calculation.SimpleGraphConfig;
 import org.junit.jupiter.api.*;
 
 import java.io.IOException;
+import java.util.EnumSet;
 import java.util.List;
-import java.util.Set;
 
 import static com.tramchester.testSupport.reference.KnownLocations.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -26,7 +26,7 @@ public class StationLocationsFromTestDataTest {
 
     private static ComponentContainer componentContainer;
     private static SimpleGraphConfig config;
-    private static Set<TransportMode> modes;
+    private static EnumSet<TransportMode> modes;
     private TramTransportDataForTestFactory.TramTransportDataForTest transportData;
     private StationLocations stationLocations;
     private StationGroupsRepository compositeStationRepository;

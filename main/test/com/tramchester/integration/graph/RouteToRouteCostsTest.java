@@ -29,10 +29,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 import java.time.Duration;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -54,7 +51,7 @@ public class RouteToRouteCostsTest {
     private TramRouteHelper routeHelper;
     private RouteRepository routeRepository;
     private StationRepository stationRepository;
-    private final Set<TransportMode> modes = TramsOnly;
+    private final EnumSet<TransportMode> modes = TramsOnly;
     private TramDate date;
     private TimeRange timeRange;
 
@@ -189,7 +186,7 @@ public class RouteToRouteCostsTest {
         Station start = TramStations.Victoria.from(stationRepository);
         Station end = TramStations.ManAirport.from(stationRepository);
 
-        NumberOfChanges result = routesCostRepository.getNumberOfChanges(start, end, Collections.singleton(Train), date, timeRange);
+        NumberOfChanges result = routesCostRepository.getNumberOfChanges(start, end, EnumSet.of(Train), date, timeRange);
 
         assertEquals(Integer.MAX_VALUE, getMinCost(result));
         assertEquals(Integer.MAX_VALUE, result.getMax());

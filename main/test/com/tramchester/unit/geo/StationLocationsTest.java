@@ -30,7 +30,7 @@ class StationLocationsTest extends EasyMockSupport {
     private StationRepository stationRepository;
     private NaptanRepository naptanRespository;
     private Geography geography;
-    private Set<TransportMode> modes;
+    private EnumSet<TransportMode> modes;
 
     @BeforeEach
     void onceBeforeEachTest() {
@@ -41,7 +41,7 @@ class StationLocationsTest extends EasyMockSupport {
 
         stationLocations = new StationLocations(stationRepository, platformRepository, naptanRespository, geography);
 
-        modes = Collections.singleton(TransportMode.Tram);
+        modes = EnumSet.of(TransportMode.Tram);
     }
 
     @Test

@@ -6,7 +6,7 @@ import com.tramchester.domain.time.TimeRange;
 import com.tramchester.domain.time.TramTime;
 
 import java.time.Duration;
-import java.util.Set;
+import java.util.EnumSet;
 import java.util.UUID;
 
 public class JourneyRequest {
@@ -18,14 +18,14 @@ public class JourneyRequest {
     private final Duration maxJourneyDuration;
     private final long maxNumberOfJourneys;
 
-    private final Set<TransportMode> requestedModes;
+    private final EnumSet<TransportMode> requestedModes;
 
     private boolean diagnostics;
     private boolean warnIfNoResults;
 
 
     public JourneyRequest(TramDate date, TramTime originalQueryTime, boolean arriveBy, int maxChanges,
-                          Duration maxJourneyDuration, long maxNumberOfJourneys, Set<TransportMode> requestedModes) {
+                          Duration maxJourneyDuration, long maxNumberOfJourneys, EnumSet<TransportMode> requestedModes) {
         this.date = date;
         this.originalQueryTime = originalQueryTime;
         this.arriveBy = arriveBy;
@@ -135,7 +135,7 @@ public class JourneyRequest {
                 '}';
     }
 
-    public Set<TransportMode> getRequestedModes() {
+    public EnumSet<TransportMode> getRequestedModes() {
         return requestedModes;
     }
 

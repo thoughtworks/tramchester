@@ -46,7 +46,7 @@ class MixedRouteTest {
     private TramDate queryDate;
     private TramTime queryTime;
     private Transaction txn;
-    private Set<TransportMode> modes;
+    private EnumSet<TransportMode> modes;
 
     @BeforeAll
     static void onceBeforeAllTestRuns() throws IOException {

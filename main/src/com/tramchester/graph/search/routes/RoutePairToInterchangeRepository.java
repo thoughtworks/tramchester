@@ -12,10 +12,7 @@ import org.slf4j.LoggerFactory;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.inject.Inject;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @LazySingleton
@@ -78,7 +75,7 @@ public class RoutePairToInterchangeRepository {
         return routePairToInterchange.containsKey(indexPair);
     }
 
-    public Set<InterchangeStation> getInterchanges(RoutePair indexPair, Set<TransportMode> requestedModes) {
+    public Set<InterchangeStation> getInterchanges(RoutePair indexPair, EnumSet<TransportMode> requestedModes) {
         return routePairToInterchange.get(indexPair).stream().
                 filter(interchangeStation -> TransportMode.intersects(requestedModes, interchangeStation.getTransportModes())).
                 collect(Collectors.toSet());

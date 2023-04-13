@@ -10,8 +10,6 @@ import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.places.InterchangeStation;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
-import com.tramchester.graph.search.routes.RouteIndex;
-import com.tramchester.domain.collections.RouteIndexPair;
 import com.tramchester.graph.search.routes.RoutePairToInterchangeRepository;
 import com.tramchester.integration.testSupport.ConfigParameterResolver;
 import com.tramchester.repository.RouteRepository;
@@ -24,6 +22,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
+import java.util.EnumSet;
 import java.util.Set;
 
 import static com.tramchester.domain.reference.CentralZoneStation.*;
@@ -39,10 +38,10 @@ public class RoutePairToInterchangeRepositoryTest {
     private static ComponentContainer componentContainer;
 
     private TramRouteHelper routeHelper;
-    private final Set<TransportMode> modes = TramsOnly;
+    private final EnumSet<TransportMode> modes = TramsOnly;
     private TramDate date;
     private RoutePairToInterchangeRepository repository;
-    private RouteIndex routeIndex;
+    //private RouteIndex routeIndex;
 
     @BeforeAll
     static void onceBeforeAnyTestRuns(TramchesterConfig tramchesterConfig) {
@@ -65,7 +64,7 @@ public class RoutePairToInterchangeRepositoryTest {
     void beforeEachTestRuns() {
         RouteRepository routeRepository = componentContainer.get(RouteRepository.class);
         routeHelper = new TramRouteHelper(routeRepository);
-        routeIndex = componentContainer.get(RouteIndex.class);
+        //routeIndex = componentContainer.get(RouteIndex.class);
 
         date = TestEnv.testDay().plusWeeks(1);
 

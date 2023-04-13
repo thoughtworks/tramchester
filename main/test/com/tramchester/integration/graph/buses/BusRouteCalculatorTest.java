@@ -6,8 +6,6 @@ import com.tramchester.domain.Journey;
 import com.tramchester.domain.JourneyRequest;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.IdFor;
-import com.tramchester.domain.id.IdForDTO;
-import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.places.StationGroup;
 import com.tramchester.domain.reference.TransportMode;
@@ -26,7 +24,7 @@ import org.neo4j.graphdb.Transaction;
 
 import java.time.Duration;
 import java.util.ArrayList;
-import java.util.Collections;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
@@ -116,7 +114,7 @@ class BusRouteCalculatorTest {
         assertFalse(journeysB.isEmpty());
     }
 
-    private Set<TransportMode> getRequestedModes() {
+    private EnumSet<TransportMode> getRequestedModes() {
         return TransportMode.BusesOnly;
     }
 
@@ -161,7 +159,7 @@ class BusRouteCalculatorTest {
 
         final TramDate futureDate = TestEnv.testDay().plusDays(14);
         JourneyRequest journeyRequest = new JourneyRequest(futureDate,
-                TramTime.of(8,19), false, 3, maxJourneyDuration, 1, Collections.emptySet());
+                TramTime.of(8,19), false, 3, maxJourneyDuration, 1,  EnumSet.noneOf(TransportMode.class));
 
         @NotNull Set<Journey> results = calculator.calculateRouteAsSet(start, altrinchamInterchange, journeyRequest);
         assertFalse(results.isEmpty(), "no journeys");
@@ -174,7 +172,7 @@ class BusRouteCalculatorTest {
 
         TramTime time = TramTime.of(10, 40);
         JourneyRequest journeyRequest = new JourneyRequest(when, time, false, 1,
-                Duration.ofMinutes(120), 1, Collections.emptySet());
+                Duration.ofMinutes(120), 1, EnumSet.noneOf(TransportMode.class));
         Set<Journey> results = calculator.calculateRouteAsSet(altrinchamInterchange, end, journeyRequest);
 
         assertFalse(results.isEmpty());
@@ -191,7 +189,7 @@ class BusRouteCalculatorTest {
         Station end = stations.get(1);
 
         JourneyRequest journeyRequest = new JourneyRequest(when, TramTime.of(7,30), false, 1,
-                Duration.ofMinutes(120), 1, Collections.emptySet());
+                Duration.ofMinutes(120), 1,  EnumSet.noneOf(TransportMode.class));
 
         Set<Journey> results = calculator.calculateRouteAsSet(start, end, journeyRequest);
 
@@ -204,7 +202,7 @@ class BusRouteCalculatorTest {
 
         TramTime time = TramTime.of(11, 20);
         JourneyRequest journeyRequest = new JourneyRequest(when, time, false,
-                3, Duration.ofMinutes(120), 1, Collections.emptySet());
+                3, Duration.ofMinutes(120), 1,  EnumSet.noneOf(TransportMode.class));
 
         Set<Journey> results = calculator.calculateRouteAsSet(knutsfordBusStation, altrinchamInterchange, journeyRequest);
 

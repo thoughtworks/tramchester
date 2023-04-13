@@ -40,7 +40,7 @@ class RouteCalculatorKeyRoutesTest {
     private RouteCalculationCombinations combinations;
     private JourneyRequest journeyRequest;
     private Duration maxJourneyDuration;
-    private Set<TransportMode> modes;
+    private EnumSet<TransportMode> modes;
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {

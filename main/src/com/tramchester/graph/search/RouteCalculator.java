@@ -34,6 +34,7 @@ import org.slf4j.LoggerFactory;
 import javax.inject.Inject;
 import java.time.Duration;
 import java.util.Collections;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Stream;
@@ -149,7 +150,7 @@ public class RouteCalculator extends RouteCalculatorSupport implements TramRoute
             return Stream.empty();
         }
 
-        Set<TransportMode> requestedModes = journeyRequest.getRequestedModes();
+        EnumSet<TransportMode> requestedModes = journeyRequest.getRequestedModes();
 
         // TODO groups will need their own method, or get expanded much earlier on
         //final Set<Station> destinations = GroupedStations.expandStations(unexpanded);

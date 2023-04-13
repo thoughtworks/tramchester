@@ -40,7 +40,7 @@ public class RailAndTramRouteToRouteCostsTest {
 
     private TramDate date;
     private RouteToRouteCosts routeToRouteCosts;
-    private Set<TransportMode> allTransportModes;
+    private EnumSet<TransportMode> allTransportModes;
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
@@ -72,7 +72,7 @@ public class RailAndTramRouteToRouteCostsTest {
     void shouldValidHopsBetweenTramAndRailLongRange() {
         TimeRange timeRange = TimeRange.of(TramTime.of(8, 15), TramTime.of(22, 35));
 
-        Set<TransportMode> all = allTransportModes;
+        EnumSet<TransportMode> all = allTransportModes;
         NumberOfChanges result = routeToRouteCosts.getNumberOfChanges(tram(TramStations.Bury), rail(Stockport),
                 all, date, timeRange);
 
@@ -129,7 +129,7 @@ public class RailAndTramRouteToRouteCostsTest {
     void shouldNotHaveHopsBetweenTramAndRailWhenTramOnly() {
         TimeRange timeRange = TimeRange.of(TramTime.of(8, 15), TramTime.of(22, 35));
 
-        Set<TransportMode> preferredModes = EnumSet.of(Tram);
+        EnumSet<TransportMode> preferredModes = EnumSet.of(Tram);
 
         NumberOfChanges result = routeToRouteCosts.getNumberOfChanges(tram(TramStations.Bury), rail(Stockport),
                 preferredModes, date, timeRange);
@@ -142,7 +142,7 @@ public class RailAndTramRouteToRouteCostsTest {
     void shouldHaveCorrectHopsBetweenRailStationsOnly() {
         TimeRange timeRange = TimeRange.of(TramTime.of(8, 15), TramTime.of(22, 35));
 
-        Set<TransportMode> preferredModes = EnumSet.of(Train);
+        EnumSet<TransportMode> preferredModes = EnumSet.of(Train);
         NumberOfChanges result = routeToRouteCosts.getNumberOfChanges(rail(ManchesterPiccadilly), rail(Stockport),
                 preferredModes, date, timeRange);
 

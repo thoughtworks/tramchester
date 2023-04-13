@@ -10,8 +10,7 @@ import com.tramchester.domain.id.RouteStationId;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.graph.GraphPropertyKey;
 
-import java.util.Collections;
-import java.util.Set;
+import java.util.EnumSet;
 
 public class RouteStation implements HasId<RouteStation>, GraphProperty, HasTransportModes, CoreDomain {
     // A station that serves a specific route
@@ -59,8 +58,8 @@ public class RouteStation implements HasId<RouteStation>, GraphProperty, HasTran
      * @return Singleton containing the transport mode
      */
     @Override
-    public Set<TransportMode> getTransportModes() {
-        return Collections.singleton(route.getTransportMode());
+    public EnumSet<TransportMode> getTransportModes() {
+        return EnumSet.of(route.getTransportMode());
     }
 
     @Override

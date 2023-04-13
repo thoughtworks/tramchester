@@ -131,7 +131,7 @@ public class StationAvailabilityRepository {
         logger.info("Stopped");
     }
 
-    public boolean isAvailable(Location<?> location, TramDate date, TimeRange timeRange, Set<TransportMode> requestedModes) {
+    public boolean isAvailable(Location<?> location, TramDate date, TimeRange timeRange, EnumSet<TransportMode> requestedModes) {
         if (!pickupsForLocation.containsKey(location)) {
             throw new RuntimeException("Missing pickups for " + location.getId());
         }

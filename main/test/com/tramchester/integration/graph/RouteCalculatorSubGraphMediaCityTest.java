@@ -266,7 +266,7 @@ class RouteCalculatorSubGraphMediaCityTest {
 
     }
 
-    private Set<TransportMode> getRequestedModes() {
+    private EnumSet<TransportMode> getRequestedModes() {
         return TransportMode.TramsOnly;
     }
 

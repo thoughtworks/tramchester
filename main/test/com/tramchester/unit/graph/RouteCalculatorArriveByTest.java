@@ -60,7 +60,7 @@ class RouteCalculatorArriveByTest extends EasyMockSupport {
 
         Stream<Journey> journeyStream = Stream.empty();
 
-        Set<TransportMode> modes = TramsOnly;
+        EnumSet<TransportMode> modes = TramsOnly;
 
         Duration duration = Duration.ofMinutes(15);
         EasyMock.expect(costCalculator.getAverageCostBetween(txn, start, destinationId, localDate, modes)).andReturn(duration);

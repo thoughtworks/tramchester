@@ -17,6 +17,7 @@ import org.neo4j.graphdb.Transaction;
 
 import java.time.Duration;
 import java.util.Collections;
+import java.util.EnumSet;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
@@ -71,8 +72,8 @@ class RailRouteCalculatorCombinationTests {
         combinations.validateAllHaveAtLeastOneJourney(combinations.InterchangeToInterchange(Train), request);
     }
 
-    private Set<TransportMode> getRequestedModes() {
-        return Collections.emptySet();
+    private EnumSet<TransportMode> getRequestedModes() {
+        return EnumSet.noneOf(TransportMode.class);
     }
 
     @Test

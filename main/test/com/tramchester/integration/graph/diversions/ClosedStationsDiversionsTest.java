@@ -85,7 +85,7 @@ class ClosedStationsDiversionsTest {
         txn.close();
     }
 
-    private Set<TransportMode> getRequestedModes() {
+    private EnumSet<TransportMode> getRequestedModes() {
         return EnumSet.of(Tram, Walk);
     }
 

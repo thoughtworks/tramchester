@@ -312,7 +312,7 @@ public class RailAndTramRouteCalculatorTest {
         atLeastOneDirect(request, rail(Stockport), rail(ManchesterPiccadilly), Train);
     }
 
-    private Set<TransportMode> getRequestedModes() {
+    private EnumSet<TransportMode> getRequestedModes() {
         return EnumSet.of(Tram, Train, RailReplacementBus);
     }
 
@@ -329,7 +329,7 @@ public class RailAndTramRouteCalculatorTest {
     void shouldNotHaveManPiccToStockportWhenTramOnly() {
 
         JourneyRequest request = new JourneyRequest(when, travelTime, false, 0,
-                Duration.ofMinutes(30), 1, Collections.singleton(Tram));
+                Duration.ofMinutes(30), 1, EnumSet.of(Tram));
 
         Set<Journey> journeys = testFacade.calculateRouteAsSet(rail(ManchesterPiccadilly), rail(Stockport), request);
         assertTrue(journeys.isEmpty());

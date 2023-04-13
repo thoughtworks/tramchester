@@ -33,10 +33,7 @@ import org.neo4j.graphdb.Transaction;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.time.Duration;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.tramchester.domain.reference.TransportMode.TramsOnly;
@@ -58,7 +55,7 @@ class TramRouteTest {
     private TramDate queryDate;
     private TramTime queryTime;
     private Transaction txn;
-    private Set<TransportMode> modes;
+    private EnumSet<TransportMode> modes;
 
     @BeforeAll
     static void onceBeforeAllTestRuns() throws IOException {

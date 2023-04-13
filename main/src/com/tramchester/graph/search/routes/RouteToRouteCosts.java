@@ -74,7 +74,7 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
     }
 
     private int getNumberChangesFor(RoutePair routePair, TramDate date, StationAvailabilityFacade changeStationOperating,
-                                    IndexedBitSet dateAndModeOverlaps, Set<TransportMode> requestedModes) {
+                                    IndexedBitSet dateAndModeOverlaps, EnumSet<TransportMode> requestedModes) {
         if (routePair.areSame()) {
             return 0;
         }
@@ -98,7 +98,7 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
     }
 
     private int getDepth(RouteIndexPair routePair, StationAvailabilityFacade changeStationOperating,
-                         IndexedBitSet dateAndModeOverlaps, Set<TransportMode> requestedModes) {
+                         IndexedBitSet dateAndModeOverlaps, EnumSet<TransportMode> requestedModes) {
 
         // need to account for route availability and modes when getting the depth
         // the simple answer, or the lowest limit, comes from the matrix depth for the routePair
@@ -133,12 +133,13 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
     }
 
     @Override
-    public NumberOfChanges getNumberOfChanges(StationGroup start, StationGroup end, TramDate date, TimeRange time, Set<TransportMode> modes) {
+    public NumberOfChanges getNumberOfChanges(StationGroup start, StationGroup end, TramDate date, TimeRange time, EnumSet<TransportMode> modes) {
         return getNumberOfChanges(LocationSet.of(start.getContained()), LocationSet.of(end.getContained()), date, time, modes);
     }
 
     @Override
-    public NumberOfChanges getNumberOfChanges(LocationSet starts, LocationSet destinations, TramDate date, TimeRange timeRange, Set<TransportMode> requestedModes) {
+    public NumberOfChanges getNumberOfChanges(LocationSet starts, LocationSet destinations, TramDate date, TimeRange timeRange,
+                                              EnumSet<TransportMode> requestedModes) {
 
         Set<Route> startRoutes = pickupRoutesFor(starts, date, timeRange, requestedModes);
         Set<Route> endRoutes = dropoffRoutesFor(destinations, date, timeRange, requestedModes);
@@ -163,7 +164,7 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
 
     @Override
     public NumberOfChanges getNumberOfChanges(Location<?> startStation, Location<?> destination,
-                                              Set<TransportMode> preferredModes, TramDate date, TimeRange timeRange) {
+                                              EnumSet<TransportMode> preferredModes, TramDate date, TimeRange timeRange) {
 
         if (preferredModes.isEmpty()) {
             throw new RuntimeException("Must provide preferredModes");
@@ -212,7 +213,7 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
     }
 
     @Override
-    public NumberOfChanges getNumberOfChanges(Route routeA, Route routeB, TramDate date, TimeRange timeRange, Set<TransportMode> requestedModes) {
+    public NumberOfChanges getNumberOfChanges(Route routeA, Route routeB, TramDate date, TimeRange timeRange, EnumSet<TransportMode> requestedModes) {
         StationAvailabilityFacade interchangesOperating = new StationAvailabilityFacade(date, timeRange);
         return getNumberOfHops(Collections.singleton(routeA), Collections.singleton(routeB), date,
                 interchangesOperating, 0, requestedModes);
@@ -220,7 +221,7 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
 
     @Override
     public LowestCostsForDestRoutes getLowestCostCalcutatorFor(LocationSet destinations, TramDate date, TimeRange timeRange,
-                                                               Set<TransportMode> requestedModes) {
+                                                               EnumSet<TransportMode> requestedModes) {
         Set<Route> destinationRoutes = destinations.stream().
                 map(dest -> availabilityRepository.getDropoffRoutesFor(dest, date, timeRange, requestedModes)).
                 flatMap(Collection::stream).
@@ -231,7 +232,7 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
     @NotNull
     private NumberOfChanges getNumberOfHops(Set<Route> startRoutes, Set<Route> destinationRoutes, TramDate date,
                                             StationAvailabilityFacade interchangesOperating,
-                                            int closureOffset, Set<TransportMode> requestedModes) {
+                                            int closureOffset, EnumSet<TransportMode> requestedModes) {
         if (logger.isDebugEnabled()) {
             logger.debug(format("Compute number of changes between %s and %s on %s",
                     HasId.asIds(startRoutes), HasId.asIds(destinationRoutes), date));
@@ -321,10 +322,10 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
         private final TimeRange time;
         private final StationAvailabilityFacade changeStationOperating;
         private final IndexedBitSet dateOverlaps;
-        private final Set<TransportMode> requestedModes;
+        private final EnumSet<TransportMode> requestedModes;
 
         public LowestCostForDestinations(BetweenRoutesCostRepository routeToRouteCosts, RouteIndexPairFactory pairFactory, Set<Route> destinations,
-                                         TramDate date, TimeRange time, Set<TransportMode> requestedModes) {
+                                         TramDate date, TimeRange time, EnumSet<TransportMode> requestedModes) {
             this.routeToRouteCosts = (RouteToRouteCosts) routeToRouteCosts;
             this.pairFactory = pairFactory;
             destinationIndexs = destinations.stream().
@@ -407,7 +408,8 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
                     '}';
         }
 
-        public Boolean isOperating(StationAvailabilityRepository availabilityRepository, InterchangeStation interchangeStation, Set<TransportMode> requestedModes) {
+        public Boolean isOperating(StationAvailabilityRepository availabilityRepository, InterchangeStation interchangeStation,
+                                   EnumSet<TransportMode> requestedModes) {
             return availabilityRepository.isAvailable(interchangeStation.getStation(), date, time, requestedModes);
         }
     }

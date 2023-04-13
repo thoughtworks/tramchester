@@ -3,7 +3,6 @@ package com.tramchester.integration.geo;
 import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.domain.id.IdFor;
-import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.places.NaptanArea;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.LatLong;
@@ -21,8 +20,8 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.util.EnumSet;
 import java.util.List;
-import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -31,7 +30,7 @@ class BusStationsLocationsTest {
     public static final String SHUDEHILL_INTERCHANGE_AREA_CODE = "180GSHIC";
     private static ComponentContainer componentContainer;
     private static IntegrationBusTestConfig testConfig;
-    private static Set<TransportMode> modes;
+    private static EnumSet<TransportMode> modes;
 
     private StationLocations stationLocations;
     private MarginInMeters inMeters;

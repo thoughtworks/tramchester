@@ -31,6 +31,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
 import java.time.Duration;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -74,7 +75,7 @@ public class RouteCalculatorForBoxes extends RouteCalculatorSupport {
         // TODO Compute over a range of times
         final TramTime originalTime = journeyRequest.getOriginalTime();
 
-        final Set<TransportMode> requestedModes = journeyRequest.getRequestedModes();
+        final EnumSet<TransportMode> requestedModes = journeyRequest.getRequestedModes();
 
         TramDate date = journeyRequest.getDate();
         final LowestCostsForDestRoutes lowestCostForDestinations = routeToRouteCosts.getLowestCostCalcutatorFor(destinations, date,
@@ -135,7 +136,7 @@ public class RouteCalculatorForBoxes extends RouteCalculatorSupport {
         }
     }
 
-    private NumberOfChanges computeNumberOfChanges(LocationSet starts, LocationSet destinations, TramDate date, TimeRange timeRange, Set<TransportMode> modes) {
+    private NumberOfChanges computeNumberOfChanges(LocationSet starts, LocationSet destinations, TramDate date, TimeRange timeRange, EnumSet<TransportMode> modes) {
         return routeToRouteCosts.getNumberOfChanges(starts, destinations, date, timeRange, modes);
     }
 }

@@ -87,7 +87,7 @@ class ServiceHeuristicsTest extends EasyMockSupport {
                 MAX_NUM_CHANGES, maxJourneyDuration, maxNumberOfJourneys, getRequestedModes());
     }
 
-    private Set<TransportMode> getRequestedModes() {
+    private EnumSet<TransportMode> getRequestedModes() {
         return TramsOnly;
     }
 

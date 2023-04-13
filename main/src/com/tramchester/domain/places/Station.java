@@ -15,6 +15,7 @@ import com.tramchester.geo.GridPosition;
 
 import java.time.Duration;
 import java.time.LocalDate;
+import java.util.EnumSet;
 import java.util.Set;
 
 public interface Station extends Location<Station> {
@@ -32,7 +33,7 @@ public interface Station extends Location<Station> {
     boolean hasPlatforms();
 
     @Override
-    Set<TransportMode> getTransportModes();
+    EnumSet<TransportMode> getTransportModes();
 
     @Override
     DataSourceID getDataSourceID();

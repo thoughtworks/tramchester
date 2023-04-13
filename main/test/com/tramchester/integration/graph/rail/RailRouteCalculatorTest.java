@@ -102,7 +102,7 @@ public class RailRouteCalculatorTest {
         atLeastOneDirect(request, stockport, manchesterPiccadilly);
     }
 
-    private Set<TransportMode> getRequestedModes() {
+    private EnumSet<TransportMode> getRequestedModes() {
         return EnumSet.of(TransportMode.Train);
     }
 

@@ -5,12 +5,13 @@ import com.tramchester.domain.Platform;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.reference.TransportMode;
 
+import java.util.EnumSet;
 import java.util.Set;
 import java.util.stream.Stream;
 
 @ImplementedBy(TransportData.class)
 public interface PlatformRepository {
-    Set<Platform> getPlatforms(Set<TransportMode> modes);
+    Set<Platform> getPlatforms(EnumSet<TransportMode> modes);
     boolean hasPlatformId(IdFor<Platform> id);
     Platform getPlatformById(IdFor<Platform> id);
 

@@ -5,6 +5,7 @@ import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.reference.TransportMode;
 
 import java.util.Collections;
+import java.util.EnumSet;
 import java.util.Set;
 
 import static com.tramchester.domain.id.HasId.asId;
@@ -65,7 +66,7 @@ public class SimpleInterchangeStation implements InterchangeStation {
     }
 
     @Override
-    public Set<TransportMode> getTransportModes() {
+    public EnumSet<TransportMode> getTransportModes() {
         return station.getTransportModes();
     }
 

@@ -27,10 +27,7 @@ import org.neo4j.graphdb.Transaction;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.time.Duration;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 import static com.tramchester.domain.reference.TransportMode.TramsOnly;
 import static com.tramchester.testSupport.reference.KnownLocations.nearStPetersSquare;
@@ -52,7 +49,7 @@ class RouteCalculatorSubGraphTest {
     private Transaction txn;
     private TramTime tramTime;
     private Duration maxJourneyDuration;
-    private Set<TransportMode> modes;
+    private EnumSet<TransportMode> modes;
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() throws IOException {

@@ -29,10 +29,7 @@ import org.neo4j.graphdb.Transaction;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.time.Duration;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 import static com.tramchester.domain.reference.TransportMode.Train;
 import static com.tramchester.integration.testSupport.rail.RailStationIds.Hale;
@@ -114,7 +111,7 @@ class SubGraphAroundKnutsfordRailTest {
 
         TimeRange timeRange = TimeRange.of(tramTime, tramTime.plusMinutes(TestRailConfig.INITIAL_WAIT_MINS));
 
-        Set<TransportMode> transportModes = Collections.singleton(Train);
+        EnumSet<TransportMode> transportModes = EnumSet.of(Train);
 
         NumberOfChanges haleKnutsford = routeToRouteCosts.getNumberOfChanges(hale, knutsford, transportModes, when, timeRange);
         assertEquals(0, haleKnutsford.getMin(), "expected no changes");
@@ -144,7 +141,7 @@ class SubGraphAroundKnutsfordRailTest {
     @Test
     void shouldHaveNoChangesBetweenAllStations() {
         TimeRange timeRange = TimeRange.of(tramTime, tramTime.plusMinutes(TestRailConfig.INITIAL_WAIT_MINS));
-        Set<TransportMode> transportModes = Collections.singleton(Train);
+        EnumSet<TransportMode> transportModes = EnumSet.of(Train);
 
         for (RailStationIds startId: stations) {
             for (RailStationIds destinationId: stations) {
@@ -161,7 +158,7 @@ class SubGraphAroundKnutsfordRailTest {
     @Test
     void shouldHaveSimpleJourney() {
         JourneyRequest journeyRequest = new JourneyRequest(when, tramTime, false, 0,
-                Duration.ofMinutes(30), 1, Collections.emptySet());
+                Duration.ofMinutes(30), 1, EnumSet.noneOf(TransportMode.class));
         Set<Journey> results = testFacade.calculateRouteAsSet(Hale.getId(), Knutsford.getId(), journeyRequest);
         Assertions.assertTrue(results.size()>0);
     }
@@ -175,7 +172,7 @@ class SubGraphAroundKnutsfordRailTest {
     }
 
     private void validateAtLeastOneJourney(RailStationIds start, RailStationIds dest, Duration maxJourneyDuration) {
-        Set<TransportMode> allModes = Collections.emptySet();
+        EnumSet<TransportMode> allModes = EnumSet.noneOf(TransportMode.class);
         JourneyRequest journeyRequest = new JourneyRequest(when, tramTime, false, 0,
                 maxJourneyDuration, 1, allModes);
 

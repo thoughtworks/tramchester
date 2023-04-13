@@ -5,6 +5,7 @@ import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.reference.TransportMode;
 
+import java.util.EnumSet;
 import java.util.Set;
 
 public interface InterchangeStation extends HasId<Station> {
@@ -20,5 +21,5 @@ public interface InterchangeStation extends HasId<Station> {
 
     Station getStation();
 
-    Set<TransportMode> getTransportModes();
+    EnumSet<TransportMode> getTransportModes();
 }

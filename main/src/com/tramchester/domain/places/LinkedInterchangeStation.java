@@ -5,6 +5,7 @@ import com.tramchester.domain.StationLink;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.reference.TransportMode;
 
+import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
@@ -15,13 +16,14 @@ import static java.lang.String.format;
 public class LinkedInterchangeStation implements InterchangeStation {
     private final Set<StationLink> links;
     private final Station origin;
-    private final Set<TransportMode> allModes;
+    private final EnumSet<TransportMode> allModes;
 
     public LinkedInterchangeStation(StationLink stationLink) {
         links = new HashSet<>();
         links.add(stationLink);
         origin = stationLink.getBegin();
-        this.allModes = links.stream().flatMap(links -> links.getContainedModes().stream()).collect(Collectors.toSet());
+        Set<TransportMode> collectedModes = links.stream().flatMap(links -> links.getContainedModes().stream()).collect(Collectors.toSet());
+        this.allModes = EnumSet.copyOf(collectedModes);
     }
 
     @Override
@@ -59,7 +61,7 @@ public class LinkedInterchangeStation implements InterchangeStation {
     }
 
     @Override
-    public Set<TransportMode> getTransportModes() {
+    public EnumSet<TransportMode> getTransportModes() {
         return allModes;
     }
 

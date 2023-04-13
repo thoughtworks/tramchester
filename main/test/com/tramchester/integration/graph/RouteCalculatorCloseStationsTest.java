@@ -23,10 +23,7 @@ import org.neo4j.graphdb.Transaction;
 
 import java.io.IOException;
 import java.time.Duration;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
@@ -96,7 +93,7 @@ class RouteCalculatorCloseStationsTest {
         assertFalse(result.isEmpty());
     }
 
-    private Set<TransportMode> getRequestedModes() {
+    private EnumSet<TransportMode> getRequestedModes() {
         return TramsOnly;
     }
 

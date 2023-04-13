@@ -24,6 +24,7 @@ import org.neo4j.graphdb.Transaction;
 
 import java.time.Duration;
 import java.util.Collections;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
@@ -82,7 +83,7 @@ class PostcodeBusRouteCalculatorTest {
         assertFalse(journeys.isEmpty(), "no journeys");
     }
 
-    private Set<TransportMode> getRequestedModes() {
+    private EnumSet<TransportMode> getRequestedModes() {
         return TransportMode.BusesOnly;
     }
 

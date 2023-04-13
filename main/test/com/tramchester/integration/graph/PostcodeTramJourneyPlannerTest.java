@@ -29,6 +29,7 @@ import org.neo4j.graphdb.Transaction;
 
 import java.time.Duration;
 import java.util.Collections;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
@@ -86,7 +87,7 @@ class PostcodeTramJourneyPlannerTest {
         //TramServiceDate date = new TramServiceDate(when);
         int maxChanges = 2;
         long maxNumberOfJourneys = 3;
-        Set<TransportMode> modes = TramsOnly;
+        EnumSet<TransportMode> modes = TramsOnly;
         return Stream.of(
                 new JourneyRequest(when, planningTime, false, maxChanges, maxJourneyDuration, maxNumberOfJourneys, modes),
                 new JourneyRequest(when, planningTime, true, maxChanges, maxJourneyDuration, maxNumberOfJourneys, modes));

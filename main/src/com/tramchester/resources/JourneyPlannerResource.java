@@ -31,6 +31,7 @@ import javax.ws.rs.core.*;
 import java.net.URI;
 import java.time.Duration;
 import java.time.LocalTime;
+import java.util.EnumSet;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -90,7 +91,7 @@ public class JourneyPlannerResource extends UsesRecentCookie implements APIResou
         }
 
         // if no modes provided then default to all modes currently configured
-        Set<TransportMode> modes = query.getModes().isEmpty() ? config.getTransportModes() : query.getModes();
+        EnumSet<TransportMode> modes = query.getModes().isEmpty() ? config.getTransportModes() : EnumSet.copyOf(query.getModes());
 
         Location<?> start = locationRepository.getLocation(query.getStartType(), query.getStartId());
         Location<?> dest = locationRepository.getLocation(query.getDestType(), query.getDestId());
@@ -147,7 +148,7 @@ public class JourneyPlannerResource extends UsesRecentCookie implements APIResou
             logger.error("Problem with received: " + query);
             return Response.serverError().build();
         }
-        Set<TransportMode> modes = query.getModes().isEmpty() ? config.getTransportModes() : query.getModes();
+        EnumSet<TransportMode> modes = query.getModes().isEmpty() ? config.getTransportModes() : EnumSet.copyOf(query.getModes());
 
         Location<?> start = locationRepository.getLocation(query.getStartType(), query.getStartId());
         Location<?> dest = locationRepository.getLocation(query.getDestType(), query.getDestId());
@@ -177,7 +178,7 @@ public class JourneyPlannerResource extends UsesRecentCookie implements APIResou
     }
 
     private Stream<JourneyDTO> getJourneyDTOStream(Transaction tx, TramDate date, LocalTime time, Location<?> start,
-                                                   Location<?> dest, boolean arriveBy, int maxChanges, Set<TransportMode> modes) {
+                                                   Location<?> dest, boolean arriveBy, int maxChanges, EnumSet<TransportMode> modes) {
 
         TramTime queryTime = TramTime.ofHourMins(time);
         final Duration maxJourneyDuration = Duration.ofMinutes(config.getMaxJourneyDuration());

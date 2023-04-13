@@ -18,7 +18,7 @@ public class MutableService implements Service {
 
     private final IdFor<Service> serviceId;
     private final Set<Trip> trips;
-    private final Set<TransportMode> modes;
+    private final EnumSet<TransportMode> modes;
     private MutableServiceCalendar calendar;
     private TramTime startTime;
     private TramTime finishTime;
@@ -159,7 +159,7 @@ public class MutableService implements Service {
     }
 
     @Override
-    public Set<TransportMode> getTransportModes() {
+    public EnumSet<TransportMode> getTransportModes() {
         return modes;
     }
 }

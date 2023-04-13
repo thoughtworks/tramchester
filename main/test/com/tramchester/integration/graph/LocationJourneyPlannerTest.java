@@ -104,7 +104,7 @@ class LocationJourneyPlannerTest {
         });
     }
 
-    private Set<TransportMode> getRequestedModes() {
+    private EnumSet<TransportMode> getRequestedModes() {
         return TramsOnly;
     }
 

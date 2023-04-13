@@ -8,6 +8,7 @@ import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
 
+import java.util.EnumSet;
 import java.util.Set;
 import java.util.stream.Stream;
 
@@ -18,7 +19,7 @@ public interface StationRepository extends StationRepositoryPublic {
 
     Set<Station> getStations();
 
-    Set<Station> getStations(Set<TransportMode> modes);
+    Set<Station> getStations(EnumSet<TransportMode> modes);
 
     /***
      * Use with care, return includes route stations present due to rare circumstances, such as return to depot

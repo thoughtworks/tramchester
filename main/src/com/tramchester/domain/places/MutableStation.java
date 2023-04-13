@@ -12,6 +12,7 @@ import com.tramchester.graph.graphbuild.GraphLabel;
 
 import java.time.Duration;
 import java.util.Collections;
+import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -33,7 +34,7 @@ public class MutableStation implements Station {
     private final Set<Agency> servesAgencies;
     private final DataSourceID dataSourceID;
     private final boolean isMarkedInterchange;
-    private final Set<TransportMode> modes;
+    private final EnumSet<TransportMode> modes;
     private final Duration changeTimeNeeded;
 
     public MutableStation(IdFor<Station> id, IdFor<NaptanArea> areaId, String stationName, LatLong latLong, GridPosition gridPosition,
@@ -60,7 +61,7 @@ public class MutableStation implements Station {
         this.id = id;
         this.name = stationName;
         this.latLong = latLong;
-        modes = new HashSet<>();
+        modes = EnumSet.noneOf(TransportMode.class);
     }
 
     public static Station Unknown(DataSourceID dataSourceID) {
@@ -94,7 +95,7 @@ public class MutableStation implements Station {
     }
 
     @Override
-    public Set<TransportMode> getTransportModes() {
+    public EnumSet<TransportMode> getTransportModes() {
         return modes;
     }
 

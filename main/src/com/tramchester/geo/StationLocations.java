@@ -197,14 +197,14 @@ public class StationLocations implements StationLocationsRepository {
 
     @Override
     public List<Station> nearestStationsSorted(Location<?> location, int maxToFind, MarginInMeters rangeInMeters,
-                                               Set<TransportMode> modes) {
+                                               EnumSet<TransportMode> modes) {
         return nearestStationsSorted(location.getGridPosition(), maxToFind, rangeInMeters, modes);
     }
 
     // TODO Use quadrants for this search?
     // TODO Station Groups here?
     public List<Station> nearestStationsSorted(GridPosition gridPosition, int maxToFind, MarginInMeters rangeInMeters,
-                                               Set<TransportMode> modes) {
+                                               EnumSet<TransportMode> modes) {
 
         final Geography.LocationsSource<Station> source;
         if (modes.isEmpty()) {
@@ -219,7 +219,7 @@ public class StationLocations implements StationLocationsRepository {
                 collect(Collectors.toList());
     }
 
-    private Stream<Station> getStationModeFilteredStations(Set<TransportMode> modes) {
+    private Stream<Station> getStationModeFilteredStations(EnumSet<TransportMode> modes) {
         return stationRepository.getActiveStationStream().
                 filter(station -> TransportMode.intersects(modes, station.getTransportModes()));
     }

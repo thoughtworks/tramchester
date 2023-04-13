@@ -15,6 +15,7 @@ import com.tramchester.graph.graphbuild.GraphLabel;
 import org.apache.commons.collections4.SetUtils;
 
 import java.util.Collections;
+import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -208,10 +209,11 @@ public class MutablePlatform implements Platform {
     }
 
     @Override
-    public Set<TransportMode> getTransportModes() {
+    public EnumSet<TransportMode> getTransportModes() {
 //        return Sets.union(servesRoutesDropoff.getTransportModes(), servesRoutesPickup.getTransportModes());
-        return Streams.concat(servesRoutesDropoff.stream(), servesRoutesPickup.stream()).
+        Set<TransportMode> modes = Streams.concat(servesRoutesDropoff.stream(), servesRoutesPickup.stream()).
                 map(Route::getTransportMode).collect(Collectors.toSet());
+        return EnumSet.copyOf(modes);
     }
 
 }

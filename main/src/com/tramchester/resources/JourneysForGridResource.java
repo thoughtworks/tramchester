@@ -36,6 +36,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.time.Duration;
 import java.time.LocalDate;
+import java.util.EnumSet;
 import java.util.Set;
 import java.util.stream.Stream;
 
@@ -100,7 +101,7 @@ public class JourneysForGridResource implements APIResource, GraphDatabaseDepend
         Duration maxDuration = Duration.ofMinutes(maxDurationMinutes);
 
         TramDate tramServiceDate = TramDate.of(date);
-        Set<TransportMode> allModes = config.getTransportModes();
+        EnumSet<TransportMode> allModes = config.getTransportModes();
         JourneyRequest journeyRequest = new JourneyRequest(tramServiceDate, departureTime,
                 false, maxChanges, maxDuration, maxNumberOfJourneys, allModes);
         journeyRequest.setWarnIfNoResults(false);

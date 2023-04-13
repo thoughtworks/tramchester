@@ -21,6 +21,7 @@ import org.slf4j.LoggerFactory;
 import javax.inject.Inject;
 import java.time.Duration;
 import java.time.LocalDate;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -47,7 +48,7 @@ public class DeparturesRepository {
     }
 
     public List<UpcomingDeparture> dueTramsForLocation(Location<?> location, LocalDate date, TramTime time,
-                                                       Set<TransportMode> modes) {
+                                                       EnumSet<TransportMode> modes) {
         List<UpcomingDeparture> departures = switch (location.getLocationType()) {
             case Station -> getStationDepartures((Station) location, modes);
             case StationGroup -> getStationGroupDepartures((StationGroup) location, modes);
@@ -66,7 +67,7 @@ public class DeparturesRepository {
         return timeRange.contains(departure.getWhen());
     }
 
-    private List<UpcomingDeparture> getPlatformDepartrues(Platform platform, Set<TransportMode> modes) {
+    private List<UpcomingDeparture> getPlatformDepartrues(Platform platform, EnumSet<TransportMode> modes) {
         if (!TransportMode.intersects(modes, platform.getTransportModes())) {
             logger.error(format("Platform %s does not match supplied modes %s", platform, modes));
         }
@@ -77,7 +78,7 @@ public class DeparturesRepository {
                 collect(Collectors.toList());
     }
 
-    private List<UpcomingDeparture> getDeparturesNearTo(Location<?> location, Set<TransportMode> modes) {
+    private List<UpcomingDeparture> getDeparturesNearTo(Location<?> location, EnumSet<TransportMode> modes) {
         final MarginInMeters margin = MarginInMeters.of(config.getNearestStopRangeKM());
         final int numOfNearestStopsToOffer = config.getNumOfNearestStopsToOffer();
 
@@ -90,7 +91,7 @@ public class DeparturesRepository {
                 collect(Collectors.toList());
     }
 
-    private List<UpcomingDeparture> getStationGroupDepartures(StationGroup stationGroup,  Set<TransportMode> modes) {
+    private List<UpcomingDeparture> getStationGroupDepartures(StationGroup stationGroup,  EnumSet<TransportMode> modes) {
         return stationGroup.getContained().stream().
                 filter(station -> TransportMode.intersects(station.getTransportModes(), modes)).
                 flatMap(station -> getStationDepartures(station, modes).stream()).

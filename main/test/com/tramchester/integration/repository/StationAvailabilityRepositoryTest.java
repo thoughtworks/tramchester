@@ -50,7 +50,7 @@ public class StationAvailabilityRepositoryTest {
     private StationRepository stationRepository;
     private TramDate when;
     private ClosedStationsRepository closedStationRepository;
-    private Set<TransportMode> modes;
+    private EnumSet<TransportMode> modes;
     private TramRouteHelper tramRouteHelper;
 
     @BeforeAll
@@ -98,7 +98,7 @@ public class StationAvailabilityRepositoryTest {
 
         Station stPeters = StPetersSquare.from(stationRepository);
 
-        Set<TransportMode> otherModes = EnumSet.of(TransportMode.Ferry);
+        EnumSet<TransportMode> otherModes = EnumSet.of(TransportMode.Ferry);
         boolean duringTheDay = availabilityRepository.isAvailable(stPeters, when, TimeRange.of(of(8,45), of(10,45)), otherModes);
 
         assertFalse(duringTheDay);

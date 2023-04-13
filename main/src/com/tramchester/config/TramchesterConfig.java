@@ -102,7 +102,7 @@ public abstract class TramchesterConfig extends Configuration implements HasRemo
     // bounding box for stations to include
     public abstract BoundingBox getBounds();
 
-    public Set<TransportMode> getTransportModes() {
+    public EnumSet<TransportMode> getTransportModes() {
         final Set<TransportMode> modes = getGTFSDataSource().stream().
                 map(GTFSSourceConfig::getTransportModes).
                 flatMap(Collection::stream).
@@ -113,7 +113,8 @@ public abstract class TramchesterConfig extends Configuration implements HasRemo
             modes.add(Train);
             modes.add(RailReplacementBus);
         }
-        return modes;
+
+        return EnumSet.copyOf(modes);
     }
 
     public RemoteDataSourceConfig getDataRemoteSourceConfig(DataSourceID dataSourceID) {

@@ -295,7 +295,7 @@ class RouteCalculatorLocalStationsSubGraphTest {
     }
 
 
-    private Set<TransportMode> getRequestedModes() {
+    private EnumSet<TransportMode> getRequestedModes() {
         return EnumSet.of(Train, Tram);
     }
 

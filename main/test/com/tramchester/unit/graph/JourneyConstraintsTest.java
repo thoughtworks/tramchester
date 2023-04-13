@@ -23,6 +23,7 @@ import org.junit.jupiter.api.Test;
 
 import java.time.Duration;
 import java.util.Collections;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
 
@@ -157,8 +158,8 @@ public class JourneyConstraintsTest extends EasyMockSupport {
         }
 
         @Override
-        public Set<TransportMode> getTransportModes() {
-            return Collections.singleton(Tram);
+        public EnumSet<TransportMode> getTransportModes() {
+            return EnumSet.of(Tram);
         }
     }
 }

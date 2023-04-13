@@ -31,7 +31,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 
 @TrainTest
 public class RouteToRouteCostsRailTest {
-    public static final Set<TransportMode> TRAIN = Collections.singleton(Train);
+    public static final EnumSet<TransportMode> TRAIN = EnumSet.of(Train);
     private static ComponentContainer componentContainer;
     private static TramDate date;
 

@@ -156,7 +156,7 @@ class BusRouteCalculatorSubGraphAltyToMaccRoute {
         assertFalse(results.isEmpty());
     }
 
-    private Set<TransportMode> getRequestedModes() {
+    private EnumSet<TransportMode> getRequestedModes() {
         return TransportMode.BusesOnly;
     }
 

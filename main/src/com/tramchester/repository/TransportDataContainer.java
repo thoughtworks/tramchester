@@ -120,7 +120,7 @@ public class TransportDataContainer implements TransportData, WriteableTransport
     }
 
     @Override
-    public Set<Station> getStations(Set<TransportMode> modes) {
+    public Set<Station> getStations(EnumSet<TransportMode> modes) {
         return stationsById.getValuesStream().
                 filter(station -> TransportMode.intersects(station.getTransportModes(), modes)).
                 collect(Collectors.toSet());
@@ -199,7 +199,7 @@ public class TransportDataContainer implements TransportData, WriteableTransport
     }
 
     @Override
-    public Set<Service> getServices(Set<TransportMode> modes) {
+    public Set<Service> getServices(EnumSet<TransportMode> modes) {
         return services.getValuesStream().
                 filter(service -> TransportMode.intersects(service.getTransportModes(), modes)).collect(Collectors.toSet());
     }
@@ -234,7 +234,7 @@ public class TransportDataContainer implements TransportData, WriteableTransport
     }
 
     @Override
-    public Set<Platform> getPlatforms(Set<TransportMode> modes) {
+    public Set<Platform> getPlatforms(EnumSet<TransportMode> modes) {
         return platforms.getValuesStream().
                 filter(platform -> TransportMode.intersects(modes, platform.getTransportModes())).collect(Collectors.toSet());
         //return Collections.unmodifiableSet(platforms.getValues());
