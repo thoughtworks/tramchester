@@ -106,7 +106,7 @@ public class IndexedBitSet {
     }
 
     /***
-     * Apply a bitmask to one sepcific row via 'and'
+     * Apply a bitmask to one specific row via 'and'
      * @param row the row to apply the bitmask to
      * @param bitMask bitmask to use
      */
@@ -234,11 +234,11 @@ public class IndexedBitSet {
 
     }
 
-    public int numberRows() {
-        return rows;
-    }
-
-    public int numberColumns() {
-        return columns;
-    }
+//    public int numberRows() {
+//        return rows;
+//    }
+//
+//    public int numberColumns() {
+//        return columns;
+//    }
 }

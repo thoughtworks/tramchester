@@ -17,6 +17,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
+import java.net.URI;
 import java.nio.file.Path;
 import java.time.LocalDateTime;
 import java.util.Collections;
@@ -30,7 +31,7 @@ class FetchDataFromUrlTest extends EasyMockSupport {
     private FetchDataFromUrl fetchDataFromUrl;
     private FetchFileModTime fetchFileModTime;
     private Path destinationFile;
-    private final String expectedDownloadURL = TestEnv.TFGM_TIMETABLE_URL;
+    private final URI expectedDownloadURL = URI.create(TestEnv.TFGM_TIMETABLE_URL);
     private ProvidesNow providesLocalNow;
     private DownloadedRemotedDataRepository downloadedDataRepository;
     private LocalDateTime startTime;
@@ -148,8 +149,8 @@ class FetchDataFromUrlTest extends EasyMockSupport {
         EasyMock.expect(fetchFileModTime.exists(destinationFile)).andReturn(true);
         EasyMock.expect(fetchFileModTime.getFor(destinationFile)).andReturn(modTime);
 
-        String redirectUrl1 = "https://resource.is.always.now.com/resource";
-        String redirectUrl2 = "https://resource.is.temp.now.com/resource";
+        URI redirectUrl1 = URI.create("https://resource.is.always.now.com/resource");
+        URI redirectUrl2 = URI.create("https://resource.is.temp.now.com/resource");
 
         LocalDateTime time = TestEnv.LocalNow().plusMinutes(1);
 
@@ -181,8 +182,8 @@ class FetchDataFromUrlTest extends EasyMockSupport {
         EasyMock.expect(fetchFileModTime.exists(destinationFile)).andReturn(true);
         EasyMock.expect(fetchFileModTime.getFor(destinationFile)).andReturn(fileModTime);
 
-        String fromConfigURL = "https://resource.confifured.com/resource";
-        String redirectedURL = "https://resource.is.temp.moved.com/resource";
+        URI fromConfigURL = URI.create("https://resource.confifured.com/resource");
+        URI redirectedURL = URI.create("https://resource.is.temp.moved.com/resource");
 
         LocalDateTime remoteModTime = startTime.plusMinutes(2);
 
@@ -214,7 +215,7 @@ class FetchDataFromUrlTest extends EasyMockSupport {
         EasyMock.expect(fetchFileModTime.exists(destinationFile)).andReturn(true);
         EasyMock.expect(fetchFileModTime.getFor(destinationFile)).andReturn(fileModTime);
 
-        String redirectedURL = "https://resource.is.temp.moved.com/resource";
+        URI redirectedURL = URI.create("https://resource.is.temp.moved.com/resource");
 
         // sometimes see 200 from a server for HEAD but then a redirect for the GET (!)
         URLStatus redirect = new URLStatus(redirectedURL, HttpStatus.SC_MOVED_TEMPORARILY);
@@ -238,7 +239,7 @@ class FetchDataFromUrlTest extends EasyMockSupport {
         EasyMock.expect(fetchFileModTime.exists(destinationFile)).andReturn(true);
         EasyMock.expect(fetchFileModTime.getFor(destinationFile)).andReturn(modTime);
 
-        String redirectUrl = "https://resource.is.always.now.com/resource";
+        URI redirectUrl = URI.create("https://resource.is.always.now.com/resource");
 
         LocalDateTime time = TestEnv.LocalNow().plusMinutes(1);
 

@@ -1,5 +1,7 @@
 package com.tramchester.graph.search.routes;
 
+import com.github.benmanes.caffeine.cache.Cache;
+import com.github.benmanes.caffeine.cache.Caffeine;
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.domain.LocationSet;
 import com.tramchester.domain.NumberOfChanges;
@@ -12,6 +14,7 @@ import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.places.InterchangeStation;
 import com.tramchester.domain.places.Location;
+import com.tramchester.domain.places.Station;
 import com.tramchester.domain.places.StationGroup;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TimeRange;
@@ -29,6 +32,7 @@ import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.inject.Inject;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -74,7 +78,7 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
     }
 
     private int getNumberChangesFor(RoutePair routePair, TramDate date, StationAvailabilityFacade changeStationOperating,
-                                    IndexedBitSet dateAndModeOverlaps, EnumSet<TransportMode> requestedModes) {
+                                    IndexedBitSet dateAndModeOverlaps) {
         if (routePair.areSame()) {
             return 0;
         }
@@ -84,7 +88,7 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
         }
 
         RouteIndexPair routeIndexPair = index.getPairFor(routePair);
-        final int result = getDepth(routeIndexPair, changeStationOperating, dateAndModeOverlaps, requestedModes);
+        final int result = getDepth(routeIndexPair, changeStationOperating, dateAndModeOverlaps);
 
         if (result == RouteCostMatrix.MAX_VALUE) {
             if (routePair.sameMode()) {
@@ -97,8 +101,7 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
         return result;
     }
 
-    private int getDepth(RouteIndexPair routePair, StationAvailabilityFacade changeStationOperating,
-                         IndexedBitSet dateAndModeOverlaps, EnumSet<TransportMode> requestedModes) {
+    private int getDepth(RouteIndexPair routePair, StationAvailabilityFacade changeStationOperating, IndexedBitSet dateAndModeOverlaps) {
 
         // need to account for route availability and modes when getting the depth
         // the simple answer, or the lowest limit, comes from the matrix depth for the routePair
@@ -116,8 +119,7 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
 
         RouteCostMatrix.AnyOfPaths interchanges = costs.getInterchangesFor(routePair, dateAndModeOverlaps);
 
-        RouteCostMatrix.InterchangePath results = interchanges.filter(interchange ->
-                changeStationOperating.isOperating(availabilityRepository, interchange, requestedModes));
+        RouteCostMatrix.InterchangePath results = interchanges.filter(changeStationOperating::isOperating);
 
         if (results.hasAny()) {
             return results.getDepth();
@@ -153,7 +155,7 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
             return NumberOfChanges.None();
         }
 
-        StationAvailabilityFacade interchangesOperating = new StationAvailabilityFacade(date, timeRange);
+        StationAvailabilityFacade interchangesOperating = new StationAvailabilityFacade(availabilityRepository, date, timeRange, requestedModes);
 
         if (neighboursRepository.areNeighbours(starts, destinations)) {
             return new NumberOfChanges(1, 1);
@@ -195,7 +197,7 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
                 startStation.getId(), HasId.asIds(pickupRoutes), destination.getId(), HasId.asIds(dropoffRoutes),
                 preferredModes, date, timeRange));
 
-        StationAvailabilityFacade changeStationOperating = new StationAvailabilityFacade(date, timeRange);
+        StationAvailabilityFacade changeStationOperating = new StationAvailabilityFacade(availabilityRepository, date, timeRange, preferredModes);
 
         if (pickupRoutes.isEmpty()) {
             logger.warn(format("start station %s has no matching pick-up routes for %s %s %s",
@@ -214,7 +216,7 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
 
     @Override
     public NumberOfChanges getNumberOfChanges(Route routeA, Route routeB, TramDate date, TimeRange timeRange, EnumSet<TransportMode> requestedModes) {
-        StationAvailabilityFacade interchangesOperating = new StationAvailabilityFacade(date, timeRange);
+        StationAvailabilityFacade interchangesOperating = new StationAvailabilityFacade(availabilityRepository, date, timeRange, requestedModes);
         return getNumberOfHops(Collections.singleton(routeA), Collections.singleton(routeB), date,
                 interchangesOperating, 0, requestedModes);
     }
@@ -226,7 +228,7 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
                 map(dest -> availabilityRepository.getDropoffRoutesFor(dest, date, timeRange, requestedModes)).
                 flatMap(Collection::stream).
                 collect(Collectors.toUnmodifiableSet());
-        return new LowestCostForDestinations(this, pairFactory, destinationRoutes, date, timeRange, requestedModes);
+        return new LowestCostForDestinations(this, pairFactory, destinationRoutes, date, timeRange, requestedModes, availabilityRepository);
     }
 
     @NotNull
@@ -243,7 +245,7 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
         Set<RoutePair> routePairs = getRoutePairs(startRoutes, destinationRoutes);
 
         Set<Integer> numberOfChangesForRoutes = routePairs.stream().
-                map(pair -> getNumberChangesFor(pair, date, interchangesOperating, dateAndModeOverlaps, requestedModes)).
+                map(pair -> getNumberChangesFor(pair, date, interchangesOperating, dateAndModeOverlaps)).
                 collect(Collectors.toSet());
 
         int maxDepth = RouteCostMatrix.MAX_DEPTH;
@@ -318,23 +320,18 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
         private final RouteToRouteCosts routeToRouteCosts;
         private final RouteIndexPairFactory pairFactory;
         private final Set<Integer> destinationIndexs;
-        private final TramDate date;
-        private final TimeRange time;
         private final StationAvailabilityFacade changeStationOperating;
         private final IndexedBitSet dateOverlaps;
-        private final EnumSet<TransportMode> requestedModes;
 
         public LowestCostForDestinations(BetweenRoutesCostRepository routeToRouteCosts, RouteIndexPairFactory pairFactory, Set<Route> destinations,
-                                         TramDate date, TimeRange time, EnumSet<TransportMode> requestedModes) {
+                                         TramDate date, TimeRange time, EnumSet<TransportMode> requestedModes, StationAvailabilityRepository availabilityRepository) {
             this.routeToRouteCosts = (RouteToRouteCosts) routeToRouteCosts;
             this.pairFactory = pairFactory;
             destinationIndexs = destinations.stream().
                     map(destination -> this.routeToRouteCosts.index.indexFor(destination.getId())).
                     collect(Collectors.toUnmodifiableSet());
-            this.date = date;
-            this.time = time;
-            this.requestedModes = requestedModes;
-            changeStationOperating = new StationAvailabilityFacade(date, time);
+
+            changeStationOperating = new StationAvailabilityFacade(availabilityRepository, date, time, requestedModes);
             dateOverlaps = ((RouteToRouteCosts) routeToRouteCosts).costs.createOverlapMatrixFor(date, requestedModes);
 
         }
@@ -351,12 +348,11 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
                 return 0;
             }
 
-            StationAvailabilityFacade changeStationOperating = new StationAvailabilityFacade(date, time);
 
             // note: IntStream uses int in implementation so avoids any boxing overhead
             return destinationIndexs.stream().mapToInt(item -> item).
                     map(indexOfDest -> routeToRouteCosts.getDepth(pairFactory.get(indexOfStart, indexOfDest),
-                            changeStationOperating, dateOverlaps, requestedModes)).
+                            changeStationOperating, dateOverlaps)).
                     filter(result -> result != RouteCostMatrix.MAX_VALUE).
                     min().
                     orElse(Integer.MAX_VALUE);
@@ -379,7 +375,7 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
 
             // note: IntStream uses int in implementation so avoids any boxing overhead
             int result = destinationIndexs.stream().mapToInt(item -> item).
-                    map(dest -> routeToRouteCosts.getDepth(pairFactory.get(indexOfStart, dest), changeStationOperating, dateOverlaps, requestedModes)).
+                    map(dest -> routeToRouteCosts.getDepth(pairFactory.get(indexOfStart, dest), changeStationOperating, dateOverlaps)).
                     min().
                     orElse(Integer.MAX_VALUE);
             return Pair.of(result, start);
@@ -388,16 +384,24 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
     }
 
     /***
-     * TODO Still needed? Need to test with rail data......
+     * Needed for rail performance, significant
      */
     static class StationAvailabilityFacade {
         private final TramDate date;
         private final TimeRange time;
+        private final EnumSet<TransportMode> modes;
+        private final StationAvailabilityRepository availabilityRepository;
 
+        private final Cache<Station, Boolean> cache;
 
-        public StationAvailabilityFacade(TramDate date, TimeRange time) {
+        public StationAvailabilityFacade(StationAvailabilityRepository availabilityRepository, TramDate date, TimeRange time, EnumSet<TransportMode> modes) {
+            this.availabilityRepository = availabilityRepository;
             this.date = date;
             this.time = time;
+            this.modes = modes;
+
+            cache = Caffeine.newBuilder().maximumSize(availabilityRepository.size()).expireAfterAccess(1, TimeUnit.MINUTES).
+                    recordStats().build();
         }
 
         @Override
@@ -405,12 +409,17 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
             return "StationAvailabilityFacade{" +
                     "date=" + date +
                     ", time=" + time +
+                    ", modes=" + modes +
                     '}';
         }
 
-        public Boolean isOperating(StationAvailabilityRepository availabilityRepository, InterchangeStation interchangeStation,
-                                   EnumSet<TransportMode> requestedModes) {
-            return availabilityRepository.isAvailable(interchangeStation.getStation(), date, time, requestedModes);
+        public Boolean isOperating(InterchangeStation interchangeStation) {
+            Station station = interchangeStation.getStation();
+            return cache.get(station, unused -> uncached(station));
+        }
+
+        private boolean uncached(Station station) {
+            return availabilityRepository.isAvailable(station, date, time, modes);
         }
     }
 

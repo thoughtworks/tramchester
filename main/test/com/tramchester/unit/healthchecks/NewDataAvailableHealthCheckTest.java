@@ -20,6 +20,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
+import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.LocalDateTime;
@@ -31,7 +32,7 @@ class NewDataAvailableHealthCheckTest extends EasyMockSupport {
     private HttpDownloadAndModTime urlDownloader;
     private FetchFileModTime fetchFileModTime;
     private NewDataAvailableHealthCheck healthCheck;
-    private String expectedURL;
+    private URI expectedURL;
     private LocalDateTime time;
     private RemoteDataSourceConfig dataSourceConfig;
 
@@ -41,7 +42,7 @@ class NewDataAvailableHealthCheckTest extends EasyMockSupport {
         urlDownloader = createMock(HttpDownloadAndModTime.class);
         fetchFileModTime = createMock(FetchFileModTime.class);
         dataSourceConfig = config.getRemoteDataSourceConfig().get(0);
-        expectedURL = dataSourceConfig.getDataUrl();
+        expectedURL = URI.create(dataSourceConfig.getDataUrl());
         ServiceTimeLimits serviceTimeLimits = new ServiceTimeLimits();
 
         healthCheck = new NewDataAvailableHealthCheck(dataSourceConfig, urlDownloader, fetchFileModTime, serviceTimeLimits);

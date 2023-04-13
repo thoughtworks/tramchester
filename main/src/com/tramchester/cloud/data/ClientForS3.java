@@ -7,7 +7,6 @@ import com.tramchester.dataimport.URLStatus;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.http.HttpStatus;
-import org.eclipse.emf.common.util.URI;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,6 +22,7 @@ import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.inject.Inject;
 import java.io.*;
+import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.attribute.FileTime;
@@ -341,7 +341,7 @@ public class ClientForS3 {
         return s3Client != null;
     }
 
-    public LocalDateTime getModTimeFor(String url) {
+    public LocalDateTime getModTimeFor(URI url) {
         logger.info("Fetch Mod time for url " + url);
 
         if (!isStarted()) {
@@ -355,8 +355,12 @@ public class ClientForS3 {
         return LocalDateTime.ofInstant(lastModified, TramchesterConfig.TimeZoneId);
     }
 
-    private S3Object getS3ObjectFor(String url) {
-        BucketKey bucketKey = BucketKey.convertFromURI(url);
+//    private S3Object getS3ObjectFor(String url) {
+//        return getS3ObjectFor(URI.createURI(url));
+//    }
+
+    private S3Object getS3ObjectFor(URI uri) {
+        BucketKey bucketKey = BucketKey.convertFromURI(uri);
 
         ListObjectsV2Request request = ListObjectsV2Request.builder().
                 bucket(bucketKey.bucket).prefix(bucketKey.key).maxKeys(1).
@@ -383,8 +387,8 @@ public class ClientForS3 {
                 build();
     }
 
-    public URLStatus downloadTo(Path path, String url) throws IOException {
-        logger.info("Download for for url " + url);
+    public URLStatus downloadTo(Path path, URI uri) throws IOException {
+        logger.info("Download for for url " + uri);
 
         if (!isStarted()) {
             String msg = "Not started, downloadTo";
@@ -392,7 +396,7 @@ public class ClientForS3 {
             throw new RuntimeException(msg);
         }
 
-        BucketKey bucketKey = BucketKey.convertFromURI(url);
+        BucketKey bucketKey = BucketKey.convertFromURI(uri);
 
         GetObjectRequest getObjectRequest = createRequestFor(bucketKey);
         ResponseInputStream<GetObjectResponse> responseInputStream = s3Client.getObject(getObjectRequest);
@@ -417,7 +421,7 @@ public class ClientForS3 {
             logger.info(format("Downloaded to %s from %s MD5 match md5: '%s'", path.toAbsolutePath(), bucketKey, localMd5));
         }
 
-        return new URLStatus(url, HttpStatus.SC_OK, getLocalDateTime(modInstant));
+        return new URLStatus(uri, HttpStatus.SC_OK, getLocalDateTime(modInstant));
     }
 
     private LocalDateTime getLocalDateTime(Instant modInstant) {
@@ -434,14 +438,18 @@ public class ClientForS3 {
             this.key = key;
         }
 
+        @Deprecated
         private static BucketKey convertFromURI(String url) {
-            URI uri = URI.createURI(url);
-            String scheme = uri.scheme();
+            return convertFromURI(URI.create(url));
+        }
+
+        private static BucketKey convertFromURI(URI uri) {
+            String scheme = uri.getScheme();
             if (!"s3".equals(scheme)) {
                 throw new RuntimeException("s3 only, got "+scheme);
             }
-            String bucket = uri.host();
-            String key = uri.path().replaceFirst("/", "");
+            String bucket = uri.getHost();
+            String key = uri.getPath().replaceFirst("/", "");
             return new BucketKey(bucket, key);
         }
 

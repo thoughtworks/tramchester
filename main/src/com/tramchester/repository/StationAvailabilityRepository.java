@@ -200,36 +200,40 @@ public class StationAvailabilityRepository {
                 collect(Collectors.toSet());
     }
 
-    private static class LocationService {
-
-        private final Location<?> location;
-        private final Service service;
-
-        public LocationService(Location<?> location, Service service) {
-            this.location = location;
-            this.service = service;
-        }
-
-        @Override
-        public boolean equals(Object o) {
-            if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
-            LocationService that = (LocationService) o;
-            return location.equals(that.location) && service.equals(that.service);
-        }
-
-        @Override
-        public int hashCode() {
-            return Objects.hash(location, service);
-        }
-
-        @Override
-        public String toString() {
-            return "LocationService{" +
-                    "location=" + location.getId() +
-                    ", service=" + service.getId() +
-                    '}';
-        }
+    public long size() {
+        return pickupsForLocation.size() + dropoffsForLocation.size();
     }
+
+//    private static class LocationService {
+//
+//        private final Location<?> location;
+//        private final Service service;
+//
+//        public LocationService(Location<?> location, Service service) {
+//            this.location = location;
+//            this.service = service;
+//        }
+//
+//        @Override
+//        public boolean equals(Object o) {
+//            if (this == o) return true;
+//            if (o == null || getClass() != o.getClass()) return false;
+//            LocationService that = (LocationService) o;
+//            return location.equals(that.location) && service.equals(that.service);
+//        }
+//
+//        @Override
+//        public int hashCode() {
+//            return Objects.hash(location, service);
+//        }
+//
+//        @Override
+//        public String toString() {
+//            return "LocationService{" +
+//                    "location=" + location.getId() +
+//                    ", service=" + service.getId() +
+//                    '}';
+//        }
+//    }
 
 }

@@ -14,6 +14,7 @@ import org.slf4j.LoggerFactory;
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import java.io.IOException;
+import java.net.URI;
 import java.net.UnknownHostException;
 import java.nio.file.Path;
 import java.rmi.RemoteException;
@@ -129,7 +130,7 @@ public class FetchDataFromUrl {
 
     private RefreshStatus refreshDataIfNewerAvailableNoFile(RemoteDataSourceConfig sourceConfig, Path destination) throws IOException, InterruptedException {
         DataSourceID dataSourceId = sourceConfig.getDataSourceId();
-        String originalURL = sourceConfig.getDataUrl();
+        URI originalURL = URI.create(sourceConfig.getDataUrl());
         boolean isS3 = sourceConfig.getIsS3();
 
         LocalDateTime localModTime = LocalDateTime.MIN;
@@ -171,7 +172,7 @@ public class FetchDataFromUrl {
             return RefreshStatus.NoNeedToRefresh;
         }
 
-        String originalURL = sourceConfig.getDataUrl();
+        URI originalURL = URI.create(sourceConfig.getDataUrl());
         URLStatus status = getUrlStatus(originalURL, isS3, localMod, dataSourceId);
         if (status == null) return RefreshStatus.UnableToCheck;
         String actualURL = status.getActualURL();
@@ -215,7 +216,7 @@ public class FetchDataFromUrl {
 
     }
 
-    private URLStatus getUrlStatus(String originalURL, boolean isS3, LocalDateTime localModTime, DataSourceID dataSourceId) throws IOException, InterruptedException {
+    private URLStatus getUrlStatus(URI originalURL, boolean isS3, LocalDateTime localModTime, DataSourceID dataSourceId) throws IOException, InterruptedException {
         URLStatus status = getStatusFor(originalURL, isS3, localModTime);
         if (!status.isOk()) {
             if (status.getStatusCode() == HttpStatus.SC_METHOD_NOT_ALLOWED) {
@@ -233,17 +234,19 @@ public class FetchDataFromUrl {
 
     private URLStatus downloadTo(Path destination, String url, boolean isS3,
                             LocalDateTime localModTime) throws IOException, InterruptedException {
+        URI uri = URI.create(url);
+
         if (isS3) {
-            return s3Downloader.downloadTo(destination, url, localModTime);
+            return s3Downloader.downloadTo(destination, uri, localModTime);
         } else {
-            return downloadFollowRedirects(destination, url, localModTime);
+            return downloadFollowRedirects(destination, uri, localModTime);
         }
     }
 
-    private URLStatus downloadFollowRedirects(Path destination, String initialURL, LocalDateTime localModTime) throws IOException, InterruptedException {
+    private URLStatus downloadFollowRedirects(Path destination, URI initialURL, LocalDateTime localModTime) throws IOException, InterruptedException {
         RedirectStrategy redirectStrategy = new RedirectStrategy() {
             @Override
-            public URLStatus action(String actualURL) {
+            public URLStatus action(URI actualURL) {
                 return httpDownloader.downloadTo(destination, actualURL, localModTime);
             }
         };
@@ -251,18 +254,18 @@ public class FetchDataFromUrl {
         return redirectStrategy.followRedirects(initialURL);
     }
 
-    private URLStatus getStatusFor(String url, boolean isS3, LocalDateTime localModTime) throws IOException, InterruptedException {
+    private URLStatus getStatusFor(URI url, boolean isS3, LocalDateTime localModTime) throws IOException, InterruptedException {
         if (isS3) {
             return s3Downloader.getStatusFor(url, localModTime);
         }
         return getStatusFollowRedirects(url, localModTime);
     }
 
-    private URLStatus getStatusFollowRedirects(String url, LocalDateTime localModTime) throws IOException, InterruptedException {
+    private URLStatus getStatusFollowRedirects(URI url, LocalDateTime localModTime) throws IOException, InterruptedException {
         RedirectStrategy redirectStrategy = new RedirectStrategy() {
             @Override
-            public URLStatus action(String actualURL) throws InterruptedException, IOException {
-                return httpDownloader.getStatusFor(actualURL, localModTime);
+            public URLStatus action(URI actualURI) throws InterruptedException, IOException {
+                return httpDownloader.getStatusFor(actualURI, localModTime);
             }
         };
 
@@ -293,14 +296,22 @@ public class FetchDataFromUrl {
     }
 
     private static abstract class RedirectStrategy {
-        public abstract URLStatus action(String url) throws InterruptedException, IOException;
+        public abstract URLStatus action(URI uri) throws InterruptedException, IOException;
 
-        public URLStatus followRedirects(String initialURL) throws IOException, InterruptedException {
+        /***
+         * Prefer version taking URI
+         */
+        @Deprecated
+        public URLStatus followRedirects(String initial) throws IOException, InterruptedException {
+            return followRedirects(URI.create(initial));
+        }
+
+        private URLStatus followRedirects(URI initialURL) throws InterruptedException, IOException {
             int numRedirects = 0;
-
             URLStatus status = action(initialURL);
+            URI previous = initialURL;
 
-            // TODO will not handle redirect loops!
+            // TODO will not handle redirect loops other than by throwing after too many
             while (status.isRedirect()) {
                 numRedirects ++;
                 if (numRedirects > MAX_REDIRECTS) {
@@ -308,13 +319,13 @@ public class FetchDataFromUrl {
                     logger.error(msg);
                     throw new RemoteException(msg);
                 }
-                String redirectUrl = status.getActualURL();
+                final URI redirectUrl = createRedirectURL(status, previous);
                 logger.warn(String.format("Status code %s Following redirect to %s", status.getStatusCode(), redirectUrl));
+                previous = redirectUrl;
                 status = action(redirectUrl);
             }
 
-            String message = String.format("Status: %s final url: '%s'",
-                    status.getStatusCode(), status.getActualURL());
+            String message = String.format("Status: %s final url: '%s'", status.getStatusCode(), status.getActualURL());
 
             if (status.isOk()) {
                 logger.info(message);
@@ -323,6 +334,17 @@ public class FetchDataFromUrl {
             }
 
             return status;
+        }
+
+        private URI createRedirectURL(URLStatus status, URI previous) {
+            String responseURL = status.getActualURL();
+            URI uri = URI.create(responseURL);
+            if (uri.isAbsolute()) {
+                return uri;
+            }
+            URI resolved = previous.resolve(uri);
+            logger.info("Relative URL " + uri + " resolved to " + resolved);
+            return resolved;
         }
     }
 

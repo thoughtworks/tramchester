@@ -36,12 +36,18 @@ import static java.lang.String.format;
 public class HttpDownloadAndModTime implements DownloadAndModTime {
     private static final Logger logger = LoggerFactory.getLogger(HttpDownloadAndModTime.class);
 
+//    @Override
+//    public URLStatus getStatusFor(String originalUrl, LocalDateTime localModTime) throws IOException, InterruptedException {
+//
+//        return getStatusFor(URI.create(originalUrl), localModTime);
+//    }
+
     @Override
-    public URLStatus getStatusFor(String originalUrl, LocalDateTime localModTime) throws IOException, InterruptedException {
+    public URLStatus getStatusFor(URI originalUrl, LocalDateTime localModTime) throws IOException, InterruptedException {
 
         // TODO some servers return 200 for HEAD but a redirect status for a GET
         // So cannot rely on using the HEAD request for getting final URL for a resource
-        HttpResponse<Void> response = fetchHeaders(URI.create(originalUrl), localModTime, HttpMethod.HEAD,
+        HttpResponse<Void> response = fetchHeaders(originalUrl, localModTime, HttpMethod.HEAD,
                 HttpResponse.BodyHandlers.discarding());
         HttpHeaders headers = response.headers();
 
@@ -52,7 +58,7 @@ public class HttpDownloadAndModTime implements DownloadAndModTime {
         final boolean redirect = URLStatus.isRedirectCode(httpStatusCode);
 
         // might update depending on redirect status
-        String finalUrl = originalUrl;
+        String finalUrl = originalUrl.toString();
         if (redirect) {
             Optional<String> locationField = headers.firstValue(org.apache.http.HttpHeaders.LOCATION);
             if (locationField.isPresent()) {
@@ -147,14 +153,19 @@ public class HttpDownloadAndModTime implements DownloadAndModTime {
         return LocalDateTime.ofInstant(Instant.ofEpochSecond(serverModMillis / 1000), TramchesterConfig.TimeZoneId);
     }
 
+//    @Override
+//    public URLStatus downloadTo(Path path, String originalUrl, LocalDateTime existingLocalModTime) {
+//        return downloadTo(path, URI.create(originalUrl), existingLocalModTime);
+//    }
+
     @Override
-    public URLStatus downloadTo(Path path, String originalUrl, LocalDateTime existingLocalModTime) {
+    public URLStatus downloadTo(Path path, URI originalUrl, LocalDateTime existingLocalModTime) {
 
         logger.info(format("Download from %s to %s", originalUrl, path.toAbsolutePath()));
 
         try {
 
-            HttpResponse<InputStream> response = fetchHeaders(URI.create(originalUrl), existingLocalModTime, HttpMethod.GET,
+            HttpResponse<InputStream> response = fetchHeaders(originalUrl, existingLocalModTime, HttpMethod.GET,
                     HttpResponse.BodyHandlers.ofInputStream());
 
             int statusCode = response.statusCode();

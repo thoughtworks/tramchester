@@ -2,6 +2,7 @@ package com.tramchester.dataimport;
 
 import org.apache.http.HttpStatus;
 
+import java.net.URI;
 import java.time.LocalDateTime;
 
 public class URLStatus {
@@ -18,6 +19,14 @@ public class URLStatus {
         this.url = url;
         this.responseCode = responseCode;
         this.modTime = modTime;
+    }
+
+    public URLStatus(URI uri, int responseCode) {
+        this(uri, responseCode, LocalDateTime.MIN);
+    }
+
+    public URLStatus(URI uri, int responseCode, LocalDateTime modTime) {
+        this(uri.toASCIIString(), responseCode, modTime);
     }
 
     public LocalDateTime getModTime() {

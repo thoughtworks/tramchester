@@ -17,6 +17,7 @@ import software.amazon.awssdk.services.s3.waiters.S3Waiter;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.*;
@@ -167,7 +168,8 @@ public class ClientForS3Test {
         ZonedDateTime dateTimeFromS3 = instantFromS3.atZone(TramchesterConfig.TimeZoneId);
         stream.close();
 
-        LocalDateTime modTime = clientForS3.getModTimeFor(format("s3://%s/%s", BUCKET, key));
+        String urlText = format("s3://%s/%s", BUCKET, key);
+        LocalDateTime modTime = clientForS3.getModTimeFor(URI.create(urlText));
 
         assertEquals(dateTimeFromS3.toLocalDateTime(), modTime);
     }
@@ -196,7 +198,8 @@ public class ClientForS3Test {
 
         s3Waiter.waitUntilObjectExists(HeadObjectRequest.builder().bucket(BUCKET).key(key).build());
 
-        clientForS3.downloadTo(testFilePath, format("s3://%s/%s", BUCKET, key));
+        String textURL = format("s3://%s/%s", BUCKET, key);
+        clientForS3.downloadTo(testFilePath, URI.create(textURL));
 
         assertTrue(Files.exists(testFilePath));
 

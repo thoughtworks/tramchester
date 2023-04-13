@@ -9,6 +9,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
+import java.net.URI;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDateTime;
@@ -44,7 +45,7 @@ class HttpDownloaderTest {
 
     @Test
     void shouldDownloadSomething() throws IOException, InterruptedException {
-        String url = "https://github.com/fluidicon.png";
+        URI url = URI.create("https://github.com/fluidicon.png");
 
         URLStatus headStatus = urlDownloader.getStatusFor(url, localModTime);
         assertTrue(headStatus.isOk());
@@ -68,7 +69,7 @@ class HttpDownloaderTest {
     @Test
     void shouldHaveValidModTimeForTimetableData() throws IOException, InterruptedException {
 
-        String url = TestEnv.TFGM_TIMETABLE_URL;
+        URI url = URI.create(TestEnv.TFGM_TIMETABLE_URL);
         URLStatus result = urlDownloader.getStatusFor(url, localModTime);
 
         assertTrue(result.getModTime().getYear()>1970, "Unexpected date " + result.getModTime());
@@ -76,7 +77,7 @@ class HttpDownloaderTest {
 
     @Test
     void shouldHave404StatusForMissingUrlHead() throws InterruptedException, IOException {
-        String url = "http://www.google.com/nothere";
+        URI url = URI.create("http://www.google.com/nothere");
 
         URLStatus headStatus = urlDownloader.getStatusFor(url, localModTime);
 
@@ -87,8 +88,8 @@ class HttpDownloaderTest {
     }
 
     @Test
-    void shouldHave404StatusForMissingDownload() throws IOException, InterruptedException {
-        String url = "http://www.google.com/nothere";
+    void shouldHave404StatusForMissingDownload() {
+        URI url = URI.create("http://www.google.com/nothere");
 
         LocalDateTime modTime = LocalDateTime.MIN;
         URLStatus getStatus = urlDownloader.downloadTo(temporaryFile, url, modTime);
@@ -102,7 +103,7 @@ class HttpDownloaderTest {
 
     @Test
     void shouldHaveRedirectStatusAndURL() throws IOException, InterruptedException {
-        String url = "http://news.bbc.co.uk";
+        URI url = URI.create("http://news.bbc.co.uk");
 
         URLStatus result = urlDownloader.getStatusFor(url, localModTime);
 

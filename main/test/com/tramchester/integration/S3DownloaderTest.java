@@ -9,6 +9,7 @@ import org.apache.commons.io.FileUtils;
 import org.junit.jupiter.api.*;
 
 import java.io.IOException;
+import java.net.URI;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDateTime;
@@ -54,7 +55,7 @@ public class S3DownloaderTest {
 
     @Test
     void shouldDownloadSomething() throws IOException, InterruptedException {
-        String url = "s3://tramchester2dist/testing/ForTestSupport.txt";
+        URI url = URI.create("s3://tramchester2dist/testing/ForTestSupport.txt");
 
         LocalDateTime localModTime = LocalDateTime.MIN;
         URLStatus result = downloadAndModTime.getStatusFor(url, localModTime);

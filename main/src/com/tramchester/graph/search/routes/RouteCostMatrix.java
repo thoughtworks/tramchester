@@ -402,7 +402,7 @@ public class RouteCostMatrix implements RouteCostCombinations {
         }
     }
 
-    private AnyOfPaths getPathFor(RouteIndexPair indexPair, int degree, IndexedBitSet dateOverlaps) {
+    private AnyOfPaths getPathFor(final RouteIndexPair indexPair, final int degree, final IndexedBitSet dateOverlaps) {
         final IndexedBitSet changesForDegree = costsForDegree.getDegree(degree).getRowAndColumn(indexPair.first(), indexPair.second());
         // apply mask to filter out unavailable dates/modes
         final IndexedBitSet withDateApplied = changesForDegree.and(dateOverlaps);
@@ -420,8 +420,8 @@ public class RouteCostMatrix implements RouteCostCombinations {
                 return new AnyOfInterchanges(changes);
             } else {
                 //int previousPairsIndex = 0;
-                int depth = degree - 1;
-                AnyOfContained result = new AnyOfContained();
+                final int depth = degree - 1;
+                final AnyOfContained result = new AnyOfContained();
                 final Set<Pair<RouteIndexPair, RouteIndexPair>> underlying = underlyingPairs.get(depth-1).getLinksFor(indexPair);
 
                 underlying.forEach(pair -> {

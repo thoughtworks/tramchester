@@ -9,6 +9,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.net.URI;
 import java.time.LocalDateTime;
 
 public class NewDataAvailableHealthCheck extends TramchesterHealthCheck {
@@ -28,7 +29,7 @@ public class NewDataAvailableHealthCheck extends TramchesterHealthCheck {
 
     @Override
     protected Result check() {
-        String dataCheckUrl = config.getDataCheckUrl();
+        URI dataCheckUrl = URI.create(config.getDataCheckUrl());
 
         try {
             LocalDateTime localFileModTime = fetchFileModTime.getFor(config);
