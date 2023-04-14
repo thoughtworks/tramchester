@@ -1,9 +1,8 @@
 package com.tramchester.unit.domain.collections;
 
+import com.tramchester.domain.collections.BitmapImpl;
 import com.tramchester.domain.collections.ImmutableBitSet;
 import org.junit.jupiter.api.Test;
-
-import java.util.BitSet;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -13,11 +12,11 @@ public class ImmutableBitSetTest {
     void shouldApplyAndNot() {
         int size = 8;
 
-        BitSet setA = new BitSet(size);
+        BitmapImpl setA = new BitmapImpl(size);
         setA.set(1, true);
         setA.set(2, true);
 
-        BitSet setToApply = new BitSet(size);
+        BitmapImpl setToApply = new BitmapImpl(size);
         setToApply.set(1);
 
         ImmutableBitSet immutableBitSet = new ImmutableBitSet(setToApply, size);
@@ -35,11 +34,11 @@ public class ImmutableBitSetTest {
     void shouldApplyOr() {
         int size = 8;
 
-        BitSet setA = new BitSet(size);
+        BitmapImpl setA = new BitmapImpl(size);
 
         assertFalse(setA.get(1));
 
-        BitSet setB = new BitSet(size);
+        BitmapImpl setB = new BitmapImpl(size);
         setB.set(1);
         ImmutableBitSet immutableBitSet = new ImmutableBitSet(setB, size);
 
@@ -51,7 +50,7 @@ public class ImmutableBitSetTest {
     @Test
     void shouldCreate() {
         int size = 8;
-        BitSet set = new BitSet(size);
+        BitmapImpl set = new BitmapImpl(size);
         set.set(4);
 
         ImmutableBitSet immutableBitSetA = new ImmutableBitSet(set, size);
@@ -60,7 +59,7 @@ public class ImmutableBitSetTest {
         assertEquals(1, immutableBitSetA.numberSet());
         assertFalse(immutableBitSetA.isEmpty());
 
-        ImmutableBitSet immutableBitSetB = new ImmutableBitSet(new BitSet(size), size);
+        ImmutableBitSet immutableBitSetB = new ImmutableBitSet(new BitmapImpl(size), size);
         assertEquals(0, immutableBitSetB.numberSet());
         assertTrue(immutableBitSetB.isEmpty());
     }

@@ -1,11 +1,11 @@
 package com.tramchester.unit.domain.collections;
 
+import com.tramchester.domain.collections.BitmapImpl;
 import com.tramchester.domain.collections.ImmutableBitSet;
 import com.tramchester.domain.collections.IndexedBitSet;
 import org.apache.commons.lang3.tuple.Pair;
 import org.junit.jupiter.api.Test;
 
-import java.util.BitSet;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -98,14 +98,14 @@ public class IndexedBitSetTest {
         bits.set(1,1);
         bits.set(0,0);
 
-        BitSet rowMaskAllSet = new BitSet(2);
-        rowMaskAllSet.set(0,2, true);
+        BitmapImpl rowMaskAllSet = new BitmapImpl(2);
+        rowMaskAllSet.setAll(0,2, true);
         bits.applyAndTo(1, rowMaskAllSet);
 
         assertTrue(bits.isSet(0,0));
         assertTrue(bits.isSet(1,1));
 
-        BitSet rowMaskNonSet = new BitSet(2);
+        BitmapImpl rowMaskNonSet = new BitmapImpl(2);
         bits.applyAndTo(1, rowMaskNonSet);
 
         assertFalse(bits.isSet(1,1));
@@ -118,7 +118,7 @@ public class IndexedBitSetTest {
 
         assertEquals(0, bits.numberOfBitsSet());
 
-        BitSet rowToInsert = new BitSet(4);
+        BitmapImpl rowToInsert = new BitmapImpl(4);
         rowToInsert.set(1);
         rowToInsert.set(3);
         bits.insert(1, rowToInsert);

@@ -1,23 +1,22 @@
 package com.tramchester.domain.collections;
 
-import java.util.BitSet;
 import java.util.stream.IntStream;
 
 public class ImmutableBitSet {
-    private final BitSet contained;
+    private final BitmapImpl contained;
     private final int size;
 
-    public ImmutableBitSet(BitSet contained, int size) {
+    public ImmutableBitSet(BitmapImpl contained, int size) {
         this.contained = contained;
         this.size = size;
     }
 
-    public void applyOrTo(BitSet mutable) {
+    public void applyOrTo(BitmapImpl mutable) {
         mutable.or(contained);
     }
 
-    public void applyAndNotTo(BitSet mutable) {
-        mutable.andNot(contained);
+    public void applyAndNotTo(BitmapImpl other) {
+        other.andNot(contained);
     }
 
     public boolean isSet(int index) {
@@ -31,7 +30,7 @@ public class ImmutableBitSet {
         return contained.stream();
     }
 
-    public BitSet getContained() {
+    public BitmapImpl getContained() {
         return contained;
     }
 

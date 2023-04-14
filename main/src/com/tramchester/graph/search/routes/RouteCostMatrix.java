@@ -6,10 +6,7 @@ import com.tramchester.dataexport.DataSaver;
 import com.tramchester.dataimport.data.CostsPerDegreeData;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.RoutePair;
-import com.tramchester.domain.collections.ImmutableBitSet;
-import com.tramchester.domain.collections.IndexedBitSet;
-import com.tramchester.domain.collections.RouteIndexPair;
-import com.tramchester.domain.collections.RouteIndexPairFactory;
+import com.tramchester.domain.collections.*;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.places.InterchangeStation;
@@ -238,7 +235,7 @@ public class RouteCostMatrix implements RouteCostCombinations {
 
         IndexedBitSet result = IndexedBitSet.Square(numRoutes);
         for (int firstRouteIndex = 0; firstRouteIndex < numRoutes; firstRouteIndex++) {
-            BitSet row = new BitSet(numRoutes);
+            BitmapImpl row = new BitmapImpl(numRoutes);
             if (availableOnDate.contains(firstRouteIndex)) {
                 for (int secondRouteIndex = 0; secondRouteIndex < numRoutes; secondRouteIndex++) {
                     if (availableOnDate.contains(secondRouteIndex)) {
@@ -346,7 +343,7 @@ public class RouteCostMatrix implements RouteCostCombinations {
         final IndexedBitSet newMatrix = costsForDegree.getDegree(nextDegree);
 
         for (int route = 0; route < numRoutes; route++) {
-            final BitSet resultForForRoute = new BitSet(numRoutes);
+            final BitmapImpl resultForForRoute = new BitmapImpl(numRoutes);
             final ImmutableBitSet currentConnectionsForRoute = currentMatrix.getBitSetForRow(route);
 
             currentConnectionsForRoute.getBitIndexes().forEach(connectedRoute -> {
@@ -355,7 +352,7 @@ public class RouteCostMatrix implements RouteCostCombinations {
                 otherRoutesConnections.applyOrTo(resultForForRoute);
             });
 
-            final BitSet dateOverlapMask = routeDateAndDayOverlap.overlapsFor(route);  // only those routes whose dates overlap
+            final BitmapImpl dateOverlapMask = routeDateAndDayOverlap.overlapsFor(route);  // only those routes whose dates overlap
             resultForForRoute.and(dateOverlapMask);
 
             final ImmutableBitSet allExistingConnectionsForRoute = getExistingBitSetsForRoute(route, currentDegree);
@@ -444,13 +441,13 @@ public class RouteCostMatrix implements RouteCostCombinations {
         // NOTE: this is for route overlaps only, it does cover whether specific stations
         // are served by the routes on a specific date
 
-        private final BitSet[] overlapMasks;
+        private final BitmapImpl[] overlapMasks;
         private final int numberOfRoutes;
         private final RouteIndex index;
 
         private RouteDateAndDayOverlap(RouteIndex index, int numberOfRoutes) {
             this.index = index;
-            overlapMasks = new BitSet[numberOfRoutes];
+            overlapMasks = new BitmapImpl[numberOfRoutes];
             this.numberOfRoutes = numberOfRoutes;
         }
 
@@ -459,7 +456,7 @@ public class RouteCostMatrix implements RouteCostCombinations {
 
             for (int i = 0; i < numberOfRoutes; i++) {
                 final Route from = index.getRouteFor(i);
-                BitSet resultsForRoute = new BitSet(numberOfRoutes);
+                BitmapImpl resultsForRoute = new BitmapImpl(numberOfRoutes);
                 final int fromIndex = i;
                 // thread safety: split into list and then application of list to bitset
                 List<Integer> toSet = IntStream.range(0, numberOfRoutes).
@@ -472,7 +469,7 @@ public class RouteCostMatrix implements RouteCostCombinations {
             logger.info("Finished matrix for route date/day overlap");
         }
 
-        public BitSet overlapsFor(int routeIndex) {
+        public BitmapImpl overlapsFor(int routeIndex) {
             return overlapMasks[routeIndex];
         }
     }
@@ -795,7 +792,7 @@ public class RouteCostMatrix implements RouteCostCombinations {
             for (int index = 0; index < size; index++) {
                 IndexedBitSet bitSet = bitSets[index];
                 for (int routeIndex = 0; routeIndex < numRoutes; routeIndex++) {
-                    BitSet bitSetForRow = bitSet.getBitSetForRow(routeIndex).getContained();
+                    BitmapImpl bitSetForRow = bitSet.getBitSetForRow(routeIndex).getContained();
                     if (bitSetForRow.cardinality()>0) {
                         List<Integer> bitsSetForRow = bitSetForRow.stream().boxed().collect(Collectors.toList());
                         CostsPerDegreeData item = new CostsPerDegreeData(index, routeIndex, bitsSetForRow);

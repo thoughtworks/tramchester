@@ -2,7 +2,6 @@ package com.tramchester.domain.collections;
 
 import org.apache.commons.lang3.tuple.Pair;
 
-import java.util.BitSet;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
@@ -14,14 +13,14 @@ import static java.lang.String.format;
 public class IndexedBitSet {
     private final int rows;
     private final int columns;
-    private final BitSet bitSet;
+    private final BitmapImpl bitSet;
     private final int totalSize;
 
     public static IndexedBitSet Square(int size) {
         return new IndexedBitSet(size, size);
     }
 
-    private IndexedBitSet(int rows, int columns, BitSet bitSet) {
+    private IndexedBitSet(int rows, int columns, BitmapImpl bitSet) {
         this.rows = rows;
         this.columns = columns;
         totalSize = rows * columns;
@@ -29,13 +28,13 @@ public class IndexedBitSet {
     }
 
     public IndexedBitSet(int rows, int columns) {
-        this(rows, columns, new BitSet(rows*columns));
+        this(rows, columns, new BitmapImpl(rows * columns));
     }
 
     public static IndexedBitSet getIdentity(int rows, int columns) {
         IndexedBitSet result = new IndexedBitSet(rows, columns);
 
-        result.bitSet.set(0, result.totalSize); // set bits to 1 from 0 to size
+        result.bitSet.setAll(0, result.totalSize); // set bits to 1 from 0 to size
         return result;
     }
 
@@ -80,7 +79,7 @@ public class IndexedBitSet {
     public ImmutableBitSet getBitSetForRow(int row) {
         int startPosition = getPositionFor(row, 0);
         int endPosition = startPosition + columns; // plus num cols per row
-        BitSet result = bitSet.get(startPosition, endPosition);
+        BitmapImpl result = bitSet.getSubmap(startPosition, endPosition);
 
         return new ImmutableBitSet(result, endPosition-startPosition);
     }
@@ -90,7 +89,7 @@ public class IndexedBitSet {
      * @param row the place to the bits
      * @param connectionsForRoute the bits for the row
      */
-    public void insert(int row, BitSet connectionsForRoute) {
+    public void insert(int row, BitmapImpl connectionsForRoute) {
         int startPosition = getPositionFor(row, 0);
         for (int column = 0; column < columns; column++) {
             bitSet.set(startPosition + column, connectionsForRoute.get(column));
@@ -110,7 +109,7 @@ public class IndexedBitSet {
      * @param row the row to apply the bitmask to
      * @param bitMask bitmask to use
      */
-    public void applyAndTo(int row, BitSet bitMask) {
+    public void applyAndTo(int row, BitmapImpl bitMask) {
         int startPosition = getPositionFor(row, 0);
 
         // TODO more efficient ways to do this via a mask?
@@ -161,7 +160,7 @@ public class IndexedBitSet {
         if (columns != other.columns) {
             throw new RuntimeException(format("Mismatch on matrix column size this %s other %s", columns, other.columns));
         }
-        BitSet cloned = (BitSet) this.bitSet.clone();
+        BitmapImpl cloned = bitSet.createCopy();
         cloned.and(other.bitSet);
         return new IndexedBitSet(rows, columns, cloned);
     }
@@ -171,8 +170,9 @@ public class IndexedBitSet {
      * @param other bitmap to 'and' this one with
      * @return a new bitmap
      */
-    public IndexedBitSet and(BitSet other) {
-        BitSet cloned = (BitSet) this.bitSet.clone();
+    public IndexedBitSet and(BitmapImpl other) {
+        //BitSet cloned = (BitSet) this.bitSet.clone();
+        BitmapImpl cloned = this.bitSet.createCopy();
         cloned.and(other);
         return new IndexedBitSet(rows, columns, cloned);
     }
@@ -189,21 +189,8 @@ public class IndexedBitSet {
                 "rows=" + rows +
                 ", columns=" + columns +
                 ", totalSize=" + totalSize +
-                ", bitSet=" + display(bitSet) +
+                ", bitSet=" + bitSet.display(rows, columns) +
                 '}';
-    }
-
-    private String display(BitSet bitSet) {
-        StringBuilder result = new StringBuilder();
-        result.append(System.lineSeparator());
-        for (int row = 0; row < rows; row++) {
-            for (int column = 0; column < columns; column++) {
-                char bit = bitSet.get(getPositionFor(row, column)) ? '1' : '0';
-                result.append(bit);
-            }
-            result.append(System.lineSeparator());
-        }
-        return result.toString();
     }
 
     /***
@@ -213,17 +200,18 @@ public class IndexedBitSet {
      * @return IndexedBitSet of same dimensions
      */
     public IndexedBitSet getRowAndColumn(int row, int column) {
-        BitSet mask = createMaskFor(row, column);
-        BitSet clone = (BitSet) this.bitSet.clone();
+        BitmapImpl mask = createMaskFor(row, column);
+        //BitSet clone = (BitSet) this.bitSet.clone();
+        BitmapImpl clone = this.bitSet.createCopy();
         clone.and(mask);
         return new IndexedBitSet(rows, columns, clone);
     }
 
-    private BitSet createMaskFor(int row, int column) {
-        BitSet result = new BitSet(rows*columns);
+    private BitmapImpl createMaskFor(int row, int column) {
+        BitmapImpl result = new BitmapImpl(rows * columns);
 
         int rowStart = getPositionFor(row, 0);
-        result.set(rowStart, rowStart+columns, true);
+        result.setAll(rowStart, rowStart+columns, true);
 
         for (int rowIndex = 0; rowIndex < rows; rowIndex++) {
             int columnPosition = getPositionFor(rowIndex, column);
@@ -234,11 +222,4 @@ public class IndexedBitSet {
 
     }
 
-//    public int numberRows() {
-//        return rows;
-//    }
-//
-//    public int numberColumns() {
-//        return columns;
-//    }
 }
