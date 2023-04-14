@@ -39,7 +39,7 @@ remoteSources:
     filename: ${NAPTAN_FILE:- NaPTAN.xml}
     defaultExpiryDays: 14
   - name: nptg
-    dataURL: https://beta-naptan.dft.gov.uk/Download/File/Localities.csv
+    dataURL: https://beta-naptan.dft.gov.uk/Download/National/csv
     dataCheckURL: ""
     dataPath: data/nptg
     filename: Localities.csv
