@@ -13,33 +13,33 @@ import static java.lang.String.format;
 public class IndexedBitSet {
     private final int rows;
     private final int columns;
-    private final BitmapImpl bitSet;
+    private final SimpleBitmap bitmap;
     private final int totalSize;
 
     public static IndexedBitSet Square(int size) {
         return new IndexedBitSet(size, size);
     }
 
-    private IndexedBitSet(int rows, int columns, BitmapImpl bitSet) {
+    private IndexedBitSet(int rows, int columns, BitmapAsBitset bitSet) {
         this.rows = rows;
         this.columns = columns;
         totalSize = rows * columns;
-        this.bitSet = bitSet;
+        this.bitmap = bitSet;
     }
 
     public IndexedBitSet(int rows, int columns) {
-        this(rows, columns, new BitmapImpl(rows * columns));
+        this(rows, columns, new BitmapAsBitset(rows * columns));
     }
 
     public static IndexedBitSet getIdentity(int rows, int columns) {
         IndexedBitSet result = new IndexedBitSet(rows, columns);
 
-        result.bitSet.setAll(0, result.totalSize); // set bits to 1 from 0 to size
+        result.bitmap.setAll(0, result.totalSize); // set bits to 1 from 0 to size
         return result;
     }
 
     public ImmutableBitSet createImmutable() {
-        return new ImmutableBitSet(bitSet, getSize());
+        return new ImmutableBitSet(bitmap, getSize());
     }
 
     /***
@@ -49,7 +49,7 @@ public class IndexedBitSet {
      */
     public void set(int row, int column) {
         int position = getPositionFor(row, column);
-        bitSet.set(position);
+        bitmap.set(position);
     }
 
     /***
@@ -60,7 +60,7 @@ public class IndexedBitSet {
      */
     public boolean isSet(int row, int column) {
         int position = getPositionFor(row, column);
-        return bitSet.get(position);
+        return bitmap.get(position);
     }
 
     /***
@@ -79,7 +79,7 @@ public class IndexedBitSet {
     public ImmutableBitSet getBitSetForRow(int row) {
         int startPosition = getPositionFor(row, 0);
         int endPosition = startPosition + columns; // plus num cols per row
-        BitmapImpl result = bitSet.getSubmap(startPosition, endPosition);
+        BitmapAsBitset result = bitmap.getSubmap(startPosition, endPosition);
 
         return new ImmutableBitSet(result, endPosition-startPosition);
     }
@@ -89,19 +89,19 @@ public class IndexedBitSet {
      * @param row the place to the bits
      * @param connectionsForRoute the bits for the row
      */
-    public void insert(int row, BitmapImpl connectionsForRoute) {
+    public void insert(int row, BitmapAsBitset connectionsForRoute) {
         int startPosition = getPositionFor(row, 0);
         for (int column = 0; column < columns; column++) {
-            bitSet.set(startPosition + column, connectionsForRoute.get(column));
+            bitmap.set(startPosition + column, connectionsForRoute.get(column));
         }
     }
 
     public int numberOfBitsSet() {
-        return bitSet.cardinality();
+        return bitmap.cardinality();
     }
 
     public void clear() {
-        bitSet.clear();
+        bitmap.clear();
     }
 
     /***
@@ -109,14 +109,14 @@ public class IndexedBitSet {
      * @param row the row to apply the bitmask to
      * @param bitMask bitmask to use
      */
-    public void applyAndTo(int row, BitmapImpl bitMask) {
+    public void applyAndTo(int row, BitmapAsBitset bitMask) {
         int startPosition = getPositionFor(row, 0);
 
         // TODO more efficient ways to do this via a mask?
         for (int i = 0; i < rows; i++) {
             int bitIndex = startPosition + i;
-            boolean andValue = bitSet.get(bitIndex) && bitMask.get(i);
-            bitSet.set(bitIndex, andValue);
+            boolean andValue = bitmap.get(bitIndex) && bitMask.get(i);
+            bitmap.set(bitIndex, andValue);
         }
     }
 
@@ -124,7 +124,7 @@ public class IndexedBitSet {
         if (other.getSize() > getSize()) {
             throw new RuntimeException("Size mismatch, got " + other.getSize() + " but needed " + getSize());
         }
-        bitSet.or(other.getContained());
+        bitmap.or(other.getContained());
     }
 
     private int getSize() {
@@ -160,8 +160,8 @@ public class IndexedBitSet {
         if (columns != other.columns) {
             throw new RuntimeException(format("Mismatch on matrix column size this %s other %s", columns, other.columns));
         }
-        BitmapImpl cloned = bitSet.createCopy();
-        cloned.and(other.bitSet);
+        BitmapAsBitset cloned = bitmap.createCopy();
+        cloned.and(other.bitmap);
         return new IndexedBitSet(rows, columns, cloned);
     }
 
@@ -170,9 +170,9 @@ public class IndexedBitSet {
      * @param other bitmap to 'and' this one with
      * @return a new bitmap
      */
-    public IndexedBitSet and(BitmapImpl other) {
+    public IndexedBitSet and(BitmapAsBitset other) {
         //BitSet cloned = (BitSet) this.bitSet.clone();
-        BitmapImpl cloned = this.bitSet.createCopy();
+        BitmapAsBitset cloned = this.bitmap.createCopy();
         cloned.and(other);
         return new IndexedBitSet(rows, columns, cloned);
     }
@@ -189,7 +189,7 @@ public class IndexedBitSet {
                 "rows=" + rows +
                 ", columns=" + columns +
                 ", totalSize=" + totalSize +
-                ", bitSet=" + bitSet.display(rows, columns) +
+                ", bitSet=" + bitmap.displayAs(rows, columns) +
                 '}';
     }
 
@@ -200,15 +200,15 @@ public class IndexedBitSet {
      * @return IndexedBitSet of same dimensions
      */
     public IndexedBitSet getRowAndColumn(int row, int column) {
-        BitmapImpl mask = createMaskFor(row, column);
+        BitmapAsBitset mask = createMaskFor(row, column);
         //BitSet clone = (BitSet) this.bitSet.clone();
-        BitmapImpl clone = this.bitSet.createCopy();
+        BitmapAsBitset clone = this.bitmap.createCopy();
         clone.and(mask);
         return new IndexedBitSet(rows, columns, clone);
     }
 
-    private BitmapImpl createMaskFor(int row, int column) {
-        BitmapImpl result = new BitmapImpl(rows * columns);
+    private BitmapAsBitset createMaskFor(int row, int column) {
+        BitmapAsBitset result = new BitmapAsBitset(rows * columns);
 
         int rowStart = getPositionFor(row, 0);
         result.setAll(rowStart, rowStart+columns, true);

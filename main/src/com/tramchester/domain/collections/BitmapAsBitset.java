@@ -3,77 +3,95 @@ package com.tramchester.domain.collections;
 import java.util.BitSet;
 import java.util.stream.IntStream;
 
-public class BitmapImpl {
+public class BitmapAsBitset implements SimpleBitmap {
     private final BitSet bitSet;
     private final int size;
 
-    public BitmapImpl(int size) {
+    public BitmapAsBitset(int size) {
         this(new BitSet(size), size);
     }
 
-    public BitmapImpl(BitSet source, int size) {
+    public BitmapAsBitset(BitSet source, int size) {
         this.bitSet = source;
         this.size = size;
     }
 
-    public BitmapImpl createCopy() {
-        return new BitmapImpl((BitSet) bitSet.clone(), size);
+    @Override
+    public BitmapAsBitset createCopy() {
+        return new BitmapAsBitset((BitSet) bitSet.clone(), size);
     }
 
+    @Override
     public int cardinality() {
         return bitSet.cardinality();
     }
 
+    @Override
     public void clear() {
         bitSet.clear();
     }
 
-    public BitmapImpl getSubmap(int start, int end) {
+    @Override
+    public BitmapAsBitset getSubmap(int start, int end) {
         BitSet partial = bitSet.get(start, end);
-        return new BitmapImpl(partial, end-start);
+        return new BitmapAsBitset(partial, end-start);
     }
 
+    @Override
     public void set(int position) {
         bitSet.set(position);
     }
 
+    @Override
     public void set(int position, boolean value) {
         bitSet.set(position, value);
     }
 
+    @Override
     public void setAll(int start, int end) {
         bitSet.set(start, end);
     }
 
+    @Override
     public void setAll(int start, int end, boolean value) {
         bitSet.set(start, end, value);
     }
 
+    @Override
     public boolean get(int position) {
         return bitSet.get(position);
     }
 
-    public void or(BitmapImpl other) {
-        bitSet.or(other.bitSet);
+    @Override
+    public void or(SimpleBitmap other) {
+        BitmapAsBitset otherBitmap = (BitmapAsBitset) other;
+        bitSet.or(otherBitmap.bitSet);
     }
 
-    public void and(BitmapImpl other) {
-        bitSet.and(other.bitSet);
+    @Override
+    public void and(SimpleBitmap other) {
+        BitmapAsBitset otherBitmap = (BitmapAsBitset) other;
+        bitSet.and(otherBitmap.bitSet);
     }
 
-    public void andNot(BitmapImpl contained) {
-        bitSet.andNot(contained.bitSet);
+    @Override
+    public void andNot(SimpleBitmap other) {
+        BitmapAsBitset otherBitmap = (BitmapAsBitset) other;
+        bitSet.andNot(otherBitmap.bitSet);
     }
 
+    @Override
     public IntStream stream() {
         return bitSet.stream();
     }
 
+    @Override
     public boolean isEmpty() {
         return bitSet.isEmpty();
     }
 
-    String display(int rows, int columns) {
+    @Override
+    public String displayAs(int rows, int columns) {
         StringBuilder result = new StringBuilder();
         result.append(System.lineSeparator());
         for (int row = 0; row < rows; row++) {

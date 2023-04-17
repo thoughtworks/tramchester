@@ -3,19 +3,19 @@ package com.tramchester.domain.collections;
 import java.util.stream.IntStream;
 
 public class ImmutableBitSet {
-    private final BitmapImpl contained;
+    private final SimpleBitmap contained;
     private final int size;
 
-    public ImmutableBitSet(BitmapImpl contained, int size) {
+    public ImmutableBitSet(SimpleBitmap contained, int size) {
         this.contained = contained;
         this.size = size;
     }
 
-    public void applyOrTo(BitmapImpl mutable) {
+    public void applyOrTo(BitmapAsBitset mutable) {
         mutable.or(contained);
     }
 
-    public void applyAndNotTo(BitmapImpl other) {
+    public void applyAndNotTo(BitmapAsBitset other) {
         other.andNot(contained);
     }
 
@@ -30,7 +30,7 @@ public class ImmutableBitSet {
         return contained.stream();
     }
 
-    public BitmapImpl getContained() {
+    public SimpleBitmap getContained() {
         return contained;
     }
 

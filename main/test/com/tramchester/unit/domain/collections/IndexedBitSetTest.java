@@ -1,6 +1,6 @@
 package com.tramchester.unit.domain.collections;
 
-import com.tramchester.domain.collections.BitmapImpl;
+import com.tramchester.domain.collections.BitmapAsBitset;
 import com.tramchester.domain.collections.ImmutableBitSet;
 import com.tramchester.domain.collections.IndexedBitSet;
 import org.apache.commons.lang3.tuple.Pair;
@@ -98,14 +98,14 @@ public class IndexedBitSetTest {
         bits.set(1,1);
         bits.set(0,0);
 
-        BitmapImpl rowMaskAllSet = new BitmapImpl(2);
+        BitmapAsBitset rowMaskAllSet = new BitmapAsBitset(2);
         rowMaskAllSet.setAll(0,2, true);
         bits.applyAndTo(1, rowMaskAllSet);
 
         assertTrue(bits.isSet(0,0));
         assertTrue(bits.isSet(1,1));
 
-        BitmapImpl rowMaskNonSet = new BitmapImpl(2);
+        BitmapAsBitset rowMaskNonSet = new BitmapAsBitset(2);
         bits.applyAndTo(1, rowMaskNonSet);
 
         assertFalse(bits.isSet(1,1));
@@ -118,7 +118,7 @@ public class IndexedBitSetTest {
 
         assertEquals(0, bits.numberOfBitsSet());
 
-        BitmapImpl rowToInsert = new BitmapImpl(4);
+        BitmapAsBitset rowToInsert = new BitmapAsBitset(4);
         rowToInsert.set(1);
         rowToInsert.set(3);
         bits.insert(1, rowToInsert);
