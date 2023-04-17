@@ -11,11 +11,11 @@ public class ImmutableBitSet {
         this.size = size;
     }
 
-    public void applyOrTo(BitmapAsBitset mutable) {
+    public void applyOrTo(SimpleBitmap mutable) {
         mutable.or(contained);
     }
 
-    public void applyAndNotTo(BitmapAsBitset other) {
+    public void applyAndNotTo(SimpleBitmap other) {
         other.andNot(contained);
     }
 

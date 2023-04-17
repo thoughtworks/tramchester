@@ -7,11 +7,11 @@ public class BitmapAsBitset implements SimpleBitmap {
     private final BitSet bitSet;
     private final int size;
 
-    public BitmapAsBitset(int size) {
+    BitmapAsBitset(int size) {
         this(new BitSet(size), size);
     }
 
-    public BitmapAsBitset(BitSet source, int size) {
+    private BitmapAsBitset(BitSet source, int size) {
         this.bitSet = source;
         this.size = size;
     }
@@ -91,27 +91,15 @@ public class BitmapAsBitset implements SimpleBitmap {
     }
 
     @Override
-    public String displayAs(int rows, int columns) {
-        StringBuilder result = new StringBuilder();
-        result.append(System.lineSeparator());
-        for (int row = 0; row < rows; row++) {
-            for (int column = 0; column < columns; column++) {
-                char bit = bitSet.get(getPositionFor(row, column, rows, columns)) ? '1' : '0';
-                result.append(bit);
-            }
-            result.append(System.lineSeparator());
-        }
-        return result.toString();
+    public int size() {
+        return size;
     }
 
-    private int getPositionFor(int row, int column, int rows, int columns) {
-        if (row >= rows) {
-            throw new RuntimeException("Row is out of bounds, more than " + rows);
-        }
-        if (column >= columns) {
-            throw new RuntimeException("Column is out of bounds, more than " + columns);
-
-        }
-        return (row * columns) + column;
+    @Override
+    public String toString() {
+        return "BitmapAsBitset{" +
+                "bitSet=" + bitSet +
+                ", size=" + size +
+                '}';
     }
 }

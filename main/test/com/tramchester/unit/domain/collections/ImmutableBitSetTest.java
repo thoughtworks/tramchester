@@ -1,7 +1,7 @@
 package com.tramchester.unit.domain.collections;
 
-import com.tramchester.domain.collections.BitmapAsBitset;
 import com.tramchester.domain.collections.ImmutableBitSet;
+import com.tramchester.domain.collections.SimpleBitmap;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -12,11 +12,11 @@ public class ImmutableBitSetTest {
     void shouldApplyAndNot() {
         int size = 8;
 
-        BitmapAsBitset setA = new BitmapAsBitset(size);
+        SimpleBitmap setA = SimpleBitmap.create(size);
         setA.set(1, true);
         setA.set(2, true);
 
-        BitmapAsBitset setToApply = new BitmapAsBitset(size);
+        SimpleBitmap setToApply = SimpleBitmap.create(size);
         setToApply.set(1);
 
         ImmutableBitSet immutableBitSet = new ImmutableBitSet(setToApply, size);
@@ -34,11 +34,11 @@ public class ImmutableBitSetTest {
     void shouldApplyOr() {
         int size = 8;
 
-        BitmapAsBitset setA = new BitmapAsBitset(size);
+        SimpleBitmap setA = SimpleBitmap.create(size);
 
         assertFalse(setA.get(1));
 
-        BitmapAsBitset setB = new BitmapAsBitset(size);
+        SimpleBitmap setB = SimpleBitmap.create(size);
         setB.set(1);
         ImmutableBitSet immutableBitSet = new ImmutableBitSet(setB, size);
 
@@ -50,7 +50,7 @@ public class ImmutableBitSetTest {
     @Test
     void shouldCreate() {
         int size = 8;
-        BitmapAsBitset set = new BitmapAsBitset(size);
+        SimpleBitmap set = SimpleBitmap.create(size);
         set.set(4);
 
         ImmutableBitSet immutableBitSetA = new ImmutableBitSet(set, size);
@@ -59,7 +59,7 @@ public class ImmutableBitSetTest {
         assertEquals(1, immutableBitSetA.numberSet());
         assertFalse(immutableBitSetA.isEmpty());
 
-        ImmutableBitSet immutableBitSetB = new ImmutableBitSet(new BitmapAsBitset(size), size);
+        ImmutableBitSet immutableBitSetB = new ImmutableBitSet(SimpleBitmap.create(size), size);
         assertEquals(0, immutableBitSetB.numberSet());
         assertTrue(immutableBitSetB.isEmpty());
     }

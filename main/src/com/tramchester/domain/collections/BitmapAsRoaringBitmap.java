@@ -4,17 +4,15 @@ import org.roaringbitmap.buffer.MutableRoaringBitmap;
 
 import java.util.stream.IntStream;
 
-import static org.roaringbitmap.buffer.MutableRoaringBitmap.add;
-
 public class BitmapAsRoaringBitmap implements SimpleBitmap {
     private final MutableRoaringBitmap bitmap;
     private final int size;
 
-    public BitmapAsRoaringBitmap(int size) {
+    BitmapAsRoaringBitmap(int size) {
         this(new MutableRoaringBitmap(), size);
     }
 
-    public BitmapAsRoaringBitmap(MutableRoaringBitmap source, int size) {
+    private BitmapAsRoaringBitmap(MutableRoaringBitmap source, int size) {
         this.bitmap = source;
         this.size = size;
     }
@@ -36,10 +34,17 @@ public class BitmapAsRoaringBitmap implements SimpleBitmap {
 
     @Override
     public SimpleBitmap getSubmap(int start, int end) {
-        //MutableRoaringBitmap partial = bitmap.select(start, end);
-        MutableRoaringBitmap partial = add(bitmap, start, end);
+        int size = end - start;
+        MutableRoaringBitmap partial = new MutableRoaringBitmap();
 
-        return new BitmapAsRoaringBitmap(partial, end-start);
+        int[] toSet = bitmap.stream().
+                filter(n -> n >= start).
+                filter(n -> n <= end)
+                .map(n -> n - start).
+                toArray();
+
+        partial.addN(toSet, 0, toSet.length);
+        return new BitmapAsRoaringBitmap(partial, size);
     }
 
     @Override
@@ -104,27 +109,15 @@ public class BitmapAsRoaringBitmap implements SimpleBitmap {
     }
 
     @Override
-    public String displayAs(int rows, int columns) {
-        StringBuilder result = new StringBuilder();
-        result.append(System.lineSeparator());
-        for (int row = 0; row < rows; row++) {
-            for (int column = 0; column < columns; column++) {
-                char bit = bitmap.contains(getPositionFor(row, column, rows, columns)) ? '1' : '0';
-                result.append(bit);
-            }
-            result.append(System.lineSeparator());
-        }
-        return result.toString();
+    public int size() {
+        return size;
     }
 
-    private int getPositionFor(int row, int column, int rows, int columns) {
-        if (row >= rows) {
-            throw new RuntimeException("Row is out of bounds, more than " + rows);
-        }
-        if (column >= columns) {
-            throw new RuntimeException("Column is out of bounds, more than " + columns);
-
-        }
-        return (row * columns) + column;
+    @Override
+    public String toString() {
+        return "BitmapAsRoaringBitmap{" +
+                "bitmap=" + bitmap +
+                ", size=" + size +
+                '}';
     }
 }

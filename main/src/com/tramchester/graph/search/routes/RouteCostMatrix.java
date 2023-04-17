@@ -235,7 +235,7 @@ public class RouteCostMatrix implements RouteCostCombinations {
 
         IndexedBitSet result = IndexedBitSet.Square(numRoutes);
         for (int firstRouteIndex = 0; firstRouteIndex < numRoutes; firstRouteIndex++) {
-            BitmapAsBitset row = new BitmapAsBitset(numRoutes);
+            SimpleBitmap row = SimpleBitmap.create(numRoutes);
             if (availableOnDate.contains(firstRouteIndex)) {
                 for (int secondRouteIndex = 0; secondRouteIndex < numRoutes; secondRouteIndex++) {
                     if (availableOnDate.contains(secondRouteIndex)) {
@@ -343,7 +343,7 @@ public class RouteCostMatrix implements RouteCostCombinations {
         final IndexedBitSet newMatrix = costsForDegree.getDegree(nextDegree);
 
         for (int route = 0; route < numRoutes; route++) {
-            final BitmapAsBitset resultForForRoute = new BitmapAsBitset(numRoutes);
+            final SimpleBitmap resultForForRoute = SimpleBitmap.create(numRoutes);
             final ImmutableBitSet currentConnectionsForRoute = currentMatrix.getBitSetForRow(route);
 
             currentConnectionsForRoute.getBitIndexes().forEach(connectedRoute -> {
@@ -352,7 +352,7 @@ public class RouteCostMatrix implements RouteCostCombinations {
                 otherRoutesConnections.applyOrTo(resultForForRoute);
             });
 
-            final BitmapAsBitset dateOverlapMask = routeDateAndDayOverlap.overlapsFor(route);  // only those routes whose dates overlap
+            final SimpleBitmap dateOverlapMask = routeDateAndDayOverlap.overlapsFor(route);  // only those routes whose dates overlap
             resultForForRoute.and(dateOverlapMask);
 
             final ImmutableBitSet allExistingConnectionsForRoute = getExistingBitSetsForRoute(route, currentDegree);
@@ -441,13 +441,13 @@ public class RouteCostMatrix implements RouteCostCombinations {
         // NOTE: this is for route overlaps only, it does cover whether specific stations
         // are served by the routes on a specific date
 
-        private final BitmapAsBitset[] overlapMasks;
+        private final SimpleBitmap[] overlapMasks;
         private final int numberOfRoutes;
         private final RouteIndex index;
 
         private RouteDateAndDayOverlap(RouteIndex index, int numberOfRoutes) {
             this.index = index;
-            overlapMasks = new BitmapAsBitset[numberOfRoutes];
+            overlapMasks = new SimpleBitmap[numberOfRoutes];
             this.numberOfRoutes = numberOfRoutes;
         }
 
@@ -456,7 +456,7 @@ public class RouteCostMatrix implements RouteCostCombinations {
 
             for (int i = 0; i < numberOfRoutes; i++) {
                 final Route from = index.getRouteFor(i);
-                BitmapAsBitset resultsForRoute = new BitmapAsBitset(numberOfRoutes);
+                SimpleBitmap resultsForRoute = SimpleBitmap.create(numberOfRoutes);
                 final int fromIndex = i;
                 // thread safety: split into list and then application of list to bitset
                 List<Integer> toSet = IntStream.range(0, numberOfRoutes).
@@ -469,7 +469,7 @@ public class RouteCostMatrix implements RouteCostCombinations {
             logger.info("Finished matrix for route date/day overlap");
         }
 
-        public BitmapAsBitset overlapsFor(int routeIndex) {
+        public SimpleBitmap overlapsFor(int routeIndex) {
             return overlapMasks[routeIndex];
         }
     }

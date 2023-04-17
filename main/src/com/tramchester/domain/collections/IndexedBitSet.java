@@ -20,15 +20,15 @@ public class IndexedBitSet {
         return new IndexedBitSet(size, size);
     }
 
-    private IndexedBitSet(int rows, int columns, SimpleBitmap bitSet) {
+    private IndexedBitSet(int rows, int columns, SimpleBitmap bitmap) {
         this.rows = rows;
         this.columns = columns;
         totalSize = rows * columns;
-        this.bitmap = bitSet;
+        this.bitmap = bitmap;
     }
 
     public IndexedBitSet(int rows, int columns) {
-        this(rows, columns, new BitmapAsBitset(rows * columns));
+        this(rows, columns, SimpleBitmap.create(rows*columns));
     }
 
     public static IndexedBitSet getIdentity(int rows, int columns) {
@@ -89,7 +89,7 @@ public class IndexedBitSet {
      * @param row the place to the bits
      * @param connectionsForRoute the bits for the row
      */
-    public void insert(int row, BitmapAsBitset connectionsForRoute) {
+    public void insert(int row, SimpleBitmap connectionsForRoute) {
         int startPosition = getPositionFor(row, 0);
         for (int column = 0; column < columns; column++) {
             bitmap.set(startPosition + column, connectionsForRoute.get(column));
@@ -109,7 +109,7 @@ public class IndexedBitSet {
      * @param row the row to apply the bitmask to
      * @param bitMask bitmask to use
      */
-    public void applyAndTo(int row, BitmapAsBitset bitMask) {
+    public void applyAndTo(int row, SimpleBitmap bitMask) {
         int startPosition = getPositionFor(row, 0);
 
         // TODO more efficient ways to do this via a mask?
@@ -138,11 +138,11 @@ public class IndexedBitSet {
      * @return absolute index into the bitset
      */
     private int getPositionFor(int row, int column) {
-        if (row>=rows) {
-            throw new RuntimeException("Row is out of bounds, more than " + rows);
+        if (row>rows) {
+            throw new RuntimeException("Row " + row + " is out of bounds, more than " + rows);
         }
-        if (column>=columns) {
-            throw new RuntimeException("Column is out of bounds, more than " + columns);
+        if (column>columns) {
+            throw new RuntimeException("Column" + column + " is out of bounds, more than " + columns);
 
         }
         return (row * columns) + column;
@@ -170,7 +170,7 @@ public class IndexedBitSet {
      * @param other bitmap to 'and' this one with
      * @return a new bitmap
      */
-    public IndexedBitSet and(BitmapAsBitset other) {
+    public IndexedBitSet and(SimpleBitmap other) {
         //BitSet cloned = (BitSet) this.bitSet.clone();
         SimpleBitmap cloned = this.bitmap.createCopy();
         cloned.and(other);
@@ -189,7 +189,7 @@ public class IndexedBitSet {
                 "rows=" + rows +
                 ", columns=" + columns +
                 ", totalSize=" + totalSize +
-                ", bitSet=" + bitmap.displayAs(rows, columns) +
+                ", bitSet=" + SimpleBitmap.displayAs(bitmap, rows, columns) +
                 '}';
     }
 
@@ -201,14 +201,13 @@ public class IndexedBitSet {
      */
     public IndexedBitSet getRowAndColumn(int row, int column) {
         SimpleBitmap mask = createMaskFor(row, column);
-        //BitSet clone = (BitSet) this.bitSet.clone();
-        SimpleBitmap clone = this.bitmap.createCopy();
+        SimpleBitmap clone = bitmap.createCopy();
         clone.and(mask);
         return new IndexedBitSet(rows, columns, clone);
     }
 
-    private BitmapAsBitset createMaskFor(int row, int column) {
-        BitmapAsBitset result = new BitmapAsBitset(rows * columns);
+    private SimpleBitmap createMaskFor(int row, int column) {
+        SimpleBitmap result = SimpleBitmap.create(rows * columns);
 
         int rowStart = getPositionFor(row, 0);
         result.setAll(rowStart, rowStart+columns, true);

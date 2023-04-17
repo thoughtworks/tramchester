@@ -114,7 +114,7 @@ class MixedRouteTest {
     @Test
     void shouldTestMultiStopJourneyFerryIsPossible() {
         ///
-        // Note relies on multi-mode stations automatically beging seen as interchanges
+        // Note relies on multi-mode stations automatically being seen as interchanges
         // Change at Interchange ONLY is enable in config below
         ///
         assertTrue(config.getChangeAtInterchangeOnly(),"valid precondition");

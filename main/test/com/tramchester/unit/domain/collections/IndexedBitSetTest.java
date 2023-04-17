@@ -1,8 +1,8 @@
 package com.tramchester.unit.domain.collections;
 
-import com.tramchester.domain.collections.BitmapAsBitset;
 import com.tramchester.domain.collections.ImmutableBitSet;
 import com.tramchester.domain.collections.IndexedBitSet;
+import com.tramchester.domain.collections.SimpleBitmap;
 import org.apache.commons.lang3.tuple.Pair;
 import org.junit.jupiter.api.Test;
 
@@ -98,14 +98,14 @@ public class IndexedBitSetTest {
         bits.set(1,1);
         bits.set(0,0);
 
-        BitmapAsBitset rowMaskAllSet = new BitmapAsBitset(2);
+        SimpleBitmap rowMaskAllSet = SimpleBitmap.create(2);
         rowMaskAllSet.setAll(0,2, true);
         bits.applyAndTo(1, rowMaskAllSet);
 
         assertTrue(bits.isSet(0,0));
         assertTrue(bits.isSet(1,1));
 
-        BitmapAsBitset rowMaskNonSet = new BitmapAsBitset(2);
+        SimpleBitmap rowMaskNonSet = SimpleBitmap.create(2);
         bits.applyAndTo(1, rowMaskNonSet);
 
         assertFalse(bits.isSet(1,1));
@@ -118,7 +118,7 @@ public class IndexedBitSetTest {
 
         assertEquals(0, bits.numberOfBitsSet());
 
-        BitmapAsBitset rowToInsert = new BitmapAsBitset(4);
+        SimpleBitmap rowToInsert = SimpleBitmap.create(4);
         rowToInsert.set(1);
         rowToInsert.set(3);
         bits.insert(1, rowToInsert);
