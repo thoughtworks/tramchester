@@ -3,13 +3,13 @@ package com.tramchester.domain.collections;
 import java.util.stream.IntStream;
 
 public interface SimpleBitmap {
-    BitmapAsBitset createCopy();
+    SimpleBitmap createCopy();
 
     int cardinality();
 
     void clear();
 
-    BitmapAsBitset getSubmap(int start, int end);
+    SimpleBitmap getSubmap(int start, int end);
 
     void set(int position);
 

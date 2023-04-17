@@ -20,7 +20,7 @@ public class IndexedBitSet {
         return new IndexedBitSet(size, size);
     }
 
-    private IndexedBitSet(int rows, int columns, BitmapAsBitset bitSet) {
+    private IndexedBitSet(int rows, int columns, SimpleBitmap bitSet) {
         this.rows = rows;
         this.columns = columns;
         totalSize = rows * columns;
@@ -79,7 +79,7 @@ public class IndexedBitSet {
     public ImmutableBitSet getBitSetForRow(int row) {
         int startPosition = getPositionFor(row, 0);
         int endPosition = startPosition + columns; // plus num cols per row
-        BitmapAsBitset result = bitmap.getSubmap(startPosition, endPosition);
+        SimpleBitmap result = bitmap.getSubmap(startPosition, endPosition);
 
         return new ImmutableBitSet(result, endPosition-startPosition);
     }
@@ -160,7 +160,7 @@ public class IndexedBitSet {
         if (columns != other.columns) {
             throw new RuntimeException(format("Mismatch on matrix column size this %s other %s", columns, other.columns));
         }
-        BitmapAsBitset cloned = bitmap.createCopy();
+        SimpleBitmap cloned = bitmap.createCopy();
         cloned.and(other.bitmap);
         return new IndexedBitSet(rows, columns, cloned);
     }
@@ -172,7 +172,7 @@ public class IndexedBitSet {
      */
     public IndexedBitSet and(BitmapAsBitset other) {
         //BitSet cloned = (BitSet) this.bitSet.clone();
-        BitmapAsBitset cloned = this.bitmap.createCopy();
+        SimpleBitmap cloned = this.bitmap.createCopy();
         cloned.and(other);
         return new IndexedBitSet(rows, columns, cloned);
     }
@@ -200,9 +200,9 @@ public class IndexedBitSet {
      * @return IndexedBitSet of same dimensions
      */
     public IndexedBitSet getRowAndColumn(int row, int column) {
-        BitmapAsBitset mask = createMaskFor(row, column);
+        SimpleBitmap mask = createMaskFor(row, column);
         //BitSet clone = (BitSet) this.bitSet.clone();
-        BitmapAsBitset clone = this.bitmap.createCopy();
+        SimpleBitmap clone = this.bitmap.createCopy();
         clone.and(mask);
         return new IndexedBitSet(rows, columns, clone);
     }
