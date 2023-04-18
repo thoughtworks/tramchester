@@ -252,7 +252,7 @@ public class RouteCostMatrix implements RouteCostCombinations {
     }
 
     @Override
-    public int size() {
+    public long size() {
         return costsForDegree.size();
     }
 
@@ -306,10 +306,10 @@ public class RouteCostMatrix implements RouteCostCombinations {
 
         logger.info("Find costs between " + size + " routes (" + fullyConnected + ")");
 
-        int previousTotal = 0;
+        long previousTotal = 0;
         for (byte currentDegree = 1; currentDegree < maxDepth; currentDegree++) {
             addConnectionsFor(routeDateAndDayOverlap, currentDegree);
-            final int currentTotal = size();
+            final long currentTotal = size();
             logger.info("Total number of connections " + currentTotal);
             if (currentTotal >= fullyConnected) {
                 break;
@@ -321,7 +321,7 @@ public class RouteCostMatrix implements RouteCostCombinations {
             previousTotal = currentTotal;
         }
 
-        final int finalSize = size();
+        final long finalSize = size();
         logger.info("Added cost for " + finalSize + " route combinations");
         if (finalSize < fullyConnected) {
             double percentage = ((double) finalSize / (double) fullyConnected);
@@ -493,7 +493,8 @@ public class RouteCostMatrix implements RouteCostCombinations {
         }
 
         public void put(final short routeIndexA, final short routeIndexB, final ImmutableBitSet links) {
-            links.getBitIndexes().boxed().map(link -> pairFactory.get(routeIndexA, link)).
+            links.getBitIndexes().
+                    mapToObj(link -> pairFactory.get(routeIndexA, link)).
                     forEach(key -> put(key, routeIndexB));
         }
 
@@ -776,8 +777,8 @@ public class RouteCostMatrix implements RouteCostCombinations {
             return isOverlap(getDegree(degree),routePair);
         }
 
-        public int size() {
-            int result = 0;
+        public long size() {
+            long result = 0;
             for (int index = 0; index < size; index++) {
                 result = result + bitSets[index].numberOfBitsSet();
             }
@@ -792,7 +793,7 @@ public class RouteCostMatrix implements RouteCostCombinations {
             for (int index = 0; index < size; index++) {
                 IndexedBitSet bitSet = bitSets[index];
                 for (int routeIndex = 0; routeIndex < numRoutes; routeIndex++) {
-                    SimpleBitmap bitmapForRow = bitSet.getBitSetForRow(routeIndex).getContained();
+                    SimpleImmutableBitmap bitmapForRow = bitSet.getBitSetForRow(routeIndex).getContained();
                     if (bitmapForRow.cardinality()>0) {
                         List<Integer> bitsSetForRow = bitmapForRow.stream().boxed().collect(Collectors.toList());
                         CostsPerDegreeData item = new CostsPerDegreeData(index, routeIndex, bitsSetForRow);

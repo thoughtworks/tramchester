@@ -17,12 +17,12 @@ public class BitmapAsBitset implements SimpleBitmap {
     }
 
     @Override
-    public BitmapAsBitset createCopy() {
+    public SimpleBitmap createCopy() {
         return new BitmapAsBitset((BitSet) bitSet.clone(), size);
     }
 
     @Override
-    public int cardinality() {
+    public long cardinality() {
         return bitSet.cardinality();
     }
 
@@ -32,7 +32,7 @@ public class BitmapAsBitset implements SimpleBitmap {
     }
 
     @Override
-    public BitmapAsBitset getSubmap(int start, int end) {
+    public SimpleImmutableBitmap getSubmap(int start, int end) {
         BitSet partial = bitSet.get(start, end);
         return new BitmapAsBitset(partial, end-start);
     }
@@ -63,19 +63,19 @@ public class BitmapAsBitset implements SimpleBitmap {
     }
 
     @Override
-    public void or(SimpleBitmap other) {
+    public void or(SimpleImmutableBitmap other) {
         BitmapAsBitset otherBitmap = (BitmapAsBitset) other;
         bitSet.or(otherBitmap.bitSet);
     }
 
     @Override
-    public void and(SimpleBitmap other) {
+    public void and(SimpleImmutableBitmap other) {
         BitmapAsBitset otherBitmap = (BitmapAsBitset) other;
         bitSet.and(otherBitmap.bitSet);
     }
 
     @Override
-    public void andNot(SimpleBitmap other) {
+    public void andNot(SimpleImmutableBitmap other) {
         BitmapAsBitset otherBitmap = (BitmapAsBitset) other;
         bitSet.andNot(otherBitmap.bitSet);
     }

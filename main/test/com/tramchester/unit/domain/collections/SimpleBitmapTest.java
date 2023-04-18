@@ -1,10 +1,12 @@
 package com.tramchester.unit.domain.collections;
 
 import com.tramchester.domain.collections.SimpleBitmap;
+import com.tramchester.domain.collections.SimpleImmutableBitmap;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -86,12 +88,22 @@ public class SimpleBitmapTest {
     void shouldGetSubset(SimpleBitmap simpleBitmap) {
         simpleBitmap.set(1);
         simpleBitmap.set(4);
+        simpleBitmap.set(6);
         simpleBitmap.set(8);
-        SimpleBitmap other = simpleBitmap.getSubmap(1, 5);
+        SimpleImmutableBitmap submap = simpleBitmap.getSubmap(1, 5);
 
-        assertTrue(other.get(0), other.toString());
-        assertTrue(other.get(3), other.toString());
-        assertEquals(2, other.cardinality(), other.toString());
+        assertFalse(submap.isEmpty());
+        assertEquals(4, submap.size());
+
+        assertTrue(submap.get(0), submap.toString());
+        assertTrue(submap.get(3), submap.toString());
+        assertEquals(2, submap.cardinality(), submap.toString());
+
+        Set<Integer> submapStream = submap.stream().boxed().collect(Collectors.toSet());
+        assertEquals(2, submapStream.size(), submapStream.toString());
+        assertTrue(submapStream.contains(0));
+        assertTrue(submapStream.contains(3));
+
     }
 
     @ParameterizedTest(name = "{displayName} {arguments}")

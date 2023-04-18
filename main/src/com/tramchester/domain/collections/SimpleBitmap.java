@@ -1,17 +1,10 @@
 package com.tramchester.domain.collections;
 
-import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
-public interface SimpleBitmap {
-
-    SimpleBitmap createCopy();
-
-    int cardinality();
+public interface SimpleBitmap extends SimpleImmutableBitmap {
 
     void clear();
-
-    SimpleBitmap getSubmap(int start, int end);
 
     void set(int position);
 
@@ -21,19 +14,13 @@ public interface SimpleBitmap {
 
     void setAll(int start, int end, boolean value);
 
-    boolean get(int position);
+    void or(SimpleImmutableBitmap other);
 
-    void or(SimpleBitmap other);
+    void and(SimpleImmutableBitmap other);
 
-    void and(SimpleBitmap other);
+    void andNot(SimpleImmutableBitmap contained);
 
-    void andNot(SimpleBitmap contained);
-
-    IntStream stream();
-
-    boolean isEmpty();
-
-    int size();
+    SimpleBitmap createCopy();
 
     static int getPositionFor(int row, int column, int rows, int columns) {
         if (row >= rows) {
@@ -65,6 +52,7 @@ public interface SimpleBitmap {
      * @return an implementation of SimpleBitmap
      */
     static SimpleBitmap create(int size) {
+        //return new BitmapAsBitset(size);
         return new BitmapAsRoaringBitmap(size);
     }
 

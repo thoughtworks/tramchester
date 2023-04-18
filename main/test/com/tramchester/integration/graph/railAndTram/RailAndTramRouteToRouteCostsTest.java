@@ -22,7 +22,6 @@ import com.tramchester.testSupport.testTags.GMTest;
 import org.junit.jupiter.api.*;
 
 import java.util.EnumSet;
-import java.util.Set;
 
 import static com.tramchester.domain.reference.TransportMode.*;
 import static com.tramchester.integration.testSupport.rail.RailStationIds.ManchesterPiccadilly;

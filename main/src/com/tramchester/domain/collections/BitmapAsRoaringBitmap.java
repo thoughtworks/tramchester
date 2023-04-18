@@ -1,5 +1,6 @@
 package com.tramchester.domain.collections;
 
+import org.roaringbitmap.BatchIterator;
 import org.roaringbitmap.buffer.MutableRoaringBitmap;
 
 import java.util.stream.IntStream;
@@ -23,7 +24,7 @@ public class BitmapAsRoaringBitmap implements SimpleBitmap {
     }
 
     @Override
-    public int cardinality() {
+    public long cardinality() {
         return bitmap.getCardinality();
     }
 
@@ -33,18 +34,30 @@ public class BitmapAsRoaringBitmap implements SimpleBitmap {
     }
 
     @Override
-    public SimpleBitmap getSubmap(int start, int end) {
-        int size = end - start;
-        MutableRoaringBitmap partial = new MutableRoaringBitmap();
+    public SimpleImmutableBitmap getSubmap(int start, int end) {
+        final int submapSize = end - start;
+        final MutableRoaringBitmap submap = new MutableRoaringBitmap();
+        final int[] buffer = new int[128];
 
-        int[] toSet = bitmap.stream().
-                filter(n -> n >= start).
-                filter(n -> n <= end)
-                .map(n -> n - start).
-                toArray();
+        BatchIterator batchIterator = bitmap.getBatchIterator();
 
-        partial.addN(toSet, 0, toSet.length);
-        return new BitmapAsRoaringBitmap(partial, size);
+        batchIterator.advanceIfNeeded(start);
+
+        int value = -1;
+        while (batchIterator.hasNext() && value<=end) {
+            final int numInBatch = batchIterator.nextBatch(buffer);
+            for (int i = 0; i < numInBatch; i++) {
+                // todo maybe optimise by adding in batches via addN but need to make sure compute the offset value
+                value = buffer[i];
+                if (value>end) {
+                    break;
+                }
+                if (value>=start) {
+                    submap.add(value-start);
+                }
+            }
+        }
+        return new BitmapAsRoaringBitmap(submap, submapSize);
     }
 
     @Override
@@ -81,19 +94,19 @@ public class BitmapAsRoaringBitmap implements SimpleBitmap {
     }
 
     @Override
-    public void or(SimpleBitmap other) {
+    public void or(SimpleImmutableBitmap other) {
         BitmapAsRoaringBitmap otherBitmap = (BitmapAsRoaringBitmap) other;
         bitmap.or(otherBitmap.bitmap);
     }
 
     @Override
-    public void and(SimpleBitmap other) {
+    public void and(SimpleImmutableBitmap other) {
         BitmapAsRoaringBitmap otherBitmap = (BitmapAsRoaringBitmap) other;
         bitmap.and(otherBitmap.bitmap);
     }
 
     @Override
-    public void andNot(SimpleBitmap other) {
+    public void andNot(SimpleImmutableBitmap other) {
         BitmapAsRoaringBitmap otherBitmap = (BitmapAsRoaringBitmap) other;
         bitmap.andNot(otherBitmap.bitmap);
     }
@@ -120,4 +133,5 @@ public class BitmapAsRoaringBitmap implements SimpleBitmap {
                 ", size=" + size +
                 '}';
     }
+
 }

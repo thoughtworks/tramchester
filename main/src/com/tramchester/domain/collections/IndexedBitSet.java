@@ -79,7 +79,7 @@ public class IndexedBitSet {
     public ImmutableBitSet getBitSetForRow(int row) {
         int startPosition = getPositionFor(row, 0);
         int endPosition = startPosition + columns; // plus num cols per row
-        SimpleBitmap result = bitmap.getSubmap(startPosition, endPosition);
+        SimpleImmutableBitmap result = bitmap.getSubmap(startPosition, endPosition);
 
         return new ImmutableBitSet(result, endPosition-startPosition);
     }
@@ -96,7 +96,7 @@ public class IndexedBitSet {
         }
     }
 
-    public int numberOfBitsSet() {
+    public long numberOfBitsSet() {
         return bitmap.cardinality();
     }
 

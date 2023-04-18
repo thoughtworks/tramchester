@@ -130,7 +130,7 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
 
     }
 
-    public int size() {
+    public long size() {
         return costs.size();
     }
 

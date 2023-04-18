@@ -3,10 +3,10 @@ package com.tramchester.domain.collections;
 import java.util.stream.IntStream;
 
 public class ImmutableBitSet {
-    private final SimpleBitmap contained;
+    private final SimpleImmutableBitmap contained;
     private final int size;
 
-    public ImmutableBitSet(SimpleBitmap contained, int size) {
+    public ImmutableBitSet(SimpleImmutableBitmap contained, int size) {
         this.contained = contained;
         this.size = size;
     }
@@ -30,11 +30,11 @@ public class ImmutableBitSet {
         return contained.stream();
     }
 
-    public SimpleBitmap getContained() {
+    public SimpleImmutableBitmap getContained() {
         return contained;
     }
 
-    public int numberSet() {
+    public long numberSet() {
         return contained.cardinality();
     }
 
@@ -52,7 +52,6 @@ public class ImmutableBitSet {
     public IntStream getBitsSet() {
         return contained.stream();
     }
-
 
     public int getSize() {
         // using bitmap size can yield unexpected result as it gives the currently allocated size

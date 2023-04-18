@@ -14,7 +14,7 @@ public interface RouteCostCombinations {
     // create a bitmask for route->route changes that are possible on a given date and transport mode
     IndexedBitSet createOverlapMatrixFor(TramDate date, Set<TransportMode> requestedModes);
 
-    int size();
+    long size();
 
     RouteCostMatrix.AnyOfPaths getInterchangesFor(RouteIndexPair indexPair, IndexedBitSet dateOverlaps);
 
