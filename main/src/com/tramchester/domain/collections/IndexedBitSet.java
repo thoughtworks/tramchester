@@ -212,10 +212,13 @@ public class IndexedBitSet {
         int rowStart = getPositionFor(row, 0);
         result.setAll(rowStart, rowStart+columns, true);
 
+        int[] buffer = new int[rows];
         for (int rowIndex = 0; rowIndex < rows; rowIndex++) {
             int columnPosition = getPositionFor(rowIndex, column);
-            result.set(columnPosition);
+            buffer[rowIndex] = columnPosition;
+            //result.set(columnPosition);
         }
+        result.set(buffer);
 
         return result;
 

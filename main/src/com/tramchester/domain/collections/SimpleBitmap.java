@@ -8,6 +8,8 @@ public interface SimpleBitmap extends SimpleImmutableBitmap {
 
     void set(int position);
 
+    void set(int[] positionsToSet);
+
     void set(int position, boolean value);
 
     void setAll(int start, int end);
@@ -60,4 +62,5 @@ public interface SimpleBitmap extends SimpleImmutableBitmap {
     static Stream<SimpleBitmap> getImplementationsOf(int size) {
         return Stream.of(new BitmapAsBitset(size), new BitmapAsRoaringBitmap(size));
     }
+
 }

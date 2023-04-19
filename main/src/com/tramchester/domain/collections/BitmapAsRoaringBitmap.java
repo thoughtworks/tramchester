@@ -35,15 +35,19 @@ public class BitmapAsRoaringBitmap implements SimpleBitmap {
 
     @Override
     public SimpleImmutableBitmap getSubmap(int start, int end) {
+        final int bufferSize = 128;
+
         final int submapSize = end - start;
         final MutableRoaringBitmap submap = new MutableRoaringBitmap();
-        final int[] buffer = new int[128];
+        final int[] buffer = new int[bufferSize];
+        final int[] output = new int[bufferSize];
 
         BatchIterator batchIterator = bitmap.getBatchIterator();
 
         batchIterator.advanceIfNeeded(start);
 
         int value = -1;
+
         while (batchIterator.hasNext() && value<=end) {
             final int numInBatch = batchIterator.nextBatch(buffer);
             for (int i = 0; i < numInBatch; i++) {
@@ -53,6 +57,7 @@ public class BitmapAsRoaringBitmap implements SimpleBitmap {
                     break;
                 }
                 if (value>=start) {
+
                     submap.add(value-start);
                 }
             }
@@ -63,6 +68,11 @@ public class BitmapAsRoaringBitmap implements SimpleBitmap {
     @Override
     public void set(int position) {
         bitmap.add(position);
+    }
+
+    @Override
+    public void set(int[] positionsToSet) {
+        bitmap.add(positionsToSet);
     }
 
     @Override

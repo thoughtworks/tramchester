@@ -143,4 +143,21 @@ public class SimpleBitmapTest {
         assertTrue(simpleBitmap.get(2), simpleBitmap.toString());
         assertEquals(1, simpleBitmap.cardinality(), simpleBitmap.toString());
     }
+
+    @ParameterizedTest(name = "{displayName} {arguments}")
+    @MethodSource("getBitmaps")
+    void shouldSetFromArrary(SimpleBitmap simpleBitmap) {
+        int size = 3;
+        int[] positionsToSet = new int[size];
+        positionsToSet[0] = 4;
+        positionsToSet[1] = 6;
+        positionsToSet[2] = 7;
+
+        simpleBitmap.set(positionsToSet);
+        assertEquals(3, simpleBitmap.cardinality());
+        assertTrue(simpleBitmap.get(4));
+        assertTrue(simpleBitmap.get(6));
+        assertTrue(simpleBitmap.get(7));
+
+    }
 }

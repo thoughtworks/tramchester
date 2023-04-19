@@ -43,6 +43,13 @@ public class BitmapAsBitset implements SimpleBitmap {
     }
 
     @Override
+    public void set(int[] positionsToSet) {
+        for (int toSet : positionsToSet) {
+            set(toSet);
+        }
+    }
+
+    @Override
     public void set(int position, boolean value) {
         bitSet.set(position, value);
     }
