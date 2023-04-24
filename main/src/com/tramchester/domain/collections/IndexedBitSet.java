@@ -200,17 +200,16 @@ public class IndexedBitSet {
      * @return IndexedBitSet of same dimensions
      */
     public IndexedBitSet getRowAndColumn(int row, int column) {
-        SimpleBitmap mask = createMaskFor(row, column);
-        SimpleBitmap clone = bitmap.createCopy();
-        clone.and(mask);
-        return new IndexedBitSet(rows, columns, clone);
+        SimpleBitmap result = bitmap.extractRowAndColumn(row, column, rows, columns);
+        return new IndexedBitSet(rows, columns, result);
     }
 
     private SimpleBitmap createMaskFor(int row, int column) {
-        SimpleBitmap result = SimpleBitmap.create(rows * columns);
+        final int size = rows * columns;
+        SimpleBitmap result = SimpleBitmap.create(size);
 
         int rowStart = getPositionFor(row, 0);
-        result.setAll(rowStart, rowStart+columns, true);
+        result.setAll(rowStart, rowStart+columns);
 
         int[] buffer = new int[rows];
         for (int rowIndex = 0; rowIndex < rows; rowIndex++) {

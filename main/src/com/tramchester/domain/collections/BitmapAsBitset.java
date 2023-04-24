@@ -3,6 +3,8 @@ package com.tramchester.domain.collections;
 import java.util.BitSet;
 import java.util.stream.IntStream;
 
+import static java.lang.String.format;
+
 public class BitmapAsBitset implements SimpleBitmap {
     private final BitSet bitSet;
     private final int size;
@@ -19,6 +21,37 @@ public class BitmapAsBitset implements SimpleBitmap {
     @Override
     public SimpleBitmap createCopy() {
         return new BitmapAsBitset((BitSet) bitSet.clone(), size);
+    }
+
+    @Override
+    public SimpleBitmap extractRowAndColumn(int row, int column, int totalRows, int totalColumns) {
+        if (totalRows*totalColumns!=size) {
+            throw new RuntimeException(format("Cannot apply, size mismatch, size is %s, totalRows=%s totalColumns=%s",
+                    size, totalRows, totalColumns));
+        }
+
+        BitSet mask = createMask(row, column, totalRows, totalColumns);
+        BitSet result = (BitSet) bitSet.clone();
+        result.and(mask);
+        return new BitmapAsBitset(result, size);
+    }
+
+    private static BitSet createMask(int row, int column, int totalRows, int totalColumns) {
+        BitSet result = new BitSet();
+
+        int rowStart = getPositionFor(row, 0, totalColumns);
+        result.set(rowStart, rowStart+totalColumns);
+
+        for (int rowIndex = 0; rowIndex < totalRows; rowIndex++) {
+            int columnPosition = getPositionFor(rowIndex, column, totalColumns);
+            result.set(columnPosition);
+        }
+
+        return result;
+    }
+
+    private static int getPositionFor(int row, int column, int totalColumns) {
+        return (row * totalColumns) + column;
     }
 
     @Override

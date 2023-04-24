@@ -14,7 +14,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class SimpleBitmapTest {
 
-    public static final int SIZE = 10;
+    public static final int SIZE = 9;
 
     private static Stream<SimpleBitmap> getBitmaps() {
         return SimpleBitmap.getImplementationsOf(SIZE);
@@ -158,6 +158,30 @@ public class SimpleBitmapTest {
         assertTrue(simpleBitmap.get(4));
         assertTrue(simpleBitmap.get(6));
         assertTrue(simpleBitmap.get(7));
+
+    }
+
+    @ParameterizedTest(name = "{displayName} {arguments}")
+    @MethodSource("getBitmaps")
+    void shouldExtractRowAndColum(SimpleBitmap simpleBitmap) {
+        // assume 3 x 3 model for rows/columns
+        // 0 1 2
+        // 3 4 5
+        // 6 7 8
+
+        simpleBitmap.set(0);
+        simpleBitmap.set(3);
+        simpleBitmap.set(4);
+        simpleBitmap.set(5);
+        simpleBitmap.set(7);
+        simpleBitmap.set(8);
+
+        SimpleBitmap result = simpleBitmap.extractRowAndColumn(1, 1, 3, 3);
+        assertEquals(4, result.cardinality(), result.toString());
+        assertTrue(result.get(3), result.toString());
+        assertTrue(result.get(4), result.toString());
+        assertTrue(result.get(5), result.toString());
+        assertTrue(result.get(7), result.toString());
 
     }
 }
