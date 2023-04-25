@@ -115,6 +115,14 @@ public class BitmapAsBitset implements SimpleBitmap {
     }
 
     @Override
+    public SimpleBitmap and(SimpleImmutableBitmap simpleBitmapA, SimpleImmutableBitmap simpleBitmapB) {
+        BitmapAsBitset bitmapA = (BitmapAsBitset) simpleBitmapA;
+        SimpleBitmap result = bitmapA.createCopy();
+        result.and(simpleBitmapB);
+        return result;
+    }
+
+    @Override
     public void andNot(SimpleImmutableBitmap other) {
         BitmapAsBitset otherBitmap = (BitmapAsBitset) other;
         bitSet.andNot(otherBitmap.bitSet);
@@ -142,4 +150,5 @@ public class BitmapAsBitset implements SimpleBitmap {
                 ", size=" + size +
                 '}';
     }
+
 }

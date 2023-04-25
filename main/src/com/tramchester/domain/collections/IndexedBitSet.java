@@ -160,9 +160,10 @@ public class IndexedBitSet {
         if (columns != other.columns) {
             throw new RuntimeException(format("Mismatch on matrix column size this %s other %s", columns, other.columns));
         }
-        SimpleBitmap cloned = bitmap.createCopy();
-        cloned.and(other.bitmap);
-        return new IndexedBitSet(rows, columns, cloned);
+//        SimpleBitmap cloned = bitmap.createCopy();
+//        cloned.and(other.bitmap);
+//        return new IndexedBitSet(rows, columns, cloned);
+        return and(other.bitmap);
     }
 
     /***
@@ -171,10 +172,10 @@ public class IndexedBitSet {
      * @return a new bitmap
      */
     public IndexedBitSet and(SimpleBitmap other) {
-        //BitSet cloned = (BitSet) this.bitSet.clone();
-        SimpleBitmap cloned = this.bitmap.createCopy();
-        cloned.and(other);
-        return new IndexedBitSet(rows, columns, cloned);
+//        SimpleBitmap cloned = this.bitmap.createCopy();
+//        cloned.and(other);
+//        return new IndexedBitSet(rows, columns, cloned);
+        return new IndexedBitSet(rows, columns, bitmap.and(bitmap, other));
     }
 
     public Stream<Pair<Integer, Integer>> getPairs() {

@@ -1,9 +1,9 @@
 package com.tramchester.domain.collections;
 
-import org.roaringbitmap.*;
+import org.roaringbitmap.BatchIterator;
+import org.roaringbitmap.RoaringBatchIterator;
+import org.roaringbitmap.RoaringBitmap;
 
-import java.util.ArrayList;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.IntStream;
 
 public class BitmapAsRoaringBitmap implements SimpleBitmap {
@@ -50,7 +50,6 @@ public class BitmapAsRoaringBitmap implements SimpleBitmap {
         for (int rowIndex = 0; rowIndex < totalRows; rowIndex++) {
             final int columnPosition = beginOfRow + column;
             if (bitmap.contains(columnPosition)) {
-                //result.add(columnPosition);
                 outputBuffer[index++] = columnPosition;
             }
             beginOfRow = beginOfRow + totalColumns;
@@ -69,15 +68,15 @@ public class BitmapAsRoaringBitmap implements SimpleBitmap {
         iterator.advanceIfNeeded(start);
         final int read = iterator.nextBatch(readBuffer);
 
-        int i = 0;
-        while(i<read) {
-            final int value = readBuffer[i];
+        int index = 0;
+        while(index<read) {
+            final int value = readBuffer[index];
             if (value>end) {
                 break;
             }
-            outputBuffer[i++] = value;
+            outputBuffer[index++] = value;
         }
-        result.addN(outputBuffer, 0, i);
+        result.addN(outputBuffer, 0, index);
     }
 
     @Override
@@ -157,6 +156,17 @@ public class BitmapAsRoaringBitmap implements SimpleBitmap {
     public void and(SimpleImmutableBitmap other) {
         BitmapAsRoaringBitmap otherBitmap = (BitmapAsRoaringBitmap) other;
         bitmap.and(otherBitmap.bitmap);
+    }
+
+    @Override
+    public SimpleBitmap and(SimpleImmutableBitmap simpleBitmapA, SimpleImmutableBitmap simpleBitmapB) {
+        BitmapAsRoaringBitmap bitmapA = (BitmapAsRoaringBitmap) simpleBitmapA;
+        BitmapAsRoaringBitmap bitmapB = (BitmapAsRoaringBitmap) simpleBitmapB;
+        if (bitmapA.size!=bitmapB.size) {
+            throw new RuntimeException("Size mismatch, got " + bitmapA.size + " and " + bitmapB.size);
+        }
+        RoaringBitmap result = RoaringBitmap.and(bitmapA.bitmap, bitmapB.bitmap);
+        return new BitmapAsRoaringBitmap(result, bitmapA.size);
     }
 
     @Override

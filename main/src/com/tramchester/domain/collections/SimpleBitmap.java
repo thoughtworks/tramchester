@@ -20,6 +20,8 @@ public interface SimpleBitmap extends SimpleImmutableBitmap {
 
     void and(SimpleImmutableBitmap other);
 
+    SimpleBitmap and(SimpleImmutableBitmap bitmapA, SimpleImmutableBitmap bitmapB);
+
     void andNot(SimpleImmutableBitmap contained);
 
     SimpleBitmap createCopy();
