@@ -1,5 +1,6 @@
 package com.tramchester.unit.domain.collections;
 
+import com.tramchester.domain.collections.IndexedBitSet;
 import com.tramchester.domain.collections.SimpleBitmap;
 import com.tramchester.domain.collections.SimpleImmutableBitmap;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -15,13 +16,21 @@ import static org.junit.jupiter.api.Assertions.*;
 public class SimpleBitmapTest {
 
     public static final int SIZE = 9;
+    private static final int ROWS = 3;
+    private static final int COLS = 4;
 
-    private static Stream<SimpleBitmap> getBitmaps() {
+    private static Stream<SimpleBitmap> getSquareBitmaps() {
         return SimpleBitmap.getImplementationsOf(SIZE);
     }
 
+    private static Stream<SimpleBitmap> getRectBitmaps() {
+        return SimpleBitmap.getImplementationsOf(ROWS*COLS);
+    }
+
+    // See also IndexedBitSetTest
+
     @ParameterizedTest(name = "{displayName} {arguments}")
-    @MethodSource("getBitmaps")
+    @MethodSource("getSquareBitmaps")
     void shouldAllBeUnsetOnCreation(SimpleBitmap simpleBitmap) {
         for (int i = 0; i < SIZE; i++) {
             assertFalse(simpleBitmap.get(i));
@@ -29,13 +38,13 @@ public class SimpleBitmapTest {
     }
 
     @ParameterizedTest(name = "{displayName} {arguments}")
-    @MethodSource("getBitmaps")
+    @MethodSource("getSquareBitmaps")
     void shouldHaveSize(SimpleBitmap simpleBitmap) {
         assertEquals(SIZE, simpleBitmap.size());
     }
 
     @ParameterizedTest(name = "{displayName} {arguments}")
-    @MethodSource("getBitmaps")
+    @MethodSource("getSquareBitmaps")
     void shouldSetBits(SimpleBitmap simpleBitmap) {
         for (int i = 0; i < SIZE; i++) {
             simpleBitmap.set(i);
@@ -46,7 +55,7 @@ public class SimpleBitmapTest {
     }
 
     @ParameterizedTest(name = "{displayName} {arguments}")
-    @MethodSource("getBitmaps")
+    @MethodSource("getSquareBitmaps")
     void shouldHaveCardinality(SimpleBitmap simpleBitmap) {
         assertEquals(0,simpleBitmap.cardinality());
         for (int i = 0; i < SIZE; i++) {
@@ -56,7 +65,7 @@ public class SimpleBitmapTest {
     }
 
     @ParameterizedTest(name = "{displayName} {arguments}")
-    @MethodSource("getBitmaps")
+    @MethodSource("getSquareBitmaps")
     void shouldOr(SimpleBitmap simpleBitmap) {
         SimpleBitmap other = simpleBitmap.createCopy();
         other.set(4);
@@ -68,7 +77,7 @@ public class SimpleBitmapTest {
     }
 
     @ParameterizedTest(name = "{displayName} {arguments}")
-    @MethodSource("getBitmaps")
+    @MethodSource("getSquareBitmaps")
     void shouldAnd(SimpleBitmap simpleBitmap) {
         SimpleBitmap other = simpleBitmap.createCopy();
         other.set(4);
@@ -84,7 +93,7 @@ public class SimpleBitmapTest {
     }
 
     @ParameterizedTest(name = "{displayName} {arguments}")
-    @MethodSource("getBitmaps")
+    @MethodSource("getSquareBitmaps")
     void shouldGetSubset(SimpleBitmap simpleBitmap) {
         simpleBitmap.set(1);
         simpleBitmap.set(4);
@@ -107,7 +116,7 @@ public class SimpleBitmapTest {
     }
 
     @ParameterizedTest(name = "{displayName} {arguments}")
-    @MethodSource("getBitmaps")
+    @MethodSource("getSquareBitmaps")
     void shouldCopy(SimpleBitmap simpleBitmap) {
         simpleBitmap.set(1);
         simpleBitmap.set(4);
@@ -119,7 +128,7 @@ public class SimpleBitmapTest {
     }
 
     @ParameterizedTest(name = "{displayName} {arguments}")
-    @MethodSource("getBitmaps")
+    @MethodSource("getSquareBitmaps")
     void shouldStream(SimpleBitmap simpleBitmap) {
         simpleBitmap.set(1);
         simpleBitmap.set(4);
@@ -131,7 +140,7 @@ public class SimpleBitmapTest {
     }
 
     @ParameterizedTest(name = "{displayName} {arguments}")
-    @MethodSource("getBitmaps")
+    @MethodSource("getSquareBitmaps")
     void shouldAndNot(SimpleBitmap simpleBitmap) {
         SimpleBitmap other = simpleBitmap.createCopy();
         simpleBitmap.set(1);
@@ -145,7 +154,7 @@ public class SimpleBitmapTest {
     }
 
     @ParameterizedTest(name = "{displayName} {arguments}")
-    @MethodSource("getBitmaps")
+    @MethodSource("getSquareBitmaps")
     void shouldSetFromArrary(SimpleBitmap simpleBitmap) {
         int size = 3;
         int[] positionsToSet = new int[size];
@@ -162,7 +171,7 @@ public class SimpleBitmapTest {
     }
 
     @ParameterizedTest(name = "{displayName} {arguments}")
-    @MethodSource("getBitmaps")
+    @MethodSource("getSquareBitmaps")
     void shouldExtractRowAndColum(SimpleBitmap simpleBitmap) {
         // assume 3 x 3 model for rows/columns
         // 0 1 2
@@ -184,4 +193,44 @@ public class SimpleBitmapTest {
         assertTrue(result.get(7), result.toString());
 
     }
+
+    @ParameterizedTest(name = "{displayName} {arguments}")
+    @MethodSource("getRectBitmaps")
+    void testExtractRowAndColumnNotSquare(SimpleBitmap rectBitmap) {
+
+        set(rectBitmap,0,0);
+        set(rectBitmap,1,1);
+        set(rectBitmap,1,2);
+        set(rectBitmap, 2,3);
+
+        SimpleBitmap resultA = rectBitmap.extractRowAndColumn(0,1, ROWS, COLS);
+
+        assertEquals(2, resultA.cardinality(), resultA + " source:" + rectBitmap);
+        assertTrue(get(resultA, 0,0), resultA + " source:" + rectBitmap);
+        assertTrue(get(resultA,1,1));
+
+        SimpleBitmap resultB = rectBitmap.extractRowAndColumn(1,1, ROWS, COLS);
+        assertEquals(2, resultB.cardinality(), resultB + " source:" + rectBitmap);
+        assertTrue(get(resultB,1,2), resultB + " source:" + rectBitmap);
+        assertTrue(get(resultB, 1,1), resultB + " source:" + rectBitmap);
+
+        SimpleBitmap resultC = rectBitmap.extractRowAndColumn(2,0, ROWS, COLS);
+
+        assertEquals(2, resultC.cardinality(), resultC + " source:" + rectBitmap);
+        assertTrue(get(resultC,0,0));
+        assertTrue(get(resultC,2,3));
+    }
+
+    private void set(SimpleBitmap bitmap, int row, int column) {
+        final int position = SimpleBitmap.getPositionFor(row, column, ROWS, COLS);
+        bitmap.set(position);
+    }
+
+    private boolean get(SimpleBitmap bitmap, int row, int column) {
+        final int position = SimpleBitmap.getPositionFor(row, column, ROWS, COLS);
+        return bitmap.get(position);
+    }
+
+
+
 }

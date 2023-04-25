@@ -37,8 +37,13 @@ public class BitmapAsRoaringBitmap implements SimpleBitmap {
     public SimpleBitmap extractRowAndColumn(int row, int column, int totalRows, int totalColumns) {
         final MutableRoaringBitmap result = new MutableRoaringBitmap();
 
-        long rowStart = (long) row * totalColumns;
-        result.add(rowStart, rowStart+totalColumns);
+        int rowStart =  row * totalColumns;
+        for (int colIndex=rowStart; colIndex< rowStart+totalColumns; colIndex++) {
+            if (bitmap.contains(colIndex)) {
+                result.add(colIndex);
+            }
+        }
+        //result.add(rowStart, rowStart+totalColumns);
 
         int offSet = 0;
         for (int rowIndex = 0; rowIndex < totalRows; rowIndex++) {
@@ -51,10 +56,6 @@ public class BitmapAsRoaringBitmap implements SimpleBitmap {
 
         return new BitmapAsRoaringBitmap(result, size);
     }
-
-//    private static int getPositionFor(int row, int column, int totalColumns) {
-//        return (row * totalColumns) + column;
-//    }
 
     @Override
     public SimpleImmutableBitmap getSubmap(int start, int end) {

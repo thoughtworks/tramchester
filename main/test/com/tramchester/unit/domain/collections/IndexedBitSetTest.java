@@ -175,7 +175,7 @@ public class IndexedBitSetTest {
 
         IndexedBitSet resultC = bits.getRowAndColumn(2,0);
         assertEquals(2, resultC.numberOfBitsSet(), resultC + " source:" + bits);
-        assertTrue(resultA.isSet(0,0));
+        assertTrue(resultC.isSet(0,0));
         assertTrue(resultC.isSet(2,3));
 
     }
