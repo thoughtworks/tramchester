@@ -54,8 +54,8 @@ public interface SimpleBitmap extends SimpleImmutableBitmap {
      * @return an implementation of SimpleBitmap
      */
     static SimpleBitmap create(int size) {
-        return new BitmapAsBitset(size);
-        //return new BitmapAsRoaringBitmap(size);
+        //return new BitmapAsBitset(size);
+        return new BitmapAsRoaringBitmap(size);
     }
 
     // test support

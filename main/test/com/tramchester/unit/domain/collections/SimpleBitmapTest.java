@@ -198,6 +198,10 @@ public class SimpleBitmapTest {
     @MethodSource("getRectBitmaps")
     void testExtractRowAndColumnNotSquare(SimpleBitmap rectBitmap) {
 
+        // 1000
+        // 0110
+        // 0001
+
         set(rectBitmap,0,0);
         set(rectBitmap,1,1);
         set(rectBitmap,1,2);
@@ -205,9 +209,9 @@ public class SimpleBitmapTest {
 
         SimpleBitmap resultA = rectBitmap.extractRowAndColumn(0,1, ROWS, COLS);
 
-        assertEquals(2, resultA.cardinality(), resultA + " source:" + rectBitmap);
         assertTrue(get(resultA, 0,0), resultA + " source:" + rectBitmap);
-        assertTrue(get(resultA,1,1));
+        assertTrue(get(resultA,1,1), resultA + " source:" + rectBitmap);
+        assertEquals(2, resultA.cardinality(), resultA + " source:" + rectBitmap);
 
         SimpleBitmap resultB = rectBitmap.extractRowAndColumn(1,1, ROWS, COLS);
         assertEquals(2, resultB.cardinality(), resultB + " source:" + rectBitmap);

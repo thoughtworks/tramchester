@@ -1,19 +1,20 @@
 package com.tramchester.domain.collections;
 
-import org.roaringbitmap.BatchIterator;
-import org.roaringbitmap.buffer.MutableRoaringBitmap;
+import org.roaringbitmap.*;
 
+import java.util.ArrayList;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.IntStream;
 
 public class BitmapAsRoaringBitmap implements SimpleBitmap {
-    private final MutableRoaringBitmap bitmap;
+    private final RoaringBitmap bitmap;
     private final int size;
 
     BitmapAsRoaringBitmap(int size) {
-        this(new MutableRoaringBitmap(), size);
+        this(new RoaringBitmap(), size);
     }
 
-    private BitmapAsRoaringBitmap(MutableRoaringBitmap source, int size) {
+    private BitmapAsRoaringBitmap(RoaringBitmap source, int size) {
         this.bitmap = source;
         this.size = size;
     }
@@ -35,26 +36,48 @@ public class BitmapAsRoaringBitmap implements SimpleBitmap {
 
     @Override
     public SimpleBitmap extractRowAndColumn(int row, int column, int totalRows, int totalColumns) {
-        final MutableRoaringBitmap result = new MutableRoaringBitmap();
-
-        int rowStart =  row * totalColumns;
-        for (int colIndex=rowStart; colIndex< rowStart+totalColumns; colIndex++) {
-            if (bitmap.contains(colIndex)) {
-                result.add(colIndex);
-            }
-        }
-        //result.add(rowStart, rowStart+totalColumns);
-
-        int offSet = 0;
-        for (int rowIndex = 0; rowIndex < totalRows; rowIndex++) {
-            final int columnPosition = offSet+column;
-            if (bitmap.contains(columnPosition)) {
-                result.add(columnPosition);
-            }
-            offSet = offSet + totalColumns;
-        }
-
+        final RoaringBitmap result = new RoaringBitmap();
+        extractRow(result, row, totalColumns);
+        extractColumn(result, column, totalRows, totalColumns);
         return new BitmapAsRoaringBitmap(result, size);
+    }
+
+    private void extractColumn(RoaringBitmap result, final int column, final int totalRows, final int totalColumns) {
+        // used of buffer and addN has significant performance impact
+        final int[] outputBuffer = new int[totalRows];
+        int beginOfRow = 0;
+        int index = 0;
+        for (int rowIndex = 0; rowIndex < totalRows; rowIndex++) {
+            final int columnPosition = beginOfRow + column;
+            if (bitmap.contains(columnPosition)) {
+                //result.add(columnPosition);
+                outputBuffer[index++] = columnPosition;
+            }
+            beginOfRow = beginOfRow + totalColumns;
+        }
+        result.addN(outputBuffer, 0, index);
+    }
+
+    private void extractRow(RoaringBitmap result, final int row, final int totalColumns) {
+        final int start =  row * totalColumns;
+        final long end = start + totalColumns;
+
+        final int[] readBuffer = new int[totalColumns];
+        final int[] outputBuffer = new int[totalColumns];
+
+        RoaringBatchIterator iterator = bitmap.getBatchIterator();
+        iterator.advanceIfNeeded(start);
+        final int read = iterator.nextBatch(readBuffer);
+
+        int i = 0;
+        while(i<read) {
+            final int value = readBuffer[i];
+            if (value>end) {
+                break;
+            }
+            outputBuffer[i++] = value;
+        }
+        result.addN(outputBuffer, 0, i);
     }
 
     @Override
@@ -62,7 +85,7 @@ public class BitmapAsRoaringBitmap implements SimpleBitmap {
         final int bufferSize = 128;
 
         final int submapSize = end - start;
-        final MutableRoaringBitmap submap = new MutableRoaringBitmap();
+        final RoaringBitmap submap = new RoaringBitmap();
         final int[] buffer = new int[bufferSize];
 
         BatchIterator batchIterator = bitmap.getBatchIterator();
@@ -79,7 +102,6 @@ public class BitmapAsRoaringBitmap implements SimpleBitmap {
                     break;
                 }
                 if (value>=start) {
-
                     submap.add(value-start);
                 }
             }
