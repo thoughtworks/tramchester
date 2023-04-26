@@ -184,8 +184,8 @@ public class RouteIndex implements DataCache.CachesData<RouteIndexData> {
     }
 
     public RouteIndexPair getPairFor(RoutePair routePair) {
-        int a = indexFor(routePair.first().getId());
-        int b = indexFor(routePair.second().getId());
+        short a = indexFor(routePair.first().getId());
+        short b = indexFor(routePair.second().getId());
         return pairFactory.get(a, b);
     }
 

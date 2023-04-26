@@ -211,7 +211,7 @@ public class RouteCostMatrixTest {
 
         Route greenInbound = routeHelper.getOneRoute(AltrinchamManchesterBury, date);
 
-        int greenIndex = routeIndex.indexFor(greenInbound.getId());
+        short greenIndex = routeIndex.indexFor(greenInbound.getId());
 
         Set<Route> routes = routeRepository.getRoutes(TramsOnly).stream().filter(route -> route.isAvailableOn(date)).collect(Collectors.toSet());
 
@@ -220,7 +220,7 @@ public class RouteCostMatrixTest {
 
         for(Route otherRoute : routes) {
             if (!otherRoute.getId().equals(greenInbound.getId())) {
-                int otherIndex = routeIndex.indexFor(otherRoute.getId());
+                short otherIndex = routeIndex.indexFor(otherRoute.getId());
 
                 RouteIndexPair routeIndexPair = pairFactory.get(greenIndex, otherIndex);
                 RouteCostMatrix.AnyOfPaths results = routeMatrix.getInterchangesFor(routeIndexPair, dateOverlaps);

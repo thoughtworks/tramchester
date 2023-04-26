@@ -21,11 +21,6 @@ public class RouteIndexPairFactory {
         cache = new HashMap<>();
     }
 
-    @Deprecated
-    public RouteIndexPair get(final int a, final int b) {
-        return get((short) a, (short) b);
-    }
-
     public RouteIndexPair get(final short a, final short b) {
         if (a >= numberOfRoutes) {
             throw new RuntimeException("First argument " + a + " is out of range " + numberOfRoutes);

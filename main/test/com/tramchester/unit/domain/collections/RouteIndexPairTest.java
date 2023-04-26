@@ -21,7 +21,7 @@ public class RouteIndexPairTest {
 
     @NotNull
     private RouteIndexPair getPair(int first, int second) {
-        return indexPairFactory.get(first, second);
+        return indexPairFactory.get((short)first, (short)second);
     }
 
     @Test

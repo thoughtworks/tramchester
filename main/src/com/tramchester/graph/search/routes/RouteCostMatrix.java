@@ -107,10 +107,10 @@ public class RouteCostMatrix implements RouteCostCombinations {
             final Set<RouteIndexPair> pairsForInterchange = new HashSet<>();
 
             for (final Route dropOff : dropOffAtInterchange) {
-                final int dropOffIndex = index.indexFor(dropOff.getId());
+                final short dropOffIndex = index.indexFor(dropOff.getId());
                   for (final Route pickup : pickupAtInterchange) {
                       if ((!dropOff.equals(pickup)) && pickup.isDateOverlap(dropOff)) {
-                          final int pickupIndex = index.indexFor(pickup.getId());
+                          final short pickupIndex = index.indexFor(pickup.getId());
                           pairsForInterchange.add(pairFactory.get(dropOffIndex, pickupIndex));
                       }
                 }
@@ -501,7 +501,7 @@ public class RouteCostMatrix implements RouteCostCombinations {
 
         public void addLinksBetween(final short routeIndexA, final short routeIndexB, final ImmutableBitSet links) {
             links.getBitIndexes().
-                    mapToObj(linkIndex -> pairFactory.get(routeIndexA, linkIndex)).
+                    mapToObj(linkIndex -> pairFactory.get(routeIndexA, (short)linkIndex)).
                     map(this::getBitSetForPair).
                     forEach(bitSet -> bitSet.set(routeIndexB));
         }
@@ -535,7 +535,8 @@ public class RouteCostMatrix implements RouteCostCombinations {
 
             BitSet connectingRoutes = bitSetForIndex.get(position);
             return connectingRoutes.stream().
-                    mapToObj(link -> Pair.of(pairFactory.get(indexPair.firstAsInt(), link), pairFactory.get(link, indexPair.secondAsInt()))).
+                    mapToObj(link -> (short) link).
+                    map(link -> Pair.of(pairFactory.get(indexPair.first(), link), pairFactory.get(link, indexPair.second()))).
                     collect(Collectors.toSet());
         }
 
