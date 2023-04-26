@@ -16,11 +16,12 @@ public class RouteIndexPairFactory {
     public RouteIndexPairFactory(NumberOfRoutes repository) {
         numberOfRoutes = repository.numberOfRoutes();
         if (numberOfRoutes > Short.MAX_VALUE) {
-            throw new RuntimeException("To many routes " + numberOfRoutes);
+            throw new RuntimeException("Too many routes " + numberOfRoutes);
         }
         cache = new HashMap<>();
     }
 
+    @Deprecated
     public RouteIndexPair get(final int a, final int b) {
         return get((short) a, (short) b);
     }
@@ -33,16 +34,16 @@ public class RouteIndexPairFactory {
             throw new RuntimeException("Second argument " + b + " is out of range " + numberOfRoutes);
         }
 
-        final int uniqueId = getUniqueId(a, b);
-        if (cache.containsKey(uniqueId)) {
-            return cache.get(uniqueId);
+        final int rank = getRank(a, b);
+        if (cache.containsKey(rank)) {
+            return cache.get(rank);
         }
         final RouteIndexPair pair = RouteIndexPair.of(a, b);
-        cache.put(uniqueId, pair);
+        cache.put(rank, pair);
         return pair;
     }
 
-    private int getUniqueId(final short a, final short b) {
+    private int getRank(final short a, final short b) {
         return (numberOfRoutes * a) + b;
     }
 

@@ -57,9 +57,12 @@ public class DataCacheTest extends EasyMockSupport  {
 
         dataCache.clearFiles();
 
+        // assume NUM_ROUTE_INDEX_DATA < Short.max
+
         routeIndexTestItems = ThreadLocalRandom.current().ints().
                 limit(NUM_ROUTE_INDEX_DATA).
-                boxed().map(number -> new RouteIndexData(number, Route.createId("route"+number))).
+                mapToObj(i -> (short)i).
+                map(number -> new RouteIndexData(number, Route.createId("route"+number))).
                 collect(Collectors.toUnmodifiableList());
 
         postcodeHintItems = new ArrayList<>();

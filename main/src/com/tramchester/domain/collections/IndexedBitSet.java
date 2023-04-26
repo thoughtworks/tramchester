@@ -68,7 +68,7 @@ public class IndexedBitSet {
      * @return true if column'th bit in row is set
      */
     public boolean isSet(final RouteIndexPair pair) {
-        return isSet(pair.first(), pair.second());
+        return isSet(pair.firstAsInt(), pair.secondAsInt());
     }
 
     /***

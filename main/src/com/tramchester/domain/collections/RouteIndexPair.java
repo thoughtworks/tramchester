@@ -18,11 +18,21 @@ public class RouteIndexPair {
         return new RouteIndexPair(first, second);
     }
 
-    public int first() {
+    @Deprecated
+    public int firstAsInt() {
         return first;
     }
 
-    public int second() {
+    @Deprecated
+    public int secondAsInt() {
+        return second;
+    }
+
+    public short first() {
+        return first;
+    }
+
+    public short second() {
         return second;
     }
 

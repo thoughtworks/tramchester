@@ -133,6 +133,7 @@ public class RouteCostMatrix implements RouteCostCombinations {
     }
 
     private void createBacktracking(final int currentDegree) {
+        final int totalSize = numRoutes * numRoutes;
         if (currentDegree<1) {
             throw new RuntimeException("Only call for >1 , got " + currentDegree);
         }
@@ -159,7 +160,10 @@ public class RouteCostMatrix implements RouteCostCombinations {
             }
 
             final long took = Duration.between(startTime, Instant.now()).toMillis();
-            logger.info("Added backtrack paris " + connectingLinks.size() + "  Degree " + nextDegree + " in " + took + " ms");
+            int added = connectingLinks.size();
+            double percentage = ((double)added)/((double)totalSize) * 100D;
+            logger.info(String.format("Added backtrack paris %s (%s %%) Degree %s in %s ms",
+                    added, percentage, nextDegree, took));
 
         } else {
             logger.info("No bits set for degree " + currentDegree);
@@ -225,8 +229,8 @@ public class RouteCostMatrix implements RouteCostCombinations {
     // create a bitmask for route->route changes that are possible on a given date and transport mode
     @Override
     public IndexedBitSet createOverlapMatrixFor(TramDate date, Set<TransportMode> requestedModes) {
-        final Set<Integer> availableOnDate = new HashSet<>();
-        for (int routeIndex = 0; routeIndex < numRoutes; routeIndex++) {
+        final Set<Short> availableOnDate = new HashSet<>();
+        for (short routeIndex = 0; routeIndex < numRoutes; routeIndex++) {
             final Route route = index.getRouteFor(routeIndex);
             if (route.isAvailableOn(date) && requestedModes.contains(route.getTransportMode())) {
                 availableOnDate.add(routeIndex);
@@ -234,10 +238,10 @@ public class RouteCostMatrix implements RouteCostCombinations {
         }
 
         IndexedBitSet result = IndexedBitSet.Square(numRoutes);
-        for (int firstRouteIndex = 0; firstRouteIndex < numRoutes; firstRouteIndex++) {
+        for (short firstRouteIndex = 0; firstRouteIndex < numRoutes; firstRouteIndex++) {
             SimpleBitmap row = SimpleBitmap.create(numRoutes);
             if (availableOnDate.contains(firstRouteIndex)) {
-                for (int secondRouteIndex = 0; secondRouteIndex < numRoutes; secondRouteIndex++) {
+                for (short secondRouteIndex = 0; secondRouteIndex < numRoutes; secondRouteIndex++) {
                     if (availableOnDate.contains(secondRouteIndex)) {
                         row.set(secondRouteIndex);
                     }
@@ -386,7 +390,7 @@ public class RouteCostMatrix implements RouteCostCombinations {
     public AnyOfPaths getInterchangesFor(final RouteIndexPair indexPair, final IndexedBitSet dateOverlaps) {
         final int degree = getDepth(indexPair);
 
-        final IndexedBitSet changesForDegree = costsForDegree.getDegree(degree).getRowAndColumn(indexPair.first(), indexPair.second());
+        final IndexedBitSet changesForDegree = costsForDegree.getDegree(degree).getRowAndColumn(indexPair.firstAsInt(), indexPair.secondAsInt());
         // apply mask to filter out unavailable dates/modes
         final IndexedBitSet withDateApplied = changesForDegree.and(dateOverlaps);
 
@@ -400,7 +404,7 @@ public class RouteCostMatrix implements RouteCostCombinations {
     }
 
     private AnyOfPaths getPathFor(final RouteIndexPair indexPair, final int degree, final IndexedBitSet dateOverlaps) {
-        final IndexedBitSet changesForDegree = costsForDegree.getDegree(degree).getRowAndColumn(indexPair.first(), indexPair.second());
+        final IndexedBitSet changesForDegree = costsForDegree.getDegree(degree).getRowAndColumn(indexPair.firstAsInt(), indexPair.secondAsInt());
         // apply mask to filter out unavailable dates/modes
         final IndexedBitSet withDateApplied = changesForDegree.and(dateOverlaps);
 
@@ -454,14 +458,14 @@ public class RouteCostMatrix implements RouteCostCombinations {
         public void populateFor() {
             logger.info("Creating matrix for route date/day overlap");
 
-            for (int i = 0; i < numberOfRoutes; i++) {
+            for (short i = 0; i < numberOfRoutes; i++) {
                 final Route from = index.getRouteFor(i);
                 SimpleBitmap resultsForRoute = SimpleBitmap.create(numberOfRoutes);
                 final int fromIndex = i;
                 // thread safety: split into list and then application of list to bitset
                 List<Integer> toSet = IntStream.range(0, numberOfRoutes).
                         parallel().
-                        filter(toIndex -> (fromIndex == toIndex) || from.isDateOverlap(index.getRouteFor(toIndex))).
+                        filter(toIndex -> (fromIndex == toIndex) || from.isDateOverlap(index.getRouteFor((short)toIndex))).
                         boxed().collect(Collectors.toList());
                 toSet.forEach(resultsForRoute::set);
                 overlapMasks[i] = resultsForRoute;
@@ -480,29 +484,20 @@ public class RouteCostMatrix implements RouteCostCombinations {
         // (A, C) -> (A, B) (B ,C)
         // reduces to => (A,C) -> B
 
-        // pair to connecting route index (A,B) -> C
-        private final Map<RouteIndexPair, BitSet> bitSetForIndex;
-        private final BitmapAsRoaringBitmap seen; // performance
+        // pair to connecting route index (A,B) -> [C]
+        private final Map<Integer, BitSet> bitSetForIndex;
         private final int numRoutes;
         private final RouteIndex index; // diagnostics
+
+        private final BitmapAsRoaringBitmap seen; // performance
 
         private RouteConnectingLinks(RouteIndexPairFactory pairFactory, int numRoutes, RouteIndex index) {
             this.pairFactory = pairFactory;
             this.numRoutes = numRoutes;
             this.index = index;
             bitSetForIndex = new HashMap<>();
-            seen = new BitmapAsRoaringBitmap(numRoutes*numRoutes);
+            seen = new BitmapAsRoaringBitmap(numRoutes * numRoutes);
         }
-
-        // TOOD need a way to safely add BitSets to a Set , assuming that might save any cycles.....
-//        public void addLinksBetweenNew(final short routeIndexA, final short routeIndexB, final ImmutableBitSet links) {
-//            Set<BitSet> needUpdated = links.getBitIndexes().
-//                    mapToObj(linkIndex -> pairFactory.get(routeIndexA, linkIndex)).
-//                    map(this::getBitSetForPair).
-//                    collect(Collectors.toSet());
-//
-//            needUpdated.forEach(bitSet -> bitSet.set(routeIndexB));
-//        }
 
         public void addLinksBetween(final short routeIndexA, final short routeIndexB, final ImmutableBitSet links) {
             links.getBitIndexes().
@@ -511,21 +506,21 @@ public class RouteCostMatrix implements RouteCostCombinations {
                     forEach(bitSet -> bitSet.set(routeIndexB));
         }
 
-        private BitSet getBitSetForPair(RouteIndexPair pair) {
+        private BitSet getBitSetForPair(final RouteIndexPair pair) {
             final int position = getPositionFor(pair);
 
             if (seen.get(position)) {
-                return bitSetForIndex.get(pair);
+                return bitSetForIndex.get(position);
             }
 
             final BitSet bitSet = new BitSet();
-            bitSetForIndex.put(pair, bitSet);
+            bitSetForIndex.put(position, bitSet);
             seen.set(position);
             return bitSet;
         }
 
         private int getPositionFor(RouteIndexPair routeIndexPair) {
-            return (routeIndexPair.first()*numRoutes) + routeIndexPair.second();
+            return (routeIndexPair.firstAsInt()*numRoutes) + routeIndexPair.secondAsInt();
         }
 
         // re-expand from (A,C) -> B into: (A,B) (B,C)
@@ -538,10 +533,9 @@ public class RouteCostMatrix implements RouteCostCombinations {
                 throw new RuntimeException(message);
             }
 
-            BitSet connectingRoutes = bitSetForIndex.get(indexPair);
+            BitSet connectingRoutes = bitSetForIndex.get(position);
             return connectingRoutes.stream().
-                    boxed().
-                    map(link -> Pair.of(pairFactory.get(indexPair.first(), link), pairFactory.get(link, indexPair.second()))).
+                    mapToObj(link -> Pair.of(pairFactory.get(indexPair.firstAsInt(), link), pairFactory.get(link, indexPair.secondAsInt()))).
                     collect(Collectors.toSet());
         }
 

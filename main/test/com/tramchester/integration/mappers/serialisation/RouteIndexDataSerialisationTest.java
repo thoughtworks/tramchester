@@ -46,7 +46,7 @@ public class RouteIndexDataSerialisationTest {
     void shouldSaveAndLoadToFileRouteId() {
 
         IdFor<Route> routeId = Route.createId("routeB");
-        RouteIndexData routeIndexData = new RouteIndexData(42, routeId);
+        RouteIndexData routeIndexData = new RouteIndexData((short) 42, routeId);
 
         saveToFile(routeIndexData);
 
@@ -68,7 +68,7 @@ public class RouteIndexDataSerialisationTest {
 
         RailRouteId railRouteId = getRailRouteId();
 
-        RouteIndexData routeIndexData = new RouteIndexData(42, railRouteId);
+        RouteIndexData routeIndexData = new RouteIndexData((short) 42, railRouteId);
 
         saveToFile(routeIndexData);
 
@@ -89,7 +89,7 @@ public class RouteIndexDataSerialisationTest {
     void shouldRoundTripRouteId() throws JsonProcessingException {
         IdFor<Route> routeId = Route.createId("routeB");
 
-        RouteIndexData routeIndexData = new RouteIndexData(42, routeId);
+        RouteIndexData routeIndexData = new RouteIndexData((short) 42, routeId);
 
         String asString = mapper.writeValueAsString(routeIndexData);
 
@@ -103,7 +103,7 @@ public class RouteIndexDataSerialisationTest {
     void shouldRoundTripWithRailRouteId() throws JsonProcessingException {
         RailRouteId railRouteId = getRailRouteId();
 
-        RouteIndexData routeIndexData = new RouteIndexData(56, railRouteId);
+        RouteIndexData routeIndexData = new RouteIndexData((short) 56, railRouteId);
 
         String asString = mapper.writeValueAsString(routeIndexData);
 

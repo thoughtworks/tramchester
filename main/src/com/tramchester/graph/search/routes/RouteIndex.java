@@ -41,8 +41,8 @@ public class RouteIndex implements DataCache.CachesData<RouteIndexData> {
     private final DataCache dataCache;
     private final RouteIndexPairFactory pairFactory;
 
-    private final Map<Route, Integer> mapRouteIdToIndex;
-    private final Map<Integer, Route> mapIndexToRouteId;
+    private final Map<Route, Short> mapRouteIdToIndex;
+    private final Map<Short, Route> mapIndexToRouteId;
     private final int numberOfRoutes;
 
     @Inject
@@ -100,18 +100,18 @@ public class RouteIndex implements DataCache.CachesData<RouteIndexData> {
     }
 
     private void createIndex(List<Route> routesList) {
-        for (int i = 0; i < routesList.size(); i++) {
+        for (short i = 0; i < routesList.size(); i++) {
             mapRouteIdToIndex.put(routesList.get(i), i);
             mapIndexToRouteId.put(i, routesList.get(i));
         }
     }
 
-    public int indexFor(IdFor<Route> routeId) {
+    public short indexFor(IdFor<Route> routeId) {
         Route route = routeRepository.getRouteById(routeId);
         return indexFor(route);
     }
 
-    private Integer indexFor(Route route) {
+    private short indexFor(Route route) {
         if (!(mapRouteIdToIndex.containsKey(route))) {
             String message = format("No index for route %s, is cache file %s outdated? ",
                     route.getId(), dataCache.getPathFor(this));
@@ -166,7 +166,7 @@ public class RouteIndex implements DataCache.CachesData<RouteIndexData> {
         }
     }
 
-    public Route getRouteFor(int index) {
+    public Route getRouteFor(short index) {
         return mapIndexToRouteId.get(index);
     }
 

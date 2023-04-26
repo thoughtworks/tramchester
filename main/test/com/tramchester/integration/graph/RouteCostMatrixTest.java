@@ -243,14 +243,14 @@ public class RouteCostMatrixTest {
 
         // set for depth 1, so ought to be set for all subsequent depths
 
-        ImmutableBitSet rowAtDepthOne = routeMatrix.getExistingBitSetsForRoute(indexPair.first(), 1);
-        assertTrue(rowAtDepthOne.isSet(indexPair.second()));
+        ImmutableBitSet rowAtDepthOne = routeMatrix.getExistingBitSetsForRoute(indexPair.firstAsInt(), 1);
+        assertTrue(rowAtDepthOne.isSet(indexPair.secondAsInt()));
 
-        ImmutableBitSet rowAtDepthTwo = routeMatrix.getExistingBitSetsForRoute(indexPair.first(), 2);
-        assertTrue(rowAtDepthTwo.isSet(indexPair.second()));
+        ImmutableBitSet rowAtDepthTwo = routeMatrix.getExistingBitSetsForRoute(indexPair.firstAsInt(), 2);
+        assertTrue(rowAtDepthTwo.isSet(indexPair.secondAsInt()));
 
-        ImmutableBitSet rowAtDepthThree = routeMatrix.getExistingBitSetsForRoute(indexPair.first(), 3);
-        assertTrue(rowAtDepthThree.isSet(indexPair.second()));
+        ImmutableBitSet rowAtDepthThree = routeMatrix.getExistingBitSetsForRoute(indexPair.firstAsInt(), 3);
+        assertTrue(rowAtDepthThree.isSet(indexPair.secondAsInt()));
 
     }
 

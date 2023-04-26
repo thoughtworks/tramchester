@@ -320,7 +320,7 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
     private static class LowestCostForDestinations implements LowestCostsForDestRoutes {
         private final RouteToRouteCosts routeToRouteCosts;
         private final RouteIndexPairFactory pairFactory;
-        private final Set<Integer> destinationIndexs;
+        private final Set<Short> destinationIndexs;
         private final StationAvailabilityFacade changeStationOperating;
         private final IndexedBitSet dateOverlaps;
 
@@ -344,15 +344,16 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
          */
         @Override
         public int getFewestChanges(Route startingRoute) {
-            int indexOfStart = routeToRouteCosts.index.indexFor(startingRoute.getId());
+            short indexOfStart = routeToRouteCosts.index.indexFor(startingRoute.getId());
             if (destinationIndexs.contains(indexOfStart)) {
                 return 0;
             }
 
 
-            // note: IntStream uses int in implementation so avoids any boxing overhead
+            // note: IntStream uses int in implementation so avoids any boxing overhead, destinationIndexs are shorts
+            // so should be safe
             return destinationIndexs.stream().mapToInt(item -> item).
-                    map(indexOfDest -> routeToRouteCosts.getDepth(pairFactory.get(indexOfStart, indexOfDest),
+                    map(indexOfDest -> routeToRouteCosts.getDepth(pairFactory.get(indexOfStart, (short)indexOfDest),
                             changeStationOperating, dateOverlaps)).
                     filter(result -> result != RouteCostMatrix.MAX_VALUE).
                     min().
@@ -369,14 +370,14 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
 
         @NotNull
         private <T extends HasId<Route>> Pair<Integer, T> getLowestCost(T start) {
-            int indexOfStart = routeToRouteCosts.index.indexFor(start.getId());
+            short indexOfStart = routeToRouteCosts.index.indexFor(start.getId());
             if (destinationIndexs.contains(indexOfStart)) {
                 return Pair.of(0, start); // start on route that is present at destination
             }
 
             // note: IntStream uses int in implementation so avoids any boxing overhead
             int result = destinationIndexs.stream().mapToInt(item -> item).
-                    map(dest -> routeToRouteCosts.getDepth(pairFactory.get(indexOfStart, dest), changeStationOperating, dateOverlaps)).
+                    map(dest -> routeToRouteCosts.getDepth(pairFactory.get(indexOfStart, (short)dest), changeStationOperating, dateOverlaps)).
                     min().
                     orElse(Integer.MAX_VALUE);
             return Pair.of(result, start);

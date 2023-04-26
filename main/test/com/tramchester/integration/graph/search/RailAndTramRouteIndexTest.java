@@ -123,7 +123,7 @@ public class RailAndTramRouteIndexTest extends EasyMockSupport {
         final Set<Route> tramRoutes = routeRepository.getRoutes(TramsOnly);
 
         tramRoutes.forEach(tramRoute -> {
-            int index = routeIndex.indexFor(tramRoute.getId()); // throws on error
+            short index = routeIndex.indexFor(tramRoute.getId()); // throws on error
 
             Route result = routeIndex.getRouteFor(index);
             assertEquals(tramRoute.getId(), result.getId());
@@ -155,7 +155,7 @@ public class RailAndTramRouteIndexTest extends EasyMockSupport {
         Set<Route> trainRoutes = new HashSet<>(routeRepository.getRoutes(EnumSet.of(Train)));
 
         trainRoutes.forEach(trainRoute -> {
-            int index = routeIndex.indexFor(trainRoute.getId());
+            short index = routeIndex.indexFor(trainRoute.getId());
             Route result = routeIndex.getRouteFor(index);
             assertEquals(trainRoute.getId(), result.getId());
         });

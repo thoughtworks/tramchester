@@ -7,20 +7,20 @@ import com.tramchester.domain.id.IdFor;
 import java.util.Objects;
 
 public class RouteIndexData implements CachableData {
-    private Integer index;
+    private short index;
     private IdFor<Route> routeId;
 
     private RouteIndexData() {
         // deserialization
     }
 
-    public RouteIndexData(int index, IdFor<Route> routeId) {
+    public RouteIndexData(short index, IdFor<Route> routeId) {
         this.index = index;
         this.routeId = routeId;
     }
 
 
-    public Integer getIndex() {
+    public short getIndex() {
         return index;
     }
 
@@ -33,7 +33,7 @@ public class RouteIndexData implements CachableData {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         RouteIndexData that = (RouteIndexData) o;
-        return index.equals(that.index) && routeId.equals(that.routeId);
+        return index == that.index && routeId.equals(that.routeId);
     }
 
     @Override
