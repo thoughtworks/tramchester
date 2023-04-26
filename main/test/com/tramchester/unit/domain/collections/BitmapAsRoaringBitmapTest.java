@@ -1,51 +1,45 @@
 package com.tramchester.unit.domain.collections;
 
-import com.tramchester.domain.collections.IndexedBitSet;
+import com.tramchester.domain.collections.BitmapAsRoaringBitmap;
 import com.tramchester.domain.collections.SimpleBitmap;
 import com.tramchester.domain.collections.SimpleImmutableBitmap;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.MethodSource;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class SimpleBitmapTest {
+public class BitmapAsRoaringBitmapTest {
 
     public static final int SIZE = 9;
     private static final int ROWS = 3;
     private static final int COLS = 4;
+    private BitmapAsRoaringBitmap simpleBitmap;
 
-    private static Stream<SimpleBitmap> getSquareBitmaps() {
-        return SimpleBitmap.getImplementationsOf(SIZE);
-    }
-
-    private static Stream<SimpleBitmap> getRectBitmaps() {
-        return SimpleBitmap.getImplementationsOf(ROWS*COLS);
+    @BeforeEach
+    public void onceBeforeEachTestRuns() {
+        simpleBitmap = new BitmapAsRoaringBitmap(SIZE);
     }
 
     // See also IndexedBitSetTest
 
-    @ParameterizedTest(name = "{displayName} {arguments}")
-    @MethodSource("getSquareBitmaps")
-    void shouldAllBeUnsetOnCreation(SimpleBitmap simpleBitmap) {
+    @Test
+    void shouldAllBeUnsetOnCreation() {
         for (int i = 0; i < SIZE; i++) {
             assertFalse(simpleBitmap.get(i));
         }
     }
 
-    @ParameterizedTest(name = "{displayName} {arguments}")
-    @MethodSource("getSquareBitmaps")
-    void shouldHaveSize(SimpleBitmap simpleBitmap) {
+    @Test
+    void shouldHaveSize() {
         assertEquals(SIZE, simpleBitmap.size());
     }
 
-    @ParameterizedTest(name = "{displayName} {arguments}")
-    @MethodSource("getSquareBitmaps")
-    void shouldSetBits(SimpleBitmap simpleBitmap) {
+    @Test
+    void shouldSetBits() {
         for (int i = 0; i < SIZE; i++) {
             simpleBitmap.set(i);
             assertTrue(simpleBitmap.get(i));
@@ -54,9 +48,8 @@ public class SimpleBitmapTest {
         }
     }
 
-    @ParameterizedTest(name = "{displayName} {arguments}")
-    @MethodSource("getSquareBitmaps")
-    void shouldHaveCardinality(SimpleBitmap simpleBitmap) {
+    @Test
+    void shouldHaveCardinality() {
         assertEquals(0,simpleBitmap.cardinality());
         for (int i = 0; i < SIZE; i++) {
             simpleBitmap.set(i);
@@ -64,9 +57,8 @@ public class SimpleBitmapTest {
         }
     }
 
-    @ParameterizedTest(name = "{displayName} {arguments}")
-    @MethodSource("getSquareBitmaps")
-    void shouldOr(SimpleBitmap simpleBitmap) {
+    @Test
+    void shouldOr() {
         SimpleBitmap other = simpleBitmap.createCopy();
         other.set(4);
         other.set(6);
@@ -76,9 +68,8 @@ public class SimpleBitmapTest {
         assertEquals(2, simpleBitmap.cardinality());
     }
 
-    @ParameterizedTest(name = "{displayName} {arguments}")
-    @MethodSource("getSquareBitmaps")
-    void shouldAnd(SimpleBitmap simpleBitmap) {
+    @Test
+    void shouldAnd() {
         SimpleBitmap other = simpleBitmap.createCopy();
         other.set(4);
         simpleBitmap.set(6);
@@ -92,9 +83,8 @@ public class SimpleBitmapTest {
         assertEquals(1, simpleBitmap.cardinality());
     }
 
-    @ParameterizedTest(name = "{displayName} {arguments}")
-    @MethodSource("getSquareBitmaps")
-    void shouldGetSubset(SimpleBitmap simpleBitmap) {
+    @Test
+    void shouldGetSubset() {
         simpleBitmap.set(1);
         simpleBitmap.set(4);
         simpleBitmap.set(6);
@@ -115,9 +105,8 @@ public class SimpleBitmapTest {
 
     }
 
-    @ParameterizedTest(name = "{displayName} {arguments}")
-    @MethodSource("getSquareBitmaps")
-    void shouldCopy(SimpleBitmap simpleBitmap) {
+    @Test
+    void shouldCopy() {
         simpleBitmap.set(1);
         simpleBitmap.set(4);
         SimpleBitmap other = simpleBitmap.createCopy();
@@ -127,9 +116,8 @@ public class SimpleBitmapTest {
         assertEquals(2, other.cardinality(), other.toString());
     }
 
-    @ParameterizedTest(name = "{displayName} {arguments}")
-    @MethodSource("getSquareBitmaps")
-    void shouldStream(SimpleBitmap simpleBitmap) {
+    @Test
+    void shouldStream() {
         simpleBitmap.set(1);
         simpleBitmap.set(4);
         List<Integer> results = simpleBitmap.stream().boxed().collect(Collectors.toList());
@@ -139,9 +127,8 @@ public class SimpleBitmapTest {
         assertTrue(results.contains(4));
     }
 
-    @ParameterizedTest(name = "{displayName} {arguments}")
-    @MethodSource("getSquareBitmaps")
-    void shouldAndNot(SimpleBitmap simpleBitmap) {
+    @Test
+    void shouldAndNot() {
         SimpleBitmap other = simpleBitmap.createCopy();
         simpleBitmap.set(1);
         simpleBitmap.set(2);
@@ -153,9 +140,8 @@ public class SimpleBitmapTest {
         assertEquals(1, simpleBitmap.cardinality(), simpleBitmap.toString());
     }
 
-    @ParameterizedTest(name = "{displayName} {arguments}")
-    @MethodSource("getSquareBitmaps")
-    void shouldSetFromArrary(SimpleBitmap simpleBitmap) {
+    @Test
+    void shouldSetFromArray() {
         int size = 3;
         int[] positionsToSet = new int[size];
         positionsToSet[0] = 4;
@@ -170,9 +156,8 @@ public class SimpleBitmapTest {
 
     }
 
-    @ParameterizedTest(name = "{displayName} {arguments}")
-    @MethodSource("getSquareBitmaps")
-    void shouldExtractRowAndColum(SimpleBitmap simpleBitmap) {
+    @Test
+    void shouldExtractRowAndColum() {
         // assume 3 x 3 model for rows/columns
         // 0 1 2
         // 3 4 5
@@ -194,9 +179,10 @@ public class SimpleBitmapTest {
 
     }
 
-    @ParameterizedTest(name = "{displayName} {arguments}")
-    @MethodSource("getRectBitmaps")
-    void testExtractRowAndColumnNotSquare(SimpleBitmap rectBitmap) {
+    @Test
+    void testExtractRowAndColumnNotSquare() {
+
+        BitmapAsRoaringBitmap rectBitmap = new BitmapAsRoaringBitmap(ROWS * COLS);
 
         // 1000
         // 0110

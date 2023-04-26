@@ -1,7 +1,5 @@
 package com.tramchester.domain.collections;
 
-import java.util.stream.Stream;
-
 public interface SimpleBitmap extends SimpleImmutableBitmap {
 
     void clear();
@@ -20,11 +18,7 @@ public interface SimpleBitmap extends SimpleImmutableBitmap {
 
     void and(SimpleImmutableBitmap other);
 
-    SimpleBitmap and(SimpleImmutableBitmap bitmapA, SimpleImmutableBitmap bitmapB);
-
     void andNot(SimpleImmutableBitmap contained);
-
-    SimpleBitmap createCopy();
 
     static int getPositionFor(int row, int column, int rows, int columns) {
         if (row >= rows) {
@@ -56,14 +50,7 @@ public interface SimpleBitmap extends SimpleImmutableBitmap {
      * @return an implementation of SimpleBitmap
      */
     static SimpleBitmap create(int size) {
-        //return new BitmapAsBitset(size);
         return new BitmapAsRoaringBitmap(size);
     }
 
-    // test support
-    static Stream<SimpleBitmap> getImplementationsOf(int size) {
-        return Stream.of(new BitmapAsBitset(size), new BitmapAsRoaringBitmap(size));
-    }
-
-    SimpleBitmap extractRowAndColumn(int row, int column, int totalRows, int totalColumns);
 }

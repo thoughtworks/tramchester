@@ -86,7 +86,7 @@ public class GraphDatabaseServiceFactory implements DatabaseEventListener {
 
                     // TODO no 4.2 version available?
                     //setUserLogProvider(new Slf4jLogProvider()).
-                            build();
+                    build();
         }
 
         managementServiceImpl.registerDatabaseEventListener(this);

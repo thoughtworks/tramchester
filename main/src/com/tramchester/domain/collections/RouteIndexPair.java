@@ -42,7 +42,7 @@ public class RouteIndexPair {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        RouteIndexPair routePair = (RouteIndexPair) o;
+        final RouteIndexPair routePair = (RouteIndexPair) o;
         return first == routePair.first && second == routePair.second;
     }
 

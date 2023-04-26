@@ -132,7 +132,7 @@ public class RouteCostMatrix implements RouteCostCombinations {
         }
     }
 
-    private void createBacktracking(int currentDegree) {
+    private void createBacktracking(final int currentDegree) {
         if (currentDegree<1) {
             throw new RuntimeException("Only call for >1 , got " + currentDegree);
         }
@@ -143,7 +143,7 @@ public class RouteCostMatrix implements RouteCostCombinations {
 
         if (matrixForDegree.numberOfBitsSet()>0) {
             // zero indexed
-            final RouteConnectingLinks pairMap = underlyingPairs.get(nextDegree - 2); // zero indexed
+            final RouteConnectingLinks connectingLinks = underlyingPairs.get(nextDegree - 2); // zero indexed
 
             final Instant startTime = Instant.now();
 
@@ -154,12 +154,12 @@ public class RouteCostMatrix implements RouteCostCombinations {
 
                 currentConnectionsForRoute.getBitIndexes().forEach(connectedRoute -> {
                     final ImmutableBitSet connections = matrixForDegree.getBitSetForRow(connectedRoute);
-                    pairMap.put(routeIndex, (short) connectedRoute, connections);
+                    connectingLinks.put(routeIndex, (short) connectedRoute, connections);
                 });
             }
 
             final long took = Duration.between(startTime, Instant.now()).toMillis();
-            logger.info("Added backtrack paris " + pairMap.size() + "  Degree " + nextDegree + " in " + took + " ms");
+            logger.info("Added backtrack paris " + connectingLinks.size() + "  Degree " + nextDegree + " in " + took + " ms");
 
         } else {
             logger.info("No bits set for degree " + currentDegree);
@@ -256,7 +256,7 @@ public class RouteCostMatrix implements RouteCostCombinations {
         return costsForDegree.size();
     }
 
-    private byte getDegree(RouteIndexPair routePair) {
+    private byte getDegree(final RouteIndexPair routePair) {
         if (routePair.isSame()) {
             return 0;
         }
@@ -273,11 +273,11 @@ public class RouteCostMatrix implements RouteCostCombinations {
      * @param routeIndexPair pair to fetch all degrees for
      * @return list of matches
      */
-    public List<Integer> getAllDegrees(RouteIndexPair routeIndexPair) {
+    public List<Integer> getAllDegrees(final RouteIndexPair routeIndexPair) {
         if (routeIndexPair.isSame()) {
             throw new RuntimeException("Don't call with same routes");
         }
-        List<Integer> results = new ArrayList<>();
+        final List<Integer> results = new ArrayList<>();
         for (int depth = 1; depth <= maxDepth; depth++) {
             if (costsForDegree.isSet(depth, routeIndexPair)) {
                 results.add(depth);
@@ -296,8 +296,8 @@ public class RouteCostMatrix implements RouteCostCombinations {
         return getDegree(routePair);
     }
 
-    private boolean isOverlap(IndexedBitSet bitSet, RouteIndexPair pair) {
-        return bitSet.isSet(pair.first(), pair.second());
+    private boolean isOverlap(final IndexedBitSet bitSet, final RouteIndexPair pair) {
+        return bitSet.isSet(pair);
     }
 
     private void populateCosts(RouteDateAndDayOverlap routeDateAndDayOverlap) {
@@ -383,14 +383,14 @@ public class RouteCostMatrix implements RouteCostCombinations {
         return getDegree(routePair);
     }
 
-    public AnyOfPaths getInterchangesFor(RouteIndexPair indexPair, IndexedBitSet dateOverlaps) {
-        int degree = getDepth(indexPair);
+    public AnyOfPaths getInterchangesFor(final RouteIndexPair indexPair, final IndexedBitSet dateOverlaps) {
+        final int degree = getDepth(indexPair);
 
         final IndexedBitSet changesForDegree = costsForDegree.getDegree(degree).getRowAndColumn(indexPair.first(), indexPair.second());
         // apply mask to filter out unavailable dates/modes
         final IndexedBitSet withDateApplied = changesForDegree.and(dateOverlaps);
 
-        if (withDateApplied.isSet(indexPair.first(), indexPair.second())) {
+        if (withDateApplied.isSet(indexPair)) {
 
             return getPathFor(indexPair, degree, dateOverlaps);
 
@@ -413,7 +413,7 @@ public class RouteCostMatrix implements RouteCostCombinations {
                     logger.error(msg);
                     throw new RuntimeException(msg);
                 }
-                Set<InterchangeStation> changes = pairToInterchanges.get(indexPair);
+                final Set<InterchangeStation> changes = pairToInterchanges.get(indexPair);
                 return new AnyOfInterchanges(changes);
             } else {
                 //int previousPairsIndex = 0;
@@ -422,8 +422,8 @@ public class RouteCostMatrix implements RouteCostCombinations {
                 final Set<Pair<RouteIndexPair, RouteIndexPair>> underlying = underlyingPairs.get(depth-1).getLinksFor(indexPair);
 
                 underlying.forEach(pair -> {
-                    AnyOfPaths pathA = getPathFor(pair.getLeft(), degree - 1, dateOverlaps);
-                    AnyOfPaths pathB = getPathFor(pair.getRight(), degree - 1, dateOverlaps);
+                    final AnyOfPaths pathA = getPathFor(pair.getLeft(), degree - 1, dateOverlaps);
+                    final AnyOfPaths pathB = getPathFor(pair.getRight(), degree - 1, dateOverlaps);
                     result.add(new BothOfPaths(pathA, pathB));
                 });
 
@@ -481,41 +481,48 @@ public class RouteCostMatrix implements RouteCostCombinations {
         // reduces to => (A,C) -> B
 
         // pair to connecting route index (A,B) -> C
-        private final Map<RouteIndexPair, BitSet> theMap;
-        private final IndexedBitSet seen; // performance
+        private final Map<RouteIndexPair, BitSet> bitSetForIndex;
+        //private final IndexedBitSet seen; // performance
+        private final HashSet<RouteIndexPair> seen;
         private final RouteIndex index; // diagnostics
 
         private RouteConnectingLinks(RouteIndexPairFactory pairFactory, int numRoutes, RouteIndex index) {
             this.pairFactory = pairFactory;
             this.index = index;
-            theMap = new HashMap<>();
-            seen = new IndexedBitSet(numRoutes, numRoutes);
+            bitSetForIndex = new HashMap<>();
+            //seen = new IndexedBitSet(numRoutes, numRoutes);
+            seen = new HashSet<>();
         }
 
         public void put(final short routeIndexA, final short routeIndexB, final ImmutableBitSet links) {
             links.getBitIndexes().
-                    mapToObj(link -> pairFactory.get(routeIndexA, link)).
-                    forEach(key -> put(key, routeIndexB));
+                    mapToObj(linkIndex -> pairFactory.get(routeIndexA, linkIndex)).
+                    forEach(routeIndexPair -> put(routeIndexPair, routeIndexB));
         }
 
-        private void put(RouteIndexPair index, short connectingRoute) {
-            if (!seen.isSet(index.first(), index.second())) {
-                theMap.put(index, new BitSet());
-                seen.set(index.first(), index.second());
+        private void put(final RouteIndexPair index, final short connectingRoute) {
+            if (!seen.contains(index)) {
+                bitSetForIndex.put(index, new BitSet());
+                seen.add(index);
             }
-            theMap.get(index).set(connectingRoute);
+//            if (!seen.isSet(index)) {
+//                bitSetForIndex.put(index, new BitSet());
+//                seen.set(index.first(), index.second());
+//            }
+
+            bitSetForIndex.get(index).set(connectingRoute);
         }
 
         // re-expand from (A,C) -> B into: (A,B) (B,C)
         public Set<Pair<RouteIndexPair, RouteIndexPair>> getLinksFor(RouteIndexPair indexPair) {
-            if (!theMap.containsKey(indexPair)) {
+            if (!bitSetForIndex.containsKey(indexPair)) {
                 RoutePair missing = index.getPairFor(indexPair);
-                String message = "Missing indexPair " + indexPair + " (" + missing + ") in map size " + theMap.size();
+                String message = "Missing indexPair " + indexPair + " (" + missing + ") in map size " + bitSetForIndex.size();
                 logger.error(message);
                 throw new RuntimeException(message);
             }
 
-            BitSet connectingRoutes = theMap.get(indexPair);
+            BitSet connectingRoutes = bitSetForIndex.get(indexPair);
             return connectingRoutes.stream().
                     boxed().
                     map(link -> Pair.of(pairFactory.get(indexPair.first(), link), pairFactory.get(link, indexPair.second()))).
@@ -523,7 +530,7 @@ public class RouteCostMatrix implements RouteCostCombinations {
         }
 
         public int size() {
-            return theMap.size();
+            return bitSetForIndex.size();
         }
 
     }
@@ -773,7 +780,7 @@ public class RouteCostMatrix implements RouteCostCombinations {
             }
         }
 
-        public boolean isSet(int degree, RouteIndexPair routePair) {
+        public boolean isSet(final int degree, final RouteIndexPair routePair) {
             return isOverlap(getDegree(degree),routePair);
         }
 

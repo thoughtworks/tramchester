@@ -3,6 +3,7 @@ package com.tramchester.domain.collections;
 import org.roaringbitmap.BatchIterator;
 import org.roaringbitmap.RoaringBatchIterator;
 import org.roaringbitmap.RoaringBitmap;
+import org.roaringbitmap.Util;
 
 import java.util.stream.IntStream;
 
@@ -10,7 +11,7 @@ public class BitmapAsRoaringBitmap implements SimpleBitmap {
     private final RoaringBitmap bitmap;
     private final int size;
 
-    BitmapAsRoaringBitmap(int size) {
+    public BitmapAsRoaringBitmap(int size) {
         this(new RoaringBitmap(), size);
     }
 
@@ -19,8 +20,7 @@ public class BitmapAsRoaringBitmap implements SimpleBitmap {
         this.size = size;
     }
 
-    @Override
-    public SimpleBitmap createCopy() {
+    public BitmapAsRoaringBitmap createCopy() {
         return new BitmapAsRoaringBitmap(bitmap.clone(), size);
     }
 
@@ -34,8 +34,7 @@ public class BitmapAsRoaringBitmap implements SimpleBitmap {
         bitmap.clear();
     }
 
-    @Override
-    public SimpleBitmap extractRowAndColumn(int row, int column, int totalRows, int totalColumns) {
+    public BitmapAsRoaringBitmap extractRowAndColumn(int row, int column, int totalRows, int totalColumns) {
         final RoaringBitmap result = new RoaringBitmap();
         extractRow(result, row, totalColumns);
         extractColumn(result, column, totalRows, totalColumns);
@@ -47,8 +46,9 @@ public class BitmapAsRoaringBitmap implements SimpleBitmap {
         final int[] outputBuffer = new int[totalRows];
         int beginOfRow = 0;
         int index = 0;
+
         for (int rowIndex = 0; rowIndex < totalRows; rowIndex++) {
-            final int columnPosition = beginOfRow + column;
+            final int columnPosition = column + beginOfRow;
             if (bitmap.contains(columnPosition)) {
                 outputBuffer[index++] = columnPosition;
             }
@@ -158,10 +158,7 @@ public class BitmapAsRoaringBitmap implements SimpleBitmap {
         bitmap.and(otherBitmap.bitmap);
     }
 
-    @Override
-    public SimpleBitmap and(SimpleImmutableBitmap simpleBitmapA, SimpleImmutableBitmap simpleBitmapB) {
-        BitmapAsRoaringBitmap bitmapA = (BitmapAsRoaringBitmap) simpleBitmapA;
-        BitmapAsRoaringBitmap bitmapB = (BitmapAsRoaringBitmap) simpleBitmapB;
+    public static BitmapAsRoaringBitmap and(BitmapAsRoaringBitmap bitmapA, BitmapAsRoaringBitmap bitmapB) {
         if (bitmapA.size!=bitmapB.size) {
             throw new RuntimeException("Size mismatch, got " + bitmapA.size + " and " + bitmapB.size);
         }
