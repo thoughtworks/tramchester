@@ -489,44 +489,47 @@ public class RouteCostMatrix implements RouteCostCombinations {
         private final int numRoutes;
         private final RouteIndex index; // diagnostics
 
-        private final BitmapAsRoaringBitmap seen; // performance
+        private final boolean[][] seen; // performance
 
         private RouteConnectingLinks(RouteIndexPairFactory pairFactory, int numRoutes, RouteIndex index) {
             this.pairFactory = pairFactory;
             this.numRoutes = numRoutes;
             this.index = index;
             bitSetForIndex = new HashMap<>();
-            seen = new BitmapAsRoaringBitmap(numRoutes * numRoutes);
+            seen = new boolean[numRoutes][numRoutes];
         }
 
         public void addLinksBetween(final short routeIndexA, final short routeIndexB, final ImmutableBitSet links) {
             links.getBitIndexes().
-                    mapToObj(linkIndex -> pairFactory.get(routeIndexA, (short)linkIndex)).
-                    map(this::getBitSetForPair).
+                    mapToObj(linkIndex -> getBitSetForPair(routeIndexA, (short)linkIndex)).
                     forEach(bitSet -> bitSet.set(routeIndexB));
         }
 
-        private BitSet getBitSetForPair(final RouteIndexPair pair) {
-            final int position = getPositionFor(pair);
-
-            if (seen.get(position)) {
+        private BitSet getBitSetForPair(short routeIndexA, short linkIndex) {
+            int position = getPosition(routeIndexA, linkIndex);
+            if (seen[routeIndexA][linkIndex]) {
                 return bitSetForIndex.get(position);
             }
 
             final BitSet bitSet = new BitSet();
             bitSetForIndex.put(position, bitSet);
-            seen.set(position);
+            seen[routeIndexA][linkIndex] = true;
             return bitSet;
+
         }
 
         private int getPositionFor(RouteIndexPair routeIndexPair) {
-            return (routeIndexPair.first()*numRoutes) + routeIndexPair.second();
+            return getPosition(routeIndexPair.first(), routeIndexPair.second());
+        }
+
+        private int getPosition(short indexA, short indexB) {
+            return (indexA * numRoutes) + indexB;
         }
 
         // re-expand from (A,C) -> B into: (A,B) (B,C)
         public Set<Pair<RouteIndexPair, RouteIndexPair>> getLinksFor(RouteIndexPair indexPair) {
             final int position = getPositionFor(indexPair);
-            if (!seen.get(position)) {
+            if (!seen[indexPair.first()][indexPair.second()]) {
                 RoutePair missing = index.getPairFor(indexPair);
                 String message = "Missing indexPair " + indexPair + " (" + missing + ") in map size " + bitSetForIndex.size();
                 logger.error(message);
