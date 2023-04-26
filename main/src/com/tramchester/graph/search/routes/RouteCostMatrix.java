@@ -154,7 +154,7 @@ public class RouteCostMatrix implements RouteCostCombinations {
 
                 currentConnectionsForRoute.getBitIndexes().forEach(connectedRoute -> {
                     final ImmutableBitSet connections = matrixForDegree.getBitSetForRow(connectedRoute);
-                    connectingLinks.put(routeIndex, (short) connectedRoute, connections);
+                    connectingLinks.addLinksBetween(routeIndex, (short) connectedRoute, connections);
                 });
             }
 
@@ -482,35 +482,50 @@ public class RouteCostMatrix implements RouteCostCombinations {
 
         // pair to connecting route index (A,B) -> C
         private final Map<RouteIndexPair, BitSet> bitSetForIndex;
-        //private final IndexedBitSet seen; // performance
-        private final HashSet<RouteIndexPair> seen;
+        private final BitmapAsRoaringBitmap seen; // performance
+        private final int numRoutes;
         private final RouteIndex index; // diagnostics
 
         private RouteConnectingLinks(RouteIndexPairFactory pairFactory, int numRoutes, RouteIndex index) {
             this.pairFactory = pairFactory;
+            this.numRoutes = numRoutes;
             this.index = index;
             bitSetForIndex = new HashMap<>();
-            //seen = new IndexedBitSet(numRoutes, numRoutes);
-            seen = new HashSet<>();
+            seen = new BitmapAsRoaringBitmap(numRoutes*numRoutes);
         }
 
-        public void put(final short routeIndexA, final short routeIndexB, final ImmutableBitSet links) {
+        // TOOD need a way to safely add BitSets to a Set , assuming that might save any cycles.....
+//        public void addLinksBetweenNew(final short routeIndexA, final short routeIndexB, final ImmutableBitSet links) {
+//            Set<BitSet> needUpdated = links.getBitIndexes().
+//                    mapToObj(linkIndex -> pairFactory.get(routeIndexA, linkIndex)).
+//                    map(this::getBitSetForPair).
+//                    collect(Collectors.toSet());
+//
+//            needUpdated.forEach(bitSet -> bitSet.set(routeIndexB));
+//        }
+
+        public void addLinksBetween(final short routeIndexA, final short routeIndexB, final ImmutableBitSet links) {
             links.getBitIndexes().
                     mapToObj(linkIndex -> pairFactory.get(routeIndexA, linkIndex)).
-                    forEach(routeIndexPair -> put(routeIndexPair, routeIndexB));
+                    map(this::getBitSetForPair).
+                    forEach(bitSet -> bitSet.set(routeIndexB));
         }
 
-        private void put(final RouteIndexPair index, final short connectingRoute) {
-            if (!seen.contains(index)) {
-                bitSetForIndex.put(index, new BitSet());
-                seen.add(index);
-            }
-//            if (!seen.isSet(index)) {
-//                bitSetForIndex.put(index, new BitSet());
-//                seen.set(index.first(), index.second());
-//            }
+        private BitSet getBitSetForPair(RouteIndexPair pair) {
+            final int position = getPositionFor(pair);
 
-            bitSetForIndex.get(index).set(connectingRoute);
+            if (seen.get(position)) {
+                return bitSetForIndex.get(pair);
+            }
+
+            final BitSet bitSet = new BitSet();
+            bitSetForIndex.put(pair, bitSet);
+            seen.set(position);
+            return bitSet;
+        }
+
+        private int getPositionFor(RouteIndexPair routeIndexPair) {
+            return (routeIndexPair.first()*numRoutes) + routeIndexPair.second();
         }
 
         // re-expand from (A,C) -> B into: (A,B) (B,C)
