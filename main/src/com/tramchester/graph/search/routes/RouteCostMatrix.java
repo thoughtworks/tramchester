@@ -390,7 +390,7 @@ public class RouteCostMatrix implements RouteCostCombinations {
     public AnyOfPaths getInterchangesFor(final RouteIndexPair indexPair, final IndexedBitSet dateOverlaps) {
         final int degree = getDepth(indexPair);
 
-        final IndexedBitSet changesForDegree = costsForDegree.getDegree(degree).getRowAndColumn(indexPair.firstAsInt(), indexPair.secondAsInt());
+        final IndexedBitSet changesForDegree = costsForDegree.getDegree(degree).getRowAndColumn(indexPair.first(), indexPair.second());
         // apply mask to filter out unavailable dates/modes
         final IndexedBitSet withDateApplied = changesForDegree.and(dateOverlaps);
 
@@ -404,7 +404,7 @@ public class RouteCostMatrix implements RouteCostCombinations {
     }
 
     private AnyOfPaths getPathFor(final RouteIndexPair indexPair, final int degree, final IndexedBitSet dateOverlaps) {
-        final IndexedBitSet changesForDegree = costsForDegree.getDegree(degree).getRowAndColumn(indexPair.firstAsInt(), indexPair.secondAsInt());
+        final IndexedBitSet changesForDegree = costsForDegree.getDegree(degree).getRowAndColumn(indexPair.first(), indexPair.second());
         // apply mask to filter out unavailable dates/modes
         final IndexedBitSet withDateApplied = changesForDegree.and(dateOverlaps);
 
@@ -520,7 +520,7 @@ public class RouteCostMatrix implements RouteCostCombinations {
         }
 
         private int getPositionFor(RouteIndexPair routeIndexPair) {
-            return (routeIndexPair.firstAsInt()*numRoutes) + routeIndexPair.secondAsInt();
+            return (routeIndexPair.first()*numRoutes) + routeIndexPair.second();
         }
 
         // re-expand from (A,C) -> B into: (A,B) (B,C)

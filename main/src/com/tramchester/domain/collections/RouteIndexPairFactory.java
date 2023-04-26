@@ -9,15 +9,16 @@ import java.util.Map;
 
 @LazySingleton
 public class RouteIndexPairFactory {
-    private final int numberOfRoutes;
+    private final short numberOfRoutes;
     private final Map<Integer, RouteIndexPair> cache;
 
     @Inject
     public RouteIndexPairFactory(NumberOfRoutes repository) {
-        numberOfRoutes = repository.numberOfRoutes();
-        if (numberOfRoutes > Short.MAX_VALUE) {
-            throw new RuntimeException("Too many routes " + numberOfRoutes);
+        int numRoutes = repository.numberOfRoutes();
+        if (numRoutes > Short.MAX_VALUE) {
+            throw new RuntimeException("Too many routes " + numRoutes);
         }
+        numberOfRoutes = (short) numRoutes;
         cache = new HashMap<>();
     }
 

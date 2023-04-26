@@ -27,8 +27,8 @@ public class RouteIndexPairTest {
     @Test
     void shouldHaveAPair() {
         RouteIndexPair pair = getPair(42, 95);
-        assertEquals(42, pair.firstAsInt());
-        assertEquals(95, pair.secondAsInt());
+        assertEquals(42, pair.first());
+        assertEquals(95, pair.second());
     }
 
     @Test
