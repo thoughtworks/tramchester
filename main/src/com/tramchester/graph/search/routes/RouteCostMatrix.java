@@ -530,7 +530,8 @@ public class RouteCostMatrix implements RouteCostCombinations {
 
         // re-expand from (A,C) -> B into: (A,B) (B,C)
         public Set<Pair<RouteIndexPair, RouteIndexPair>> getLinksFor(RouteIndexPair indexPair) {
-            if (!bitSetForIndex.containsKey(indexPair)) {
+            final int position = getPositionFor(indexPair);
+            if (!seen.get(position)) {
                 RoutePair missing = index.getPairFor(indexPair);
                 String message = "Missing indexPair " + indexPair + " (" + missing + ") in map size " + bitSetForIndex.size();
                 logger.error(message);
