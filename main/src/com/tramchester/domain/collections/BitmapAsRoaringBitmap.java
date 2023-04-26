@@ -80,31 +80,36 @@ public class BitmapAsRoaringBitmap implements SimpleBitmap {
     }
 
     @Override
-    public SimpleImmutableBitmap getSubmap(int start, int end) {
+    public SimpleImmutableBitmap getSubmap(final int submapStart, final int submapEnd) {
         final int bufferSize = 128;
+        final int[] readBuffer = new int[bufferSize];
+        final int[] writeBuffer = new int[bufferSize];
 
-        final int submapSize = end - start;
+        final int submapSize = submapEnd - submapStart;
+
         final RoaringBitmap submap = new RoaringBitmap();
-        final int[] buffer = new int[bufferSize];
 
         BatchIterator batchIterator = bitmap.getBatchIterator();
-        batchIterator.advanceIfNeeded(start);
+        batchIterator.advanceIfNeeded(submapStart);
 
-        int value = -1;
-
-        while (batchIterator.hasNext() && value<=end) {
-            final int numInBatch = batchIterator.nextBatch(buffer);
+        int readValue = -1;
+        while (batchIterator.hasNext() && readValue<=submapEnd) {
+            final int numInBatch = batchIterator.nextBatch(readBuffer);
+            int index = 0;
             for (int i = 0; i < numInBatch; i++) {
                 // todo maybe optimise by adding in batches via addN but need to make sure compute the offset value
-                value = buffer[i];
-                if (value>end) {
+                readValue = readBuffer[i];
+                if (readValue>submapEnd) {
                     break;
                 }
-                if (value>=start) {
-                    submap.add(value-start);
+                if (readValue>=submapStart) {
+                    writeBuffer[index++] = readValue-submapStart;
+                    //submap.add(readValue-submapStart);
                 }
             }
+            submap.addN(writeBuffer, 0, index);
         }
+
         return new BitmapAsRoaringBitmap(submap, submapSize);
     }
 

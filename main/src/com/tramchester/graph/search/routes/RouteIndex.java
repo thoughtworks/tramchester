@@ -194,10 +194,6 @@ public class RouteIndex implements DataCache.CachesData<RouteIndexData> {
         return mapRouteIdToIndex.containsKey(route);
     }
 
-    public boolean hasIndexFor(Route route) {
-        return mapRouteIdToIndex.containsKey(route);
-    }
-
     public long sizeFor(TransportMode mode) {
         return mapRouteIdToIndex.keySet().stream().filter(route -> route.getTransportMode().equals(mode)).count();
     }
