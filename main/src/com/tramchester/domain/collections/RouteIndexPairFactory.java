@@ -28,10 +28,10 @@ public class RouteIndexPairFactory {
     }
 
     public RouteIndexPair get(short a, short b) {
-        if (a > numberOfRoutes) {
+        if (a >= numberOfRoutes) {
             throw new RuntimeException("First argument " + a + " is out of range " + numberOfRoutes);
         }
-        if (b > numberOfRoutes) {
+        if (b >= numberOfRoutes) {
             throw new RuntimeException("Second argument " + b + " is out of range " + numberOfRoutes);
         }
 

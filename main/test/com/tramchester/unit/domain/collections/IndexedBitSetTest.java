@@ -38,6 +38,22 @@ public class IndexedBitSetTest {
     }
 
     @Test
+    void shouldHaveFetchRowAsExpected() {
+        IndexedBitSet bits = new IndexedBitSet(2,2);
+        bits.set(0,0);
+        bits.set(0,1);
+        bits.set(1,0);
+        bits.set(1,1);
+
+        ImmutableBitSet rowZero = bits.getBitSetForRow(0);
+        assertEquals(2, rowZero.getSize(), rowZero.toString());
+        assertTrue(rowZero.isSet(0));
+        assertTrue(rowZero.isSet(1));
+        assertEquals(2, rowZero.numberSet());
+    }
+
+
+    @Test
     void shouldHaveNumberOfBitsSet() {
         IndexedBitSet bits = new IndexedBitSet(3,4);
 

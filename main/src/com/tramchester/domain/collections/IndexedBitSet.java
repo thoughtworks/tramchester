@@ -78,10 +78,10 @@ public class IndexedBitSet {
      */
     public ImmutableBitSet getBitSetForRow(final int row) {
         final int startPosition = getPositionFor(row, 0);
-        final int endPosition = startPosition + columns; // plus num cols per row
-        final SimpleImmutableBitmap result = bitmap.getSubmap(startPosition, endPosition);
+        final int endPositionExclusive = startPosition + columns; // plus num cols per row
+        final SimpleImmutableBitmap result = bitmap.getSubmap(startPosition, endPositionExclusive-1);
 
-        return new ImmutableBitSet(result, endPosition-startPosition);
+        return new ImmutableBitSet(result, endPositionExclusive-startPosition);
     }
 
     /***
@@ -138,12 +138,11 @@ public class IndexedBitSet {
      * @return absolute index into the bitset
      */
     private int getPositionFor(final int row, final int column) {
-        if (row>rows) {
+        if (row>=rows) {
             throw new RuntimeException("Row " + row + " is out of bounds, more than " + rows);
         }
-        if (column>columns) {
+        if (column>=columns) {
             throw new RuntimeException("Column" + column + " is out of bounds, more than " + columns);
-
         }
         return (row * columns) + column;
     }

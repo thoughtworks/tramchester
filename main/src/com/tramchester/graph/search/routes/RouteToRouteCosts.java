@@ -125,7 +125,8 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
             return results.getDepth();
         }
 
-        logger.info("Found no operating station for " + HasId.asIds(index.getPairFor(routePair)));
+        RoutePair pair = index.getPairFor(routePair);
+        logger.info("Found no operating station for " + HasId.asIds(pair));
         return Integer.MAX_VALUE;
 
     }

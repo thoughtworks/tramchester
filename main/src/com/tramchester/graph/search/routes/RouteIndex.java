@@ -172,10 +172,13 @@ public class RouteIndex implements DataCache.CachesData<RouteIndexData> {
 
     public RoutePair getPairFor(RouteIndexPair indexPair) {
         Route first = mapIndexToRouteId.get(indexPair.first());
+        if (first==null) {
+            throw new RuntimeException("Could not find first Route for index " + indexPair);
+        }
         Route second = mapIndexToRouteId.get(indexPair.second());
-
-//        Route first = routeRepository.getRouteById(firstId);
-//        Route second = routeRepository.getRouteById(secondId);
+        if (second==null) {
+            throw new RuntimeException("Could not find second Route for index " + indexPair);
+        }
 
         return new RoutePair(first, second);
     }
