@@ -48,7 +48,7 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
     private final StationAvailabilityRepository availabilityRepository;
     private final ClosedStationsRepository closedStationsRepository;
     private final RouteIndex index;
-    private final RouteCostCombinations costs;
+    private final RouteCostMatrix costs;
     private final RouteIndexPairFactory pairFactory;
 
     @Inject
@@ -117,9 +117,9 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
             return Integer.MAX_VALUE;
         }
 
-        final RouteCostMatrix.AnyOfPaths interchanges = costs.getInterchangesFor(routePair, dateAndModeOverlaps);
+        final RouteCostMatrix.PathResults interchanges = costs.getInterchangesFor(routePair, dateAndModeOverlaps);
 
-        final RouteCostMatrix.InterchangePath results = interchanges.filter(changeStationOperating::isOperating);
+        final RouteCostMatrix.AnyOfPaths results = interchanges.filter(changeStationOperating::isOperating);
 
         if (results.hasAny()) {
             return results.getDepth();

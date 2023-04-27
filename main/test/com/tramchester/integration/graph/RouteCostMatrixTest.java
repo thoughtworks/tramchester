@@ -126,7 +126,7 @@ public class RouteCostMatrixTest {
 
         assertNotEquals(0, dateOverlaps.numberOfBitsSet());
 
-        RouteCostMatrix.AnyOfPaths results = routeMatrix.getInterchangesFor(indexPair, dateOverlaps);
+        RouteCostMatrix.PathResults results = routeMatrix.getInterchangesFor(indexPair, dateOverlaps);
 
         assertTrue(results.hasAny());
         assertEquals(6, results.numberPossible(), results.toString());
@@ -150,7 +150,7 @@ public class RouteCostMatrixTest {
 
         assertEquals(0, dateOverlaps.numberOfBitsSet());
 
-        RouteCostMatrix.AnyOfPaths results = routeMatrix.getInterchangesFor(indexPair, dateOverlaps);
+        RouteCostMatrix.PathResults results = routeMatrix.getInterchangesFor(indexPair, dateOverlaps);
 
         assertFalse(results.hasAny());
         assertEquals(Integer.MAX_VALUE, results.getDepth());
@@ -173,7 +173,7 @@ public class RouteCostMatrixTest {
         IndexedBitSet dateOverlaps = routeMatrix.createOverlapMatrixFor(date, modes);
         assertEquals(196, dateOverlaps.numberOfBitsSet());
 
-        RouteCostMatrix.AnyOfPaths results = routeMatrix.getInterchangesFor(indexPair, dateOverlaps);
+        RouteCostMatrix.PathResults results = routeMatrix.getInterchangesFor(indexPair, dateOverlaps);
 
         assertTrue(results.hasAny());
 
@@ -186,7 +186,7 @@ public class RouteCostMatrixTest {
 
         assertTrue(results.isValid(marketStreetOrCornbrook));
 
-        Set<RouteCostMatrix.InterchangePath> viaMarketStreetAndCornbook = results.stream().filter(path -> path.isValid(marketStreetOrCornbrook)).collect(Collectors.toSet());
+        Set<RouteCostMatrix.AnyOfPaths> viaMarketStreetAndCornbook = results.stream().filter(path -> path.isValid(marketStreetOrCornbrook)).collect(Collectors.toSet());
 
         assertEquals(4, viaMarketStreetAndCornbook.size(), viaMarketStreetAndCornbook.toString());
 
@@ -195,10 +195,10 @@ public class RouteCostMatrixTest {
         assertFalse(parts.isEmpty());
 
         parts.forEach(part -> {
-            RouteCostMatrix.InterchangePath firstPath = part.getFirst();
+            RouteCostMatrix.AnyOfPaths firstPath = part.getFirst();
             assertTrue(firstPath.isValid(interchangeStation -> interchangeStation.getStationId().equals(MarketStreet.getId())));
             assertFalse(firstPath.isValid(interchangeStation -> interchangeStation.getStationId().equals(Cornbrook.getId())));
-            RouteCostMatrix.InterchangePath secondPath = part.getSecond();
+            RouteCostMatrix.AnyOfPaths secondPath = part.getSecond();
             assertTrue(secondPath.isValid(interchangeStation -> interchangeStation.getStationId().equals(Cornbrook.getId())));
             assertFalse(secondPath.isValid(interchangeStation -> interchangeStation.getStationId().equals(MarketStreet.getId())));
         });
@@ -223,7 +223,7 @@ public class RouteCostMatrixTest {
                 short otherIndex = routeIndex.indexFor(otherRoute.getId());
 
                 RouteIndexPair routeIndexPair = pairFactory.get(greenIndex, otherIndex);
-                RouteCostMatrix.AnyOfPaths results = routeMatrix.getInterchangesFor(routeIndexPair, dateOverlaps);
+                RouteCostMatrix.PathResults results = routeMatrix.getInterchangesFor(routeIndexPair, dateOverlaps);
 
                 assertTrue(results.hasAny(), "no link for " + greenInbound + " and " + otherRoute);
             }
