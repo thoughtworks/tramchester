@@ -8,7 +8,6 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public interface QueryPathsWithDepth {
@@ -20,10 +19,7 @@ public interface QueryPathsWithDepth {
 
         Stream<QueryPath> stream();
 
-        boolean isEmpty();
-
         boolean isValid(Function<InterchangeStation, Boolean> validator);
-        QueryPath filter(Function<InterchangeStation, Boolean> filter);
 
         int size();
     }
@@ -55,11 +51,6 @@ public interface QueryPathsWithDepth {
         }
 
         @Override
-        public boolean isEmpty() {
-            return paths.isEmpty();
-        }
-
-        @Override
         public String toString() {
             return "AnyOfContained{" + toString(paths) +
                     '}';
@@ -78,12 +69,6 @@ public interface QueryPathsWithDepth {
         @Override
         public boolean isValid(Function<InterchangeStation, Boolean> validator) {
             return paths.stream().anyMatch(path -> path.isValid(validator));
-        }
-
-        @Override
-        public QueryPath filter(Function<InterchangeStation, Boolean> filter) {
-            Set<QueryPath> matching = paths.stream().map(path -> path.filter(filter)).collect(Collectors.toSet());
-            return new AnyOf(matching);
         }
 
         @Override
@@ -126,23 +111,8 @@ public interface QueryPathsWithDepth {
         }
 
         @Override
-        public boolean isEmpty() {
-            // TODO effectively empty is either is empty
-            return false;
-        }
-
-        @Override
         public boolean isValid(Function<InterchangeStation, Boolean> validator) {
             return pathsA.isValid(validator) && pathsB.isValid(validator);
-        }
-
-        @Override
-        public QueryPath filter(Function<InterchangeStation, Boolean> filter) {
-            if (pathsA.isValid(filter) && pathsB.isValid(filter)) {
-                return new BothOf(pathsA, pathsB);
-            } else {
-                return new ZeroPaths();
-            }
         }
 
         @Override
@@ -191,11 +161,6 @@ public interface QueryPathsWithDepth {
         }
 
         @Override
-        public QueryPath filter(Function<InterchangeStation, Boolean> filter) {
-            return new ZeroPaths();
-        }
-
-        @Override
         public boolean hasAny() {
             return false;
         }
@@ -213,11 +178,6 @@ public interface QueryPathsWithDepth {
         @Override
         public Stream<QueryPath> stream() {
             return Stream.empty();
-        }
-
-        @Override
-        public boolean isEmpty() {
-            return true;
         }
 
         @Override
@@ -262,20 +222,6 @@ public interface QueryPathsWithDepth {
         @Override
         public Stream<QueryPath> stream() {
             return changes.stream().map(SingleInterchange::new);
-        }
-
-        @Override
-        public boolean isEmpty() {
-            return false;
-        }
-
-        @Override
-        public QueryPath filter(Function<InterchangeStation, Boolean> filter) {
-            Set<InterchangeStation> filtered = changes.stream().filter(filter::apply).collect(Collectors.toSet());
-            if (filtered.isEmpty()) {
-                return new ZeroPaths();
-            }
-            return Of(filtered);
         }
 
         @Override
@@ -326,22 +272,8 @@ public interface QueryPathsWithDepth {
         }
 
         @Override
-        public boolean isEmpty() {
-            return false;
-        }
-
-        @Override
         public boolean isValid(Function<InterchangeStation, Boolean> validator) {
             return validator.apply(interchangeStation);
-        }
-
-        @Override
-        public QueryPath filter(Function<InterchangeStation, Boolean> filter) {
-            if (filter.apply(interchangeStation)) {
-                return new SingleInterchange(interchangeStation);
-            } else {
-                return new ZeroPaths();
-            }
         }
 
         @Override

@@ -383,12 +383,6 @@ public class RouteCostMatrix  {
         return getDegree(routePair);
     }
 
-//    public QueryPathsWithDepth getInterchangesFor(RouteIndexPair routePair, IndexedBitSet dateAndModeOverlaps, Function<InterchangeStation, Boolean> filter) {
-//        PathResults result = getInterchangesFor(routePair, dateAndModeOverlaps);
-//
-//        return result.filter(filter);
-//    }
-
     public PathResults getInterchangesFor(final RouteIndexPair indexPair, final IndexedBitSet dateOverlaps, Function<InterchangeStation, Boolean> interchangeFilter) {
         final int degree = getDepth(indexPair);
 
@@ -399,7 +393,7 @@ public class RouteCostMatrix  {
         if (withDateApplied.isSet(indexPair)) {
 
             QueryPathsWithDepth.QueryPath pathFor = getPathFor(indexPair, degree, dateOverlaps, interchangeFilter); //.filter(interchangeFilter);
-            if (!pathFor.isEmpty()) {
+            if (pathFor.hasAny()) {
                 return new PathResults.HasPathResults(pathFor);
             } else {
                 return new PathResults.NoPathResults();
@@ -435,9 +429,8 @@ public class RouteCostMatrix  {
             } else {
                 //int previousPairsIndex = 0;
                 final int depth = degree - 1;
-                //final AnyOfContained result = new AnyOfContained();
-                final Set<Pair<RouteIndexPair, RouteIndexPair>> underlying = underlyingPairs.get(depth-1).getLinksFor(indexPair);
 
+                final Set<Pair<RouteIndexPair, RouteIndexPair>> underlying = underlyingPairs.get(depth-1).getLinksFor(indexPair);
                 Set<QueryPathsWithDepth.BothOf> combined = underlying.stream().
                         map(pair -> {
                             final QueryPathsWithDepth.QueryPath pathA = getPathFor(pair.getLeft(), degree - 1, dateOverlaps, interchangeFilter);

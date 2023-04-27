@@ -5,7 +5,7 @@ import com.tramchester.domain.places.InterchangeStation;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
-public interface PathResults extends FilterablePathResults {
+public interface PathResults { 
 
     boolean hasAny();
 
@@ -24,10 +24,6 @@ public interface PathResults extends FilterablePathResults {
             this.pathFor = pathFor;
         }
 
-        public QueryPathsWithDepth.QueryPath filter(Function<InterchangeStation, Boolean> filter) {
-            return pathFor.filter(filter);
-        }
-
         public boolean hasAny() {
             return pathFor.stream().anyMatch(QueryPathsWithDepth.QueryPath::hasAny);
         }
@@ -42,7 +38,6 @@ public interface PathResults extends FilterablePathResults {
 
         public boolean isValid(Function<InterchangeStation, Boolean> validator) {
             return pathFor.stream().anyMatch(path -> pathFor.isValid(validator));
-            //return pathFor.isValid(valid);
         }
 
         public Stream<QueryPathsWithDepth.QueryPath> stream() {
@@ -51,11 +46,6 @@ public interface PathResults extends FilterablePathResults {
     }
 
     class NoPathResults implements PathResults {
-
-        @Override
-        public QueryPathsWithDepth.QueryPath filter(Function<InterchangeStation, Boolean> filter) {
-            return new QueryPathsWithDepth.ZeroPaths();
-        }
 
         @Override
         public boolean hasAny() {
