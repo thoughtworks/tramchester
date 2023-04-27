@@ -104,22 +104,6 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
     private int getDepth(final RouteIndexPair routePair, final StationAvailabilityFacade changeStationOperating, final IndexedBitSet dateAndModeOverlaps) {
 
         // need to account for route availability and modes when getting the depth
-        // the simple answer, or the lowest limit, comes from the matrix depth for the routePair
-        // int min = costs.getDegree(routePair);
-        // but that might not be available at the given date and mode
-
-        // try from initialDepth to max depth to find any interchange that is operating at the given date/time/modes
-        final int maxDepth = costs.getMaxDepth();
-        final int initialDepth = costs.getDepth(routePair);
-
-        if (initialDepth > maxDepth) {
-            logger.warn("Initial depth " + initialDepth + " is greater than " + maxDepth);
-            return Integer.MAX_VALUE;
-        }
-
-//        final FilterablePathResults interchanges = costs.getInterchangesFor(routePair, dateAndModeOverlaps);
-//
-//        final QueryPaths results = interchanges.filter(changeStationOperating::isOperating);
 
         PathResults results = costs.getInterchangesFor(routePair, dateAndModeOverlaps, changeStationOperating::isOperating);
 
@@ -127,10 +111,11 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
             return results.getDepth();
         }
 
-        RoutePair pair = index.getPairFor(routePair);
-        logger.info("Found no operating station for " + HasId.asIds(pair));
+        if (logger.isDebugEnabled()) {
+            RoutePair pair = index.getPairFor(routePair);
+            logger.debug("Found no operating station for " + HasId.asIds(pair));
+        }
         return Integer.MAX_VALUE;
-
     }
 
     public long size() {

@@ -155,6 +155,17 @@ public interface QueryPathsWithDepth {
     }
 
     class ZeroPaths implements QueryPath {
+
+        private static final ZeroPaths theInstance = new ZeroPaths();
+
+        public static ZeroPaths get() {
+            return theInstance;
+        }
+
+        private ZeroPaths() {
+
+        }
+
         @Override
         public boolean isValid(Function<InterchangeStation, Boolean> validator) {
             return false;
