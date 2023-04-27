@@ -12,6 +12,8 @@ import com.tramchester.domain.collections.RouteIndexPairFactory;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.places.InterchangeStation;
 import com.tramchester.domain.reference.TransportMode;
+import com.tramchester.graph.search.routes.PathResults;
+import com.tramchester.graph.search.routes.QueryPathsWithDepth;
 import com.tramchester.graph.search.routes.RouteCostMatrix;
 import com.tramchester.graph.search.routes.RouteIndex;
 import com.tramchester.integration.testSupport.ConfigParameterResolver;
@@ -126,7 +128,7 @@ public class RouteCostMatrixTest {
 
         assertNotEquals(0, dateOverlaps.numberOfBitsSet());
 
-        RouteCostMatrix.PathResults results = routeMatrix.getInterchangesFor(indexPair, dateOverlaps);
+        PathResults results = routeMatrix.getInterchangesFor(indexPair, dateOverlaps);
 
         assertTrue(results.hasAny());
         assertEquals(6, results.numberPossible(), results.toString());
@@ -150,7 +152,7 @@ public class RouteCostMatrixTest {
 
         assertEquals(0, dateOverlaps.numberOfBitsSet());
 
-        RouteCostMatrix.PathResults results = routeMatrix.getInterchangesFor(indexPair, dateOverlaps);
+        PathResults results = routeMatrix.getInterchangesFor(indexPair, dateOverlaps);
 
         assertFalse(results.hasAny());
         assertEquals(Integer.MAX_VALUE, results.getDepth());
@@ -173,7 +175,7 @@ public class RouteCostMatrixTest {
         IndexedBitSet dateOverlaps = routeMatrix.createOverlapMatrixFor(date, modes);
         assertEquals(196, dateOverlaps.numberOfBitsSet());
 
-        RouteCostMatrix.PathResults results = routeMatrix.getInterchangesFor(indexPair, dateOverlaps);
+        PathResults results = routeMatrix.getInterchangesFor(indexPair, dateOverlaps);
 
         assertTrue(results.hasAny());
 
@@ -186,19 +188,19 @@ public class RouteCostMatrixTest {
 
         assertTrue(results.isValid(marketStreetOrCornbrook));
 
-        Set<RouteCostMatrix.AnyOfPaths> viaMarketStreetAndCornbook = results.stream().filter(path -> path.isValid(marketStreetOrCornbrook)).collect(Collectors.toSet());
+        Set<QueryPathsWithDepth.QueryPath> viaMarketStreetAndCornbook = results.stream().filter(path -> path.isValid(marketStreetOrCornbrook)).collect(Collectors.toSet());
 
         assertEquals(4, viaMarketStreetAndCornbook.size(), viaMarketStreetAndCornbook.toString());
 
-        Set<RouteCostMatrix.BothOfPaths> parts = viaMarketStreetAndCornbook.stream().map(path -> (RouteCostMatrix.BothOfPaths)path).collect(Collectors.toSet());
+        Set<QueryPathsWithDepth.BothOf> parts = viaMarketStreetAndCornbook.stream().map(path -> (QueryPathsWithDepth.BothOf)path).collect(Collectors.toSet());
 
         assertFalse(parts.isEmpty());
 
         parts.forEach(part -> {
-            RouteCostMatrix.AnyOfPaths firstPath = part.getFirst();
+            QueryPathsWithDepth.QueryPath firstPath = part.getFirst();
             assertTrue(firstPath.isValid(interchangeStation -> interchangeStation.getStationId().equals(MarketStreet.getId())));
             assertFalse(firstPath.isValid(interchangeStation -> interchangeStation.getStationId().equals(Cornbrook.getId())));
-            RouteCostMatrix.AnyOfPaths secondPath = part.getSecond();
+            QueryPathsWithDepth.QueryPath secondPath = part.getSecond();
             assertTrue(secondPath.isValid(interchangeStation -> interchangeStation.getStationId().equals(Cornbrook.getId())));
             assertFalse(secondPath.isValid(interchangeStation -> interchangeStation.getStationId().equals(MarketStreet.getId())));
         });
@@ -223,7 +225,7 @@ public class RouteCostMatrixTest {
                 short otherIndex = routeIndex.indexFor(otherRoute.getId());
 
                 RouteIndexPair routeIndexPair = pairFactory.get(greenIndex, otherIndex);
-                RouteCostMatrix.PathResults results = routeMatrix.getInterchangesFor(routeIndexPair, dateOverlaps);
+                PathResults results = routeMatrix.getInterchangesFor(routeIndexPair, dateOverlaps);
 
                 assertTrue(results.hasAny(), "no link for " + greenInbound + " and " + otherRoute);
             }

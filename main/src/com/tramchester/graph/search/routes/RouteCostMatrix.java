@@ -383,6 +383,11 @@ public class RouteCostMatrix  {
         return getDegree(routePair);
     }
 
+    public QueryPathsWithDepth getInterchangesFor(RouteIndexPair routePair, IndexedBitSet dateAndModeOverlaps, Function<InterchangeStation, Boolean> filter) {
+        PathResults result = getInterchangesFor(routePair, dateAndModeOverlaps);
+        return result.filter(filter);
+    }
+
     public PathResults getInterchangesFor(final RouteIndexPair indexPair, final IndexedBitSet dateOverlaps) {
         final int degree = getDepth(indexPair);
 
@@ -392,19 +397,19 @@ public class RouteCostMatrix  {
 
         if (withDateApplied.isSet(indexPair)) {
 
-            AnyOfPaths pathFor = getPathFor(indexPair, degree, dateOverlaps);
+            QueryPathsWithDepth.QueryPath pathFor = getPathFor(indexPair, degree, dateOverlaps);
             if (!pathFor.isEmpty()) {
-                return new HasPathResults(pathFor);
+                return new PathResults.HasPathResults(pathFor);
             } else {
-                return new NoPathResults();
+                return new PathResults.NoPathResults();
             }
 
         } else {
-            return new NoPathResults();
+            return new PathResults.NoPathResults();
         }
     }
 
-    private AnyOfPaths getPathFor(final RouteIndexPair indexPair, final int degree, final IndexedBitSet dateOverlaps) {
+    private QueryPathsWithDepth.QueryPath getPathFor(final RouteIndexPair indexPair, final int degree, final IndexedBitSet dateOverlaps) {
         final IndexedBitSet changesForDegree = costsForDegree.getDegree(degree).getRowAndColumn(indexPair.first(), indexPair.second());
         // apply mask to filter out unavailable dates/modes
         final IndexedBitSet withDateApplied = changesForDegree.and(dateOverlaps);
@@ -419,25 +424,25 @@ public class RouteCostMatrix  {
                     throw new RuntimeException(msg);
                 }
                 final Set<InterchangeStation> changes = pairToInterchanges.get(indexPair);
-                return new AnyOfInterchanges(changes);
+                return new QueryPathsWithDepth.AnyOfInterchanges(changes);
             } else {
                 //int previousPairsIndex = 0;
                 final int depth = degree - 1;
                 //final AnyOfContained result = new AnyOfContained();
                 final Set<Pair<RouteIndexPair, RouteIndexPair>> underlying = underlyingPairs.get(depth-1).getLinksFor(indexPair);
 
-                Set<BothOfPaths> combined = underlying.stream().map(pair -> {
-                    final AnyOfPaths pathA = getPathFor(pair.getLeft(), degree - 1, dateOverlaps);
-                    final AnyOfPaths pathB = getPathFor(pair.getRight(), degree - 1, dateOverlaps);
-                    return new BothOfPaths(pathA, pathB);
+                Set<QueryPathsWithDepth.BothOf> combined = underlying.stream().map(pair -> {
+                    final QueryPathsWithDepth.QueryPath pathA = getPathFor(pair.getLeft(), degree - 1, dateOverlaps);
+                    final QueryPathsWithDepth.QueryPath pathB = getPathFor(pair.getRight(), degree - 1, dateOverlaps);
+                    return new QueryPathsWithDepth.BothOf(pathA, pathB);
                 }).collect(Collectors.toSet());
 
-                return new AnyOfContained(combined);
+                return new QueryPathsWithDepth.AnyOf(combined);
 
             }
 
         } else {
-            return new ZeroPaths();
+            return new QueryPathsWithDepth.ZeroPaths();
         }
     }
 
@@ -550,352 +555,8 @@ public class RouteCostMatrix  {
 
     }
 
-    public interface AnyOfPaths {
 
-        Stream<AnyOfPaths> stream();
 
-        boolean isEmpty();
-
-        boolean isValid(Function<InterchangeStation, Boolean> validator);
-        AnyOfPaths filter(Function<InterchangeStation, Boolean> filter);
-        boolean hasAny();
-
-        int getDepth();
-
-        int size();
-    }
-
-    public static class AnyOfContained implements AnyOfPaths {
-        private final Set<AnyOfPaths> paths;
-
-        private AnyOfContained(Set<? extends AnyOfPaths> paths) {
-            this.paths = new HashSet<>();
-            this.paths.addAll(paths);
-        }
-
-        @Override
-        public boolean equals(Object o) {
-            if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
-            AnyOfContained that = (AnyOfContained) o;
-            return paths.equals(that.paths);
-        }
-
-        @Override
-        public int hashCode() {
-            return Objects.hash(paths);
-        }
-
-        @Override
-        public Stream<AnyOfPaths> stream() {
-            return paths.stream();
-        }
-
-        @Override
-        public boolean isEmpty() {
-            return paths.isEmpty();
-        }
-
-        @Override
-        public String toString() {
-            return "AnyOfContained{" + toString(paths) +
-                    '}';
-        }
-
-        private String toString(Set<AnyOfPaths> paths) {
-            StringBuilder output = new StringBuilder();
-            paths.forEach(interchangePath -> {
-                output.append(System.lineSeparator());
-                output.append(interchangePath.toString());
-            });
-            output.append(System.lineSeparator());
-            return output.toString();
-        }
-
-        @Override
-        public boolean isValid(Function<InterchangeStation, Boolean> validator) {
-            return paths.stream().anyMatch(path -> path.isValid(validator));
-        }
-
-        @Override
-        public AnyOfPaths filter(Function<InterchangeStation, Boolean> filter) {
-            Set<AnyOfPaths> matching = paths.stream().map(path -> path.filter(filter)).collect(Collectors.toSet());
-            return new AnyOfContained(matching);
-        }
-
-        @Override
-        public boolean hasAny() {
-            return paths.stream().anyMatch(AnyOfPaths::hasAny);
-        }
-
-        @Override
-        public int getDepth() {
-            Optional<Integer> anyMatch = paths.stream().map(AnyOfPaths::getDepth).max(Integer::compareTo);
-            return anyMatch.orElse(Integer.MAX_VALUE);
-        }
-
-        @Override
-        public int size() {
-            return paths.size();
-        }
-    }
-
-    private static class ZeroPaths implements AnyOfPaths {
-        @Override
-        public boolean isValid(Function<InterchangeStation, Boolean> validator) {
-            return false;
-        }
-
-        @Override
-        public AnyOfPaths filter(Function<InterchangeStation, Boolean> filter) {
-            return new ZeroPaths();
-        }
-
-        @Override
-        public boolean hasAny() {
-            return false;
-        }
-
-        @Override
-        public int getDepth() {
-            return Integer.MAX_VALUE;
-        }
-
-        @Override
-        public int size() {
-            return 0;
-        }
-
-        @Override
-        public Stream<AnyOfPaths> stream() {
-            return Stream.empty();
-        }
-
-        @Override
-        public boolean isEmpty() {
-            return true;
-        }
-    }
-
-    public static class AnyOfInterchanges implements AnyOfPaths {
-        // any of these changes being available makes the path valid
-        private final Set<InterchangeStation> changes;
-
-        public AnyOfInterchanges(Set<InterchangeStation> changes) {
-            if (changes==null) {
-                throw new RuntimeException("Cannot pass in null changes");
-            }
-            if (changes.isEmpty()) {
-                throw new RuntimeException("Cannot pass in no interchanges");
-            }
-            this.changes = changes;
-        }
-
-        @Override
-        public String toString() {
-            return "AnyOfInterchanges{" +
-                    "changes=" + changes +
-                    '}';
-        }
-
-        @Override
-        public Stream<AnyOfPaths> stream() {
-            //return changes.stream().map(change -> new AnyOfInterchanges(Collections.singleton(change)));
-            return changes.stream().map(SingleInterchange::new);
-        }
-
-        @Override
-        public boolean isEmpty() {
-            return false;
-        }
-
-        @Override
-        public AnyOfPaths filter(Function<InterchangeStation, Boolean> filter) {
-//            return new AnyOfInterchanges(changes.stream().filter(filter::apply).collect(Collectors.toSet()));
-
-            Set<InterchangeStation> filtered = changes.stream().filter(filter::apply).collect(Collectors.toSet());
-            if (filtered.isEmpty()) {
-                return new ZeroPaths();
-            }
-            return new AnyOfInterchanges(filtered);
-        }
-
-        @Override
-        public boolean hasAny() {
-            return true;
-        }
-
-        @Override
-        public int getDepth() {
-            return 1;
-        }
-
-        @Override
-        public int size() {
-            return changes.size();
-        }
-
-        @Override
-        public boolean equals(Object o) {
-            if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
-            AnyOfInterchanges that = (AnyOfInterchanges) o;
-            return changes.equals(that.changes);
-        }
-
-        @Override
-        public int hashCode() {
-            return Objects.hash(changes);
-        }
-
-        @Override
-        public boolean isValid(Function<InterchangeStation, Boolean> validator) {
-            return changes.stream().anyMatch(validator::apply);
-        }
-    }
-
-    public static class SingleInterchange implements AnyOfPaths {
-
-        private final InterchangeStation interchangeStation;
-
-        public SingleInterchange(InterchangeStation interchangeStation) {
-            this.interchangeStation = interchangeStation;
-        }
-
-        @Override
-        public Stream<AnyOfPaths> stream() {
-            return Stream.of(new SingleInterchange(interchangeStation));
-        }
-
-        @Override
-        public boolean isEmpty() {
-            return false;
-        }
-
-        @Override
-        public boolean isValid(Function<InterchangeStation, Boolean> validator) {
-            return validator.apply(interchangeStation);
-        }
-
-        @Override
-        public AnyOfPaths filter(Function<InterchangeStation, Boolean> filter) {
-            if (filter.apply(interchangeStation)) {
-                return new SingleInterchange(interchangeStation);
-            } else {
-                return new ZeroPaths();
-            }
-        }
-
-        @Override
-        public boolean hasAny() {
-            return true;
-        }
-
-        @Override
-        public int getDepth() {
-            return 1;
-        }
-
-        @Override
-        public int size() {
-            return 1;
-        }
-
-        @Override
-        public boolean equals(Object o) {
-            if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
-            SingleInterchange that = (SingleInterchange) o;
-            return interchangeStation.equals(that.interchangeStation);
-        }
-
-        @Override
-        public int hashCode() {
-            return Objects.hash(interchangeStation);
-        }
-
-        @Override
-        public String toString() {
-            return "SingleInterchange{" +
-                    "change=" + interchangeStation +
-                    '}';
-        }
-    }
-
-    public static class BothOfPaths implements AnyOfPaths {
-        private final AnyOfPaths pathsA;
-        private final AnyOfPaths pathsB;
-
-        public BothOfPaths(AnyOfPaths pathsA, AnyOfPaths pathsB) {
-            this.pathsA = pathsA;
-            this.pathsB = pathsB;
-        }
-
-        @Override
-        public String toString() {
-            return "BothOfPaths{" +
-                    "pathsA=" + pathsA +
-                    ", pathsB=" + pathsB +
-                    '}';
-        }
-
-        @Override
-        public Stream<AnyOfPaths> stream() {
-            return Stream.concat(pathsA.stream(), pathsB.stream());
-        }
-
-        @Override
-        public boolean isEmpty() {
-            return false;
-        }
-
-        @Override
-        public boolean isValid(Function<InterchangeStation, Boolean> validator) {
-            return pathsA.isValid(validator) && pathsB.isValid(validator);
-        }
-
-        @Override
-        public AnyOfPaths filter(Function<InterchangeStation, Boolean> filter) {
-            return new BothOfPaths(pathsA.filter(filter), pathsB.filter(filter));
-        }
-
-        @Override
-        public boolean hasAny() {
-            return pathsA.hasAny() && pathsB.hasAny();
-        }
-
-        @Override
-        public int getDepth() {
-            int contained = Math.max(pathsA.getDepth(), pathsB.getDepth());
-            return contained + 1;
-        }
-
-        @Override
-        public int size() {
-            return pathsA.size() + pathsB.size();
-        }
-
-        @Override
-        public boolean equals(Object o) {
-            if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
-            BothOfPaths that = (BothOfPaths) o;
-            return pathsA.equals(that.pathsA) && pathsB.equals(that.pathsB);
-        }
-
-        @Override
-        public int hashCode() {
-            return Objects.hash(pathsA, pathsB);
-        }
-
-        public AnyOfPaths getFirst() {
-            return pathsA;
-        }
-
-        public AnyOfPaths getSecond() {
-            return pathsB;
-        }
-    }
 
     /***
      * encapsulate cost per degree to facilitate caching
@@ -973,85 +634,6 @@ public class RouteCostMatrix  {
         }
     }
 
-    public interface PathResults {
-        AnyOfPaths filter(Function<InterchangeStation, Boolean> filter) ;
 
-        boolean hasAny();
-
-        int getDepth();
-
-        int numberPossible();
-
-        boolean isValid(Function<InterchangeStation, Boolean> valid);
-
-        Stream<AnyOfPaths> stream();
-
-    }
-
-    public static class HasPathResults implements PathResults {
-        private final AnyOfPaths pathFor;
-
-        public HasPathResults(AnyOfPaths pathFor) {
-            this.pathFor = pathFor;
-        }
-
-        public AnyOfPaths filter(Function<InterchangeStation, Boolean> filter) {
-            return pathFor.filter(filter);
-        }
-
-        public boolean hasAny() {
-            return pathFor.stream().anyMatch(AnyOfPaths::hasAny);
-        }
-
-        public int getDepth() {
-            return pathFor.getDepth();
-        }
-
-        public int numberPossible() {
-            return pathFor.size();
-        }
-
-        public boolean isValid(Function<InterchangeStation, Boolean> validator) {
-            return pathFor.stream().anyMatch(path -> pathFor.isValid(validator));
-            //return pathFor.isValid(valid);
-        }
-
-        public Stream<AnyOfPaths> stream() {
-            return pathFor.stream();
-        }
-    }
-
-    public static class NoPathResults implements PathResults {
-
-        @Override
-        public AnyOfPaths filter(Function<InterchangeStation, Boolean> filter) {
-            return new ZeroPaths();
-        }
-
-        @Override
-        public boolean hasAny() {
-            return false;
-        }
-
-        @Override
-        public int getDepth() {
-            return Integer.MAX_VALUE;
-        }
-
-        @Override
-        public int numberPossible() {
-            return 0;
-        }
-
-        @Override
-        public boolean isValid(Function<InterchangeStation, Boolean> valid) {
-            return false;
-        }
-
-        @Override
-        public Stream<AnyOfPaths> stream() {
-            return Stream.empty();
-        }
-    }
 
 }
