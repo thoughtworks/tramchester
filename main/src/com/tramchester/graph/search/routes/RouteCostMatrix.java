@@ -389,7 +389,7 @@ public class RouteCostMatrix  {
 //        return result.filter(filter);
 //    }
 
-    public PathResults getInterchangesFor(final RouteIndexPair indexPair, final IndexedBitSet dateOverlaps, Function<InterchangeStation, Boolean> filter) {
+    public PathResults getInterchangesFor(final RouteIndexPair indexPair, final IndexedBitSet dateOverlaps, Function<InterchangeStation, Boolean> interchangeFilter) {
         final int degree = getDepth(indexPair);
 
         final IndexedBitSet changesForDegree = costsForDegree.getDegree(degree).getRowAndColumn(indexPair.first(), indexPair.second());
@@ -398,7 +398,7 @@ public class RouteCostMatrix  {
 
         if (withDateApplied.isSet(indexPair)) {
 
-            QueryPathsWithDepth.QueryPath pathFor = getPathFor(indexPair, degree, dateOverlaps, filter).filter(filter);
+            QueryPathsWithDepth.QueryPath pathFor = getPathFor(indexPair, degree, dateOverlaps, interchangeFilter); //.filter(interchangeFilter);
             if (!pathFor.isEmpty()) {
                 return new PathResults.HasPathResults(pathFor);
             } else {
@@ -438,14 +438,15 @@ public class RouteCostMatrix  {
                 //final AnyOfContained result = new AnyOfContained();
                 final Set<Pair<RouteIndexPair, RouteIndexPair>> underlying = underlyingPairs.get(depth-1).getLinksFor(indexPair);
 
-                Set<QueryPathsWithDepth.BothOf> combined = underlying.stream().map(pair -> {
-                    final QueryPathsWithDepth.QueryPath pathA = getPathFor(pair.getLeft(), degree - 1, dateOverlaps, interchangeFilter);
-                    final QueryPathsWithDepth.QueryPath pathB = getPathFor(pair.getRight(), degree - 1, dateOverlaps, interchangeFilter);
-                    return new QueryPathsWithDepth.BothOf(pathA, pathB);
-                }).collect(Collectors.toSet());
+                Set<QueryPathsWithDepth.BothOf> combined = underlying.stream().
+                        map(pair -> {
+                            final QueryPathsWithDepth.QueryPath pathA = getPathFor(pair.getLeft(), degree - 1, dateOverlaps, interchangeFilter);
+                            final QueryPathsWithDepth.QueryPath pathB = getPathFor(pair.getRight(), degree - 1, dateOverlaps, interchangeFilter);
+                            return new QueryPathsWithDepth.BothOf(pathA, pathB);}).
+                        filter(QueryPathsWithDepth.BothOf::hasAny).
+                        collect(Collectors.toSet());
 
                 return new QueryPathsWithDepth.AnyOf(combined);
-
             }
 
         } else {

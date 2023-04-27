@@ -192,7 +192,8 @@ public class RouteCostMatrixTest {
         Set<QueryPathsWithDepth.QueryPath> viaMarketStreetAndCornbook = routeMatrix.getInterchangesFor(indexPair, dateOverlaps,marketStreetOrCornbrook).
                 stream().collect(Collectors.toSet());
 
-                assertEquals(4, viaMarketStreetAndCornbook.size(), viaMarketStreetAndCornbook.toString());
+        // 4 -> 1 since filtering low level now
+        assertEquals(1, viaMarketStreetAndCornbook.size(), viaMarketStreetAndCornbook.toString());
 
         Set<QueryPathsWithDepth.BothOf> parts = viaMarketStreetAndCornbook.stream().map(path -> (QueryPathsWithDepth.BothOf)path).collect(Collectors.toSet());
 
