@@ -135,7 +135,26 @@ public class RouteCostMatrixTest {
 
         assertEquals(1, results.getDepth());
 
-        assertTrue(results.isValid(interchangeStation -> interchangeStation.getStationId().equals(Victoria.getId())));
+    }
+
+    @Test
+    void shouldHaveExpectedInterchangeForSimpleInterchangeFiltered() {
+        Route routeA = routeHelper.getOneRoute(AltrinchamManchesterBury, date);
+        Route routeB = routeHelper.getOneRoute(VictoriaWythenshaweManchesterAirport, date);
+
+        RouteIndexPair indexPair = routeIndex.getPairFor(new RoutePair(routeA, routeB));
+
+        IndexedBitSet dateOverlaps = routeMatrix.createOverlapMatrixFor(date, modes);
+
+        assertNotEquals(0, dateOverlaps.numberOfBitsSet());
+
+        PathResults results = routeMatrix.getInterchangesFor(indexPair, dateOverlaps, interchangeStation -> interchangeStation.getStationId().equals(Victoria.getId()));
+
+        assertTrue(results.hasAny());
+        assertEquals(1, results.numberPossible(), results.toString());
+
+        assertEquals(1, results.getDepth());
+
     }
 
     @Test
@@ -182,20 +201,27 @@ public class RouteCostMatrixTest {
         assertEquals(2, results.getDepth());
 
         assertEquals(7, results.numberPossible(), results.toString()); // two sets of changes needed
+    }
+
+    @Test
+    void shouldCheckFor2ChangesFiltered() {
+        Route routeA = routeHelper.getOneRoute(BuryPiccadilly, date);
+        Route routeB = routeHelper.getOneRoute(CornbrookTheTraffordCentre, date);
+        RouteIndexPair indexPair = routeIndex.getPairFor(new RoutePair(routeA, routeB));
+
+        IndexedBitSet dateOverlaps = routeMatrix.createOverlapMatrixFor(date, modes);
 
         Function<InterchangeStation, Boolean> marketStreetOrCornbrook = interchangeStation -> interchangeStation.getStationId().equals(Cornbrook.getId()) ||
                 interchangeStation.getStationId().equals(MarketStreet.getId());
 
-        assertTrue(results.isValid(marketStreetOrCornbrook));
+        PathResults viaMarketStreetAndCornbook = routeMatrix.getInterchangesFor(indexPair, dateOverlaps, marketStreetOrCornbrook);
 
-        //Set<QueryPathsWithDepth.QueryPath> viaMarketStreetAndCornbook = results.stream().filter(path -> path.isValid(marketStreetOrCornbrook)).collect(Collectors.toSet());
-        Set<QueryPathsWithDepth.QueryPath> viaMarketStreetAndCornbook = routeMatrix.getInterchangesFor(indexPair, dateOverlaps,marketStreetOrCornbrook).
-                stream().collect(Collectors.toSet());
+        assertTrue(viaMarketStreetAndCornbook.hasAny());
 
-        // 4 -> 1 since filtering low level now
-        assertEquals(1, viaMarketStreetAndCornbook.size(), viaMarketStreetAndCornbook.toString());
+        PathResults.HasPathResults results = (PathResults.HasPathResults) viaMarketStreetAndCornbook;
+        assertNotNull(results);
 
-        Set<QueryPathsWithDepth.BothOf> parts = viaMarketStreetAndCornbook.stream().map(path -> (QueryPathsWithDepth.BothOf)path).collect(Collectors.toSet());
+        Set<QueryPathsWithDepth.BothOf> parts = results.stream().map(path -> (QueryPathsWithDepth.BothOf)path).collect(Collectors.toSet());
 
         assertFalse(parts.isEmpty());
 

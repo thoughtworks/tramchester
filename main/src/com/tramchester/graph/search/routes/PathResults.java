@@ -1,21 +1,14 @@
 package com.tramchester.graph.search.routes;
 
-import com.tramchester.domain.places.InterchangeStation;
-
-import java.util.function.Function;
 import java.util.stream.Stream;
 
-public interface PathResults { 
+public interface PathResults {
 
     boolean hasAny();
 
     int getDepth();
 
     int numberPossible();
-
-    boolean isValid(Function<InterchangeStation, Boolean> valid);
-
-    Stream<QueryPathsWithDepth.QueryPath> stream();
 
     class HasPathResults implements PathResults {
         private final QueryPathsWithDepth.QueryPath pathFor;
@@ -24,22 +17,22 @@ public interface PathResults {
             this.pathFor = pathFor;
         }
 
+        @Override
         public boolean hasAny() {
             return pathFor.stream().anyMatch(QueryPathsWithDepth.QueryPath::hasAny);
         }
 
+        @Override
         public int getDepth() {
             return pathFor.getDepth();
         }
 
+        @Override
         public int numberPossible() {
             return pathFor.size();
         }
 
-        public boolean isValid(Function<InterchangeStation, Boolean> validator) {
-            return pathFor.stream().anyMatch(path -> pathFor.isValid(validator));
-        }
-
+        // test support, get at underlying details
         public Stream<QueryPathsWithDepth.QueryPath> stream() {
             return pathFor.stream().filter(QueryPathsWithDepth::hasAny);
         }
@@ -62,15 +55,6 @@ public interface PathResults {
             return 0;
         }
 
-        @Override
-        public boolean isValid(Function<InterchangeStation, Boolean> valid) {
-            return false;
-        }
-
-        @Override
-        public Stream<QueryPathsWithDepth.QueryPath> stream() {
-            return Stream.empty();
-        }
     }
 
 }
