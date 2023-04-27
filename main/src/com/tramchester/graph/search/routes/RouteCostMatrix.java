@@ -383,12 +383,13 @@ public class RouteCostMatrix  {
         return getDegree(routePair);
     }
 
-    public QueryPathsWithDepth getInterchangesFor(RouteIndexPair routePair, IndexedBitSet dateAndModeOverlaps, Function<InterchangeStation, Boolean> filter) {
-        PathResults result = getInterchangesFor(routePair, dateAndModeOverlaps);
-        return result.filter(filter);
-    }
+//    public QueryPathsWithDepth getInterchangesFor(RouteIndexPair routePair, IndexedBitSet dateAndModeOverlaps, Function<InterchangeStation, Boolean> filter) {
+//        PathResults result = getInterchangesFor(routePair, dateAndModeOverlaps);
+//
+//        return result.filter(filter);
+//    }
 
-    public PathResults getInterchangesFor(final RouteIndexPair indexPair, final IndexedBitSet dateOverlaps) {
+    public PathResults getInterchangesFor(final RouteIndexPair indexPair, final IndexedBitSet dateOverlaps, Function<InterchangeStation, Boolean> filter) {
         final int degree = getDepth(indexPair);
 
         final IndexedBitSet changesForDegree = costsForDegree.getDegree(degree).getRowAndColumn(indexPair.first(), indexPair.second());
@@ -397,7 +398,7 @@ public class RouteCostMatrix  {
 
         if (withDateApplied.isSet(indexPair)) {
 
-            QueryPathsWithDepth.QueryPath pathFor = getPathFor(indexPair, degree, dateOverlaps);
+            QueryPathsWithDepth.QueryPath pathFor = getPathFor(indexPair, degree, dateOverlaps, filter).filter(filter);
             if (!pathFor.isEmpty()) {
                 return new PathResults.HasPathResults(pathFor);
             } else {
@@ -409,7 +410,8 @@ public class RouteCostMatrix  {
         }
     }
 
-    private QueryPathsWithDepth.QueryPath getPathFor(final RouteIndexPair indexPair, final int degree, final IndexedBitSet dateOverlaps) {
+    private QueryPathsWithDepth.QueryPath getPathFor(final RouteIndexPair indexPair, final int degree, final IndexedBitSet dateOverlaps,
+                                                     final Function<InterchangeStation, Boolean> interchangeFilter) {
         final IndexedBitSet changesForDegree = costsForDegree.getDegree(degree).getRowAndColumn(indexPair.first(), indexPair.second());
         // apply mask to filter out unavailable dates/modes
         final IndexedBitSet withDateApplied = changesForDegree.and(dateOverlaps);
@@ -423,8 +425,13 @@ public class RouteCostMatrix  {
                     logger.error(msg);
                     throw new RuntimeException(msg);
                 }
-                final Set<InterchangeStation> changes = pairToInterchanges.get(indexPair);
-                return new QueryPathsWithDepth.AnyOfInterchanges(changes);
+                final Set<InterchangeStation> changes = pairToInterchanges.get(indexPair).stream().
+                        filter(interchangeFilter::apply).collect(Collectors.toSet());
+                if (changes.isEmpty()) {
+                    return new QueryPathsWithDepth.ZeroPaths();
+                } else {
+                    return QueryPathsWithDepth.AnyOfInterchanges.Of(changes);
+                }
             } else {
                 //int previousPairsIndex = 0;
                 final int depth = degree - 1;
@@ -432,8 +439,8 @@ public class RouteCostMatrix  {
                 final Set<Pair<RouteIndexPair, RouteIndexPair>> underlying = underlyingPairs.get(depth-1).getLinksFor(indexPair);
 
                 Set<QueryPathsWithDepth.BothOf> combined = underlying.stream().map(pair -> {
-                    final QueryPathsWithDepth.QueryPath pathA = getPathFor(pair.getLeft(), degree - 1, dateOverlaps);
-                    final QueryPathsWithDepth.QueryPath pathB = getPathFor(pair.getRight(), degree - 1, dateOverlaps);
+                    final QueryPathsWithDepth.QueryPath pathA = getPathFor(pair.getLeft(), degree - 1, dateOverlaps, interchangeFilter);
+                    final QueryPathsWithDepth.QueryPath pathB = getPathFor(pair.getRight(), degree - 1, dateOverlaps, interchangeFilter);
                     return new QueryPathsWithDepth.BothOf(pathA, pathB);
                 }).collect(Collectors.toSet());
 

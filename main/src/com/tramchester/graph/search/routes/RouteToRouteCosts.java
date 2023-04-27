@@ -121,7 +121,7 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
 //
 //        final QueryPaths results = interchanges.filter(changeStationOperating::isOperating);
 
-        final QueryPathsWithDepth results = costs.getInterchangesFor(routePair, dateAndModeOverlaps, changeStationOperating::isOperating);
+        PathResults results = costs.getInterchangesFor(routePair, dateAndModeOverlaps, changeStationOperating::isOperating);
 
         if (results.hasAny()) {
             return results.getDepth();

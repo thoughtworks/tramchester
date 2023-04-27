@@ -46,7 +46,7 @@ public interface PathResults extends FilterablePathResults {
         }
 
         public Stream<QueryPathsWithDepth.QueryPath> stream() {
-            return pathFor.stream();
+            return pathFor.stream().filter(QueryPathsWithDepth::hasAny);
         }
     }
 

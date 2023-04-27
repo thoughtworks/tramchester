@@ -1,5 +1,6 @@
 package com.tramchester.graph.search.routes;
 
+import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.places.InterchangeStation;
 
 import java.util.HashSet;
@@ -137,7 +138,11 @@ public interface QueryPathsWithDepth {
 
         @Override
         public QueryPath filter(Function<InterchangeStation, Boolean> filter) {
-            return new BothOf(pathsA.filter(filter), pathsB.filter(filter));
+            if (pathsA.isValid(filter) && pathsB.isValid(filter)) {
+                return new BothOf(pathsA, pathsB);
+            } else {
+                return new ZeroPaths();
+            }
         }
 
         @Override
@@ -214,6 +219,11 @@ public interface QueryPathsWithDepth {
         public boolean isEmpty() {
             return true;
         }
+
+        @Override
+        public String toString() {
+            return "ZeroPaths{}";
+        }
     }
 
     class AnyOfInterchanges implements QueryPath {
@@ -227,19 +237,30 @@ public interface QueryPathsWithDepth {
             if (changes.isEmpty()) {
                 throw new RuntimeException("Cannot pass in no interchanges");
             }
+            if (changes.size()==1) {
+                throw new RuntimeException("Not for 1 change " + HasId.asIds(changes));
+            }
             this.changes = changes;
+        }
+
+        public static QueryPath Of(Set<InterchangeStation> changes) {
+            if (changes.size()==1) {
+                InterchangeStation change = changes.iterator().next();
+                return new SingleInterchange(change);
+            } else {
+                return new AnyOfInterchanges(changes);
+            }
         }
 
         @Override
         public String toString() {
             return "AnyOfInterchanges{" +
-                    "changes=" + changes +
+                    "changes=" + HasId.asIds(changes) +
                     '}';
         }
 
         @Override
         public Stream<QueryPath> stream() {
-            //return changes.stream().map(change -> new AnyOfInterchanges(Collections.singleton(change)));
             return changes.stream().map(SingleInterchange::new);
         }
 
@@ -250,13 +271,11 @@ public interface QueryPathsWithDepth {
 
         @Override
         public QueryPath filter(Function<InterchangeStation, Boolean> filter) {
-//            return new AnyOfInterchanges(changes.stream().filter(filter::apply).collect(Collectors.toSet()));
-
             Set<InterchangeStation> filtered = changes.stream().filter(filter::apply).collect(Collectors.toSet());
             if (filtered.isEmpty()) {
                 return new ZeroPaths();
             }
-            return new AnyOfInterchanges(filtered);
+            return Of(filtered);
         }
 
         @Override
@@ -356,7 +375,7 @@ public interface QueryPathsWithDepth {
         @Override
         public String toString() {
             return "SingleInterchange{" +
-                    "change=" + interchangeStation +
+                    "change=" + interchangeStation.getStationId() +
                     '}';
         }
     }
