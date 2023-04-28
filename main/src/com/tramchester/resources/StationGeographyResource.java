@@ -13,8 +13,11 @@ import com.tramchester.repository.NeighboursRepository;
 import com.tramchester.repository.StationGroupsRepository;
 import com.tramchester.repository.naptan.NaptanRepository;
 import io.dropwizard.jersey.caching.CacheControl;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,7 +34,7 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
-@Api
+//@Api
 @Path("/geo")
 @Produces(MediaType.APPLICATION_JSON)
 public class StationGeographyResource implements APIResource, GraphDatabaseDependencyMarker {
@@ -61,7 +64,8 @@ public class StationGeographyResource implements APIResource, GraphDatabaseDepen
     @GET
     @Timed
     @Path("/links")
-    @ApiOperation(value = "Get pairs of station links for given transport mode", response = StationLinkDTO.class, responseContainer = "List")
+    @Operation(description = "Get pairs of station links for given transport mode")
+    @ApiResponse(content = @Content(array = @ArraySchema(uniqueItems = true, schema = @Schema(implementation = StationLinkDTO.class))))
     @CacheControl(maxAge = 1, maxAgeUnit = TimeUnit.DAYS)
     public Response getAll() {
         logger.info("Get station links");
@@ -84,7 +88,8 @@ public class StationGeographyResource implements APIResource, GraphDatabaseDepen
     @GET
     @Timed
     @Path("/neighbours")
-    @ApiOperation(value = "Get all pairs of neighbours", response = StationLinkDTO.class, responseContainer = "List")
+    @Operation(description = "Get all pairs of neighbours")
+    @ApiResponse(content = @Content(array = @ArraySchema(uniqueItems = true, schema = @Schema(implementation = StationLinkDTO.class))))
     @CacheControl(maxAge = 1, maxAgeUnit = TimeUnit.DAYS)
     public Response getNeighbours() {
         logger.info("Get station neighbours");
@@ -106,7 +111,8 @@ public class StationGeographyResource implements APIResource, GraphDatabaseDepen
     @GET
     @Timed
     @Path("/areas")
-    @ApiOperation(value = "List of boundaries for each area along with the area code", response = AreaBoundaryDTO.class, responseContainer = "List")
+    @Operation(description = "List of boundaries for each area along with the area code")
+    @ApiResponse(content = @Content(array = @ArraySchema(uniqueItems = true, schema = @Schema(implementation = AreaBoundaryDTO.class))))
     @CacheControl(maxAge = 1, maxAgeUnit = TimeUnit.DAYS)
     public Response getAreas() {
         logger.info("Get areas");
@@ -129,7 +135,8 @@ public class StationGeographyResource implements APIResource, GraphDatabaseDepen
     @GET
     @Timed
     @Path("/stationsboundary")
-    @ApiOperation(value = "Boundary around all stations", response = BoundaryDTO.class)
+    @Operation(description = "Boundary around all stations")
+    @ApiResponse(content = @Content(schema = @Schema(implementation = BoundaryDTO.class)))
     @CacheControl(maxAge = 1, maxAgeUnit = TimeUnit.DAYS)
     public Response getBoundaryForAllStations() {
         logger.info("Get boundary for all stations");
@@ -143,7 +150,8 @@ public class StationGeographyResource implements APIResource, GraphDatabaseDepen
     @GET
     @Timed
     @Path("/groups")
-    @ApiOperation(value = "Get all pairs of composites (parent & child)", response = StationGroupDTO.class, responseContainer = "List")
+    @Operation(description = "Get all pairs of composites (parent & child)")
+    @ApiResponse(content = @Content(array = @ArraySchema(uniqueItems = true, schema = @Schema(implementation = StationGroupDTO.class))))
     @CacheControl(maxAge = 1, maxAgeUnit = TimeUnit.DAYS)
     public Response getLinks() {
         logger.info("Get composite links");
@@ -159,7 +167,8 @@ public class StationGeographyResource implements APIResource, GraphDatabaseDepen
     @GET
     @Timed
     @Path("/quadrants")
-    @ApiOperation(value = "Get station location quadrants", response = BoxDTO.class, responseContainer = "List")
+    @Operation(description = "Get station location quadrants")
+    @ApiResponse(content = @Content(array = @ArraySchema(uniqueItems = true, schema = @Schema(implementation = BoxDTO.class))))
     @CacheControl(maxAge = 1, maxAgeUnit = TimeUnit.DAYS)
     public Response getQuadrants() {
         logger.info("Get quadrants");
@@ -173,7 +182,8 @@ public class StationGeographyResource implements APIResource, GraphDatabaseDepen
     @GET
     @Timed
     @Path("/bounds")
-    @ApiOperation(value = "Get current geographical bounds in effect", response = BoxDTO.class)
+    @Operation(description = "Get current geographical bounds in effect")
+    @ApiResponse(content = @Content(schema = @Schema(implementation = BoxDTO.class)))
     public Response getBounds() {
         logger.info("Get bounds");
 

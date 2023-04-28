@@ -19,8 +19,10 @@ import com.tramchester.mappers.JourneyDTODuplicateFilter;
 import com.tramchester.mappers.JourneyToDTOMapper;
 import com.tramchester.repository.LocationRepository;
 import io.dropwizard.jersey.caching.CacheControl;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import org.neo4j.graphdb.Transaction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,7 +41,6 @@ import java.util.stream.Stream;
 
 import static java.lang.String.format;
 
-@Api
 @Path("/journey")
 @Produces(MediaType.APPLICATION_JSON)
 public class JourneyPlannerResource extends UsesRecentCookie implements APIResource, GraphDatabaseDependencyMarker {
@@ -69,7 +70,8 @@ public class JourneyPlannerResource extends UsesRecentCookie implements APIResou
     // Content-Type header in the POST request with a value of application/json
     @POST
     @Timed
-    @ApiOperation(value = "Find quickest route", response = JourneyPlanRepresentation.class)
+    @Operation(description = "Find quickest route")
+    @ApiResponse(content = @Content(schema = @Schema(implementation = JourneyPlanRepresentation.class)))
     @CacheControl(maxAge = 1, maxAgeUnit = TimeUnit.MINUTES)
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
@@ -130,7 +132,8 @@ public class JourneyPlannerResource extends UsesRecentCookie implements APIResou
     @POST
     @Timed
     @Path("/streamed")
-    @ApiOperation(value = "Find quickest route", response = JourneyDTO.class)
+    @Operation(description = "Find quickest route")
+    @ApiResponse(content = @Content(schema = @Schema(implementation = JourneyDTO.class)))
     @CacheControl(maxAge = 1, maxAgeUnit = TimeUnit.MINUTES)
     @Produces(MediaType.APPLICATION_JSON)
     public Response quickestRouteStream(JourneyQueryDTO query,

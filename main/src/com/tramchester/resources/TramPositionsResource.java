@@ -3,14 +3,17 @@ package com.tramchester.resources;
 import com.codahale.metrics.annotation.Timed;
 import com.tramchester.domain.presentation.DTO.factory.DTOFactory;
 import com.tramchester.domain.time.ProvidesNow;
-import com.tramchester.livedata.tfgm.TramPosition;
-import com.tramchester.livedata.tfgm.TramPositionInference;
 import com.tramchester.livedata.domain.DTO.TramPositionDTO;
 import com.tramchester.livedata.domain.DTO.TramsPositionsDTO;
 import com.tramchester.livedata.mappers.DeparturesMapper;
+import com.tramchester.livedata.tfgm.TramPosition;
+import com.tramchester.livedata.tfgm.TramPositionInference;
 import io.dropwizard.jersey.caching.CacheControl;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -23,7 +26,6 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
-@Api
 @Path("/positions")
 @Produces(MediaType.APPLICATION_JSON)
 public class TramPositionsResource implements APIResource, GraphDatabaseDependencyMarker {
@@ -46,10 +48,10 @@ public class TramPositionsResource implements APIResource, GraphDatabaseDependen
 
     @GET
     @Timed
-    @ApiOperation(value = "Inferred positions of trams within network",
-            notes = "Inferred from live tram data feed and timetable data, unfiltered will give all stations whether " +
-                    "trams present between them or not",
-            response = TramsPositionsDTO.class)
+    @Operation(description = "Inferred positions of trams within network." +
+            "Inferred from live tram data feed and timetable data, unfiltered will give all stations whether " +
+                    "trams present between them or not")
+    @ApiResponse(content = @Content(array = @ArraySchema(uniqueItems = true, schema = @Schema(implementation = TramsPositionsDTO.class))))
     @CacheControl(maxAge = 10, maxAgeUnit = TimeUnit.SECONDS)
     public Response get(@QueryParam("unfiltered") @DefaultValue("false") String unfilteredRaw) {
         logger.info("Get tram positions unfiltered="+unfilteredRaw);

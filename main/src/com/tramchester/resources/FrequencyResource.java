@@ -12,8 +12,10 @@ import com.tramchester.domain.presentation.DTO.factory.DTOFactory;
 import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.geo.StopCallsForGrid;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,7 +33,6 @@ import java.util.stream.Stream;
 
 import static java.lang.String.format;
 
-@Api
 @Path("/frequency")
 @Produces(MediaType.APPLICATION_JSON)
 public class FrequencyResource extends TransportResource implements APIResource {
@@ -53,7 +54,8 @@ public class FrequencyResource extends TransportResource implements APIResource 
 
     @GET
     @Timed
-    @ApiOperation(value = "Get number of services for the given time period for each grid box", response = BoxWithServiceFrequency.class)
+    @Operation(description = "Get number of services for the given time period for each grid box")
+    @ApiResponse(content = @Content(schema = @Schema(implementation = BoxWithServiceFrequency.class)))
     //@CacheControl(maxAge = 30, maxAgeUnit = TimeUnit.SECONDS)
     public Response gridCosts(@QueryParam("gridSize") int gridSize,
                               @QueryParam("date") String dateRaw,

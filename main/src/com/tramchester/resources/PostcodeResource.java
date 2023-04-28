@@ -6,8 +6,11 @@ import com.tramchester.domain.places.PostcodeLocation;
 import com.tramchester.domain.presentation.DTO.PostcodeDTO;
 import com.tramchester.repository.postcodes.PostcodeRepository;
 import io.dropwizard.jersey.caching.CacheControl;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -27,7 +30,6 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
-@Api
 @Path("/postcodes")
 @Produces(MediaType.APPLICATION_JSON)
 public class PostcodeResource implements APIResource {
@@ -45,7 +47,8 @@ public class PostcodeResource implements APIResource {
 
     @GET
     @Timed
-    @ApiOperation(value = "Return all loaded (local) postcodes", response = PostcodeDTO.class, responseContainer = "List")
+    @Operation(description = "Return all loaded (local) postcodes")
+    @ApiResponse(content = @Content(array = @ArraySchema(uniqueItems = true, schema = @Schema(implementation = PostcodeDTO.class))))
     @CacheControl(maxAge = 1, maxAgeUnit = TimeUnit.DAYS, isPrivate = false)
     public Response getAll(@Context Request request) {
         logger.info("Get all postcodes");

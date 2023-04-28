@@ -20,8 +20,10 @@ import com.tramchester.livedata.repository.ProvidesNotes;
 import com.tramchester.livedata.tfgm.ProvidesTramNotes;
 import com.tramchester.repository.LocationRepository;
 import io.dropwizard.jersey.caching.CacheControl;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,7 +39,6 @@ import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
-@Api
 @Path("/departures")
 @Produces(MediaType.APPLICATION_JSON)
 public class DeparturesResource extends TransportResource implements APIResource {
@@ -68,7 +69,8 @@ public class DeparturesResource extends TransportResource implements APIResource
     @Path("/location")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    @ApiOperation(value = "Get departures for a location", response = DepartureListDTO.class)
+    @Operation(description = "Get departures for a location")
+    @ApiResponse(content = @Content(schema = @Schema(implementation = DepartureListDTO.class)))
     @CacheControl(maxAge = 30, maxAgeUnit = TimeUnit.SECONDS)
     public Response getNearestDepartures(DeparturesQueryDTO departuresQuery) {
 

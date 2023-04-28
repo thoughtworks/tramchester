@@ -1,15 +1,14 @@
 package com.tramchester.resources;
 
 import com.codahale.metrics.annotation.Timed;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.id.IdForDTO;
-import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.repository.InterchangeRepository;
-import com.tramchester.repository.StationRepository;
 import io.dropwizard.jersey.caching.CacheControl;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -25,7 +24,7 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
-@Api
+//@Api
 @Path("/interchanges")
 @Produces(MediaType.APPLICATION_JSON)
 public class InterchangeResource implements APIResource, GraphDatabaseDependencyMarker {
@@ -41,7 +40,8 @@ public class InterchangeResource implements APIResource, GraphDatabaseDependency
     @GET
     @Timed
     @Path("/all")
-    @ApiOperation(value = "Get all interchanges", response = String.class, responseContainer = "List")
+    @Operation(description = "Get all interchanges")
+    @ApiResponse(content = @Content(array = @ArraySchema(uniqueItems = true, schema = @Schema(implementation = String.class))))
     @CacheControl(maxAge = 1, maxAgeUnit = TimeUnit.HOURS, isPrivate = false)
     public Response getByMode(@Context Request request) {
         logger.info("Get all interchange id's");

@@ -6,8 +6,11 @@ import com.tramchester.domain.presentation.DTO.RouteDTO;
 import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.mappers.RoutesMapper;
 import io.dropwizard.jersey.caching.CacheControl;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -21,7 +24,6 @@ import javax.ws.rs.core.Response;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-@Api
 @Path("/routes")
 @Produces(MediaType.APPLICATION_JSON)
 public class RouteResource implements APIResource {
@@ -39,7 +41,8 @@ public class RouteResource implements APIResource {
 
     @GET
     @Timed
-    @ApiOperation(value = "Return all routes", response = RouteDTO.class, responseContainer = "List")
+    @Operation(description = "Return all routes")
+    @ApiResponse(content = @Content(array = @ArraySchema(uniqueItems = true, schema = @Schema(implementation = RouteDTO.class))))
     @CacheControl(maxAge = 1, maxAgeUnit = TimeUnit.HOURS)
     public Response getAll() {
         logger.info("getAll routes");
@@ -56,7 +59,8 @@ public class RouteResource implements APIResource {
 
     @GET
     @Timed
-    @ApiOperation(value = "return routes filtered by given query parameters", response = RouteDTO.class, responseContainer =  "List")
+    @Operation(description = "return routes filtered by given query parameters")
+    @ApiResponse(content = @Content(array = @ArraySchema(uniqueItems = true, schema = @Schema(implementation = RouteDTO.class))))
     @Path("/filtered")
     public Response getFiltered(@QueryParam("date") String dateRaw) {
         logger.info("get filtered routes for " + dateRaw);

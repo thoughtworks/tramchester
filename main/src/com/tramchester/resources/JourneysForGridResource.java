@@ -10,7 +10,6 @@ import com.tramchester.domain.JourneyRequest;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.PostcodeLocationId;
-import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.places.MyLocation;
 import com.tramchester.domain.places.PostcodeLocation;
 import com.tramchester.domain.places.Station;
@@ -25,8 +24,10 @@ import com.tramchester.graph.search.FastestRoutesForBoxes;
 import com.tramchester.mappers.JourneyToDTOMapper;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.repository.postcodes.PostcodeRepository;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,12 +38,10 @@ import javax.ws.rs.core.Response;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.util.EnumSet;
-import java.util.Set;
 import java.util.stream.Stream;
 
 import static java.lang.String.format;
 
-@Api
 @Path("/grid")
 @Produces(MediaType.APPLICATION_JSON)
 public class JourneysForGridResource implements APIResource, GraphDatabaseDependencyMarker {
@@ -72,7 +71,8 @@ public class JourneysForGridResource implements APIResource, GraphDatabaseDepend
 
     @GET
     @Timed
-    @ApiOperation(value = "Get cheapest travel costs for a grid of locations", response = BoundingBoxWithCost.class)
+    @Operation(description = "Get cheapest travel costs for a grid of locations")
+    @ApiResponse(content = @Content(schema = @Schema(implementation = BoundingBoxWithCost.class)))
     //@CacheControl(maxAge = 30, maxAgeUnit = TimeUnit.SECONDS)
     public Response gridCosts(@QueryParam("gridSize") int gridSize,
                               @QueryParam("destination") String destinationIdText,

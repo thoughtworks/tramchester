@@ -7,8 +7,10 @@ import com.tramchester.domain.FeedInfo;
 import com.tramchester.domain.presentation.DTO.DataVersionDTO;
 import com.tramchester.repository.ProvidesFeedInfo;
 import io.dropwizard.jersey.caching.CacheControl;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -21,7 +23,6 @@ import javax.ws.rs.core.Response;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
-@Api
 @Path("/datainfo")
 @Produces(MediaType.APPLICATION_JSON)
 public class DataVersionResource implements APIResource {
@@ -36,9 +37,8 @@ public class DataVersionResource implements APIResource {
 
     @GET
     @Timed
-    @ApiOperation(value = "Information about version of the TFGM data only",
-            notes = "Partially Extracted from the feed_info.txt file for a data source",
-            response = FeedInfo.class)
+    @Operation(description = "Information about version of the TFGM data only, Partially Extracted from the feed_info.txt file for a data source")
+    @ApiResponse(content = @Content(schema = @Schema(implementation = FeedInfo.class)))
     @CacheControl(maxAge = 5, maxAgeUnit = TimeUnit.MINUTES)
     public Response get() {
         Map<DataSourceID, FeedInfo> map = providesFeedInfo.getFeedInfos();

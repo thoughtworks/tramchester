@@ -8,8 +8,10 @@ import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.repository.TransportModeRepository;
 import com.tramchester.repository.VersionRepository;
 import io.dropwizard.jersey.caching.CacheControl;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -24,7 +26,6 @@ import java.util.Collections;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
-@Api
 @Path("/version")
 @Produces(MediaType.APPLICATION_JSON)
 public class VersionResource implements APIResource {
@@ -41,7 +42,8 @@ public class VersionResource implements APIResource {
     }
 
     @GET
-    @ApiOperation(value = "Return version of server code", response = Version.class)
+    @Operation(description = "Return version of server code")
+    @ApiResponse(content = @Content(schema = @Schema(implementation = Version.class)))
     @CacheControl(maxAge = 30, maxAgeUnit = TimeUnit.SECONDS)
     public Version version() {
         logger.info("Get version");
@@ -50,7 +52,8 @@ public class VersionResource implements APIResource {
 
     // TODO Rename as /config
     @GET
-    @ApiOperation(value = "Config from server includes, Transport modes enabled, Postcode enabled, etc", response = ConfigDTO.class)
+    @Operation(description = "Config from server includes, Transport modes enabled, Postcode enabled, etc")
+    @ApiResponse(content = @Content(schema = @Schema(implementation = ConfigDTO.class)))
     @Path("/modes")
     @CacheControl(maxAge = 10, maxAgeUnit = TimeUnit.SECONDS)
     public Response modes(@QueryParam("beta") String betaRaw) {

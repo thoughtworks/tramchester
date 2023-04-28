@@ -3,7 +3,6 @@ package com.tramchester.resources;
 import com.codahale.metrics.annotation.Timed;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.StationClosures;
-import com.tramchester.domain.presentation.Timestamped;
 import com.tramchester.domain.UpdateRecentJourneys;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.IdFor;
@@ -17,6 +16,7 @@ import com.tramchester.domain.presentation.DTO.factory.DTOFactory;
 import com.tramchester.domain.presentation.DTO.factory.LocationDTOFactory;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.presentation.RecentJourneys;
+import com.tramchester.domain.presentation.Timestamped;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.geo.MarginInMeters;
@@ -25,8 +25,11 @@ import com.tramchester.repository.DataSourceRepository;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.repository.StationRepositoryPublic;
 import io.dropwizard.jersey.caching.CacheControl;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,7 +45,7 @@ import java.util.stream.Collectors;
 
 import static java.lang.String.format;
 
-@Api
+//@Api
 @Path("/stations")
 @Produces(MediaType.APPLICATION_JSON)
 public class StationResource extends UsesRecentCookie implements APIResource {
@@ -75,7 +78,8 @@ public class StationResource extends UsesRecentCookie implements APIResource {
     @GET
     @Timed
     @Path("/{id}")
-    @ApiOperation(value = "Get station by id", response = LocationDTO.class)
+    @Operation(description = "Get station by id")
+    @ApiResponse(content = @Content(schema = @Schema(implementation = LocationDTO.class)))
     @CacheControl(maxAge = 1, maxAgeUnit = TimeUnit.DAYS)
     public Response get(@PathParam("id") String text) {
         logger.info("Get station by id: " + text);
@@ -90,7 +94,8 @@ public class StationResource extends UsesRecentCookie implements APIResource {
     @GET
     @Timed
     @Path("/mode/{mode}")
-    @ApiOperation(value = "Get all stations for transport mode", response = LocationRefDTO.class, responseContainer = "List")
+    @Operation(description = "Get all stations for transport mode")
+    @ApiResponse(content = @Content(array = @ArraySchema(uniqueItems = true, schema = @Schema(implementation = LocationRefDTO.class))))
     @CacheControl(maxAge = 1, maxAgeUnit = TimeUnit.HOURS, isPrivate = false)
     public Response getByMode(@PathParam("mode") String rawMode, @Context Request request) {
         logger.info("Get stations for transport mode: " + rawMode);
@@ -126,7 +131,8 @@ public class StationResource extends UsesRecentCookie implements APIResource {
     @GET
     @Timed
     @Path("/all")
-    @ApiOperation(value = "Get all stations", response = LocationRefDTO.class, responseContainer = "List")
+    @Operation(description = "Get all stations")
+    @ApiResponse(content = @Content(array = @ArraySchema(uniqueItems = true, schema = @Schema(implementation = LocationRefDTO.class))))
     @CacheControl(maxAge = 1, maxAgeUnit = TimeUnit.HOURS, isPrivate = false)
     public Response getByMode(@Context Request request) {
         logger.info("Get all stations");
@@ -140,7 +146,8 @@ public class StationResource extends UsesRecentCookie implements APIResource {
     @GET
     @Timed
     @Path("/near")
-    @ApiOperation(value = "Get stations close to a given lat/lon", response = LocationRefDTO.class, responseContainer = "List")
+    @Operation(description = "Get stations close to a given lat/lon")
+    @ApiResponse(content = @Content(array = @ArraySchema(uniqueItems = true, schema = @Schema(implementation = LocationRefDTO.class))))
     @CacheControl(noCache = true)
     public Response getNear(@QueryParam("lat") double lat, @QueryParam("lon") double lon) {
         MarginInMeters margin = MarginInMeters.of(config.getNearestStopRangeKM());
@@ -161,7 +168,8 @@ public class StationResource extends UsesRecentCookie implements APIResource {
     @GET
     @Timed
     @Path("/recent")
-    @ApiOperation(value = "Get recent stations based on supplied cookie", response = LocationRefDTO.class, responseContainer = "List")
+    @Operation(description = "Get recent stations based on supplied cookie")
+    @ApiResponse(content = @Content(array = @ArraySchema(uniqueItems = true, schema = @Schema(implementation = LocationRefDTO.class))))
     @CacheControl(noCache = true)
     public Response getRecent(@CookieParam(TRAMCHESTER_RECENT) Cookie cookie) {
         logger.info(format("Get recent stations for cookie %s", cookie));
@@ -191,7 +199,8 @@ public class StationResource extends UsesRecentCookie implements APIResource {
     @GET
     @Timed
     @Path("/closures")
-    @ApiOperation(value = "Get closed stations", response = StationClosureDTO.class, responseContainer = "List")
+    @Operation(description = "Get closed stations")
+    @ApiResponse(content = @Content(array = @ArraySchema(uniqueItems = true, schema = @Schema(implementation = StationClosureDTO.class))))
     @CacheControl(maxAge = 5, maxAgeUnit = TimeUnit.MINUTES)
     public Response getClosures() {
         Set<StationClosures> closed = getUpcomingClosuresFor(providesNow.getTramDate());
