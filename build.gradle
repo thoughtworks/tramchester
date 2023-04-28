@@ -77,7 +77,7 @@ dependencies {
             "software.amazon.awscdk:ec2:$awsCdkVersion",
             "software.amazon.awscdk:elasticloadbalancingv2:$awsCdkVersion",
             "software.amazon.awscdk:autoscaling:$awsCdkVersion",
-            "software.amazon.awscdk:cdk-cx-api:2.27.0"
+            "software.amazon.awscdk:cdk-cx-api:2.77.0"
 
     implementation('org.geotools:gt-main:28.1')
     implementation('org.geotools:gt-epsg-hsql:28.1')
