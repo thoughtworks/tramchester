@@ -168,4 +168,16 @@ public class AggregateServiceCalendar implements ServiceCalendar, HasDaysBitmap 
     public DaysBitmap getDays() {
         return days;
     }
+
+    @Override
+    public String toString() {
+        return "AggregateServiceCalendar{" +
+                "aggregatedDays=" + aggregatedDays +
+                ", additional=" + additional +
+                ", removed=" + removed +
+                ", cancelled=" + cancelled +
+                ", aggregatedRange=" + aggregatedRange +
+                ", days=" + days +
+                '}';
+    }
 }

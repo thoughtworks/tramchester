@@ -107,15 +107,15 @@ public class IndexedBitSet {
     /***
      * Apply a bitmask to one specific row via 'and'
      * @param row the row to apply the bitmask to
-     * @param bitMask bitmask to use
+     * @param mask bitmask to use
      */
-    public void applyAndTo(final int row, final SimpleBitmap bitMask) {
+    public void applyAndTo(final int row, final SimpleImmutableBitmap mask) {
         final int startPosition = getPositionFor(row, 0);
 
         // TODO more efficient ways to do this via a mask?
         for (int i = 0; i < rows; i++) {
             final int bitIndex = startPosition + i;
-            final boolean andValue = bitmap.get(bitIndex) && bitMask.get(i);
+            final boolean andValue = bitmap.get(bitIndex) && mask.get(i);
             bitmap.set(bitIndex, andValue);
         }
     }

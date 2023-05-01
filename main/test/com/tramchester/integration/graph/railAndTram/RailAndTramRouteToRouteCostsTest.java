@@ -72,7 +72,7 @@ public class RailAndTramRouteToRouteCostsTest {
         TimeRange timeRange = TimeRange.of(TramTime.of(8, 15), TramTime.of(22, 35));
 
         EnumSet<TransportMode> all = allTransportModes;
-        NumberOfChanges result = routeToRouteCosts.getNumberOfChanges(tram(TramStations.Bury), rail(Stockport),
+        NumberOfChanges result = routeToRouteCosts.getNumberOfChanges(tram(Bury), rail(Stockport),
                 all, date, timeRange);
 
         assertEquals(1, result.getMin());

@@ -77,21 +77,24 @@ public class RouteCostMatrix  {
     @PostConstruct
     private void start() {
 
+        RouteDateAndDayOverlap routeDateAndDayOverlap = new RouteDateAndDayOverlap(index, numRoutes);
+        routeDateAndDayOverlap.populateFor();
+
         if (graphFilter.isActive()) {
             logger.warn("Filtering is enabled, skipping all caching");
-            createCostMatrix();
+            createCostMatrix(routeDateAndDayOverlap);
         } else {
             if (dataCache.has(costsForDegree)) {
                 logger.info("Loading from cache");
                 dataCache.loadInto(costsForDegree, CostsPerDegreeData.class);
             } else {
                 logger.info("Not in cache, creating");
-                createCostMatrix();
+                createCostMatrix(routeDateAndDayOverlap);
                 dataCache.save(costsForDegree, CostsPerDegreeData.class);
             }
         }
 
-        createBacktracking();
+        createBacktracking(routeDateAndDayOverlap);
         recordPairsToInterchanges();
 
     }
@@ -117,23 +120,32 @@ public class RouteCostMatrix  {
                 }
             }
 
-            addRoutePairsForInterchange(pairToInterchanges, interchange, pairsForInterchange);
+            addRoutePairsForInterchange(interchange, pairsForInterchange);
         });
 
         logger.info("Add " + size() + " paris for interchanges");
 
     }
 
-    private void createBacktracking() {
+    private void addRoutePairsForInterchange(final InterchangeStation interchange, final Set<RouteIndexPair> pairs) {
+        pairs.forEach(pair -> {
+            if (!pairToInterchanges.containsKey(pair)) {
+                pairToInterchanges.put(pair, new HashSet<>());
+            }
+            pairToInterchanges.get(pair).add(interchange);
+        });
+    }
+
+    private void createBacktracking(RouteDateAndDayOverlap routeDateAndDayOverlap) {
         for (int depth = 0; depth < MAX_DEPTH - 1; depth++) {
             underlyingPairs.add(new RouteConnectingLinks(pairFactory, numRoutes, index));
         }
         for (byte currentDegree = 1; currentDegree < maxDepth; currentDegree++) {
-            createBacktracking(currentDegree);
+            createBacktracking(routeDateAndDayOverlap, currentDegree);
         }
     }
 
-    private void createBacktracking(final int currentDegree) {
+    private void createBacktracking(RouteDateAndDayOverlap routeDateAndDayOverlap, final int currentDegree) {
         final int totalSize = numRoutes * numRoutes;
         if (currentDegree<1) {
             throw new RuntimeException("Only call for >1 , got " + currentDegree);
@@ -152,11 +164,16 @@ public class RouteCostMatrix  {
             for (short route = 0; route < numRoutes; route++) {
                 final short routeIndex = route;
 
-                final ImmutableBitSet currentConnectionsForRoute = matrixForDegree.getBitSetForRow(routeIndex);
+                final SimpleImmutableBitmap dateOverlapsForRoute = routeDateAndDayOverlap.overlapsFor(routeIndex);
 
-                currentConnectionsForRoute.getBitIndexes().forEach(connectedRoute -> {
-                    final ImmutableBitSet connections = matrixForDegree.getBitSetForRow(connectedRoute);
-                    connectingLinks.addLinksBetween(routeIndex, (short) connectedRoute, connections);
+                final ImmutableBitSet connectionsForRoute = matrixForDegree.getBitSetForRow(routeIndex);
+
+                connectionsForRoute.getBitIndexes().
+                        filter(dateOverlapsForRoute::get).
+                        forEach(connectedRoute -> {
+                            final ImmutableBitSet intermediates = matrixForDegree.getBitSetForRow(connectedRoute);
+                            final SimpleImmutableBitmap dateOverlapsForConnectedRoute = routeDateAndDayOverlap.overlapsFor(connectedRoute);
+                            connectingLinks.addLinksBetween(routeIndex, (short) connectedRoute, intermediates, dateOverlapsForRoute, dateOverlapsForConnectedRoute);
                 });
             }
 
@@ -171,9 +188,7 @@ public class RouteCostMatrix  {
         }
     }
 
-    private void createCostMatrix() {
-        RouteDateAndDayOverlap routeDateAndDayOverlap = new RouteDateAndDayOverlap(index, numRoutes);
-        routeDateAndDayOverlap.populateFor();
+    private void createCostMatrix(RouteDateAndDayOverlap routeDateAndDayOverlap) {
 
         IndexedBitSet forDegreeOne = costsForDegree.getDegree(1);
         addInitialConnectionsFromInterchanges(routeDateAndDayOverlap, forDegreeOne);
@@ -201,15 +216,7 @@ public class RouteCostMatrix  {
         logger.info("Add " + size() + " connections for interchanges");
     }
 
-    private void addRoutePairsForInterchange(Map<RouteIndexPair, Set<InterchangeStation>> pairToInterchanges, InterchangeStation interchange,
-                                             Set<RouteIndexPair> pairs) {
-        pairs.forEach(pair -> {
-            if (!pairToInterchanges.containsKey(pair)) {
-                pairToInterchanges.put(pair, new HashSet<>());
-            }
-            pairToInterchanges.get(pair).add(interchange);
-        });
-    }
+
 
     private void addOverlapsForRoutes(IndexedBitSet forDegreeOne, RouteDateAndDayOverlap routeDateAndDayOverlap,
                                       Set<Route> dropOffAtInterchange, Set<Route> pickupAtInterchange) {
@@ -349,7 +356,7 @@ public class RouteCostMatrix  {
                 otherRoutesConnections.applyOrTo(resultForForRoute);
             });
 
-            final SimpleBitmap dateOverlapMask = routeDateAndDayOverlap.overlapsFor(route);  // only those routes whose dates overlap
+            final SimpleImmutableBitmap dateOverlapMask = routeDateAndDayOverlap.overlapsFor(route);  // only those routes whose dates overlap
             resultForForRoute.and(dateOverlapMask);
 
             final ImmutableBitSet allExistingConnectionsForRoute = getExistingBitSetsForRoute(route, currentDegree);
@@ -380,7 +387,8 @@ public class RouteCostMatrix  {
         return getDegree(routePair);
     }
 
-    public PathResults getInterchangesFor(final RouteIndexPair indexPair, final IndexedBitSet dateOverlaps, Function<InterchangeStation, Boolean> interchangeFilter) {
+    public PathResults getInterchangesFor(final RouteIndexPair indexPair, final IndexedBitSet dateOverlaps,
+                                          Function<InterchangeStation, Boolean> interchangeFilter) {
         final int degree = getDepth(indexPair);
 
         if (degree==Byte.MAX_VALUE) {
@@ -389,12 +397,12 @@ public class RouteCostMatrix  {
         }
 
         final IndexedBitSet changesForDegree = costsForDegree.getDegree(degree).getRowAndColumn(indexPair.first(), indexPair.second());
-        // apply mask to filter out unavailable dates/modes
+        // apply mask to filter out unavailable dates/modes quickly
         final IndexedBitSet withDateApplied = changesForDegree.and(dateOverlaps);
 
         if (withDateApplied.isSet(indexPair)) {
 
-            QueryPathsWithDepth.QueryPath pathFor = getPathFor(indexPair, degree, dateOverlaps, interchangeFilter);
+            QueryPathsWithDepth.QueryPath pathFor = getPathFor(indexPair, degree, interchangeFilter);
             if (pathFor.hasAny()) {
                 return new PathResults.HasPathResults(pathFor);
             } else {
@@ -406,62 +414,53 @@ public class RouteCostMatrix  {
         }
     }
 
-    private QueryPathsWithDepth.QueryPath getPathFor(final RouteIndexPair indexPair, final int degree, final IndexedBitSet dateOverlaps,
+    private QueryPathsWithDepth.QueryPath getPathFor(final RouteIndexPair indexPair, final int degree,
                                                      final Function<InterchangeStation, Boolean> interchangeFilter) {
 
-        // TODO Stop passing in date overlaps as covered by interchangeFilter and it is expensive to recover the
-        // RowAndColumn
 
-        final IndexedBitSet changesForDegree = costsForDegree.getDegree(degree).getRowAndColumn(indexPair.first(), indexPair.second());
-        // apply mask to filter out unavailable dates/modes
-        final IndexedBitSet withDateApplied = changesForDegree.and(dateOverlaps);
-
-        if (withDateApplied.isSet(indexPair)) {
-            // running today
-
-            if (degree==1) {
-                if (!pairToInterchanges.containsKey(indexPair)) {
-                    RoutePair routePair = index.getPairFor(indexPair);
-                    String msg = "Unable to find interchange for " + HasId.asIds(routePair) + " at degree " + degree;
-                    logger.error(msg);
-                    throw new RuntimeException(msg);
+        if (degree==1) {
+            if (!pairToInterchanges.containsKey(indexPair)) {
+                final RoutePair routePair = index.getPairFor(indexPair);
+                final String msg = "Unable to find interchange for " + HasId.asIds(routePair);
+                logger.error(msg);
+                logger.warn("Full pair first:" + routePair.first() + " second: " + routePair.second());
+                if (!routePair.first().isDateOverlap(routePair.second())) {
+                    logger.error("Further: No date overlap between " + HasId.asIds(routePair));
                 }
-
-                // can be multiple interchanges points between a pair of routes
-                final Set<InterchangeStation> changes = pairToInterchanges.get(indexPair).stream().
-                        filter(interchangeFilter::apply).
-                        collect(Collectors.toSet());
-
-                if (changes.isEmpty()) {
-                    return QueryPathsWithDepth.ZeroPaths.get();
-                } else {
-                    return QueryPathsWithDepth.AnyOfInterchanges.Of(changes);
-                }
-            } else {
-                final int depth = degree - 1;
-
-                final Stream<Pair<RouteIndexPair, RouteIndexPair>> underlying = underlyingPairs.get(depth-1).getLinksFor(indexPair);
-
-                // TODO parallel?
-                Set<QueryPathsWithDepth.BothOf> combined = underlying. //.parallel().
-                        map(pair -> expandPathFor(pair, degree-1, dateOverlaps, interchangeFilter)).
-                        filter(QueryPathsWithDepth.BothOf::hasAny).
-                        collect(Collectors.toSet());
-
-                return new QueryPathsWithDepth.AnyOf(combined);
+                throw new RuntimeException(msg);
             }
 
+            // can be multiple interchanges points between a pair of routes
+            final Set<InterchangeStation> changes = pairToInterchanges.get(indexPair).stream().
+                    filter(interchangeFilter::apply).
+                    collect(Collectors.toSet());
+
+            if (changes.isEmpty()) {
+                return QueryPathsWithDepth.ZeroPaths.get();
+            } else {
+                return QueryPathsWithDepth.AnyOfInterchanges.Of(changes);
+            }
         } else {
-            return QueryPathsWithDepth.ZeroPaths.get();
+            final int depth = degree - 1;
+
+            final Stream<Pair<RouteIndexPair, RouteIndexPair>> underlying = underlyingPairs.get(depth-1).getLinksFor(indexPair);
+
+            // TODO parallel? not required?
+            Set<QueryPathsWithDepth.BothOf> combined = underlying. //.parallel().
+                    map(pair -> expandPathFor(pair, degree-1, interchangeFilter)).
+                    filter(QueryPathsWithDepth.BothOf::hasAny).
+                    collect(Collectors.toSet());
+
+            return new QueryPathsWithDepth.AnyOf(combined);
         }
+
     }
 
     @NotNull
     private QueryPathsWithDepth.BothOf expandPathFor(final Pair<RouteIndexPair, RouteIndexPair> pair, final int degree,
-                                                     final IndexedBitSet dateOverlaps,
                                                      final Function<InterchangeStation, Boolean> interchangeFilter) {
-        final QueryPathsWithDepth.QueryPath pathA = getPathFor(pair.getLeft(), degree, dateOverlaps, interchangeFilter);
-        final QueryPathsWithDepth.QueryPath pathB = getPathFor(pair.getRight(), degree, dateOverlaps, interchangeFilter);
+        final QueryPathsWithDepth.QueryPath pathA = getPathFor(pair.getLeft(), degree, interchangeFilter);
+        final QueryPathsWithDepth.QueryPath pathB = getPathFor(pair.getRight(), degree, interchangeFilter);
         return new QueryPathsWithDepth.BothOf(pathA, pathB);
     }
 
@@ -498,7 +497,7 @@ public class RouteCostMatrix  {
             logger.info("Finished matrix for route date/day overlap");
         }
 
-        public SimpleBitmap overlapsFor(int routeIndex) {
+        public SimpleImmutableBitmap overlapsFor(int routeIndex) {
             return overlapMasks[routeIndex];
         }
     }
@@ -524,8 +523,10 @@ public class RouteCostMatrix  {
             seen = new boolean[numRoutes][numRoutes];
         }
 
-        public void addLinksBetween(final short routeIndexA, final short routeIndexB, final ImmutableBitSet links) {
+        public void addLinksBetween(final short routeIndexA, final short routeIndexB, final ImmutableBitSet links,
+                                    final SimpleImmutableBitmap dateOverlapsForRoute, final SimpleImmutableBitmap dateOverlapsForConnectedRoute) {
             links.getBitIndexes().
+                    filter(linkIndex -> dateOverlapsForRoute.get(linkIndex) && dateOverlapsForConnectedRoute.get(linkIndex)).
                     mapToObj(linkIndex -> getBitSetForPair(routeIndexA, (short)linkIndex)).
                     forEach(bitSet -> bitSet.set(routeIndexB));
         }
