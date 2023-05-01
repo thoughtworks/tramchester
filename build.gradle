@@ -29,7 +29,7 @@ s3 {
 version = 1.0
 
 ext {
-    dropwizardVersion = '2.1.4'
+    dropwizardVersion = '4.0.0'
     awsCdkVersion = '1.191.0'
     jacksonVersion = '2.14.2'
     awsSdkVersion = '2.19.31'
