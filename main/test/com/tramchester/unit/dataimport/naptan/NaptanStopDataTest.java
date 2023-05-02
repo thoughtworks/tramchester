@@ -61,7 +61,8 @@ class NaptanStopDataTest extends ParserTestXMLHelper<NaptanStopData> {
         assertEquals("", data.getTown());
         assertEquals(new GridPosition(391760,405082), data.getGridPosition());
         assertEquals(new LatLong(53.54231581884D, -2.12581352411D), data.getLatLong());
-        assertEquals("E0029527", data.getNptgLocality());
+        // no longer needed, nptg now keyed by ATCOCode
+        //assertEquals("E0029527", data.getNptgLocality());
         assertEquals(tramMetroUndergroundPlatform, data.getStopType());
     }
 

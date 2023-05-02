@@ -11,33 +11,37 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  */
 public class NPTGData {
 
-    @JsonProperty("NptgLocalityCode")
-    private String nptgLocalityCode;
+    @JsonProperty("ATCOCode")
+    private String actoCode;
 
     @JsonProperty("LocalityName")
     private String localityName;
 
-    @JsonProperty("AdministrativeAreaCode")
-    private String administrativeAreaCode;
-
-    @JsonProperty("QualifierName")
-    private String qualifierName;
+    @JsonProperty("ParentLocalityName")
+    private String parentLocalityName;
 
     public NPTGData() {
         // deserialisation
     }
 
-    public String getNptgLocalityCode() {
-        return nptgLocalityCode;
+    public String getActoCode() {
+        return actoCode;
     }
 
     public String getLocalityName() {
         return localityName;
     }
 
-    public String getAdministrativeAreaCode() {
-        return administrativeAreaCode;
+    @Override
+    public String toString() {
+        return "NPTGData{" +
+                "actoCode='" + actoCode + '\'' +
+                ", localityName='" + localityName + '\'' +
+                ", parentLocalityName='" + parentLocalityName + '\'' +
+                '}';
     }
 
-    public String getQualifierName() { return qualifierName; }
+    public String getParentLocalityName() {
+        return parentLocalityName;
+    }
 }

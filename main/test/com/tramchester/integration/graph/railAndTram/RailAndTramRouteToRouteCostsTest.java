@@ -169,6 +169,7 @@ public class RailAndTramRouteToRouteCostsTest {
         NumberOfChanges changes = routeToRouteCosts.getNumberOfChanges(rochdale, eccles, TramsOnly, date, timeRange);
 
         assertFalse(changes.isNone());
+        assertEquals(1, changes.getMin());
     }
 
     @Test

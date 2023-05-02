@@ -160,17 +160,16 @@ public class NaptanRepositoryContainer implements NaptanRepository {
         String suburb = original.getSuburb();
         String town = original.getTown();
 
-        final String nptgLocality = original.getNptgLocality();
-        if (nptgRepository.hasNptgCode(nptgLocality)) {
-            final NPTGData extra = nptgRepository.getByNptgCode(nptgLocality);
+        if (nptgRepository.hasActoCode(id)) {
+            final NPTGData extra = nptgRepository.getByActoCode(original.getAtcoCode());
             if (suburb.isBlank()) {
                 suburb = extra.getLocalityName();
             }
             if (town.isBlank()) {
-                town = extra.getQualifierName();
+                town = extra.getParentLocalityName();
             }
         } else {
-            logger.warn(format("Missing NptgLocalityRef '%s' for naptan acto '%s", nptgLocality, id));
+            logger.warn(format("Naptan acto '%s' missing from nptg", id));
         }
 
         final List<NaptanXMLStopAreaRef> stopAreaRefs = original.stopAreasRefs();

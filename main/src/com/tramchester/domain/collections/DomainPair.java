@@ -1,7 +1,9 @@
 package com.tramchester.domain.collections;
 
 import com.tramchester.domain.CoreDomain;
+import com.tramchester.domain.IdPair;
 import com.tramchester.domain.id.HasId;
+import com.tramchester.domain.id.IdFor;
 
 import java.util.Objects;
 
@@ -43,4 +45,10 @@ public class DomainPair<T extends CoreDomain & HasId<T>> {
     public int hashCode() {
         return Objects.hash(first, second);
     }
+
+    public IdPair<T> getIds() {
+        return new IdPair<>(first.getId(), second.getId());
+    }
+
+
 }

@@ -54,7 +54,10 @@ class InterchangesRailAndTramTest {
         assertTrue(interchangeRepository.isInterchange(getStation(RailStationIds.ManchesterPiccadilly)));
         assertTrue(interchangeRepository.isInterchange(getStation(RailStationIds.Stockport)));
         assertFalse(interchangeRepository.isInterchange(getStation(RailStationIds.Hale)));
-        assertFalse(interchangeRepository.isInterchange(getStation(RailStationIds.Knutsford)));
+
+        // not gm
+        //assertFalse(interchangeRepository.isInterchange(getStation(RailStationIds.Knutsford)));
+
         assertFalse(interchangeRepository.isInterchange(getStation(RailStationIds.Mobberley)));
     }
 

@@ -3,13 +3,12 @@ package com.tramchester.integration.graph;
 import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.config.TramchesterConfig;
+import com.tramchester.domain.IdPair;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.RoutePair;
-import com.tramchester.domain.collections.ImmutableBitSet;
-import com.tramchester.domain.collections.IndexedBitSet;
-import com.tramchester.domain.collections.RouteIndexPair;
-import com.tramchester.domain.collections.RouteIndexPairFactory;
+import com.tramchester.domain.collections.*;
 import com.tramchester.domain.dates.TramDate;
+import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.places.InterchangeStation;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.graph.search.routes.PathResults;
@@ -17,11 +16,13 @@ import com.tramchester.graph.search.routes.QueryPathsWithDepth;
 import com.tramchester.graph.search.routes.RouteCostMatrix;
 import com.tramchester.graph.search.routes.RouteIndex;
 import com.tramchester.integration.testSupport.ConfigParameterResolver;
+import com.tramchester.repository.InterchangeRepository;
 import com.tramchester.repository.RouteRepository;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TramRouteHelper;
 import com.tramchester.testSupport.testTags.DataUpdateTest;
 import com.tramchester.testSupport.testTags.DualTest;
+import org.apache.commons.lang3.tuple.Pair;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -52,6 +53,7 @@ public class RouteCostMatrixTest {
     private RouteIndex routeIndex;
     private EnumSet<TransportMode> modes;
     private RouteRepository routeRepository;
+    private InterchangeRepository interchangeRepository;
 
     // NOTE: this test does not cause a full db rebuild, so might see VERSION node missing messages
 
@@ -76,6 +78,7 @@ public class RouteCostMatrixTest {
         routeHelper = new TramRouteHelper(routeRepository);
         routeMatrix = componentContainer.get(RouteCostMatrix.class);
         routeIndex = componentContainer.get(RouteIndex.class);
+        interchangeRepository = componentContainer.get(InterchangeRepository.class);
 
         date = TestEnv.testDay();
         modes = EnumSet.of(Tram);
@@ -202,6 +205,86 @@ public class RouteCostMatrixTest {
 
         assertEquals(7, results.numberPossible(), results.toString()); // two sets of changes needed
     }
+
+    @Test
+    void shouldHaveExpectedBacktrackFor1Changes() {
+        Route routeA = routeHelper.getOneRoute(AltrinchamManchesterBury, date);
+        Route routeB = routeHelper.getOneRoute(VictoriaWythenshaweManchesterAirport, date);
+        RouteIndexPair indexPair = routeIndex.getPairFor(new RoutePair(routeA, routeB));
+
+        assertTrue(interchangeRepository.hasInterchangeFor(indexPair));
+        Set<InterchangeStation> interchanges = interchangeRepository.getInterchangesFor(indexPair).collect(Collectors.toSet());
+        assertEquals(6, interchanges.size(), HasId.asIds(interchanges));
+
+        // unrealistic as would be 0 in code, direct via one interchange
+        assertEquals(1, routeMatrix.getConnectionDepthFor(routeA, routeB));
+
+        Set<Pair<RoutePair, RoutePair>> results = routeMatrix.getBackTracksFor(1, indexPair);
+
+        // all pairs should have interchanges
+        Set<Pair<RouteIndexPair, RouteIndexPair>> noInterchanges = results.stream().
+                map(pair -> Pair.of(routeIndex.getPairFor(pair.getLeft()), routeIndex.getPairFor(pair.getRight()))).
+                filter(pair -> !(interchangeRepository.hasInterchangeFor(pair.getLeft()) && interchangeRepository.hasInterchangeFor(pair.getRight()))).
+                collect(Collectors.toSet());
+
+        assertTrue(noInterchanges.isEmpty(), noInterchanges.toString());
+
+        Set<Route> wrongFirst = results.stream().map(pair -> pair.getLeft().first()).
+                filter(first -> !first.equals(routeA)).
+                collect(Collectors.toSet());
+
+        assertTrue(wrongFirst.isEmpty(), wrongFirst.toString());
+
+        Set<Route> wrongSecond = results.stream().map(pair -> pair.getRight().second()).
+                filter(second -> !second.equals(routeB)).
+                collect(Collectors.toSet());
+
+        assertTrue(wrongSecond.isEmpty(), wrongFirst.toString());
+
+    }
+
+    @Test
+    void shouldHaveExpectedBacktrackFor2Changes() {
+        Route routeA = routeHelper.getOneRoute(BuryPiccadilly, date);
+        Route routeB = routeHelper.getOneRoute(CornbrookTheTraffordCentre, date);
+        RouteIndexPair indexPair = routeIndex.getPairFor(new RoutePair(routeA, routeB));
+
+        assertFalse(interchangeRepository.hasInterchangeFor(indexPair));
+
+        assertEquals(2, routeMatrix.getConnectionDepthFor(routeA, routeB));
+
+        Set<Pair<RoutePair, RoutePair>> results = routeMatrix.getBackTracksFor(1, indexPair);
+
+        // all pairs should have interchanges
+        Set<Pair<RoutePair, RoutePair>> noInterchanges = results.stream().
+                map(pair -> Pair.of(routeIndex.getPairFor(pair.getLeft()), routeIndex.getPairFor(pair.getRight()))).
+                filter(pair -> !(interchangeRepository.hasInterchangeFor(pair.getLeft()) && interchangeRepository.hasInterchangeFor(pair.getRight()))).
+                map(pair -> Pair.of(routeIndex.getPairFor(pair.getLeft()), routeIndex.getPairFor(pair.getRight()))).
+                collect(Collectors.toSet());
+
+        assertTrue(noInterchanges.isEmpty(), toString(noInterchanges));
+
+        Set<Route> wrongFirst = results.stream().map(pair -> pair.getLeft().first()).
+                filter(first -> !first.equals(routeA)).
+                collect(Collectors.toSet());
+
+        assertTrue(wrongFirst.isEmpty(), wrongFirst.toString());
+
+        Set<Route> wrongSecond = results.stream().map(pair -> pair.getRight().second()).
+                filter(second -> !second.equals(routeB)).
+                collect(Collectors.toSet());
+
+        assertTrue(wrongSecond.isEmpty(), wrongFirst.toString());
+
+    }
+
+    private String toString(Set<Pair<RoutePair, RoutePair>> pairs) {
+        Set<Pair<IdPair<Route>, IdPair<Route>>> converted = pairs.stream().
+                map(pair -> Pair.of(pair.getLeft().getIds(), pair.getRight().getIds())).
+                collect(Collectors.toSet());
+        return converted.toString();
+    }
+
 
     @Test
     void shouldCheckFor2ChangesFiltered() {

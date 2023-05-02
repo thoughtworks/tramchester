@@ -11,24 +11,26 @@ public class ParseNPTGDataTest extends ParserTestCSVHelper<NPTGData> {
 
     @BeforeEach
     void beforeEachTestRuns() {
-        String header = "\"NptgLocalityCode\",\"LocalityName\",\"LocalityNameLang\",\"ShortName\",\"ShortNameLang\"," +
-                "\"QualifierName\",\"QualifierNameLang\",\"QualifierLocalityRef\",\"QualifierDistrictRef\"," +
-                "\"AdministrativeAreaCode\",\"NptgDistrictCode\",\"SourceLocalityType\",\"GridType\",\"Easting\",\"Northing\"," +
-                "\"CreationDateTime\",\"ModificationDateTime\",\"RevisionNumber\",\"Modification\",\"\"";
+        String header = "ATCOCode,NaptanCode,PlateCode,CleardownCode,CommonName,CommonNameLang,ShortCommonName,ShortCommonNameLang,Landmark," +
+                "LandmarkLang,Street,StreetLang,Crossing,CrossingLang,Indicator,IndicatorLang,Bearing,NptgLocalityCode,LocalityName," +
+                "ParentLocalityName,GrandParentLocalityName,Town,TownLang,Suburb,SuburbLang,LocalityCentre,GridType,Easting,Northing," +
+                "Longitude,Latitude,StopType,BusStopType,TimingStatus,DefaultWaitTime,Notes,NotesLang,AdministrativeAreaCode,CreationDateTime," +
+                "ModificationDateTime,RevisionNumber,Modification,Status";
         super.before(NPTGData.class, header);
     }
 
     @Test
-    void shouldParseNPTGData() {
-        String text = "\"E0028261\",\"Altrincham\",\"EN\",\"\",\"EN\",\"\",\"EN\",\"\",\"\",\"083\",\"270\",\"Lo\",\"U\"," +
-                "376920,387910,\"2005-10-05T10:44:51\",\"2020-02-06T17:01:05\",3,\"rev\",\"\"";
+    void shouldParseCodeWithNoAdminArea() {
+        String text = "1800SJ11291,MANJPWPG,,,Park Road,,Park Rd,,HOUSE 275,,Ashley Road,,,,nr,,S,N0077434,Ashley Heath," +
+                "Altrincham,,,,,,false,UKOS,377283,386186,-2.342899,53.37204,BCT,MKD,OTH,,,,083," +
+                "2014-10-09T00:00:00,2014-10-09T00:00:00,2,revise,active";
 
         NPTGData item = super.parse(text);
-
-        assertEquals("E0028261", item.getNptgLocalityCode());
-        assertEquals("Altrincham", item.getLocalityName());
-        assertEquals("083", item.getAdministrativeAreaCode());
-
+        assertEquals("1800SJ11291", item.getActoCode());
+        assertEquals("Ashley Heath", item.getLocalityName());
+        assertEquals("Altrincham", item.getParentLocalityName());
     }
+
+
 
 }

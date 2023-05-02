@@ -26,4 +26,7 @@ public class RoutePair extends DomainPair<Route> {
         return first().getTransportMode().equals(second().getTransportMode());
     }
 
+    public boolean isDateOverlap() {
+        return first().isDateOverlap(second());
+    }
 }

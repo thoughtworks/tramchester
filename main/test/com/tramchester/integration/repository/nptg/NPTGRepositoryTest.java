@@ -3,6 +3,8 @@ package com.tramchester.integration.repository.nptg;
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.GuiceContainerDependencies;
 import com.tramchester.dataimport.nptg.NPTGData;
+import com.tramchester.domain.id.IdFor;
+import com.tramchester.domain.places.NaptanRecord;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfigWithNaptan;
 import com.tramchester.repository.nptg.NPTGRepository;
@@ -42,20 +44,14 @@ public class NPTGRepositoryTest {
 
     @Test
     void shouldGetKnownLocationData() {
-        final String code = "N0077434";
 
-        assertTrue(repository.hasNptgCode(code));
-        NPTGData result = repository.getByNptgCode(code);
+        IdFor<NaptanRecord> actoCode = NaptanRecord.createId("1800SJ11291");
+
+        assertTrue(repository.hasActoCode(actoCode));
+        NPTGData result = repository.getByActoCode(actoCode);
 
         assertEquals("Ashley Heath", result.getLocalityName());
-        assertEquals("083", result.getAdministrativeAreaCode());
-        assertEquals("Altrincham", result.getQualifierName());
+        assertEquals("Altrincham", result.getParentLocalityName(), result.toString());
     }
 
-    @Test
-    void shouldFindExpectedCodes() {
-        // repro issue with naptan data enrichment
-        assertTrue(repository.hasNptgCode("E0027629"));
-        assertTrue(repository.hasNptgCode("E0027768"));
-    }
 }

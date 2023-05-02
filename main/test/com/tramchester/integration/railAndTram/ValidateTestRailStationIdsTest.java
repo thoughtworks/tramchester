@@ -13,6 +13,10 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.util.Arrays;
+import java.util.Set;
+import java.util.stream.Collectors;
+
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @GMTest
@@ -39,9 +43,13 @@ class ValidateTestRailStationIdsTest {
 
     @Test
     void shouldHaveTestStationsInTheRepository() {
-        for (int i = 0; i < RailStationIds.values().length; i++) {
-            RailStationIds testId = RailStationIds.values()[i];
-            assertTrue(stationRepository.hasStationId(testId.getId()), testId + " is missing");
-        }
+        Set<RailStationIds> missing = Arrays.stream(RailStationIds.values()).
+                filter(RailStationIds::isGreaterManchester).
+                filter(id -> !stationRepository.hasStationId(id.getId())).
+                collect(Collectors.toSet());
+
+        assertTrue(missing.isEmpty(), missing.toString());
+
     }
+
 }

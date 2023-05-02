@@ -3,6 +3,8 @@ package com.tramchester.repository.nptg;
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.dataimport.nptg.NPTGData;
 import com.tramchester.dataimport.nptg.NPTGDataLoader;
+import com.tramchester.domain.id.IdFor;
+import com.tramchester.domain.places.NaptanRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -24,7 +26,7 @@ public class NPTGRepository {
     private static final Logger logger = LoggerFactory.getLogger(NPTGRepository.class);
 
     private final NPTGDataLoader dataLoader;
-    private final Map<String, NPTGData> nptgDataMap;
+    private final Map<IdFor<NaptanRecord>, NPTGData> nptgDataMap;
 
     @Inject
     public NPTGRepository(NPTGDataLoader dataLoader) {
@@ -39,7 +41,7 @@ public class NPTGRepository {
             return;
         }
         logger.info("Starting");
-        dataLoader.getData().forEach(item -> nptgDataMap.put(item.getNptgLocalityCode(), item));
+        loadData();
         if (nptgDataMap.isEmpty()) {
             logger.error("Failed to load any data.");
         } else {
@@ -48,16 +50,25 @@ public class NPTGRepository {
         logger.info("started");
     }
 
+    private void loadData() {
+        // TODO
+        dataLoader.getData().forEach(item -> nptgDataMap.put(getActoCodeFor(item), item));
+    }
+
+    private IdFor<NaptanRecord> getActoCodeFor(NPTGData nptgData) {
+        return NaptanRecord.createId(nptgData.getActoCode());
+    }
+
     @PreDestroy
     private void stop() {
         nptgDataMap.clear();
     }
 
-    public NPTGData getByNptgCode(String nptgLocalityCode) {
-        return nptgDataMap.get(nptgLocalityCode);
+    public NPTGData getByActoCode(IdFor<NaptanRecord> atcoCode) {
+        return nptgDataMap.get(atcoCode);
     }
 
-    public boolean hasNptgCode(String code) {
-        return nptgDataMap.containsKey(code);
+    public boolean hasActoCode(IdFor<NaptanRecord> actoCode) {
+        return nptgDataMap.containsKey(actoCode);
     }
 }

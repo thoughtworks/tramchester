@@ -3,7 +3,10 @@ package com.tramchester.repository;
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.config.GTFSSourceConfig;
 import com.tramchester.config.TramchesterConfig;
+import com.tramchester.domain.Route;
 import com.tramchester.domain.StationLink;
+import com.tramchester.domain.collections.RouteIndexPair;
+import com.tramchester.domain.collections.RouteIndexPairFactory;
 import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdSet;
@@ -13,6 +16,7 @@ import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.graph.FindStationsByNumberLinks;
 import com.tramchester.graph.filters.GraphFilter;
 import com.tramchester.graph.graphbuild.StationsAndLinksGraphBuilder;
+import com.tramchester.graph.search.routes.RouteIndex;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -21,6 +25,7 @@ import javax.annotation.PreDestroy;
 import javax.inject.Inject;
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static java.lang.String.format;
 
@@ -33,20 +38,26 @@ public class Interchanges implements InterchangeRepository {
     private final NeighboursRepository neighboursRepository;
     private final TramchesterConfig config;
     private final GraphFilter graphFilter;
+    private final RouteIndex routeIndex;
+    private final RouteIndexPairFactory pairFactory;
 
     private final Map<IdFor<Station>, InterchangeStation> interchanges;
+    private final PairToInterchange pairToInterchange;
 
     @Inject
     public Interchanges(FindStationsByNumberLinks findStationsByNumberConnections, StationRepository stationRepository,
-                        NeighboursRepository neighboursRepository,
-                        TramchesterConfig config, GraphFilter graphFilter, StationsAndLinksGraphBuilder.Ready ready) {
+                        NeighboursRepository neighboursRepository, TramchesterConfig config, GraphFilter graphFilter,
+                        RouteIndex routeIndex, RouteIndexPairFactory pairFactory, StationsAndLinksGraphBuilder.Ready ready) {
         this.findStationsByNumberConnections = findStationsByNumberConnections;
         this.stationRepository = stationRepository;
         this.neighboursRepository = neighboursRepository;
         this.config = config;
         this.graphFilter = graphFilter;
+        this.routeIndex = routeIndex;
+        this.pairFactory = pairFactory;
 
         interchanges = new HashMap<>();
+        pairToInterchange = new PairToInterchange();
     }
 
     @PreDestroy
@@ -74,6 +85,8 @@ public class Interchanges implements InterchangeRepository {
         if (config.hasNeighbourConfig()) {
             addNeighboursAsInterchangesBetweenModes();
         }
+
+        recordPairsToInterchanges();
 
         logger.info("Total number of interchanges: " + interchanges.size());
         logger.info("started");
@@ -270,6 +283,67 @@ public class Interchanges implements InterchangeRepository {
     @Override
     public boolean isInterchange(IdFor<Station> stationId) {
         return interchanges.containsKey(stationId);
+    }
+
+    @Override
+    public boolean hasInterchangeFor(RouteIndexPair indexPair) {
+        return pairToInterchange.hasInterchangeFor(indexPair);
+    }
+
+    @Override
+    public Stream<InterchangeStation> getInterchangesFor(RouteIndexPair indexPair) {
+        return pairToInterchange.getInterchangesFor(indexPair);
+    }
+
+    private void recordPairsToInterchanges() {
+        //final Set<InterchangeStation> interchanges = interchangeRepository.getAllInterchanges();
+        logger.info("Capture route index paris to interchanges for " + interchanges.size() + " interchanges");
+
+        interchanges.values().forEach(interchange -> {
+
+            final Set<Route> dropOffAtInterchange = interchange.getDropoffRoutes();
+            final Set<Route> pickupAtInterchange = interchange.getPickupRoutes();
+
+            final Set<RouteIndexPair> pairsForInterchange = new HashSet<>();
+
+            for (final Route dropOff : dropOffAtInterchange) {
+                final short dropOffIndex = routeIndex.indexFor(dropOff.getId());
+                for (final Route pickup : pickupAtInterchange) {
+                    if ((!dropOff.equals(pickup)) && pickup.isDateOverlap(dropOff)) {
+                        final short pickupIndex = routeIndex.indexFor(pickup.getId());
+                        pairsForInterchange.add(pairFactory.get(dropOffIndex, pickupIndex));
+                    }
+                }
+            }
+
+            pairToInterchange.addFor(interchange, pairsForInterchange);
+        });
+
+    }
+
+    private static class PairToInterchange {
+        private final Map<RouteIndexPair, Set<InterchangeStation>> map;
+
+        private PairToInterchange() {
+            map = new HashMap<>();
+        }
+
+        public void addFor(InterchangeStation interchange, Set<RouteIndexPair> pairs) {
+            pairs.forEach(pair -> {
+                if (!map.containsKey(pair)) {
+                    map.put(pair, new HashSet<>());
+                }
+                map.get(pair).add(interchange);
+            });
+        }
+
+        public boolean hasInterchangeFor(RouteIndexPair indexPair) {
+            return map.containsKey(indexPair);
+        }
+
+        public Stream<InterchangeStation> getInterchangesFor(RouteIndexPair indexPair) {
+            return map.get(indexPair).stream();
+        }
     }
 
 }

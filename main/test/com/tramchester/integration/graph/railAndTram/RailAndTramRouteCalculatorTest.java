@@ -49,6 +49,7 @@ public class RailAndTramRouteCalculatorTest {
     private RouteCalculatorTestFacade testFacade;
 
     private TramTime travelTime;
+    private Duration maxDurationFromConfig;
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
@@ -77,6 +78,8 @@ public class RailAndTramRouteCalculatorTest {
 
         travelTime = TramTime.of(8, 0);
 
+        maxDurationFromConfig = Duration.ofMinutes(config.getMaxJourneyDuration());
+
     }
 
     @Test
@@ -90,8 +93,7 @@ public class RailAndTramRouteCalculatorTest {
     void reproIssueRochdaleToEccles() {
         // this works fine when only tram data loaded, but fails when tram and train is loaded
         TramTime time = TramTime.of(9,0);
-        Duration maxJourneyDuration = Duration.ofMinutes(config.getMaxJourneyDuration());
-        JourneyRequest journeyRequest = new JourneyRequest(when, time, false, 4, maxJourneyDuration,
+        JourneyRequest journeyRequest = new JourneyRequest(when, time, false, 4, maxDurationFromConfig,
                 1, TramsOnly);
 
         Set<Journey> journeys = testFacade.calculateRouteAsSet(Rochdale, Eccles, journeyRequest);
@@ -100,10 +102,8 @@ public class RailAndTramRouteCalculatorTest {
 
     @Test
     void shouldHaveRochdaleToStPetersSquare() {
-        // this works fine when only tram data loaded, but fails when tram and train is loaded
         TramTime time = TramTime.of(9,0);
-        Duration maxJourneyDuration = Duration.ofMinutes(config.getMaxJourneyDuration());
-        JourneyRequest journeyRequest = new JourneyRequest(when, time, false, 0, maxJourneyDuration,
+        JourneyRequest journeyRequest = new JourneyRequest(when, time, false, 0, maxDurationFromConfig,
                 1, TramsOnly);
 
         Set<Journey> journeys = testFacade.calculateRouteAsSet(Rochdale, StPetersSquare, journeyRequest);
@@ -112,10 +112,8 @@ public class RailAndTramRouteCalculatorTest {
 
     @Test
     void shouldHaveStPetersSquareToEccles() {
-        // this works fine when only tram data loaded, but fails when tram and train is loaded
         TramTime time = TramTime.of(9,0);
-        Duration maxJourneyDuration = Duration.ofMinutes(config.getMaxJourneyDuration());
-        JourneyRequest journeyRequest = new JourneyRequest(when, time, false, 0, maxJourneyDuration,
+        JourneyRequest journeyRequest = new JourneyRequest(when, time, false, 0, maxDurationFromConfig,
                 1, TramsOnly);
 
         Set<Journey> journeys = testFacade.calculateRouteAsSet(StPetersSquare, Eccles, journeyRequest);
@@ -126,8 +124,7 @@ public class RailAndTramRouteCalculatorTest {
     void shouldHaveVictoriaToEccles() {
         // this works fine when only tram data loaded, but fails when tram and train is loaded
         TramTime time = TramTime.of(9,0);
-        Duration maxJourneyDuration = Duration.ofMinutes(config.getMaxJourneyDuration());
-        JourneyRequest journeyRequest = new JourneyRequest(when, time, false, 1, maxJourneyDuration,
+        JourneyRequest journeyRequest = new JourneyRequest(when, time, false, 1, maxDurationFromConfig,
                 1, TramsOnly);
 
         //journeyRequest.setDiag(true);
@@ -137,11 +134,23 @@ public class RailAndTramRouteCalculatorTest {
     }
 
     @Test
-    void shouldHaveExchangeSqToEccles() {
+    void shouldHaveDeangateToEccles() {
+        // check if failing when TramsOnly and nearby rail station
         // this works fine when only tram data loaded, but fails when tram and train is loaded
         TramTime time = TramTime.of(9,0);
-        Duration maxJourneyDuration = Duration.ofMinutes(config.getMaxJourneyDuration());
-        JourneyRequest journeyRequest = new JourneyRequest(when, time, false, 1, maxJourneyDuration,
+        JourneyRequest journeyRequest = new JourneyRequest(when, time, false, 1, maxDurationFromConfig,
+                1, TramsOnly);
+
+        //journeyRequest.setDiag(true);
+
+        Set<Journey> journeys = testFacade.calculateRouteAsSet(Deansgate, Eccles, journeyRequest);
+        assertFalse(journeys.isEmpty());
+    }
+
+    @Test
+    void shouldHaveExchangeSqToEccles() {
+        TramTime time = TramTime.of(9,0);
+        JourneyRequest journeyRequest = new JourneyRequest(when, time, false, 1, maxDurationFromConfig,
                 1, TramsOnly);
 
         Set<Journey> journeys = testFacade.calculateRouteAsSet(ExchangeSquare, Eccles, journeyRequest);
@@ -150,10 +159,8 @@ public class RailAndTramRouteCalculatorTest {
 
     @Test
     void shouldHaveMarketStreetToEccles() {
-        // this works fine when only tram data loaded, but fails when tram and train is loaded
         TramTime time = TramTime.of(9,0);
-        Duration maxJourneyDuration = Duration.ofMinutes(config.getMaxJourneyDuration());
-        JourneyRequest journeyRequest = new JourneyRequest(when, time, false, 1, maxJourneyDuration,
+        JourneyRequest journeyRequest = new JourneyRequest(when, time, false, 1, maxDurationFromConfig,
                 1, TramsOnly);
 
         Set<Journey> journeys = testFacade.calculateRouteAsSet(MarketStreet, Eccles, journeyRequest);
@@ -236,8 +243,8 @@ public class RailAndTramRouteCalculatorTest {
     void shouldTakeDirectTrainWhenAvailable() {
         TramTime time = TramTime.of(14,25);
 
-        TramDate date = TramDate.of(2022, 10,14);
-        JourneyRequest request = new JourneyRequest(date, time, false, 1,
+        //TramDate date = TramDate.of(2022, 10,14);
+        JourneyRequest request = new JourneyRequest(when, time, false, 1,
                 Duration.ofMinutes(240), 1, EnumSet.of(Tram, Train));
 
         Station start = rail(Altrincham);

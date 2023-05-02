@@ -66,10 +66,10 @@ public class NaptanStopData implements NaptanXMLData {
     public boolean hasRailInfo() {
         return stopClassification.hasRailInfo();
     }
-
-    public String getNptgLocality() {
-        return place.getNptgLocalityRef();
-    }
+//
+//    public String getNptgLocality() {
+//        return place.getNptgLocalityRef();
+//    }
 
     public GridPosition getGridPosition() {
         return place.getLocation().getGridPosition();

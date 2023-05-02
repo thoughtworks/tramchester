@@ -236,7 +236,7 @@ task rail(type:JavaExec, dependsOn: 'webpack') {
 task gm(type:JavaExec, dependsOn: 'webpack') {
     mainClass = mainClassName
     classpath = sourceSets.main.runtimeClasspath
-    maxHeapSize = "1g"
+    maxHeapSize = "2g"
     args 'server', 'config/gm.yml'
 }
 

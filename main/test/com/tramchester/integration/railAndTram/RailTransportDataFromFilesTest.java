@@ -96,57 +96,42 @@ public class RailTransportDataFromFilesTest {
         assertIdEquals("910GMNCRPIC", result.getAreaId());
     }
 
-    @Test
-    void shouldHaveExpectedCallingPointsForTripOnARoute() {
-
-        Station piccadilly = ManchesterPiccadilly.from(transportData);
-        Station euston = LondonEuston.from(transportData);
-
-        String longName = "VT service from Manchester Piccadilly Rail Station to London Euston Rail Station via Stockport " +
-                "Rail Station, Macclesfield Rail Station, Stoke-on-Trent Rail Station, Milton Keynes Central Rail Station";
-
-        List<Station> expectedCallingPoints = Arrays.asList(piccadilly,
-                Stockport.from(transportData),
-                Macclesfield.from(transportData),
-                StokeOnTrent.from(transportData),
-                MiltonKeynesCentral.from(transportData),
-                euston);
-
-        Set<Route> routes = piccadilly.getPickupRoutes().stream().
-                filter(route -> longName.equals(route.getName())).
-                collect(Collectors.toSet());
-
-        Set<Trip> wrongCallingPoints = routes.stream().
-                flatMap(route -> route.getTrips().stream()).
-                filter(trip -> !trip.getStopCalls().getStationSequence(false).equals(expectedCallingPoints)).
-                collect(Collectors.toSet());
-
-        assertTrue(wrongCallingPoints.isEmpty(), wrongCallingPoints.toString());
-
-    }
-
+    // out of bounds stations no longer loaded
+    // TODO how to test this?
 //    @Test
-//    void shouldNotLoadTFGMMetStations() {
-//        final IdFor<Station> unwantedStation = StringIdFor.createId("ALTRMET");
+//    void shouldHaveExpectedCallingPointsForTripOnARoute() {
 //
-//        // TODO Split active vs inactive stations? Problem is don't know modes until after the load
-//        // likely need to split station load into temp collection first and post filter
-//        final boolean result = transportData.hasStationId(unwantedStation);
-//        assertFalse(result);
+//        Station piccadilly = ManchesterPiccadilly.from(transportData);
+//        Station euston = LondonEuston.from(transportData);
 //
-//        Set<RouteStation> routeStations = transportData.getRouteStations();
-//        IdSet<Station> unwantedRouteStations = routeStations.stream().
-//                map(routeStation -> routeStation.getStation().getId()).
-//                filter(unwantedStation::equals).collect(IdSet.idCollector());
-//        assertTrue(unwantedRouteStations.isEmpty());
+//        String longName = "VT service from Manchester Piccadilly Rail Station to London Euston Rail Station via Stockport " +
+//                "Rail Station, Macclesfield Rail Station, Stoke-on-Trent Rail Station, Milton Keynes Central Rail Station";
+//
+//        List<Station> expectedCallingPoints = Arrays.asList(piccadilly,
+//                Stockport.from(transportData),
+//                Macclesfield.from(transportData),
+//                StokeOnTrent.from(transportData),
+//                MiltonKeynesCentral.from(transportData),
+//                euston);
+//
+//        Set<Route> routes = piccadilly.getPickupRoutes().stream().
+//                filter(route -> longName.equals(route.getName())).
+//                collect(Collectors.toSet());
+//
+//        Set<Trip> wrongCallingPoints = routes.stream().
+//                flatMap(route -> route.getTrips().stream()).
+//                filter(trip -> !trip.getStopCalls().getStationSequence(false).equals(expectedCallingPoints)).
+//                collect(Collectors.toSet());
+//
+//        assertTrue(wrongCallingPoints.isEmpty(), wrongCallingPoints.toString());
 //    }
 
     @Test
     void shouldHaveExpectedAgencies() {
         Set<Agency> results = transportData.getAgencies();
 
-        // 29 + 1 = train + tfgm
-        assertEquals(29+1, results.size());
+        // now filter agencies by geo bounds, so only one operating in GM should appear
+        assertEquals(6+1, results.size());
 
         long count = results.stream().filter(agency -> Agency.IsMetrolink(agency.getId())).count();
         assertEquals(1, count);
