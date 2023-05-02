@@ -10,7 +10,7 @@ import static java.lang.String.format;
 /***
  * Index-able bit map - set of N*M bits [....][....][....]
  */
-public class IndexedBitSet {
+public class IndexedBitSet implements ImmutableIndexedBitSet {
     private final int rows;
     private final int columns;
     private final BitmapAsRoaringBitmap bitmap;
@@ -38,6 +38,8 @@ public class IndexedBitSet {
         return result;
     }
 
+    // TODO Replace with ImmutableIndexedBitSet ?
+    @Deprecated
     public ImmutableBitSet createImmutable() {
         return new ImmutableBitSet(bitmap, getSize());
     }
@@ -109,7 +111,7 @@ public class IndexedBitSet {
      * @param row the row to apply the bitmask to
      * @param mask bitmask to use
      */
-    public void applyAndTo(final int row, final SimpleImmutableBitmap mask) {
+    public void applyAndToRow(final int row, final SimpleImmutableBitmap mask) {
         final int startPosition = getPositionFor(row, 0);
 
         // TODO more efficient ways to do this via a mask?
@@ -149,10 +151,11 @@ public class IndexedBitSet {
 
     /***
      * And this bitset with the supplied one and return result as a new bitmap
-     * @param other bitmap to 'and' this one with
+     * @param immutable bitmap to 'and' this one with
      * @return a new bitmap
      */
-    public IndexedBitSet and(final IndexedBitSet other) {
+    public IndexedBitSet and(final ImmutableIndexedBitSet immutable) {
+        IndexedBitSet other = (IndexedBitSet) immutable;
         if (rows != other.rows) {
             throw new RuntimeException(format("Mismatch on matrix row size this %s other %s", rows, other.rows));
         }
@@ -167,7 +170,7 @@ public class IndexedBitSet {
      * @param other bitmap to 'and' this one with
      * @return a new bitmap
      */
-    public IndexedBitSet and(final SimpleBitmap other) {
+    public IndexedBitSet and(final SimpleImmutableBitmap other) {
         final BitmapAsRoaringBitmap and = BitmapAsRoaringBitmap.and(bitmap, (BitmapAsRoaringBitmap)other);
         return new IndexedBitSet(rows, columns, and);
     }
@@ -194,8 +197,8 @@ public class IndexedBitSet {
      * @param column to select set bit from
      * @return IndexedBitSet of same dimensions
      */
-    public IndexedBitSet getRowAndColumn(final int row, final int column) {
-        final BitmapAsRoaringBitmap result = bitmap.extractRowAndColumn(row, column, rows, columns);
+    public IndexedBitSet getCopyOfRowAndColumn(final int row, final int column) {
+        final BitmapAsRoaringBitmap result = bitmap.copyRowAndColumn(row, column, rows, columns);
         return new IndexedBitSet(rows, columns, result);
     }
 

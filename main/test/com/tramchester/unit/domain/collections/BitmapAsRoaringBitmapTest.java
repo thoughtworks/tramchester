@@ -170,7 +170,7 @@ public class BitmapAsRoaringBitmapTest {
         simpleBitmap.set(7);
         simpleBitmap.set(8);
 
-        SimpleBitmap result = simpleBitmap.extractRowAndColumn(1, 1, 3, 3);
+        SimpleBitmap result = simpleBitmap.copyRowAndColumn(1, 1, 3, 3);
         assertEquals(4, result.cardinality(), result.toString());
         assertTrue(result.get(3), result.toString());
         assertTrue(result.get(4), result.toString());
@@ -193,18 +193,18 @@ public class BitmapAsRoaringBitmapTest {
         set(rectBitmap,1,2);
         set(rectBitmap, 2,3);
 
-        SimpleBitmap resultA = rectBitmap.extractRowAndColumn(0,1, ROWS, COLS);
+        SimpleBitmap resultA = rectBitmap.copyRowAndColumn(0,1, ROWS, COLS);
 
         assertTrue(get(resultA, 0,0), resultA + " source:" + rectBitmap);
         assertTrue(get(resultA,1,1), resultA + " source:" + rectBitmap);
         assertEquals(2, resultA.cardinality(), resultA + " source:" + rectBitmap);
 
-        SimpleBitmap resultB = rectBitmap.extractRowAndColumn(1,1, ROWS, COLS);
+        SimpleBitmap resultB = rectBitmap.copyRowAndColumn(1,1, ROWS, COLS);
         assertEquals(2, resultB.cardinality(), resultB + " source:" + rectBitmap);
         assertTrue(get(resultB,1,2), resultB + " source:" + rectBitmap);
         assertTrue(get(resultB, 1,1), resultB + " source:" + rectBitmap);
 
-        SimpleBitmap resultC = rectBitmap.extractRowAndColumn(2,0, ROWS, COLS);
+        SimpleBitmap resultC = rectBitmap.copyRowAndColumn(2,0, ROWS, COLS);
 
         assertEquals(2, resultC.cardinality(), resultC + " source:" + rectBitmap);
         assertTrue(get(resultC,0,0));

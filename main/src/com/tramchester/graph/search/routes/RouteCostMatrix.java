@@ -4,7 +4,6 @@ import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.caching.DataCache;
 import com.tramchester.dataexport.DataSaver;
 import com.tramchester.dataimport.data.CostsPerDegreeData;
-import com.tramchester.domain.IdPair;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.RoutePair;
 import com.tramchester.domain.collections.*;
@@ -92,6 +91,32 @@ public class RouteCostMatrix  {
 
     }
 
+    private void createCostMatrix(RouteDateAndDayOverlap routeDateAndDayOverlap) {
+        IndexedBitSet forDegreeOne = costsForDegree.getDegreeMutable(1);
+        addInitialConnectionsFromInterchanges(routeDateAndDayOverlap, forDegreeOne);
+        populateCosts(routeDateAndDayOverlap);
+    }
+
+    @PreDestroy
+    private void clear() {
+        costsForDegree.clear();
+    }
+
+    private void addInitialConnectionsFromInterchanges(RouteDateAndDayOverlap routeDateAndDayOverlap, IndexedBitSet forDegreeOne) {
+        final Set<InterchangeStation> interchanges = interchangeRepository.getAllInterchanges();
+        logger.info("Pre-populate route to route costs from " + interchanges.size() + " interchanges");
+
+        interchanges.forEach(interchange -> {
+            // TODO This does not work for multi-mode station interchanges?
+            // record interchanges, where we can go from being dropped off (routes) to being picked up (routes)
+            final Set<Route> dropOffAtInterchange = interchange.getDropoffRoutes();
+            final Set<Route> pickupAtInterchange = interchange.getPickupRoutes();
+
+            addOverlapsForRoutes(forDegreeOne, routeDateAndDayOverlap, dropOffAtInterchange, pickupAtInterchange);
+        });
+        logger.info("Add " + size() + " connections for interchanges");
+    }
+
 
     private void createBacktracking(RouteDateAndDayOverlap routeDateAndDayOverlap) {
         // degree 1 = depth 0 = interchanges directly
@@ -108,7 +133,7 @@ public class RouteCostMatrix  {
         logger.info("Create backtrack pair map for degree " + currentDegree);
 
         //final int nextDegree = currentDegree + 1;
-        final IndexedBitSet matrixForDegree = costsForDegree.getDegree(currentDegree);
+        final ImmutableIndexedBitSet matrixForDegree = costsForDegree.getDegree(currentDegree);
 
         if (matrixForDegree.numberOfBitsSet()>0) {
             // zero indexed
@@ -144,33 +169,6 @@ public class RouteCostMatrix  {
         }
     }
 
-    private void createCostMatrix(RouteDateAndDayOverlap routeDateAndDayOverlap) {
-
-        IndexedBitSet forDegreeOne = costsForDegree.getDegree(1);
-        addInitialConnectionsFromInterchanges(routeDateAndDayOverlap, forDegreeOne);
-
-        populateCosts(routeDateAndDayOverlap);
-    }
-
-    @PreDestroy
-    private void clear() {
-        costsForDegree.clear();
-    }
-
-    private void addInitialConnectionsFromInterchanges(RouteDateAndDayOverlap routeDateAndDayOverlap, IndexedBitSet forDegreeOne) {
-        final Set<InterchangeStation> interchanges = interchangeRepository.getAllInterchanges();
-        logger.info("Pre-populate route to route costs from " + interchanges.size() + " interchanges");
-
-        interchanges.forEach(interchange -> {
-            // TODO This does not work for multi-mode station interchanges?
-            // record interchanges, where we can go from being dropped off (routes) to being picked up (routes)
-            final Set<Route> dropOffAtInterchange = interchange.getDropoffRoutes();
-            final Set<Route> pickupAtInterchange = interchange.getPickupRoutes();
-
-           addOverlapsForRoutes(forDegreeOne, routeDateAndDayOverlap, dropOffAtInterchange, pickupAtInterchange);
-        });
-        logger.info("Add " + size() + " connections for interchanges");
-    }
 
 
 
@@ -186,12 +184,13 @@ public class RouteCostMatrix  {
                 }
             }
             // apply dates and days
-            forDegreeOne.applyAndTo(dropOffIndex, routeDateAndDayOverlap.overlapsFor(dropOffIndex));
+            forDegreeOne.applyAndToRow(dropOffIndex, routeDateAndDayOverlap.overlapsFor(dropOffIndex));
         }
     }
 
     // create a bitmask for route->route changes that are possible on a given date and transport mode
     public IndexedBitSet createOverlapMatrixFor(TramDate date, Set<TransportMode> requestedModes) {
+
         final Set<Short> availableOnDate = new HashSet<>();
         for (short routeIndex = 0; routeIndex < numRoutes; routeIndex++) {
             final Route route = this.routeIndex.getRouteFor(routeIndex);
@@ -252,11 +251,11 @@ public class RouteCostMatrix  {
         return results;
     }
 
-    public int getDepth(RouteIndexPair routePair) {
-        return getDegree(routePair);
-    }
+//    public int getDepth(RouteIndexPair routePair) {
+//        return getDegree(routePair);
+//    }
 
-    private boolean isOverlap(final IndexedBitSet bitSet, final RouteIndexPair pair) {
+    private boolean isOverlap(final ImmutableIndexedBitSet bitSet, final RouteIndexPair pair) {
         return bitSet.isSet(pair);
     }
 
@@ -299,8 +298,8 @@ public class RouteCostMatrix  {
         final Instant startTime = Instant.now();
         final int nextDegree = currentDegree + 1;
 
-        final IndexedBitSet currentMatrix = costsForDegree.getDegree(currentDegree);
-        final IndexedBitSet newMatrix = costsForDegree.getDegree(nextDegree);
+        final ImmutableIndexedBitSet currentMatrix = costsForDegree.getDegree(currentDegree);
+        final IndexedBitSet newMatrix = costsForDegree.getDegreeMutable(nextDegree);
 
         for (int route = 0; route < numRoutes; route++) {
             final SimpleBitmap resultForForRoute = SimpleBitmap.create(numRoutes);
@@ -326,11 +325,12 @@ public class RouteCostMatrix  {
         logger.info("Added " + newMatrix.numberOfBitsSet() + " connections for  degree " + nextDegree + " in " + took + " ms");
     }
 
+    // TODO Use ImmutableIndexedBitSet?
     public ImmutableBitSet getExistingBitSetsForRoute(final int routeIndex, final int startingDegree) {
         final IndexedBitSet connectionsAtAllDepths = new IndexedBitSet(1, numRoutes);
 
         for (int degree = startingDegree; degree > 0; degree--) {
-            IndexedBitSet allConnectionsAtDegree = costsForDegree.getDegree(degree);
+            ImmutableIndexedBitSet allConnectionsAtDegree = costsForDegree.getDegree(degree);
             ImmutableBitSet existingConnectionsAtDepth = allConnectionsAtDegree.getBitSetForRow(routeIndex);
             connectionsAtAllDepths.or(existingConnectionsAtDepth);
         }
@@ -343,16 +343,20 @@ public class RouteCostMatrix  {
         return getDegree(routePair);
     }
 
-    public PathResults getInterchangesFor(final RouteIndexPair indexPair, final IndexedBitSet dateOverlaps,
-                                          Function<InterchangeStation, Boolean> interchangeFilter) {
-        final int degree = getDepth(indexPair);
+    public PathResults getInterchangesFor(final RouteIndexPair indexPair, final ImmutableIndexedBitSet dateOverlaps,
+                                          final Function<InterchangeStation, Boolean> interchangeFilter) {
+        final int degree = getDegree(indexPair);
 
         if (degree==Byte.MAX_VALUE) {
             logger.warn("No degree found for " + routeIndex.getPairFor(indexPair));
             return new PathResults.NoPathResults();
         }
 
-        final IndexedBitSet changesForDegree = costsForDegree.getDegree(degree).getRowAndColumn(indexPair.first(), indexPair.second());
+        if (logger.isDebugEnabled()) {
+            logger.debug(String.format("Get interchanges for %s with initial degree %s", HasId.asIds(routeIndex.getPairFor(indexPair)), degree));
+        }
+
+        final IndexedBitSet changesForDegree = costsForDegree.getDegree(degree).getCopyOfRowAndColumn(indexPair.first(), indexPair.second());
         // apply mask to filter out unavailable dates/modes quickly
         final IndexedBitSet withDateApplied = changesForDegree.and(dateOverlaps);
 
@@ -573,10 +577,10 @@ public class RouteCostMatrix  {
                 return links.get(depth).getLinksFor(indexPair);
             }
 
-            int realDepth = parent.getDepth(indexPair);
+            int degree = parent.getDegree(indexPair);
             final RoutePair missing = routeIndex.getPairFor(indexPair);
-            final String message = MessageFormat.format("Missing indexPair {0} ({1}) at depth {2} cost depth {3}",
-                    indexPair, missing, depth, realDepth);
+            final String message = MessageFormat.format("Missing indexPair {0} ({1}) at depth {2} cost degree {3}",
+                    indexPair, missing, depth, degree);
             logger.error(message);
             if (!missing.isDateOverlap()) {
                 logger.warn("Also no date overlap between " + missing);
@@ -596,8 +600,6 @@ public class RouteCostMatrix  {
         }
     }
 
-
-
     /***
      * encapsulate cost per degree to facilitate caching
      */
@@ -613,7 +615,11 @@ public class RouteCostMatrix  {
         }
 
         // degreeIndex runs 1, 2, 3,....
-        public IndexedBitSet getDegree(int degree) {
+        public ImmutableIndexedBitSet getDegree(int degree) {
+            return bitSets[degree-1];
+        }
+
+        public IndexedBitSet getDegreeMutable(int degree) {
             return bitSets[degree-1];
         }
 
@@ -670,6 +676,8 @@ public class RouteCostMatrix  {
                 setBits.forEach(bit -> bitset.set(routeIndex, bit));
             });
         }
+
+
     }
 
 

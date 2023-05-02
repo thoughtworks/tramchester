@@ -2,6 +2,7 @@ package com.tramchester.domain.collections;
 
 import java.util.stream.IntStream;
 
+@Deprecated
 public class ImmutableBitSet {
     private final SimpleImmutableBitmap contained;
     private final int size;
@@ -15,8 +16,8 @@ public class ImmutableBitSet {
         mutable.or(contained);
     }
 
-    public void applyAndNotTo(SimpleBitmap other) {
-        other.andNot(contained);
+    public void applyAndNotTo(SimpleBitmap mutable) {
+        mutable.andNot(contained);
     }
 
     public boolean isSet(int index) {

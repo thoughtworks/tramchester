@@ -3,6 +3,8 @@ package com.tramchester.integration.graph.railAndTram;
 import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.config.TramchesterConfig;
+import com.tramchester.dataimport.rail.reference.TrainOperatingCompanies;
+import com.tramchester.dataimport.rail.repository.RailRouteIdRepository;
 import com.tramchester.domain.NumberOfChanges;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.dates.TramDate;
@@ -15,6 +17,7 @@ import com.tramchester.integration.testSupport.RailAndTramGreaterManchesterConfi
 import com.tramchester.integration.testSupport.rail.RailStationIds;
 import com.tramchester.repository.RouteRepository;
 import com.tramchester.repository.StationRepository;
+import com.tramchester.testSupport.RailRouteHelper;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TramRouteHelper;
 import com.tramchester.testSupport.reference.TramStations;
@@ -24,30 +27,29 @@ import org.junit.jupiter.api.*;
 import java.util.EnumSet;
 
 import static com.tramchester.domain.reference.TransportMode.*;
-import static com.tramchester.integration.testSupport.rail.RailStationIds.ManchesterPiccadilly;
-import static com.tramchester.integration.testSupport.rail.RailStationIds.Stockport;
+import static com.tramchester.integration.testSupport.rail.RailStationIds.*;
 import static com.tramchester.testSupport.reference.KnownTramRoute.BuryPiccadilly;
 import static com.tramchester.testSupport.reference.KnownTramRoute.EastDidisburyManchesterShawandCromptonRochdale;
+import static com.tramchester.testSupport.reference.TramStations.Altrincham;
 import static com.tramchester.testSupport.reference.TramStations.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 
 @GMTest
 public class RailAndTramRouteToRouteCostsTest {
-    private static StationRepository stationRepository;
+    private StationRepository stationRepository;
     private static ComponentContainer componentContainer;
 
     private TramDate date;
     private RouteToRouteCosts routeToRouteCosts;
     private EnumSet<TransportMode> allTransportModes;
+    private RailRouteHelper railRouteHelper;
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
         TramchesterConfig testConfig = new RailAndTramGreaterManchesterConfig();
         componentContainer = new ComponentsBuilder().create(testConfig, TestEnv.NoopRegisterMetrics());
         componentContainer.initialise();
-
-        stationRepository = componentContainer.get(StationRepository.class);
     }
 
     @AfterEach
@@ -63,8 +65,10 @@ public class RailAndTramRouteToRouteCostsTest {
     @BeforeEach
     void beforeEachTestRuns() {
         date = TestEnv.testDay();
-        routeToRouteCosts = componentContainer.get(RouteToRouteCosts.class);
         allTransportModes = EnumSet.allOf(TransportMode.class);
+        routeToRouteCosts = componentContainer.get(RouteToRouteCosts.class);
+        stationRepository = componentContainer.get(StationRepository.class);
+        railRouteHelper = new RailRouteHelper(componentContainer);
     }
 
     @Test
@@ -164,12 +168,27 @@ public class RailAndTramRouteToRouteCostsTest {
     void shouldHaveOneChangeRochdaleToEccles() {
         // Rochdale, Eccles
         TimeRange timeRange = TimeRange.of(TramTime.of(9,0), TramTime.of(10,0));
-        Station rochdale = Rochdale.from(stationRepository);
-        Station eccles = Eccles.from(stationRepository);
+        Station rochdale = TramStations.Rochdale.from(stationRepository);
+        Station eccles = TramStations.Eccles.from(stationRepository);
         NumberOfChanges changes = routeToRouteCosts.getNumberOfChanges(rochdale, eccles, TramsOnly, date, timeRange);
 
         assertFalse(changes.isNone());
         assertEquals(1, changes.getMin());
+    }
+
+    @Test
+    void shouldRHaveChangesBetweenLiverpoolAndCreweRoutes() {
+        // repro issue in routecostmatric
+        TimeRange timeRange = TimeRange.of(TramTime.of(9,0), TramTime.of(10,0));
+
+        Route routeA = railRouteHelper.getRoute(TrainOperatingCompanies.NT, RailStationIds.ManchesterVictoria, LiverpoolLimeStreet, 1);
+        Route routeB = railRouteHelper.getRoute(TrainOperatingCompanies.NT, Crewe, ManchesterPiccadilly, 2);
+
+        NumberOfChanges changes = routeToRouteCosts.getNumberOfChanges(routeA, routeB, date, timeRange, allTransportModes);
+
+        assertFalse(changes.isNone());
+        assertEquals(2, changes.getMin());
+
     }
 
     @Test

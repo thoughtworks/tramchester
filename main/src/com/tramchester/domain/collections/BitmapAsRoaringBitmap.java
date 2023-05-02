@@ -3,7 +3,6 @@ package com.tramchester.domain.collections;
 import org.roaringbitmap.BatchIterator;
 import org.roaringbitmap.RoaringBatchIterator;
 import org.roaringbitmap.RoaringBitmap;
-import org.roaringbitmap.Util;
 
 import java.util.stream.IntStream;
 
@@ -34,7 +33,7 @@ public class BitmapAsRoaringBitmap implements SimpleBitmap {
         bitmap.clear();
     }
 
-    public BitmapAsRoaringBitmap extractRowAndColumn(int row, int column, int totalRows, int totalColumns) {
+    public BitmapAsRoaringBitmap copyRowAndColumn(int row, int column, int totalRows, int totalColumns) {
         final RoaringBitmap result = new RoaringBitmap();
         extractRow(result, row, totalColumns);
         extractColumn(result, column, totalRows, totalColumns);

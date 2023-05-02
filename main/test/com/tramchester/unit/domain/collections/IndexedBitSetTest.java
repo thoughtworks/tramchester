@@ -116,13 +116,13 @@ public class IndexedBitSetTest {
 
         SimpleBitmap rowMaskAllSet = SimpleBitmap.create(2);
         rowMaskAllSet.setAll(0,2, true);
-        bits.applyAndTo(1, rowMaskAllSet);
+        bits.applyAndToRow(1, rowMaskAllSet);
 
         assertTrue(bits.isSet(0,0));
         assertTrue(bits.isSet(1,1));
 
         SimpleBitmap rowMaskNonSet = SimpleBitmap.create(2);
-        bits.applyAndTo(1, rowMaskNonSet);
+        bits.applyAndToRow(1, rowMaskNonSet);
 
         assertFalse(bits.isSet(1,1));
         assertTrue(bits.isSet(0,0));
@@ -179,17 +179,17 @@ public class IndexedBitSetTest {
         bits.set(1,2);
         bits.set(2,3);
 
-        IndexedBitSet resultA = bits.getRowAndColumn(0,1);
+        IndexedBitSet resultA = bits.getCopyOfRowAndColumn(0,1);
         assertEquals(2, resultA.numberOfBitsSet(), resultA + " source:" + bits);
         assertTrue(resultA.isSet(0,0), resultA + " source:" + bits);
         assertTrue(resultA.isSet(1,1));
 
-        IndexedBitSet resultB = bits.getRowAndColumn(1,1);
+        IndexedBitSet resultB = bits.getCopyOfRowAndColumn(1,1);
         assertEquals(2, resultB.numberOfBitsSet(), resultB + " source:" + bits);
         assertTrue(resultB.isSet(1,2), resultB + " source:" + bits);
         assertTrue(resultB.isSet(1,1), resultB + " source:" + bits);
 
-        IndexedBitSet resultC = bits.getRowAndColumn(2,0);
+        IndexedBitSet resultC = bits.getCopyOfRowAndColumn(2,0);
         assertEquals(2, resultC.numberOfBitsSet(), resultC + " source:" + bits);
         assertTrue(resultC.isSet(0,0));
         assertTrue(resultC.isSet(2,3));

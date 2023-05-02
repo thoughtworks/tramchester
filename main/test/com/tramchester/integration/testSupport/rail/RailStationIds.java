@@ -38,6 +38,8 @@ public enum RailStationIds {
     EastDidsbury(createId("EDIDBRY"), true),
     Eccles(createId("ECCLES"), true),
     Inverness(createId("IVRNESS"), false),
+    LiverpoolLimeStreet(createId("LVRPLSH"), false),
+    Huddersfield(createId("HDRSFLD"), false),
     Ashton(createId(("ASHONUL")), true);
 
     private static IdFor<Station> createId(String text) {
