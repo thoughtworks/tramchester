@@ -1,19 +1,19 @@
 package com.tramchester.domain.collections;
 
-import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 public interface SimpleImmutableBitmap {
 
-    SimpleImmutableBitmap getSubmap(int start, int end);
-
     boolean get(int position);
-
-    IntStream stream();
 
     boolean isEmpty();
 
     int size();
 
     long cardinality();
+
+    SimpleImmutableBitmap getSubmap(int start, int end);
+
+    Stream<Short> getBitIndexes();
 
 }

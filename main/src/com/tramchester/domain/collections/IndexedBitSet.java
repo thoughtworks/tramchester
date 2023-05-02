@@ -38,11 +38,6 @@ public class IndexedBitSet implements ImmutableIndexedBitSet {
         return result;
     }
 
-    // TODO Replace with ImmutableIndexedBitSet ?
-    @Deprecated
-    public ImmutableBitSet createImmutable() {
-        return new ImmutableBitSet(bitmap, getSize());
-    }
 
     /***
      * Set the bit at given row and column i.e. y'th column bit in row x
@@ -69,6 +64,7 @@ public class IndexedBitSet implements ImmutableIndexedBitSet {
      * Check if bit set
      * @return true if column'th bit in row is set
      */
+    @Override
     public boolean isSet(final RouteIndexPair pair) {
         return isSet(pair.first(), pair.second());
     }
@@ -78,12 +74,12 @@ public class IndexedBitSet implements ImmutableIndexedBitSet {
      * @param row rwo to return
      * @return bitset for that row
      */
-    public ImmutableBitSet getBitSetForRow(final int row) {
+    @Override
+    public SimpleImmutableBitmap getBitSetForRow(final int row) {
         final int startPosition = getPositionFor(row, 0);
         final int endPositionExclusive = startPosition + columns; // plus num cols per row
-        final SimpleImmutableBitmap result = bitmap.getSubmap(startPosition, endPositionExclusive-1);
 
-        return new ImmutableBitSet(result, endPositionExclusive-startPosition);
+        return bitmap.getSubmap(startPosition, endPositionExclusive-1);
     }
 
     /***
@@ -98,6 +94,7 @@ public class IndexedBitSet implements ImmutableIndexedBitSet {
         }
     }
 
+    @Override
     public long numberOfBitsSet() {
         return bitmap.cardinality();
     }
@@ -115,22 +112,16 @@ public class IndexedBitSet implements ImmutableIndexedBitSet {
         final int startPosition = getPositionFor(row, 0);
 
         // TODO more efficient ways to do this via a mask?
-        for (int i = 0; i < rows; i++) {
-            final int bitIndex = startPosition + i;
-            final boolean andValue = bitmap.get(bitIndex) && mask.get(i);
+        for (int column = 0; column < columns; column++) {
+            final int bitIndex = startPosition + column;
+            final boolean andValue = bitmap.get(bitIndex) && mask.get(column);
             bitmap.set(bitIndex, andValue);
         }
     }
 
-    public void or(final ImmutableBitSet other) {
-        if (other.getSize() > getSize()) {
-            throw new RuntimeException("Size mismatch, got " + other.getSize() + " but needed " + getSize());
-        }
-        bitmap.or(other.getContained());
-    }
-
-    private int getSize() {
-        return rows*columns;
+    public void or(SimpleImmutableBitmap immutableBitmap) {
+        SimpleBitmap simpleBitmap = (SimpleBitmap) immutableBitmap;
+        bitmap.or(simpleBitmap);
     }
 
     /***
@@ -149,36 +140,10 @@ public class IndexedBitSet implements ImmutableIndexedBitSet {
         return (row * columns) + column;
     }
 
-    /***
-     * And this bitset with the supplied one and return result as a new bitmap
-     * @param immutable bitmap to 'and' this one with
-     * @return a new bitmap
-     */
-    public IndexedBitSet and(final ImmutableIndexedBitSet immutable) {
-        IndexedBitSet other = (IndexedBitSet) immutable;
-        if (rows != other.rows) {
-            throw new RuntimeException(format("Mismatch on matrix row size this %s other %s", rows, other.rows));
-        }
-        if (columns != other.columns) {
-            throw new RuntimeException(format("Mismatch on matrix column size this %s other %s", columns, other.columns));
-        }
-        return and(other.bitmap);
-    }
-
-    /***
-     * And this bitset with the supplied one and return result as a new bitmap
-     * @param other bitmap to 'and' this one with
-     * @return a new bitmap
-     */
-    public IndexedBitSet and(final SimpleImmutableBitmap other) {
-        final BitmapAsRoaringBitmap and = BitmapAsRoaringBitmap.and(bitmap, (BitmapAsRoaringBitmap)other);
-        return new IndexedBitSet(rows, columns, and);
-    }
-
     public Stream<Pair<Integer, Integer>> getPairs() {
         // note: range is inclusive
         return IntStream.range(0, rows ).boxed().
-                flatMap(row -> getBitSetForRow(row).getBitsSet().boxed().map(column -> Pair.of(row, column)));
+                flatMap(row -> getBitSetForRow(row).getBitIndexes().map(column -> Pair.of(row, column.intValue())));
     }
 
     @Override
@@ -197,9 +162,23 @@ public class IndexedBitSet implements ImmutableIndexedBitSet {
      * @param column to select set bit from
      * @return IndexedBitSet of same dimensions
      */
+    @Override
     public IndexedBitSet getCopyOfRowAndColumn(final int row, final int column) {
         final BitmapAsRoaringBitmap result = bitmap.copyRowAndColumn(row, column, rows, columns);
         return new IndexedBitSet(rows, columns, result);
+    }
+
+    public static IndexedBitSet and(ImmutableIndexedBitSet immutableA, ImmutableIndexedBitSet immutableB) {
+        IndexedBitSet bitSetA = (IndexedBitSet) immutableA;
+        IndexedBitSet bitSetB = (IndexedBitSet) immutableB;
+        if (bitSetA.rows != bitSetB.rows) {
+            throw new RuntimeException(format("Mismatch on matrix row size this %s other %s", bitSetA.rows, bitSetB.rows));
+        }
+        if (bitSetA.columns != bitSetB.columns) {
+            throw new RuntimeException(format("Mismatch on matrix column size this %s other %s", bitSetA.columns, bitSetB.columns));
+        }
+        final BitmapAsRoaringBitmap and = BitmapAsRoaringBitmap.and(bitSetA.bitmap, bitSetB.bitmap);
+        return new IndexedBitSet(bitSetA.rows, bitSetA.columns, and);
     }
 
 }

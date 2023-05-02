@@ -92,16 +92,28 @@ public class BitmapAsRoaringBitmapTest {
         SimpleImmutableBitmap submap = simpleBitmap.getSubmap(1, 5);
 
         assertFalse(submap.isEmpty());
-        assertEquals(4, submap.size());
+        assertEquals(5, submap.size());
 
         assertTrue(submap.get(0), submap.toString());
         assertTrue(submap.get(3), submap.toString());
         assertEquals(2, submap.cardinality(), submap.toString());
 
-        Set<Integer> submapStream = submap.stream().boxed().collect(Collectors.toSet());
+        Set<Integer> submapStream = submap.getBitIndexes().map(Short::intValue).collect(Collectors.toSet());
         assertEquals(2, submapStream.size(), submapStream.toString());
         assertTrue(submapStream.contains(0));
         assertTrue(submapStream.contains(3));
+    }
+
+    @Test
+    void shouldGetSubsetAllSet() {
+        simpleBitmap.setAll(0, simpleBitmap.size());
+        SimpleImmutableBitmap submap = simpleBitmap.getSubmap(1, 5);
+
+        assertFalse(submap.isEmpty());
+        assertEquals(5, submap.size());
+
+        assertEquals(5, submap.cardinality(), submap.toString());
+
 
     }
 
@@ -120,7 +132,7 @@ public class BitmapAsRoaringBitmapTest {
     void shouldStream() {
         simpleBitmap.set(1);
         simpleBitmap.set(4);
-        List<Integer> results = simpleBitmap.stream().boxed().collect(Collectors.toList());
+        List<Integer> results = simpleBitmap.getBitIndexes().map(Short::intValue).collect(Collectors.toList());
 
         assertEquals(2, results.size());
         assertTrue(results.contains(1));

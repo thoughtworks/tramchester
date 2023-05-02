@@ -18,6 +18,7 @@ import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.tfgm.TFGMRemoteDataSourceConfig;
 import org.easymock.EasyMock;
 import org.easymock.EasyMockSupport;
+import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -100,14 +101,20 @@ public class DataCacheTest extends EasyMockSupport  {
 
         String filename = "costsPerDegreeTest.csv";
         List<CostsPerDegreeData> items = new ArrayList<>();
-        items.add(new CostsPerDegreeData(1,2, Arrays.asList(4,5,6,7)));
-        items.add(new CostsPerDegreeData(8,9, Arrays.asList(1,2,3,4)));
-        items.add(new CostsPerDegreeData(11,12, Arrays.asList(42,43)));
+        items.add(new CostsPerDegreeData(1,2, asShorts(4, 5, 6, 7)));
+        items.add(new CostsPerDegreeData(8,9, asShorts(1, 2, 3, 4)));
+        items.add(new CostsPerDegreeData(11,12, asShorts(42,43)));
 
         TestData<CostsPerDegreeData> toSave = new TestData<>(items, filename);
         TestData<CostsPerDegreeData> toLoad = new TestData<>(filename);
 
         validateCacheClassToDisk(toSave, toLoad, CostsPerDegreeData.class, items);
+    }
+
+    @NotNull
+    private List<Short> asShorts(int...values) {
+        return Arrays.stream(values).boxed().map(Integer::shortValue).
+                collect(Collectors.toList());
     }
 
     @Test

@@ -18,7 +18,7 @@ public interface SimpleBitmap extends SimpleImmutableBitmap {
 
     void and(SimpleImmutableBitmap other);
 
-    void andNot(SimpleImmutableBitmap contained);
+    void andNot(SimpleImmutableBitmap other);
 
     static int getPositionFor(int row, int column, int rows, int columns) {
         if (row >= rows) {

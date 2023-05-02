@@ -4,7 +4,7 @@ import org.roaringbitmap.BatchIterator;
 import org.roaringbitmap.RoaringBatchIterator;
 import org.roaringbitmap.RoaringBitmap;
 
-import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 public class BitmapAsRoaringBitmap implements SimpleBitmap {
     private final RoaringBitmap bitmap;
@@ -26,6 +26,11 @@ public class BitmapAsRoaringBitmap implements SimpleBitmap {
     @Override
     public long cardinality() {
         return bitmap.getCardinality();
+    }
+
+    @Override
+    public Stream<Short> getBitIndexes() {
+        return bitmap.stream().boxed().map(Integer::shortValue);
     }
 
     @Override
@@ -84,8 +89,6 @@ public class BitmapAsRoaringBitmap implements SimpleBitmap {
         final int[] readBuffer = new int[bufferSize];
         final int[] writeBuffer = new int[bufferSize];
 
-        final int submapSize = submapEnd - submapStart;
-
         final RoaringBitmap submap = new RoaringBitmap();
 
         BatchIterator batchIterator = bitmap.getBatchIterator();
@@ -108,6 +111,8 @@ public class BitmapAsRoaringBitmap implements SimpleBitmap {
             }
             submap.addN(writeBuffer, 0, index);
         }
+
+        final int submapSize = (submapEnd - submapStart) + 1;
 
         return new BitmapAsRoaringBitmap(submap, submapSize);
     }
@@ -174,11 +179,6 @@ public class BitmapAsRoaringBitmap implements SimpleBitmap {
     public void andNot(SimpleImmutableBitmap other) {
         BitmapAsRoaringBitmap otherBitmap = (BitmapAsRoaringBitmap) other;
         bitmap.andNot(otherBitmap.bitmap);
-    }
-
-    @Override
-    public IntStream stream() {
-        return bitmap.stream();
     }
 
     @Override

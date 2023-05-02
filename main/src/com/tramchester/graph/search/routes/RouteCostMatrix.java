@@ -146,14 +146,14 @@ public class RouteCostMatrix  {
 
                 final SimpleImmutableBitmap dateOverlapsForRoute = routeDateAndDayOverlap.overlapsFor(currentRouteIndex);
 
-                final ImmutableBitSet currentConnections = matrixForDegree.getBitSetForRow(currentRouteIndex);
+                final SimpleImmutableBitmap currentConnections = matrixForDegree.getBitSetForRow(currentRouteIndex);
 
                 currentConnections.getBitIndexes().
                         filter(dateOverlapsForRoute::get).
                         forEach(connectedRoute -> {
                             final SimpleImmutableBitmap dateOverlapsForConnectedRoute = routeDateAndDayOverlap.overlapsFor(connectedRoute);
-                            final ImmutableBitSet intermediates = matrixForDegree.getBitSetForRow(connectedRoute);
-                            routeConnectingLinks.addLinksBetween(currentRouteIndex, (short) connectedRoute, intermediates,
+                            final SimpleImmutableBitmap intermediates = matrixForDegree.getBitSetForRow(connectedRoute);
+                            routeConnectingLinks.addLinksBetween(currentRouteIndex, connectedRoute, intermediates,
                                     dateOverlapsForRoute, dateOverlapsForConnectedRoute);
                 });
             }
@@ -251,10 +251,6 @@ public class RouteCostMatrix  {
         return results;
     }
 
-//    public int getDepth(RouteIndexPair routePair) {
-//        return getDegree(routePair);
-//    }
-
     private boolean isOverlap(final ImmutableIndexedBitSet bitSet, final RouteIndexPair pair) {
         return bitSet.isSet(pair);
     }
@@ -303,20 +299,22 @@ public class RouteCostMatrix  {
 
         for (int route = 0; route < numRoutes; route++) {
             final SimpleBitmap resultForForRoute = SimpleBitmap.create(numRoutes);
-            final ImmutableBitSet currentConnectionsForRoute = currentMatrix.getBitSetForRow(route);
+            final SimpleImmutableBitmap currentConnectionsForRoute = currentMatrix.getBitSetForRow(route);
 
             currentConnectionsForRoute.getBitIndexes().forEach(connectedRoute -> {
                 // if current route is connected to another route, then for next degree include that other route's connections
-                final ImmutableBitSet otherRoutesConnections = currentMatrix.getBitSetForRow(connectedRoute);
-                otherRoutesConnections.applyOrTo(resultForForRoute);
+                final SimpleImmutableBitmap otherRoutesConnections = currentMatrix.getBitSetForRow(connectedRoute);
+                //otherRoutesConnections.applyOrTo(resultForForRoute);
+                resultForForRoute.or(otherRoutesConnections);
             });
 
             final SimpleImmutableBitmap dateOverlapMask = routeDateAndDayOverlap.overlapsFor(route);  // only those routes whose dates overlap
             resultForForRoute.and(dateOverlapMask);
 
-            final ImmutableBitSet allExistingConnectionsForRoute = getExistingBitSetsForRoute(route, currentDegree);
+            final SimpleImmutableBitmap allExistingConnectionsForRoute = getExistingBitSetsForRoute(route, currentDegree);
 
-            allExistingConnectionsForRoute.applyAndNotTo(resultForForRoute);  // don't include any current connections for this route
+            resultForForRoute.andNot(allExistingConnectionsForRoute);
+            //allExistingConnectionsForRoute.applyAndNotTo(resultForForRoute);  // don't include any current connections for this route
 
             newMatrix.insert(route, resultForForRoute);
         }
@@ -325,17 +323,16 @@ public class RouteCostMatrix  {
         logger.info("Added " + newMatrix.numberOfBitsSet() + " connections for  degree " + nextDegree + " in " + took + " ms");
     }
 
-    // TODO Use ImmutableIndexedBitSet?
-    public ImmutableBitSet getExistingBitSetsForRoute(final int routeIndex, final int startingDegree) {
-        final IndexedBitSet connectionsAtAllDepths = new IndexedBitSet(1, numRoutes);
+    public SimpleImmutableBitmap getExistingBitSetsForRoute(final int routeIndex, final int startingDegree) {
+        SimpleBitmap result = SimpleBitmap.create(numRoutes);
 
         for (int degree = startingDegree; degree > 0; degree--) {
             ImmutableIndexedBitSet allConnectionsAtDegree = costsForDegree.getDegree(degree);
-            ImmutableBitSet existingConnectionsAtDepth = allConnectionsAtDegree.getBitSetForRow(routeIndex);
-            connectionsAtAllDepths.or(existingConnectionsAtDepth);
+            SimpleImmutableBitmap existingConnectionsAtDepth = allConnectionsAtDegree.getBitSetForRow(routeIndex);
+            result.or(existingConnectionsAtDepth);
         }
 
-        return connectionsAtAllDepths.createImmutable();
+        return result;
     }
 
     public int getConnectionDepthFor(Route routeA, Route routeB) {
@@ -356,9 +353,9 @@ public class RouteCostMatrix  {
             logger.debug(String.format("Get interchanges for %s with initial degree %s", HasId.asIds(routeIndex.getPairFor(indexPair)), degree));
         }
 
-        final IndexedBitSet changesForDegree = costsForDegree.getDegree(degree).getCopyOfRowAndColumn(indexPair.first(), indexPair.second());
+        final ImmutableIndexedBitSet changesForDegree = costsForDegree.getDegree(degree).getCopyOfRowAndColumn(indexPair.first(), indexPair.second());
         // apply mask to filter out unavailable dates/modes quickly
-        final IndexedBitSet withDateApplied = changesForDegree.and(dateOverlaps);
+        final IndexedBitSet withDateApplied = IndexedBitSet.and(changesForDegree, dateOverlaps);
 
         if (withDateApplied.isSet(indexPair)) {
 
@@ -486,11 +483,11 @@ public class RouteCostMatrix  {
             seen = new boolean[numRoutes][numRoutes];
         }
 
-        public void addLinksBetween(final short routeIndexA, final short routeIndexB, final ImmutableBitSet links,
+        public void addLinksBetween(final short routeIndexA, final short routeIndexB, final SimpleImmutableBitmap links,
                                     final SimpleImmutableBitmap dateOverlapsForRoute, final SimpleImmutableBitmap dateOverlapsForConnectedRoute) {
             links.getBitIndexes().
                     filter(linkIndex -> dateOverlapsForRoute.get(linkIndex) && dateOverlapsForConnectedRoute.get(linkIndex)).
-                    mapToObj(linkIndex -> getBitSetForPair(routeIndexA, (short)linkIndex)).
+                    map(linkIndex -> getBitSetForPair(routeIndexA, linkIndex)).
                     forEach(bitSet -> bitSet.set(routeIndexB));
         }
 
@@ -649,9 +646,9 @@ public class RouteCostMatrix  {
             for (int depth = 0; depth < MAX_DEPTH; depth++) {
                 IndexedBitSet bitSet = bitSets[depth];
                 for (int routeIndex = 0; routeIndex < numRoutes; routeIndex++) {
-                    SimpleImmutableBitmap bitmapForRow = bitSet.getBitSetForRow(routeIndex).getContained();
+                    SimpleImmutableBitmap bitmapForRow = bitSet.getBitSetForRow(routeIndex); //.getContained();
                     if (bitmapForRow.cardinality()>0) {
-                        List<Integer> bitsSetForRow = bitmapForRow.stream().boxed().collect(Collectors.toList());
+                        List<Short> bitsSetForRow = bitmapForRow.getBitIndexes().collect(Collectors.toList());
                         CostsPerDegreeData item = new CostsPerDegreeData(depth, routeIndex, bitsSetForRow);
                         saver.write(item);
                     }
@@ -671,7 +668,7 @@ public class RouteCostMatrix  {
             stream.forEach(item -> {
                 int index = item.getIndex();
                 int routeIndex = item.getRouteIndex();
-                List<Integer> setBits = item.getSetBits();
+                List<Short> setBits = item.getSetBits();
                 IndexedBitSet bitset = bitSets[index];
                 setBits.forEach(bit -> bitset.set(routeIndex, bit));
             });

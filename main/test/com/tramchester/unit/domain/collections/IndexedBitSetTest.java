@@ -1,8 +1,8 @@
 package com.tramchester.unit.domain.collections;
 
-import com.tramchester.domain.collections.ImmutableBitSet;
 import com.tramchester.domain.collections.IndexedBitSet;
 import com.tramchester.domain.collections.SimpleBitmap;
+import com.tramchester.domain.collections.SimpleImmutableBitmap;
 import org.apache.commons.lang3.tuple.Pair;
 import org.junit.jupiter.api.Test;
 
@@ -22,14 +22,14 @@ public class IndexedBitSetTest {
 
         assertTrue(bits.isSet(2,3), bits.toString());
 
-        ImmutableBitSet row3 = bits.getBitSetForRow(2);
-        assertTrue(row3.isSet(3), bits + " " + row3);
+        SimpleImmutableBitmap row3 = bits.getBitSetForRow(2);
+        assertTrue(row3.get(3), bits + " " + row3);
 
         bits.set(1,1);
         assertTrue(bits.isSet(1,1), bits.toString());
 
-        ImmutableBitSet row2 = bits.getBitSetForRow(1);
-        assertTrue(row2.isSet(1), bits + " " + row3);
+        SimpleImmutableBitmap row2 = bits.getBitSetForRow(1);
+        assertTrue(row2.get(1), bits + " " + row3);
 
         bits.clear();
         assertFalse(bits.isSet(2,3));
@@ -45,11 +45,11 @@ public class IndexedBitSetTest {
         bits.set(1,0);
         bits.set(1,1);
 
-        ImmutableBitSet rowZero = bits.getBitSetForRow(0);
-        assertEquals(2, rowZero.getSize(), rowZero.toString());
-        assertTrue(rowZero.isSet(0));
-        assertTrue(rowZero.isSet(1));
-        assertEquals(2, rowZero.numberSet());
+        SimpleImmutableBitmap rowZero = bits.getBitSetForRow(0);
+        assertEquals(2, rowZero.size(), rowZero.toString());
+        assertTrue(rowZero.get(0));
+        assertTrue(rowZero.get(1));
+        assertEquals(2, rowZero.cardinality());
     }
 
 
@@ -87,7 +87,7 @@ public class IndexedBitSetTest {
 
         IndexedBitSet allSetMask = IndexedBitSet.getIdentity(2,2);
 
-        IndexedBitSet result = bits.and(allSetMask);
+        IndexedBitSet result = IndexedBitSet.and(bits, allSetMask);
         assertTrue(result.isSet(1,1));
         assertTrue(result.isSet(0,0));
         assertEquals(2, result.numberOfBitsSet());
@@ -96,14 +96,14 @@ public class IndexedBitSetTest {
 
         partialMask.set(1,1);
 
-        result = bits.and(partialMask);
+        result = IndexedBitSet.and(bits, partialMask);
         assertTrue(result.isSet(1,1), result.toString());
         assertFalse(result.isSet(0,0), result.toString());
         assertEquals(1, result.numberOfBitsSet());
 
         IndexedBitSet noneSet = new IndexedBitSet(2,2);
 
-        result = bits.and(noneSet);
+        result = IndexedBitSet.and(bits,noneSet);
         assertFalse(result.isSet(1,1), result.toString());
         assertEquals(0, result.numberOfBitsSet());
     }

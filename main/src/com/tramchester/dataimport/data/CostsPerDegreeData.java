@@ -8,13 +8,13 @@ import java.util.Objects;
 public class CostsPerDegreeData implements CachableData {
     private int index;
     private int routeIndex;
-    private List<Integer> setBits;
+    private List<Short> setBits;
 
     public CostsPerDegreeData() {
         // deserialisation
     }
 
-    public CostsPerDegreeData(int index, int routeIndex, List<Integer> setBits) {
+    public CostsPerDegreeData(int index, int routeIndex, List<Short> setBits) {
         this.index = index;
         this.routeIndex = routeIndex;
         this.setBits = setBits;
@@ -28,7 +28,7 @@ public class CostsPerDegreeData implements CachableData {
         return routeIndex;
     }
 
-    public List<Integer> getSetBits() {
+    public List<Short> getSetBits() {
         return setBits;
     }
 
