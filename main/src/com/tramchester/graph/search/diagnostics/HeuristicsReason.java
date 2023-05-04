@@ -48,4 +48,7 @@ public abstract class HeuristicsReason {
         return Objects.hash(howIGotHere, code);
     }
 
+    public Long getNodeId() {
+        return howIGotHere.getEndNodeId();
+    }
 }

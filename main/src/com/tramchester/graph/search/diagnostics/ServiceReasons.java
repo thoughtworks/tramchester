@@ -4,7 +4,8 @@ import com.tramchester.domain.JourneyRequest;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.domain.time.TramTime;
-import com.tramchester.graph.search.*;
+import com.tramchester.graph.search.ImmutableJourneyState;
+import com.tramchester.graph.search.RouteCalculatorSupport;
 import com.tramchester.graph.search.stateMachine.states.TraversalStateType;
 import org.apache.commons.lang3.tuple.Pair;
 import org.neo4j.graphdb.Node;
@@ -16,14 +17,15 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
 
 import static java.lang.String.format;
 
 public class ServiceReasons {
 
     private static final Logger logger;
-    public static final int NUMBER_MOST_VISITED_NODES_TO_LOG = 20;
-    public static final int THRESHHOLD_FOR_NUMBER_VISITS_DIAGS = 5000;
+    public static final int NUMBER_MOST_VISITED_NODES_TO_LOG = 10;
+//    public static final int THRESHHOLD_FOR_NUMBER_VISITS_DIAGS = 400;
 
     static {
         logger = LoggerFactory.getLogger(ServiceReasons.class);
@@ -77,41 +79,6 @@ public class ServiceReasons {
         reset();
     }
 
-    private void reportStats(Transaction txn, RouteCalculatorSupport.PathRequest pathRequest) {
-        if ((!success) && journeyRequest.getWarnIfNoResults()) {
-            logger.warn("No result found for at " + pathRequest.getActualQueryTime() + " changes " + pathRequest.getNumChanges() +
-                    " for " + journeyRequest );
-        }
-        logger.info("Service reasons for query time: " + queryTime);
-        logger.info("Total checked: " + totalChecked.get() + " for " + journeyRequest.toString());
-        logStats("reasoncodes", reasonCodeStats);
-        logStats("states", stateStats);
-        logVisits(txn);
-    }
-
-    private void logVisits(Transaction txn) {
-        nodeVisits.entrySet().stream().
-                map(entry -> Pair.of(entry.getKey(), entry.getValue().get())).
-                filter(entry -> entry.getValue()>THRESHHOLD_FOR_NUMBER_VISITS_DIAGS).
-                sorted(Comparator.comparing(Pair::getValue, Comparator.reverseOrder())).
-                limit(NUMBER_MOST_VISITED_NODES_TO_LOG).
-                map(entry -> Pair.of(txn.getNodeById(entry.getKey()), entry.getValue())).
-                map(pair -> Pair.of(nodeDetails(pair.getKey()), pair.getValue())).
-                forEach(entry -> logger.info("Visited " + entry.getKey() + " " + entry.getValue() + " times"));
-    }
-
-    private String nodeDetails(Node node) {
-        StringBuilder labels = new StringBuilder();
-        node.getLabels().forEach(label -> labels.append(" ").append(label));
-        return labels + " " + node.getAllProperties().toString();
-    }
-
-    private void logStats(String prefix, Map<?, AtomicInteger> stats) {
-        stats.entrySet().stream().
-                filter(entry -> entry.getValue().get() > 0).
-                sorted(Comparator.comparingInt(a -> a.getValue().get())).
-                forEach(entry -> logger.info(format("%s => %s: %s", prefix, entry.getKey(), entry.getValue().get())));
-    }
 
     public HeuristicsReason recordReason(final HeuristicsReason serviceReason) {
         if (diagnosticsEnabled) {
@@ -172,6 +139,87 @@ public class ServiceReasons {
             case NotSet -> ReasonCode.NotOnVehicle;
             case Unknown -> throw new RuntimeException("Unknown transport mode");
         };
+    }
+
+    private void reportStats(Transaction txn, RouteCalculatorSupport.PathRequest pathRequest) {
+        if ((!success) && journeyRequest.getWarnIfNoResults()) {
+            logger.warn("No result found for at " + pathRequest.getActualQueryTime() + " changes " + pathRequest.getNumChanges() +
+                    " for " + journeyRequest );
+        }
+        logger.info("Service reasons for query time: " + queryTime);
+        logger.info("Total checked: " + totalChecked.get() + " for " + journeyRequest.toString());
+        logStats("reasoncodes", reasonCodeStats);
+        logStats("states", stateStats);
+        if (diagnosticsEnabled) {
+            logVisits(txn);
+        }
+    }
+
+    private void logVisits(Transaction txn) {
+        Set<Long> haveInvalidReasonCode = reasons.stream().
+                filter(reason -> !reason.isValid()).
+                map(HeuristicsReason::getNodeId).
+                collect(Collectors.toSet());
+
+        // Pair<Node, Number of Visits>
+        Set<Pair<Node, Integer>> topVisits = nodeVisits.entrySet().stream().
+                filter(entry -> haveInvalidReasonCode.contains(entry.getKey())).
+                map(entry -> Pair.of(entry.getKey(), entry.getValue().get())).
+                //filter(entry -> entry.getValue() > THRESHHOLD_FOR_NUMBER_VISITS_DIAGS).
+                sorted(Map.Entry.comparingByValue(Comparator.reverseOrder())).
+                limit(NUMBER_MOST_VISITED_NODES_TO_LOG).
+                map(entry -> Pair.of(txn.getNodeById(entry.getKey()), entry.getValue())).
+                collect(Collectors.toSet());
+
+         topVisits.stream().map(pair -> Pair.of(nodeDetails(pair.getKey()), pair.getValue())).
+                forEach(entry -> logger.info("Visited " + entry.getKey() + " " + entry.getValue() + " times"));
+
+         topVisits.stream().map(Pair::getKey).forEach(this::reasonsAtNode);
+
+    }
+
+    private void reasonsAtNode(final Node node) {
+        final long nodeId = node.getId();
+        // beware of Set here, will collapse reasons
+        List<HeuristicsReason> reasonsForId = reasons.stream().
+                filter(reason -> reason.getNodeId() == nodeId).
+                collect(Collectors.toList());
+        logger.info("Reasons for node " + nodeDetails(node) + " : " + summaryByCount(reasonsForId));
+    }
+
+    private String summaryByCount(List<HeuristicsReason> reasons) {
+
+        Map<ReasonCode, AtomicInteger> counts = new HashMap<>();
+        Arrays.stream(ReasonCode.values()).forEach(code -> counts.put(code, new AtomicInteger(0)));
+
+        reasons.stream().
+                filter(reason -> !reason.isValid()).
+                forEach(reason -> counts.get(reason.getReasonCode()).getAndIncrement());
+
+        StringBuilder stringBuilder = new StringBuilder();
+        counts.forEach((key, value) -> {
+            if (value.get() > 0) {
+                stringBuilder.append(key).append(":").append(value.get()).append(" ");
+            }
+        });
+
+        counts.clear();
+        return stringBuilder.toString();
+    }
+
+
+
+    private String nodeDetails(Node node) {
+        StringBuilder labels = new StringBuilder();
+        node.getLabels().forEach(label -> labels.append(" ").append(label));
+        return labels + " " + node.getAllProperties().toString();
+    }
+
+    private void logStats(String prefix, Map<?, AtomicInteger> stats) {
+        stats.entrySet().stream().
+                filter(entry -> entry.getValue().get() > 0).
+                sorted(Comparator.comparingInt(a -> a.getValue().get())).
+                forEach(entry -> logger.info(format("%s => %s: %s", prefix, entry.getKey(), entry.getValue().get())));
     }
 
     private void createGraphFile(Transaction txn, ReasonsToGraphViz reasonsToGraphViz, RouteCalculatorSupport.PathRequest pathRequest) {

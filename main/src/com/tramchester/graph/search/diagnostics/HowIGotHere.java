@@ -20,6 +20,22 @@ public class HowIGotHere {
         this.traversalStateName = traversalStateName;
     }
 
+    public long getEndNodeId() {
+        return nodeId;
+    }
+
+    public long getRelationshipId() {
+        return relationshipId;
+    }
+
+    public boolean atStart() {
+        return relationshipId==AT_START;
+    }
+
+    public String getTraversalStateName() {
+        return traversalStateName;
+    }
+
     private static long getRelationshipFromPath(Path path) {
         if (path.lastRelationship()==null) {
             return AT_START;
@@ -60,19 +76,4 @@ public class HowIGotHere {
                 '}';
     }
 
-    public long getEndNodeId() {
-        return nodeId;
-    }
-
-    public long getRelationshipId() {
-        return relationshipId;
-    }
-
-    public boolean atStart() {
-        return relationshipId==AT_START;
-    }
-
-    public String getTraversalStateName() {
-        return traversalStateName;
-    }
 }

@@ -31,7 +31,7 @@ public class ReasonsToGraphViz {
     private final StationRepository stationRepository;
     private final NodeContentsRepository nodeContentsRepository;
 
-    private static final boolean includeAll = true;
+    private static final boolean includeAll = false;
 
     @Inject
     public ReasonsToGraphViz(NaptanRepository naptanRespository, StationRepository stationRepository,
@@ -39,6 +39,12 @@ public class ReasonsToGraphViz {
         this.naptanRespository = naptanRespository;
         this.stationRepository = stationRepository;
         this.nodeContentsRepository = nodeContentsRepository;
+    }
+
+    public void appendTo(StringBuilder builder, List<HeuristicsReason> reasons, Transaction txn) {
+        DiagramState diagramState = new DiagramState();
+        reasons.forEach(reason -> add(reason, txn, builder, diagramState));
+        diagramState.clear();
     }
 
     private void add(HeuristicsReason reason, Transaction transaction, StringBuilder builder, DiagramState diagramState) {
@@ -108,6 +114,7 @@ public class ReasonsToGraphViz {
             Station station = stationRepository.getStationById(stationIdFrom);
             ids.append(System.lineSeparator()).append(station.getName());
         }
+
         if (labels.contains(GraphLabel.ROUTE_STATION)) {
             IdFor<Station> stationIdFrom = GraphProps.getStationIdFrom(node);
             Station station = stationRepository.getStationById(stationIdFrom);
@@ -116,10 +123,12 @@ public class ReasonsToGraphViz {
             ids.append(System.lineSeparator());
             ids.append(value);
         }
+
         if (labels.contains(GraphLabel.INTERCHANGE)) {
             ids.append(System.lineSeparator());
             ids.append("INTERCHANGE");
         }
+
         if (labels.contains(GraphLabel.MINUTE)) {
             TramTime time = GraphProps.getTime(node);
             ids.append(time.toString());
@@ -131,11 +140,6 @@ public class ReasonsToGraphViz {
         return ids.toString();
     }
 
-    public void appendTo(StringBuilder builder, List<HeuristicsReason> reasons, Transaction txn) {
-        DiagramState diagramState = new DiagramState();
-        reasons.forEach(reason -> add(reason, txn, builder, diagramState));
-        diagramState.clear();
-    }
 
     private static class DiagramState {
         private final Set<Long> nodes;

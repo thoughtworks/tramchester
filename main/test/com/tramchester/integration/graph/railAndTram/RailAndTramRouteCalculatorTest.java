@@ -93,7 +93,7 @@ public class RailAndTramRouteCalculatorTest {
     void reproIssueRochdaleToEccles() {
         // this works fine when only tram data loaded, but fails when tram and train is loaded
         TramTime time = TramTime.of(9,0);
-        JourneyRequest journeyRequest = new JourneyRequest(when, time, false, 4, maxDurationFromConfig,
+        JourneyRequest journeyRequest = new JourneyRequest(when, time, false, 1, maxDurationFromConfig,
                 1, TramsOnly);
 
         Set<Journey> journeys = testFacade.calculateRouteAsSet(Rochdale, Eccles, journeyRequest);
@@ -127,7 +127,7 @@ public class RailAndTramRouteCalculatorTest {
         JourneyRequest journeyRequest = new JourneyRequest(when, time, false, 1, maxDurationFromConfig,
                 1, TramsOnly);
 
-        //journeyRequest.setDiag(true);
+        journeyRequest.setDiag(true);
 
         Set<Journey> journeys = testFacade.calculateRouteAsSet(Victoria, Eccles, journeyRequest);
         assertFalse(journeys.isEmpty());
