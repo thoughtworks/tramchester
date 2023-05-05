@@ -11,6 +11,7 @@ import com.tramchester.dataimport.rail.reference.TrainOperatingCompanies;
 import com.tramchester.domain.*;
 import com.tramchester.domain.dates.DateRange;
 import com.tramchester.domain.dates.TramDate;
+import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.PlatformId;
 import com.tramchester.domain.input.PlatformStopCall;
@@ -24,7 +25,9 @@ import com.tramchester.domain.reference.GTFSTransportationType;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.geo.BoundingBox;
+import com.tramchester.livedata.tfgm.TramStationDepartureInfo;
 import com.tramchester.metrics.CacheMetrics;
+import com.tramchester.testSupport.reference.FakeStation;
 import com.tramchester.testSupport.reference.TramStations;
 import org.apache.commons.io.FileUtils;
 import org.slf4j.LoggerFactory;
@@ -38,6 +41,7 @@ import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static java.lang.String.format;
@@ -315,5 +319,10 @@ public class TestEnv {
     public static Path getTempDir() {
         String tempDir=System.getProperty("java.io.tmpdir");
         return Path.of(tempDir);
+    }
+
+    @SafeVarargs
+    public static <T extends CoreDomain> List<IdFor<T>> asList(HasId<T>... items) {
+        return Arrays.stream(items).map(HasId::getId).collect(Collectors.toList());
     }
 }

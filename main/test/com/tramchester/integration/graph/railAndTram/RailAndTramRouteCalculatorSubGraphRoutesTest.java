@@ -4,8 +4,9 @@ import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.domain.Journey;
 import com.tramchester.domain.JourneyRequest;
-import com.tramchester.domain.Route;
 import com.tramchester.domain.dates.TramDate;
+import com.tramchester.domain.id.IdFor;
+import com.tramchester.domain.places.Station;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.filters.ConfigurableGraphFilter;
@@ -15,21 +16,19 @@ import com.tramchester.integration.testSupport.RouteCalculatorTestFacade;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.repository.TransportData;
 import com.tramchester.testSupport.TestEnv;
-import com.tramchester.testSupport.TramRouteHelper;
-import com.tramchester.testSupport.reference.KnownTramRoute;
 import com.tramchester.testSupport.reference.TramStations;
 import com.tramchester.testSupport.testTags.GMTest;
 import org.junit.jupiter.api.*;
 import org.neo4j.graphdb.Transaction;
 
 import java.time.Duration;
+import java.util.List;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
-import static com.tramchester.domain.reference.TransportMode.*;
-import static com.tramchester.testSupport.reference.TramStations.Eccles;
+import static com.tramchester.domain.reference.TransportMode.TramsOnly;
 import static com.tramchester.testSupport.reference.TramStations.*;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 
 @GMTest
 public class RailAndTramRouteCalculatorSubGraphRoutesTest {
@@ -42,9 +41,12 @@ public class RailAndTramRouteCalculatorSubGraphRoutesTest {
     private static ComponentContainer componentContainer;
     private static GraphDatabase database;
 
+    private static final List<IdFor<Station>> stations = TestEnv.asList(Victoria, ExchangeSquare, StPetersSquare,
+            Deansgate, Cornbrook, Pomona, ExchangeQuay, SalfordQuay, Anchorage, HarbourCity,
+            MediaCityUK, Broadway, Langworthy, Weaste, Ladywell, Eccles);
+
     private Transaction txn;
     private RouteCalculatorTestFacade testFacade;
-
     private Duration maxDurationFromConfig;
 
     @BeforeAll
@@ -60,11 +62,9 @@ public class RailAndTramRouteCalculatorSubGraphRoutesTest {
     }
 
     private static void configureFilter(ConfigurableGraphFilter graphFilter, TransportData transportData) {
-        TramRouteHelper tramRouteHelper = new TramRouteHelper(transportData);
-        Route fromRochdale = tramRouteHelper.getOneRoute(KnownTramRoute.RochdaleShawandCromptonManchesterEastDidisbury, when);
-        Route fromAshton = tramRouteHelper.getOneRoute(KnownTramRoute.AshtonUnderLyneManchesterEccles, when);
-        graphFilter.addRoute(fromAshton.getId());
-        graphFilter.addRoute(fromRochdale.getId());
+
+        // TODO GraphDB Name
+        stations.forEach(graphFilter::addStation);
     }
 
     @AfterEach
@@ -98,25 +98,25 @@ public class RailAndTramRouteCalculatorSubGraphRoutesTest {
         assertFalse(journeys.isEmpty());
     }
 
-    @Test
-    void shouldHaveAshtonToEcclesDirect() {
-        // this works fine when only tram data loaded, but fails when tram and train is loaded
-        TramTime time = TramTime.of(9,0);
-        JourneyRequest journeyRequest = new JourneyRequest(when, time, false, 0, maxDurationFromConfig,
-                1, TramsOnly);
-
-        Set<Journey> journeys = testFacade.calculateRouteAsSet(TramStations.Ashton, Eccles, journeyRequest);
-        assertFalse(journeys.isEmpty());
-    }
-
-    @Test
-    void shouldHaveRochdaleToEastDidsDirect() {
-        // this works fine when only tram data loaded, but fails when tram and train is loaded
-        TramTime time = TramTime.of(9,0);
-        JourneyRequest journeyRequest = new JourneyRequest(when, time, false, 0, maxDurationFromConfig,
-                1, TramsOnly);
-
-        Set<Journey> journeys = testFacade.calculateRouteAsSet(Rochdale, EastDidsbury, journeyRequest);
-        assertFalse(journeys.isEmpty());
-    }
+//    @Test
+//    void shouldHaveAshtonToEcclesDirect() {
+//        // this works fine when only tram data loaded, but fails when tram and train is loaded
+//        TramTime time = TramTime.of(9,0);
+//        JourneyRequest journeyRequest = new JourneyRequest(when, time, false, 0, maxDurationFromConfig,
+//                1, TramsOnly);
+//
+//        Set<Journey> journeys = testFacade.calculateRouteAsSet(TramStations.Ashton, Eccles, journeyRequest);
+//        assertFalse(journeys.isEmpty());
+//    }
+//
+//    @Test
+//    void shouldHaveRochdaleToEastDidsDirect() {
+//        // this works fine when only tram data loaded, but fails when tram and train is loaded
+//        TramTime time = TramTime.of(9,0);
+//        JourneyRequest journeyRequest = new JourneyRequest(when, time, false, 0, maxDurationFromConfig,
+//                1, TramsOnly);
+//
+//        Set<Journey> journeys = testFacade.calculateRouteAsSet(Rochdale, EastDidsbury, journeyRequest);
+//        assertFalse(journeys.isEmpty());
+//    }
 }

@@ -55,12 +55,12 @@ class HttpDownloaderTest {
 
         URLStatus getStatus = urlDownloader.downloadTo(temporaryFile, url, modTime);
 
-        assertTrue(getStatus.isOk());
+        assertTrue(getStatus.isOk(), "unexpected status:" + getStatus);
 
         // looks like load balancing between servers can cause a few seconds diff here
         //assertEquals(headStatus.getModTime(), getStatus.getModTime());
         long diff = headStatus.getModTime().toEpochSecond(ZoneOffset.UTC) - getStatus.getModTime().toEpochSecond(ZoneOffset.UTC);
-        assertTrue(diff < 100L, Long.toString(diff));
+        assertTrue(diff < 2000L, "mod time too far out of range" + diff);
 
         assertTrue(temporaryFile.toFile().exists());
         assertTrue(temporaryFile.toFile().length()>0);

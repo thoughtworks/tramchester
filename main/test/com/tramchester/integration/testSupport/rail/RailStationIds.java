@@ -1,12 +1,13 @@
 package com.tramchester.integration.testSupport.rail;
 
+import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdForDTO;
 import com.tramchester.domain.places.Station;
 import com.tramchester.repository.StationRepository;
 
 
-public enum RailStationIds {
+public enum RailStationIds implements HasId<Station> {
     Stockport(createId("STKP"), true),
     ManchesterPiccadilly(createId("MNCRPIC"), true),
     ManchesterVictoria(createId("MNCRVIC"), true),

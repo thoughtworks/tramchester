@@ -3,10 +3,7 @@ package com.tramchester.testSupport.reference;
 import com.tramchester.domain.DataSourceID;
 import com.tramchester.domain.MutablePlatform;
 import com.tramchester.domain.Platform;
-import com.tramchester.domain.id.IdFor;
-import com.tramchester.domain.id.IdForDTO;
-import com.tramchester.domain.id.IdSet;
-import com.tramchester.domain.id.PlatformId;
+import com.tramchester.domain.id.*;
 import com.tramchester.domain.places.MutableStation;
 import com.tramchester.domain.places.NaptanArea;
 import com.tramchester.domain.places.Station;
@@ -19,7 +16,7 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
-public enum TramStations implements FakeStation {
+public enum TramStations implements FakeStation, HasId<Station> {
 
     Altrincham("9400ZZMAALT", "Altrincham", pos(53.38726, -2.34755)),
     Ashton("9400ZZMAAUL", "Ashton-Under-Lyne", pos(53.49035, -2.09798)),
@@ -63,7 +60,12 @@ public enum TramStations implements FakeStation {
     Eccles("9400ZZMAECC", "Eccles", pos(53.48307, -2.33454)),
     NewIslington("9400ZZMANIS", "New Islington", pos(53.48108550908, -2.21985483562)),
     Timperley("9400ZZMATIM", "Timperley", pos(53.40429833013,-2.33826968737)),
-    Whitefield("9400ZZMAWFD", "Whitefield", pos(53.55113165424,-2.2951414371));
+    Whitefield("9400ZZMAWFD", "Whitefield", pos(53.55113165424,-2.2951414371)),
+    Langworthy("9400ZZMALWY", "Langworthy", pos(53.48061,-2.29618)),
+    Weaste("9400ZZMAWST", "Weaste", pos(53.48236,-2.30736)),
+    Ladywell("9400ZZMALDY", "Ladywell", pos(53.48404,-2.32683));
+
+    // Langworthy, Weaste, Ladywell
 
     public static final Set<TramStations> EndOfTheLine = new HashSet<>(Arrays.asList(Altrincham,
             ManAirport,

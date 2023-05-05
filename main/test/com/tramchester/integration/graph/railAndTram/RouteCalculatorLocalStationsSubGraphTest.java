@@ -47,13 +47,13 @@ class RouteCalculatorLocalStationsSubGraphTest {
 
     private TramDate when;
 
-    private static final List<IdFor<Station>> stationIds = Arrays.asList(
-            TramStations.Altrincham.getId(),
-            TramStations.NavigationRoad.getId(),
-            TramStations.Timperley.getId(),
-            Altrincham.getId(),
-            NavigationRaod.getId(),
-            Stockport.getId());
+    private static final List<IdFor<Station>> stationIds = TestEnv.asList(
+            TramStations.Altrincham,
+            TramStations.NavigationRoad,
+            TramStations.Timperley,
+            RailStationIds.Altrincham,
+            NavigationRaod,
+            Stockport);
 
     private Transaction txn;
     private StationRepository stationRepository;
