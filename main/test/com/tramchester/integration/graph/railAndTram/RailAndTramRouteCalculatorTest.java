@@ -134,6 +134,20 @@ public class RailAndTramRouteCalculatorTest {
     }
 
     @Test
+    void shouldHaveVictoriaToEcclesTrainAndTramAllowed() {
+        // check if allowing all transport modes makes a difference.....
+        // this works fine when only tram data loaded, but fails when tram and train is loaded
+        TramTime time = TramTime.of(9,0);
+        JourneyRequest journeyRequest = new JourneyRequest(when, time, false, 1, maxDurationFromConfig,
+                1, EnumSet.of(Tram, Train));
+
+        journeyRequest.setDiag(true);
+
+        Set<Journey> journeys = testFacade.calculateRouteAsSet(Victoria, Eccles, journeyRequest);
+        assertFalse(journeys.isEmpty());
+    }
+
+    @Test
     void shouldHaveDeangateToEccles() {
         // check if failing when TramsOnly and nearby rail station
         // this works fine when only tram data loaded, but fails when tram and train is loaded

@@ -51,7 +51,7 @@ public enum KnownTramRoute {
     public static Set<KnownTramRoute> getFor(TramDate date) {
         EnumSet<KnownTramRoute> routes = EnumSet.noneOf(KnownTramRoute.class);
 
-        TramDate mayBankHoliday2023 = TramDate.of(2023,5,1);
+        TramDate newHatDayBankHoliday = TramDate.of(2023,5,8);
 
         // do it this way so can tune based on closures etc.
         routes.add(ManchesterAirportWythenshaweVictoria);
@@ -71,7 +71,7 @@ public enum KnownTramRoute {
 //        routes.add(AltrinchamManchesterBury);
 
         // nothing on tfgm website about this, but routes not present for sundays.....?
-        if (! (date.getDayOfWeek().equals(DayOfWeek.SUNDAY) || date.equals(mayBankHoliday2023))) {
+        if (! (date.getDayOfWeek().equals(DayOfWeek.SUNDAY) || date.equals(newHatDayBankHoliday))) {
             routes.add(BuryManchesterAltrincham);
             routes.add(AltrinchamManchesterBury);
         }

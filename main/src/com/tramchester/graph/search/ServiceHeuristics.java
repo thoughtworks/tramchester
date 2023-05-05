@@ -158,9 +158,10 @@ public class ServiceHeuristics {
 
     }
 
-    public HeuristicsReason checkModes(final Set<GraphLabel> labels, final Set<GraphLabel> requestedLabels, HowIGotHere howIGotHere, ServiceReasons reasons) {
+    public HeuristicsReason checkModes(final Set<GraphLabel> modelLabels, final Set<GraphLabel> requestedModeLabels,
+                                       HowIGotHere howIGotHere, ServiceReasons reasons) {
 
-        if (Sets.intersection(labels, requestedLabels).isEmpty()) {
+        if (Sets.intersection(modelLabels, requestedModeLabels).isEmpty()) {
             //IdFor<RouteStation> routeStationId = nodeOperations.getRouteStationId(node);
             return reasons.recordReason(ServiceReason.TransportModeWrong(howIGotHere));
         }
