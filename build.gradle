@@ -602,6 +602,7 @@ task pullData(type:JavaExec, dependsOn:classes) {
 task buildDatabaseUAT(type:JavaExec, dependsOn: [classes]) {
     mainClass = 'com.tramchester.deployment.cli.BuildGraphCLI'
     classpath = sourceSets.main.runtimeClasspath
+    maxHeapSize = "2g"
     args 'config/gm.yml', 'build/distributions/database'
 }
 
