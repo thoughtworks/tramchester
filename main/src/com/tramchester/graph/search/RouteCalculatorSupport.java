@@ -203,30 +203,32 @@ public class RouteCalculatorSupport {
     }
 
     protected Duration getMaxDurationFor(Transaction txn, Node startNode, LocationSet destinations, JourneyRequest journeyRequest) {
-        final Duration maxDuration = journeyRequest.getMaxJourneyDuration();
-
-        Set<TransportMode> modes = config.getTransportModes();
-
-        if (modes.contains(Tram) && modes.size()==1) {
-            return maxDuration;
-        }
-
-        Duration maxLeastCostForRoute = destinations.stream().
-                map(dest -> getMaxCostBetween(txn, startNode, journeyRequest, dest, modes)).
-                filter(duration -> !duration.isNegative()).
-                max(Duration::compareTo).orElse(maxDuration);
-
-        //int longest = maxLeastCostForRoute * 2; // 100% margin
-        Duration longest = maxLeastCostForRoute.multipliedBy(2);
-
-        //if (longest.compareTo(maxDuration)>0) {
-        if (Durations.greaterThan(longest, maxDuration)) {
-            logger.warn(format("Computed longest %s is more than journeyRequest %s", longest, maxDuration));
-        } else {
-            logger.info(format("Computed longest to be %s", longest));
-        }
-
-        return longest;
+        return journeyRequest.getMaxJourneyDuration();
+//        final Duration maxDuration = journeyRequest.getMaxJourneyDuration();
+//
+//        Set<TransportMode> modes = config.getTransportModes();
+//        //EnumSet<TransportMode> modes = journeyRequest.getRequestedModes();
+//
+//        if (modes.contains(Tram) && modes.size()==1) {
+//            return maxDuration;
+//        }
+//
+//        Duration maxLeastCostForRoute = destinations.stream().
+//                map(dest -> getMaxCostBetween(txn, startNode, journeyRequest, dest, modes)).
+//                filter(duration -> !duration.isNegative()).
+//                max(Duration::compareTo).orElse(maxDuration);
+//
+//        //int longest = maxLeastCostForRoute * 2; // 100% margin
+//        Duration longest = maxLeastCostForRoute.multipliedBy(2);
+//
+//        //if (longest.compareTo(maxDuration)>0) {
+//        if (Durations.greaterThan(longest, maxDuration)) {
+//            logger.warn(format("Computed longest %s is more than journeyRequest %s", longest, maxDuration));
+//        } else {
+//            logger.info(format("Computed longest to be %s", longest));
+//        }
+//
+//        return longest;
     }
 
     private Duration getMaxCostBetween(Transaction txn, Node startNode, JourneyRequest journeyRequest, Location<?> dest, Set<TransportMode> modes) {

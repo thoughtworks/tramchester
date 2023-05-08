@@ -26,6 +26,7 @@ import javax.annotation.PreDestroy;
 import javax.inject.Inject;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.time.Duration;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
@@ -87,6 +88,10 @@ public class GraphDatabase implements DatabaseEventListener {
 
     public Transaction beginTx(int timeout, TimeUnit timeUnit) {
         return databaseService.beginTx(timeout, timeUnit);
+    }
+
+    public Transaction beginTx(Duration timeout) {
+        return databaseService.beginTx(timeout.toSeconds(), TimeUnit.SECONDS);
     }
 
     public void createIndexs() {

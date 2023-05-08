@@ -4,13 +4,13 @@ import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.dataimport.rail.reference.TrainOperatingCompanies;
-import com.tramchester.domain.Agency;
 import com.tramchester.domain.Journey;
 import com.tramchester.domain.JourneyRequest;
 import com.tramchester.domain.MutableAgency;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.places.Station;
+import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.filters.ConfigurableGraphFilter;
@@ -29,7 +29,6 @@ import java.io.IOException;
 import java.time.Duration;
 import java.util.List;
 import java.util.Set;
-import java.util.concurrent.TimeUnit;
 
 import static com.tramchester.domain.reference.TransportMode.TramsOnly;
 import static com.tramchester.testSupport.reference.TramStations.*;
@@ -37,7 +36,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 
 @GMTest
 public class RailAndTramRouteCalculatorSubGraphRoutesTest {
-    private static final int TXN_TIMEOUT = 5*60;
+    private static final Duration TXN_TIMEOUT = Duration.ofMinutes(5);
     private static StationRepository stationRepository;
     private static TramchesterConfig config;
 
@@ -72,8 +71,11 @@ public class RailAndTramRouteCalculatorSubGraphRoutesTest {
 
     private static void configureFilter(ConfigurableGraphFilter graphFilter, TransportData transportData) {
         stations.forEach(graphFilter::addStation);
+        // need both agencies for realistic test
         graphFilter.addAgency(TrainOperatingCompanies.NT.getAgencyId());
         graphFilter.addAgency(MutableAgency.METL);
+        // GM train stations
+        transportData.getStations(TransportMode.RailOnly).forEach(station -> graphFilter.addStation(station.getId()));
     }
 
     @AfterEach
@@ -89,7 +91,7 @@ public class RailAndTramRouteCalculatorSubGraphRoutesTest {
 
     @BeforeEach
     void beforeEachTestRuns() {
-        txn = database.beginTx(TXN_TIMEOUT, TimeUnit.SECONDS);
+        txn = database.beginTx(TXN_TIMEOUT);
         testFacade = new RouteCalculatorTestFacade(componentContainer.get(RouteCalculator.class), stationRepository, txn);
 
         maxDurationFromConfig = Duration.ofMinutes(config.getMaxJourneyDuration());

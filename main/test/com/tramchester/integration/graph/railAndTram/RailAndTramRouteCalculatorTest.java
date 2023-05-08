@@ -185,7 +185,7 @@ public class RailAndTramRouteCalculatorTest {
     void shouldReproIssueWithInvalidTimes() {
         TramTime time = TramTime.of(10,49);
         JourneyRequest request = new JourneyRequest(when, time, false, 3,
-                Duration.ofMinutes(30), 1, getRequestedModes());
+                Duration.ofMinutes(30), 1, tramAndTrain());
 
         // ashton west
         Station start = rail(Altrincham);
@@ -280,7 +280,7 @@ public class RailAndTramRouteCalculatorTest {
         TramTime time = TramTime.of(14,25);
 
         JourneyRequest request = new JourneyRequest(when, time, false, 1,
-                Duration.ofMinutes(240), 3, getRequestedModes());
+                Duration.ofMinutes(240), 3, tramAndTrain());
 
         Station start = tram(TramStations.Altrincham); // TRAM
         Station dest = rail(Stockport);
@@ -328,12 +328,12 @@ public class RailAndTramRouteCalculatorTest {
     void shouldHaveStockportToManPiccViaRail() {
 
         JourneyRequest request = new JourneyRequest(when, travelTime, false, 1,
-                Duration.ofMinutes(30), 1, getRequestedModes());
+                Duration.ofMinutes(30), 1, tramAndTrain());
 
         atLeastOneDirect(request, rail(Stockport), rail(ManchesterPiccadilly), Train);
     }
 
-    private EnumSet<TransportMode> getRequestedModes() {
+    private EnumSet<TransportMode> tramAndTrain() {
         return EnumSet.of(Tram, Train, RailReplacementBus);
     }
 
@@ -341,7 +341,7 @@ public class RailAndTramRouteCalculatorTest {
     void shouldHaveManPiccToStockportViaRail() {
 
         JourneyRequest request = new JourneyRequest(when, travelTime, false, 0,
-                Duration.ofMinutes(30), 1, getRequestedModes());
+                Duration.ofMinutes(30), 1, tramAndTrain());
 
         atLeastOneDirect(request, rail(ManchesterPiccadilly), rail(Stockport), Train);
     }
@@ -360,7 +360,7 @@ public class RailAndTramRouteCalculatorTest {
     @Test
     void shouldHaveAltyToStPetersSquareViaTram() {
         JourneyRequest request = new JourneyRequest(when, travelTime, false, 0,
-                Duration.ofMinutes(30), 1, getRequestedModes());
+                Duration.ofMinutes(30), 1, tramAndTrain());
 
         atLeastOneDirect(request, tram(TramStations.Altrincham), tram(TramStations.StPetersSquare), Tram);
     }
@@ -386,7 +386,7 @@ public class RailAndTramRouteCalculatorTest {
     @Test
     void shouldHaveWalKFromDidsburyTramToDidsburyTrain() {
         JourneyRequest request = new JourneyRequest(when, travelTime, false, 0,
-                Duration.ofMinutes(30), 1, getRequestedModes());
+                Duration.ofMinutes(30), 1, tramAndTrain());
 
         Station start = tram(TramStations.EastDidsbury);
         Station dest = RailStationIds.EastDidsbury.from(stationRepository);
@@ -405,7 +405,7 @@ public class RailAndTramRouteCalculatorTest {
     @Test
     void shouldBuryToStockportViaTramAndTrain() {
         JourneyRequest request = new JourneyRequest(when, travelTime, false, 2,
-                Duration.ofMinutes(110), 1, getRequestedModes());
+                Duration.ofMinutes(110), 1, tramAndTrain());
 
         Set<Journey> journeys = testFacade.calculateRouteAsSet(tram(TramStations.Bury), rail(Stockport), request);
         assertFalse(journeys.isEmpty(),"no journeys");
@@ -418,7 +418,7 @@ public class RailAndTramRouteCalculatorTest {
         //        desiredJourney(appPage, altrincham, TramStations.ManAirport.getName(), when, planTime, false);
 
         JourneyRequest request = new JourneyRequest(when, TramTime.of(10,0), false, 2,
-                Duration.ofMinutes(110), 1, getRequestedModes());
+                Duration.ofMinutes(110), 1, tramAndTrain());
 
         Set<Journey> results = testFacade.calculateRouteAsSet(TramStations.Altrincham, TramStations.ManAirport, request);
         assertFalse(results.isEmpty());
