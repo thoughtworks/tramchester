@@ -236,9 +236,9 @@ public class JourneyPlannerResourceTest {
     void testAltyToManAirportHasRealisticTranferAtCornbrook() {
         TramDate nextSunday = TestEnv.nextSunday();
 
-        if (nextSunday.isBefore(TestEnv.AirportLineClosed)) {
-            nextSunday = TestEnv.AirportLineClosed.plusWeeks(1);
-        }
+//        if (nextSunday.isBefore(TestEnv.AirportLineClosed)) {
+//            nextSunday = TestEnv.AirportLineClosed.plusWeeks(1);
+//        }
 
         JourneyQueryDTO query = journeyPlanner.getQueryDTO(nextSunday, TramTime.of(11, 0),
                 Altrincham, ManAirport, false, 3);

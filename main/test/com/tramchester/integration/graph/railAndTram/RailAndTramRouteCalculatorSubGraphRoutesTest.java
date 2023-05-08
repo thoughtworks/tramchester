@@ -2,8 +2,12 @@ package com.tramchester.integration.graph.railAndTram;
 
 import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
+import com.tramchester.config.TramchesterConfig;
+import com.tramchester.dataimport.rail.reference.TrainOperatingCompanies;
+import com.tramchester.domain.Agency;
 import com.tramchester.domain.Journey;
 import com.tramchester.domain.JourneyRequest;
+import com.tramchester.domain.MutableAgency;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.places.Station;
@@ -13,14 +17,15 @@ import com.tramchester.graph.filters.ConfigurableGraphFilter;
 import com.tramchester.graph.search.RouteCalculator;
 import com.tramchester.integration.testSupport.RailAndTramGreaterManchesterConfig;
 import com.tramchester.integration.testSupport.RouteCalculatorTestFacade;
+import com.tramchester.integration.testSupport.rail.RailStationIds;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.repository.TransportData;
 import com.tramchester.testSupport.TestEnv;
-import com.tramchester.testSupport.reference.TramStations;
 import com.tramchester.testSupport.testTags.GMTest;
 import org.junit.jupiter.api.*;
 import org.neo4j.graphdb.Transaction;
 
+import java.io.IOException;
 import java.time.Duration;
 import java.util.List;
 import java.util.Set;
@@ -34,7 +39,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 public class RailAndTramRouteCalculatorSubGraphRoutesTest {
     private static final int TXN_TIMEOUT = 5*60;
     private static StationRepository stationRepository;
-    private static RailAndTramGreaterManchesterConfig config;
+    private static TramchesterConfig config;
 
     private static final TramDate when = TestEnv.testDay();
 
@@ -43,15 +48,19 @@ public class RailAndTramRouteCalculatorSubGraphRoutesTest {
 
     private static final List<IdFor<Station>> stations = TestEnv.asList(Victoria, ExchangeSquare, StPetersSquare,
             Deansgate, Cornbrook, Pomona, ExchangeQuay, SalfordQuay, Anchorage, HarbourCity,
-            MediaCityUK, Broadway, Langworthy, Weaste, Ladywell, Eccles);
+            MediaCityUK, Broadway, Langworthy, Weaste, Ladywell, Eccles,
+            RailStationIds.ManchesterVictoria,
+            RailStationIds.ManchesterOxfordRoad);
 
     private Transaction txn;
     private RouteCalculatorTestFacade testFacade;
     private Duration maxDurationFromConfig;
 
     @BeforeAll
-    static void onceBeforeAnyTestsRun() {
-        config = new RailAndTramGreaterManchesterConfig();
+    static void onceBeforeAnyTestsRun() throws IOException {
+        config = new Config();
+        TestEnv.deleteDBIfPresent(config);
+
         componentContainer = new ComponentsBuilder().
                 configureGraphFilter(RailAndTramRouteCalculatorSubGraphRoutesTest::configureFilter).
                 create(config, TestEnv.NoopRegisterMetrics());
@@ -62,9 +71,9 @@ public class RailAndTramRouteCalculatorSubGraphRoutesTest {
     }
 
     private static void configureFilter(ConfigurableGraphFilter graphFilter, TransportData transportData) {
-
-        // TODO GraphDB Name
         stations.forEach(graphFilter::addStation);
+        graphFilter.addAgency(TrainOperatingCompanies.NT.getAgencyId());
+        graphFilter.addAgency(MutableAgency.METL);
     }
 
     @AfterEach
@@ -73,8 +82,9 @@ public class RailAndTramRouteCalculatorSubGraphRoutesTest {
     }
 
     @AfterAll
-    static void afterAllTestsRun() {
+    static void afterAllTestsRun() throws IOException {
         componentContainer.close();
+        TestEnv.deleteDBIfPresent(config);
     }
 
     @BeforeEach
@@ -84,6 +94,12 @@ public class RailAndTramRouteCalculatorSubGraphRoutesTest {
 
         maxDurationFromConfig = Duration.ofMinutes(config.getMaxJourneyDuration());
     }
+
+    // Notes:
+    // Met and NT agency - fail
+    // Met and NT agency, specific tram stations - pass
+    // Met Only - pass
+    // No filtering - fail
 
     @Test
     void shouldHaveVictoriaToEccles() {
@@ -98,25 +114,10 @@ public class RailAndTramRouteCalculatorSubGraphRoutesTest {
         assertFalse(journeys.isEmpty());
     }
 
-//    @Test
-//    void shouldHaveAshtonToEcclesDirect() {
-//        // this works fine when only tram data loaded, but fails when tram and train is loaded
-//        TramTime time = TramTime.of(9,0);
-//        JourneyRequest journeyRequest = new JourneyRequest(when, time, false, 0, maxDurationFromConfig,
-//                1, TramsOnly);
-//
-//        Set<Journey> journeys = testFacade.calculateRouteAsSet(TramStations.Ashton, Eccles, journeyRequest);
-//        assertFalse(journeys.isEmpty());
-//    }
-//
-//    @Test
-//    void shouldHaveRochdaleToEastDidsDirect() {
-//        // this works fine when only tram data loaded, but fails when tram and train is loaded
-//        TramTime time = TramTime.of(9,0);
-//        JourneyRequest journeyRequest = new JourneyRequest(when, time, false, 0, maxDurationFromConfig,
-//                1, TramsOnly);
-//
-//        Set<Journey> journeys = testFacade.calculateRouteAsSet(Rochdale, EastDidsbury, journeyRequest);
-//        assertFalse(journeys.isEmpty());
-//    }
+    private static class Config extends RailAndTramGreaterManchesterConfig {
+        public Config() {
+            super("RailAndTramRouteCalculatorSubGraphRoutesTest.bd");
+        }
+    }
+
 }

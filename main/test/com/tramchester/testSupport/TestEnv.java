@@ -25,9 +25,7 @@ import com.tramchester.domain.reference.GTFSTransportationType;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.geo.BoundingBox;
-import com.tramchester.livedata.tfgm.TramStationDepartureInfo;
 import com.tramchester.metrics.CacheMetrics;
-import com.tramchester.testSupport.reference.FakeStation;
 import com.tramchester.testSupport.reference.TramStations;
 import org.apache.commons.io.FileUtils;
 import org.slf4j.LoggerFactory;
@@ -83,7 +81,7 @@ public class TestEnv {
             new HashSet<>(Arrays.asList(GTFSTransportationType.tram, GTFSTransportationType.bus));
 
     // https://tfgm.com/23-april-airport-works
-    public static final TramDate AirportLineClosed =  TramDate.of(2023, 4,23);;
+    //public static final TramDate AirportLineClosed =  TramDate.of(2023, 4,23);;
 
     public static AppConfiguration GET() {
         return new TestConfig() {
