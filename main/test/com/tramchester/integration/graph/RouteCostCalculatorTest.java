@@ -101,11 +101,4 @@ class RouteCostCalculatorTest {
         assertMinutesEquals(60, routeCostCalculator.getAverageCostBetween(txn, airport, mediaCity, when, modes));
     }
 
-    @Test
-    void shouldComputeSimpleMaxCostBetweenStationsMediaCityAirport() throws InvalidDurationException {
-        assertMinutesEquals(58, routeCostCalculator.getMaxCostBetween(txn, mediaCity, airport, when, modes));
-        assertMinutesEquals(60, routeCostCalculator.getMaxCostBetween(txn, airport, mediaCity, when, modes));
-    }
-
-
 }

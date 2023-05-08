@@ -26,7 +26,6 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import static com.tramchester.graph.GraphPropertyKey.COST;
-import static com.tramchester.graph.GraphPropertyKey.MAX_COST;
 import static com.tramchester.graph.TransportRelationshipTypes.*;
 import static java.lang.String.format;
 
@@ -66,15 +65,6 @@ public class RouteCostCalculator {
 
     public Duration getAverageCostBetween(Transaction txn, Location<?> startStation, Location<?> endStation, TramDate date, Set<TransportMode> modes) throws InvalidDurationException {
         return getCostBetween(txn, startStation, endStation, COST, date, modes);
-    }
-
-    public Duration getMaxCostBetween(Transaction txn, Location<?> start, Location<?> end, TramDate date, Set<TransportMode> modes) throws InvalidDurationException {
-        return getCostBetween(txn, start, end, MAX_COST, date, modes);
-    }
-
-    public Duration getMaxCostBetween(Transaction txn, Node start, Location<?> endStation, TramDate date, Set<TransportMode> modes) throws InvalidDurationException {
-        Node endNode = graphQuery.getLocationNode(txn, endStation);
-        return calculateLeastCost(txn, start, endNode, MAX_COST, date, modes);
     }
 
     private Duration getCostBetween(Transaction txn, Location<?> startLocation, Location<?> endLocation, GraphPropertyKey key, TramDate date, Set<TransportMode> modes) throws InvalidDurationException {

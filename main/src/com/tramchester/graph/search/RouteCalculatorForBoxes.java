@@ -61,7 +61,7 @@ public class RouteCalculatorForBoxes extends RouteCalculatorSupport {
                                    RouteInterchangeRepository routeInterchanges, RouteCostCalculator routeCostCalculator) {
         super(graphQuery, pathToStages, nodeContentsRepository, graphDatabaseService,
                 traversalStateFactory, providesNow, sortsPosition, mapPathToLocations,
-                transportData, config, transportData, routeToRouteCosts, reasonToGraphViz, routeInterchanges, routeCostCalculator);
+                transportData, config, transportData, routeToRouteCosts, reasonToGraphViz, routeInterchanges);
         this.config = config;
         this.graphDatabaseService = graphDatabaseService;
         this.closedStationsRepository = closedStationsRepository;

@@ -94,12 +94,6 @@ class BusRouteCostCalculatorTest {
     }
 
     @Test
-    void shouldFindCostsCorrectlyForAltyStockportMax() {
-        assertMinutesEquals(71, getCost(max(), StopAtAltrinchamInterchange, StockportNewbridgeLane));
-        assertMinutesEquals(50, getCost(max(), StockportNewbridgeLane, StopAtAltrinchamInterchange));
-    }
-
-    @Test
     void shouldFindCostsCorrectlyForAltyStockport() {
         assertMinutesEquals(61, getCost(average(), StopAtAltrinchamInterchange, StockportNewbridgeLane));
         assertMinutesEquals(45, getCost(average(), StockportNewbridgeLane, StopAtAltrinchamInterchange));
@@ -109,12 +103,6 @@ class BusRouteCostCalculatorTest {
     void shouldFindCostsCorrectlyForShudehillAltyComp() {
         assertMinutesEquals(54, getCostBetween(average(), altrinchamInterchange, shudehillInterchange));
         assertMinutesEquals(53, getCostBetween(average(), shudehillInterchange, altrinchamInterchange));
-    }
-
-    @Test
-    void shouldFindMaxCostsCorrectlyForShudehillAlty() {
-        assertMinutesEquals(58, getCost(max(), StopAtAltrinchamInterchange, StopAtShudehillInterchange));
-        assertMinutesEquals(59, getCost(max(), StopAtShudehillInterchange, StopAtAltrinchamInterchange));
     }
 
     @Test
@@ -130,12 +118,6 @@ class BusRouteCostCalculatorTest {
     }
 
     @Test
-    void shouldFindMaxCostsCorrectlyForShudehillStockportComp() {
-        assertMinutesEquals(51, getCostBetween(max(), shudehillInterchange, stockportBusStation));
-        assertMinutesEquals(42, getCostBetween(max(), stockportBusStation, shudehillInterchange));
-    }
-
-    @Test
     void shouldFindCostsCorrectlyForShudehillStockport() {
         assertMinutesEquals(65, getCost(average(), StopAtShudehillInterchange, StockportNewbridgeLane));
         assertMinutesEquals(42, getCost(average(), StockportNewbridgeLane, StopAtShudehillInterchange));
@@ -145,22 +127,9 @@ class BusRouteCostCalculatorTest {
         return this::getAverageCostBetween;
     }
 
-    private BiFunction<Location<?>, Location<?>, Duration> max() {
-        return this::getMaxCostBetween;
-    }
-
     private Duration getAverageCostBetween(Location<?> start, Location<?> finish) {
         try {
             return routeCost.getAverageCostBetween(txn, start, finish, date, modes);
-        } catch (InvalidDurationException e) {
-            fail("Unexpected exception", e);
-            return Duration.ZERO;
-        }
-    }
-
-    private Duration getMaxCostBetween(Location<?> start, Location<?> finish) {
-        try {
-            return routeCost.getMaxCostBetween(txn, start, finish, date, modes);
         } catch (InvalidDurationException e) {
             fail("Unexpected exception", e);
             return Duration.ZERO;

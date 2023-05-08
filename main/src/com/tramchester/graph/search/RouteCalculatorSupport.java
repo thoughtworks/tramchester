@@ -7,11 +7,11 @@ import com.tramchester.domain.places.Location;
 import com.tramchester.domain.places.StationWalk;
 import com.tramchester.domain.presentation.TransportStage;
 import com.tramchester.domain.reference.TransportMode;
-import com.tramchester.domain.time.*;
+import com.tramchester.domain.time.ProvidesNow;
+import com.tramchester.domain.time.TramTime;
 import com.tramchester.geo.SortsPositions;
 import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.GraphQuery;
-import com.tramchester.graph.RouteCostCalculator;
 import com.tramchester.graph.caches.LowestCostSeen;
 import com.tramchester.graph.caches.NodeContentsRepository;
 import com.tramchester.graph.caches.PreviousVisits;
@@ -35,7 +35,6 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
-import static com.tramchester.domain.reference.TransportMode.Tram;
 import static java.lang.String.format;
 
 public class RouteCalculatorSupport {
@@ -55,14 +54,13 @@ public class RouteCalculatorSupport {
     private final NodeContentsRepository nodeContentsRepository;
     private final ReasonsToGraphViz reasonToGraphViz;
     private final RouteInterchangeRepository routeInterchanges;
-    private final RouteCostCalculator routeCostCalculator;
 
     protected RouteCalculatorSupport(GraphQuery graphQuery, PathToStages pathToStages, NodeContentsRepository nodeContentsRepository,
                                      GraphDatabase graphDatabaseService, TraversalStateFactory traversalStateFactory,
                                      ProvidesNow providesNow, SortsPositions sortsPosition, MapPathToLocations mapPathToLocations,
                                      StationRepository stationRepository, TramchesterConfig config, TripRepository tripRepository,
                                      BetweenRoutesCostRepository routeToRouteCosts, ReasonsToGraphViz reasonToGraphViz,
-                                     RouteInterchangeRepository routeInterchanges, RouteCostCalculator routeCostCalculator) {
+                                     RouteInterchangeRepository routeInterchanges) {
         this.graphQuery = graphQuery;
         this.pathToStages = pathToStages;
         this.nodeContentsRepository = nodeContentsRepository;
@@ -77,7 +75,6 @@ public class RouteCalculatorSupport {
         this.routeToRouteCosts = routeToRouteCosts;
         this.reasonToGraphViz = reasonToGraphViz;
         this.routeInterchanges = routeInterchanges;
-        this.routeCostCalculator = routeCostCalculator;
     }
 
 
@@ -202,42 +199,18 @@ public class RouteCalculatorSupport {
         return new ServiceReasons(journeyRequest, pathRequest.queryTime, providesNow);
     }
 
-    protected Duration getMaxDurationFor(Transaction txn, Node startNode, LocationSet destinations, JourneyRequest journeyRequest) {
+    protected Duration getMaxDurationFor(JourneyRequest journeyRequest) {
         return journeyRequest.getMaxJourneyDuration();
-//        final Duration maxDuration = journeyRequest.getMaxJourneyDuration();
-//
-//        Set<TransportMode> modes = config.getTransportModes();
-//        //EnumSet<TransportMode> modes = journeyRequest.getRequestedModes();
-//
-//        if (modes.contains(Tram) && modes.size()==1) {
-//            return maxDuration;
-//        }
-//
-//        Duration maxLeastCostForRoute = destinations.stream().
-//                map(dest -> getMaxCostBetween(txn, startNode, journeyRequest, dest, modes)).
-//                filter(duration -> !duration.isNegative()).
-//                max(Duration::compareTo).orElse(maxDuration);
-//
-//        //int longest = maxLeastCostForRoute * 2; // 100% margin
-//        Duration longest = maxLeastCostForRoute.multipliedBy(2);
-//
-//        //if (longest.compareTo(maxDuration)>0) {
-//        if (Durations.greaterThan(longest, maxDuration)) {
-//            logger.warn(format("Computed longest %s is more than journeyRequest %s", longest, maxDuration));
-//        } else {
-//            logger.info(format("Computed longest to be %s", longest));
-//        }
-//
-//        return longest;
+
     }
 
-    private Duration getMaxCostBetween(Transaction txn, Node startNode, JourneyRequest journeyRequest, Location<?> dest, Set<TransportMode> modes) {
-        try {
-            return routeCostCalculator.getMaxCostBetween(txn, startNode, dest, journeyRequest.getDate(), modes);
-        } catch (InvalidDurationException invalidDurationException) {
-            return Duration.ofSeconds(-1);
-        }
-    }
+//    private Duration getMaxCostBetween(Transaction txn, Node startNode, JourneyRequest journeyRequest, Location<?> dest, Set<TransportMode> modes) {
+//        try {
+//            return routeCostCalculator.getMaxCostBetween(txn, startNode, dest, journeyRequest.getDate(), modes);
+//        } catch (InvalidDurationException invalidDurationException) {
+//            return Duration.ofSeconds(-1);
+//        }
+//    }
 
     public PathRequest createPathRequest(Node startNode, TramDate queryDate, TramTime actualQueryTime, Set<TransportMode>
             requestedModes, int numChanges, JourneyConstraints journeyConstraints, Duration maxInitialWait) {

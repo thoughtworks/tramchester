@@ -83,7 +83,6 @@ public class RailRouteCostsTest {
     @Test
     void shouldGetApproxCostBetweenStockportAndManPiccadilly() throws InvalidDurationException {
         assertMinutesEquals(13, routeCostCalculator.getAverageCostBetween(txn, stockport, manPicc, date, modes));
-        assertMinutesEquals(13, routeCostCalculator.getMaxCostBetween(txn, stockport, manPicc, date, modes));
     }
 
     @Test
@@ -104,19 +103,16 @@ public class RailRouteCostsTest {
     @Test
     void shouldGetApproxCostCreweAndMiltonKeeny() throws InvalidDurationException {
         assertEquals(Duration.ofHours(1).plusMinutes(14), routeCostCalculator.getAverageCostBetween(txn, crewe, miltonKeynes, date, modes));
-        assertEquals(Duration.ofHours(1).plusMinutes(14), routeCostCalculator.getMaxCostBetween(txn, crewe, miltonKeynes, date, modes));
     }
 
     @Test
     void shouldGetApproxCostMiltonKeynesLondon() throws InvalidDurationException {
         assertMinutesEquals(38, routeCostCalculator.getAverageCostBetween(txn, miltonKeynes, londonEuston, date, modes));
-        assertMinutesEquals(38, routeCostCalculator.getMaxCostBetween(txn, miltonKeynes, londonEuston, date, modes));
     }
 
     @Test
     void shouldGetApproxCostBetweenManPicadillyAndLondonEuston() throws InvalidDurationException {
         assertEquals(Duration.ofHours(2).plusMinutes(14), routeCostCalculator.getAverageCostBetween(txn, manPicc, londonEuston, date, modes));
-        assertEquals(Duration.ofHours(2).plusMinutes(20), routeCostCalculator.getMaxCostBetween(txn, manPicc, londonEuston, date, modes));
     }
 
     @Test
@@ -124,8 +120,6 @@ public class RailRouteCostsTest {
         Station altrincham = Altrincham.from(stationRepository);
 
         assertEquals(Duration.ofHours(2).plusMinutes(24), routeCostCalculator.getAverageCostBetween(txn, altrincham, londonEuston, date, modes));
-        assertEquals(Duration.ofHours(2).plusMinutes(34), routeCostCalculator.getMaxCostBetween(txn, altrincham, londonEuston, date, modes));
-
     }
 
     // There is a zero cost for this journey, but only between specific dates 24/1 until 27/1 2022

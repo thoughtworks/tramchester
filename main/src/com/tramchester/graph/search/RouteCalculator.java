@@ -15,7 +15,6 @@ import com.tramchester.domain.time.TramTime;
 import com.tramchester.geo.SortsPositions;
 import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.GraphQuery;
-import com.tramchester.graph.RouteCostCalculator;
 import com.tramchester.graph.caches.LowestCostSeen;
 import com.tramchester.graph.caches.NodeContentsRepository;
 import com.tramchester.graph.search.diagnostics.ReasonsToGraphViz;
@@ -58,10 +57,10 @@ public class RouteCalculator extends RouteCalculatorSupport implements TramRoute
                            SortsPositions sortsPosition, MapPathToLocations mapPathToLocations,
                            BetweenRoutesCostRepository routeToRouteCosts, ReasonsToGraphViz reasonToGraphViz,
                            ClosedStationsRepository closedStationsRepository, RunningRoutesAndServices runningRoutesAndServices,
-                           RouteInterchangeRepository routeInterchanges, CacheMetrics cacheMetrics, RouteCostCalculator routeCostCalculator) {
+                           RouteInterchangeRepository routeInterchanges, CacheMetrics cacheMetrics) {
         super(graphQuery, pathToStages, nodeOperations, graphDatabaseService,
                 traversalStateFactory, providesNow, sortsPosition, mapPathToLocations,
-                transportData, config, transportData, routeToRouteCosts, reasonToGraphViz, routeInterchanges, routeCostCalculator);
+                transportData, config, transportData, routeToRouteCosts, reasonToGraphViz, routeInterchanges);
         this.config = config;
         this.createQueryTimes = createQueryTimes;
         this.closedStationsRepository = closedStationsRepository;
@@ -165,7 +164,7 @@ public class RouteCalculator extends RouteCalculatorSupport implements TramRoute
         // can only be shared as same date and same set of destinations, will eliminate previously seen paths/results
         final LowestCostsForDestRoutes lowestCostsForRoutes = routeToRouteCosts.getLowestCostCalcutatorFor(destinations, tramDate,
                 journeyRequest.getTimeRange(), requestedModes);
-        final Duration maxJourneyDuration = getMaxDurationFor(txn, startNode, destinations, journeyRequest);
+        final Duration maxJourneyDuration = getMaxDurationFor(journeyRequest);
 
         final IdSet<Station> closedStations = closedStationsRepository.getFullyClosedStationsFor(tramDate).stream().
                 map(ClosedStation::getStationId).collect(IdSet.idCollector());
