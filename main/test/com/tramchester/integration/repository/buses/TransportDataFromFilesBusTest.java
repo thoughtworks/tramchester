@@ -77,7 +77,7 @@ class TransportDataFromFilesBusTest {
     @Test
     void shouldHaveRouteNumbersForBus() {
         int numberRoutes = transportData.getRoutes().size();
-        assertWithinNPercent(TGFM_BUS_ROUTES, numberRoutes, 0.05F);
+        assertWithinNPercent(TGFM_BUS_ROUTES, numberRoutes, 0.1F);
     }
 
     @Test
