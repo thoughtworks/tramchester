@@ -4,6 +4,7 @@ import org.roaringbitmap.BatchIterator;
 import org.roaringbitmap.RoaringBatchIterator;
 import org.roaringbitmap.RoaringBitmap;
 
+import java.util.Objects;
 import java.util.stream.Stream;
 
 public class BitmapAsRoaringBitmap implements SimpleBitmap {
@@ -199,4 +200,16 @@ public class BitmapAsRoaringBitmap implements SimpleBitmap {
                 '}';
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        BitmapAsRoaringBitmap bitmap1 = (BitmapAsRoaringBitmap) o;
+        return size == bitmap1.size && bitmap.equals(bitmap1.bitmap);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(bitmap, size);
+    }
 }

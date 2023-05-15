@@ -2,6 +2,7 @@ package com.tramchester.domain.collections;
 
 import org.apache.commons.lang3.tuple.Pair;
 
+import java.util.Objects;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
@@ -181,4 +182,16 @@ public class IndexedBitSet implements ImmutableIndexedBitSet {
         return new IndexedBitSet(bitSetA.rows, bitSetA.columns, and);
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        IndexedBitSet bitSet = (IndexedBitSet) o;
+        return rows == bitSet.rows && columns == bitSet.columns && totalSize == bitSet.totalSize && bitmap.equals(bitSet.bitmap);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(rows, columns, bitmap, totalSize);
+    }
 }

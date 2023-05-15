@@ -80,12 +80,14 @@ public class GraphDatabaseStoredVersions {
         boolean fromDB = databaseMetaInfo.isNeighboursEnabled(txn);
         boolean fromConfig = config.hasNeighbourConfig();
 
-        if (fromDB==fromConfig) {
+        boolean matched = fromDB == fromConfig;
+        if (matched) {
             logger.info("CreateNeighbours config matches DB setting of: " + fromDB);
         } else {
-            logger.warn("CreateNeighbours config does not match DB setting of: " + fromDB);
+            logger.warn("CreateNeighbours config " + fromConfig + " does not match DB setting of: " + fromDB +
+                    " Might be due to partial DB creation for some tests");
         }
-        return fromConfig != fromDB;
+        return !matched;
     }
 
 }

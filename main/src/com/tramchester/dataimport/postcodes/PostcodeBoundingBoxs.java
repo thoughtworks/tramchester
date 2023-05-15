@@ -1,7 +1,7 @@
 package com.tramchester.dataimport.postcodes;
 
 import com.netflix.governator.guice.lazy.LazySingleton;
-import com.tramchester.caching.DataCache;
+import com.tramchester.caching.FileDataCache;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.dataexport.DataSaver;
 import com.tramchester.dataimport.data.PostcodeHintData;
@@ -29,11 +29,11 @@ public class PostcodeBoundingBoxs {
     private final PostcodeBounds postcodeBounds;
 
     private final boolean enabled;
-    private final DataCache dataCache;
+    private final FileDataCache dataCache;
     private boolean cacheAvailable;
 
     @Inject
-    public PostcodeBoundingBoxs(TramchesterConfig config, DataCache dataCache) {
+    public PostcodeBoundingBoxs(TramchesterConfig config, FileDataCache dataCache) {
         this.dataCache = dataCache;
         postcodeBounds = new PostcodeBounds();
         enabled = config.hasRemoteDataSourceConfig(DataSourceID.postcode);
@@ -146,7 +146,7 @@ public class PostcodeBoundingBoxs {
                 collect(Collectors.toSet());
     }
 
-    private static class PostcodeBounds implements DataCache.CachesData<PostcodeHintData> {
+    private static class PostcodeBounds implements FileDataCache.CachesData<PostcodeHintData> {
         private final Map<String, BoundingBox> theMap;
 
         public PostcodeBounds() {

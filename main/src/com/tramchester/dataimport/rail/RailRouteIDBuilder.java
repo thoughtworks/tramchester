@@ -37,7 +37,7 @@ public class RailRouteIDBuilder {
      * @param railRoutes the set of all collections calling points, comprising all the "routes" for the agency
      * @return callings points mapped to RailRouteId
      */
-    public Set<RailRouteIdRepository.RailRouteCallingPointsWithRouteId> getRouteIdsFor(IdFor<Agency> agencyId, Set<RailRouteCallingPoints> railRoutes) {
+    public Set<RailRouteIdRepository.RailRouteCallingPointsWithRouteId> getRouteIdsFor(IdFor<Agency> agencyId, List<RailRouteCallingPoints> railRoutes) {
 
         // (begin,end) -> CallingPoints
         Map<StationIdPair, Set<RailRouteCallingPoints>> routesGroupedByBeginEnd = new HashMap<>();
@@ -64,29 +64,28 @@ public class RailRouteIDBuilder {
      * Takes all railRoutes for a given agency and same Being and End and creates RailRouteId for those
      * @param agencyId the agency for the routes
      * @param beginEnd the shared begin and end for every route
-     * @param railRoutes the rail 'routes' operating between being and end
+     * @param matchingCallingPoints the rail 'routes' operating between being and end
      * @return routes decorated with the RailRouteId
      */
-    private List<RailRouteIdRepository.RailRouteCallingPointsWithRouteId> createRouteIdsFor(IdFor<Agency> agencyId, StationIdPair beginEnd,
-                                                                                            Set<RailRouteCallingPoints> railRoutes) {
+    private List<RailRouteIdRepository.RailRouteCallingPointsWithRouteId> createRouteIdsFor(final IdFor<Agency> agencyId,
+                                            final StationIdPair beginEnd, final Set<RailRouteCallingPoints> matchingCallingPoints) {
 
         logger.debug("Create route ids for " + agencyId + " and " + beginEnd);
 
-        if (railRoutes.size()==1) {
-            return railRoutes.stream().
+        if (matchingCallingPoints.size()==1) {
+            return matchingCallingPoints.stream().
                     map(railRoute -> new RailRouteIdRepository.RailRouteCallingPointsWithRouteId(railRoute, getIdFor(railRoute))).
                     collect(Collectors.toList());
         }
 
         // longest list first, so "sub-routes" are contains within larger routes
-        List<RailRouteCallingPoints> routesBySize = railRoutes.stream().
-                sorted(RailRouteCallingPoints::compareTo).
-                collect(Collectors.toList());
+        List<RailRouteCallingPoints> sortedRoutes = new ArrayList<>(matchingCallingPoints);
+        sortedRoutes.sort(RailRouteCallingPoints::compareTo);
 
         // longestRoutes are created by 'consuming' shorter routes that are subsets of the calling points for the
         // longer routes
         List<RailRouteCallingPoints> longestRoutes = new ArrayList<>();
-        for (RailRouteCallingPoints agencyCallingPoints : routesBySize) {
+        for (RailRouteCallingPoints agencyCallingPoints : sortedRoutes) {
             if (longestRoutes.stream().noneMatch(existing -> existing.contains(agencyCallingPoints))) {
                 longestRoutes.add(agencyCallingPoints);
             }
@@ -97,7 +96,8 @@ public class RailRouteIDBuilder {
                 map(railRoute -> new RailRouteIdRepository.RailRouteCallingPointsWithRouteId(railRoute, getIdFor(railRoute))).
                 collect(Collectors.toList());
 
-        logger.info(format("Created %s rail route ids for %s %s", railRoutesWithIds.size(), agencyId, beginEnd));
+        logger.info(format("Created %s rail route ids for %s %s for %s sets of calling points", railRoutesWithIds.size(), agencyId,
+                beginEnd, matchingCallingPoints.size()));
 
         return railRoutesWithIds;
     }
@@ -128,7 +128,6 @@ public class RailRouteIDBuilder {
         return railRouteId;
 
     }
-
 
     private static class AgencyCallingPoints {
         private final IdFor<Agency> agencyId;

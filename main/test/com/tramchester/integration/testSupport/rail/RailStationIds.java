@@ -41,7 +41,10 @@ public enum RailStationIds implements HasId<Station> {
     Inverness(createId("IVRNESS"), false),
     LiverpoolLimeStreet(createId("LVRPLSH"), false),
     Huddersfield(createId("HDRSFLD"), false),
-    Ashton(createId(("ASHONUL")), true);
+    Ashton(createId("ASHONUL"), true),
+    Levenshulme(createId("LVM"), true),
+    Leeds(createId("LEEDS"), false),
+    Saltburn(createId("SBRN"), false);
 
     private static IdFor<Station> createId(String text) {
         return Station.createId(text);

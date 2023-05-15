@@ -2,19 +2,22 @@ package com.tramchester.integration.graph.railAndTram;
 
 import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
+import com.tramchester.caching.FileDataCache;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.dataimport.rail.reference.TrainOperatingCompanies;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.RoutePair;
-import com.tramchester.domain.collections.IndexedBitSet;
-import com.tramchester.domain.collections.RouteIndexPair;
+import com.tramchester.domain.collections.*;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.places.Station;
+import com.tramchester.graph.filters.GraphFilterActive;
 import com.tramchester.graph.search.routes.PathResults;
 import com.tramchester.graph.search.routes.RouteCostMatrix;
 import com.tramchester.graph.search.routes.RouteIndex;
 import com.tramchester.integration.testSupport.RailAndTramGreaterManchesterConfig;
 import com.tramchester.integration.testSupport.rail.RailStationIds;
+import com.tramchester.repository.InterchangeRepository;
+import com.tramchester.repository.NumberOfRoutes;
 import com.tramchester.repository.RouteRepository;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.RailRouteHelper;
@@ -22,10 +25,8 @@ import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TramRouteHelper;
 import com.tramchester.testSupport.reference.TramStations;
 import com.tramchester.testSupport.testTags.GMTest;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.jetbrains.annotations.NotNull;
+import org.junit.jupiter.api.*;
 
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -54,12 +55,12 @@ public class RailAndTramRouteCostMatrixTest {
         componentContainer = new ComponentsBuilder().create(config, TestEnv.NoopRegisterMetrics());
         componentContainer.initialise();
 
-        //TestEnv.clearDataCache(componentContainer);
+        TestEnv.clearDataCache(componentContainer);
     }
 
     @AfterAll
     static void OnceAfterAllTestsAreFinished() {
-        //TestEnv.clearDataCache(componentContainer);
+        TestEnv.clearDataCache(componentContainer);
         componentContainer.close();
     }
 
@@ -74,6 +75,59 @@ public class RailAndTramRouteCostMatrixTest {
 
         numberOfRoutes = routeRepository.numberOfRoutes();
         date = TestEnv.testDay();
+    }
+
+    @Disabled("did not find the issue, always passes")
+    @Test
+    void shouldHaveConsistentNumbersOnBacktracking() {
+
+        // For tracking down bug, seems consistent for one data load, but not across multiple?
+
+        int resultA = routeMatrix.getNumberBacktrackFor(1);
+
+        RouteCostMatrix secondMatrix = createRouteCostMatrix();
+
+        int resultB = secondMatrix.getNumberBacktrackFor(1);
+
+        assertEquals(resultA, resultB);
+    }
+
+    @Disabled("did not find the issue, always passes")
+    @Test
+    void shouldHaveConsistentNumbersOnCostsPerDegree() {
+
+        // For tracking down bug, seems consistent for one data load, but not across multiple?
+
+        final ImmutableIndexedBitSet resultA = routeMatrix.getCostsPerDegree(1);
+
+        for (int i = 0; i < 1000; i++) {
+            RouteCostMatrix secondMatrix = createRouteCostMatrix();
+
+            ImmutableIndexedBitSet resultB = secondMatrix.getCostsPerDegree(1);
+
+            assertEquals(resultA, resultB);
+        }
+    }
+
+    @Disabled("did not find the issue, always passes")
+    @Test
+    void shouldHaveDateOverlapsConsistently() {
+
+        // seeing each run produce consistent results, but across multiples runs see different numbers, which is incorrect
+
+        assertEquals(505, numberOfRoutes);
+
+        RouteCostMatrix.RouteDateAndDayOverlap overlapsA = new RouteCostMatrix.RouteDateAndDayOverlap(routeIndex, numberOfRoutes);
+
+        overlapsA.populateFor();
+        final int previous = overlapsA.numberBitsSet();
+
+        for (int i = 0; i < 100000; i++) {
+            RouteCostMatrix.RouteDateAndDayOverlap overlapsB = new RouteCostMatrix.RouteDateAndDayOverlap(routeIndex, numberOfRoutes);
+            overlapsB.populateFor();
+            assertEquals(previous, overlapsB.numberBitsSet());
+        }
+
     }
 
     @Test
@@ -160,6 +214,36 @@ public class RailAndTramRouteCostMatrixTest {
         assertTrue(results.hasAny());
 
         assertEquals(3,results.getDepth());
+    }
+
+    @Test
+    void shouldReproIssueGettingInterchangesAndMissingIndexExample2() {
+        Route routeA = railRouteHelper.getRoute(TrainOperatingCompanies.TP, ManchesterPiccadilly, Leeds, 1);
+        Route routeB = railRouteHelper.getRoute(TrainOperatingCompanies.NT, Chester, Stockport, 1);
+
+        RouteIndexPair indexPair = routeIndex.getPairFor(RoutePair.of(routeA, routeB));
+        IndexedBitSet allDates = IndexedBitSet.getIdentity(numberOfRoutes, numberOfRoutes);
+
+        PathResults results = routeMatrix.getInterchangesFor(indexPair, allDates, interchangeStation -> true);
+
+        assertTrue(results.hasAny());
+
+        assertEquals(3,results.getDepth());
+    }
+
+
+    @NotNull
+    private RouteCostMatrix createRouteCostMatrix() {
+        NumberOfRoutes numberOfRoutes = componentContainer.get(NumberOfRoutes.class);
+        InterchangeRepository interchangeRepository = componentContainer.get(InterchangeRepository.class);
+        FileDataCache dataCache = componentContainer.get(FileDataCache.class);
+        GraphFilterActive graphFilter = componentContainer.get(GraphFilterActive.class);
+        RouteIndexPairFactory pairFactory = componentContainer.get(RouteIndexPairFactory.class);
+
+        RouteCostMatrix secondMatrix = new RouteCostMatrix(numberOfRoutes, interchangeRepository, dataCache, graphFilter, pairFactory, routeIndex);
+
+        secondMatrix.start();
+        return secondMatrix;
     }
 
 }

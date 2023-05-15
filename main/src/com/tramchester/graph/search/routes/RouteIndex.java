@@ -2,6 +2,7 @@ package com.tramchester.graph.search.routes;
 
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.caching.DataCache;
+import com.tramchester.caching.FileDataCache;
 import com.tramchester.dataexport.DataSaver;
 import com.tramchester.dataimport.data.RouteIndexData;
 import com.tramchester.domain.Route;
@@ -20,10 +21,7 @@ import org.slf4j.LoggerFactory;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.inject.Inject;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Stream;
 
 import static java.lang.String.format;
@@ -33,7 +31,7 @@ import static java.lang.String.format;
  * via bitmaps. Expensive to create for buses and trains, so cacheable.
  */
 @LazySingleton
-public class RouteIndex implements DataCache.CachesData<RouteIndexData> {
+public class RouteIndex implements FileDataCache.CachesData<RouteIndexData> {
     private static final Logger logger = LoggerFactory.getLogger(RouteIndex.class);
 
     private final RouteRepository routeRepository;
@@ -99,10 +97,11 @@ public class RouteIndex implements DataCache.CachesData<RouteIndexData> {
         logger.info("Added " + mapRouteIdToIndex.size() + " index entries");
     }
 
-    private void createIndex(List<Route> routesList) {
-        for (short i = 0; i < routesList.size(); i++) {
-            mapRouteIdToIndex.put(routesList.get(i), i);
-            mapIndexToRouteId.put(i, routesList.get(i));
+    private void createIndex(List<Route> routeList) {
+        routeList.sort(Comparator.comparing(Route::getId));
+        for (short i = 0; i < routeList.size(); i++) {
+            mapRouteIdToIndex.put(routeList.get(i), i);
+            mapIndexToRouteId.put(i, routeList.get(i));
         }
     }
 
@@ -136,7 +135,7 @@ public class RouteIndex implements DataCache.CachesData<RouteIndexData> {
     }
 
     @Override
-    public void loadFrom(Stream<RouteIndexData> stream) throws DataCache.CacheLoadException {
+    public void loadFrom(Stream<RouteIndexData> stream) throws FileDataCache.CacheLoadException {
         logger.info("Loading from cache");
         IdSet<Route> missingRouteIds = new IdSet<>();
         stream.forEach(item -> {
@@ -156,13 +155,13 @@ public class RouteIndex implements DataCache.CachesData<RouteIndexData> {
                     routeRepository.numberOfRoutes(), missingRouteIds);
             // TODO debug?
             logger.warn("Routes in repo: " + HasId.asIds(routeRepository.getRoutes()));
-            throw new DataCache.CacheLoadException(msg);
+            throw new FileDataCache.CacheLoadException(msg);
         }
         if (mapRouteIdToIndex.size() != numberOfRoutes) {
             String msg = "Mismatch on number of routes, from index got: " + mapRouteIdToIndex.size() +
                     " but repository has: " + numberOfRoutes;
             logger.error(msg);
-            throw new DataCache.CacheLoadException(msg);
+            throw new FileDataCache.CacheLoadException(msg);
         }
     }
 

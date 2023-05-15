@@ -33,7 +33,7 @@ public class RailRouteIdBuilderTest {
     @Test
     void shouldCreateExpectedIdForSingleRoute() {
 
-        Set<RailRouteCallingPoints> agencyCallingPoints = new HashSet<>();
+        List<RailRouteCallingPoints> agencyCallingPoints = new ArrayList<>();
 
         RailRouteCallingPoints railRouteA = formRailRoute(agencyId, ManchesterPiccadilly, Stockport, StokeOnTrent, Crewe, LondonEuston);
         agencyCallingPoints.add(railRouteA);
@@ -50,7 +50,7 @@ public class RailRouteIdBuilderTest {
     @Test
     void shouldCreateExpectedIdForThreeRoutesWithSubset() {
 
-        Set<RailRouteCallingPoints> agencyCallingPoints = new HashSet<>();
+        List<RailRouteCallingPoints> agencyCallingPoints = new ArrayList<>();
 
         // no sub-routes here
         RailRouteCallingPoints routeA = formRailRoute(agencyId, ManchesterPiccadilly, Stockport, LondonEuston);
@@ -76,7 +76,7 @@ public class RailRouteIdBuilderTest {
     @Test
     void shouldCreateExpectedIdForThreeRoutes() {
 
-        Set<RailRouteCallingPoints> agencyCallingPoints = new HashSet<>();
+        List<RailRouteCallingPoints> agencyCallingPoints = new ArrayList<>();
 
         // no sub-routes here
         RailRouteCallingPoints routeA = formRailRoute(agencyId, ManchesterPiccadilly, Macclesfield, LondonEuston);
@@ -105,7 +105,7 @@ public class RailRouteIdBuilderTest {
     @Test
     void shouldCreateExpectedIdForThreeRoutesSameSize() {
 
-        Set<RailRouteCallingPoints> agencyCallingPoints = new HashSet<>();
+        List<RailRouteCallingPoints> agencyCallingPoints = new ArrayList<>();
 
         // no sub-routes here
         RailRouteCallingPoints routeA = formRailRoute(agencyId, ManchesterPiccadilly, Macclesfield, LondonEuston);

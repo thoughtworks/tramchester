@@ -2,6 +2,9 @@ package com.tramchester.integration.graph.search;
 
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.GuiceContainerDependencies;
+import com.tramchester.caching.CachableData;
+import com.tramchester.caching.DataCache;
+import com.tramchester.caching.FileDataCache;
 import com.tramchester.caching.LoaderSaverFactory;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.dataexport.DataSaver;
@@ -10,11 +13,15 @@ import com.tramchester.dataimport.loader.files.TransportDataFromFile;
 import com.tramchester.dataimport.rail.repository.RailRouteIdRepository;
 import com.tramchester.domain.Agency;
 import com.tramchester.domain.Route;
+import com.tramchester.domain.RoutePair;
+import com.tramchester.domain.collections.RouteIndexPair;
+import com.tramchester.domain.collections.RouteIndexPairFactory;
 import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.id.RailRouteId;
 import com.tramchester.domain.places.Station;
+import com.tramchester.graph.filters.GraphFilterActive;
 import com.tramchester.graph.search.routes.RouteIndex;
 import com.tramchester.graph.search.routes.RouteToRouteCosts;
 import com.tramchester.integration.testSupport.RailAndTramGreaterManchesterConfig;
@@ -174,6 +181,32 @@ public class RailAndTramRouteIndexTest extends EasyMockSupport {
         macthesRouteRepository(loadedFromFile);
     }
 
+    @Test
+    void shouldAllocatedConsistentIndexes() {
+        GraphFilterActive graphFilter = componentContainer.get(GraphFilterActive.class);
+        RouteIndexPairFactory pairFactory = componentContainer.get(RouteIndexPairFactory.class);
+        DataCache dataCache = new FakeDataCache();
+
+        for (int i = 0; i < 100; i++) {
+            RouteIndex indexA = new RouteIndex(routeRepository, graphFilter, dataCache, pairFactory);
+            indexA.start();
+            RouteIndex indexB = new RouteIndex(routeRepository, graphFilter, dataCache, pairFactory);
+            indexB.start();
+
+            Set<Route> allRoutes = routeRepository.getRoutes();
+
+            for (Route routeA : allRoutes) {
+                allRoutes.forEach(routeB -> {
+                    final RoutePair routePair = RoutePair.of(routeA, routeB);
+                    RouteIndexPair resultA = indexA.getPairFor(routePair);
+                    RouteIndexPair resultB = indexB.getPairFor(routePair);
+                    assertEquals(resultA, resultB);
+                });
+            }
+        }
+
+    }
+
     private void macthesRouteRepository(Stream<RouteIndexData> loadedFromFile) {
         Set<RouteIndexData> loaded = loadedFromFile.collect(Collectors.toSet());
         IdSet<Route> loadedIds = loaded.stream().map(RouteIndexData::getRouteId).collect(IdSet.idCollector());
@@ -190,6 +223,29 @@ public class RailAndTramRouteIndexTest extends EasyMockSupport {
         differences.forEach(diff -> assertNotNull(routeRepository.getRouteById(diff), diff.toString()));
 
         assertTrue(differences.isEmpty(), "count " + differences.size() + " " + differences);
+    }
+
+    private static class FakeDataCache implements DataCache {
+
+        @Override
+        public <CACHETYPE extends CachableData, T extends FileDataCache.CachesData<CACHETYPE>> boolean has(T cachesData) {
+            return false;
+        }
+
+        @Override
+        public <CACHETYPE extends CachableData, T extends FileDataCache.CachesData<CACHETYPE>> void save(T data, Class<CACHETYPE> theClass) {
+            // noop
+        }
+
+        @Override
+        public <CACHETYPE extends CachableData, T extends FileDataCache.CachesData<CACHETYPE>> void loadInto(T cachesData, Class<CACHETYPE> theClass) {
+            // no op
+        }
+
+        @Override
+        public <CACHETYPE extends CachableData, T extends FileDataCache.CachesData<CACHETYPE>> Path getPathFor(T data) {
+            throw new RuntimeException("not implemented");
+        }
     }
 
 

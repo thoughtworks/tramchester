@@ -2,6 +2,7 @@ package com.tramchester.integration.repository.rail;
 
 import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
+import com.tramchester.dataimport.rail.RailRouteIDBuilder;
 import com.tramchester.dataimport.rail.reference.TrainOperatingCompanies;
 import com.tramchester.dataimport.rail.repository.RailRouteCallingPoints;
 import com.tramchester.dataimport.rail.repository.RailRouteIdRepository;
@@ -10,6 +11,7 @@ import com.tramchester.domain.Route;
 import com.tramchester.domain.StationIdPair;
 import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.id.IdFor;
+import com.tramchester.domain.id.RailRouteId;
 import com.tramchester.domain.places.Station;
 import com.tramchester.integration.testSupport.rail.IntegrationRailTestConfig;
 import com.tramchester.integration.testSupport.rail.RailStationIds;
@@ -22,12 +24,10 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
+import static com.tramchester.dataimport.rail.reference.TrainOperatingCompanies.TP;
 import static com.tramchester.integration.testSupport.rail.RailStationIds.*;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -66,6 +66,29 @@ public class RailRouteIdRepositoryTest {
     void shouldHaveRealAgencyId() {
         assertNotNull(agencyRepository.get(agencyId),
                 "did not find " + agencyId + " valid are " + HasId.asIds(agencyRepository.getAgencies()));
+    }
+
+    @Test
+    void shouldHaveExpecetdIdsForRoutesOfSameLength() {
+        List<IdFor<Station>> idsA = asStationIds(Arrays.asList("MNCRIAP", "MNCRPIC", "MNCROXR", "MNCRVIC", "HDRSFLD",
+                "DWBY", "LEEDS", "GARFRTH",
+                "YORK", "THIRSK", "NLRTN", "YAAM", "TABY", "MDLSBRO", "REDCARC", "SBRN"));
+
+        List<IdFor<Station>> idsB = asStationIds(Arrays.asList("MNCRIAP","GATLEY","MNCRPIC","MNCROXR","MNCRVIC","HDRSFLD",
+                "DWBY","LEEDS",
+                "YORK","THIRSK","NLRTN","YAAM","TABY","MDLSBRO","REDCARC","SBRN"));
+
+        RailRouteId idA = railRouteIdRepository.getRouteId(new RailRouteCallingPoints(TP.getAgencyId(), idsA));
+        RailRouteId idB = railRouteIdRepository.getRouteId(new RailRouteCallingPoints(TP.getAgencyId(), idsB));
+
+        assertNotEquals(idA, idB);
+        assertEquals(Route.createId("MNCRIAP:SBRN=>TP:2"), idA);
+        assertEquals(Route.createId("MNCRIAP:SBRN=>TP:1"), idB);
+
+    }
+
+    private List<IdFor<Station>> asStationIds(List<String> asList) {
+        return asList.stream().map(Station::createId).collect(Collectors.toList());
     }
 
     @Test
@@ -160,6 +183,47 @@ public class RailRouteIdRepositoryTest {
 
         // was 36 under old ID scheme
         assertEquals(6, routes.size(), routes.toString());
+    }
+
+    @Test
+    void shouldHaveConsistencyInIndexingOfRoutes() {
+        final IdFor<Agency> agencyId = TP.getAgencyId();
+
+        final Set<RailRouteIdRepository.RailRouteCallingPointsWithRouteId> allForTP = railRouteIdRepository.getCallingPointsFor(agencyId);
+
+        final Set<RailRouteIdRepository.RailRouteCallingPointsWithRouteId> allTPCalingPoints = allForTP.stream().
+                filter(withIds -> withIds.getBeginEnd().getBeginId().equals(ManchesterAirport.getId())).
+                filter(withIds -> withIds.getBeginEnd().getEndId().equals(Saltburn.getId())).
+                collect(Collectors.toSet());
+
+        assertFalse(allTPCalingPoints.isEmpty());
+
+        final Map<IdFor<Route>, List<IdFor<Station>>> originalIds = new HashMap<>();
+        allTPCalingPoints.forEach(callingPoints -> originalIds.put(callingPoints.getRouteId(), callingPoints.getCallingPoints()));
+
+        final RailRouteIDBuilder railRouteIDBuilder = componentContainer.get(RailRouteIDBuilder.class);
+
+        // go back to original list of calling stations
+
+        final Set<List<IdFor<Station>>> callingStationsForTPs = allTPCalingPoints.stream().
+                map(RailRouteIdRepository.RailRouteCallingPointsWithRouteId::getCallingPoints).
+                collect(Collectors.toSet());
+
+        final List<RailRouteCallingPoints> railCallingPoints = callingStationsForTPs.stream().
+                map(stations -> new RailRouteCallingPoints(agencyId, stations)).
+                collect(Collectors.toList());
+
+        // now create id's afresh and check get same callingPoints and routeIds
+
+        for (int i = 0; i < 100000; i++) {
+            final Set<RailRouteIdRepository.RailRouteCallingPointsWithRouteId> rawIds = railRouteIDBuilder.getRouteIdsFor(agencyId, railCallingPoints);
+
+            final Map<IdFor<Route>, List<IdFor<Station>>> recreatedIds = new HashMap<>();
+            rawIds.forEach(callingPoints -> recreatedIds.put(callingPoints.getRouteId(), callingPoints.getCallingPoints()));
+
+            assertEquals(originalIds, recreatedIds);
+        }
+
     }
 
     private List<IdFor<Station>> getStationIds(RailStationIds... railStationIds) {

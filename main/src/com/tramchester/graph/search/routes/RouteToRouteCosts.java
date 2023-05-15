@@ -119,7 +119,7 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
     }
 
     public long size() {
-        return costs.size();
+        return costs.numberOfBitsSet();
     }
 
     @Override

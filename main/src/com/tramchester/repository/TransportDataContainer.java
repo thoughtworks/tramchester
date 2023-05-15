@@ -3,10 +3,7 @@ package com.tramchester.repository;
 import com.tramchester.domain.*;
 import com.tramchester.domain.dates.ServiceCalendar;
 import com.tramchester.domain.dates.TramDate;
-import com.tramchester.domain.id.CompositeIdMap;
-import com.tramchester.domain.id.IdFor;
-import com.tramchester.domain.id.IdMap;
-import com.tramchester.domain.id.IdSet;
+import com.tramchester.domain.id.*;
 import com.tramchester.domain.input.MutableTrip;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.Location;
@@ -61,6 +58,50 @@ public class TransportDataContainer implements TransportData, WriteableTransport
         dataSourceInfos = new HashSet<>();
         feedInfoMap = new HashMap<>();
 
+    }
+
+    public static TransportDataContainer createUnmanagedCopy(TransportDataContainer dataContainer) {
+        return new TransportDataContainer(dataContainer.providesNow,
+                copyOf(dataContainer.trips),
+                copyOf(dataContainer.stationsById),
+                copyOf(dataContainer.services),
+                copyOf(dataContainer.routes),
+                copyOf(dataContainer.platforms),
+                copyOf(dataContainer.routeStations),
+                copyOf(dataContainer.agencies),
+                new HashSet<>(dataContainer.dataSourceInfos),
+                copyOf(dataContainer.feedInfoMap),
+                dataContainer.sourceName);
+    }
+
+    private static Map<DataSourceID, FeedInfo> copyOf(Map<DataSourceID, FeedInfo> feedInfoMap) {
+        return new HashMap<>(feedInfoMap);
+    }
+
+    private static IdMap<RouteStation> copyOf(IdMap<RouteStation> map) {
+        return new IdMap<>(map.getValues());
+    }
+
+    private static <S extends HasId<S> & CoreDomain, T extends S> CompositeIdMap<S, T> copyOf(CompositeIdMap<S, T> map) {
+        return new CompositeIdMap<>(map.getValues());
+    }
+
+    private TransportDataContainer(ProvidesNow providesNow, CompositeIdMap<Trip, MutableTrip> trips, CompositeIdMap<Station, MutableStation> stationsById,
+                                   CompositeIdMap<Service, MutableService> services, CompositeIdMap<Route, MutableRoute> routes,
+                                   CompositeIdMap<Platform, MutablePlatform> platforms, IdMap<RouteStation> routeStations,
+                                   CompositeIdMap<Agency, MutableAgency> agencies, Set<DataSourceInfo> dataSourceInfos,
+                                   Map<DataSourceID, FeedInfo> feedInfoMap, String sourceName) {
+        this.providesNow = providesNow;
+        this.trips = trips;
+        this.stationsById = stationsById;
+        this.services = services;
+        this.routes = routes;
+        this.platforms = platforms;
+        this.routeStations = routeStations;
+        this.agencies = agencies;
+        this.dataSourceInfos = dataSourceInfos;
+        this.feedInfoMap = feedInfoMap;
+        this.sourceName = sourceName;
     }
 
     @Override
@@ -467,4 +508,19 @@ public class TransportDataContainer implements TransportData, WriteableTransport
                 '}';
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        TransportDataContainer that = (TransportDataContainer) o;
+        return trips.equals(that.trips) && stationsById.equals(that.stationsById) && services.equals(that.services) &&
+                routes.equals(that.routes) && platforms.equals(that.platforms) && routeStations.equals(that.routeStations) &&
+                agencies.equals(that.agencies) && dataSourceInfos.equals(that.dataSourceInfos) && feedInfoMap.equals(that.feedInfoMap) &&
+                sourceName.equals(that.sourceName);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(trips, stationsById, services, routes, platforms, routeStations, agencies, dataSourceInfos, feedInfoMap, sourceName);
+    }
 }

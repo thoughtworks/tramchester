@@ -344,9 +344,9 @@ public class RailTimetableMapper {
             return config.getModes().contains(mode);
         }
 
-        private boolean populateForLocationIfWithinBounds(final RailLocationRecord railLocation,
-                                                          final MutableRoute route, final MutableTrip trip,
-                                                          final int stopSequence, final TramTime originTime) {
+        private void populateForLocationIfWithinBounds(final RailLocationRecord railLocation,
+                                                       final Route route, final MutableTrip trip,
+                                                       final int stopSequence, final TramTime originTime) {
             if (!railLocation.getArrival().isValid()) {
                 logger.warn("Invalid arrival time for " + railLocation);
             }
@@ -355,13 +355,13 @@ public class RailTimetableMapper {
             }
 
             if (!stationRecords.hasStationRecord(railLocation)) {
-                return false;
+                return;
             }
 
             final MutableStation station = findStationFor(railLocation);
 
             if (!bounds.contained(station)) {
-                return false;
+                return;
             }
 
             stationRecords.markAsInUse(station);
@@ -411,7 +411,6 @@ public class RailTimetableMapper {
 
             trip.addStop(stopCall);
 
-            return true;
         }
 
         private TramTime getDayAdjusted(TramTime arrivalTime, TramTime originTime) {

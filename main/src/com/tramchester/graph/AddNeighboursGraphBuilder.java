@@ -37,7 +37,8 @@ public class AddNeighboursGraphBuilder extends CreateNodesAndRelationships {
     private final GraphFilter filter;
 
     @Inject
-    public AddNeighboursGraphBuilder(GraphDatabase database, GraphDatabaseMetaInfo databaseMetaInfo, GraphFilter filter, GraphQuery graphQuery, StationRepository repository,
+    public AddNeighboursGraphBuilder(GraphDatabase database, GraphDatabaseMetaInfo databaseMetaInfo, GraphFilter filter,
+                                     GraphQuery graphQuery, StationRepository repository,
                                      TramchesterConfig config, StationsAndLinksGraphBuilder.Ready ready,
                                      NeighboursRepository neighboursRepository) {
         super(database);
@@ -53,6 +54,8 @@ public class AddNeighboursGraphBuilder extends CreateNodesAndRelationships {
 
     @PostConstruct
     public void start() {
+
+        logger.info("starting");
 
         boolean hasDBFlag = hasDBFlag();
 
@@ -79,7 +82,6 @@ public class AddNeighboursGraphBuilder extends CreateNodesAndRelationships {
             return;
         }
 
-        logger.info("starting");
         createNeighboursInDB();
         addDBFlag();
         reportStats();
@@ -147,7 +149,7 @@ public class AddNeighboursGraphBuilder extends CreateNodesAndRelationships {
             });
     }
 
-    public class Ready {
+    public static class Ready {
         private Ready() {
 
         }

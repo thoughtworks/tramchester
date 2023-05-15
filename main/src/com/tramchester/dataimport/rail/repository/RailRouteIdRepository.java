@@ -85,13 +85,14 @@ public class RailRouteIdRepository implements ReportsCacheStats {
     }
 
     private void createRouteIdsFor(ProvidesRailTimetableRecords providesRailTimetableRecords, RailStationRecordsRepository stationRecordsRepository) {
-        Set<RailRouteCallingPoints> loadedCallingPoints = ExtractAgencyCallingPointsFromLocationRecords.loadCallingPoints(providesRailTimetableRecords, stationRecordsRepository);
+        List<RailRouteCallingPoints> loadedCallingPoints = ExtractAgencyCallingPointsFromLocationRecords.
+                loadCallingPoints(providesRailTimetableRecords, stationRecordsRepository);
         createRouteIdsFor(loadedCallingPoints);
         loadedCallingPoints.clear();
     }
 
-    private void createRouteIdsFor(Set<RailRouteCallingPoints> agencyCallingPoints) {
-        Map<IdFor<Agency>, Set<RailRouteCallingPoints>> callingPointsByAgency = new HashMap<>();
+    private void createRouteIdsFor(List<RailRouteCallingPoints> agencyCallingPoints) {
+        Map<IdFor<Agency>, List<RailRouteCallingPoints>> callingPointsByAgency = new HashMap<>();
 
         logger.info("Create possible route ids for " + agencyCallingPoints.size() + " calling points combinations");
 
@@ -99,7 +100,7 @@ public class RailRouteIdRepository implements ReportsCacheStats {
         agencyCallingPoints.forEach(points -> {
             IdFor<Agency> agencyId = points.getAgencyId();
             if (!callingPointsByAgency.containsKey(agencyId)) {
-                callingPointsByAgency.put(agencyId, new HashSet<>());
+                callingPointsByAgency.put(agencyId, new ArrayList<>());
             }
             callingPointsByAgency.get(agencyId).add(points);
         });
@@ -144,7 +145,7 @@ public class RailRouteIdRepository implements ReportsCacheStats {
         return routeIdsForAgency.get(agencyId).stream().map(RailRouteCallingPointsWithRouteId::getRouteId).collect(Collectors.toSet());
     }
 
-    private RailRouteId getRouteId(RailRouteCallingPoints agencyCallingPoints) {
+    public RailRouteId getRouteId(RailRouteCallingPoints agencyCallingPoints) {
 
         IdFor<Agency> agencyId = agencyCallingPoints.getAgencyId();
 

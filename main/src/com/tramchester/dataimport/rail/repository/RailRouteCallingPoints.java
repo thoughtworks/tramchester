@@ -25,10 +25,6 @@ public class RailRouteCallingPoints implements Comparable<RailRouteCallingPoints
         this.beginEnd = beginEnd;
     }
 
-    public RailRouteCallingPoints(RailRouteCallingPoints other) {
-        this(other.agencyId, other.callingPoints, other.beginEnd);
-    }
-
     public IdFor<Agency> getAgencyId() {
         return agencyId;
     }
@@ -115,11 +111,12 @@ public class RailRouteCallingPoints implements Comparable<RailRouteCallingPoints
         if (!other.agencyId.equals(agencyId)) {
             throw new RuntimeException("Undefined when agency is different, got " + agencyId + " and " + other.agencyId);
         }
-        // shorter first
+        // longer first
         int compareSize = Integer.compare(other.numberCallingPoints(), numberCallingPoints());
         if (compareSize!=0) {
             return compareSize;
         }
+        // same size...
         return compareCallingPoints(other.callingPoints);
     }
 

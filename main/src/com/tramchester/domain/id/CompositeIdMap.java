@@ -4,10 +4,7 @@ import com.google.common.collect.Sets;
 import com.tramchester.domain.CoreDomain;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Set;
+import java.util.*;
 import java.util.function.*;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
@@ -141,5 +138,18 @@ public class CompositeIdMap<S extends HasId<S> & CoreDomain, T extends S> implem
     @Override
     public String toString() {
         return "IdMap{" + theMap + '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        CompositeIdMap<?, ?> that = (CompositeIdMap<?, ?>) o;
+        return theMap.equals(that.theMap);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(theMap);
     }
 }

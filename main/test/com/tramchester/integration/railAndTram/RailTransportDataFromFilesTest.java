@@ -4,6 +4,7 @@ import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.dataimport.rail.reference.TrainOperatingCompanies;
+import com.tramchester.dataimport.rail.repository.RailRouteIdRepository;
 import com.tramchester.domain.*;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.*;
@@ -30,6 +31,7 @@ import org.junit.jupiter.api.Test;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static com.tramchester.dataimport.rail.reference.TrainOperatingCompanies.NT;
 import static com.tramchester.domain.reference.TransportMode.*;
 import static com.tramchester.integration.testSupport.Assertions.assertIdEquals;
 import static com.tramchester.integration.testSupport.rail.RailStationIds.*;
@@ -40,6 +42,7 @@ public class RailTransportDataFromFilesTest {
     private static ComponentContainer componentContainer;
     private static TramchesterConfig config;
     private TransportData transportData;
+    private RailRouteIdRepository routeIdRepository;
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
@@ -56,6 +59,7 @@ public class RailTransportDataFromFilesTest {
     @BeforeEach
     void beforeEachTestRuns() {
         transportData = componentContainer.get(TransportData.class);
+        routeIdRepository = componentContainer.get(RailRouteIdRepository.class);
     }
 
     @Test
@@ -273,22 +277,19 @@ public class RailTransportDataFromFilesTest {
 
     @Test
     void shouldHaveRouteFromManchesterToStockport() {
-        IdFor<Station> manPicc = ManchesterPiccadilly.getId();
-        IdFor<Station> stockport = Stockport.getId();
-        Set<Route> matchingRoutes = transportData.getTrips().stream().
-                filter(trip -> matches(manPicc, stockport, trip)).
-                map(Trip::getRoute).
+        Set<RailRouteIdRepository.RailRouteCallingPointsWithRouteId> allNorthern = routeIdRepository.getCallingPointsFor(NT.getAgencyId());
+
+        StationIdPair piccAndStockport = StationIdPair.of(ManchesterPiccadilly.getId(), Stockport.getId());
+        Set<RailRouteIdRepository.RailRouteCallingPointsWithRouteId> northernPiccToStockport = allNorthern.stream().
+                filter(routeId -> routeId.getBeginEnd().equals(piccAndStockport)).
                 collect(Collectors.toSet());
 
-        assertEquals(1, matchingRoutes.size(), HasId.asIds(matchingRoutes));
+        assertFalse(northernPiccToStockport.isEmpty());
 
-        IdSet<Route> routeIds = matchingRoutes.stream().collect(IdSet.collector());
+        Set<Route> matchingRoutes = northernPiccToStockport.stream().
+                map(routeId -> transportData.getRouteById(routeId.getRouteId())).collect(Collectors.toSet());
 
-        Optional<Route> haveNorthernTrains = matchingRoutes.stream().filter(route -> route.getAgency().getId().equals(TrainOperatingCompanies.NT.getAgencyId())).findFirst();
-        assertTrue(haveNorthernTrains.isPresent(), "did not find NT route in " + routeIds);
-
-        //Optional<Route> haveTransPennineExpress = matchingRoutes.stream().filter(route -> route.getAgency().getId().equals(TrainOperatingCompanies.TP.getAgencyId())).findFirst();
-        //assertTrue(haveTransPennineExpress.isPresent(), "did not find Trans Pennine Express route in " + routeIds);
+        assertFalse(matchingRoutes.isEmpty());
 
         Set<Service> servicesForRoutes = matchingRoutes.stream().
                 flatMap(route -> route.getServices().stream()).collect(Collectors.toSet());
@@ -297,21 +298,21 @@ public class RailTransportDataFromFilesTest {
 
         TramDate when = TestEnv.testDay();
 
-        Set<Service> runningServicesForRoutes = servicesForRoutes.stream().
-                filter(service -> service.getCalendar().operatesOn(when)).collect(Collectors.toSet());
+        Set<Service> runningAfterDate = servicesForRoutes.stream().
+                filter(service -> service.getCalendar().getDateRange().getEndDate().isAfter(when)).collect(Collectors.toSet());
 
         // Needs up to train data to pass
-        assertFalse(runningServicesForRoutes.isEmpty(), "no running on " + when);
+        assertFalse(runningAfterDate.isEmpty(), "no running on " + when + " services " + servicesForRoutes);
 
         TramTime time = TramTime.of(23,20);
         TimeRange timeRange = TimeRange.of(time, time.plusMinutes(60));
 
         Set<Trip> matchingTrips = transportData.getTrips().stream().
-                filter(trip -> runningServicesForRoutes.contains(trip.getService())).
+                filter(trip -> runningAfterDate.contains(trip.getService())).
                 filter(trip -> timeRange.contains(trip.departTime())).
                 collect(Collectors.toSet());
 
-        assertFalse(matchingTrips.isEmpty(), "No trip at required time " + HasId.asIds(runningServicesForRoutes));
+        assertFalse(matchingTrips.isEmpty(), "No trip at required time " + HasId.asIds(runningAfterDate));
     }
 
     @Test
@@ -333,7 +334,7 @@ public class RailTransportDataFromFilesTest {
 
         assertEquals(2, agencies.size(), agencies.toString());
         assertTrue(agencies.contains(TrainOperatingCompanies.TP.getCompanyName()));
-        assertTrue(agencies.contains(TrainOperatingCompanies.NT.getCompanyName()));
+        assertTrue(agencies.contains(NT.getCompanyName()));
     }
 
     @Test

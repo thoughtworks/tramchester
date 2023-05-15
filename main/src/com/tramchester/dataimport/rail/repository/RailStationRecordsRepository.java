@@ -186,4 +186,14 @@ public class RailStationRecordsRepository {
         final String tiplocCode = record.getTiplocCode();
         return tiplocMap.get(tiplocCode);
     }
+
+    /***
+     * diagnostic support only
+     * @param tiploc must be a valid tiploc
+     * @return the matching station
+     */
+    public Station getMutableStationForTiploc(IdFor<Station> tiploc) {
+        final String tiplocAsText = tiploc.getGraphId();
+        return tiplocMap.get(tiplocAsText);
+    }
 }

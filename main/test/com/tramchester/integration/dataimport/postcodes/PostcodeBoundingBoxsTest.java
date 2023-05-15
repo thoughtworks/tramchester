@@ -2,7 +2,7 @@ package com.tramchester.integration.dataimport.postcodes;
 
 import com.fasterxml.jackson.dataformat.csv.CsvMapper;
 import com.fasterxml.jackson.module.afterburner.AfterburnerModule;
-import com.tramchester.caching.DataCache;
+import com.tramchester.caching.FileDataCache;
 import com.tramchester.caching.LoaderSaverFactory;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.dataimport.loader.files.TransportDataFromCSVFile;
@@ -32,7 +32,7 @@ class PostcodeBoundingBoxsTest {
     private Path hintsFile;
     private PostcodeBoundingBoxs postcodeBoundingBoxs;
     private CsvMapper mapper;
-    private DataCache dataCache;
+    private FileDataCache dataCache;
 
     @BeforeEach
     void beforeEachTest() {
@@ -62,7 +62,7 @@ class PostcodeBoundingBoxsTest {
         LoaderSaverFactory loaderSaverFactory =new LoaderSaverFactory();
         loaderSaverFactory.start();
 
-        dataCache = new DataCache(config, dataRefresh, loaderSaverFactory);
+        dataCache = new FileDataCache(config, dataRefresh, loaderSaverFactory);
         dataCache.start();
 
         postcodeBoundingBoxs = new PostcodeBoundingBoxs(config, dataCache);

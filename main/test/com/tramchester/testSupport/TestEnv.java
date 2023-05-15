@@ -2,7 +2,7 @@ package com.tramchester.testSupport;
 
 import com.codahale.metrics.Gauge;
 import com.tramchester.ComponentContainer;
-import com.tramchester.caching.DataCache;
+import com.tramchester.caching.FileDataCache;
 import com.tramchester.config.AppConfiguration;
 import com.tramchester.config.GTFSSourceConfig;
 import com.tramchester.config.TfgmTramLiveDataConfig;
@@ -269,7 +269,7 @@ public class TestEnv {
     }
 
     public static void clearDataCache(ComponentContainer componentContainer) {
-        DataCache cache = componentContainer.get(DataCache.class);
+        FileDataCache cache = componentContainer.get(FileDataCache.class);
         cache.clearFiles();
     }
 

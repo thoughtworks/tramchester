@@ -1,7 +1,7 @@
 package com.tramchester.unit.caching;
 
 import com.tramchester.caching.CachableData;
-import com.tramchester.caching.DataCache;
+import com.tramchester.caching.FileDataCache;
 import com.tramchester.caching.LoaderSaverFactory;
 import com.tramchester.config.GTFSSourceConfig;
 import com.tramchester.config.RemoteDataSourceConfig;
@@ -34,7 +34,7 @@ import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class DataCacheTest extends EasyMockSupport  {
+public class FileDataCacheTest extends EasyMockSupport  {
 
     static final int NUM_ROUTE_INDEX_DATA = 10000;
     static final Path cacheFolder = TestEnv.CACHE_DIR.resolve("DataCacheTest");
@@ -42,7 +42,7 @@ public class DataCacheTest extends EasyMockSupport  {
     public static final String DATA_INDEX_FILENAME = "cacheableTestClass.json";
     public static final String HINTS_FILENAME = "cacheableTestClassCSV.csv";
 
-    private DataCache dataCache;
+    private FileDataCache dataCache;
     private List<RouteIndexData> routeIndexTestItems;
     private List<PostcodeHintData> postcodeHintItems;
     private RemoteDataAvailable remoteDataRefreshed;
@@ -54,7 +54,7 @@ public class DataCacheTest extends EasyMockSupport  {
         LoaderSaverFactory loaderSaverFactory = new LoaderSaverFactory();
         loaderSaverFactory.start();
 
-        dataCache = new DataCache(new LocalTestConfig(cacheFolder), remoteDataRefreshed, loaderSaverFactory);
+        dataCache = new FileDataCache(new LocalTestConfig(cacheFolder), remoteDataRefreshed, loaderSaverFactory);
 
         dataCache.clearFiles();
 
@@ -213,7 +213,7 @@ public class DataCacheTest extends EasyMockSupport  {
         verifyAll();
     }
 
-    private static class TestData<T extends CachableData> implements DataCache.CachesData<T> {
+    private static class TestData<T extends CachableData> implements FileDataCache.CachesData<T> {
 
         private final List<T> list;
         private final String filename;

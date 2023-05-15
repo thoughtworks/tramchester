@@ -13,9 +13,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -29,16 +27,18 @@ public class ExtractAgencyCallingPointsFromLocationRecords {
     private final RailStationRecordsRepository stationRecordsRepository;
     private String currentAtocCode;
     private final List<RailLocationRecord> locations;
-    private final Set<RailRouteCallingPoints> agencyCallingPoints;
+    // List not Set, need consistent ordering
+    private final List<RailRouteCallingPoints> agencyCallingPoints;
 
     public ExtractAgencyCallingPointsFromLocationRecords(RailStationRecordsRepository stationRecordsRepository) {
         this.stationRecordsRepository = stationRecordsRepository;
         currentAtocCode = "";
-        agencyCallingPoints = new HashSet<>();
+        agencyCallingPoints = new ArrayList<>();
         locations = new ArrayList<>();
     }
 
-    public static Set<RailRouteCallingPoints> loadCallingPoints(ProvidesRailTimetableRecords providesRailTimetableRecords, RailStationRecordsRepository stationRecordsRepository) {
+    public static List<RailRouteCallingPoints> loadCallingPoints(ProvidesRailTimetableRecords providesRailTimetableRecords,
+                                                                 RailStationRecordsRepository stationRecordsRepository) {
 
         logger.info("Begin extraction of calling points from " + providesRailTimetableRecords.toString());
         ExtractAgencyCallingPointsFromLocationRecords extractor = new ExtractAgencyCallingPointsFromLocationRecords(stationRecordsRepository);
