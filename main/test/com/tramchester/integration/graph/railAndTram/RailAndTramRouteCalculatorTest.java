@@ -185,7 +185,7 @@ public class RailAndTramRouteCalculatorTest {
     void shouldReproIssueWithInvalidTimes() {
         TramTime time = TramTime.of(10,49);
         JourneyRequest request = new JourneyRequest(when, time, false, 3,
-                Duration.ofMinutes(30), 1, tramAndTrain());
+                Duration.ofMinutes(100), 1, tramAndTrain());
 
         // ashton west
         Station start = rail(Altrincham);

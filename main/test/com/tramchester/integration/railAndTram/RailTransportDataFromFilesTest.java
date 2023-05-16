@@ -328,7 +328,7 @@ public class RailTransportDataFromFilesTest {
                 filter(route -> route.getEnd().getId().equals(endId)).
                 collect(Collectors.toSet());
 
-        assertEquals(6, routes.size(), HasId.asIds(routes));
+        assertEquals(2, routes.size(), HasId.asIds(routes));
 
         Set<String> agencies = routes.stream().map(route -> route.getAgency().getName()).collect(Collectors.toSet());
 

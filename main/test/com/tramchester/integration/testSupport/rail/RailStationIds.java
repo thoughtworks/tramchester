@@ -42,7 +42,7 @@ public enum RailStationIds implements HasId<Station> {
     LiverpoolLimeStreet(createId("LVRPLSH"), false),
     Huddersfield(createId("HDRSFLD"), false),
     Ashton(createId("ASHONUL"), true),
-    Levenshulme(createId("LVM"), true),
+    Levenshulme(createId("LVHM"), true),
     Leeds(createId("LEEDS"), false),
     Saltburn(createId("SBRN"), false);
 
