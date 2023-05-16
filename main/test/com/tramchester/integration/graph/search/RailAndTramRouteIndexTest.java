@@ -10,7 +10,7 @@ import com.tramchester.config.TramchesterConfig;
 import com.tramchester.dataexport.DataSaver;
 import com.tramchester.dataimport.data.RouteIndexData;
 import com.tramchester.dataimport.loader.files.TransportDataFromFile;
-import com.tramchester.dataimport.rail.repository.RailRouteIdRepository;
+import com.tramchester.dataimport.rail.repository.RailRouteIds;
 import com.tramchester.domain.Agency;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.RoutePair;
@@ -109,7 +109,7 @@ public class RailAndTramRouteIndexTest extends EasyMockSupport {
         IdFor<Station> first = Station.createId("LVRPLSH");
         IdFor<Station> second = Station.createId("SCARBRO");
 
-        RailRouteIdRepository idRepositoy = componentContainer.get(RailRouteIdRepository.class);
+        RailRouteIds idRepositoy = componentContainer.get(RailRouteIds.class);
         Set<RailRouteId> forAgency = idRepositoy.getForAgency(agency);
 
         Set<RailRouteId> forRoute = forAgency.stream().

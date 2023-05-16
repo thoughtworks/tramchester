@@ -47,7 +47,7 @@ public class RailRouteCallingPoints implements Comparable<RailRouteCallingPoints
         return callingPoints.size();
     }
 
-    public boolean contains(RailRouteCallingPoints other) {
+    public boolean contains(final RailRouteCallingPoints other) {
         if (!agencyId.equals(other.agencyId)) {
             throw new RuntimeException("AgencyId mismatch for " + this + " and provided " + other);
         }

@@ -7,13 +7,14 @@ import com.tramchester.dataimport.UnzipFetchedData;
 import com.tramchester.dataimport.rail.records.RailTimetableRecord;
 import com.tramchester.dataimport.rail.records.SkippedRecord;
 import com.tramchester.dataimport.rail.records.UnknownRecord;
-import org.apache.commons.lang3.CharSet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
-import java.io.*;
-import java.nio.charset.Charset;
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.Reader;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.util.stream.Stream;

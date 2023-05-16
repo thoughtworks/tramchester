@@ -27,6 +27,7 @@ import com.tramchester.domain.time.TramTime;
 import com.tramchester.geo.BoundingBox;
 import com.tramchester.metrics.CacheMetrics;
 import com.tramchester.testSupport.reference.TramStations;
+import org.apache.commons.collections4.SetUtils;
 import org.apache.commons.io.FileUtils;
 import org.slf4j.LoggerFactory;
 
@@ -44,6 +45,7 @@ import java.util.stream.Stream;
 
 import static java.lang.String.format;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class TestEnv {
     public static final Path CACHE_DIR = Path.of("testData","cache");
@@ -317,6 +319,17 @@ public class TestEnv {
     public static Path getTempDir() {
         String tempDir=System.getProperty("java.io.tmpdir");
         return Path.of(tempDir);
+    }
+
+    public static <T> void assertSetEquals(Set<T> itemsA, Set<T> itemsB) {
+        SetUtils.SetView<T> difference = SetUtils.disjunction(itemsA, itemsB);
+        Set<T> inBnotA = new HashSet<>(itemsA);
+        inBnotA.removeAll(itemsB);
+        Set<T> inAnotB = new HashSet<>(itemsB);
+        inAnotB.removeAll(itemsA);
+        String message = "Different A:" + itemsA.size() + " B:" + itemsB.size() + " " + difference +  " in A but not B " +
+                inAnotB + " in B but not A " + inBnotA;
+        assertTrue(difference.isEmpty(), message);
     }
 
     @SafeVarargs

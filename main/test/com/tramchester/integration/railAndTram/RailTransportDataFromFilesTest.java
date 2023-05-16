@@ -4,7 +4,7 @@ import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.dataimport.rail.reference.TrainOperatingCompanies;
-import com.tramchester.dataimport.rail.repository.RailRouteIdRepository;
+import com.tramchester.dataimport.rail.repository.RailRouteIds;
 import com.tramchester.domain.*;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.*;
@@ -42,7 +42,7 @@ public class RailTransportDataFromFilesTest {
     private static ComponentContainer componentContainer;
     private static TramchesterConfig config;
     private TransportData transportData;
-    private RailRouteIdRepository routeIdRepository;
+    private RailRouteIds routeIdRepository;
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
@@ -59,7 +59,7 @@ public class RailTransportDataFromFilesTest {
     @BeforeEach
     void beforeEachTestRuns() {
         transportData = componentContainer.get(TransportData.class);
-        routeIdRepository = componentContainer.get(RailRouteIdRepository.class);
+        routeIdRepository = componentContainer.get(RailRouteIds.class);
     }
 
     @Test
@@ -277,10 +277,10 @@ public class RailTransportDataFromFilesTest {
 
     @Test
     void shouldHaveRouteFromManchesterToStockport() {
-        Set<RailRouteIdRepository.RailRouteCallingPointsWithRouteId> allNorthern = routeIdRepository.getCallingPointsFor(NT.getAgencyId());
+        Set<RailRouteIds.RailRouteCallingPointsWithRouteId> allNorthern = routeIdRepository.getCallingPointsFor(NT.getAgencyId());
 
         StationIdPair piccAndStockport = StationIdPair.of(ManchesterPiccadilly.getId(), Stockport.getId());
-        Set<RailRouteIdRepository.RailRouteCallingPointsWithRouteId> northernPiccToStockport = allNorthern.stream().
+        Set<RailRouteIds.RailRouteCallingPointsWithRouteId> northernPiccToStockport = allNorthern.stream().
                 filter(routeId -> routeId.getBeginEnd().equals(piccAndStockport)).
                 collect(Collectors.toSet());
 

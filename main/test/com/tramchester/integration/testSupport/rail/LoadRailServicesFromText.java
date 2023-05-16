@@ -6,7 +6,7 @@ import com.tramchester.config.TramchesterConfig;
 import com.tramchester.dataimport.UnzipFetchedData;
 import com.tramchester.dataimport.rail.*;
 import com.tramchester.dataimport.rail.records.RailTimetableRecord;
-import com.tramchester.dataimport.rail.repository.RailRouteIdRepository;
+import com.tramchester.dataimport.rail.repository.RailRouteIds;
 import com.tramchester.dataimport.rail.repository.RailStationRecordsRepository;
 import com.tramchester.graph.filters.GraphFilterActive;
 import com.tramchester.metrics.CacheMetrics;
@@ -48,7 +48,7 @@ public class LoadRailServicesFromText  {
         RailConfig railConfig = config.getRailConfig();
 
 
-        RailRouteIdRepository railRouteIdRepository = new RailRouteIdRepository(stationRecordsRepository, loadTimeTableRecords, railRouteIdBuilder, config, cacheMetric);
+        RailRouteIds railRouteIdRepository = new RailRouteIds(stationRecordsRepository, loadTimeTableRecords, railRouteIdBuilder, config, cacheMetric);
         railRouteIdRepository.start();
 
         RailTransportDataFromFiles.Loader loader = new RailTransportDataFromFiles.Loader(loadTimeTableRecords,

@@ -41,7 +41,7 @@ public class RailStationRecordsRepository {
     private static final Logger logger = LoggerFactory.getLogger(RailStationRecordsRepository.class);
 
     private final IdSet<Station> inUseStations;
-    private final Map<String, MutableStation> tiplocMap;
+    private final Map<String, MutableStation> tiplocMap; // rail timetable id -> mutable station
     private final Set<String> missing;
     private final ProvidesRailStationRecords providesRailStationRecords;
     private final RailStationCRSRepository crsRepository;

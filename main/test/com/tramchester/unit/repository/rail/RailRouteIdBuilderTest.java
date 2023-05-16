@@ -2,7 +2,7 @@ package com.tramchester.unit.repository.rail;
 
 import com.tramchester.dataimport.rail.RailRouteIDBuilder;
 import com.tramchester.dataimport.rail.repository.RailRouteCallingPoints;
-import com.tramchester.dataimport.rail.repository.RailRouteIdRepository;
+import com.tramchester.dataimport.rail.repository.RailRouteIds;
 import com.tramchester.domain.Agency;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.id.IdFor;
@@ -38,11 +38,11 @@ public class RailRouteIdBuilderTest {
         RailRouteCallingPoints railRouteA = formRailRoute(agencyId, ManchesterPiccadilly, Stockport, StokeOnTrent, Crewe, LondonEuston);
         agencyCallingPoints.add(railRouteA);
 
-        Set<RailRouteIdRepository.RailRouteCallingPointsWithRouteId> results = builder.getRouteIdsFor(agencyId, agencyCallingPoints);
+        Set<RailRouteIds.RailRouteCallingPointsWithRouteId> results = builder.getRouteIdsFor(agencyId, agencyCallingPoints);
 
         assertEquals(1, results.size());
 
-        RailRouteIdRepository.RailRouteCallingPointsWithRouteId result = getFor(results, railRouteA);
+        RailRouteIds.RailRouteCallingPointsWithRouteId result = getFor(results, railRouteA);
 
         assertEquals(Route.createId("MNCRPIC:EUSTON=>VT:1"), result.getRouteId());
     }
@@ -61,14 +61,14 @@ public class RailRouteIdBuilderTest {
         agencyCallingPoints.add(routeB);
         agencyCallingPoints.add(routeC);
 
-        Set<RailRouteIdRepository.RailRouteCallingPointsWithRouteId> results = builder.getRouteIdsFor(agencyId, agencyCallingPoints);
+        Set<RailRouteIds.RailRouteCallingPointsWithRouteId> results = builder.getRouteIdsFor(agencyId, agencyCallingPoints);
 
         assertEquals(2, results.size());
 
-        RailRouteIdRepository.RailRouteCallingPointsWithRouteId resultB = getFor(results, routeB);
+        RailRouteIds.RailRouteCallingPointsWithRouteId resultB = getFor(results, routeB);
         assertEquals(Route.createId("MNCRPIC:EUSTON=>VT:1"), resultB.getRouteId());
 
-        RailRouteIdRepository.RailRouteCallingPointsWithRouteId resultC = getFor(results, routeC);
+        RailRouteIds.RailRouteCallingPointsWithRouteId resultC = getFor(results, routeC);
         assertEquals(Route.createId("MNCRPIC:EUSTON=>VT:2"), resultC.getRouteId());
 
     }
@@ -87,17 +87,17 @@ public class RailRouteIdBuilderTest {
         agencyCallingPoints.add(routeB);
         agencyCallingPoints.add(routeC);
 
-        Set<RailRouteIdRepository.RailRouteCallingPointsWithRouteId> results = builder.getRouteIdsFor(agencyId, agencyCallingPoints);
+        Set<RailRouteIds.RailRouteCallingPointsWithRouteId> results = builder.getRouteIdsFor(agencyId, agencyCallingPoints);
 
         assertEquals(3, results.size());
 
-        RailRouteIdRepository.RailRouteCallingPointsWithRouteId resultA = getFor(results, routeA);
+        RailRouteIds.RailRouteCallingPointsWithRouteId resultA = getFor(results, routeA);
         assertEquals(Route.createId("MNCRPIC:EUSTON=>VT:3"), resultA.getRouteId());
 
-        RailRouteIdRepository.RailRouteCallingPointsWithRouteId resultB = getFor(results, routeB);
+        RailRouteIds.RailRouteCallingPointsWithRouteId resultB = getFor(results, routeB);
         assertEquals(Route.createId("MNCRPIC:EUSTON=>VT:1"), resultB.getRouteId());
 
-        RailRouteIdRepository.RailRouteCallingPointsWithRouteId resultC = getFor(results, routeC);
+        RailRouteIds.RailRouteCallingPointsWithRouteId resultC = getFor(results, routeC);
         assertEquals(Route.createId("MNCRPIC:EUSTON=>VT:2"), resultC.getRouteId());
 
     }
@@ -116,23 +116,23 @@ public class RailRouteIdBuilderTest {
         agencyCallingPoints.add(routeB);
         agencyCallingPoints.add(routeC);
 
-        Set<RailRouteIdRepository.RailRouteCallingPointsWithRouteId> results = builder.getRouteIdsFor(agencyId, agencyCallingPoints);
+        Set<RailRouteIds.RailRouteCallingPointsWithRouteId> results = builder.getRouteIdsFor(agencyId, agencyCallingPoints);
 
         assertEquals(3, results.size());
 
-        RailRouteIdRepository.RailRouteCallingPointsWithRouteId resultA = getFor(results, routeA);
+        RailRouteIds.RailRouteCallingPointsWithRouteId resultA = getFor(results, routeA);
         assertEquals(Route.createId("MNCRPIC:EUSTON=>VT:1"), resultA.getRouteId());
 
-        RailRouteIdRepository.RailRouteCallingPointsWithRouteId resultB = getFor(results, routeB);
+        RailRouteIds.RailRouteCallingPointsWithRouteId resultB = getFor(results, routeB);
         assertEquals(Route.createId("MNCRPIC:EUSTON=>VT:3"), resultB.getRouteId());
 
-        RailRouteIdRepository.RailRouteCallingPointsWithRouteId resultC = getFor(results, routeC);
+        RailRouteIds.RailRouteCallingPointsWithRouteId resultC = getFor(results, routeC);
         assertEquals(Route.createId("MNCRPIC:EUSTON=>VT:2"), resultC.getRouteId());
 
     }
 
-    private RailRouteIdRepository.RailRouteCallingPointsWithRouteId getFor(Set<RailRouteIdRepository.RailRouteCallingPointsWithRouteId> items, RailRouteCallingPoints railRoute) {
-        Optional<RailRouteIdRepository.RailRouteCallingPointsWithRouteId> search = items.stream().filter(item -> item.getCallingPoints().equals(railRoute.getCallingPoints())).findAny();
+    private RailRouteIds.RailRouteCallingPointsWithRouteId getFor(Set<RailRouteIds.RailRouteCallingPointsWithRouteId> items, RailRouteCallingPoints railRoute) {
+        Optional<RailRouteIds.RailRouteCallingPointsWithRouteId> search = items.stream().filter(item -> item.getCallingPoints().equals(railRoute.getCallingPoints())).findAny();
         assertTrue(search.isPresent(), "Could not find " + railRoute + " in " + items);
         return search.get();
     }

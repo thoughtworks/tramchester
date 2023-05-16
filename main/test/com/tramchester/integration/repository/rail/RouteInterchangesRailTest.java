@@ -3,7 +3,7 @@ package com.tramchester.integration.repository.rail;
 import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.dataimport.rail.reference.TrainOperatingCompanies;
-import com.tramchester.dataimport.rail.repository.RailRouteIdRepository;
+import com.tramchester.dataimport.rail.repository.RailRouteIds;
 import com.tramchester.domain.id.RailRouteId;
 import com.tramchester.domain.places.InterchangeStation;
 import com.tramchester.domain.Route;
@@ -38,7 +38,7 @@ public class RouteInterchangesRailTest {
     private static ComponentContainer componentContainer;
     private RouteInterchangeRepository routeInterchanges;
     private StationRepository stationRepository;
-    private RailRouteIdRepository railRouteIdRepository;
+    private RailRouteIds railRouteIdRepository;
     private RouteRepository routeRepository;
 
     @BeforeAll
@@ -56,7 +56,7 @@ public class RouteInterchangesRailTest {
     void onceBeforeEachTestRuns() {
         stationRepository = componentContainer.get(StationRepository.class);
         routeInterchanges = componentContainer.get(RouteInterchangeRepository.class);
-        railRouteIdRepository = componentContainer.get(RailRouteIdRepository.class);
+        railRouteIdRepository = componentContainer.get(RailRouteIds.class);
         routeRepository = componentContainer.get(RouteRepository.class);
     }
 

@@ -11,23 +11,23 @@ public class RouteStationId implements IdFor<RouteStation> {
     private final IdFor<Route> routeId;
     private final IdFor<Station> stationId;
 
-    private RouteStationId(IdFor<Route> routeId, IdFor<Station> stationId) {
+    private RouteStationId(final IdFor<Route> routeId, final IdFor<Station> stationId) {
         this.routeId = routeId;
         this.stationId = stationId;
     }
 
-    public static IdFor<RouteStation> createId(IdFor<Route> routeId, IdFor<Station> stationId) {
+    public static IdFor<RouteStation> createId(final IdFor<Route> routeId, final IdFor<Station> stationId) {
         return new RouteStationId(routeId, stationId);
     }
 
-    public static IdFor<RouteStation> parse(String text) {
-        int indexOf = text.indexOf(DIVIDER);
+    public static IdFor<RouteStation> parse(final String text) {
+        final int indexOf = text.indexOf(DIVIDER);
         if (indexOf<0) {
             return StringIdFor.invalid(RouteStation.class);
         }
         // todo rail route or normal route id?
-        IdFor<Route> routeId  = Route.createId(text.substring(0, indexOf));
-        IdFor<Station> stationId = Station.createId(text.substring(indexOf+1));
+        final IdFor<Route> routeId  = Route.createId(text.substring(0, indexOf));
+        final IdFor<Station> stationId = Station.createId(text.substring(indexOf+1));
         return createId(routeId, stationId);
     }
 

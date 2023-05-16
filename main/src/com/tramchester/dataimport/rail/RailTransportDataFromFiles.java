@@ -8,6 +8,7 @@ import com.tramchester.dataimport.RemoteDataAvailable;
 import com.tramchester.dataimport.loader.DirectDataSourceFactory;
 import com.tramchester.dataimport.rail.records.RailTimetableRecord;
 import com.tramchester.dataimport.rail.repository.RailRouteIdRepository;
+import com.tramchester.dataimport.rail.repository.RailRouteIds;
 import com.tramchester.dataimport.rail.repository.RailStationRecordsRepository;
 import com.tramchester.domain.DataSourceID;
 import com.tramchester.domain.DataSourceInfo;
@@ -44,15 +45,12 @@ public class RailTransportDataFromFiles implements DirectDataSourceFactory.Popul
                                       RailStationRecordsRepository stationRecordsRepository) {
 
         this.remoteDataRefreshed = remoteDataRefreshed;
-
-        enabled = config.hasRailConfig();
-
-        railConfig = config.getRailConfig();
-        bounds = config.getBounds();
+        this.enabled = config.hasRailConfig();
+        this.railConfig = config.getRailConfig();
+        this.bounds = config.getBounds();
         this.stationRecordsRepository = stationRecordsRepository;
 
-        loader = new Loader(loadRailTimetableRecords, railRouteRepository,
-                railConfig, graphFilterActive);
+        loader = new Loader(loadRailTimetableRecords, railRouteRepository, railConfig, graphFilterActive);
     }
 
     @PostConstruct
@@ -87,10 +85,10 @@ public class RailTransportDataFromFiles implements DirectDataSourceFactory.Popul
             logger.error(message);
             throw new RuntimeException(message);
         }
-        Path downloadedZip = remoteDataRefreshed.fileFor(DataSourceID.rail);
+        final Path downloadedZip = remoteDataRefreshed.fileFor(DataSourceID.rail);
 
-        FetchFileModTime fileModTime = new FetchFileModTime();
-        LocalDateTime modTime = fileModTime.getFor(downloadedZip);
+        final FetchFileModTime fileModTime = new FetchFileModTime();
+        final LocalDateTime modTime = fileModTime.getFor(downloadedZip);
         final DataSourceInfo dataSourceInfo = new DataSourceInfo(railConfig.getDataSourceId(),
                 railConfig.getVersion(), modTime, railConfig.getModes());
         logger.info("Generated  " + dataSourceInfo);
@@ -122,7 +120,7 @@ public class RailTransportDataFromFiles implements DirectDataSourceFactory.Popul
 
             logger.info("Load timetable");
 
-            Stream<RailTimetableRecord> timetableRecords = providesRailTimetableRecords.load();
+            final Stream<RailTimetableRecord> timetableRecords = providesRailTimetableRecords.load();
             processTimetableRecords(stationRecords, dataContainer, timetableRecords, bounds, railRouteRepository);
 
             stationRecords.getInUse().forEach(dataContainer::addStation);
@@ -134,12 +132,12 @@ public class RailTransportDataFromFiles implements DirectDataSourceFactory.Popul
         private void processTimetableRecords(RailStationRecordsRepository stationRecords, WriteableTransportData dataContainer,
                                              Stream<RailTimetableRecord> recordStream, BoundingBox bounds, RailRouteIdRepository railRouteRepository) {
             logger.info("Process timetable stream");
-            RailTimetableMapper mapper = new RailTimetableMapper(stationRecords, dataContainer, railConfig,
+            final RailTimetableMapper mapper = new RailTimetableMapper(stationRecords, dataContainer, railConfig,
                     graphFilterActive, bounds, railRouteRepository);
             recordStream.forEach(mapper::seen);
             mapper.reportDiagnostics();
 
-            // TODO
+            // TODO ?
             // Breaks testing and the overall lifecycle management approach, need another way......
             //railRouteRepository.dispose();
         }

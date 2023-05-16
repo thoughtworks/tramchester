@@ -60,6 +60,7 @@ public class TransportDataContainer implements TransportData, WriteableTransport
 
     }
 
+    // facilitates testing
     public static TransportDataContainer createUnmanagedCopy(TransportDataContainer dataContainer) {
         return new TransportDataContainer(dataContainer.providesNow,
                 copyOf(dataContainer.trips),

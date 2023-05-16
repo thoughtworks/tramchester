@@ -2,22 +2,33 @@ package com.tramchester.integration.repository.rail;
 
 import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
+import com.tramchester.config.TramchesterConfig;
+import com.tramchester.dataimport.RemoteDataAvailable;
+import com.tramchester.dataimport.rail.ProvidesRailTimetableRecords;
 import com.tramchester.dataimport.rail.RailRouteIDBuilder;
+import com.tramchester.dataimport.rail.RailTransportDataFromFiles;
 import com.tramchester.dataimport.rail.reference.TrainOperatingCompanies;
 import com.tramchester.dataimport.rail.repository.RailRouteCallingPoints;
-import com.tramchester.dataimport.rail.repository.RailRouteIdRepository;
+import com.tramchester.dataimport.rail.repository.RailRouteIds;
+import com.tramchester.dataimport.rail.repository.RailStationRecordsRepository;
 import com.tramchester.domain.Agency;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.StationIdPair;
 import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.RailRouteId;
+import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
+import com.tramchester.domain.time.ProvidesNow;
+import com.tramchester.graph.filters.GraphFilterActive;
 import com.tramchester.integration.testSupport.rail.IntegrationRailTestConfig;
 import com.tramchester.integration.testSupport.rail.RailStationIds;
+import com.tramchester.metrics.CacheMetrics;
 import com.tramchester.repository.AgencyRepository;
 import com.tramchester.repository.StationRepository;
+import com.tramchester.repository.TransportDataContainer;
 import com.tramchester.testSupport.TestEnv;
+import com.tramchester.testSupport.testTags.GMTest;
 import com.tramchester.testSupport.testTags.TrainTest;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
@@ -29,22 +40,25 @@ import java.util.stream.Collectors;
 
 import static com.tramchester.dataimport.rail.reference.TrainOperatingCompanies.TP;
 import static com.tramchester.integration.testSupport.rail.RailStationIds.*;
+import static com.tramchester.testSupport.TestEnv.assertSetEquals;
 import static org.junit.jupiter.api.Assertions.*;
 
 @TrainTest
-public class RailRouteIdRepositoryTest {
+@GMTest
+public class RailRouteIdsTest {
     public static final List<String> LONGEST_VIA_STOKE = Arrays.asList("MNCRPIC", "STKP", "MACLSFD", "STOKEOT", "STAFFRD", "WVRMPTN", "SNDWDUD",
             "BHAMNWS", "BHAMINT", "COVNTRY", "RUGBY", "MKNSCEN", "WATFDJ", "EUSTON");
 
     private static ComponentContainer componentContainer;
-    private RailRouteIdRepository railRouteIdRepository;
+    private static TramchesterConfig config;
+    private RailRouteIds railRouteIdRepository;
     private IdFor<Agency> agencyId;
     private StationRepository stationRepository;
     private AgencyRepository agencyRepository;
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
-        IntegrationRailTestConfig config = new IntegrationRailTestConfig();
+        config = new IntegrationRailTestConfig();
         componentContainer = new ComponentsBuilder().create(config, TestEnv.NoopRegisterMetrics());
         componentContainer.initialise();
     }
@@ -56,7 +70,7 @@ public class RailRouteIdRepositoryTest {
 
     @BeforeEach
     void onceBeforeEachTestRuns() {
-        railRouteIdRepository = componentContainer.get(RailRouteIdRepository.class);
+        railRouteIdRepository = componentContainer.get(RailRouteIds.class);
         stationRepository = componentContainer.get(StationRepository.class);
         agencyRepository = componentContainer.get(AgencyRepository.class);
         agencyId = Agency.createId(TrainOperatingCompanies.VT.name());
@@ -157,13 +171,13 @@ public class RailRouteIdRepositoryTest {
 
         StationIdPair beginEnd = StationIdPair.of(ManchesterPiccadilly.getId(), LondonEuston.getId());
 
-        Optional<RailRouteIdRepository.RailRouteCallingPointsWithRouteId> findLongest = railRouteIdRepository.getCallingPointsFor(TrainOperatingCompanies.VT.getAgencyId()).stream().
+        Optional<RailRouteIds.RailRouteCallingPointsWithRouteId> findLongest = railRouteIdRepository.getCallingPointsFor(TrainOperatingCompanies.VT.getAgencyId()).stream().
                 filter(railRoute -> railRoute.getBeginEnd().equals(beginEnd)).
-                max(Comparator.comparingInt(RailRouteIdRepository.RailRouteCallingPointsWithRouteId::numberCallingPoints));
+                max(Comparator.comparingInt(RailRouteIds.RailRouteCallingPointsWithRouteId::numberCallingPoints));
 
         assertTrue(findLongest.isPresent());
 
-        RailRouteIdRepository.RailRouteCallingPointsWithRouteId longest = findLongest.get();
+        RailRouteIds.RailRouteCallingPointsWithRouteId longest = findLongest.get();
         IdFor<Route> routeIdForLongest = longest.getRouteId();
 
         IdFor<Route> routeIdForShorter = railRouteIdRepository.getRouteIdFor(agencyId, getStations(ManchesterPiccadilly, Stockport, Macclesfield,
@@ -177,7 +191,7 @@ public class RailRouteIdRepositoryTest {
     void shouldHaveExpectedNumberOfIdsForManchesterToLondonEuston() {
 
         StationIdPair manchesterLondon = StationIdPair.of(ManchesterPiccadilly.getId(), LondonEuston.getId());
-        List<RailRouteIdRepository.RailRouteCallingPointsWithRouteId> routes = railRouteIdRepository.getCallingPointsFor(agencyId).stream().
+        List<RailRouteIds.RailRouteCallingPointsWithRouteId> routes = railRouteIdRepository.getCallingPointsFor(agencyId).stream().
                 filter(callingPoints -> callingPoints.getBeginEnd().equals(manchesterLondon)).
                 collect(Collectors.toList());
 
@@ -189,9 +203,9 @@ public class RailRouteIdRepositoryTest {
     void shouldHaveConsistencyInIndexingOfRoutes() {
         final IdFor<Agency> agencyId = TP.getAgencyId();
 
-        final Set<RailRouteIdRepository.RailRouteCallingPointsWithRouteId> allForTP = railRouteIdRepository.getCallingPointsFor(agencyId);
+        final Set<RailRouteIds.RailRouteCallingPointsWithRouteId> allForTP = railRouteIdRepository.getCallingPointsFor(agencyId);
 
-        final Set<RailRouteIdRepository.RailRouteCallingPointsWithRouteId> allTPCalingPoints = allForTP.stream().
+        final Set<RailRouteIds.RailRouteCallingPointsWithRouteId> allTPCalingPoints = allForTP.stream().
                 filter(withIds -> withIds.getBeginEnd().getBeginId().equals(ManchesterAirport.getId())).
                 filter(withIds -> withIds.getBeginEnd().getEndId().equals(Saltburn.getId())).
                 collect(Collectors.toSet());
@@ -206,7 +220,7 @@ public class RailRouteIdRepositoryTest {
         // go back to original list of calling stations
 
         final Set<List<IdFor<Station>>> callingStationsForTPs = allTPCalingPoints.stream().
-                map(RailRouteIdRepository.RailRouteCallingPointsWithRouteId::getCallingPoints).
+                map(RailRouteIds.RailRouteCallingPointsWithRouteId::getCallingPoints).
                 collect(Collectors.toSet());
 
         final List<RailRouteCallingPoints> railCallingPoints = callingStationsForTPs.stream().
@@ -216,7 +230,7 @@ public class RailRouteIdRepositoryTest {
         // now create id's afresh and check get same callingPoints and routeIds
 
         for (int i = 0; i < 100000; i++) {
-            final Set<RailRouteIdRepository.RailRouteCallingPointsWithRouteId> rawIds = railRouteIDBuilder.getRouteIdsFor(agencyId, railCallingPoints);
+            final Set<RailRouteIds.RailRouteCallingPointsWithRouteId> rawIds = railRouteIDBuilder.getRouteIdsFor(agencyId, railCallingPoints);
 
             final Map<IdFor<Route>, List<IdFor<Station>>> recreatedIds = new HashMap<>();
             rawIds.forEach(callingPoints -> recreatedIds.put(callingPoints.getRouteId(), callingPoints.getCallingPoints()));
@@ -224,6 +238,46 @@ public class RailRouteIdRepositoryTest {
             assertEquals(originalIds, recreatedIds);
         }
 
+    }
+
+    @Test
+    void shouldHaveLoadConsistencyCheckWhenOnlyRouteIdRepositoryRestarted() {
+
+        // repro issue where different results when repos is stopped and restarted
+
+        ProvidesRailTimetableRecords loadsRecords = componentContainer.get(ProvidesRailTimetableRecords.class);
+        GraphFilterActive graphFilterActive = componentContainer.get(GraphFilterActive.class);
+        RemoteDataAvailable remoteDataRefreshed = componentContainer.get(RemoteDataAvailable.class);
+        RailStationRecordsRepository stationRecordsRepository = componentContainer.get(RailStationRecordsRepository.class);
+        CacheMetrics cacheMetrics = componentContainer.get(CacheMetrics.class);
+        final ProvidesNow providesNow = componentContainer.get(ProvidesNow.class);
+
+        RailRouteIDBuilder idBuilder = new RailRouteIDBuilder();
+
+        RailRouteIds routeIdRepository = new RailRouteIds(stationRecordsRepository, loadsRecords, idBuilder, config, cacheMetrics);
+        routeIdRepository.start();
+
+        final RailTransportDataFromFiles loadFromFiles = new RailTransportDataFromFiles(loadsRecords,
+                config, graphFilterActive, remoteDataRefreshed, routeIdRepository, stationRecordsRepository);
+
+        final Set<RouteStation> first = getRouteStations(providesNow, "first load", loadFromFiles);
+        final Set<RouteStation> second = getRouteStations(providesNow, "second load", loadFromFiles);
+
+        assertSetEquals(first, second);
+
+        routeIdRepository.stop();
+        routeIdRepository.start();
+
+        final Set<RouteStation> third = getRouteStations(providesNow, "third load", loadFromFiles);
+
+        assertSetEquals(first, third);
+
+    }
+
+    private Set<RouteStation> getRouteStations(ProvidesNow providesNow, String first_load, RailTransportDataFromFiles loadFromFiles) {
+        final TransportDataContainer contained = new TransportDataContainer(providesNow, first_load);
+        loadFromFiles.loadInto(contained);
+        return contained.getRouteStations();
     }
 
     private List<IdFor<Station>> getStationIds(RailStationIds... railStationIds) {

@@ -2,7 +2,7 @@ package com.tramchester.testSupport;
 
 import com.tramchester.ComponentContainer;
 import com.tramchester.dataimport.rail.reference.TrainOperatingCompanies;
-import com.tramchester.dataimport.rail.repository.RailRouteIdRepository;
+import com.tramchester.dataimport.rail.repository.RailRouteIds;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.id.RailRouteId;
 import com.tramchester.integration.testSupport.rail.RailStationIds;
@@ -11,12 +11,12 @@ import com.tramchester.repository.RouteRepository;
 import java.util.Optional;
 
 public class RailRouteHelper {
-    private final RailRouteIdRepository railRouteRepository;
+    private final RailRouteIds railRouteRepository;
     private final RouteRepository routeRepository;
 
     public RailRouteHelper(ComponentContainer componentContainer) {
 
-        this.railRouteRepository = componentContainer.get(RailRouteIdRepository.class);
+        this.railRouteRepository = componentContainer.get(RailRouteIds.class);
         this.routeRepository = componentContainer.get(RouteRepository.class);
     }
 

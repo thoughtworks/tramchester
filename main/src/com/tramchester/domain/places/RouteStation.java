@@ -19,13 +19,13 @@ public class RouteStation implements HasId<RouteStation>, GraphProperty, HasTran
     private final Route route;
     private final IdFor<RouteStation> id;
 
-    public RouteStation(Station station, Route route) {
+    public RouteStation(final Station station, final Route route) {
         this.station = station;
         this.route = route;
         id = createId(station.getId(), route.getId());
     }
 
-    public static IdFor<RouteStation> createId(IdFor<Station> station, IdFor<Route> route) {
+    public static IdFor<RouteStation> createId(final IdFor<Station> station, final IdFor<Route> route) {
         return RouteStationId.createId(route, station);
     }
 
