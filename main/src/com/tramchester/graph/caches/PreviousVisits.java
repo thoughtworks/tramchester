@@ -105,28 +105,28 @@ public class PreviousVisits implements ReportsCacheStats {
         }
     }
 
-    public ReasonCode getPreviousResult(Node node, ImmutableJourneyState journeyState, EnumSet<GraphLabel> labels) {
+    public ReasonCode getPreviousResult(final Node node, final ImmutableJourneyState journeyState, final EnumSet<GraphLabel> labels) {
 
         if (labels.contains(GraphLabel.MINUTE)) {
             // time node has by definition a unique time
-            ReasonCode timeFound = timeNodePrevious.getIfPresent(node.getId());
+            final ReasonCode timeFound = timeNodePrevious.getIfPresent(node.getId());
             if (timeFound != null) {
                 return timeFound;
             }
         }
 
         if (labels.contains(GraphLabel.HOUR)) {
-            ReasonCode hourFound = hourNodePrevious.getIfPresent(new Key<>(node, journeyState.getJourneyClock()));
+            final ReasonCode hourFound = hourNodePrevious.getIfPresent(new Key<>(node, journeyState.getJourneyClock()));
             if (hourFound != null) {
                 return hourFound;
             }
         }
 
         if (labels.contains(GraphLabel.ROUTE_STATION)) {
-            ReasonCode found = routeStationPrevious.getIfPresent(node.getId());
+            final ReasonCode found = routeStationPrevious.getIfPresent(node.getId());
             if (found != null) {
                 if (found == TooManyInterchangesRequired) {
-                    Integer currentLowest = lowestNumberOfChanges.getIfPresent(node.getId());
+                    final Integer currentLowest = lowestNumberOfChanges.getIfPresent(node.getId());
                     if (currentLowest!=null && journeyState.getNumberChanges()>=currentLowest) {
                         return found;
                     }
@@ -137,7 +137,7 @@ public class PreviousVisits implements ReportsCacheStats {
         }
 
         if (labels.contains(GraphLabel.SERVICE)) {
-            ReasonCode found = servicePrevious.getIfPresent(node.getId());
+            final ReasonCode found = servicePrevious.getIfPresent(node.getId());
             if (found != null) {
                 return found;
             }

@@ -13,6 +13,7 @@ import org.neo4j.graphdb.Relationship;
 
 import java.time.Duration;
 import java.util.ArrayList;
+import java.util.EnumSet;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Stream;
@@ -75,13 +76,13 @@ public abstract class TraversalState extends EmptyTraversalState implements Immu
         return Streams.stream(node.getRelationships(direction, types));
     }
 
-    public TraversalState nextState(Set<GraphLabel> nodeLabels, Node node,
-                                    JourneyStateUpdate journeyState, Duration cost, boolean alreadyOnDiversion) {
+    public TraversalState nextState(final EnumSet<GraphLabel> nodeLabels, final Node node,
+                                    final JourneyStateUpdate journeyState, final Duration cost, final boolean alreadyOnDiversion) {
 
-        boolean isInterchange = nodeLabels.contains(GraphLabel.INTERCHANGE);
-        boolean hasPlatforms = nodeLabels.contains(GraphLabel.HAS_PLATFORMS);
+        final boolean isInterchange = nodeLabels.contains(GraphLabel.INTERCHANGE);
+        final boolean hasPlatforms = nodeLabels.contains(GraphLabel.HAS_PLATFORMS);
 
-        GraphLabel actualNodeType;
+        final GraphLabel actualNodeType;
         final int numLabels = nodeLabels.size();
         if (numLabels==1) {
             actualNodeType = nodeLabels.iterator().next();
@@ -103,8 +104,8 @@ public abstract class TraversalState extends EmptyTraversalState implements Immu
 
     }
 
-    private TraversalState getTraversalState(TraversalStateType nextType, Node node, JourneyStateUpdate journeyState,
-                                             Duration cost, boolean alreadyOnDiversion, boolean isInterchange) {
+    private TraversalState getTraversalState(final TraversalStateType nextType, Node node, JourneyStateUpdate journeyState,
+                                             Duration cost, final boolean alreadyOnDiversion, final boolean isInterchange) {
         switch (nextType) {
             case MinuteState -> {
                 return toMinute(builders.getTowardsMinute(stateType), node, cost, journeyState, requestedRelationshipTypes);
@@ -143,7 +144,8 @@ public abstract class TraversalState extends EmptyTraversalState implements Immu
         }
     }
 
-    private TraversalStateType getNextStateType(TraversalStateType currentStateType, GraphLabel graphLabel, boolean hasPlatforms, Node node) {
+    private TraversalStateType getNextStateType(final TraversalStateType currentStateType, final GraphLabel graphLabel,
+                                                final boolean hasPlatforms, final Node node) {
         switch (graphLabel) {
             case MINUTE -> { return TraversalStateType.MinuteState; }
             case HOUR -> { return TraversalStateType.HourState; }
@@ -157,7 +159,7 @@ public abstract class TraversalState extends EmptyTraversalState implements Immu
         }
     }
 
-    private TraversalStateType getRouteStationStateFor(TraversalStateType currentStateType, Node node) {
+    private TraversalStateType getRouteStationStateFor(final TraversalStateType currentStateType, final Node node) {
         if (currentStateType==TraversalStateType.PlatformState || currentStateType==TraversalStateType.NoPlatformStationState) {
             return TraversalStateType.JustBoardedState;
         }

@@ -149,7 +149,7 @@ public class RouteCalculator extends RouteCalculatorSupport implements TramRoute
             return Stream.empty();
         }
 
-        EnumSet<TransportMode> requestedModes = journeyRequest.getRequestedModes();
+        final EnumSet<TransportMode> requestedModes = journeyRequest.getRequestedModes();
 
         // TODO groups will need their own method, or get expanded much earlier on
         //final Set<Station> destinations = GroupedStations.expandStations(unexpanded);
@@ -157,7 +157,6 @@ public class RouteCalculator extends RouteCalculatorSupport implements TramRoute
 //            logger.info("Expanded (composite) destinations from " + unexpanded.size() + " to " + destinations.size());
 //        }
 
-        //final TramServiceDate queryServiceDate = journeyRequest.getDate();
         final Set<Long> destinationNodeIds = Collections.singleton(endNode.getId());
         final TramDate tramDate = journeyRequest.getDate();
 

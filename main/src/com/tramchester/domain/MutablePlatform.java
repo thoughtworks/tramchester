@@ -210,9 +210,11 @@ public class MutablePlatform implements Platform {
 
     @Override
     public EnumSet<TransportMode> getTransportModes() {
-//        return Sets.union(servesRoutesDropoff.getTransportModes(), servesRoutesPickup.getTransportModes());
         Set<TransportMode> modes = Streams.concat(servesRoutesDropoff.stream(), servesRoutesPickup.stream()).
                 map(Route::getTransportMode).collect(Collectors.toSet());
+        if (modes.isEmpty()) {
+            return EnumSet.noneOf(TransportMode.class);
+        }
         return EnumSet.copyOf(modes);
     }
 

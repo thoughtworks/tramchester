@@ -196,6 +196,30 @@ public class RailAndTramRouteCalculatorTest {
 
     }
 
+    @Test
+    void shouldNotGenerateDuplicateJourneysForSameReqNumChanges() {
+
+        JourneyRequest request = new JourneyRequest(when, TramTime.of(11, 45), false,
+                4, maxDurationFromConfig, 3, TramsOnly);
+        Set<Journey> journeys =  testFacade.calculateRouteAsSet(Bury, TramStations.Altrincham, request);
+
+        assertTrue(journeys.size()>0);
+
+        final Set<Integer> uniqueNumChanges = journeys.stream().map(Journey::getRequestedNumberChanges).collect(Collectors.toSet());
+
+        uniqueNumChanges.forEach(reqNumChanges -> {
+            final Set<List<TransportStage<?,?>>> uniqueStages = new HashSet<>();
+
+            journeys.stream().filter(journey -> reqNumChanges.equals(journey.getRequestedNumberChanges())).forEach(journey -> {
+
+                final List<TransportStage<?, ?>> journeyStages = journey.getStages();
+                assertFalse(uniqueStages.contains(journeyStages), journeyStages +
+                        " is present multuiple times in " + journeys);
+                uniqueStages.add(journeyStages);
+            });
+        });
+    }
+
     @Disabled("No way to detect duplicate at this level?")
     @Test
     void shouldReproIssueWithDuplicatedJourneyWhenMaxJoruneysIs5() {

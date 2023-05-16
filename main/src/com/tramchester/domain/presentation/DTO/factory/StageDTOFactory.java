@@ -7,6 +7,7 @@ import com.tramchester.domain.id.IdForDTO;
 import com.tramchester.domain.presentation.DTO.*;
 import com.tramchester.domain.presentation.TransportStage;
 import com.tramchester.domain.presentation.TravelAction;
+import com.tramchester.domain.transportStages.ConnectingStage;
 import com.tramchester.domain.transportStages.WalkingStage;
 
 import javax.inject.Inject;
@@ -40,7 +41,7 @@ public class StageDTOFactory {
         //String tripId = source.getTripId().isValid() ? source.getTripId().forDTO() : "";
 
         final Duration duration = source.getDuration();
-        if (source instanceof WalkingStage<?,?>) {
+        if (source instanceof WalkingStage<?,?> || source instanceof ConnectingStage<?,?>) {
             return new SimpleStageDTO(firstStation,
                     lastStation,
                     actionStation,
@@ -48,7 +49,7 @@ public class StageDTOFactory {
                     source.getHeadSign(), source.getMode(), source.getPassedStopsCount(),
                     routeRefDTO, travelAction, queryDate);
         }
-
+        
         IdForDTO tripId = new IdForDTO(source.getTripId());
         if (source.hasBoardingPlatform()) {
             PlatformDTO boardingPlatform = new PlatformDTO(source.getBoardingPlatform());

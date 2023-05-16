@@ -19,9 +19,11 @@ import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TimeRange;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.geo.BoundingBox;
+import com.tramchester.integration.repository.TransportDataFromFilesTramTest;
 import com.tramchester.integration.testSupport.RailAndTramGreaterManchesterConfig;
 import com.tramchester.repository.TransportData;
 import com.tramchester.testSupport.TestEnv;
+import com.tramchester.testSupport.reference.KnownTramRoute;
 import com.tramchester.testSupport.testTags.GMTest;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
@@ -43,6 +45,7 @@ public class RailTransportDataFromFilesTest {
     private static TramchesterConfig config;
     private TransportData transportData;
     private RailRouteIds routeIdRepository;
+    private TramDate when;
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
@@ -60,6 +63,7 @@ public class RailTransportDataFromFilesTest {
     void beforeEachTestRuns() {
         transportData = componentContainer.get(TransportData.class);
         routeIdRepository = componentContainer.get(RailRouteIds.class);
+        when = TestEnv.testDay();
     }
 
     @Test
@@ -335,6 +339,21 @@ public class RailTransportDataFromFilesTest {
         assertEquals(2, agencies.size(), agencies.toString());
         assertTrue(agencies.contains(TrainOperatingCompanies.TP.getCompanyName()));
         assertTrue(agencies.contains(NT.getCompanyName()));
+    }
+
+    @Test
+    void shouldHaveExpectedNumbersForTram() {
+        assertEquals(1, transportData.getAgencies().stream().filter(agency -> agency.getTransportModes().contains(Tram)).count());
+        assertEquals(TransportDataFromFilesTramTest.NUM_TFGM_TRAM_STATIONS, transportData.getStations(EnumSet.of(Tram)).size());
+
+        Set<String> uniqueNames = transportData.getRoutesRunningOn(when).stream().
+                filter(route -> route.getTransportMode()==Tram).
+                map(Route::getName).collect(Collectors.toSet());
+
+        assertEquals(KnownTramRoute.numberOn(when), uniqueNames.size(), uniqueNames.toString());
+
+        int expected = 199;
+        assertEquals(expected, transportData.getPlatforms(EnumSet.of(Tram)).size());
     }
 
     @Test

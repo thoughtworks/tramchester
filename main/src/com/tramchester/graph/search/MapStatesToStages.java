@@ -38,7 +38,6 @@ class MapStatesToStages implements JourneyStateUpdate {
     private final List<TransportStage<?, ?>> stages;
 
     private boolean onVehicle;
-    //private IdFor<Trip> tripId;
 
     private Duration totalCost; // total cost of entire journey
     private TramTime actualTime; // updated each time pass minute node and know 'actual' time

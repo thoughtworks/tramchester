@@ -33,12 +33,12 @@ public class LowestCostSeen {
         return arrived.get()>0;
     }
 
-    public boolean isLower(ImmutableJourneyState journeyState) {
+    public boolean isLower(final ImmutableJourneyState journeyState) {
         // <= equals so we include multiple options and routes in the results
         // An alternative to this would be to search over a finer grained list of times and catch alternatives
         // that way
 
-        boolean durationLower = journeyState.getTotalDurationSoFar().compareTo(getLowestDuration()) <= 0;
+        final boolean durationLower = journeyState.getTotalDurationSoFar().compareTo(getLowestDuration()) <= 0;
         return  durationLower && journeyState.getNumberChanges() <= getLowestNumChanges();
 
     }

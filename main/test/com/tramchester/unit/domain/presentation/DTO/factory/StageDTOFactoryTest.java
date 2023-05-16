@@ -21,6 +21,7 @@ import com.tramchester.domain.presentation.TransportStage;
 import com.tramchester.domain.presentation.TravelAction;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramTime;
+import com.tramchester.domain.transportStages.ConnectingStage;
 import com.tramchester.domain.transportStages.VehicleStage;
 import com.tramchester.domain.transportStages.WalkingFromStationStage;
 import com.tramchester.testSupport.TestEnv;
@@ -69,6 +70,24 @@ class StageDTOFactoryTest extends EasyMockSupport {
         replayAll();
         SimpleStageDTO build = factory.build(stage, TravelAction.WalkTo, when);
         checkValues(stage, build, false, TravelAction.WalkTo);
+        verifyAll();
+    }
+
+    @Test
+    void shouldCreateStageDTOCorrectlyForConnection() {
+        ConnectingStage<Station, Station> connectingStage = new ConnectingStage<>(Altrincham.fake(), NavigationRoad.fake(),
+                Duration.ofMinutes(1), TramTime.of(10,42) );
+
+        EasyMock.expect(stationDTOFactory.createLocationRefWithPosition(Altrincham.fake())).
+                andReturn(new LocationRefWithPosition(Altrincham.fake()));
+        EasyMock.expect(stationDTOFactory.createLocationRefWithPosition(Altrincham.fake())).
+                andReturn(new LocationRefWithPosition(Altrincham.fake()));
+        EasyMock.expect(stationDTOFactory.createLocationRefWithPosition(NavigationRoad.fake())).
+                andReturn(new LocationRefWithPosition(NavigationRoad.fake()));
+
+        replayAll();
+        SimpleStageDTO build = factory.build(connectingStage, TravelAction.ConnectTo, when);
+        checkValues(connectingStage, build, false, TravelAction.ConnectTo);
         verifyAll();
     }
 

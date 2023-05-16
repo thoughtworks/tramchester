@@ -64,7 +64,6 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
         this.startNodeId = startNodeId;
         this.begin = begin;
         this.providesNow = providesNow;
-        //this.requestedModes = requestedModes;
         this.requestedLabels = GraphLabel.forMode(requestedModes);
         this.maxInitialWaitMins = Math.toIntExact(maxInitialWait.toMinutes());
     }
@@ -83,7 +82,7 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
 
         // NOTE: This makes a significant impact on performance, without it algo explore the same
         // path again and again for the same time in the case where it is a valid time.
-        ReasonCode previousResult = previousVisits.getPreviousResult(nextNode, journeyState, labels);
+        final ReasonCode previousResult = previousVisits.getPreviousResult(nextNode, journeyState, labels);
         final HowIGotHere howIGotHere = new HowIGotHere(path, journeyState);
         if (previousResult != ReasonCode.PreviousCacheMiss) {
             final TramTime journeyClock = journeyState.getJourneyClock();
@@ -103,8 +102,8 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
 
 
 
-    private ReasonCode doEvaluate(Path thePath, ImmutableJourneyState journeyState, Node nextNode,
-                                  EnumSet<GraphLabel> nodeLabels) {
+    private ReasonCode doEvaluate(final Path thePath, final ImmutableJourneyState journeyState, final Node nextNode,
+                                  final EnumSet<GraphLabel> nodeLabels) {
 
         final long nextNodeId = nextNode.getId();
 
@@ -200,11 +199,6 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
         // -->Hour
         // check time, just hour first
         if (nodeLabels.contains(GraphLabel.HOUR)) {
-//            ServiceReason forMode = serviceHeuristics.checkModes(nodeLabels, requestedLabels, howIGotHere, reasons);
-//            if (!forMode.isValid()) {
-//                return forMode.getReasonCode();
-//            }
-
             if (!serviceHeuristics.interestedInHour(howIGotHere, visitingTime, reasons, timeToWait, nodeLabels).isValid()) {
                 return ReasonCode.NotAtHour;
             }
