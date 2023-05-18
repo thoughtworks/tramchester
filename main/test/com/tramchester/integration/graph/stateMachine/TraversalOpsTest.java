@@ -25,6 +25,7 @@ import com.tramchester.testSupport.reference.TramStations;
 import org.junit.jupiter.api.*;
 import org.neo4j.graphdb.Transaction;
 
+import static com.tramchester.testSupport.TestEnv.Modes.TramsOnly;
 import static com.tramchester.testSupport.reference.KnownLocations.nearPiccGardens;
 import static com.tramchester.testSupport.reference.TramStations.ManAirport;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -79,7 +80,7 @@ public class TraversalOpsTest {
         TimeRange timeRange = TimeRange.of(TramTime.of(8, 15), TramTime.of(22, 35));
 
         LowestCostsForDestRoutes lowestCostForRoutes = routeToRouteCosts.getLowestCostCalcutatorFor(destinationStations,
-                date, timeRange, TransportMode.TramsOnly);
+                date, timeRange, TramsOnly);
 
         TraversalOps traversalOpsForDest = new TraversalOps(nodeOperations, tripRepository,
                 sortsPositions, destinationStations, destinationLatLon, lowestCostForRoutes, date);

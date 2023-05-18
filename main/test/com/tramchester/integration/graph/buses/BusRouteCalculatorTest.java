@@ -30,6 +30,7 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
+import static com.tramchester.testSupport.TestEnv.Modes.BusesOnly;
 import static com.tramchester.testSupport.reference.BusStations.*;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -115,7 +116,7 @@ class BusRouteCalculatorTest {
     }
 
     private EnumSet<TransportMode> getRequestedModes() {
-        return TransportMode.BusesOnly;
+        return BusesOnly;
     }
 
     @Test

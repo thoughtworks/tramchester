@@ -27,6 +27,7 @@ import java.util.EnumSet;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
+import static com.tramchester.testSupport.TestEnv.Modes.BusesOnly;
 import static com.tramchester.testSupport.reference.KnownLocations.nearAltrinchamInterchange;
 import static com.tramchester.testSupport.reference.KnownLocations.nearKnutsfordBusStation;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -87,7 +88,7 @@ class LocationJourneyPlannerBusTest {
     }
 
     private EnumSet<TransportMode> getRequestedModes() {
-        return TransportMode.BusesOnly;
+        return BusesOnly;
     }
 
     @Test

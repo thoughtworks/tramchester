@@ -93,7 +93,15 @@ public class Journey implements Iterable<TransportStage<?,?>>, CallsAtPlatforms 
     }
 
     public boolean firstStageIsWalk() {
-        return stages.get(0).getMode()==TransportMode.Walk;
+        return getFirstStageMode()==TransportMode.Walk;
+    }
+
+    public boolean firstStageIsConnect() {
+        return getFirstStageMode() ==TransportMode.Connect;
+    }
+
+    private TransportMode getFirstStageMode() {
+        return stages.get(0).getMode();
     }
 
     public Location<?> getBeginning() {
@@ -148,4 +156,5 @@ public class Journey implements Iterable<TransportStage<?,?>>, CallsAtPlatforms 
         result = 31 * result + stages.hashCode();
         return result;
     }
+
 }

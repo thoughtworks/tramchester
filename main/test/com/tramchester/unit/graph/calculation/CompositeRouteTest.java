@@ -7,7 +7,6 @@ import com.tramchester.domain.Journey;
 import com.tramchester.domain.JourneyRequest;
 import com.tramchester.domain.Service;
 import com.tramchester.domain.dates.TramDate;
-import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.places.StationGroup;
 import com.tramchester.domain.presentation.TransportStage;
@@ -36,7 +35,7 @@ import java.time.Duration;
 import java.util.List;
 import java.util.Set;
 
-import static com.tramchester.domain.reference.TransportMode.TramsOnly;
+import static com.tramchester.testSupport.TestEnv.Modes.TramsOnly;
 import static com.tramchester.testSupport.TestEnv.assertMinutesEquals;
 import static com.tramchester.testSupport.reference.KnownLocations.nearAltrincham;
 import static com.tramchester.testSupport.reference.KnownLocations.nearKnutsfordBusStation;

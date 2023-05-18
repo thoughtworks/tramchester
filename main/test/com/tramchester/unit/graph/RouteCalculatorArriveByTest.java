@@ -21,13 +21,10 @@ import org.junit.jupiter.api.Test;
 import org.neo4j.graphdb.Transaction;
 
 import java.time.Duration;
-import java.util.Collections;
 import java.util.EnumSet;
-import java.util.Set;
 import java.util.stream.Stream;
 
-import static com.tramchester.domain.reference.TransportMode.Tram;
-import static com.tramchester.domain.reference.TransportMode.TramsOnly;
+import static com.tramchester.testSupport.TestEnv.Modes.TramsOnly;
 import static org.junit.jupiter.api.Assertions.assertSame;
 
 class RouteCalculatorArriveByTest extends EasyMockSupport {

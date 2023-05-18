@@ -33,8 +33,8 @@ import java.time.LocalTime;
 import java.util.EnumSet;
 import java.util.Set;
 
-import static com.tramchester.domain.reference.TransportMode.TramsOnly;
 import static com.tramchester.graph.graphbuild.GraphLabel.*;
+import static com.tramchester.testSupport.TestEnv.Modes.TramsOnly;
 import static com.tramchester.testSupport.reference.TramStations.Bury;
 import static com.tramchester.testSupport.reference.TramStations.Shudehill;
 import static java.lang.String.format;

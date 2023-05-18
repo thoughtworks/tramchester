@@ -28,14 +28,13 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.neo4j.graphdb.Transaction;
 
 import java.time.Duration;
-import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Stream;
 
-import static com.tramchester.domain.reference.TransportMode.TramsOnly;
+import static com.tramchester.testSupport.TestEnv.Modes.TramsOnly;
 import static org.junit.jupiter.api.Assertions.*;
 
 class PostcodeTramJourneyPlannerTest {

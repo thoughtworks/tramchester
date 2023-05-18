@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static com.tramchester.testSupport.TestEnv.Modes.TramsOnly;
 import static com.tramchester.testSupport.reference.KnownTramRoute.AltrinchamManchesterBury;
 import static com.tramchester.testSupport.reference.KnownTramRoute.AltrinchamPiccadilly;
 import static com.tramchester.testSupport.reference.TramStations.Altrincham;
@@ -63,7 +64,7 @@ class RouteReachableTramTest {
         Station next = stationRepository.getStationById(NavigationRoad.getId());
 
         TimeRange timeRange = TimeRange.of(TramTime.of(8,30), Duration.ofMinutes(30), Duration.ofMinutes(30));
-        List<Route> results = reachable.getRoutesFromStartToNeighbour(StationPair.of(start, next), when, timeRange, TransportMode.TramsOnly);
+        List<Route> results = reachable.getRoutesFromStartToNeighbour(StationPair.of(start, next), when, timeRange, TramsOnly);
 
         Set<String> names = results.stream().map(Route::getName).collect(Collectors.toSet());
 

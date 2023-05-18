@@ -55,7 +55,6 @@ class JourneyToDTOMapperTest extends EasyMockSupport {
 
     private JourneyToDTOMapper mapper;
     private List<TransportStage<?,?>> stages;
-    //private TramServiceDate tramServiceDate;
 
     private StageDTOFactory stageFactory;
     private ProvidesTramNotes providesNotes;
@@ -336,13 +335,17 @@ class JourneyToDTOMapperTest extends EasyMockSupport {
     }
 
     private void validateStationList(List<Location<?>> expected, List<LocationRefWithPosition> results) {
-        assertEquals(expected.size(), results.size());
+        final String diag = "expected " + expected + " got " + results;
+        assertEquals(expected.size(), results.size(), diag);
         List<com.tramchester.domain.id.IdForDTO> expectedIds = expected.stream().
                 map(IdForDTO::createFor).
                 collect(Collectors.toList());
 
-        List<com.tramchester.domain.id.IdForDTO> resultIds = results.stream().map(LocationRefDTO::getId).collect(Collectors.toList());
-        assertEquals(expectedIds, resultIds);
+        final List<com.tramchester.domain.id.IdForDTO> resultIds = results.stream().
+                map(LocationRefDTO::getId).
+                collect(Collectors.toList());
+
+        assertEquals(expectedIds, resultIds, diag);
     }
 
 }

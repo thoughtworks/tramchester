@@ -49,7 +49,7 @@ public class StageDTOFactory {
                     source.getHeadSign(), source.getMode(), source.getPassedStopsCount(),
                     routeRefDTO, travelAction, queryDate);
         }
-        
+
         IdForDTO tripId = new IdForDTO(source.getTripId());
         if (source.hasBoardingPlatform()) {
             PlatformDTO boardingPlatform = new PlatformDTO(source.getBoardingPlatform());

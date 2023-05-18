@@ -11,6 +11,7 @@ import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.TransportStage;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramTime;
+import com.tramchester.domain.transportStages.ConnectingStage;
 import com.tramchester.domain.transportStages.VehicleStage;
 import com.tramchester.domain.transportStages.WalkingFromStationStage;
 import com.tramchester.domain.transportStages.WalkingToStationStage;
@@ -80,6 +81,27 @@ class JourneyTest {
         assertTrue(result.contains(Walk));
         assertTrue(journey.isDirect());
         assertTrue(journey.firstStageIsWalk());
+
+        assertEquals(myLocation.getId(), journey.getBeginning().getId());
+    }
+
+    @Test
+    void shouldHaveDirectConnectionToStation() {
+        List<TransportStage<?, ?>> stages = new ArrayList<>();
+
+        final TramTime departureTime = queryTime.plusMinutes(10);
+
+        stages.add(new ConnectingStage<>(myLocation, Bury.fake(), Duration.ofMinutes(42), departureTime));
+
+        Journey journey = new Journey(departureTime, queryTime, departureTime.plusMinutes(15), stages, path, requestedNumberChanges);
+
+        Set<TransportMode> result = journey.getTransportModes();
+
+        assertEquals(1, result.size());
+        assertTrue(result.contains(Connect), result.toString());
+        assertTrue(journey.isDirect());
+        //assertTrue(journey.firstStageIsWalk());
+        assertTrue(journey.firstStageIsConnect());
 
         assertEquals(myLocation.getId(), journey.getBeginning().getId());
     }

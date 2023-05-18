@@ -10,7 +10,6 @@ import com.tramchester.domain.MutableAgency;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.places.Station;
-import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.filters.ConfigurableGraphFilter;
@@ -30,7 +29,8 @@ import java.time.Duration;
 import java.util.List;
 import java.util.Set;
 
-import static com.tramchester.domain.reference.TransportMode.TramsOnly;
+import static com.tramchester.testSupport.TestEnv.Modes.RailOnly;
+import static com.tramchester.testSupport.TestEnv.Modes.TramsOnly;
 import static com.tramchester.testSupport.reference.TramStations.*;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 
@@ -75,7 +75,7 @@ public class RailAndTramRouteCalculatorSubGraphRoutesTest {
         graphFilter.addAgency(TrainOperatingCompanies.NT.getAgencyId());
         graphFilter.addAgency(MutableAgency.METL);
         // GM train stations
-        transportData.getStations(TransportMode.RailOnly).forEach(station -> graphFilter.addStation(station.getId()));
+        transportData.getStations(RailOnly).forEach(station -> graphFilter.addStation(station.getId()));
     }
 
     @AfterEach

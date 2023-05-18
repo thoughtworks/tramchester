@@ -2,6 +2,7 @@ package com.tramchester.graph.search.routes;
 
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
+import com.github.benmanes.caffeine.cache.stats.CacheStats;
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.domain.LocationSet;
 import com.tramchester.domain.NumberOfChanges;
@@ -20,8 +21,10 @@ import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TimeRange;
 import com.tramchester.graph.search.BetweenRoutesCostRepository;
 import com.tramchester.graph.search.LowestCostsForDestRoutes;
+import com.tramchester.metrics.CacheMetrics;
 import com.tramchester.repository.ClosedStationsRepository;
 import com.tramchester.repository.NeighboursRepository;
+import com.tramchester.repository.ReportsCacheStats;
 import com.tramchester.repository.StationAvailabilityRepository;
 import org.apache.commons.lang3.tuple.Pair;
 import org.jetbrains.annotations.NotNull;
@@ -50,12 +53,14 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
     private final RouteIndex index;
     private final RouteCostMatrix costs;
     private final RouteIndexPairFactory pairFactory;
+    private final CacheMetrics cacheMetrics;
 
     @Inject
     public RouteToRouteCosts(NeighboursRepository neighboursRepository,
                              StationAvailabilityRepository availabilityRepository,
                              ClosedStationsRepository closedStationsRepository,
-                             RouteIndex index, RouteCostMatrix costs, RouteIndexPairFactory pairFactory) {
+                             RouteIndex index, RouteCostMatrix costs, RouteIndexPairFactory pairFactory,
+                             CacheMetrics cacheMetrics) {
         this.neighboursRepository = neighboursRepository;
         this.availabilityRepository = availabilityRepository;
         this.closedStationsRepository = closedStationsRepository;
@@ -63,6 +68,7 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
         this.costs = costs;
 
         this.pairFactory = pairFactory;
+        this.cacheMetrics = cacheMetrics;
     }
 
     @PostConstruct
@@ -143,13 +149,19 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
             return NumberOfChanges.None();
         }
 
-        StationAvailabilityFacade interchangesOperating = new StationAvailabilityFacade(availabilityRepository, date, timeRange, requestedModes);
+        StationAvailabilityFacade availabilityFacade = getAvailabilityFacade(availabilityRepository, date, timeRange, requestedModes);
 
         if (neighboursRepository.areNeighbours(starts, destinations)) {
             return new NumberOfChanges(1, 1);
         }
         // todo account for closures, or covered by fact a set of locations is available here?
-        return getNumberOfHops(startRoutes, endRoutes, date, interchangesOperating, 0, requestedModes);
+        return getNumberOfHops(startRoutes, endRoutes, date, availabilityFacade, 0, requestedModes);
+    }
+
+    @NotNull
+    private static StationAvailabilityFacade getAvailabilityFacade(StationAvailabilityRepository availabilityRepository, TramDate date,
+                                                                   TimeRange timeRange, EnumSet<TransportMode> requestedModes) {
+        return new StationAvailabilityFacade(availabilityRepository, date, timeRange, requestedModes);
     }
 
     @Override
@@ -185,7 +197,7 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
                 startStation.getId(), HasId.asIds(pickupRoutes), destination.getId(), HasId.asIds(dropoffRoutes),
                 preferredModes, date, timeRange));
 
-        StationAvailabilityFacade changeStationOperating = new StationAvailabilityFacade(availabilityRepository, date, timeRange, preferredModes);
+        StationAvailabilityFacade changeStationOperating = getAvailabilityFacade(availabilityRepository, date, timeRange, preferredModes);
 
         if (pickupRoutes.isEmpty()) {
             logger.warn(format("start station %s has no matching pick-up routes for %s %s %s",
@@ -204,7 +216,7 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
 
     @Override
     public NumberOfChanges getNumberOfChanges(Route routeA, Route routeB, TramDate date, TimeRange timeRange, EnumSet<TransportMode> requestedModes) {
-        StationAvailabilityFacade interchangesOperating = new StationAvailabilityFacade(availabilityRepository, date, timeRange, requestedModes);
+        StationAvailabilityFacade interchangesOperating = getAvailabilityFacade(availabilityRepository, date, timeRange, requestedModes);
         return getNumberOfHops(Collections.singleton(routeA), Collections.singleton(routeB), date,
                 interchangesOperating, 0, requestedModes);
     }
@@ -259,6 +271,8 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
             logger.debug(format("Computed number of changes from %s to %s on %s as %s",
                     HasId.asIds(startRoutes), HasId.asIds(destinationRoutes), date, numberOfChanges));
         }
+
+        interchangesOperating.reportStats();
         return numberOfChanges;
     }
 
@@ -319,7 +333,7 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
                     map(destination -> this.routeToRouteCosts.index.indexFor(destination.getId())).
                     collect(Collectors.toUnmodifiableSet());
 
-            changeStationOperating = new StationAvailabilityFacade(availabilityRepository, date, time, requestedModes);
+            changeStationOperating = getAvailabilityFacade(availabilityRepository, date, time, requestedModes);
             dateOverlaps = ((RouteToRouteCosts) routeToRouteCosts).costs.createOverlapMatrixFor(date, requestedModes);
 
         }
@@ -375,7 +389,7 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
     /***
      * Needed for rail performance, significant
      */
-    static class StationAvailabilityFacade {
+    static class StationAvailabilityFacade implements ReportsCacheStats {
         private final TramDate date;
         private final TimeRange time;
         private final EnumSet<TransportMode> modes;
@@ -389,7 +403,9 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
             this.time = time;
             this.modes = modes;
 
-            cache = Caffeine.newBuilder().maximumSize(availabilityRepository.size()).expireAfterAccess(1, TimeUnit.MINUTES).
+            long size = availabilityRepository.size();
+            logger.info("Created cache of size " + size + " for " + date + " " + time + " " + modes);
+            cache = Caffeine.newBuilder().maximumSize(size).expireAfterAccess(1, TimeUnit.MINUTES).
                     recordStats().build();
         }
 
@@ -409,6 +425,16 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
 
         private boolean uncached(Station station) {
             return availabilityRepository.isAvailable(station, date, time, modes);
+        }
+
+        @Override
+        public List<Pair<String, CacheStats>> stats() {
+            Pair<String, CacheStats> stats = Pair.of("StationAvailabilityFacade", cache.stats());
+            return Collections.singletonList(stats);
+        }
+
+        public void reportStats() {
+            stats().forEach(stat -> logger.info(String.format("%s %s", stat.getLeft(), stat.getRight())));
         }
     }
 

@@ -29,6 +29,7 @@ import org.junit.jupiter.api.*;
 import java.util.EnumSet;
 import java.util.Set;
 
+import static com.tramchester.testSupport.TestEnv.Modes.BusesOnly;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 
@@ -67,7 +68,7 @@ public class BusRouteToRouteCostsTest {
 
         date = TestEnv.testDay();
         timeRange = TimeRange.of(TramTime.of(04,45), TramTime.of(23,55));
-        modes = TransportMode.BusesOnly;
+        modes = BusesOnly;
 ;    }
 
     // For testing, likely to vary a lot with timetable updates

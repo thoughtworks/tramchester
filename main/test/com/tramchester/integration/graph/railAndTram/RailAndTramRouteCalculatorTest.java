@@ -5,6 +5,8 @@ import com.tramchester.ComponentsBuilder;
 import com.tramchester.domain.Journey;
 import com.tramchester.domain.JourneyRequest;
 import com.tramchester.domain.dates.TramDate;
+import com.tramchester.domain.places.Location;
+import com.tramchester.domain.places.MyLocation;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.TransportStage;
 import com.tramchester.domain.reference.TransportMode;
@@ -17,6 +19,7 @@ import com.tramchester.integration.testSupport.rail.RailStationIds;
 import com.tramchester.repository.NeighboursRepository;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.TestEnv;
+import com.tramchester.testSupport.reference.KnownLocations;
 import com.tramchester.testSupport.reference.TramStations;
 import com.tramchester.testSupport.testTags.GMTest;
 import org.junit.jupiter.api.*;
@@ -30,6 +33,7 @@ import java.util.stream.Collectors;
 import static com.tramchester.domain.reference.TransportMode.*;
 import static com.tramchester.integration.testSupport.rail.RailStationIds.*;
 import static com.tramchester.integration.testSupport.rail.RailStationIds.Altrincham;
+import static com.tramchester.testSupport.TestEnv.Modes.TramsOnly;
 import static com.tramchester.testSupport.reference.TramStations.*;
 import static com.tramchester.testSupport.reference.TramStations.Eccles;
 import static org.junit.jupiter.api.Assertions.*;
@@ -320,6 +324,7 @@ public class RailAndTramRouteCalculatorTest {
         assertEquals(stages.get(1).getMode(), Train, "wrong second stage for " + stages);
 
     }
+
 
     @Disabled("Not a realistic scenario? start from a tram station but select train only?")
     @Test

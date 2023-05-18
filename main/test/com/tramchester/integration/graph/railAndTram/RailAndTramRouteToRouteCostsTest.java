@@ -27,6 +27,7 @@ import java.util.EnumSet;
 
 import static com.tramchester.domain.reference.TransportMode.*;
 import static com.tramchester.integration.testSupport.rail.RailStationIds.*;
+import static com.tramchester.testSupport.TestEnv.Modes.TramsOnly;
 import static com.tramchester.testSupport.reference.KnownTramRoute.BuryPiccadilly;
 import static com.tramchester.testSupport.reference.KnownTramRoute.EastDidisburyManchesterShawandCromptonRochdale;
 import static com.tramchester.testSupport.reference.TramStations.Altrincham;

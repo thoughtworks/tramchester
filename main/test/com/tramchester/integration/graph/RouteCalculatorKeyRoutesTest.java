@@ -24,7 +24,7 @@ import java.time.Duration;
 import java.util.*;
 
 import static com.tramchester.domain.reference.TransportMode.Tram;
-import static com.tramchester.domain.reference.TransportMode.TramsOnly;
+import static com.tramchester.testSupport.TestEnv.Modes.TramsOnly;
 import static com.tramchester.testSupport.TestEnv.avoidChristmasDate;
 import static com.tramchester.testSupport.reference.TramStations.Ashton;
 import static com.tramchester.testSupport.reference.TramStations.ShawAndCrompton;

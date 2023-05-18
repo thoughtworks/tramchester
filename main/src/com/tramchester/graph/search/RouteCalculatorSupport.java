@@ -309,7 +309,7 @@ public class RouteCalculatorSupport {
         }
 
         public boolean notDoneYet(Journey journey) {
-            if (!journey.firstStageIsWalk()) {
+            if (!(journey.firstStageIsWalk() || journey.firstStageIsConnect())) {
                 throw new RuntimeException("Expected walk to be first stage of " + journey);
             }
 

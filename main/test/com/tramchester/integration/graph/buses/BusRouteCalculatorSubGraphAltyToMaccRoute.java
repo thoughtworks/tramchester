@@ -44,6 +44,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import static com.tramchester.domain.reference.TransportMode.Bus;
+import static com.tramchester.testSupport.TestEnv.Modes.BusesOnly;
 import static com.tramchester.testSupport.TestEnv.NoopRegisterMetrics;
 import static com.tramchester.testSupport.TestEnv.deleteDBIfPresent;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -157,7 +158,7 @@ class BusRouteCalculatorSubGraphAltyToMaccRoute {
     }
 
     private EnumSet<TransportMode> getRequestedModes() {
-        return TransportMode.BusesOnly;
+        return BusesOnly;
     }
 
     @Test

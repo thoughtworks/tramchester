@@ -30,7 +30,6 @@ import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
-import static com.tramchester.domain.reference.TransportMode.TramsOnly;
 import static com.tramchester.testSupport.TestEnv.assertMinutesEquals;
 import static com.tramchester.testSupport.reference.KnownLocations.*;
 import static com.tramchester.testSupport.reference.TramStations.*;
@@ -50,6 +49,13 @@ class LocationJourneyPlannerTest {
     private Duration maxJourneyDuration;
     private long maxNumberOfJourneys;
     private StationRepository stationRepository;
+
+
+    @Test
+    static void todo() {
+        // TODO MAKE this a dual test
+        fail("todo");
+    }
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
@@ -105,7 +111,7 @@ class LocationJourneyPlannerTest {
     }
 
     private EnumSet<TransportMode> getRequestedModes() {
-        return TramsOnly;
+        return TestEnv.Modes.TramsOnly;
     }
 
     @Test

@@ -21,6 +21,7 @@ import javax.inject.Inject;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.Collections;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -116,7 +117,7 @@ public class TramPositionInference {
             return Collections.emptySet();
         }
 
-        List<Route> routesBetween = routeReachable.getRoutesFromStartToNeighbour(pair, date, timeRange, TransportMode.TramsOnly);
+        List<Route> routesBetween = routeReachable.getRoutesFromStartToNeighbour(pair, date, timeRange, EnumSet.of(TransportMode.Tram));
 
         if (routesBetween.isEmpty()) {
             logger.warn("No active routes between " + pair);

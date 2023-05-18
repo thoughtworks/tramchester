@@ -43,6 +43,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static com.tramchester.domain.reference.TransportMode.*;
 import static java.lang.String.format;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -169,11 +170,11 @@ public class TestEnv {
     }
 
     public static Route getTramTestRoute(IdFor<Route> routeId, String routeName) {
-        return MutableRoute.getRoute(routeId, "routeCode", routeName, TestEnv.MetAgency(), TransportMode.Tram);
+        return MutableRoute.getRoute(routeId, "routeCode", routeName, TestEnv.MetAgency(), Tram);
     }
 
     public static Route getTrainTestRoute(IdFor<Route> routeId, String routeName) {
-        return MutableRoute.getRoute(routeId, "routeCode", routeName, TestEnv.NorthernTrainsAgency(), TransportMode.Train);
+        return MutableRoute.getRoute(routeId, "routeCode", routeName, TestEnv.NorthernTrainsAgency(), Train);
     }
 
     public static Agency MetAgency() {
@@ -231,6 +232,11 @@ public class TestEnv {
 
     public static BoundingBox getGreaterManchester() { return new BoundingBox(370000, 380000, 398500, 414500); }
 
+    /***
+     * Use KnownLocations instead
+     * @return a location near st peters square
+     */
+    @Deprecated
     public static LatLong stPetersSquareLocation() {
         return new LatLong(53.47825,-2.24314);
     }
@@ -335,5 +341,13 @@ public class TestEnv {
     @SafeVarargs
     public static <T extends CoreDomain> List<IdFor<T>> asList(HasId<T>... items) {
         return Arrays.stream(items).map(HasId::getId).collect(Collectors.toList());
+    }
+
+    public static class Modes {
+
+        public static final EnumSet<TransportMode> TramsOnly = EnumSet.of(Tram);
+        public static final EnumSet<TransportMode> BusesOnly = EnumSet.of(Bus);
+        public static final EnumSet<TransportMode> RailOnly = EnumSet.of(Train);
+        public static EnumSet<TransportMode> TrainAndTram = EnumSet.of(Train, Tram, RailReplacementBus);
     }
 }

@@ -26,7 +26,7 @@ import java.time.Duration;
 import java.util.Collections;
 import java.util.Set;
 
-import static com.tramchester.domain.reference.TransportMode.TramsOnly;
+import static com.tramchester.testSupport.TestEnv.Modes.TramsOnly;
 import static java.lang.String.format;
 
 class RouteCalculatorSubGraphMonsallTest {

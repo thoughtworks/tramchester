@@ -35,9 +35,8 @@ import org.junit.jupiter.api.Test;
 import org.neo4j.graphdb.Node;
 
 import java.time.Duration;
-import java.util.Set;
 
-import static com.tramchester.domain.reference.TransportMode.TramsOnly;
+import static com.tramchester.testSupport.TestEnv.Modes.TramsOnly;
 import static org.junit.jupiter.api.Assertions.*;
 
 class JourneyStateTest extends EasyMockSupport {
@@ -77,8 +76,7 @@ class JourneyStateTest extends EasyMockSupport {
         final TraversalOps traversalOps = new TraversalOps(nodeContentsRepository, tripRepository, sortsPositions,
                 destinations, latLongHint, lowestCostsForRoutes, queryDate);
 
-        Set<TransportMode> requestedModes = TramsOnly;
-        traversalState = new NotStartedState(traversalOps, traversalStateFactory, requestedModes);
+        traversalState = new NotStartedState(traversalOps, traversalStateFactory, TramsOnly);
         queryTime = TramTime.of(9, 15);
     }
 

@@ -22,6 +22,7 @@ import java.time.LocalDate;
 import java.util.Collections;
 
 import static com.tramchester.domain.reference.TransportMode.Bus;
+import static com.tramchester.testSupport.TestEnv.Modes.BusesOnly;
 
 @SuppressWarnings("JUnitTestMethodWithNoAssertions")
 @BusTest
@@ -61,7 +62,7 @@ class RouteCalculatorKeyRoutesBusTest {
         TramTime time = TramTime.of(8, 0);
         int numberChanges = 3;
         journeyRequest = new JourneyRequest(when, time, false, numberChanges,
-                Duration.ofMinutes(testConfig.getMaxJourneyDuration()), 1, TransportMode.BusesOnly);
+                Duration.ofMinutes(testConfig.getMaxJourneyDuration()), 1, BusesOnly);
     }
 
     @Test

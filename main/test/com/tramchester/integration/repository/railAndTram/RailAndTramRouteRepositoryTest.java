@@ -27,6 +27,7 @@ import java.util.stream.Collectors;
 
 import static com.tramchester.domain.reference.TransportMode.Train;
 import static com.tramchester.integration.testSupport.rail.RailStationIds.*;
+import static com.tramchester.testSupport.TestEnv.Modes.TramsOnly;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -64,7 +65,7 @@ public class RailAndTramRouteRepositoryTest {
     void shouldHaveExpectedNumberOfTramRoutes() {
         int numberTramRoutes = 42;
 
-        Set<Route> tramRoutes = routeRepository.getRoutes(TransportMode.TramsOnly);
+        Set<Route> tramRoutes = routeRepository.getRoutes(TramsOnly);
         assertEquals(numberTramRoutes, tramRoutes.size());
 
         Set<Route> railRoutes = routeRepository.getRoutes(EnumSet.of(Train));
