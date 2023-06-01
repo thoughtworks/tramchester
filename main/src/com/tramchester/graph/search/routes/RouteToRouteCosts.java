@@ -21,7 +21,6 @@ import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TimeRange;
 import com.tramchester.graph.search.BetweenRoutesCostRepository;
 import com.tramchester.graph.search.LowestCostsForDestRoutes;
-import com.tramchester.metrics.CacheMetrics;
 import com.tramchester.repository.ClosedStationsRepository;
 import com.tramchester.repository.NeighboursRepository;
 import com.tramchester.repository.ReportsCacheStats;
@@ -53,14 +52,12 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
     private final RouteIndex index;
     private final RouteCostMatrix costs;
     private final RouteIndexPairFactory pairFactory;
-    private final CacheMetrics cacheMetrics;
 
     @Inject
     public RouteToRouteCosts(NeighboursRepository neighboursRepository,
                              StationAvailabilityRepository availabilityRepository,
                              ClosedStationsRepository closedStationsRepository,
-                             RouteIndex index, RouteCostMatrix costs, RouteIndexPairFactory pairFactory,
-                             CacheMetrics cacheMetrics) {
+                             RouteIndex index, RouteCostMatrix costs, RouteIndexPairFactory pairFactory) {
         this.neighboursRepository = neighboursRepository;
         this.availabilityRepository = availabilityRepository;
         this.closedStationsRepository = closedStationsRepository;
@@ -68,7 +65,6 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
         this.costs = costs;
 
         this.pairFactory = pairFactory;
-        this.cacheMetrics = cacheMetrics;
     }
 
     @PostConstruct
@@ -111,7 +107,7 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
 
         // need to account for route availability and modes when getting the depth
 
-        PathResults results = costs.getInterchangesFor(routePair, dateAndModeOverlaps, changeStationOperating::isOperating);
+        final PathResults results = costs.getInterchangesFor(routePair, dateAndModeOverlaps, changeStationOperating::isOperating);
 
         if (results.hasAny()) {
             return results.getDepth();
@@ -224,11 +220,12 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
     @Override
     public LowestCostsForDestRoutes getLowestCostCalcutatorFor(LocationSet destinations, TramDate date, TimeRange timeRange,
                                                                EnumSet<TransportMode> requestedModes) {
-        Set<Route> destinationRoutes = destinations.stream().
+        final Set<Route> destinationRoutes = destinations.stream().
                 map(dest -> availabilityRepository.getDropoffRoutesFor(dest, date, timeRange, requestedModes)).
                 flatMap(Collection::stream).
                 collect(Collectors.toUnmodifiableSet());
-        return new LowestCostForDestinations(this, pairFactory, destinationRoutes, date, timeRange, requestedModes, availabilityRepository);
+        return new LowestCostForDestinations(this, pairFactory, destinationRoutes, date, timeRange,
+                requestedModes, availabilityRepository);
     }
 
     @NotNull
@@ -325,8 +322,10 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
         private final StationAvailabilityFacade changeStationOperating;
         private final IndexedBitSet dateOverlaps;
 
-        public LowestCostForDestinations(BetweenRoutesCostRepository routeToRouteCosts, RouteIndexPairFactory pairFactory, Set<Route> destinations,
-                                         TramDate date, TimeRange time, EnumSet<TransportMode> requestedModes, StationAvailabilityRepository availabilityRepository) {
+        public LowestCostForDestinations(BetweenRoutesCostRepository routeToRouteCosts, RouteIndexPairFactory pairFactory,
+                                         Set<Route> destinations,
+                                         TramDate date, TimeRange time, EnumSet<TransportMode> requestedModes,
+                                         StationAvailabilityRepository availabilityRepository) {
             this.routeToRouteCosts = (RouteToRouteCosts) routeToRouteCosts;
             this.pairFactory = pairFactory;
             destinationIndexs = destinations.stream().
@@ -418,12 +417,12 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
                     '}';
         }
 
-        public Boolean isOperating(InterchangeStation interchangeStation) {
-            Station station = interchangeStation.getStation();
+        public boolean isOperating(final InterchangeStation interchangeStation) {
+            final Station station = interchangeStation.getStation();
             return cache.get(station, unused -> uncached(station));
         }
 
-        private boolean uncached(Station station) {
+        private boolean uncached(final Station station) {
             return availabilityRepository.isAvailable(station, date, time, modes);
         }
 
