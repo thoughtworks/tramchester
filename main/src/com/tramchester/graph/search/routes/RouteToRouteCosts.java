@@ -13,6 +13,7 @@ import com.tramchester.domain.collections.RouteIndexPair;
 import com.tramchester.domain.collections.RouteIndexPairFactory;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.HasId;
+import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.places.InterchangeStation;
 import com.tramchester.domain.places.Location;
 import com.tramchester.domain.places.Station;
@@ -34,7 +35,6 @@ import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.inject.Inject;
 import java.util.*;
-import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -103,7 +103,8 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
         return result;
     }
 
-    private int getDepth(final RouteIndexPair routePair, final StationAvailabilityFacade changeStationOperating, final IndexedBitSet dateAndModeOverlaps) {
+    private int getDepth(final RouteIndexPair routePair, final StationAvailabilityFacade changeStationOperating,
+                         final IndexedBitSet dateAndModeOverlaps) {
 
         // need to account for route availability and modes when getting the depth
 
@@ -394,17 +395,20 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
         private final EnumSet<TransportMode> modes;
         private final StationAvailabilityRepository availabilityRepository;
 
-        private final Cache<Station, Boolean> cache;
+        private final Cache<IdFor<Station>, Boolean> cache;
 
-        public StationAvailabilityFacade(StationAvailabilityRepository availabilityRepository, TramDate date, TimeRange time, EnumSet<TransportMode> modes) {
+        public StationAvailabilityFacade(StationAvailabilityRepository availabilityRepository, TramDate date, TimeRange time,
+                                         EnumSet<TransportMode> modes) {
             this.availabilityRepository = availabilityRepository;
             this.date = date;
             this.time = time;
             this.modes = modes;
 
-            long size = availabilityRepository.size();
+            final long size = availabilityRepository.size();
             logger.info("Created cache of size " + size + " for " + date + " " + time + " " + modes);
-            cache = Caffeine.newBuilder().maximumSize(size).expireAfterAccess(1, TimeUnit.MINUTES).
+            cache = Caffeine.newBuilder().
+                    //maximumSize(size).
+                    //expireAfterAccess(1, TimeUnit.MINUTES).
                     recordStats().build();
         }
 
@@ -419,7 +423,7 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
 
         public boolean isOperating(final InterchangeStation interchangeStation) {
             final Station station = interchangeStation.getStation();
-            return cache.get(station, unused -> uncached(station));
+            return cache.get(station.getId(), unused -> uncached(station));
         }
 
         private boolean uncached(final Station station) {

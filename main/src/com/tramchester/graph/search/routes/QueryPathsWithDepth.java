@@ -27,7 +27,7 @@ public interface QueryPathsWithDepth {
     class AnyOf implements QueryPath {
         private final Set<QueryPath> paths;
 
-        AnyOf(Set<? extends QueryPath> paths) {
+        AnyOf(final Set<? extends QueryPath> paths) {
             this.paths = new HashSet<>();
             this.paths.addAll(paths);
         }
@@ -56,8 +56,8 @@ public interface QueryPathsWithDepth {
                     '}';
         }
 
-        private String toString(Set<QueryPath> paths) {
-            StringBuilder output = new StringBuilder();
+        private String toString(final Set<QueryPath> paths) {
+            final StringBuilder output = new StringBuilder();
             paths.forEach(interchangePath -> {
                 output.append(System.lineSeparator());
                 output.append(interchangePath.toString());
@@ -67,7 +67,7 @@ public interface QueryPathsWithDepth {
         }
 
         @Override
-        public boolean isValid(Function<InterchangeStation, Boolean> validator) {
+        public boolean isValid(final Function<InterchangeStation, Boolean> validator) {
             return paths.stream().anyMatch(path -> path.isValid(validator));
         }
 
@@ -92,7 +92,7 @@ public interface QueryPathsWithDepth {
         private final QueryPath pathsA;
         private final QueryPath pathsB;
 
-        public BothOf(QueryPath pathsA, QueryPath pathsB) {
+        public BothOf(final QueryPath pathsA, final QueryPath pathsB) {
             this.pathsA = pathsA;
             this.pathsB = pathsB;
         }
@@ -111,7 +111,7 @@ public interface QueryPathsWithDepth {
         }
 
         @Override
-        public boolean isValid(Function<InterchangeStation, Boolean> validator) {
+        public boolean isValid(final Function<InterchangeStation, Boolean> validator) {
             return pathsA.isValid(validator) && pathsB.isValid(validator);
         }
 
@@ -122,7 +122,7 @@ public interface QueryPathsWithDepth {
 
         @Override
         public int getDepth() {
-            int contained = Math.max(pathsA.getDepth(), pathsB.getDepth());
+            final int contained = Math.max(pathsA.getDepth(), pathsB.getDepth());
             return contained + 1;
         }
 
@@ -201,7 +201,7 @@ public interface QueryPathsWithDepth {
         // any of these changes being available makes the path valid
         private final Set<InterchangeStation> changes;
 
-        public AnyOfInterchanges(Set<InterchangeStation> changes) {
+        public AnyOfInterchanges(final Set<InterchangeStation> changes) {
             if (changes==null) {
                 throw new RuntimeException("Cannot pass in null changes");
             }
@@ -214,7 +214,7 @@ public interface QueryPathsWithDepth {
             this.changes = changes;
         }
 
-        public static QueryPath Of(Set<InterchangeStation> changes) {
+        public static QueryPath Of(final Set<InterchangeStation> changes) {
             if (changes.size()==1) {
                 InterchangeStation change = changes.iterator().next();
                 return new SingleInterchange(change);
@@ -273,7 +273,7 @@ public interface QueryPathsWithDepth {
 
         private final InterchangeStation interchangeStation;
 
-        public SingleInterchange(InterchangeStation interchangeStation) {
+        public SingleInterchange(final InterchangeStation interchangeStation) {
             this.interchangeStation = interchangeStation;
         }
 
@@ -283,7 +283,7 @@ public interface QueryPathsWithDepth {
         }
 
         @Override
-        public boolean isValid(Function<InterchangeStation, Boolean> validator) {
+        public boolean isValid(final Function<InterchangeStation, Boolean> validator) {
             return validator.apply(interchangeStation);
         }
 

@@ -406,9 +406,9 @@ public class RouteCostMatrix  {
             final int lowerDegree = currentDegree-1;
             //final int depth = degree - 1;
 
-            final Stream<Pair<RouteIndexPair, RouteIndexPair>> underlying = connectingLinks.forDegree(lowerDegree, indexPair); //.forDepth(depth-1, indexPair);
+            final Stream<Pair<RouteIndexPair, RouteIndexPair>> underlying = connectingLinks.forDegree(lowerDegree, indexPair);
             // TODO parallel? not required?
-            Set<QueryPathsWithDepth.BothOf> combined = underlying. //.parallel().
+            final Set<QueryPathsWithDepth.BothOf> combined = underlying. //.parallel().
                     map(pair -> expandPathFor(pair, lowerDegree, interchangeFilter)).
                     filter(QueryPathsWithDepth.BothOf::hasAny).
                     collect(Collectors.toSet());
