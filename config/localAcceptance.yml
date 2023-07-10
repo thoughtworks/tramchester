@@ -31,7 +31,11 @@ gtfsSourceConfig:
     additionalInterchanges: [9400ZZMAGMX,9400ZZMAPIC]
     compositeStationModes: []
     addWalksForClosed: true
-    stationClosures: []
+    stationClosures:
+      - stations: [ "9400ZZMAECC", "9400ZZMALDY", "9400ZZMAWST" ]
+        begin: 2023-07-15
+        end: 2023-09-20
+        fullyClosed: true
 remoteSources:
   -
     name: tfgm

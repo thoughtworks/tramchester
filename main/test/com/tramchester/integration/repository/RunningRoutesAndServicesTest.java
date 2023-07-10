@@ -16,6 +16,7 @@ import com.tramchester.repository.TransportData;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TramRouteHelper;
 import com.tramchester.testSupport.reference.KnownTramRoute;
+import com.tramchester.testSupport.testTags.EcclesToWeasteClousure2023Test;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -111,6 +112,7 @@ public class RunningRoutesAndServicesTest {
 
     }
 
+    @EcclesToWeasteClousure2023Test
     @Test
     void shouldTakeAccountOfCrossingIntoNextDayForRunningServices() {
         // need to find service running mon to fri and one running saturday
@@ -148,10 +150,8 @@ public class RunningRoutesAndServicesTest {
         // a range capturing all the dates for the weekday services
         DateRange weekdayDateRange = new DateRange(weekdayServicesBegin, weekdayServicesEnd);
 
-        // double check contains range does conatin next tuesday
+        // double check contains range does contain next tuesday
         assertTrue(weekdayDateRange.contains(nextTuesday));
-
-
         assertTrue(weekdayDateRange.contains(friday));
 
         RunningRoutesAndServices.FilterForDate filterForNextFriday = runningRoutesAndServices.getFor(friday);

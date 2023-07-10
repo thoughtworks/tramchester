@@ -447,6 +447,7 @@ public class RouteCalculatorTest {
     }
 
     @Test
+    @EcclesToWeasteClousure2023Test
     void shouldReproIssueWithJourneysToEccles() {
         TramDate testDate = this.when.plusWeeks(1);
 
@@ -491,6 +492,7 @@ public class RouteCalculatorTest {
     }
 
     @Test
+    @EcclesToWeasteClousure2023Test
     void reproduceIssueWithTramsSundayAshtonToEccles() {
         JourneyRequest journeyRequest = new JourneyRequest(TestEnv.nextSunday(), TramTime.of(9, 0), false,
                 3, maxJourneyDuration, maxNumResults, requestedModes);
@@ -498,6 +500,7 @@ public class RouteCalculatorTest {
     }
 
     @Test
+    @EcclesToWeasteClousure2023Test
     void reproduceIssueWithTramsSundayToFromEcclesAndCornbrook() {
         JourneyRequest journeyRequest = standardJourneyRequest(TestEnv.nextSunday(), TramTime.of(9,0), maxNumResults);
 

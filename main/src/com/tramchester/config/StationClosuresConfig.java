@@ -4,7 +4,6 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.tramchester.domain.StationClosures;
 import com.tramchester.domain.dates.TramDate;
-import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.dates.DateRange;
@@ -14,26 +13,29 @@ import javax.validation.Valid;
 import java.time.LocalDate;
 import java.util.Objects;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 // config example
-//      - stations: ["9400ZZMAEXS"]
-//              begin: 2021-07-22
-//              end: 2021-07-30
+//    stationClosures:
+//            - stations: [ "9400ZZMAECC", "9400ZZMALDY", "9400ZZMAWST" ]
+//            begin: 2023-07-15
+//            end: 2023-09-20
+//            fullyClosed: true
 
 @Valid
 public class StationClosuresConfig extends Configuration implements StationClosures {
 
-    private final Set<IdFor<Station>> stations;
+    private final Set<String> stationsText;
     private final LocalDate begin;
     private final LocalDate end;
     private final Boolean fullyClosed;
 
     // TODO Might need to change to Set<String> stations cand then convert afterwards
-    public StationClosuresConfig(@JsonProperty(value = "stations", required = true) Set<IdFor<Station>> stations,
+    public StationClosuresConfig(@JsonProperty(value = "stations", required = true) Set<String> stationsText,
                                  @JsonProperty(value = "begin", required = true) LocalDate begin,
                                  @JsonProperty(value = "end", required = true) LocalDate end,
                                  @JsonProperty(value = "fullyClosed", required = true) Boolean fullyClosed)  {
-        this.stations = stations;
+        this.stationsText = stationsText;
         this.begin = begin;
         this.end = end;
         this.fullyClosed = fullyClosed;
@@ -42,7 +44,8 @@ public class StationClosuresConfig extends Configuration implements StationClosu
 
     @Override
     public IdSet<Station> getStations() {
-        return IdSet.wrap(stations);
+        //return IdSet.wrap(stationsText);
+        return stationsText.stream().map(Station::createId).collect(IdSet.idCollector());
     }
 
     @Override
@@ -69,7 +72,7 @@ public class StationClosuresConfig extends Configuration implements StationClosu
     @Override
     public String toString() {
         return "StationClosureConfig{" +
-                "stations=" + stations +
+                "stations=" + stationsText +
                 ", begin=" + begin +
                 ", end=" + end +
                 ", fullyClosed=" + fullyClosed +
@@ -81,11 +84,11 @@ public class StationClosuresConfig extends Configuration implements StationClosu
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         StationClosuresConfig that = (StationClosuresConfig) o;
-        return stations.equals(that.stations) && begin.equals(that.begin) && end.equals(that.end) && fullyClosed.equals(that.fullyClosed);
+        return stationsText.equals(that.stationsText) && begin.equals(that.begin) && end.equals(that.end) && fullyClosed.equals(that.fullyClosed);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(stations, begin, end, fullyClosed);
+        return Objects.hash(stationsText, begin, end, fullyClosed);
     }
 }
