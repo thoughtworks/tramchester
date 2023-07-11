@@ -33,11 +33,10 @@ public abstract class IntegrationTestConfig extends TestConfig {
 //            LocalDate.of(2022,10,23),
 //            LocalDate.of(2022,11,29), false);
 
-
     public static final StationClosures ecclesToWeasteClosed;
 
     static {
-        List<String> closedStations = Arrays.asList("9400ZZMAECC", "9400ZZMALDY", "9400ZZMAWST");
+        List<String> closedStations = Arrays.asList("9400ZZMAECC", "9400ZZMALDY");
         ecclesToWeasteClosed = new StationClosuresConfig(new HashSet<>(closedStations),
             LocalDate.of(2023,7,15),
             LocalDate.of(2023,9,20), true);
