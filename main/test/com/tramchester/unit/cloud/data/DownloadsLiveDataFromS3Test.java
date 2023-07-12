@@ -1,15 +1,12 @@
 package com.tramchester.unit.cloud.data;
 
 import com.tramchester.cloud.data.LiveDataClientForS3;
-import com.tramchester.livedata.cloud.DownloadsLiveDataFromS3;
 import com.tramchester.cloud.data.S3Keys;
 import com.tramchester.cloud.data.StationDepartureMapper;
+import com.tramchester.livedata.cloud.DownloadsLiveDataFromS3;
 import com.tramchester.livedata.domain.DTO.archived.ArchivedDepartureDTO;
 import com.tramchester.livedata.domain.DTO.archived.ArchivedStationDepartureInfoDTO;
-import com.tramchester.livedata.tfgm.TramStationDepartureInfo;
-import com.tramchester.livedata.domain.DTO.StationDepartureInfoDTO;
 import com.tramchester.testSupport.reference.TramStations;
-import com.tramchester.unit.repository.LiveDataUpdaterTest;
 import org.easymock.Capture;
 import org.easymock.EasyMock;
 import org.easymock.EasyMockSupport;
@@ -24,7 +21,8 @@ import java.util.stream.Stream;
 
 import static java.time.temporal.ChronoUnit.DAYS;
 import static java.time.temporal.ChronoUnit.HOURS;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class DownloadsLiveDataFromS3Test extends EasyMockSupport {
 
@@ -79,7 +77,8 @@ class DownloadsLiveDataFromS3Test extends EasyMockSupport {
 
         List<ArchivedDepartureDTO> dueTrams = new ArrayList<>();
         ArchivedStationDepartureInfoDTO otherDTO = new ArchivedStationDepartureInfoDTO("lineNameB",
-                "platforIdB", "messageTxt", dueTrams, LocalDateTime.parse("2018-11-15T15:06:54"), "displayIdB", TramStations.Bury.getName());
+                "platforIdB", "messageTxt", dueTrams, LocalDateTime.parse("2018-11-15T15:06:54"),
+                "displayIdB", TramStations.Bury.getName());
 
         LocalDateTime start = LocalDateTime.of(2020,11,29, 15,1);
         Duration duration = Duration.of(1, HOURS);

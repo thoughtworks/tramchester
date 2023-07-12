@@ -23,10 +23,12 @@ public class StationDepartureMapper {
     private static final Logger logger = LoggerFactory.getLogger(StationDepartureMapper.class);
 
     private final ObjectMapper mapper;
+    private final ObjectReader reader;
 
     @Inject
     public StationDepartureMapper() {
         this.mapper = JsonMapper.builder().addModule(new AfterburnerModule()).build();
+        this.reader = mapper.readerForListOf(ArchivedStationDepartureInfoDTO.class);
     }
 
     public String map(List<StationDepartureInfoDTO> departures) throws JsonProcessingException {
@@ -35,8 +37,7 @@ public class StationDepartureMapper {
         return json;
     }
 
-    public List<ArchivedStationDepartureInfoDTO> parse(String json) {
-        ObjectReader reader = mapper.readerForListOf(ArchivedStationDepartureInfoDTO.class);
+    public List<ArchivedStationDepartureInfoDTO> parse(final String json) {
         if (logger.isDebugEnabled()) {
             logger.debug("Parsing json with length " + json.length());
             logger.debug("Parse json: " + json);
@@ -53,7 +54,9 @@ public class StationDepartureMapper {
             } else {
                 int offset = (int) location.getCharOffset();
                 char badChar = json.charAt(offset);
-                String context = json.substring(Math.max(0,offset-10), Math.min(json.length()-1,offset+10));
+                int contextBegin = Math.max(0, offset - 10);
+                int contextEnd = Math.min(json.length() - 1, offset + 10);
+                String context = json.substring(contextBegin, contextEnd);
                 logger.warn(format("Unable to process json at offset %s, context '%s' and char was '%s' (char %s)",
                         offset, context, badChar, (int)badChar));
                 logger.warn("Json:" + json + " Exception:" + exception);

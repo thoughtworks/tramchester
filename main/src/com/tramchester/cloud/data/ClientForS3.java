@@ -205,7 +205,7 @@ public class ClientForS3 {
     protected byte[] readBytes(String bucket, String key, GetObjectResponse response, FilterInputStream inputStream) {
         int contentLength = Math.toIntExact(response.contentLength());
 
-        logger.info(format("Key: %s Content type: %s Length %s ", key, response.contentType(), contentLength));
+        logger.debug(format("Key: %s Content type: %s Length %s ", key, response.contentType(), contentLength));
         byte[] bytes = new byte[contentLength];
         int offset = 0;
         int read;

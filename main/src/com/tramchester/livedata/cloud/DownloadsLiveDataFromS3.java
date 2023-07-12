@@ -4,7 +4,6 @@ import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.cloud.data.LiveDataClientForS3;
 import com.tramchester.cloud.data.S3Keys;
 import com.tramchester.cloud.data.StationDepartureMapper;
-import com.tramchester.livedata.domain.DTO.StationDepartureInfoDTO;
 import com.tramchester.livedata.domain.DTO.archived.ArchivedStationDepartureInfoDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,21 +25,21 @@ public class DownloadsLiveDataFromS3 {
 
     private final LiveDataClientForS3 s3Client;
     private final S3Keys s3Keys;
-    private final StationDepartureMapper mapper;
+    private final StationDepartureMapper stationDepartureMapper;
 
     @Inject
-    public DownloadsLiveDataFromS3(LiveDataClientForS3 s3Client, StationDepartureMapper mapper, S3Keys s3Keys) {
+    public DownloadsLiveDataFromS3(LiveDataClientForS3 s3Client, StationDepartureMapper stationDepartureMapper, S3Keys s3Keys) {
         this.s3Client = s3Client;
-        this.mapper = mapper;
+        this.stationDepartureMapper = stationDepartureMapper;
         this.s3Keys = s3Keys;
     }
 
     public Stream<ArchivedStationDepartureInfoDTO> downloadFor(LocalDateTime start, Duration duration) {
         logger.info("Download departure info from s3 for " + start + " and duration " + duration.getSeconds() + " seconds");
-        LocalDate end = start.plus(duration).toLocalDate();
+        final LocalDate end = start.plus(duration).toLocalDate();
         LocalDate current = start.toLocalDate();
 
-        Set<String> inscopeKeys = new HashSet<>();
+        final Set<String> inscopeKeys = new HashSet<>();
         while (current.isBefore(end) || current.equals(end)) {
             String prefix = s3Keys.createPrefix(current);
             Set<String> keys = s3Client.getKeysFor(prefix);
@@ -84,11 +83,11 @@ public class DownloadsLiveDataFromS3 {
         return (query.isAfter(start) && query.isBefore(end));
     }
 
-    private Stream<ArchivedStationDepartureInfoDTO> downloadFor(Set<String> keys) {
+    private Stream<ArchivedStationDepartureInfoDTO> downloadFor(final Set<String> keys) {
 
         return s3Client.downloadAndMap(keys, bytes -> {
-            String text = new String(bytes, StandardCharsets.US_ASCII);
-            return mapper.parse(text);
+            final String text = new String(bytes, StandardCharsets.US_ASCII);
+            return stationDepartureMapper.parse(text);
         });
 
     }

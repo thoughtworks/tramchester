@@ -1,18 +1,10 @@
 package com.tramchester.livedata.domain.DTO.archived;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.tramchester.livedata.domain.DTO.DepartureDTO;
-import com.tramchester.livedata.domain.liveUpdates.UpcomingDeparture;
-import com.tramchester.livedata.tfgm.TramStationDepartureInfo;
 import com.tramchester.mappers.serialisation.LocalDateTimeJsonDeserializer;
-import com.tramchester.mappers.serialisation.LocalDateTimeJsonSerializer;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Objects;
-import java.util.stream.Collectors;
 
 @SuppressWarnings("unused")
 public class ArchivedStationDepartureInfoDTO {
@@ -28,7 +20,9 @@ public class ArchivedStationDepartureInfoDTO {
         // deserialisation
     }
 
-    public ArchivedStationDepartureInfoDTO(String lineName, String stationPlatform, String message, List<ArchivedDepartureDTO> dueTrams, LocalDateTime lastUpdate, String displayId, String location) {
+    public ArchivedStationDepartureInfoDTO(String lineName, String stationPlatform, String message,
+                                           List<ArchivedDepartureDTO> dueTrams, LocalDateTime lastUpdate,
+                                           String displayId, String location) {
         this.lineName = lineName;
         this.stationPlatform = stationPlatform;
         this.message = message;

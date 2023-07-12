@@ -47,15 +47,18 @@ public class LiveDataClientForS3  {
         logger.info("Stopped");
     }
 
-    public <T> Stream<T> downloadAndMap(Set<String> keys, ResponseMapper<T> responseMapper) {
+    public <T> Stream<T> downloadAndMap(final Set<String> keys, ResponseMapper<T> responseMapper) {
         if (bucket.isEmpty()) {
             logger.error("not started");
             return Stream.empty();
         }
 
         logger.info("Downloading data for " + keys.size() + " keys");
+
+        // TODO parallel for performance, but bandwidth is likely the limiting factor here...
         final Stream<String> stream = keys.parallelStream();
         stream.onClose(() -> logger.info("Download stream closed"));
+
         return stream.map(key -> clientForS3.downloadAndMapForKey(bucket, key, responseMapper)).flatMap(Collection::stream);
     }
 

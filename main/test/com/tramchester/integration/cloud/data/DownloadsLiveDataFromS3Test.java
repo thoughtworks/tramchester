@@ -99,10 +99,10 @@ class DownloadsLiveDataFromS3Test {
         assertEquals(NUM_OF_DISPLAYS * keys.size(), results.size());
     }
 
-    private static class RealBucketConfig extends IntegrationTramTestConfig {
+    static class RealBucketConfig extends IntegrationTramTestConfig {
         private final TfgmTramLiveDataConfig liveDataConfig;
 
-        private RealBucketConfig(TfgmTramLiveDataConfig liveDataConfig) {
+        RealBucketConfig(TfgmTramLiveDataConfig liveDataConfig) {
             this.liveDataConfig = liveDataConfig;
         }
 
@@ -112,7 +112,7 @@ class DownloadsLiveDataFromS3Test {
         }
     }
 
-    private static class RealLiveConfig extends TestTramLiveDataConfig {
+    static class RealLiveConfig extends TestTramLiveDataConfig {
         private final String bucketName;
         private final String prefix;
 

@@ -26,14 +26,14 @@ public class CountsUploadedLiveData implements HasMetrics {
     }
 
     public long count(LocalDateTime checkTime, Duration checkDuration) {
-        Stream<ArchivedStationDepartureInfoDTO> results = downloadsLiveData.downloadFor(checkTime, checkDuration);
-        long count = results.count();
+        final Stream<ArchivedStationDepartureInfoDTO> results = downloadsLiveData.downloadFor(checkTime, checkDuration);
+        final long count = results.count();
         results.close();
         return count;
     }
 
     public Integer countNow() {
-        long count =  count(providesNow.getDateTime(), Duration.of(1, MINUTES));
+        final long count =  count(providesNow.getDateTime(), Duration.of(1, MINUTES));
         return Math.toIntExact(count);
     }
 
