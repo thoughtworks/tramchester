@@ -558,6 +558,10 @@ task npmInstall(type: Exec) {
     }
 }
 
+distZip {
+    dependsOn 'queryLiveDataArchiveStartScript'
+}
+
 jar {
     dependsOn 'webpack'
     into 'app', {
