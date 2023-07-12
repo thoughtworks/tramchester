@@ -4,6 +4,7 @@ import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.livedata.cloud.FindUniqueDueTramStatus;
+import com.tramchester.livedata.domain.liveUpdates.UpcomingDeparture;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.testTags.S3Test;
 import org.junit.jupiter.api.AfterAll;
@@ -25,7 +26,7 @@ public class FindUniqueDueTramStatusTest {
     private static ComponentContainer componentContainer;
     private FindUniqueDueTramStatus finder;
 
-    private final Set<String> expected = new HashSet<>(Arrays.asList("Due", "Arrived", "Departing"));
+    private final Set<String> expected = UpcomingDeparture.KNOWN_STATUS;
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {

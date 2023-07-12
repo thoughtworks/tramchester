@@ -600,6 +600,13 @@ task pullData(type:JavaExec, dependsOn:classes) {
     args 'config/gm.yml'
 }
 
+// gm here so include both sets of data
+task queryDueTramStatus(type:JavaExec, dependsOn:classes) {
+    mainClass = 'com.tramchester.deployment.cli.QueryLiveDataArchiveCLI'
+    classpath = sourceSets.main.runtimeClasspath
+    args 'config/gm.yml', 'dueTramStatus.txt'
+}
+
 // temp additional target while deploying train/tram version to just UAT
 task buildDatabaseUAT(type:JavaExec, dependsOn: [classes]) {
     mainClass = 'com.tramchester.deployment.cli.BuildGraphCLI'
@@ -627,6 +634,13 @@ task zipDB(type:Zip, dependsOn: 'buildDatabase') {
     from 'build/distributions/database'
     include '*.db/**'
     archiveFileName = 'database.zip'
+}
+
+task queryLiveDataArchiveStartScript(type: CreateStartScripts, dependsOn: compileJava) {
+    classpath = startScripts.classpath
+    outputDir = startScripts.outputDir
+    mainClass = 'com.tramchester.deployment.cli.QueryLiveDataArchiveCLI'
+    applicationName = 'queryLiveData'
 }
 
 task copyIntoUploadDir(type: Copy, dependsOn: [zipDB, distZip]) {

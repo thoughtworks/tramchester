@@ -134,9 +134,30 @@ public class ClientForS3Test {
     }
 
     @Test
-    void shouldGetKeysFor() {
+    void shouldGetKeysForBucketWithPrefix() {
 
         Set<String> result = clientForS3.getKeysFor(BUCKET, "test");
+        assertTrue(result.isEmpty());
+
+        String keyA = "test/keyA";
+        String keyB = "test/keyB";
+        awsS3.putObject(PutObjectRequest.builder().bucket(BUCKET).key(keyA).build(), RequestBody.fromString("text1"));
+        awsS3.putObject(PutObjectRequest.builder().bucket(BUCKET).key(keyB).build(), RequestBody.fromString("text2"));
+
+        s3Waiter.waitUntilObjectExists(HeadObjectRequest.builder().bucket(BUCKET).key(keyA).build());
+        s3Waiter.waitUntilObjectExists(HeadObjectRequest.builder().bucket(BUCKET).key(keyB).build());
+
+        result = clientForS3.getKeysFor(BUCKET, "test");
+        assertEquals(2, result.size());
+
+        assertTrue(result.contains(keyA));
+        assertTrue(result.contains(keyB));
+    }
+
+    @Test
+    void shouldGetAllKeysForBucket() {
+
+        Set<String> result = clientForS3.getAllKeysFor(BUCKET);
         assertTrue(result.isEmpty());
 
         String keyA = "test/keyA";

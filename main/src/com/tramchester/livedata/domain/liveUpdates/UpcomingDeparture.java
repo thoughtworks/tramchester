@@ -10,6 +10,9 @@ import com.tramchester.domain.time.TramTime;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
 
 public class UpcomingDeparture {
 
@@ -22,6 +25,8 @@ public class UpcomingDeparture {
     private final Agency agency;
     private final TransportMode mode;
     private Platform platform;
+
+    public static final Set<String> KNOWN_STATUS = new HashSet<>(Arrays.asList("Due", "Arrived", "Departing"));
 
     @Deprecated
     public UpcomingDeparture(LocalDate date, Station displayLocation, Station destination, String status, Duration wait,
@@ -50,10 +55,6 @@ public class UpcomingDeparture {
     public String getStatus() {
         return status;
     }
-
-//    public Duration getWait() {
-//        return wait;
-//    }
 
     public String getCarriages() {
         return carriages;

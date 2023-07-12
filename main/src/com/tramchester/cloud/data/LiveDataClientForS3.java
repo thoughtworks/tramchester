@@ -79,6 +79,10 @@ public class LiveDataClientForS3  {
         return clientForS3.getKeysFor(bucket, prefix);
     }
 
+    public Set<String> getAllKeys() {
+        return clientForS3.getAllKeysFor(bucket);
+    }
+
     public interface ResponseMapper<T> {
         List<T> map(byte[] bytes);
     }

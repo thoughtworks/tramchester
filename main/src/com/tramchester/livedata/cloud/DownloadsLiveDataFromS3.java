@@ -57,6 +57,11 @@ public class DownloadsLiveDataFromS3 {
 
     }
 
+    public Stream<ArchivedStationDepartureInfoDTO> downloadAll() {
+       Set<String> allKeys = s3Client.getAllKeys();
+       return downloadFor(allKeys);
+    }
+
     private Set<String> filteredKeys(LocalDateTime start, Duration duration, Set<String> keys) {
         Set<String> results = new HashSet<>();
         LocalDateTime end = start.plus(duration);
@@ -91,4 +96,6 @@ public class DownloadsLiveDataFromS3 {
         });
 
     }
+
+
 }
