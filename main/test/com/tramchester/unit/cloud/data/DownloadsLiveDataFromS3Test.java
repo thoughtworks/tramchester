@@ -55,13 +55,14 @@ class DownloadsLiveDataFromS3Test extends EasyMockSupport {
         LocalDateTime start = LocalDateTime.of(2020,11,29, 15,42);
         Duration duration = Duration.of(1, HOURS);
 
-        Set<String> keysFromS3 = Collections.singleton("keysFromS3");
+        Stream<String> keysFromS3 = Stream.of("keysFromS3");
 
         EasyMock.expect(s3Keys.createPrefix(start.toLocalDate())).andReturn("expectedPrefix");
         EasyMock.expect(s3Keys.parse("keysFromS3")).andReturn(start);
 
         EasyMock.expect(clientForS3.getKeysFor("expectedPrefix")).andReturn(keysFromS3);
-        EasyMock.expect(clientForS3.downloadAndMap(EasyMock.eq(keysFromS3),
+        Set<String> keysToSubmit = Collections.singleton("keysFromS3");
+        EasyMock.expect(clientForS3.downloadAndMap(EasyMock.eq(keysToSubmit),
                 EasyMock.capture(responseMapperCapture))).andReturn(Stream.of(departsDTO));
 
         replayAll();
@@ -87,10 +88,7 @@ class DownloadsLiveDataFromS3Test extends EasyMockSupport {
         String keyB = "keyB";
         String keyC = "keyC";
 
-        Set<String> keys = new HashSet<>();
-        keys.add(keyA);
-        keys.add(keyB);
-        keys.add(keyC);
+        Stream<String> keys = Stream.of(keyA, keyB, keyC);
 
         EasyMock.expect(s3Keys.createPrefix(start.toLocalDate())).andReturn("expectedPrefix");
         EasyMock.expect(s3Keys.parse("keyA")).andReturn(start.plusMinutes(5));
@@ -99,9 +97,8 @@ class DownloadsLiveDataFromS3Test extends EasyMockSupport {
 
         EasyMock.expect(clientForS3.getKeysFor("expectedPrefix")).andReturn(keys);
 
-        Set<String> matching = new HashSet<>();
-        matching.add(keyA);
-        matching.add(keyB);
+        Set<String> matching = new HashSet<>(Arrays.asList(keyA, keyB));
+
         EasyMock.expect(clientForS3.downloadAndMap(EasyMock.eq(matching), EasyMock.capture(responseMapperCapture))).
                 andReturn(Stream.of(departsDTO, otherDTO));
 
@@ -119,7 +116,8 @@ class DownloadsLiveDataFromS3Test extends EasyMockSupport {
 
         List<ArchivedDepartureDTO> dueTrams = new ArrayList<>();
         ArchivedStationDepartureInfoDTO otherDTO = new ArchivedStationDepartureInfoDTO("lineNameB",
-                "platforIdB", "messageTxt", dueTrams, LocalDateTime.parse("2018-11-15T15:06:54"), "displayIdB", TramStations.Bury.getName());
+                "platforIdB", "messageTxt", dueTrams, LocalDateTime.parse("2018-11-15T15:06:54"),
+                "displayIdB", TramStations.Bury.getName());
 
         LocalDateTime start = LocalDateTime.of(2020,11,29, 15,1);
         Duration duration = Duration.of(2, DAYS);
@@ -138,9 +136,9 @@ class DownloadsLiveDataFromS3Test extends EasyMockSupport {
         EasyMock.expect(s3Keys.parse(keyA)).andReturn(start);
         EasyMock.expect(s3Keys.parse(keyC)).andReturn(start.plusDays(2));
 
-        EasyMock.expect(clientForS3.getKeysFor(expectedPrefixA)).andReturn(Collections.singleton(keyA));
-        EasyMock.expect(clientForS3.getKeysFor(expectedPrefixB)).andReturn(Collections.emptySet());
-        EasyMock.expect(clientForS3.getKeysFor(expectedPrefixC)).andReturn(Collections.singleton(keyC));
+        EasyMock.expect(clientForS3.getKeysFor(expectedPrefixA)).andReturn(Stream.of(keyA));
+        EasyMock.expect(clientForS3.getKeysFor(expectedPrefixB)).andReturn(Stream.empty());
+        EasyMock.expect(clientForS3.getKeysFor(expectedPrefixC)).andReturn(Stream.of(keyC));
 
         Set<String> matching = new HashSet<>();
         matching.add(keyA);
@@ -167,13 +165,30 @@ class DownloadsLiveDataFromS3Test extends EasyMockSupport {
         EasyMock.expect(s3Keys.createPrefix(start.toLocalDate())).andReturn("expectedPrefix");
         EasyMock.expect(s3Keys.parse("keyA")).andReturn(start.plusMinutes(65));
 
-        EasyMock.expect(clientForS3.getKeysFor("expectedPrefix")).andReturn(Collections.singleton(expectedKey));
+        EasyMock.expect(clientForS3.getKeysFor("expectedPrefix")).andReturn(Stream.of(expectedKey));
 
         replayAll();
         List<ArchivedStationDepartureInfoDTO>  results = downloader.downloadFor(start, duration).collect(Collectors.toList());
         verifyAll();
 
         assertTrue(results.isEmpty());
+    }
+
+    @Test
+    void shouldDownloadAllData() {
+
+        Stream<String> keys = Stream.of("keyA", "keyB");
+        EasyMock.expect(clientForS3.getAllKeysAsStream()).andReturn(keys);
+
+        EasyMock.expect(clientForS3.downloadAndMap(EasyMock.eq(keys), EasyMock.capture(responseMapperCapture))).
+                andReturn(Stream.of(departsDTO));
+
+        replayAll();
+        List<ArchivedStationDepartureInfoDTO>  results = downloader.downloadAll().collect(Collectors.toList());
+        verifyAll();
+
+        assertEquals(1, results.size());
+        assertTrue(results.contains(departsDTO));
     }
 
 }

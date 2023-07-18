@@ -14,6 +14,7 @@ import com.tramchester.geo.StationLocations;
 import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.search.RouteCalculatorForBoxes;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
+import com.tramchester.repository.ClosedStationsRepository;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.TramStations;
@@ -42,6 +43,7 @@ class RouteCalculatorForBoundingBoxTest {
     private Transaction txn;
     private StationLocations stationLocations;
     private StationRepository stationRepository;
+    private ClosedStationsRepository closedStationsRepository;
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
@@ -63,6 +65,7 @@ class RouteCalculatorForBoundingBoxTest {
         calculator = componentContainer.get(RouteCalculatorForBoxes.class);
         stationLocations = componentContainer.get(StationLocations.class);
         stationRepository = componentContainer.get(StationRepository.class);
+        closedStationsRepository = componentContainer.get(ClosedStationsRepository.class);
     }
 
     @AfterEach
@@ -75,7 +78,9 @@ class RouteCalculatorForBoundingBoxTest {
         BoundingBox bounds = stationLocations.getActiveStationBounds();
         long gridSize = (bounds.getMaxNorthings()-bounds.getMinNorthings()) / 100;
 
-        List<BoundingBoxWithStations> grouped = stationLocations.getStationsInGrids(gridSize).collect(Collectors.toList());
+        List<BoundingBoxWithStations> grouped = stationLocations.getStationsInGrids(gridSize)
+                .filter(this::anyOpen)
+                .collect(Collectors.toList());
 
         long maxNumberOfJourneys = 3;
         JourneyRequest journeyRequest = new JourneyRequest(when, TramTime.of(9,30),
@@ -96,5 +101,9 @@ class RouteCalculatorForBoundingBoxTest {
         groupedJourneys.forEach(group -> group.getJourneys().forEach(journey -> {
             assertTrue(journey.getStages().size()>0); // catch case where starting point is dest
         } ));
+    }
+
+    private boolean anyOpen(BoundingBoxWithStations boxWithStations) {
+        return boxWithStations.getStations().stream().anyMatch(station -> !closedStationsRepository.isClosed(station, when));
     }
 }

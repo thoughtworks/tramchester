@@ -80,14 +80,14 @@ class DownloadsLiveDataFromS3Test {
 
     @Test
     void shouldHaveKeysForOneDay() {
-        Set<String> keys = clientForS3.getKeysFor(PREFIX);
+        Set<String> keys = clientForS3.getKeysFor(PREFIX).collect(Collectors.toSet());
         assertEquals(NUM_KEYS_FOR_PREFIX, keys.size());
     }
 
     @Disabled("Too slow, need to change to bulk download")
     @Test
     void shouldDownloadHistoricalData1Day() {
-        Set<String> keys = clientForS3.getKeysFor(PREFIX);
+        Set<String> keys = clientForS3.getKeysFor(PREFIX).collect(Collectors.toSet());
         assertEquals(NUM_KEYS_FOR_PREFIX, keys.size());
 
         LocalDateTime start = LocalDateTime.of(2020, 2, 27, 0, 1);

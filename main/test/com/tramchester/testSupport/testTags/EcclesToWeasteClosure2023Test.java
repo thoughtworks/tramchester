@@ -9,6 +9,6 @@ import java.lang.annotation.Target;
 
 @Target({ ElementType.METHOD })
 @Retention(RetentionPolicy.RUNTIME)
-@Tag("EcclesToWeasteClousure2023Test")
-public @interface EcclesToWeasteClousure2023Test {
+@Tag("EcclesToWeasteClosure2023Test")
+public @interface EcclesToWeasteClosure2023Test {
 }

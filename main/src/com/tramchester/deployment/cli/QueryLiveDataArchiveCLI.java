@@ -61,7 +61,7 @@ public class QueryLiveDataArchiveCLI extends BaseCLI {
 
             Stream<String> allStatus = finder.getAllDueTramStatus();
 
-            // limited amount of output for testing
+            // limited the amount of output for testing
 //            Duration duration = Duration.of(1, ChronoUnit.HOURS);
 //            LocalDateTime start = LocalDateTime.now().minus(duration);
 //            Stream<String> allStatus = finder.getUniqueDueTramStatus(start, duration).stream();

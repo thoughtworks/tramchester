@@ -67,7 +67,7 @@ public class JourneysForGridResource implements APIResource, GraphDatabaseDepend
     }
 
     // TODO Cache lifetime could potentially be quite long here, but makes testing harder.....
-    // TODO Switch POST and Query DTO here
+    // TODO Switch to a POST and Query DTO instead
 
     @GET
     @Timed
@@ -93,23 +93,23 @@ public class JourneysForGridResource implements APIResource, GraphDatabaseDepend
             return Response.serverError().build();
         }
 
-        LocalDate date = LocalDate.parse(departureDateRaw);
+        TramDate date = TramDate.parse(departureDateRaw);
 
         // just find the first one -- todo this won't be lowest cost route....
         long maxNumberOfJourneys = 3;
 
         Duration maxDuration = Duration.ofMinutes(maxDurationMinutes);
 
-        TramDate tramServiceDate = TramDate.of(date);
+        //TramDate tramServiceDate = TramDate.of(date);
         EnumSet<TransportMode> allModes = config.getTransportModes();
-        JourneyRequest journeyRequest = new JourneyRequest(tramServiceDate, departureTime,
+        JourneyRequest journeyRequest = new JourneyRequest(date, departureTime,
                 false, maxChanges, maxDuration, maxNumberOfJourneys, allModes);
         journeyRequest.setWarnIfNoResults(false);
 
         logger.info("Create search");
         Stream<BoxWithCostDTO> results = search.
                 findForGrid(destination, gridSize, journeyRequest).
-                map(box -> transformToDTO(box, tramServiceDate));
+                map(box -> transformToDTO(box, date));
         
         logger.info("Creating stream");
         JsonStreamingOutput<BoxWithCostDTO> jsonStreamingOutput = new JsonStreamingOutput<>(results, objectMapper);

@@ -47,19 +47,23 @@ public class LiveDataClientForS3  {
         logger.info("Stopped");
     }
 
+    /***
+     * @param keys set of keys to download
+     * @param responseMapper mapper function to apply to the resulting s3objects
+     * @param <T> return type for the mapper and hence resulting stream
+     * @return retreieved s3objects with the mappng applied
+     */
     public <T> Stream<T> downloadAndMap(final Set<String> keys, ResponseMapper<T> responseMapper) {
+        logger.info("Downloading data and map for " + keys.size() + " keys");
+        return downloadAndMap(keys.stream(), responseMapper);
+    }
+
+    public <T> Stream<T> downloadAndMap(final Stream<String> keys, ResponseMapper<T> responseMapper) {
         if (bucket.isEmpty()) {
             logger.error("not started");
             return Stream.empty();
         }
-
-        logger.info("Downloading data for " + keys.size() + " keys");
-
-        // TODO parallel for performance, but bandwidth is likely the limiting factor here...
-        final Stream<String> stream = keys.parallelStream();
-        stream.onClose(() -> logger.info("Download stream closed"));
-
-        return stream.map(key -> clientForS3.downloadAndMapForKey(bucket, key, responseMapper)).flatMap(Collection::stream);
+        return keys.map(key -> clientForS3.downloadAndMapForKey(bucket, key, responseMapper)).flatMap(Collection::stream);
     }
 
     public boolean isStarted() {
@@ -75,12 +79,12 @@ public class LiveDataClientForS3  {
         return clientForS3.upload(bucket, key, json);
     }
 
-    public Set<String> getKeysFor(String prefix) {
+    public Stream<String> getKeysFor(String prefix) {
         return clientForS3.getKeysFor(bucket, prefix);
     }
 
-    public Set<String> getAllKeys() {
-        return clientForS3.getAllKeysFor(bucket);
+    public Stream<String> getAllKeysAsStream() {
+        return clientForS3.getAllKeys(bucket);
     }
 
     public interface ResponseMapper<T> {

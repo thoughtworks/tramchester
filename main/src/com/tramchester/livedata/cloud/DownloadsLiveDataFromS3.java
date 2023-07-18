@@ -15,6 +15,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static java.lang.String.format;
@@ -42,7 +43,7 @@ public class DownloadsLiveDataFromS3 {
         final Set<String> inscopeKeys = new HashSet<>();
         while (current.isBefore(end) || current.equals(end)) {
             String prefix = s3Keys.createPrefix(current);
-            Set<String> keys = s3Client.getKeysFor(prefix);
+            Stream<String> keys = s3Client.getKeysFor(prefix);
             inscopeKeys.addAll(filteredKeys(start, duration, keys));
             current = current.plusDays(1);
         }
@@ -53,32 +54,56 @@ public class DownloadsLiveDataFromS3 {
         }
 
         logger.info(format("Found %s keys for %s and %s", inscopeKeys.size(), start, duration));
-        return downloadFor(inscopeKeys);
+
+        return s3Client.downloadAndMap(inscopeKeys, bytes -> {
+            final String text = new String(bytes, StandardCharsets.US_ASCII);
+            return stationDepartureMapper.parse(text);
+        });
 
     }
 
     public Stream<ArchivedStationDepartureInfoDTO> downloadAll() {
-       Set<String> allKeys = s3Client.getAllKeys();
-       return downloadFor(allKeys);
+       Stream<String> allKeys = s3Client.getAllKeysAsStream();
+
+        return s3Client.downloadAndMap(allKeys, bytes -> {
+            final String text = new String(bytes, StandardCharsets.US_ASCII);
+            return stationDepartureMapper.parse(text);
+        });
+
     }
 
-    private Set<String> filteredKeys(LocalDateTime start, Duration duration, Set<String> keys) {
-        Set<String> results = new HashSet<>();
+    private Set<String> filteredKeys(LocalDateTime start, Duration duration, Stream<String> keys) {
         LocalDateTime end = start.plus(duration);
 
-        for (String key : keys) {
+        return keys.filter(key -> filterKey(start, end, key)).collect(Collectors.toSet());
+
+//        Set<String> results = new HashSet<>();
+//        for (String key : keys) {
+//            try {
+//                LocalDateTime dateTime = s3Keys.parse(key);
+//                if (matchesDate(start, end, dateTime)) {
+//                    results.add(key);
+//                }
+//            }
+//            catch (S3Keys.S3KeyException exception) {
+//                logger.warn("Unable to parse key: " + key);
+//            }
+//        }
+//
+//        return results;
+    }
+
+    private boolean filterKey(LocalDateTime start, LocalDateTime end , String key) {
             try {
                 LocalDateTime dateTime = s3Keys.parse(key);
                 if (matchesDate(start, end, dateTime)) {
-                    results.add(key);
+                    return true;
                 }
             }
             catch (S3Keys.S3KeyException exception) {
                 logger.warn("Unable to parse key: " + key);
             }
-        }
-
-        return results;
+            return false;
     }
 
     private boolean matchesDate(LocalDateTime start, LocalDateTime end, LocalDateTime query) {
@@ -87,15 +112,5 @@ public class DownloadsLiveDataFromS3 {
         }
         return (query.isAfter(start) && query.isBefore(end));
     }
-
-    private Stream<ArchivedStationDepartureInfoDTO> downloadFor(final Set<String> keys) {
-
-        return s3Client.downloadAndMap(keys, bytes -> {
-            final String text = new String(bytes, StandardCharsets.US_ASCII);
-            return stationDepartureMapper.parse(text);
-        });
-
-    }
-
 
 }

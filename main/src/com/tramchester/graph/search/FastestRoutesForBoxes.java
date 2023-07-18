@@ -2,12 +2,14 @@ package com.tramchester.graph.search;
 
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.domain.*;
+import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.geo.BoundingBoxWithStations;
 import com.tramchester.geo.GridPosition;
 import com.tramchester.geo.StationLocations;
 import com.tramchester.mappers.Geography;
+import com.tramchester.repository.ClosedStationsRepository;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,12 +28,15 @@ public class FastestRoutesForBoxes {
     private static final Logger logger = LoggerFactory.getLogger(FastestRoutesForBoxes.class);
 
     private final StationLocations stationLocations;
+    private final ClosedStationsRepository closedStationsRepository;
     private final RouteCalculatorForBoxes calculator;
     private final Geography geography;
 
     @Inject
-    public FastestRoutesForBoxes(StationLocations stationLocations, RouteCalculatorForBoxes calculator, Geography geography) {
+    public FastestRoutesForBoxes(StationLocations stationLocations, ClosedStationsRepository closedStationsRepository,
+                                 RouteCalculatorForBoxes calculator, Geography geography) {
         this.stationLocations = stationLocations;
+        this.closedStationsRepository = closedStationsRepository;
         this.calculator = calculator;
         this.geography = geography;
     }
@@ -48,7 +53,9 @@ public class FastestRoutesForBoxes {
     public Stream<BoundingBoxWithCost> findForGrid(GridPosition destinationGrid, long gridSize, JourneyRequest journeyRequest) {
         logger.info("Creating station groups for gridsize " + gridSize + " and destination " + destinationGrid);
 
-        Set<BoundingBoxWithStations> searchGrid = stationLocations.getStationsInGrids(gridSize).collect(Collectors.toSet());
+        Set<BoundingBoxWithStations> searchGrid = stationLocations.getStationsInGrids(gridSize).
+                filter(boxWithStations -> anyOpen(boxWithStations.getStations(), journeyRequest.getDate())).
+                collect(Collectors.toSet());
 
         BoundingBoxWithStations searchBoxWithDest = searchGrid.stream().
                 filter(box -> box.contained(destinationGrid)).findFirst().
@@ -61,6 +68,10 @@ public class FastestRoutesForBoxes {
         List<BoundingBoxWithStations> sortedSearchGrid = sortGridNearestFirst(searchGrid, destinationGrid);
         return calculator.calculateRoutes(destinations, journeyRequest, sortedSearchGrid).
                 map(box -> cheapest(box, destinationGrid));
+    }
+
+    private boolean anyOpen(Set<Station> stations, TramDate date) {
+        return stations.stream().anyMatch(station -> !closedStationsRepository.isClosed(station, date));
     }
 
     private List<BoundingBoxWithStations> sortGridNearestFirst(Set<BoundingBoxWithStations> searchGrid, GridPosition destinationGrid) {

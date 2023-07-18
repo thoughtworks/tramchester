@@ -1,5 +1,6 @@
 package com.tramchester.cloud.data;
 
+import com.google.common.collect.Streams;
 import com.google.common.io.ByteStreams;
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.config.TramchesterConfig;
@@ -30,11 +31,8 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.time.Instant;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
+import java.util.*;
+import java.util.stream.Stream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
@@ -280,105 +278,63 @@ public class ClientForS3 {
 
         String fullKey = prefix + "/" + itemName;
 
-        List<S3Object> items = getSummaryForPrefix(bucket, prefix);
+        Stream<S3Object> items = getSummaryForPrefix(bucket, prefix);
 
-        for (S3Object item : items) {
-            logger.debug("Check if " + item + " matches");
-            if (fullKey.equals(item.key())) {
-                logger.info(format("Key %s is present in bucket %s", fullKey, bucket));
+        Optional<S3Object> search = items.filter(item -> fullKey.equals(item.key())).findAny();
+
+        if (search.isPresent()) {
+            logger.info(format("Key %s is present in bucket %s", fullKey, bucket));
                 return true;
-            }
         }
+
         logger.info(format("Key %s is not present in bucket %s", fullKey, bucket));
 
         return false;
     }
 
-    public Set<String> getKeysFor(String bucket, String prefix) {
+    public Stream<String> getKeysFor(String bucket, String prefix) {
         if (!isStarted()) {
             logger.error("not started, getKeysFor");
-            return Collections.emptySet();
+            return Stream.empty();
         }
 
-        List<S3Object> items = getSummaryForPrefix(bucket, prefix);
-        return items.stream().map(S3Object::key).collect(Collectors.toSet());
+        return getSummaryForPrefix(bucket, prefix).map(S3Object::key);
     }
 
-
-    public Set<String> getAllKeysFor(String bucket) {
-        if (!isStarted()) {
-            logger.error("not started, getKeysFor");
-            return Collections.emptySet();
-        }
-
-        List<S3Object> items = getSummaryFor(bucket);
-        return items.stream().map(S3Object::key).collect(Collectors.toSet());
-    }
-
-    private List<S3Object> getSummaryForPrefix(String bucket, String prefix) {
+    /***
+     * Warning: performance on large buckets
+     * @param bucket location to use
+     * @return a stream of all keys in the bucket
+     */
+    public Stream<String> getAllKeys(String bucket) {
         if (!isStarted()) {
             logger.error("Not started, getSummaryForPrefix");
-            return Collections.emptyList();
+            return Stream.empty();
         }
 
         if (!bucketExists(bucket)) {
             logger.error(format("Bucket %s does not exist so cannot get summary", bucket));
-            return Collections.emptyList();
+            return Stream.empty();
         }
 
-        List<S3Object> results = new ArrayList<>();
-        ListObjectsV2Response response;
-        ListObjectsV2Request.Builder builder = ListObjectsV2Request.builder().bucket(bucket).prefix(prefix);
-        try {
-            do {
-                ListObjectsV2Request listObsRequest = builder.build();
-                response = s3Client.listObjectsV2(listObsRequest);
-                results.addAll(response.contents());
-                String continueToken = response.nextContinuationToken();
-                builder.continuationToken(continueToken);
-            } while (response.isTruncated());
-        } catch (S3Exception exception) {
-            logger.warn(format("Cannot get objects for prefix '%s' in bucket '%s' reason '%s'",
-                    prefix, bucket, exception.getMessage()), exception);
-            return Collections.emptyList();
-        }
+        logger.info("Get stream for bucket " + bucket);
 
-        logger.info("Found " + results.size() + " keys for bucket: " + bucket + " prefix: " + prefix);
-
-        return results;
+        return Streams.stream(new KeyIterator(s3Client, bucket)).map(S3Object::key);
     }
 
-    private List<S3Object> getSummaryFor(String bucket) {
+    private Stream<S3Object> getSummaryForPrefix(String bucket, String prefix) {
         if (!isStarted()) {
             logger.error("Not started, getSummaryForPrefix");
-            return Collections.emptyList();
+            return Stream.empty();
         }
 
         if (!bucketExists(bucket)) {
             logger.error(format("Bucket %s does not exist so cannot get summary", bucket));
-            return Collections.emptyList();
+            return Stream.empty();
         }
 
-        List<S3Object> results = new ArrayList<>();
-        ListObjectsV2Response response;
-        ListObjectsV2Request.Builder builder = ListObjectsV2Request.builder().bucket(bucket); //.prefix(prefix);
-        try {
-            do {
-                ListObjectsV2Request listObsRequest = builder.build();
-                response = s3Client.listObjectsV2(listObsRequest);
-                results.addAll(response.contents());
-                String continueToken = response.nextContinuationToken();
-                builder.continuationToken(continueToken);
-            } while (response.isTruncated());
-        } catch (S3Exception exception) {
-            logger.warn(format("Cannot get objects in bucket '%s' reason '%s'",
-                    bucket, exception.getMessage()), exception);
-            return Collections.emptyList();
-        }
-
-        logger.info("Found " + results.size() + " keys for bucket: " + bucket);
-
-        return results;
+        logger.info("Get stream for bucket " + bucket + " prefix " + prefix);
+        return Streams.stream(new KeyIterator(s3Client, bucket, prefix));
     }
 
     public boolean isStarted() {
@@ -398,10 +354,6 @@ public class ClientForS3 {
         Instant lastModified = s3Object.lastModified();
         return LocalDateTime.ofInstant(lastModified, TramchesterConfig.TimeZoneId);
     }
-
-//    private S3Object getS3ObjectFor(String url) {
-//        return getS3ObjectFor(URI.createURI(url));
-//    }
 
     private S3Object getS3ObjectFor(URI uri) {
         BucketKey bucketKey = BucketKey.convertFromURI(uri);
@@ -481,11 +433,6 @@ public class ClientForS3 {
             this.key = key;
         }
 
-//        @Deprecated
-//        private static BucketKey convertFromURI(String url) {
-//            return convertFromURI(URI.create(url));
-//        }
-
         private static BucketKey convertFromURI(URI uri) {
             String scheme = uri.getScheme();
             if (!"s3".equals(scheme)) {
@@ -502,6 +449,72 @@ public class ClientForS3 {
                     "bucket='" + bucket + '\'' +
                     ", key='" + key + '\'' +
                     '}';
+        }
+    }
+
+    private static class KeyIterator implements Iterator<S3Object> {
+        private static final Logger logger = LoggerFactory.getLogger(KeyIterator.class);
+
+        private final S3Client s3Client;
+        private final String bucket;
+        private final LinkedList<S3Object> buffer;
+        private final ListObjectsV2Request.Builder builder;
+        private boolean moreRemaining;
+
+        public KeyIterator(S3Client s3Client, String bucket) {
+            this(s3Client, bucket, null);
+        }
+
+        public KeyIterator(S3Client s3Client, String bucket, String prefix) {
+            this.s3Client = s3Client;
+            this.bucket = bucket;
+            buffer = new LinkedList<>();
+            builder = ListObjectsV2Request.builder();
+            moreRemaining = true;
+
+            builder.bucket(bucket);
+            if (prefix!=null) {
+                builder.prefix(prefix);
+            }
+        }
+
+        @Override
+        public boolean hasNext() {
+            if (moreInBuffer()) {
+                return true;
+            }
+
+            if (!moreRemaining) {
+                return false;
+            }
+
+            try {
+                final ListObjectsV2Request listObsRequest = builder.build();
+                final ListObjectsV2Response response = s3Client.listObjectsV2(listObsRequest);
+                buffer.addAll(response.contents());
+                final String continueToken = response.nextContinuationToken();
+                builder.continuationToken(continueToken);
+                moreRemaining = response.isTruncated();
+            } catch (S3Exception exception) {
+                String msg = format("Cannot get objects for in bucket '%s' reason '%s'",
+                        bucket, exception.getMessage());
+                logger.warn(msg, exception);
+                throw new RuntimeException(msg);
+            }
+
+            return moreInBuffer() || moreRemaining;
+        }
+
+        private boolean moreInBuffer() {
+            return !buffer.isEmpty();
+        }
+
+        @Override
+        public S3Object next() {
+            if (buffer.isEmpty()) {
+                throw new RuntimeException("Unexpected call to next() when buffer is empty");
+            }
+            return buffer.removeFirst();
         }
     }
 }

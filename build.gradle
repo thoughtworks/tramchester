@@ -296,7 +296,7 @@ task integration(type: Test, dependsOn: compileJava) {
         excludeTags "BusTest"
         excludeTags "TrainTest"
         excludeTags "GMTest"
-        excludeTags "EcclesToWeasteClousure2023Test"
+        excludeTags "EcclesToWeasteClosure2023Test"
     }
     filter {
         includeTestsMatching "com.tramchester.integration.*"
@@ -361,7 +361,7 @@ task dataUpdated(type: Test, dependsOn: compileJava) {
     maxHeapSize = "1750m"
     useJUnitPlatform {
         includeTags "DataUpdateTest"
-        excludeTags "EcclesToWeasteClousure2023Test"
+        excludeTags "EcclesToWeasteClosure2023Test"
     }
     filter {
         includeTestsMatching "com.tramchester.integration.*"

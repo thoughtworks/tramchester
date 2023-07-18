@@ -1,5 +1,6 @@
 package com.tramchester.geo;
 
+import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.places.Station;
 
 import java.util.Set;
@@ -37,5 +38,12 @@ public class BoundingBoxWithStations extends BoundingBox {
         int result = super.hashCode();
         result = 31 * result + stationsWithin.hashCode();
         return result;
+    }
+
+    @Override
+    public String toString() {
+        return "BoundingBoxWithStations{" +
+                "stationsWithin=" + HasId.asIds(stationsWithin) +
+                "} " + super.toString();
     }
 }

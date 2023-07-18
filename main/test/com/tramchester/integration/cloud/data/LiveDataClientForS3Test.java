@@ -122,7 +122,7 @@ class LiveDataClientForS3Test {
         s3Waiter.waitUntilObjectExists(existsCheckRequest);
 
         assertTrue(liveDataClientForS3.itemExists(PREFIX, "key"), "exists"); //waiter will throw if times out
-        Set<String> keys = liveDataClientForS3.getKeysFor(PREFIX);
+        Set<String> keys = liveDataClientForS3.getKeysFor(PREFIX).collect(Collectors.toSet());
         assertTrue(keys.contains(FULL_KEY));
 
         DeleteObjectRequest deleteRequest = DeleteObjectRequest.builder().bucket(TEST_BUCKET_NAME).key(FULL_KEY).build();

@@ -16,7 +16,7 @@ import com.tramchester.repository.TransportData;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TramRouteHelper;
 import com.tramchester.testSupport.reference.KnownTramRoute;
-import com.tramchester.testSupport.testTags.EcclesToWeasteClousure2023Test;
+import com.tramchester.testSupport.testTags.EcclesToWeasteClosure2023Test;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -112,7 +112,7 @@ public class RunningRoutesAndServicesTest {
 
     }
 
-    @EcclesToWeasteClousure2023Test
+    @EcclesToWeasteClosure2023Test
     @Test
     void shouldTakeAccountOfCrossingIntoNextDayForRunningServices() {
         // need to find service running mon to fri and one running saturday

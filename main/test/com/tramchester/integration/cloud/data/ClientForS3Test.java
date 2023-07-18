@@ -24,6 +24,8 @@ import java.time.*;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
@@ -136,8 +138,9 @@ public class ClientForS3Test {
     @Test
     void shouldGetKeysForBucketWithPrefix() {
 
-        Set<String> result = clientForS3.getKeysFor(BUCKET, "test");
-        assertTrue(result.isEmpty());
+        Stream<String> streamA = clientForS3.getKeysFor(BUCKET, "test");
+        Set<String> resultA = streamA.collect(Collectors.toSet());
+        assertTrue(resultA.isEmpty());
 
         String keyA = "test/keyA";
         String keyB = "test/keyB";
@@ -147,18 +150,20 @@ public class ClientForS3Test {
         s3Waiter.waitUntilObjectExists(HeadObjectRequest.builder().bucket(BUCKET).key(keyA).build());
         s3Waiter.waitUntilObjectExists(HeadObjectRequest.builder().bucket(BUCKET).key(keyB).build());
 
-        result = clientForS3.getKeysFor(BUCKET, "test");
-        assertEquals(2, result.size());
+        Stream<String> streamB = clientForS3.getKeysFor(BUCKET, "test");
+        Set<String> resultB = streamB.collect(Collectors.toSet());
+        assertEquals(2, resultB.size());
 
-        assertTrue(result.contains(keyA));
-        assertTrue(result.contains(keyB));
+        assertTrue(resultB.contains(keyA));
+        assertTrue(resultB.contains(keyB));
     }
 
     @Test
     void shouldGetAllKeysForBucket() {
 
-        Set<String> result = clientForS3.getAllKeysFor(BUCKET);
-        assertTrue(result.isEmpty());
+        Stream<String> streamA = clientForS3.getAllKeys(BUCKET);
+        Set<String> resultA = streamA.collect(Collectors.toSet());
+        assertTrue(resultA.isEmpty());
 
         String keyA = "test/keyA";
         String keyB = "test/keyB";
@@ -168,11 +173,12 @@ public class ClientForS3Test {
         s3Waiter.waitUntilObjectExists(HeadObjectRequest.builder().bucket(BUCKET).key(keyA).build());
         s3Waiter.waitUntilObjectExists(HeadObjectRequest.builder().bucket(BUCKET).key(keyB).build());
 
-        result = clientForS3.getKeysFor(BUCKET, "test");
-        assertEquals(2, result.size());
+        Stream<String> streamB = clientForS3.getKeysFor(BUCKET, "test");
+        Set<String> resultB = streamB.collect(Collectors.toSet());
+        assertEquals(2, resultB.size());
 
-        assertTrue(result.contains(keyA));
-        assertTrue(result.contains(keyB));
+        assertTrue(resultB.contains(keyA));
+        assertTrue(resultB.contains(keyB));
     }
 
     @Test
@@ -196,7 +202,7 @@ public class ClientForS3Test {
     }
 
     @Test
-    void shouldDownloadAndMap() {
+    void shouldDownloadAndMapSet() {
         String key = "test/keyDownloadAndMap";
 
         final String text = "testToUpdateForMapper";
