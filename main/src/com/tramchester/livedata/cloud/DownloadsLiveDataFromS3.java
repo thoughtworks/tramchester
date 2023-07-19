@@ -20,6 +20,9 @@ import java.util.stream.Stream;
 
 import static java.lang.String.format;
 
+// Bucket->Environment->Date->Files
+// Each file is snapshot of current state of live data
+
 @LazySingleton
 public class DownloadsLiveDataFromS3 {
     private static final Logger logger = LoggerFactory.getLogger(DownloadsLiveDataFromS3.class);
@@ -63,9 +66,13 @@ public class DownloadsLiveDataFromS3 {
     }
 
     public Stream<ArchivedStationDepartureInfoDTO> downloadAll() {
-       Stream<String> allKeys = s3Client.getAllKeysAsStream();
+       final Stream<String> allKeys = s3Client.getAllKeysAsStream();
+       final boolean debug = logger.isDebugEnabled();
 
         return s3Client.downloadAndMap(allKeys, bytes -> {
+            if (debug) {
+                logger.debug("Downloaded " + bytes.length + " bytes");
+            }
             final String text = new String(bytes, StandardCharsets.US_ASCII);
             return stationDepartureMapper.parse(text);
         });
@@ -76,21 +83,6 @@ public class DownloadsLiveDataFromS3 {
         LocalDateTime end = start.plus(duration);
 
         return keys.filter(key -> filterKey(start, end, key)).collect(Collectors.toSet());
-
-//        Set<String> results = new HashSet<>();
-//        for (String key : keys) {
-//            try {
-//                LocalDateTime dateTime = s3Keys.parse(key);
-//                if (matchesDate(start, end, dateTime)) {
-//                    results.add(key);
-//                }
-//            }
-//            catch (S3Keys.S3KeyException exception) {
-//                logger.warn("Unable to parse key: " + key);
-//            }
-//        }
-//
-//        return results;
     }
 
     private boolean filterKey(LocalDateTime start, LocalDateTime end , String key) {

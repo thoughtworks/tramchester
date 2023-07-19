@@ -51,6 +51,9 @@ public class QueryLiveDataArchiveCLI extends BaseCLI {
 
     }
 
+    // TODO Doesn't work well, too much data and no way to slice and pause/resume on the processing
+    // Likely need to have date and time range as parameters and then a way to track how far we've got
+
     @Override
     public void run(Logger logger, GuiceContainerDependencies dependencies) {
         FindUniqueDueTramStatus finder = dependencies.get(FindUniqueDueTramStatus.class);

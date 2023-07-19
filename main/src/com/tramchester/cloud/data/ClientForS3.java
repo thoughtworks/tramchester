@@ -192,7 +192,9 @@ public class ClientForS3 {
     }
 
     public <T> List<T> downloadAndMapForKey(String bucket, String key, LiveDataClientForS3.ResponseMapper<T> responseMapper) {
-        GetObjectRequest request = GetObjectRequest.builder().bucket(bucket).key(key).build();
+
+        GetObjectRequest request = GetObjectRequest.builder().
+                bucket(bucket).key(key).build();
 
         ResponseTransformer<GetObjectResponse, List<T>> transformer =
                 (response, inputStream) -> responseMapper.map(readBytes(bucket, key, response, inputStream));
@@ -317,7 +319,7 @@ public class ClientForS3 {
             return Stream.empty();
         }
 
-        logger.info("Get stream for bucket " + bucket);
+        logger.info("Get key stream for bucket " + bucket);
 
         return Streams.stream(new KeyIterator(s3Client, bucket)).map(S3Object::key);
     }
@@ -491,7 +493,9 @@ public class ClientForS3 {
             try {
                 final ListObjectsV2Request listObsRequest = builder.build();
                 final ListObjectsV2Response response = s3Client.listObjectsV2(listObsRequest);
-                buffer.addAll(response.contents());
+                final List<S3Object> contents = response.contents();
+                logger.info("Fetched " + contents.size()+ " records");
+                buffer.addAll(contents);
                 final String continueToken = response.nextContinuationToken();
                 builder.continuationToken(continueToken);
                 moreRemaining = response.isTruncated();

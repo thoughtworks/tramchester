@@ -63,7 +63,10 @@ public class LiveDataClientForS3  {
             logger.error("not started");
             return Stream.empty();
         }
-        return keys.map(key -> clientForS3.downloadAndMapForKey(bucket, key, responseMapper)).flatMap(Collection::stream);
+        logger.info("Downloading keys for bucket " + bucket);
+        Stream<T> stream = keys.map(key -> clientForS3.downloadAndMapForKey(bucket, key, responseMapper)).flatMap(Collection::stream);
+        logger.info("Return stream");
+        return stream;
     }
 
     public boolean isStarted() {
@@ -84,6 +87,7 @@ public class LiveDataClientForS3  {
     }
 
     public Stream<String> getAllKeysAsStream() {
+        logger.info("Getting all keys for " + bucket);
         return clientForS3.getAllKeys(bucket);
     }
 
