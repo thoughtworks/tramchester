@@ -30,11 +30,12 @@ public abstract class BaseCLI {
 
     protected void run(Path configFile, Logger logger, String name) throws ConfigurationException, IOException {
         GuiceContainerDependencies container = bootstrap(configFile, name);
-        run(logger, container);
+        final TramchesterConfig config = container.get(TramchesterConfig.class);
+        run(logger, container, config);
         container.close();
     }
 
-    public abstract  void run(Logger logger,  GuiceContainerDependencies dependencies);
+    public abstract  void run(Logger logger,  GuiceContainerDependencies dependencies, TramchesterConfig config);
 
     private YamlConfigurationFactory<AppConfiguration> getValidatingFactory() {
         Class<AppConfiguration> klass = AppConfiguration.class;

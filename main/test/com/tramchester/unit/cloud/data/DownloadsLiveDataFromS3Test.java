@@ -174,21 +174,5 @@ class DownloadsLiveDataFromS3Test extends EasyMockSupport {
         assertTrue(results.isEmpty());
     }
 
-    @Test
-    void shouldDownloadAllData() {
-
-        Stream<String> keys = Stream.of("keyA", "keyB");
-        EasyMock.expect(clientForS3.getAllKeysAsStream()).andReturn(keys);
-
-        EasyMock.expect(clientForS3.downloadAndMap(EasyMock.eq(keys), EasyMock.capture(responseMapperCapture))).
-                andReturn(Stream.of(departsDTO));
-
-        replayAll();
-        List<ArchivedStationDepartureInfoDTO>  results = downloader.downloadAll().collect(Collectors.toList());
-        verifyAll();
-
-        assertEquals(1, results.size());
-        assertTrue(results.contains(departsDTO));
-    }
 
 }

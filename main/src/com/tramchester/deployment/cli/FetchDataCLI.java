@@ -1,6 +1,7 @@
 package com.tramchester.deployment.cli;
 
 import com.tramchester.GuiceContainerDependencies;
+import com.tramchester.config.TramchesterConfig;
 import com.tramchester.dataimport.FetchDataFromUrl;
 import io.dropwizard.configuration.ConfigurationException;
 import org.slf4j.Logger;
@@ -35,7 +36,7 @@ public class FetchDataCLI extends BaseCLI {
     }
 
     @Override
-    public void run(Logger logger, GuiceContainerDependencies dependencies) {
+    public void run(Logger logger, GuiceContainerDependencies dependencies, TramchesterConfig config) {
         FetchDataFromUrl fetcher = dependencies.get(FetchDataFromUrl.class);
         fetcher.getReady();
     }

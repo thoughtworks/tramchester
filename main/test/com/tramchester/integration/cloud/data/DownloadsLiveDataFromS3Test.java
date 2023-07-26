@@ -14,7 +14,9 @@ import com.tramchester.testSupport.testTags.S3Test;
 import org.junit.jupiter.api.*;
 
 import java.time.Duration;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Set;
@@ -24,9 +26,11 @@ import static org.junit.jupiter.api.Assertions.*;
 
 @S3Test
 class DownloadsLiveDataFromS3Test {
-    private static final int NUM_OF_DISPLAYS = 189;
-    private static final String PREFIX = "uat/20200227/";
-    private static final int NUM_KEYS_FOR_PREFIX = 7844; // from s3 console, historical so should not change
+    private static final String PLACE = "ProdGreen";
+    private static final int NUM_OF_DISPLAYS = 228;
+    private static final String PREFIX = PLACE+"/20221024/"; // "uat/20200227/";
+    private static final LocalDate TEST_DATE = LocalDate.of(2022, 10, 24);
+    private static final int NUM_KEYS_FOR_PREFIX = 8563; // from s3 console, historical so should not change
 
     private static ComponentContainer componentContainer;
     private DownloadsLiveDataFromS3 downloader;
@@ -34,7 +38,7 @@ class DownloadsLiveDataFromS3Test {
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
-        TramchesterConfig configuration = new RealBucketConfig(new RealLiveConfig("tramchesterlivedata","uat"));
+        TramchesterConfig configuration = new RealBucketConfig(new RealLiveConfig("tramchesterlivedata",PLACE));
         componentContainer = new ComponentsBuilder().create(configuration, TestEnv.NoopRegisterMetrics());
         componentContainer.initialise();
     }
@@ -52,25 +56,27 @@ class DownloadsLiveDataFromS3Test {
 
     @Test
     void shouldDownloadHistoricalDataMin() {
-        LocalDateTime start = LocalDateTime.of(2020, 2, 27, 0, 1);
-        Duration duration = Duration.of(1, ChronoUnit.MINUTES);
+        LocalDateTime start = LocalDateTime.of(TEST_DATE, LocalTime.of(0, 1));
+        Duration duration = Duration.of(40, ChronoUnit.SECONDS);
 
         List<ArchivedStationDepartureInfoDTO> results = downloader.downloadFor(start, duration).collect(Collectors.toList());
 
         assertFalse(results.isEmpty());
-        int assumedLen = NUM_OF_DISPLAYS * 6;
+        int assumedLen = NUM_OF_DISPLAYS * 4;
         assertEquals(assumedLen, results.size());
     }
 
     @Test
     void shouldDownloadHistoricalDataMinutes() {
-        LocalDateTime start = LocalDateTime.of(2020, 2, 27, 10, 0);
+        //LocalDateTime start = LocalDateTime.of(2020, 2, 27, 10, 0);
+        LocalDateTime start = LocalDateTime.of(TEST_DATE, LocalTime.of(10, 0));
+
         Duration duration = Duration.of(59, ChronoUnit.MINUTES).plusSeconds(59);
 
         List<ArchivedStationDepartureInfoDTO> results = downloader.downloadFor(start, duration).collect(Collectors.toList());
         assertFalse(results.isEmpty());
 
-        int expectedRecords = NUM_OF_DISPLAYS * 325; // from S3 console prefix search
+        int expectedRecords = NUM_OF_DISPLAYS * 360; // from S3 console prefix search
         assertEquals(expectedRecords, results.size());
 
         results.forEach(result -> {

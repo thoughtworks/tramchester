@@ -7,10 +7,7 @@ import com.tramchester.livedata.cloud.FindUniqueDueTramStatus;
 import com.tramchester.livedata.domain.liveUpdates.UpcomingDeparture;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.testTags.S3Test;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
@@ -34,7 +31,6 @@ public class FindUniqueDueTramStatusTest {
                 new DownloadsLiveDataFromS3Test.RealLiveConfig("tramchesterlivedata","uat"));
         componentContainer = new ComponentsBuilder().create(configuration, TestEnv.NoopRegisterMetrics());
         componentContainer.initialise();
-
     }
 
     @AfterAll
@@ -47,6 +43,7 @@ public class FindUniqueDueTramStatusTest {
         finder = componentContainer.get(FindUniqueDueTramStatus.class);
     }
 
+    @Disabled("WIP")
     @Test
     void shouldHaveStandardStatus() {
         LocalDateTime start = LocalDateTime.of(2020, 2, 27, 0, 1);

@@ -58,26 +58,25 @@ public class DownloadsLiveDataFromS3 {
 
         logger.info(format("Found %s keys for %s and %s", inscopeKeys.size(), start, duration));
 
-        return s3Client.downloadAndMap(inscopeKeys, bytes -> {
+        return s3Client.downloadAndMap(inscopeKeys, (key, bytes) -> {
             final String text = new String(bytes, StandardCharsets.US_ASCII);
             return stationDepartureMapper.parse(text);
         });
 
     }
 
-    public Stream<ArchivedStationDepartureInfoDTO> downloadAll() {
-       final Stream<String> allKeys = s3Client.getAllKeysAsStream();
-       final boolean debug = logger.isDebugEnabled();
-
-        return s3Client.downloadAndMap(allKeys, bytes -> {
-            if (debug) {
-                logger.debug("Downloaded " + bytes.length + " bytes");
-            }
-            final String text = new String(bytes, StandardCharsets.US_ASCII);
-            return stationDepartureMapper.parse(text);
-        });
-
-    }
+//    public Stream<ArchivedStationDepartureInfoDTO> downloadAll() {
+//       final Stream<String> allKeys = s3Client.getAllKeysAsStream();
+//       final boolean debug = logger.isDebugEnabled();
+//
+//        return s3Client.downloadAndMap(allKeys, (key, bytes) -> {
+//            if (debug) {
+//                logger.debug("Downloaded " + bytes.length + " bytes");
+//            }
+//            final String text = new String(bytes, StandardCharsets.US_ASCII);
+//            return stationDepartureMapper.parse(text);
+//        });
+//    }
 
     private Set<String> filteredKeys(LocalDateTime start, Duration duration, Stream<String> keys) {
         LocalDateTime end = start.plus(duration);

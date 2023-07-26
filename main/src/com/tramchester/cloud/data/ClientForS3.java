@@ -197,7 +197,7 @@ public class ClientForS3 {
                 bucket(bucket).key(key).build();
 
         ResponseTransformer<GetObjectResponse, List<T>> transformer =
-                (response, inputStream) -> responseMapper.map(readBytes(bucket, key, response, inputStream));
+                (response, inputStream) -> responseMapper.map(key, readBytes(bucket, key, response, inputStream));
 
         return s3Client.getObject(request, transformer);
     }

@@ -608,7 +608,7 @@ task pullData(type:JavaExec, dependsOn:classes) {
 task queryDueTramStatus(type:JavaExec, dependsOn:classes) {
     mainClass = 'com.tramchester.deployment.cli.QueryLiveDataArchiveCLI'
     classpath = sourceSets.main.runtimeClasspath
-    args 'config/gm.yml', 'dueTramStatus.txt'
+    args '2023-01-30', '1', 'config/gm.yml', 'dueTramStatus.txt'
 }
 
 // temp additional target while deploying train/tram version to just UAT

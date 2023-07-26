@@ -16,7 +16,6 @@ import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -51,31 +50,6 @@ public class FindUniqueDueTramStatusTest extends EasyMockSupport  {
 
         replayAll();
         Set<String> results = finder.getUniqueDueTramStatus(start, duration);
-        verifyAll();
-
-        assertEquals(4, results.size());
-        assertTrue(results.contains("tramStatusA"));
-        assertTrue(results.contains("tramStatusB"));
-        assertTrue(results.contains("tramStatusC"));
-        assertTrue(results.contains("tramStatusD"));
-    }
-
-    @Test
-    void shouldExtractStatusForAll() {
-        LocalDateTime timeStamp = LocalDateTime.of(2020, 2, 27, 0, 1);
-
-        List<ArchivedDepartureDTO> dueTramsA = Arrays.asList(createDueTram(timeStamp, "tramStatusA"), createDueTram(timeStamp, "tramStatusA"),
-                createDueTram(timeStamp, "tramStatusB"), createDueTram(timeStamp, "tramStatusC"));
-
-        List<ArchivedDepartureDTO> dueTramsB = Arrays.asList(createDueTram(timeStamp, "tramStatusA"), createDueTram(timeStamp, "tramStatusA"),
-                createDueTram(timeStamp, "tramStatusB"), createDueTram(timeStamp, "tramStatusD"));
-
-        Stream<ArchivedStationDepartureInfoDTO> stream = Stream.of(createDepartureDTO(timeStamp, dueTramsA), createDepartureDTO(timeStamp, dueTramsB));
-        EasyMock.expect(downloader.downloadAll()).andReturn(stream);
-
-        replayAll();
-        Stream<String> resultsAsStream = finder.getAllDueTramStatus();
-        Set<String> results = resultsAsStream.collect(Collectors.toSet());
         verifyAll();
 
         assertEquals(4, results.size());

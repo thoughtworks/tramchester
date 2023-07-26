@@ -146,7 +146,8 @@ class LiveDataClientForS3Test {
         s3.putObject(request, RequestBody.fromString(payload));
         s3Waiter.waitUntilObjectExists(existsCheckRequest);
 
-        LiveDataClientForS3.ResponseMapper<String> transformer = incoming -> Collections.singletonList(new String(incoming, StandardCharsets.US_ASCII));
+        LiveDataClientForS3.ResponseMapper<String> transformer = (receivedKey, receivedBytes) ->
+                Collections.singletonList(new String(receivedBytes, StandardCharsets.US_ASCII));
 
         List<String> results = liveDataClientForS3.downloadAndMap(Collections.singleton(key), transformer).collect(Collectors.toList());
         assertEquals(1, results.size());

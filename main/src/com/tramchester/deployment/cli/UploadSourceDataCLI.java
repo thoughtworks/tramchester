@@ -1,6 +1,7 @@
 package com.tramchester.deployment.cli;
 
 import com.tramchester.GuiceContainerDependencies;
+import com.tramchester.config.TramchesterConfig;
 import com.tramchester.dataimport.UnzipFetchedData;
 import com.tramchester.deployment.UploadRemoteSourceData;
 import io.dropwizard.configuration.ConfigurationException;
@@ -44,7 +45,7 @@ public class UploadSourceDataCLI extends BaseCLI {
     }
 
     @Override
-    public void run(Logger logger, GuiceContainerDependencies dependencies) {
+    public void run(Logger logger, GuiceContainerDependencies dependencies, TramchesterConfig config) {
         UnzipFetchedData unzipFetchedData = dependencies.get(UnzipFetchedData.class);
         unzipFetchedData.getReady();
 

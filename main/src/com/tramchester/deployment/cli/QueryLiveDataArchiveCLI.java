@@ -1,6 +1,9 @@
 package com.tramchester.deployment.cli;
 
 import com.tramchester.GuiceContainerDependencies;
+import com.tramchester.config.TfgmTramLiveDataConfig;
+import com.tramchester.config.TramchesterConfig;
+import com.tramchester.domain.dates.TramDate;
 import com.tramchester.livedata.cloud.FindUniqueDueTramStatus;
 import com.tramchester.livedata.domain.liveUpdates.UpcomingDeparture;
 import io.dropwizard.configuration.ConfigurationException;
@@ -14,14 +17,21 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.Duration;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.temporal.ChronoUnit;
 import java.util.stream.Stream;
 
+import static java.lang.String.format;
+
 public class QueryLiveDataArchiveCLI extends BaseCLI {
     private final Path outputFilename;
+    private final TramDate date;
+    private final int days;
 
-    public QueryLiveDataArchiveCLI(Path outputFilename) {
+    public QueryLiveDataArchiveCLI(Path outputFilename, TramDate date, int days) {
         this.outputFilename = outputFilename;
+        this.date = date;
+        this.days = days;
     }
 
     public static void main(String[] args) {
@@ -30,16 +40,23 @@ public class QueryLiveDataArchiveCLI extends BaseCLI {
 
         Logger logger = LoggerFactory.getLogger(QueryLiveDataArchiveCLI.class);
 
-        if (args.length != 2) {
-            throw new RuntimeException("Expected 2 arguments: <config filename> <output filename>");
+        if (args.length != 4) {
+            String message = "Expected 4 arguments: <date> <days> <config filename> <output filename>";
+            logger.error(message);
+            throw new RuntimeException(message);
         }
-        Path configFile = Paths.get(args[0]).toAbsolutePath();
+        TramDate date = TramDate.parse(args[0]);
+        logger.info("Date " + date);
+        int days = Integer.parseInt(args[1]);
+        logger.info("Days " + days);
+
+        Path configFile = Paths.get(args[2]).toAbsolutePath();
         logger.info("Config from " + configFile);
 
-        Path outputFile = Paths.get(args[1]).toAbsolutePath();
-        logger.info("Output filename " + outputFile);
+        Path outputFile = Paths.get(args[3]).toAbsolutePath();
+        logger.info(format("Output filename %s date %s days %s", outputFile, date, days));
 
-        QueryLiveDataArchiveCLI fetchDataCLI = new QueryLiveDataArchiveCLI(outputFile);
+        QueryLiveDataArchiveCLI fetchDataCLI = new QueryLiveDataArchiveCLI(outputFile, date, days);
 
         try {
             fetchDataCLI.run(configFile, logger, "FetchDataCLI");
@@ -51,23 +68,27 @@ public class QueryLiveDataArchiveCLI extends BaseCLI {
 
     }
 
-    // TODO Doesn't work well, too much data and no way to slice and pause/resume on the processing
-    // Likely need to have date and time range as parameters and then a way to track how far we've got
 
     @Override
-    public void run(Logger logger, GuiceContainerDependencies dependencies) {
+    public void run(Logger logger, GuiceContainerDependencies dependencies, TramchesterConfig config) {
         FindUniqueDueTramStatus finder = dependencies.get(FindUniqueDueTramStatus.class);
+
+        boolean liveDataEnabled = config.liveTrainDataEnabled();
+        if (!liveDataEnabled) {
+            logger.warn("Live data is not enable for this config");
+        }
+        TfgmTramLiveDataConfig liveDataConfig = config.getLiveDataConfig();
+        logger.info("s3bucket is " + liveDataConfig.getS3Bucket() + " s3prefix is " + liveDataConfig.getS3Prefix());
 
         try {
             FileOutputStream outputStream = new FileOutputStream(outputFilename.toFile());
             OutputStreamWriter writer = new OutputStreamWriter(outputStream);
 
-            Stream<String> allStatus = finder.getAllDueTramStatus();
-
             // limited the amount of output for testing
-//            Duration duration = Duration.of(1, ChronoUnit.HOURS);
-//            LocalDateTime start = LocalDateTime.now().minus(duration);
-//            Stream<String> allStatus = finder.getUniqueDueTramStatus(start, duration).stream();
+            Duration duration = Duration.of(days, ChronoUnit.DAYS);
+            LocalTime time = LocalTime.of(0,1); // one minute past midnight
+            LocalDateTime start = LocalDateTime.of(date.toLocalDate(), time);
+            Stream<String> allStatus = finder.getUniqueDueTramStatus(start, duration).stream();
 
             Stream<String> withLineSep = allStatus.
                     filter(text -> !UpcomingDeparture.KNOWN_STATUS.contains(text)).

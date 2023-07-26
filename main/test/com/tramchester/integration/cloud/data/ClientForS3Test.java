@@ -210,7 +210,7 @@ public class ClientForS3Test {
 
         s3Waiter.waitUntilObjectExists(HeadObjectRequest.builder().bucket(BUCKET).key(key).build());
 
-        List<String> result = clientForS3.downloadAndMapForKey(BUCKET, key, bytes -> Collections.singletonList(new String(bytes)));
+        List<String> result = clientForS3.downloadAndMapForKey(BUCKET, key, (receivedKey, bytes) -> Collections.singletonList(new String(bytes)));
 
         assertEquals(1, result.size());
         assertTrue(result.contains(text));

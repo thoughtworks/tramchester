@@ -92,7 +92,7 @@ public class LiveDataClientForS3  {
     }
 
     public interface ResponseMapper<T> {
-        List<T> map(byte[] bytes);
+        List<T> map(final String key, final byte[] bytes);
     }
 
 }

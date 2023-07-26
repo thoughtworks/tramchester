@@ -53,8 +53,8 @@ public class BuildGraphCLI extends BaseCLI {
         }
     }
 
-    public void run(Logger logger, GuiceContainerDependencies dependencies) {
-        TramchesterConfig config = dependencies.get(TramchesterConfig.class);
+    @Override
+    public void run(Logger logger, GuiceContainerDependencies dependencies, TramchesterConfig config) {
         Path original = config.getGraphDBConfig().getDbPath();
         dependencies.get(StagedTransportGraphBuilder.Ready.class);
         dependencies.close();

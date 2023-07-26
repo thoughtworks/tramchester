@@ -34,8 +34,4 @@ public class FindUniqueDueTramStatus {
         return record.getDueTrams().stream().map(ArchivedDepartureDTO::getStatus);
     }
 
-    public Stream<String> getAllDueTramStatus() {
-        Stream<ArchivedStationDepartureInfoDTO> records = downloader.downloadAll();
-        return records.flatMap(this::extractDueStatus);
-    }
 }
