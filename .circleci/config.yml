@@ -6,7 +6,7 @@ version: 2
 jobs:
   build:
     docker:
-      - image: circleci/openjdk:15-jdk-buster
+      - image: circleci/openjdk:17-jdk-buster
     resource_class: medium
     working_directory: ~/repo
 
@@ -29,7 +29,7 @@ jobs:
           path: ~/repo/build/reports/tests
   integration:
     docker:
-      - image: circleci/openjdk:15-jdk-buster-node
+      - image: circleci/openjdk:17-jdk-buster-node
     resource_class: medium
     working_directory: ~/repo
 
@@ -65,7 +65,7 @@ jobs:
            - release_num.txt
   acceptance:
     docker:
-      - image: circleci/openjdk:15-jdk-buster-node-browsers
+      - image: circleci/openjdk:17-jdk-buster-node-browsers
     resource_class: medium
     working_directory: ~/repo
 
@@ -133,7 +133,7 @@ jobs:
   deployProd:
     docker:
     # specify the version you desire here
-      - image: circleci/openjdk:15-jdk-buster
+      - image: circleci/openjdk:17-jdk-buster
     working_directory: ~/repo
     steps:
       - checkout
