@@ -20,13 +20,13 @@ public class FindUniqueDueTramStatus {
         this.downloader = downloader;
     }
 
-    public Set<String> getUniqueDueTramStatus(LocalDateTime startDate, Duration duration) {
-        Stream<String> all = getAllDueStatus(startDate, duration);
+    public Set<String> getUniqueDueTramStatus(LocalDateTime startDate, Duration duration, Duration sample) {
+        Stream<String> all = getAllDueStatus(startDate, duration, sample);
         return all.collect(Collectors.toSet());
     }
 
-    private Stream<String> getAllDueStatus(LocalDateTime startDate, Duration duration) {
-        Stream<ArchivedStationDepartureInfoDTO> records = downloader.downloadFor(startDate, duration);
+    private Stream<String> getAllDueStatus(LocalDateTime startDate, Duration duration, Duration sample) {
+        Stream<ArchivedStationDepartureInfoDTO> records = downloader.downloadFor(startDate, duration, sample);
         return records.flatMap(this::extractDueStatus);
     }
 

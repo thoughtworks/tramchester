@@ -27,11 +27,13 @@ public class QueryLiveDataArchiveCLI extends BaseCLI {
     private final Path outputFilename;
     private final TramDate date;
     private final int days;
+    private final Duration sampleWindow;
 
-    public QueryLiveDataArchiveCLI(Path outputFilename, TramDate date, int days) {
+    public QueryLiveDataArchiveCLI(Path outputFilename, TramDate date, int days, Duration sampleWindow) {
         this.outputFilename = outputFilename;
         this.date = date;
         this.days = days;
+        this.sampleWindow = sampleWindow;
     }
 
     public static void main(String[] args) {
@@ -40,23 +42,28 @@ public class QueryLiveDataArchiveCLI extends BaseCLI {
 
         Logger logger = LoggerFactory.getLogger(QueryLiveDataArchiveCLI.class);
 
-        if (args.length != 4) {
-            String message = "Expected 4 arguments: <date> <days> <config filename> <output filename>";
+        if (args.length != 5) {
+            String message = "Expected 4 arguments: <date> <days> <minutes> <config filename> <output filename>";
             logger.error(message);
             throw new RuntimeException(message);
         }
+
         TramDate date = TramDate.parse(args[0]);
         logger.info("Date " + date);
+
         int days = Integer.parseInt(args[1]);
         logger.info("Days " + days);
 
-        Path configFile = Paths.get(args[2]).toAbsolutePath();
+        int mins = Integer.parseInt(args[2]);
+        logger.info("Sample Window Minutes " + mins);
+
+        Path configFile = Paths.get(args[3]).toAbsolutePath();
         logger.info("Config from " + configFile);
 
-        Path outputFile = Paths.get(args[3]).toAbsolutePath();
+        Path outputFile = Paths.get(args[4]).toAbsolutePath();
         logger.info(format("Output filename %s date %s days %s", outputFile, date, days));
 
-        QueryLiveDataArchiveCLI fetchDataCLI = new QueryLiveDataArchiveCLI(outputFile, date, days);
+        QueryLiveDataArchiveCLI fetchDataCLI = new QueryLiveDataArchiveCLI(outputFile, date, days, Duration.ofMinutes(mins));
 
         try {
             fetchDataCLI.run(configFile, logger, "FetchDataCLI");
@@ -88,7 +95,7 @@ public class QueryLiveDataArchiveCLI extends BaseCLI {
             Duration duration = Duration.of(days, ChronoUnit.DAYS);
             LocalTime time = LocalTime.of(0,1); // one minute past midnight
             LocalDateTime start = LocalDateTime.of(date.toLocalDate(), time);
-            Stream<String> allStatus = finder.getUniqueDueTramStatus(start, duration).stream();
+            Stream<String> allStatus = finder.getUniqueDueTramStatus(start, duration, sampleWindow).stream();
 
             Stream<String> withLineSep = allStatus.
                     filter(text -> !UpcomingDeparture.KNOWN_STATUS.contains(text)).

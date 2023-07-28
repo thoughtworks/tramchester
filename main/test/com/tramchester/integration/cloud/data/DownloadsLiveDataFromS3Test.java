@@ -68,7 +68,6 @@ class DownloadsLiveDataFromS3Test {
 
     @Test
     void shouldDownloadHistoricalDataMinutes() {
-        //LocalDateTime start = LocalDateTime.of(2020, 2, 27, 10, 0);
         LocalDateTime start = LocalDateTime.of(TEST_DATE, LocalTime.of(10, 0));
 
         Duration duration = Duration.of(59, ChronoUnit.MINUTES).plusSeconds(59);
@@ -82,6 +81,27 @@ class DownloadsLiveDataFromS3Test {
         results.forEach(result -> {
             assertTrue(result.getLastUpdate().isAfter(start), result.toString());
         });
+    }
+
+    @Test
+    void shouldDownloadHistoricalDataMinutesSampled() {
+        LocalDateTime start = LocalDateTime.of(TEST_DATE, LocalTime.of(10, 0));
+
+        Duration duration = Duration.of(59, ChronoUnit.MINUTES).plusSeconds(59);
+        Duration samplePeriod = Duration.ofMinutes(1);
+
+        List<ArchivedStationDepartureInfoDTO> results = downloader.downloadFor(start, duration, samplePeriod).collect(Collectors.toList());
+        assertFalse(results.isEmpty());
+
+        int expectedRecords = NUM_OF_DISPLAYS * 60;
+        assertEquals(expectedRecords, results.size());
+
+        results.forEach(result -> {
+            assertTrue(result.getLastUpdate().isAfter(start), result.toString());
+        });
+
+        Set<Integer> minutesSeen = results.stream().map(result -> result.getLastUpdate().getMinute()).collect(Collectors.toSet());
+        assertEquals(60, minutesSeen.size(), minutesSeen.toString());
     }
 
     @Test

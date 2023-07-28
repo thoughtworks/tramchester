@@ -49,7 +49,9 @@ public class FindUniqueDueTramStatusTest {
         LocalDateTime start = LocalDateTime.of(2020, 2, 27, 0, 1);
         Duration duration = Duration.of(2, ChronoUnit.MINUTES);
 
-        Set<String> dueStatus = finder.getUniqueDueTramStatus(start, duration);
+        Duration sampleWindow = Duration.ofMinutes(1);
+
+        Set<String> dueStatus = finder.getUniqueDueTramStatus(start, duration, sampleWindow);
 
         assertTrue(dueStatus.containsAll(expected), "Missing status in " + dueStatus + " does not contain all of " + expected);
 

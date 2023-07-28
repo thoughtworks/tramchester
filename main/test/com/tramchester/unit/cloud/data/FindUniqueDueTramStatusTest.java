@@ -36,8 +36,9 @@ public class FindUniqueDueTramStatusTest extends EasyMockSupport  {
 
     @Test
     void shouldExtractStatusForDateRange() {
-        LocalDateTime start = LocalDateTime.of(2020, 2, 27, 0, 1);
-        Duration duration = Duration.of(2, ChronoUnit.MINUTES);
+        final LocalDateTime start = LocalDateTime.of(2020, 2, 27, 0, 1);
+        final Duration duration = Duration.of(2, ChronoUnit.MINUTES);
+        final Duration sample = Duration.ofMinutes(1);
 
         List<ArchivedDepartureDTO> dueTramsA = Arrays.asList(createDueTram(start, "tramStatusA"), createDueTram(start, "tramStatusA"),
                 createDueTram(start, "tramStatusB"), createDueTram(start, "tramStatusC"));
@@ -46,10 +47,10 @@ public class FindUniqueDueTramStatusTest extends EasyMockSupport  {
                 createDueTram(start, "tramStatusB"), createDueTram(start, "tramStatusD"));
 
         Stream<ArchivedStationDepartureInfoDTO> stream = Stream.of(createDepartureDTO(start, dueTramsA), createDepartureDTO(start, dueTramsB));
-        EasyMock.expect(downloader.downloadFor(start, duration)).andReturn(stream);
+        EasyMock.expect(downloader.downloadFor(start, duration, sample)).andReturn(stream);
 
         replayAll();
-        Set<String> results = finder.getUniqueDueTramStatus(start, duration);
+        Set<String> results = finder.getUniqueDueTramStatus(start, duration, sample);
         verifyAll();
 
         assertEquals(4, results.size());
