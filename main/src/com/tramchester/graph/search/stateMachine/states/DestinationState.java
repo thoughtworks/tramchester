@@ -2,9 +2,9 @@ package com.tramchester.graph.search.stateMachine.states;
 
 import com.tramchester.graph.search.stateMachine.RegistersFromState;
 import com.tramchester.graph.search.stateMachine.Towards;
+import org.neo4j.internal.helpers.collection.Iterables;
 
 import java.time.Duration;
-import java.util.LinkedList;
 
 /**
  * Used for the path to state mapping
@@ -48,7 +48,7 @@ public class DestinationState extends TraversalState
     }
 
     private DestinationState(TraversalState parent, Duration cost, Towards<DestinationState> builder) {
-        super(parent, new LinkedList<>(), cost, builder.getDestination());
+        super(parent, Iterables.emptyResourceIterable(), cost, builder.getDestination());
     }
 
     @Override

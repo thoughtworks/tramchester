@@ -1,6 +1,7 @@
 package com.tramchester.dataimport;
 
 import com.tramchester.config.TramchesterConfig;
+import jakarta.ws.rs.HttpMethod;
 import org.apache.http.HttpStatus;
 import org.apache.http.client.utils.DateUtils;
 import org.eclipse.jetty.http.HttpHeader;
@@ -8,7 +9,6 @@ import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.ws.rs.HttpMethod;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;

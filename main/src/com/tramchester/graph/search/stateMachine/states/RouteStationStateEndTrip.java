@@ -6,6 +6,7 @@ import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.graph.graphbuild.GraphProps;
 import com.tramchester.graph.search.JourneyStateUpdate;
+import com.tramchester.graph.search.stateMachine.OptionalResourceIterator;
 import com.tramchester.graph.search.stateMachine.RegistersFromState;
 import com.tramchester.graph.search.stateMachine.TowardsRouteStation;
 import org.neo4j.graphdb.Node;
@@ -46,7 +47,7 @@ public class RouteStationStateEndTrip extends RouteStationState {
             // TODO Crossing midnight?
             TramDate date = minuteState.traversalOps.getQueryDate();
 
-            List<Relationship> towardsDestination = getTowardsDestination(minuteState.traversalOps, node, date);
+            OptionalResourceIterator<Relationship> towardsDestination = getTowardsDestination(minuteState.traversalOps, node, date);
             if (!towardsDestination.isEmpty()) {
                 // we've nearly arrived
                 return new RouteStationStateEndTrip(minuteState, towardsDestination.stream(), cost, transportMode, node, trip, this);

@@ -14,6 +14,8 @@ import com.tramchester.graph.search.stateMachine.RegistersFromState;
 import com.tramchester.graph.search.stateMachine.Towards;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
+import org.neo4j.graphdb.ResourceIterable;
+import org.neo4j.internal.helpers.collection.Iterables;
 
 import java.time.Duration;
 import java.util.List;
@@ -47,11 +49,11 @@ public class MinuteState extends TraversalState {
         public TraversalState fromHour(HourState hourState, Node node, Duration cost, ExistingTrip existingTrip,
                                        JourneyStateUpdate journeyState, TransportRelationshipTypes[] currentModes) {
 
-            Iterable<Relationship> relationships = node.getRelationships(OUTGOING, currentModes);
+            ResourceIterable<Relationship> relationships = node.getRelationships(OUTGOING, currentModes);
 
             if (existingTrip.isOnTrip()) {
                 IdFor<Trip> existingTripId = existingTrip.getTripId();
-                List<Relationship> filterBySingleTripId = filterBySingleTripId(relationships, existingTripId);
+                ResourceIterable<Relationship> filterBySingleTripId = filterBySingleTripId(relationships, existingTripId);
                 return new MinuteState(hourState, filterBySingleTripId, existingTripId, cost, changeAtInterchangeOnly, this);
             } else {
                 // starting a brand-new journey, since at minute node now have specific tripid to use
@@ -61,10 +63,11 @@ public class MinuteState extends TraversalState {
             }
         }
 
-        private List<Relationship> filterBySingleTripId(Iterable<Relationship> relationships, IdFor<Trip> existingTripId) {
-            return Streams.stream(relationships).
+        private ResourceIterable<Relationship> filterBySingleTripId(ResourceIterable<Relationship> relationships, IdFor<Trip> existingTripId) {
+            List<Relationship> filtered = Streams.stream(relationships).
                     filter(relationship -> nodeContents.getTripId(relationship).equals(existingTripId)).
                     collect(Collectors.toList());
+            return Iterables.asResourceIterable(filtered);
 
         }
     }
@@ -72,7 +75,7 @@ public class MinuteState extends TraversalState {
     private final boolean interchangesOnly;
     private final Trip trip;
 
-    private MinuteState(TraversalState parent, Iterable<Relationship> relationships, IdFor<Trip> tripId, Duration cost,
+    private MinuteState(TraversalState parent, ResourceIterable<Relationship> relationships, IdFor<Trip> tripId, Duration cost,
                         boolean interchangesOnly, Towards<MinuteState> builder) {
         super(parent, relationships, cost, builder.getDestination());
         this.trip = traversalOps.getTrip(tripId);

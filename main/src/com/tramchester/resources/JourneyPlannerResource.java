@@ -2,6 +2,7 @@ package com.tramchester.resources;
 
 import com.codahale.metrics.annotation.Timed;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.google.inject.Inject;
 import com.tramchester.RedirectToHttpsUsingELBProtoHeader;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.JourneyRequest;
@@ -23,13 +24,12 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import jakarta.ws.rs.*;
+import jakarta.ws.rs.core.*;
 import org.neo4j.graphdb.Transaction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.inject.Inject;
-import javax.ws.rs.*;
-import javax.ws.rs.core.*;
 import java.net.URI;
 import java.time.Duration;
 import java.time.LocalTime;

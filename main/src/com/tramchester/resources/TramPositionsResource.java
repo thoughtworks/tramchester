@@ -1,6 +1,7 @@
 package com.tramchester.resources;
 
 import com.codahale.metrics.annotation.Timed;
+import com.google.inject.Inject;
 import com.tramchester.domain.presentation.DTO.factory.DTOFactory;
 import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.livedata.domain.DTO.TramPositionDTO;
@@ -14,12 +15,11 @@ import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import jakarta.ws.rs.*;
+import jakarta.ws.rs.core.MediaType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.inject.Inject;
-import javax.ws.rs.*;
-import javax.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import java.time.LocalDateTime;
 import java.util.List;

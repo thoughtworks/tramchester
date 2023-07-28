@@ -10,6 +10,7 @@ import com.tramchester.graph.search.stateMachine.RegistersFromState;
 import com.tramchester.graph.search.stateMachine.TowardsStation;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
+import org.neo4j.graphdb.ResourceIterable;
 
 import java.time.Duration;
 import java.util.stream.Stream;
@@ -93,7 +94,7 @@ public class NoPlatformStationState extends StationState {
         super(parent, relationships, cost, stationNode, journeyState, builder);
     }
 
-    private NoPlatformStationState(TraversalState parent, Iterable<Relationship> relationships, Duration cost, Node stationNode,
+    private NoPlatformStationState(TraversalState parent, ResourceIterable<Relationship> relationships, Duration cost, Node stationNode,
                                    JourneyStateUpdate journeyState, TowardsStation<?> builder) {
         super(parent, relationships, cost, stationNode, journeyState, builder);
     }

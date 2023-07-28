@@ -14,6 +14,7 @@ import org.neo4j.dbms.api.DatabaseManagementServiceBuilder;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.event.DatabaseEventContext;
 import org.neo4j.graphdb.event.DatabaseEventListener;
+import org.neo4j.io.ByteUnit;
 import org.neo4j.logging.Level;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -66,12 +67,13 @@ public class GraphDatabaseServiceFactory implements DatabaseEventListener {
     private void createManagementService() {
 
         try (Timing ignored = new Timing(logger, "DatabaseManagementService build")) {
+            Long neo4jPagecacheMemory = ByteUnit.parse(dbConfig.getNeo4jPagecacheMemory());
             managementServiceImpl = new DatabaseManagementServiceBuilder( graphFile ).
-                    setConfig(GraphDatabaseSettings.track_query_allocation, false).
-                    setConfig(GraphDatabaseSettings.store_internal_log_level, Level.WARN ).
+//                    setConfig(GraphDatabaseSettings.track_query_allocation, false).
+//                    setConfig(GraphDatabaseSettings.store_internal_log_level, Level.WARN ).
 
                     // see https://neo4j.com/docs/operations-manual/current/performance/memory-configuration/#heap-sizing
-                    setConfig(GraphDatabaseSettings.pagecache_memory, dbConfig.getNeo4jPagecacheMemory()).
+                    setConfig(GraphDatabaseSettings.pagecache_memory, neo4jPagecacheMemory).
                     // TODO This one into config?
                     //setConfig(GraphDatabaseSettings.tx_state_max_off_heap_memory, SettingValueParsers.BYTES.parse("256m")).
                     setConfig(GraphDatabaseSettings.tx_state_max_off_heap_memory, SettingValueParsers.BYTES.parse("512m")).
@@ -104,7 +106,7 @@ public class GraphDatabaseServiceFactory implements DatabaseEventListener {
 
     public void shutdownDatabase() {
         logger.info("Shutdown");
-        // NOTE: cannot shutdown using name in community editiom
+        // NOTE: cannot shutdown using name in community edition
         // managementService.shutdownDatabase(dbName);
         // ALSO: have to recreate managementService after shutdown otherwise DB does not start
         if (managementServiceImpl==null) {
@@ -163,5 +165,14 @@ public class GraphDatabaseServiceFactory implements DatabaseEventListener {
         logger.error("database event: panic " + eventContext.getDatabaseName());
     }
 
+    @Override
+    public void databaseCreate(DatabaseEventContext eventContext) {
+        logger.info("database event: create " + eventContext.getDatabaseName());
+    }
+
+    @Override
+    public void databaseDrop(DatabaseEventContext eventContext) {
+        logger.info("database event: drop " + eventContext.getDatabaseName());
+    }
 
 }

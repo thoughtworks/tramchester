@@ -1,10 +1,13 @@
 package com.tramchester.graph.search.stateMachine.states;
 
 import com.tramchester.graph.search.JourneyStateUpdate;
+import com.tramchester.graph.search.stateMachine.OptionalResourceIterator;
 import com.tramchester.graph.search.stateMachine.RegistersFromState;
 import com.tramchester.graph.search.stateMachine.Towards;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
+import org.neo4j.graphdb.ResourceIterable;
+import org.neo4j.internal.helpers.collection.Iterables;
 
 import java.time.Duration;
 import java.util.List;
@@ -33,15 +36,15 @@ public class WalkingState extends TraversalState {
         }
 
         public TraversalState fromStart(NotStartedState notStartedState, Node firstNode, Duration cost) {
-            final Iterable<Relationship> relationships = firstNode.getRelationships(OUTGOING, WALKS_TO_STATION);
-            List<Relationship> towardsDest = notStartedState.traversalOps.getTowardsDestination(relationships);
+            final ResourceIterable<Relationship> relationships = firstNode.getRelationships(OUTGOING, WALKS_TO_STATION);
+            OptionalResourceIterator<Relationship> towardsDest = notStartedState.traversalOps.getTowardsDestination(relationships);
 
             // prioritise a direct walk from start if one is available
             if (towardsDest.isEmpty()) {
                 return new WalkingState(notStartedState, relationships, cost, this);
             } else {
                 // direct
-                return new WalkingState(notStartedState, towardsDest.stream(), cost, this);
+                return new WalkingState(notStartedState, Iterables.asResourceIterable(towardsDest), cost, this);
             }
         }
 
@@ -56,7 +59,7 @@ public class WalkingState extends TraversalState {
         super(parent, relationships, cost, builder.getDestination());
     }
 
-    private WalkingState(TraversalState parent, Iterable<Relationship> relationships, Duration cost, Towards<WalkingState> builder) {
+    private WalkingState(TraversalState parent, ResourceIterable<Relationship> relationships, Duration cost, Towards<WalkingState> builder) {
         super(parent, relationships, cost, builder.getDestination());
     }
 

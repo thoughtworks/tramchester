@@ -8,11 +8,11 @@ import com.netflix.governator.lifecycle.LifecycleManager;
 import com.tramchester.healthchecks.RegistersHealthchecks;
 import com.tramchester.metrics.CacheMetrics;
 import com.tramchester.resources.APIResource;
+import jakarta.ws.rs.Path;
 import org.reflections.Reflections;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.ws.rs.Path;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;

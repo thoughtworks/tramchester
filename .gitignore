@@ -29,3 +29,4 @@ cdk.out
 store_lock
 **/.vscode/*
 summaryOfRouteAndServices.txt
+/main/src/generated-live-rail-api/**

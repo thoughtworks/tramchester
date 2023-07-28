@@ -7,15 +7,13 @@ import com.tramchester.graph.graphbuild.GraphLabel;
 import com.tramchester.graph.search.JourneyStateUpdate;
 import com.tramchester.graph.search.stateMachine.NodeId;
 import com.tramchester.graph.search.stateMachine.TraversalOps;
-import org.neo4j.graphdb.Direction;
-import org.neo4j.graphdb.Node;
-import org.neo4j.graphdb.Relationship;
+import org.jetbrains.annotations.NotNull;
+import org.neo4j.graphdb.*;
+import org.neo4j.graphdb.impl.StandardExpander;
+import org.neo4j.internal.helpers.collection.Iterables;
 
 import java.time.Duration;
-import java.util.ArrayList;
-import java.util.EnumSet;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Stream;
 
 public abstract class TraversalState extends EmptyTraversalState implements ImmuatableTraversalState {
@@ -24,7 +22,7 @@ public abstract class TraversalState extends EmptyTraversalState implements Immu
     protected final TraversalOps traversalOps;
 
     // TODO switch to Stream
-    private final Iterable<Relationship> outbounds;
+    private final ResourceIterable<Relationship> outbounds;
     private final Duration costForLastEdge;
     private final Duration parentCost;
     private final TraversalState parent;
@@ -44,17 +42,17 @@ public abstract class TraversalState extends EmptyTraversalState implements Immu
         this.costForLastEdge = Duration.ZERO;
         this.parentCost = Duration.ZERO;
         this.parent = null;
-        this.outbounds = new ArrayList<>();
+        this.outbounds = Iterables.emptyResourceIterable();
         if (stateType!=TraversalStateType.NotStartedState) {
             throw new RuntimeException("Attempt to create for incorrect initial state " + stateType);
         }
     }
 
     protected TraversalState(TraversalState parent, Stream<Relationship> outbounds, Duration costForLastEdge, TraversalStateType stateType) {
-        this(parent, outbounds::iterator, costForLastEdge, stateType);
+        this(parent, new WrapStream(outbounds), costForLastEdge, stateType);
     }
 
-    protected TraversalState(TraversalState parent, Iterable<Relationship> outbounds, Duration costForLastEdge, TraversalStateType stateType) {
+    protected TraversalState(TraversalState parent, ResourceIterable<Relationship> outbounds, Duration costForLastEdge, TraversalStateType stateType) {
         super(stateType);
         this.traversalOps = parent.traversalOps;
         this.builders = parent.builders;
@@ -186,11 +184,11 @@ public abstract class TraversalState extends EmptyTraversalState implements Immu
         }
     }
 
-    public Iterable<Relationship> getOutbounds() {
+    public ResourceIterable<Relationship> getOutbounds() {
         return outbounds;
     }
 
-    protected static Stream<Relationship> filterExcludingEndNode(Iterable<Relationship> relationships, NodeId hasNodeId) {
+    protected static Stream<Relationship> filterExcludingEndNode(ResourceIterable<Relationship> relationships, NodeId hasNodeId) {
         return filterExcludingEndNode(Streams.stream(relationships), hasNodeId);
     }
 
@@ -222,4 +220,39 @@ public abstract class TraversalState extends EmptyTraversalState implements Immu
         return Objects.hash(parent);
     }
 
+    @Deprecated
+    private static class WrapStream implements ResourceIterable<Relationship> {
+        private final Stream<Relationship> stream;
+
+        public WrapStream(Stream<Relationship> stream) {
+            this.stream = stream;
+        }
+
+        @Override
+        public ResourceIterator<Relationship> iterator() {
+            return new ResourceIterator<>() {
+                private final Iterator<Relationship> iterator = stream.iterator();
+
+                @Override
+                public void close() {
+                    // noop
+                }
+
+                @Override
+                public boolean hasNext() {
+                    return iterator.hasNext();
+                }
+
+                @Override
+                public Relationship next() {
+                    return iterator.next();
+                }
+            };
+        }
+
+        @Override
+        public void close() {
+            stream.close();
+        }
+    }
 }

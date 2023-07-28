@@ -21,6 +21,8 @@ import com.tramchester.repository.TripRepository;
 import org.neo4j.graphdb.Direction;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
+import org.neo4j.graphdb.ResourceIterable;
+import org.neo4j.internal.helpers.collection.Iterables;
 
 import java.util.HashSet;
 import java.util.List;
@@ -57,14 +59,15 @@ public class TraversalOps {
         this.queryDate = queryDate;
     }
 
-    public List<Relationship> getTowardsDestination(Iterable<Relationship> outgoing) {
-        return getTowardsDestination(Streams.stream(outgoing));
+    public OptionalResourceIterator<Relationship> getTowardsDestination(ResourceIterable<Relationship> outgoing) {
+        return getTowardsDestination(outgoing.stream());
     }
 
-    public List<Relationship> getTowardsDestination(Stream<Relationship> outgoing) {
-        return outgoing.
+    public OptionalResourceIterator<Relationship> getTowardsDestination(Stream<Relationship> outgoing) {
+        List<Relationship> filtered = outgoing.
                 filter(depart -> destinationStationIds.contains(GraphProps.getStationIdFrom(depart))).
                 collect(Collectors.toList());
+        return OptionalResourceIterator.from(filtered);
     }
 
     public int onDestRouteFirst(HasId<Route> a, HasId<Route> b) {

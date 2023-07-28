@@ -30,7 +30,6 @@ import io.federecio.dropwizard.swagger.SwaggerBundle;
 import io.federecio.dropwizard.swagger.SwaggerBundleConfiguration;
 import jakarta.servlet.DispatcherType;
 import org.eclipse.jetty.servlet.FilterHolder;
-import org.neo4j.logging.shaded.log4j.LogManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -68,14 +67,14 @@ public class App extends Application<AppConfiguration>  {
         Runtime.getRuntime().addShutdownHook(new Thread(() ->
             {
                 logger.warn("Shutting down");
-                LogManager.shutdown();
+                //LogManager.shutdown();
             }));
         try {
             logArgs(args);
             new App().run(args);
         } catch (Exception e) {
             logger.error("Exception, will shutdown ", e);
-            LogManager.shutdown();
+            //LogManager.shutdown();
             System.exit(-1);
         }
     }

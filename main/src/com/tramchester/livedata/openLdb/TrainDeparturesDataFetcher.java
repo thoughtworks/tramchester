@@ -1,7 +1,6 @@
 package com.tramchester.livedata.openLdb;
 
 import com.netflix.governator.guice.lazy.LazySingleton;
-import com.sun.xml.ws.client.ClientTransportException;
 import com.thalesgroup.rtti._2013_11_28.token.types.AccessToken;
 import com.thalesgroup.rtti._2017_10_01.ldb.GetBoardRequestParams;
 import com.thalesgroup.rtti._2017_10_01.ldb.LDBServiceSoap;
@@ -18,8 +17,6 @@ import org.slf4j.LoggerFactory;
 
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
-import javax.xml.ws.WebServiceException;
-import javax.xml.ws.WebServiceFeature;
 
 import java.net.URL;
 import java.util.Optional;
@@ -63,14 +60,8 @@ public class TrainDeparturesDataFetcher {
 
     private void createSOAPService(URL wsdlLocation) {
         logger.info("Start SOAP service for " + wsdlLocation);
-        try {
-            Ldb soap = new Ldb(wsdlLocation);
-            soapService = soap.getLDBServiceSoap12();
-        }
-        catch (WebServiceException exception) {
-            logger.error("Failed to start", exception);
-            enabled = false;
-        }
+        Ldb soap = new Ldb(wsdlLocation);
+        soapService = soap.getLDBServiceSoap12();
     }
 
     public Optional<StationBoard> getFor(Station station) {
@@ -92,18 +83,13 @@ public class TrainDeparturesDataFetcher {
         GetBoardRequestParams params = new GetBoardRequestParams();
         params.setCrs(crs);
 
-        try {
-            StationBoardResponseType departureBoard = soapService.getDepartureBoard(params, accessToken);
+        StationBoardResponseType departureBoard = soapService.getDepartureBoard(params, accessToken);
 
-            final StationBoard stationBoardResult = departureBoard.getGetStationBoardResult();
-            logger.info(format("Got departure board %s at %s for %s", stationBoardResult.getLocationName(),
-                    stationBoardResult.getGeneratedAt(), crs));
+        final StationBoard stationBoardResult = departureBoard.getGetStationBoardResult();
+        logger.info(format("Got departure board %s at %s for %s", stationBoardResult.getLocationName(),
+                stationBoardResult.getGeneratedAt(), crs));
 
-            return Optional.of(stationBoardResult);
-        }
-        catch (ClientTransportException clientTransportException) {
-            logger.error("Unable to fetch StationBoard for " + station, clientTransportException);
-            return Optional.empty();
-        }
+        return Optional.of(stationBoardResult);
+
     }
 }

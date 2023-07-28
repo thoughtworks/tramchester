@@ -2,6 +2,7 @@ package com.tramchester.resources;
 
 
 import com.codahale.metrics.annotation.Timed;
+import com.google.inject.Inject;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.StationLink;
 import com.tramchester.domain.places.NaptanArea;
@@ -18,14 +19,13 @@ import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import jakarta.ws.rs.GET;
+import jakarta.ws.rs.Path;
+import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.core.MediaType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.inject.Inject;
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
-import javax.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -34,7 +34,6 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
-//@Api
 @Path("/geo")
 @Produces(MediaType.APPLICATION_JSON)
 public class StationGeographyResource implements APIResource, GraphDatabaseDependencyMarker {

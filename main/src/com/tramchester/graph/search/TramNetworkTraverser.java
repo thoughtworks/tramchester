@@ -126,7 +126,7 @@ public class TramNetworkTraverser implements PathExpander<JourneyState> {
     }
 
     @Override
-    public Iterable<Relationship> expand(Path path, BranchState<JourneyState> graphState) {
+    public ResourceIterable<Relationship> expand(Path path, BranchState<JourneyState> graphState) {
         final ImmutableJourneyState currentState = graphState.getState();
         final ImmuatableTraversalState traversalState = currentState.getTraversalState();
 

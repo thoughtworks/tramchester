@@ -6,6 +6,7 @@ import com.tramchester.graph.search.stateMachine.Towards;
 import org.neo4j.graphdb.Direction;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
+import org.neo4j.graphdb.ResourceIterable;
 
 import java.time.Duration;
 import java.util.stream.Stream;
@@ -49,7 +50,7 @@ public class GroupedStationState extends TraversalState {
         this.stationNodeId = stationNodeId;
     }
 
-    private GroupedStationState(TraversalState parent, Iterable<Relationship> relationships, Duration cost, long stationNodeId, Towards<GroupedStationState> builder) {
+    private GroupedStationState(TraversalState parent, ResourceIterable<Relationship> relationships, Duration cost, long stationNodeId, Towards<GroupedStationState> builder) {
         super(parent, relationships, cost, builder.getDestination());
         this.stationNodeId = stationNodeId;
     }

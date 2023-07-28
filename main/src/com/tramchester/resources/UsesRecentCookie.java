@@ -8,14 +8,13 @@ import com.fasterxml.jackson.module.afterburner.AfterburnerModule;
 import com.tramchester.domain.UpdateRecentJourneys;
 import com.tramchester.domain.places.Location;
 import com.tramchester.domain.places.LocationType;
-import com.tramchester.domain.places.MyLocation;
 import com.tramchester.domain.presentation.RecentJourneys;
 import com.tramchester.domain.time.ProvidesNow;
+import jakarta.ws.rs.core.Cookie;
+import jakarta.ws.rs.core.NewCookie;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.ws.rs.core.Cookie;
-import javax.ws.rs.core.NewCookie;
 import java.io.IOException;
 import java.net.URI;
 
@@ -51,7 +50,7 @@ public class UsesRecentCookie extends TransportResource {
         }
     }
 
-    protected NewCookie createRecentCookie(Cookie cookie, Location<?> start,  Location<?> dest, boolean secure, URI baseURI) throws JsonProcessingException {
+    protected NewCookie createRecentCookie(Cookie cookie, Location<?> start, Location<?> dest, boolean secure, URI baseURI) throws JsonProcessingException {
         logger.info(format("Updating recent stations cookie with %s and %s ",start.getId(), dest.getId()));
         RecentJourneys recentJourneys = recentFromCookie(cookie);
 

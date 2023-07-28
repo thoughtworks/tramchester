@@ -197,6 +197,16 @@ public class GraphDatabase implements DatabaseEventListener {
         logger.error("database event: panic " + eventContext.getDatabaseName());
     }
 
+    @Override
+    public void databaseCreate(DatabaseEventContext eventContext) {
+        logger.info("database event: create " + eventContext.getDatabaseName());
+    }
+
+    @Override
+    public void databaseDrop(DatabaseEventContext eventContext) {
+        logger.info("database event: drop " + eventContext.getDatabaseName());
+    }
+
     public String getDbPath() {
         return graphDBConfig.getDbPath().toAbsolutePath().toString();
     }

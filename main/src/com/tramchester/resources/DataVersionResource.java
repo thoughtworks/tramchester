@@ -1,7 +1,7 @@
 package com.tramchester.resources;
 
 import com.codahale.metrics.annotation.Timed;
-import com.tramchester.config.TramchesterConfig;
+import com.google.inject.Inject;
 import com.tramchester.domain.DataSourceID;
 import com.tramchester.domain.FeedInfo;
 import com.tramchester.domain.presentation.DTO.DataVersionDTO;
@@ -11,15 +11,15 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import jakarta.ws.rs.GET;
+import jakarta.ws.rs.Path;
+import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.inject.Inject;
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
-import javax.ws.rs.core.MediaType;
-import jakarta.ws.rs.core.Response;
+
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
@@ -31,7 +31,7 @@ public class DataVersionResource implements APIResource {
     private final ProvidesFeedInfo providesFeedInfo;
 
     @Inject
-    public DataVersionResource(TramchesterConfig config, ProvidesFeedInfo providesFeedInfo) {
+    public DataVersionResource(ProvidesFeedInfo providesFeedInfo) {
         this.providesFeedInfo = providesFeedInfo;
     }
 

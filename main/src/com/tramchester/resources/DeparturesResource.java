@@ -2,6 +2,7 @@ package com.tramchester.resources;
 
 
 import com.codahale.metrics.annotation.Timed;
+import com.google.inject.Inject;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.places.Location;
@@ -24,15 +25,14 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import jakarta.ws.rs.Consumes;
+import jakarta.ws.rs.POST;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.inject.Inject;
-import javax.ws.rs.Consumes;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
-import javax.ws.rs.core.MediaType;
+import jakarta.ws.rs.Path;
+import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import java.time.LocalDateTime;
 import java.util.*;

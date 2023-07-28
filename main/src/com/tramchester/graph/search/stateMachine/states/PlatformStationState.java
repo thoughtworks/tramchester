@@ -5,6 +5,7 @@ import com.tramchester.graph.search.stateMachine.RegistersFromState;
 import com.tramchester.graph.search.stateMachine.TowardsStation;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
+import org.neo4j.graphdb.ResourceIterable;
 
 import java.time.Duration;
 import java.util.stream.Stream;
@@ -32,7 +33,7 @@ public class PlatformStationState extends StationState {
         }
 
         public PlatformStationState fromWalking(WalkingState walkingState, Node stationNode, Duration cost, JourneyStateUpdate journeyState) {
-            final Iterable<Relationship> relationships = stationNode.getRelationships(OUTGOING, ENTER_PLATFORM, GROUPED_TO_PARENT,
+            final ResourceIterable<Relationship> relationships = stationNode.getRelationships(OUTGOING, ENTER_PLATFORM, GROUPED_TO_PARENT,
                     NEIGHBOUR);
             return new PlatformStationState(walkingState, relationships, cost, stationNode, journeyState, this);
         }
@@ -65,7 +66,7 @@ public class PlatformStationState extends StationState {
 
         public PlatformStationState fromGrouped(GroupedStationState groupedStationState, Node stationNode, Duration cost,
                                                 JourneyStateUpdate journeyState) {
-            final Iterable<Relationship> relationships = stationNode.getRelationships(OUTGOING, ENTER_PLATFORM, NEIGHBOUR);
+            final ResourceIterable<Relationship> relationships = stationNode.getRelationships(OUTGOING, ENTER_PLATFORM, NEIGHBOUR);
             return new PlatformStationState(groupedStationState, relationships, cost, stationNode, journeyState, this);
         }
 
@@ -76,7 +77,7 @@ public class PlatformStationState extends StationState {
         super(parent, relationships, cost, stationNode, journeyState, builder);
     }
 
-    private PlatformStationState(TraversalState parent, Iterable<Relationship> relationships, Duration cost, Node stationNode,
+    private PlatformStationState(TraversalState parent, ResourceIterable<Relationship> relationships, Duration cost, Node stationNode,
                                  JourneyStateUpdate journeyState, TowardsStation<?> builder) {
         super(parent, relationships, cost, stationNode, journeyState, builder);
     }

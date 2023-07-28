@@ -1,5 +1,6 @@
 package com.tramchester.resources;
 
+import com.google.inject.Inject;
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.Journey;
@@ -35,7 +36,6 @@ import org.neo4j.graphdb.Transaction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.inject.Inject;
 import java.time.Duration;
 import java.util.*;
 import java.util.stream.Collectors;

@@ -4,6 +4,7 @@ import com.codahale.metrics.annotation.Timed;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.module.afterburner.AfterburnerModule;
+import com.google.inject.Inject;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.BoundingBoxWithCost;
 import com.tramchester.domain.JourneyRequest;
@@ -28,15 +29,13 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import jakarta.ws.rs.*;
+import jakarta.ws.rs.core.MediaType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.inject.Inject;
-import javax.ws.rs.*;
-import javax.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import java.time.Duration;
-import java.time.LocalDate;
 import java.util.EnumSet;
 import java.util.stream.Stream;
 
