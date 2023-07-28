@@ -7,9 +7,9 @@ import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.dates.DateRange;
-import io.dropwizard.Configuration;
+import io.dropwizard.core.Configuration;
 
-import javax.validation.Valid;
+import jakarta.validation.Valid;
 import java.time.LocalDate;
 import java.util.Objects;
 import java.util.Set;

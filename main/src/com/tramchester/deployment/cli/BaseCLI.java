@@ -13,7 +13,7 @@ import io.dropwizard.jackson.Jackson;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 
-import javax.validation.Validator;
+import jakarta.validation.Validator;
 import java.io.IOException;
 import java.nio.file.Path;
 

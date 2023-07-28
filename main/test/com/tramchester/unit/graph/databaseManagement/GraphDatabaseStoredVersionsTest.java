@@ -7,8 +7,8 @@ import com.tramchester.graph.databaseManagement.GraphDatabaseStoredVersions;
 import com.tramchester.testSupport.TestEnv;
 import org.easymock.EasyMock;
 import org.easymock.EasyMockSupport;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Transaction;
 
@@ -30,7 +30,7 @@ public class GraphDatabaseStoredVersionsTest extends EasyMockSupport {
     private Transaction transaction;
     private TramchesterConfig config;
 
-    @Before
+    @BeforeEach
     public void beforeAnyTestsRun() {
 
         config = TestEnv.GET();

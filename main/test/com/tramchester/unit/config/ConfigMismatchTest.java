@@ -15,7 +15,7 @@ import io.dropwizard.jackson.Jackson;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Test;
 
-import javax.validation.Validator;
+import jakarta.validation.Validator;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.nio.file.Files;

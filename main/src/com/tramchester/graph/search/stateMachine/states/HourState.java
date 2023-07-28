@@ -8,7 +8,6 @@ import com.tramchester.graph.search.JourneyStateUpdate;
 import com.tramchester.graph.search.stateMachine.ExistingTrip;
 import com.tramchester.graph.search.stateMachine.RegistersFromState;
 import com.tramchester.graph.search.stateMachine.Towards;
-import org.joda.time.Hours;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
 

@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.tramchester.domain.places.Location;
 import com.tramchester.domain.presentation.LatLong;
 
-import javax.validation.Valid;
+import jakarta.validation.Valid;
 import java.util.HashSet;
 import java.util.Set;
 

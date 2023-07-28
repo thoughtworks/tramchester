@@ -1,7 +1,6 @@
 package com.tramchester;
 
 import com.codahale.metrics.MetricRegistry;
-import com.codahale.metrics.servlets.HealthCheckServlet;
 import com.tramchester.cloud.CloudWatchReporter;
 import com.tramchester.cloud.ConfigFromInstanceUserData;
 import com.tramchester.cloud.SendMetricsToCloudWatch;
@@ -10,30 +9,31 @@ import com.tramchester.config.AppConfiguration;
 import com.tramchester.config.TfgmTramLiveDataConfig;
 import com.tramchester.healthchecks.LiveDataJobHealthCheck;
 import com.tramchester.livedata.cloud.CountsUploadedLiveData;
-import com.tramchester.livedata.tfgm.LiveDataUpdater;
 import com.tramchester.livedata.cloud.UploadsLiveData;
+import com.tramchester.livedata.tfgm.LiveDataUpdater;
+import com.tramchester.livedata.tfgm.PlatformMessageRepository;
 import com.tramchester.livedata.tfgm.TramDepartureRepository;
 import com.tramchester.metrics.CacheMetrics;
 import com.tramchester.metrics.RegistersMetricsWithDropwizard;
-import com.tramchester.livedata.tfgm.PlatformMessageRepository;
 import com.tramchester.repository.VersionRepository;
 import com.tramchester.resources.GraphDatabaseDependencyMarker;
-import io.dropwizard.Application;
-import io.dropwizard.assets.AssetsBundle;
 import io.dropwizard.configuration.EnvironmentVariableSubstitutor;
 import io.dropwizard.configuration.SubstitutingSourceProvider;
+import io.dropwizard.core.Application;
+import io.dropwizard.assets.AssetsBundle;
+import io.dropwizard.core.setup.Bootstrap;
+import io.dropwizard.core.setup.Environment;
 import io.dropwizard.jetty.MutableServletContextHandler;
 import io.dropwizard.lifecycle.setup.ScheduledExecutorServiceBuilder;
-import io.dropwizard.setup.Bootstrap;
-import io.dropwizard.setup.Environment;
+import io.dropwizard.metrics.servlets.HealthCheckServlet;
 import io.federecio.dropwizard.swagger.SwaggerBundle;
 import io.federecio.dropwizard.swagger.SwaggerBundleConfiguration;
+import jakarta.servlet.DispatcherType;
 import org.eclipse.jetty.servlet.FilterHolder;
 import org.neo4j.logging.shaded.log4j.LogManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.servlet.DispatcherType;
 import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.List;
@@ -149,7 +149,7 @@ public class App extends Application<AppConfiguration>  {
         ScheduledExecutorServiceBuilder executorServiceBuilder = environment.lifecycle().scheduledExecutorService("tramchester-%d");
         ScheduledExecutorService executor = executorServiceBuilder.build();
 
-        environment.lifecycle().addLifeCycleListener(new LifeCycleHandler(container, executor));
+        environment.lifecycle().addEventListener(new LifeCycleHandler(container, executor));
 
         MutableServletContextHandler applicationContext = environment.getApplicationContext();
 

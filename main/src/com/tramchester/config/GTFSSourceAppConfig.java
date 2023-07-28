@@ -8,10 +8,10 @@ import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.GTFSTransportationType;
 import com.tramchester.domain.reference.TransportMode;
-import io.dropwizard.Configuration;
+import io.dropwizard.core.Configuration;
 
-import javax.validation.Valid;
-import javax.validation.constraints.NotNull;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
 import java.nio.file.Path;
 import java.time.Duration;
 import java.time.LocalDate;

@@ -3,7 +3,7 @@ package com.tramchester.config;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.tramchester.domain.DataSourceID;
 import com.tramchester.domain.reference.TransportMode;
-import io.dropwizard.Configuration;
+import io.dropwizard.core.Configuration;
 
 import java.nio.file.Path;
 import java.time.Duration;

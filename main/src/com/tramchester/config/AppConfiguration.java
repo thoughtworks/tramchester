@@ -5,8 +5,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.tramchester.geo.BoundingBox;
 import io.federecio.dropwizard.swagger.SwaggerBundleConfiguration;
 
-import javax.validation.Valid;
-import javax.validation.constraints.NotNull;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
 import java.nio.file.Path;
 import java.util.List;
 

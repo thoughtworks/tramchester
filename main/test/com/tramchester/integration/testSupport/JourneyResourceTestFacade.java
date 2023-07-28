@@ -11,11 +11,11 @@ import com.tramchester.domain.time.TramTime;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.ParseStream;
 import com.tramchester.testSupport.reference.FakeStation;
+import jakarta.ws.rs.core.Cookie;
+import jakarta.ws.rs.core.Response;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Assertions;
 
-import javax.ws.rs.core.Cookie;
-import javax.ws.rs.core.Response;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Collections;

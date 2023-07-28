@@ -4,16 +4,16 @@ import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.servlet.*;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.*;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 
 import static com.tramchester.RedirectToHttpsUsingELBProtoHeader.X_FORWARDED_PROTO;
 import static java.lang.String.format;
-import static javax.servlet.http.HttpServletResponse.SC_OK;
+import static jakarta.servlet.http.HttpServletResponse.SC_OK;
 
 public class RedirectToAppFilter implements Filter {
     private static final Logger logger = LoggerFactory.getLogger(RedirectToAppFilter.class);

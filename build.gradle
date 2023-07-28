@@ -29,7 +29,7 @@ s3 {
 version = 1.0
 
 ext {
-    dropwizardVersion = '2.1.4'
+    dropwizardVersion = '4.0.0'
     awsCdkVersion = '1.191.0'
     jacksonVersion = '2.14.2'
     awsSdkVersion = '2.19.31'
@@ -65,7 +65,7 @@ dependencies {
             "com.fasterxml.jackson.module:jackson-module-blackbird:$jacksonVersion",
             "com.fasterxml.jackson.dataformat:jackson-dataformat-csv:$jacksonVersion",
             "com.fasterxml.jackson.dataformat:jackson-dataformat-xml:$jacksonVersion"
-    implementation 'com.smoketurner:dropwizard-swagger:2.1.4-1'
+    implementation 'com.smoketurner:dropwizard-swagger:4.0.0-1'
     implementation 'org.reflections:reflections:0.10.2'
 //    implementation 'io.swagger.core.v3:swagger-annotations:2.2.9'
 //    implementation 'io.swagger.core.v3:swagger-integration:2.2.9'

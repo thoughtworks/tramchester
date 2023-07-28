@@ -10,10 +10,10 @@ import com.tramchester.resources.TramPositionsResource;
 import com.tramchester.testSupport.testTags.LiveDataDueTramCategory;
 import com.tramchester.testSupport.testTags.LiveDataTestCategory;
 import io.dropwizard.testing.junit5.DropwizardExtensionsSupport;
+import jakarta.ws.rs.core.Response;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
-import javax.ws.rs.core.Response;
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;

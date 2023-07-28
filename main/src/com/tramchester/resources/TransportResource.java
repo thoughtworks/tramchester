@@ -5,11 +5,11 @@ import com.tramchester.domain.places.Station;
 import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.repository.StationRepositoryPublic;
+import jakarta.ws.rs.WebApplicationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.ws.rs.WebApplicationException;
-import javax.ws.rs.core.Response;
+import jakarta.ws.rs.core.Response;
 
 public abstract class TransportResource {
     private static final Logger logger = LoggerFactory.getLogger(TransportResource.class);
@@ -20,24 +20,6 @@ public abstract class TransportResource {
         this.providesNow = providesNow;
     }
 
-    protected TramTime parseOptionalTimeOrNow(String text) {
-        if (text.isEmpty()) {
-            return providesNow.getNowHourMins();
-        }
-        return parseTime(text);
-
-//        Optional<TramTime> optionalTramTime = Optional.empty();
-//        if (!text.isEmpty()) {
-//            optionalTramTime = TramTime.parse(text);
-//            if (optionalTramTime.isEmpty()) {
-//                String msg = "Unable to parse time " + text;
-//                logger.warn(msg);
-//                throw new WebApplicationException(msg, Response.Status.INTERNAL_SERVER_ERROR);
-//            }
-//        }
-//        return optionalTramTime.orElseGet(providesNow::getNow);
-    }
-
     protected TramTime parseTime(String text) {
         TramTime tramTime = TramTime.parse(text);
         if (tramTime.isValid()) {
@@ -46,14 +28,6 @@ public abstract class TransportResource {
         String msg = "Could not parse time '" + text + "'";
         logger.error(msg);
         throw new WebApplicationException(msg, Response.Status.INTERNAL_SERVER_ERROR);
-
-//        Optional<TramTime> maybeDepartureTime = TramTime.parse(text);
-//        if (maybeDepartureTime.isEmpty()) {
-//            String msg = "Could not parse time '" + text + "'";
-//            logger.error(msg);
-//            throw new WebApplicationException(msg, Response.Status.INTERNAL_SERVER_ERROR);
-//        }
-//        return maybeDepartureTime.get();
     }
 
     protected boolean isHttps(String forwardedHeader) {

@@ -3,7 +3,7 @@ package com.tramchester.config;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.tramchester.domain.DataSourceID;
-import io.dropwizard.Configuration;
+import io.dropwizard.core.Configuration;
 
 import java.time.Duration;
 

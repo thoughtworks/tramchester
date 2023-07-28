@@ -5,11 +5,12 @@ import com.tramchester.config.GTFSSourceConfig;
 import com.tramchester.config.TfgmTramLiveDataConfig;
 import com.tramchester.config.RemoteDataSourceConfig;
 import com.tramchester.geo.BoundingBox;
-import io.dropwizard.server.DefaultServerFactory;
-import io.dropwizard.server.ServerFactory;
+
+import io.dropwizard.core.server.DefaultServerFactory;
+import io.dropwizard.core.server.ServerFactory;
 import io.federecio.dropwizard.swagger.SwaggerBundleConfiguration;
 
-import javax.validation.Valid;
+import jakarta.validation.Valid;
 import java.nio.file.Path;
 import java.util.Collections;
 import java.util.List;

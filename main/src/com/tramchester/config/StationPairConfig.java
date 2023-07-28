@@ -7,7 +7,7 @@ import com.tramchester.domain.StationIdPair;
 import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.places.Station;
 
-import javax.validation.Valid;
+import jakarta.validation.Valid;
 
 @Valid
 @JsonIgnoreProperties(ignoreUnknown = false)

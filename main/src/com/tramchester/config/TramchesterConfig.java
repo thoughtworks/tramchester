@@ -4,7 +4,7 @@ import com.tramchester.domain.DataSourceID;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.geo.BoundingBox;
-import io.dropwizard.Configuration;
+import io.dropwizard.core.Configuration;
 import io.federecio.dropwizard.swagger.SwaggerBundleConfiguration;
 
 import java.nio.file.Path;
