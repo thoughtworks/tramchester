@@ -99,10 +99,10 @@ dependencies {
     // https://ciscoo.github.io/cxf-codegen-gradle/docs/current/user-guide/#dependency-configuration
     cxfCodegen 'jakarta.xml.ws:jakarta.xml.ws-api:4.0.0'
     cxfCodegen 'jakarta.annotation:jakarta.annotation-api:2.1.1'
-    cxfCodegen 'ch.qos.logback:logback-classic:1.4.7'
-    // TODO figure this out...
-    //implementation 'com.sun.xml.ws:jaxws-rt:2.3.3'
+    //cxfCodegen 'ch.qos.logback:logback-classic:1.4.7'
+    implementation 'jakarta.xml.bind:jakarta.xml.bind-api:4.0.0'
     implementation 'jakarta.xml.ws:jakarta.xml.ws-api:4.0.0'
+
 }
 
 sourceSets {
@@ -120,14 +120,7 @@ sourceSets {
 }
 
 cxfCodegen {
-    cxfVersion = "4.0.0"
-//    wsdl2java {
-//        openLDBWS {
-//            wsdl = file('config/OpenLDBWS.wsdl')
-//            markGenerated = true
-//            extendedSoapHeaders = true
-//        }
-//    }
+    cxfVersion = "4.0.2"
 }
 
 tasks.register("railLiveDataCodeGen", Wsdl2Java) {
@@ -136,8 +129,6 @@ tasks.register("railLiveDataCodeGen", Wsdl2Java) {
         outputDir.set(file("main/src/generated-live-rail-api/"))
         markGenerated.set(true)
         extendedSoapHeaders.set(true)
-        //packageNames.set(["com.example", "com.foo.bar"])
-        //asyncMethods.set(["foo", "bar"])
     }
 }
 
@@ -179,7 +170,6 @@ task cleanGraph() {
     }
 }
 
-
 clean {
     dependsOn cleanGraph
     delete 'src/main/resources/app/dist/'
@@ -188,6 +178,7 @@ clean {
         include '*.zip'
         include '*.csv'
     }
+    delete fileTree('main/src/generated-live-rail-api/')
     delete fileTree('data/bus') {
         include '*.txt'
         include '*.zip'
