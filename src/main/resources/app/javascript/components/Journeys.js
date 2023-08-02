@@ -254,15 +254,24 @@ export default {
 
         <div class="container" id="earlierLater" v-if="journeys.length>0">
             <div class="row justify-content-between">
-                <b-button id="earlierButton" variant="outline-primary" v-on:click="earlier()">« Earlier</b-button>
-                <b-button id="laterButton" variant="outline-primary" v-on:click="later()">Later »</b-button>
+                <div class="col">
+                    <button type="button" id="earlierButton" class="btn btn-outline-primary" v-on:click="earlier()">« Earlier</button>
+                </div>
+                <div class="col">
+                    <button type="button" id="laterButton" class="btn btn-outline-primary" v-on:click="later()">Later »</button>
+                </div>
             </div>
         </div>
 
         <div id="noResults" selectable v-if="noJourneys" class="w-75 tramchesterApp">
-            <b-card bg-variant="warning">
-                No suggested routes were found for this date and time
-            </b-card>
+            <div class="card bg-warning mb-3">
+                <div class="card-header">No Results</div>
+                <div class="card-body">
+                    <p class="card=text">
+                        No suggested routes were found for this date and time
+                    </p>
+                </div>
+            </div>
         </div>
     </div>
     `
