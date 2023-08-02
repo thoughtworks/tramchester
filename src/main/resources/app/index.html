@@ -73,16 +73,16 @@
             </b-row>
             <b-row align-h="start">
                 <b-col cols="2" class="pl-0">
-                    <b-button :disabled='!ready' id="plan" type="submit" variant="primary">
+                    <button :disabled='!ready' id="plan" type="submit" class="btn btn-primary">
                         Plan
-                        <b-spinner v-if="searchInProgress" id="spinner" small type="grow"></b-spinner>
-                    </b-button>
+                        <spinner v-if="searchInProgress" id="spinner" small type="grow"></spinner>
+                    </button>
                 </b-col>
                 <b-col cols="2">
-                    <b-button :disabled='!havePos' id="liveTrams" variant="info" v-if="havePos" @click="queryNearbyTrams">
+                    <button :disabled='!havePos' id="liveTrams" class="btn btn-info" v-if="havePos" type="button" @click="queryNearbyTrams">
                         Nearby
-                        <b-spinner v-if="liveInProgress" id="nearbySpinner" small type="grow"></b-spinner>
-                    </b-button>
+                        <spinner v-if="liveInProgress" id="nearbySpinner" small type="grow"></spinner>
+                    </button>
                 </b-col>
             </b-row>
         </b-container>
