@@ -28,7 +28,7 @@
                     </div>
                 </b-col>
                 <b-col cols="1" class="pl-0">
-                    <b-button @click="swap">&#8645;</b-button>
+                    <button type="button"  class="btn btn-dark" @click="swap">&#8645;</button>
                 </b-col>
             </b-row>
             <b-row>
@@ -39,7 +39,7 @@
                     <b-input-group class="mb-2">
                         <b-form-input id="time" v-model="time" type="time" required></b-form-input>
                         <b-input-group-append>
-                            <b-button id="nowButton" variant="info" @click="timeToNow()">Now</b-button>
+                            <button id="nowButton" class="btn btn-info" type="button" @click="timeToNow()">Now</button>
                         </b-input-group-append>
                     </b-input-group>
                 </b-col>
@@ -51,7 +51,7 @@
                             :date-format-options="{ year: 'numeric', month: 'numeric', day: 'numeric' }" 
                             label-calendar="TravelDateCalendar" required></b-form-datepicker>
                         <b-input-group-append>
-                            <b-button id="todayButton" variant="info" @click="dateToNow()">Today</b-button>
+                            <button id="todayButton" class="btn btn-info" type="button" @click="dateToNow()">Today</button>
                         </b-input-group-append>
                         <input type="hidden" id="hiddendate" v-model="date"></input>
                     </b-input-group>
