@@ -73,13 +73,12 @@ class RouteResourceTest {
                 findFirst().orElseThrow();
 
         assertTrue(airportRoute.isTram());
-        assertEquals("Navy Line", airportRoute.getShortName().trim());
+        assertEquals(ManchesterAirportWythenshaweVictoria.shortName(), airportRoute.getShortName().trim());
 
         List<LocationRefWithPosition> airportRouteStations = airportRoute.getStations();
 
         List<IdForDTO> ids = airportRouteStations.stream().
-                map(LocationRefDTO::getId).
-                collect(Collectors.toList());
+                map(LocationRefDTO::getId).toList();
 
         assertTrue(ids.contains(TramStations.ManAirport.getIdForDTO()));
 
@@ -91,8 +90,7 @@ class RouteResourceTest {
 
         // TODO could be a mistake in the data, but the station order is flipped Summer2020, was Airport->Victoria route
         List<RouteDTO> airRoutes = routes.stream().
-                filter(routeDTO -> routeDTO.getRouteName().equals(ManchesterAirportWythenshaweVictoria.longName())).
-                collect(Collectors.toList());
+                filter(routeDTO -> routeDTO.getRouteName().equals(ManchesterAirportWythenshaweVictoria.longName())).toList();
 
         assertEquals(1, airRoutes.size());
 

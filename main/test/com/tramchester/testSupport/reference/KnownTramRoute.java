@@ -22,26 +22,26 @@ import static java.lang.String.format;
  */
 public enum KnownTramRoute {
 
-    AltrinchamPiccadilly("Purple Line", Inbound, "Altrincham - Piccadilly"),
-    PiccadillyAltrincham("Purple Line", Outbound, "Piccadilly - Altrincham"),
+    AltrinchamPiccadilly("2PPL", Inbound, "Altrincham - Piccadilly"),
+    PiccadillyAltrincham("2PPL", Outbound, "Piccadilly - Altrincham"),
 
-    AltrinchamManchesterBury("Green Line", Inbound, "Altrincham - Manchester - Bury"),
-    BuryManchesterAltrincham("Green Line", Outbound, "Bury - Manchester - Altrincham"),
+    AltrinchamManchesterBury("1GRN", Inbound, "Altrincham - Manchester - Bury"),
+    BuryManchesterAltrincham("1GRN", Outbound, "Bury - Manchester - Altrincham"),
 
-    AshtonUnderLyneManchesterEccles("Blue Line", Inbound, "Ashton Under Lyne - Manchester - Eccles"),
-    EcclesManchesterAshtonUnderLyne("Blue Line", Outbound, "Eccles - Manchester - Ashton Under Lyne"),
+    AshtonUnderLyneManchesterEccles("3BLU", Inbound, "Ashton Under Lyne - Manchester - Eccles"),
+    EcclesManchesterAshtonUnderLyne("3BLU", Outbound, "Eccles - Manchester - Ashton Under Lyne"),
 
-    BuryPiccadilly("Yellow Line", Inbound,"Bury - Piccadilly"),
-    PiccadillyBury("Yellow Line", Outbound, "Piccadilly - Bury"),
+    BuryPiccadilly("4YLW", Inbound,"Bury - Piccadilly"),
+    PiccadillyBury("4YLW", Outbound, "Piccadilly - Bury"),
 
-    EastDidisburyManchesterShawandCromptonRochdale("Pink Line", Inbound, "East Didisbury - Manchester - Shaw and Crompton - Rochdale"),
-    RochdaleShawandCromptonManchesterEastDidisbury("Pink Line", Outbound, "Rochdale - Shaw and Crompton - Manchester - East Didisbury"),
+    EastDidisburyManchesterShawandCromptonRochdale("5PNK", Inbound, "East Didsbury - Manchester - Shaw and Crompton - Rochdale"),
+    RochdaleShawandCromptonManchesterEastDidisbury("5PNK", Outbound, "Rochdale - Shaw and Crompton - Manchester - East Didsbury"),
 
-    ManchesterAirportWythenshaweVictoria("Navy Line", Inbound, "Manchester Airport - Wythenshawe - Victoria"),
-    VictoriaWythenshaweManchesterAirport("Navy Line", Outbound, "Victoria - Wythenshawe - Manchester Airport"),
+    ManchesterAirportWythenshaweVictoria("6NVY", Inbound, "Manchester Airport - Wythenshawe - Victoria"),
+    VictoriaWythenshaweManchesterAirport("6NVY", Outbound, "Victoria - Wythenshawe - Manchester Airport"),
 
-    TheTraffordCentreCornbrook("Red Line", Inbound, "The Trafford Centre - Cornbrook"),
-    CornbrookTheTraffordCentre("Red Line", Outbound, "Cornbrook - The Trafford Centre");
+    TheTraffordCentreCornbrook("7RED", Inbound, "The Trafford Centre - Cornbrook"),
+    CornbrookTheTraffordCentre("7RED", Outbound, "Cornbrook - The Trafford Centre");
 
     private final IdFor<Route> fakeId;
     private final RouteDirection direction;
