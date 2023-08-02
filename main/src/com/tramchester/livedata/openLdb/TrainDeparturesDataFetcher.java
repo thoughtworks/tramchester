@@ -31,7 +31,7 @@ public class TrainDeparturesDataFetcher {
     private final TramchesterConfig config;
 
     private LDBServiceSoap soapService;
-    private boolean enabled;
+    private final boolean enabled;
     private AccessToken accessToken;
 
 

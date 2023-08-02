@@ -83,7 +83,8 @@ if [ "$NESSUS_LINKING_KEY" != '' ]; then
   sudo -E bash ./$target/bin/nessus_agent_install.sh &
 fi
 
-# start 
+# start
+export RAIL_WSDL=$target/config/OpenLDBWS.wsdl
 logger Start tramchester
 export JAVA_OPTS="-Xmx1550m"
 sudo -E -u ec2-user bash ./$target/bin/start.sh &

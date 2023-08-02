@@ -46,7 +46,7 @@ remoteSources:
     defaultExpiryDays: 14
 openLdb:
   accessToken: ${OPENLDB_APIKEY:- ""}
-  wsdlLocation: config/OpenLDBWS.wsdl
+  wsdlLocation: ${RAIL_WSDL:- "config/OpenLDBWS.wsdl"}
 cacheFolder: data/cache/rail
 calcTimeoutMillis: 3500
 bounds:

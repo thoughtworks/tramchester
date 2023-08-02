@@ -21,7 +21,8 @@ def isWindows = System.getProperty('os.name').toLowerCase(Locale.ROOT).contains(
 
 def s3prefix = 'dist/' + buildNumber
 def prodConfig = 'config/local.yml'
-def railCodeGen = 'main/src/generated-live-rail-api/'
+def railCodeGenOutput = 'main/src/generated-live-rail-api/'
+def railLiveDataWSDL = 'config/OpenLDBWS.wsdl'
 
 s3 {
     bucket = 'tramchester2dist'
@@ -98,6 +99,8 @@ dependencies {
     cxfCodegen 'jakarta.xml.ws:jakarta.xml.ws-api:2.3.3'
     cxfCodegen 'jakarta.annotation:jakarta.annotation-api:1.3.5'
     cxfCodegen 'ch.qos.logback:logback-classic:1.4.7'
+
+    // for compiling the cxf generated code
     implementation 'com.sun.xml.ws:jaxws-rt:2.3.3'
 }
 
@@ -121,8 +124,8 @@ cxfCodegen {
 
 tasks.register("railLiveDataCodeGen", Wsdl2Java) {
     toolOptions {
-        wsdl.set(file("config/OpenLDBWS.wsdl"))
-        outputDir.set(file(railCodeGen))
+        wsdl.set(file(railLiveDataWSDL))
+        outputDir.set(file(railCodeGenOutput))
         markGenerated.set(true)
         extendedSoapHeaders.set(true)
     }
@@ -175,10 +178,10 @@ clean {
         include '*.zip'
         include '*.csv'
     }
-    delete fileTree(railCodeGen) {
+    delete fileTree(railCodeGenOutput) {
         include '**.*'
     }
-    delete railCodeGen
+    delete railCodeGenOutput
     delete fileTree('data/bus') {
         include '*.txt'
         include '*.zip'

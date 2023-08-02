@@ -9,8 +9,7 @@ import com.tramchester.integration.testSupport.RailAndTramGreaterManchesterConfi
 import com.tramchester.integration.testSupport.bus.IntegrationBusTestConfig;
 import com.tramchester.integration.testSupport.rail.IntegrationRailTestConfig;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
-import io.dropwizard.configuration.ConfigurationException;
-import io.dropwizard.configuration.YamlConfigurationFactory;
+import io.dropwizard.configuration.*;
 import io.dropwizard.jackson.Jackson;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Test;
@@ -41,11 +40,10 @@ class ConfigMismatchTest {
     @Test
     void shouldBeAbleToLoadAllConfigWithoutExceptions() throws IOException, ConfigurationException {
         // Note: this does not catch all the same validation cases as app start up
-        @NotNull YamlConfigurationFactory<AppConfiguration> factory = getValidatingFactory();
         Set<Path> configFiles = getConfigFiles();
 
         for (Path config : configFiles) {
-            factory.build(config.toFile());
+            loadConfigFromFile(config);
         }
     }
 
@@ -376,7 +374,13 @@ class ConfigMismatchTest {
     private AppConfiguration loadConfigFromFile(Path fullPathToConfig) throws IOException, ConfigurationException {
         YamlConfigurationFactory<AppConfiguration> factory = getValidatingFactory();
 
-        return factory.build(fullPathToConfig.toFile());
+        FileConfigurationSourceProvider fileProvider = new FileConfigurationSourceProvider();
+
+        final SubstitutingSourceProvider provider = new SubstitutingSourceProvider(
+                fileProvider, new EnvironmentVariableSubstitutor(false));
+
+        return factory.build(provider, fullPathToConfig.toString());
+
     }
 
     @NotNull

@@ -76,7 +76,7 @@ tfgmTramliveData:
   maxNumberStationsWithoutData: 5
 openLdb:
   accessToken: ${OPENLDB_APIKEY:- ""}
-  wsdlLocation: config/OpenLDBWS.wsdl
+  wsdlLocation: ${RAIL_WSDL:- "config/OpenLDBWS.wsdl"}
 cacheFolder: data/cache/gm
 calcTimeoutMillis: 3500
 bounds:
