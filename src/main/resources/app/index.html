@@ -8,44 +8,43 @@
 <h1 class="tramchesterHeading w-75">Tramchester</h1>
 <div id="journeyplan" class="tramchesterApp">
     <b-form @submit="plan" class="w-75 tramchesterApp">
-        <b-container id="startAndEnd">
-            <b-row align-h="start">
-                <b-col cols="11" class="pl-0">
+        <div class="container" id="startAndEnd">
+            <div class="row" >
+                <div  class="col pl-0">
                     <div id="selectStart">
                         <location-selection :disabled='!ready' :name="'start'" v-model="startStop" :other="endStop" :modes="selectedModes"
                             :geo="havePos" :stops="stops">
                         </location-selection>
                     </div>
-                </b-col>
-                <b-col cols="1"></b-col>
-            </b-row>
-            <b-row>
-                <b-col cols="11" class="pl-0">
+                </div>
+            </div>
+            <div class="row">
+                <div class="col pl-0">
                     <div id="selectEnd">
                         <location-selection :disabled='!ready' :name="'destination'" v-model="endStop"  :other="startStop" :modes="selectedModes"
                         :geo="havePos" :stops="stops" >
                     </location-selection>
                     </div>
-                </b-col>
-                <b-col cols="1" class="pl-0">
+                </div>
+                <div class="col col-md-auto">
                     <button type="button"  class="btn btn-dark" @click="swap">&#8645;</button>
-                </b-col>
-            </b-row>
-            <b-row>
-                <b-col cols="3" class="pl-0">
+                </div>
+            </div>
+            <div class="row">
+                <div class="col pl-0 col-md-auto">
                     <b-form-checkbox id="arriveBy" size="sm" v-model="arriveBy">arrive by</b-form-checkbox>
-                </b-col>
-                <b-col cols="8">
+                </div>
+                <div class="col">
                     <b-input-group class="mb-2">
                         <b-form-input id="time" v-model="time" type="time" required></b-form-input>
                         <b-input-group-append>
                             <button id="nowButton" class="btn btn-info" type="button" @click="timeToNow()">Now</button>
                         </b-input-group-append>
                     </b-input-group>
-                </b-col>
-            </b-row>
-            <b-row class="mb-2">
-                <b-col cols="11" class="pl-0">
+                </div>
+            </div>
+            <div class="row">
+                <div class="col pl-0">
                     <b-input-group class="mb-2">
                         <b-form-datepicker id="date" v-model="date" 
                             :date-format-options="{ year: 'numeric', month: 'numeric', day: 'numeric' }" 
@@ -55,9 +54,9 @@
                         </b-input-group-append>
                         <input type="hidden" id="hiddendate" v-model="date"></input>
                     </b-input-group>
-                </b-col>
-            </b-row>
-            <b-row class="mb-2" v-if="selectModesEnabled">
+                </div>
+            </div>
+            <div class="row mb-2" v-if="selectModesEnabled">
                 <b-col cols="3" class="pl-0">
                     <b-form-group label="transport modes" label-form="transportModes">
                         <multiselect v-model="selectedModes" :options="modes" :multiple="true" :close-on-select="false" :clear-on-select="false" 
@@ -70,22 +69,22 @@
                         <b-form-input min="0" max="8" type="number" id="maxChanges" size="sm" v-model="maxChanges"></b-form-input>
                     </b-form-group>
                 </b-col>
-            </b-row>
-            <b-row align-h="start">
-                <b-col cols="2" class="pl-0">
+            </div>
+            <div class="row">
+                <div class="col pl-0 col-md-auto">
                     <button :disabled='!ready' id="plan" type="submit" class="btn btn-primary">
                         Plan
                         <spinner v-if="searchInProgress" id="spinner" small type="grow"></spinner>
                     </button>
-                </b-col>
-                <b-col cols="2">
+                </div>
+                <div class="col col-md-auto">
                     <button :disabled='!havePos' id="liveTrams" class="btn btn-info" v-if="havePos" type="button" @click="queryNearbyTrams">
                         Nearby
                         <spinner v-if="liveInProgress" id="nearbySpinner" small type="grow"></spinner>
                     </button>
-                </b-col>
-            </b-row>
-        </b-container>
+                </div>
+            </div>
+        </div>
     </b-form>
 
     <div id="networkError" selectable v-if="networkError" class="w-75 tramchesterApp">
