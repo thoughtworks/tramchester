@@ -35,7 +35,7 @@ ext {
     dropwizardVersion = '4.0.1'
     awsCdkVersion = '1.201.0'
     jacksonVersion = '2.15.1'
-    awsSdkVersion = '2.20.68'
+    awsSdkVersion = '2.20.69'
 }
 
 repositories {
@@ -81,7 +81,7 @@ dependencies {
             "software.amazon.awscdk:ec2:$awsCdkVersion",
             "software.amazon.awscdk:elasticloadbalancingv2:$awsCdkVersion",
             "software.amazon.awscdk:autoscaling:$awsCdkVersion",
-            "software.amazon.awscdk:cdk-cx-api:2.77.0"
+            "software.amazon.awscdk:cdk-cx-api:2.79.1"
 
     implementation('org.geotools:gt-main:28.1')
     implementation('org.geotools:gt-epsg-hsql:28.1')
@@ -90,7 +90,7 @@ dependencies {
     testImplementation("io.dropwizard:dropwizard-testing:$dropwizardVersion")
     testImplementation 'org.junit.jupiter:junit-jupiter:5.9.2',
             'org.junit.platform:junit-platform-launcher:1.9.2',
-            'org.assertj:assertj-core:3.23.1',
+            'org.assertj:assertj-core:3.24.2',
             'org.easymock:easymock:5.1.0',
             'org.seleniumhq.selenium:selenium-java:3.141.59',
             'org.hamcrest:hamcrest:2.2'
