@@ -29,6 +29,7 @@ import io.dropwizard.metrics.servlets.HealthCheckServlet;
 import io.federecio.dropwizard.swagger.SwaggerBundle;
 import io.federecio.dropwizard.swagger.SwaggerBundleConfiguration;
 import jakarta.servlet.DispatcherType;
+import org.eclipse.jetty.http.HttpCookie;
 import org.eclipse.jetty.servlet.FilterHolder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -165,11 +166,11 @@ public class App extends Application<AppConfiguration>  {
         registerAPIResources(environment, configuration.getPlanningEnabled());
 
         // TODO This is the SameSite WORKAROUND, remove once jersey NewCookie adds SameSite method
-        environment.jersey().register(new ResponseCookieFilter());
+        //environment.jersey().register(new ResponseCookieFilter());
 
         // WIP - does not work, leave above workaround in place
-//        environment.getApplicationContext().getServletContext().setAttribute(HttpCookie.SAME_SITE_DEFAULT_ATTRIBUTE,
-//                HttpCookie.SameSite.STRICT);
+        environment.getApplicationContext().getServletContext().setAttribute(HttpCookie.SAME_SITE_DEFAULT_ATTRIBUTE,
+                HttpCookie.SameSite.STRICT);
 
         // only enable live data present in config
         if (configuration.liveTfgmTramDataEnabled()) {
