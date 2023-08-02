@@ -165,9 +165,6 @@ public class App extends Application<AppConfiguration>  {
         // api end points registration
         registerAPIResources(environment, configuration.getPlanningEnabled());
 
-        // TODO This is the SameSite WORKAROUND, remove once jersey NewCookie adds SameSite method
-        //environment.jersey().register(new ResponseCookieFilter());
-
         // WIP - does not work, leave above workaround in place
         environment.getApplicationContext().getServletContext().setAttribute(HttpCookie.SAME_SITE_DEFAULT_ATTRIBUTE,
                 HttpCookie.SameSite.STRICT);
