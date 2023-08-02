@@ -18,6 +18,9 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class RouteDTOTest {
 
+    private final static KnownTramRoute knownRoute = TheTraffordCentreCornbrook;
+
+
     @Test
     void shouldUseRouteNameForEquality() {
 
@@ -26,9 +29,8 @@ class RouteDTOTest {
         stations.add(new LocationRefWithPosition(TraffordCentre.fake()));
         RouteDTO routeDTO = new RouteDTO(getRoute(), stations);
 
-        //assertEquals("METL7RED:I:", routeDTO.getId());
         assertEquals("TheTraffordCentreCornbrook", routeDTO.getRouteName());
-        assertEquals("Red Line", routeDTO.getShortName());
+        assertEquals(knownRoute.shortName(), routeDTO.getShortName());
         assertEquals(TransportMode.Tram, routeDTO.getTransportMode());
 
         List<LocationRefWithPosition> stationsDTO = routeDTO.getStations();
@@ -37,7 +39,6 @@ class RouteDTOTest {
     }
 
     public Route getRoute() {
-        KnownTramRoute knownRoute = TheTraffordCentreCornbrook;
         return MutableRoute.getRoute(knownRoute.getFakeId(), knownRoute.shortName(), knownRoute.name(), TestEnv.MetAgency(),
                 knownRoute.mode());
     }

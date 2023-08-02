@@ -25,6 +25,7 @@ import com.tramchester.repository.TransportData;
 import com.tramchester.resources.LocationJourneyPlanner;
 import com.tramchester.testSupport.LocationJourneyPlannerTestFacade;
 import com.tramchester.testSupport.TestEnv;
+import com.tramchester.testSupport.reference.KnownTramRoute;
 import com.tramchester.testSupport.reference.TramTransportDataForTestFactory;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.*;
@@ -134,7 +135,7 @@ class TramRouteTest {
         assertEquals(transportData.getFirst(), transportStage.getFirstStation());
         assertEquals(transportData.getSecond(), transportStage.getLastStation());
         assertEquals(0, transportStage.getPassedStopsCount());
-        assertEquals("Red Line", transportStage.getRoute().getShortName());
+        assertEquals(KnownTramRoute.TheTraffordCentreCornbrook.shortName(), transportStage.getRoute().getShortName());
         assertEquals(transportStage.getFirstStation(), transportStage.getActionStation());
         assertMinutesEquals(11, transportStage.getDuration());
         assertEquals(TramTime.of(8,0), transportStage.getFirstDepartureTime());
