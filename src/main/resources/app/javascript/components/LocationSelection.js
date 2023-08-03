@@ -110,7 +110,7 @@ export default {
     <div>
     <!-- Dropdown selection mode -->
     <!-- note need input, change and model here because dynamically change contents of opt-groups -->
-        <select class="form-select mb-2" v-bind:id="name+'Stop'"
+        <select class="form-select form-control mb-2" v-bind:id="name+'Stop'"
                 :disabled="disabled"
                 v-on:input="updateValue($event)"
                 v-on:change="changedValue($event)"
