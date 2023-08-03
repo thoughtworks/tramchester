@@ -1,7 +1,6 @@
 
 const axios = require('axios');
 const bootstrap = require('bootstrap')
-//require('@skyscanner/popper.js');
 var Vue = require('vue');
 Vue.use(require('vue-cookies'));
 Vue.use(require('bootstrap-vue'));

@@ -1,5 +1,6 @@
 
-import { reportError } from 'ajv/dist/compile/errors';
+
+
 import VueTypeaheadBootstrap from 'vue-typeahead-bootstrap'
 
 
@@ -21,9 +22,9 @@ function sort(stopMap, alreadyDisplayed, requestedModes) {
 }
 
 function filterStops(stops, requestedModes, alreadyDisplayed) {
-    var results = stops.filter(stop => Array.from(stop.transportModes).
-    filter(stopMode => requestedModes.includes(stopMode)).length > 0).
-    filter(stop => !alreadyDisplayed.includes(stop.id));
+    var results = stops.
+        filter(stop => Array.from(stop.transportModes).filter(stopMode => requestedModes.includes(stopMode)).length > 0).
+        filter(stop => !alreadyDisplayed.includes(stop.id));
 
     return results;
 }
@@ -37,12 +38,21 @@ export default {
     props: ['value','other','name','modes','stops','geo','disabled'], 
     data: function () {
         return {
-            current: this.value
+            //current: this.value
+            currentId: null
         }
     },
     methods: {
-        updateValue(value) {
-            this.$emit('input', value);
+        updateValue(event) {
+            const stopId = event.target.value;
+            this.currentId = stopId;
+            const stop = this.stops.allStops.get(stopId);
+            this.$emit('input', stop);
+        },
+        changedValue(event) {
+            const stopId = event.target.value;
+            this.currentId = stopId;
+            this.value = stopId;
         },
         serialize: function(station) {
             if (station==null) {
@@ -51,15 +61,19 @@ export default {
             return station.name + ' (' + station.transportModes + ')';
         }
     },
+    mounted () {
+      this.currentId = null;  
+    },
     computed: {
-        allstops: function () {
+        remainingStops: function () {
             return sort(this.stops.allStops, this.alreadyDisplayed, this.modes);
         },
         alreadyDisplayed: function () {
-            var results = [];
             if (this.bus) {
                 return results; // recent, nearby, etc not used for bus UI
             }
+
+            var results = [];
 
             this.stops.recentStops.forEach(stop => {
                 results.push(stop.id)
@@ -78,40 +92,49 @@ export default {
             return this.modes.includes('Bus');
         },
         recentStops: function() {
-            return filterStops(this.stops.recentStops, this.modes, []);
+            return this.stops.recentStops;
+            //return filterStops(this.stops.recentStops, this.modes, []);
+        },
+        currentLocationStops: function () {
+            return this.stops.currentLocation;
         },
         nearestStops: function() {
-            return filterStops(this.stops.nearestStops, this.modes, []);
+            return this.stops.nearestStops;
+            //return filterStops(this.stops.nearestStops, this.modes, []);
+        },
+        myLocation: function() {
+            return this.stops.currentLocation;
         }
     },
     template: `
     <div>
     <!-- Dropdown selection mode -->
-        <b-form-select v-bind:id="name+'Stop'"
+    <!-- note need input, change and model here because dynamically change contents of opt-groups -->
+        <select class="form-select mb-2" v-bind:id="name+'Stop'"
                 :disabled="disabled"
-                :value="value"
                 v-on:input="updateValue($event)"
-                class="mb-2" required 
+                v-on:change="changedValue($event)"
+                v-model="currentId"
+                required 
                 v-if="!bus">
-            <option :value="null" disabled>Please select {{name}}</option>
-                <optgroup label="Nearby" name="Nearby" :id="name+'GroupNearby'" v-if="geo">
-                    <!--<option class="stop" value="MyLocationPlaceholderId">My Location</option>-->
-                    <option class="stop" v-for="stop in stops.currentLocation" :value="stop" 
-                        :disabled="stop.id == otherId">{{stop.name}}</option>
-                </optgroup>
-                <optgroup label="Nearest Stops" name="Nearest Stops" :id="name+'GroupNearestStops'" v-if="geo">
-                    <option class="stop" v-for="stop in nearestStops" :value="stop" 
-                        :disabled="stop.id == otherId">{{stop.name}}</option>
-                </optgroup>
-                <optgroup label="Recent" name="Recent" :id="name+'GroupRecent'">
-                    <option class="stop" v-for="stop in recentStops" :value="stop"
-                        :disabled="stop.id == otherId">{{stop.name}}</option>
-                </optgroup>
-                <optgroup label="All Stops" name="All Stops" :id="name+'GroupAllStops'">
-                    <option class="stop" v-for="stop in allstops" :value="stop"
-                        :disabled="stop.id == otherId">{{stop.name}}</option>
-                </optgroup>
-        </b-form-select>
+            <option :value="null" selected>Please select {{name}}</option>
+            <optgroup label="Nearby" name="Nearby" :id="name+'GroupNearby'" v-if="geo">
+                <option class="stop" v-for="stop in myLocation" :value="stop.id" :key="stop.id"
+                    :disabled="stop.id == otherId">{{stop.name}}</option>
+            </optgroup>
+            <optgroup label="Nearest Stops" name="Nearest Stops" :id="name+'GroupNearestStops'" v-if="geo">
+                <option class="stop" v-for="stop in nearestStops" :value="stop.id" :key="stop.id"
+                    :disabled="stop.id == otherId">{{stop.name}}</option>
+            </optgroup>
+            <optgroup label="Recent" name="Recent" :id="name+'GroupRecent'">
+                <option class="stop" v-for="stop in recentStops" :value="stop.id" :key="stop.id"
+                    :disabled="stop.id == otherId">{{stop.name}}</option>
+            </optgroup>
+            <optgroup label="All Stops" name="All Stops" :id="name+'GroupAllStops'">
+                <option class="stop" v-for="stop in remainingStops" :value="stop.id" :key="stop.id"
+                    :disabled="stop.id == otherId">{{stop.name}}</option>
+            </optgroup>
+        </select>
     <!-- Typeahead selection mode -->
         <vue-typeahead-bootstrap
             :disabled="disabled"
