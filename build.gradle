@@ -95,7 +95,7 @@ dependencies {
 
     testImplementation("io.dropwizard:dropwizard-testing:$dropwizardVersion")
     testImplementation 'org.junit.jupiter:junit-jupiter:5.9.2',
-            'org.junit.platform:junit-platform-launcher:1.9.2',
+            'org.junit.platform:junit-platform-launcher:1.10.0',
             'org.assertj:assertj-core:3.24.2',
             'org.easymock:easymock:5.1.0',
             'org.seleniumhq.selenium:selenium-java:3.141.59',
