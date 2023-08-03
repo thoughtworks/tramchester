@@ -27,10 +27,11 @@ export default {
                     </div>
                 </div>
                 <div class="row">
-                    <div id="disclaimer">&copy; 2016-2020 ThoughtWorks Ltd.
-                        <button id="disclaimerButton"
-                                  class="btn btn-link align-baseline text-decoration-none tramchesterFooter"
-                                  v-b-modal.modal-disclaimer>Disclaimer
+                    <div id="disclaimer">
+                        &copy; 2016-2020 ThoughtWorks Ltd.
+                        <button id="disclaimerButton" data-toggle="modal" data-target="#modaldisclaimer"
+                                  class="btn btn-link align-baseline text-decoration-none tramchesterFooter">
+                                  Disclaimer
                         </button>
                     </div>
                 </div>

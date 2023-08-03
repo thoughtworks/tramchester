@@ -106,39 +106,60 @@
 
     <app-footer v-bind:feedinfo="feedinfo" v-bind:havepos="havePos" v-on:network-error="networkErrorOccured()"></app-footer>
 
-    <b-modal ok-only id="modal-disclaimer" title="Disclaimer">
-        <div>
-            <p>Whilst every effort has been made to ensure that the contents of this website are correct,
-                ThoughtWorks does not guarantee and makes no warranty, express or implied, as to
-                the quality, accuracy, completeness, timeliness, appropriateness, or suitability of the
-                information we provide on this website.</p>
+    <div class="modal" id="modaldisclaimer">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Disclaimer</h5>
+                </div>
+                <div class="model-body">
+                    <p>Whilst every effort has been made to ensure that the contents of this website are correct,
+                        ThoughtWorks does not guarantee and makes no warranty, express or implied, as to
+                        the quality, accuracy, completeness, timeliness, appropriateness, or suitability of the
+                        information we provide on this website.</p>
 
-            <p>ThoughtWorks also takes no responsibility for the accuracy of information contained on
-                external sources linked to this site.</p>
+                    <p>ThoughtWorks also takes no responsibility for the accuracy of information contained on
+                        external sources linked to this site.</p>
 
-            <p>ThoughtWorks assumes no obligation to update the information and the information may
-                be changed from time to time without notice.</p>
+                    <p>ThoughtWorks assumes no obligation to update the information and the information may
+                        be changed from time to time without notice.</p>
 
-            <p>To the extent permitted by law ThoughtWorks expressly disclaims all liability for any direct,
-                indirect or consequential loss or damage occasioned from the use or inability to use this
-                websites, whether directly or indirectly resulting from inaccuracies, defects, viruses, errors -
-                whether typographical or otherwise, omissions, out of date information or otherwise.</p>
+                    <p>To the extent permitted by law ThoughtWorks expressly disclaims all liability for any direct,
+                        indirect or consequential loss or damage occasioned from the use or inability to use this
+                        websites, whether directly or indirectly resulting from inaccuracies, defects, viruses, errors -
+                        whether typographical or otherwise, omissions, out of date information or otherwise.</p>
 
-            <p>Accessing and using the website and the downloading of material from the site (if
-                applicable) is done entirely at the user's own risk. The user will be entirely responsible for
-                any resulting damage to software or computer systems and/or any resulting loss of data.</p>
+                    <p>Accessing and using the website and the downloading of material from the site (if
+                        applicable) is done entirely at the user's own risk. The user will be entirely responsible for
+                        any resulting damage to software or computer systems and/or any resulting loss of data.</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Ok</button>
+                </div>
+            
+            </div>
         </div>
-    </b-modal>
+    </div>
 
-    <b-modal ok-only id="modal-cookieConsent" title="Welcome" ok-title="I Agree"
-             @ok="setCookie()" ref="cookieModal" no-close-on-backdrop no-close-on-esc hide-header-close>
-        <div id="welcome" class="tramchesterApp w-75">
-            <p>Welcome to Tramchester, a quick and easy way to plan your travel in Manchester by Metrolink tram.</p>
+    <div class="modal" id="modal-cookieConsent" ref="cookieModal">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Cookies</h5>
+                </div>
+                <div class="model-body">
+                    <p>Welcome to Tramchester, a quick and easy way to plan your travel in Manchester by Metrolink tram.</p>
 
-            <p>Tramchester uses <b>cookies</b> to store information in your browser about previous usages and recent
-                journeys.</p>
+                    <p>Tramchester uses <b>cookies</b> to store information in your browser about previous usages and recent
+                        journeys.</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal" @Click="setCookie()">I Agree</button>
+                </div>
+            
+            </div>
         </div>
-    </b-modal>
+    </div>
 
 </div> <!-- end of app -->
 

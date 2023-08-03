@@ -1,5 +1,7 @@
 
 const axios = require('axios');
+const bootstrap = require('bootstrap')
+//require('@skyscanner/popper.js');
 var Vue = require('vue');
 Vue.use(require('vue-cookies'));
 Vue.use(require('bootstrap-vue'));
@@ -7,12 +9,17 @@ Vue.use(require('vue-multiselect'));
 
 require('file-loader?name=[name].[ext]!../index.html');
 
+// todo move into require above to get auto min or full version?
+import 'popper.js/dist/esm/popper.js'
+import 'jquery/dist/jquery.slim.js'
+import 'bootstrap/dist/js/bootstrap.bundle.js'
+
 import 'bootstrap/dist/css/bootstrap.css'
 import 'bootstrap-vue/dist/bootstrap-vue.css'
 import 'vue-multiselect/dist/vue-multiselect.min.css'
 import './../css/tramchester.css'
 
-import Multiselect from 'vue-multiselect';
+import Multiselect from 'vue-multiselect'
 
 import Notes from "./components/Notes";
 import Journeys from './components/Journeys';
@@ -340,7 +347,8 @@ var app = new Vue({
         mounted () {
             var cookie = this.$cookies.get("tramchesterVisited");
             if (cookie==null) {
-                this.$refs.cookieModal.show();
+                var modal = new bootstrap.Modal(this.$refs.cookieModal,{});
+                modal.show();
             }
             getFeedinfo(this);
             let urlParams = new URLSearchParams(window.location.search);
