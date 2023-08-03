@@ -34,7 +34,7 @@ export default {
         }
     },
     template: `
-    <div id="departuesView">
+    <div class="container" id="departuesView">
         <b-table id="departures"
             sort-by='dueTimeAsDate'
             sort-icon-left
@@ -48,20 +48,24 @@ export default {
 
             <template v-slot:table-caption>
                 <div class="liveDepartures">Current Live Departures</div>
-            </template>
-            
+            </template>    
         </b-table>
+
         <b-pagination v-if="localDueTrams.length>0 && localDueTrams.length>itemsPerPage"
             v-model="currentPage"
             :total-rows="localDueTrams.length"
             :per-page="itemsPerPage" align="center"
             aria-controls="departures"></b-pagination>
 
-        <div id="noLiveResults" selectable v-if="noLiveResults" class="w-75 tramchesterApp">
-            <b-card bg-variant="light">
-                No real time departure information found for query time and date
-            </b-card>
+        <div id="noLiveResults" class="col pl-0" v-if="noLiveResults">
+            <div class="card bg-light border-dark">
+                <div class="card-header">Live Departures</div>
+                <div class="card-body">
+                    <p class="card-text">No departure information available</p>
+                </div>
+            </div>
         </div>
+
     </div>
 
 
