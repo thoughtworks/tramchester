@@ -42,6 +42,11 @@ export default {
             currentId: null
         }
     },
+    watch: {
+        value() {
+            this.currentId = this.value.id;
+        }
+    },
     methods: {
         updateValue(event) {
             const stopId = event.target.value;
