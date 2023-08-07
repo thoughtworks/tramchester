@@ -302,8 +302,8 @@ export default {
                     <div>{{ item.journey.begin.name }}</div>
                 </template>
                 <template v-slot:item.journey.changeStations="{ item, index }">
-                <div>{{ changesFormatter(item.journey.changeStations, index) }}</div>
-            </template>
+                    <div>{{ changesFormatter(item.journey.changeStations, index) }}</div>
+                </template>
             </v-data-table>
         </div>
 
