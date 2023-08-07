@@ -1,26 +1,16 @@
 
 
-function dueTimeFormatter(value, key, row) {
-    return value.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false });
-}
 
 export default { 
     props: ['livedataresponse'],
     data: function () {
         return {
             itemsPerPage: 5,
-            departureFields: [
-                {key:'transportMode', label:'type', tdClass:'transportMode', sortable: true},
-                {key:'from', label:'From', tdClass:'departureDueFrom', sortable:true},
-                {key:'dueTimeAsDate', label:'Time', tdClass:'departureDueTime', formatter: dueTimeFormatter, sortable:true},
-                {key:'carriages', label:'', tdClass:'departureCarriages'},
-                {key:'status', label:'Status', tdClass:'departureStatus'},
-                {key:'destination', label:'Towards', tdClass:'departureTowards',  sortable:true}
-            ],
+            page: 1,
             headers: [
                 {value:'transportMode', text:'type', cellClass:'transportMode', sortable: true},
                 {value:'from', text:'From', cellClass:'departureDueFrom', sortable:true},
-                {value:'dueTimeAsDate', text:'Time', cellClass:'departureDueTime', sortable: true}, //formatter: dueTimeFormatter, sortable:true},
+                {value:'dueTimeAsDate', text:'Time', cellClass:'departureDueTime', sortable: true}, 
                 {value:'carriages', text:'', cellClass:'departureCarriages'},
                 {value:'status', text:'Status', cellClass:'departureStatus'},
                 {value:'destination', text:'Towards', cellClass:'departureTowards',  sortable:true}
@@ -41,9 +31,14 @@ export default {
             }
             return this.livedataresponse.departures.length==0;
         },
-        // pageCount () {
-        //     return Math.ceil(this.localDueTrams.length / this.itemsPerPage)
-        //   },
+         pageCount () {
+             return Math.ceil(this.localDueTrams.length / this.itemsPerPage)
+           },
+    },
+    methods: {
+        dueTimeFormatter(value) {
+            return value.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false });
+        }
     },
     template: `
     <div class="container" id="departuesView">
@@ -51,12 +46,25 @@ export default {
        
         <div id="departuresTable" v-if="localDueTrams.length>0">
             <v-data-table id="departures"
-                :headers="headers" :items="localDueTrams"
+                :headers="headers" 
+                :items="localDueTrams"
+                dense
                 v-model:sort-by="sortBy"
                 :items-per-page="itemsPerPage"
+                hide-default-footer
                 class="elevation-1">
+                <template v-slot:item.dueTimeAsDate="{ item }">
+                    <div>{{ dueTimeFormatter(item.dueTimeAsDate) }}</div>
+                </template>
             </v-data-table>
         </div>
+        <div class="text-center pt-2" v-if="localDueTrams.length>0">
+                <v-pagination
+                  v-model="page"
+                  :length="pageCount"
+                ></v-pagination>
+
+              </div>
             
         <div id="noLiveResults" class="col pl-0" v-if="noLiveResults">
             <div class="card bg-light border-dark">

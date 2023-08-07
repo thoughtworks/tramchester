@@ -37,18 +37,14 @@ module.exports = {
           generator: {
                filename: 'images/[hash][ext][query]'
              }
-//          loader: 'file-loader',
-//          options: {
-//                    name: 'images/[name].[ext]',
-//                  }
       },
       {
          test: /\.(woff|woff2|eot|ttf|otf)$/i,
          type: 'asset/resource',
          generator: {
-                        filename: 'fonts/[name][ext][query]'
-                      }
-    },
+                filename: 'fonts/[name][ext][query]'
+              }
+      },
       {
           test: /\.s(c|a)ss$/,
               use: [
