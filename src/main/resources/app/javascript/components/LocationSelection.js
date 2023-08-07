@@ -44,6 +44,7 @@ export default {
     },
     watch: {
         value() {
+            // so the swap button works as we don't bind the prop value to the native component, but bind currentId instead
             this.currentId = this.value.id;
         }
     },

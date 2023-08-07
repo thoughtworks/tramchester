@@ -8,6 +8,8 @@ Vue.use(require('vue-multiselect'));
 
 require('file-loader?name=[name].[ext]!../index.html');
 
+import vuetify from './plugins/vuetify'
+
 // todo move into require above to get auto min or full version?
 import 'popper.js/dist/esm/popper.js'
 import 'jquery/dist/jquery.slim.js'
@@ -17,6 +19,8 @@ import 'bootstrap/dist/css/bootstrap.css'
 import 'bootstrap-vue/dist/bootstrap-vue.css'
 import 'vue-multiselect/dist/vue-multiselect.min.css'
 import './../css/tramchester.css'
+
+import '@mdi/font/css/materialdesignicons.css'
 
 import Multiselect from 'vue-multiselect'
 
@@ -76,7 +80,6 @@ function queryLiveData(app, includeNotes) {
     } else {
         locationId = app.startStop.id;
     }
-
 
     const query = {
         time: app.time,
@@ -287,6 +290,7 @@ function queryServerForJourneysPost(app, startStop, endStop, queryTime, queryDat
 }
 
 var app = new Vue({
+        vuetify,
         el: '#journeyplan',
         data:  data,
         components: {

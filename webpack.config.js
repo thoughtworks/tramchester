@@ -1,4 +1,4 @@
-var path = require('path');
+const path = require('path');
 const { VueLoaderPlugin } = require('vue-loader')
 
 module.exports = {
@@ -14,7 +14,7 @@ module.exports = {
   output: {
     path: path.resolve(__dirname, 'build/resources/main/app'),
     filename: '[name].js',
-    publicPath: '/app'
+    publicPath: '/app/'
   },
   resolve: {
     alias: {
@@ -33,11 +33,44 @@ module.exports = {
       },
       {
           test:/\.png$/,
-          loader: 'file-loader',
-          options: {
-                    name: 'images/[name].[ext]',
-                  }
-      }
+          type: 'asset/resource',
+          generator: {
+               filename: 'images/[hash][ext][query]'
+             }
+//          loader: 'file-loader',
+//          options: {
+//                    name: 'images/[name].[ext]',
+//                  }
+      },
+      {
+         test: /\.(woff|woff2|eot|ttf|otf)$/i,
+         type: 'asset/resource',
+         generator: {
+                        filename: 'fonts/[name][ext][query]'
+                      }
+    },
+      {
+          test: /\.s(c|a)ss$/,
+              use: [
+                'vue-style-loader',
+                'css-loader',
+                {
+                  loader: 'sass-loader',
+                  // Requires sass-loader@^7.0.0
+                  options: {
+                    implementation: require('sass'),
+                    indentedSyntax: true // optional
+                  },
+                  // Requires >= sass-loader@^8.0.0
+                  options: {
+                    implementation: require('sass'),
+                    sassOptions: {
+                      indentedSyntax: true // optional
+                    },
+                  },
+                },
+              ],
+        },
     ]
   },
   plugins: [
