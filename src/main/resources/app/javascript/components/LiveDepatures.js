@@ -1,6 +1,5 @@
 
 
-
 export default { 
     props: ['livedataresponse'],
     data: function () {
@@ -8,12 +7,12 @@ export default {
             itemsPerPage: 5,
             page: 1,
             headers: [
-                {value:'transportMode', text:'type', cellClass:'transportMode', sortable: true},
-                {value:'from', text:'From', cellClass:'departureDueFrom', sortable:true},
-                {value:'dueTimeAsDate', text:'Time', cellClass:'departureDueTime', sortable: true}, 
-                {value:'carriages', text:'', cellClass:'departureCarriages'},
-                {value:'status', text:'Status', cellClass:'departureStatus'},
-                {value:'destination', text:'Towards', cellClass:'departureTowards',  sortable:true}
+                {value:'transportMode', text:'type', sortable: true},
+                {value:'from', text:'From', sortable:true},
+                {value:'dueTimeAsDate', text:'Time', sortable: true}, 
+                {value:'carriages', text:''},
+                {value:'status', text:'Status'},
+                {value:'destination', text:'Towards', sortable:true}
             ],
             sortBy: [{ key: 'dueTimeAsDate', order: 'asc' }]
         }
@@ -43,7 +42,6 @@ export default {
     template: `
     <div class="container" id="departuesView">
 
-       
         <div id="departuresTable" v-if="localDueTrams.length>0">
             <v-data-table id="departures"
                 :headers="headers" 

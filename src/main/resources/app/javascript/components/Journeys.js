@@ -164,7 +164,25 @@ export default {
                     , formatter: dateTimeFormatter},
                 {key:'journey.changeStations', label:'Change', tdClass:'changes', formatter: changesFormatter}
                 ],
-            stageFields: getStageFields()
+            stageFields: getStageFields(),
+            headers: [
+                {value:'_showDetails',text:''}, //, formatter: rowExpandedFormatter},
+                {value:'journey.firstDepartureTimeAsDate',text:'Depart', sortable:true },
+                {value:'journey.begin',text:'From', sortable:true}, //tdClass:'station', formatter: fromFormatter},
+                {value:'journey.expectedArrivalTimeAsDate',text:'Arrive', sortable:true }, 
+                {value:'journey.changeStations', text:'Change' } // , tdClass:'changes', formatter: changesFormatter}
+                ],
+            stageHeaders : [
+                { value: 'firstDepartureTime', text: 'Time' }, //tdClass: 'departTime', formatter: stageDateTimeFormatter },
+                { value: 'action', text: 'Action' }, //, tdClass: 'action', formatter: actionFormatter },
+                { value: 'actionStation.name', text: 'Station' }, //tdClass: 'actionStation', formatter: stationFormatter },
+                { value: 'platform.platformNumber', text: 'Platform'}, //, tdClass: 'platform' },
+                { value: 'headSign', text: 'Headsign' }, //, tdClass: stageHeadsignClass },
+                { value: 'mode', text: 'Line' } , //formatter: routeFormatter, tdClass: lineClass },
+                { value: 'passedStops', text: 'Stops' }, //, tdClass: 'passedStops', formatter: stopsFormatter },
+                { value: 'expectedArrivalTime', text: 'Arrive' } // , tdClass: 'arriveTime', formatter: stageDateTimeFormatter }
+                ],
+                sortBy: [{ key: 'firstDepartureTime', order: 'asc' }]
             }
       },
     props: ['journeysresponse','numjourneystodisplay'],
@@ -214,11 +232,25 @@ export default {
             var newTime = new Date(current.getTime() + 60*1000); 
             const newDepartTime = toHourAndMins(newTime); 
             this.$emit('later-tram', newDepartTime);
+        }, 
+        dateTimeFormatter(value, index) {
+            var queryDate = this.journeysresponse[index].journey.queryDateAsDate;
+            return formatDate(queryDate, value)
+        },
+        changesFormatter(value) {
+            if (value.length==0) {
+                return "Direct";
+            }
+            var result = "";
+            value.forEach(change => {
+                if (result.length>0) result = result.concat(", ");
+                result = result.concat(change.name)});
+            return result;
         }
     },
     template: `
     <div id="journeysComponent">
-        <b-table id="results" v-if="journeys.length>0"
+        <b-table id="resultsOld" v-if="journeys.length>0"
                 selectable
                 sort-icon-left
                 :items="journeys" small responsive="sm"
@@ -251,6 +283,29 @@ export default {
             align="center"
             aria-controls="results">
         </b-pagination>
+
+        <div id="results" v-if="journeys.length>0">
+            <v-data-table id="results"
+                :headers="headers" 
+                :items="journeys"
+                dense
+                v-model:sort-by="sortBy"
+                hide-default-footer
+                class="elevation-1">
+                <template v-slot:item.journey.firstDepartureTimeAsDate="{ item, index }">
+                    <div>{{ dateTimeFormatter(item.journey.firstDepartureTimeAsDate, index) }}</div>
+                </template>
+                <template v-slot:item.journey.expectedArrivalTimeAsDate="{ item, index }">
+                    <div>{{ dateTimeFormatter(item.journey.expectedArrivalTimeAsDate, index) }}</div>
+                </template>
+                <template v-slot:item.journey.begin="{ item }">
+                    <div>{{ item.journey.begin.name }}</div>
+                </template>
+                <template v-slot:item.journey.changeStations="{ item, index }">
+                <div>{{ changesFormatter(item.journey.changeStations, index) }}</div>
+            </template>
+            </v-data-table>
+        </div>
 
         <div class="container" id="earlierLater" v-if="journeys.length>0">
             <div class="row justify-content-between">
