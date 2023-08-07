@@ -80,7 +80,7 @@ public class GraphDatabaseServiceFactory implements DatabaseEventListener {
                     //setConfig(GraphDatabaseSettings.tx_state_max_off_heap_memory, SettingValueParsers.BYTES.parse("256m")).
 
                     // NOTE: dbms.memory.transaction.total.max is 70% of heap size limit
-                    setConfig(BootloaderSettings.max_heap_size, SettingValueParsers.BYTES.parse("512m")).
+                    setConfig(BootloaderSettings.max_heap_size, SettingValueParsers.BYTES.parse("560m")).
 
                     // deprecated
                     //setConfig(GraphDatabaseSettings.tx_state_max_off_heap_memory, SettingValueParsers.BYTES.parse("512m")).
