@@ -135,16 +135,16 @@ function lastDepartTime(journeys) {
     return lastDepart;
 }
 
-function getStageFields() {
-    return [{ key: 'firstDepartureTime', label: 'Time', tdClass: 'departTime', formatter: stageDateTimeFormatter },
-    { key: 'action', label: 'Action', tdClass: 'action', formatter: actionFormatter },
-    { key: 'actionStation.name', label: 'Station', tdClass: 'actionStation', formatter: stationFormatter },
-    { key: 'platform.platformNumber', label: 'Platform', tdClass: 'platform' },
-    { key: 'headSign', label: 'Headsign', tdClass: stageHeadsignClass },
-    { key: 'mode', label: 'Line', formatter: routeFormatter, tdClass: lineClass },
-    { key: 'passedStops', label: 'Stops', tdClass: 'passedStops', formatter: stopsFormatter },
-    { key: 'expectedArrivalTime', label: 'Arrive', tdClass: 'arriveTime', formatter: stageDateTimeFormatter }];
-}
+// function getStageFields() {
+//     return [{ key: 'firstDepartureTime', label: 'Time', tdClass: 'departTime', formatter: stageDateTimeFormatter },
+//     { key: 'action', label: 'Action', tdClass: 'action', formatter: actionFormatter },
+//     { key: 'actionStation.name', label: 'Station', tdClass: 'actionStation', formatter: stationFormatter },
+//     { key: 'platform.platformNumber', label: 'Platform', tdClass: 'platform' },
+//     { key: 'headSign', label: 'Headsign', tdClass: stageHeadsignClass },
+//     { key: 'mode', label: 'Line', formatter: routeFormatter, tdClass: lineClass },
+//     { key: 'passedStops', label: 'Stops', tdClass: 'passedStops', formatter: stopsFormatter },
+//     { key: 'expectedArrivalTime', label: 'Arrive', tdClass: 'arriveTime', formatter: stageDateTimeFormatter }];
+// }
 
 
 function toHourAndMins(date) {
@@ -164,7 +164,7 @@ export default {
                     , formatter: dateTimeFormatter},
                 {key:'journey.changeStations', label:'Change', tdClass:'changes', formatter: changesFormatter}
                 ],
-            stageFields: getStageFields(),
+            //stageFields: getStageFields(),
             headers: [
                 {value: 'data-table-expand', text:'' },
                 {value:'journey.firstDepartureTimeAsDate',text:'Depart', sortable:true },
@@ -173,14 +173,14 @@ export default {
                 {value:'journey.changeStations', text:'Change' }
                 ],
             stageHeaders : [
-                { value: 'firstDepartureTime', text: 'Time' }, //tdClass: 'departTime', formatter: stageDateTimeFormatter },
-                { value: 'action', text: 'Action' }, //, tdClass: 'action', formatter: actionFormatter },
-                { value: 'actionStation.name', text: 'Station' }, //tdClass: 'actionStation', formatter: stationFormatter },
-                { value: 'platform.platformNumber', text: 'Platform'}, //, tdClass: 'platform' },
-                { value: 'headSign', text: 'Headsign' }, //, tdClass: stageHeadsignClass },
-                { value: 'mode', text: 'Line' } , //formatter: routeFormatter, tdClass: lineClass },
-                { value: 'passedStops', text: 'Stops' }, //, tdClass: 'passedStops', formatter: stopsFormatter },
-                { value: 'expectedArrivalTime', text: 'Arrive' } // , tdClass: 'arriveTime', formatter: stageDateTimeFormatter }
+                { value: 'firstDepartureTime', text: 'Time' , sortable:false }, //tdClass: 'departTime', formatter: stageDateTimeFormatter },
+                { value: 'action', text: 'Action' , sortable:false }, //, tdClass: 'action', formatter: actionFormatter },
+                { value: 'actionStation.name', text: 'Station' , sortable:false }, //tdClass: 'actionStation', formatter: stationFormatter },
+                { value: 'platform.platformNumber', text: 'Platform', sortable:false }, //, tdClass: 'platform' },
+                { value: 'headSign', text: 'Headsign' , sortable:false }, //, tdClass: stageHeadsignClass },
+                { value: 'mode', text: 'Line' , sortable:false } , //formatter: routeFormatter, tdClass: lineClass },
+                { value: 'passedStops', text: 'Stops', sortable:false  }, //, tdClass: 'passedStops', formatter: stopsFormatter },
+                { value: 'expectedArrivalTime', text: 'Arrive' , sortable:false } // , tdClass: 'arriveTime', formatter: stageDateTimeFormatter }
                 ],
             sortBy: [{ key: 'firstDepartureTime', order: 'asc' }],
             //singleExpand: true, // for expansion of journey table row
@@ -313,9 +313,13 @@ export default {
                     <template v-slot:item.journey.changeStations="{ item, index }">
                         <div>{{ changesFormatter(item.journey.changeStations, index) }}</div>
                     </template>
-                    <template v-slot:expanded-item="{ headers, item }">
+                    <template v-slot:expanded-item="{ headers, item, index }">
                         <td :colspan="headers.length">
-                            Expanded
+                            <v-data-table :items=item.journey.stages :headers="stageHeaders" 
+                            id="stages"
+                            dense
+                            hide-default-footer>
+                            </v-data-table>
                         </td>
                     </template>
             </v-data-table>
