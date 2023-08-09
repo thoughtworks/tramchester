@@ -36,6 +36,7 @@ class JourneyTest {
     private List<Integer> stopSequenceNumbers;
     private MyLocation myLocation;
     private final int requestedNumberChanges = 4;
+    private final int journeyIndex = 42;
 
     @BeforeEach
     void beforeEachTest() {
@@ -53,7 +54,7 @@ class JourneyTest {
 
         final TramTime departureTime = queryTime.plusMinutes(10);
         stages.add(createVehicleStage(Altrincham.fake(), StPetersSquare.fake(), Tram, departureTime, 15));
-        Journey journey = new Journey(departureTime, queryTime, departureTime.plusMinutes(15), stages, path, requestedNumberChanges);
+        Journey journey = new Journey(departureTime, queryTime, departureTime.plusMinutes(15), stages, path, requestedNumberChanges, journeyIndex);
 
         Set<TransportMode> result = journey.getTransportModes();
 
@@ -61,6 +62,7 @@ class JourneyTest {
         assertTrue(result.contains(Tram));
         assertTrue(journey.isDirect());
         assertFalse(journey.firstStageIsWalk());
+        assertEquals(journeyIndex, journey.getJourneyIndex());
 
         assertEquals(Altrincham.getId(), journey.getBeginning().getId());
     }
@@ -73,7 +75,7 @@ class JourneyTest {
 
         stages.add(new WalkingToStationStage(myLocation, Bury.fake(), Duration.ofMinutes(42), departureTime));
 
-        Journey journey = new Journey(departureTime, queryTime, departureTime.plusMinutes(15), stages, path, requestedNumberChanges);
+        Journey journey = new Journey(departureTime, queryTime, departureTime.plusMinutes(15), stages, path, requestedNumberChanges, journeyIndex);
 
         Set<TransportMode> result = journey.getTransportModes();
 
@@ -93,7 +95,7 @@ class JourneyTest {
 
         stages.add(new ConnectingStage<>(myLocation, Bury.fake(), Duration.ofMinutes(42), departureTime));
 
-        Journey journey = new Journey(departureTime, queryTime, departureTime.plusMinutes(15), stages, path, requestedNumberChanges);
+        Journey journey = new Journey(departureTime, queryTime, departureTime.plusMinutes(15), stages, path, requestedNumberChanges, journeyIndex);
 
         Set<TransportMode> result = journey.getTransportModes();
 
@@ -114,7 +116,7 @@ class JourneyTest {
 
         stages.add(new WalkingFromStationStage(Bury.fake(), myLocation, Duration.ofMinutes(42), departureTime));
 
-        Journey journey = new Journey(departureTime, queryTime, departureTime.plusMinutes(15), stages, path, requestedNumberChanges);
+        Journey journey = new Journey(departureTime, queryTime, departureTime.plusMinutes(15), stages, path, requestedNumberChanges, journeyIndex);
 
         Set<TransportMode> result = journey.getTransportModes();
 
@@ -135,7 +137,7 @@ class JourneyTest {
         stages.add(new WalkingToStationStage(myLocation, Bury.fake(), Duration.ofMinutes(42), departureTime));
         stages.add(createVehicleStage(Bury.fake(), StPetersSquare.fake(), Tram, departureTime.plusMinutes(42), 13));
 
-        Journey journey = new Journey(departureTime, queryTime, departureTime.plusMinutes(15), stages, path, requestedNumberChanges);
+        Journey journey = new Journey(departureTime, queryTime, departureTime.plusMinutes(15), stages, path, requestedNumberChanges, journeyIndex);
 
         Set<TransportMode> result = journey.getTransportModes();
 
@@ -158,7 +160,7 @@ class JourneyTest {
         stages.add(createVehicleStage(Bury.fake(), StPetersSquare.fake(), Tram, departureTime.plusMinutes(42), 13));
         stages.add(createVehicleStage(Victoria.fake(), ManAirport.fake(), Tram, departureTime.plusMinutes(42), 13));
 
-        Journey journey = new Journey(departureTime, queryTime, departureTime.plusMinutes(15), stages, path, requestedNumberChanges);
+        Journey journey = new Journey(departureTime, queryTime, departureTime.plusMinutes(15), stages, path, requestedNumberChanges, journeyIndex);
 
         assertFalse(journey.isDirect());
         assertEquals(Bury.getId(), journey.getBeginning().getId());
@@ -173,7 +175,7 @@ class JourneyTest {
         stages.add(createVehicleStage(Altrincham.fake(), StPetersSquare.fake(), Tram, departureTime.plusMinutes(5), 13));
         stages.add(new WalkingFromStationStage(Bury.fake(), myLocation, Duration.ofMinutes(42), departureTime.plusMinutes(18)));
 
-        Journey journey = new Journey(departureTime, queryTime, departureTime.plusMinutes(15), stages, path, requestedNumberChanges);
+        Journey journey = new Journey(departureTime, queryTime, departureTime.plusMinutes(15), stages, path, requestedNumberChanges, journeyIndex);
 
         Set<TransportMode> result = journey.getTransportModes();
 
@@ -194,7 +196,7 @@ class JourneyTest {
         stages.add(createVehicleStage(Altrincham.fake(), StPetersSquare.fake(), Bus, departureTimeA, 13));
         stages.add(createVehicleStage(StPetersSquare.fake(), Victoria.fake(), Train, departureTimeA.plusMinutes(14), 19));
 
-        Journey journey = new Journey(queryTime.plusMinutes(5), queryTime, queryTime.plusMinutes(10), stages, path, requestedNumberChanges);
+        Journey journey = new Journey(queryTime.plusMinutes(5), queryTime, queryTime.plusMinutes(10), stages, path, requestedNumberChanges, journeyIndex);
 
         Set<TransportMode> result = journey.getTransportModes();
         final boolean direct = journey.isDirect();
@@ -209,7 +211,7 @@ class JourneyTest {
     @Test
     void shouldHaveDepartAndArrivalTime() {
         List<TransportStage<?, ?>> stages = new ArrayList<>();
-        Journey journey = new Journey(queryTime.plusMinutes(5), queryTime, queryTime.plusMinutes(10), stages, path, requestedNumberChanges);
+        Journey journey = new Journey(queryTime.plusMinutes(5), queryTime, queryTime.plusMinutes(10), stages, path, requestedNumberChanges, journeyIndex);
 
         assertEquals(queryTime, journey.getQueryTime());
         assertEquals(queryTime.plusMinutes(5), journey.getDepartTime());
@@ -239,7 +241,7 @@ class JourneyTest {
 
         List<TransportStage<?, ?>> stages = Arrays.asList(stageA, stageB, stageC);
 
-        Journey journey = new Journey(queryTime.plusMinutes(5), queryTime, queryTime.plusMinutes(10), stages, path, requestedNumberChanges);
+        Journey journey = new Journey(queryTime.plusMinutes(5), queryTime, queryTime.plusMinutes(10), stages, path, requestedNumberChanges, journeyIndex);
 
         IdSet<Platform> result = journey.getCallingPlatformIds();
         assertEquals(2, result.size());

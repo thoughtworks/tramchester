@@ -98,7 +98,7 @@ public class RouteCalculatorTest {
     }
 
     @Test
-    void shouldPlanSimpleJourneyFromAltyToAshtonCheckInterchanges() {
+    void shouldPlanSimpleJourneyFromAltyToAshtonCheckInterchangesAndHaveExpectedIndexes() {
         JourneyRequest journeyRequest = new JourneyRequest(when, TramTime.of(17,45), false,
                 3, maxJourneyDuration, 5, requestedModes);
 
@@ -109,11 +109,20 @@ public class RouteCalculatorTest {
         Set<Journey> journeys = calculator.calculateRouteAsSet(Altrincham, Ashton, journeyRequest);
         assertFalse(journeys.isEmpty());
 
+        Set<Integer> indexes = new HashSet<>();
+
         journeys.forEach(journey -> {
             TransportStage<?, ?> firstStage = journey.getStages().get(0);
             String interchange = firstStage.getLastStation().getName();
+            indexes.add(journey.getJourneyIndex());
             assertTrue(expected.contains(interchange), interchange + " not in " + expected);
         });
+
+        assertEquals(journeys.size(), indexes.size());
+        for (int i = 0; i < journeys.size(); i++) {
+            assertTrue(indexes.contains(i), "Missing index " + i);
+        }
+
 
     }
 

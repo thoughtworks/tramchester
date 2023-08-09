@@ -36,6 +36,7 @@ import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Stream;
 
 import static java.lang.String.format;
@@ -176,13 +177,15 @@ public class RouteCalculator extends RouteCalculatorSupport implements TramRoute
 
         final LowestCostSeen lowestCostSeen = new LowestCostSeen();
 
+        final AtomicInteger journeyIndex = new AtomicInteger(0);
+
         final Stream<Journey> results = numChangesRange(journeyRequest, numberOfChanges).
                 flatMap(numChanges -> queryTimes.stream().
                         map(queryTime -> createPathRequest(startNode, tramDate, queryTime, requestedModes, numChanges, journeyConstraints, maxInitialWait))).
                 flatMap(pathRequest -> findShortestPath(txn, destinationNodeIds, destinations,
                         createServiceReasons(journeyRequest, pathRequest), pathRequest, lowestCostsForRoutes, createPreviousVisits(),
                         lowestCostSeen)).
-                map(path -> createJourney(journeyRequest, path, destinations, lowestCostsForRoutes));
+                map(path -> createJourney(journeyRequest, path, destinations, lowestCostsForRoutes, journeyIndex));
 
         //noinspection ResultOfMethodCallIgnored
         results.onClose(() -> {

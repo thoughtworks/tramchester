@@ -39,8 +39,8 @@ class JourneyDTODuplicateFilterTest {
         List<LocationRefWithPosition> path = Arrays.asList(getStationRef(Ashton), getStationRef(Deansgate),
                 getStationRef(NavigationRoad));
 
-        JourneyDTO journeyA = createJourneyFor(TramTime.of(9,14), 10, changeStations, path);
-        JourneyDTO journeyB = createJourneyFor(TramTime.of(9,14), 10, changeStations, path);
+        JourneyDTO journeyA = createJourneyFor(TramTime.of(9,14), 10, changeStations, path, 0);
+        JourneyDTO journeyB = createJourneyFor(TramTime.of(9,14), 10, changeStations, path, 1);
 
         Set<JourneyDTO> journeys = new HashSet<>(Arrays.asList(journeyA, journeyB));
 
@@ -57,8 +57,8 @@ class JourneyDTODuplicateFilterTest {
         List<LocationRefWithPosition> path = Arrays.asList(getStationRef(Ashton), getStationRef(Deansgate),
                 getStationRef(NavigationRoad));
 
-        JourneyDTO journeyA = createJourneyFor(TramTime.of(9,14), 10, changeStationsA, path);
-        JourneyDTO journeyB = createJourneyFor(TramTime.of(9,14), 10, changeStationsB, path);
+        JourneyDTO journeyA = createJourneyFor(TramTime.of(9,14), 10, changeStationsA, path, 0);
+        JourneyDTO journeyB = createJourneyFor(TramTime.of(9,14), 10, changeStationsB, path, 1);
 
         Set<JourneyDTO> journeys = new HashSet<>(Arrays.asList(journeyA, journeyB));
 
@@ -74,8 +74,8 @@ class JourneyDTODuplicateFilterTest {
         List<LocationRefWithPosition> path = Arrays.asList(getStationRef(Ashton), getStationRef(Deansgate),
                 getStationRef(NavigationRoad));
 
-        JourneyDTO journeyA = createJourneyFor(TramTime.of(9,14), 10, changeStations, path);
-        JourneyDTO journeyB = createJourneyFor(TramTime.of(9,17), 10, changeStations, path);
+        JourneyDTO journeyA = createJourneyFor(TramTime.of(9,14), 10, changeStations, path, 0);
+        JourneyDTO journeyB = createJourneyFor(TramTime.of(9,17), 10, changeStations, path, 1);
 
         Set<JourneyDTO> journeys = new HashSet<>(Arrays.asList(journeyA, journeyB, journeyA));
 
@@ -91,8 +91,8 @@ class JourneyDTODuplicateFilterTest {
         List<LocationRefWithPosition> path = Arrays.asList(getStationRef(Ashton), getStationRef(Deansgate),
                 getStationRef(NavigationRoad));
 
-        JourneyDTO journeyA = createJourneyFor(TramTime.of(9,14), 15, changeStations, path);
-        JourneyDTO journeyB = createJourneyFor(TramTime.of(9,14), 10, changeStations, path);
+        JourneyDTO journeyA = createJourneyFor(TramTime.of(9,14), 15, changeStations, path, 0);
+        JourneyDTO journeyB = createJourneyFor(TramTime.of(9,14), 10, changeStations, path, 1);
 
         Set<JourneyDTO> journeys = new HashSet<>(Arrays.asList(journeyA, journeyB, journeyA));
 
@@ -110,8 +110,8 @@ class JourneyDTODuplicateFilterTest {
         List<LocationRefWithPosition> pathB = Arrays.asList(getStationRef(Ashton), getStationRef(Deansgate),
                 getStationRef(Altrincham));
 
-        JourneyDTO journeyA = createJourneyFor(TramTime.of(9,14), 10, changeStations, pathA);
-        JourneyDTO journeyB = createJourneyFor(TramTime.of(9,14), 10, changeStations, pathB);
+        JourneyDTO journeyA = createJourneyFor(TramTime.of(9,14), 10, changeStations, pathA, 0);
+        JourneyDTO journeyB = createJourneyFor(TramTime.of(9,14), 10, changeStations, pathB, 1);
 
         Set<JourneyDTO> journeys = new HashSet<>(Arrays.asList(journeyA, journeyB, journeyB));
 
@@ -120,7 +120,7 @@ class JourneyDTODuplicateFilterTest {
     }
 
     private JourneyDTO createJourneyFor(TramTime departTime, int duration, List<LocationRefWithPosition> changeStations,
-                                        List<LocationRefWithPosition> path) {
+                                        List<LocationRefWithPosition> path, int journeyIndex) {
         List<Note> notes = Collections.emptyList();
         LocationRefWithPosition begin = getStationRef(Ashton);
         VehicleStageDTO stageA = new VehicleStageDTO();
@@ -133,7 +133,7 @@ class JourneyDTODuplicateFilterTest {
         return new JourneyDTO(begin, stages,
                 expectedArrivalTime, firstDepartureTime,
                 changeStations, queryTime, notes,
-                path, queryDate);
+                path, queryDate, journeyIndex);
     }
 
     private LocationRefWithPosition getStationRef(TramStations tramStations) {

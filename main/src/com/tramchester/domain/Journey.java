@@ -22,15 +22,17 @@ public class Journey implements Iterable<TransportStage<?,?>>, CallsAtPlatforms 
     private final int requestedNumberChanges;
     private final List<TransportStage<?,?>> stages;
     private final List<Location<?>> path;
+    private final int journeyIndex;
 
     public Journey(TramTime departTime, TramTime queryTime, TramTime arrivalTime, List<TransportStage<?, ?>> stages,
-                   List<Location<?>> path, int requestedNumberChanges) {
+                   List<Location<?>> path, int requestedNumberChanges, int journeyIndex) {
         this.stages = stages;
         this.queryTime = queryTime;
         this.path = path;
         this.departTime = departTime;
         this.arrivalTime = arrivalTime;
         this.requestedNumberChanges = requestedNumberChanges;
+        this.journeyIndex = journeyIndex;
     }
     
     public @NotNull Iterator<TransportStage<?,?>> iterator() {
@@ -157,4 +159,7 @@ public class Journey implements Iterable<TransportStage<?,?>>, CallsAtPlatforms 
         return result;
     }
 
+    public int getJourneyIndex() {
+        return journeyIndex;
+    }
 }

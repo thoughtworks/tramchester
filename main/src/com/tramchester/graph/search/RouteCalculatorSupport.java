@@ -30,6 +30,7 @@ import org.slf4j.LoggerFactory;
 
 import java.time.Duration;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -151,7 +152,7 @@ public class RouteCalculatorSupport {
 
     @NotNull
     protected Journey createJourney(JourneyRequest journeyRequest, RouteCalculator.TimedPath path,
-                                    LocationSet destinations, LowestCostsForDestRoutes lowestCostForRoutes) {
+                                    LocationSet destinations, LowestCostsForDestRoutes lowestCostForRoutes, AtomicInteger journeyIndex) {
 
         final List<TransportStage<?, ?>> stages = pathToStages.mapDirect(path, journeyRequest, lowestCostForRoutes, destinations);
         final List<Location<?>> locationList = mapPathToLocations.mapToLocations(path.getPath());
@@ -161,7 +162,8 @@ public class RouteCalculatorSupport {
         }
         TramTime arrivalTime = getArrivalTimeFor(stages, journeyRequest);
         TramTime departTime = getDepartTimeFor(stages, journeyRequest);
-        return new Journey(departTime, path.getQueryTime(), arrivalTime, stages, locationList, path.getNumChanges());
+        return new Journey(departTime, path.getQueryTime(), arrivalTime, stages, locationList, path.getNumChanges(),
+                journeyIndex.getAndIncrement());
     }
 
     private TramTime getDepartTimeFor(List<TransportStage<?, ?>> stages, JourneyRequest journeyRequest) {

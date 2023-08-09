@@ -104,7 +104,7 @@ class JourneyToDTOMapperTest extends EasyMockSupport {
         EasyMock.expect(stageFactory.build(walkingStage, TravelAction.WalkTo, when)).andReturn(stageDTOA);
 
         final List<Location<?>> path = Collections.singletonList(Deansgate.fake());
-        Journey journey = new Journey(pm10.plusMinutes(5), pm10, pm10.plusMinutes(10), stages, path, requestedNumberChanges);
+        Journey journey = new Journey(pm10.plusMinutes(5), pm10, pm10.plusMinutes(10), stages, path, requestedNumberChanges, 0);
         EasyMock.expect(providesNotes.createNotesForJourney(journey, when)).andReturn(notes);
 
         EasyMock.expect(DTOFactory.createLocationRefWithPosition(nearPiccGardensLocation)).
@@ -141,7 +141,7 @@ class JourneyToDTOMapperTest extends EasyMockSupport {
                 andStubReturn(new LocationRefWithPosition(Deansgate.fake()));
 
         Journey journey = new Journey(pm10.plusMinutes(5), pm10, pm10.plusMinutes(10), stages,
-                Collections.singletonList(Deansgate.fake()), requestedNumberChanges);
+                Collections.singletonList(Deansgate.fake()), requestedNumberChanges, 0);
         EasyMock.expect(providesNotes.createNotesForJourney(journey, when)).andReturn(notes);
 
         replayAll();
@@ -187,7 +187,7 @@ class JourneyToDTOMapperTest extends EasyMockSupport {
                 andStubReturn(new LocationRefWithPosition(StopAtAltrinchamInterchange.fake()));
 
         final List<Location<?>> path = Collections.singletonList(Altrincham.fake());
-        Journey journey = new Journey(time.plusMinutes(5), time, time.plusMinutes(10), stages, path, requestedNumberChanges);
+        Journey journey = new Journey(time.plusMinutes(5), time, time.plusMinutes(10), stages, path, requestedNumberChanges, 42);
         EasyMock.expect(providesNotes.createNotesForJourney(journey, when)).andReturn(notes);
 
         replayAll();
@@ -202,6 +202,7 @@ class JourneyToDTOMapperTest extends EasyMockSupport {
         assertEquals(stageDTOA, result.getStages().get(0));
         assertEquals(stageDTOB, result.getStages().get(1));
         assertEquals(when.toLocalDate(), result.getQueryDate());
+        assertEquals(42, result.getIndex());
         validateStationList(path, result.getPath());
         validateStationList(Collections.singletonList(startStation), result.getChangeStations());
     }
@@ -250,7 +251,7 @@ class JourneyToDTOMapperTest extends EasyMockSupport {
         EasyMock.expect(stageFactory.build(finalStage, TravelAction.Change, when)).andReturn(stageDTOC);
 
         final List<Location<?>> path = Collections.singletonList(begin);
-        Journey journey = new Journey(am10.plusMinutes(5), am10, am10.plusMinutes(10), stages, path, requestedNumberChanges);
+        Journey journey = new Journey(am10.plusMinutes(5), am10, am10.plusMinutes(10), stages, path, requestedNumberChanges, 0);
         EasyMock.expect(providesNotes.createNotesForJourney(journey, when)).andReturn(notes);
 
         replayAll();
@@ -298,7 +299,7 @@ class JourneyToDTOMapperTest extends EasyMockSupport {
         EasyMock.expect(stageFactory.build(rawStageB, TravelAction.Change, when)).andReturn(stageDTOB);
 
         final List<Location<?>> path = Collections.singletonList(start);
-        Journey journey = new Journey(startTime.plusMinutes(5), startTime, startTime.plusMinutes(10), stages, path, requestedNumberChanges);
+        Journey journey = new Journey(startTime.plusMinutes(5), startTime, startTime.plusMinutes(10), stages, path, requestedNumberChanges, 0);
         EasyMock.expect(providesNotes.createNotesForJourney(journey, when)).andReturn(notes);
 
         replayAll();

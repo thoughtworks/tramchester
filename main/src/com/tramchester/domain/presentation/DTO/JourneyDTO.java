@@ -27,6 +27,7 @@ public class JourneyDTO {
     private List<Note> notes;
     private List<LocationRefWithPosition> path;
     private LocalDate queryDate;
+    private int index;
 
     public JourneyDTO() {
         // Deserialization
@@ -35,15 +36,15 @@ public class JourneyDTO {
     public JourneyDTO(LocationRefWithPosition begin, List<SimpleStageDTO> stages,
                       LocalDateTime expectedArrivalTime, LocalDateTime firstDepartureTime,
                       List<LocationRefWithPosition> changeStations, TramTime queryTime, List<Note> notes,
-                      List<LocationRefWithPosition> path, TramDate queryDate) {
+                      List<LocationRefWithPosition> path, TramDate queryDate, int index) {
         this(begin, stages, expectedArrivalTime, firstDepartureTime, changeStations, queryTime, notes,
-                path, queryDate.toLocalDate());
+                path, queryDate.toLocalDate(), index);
     }
 
     public JourneyDTO(LocationRefWithPosition begin, List<SimpleStageDTO> stages,
                       LocalDateTime expectedArrivalTime, LocalDateTime firstDepartureTime,
                       List<LocationRefWithPosition> changeStations, TramTime queryTime, List<Note> notes,
-                      List<LocationRefWithPosition> path, LocalDate queryDate) {
+                      List<LocationRefWithPosition> path, LocalDate queryDate, int index) {
         this.begin = begin;
         this.stages = stages;
         this.expectedArrivalTime = expectedArrivalTime;
@@ -53,6 +54,7 @@ public class JourneyDTO {
         this.notes = notes;
         this.path = path;
         this.queryDate = queryDate;
+        this.index = index;
     }
 
     public List<SimpleStageDTO> getStages() {
@@ -109,5 +111,9 @@ public class JourneyDTO {
     @JsonDeserialize(using = LocalDateJsonDeserializer.class)
     public LocalDate getQueryDate() {
         return queryDate;
+    }
+
+    public int getIndex() {
+        return index;
     }
 }

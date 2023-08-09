@@ -104,6 +104,12 @@ public class JourneyPlannerResourceTest {
 
             journey.getStages().forEach(stage -> assertEquals(when.toLocalDate(), stage.getQueryDate()));
         });
+
+        Set<Integer> indexs = journeys.stream().map(JourneyDTO::getIndex).collect(Collectors.toSet());
+        assertEquals(journeys.size(), indexs.size(), "mismatch on indexes " + indexs);
+        for (int i = 0; i < journeys.size(); i++) {
+            assertTrue(indexs.contains(i), "missing index " + i);
+        }
     }
 
     @Test

@@ -70,6 +70,9 @@ public class GraphDatabaseServiceFactory implements DatabaseEventListener {
         try (Timing ignored = new Timing(logger, "DatabaseManagementService build")) {
             Long neo4jPagecacheMemory = ByteUnit.parse(dbConfig.getNeo4jPagecacheMemory());
             managementServiceImpl = new DatabaseManagementServiceBuilder( graphFile ).
+
+            // TODO need to bring this back somehow, memory usage has crept up without it
+                    
 //                    setConfig(GraphDatabaseSettings.track_query_allocation, false).
 //                    setConfig(GraphDatabaseSettings.store_internal_log_level, Level.WARN ).
 
@@ -80,7 +83,7 @@ public class GraphDatabaseServiceFactory implements DatabaseEventListener {
                     //setConfig(GraphDatabaseSettings.tx_state_max_off_heap_memory, SettingValueParsers.BYTES.parse("256m")).
 
                     // NOTE: dbms.memory.transaction.total.max is 70% of heap size limit
-                    setConfig(BootloaderSettings.max_heap_size, SettingValueParsers.BYTES.parse("560m")).
+                    setConfig(BootloaderSettings.max_heap_size, SettingValueParsers.BYTES.parse("580m")).
 
                     // deprecated
                     //setConfig(GraphDatabaseSettings.tx_state_max_off_heap_memory, SettingValueParsers.BYTES.parse("512m")).

@@ -71,7 +71,7 @@ public class JourneyToDTOMapper {
         return new JourneyDTO(begin, stages,
                 journey.getArrivalTime().toDate(date), journey.getDepartTime().toDate(date),
                 changeStations, queryTime, notes,
-                path, date);
+                path, date, journey.getJourneyIndex());
     }
 
     private List<LocationRefWithPosition> asListOf(List<Location<?>> locations) {

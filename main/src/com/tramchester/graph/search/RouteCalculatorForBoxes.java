@@ -34,6 +34,7 @@ import java.time.Duration;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -99,6 +100,8 @@ public class RouteCalculatorForBoxes extends RouteCalculatorSupport {
 
             final NumberOfChanges numberOfChanges = computeNumberOfChanges(startingStations, destinations, date, journeyRequest.getTimeRange(), requestedModes);
 
+            final AtomicInteger journeyIndex = new AtomicInteger(0);
+
             try(Transaction txn = graphDatabaseService.beginTx()) {
 
                 Stream<Journey> journeys = startingStations.stream().
@@ -110,7 +113,7 @@ public class RouteCalculatorForBoxes extends RouteCalculatorSupport {
                         flatMap(pathRequest -> findShortestPath(txn, destinationNodeIds, destinations,
                                 createServiceReasons(journeyRequest, originalTime), pathRequest, journeyConstraints.getFewestChangesCalculator(),
                                 createPreviousVisits(), lowestCostSeenForBox)).
-                        map(timedPath -> createJourney(journeyRequest, timedPath, destinations, lowestCostForDestinations));
+                        map(timedPath -> createJourney(journeyRequest, timedPath, destinations, lowestCostForDestinations, journeyIndex));
 
                 Set<Journey> collect = journeys.
                         filter(journey -> !journey.getStages().isEmpty()).

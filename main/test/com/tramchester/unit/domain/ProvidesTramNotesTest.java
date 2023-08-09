@@ -53,6 +53,7 @@ class ProvidesTramNotesTest extends EasyMockSupport {
     private final int requestedNumberChanges = 2;
     private DTOFactory stationDTOFactory;
     private ProvidesLocalNow providesLocalNow;
+    private final int journeyIndex = 42;
 
     @BeforeEach
     void beforeEachTestRuns() {
@@ -251,7 +252,7 @@ class ProvidesTramNotesTest extends EasyMockSupport {
                 andReturn(Optional.of(info));
 
         Journey journey = new Journey(queryTime.plusMinutes(5), queryTime, queryTime.plusMinutes(10),
-                Collections.singletonList(stageA), Collections.emptyList(), requestedNumberChanges);
+                Collections.singletonList(stageA), Collections.emptyList(), requestedNumberChanges, journeyIndex);
 
         replayAll();
         List<Note> notes = providesNotes.createNotesForJourney(journey, date);
@@ -283,7 +284,7 @@ class ProvidesTramNotesTest extends EasyMockSupport {
 
         Journey journey = new Journey(queryTime.plusMinutes(5), queryTime, queryTime.plusMinutes(10),
                 Collections.singletonList(stageA), Collections.emptyList(),
-                requestedNumberChanges);
+                requestedNumberChanges, journeyIndex);
 
         replayAll();
         List<Note> notes = providesNotes.createNotesForJourney(journey, serviceDate);
@@ -318,7 +319,7 @@ class ProvidesTramNotesTest extends EasyMockSupport {
                 .andReturn(Optional.of(info));
 
         Journey journey = new Journey(queryTime.plusMinutes(5), queryTime, queryTime.plusMinutes(10), Collections.singletonList(stageA),
-                Collections.emptyList(), requestedNumberChanges);
+                Collections.emptyList(), requestedNumberChanges, journeyIndex);
 
         replayAll();
         List<Note> notes = providesNotes.createNotesForJourney(journey, localDate);
@@ -380,7 +381,7 @@ class ProvidesTramNotesTest extends EasyMockSupport {
 
         List<TransportStage<?,?>> stages = Arrays.asList(stageABury, stageBCornbrook, stageCNavigationRoad, stageDAshton, stageEAlty);
 
-        Journey journey = new Journey(queryTime.plusMinutes(5), queryTime, queryTime.plusMinutes(10), stages, Collections.emptyList(), requestedNumberChanges);
+        Journey journey = new Journey(queryTime.plusMinutes(5), queryTime, queryTime.plusMinutes(10), stages, Collections.emptyList(), requestedNumberChanges, journeyIndex);
 
         replayAll();
         List<Note> notes = providesNotes.createNotesForJourney(journey, date);

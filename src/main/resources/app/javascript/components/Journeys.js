@@ -166,11 +166,11 @@ export default {
                 ],
             stageFields: getStageFields(),
             headers: [
-                {value:'_showDetails',text:''}, //, formatter: rowExpandedFormatter},
+                {value: 'data-table-expand', text:'' },
                 {value:'journey.firstDepartureTimeAsDate',text:'Depart', sortable:true },
-                {value:'journey.begin',text:'From', sortable:true}, //tdClass:'station', formatter: fromFormatter},
+                {value:'journey.begin',text:'From', sortable:true}, 
                 {value:'journey.expectedArrivalTimeAsDate',text:'Arrive', sortable:true }, 
-                {value:'journey.changeStations', text:'Change' } // , tdClass:'changes', formatter: changesFormatter}
+                {value:'journey.changeStations', text:'Change' }
                 ],
             stageHeaders : [
                 { value: 'firstDepartureTime', text: 'Time' }, //tdClass: 'departTime', formatter: stageDateTimeFormatter },
@@ -182,8 +182,10 @@ export default {
                 { value: 'passedStops', text: 'Stops' }, //, tdClass: 'passedStops', formatter: stopsFormatter },
                 { value: 'expectedArrivalTime', text: 'Arrive' } // , tdClass: 'arriveTime', formatter: stageDateTimeFormatter }
                 ],
-                sortBy: [{ key: 'firstDepartureTime', order: 'asc' }]
-            }
+            sortBy: [{ key: 'firstDepartureTime', order: 'asc' }],
+            //singleExpand: true, // for expansion of journey table row
+            expanded: []
+        }
       },
     props: ['journeysresponse','numjourneystodisplay'],
     computed: { 
@@ -250,6 +252,7 @@ export default {
     },
     template: `
     <div id="journeysComponent">
+    <!--
         <b-table id="resultsOld" v-if="journeys.length>0"
                 selectable
                 sort-icon-left
@@ -281,29 +284,40 @@ export default {
             :total-rows="journeys.length"
             :per-page="itemsPerPage" 
             align="center"
+            show-expand
             aria-controls="results">
         </b-pagination>
+        -->
 
         <div id="results" v-if="journeys.length>0">
             <v-data-table id="results"
-                :headers="headers" 
+                :headers="headers"
                 :items="journeys"
+                item-key="journey.index"
+                single-expand=true
+                :expanded.sync="expanded"
+                show-expand=true
                 dense
                 v-model:sort-by="sortBy"
                 hide-default-footer
                 class="elevation-1">
-                <template v-slot:item.journey.firstDepartureTimeAsDate="{ item, index }">
-                    <div>{{ dateTimeFormatter(item.journey.firstDepartureTimeAsDate, index) }}</div>
-                </template>
-                <template v-slot:item.journey.expectedArrivalTimeAsDate="{ item, index }">
-                    <div>{{ dateTimeFormatter(item.journey.expectedArrivalTimeAsDate, index) }}</div>
-                </template>
-                <template v-slot:item.journey.begin="{ item }">
-                    <div>{{ item.journey.begin.name }}</div>
-                </template>
-                <template v-slot:item.journey.changeStations="{ item, index }">
-                    <div>{{ changesFormatter(item.journey.changeStations, index) }}</div>
-                </template>
+                    <template v-slot:item.journey.firstDepartureTimeAsDate="{ item, index }">
+                        <div>{{ dateTimeFormatter(item.journey.firstDepartureTimeAsDate, index) }}</div>
+                    </template>
+                    <template v-slot:item.journey.expectedArrivalTimeAsDate="{ item, index }">
+                        <div>{{ dateTimeFormatter(item.journey.expectedArrivalTimeAsDate, index) }}</div>
+                    </template>
+                    <template v-slot:item.journey.begin="{ item }">
+                        <div>{{ item.journey.begin.name }}</div>
+                    </template>
+                    <template v-slot:item.journey.changeStations="{ item, index }">
+                        <div>{{ changesFormatter(item.journey.changeStations, index) }}</div>
+                    </template>
+                    <template v-slot:expanded-item="{ headers, item }">
+                        <td :colspan="headers.length">
+                            Expanded
+                        </td>
+                    </template>
             </v-data-table>
         </div>
 
