@@ -1,36 +1,4 @@
 
-// function rowExpandedFormatter(value, key, row) {
-//     if (row._showDetails!=null && row._showDetails) {
-//         return "&#8897;";
-//     } else {
-//         return "&#8811;";
-//     }
-// }
-
-// function changesFormatter(value, key, row) {
-//     if (value.length==0) {
-//         return "Direct";
-//     }
-//     var result = "";
-//     value.forEach(change => {
-//         if (result.length>0) result = result.concat(", ");
-//         result = result.concat(change.name)});
-//     return result;
-// }
-
-// function fromFormatter(value, key, row) {
-//     return nameForStation(value);
-// }
-
-// function nameForStation(station) {
-//     return station.name;
-// }
-
-// function stationFormatter(value, key, row) {
-//     var name = nameForStation(row.actionStation);
-//     var url = 'https://www.google.com/maps/search/?api=1&query='+ row.actionStation.latLong.lat + ',' + row.actionStation.latLong.lon;
-//     return `<a href='${url}' target="_blank">${name}</a>`
-// }
 
 function stageHeadsignClass(value, key, row) {
     if (row.action=='Walk to' || row.action=='Walk from') {
@@ -42,17 +10,17 @@ function stageHeadsignClass(value, key, row) {
     return "headsign";
 }
 
-function stopsFormatter(value, key, row) {
-    if (row.action=='Walk to' || row.action=='Walk from') {
-        return '';
-    }
-    return value;
-}
+// function stopsFormatter(value, key, row) {
+//     if (row.action=='Walk to' || row.action=='Walk from') {
+//         return '';
+//     }
+//     return value;
+// }
 
-function dateTimeFormatter(value, key, row) {
-    var queryDate = row.journey.queryDateAsDate;
-    return formatDate(queryDate, value)
-}
+// function dateTimeFormatter(value, key, row) {
+//     var queryDate = row.journey.queryDateAsDate;
+//     return formatDate(queryDate, value)
+// }
 
 function diffInDays(dateA, dateB) {
     const justDateA = new Date(dateA.toDateString());
@@ -98,7 +66,7 @@ function lastDepartTime(journeys) {
 
     var lastDepart = null;
     journeys.forEach(item => {
-        var currnet = item.journey.firstDepartureTimeAsDate;
+        const currnet = item.journey.firstDepartureTimeAsDate;
         if (lastDepart==null) {
             lastDepart = currnet;
         }
