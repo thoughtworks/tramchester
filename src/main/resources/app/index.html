@@ -32,15 +32,21 @@
             </div>
             <div class="row">
                 <div class="col pl-0 col-md-auto">
-                    <b-form-checkbox id="arriveBy" size="sm" v-model="arriveBy">arrive by</b-form-checkbox>
+                    <!--
+                        <b-form-checkbox id="arriveBy" size="sm" v-model="arriveBy">arrive by</b-form-checkbox>
+                    -->
+                    <input type="checkbox" id="arriveBy" v-model="arriveBy">
+                    <label for="arriveBy">arrive by</label>
                 </div>
                 <div class="col">
-                    <b-input-group class="mb-2">
-                        <b-form-input id="time" v-model="time" type="time" required></b-form-input>
-                        <b-input-group-append>
-                            <button id="nowButton" class="btn btn-info" type="button" @click="timeToNow()">Now</button>
-                        </b-input-group-append>
-                    </b-input-group>
+                    
+                        <b-input-group class="mb-2">
+                            <b-form-input id="time" v-model="time" type="time" required></b-form-input>
+                        </b-input-group>
+
+                </div>
+                <div class="col">
+                    <button id="nowButton" class="btn btn-info" type="button" @click="timeToNow()">Now</button>
                 </div>
             </div>
             <div class="row">
