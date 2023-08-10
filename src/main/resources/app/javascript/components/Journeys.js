@@ -62,37 +62,46 @@ function dateTimeFormatter(value, key, row) {
     return formatDate(queryDate, value)
 }
 
-function daysSinceEpoch(date) {
-    const dayInMillis = Math.floor(24 * 60 * 60 * 1000);
-    return Math.floor(date.getTime() / dayInMillis);
+// function daysSinceEpoch(date) {
+//     const dayInMillis = Math.floor(24 * 60 * 60 * 1000);
+//     return Math.floor(date.getTime() / dayInMillis);
+// }
+
+function diffInDays(dateA, dateB) {
+    const justDateA = new Date(dateA.toDateString());
+    const justDateB = new Date(dateB.toDateString());
+    const diffTime = Math.abs(justDateB - justDateA); // millis
+    const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24)); 
+    return diffDays;
 }
 
 function formatDate(queryDate, journeyDateTime) {
-    var time = toHourAndMins(journeyDateTime); 
+    const time = toHourAndMins(journeyDateTime); 
     // next day?
-    var diff = daysSinceEpoch(journeyDateTime) - daysSinceEpoch(queryDate);
+    //var diff = daysSinceEpoch(journeyDateTime) - daysSinceEpoch(queryDate);
+    const diff = diffInDays(queryDate, journeyDateTime);
     if (diff>0) {
         return time + ' +' + diff + 'd';
     }
     return time;
 }
 
-function currentlyExpandedJourney(view) {
-    // TODO assume here only ever one row expanded at a time
-    if (view.expanded[0] != null) {
-        return view.expanded[0].journey
-    }
-    return null;
-}
+// function currentlyExpandedJourney(view) {
+//     // TODO assume here only ever one row expanded at a time
+//     if (view.expanded[0] != null) {
+//         return view.expanded[0].journey
+//     }
+//     return null;
+// }
 
-function lineClass(value, key, row) {
-    const prefix = 'RouteClass'
-    var result = prefix + row.mode;
-    if (row.mode=='Tram') {
-        result = prefix + row.route.shortName.replace(/\s+/g, '');
-    }
-    return [ result, 'lineClass'];
-}
+// function lineClass(value, key, row) {
+//     const prefix = 'RouteClass'
+//     var result = prefix + row.mode;
+//     if (row.mode=='Tram') {
+//         result = prefix + row.route.shortName.replace(/\s+/g, '');
+//     }
+//     return [ result, 'lineClass'];
+// }
 
 function earliestDepartTime(journeys) {
 
@@ -203,9 +212,9 @@ export default {
         }
     },
     methods: {
-        expandStages(row,index) {
-            row._showDetails = !row._showDetails;
-        },
+        // expandStages(row,index) {
+        //     row._showDetails = !row._showDetails;
+        // },
         earlier() {
             const current = earliestDepartTime(this.journeysresponse); 
             var newTime = new Date(current.getTime() - 24*60*1000); 
@@ -222,10 +231,10 @@ export default {
             const queryDate = this.journeysresponse[index].journey.queryDateAsDate;
             return formatDate(queryDate, item)
         },
-        stageDateTimeFormatter(item) {
-            const queryDate = currentlyExpandedJourney(this).queryDateAsDate;
+        stageDateTimeFormatter(item, queryDate) {
             const stageDateTime = new Date(item);
-            return formatDate(queryDate, stageDateTime)
+            const stageQueryDate = new Date(queryDate);
+            return formatDate(stageQueryDate, stageDateTime)
         },
         changesFormatter(value) {
             if (value.length==0) {
@@ -248,19 +257,19 @@ export default {
         stationURL(item) {
             return 'https://www.google.com/maps/search/?api=1&query='+ item.latLong.lat + ',' + item.latLong.lon;
         }, 
-        routeFormatter(item) {
-            if (item.transportMode==='Train') {
-                return item.shortName;
+        routeFormatter(route) {
+            if (route.transportMode==='Train') {
+                return route.shortName;
             } else {
-                return item.routeName;
+                return route.routeName;
             }
         },
-        routeClass(item) {
+        routeClass(route) {
             const prefix = 'RouteClass';
-            const mode = item.transportMode;
+            const mode = route.transportMode;
             var result = prefix + mode;
             if (mode=='Tram') {
-                result = prefix + item.shortName.replace(/\s+/g, '');
+                result = prefix + route.shortName.replace(/\s+/g, '');
             }
             return [ result, 'lineClass'];
         }
@@ -298,10 +307,10 @@ export default {
                             dense
                             hide-default-footer>
                                 <template v-slot:item.firstDepartureTime="{ item }">
-                                    <div>{{ stageDateTimeFormatter(item.firstDepartureTime) }}</div>
+                                    <div>{{ stageDateTimeFormatter(item.firstDepartureTime, item.queryDate) }}</div>
                                 </template>
                                 <template v-slot:item.expectedArrivalTime="{ item }">
-                                    <div>{{ stageDateTimeFormatter(item.expectedArrivalTime) }}</div>
+                                    <div>{{ stageDateTimeFormatter(item.expectedArrivalTime, item.queryDate) }}</div>
                                 </template>
                                 <template v-slot:item.action="{ item, index }">
                                     <div>{{ actionFormatter(item) }}</div>
