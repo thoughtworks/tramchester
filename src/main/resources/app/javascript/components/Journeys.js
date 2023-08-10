@@ -26,11 +26,11 @@ function nameForStation(station) {
     return station.name;
 }
 
-function stationFormatter(value, key, row) {
-    var name = nameForStation(row.actionStation);
-    var url = 'https://www.google.com/maps/search/?api=1&query='+ row.actionStation.latLong.lat + ',' + row.actionStation.latLong.lon;
-    return `<a href='${url}' target="_blank">${name}</a>`
-}
+// function stationFormatter(value, key, row) {
+//     var name = nameForStation(row.actionStation);
+//     var url = 'https://www.google.com/maps/search/?api=1&query='+ row.actionStation.latLong.lat + ',' + row.actionStation.latLong.lon;
+//     return `<a href='${url}' target="_blank">${name}</a>`
+// }
 
 function stageHeadsignClass(value, key, row) {
     if (row.action=='Walk to' || row.action=='Walk from') {
@@ -237,12 +237,13 @@ export default {
                 result = result.concat(change.name)});
             return result;
         },
-        actionFormatter(item, stageIndex) {
-            if (item=='Walk to' || item=='Walk from') {
-                return item;
+        actionFormatter(stage) {
+            const action = stage.action;
+            if (action=='Walk to' || action=='Walk from') {
+                return action;
             }
-            const transportMode = currentlyExpandedJourney(this).stages[stageIndex].mode;
-            return item + ' ' + transportMode;
+            const transportMode = stage.mode; //currentlyExpandedJourney(this).stages[stageIndex].mode;
+            return action + ' ' + transportMode;
         },
         stationURL(item) {
             return 'https://www.google.com/maps/search/?api=1&query='+ item.latLong.lat + ',' + item.latLong.lon;
@@ -253,6 +254,15 @@ export default {
             } else {
                 return item.routeName;
             }
+        },
+        routeClass(item) {
+            const prefix = 'RouteClass';
+            const mode = item.transportMode;
+            var result = prefix + mode;
+            if (mode=='Tram') {
+                result = prefix + item.shortName.replace(/\s+/g, '');
+            }
+            return [ result, 'lineClass'];
         }
     },
     template: `
@@ -294,13 +304,13 @@ export default {
                                     <div>{{ stageDateTimeFormatter(item.expectedArrivalTime) }}</div>
                                 </template>
                                 <template v-slot:item.action="{ item, index }">
-                                    <div>{{ actionFormatter(item.action, index) }}</div>
+                                    <div>{{ actionFormatter(item) }}</div>
                                 </template>
                                 <template v-slot:item.actionStation="{ item }">
                                     <a :href="stationURL(item.actionStation)" target="_blank">{{ item.actionStation.name }}</a>
                                 </template>
                                 <template v-slot:item.route="{ item }">
-                                    <div>{{ routeFormatter(item.route) }}</div>
+                                    <div :class="routeClass(item.route)">{{ routeFormatter(item.route) }}</div>
                                 </template>
                             </v-data-table>
                         </td>
