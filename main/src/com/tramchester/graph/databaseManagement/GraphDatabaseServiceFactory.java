@@ -72,7 +72,7 @@ public class GraphDatabaseServiceFactory implements DatabaseEventListener {
             managementServiceImpl = new DatabaseManagementServiceBuilder( graphFile ).
 
             // TODO need to bring this back somehow, memory usage has crept up without it
-                    
+
 //                    setConfig(GraphDatabaseSettings.track_query_allocation, false).
 //                    setConfig(GraphDatabaseSettings.store_internal_log_level, Level.WARN ).
 

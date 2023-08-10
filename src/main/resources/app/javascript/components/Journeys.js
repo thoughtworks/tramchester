@@ -49,23 +49,17 @@ function stopsFormatter(value, key, row) {
     return value;
 }
 
-function routeFormatter(mode, key, row) {
-    if (mode==='Train') {
-        return row.route.shortName;
-    } else {
-        return row.route.routeName;
-    }
-}
+// function routeFormatter(mode, key, row) {
+//     if (mode==='Train') {
+//         return row.route.shortName;
+//     } else {
+//         return row.route.routeName;
+//     }
+// }
 
 function dateTimeFormatter(value, key, row) {
     var queryDate = row.journey.queryDateAsDate;
     return formatDate(queryDate, value)
-}
-
-function stageDateTimeFormatter(value, key, row) {
-    var queryDate = new Date(row.queryDate);
-    var journeyDate = new Date(value);
-    return formatDate(queryDate, journeyDate)
 }
 
 function daysSinceEpoch(date) {
@@ -83,11 +77,12 @@ function formatDate(queryDate, journeyDateTime) {
     return time;
 }
 
-function actionFormatter(value, key, row) {
-    if (row.action=='Walk to' || row.action=='Walk from') {
-        return value;
+function currentlyExpandedJourney(view) {
+    // TODO assume here only ever one row expanded at a time
+    if (view.expanded[0] != null) {
+        return view.expanded[0].journey
     }
-    return value + ' ' + row.route.transportMode;
+    return null;
 }
 
 function lineClass(value, key, row) {
@@ -135,18 +130,6 @@ function lastDepartTime(journeys) {
     return lastDepart;
 }
 
-// function getStageFields() {
-//     return [{ key: 'firstDepartureTime', label: 'Time', tdClass: 'departTime', formatter: stageDateTimeFormatter },
-//     { key: 'action', label: 'Action', tdClass: 'action', formatter: actionFormatter },
-//     { key: 'actionStation.name', label: 'Station', tdClass: 'actionStation', formatter: stationFormatter },
-//     { key: 'platform.platformNumber', label: 'Platform', tdClass: 'platform' },
-//     { key: 'headSign', label: 'Headsign', tdClass: stageHeadsignClass },
-//     { key: 'mode', label: 'Line', formatter: routeFormatter, tdClass: lineClass },
-//     { key: 'passedStops', label: 'Stops', tdClass: 'passedStops', formatter: stopsFormatter },
-//     { key: 'expectedArrivalTime', label: 'Arrive', tdClass: 'arriveTime', formatter: stageDateTimeFormatter }];
-// }
-
-
 function toHourAndMins(date) {
     return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false });
 }
@@ -175,10 +158,10 @@ export default {
             stageHeaders : [
                 { value: 'firstDepartureTime', text: 'Time' , sortable:false }, //tdClass: 'departTime', formatter: stageDateTimeFormatter },
                 { value: 'action', text: 'Action' , sortable:false }, //, tdClass: 'action', formatter: actionFormatter },
-                { value: 'actionStation.name', text: 'Station' , sortable:false }, //tdClass: 'actionStation', formatter: stationFormatter },
+                { value: 'actionStation', text: 'Station' , sortable:false }, //tdClass: 'actionStation', formatter: stationFormatter },
                 { value: 'platform.platformNumber', text: 'Platform', sortable:false }, //, tdClass: 'platform' },
                 { value: 'headSign', text: 'Headsign' , sortable:false }, //, tdClass: stageHeadsignClass },
-                { value: 'mode', text: 'Line' , sortable:false } , //formatter: routeFormatter, tdClass: lineClass },
+                { value: 'route', text: 'Line' , sortable:false } , //formatter: routeFormatter, tdClass: lineClass },
                 { value: 'passedStops', text: 'Stops', sortable:false  }, //, tdClass: 'passedStops', formatter: stopsFormatter },
                 { value: 'expectedArrivalTime', text: 'Arrive' , sortable:false } // , tdClass: 'arriveTime', formatter: stageDateTimeFormatter }
                 ],
@@ -235,9 +218,14 @@ export default {
             const newDepartTime = toHourAndMins(newTime); 
             this.$emit('later-tram', newDepartTime);
         }, 
-        dateTimeFormatter(value, index) {
-            var queryDate = this.journeysresponse[index].journey.queryDateAsDate;
-            return formatDate(queryDate, value)
+        dateTimeFormatter(item, index) {
+            const queryDate = this.journeysresponse[index].journey.queryDateAsDate;
+            return formatDate(queryDate, item)
+        },
+        stageDateTimeFormatter(item) {
+            const queryDate = currentlyExpandedJourney(this).queryDateAsDate;
+            const stageDateTime = new Date(item);
+            return formatDate(queryDate, stageDateTime)
         },
         changesFormatter(value) {
             if (value.length==0) {
@@ -248,47 +236,27 @@ export default {
                 if (result.length>0) result = result.concat(", ");
                 result = result.concat(change.name)});
             return result;
+        },
+        actionFormatter(item, stageIndex) {
+            if (item=='Walk to' || item=='Walk from') {
+                return item;
+            }
+            const transportMode = currentlyExpandedJourney(this).stages[stageIndex].mode;
+            return item + ' ' + transportMode;
+        },
+        stationURL(item) {
+            return 'https://www.google.com/maps/search/?api=1&query='+ item.latLong.lat + ',' + item.latLong.lon;
+        }, 
+        routeFormatter(item) {
+            if (item.transportMode==='Train') {
+                return item.shortName;
+            } else {
+                return item.routeName;
+            }
         }
     },
     template: `
     <div id="journeysComponent">
-    <!--
-        <b-table id="resultsOld" v-if="journeys.length>0"
-                selectable
-                sort-icon-left
-                :items="journeys" small responsive="sm"
-                :fields="journeyFields" 
-                :per-page="itemsPerPage"
-                :current-page="currentPage" 
-                sort-by='journey.expectedArrivalTimeAsDate'
-                select-mode='single' caption-top
-                    @row-clicked="expandStages" tbody-tr-class='journeySummary' caption-top>
-            <template v-slot:table-caption>
-                <div class="suggestedRoutes">Suggested Routes</div>
-            </template>
-            <template v-slot:cell(_showDetails)="data">
-                <span v-html="data.value">XXX</span>
-            </template>
-            <template v-slot:row-details="row">
-                <b-table :items="row.item.journey.stages" :fields="stageFields"
-                id="stages" tbody-tr-class='stageSummary' small outlined>
-                    <template v-slot:cell(actionStation.name)="data">
-                        <span v-html="data.value"></span>
-                    </template>
-                </b-table>
-            </template>
-        </b-table>
-
-        <b-pagination v-if="journeys.length>0 && journeys.length>itemsPerPage"
-            v-model="currentPage"
-            :total-rows="journeys.length"
-            :per-page="itemsPerPage" 
-            align="center"
-            show-expand
-            aria-controls="results">
-        </b-pagination>
-        -->
-
         <div id="results" v-if="journeys.length>0">
             <v-data-table id="results"
                 :headers="headers"
@@ -319,6 +287,21 @@ export default {
                             id="stages"
                             dense
                             hide-default-footer>
+                                <template v-slot:item.firstDepartureTime="{ item }">
+                                    <div>{{ stageDateTimeFormatter(item.firstDepartureTime) }}</div>
+                                </template>
+                                <template v-slot:item.expectedArrivalTime="{ item }">
+                                    <div>{{ stageDateTimeFormatter(item.expectedArrivalTime) }}</div>
+                                </template>
+                                <template v-slot:item.action="{ item, index }">
+                                    <div>{{ actionFormatter(item.action, index) }}</div>
+                                </template>
+                                <template v-slot:item.actionStation="{ item }">
+                                    <a :href="stationURL(item.actionStation)" target="_blank">{{ item.actionStation.name }}</a>
+                                </template>
+                                <template v-slot:item.route="{ item }">
+                                    <div>{{ routeFormatter(item.route) }}</div>
+                                </template>
                             </v-data-table>
                         </td>
                     </template>
