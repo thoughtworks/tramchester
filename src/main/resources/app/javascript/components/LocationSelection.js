@@ -51,9 +51,14 @@ export default {
     methods: {
         updateValue(event) {
             const stopId = event.target.value;
+            const myLocation = this.$parent.myLocation;
             this.currentId = stopId;
-            const stop = this.stops.allStops.get(stopId);
-            this.$emit('input', stop);
+            if (stopId==myLocation.id) {
+                this.$emit('input', myLocation);
+            } else {
+                const stop = this.stops.allStops.get(stopId);
+                this.$emit('input', stop);
+            }
         },
         changedValue(event) {
             const stopId = event.target.value;

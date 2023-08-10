@@ -66,7 +66,7 @@ function queryLiveData(app, includeNotes) {
     var modes;
     var locationType;
     if (app.startStop==null) {
-        locationType = 'MyLocation';
+        locationType = app.myLocation.locationType; 'MyLocation';
         modes = app.selectedModes;
     } else {
         locationType = app.startStop.locationType;
@@ -74,7 +74,7 @@ function queryLiveData(app, includeNotes) {
     }
 
     var locationId;
-    if (locationType=='MyLocation') {
+    if (locationType== app.myLocation.locationType) { //'MyLocation') {
         const place = app.location; // should not have location place holder without a valid location
         locationId = place.coords.latitude + ',' + place.coords.longitude
     } else {
@@ -137,12 +137,14 @@ function getStations(app) {
     if (app.hasGeo) {
         navigator.geolocation.getCurrentPosition(pos => {
             app.location = pos;
-            // populate current location into drop down 
-            app.stops.currentLocation.push({
-                name: "My Location", id: pos.coords.latitude +"," + pos.coords.longitude,
+            app.myLocation = {
+                name: "My Location", id: pos.coords.latitude + "," + pos.coords.longitude,
                 locationType: "MyLocation"
-            })
+            };
+            app.stops.currentLocation.push(app.myLocation);
             getStationsFromServer(app);
+            //app.stops.allStops.set(myLocation.id, myLocation);
+
         }, err => {
             console.log("Location disabled: " + err.message);
             getStationsFromServer(app);
@@ -284,7 +286,8 @@ function queryServerForJourneysPost(app, startStop, endStop, queryTime, queryDat
     liveInProgress: false,      // looking for live data
     networkError: false,        // network error on either query
     hasGeo: false,
-    location: null,
+    location: null,             // gps locatiion, set if hasGeo
+    myLocation: null,           // represents a stop for Current Location, set if hasGeo
     postcodesEnabled: false,
     beta: false
 }
