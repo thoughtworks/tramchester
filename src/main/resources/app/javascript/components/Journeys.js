@@ -10,18 +10,6 @@ function stageHeadsignClass(value, key, row) {
     return "headsign";
 }
 
-// function stopsFormatter(value, key, row) {
-//     if (row.action=='Walk to' || row.action=='Walk from') {
-//         return '';
-//     }
-//     return value;
-// }
-
-// function dateTimeFormatter(value, key, row) {
-//     var queryDate = row.journey.queryDateAsDate;
-//     return formatDate(queryDate, value)
-// }
-
 function diffInDays(dateA, dateB) {
     const justDateA = new Date(dateA.toDateString());
     const justDateB = new Date(dateB.toDateString());
@@ -206,6 +194,15 @@ export default {
                 return '';
             }
             return stage.passedStops;
+        },
+        stageHeadsignClass(stage) {
+            if (stage.action=='Walk to' || stage.action=='Walk from') {
+                return 'walkingHeadSign';
+            }
+            if (stage.actionStation.transportModes.includes('Train')) {
+                return 'trainHeadSign';
+            }
+            return "headsign";
         }
     },
     template: `
@@ -251,6 +248,9 @@ export default {
                                 </template>
                                 <template v-slot:item.actionStation="{ item }">
                                     <a :href="stationURL(item.actionStation)" target="_blank">{{ item.actionStation.name }}</a>
+                                </template>
+                                <template v-slot:item.headSign="{ item }">
+                                    <div :class="stageHeadsignClass(item)">{{ item.headSign }}</div>
                                 </template>
                                 <template v-slot:item.route="{ item }">
                                     <div :class="routeClass(item.route)">{{ routeFormatter(item.route) }}</div>
