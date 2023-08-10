@@ -1,30 +1,30 @@
 
-function rowExpandedFormatter(value, key, row) {
-    if (row._showDetails!=null && row._showDetails) {
-        return "&#8897;";
-    } else {
-        return "&#8811;";
-    }
-}
+// function rowExpandedFormatter(value, key, row) {
+//     if (row._showDetails!=null && row._showDetails) {
+//         return "&#8897;";
+//     } else {
+//         return "&#8811;";
+//     }
+// }
 
-function changesFormatter(value, key, row) {
-    if (value.length==0) {
-        return "Direct";
-    }
-    var result = "";
-    value.forEach(change => {
-        if (result.length>0) result = result.concat(", ");
-        result = result.concat(change.name)});
-    return result;
-}
+// function changesFormatter(value, key, row) {
+//     if (value.length==0) {
+//         return "Direct";
+//     }
+//     var result = "";
+//     value.forEach(change => {
+//         if (result.length>0) result = result.concat(", ");
+//         result = result.concat(change.name)});
+//     return result;
+// }
 
-function fromFormatter(value, key, row) {
-    return nameForStation(value);
-}
+// function fromFormatter(value, key, row) {
+//     return nameForStation(value);
+// }
 
-function nameForStation(station) {
-    return station.name;
-}
+// function nameForStation(station) {
+//     return station.name;
+// }
 
 // function stationFormatter(value, key, row) {
 //     var name = nameForStation(row.actionStation);
@@ -49,23 +49,10 @@ function stopsFormatter(value, key, row) {
     return value;
 }
 
-// function routeFormatter(mode, key, row) {
-//     if (mode==='Train') {
-//         return row.route.shortName;
-//     } else {
-//         return row.route.routeName;
-//     }
-// }
-
 function dateTimeFormatter(value, key, row) {
     var queryDate = row.journey.queryDateAsDate;
     return formatDate(queryDate, value)
 }
-
-// function daysSinceEpoch(date) {
-//     const dayInMillis = Math.floor(24 * 60 * 60 * 1000);
-//     return Math.floor(date.getTime() / dayInMillis);
-// }
 
 function diffInDays(dateA, dateB) {
     const justDateA = new Date(dateA.toDateString());
@@ -85,23 +72,6 @@ function formatDate(queryDate, journeyDateTime) {
     }
     return time;
 }
-
-// function currentlyExpandedJourney(view) {
-//     // TODO assume here only ever one row expanded at a time
-//     if (view.expanded[0] != null) {
-//         return view.expanded[0].journey
-//     }
-//     return null;
-// }
-
-// function lineClass(value, key, row) {
-//     const prefix = 'RouteClass'
-//     var result = prefix + row.mode;
-//     if (row.mode=='Tram') {
-//         result = prefix + row.route.shortName.replace(/\s+/g, '');
-//     }
-//     return [ result, 'lineClass'];
-// }
 
 function earliestDepartTime(journeys) {
 
@@ -147,16 +117,6 @@ export default {
     data: function () {
         return {
             currentPage: 1,
-            journeyFields: [
-                {key:'_showDetails',label:'', formatter: rowExpandedFormatter},
-                {key:'journey.firstDepartureTimeAsDate',label:'Depart', sortable:true, tdClass:'departTime', 
-                    formatter: dateTimeFormatter },
-                {key:'journey.begin',label:'From', sortable:true, tdClass:'station', formatter: fromFormatter},
-                {key:'journey.expectedArrivalTimeAsDate',label:'Arrive', sortable:true, tdClass:'arriveTime'
-                    , formatter: dateTimeFormatter},
-                {key:'journey.changeStations', label:'Change', tdClass:'changes', formatter: changesFormatter}
-                ],
-            //stageFields: getStageFields(),
             headers: [
                 {value: 'data-table-expand', text:'' },
                 {value:'journey.firstDepartureTimeAsDate',text:'Depart', sortable:true },
@@ -272,6 +232,12 @@ export default {
                 result = prefix + route.shortName.replace(/\s+/g, '');
             }
             return [ result, 'lineClass'];
+        },
+        passedStopsFormatter(stage) {
+            if (stage.action=='Walk to' || stage.action=='Walk from') {
+                return '';
+            }
+            return stage.passedStops;
         }
     },
     template: `
@@ -320,6 +286,9 @@ export default {
                                 </template>
                                 <template v-slot:item.route="{ item }">
                                     <div :class="routeClass(item.route)">{{ routeFormatter(item.route) }}</div>
+                                </template>
+                                <template v-slot:item.passedStops="{ item }">
+                                    <div>{{ passedStopsFormatter(item) }}</div>
                                 </template>
                             </v-data-table>
                         </td>
