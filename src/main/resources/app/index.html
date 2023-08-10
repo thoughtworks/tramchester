@@ -32,18 +32,10 @@
             </div>
             <div class="row">
                 <div class="col pl-0 col-md-auto">
-                    <!--
-                        <b-form-checkbox id="arriveBy" size="sm" v-model="arriveBy">arrive by</b-form-checkbox>
-                    -->
-                    <input type="checkbox" id="arriveBy" v-model="arriveBy">
                     <label for="arriveBy">arrive by</label>
                 </div>
-                <div class="col">
-                    
-                        <b-input-group class="mb-2">
-                            <b-form-input id="time" v-model="time" type="time" required></b-form-input>
-                        </b-input-group>
-
+                <div class="col">     
+                    <input type="time" id="time" v-model="time"/>
                 </div>
                 <div class="col">
                     <button id="nowButton" class="btn btn-info" type="button" @click="timeToNow()">Now</button>
@@ -51,24 +43,18 @@
             </div>
             <div class="row">
                 <div class="col pl-0">
-                    <b-input-group class="mb-2">
-                        <b-form-datepicker id="date" v-model="date" 
-                            :date-format-options="{ year: 'numeric', month: 'numeric', day: 'numeric' }" 
-                            label-calendar="TravelDateCalendar" required></b-form-datepicker>
-                        <b-input-group-append>
-                            <button id="todayButton" class="btn btn-info" type="button" @click="dateToNow()">Today</button>
-                        </b-input-group-append>
-                        <input type="hidden" id="hiddendate" v-model="date"></input>
-                    </b-input-group>
+                    <input type="date" id="date" v-model="date"/>
+                </div>
+                <div class="col">
+                    <button id="todayButton" class="btn btn-info" type="button" @click="dateToNow()">Today</button>
+                    <input type="hidden" id="hiddendate" v-model="date"></input>
                 </div>
             </div>
             <div class="row" v-if="selectModesEnabled">
                 <div class="col pl-0">
-                    <b-form-group label="transport modes" label-form="transportModes">
-                        <multiselect v-model="selectedModes" :options="modes" :multiple="true" :close-on-select="false" :clear-on-select="false" 
-                            :searchable="false"  placeholder="Transport modes" :show-labels="false"  :preselect-first="true" size="sm">
-                        </multiselect>
-                    </b-form-group>
+                    <multiselect v-model="selectedModes" :options="modes" :multiple="true" :close-on-select="false" :clear-on-select="false" 
+                        :searchable="false"  placeholder="Transport modes" :show-labels="false"  :preselect-first="true" size="sm">
+                    </multiselect>
                 </div>
                 <div class="col">
                     <b-form-group label="max changes" label-form="maxChanges">

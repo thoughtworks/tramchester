@@ -289,7 +289,8 @@ function queryServerForJourneysPost(app, startStop, endStop, queryTime, queryDat
     location: null,             // gps locatiion, set if hasGeo
     myLocation: null,           // represents a stop for Current Location, set if hasGeo
     postcodesEnabled: false,
-    beta: false
+    beta: false,
+    timeModal: false
 }
 
 var app = new Vue({
