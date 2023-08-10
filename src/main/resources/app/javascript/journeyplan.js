@@ -3,7 +3,7 @@ const axios = require('axios');
 const bootstrap = require('bootstrap')
 var Vue = require('vue');
 Vue.use(require('vue-cookies'));
-Vue.use(require('bootstrap-vue'));
+//Vue.use(require('bootstrap-vue'));
 Vue.use(require('vue-multiselect'));
 
 require('file-loader?name=[name].[ext]!../index.html');
@@ -16,7 +16,7 @@ import 'jquery/dist/jquery.slim.js'
 import 'bootstrap/dist/js/bootstrap.bundle.js'
 
 import 'bootstrap/dist/css/bootstrap.css'
-import 'bootstrap-vue/dist/bootstrap-vue.css'
+//import 'bootstrap-vue/dist/bootstrap-vue.css'
 import 'vue-multiselect/dist/vue-multiselect.min.css'
 import './../css/tramchester.css'
 
