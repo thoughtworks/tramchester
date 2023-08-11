@@ -12,7 +12,6 @@
         <div class="container" id="startAndEnd">
             <div class="row">
                 <div class="col">
-                    Map
                     <div id="leafletMap"></div>  
                 </div>          
                 <div class="col">
@@ -26,16 +25,16 @@
                             <button id="todayButton" variant="info" @click="dateToNow()">Today</button>
                     </div>
                     <div class="mb-2"> 
-                            <button id="drawMap" variant="primary" @click="draw()">Draw</button>  
+                        <button id="drawMap" variant="primary" @click="draw()">Draw</button>  
                     </div>
                 </div>
             </div>
         </div>
+
+        <app-footer v-bind:feedinfo="feedinfo" v-bind:havepos="havePos" v-on:network-error="networkErrorOccured()">
+        </app-footer>
+
     </div>
-
-    <app-footer v-bind:feedinfo="feedinfo" v-bind:havepos="havePos" v-on:network-error="networkErrorOccured()">
-    </app-footer>
-
 
 <script src="/app/frequency.js"></script>
 
